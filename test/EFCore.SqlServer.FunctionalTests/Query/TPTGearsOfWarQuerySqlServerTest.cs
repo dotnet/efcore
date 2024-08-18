@@ -8688,9 +8688,9 @@ WHERE DATALENGTH([s].[Banner5]) = 5
 
     #region Byte Array IndexOf Translation
 
-    public override async Task Byte_array_of_type_varbinary_max_filter_by_index_of_literal_casts_to_int(bool async)
+    public override async Task Byte_array_with_max_possible_length_filter_by_index_of_literal(bool async)
     {
-        await base.Byte_array_of_type_varbinary_max_filter_by_index_of_literal_casts_to_int(async);
+        await base.Byte_array_with_max_possible_length_filter_by_index_of_literal(async);
 
         AssertSql(
             """
@@ -8700,9 +8700,9 @@ WHERE CAST(CHARINDEX(0x01, [s].[Banner]) AS int) - 1 = 1
 """);
     }
 
-    public override async Task Byte_array_of_type_varbinary_max_filter_by_index_of_parameter_casts_to_int(bool async)
+    public override async Task Byte_array_with_max_possible_length_filter_by_index_of_parameter(bool async)
     {
-        await base.Byte_array_of_type_varbinary_max_filter_by_index_of_parameter_casts_to_int(async);
+        await base.Byte_array_with_max_possible_length_filter_by_index_of_parameter(async);
 
         AssertSql(
             """
@@ -8714,9 +8714,9 @@ WHERE CAST(CHARINDEX(CAST(@__b_0 AS varbinary(max)), [s].[Banner]) AS int) - 1 =
 """);
     }
 
-    public override async Task Byte_array_of_type_varbinary_n_filter_by_index_of_literal_does_not_cast(bool async)
+    public override async Task Byte_array_with_length_n_filter_by_index_of_literal(bool async)
     {
-        await base.Byte_array_of_type_varbinary_n_filter_by_index_of_literal_does_not_cast(async);
+        await base.Byte_array_with_length_n_filter_by_index_of_literal(async);
 
         AssertSql(
             """
@@ -8726,9 +8726,9 @@ WHERE CHARINDEX(0x05, [s].[Banner5]) - 1 = 1
 """);
     }
 
-    public override async Task Byte_array_of_type_varbinary_n_filter_by_index_of_parameter_does_not_cast(bool async)
+    public override async Task Byte_array_with_lenght_n_filter_by_index_of_parameter(bool async)
     {
-        await base.Byte_array_of_type_varbinary_n_filter_by_index_of_parameter_does_not_cast(async);
+        await base.Byte_array_with_lenght_n_filter_by_index_of_parameter(async);
 
         AssertSql(
             """
@@ -8740,9 +8740,9 @@ WHERE CHARINDEX(CAST(@__b_0 AS varbinary(5)), [s].[Banner5]) - 1 = 0
 """);
     }
 
-    public override async Task Byte_array_of_type_varbinary_max_filter_by_index_of_with_starting_position_literal_casts_to_int(bool async)
+    public override async Task Byte_array_with_max_possible_length_filter_by_index_of_with_starting_position(bool async)
     {
-        await base.Byte_array_of_type_varbinary_max_filter_by_index_of_with_starting_position_literal_casts_to_int(async);
+        await base.Byte_array_with_max_possible_length_filter_by_index_of_with_starting_position(async);
 
         AssertSql(
             """
@@ -8752,9 +8752,9 @@ WHERE CAST(CHARINDEX(0x01, [s].[Banner], 2) AS int) - 1 = 1
 """);
     }
 
-    public override async Task Byte_array_of_type_varbinary_max_filter_by_index_of_with_starting_position_parameter_casts_to_int(bool async)
+    public override async Task Byte_array_with_max_possible_length_filter_by_index_of_with_starting_position_parameter(bool async)
     {
-        await base.Byte_array_of_type_varbinary_max_filter_by_index_of_with_starting_position_parameter_casts_to_int(async);
+        await base.Byte_array_with_max_possible_length_filter_by_index_of_with_starting_position_parameter(async);
 
         AssertSql(
             """
@@ -8767,9 +8767,9 @@ WHERE CAST(CHARINDEX(CAST(@__b_0 AS varbinary(max)), [s].[Banner], @__startPos_1
 """);
     }
 
-    public override async Task Byte_array_of_type_varbinary_n_filter_by_index_of_with_starting_position_literal_does_not_cast(bool async)
+    public override async Task Byte_array_with_length_n_filter_by_index_of_with_starting_position_literal(bool async)
     {
-        await base.Byte_array_of_type_varbinary_n_filter_by_index_of_with_starting_position_literal_does_not_cast(async);
+        await base.Byte_array_with_length_n_filter_by_index_of_with_starting_position_literal(async);
 
         AssertSql(
             """
@@ -8779,9 +8779,9 @@ WHERE CHARINDEX(0x05, [s].[Banner5], 2) - 1 = 1
 """);
     }
 
-    public override async Task Byte_array_of_type_varbinary_n_filter_by_index_of_with_starting_position_parameter_does_not_cast(bool async)
+    public override async Task Byte_array_with_length_n_filter_by_index_of_with_starting_position_parameter(bool async)
     {
-        await base.Byte_array_of_type_varbinary_n_filter_by_index_of_with_starting_position_parameter_does_not_cast(async);
+        await base.Byte_array_with_length_n_filter_by_index_of_with_starting_position_parameter(async);
 
         AssertSql(
             """

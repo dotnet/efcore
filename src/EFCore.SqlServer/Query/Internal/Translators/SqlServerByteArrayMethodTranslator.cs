@@ -16,21 +16,6 @@ public class SqlServerByteArrayMethodTranslator : IMethodCallTranslator
 {
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
-    // NOTE: Might want to move these to a shared file, similar to EnumerableMethods
-    private static readonly MethodInfo IndexOfMethodInfo
-        = typeof(Array)
-        .GetGenericMethod(nameof(Array.IndexOf), 1, BindingFlags.Public | BindingFlags.Static, (_, t) =>
-        {
-            return [t[0].MakeArrayType(), t[0]];
-        })!;
-
-    private static readonly MethodInfo IndexOfWithStartingPositionMethodInfo
-        = typeof(Array)
-        .GetGenericMethod(nameof(Array.IndexOf), 1, BindingFlags.Public | BindingFlags.Static, (_, t) =>
-        {
-            return [t[0].MakeArrayType(), t[0], typeof(int)];
-        })!;
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -61,7 +46,6 @@ public class SqlServerByteArrayMethodTranslator : IMethodCallTranslator
             var methodDefinition = method.GetGenericMethodDefinition();
             if (methodDefinition.Equals(EnumerableMethods.Contains))
             {
-                // NOTE: Should this be refactored to use the TranslateIndexOf method?? Everything is same expect one check
                 var source = arguments[0];
                 var sourceTypeMapping = source.TypeMapping;
 
@@ -91,12 +75,12 @@ public class SqlServerByteArrayMethodTranslator : IMethodCallTranslator
                 method.ReturnType);
             }
 
-            if (methodDefinition.Equals(IndexOfMethodInfo))
+            if (methodDefinition.Equals(ArrayMethods.IndexOf))
             {
                 return TranslateIndexOf(method, arguments[0], arguments[1], null);
             }
 
-            if (methodDefinition.Equals(IndexOfWithStartingPositionMethodInfo))
+            if (methodDefinition.Equals(ArrayMethods.IndexOfWithStartingPosition))
             {
                 return TranslateIndexOf(method, arguments[0], arguments[1], arguments[2]);
             }

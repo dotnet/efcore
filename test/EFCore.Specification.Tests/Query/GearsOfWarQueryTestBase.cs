@@ -6263,18 +6263,16 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Byte_array_of_type_varbinary_max_filter_by_index_of_literal_casts_to_int(bool async)
-    {
-        return AssertQuery(
+    public virtual Task Byte_array_with_max_possible_length_filter_by_index_of_literal(bool async)
+        => AssertQuery(
                 async,
                 ss => ss.Set<Squad>().Where(w => Array.IndexOf(w.Banner, (byte)1) == 1),
                 ss => ss.Set<Squad>().Where(w => w.Banner != null && Array.IndexOf(w.Banner, (byte)1) == 1)
             );
-    }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Byte_array_of_type_varbinary_max_filter_by_index_of_parameter_casts_to_int(bool async)
+    public virtual Task Byte_array_with_max_possible_length_filter_by_index_of_parameter(bool async)
     {
         byte b = 0;
         return AssertQuery(
@@ -6286,18 +6284,16 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Byte_array_of_type_varbinary_n_filter_by_index_of_literal_does_not_cast(bool async)
-    {
-        return AssertQuery(
+    public virtual Task Byte_array_with_length_n_filter_by_index_of_literal(bool async)
+         => AssertQuery(
                 async,
                 ss => ss.Set<Squad>().Where(w => Array.IndexOf(w.Banner5, (byte)5) == 1),
                 ss => ss.Set<Squad>().Where(w => w.Banner != null && Array.IndexOf(w.Banner5, (byte)5) == 1)
             );
-    }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Byte_array_of_type_varbinary_n_filter_by_index_of_parameter_does_not_cast(bool async)
+    public virtual Task Byte_array_with_lenght_n_filter_by_index_of_parameter(bool async)
     {
         byte b = 4;
         return AssertQuery(
@@ -6309,21 +6305,19 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Byte_array_of_type_varbinary_max_filter_by_index_of_with_starting_position_literal_casts_to_int(bool async)
-    {
-        return AssertQuery(
+    public virtual Task Byte_array_with_max_possible_length_filter_by_index_of_with_starting_position(bool async)
+        => AssertQuery(
                 async,
                 ss => ss.Set<Squad>().Where(w => Array.IndexOf(w.Banner, (byte)1, 1) == 1),
                 ss => ss.Set<Squad>().Where(w => w.Banner != null && Array.IndexOf(w.Banner, (byte)1, 1) == 1)
             );
-    }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Byte_array_of_type_varbinary_max_filter_by_index_of_with_starting_position_parameter_casts_to_int(bool async)
+    public virtual Task Byte_array_with_max_possible_length_filter_by_index_of_with_starting_position_parameter(bool async)
     {
         byte b = 0;
-        int startPos = 0;
+        var startPos = 0;
         return AssertQuery(
                 async,
                 ss => ss.Set<Squad>().Where(w => Array.IndexOf(w.Banner, b, startPos) == 0),
@@ -6333,21 +6327,19 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Byte_array_of_type_varbinary_n_filter_by_index_of_with_starting_position_literal_does_not_cast(bool async)
-    {
-        return AssertQuery(
+    public virtual Task Byte_array_with_length_n_filter_by_index_of_with_starting_position_literal(bool async)
+        => AssertQuery(
                 async,
                 ss => ss.Set<Squad>().Where(w => Array.IndexOf(w.Banner5, (byte)5, 1) == 1),
                 ss => ss.Set<Squad>().Where(w => w.Banner != null && Array.IndexOf(w.Banner5, (byte)5, 1) == 1)
             );
-    }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Byte_array_of_type_varbinary_n_filter_by_index_of_with_starting_position_parameter_does_not_cast(bool async)
+    public virtual Task Byte_array_with_length_n_filter_by_index_of_with_starting_position_parameter(bool async)
     {
         byte b = 4;
-        int startPos = 0;
+        var startPos = 0;
         return AssertQuery(
                 async,
                 ss => ss.Set<Squad>().Where(w => Array.IndexOf(w.Banner5, b, startPos) == 0),

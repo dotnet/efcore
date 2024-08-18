@@ -303,47 +303,69 @@ WHERE "s"."Banner5" = @__byteArrayParam_0
 
     #region Byte Array IndexOf Translation
 
-    // TODO: These tests need to be updated when the translation for IndexOf has been added
-
-    public override Task Byte_array_of_type_varbinary_max_filter_by_index_of_literal_casts_to_int(bool async)
+    public override async Task Byte_array_with_max_possible_length_filter_by_index_of_literal(bool async)
     {
-        return Task.CompletedTask;
+        await base.Byte_array_with_max_possible_length_filter_by_index_of_literal(async);
+
+        AssertSql(
+            """
+SELECT "s"."Id", "s"."Banner", "s"."Banner5", "s"."InternalNumber", "s"."Name"
+FROM "Squads" AS "s"
+WHERE instr("s"."Banner", X'01') - 1 = 1
+""");
     }
 
-    public override Task Byte_array_of_type_varbinary_max_filter_by_index_of_parameter_casts_to_int(bool async)
+    public override async Task Byte_array_with_max_possible_length_filter_by_index_of_parameter(bool async)
     {
-        return Task.CompletedTask;
+        await base.Byte_array_with_max_possible_length_filter_by_index_of_parameter(async);
+
+        AssertSql(
+            """
+@__b_0='0'
+
+SELECT "s"."Id", "s"."Banner", "s"."Banner5", "s"."InternalNumber", "s"."Name"
+FROM "Squads" AS "s"
+WHERE instr("s"."Banner", char(@__b_0)) - 1 = 0
+""");
     }
 
-    public override Task Byte_array_of_type_varbinary_n_filter_by_index_of_literal_does_not_cast(bool async)
+    public override async Task Byte_array_with_length_n_filter_by_index_of_literal(bool async)
     {
-        return Task.CompletedTask;
+        await base.Byte_array_with_length_n_filter_by_index_of_literal(async);
+
+        AssertSql(
+            """
+SELECT "s"."Id", "s"."Banner", "s"."Banner5", "s"."InternalNumber", "s"."Name"
+FROM "Squads" AS "s"
+WHERE instr("s"."Banner5", X'05') - 1 = 1
+""");
     }
 
-    public override Task Byte_array_of_type_varbinary_n_filter_by_index_of_parameter_does_not_cast(bool async)
+    public override async Task Byte_array_with_lenght_n_filter_by_index_of_parameter(bool async)
     {
-        return Task.CompletedTask;
+        await base.Byte_array_with_lenght_n_filter_by_index_of_parameter(async);
+
+        AssertSql(
+            """
+@__b_0='4'
+
+SELECT "s"."Id", "s"."Banner", "s"."Banner5", "s"."InternalNumber", "s"."Name"
+FROM "Squads" AS "s"
+WHERE instr("s"."Banner5", char(@__b_0)) - 1 = 0
+""");
     }
 
-    public override Task Byte_array_of_type_varbinary_max_filter_by_index_of_with_starting_position_literal_casts_to_int(bool async)
-    {
-        return Task.CompletedTask;
-    }
+    public override Task Byte_array_with_max_possible_length_filter_by_index_of_with_starting_position(bool async)
+        => AssertTranslationFailed(() => base.Byte_array_with_max_possible_length_filter_by_index_of_with_starting_position(async));
 
-    public override Task Byte_array_of_type_varbinary_max_filter_by_index_of_with_starting_position_parameter_casts_to_int(bool async)
-    {
-        return Task.CompletedTask;
-    }
+    public override Task Byte_array_with_max_possible_length_filter_by_index_of_with_starting_position_parameter(bool async)
+        => AssertTranslationFailed(() => base.Byte_array_with_max_possible_length_filter_by_index_of_with_starting_position_parameter(async));
 
-    public override Task Byte_array_of_type_varbinary_n_filter_by_index_of_with_starting_position_literal_does_not_cast(bool async)
-    {
-        return Task.CompletedTask;
-    }
+    public override Task Byte_array_with_length_n_filter_by_index_of_with_starting_position_literal(bool async)
+        => AssertTranslationFailed(() => base.Byte_array_with_length_n_filter_by_index_of_with_starting_position_literal(async));
 
-    public override Task Byte_array_of_type_varbinary_n_filter_by_index_of_with_starting_position_parameter_does_not_cast(bool async)
-    {
-        return Task.CompletedTask;
-    }
+    public override Task Byte_array_with_length_n_filter_by_index_of_with_starting_position_parameter(bool async)
+        => AssertTranslationFailed(() => base.Byte_array_with_length_n_filter_by_index_of_with_starting_position_parameter(async));
 
     #endregion
 
