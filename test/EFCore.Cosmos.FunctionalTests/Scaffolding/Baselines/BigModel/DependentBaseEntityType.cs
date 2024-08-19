@@ -195,8 +195,8 @@ namespace TestNamespace
                     byte (byte v) => v),
                 clrType: typeof(byte),
                 jsonValueReaderWriter: JsonByteReaderWriter.Instance);
-            id.SetValueComparer(new NullableValueComparer<byte>(id.TypeMapping.Comparer));
-            id.SetKeyValueComparer(new NullableValueComparer<byte>(id.TypeMapping.KeyComparer));
+            id.SetComparer(new NullableValueComparer<byte>(id.TypeMapping.Comparer));
+            id.SetKeyComparer(new NullableValueComparer<byte>(id.TypeMapping.KeyComparer));
 
             var __id = runtimeEntityType.AddProperty(
                 "__id",

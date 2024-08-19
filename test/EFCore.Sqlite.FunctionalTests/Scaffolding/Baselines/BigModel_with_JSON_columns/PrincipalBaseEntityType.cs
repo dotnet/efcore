@@ -83,9 +83,9 @@ namespace TestNamespace
                     long (long v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "INTEGER"));
-            id.SetValueComparer(new NullableValueComparer<long>(id.TypeMapping.Comparer));
-            id.SetKeyValueComparer(new NullableValueComparer<long>(id.TypeMapping.KeyComparer));
             id.SetCurrentValueComparer(new EntryCurrentValueComparer<long?>(id));
+            id.SetComparer(new NullableValueComparer<long>(id.TypeMapping.Comparer));
+            id.SetKeyComparer(new NullableValueComparer<long>(id.TypeMapping.KeyComparer));
 
             var alternateId = runtimeEntityType.AddProperty(
                 "AlternateId",
@@ -240,8 +240,8 @@ namespace TestNamespace
                     new ValueConverter<CompiledModelTestBase.AnEnum, int>(
                         int (CompiledModelTestBase.AnEnum value) => ((int)(value)),
                         CompiledModelTestBase.AnEnum (int value) => ((CompiledModelTestBase.AnEnum)(value)))));
-            enum2.SetValueComparer(new NullableValueComparer<CompiledModelTestBase.AnEnum>(enum2.TypeMapping.Comparer));
-            enum2.SetKeyValueComparer(new NullableValueComparer<CompiledModelTestBase.AnEnum>(enum2.TypeMapping.KeyComparer));
+            enum2.SetComparer(new NullableValueComparer<CompiledModelTestBase.AnEnum>(enum2.TypeMapping.Comparer));
+            enum2.SetKeyComparer(new NullableValueComparer<CompiledModelTestBase.AnEnum>(enum2.TypeMapping.KeyComparer));
 
             var flagsEnum1 = runtimeEntityType.AddProperty(
                 "FlagsEnum1",

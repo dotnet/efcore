@@ -72,9 +72,9 @@ namespace TestNamespace
                     bool (byte v1, byte v2) => v1 == v2,
                     int (byte v) => ((int)(v)),
                     byte (byte v) => v));
-            id.SetValueComparer(new NullableValueComparer<byte>(id.TypeMapping.Comparer));
-            id.SetKeyValueComparer(new NullableValueComparer<byte>(id.TypeMapping.KeyComparer));
             id.SetCurrentValueComparer(new EntryCurrentValueComparer<byte?>(id));
+            id.SetComparer(new NullableValueComparer<byte>(id.TypeMapping.Comparer));
+            id.SetKeyComparer(new NullableValueComparer<byte>(id.TypeMapping.KeyComparer));
             id.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var principalId = runtimeEntityType.AddProperty(
@@ -106,9 +106,9 @@ namespace TestNamespace
                     bool (long v1, long v2) => v1 == v2,
                     int (long v) => ((object)v).GetHashCode(),
                     long (long v) => v));
-            principalId.SetValueComparer(new NullableValueComparer<long>(principalId.TypeMapping.Comparer));
-            principalId.SetKeyValueComparer(new NullableValueComparer<long>(principalId.TypeMapping.KeyComparer));
             principalId.SetCurrentValueComparer(new EntryCurrentValueComparer<long?>(principalId));
+            principalId.SetComparer(new NullableValueComparer<long>(principalId.TypeMapping.Comparer));
+            principalId.SetKeyComparer(new NullableValueComparer<long>(principalId.TypeMapping.KeyComparer));
             principalId.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var key = runtimeEntityType.AddKey(

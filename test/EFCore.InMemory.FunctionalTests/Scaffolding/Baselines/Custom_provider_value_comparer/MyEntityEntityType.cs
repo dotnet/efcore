@@ -98,11 +98,11 @@ namespace TestNamespace
                     int (int v) => v),
                 clrType: typeof(int),
                 jsonValueReaderWriter: JsonInt32ReaderWriter.Instance);
+            id.SetCurrentValueComparer(new EntryCurrentValueComparer<int>(id));
             id.SetProviderValueComparer(new ValueComparer<int>(
                 bool (int l, int r) => false,
                 int (int v) => 0,
                 int (int v) => 1));
-            id.SetCurrentValueComparer(new EntryCurrentValueComparer<int>(id));
 
             var key = runtimeEntityType.AddKey(
                 new[] { id });
