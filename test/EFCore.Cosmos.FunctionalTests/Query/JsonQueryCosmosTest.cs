@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 namespace Microsoft.EntityFrameworkCore.Query;
 
 // #34395
-[CosmosCondition(CosmosCondition.DoesNotUseTokenCredential | CosmosCondition.UsesTokenCredential)]
+[CosmosCondition(CosmosCondition.DoesNotUseTokenCredential)]
 public class JsonQueryCosmosTest : JsonQueryTestBase<JsonQueryCosmosFixture>
 {
     private const string NotImplementedBindPropertyMessage

@@ -7,6 +7,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.JsonQuery;
 
 public class JsonOwnedBranch
 {
+    public int Id { get; set; }
     public DateTime Date { get; set; }
     public decimal Fraction { get; set; }
 
