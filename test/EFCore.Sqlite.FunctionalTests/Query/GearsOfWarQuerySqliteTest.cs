@@ -438,9 +438,9 @@ WHERE length("s"."Banner") = length(@__byteArrayParam)
 
     #region Byte Array IndexOf Translation
 
-    public override async Task Byte_array_with_max_possible_length_filter_by_index_of_literal(bool async)
+    public override async Task Byte_array_IndexOf_with_literal(bool async)
     {
-        await base.Byte_array_with_max_possible_length_filter_by_index_of_literal(async);
+        await base.Byte_array_IndexOf_with_literal(async);
 
         AssertSql(
             """
@@ -450,9 +450,9 @@ WHERE instr("s"."Banner", X'01') - 1 = 1
 """);
     }
 
-    public override async Task Byte_array_with_max_possible_length_filter_by_index_of_parameter(bool async)
+    public override async Task Byte_array_IndexOf_with_parameter(bool async)
     {
-        await base.Byte_array_with_max_possible_length_filter_by_index_of_parameter(async);
+        await base.Byte_array_IndexOf_with_parameter(async);
 
         AssertSql(
             """
@@ -464,9 +464,9 @@ WHERE instr("s"."Banner", char(@__b_0)) - 1 = 0
 """);
     }
 
-    public override async Task Byte_array_with_length_n_filter_by_index_of_literal(bool async)
+    public override async Task Byte_array_with_length_IndexOf_with_literal(bool async)
     {
-        await base.Byte_array_with_length_n_filter_by_index_of_literal(async);
+        await base.Byte_array_with_length_IndexOf_with_literal(async);
 
         AssertSql(
             """
@@ -476,9 +476,9 @@ WHERE instr("s"."Banner5", X'05') - 1 = 1
 """);
     }
 
-    public override async Task Byte_array_with_lenght_n_filter_by_index_of_parameter(bool async)
+    public override async Task Byte_array_with_length_IndexOf_with_parameter(bool async)
     {
-        await base.Byte_array_with_lenght_n_filter_by_index_of_parameter(async);
+        await base.Byte_array_with_length_IndexOf_with_parameter(async);
 
         AssertSql(
             """
@@ -490,17 +490,17 @@ WHERE instr("s"."Banner5", char(@__b_0)) - 1 = 0
 """);
     }
 
-    public override Task Byte_array_with_max_possible_length_filter_by_index_of_with_starting_position(bool async)
-        => AssertTranslationFailed(() => base.Byte_array_with_max_possible_length_filter_by_index_of_with_starting_position(async));
+    public override Task Byte_array_IndexOf_with_startIndex_with_literals(bool async)
+        => AssertTranslationFailed(() => base.Byte_array_IndexOf_with_startIndex_with_literals(async));
 
-    public override Task Byte_array_with_max_possible_length_filter_by_index_of_with_starting_position_parameter(bool async)
-        => AssertTranslationFailed(() => base.Byte_array_with_max_possible_length_filter_by_index_of_with_starting_position_parameter(async));
+    public override Task Byte_array_IndexOf_with_startIndex_with_parameters(bool async)
+        => AssertTranslationFailed(() => base.Byte_array_IndexOf_with_startIndex_with_parameters(async));
 
-    public override Task Byte_array_with_length_n_filter_by_index_of_with_starting_position_literal(bool async)
-        => AssertTranslationFailed(() => base.Byte_array_with_length_n_filter_by_index_of_with_starting_position_literal(async));
+    public override Task Byte_array_with_length_IndexOf_with_startIndex_with_literals(bool async)
+        => AssertTranslationFailed(() => base.Byte_array_with_length_IndexOf_with_startIndex_with_literals(async));
 
-    public override Task Byte_array_with_length_n_filter_by_index_of_with_starting_position_parameter(bool async)
-        => AssertTranslationFailed(() => base.Byte_array_with_length_n_filter_by_index_of_with_starting_position_parameter(async));
+    public override Task Byte_array_with_length_IndexOf_with_startIndex_with_parameters(bool async)
+        => AssertTranslationFailed(() => base.Byte_array_with_length_IndexOf_with_startIndex_with_parameters(async));
 
     #endregion
 

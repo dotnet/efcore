@@ -14,6 +14,9 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
 /// </summary>
 public class SqliteByteArrayMethodTranslator : IMethodCallTranslator
 {
+    private static readonly MethodInfo ArrayIndexOf
+        = typeof(Array).GetMethod(nameof(Array.IndexOf), 1, BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly, null, CallingConventions.Any, [Type.MakeGenericMethodParameter(0).MakeArrayType(), Type.MakeGenericMethodParameter(0)], null)!;
+
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
     /// <summary>
@@ -52,18 +55,14 @@ public class SqliteByteArrayMethodTranslator : IMethodCallTranslator
 
             }
 
-            if (genericMethodDefinition.Equals(ArrayMethods.IndexOf))
+            if (genericMethodDefinition.Equals(ArrayIndexOf))
             {
                 return _sqlExpressionFactory.Subtract(
                         GetInStrSqlFunctionExpression(arguments[0], arguments[1]),
                     _sqlExpressionFactory.Constant(1));
             }
 
-            if (genericMethodDefinition.Equals(ArrayMethods.IndexOfWithStartingPosition))
-            {
-                // NOTE: IndexOf Method with a starting position is not supported by SQLite
-                return null;
-            }
+            // NOTE: IndexOf Method with a starting position is not supported by SQLite
         }
 
         // See issue#16428
@@ -93,24 +92,24 @@ public class SqliteByteArrayMethodTranslator : IMethodCallTranslator
         //}
 
         return null;
-    }
 
-    private SqlExpression GetInStrSqlFunctionExpression(SqlExpression source, SqlExpression valueToSearch)
-    {
-        var value = valueToSearch is SqlConstantExpression { Value: byte constantValue }
-            ? _sqlExpressionFactory.Constant(new byte[] { constantValue }, source.TypeMapping)
-            : _sqlExpressionFactory.Function(
-                            "char",
-                            [valueToSearch],
-                            nullable: false,
-                            argumentsPropagateNullability: [false],
-                            typeof(string));
+        SqlExpression GetInStrSqlFunctionExpression(SqlExpression source, SqlExpression valueToSearch)
+        {
+            var value = valueToSearch is SqlConstantExpression { Value: byte constantValue }
+                ? _sqlExpressionFactory.Constant(new byte[] { constantValue }, source.TypeMapping)
+                : _sqlExpressionFactory.Function(
+                    "char",
+                    [valueToSearch],
+                    nullable: false,
+                    argumentsPropagateNullability: [false],
+                    typeof(string));
 
-        return _sqlExpressionFactory.Function(
+            return _sqlExpressionFactory.Function(
                 "instr",
                 [source, value],
                 nullable: true,
                 argumentsPropagateNullability: [true, true],
                 typeof(int));
+        }
     }
 }

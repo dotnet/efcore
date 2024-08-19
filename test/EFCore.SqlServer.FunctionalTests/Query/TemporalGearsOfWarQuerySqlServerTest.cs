@@ -3264,9 +3264,9 @@ LEFT JOIN [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g] ON 
 
     #region Byte Array IndexOf Translation
 
-    public override async Task Byte_array_with_max_possible_length_filter_by_index_of_literal(bool async)
+    public override async Task Byte_array_IndexOf_with_literal(bool async)
     {
-        await base.Byte_array_with_max_possible_length_filter_by_index_of_literal(async);
+        await base.Byte_array_IndexOf_with_literal(async);
 
         AssertSql(
             """
@@ -3276,9 +3276,9 @@ WHERE CAST(CHARINDEX(0x01, [s].[Banner]) AS int) - 1 = 1
 """);
     }
 
-    public override async Task Byte_array_with_max_possible_length_filter_by_index_of_parameter(bool async)
+    public override async Task Byte_array_IndexOf_with_parameter(bool async)
     {
-        await base.Byte_array_with_max_possible_length_filter_by_index_of_parameter(async);
+        await base.Byte_array_IndexOf_with_parameter(async);
 
         AssertSql(
             """
@@ -3290,9 +3290,9 @@ WHERE CAST(CHARINDEX(CAST(@__b_0 AS varbinary(max)), [s].[Banner]) AS int) - 1 =
 """);
     }
 
-    public override async Task Byte_array_with_length_n_filter_by_index_of_literal(bool async)
+    public override async Task Byte_array_with_length_IndexOf_with_literal(bool async)
     {
-        await base.Byte_array_with_length_n_filter_by_index_of_literal(async);
+        await base.Byte_array_with_length_IndexOf_with_literal(async);
 
         AssertSql(
             """
@@ -3302,9 +3302,9 @@ WHERE CHARINDEX(0x05, [s].[Banner5]) - 1 = 1
 """);
     }
 
-    public override async Task Byte_array_with_lenght_n_filter_by_index_of_parameter(bool async)
+    public override async Task Byte_array_with_length_IndexOf_with_parameter(bool async)
     {
-        await base.Byte_array_with_lenght_n_filter_by_index_of_parameter(async);
+        await base.Byte_array_with_length_IndexOf_with_parameter(async);
 
         AssertSql(
             """
@@ -3316,9 +3316,9 @@ WHERE CHARINDEX(CAST(@__b_0 AS varbinary(5)), [s].[Banner5]) - 1 = 0
 """);
     }
 
-    public override async Task Byte_array_with_max_possible_length_filter_by_index_of_with_starting_position(bool async)
+    public override async Task Byte_array_IndexOf_with_startIndex_with_literals(bool async)
     {
-        await base.Byte_array_with_max_possible_length_filter_by_index_of_with_starting_position(async);
+        await base.Byte_array_IndexOf_with_startIndex_with_literals(async);
 
         AssertSql(
             """
@@ -3328,9 +3328,9 @@ WHERE CAST(CHARINDEX(0x01, [s].[Banner], 2) AS int) - 1 = 1
 """);
     }
 
-    public override async Task Byte_array_with_max_possible_length_filter_by_index_of_with_starting_position_parameter(bool async)
+    public override async Task Byte_array_IndexOf_with_startIndex_with_parameters(bool async)
     {
-        await base.Byte_array_with_max_possible_length_filter_by_index_of_with_starting_position_parameter(async);
+        await base.Byte_array_IndexOf_with_startIndex_with_parameters(async);
 
         AssertSql(
             """
@@ -3343,9 +3343,9 @@ WHERE CAST(CHARINDEX(CAST(@__b_0 AS varbinary(max)), [s].[Banner], @__startPos_1
 """);
     }
 
-    public override async Task Byte_array_with_length_n_filter_by_index_of_with_starting_position_literal(bool async)
+    public override async Task Byte_array_with_length_IndexOf_with_startIndex_with_literals(bool async)
     {
-        await base.Byte_array_with_length_n_filter_by_index_of_with_starting_position_literal(async);
+        await base.Byte_array_with_length_IndexOf_with_startIndex_with_literals(async);
 
         AssertSql(
             """
@@ -3355,9 +3355,9 @@ WHERE CHARINDEX(0x05, [s].[Banner5], 2) - 1 = 1
 """);
     }
 
-    public override async Task Byte_array_with_length_n_filter_by_index_of_with_starting_position_parameter(bool async)
+    public override async Task Byte_array_with_length_IndexOf_with_startIndex_with_parameters(bool async)
     {
-        await base.Byte_array_with_length_n_filter_by_index_of_with_starting_position_parameter(async);
+        await base.Byte_array_with_length_IndexOf_with_startIndex_with_parameters(async);
 
         AssertSql(
             """
