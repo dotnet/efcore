@@ -50,7 +50,7 @@ public class SqlServerTestStore : RelationalTestStore
     private readonly string? _initScript;
     private readonly string? _scriptPath;
 
-    private SqlServerTestStore(
+    protected SqlServerTestStore(
         string name,
         bool useFileName = false,
         bool? multipleActiveResultSets = null,
