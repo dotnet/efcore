@@ -137,4 +137,11 @@ public interface ICSharpRuntimeAnnotationCodeGenerator
     /// <param name="comparer">The value comparer to create.</param>
     /// <param name="parameters">Additional parameters used during code generation.</param>
     void Create(ValueComparer comparer, CSharpRuntimeAnnotationCodeGeneratorParameters parameters);
+
+    /// <summary>
+    ///     Generates code to create the given value converter.
+    /// </summary>
+    /// <param name="converter">The value converter to create.</param>
+    /// <param name="parameters">Additional parameters used during code generation.</param>
+    void Create(ValueConverter converter, CSharpRuntimeAnnotationCodeGeneratorParameters parameters);
 }

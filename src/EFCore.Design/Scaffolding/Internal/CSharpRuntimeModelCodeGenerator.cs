@@ -1218,78 +1218,79 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
 
         SetPropertyBaseProperties(property, memberAccessReplacements, propertyParameters);
 
-        if (parameters.ForNativeAot)
+        var shouldSetConverter = providerClrType == null
+            && valueConverterType == null
+            && converter != null
+            && property[CoreAnnotationNames.ValueConverter] != null
+            && !parameters.ForNativeAot;
+
+        if (parameters.ForNativeAot
+            || (shouldSetConverter && converter!.MappingHints != null))
         {
+            shouldSetConverter = false;
             mainBuilder.Append(variableName).Append(".TypeMapping = ");
             _annotationCodeGenerator.Create(property.GetTypeMapping(), property, propertyParameters);
             mainBuilder.AppendLine(";");
+        }
 
-            var valueComparer = property.GetValueComparer();
-            var typeMappingComparer = property.GetTypeMapping().Comparer;
-            if (valueComparerType == null
-                && valueComparer != typeMappingComparer)
-            {
-                mainBuilder
-                    .Append(variableName)
-                    .Append(".SetValueComparer(");
-                CreateValueComparer(valueComparer, typeMappingComparer, nameof(CoreTypeMapping.Comparer), propertyParameters);
-
-                mainBuilder
-                    .AppendLine(");");
-            }
-
-            var keyValueComparer = property.GetKeyValueComparer();
-            var typeMappingKeyComparer = property.GetTypeMapping().KeyComparer;
-            if (valueComparer != keyValueComparer
-                && keyValueComparer != typeMappingKeyComparer)
-            {
-                mainBuilder
-                    .Append(variableName)
-                    .Append(".SetKeyValueComparer(");
-                CreateValueComparer(keyValueComparer, typeMappingKeyComparer, nameof(CoreTypeMapping.KeyComparer), propertyParameters);
-
-                mainBuilder
-                    .AppendLine(");");
-            }
-
-            var providerValueComparer = property.GetProviderValueComparer();
-            var defaultProviderValueComparer = property.ClrType.UnwrapNullableType()
-                 == (property.GetTypeMapping().Converter?.ProviderClrType ?? property.ClrType).UnwrapNullableType()
-                     ? property.GetKeyValueComparer()
-                     : property.GetTypeMapping().ProviderValueComparer;
-            if (providerValueComparerType == null
-                && providerValueComparer != defaultProviderValueComparer)
-            {
-                mainBuilder
-                    .Append(variableName)
-                    .Append(".SetProviderValueComparer(");
-                CreateValueComparer(
-                    providerValueComparer, property.GetTypeMapping().ProviderValueComparer, nameof(CoreTypeMapping.ProviderValueComparer), propertyParameters);
-
-                mainBuilder
-                    .AppendLine(");");
-            }
-
-            if (property.IsKey()
+        if (parameters.ForNativeAot
+            && (property.IsKey()
                 || property.IsForeignKey()
-                || property.IsUniqueIndex())
-            {
-                var currentComparerType = CurrentValueComparerFactory.Instance.GetComparerType(property);
-                AddNamespace(currentComparerType, parameters.Namespaces);
+                || property.IsUniqueIndex()))
+        {
+            var currentComparerType = CurrentValueComparerFactory.Instance.GetComparerType(property);
+            AddNamespace(currentComparerType, parameters.Namespaces);
 
-                mainBuilder
-                    .Append(variableName).Append(".SetCurrentValueComparer(new ")
-                    .Append(_code.Reference(currentComparerType))
-                    .AppendLine($"({variableName}));");
-            }
+            mainBuilder
+                .Append(variableName).Append(".SetCurrentValueComparer(new ")
+                .Append(_code.Reference(currentComparerType))
+                .AppendLine($"({variableName}));");
+        }
 
-            if (sentinel != null
-                && converter != null)
-            {
-                mainBuilder.Append(variableName).Append(".SetSentinelFromProviderValue(")
-                    .Append(_code.UnknownLiteral(converter?.ConvertToProvider(sentinel) ?? sentinel))
-                    .AppendLine(");");
-            }
+        if (shouldSetConverter)
+        {
+            mainBuilder.Append(variableName).Append(".SetValueConverter(");
+            _annotationCodeGenerator.Create(converter!, parameters);
+            mainBuilder.AppendLine(");");
+        }
+
+        var valueComparer = property.GetValueComparer();
+        var typeMappingComparer = property.GetTypeMapping().Comparer;
+        if (valueComparerType == null
+            && (!parameters.ForNativeAot || valueComparer != typeMappingComparer)
+            && (parameters.ForNativeAot || property[CoreAnnotationNames.ValueComparer] != null))
+        {
+            SetValueComparer(valueComparer, typeMappingComparer, nameof(CoreTypeMapping.Comparer), propertyParameters);
+        }
+
+        var keyValueComparer = property.GetKeyValueComparer();
+        var typeMappingKeyComparer = property.GetTypeMapping().KeyComparer;
+        if (valueComparer != keyValueComparer
+            && (!parameters.ForNativeAot || keyValueComparer != typeMappingKeyComparer)
+            && (parameters.ForNativeAot || property[CoreAnnotationNames.ValueComparer] != null))
+        {
+            SetValueComparer(keyValueComparer, typeMappingKeyComparer, nameof(CoreTypeMapping.KeyComparer), propertyParameters);
+        }
+
+        var providerValueComparer = property.GetProviderValueComparer();
+        var defaultProviderValueComparer = property.ClrType.UnwrapNullableType()
+             == (property.GetTypeMapping().Converter?.ProviderClrType ?? property.ClrType).UnwrapNullableType()
+                 ? property.GetKeyValueComparer()
+                 : property.GetTypeMapping().ProviderValueComparer;
+        if (providerValueComparerType == null
+            && (!parameters.ForNativeAot || providerValueComparer != defaultProviderValueComparer)
+            && (parameters.ForNativeAot || property[CoreAnnotationNames.ProviderValueComparer] != null))
+        {
+            SetValueComparer(
+                providerValueComparer, property.GetTypeMapping().ProviderValueComparer, nameof(CoreTypeMapping.ProviderValueComparer), propertyParameters);
+        }
+
+        if (sentinel != null
+            && converter != null)
+        {
+            mainBuilder.Append(variableName).Append(".SetSentinelFromProviderValue(")
+                .Append(_code.UnknownLiteral(converter?.ConvertToProvider(sentinel) ?? sentinel))
+                .AppendLine(");");
         }
 
         CreateAnnotations(
@@ -1300,32 +1301,48 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         mainBuilder.AppendLine();
     }
 
-    private void CreateValueComparer(
+    private void SetValueComparer(
         ValueComparer valueComparer,
         ValueComparer typeMappingComparer,
         string typeMappingComparerProperty,
         CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
     {
+        var mainBuilder = parameters.MainBuilder;
         var valueComparerType = valueComparer.GetType();
         if (valueComparer is IInfrastructure<ValueComparer> { Instance: ValueComparer underlyingValueComparer }
             && typeMappingComparer == underlyingValueComparer
             && valueComparerType.GetDeclaredConstructor([typeof(ValueComparer)]) != null)
         {
-            AddNamespace(valueComparerType, parameters.Namespaces);
+            if (!parameters.ForNativeAot
+                && valueComparerType.IsGenericType
+                && valueComparerType.GetGenericTypeDefinition() == typeof(NullableValueComparer<>))
+            {
+                return;
+            }
 
-            parameters.MainBuilder
-                .Append("new ")
-                .Append(_code.Reference(valueComparerType))
-                .Append("(")
-                .Append(parameters.TargetName)
-                .Append(".TypeMapping.")
-                .Append(typeMappingComparerProperty)
-                .Append(")");
+            if (parameters.ForNativeAot)
+            {
+                AddNamespace(valueComparerType, parameters.Namespaces);
+
+                mainBuilder
+                    .Append(parameters.TargetName)
+                    .Append(".Set").Append(typeMappingComparerProperty).Append("(")
+                    .Append("new ").Append(_code.Reference(valueComparerType)).Append("(")
+                    .Append(parameters.TargetName).Append(".TypeMapping.").Append(typeMappingComparerProperty)
+                    .AppendLine("));");
+
+                return;
+            }
         }
-        else
-        {
-            _annotationCodeGenerator.Create(valueComparer, parameters);
-        }
+
+        mainBuilder
+            .Append(parameters.TargetName)
+            .Append(".Set").Append(typeMappingComparerProperty).Append("(");
+
+        _annotationCodeGenerator.Create(valueComparer, parameters);
+
+        mainBuilder
+            .AppendLine(");");
     }
 
     private void
@@ -2240,49 +2257,52 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             return;
         }
 
-        var mainBuilder = parameters.MainBuilder;
-        ClrCollectionAccessorFactory.Instance.Create(
-            navigation,
-            out var entityType,
-            out var propertyType,
-            out var elementType,
-            out var getCollection,
-            out var setCollection,
-            out var setCollectionForMaterialization,
-            out var createAndSetCollection,
-            out var createCollection);
+        if (parameters.ForNativeAot)
+        {
+            var mainBuilder = parameters.MainBuilder;
+            ClrCollectionAccessorFactory.Instance.Create(
+                navigation,
+                out var entityType,
+                out var propertyType,
+                out var elementType,
+                out var getCollection,
+                out var setCollection,
+                out var setCollectionForMaterialization,
+                out var createAndSetCollection,
+                out var createCollection);
 
-        var unsafeAccessors = new HashSet<string>();
+            var unsafeAccessors = new HashSet<string>();
 
-        AddNamespace(propertyType, parameters.Namespaces);
-        mainBuilder
-            .Append(parameters.TargetName)
-            .AppendLine($".SetCollectionAccessor<{_code.Reference(entityType)}, {_code.Reference(propertyType)}, {_code.Reference(elementType)}>(")
-            .IncrementIndent()
-            .AppendLines(getCollection == null
-                ? "null"
-                : _code.Expression(getCollection, parameters.Namespaces, unsafeAccessors, (IReadOnlyDictionary<object, string>)parameters.ScopeVariables, memberAccessReplacements), skipFinalNewline: true)
-            .AppendLine(",")
-            .AppendLines(setCollection == null
-                ? "null"
-                : _code.Expression(setCollection, parameters.Namespaces, unsafeAccessors, (IReadOnlyDictionary<object, string>)parameters.ScopeVariables, memberAccessReplacements), skipFinalNewline: true)
-            .AppendLine(",")
-            .AppendLines(setCollectionForMaterialization == null
-                ? "null"
-                : _code.Expression(setCollectionForMaterialization, parameters.Namespaces, unsafeAccessors, (IReadOnlyDictionary<object, string>)parameters.ScopeVariables, memberAccessReplacements), skipFinalNewline: true)
-            .AppendLine(",")
-            .AppendLines(createAndSetCollection == null
-                ? "null"
-                : _code.Expression(createAndSetCollection, parameters.Namespaces, unsafeAccessors, (IReadOnlyDictionary<object, string>)parameters.ScopeVariables, memberAccessReplacements), skipFinalNewline: true)
-            .AppendLine(",")
-            .AppendLines(createCollection == null
-                ? "null"
-                : _code.Expression(createCollection, parameters.Namespaces, unsafeAccessors, (IReadOnlyDictionary<object, string>)parameters.ScopeVariables, memberAccessReplacements), skipFinalNewline: true)
-            .AppendLine(");")
-            .DecrementIndent();
+            AddNamespace(propertyType, parameters.Namespaces);
+            mainBuilder
+                .Append(parameters.TargetName)
+                .AppendLine($".SetCollectionAccessor<{_code.Reference(entityType)}, {_code.Reference(propertyType)}, {_code.Reference(elementType)}>(")
+                .IncrementIndent()
+                .AppendLines(getCollection == null
+                    ? "null"
+                    : _code.Expression(getCollection, parameters.Namespaces, unsafeAccessors, (IReadOnlyDictionary<object, string>)parameters.ScopeVariables, memberAccessReplacements), skipFinalNewline: true)
+                .AppendLine(",")
+                .AppendLines(setCollection == null
+                    ? "null"
+                    : _code.Expression(setCollection, parameters.Namespaces, unsafeAccessors, (IReadOnlyDictionary<object, string>)parameters.ScopeVariables, memberAccessReplacements), skipFinalNewline: true)
+                .AppendLine(",")
+                .AppendLines(setCollectionForMaterialization == null
+                    ? "null"
+                    : _code.Expression(setCollectionForMaterialization, parameters.Namespaces, unsafeAccessors, (IReadOnlyDictionary<object, string>)parameters.ScopeVariables, memberAccessReplacements), skipFinalNewline: true)
+                .AppendLine(",")
+                .AppendLines(createAndSetCollection == null
+                    ? "null"
+                    : _code.Expression(createAndSetCollection, parameters.Namespaces, unsafeAccessors, (IReadOnlyDictionary<object, string>)parameters.ScopeVariables, memberAccessReplacements), skipFinalNewline: true)
+                .AppendLine(",")
+                .AppendLines(createCollection == null
+                    ? "null"
+                    : _code.Expression(createCollection, parameters.Namespaces, unsafeAccessors, (IReadOnlyDictionary<object, string>)parameters.ScopeVariables, memberAccessReplacements), skipFinalNewline: true)
+                .AppendLine(");")
+                .DecrementIndent();
 
-        Check.DebugAssert(unsafeAccessors.Count == 0, "Generated unsafe accessors not handled: " +
-            string.Join(Environment.NewLine, unsafeAccessors));
+            Check.DebugAssert(unsafeAccessors.Count == 0, "Generated unsafe accessors not handled: " +
+                string.Join(Environment.NewLine, unsafeAccessors));
+        }
     }
 
     private void CreateSkipNavigation(

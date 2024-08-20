@@ -176,8 +176,8 @@ namespace TestNamespace
                     byte (byte v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "INTEGER"));
-            id.SetValueComparer(new NullableValueComparer<byte>(id.TypeMapping.Comparer));
-            id.SetKeyValueComparer(new NullableValueComparer<byte>(id.TypeMapping.KeyComparer));
+            id.SetComparer(new NullableValueComparer<byte>(id.TypeMapping.Comparer));
+            id.SetKeyComparer(new NullableValueComparer<byte>(id.TypeMapping.KeyComparer));
 
             var key = runtimeEntityType.AddKey(
                 new[] { principalId, principalAlternateId });

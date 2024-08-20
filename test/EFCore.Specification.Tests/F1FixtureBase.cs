@@ -19,7 +19,7 @@ public abstract class F1FixtureBase<TRowVersion> : SharedStoreFixtureBase<F1Cont
             .UseModel(CreateModelExternal())
             .UseSeeding((c, _) =>
             {
-                if (c.Set<EngineSupplier>().Count() != 0)
+                if (!ShouldSeed((F1Context)c))
                 {
                     return;
                 }
@@ -29,7 +29,7 @@ public abstract class F1FixtureBase<TRowVersion> : SharedStoreFixtureBase<F1Cont
             })
             .UseAsyncSeeding(async (c, _, t) =>
             {
-                if (await c.Set<EngineSupplier>().CountAsync(t) != 0)
+                if (!await ShouldSeedAsync((F1Context)c))
                 {
                     return;
                 }
@@ -39,6 +39,12 @@ public abstract class F1FixtureBase<TRowVersion> : SharedStoreFixtureBase<F1Cont
             })
             .ConfigureWarnings(
                 w => w.Ignore(CoreEventId.SaveChangesStarting, CoreEventId.SaveChangesCompleted));
+
+    protected virtual bool ShouldSeed(F1Context context)
+        => context.EngineSuppliers.Count() == 0;
+
+    protected virtual async Task<bool> ShouldSeedAsync(F1Context context)
+        => await context.EngineSuppliers.CountAsync() == 0;
 
     protected override IServiceCollection AddServices(IServiceCollection serviceCollection)
         => base.AddServices(serviceCollection.AddSingleton<ISingletonInterceptor, F1MaterializationInterceptor>());

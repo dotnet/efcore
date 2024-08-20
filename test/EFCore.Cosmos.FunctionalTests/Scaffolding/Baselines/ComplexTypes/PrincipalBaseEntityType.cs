@@ -84,9 +84,9 @@ namespace TestNamespace
                     long (long v) => v),
                 clrType: typeof(long),
                 jsonValueReaderWriter: JsonInt64ReaderWriter.Instance);
-            id.SetValueComparer(new NullableValueComparer<long>(id.TypeMapping.Comparer));
-            id.SetKeyValueComparer(new NullableValueComparer<long>(id.TypeMapping.KeyComparer));
             id.SetCurrentValueComparer(new EntryCurrentValueComparer<long?>(id));
+            id.SetComparer(new NullableValueComparer<long>(id.TypeMapping.Comparer));
+            id.SetKeyComparer(new NullableValueComparer<long>(id.TypeMapping.KeyComparer));
 
             var type = runtimeEntityType.AddProperty(
                 "$type",
@@ -218,8 +218,8 @@ namespace TestNamespace
                     new ValueConverter<CompiledModelTestBase.AnEnum, int>(
                         int (CompiledModelTestBase.AnEnum value) => ((int)(value)),
                         CompiledModelTestBase.AnEnum (int value) => ((CompiledModelTestBase.AnEnum)(value)))));
-            enum2.SetValueComparer(new NullableValueComparer<CompiledModelTestBase.AnEnum>(enum2.TypeMapping.Comparer));
-            enum2.SetKeyValueComparer(new NullableValueComparer<CompiledModelTestBase.AnEnum>(enum2.TypeMapping.KeyComparer));
+            enum2.SetComparer(new NullableValueComparer<CompiledModelTestBase.AnEnum>(enum2.TypeMapping.Comparer));
+            enum2.SetKeyComparer(new NullableValueComparer<CompiledModelTestBase.AnEnum>(enum2.TypeMapping.KeyComparer));
 
             var flagsEnum1 = runtimeEntityType.AddProperty(
                 "FlagsEnum1",
@@ -350,9 +350,9 @@ namespace TestNamespace
                     long (long v) => v),
                 clrType: typeof(long),
                 jsonValueReaderWriter: JsonInt64ReaderWriter.Instance);
-            principalBaseId.SetValueComparer(new NullableValueComparer<long>(principalBaseId.TypeMapping.Comparer));
-            principalBaseId.SetKeyValueComparer(new NullableValueComparer<long>(principalBaseId.TypeMapping.KeyComparer));
             principalBaseId.SetCurrentValueComparer(new EntryCurrentValueComparer<long?>(principalBaseId));
+            principalBaseId.SetComparer(new NullableValueComparer<long>(principalBaseId.TypeMapping.Comparer));
+            principalBaseId.SetKeyComparer(new NullableValueComparer<long>(principalBaseId.TypeMapping.KeyComparer));
 
             var refTypeEnumerable = runtimeEntityType.AddProperty(
                 "RefTypeEnumerable",
@@ -1553,8 +1553,8 @@ namespace TestNamespace
                             new ValueConverter<CompiledModelTestBase.AnEnum, int>(
                                 int (CompiledModelTestBase.AnEnum value) => ((int)(value)),
                                 CompiledModelTestBase.AnEnum (int value) => ((CompiledModelTestBase.AnEnum)(value)))));
-                    enum2.SetValueComparer(new NullableValueComparer<CompiledModelTestBase.AnEnum>(enum2.TypeMapping.Comparer));
-                    enum2.SetKeyValueComparer(new NullableValueComparer<CompiledModelTestBase.AnEnum>(enum2.TypeMapping.KeyComparer));
+                    enum2.SetComparer(new NullableValueComparer<CompiledModelTestBase.AnEnum>(enum2.TypeMapping.Comparer));
+                    enum2.SetKeyComparer(new NullableValueComparer<CompiledModelTestBase.AnEnum>(enum2.TypeMapping.KeyComparer));
 
                     var flagsEnum1 = complexType.AddProperty(
                         "FlagsEnum1",
@@ -1726,8 +1726,8 @@ namespace TestNamespace
                             long (long v) => v),
                         clrType: typeof(long),
                         jsonValueReaderWriter: JsonInt64ReaderWriter.Instance);
-                    id.SetValueComparer(new NullableValueComparer<long>(id.TypeMapping.Comparer));
-                    id.SetKeyValueComparer(new NullableValueComparer<long>(id.TypeMapping.KeyComparer));
+                    id.SetComparer(new NullableValueComparer<long>(id.TypeMapping.Comparer));
+                    id.SetKeyComparer(new NullableValueComparer<long>(id.TypeMapping.KeyComparer));
 
                     var refTypeEnumerable = complexType.AddProperty(
                         "RefTypeEnumerable",
