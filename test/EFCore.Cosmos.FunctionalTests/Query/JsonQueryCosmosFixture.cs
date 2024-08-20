@@ -42,12 +42,18 @@ public class JsonQueryCosmosFixture : JsonQueryFixtureBase
         modelBuilder.Entity<JsonEntityBasic>().OwnsOne(
             x => x.OwnedReferenceRoot, b =>
             {
+                // Issue #29380
+                b.Ignore(x => x.Id);
+
                 b.OwnsOne(
                     x => x.OwnedReferenceBranch, bb =>
                     {
                         //issue #34026
                         bb.Ignore(x => x.Enums);
                         bb.Ignore(x => x.NullableEnums);
+
+                        // Issue #29380
+                        bb.Ignore(x => x.Id);
                     });
 
                 b.OwnsMany(
@@ -56,18 +62,27 @@ public class JsonQueryCosmosFixture : JsonQueryFixtureBase
                         //issue #34026
                         bb.Ignore(x => x.Enums);
                         bb.Ignore(x => x.NullableEnums);
+
+                        // Issue #29380
+                        bb.Ignore(x => x.Id);
                     });
             });
 
         modelBuilder.Entity<JsonEntityBasic>().OwnsMany(
             x => x.OwnedCollectionRoot, b =>
             {
+                // Issue #29380
+                b.Ignore(x => x.Id);
+
                 b.OwnsOne(
                     x => x.OwnedReferenceBranch, bb =>
                     {
                         //issue #34026
                         bb.Ignore(x => x.Enums);
                         bb.Ignore(x => x.NullableEnums);
+
+                        // Issue #29380
+                        bb.Ignore(x => x.Id);
                     });
 
                 b.OwnsMany(
@@ -76,6 +91,9 @@ public class JsonQueryCosmosFixture : JsonQueryFixtureBase
                         //issue #34026
                         bb.Ignore(x => x.Enums);
                         bb.Ignore(x => x.NullableEnums);
+
+                        // Issue #29380
+                        bb.Ignore(x => x.Id);
                     });
             });
 
@@ -106,6 +124,9 @@ public class JsonQueryCosmosFixture : JsonQueryFixtureBase
                         //issue #34026
                         bb.Ignore(x => x.Enums);
                         bb.Ignore(x => x.NullableEnums);
+
+                        // Issue #29380
+                        bb.Ignore(e => e.Id);
                     });
 
                 b.OwnsMany(
@@ -114,6 +135,9 @@ public class JsonQueryCosmosFixture : JsonQueryFixtureBase
                         //issue #34026
                         bb.Ignore(x => x.Enums);
                         bb.Ignore(x => x.NullableEnums);
+
+                        // Issue #29380
+                        bb.Ignore(e => e.Id);
                     });
             });
 
@@ -126,6 +150,9 @@ public class JsonQueryCosmosFixture : JsonQueryFixtureBase
                         //issue #34026
                         bb.Ignore(x => x.Enums);
                         bb.Ignore(x => x.NullableEnums);
+
+                        // Issue #29380
+                        bb.Ignore(e => e.Id);
                     });
 
                 b.OwnsMany(
@@ -134,6 +161,9 @@ public class JsonQueryCosmosFixture : JsonQueryFixtureBase
                         //issue #34026
                         bb.Ignore(x => x.Enums);
                         bb.Ignore(x => x.NullableEnums);
+
+                        // Issue #29380
+                        bb.Ignore(e => e.Id);
                     });
             });
 

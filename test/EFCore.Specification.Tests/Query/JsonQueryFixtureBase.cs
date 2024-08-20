@@ -335,6 +335,7 @@ public abstract class JsonQueryFixtureBase : SharedStoreFixtureBase<JsonQueryCon
 
     public static void AssertOwnedBranch(JsonOwnedBranch expected, JsonOwnedBranch actual)
     {
+        Assert.Equal(expected.Id, actual.Id);
         Assert.Equal(expected.Date, actual.Date);
         Assert.Equal(expected.Fraction, actual.Fraction);
         Assert.Equal(expected.Enum, actual.Enum);

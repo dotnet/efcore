@@ -1173,6 +1173,7 @@ WHERE (
             [Date] datetime2 '$.Date',
             [Enum] int '$.Enum',
             [Fraction] decimal(18,2) '$.Fraction',
+            [Id] int '$.Id',
             [OwnedReferenceLeaf] nvarchar(max) '$.OwnedReferenceLeaf' AS JSON
         ) AS [o]
         ORDER BY [o].[Date] DESC
@@ -1194,12 +1195,13 @@ FROM [JsonEntitiesBasic] AS [j]
 WHERE (
     SELECT COUNT(*)
     FROM (
-        SELECT DISTINCT [j].[Id], [o].[Date], [o].[Enum], [o].[Enums], [o].[Fraction], [o].[NullableEnum], [o].[NullableEnums], [o].[OwnedCollectionLeaf] AS [c], [o].[OwnedReferenceLeaf] AS [c0]
+        SELECT DISTINCT [j].[Id], [o].[Date], [o].[Enum], [o].[Enums], [o].[Fraction], [o].[Id] AS [Id0], [o].[NullableEnum], [o].[NullableEnums], [o].[OwnedCollectionLeaf] AS [c], [o].[OwnedReferenceLeaf] AS [c0]
         FROM OPENJSON([j].[OwnedReferenceRoot], '$.OwnedCollectionBranch') WITH (
             [Date] datetime2 '$.Date',
             [Enum] int '$.Enum',
             [Enums] nvarchar(max) '$.Enums' AS JSON,
             [Fraction] decimal(18,2) '$.Fraction',
+            [Id] int '$.Id',
             [NullableEnum] int '$.NullableEnum',
             [NullableEnums] nvarchar(max) '$.NullableEnums' AS JSON,
             [OwnedCollectionLeaf] nvarchar(max) '$.OwnedCollectionLeaf' AS JSON,
@@ -1294,10 +1296,10 @@ ORDER BY [j].[Id], [o0].[c]
 
         AssertSql(
             """
-SELECT [j].[Id], [o0].[Id], [o0].[Name], [o0].[Names], [o0].[Number], [o0].[Numbers], [o0].[c], [o0].[c0], [o0].[key]
+SELECT [j].[Id], [o0].[Id], [o0].[Id0], [o0].[Name], [o0].[Names], [o0].[Number], [o0].[Numbers], [o0].[c], [o0].[c0], [o0].[key]
 FROM [JsonEntitiesBasic] AS [j]
 OUTER APPLY (
-    SELECT [j].[Id], JSON_VALUE([o].[value], '$.Name') AS [Name], JSON_QUERY([o].[value], '$.Names') AS [Names], CAST(JSON_VALUE([o].[value], '$.Number') AS int) AS [Number], JSON_QUERY([o].[value], '$.Numbers') AS [Numbers], JSON_QUERY([o].[value], '$.OwnedCollectionBranch') AS [c], JSON_QUERY([o].[value], '$.OwnedReferenceBranch') AS [c0], [o].[key], CAST([o].[key] AS int) AS [c1]
+    SELECT [j].[Id], CAST(JSON_VALUE([o].[value], '$.Id') AS int) AS [Id0], JSON_VALUE([o].[value], '$.Name') AS [Name], JSON_QUERY([o].[value], '$.Names') AS [Names], CAST(JSON_VALUE([o].[value], '$.Number') AS int) AS [Number], JSON_QUERY([o].[value], '$.Numbers') AS [Numbers], JSON_QUERY([o].[value], '$.OwnedCollectionBranch') AS [c], JSON_QUERY([o].[value], '$.OwnedReferenceBranch') AS [c0], [o].[key], CAST([o].[key] AS int) AS [c1]
     FROM OPENJSON([j].[OwnedCollectionRoot], '$') AS [o]
     WHERE JSON_VALUE([o].[value], '$.Name') <> N'Foo' OR JSON_VALUE([o].[value], '$.Name') IS NULL
 ) AS [o0]
@@ -1311,13 +1313,13 @@ ORDER BY [j].[Id], [o0].[c1]
 
         AssertSql(
             """
-SELECT [j].[Id], [s].[key], [s].[Id], [s].[Date], [s].[Enum], [s].[Enums], [s].[Fraction], [s].[NullableEnum], [s].[NullableEnums], [s].[c], [s].[c0], [s].[key0]
+SELECT [j].[Id], [s].[key], [s].[Id], [s].[Date], [s].[Enum], [s].[Enums], [s].[Fraction], [s].[Id0], [s].[NullableEnum], [s].[NullableEnums], [s].[c], [s].[c0], [s].[key0]
 FROM [JsonEntitiesBasic] AS [j]
 OUTER APPLY (
-    SELECT [o].[key], [o1].[Id], [o1].[Date], [o1].[Enum], [o1].[Enums], [o1].[Fraction], [o1].[NullableEnum], [o1].[NullableEnums], [o1].[c], [o1].[c0], [o1].[key] AS [key0], CAST([o].[key] AS int) AS [c1], [o1].[c1] AS [c10]
+    SELECT [o].[key], [o1].[Id], [o1].[Date], [o1].[Enum], [o1].[Enums], [o1].[Fraction], [o1].[Id0], [o1].[NullableEnum], [o1].[NullableEnums], [o1].[c], [o1].[c0], [o1].[key] AS [key0], CAST([o].[key] AS int) AS [c1], [o1].[c1] AS [c10]
     FROM OPENJSON([j].[OwnedCollectionRoot], '$') AS [o]
     OUTER APPLY (
-        SELECT [j].[Id], CAST(JSON_VALUE([o0].[value], '$.Date') AS datetime2) AS [Date], CAST(JSON_VALUE([o0].[value], '$.Enum') AS int) AS [Enum], JSON_QUERY([o0].[value], '$.Enums') AS [Enums], CAST(JSON_VALUE([o0].[value], '$.Fraction') AS decimal(18,2)) AS [Fraction], CAST(JSON_VALUE([o0].[value], '$.NullableEnum') AS int) AS [NullableEnum], JSON_QUERY([o0].[value], '$.NullableEnums') AS [NullableEnums], JSON_QUERY([o0].[value], '$.OwnedCollectionLeaf') AS [c], JSON_QUERY([o0].[value], '$.OwnedReferenceLeaf') AS [c0], [o0].[key], CAST([o0].[key] AS int) AS [c1]
+        SELECT [j].[Id], CAST(JSON_VALUE([o0].[value], '$.Date') AS datetime2) AS [Date], CAST(JSON_VALUE([o0].[value], '$.Enum') AS int) AS [Enum], JSON_QUERY([o0].[value], '$.Enums') AS [Enums], CAST(JSON_VALUE([o0].[value], '$.Fraction') AS decimal(18,2)) AS [Fraction], CAST(JSON_VALUE([o0].[value], '$.Id') AS int) AS [Id0], CAST(JSON_VALUE([o0].[value], '$.NullableEnum') AS int) AS [NullableEnum], JSON_QUERY([o0].[value], '$.NullableEnums') AS [NullableEnums], JSON_QUERY([o0].[value], '$.OwnedCollectionLeaf') AS [c], JSON_QUERY([o0].[value], '$.OwnedReferenceLeaf') AS [c0], [o0].[key], CAST([o0].[key] AS int) AS [c1]
         FROM OPENJSON(JSON_QUERY([o].[value], '$.OwnedCollectionBranch'), '$') AS [o0]
         WHERE CAST(JSON_VALUE([o0].[value], '$.Date') AS datetime2) <> '2000-01-01T00:00:00.0000000'
     ) AS [o1]
@@ -1349,10 +1351,10 @@ ORDER BY [j].[Id], [s].[c5], [s].[key], [s].[c6]
 
         AssertSql(
             """
-SELECT [j].[Id], [o0].[Id], [o0].[Name], [o0].[Names], [o0].[Number], [o0].[Numbers], [o0].[c], [o0].[c0], [o0].[key]
+SELECT [j].[Id], [o0].[Id], [o0].[Id0], [o0].[Name], [o0].[Names], [o0].[Number], [o0].[Numbers], [o0].[c], [o0].[c0], [o0].[key]
 FROM [JsonEntitiesBasic] AS [j]
 OUTER APPLY (
-    SELECT [j].[Id], JSON_VALUE([o].[value], '$.Name') AS [Name], JSON_QUERY([o].[value], '$.Names') AS [Names], CAST(JSON_VALUE([o].[value], '$.Number') AS int) AS [Number], JSON_QUERY([o].[value], '$.Numbers') AS [Numbers], JSON_QUERY([o].[value], '$.OwnedCollectionBranch') AS [c], JSON_QUERY([o].[value], '$.OwnedReferenceBranch') AS [c0], [o].[key], JSON_VALUE([o].[value], '$.Name') AS [c1]
+    SELECT [j].[Id], CAST(JSON_VALUE([o].[value], '$.Id') AS int) AS [Id0], JSON_VALUE([o].[value], '$.Name') AS [Name], JSON_QUERY([o].[value], '$.Names') AS [Names], CAST(JSON_VALUE([o].[value], '$.Number') AS int) AS [Number], JSON_QUERY([o].[value], '$.Numbers') AS [Numbers], JSON_QUERY([o].[value], '$.OwnedCollectionBranch') AS [c], JSON_QUERY([o].[value], '$.OwnedReferenceBranch') AS [c0], [o].[key], JSON_VALUE([o].[value], '$.Name') AS [c1]
     FROM OPENJSON([j].[OwnedCollectionRoot], '$') AS [o]
     ORDER BY JSON_VALUE([o].[value], '$.Name')
     OFFSET 1 ROWS FETCH NEXT 5 ROWS ONLY
@@ -1403,11 +1405,12 @@ ORDER BY [j].[Id], [o0].[c0]
 
         AssertSql(
             """
-SELECT [j].[Id], [o0].[Id], [o0].[Name], [o0].[Names], [o0].[Number], [o0].[Numbers], [o0].[c], [o0].[c0]
+SELECT [j].[Id], [o0].[Id], [o0].[Id0], [o0].[Name], [o0].[Names], [o0].[Number], [o0].[Numbers], [o0].[c], [o0].[c0]
 FROM [JsonEntitiesBasic] AS [j]
 OUTER APPLY (
-    SELECT DISTINCT [j].[Id], [o].[Name], [o].[Names], [o].[Number], [o].[Numbers], [o].[OwnedCollectionBranch] AS [c], [o].[OwnedReferenceBranch] AS [c0]
+    SELECT DISTINCT [j].[Id], [o].[Id] AS [Id0], [o].[Name], [o].[Names], [o].[Number], [o].[Numbers], [o].[OwnedCollectionBranch] AS [c], [o].[OwnedReferenceBranch] AS [c0]
     FROM OPENJSON([j].[OwnedCollectionRoot], '$') WITH (
+        [Id] int '$.Id',
         [Name] nvarchar(max) '$.Name',
         [Names] nvarchar(max) '$.Names' AS JSON,
         [Number] int '$.Number',
@@ -1416,7 +1419,7 @@ OUTER APPLY (
         [OwnedReferenceBranch] nvarchar(max) '$.OwnedReferenceBranch' AS JSON
     ) AS [o]
 ) AS [o0]
-ORDER BY [j].[Id], [o0].[Name], [o0].[Names], [o0].[Number]
+ORDER BY [j].[Id], [o0].[Id0], [o0].[Name], [o0].[Names], [o0].[Number]
 """);
     }
 
@@ -1450,7 +1453,7 @@ ORDER BY [j].[Id], [o0].[c]
 
         AssertSql(
             """
-SELECT [j].[Id], [o4].[Id], [o4].[SomethingSomething], [o4].[key], [o1].[Id], [o1].[Name], [o1].[Names], [o1].[Number], [o1].[Numbers], [o1].[c], [o1].[c0], [s].[key], [s].[Id], [s].[Date], [s].[Enum], [s].[Enums], [s].[Fraction], [s].[NullableEnum], [s].[NullableEnums], [s].[c], [s].[c0], [s].[key0], [j0].[Id], [j0].[Name], [j0].[ParentId]
+SELECT [j].[Id], [o4].[Id], [o4].[SomethingSomething], [o4].[key], [o1].[Id], [o1].[Id0], [o1].[Name], [o1].[Names], [o1].[Number], [o1].[Numbers], [o1].[c], [o1].[c0], [s].[key], [s].[Id], [s].[Date], [s].[Enum], [s].[Enums], [s].[Fraction], [s].[Id0], [s].[NullableEnum], [s].[NullableEnums], [s].[c], [s].[c0], [s].[key0], [j0].[Id], [j0].[Name], [j0].[ParentId]
 FROM [JsonEntitiesBasic] AS [j]
 OUTER APPLY (
     SELECT [j].[Id], JSON_VALUE([o].[value], '$.SomethingSomething') AS [SomethingSomething], [o].[key], CAST([o].[key] AS int) AS [c]
@@ -1458,8 +1461,9 @@ OUTER APPLY (
     WHERE JSON_VALUE([o].[value], '$.SomethingSomething') <> N'Baz' OR JSON_VALUE([o].[value], '$.SomethingSomething') IS NULL
 ) AS [o4]
 OUTER APPLY (
-    SELECT DISTINCT [j].[Id], [o0].[Name], [o0].[Names], [o0].[Number], [o0].[Numbers], [o0].[OwnedCollectionBranch] AS [c], [o0].[OwnedReferenceBranch] AS [c0]
+    SELECT DISTINCT [j].[Id], [o0].[Id] AS [Id0], [o0].[Name], [o0].[Names], [o0].[Number], [o0].[Numbers], [o0].[OwnedCollectionBranch] AS [c], [o0].[OwnedReferenceBranch] AS [c0]
     FROM OPENJSON([j].[OwnedCollectionRoot], '$') WITH (
+        [Id] int '$.Id',
         [Name] nvarchar(max) '$.Name',
         [Names] nvarchar(max) '$.Names' AS JSON,
         [Number] int '$.Number',
@@ -1469,16 +1473,16 @@ OUTER APPLY (
     ) AS [o0]
 ) AS [o1]
 OUTER APPLY (
-    SELECT [o2].[key], [o5].[Id], [o5].[Date], [o5].[Enum], [o5].[Enums], [o5].[Fraction], [o5].[NullableEnum], [o5].[NullableEnums], [o5].[c], [o5].[c0], [o5].[key] AS [key0], CAST([o2].[key] AS int) AS [c1], [o5].[c1] AS [c10]
+    SELECT [o2].[key], [o5].[Id], [o5].[Date], [o5].[Enum], [o5].[Enums], [o5].[Fraction], [o5].[Id0], [o5].[NullableEnum], [o5].[NullableEnums], [o5].[c], [o5].[c0], [o5].[key] AS [key0], CAST([o2].[key] AS int) AS [c1], [o5].[c1] AS [c10]
     FROM OPENJSON([j].[OwnedCollectionRoot], '$') AS [o2]
     OUTER APPLY (
-        SELECT [j].[Id], CAST(JSON_VALUE([o3].[value], '$.Date') AS datetime2) AS [Date], CAST(JSON_VALUE([o3].[value], '$.Enum') AS int) AS [Enum], JSON_QUERY([o3].[value], '$.Enums') AS [Enums], CAST(JSON_VALUE([o3].[value], '$.Fraction') AS decimal(18,2)) AS [Fraction], CAST(JSON_VALUE([o3].[value], '$.NullableEnum') AS int) AS [NullableEnum], JSON_QUERY([o3].[value], '$.NullableEnums') AS [NullableEnums], JSON_QUERY([o3].[value], '$.OwnedCollectionLeaf') AS [c], JSON_QUERY([o3].[value], '$.OwnedReferenceLeaf') AS [c0], [o3].[key], CAST([o3].[key] AS int) AS [c1]
+        SELECT [j].[Id], CAST(JSON_VALUE([o3].[value], '$.Date') AS datetime2) AS [Date], CAST(JSON_VALUE([o3].[value], '$.Enum') AS int) AS [Enum], JSON_QUERY([o3].[value], '$.Enums') AS [Enums], CAST(JSON_VALUE([o3].[value], '$.Fraction') AS decimal(18,2)) AS [Fraction], CAST(JSON_VALUE([o3].[value], '$.Id') AS int) AS [Id0], CAST(JSON_VALUE([o3].[value], '$.NullableEnum') AS int) AS [NullableEnum], JSON_QUERY([o3].[value], '$.NullableEnums') AS [NullableEnums], JSON_QUERY([o3].[value], '$.OwnedCollectionLeaf') AS [c], JSON_QUERY([o3].[value], '$.OwnedReferenceLeaf') AS [c0], [o3].[key], CAST([o3].[key] AS int) AS [c1]
         FROM OPENJSON(JSON_QUERY([o2].[value], '$.OwnedCollectionBranch'), '$') AS [o3]
         WHERE CAST(JSON_VALUE([o3].[value], '$.Date') AS datetime2) <> '2000-01-01T00:00:00.0000000'
     ) AS [o5]
 ) AS [s]
 LEFT JOIN [JsonEntitiesBasicForCollection] AS [j0] ON [j].[Id] = [j0].[ParentId]
-ORDER BY [j].[Id], [o4].[c], [o4].[key], [o1].[Name], [o1].[Names], [o1].[Number], [o1].[Numbers], [s].[c1], [s].[key], [s].[c10], [s].[key0]
+ORDER BY [j].[Id], [o4].[c], [o4].[key], [o1].[Id0], [o1].[Name], [o1].[Names], [o1].[Number], [o1].[Numbers], [s].[c1], [s].[key], [s].[c10], [s].[key0]
 """);
     }
 
@@ -1488,15 +1492,16 @@ ORDER BY [j].[Id], [o4].[c], [o4].[key], [o1].[Name], [o1].[Names], [o1].[Number
 
         AssertSql(
             """
-SELECT [j].[Id], [o0].[Id], [o0].[Date], [o0].[Enum], [o0].[Enums], [o0].[Fraction], [o0].[NullableEnum], [o0].[NullableEnums], [o0].[c], [o0].[c0], [j0].[Id], [j0].[Name], [j0].[ParentId]
+SELECT [j].[Id], [o0].[Id], [o0].[Date], [o0].[Enum], [o0].[Enums], [o0].[Fraction], [o0].[Id0], [o0].[NullableEnum], [o0].[NullableEnums], [o0].[c], [o0].[c0], [j0].[Id], [j0].[Name], [j0].[ParentId]
 FROM [JsonEntitiesBasic] AS [j]
 OUTER APPLY (
-    SELECT DISTINCT [j].[Id], [o].[Date], [o].[Enum], [o].[Enums], [o].[Fraction], [o].[NullableEnum], [o].[NullableEnums], [o].[OwnedCollectionLeaf] AS [c], [o].[OwnedReferenceLeaf] AS [c0]
+    SELECT DISTINCT [j].[Id], [o].[Date], [o].[Enum], [o].[Enums], [o].[Fraction], [o].[Id] AS [Id0], [o].[NullableEnum], [o].[NullableEnums], [o].[OwnedCollectionLeaf] AS [c], [o].[OwnedReferenceLeaf] AS [c0]
     FROM OPENJSON([j].[OwnedReferenceRoot], '$.OwnedCollectionBranch') WITH (
         [Date] datetime2 '$.Date',
         [Enum] int '$.Enum',
         [Enums] nvarchar(max) '$.Enums' AS JSON,
         [Fraction] decimal(18,2) '$.Fraction',
+        [Id] int '$.Id',
         [NullableEnum] int '$.NullableEnum',
         [NullableEnums] nvarchar(max) '$.NullableEnums' AS JSON,
         [OwnedCollectionLeaf] nvarchar(max) '$.OwnedCollectionLeaf' AS JSON,
@@ -1504,7 +1509,7 @@ OUTER APPLY (
     ) AS [o]
 ) AS [o0]
 LEFT JOIN [JsonEntitiesBasicForCollection] AS [j0] ON [j].[Id] = [j0].[ParentId]
-ORDER BY [j].[Id], [o0].[Date], [o0].[Enum], [o0].[Enums], [o0].[Fraction], [o0].[NullableEnum], [o0].[NullableEnums]
+ORDER BY [j].[Id], [o0].[Date], [o0].[Enum], [o0].[Enums], [o0].[Fraction], [o0].[Id0], [o0].[NullableEnum], [o0].[NullableEnums]
 """);
     }
 
@@ -1531,9 +1536,10 @@ ORDER BY [j].[Id], [o0].[SomethingSomething]
 
         AssertSql(
             """
-SELECT [j].[Id], [o].[Name], [o].[Names], [o].[Number], [o].[Numbers], [o].[OwnedCollectionBranch], [o].[OwnedReferenceBranch]
+SELECT [j].[Id], [o].[Id], [o].[Name], [o].[Names], [o].[Number], [o].[Numbers], [o].[OwnedCollectionBranch], [o].[OwnedReferenceBranch]
 FROM [JsonEntitiesBasic] AS [j]
 CROSS APPLY OPENJSON([j].[OwnedCollectionRoot], '$') WITH (
+    [Id] int '$.Id',
     [Name] nvarchar(max) '$.Name',
     [Names] nvarchar(max) '$.Names' AS JSON,
     [Number] int '$.Number',
@@ -1550,13 +1556,14 @@ CROSS APPLY OPENJSON([j].[OwnedCollectionRoot], '$') WITH (
 
         AssertSql(
             """
-SELECT [j].[Id], [o].[Date], [o].[Enum], [o].[Enums], [o].[Fraction], [o].[NullableEnum], [o].[NullableEnums], [o].[OwnedCollectionLeaf], [o].[OwnedReferenceLeaf]
+SELECT [j].[Id], [o].[Date], [o].[Enum], [o].[Enums], [o].[Fraction], [o].[Id], [o].[NullableEnum], [o].[NullableEnums], [o].[OwnedCollectionLeaf], [o].[OwnedReferenceLeaf]
 FROM [JsonEntitiesBasic] AS [j]
 CROSS APPLY OPENJSON([j].[OwnedReferenceRoot], '$.OwnedCollectionBranch') WITH (
     [Date] datetime2 '$.Date',
     [Enum] int '$.Enum',
     [Enums] nvarchar(max) '$.Enums' AS JSON,
     [Fraction] decimal(18,2) '$.Fraction',
+    [Id] int '$.Id',
     [NullableEnum] int '$.NullableEnum',
     [NullableEnums] nvarchar(max) '$.NullableEnums' AS JSON,
     [OwnedCollectionLeaf] nvarchar(max) '$.OwnedCollectionLeaf' AS JSON,

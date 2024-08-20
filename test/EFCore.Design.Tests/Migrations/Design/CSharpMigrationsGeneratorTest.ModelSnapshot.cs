@@ -4378,14 +4378,17 @@ namespace RootNamespace
                                             b3.Property<int>("EntityWithStringKeyEntityWithTwoPropertiesEntityWithOnePropertyId")
                                                 .HasColumnType("int");
 
-                                            b3.Property<int>("Id")
+                                            b3.Property<int>("__synthesizedOrdinal")
                                                 .ValueGeneratedOnAdd()
+                                                .HasColumnType("int");
+
+                                            b3.Property<int>("Id")
                                                 .HasColumnType("int");
 
                                             b3.Property<string>("Name")
                                                 .HasColumnType("nvarchar(max)");
 
-                                            b3.HasKey("EntityWithStringKeyEntityWithTwoPropertiesEntityWithOnePropertyId", "Id");
+                                            b3.HasKey("EntityWithStringKeyEntityWithTwoPropertiesEntityWithOnePropertyId", "__synthesizedOrdinal");
 
                                             b3.ToTable("EntityWithOneProperty", "DefaultSchema");
 
@@ -4453,14 +4456,15 @@ namespace RootNamespace
                 Assert.Equal(nameof(EntityWithStringProperty), ownedType3.DisplayName());
                 var pkProperties3 = ownedType3.FindPrimaryKey().Properties;
                 Assert.Equal("EntityWithStringKeyEntityWithTwoPropertiesEntityWithOnePropertyId", pkProperties3[0].Name);
-                Assert.Equal("Id", pkProperties3[1].Name);
+                Assert.Equal("__synthesizedOrdinal", pkProperties3[1].Name);
 
                 var ownedProperties3 = ownedType3.GetProperties().ToList();
-                Assert.Equal(3, ownedProperties3.Count);
+                Assert.Equal(4, ownedProperties3.Count);
 
                 Assert.Equal("EntityWithStringKeyEntityWithTwoPropertiesEntityWithOnePropertyId", ownedProperties3[0].Name);
-                Assert.Equal("Id", ownedProperties3[1].Name);
-                Assert.Equal("Name", ownedProperties3[2].Name);
+                Assert.Equal("__synthesizedOrdinal", ownedProperties3[1].Name);
+                Assert.Equal("Id", ownedProperties3[2].Name);
+                Assert.Equal("Name", ownedProperties3[3].Name);
             });
 
     private class Order
