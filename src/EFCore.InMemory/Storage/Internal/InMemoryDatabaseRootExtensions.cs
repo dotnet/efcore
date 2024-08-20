@@ -1,7 +1,9 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-namespace Microsoft.EntityFrameworkCore.InMemory.Infrastructure.Internal;
+using System.Collections.Concurrent;
+
+namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 
 /// <summary>
 ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -9,13 +11,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Infrastructure.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-/// <remarks>
-///     The service lifetime is <see cref="ServiceLifetime.Singleton" /> and multiple registrations
-///     are allowed. This means a single instance of each service is used by many <see cref="DbContext" />
-///     instances. The implementation must be thread-safe.
-///     This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
-/// </remarks>
-public interface IInMemorySingletonOptions : ISingletonOptions
+public static class InMemoryDatabaseRootExtensions
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -23,5 +19,13 @@ public interface IInMemorySingletonOptions : ISingletonOptions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    bool IsNullabilityCheckEnabled { get; }
+    public static IInMemoryStore GetStore(this InMemoryDatabaseRoot root, string name, IInMemoryTableFactory tableFactory)
+    {
+        var instance = (ConcurrentDictionary<string, IInMemoryStore>)
+            LazyInitializer.EnsureInitialized(
+                ref root.Instance,
+                () => new ConcurrentDictionary<string, IInMemoryStore>());
+
+        return instance.GetOrAdd(name, static (_, f) => new InMemoryStore(f), tableFactory);
+    }
 }
