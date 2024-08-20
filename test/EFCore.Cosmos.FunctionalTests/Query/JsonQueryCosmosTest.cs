@@ -8,8 +8,6 @@ using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-// #34395
-[CosmosCondition(CosmosCondition.DoesNotUseTokenCredential)]
 public class JsonQueryCosmosTest : JsonQueryTestBase<JsonQueryCosmosFixture>
 {
     private const string NotImplementedBindPropertyMessage
@@ -36,7 +34,6 @@ WHERE (c["Discriminator"] = "Basic")
 """);
             });
 
-    [ConditionalTheory]
     public override async Task Basic_json_projection_owned_collection_branch(bool async)
     {
         // Always throws for sync.
@@ -48,7 +45,6 @@ WHERE (c["Discriminator"] = "Basic")
         }
     }
 
-    [ConditionalTheory]
     public override async Task Basic_json_projection_owned_collection_branch_NoTrackingWithIdentityResolution(bool async)
     {
         // Always throws for sync.
@@ -60,7 +56,6 @@ WHERE (c["Discriminator"] = "Basic")
         }
     }
 
-    [ConditionalTheory]
     public override async Task Basic_json_projection_owned_collection_leaf(bool async)
     {
         // Always throws for sync.
@@ -102,7 +97,6 @@ WHERE (c["Discriminator"] = "Basic")
 """);
             });
 
-    [ConditionalTheory]
     public override Task Basic_json_projection_owned_reference_branch(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -117,7 +111,6 @@ WHERE (c["Discriminator"] = "Basic")
 """);
             });
 
-    [ConditionalTheory]
     public override Task Basic_json_projection_owned_reference_branch_NoTrackingWithIdentityResolution(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -132,7 +125,6 @@ WHERE (c["Discriminator"] = "Basic")
 """);
             });
 
-    [ConditionalTheory]
     public override Task Basic_json_projection_owned_reference_duplicated(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -148,7 +140,6 @@ ORDER BY c["Id"]
 """);
             });
 
-    [ConditionalTheory]
     public override Task Basic_json_projection_owned_reference_duplicated2(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -164,7 +155,6 @@ ORDER BY c["Id"]
 """);
             });
 
-    [ConditionalTheory]
     public override Task Basic_json_projection_owned_reference_duplicated2_NoTrackingWithIdentityResolution(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -180,7 +170,6 @@ ORDER BY c["Id"]
 """);
             });
 
-    [ConditionalTheory]
     public override Task Basic_json_projection_owned_reference_duplicated_NoTrackingWithIdentityResolution(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -196,7 +185,6 @@ ORDER BY c["Id"]
 """);
             });
 
-    [ConditionalTheory]
     public override Task Basic_json_projection_owned_reference_leaf(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -407,7 +395,6 @@ ORDER BY c["Id"]
 """);
             });
 
-    [ConditionalTheory]
     public override Task Custom_naming_projection_owned_reference(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -744,7 +731,6 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedCollectionRoot"][1]["Name"] !
         => AssertTranslationFailed(
             () => base.Json_collection_filter_in_projection(async));
 
-    [ConditionalTheory]
     public override async Task Json_collection_index_in_predicate_nested_mix(bool async)
     {
         var message = (await Assert.ThrowsAsync<NotImplementedException>(
@@ -818,7 +804,6 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedCollectionRoot"][@__prm_0]["N
                 AssertSql("");
             });
 
-    [ConditionalTheory]
     public override async Task Json_collection_index_in_projection_nested(bool async)
     {
         var message = (await Assert.ThrowsAsync<NotImplementedException>(
@@ -828,7 +813,6 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedCollectionRoot"][@__prm_0]["N
         Assert.Equal(NotImplementedBindPropertyMessage, message);
     }
 
-    [ConditionalTheory]
     public override async Task Json_collection_index_in_projection_nested_project_collection(bool async)
     {
         var message = (await Assert.ThrowsAsync<NotImplementedException>(
@@ -838,7 +822,6 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedCollectionRoot"][@__prm_0]["N
         Assert.Equal(NotImplementedBindPropertyMessage, message);
     }
 
-    [ConditionalTheory]
     public override async Task Json_collection_index_in_projection_nested_project_collection_anonymous_projection(bool async)
     {
         var message = (await Assert.ThrowsAsync<NotImplementedException>(
@@ -848,7 +831,6 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedCollectionRoot"][@__prm_0]["N
         Assert.Equal(NotImplementedBindPropertyMessage, message);
     }
 
-    [ConditionalTheory]
     public override async Task Json_collection_index_in_projection_nested_project_reference(bool async)
     {
         var message = (await Assert.ThrowsAsync<NotImplementedException>(
@@ -858,7 +840,6 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedCollectionRoot"][@__prm_0]["N
         Assert.Equal(NotImplementedBindPropertyMessage, message);
     }
 
-    [ConditionalTheory]
     public override async Task Json_collection_index_in_projection_nested_project_scalar(bool async)
     {
         var message = (await Assert.ThrowsAsync<NotImplementedException>(
@@ -966,7 +947,6 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedCollectionRoot"][@__prm_0]["N
                 AssertSql("");
             });
 
-    [ConditionalTheory]
     public override async Task Json_collection_index_in_projection_when_owner_is_not_present_multiple(bool async)
     {
         var message = (await Assert.ThrowsAsync<NotImplementedException>(
@@ -976,7 +956,6 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedCollectionRoot"][@__prm_0]["N
         Assert.Equal(NotImplementedBindPropertyMessage, message);
     }
 
-    [ConditionalTheory]
     public override async Task Json_collection_index_in_projection_when_owner_is_present_misc1(bool async)
     {
         var message = (await Assert.ThrowsAsync<NotImplementedException>(
@@ -996,7 +975,6 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedCollectionRoot"][@__prm_0]["N
                 AssertSql("");
             });
 
-    [ConditionalTheory]
     public override async Task Json_collection_index_in_projection_when_owner_is_present_multiple(bool async)
     {
         var message = (await Assert.ThrowsAsync<NotImplementedException>(
@@ -1027,11 +1005,9 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedCollectionRoot"][@__prm_0]["N
             });
 
     // returns "wrong" results by design - see #34351 for more context
-    [ConditionalTheory]
     public override Task Json_collection_index_outside_bounds_with_property_access(bool async)
         => Task.CompletedTask;
 
-    [ConditionalTheory]
     public override async Task Json_collection_index_with_expression_Select_ElementAt(bool async)
     {
         var message = (await Assert.ThrowsAsync<NotImplementedException>(
@@ -1041,7 +1017,6 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedCollectionRoot"][@__prm_0]["N
         Assert.Equal(NotImplementedBindPropertyMessage, message);
     }
 
-    [ConditionalTheory]
     public override async Task Json_collection_index_with_parameter_Select_ElementAt(bool async)
     {
         var message = (await Assert.ThrowsAsync<NotImplementedException>(
@@ -1974,7 +1949,6 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestUnsignedInt64"
           () => base.Json_projection_deduplication_with_collection_indexer_in_target(async),
           CosmosStrings.LimitOffsetNotSupportedInSubqueries);
 
-    [ConditionalTheory]
     public override async Task Json_projection_deduplication_with_collection_in_original_and_collection_indexer_in_target(bool async)
     {
         var message = (await Assert.ThrowsAsync<NotImplementedException>(
@@ -2003,7 +1977,6 @@ WHERE (c["Discriminator"] = "CustomNaming")
           () => base.Json_projection_nested_collection_and_element_correct_order_AsNoTrackingWithIdentityResolution(async),
           CosmosStrings.LimitOffsetNotSupportedInSubqueries);
 
-    [ConditionalTheory]
     public override async Task Json_projection_nested_collection_element_using_parameter_and_the_owner_in_correct_order_AsNoTrackingWithIdentityResolution(bool async)
     {
         var message = (await Assert.ThrowsAsync<NotImplementedException>(
@@ -2027,7 +2000,6 @@ WHERE (c["Discriminator"] = "Basic")
 """);
             });
 
-    [ConditionalTheory]
     public override async Task Json_projection_only_second_element_through_collection_element_constant_projected_nested_AsNoTrackingWithIdentityResolution(bool async)
     {
         var message = (await Assert.ThrowsAsync<NotImplementedException>(
@@ -2037,7 +2009,6 @@ WHERE (c["Discriminator"] = "Basic")
         Assert.Equal(NotImplementedBindPropertyMessage, message);
     }
 
-    [ConditionalTheory]
     public override async Task Json_projection_only_second_element_through_collection_element_parameter_projected_nested_AsNoTrackingWithIdentityResolution(bool async)
     {
         var message = (await Assert.ThrowsAsync<NotImplementedException>(
@@ -2081,7 +2052,6 @@ WHERE (c["Discriminator"] = "Basic")
                 AssertSql("");
             });
 
-    [ConditionalTheory]
     public override async Task Json_projection_second_element_through_collection_element_constant_different_values_projected_before_owner_nested_AsNoTrackingWithIdentityResolution(bool async)
     {
         var message = (await Assert.ThrowsAsync<NotImplementedException>(
@@ -2111,7 +2081,6 @@ WHERE (c["Discriminator"] = "Basic")
                 AssertSql("");
             });
 
-    [ConditionalTheory]
     public override Task Json_projection_with_deduplication_reverse_order(bool async)
         => Fixture.NoSyncTest(
             async, async a =>

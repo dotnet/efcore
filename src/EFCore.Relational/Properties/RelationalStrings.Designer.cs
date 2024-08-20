@@ -1140,12 +1140,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 keyProperty, jsonEntity);
 
         /// <summary>
-        ///     Entity type '{jsonEntity}' is part of a collection mapped to JSON and has its ordinal key defined explicitly. Only implicitly defined ordinal keys are supported.
+        ///     The property '{entityType}.{property}' is configured as part of the primary key. Explicitly configured primary keys are not supported on entities stored in JSON collections, and any key configuration should be removed.
         /// </summary>
-        public static string JsonEntityWithExplicitlyConfiguredOrdinalKey(object? jsonEntity)
+        public static string JsonEntityWithExplicitlyConfiguredKey(object? entityType, object? property)
             => string.Format(
-                GetString("JsonEntityWithExplicitlyConfiguredOrdinalKey", nameof(jsonEntity)),
-                jsonEntity);
+                GetString("JsonEntityWithExplicitlyConfiguredKey", nameof(entityType), nameof(property)),
+                entityType, property);
 
         /// <summary>
         ///     Entity type '{jsonEntity}' has an incorrect number of primary key properties. Expected number is: {expectedCount}, actual number is: {actualCount}.
@@ -2130,7 +2130,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 nodeType, expressionType);
 
         /// <summary>
-        ///     No relational type mapping can be found for property '{entity}.{property}' and the current provider doesn't specify a default store type for the properties of type '{clrType}'. 
+        ///     No relational type mapping can be found for property '{entity}.{property}' and the current provider doesn't specify a default store type for the properties of type '{clrType}'.
         /// </summary>
         public static string UnsupportedPropertyType(object? entity, object? property, object? clrType)
             => string.Format(
