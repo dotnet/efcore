@@ -48,6 +48,7 @@ public class JsonQueryData : ISetSource
 
         var e1_r_r = new JsonOwnedBranch
         {
+            Id = 88,
             Date = new DateTime(2100, 1, 1),
             Fraction = 10.0M,
             Enum = JsonEnum.One,
@@ -73,6 +74,7 @@ public class JsonQueryData : ISetSource
 
         var e1_r_c1 = new JsonOwnedBranch
         {
+            Id = 89,
             Date = new DateTime(2101, 1, 1),
             Fraction = 10.1M,
             Enum = JsonEnum.Two,
@@ -98,6 +100,7 @@ public class JsonQueryData : ISetSource
 
         var e1_r_c2 = new JsonOwnedBranch
         {
+            Id = 90,
             Date = new DateTime(2102, 1, 1),
             Fraction = 10.2M,
             Enum = JsonEnum.Three,
@@ -137,6 +140,7 @@ public class JsonQueryData : ISetSource
 
         var e1_c1_r = new JsonOwnedBranch
         {
+            Id = 91,
             Date = new DateTime(2110, 1, 1),
             Fraction = 11.0M,
             Enum = JsonEnum.One,
@@ -162,6 +166,7 @@ public class JsonQueryData : ISetSource
 
         var e1_c1_c1 = new JsonOwnedBranch
         {
+            Id = 92,
             Date = new DateTime(2111, 1, 1),
             Fraction = 11.1M,
             Enum = JsonEnum.Two,
@@ -187,6 +192,7 @@ public class JsonQueryData : ISetSource
 
         var e1_c1_c2 = new JsonOwnedBranch
         {
+            Id = 93,
             Date = new DateTime(2112, 1, 1),
             Fraction = 11.2M,
             Enum = JsonEnum.Three,
@@ -226,6 +232,7 @@ public class JsonQueryData : ISetSource
 
         var e1_c2_r = new JsonOwnedBranch
         {
+            Id = 94,
             Date = new DateTime(2120, 1, 1),
             Fraction = 12.0M,
             Enum = JsonEnum.Three,
@@ -251,6 +258,7 @@ public class JsonQueryData : ISetSource
 
         var e1_c2_c1 = new JsonOwnedBranch
         {
+            Id = 95,
             Date = new DateTime(2121, 1, 1),
             Fraction = 12.1M,
             Enum = JsonEnum.Two,
@@ -276,6 +284,7 @@ public class JsonQueryData : ISetSource
 
         var e1_c2_c2 = new JsonOwnedBranch
         {
+            Id = 96,
             Date = new DateTime(2122, 1, 1),
             Fraction = 12.2M,
             Enum = JsonEnum.One,
@@ -512,6 +521,7 @@ public class JsonQueryData : ISetSource
 
         var b1_r = new JsonOwnedBranch
         {
+            Id = 97,
             Date = new DateTime(2010, 1, 1),
             Fraction = 1.0M,
             Enum = JsonEnum.One,
@@ -530,6 +540,7 @@ public class JsonQueryData : ISetSource
 
         var b1_c1 = new JsonOwnedBranch
         {
+            Id = 98,
             Date = new DateTime(2011, 1, 1),
             Fraction = 11.1M,
             Enum = JsonEnum.Three,
@@ -548,6 +559,7 @@ public class JsonQueryData : ISetSource
 
         var b1_c2 = new JsonOwnedBranch
         {
+            Id = 99,
             Date = new DateTime(2012, 1, 1),
             Fraction = 12.1M,
             Enum = JsonEnum.Two,
@@ -566,6 +578,7 @@ public class JsonQueryData : ISetSource
 
         var b2_r = new JsonOwnedBranch
         {
+            Id = 100,
             Date = new DateTime(2020, 1, 1),
             Fraction = 2.0M,
             Enum = JsonEnum.Two,
@@ -584,6 +597,7 @@ public class JsonQueryData : ISetSource
 
         var b2_c1 = new JsonOwnedBranch
         {
+            Id = 101,
             Date = new DateTime(2021, 1, 1),
             Fraction = 21.1M,
             Enum = JsonEnum.Three,
@@ -602,6 +616,7 @@ public class JsonQueryData : ISetSource
 
         var b2_c2 = new JsonOwnedBranch
         {
+            Id = 102,
             Date = new DateTime(2022, 1, 1),
             Fraction = 22.1M,
             Enum = JsonEnum.One,
@@ -620,6 +635,7 @@ public class JsonQueryData : ISetSource
 
         var d2_r = new JsonOwnedBranch
         {
+            Id = 103,
             Date = new DateTime(2220, 1, 1),
             Fraction = 22.0M,
             Enum = JsonEnum.One,
@@ -638,6 +654,7 @@ public class JsonQueryData : ISetSource
 
         var d2_c1 = new JsonOwnedBranch
         {
+            Id = 104,
             Date = new DateTime(2221, 1, 1),
             Fraction = 221.1M,
             Enum = JsonEnum.Two,
@@ -656,6 +673,7 @@ public class JsonQueryData : ISetSource
 
         var d2_c2 = new JsonOwnedBranch
         {
+            Id = 105,
             Date = new DateTime(2222, 1, 1),
             Fraction = 222.1M,
             Enum = JsonEnum.Three,

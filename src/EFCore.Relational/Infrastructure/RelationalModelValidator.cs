@@ -2788,23 +2788,24 @@ public class RelationalModelValidator : ModelValidator
         {
             if (primaryKeyProperty.GetJsonPropertyName() != null)
             {
-                // issue #28594
+                // Issue #28594
                 throw new InvalidOperationException(
                     RelationalStrings.JsonEntityWithExplicitlyConfiguredJsonPropertyNameOnKey(
                         primaryKeyProperty.Name, jsonEntityType.DisplayName()));
             }
-        }
 
-        if (!ownership.IsUnique)
-        {
-            // for collection entities, make sure that ordinal key is not explicitly defined
-            var ordinalKeyProperty = primaryKeyProperties.Last();
-            if (!ordinalKeyProperty.IsOrdinalKeyProperty())
+            if (!ownership.IsUnique)
             {
-                // issue #28594
-                throw new InvalidOperationException(
-                    RelationalStrings.JsonEntityWithExplicitlyConfiguredOrdinalKey(
-                        jsonEntityType.DisplayName()));
+                // For collection entities, no key properties other than the generated ones are allowed because they
+                // will not be persisted.
+                if (!primaryKeyProperty.IsOrdinalKeyProperty()
+                    && !primaryKeyProperty.IsForeignKey())
+                {
+                    // issue #28594
+                    throw new InvalidOperationException(
+                        RelationalStrings.JsonEntityWithExplicitlyConfiguredKey(
+                            jsonEntityType.DisplayName(), primaryKeyProperty.Name));
+                }
             }
         }
 

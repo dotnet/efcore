@@ -79,9 +79,15 @@ public abstract class RelationalConventionSetBuilder : ProviderConventionSetBuil
 
         conventionSet.Replace<ValueGenerationConvention>(
             new RelationalValueGenerationConvention(Dependencies, RelationalDependencies));
+
+        conventionSet.Replace<KeyDiscoveryConvention>(
+            new RelationalKeyDiscoveryConvention(Dependencies, RelationalDependencies));
+
         conventionSet.Replace<QueryFilterRewritingConvention>(
             new RelationalQueryFilterRewritingConvention(Dependencies, RelationalDependencies));
-        conventionSet.Replace<RuntimeModelConvention>(new RelationalRuntimeModelConvention(Dependencies, RelationalDependencies));
+
+        conventionSet.Replace<RuntimeModelConvention>(
+            new RelationalRuntimeModelConvention(Dependencies, RelationalDependencies));
 
         return conventionSet;
     }

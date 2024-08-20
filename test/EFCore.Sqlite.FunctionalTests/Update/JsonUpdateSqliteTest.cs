@@ -21,7 +21,7 @@ public class JsonUpdateSqliteTest : JsonUpdateTestBase<JsonUpdateSqliteFixture>
 
         AssertSql(
             """
-@p0='[{"Date":"2101-01-01 00:00:00","Enum":2,"Enums":[-1,-1,2],"Fraction":"10.1","NullableEnum":-1,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_r_c1_c1"},{"SomethingSomething":"e1_r_c1_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_r_c1_r"}},{"Date":"2102-01-01 00:00:00","Enum":-3,"Enums":[-1,-1,2],"Fraction":"10.2","NullableEnum":2,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_r_c2_c1"},{"SomethingSomething":"e1_r_c2_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_r_c2_r"}},{"Date":"2010-10-10 00:00:00","Enum":-3,"Enums":null,"Fraction":"42.42","NullableEnum":null,"NullableEnums":null,"OwnedCollectionLeaf":[{"SomethingSomething":"ss1"},{"SomethingSomething":"ss2"}],"OwnedReferenceLeaf":{"SomethingSomething":"ss3"}}]' (Nullable = false) (Size = 795)
+@p0='[{"Date":"2101-01-01 00:00:00","Enum":2,"Enums":[-1,-1,2],"Fraction":"10.1","Id":89,"NullableEnum":-1,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_r_c1_c1"},{"SomethingSomething":"e1_r_c1_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_r_c1_r"}},{"Date":"2102-01-01 00:00:00","Enum":-3,"Enums":[-1,-1,2],"Fraction":"10.2","Id":90,"NullableEnum":2,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_r_c2_c1"},{"SomethingSomething":"e1_r_c2_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_r_c2_r"}},{"Date":"2010-10-10 00:00:00","Enum":-3,"Enums":null,"Fraction":"42.42","Id":77,"NullableEnum":null,"NullableEnums":null,"OwnedCollectionLeaf":[{"SomethingSomething":"ss1"},{"SomethingSomething":"ss2"}],"OwnedReferenceLeaf":{"SomethingSomething":"ss3"}}]' (Nullable = false) (Size = 819)
 @p1='1'
 
 UPDATE "JsonEntitiesBasic" SET "OwnedReferenceRoot" = json_set("OwnedReferenceRoot", '$.OwnedCollectionBranch', json(@p0))
@@ -63,7 +63,7 @@ LIMIT 2
 
         AssertSql(
             """
-@p0='[{"Date":"2221-01-01 00:00:00","Enum":2,"Enums":[-1,-1,2],"Fraction":"221.1","NullableEnum":-1,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"d2_r_c1"},{"SomethingSomething":"d2_r_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"d2_r_r"}},{"Date":"2222-01-01 00:00:00","Enum":-3,"Enums":[-1,-1,2],"Fraction":"222.1","NullableEnum":2,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"d2_r_c1"},{"SomethingSomething":"d2_r_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"d2_r_r"}},{"Date":"2010-10-10 00:00:00","Enum":-3,"Enums":null,"Fraction":"42.42","NullableEnum":null,"NullableEnums":null,"OwnedCollectionLeaf":[{"SomethingSomething":"ss1"},{"SomethingSomething":"ss2"}],"OwnedReferenceLeaf":{"SomethingSomething":"ss3"}}]' (Nullable = false) (Size = 779)
+@p0='[{"Date":"2221-01-01 00:00:00","Enum":2,"Enums":[-1,-1,2],"Fraction":"221.1","Id":104,"NullableEnum":-1,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"d2_r_c1"},{"SomethingSomething":"d2_r_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"d2_r_r"}},{"Date":"2222-01-01 00:00:00","Enum":-3,"Enums":[-1,-1,2],"Fraction":"222.1","Id":105,"NullableEnum":2,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"d2_r_c1"},{"SomethingSomething":"d2_r_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"d2_r_r"}},{"Date":"2010-10-10 00:00:00","Enum":-3,"Enums":null,"Fraction":"42.42","Id":77,"NullableEnum":null,"NullableEnums":null,"OwnedCollectionLeaf":[{"SomethingSomething":"ss1"},{"SomethingSomething":"ss2"}],"OwnedReferenceLeaf":{"SomethingSomething":"ss3"}}]' (Nullable = false) (Size = 805)
 @p1='2'
 
 UPDATE "JsonEntitiesInheritance" SET "CollectionOnDerived" = @p0
@@ -85,7 +85,7 @@ LIMIT 2
 
         AssertSql(
             """
-@p0='[{"Name":"e1_c1","Names":["e1_c11","e1_c12"],"Number":11,"Numbers":[-1000,0,1000],"OwnedCollectionBranch":[{"Date":"2111-01-01 00:00:00","Enum":2,"Enums":[-1,-1,2],"Fraction":"11.1","NullableEnum":-1,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c1_c1_c1"},{"SomethingSomething":"e1_c1_c1_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c1_c1_r"}},{"Date":"2112-01-01 00:00:00","Enum":-3,"Enums":[-1,-1,2],"Fraction":"11.2","NullableEnum":2,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c1_c2_c1"},{"SomethingSomething":"e1_c1_c2_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c1_c2_r"}}],"OwnedReferenceBranch":{"Date":"2110-01-01 00:00:00","Enum":-1,"Enums":[-1,-1,2],"Fraction":"11.0","NullableEnum":null,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c1_r_c1"},{"SomethingSomething":"e1_c1_r_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c1_r_r"}}},{"Name":"e1_c2","Names":["e1_c21","e1_c22"],"Number":12,"Numbers":[-1001,0,1001],"OwnedCollectionBranch":[{"Date":"2121-01-01 00:00:00","Enum":2,"Enums":[-1,-1,2],"Fraction":"12.1","NullableEnum":-1,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c2_c1_c1"},{"SomethingSomething":"e1_c2_c1_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c2_c1_r"}},{"Date":"2122-01-01 00:00:00","Enum":-1,"Enums":[-1,-1,2],"Fraction":"12.2","NullableEnum":null,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c2_c2_c1"},{"SomethingSomething":"e1_c2_c2_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c2_c2_r"}}],"OwnedReferenceBranch":{"Date":"2120-01-01 00:00:00","Enum":-3,"Enums":[-1,-1,2],"Fraction":"12.0","NullableEnum":2,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c2_r_c1"},{"SomethingSomething":"e1_c2_r_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c2_r_r"}}},{"Name":"new Name","Names":null,"Number":142,"Numbers":null,"OwnedCollectionBranch":[],"OwnedReferenceBranch":{"Date":"2010-10-10 00:00:00","Enum":-3,"Enums":null,"Fraction":"42.42","NullableEnum":null,"NullableEnums":null,"OwnedCollectionLeaf":[{"SomethingSomething":"ss1"},{"SomethingSomething":"ss2"}],"OwnedReferenceLeaf":{"SomethingSomething":"ss3"}}}]' (Nullable = false) (Size = 2282)
+@p0='[{"Id":0,"Name":"e1_c1","Names":["e1_c11","e1_c12"],"Number":11,"Numbers":[-1000,0,1000],"OwnedCollectionBranch":[{"Date":"2111-01-01 00:00:00","Enum":2,"Enums":[-1,-1,2],"Fraction":"11.1","Id":92,"NullableEnum":-1,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c1_c1_c1"},{"SomethingSomething":"e1_c1_c1_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c1_c1_r"}},{"Date":"2112-01-01 00:00:00","Enum":-3,"Enums":[-1,-1,2],"Fraction":"11.2","Id":93,"NullableEnum":2,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c1_c2_c1"},{"SomethingSomething":"e1_c1_c2_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c1_c2_r"}}],"OwnedReferenceBranch":{"Date":"2110-01-01 00:00:00","Enum":-1,"Enums":[-1,-1,2],"Fraction":"11.0","Id":91,"NullableEnum":null,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c1_r_c1"},{"SomethingSomething":"e1_c1_r_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c1_r_r"}}},{"Id":0,"Name":"e1_c2","Names":["e1_c21","e1_c22"],"Number":12,"Numbers":[-1001,0,1001],"OwnedCollectionBranch":[{"Date":"2121-01-01 00:00:00","Enum":2,"Enums":[-1,-1,2],"Fraction":"12.1","Id":95,"NullableEnum":-1,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c2_c1_c1"},{"SomethingSomething":"e1_c2_c1_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c2_c1_r"}},{"Date":"2122-01-01 00:00:00","Enum":-1,"Enums":[-1,-1,2],"Fraction":"12.2","Id":96,"NullableEnum":null,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c2_c2_c1"},{"SomethingSomething":"e1_c2_c2_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c2_c2_r"}}],"OwnedReferenceBranch":{"Date":"2120-01-01 00:00:00","Enum":-3,"Enums":[-1,-1,2],"Fraction":"12.0","Id":94,"NullableEnum":2,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c2_r_c1"},{"SomethingSomething":"e1_c2_r_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c2_r_r"}}},{"Id":0,"Name":"new Name","Names":null,"Number":142,"Numbers":null,"OwnedCollectionBranch":[],"OwnedReferenceBranch":{"Date":"2010-10-10 00:00:00","Enum":-3,"Enums":null,"Fraction":"42.42","Id":7,"NullableEnum":null,"NullableEnums":null,"OwnedCollectionLeaf":[{"SomethingSomething":"ss1"},{"SomethingSomething":"ss2"}],"OwnedReferenceLeaf":{"SomethingSomething":"ss3"}}}]' (Nullable = false) (Size = 2358)
 @p1='1'
 
 UPDATE "JsonEntitiesBasic" SET "OwnedCollectionRoot" = @p0
@@ -106,7 +106,7 @@ LIMIT 2
 
         AssertSql(
             """
-@p0='[{"Name":"e1_c1","Names":["e1_c11","e1_c12"],"Number":11,"Numbers":[-1000,0,1000],"OwnedCollectionBranch":[{"Date":"2111-01-01 00:00:00","Enum":2,"Enums":[-1,-1,2],"Fraction":"11.1","NullableEnum":-1,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c1_c1_c1"},{"SomethingSomething":"e1_c1_c1_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c1_c1_r"}},{"Date":"2112-01-01 00:00:00","Enum":-3,"Enums":[-1,-1,2],"Fraction":"11.2","NullableEnum":2,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c1_c2_c1"},{"SomethingSomething":"e1_c1_c2_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c1_c2_r"}}],"OwnedReferenceBranch":{"Date":"2110-01-01 00:00:00","Enum":-1,"Enums":[-1,-1,2],"Fraction":"11.0","NullableEnum":null,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c1_r_c1"},{"SomethingSomething":"e1_c1_r_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c1_r_r"}}},{"Name":"e1_c2","Names":["e1_c21","e1_c22"],"Number":12,"Numbers":[-1001,0,1001],"OwnedCollectionBranch":[{"Date":"2121-01-01 00:00:00","Enum":2,"Enums":[-1,-1,2],"Fraction":"12.1","NullableEnum":-1,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c2_c1_c1"},{"SomethingSomething":"e1_c2_c1_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c2_c1_r"}},{"Date":"2122-01-01 00:00:00","Enum":-1,"Enums":[-1,-1,2],"Fraction":"12.2","NullableEnum":null,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c2_c2_c1"},{"SomethingSomething":"e1_c2_c2_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c2_c2_r"}}],"OwnedReferenceBranch":{"Date":"2120-01-01 00:00:00","Enum":-3,"Enums":[-1,-1,2],"Fraction":"12.0","NullableEnum":2,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c2_r_c1"},{"SomethingSomething":"e1_c2_r_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c2_r_r"}}},{"Name":"new Name","Names":null,"Number":142,"Numbers":null,"OwnedCollectionBranch":null,"OwnedReferenceBranch":{"Date":"2010-10-10 00:00:00","Enum":-3,"Enums":null,"Fraction":"42.42","NullableEnum":null,"NullableEnums":null,"OwnedCollectionLeaf":null,"OwnedReferenceLeaf":null}}]' (Nullable = false) (Size = 2205)
+@p0='[{"Id":0,"Name":"e1_c1","Names":["e1_c11","e1_c12"],"Number":11,"Numbers":[-1000,0,1000],"OwnedCollectionBranch":[{"Date":"2111-01-01 00:00:00","Enum":2,"Enums":[-1,-1,2],"Fraction":"11.1","Id":92,"NullableEnum":-1,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c1_c1_c1"},{"SomethingSomething":"e1_c1_c1_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c1_c1_r"}},{"Date":"2112-01-01 00:00:00","Enum":-3,"Enums":[-1,-1,2],"Fraction":"11.2","Id":93,"NullableEnum":2,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c1_c2_c1"},{"SomethingSomething":"e1_c1_c2_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c1_c2_r"}}],"OwnedReferenceBranch":{"Date":"2110-01-01 00:00:00","Enum":-1,"Enums":[-1,-1,2],"Fraction":"11.0","Id":91,"NullableEnum":null,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c1_r_c1"},{"SomethingSomething":"e1_c1_r_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c1_r_r"}}},{"Id":0,"Name":"e1_c2","Names":["e1_c21","e1_c22"],"Number":12,"Numbers":[-1001,0,1001],"OwnedCollectionBranch":[{"Date":"2121-01-01 00:00:00","Enum":2,"Enums":[-1,-1,2],"Fraction":"12.1","Id":95,"NullableEnum":-1,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c2_c1_c1"},{"SomethingSomething":"e1_c2_c1_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c2_c1_r"}},{"Date":"2122-01-01 00:00:00","Enum":-1,"Enums":[-1,-1,2],"Fraction":"12.2","Id":96,"NullableEnum":null,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c2_c2_c1"},{"SomethingSomething":"e1_c2_c2_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c2_c2_r"}}],"OwnedReferenceBranch":{"Date":"2120-01-01 00:00:00","Enum":-3,"Enums":[-1,-1,2],"Fraction":"12.0","Id":94,"NullableEnum":2,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c2_r_c1"},{"SomethingSomething":"e1_c2_r_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c2_r_r"}}},{"Id":0,"Name":"new Name","Names":null,"Number":142,"Numbers":null,"OwnedCollectionBranch":null,"OwnedReferenceBranch":{"Date":"2010-10-10 00:00:00","Enum":-3,"Enums":null,"Fraction":"42.42","Id":7,"NullableEnum":null,"NullableEnums":null,"OwnedCollectionLeaf":null,"OwnedReferenceLeaf":null}}]' (Nullable = false) (Size = 2281)
 @p1='1'
 
 UPDATE "JsonEntitiesBasic" SET "OwnedCollectionRoot" = @p0
@@ -127,7 +127,7 @@ LIMIT 2
 
         AssertSql(
             """
-@p0='{"Name":"RootName","Names":null,"Number":42,"Numbers":null,"OwnedCollectionBranch":[],"OwnedReferenceBranch":{"Date":"2010-10-10 00:00:00","Enum":-3,"Enums":null,"Fraction":"42.42","NullableEnum":null,"NullableEnums":null,"OwnedCollectionLeaf":[{"SomethingSomething":"ss1"},{"SomethingSomething":"ss2"}],"OwnedReferenceLeaf":{"SomethingSomething":"ss3"}}}' (Nullable = false) (Size = 355)
+@p0='{"Id":0,"Name":"RootName","Names":null,"Number":42,"Numbers":null,"OwnedCollectionBranch":[],"OwnedReferenceBranch":{"Date":"2010-10-10 00:00:00","Enum":-3,"Enums":null,"Fraction":"42.42","Id":7,"NullableEnum":null,"NullableEnums":null,"OwnedCollectionLeaf":[{"SomethingSomething":"ss1"},{"SomethingSomething":"ss2"}],"OwnedReferenceLeaf":{"SomethingSomething":"ss3"}}}' (Nullable = false) (Size = 369)
 @p1='[]' (Nullable = false) (Size = 2)
 @p2='2'
 @p3=NULL (DbType = Int32)
@@ -149,7 +149,7 @@ FROM "JsonEntitiesBasic" AS "j"
 
         AssertSql(
             """
-@p0='{"Name":"RootName","Names":null,"Number":42,"Numbers":null,"OwnedCollectionBranch":null,"OwnedReferenceBranch":{"Date":"2010-10-10 00:00:00","Enum":-3,"Enums":null,"Fraction":"42.42","NullableEnum":null,"NullableEnums":null,"OwnedCollectionLeaf":[{"SomethingSomething":"ss1"},{"SomethingSomething":"ss2"}],"OwnedReferenceLeaf":null}}' (Nullable = false) (Size = 333)
+@p0='{"Id":0,"Name":"RootName","Names":null,"Number":42,"Numbers":null,"OwnedCollectionBranch":null,"OwnedReferenceBranch":{"Date":"2010-10-10 00:00:00","Enum":-3,"Enums":null,"Fraction":"42.42","Id":7,"NullableEnum":null,"NullableEnums":null,"OwnedCollectionLeaf":[{"SomethingSomething":"ss1"},{"SomethingSomething":"ss2"}],"OwnedReferenceLeaf":null}}' (Nullable = false) (Size = 347)
 @p1='2'
 @p2=NULL (DbType = Int32)
 @p3='NewEntity' (Size = 9)
@@ -191,7 +191,7 @@ LIMIT 2
 
         AssertSql(
             """
-@p0='{"Name":"RootName","Names":null,"Number":42,"Numbers":null,"OwnedCollectionBranch":[],"OwnedReferenceBranch":{"Date":"2010-10-10 00:00:00","Enum":-3,"Enums":null,"Fraction":"42.42","NullableEnum":null,"NullableEnums":null,"OwnedCollectionLeaf":[{"SomethingSomething":"ss1"},{"SomethingSomething":"ss2"}],"OwnedReferenceLeaf":{"SomethingSomething":"ss3"}}}' (Nullable = false) (Size = 355)
+@p0='{"Id":0,"Name":"RootName","Names":null,"Number":42,"Numbers":null,"OwnedCollectionBranch":[],"OwnedReferenceBranch":{"Date":"2010-10-10 00:00:00","Enum":-3,"Enums":null,"Fraction":"42.42","Id":7,"NullableEnum":null,"NullableEnums":null,"OwnedCollectionLeaf":[{"SomethingSomething":"ss1"},{"SomethingSomething":"ss2"}],"OwnedReferenceLeaf":{"SomethingSomething":"ss3"}}}' (Nullable = false) (Size = 369)
 @p1='1'
 
 UPDATE "JsonEntitiesBasic" SET "OwnedReferenceRoot" = @p0
@@ -378,8 +378,8 @@ LIMIT 2
 
         AssertSql(
             """
-@p0='[{"Date":"2111-01-01 00:00:00","Enum":2,"Enums":[-1,-1,2],"Fraction":"11.1","NullableEnum":-1,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"...and another"},{"SomethingSomething":"e1_c1_c1_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c1_c1_r"}},{"Date":"2112-01-01 00:00:00","Enum":-3,"Enums":[-1,-1,2],"Fraction":"11.2","NullableEnum":2,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"yet another change"},{"SomethingSomething":"and another"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c1_c2_r"}}]' (Nullable = false) (Size = 565)
-@p1='{"Name":"edit","Names":["e1_r1","e1_r2"],"Number":10,"Numbers":[-2147483648,-1,0,1,2147483647],"OwnedCollectionBranch":[{"Date":"2101-01-01 00:00:00","Enum":2,"Enums":[-1,-1,2],"Fraction":"10.1","NullableEnum":-1,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_r_c1_c1"},{"SomethingSomething":"e1_r_c1_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_r_c1_r"}},{"Date":"2102-01-01 00:00:00","Enum":-3,"Enums":[-1,-1,2],"Fraction":"10.2","NullableEnum":2,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_r_c2_c1"},{"SomethingSomething":"e1_r_c2_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_r_c2_r"}}],"OwnedReferenceBranch":{"Date":"2111-11-11 00:00:00","Enum":-1,"Enums":[-1,-1,2],"Fraction":"10.0","NullableEnum":null,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_r_r_c1"},{"SomethingSomething":"e1_r_r_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_r_r_r"}}}' (Nullable = false) (Size = 966)
+@p0='[{"Date":"2111-01-01 00:00:00","Enum":2,"Enums":[-1,-1,2],"Fraction":"11.1","Id":92,"NullableEnum":-1,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"...and another"},{"SomethingSomething":"e1_c1_c1_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c1_c1_r"}},{"Date":"2112-01-01 00:00:00","Enum":-3,"Enums":[-1,-1,2],"Fraction":"11.2","Id":93,"NullableEnum":2,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"yet another change"},{"SomethingSomething":"and another"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c1_c2_r"}}]' (Nullable = false) (Size = 581)
+@p1='{"Id":0,"Name":"edit","Names":["e1_r1","e1_r2"],"Number":10,"Numbers":[-2147483648,-1,0,1,2147483647],"OwnedCollectionBranch":[{"Date":"2101-01-01 00:00:00","Enum":2,"Enums":[-1,-1,2],"Fraction":"10.1","Id":89,"NullableEnum":-1,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_r_c1_c1"},{"SomethingSomething":"e1_r_c1_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_r_c1_r"}},{"Date":"2102-01-01 00:00:00","Enum":-3,"Enums":[-1,-1,2],"Fraction":"10.2","Id":90,"NullableEnum":2,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_r_c2_c1"},{"SomethingSomething":"e1_r_c2_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_r_c2_r"}}],"OwnedReferenceBranch":{"Date":"2111-11-11 00:00:00","Enum":-1,"Enums":[-1,-1,2],"Fraction":"10.0","Id":88,"NullableEnum":null,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_r_r_c1"},{"SomethingSomething":"e1_r_r_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_r_r_r"}}}' (Nullable = false) (Size = 997)
 @p2='1'
 
 UPDATE "JsonEntitiesBasic" SET "OwnedCollectionRoot" = json_set("OwnedCollectionRoot", '$[0].OwnedCollectionBranch', json(@p0)), "OwnedReferenceRoot" = @p1
@@ -400,7 +400,7 @@ LIMIT 2
 
         AssertSql(
             """
-@p0='[{"Date":"2101-01-01 00:00:00","Enum":2,"Enums":[-1,-1,2],"Fraction":"4321.3","NullableEnum":-1,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_r_c1_c1"},{"SomethingSomething":"e1_r_c1_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_r_c1_r"}},{"Date":"2102-01-01 00:00:00","Enum":-3,"Enums":[-1,-1,2],"Fraction":"10.2","NullableEnum":2,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_r_c2_c1"},{"SomethingSomething":"e1_r_c2_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_r_c2_r"}},{"Date":"2222-11-11 00:00:00","Enum":-3,"Enums":null,"Fraction":"45.32","NullableEnum":null,"NullableEnums":null,"OwnedCollectionLeaf":null,"OwnedReferenceLeaf":{"SomethingSomething":"cc"}}]' (Nullable = false) (Size = 741)
+@p0='[{"Date":"2101-01-01 00:00:00","Enum":2,"Enums":[-1,-1,2],"Fraction":"4321.3","Id":89,"NullableEnum":-1,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_r_c1_c1"},{"SomethingSomething":"e1_r_c1_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_r_c1_r"}},{"Date":"2102-01-01 00:00:00","Enum":-3,"Enums":[-1,-1,2],"Fraction":"10.2","Id":90,"NullableEnum":2,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_r_c2_c1"},{"SomethingSomething":"e1_r_c2_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_r_c2_r"}},{"Date":"2222-11-11 00:00:00","Enum":-3,"Enums":null,"Fraction":"45.32","Id":77,"NullableEnum":null,"NullableEnums":null,"OwnedCollectionLeaf":null,"OwnedReferenceLeaf":{"SomethingSomething":"cc"}}]' (Nullable = false) (Size = 765)
 @p1='1'
 
 UPDATE "JsonEntitiesBasic" SET "OwnedReferenceRoot" = json_set("OwnedReferenceRoot", '$.OwnedCollectionBranch', json(@p0))
@@ -442,7 +442,7 @@ LIMIT 2
 
         AssertSql(
             """
-@p0='[{"Name":"edit1","Names":["e1_c11","e1_c12"],"Number":11,"Numbers":[-1000,0,1000],"OwnedCollectionBranch":[{"Date":"2111-01-01 00:00:00","Enum":2,"Enums":[-1,-1,2],"Fraction":"11.1","NullableEnum":-1,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c1_c1_c1"},{"SomethingSomething":"e1_c1_c1_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c1_c1_r"}},{"Date":"2112-01-01 00:00:00","Enum":-3,"Enums":[-1,-1,2],"Fraction":"11.2","NullableEnum":2,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c1_c2_c1"},{"SomethingSomething":"e1_c1_c2_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c1_c2_r"}}],"OwnedReferenceBranch":{"Date":"2110-01-01 00:00:00","Enum":-1,"Enums":[-1,-1,2],"Fraction":"11.0","NullableEnum":null,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c1_r_c1"},{"SomethingSomething":"e1_c1_r_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c1_r_r"}}},{"Name":"edit2","Names":["e1_c21","e1_c22"],"Number":12,"Numbers":[-1001,0,1001],"OwnedCollectionBranch":[{"Date":"2121-01-01 00:00:00","Enum":2,"Enums":[-1,-1,2],"Fraction":"12.1","NullableEnum":-1,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c2_c1_c1"},{"SomethingSomething":"e1_c2_c1_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c2_c1_r"}},{"Date":"2122-01-01 00:00:00","Enum":-1,"Enums":[-1,-1,2],"Fraction":"12.2","NullableEnum":null,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c2_c2_c1"},{"SomethingSomething":"e1_c2_c2_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c2_c2_r"}}],"OwnedReferenceBranch":{"Date":"2120-01-01 00:00:00","Enum":-3,"Enums":[-1,-1,2],"Fraction":"12.0","NullableEnum":2,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c2_r_c1"},{"SomethingSomething":"e1_c2_r_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c2_r_r"}}}]' (Nullable = false) (Size = 1925)
+@p0='[{"Id":0,"Name":"edit1","Names":["e1_c11","e1_c12"],"Number":11,"Numbers":[-1000,0,1000],"OwnedCollectionBranch":[{"Date":"2111-01-01 00:00:00","Enum":2,"Enums":[-1,-1,2],"Fraction":"11.1","Id":92,"NullableEnum":-1,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c1_c1_c1"},{"SomethingSomething":"e1_c1_c1_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c1_c1_r"}},{"Date":"2112-01-01 00:00:00","Enum":-3,"Enums":[-1,-1,2],"Fraction":"11.2","Id":93,"NullableEnum":2,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c1_c2_c1"},{"SomethingSomething":"e1_c1_c2_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c1_c2_r"}}],"OwnedReferenceBranch":{"Date":"2110-01-01 00:00:00","Enum":-1,"Enums":[-1,-1,2],"Fraction":"11.0","Id":91,"NullableEnum":null,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c1_r_c1"},{"SomethingSomething":"e1_c1_r_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c1_r_r"}}},{"Id":0,"Name":"edit2","Names":["e1_c21","e1_c22"],"Number":12,"Numbers":[-1001,0,1001],"OwnedCollectionBranch":[{"Date":"2121-01-01 00:00:00","Enum":2,"Enums":[-1,-1,2],"Fraction":"12.1","Id":95,"NullableEnum":-1,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c2_c1_c1"},{"SomethingSomething":"e1_c2_c1_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c2_c1_r"}},{"Date":"2122-01-01 00:00:00","Enum":-1,"Enums":[-1,-1,2],"Fraction":"12.2","Id":96,"NullableEnum":null,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c2_c2_c1"},{"SomethingSomething":"e1_c2_c2_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c2_c2_r"}}],"OwnedReferenceBranch":{"Date":"2120-01-01 00:00:00","Enum":-3,"Enums":[-1,-1,2],"Fraction":"12.0","Id":94,"NullableEnum":2,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c2_r_c1"},{"SomethingSomething":"e1_c2_r_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c2_r_r"}}}]' (Nullable = false) (Size = 1987)
 @p1='1'
 
 UPDATE "JsonEntitiesBasic" SET "OwnedCollectionRoot" = @p0
@@ -463,7 +463,7 @@ LIMIT 2
 
         AssertSql(
             """
-@p0='{"Date":"2102-01-01 00:00:00","Enum":-3,"Enums":[-1,-1,2],"Fraction":"10.2","NullableEnum":2,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"edit1"},{"SomethingSomething":"e1_r_c2_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"edit2"}}' (Nullable = false) (Size = 264)
+@p0='{"Date":"2102-01-01 00:00:00","Enum":-3,"Enums":[-1,-1,2],"Fraction":"10.2","Id":90,"NullableEnum":2,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"edit1"},{"SomethingSomething":"e1_r_c2_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"edit2"}}' (Nullable = false) (Size = 272)
 @p1='1'
 
 UPDATE "JsonEntitiesBasic" SET "OwnedReferenceRoot" = json_set("OwnedReferenceRoot", '$.OwnedCollectionBranch[1]', json(@p0))
@@ -1171,7 +1171,7 @@ LIMIT 2
 
         AssertSql(
             """
-@p0='{"Date":"2100-01-01 00:00:00","Enum":-1,"Enums":[-1,-1,2],"Fraction":"523.532","NullableEnum":null,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_r_r_c1"},{"SomethingSomething":"e1_r_r_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"edit"}}' (Nullable = false) (Size = 272)
+@p0='{"Date":"2100-01-01 00:00:00","Enum":-1,"Enums":[-1,-1,2],"Fraction":"523.532","Id":88,"NullableEnum":null,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_r_r_c1"},{"SomethingSomething":"e1_r_r_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"edit"}}' (Nullable = false) (Size = 280)
 @p1='1'
 
 UPDATE "JsonEntitiesBasic" SET "OwnedReferenceRoot" = json_set("OwnedReferenceRoot", '$.OwnedReferenceBranch', json(@p0))
@@ -1192,7 +1192,7 @@ LIMIT 2
 
         AssertSql(
             """
-@p0='{"Date":"2100-01-01 00:00:00","Enum":-1,"Enums":[-1,-1,2],"Fraction":"523.532","NullableEnum":null,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"edit"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_r_r_r"}}' (Nullable = false) (Size = 236)
+@p0='{"Date":"2100-01-01 00:00:00","Enum":-1,"Enums":[-1,-1,2],"Fraction":"523.532","Id":88,"NullableEnum":null,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"edit"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_r_r_r"}}' (Nullable = false) (Size = 244)
 @p1='1'
 
 UPDATE "JsonEntitiesBasic" SET "OwnedReferenceRoot" = json_set("OwnedReferenceRoot", '$.OwnedReferenceBranch', json(@p0))
@@ -1213,7 +1213,7 @@ LIMIT 2
 
         AssertSql(
             """
-@p0='{"Date":"2100-01-01 00:00:00","Enum":-1,"Enums":[-1,-1,2],"Fraction":"523.532","NullableEnum":null,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_r_r_c1"},{"SomethingSomething":"e1_r_r_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"edit"}}' (Nullable = false) (Size = 272)
+@p0='{"Date":"2100-01-01 00:00:00","Enum":-1,"Enums":[-1,-1,2],"Fraction":"523.532","Id":88,"NullableEnum":null,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_r_r_c1"},{"SomethingSomething":"e1_r_r_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"edit"}}' (Nullable = false) (Size = 280)
 @p1='1'
 
 UPDATE "JsonEntitiesBasic" SET "OwnedReferenceRoot" = json_set("OwnedReferenceRoot", '$.OwnedReferenceBranch', json(@p0))
@@ -2051,8 +2051,8 @@ LIMIT 2
         {
             case true:
                 AssertSql(
-        """
-@p0='[{"Name":null,"Names":null,"Number":0,"Numbers":null,"OwnedCollectionBranch":null,"OwnedReferenceBranch":null}]' (Nullable = false) (Size = 111)
+                    """
+@p0='[{"Id":0,"Name":null,"Names":null,"Number":0,"Numbers":null,"OwnedCollectionBranch":null,"OwnedReferenceBranch":null}]' (Nullable = false) (Size = 118)
 @p1='2'
 @p2=NULL (DbType = Int32)
 @p3='NewEntity' (Size = 9)
@@ -2060,15 +2060,15 @@ LIMIT 2
 INSERT INTO "JsonEntitiesBasic" ("OwnedCollectionRoot", "Id", "EntityBasicId", "Name")
 VALUES (@p0, @p1, @p2, @p3);
 """,
-                        //
-                        """
+                    //
+                    """
 SELECT "j"."Id", "j"."EntityBasicId", "j"."Name", "j"."OwnedCollectionRoot", "j"."OwnedReferenceRoot"
 FROM "JsonEntitiesBasic" AS "j"
 WHERE "j"."Id" = 2
 LIMIT 2
 """,
-                        //
-                        """
+                    //
+                    """
 @p0=NULL (Nullable = false)
 @p1='2'
 
@@ -2076,12 +2076,12 @@ UPDATE "JsonEntitiesBasic" SET "OwnedCollectionRoot" = @p0
 WHERE "Id" = @p1
 RETURNING 1;
 """,
-                        //
-                        """
+                    //
+                    """
 select OwnedCollectionRoot from JsonEntitiesBasic where Id = 2
 """,
-                        //
-                        """
+                    //
+                    """
 SELECT "j"."Id", "j"."EntityBasicId", "j"."Name", "j"."OwnedCollectionRoot", "j"."OwnedReferenceRoot"
 FROM "JsonEntitiesBasic" AS "j"
 WHERE "j"."Id" = 2
@@ -2090,7 +2090,7 @@ LIMIT 2
                 break;
             case false:
                 AssertSql(
-        """
+                    """
 @p0='[]' (Nullable = false) (Size = 2)
 @p1='2'
 @p2=NULL (DbType = Int32)
@@ -2099,28 +2099,28 @@ LIMIT 2
 INSERT INTO "JsonEntitiesBasic" ("OwnedCollectionRoot", "Id", "EntityBasicId", "Name")
 VALUES (@p0, @p1, @p2, @p3);
 """,
-                        //
-                        """
+                    //
+                    """
 SELECT "j"."Id", "j"."EntityBasicId", "j"."Name", "j"."OwnedCollectionRoot", "j"."OwnedReferenceRoot"
 FROM "JsonEntitiesBasic" AS "j"
 WHERE "j"."Id" = 2
 LIMIT 2
 """,
-                        //
-                        """
-@p0='[{"Name":null,"Names":null,"Number":0,"Numbers":null,"OwnedCollectionBranch":null,"OwnedReferenceBranch":null}]' (Nullable = false) (Size = 111)
+                    //
+                    """
+@p0='[{"Id":0,"Name":null,"Names":null,"Number":0,"Numbers":null,"OwnedCollectionBranch":null,"OwnedReferenceBranch":null}]' (Nullable = false) (Size = 118)
 @p1='2'
 
 UPDATE "JsonEntitiesBasic" SET "OwnedCollectionRoot" = @p0
 WHERE "Id" = @p1
 RETURNING 1;
 """,
-                        //
-                        """
+                    //
+                    """
 select OwnedCollectionRoot from JsonEntitiesBasic where Id = 2
 """,
-                        //
-                        """
+                    //
+                    """
 SELECT "j"."Id", "j"."EntityBasicId", "j"."Name", "j"."OwnedCollectionRoot", "j"."OwnedReferenceRoot"
 FROM "JsonEntitiesBasic" AS "j"
 WHERE "j"."Id" = 2
@@ -2178,8 +2178,8 @@ LIMIT 2
         {
             case true:
                 AssertSql(
-        """
-@p0='{"Name":null,"Names":null,"Number":0,"Numbers":null,"OwnedCollectionBranch":[{"Date":"0001-01-01 00:00:00","Enum":0,"Enums":null,"Fraction":"0.0","NullableEnum":null,"NullableEnums":null,"OwnedCollectionLeaf":null,"OwnedReferenceLeaf":null}],"OwnedReferenceBranch":null}' (Nullable = false) (Size = 270)
+                    """
+@p0='{"Id":0,"Name":null,"Names":null,"Number":0,"Numbers":null,"OwnedCollectionBranch":[{"Date":"0001-01-01 00:00:00","Enum":0,"Enums":null,"Fraction":"0.0","Id":0,"NullableEnum":null,"NullableEnums":null,"OwnedCollectionLeaf":null,"OwnedReferenceLeaf":null}],"OwnedReferenceBranch":null}' (Nullable = false) (Size = 284)
 @p1='2'
 @p2=NULL (DbType = Int32)
 @p3='NewEntity' (Size = 9)
@@ -2187,15 +2187,15 @@ LIMIT 2
 INSERT INTO "JsonEntitiesBasic" ("OwnedReferenceRoot", "Id", "EntityBasicId", "Name")
 VALUES (@p0, @p1, @p2, @p3);
 """,
-                        //
-                        """
+                    //
+                    """
 SELECT "j"."Id", "j"."EntityBasicId", "j"."Name", "j"."OwnedCollectionRoot", "j"."OwnedReferenceRoot"
 FROM "JsonEntitiesBasic" AS "j"
 WHERE "j"."Id" = 2
 LIMIT 2
 """,
-                        //
-                        """
+                    //
+                    """
 @p0=NULL (Nullable = false)
 @p1='2'
 
@@ -2203,8 +2203,8 @@ UPDATE "JsonEntitiesBasic" SET "OwnedReferenceRoot" = json_set("OwnedReferenceRo
 WHERE "Id" = @p1
 RETURNING 1;
 """,
-                        //
-                        """
+                    //
+                    """
 SELECT "j"."Id", "j"."EntityBasicId", "j"."Name", "j"."OwnedCollectionRoot", "j"."OwnedReferenceRoot"
 FROM "JsonEntitiesBasic" AS "j"
 WHERE "j"."Id" = 2
@@ -2213,8 +2213,8 @@ LIMIT 2
                 break;
             case false:
                 AssertSql(
-        """
-@p0='{"Name":null,"Names":null,"Number":0,"Numbers":null,"OwnedCollectionBranch":[],"OwnedReferenceBranch":null}' (Nullable = false) (Size = 107)
+                    """
+@p0='{"Id":0,"Name":null,"Names":null,"Number":0,"Numbers":null,"OwnedCollectionBranch":[],"OwnedReferenceBranch":null}' (Nullable = false) (Size = 114)
 @p1='2'
 @p2=NULL (DbType = Int32)
 @p3='NewEntity' (Size = 9)
@@ -2222,24 +2222,24 @@ LIMIT 2
 INSERT INTO "JsonEntitiesBasic" ("OwnedReferenceRoot", "Id", "EntityBasicId", "Name")
 VALUES (@p0, @p1, @p2, @p3);
 """,
-                        //
-                        """
+                    //
+                    """
 SELECT "j"."Id", "j"."EntityBasicId", "j"."Name", "j"."OwnedCollectionRoot", "j"."OwnedReferenceRoot"
 FROM "JsonEntitiesBasic" AS "j"
 WHERE "j"."Id" = 2
 LIMIT 2
 """,
-                        //
-                        """
-@p0='[{"Date":"0001-01-01 00:00:00","Enum":0,"Enums":null,"Fraction":"0.0","NullableEnum":null,"NullableEnums":null,"OwnedCollectionLeaf":null,"OwnedReferenceLeaf":null}]' (Nullable = false) (Size = 165)
+                    //
+                    """
+@p0='[{"Date":"0001-01-01 00:00:00","Enum":0,"Enums":null,"Fraction":"0.0","Id":0,"NullableEnum":null,"NullableEnums":null,"OwnedCollectionLeaf":null,"OwnedReferenceLeaf":null}]' (Nullable = false) (Size = 172)
 @p1='2'
 
 UPDATE "JsonEntitiesBasic" SET "OwnedReferenceRoot" = json_set("OwnedReferenceRoot", '$.OwnedCollectionBranch', json(@p0))
 WHERE "Id" = @p1
 RETURNING 1;
 """,
-                        //
-                        """
+                    //
+                    """
 SELECT "j"."Id", "j"."EntityBasicId", "j"."Name", "j"."OwnedCollectionRoot", "j"."OwnedReferenceRoot"
 FROM "JsonEntitiesBasic" AS "j"
 WHERE "j"."Id" = 2
@@ -2248,8 +2248,8 @@ LIMIT 2
                 break;
             default:
                 AssertSql(
-        """
-@p0='{"Name":null,"Names":null,"Number":0,"Numbers":null,"OwnedCollectionBranch":null,"OwnedReferenceBranch":null}' (Nullable = false) (Size = 109)
+                    """
+@p0='{"Id":0,"Name":null,"Names":null,"Number":0,"Numbers":null,"OwnedCollectionBranch":null,"OwnedReferenceBranch":null}' (Nullable = false) (Size = 116)
 @p1='2'
 @p2=NULL (DbType = Int32)
 @p3='NewEntity' (Size = 9)
@@ -2257,24 +2257,24 @@ LIMIT 2
 INSERT INTO "JsonEntitiesBasic" ("OwnedReferenceRoot", "Id", "EntityBasicId", "Name")
 VALUES (@p0, @p1, @p2, @p3);
 """,
-                        //
-                        """
+                    //
+                    """
 SELECT "j"."Id", "j"."EntityBasicId", "j"."Name", "j"."OwnedCollectionRoot", "j"."OwnedReferenceRoot"
 FROM "JsonEntitiesBasic" AS "j"
 WHERE "j"."Id" = 2
 LIMIT 2
 """,
-                        //
-                        """
-@p0='{"Name":null,"Names":null,"Number":0,"Numbers":null,"OwnedCollectionBranch":[],"OwnedReferenceBranch":null}' (Nullable = false) (Size = 107)
+                    //
+                    """
+@p0='{"Id":0,"Name":null,"Names":null,"Number":0,"Numbers":null,"OwnedCollectionBranch":[],"OwnedReferenceBranch":null}' (Nullable = false) (Size = 114)
 @p1='2'
 
 UPDATE "JsonEntitiesBasic" SET "OwnedReferenceRoot" = @p0
 WHERE "Id" = @p1
 RETURNING 1;
 """,
-                        //
-                        """
+                    //
+                    """
 SELECT "j"."Id", "j"."EntityBasicId", "j"."Name", "j"."OwnedCollectionRoot", "j"."OwnedReferenceRoot"
 FROM "JsonEntitiesBasic" AS "j"
 WHERE "j"."Id" = 2

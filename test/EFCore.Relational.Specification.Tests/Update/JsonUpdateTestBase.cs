@@ -35,6 +35,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                         OwnedCollectionBranch = [],
                         OwnedReferenceBranch = new JsonOwnedBranch
                         {
+                            Id = 7,
                             Date = new DateTime(2010, 10, 10),
                             Enum = JsonEnum.Three,
                             Fraction = 42.42m,
@@ -65,6 +66,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.Equal(new DateTime(2010, 10, 10), newEntity.OwnedReferenceRoot.OwnedReferenceBranch.Date);
                 Assert.Equal(JsonEnum.Three, newEntity.OwnedReferenceRoot.OwnedReferenceBranch.Enum);
                 Assert.Equal(42.42m, newEntity.OwnedReferenceRoot.OwnedReferenceBranch.Fraction);
+                Assert.Equal(7, newEntity.OwnedReferenceRoot.OwnedReferenceBranch.Id);
 
                 Assert.Equal(42.42m, newEntity.OwnedReferenceRoot.OwnedReferenceBranch.Fraction);
                 Assert.Equal("ss3", newEntity.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf.SomethingSomething);
@@ -94,6 +96,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                         //OwnedCollectionBranch missing on purpose
                         OwnedReferenceBranch = new JsonOwnedBranch
                         {
+                            Id = 7,
                             Date = new DateTime(2010, 10, 10),
                             Enum = JsonEnum.Three,
                             Fraction = 42.42m,
@@ -124,6 +127,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.Equal(new DateTime(2010, 10, 10), newEntity.OwnedReferenceRoot.OwnedReferenceBranch.Date);
                 Assert.Equal(JsonEnum.Three, newEntity.OwnedReferenceRoot.OwnedReferenceBranch.Enum);
                 Assert.Equal(42.42m, newEntity.OwnedReferenceRoot.OwnedReferenceBranch.Fraction);
+                Assert.Equal(7, newEntity.OwnedReferenceRoot.OwnedReferenceBranch.Id);
 
                 Assert.Equal(42.42m, newEntity.OwnedReferenceRoot.OwnedReferenceBranch.Fraction);
                 Assert.Null(newEntity.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf);
@@ -159,6 +163,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                     OwnedCollectionBranch = [],
                     OwnedReferenceBranch = new JsonOwnedBranch
                     {
+                        Id = 7,
                         Date = new DateTime(2010, 10, 10),
                         Enum = JsonEnum.Three,
                         Fraction = 42.42m,
@@ -182,6 +187,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.Equal(new DateTime(2010, 10, 10), updatedReference.OwnedReferenceBranch.Date);
                 Assert.Equal(JsonEnum.Three, updatedReference.OwnedReferenceBranch.Enum);
                 Assert.Equal(42.42m, updatedReference.OwnedReferenceBranch.Fraction);
+                Assert.Equal(7, updatedReference.OwnedReferenceBranch.Id);
                 Assert.Equal("ss3", updatedReference.OwnedReferenceBranch.OwnedReferenceLeaf.SomethingSomething);
                 var collectionLeaf = updatedReference.OwnedReferenceBranch.OwnedCollectionLeaf;
                 Assert.Equal(2, collectionLeaf.Count);
@@ -237,6 +243,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                     OwnedCollectionBranch = [],
                     OwnedReferenceBranch = new JsonOwnedBranch
                     {
+                        Id = 7,
                         Date = new DateTime(2010, 10, 10),
                         Enum = JsonEnum.Three,
                         Fraction = 42.42m,
@@ -262,6 +269,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.Empty(updatedCollection[2].OwnedCollectionBranch);
                 Assert.Equal(new DateTime(2010, 10, 10), updatedCollection[2].OwnedReferenceBranch.Date);
                 Assert.Equal(JsonEnum.Three, updatedCollection[2].OwnedReferenceBranch.Enum);
+                Assert.Equal(7, updatedCollection[2].OwnedReferenceBranch.Id);
                 Assert.Equal(42.42m, updatedCollection[2].OwnedReferenceBranch.Fraction);
                 Assert.Equal("ss3", updatedCollection[2].OwnedReferenceBranch.OwnedReferenceLeaf.SomethingSomething);
                 var collectionLeaf = updatedCollection[2].OwnedReferenceBranch.OwnedCollectionLeaf;
@@ -287,6 +295,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                     OwnedCollectionBranch = null,
                     OwnedReferenceBranch = new JsonOwnedBranch
                     {
+                        Id = 7,
                         Date = new DateTime(2010, 10, 10),
                         Enum = JsonEnum.Three,
                         Fraction = 42.42m,
@@ -308,6 +317,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.Null(updatedCollection[2].OwnedCollectionBranch);
                 Assert.Equal(new DateTime(2010, 10, 10), updatedCollection[2].OwnedReferenceBranch.Date);
                 Assert.Equal(JsonEnum.Three, updatedCollection[2].OwnedReferenceBranch.Enum);
+                Assert.Equal(7, updatedCollection[2].OwnedReferenceBranch.Id);
                 Assert.Equal(42.42m, updatedCollection[2].OwnedReferenceBranch.Fraction);
                 Assert.Null(updatedCollection[2].OwnedReferenceBranch.OwnedReferenceLeaf);
                 Assert.Null(updatedCollection[2].OwnedReferenceBranch.OwnedCollectionLeaf);
@@ -324,6 +334,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 var entity = query.Single();
                 var newBranch = new JsonOwnedBranch
                 {
+                    Id = 77,
                     Date = new DateTime(2010, 10, 10),
                     Enum = JsonEnum.Three,
                     Fraction = 42.42m,
@@ -346,6 +357,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.Equal(new DateTime(2010, 10, 10), updatedCollection[2].Date);
                 Assert.Equal(JsonEnum.Three, updatedCollection[2].Enum);
                 Assert.Equal(42.42m, updatedCollection[2].Fraction);
+                Assert.Equal(77, updatedCollection[2].Id);
                 Assert.Equal("ss3", updatedCollection[2].OwnedReferenceLeaf.SomethingSomething);
                 var collectionLeaf = updatedCollection[2].OwnedCollectionLeaf;
                 Assert.Equal(2, collectionLeaf.Count);
@@ -548,6 +560,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
 
                 var newBranch = new JsonOwnedBranch
                 {
+                    Id = 77,
                     Date = new DateTime(2010, 10, 10),
                     Enum = JsonEnum.Three,
                     Fraction = 42.42m,
@@ -570,6 +583,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.Equal(new DateTime(2010, 10, 10), updatedCollection[2].Date);
                 Assert.Equal(JsonEnum.Three, updatedCollection[2].Enum);
                 Assert.Equal(42.42m, updatedCollection[2].Fraction);
+                Assert.Equal(77, updatedCollection[2].Id);
                 Assert.Equal("ss3", updatedCollection[2].OwnedReferenceLeaf.SomethingSomething);
                 var collectionLeaf = updatedCollection[2].OwnedCollectionLeaf;
                 Assert.Equal(2, collectionLeaf.Count);
@@ -621,6 +635,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 entity.OwnedReferenceRoot.OwnedCollectionBranch.Add(
                     new JsonOwnedBranch
                     {
+                        Id = 77,
                         Date = new DateTime(2222, 11, 11),
                         Enum = JsonEnum.Three,
                         Fraction = 45.32m,
@@ -638,6 +653,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.Equal(new DateTime(2222, 11, 11), result.OwnedReferenceRoot.OwnedCollectionBranch[2].Date);
                 Assert.Equal(JsonEnum.Three, result.OwnedReferenceRoot.OwnedCollectionBranch[2].Enum);
                 Assert.Equal(45.32m, result.OwnedReferenceRoot.OwnedCollectionBranch[2].Fraction);
+                Assert.Equal(77, result.OwnedReferenceRoot.OwnedCollectionBranch[2].Id);
                 Assert.Equal("cc", result.OwnedReferenceRoot.OwnedCollectionBranch[2].OwnedReferenceLeaf.SomethingSomething);
             });
 
