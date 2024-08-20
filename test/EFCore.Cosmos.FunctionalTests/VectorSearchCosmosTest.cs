@@ -109,9 +109,9 @@ FROM root c
 
         AssertSql(
             """
-@__inputVector_1='[2,1,4,3,5,2,5,7,3,1]'
+@__p_1='[2,1,4,3,5,2,5,7,3,1]'
 
-SELECT VALUE VectorDistance(c["Bytes"], @__inputVector_1, false, {'distanceFunction':'cosine', 'dataType':'uint8'})
+SELECT VALUE VectorDistance(c["BytesArray"], @__p_1, false, {'distanceFunction':'cosine', 'dataType':'uint8'})
 FROM root c
 """);
     }
@@ -133,9 +133,9 @@ FROM root c
 
         AssertSql(
             """
-@__inputVector_1='[0.33,-0.52,0.45,-0.67,0.89,-0.34,0.86,-0.78,0.86,-0.78]'
+@__p_1='[0.33,-0.52,0.45,-0.67,0.89,-0.34,0.86,-0.78,0.86,-0.78]'
 
-SELECT VALUE VectorDistance(c["Singles"], @__inputVector_1, false, {'distanceFunction':'dotproduct', 'dataType':'float32'})
+SELECT VALUE VectorDistance(c["SinglesArray"], @__p_1, false, {'distanceFunction':'dotproduct', 'dataType':'float32'})
 FROM root c
 """);
     }
@@ -225,7 +225,7 @@ ORDER BY VectorDistance(c["Singles"], @__p_1, false, {'distanceFunction':'cosine
 
 SELECT VALUE c
 FROM root c
-ORDER BY VectorDistance(c["Bytes"], @__p_1, false, {'distanceFunction':'cosine', 'dataType':'uint8'})
+ORDER BY VectorDistance(c["BytesArray"], @__p_1, false, {'distanceFunction':'cosine', 'dataType':'uint8'})
 """);
     }
 
@@ -247,7 +247,7 @@ ORDER BY VectorDistance(c["Bytes"], @__p_1, false, {'distanceFunction':'cosine',
 
 SELECT VALUE c
 FROM root c
-ORDER BY VectorDistance(c["Singles"], @__p_1, false, {'distanceFunction':'cosine', 'dataType':'float32'})
+ORDER BY VectorDistance(c["SinglesArray"], @__p_1, false, {'distanceFunction':'cosine', 'dataType':'float32'})
 """);
     }
 
