@@ -352,7 +352,6 @@ public static class CosmosEntityTypeExtensions
     /// <returns>
     ///     <see langword="true" /> to force __id creation, <see langword="false" /> to not force __id creation,
     ///     <see langword="null" /> to revert to the default setting.
-    ///     .
     /// </returns>
     public static bool? GetHasShadowId(this IReadOnlyEntityType entityType)
         => (entityType.BaseType != null
