@@ -20,9 +20,7 @@ public class QueryCompilationContextFactory : IQueryCompilationContextFactory
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public QueryCompilationContextFactory(QueryCompilationContextDependencies dependencies)
-    {
-        Dependencies = dependencies;
-    }
+        => Dependencies = dependencies;
 
     /// <summary>
     ///     Dependencies for this service.

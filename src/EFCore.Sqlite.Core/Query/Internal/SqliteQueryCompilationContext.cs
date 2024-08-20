@@ -45,5 +45,6 @@ public class SqliteQueryCompilationContext : RelationalQueryCompilationContext
     }
 
     /// <inheritdoc />
-    public override bool SupportsPrecompiledQuery => true;
+    public override bool SupportsPrecompiledQuery
+        => true;
 }

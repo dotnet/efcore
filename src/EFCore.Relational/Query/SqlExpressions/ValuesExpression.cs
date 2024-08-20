@@ -88,6 +88,7 @@ public class ValuesExpression : TableExpressionBase
                 columnNames.Count is 1 or 2,
                 $"Column names do not match usage of {nameof(ValuesParameter)}");
         }
+
         if (!(rowValues is null ^ valuesParameter is null))
         {
             throw new ArgumentException(
@@ -141,8 +142,8 @@ public class ValuesExpression : TableExpressionBase
                     && rowValues.Zip(RowValues, (x, y) => (x, y)).All(tup => tup.x == tup.y))
                 || (rowValues is null && RowValues is null))
             && valuesParameter == ValuesParameter
-            ? this
-            : new ValuesExpression(Alias, rowValues, valuesParameter, ColumnNames, Annotations);
+                ? this
+                : new ValuesExpression(Alias, rowValues, valuesParameter, ColumnNames, Annotations);
 
     /// <inheritdoc />
     protected override ValuesExpression WithAnnotations(IReadOnlyDictionary<string, IAnnotation> annotations)
@@ -164,7 +165,9 @@ public class ValuesExpression : TableExpressionBase
                 typeof(IReadOnlyDictionary<string, IAnnotation>)
             ])!,
             Constant(Alias, typeof(string)),
-            RowValues is not null ? NewArrayInit(typeof(RowValueExpression), RowValues.Select(rv => rv.Quote())) : Constant(null, typeof(RowValueExpression)),
+            RowValues is not null
+                ? NewArrayInit(typeof(RowValueExpression), RowValues.Select(rv => rv.Quote()))
+                : Constant(null, typeof(RowValueExpression)),
             RelationalExpressionQuotingUtilities.QuoteOrNull(ValuesParameter),
             NewArrayInit(typeof(string), ColumnNames.Select(Constant)),
             RelationalExpressionQuotingUtilities.QuoteAnnotations(Annotations));
@@ -180,6 +183,7 @@ public class ValuesExpression : TableExpressionBase
                 {
                     newRowValues[i] = (RowValueExpression)cloningExpressionVisitor.Visit(RowValues[i]);
                 }
+
                 return new ValuesExpression(alias, newRowValues, null, ColumnNames, Annotations);
 
             case { ValuesParameter: not null }:
@@ -209,6 +213,7 @@ public class ValuesExpression : TableExpressionBase
                         expressionPrinter.Append(", ");
                     }
                 }
+
                 break;
 
             case { ValuesParameter: not null }:
@@ -233,7 +238,9 @@ public class ValuesExpression : TableExpressionBase
         => base.Equals(valuesExpression)
             && (ValuesParameter?.Equals(valuesExpression.ValuesParameter) ?? valuesExpression.ValuesParameter == null)
             && (ReferenceEquals(RowValues, valuesExpression.RowValues)
-                || (RowValues is not null && valuesExpression.RowValues is not null && RowValues.SequenceEqual(valuesExpression.RowValues)));
+                || (RowValues is not null
+                    && valuesExpression.RowValues is not null
+                    && RowValues.SequenceEqual(valuesExpression.RowValues)));
 
     /// <inheritdoc />
     public override int GetHashCode()

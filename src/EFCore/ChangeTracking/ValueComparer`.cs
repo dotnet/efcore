@@ -29,17 +29,18 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking;
 /// <typeparam name="T">The type.</typeparam>
 // PublicMethods is required to preserve e.g. GetHashCode
 public class ValueComparer
-    <[DynamicallyAccessedMembers(
-            DynamicallyAccessedMemberTypes.PublicMethods
-            | DynamicallyAccessedMemberTypes.NonPublicMethods
-            | DynamicallyAccessedMemberTypes.PublicProperties)]
-        T>
+<[DynamicallyAccessedMembers(
+        DynamicallyAccessedMemberTypes.PublicMethods
+        | DynamicallyAccessedMemberTypes.NonPublicMethods
+        | DynamicallyAccessedMemberTypes.PublicProperties)]
+    T>
     : ValueComparer, IEqualityComparer<T>
 {
     private Func<T?, T?, bool>? _equals;
     private Func<T, int>? _hashCode;
     private Func<T, T>? _snapshot;
     private LambdaExpression? _objectEqualsExpression;
+
     private static readonly PropertyInfo StructuralComparisonsStructuralEqualityComparerProperty =
         typeof(StructuralComparisons).GetProperty(nameof(StructuralComparisons.StructuralEqualityComparer))!;
 
@@ -367,8 +368,10 @@ public class ValueComparer
         => (Expression<Func<T, T>>)base.SnapshotExpression;
 
     private readonly ConstructorInfo _constructorInfo
-        = typeof(ValueComparer<T>).GetConstructor([typeof(Expression<Func<T?, T?, bool>>), typeof(Expression<Func<T, int>>), typeof(Expression<Func<T, T>>)])!;
+        = typeof(ValueComparer<T>).GetConstructor(
+            [typeof(Expression<Func<T?, T?, bool>>), typeof(Expression<Func<T, int>>), typeof(Expression<Func<T, T>>)])!;
 
     /// <inheritdoc />
-    public override Expression ConstructorExpression => New(_constructorInfo, EqualsExpression, HashCodeExpression, SnapshotExpression);
+    public override Expression ConstructorExpression
+        => New(_constructorInfo, EqualsExpression, HashCodeExpression, SnapshotExpression);
 }

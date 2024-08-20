@@ -21,9 +21,7 @@ public class CosmosQueryRootProcessor : QueryRootProcessor
     /// </summary>
     public CosmosQueryRootProcessor(QueryTranslationPreprocessorDependencies dependencies, QueryCompilationContext queryCompilationContext)
         : base(dependencies, queryCompilationContext)
-    {
-        _model = queryCompilationContext.Model;
-    }
+        => _model = queryCompilationContext.Model;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

@@ -109,7 +109,10 @@ public static class CosmosPropertyExtensions
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>The configured value.</returns>
     [Experimental(EFDiagnostics.CosmosVectorSearchExperimental)]
-    public static CosmosVectorType? SetVectorType(this IConventionProperty property, CosmosVectorType? vectorType, bool fromDataAnnotation = false)
+    public static CosmosVectorType? SetVectorType(
+        this IConventionProperty property,
+        CosmosVectorType? vectorType,
+        bool fromDataAnnotation = false)
         => (CosmosVectorType?)property.SetOrRemoveAnnotation(
             CosmosAnnotationNames.VectorType,
             vectorType,

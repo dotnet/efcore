@@ -24,9 +24,7 @@ public class ArrayPropertyValues : PropertyValues
     /// </summary>
     public ArrayPropertyValues(InternalEntityEntry internalEntry, object?[] values)
         : base(internalEntry)
-    {
-        _values = values;
-    }
+        => _values = values;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

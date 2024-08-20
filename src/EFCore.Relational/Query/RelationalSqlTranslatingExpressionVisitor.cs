@@ -1266,7 +1266,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                 if (allRequiredNonPkProperties.Count > 0)
                 {
                     condition = allRequiredNonPkProperties.Select(p => projection.BindProperty(p))
-                        .Select(c => (SqlExpression)_sqlExpressionFactory.NotEqual(c, _sqlExpressionFactory.Constant(null, c.Type)))
+                        .Select(c => _sqlExpressionFactory.NotEqual(c, _sqlExpressionFactory.Constant(null, c.Type)))
                         .Aggregate((a, b) => _sqlExpressionFactory.AndAlso(a, b));
                 }
 

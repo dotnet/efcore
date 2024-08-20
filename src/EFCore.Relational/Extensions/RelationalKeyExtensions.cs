@@ -3,7 +3,6 @@
 
 using System.Text;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 // ReSharper disable once CheckNamespace
@@ -111,8 +110,8 @@ public static class RelationalKeyExtensions
     {
         key.DeclaringEntityType.Model.EnsureRelationalModel();
         return (IEnumerable<IUniqueConstraint>?)key.FindRuntimeAnnotationValue(
-                    RelationalAnnotationNames.UniqueConstraintMappings)
-                ?? Enumerable.Empty<IUniqueConstraint>();
+                RelationalAnnotationNames.UniqueConstraintMappings)
+            ?? Enumerable.Empty<IUniqueConstraint>();
     }
 
     /// <summary>

@@ -41,7 +41,8 @@ public static class SqlServerEntityTypeMappingFragmentExtensions
         this IConventionEntityTypeMappingFragment fragment,
         bool? useSqlOutputClause,
         bool fromDataAnnotation = false)
-        => (bool?)fragment.SetOrRemoveAnnotation(SqlServerAnnotationNames.UseSqlOutputClause, useSqlOutputClause, fromDataAnnotation)?.Value;
+        => (bool?)fragment.SetOrRemoveAnnotation(SqlServerAnnotationNames.UseSqlOutputClause, useSqlOutputClause, fromDataAnnotation)
+            ?.Value;
 
     /// <summary>
     ///     Gets the configuration source for the setting whether to use the SQL OUTPUT clause when saving changes to the associated table.

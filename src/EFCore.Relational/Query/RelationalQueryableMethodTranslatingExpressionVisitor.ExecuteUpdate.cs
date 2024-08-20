@@ -128,7 +128,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                             return false;
                         }
 
-                        tempTranslatedSetters.Add(new(column, translatedValueSelector));
+                        tempTranslatedSetters.Add(new ColumnValueSetter(column, translatedValueSelector));
                         break;
                     }
 
@@ -203,7 +203,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                         return false;
                     }
 
-                    tempTranslatedSetters.Add(new(column, translatedValueSelector));
+                    tempTranslatedSetters.Add(new ColumnValueSetter(column, translatedValueSelector));
                 }
 
                 foreach (var complexProperty in complexType.GetComplexProperties())

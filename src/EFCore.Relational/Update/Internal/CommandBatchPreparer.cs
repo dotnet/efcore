@@ -217,7 +217,7 @@ public class CommandBatchPreparer : ICommandBatchPreparer
 
             using var sharedIdentityTableMappings =
                 entry.SharedIdentityEntry != null
-                    && entry.SharedIdentityEntry.EntityState == EntityState.Deleted
+                && entry.SharedIdentityEntry.EntityState == EntityState.Deleted
                     ? entry.SharedIdentityEntry.EntityType.GetTableMappings().GetEnumerator()
                     : null;
 
@@ -228,7 +228,9 @@ public class CommandBatchPreparer : ICommandBatchPreparer
                     && sharedIdentityTableMappings.MoveNext()
                     && sharedIdentityTableMappings.Current.Table != tableMapping.Table)
                 {
-                    ProcessEntry(entry.SharedIdentityEntry!, sharedIdentityTableMappings.Current, commands, updateAdapter, generateParameterName, ref sharedTablesCommandsMap);
+                    ProcessEntry(
+                        entry.SharedIdentityEntry!, sharedIdentityTableMappings.Current, commands, updateAdapter, generateParameterName,
+                        ref sharedTablesCommandsMap);
                 }
 
                 ProcessEntry(entry, tableMapping, commands, updateAdapter, generateParameterName, ref sharedTablesCommandsMap);
@@ -237,9 +239,11 @@ public class CommandBatchPreparer : ICommandBatchPreparer
             }
 
             while (sharedIdentityTableMappings != null
-                    && sharedIdentityTableMappings.MoveNext())
+                   && sharedIdentityTableMappings.MoveNext())
             {
-                ProcessEntry(entry.SharedIdentityEntry!, sharedIdentityTableMappings.Current, commands, updateAdapter, generateParameterName, ref sharedTablesCommandsMap);
+                ProcessEntry(
+                    entry.SharedIdentityEntry!, sharedIdentityTableMappings.Current, commands, updateAdapter, generateParameterName,
+                    ref sharedTablesCommandsMap);
             }
 
             if (!foundMapping)
@@ -1334,10 +1338,11 @@ public class CommandBatchPreparer : ICommandBatchPreparer
         }
     }
 
-    /// <inheritdoc/>
-    void IResettableService.ResetState() => _modificationCommandGraph.Clear();
+    /// <inheritdoc />
+    void IResettableService.ResetState()
+        => _modificationCommandGraph.Clear();
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     Task IResettableService.ResetStateAsync(CancellationToken cancellationToken)
     {
         ((IResettableService)this).ResetState();

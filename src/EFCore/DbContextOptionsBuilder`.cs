@@ -631,17 +631,17 @@ public class DbContextOptionsBuilder<TContext> : DbContextOptionsBuilder
         => (DbContextOptionsBuilder<TContext>)base.ConfigureLoggingCacheTime(timeSpan);
 
     /// <summary>
-    ///     Configures the seed method to run after <see cref="DatabaseFacade.EnsureCreated"/>
+    ///     Configures the seed method to run after <see cref="DatabaseFacade.EnsureCreated" />
     ///     is called or after migrations are applied.
     ///     It will be invoked even if no changes to the store were performed.
     /// </summary>
     /// <remarks>
     ///     <para>
-    ///         The <see langword="bool"/> argument of the seed delegate indicates whether any store management
+    ///         The <see langword="bool" /> argument of the seed delegate indicates whether any store management
     ///         operation was performed.
     ///     </para>
     ///     <para>
-    ///         It is recomended to also call <see cref="UseAsyncSeeding(Func{DbContext, bool, CancellationToken, Task})"/> with the same logic.
+    ///         It is recomended to also call <see cref="UseAsyncSeeding(Func{DbContext, bool, CancellationToken, Task})" /> with the same logic.
     ///     </para>
     ///     <para>
     ///         See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see> for more information and examples.
@@ -653,17 +653,17 @@ public class DbContextOptionsBuilder<TContext> : DbContextOptionsBuilder
         => (DbContextOptionsBuilder<TContext>)base.UseSeeding((c, p) => seed(c, p));
 
     /// <summary>
-    ///     Configures the seed method to run after <see cref="DatabaseFacade.EnsureCreated"/>
+    ///     Configures the seed method to run after <see cref="DatabaseFacade.EnsureCreated" />
     ///     is called or after migrations are applied.
     ///     It will be invoked even if no changes to the store were performed.
     /// </summary>
     /// <remarks>
     ///     <para>
-    ///         The <see langword="bool"/> argument of the seed delegate indicates whether any store management
+    ///         The <see langword="bool" /> argument of the seed delegate indicates whether any store management
     ///         operation was performed.
     ///     </para>
     ///     <para>
-    ///         It is recomended to also call <see cref="UseAsyncSeeding(Func{TContext, bool, CancellationToken, Task})"/> with the same logic.
+    ///         It is recomended to also call <see cref="UseAsyncSeeding(Func{TContext, bool, CancellationToken, Task})" /> with the same logic.
     ///     </para>
     ///     <para>
     ///         See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see> for more information and examples.
@@ -675,17 +675,17 @@ public class DbContextOptionsBuilder<TContext> : DbContextOptionsBuilder
         => (DbContextOptionsBuilder<TContext>)base.UseSeeding((c, p) => seed((TContext)c, p));
 
     /// <summary>
-    ///     Configures the seed method to run after <see cref="DatabaseFacade.EnsureCreatedAsync"/>
+    ///     Configures the seed method to run after <see cref="DatabaseFacade.EnsureCreatedAsync" />
     ///     is called or after migrations are applied asynchronously.
     ///     It will be invoked even if no changes to the store were performed.
     /// </summary>
     /// <remarks>
     ///     <para>
-    ///         The <see langword="bool"/> argument of the seed delegate indicates whether any store management
+    ///         The <see langword="bool" /> argument of the seed delegate indicates whether any store management
     ///         operation was performed.
     ///     </para>
     ///     <para>
-    ///         It is recomended to also call <see cref="UseSeeding(Action{DbContext, bool})"/> with the same logic.
+    ///         It is recomended to also call <see cref="UseSeeding(Action{DbContext, bool})" /> with the same logic.
     ///     </para>
     ///     <para>
     ///         See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see> for more information and examples.
@@ -697,17 +697,17 @@ public class DbContextOptionsBuilder<TContext> : DbContextOptionsBuilder
         => (DbContextOptionsBuilder<TContext>)base.UseAsyncSeeding((c, p, t) => seedAsync(c, p, t));
 
     /// <summary>
-    ///     Configures the seed method to run after <see cref="DatabaseFacade.EnsureCreatedAsync"/>
+    ///     Configures the seed method to run after <see cref="DatabaseFacade.EnsureCreatedAsync" />
     ///     is called or after migrations are applied asynchronously.
     ///     It will be invoked even if no changes to the store were performed.
     /// </summary>
     /// <remarks>
     ///     <para>
-    ///         The <see langword="bool"/> argument of the seed delegate indicates whether any store management
+    ///         The <see langword="bool" /> argument of the seed delegate indicates whether any store management
     ///         operation was performed.
     ///     </para>
     ///     <para>
-    ///         It is recomended to also call <see cref="UseSeeding(Action{TContext, bool})"/> with the same logic.
+    ///         It is recomended to also call <see cref="UseSeeding(Action{TContext, bool})" /> with the same logic.
     ///     </para>
     ///     <para>
     ///         See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see> for more information and examples.

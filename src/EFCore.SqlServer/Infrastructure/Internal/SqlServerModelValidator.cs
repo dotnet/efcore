@@ -156,7 +156,7 @@ public class SqlServerModelValidator : RelationalModelValidator
         }
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     protected override void ValidateTypeMappings(
         IModel model,
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)

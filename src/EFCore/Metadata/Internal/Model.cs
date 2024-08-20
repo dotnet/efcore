@@ -53,9 +53,7 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
     /// </summary>
     public Model(Guid? modelId = null)
         : this(new ConventionSet())
-    {
-        ModelId = modelId ?? Guid.NewGuid();
-    }
+        => ModelId = modelId ?? Guid.NewGuid();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

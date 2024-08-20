@@ -36,9 +36,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
     /// </summary>
     /// <param name="dependencies">The dependencies.</param>
     public CSharpSnapshotGenerator(CSharpSnapshotGeneratorDependencies dependencies)
-    {
-        Dependencies = dependencies;
-    }
+        => Dependencies = dependencies;
 
     /// <summary>
     ///     Dependencies for this service.

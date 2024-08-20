@@ -758,7 +758,7 @@ public static class CoreLoggerExtensions
     ///     Logs for the <see cref="CoreEventId.SkippedEntityTypeConfigurationWarning" /> event.
     /// </summary>
     /// <param name="diagnostics">The diagnostics logger to use.</param>
-    /// <param name="type">The <see cref="IEntityTypeConfiguration{TEntity}"/> type.</param>
+    /// <param name="type">The <see cref="IEntityTypeConfiguration{TEntity}" /> type.</param>
     public static void SkippedEntityTypeConfigurationWarning(
         this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
         Type type)

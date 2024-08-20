@@ -47,16 +47,15 @@ public sealed class ListOfReferenceTypesComparer<TConcreteList, TElement> : Valu
             CompareLambda(elementComparer),
             GetHashCodeLambda(elementComparer),
             SnapshotLambda(elementComparer))
-    {
-        ElementComparer = elementComparer;
-    }
+        => ElementComparer = elementComparer;
 
     /// <summary>
     ///     The comparer to use for comparing elements.
     /// </summary>
     public ValueComparer ElementComparer { get; }
 
-    ValueComparer IInfrastructure<ValueComparer>.Instance => ElementComparer;
+    ValueComparer IInfrastructure<ValueComparer>.Instance
+        => ElementComparer;
 
     private static Expression<Func<object?, object?, bool>> CompareLambda(ValueComparer elementComparer)
     {
@@ -201,7 +200,7 @@ public sealed class ListOfReferenceTypesComparer<TConcreteList, TElement> : Valu
             }
 
             return IsReadOnly
-                ? (IList<TElement?>)Activator.CreateInstance(typeof(TConcreteList), [snapshot])!
+                ? (IList<TElement?>)Activator.CreateInstance(typeof(TConcreteList), snapshot)!
                 : snapshot;
         }
     }

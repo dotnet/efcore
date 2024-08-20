@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata;
 
@@ -428,6 +427,7 @@ public interface IEntityType : IReadOnlyEntityType, ITypeBase
     new IEnumerable<IIndex> GetIndexes();
 
     // The following methods are needed for binary compatibility
+
     #region DO NOT DELETE
 
     /// <summary>

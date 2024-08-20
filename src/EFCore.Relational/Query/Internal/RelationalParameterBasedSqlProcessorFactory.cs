@@ -19,9 +19,7 @@ public class RelationalParameterBasedSqlProcessorFactory : IRelationalParameterB
     /// </summary>
     public RelationalParameterBasedSqlProcessorFactory(
         RelationalParameterBasedSqlProcessorDependencies dependencies)
-    {
-        Dependencies = dependencies;
-    }
+        => Dependencies = dependencies;
 
     /// <summary>
     ///     Relational provider-specific dependencies for this service.

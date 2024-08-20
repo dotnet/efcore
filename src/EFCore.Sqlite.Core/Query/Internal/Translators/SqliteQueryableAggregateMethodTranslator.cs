@@ -24,9 +24,7 @@ public class SqliteQueryableAggregateMethodTranslator : IAggregateMethodCallTran
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public SqliteQueryableAggregateMethodTranslator(ISqlExpressionFactory sqlExpressionFactory)
-    {
-        _sqlExpressionFactory = sqlExpressionFactory;
-    }
+        => _sqlExpressionFactory = sqlExpressionFactory;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

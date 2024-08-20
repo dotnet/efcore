@@ -16,9 +16,7 @@ public class ElementTypeChangedConvention : IPropertyElementTypeChangedConventio
     /// </summary>
     /// <param name="dependencies">Parameter object containing dependencies for this convention.</param>
     public ElementTypeChangedConvention(ProviderConventionSetBuilderDependencies dependencies)
-    {
-        Dependencies = dependencies;
-    }
+        => Dependencies = dependencies;
 
     /// <summary>
     ///     Dependencies for this service.
@@ -46,7 +44,8 @@ public class ElementTypeChangedConvention : IPropertyElementTypeChangedConventio
 
     /// <inheritdoc />
     public void ProcessForeignKeyAdded(
-        IConventionForeignKeyBuilder foreignKeyBuilder, IConventionContext<IConventionForeignKeyBuilder> context)
+        IConventionForeignKeyBuilder foreignKeyBuilder,
+        IConventionContext<IConventionForeignKeyBuilder> context)
     {
         var foreignKeyProperties = foreignKeyBuilder.Metadata.Properties;
         var principalKeyProperties = foreignKeyBuilder.Metadata.PrincipalKey.Properties;

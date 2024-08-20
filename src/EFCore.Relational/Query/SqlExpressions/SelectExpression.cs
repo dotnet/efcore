@@ -113,7 +113,8 @@ public sealed partial class SelectExpression : TableExpressionBase
         SqlExpression? limit,
         IReadOnlySet<string>? tags = null,
         IReadOnlyDictionary<string, IAnnotation>? annotations = null)
-        : this(alias, tables.ToList(), predicate, groupBy.ToList(), having, projections.ToList(), distinct, orderings.ToList(),
+        : this(
+            alias, tables.ToList(), predicate, groupBy.ToList(), having, projections.ToList(), distinct, orderings.ToList(),
             offset, limit, tags?.ToHashSet() ?? [], annotations, sqlAliasManager: null, isMutable: false)
     {
     }
@@ -127,7 +128,8 @@ public sealed partial class SelectExpression : TableExpressionBase
         IReadOnlyDictionary<string, IAnnotation>? annotations,
         SqlAliasManager sqlAliasManager)
         : this(
-            alias, tables, predicate: null, groupBy: groupBy, having: null, projections: projections, distinct: false, orderings: orderings, offset: null,
+            alias, tables, predicate: null, groupBy: groupBy, having: null, projections: projections, distinct: false, orderings: orderings,
+            offset: null,
             limit: null, tags: new HashSet<string>(),
             annotations: annotations, sqlAliasManager: sqlAliasManager, isMutable: true)
     {
@@ -1955,7 +1957,8 @@ public sealed partial class SelectExpression : TableExpressionBase
     {
         // TODO: Introduce clone method? See issue#24460
         var select1 = new SelectExpression(
-            alias: null, tables: _tables.ToList(), groupBy: _groupBy.ToList(), projections: [], orderings: _orderings.ToList(), annotations: Annotations, sqlAliasManager: _sqlAliasManager)
+            alias: null, tables: _tables.ToList(), groupBy: _groupBy.ToList(), projections: [], orderings: _orderings.ToList(),
+            annotations: Annotations, sqlAliasManager: _sqlAliasManager)
         {
             IsDistinct = IsDistinct,
             Predicate = Predicate,
@@ -2654,6 +2657,7 @@ public sealed partial class SelectExpression : TableExpressionBase
             complexTypeTable = complexProperty.ComplexType.GetDefaultMappings().Single().Table;
             tableAlias = containerProjection.TableMap[complexTypeTable];
         }
+
         var isComplexTypeNullable = containerProjection.IsNullable || complexProperty.IsNullable;
 
         // If the complex property is declared on a type that's derived relative to the type being projected, the projected column is
@@ -3216,7 +3220,8 @@ public sealed partial class SelectExpression : TableExpressionBase
                             WhenClauses: [{ Result: ColumnExpression resultColumn } whenClause],
                             ElseResult: null
                         }
-                        => IsContainedCondition(selectExpression, whenClause.Test) && selectExpression.ContainsReferencedTable(resultColumn),
+                        => IsContainedCondition(selectExpression, whenClause.Test)
+                        && selectExpression.ContainsReferencedTable(resultColumn),
 
                     _ => false
                 };
@@ -3827,8 +3832,7 @@ public sealed partial class SelectExpression : TableExpressionBase
             alias, newTables, predicate, newGroupBy, havingExpression, newProjections, IsDistinct, newOrderings, offset, limit,
             Tags, Annotations, _sqlAliasManager, IsMutable)
         {
-            _projectionMapping = newProjectionMappings,
-            _clientProjections = newClientProjections,
+            _projectionMapping = newProjectionMappings, _clientProjections = newClientProjections,
         };
 
         foreach (var (column, comparer) in _identifier)
@@ -3939,7 +3943,8 @@ public sealed partial class SelectExpression : TableExpressionBase
         IColumnBase column,
         string tableAlias,
         bool nullable)
-        => new(column.Name,
+        => new(
+            column.Name,
             tableAlias,
             property.ClrType.UnwrapNullableType(),
             column.PropertyMappings.First(m => m.Property == property).TypeMapping,
@@ -4123,8 +4128,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                     Alias, newTables, predicate, newGroupBy, havingExpression, newProjections, IsDistinct, newOrderings, offset,
                     limit, (IReadOnlySet<string>)Tags, Annotations)
                 {
-                    _clientProjections = _clientProjections,
-                    _projectionMapping = _projectionMapping
+                    _clientProjections = _clientProjections, _projectionMapping = _projectionMapping
                 };
 
                 newSelectExpression._identifier.AddRange(identifier.Zip(_identifier).Select(e => (e.First, e.Second.Comparer)));
@@ -4230,8 +4234,7 @@ public sealed partial class SelectExpression : TableExpressionBase
             Alias, tables, predicate, groupBy, having, projections, IsDistinct, orderings, offset, limit,
             (IReadOnlySet<string>)Tags, Annotations)
         {
-            _projectionMapping = projectionMapping,
-            _clientProjections = _clientProjections.ToList()
+            _projectionMapping = projectionMapping, _clientProjections = _clientProjections.ToList()
         };
 
         // We don't copy identifiers because when we are doing reconstruction so projection is already applied.
@@ -4529,7 +4532,6 @@ public sealed partial class SelectExpression : TableExpressionBase
         }
 
         return hash.ToHashCode();
-
     }
     // ReSharper restore NonReadonlyMemberInGetHashCode
 }

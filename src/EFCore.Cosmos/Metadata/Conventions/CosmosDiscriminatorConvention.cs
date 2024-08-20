@@ -30,13 +30,13 @@ public class CosmosDiscriminatorConvention :
     {
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public virtual void ProcessEntityTypeAdded(
         IConventionEntityTypeBuilder entityTypeBuilder,
         IConventionContext<IConventionEntityTypeBuilder> context)
         => ProcessEntityType(entityTypeBuilder);
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public virtual void ProcessForeignKeyOwnershipChanged(
         IConventionForeignKeyBuilder relationshipBuilder,
         IConventionContext<bool?> context)
@@ -46,7 +46,7 @@ public class CosmosDiscriminatorConvention :
         ProcessEntityType(entityType.Builder);
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public virtual void ProcessForeignKeyRemoved(
         IConventionEntityTypeBuilder entityTypeBuilder,
         IConventionForeignKey foreignKey,
@@ -59,7 +59,7 @@ public class CosmosDiscriminatorConvention :
         }
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public virtual void ProcessEntityTypeAnnotationChanged(
         IConventionEntityTypeBuilder entityTypeBuilder,
         string name,
@@ -95,7 +95,7 @@ public class CosmosDiscriminatorConvention :
         }
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public override void ProcessDiscriminatorPropertySet(
         IConventionEntityTypeBuilder entityTypeBuilder,
         string? name,
@@ -108,7 +108,7 @@ public class CosmosDiscriminatorConvention :
         }
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public override void ProcessEntityTypeBaseTypeChanged(
         IConventionEntityTypeBuilder entityTypeBuilder,
         IConventionEntityType? newBaseType,
@@ -145,7 +145,7 @@ public class CosmosDiscriminatorConvention :
         }
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     protected override void SetDefaultDiscriminatorValues(
         IEnumerable<IConventionEntityType> entityTypes,
         IConventionDiscriminatorBuilder discriminatorBuilder)
@@ -156,7 +156,7 @@ public class CosmosDiscriminatorConvention :
         }
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public override void ProcessEntityTypeRemoved(
         IConventionModelBuilder modelBuilder,
         IConventionEntityType entityType,
@@ -164,7 +164,7 @@ public class CosmosDiscriminatorConvention :
     {
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public virtual void ProcessEmbeddedDiscriminatorName(
         IConventionModelBuilder modelBuilder,
         string? newName,

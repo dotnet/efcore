@@ -119,7 +119,7 @@ public sealed record QueryCompilationContextDependencies
     public IShapedQueryCompilingExpressionVisitorFactory ShapedQueryCompilingExpressionVisitorFactory { get; init; }
 
     /// <summary>
-    /// TODO
+    ///     TODO
     /// </summary>
     public ILiftableConstantFactory LiftableConstantFactory { get; init; }
 

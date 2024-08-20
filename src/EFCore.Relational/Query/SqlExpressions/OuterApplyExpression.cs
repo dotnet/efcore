@@ -59,7 +59,9 @@ public class OuterApplyExpression : JoinExpressionBase
     /// <inheritdoc />
     public override Expression Quote()
         => New(
-            _quotingConstructor ??= typeof(OuterApplyExpression).GetConstructor([typeof(TableExpressionBase), typeof(IReadOnlyDictionary<string, IAnnotation>)])!,
+            _quotingConstructor ??=
+                typeof(OuterApplyExpression).GetConstructor(
+                    [typeof(TableExpressionBase), typeof(IReadOnlyDictionary<string, IAnnotation>)])!,
             Table.Quote(),
             RelationalExpressionQuotingUtilities.QuoteAnnotations(Annotations));
 

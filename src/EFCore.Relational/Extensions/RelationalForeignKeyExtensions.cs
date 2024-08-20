@@ -1,7 +1,6 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
 using System.Text;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -139,8 +138,8 @@ public static class RelationalForeignKeyExtensions
     {
         foreignKey.DeclaringEntityType.Model.EnsureRelationalModel();
         return (IEnumerable<IForeignKeyConstraint>?)foreignKey.FindRuntimeAnnotationValue(
-                    RelationalAnnotationNames.ForeignKeyMappings)
-                ?? Enumerable.Empty<IForeignKeyConstraint>();
+                RelationalAnnotationNames.ForeignKeyMappings)
+            ?? Enumerable.Empty<IForeignKeyConstraint>();
     }
 
     /// <summary>

@@ -34,9 +34,7 @@ public abstract class RelationalDatabaseCreator : IRelationalDatabaseCreator
     /// </summary>
     /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
     protected RelationalDatabaseCreator(RelationalDatabaseCreatorDependencies dependencies)
-    {
-        Dependencies = dependencies;
-    }
+        => Dependencies = dependencies;
 
     /// <summary>
     ///     Relational provider-specific dependencies for this service.

@@ -920,7 +920,6 @@ public static class SqlServerPropertyExtensions
         => (SqlServerValueGenerationStrategy?)overrides.SetOrRemoveAnnotation(
             SqlServerAnnotationNames.ValueGenerationStrategy, value, fromDataAnnotation)?.Value;
 
-
     /// <summary>
     ///     Returns the <see cref="ConfigurationSource" /> for the <see cref="SqlServerValueGenerationStrategy" />.
     /// </summary>
