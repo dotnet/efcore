@@ -9,7 +9,9 @@ namespace Microsoft.EntityFrameworkCore.Query;
 public class PrimitiveCollectionsQuerySqlServerJsonTypeTest : PrimitiveCollectionsQueryRelationalTestBase<
     PrimitiveCollectionsQuerySqlServerJsonTypeTest.PrimitiveCollectionsQuerySqlServerFixture>
 {
-    public PrimitiveCollectionsQuerySqlServerJsonTypeTest(PrimitiveCollectionsQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
+    public PrimitiveCollectionsQuerySqlServerJsonTypeTest(
+        PrimitiveCollectionsQuerySqlServerFixture fixture,
+        ITestOutputHelper testOutputHelper)
         : base(fixture)
     {
         Fixture.TestSqlLoggerFactory.Clear();

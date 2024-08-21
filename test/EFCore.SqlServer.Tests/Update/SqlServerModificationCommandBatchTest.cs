@@ -162,7 +162,8 @@ public class SqlServerModificationCommandBatchTest
         => new ModificationCommandFactory().CreateNonTrackedModificationCommand(
             new NonTrackedModificationCommandParameters(name, schema, sensitiveLoggingEnabled));
 
-    private class TestSqlServerModificationCommandBatch(ModificationCommandBatchFactoryDependencies dependencies, int maxBatchSize) : SqlServerModificationCommandBatch(dependencies, maxBatchSize)
+    private class TestSqlServerModificationCommandBatch(ModificationCommandBatchFactoryDependencies dependencies, int maxBatchSize)
+        : SqlServerModificationCommandBatch(dependencies, maxBatchSize)
     {
         public new Dictionary<string, object> ParameterValues
             => base.ParameterValues;

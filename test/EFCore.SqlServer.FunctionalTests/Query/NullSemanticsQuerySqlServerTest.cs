@@ -3099,8 +3099,8 @@ WHERE EXISTS (
     FROM [Entities2] AS [e0]
     WHERE [e0].[NullableStringA] = [e].[NullableStringB] OR ([e0].[NullableStringA] IS NULL AND [e].[NullableStringB] IS NULL))
 """,
-                //
-                """
+            //
+            """
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
 WHERE NOT EXISTS (

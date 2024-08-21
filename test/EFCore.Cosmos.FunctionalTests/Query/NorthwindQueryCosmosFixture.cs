@@ -30,8 +30,9 @@ public class NorthwindQueryCosmosFixture<TModelCustomizer> : NorthwindQueryFixtu
         => CosmosTestHelpers.Instance.NoSyncTest(testCode);
 
     public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-        => base.AddOptions(builder.ConfigureWarnings(
-            w => w.Ignore(CosmosEventId.NoPartitionKeyDefined)));
+        => base.AddOptions(
+            builder.ConfigureWarnings(
+                w => w.Ignore(CosmosEventId.NoPartitionKeyDefined)));
 
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {

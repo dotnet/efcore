@@ -261,8 +261,7 @@ UnicodeDataTypes.StringUnicode ---> [nullable varbinary] [MaxLength = -1]
             TypeMappingSourceDependencies dependencies,
             RelationalTypeMappingSourceDependencies relationalDependencies)
             : base(dependencies, relationalDependencies)
-        {
-            _storeTypeMappings
+            => _storeTypeMappings
                 = new Dictionary<string, RelationalTypeMapping>(StringComparer.OrdinalIgnoreCase)
                 {
                     { "binary varying", _variableLengthBinary },
@@ -271,7 +270,6 @@ UnicodeDataTypes.StringUnicode ---> [nullable varbinary] [MaxLength = -1]
                     { "rowversion", _rowversion },
                     { "varbinary", _variableLengthBinary }
                 };
-        }
 
         protected override RelationalTypeMapping FindMapping(in RelationalTypeMappingInfo mappingInfo)
             => FindRawMapping(mappingInfo)?.WithTypeMappingInfo(mappingInfo);

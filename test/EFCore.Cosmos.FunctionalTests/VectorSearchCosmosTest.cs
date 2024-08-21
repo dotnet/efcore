@@ -213,8 +213,7 @@ ORDER BY VectorDistance(c["Singles"], @__p_1, false, {'distanceFunction':'cosine
 
         // Assert.Equal(3, booksFromStore.Count);
 
-        AssertSql(
-);
+        AssertSql();
     }
 
     [ConditionalFact]
@@ -384,7 +383,7 @@ ORDER BY VectorDistance(c["Singles"], @__p_1, false, {'distanceFunction':'cosine
                     NestedOwned = new Owned2 { Prop = "7" },
                     NestedOwnedCollection = new List<Owned2> { new() { Prop = "71" }, new() { Prop = "72" } }
                 },
-                OwnedCollection = new List<Owned1> { new Owned1 { Prop = 71 }, new Owned1 { Prop = 72 } }
+                OwnedCollection = new List<Owned1> { new() { Prop = 71 }, new() { Prop = 72 } }
             };
 
             var book2 = new Book
@@ -404,7 +403,7 @@ ORDER BY VectorDistance(c["Singles"], @__p_1, false, {'distanceFunction':'cosine
                     NestedOwned = new Owned2 { Prop = "7" },
                     NestedOwnedCollection = new List<Owned2> { new() { Prop = "71" }, new() { Prop = "72" } }
                 },
-                OwnedCollection = new List<Owned1> { new Owned1 { Prop = 71 }, new Owned1 { Prop = 72 } }
+                OwnedCollection = new List<Owned1> { new() { Prop = 71 }, new() { Prop = 72 } }
             };
 
             var book3 = new Book
@@ -424,7 +423,7 @@ ORDER BY VectorDistance(c["Singles"], @__p_1, false, {'distanceFunction':'cosine
                     NestedOwned = new Owned2 { Prop = "7" },
                     NestedOwnedCollection = new List<Owned2> { new() { Prop = "71" }, new() { Prop = "72" } }
                 },
-                OwnedCollection = new List<Owned1> { new Owned1 { Prop = 71 }, new Owned1 { Prop = 72 } }
+                OwnedCollection = new List<Owned1> { new() { Prop = 71 }, new() { Prop = 72 } }
             };
 
             context.AddRange(book1, book2, book3);

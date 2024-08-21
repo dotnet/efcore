@@ -377,10 +377,10 @@ WHERE ((
         => CosmosTestHelpers.Instance.NoSyncTest(
             async, async a =>
             {
-        await base.Inline_collection_Max_with_three_values(a);
+                await base.Inline_collection_Max_with_three_values(a);
 
-        AssertSql(
-            """
+                AssertSql(
+                    """
 @__i_0='35'
 
 SELECT VALUE c
@@ -2092,8 +2092,9 @@ WHERE ((c["Ints"][2] ?? 999) = 999)
             => CosmosTestStoreFactory.Instance;
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-            => base.AddOptions(builder.ConfigureWarnings(
-                w => w.Ignore(CosmosEventId.NoPartitionKeyDefined)));
+            => base.AddOptions(
+                builder.ConfigureWarnings(
+                    w => w.Ignore(CosmosEventId.NoPartitionKeyDefined)));
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {

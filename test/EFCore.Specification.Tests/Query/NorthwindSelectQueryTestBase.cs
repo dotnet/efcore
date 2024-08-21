@@ -771,7 +771,7 @@ public abstract class NorthwindSelectQueryTestBase<TFixture>(TFixture fixture) :
                       ? o.OrderID
                       : false
                           ? 0
-                          : -o.OrderID );
+                          : -o.OrderID);
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -783,7 +783,7 @@ public abstract class NorthwindSelectQueryTestBase<TFixture>(TFixture fixture) :
                       ? o.OrderID
                       : true
                           ? 0
-                          : -o.OrderID );
+                          : -o.OrderID);
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1548,7 +1548,8 @@ public abstract class NorthwindSelectQueryTestBase<TFixture>(TFixture fixture) :
         => AssertQueryScalar(
             async,
             ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI").Select(c => (int?)c.Region.IndexOf("")),
-            ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI").Select(c => c.Region == null ? default(int?) : c.Region.IndexOf("")),
+            ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI")
+                .Select(c => c.Region == null ? default(int?) : c.Region.IndexOf("")),
             assertOrder: true);
 
     [ConditionalTheory]
@@ -2483,16 +2484,18 @@ public abstract class NorthwindSelectQueryTestBase<TFixture>(TFixture fixture) :
             async,
             ss => ss.Set<Customer>()
                 .OrderBy(x => x.CustomerID)
-                .Select(x => new
-                {
-                    OrderIds = (from o1 in ss.Set<Order>()
-                                where o1.CustomerID == x.CustomerID
-                                select o1.OrderID)
-                        .Union(from o2 in ss.Set<Order>()
-                               where o2.CustomerID == x.CustomerID
-                               select o2.OrderID)
-                    .ToList()
-                }).Take(5),
+                .Select(
+                    x => new
+                    {
+                        OrderIds = (from o1 in ss.Set<Order>()
+                                    where o1.CustomerID == x.CustomerID
+                                    select o1.OrderID)
+                            .Union(
+                                from o2 in ss.Set<Order>()
+                                where o2.CustomerID == x.CustomerID
+                                select o2.OrderID)
+                            .ToList()
+                    }).Take(5),
             assertOrder: true,
             elementAsserter: (e, a) => AssertCollection(e.OrderIds, a.OrderIds, elementSorter: ee => ee));
 }

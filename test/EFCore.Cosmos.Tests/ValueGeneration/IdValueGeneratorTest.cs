@@ -107,9 +107,9 @@ public class IdValueGeneratorTest
 
         public bool Equals(BytesStruct other)
             => Value == null
-                    && other.Value == null
+                && other.Value == null
                 || other.Value != null
-                    && Value?.SequenceEqual(other.Value) == true;
+                && Value?.SequenceEqual(other.Value) == true;
 
         public override int GetHashCode()
         {

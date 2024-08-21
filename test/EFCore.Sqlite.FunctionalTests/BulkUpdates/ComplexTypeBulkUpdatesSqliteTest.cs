@@ -5,7 +5,9 @@ namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
 #nullable disable
 
-public class ComplexTypeBulkUpdatesSqliteTest(ComplexTypeBulkUpdatesSqliteTest.ComplexTypeBulkUpdatesSqliteFixture fixture, ITestOutputHelper testOutputHelper) : ComplexTypeBulkUpdatesRelationalTestBase<
+public class ComplexTypeBulkUpdatesSqliteTest(
+    ComplexTypeBulkUpdatesSqliteTest.ComplexTypeBulkUpdatesSqliteFixture fixture,
+    ITestOutputHelper testOutputHelper) : ComplexTypeBulkUpdatesRelationalTestBase<
     ComplexTypeBulkUpdatesSqliteTest.ComplexTypeBulkUpdatesSqliteFixture>(fixture, testOutputHelper)
 {
     public class ComplexTypeBulkUpdatesSqliteFixture : ComplexTypeBulkUpdatesRelationalFixtureBase

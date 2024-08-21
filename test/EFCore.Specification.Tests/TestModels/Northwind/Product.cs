@@ -12,9 +12,7 @@ public class Product
     private int? _productId;
 
     public Product()
-    {
-        OrderDetails = [];
-    }
+        => OrderDetails = [];
 
     public int ProductID
     {

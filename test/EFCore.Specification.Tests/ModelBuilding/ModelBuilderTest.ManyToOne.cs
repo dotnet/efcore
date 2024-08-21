@@ -1902,7 +1902,6 @@ public abstract partial class ModelBuilderTest
                 Assert.Empty(dependentType.GetIndexes());
             }
 
-
             Assert.Equal(
                 CoreStrings.AmbiguousOneToOneRelationship(
                     existingFk.DeclaringEntityType.DisplayName() + "." + existingFk.DependentToPrincipal.Name,

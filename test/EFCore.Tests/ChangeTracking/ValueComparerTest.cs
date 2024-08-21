@@ -142,9 +142,9 @@ public class ValueComparerTest
         LambdaExpression equalsExpression,
         LambdaExpression hashCodeExpression,
         LambdaExpression snapshotExpression) : ValueComparer<T>(
-            (Expression<Func<T, T, bool>>)equalsExpression,
-            (Expression<Func<T, int>>)hashCodeExpression,
-            (Expression<Func<T, T>>)snapshotExpression);
+        (Expression<Func<T, T, bool>>)equalsExpression,
+        (Expression<Func<T, int>>)hashCodeExpression,
+        (Expression<Func<T, T>>)snapshotExpression);
 
     private enum JustAnEnum : ushort
     {

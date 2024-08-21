@@ -58,7 +58,13 @@ public class DefaultKeyValuesTest(DefaultKeyValuesTest.CosmosDefaultKeyValuesTes
         context.Add(new CompositeKeySinglePartitionKey { Id2 = Guid.NewGuid(), Id3 = true });
         await AssertSaves(context);
 
-        context.Add(new CompositeKeySinglePartitionKey { Id1 = 1, Id2 = Guid.NewGuid(), Id3 = true });
+        context.Add(
+            new CompositeKeySinglePartitionKey
+            {
+                Id1 = 1,
+                Id2 = Guid.NewGuid(),
+                Id3 = true
+            });
         await AssertSaves(context);
 
         context.Add(new CompositeKeySinglePartitionKey { Id1 = 1, PartitionKey = 1 });
@@ -70,16 +76,41 @@ public class DefaultKeyValuesTest(DefaultKeyValuesTest.CosmosDefaultKeyValuesTes
         context.Add(new CompositeKeySinglePartitionKey { Id3 = true, PartitionKey = 1 });
         await AssertSaves(context);
 
-        context.Add(new CompositeKeySinglePartitionKey { Id1 = 1, Id2 = Guid.NewGuid(), PartitionKey = 1 });
+        context.Add(
+            new CompositeKeySinglePartitionKey
+            {
+                Id1 = 1,
+                Id2 = Guid.NewGuid(),
+                PartitionKey = 1
+            });
         await AssertSaves(context);
 
-        context.Add(new CompositeKeySinglePartitionKey { Id1 = 1, Id3 = true, PartitionKey = 1 });
+        context.Add(
+            new CompositeKeySinglePartitionKey
+            {
+                Id1 = 1,
+                Id3 = true,
+                PartitionKey = 1
+            });
         await AssertSaves(context);
 
-        context.Add(new CompositeKeySinglePartitionKey { Id2 = Guid.NewGuid(), Id3 = true, PartitionKey = 1 });
+        context.Add(
+            new CompositeKeySinglePartitionKey
+            {
+                Id2 = Guid.NewGuid(),
+                Id3 = true,
+                PartitionKey = 1
+            });
         await AssertSaves(context);
 
-        context.Add(new CompositeKeySinglePartitionKey { Id1 = 1, Id2 = Guid.NewGuid(), Id3 = true, PartitionKey = 1 });
+        context.Add(
+            new CompositeKeySinglePartitionKey
+            {
+                Id1 = 1,
+                Id2 = Guid.NewGuid(),
+                Id3 = true,
+                PartitionKey = 1
+            });
         await AssertSaves(context);
     }
 
@@ -100,16 +131,35 @@ public class DefaultKeyValuesTest(DefaultKeyValuesTest.CosmosDefaultKeyValuesTes
         context.Add(new SingleKeyCompositePartitionKey { PartitionKey3 = true });
         await AssertKeyValueNotSet(context, nameof(SingleKeyCompositePartitionKey), nameof(SingleKeyCompositePartitionKey.Id));
 
-        context.Add(new SingleKeyCompositePartitionKey { PartitionKey1 = 1, PartitionKey2 = Guid.NewGuid(), PartitionKey3 = true });
+        context.Add(
+            new SingleKeyCompositePartitionKey
+            {
+                PartitionKey1 = 1,
+                PartitionKey2 = Guid.NewGuid(),
+                PartitionKey3 = true
+            });
         await AssertKeyValueNotSet(context, nameof(SingleKeyCompositePartitionKey), nameof(SingleKeyCompositePartitionKey.Id));
 
         context.Add(new SingleKeyCompositePartitionKey { Id = 1 });
         await AssertSaves(context);
 
-        context.Add(new SingleKeyCompositePartitionKey { Id = 1, PartitionKey1 = 1, PartitionKey2 = Guid.NewGuid(), PartitionKey3 = true });
+        context.Add(
+            new SingleKeyCompositePartitionKey
+            {
+                Id = 1,
+                PartitionKey1 = 1,
+                PartitionKey2 = Guid.NewGuid(),
+                PartitionKey3 = true
+            });
         await AssertSaves(context);
 
-        context.Add(new SingleKeyCompositePartitionKey { Id = 1, PartitionKey2 = Guid.NewGuid(), PartitionKey3 = true });
+        context.Add(
+            new SingleKeyCompositePartitionKey
+            {
+                Id = 1,
+                PartitionKey2 = Guid.NewGuid(),
+                PartitionKey3 = true
+            });
         await AssertSaves(context);
 
         context.Add(new SingleKeyCompositePartitionKey { Id = 1, PartitionKey2 = Guid.NewGuid() });
@@ -133,19 +183,35 @@ public class DefaultKeyValuesTest(DefaultKeyValuesTest.CosmosDefaultKeyValuesTes
         context.Add(new CompositeKeyCompositePartitionKey { PartitionKey3 = true });
         await AssertKeyValueNotSet(context, nameof(CompositeKeyCompositePartitionKey), nameof(CompositeKeyCompositePartitionKey.Id3));
 
-        context.Add(new CompositeKeyCompositePartitionKey { PartitionKey1 = 1, PartitionKey2 = Guid.NewGuid(), PartitionKey3 = true });
+        context.Add(
+            new CompositeKeyCompositePartitionKey
+            {
+                PartitionKey1 = 1,
+                PartitionKey2 = Guid.NewGuid(),
+                PartitionKey3 = true
+            });
         await AssertKeyValueNotSet(context, nameof(CompositeKeyCompositePartitionKey), nameof(CompositeKeyCompositePartitionKey.Id3));
 
         context.Add(new CompositeKeyCompositePartitionKey { Id1 = 1 });
         await AssertSaves(context);
 
-        context.Add(new CompositeKeyCompositePartitionKey
-        {
-            Id1 = 1, PartitionKey1 = 1, PartitionKey2 = Guid.NewGuid(), PartitionKey3 = true
-        });
+        context.Add(
+            new CompositeKeyCompositePartitionKey
+            {
+                Id1 = 1,
+                PartitionKey1 = 1,
+                PartitionKey2 = Guid.NewGuid(),
+                PartitionKey3 = true
+            });
         await AssertSaves(context);
 
-        context.Add(new CompositeKeyCompositePartitionKey { Id1 = 1, PartitionKey2 = Guid.NewGuid(), PartitionKey3 = true });
+        context.Add(
+            new CompositeKeyCompositePartitionKey
+            {
+                Id1 = 1,
+                PartitionKey2 = Guid.NewGuid(),
+                PartitionKey3 = true
+            });
         await AssertSaves(context);
 
         context.Add(new CompositeKeyCompositePartitionKey { Id1 = 1, PartitionKey2 = Guid.NewGuid() });
@@ -154,13 +220,23 @@ public class DefaultKeyValuesTest(DefaultKeyValuesTest.CosmosDefaultKeyValuesTes
         context.Add(new CompositeKeyCompositePartitionKey { Id2 = Guid.NewGuid() });
         await AssertSaves(context);
 
-        context.Add(new CompositeKeyCompositePartitionKey
-        {
-            Id2 = Guid.NewGuid(), PartitionKey1 = 1, PartitionKey2 = Guid.NewGuid(), PartitionKey3 = true
-        });
+        context.Add(
+            new CompositeKeyCompositePartitionKey
+            {
+                Id2 = Guid.NewGuid(),
+                PartitionKey1 = 1,
+                PartitionKey2 = Guid.NewGuid(),
+                PartitionKey3 = true
+            });
         await AssertSaves(context);
 
-        context.Add(new CompositeKeyCompositePartitionKey { Id2 = Guid.NewGuid(), PartitionKey2 = Guid.NewGuid(), PartitionKey3 = true });
+        context.Add(
+            new CompositeKeyCompositePartitionKey
+            {
+                Id2 = Guid.NewGuid(),
+                PartitionKey2 = Guid.NewGuid(),
+                PartitionKey3 = true
+            });
         await AssertSaves(context);
 
         context.Add(new CompositeKeyCompositePartitionKey { Id2 = Guid.NewGuid(), PartitionKey2 = Guid.NewGuid() });
@@ -169,13 +245,23 @@ public class DefaultKeyValuesTest(DefaultKeyValuesTest.CosmosDefaultKeyValuesTes
         context.Add(new CompositeKeyCompositePartitionKey { Id3 = true });
         await AssertSaves(context);
 
-        context.Add(new CompositeKeyCompositePartitionKey
-        {
-            Id3 = true, PartitionKey1 = 1, PartitionKey2 = Guid.NewGuid(), PartitionKey3 = true
-        });
+        context.Add(
+            new CompositeKeyCompositePartitionKey
+            {
+                Id3 = true,
+                PartitionKey1 = 1,
+                PartitionKey2 = Guid.NewGuid(),
+                PartitionKey3 = true
+            });
         await AssertSaves(context);
 
-        context.Add(new CompositeKeyCompositePartitionKey { Id3 = true, PartitionKey2 = Guid.NewGuid(), PartitionKey3 = true });
+        context.Add(
+            new CompositeKeyCompositePartitionKey
+            {
+                Id3 = true,
+                PartitionKey2 = Guid.NewGuid(),
+                PartitionKey3 = true
+            });
         await AssertSaves(context);
 
         context.Add(new CompositeKeyCompositePartitionKey { Id3 = true, PartitionKey2 = Guid.NewGuid() });
@@ -211,7 +297,13 @@ public class DefaultKeyValuesTest(DefaultKeyValuesTest.CosmosDefaultKeyValuesTes
         context.Add(new CompositeSameKeyAndPartitionKey { Key3 = true });
         await AssertSaves(context);
 
-        context.Add(new CompositeSameKeyAndPartitionKey { Key1 = 1, Key2 = Guid.NewGuid(), Key3 = true });
+        context.Add(
+            new CompositeSameKeyAndPartitionKey
+            {
+                Key1 = 1,
+                Key2 = Guid.NewGuid(),
+                Key3 = true
+            });
         await AssertSaves(context);
     }
 
@@ -262,7 +354,13 @@ public class DefaultKeyValuesTest(DefaultKeyValuesTest.CosmosDefaultKeyValuesTes
         context.Add(new CompositeGeneratedKeySinglePartitionKey { Id2 = Guid.NewGuid(), Id3 = true });
         await AssertSaves(context);
 
-        context.Add(new CompositeGeneratedKeySinglePartitionKey { Id1 = 1, Id2 = Guid.NewGuid(), Id3 = true });
+        context.Add(
+            new CompositeGeneratedKeySinglePartitionKey
+            {
+                Id1 = 1,
+                Id2 = Guid.NewGuid(),
+                Id3 = true
+            });
         await AssertSaves(context);
 
         context.Add(new CompositeGeneratedKeySinglePartitionKey { Id1 = 1, PartitionKey = 1 });
@@ -274,16 +372,41 @@ public class DefaultKeyValuesTest(DefaultKeyValuesTest.CosmosDefaultKeyValuesTes
         context.Add(new CompositeGeneratedKeySinglePartitionKey { Id3 = true, PartitionKey = 1 });
         await AssertSaves(context);
 
-        context.Add(new CompositeGeneratedKeySinglePartitionKey { Id1 = 1, Id2 = Guid.NewGuid(), PartitionKey = 1 });
+        context.Add(
+            new CompositeGeneratedKeySinglePartitionKey
+            {
+                Id1 = 1,
+                Id2 = Guid.NewGuid(),
+                PartitionKey = 1
+            });
         await AssertSaves(context);
 
-        context.Add(new CompositeGeneratedKeySinglePartitionKey { Id1 = 1, Id3 = true, PartitionKey = 1 });
+        context.Add(
+            new CompositeGeneratedKeySinglePartitionKey
+            {
+                Id1 = 1,
+                Id3 = true,
+                PartitionKey = 1
+            });
         await AssertSaves(context);
 
-        context.Add(new CompositeGeneratedKeySinglePartitionKey { Id2 = Guid.NewGuid(), Id3 = true, PartitionKey = 1 });
+        context.Add(
+            new CompositeGeneratedKeySinglePartitionKey
+            {
+                Id2 = Guid.NewGuid(),
+                Id3 = true,
+                PartitionKey = 1
+            });
         await AssertSaves(context);
 
-        context.Add(new CompositeGeneratedKeySinglePartitionKey { Id1 = 1, Id2 = Guid.NewGuid(), Id3 = true, PartitionKey = 1 });
+        context.Add(
+            new CompositeGeneratedKeySinglePartitionKey
+            {
+                Id1 = 1,
+                Id2 = Guid.NewGuid(),
+                Id3 = true,
+                PartitionKey = 1
+            });
         await AssertSaves(context);
     }
 
@@ -304,16 +427,35 @@ public class DefaultKeyValuesTest(DefaultKeyValuesTest.CosmosDefaultKeyValuesTes
         context.Add(new SingleGeneratedKeyCompositePartitionKey { PartitionKey3 = true });
         await AssertSaves(context);
 
-        context.Add(new SingleGeneratedKeyCompositePartitionKey { PartitionKey1 = 1, PartitionKey2 = Guid.NewGuid(), PartitionKey3 = true });
+        context.Add(
+            new SingleGeneratedKeyCompositePartitionKey
+            {
+                PartitionKey1 = 1,
+                PartitionKey2 = Guid.NewGuid(),
+                PartitionKey3 = true
+            });
         await AssertSaves(context);
 
         context.Add(new SingleGeneratedKeyCompositePartitionKey { Id = Guid.NewGuid() });
         await AssertSaves(context);
 
-        context.Add(new SingleGeneratedKeyCompositePartitionKey { Id = Guid.NewGuid(), PartitionKey1 = 1, PartitionKey2 = Guid.NewGuid(), PartitionKey3 = true });
+        context.Add(
+            new SingleGeneratedKeyCompositePartitionKey
+            {
+                Id = Guid.NewGuid(),
+                PartitionKey1 = 1,
+                PartitionKey2 = Guid.NewGuid(),
+                PartitionKey3 = true
+            });
         await AssertSaves(context);
 
-        context.Add(new SingleGeneratedKeyCompositePartitionKey { Id = Guid.NewGuid(), PartitionKey2 = Guid.NewGuid(), PartitionKey3 = true });
+        context.Add(
+            new SingleGeneratedKeyCompositePartitionKey
+            {
+                Id = Guid.NewGuid(),
+                PartitionKey2 = Guid.NewGuid(),
+                PartitionKey3 = true
+            });
         await AssertSaves(context);
 
         context.Add(new SingleGeneratedKeyCompositePartitionKey { Id = Guid.NewGuid(), PartitionKey2 = Guid.NewGuid() });
@@ -337,19 +479,35 @@ public class DefaultKeyValuesTest(DefaultKeyValuesTest.CosmosDefaultKeyValuesTes
         context.Add(new CompositeGeneratedKeyCompositePartitionKey { PartitionKey3 = true });
         await AssertSaves(context);
 
-        context.Add(new CompositeGeneratedKeyCompositePartitionKey { PartitionKey1 = 1, PartitionKey2 = Guid.NewGuid(), PartitionKey3 = true });
+        context.Add(
+            new CompositeGeneratedKeyCompositePartitionKey
+            {
+                PartitionKey1 = 1,
+                PartitionKey2 = Guid.NewGuid(),
+                PartitionKey3 = true
+            });
         await AssertSaves(context);
 
         context.Add(new CompositeGeneratedKeyCompositePartitionKey { Id1 = 1 });
         await AssertSaves(context);
 
-        context.Add(new CompositeGeneratedKeyCompositePartitionKey
-        {
-            Id1 = 1, PartitionKey1 = 1, PartitionKey2 = Guid.NewGuid(), PartitionKey3 = true
-        });
+        context.Add(
+            new CompositeGeneratedKeyCompositePartitionKey
+            {
+                Id1 = 1,
+                PartitionKey1 = 1,
+                PartitionKey2 = Guid.NewGuid(),
+                PartitionKey3 = true
+            });
         await AssertSaves(context);
 
-        context.Add(new CompositeGeneratedKeyCompositePartitionKey { Id1 = 1, PartitionKey2 = Guid.NewGuid(), PartitionKey3 = true });
+        context.Add(
+            new CompositeGeneratedKeyCompositePartitionKey
+            {
+                Id1 = 1,
+                PartitionKey2 = Guid.NewGuid(),
+                PartitionKey3 = true
+            });
         await AssertSaves(context);
 
         context.Add(new CompositeGeneratedKeyCompositePartitionKey { Id1 = 1, PartitionKey2 = Guid.NewGuid() });
@@ -358,13 +516,23 @@ public class DefaultKeyValuesTest(DefaultKeyValuesTest.CosmosDefaultKeyValuesTes
         context.Add(new CompositeGeneratedKeyCompositePartitionKey { Id2 = Guid.NewGuid() });
         await AssertSaves(context);
 
-        context.Add(new CompositeGeneratedKeyCompositePartitionKey
-        {
-            Id2 = Guid.NewGuid(), PartitionKey1 = 1, PartitionKey2 = Guid.NewGuid(), PartitionKey3 = true
-        });
+        context.Add(
+            new CompositeGeneratedKeyCompositePartitionKey
+            {
+                Id2 = Guid.NewGuid(),
+                PartitionKey1 = 1,
+                PartitionKey2 = Guid.NewGuid(),
+                PartitionKey3 = true
+            });
         await AssertSaves(context);
 
-        context.Add(new CompositeGeneratedKeyCompositePartitionKey { Id2 = Guid.NewGuid(), PartitionKey2 = Guid.NewGuid(), PartitionKey3 = true });
+        context.Add(
+            new CompositeGeneratedKeyCompositePartitionKey
+            {
+                Id2 = Guid.NewGuid(),
+                PartitionKey2 = Guid.NewGuid(),
+                PartitionKey3 = true
+            });
         await AssertSaves(context);
 
         context.Add(new CompositeGeneratedKeyCompositePartitionKey { Id2 = Guid.NewGuid(), PartitionKey2 = Guid.NewGuid() });
@@ -373,13 +541,23 @@ public class DefaultKeyValuesTest(DefaultKeyValuesTest.CosmosDefaultKeyValuesTes
         context.Add(new CompositeGeneratedKeyCompositePartitionKey { Id3 = true });
         await AssertSaves(context);
 
-        context.Add(new CompositeGeneratedKeyCompositePartitionKey
-        {
-            Id3 = true, PartitionKey1 = 1, PartitionKey2 = Guid.NewGuid(), PartitionKey3 = true
-        });
+        context.Add(
+            new CompositeGeneratedKeyCompositePartitionKey
+            {
+                Id3 = true,
+                PartitionKey1 = 1,
+                PartitionKey2 = Guid.NewGuid(),
+                PartitionKey3 = true
+            });
         await AssertSaves(context);
 
-        context.Add(new CompositeGeneratedKeyCompositePartitionKey { Id3 = true, PartitionKey2 = Guid.NewGuid(), PartitionKey3 = true });
+        context.Add(
+            new CompositeGeneratedKeyCompositePartitionKey
+            {
+                Id3 = true,
+                PartitionKey2 = Guid.NewGuid(),
+                PartitionKey3 = true
+            });
         await AssertSaves(context);
 
         context.Add(new CompositeGeneratedKeyCompositePartitionKey { Id3 = true, PartitionKey2 = Guid.NewGuid() });
@@ -415,7 +593,13 @@ public class DefaultKeyValuesTest(DefaultKeyValuesTest.CosmosDefaultKeyValuesTes
         context.Add(new CompositeSameGeneratedKeyAndPartitionKey { Key3 = true });
         await AssertSaves(context);
 
-        context.Add(new CompositeSameGeneratedKeyAndPartitionKey { Key1 = 1, Key2 = Guid.NewGuid(), Key3 = true });
+        context.Add(
+            new CompositeSameGeneratedKeyAndPartitionKey
+            {
+                Key1 = 1,
+                Key2 = Guid.NewGuid(),
+                Key3 = true
+            });
         await AssertSaves(context);
     }
 
@@ -431,7 +615,9 @@ public class DefaultKeyValuesTest(DefaultKeyValuesTest.CosmosDefaultKeyValuesTes
     }
 
     private static async Task AssertKeyValueNotSet(
-        DefaultKeyValuesTestContext context, string entityTypeName, string propertyName)
+        DefaultKeyValuesTestContext context,
+        string entityTypeName,
+        string propertyName)
     {
         Assert.Equal(
             CoreStrings.WarningAsErrorTemplate(
@@ -466,95 +652,201 @@ public class DefaultKeyValuesTest(DefaultKeyValuesTest.CosmosDefaultKeyValuesTes
     {
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<SingleKeySinglePartitionKey>(b =>
-            {
-                b.ToContainer(b.Metadata.ClrType.Name);
-                b.HasPartitionKey(e => e.PartitionKey);
-                b.HasKey(e => new { e.Id, e.PartitionKey });
-            });
+            modelBuilder.Entity<SingleKeySinglePartitionKey>(
+                b =>
+                {
+                    b.ToContainer(b.Metadata.ClrType.Name);
+                    b.HasPartitionKey(e => e.PartitionKey);
+                    b.HasKey(e => new { e.Id, e.PartitionKey });
+                });
 
-            modelBuilder.Entity<CompositeKeySinglePartitionKey>(b =>
-            {
-                b.ToContainer(b.Metadata.ClrType.Name);
-                b.HasPartitionKey(e => e.PartitionKey);
-                b.HasKey(e => new { e.Id1, e.Id2, e.Id3, e.PartitionKey });
-            });
+            modelBuilder.Entity<CompositeKeySinglePartitionKey>(
+                b =>
+                {
+                    b.ToContainer(b.Metadata.ClrType.Name);
+                    b.HasPartitionKey(e => e.PartitionKey);
+                    b.HasKey(
+                        e => new
+                        {
+                            e.Id1,
+                            e.Id2,
+                            e.Id3,
+                            e.PartitionKey
+                        });
+                });
 
-            modelBuilder.Entity<SingleKeyCompositePartitionKey>(b =>
-            {
-                b.ToContainer(b.Metadata.ClrType.Name);
-                b.HasPartitionKey(e => new { e.PartitionKey1, e.PartitionKey2, e.PartitionKey3 });
-                b.HasKey(e => new { e.Id, e.PartitionKey1, e.PartitionKey2, e.PartitionKey3 });
-            });
+            modelBuilder.Entity<SingleKeyCompositePartitionKey>(
+                b =>
+                {
+                    b.ToContainer(b.Metadata.ClrType.Name);
+                    b.HasPartitionKey(
+                        e => new
+                        {
+                            e.PartitionKey1,
+                            e.PartitionKey2,
+                            e.PartitionKey3
+                        });
+                    b.HasKey(
+                        e => new
+                        {
+                            e.Id,
+                            e.PartitionKey1,
+                            e.PartitionKey2,
+                            e.PartitionKey3
+                        });
+                });
 
-            modelBuilder.Entity<CompositeKeyCompositePartitionKey>(b =>
-            {
-                b.ToContainer(b.Metadata.ClrType.Name);
-                b.HasPartitionKey(e => new { e.PartitionKey1, e.PartitionKey2, e.PartitionKey3 });
-                b.HasKey(e => new { e.Id1, e.Id2, e.Id3, e.PartitionKey1, e.PartitionKey2, e.PartitionKey3 });
-            });
+            modelBuilder.Entity<CompositeKeyCompositePartitionKey>(
+                b =>
+                {
+                    b.ToContainer(b.Metadata.ClrType.Name);
+                    b.HasPartitionKey(
+                        e => new
+                        {
+                            e.PartitionKey1,
+                            e.PartitionKey2,
+                            e.PartitionKey3
+                        });
+                    b.HasKey(
+                        e => new
+                        {
+                            e.Id1,
+                            e.Id2,
+                            e.Id3,
+                            e.PartitionKey1,
+                            e.PartitionKey2,
+                            e.PartitionKey3
+                        });
+                });
 
-            modelBuilder.Entity<SingleSameKeyAndPartitionKey>(b =>
-            {
-                b.ToContainer(b.Metadata.ClrType.Name);
-                b.HasPartitionKey(e => e.Id);
-                b.HasKey(e => e.Id);
-            });
+            modelBuilder.Entity<SingleSameKeyAndPartitionKey>(
+                b =>
+                {
+                    b.ToContainer(b.Metadata.ClrType.Name);
+                    b.HasPartitionKey(e => e.Id);
+                    b.HasKey(e => e.Id);
+                });
 
-            modelBuilder.Entity<CompositeSameKeyAndPartitionKey>(b =>
-            {
-                b.ToContainer(b.Metadata.ClrType.Name);
-                b.HasPartitionKey(e => new { e.Key1, e.Key2, e.Key3 });
-                b.HasKey(e => new { e.Key1, e.Key2, e.Key3 });
-            });
+            modelBuilder.Entity<CompositeSameKeyAndPartitionKey>(
+                b =>
+                {
+                    b.ToContainer(b.Metadata.ClrType.Name);
+                    b.HasPartitionKey(
+                        e => new
+                        {
+                            e.Key1,
+                            e.Key2,
+                            e.Key3
+                        });
+                    b.HasKey(
+                        e => new
+                        {
+                            e.Key1,
+                            e.Key2,
+                            e.Key3
+                        });
+                });
 
-            modelBuilder.Entity<SingleGeneratedKeySinglePartitionKey>(b =>
-            {
-                b.ToContainer(b.Metadata.ClrType.Name);
-                b.HasPartitionKey(e => e.PartitionKey);
-                b.HasKey(e => new { e.Id, e.PartitionKey });
-                b.Property(e => e.Id).ValueGeneratedOnAdd();
-            });
+            modelBuilder.Entity<SingleGeneratedKeySinglePartitionKey>(
+                b =>
+                {
+                    b.ToContainer(b.Metadata.ClrType.Name);
+                    b.HasPartitionKey(e => e.PartitionKey);
+                    b.HasKey(e => new { e.Id, e.PartitionKey });
+                    b.Property(e => e.Id).ValueGeneratedOnAdd();
+                });
 
-            modelBuilder.Entity<CompositeGeneratedKeySinglePartitionKey>(b =>
-            {
-                b.ToContainer(b.Metadata.ClrType.Name);
-                b.HasPartitionKey(e => e.PartitionKey);
-                b.HasKey(e => new { e.Id1, e.Id2, e.Id3, e.PartitionKey });
-                b.Property(e => e.Id2).ValueGeneratedOnAdd();
-            });
+            modelBuilder.Entity<CompositeGeneratedKeySinglePartitionKey>(
+                b =>
+                {
+                    b.ToContainer(b.Metadata.ClrType.Name);
+                    b.HasPartitionKey(e => e.PartitionKey);
+                    b.HasKey(
+                        e => new
+                        {
+                            e.Id1,
+                            e.Id2,
+                            e.Id3,
+                            e.PartitionKey
+                        });
+                    b.Property(e => e.Id2).ValueGeneratedOnAdd();
+                });
 
-            modelBuilder.Entity<SingleGeneratedKeyCompositePartitionKey>(b =>
-            {
-                b.ToContainer(b.Metadata.ClrType.Name);
-                b.HasPartitionKey(e => new { e.PartitionKey1, e.PartitionKey2, e.PartitionKey3 });
-                b.HasKey(e => new { e.Id, e.PartitionKey1, e.PartitionKey2, e.PartitionKey3 });
-                b.Property(e => e.Id).ValueGeneratedOnAdd();
-            });
+            modelBuilder.Entity<SingleGeneratedKeyCompositePartitionKey>(
+                b =>
+                {
+                    b.ToContainer(b.Metadata.ClrType.Name);
+                    b.HasPartitionKey(
+                        e => new
+                        {
+                            e.PartitionKey1,
+                            e.PartitionKey2,
+                            e.PartitionKey3
+                        });
+                    b.HasKey(
+                        e => new
+                        {
+                            e.Id,
+                            e.PartitionKey1,
+                            e.PartitionKey2,
+                            e.PartitionKey3
+                        });
+                    b.Property(e => e.Id).ValueGeneratedOnAdd();
+                });
 
-            modelBuilder.Entity<CompositeGeneratedKeyCompositePartitionKey>(b =>
-            {
-                b.ToContainer(b.Metadata.ClrType.Name);
-                b.HasPartitionKey(e => new { e.PartitionKey1, e.PartitionKey2, e.PartitionKey3 });
-                b.HasKey(e => new { e.Id1, e.Id2, e.Id3, e.PartitionKey1, e.PartitionKey2, e.PartitionKey3 });
-                b.Property(e => e.Id2).ValueGeneratedOnAdd();
-            });
+            modelBuilder.Entity<CompositeGeneratedKeyCompositePartitionKey>(
+                b =>
+                {
+                    b.ToContainer(b.Metadata.ClrType.Name);
+                    b.HasPartitionKey(
+                        e => new
+                        {
+                            e.PartitionKey1,
+                            e.PartitionKey2,
+                            e.PartitionKey3
+                        });
+                    b.HasKey(
+                        e => new
+                        {
+                            e.Id1,
+                            e.Id2,
+                            e.Id3,
+                            e.PartitionKey1,
+                            e.PartitionKey2,
+                            e.PartitionKey3
+                        });
+                    b.Property(e => e.Id2).ValueGeneratedOnAdd();
+                });
 
-            modelBuilder.Entity<SingleSameGeneratedKeyAndPartitionKey>(b =>
-            {
-                b.ToContainer(b.Metadata.ClrType.Name);
-                b.HasPartitionKey(e => e.Id);
-                b.HasKey(e => e.Id);
-                b.Property(e => e.Id).ValueGeneratedOnAdd();
-            });
+            modelBuilder.Entity<SingleSameGeneratedKeyAndPartitionKey>(
+                b =>
+                {
+                    b.ToContainer(b.Metadata.ClrType.Name);
+                    b.HasPartitionKey(e => e.Id);
+                    b.HasKey(e => e.Id);
+                    b.Property(e => e.Id).ValueGeneratedOnAdd();
+                });
 
-            modelBuilder.Entity<CompositeSameGeneratedKeyAndPartitionKey>(b =>
-            {
-                b.ToContainer(b.Metadata.ClrType.Name);
-                b.HasPartitionKey(e => new { e.Key1, e.Key2, e.Key3 });
-                b.HasKey(e => new { e.Key1, e.Key2, e.Key3 });
-                b.Property(e => e.Key2).ValueGeneratedOnAdd();
-            });
+            modelBuilder.Entity<CompositeSameGeneratedKeyAndPartitionKey>(
+                b =>
+                {
+                    b.ToContainer(b.Metadata.ClrType.Name);
+                    b.HasPartitionKey(
+                        e => new
+                        {
+                            e.Key1,
+                            e.Key2,
+                            e.Key3
+                        });
+                    b.HasKey(
+                        e => new
+                        {
+                            e.Key1,
+                            e.Key2,
+                            e.Key3
+                        });
+                    b.Property(e => e.Key2).ValueGeneratedOnAdd();
+                });
         }
     }
 

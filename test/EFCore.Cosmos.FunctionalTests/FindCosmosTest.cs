@@ -9,9 +9,7 @@ public abstract class FindCosmosTest : FindTestBase<FindCosmosTest.FindCosmosFix
 {
     protected FindCosmosTest(FindCosmosFixture fixture)
         : base(fixture)
-    {
-        fixture.TestSqlLoggerFactory.Clear();
-    }
+        => fixture.TestSqlLoggerFactory.Clear();
 
     [ConditionalFact(Skip = "#25886")]
     public override void Find_base_type_using_derived_set_tracked() { }
@@ -72,7 +70,7 @@ public abstract class FindCosmosTest : FindTestBase<FindCosmosTest.FindCosmosFix
     public override void Returns_null_for_shadow_key_not_in_store()
         => CosmosTestHelpers.Instance.NoSyncTest(() => base.Returns_null_for_shadow_key_not_in_store());
 
- public override void Find_int_key_tracked()
+    public override void Find_int_key_tracked()
     {
         base.Find_int_key_tracked();
 

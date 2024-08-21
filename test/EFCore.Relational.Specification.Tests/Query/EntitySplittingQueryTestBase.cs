@@ -11,9 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
 {
     protected EntitySplittingQueryTestBase()
-    {
-        _setSourceCreator = GetSetSourceCreator();
-    }
+        => _setSourceCreator = GetSetSourceCreator();
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -2927,16 +2925,18 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
 
     protected override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
         => base.AddOptions(builder)
-            .UseSeeding((c, _) =>
-            {
-                EntitySplittingData.Instance.AddSeedData((EntitySplittingContext)c);
-                c.SaveChanges();
-            })
-            .UseAsyncSeeding((c, _, t) =>
-            {
-                EntitySplittingData.Instance.AddSeedData((EntitySplittingContext)c);
-                return c.SaveChangesAsync(t);
-            });
+            .UseSeeding(
+                (c, _) =>
+                {
+                    EntitySplittingData.Instance.AddSeedData((EntitySplittingContext)c);
+                    c.SaveChanges();
+                })
+            .UseAsyncSeeding(
+                (c, _, t) =>
+                {
+                    EntitySplittingData.Instance.AddSeedData((EntitySplittingContext)c);
+                    return c.SaveChangesAsync(t);
+                });
 
     public void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
         => facade.UseTransaction(transaction.GetDbTransaction());

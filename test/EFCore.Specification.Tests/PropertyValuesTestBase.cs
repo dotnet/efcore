@@ -2749,29 +2749,31 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
                 Assert.True((bool)joinEntry.Entity["InitializedCalled"]);
             }
 
-            context.Add(new Supplier33307
-            {
-                Name = "Foo",
-                Address = new()
+            context.Add(
+                new Supplier33307
                 {
-                    Street = "One",
-                    Altitude = Math.PI,
-                    Number = 42,
-                },
-                Foo = "F"
-            });
+                    Name = "Foo",
+                    Address = new Address33307
+                    {
+                        Street = "One",
+                        Altitude = Math.PI,
+                        Number = 42,
+                    },
+                    Foo = "F"
+                });
 
-            context.Add(new Customer33307
-            {
-                Name = "Bar",
-                Address = new()
+            context.Add(
+                new Customer33307
                 {
-                    Street = "Two",
-                    Altitude = Math.E,
-                    Number = 42,
-                },
-                Bar = 11
-            });
+                    Name = "Bar",
+                    Address = new Address33307
+                    {
+                        Street = "Two",
+                        Altitude = Math.E,
+                        Number = 42,
+                    },
+                    Bar = 11
+                });
 
             return context.SaveChangesAsync();
         }

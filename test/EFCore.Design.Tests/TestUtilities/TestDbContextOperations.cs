@@ -15,4 +15,5 @@ public class TestDbContextOperations(
     string language,
     bool nullable,
     string[] args,
-    AppServiceProviderFactory appServicesFactory) : DbContextOperations(reporter, assembly, startupAssembly, project, projectDir, rootNamespace, language, nullable, args, appServicesFactory);
+    AppServiceProviderFactory appServicesFactory) : DbContextOperations(
+    reporter, assembly, startupAssembly, project, projectDir, rootNamespace, language, nullable, args, appServicesFactory);

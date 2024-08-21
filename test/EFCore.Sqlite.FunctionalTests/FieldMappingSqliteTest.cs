@@ -61,7 +61,6 @@ public abstract class FieldMappingSqliteTest
     public class EnforcePropertyTest(EnforcePropertyTest.EnforcePropertyFixture fixture)
         : FieldMappingSqliteTestBase<EnforcePropertyTest.EnforcePropertyFixture>(fixture)
     {
-
         // Cannot force property access when properties missing getter/setter
         public override void Simple_query_read_only_props(bool tracking)
         {

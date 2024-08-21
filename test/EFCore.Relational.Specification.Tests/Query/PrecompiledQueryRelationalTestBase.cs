@@ -12,7 +12,6 @@ using static Microsoft.EntityFrameworkCore.TestUtilities.PrecompiledQueryTestHel
 namespace Microsoft.EntityFrameworkCore.Query;
 
 // ReSharper disable InconsistentNaming
-
 /// <summary>
 ///     General tests for precompiled queries.
 ///     See also <see cref="PrecompiledSqlPregenerationQueryRelationalTestBase" /> for tests specifically related to SQL pregeneration.
@@ -32,7 +31,8 @@ public class PrecompiledQueryRelationalTestBase
 
     [ConditionalFact]
     public virtual Task BinaryExpression()
-        => Test("""
+        => Test(
+            """
 var id = 3;
 var blogs = await context.Blogs.Where(b => b.Id > id).ToListAsync();
 
@@ -60,14 +60,16 @@ Assert.Equal(new DateTime(2002, 2, 2), blog2.Json[1].Inner.Date);
 
     [ConditionalFact]
     public virtual Task Conditional_no_evaluatable()
-        => Test("""
+        => Test(
+            """
 var id = 3;
 var blogs = await context.Blogs.Select(b => b.Id == 2 ? "yes" : "no").ToListAsync();
 """);
 
     [ConditionalFact]
     public virtual Task Conditional_contains_captured_variable()
-        => Test("""
+        => Test(
+            """
 var yes = "yes";
 var blogs = await context.Blogs.Select(b => b.Id == 2 ? yes : "no").ToListAsync();
 """);
@@ -87,14 +89,14 @@ var blogs = await context.Blogs
 """,
             errorAsserter: errors => Assert.IsType<InvalidOperationException>(errors.Single().Exception));
 
-     [ConditionalFact]
-     public virtual Task ListInit_no_evaluatability()
-         => Test("_ = await context.Blogs.Select(b => new List<int> { b.Id, b.Id + 1 }).ToListAsync();");
+    [ConditionalFact]
+    public virtual Task ListInit_no_evaluatability()
+        => Test("_ = await context.Blogs.Select(b => new List<int> { b.Id, b.Id + 1 }).ToListAsync();");
 
-     [ConditionalFact]
-     public virtual Task ListInit_with_evaluatable_with_captured_variable()
-         => Test(
-             """
+    [ConditionalFact]
+    public virtual Task ListInit_with_evaluatable_with_captured_variable()
+        => Test(
+            """
 var i = 1;
 _ = await context.Blogs.Select(b => new List<int> { b.Id, i }).ToListAsync();
 """);
@@ -102,25 +104,27 @@ _ = await context.Blogs.Select(b => new List<int> { b.Id, i }).ToListAsync();
     [ConditionalFact]
     public virtual Task ListInit_with_evaluatable_without_captured_variable()
         => Test(
-                """
+            """
 var i = 1;
 _ = await context.Blogs.Select(b => new List<int> { b.Id, 8 }).ToListAsync();
 """);
 
     [ConditionalFact]
     public virtual Task ListInit_fully_evaluatable()
-        => Test("""
+        => Test(
+            """
 var blog = await context.Blogs.Where(b => new List<int> { 7, 8 }.Contains(b.Id)).SingleAsync();
 Assert.Equal("Blog1", blog.Name);
 """);
 
-     [ConditionalFact]
-     public virtual Task MethodCallExpression_no_evaluatability()
-         => Test("_ = await context.Blogs.Where(b => b.Name.StartsWith(b.Name)).ToListAsync();");
+    [ConditionalFact]
+    public virtual Task MethodCallExpression_no_evaluatability()
+        => Test("_ = await context.Blogs.Where(b => b.Name.StartsWith(b.Name)).ToListAsync();");
 
     [ConditionalFact]
     public virtual Task MethodCallExpression_with_evaluatable_with_captured_variable()
-        => Test("""
+        => Test(
+            """
 var pattern = "foo";
 _ = await context.Blogs.Where(b => b.Name.StartsWith(pattern)).ToListAsync();
 """);
@@ -201,7 +205,8 @@ _ = await context.Blogs.Select(b => new[] { b.Id, b.Id + i }).ToListAsync();
 
     [ConditionalFact]
     public virtual Task Terminating_AsEnumerable()
-        => Test("""
+        => Test(
+            """
 var blogs = context.Blogs.AsEnumerable().ToList();
 Assert.Collection(
     blogs.OrderBy(b => b.Id),
@@ -211,7 +216,8 @@ Assert.Collection(
 
     [ConditionalFact]
     public virtual Task Terminating_AsAsyncEnumerable_on_DbSet()
-        => Test("""
+        => Test(
+            """
 var sum = 0;
 await foreach (var blog in context.Blogs.AsAsyncEnumerable())
 {
@@ -222,7 +228,8 @@ Assert.Equal(17, sum);
 
     [ConditionalFact]
     public virtual Task Terminating_AsAsyncEnumerable_on_IQueryable()
-        => Test("""
+        => Test(
+            """
 var sum = 0;
 await foreach (var blog in context.Blogs.Where(b => b.Id > 8).AsAsyncEnumerable())
 {
@@ -1083,7 +1090,8 @@ var blogs = await (
 
     [ConditionalFact]
     public virtual Task Two_captured_variables_in_same_lambda()
-        => Test("""
+        => Test(
+            """
 var yes = "yes";
 var no = "no";
 var blogs = await context.Blogs.Select(b => b.Id == 3 ? yes : no).ToListAsync();
@@ -1091,7 +1099,8 @@ var blogs = await context.Blogs.Select(b => b.Id == 3 ? yes : no).ToListAsync();
 
     [ConditionalFact]
     public virtual Task Two_captured_variables_in_different_lambdas()
-        => Test("""
+        => Test(
+            """
 var starts = "blog";
 var ends = "2";
 var blog = await context.Blogs.Where(b => b.Name.StartsWith(starts)).Where(b => b.Name.EndsWith(ends)).SingleAsync();
@@ -1100,14 +1109,16 @@ Assert.Equal(9, blog.Id);
 
     [ConditionalFact]
     public virtual Task Same_captured_variable_twice_in_same_lambda()
-        => Test("""
+        => Test(
+            """
 var foo = "X";
 var blogs = await context.Blogs.Where(b => b.Name.StartsWith(foo) && b.Name.EndsWith(foo)).ToListAsync();
 """);
 
     [ConditionalFact]
     public virtual Task Same_captured_variable_twice_in_different_lambdas()
-        => Test("""
+        => Test(
+            """
 var foo = "X";
 var blogs = await context.Blogs.Where(b => b.Name.StartsWith(foo)).Where(b => b.Name.EndsWith(foo)).ToListAsync();
 """);
@@ -1126,7 +1137,8 @@ var blogs = await context.Blogs.Where(b => b.Name.StartsWith(foo)).Where(b => b.
 
     [ConditionalFact]
     public virtual Task Multiple_queries_with_captured_variables()
-        => Test("""
+        => Test(
+            """
 var id1 = 8;
 var id2 = 9;
 var blogs = await context.Blogs.Where(b => b.Id == id1 || b.Id == id2).ToListAsync();
@@ -1140,11 +1152,13 @@ Assert.Equal("Blog1", blog1.Name);
 
     [ConditionalFact]
     public virtual Task Unsafe_accessor_gets_generated_once_for_multiple_queries()
-        => Test("""
+        => Test(
+            """
 var blogs1 = await context.Blogs.ToListAsync();
 var blogs2 = await context.Blogs.ToListAsync();
 """,
-            interceptorCodeAsserter: code => Assert.Equal(2, code.Split("private static extern ref int UnsafeAccessor_Microsoft_EntityFrameworkCore_Query_Blog_Id_Set").Length));
+            interceptorCodeAsserter: code => Assert.Equal(
+                2, code.Split("private static extern ref int UnsafeAccessor_Microsoft_EntityFrameworkCore_Query_Blog_Id_Set").Length));
 
     public class PrecompiledQueryContext(DbContextOptions options) : DbContext(options)
     {
@@ -1181,7 +1195,8 @@ var blogs2 = await context.Blogs.ToListAsync();
             """
 await using var context = new PrecompiledQueryContext(dbContextOptions);
 
-""" + sourceCode,
+"""
+            + sourceCode,
             Fixture.ServiceProvider.GetRequiredService<DbContextOptions>(),
             typeof(PrecompiledQueryContext),
             interceptorCodeAsserter,
@@ -1225,6 +1240,7 @@ await using var context = new PrecompiledQueryContext(dbContextOptions);
 
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id { get; set; }
+
         public string? Name { get; set; }
         public List<Post> Posts { get; set; } = new();
         public List<JsonRoot> Json { get; set; } = new();

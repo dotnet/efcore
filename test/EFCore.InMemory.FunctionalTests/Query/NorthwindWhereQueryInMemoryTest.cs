@@ -50,6 +50,4 @@ public class NorthwindWhereQueryInMemoryTest(NorthwindQueryInMemoryFixture<NoopM
 
     public override Task Where_compare_tuple_create_constructed_multi_value_not_equal(bool async)
         => Task.CompletedTask;
-
-
 }

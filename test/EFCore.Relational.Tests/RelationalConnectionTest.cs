@@ -901,12 +901,10 @@ public class RelationalConnectionTest
 
     [ConditionalFact]
     public void Throws_if_create_new_connection_with_CommandTimeout_negative()
-    {
-        Assert.Throws<InvalidOperationException>(
+        => Assert.Throws<InvalidOperationException>(
             () => new FakeRelationalOptionsExtension()
                 .WithConnectionString("Database=FrodoLives")
                 .WithCommandTimeout(-1));
-    }
 
     [ConditionalFact]
     public void Can_set_CommandTimeout()

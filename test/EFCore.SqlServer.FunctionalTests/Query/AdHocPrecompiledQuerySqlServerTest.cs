@@ -14,7 +14,8 @@ public class AdHocPrecompiledQuerySqlServerTest(ITestOutputHelper testOutputHelp
     {
         await base.Index_no_evaluatability();
 
-        AssertSql("""
+        AssertSql(
+            """
 SELECT [j].[Id], [j].[IntList], [j].[JsonThing]
 FROM [JsonEntities] AS [j]
 WHERE CAST(JSON_VALUE([j].[IntList], '$[' + CAST([j].[Id] AS nvarchar(max)) + ']') AS int) = 2
@@ -26,7 +27,8 @@ WHERE CAST(JSON_VALUE([j].[IntList], '$[' + CAST([j].[Id] AS nvarchar(max)) + ']
     {
         await base.Index_with_captured_variable();
 
-        AssertSql("""
+        AssertSql(
+            """
 @__id_0='1'
 
 SELECT [j].[Id], [j].[IntList], [j].[JsonThing]
@@ -39,7 +41,8 @@ WHERE CAST(JSON_VALUE([j].[IntList], '$[' + CAST(@__id_0 AS nvarchar(max)) + ']'
     {
         await base.JsonScalar();
 
-        AssertSql("""
+        AssertSql(
+            """
 SELECT [j].[Id], [j].[IntList], [j].[JsonThing]
 FROM [JsonEntities] AS [j]
 WHERE JSON_VALUE([j].[JsonThing], '$.StringProperty') = N'foo'

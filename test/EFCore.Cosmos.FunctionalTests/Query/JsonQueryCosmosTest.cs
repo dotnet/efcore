@@ -27,7 +27,7 @@ public class JsonQueryCosmosTest : JsonQueryTestBase<JsonQueryCosmosFixture>
                 await base.Basic_json_projection_enum_inside_json_entity(a);
 
                 AssertSql(
-        """
+                    """
 SELECT c["Id"], c["OwnedReferenceRoot"]["OwnedReferenceBranch"]["Enum"]
 FROM root c
 WHERE (c["Discriminator"] = "Basic")
@@ -75,7 +75,7 @@ WHERE (c["Discriminator"] = "Basic")
 
                 // TODO: issue #34067 (?)
                 AssertSql(
-        """
+                    """
 SELECT VALUE c
 FROM root c
 WHERE (c["Discriminator"] = "Basic")
@@ -90,7 +90,7 @@ WHERE (c["Discriminator"] = "Basic")
 
                 // TODO: issue #34067 (?)
                 AssertSql(
-        """
+                    """
 SELECT VALUE c
 FROM root c
 WHERE (c["Discriminator"] = "Basic")
@@ -104,7 +104,7 @@ WHERE (c["Discriminator"] = "Basic")
                 await base.Basic_json_projection_owned_reference_branch(async);
 
                 AssertSql(
-"""
+                    """
 SELECT VALUE c
 FROM root c
 WHERE (c["Discriminator"] = "Basic")
@@ -118,7 +118,7 @@ WHERE (c["Discriminator"] = "Basic")
                 await base.Basic_json_projection_owned_reference_branch_NoTrackingWithIdentityResolution(async);
 
                 AssertSql(
-"""
+                    """
 SELECT VALUE c
 FROM root c
 WHERE (c["Discriminator"] = "Basic")
@@ -132,7 +132,7 @@ WHERE (c["Discriminator"] = "Basic")
                 await base.Basic_json_projection_owned_reference_duplicated(async);
 
                 AssertSql(
-        """
+                    """
 SELECT VALUE c
 FROM root c
 WHERE (c["Discriminator"] = "Basic")
@@ -147,7 +147,7 @@ ORDER BY c["Id"]
                 await base.Basic_json_projection_owned_reference_duplicated2(async);
 
                 AssertSql(
-        """
+                    """
 SELECT VALUE c
 FROM root c
 WHERE (c["Discriminator"] = "Basic")
@@ -162,7 +162,7 @@ ORDER BY c["Id"]
                 await base.Basic_json_projection_owned_reference_duplicated2_NoTrackingWithIdentityResolution(async);
 
                 AssertSql(
-        """
+                    """
 SELECT VALUE c
 FROM root c
 WHERE (c["Discriminator"] = "Basic")
@@ -177,7 +177,7 @@ ORDER BY c["Id"]
                 await base.Basic_json_projection_owned_reference_duplicated_NoTrackingWithIdentityResolution(async);
 
                 AssertSql(
-        """
+                    """
 SELECT VALUE c
 FROM root c
 WHERE (c["Discriminator"] = "Basic")
@@ -192,7 +192,7 @@ ORDER BY c["Id"]
                 await base.Basic_json_projection_owned_reference_leaf(async);
 
                 AssertSql(
-"""
+                    """
 SELECT VALUE c
 FROM root c
 WHERE (c["Discriminator"] = "Basic")
@@ -207,7 +207,7 @@ WHERE (c["Discriminator"] = "Basic")
 
                 // TODO: issue #34067 (?)
                 AssertSql(
-        """
+                    """
 SELECT VALUE c
 FROM root c
 WHERE (c["Discriminator"] = "Basic")
@@ -222,7 +222,7 @@ WHERE (c["Discriminator"] = "Basic")
 
                 // TODO: issue #34067 (?)
                 AssertSql(
-        """
+                    """
 SELECT VALUE c
 FROM root c
 WHERE (c["Discriminator"] = "Basic")
@@ -236,7 +236,7 @@ WHERE (c["Discriminator"] = "Basic")
                 await base.Basic_json_projection_owner_entity(a);
 
                 AssertSql(
-        """
+                    """
 SELECT VALUE c
 FROM root c
 WHERE (c["Discriminator"] = "Basic")
@@ -250,7 +250,7 @@ WHERE (c["Discriminator"] = "Basic")
                 await base.Basic_json_projection_owner_entity_duplicated(a);
 
                 AssertSql(
-        """
+                    """
 SELECT VALUE c
 FROM root c
 WHERE (c["Discriminator"] = "Basic")
@@ -264,7 +264,7 @@ WHERE (c["Discriminator"] = "Basic")
                 await base.Basic_json_projection_owner_entity_duplicated_NoTracking(a);
 
                 AssertSql(
-        """
+                    """
 SELECT VALUE c
 FROM root c
 WHERE (c["Discriminator"] = "SingleOwned")
@@ -278,7 +278,7 @@ WHERE (c["Discriminator"] = "SingleOwned")
                 await base.Basic_json_projection_owner_entity_duplicated_NoTrackingWithIdentityResolution(a);
 
                 AssertSql(
-        """
+                    """
 SELECT VALUE c
 FROM root c
 WHERE (c["Discriminator"] = "SingleOwned")
@@ -292,7 +292,7 @@ WHERE (c["Discriminator"] = "SingleOwned")
                 await base.Basic_json_projection_owner_entity_NoTracking(a);
 
                 AssertSql(
-        """
+                    """
 SELECT VALUE c
 FROM root c
 WHERE (c["Discriminator"] = "Basic")
@@ -306,7 +306,7 @@ WHERE (c["Discriminator"] = "Basic")
                 await base.Basic_json_projection_owner_entity_NoTrackingWithIdentityResolution(a);
 
                 AssertSql(
-        """
+                    """
 SELECT VALUE c
 FROM root c
 WHERE (c["Discriminator"] = "Basic")
@@ -320,7 +320,7 @@ WHERE (c["Discriminator"] = "Basic")
                 await base.Basic_json_projection_owner_entity_twice(a);
 
                 AssertSql(
-        """
+                    """
 SELECT VALUE c
 FROM root c
 WHERE (c["Discriminator"] = "Basic")
@@ -334,7 +334,7 @@ WHERE (c["Discriminator"] = "Basic")
                 await base.Basic_json_projection_owner_entity_twice_NoTracking(a);
 
                 AssertSql(
-        """
+                    """
 SELECT VALUE c
 FROM root c
 WHERE (c["Discriminator"] = "Basic")
@@ -348,7 +348,7 @@ WHERE (c["Discriminator"] = "Basic")
                 await base.Basic_json_projection_owner_entity_twice_NoTrackingWithIdentityResolution(a);
 
                 AssertSql(
-        """
+                    """
 SELECT VALUE c
 FROM root c
 WHERE (c["Discriminator"] = "Basic")
@@ -362,7 +362,7 @@ WHERE (c["Discriminator"] = "Basic")
                 await base.Basic_json_projection_scalar(a);
 
                 AssertSql(
-        """
+                    """
 SELECT VALUE c["OwnedReferenceRoot"]["Name"]
 FROM root c
 WHERE (c["Discriminator"] = "Basic")
@@ -387,7 +387,7 @@ WHERE (c["Discriminator"] = "Basic")
 
                 // TODO: issue #34067 (?)
                 AssertSql(
-        """
+                    """
 SELECT VALUE c
 FROM root c
 WHERE (c["Discriminator"] = "CustomNaming")
@@ -402,7 +402,7 @@ ORDER BY c["Id"]
                 await base.Custom_naming_projection_owned_reference(async);
 
                 AssertSql(
-        """
+                    """
 SELECT VALUE c
 FROM root c
 WHERE (c["Discriminator"] = "CustomNaming")
@@ -416,7 +416,7 @@ WHERE (c["Discriminator"] = "CustomNaming")
                 await base.Custom_naming_projection_owned_scalar(a);
 
                 AssertSql(
-        """
+                    """
 SELECT VALUE c["OwnedReferenceRoot"]["OwnedReferenceBranch"]["Fraction"]
 FROM root c
 WHERE (c["Discriminator"] = "CustomNaming")
@@ -430,7 +430,7 @@ WHERE (c["Discriminator"] = "CustomNaming")
                 await base.Custom_naming_projection_owner_entity(a);
 
                 AssertSql(
-        """
+                    """
 SELECT VALUE c
 FROM root c
 WHERE (c["Discriminator"] = "CustomNaming")
@@ -443,7 +443,8 @@ WHERE (c["Discriminator"] = "CustomNaming")
             () => base.Entity_including_collection_with_json(async))).Message;
 
         Assert.Equal(
-            CosmosStrings.NonEmbeddedIncludeNotSupported("Navigation: EntityBasic.JsonEntityBasics (List<JsonEntityBasic>) Collection ToDependent JsonEntityBasic"),
+            CosmosStrings.NonEmbeddedIncludeNotSupported(
+                "Navigation: EntityBasic.JsonEntityBasics (List<JsonEntityBasic>) Collection ToDependent JsonEntityBasic"),
             message);
     }
 
@@ -483,7 +484,7 @@ WHERE (c["Discriminator"] = "CustomNaming")
                 await base.Json_all_types_entity_projection(a);
 
                 AssertSql(
-        """
+                    """
 SELECT VALUE c
 FROM root c
 WHERE (c["Discriminator"] = "AllTypes")
@@ -499,7 +500,7 @@ WHERE (c["Discriminator"] = "AllTypes")
 
                 // TODO: issue #34067 (?)
                 AssertSql(
-        """
+                    """
 SELECT VALUE c
 FROM root c
 WHERE (c["Discriminator"] = "AllTypes")
@@ -513,7 +514,7 @@ WHERE (c["Discriminator"] = "AllTypes")
                 await base.Json_all_types_projection_individual_properties(a);
 
                 AssertSql(
-        """
+                    """
 SELECT c["Reference"]["TestDefaultString"], c["Reference"]["TestMaxLengthString"], c["Reference"]["TestBoolean"], c["Reference"]["TestByte"], c["Reference"]["TestCharacter"], c["Reference"]["TestDateTime"], c["Reference"]["TestDateTimeOffset"], c["Reference"]["TestDecimal"], c["Reference"]["TestDouble"], c["Reference"]["TestGuid"], c["Reference"]["TestInt16"], c["Reference"]["TestInt32"], c["Reference"]["TestInt64"], c["Reference"]["TestSignedByte"], c["Reference"]["TestSingle"], c["Reference"]["TestTimeSpan"], c["Reference"]["TestDateOnly"], c["Reference"]["TestTimeOnly"], c["Reference"]["TestUnsignedInt16"], c["Reference"]["TestUnsignedInt32"], c["Reference"]["TestUnsignedInt64"], c["Reference"]["TestEnum"], c["Reference"]["TestEnumWithIntConverter"], c["Reference"]["TestNullableEnum"], c["Reference"]["TestNullableEnumWithIntConverter"], c["Reference"]["TestNullableEnumWithConverterThatHandlesNulls"]
 FROM root c
 WHERE (c["Discriminator"] = "AllTypes")
@@ -528,7 +529,7 @@ WHERE (c["Discriminator"] = "AllTypes")
                 await base.Json_boolean_predicate(a);
 
                 AssertSql(
-        """
+                    """
 SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "AllTypes") AND c["Reference"]["TestBoolean"])
@@ -542,7 +543,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND c["Reference"]["TestBoolean"])
                 await base.Json_boolean_predicate_negated(a);
 
                 AssertSql(
-        """
+                    """
 SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "AllTypes") AND NOT(c["Reference"]["TestBoolean"]))
@@ -556,7 +557,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND NOT(c["Reference"]["TestBoolean"]))
                 await base.Json_boolean_projection(a);
 
                 AssertSql(
-        """
+                    """
 SELECT VALUE c["Reference"]["TestBoolean"]
 FROM root c
 WHERE (c["Discriminator"] = "AllTypes")
@@ -570,7 +571,7 @@ WHERE (c["Discriminator"] = "AllTypes")
                 await base.Json_boolean_projection_negated(a);
 
                 AssertSql(
-        """
+                    """
 SELECT VALUE NOT(c["Reference"]["TestBoolean"])
 FROM root c
 WHERE (c["Discriminator"] = "AllTypes")
@@ -579,7 +580,7 @@ WHERE (c["Discriminator"] = "AllTypes")
 
     public override Task Json_branch_collection_distinct_and_other_collection(bool async)
         => AssertTranslationFailed(
-          () => base.Json_branch_collection_distinct_and_other_collection(async));
+            () => base.Json_branch_collection_distinct_and_other_collection(async));
 
     [ConditionalTheory(Skip = "issue #34335")]
     public override Task Json_collection_after_collection_index_in_projection_using_constant_when_owner_is_not_present(bool async)
@@ -637,7 +638,7 @@ WHERE (c["Discriminator"] = "AllTypes")
                 await base.Json_collection_Any_with_predicate(a);
 
                 AssertSql(
-        """
+                    """
 SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "Basic") AND EXISTS (
@@ -649,11 +650,11 @@ WHERE ((c["Discriminator"] = "Basic") AND EXISTS (
 
     public override Task Json_collection_Distinct_Count_with_predicate(bool async)
         => AssertTranslationFailed(
-          () => base.Json_collection_Distinct_Count_with_predicate(async));
+            () => base.Json_collection_Distinct_Count_with_predicate(async));
 
     public override Task Json_collection_distinct_in_projection(bool async)
         => AssertTranslationFailed(
-          () => base.Json_collection_distinct_in_projection(async));
+            () => base.Json_collection_distinct_in_projection(async));
 
     [ConditionalTheory(Skip = "issue #34335")]
     public override Task Json_collection_ElementAtOrDefault_in_projection(bool async)
@@ -682,7 +683,7 @@ WHERE ((c["Discriminator"] = "Basic") AND EXISTS (
                 await base.Json_collection_ElementAt_and_pushdown(a);
 
                 AssertSql(
-        """
+                    """
 SELECT VALUE
 {
     "Id" : c["Id"],
@@ -700,7 +701,7 @@ WHERE (c["Discriminator"] = "Basic")
                 await base.Json_collection_ElementAt_in_predicate(a);
 
                 AssertSql(
-        """
+                    """
 SELECT VALUE c["Id"]
 FROM root c
 WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedCollectionRoot"][1]["Name"] != "Foo"))
@@ -771,7 +772,7 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedCollectionRoot"][1]["Name"] !
                 await base.Json_collection_index_in_predicate_using_constant(a);
 
                 AssertSql(
-        """
+                    """
 SELECT VALUE c["Id"]
 FROM root c
 WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedCollectionRoot"][0]["Name"] != "Foo"))
@@ -785,7 +786,7 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedCollectionRoot"][0]["Name"] !
                 await base.Json_collection_index_in_predicate_using_variable(a);
 
                 AssertSql(
-        """
+                    """
 @__prm_0='1'
 
 SELECT VALUE c["Id"]
@@ -1037,7 +1038,7 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedCollectionRoot"][@__prm_0]["N
                 await base.Json_collection_in_projection_with_composition_count(a);
 
                 AssertSql(
-        """
+                    """
 SELECT VALUE ARRAY_LENGTH(c["OwnedCollectionRoot"])
 FROM root c
 WHERE (c["Discriminator"] = "Basic")
@@ -1060,7 +1061,7 @@ ORDER BY c["Id"]
                 await base.Json_collection_leaf_filter_in_projection(a);
 
                 AssertSql(
-        """
+                    """
 SELECT VALUE ARRAY(
     SELECT VALUE o
     FROM o IN c["OwnedReferenceRoot"]["OwnedReferenceBranch"]["OwnedCollectionLeaf"]
@@ -1071,7 +1072,6 @@ ORDER BY c["Id"]
 """);
             });
 
-
     public override Task Json_collection_of_primitives_contains_in_predicate(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1079,7 +1079,7 @@ ORDER BY c["Id"]
                 await base.Json_collection_of_primitives_contains_in_predicate(a);
 
                 AssertSql(
-        """
+                    """
 SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "Basic") AND ARRAY_CONTAINS(c["OwnedReferenceRoot"]["Names"], "e1_r1"))
@@ -1093,7 +1093,7 @@ WHERE ((c["Discriminator"] = "Basic") AND ARRAY_CONTAINS(c["OwnedReferenceRoot"]
                 await base.Json_collection_of_primitives_index_used_in_orderby(a);
 
                 AssertSql(
-        """
+                    """
 SELECT VALUE c
 FROM root c
 WHERE (c["Discriminator"] = "Basic")
@@ -1108,7 +1108,7 @@ ORDER BY c["OwnedReferenceRoot"]["Numbers"][0]
                 await base.Json_collection_of_primitives_index_used_in_predicate(a);
 
                 AssertSql(
-        """
+                    """
 SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedReferenceRoot"]["Names"][0] = "e1_r1"))
@@ -1123,7 +1123,7 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedReferenceRoot"]["Names"][0] =
                 await base.Json_collection_of_primitives_index_used_in_projection(a);
 
                 AssertSql(
-        """
+                    """
 SELECT VALUE c["OwnedReferenceRoot"]["OwnedReferenceBranch"]["Enums"][0]
 FROM root c
 WHERE (c["Discriminator"] = "JsonEntityBasic")
@@ -1138,7 +1138,7 @@ ORDER BY c["Id"]
                 await base.Json_collection_of_primitives_SelectMany(a);
 
                 AssertSql(
-        """
+                    """
 SELECT VALUE n
 FROM root c
 JOIN n IN c["OwnedReferenceRoot"]["Names"]
@@ -1148,10 +1148,8 @@ WHERE (c["Discriminator"] = "Basic")
 
     public override Task Json_collection_OrderByDescending_Skip_ElementAt(bool async)
         => AssertTranslationFailedWithDetails(
-          () => base.Json_collection_OrderByDescending_Skip_ElementAt(async),
-          CosmosStrings.LimitOffsetNotSupportedInSubqueries +
-            Environment.NewLine +
-            CosmosStrings.LimitOffsetNotSupportedInSubqueries);
+            () => base.Json_collection_OrderByDescending_Skip_ElementAt(async),
+            CosmosStrings.LimitOffsetNotSupportedInSubqueries + Environment.NewLine + CosmosStrings.LimitOffsetNotSupportedInSubqueries);
 
     [ConditionalTheory(Skip = "issue #34349")]
     public override Task Json_collection_SelectMany(bool async)
@@ -1164,22 +1162,23 @@ WHERE (c["Discriminator"] = "Basic")
             });
 
     [ConditionalTheory(Skip = "issue #34335")]
-    public override Task Json_collection_Select_entity_collection_ElementAt(bool async) => base.Json_collection_Select_entity_collection_ElementAt(async);
+    public override Task Json_collection_Select_entity_collection_ElementAt(bool async)
+        => base.Json_collection_Select_entity_collection_ElementAt(async);
 
     public override Task Json_collection_Select_entity_ElementAt(bool async)
         => AssertTranslationFailedWithDetails(
-          () => base.Json_collection_Select_entity_ElementAt(async),
-          CosmosStrings.LimitOffsetNotSupportedInSubqueries);
+            () => base.Json_collection_Select_entity_ElementAt(async),
+            CosmosStrings.LimitOffsetNotSupportedInSubqueries);
 
     public override Task Json_collection_Select_entity_in_anonymous_object_ElementAt(bool async)
         => AssertTranslationFailedWithDetails(
-          () => base.Json_collection_Select_entity_in_anonymous_object_ElementAt(async),
-          CosmosStrings.LimitOffsetNotSupportedInSubqueries);
+            () => base.Json_collection_Select_entity_in_anonymous_object_ElementAt(async),
+            CosmosStrings.LimitOffsetNotSupportedInSubqueries);
 
     public override Task Json_collection_Select_entity_with_initializer_ElementAt(bool async)
         => AssertTranslationFailedWithDetails(
-          () => base.Json_collection_Select_entity_with_initializer_ElementAt(async),
-          CosmosStrings.LimitOffsetNotSupportedInSubqueries);
+            () => base.Json_collection_Select_entity_with_initializer_ElementAt(async),
+            CosmosStrings.LimitOffsetNotSupportedInSubqueries);
 
     public override Task Json_collection_Skip(bool async)
         => Fixture.NoSyncTest(
@@ -1188,7 +1187,7 @@ WHERE (c["Discriminator"] = "Basic")
                 await base.Json_collection_Skip(a);
 
                 AssertSql(
-        """
+                    """
 SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "Basic") AND (ARRAY(
@@ -1199,18 +1198,18 @@ WHERE ((c["Discriminator"] = "Basic") AND (ARRAY(
 
     public override Task Json_collection_skip_take_in_projection(bool async)
         => AssertTranslationFailedWithDetails(
-          () => base.Json_collection_skip_take_in_projection(async),
-          CosmosStrings.LimitOffsetNotSupportedInSubqueries);
+            () => base.Json_collection_skip_take_in_projection(async),
+            CosmosStrings.LimitOffsetNotSupportedInSubqueries);
 
     public override Task Json_collection_skip_take_in_projection_project_into_anonymous_type(bool async)
         => AssertTranslationFailedWithDetails(
-          () => base.Json_collection_skip_take_in_projection_project_into_anonymous_type(async),
-          CosmosStrings.LimitOffsetNotSupportedInSubqueries);
+            () => base.Json_collection_skip_take_in_projection_project_into_anonymous_type(async),
+            CosmosStrings.LimitOffsetNotSupportedInSubqueries);
 
     public override Task Json_collection_skip_take_in_projection_with_json_reference_access_as_final_operation(bool async)
         => AssertTranslationFailedWithDetails(
-          () => base.Json_collection_skip_take_in_projection_with_json_reference_access_as_final_operation(async),
-          CosmosStrings.LimitOffsetNotSupportedInSubqueries);
+            () => base.Json_collection_skip_take_in_projection_with_json_reference_access_as_final_operation(async),
+            CosmosStrings.LimitOffsetNotSupportedInSubqueries);
 
     public override Task Json_collection_Where_ElementAt(bool async)
         => Fixture.NoSyncTest(
@@ -1220,7 +1219,7 @@ WHERE ((c["Discriminator"] = "Basic") AND (ARRAY(
                 await base.Json_collection_Where_ElementAt(a);
 
                 AssertSql(
-        """
+                    """
 SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "Basic") AND (ARRAY(
@@ -1237,7 +1236,7 @@ WHERE ((c["Discriminator"] = "Basic") AND (ARRAY(
                 await base.Json_collection_within_collection_Count(a);
 
                 AssertSql(
-        """
+                    """
 SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "Basic") AND EXISTS (
@@ -1263,7 +1262,7 @@ WHERE ((c["Discriminator"] = "Basic") AND EXISTS (
                 await base.Json_entity_with_inheritance_basic_projection(a);
 
                 AssertSql(
-        """
+                    """
 SELECT VALUE c
 FROM root c
 WHERE c["$type"] IN ("JsonEntityInheritanceBase", "JsonEntityInheritanceDerived")
@@ -1277,7 +1276,7 @@ WHERE c["$type"] IN ("JsonEntityInheritanceBase", "JsonEntityInheritanceDerived"
                 await base.Json_entity_with_inheritance_project_derived(a);
 
                 AssertSql(
-        """
+                    """
 SELECT VALUE c
 FROM root c
 WHERE (c["$type"] IN ("JsonEntityInheritanceBase", "JsonEntityInheritanceDerived") AND (c["$type"] = "JsonEntityInheritanceDerived"))
@@ -1306,23 +1305,24 @@ WHERE (c["$type"] IN ("JsonEntityInheritanceBase", "JsonEntityInheritanceDerived
 
     public override Task Json_leaf_collection_distinct_and_other_collection(bool async)
         => AssertTranslationFailed(
-          () => base.Json_leaf_collection_distinct_and_other_collection(async));
+            () => base.Json_leaf_collection_distinct_and_other_collection(async));
 
     public override Task Json_multiple_collection_projections(bool async)
         => AssertTranslationFailed(
-          () => base.Json_multiple_collection_projections(async));
+            () => base.Json_multiple_collection_projections(async));
 
     public override Task Json_nested_collection_anonymous_projection_in_projection(bool async)
         => AssertTranslationFailed(
-          () => base.Json_nested_collection_anonymous_projection_in_projection(async));
+            () => base.Json_nested_collection_anonymous_projection_in_projection(async));
 
-    public override Task Json_nested_collection_anonymous_projection_of_primitives_in_projection_NoTrackingWithIdentityResolution(bool async)
+    public override Task Json_nested_collection_anonymous_projection_of_primitives_in_projection_NoTrackingWithIdentityResolution(
+        bool async)
         => AssertTranslationFailed(
-          () => base.Json_nested_collection_anonymous_projection_of_primitives_in_projection_NoTrackingWithIdentityResolution(async));
+            () => base.Json_nested_collection_anonymous_projection_of_primitives_in_projection_NoTrackingWithIdentityResolution(async));
 
     public override Task Json_nested_collection_filter_in_projection(bool async)
         => AssertTranslationFailed(
-          () => base.Json_nested_collection_filter_in_projection(async));
+            () => base.Json_nested_collection_filter_in_projection(async));
 
     [ConditionalTheory(Skip = "issue #34349")]
     public override Task Json_nested_collection_SelectMany(bool async)
@@ -1341,7 +1341,7 @@ WHERE (c["$type"] IN ("JsonEntityInheritanceBase", "JsonEntityInheritanceDerived
                 await base.Json_predicate_on_bool_converted_to_int_zero_one(a);
 
                 AssertSql(
-        """
+                    """
 SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "Converters") AND (c["Reference"]["BoolConvertedToIntZeroOne"] = 1))
@@ -1355,7 +1355,7 @@ WHERE ((c["Discriminator"] = "Converters") AND (c["Reference"]["BoolConvertedToI
                 await base.Json_predicate_on_bool_converted_to_int_zero_one_with_explicit_comparison(a);
 
                 AssertSql(
-        """
+                    """
 SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "Converters") AND (c["Reference"]["BoolConvertedToIntZeroOne"] = 0))
@@ -1369,7 +1369,7 @@ WHERE ((c["Discriminator"] = "Converters") AND (c["Reference"]["BoolConvertedToI
                 await base.Json_predicate_on_bool_converted_to_string_True_False(a);
 
                 AssertSql(
-        """
+                    """
 SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "Converters") AND (c["Reference"]["BoolConvertedToStringTrueFalse"] = "True"))
@@ -1383,7 +1383,7 @@ WHERE ((c["Discriminator"] = "Converters") AND (c["Reference"]["BoolConvertedToS
                 await base.Json_predicate_on_bool_converted_to_string_True_False_with_explicit_comparison(a);
 
                 AssertSql(
-        """
+                    """
 SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "Converters") AND (c["Reference"]["BoolConvertedToStringTrueFalse"] = "True"))
@@ -1397,7 +1397,7 @@ WHERE ((c["Discriminator"] = "Converters") AND (c["Reference"]["BoolConvertedToS
                 await base.Json_predicate_on_bool_converted_to_string_Y_N(a);
 
                 AssertSql(
-        """
+                    """
 SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "Converters") AND (c["Reference"]["BoolConvertedToStringYN"] = "Y"))
@@ -1411,7 +1411,7 @@ WHERE ((c["Discriminator"] = "Converters") AND (c["Reference"]["BoolConvertedToS
                 await base.Json_predicate_on_bool_converted_to_string_Y_N_with_explicit_comparison(a);
 
                 AssertSql(
-        """
+                    """
 SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "Converters") AND (c["Reference"]["BoolConvertedToStringYN"] = "N"))
@@ -1426,7 +1426,7 @@ WHERE ((c["Discriminator"] = "Converters") AND (c["Reference"]["BoolConvertedToS
                 await base.Json_predicate_on_byte(a);
 
                 AssertSql(
-        """
+                    """
 SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestByte"] != 3))
@@ -1441,7 +1441,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestByte"] != 3))
                 await base.Json_predicate_on_byte_array(a);
 
                 AssertSql(
-        """
+                    """
 SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestByteArray"] != "AQID"))
@@ -1456,7 +1456,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestByteArray"] !=
                 await base.Json_predicate_on_character(a);
 
                 AssertSql(
-        """
+                    """
 SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestCharacter"] != "z"))
@@ -1471,7 +1471,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestCharacter"] !=
                 await base.Json_predicate_on_dateonly(a);
 
                 AssertSql(
-        """
+                    """
 SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestDateOnly"] != "0003-02-01"))
@@ -1486,7 +1486,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestDateOnly"] != 
                 await base.Json_predicate_on_datetime(a);
 
                 AssertSql(
-        """
+                    """
 SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestDateTime"] != "2000-01-03T00:00:00"))
@@ -1501,7 +1501,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestDateTime"] != 
                 await base.Json_predicate_on_datetimeoffset(a);
 
                 AssertSql(
-        """
+                    """
 SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestDateTimeOffset"] != "2000-01-04T00:00:00+03:02"))
@@ -1516,7 +1516,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestDateTimeOffset
                 await base.Json_predicate_on_decimal(a);
 
                 AssertSql(
-        """
+                    """
 SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestDecimal"] != 1.35))
@@ -1531,7 +1531,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestDecimal"] != 1
                 await base.Json_predicate_on_default_string(a);
 
                 AssertSql(
-        """
+                    """
 SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestDefaultString"] != "MyDefaultStringInReference1"))
@@ -1546,7 +1546,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestDefaultString"
                 await base.Json_predicate_on_double(a);
 
                 AssertSql(
-        """
+                    """
 SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestDouble"] != 33.25))
@@ -1561,7 +1561,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestDouble"] != 33
                 await base.Json_predicate_on_enum(a);
 
                 AssertSql(
-        """
+                    """
 SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestEnum"] != 2))
@@ -1576,7 +1576,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestEnum"] != 2))
                 await base.Json_predicate_on_enumwithintconverter(a);
 
                 AssertSql(
-        """
+                    """
 SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestEnumWithIntConverter"] != -3))
@@ -1591,7 +1591,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestEnumWithIntCon
                 await base.Json_predicate_on_guid(a);
 
                 AssertSql(
-        """
+                    """
 SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestGuid"] != "00000000-0000-0000-0000-000000000000"))
@@ -1606,7 +1606,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestGuid"] != "000
                 await base.Json_predicate_on_int16(a);
 
                 AssertSql(
-        """
+                    """
 SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestInt16"] != 3))
@@ -1621,7 +1621,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestInt16"] != 3))
                 await base.Json_predicate_on_int32(a);
 
                 AssertSql(
-        """
+                    """
 SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestInt32"] != 33))
@@ -1636,7 +1636,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestInt32"] != 33)
                 await base.Json_predicate_on_int64(a);
 
                 AssertSql(
-        """
+                    """
 SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestInt64"] != 333))
@@ -1650,7 +1650,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestInt64"] != 333
                 await base.Json_predicate_on_int_zero_one_converted_to_bool(a);
 
                 AssertSql(
-        """
+                    """
 SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "Converters") AND (c["Reference"]["IntZeroOneConvertedToBool"] = true))
@@ -1665,7 +1665,7 @@ WHERE ((c["Discriminator"] = "Converters") AND (c["Reference"]["IntZeroOneConver
                 await base.Json_predicate_on_max_length_string(a);
 
                 AssertSql(
-        """
+                    """
 SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestMaxLengthString"] != "Foo"))
@@ -1680,7 +1680,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestMaxLengthStrin
                 await base.Json_predicate_on_nullableenum1(a);
 
                 AssertSql(
-        """
+                    """
 SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestNullableEnum"] != -1))
@@ -1695,7 +1695,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestNullableEnum"]
                 await base.Json_predicate_on_nullableenum2(a);
 
                 AssertSql(
-        """
+                    """
 SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestNullableEnum"] != null))
@@ -1710,7 +1710,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestNullableEnum"]
                 await base.Json_predicate_on_nullableenumwithconverter1(a);
 
                 AssertSql(
-        """
+                    """
 SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestNullableEnumWithIntConverter"] != 2))
@@ -1725,7 +1725,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestNullableEnumWi
                 await base.Json_predicate_on_nullableenumwithconverter2(a);
 
                 AssertSql(
-        """
+                    """
 SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestNullableEnumWithIntConverter"] != null))
@@ -1740,7 +1740,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestNullableEnumWi
                 await base.Json_predicate_on_nullableenumwithconverterthathandlesnulls1(a);
 
                 AssertSql(
-        """
+                    """
 SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestNullableEnumWithConverterThatHandlesNulls"] != "One"))
@@ -1764,7 +1764,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestNullableEnumWi
                 await base.Json_predicate_on_nullableint321(a);
 
                 AssertSql(
-        """
+                    """
 SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestNullableInt32"] != 100))
@@ -1779,7 +1779,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestNullableInt32"
                 await base.Json_predicate_on_nullableint322(a);
 
                 AssertSql(
-        """
+                    """
 SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestNullableInt32"] != null))
@@ -1794,7 +1794,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestNullableInt32"
                 await base.Json_predicate_on_signedbyte(a);
 
                 AssertSql(
-        """
+                    """
 SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestSignedByte"] != 100))
@@ -1809,7 +1809,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestSignedByte"] !
                 await base.Json_predicate_on_single(a);
 
                 AssertSql(
-        """
+                    """
 SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestSingle"] != 10.4))
@@ -1824,7 +1824,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestSingle"] != 10
                 await base.Json_predicate_on_string_condition(a);
 
                 AssertSql(
-        """
+                    """
 SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "AllTypes") AND ((NOT(c["Reference"]["TestBoolean"]) ? c["Reference"]["TestMaxLengthString"] : c["Reference"]["TestDefaultString"]) = "MyDefaultStringInReference1"))
@@ -1838,7 +1838,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND ((NOT(c["Reference"]["TestBoolean"]
                 await base.Json_predicate_on_string_True_False_converted_to_bool(a);
 
                 AssertSql(
-        """
+                    """
 SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "Converters") AND (c["Reference"]["StringTrueFalseConvertedToBool"] = false))
@@ -1852,7 +1852,7 @@ WHERE ((c["Discriminator"] = "Converters") AND (c["Reference"]["StringTrueFalseC
                 await base.Json_predicate_on_string_Y_N_converted_to_bool(a);
 
                 AssertSql(
-        """
+                    """
 SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "Converters") AND (c["Reference"]["StringYNConvertedToBool"] = false))
@@ -1867,7 +1867,7 @@ WHERE ((c["Discriminator"] = "Converters") AND (c["Reference"]["StringYNConverte
                 await base.Json_predicate_on_timeonly(a);
 
                 AssertSql(
-        """
+                    """
 SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestTimeOnly"] != "03:02:00"))
@@ -1882,7 +1882,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestTimeOnly"] != 
                 await base.Json_predicate_on_timespan(a);
 
                 AssertSql(
-        """
+                    """
 SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestTimeSpan"] != "03:02:00"))
@@ -1897,7 +1897,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestTimeSpan"] != 
                 await base.Json_predicate_on_unisgnedint16(a);
 
                 AssertSql(
-        """
+                    """
 SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestUnsignedInt16"] != 100))
@@ -1912,7 +1912,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestUnsignedInt16"
                 await base.Json_predicate_on_unsignedint32(a);
 
                 AssertSql(
-        """
+                    """
 SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestUnsignedInt32"] != 1000))
@@ -1927,7 +1927,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestUnsignedInt32"
                 await base.Json_predicate_on_unsignedint64(a);
 
                 AssertSql(
-        """
+                    """
 SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestUnsignedInt64"] != 10000))
@@ -1936,18 +1936,18 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestUnsignedInt64"
 
     public override Task Json_projection_collection_element_and_reference_AsNoTrackingWithIdentityResolution(bool async)
         => AssertTranslationFailedWithDetails(
-          () => base.Json_projection_collection_element_and_reference_AsNoTrackingWithIdentityResolution(async),
-          CosmosStrings.LimitOffsetNotSupportedInSubqueries);
+            () => base.Json_projection_collection_element_and_reference_AsNoTrackingWithIdentityResolution(async),
+            CosmosStrings.LimitOffsetNotSupportedInSubqueries);
 
     public override Task Json_projection_deduplication_with_collection_indexer_in_original(bool async)
         => AssertTranslationFailedWithDetails(
-          () => base.Json_projection_deduplication_with_collection_indexer_in_original(async),
-          CosmosStrings.LimitOffsetNotSupportedInSubqueries);
+            () => base.Json_projection_deduplication_with_collection_indexer_in_original(async),
+            CosmosStrings.LimitOffsetNotSupportedInSubqueries);
 
     public override Task Json_projection_deduplication_with_collection_indexer_in_target(bool async)
         => AssertTranslationFailedWithDetails(
-          () => base.Json_projection_deduplication_with_collection_indexer_in_target(async),
-          CosmosStrings.LimitOffsetNotSupportedInSubqueries);
+            () => base.Json_projection_deduplication_with_collection_indexer_in_target(async),
+            CosmosStrings.LimitOffsetNotSupportedInSubqueries);
 
     public override async Task Json_projection_deduplication_with_collection_in_original_and_collection_indexer_in_target(bool async)
     {
@@ -1965,7 +1965,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestUnsignedInt64"
                 await base.Json_projection_enum_with_custom_conversion(a);
 
                 AssertSql(
-        """
+                    """
 SELECT c["Id"], c["OwnedReferenceRoot"]["Enum"]
 FROM root c
 WHERE (c["Discriminator"] = "CustomNaming")
@@ -1974,13 +1974,17 @@ WHERE (c["Discriminator"] = "CustomNaming")
 
     public override Task Json_projection_nested_collection_and_element_correct_order_AsNoTrackingWithIdentityResolution(bool async)
         => AssertTranslationFailedWithDetails(
-          () => base.Json_projection_nested_collection_and_element_correct_order_AsNoTrackingWithIdentityResolution(async),
-          CosmosStrings.LimitOffsetNotSupportedInSubqueries);
+            () => base.Json_projection_nested_collection_and_element_correct_order_AsNoTrackingWithIdentityResolution(async),
+            CosmosStrings.LimitOffsetNotSupportedInSubqueries);
 
-    public override async Task Json_projection_nested_collection_element_using_parameter_and_the_owner_in_correct_order_AsNoTrackingWithIdentityResolution(bool async)
+    public override async Task
+        Json_projection_nested_collection_element_using_parameter_and_the_owner_in_correct_order_AsNoTrackingWithIdentityResolution(
+            bool async)
     {
         var message = (await Assert.ThrowsAsync<NotImplementedException>(
-            () => base.Json_projection_nested_collection_element_using_parameter_and_the_owner_in_correct_order_AsNoTrackingWithIdentityResolution(async))).Message;
+            () => base
+                .Json_projection_nested_collection_element_using_parameter_and_the_owner_in_correct_order_AsNoTrackingWithIdentityResolution(
+                    async))).Message;
 
         // issue #34348
         Assert.Equal(NotImplementedBindPropertyMessage, message);
@@ -1993,26 +1997,34 @@ WHERE (c["Discriminator"] = "CustomNaming")
                 await base.Json_projection_nothing_interesting_AsNoTrackingWithIdentityResolution(a);
 
                 AssertSql(
-        """
+                    """
 SELECT c["Id"], c["Name"]
 FROM root c
 WHERE (c["Discriminator"] = "Basic")
 """);
             });
 
-    public override async Task Json_projection_only_second_element_through_collection_element_constant_projected_nested_AsNoTrackingWithIdentityResolution(bool async)
+    public override async Task
+        Json_projection_only_second_element_through_collection_element_constant_projected_nested_AsNoTrackingWithIdentityResolution(
+            bool async)
     {
         var message = (await Assert.ThrowsAsync<NotImplementedException>(
-            () => base.Json_projection_only_second_element_through_collection_element_constant_projected_nested_AsNoTrackingWithIdentityResolution(async))).Message;
+            () => base
+                .Json_projection_only_second_element_through_collection_element_constant_projected_nested_AsNoTrackingWithIdentityResolution(
+                    async))).Message;
 
         // issue #34348
         Assert.Equal(NotImplementedBindPropertyMessage, message);
     }
 
-    public override async Task Json_projection_only_second_element_through_collection_element_parameter_projected_nested_AsNoTrackingWithIdentityResolution(bool async)
+    public override async Task
+        Json_projection_only_second_element_through_collection_element_parameter_projected_nested_AsNoTrackingWithIdentityResolution(
+            bool async)
     {
         var message = (await Assert.ThrowsAsync<NotImplementedException>(
-            () => base.Json_projection_only_second_element_through_collection_element_parameter_projected_nested_AsNoTrackingWithIdentityResolution(async))).Message;
+            () => base
+                .Json_projection_only_second_element_through_collection_element_parameter_projected_nested_AsNoTrackingWithIdentityResolution(
+                    async))).Message;
 
         // issue #34348
         Assert.Equal(NotImplementedBindPropertyMessage, message);
@@ -2025,7 +2037,7 @@ WHERE (c["Discriminator"] = "Basic")
                 await base.Json_projection_owner_entity_AsNoTrackingWithIdentityResolution(a);
 
                 AssertSql(
-        """
+                    """
 SELECT c["Id"], c
 FROM root c
 WHERE (c["Discriminator"] = "Basic")
@@ -2034,42 +2046,57 @@ WHERE (c["Discriminator"] = "Basic")
 
     public override Task Json_projection_reference_collection_and_collection_element_nested_AsNoTrackingWithIdentityResolution(bool async)
         => AssertTranslationFailedWithDetails(
-          () => base.Json_projection_reference_collection_and_collection_element_nested_AsNoTrackingWithIdentityResolution(async),
-          CosmosStrings.LimitOffsetNotSupportedInSubqueries);
+            () => base.Json_projection_reference_collection_and_collection_element_nested_AsNoTrackingWithIdentityResolution(async),
+            CosmosStrings.LimitOffsetNotSupportedInSubqueries);
 
-    public override Task Json_projection_second_element_projected_before_owner_as_well_as_root_AsNoTrackingWithIdentityResolution(bool async)
+    public override Task Json_projection_second_element_projected_before_owner_as_well_as_root_AsNoTrackingWithIdentityResolution(
+        bool async)
         => AssertTranslationFailedWithDetails(
-          () => base.Json_projection_second_element_projected_before_owner_as_well_as_root_AsNoTrackingWithIdentityResolution(async),
-          CosmosStrings.LimitOffsetNotSupportedInSubqueries);
+            () => base.Json_projection_second_element_projected_before_owner_as_well_as_root_AsNoTrackingWithIdentityResolution(async),
+            CosmosStrings.LimitOffsetNotSupportedInSubqueries);
 
     [ConditionalTheory(Skip = "issue #34350")]
-    public override Task Json_projection_second_element_projected_before_owner_nested_as_well_as_root_AsNoTrackingWithIdentityResolution(bool async)
+    public override Task Json_projection_second_element_projected_before_owner_nested_as_well_as_root_AsNoTrackingWithIdentityResolution(
+        bool async)
         => Fixture.NoSyncTest(
             async, async a =>
             {
-                await base.Json_projection_second_element_projected_before_owner_nested_as_well_as_root_AsNoTrackingWithIdentityResolution(a);
+                await base.Json_projection_second_element_projected_before_owner_nested_as_well_as_root_AsNoTrackingWithIdentityResolution(
+                    a);
 
                 AssertSql("");
             });
 
-    public override async Task Json_projection_second_element_through_collection_element_constant_different_values_projected_before_owner_nested_AsNoTrackingWithIdentityResolution(bool async)
+    public override async Task
+        Json_projection_second_element_through_collection_element_constant_different_values_projected_before_owner_nested_AsNoTrackingWithIdentityResolution(
+            bool async)
     {
         var message = (await Assert.ThrowsAsync<NotImplementedException>(
-            () => base.Json_projection_second_element_through_collection_element_constant_different_values_projected_before_owner_nested_AsNoTrackingWithIdentityResolution(async))).Message;
+            () => base
+                .Json_projection_second_element_through_collection_element_constant_different_values_projected_before_owner_nested_AsNoTrackingWithIdentityResolution(
+                    async))).Message;
 
         // issue #34348
         Assert.Equal(NotImplementedBindPropertyMessage, message);
     }
 
-    public override Task Json_projection_second_element_through_collection_element_constant_projected_after_owner_nested_AsNoTrackingWithIdentityResolution(bool async)
+    public override Task
+        Json_projection_second_element_through_collection_element_constant_projected_after_owner_nested_AsNoTrackingWithIdentityResolution(
+            bool async)
         => AssertTranslationFailedWithDetails(
-          () => base.Json_projection_second_element_through_collection_element_constant_projected_after_owner_nested_AsNoTrackingWithIdentityResolution(async),
-          CosmosStrings.LimitOffsetNotSupportedInSubqueries);
+            () => base
+                .Json_projection_second_element_through_collection_element_constant_projected_after_owner_nested_AsNoTrackingWithIdentityResolution(
+                    async),
+            CosmosStrings.LimitOffsetNotSupportedInSubqueries);
 
-    public override Task Json_projection_second_element_through_collection_element_parameter_correctly_projected_after_owner_nested_AsNoTrackingWithIdentityResolution(bool async)
+    public override Task
+        Json_projection_second_element_through_collection_element_parameter_correctly_projected_after_owner_nested_AsNoTrackingWithIdentityResolution(
+            bool async)
         => AssertTranslationFailedWithDetails(
-          () => base.Json_projection_second_element_through_collection_element_parameter_correctly_projected_after_owner_nested_AsNoTrackingWithIdentityResolution(async),
-          CosmosStrings.LimitOffsetNotSupportedInSubqueries);
+            () => base
+                .Json_projection_second_element_through_collection_element_parameter_correctly_projected_after_owner_nested_AsNoTrackingWithIdentityResolution(
+                    async),
+            CosmosStrings.LimitOffsetNotSupportedInSubqueries);
 
     [ConditionalTheory(Skip = "issue #34350")]
     public override Task Json_projection_with_deduplication(bool async)
@@ -2088,7 +2115,7 @@ WHERE (c["Discriminator"] = "Basic")
                 await base.Json_projection_with_deduplication_reverse_order(async);
 
                 AssertSql(
-        """
+                    """
 SELECT VALUE c
 FROM root c
 WHERE (c["Discriminator"] = "Basic")
@@ -2102,7 +2129,7 @@ WHERE (c["Discriminator"] = "Basic")
                 await base.Json_property_in_predicate(a);
 
                 AssertSql(
-        """
+                    """
 SELECT VALUE c["Id"]
 FROM root c
 WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedReferenceRoot"]["OwnedReferenceBranch"]["Fraction"] < 20.5))
@@ -2116,7 +2143,7 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedReferenceRoot"]["OwnedReferen
                 await base.Json_scalar_length(a);
 
                 AssertSql(
-        """
+                    """
 SELECT VALUE c["Name"]
 FROM root c
 WHERE ((c["Discriminator"] = "Basic") AND (LENGTH(c["OwnedReferenceRoot"]["Name"]) > 2))
@@ -2130,7 +2157,7 @@ WHERE ((c["Discriminator"] = "Basic") AND (LENGTH(c["OwnedReferenceRoot"]["Name"
                 await base.Json_scalar_optional_null_semantics(a);
 
                 AssertSql(
-        """
+                    """
 SELECT VALUE c["Name"]
 FROM root c
 WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedReferenceRoot"]["Name"] != c["OwnedReferenceRoot"]["OwnedReferenceBranch"]["OwnedReferenceLeaf"]["SomethingSomething"]))
@@ -2144,7 +2171,7 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedReferenceRoot"]["Name"] != c[
                 await base.Json_scalar_required_null_semantics(a);
 
                 AssertSql(
-        """
+                    """
 SELECT VALUE c["Name"]
 FROM root c
 WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedReferenceRoot"]["Number"] != LENGTH(c["OwnedReferenceRoot"]["Name"])))
@@ -2153,18 +2180,18 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedReferenceRoot"]["Number"] != 
 
     public override Task Json_subquery_property_pushdown_length(bool async)
         => AssertTranslationFailedWithDetails(
-          () => base.Json_subquery_property_pushdown_length(async),
-          CosmosStrings.LimitOffsetNotSupportedInSubqueries);
+            () => base.Json_subquery_property_pushdown_length(async),
+            CosmosStrings.LimitOffsetNotSupportedInSubqueries);
 
     public override Task Json_subquery_reference_pushdown_property(bool async)
         => AssertTranslationFailedWithDetails(
-          () => base.Json_subquery_reference_pushdown_property(async),
-          CosmosStrings.LimitOffsetNotSupportedInSubqueries);
+            () => base.Json_subquery_reference_pushdown_property(async),
+            CosmosStrings.LimitOffsetNotSupportedInSubqueries);
 
     public override Task Json_subquery_reference_pushdown_reference(bool async)
         => AssertTranslationFailedWithDetails(
-          () => base.Json_subquery_reference_pushdown_reference(async),
-          CosmosStrings.LimitOffsetNotSupportedInSubqueries);
+            () => base.Json_subquery_reference_pushdown_reference(async),
+            CosmosStrings.LimitOffsetNotSupportedInSubqueries);
 
     public override Task Json_subquery_reference_pushdown_reference_anonymous_projection(bool async)
         => base.Json_subquery_reference_pushdown_reference_anonymous_projection(async);
@@ -2174,13 +2201,13 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedReferenceRoot"]["Number"] != 
 
     public override Task Json_subquery_reference_pushdown_reference_pushdown_collection(bool async)
         => AssertTranslationFailedWithDetails(
-          () => base.Json_subquery_reference_pushdown_reference_pushdown_collection(async),
-          CosmosStrings.LimitOffsetNotSupportedInSubqueries);
+            () => base.Json_subquery_reference_pushdown_reference_pushdown_collection(async),
+            CosmosStrings.LimitOffsetNotSupportedInSubqueries);
 
     public override Task Json_subquery_reference_pushdown_reference_pushdown_reference(bool async)
         => AssertTranslationFailedWithDetails(
-          () => base.Json_subquery_reference_pushdown_reference_pushdown_reference(async),
-          CosmosStrings.LimitOffsetNotSupportedInSubqueries);
+            () => base.Json_subquery_reference_pushdown_reference_pushdown_reference(async),
+            CosmosStrings.LimitOffsetNotSupportedInSubqueries);
 
     public override async Task Json_with_include_on_entity_collection(bool async)
     {
@@ -2188,19 +2215,20 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedReferenceRoot"]["Number"] != 
             () => base.Json_with_include_on_entity_collection(async))).Message;
 
         Assert.Equal(
-            CosmosStrings.NonEmbeddedIncludeNotSupported("Navigation: JsonEntityBasic.EntityCollection (List<JsonEntityBasicForCollection>) Collection ToDependent JsonEntityBasicForCollection Inverse: Parent"),
+            CosmosStrings.NonEmbeddedIncludeNotSupported(
+                "Navigation: JsonEntityBasic.EntityCollection (List<JsonEntityBasicForCollection>) Collection ToDependent JsonEntityBasicForCollection Inverse: Parent"),
             message);
     }
 
     public override Task Json_with_include_on_entity_collection_and_reference(bool async)
         => AssertTranslationFailedWithDetails(
-          () => base.Json_with_include_on_entity_collection_and_reference(async),
-          CosmosStrings.MultipleRootEntityTypesReferencedInQuery(nameof(JsonEntityBasicForReference), nameof(JsonEntityBasic)));
+            () => base.Json_with_include_on_entity_collection_and_reference(async),
+            CosmosStrings.MultipleRootEntityTypesReferencedInQuery(nameof(JsonEntityBasicForReference), nameof(JsonEntityBasic)));
 
     public override Task Json_with_include_on_entity_reference(bool async)
         => AssertTranslationFailedWithDetails(
-          () => base.Json_with_include_on_entity_reference(async),
-          CosmosStrings.MultipleRootEntityTypesReferencedInQuery(nameof(JsonEntityBasicForReference), nameof(JsonEntityBasic)));
+            () => base.Json_with_include_on_entity_reference(async),
+            CosmosStrings.MultipleRootEntityTypesReferencedInQuery(nameof(JsonEntityBasicForReference), nameof(JsonEntityBasic)));
 
     public override Task Json_with_include_on_json_entity(bool async)
         => Fixture.NoSyncTest(
@@ -2209,7 +2237,7 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedReferenceRoot"]["Number"] != 
                 await base.Json_with_include_on_json_entity(a);
 
                 AssertSql(
-        """
+                    """
 SELECT VALUE c
 FROM root c
 WHERE (c["Discriminator"] = "Basic")
@@ -2218,54 +2246,54 @@ WHERE (c["Discriminator"] = "Basic")
 
     public override Task Json_with_projection_of_json_collection_and_entity_collection(bool async)
         => AssertTranslationFailed(
-          () => base.Json_with_projection_of_json_collection_and_entity_collection(async));
+            () => base.Json_with_projection_of_json_collection_and_entity_collection(async));
 
     public override Task Json_with_projection_of_json_collection_element_and_entity_collection(bool async)
         => AssertTranslationFailedWithDetails(
-          () => base.Json_with_projection_of_json_collection_element_and_entity_collection(async),
-          CosmosStrings.MultipleRootEntityTypesReferencedInQuery(nameof(JsonEntityBasicForReference), nameof(JsonEntityBasic)));
+            () => base.Json_with_projection_of_json_collection_element_and_entity_collection(async),
+            CosmosStrings.MultipleRootEntityTypesReferencedInQuery(nameof(JsonEntityBasicForReference), nameof(JsonEntityBasic)));
 
     public override Task Json_with_projection_of_json_collection_leaf_and_entity_collection(bool async)
         => AssertTranslationFailed(
-          () => base.Json_with_projection_of_json_collection_leaf_and_entity_collection(async));
+            () => base.Json_with_projection_of_json_collection_leaf_and_entity_collection(async));
 
     public override Task Json_with_projection_of_json_reference_and_entity_collection(bool async)
         => AssertTranslationFailed(
-          () => base.Json_with_projection_of_json_reference_and_entity_collection(async));
+            () => base.Json_with_projection_of_json_reference_and_entity_collection(async));
 
     public override Task Json_with_projection_of_json_reference_leaf_and_entity_collection(bool async)
         => AssertTranslationFailed(
-          () => base.Json_with_projection_of_json_reference_leaf_and_entity_collection(async));
+            () => base.Json_with_projection_of_json_reference_leaf_and_entity_collection(async));
 
     public override Task Json_with_projection_of_mix_of_json_collections_json_references_and_entity_collection(bool async)
         => AssertTranslationFailedWithDetails(
-          () => base.Json_with_projection_of_mix_of_json_collections_json_references_and_entity_collection(async),
-          CosmosStrings.MultipleRootEntityTypesReferencedInQuery(nameof(JsonEntityBasicForReference), nameof(JsonEntityBasic)));
+            () => base.Json_with_projection_of_mix_of_json_collections_json_references_and_entity_collection(async),
+            CosmosStrings.MultipleRootEntityTypesReferencedInQuery(nameof(JsonEntityBasicForReference), nameof(JsonEntityBasic)));
 
     public override Task Json_with_projection_of_multiple_json_references_and_entity_collection(bool async)
         => AssertTranslationFailedWithDetails(
-          () => base.Json_with_projection_of_multiple_json_references_and_entity_collection(async),
-          CosmosStrings.LimitOffsetNotSupportedInSubqueries);
+            () => base.Json_with_projection_of_multiple_json_references_and_entity_collection(async),
+            CosmosStrings.LimitOffsetNotSupportedInSubqueries);
 
     public override Task Left_join_json_entities(bool async)
         => AssertTranslationFailedWithDetails(
-          () => base.Left_join_json_entities(async),
-          CosmosStrings.MultipleRootEntityTypesReferencedInQuery(nameof(JsonEntityBasic), nameof(JsonEntitySingleOwned)));
+            () => base.Left_join_json_entities(async),
+            CosmosStrings.MultipleRootEntityTypesReferencedInQuery(nameof(JsonEntityBasic), nameof(JsonEntitySingleOwned)));
 
     public override Task Left_join_json_entities_complex_projection(bool async)
         => AssertTranslationFailedWithDetails(
-          () => base.Left_join_json_entities_complex_projection(async),
-          CosmosStrings.MultipleRootEntityTypesReferencedInQuery(nameof(JsonEntityBasic), nameof(JsonEntitySingleOwned)));
+            () => base.Left_join_json_entities_complex_projection(async),
+            CosmosStrings.MultipleRootEntityTypesReferencedInQuery(nameof(JsonEntityBasic), nameof(JsonEntitySingleOwned)));
 
     public override Task Left_join_json_entities_complex_projection_json_being_inner(bool async)
         => AssertTranslationFailedWithDetails(
-          () => base.Left_join_json_entities_complex_projection_json_being_inner(async),
-          CosmosStrings.MultipleRootEntityTypesReferencedInQuery(nameof(JsonEntitySingleOwned), nameof(JsonEntityBasic)));
+            () => base.Left_join_json_entities_complex_projection_json_being_inner(async),
+            CosmosStrings.MultipleRootEntityTypesReferencedInQuery(nameof(JsonEntitySingleOwned), nameof(JsonEntityBasic)));
 
     public override Task Left_join_json_entities_json_being_inner(bool async)
         => AssertTranslationFailedWithDetails(
-          () => base.Left_join_json_entities_json_being_inner(async),
-          CosmosStrings.MultipleRootEntityTypesReferencedInQuery(nameof(JsonEntitySingleOwned), nameof(JsonEntityBasic)));
+            () => base.Left_join_json_entities_json_being_inner(async),
+            CosmosStrings.MultipleRootEntityTypesReferencedInQuery(nameof(JsonEntitySingleOwned), nameof(JsonEntityBasic)));
 
     public override Task Project_entity_with_single_owned(bool async)
         => Fixture.NoSyncTest(
@@ -2274,7 +2302,7 @@ WHERE (c["Discriminator"] = "Basic")
                 await base.Project_entity_with_single_owned(a);
 
                 AssertSql(
-        """
+                    """
 SELECT VALUE c
 FROM root c
 WHERE (c["Discriminator"] = "SingleOwned")
@@ -2283,27 +2311,27 @@ WHERE (c["Discriminator"] = "SingleOwned")
 
     public override Task Project_json_entity_FirstOrDefault_subquery(bool async)
         => AssertTranslationFailed(
-          () => base.Project_json_entity_FirstOrDefault_subquery(async));
+            () => base.Project_json_entity_FirstOrDefault_subquery(async));
 
     public override Task Project_json_entity_FirstOrDefault_subquery_deduplication(bool async)
         => AssertTranslationFailed(
-          () => base.Project_json_entity_FirstOrDefault_subquery_deduplication(async));
+            () => base.Project_json_entity_FirstOrDefault_subquery_deduplication(async));
 
     public override Task Project_json_entity_FirstOrDefault_subquery_deduplication_and_outer_reference(bool async)
         => AssertTranslationFailed(
-          () => base.Project_json_entity_FirstOrDefault_subquery_deduplication_and_outer_reference(async));
+            () => base.Project_json_entity_FirstOrDefault_subquery_deduplication_and_outer_reference(async));
 
     public override Task Project_json_entity_FirstOrDefault_subquery_deduplication_outer_reference_and_pruning(bool async)
         => AssertTranslationFailed(
-          () => base.Project_json_entity_FirstOrDefault_subquery_deduplication_outer_reference_and_pruning(async));
+            () => base.Project_json_entity_FirstOrDefault_subquery_deduplication_outer_reference_and_pruning(async));
 
     public override Task Project_json_entity_FirstOrDefault_subquery_with_binding_on_top(bool async)
         => AssertTranslationFailed(
-          () => base.Project_json_entity_FirstOrDefault_subquery_with_binding_on_top(async));
+            () => base.Project_json_entity_FirstOrDefault_subquery_with_binding_on_top(async));
 
     public override Task Project_json_entity_FirstOrDefault_subquery_with_entity_comparison_on_top(bool async)
         => AssertTranslationFailed(
-          () => base.Project_json_entity_FirstOrDefault_subquery_with_entity_comparison_on_top(async));
+            () => base.Project_json_entity_FirstOrDefault_subquery_with_entity_comparison_on_top(async));
 
     public override async Task Project_json_reference_in_tracking_query_fails(bool async)
     {

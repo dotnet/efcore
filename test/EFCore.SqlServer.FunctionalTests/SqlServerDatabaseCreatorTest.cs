@@ -349,7 +349,8 @@ public class SqlServerDatabaseCreatorEnsureCreatedTest : SqlServerDatabaseCreato
         using var testDatabase = await SqlServerTestStore.CreateInitializedAsync("EnsureCreatedSeedTest");
         using var context = new BloggingContext(testDatabase.ConnectionString, asyncSeed: true);
 
-        Assert.Equal(CoreStrings.MissingSeeder,
+        Assert.Equal(
+            CoreStrings.MissingSeeder,
             Assert.Throws<InvalidOperationException>(() => context.Database.EnsureCreated()).Message);
     }
 
@@ -359,8 +360,9 @@ public class SqlServerDatabaseCreatorEnsureCreatedTest : SqlServerDatabaseCreato
         using var testDatabase = await SqlServerTestStore.CreateInitializedAsync("EnsureCreatedSeedTest");
         using var context = new BloggingContext(testDatabase.ConnectionString, seed: true);
 
-        Assert.Equal(CoreStrings.MissingSeeder,
-           (await Assert.ThrowsAsync<InvalidOperationException>(() => context.Database.EnsureCreatedAsync())).Message);
+        Assert.Equal(
+            CoreStrings.MissingSeeder,
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => context.Database.EnsureCreatedAsync())).Message);
     }
 }
 

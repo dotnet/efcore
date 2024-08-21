@@ -194,10 +194,17 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
     public virtual void Detects_missing_partition_key_properties_composite_less_first()
     {
         var modelBuilder = CreateConventionModelBuilder();
-        modelBuilder.Entity<Customer>().ToContainer("Orders").HasPartitionKey(c => new { c.PartitionId, c.Id, c.Name });
+        modelBuilder.Entity<Customer>().ToContainer("Orders").HasPartitionKey(
+            c => new
+            {
+                c.PartitionId,
+                c.Id,
+                c.Name
+            });
         modelBuilder.Entity<Order>().ToContainer("Orders").HasPartitionKey(c => new { c.PartitionId, c.Id });
 
-        VerifyError(CosmosStrings.NoPartitionKey(nameof(Customer), "PartitionId,Id,Name", nameof(Order), "PartitionId,Id", "Orders"), modelBuilder);
+        VerifyError(
+            CosmosStrings.NoPartitionKey(nameof(Customer), "PartitionId,Id,Name", nameof(Order), "PartitionId,Id", "Orders"), modelBuilder);
     }
 
     [ConditionalFact]
@@ -223,7 +230,8 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
                 b.ToContainer("Orders").HasPartitionKey(c => new { c.OrderId });
             });
 
-        VerifyError(CosmosStrings.NoPartitionKey(nameof(Customer), "PartitionId,Id", nameof(OrderProduct), "OrderId", "Orders"), modelBuilder);
+        VerifyError(
+            CosmosStrings.NoPartitionKey(nameof(Customer), "PartitionId,Id", nameof(OrderProduct), "OrderId", "Orders"), modelBuilder);
     }
 
     [ConditionalFact]
@@ -365,11 +373,12 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
         var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Customer>();
         modelBuilder.Entity<Order>(
-            ob => ob.OwnsOne(o => o.OrderDetails, b =>
-            {
-                b.Property<string>(CosmosJsonIdConvention.DefaultIdPropertyName)
-                    .ToJsonProperty(CosmosJsonIdConvention.IdPropertyJsonName);
-            }));
+            ob => ob.OwnsOne(
+                o => o.OrderDetails, b =>
+                {
+                    b.Property<string>(CosmosJsonIdConvention.DefaultIdPropertyName)
+                        .ToJsonProperty(CosmosJsonIdConvention.IdPropertyJsonName);
+                }));
 
         modelBuilder.Model
             .GetEntityTypes()
@@ -497,7 +506,6 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
     }
 #pragma warning restore EF9103
 
-
     [ConditionalFact]
     public virtual void Detects_vector_property_with_unknown_data_type()
     {
@@ -525,10 +533,11 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
         var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<RememberMyName<Memory<float>>>().ToContainer("Orders");
 
-        VerifyError(CoreStrings.PropertyNotAdded(
-            typeof(RememberMyName<Memory<float>>).ShortDisplayName(),
-            nameof(RememberMyName<float>.ForgetMeNot),
-            typeof(Memory<float>).ShortDisplayName()), modelBuilder);
+        VerifyError(
+            CoreStrings.PropertyNotAdded(
+                typeof(RememberMyName<Memory<float>>).ShortDisplayName(),
+                nameof(RememberMyName<float>.ForgetMeNot),
+                typeof(Memory<float>).ShortDisplayName()), modelBuilder);
     }
 
     [ConditionalFact]
@@ -537,10 +546,11 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
         var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<RememberMyName<Memory<float>[]>>().ToContainer("Orders");
 
-        VerifyError(CoreStrings.PropertyNotAdded(
-            typeof(RememberMyName<Memory<float>[]>).ShortDisplayName(),
-            nameof(RememberMyName<float>.ForgetMeNot),
-            typeof(Memory<float>[]).ShortDisplayName()), modelBuilder);
+        VerifyError(
+            CoreStrings.PropertyNotAdded(
+                typeof(RememberMyName<Memory<float>[]>).ShortDisplayName(),
+                nameof(RememberMyName<float>.ForgetMeNot),
+                typeof(Memory<float>[]).ShortDisplayName()), modelBuilder);
     }
 
     private class RememberMyName<T>

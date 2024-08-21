@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Xunit.Sdk;
@@ -1455,8 +1454,8 @@ WHERE false
             async, async a =>
             {
                 await base.Where_is_not_null(a);
-AssertSql(
-    """
+                AssertSql(
+                    """
 SELECT VALUE c
 FROM root c
 WHERE (c["City"] != null)
@@ -1482,8 +1481,8 @@ WHERE false
             async, async a =>
             {
                 await base.Where_constant_is_not_null(a);
-AssertSql(
-    """
+                AssertSql(
+                    """
 SELECT VALUE c
 FROM root c
 """);
@@ -1827,8 +1826,8 @@ WHERE ((c["$type"] = "Product") AND (c["UnitsInStock"] > 10))
             async, async a =>
             {
                 await base.Where_comparison_to_nullable_bool(a);
-AssertSql(
-    """
+                AssertSql(
+                    """
 SELECT VALUE c
 FROM root c
 WHERE (ENDSWITH(c["id"], "KI") = true)
@@ -1840,8 +1839,8 @@ WHERE (ENDSWITH(c["id"], "KI") = true)
             async, async a =>
             {
                 await base.Where_true(a);
-AssertSql(
-    """
+                AssertSql(
+                    """
 SELECT VALUE c
 FROM root c
 """);
@@ -1953,7 +1952,7 @@ WHERE (c["Fax"] = null)
         await AssertTranslationFailed(() => base.Where_concat_string_int_comparison4(async));
 
         AssertSql(
-);
+        );
     }
 
     public override Task Where_string_concat_method_comparison(bool async)
@@ -2234,7 +2233,7 @@ WHERE (((c["$type"] = "Order") AND (c["CustomerID"] = "QUICK")) AND (c["OrderDat
         await AssertTranslationFailed(() => base.Where_multiple_contains_in_subquery_with_or(async));
 
         AssertSql(
-);
+        );
     }
 
     public override async Task Where_multiple_contains_in_subquery_with_and(bool async)
@@ -2528,7 +2527,7 @@ WHERE ((c["$type"] = "Order") AND ARRAY_CONTAINS(@__orderIds_0, c["OrderID"]))
                 await base.Filter_with_EF_Property_using_closure_for_property_name(a);
 
                 AssertSql("ReadItem(None, ALFKI)");
-           });
+            });
 
     public override Task Filter_with_EF_Property_using_function_for_property_name(bool async)
         => Fixture.NoSyncTest(
@@ -2711,7 +2710,7 @@ WHERE (ARRAY_CONTAINS(@__customerIds_0, c["id"]) OR (c["City"] = "Seattle"))
         await AssertTranslationFailed(() => base.Where_Like_or_comparison(async));
 
         AssertSql(
-);
+        );
     }
 
     public override Task GetType_on_non_hierarchy1(bool async)
@@ -2760,8 +2759,8 @@ WHERE false
             async, async a =>
             {
                 await base.GetType_on_non_hierarchy4(a);
-AssertSql(
-    """
+                AssertSql(
+                    """
 SELECT VALUE c
 FROM root c
 """);
@@ -2772,8 +2771,8 @@ FROM root c
             async, async a =>
             {
                 await base.Case_block_simplification_works_correctly(a);
-AssertSql(
-    """
+                AssertSql(
+                    """
 SELECT VALUE c
 FROM root c
 WHERE (((c["Region"] = null) ? "OR" : c["Region"]) = "OR")
@@ -2857,8 +2856,8 @@ WHERE (c["City"] = "London")
             async, async a =>
             {
                 await base.Generic_Ilist_contains_translates_to_server(a);
-AssertSql(
-    """
+                AssertSql(
+                    """
 @__cities_0='["Seattle"]'
 
 SELECT VALUE c
@@ -2886,8 +2885,8 @@ WHERE ((((c["id"] = "ALFKI") OR (c["id"] = "ANATR")) OR (c["id"] = "ANTON")) OR 
             async, async a =>
             {
                 await base.Multiple_OrElse_on_same_column_with_null_constant_comparison_converted_to_in(a);
-AssertSql(
-    """
+                AssertSql(
+                    """
 SELECT VALUE c
 FROM root c
 WHERE ((((c["Region"] = "WA") OR (c["Region"] = "OR")) OR (c["Region"] = null)) OR (c["Region"] = "BC"))
@@ -2899,8 +2898,8 @@ WHERE ((((c["Region"] = "WA") OR (c["Region"] = "OR")) OR (c["Region"] = null)) 
             async, async a =>
             {
                 await base.Constant_array_Contains_OrElse_comparison_with_constant_gets_combined_to_one_in(a);
-AssertSql(
-    """
+                AssertSql(
+                    """
 SELECT VALUE c
 FROM root c
 WHERE (c["id"] IN ("ALFKI", "ANATR") OR (c["id"] = "ANTON"))
@@ -3123,16 +3122,16 @@ WHERE (c["Title"] = "Sales Representative")
             async, async a =>
             {
                 await base.Where_poco_closure(a);
-AssertSql(
-    """
+                AssertSql(
+                    """
 @__entity_equality_customer_0_CustomerID='ALFKI'
 
 SELECT VALUE c["id"]
 FROM root c
 WHERE (c["id"] = @__entity_equality_customer_0_CustomerID)
 """,
-    //
-    """
+                    //
+                    """
 @__entity_equality_customer_0_CustomerID='ANATR'
 
 SELECT VALUE c["id"]
@@ -3184,8 +3183,8 @@ WHERE ((@__i_0 || c["id"]) = "AALFKI")
     public override async Task EF_Constant_with_non_evaluatable_argument_throws(bool async)
     {
         await base.EF_Constant_with_non_evaluatable_argument_throws(async);
-AssertSql(
-);
+        AssertSql(
+        );
     }
 
     public override Task EF_Parameter(bool async)

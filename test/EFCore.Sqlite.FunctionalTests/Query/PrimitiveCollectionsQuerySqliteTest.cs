@@ -525,8 +525,8 @@ WHERE "p"."Int" IN (
     FROM json_each(@__ints_0) AS "i"
 )
 """,
-                //
-                """
+            //
+            """
 @__ints_0='[10,999]' (Size = 8)
 
 SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."String", "p"."Strings"
@@ -1955,7 +1955,8 @@ END IN (
 
     public class SimpleContext(SqliteConnection connection) : DbContext
     {
-        public DbSet<SimpleEntity> SimpleEntities => Set<SimpleEntity>();
+        public DbSet<SimpleEntity> SimpleEntities
+            => Set<SimpleEntity>();
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder.UseSqlite(connection);

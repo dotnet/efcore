@@ -116,9 +116,7 @@ public abstract class TestStore(string name, bool shared) : IDisposable
     private class DistributedTransactionListener : IDisposable
     {
         public DistributedTransactionListener()
-        {
-            TransactionManager.DistributedTransactionStarted += DistributedTransactionStarted;
-        }
+            => TransactionManager.DistributedTransactionStarted += DistributedTransactionStarted;
 
         private void DistributedTransactionStarted(object? sender, TransactionEventArgs e)
             => Assert.Fail("Distributed transaction started");

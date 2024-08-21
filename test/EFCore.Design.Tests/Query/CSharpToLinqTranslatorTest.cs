@@ -12,7 +12,6 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable RedundantCast
-
 #nullable enable
 
 public class CSharpToLinqTranslatorTest
@@ -104,7 +103,12 @@ public class CSharpToLinqTranslatorTest
     [Fact]
     public void ElementAccess_over_list()
         => AssertExpression(
-            () => new List<int> { 1, 2, 3 }[1],
+            () => new List<int>
+            {
+                1,
+                2,
+                3
+            }[1],
             "new List<int> { 1, 2, 3 }[1]");
 
     [Fact]
@@ -128,7 +132,7 @@ public class CSharpToLinqTranslatorTest
     [Fact]
     public void Interpolated_string_formattable()
         => AssertExpression(
-            () => FormattableStringMethod(FormattableStringFactory.Create("Foo: {0}, {1}", (object)8, (object) 9)),
+            () => FormattableStringMethod(FormattableStringFactory.Create("Foo: {0}, {1}", (object)8, (object)9)),
             """CSharpToLinqTranslatorTest.FormattableStringMethod($"Foo: {8}, {9}")""");
 
     [Fact]
@@ -260,7 +264,8 @@ public class CSharpToLinqTranslatorTest
             """CSharpToLinqTranslatorTest.SomeGenericType<int>.SomeGenericFunction<string>(1, "foo")""");
 
     [Theory]
-    [InlineData("""
+    [InlineData(
+        """
         "hello"
         """, "hello")]
     [InlineData("1", 1)]

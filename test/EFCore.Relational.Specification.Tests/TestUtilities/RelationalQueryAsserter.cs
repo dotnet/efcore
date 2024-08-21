@@ -9,7 +9,8 @@ public class RelationalQueryAsserter(
     IQueryFixtureBase queryFixture,
     Func<Expression, Expression> rewriteExpectedQueryExpression,
     Func<Expression, Expression> rewriteServerQueryExpression,
-    bool ignoreEntryCount = false) : QueryAsserter(queryFixture, rewriteExpectedQueryExpression, rewriteServerQueryExpression, ignoreEntryCount)
+    bool ignoreEntryCount = false) : QueryAsserter(
+    queryFixture, rewriteExpectedQueryExpression, rewriteServerQueryExpression, ignoreEntryCount)
 {
     private static int ExecuteReader(DbCommand command)
     {
@@ -79,7 +80,8 @@ public class RelationalQueryAsserter(
         var outputSql = true;
         try
         {
-            await base.AssertQuery(actualQuery, expectedQuery, elementSorter, elementAsserter, assertOrder, assertEmpty, async, testMethodName, filteredQuery);
+            await base.AssertQuery(
+                actualQuery, expectedQuery, elementSorter, elementAsserter, assertOrder, assertEmpty, async, testMethodName, filteredQuery);
             outputSql = false;
         }
         finally
@@ -104,7 +106,8 @@ public class RelationalQueryAsserter(
         var outputSql = true;
         try
         {
-            await base.AssertQueryScalar(actualQuery, expectedQuery, asserter, assertOrder, assertEmpty, async, testMethodName, filteredQuery);
+            await base.AssertQueryScalar(
+                actualQuery, expectedQuery, asserter, assertOrder, assertEmpty, async, testMethodName, filteredQuery);
             outputSql = false;
         }
         finally
@@ -129,7 +132,8 @@ public class RelationalQueryAsserter(
         var outputSql = true;
         try
         {
-            await base.AssertQueryScalar(actualQuery, expectedQuery, asserter, assertOrder, assertEmpty, async, testMethodName, filteredQuery);
+            await base.AssertQueryScalar(
+                actualQuery, expectedQuery, asserter, assertOrder, assertEmpty, async, testMethodName, filteredQuery);
             outputSql = false;
         }
         finally
@@ -165,7 +169,8 @@ public class RelationalQueryAsserter(
         Expression<Func<TResult, bool>> expectedPredicate,
         bool async = false,
         bool filteredQuery = false)
-        => RunAndOutputSqlOnFailure(() => base.AssertAll(actualQuery, expectedQuery, actualPredicate, expectedPredicate, async, filteredQuery));
+        => RunAndOutputSqlOnFailure(
+            () => base.AssertAll(actualQuery, expectedQuery, actualPredicate, expectedPredicate, async, filteredQuery));
 
     public override Task AssertAny<TResult>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
@@ -181,7 +186,8 @@ public class RelationalQueryAsserter(
         Expression<Func<TResult, bool>> expectedPredicate,
         bool async = false,
         bool filteredQuery = false)
-        => RunAndOutputSqlOnFailure(() => base.AssertAny(actualQuery, expectedQuery, actualPredicate, expectedPredicate, async, filteredQuery));
+        => RunAndOutputSqlOnFailure(
+            () => base.AssertAny(actualQuery, expectedQuery, actualPredicate, expectedPredicate, async, filteredQuery));
 
     public override Task AssertAverage(
         Func<ISetSource, IQueryable<decimal>> actualQuery,
@@ -271,7 +277,8 @@ public class RelationalQueryAsserter(
         Action<decimal, decimal>? asserter = null,
         bool async = false,
         bool filteredQuery = false)
-        => RunAndOutputSqlOnFailure(() => base.AssertAverage(actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async, filteredQuery));
+        => RunAndOutputSqlOnFailure(
+            () => base.AssertAverage(actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async, filteredQuery));
 
     public override Task AssertAverage<TResult>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
@@ -281,7 +288,8 @@ public class RelationalQueryAsserter(
         Action<decimal?, decimal?>? asserter = null,
         bool async = false,
         bool filteredQuery = false)
-        => RunAndOutputSqlOnFailure(() => base.AssertAverage(actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async, filteredQuery));
+        => RunAndOutputSqlOnFailure(
+            () => base.AssertAverage(actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async, filteredQuery));
 
     public override Task AssertAverage<TResult>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
@@ -291,7 +299,8 @@ public class RelationalQueryAsserter(
         Action<double, double>? asserter = null,
         bool async = false,
         bool filteredQuery = false)
-        => RunAndOutputSqlOnFailure(() => base.AssertAverage(actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async, filteredQuery));
+        => RunAndOutputSqlOnFailure(
+            () => base.AssertAverage(actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async, filteredQuery));
 
     public override Task AssertAverage<TResult>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
@@ -301,7 +310,8 @@ public class RelationalQueryAsserter(
         Action<double?, double?>? asserter = null,
         bool async = false,
         bool filteredQuery = false)
-        => RunAndOutputSqlOnFailure(() => base.AssertAverage(actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async, filteredQuery));
+        => RunAndOutputSqlOnFailure(
+            () => base.AssertAverage(actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async, filteredQuery));
 
     public override Task AssertAverage<TResult>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
@@ -311,7 +321,8 @@ public class RelationalQueryAsserter(
         Action<float, float>? asserter = null,
         bool async = false,
         bool filteredQuery = false)
-        => RunAndOutputSqlOnFailure(() => base.AssertAverage(actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async, filteredQuery));
+        => RunAndOutputSqlOnFailure(
+            () => base.AssertAverage(actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async, filteredQuery));
 
     public override Task AssertAverage<TResult>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
@@ -321,7 +332,8 @@ public class RelationalQueryAsserter(
         Action<float?, float?>? asserter = null,
         bool async = false,
         bool filteredQuery = false)
-        => RunAndOutputSqlOnFailure(() => base.AssertAverage(actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async, filteredQuery));
+        => RunAndOutputSqlOnFailure(
+            () => base.AssertAverage(actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async, filteredQuery));
 
     public override Task AssertAverage<TResult>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
@@ -331,7 +343,8 @@ public class RelationalQueryAsserter(
         Action<double, double>? asserter = null,
         bool async = false,
         bool filteredQuery = false)
-        => RunAndOutputSqlOnFailure(() => base.AssertAverage(actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async, filteredQuery));
+        => RunAndOutputSqlOnFailure(
+            () => base.AssertAverage(actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async, filteredQuery));
 
     public override Task AssertAverage<TResult>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
@@ -341,7 +354,8 @@ public class RelationalQueryAsserter(
         Action<double?, double?>? asserter = null,
         bool async = false,
         bool filteredQuery = false)
-        => RunAndOutputSqlOnFailure(() => base.AssertAverage(actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async, filteredQuery));
+        => RunAndOutputSqlOnFailure(
+            () => base.AssertAverage(actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async, filteredQuery));
 
     public override Task AssertAverage<TResult>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
@@ -351,7 +365,8 @@ public class RelationalQueryAsserter(
         Action<double, double>? asserter = null,
         bool async = false,
         bool filteredQuery = false)
-        => RunAndOutputSqlOnFailure(() => base.AssertAverage(actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async, filteredQuery));
+        => RunAndOutputSqlOnFailure(
+            () => base.AssertAverage(actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async, filteredQuery));
 
     public override Task AssertAverage<TResult>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
@@ -361,7 +376,8 @@ public class RelationalQueryAsserter(
         Action<double?, double?>? asserter = null,
         bool async = false,
         bool filteredQuery = false)
-        => RunAndOutputSqlOnFailure(() => base.AssertAverage(actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async, filteredQuery));
+        => RunAndOutputSqlOnFailure(
+            () => base.AssertAverage(actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async, filteredQuery));
 
     public override Task AssertCount<TResult>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
@@ -377,7 +393,8 @@ public class RelationalQueryAsserter(
         Expression<Func<TResult, bool>> expectedPredicate,
         bool async = false,
         bool filteredQuery = false)
-        => RunAndOutputSqlOnFailure(() => base.AssertCount(actualQuery, expectedQuery, actualPredicate, expectedPredicate, async, filteredQuery));
+        => RunAndOutputSqlOnFailure(
+            () => base.AssertCount(actualQuery, expectedQuery, actualPredicate, expectedPredicate, async, filteredQuery));
 
     public override Task AssertElementAt<TResult>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
@@ -387,7 +404,8 @@ public class RelationalQueryAsserter(
         Action<TResult, TResult>? asserter = null,
         bool async = false,
         bool filteredQuery = false)
-        => RunAndOutputSqlOnFailure(() => base.AssertElementAt(actualQuery, expectedQuery, actualIndex, expectedIndex, asserter, async, filteredQuery));
+        => RunAndOutputSqlOnFailure(
+            () => base.AssertElementAt(actualQuery, expectedQuery, actualIndex, expectedIndex, asserter, async, filteredQuery));
 
     public override Task AssertElementAtOrDefault<TResult>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
@@ -398,7 +416,8 @@ public class RelationalQueryAsserter(
         bool async = false,
         bool filteredQuery = false)
         where TResult : default
-        => RunAndOutputSqlOnFailure(() => base.AssertElementAtOrDefault(actualQuery, expectedQuery, actualIndex, expectedIndex, asserter, async, filteredQuery));
+        => RunAndOutputSqlOnFailure(
+            () => base.AssertElementAtOrDefault(actualQuery, expectedQuery, actualIndex, expectedIndex, asserter, async, filteredQuery));
 
     public override Task AssertFirst<TResult>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
@@ -416,7 +435,8 @@ public class RelationalQueryAsserter(
         Action<TResult, TResult>? asserter = null,
         bool async = false,
         bool filteredQuery = false)
-        => RunAndOutputSqlOnFailure(() => base.AssertFirst(actualQuery, expectedQuery, actualPredicate, expectedPredicate, asserter, async, filteredQuery));
+        => RunAndOutputSqlOnFailure(
+            () => base.AssertFirst(actualQuery, expectedQuery, actualPredicate, expectedPredicate, asserter, async, filteredQuery));
 
     public override Task AssertFirstOrDefault<TResult>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
@@ -436,7 +456,9 @@ public class RelationalQueryAsserter(
         bool async = false,
         bool filteredQuery = false)
         where TResult : default
-        => RunAndOutputSqlOnFailure(() => base.AssertFirstOrDefault(actualQuery, expectedQuery, actualPredicate, expectedPredicate, asserter, async, filteredQuery));
+        => RunAndOutputSqlOnFailure(
+            () => base.AssertFirstOrDefault(
+                actualQuery, expectedQuery, actualPredicate, expectedPredicate, asserter, async, filteredQuery));
 
     public override Task AssertLast<TResult>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
@@ -454,7 +476,8 @@ public class RelationalQueryAsserter(
         Action<TResult, TResult>? asserter = null,
         bool async = false,
         bool filteredQuery = false)
-        => RunAndOutputSqlOnFailure(() => base.AssertLast(actualQuery, expectedQuery, actualPredicate, expectedPredicate, asserter, async, filteredQuery));
+        => RunAndOutputSqlOnFailure(
+            () => base.AssertLast(actualQuery, expectedQuery, actualPredicate, expectedPredicate, asserter, async, filteredQuery));
 
     public override Task AssertLastOrDefault<TResult>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
@@ -474,7 +497,8 @@ public class RelationalQueryAsserter(
         bool async = false,
         bool filteredQuery = false)
         where TResult : default
-        => RunAndOutputSqlOnFailure(() => base.AssertLastOrDefault(actualQuery, expectedQuery, actualPredicate, expectedPredicate, asserter, async, filteredQuery));
+        => RunAndOutputSqlOnFailure(
+            () => base.AssertLastOrDefault(actualQuery, expectedQuery, actualPredicate, expectedPredicate, asserter, async, filteredQuery));
 
     public override Task AssertLongCount<TResult>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
@@ -490,7 +514,8 @@ public class RelationalQueryAsserter(
         Expression<Func<TResult, bool>> expectedPredicate,
         bool async = false,
         bool filteredQuery = false)
-        => RunAndOutputSqlOnFailure(() => base.AssertLongCount(actualQuery, expectedQuery, actualPredicate, expectedPredicate, async, filteredQuery));
+        => RunAndOutputSqlOnFailure(
+            () => base.AssertLongCount(actualQuery, expectedQuery, actualPredicate, expectedPredicate, async, filteredQuery));
 
     public override Task AssertMax<TResult, TSelector>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
@@ -501,7 +526,8 @@ public class RelationalQueryAsserter(
         bool async = false,
         bool filteredQuery = false)
         where TSelector : default
-        => RunAndOutputSqlOnFailure(() => base.AssertMax(actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async, filteredQuery));
+        => RunAndOutputSqlOnFailure(
+            () => base.AssertMax(actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async, filteredQuery));
 
     public override Task AssertMax<TResult>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
@@ -521,7 +547,8 @@ public class RelationalQueryAsserter(
         bool async = false,
         bool filteredQuery = false)
         where TSelector : default
-        => RunAndOutputSqlOnFailure(() => base.AssertMin(actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async, filteredQuery));
+        => RunAndOutputSqlOnFailure(
+            () => base.AssertMin(actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async, filteredQuery));
 
     public override Task AssertMin<TResult>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
@@ -548,7 +575,8 @@ public class RelationalQueryAsserter(
         Action<TResult, TResult>? asserter = null,
         bool async = false,
         bool filteredQuery = false)
-        => RunAndOutputSqlOnFailure(() => base.AssertSingle(actualQuery, expectedQuery, actualPredicate, expectedPredicate, asserter, async, filteredQuery));
+        => RunAndOutputSqlOnFailure(
+            () => base.AssertSingle(actualQuery, expectedQuery, actualPredicate, expectedPredicate, asserter, async, filteredQuery));
 
     public override Task AssertSingleOrDefault<TResult>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
@@ -568,7 +596,9 @@ public class RelationalQueryAsserter(
         bool async = false,
         bool filteredQuery = false)
         where TResult : default
-        => RunAndOutputSqlOnFailure(() => base.AssertSingleOrDefault(actualQuery, expectedQuery, actualPredicate, expectedPredicate, asserter, async, filteredQuery));
+        => RunAndOutputSqlOnFailure(
+            () => base.AssertSingleOrDefault(
+                actualQuery, expectedQuery, actualPredicate, expectedPredicate, asserter, async, filteredQuery));
 
     public override Task AssertSum(
         Func<ISetSource, IQueryable<decimal>> actualQuery,
@@ -658,7 +688,8 @@ public class RelationalQueryAsserter(
         Action<decimal, decimal>? asserter = null,
         bool async = false,
         bool filteredQuery = false)
-        => RunAndOutputSqlOnFailure(() => base.AssertSum(actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async, filteredQuery));
+        => RunAndOutputSqlOnFailure(
+            () => base.AssertSum(actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async, filteredQuery));
 
     public override Task AssertSum<TResult>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
@@ -668,7 +699,8 @@ public class RelationalQueryAsserter(
         Action<decimal?, decimal?>? asserter = null,
         bool async = false,
         bool filteredQuery = false)
-        => RunAndOutputSqlOnFailure(() => base.AssertSum(actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async, filteredQuery));
+        => RunAndOutputSqlOnFailure(
+            () => base.AssertSum(actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async, filteredQuery));
 
     public override Task AssertSum<TResult>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
@@ -678,7 +710,8 @@ public class RelationalQueryAsserter(
         Action<double, double>? asserter = null,
         bool async = false,
         bool filteredQuery = false)
-        => RunAndOutputSqlOnFailure(() => base.AssertSum(actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async, filteredQuery));
+        => RunAndOutputSqlOnFailure(
+            () => base.AssertSum(actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async, filteredQuery));
 
     public override Task AssertSum<TResult>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
@@ -688,7 +721,8 @@ public class RelationalQueryAsserter(
         Action<double?, double?>? asserter = null,
         bool async = false,
         bool filteredQuery = false)
-        => RunAndOutputSqlOnFailure(() => base.AssertSum(actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async, filteredQuery));
+        => RunAndOutputSqlOnFailure(
+            () => base.AssertSum(actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async, filteredQuery));
 
     public override Task AssertSum<TResult>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
@@ -698,7 +732,8 @@ public class RelationalQueryAsserter(
         Action<float, float>? asserter = null,
         bool async = false,
         bool filteredQuery = false)
-        => RunAndOutputSqlOnFailure(() => base.AssertSum(actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async, filteredQuery));
+        => RunAndOutputSqlOnFailure(
+            () => base.AssertSum(actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async, filteredQuery));
 
     public override Task AssertSum<TResult>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
@@ -708,7 +743,8 @@ public class RelationalQueryAsserter(
         Action<float?, float?>? asserter = null,
         bool async = false,
         bool filteredQuery = false)
-        => RunAndOutputSqlOnFailure(() => base.AssertSum(actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async, filteredQuery));
+        => RunAndOutputSqlOnFailure(
+            () => base.AssertSum(actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async, filteredQuery));
 
     public override Task AssertSum<TResult>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
@@ -718,7 +754,8 @@ public class RelationalQueryAsserter(
         Action<int, int>? asserter = null,
         bool async = false,
         bool filteredQuery = false)
-        => RunAndOutputSqlOnFailure(() => base.AssertSum(actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async, filteredQuery));
+        => RunAndOutputSqlOnFailure(
+            () => base.AssertSum(actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async, filteredQuery));
 
     public override Task AssertSum<TResult>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
@@ -728,7 +765,8 @@ public class RelationalQueryAsserter(
         Action<int?, int?>? asserter = null,
         bool async = false,
         bool filteredQuery = false)
-        => RunAndOutputSqlOnFailure(() => base.AssertSum(actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async, filteredQuery));
+        => RunAndOutputSqlOnFailure(
+            () => base.AssertSum(actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async, filteredQuery));
 
     public override Task AssertSum<TResult>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
@@ -738,7 +776,8 @@ public class RelationalQueryAsserter(
         Action<long, long>? asserter = null,
         bool async = false,
         bool filteredQuery = false)
-        => RunAndOutputSqlOnFailure(() => base.AssertSum(actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async, filteredQuery));
+        => RunAndOutputSqlOnFailure(
+            () => base.AssertSum(actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async, filteredQuery));
 
     public override Task AssertSum<TResult>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
@@ -748,5 +787,6 @@ public class RelationalQueryAsserter(
         Action<long?, long?>? asserter = null,
         bool async = false,
         bool filteredQuery = false)
-        => RunAndOutputSqlOnFailure(() => base.AssertSum(actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async, filteredQuery));
+        => RunAndOutputSqlOnFailure(
+            () => base.AssertSum(actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async, filteredQuery));
 }

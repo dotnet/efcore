@@ -7,7 +7,8 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public class CommandConfigurationTest(CommandConfigurationTest.CommandConfigurationTestFixture fixture) : IClassFixture<CommandConfigurationTest.CommandConfigurationTestFixture>
+public class CommandConfigurationTest(CommandConfigurationTest.CommandConfigurationTestFixture fixture)
+    : IClassFixture<CommandConfigurationTest.CommandConfigurationTestFixture>
 {
     protected CommandConfigurationTestFixture Fixture { get; } = fixture;
 

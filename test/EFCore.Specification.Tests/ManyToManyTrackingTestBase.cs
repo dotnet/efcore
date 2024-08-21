@@ -594,8 +594,10 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
         return ExecuteWithStrategyInTransactionAsync(
             async context =>
             {
-                var leftEntities = await context.Set<EntityCompositeKey>().Include(e => e.RootSkipShared).OrderBy(e => e.Key2).ToListAsync();
-                var rightEntities = await context.Set<EntityRoot>().Include(e => e.CompositeKeySkipShared).OrderBy(e => e.Name).ToListAsync();
+                var leftEntities = await context.Set<EntityCompositeKey>().Include(e => e.RootSkipShared).OrderBy(e => e.Key2)
+                    .ToListAsync();
+                var rightEntities = await context.Set<EntityRoot>().Include(e => e.CompositeKeySkipShared).OrderBy(e => e.Name)
+                    .ToListAsync();
 
                 var roots = new[]
                 {
@@ -687,8 +689,10 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
                 ValidateFixup(context, leftEntities, rightEntities, 24, 24, 47 - 4);
             }, async context =>
             {
-                var leftEntities = await context.Set<EntityCompositeKey>().Include(e => e.RootSkipShared).OrderBy(e => e.Key2).ToListAsync();
-                var rightEntities = await context.Set<EntityRoot>().Include(e => e.CompositeKeySkipShared).OrderBy(e => e.Name).ToListAsync();
+                var leftEntities = await context.Set<EntityCompositeKey>().Include(e => e.RootSkipShared).OrderBy(e => e.Key2)
+                    .ToListAsync();
+                var rightEntities = await context.Set<EntityRoot>().Include(e => e.CompositeKeySkipShared).OrderBy(e => e.Name)
+                    .ToListAsync();
 
                 ValidateFixup(context, leftEntities, rightEntities, 24, 24, 47 - 4);
             });
@@ -1018,7 +1022,8 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
             async context =>
             {
                 var leftEntities = await context.Set<EntityCompositeKey>().Include(e => e.ThreeSkipFull).OrderBy(e => e.Key2).ToListAsync();
-                var rightEntities = await context.Set<EntityThree>().Include(e => e.CompositeKeySkipFull).OrderBy(e => e.Name).ToListAsync();
+                var rightEntities =
+                    await context.Set<EntityThree>().Include(e => e.CompositeKeySkipFull).OrderBy(e => e.Name).ToListAsync();
 
                 var threes = new[]
                 {
@@ -1116,7 +1121,8 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
             }, async context =>
             {
                 var leftEntities = await context.Set<EntityCompositeKey>().Include(e => e.ThreeSkipFull).OrderBy(e => e.Key2).ToListAsync();
-                var rightEntities = await context.Set<EntityThree>().Include(e => e.CompositeKeySkipFull).OrderBy(e => e.Name).ToListAsync();
+                var rightEntities =
+                    await context.Set<EntityThree>().Include(e => e.CompositeKeySkipFull).OrderBy(e => e.Name).ToListAsync();
 
                 ValidateFixup(context, leftEntities, rightEntities, 24, 24, 53 - 4);
             });
@@ -2551,8 +2557,10 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
         return ExecuteWithStrategyInTransactionAsync(
             async context =>
             {
-                var leftEntities = await context.Set<EntityOne>().Include(e => e.ThreeSkipPayloadFullShared).OrderBy(e => e.Name).ToListAsync();
-                var rightEntities = await context.Set<EntityThree>().Include(e => e.OneSkipPayloadFullShared).OrderBy(e => e.Name).ToListAsync();
+                var leftEntities = await context.Set<EntityOne>().Include(e => e.ThreeSkipPayloadFullShared).OrderBy(e => e.Name)
+                    .ToListAsync();
+                var rightEntities = await context.Set<EntityThree>().Include(e => e.OneSkipPayloadFullShared).OrderBy(e => e.Name)
+                    .ToListAsync();
 
                 leftEntities[0].ThreeSkipPayloadFullShared.Add(
                     context.EntityThrees.CreateInstance(
@@ -2643,8 +2651,10 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
                 ValidateFixup(context, leftEntities, rightEntities, 24, 24, 48 - 4, postSave: true);
             }, async context =>
             {
-                var leftEntities = await context.Set<EntityOne>().Include(e => e.ThreeSkipPayloadFullShared).OrderBy(e => e.Name).ToListAsync();
-                var rightEntities = await context.Set<EntityThree>().Include(e => e.OneSkipPayloadFullShared).OrderBy(e => e.Name).ToListAsync();
+                var leftEntities = await context.Set<EntityOne>().Include(e => e.ThreeSkipPayloadFullShared).OrderBy(e => e.Name)
+                    .ToListAsync();
+                var rightEntities = await context.Set<EntityThree>().Include(e => e.OneSkipPayloadFullShared).OrderBy(e => e.Name)
+                    .ToListAsync();
 
                 ValidateFixup(context, leftEntities, rightEntities, 24, 24, 48 - 4, postSave: true);
             });

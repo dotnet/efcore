@@ -11142,9 +11142,7 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
         }
 
         public Order(int secretId)
-        {
-            _secretId = secretId;
-        }
+            => _secretId = secretId;
 
         public int Id { get; set; }
 
@@ -11834,9 +11832,7 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
         }
 
         private Blog(Action<object, string> lazyLoader)
-        {
-            _loader = lazyLoader;
-        }
+            => _loader = lazyLoader;
 
         public int BlogId { get; set; }
         public string Url { get; set; }
@@ -11858,9 +11854,7 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
         }
 
         private Post(ILazyLoader loader)
-        {
-            _loader = loader;
-        }
+            => _loader = loader;
 
         public int PostId { get; set; }
         public string Title { get; set; }

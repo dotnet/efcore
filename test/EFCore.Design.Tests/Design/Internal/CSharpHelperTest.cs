@@ -894,9 +894,7 @@ internal class SimpleTestTypeFactory
     }
 
     public SimpleTestTypeFactory(string factoryArg)
-    {
-        FactoryArg = factoryArg;
-    }
+        => FactoryArg = factoryArg;
 
     public string FactoryArg { get; } = null!;
 

@@ -192,8 +192,12 @@ public class UserMigrationsIdGenerator : IMigrationsIdGenerator
 
     public class ExtensionHistoryRepository : IHistoryRepository
     {
-        public void Create() => throw new NotImplementedException();
-        public Task CreateAsync(CancellationToken cancellationToken = default) => throw new NotImplementedException();
+        public void Create()
+            => throw new NotImplementedException();
+
+        public Task CreateAsync(CancellationToken cancellationToken = default)
+            => throw new NotImplementedException();
+
         public bool Exists()
             => throw new NotImplementedException();
 

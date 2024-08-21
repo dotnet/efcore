@@ -286,9 +286,7 @@ public class WarningsTest
         }
 
         private WarningAsErrorEntity(Action<object, string> lazyLoader)
-        {
-            _loader = lazyLoader;
-        }
+            => _loader = lazyLoader;
 
         public IncludedEntity Nav
         {

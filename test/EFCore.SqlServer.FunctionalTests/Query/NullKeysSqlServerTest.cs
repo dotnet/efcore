@@ -5,7 +5,8 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public class NullKeysSqlServerTest(NullKeysSqlServerTest.NullKeysSqlServerFixture fixture) : NullKeysTestBase<NullKeysSqlServerTest.NullKeysSqlServerFixture>(fixture)
+public class NullKeysSqlServerTest(NullKeysSqlServerTest.NullKeysSqlServerFixture fixture)
+    : NullKeysTestBase<NullKeysSqlServerTest.NullKeysSqlServerFixture>(fixture)
 {
     public class NullKeysSqlServerFixture : NullKeysFixtureBase
     {

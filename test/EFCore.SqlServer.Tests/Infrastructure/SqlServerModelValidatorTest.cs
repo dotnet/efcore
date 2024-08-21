@@ -161,7 +161,6 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
             modelBuilder);
     }
 
-
     [ConditionalFact]
     public virtual void Throws_for_sequence_HiLo_on_bad_type()
     {

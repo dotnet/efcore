@@ -40,7 +40,10 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
 
     protected virtual async Task Seed32310(DbContext context)
     {
-        var user = new Pub32310 { Name = "FBI", Visits = new Visits32310 { LocationTag = "tag", DaysVisited = [new(2023, 1, 1)] } };
+        var user = new Pub32310
+        {
+            Name = "FBI", Visits = new Visits32310 { LocationTag = "tag", DaysVisited = [new DateOnly(2023, 1, 1)] }
+        };
 
         context.Add(user);
         await context.SaveChangesAsync();
@@ -284,11 +287,7 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
 
     protected Task Seed32939(DbContext ctx)
     {
-        var entity = new Entity32939
-        {
-            Empty = new JsonEmpty32939(),
-            FieldOnly = new JsonFieldOnly32939()
-        };
+        var entity = new Entity32939 { Empty = new JsonEmpty32939(), FieldOnly = new JsonFieldOnly32939() };
 
         ctx.Add(entity);
         return ctx.SaveChangesAsync();
@@ -306,7 +305,6 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
         public int Id { get; set; }
         public JsonEmpty32939 Empty { get; set; }
         public JsonFieldOnly32939 FieldOnly { get; set; }
-
     }
 
     public class JsonEmpty32939
@@ -367,7 +365,7 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
         public int RoundNumber { get; set; }
 
 #pragma warning disable IDE0044 // Add readonly modifier
-        private List<SubRound> _subRounds = [];
+        private readonly List<SubRound> _subRounds = [];
 #pragma warning restore IDE0044 // Add readonly modifier
         public IReadOnlyList<SubRound> SubRounds
             => _subRounds.AsReadOnly();
@@ -393,7 +391,8 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
 
         using (var context = contextFactory.CreateContext())
         {
-            var query = context.Set<MyEntityArrayOfPrimitives>().OrderBy(x => x.Id).Select(x => new { x.Reference.IntArray, x.Reference.ListOfString });
+            var query = context.Set<MyEntityArrayOfPrimitives>().OrderBy(x => x.Id)
+                .Select(x => new { x.Reference.IntArray, x.Reference.ListOfString });
 
             var result = async
                 ? await query.ToListAsync()
@@ -418,7 +417,8 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
 
         using (var context = contextFactory.CreateContext())
         {
-            var query = context.Set<MyEntityArrayOfPrimitives>().OrderBy(x => x.Id).Select(x => new { x.Collection[0].IntArray, x.Collection[1].ListOfString });
+            var query = context.Set<MyEntityArrayOfPrimitives>().OrderBy(x => x.Id)
+                .Select(x => new { x.Collection[0].IntArray, x.Collection[1].ListOfString });
 
             var result = async
                 ? await query.ToListAsync()
@@ -850,8 +850,7 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
     protected abstract Task SeedShadowProperties(DbContext ctx);
 
     protected virtual void BuildModelShadowProperties(ModelBuilder modelBuilder)
-    {
-        modelBuilder.Entity<MyEntityShadowProperties>(
+        => modelBuilder.Entity<MyEntityShadowProperties>(
             b =>
             {
                 b.ToTable("Entities");
@@ -885,7 +884,6 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
                         b.Property<byte?>("ShadowNullableByte");
                     });
             });
-    }
 
     public class MyEntityShadowProperties
     {

@@ -24,7 +24,8 @@ public abstract class AdHocAdvancedMappingsQueryTestBase : NonSharedModelTestBas
         var query = context.Set<Context9582.TipoServicio>().Where(xx => xx.Nombre.Contains("lla")).ToList();
     }
 
-    private class Context9582(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context9582(DbContextOptions options) : DbContext(options)
     {
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -82,7 +83,8 @@ public abstract class AdHocAdvancedMappingsQueryTestBase : NonSharedModelTestBas
         }
     }
 
-    private class Context11835(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context11835(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Blog> Blogs { get; set; }
         public DbSet<Post> Posts { get; set; }
@@ -144,7 +146,8 @@ public abstract class AdHocAdvancedMappingsQueryTestBase : NonSharedModelTestBas
         Assert.Equal(2, result.Count);
     }
 
-    private class Context15684(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context15684(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Category> Categories { get; set; }
         public DbSet<Product> Products { get; set; }
@@ -238,9 +241,12 @@ public abstract class AdHocAdvancedMappingsQueryTestBase : NonSharedModelTestBas
         }
     }
 
-    private class Context17276(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context17276(DbContextOptions options) : DbContext(options)
     {
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<RemovableEntity> RemovableEntities { get; set; }
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<Parent> Parents { get; set; }
 
         public static List<T> List<T>(IQueryable<T> query)
@@ -311,7 +317,8 @@ public abstract class AdHocAdvancedMappingsQueryTestBase : NonSharedModelTestBas
         Assert.Equal(1, query);
     }
 
-    private class Context17794(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context17794(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Offer> Offers { get; set; }
         public DbSet<OfferAction> OfferActions { get; set; }
@@ -407,7 +414,8 @@ public abstract class AdHocAdvancedMappingsQueryTestBase : NonSharedModelTestBas
         }
     }
 
-    private class Context18087(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context18087(DbContextOptions options) : DbContext(options)
     {
         public DbSet<MockEntity> MockEntities { get; set; }
 
@@ -453,7 +461,8 @@ public abstract class AdHocAdvancedMappingsQueryTestBase : NonSharedModelTestBas
         Assert.Equal(3, query.Count);
     }
 
-    private class Context18346(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context18346(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Business> Businesses { get; set; }
 
@@ -575,7 +584,8 @@ public abstract class AdHocAdvancedMappingsQueryTestBase : NonSharedModelTestBas
         _ = context.Entities.Where(x => x.TimeSpan == parameter).Select(e => e.TimeSpan).FirstOrDefault();
     }
 
-    private class Context26742(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context26742(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Entity> Entities { get; set; }
 

@@ -223,8 +223,18 @@ public abstract class NonSharedPrimitiveCollectionsQueryTestBase : NonSharedMode
             seed: context =>
             {
                 context.AddRange(
-                    new TestEntityWithOwned { Id = 1, Ints = [1, 2], Owned = new Owned { Foo = 0 } },
-                    new TestEntityWithOwned { Id = 2, Ints = [3, 4], Owned = new Owned { Foo = 1 } });
+                    new TestEntityWithOwned
+                    {
+                        Id = 1,
+                        Ints = [1, 2],
+                        Owned = new Owned { Foo = 0 }
+                    },
+                    new TestEntityWithOwned
+                    {
+                        Id = 2,
+                        Ints = [3, 4],
+                        Owned = new Owned { Foo = 1 }
+                    });
                 return context.SaveChangesAsync();
             });
 

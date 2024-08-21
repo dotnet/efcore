@@ -14,9 +14,7 @@ public class IdentityUser<TKey>
 
     public IdentityUser(string userName)
         : this()
-    {
-        UserName = userName;
-    }
+        => UserName = userName;
 
     [PersonalData]
     public virtual TKey Id { get; set; }

@@ -296,8 +296,6 @@ public abstract class NonSharedModelBulkUpdatesTestBase : NonSharedModelTestBase
         public virtual Blog Blog { get; set; }
     }
 
-#nullable disable
-
     #region HelperMethods
 
     public Task AssertDelete<TContext, TResult>(

@@ -9,9 +9,7 @@ public abstract class FindSqlServerTest : FindTestBase<FindSqlServerTest.FindSql
 {
     protected FindSqlServerTest(FindSqlServerFixture fixture)
         : base(fixture)
-    {
-        fixture.TestSqlLoggerFactory.Clear();
-    }
+        => fixture.TestSqlLoggerFactory.Clear();
 
     public class FindSqlServerTestSet(FindSqlServerFixture fixture) : FindSqlServerTest(fixture)
     {

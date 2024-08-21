@@ -24,7 +24,8 @@ public class Team
         int fastestLaps,
         int? gearboxId) : Team(
             loader, id, name, constructor, tire, principal, constructorsChampionships, driversChampionships, races, victories, poles,
-            fastestLaps, gearboxId), IF1Proxy
+            fastestLaps, gearboxId),
+        IF1Proxy
     {
         public bool CreatedCalled { get; set; }
         public bool InitializingCalled { get; set; }

@@ -12,9 +12,7 @@ namespace Microsoft.EntityFrameworkCore.SqlAzure.Model;
 public class ProductDescription
 {
     public ProductDescription()
-    {
-        ProductModelProductDescription = new HashSet<ProductModelProductDescription>();
-    }
+        => ProductModelProductDescription = new HashSet<ProductModelProductDescription>();
 
     public int ProductDescriptionID { get; set; }
 

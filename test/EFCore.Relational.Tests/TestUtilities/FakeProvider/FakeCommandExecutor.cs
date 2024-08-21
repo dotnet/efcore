@@ -14,17 +14,22 @@ public class FakeCommandExecutor(
     Func<FakeDbCommand, CommandBehavior, CancellationToken, Task<DbDataReader>> executeReaderAsync = null)
 {
     private readonly Func<FakeDbCommand, int> _executeNonQuery = executeNonQuery
-            ?? (c => -1);
+        ?? (c => -1);
+
     private readonly Func<FakeDbCommand, object> _executeScalar = executeScalar
-            ?? (c => null);
+        ?? (c => null);
+
     private readonly Func<FakeDbCommand, CommandBehavior, DbDataReader> _executeReader = executeReader
-            ?? ((c, b) => new FakeDbDataReader());
+        ?? ((c, b) => new FakeDbDataReader());
+
     private readonly Func<FakeDbCommand, CancellationToken, Task<int>> _executeNonQueryAsync = executeNonQueryAsync
-            ?? ((c, ct) => Task.FromResult(-1));
+        ?? ((c, ct) => Task.FromResult(-1));
+
     private readonly Func<FakeDbCommand, CancellationToken, Task<object>> _executeScalarAsync = executeScalarAsync
-            ?? ((c, ct) => Task.FromResult<object>(null));
+        ?? ((c, ct) => Task.FromResult<object>(null));
+
     private readonly Func<FakeDbCommand, CommandBehavior, CancellationToken, Task<DbDataReader>> _executeReaderAsync = executeReaderAsync
-            ?? ((c, ct, b) => Task.FromResult<DbDataReader>(new FakeDbDataReader()));
+        ?? ((c, ct, b) => Task.FromResult<DbDataReader>(new FakeDbDataReader()));
 
     public virtual int ExecuteNonQuery(FakeDbCommand command)
         => _executeNonQuery(command);
