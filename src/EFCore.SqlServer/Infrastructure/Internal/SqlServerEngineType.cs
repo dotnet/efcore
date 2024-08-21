@@ -12,22 +12,22 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 public enum SqlServerEngineType
 {
     /// <summary>
-    /// Unknown SQL engine type.
+    ///     Unknown SQL engine type.
     /// </summary>
     Unknown = 0,
 
     /// <summary>
-    /// SQL Server.
+    ///     SQL Server.
     /// </summary>
     SqlServer = 1,
 
     /// <summary>
-    /// Azure SQL.
+    ///     Azure SQL.
     /// </summary>
     AzureSql = 2,
 
     /// <summary>
-    /// Azure Synapse.
+    ///     Azure Synapse.
     /// </summary>
     AzureSynapse = 3,
 }

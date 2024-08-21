@@ -1,14 +1,13 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-// ReSharper disable once CheckNamespace
-
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Editing;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Design.Internal;
+// ReSharper disable once CheckNamespace
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal;
@@ -29,7 +28,8 @@ public class RuntimeModelLinqToCSharpSyntaxTranslator : LinqToCSharpSyntaxTransl
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public RuntimeModelLinqToCSharpSyntaxTranslator(SyntaxGenerator syntaxGenerator) : base(syntaxGenerator)
+    public RuntimeModelLinqToCSharpSyntaxTranslator(SyntaxGenerator syntaxGenerator)
+        : base(syntaxGenerator)
     {
     }
 
@@ -118,7 +118,10 @@ public class RuntimeModelLinqToCSharpSyntaxTranslator : LinqToCSharpSyntaxTransl
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override void TranslateNonPublicMemberAssignment(MemberExpression memberExpression, Expression value, SyntaxKind assignmentKind)
+    protected override void TranslateNonPublicMemberAssignment(
+        MemberExpression memberExpression,
+        Expression value,
+        SyntaxKind assignmentKind)
     {
         var propertyInfo = memberExpression.Member as PropertyInfo;
         var member = propertyInfo?.SetMethod ?? memberExpression.Member;
@@ -134,15 +137,18 @@ public class RuntimeModelLinqToCSharpSyntaxTranslator : LinqToCSharpSyntaxTransl
 
                 Result = InvocationExpression(
                     IdentifierName(methodName.Name),
-                    ArgumentList(SeparatedList(new[]
-                    {
-                        Argument(Translate<ExpressionSyntax>(memberExpression.Expression)),
-                        Argument(Translate<ExpressionSyntax>(value))
-                    })));
+                    ArgumentList(
+                        SeparatedList(
+                            new[]
+                            {
+                                Argument(Translate<ExpressionSyntax>(memberExpression.Expression)),
+                                Argument(Translate<ExpressionSyntax>(value))
+                            })));
             }
             else
             {
-                Result = AssignmentExpression(assignmentKind,
+                Result = AssignmentExpression(
+                    assignmentKind,
                     InvocationExpression(
                         IdentifierName(methodName.Name),
                         ArgumentList(SeparatedList(new[] { Argument(Translate<ExpressionSyntax>(memberExpression.Expression)) }))),

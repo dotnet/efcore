@@ -129,7 +129,7 @@ public class QueryCompilationContext
         _queryableMethodTranslatingExpressionVisitorFactory = dependencies.QueryableMethodTranslatingExpressionVisitorFactory;
         _queryTranslationPostprocessorFactory = dependencies.QueryTranslationPostprocessorFactory;
         _shapedQueryCompilingExpressionVisitorFactory = dependencies.ShapedQueryCompilingExpressionVisitorFactory;
-        _runtimeParameterConstantLifter = new(dependencies.LiftableConstantFactory);
+        _runtimeParameterConstantLifter = new RuntimeParameterConstantLifter(dependencies.LiftableConstantFactory);
     }
 
     /// <summary>
@@ -206,10 +206,12 @@ public class QueryCompilationContext
         => Tags.Add(tag);
 
     /// <summary>
-    ///     A value indicating whether the provider supports precompiled query. Default value is <see langword="false" />. Providers that do support this feature should opt-in by setting this value to <see langword="true" />.
+    ///     A value indicating whether the provider supports precompiled query. Default value is <see langword="false" />. Providers that do
+    ///     support this feature should opt-in by setting this value to <see langword="true" />.
     /// </summary>
     [Experimental(EFDiagnostics.PrecompiledQueryExperimental)]
-    public virtual bool SupportsPrecompiledQuery => false;
+    public virtual bool SupportsPrecompiledQuery
+        => false;
 
     /// <summary>
     ///     Creates the query executor func which gives results for this query.
@@ -226,7 +228,8 @@ public class QueryCompilationContext
         // In normal mode, these nodes should simply be evaluated, and a ConstantExpression to those instances embedded directly in the
         // tree (for precompiled queries we generate C# code for resolving those instances instead).
         var queryExecutorAfterLiftingExpression =
-            (Expression<Func<QueryContext, TResult>>)Dependencies.LiftableConstantProcessor.InlineConstants(queryExecutorExpression, SupportsPrecompiledQuery);
+            (Expression<Func<QueryContext, TResult>>)Dependencies.LiftableConstantProcessor.InlineConstants(
+                queryExecutorExpression, SupportsPrecompiledQuery);
 
         try
         {
@@ -324,7 +327,8 @@ public class QueryCompilationContext
 
     private sealed class RuntimeParameterConstantLifter(ILiftableConstantFactory liftableConstantFactory) : ExpressionVisitor
     {
-        private static readonly MethodInfo ComplexPropertyListElementAddMethod = typeof(List<IComplexProperty>).GetMethod(nameof(List<IComplexProperty>.Add))!;
+        private static readonly MethodInfo ComplexPropertyListElementAddMethod =
+            typeof(List<IComplexProperty>).GetMethod(nameof(List<IComplexProperty>.Add))!;
 
         protected override Expression VisitConstant(ConstantExpression constantExpression)
         {
@@ -347,7 +351,8 @@ public class QueryCompilationContext
                     for (var i = 0; i < complexPropertyChain.Count; i++)
                     {
                         var complexType = complexPropertyChain[i].ComplexType;
-                        var complexTypeExpression = LiftableConstantExpressionHelpers.BuildMemberAccessForEntityOrComplexType(complexType, prm);
+                        var complexTypeExpression =
+                            LiftableConstantExpressionHelpers.BuildMemberAccessForEntityOrComplexType(complexType, prm);
                         elementInitExpressions[i] = Expression.ElementInit(
                             ComplexPropertyListElementAddMethod,
                             Expression.Property(complexTypeExpression, nameof(IComplexType.ComplexProperty)));

@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 
 public partial class ConventionDispatcher
@@ -111,7 +109,9 @@ public partial class ConventionDispatcher
         }
 
         public override string? OnModelEmbeddedDiscriminatorNameChanged(
-            IConventionModelBuilder modelBuilder, string? oldName, string? newName)
+            IConventionModelBuilder modelBuilder,
+            string? oldName,
+            string? newName)
         {
             using (dispatcher.DelayConventions())
             {

@@ -19,9 +19,7 @@ public class MigrationBuilder
     /// </summary>
     /// <param name="activeProvider">The name of the database provider being used.</param>
     public MigrationBuilder(string? activeProvider)
-    {
-        ActiveProvider = activeProvider;
-    }
+        => ActiveProvider = activeProvider;
 
     /// <summary>
     ///     The name of the database provider being used.

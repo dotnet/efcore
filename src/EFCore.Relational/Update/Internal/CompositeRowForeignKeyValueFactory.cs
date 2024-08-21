@@ -39,8 +39,8 @@ public class CompositeRowForeignKeyValueFactory : CompositeRowValueFactory, IRow
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override List<ValueConverter?>? ValueConverters =>
-        NonCapturingLazyInitializer.EnsureInitialized(
+    protected override List<ValueConverter?>? ValueConverters
+        => NonCapturingLazyInitializer.EnsureInitialized(
             ref _valueConverters, this, static factory =>
             {
                 var foreignKey = factory._foreignKey;
@@ -83,7 +83,7 @@ public class CompositeRowForeignKeyValueFactory : CompositeRowValueFactory, IRow
     public override IEqualityComparer<object?[]> EqualityComparer
     {
         get => NonCapturingLazyInitializer.EnsureInitialized(
-               ref _equalityComparer, this, static factory => CreateEqualityComparer(factory.Columns, factory.ValueConverters));
+            ref _equalityComparer, this, static factory => CreateEqualityComparer(factory.Columns, factory.ValueConverters));
         protected set => _equalityComparer = value;
     }
 

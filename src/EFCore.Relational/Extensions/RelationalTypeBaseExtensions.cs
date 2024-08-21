@@ -43,8 +43,8 @@ public static class RelationalTypeBaseExtensions
     {
         typeBase.Model.EnsureRelationalModel();
         return (IEnumerable<ITableMappingBase>?)typeBase.FindRuntimeAnnotationValue(
-                    RelationalAnnotationNames.DefaultMappings)
-                ?? Enumerable.Empty<ITableMappingBase>();
+                RelationalAnnotationNames.DefaultMappings)
+            ?? Enumerable.Empty<ITableMappingBase>();
     }
 
     /// <summary>
@@ -56,8 +56,8 @@ public static class RelationalTypeBaseExtensions
     {
         typeBase.Model.EnsureRelationalModel();
         return (IEnumerable<ITableMapping>?)typeBase.FindRuntimeAnnotationValue(
-                    RelationalAnnotationNames.TableMappings)
-                ?? Enumerable.Empty<ITableMapping>();
+                RelationalAnnotationNames.TableMappings)
+            ?? Enumerable.Empty<ITableMapping>();
     }
 
     #endregion Table mapping
@@ -89,8 +89,8 @@ public static class RelationalTypeBaseExtensions
     {
         typeBase.Model.EnsureRelationalModel();
         return (IEnumerable<IViewMapping>?)typeBase.FindRuntimeAnnotationValue(
-                    RelationalAnnotationNames.ViewMappings)
-                ?? Enumerable.Empty<IViewMapping>();
+                RelationalAnnotationNames.ViewMappings)
+            ?? Enumerable.Empty<IViewMapping>();
     }
 
     #endregion View mapping
@@ -114,8 +114,8 @@ public static class RelationalTypeBaseExtensions
     {
         typeBase.Model.EnsureRelationalModel();
         return (IEnumerable<ISqlQueryMapping>?)typeBase.FindRuntimeAnnotationValue(
-                    RelationalAnnotationNames.SqlQueryMappings)
-                ?? Enumerable.Empty<ISqlQueryMapping>();
+                RelationalAnnotationNames.SqlQueryMappings)
+            ?? Enumerable.Empty<ISqlQueryMapping>();
     }
 
     #endregion SQL query mapping
@@ -139,8 +139,8 @@ public static class RelationalTypeBaseExtensions
     {
         typeBase.Model.EnsureRelationalModel();
         return (IEnumerable<IFunctionMapping>?)typeBase.FindRuntimeAnnotationValue(
-                    RelationalAnnotationNames.FunctionMappings)
-                ?? Enumerable.Empty<IFunctionMapping>();
+                RelationalAnnotationNames.FunctionMappings)
+            ?? Enumerable.Empty<IFunctionMapping>();
     }
 
     #endregion
@@ -209,7 +209,9 @@ public static class RelationalTypeBaseExtensions
     public static IEnumerable<IStoredProcedureMapping> GetInsertStoredProcedureMappings(this ITypeBase typeBase)
     {
         typeBase.Model.EnsureRelationalModel();
-        return (IEnumerable<IStoredProcedureMapping>?)typeBase.FindRuntimeAnnotationValue(RelationalAnnotationNames.InsertStoredProcedureMappings) ?? Enumerable.Empty<IStoredProcedureMapping>();
+        return (IEnumerable<IStoredProcedureMapping>?)typeBase.FindRuntimeAnnotationValue(
+                RelationalAnnotationNames.InsertStoredProcedureMappings)
+            ?? Enumerable.Empty<IStoredProcedureMapping>();
     }
 
     /// <summary>
@@ -220,7 +222,9 @@ public static class RelationalTypeBaseExtensions
     public static IEnumerable<IStoredProcedureMapping> GetDeleteStoredProcedureMappings(this ITypeBase typeBase)
     {
         typeBase.Model.EnsureRelationalModel();
-        return (IEnumerable<IStoredProcedureMapping>?)typeBase.FindRuntimeAnnotationValue(RelationalAnnotationNames.DeleteStoredProcedureMappings) ?? Enumerable.Empty<IStoredProcedureMapping>();
+        return (IEnumerable<IStoredProcedureMapping>?)typeBase.FindRuntimeAnnotationValue(
+                RelationalAnnotationNames.DeleteStoredProcedureMappings)
+            ?? Enumerable.Empty<IStoredProcedureMapping>();
     }
 
     /// <summary>
@@ -231,7 +235,9 @@ public static class RelationalTypeBaseExtensions
     public static IEnumerable<IStoredProcedureMapping> GetUpdateStoredProcedureMappings(this ITypeBase typeBase)
     {
         typeBase.Model.EnsureRelationalModel();
-        return (IEnumerable<IStoredProcedureMapping>?)typeBase.FindRuntimeAnnotationValue(RelationalAnnotationNames.UpdateStoredProcedureMappings) ?? Enumerable.Empty<IStoredProcedureMapping>();
+        return (IEnumerable<IStoredProcedureMapping>?)typeBase.FindRuntimeAnnotationValue(
+                RelationalAnnotationNames.UpdateStoredProcedureMappings)
+            ?? Enumerable.Empty<IStoredProcedureMapping>();
     }
 
     #endregion
@@ -367,7 +373,6 @@ public static class RelationalTypeBaseExtensions
         => typeBase is IReadOnlyEntityType entityType
             ? entityType.GetContainerColumnName()
             : ((IReadOnlyComplexType)typeBase).GetContainerColumnName();
-
 
     /// <summary>
     ///     Gets the column type to use for the container column to which the type is mapped.

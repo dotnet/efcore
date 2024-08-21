@@ -40,9 +40,7 @@ public class CosmosPartitionKeyInPrimaryKeyConvention :
     /// </summary>
     /// <param name="dependencies">Parameter object containing dependencies for this convention.</param>
     public CosmosPartitionKeyInPrimaryKeyConvention(ProviderConventionSetBuilderDependencies dependencies)
-    {
-        Dependencies = dependencies;
-    }
+        => Dependencies = dependencies;
 
     /// <summary>
     ///     Dependencies for this service.
@@ -73,7 +71,6 @@ public class CosmosPartitionKeyInPrimaryKeyConvention :
                         primaryKeyProperties.Add(partitionKeyProperty!);
                         keyContainsPartitionProperties = true;
                     }
-
                 }
 
                 if (keyContainsPartitionProperties)
@@ -171,10 +168,12 @@ public class CosmosPartitionKeyInPrimaryKeyConvention :
         IConventionKey? previousPrimaryKey,
         IConventionContext<IConventionKey> context)
     {
-        if ((newPrimaryKey != null && newPrimaryKey.Properties
-                .Any(p => p.GetJsonPropertyName() == CosmosJsonIdConvention.IdPropertyJsonName))
-            || (previousPrimaryKey != null && previousPrimaryKey.Properties
-                .Any(p => p.GetJsonPropertyName() == CosmosJsonIdConvention.IdPropertyJsonName)))
+        if ((newPrimaryKey != null
+                && newPrimaryKey.Properties
+                    .Any(p => p.GetJsonPropertyName() == CosmosJsonIdConvention.IdPropertyJsonName))
+            || (previousPrimaryKey != null
+                && previousPrimaryKey.Properties
+                    .Any(p => p.GetJsonPropertyName() == CosmosJsonIdConvention.IdPropertyJsonName)))
         {
             ProcessIdProperty(entityTypeBuilder);
         }

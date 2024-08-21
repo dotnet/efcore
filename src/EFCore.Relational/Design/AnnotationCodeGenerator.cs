@@ -45,9 +45,7 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
     /// </summary>
     /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
     public AnnotationCodeGenerator(AnnotationCodeGeneratorDependencies dependencies)
-    {
-        Dependencies = dependencies;
-    }
+        => Dependencies = dependencies;
 
     /// <summary>
     ///     Relational provider-specific dependencies for this service.

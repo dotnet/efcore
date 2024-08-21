@@ -120,7 +120,6 @@ public abstract class TypeMappingSource : TypeMappingSourceBase
                         ?? WithConverter();
                 }
 
-
                 CoreTypeMapping? WithConverter()
                 {
                     foreach (var converterInfo in self.Dependencies
@@ -160,7 +159,6 @@ public abstract class TypeMappingSource : TypeMappingSourceBase
 
                     return mapping;
                 }
-
 
                 if (mapping != null
                     && customConverter != null)
@@ -284,11 +282,11 @@ public abstract class TypeMappingSource : TypeMappingSourceBase
             customConverter: null);
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public override CoreTypeMapping? FindMapping(MemberInfo member)
         => FindMappingWithConversion(new TypeMappingInfo(member), null, null);
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public override CoreTypeMapping? FindMapping(MemberInfo member, IModel model, bool useAttributes)
         => FindMappingWithConversion(new TypeMappingInfo(member), null, null);
 }

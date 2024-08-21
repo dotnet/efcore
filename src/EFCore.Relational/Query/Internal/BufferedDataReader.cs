@@ -836,7 +836,8 @@ public class BufferedDataReader : DbDataReader
         public object GetValue(int ordinal)
             => GetFieldValue<object>(ordinal);
 
-        public static int GetValues(object[] values) => throw new NotSupportedException();
+        public static int GetValues(object[] values)
+            => throw new NotSupportedException();
 
         public T GetFieldValue<T>(int ordinal)
             => (_columnTypeCases[ordinal]) switch

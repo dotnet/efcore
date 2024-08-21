@@ -533,9 +533,7 @@ public class SqlServerDateDiffFunctionsTranslator : IMethodCallTranslator
     /// </summary>
     public SqlServerDateDiffFunctionsTranslator(
         ISqlExpressionFactory sqlExpressionFactory)
-    {
-        _sqlExpressionFactory = sqlExpressionFactory;
-    }
+        => _sqlExpressionFactory = sqlExpressionFactory;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

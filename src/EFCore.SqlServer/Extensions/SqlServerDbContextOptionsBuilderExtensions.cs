@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
-using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore;
@@ -709,7 +708,8 @@ public static class SqlServerDbContextOptionsExtensions
         this DbContextOptionsBuilder optionsBuilder,
         Action<SqlEngineDbContextOptionsBuilder>? sqlEngineOptionsAction = null)
     {
-        ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(GetOrCreateExtension<SqlServerOptionsExtension>(optionsBuilder));
+        ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(
+            GetOrCreateExtension<SqlServerOptionsExtension>(optionsBuilder));
         return ApplyConfiguration(optionsBuilder, sqlEngineOptionsAction);
     }
 
@@ -757,6 +757,7 @@ public static class SqlServerDbContextOptionsExtensions
 
         return optionsBuilder;
     }
+
     private static DbContextOptionsBuilder ApplyConfiguration(
         DbContextOptionsBuilder optionsBuilder,
         Action<AzureSqlDbContextOptionsBuilder>? azureSqlOptionsAction)
@@ -770,6 +771,7 @@ public static class SqlServerDbContextOptionsExtensions
 
         return optionsBuilder;
     }
+
     private static DbContextOptionsBuilder ApplyConfiguration(
         DbContextOptionsBuilder optionsBuilder,
         Action<AzureSynapseDbContextOptionsBuilder>? azureSynapseOptionsAction)
@@ -783,6 +785,7 @@ public static class SqlServerDbContextOptionsExtensions
 
         return optionsBuilder;
     }
+
     private static DbContextOptionsBuilder ApplyConfiguration(
         DbContextOptionsBuilder optionsBuilder,
         Action<SqlEngineDbContextOptionsBuilder>? sqlEngineOptionsAction)

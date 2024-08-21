@@ -26,9 +26,7 @@ public class SqlServerCompiledQueryCacheKeyGenerator : RelationalCompiledQueryCa
         RelationalCompiledQueryCacheKeyGeneratorDependencies relationalDependencies,
         ISqlServerConnection sqlServerConnection)
         : base(dependencies, relationalDependencies)
-    {
-        _sqlServerConnection = sqlServerConnection;
-    }
+        => _sqlServerConnection = sqlServerConnection;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

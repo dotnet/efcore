@@ -43,7 +43,7 @@ public class CSharpUniqueNamer<T> : CSharpNamer<T>
         bool caseSensitive)
         : base(nameGetter, cSharpUtilities, singularizePluralizer)
     {
-        _usedNames = new(caseSensitive ? StringComparer.Ordinal : StringComparer.OrdinalIgnoreCase);
+        _usedNames = new HashSet<string>(caseSensitive ? StringComparer.Ordinal : StringComparer.OrdinalIgnoreCase);
         if (usedNames != null)
         {
             foreach (var name in usedNames)

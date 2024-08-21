@@ -51,7 +51,7 @@ public class ComplexPropertyDiscoveryConvention :
     protected virtual bool UseAttributes { get; }
 
     /// <summary>
-    ///    Discovers complex properties on the given structural type.
+    ///     Discovers complex properties on the given structural type.
     /// </summary>
     /// <param name="structuralTypeBuilder">The type for which the properties will be discovered.</param>
     /// <param name="context">Additional information associated with convention execution.</param>
@@ -86,7 +86,9 @@ public class ComplexPropertyDiscoveryConvention :
     /// <param name="structuralType">The type for which the properties will be discovered.</param>
     /// <param name="targetClrType">The complex type.</param>
     protected virtual bool IsCandidateComplexProperty(
-        MemberInfo memberInfo, IConventionTypeBase structuralType, [NotNullWhen(true)] out Type? targetClrType)
+        MemberInfo memberInfo,
+        IConventionTypeBase structuralType,
+        [NotNullWhen(true)] out Type? targetClrType)
     {
         if (!structuralType.IsInModel
             || structuralType.IsIgnored(memberInfo.Name)
@@ -127,7 +129,7 @@ public class ComplexPropertyDiscoveryConvention :
         => structuralType is IConventionComplexType
             ? structuralType.GetRuntimeProperties().Values.Cast<MemberInfo>()
                 .Concat(structuralType.GetRuntimeFields().Values)
-            : structuralType.GetRuntimeProperties().Values.Cast<MemberInfo>();
+            : structuralType.GetRuntimeProperties().Values;
 
     /// <inheritdoc />
     public virtual void ProcessEntityTypeAdded(

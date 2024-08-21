@@ -89,10 +89,10 @@ public class DbContextServices : IDbContextServices
                 || (designTime && !(modelFromOptions is Model)))
             {
                 return RuntimeFeature.IsDynamicCodeSupported
-                            ? dependencies.ModelSource.GetModel(_currentContext!.Context, dependencies, designTime)
-                            : designTime
-                                ? throw new InvalidOperationException(CoreStrings.NativeAotDesignTimeModel)
-                                : throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel);
+                    ? dependencies.ModelSource.GetModel(_currentContext!.Context, dependencies, designTime)
+                    : designTime
+                        ? throw new InvalidOperationException(CoreStrings.NativeAotDesignTimeModel)
+                        : throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel);
             }
 
             var designTimeModel = dependencies.ModelRuntimeInitializer.Initialize(
@@ -129,8 +129,9 @@ public class DbContextServices : IDbContextServices
 
                 if (model != null)
                 {
-                    throw new InvalidOperationException(CoreStrings.CompiledModelDuplicateAttribute(
-                        contextAssembly.FullName, contextType.DisplayName()));
+                    throw new InvalidOperationException(
+                        CoreStrings.CompiledModelDuplicateAttribute(
+                            contextAssembly.FullName, contextType.DisplayName()));
                 }
 
                 model = (IModel)instanceProperty.GetValue(null)!;

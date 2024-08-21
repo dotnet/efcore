@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
 namespace Microsoft.EntityFrameworkCore.Storage.Json;
@@ -23,9 +22,7 @@ public sealed class JsonWarningEnumReaderWriter<TEnum> : JsonValueReaderWriter<T
     private readonly bool _isSigned;
 
     private JsonWarningEnumReaderWriter()
-    {
-        _isSigned = typeof(TEnum).GetEnumUnderlyingType().IsSignedInteger();
-    }
+        => _isSigned = typeof(TEnum).GetEnumUnderlyingType().IsSignedInteger();
 
     /// <inheritdoc />
     public override TEnum FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
@@ -77,5 +74,6 @@ public sealed class JsonWarningEnumReaderWriter<TEnum> : JsonValueReaderWriter<T
     }
 
     /// <inheritdoc />
-    public override Expression ConstructorExpression => Expression.Property(null, InstanceProperty);
+    public override Expression ConstructorExpression
+        => Expression.Property(null, InstanceProperty);
 }

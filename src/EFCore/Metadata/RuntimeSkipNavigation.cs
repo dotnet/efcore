@@ -209,7 +209,7 @@ public class RuntimeSkipNavigation : RuntimePropertyBase, IRuntimeSkipNavigation
     ICollectionLoader IRuntimeSkipNavigation.GetManyToManyLoader()
         => NonCapturingLazyInitializer.EnsureInitialized(
             ref _manyToManyLoader, this, static navigation =>
-            RuntimeFeature.IsDynamicCodeSupported
-                ? ManyToManyLoaderFactory.Instance.Create(navigation)
-                : throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel));
+                RuntimeFeature.IsDynamicCodeSupported
+                    ? ManyToManyLoaderFactory.Instance.Create(navigation)
+                    : throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel));
 }

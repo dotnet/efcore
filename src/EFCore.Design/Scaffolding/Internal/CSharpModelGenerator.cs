@@ -80,10 +80,11 @@ public class CSharpModelGenerator : ModelCodeGenerator
         var resultingFiles = new ScaffoldedModel
         {
             ContextFile = new ScaffoldedFile
-                (options.ContextDir != null
+            (
+                options.ContextDir != null
                     ? Path.Combine(options.ContextDir, dbContextFileName)
                     : dbContextFileName,
-             generatedCode)
+                generatedCode)
         };
 
         foreach (var entityType in model.GetEntityTypes())

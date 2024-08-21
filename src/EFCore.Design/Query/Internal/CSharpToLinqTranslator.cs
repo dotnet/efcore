@@ -78,9 +78,9 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
     /// </summary>
     /// <param name="node">The Roslyn syntax node to be translated.</param>
     /// <param name="semanticModel">
-    /// The <see cref="SemanticModel" /> for the Roslyn <see cref="SyntaxTree" /> of which <paramref name="node" /> is a part.
+    ///     The <see cref="SemanticModel" /> for the Roslyn <see cref="SyntaxTree" /> of which <paramref name="node" /> is a part.
     /// </param>
-    /// <returns>A LINQ expression tree translated from the provided <paramref name="node"/>.</returns>
+    /// <returns>A LINQ expression tree translated from the provided <paramref name="node" />.</returns>
     /// <remarks>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -158,8 +158,9 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
 
             var position = Array.FindIndex(parameters, p => p.Name == name);
             var parameter = parameters[position];
-            var parameterType = ResolveType(parameter.Type) ?? throw new InvalidOperationException(
-                "Could not resolve type symbol for: " + parameter.Type);
+            var parameterType = ResolveType(parameter.Type)
+                ?? throw new InvalidOperationException(
+                    "Could not resolve type symbol for: " + parameter.Type);
 
             parameterInfos[position] = new FakeParameterInfo(name, parameterType, position);
             arguments[position] = Visit(initializer.Expression);
@@ -240,7 +241,8 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
             // String concatenation
             SyntaxKind.AddExpression
                 when left.Type == typeof(string) && right.Type == typeof(string)
-                => Add(left, right,
+                => Add(
+                    left, right,
                     _stringConcatMethod ??=
                         typeof(string).GetMethod(nameof(string.Concat), new[] { typeof(string), typeof(string) })),
 
@@ -258,11 +260,15 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
             // For bitwise operations over enums, we cast the enum to its underlying type before the bitwise operation, and then back to the
             // enum afterwards (this is corresponds to the LINQ expression tree that the compiler generates)
             SyntaxKind.BitwiseOrExpression when left.Type.IsEnum || right.Type.IsEnum
-                => Convert(Or(Convert(left, left.Type.GetEnumUnderlyingType()), Convert(right, right.Type.GetEnumUnderlyingType())), left.Type),
+                => Convert(
+                    Or(Convert(left, left.Type.GetEnumUnderlyingType()), Convert(right, right.Type.GetEnumUnderlyingType())), left.Type),
             SyntaxKind.BitwiseAndExpression when left.Type.IsEnum || right.Type.IsEnum
-                => Convert(And(Convert(left, left.Type.GetEnumUnderlyingType()), Convert(right, right.Type.GetEnumUnderlyingType())), left.Type),
+                => Convert(
+                    And(Convert(left, left.Type.GetEnumUnderlyingType()), Convert(right, right.Type.GetEnumUnderlyingType())), left.Type),
             SyntaxKind.ExclusiveOrExpression when left.Type.IsEnum || right.Type.IsEnum
-                => Convert(ExclusiveOr(Convert(left, left.Type.GetEnumUnderlyingType()), Convert(right, right.Type.GetEnumUnderlyingType())), left.Type),
+                => Convert(
+                    ExclusiveOr(Convert(left, left.Type.GetEnumUnderlyingType()), Convert(right, right.Type.GetEnumUnderlyingType())),
+                    left.Type),
 
             SyntaxKind.BitwiseOrExpression => Or(left, right),
             SyntaxKind.BitwiseAndExpression => And(left, right),
@@ -274,14 +280,16 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
             SyntaxKind.LessThanOrEqualExpression => LessThanOrEqual(left, right),
             SyntaxKind.GreaterThanExpression => GreaterThan(left, right),
             SyntaxKind.GreaterThanOrEqualExpression => GreaterThanOrEqual(left, right),
-            SyntaxKind.IsExpression => TypeIs(left, right is ConstantExpression { Value : Type type }
-                ? type
-                : throw new InvalidOperationException(
-                    $"Encountered {SyntaxKind.IsExpression} with non-constant type right argument: {right}")),
-            SyntaxKind.AsExpression => TypeAs(left, right is ConstantExpression { Value : Type type }
-                ? type
-                : throw new InvalidOperationException(
-                    $"Encountered {SyntaxKind.AsExpression} with non-constant type right argument: {right}")),
+            SyntaxKind.IsExpression => TypeIs(
+                left, right is ConstantExpression { Value : Type type }
+                    ? type
+                    : throw new InvalidOperationException(
+                        $"Encountered {SyntaxKind.IsExpression} with non-constant type right argument: {right}")),
+            SyntaxKind.AsExpression => TypeAs(
+                left, right is ConstantExpression { Value : Type type }
+                    ? type
+                    : throw new InvalidOperationException(
+                        $"Encountered {SyntaxKind.AsExpression} with non-constant type right argument: {right}")),
             SyntaxKind.CoalesceExpression => Coalesce(left, right),
 
             _ => throw new ArgumentOutOfRangeException($"BinaryExpressionSyntax with {binary.Kind()}")
@@ -323,7 +331,8 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
         switch (_semanticModel.GetTypeInfo(elementAccessExpression.Expression).ConvertedType)
         {
             case IArrayTypeSymbol:
-                Check.DebugAssert(elementAccessExpression.ArgumentList.Arguments.Count == 1,
+                Check.DebugAssert(
+                    elementAccessExpression.ArgumentList.Arguments.Count == 1,
                     $"ElementAccessExpressionSyntax over array with {arguments.Count} arguments");
                 return ArrayIndex(visitedExpression, Visit(arguments[0].Expression));
 
@@ -471,6 +480,7 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
                     {
                         interpolationExpression = Convert(interpolationExpression, typeof(object));
                     }
+
                     arguments.Add(interpolationExpression);
                     formatBuilder.Append('{').Append(arguments.Count - 1).Append('}');
                     break;
@@ -545,48 +555,50 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
             var typeTypeParameterMap = new Dictionary<string, Type>(GetTypeTypeParameters(methodSymbol.ContainingType));
 
             var definitionMethodInfos = declaringType.GetMethods()
-                .Where(m =>
-                {
-                    if (m.Name == methodSymbol.Name
-                        && m.IsGenericMethodDefinition
-                        && m.GetGenericArguments() is var candidateGenericArguments
-                        && candidateGenericArguments.Length == originalDefinition.TypeParameters.Length
-                        && m.GetParameters() is var candidateParams
-                        && candidateParams.Length == originalDefinition.Parameters.Length)
+                .Where(
+                    m =>
                     {
-                        var methodTypeParameterMap = new Dictionary<string, Type>(typeTypeParameterMap);
-
-                        // Prepare a dictionary that will be used to resolve generic type parameters (ITypeParameterSymbol) to the
-                        // corresponding reflection Type. This is needed to correctly (and recursively) resolve the type of parameters
-                        // below.
-                        foreach (var (symbol, type) in methodSymbol.TypeParameters.Zip(candidateGenericArguments))
+                        if (m.Name == methodSymbol.Name
+                            && m.IsGenericMethodDefinition
+                            && m.GetGenericArguments() is var candidateGenericArguments
+                            && candidateGenericArguments.Length == originalDefinition.TypeParameters.Length
+                            && m.GetParameters() is var candidateParams
+                            && candidateParams.Length == originalDefinition.Parameters.Length)
                         {
-                            if (symbol.Name != type.Name)
+                            var methodTypeParameterMap = new Dictionary<string, Type>(typeTypeParameterMap);
+
+                            // Prepare a dictionary that will be used to resolve generic type parameters (ITypeParameterSymbol) to the
+                            // corresponding reflection Type. This is needed to correctly (and recursively) resolve the type of parameters
+                            // below.
+                            foreach (var (symbol, type) in methodSymbol.TypeParameters.Zip(candidateGenericArguments))
                             {
-                                return false;
+                                if (symbol.Name != type.Name)
+                                {
+                                    return false;
+                                }
+
+                                methodTypeParameterMap[symbol.Name] = type;
                             }
 
-                            methodTypeParameterMap[symbol.Name] = type;
-                        }
-
-                        for (var i = 0; i < candidateParams.Length; i++)
-                        {
-                            var translatedParamType = ResolveType(originalDefinition.Parameters[i].Type, methodTypeParameterMap);
-                            if (translatedParamType != candidateParams[i].ParameterType)
+                            for (var i = 0; i < candidateParams.Length; i++)
                             {
-                                return false;
+                                var translatedParamType = ResolveType(originalDefinition.Parameters[i].Type, methodTypeParameterMap);
+                                if (translatedParamType != candidateParams[i].ParameterType)
+                                {
+                                    return false;
+                                }
                             }
+
+                            return true;
                         }
 
-                        return true;
-                    }
-
-                    return false;
-                }).ToArray();
+                        return false;
+                    }).ToArray();
 
             if (definitionMethodInfos.Length != 1)
             {
-                throw new InvalidOperationException($"Invocation: Found {definitionMethodInfos.Length} matches for generic method: {invocation}");
+                throw new InvalidOperationException(
+                    $"Invocation: Found {definitionMethodInfos.Length} matches for generic method: {invocation}");
             }
 
             var definitionMethodInfo = definitionMethodInfos[0];
@@ -1025,8 +1037,8 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
         var translatedParameters = new List<ParameterExpression>();
         foreach (var parameter in lambdaParameters)
         {
-            if (_semanticModel.GetDeclaredSymbol(parameter) is not { } parameterSymbol ||
-                ResolveType(parameterSymbol.Type) is not { } parameterType)
+            if (_semanticModel.GetDeclaredSymbol(parameter) is not { } parameterSymbol
+                || ResolveType(parameterSymbol.Type) is not { } parameterType)
             {
                 throw new InvalidOperationException("Could not found symbol for parameter lambda: " + parameter);
             }
@@ -1034,8 +1046,11 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
             translatedParameters.Add(Parameter(parameterType, parameter.Identifier.Text));
         }
 
-        _parameterStack.Push(_parameterStack.Peek()
-            .AddRange(translatedParameters.Select(p => new KeyValuePair<string, ParameterExpression>(p.Name ?? throw new NotImplementedException(), p))));
+        _parameterStack.Push(
+            _parameterStack.Peek()
+                .AddRange(
+                    translatedParameters.Select(
+                        p => new KeyValuePair<string, ParameterExpression>(p.Name ?? throw new NotImplementedException(), p))));
 
         try
         {
@@ -1074,7 +1089,8 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
             case INamedTypeSymbol { IsAnonymousType: true } anonymousTypeSymbol:
                 _anonymousTypeDefinitions ??= LoadAnonymousTypes(anonymousTypeSymbol.ContainingAssembly);
                 var properties = anonymousTypeSymbol.GetMembers().OfType<IPropertySymbol>().ToArray();
-                var found = _anonymousTypeDefinitions.TryGetValue(properties.Select(p => p.Name).ToArray(),
+                var found = _anonymousTypeDefinitions.TryGetValue(
+                    properties.Select(p => p.Name).ToArray(),
                     out var anonymousTypeGenericDefinition);
                 Check.DebugAssert(found, "Anonymous type not found");
 
@@ -1241,7 +1257,8 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
 
         public override string Name { get; } = name;
 
-        public override Type? ReflectedType => null;
+        public override Type? ReflectedType
+            => null;
 
         // We implement GetValue since ExpressionTreeFuncletizer calls it to get the parameter value. In AOT generation time, we obviously
         // have no parameter values, nor do we need them for the first part of the query pipeline.
@@ -1252,7 +1269,11 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
                     ? "<dummy>"
                     : null;
 
-        public override void SetValue(object? obj, object? value, BindingFlags invokeAttr, Binder? binder,
+        public override void SetValue(
+            object? obj,
+            object? value,
+            BindingFlags invokeAttr,
+            Binder? binder,
             CultureInfo? culture)
             => throw new NotSupportedException();
 
@@ -1296,11 +1317,18 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
         public override RuntimeMethodHandle MethodHandle
             => throw new NotSupportedException();
 
-        public override object Invoke(object? obj, BindingFlags invokeAttr, Binder? binder, object?[]? parameters,
+        public override object Invoke(
+            object? obj,
+            BindingFlags invokeAttr,
+            Binder? binder,
+            object?[]? parameters,
             CultureInfo? culture)
             => throw new NotSupportedException();
 
-        public override object Invoke(BindingFlags invokeAttr, Binder? binder, object?[]? parameters,
+        public override object Invoke(
+            BindingFlags invokeAttr,
+            Binder? binder,
+            object?[]? parameters,
             CultureInfo? culture)
             => throw new NotSupportedException();
     }

@@ -425,10 +425,7 @@ public class CallForwardingExpressionVisitor : ExpressionVisitor
             typeof(float).GetRuntimeMethod(nameof(float.Truncate), [typeof(float)])!,
             typeof(MathF).GetRuntimeMethod(nameof(MathF.Truncate), [typeof(float)])!
         },
-        {
-            typeof(int).GetRuntimeMethod(nameof(int.Abs), [typeof(int)])!,
-            typeof(Math).GetRuntimeMethod(nameof(Math.Abs), [typeof(int)])!
-        },
+        { typeof(int).GetRuntimeMethod(nameof(int.Abs), [typeof(int)])!, typeof(Math).GetRuntimeMethod(nameof(Math.Abs), [typeof(int)])! },
         {
             typeof(int).GetRuntimeMethod(nameof(int.Clamp), [typeof(int), typeof(int), typeof(int)])!,
             typeof(Math).GetRuntimeMethod(nameof(Math.Clamp), [typeof(int), typeof(int), typeof(int)])!
@@ -442,8 +439,7 @@ public class CallForwardingExpressionVisitor : ExpressionVisitor
             typeof(Math).GetRuntimeMethod(nameof(Math.Min), [typeof(int), typeof(int)])!
         },
         {
-            typeof(int).GetRuntimeMethod(nameof(int.Sign), [typeof(int)])!,
-            typeof(Math).GetRuntimeMethod(nameof(Math.Sign), [typeof(int)])!
+            typeof(int).GetRuntimeMethod(nameof(int.Sign), [typeof(int)])!, typeof(Math).GetRuntimeMethod(nameof(Math.Sign), [typeof(int)])!
         },
         {
             typeof(long).GetRuntimeMethod(nameof(long.Abs), [typeof(long)])!,

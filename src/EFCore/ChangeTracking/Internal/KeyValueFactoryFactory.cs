@@ -35,16 +35,14 @@ public class KeyValueFactoryFactory
             _createSimpleFactoryNullableMethod ??= typeof(KeyValueFactoryFactory).GetMethod(nameof(CreateSimpleNullableFactory))!;
             var nonNullableKeyType = keyType.UnwrapNullableType();
             return (IPrincipalKeyValueFactory)_createSimpleFactoryNullableMethod.MakeGenericMethod(
-                keyType, nonNullableKeyType == keyType ? typeof(int) : nonNullableKeyType)
+                    keyType, nonNullableKeyType == keyType ? typeof(int) : nonNullableKeyType)
                 .Invoke(null, [key])!;
         }
-        else
-        {
-            _createSimpleFactoryNonNullableMethod ??= typeof(KeyValueFactoryFactory)
-                .GetMethod(nameof(CreateSimpleNonNullableFactory))!;
-            return (IPrincipalKeyValueFactory)_createSimpleFactoryNonNullableMethod.MakeGenericMethod(keyType)
-                .Invoke(null, [key])!;
-        }
+
+        _createSimpleFactoryNonNullableMethod ??= typeof(KeyValueFactoryFactory)
+            .GetMethod(nameof(CreateSimpleNonNullableFactory))!;
+        return (IPrincipalKeyValueFactory)_createSimpleFactoryNonNullableMethod.MakeGenericMethod(keyType)
+            .Invoke(null, [key])!;
     }
 
     /// <summary>

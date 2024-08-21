@@ -88,7 +88,7 @@ public static class RelationalOwnedNavigationBuilderExtensions
     ///     only when mapping the column to a database document type.
     /// </remarks>
     /// <param name="builder">The builder for the owned navigation being configured.</param>
-    /// <param name="columnType">The database type for the column, or <see langword="null"/> to use the database default.</param>
+    /// <param name="columnType">The database type for the column, or <see langword="null" /> to use the database default.</param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
     public static OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> HasColumnType<TOwnerEntity, TDependentEntity>(
         this OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> builder,
@@ -105,7 +105,7 @@ public static class RelationalOwnedNavigationBuilderExtensions
     ///     only when mapping the column to a database document type.
     /// </remarks>
     /// <param name="builder">The builder for the owned navigation being configured.</param>
-    /// <param name="columnType">The database type for the column, or <see langword="null"/> to use the database default.</param>
+    /// <param name="columnType">The database type for the column, or <see langword="null" /> to use the database default.</param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
     public static OwnedNavigationBuilder HasColumnType(this OwnedNavigationBuilder builder, string? columnType)
     {

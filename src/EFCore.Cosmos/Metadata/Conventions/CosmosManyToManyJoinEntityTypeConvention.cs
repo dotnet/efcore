@@ -188,5 +188,6 @@ public class CosmosManyToManyJoinEntityTypeConvention :
         => skipNavigation.DeclaringEntityType.GetContainer() == skipNavigation.TargetEntityType.GetContainer()
             && skipNavigation.DeclaringEntityType.GetPartitionKeyPropertyNames().Any()
             && (skipNavigation.Inverse?.DeclaringEntityType.GetPartitionKeyPropertyNames()
-                .SequenceEqual(skipNavigation.DeclaringEntityType.GetPartitionKeyPropertyNames(), StringComparer.Ordinal) == true);
+                    .SequenceEqual(skipNavigation.DeclaringEntityType.GetPartitionKeyPropertyNames(), StringComparer.Ordinal)
+                == true);
 }

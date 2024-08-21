@@ -1391,8 +1391,8 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
             return null;
         }
 
-        var dependentProperties = (IReadOnlyList<Property>)[];
-        var principalProperties = (IReadOnlyList<Property>)[];
+        var dependentProperties = (IReadOnlyList<Property>) [];
+        var principalProperties = (IReadOnlyList<Property>) [];
         var builder = this;
         if (shouldInvert)
         {
@@ -3198,10 +3198,10 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
             var candidateFk = candidateRelationship.Metadata;
             if (principalEndConfigurationSource.OverridesStrictly(
                     candidateFk.GetDependentToPrincipalConfigurationSource())
-                    && (principalEntityType != candidateFk.PrincipalEntityType
-                        || dependentEntityType != candidateFk.DeclaringEntityType)
-                    && (principalEntityType.IsAssignableFrom(dependentEntityType)
-                        || dependentEntityType.IsAssignableFrom(principalEntityType)))
+                && (principalEntityType != candidateFk.PrincipalEntityType
+                    || dependentEntityType != candidateFk.DeclaringEntityType)
+                && (principalEntityType.IsAssignableFrom(dependentEntityType)
+                    || dependentEntityType.IsAssignableFrom(principalEntityType)))
             {
                 // Favor the intra-hierarchical relationship with higher configuration source
                 continue;

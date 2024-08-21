@@ -37,9 +37,7 @@ public class ModelSource : IModelSource
     /// </summary>
     /// <param name="dependencies">The dependencies to use.</param>
     public ModelSource(ModelSourceDependencies dependencies)
-    {
-        Dependencies = dependencies;
-    }
+        => Dependencies = dependencies;
 
     /// <summary>
     ///     Dependencies for this service.
@@ -78,7 +76,8 @@ public class ModelSource : IModelSource
                     var designTimeKey = designTime ? cacheKey : Dependencies.ModelCacheKeyFactory.Create(context, designTime: true);
                     var runtimeKey = designTime ? Dependencies.ModelCacheKeyFactory.Create(context, designTime: false) : cacheKey;
 
-                    cache.Set(designTimeKey, designTimeModel, new MemoryCacheEntryOptions { Size = 150, Priority = CacheItemPriority.High });
+                    cache.Set(
+                        designTimeKey, designTimeModel, new MemoryCacheEntryOptions { Size = 150, Priority = CacheItemPriority.High });
                     cache.Set(runtimeKey, runtimeModel, new MemoryCacheEntryOptions { Size = 100, Priority = CacheItemPriority.High });
 
                     model = designTime ? designTimeModel : runtimeModel;

@@ -62,7 +62,6 @@ public class JsonReaderData
         }
         else
         {
-
             var buffer = _buffer;
             var totalConsumed = bytesConsumed + _positionInBuffer;
             if (_bytesAvailable != 0 && totalConsumed < buffer.Length)

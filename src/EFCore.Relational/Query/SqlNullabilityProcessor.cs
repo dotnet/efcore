@@ -216,6 +216,7 @@ public class SqlNullabilityProcessor
                                 newRowValues[i] = newRowValue;
                             }
                         }
+
                         return newRowValues is not null
                             ? valuesExpression.Update(newRowValues)
                             : valuesExpression;
@@ -223,7 +224,9 @@ public class SqlNullabilityProcessor
                     case { ValuesParameter: SqlParameterExpression valuesParameter }:
                         DoNotCache();
                         Check.DebugAssert(valuesParameter.TypeMapping is not null, "valuesParameter.TypeMapping is not null");
-                        Check.DebugAssert(valuesParameter.TypeMapping.ElementTypeMapping is not null, "valuesParameter.TypeMapping.ElementTypeMapping is not null");
+                        Check.DebugAssert(
+                            valuesParameter.TypeMapping.ElementTypeMapping is not null,
+                            "valuesParameter.TypeMapping.ElementTypeMapping is not null");
                         var typeMapping = (RelationalTypeMapping)valuesParameter.TypeMapping.ElementTypeMapping;
                         var values = (IEnumerable?)ParameterValues[valuesParameter.Name] ?? Array.Empty<object>();
 
@@ -231,9 +234,12 @@ public class SqlNullabilityProcessor
                         foreach (var value in values)
                         {
                             processedValues.Add(
-                                new RowValueExpression([
-                                    _sqlExpressionFactory.Constant(value, value?.GetType() ?? typeof(object), typeMapping)]));
+                                new RowValueExpression(
+                                [
+                                    _sqlExpressionFactory.Constant(value, value?.GetType() ?? typeof(object), typeMapping)
+                                ]));
                         }
+
                         return processedValues is not []
                             ? valuesExpression.Update(processedValues)
                             : valuesExpression;
@@ -306,8 +312,6 @@ public class SqlNullabilityProcessor
                     {
                         projections.Add(selectExpression.Projection[j]);
                     }
-
-
                 }
 
                 if (projections != selectExpression.Projection)
@@ -546,7 +550,8 @@ public class SqlNullabilityProcessor
 
             var testCondition = testIsCondition
                 ? test
-                : Visit(_sqlExpressionFactory.Equal(operand!, test),
+                : Visit(
+                    _sqlExpressionFactory.Equal(operand!, test),
                     allowOptimizedExpansion: testIsCondition, preserveColumnNullabilityInformation: true, out _);
 
             if (IsTrue(testCondition))
@@ -1229,7 +1234,8 @@ public class SqlNullabilityProcessor
             {
                 return Visit(sqlBinaryExpression.Right, allowOptimizedExpansion, out nullable);
             }
-            else if (IsTrue(sqlBinaryExpression.Right) && sqlBinaryExpression.Right.TypeMapping!.Converter == null)
+
+            if (IsTrue(sqlBinaryExpression.Right) && sqlBinaryExpression.Right.TypeMapping!.Converter == null)
             {
                 return Visit(sqlBinaryExpression.Left, allowOptimizedExpansion, out nullable);
             }
@@ -1365,11 +1371,13 @@ public class SqlNullabilityProcessor
         nullable = leftNullable || rightNullable;
         var result = sqlBinaryExpression.Update(left, right);
 
-        if (nullable && !optimize && result.OperatorType
-            is ExpressionType.GreaterThan
-            or ExpressionType.GreaterThanOrEqual
-            or ExpressionType.LessThan
-            or ExpressionType.LessThanOrEqual)
+        if (nullable
+            && !optimize
+            && result.OperatorType
+                is ExpressionType.GreaterThan
+                or ExpressionType.GreaterThanOrEqual
+                or ExpressionType.LessThan
+                or ExpressionType.LessThanOrEqual)
         {
             // https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/nullable-value-types#lifted-operators
             // For the comparison operators <, >, <=, and >=, if one or both
@@ -1382,7 +1390,7 @@ public class SqlNullabilityProcessor
 
             nullable = false;
             return _sqlExpressionFactory.Case(
-                [new(result, _sqlExpressionFactory.Constant(true, result.TypeMapping))],
+                [new CaseWhenClause(result, _sqlExpressionFactory.Constant(true, result.TypeMapping))],
                 _sqlExpressionFactory.Constant(false, result.TypeMapping)
             );
         }
@@ -2284,7 +2292,7 @@ public class SqlNullabilityProcessor
                     return result;
                 }
             }
-            break;
+                break;
         }
 
         return sqlUnaryExpression;

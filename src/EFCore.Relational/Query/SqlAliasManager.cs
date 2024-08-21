@@ -113,7 +113,7 @@ public class SqlAliasManager
             }
             else
             {
-                bitmap = aliasBitmaps[aliasBase] = new(aliasNum + 1);
+                bitmap = aliasBitmaps[aliasBase] = new BitArray(aliasNum + 1);
             }
 
             bitmap[aliasNum] = true;
@@ -141,7 +141,7 @@ public class SqlAliasManager
                     var j = i - numHoles;
                     var newAlias = aliasBase + (j == 0 ? "" : (j - 1).ToString());
 
-                    aliasRewritingMap ??= new();
+                    aliasRewritingMap ??= new Dictionary<string, string>();
                     aliasRewritingMap[oldAlias] = newAlias;
                 }
             }

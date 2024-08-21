@@ -373,9 +373,9 @@ public static class RelationalAnnotationNames
         Collation,
         DefaultSchema,
         Name,
-        #pragma warning disable CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
         SequencePrefix,
-        #pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning restore CS0618 // Type or member is obsolete
         Sequences,
         CheckConstraints,
         Filter,
@@ -414,9 +414,9 @@ public static class RelationalAnnotationNames
         FieldValueGetter,
         ContainerColumnName,
         ContainerColumnType,
-        #pragma warning disable CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
         ContainerColumnTypeMapping,
-        #pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning restore CS0618 // Type or member is obsolete
         JsonPropertyName,
         StoreType
     };

@@ -21,7 +21,7 @@ public static class ComplexPropertyExtensions
     {
         var chain = property.DeclaringType is IComplexType complexType
             ? (List<IComplexProperty>)complexType.ComplexProperty.GetChainToComplexProperty()
-            : new();
+            : new List<IComplexProperty>();
         chain.Add(property);
 
         return chain;

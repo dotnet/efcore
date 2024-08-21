@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 namespace Microsoft.EntityFrameworkCore;
 
 /// <summary>
-///     Azure Cosmos DB-specific extension methods for <see cref="IndexBuilder"/>.
+///     Azure Cosmos DB-specific extension methods for <see cref="IndexBuilder" />.
 /// </summary>
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
