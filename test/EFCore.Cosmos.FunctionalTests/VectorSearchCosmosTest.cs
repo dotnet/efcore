@@ -213,8 +213,7 @@ ORDER BY VectorDistance(c["Singles"], @__p_1, false, {'distanceFunction':'cosine
 
         // Assert.Equal(3, booksFromStore.Count);
 
-        AssertSql(
-        );
+        AssertSql();
     }
 
     [ConditionalFact]
