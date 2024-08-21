@@ -24,7 +24,8 @@ public abstract class AdHocAdvancedMappingsQueryTestBase : NonSharedModelTestBas
         var query = context.Set<Context9582.TipoServicio>().Where(xx => xx.Nombre.Contains("lla")).ToList();
     }
 
-    private class Context9582(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context9582(DbContextOptions options) : DbContext(options)
     {
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -82,10 +83,11 @@ public abstract class AdHocAdvancedMappingsQueryTestBase : NonSharedModelTestBas
         }
     }
 
-    private class Context11835(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context11835(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Blog> Blogs { get; }
-        public DbSet<Post> Posts { get; }
+        public DbSet<Blog> Blogs { get; set; }
+        public DbSet<Post> Posts { get; set; }
 
         public Task SeedAsync()
         {
@@ -144,10 +146,11 @@ public abstract class AdHocAdvancedMappingsQueryTestBase : NonSharedModelTestBas
         Assert.Equal(2, result.Count);
     }
 
-    private class Context15684(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context15684(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Category> Categories { get; }
-        public DbSet<Product> Products { get; }
+        public DbSet<Category> Categories { get; set; }
+        public DbSet<Product> Products { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder
@@ -238,10 +241,13 @@ public abstract class AdHocAdvancedMappingsQueryTestBase : NonSharedModelTestBas
         }
     }
 
-    private class Context17276(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context17276(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<RemovableEntity> RemovableEntities { get; }
-        public DbSet<Parent> Parents { get; }
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
+        public DbSet<RemovableEntity> RemovableEntities { get; set; }
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
+        public DbSet<Parent> Parents { get; set; }
 
         public static List<T> List<T>(IQueryable<T> query)
             where T : IRemovable
@@ -274,8 +280,8 @@ public abstract class AdHocAdvancedMappingsQueryTestBase : NonSharedModelTestBas
         [Owned]
         public class OwnedEntity : IOwned
         {
-            public string OwnedValue { get; }
-            public int Exists { get; }
+            public string OwnedValue { get; set; }
+            public int Exists { get; set; }
         }
 
         public interface IHasId<out T>
@@ -311,9 +317,10 @@ public abstract class AdHocAdvancedMappingsQueryTestBase : NonSharedModelTestBas
         Assert.Equal(1, query);
     }
 
-    private class Context17794(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context17794(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Offer> Offers { get; }
+        public DbSet<Offer> Offers { get; set; }
         public DbSet<OfferAction> OfferActions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -407,9 +414,10 @@ public abstract class AdHocAdvancedMappingsQueryTestBase : NonSharedModelTestBas
         }
     }
 
-    private class Context18087(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context18087(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<MockEntity> MockEntities { get; }
+        public DbSet<MockEntity> MockEntities { get; set; }
 
         public Task SeedAsync()
         {
@@ -453,9 +461,10 @@ public abstract class AdHocAdvancedMappingsQueryTestBase : NonSharedModelTestBas
         Assert.Equal(3, query.Count);
     }
 
-    private class Context18346(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context18346(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Business> Businesses { get; }
+        public DbSet<Business> Businesses { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Business>()
@@ -575,9 +584,10 @@ public abstract class AdHocAdvancedMappingsQueryTestBase : NonSharedModelTestBas
         _ = context.Entities.Where(x => x.TimeSpan == parameter).Select(e => e.TimeSpan).FirstOrDefault();
     }
 
-    private class Context26742(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context26742(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Entity> Entities { get; }
+        public DbSet<Entity> Entities { get; set; }
 
         public class Entity
         {

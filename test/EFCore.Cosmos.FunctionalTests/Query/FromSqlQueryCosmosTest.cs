@@ -174,9 +174,7 @@ SELECT VALUE s
 FROM (
 
 
-"""
-                    + "        "
-                    + """
+""" + "        " + """
 
 
 
@@ -199,8 +197,8 @@ WHERE CONTAINS(s["ContactName"], "z")
                         (NorthwindContext context) => context.Set<Customer>()
                             .FromSqlRaw(
                                 """
-                                        SELECT * FROM root c WHERE c["$type"] = "Customer"
-                                        """)
+SELECT * FROM root c WHERE c["$type"] = "Customer"
+""")
                             .Where(c => c.ContactName.Contains("z")));
 
                     using (var context = CreateContext())
@@ -588,8 +586,8 @@ FROM (
                 using var context = CreateContext();
                 var query = context.Set<Customer>().FromSqlRaw(
                         """
-                                                               SELECT * FROM root c WHERE c["$type"] = "Customer"
-                                                               """)
+SELECT * FROM root c WHERE c["$type"] = "Customer"
+""")
                     .AsNoTracking();
 
                 var actual = a
@@ -649,8 +647,8 @@ FROM (
                 using var context = CreateContext();
                 var query = context.Set<Customer>().FromSqlRaw(
                         """
-                                                               SELECT * FROM root c WHERE c["$type"] = "Customer"
-                                                               """)
+SELECT * FROM root c WHERE c["$type"] = "Customer"
+""")
                     .Where(c => c.ContactName == c.CompanyName);
 
                 var actual = a
@@ -697,8 +695,8 @@ WHERE (s["ContactName"] = s["CompanyName"])
                 using var context = CreateContext();
                 var query = context.Set<Customer>().FromSqlRaw(
                         """
-                                                               SELECT * FROM root c WHERE c["$type"] = "Customer"
-                                                               """)
+SELECT * FROM root c WHERE c["$type"] = "Customer"
+""")
                     .Select(
                         c => new { c.CustomerID, c.City })
                     .AsNoTracking();

@@ -329,9 +329,10 @@ public abstract class AdHocQuerySplittingQueryTestBase : NonSharedModelTestBase
         Assert.Equal(1, Context25400.Test.ConstructorCallCount);
     }
 
-    private class Context25400(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context25400(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Test> Tests { get; }
+        public DbSet<Test> Tests { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Test>().HasKey(e => e.Id);

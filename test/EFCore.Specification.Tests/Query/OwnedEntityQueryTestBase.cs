@@ -42,10 +42,11 @@ public abstract class OwnedEntityQueryTestBase : NonSharedModelTestBase
         }
     }
 
-    private class Context9202(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context9202(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Movie> Movies { get; }
-        public DbSet<Actor> Actors { get; }
+        public DbSet<Movie> Movies { get; set; }
+        public DbSet<Actor> Actors { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -113,7 +114,8 @@ public abstract class OwnedEntityQueryTestBase : NonSharedModelTestBase
         await context.SaveChangesAsync();
     }
 
-    private class Context13079(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context13079(DbContextOptions options) : DbContext(options)
     {
         public virtual DbSet<BaseEntity> BaseEntities { get; set; }
 
@@ -134,7 +136,7 @@ public abstract class OwnedEntityQueryTestBase : NonSharedModelTestBase
         public class OwnedData
         {
             public int Property { get; set; }
-            public OwnedSubData SubData { get; }
+            public OwnedSubData SubData { get; set; }
         }
 
         public class OwnedSubData
@@ -182,7 +184,8 @@ public abstract class OwnedEntityQueryTestBase : NonSharedModelTestBase
         }
     }
 
-    private class Context13157(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context13157(DbContextOptions options) : DbContext(options)
     {
         public virtual DbSet<Partner> Partners { get; set; }
 
@@ -381,9 +384,10 @@ public abstract class OwnedEntityQueryTestBase : NonSharedModelTestBase
         Assert.True(new[] { "US", "CA" }.SequenceEqual(warehouseModel.DestinationCountryCodes));
     }
 
-    private class Context18582(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context18582(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Warehouse> Warehouses { get; }
+        public DbSet<Warehouse> Warehouses { get; set; }
 
         public Task SeedAsync()
         {
@@ -418,7 +422,7 @@ public abstract class OwnedEntityQueryTestBase : NonSharedModelTestBase
         public class WarehouseDestinationCountry
         {
             public string Id { get; set; }
-            public string WarehouseCode { get; }
+            public string WarehouseCode { get; set; }
             public string CountryCode { get; set; }
         }
 
@@ -446,10 +450,11 @@ public abstract class OwnedEntityQueryTestBase : NonSharedModelTestBase
         Assert.Equal("A", Assert.Single(result).OtherEntityData);
     }
 
-    private class Context19138(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context19138(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<BaseEntity> BaseEntities { get; }
-        public DbSet<OtherEntity> OtherEntities { get; }
+        public DbSet<BaseEntity> BaseEntities { get; set; }
+        public DbSet<OtherEntity> OtherEntities { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -528,7 +533,8 @@ public abstract class OwnedEntityQueryTestBase : NonSharedModelTestBase
         x.Type,
     };
 
-    private class Context20277(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context20277(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Entity> Entities
             => Set<Entity>();
@@ -556,9 +562,9 @@ public abstract class OwnedEntityQueryTestBase : NonSharedModelTestBase
 
         public class Child
         {
-            public int Id { get; }
-            public int Type { get; }
-            public Owned Owned { get; }
+            public int Id { get; set; }
+            public int Type { get; set; }
+            public Owned Owned { get; set; }
         }
 
         public class Owned
@@ -600,9 +606,10 @@ public abstract class OwnedEntityQueryTestBase : NonSharedModelTestBase
         }
     }
 
-    private class Context21540(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context21540(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Parent> Parents { get; }
+        public DbSet<Parent> Parents { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -659,7 +666,7 @@ public abstract class OwnedEntityQueryTestBase : NonSharedModelTestBase
         public class OtherSide
         {
             public int Id { get; set; }
-            public List<Parent> SkipParent { get; }
+            public List<Parent> SkipParent { get; set; }
         }
 
         public class Reference
@@ -698,7 +705,8 @@ public abstract class OwnedEntityQueryTestBase : NonSharedModelTestBase
         Assert.Equal(12345, result.Contact.Address.Zip);
     }
 
-    private class Context21807(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context21807(DbContextOptions options) : DbContext(options)
     {
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Entity>(
@@ -761,9 +769,10 @@ public abstract class OwnedEntityQueryTestBase : NonSharedModelTestBase
             .ToListAsync();
     }
 
-    private class Context22089(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context22089(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Contact> Contacts { get; }
+        public DbSet<Contact> Contacts { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -786,7 +795,7 @@ public abstract class OwnedEntityQueryTestBase : NonSharedModelTestBase
         public class Name
         {
             public Guid Id { get; set; }
-            public Guid ContactId { get; }
+            public Guid ContactId { get; set; }
         }
 
         public class NameDto
@@ -820,7 +829,8 @@ public abstract class OwnedEntityQueryTestBase : NonSharedModelTestBase
             : query.ToList();
     }
 
-    private class Context24133(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context24133(DbContextOptions options) : DbContext(options)
     {
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Blog>(
@@ -849,8 +859,8 @@ public abstract class OwnedEntityQueryTestBase : NonSharedModelTestBase
 
         public class Post
         {
-            public string Title { get; }
-            public int CommentsCount { get; }
+            public string Title { get; set; }
+            public int CommentsCount { get; set; }
         }
 
         public class BlogDto

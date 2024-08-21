@@ -28,7 +28,8 @@ public abstract class OwnedEntityQueryRelationalTestBase : OwnedEntityQueryTestB
             message);
     }
 
-    private class Context23198(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context23198(DbContextOptions options) : DbContext(options)
     {
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<AnAggregateRoot>().OwnsOne(
@@ -47,8 +48,8 @@ public abstract class OwnedEntityQueryRelationalTestBase : OwnedEntityQueryTestB
 
         public class AnOwnedTypeWithOwnedProperties
         {
-            public AnOwnedTypeWithPrimitiveProperties1 AnOwnedTypeWithPrimitiveProperties1 { get; }
-            public AnOwnedTypeWithPrimitiveProperties2 AnOwnedTypeWithPrimitiveProperties2 { get; }
+            public AnOwnedTypeWithPrimitiveProperties1 AnOwnedTypeWithPrimitiveProperties1 { get; set; }
+            public AnOwnedTypeWithPrimitiveProperties2 AnOwnedTypeWithPrimitiveProperties2 { get; set; }
         }
 
         public class AnOwnedTypeWithPrimitiveProperties1
@@ -81,9 +82,10 @@ public abstract class OwnedEntityQueryRelationalTestBase : OwnedEntityQueryTestB
         Assert.Equal(2, root3.ModdleA.Leaves.Count);
     }
 
-    private class Context24777(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context24777(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Root> Roots { get; }
+        public DbSet<Root> Roots { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Root>(
@@ -422,9 +424,10 @@ public abstract class OwnedEntityQueryRelationalTestBase : OwnedEntityQueryTestB
             });
     }
 
-    private class Context28247(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context28247(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<RotRutCase> RotRutCases { get; }
+        public DbSet<RotRutCase> RotRutCases { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<RotRutCase>(
@@ -505,10 +508,11 @@ public abstract class OwnedEntityQueryRelationalTestBase : OwnedEntityQueryTestB
         Assert.Equal("The Divider", result[0].magus.ToolUsed.Name);
     }
 
-    private class Context30358(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context30358(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Monarch> Monarchs { get; }
-        public DbSet<Magus> Magi { get; }
+        public DbSet<Monarch> Monarchs { get; set; }
+        public DbSet<Magus> Magi { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Magus>().OwnsOne(x => x.ToolUsed, x => x.ToTable("MagicTools"));
@@ -579,7 +583,8 @@ public abstract class OwnedEntityQueryRelationalTestBase : OwnedEntityQueryTestB
         context.Set<Context31107.BaseEntity>().ToList();
     }
 
-    private class Context31107(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context31107(DbContextOptions options) : DbContext(options)
     {
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

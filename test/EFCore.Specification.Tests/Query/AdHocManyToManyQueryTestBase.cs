@@ -27,10 +27,11 @@ public abstract class AdHocManyToManyQueryTestBase : NonSharedModelTestBase
         Assert.Equal(2, users.Count);
     }
 
-    private class MyContext7973(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class MyContext7973(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<User> Users { get; }
-        public DbSet<Organisation> Organisations { get; }
+        public DbSet<User> Users { get; set; }
+        public DbSet<Organisation> Organisations { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

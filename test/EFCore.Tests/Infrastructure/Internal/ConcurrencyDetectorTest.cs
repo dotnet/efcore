@@ -69,8 +69,10 @@ public class ConcurrencyDetectorTest
                 .HasForeignKey(o => o.CustomerId);
         }
 
-        public DbSet<Customer> Customers { get; }
-        public DbSet<Order> Orders { get; }
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
+        public DbSet<Customer> Customers { get; set; }
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
+        public DbSet<Order> Orders { get; set; }
     }
 
     public class Customer

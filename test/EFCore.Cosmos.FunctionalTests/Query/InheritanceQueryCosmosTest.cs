@@ -13,7 +13,6 @@ public class InheritanceQueryCosmosTest : InheritanceQueryTestBase<InheritanceQu
         : base(fixture)
         => ClearLog();
 
-    //TestLoggerFactory.TestOutputHelper = testOutputHelper;
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());

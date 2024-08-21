@@ -79,10 +79,11 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
         }
     }
 
-    private class Context3409(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context3409(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Parent> Parents { get; }
-        public DbSet<Child> Children { get; }
+        public DbSet<Parent> Parents { get; set; }
+        public DbSet<Child> Children { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -311,9 +312,10 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
         }
     }
 
-    private class Context7312(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context7312(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Proposal> Proposals { get; }
+        public DbSet<Proposal> Proposals { get; set; }
         public DbSet<ProposalCustom> ProposalCustoms { get; set; }
         public DbSet<ProposalLeave> ProposalLeaves { get; set; }
 
@@ -385,9 +387,10 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
         }
     }
 
-    private class Context9038(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context9038(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Person9038> People { get; }
+        public DbSet<Person9038> People { get; set; }
 
         public DbSet<PersonFamily9038> Families { get; set; }
 
@@ -491,10 +494,11 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
         }
     }
 
-    private class Context10635(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context10635(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Parent10635> Parents { get; }
-        public DbSet<Child10635> Children { get; }
+        public DbSet<Parent10635> Parents { get; set; }
+        public DbSet<Child10635> Children { get; set; }
 
         public Task SeedAsync()
         {
@@ -568,10 +572,11 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
                     }).ToList());
     }
 
-    private class Context11923(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context11923(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Blog> Blogs { get; }
-        public DbSet<Post> Posts { get; }
+        public DbSet<Blog> Blogs { get; set; }
+        public DbSet<Post> Posts { get; set; }
         public DbSet<Comment> Comments { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -758,10 +763,11 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
         }
     }
 
-    private class Context12456(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context12456(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Activity> Activities { get; }
-        public DbSet<CompetitionSeason> CompetitionSeasons { get; }
+        public DbSet<Activity> Activities { get; set; }
+        public DbSet<CompetitionSeason> CompetitionSeasons { get; set; }
 
         public class CompetitionSeason
         {
@@ -781,7 +787,7 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
         public class ActivityType
         {
             public int Id { get; set; }
-            public List<ActivityTypePoints> Points { get; }
+            public List<ActivityTypePoints> Points { get; set; }
         }
 
         public class ActivityTypePoints
@@ -789,10 +795,10 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
             public int Id { get; set; }
             public int ActivityTypeId { get; set; }
             public int CompetitionSeasonId { get; set; }
-            public int Points { get; }
+            public int Points { get; set; }
 
             public ActivityType ActivityType { get; set; }
-            public CompetitionSeason CompetitionSeason { get; }
+            public CompetitionSeason CompetitionSeason { get; set; }
         }
 
         public class Activity
@@ -839,10 +845,11 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
         }
     }
 
-    private class Context12582(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context12582(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Employee> Employees { get; }
-        public DbSet<EmployeeDevice> Devices { get; }
+        public DbSet<Employee> Employees { get; set; }
+        public DbSet<EmployeeDevice> Devices { get; set; }
 
         public Task SeedAsync()
         {
@@ -901,10 +908,11 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
         Assert.Single(result[0].Comments);
     }
 
-    private class Context12748(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context12748(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Blog> Blogs { get; }
-        public DbSet<Comment> Comments { get; }
+        public DbSet<Blog> Blogs { get; set; }
+        public DbSet<Comment> Comments { get; set; }
 
         public Task SeedAsync()
         {
@@ -1008,9 +1016,10 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
                 }).SingleOrDefault();
     }
 
-    private class Context20813(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context20813(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Order> Orders { get; }
+        public DbSet<Order> Orders { get; set; }
 
         public class Order
         {
@@ -1054,7 +1063,7 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
             [ForeignKey(nameof(IdentityDocument))]
             public Guid IdentityDocumentId { get; set; }
 
-            public byte[] Image { get; }
+            public byte[] Image { get; set; }
 
             public IdentityDocument IdentityDocument { get; set; }
         }
@@ -1086,9 +1095,10 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
         var result = context.Books.Where(b => b.Id == 1).Select(projection).SingleOrDefault();
     }
 
-    private class Context21768(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context21768(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Book> Books { get; }
+        public DbSet<Book> Books { get; set; }
         public DbSet<BookCover> BookCovers { get; set; }
         public DbSet<CoverIllustration> CoverIllustrations { get; set; }
 
@@ -1426,7 +1436,8 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
         }
     }
 
-    private class Context23674(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context23674(DbContextOptions options) : DbContext(options)
     {
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Principal>();
@@ -1510,9 +1521,10 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
             .FirstOrDefaultAsync(x => x.Id == id);
     }
 
-    private class Context23676(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context23676(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<PersonEntity> Persons { get; }
+        public DbSet<PersonEntity> Persons { get; set; }
 
         public class PersonEntity
         {
@@ -1531,10 +1543,10 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
 
         public class PersonImageEntity
         {
-            public int Id { get; }
-            public string ImageUrl { get; }
-            public int Height { get; }
-            public int Width { get; }
+            public int Id { get; set; }
+            public string ImageUrl { get; set; }
+            public int Height { get; set; }
+            public int Width { get; set; }
             public PersonEntity Person { get; set; }
         }
 
@@ -1554,7 +1566,7 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
             public ActorEntity Actor { get; set; }
 
             public int MovieId { get; set; }
-            public MovieEntity Movie { get; }
+            public MovieEntity Movie { get; set; }
 
             public string RoleInFilm { get; set; }
 
@@ -1577,20 +1589,20 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
             public DirectorEntity Director { get; set; }
 
             public int MovieId { get; set; }
-            public MovieEntity Movie { get; }
+            public MovieEntity Movie { get; set; }
         }
 
         public class MovieEntity
         {
-            public int Id { get; }
-            public string Name { get; }
-            public double Rating { get; }
+            public int Id { get; set; }
+            public string Name { get; set; }
+            public double Rating { get; set; }
             public string Description { get; set; }
             public DateTime ReleaseDate { get; set; }
             public int DurationInMins { get; set; }
             public int Budget { get; set; }
             public int Revenue { get; set; }
-            public string PosterUrl { get; }
+            public string PosterUrl { get; set; }
 
             public IList<MovieDirectorEntity> Directors { get; set; } = new List<MovieDirectorEntity>();
             public IList<MovieActorEntity> Actors { get; set; } = new List<MovieActorEntity>();
