@@ -87,11 +87,11 @@ public class SqliteDateTimeMethodTranslator(SqliteSqlExpressionFactory sqlExpres
         {
             return sqlExpressionFactory.Function(
                 "rtrim",
-                new SqlExpression[]
+                new[]
                 {
                     sqlExpressionFactory.Function(
                         "rtrim",
-                        new SqlExpression[]
+                        new[]
                         {
                             sqlExpressionFactory.Strftime(
                                 method.ReturnType,

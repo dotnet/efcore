@@ -86,7 +86,9 @@ public class SqlServerStringTypeMapping : StringTypeMapping
     private static string GetDefaultStoreName(bool unicode, bool fixedLength)
         => unicode
             ? fixedLength ? "nchar" : "nvarchar"
-            : fixedLength ? "char" : "varchar";
+            : fixedLength
+                ? "char"
+                : "varchar";
 
     private static DbType? GetDbType(bool unicode, bool fixedLength)
         => unicode

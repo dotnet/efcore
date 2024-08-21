@@ -85,17 +85,18 @@ public class SqlServerDateTimeMemberTranslator(
 
             nameof(DateTime.UtcNow)
                 when declaringType == typeof(DateTimeOffset)
-                => sqlExpressionFactory.Convert(sqlExpressionFactory.Function(
-                    "SYSUTCDATETIME",
-                    arguments: [],
-                    nullable: false,
-                    argumentsPropagateNullability: [],
-                    returnType), returnType),
+                => sqlExpressionFactory.Convert(
+                    sqlExpressionFactory.Function(
+                        "SYSUTCDATETIME",
+                        arguments: [],
+                        nullable: false,
+                        argumentsPropagateNullability: [],
+                        returnType), returnType),
 
             nameof(DateTime.Today)
                 => sqlExpressionFactory.Function(
                     "CONVERT",
-                    new SqlExpression[]
+                    new[]
                     {
                         sqlExpressionFactory.Fragment("date"),
                         sqlExpressionFactory.Function(

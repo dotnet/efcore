@@ -113,7 +113,7 @@ public class RuntimeProperty : RuntimePropertyBase, IProperty
     }
 
     /// <summary>
-    ///     Sets the <see cref="Sentinel"/> value, converting from the provider type if needed.
+    ///     Sets the <see cref="Sentinel" /> value, converting from the provider type if needed.
     /// </summary>
     /// <param name="providerValue">The value, as a provider value if a value converter is being used.</param>
     public virtual void SetSentinelFromProviderValue(object? providerValue)

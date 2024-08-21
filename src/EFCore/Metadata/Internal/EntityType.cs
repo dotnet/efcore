@@ -2931,8 +2931,8 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
         SetAnnotation(CoreAnnotationNames.DiscriminatorProperty, property?.Name, configurationSource);
 
         return Model.ConventionDispatcher.OnDiscriminatorPropertySet(Builder, property?.Name) == property?.Name
-                ? property
-                : (Property?)((IReadOnlyEntityType)this).FindDiscriminatorProperty();
+            ? property
+            : (Property?)((IReadOnlyEntityType)this).FindDiscriminatorProperty();
     }
 
     private void CheckDiscriminatorProperty(Property? property)
@@ -4095,7 +4095,8 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
-    IProperty? IEntityType.FindProperty(string name) => FindProperty(name);
+    IProperty? IEntityType.FindProperty(string name)
+        => FindProperty(name);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -4104,7 +4105,8 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
-    IProperty? IEntityType.FindDeclaredProperty(string name) => FindDeclaredProperty(name);
+    IProperty? IEntityType.FindDeclaredProperty(string name)
+        => FindDeclaredProperty(name);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -4113,7 +4115,8 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
-    IEnumerable<IProperty> IEntityType.GetDeclaredProperties() => GetDeclaredProperties();
+    IEnumerable<IProperty> IEntityType.GetDeclaredProperties()
+        => GetDeclaredProperties();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -4122,7 +4125,8 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
-    IEnumerable<IProperty> IEntityType.GetProperties() => GetProperties();
+    IEnumerable<IProperty> IEntityType.GetProperties()
+        => GetProperties();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

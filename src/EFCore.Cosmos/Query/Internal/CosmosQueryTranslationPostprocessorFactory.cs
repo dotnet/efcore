@@ -10,8 +10,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
 public class CosmosQueryTranslationPostprocessorFactory(
-        QueryTranslationPostprocessorDependencies dependencies,
-        ISqlExpressionFactory sqlExpressionFactory)
+    QueryTranslationPostprocessorDependencies dependencies,
+    ISqlExpressionFactory sqlExpressionFactory)
     : IQueryTranslationPostprocessorFactory
 {
     /// <summary>

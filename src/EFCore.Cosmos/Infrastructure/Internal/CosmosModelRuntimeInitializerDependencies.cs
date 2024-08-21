@@ -29,9 +29,7 @@ public sealed record CosmosModelRuntimeInitializerDependencies
     /// </remarks>
     [EntityFrameworkInternal]
     public CosmosModelRuntimeInitializerDependencies(IJsonIdDefinitionFactory jsonIdDefinitionFactory)
-    {
-        JsonIdDefinitionFactory = jsonIdDefinitionFactory;
-    }
+        => JsonIdDefinitionFactory = jsonIdDefinitionFactory;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

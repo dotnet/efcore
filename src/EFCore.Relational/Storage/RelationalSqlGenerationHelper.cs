@@ -33,9 +33,7 @@ public class RelationalSqlGenerationHelper : ISqlGenerationHelper
     /// </summary>
     /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
     public RelationalSqlGenerationHelper(RelationalSqlGenerationHelperDependencies dependencies)
-    {
-        Dependencies = dependencies;
-    }
+        => Dependencies = dependencies;
 
     /// <summary>
     ///     Relational provider-specific dependencies for this service.

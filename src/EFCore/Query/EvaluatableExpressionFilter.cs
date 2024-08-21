@@ -47,9 +47,7 @@ public class EvaluatableExpressionFilter : IEvaluatableExpressionFilter
     /// <param name="dependencies">The dependencies to use.</param>
     public EvaluatableExpressionFilter(
         EvaluatableExpressionFilterDependencies dependencies)
-    {
-        Dependencies = dependencies;
-    }
+        => Dependencies = dependencies;
 
     /// <summary>
     ///     Dependencies for this service.

@@ -52,9 +52,7 @@ public class JsonEachExpression : TableValuedFunctionExpression
         SqlExpression jsonExpression,
         IReadOnlyList<PathSegment>? path = null)
         : base(alias, "json_each", schema: null, builtIn: true, new[] { jsonExpression })
-    {
-        Path = path;
-    }
+        => Path = path;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

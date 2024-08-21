@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -19,8 +18,10 @@ public class ValueConverter<TModel, TProvider> : ValueConverter
     private Func<object?, object?>? _convertFromProvider;
     private Func<TModel, TProvider>? _convertToProviderTyped;
     private Func<TProvider, TModel>? _convertFromProviderTyped;
+
     private static readonly ConstructorInfo MappingHintsCtor
-        = typeof(ConverterMappingHints).GetConstructor([typeof(int?), typeof(int?), typeof(int?), typeof(bool?), typeof(Func<IProperty, IEntityType, ValueGenerator>)])!;
+        = typeof(ConverterMappingHints).GetConstructor(
+            [typeof(int?), typeof(int?), typeof(int?), typeof(bool?), typeof(Func<IProperty, IEntityType, ValueGenerator>)])!;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="ValueConverter{TModel,TProvider}" /> class.
@@ -177,15 +178,15 @@ public class ValueConverter<TModel, TProvider> : ValueConverter
         => typeof(TProvider);
 
     private readonly ConstructorInfo _constructorInfo = typeof(ValueConverter<TModel, TProvider>).GetConstructor(
-        [
-            typeof(Expression<Func<TModel, TProvider>>),
-            typeof(Expression<Func<TProvider, TModel>>),
-            typeof(ConverterMappingHints)
-        ])!;
+    [
+        typeof(Expression<Func<TModel, TProvider>>),
+        typeof(Expression<Func<TProvider, TModel>>),
+        typeof(ConverterMappingHints)
+    ])!;
 
     /// <inheritdoc />
-    public override Expression ConstructorExpression =>
-        Expression.New(
+    public override Expression ConstructorExpression
+        => Expression.New(
             _constructorInfo,
             ConvertToProviderExpression,
             ConvertFromProviderExpression,
@@ -198,5 +199,5 @@ public class ValueConverter<TModel, TProvider> : ValueConverter
                     Expression.Constant(MappingHints.IsUnicode, typeof(bool?)),
                     // valueGeneratorFactory is difficult to build using Expression trees and is obsolete
                     Expression.Default(typeof(Func<IProperty, IEntityType, ValueGenerator>)))
-            : Expression.Default(typeof(ConverterMappingHints)));
+                : Expression.Default(typeof(ConverterMappingHints)));
 }

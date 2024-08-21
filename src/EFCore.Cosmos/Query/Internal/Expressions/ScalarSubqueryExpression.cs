@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 // ReSharper disable once CheckNamespace
+
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 
 /// <summary>
@@ -31,15 +32,11 @@ public class ScalarSubqueryExpression : SqlExpression
             subquery.Projection[0].Expression is SqlExpression sqlExpression
                 ? sqlExpression.TypeMapping
                 : throw new UnreachableException("Can't construct scalar subquery over SelectExpression with non-SqlExpression projection"))
-    {
-        Subquery = subquery;
-    }
+        => Subquery = subquery;
 
     private ScalarSubqueryExpression(SelectExpression subquery, CoreTypeMapping? typeMapping)
         : base(subquery.Projection[0].Type, typeMapping)
-    {
-        Subquery = subquery;
-    }
+        => Subquery = subquery;
 
     /// <summary>
     ///     The subquery projecting single row with single scalar projection.

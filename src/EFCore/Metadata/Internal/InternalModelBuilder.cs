@@ -387,7 +387,8 @@ public class InternalModelBuilder : AnnotatableBuilder<Model, InternalModelBuild
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual InternalModelBuilder? RemoveImplicitJoinEntity(
-        EntityType joinEntityType, ConfigurationSource configurationSource = ConfigurationSource.Convention)
+        EntityType joinEntityType,
+        ConfigurationSource configurationSource = ConfigurationSource.Convention)
         => !Check.NotNull(joinEntityType, nameof(joinEntityType)).IsInModel
             ? this
             : !joinEntityType.IsImplicitlyCreatedJoinEntityType

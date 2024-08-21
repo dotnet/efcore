@@ -1,7 +1,6 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 
@@ -21,9 +20,7 @@ public class JsonCastValueReaderWriter<TConverted> :
     /// </summary>
     /// <param name="providerReaderWriter">The underlying provider type reader/writer.</param>
     public JsonCastValueReaderWriter(JsonValueReaderWriter providerReaderWriter)
-    {
-        _providerReaderWriter = providerReaderWriter;
-    }
+        => _providerReaderWriter = providerReaderWriter;
 
     /// <inheritdoc />
     public override TConverted FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
@@ -36,9 +33,10 @@ public class JsonCastValueReaderWriter<TConverted> :
     JsonValueReaderWriter ICompositeJsonValueReaderWriter.InnerReaderWriter
         => _providerReaderWriter;
 
-    private readonly ConstructorInfo _constructorInfo = typeof(JsonCastValueReaderWriter<TConverted>).GetConstructor([typeof(JsonValueReaderWriter)])!;
+    private readonly ConstructorInfo _constructorInfo =
+        typeof(JsonCastValueReaderWriter<TConverted>).GetConstructor([typeof(JsonValueReaderWriter)])!;
 
     /// <inheritdoc />
-    public override Expression ConstructorExpression =>
-        Expression.New(_constructorInfo, ((ICompositeJsonValueReaderWriter)this).InnerReaderWriter.ConstructorExpression);
+    public override Expression ConstructorExpression
+        => Expression.New(_constructorInfo, ((ICompositeJsonValueReaderWriter)this).InnerReaderWriter.ConstructorExpression);
 }

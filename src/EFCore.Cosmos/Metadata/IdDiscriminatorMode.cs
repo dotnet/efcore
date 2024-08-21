@@ -2,10 +2,11 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 // ReSharper disable once CheckNamespace
+
 namespace Microsoft.EntityFrameworkCore.Metadata;
 
 /// <summary>
-///    Defines the behavior for including discriminator values in the JSON "id" value.
+///     Defines the behavior for including discriminator values in the JSON "id" value.
 /// </summary>
 public enum IdDiscriminatorMode
 {

@@ -220,7 +220,8 @@ public class SqlFunctionExpression : SqlExpression
     ///     A bool value indicating if the function is niladic.
     /// </summary>
     [MemberNotNullWhen(false, nameof(Arguments), nameof(ArgumentsPropagateNullability))]
-    public virtual bool IsNiladic => Arguments is null;
+    public virtual bool IsNiladic
+        => Arguments is null;
 
     /// <summary>
     ///     A bool value indicating if the function is built-in.
@@ -319,8 +320,10 @@ public class SqlFunctionExpression : SqlExpression
     /// </summary>
     /// <param name="instance">The <see cref="Instance" /> property of the result.</param>
     /// <param name="arguments">The <see cref="Arguments" /> property of the result.</param>
-    /// <param name="argumentsPropagateNullability">The <see cref="ArgumentsPropagateNullability" /> property of the result. If omitted,
-    /// the current ArgumentsPropagateNullability will be used.</param>
+    /// <param name="argumentsPropagateNullability">
+    ///     The <see cref="ArgumentsPropagateNullability" /> property of the result. If omitted,
+    ///     the current ArgumentsPropagateNullability will be used.
+    /// </param>
     /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
     public virtual SqlFunctionExpression Update(
         SqlExpression? instance,
@@ -332,18 +335,18 @@ public class SqlFunctionExpression : SqlExpression
                 || (argumentsPropagateNullability != null
                     && ArgumentsPropagateNullability != null
                     && argumentsPropagateNullability.SequenceEqual(ArgumentsPropagateNullability)))
-            ? this
-            : new SqlFunctionExpression(
-                instance,
-                Schema,
-                Name,
-                arguments,
-                IsNullable,
-                InstancePropagatesNullability,
-                argumentsPropagateNullability,
-                IsBuiltIn,
-                Type,
-                TypeMapping);
+                ? this
+                : new SqlFunctionExpression(
+                    instance,
+                    Schema,
+                    Name,
+                    arguments,
+                    IsNullable,
+                    InstancePropagatesNullability,
+                    argumentsPropagateNullability,
+                    IsBuiltIn,
+                    Type,
+                    TypeMapping);
 
     /// <inheritdoc />
     public override Expression Quote()

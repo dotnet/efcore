@@ -661,8 +661,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             }
 
             if (!CompareIdentifiers(
-                outerIdentifierValueComparers,
-                outerIdentifier(queryContext, dbDataReader), collectionMaterializationContext.OuterIdentifier))
+                    outerIdentifierValueComparers,
+                    outerIdentifier(queryContext, dbDataReader), collectionMaterializationContext.OuterIdentifier))
             {
                 // Outer changed so collection has ended. Materialize last element.
                 GenerateCurrentElementIfPending();
@@ -687,8 +687,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             if (collectionMaterializationContext.SelfIdentifier != null)
             {
                 if (CompareIdentifiers(
-                    selfIdentifierValueComparers,
-                    innerKey, collectionMaterializationContext.SelfIdentifier))
+                        selfIdentifierValueComparers,
+                        innerKey, collectionMaterializationContext.SelfIdentifier))
                 {
                     // repeated row for current element
                     // If it is pending materialization then it may have nested elements

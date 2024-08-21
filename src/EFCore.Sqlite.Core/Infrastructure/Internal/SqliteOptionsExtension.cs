@@ -36,9 +36,7 @@ public class SqliteOptionsExtension : RelationalOptionsExtension
     /// </summary>
     protected SqliteOptionsExtension(SqliteOptionsExtension copyFrom)
         : base(copyFrom)
-    {
-        _loadSpatialite = copyFrom._loadSpatialite;
-    }
+        => _loadSpatialite = copyFrom._loadSpatialite;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

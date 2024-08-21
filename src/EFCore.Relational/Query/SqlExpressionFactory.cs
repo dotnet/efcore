@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -468,12 +467,14 @@ public class SqlExpressionFactory : ISqlExpressionFactory
         {
             return left;
         }
+
         // true && x -> x
         // x && false -> false
         if (left is SqlConstantExpression { Value: true } || right is SqlConstantExpression { Value: false })
         {
             return right;
         }
+
         // x is null && x is not null -> false
         // x is not null && x is null -> false
         if (left is SqlUnaryExpression { OperatorType: ExpressionType.Equal or ExpressionType.NotEqual } leftUnary
@@ -483,6 +484,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
             // the case in which left and right are the same expression is handled above
             return Constant(false);
         }
+
         if (existingExpression is SqlBinaryExpression { OperatorType: ExpressionType.AndAlso } binaryExpr
             && left == binaryExpr.Left
             && right == binaryExpr.Right)
@@ -508,6 +510,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
         {
             return left;
         }
+
         // false || x -> x
         // x || true -> true
         if (left is SqlConstantExpression { Value: false }
@@ -515,6 +518,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
         {
             return right;
         }
+
         // x is null || x is not null -> true
         // x is not null || x is null -> true
         if (left is SqlUnaryExpression { OperatorType: ExpressionType.Equal or ExpressionType.NotEqual } leftUnary
@@ -524,6 +528,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
             // the case in which left and right are the same expression is handled above
             return Constant(true);
         }
+
         if (existingExpression is SqlBinaryExpression { OperatorType: ExpressionType.OrElse } binaryExpr
             && left == binaryExpr.Left
             && right == binaryExpr.Right)
@@ -578,7 +583,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
             SqlConstantExpression { Value: null } => right,
 
             SqlConstantExpression { Value: not null } or
-            ColumnExpression { IsNullable: false } => left,
+                ColumnExpression { IsNullable: false } => left,
 
             _ => new SqlFunctionExpression(
                 "COALESCE",
@@ -663,9 +668,11 @@ public class SqlExpressionFactory : ISqlExpressionFactory
                 => Equal(Not(binary.Left), binary.Right),
 
             // !(a == b) -> a != b
-            SqlBinaryExpression { OperatorType: ExpressionType.Equal } sqlBinaryOperand => NotEqual(sqlBinaryOperand.Left, sqlBinaryOperand.Right),
+            SqlBinaryExpression { OperatorType: ExpressionType.Equal } sqlBinaryOperand => NotEqual(
+                sqlBinaryOperand.Left, sqlBinaryOperand.Right),
             // !(a != b) -> a == b
-            SqlBinaryExpression { OperatorType: ExpressionType.NotEqual } sqlBinaryOperand => Equal(sqlBinaryOperand.Left, sqlBinaryOperand.Right),
+            SqlBinaryExpression { OperatorType: ExpressionType.NotEqual } sqlBinaryOperand => Equal(
+                sqlBinaryOperand.Left, sqlBinaryOperand.Right),
 
             // !(CASE x WHEN t1 THEN r1 ... ELSE rN) -> CASE x WHEN t1 THEN !r1 ... ELSE !rN
             CaseExpression caseExpression
@@ -735,7 +742,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
                     test = nestedSingleClause.Test;
                 }
                 else if (nestedSingleClause.Result is SqlConstantExpression { Value: false or null }
-                    && testExpr.ElseResult is SqlConstantExpression { Value: true })
+                         && testExpr.ElseResult is SqlConstantExpression { Value: true })
                 {
                     // same for the negated results
                     test = Not(nestedSingleClause.Test);
@@ -810,7 +817,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
             && typeMappedWhenClauses[^1].Result is CaseExpression { Operand: null, WhenClauses: [var lastClause] } lastCase
             && Equals(elseResult, lastCase.ElseResult))
         {
-            typeMappedWhenClauses[^1] = new(AndAlso(typeMappedWhenClauses[^1].Test, lastClause.Test), lastClause.Result);
+            typeMappedWhenClauses[^1] = new CaseWhenClause(AndAlso(typeMappedWhenClauses[^1].Test, lastClause.Test), lastClause.Result);
             elseResult = lastCase.ElseResult;
         }
 
@@ -818,8 +825,8 @@ public class SqlExpressionFactory : ISqlExpressionFactory
             && operand == expr.Operand
             && typeMappedWhenClauses.SequenceEqual(expr.WhenClauses)
             && elseResult == expr.ElseResult
-            ? expr
-            : new CaseExpression(operand, typeMappedWhenClauses, elseResult);
+                ? expr
+                : new CaseExpression(operand, typeMappedWhenClauses, elseResult);
 
         bool IsSkipped(CaseWhenClause clause)
             => operand is null && clause.Test is SqlConstantExpression { Value: false or null };

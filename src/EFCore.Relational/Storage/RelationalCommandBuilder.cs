@@ -21,9 +21,7 @@ public class RelationalCommandBuilder : IRelationalCommandBuilder
     /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
     public RelationalCommandBuilder(
         RelationalCommandBuilderDependencies dependencies)
-    {
-        Dependencies = dependencies;
-    }
+        => Dependencies = dependencies;
 
     /// <summary>
     ///     Relational provider-specific dependencies for this service.

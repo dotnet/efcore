@@ -38,8 +38,9 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
 
     private const string InterceptorsNamespace = "Microsoft.EntityFrameworkCore.GeneratedInterceptors";
 
-    /// <inheritdoc/>
-    public string? Language => "C#";
+    /// <inheritdoc />
+    public string? Language
+        => "C#";
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -221,7 +222,7 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
             }
             catch (Exception e)
             {
-                precompilationErrors.Add(new(querySyntax, e));
+                precompilationErrors.Add(new QueryPrecompilationError(querySyntax, e));
                 continue;
             }
 
@@ -245,6 +246,7 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
             {
                 _code.AppendLine(unsafeAccessor.NormalizeWhitespace().ToFullString());
             }
+
             _code.AppendLine("#endregion Unsafe accessors");
         }
 
@@ -314,7 +316,7 @@ namespace System.Runtime.CompilerServices
             generatedFileNames,
             ".EFInterceptors" + suffix + Path.GetExtension(syntaxTree.FilePath),
             CompiledModelScaffolder.MaxFileNameLength);
-        return new(name, _code.ToString());
+        return new ScaffoldedFile(name, _code.ToString());
     }
 
     /// <summary>
@@ -467,7 +469,7 @@ namespace System.Runtime.CompilerServices
             ? (reducedOperatorSymbol.Parameters[0].Name, reducedOperatorSymbol.Parameters[0].Type)
             : ("source", reducedOperatorSymbol.ReceiverType!);
 
-        if (sourceTypeSymbol is not INamedTypeSymbol { TypeArguments: [var sourceElementTypeSymbol]})
+        if (sourceTypeSymbol is not INamedTypeSymbol { TypeArguments: [var sourceElementTypeSymbol] })
         {
             throw new UnreachableException($"Non-IQueryable first parameter in LINQ operator '{operatorSymbol.Name}'");
         }
@@ -498,7 +500,8 @@ namespace System.Runtime.CompilerServices
         // Output the interceptor method signature preceded by the [InterceptsLocation] attribute.
         var startPosition = operatorSyntax.SyntaxTree.GetLineSpan(memberAccessSyntax.Name.Span, cancellationToken).StartLinePosition;
         var interceptorName = $"Query{queryNum}_{memberAccessSyntax.Name}{operatorNum}";
-        code.AppendLine($"""[InterceptsLocation(@"{operatorSyntax.SyntaxTree.FilePath.Replace("\"","\"\"")}", {startPosition.Line + 1}, {startPosition.Character + 1})]""");
+        code.AppendLine(
+            $"""[InterceptsLocation(@"{operatorSyntax.SyntaxTree.FilePath.Replace("\"", "\"\"")}", {startPosition.Line + 1}, {startPosition.Character + 1})]""");
         GenerateInterceptorMethodSignature();
         code.AppendLine("{").IncrementIndent();
 
@@ -550,8 +553,8 @@ namespace System.Runtime.CompilerServices
                         || genericDefinition == typeof(IAsyncEnumerable<>));
 
                 var isQueryable = !isAsync
-                        && operatorExpression.Type.IsGenericType
-                        && operatorExpression.Type.GetGenericTypeDefinition() == typeof(IQueryable<>);
+                    && operatorExpression.Type.IsGenericType
+                    && operatorExpression.Type.GetGenericTypeDefinition() == typeof(IQueryable<>);
 
                 var returnValue = isAsync
                     ? $"IAsyncEnumerable<{sourceElementTypeName}>"
@@ -583,7 +586,8 @@ namespace System.Runtime.CompilerServices
                         // TODO: This is an additional runtime allocation; if we had System.Linq.Async we wouldn't need this. We could
                         // have additional versions of all async terminating operators over IAsyncEnumerable<T> (effectively duplicating
                         // System.Linq.Async) as an alternative.
-                        code.AppendLine($"var asyncQueryingEnumerable = new PrecompiledQueryableAsyncEnumerableAdapter<{sourceElementTypeName}>(queryingEnumerable);");
+                        code.AppendLine(
+                            $"var asyncQueryingEnumerable = new PrecompiledQueryableAsyncEnumerableAdapter<{sourceElementTypeName}>(queryingEnumerable);");
                         code.Append("return asyncQueryingEnumerable");
                     }
                     else
@@ -636,13 +640,16 @@ namespace System.Runtime.CompilerServices
                 .Append(' ')
                 .Append(interceptorName);
 
-            var (typeParameters, constraints) = (reducedOperatorSymbol.IsGenericMethod, reducedOperatorSymbol.ContainingType.IsGenericType) switch
-            {
-                (true, false) => (reducedOperatorSymbol.TypeParameters, ((MethodDeclarationSyntax)_g.MethodDeclaration(reducedOperatorSymbol)).ConstraintClauses),
-                (false, true) => (reducedOperatorSymbol.ContainingType.TypeParameters, ((TypeDeclarationSyntax)_g.Declaration(reducedOperatorSymbol.ContainingType)).ConstraintClauses),
-                (false, false) => ([], []),
-                (true, true) => throw new NotImplementedException("Generic method on generic type not supported")
-            };
+            var (typeParameters, constraints) =
+                (reducedOperatorSymbol.IsGenericMethod, reducedOperatorSymbol.ContainingType.IsGenericType) switch
+                {
+                    (true, false) => (reducedOperatorSymbol.TypeParameters,
+                        ((MethodDeclarationSyntax)_g.MethodDeclaration(reducedOperatorSymbol)).ConstraintClauses),
+                    (false, true) => (reducedOperatorSymbol.ContainingType.TypeParameters,
+                        ((TypeDeclarationSyntax)_g.Declaration(reducedOperatorSymbol.ContainingType)).ConstraintClauses),
+                    (false, false) => ([], []),
+                    (true, true) => throw new NotImplementedException("Generic method on generic type not supported")
+                };
 
             if (typeParameters.Length > 0)
             {
@@ -774,7 +781,8 @@ namespace System.Runtime.CompilerServices
                                 var collectedNamespaces = new HashSet<string>();
                                 var unsafeAccessors = new HashSet<MethodDeclarationSyntax>();
                                 var roslynPathSegment = _linqToCSharpTranslator.TranslateExpression(
-                                    linqPathSegment, constantReplacements: null, _memberAccessReplacements, collectedNamespaces, unsafeAccessors);
+                                    linqPathSegment, constantReplacements: null, _memberAccessReplacements, collectedNamespaces,
+                                    unsafeAccessors);
 
                                 var variableName = capturedVariablesPathTree.ExpressionType.Name;
                                 variableName = char.ToLower(variableName[0]) + variableName[1..^"Expression".Length] + ++variableCounter;
@@ -1066,10 +1074,14 @@ namespace System.Runtime.CompilerServices
                         method.GetParameters()[1].ParameterType.GenericTypeArguments[0].GenericTypeArguments[1])),
 
             // ExecuteDelete/Update behave just like other scalar-returning operators
-            nameof(EntityFrameworkQueryableExtensions.ExecuteDeleteAsync) when method.DeclaringType == typeof(EntityFrameworkQueryableExtensions)
-                => RewriteToSync(typeof(EntityFrameworkQueryableExtensions).GetMethod(nameof(EntityFrameworkQueryableExtensions.ExecuteDelete))),
-            nameof(EntityFrameworkQueryableExtensions.ExecuteUpdateAsync) when method.DeclaringType == typeof(EntityFrameworkQueryableExtensions)
-                => RewriteToSync(typeof(EntityFrameworkQueryableExtensions).GetMethod(nameof(EntityFrameworkQueryableExtensions.ExecuteUpdate))),
+            nameof(EntityFrameworkQueryableExtensions.ExecuteDeleteAsync) when method.DeclaringType
+                == typeof(EntityFrameworkQueryableExtensions)
+                => RewriteToSync(
+                    typeof(EntityFrameworkQueryableExtensions).GetMethod(nameof(EntityFrameworkQueryableExtensions.ExecuteDelete))),
+            nameof(EntityFrameworkQueryableExtensions.ExecuteUpdateAsync) when method.DeclaringType
+                == typeof(EntityFrameworkQueryableExtensions)
+                => RewriteToSync(
+                    typeof(EntityFrameworkQueryableExtensions).GetMethod(nameof(EntityFrameworkQueryableExtensions.ExecuteUpdate))),
 
             // In the regular case (sync terminating operator which needs to stay in the query tree), simply compose the terminating
             // operator over the penultimate and return that.

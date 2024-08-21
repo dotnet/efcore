@@ -21,8 +21,8 @@ public static class ValueComparerExtensions
         => valueComparer == null
             || !clrType.IsNullableValueType()
             || valueComparer.Type.IsNullableValueType()
-            ? valueComparer
-            : (ValueComparer)Activator.CreateInstance(
-                typeof(NullableValueComparer<>).MakeGenericType(valueComparer.Type),
-                valueComparer)!;
+                ? valueComparer
+                : (ValueComparer)Activator.CreateInstance(
+                    typeof(NullableValueComparer<>).MakeGenericType(valueComparer.Type),
+                    valueComparer)!;
 }

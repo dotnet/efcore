@@ -180,7 +180,6 @@ public static class CosmosQueryableExtensions
     internal static readonly MethodInfo ToPageAsyncMethodInfo
         = typeof(CosmosQueryableExtensions).GetMethod(nameof(ToPageAsync))!;
 
-
     /// <summary>
     ///     Allows paginating through query results by repeatedly executing the same query, passing continuation tokens to retrieve
     ///     successive pages of the result set, and specifying the maximum number of results per page.

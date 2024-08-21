@@ -22,9 +22,7 @@ public class AssemblyEventData : EventData
         Func<EventDefinitionBase, EventData, string> messageGenerator,
         Assembly assembly)
         : base(eventDefinition, messageGenerator)
-    {
-        Assembly = assembly;
-    }
+        => Assembly = assembly;
 
     /// <summary>
     ///     The assembly.

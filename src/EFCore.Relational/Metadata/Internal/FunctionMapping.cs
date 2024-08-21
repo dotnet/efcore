@@ -19,9 +19,7 @@ public class FunctionMapping : TableMappingBase<FunctionColumnMapping>, IFunctio
     /// </summary>
     public FunctionMapping(IEntityType entityType, StoreFunction storeFunction, IDbFunction dbFunction, bool? includesDerivedTypes)
         : base(entityType, storeFunction, includesDerivedTypes)
-    {
-        DbFunction = dbFunction;
-    }
+        => DbFunction = dbFunction;
 
     /// <inheritdoc />
     public virtual bool IsDefaultFunctionMapping { get; set; }

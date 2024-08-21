@@ -34,9 +34,7 @@ public sealed class StringDictionaryComparer<TDictionary, TElement> : ValueCompa
             CompareLambda(elementComparer),
             GetHashCodeLambda(elementComparer),
             SnapshotLambda(elementComparer))
-    {
-        ElementComparer = elementComparer;
-    }
+        => ElementComparer = elementComparer;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -46,7 +44,8 @@ public sealed class StringDictionaryComparer<TDictionary, TElement> : ValueCompa
     /// </summary>
     public ValueComparer ElementComparer { get; }
 
-    ValueComparer IInfrastructure<ValueComparer>.Instance => ElementComparer;
+    ValueComparer IInfrastructure<ValueComparer>.Instance
+        => ElementComparer;
 
     private static Expression<Func<object?, object?, bool>> CompareLambda(ValueComparer elementComparer)
     {

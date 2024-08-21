@@ -29,9 +29,7 @@ public class SqlServerQueryCompilationContext : RelationalQueryCompilationContex
         : this(
             dependencies, relationalDependencies, async, multipleActiveResultSetsEnabled, precompiling: false,
             nonNullableReferenceTypeParameters: null)
-    {
-        _multipleActiveResultSetsEnabled = multipleActiveResultSetsEnabled;
-    }
+        => _multipleActiveResultSetsEnabled = multipleActiveResultSetsEnabled;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -48,9 +46,7 @@ public class SqlServerQueryCompilationContext : RelationalQueryCompilationContex
         bool precompiling,
         IReadOnlySet<string>? nonNullableReferenceTypeParameters)
         : base(dependencies, relationalDependencies, async, precompiling, nonNullableReferenceTypeParameters)
-    {
-        _multipleActiveResultSetsEnabled = multipleActiveResultSetsEnabled;
-    }
+        => _multipleActiveResultSetsEnabled = multipleActiveResultSetsEnabled;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -64,5 +60,6 @@ public class SqlServerQueryCompilationContext : RelationalQueryCompilationContex
                 && !_multipleActiveResultSetsEnabled);
 
     /// <inheritdoc />
-    public override bool SupportsPrecompiledQuery => true;
+    public override bool SupportsPrecompiledQuery
+        => true;
 }

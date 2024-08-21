@@ -5,7 +5,6 @@ using System.Text;
 using Microsoft.Build.Locator;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Editing;
-using Microsoft.CodeAnalysis.Formatting;
 using Microsoft.CodeAnalysis.MSBuild;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -201,8 +200,9 @@ public class DbContextOperations
         if (scaffoldModel
             && (!optimizeAllInAssembly || contextType.Assembly == _assembly))
         {
-            generatedFiles.AddRange(ScaffoldCompiledModel(
-                outputDir, modelNamespace, context, suffix, nativeAot, services, generatedFileNames));
+            generatedFiles.AddRange(
+                ScaffoldCompiledModel(
+                    outputDir, modelNamespace, context, suffix, nativeAot, services, generatedFileNames));
             if (precompileQueries)
             {
                 memberAccessReplacements = ((IRuntimeModel)context.GetService<IDesignTimeModel>().Model).GetUnsafeAccessors();
@@ -211,13 +211,14 @@ public class DbContextOperations
 
         if (precompileQueries)
         {
-            generatedFiles.AddRange(PrecompileQueries(
-                outputDir,
-                context,
-                suffix,
-                services,
-                memberAccessReplacements ?? ((IRuntimeModel)context.Model).GetUnsafeAccessors(),
-                generatedFileNames));
+            generatedFiles.AddRange(
+                PrecompileQueries(
+                    outputDir,
+                    context,
+                    suffix,
+                    services,
+                    memberAccessReplacements ?? ((IRuntimeModel)context.Model).GetUnsafeAccessors(),
+                    generatedFileNames));
         }
     }
 
@@ -233,8 +234,9 @@ public class DbContextOperations
         var contextType = context.GetType();
         if (contextType.Assembly != _assembly)
         {
-            _reporter.WriteWarning(DesignStrings.ContextAssemblyMismatch(
-                _assembly.GetName().Name, contextType.ShortDisplayName(), contextType.Assembly.GetName().Name));
+            _reporter.WriteWarning(
+                DesignStrings.ContextAssemblyMismatch(
+                    _assembly.GetName().Name, contextType.ShortDisplayName(), contextType.Assembly.GetName().Name));
         }
 
         if (outputDir == null)
@@ -286,7 +288,13 @@ public class DbContextOperations
         return scaffoldedFiles;
     }
 
-    private IReadOnlyList<string> PrecompileQueries(string? outputDir, DbContext context, string? suffix, IServiceProvider services, IReadOnlyDictionary<MemberInfo, QualifiedName> memberAccessReplacements, ISet<string> generatedFileNames)
+    private IReadOnlyList<string> PrecompileQueries(
+        string? outputDir,
+        DbContext context,
+        string? suffix,
+        IServiceProvider services,
+        IReadOnlyDictionary<MemberInfo, QualifiedName> memberAccessReplacements,
+        ISet<string> generatedFileNames)
     {
         outputDir = Path.GetFullPath(Path.Combine(_projectDir, outputDir ?? "Generated"));
 
@@ -294,6 +302,7 @@ public class DbContextOperations
         {
             MSBuildLocator.RegisterDefaults();
         }
+
         // TODO: pass through properties
         var workspace = MSBuildWorkspace.Create();
         workspace.LoadMetadataForReferencedProjects = true;
@@ -302,6 +311,7 @@ public class DbContextOperations
         {
             throw new NotSupportedException(DesignStrings.UncompilableProject(_project));
         }
+
         var compilation = project.GetCompilationAsync().GetAwaiter().GetResult()!;
         var errorDiagnostics = compilation.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error).ToArray();
         if (errorDiagnostics.Any())
@@ -465,8 +475,9 @@ public class DbContextOperations
                 ex = ex.InnerException!;
             }
 
-            throw new OperationException(DesignStrings.CannotCreateContextInstance(
-                contextType ?? contextPair.Key.GetType().ShortDisplayName(), ex.Message), ex);
+            throw new OperationException(
+                DesignStrings.CannotCreateContextInstance(
+                    contextType ?? contextPair.Key.GetType().ShortDisplayName(), ex.Message), ex);
         }
     }
 

@@ -42,9 +42,7 @@ public abstract class RelationalTypeMappingSource : TypeMappingSourceBase, IRela
         TypeMappingSourceDependencies dependencies,
         RelationalTypeMappingSourceDependencies relationalDependencies)
         : base(dependencies)
-    {
-        RelationalDependencies = relationalDependencies;
-    }
+        => RelationalDependencies = relationalDependencies;
 
     /// <summary>
     ///     Overridden by relational database providers to find a type mapping for the given info.
@@ -360,7 +358,8 @@ public abstract class RelationalTypeMappingSource : TypeMappingSourceBase, IRela
                 storeTypeNameBase = ParseStoreTypeName(storeTypeName, ref unicode, ref size, ref precision, ref scale);
             }
 
-            var mappingInfo = new RelationalTypeMappingInfo(type, typeConfiguration, (RelationalTypeMapping?)elementMapping,
+            var mappingInfo = new RelationalTypeMappingInfo(
+                type, typeConfiguration, (RelationalTypeMapping?)elementMapping,
                 storeTypeName, storeTypeNameBase, unicode, size, precision, scale);
             var providerClrType = typeConfiguration.GetProviderClrType()?.UnwrapNullableType();
             return FindMappingWithConversion(mappingInfo, providerClrType, customConverter: typeConfiguration.GetValueConverter());
@@ -372,7 +371,7 @@ public abstract class RelationalTypeMappingSource : TypeMappingSourceBase, IRela
             customConverter: null);
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public override RelationalTypeMapping? FindMapping(MemberInfo member)
     {
         if (member.GetCustomAttribute<ColumnAttribute>(true) is ColumnAttribute attribute)
@@ -392,7 +391,7 @@ public abstract class RelationalTypeMappingSource : TypeMappingSourceBase, IRela
         return FindMappingWithConversion(new RelationalTypeMappingInfo(member), null, null);
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public override RelationalTypeMapping? FindMapping(MemberInfo member, IModel model, bool useAttributes)
     {
         if (useAttributes

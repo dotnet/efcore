@@ -362,7 +362,8 @@ public interface ICSharpHelper
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </remarks>
     [EntityFrameworkInternal]
-    string Statement(Expression node,
+    string Statement(
+        Expression node,
         ISet<string> collectedNamespaces,
         ISet<string> unsafeAccessors,
         IReadOnlyDictionary<object, string>? constantReplacements = null,
@@ -384,7 +385,8 @@ public interface ICSharpHelper
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </remarks>
     [EntityFrameworkInternal]
-    string Expression(Expression node,
+    string Expression(
+        Expression node,
         ISet<string> collectedNamespaces,
         ISet<string> unsafeAccessors,
         IReadOnlyDictionary<object, string>? constantReplacements = null,

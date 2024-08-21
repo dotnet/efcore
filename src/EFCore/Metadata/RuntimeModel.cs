@@ -50,10 +50,9 @@ public class RuntimeModel : RuntimeAnnotatableBase, IRuntimeModel
     [EntityFrameworkInternal]
     [Obsolete("Use a constructor with parameters")]
     public RuntimeModel()
-        : base()
     {
-        _entityTypes = new(StringComparer.Ordinal);
-        _typeConfigurations = new();
+        _entityTypes = new Dictionary<string, RuntimeEntityType>(StringComparer.Ordinal);
+        _typeConfigurations = new Dictionary<Type, RuntimeTypeMappingConfiguration>();
     }
 
     /// <summary>
@@ -71,8 +70,8 @@ public class RuntimeModel : RuntimeAnnotatableBase, IRuntimeModel
     {
         _skipDetectChanges = skipDetectChanges;
         _modelId = modelId;
-        _entityTypes = new(entityTypeCount, StringComparer.Ordinal);
-        _typeConfigurations = new(typeConfigurationCount);
+        _entityTypes = new Dictionary<string, RuntimeEntityType>(entityTypeCount, StringComparer.Ordinal);
+        _typeConfigurations = new Dictionary<Type, RuntimeTypeMappingConfiguration>(typeConfigurationCount);
     }
 
     /// <summary>

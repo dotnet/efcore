@@ -3,7 +3,6 @@
 
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
@@ -71,7 +70,7 @@ public class ServicePropertyDiscoveryConvention :
     }
 
     /// <summary>
-    ///    Discovers properties on the given structural type.
+    ///     Discovers properties on the given structural type.
     /// </summary>
     /// <param name="structuralTypeBuilder">The type for which the properties will be discovered.</param>
     /// <param name="context">Additional information associated with convention execution.</param>
@@ -113,7 +112,9 @@ public class ServicePropertyDiscoveryConvention :
     /// <param name="structuralType">The type for which the properties will be discovered.</param>
     /// <param name="factory">The parameter binding factory for the property.</param>
     protected virtual bool IsCandidateServiceProperty(
-        MemberInfo memberInfo, IConventionTypeBase structuralType, [NotNullWhen(true)] out IParameterBindingFactory? factory)
+        MemberInfo memberInfo,
+        IConventionTypeBase structuralType,
+        [NotNullWhen(true)] out IParameterBindingFactory? factory)
     {
         factory = null;
         var model = (Model)structuralType.Model;

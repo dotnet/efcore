@@ -3,7 +3,6 @@
 
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
-using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 
@@ -26,9 +25,7 @@ public class SqlServerSqlExpressionFactory : SqlExpressionFactory
     public SqlServerSqlExpressionFactory(
         SqlExpressionFactoryDependencies dependencies)
         : base(dependencies)
-    {
-        _typeMappingSource = dependencies.TypeMappingSource;
-    }
+        => _typeMappingSource = dependencies.TypeMappingSource;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

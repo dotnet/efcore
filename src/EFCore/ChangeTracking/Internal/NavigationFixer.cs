@@ -1102,7 +1102,8 @@ public class NavigationFixer : INavigationFixer
             SetForeignKeyProperties(
                 joinEntry, arguments.OtherEntry, arguments.SkipNavigation.Inverse.ForeignKey, arguments.SetModified,
                 arguments.FromQuery);
-            SetNavigation(joinEntry, arguments.SkipNavigation.Inverse.ForeignKey.DependentToPrincipal, arguments.OtherEntry, arguments.FromQuery);
+            SetNavigation(
+                joinEntry, arguments.SkipNavigation.Inverse.ForeignKey.DependentToPrincipal, arguments.OtherEntry, arguments.FromQuery);
 
             joinEntry.SetEntityState(
                 arguments.SetModified

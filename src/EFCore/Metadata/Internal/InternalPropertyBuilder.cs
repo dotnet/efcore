@@ -1,10 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
-using System.Reflection;
 using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -186,21 +184,18 @@ public class InternalPropertyBuilder
         {
             return Equals(Metadata.Sentinel, sentinel);
         }
-        else
+
+        try
         {
-            try
-            {
-                return Equals(Metadata.Sentinel, Convert.ChangeType(sentinel, Metadata.ClrType, CultureInfo.InvariantCulture));
-            }
-            catch
-            {
-                throw new InvalidOperationException(
-                    CoreStrings.IncompatibleSentinelValue(
-                        sentinel, Metadata.DeclaringType.DisplayName(), Metadata.Name, Metadata.ClrType.ShortDisplayName()));
-            }
+            return Equals(Metadata.Sentinel, Convert.ChangeType(sentinel, Metadata.ClrType, CultureInfo.InvariantCulture));
+        }
+        catch
+        {
+            throw new InvalidOperationException(
+                CoreStrings.IncompatibleSentinelValue(
+                    sentinel, Metadata.DeclaringType.DisplayName(), Metadata.Name, Metadata.ClrType.ShortDisplayName()));
         }
     }
-
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -528,6 +523,7 @@ public class InternalPropertyBuilder
             {
                 Metadata.SetElementType(null, configurationSource);
             }
+
             Metadata.SetProviderClrType(null, configurationSource);
             Metadata.SetValueConverter(converter, configurationSource);
 
@@ -568,6 +564,7 @@ public class InternalPropertyBuilder
             {
                 Metadata.SetElementType(null, configurationSource);
             }
+
             Metadata.SetValueConverter((ValueConverter?)null, configurationSource);
             Metadata.SetProviderClrType(providerClrType, configurationSource);
 
@@ -606,6 +603,7 @@ public class InternalPropertyBuilder
             {
                 Metadata.SetElementType(null, configurationSource);
             }
+
             Metadata.SetProviderClrType(null, configurationSource);
             Metadata.SetValueConverter(converterType, configurationSource);
 
@@ -626,8 +624,8 @@ public class InternalPropertyBuilder
         Type? converterType,
         ConfigurationSource? configurationSource)
         => (configurationSource.Overrides(Metadata.GetValueConverterConfigurationSource())
-            || (Metadata[CoreAnnotationNames.ValueConverter] == null
-                && (Type?)Metadata[CoreAnnotationNames.ValueConverterType] == converterType))
+                || (Metadata[CoreAnnotationNames.ValueConverter] == null
+                    && (Type?)Metadata[CoreAnnotationNames.ValueConverterType] == converterType))
             && (converterType == null || CanSetElementType(null, configurationSource));
 
     /// <summary>
@@ -827,6 +825,7 @@ public class InternalPropertyBuilder
             {
                 Metadata.SetValueConverter((Type?)null, configurationSource);
             }
+
             return new InternalElementTypeBuilder(Metadata.GetElementType()!, ModelBuilder);
         }
 
@@ -841,7 +840,7 @@ public class InternalPropertyBuilder
     /// </summary>
     public virtual bool CanSetElementType(Type? elementType, ConfigurationSource? configurationSource)
         => (configurationSource.Overrides(Metadata.GetElementTypeConfigurationSource())
-            && (elementType == null || CanSetConversion((Type?)null, configurationSource)))
+                && (elementType == null || CanSetConversion((Type?)null, configurationSource)))
             || elementType == Metadata.GetElementType()?.ClrType;
 
     /// <summary>

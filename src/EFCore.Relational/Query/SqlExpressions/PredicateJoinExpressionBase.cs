@@ -27,9 +27,7 @@ public abstract class PredicateJoinExpressionBase : JoinExpressionBase
         bool prunable,
         IReadOnlyDictionary<string, IAnnotation>? annotations = null)
         : base(table, prunable, annotations)
-    {
-        JoinPredicate = joinPredicate;
-    }
+        => JoinPredicate = joinPredicate;
 
     /// <summary>
     ///     The predicate used in join.

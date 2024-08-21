@@ -61,7 +61,6 @@ public class OrderingExpression : Expression, IRelationalQuotableExpression, IPr
             ? new OrderingExpression(expression, IsAscending)
             : this;
 
-
     /// <inheritdoc />
     public Expression Quote()
         => New(
