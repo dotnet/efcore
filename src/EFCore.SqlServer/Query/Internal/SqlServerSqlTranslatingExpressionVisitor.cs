@@ -404,14 +404,7 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
                     StartsEndsWithContains.Contains when patternIsNonEmptyConstantString
                         => _sqlExpressionFactory.AndAlso(
                             _sqlExpressionFactory.IsNotNull(translatedInstance),
-                                _sqlExpressionFactory.GreaterThan(
-                                    _sqlExpressionFactory.Function(
-                                        "CHARINDEX",
-                                        new[] { translatedPattern, translatedInstance },
-                                        nullable: true,
-                                        argumentsPropagateNullability: new[] { true, true },
-                                        typeof(int)),
-                                    _sqlExpressionFactory.Constant(0))),
+                            CharIndexGreaterThanZero()),
 
                     // For Contains, just use CHARINDEX and check if the result is greater than 0.
                     // Add a check to return null when the pattern is an empty string (and the string isn't null)
@@ -421,20 +414,26 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
                             _sqlExpressionFactory.AndAlso(
                                 _sqlExpressionFactory.IsNotNull(translatedPattern),
                                 _sqlExpressionFactory.OrElse(
-                                    _sqlExpressionFactory.GreaterThan(
-                                        _sqlExpressionFactory.Function(
-                                            "CHARINDEX",
-                                            new[] { translatedPattern, translatedInstance },
-                                            nullable: true,
-                                            argumentsPropagateNullability: new[] { true, true },
-                                            typeof(int)),
-                                        _sqlExpressionFactory.Constant(0)),
+                                    CharIndexGreaterThanZero(),
                                     _sqlExpressionFactory.Like(
                                         translatedPattern,
                                         _sqlExpressionFactory.Constant(string.Empty, stringTypeMapping))))),
 
                     _ => throw new UnreachableException()
                 };
+
+                SqlExpression CharIndexGreaterThanZero()
+                {
+                    return
+                        _sqlExpressionFactory.GreaterThan(
+                            _sqlExpressionFactory.Function(
+                                "CHARINDEX",
+                                new[] { translatedPattern, translatedInstance },
+                                nullable: true,
+                                argumentsPropagateNullability: new[] { true, true },
+                                typeof(int)),
+                            _sqlExpressionFactory.Constant(0));
+                }
             }
         }
     }
