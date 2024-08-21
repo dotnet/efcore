@@ -12,9 +12,7 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
 {
     protected OwnedQueryTestBase(TFixture fixture)
         : base(fixture)
-    {
-        fixture.ListLoggerFactory.Clear();
-    }
+        => fixture.ListLoggerFactory.Clear();
 
     [ConditionalTheory] // Issue #26257
     [MemberData(nameof(IsAsyncData))]
@@ -25,8 +23,7 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
             await context.AddAsync(
                 new HeliumBalloon
                 {
-                    Id = Guid.NewGuid().ToString(),
-                    Gas = new Helium(),
+                    Id = Guid.NewGuid().ToString(), Gas = new Helium(),
                 });
 
             await context.AddAsync(new HydrogenBalloon { Id = Guid.NewGuid().ToString(), Gas = new Hydrogen() });
@@ -989,7 +986,9 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
         => AssertQuery(
             async,
             ss => ss.Set<OwnedPerson>().Where(p => ((DateTime)p.Orders.FirstOrDefault(o => o.Id > -20)["OrderDate"]).Year == 2018),
-            ss => ss.Set<OwnedPerson>().Where(p => p.Orders.FirstOrDefault(o => o.Id > -20) != null && ((DateTime)p.Orders.FirstOrDefault(o => o.Id > -20)["OrderDate"]).Year == 2018));
+            ss => ss.Set<OwnedPerson>().Where(
+                p => p.Orders.FirstOrDefault(o => o.Id > -20) != null
+                    && ((DateTime)p.Orders.FirstOrDefault(o => o.Id > -20)["OrderDate"]).Year == 2018));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1742,13 +1741,13 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
                     Name = "Sol",
                     Composition =
                     [
-                        new()
+                        new Element
                         {
                             Id = "H",
                             Name = "Hydrogen",
                             StarId = 1
                         },
-                        new()
+                        new Element
                         {
                             Id = "He",
                             Name = "Helium",
@@ -1868,7 +1867,7 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 Id = -10,
                 Client = ownedPerson1,
                 ["OrderDate"] = Convert.ToDateTime("2018-07-11 10:01:41"),
-                Details = [new() { Detail = "Discounted Order" }, new() { Detail = "Full Price Order" }]
+                Details = [new OrderDetail { Detail = "Discounted Order" }, new OrderDetail { Detail = "Full Price Order" }]
             };
 
             var order2 = new Order
@@ -1885,7 +1884,7 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 Id = -20,
                 Client = ownedPerson2,
                 ["OrderDate"] = Convert.ToDateTime("2015-05-25 20:35:48"),
-                Details = [new() { Detail = "Internal Order" }]
+                Details = [new OrderDetail { Detail = "Internal Order" }]
             };
             ownedPerson2.Orders = new List<Order> { order3 };
 
@@ -1894,7 +1893,7 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 Id = -30,
                 Client = ownedPerson3,
                 ["OrderDate"] = Convert.ToDateTime("2014-11-10 04:32:42"),
-                Details = [new() { Detail = "Bulk Order" }]
+                Details = [new OrderDetail { Detail = "Bulk Order" }]
             };
             ownedPerson3.Orders = new List<Order> { order4 };
 

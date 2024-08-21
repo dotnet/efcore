@@ -47,8 +47,8 @@ public abstract class OwnedEntityQueryRelationalTestBase : OwnedEntityQueryTestB
 
         public class AnOwnedTypeWithOwnedProperties
         {
-            public AnOwnedTypeWithPrimitiveProperties1 AnOwnedTypeWithPrimitiveProperties1 { get; set; }
-            public AnOwnedTypeWithPrimitiveProperties2 AnOwnedTypeWithPrimitiveProperties2 { get; set; }
+            public AnOwnedTypeWithPrimitiveProperties1 AnOwnedTypeWithPrimitiveProperties1 { get; }
+            public AnOwnedTypeWithPrimitiveProperties2 AnOwnedTypeWithPrimitiveProperties2 { get; }
         }
 
         public class AnOwnedTypeWithPrimitiveProperties1
@@ -83,7 +83,7 @@ public abstract class OwnedEntityQueryRelationalTestBase : OwnedEntityQueryTestB
 
     private class Context24777(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Root> Roots { get; set; }
+        public DbSet<Root> Roots { get; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Root>(
@@ -155,7 +155,7 @@ public abstract class OwnedEntityQueryRelationalTestBase : OwnedEntityQueryTestB
         {
             public int Id { get; init; }
             public int RootId { get; init; }
-            public List<Leaf> Leaves { get; init; }
+            public List<Leaf> Leaves { get; }
         }
 
         public class MiddleB
@@ -424,7 +424,7 @@ public abstract class OwnedEntityQueryRelationalTestBase : OwnedEntityQueryTestB
 
     private class Context28247(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<RotRutCase> RotRutCases { get; set; }
+        public DbSet<RotRutCase> RotRutCases { get; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<RotRutCase>(
@@ -507,8 +507,8 @@ public abstract class OwnedEntityQueryRelationalTestBase : OwnedEntityQueryTestB
 
     private class Context30358(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Monarch> Monarchs { get; set; }
-        public DbSet<Magus> Magi { get; set; }
+        public DbSet<Monarch> Monarchs { get; }
+        public DbSet<Magus> Magi { get; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Magus>().OwnsOne(x => x.ToolUsed, x => x.ToTable("MagicTools"));
@@ -518,15 +518,13 @@ public abstract class OwnedEntityQueryRelationalTestBase : OwnedEntityQueryTestB
             Add(
                 new Monarch
                 {
-                    Name = "His August Majesty Guslav the Fifth",
-                    RulerOf = "The Union",
+                    Name = "His August Majesty Guslav the Fifth", RulerOf = "The Union",
                 });
 
             Add(
                 new Monarch
                 {
-                    Name = "Emperor Uthman-ul-Dosht",
-                    RulerOf = "The Gurkish Empire",
+                    Name = "Emperor Uthman-ul-Dosht", RulerOf = "The Gurkish Empire",
                 });
 
             Add(

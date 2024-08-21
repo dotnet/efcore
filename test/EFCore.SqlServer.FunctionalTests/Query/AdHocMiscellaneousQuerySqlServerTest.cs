@@ -103,7 +103,7 @@ INSERT ZeroKey VALUES (NULL)
     private class Context5456(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Blog> Blogs { get; set; }
-        public DbSet<Post> Posts { get; set; }
+        public DbSet<Post> Posts { get; }
         public DbSet<Comment> Comments { get; set; }
         public DbSet<Author> Authors { get; set; }
 
@@ -112,7 +112,7 @@ INSERT ZeroKey VALUES (NULL)
             for (var i = 0; i < 100; i++)
             {
                 Add(
-                    new Blog { Posts = [new() { Comments = [new(), new()] }, new()], Author = new Author() });
+                    new Blog { Posts = [new Post { Comments = [new Comment(), new Comment()] }, new Post()], Author = new Author() });
             }
 
             return SaveChangesAsync();
@@ -193,7 +193,7 @@ WHERE [c].[Id] = @__id_0
 
     private class Context8864(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Customer> Customers { get; set; }
+        public DbSet<Customer> Customers { get; }
 
         public Task SeedAsync()
         {
@@ -294,7 +294,6 @@ BEGIN
     return @num + 1 ;
 END
 """);
-
 
             await Database.ExecuteSqlRawAsync(
                 """
@@ -909,7 +908,7 @@ ORDER BY [r].[Id]
 
     private class Context15518(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Repo> Repos { get; set; }
+        public DbSet<Repo> Repos { get; }
 
         public Task SeedAsync()
         {
@@ -968,7 +967,7 @@ CROSS JOIN (
 
     private class Context19206(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Test> Tests { get; set; }
+        public DbSet<Test> Tests { get; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -1020,7 +1019,7 @@ CROSS JOIN (
 
     private class Context21666(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<List> Lists { get; set; }
+        public DbSet<List> Lists { get; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -1061,7 +1060,7 @@ WHERE [l].[Name] = N'My Location'
 
     private class Context23282(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Location> Locations { get; set; }
+        public DbSet<Location> Locations { get; }
 
         public Task SeedAsync()
         {
@@ -1188,16 +1187,16 @@ ORDER BY [m0].[Id]
 
         public long PersonId { get; set; }
 
-        public long GenderId { get; set; }
+        public long GenderId { get; }
 
         public string StatusMessage { get; set; }
     }
 
     private class Context24216(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Gender24216> Gender { get; set; }
+        public DbSet<Gender24216> Gender { get; }
 
-        public DbSet<Message24216> Message { get; set; }
+        public DbSet<Message24216> Message { get; }
 
         public IQueryable<PersonStatus24216> GetPersonStatusAsOf(long personId, DateTime asOf)
             => FromExpression(() => GetPersonStatusAsOf(personId, asOf));
@@ -1411,7 +1410,6 @@ FROM [Entities] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e]
                     new Json30478 { Name = "c21", Nested = new JsonNested30478 { Number = 21 } },
 
                     new Json30478 { Name = "c22", Nested = new JsonNested30478 { Number = 22 } }
-
                 ]
             };
 
@@ -1420,7 +1418,6 @@ FROM [Entities] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e]
 
             RemoveRange(e1, e2);
             await SaveChangesAsync();
-
 
             await Database.ExecuteSqlRawAsync("ALTER TABLE [Entities] SET (SYSTEM_VERSIONING = OFF)");
             await Database.ExecuteSqlRawAsync("ALTER TABLE [Entities] DROP PERIOD FOR SYSTEM_TIME");

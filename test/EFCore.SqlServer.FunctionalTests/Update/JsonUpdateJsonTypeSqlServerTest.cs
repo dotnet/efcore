@@ -11,9 +11,7 @@ public class JsonUpdateJsonTypeSqlServerTest : JsonUpdateTestBase<JsonUpdateJson
 {
     public JsonUpdateJsonTypeSqlServerTest(JsonUpdateJsonTypeSqlServerFixture fixture)
         : base(fixture)
-    {
-        ClearLog();
-    }
+        => ClearLog();
 
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()

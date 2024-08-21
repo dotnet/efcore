@@ -148,7 +148,8 @@ public abstract partial class ModelBuilderTest
             Fixture.TestHelpers.ModelAsserter.AssertEqual(
                 initialProperties.Where(p => p.Name != "Discriminator"),
                 actualProperties.Where(p => p.Name != "Discriminator"));
-            Assert.Equal(initialKeys, pickle.GetKeys(),
+            Assert.Equal(
+                initialKeys, pickle.GetKeys(),
                 (expected, actual) =>
                 {
                     Fixture.TestHelpers.ModelAsserter.AssertEqual(
@@ -179,7 +180,8 @@ public abstract partial class ModelBuilderTest
             Fixture.TestHelpers.ModelAsserter.AssertEqual(
                 initialProperties.Where(p => p.Name != "Discriminator"),
                 actualProperties.Where(p => p.Name != "Discriminator"));
-            Assert.Equal(initialKeys, ingredient.GetKeys(),
+            Assert.Equal(
+                initialKeys, ingredient.GetKeys(),
                 (expected, actual) =>
                 {
                     Fixture.TestHelpers.ModelAsserter.AssertEqual(

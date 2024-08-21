@@ -24,9 +24,9 @@ public abstract class TransactionInterceptionSqlServerTestBase(
     }
 
     public class TransactionInterceptionSqlServerTest(TransactionInterceptionSqlServerTest.InterceptionSqlServerFixture fixture)
-        : TransactionInterceptionSqlServerTestBase(fixture), IClassFixture<TransactionInterceptionSqlServerTest.InterceptionSqlServerFixture>
+        : TransactionInterceptionSqlServerTestBase(fixture),
+            IClassFixture<TransactionInterceptionSqlServerTest.InterceptionSqlServerFixture>
     {
-
         // ReleaseSavepoint is unsupported by SQL Server and is ignored
         public override Task Intercept_ReleaseSavepoint(bool async)
             => Task.CompletedTask;
@@ -38,11 +38,11 @@ public abstract class TransactionInterceptionSqlServerTestBase(
         }
     }
 
-    public class TransactionInterceptionWithDiagnosticsSqlServerTest(TransactionInterceptionWithDiagnosticsSqlServerTest.InterceptionSqlServerFixture fixture)
+    public class TransactionInterceptionWithDiagnosticsSqlServerTest(
+        TransactionInterceptionWithDiagnosticsSqlServerTest.InterceptionSqlServerFixture fixture)
         : TransactionInterceptionSqlServerTestBase(fixture),
             IClassFixture<TransactionInterceptionWithDiagnosticsSqlServerTest.InterceptionSqlServerFixture>
     {
-
         // ReleaseSavepoint is unsupported by SQL Server and is ignored
         public override Task Intercept_ReleaseSavepoint(bool async)
             => Task.CompletedTask;

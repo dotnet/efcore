@@ -66,9 +66,7 @@ public class DesignTimeFlagTest
     {
         public MockOperation(IOperationResultHandler resultHandler, Func<T> action)
             : base(resultHandler)
-        {
-            Execute(action);
-        }
+            => Execute(action);
     }
 }
 

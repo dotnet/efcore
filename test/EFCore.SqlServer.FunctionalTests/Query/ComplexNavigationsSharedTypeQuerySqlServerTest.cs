@@ -36,7 +36,7 @@ public class ComplexNavigationsSharedTypeQuerySqlServerTest :
                           select l3).Distinct().Skip(1).OrderBy(e => e.Id).FirstOrDefault().Name);
 
         AssertSql(
-"""
+            """
 SELECT (
     SELECT TOP(1) [s0].[Level3_Name]
     FROM (
@@ -78,14 +78,14 @@ WHERE [l].[Id] < 3
     public virtual async Task Distinct_take_without_orderby(bool async)
     {
         await AssertQuery(
-                async,
-                ss => from l1 in ss.Set<Level1>()
-                      where l1.Id < 3
-                      select (from l3 in ss.Set<Level3>()
-                              select l3).Distinct().Take(1).OrderBy(e => e.Id).FirstOrDefault().Name);
+            async,
+            ss => from l1 in ss.Set<Level1>()
+                  where l1.Id < 3
+                  select (from l3 in ss.Set<Level3>()
+                          select l3).Distinct().Take(1).OrderBy(e => e.Id).FirstOrDefault().Name);
 
         AssertSql(
-"""
+            """
 SELECT (
     SELECT TOP(1) [s].[Level3_Name]
     FROM (
@@ -1020,7 +1020,7 @@ LEFT JOIN (
 """);
     }
 
-    [ConditionalTheory()]
+    [ConditionalTheory]
     public override async Task GroupBy_aggregate_where_required_relationship_2(bool async)
     {
         await base.GroupBy_aggregate_where_required_relationship_2(async);
@@ -1171,7 +1171,7 @@ WHERE [l5].[OneToOne_Required_PK_Date] IS NOT NULL AND [l5].[Level1_Required_Id]
 """);
     }
 
-    [ConditionalTheory()]
+    [ConditionalTheory]
     public override async Task GroupBy_aggregate_where_required_relationship(bool async)
     {
         await base.GroupBy_aggregate_where_required_relationship(async);

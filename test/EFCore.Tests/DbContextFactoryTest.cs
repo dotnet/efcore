@@ -3,7 +3,6 @@
 
 using Microsoft.EntityFrameworkCore.InMemory.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
-using static System.Formats.Asn1.AsnWriter;
 
 namespace Microsoft.EntityFrameworkCore;
 
@@ -613,7 +612,7 @@ public class DbContextFactoryTest
 
         if (validateScopes
             && ((factoryLifetime == ServiceLifetime.Scoped
-                && contextLifetime == ServiceLifetime.Singleton)
+                    && contextLifetime == ServiceLifetime.Singleton)
                 || (factoryLifetime == ServiceLifetime.Singleton
                     && contextLifetime != ServiceLifetime.Singleton
                     && optionsLifetime == ServiceLifetime.Scoped)))
@@ -764,9 +763,9 @@ public class DbContextFactoryTest
 
         if (validateScopes
             && ((factoryLifetime == ServiceLifetime.Singleton
-                && effectiveOptionsLifetime == ServiceLifetime.Scoped)
-            || (factoryLifetime == ServiceLifetime.Scoped
-                && effectiveOptionsLifetime == ServiceLifetime.Singleton)))
+                    && effectiveOptionsLifetime == ServiceLifetime.Scoped)
+                || (factoryLifetime == ServiceLifetime.Scoped
+                    && effectiveOptionsLifetime == ServiceLifetime.Singleton)))
         {
             Assert.Throws<InvalidOperationException>(scope.ServiceProvider.GetRequiredService<IDbContextFactory<WoolacombeContext>>);
         }

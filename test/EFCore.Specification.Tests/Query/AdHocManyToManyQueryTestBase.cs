@@ -29,8 +29,8 @@ public abstract class AdHocManyToManyQueryTestBase : NonSharedModelTestBase
 
     private class MyContext7973(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<User> Users { get; set; }
-        public DbSet<Organisation> Organisations { get; set; }
+        public DbSet<User> Users { get; }
+        public DbSet<Organisation> Organisations { get; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

@@ -271,7 +271,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         }
                     }
                     else if (property.GetValueGenerationStrategy() is SqlServerValueGenerationStrategy strategy
-                        && strategy != SqlServerValueGenerationStrategy.None)
+                             && strategy != SqlServerValueGenerationStrategy.None)
                     {
                         property.SetValueGenerationStrategy(strategy);
                     }

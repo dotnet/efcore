@@ -110,7 +110,7 @@ public class CosmosMetadataExtensionsTest
         Assert.Null(((IConventionEntityType)entityType).GetPartitionKeyPropertyNamesConfigurationSource());
     }
 
-     [ConditionalFact]
+    [ConditionalFact]
     public void Can_get_and_set_etag_name()
     {
         var modelBuilder = CreateModelBuilder();

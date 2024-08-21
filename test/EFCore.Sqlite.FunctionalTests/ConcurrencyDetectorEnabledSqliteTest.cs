@@ -5,8 +5,9 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public class ConcurrencyDetectorEnabledSqliteTest(ConcurrencyDetectorEnabledSqliteTest.ConcurrencyDetectorSqlServerFixture fixture) : ConcurrencyDetectorEnabledRelationalTestBase<
-    ConcurrencyDetectorEnabledSqliteTest.ConcurrencyDetectorSqlServerFixture>(fixture)
+public class ConcurrencyDetectorEnabledSqliteTest(ConcurrencyDetectorEnabledSqliteTest.ConcurrencyDetectorSqlServerFixture fixture)
+    : ConcurrencyDetectorEnabledRelationalTestBase<
+        ConcurrencyDetectorEnabledSqliteTest.ConcurrencyDetectorSqlServerFixture>(fixture)
 {
     public class ConcurrencyDetectorSqlServerFixture : ConcurrencyDetectorFixtureBase, ITestSqlLoggerFactory
     {

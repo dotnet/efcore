@@ -5,8 +5,9 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class StoreGeneratedFixupInMemoryTest(StoreGeneratedFixupInMemoryTest.StoreGeneratedFixupInMemoryFixture fixture) : StoreGeneratedFixupTestBase<
-    StoreGeneratedFixupInMemoryTest.StoreGeneratedFixupInMemoryFixture>(fixture)
+public class StoreGeneratedFixupInMemoryTest(StoreGeneratedFixupInMemoryTest.StoreGeneratedFixupInMemoryFixture fixture)
+    : StoreGeneratedFixupTestBase<
+        StoreGeneratedFixupInMemoryTest.StoreGeneratedFixupInMemoryFixture>(fixture)
 {
     public override void Temporary_value_equals_database_generated_value()
     {

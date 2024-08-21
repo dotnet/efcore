@@ -84,8 +84,8 @@ public abstract class AdHocAdvancedMappingsQueryTestBase : NonSharedModelTestBas
 
     private class Context11835(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Blog> Blogs { get; set; }
-        public DbSet<Post> Posts { get; set; }
+        public DbSet<Blog> Blogs { get; }
+        public DbSet<Post> Posts { get; }
 
         public Task SeedAsync()
         {
@@ -146,8 +146,8 @@ public abstract class AdHocAdvancedMappingsQueryTestBase : NonSharedModelTestBas
 
     private class Context15684(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Category> Categories { get; set; }
-        public DbSet<Product> Products { get; set; }
+        public DbSet<Category> Categories { get; }
+        public DbSet<Product> Products { get; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder
@@ -240,8 +240,8 @@ public abstract class AdHocAdvancedMappingsQueryTestBase : NonSharedModelTestBas
 
     private class Context17276(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<RemovableEntity> RemovableEntities { get; set; }
-        public DbSet<Parent> Parents { get; set; }
+        public DbSet<RemovableEntity> RemovableEntities { get; }
+        public DbSet<Parent> Parents { get; }
 
         public static List<T> List<T>(IQueryable<T> query)
             where T : IRemovable
@@ -274,8 +274,8 @@ public abstract class AdHocAdvancedMappingsQueryTestBase : NonSharedModelTestBas
         [Owned]
         public class OwnedEntity : IOwned
         {
-            public string OwnedValue { get; set; }
-            public int Exists { get; set; }
+            public string OwnedValue { get; }
+            public int Exists { get; }
         }
 
         public interface IHasId<out T>
@@ -313,7 +313,7 @@ public abstract class AdHocAdvancedMappingsQueryTestBase : NonSharedModelTestBas
 
     private class Context17794(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Offer> Offers { get; set; }
+        public DbSet<Offer> Offers { get; }
         public DbSet<OfferAction> OfferActions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -409,7 +409,7 @@ public abstract class AdHocAdvancedMappingsQueryTestBase : NonSharedModelTestBas
 
     private class Context18087(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<MockEntity> MockEntities { get; set; }
+        public DbSet<MockEntity> MockEntities { get; }
 
         public Task SeedAsync()
         {
@@ -455,7 +455,7 @@ public abstract class AdHocAdvancedMappingsQueryTestBase : NonSharedModelTestBas
 
     private class Context18346(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Business> Businesses { get; set; }
+        public DbSet<Business> Businesses { get; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Business>()
@@ -577,7 +577,7 @@ public abstract class AdHocAdvancedMappingsQueryTestBase : NonSharedModelTestBas
 
     private class Context26742(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Entity> Entities { get; set; }
+        public DbSet<Entity> Entities { get; }
 
         public class Entity
         {

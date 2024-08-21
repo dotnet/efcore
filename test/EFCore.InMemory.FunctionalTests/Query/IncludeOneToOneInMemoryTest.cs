@@ -3,7 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class IncludeOneToOneInMemoryTest(IncludeOneToOneInMemoryTest.OneToOneQueryInMemoryFixture fixture) : IncludeOneToOneTestBase<IncludeOneToOneInMemoryTest.OneToOneQueryInMemoryFixture>(fixture)
+public class IncludeOneToOneInMemoryTest(IncludeOneToOneInMemoryTest.OneToOneQueryInMemoryFixture fixture)
+    : IncludeOneToOneTestBase<IncludeOneToOneInMemoryTest.OneToOneQueryInMemoryFixture>(fixture)
 {
     public class OneToOneQueryInMemoryFixture : OneToOneQueryFixtureBase
     {

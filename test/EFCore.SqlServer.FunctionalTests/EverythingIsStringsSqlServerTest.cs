@@ -261,8 +261,7 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
             TypeMappingSourceDependencies dependencies,
             RelationalTypeMappingSourceDependencies relationalDependencies)
             : base(dependencies, relationalDependencies)
-        {
-            _storeTypeMappings
+            => _storeTypeMappings
                 = new Dictionary<string, RelationalTypeMapping>(StringComparer.OrdinalIgnoreCase)
                 {
                     { "char varying", _variableLengthAnsiString },
@@ -278,7 +277,6 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
                     { "text", _variableLengthAnsiString },
                     { "varchar", _variableLengthAnsiString }
                 };
-        }
 
         protected override RelationalTypeMapping FindMapping(in RelationalTypeMappingInfo mappingInfo)
             => FindRawMapping(mappingInfo)?.WithTypeMappingInfo(mappingInfo);

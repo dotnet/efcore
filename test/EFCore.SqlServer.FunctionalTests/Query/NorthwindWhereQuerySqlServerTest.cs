@@ -2033,8 +2033,8 @@ SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE [o].[OrderID] = @__SettableProperty_0
 """,
-                //
-                """
+            //
+            """
 @__SettableProperty_0='10275'
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
@@ -3356,37 +3356,37 @@ WHERE [c].[CustomerID] = @__id_0 + N'KI'
         await base.Implicit_cast_in_predicate(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE [o].[CustomerID] = N'1337'
 """,
-                //
-                """
+            //
+            """
 @__prm_Value_0='1337' (Size = 5)
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE [o].[CustomerID] = @__prm_Value_0
 """,
-                //
-                """
+            //
+            """
 @__ToString_0='1337' (Size = 5)
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE [o].[CustomerID] = @__ToString_0
 """,
-                //
-                """
+            //
+            """
 @__p_0='1337' (Size = 5)
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE [o].[CustomerID] = @__p_0
 """,
-                //
-                """
+            //
+            """
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE [o].[CustomerID] = N'1337'
@@ -3398,27 +3398,27 @@ WHERE [o].[CustomerID] = N'1337'
         await base.Interface_casting_though_generic_method(async);
 
         AssertSql(
-"""
+            """
 @__id_0='10252'
 
 SELECT [o].[OrderID] AS [Id]
 FROM [Orders] AS [o]
 WHERE [o].[OrderID] = @__id_0
 """,
-                //
-                """
+            //
+            """
 SELECT [o].[OrderID] AS [Id]
 FROM [Orders] AS [o]
 WHERE [o].[OrderID] = 10252
 """,
-                //
-                """
+            //
+            """
 SELECT [o].[OrderID] AS [Id]
 FROM [Orders] AS [o]
 WHERE [o].[OrderID] = 10252
 """,
-                //
-                """
+            //
+            """
 SELECT [o].[OrderID] AS [Id]
 FROM [Orders] AS [o]
 WHERE [o].[OrderID] = 10252

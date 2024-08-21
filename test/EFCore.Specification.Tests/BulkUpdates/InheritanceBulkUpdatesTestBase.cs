@@ -185,4 +185,5 @@ public abstract class InheritanceBulkUpdatesTestBase<TFixture>(TFixture fixture)
             e => e,
             // ReSharper disable once RedundantCast
             s => s.SetProperty(c => EF.Property<int>((ISugary)c, nameof(ISugary.SugarGrams)), 0),
-            rowsAffectedCount: 1);}
+            rowsAffectedCount: 1);
+}

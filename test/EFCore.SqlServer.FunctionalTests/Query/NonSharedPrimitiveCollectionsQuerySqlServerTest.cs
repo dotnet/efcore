@@ -6,7 +6,6 @@ using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
-
 using static Expression;
 
 public class NonSharedPrimitiveCollectionsQuerySqlServerTest : NonSharedPrimitiveCollectionsQueryRelationalTestBase
@@ -714,7 +713,7 @@ WHERE (
         await base.Column_with_custom_converter();
 
         AssertSql(
-"""
+            """
 @__ints_0='1,2,3' (Size = 4000)
 
 SELECT TOP(2) [t].[Id], [t].[Ints]

@@ -3200,12 +3200,27 @@ public class RelationalScaffoldingModelFactoryTest
             {
                 Table = someTable,
                 Name = "FK_SomeTable_DetailItem",
-                Columns = { someTable.Columns.Single(c => c.Name == "DetailItemName"), someTable.Columns.Single(c => c.Name == "DetailItemCategoryName") },
+                Columns =
+                {
+                    someTable.Columns.Single(c => c.Name == "DetailItemName"),
+                    someTable.Columns.Single(c => c.Name == "DetailItemCategoryName")
+                },
                 PrincipalTable = itemTable,
-                PrincipalColumns = { itemTable.Columns.Single(c => c.Name == "Name"), itemTable.Columns.Single(c => c.Name == "CategoryName") },
+                PrincipalColumns =
+                {
+                    itemTable.Columns.Single(c => c.Name == "Name"), itemTable.Columns.Single(c => c.Name == "CategoryName")
+                },
             });
 
-        var info = new DatabaseModel { Tables = { itemTable, someTable, itemCategoryTable } };
+        var info = new DatabaseModel
+        {
+            Tables =
+            {
+                itemTable,
+                someTable,
+                itemCategoryTable
+            }
+        };
 
         var model = _factory.Create(info, new ModelReverseEngineerOptions());
 

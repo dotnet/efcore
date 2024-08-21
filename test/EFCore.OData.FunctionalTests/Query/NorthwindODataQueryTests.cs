@@ -7,7 +7,8 @@ using Newtonsoft.Json.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class NorthwindODataQueryTests(NorthwindODataQueryTestFixture fixture) : ODataQueryTestBase(fixture), IClassFixture<NorthwindODataQueryTestFixture>
+public class NorthwindODataQueryTests(NorthwindODataQueryTestFixture fixture)
+    : ODataQueryTestBase(fixture), IClassFixture<NorthwindODataQueryTestFixture>
 {
     [ConditionalFact]
     public async Task Basic_query_customers()

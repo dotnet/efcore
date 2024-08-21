@@ -9,9 +9,7 @@ public class OwnedQuerySqlServerTest : OwnedQueryRelationalTestBase<OwnedQuerySq
 {
     public OwnedQuerySqlServerTest(OwnedQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
         : base(fixture)
-    {
-        Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
-    }
+        => Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
 
     public override async Task Query_with_owned_entity_equality_operator(bool async)
     {

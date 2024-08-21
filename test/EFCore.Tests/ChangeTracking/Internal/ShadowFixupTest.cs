@@ -243,9 +243,7 @@ public class ShadowFixupTest
         }
 
         public Category(int id)
-        {
-            Id = id;
-        }
+            => Id = id;
 
         public int Id { get; set; }
     }
@@ -257,9 +255,7 @@ public class ShadowFixupTest
         }
 
         public Product(int id)
-        {
-            Id = id;
-        }
+            => Id = id;
 
         public int Id { get; set; }
     }
@@ -267,9 +263,7 @@ public class ShadowFixupTest
     private sealed class FixupContext : DbContext
     {
         public FixupContext()
-        {
-            ChangeTracker.AutoDetectChangesEnabled = false;
-        }
+            => ChangeTracker.AutoDetectChangesEnabled = false;
 
         protected internal override void OnModelCreating(ModelBuilder modelBuilder)
         {

@@ -98,7 +98,8 @@ public abstract class TwoDatabasesTestBase(FixtureBase fixture)
         Assert.Equal(new[] { "Modified One", "Modified Two" }, context1.Foos.Select(e => e.Bar).ToList());
     }
 
-    protected class ConnectionStringConnectionInterceptor(string goodConnectionString, string dummyConnectionString) : DbConnectionInterceptor
+    protected class ConnectionStringConnectionInterceptor(string goodConnectionString, string dummyConnectionString)
+        : DbConnectionInterceptor
     {
         private readonly string _goodConnectionString = goodConnectionString;
         private readonly string _dummyConnectionString = dummyConnectionString;

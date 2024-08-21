@@ -43,7 +43,7 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
 
     private class Context603(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Product> Products { get; set; }
+        public DbSet<Product> Products { get; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Product>()
@@ -160,8 +160,8 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
                 });
         }
 
-        public DbSet<Customer> Customers { get; set; }
-        public DbSet<Postcode> Postcodes { get; set; }
+        public DbSet<Customer> Customers { get; }
+        public DbSet<Postcode> Postcodes { get; }
 
         public class Customer
         {
@@ -220,11 +220,11 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
 
     private class Context6986(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Contact> Contacts { get; set; }
+        public DbSet<Contact> Contacts { get; }
         public DbSet<EmployerContact> EmployerContacts { get; set; }
-        public DbSet<Employer> Employers { get; set; }
+        public DbSet<Employer> Employers { get; }
         public DbSet<ServiceOperatorContact> ServiceOperatorContacts { get; set; }
-        public DbSet<ServiceOperator> ServiceOperators { get; set; }
+        public DbSet<ServiceOperator> ServiceOperators { get; }
 
         public async Task SeedAsync()
         {
@@ -238,18 +238,15 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
             Contacts.AddRange(
                 new ServiceOperatorContact
                 {
-                    UserName = "service.operator@esoterix.co.uk",
-                    ServiceOperator = ServiceOperators.OrderBy(o => o.Id).First()
+                    UserName = "service.operator@esoterix.co.uk", ServiceOperator = ServiceOperators.OrderBy(o => o.Id).First()
                 },
                 new EmployerContact
                 {
-                    UserName = "uwe@esoterix.co.uk",
-                    Employer = Employers.OrderBy(e => e.Id).First(e => e.Name == "UWE")
+                    UserName = "uwe@esoterix.co.uk", Employer = Employers.OrderBy(e => e.Id).First(e => e.Name == "UWE")
                 },
                 new EmployerContact
                 {
-                    UserName = "hp@esoterix.co.uk",
-                    Employer = Employers.OrderBy(e => e.Id).First(e => e.Name == "Hewlett Packard")
+                    UserName = "hp@esoterix.co.uk", Employer = Employers.OrderBy(e => e.Id).First(e => e.Name == "Hewlett Packard")
                 },
                 new Contact { UserName = "noroles@esoterix.co.uk" });
 
@@ -310,7 +307,7 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
 
     private class Context7222(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Blog> Blogs { get; set; }
+        public DbSet<Blog> Blogs { get; }
 
         public void RunQuery()
             => Blogs.Select(b => ClientMethod(b)).ToList();
@@ -350,7 +347,7 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
 
     private class Context7359(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Product> Products { get; set; }
+        public DbSet<Product> Products { get; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -396,7 +393,7 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
     private class Context7983(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Blog> Blogs { get; set; }
-        public DbSet<Post> Posts { get; set; }
+        public DbSet<Post> Posts { get; }
 
         public Task SeedAsync()
         {
@@ -485,7 +482,7 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
 
     private class Context8538(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Entity> Entities { get; set; }
+        public DbSet<Entity> Entities { get; }
 
         public Task SeedAsync()
         {
@@ -673,7 +670,7 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
 
     private class Context8909(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Entity> Entities { get; set; }
+        public DbSet<Entity> Entities { get; }
 
         public MemoryCache Cache
         {
@@ -713,7 +710,7 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
 
     private class Context9468(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Cart> Carts { get; set; }
+        public DbSet<Cart> Carts { get; }
 
         public Task SeedAsync()
         {
@@ -757,7 +754,7 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
 
     private class Context11104(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Base> Bases { get; set; }
+        public DbSet<Base> Bases { get; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Base>()
@@ -816,7 +813,7 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
 
     private class Context11885(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<PriceEntity> Prices { get; set; }
+        public DbSet<PriceEntity> Prices { get; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<PriceEntity>(
@@ -914,7 +911,7 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
 
     private class Context12274(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<MyEntity> Entities { get; set; }
+        public DbSet<MyEntity> Entities { get; }
 
         public Task SeedAsync()
         {
@@ -1016,8 +1013,8 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
 
     private class Context15215(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Auto> Autos { get; set; }
-        public DbSet<EqualAuto> EqualAutos { get; set; }
+        public DbSet<Auto> Autos { get; }
+        public DbSet<EqualAuto> EqualAutos { get; }
 
         public async Task SeedAsync()
         {
@@ -1171,8 +1168,8 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
 
     private class Context19253(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<A> As { get; set; }
-        public DbSet<B> Bs { get; set; }
+        public DbSet<A> As { get; }
+        public DbSet<B> Bs { get; }
 
         public Task SeedAsync()
         {
@@ -1308,8 +1305,8 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
 
     private class Context21770(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<IceCream> IceCreams { get; set; }
-        public DbSet<Food> Foods { get; set; }
+        public DbSet<IceCream> IceCreams { get; }
+        public DbSet<Food> Foods { get; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -1369,7 +1366,7 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
     #region 22841
 
     [ConditionalFact]
-    public async virtual Task SaveChangesAsync_accepts_changes_with_ConfigureAwait_true()
+    public virtual async Task SaveChangesAsync_accepts_changes_with_ConfigureAwait_true()
     {
         var contextFactory = await InitializeAsync<Context22841>();
 
@@ -1454,7 +1451,7 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
 
     private class Context24657(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Author> Authors { get; set; }
+        public DbSet<Author> Authors { get; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Blog>()
@@ -1486,17 +1483,13 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
         public class DevBlog : Blog
         {
             public DevBlog()
-            {
-                IsPhotoBlog = false;
-            }
+                => IsPhotoBlog = false;
         }
 
         public class PhotoBlog : Blog
         {
             public PhotoBlog()
-            {
-                IsPhotoBlog = true;
-            }
+                => IsPhotoBlog = true;
 
             public int NumberOfPhotos { get; set; }
         }
@@ -1583,9 +1576,9 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
 
     private class Context26593(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<User> Users { get; set; }
+        public DbSet<User> Users { get; }
         public DbSet<Group> Groups { get; set; }
-        public DbSet<Membership> Memberships { get; set; }
+        public DbSet<Membership> Memberships { get; }
 
         public Task SeedAsync()
         {
@@ -1640,8 +1633,7 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
                 o => o.OrderId,
                 (o, g) => new
                 {
-                    Key = o,
-                    IsPending = g.Max(y => y.ShippingDate == null && y.CancellationDate == null ? o : (o - 10000000))
+                    Key = o, IsPending = g.Max(y => y.ShippingDate == null && y.CancellationDate == null ? o : (o - 10000000))
                 })
             .OrderBy(e => e.Key);
 
@@ -1656,7 +1648,7 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
 
     private class Context26587(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<OrderItem> OrderItems { get; set; }
+        public DbSet<OrderItem> OrderItems { get; }
 
         public class OrderItem
         {
@@ -1900,8 +1892,7 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
                     into tg
                     select new
                     {
-                        A = tg.Key,
-                        B = context.Tables.Where(t => t.Value == tg.Max() * 6).Max(t => (int?)t.Id),
+                        A = tg.Key, B = context.Tables.Where(t => t.Value == tg.Max() * 6).Max(t => (int?)t.Id),
                     };
 
         var orders = async
@@ -1937,7 +1928,7 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
 
     private class Context27094(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Table> Tables { get; set; }
+        public DbSet<Table> Tables { get; }
 
         public class Table
         {
@@ -2001,14 +1992,14 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
 
     private class Context26744(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Parent> Parents { get; set; }
+        public DbSet<Parent> Parents { get; }
 
         public Task SeedAsync()
         {
             Add(
-                new Parent { Children = [new() { SomeInteger = 1, SomeOtherNullableDateTime = new DateTime(2000, 11, 18) }] });
+                new Parent { Children = [new Child { SomeInteger = 1, SomeOtherNullableDateTime = new DateTime(2000, 11, 18) }] });
 
-            Add(new Parent { Children = [new() { SomeInteger = 1, }] });
+            Add(new Parent { Children = [new Child { SomeInteger = 1, }] });
             return SaveChangesAsync();
         }
 
@@ -2022,7 +2013,7 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
         {
             public int Id { get; set; }
             public int SomeInteger { get; set; }
-            public DateTime? SomeNullableDateTime { get; set; }
+            public DateTime? SomeNullableDateTime { get; }
             public DateTime? SomeOtherNullableDateTime { get; set; }
             public Parent Parent { get; set; }
         }
@@ -2054,7 +2045,7 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
 
     private class Context27343(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Parent> Parents { get; set; }
+        public DbSet<Parent> Parents { get; }
 
         public Task SeedAsync()
             => SaveChangesAsync();
@@ -2111,8 +2102,8 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
 
     private class Context28039(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<IndexData> IndexDatas { get; set; }
-        public DbSet<TableData> TableDatas { get; set; }
+        public DbSet<IndexData> IndexDatas { get; }
+        public DbSet<TableData> TableDatas { get; }
 
         public class TableData : EntityBase
         {
@@ -2155,20 +2146,19 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
 
         var query = await context.Customers
             .Select(
-                m => new Context31961.CustomerDto()
+                m => new Context31961.CustomerDto
                 {
                     Id = m.Id,
                     CompanyId = m.CompanyId,
                     Company = m.Company != null
-                        ? new Context31961.CompanyDto()
+                        ? new Context31961.CompanyDto
                         {
                             Id = m.Company.Id,
                             CompanyName = m.Company.CompanyName,
                             CountryId = m.Company.CountryId,
-                            Country = new Context31961.CountryDto()
+                            Country = new Context31961.CountryDto
                             {
-                                Id = m.Company.Country.Id,
-                                CountryName = m.Company.Country.CountryName,
+                                Id = m.Company.Country.Id, CountryName = m.Company.Country.CountryName,
                             },
                         }
                         : null,
@@ -2179,7 +2169,7 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
 
     private class Context31961(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Customer> Customers { get; set; }
+        public DbSet<Customer> Customers { get; }
 
         public DbSet<Company> Companies { get; set; }
 

@@ -81,8 +81,8 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
 
     private class Context3409(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Parent> Parents { get; set; }
-        public DbSet<Child> Children { get; set; }
+        public DbSet<Parent> Parents { get; }
+        public DbSet<Child> Children { get; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -201,8 +201,7 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
         public DbSet<Order> Orders { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<Customer>(
+            => modelBuilder.Entity<Customer>(
                 b =>
                 {
                     b.HasMany(e => e.Orders1).WithOne().HasForeignKey("CustomerId1");
@@ -210,7 +209,6 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
                     b.HasMany(e => e.Orders3).WithOne().HasForeignKey("CustomerId3");
                     b.HasMany(e => e.Orders4).WithOne().HasForeignKey("CustomerId4");
                 });
-        }
 
         public Task SeedAsync()
         {
@@ -315,7 +313,7 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
 
     private class Context7312(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Proposal> Proposals { get; set; }
+        public DbSet<Proposal> Proposals { get; }
         public DbSet<ProposalCustom> ProposalCustoms { get; set; }
         public DbSet<ProposalLeave> ProposalLeaves { get; set; }
 
@@ -389,7 +387,7 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
 
     private class Context9038(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Person9038> People { get; set; }
+        public DbSet<Person9038> People { get; }
 
         public DbSet<PersonFamily9038> Families { get; set; }
 
@@ -495,8 +493,8 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
 
     private class Context10635(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Parent10635> Parents { get; set; }
-        public DbSet<Child10635> Children { get; set; }
+        public DbSet<Parent10635> Parents { get; }
+        public DbSet<Child10635> Children { get; }
 
         public Task SeedAsync()
         {
@@ -572,8 +570,8 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
 
     private class Context11923(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Blog> Blogs { get; set; }
-        public DbSet<Post> Posts { get; set; }
+        public DbSet<Blog> Blogs { get; }
+        public DbSet<Post> Posts { get; }
         public DbSet<Comment> Comments { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -762,8 +760,8 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
 
     private class Context12456(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Activity> Activities { get; set; }
-        public DbSet<CompetitionSeason> CompetitionSeasons { get; set; }
+        public DbSet<Activity> Activities { get; }
+        public DbSet<CompetitionSeason> CompetitionSeasons { get; }
 
         public class CompetitionSeason
         {
@@ -783,7 +781,7 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
         public class ActivityType
         {
             public int Id { get; set; }
-            public List<ActivityTypePoints> Points { get; set; }
+            public List<ActivityTypePoints> Points { get; }
         }
 
         public class ActivityTypePoints
@@ -791,10 +789,10 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
             public int Id { get; set; }
             public int ActivityTypeId { get; set; }
             public int CompetitionSeasonId { get; set; }
-            public int Points { get; set; }
+            public int Points { get; }
 
             public ActivityType ActivityType { get; set; }
-            public CompetitionSeason CompetitionSeason { get; set; }
+            public CompetitionSeason CompetitionSeason { get; }
         }
 
         public class Activity
@@ -843,8 +841,8 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
 
     private class Context12582(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Employee> Employees { get; set; }
-        public DbSet<EmployeeDevice> Devices { get; set; }
+        public DbSet<Employee> Employees { get; }
+        public DbSet<EmployeeDevice> Devices { get; }
 
         public Task SeedAsync()
         {
@@ -905,8 +903,8 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
 
     private class Context12748(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Blog> Blogs { get; set; }
-        public DbSet<Comment> Comments { get; set; }
+        public DbSet<Blog> Blogs { get; }
+        public DbSet<Comment> Comments { get; }
 
         public Task SeedAsync()
         {
@@ -1012,7 +1010,7 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
 
     private class Context20813(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Order> Orders { get; set; }
+        public DbSet<Order> Orders { get; }
 
         public class Order
         {
@@ -1056,7 +1054,7 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
             [ForeignKey(nameof(IdentityDocument))]
             public Guid IdentityDocumentId { get; set; }
 
-            public byte[] Image { get; set; }
+            public byte[] Image { get; }
 
             public IdentityDocument IdentityDocument { get; set; }
         }
@@ -1090,7 +1088,7 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
 
     private class Context21768(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Book> Books { get; set; }
+        public DbSet<Book> Books { get; }
         public DbSet<BookCover> BookCovers { get; set; }
         public DbSet<CoverIllustration> CoverIllustrations { get; set; }
 
@@ -1274,10 +1272,7 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
         {
             Add(new PrincipalOneToOne { Dependent = new DependentOneToOne() });
             Add(
-                new PrincipalOneToMany
-                {
-                    Dependents = [new(), new()]
-                });
+                new PrincipalOneToMany { Dependents = [new DependentOneToMany(), new DependentOneToMany()] });
 
             return SaveChangesAsync();
         }
@@ -1436,7 +1431,6 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Principal>();
 
-
         public class Principal
         {
             public int Id { get; set; }
@@ -1518,7 +1512,7 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
 
     private class Context23676(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<PersonEntity> Persons { get; set; }
+        public DbSet<PersonEntity> Persons { get; }
 
         public class PersonEntity
         {
@@ -1537,10 +1531,10 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
 
         public class PersonImageEntity
         {
-            public int Id { get; set; }
-            public string ImageUrl { get; set; }
-            public int Height { get; set; }
-            public int Width { get; set; }
+            public int Id { get; }
+            public string ImageUrl { get; }
+            public int Height { get; }
+            public int Width { get; }
             public PersonEntity Person { get; set; }
         }
 
@@ -1560,7 +1554,7 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
             public ActorEntity Actor { get; set; }
 
             public int MovieId { get; set; }
-            public MovieEntity Movie { get; set; }
+            public MovieEntity Movie { get; }
 
             public string RoleInFilm { get; set; }
 
@@ -1583,20 +1577,20 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
             public DirectorEntity Director { get; set; }
 
             public int MovieId { get; set; }
-            public MovieEntity Movie { get; set; }
+            public MovieEntity Movie { get; }
         }
 
         public class MovieEntity
         {
-            public int Id { get; set; }
-            public string Name { get; set; }
-            public double Rating { get; set; }
+            public int Id { get; }
+            public string Name { get; }
+            public double Rating { get; }
             public string Description { get; set; }
             public DateTime ReleaseDate { get; set; }
             public int DurationInMins { get; set; }
             public int Budget { get; set; }
             public int Revenue { get; set; }
-            public string PosterUrl { get; set; }
+            public string PosterUrl { get; }
 
             public IList<MovieDirectorEntity> Directors { get; set; } = new List<MovieDirectorEntity>();
             public IList<MovieActorEntity> Actors { get; set; } = new List<MovieActorEntity>();

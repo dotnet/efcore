@@ -797,9 +797,7 @@ public abstract class WithConstructorsTestBase<TFixture>(TFixture fixture) : ICl
             string content,
             Blog blog = null)
             : this(0, title, content)
-        {
-            Blog = blog;
-        }
+            => Blog = blog;
 
         public string Title { get; }
         public string Content { get; set; }
@@ -890,9 +888,7 @@ public abstract class WithConstructorsTestBase<TFixture>(TFixture fixture) : ICl
         }
 
         private HasEntityType(IEntityType entityType)
-        {
-            _entityType = entityType;
-        }
+            => _entityType = entityType;
 
         public int Id { get; set; }
 
@@ -921,9 +917,7 @@ public abstract class WithConstructorsTestBase<TFixture>(TFixture fixture) : ICl
         }
 
         private HasEntityTypePc(IEntityType entityType)
-        {
-            _entityType = entityType;
-        }
+            => _entityType = entityType;
 
         public int Id { get; set; }
 
@@ -956,9 +950,7 @@ public abstract class WithConstructorsTestBase<TFixture>(TFixture fixture) : ICl
         }
 
         private HasStateManager(IStateManager stateManager)
-        {
-            _stateManager = stateManager;
-        }
+            => _stateManager = stateManager;
 
         public int Id { get; set; }
 
@@ -988,9 +980,7 @@ public abstract class WithConstructorsTestBase<TFixture>(TFixture fixture) : ICl
         }
 
         private HasStateManagerPc(IStateManager stateManager)
-        {
-            _stateManager = stateManager;
-        }
+            => _stateManager = stateManager;
 
         public int Id { get; set; }
 
@@ -1024,9 +1014,7 @@ public abstract class WithConstructorsTestBase<TFixture>(TFixture fixture) : ICl
         }
 
         private LazyBlog(ILazyLoader loader)
-        {
-            _loader = loader;
-        }
+            => _loader = loader;
 
         public int Id { get; set; }
 
@@ -1049,9 +1037,7 @@ public abstract class WithConstructorsTestBase<TFixture>(TFixture fixture) : ICl
         }
 
         private LazyPost(ILazyLoader loader)
-        {
-            _loader = loader;
-        }
+            => _loader = loader;
 
         public int Id { get; set; }
 
@@ -1231,9 +1217,7 @@ public abstract class WithConstructorsTestBase<TFixture>(TFixture fixture) : ICl
         }
 
         private LazyPcBlog(ILazyLoader loader)
-        {
-            _loader = loader;
-        }
+            => _loader = loader;
 
         private ILazyLoader Loader
         {
@@ -1270,9 +1254,7 @@ public abstract class WithConstructorsTestBase<TFixture>(TFixture fixture) : ICl
         }
 
         private LazyPcPost(ILazyLoader loader)
-        {
-            _loader = loader;
-        }
+            => _loader = loader;
 
         private ILazyLoader Loader
         {
@@ -1309,9 +1291,7 @@ public abstract class WithConstructorsTestBase<TFixture>(TFixture fixture) : ICl
         }
 
         private LazyPcsBlog(Action<object, string> lazyLoader)
-        {
-            _loader = lazyLoader;
-        }
+            => _loader = lazyLoader;
 
         private Action<object, string> LazyLoader
         {
@@ -1348,9 +1328,7 @@ public abstract class WithConstructorsTestBase<TFixture>(TFixture fixture) : ICl
         }
 
         private LazyPcsPost(Action<object, string> lazyLoader)
-        {
-            _loader = lazyLoader;
-        }
+            => _loader = lazyLoader;
 
         private Action<object, string> LazyLoader
         {
@@ -1390,9 +1368,7 @@ public abstract class WithConstructorsTestBase<TFixture>(TFixture fixture) : ICl
         }
 
         private LazyPocoBlog(Action<object, string> lazyLoader)
-        {
-            _loader = lazyLoader;
-        }
+            => _loader = lazyLoader;
 
         public int Id { get; set; }
 
@@ -1415,9 +1391,7 @@ public abstract class WithConstructorsTestBase<TFixture>(TFixture fixture) : ICl
         }
 
         private LazyPocoPost(Action<object, string> lazyLoader)
-        {
-            _loader = lazyLoader;
-        }
+            => _loader = lazyLoader;
 
         public int Id { get; set; }
 
@@ -1440,9 +1414,7 @@ public abstract class WithConstructorsTestBase<TFixture>(TFixture fixture) : ICl
         }
 
         private LazyAsyncPocoBlog(Func<object, CancellationToken, string, Task> lazyLoader)
-        {
-            _loader = lazyLoader;
-        }
+            => _loader = lazyLoader;
 
         public int Id { get; set; }
 
@@ -1471,9 +1443,7 @@ public abstract class WithConstructorsTestBase<TFixture>(TFixture fixture) : ICl
         }
 
         private LazyAsyncPocoPost(Func<object, CancellationToken, string, Task> lazyLoader)
-        {
-            _loader = lazyLoader;
-        }
+            => _loader = lazyLoader;
 
         public int Id { get; set; }
 
@@ -1499,9 +1469,7 @@ public abstract class WithConstructorsTestBase<TFixture>(TFixture fixture) : ICl
         }
 
         private LazyAsyncBlog(ILazyLoader loader)
-        {
-            _loader = loader;
-        }
+            => _loader = loader;
 
         public int Id { get; set; }
 
@@ -1530,9 +1498,7 @@ public abstract class WithConstructorsTestBase<TFixture>(TFixture fixture) : ICl
         }
 
         private LazyAsyncPost(ILazyLoader loader)
-        {
-            _loader = loader;
-        }
+            => _loader = loader;
 
         public int Id { get; set; }
 

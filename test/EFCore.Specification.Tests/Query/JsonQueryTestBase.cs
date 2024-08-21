@@ -302,8 +302,7 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
             ss => ss.Set<JsonEntityBasic>().Select(
                 x => new
                 {
-                    x.Id,
-                    x.OwnedReferenceRoot.OwnedReferenceBranch.Enum,
+                    x.Id, x.OwnedReferenceRoot.OwnedReferenceBranch.Enum,
                 }),
             elementSorter: e => e.Id,
             elementAsserter: (e, a) =>
@@ -320,8 +319,7 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
             ss => ss.Set<JsonEntityCustomNaming>().Select(
                 x => new
                 {
-                    x.Id,
-                    x.OwnedReferenceRoot.Enum,
+                    x.Id, x.OwnedReferenceRoot.Enum,
                 }),
             elementSorter: e => e.Id,
             elementAsserter: (e, a) =>
@@ -1109,7 +1107,8 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
         return AssertQuery(
             async,
             ss => ss.Set<JsonEntityBasic>().Where(
-                x => x.OwnedCollectionRoot[1].OwnedCollectionBranch[prm].OwnedCollectionLeaf[x.Id - 1].SomethingSomething == "e1_c2_c1_c1"));
+                x => x.OwnedCollectionRoot[1].OwnedCollectionBranch[prm].OwnedCollectionLeaf[x.Id - 1].SomethingSomething
+                    == "e1_c2_c1_c1"));
     }
 
     [ConditionalTheory]
@@ -1443,8 +1442,7 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
                 .Select(
                     x => new
                     {
-                        First = x.OwnedReferenceRoot.OwnedCollectionBranch.Distinct().ToList(),
-                        Second = x.EntityCollection.ToList()
+                        First = x.OwnedReferenceRoot.OwnedCollectionBranch.Distinct().ToList(), Second = x.EntityCollection.ToList()
                     })
                 .AsNoTracking(),
             assertOrder: true,
@@ -1825,8 +1823,7 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
             ss => ss.Set<JsonEntityBasic>().Select(
                 x => new
                 {
-                    x,
-                    CollectionElement = x.OwnedCollectionRoot[1].OwnedCollectionBranch[prm],
+                    x, CollectionElement = x.OwnedCollectionRoot[1].OwnedCollectionBranch[prm],
                 }).AsNoTracking(),
             elementSorter: e => e.x.Id,
             elementAsserter: (e, a) =>
@@ -1847,8 +1844,7 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
             ss => ss.Set<JsonEntityBasic>().Select(
                 x => new
                 {
-                    x.Id,
-                    CollectionElement = x.OwnedCollectionRoot[1].OwnedCollectionBranch[prm],
+                    x.Id, CollectionElement = x.OwnedCollectionRoot[1].OwnedCollectionBranch[prm],
                 }).AsNoTracking(),
             elementSorter: e => e.Id,
             elementAsserter: (e, a) =>
@@ -2586,8 +2582,7 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Json_projection_collection_element_and_reference_AsNoTrackingWithIdentityResolution(bool async)
-    {
-        return AssertQuery(
+        => AssertQuery(
             async,
             ss => ss.Set<JsonEntityBasic>().Select(
                 x => new
@@ -2603,42 +2598,29 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
                 AssertEqual(e.CollectionElement, a.CollectionElement);
                 AssertEqual(e.Reference, a.Reference);
             });
-    }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Json_projection_nothing_interesting_AsNoTrackingWithIdentityResolution(bool async)
-    {
-        return AssertQuery(
+        => AssertQuery(
             async,
             ss => ss.Set<JsonEntityBasic>().Select(
-                x => new
-                {
-                    x.Id,
-                    x.Name
-                }).AsNoTrackingWithIdentityResolution(),
+                x => new { x.Id, x.Name }).AsNoTrackingWithIdentityResolution(),
             elementSorter: e => e.Id);
-    }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Json_projection_owner_entity_AsNoTrackingWithIdentityResolution(bool async)
-    {
-        return AssertQuery(
+        => AssertQuery(
             async,
             ss => ss.Set<JsonEntityBasic>().Select(
-                x => new
-                {
-                    x.Id,
-                    x
-                }).AsNoTrackingWithIdentityResolution(),
+                x => new { x.Id, x }).AsNoTrackingWithIdentityResolution(),
             elementSorter: e => e.Id,
             elementAsserter: (e, a) =>
             {
                 AssertEqual(e.Id, a.Id);
                 AssertEqual(e.x, a.x);
             });
-    }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -2672,7 +2654,9 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Json_projection_second_element_through_collection_element_constant_projected_after_owner_nested_AsNoTrackingWithIdentityResolution(bool async)
+    public virtual Task
+        Json_projection_second_element_through_collection_element_constant_projected_after_owner_nested_AsNoTrackingWithIdentityResolution(
+            bool async)
         => AssertQuery(
             async,
             ss => ss.Set<JsonEntityBasic>().Select(
@@ -2714,7 +2698,9 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Json_projection_second_element_through_collection_element_parameter_correctly_projected_after_owner_nested_AsNoTrackingWithIdentityResolution(bool async)
+    public virtual Task
+        Json_projection_second_element_through_collection_element_parameter_correctly_projected_after_owner_nested_AsNoTrackingWithIdentityResolution(
+            bool async)
     {
         var prm = 1;
 
@@ -2738,14 +2724,15 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Json_projection_only_second_element_through_collection_element_constant_projected_nested_AsNoTrackingWithIdentityResolution(bool async)
+    public virtual Task
+        Json_projection_only_second_element_through_collection_element_constant_projected_nested_AsNoTrackingWithIdentityResolution(
+            bool async)
         => AssertQuery(
             async,
             ss => ss.Set<JsonEntityBasic>().Select(
                 x => new
                 {
-                    x.Id,
-                    Element = x.OwnedReferenceRoot.OwnedCollectionBranch[0].OwnedCollectionLeaf[1],
+                    x.Id, Element = x.OwnedReferenceRoot.OwnedCollectionBranch[0].OwnedCollectionLeaf[1],
                 }).AsNoTrackingWithIdentityResolution(),
             elementSorter: e => e.Id,
             elementAsserter: (e, a) =>
@@ -2756,7 +2743,9 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Json_projection_only_second_element_through_collection_element_parameter_projected_nested_AsNoTrackingWithIdentityResolution(bool async)
+    public virtual Task
+        Json_projection_only_second_element_through_collection_element_parameter_projected_nested_AsNoTrackingWithIdentityResolution(
+            bool async)
     {
         var prm1 = 0;
         var prm2 = 1;
@@ -2766,8 +2755,7 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
             ss => ss.Set<JsonEntityBasic>().Select(
                 x => new
                 {
-                    x.Id,
-                    Element = x.OwnedReferenceRoot.OwnedCollectionBranch[prm1].OwnedCollectionLeaf[prm2],
+                    x.Id, Element = x.OwnedReferenceRoot.OwnedCollectionBranch[prm1].OwnedCollectionLeaf[prm2],
                 }).AsNoTrackingWithIdentityResolution(),
             elementSorter: e => e.Id,
             elementAsserter: (e, a) =>
@@ -2779,9 +2767,10 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Json_projection_second_element_through_collection_element_constant_different_values_projected_before_owner_nested_AsNoTrackingWithIdentityResolution(bool async)
-    {
-        return AssertQuery(
+    public virtual Task
+        Json_projection_second_element_through_collection_element_constant_different_values_projected_before_owner_nested_AsNoTrackingWithIdentityResolution(
+            bool async)
+        => AssertQuery(
             async,
             ss => ss.Set<JsonEntityBasic>().Select(
                 x => new
@@ -2797,13 +2786,11 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
                 AssertEqual(e.Duplicate, a.Duplicate);
                 AssertCollection(e.Original, a.Original, ordered: true);
             });
-    }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Json_projection_nested_collection_and_element_correct_order_AsNoTrackingWithIdentityResolution(bool async)
-    {
-        return AssertQuery(
+        => AssertQuery(
             async,
             ss => ss.Set<JsonEntityBasic>().Select(
                 x => new
@@ -2819,11 +2806,12 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
                 AssertCollection(e.Original, a.Original, ordered: true);
                 AssertEqual(e.Duplicate, a.Duplicate);
             });
-    }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Json_projection_nested_collection_element_using_parameter_and_the_owner_in_correct_order_AsNoTrackingWithIdentityResolution(bool async)
+    public virtual Task
+        Json_projection_nested_collection_element_using_parameter_and_the_owner_in_correct_order_AsNoTrackingWithIdentityResolution(
+            bool async)
     {
         var prm = 0;
         return AssertQuery(
@@ -2847,8 +2835,7 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Json_projection_second_element_projected_before_owner_as_well_as_root_AsNoTrackingWithIdentityResolution(bool async)
-    {
-        return AssertQuery(
+        => AssertQuery(
             async,
             ss => ss.Set<JsonEntityBasic>().Select(
                 x => new
@@ -2865,11 +2852,11 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
                 AssertEqual(e.Original, a.Original);
                 AssertEqual(e.Duplicate, a.Duplicate);
             });
-    }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Json_projection_second_element_projected_before_owner_nested_as_well_as_root_AsNoTrackingWithIdentityResolution(bool async)
+    public virtual Task Json_projection_second_element_projected_before_owner_nested_as_well_as_root_AsNoTrackingWithIdentityResolution(
+        bool async)
         => AssertQuery(
             async,
             ss => ss.Set<JsonEntityBasic>().Select(

@@ -123,32 +123,35 @@ public abstract class NullSemanticsQueryFixtureBase : SharedStoreFixtureBase<Nul
 
         modelBuilder.HasDbFunction(
             typeof(NullSemanticsQueryFixtureBase).GetMethod(nameof(Cases)),
-            b => b.HasTranslation(args => new CaseExpression([
-                new CaseWhenClause(args[0], args[1]),
-                new CaseWhenClause(args[2], args[3]),
-                new CaseWhenClause(args[4], args[5]),
-            ]))
+            b => b.HasTranslation(
+                args => new CaseExpression(
+                [
+                    new CaseWhenClause(args[0], args[1]),
+                    new CaseWhenClause(args[2], args[3]),
+                    new CaseWhenClause(args[4], args[5]),
+                ]))
         );
 
         modelBuilder.HasDbFunction(
             typeof(NullSemanticsQueryFixtureBase).GetMethod(nameof(BoolSwitch)),
-            b => b.HasTranslation(args => new CaseExpression(
-                operand: args[0],
-                [
-                    new CaseWhenClause(new SqlConstantExpression(true, typeMapping: BoolTypeMapping.Default), args[1]),
-                    new CaseWhenClause(new SqlConstantExpression(false, typeMapping: BoolTypeMapping.Default), args[2]),
-                ]))
+            b => b.HasTranslation(
+                args => new CaseExpression(
+                    operand: args[0],
+                    [
+                        new CaseWhenClause(new SqlConstantExpression(true, typeMapping: BoolTypeMapping.Default), args[1]),
+                        new CaseWhenClause(new SqlConstantExpression(false, typeMapping: BoolTypeMapping.Default), args[2]),
+                    ]))
         );
     }
 
-    public static int? Cases(bool c1, int v1, bool c2, int v2, bool c3, int v3) =>
-        c1 ? v1 :
-        c2 ? v2 :
-        c3 ? v3 :
-        null;
+    public static int? Cases(bool c1, int v1, bool c2, int v2, bool c3, int v3)
+        => c1 ? v1 :
+            c2 ? v2 :
+            c3 ? v3 :
+            null;
 
-    public static int BoolSwitch(bool x, int whenTrue, int whenFalse) =>
-        x switch
+    public static int BoolSwitch(bool x, int whenTrue, int whenFalse)
+        => x switch
         {
             true => whenTrue,
             false => whenFalse,

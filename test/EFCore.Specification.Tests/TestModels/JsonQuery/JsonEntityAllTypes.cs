@@ -15,11 +15,11 @@ public class JsonEntityAllTypes
     private Collection<JsonEnum?> _testNullableEnumCollectionX = [];
     private Collection<JsonEnum?> _testNullableEnumWithIntConverterCollectionX = [JsonEnum.Three];
 
-    public List<List<long>> TestInt64CollectionCollection { get; set; }  = [];
-    public IReadOnlyList<double[]> TestDoubleCollectionCollection { get; set; }  = new List<double[]>();
-    public List<float>[] TestSingleCollectionCollection { get; set; }  = [[1.1f, 1.2f]];
-    public bool[][] TestBooleanCollectionCollection { get; set; }  = [];
-    public ObservableCollection<ReadOnlyCollection<char>> TestCharacterCollectionCollection { get; set; }  = [];
+    public List<List<long>> TestInt64CollectionCollection { get; set; } = [];
+    public IReadOnlyList<double[]> TestDoubleCollectionCollection { get; set; } = new List<double[]>();
+    public List<float>[] TestSingleCollectionCollection { get; set; } = [[1.1f, 1.2f]];
+    public bool[][] TestBooleanCollectionCollection { get; set; } = [];
+    public ObservableCollection<ReadOnlyCollection<char>> TestCharacterCollectionCollection { get; set; } = [];
 
     public int Id { get; set; }
     public JsonOwnedAllTypes Reference { get; init; }
@@ -40,9 +40,9 @@ public class JsonEntityAllTypes
     public decimal[] TestDecimalCollection { get; set; }
     public List<DateTime> TestDateTimeCollection { get; set; }
     public IList<DateTimeOffset> TestDateTimeOffsetCollection { get; set; }
-    public TimeSpan[] TestTimeSpanCollection { get; set; } = [new(1, 1, 1)];
+    public TimeSpan[] TestTimeSpanCollection { get; set; } = [new TimeSpan(1, 1, 1)];
 
-    public ReadOnlyCollection<long> TestInt64Collection { get; set; } = new ReadOnlyCollection<long>([]);
+    public ReadOnlyCollection<long> TestInt64Collection { get; set; } = new([]);
     public IList<double> TestDoubleCollection { get; set; } = new List<double>();
     public IReadOnlyList<float> TestSingleCollection { get; set; } = [1.1f, 1.2f];
     public IList<bool> TestBooleanCollection { get; set; } = new List<bool> { true };

@@ -4533,9 +4533,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         }
 
         public Applicant(FullName name)
-        {
-            Name = name ?? throw new ArgumentNullException(nameof(name));
-        }
+            => Name = name ?? throw new ArgumentNullException(nameof(name));
     }
 
     public class FirstName
@@ -4547,9 +4545,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         }
 
         private FirstName(string value)
-        {
-            _value = value;
-        }
+            => _value = value;
 
         public static FirstName Create(string firstName)
             => new(firstName);
@@ -4564,9 +4560,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         }
 
         private LastName(string value)
-        {
-            _value = value;
-        }
+            => _value = value;
 
         public static LastName Create(string lastName)
             => new(lastName);
@@ -4583,9 +4577,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         }
 
         public Pyrson(FullName name)
-        {
-            Name = name ?? throw new ArgumentNullException(nameof(name));
-        }
+            => Name = name ?? throw new ArgumentNullException(nameof(name));
 
         public virtual Culture Culture { get; set; }
         public virtual Milk Milk { get; set; } = null!;

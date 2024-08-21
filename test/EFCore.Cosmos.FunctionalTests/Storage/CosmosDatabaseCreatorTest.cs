@@ -92,8 +92,9 @@ public class CosmosDatabaseCreatorTest
         await using var testDatabase = await CosmosTestStore.CreateInitializedAsync("EnsureCreatedSeedTest");
         using var context = new BloggingContext(testDatabase, seed: true);
 
-        Assert.Equal(CoreStrings.MissingSeeder,
-           (await Assert.ThrowsAsync<InvalidOperationException>(() => context.Database.EnsureCreatedAsync())).Message);
+        Assert.Equal(
+            CoreStrings.MissingSeeder,
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => context.Database.EnsureCreatedAsync())).Message);
     }
 
     private class BloggingContext(CosmosTestStore testStore, bool seed = false) : DbContext

@@ -330,9 +330,10 @@ public abstract class AspNetIdentityCustomTypesDefaultTestBase<TFixture>(TFixtur
         ];
 }
 
-public class CustomTypesIdentityContext(DbContextOptions options) : IdentityDbContext<CustomUserString, CustomRoleString, string, CustomUserClaimString,
-    CustomUserRoleString,
-    CustomUserLoginString, CustomRoleClaimString, CustomUserTokenString>(options)
+public class CustomTypesIdentityContext(DbContextOptions options)
+    : IdentityDbContext<CustomUserString, CustomRoleString, string, CustomUserClaimString,
+        CustomUserRoleString,
+        CustomUserLoginString, CustomRoleClaimString, CustomUserTokenString>(options)
 {
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -405,9 +406,7 @@ public class CustomTypesIdentityContext(DbContextOptions options) : IdentityDbCo
 public class CustomUserString : IdentityUser<string>
 {
     public CustomUserString()
-    {
-        Id = Guid.NewGuid().ToString();
-    }
+        => Id = Guid.NewGuid().ToString();
 
     public string CustomTag { get; set; }
 
@@ -422,9 +421,7 @@ public class CustomUserString : IdentityUser<string>
 public class CustomRoleString : IdentityRole<string>
 {
     public CustomRoleString()
-    {
-        Id = Guid.NewGuid().ToString();
-    }
+        => Id = Guid.NewGuid().ToString();
 
     public virtual ICollection<CustomUserString> Users { get; set; }
 

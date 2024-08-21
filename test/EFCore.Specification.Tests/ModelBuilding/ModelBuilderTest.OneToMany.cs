@@ -2546,12 +2546,13 @@ public abstract partial class ModelBuilderTest
         public virtual void Nullable_FK_overrides_NRT_navigation()
         {
             var modelBuilder = CreateModelBuilder();
-            modelBuilder.Entity<DependentEntity>(eb =>
-            {
-                eb.Property(d => d.PrincipalEntityId);
-                eb.Ignore(d => d.Nav);
-                eb.HasOne(d => d.Nav).WithMany(p => p.InverseNav);
-            });
+            modelBuilder.Entity<DependentEntity>(
+                eb =>
+                {
+                    eb.Property(d => d.PrincipalEntityId);
+                    eb.Ignore(d => d.Nav);
+                    eb.HasOne(d => d.Nav).WithMany(p => p.InverseNav);
+                });
 
             var model = modelBuilder.FinalizeModel();
 

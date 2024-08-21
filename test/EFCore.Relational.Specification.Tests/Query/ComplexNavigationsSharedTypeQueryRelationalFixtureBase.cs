@@ -7,7 +7,8 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public abstract class ComplexNavigationsSharedTypeQueryRelationalFixtureBase : ComplexNavigationsSharedTypeQueryFixtureBase, ITestSqlLoggerFactory
+public abstract class ComplexNavigationsSharedTypeQueryRelationalFixtureBase : ComplexNavigationsSharedTypeQueryFixtureBase,
+    ITestSqlLoggerFactory
 {
     public TestSqlLoggerFactory TestSqlLoggerFactory
         => (TestSqlLoggerFactory)ListLoggerFactory;

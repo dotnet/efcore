@@ -320,7 +320,6 @@ WHERE (c["$type"] IN ("SinglePartitionKeyEntity", "DerivedSinglePartitionKeyEnti
 """);
     }
 
-
     public override async Task Multiple_incompatible_predicate_comparisons_cause_no_ReadItem_with_only_partition_key()
     {
         await base.Multiple_incompatible_predicate_comparisons_cause_no_ReadItem_with_only_partition_key();

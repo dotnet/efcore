@@ -148,7 +148,7 @@ public abstract class AdHocQuerySplittingQueryTestBase : NonSharedModelTestBase
 
         public async Task SeedAsync()
         {
-            Add(new Parent { Id = "Parent1", Children1 = [new(), new()] });
+            Add(new Parent { Id = "Parent1", Children1 = [new Child(), new Child()] });
             await SaveChangesAsync();
         }
 
@@ -249,8 +249,7 @@ public abstract class AdHocQuerySplittingQueryTestBase : NonSharedModelTestBase
                         .Select(
                             c => new Context25225.CollectionViewModel
                             {
-                                Id = c.Id,
-                                ParentId = c.ParentId,
+                                Id = c.Id, ParentId = c.ParentId,
                             })
                         .ToArray()
                 });
@@ -332,7 +331,7 @@ public abstract class AdHocQuerySplittingQueryTestBase : NonSharedModelTestBase
 
     private class Context25400(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Test> Tests { get; set; }
+        public DbSet<Test> Tests { get; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Test>().HasKey(e => e.Id);
@@ -349,14 +348,10 @@ public abstract class AdHocQuerySplittingQueryTestBase : NonSharedModelTestBase
             public static int ConstructorCallCount;
 
             public Test()
-            {
-                ++ConstructorCallCount;
-            }
+                => ++ConstructorCallCount;
 
             public Test(int value)
-            {
-                Value = value;
-            }
+                => Value = value;
 
             public int Id { get; set; }
             public int Value { get; set; }

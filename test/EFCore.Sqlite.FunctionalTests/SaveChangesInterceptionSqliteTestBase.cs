@@ -32,7 +32,8 @@ public abstract class SaveChangesInterceptionSqliteTestBase(SaveChangesIntercept
         }
     }
 
-    public class SaveChangesInterceptionWithDiagnosticsSqliteTest(SaveChangesInterceptionWithDiagnosticsSqliteTest.InterceptionSqliteFixture fixture)
+    public class SaveChangesInterceptionWithDiagnosticsSqliteTest(
+        SaveChangesInterceptionWithDiagnosticsSqliteTest.InterceptionSqliteFixture fixture)
         : SaveChangesInterceptionSqliteTestBase(fixture),
             IClassFixture<SaveChangesInterceptionWithDiagnosticsSqliteTest.InterceptionSqliteFixture>
     {

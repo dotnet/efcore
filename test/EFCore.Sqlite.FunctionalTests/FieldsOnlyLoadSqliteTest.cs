@@ -5,7 +5,8 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public class FieldsOnlyLoadSqliteTest(FieldsOnlyLoadSqliteTest.FieldsOnlyLoadSqliteFixture fixture) : FieldsOnlyLoadTestBase<FieldsOnlyLoadSqliteTest.FieldsOnlyLoadSqliteFixture>(fixture)
+public class FieldsOnlyLoadSqliteTest(FieldsOnlyLoadSqliteTest.FieldsOnlyLoadSqliteFixture fixture)
+    : FieldsOnlyLoadTestBase<FieldsOnlyLoadSqliteTest.FieldsOnlyLoadSqliteFixture>(fixture)
 {
     public class FieldsOnlyLoadSqliteFixture : FieldsOnlyLoadFixtureBase
     {

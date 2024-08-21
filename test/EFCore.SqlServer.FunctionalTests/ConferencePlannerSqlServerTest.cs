@@ -5,8 +5,9 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public class ConferencePlannerSqlServerTest(ConferencePlannerSqlServerTest.ConferencePlannerSqlServerFixture fixture) : ConferencePlannerTestBase<ConferencePlannerSqlServerTest.ConferencePlannerSqlServerFixture
->(fixture)
+public class ConferencePlannerSqlServerTest(ConferencePlannerSqlServerTest.ConferencePlannerSqlServerFixture fixture)
+    : ConferencePlannerTestBase<ConferencePlannerSqlServerTest.ConferencePlannerSqlServerFixture
+    >(fixture)
 {
     protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
         => facade.UseTransaction(transaction.GetDbTransaction());

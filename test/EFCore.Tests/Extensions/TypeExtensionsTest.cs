@@ -5,6 +5,7 @@
 
 using System.Collections;
 using System.Collections.ObjectModel;
+
 namespace Microsoft.EntityFrameworkCore;
 
 public class TypeExtensionsTest
@@ -576,19 +577,13 @@ public class TypeExtensionsTest
             { typeof(Dictionary<,>), false, "Dictionary<,>" },
             { typeof(List<>), true, "System.Collections.Generic.List<>" },
             { typeof(Dictionary<,>), true, "System.Collections.Generic.Dictionary<,>" },
-            {
-                typeof(Level1<>.Level2<>.Level3<>), true,
-                "Microsoft.EntityFrameworkCore.TypeExtensionsTest+Level1<>+Level2<>+Level3<>"
-            },
+            { typeof(Level1<>.Level2<>.Level3<>), true, "Microsoft.EntityFrameworkCore.TypeExtensionsTest+Level1<>+Level2<>+Level3<>" },
             { typeof(PartiallyClosedGeneric<>).BaseType, true, "Microsoft.EntityFrameworkCore.TypeExtensionsTest+C<, int>" },
             {
                 typeof(OuterGeneric<>.InnerNonGeneric.InnerGeneric<,>.InnerGenericLeafNode<>), true,
                 "Microsoft.EntityFrameworkCore.TypeExtensionsTest+OuterGeneric<>+InnerNonGeneric+InnerGeneric<,>+InnerGenericLeafNode<>"
             },
-            {
-                closedDictionaryType, true,
-                "System.Collections.Generic.Dictionary<Microsoft.EntityFrameworkCore.TypeExtensionsTest+B<>,>"
-            },
+            { closedDictionaryType, true, "System.Collections.Generic.Dictionary<Microsoft.EntityFrameworkCore.TypeExtensionsTest+B<>,>" },
             { closedLevelType, true, "Microsoft.EntityFrameworkCore.TypeExtensionsTest+Level1<>+Level2<string>+Level3<>" },
             {
                 closedInnerType, true,

@@ -44,8 +44,8 @@ public abstract class OwnedEntityQueryTestBase : NonSharedModelTestBase
 
     private class Context9202(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Movie> Movies { get; set; }
-        public DbSet<Actor> Actors { get; set; }
+        public DbSet<Movie> Movies { get; }
+        public DbSet<Actor> Actors { get; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -134,7 +134,7 @@ public abstract class OwnedEntityQueryTestBase : NonSharedModelTestBase
         public class OwnedData
         {
             public int Property { get; set; }
-            public OwnedSubData SubData { get; set; }
+            public OwnedSubData SubData { get; }
         }
 
         public class OwnedSubData
@@ -297,13 +297,19 @@ public abstract class OwnedEntityQueryTestBase : NonSharedModelTestBase
                 {
                     SecondValueObjects =
                     [
-                        new()
+                        new SecondValueObject
                         {
                             FourthValueObject =
-                                new FourthValueObject { FifthValueObjects = [new() { AnyValue = 10 }] },
+                                new FourthValueObject { FifthValueObjects = [new FifthValueObject { AnyValue = 10 }] },
                             ThirdValueObjects =
                             [
-                                new() { FourthValueObject = new FourthValueObject { FifthValueObjects = [new() { AnyValue = 20 }] } }
+                                new ThirdValueObject
+                                {
+                                    FourthValueObject = new FourthValueObject
+                                    {
+                                        FifthValueObjects = [new FifthValueObject { AnyValue = 20 }]
+                                    }
+                                }
                             ]
                         }
                     ]
@@ -363,8 +369,7 @@ public abstract class OwnedEntityQueryTestBase : NonSharedModelTestBase
         var query = context.Warehouses.Select(
             x => new Context18582.WarehouseModel
             {
-                WarehouseCode = x.WarehouseCode,
-                DestinationCountryCodes = x.DestinationCountries.Select(c => c.CountryCode).ToArray()
+                WarehouseCode = x.WarehouseCode, DestinationCountryCodes = x.DestinationCountries.Select(c => c.CountryCode).ToArray()
             }).AsNoTracking();
 
         var result = async
@@ -378,7 +383,7 @@ public abstract class OwnedEntityQueryTestBase : NonSharedModelTestBase
 
     private class Context18582(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Warehouse> Warehouses { get; set; }
+        public DbSet<Warehouse> Warehouses { get; }
 
         public Task SeedAsync()
         {
@@ -413,7 +418,7 @@ public abstract class OwnedEntityQueryTestBase : NonSharedModelTestBase
         public class WarehouseDestinationCountry
         {
             public string Id { get; set; }
-            public string WarehouseCode { get; set; }
+            public string WarehouseCode { get; }
             public string CountryCode { get; set; }
         }
 
@@ -443,8 +448,8 @@ public abstract class OwnedEntityQueryTestBase : NonSharedModelTestBase
 
     private class Context19138(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<BaseEntity> BaseEntities { get; set; }
-        public DbSet<OtherEntity> OtherEntities { get; set; }
+        public DbSet<BaseEntity> BaseEntities { get; }
+        public DbSet<OtherEntity> OtherEntities { get; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -551,9 +556,9 @@ public abstract class OwnedEntityQueryTestBase : NonSharedModelTestBase
 
         public class Child
         {
-            public int Id { get; set; }
-            public int Type { get; set; }
-            public Owned Owned { get; set; }
+            public int Id { get; }
+            public int Type { get; }
+            public Owned Owned { get; }
         }
 
         public class Owned
@@ -597,7 +602,7 @@ public abstract class OwnedEntityQueryTestBase : NonSharedModelTestBase
 
     private class Context21540(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Parent> Parents { get; set; }
+        public DbSet<Parent> Parents { get; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -624,7 +629,7 @@ public abstract class OwnedEntityQueryTestBase : NonSharedModelTestBase
                     OwnedReference = new Owned(),
                     Collection =
                     [
-                        new(), new()
+                        new Collection(), new Collection()
                     ]
                 }
             };
@@ -654,7 +659,7 @@ public abstract class OwnedEntityQueryTestBase : NonSharedModelTestBase
         public class OtherSide
         {
             public int Id { get; set; }
-            public List<Parent> SkipParent { get; set; }
+            public List<Parent> SkipParent { get; }
         }
 
         public class Reference
@@ -751,15 +756,14 @@ public abstract class OwnedEntityQueryTestBase : NonSharedModelTestBase
         var results = await context.Contacts.Select(
                 contact => new Context22089.ContactDto
                 {
-                    Id = contact.Id,
-                    Names = contact.Names.Select(name => new Context22089.NameDto()).ToArray()
+                    Id = contact.Id, Names = contact.Names.Select(name => new Context22089.NameDto()).ToArray()
                 })
             .ToListAsync();
     }
 
     private class Context22089(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Contact> Contacts { get; set; }
+        public DbSet<Contact> Contacts { get; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -782,7 +786,7 @@ public abstract class OwnedEntityQueryTestBase : NonSharedModelTestBase
         public class Name
         {
             public Guid Id { get; set; }
-            public Guid ContactId { get; set; }
+            public Guid ContactId { get; }
         }
 
         public class NameDto
@@ -845,8 +849,8 @@ public abstract class OwnedEntityQueryTestBase : NonSharedModelTestBase
 
         public class Post
         {
-            public string Title { get; set; }
-            public int CommentsCount { get; set; }
+            public string Title { get; }
+            public int CommentsCount { get; }
         }
 
         public class BlogDto

@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 // ReSharper disable InconsistentNaming
+
 namespace Microsoft.EntityFrameworkCore.ModelBuilding;
 
 #nullable disable
@@ -1628,9 +1629,7 @@ public abstract partial class ModelBuilderTest
             public DepartmentId() { }
 
             public DepartmentId(int value)
-            {
-                Value = value;
-            }
+                => Value = value;
 
             public int Value { get; }
         }
@@ -1646,15 +1645,16 @@ public abstract partial class ModelBuilderTest
         {
             var modelBuilder = CreateModelBuilder();
 
-            modelBuilder.Entity<Department>(b =>
-            {
-                b.Property(d => d.Id)
-                    .HasConversion(
-                        id => id.Value,
-                        value => new DepartmentId(value));
+            modelBuilder.Entity<Department>(
+                b =>
+                {
+                    b.Property(d => d.Id)
+                        .HasConversion(
+                            id => id.Value,
+                            value => new DepartmentId(value));
 
-                b.OwnsMany(d => d.DepartmentIds);
-            });
+                    b.OwnsMany(d => d.DepartmentIds);
+                });
 
             modelBuilder.Entity<Office>()
                 .OwnsMany(o => o.DepartmentIds);
@@ -1683,15 +1683,16 @@ public abstract partial class ModelBuilderTest
             modelBuilder.Entity<Office>()
                 .OwnsMany(o => o.DepartmentIds);
 
-            modelBuilder.Entity<Department>(b =>
-            {
-                b.Property(d => d.Id)
-                    .HasConversion(
-                        id => id.Value,
-                        value => new DepartmentId(value));
+            modelBuilder.Entity<Department>(
+                b =>
+                {
+                    b.Property(d => d.Id)
+                        .HasConversion(
+                            id => id.Value,
+                            value => new DepartmentId(value));
 
-                b.OwnsMany(d => d.DepartmentIds);
-            });
+                    b.OwnsMany(d => d.DepartmentIds);
+                });
 
             var model = modelBuilder.FinalizeModel();
 
@@ -2033,22 +2034,23 @@ public abstract partial class ModelBuilderTest
                 .Entity<ComplexProperties>()
                 .OwnsOne(e => e.CollectionQuarks)
                 .PrimitiveCollection(e => e.Up)
-                .ElementType(t => t
-                    .HasAnnotation("B", "C")
-                    .HasConversion(typeof(long))
-                    .HasConversion(new CastingConverter<int, long>())
-                    .HasConversion(typeof(long), typeof(CustomValueComparer<int>))
-                    .HasConversion(typeof(long), new CustomValueComparer<int>())
-                    .HasConversion(new CastingConverter<int, long>())
-                    .HasConversion(new CastingConverter<int, long>(), new CustomValueComparer<int>())
-                    .HasConversion<long>()
-                    .HasConversion<long>(new CustomValueComparer<int>())
-                    .HasConversion<long, CustomValueComparer<int>>()
-                    .HasMaxLength(2)
-                    .HasPrecision(1)
-                    .HasPrecision(1, 2)
-                    .IsRequired()
-                    .IsUnicode())
+                .ElementType(
+                    t => t
+                        .HasAnnotation("B", "C")
+                        .HasConversion(typeof(long))
+                        .HasConversion(new CastingConverter<int, long>())
+                        .HasConversion(typeof(long), typeof(CustomValueComparer<int>))
+                        .HasConversion(typeof(long), new CustomValueComparer<int>())
+                        .HasConversion(new CastingConverter<int, long>())
+                        .HasConversion(new CastingConverter<int, long>(), new CustomValueComparer<int>())
+                        .HasConversion<long>()
+                        .HasConversion<long>(new CustomValueComparer<int>())
+                        .HasConversion<long, CustomValueComparer<int>>()
+                        .HasMaxLength(2)
+                        .HasPrecision(1)
+                        .HasPrecision(1, 2)
+                        .IsRequired()
+                        .IsUnicode())
                 .IsRequired()
                 .HasAnnotation("A", "V")
                 .IsConcurrencyToken()
@@ -2071,22 +2073,23 @@ public abstract partial class ModelBuilderTest
                 .Entity<Customer>()
                 .OwnsMany(e => e.Orders)
                 .PrimitiveCollection<List<int>>("List")
-                .ElementType(t => t
-                    .HasAnnotation("B", "C")
-                    .HasConversion(typeof(long))
-                    .HasConversion(new CastingConverter<int, long>())
-                    .HasConversion(typeof(long), typeof(CustomValueComparer<int>))
-                    .HasConversion(typeof(long), new CustomValueComparer<int>())
-                    .HasConversion(new CastingConverter<int, long>())
-                    .HasConversion(new CastingConverter<int, long>(), new CustomValueComparer<int>())
-                    .HasConversion<long>()
-                    .HasConversion<long>(new CustomValueComparer<int>())
-                    .HasConversion<long, CustomValueComparer<int>>()
-                    .HasMaxLength(2)
-                    .HasPrecision(1)
-                    .HasPrecision(1, 2)
-                    .IsRequired()
-                    .IsUnicode())
+                .ElementType(
+                    t => t
+                        .HasAnnotation("B", "C")
+                        .HasConversion(typeof(long))
+                        .HasConversion(new CastingConverter<int, long>())
+                        .HasConversion(typeof(long), typeof(CustomValueComparer<int>))
+                        .HasConversion(typeof(long), new CustomValueComparer<int>())
+                        .HasConversion(new CastingConverter<int, long>())
+                        .HasConversion(new CastingConverter<int, long>(), new CustomValueComparer<int>())
+                        .HasConversion<long>()
+                        .HasConversion<long>(new CustomValueComparer<int>())
+                        .HasConversion<long, CustomValueComparer<int>>()
+                        .HasMaxLength(2)
+                        .HasPrecision(1)
+                        .HasPrecision(1, 2)
+                        .IsRequired()
+                        .IsUnicode())
                 .IsRequired()
                 .HasAnnotation("A", "V")
                 .IsConcurrencyToken()
@@ -2117,6 +2120,7 @@ public abstract partial class ModelBuilderTest
             public override ValueGenerator Create(IProperty property, ITypeBase entityType)
                 => new CustomValueGenerator();
         }
+
         private class CustomValueComparer<T>() : ValueComparer<T>(false);
     }
 }

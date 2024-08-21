@@ -361,8 +361,8 @@ public class QueryTests : IDisposable
     {
         var ids = new[] { HierarchyId.Parse("/1/1/7/"), HierarchyId.Parse("/1/1/99/") };
         var result = (from p in _db.Patriarchy
-                       where ids.Contains(p.Id)
-                       select p.Name).Single();
+                      where ids.Contains(p.Id)
+                      select p.Name).Single();
 
         Assert.Equal(
             """

@@ -12,9 +12,7 @@ public class CustomConvertersSqlServerTest : CustomConvertersTestBase<CustomConv
 {
     public CustomConvertersSqlServerTest(CustomConvertersSqlServerFixture fixture)
         : base(fixture)
-    {
-        Fixture.TestSqlLoggerFactory.Clear();
-    }
+        => Fixture.TestSqlLoggerFactory.Clear();
 
     [ConditionalFact]
     public virtual void Columns_have_expected_data_types()
@@ -282,7 +280,7 @@ WHERE [b].[IsVisible] = N'N'
 """);
     }
 
-    public async override Task Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_EFProperty()
+    public override async Task Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_EFProperty()
     {
         await base.Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_EFProperty();
 
@@ -294,7 +292,7 @@ WHERE [b].[IsVisible] = N'Y'
 """);
     }
 
-    public async override Task Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_indexer()
+    public override async Task Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_indexer()
     {
         await base.Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_indexer();
 
@@ -310,7 +308,7 @@ WHERE [b].[IndexerVisible] = N'Nay'
         // Return values are not string
         => Task.CompletedTask;
 
-    public async override Task Id_object_as_entity_key()
+    public override async Task Id_object_as_entity_key()
     {
         await base.Id_object_as_entity_key();
 

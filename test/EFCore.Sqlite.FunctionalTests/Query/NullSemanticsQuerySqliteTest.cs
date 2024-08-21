@@ -12,11 +12,9 @@ public class NullSemanticsQuerySqliteTest : NullSemanticsQueryTestBase<NullSeman
     // ReSharper disable once UnusedParameter.Local
     public NullSemanticsQuerySqliteTest(NullSemanticsQuerySqliteFixture fixture, ITestOutputHelper testOutputHelper)
         : base(fixture)
-    {
-        Fixture.TestSqlLoggerFactory.Clear();
-        //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
-    }
+        => Fixture.TestSqlLoggerFactory.Clear();
 
+    //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     public override async Task Rewrite_compare_int_with_int(bool async)
     {
         await base.Rewrite_compare_int_with_int(async);
@@ -1089,8 +1087,8 @@ WHERE EXISTS (
     FROM "Entities2" AS "e0"
     WHERE "e0"."NullableStringA" = "e"."NullableStringB" OR ("e0"."NullableStringA" IS NULL AND "e"."NullableStringB" IS NULL))
 """,
-                //
-                """
+            //
+            """
 SELECT "e"."Id"
 FROM "Entities1" AS "e"
 WHERE NOT EXISTS (

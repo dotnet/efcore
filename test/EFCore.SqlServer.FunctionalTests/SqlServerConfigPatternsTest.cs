@@ -257,9 +257,7 @@ public class SqlServerConfigPatternsTest
         {
             public NorthwindContext(DbContextOptions options)
                 : base(options)
-            {
-                Assert.NotNull(options);
-            }
+                => Assert.NotNull(options);
 
             public DbSet<Customer> Customers { get; set; }
 
@@ -311,9 +309,7 @@ public class SqlServerConfigPatternsTest
         {
             public NorthwindContext(DbContextOptions options)
                 : base(options)
-            {
-                Assert.NotNull(options);
-            }
+                => Assert.NotNull(options);
 
             public DbSet<Customer> Customers { get; set; }
 
@@ -522,28 +518,29 @@ public class SqlServerConfigPatternsTest
             public DbSet<Customer> Customers { get; set; }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            {
-                optionsBuilder
+                => optionsBuilder
                     .EnableServiceProviderCaching(false)
-                    .UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString,
+                    .UseSqlServer(
+                        SqlServerNorthwindTestStoreFactory.NorthwindConnectionString,
                         b =>
                         {
                             if (before)
                             {
                                 b.ExecutionStrategy(_ => new DummyExecutionStrategy());
                             }
+
                             b.EnableRetryOnFailure();
                             if (!before)
                             {
                                 b.ExecutionStrategy(_ => new DummyExecutionStrategy());
                             }
                         });
-            }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
                 => ConfigureModel(modelBuilder);
         }
     }
+
     public class ExplicitExecutionStrategies_AzureSql
     {
         [InlineData(true)]
@@ -567,28 +564,29 @@ public class SqlServerConfigPatternsTest
             public DbSet<Customer> Customers { get; set; }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            {
-                optionsBuilder
+                => optionsBuilder
                     .EnableServiceProviderCaching(false)
-                    .UseAzureSql(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString,
+                    .UseAzureSql(
+                        SqlServerNorthwindTestStoreFactory.NorthwindConnectionString,
                         b =>
                         {
                             if (before)
                             {
                                 b.ExecutionStrategy(_ => new DummyExecutionStrategy());
                             }
+
                             b.EnableRetryOnFailure();
                             if (!before)
                             {
                                 b.ExecutionStrategy(_ => new DummyExecutionStrategy());
                             }
                         });
-            }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
                 => ConfigureModel(modelBuilder);
         }
     }
+
     public class ExplicitExecutionStrategies_AzureSynapse
     {
         [InlineData(true)]
@@ -612,28 +610,29 @@ public class SqlServerConfigPatternsTest
             public DbSet<Customer> Customers { get; set; }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            {
-                optionsBuilder
+                => optionsBuilder
                     .EnableServiceProviderCaching(false)
-                    .UseAzureSynapse(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString,
+                    .UseAzureSynapse(
+                        SqlServerNorthwindTestStoreFactory.NorthwindConnectionString,
                         b =>
                         {
                             if (before)
                             {
                                 b.ExecutionStrategy(_ => new DummyExecutionStrategy());
                             }
+
                             b.EnableRetryOnFailure();
                             if (!before)
                             {
                                 b.ExecutionStrategy(_ => new DummyExecutionStrategy());
                             }
                         });
-            }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
                 => ConfigureModel(modelBuilder);
         }
     }
+
     public class ExplicitExecutionStrategies_ConfigureSqlEngine_AzureSql
     {
         [InlineData(true)]
@@ -657,8 +656,7 @@ public class SqlServerConfigPatternsTest
             public DbSet<Customer> Customers { get; set; }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            {
-                optionsBuilder
+                => optionsBuilder
                     .EnableServiceProviderCaching(false)
                     .ConfigureSqlEngine(
                         b =>
@@ -667,6 +665,7 @@ public class SqlServerConfigPatternsTest
                             {
                                 b.ExecutionStrategy(_ => new DummyExecutionStrategy());
                             }
+
                             b.EnableRetryOnFailure();
                             if (!before)
                             {
@@ -674,7 +673,6 @@ public class SqlServerConfigPatternsTest
                             }
                         })
                     .UseAzureSql();
-            }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
                 => ConfigureModel(modelBuilder);
@@ -695,12 +693,10 @@ public class SqlServerConfigPatternsTest
             public DbSet<Customer> Customers { get; set; }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            {
-                optionsBuilder
+                => optionsBuilder
                     .EnableServiceProviderCaching(false)
                     .UseSqlServer()
                     .UseAzureSql();
-            }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
                 => ConfigureModel(modelBuilder);
@@ -721,11 +717,9 @@ public class SqlServerConfigPatternsTest
             public DbSet<Customer> Customers { get; set; }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            {
-                optionsBuilder
+                => optionsBuilder
                     .EnableServiceProviderCaching(false)
                     .ConfigureSqlEngine();
-            }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
                 => ConfigureModel(modelBuilder);
@@ -855,9 +849,20 @@ public class SqlServerConfigPatternsTest
 
     private class DummyExecutionStrategy : IExecutionStrategy
     {
-        public bool RetriesOnFailure => true;
+        public bool RetriesOnFailure
+            => true;
 
-        public TResult Execute<TState, TResult>(TState state, Func<DbContext, TState, TResult> operation, Func<DbContext, TState, ExecutionResult<TResult>> verifySucceeded) => throw new NotImplementedException();
-        public Task<TResult> ExecuteAsync<TState, TResult>(TState state, Func<DbContext, TState, CancellationToken, Task<TResult>> operation, Func<DbContext, TState, CancellationToken, Task<ExecutionResult<TResult>>> verifySucceeded, CancellationToken cancellationToken = default) => throw new NotImplementedException();
+        public TResult Execute<TState, TResult>(
+            TState state,
+            Func<DbContext, TState, TResult> operation,
+            Func<DbContext, TState, ExecutionResult<TResult>> verifySucceeded)
+            => throw new NotImplementedException();
+
+        public Task<TResult> ExecuteAsync<TState, TResult>(
+            TState state,
+            Func<DbContext, TState, CancellationToken, Task<TResult>> operation,
+            Func<DbContext, TState, CancellationToken, Task<ExecutionResult<TResult>>> verifySucceeded,
+            CancellationToken cancellationToken = default)
+            => throw new NotImplementedException();
     }
 }

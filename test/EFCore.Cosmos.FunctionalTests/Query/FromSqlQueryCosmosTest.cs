@@ -51,7 +51,8 @@ FROM (
     public async Task FromSqlRaw_queryable_incorrect_discriminator_throws()
     {
         using var context = CreateContext();
-        var query = context.Set<Order>().FromSqlRaw("""
+        var query = context.Set<Order>().FromSqlRaw(
+            """
 SELECT * FROM root c WHERE c["$type"] = "OrderDetail"
 """);
 
@@ -125,7 +126,8 @@ FROM (
             async, async a =>
             {
                 using var context = CreateContext();
-                var query = context.Set<Customer>().FromSqlRaw("""
+                var query = context.Set<Customer>().FromSqlRaw(
+                        """
                     SELECT * FROM root c WHERE c["$type"] = "Customer"
                     """)
                     .Where(c => c.ContactName.Contains("z"));
@@ -172,7 +174,9 @@ SELECT VALUE s
 FROM (
 
 
-""" + "        " + """
+"""
+                    + "        "
+                    + """
 
 
 
@@ -193,7 +197,8 @@ WHERE CONTAINS(s["ContactName"], "z")
                 {
                     var query = EF.CompileAsyncQuery(
                         (NorthwindContext context) => context.Set<Customer>()
-                            .FromSqlRaw("""
+                            .FromSqlRaw(
+                                """
                                         SELECT * FROM root c WHERE c["$type"] = "Customer"
                                         """)
                             .Where(c => c.ContactName.Contains("z")));
@@ -581,7 +586,8 @@ FROM (
             async, async a =>
             {
                 using var context = CreateContext();
-                var query = context.Set<Customer>().FromSqlRaw("""
+                var query = context.Set<Customer>().FromSqlRaw(
+                        """
                                                                SELECT * FROM root c WHERE c["$type"] = "Customer"
                                                                """)
                     .AsNoTracking();
@@ -641,7 +647,8 @@ FROM (
             async, async a =>
             {
                 using var context = CreateContext();
-                var query = context.Set<Customer>().FromSqlRaw("""
+                var query = context.Set<Customer>().FromSqlRaw(
+                        """
                                                                SELECT * FROM root c WHERE c["$type"] = "Customer"
                                                                """)
                     .Where(c => c.ContactName == c.CompanyName);
@@ -688,7 +695,8 @@ WHERE (s["ContactName"] = s["CompanyName"])
             async, async a =>
             {
                 using var context = CreateContext();
-                var query = context.Set<Customer>().FromSqlRaw("""
+                var query = context.Set<Customer>().FromSqlRaw(
+                        """
                                                                SELECT * FROM root c WHERE c["$type"] = "Customer"
                                                                """)
                     .Select(

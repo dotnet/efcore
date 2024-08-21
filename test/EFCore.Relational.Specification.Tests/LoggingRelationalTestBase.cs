@@ -64,7 +64,8 @@ public abstract class LoggingRelationalTestBase<TBuilder, TExtension> : LoggingT
                 () => context.Model).Message);
     }
 
-    protected class IndexPropertiesBothMappedAndNotMappedToTableContext(DbContextOptionsBuilder optionsBuilder) : DbContext(optionsBuilder.Options)
+    protected class IndexPropertiesBothMappedAndNotMappedToTableContext(DbContextOptionsBuilder optionsBuilder)
+        : DbContext(optionsBuilder.Options)
     {
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -89,7 +90,8 @@ public abstract class LoggingRelationalTestBase<TBuilder, TExtension> : LoggingT
                 () => context.Model).Message);
     }
 
-    protected class UnnamedIndexPropertiesMappedToNonOverlappingTablesContext(DbContextOptionsBuilder optionsBuilder) : DbContext(optionsBuilder.Options)
+    protected class UnnamedIndexPropertiesMappedToNonOverlappingTablesContext(DbContextOptionsBuilder optionsBuilder)
+        : DbContext(optionsBuilder.Options)
     {
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -121,7 +123,8 @@ public abstract class LoggingRelationalTestBase<TBuilder, TExtension> : LoggingT
                 () => context.Model).Message);
     }
 
-    protected class ForeignKeyPropertiesMappedToUnrelatedTablesContext(DbContextOptionsBuilder optionsBuilder) : DbContext(optionsBuilder.Options)
+    protected class ForeignKeyPropertiesMappedToUnrelatedTablesContext(DbContextOptionsBuilder optionsBuilder)
+        : DbContext(optionsBuilder.Options)
     {
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

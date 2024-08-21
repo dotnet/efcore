@@ -580,14 +580,14 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
             var expectedName = methodName.StartsWith("HasNo", StringComparison.Ordinal)
                 ? "CanRemove" + methodName[5..]
                 : "CanSet"
-                    + (methodName.StartsWith("Has", StringComparison.Ordinal)
-                        || methodName.StartsWith("Use", StringComparison.Ordinal)
-                            ? methodName[3..]
-                            : methodName.StartsWith("To", StringComparison.Ordinal)
-                                ? methodName[2..]
-                                : methodName.StartsWith("With", StringComparison.Ordinal)
-                                    ? methodName[4..]
-                                    : methodName);
+                + (methodName.StartsWith("Has", StringComparison.Ordinal)
+                    || methodName.StartsWith("Use", StringComparison.Ordinal)
+                        ? methodName[3..]
+                        : methodName.StartsWith("To", StringComparison.Ordinal)
+                            ? methodName[2..]
+                            : methodName.StartsWith("With", StringComparison.Ordinal)
+                                ? methodName[4..]
+                                : methodName);
 
             if (!methodLookup.TryGetValue(expectedName, out var canSetMethod))
             {
@@ -1245,9 +1245,7 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
     public abstract class ApiConsistencyFixtureBase
     {
         protected ApiConsistencyFixtureBase()
-        {
-            Initialize();
-        }
+            => Initialize();
 
         public virtual HashSet<Type> FluentApiTypes { get; } = [];
 
@@ -1284,25 +1282,26 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
         public virtual Dictionary<Type, HashSet<MethodInfo>> UnmatchedMirrorMethods { get; } = new();
         public virtual Dictionary<MethodInfo, string> MetadataMethodNameTransformers { get; } = new();
         public virtual HashSet<MethodInfo> MetadataMethodExceptions { get; } = [];
+
         public virtual HashSet<MethodInfo> VirtualMethodExceptions { get; } =
-            [
+        [
             // un-sealed record
 #pragma warning disable EF9100 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
             typeof(MaterializerLiftableConstantContext).GetMethod("get_Dependencies"),
             typeof(MaterializerLiftableConstantContext).GetMethod("set_Dependencies"),
             typeof(MaterializerLiftableConstantContext).GetMethod("Deconstruct"),
 #pragma warning restore EF9100 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
-            ];
+        ];
 
         public virtual HashSet<PropertyInfo> ComputedDependencyProperties { get; } =
-            [
-                typeof(ProviderConventionSetBuilderDependencies).GetProperty(
-                    nameof(ProviderConventionSetBuilderDependencies.ContextType)),
-                typeof(QueryCompilationContextDependencies).GetProperty(nameof(QueryCompilationContextDependencies.ContextType)),
-                typeof(QueryCompilationContextDependencies).GetProperty(
-                    nameof(QueryCompilationContextDependencies.QueryTrackingBehavior)),
-                typeof(QueryContextDependencies).GetProperty(nameof(QueryContextDependencies.StateManager))
-            ];
+        [
+            typeof(ProviderConventionSetBuilderDependencies).GetProperty(
+                nameof(ProviderConventionSetBuilderDependencies.ContextType)),
+            typeof(QueryCompilationContextDependencies).GetProperty(nameof(QueryCompilationContextDependencies.ContextType)),
+            typeof(QueryCompilationContextDependencies).GetProperty(
+                nameof(QueryCompilationContextDependencies.QueryTrackingBehavior)),
+            typeof(QueryContextDependencies).GetProperty(nameof(QueryContextDependencies.StateManager))
+        ];
 
         public Dictionary<Type, (Type Mutable, Type Convention, Type ConventionBuilder, Type Runtime)> MetadataTypes { get; }
             = new()
@@ -1440,7 +1439,8 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
             string name,
             int genericParameterCount,
             Func<Type[], Type[], Type[]> parameterGenerator)
-            => type.GetGenericMethod(name,
+            => type.GetGenericMethod(
+                name,
                 genericParameterCount,
                 BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly,
                 parameterGenerator);

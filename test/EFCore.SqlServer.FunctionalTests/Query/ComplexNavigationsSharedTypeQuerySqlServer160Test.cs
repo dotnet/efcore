@@ -1018,7 +1018,7 @@ LEFT JOIN (
 """);
     }
 
-    [ConditionalTheory()]
+    [ConditionalTheory]
     public override async Task GroupBy_aggregate_where_required_relationship_2(bool async)
     {
         await base.GroupBy_aggregate_where_required_relationship_2(async);
@@ -1169,7 +1169,7 @@ WHERE [l5].[OneToOne_Required_PK_Date] IS NOT NULL AND [l5].[Level1_Required_Id]
 """);
     }
 
-    [ConditionalTheory()]
+    [ConditionalTheory]
     public override async Task GroupBy_aggregate_where_required_relationship(bool async)
     {
         await base.GroupBy_aggregate_where_required_relationship(async);

@@ -10,7 +10,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding;
 
 public class CosmosModelBuilderGenericTest : ModelBuilderTest
 {
-    public class CosmosGenericNonRelationship(CosmosModelBuilderFixture fixture) : NonRelationshipTestBase(fixture), IClassFixture<CosmosModelBuilderFixture>
+    public class CosmosGenericNonRelationship(CosmosModelBuilderFixture fixture)
+        : NonRelationshipTestBase(fixture), IClassFixture<CosmosModelBuilderFixture>
     {
         // Cosmos provider cannot map collections of elements with converters. See Issue #34026.
         public override void Element_types_can_have_custom_type_value_converter_type_set()
@@ -177,7 +178,13 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             modelBuilder.Entity<Customer>()
                 .Ignore(b => b.Details)
                 .Ignore(b => b.Orders)
-                .HasPartitionKey(b => new { b.Title, b.Name, b.AlternateKey })
+                .HasPartitionKey(
+                    b => new
+                    {
+                        b.Title,
+                        b.Name,
+                        b.AlternateKey
+                    })
                 .Property(b => b.AlternateKey).HasConversion<string>();
 
             var model = modelBuilder.FinalizeModel();
@@ -470,12 +477,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
                 entity.GetPartitionKeyProperties().Select(p => p.Name));
 
             Assert.Equal(
-                new[]
-                {
-                    nameof(Customer.Title),
-                    nameof(Customer.AlternateKey),
-                    CosmosJsonIdConvention.DefaultIdPropertyName
-                },
+                new[] { nameof(Customer.Title), nameof(Customer.AlternateKey), CosmosJsonIdConvention.DefaultIdPropertyName },
                 entity.FindPrimaryKey()!.Properties.Select(p => p.Name));
         }
 
@@ -506,11 +508,23 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
         {
             var modelBuilder = CreateModelBuilder();
 
-            modelBuilder.Entity<Customer>().HasKey(e => new { e.Name, e.AlternateKey, e.Title });
+            modelBuilder.Entity<Customer>().HasKey(
+                e => new
+                {
+                    e.Name,
+                    e.AlternateKey,
+                    e.Title
+                });
             modelBuilder.Entity<Customer>()
                 .Ignore(b => b.Details)
                 .Ignore(b => b.Orders)
-                .HasPartitionKey(b => new { b.Name, b.AlternateKey, b.Title })
+                .HasPartitionKey(
+                    b => new
+                    {
+                        b.Name,
+                        b.AlternateKey,
+                        b.Title
+                    })
                 .Property(b => b.AlternateKey).HasConversion<string>().ToJsonProperty("id");
 
             var model = modelBuilder.FinalizeModel();
@@ -527,7 +541,8 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             => new GenericTestModelBuilder(Fixture, configure);
     }
 
-    public class CosmosGenericComplexType(CosmosModelBuilderFixture fixture) : ComplexTypeTestBase(fixture), IClassFixture<CosmosModelBuilderFixture>
+    public class CosmosGenericComplexType(CosmosModelBuilderFixture fixture)
+        : ComplexTypeTestBase(fixture), IClassFixture<CosmosModelBuilderFixture>
     {
         public override void Properties_can_have_custom_type_value_converter_type_set()
             => Properties_can_have_custom_type_value_converter_type_set<string>();
@@ -573,7 +588,8 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             => new GenericTestModelBuilder(Fixture, configure);
     }
 
-    public class CosmosGenericInheritance(CosmosModelBuilderFixture fixture) : InheritanceTestBase(fixture), IClassFixture<CosmosModelBuilderFixture>
+    public class CosmosGenericInheritance(CosmosModelBuilderFixture fixture)
+        : InheritanceTestBase(fixture), IClassFixture<CosmosModelBuilderFixture>
     {
         public override void Base_type_can_be_discovered_after_creating_foreign_keys_on_derived()
         {
@@ -602,7 +618,8 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             => new GenericTestModelBuilder(Fixture, configure);
     }
 
-    public class CosmosGenericOneToMany(CosmosModelBuilderFixture fixture) : OneToManyTestBase(fixture), IClassFixture<CosmosModelBuilderFixture>
+    public class CosmosGenericOneToMany(CosmosModelBuilderFixture fixture)
+        : OneToManyTestBase(fixture), IClassFixture<CosmosModelBuilderFixture>
     {
         public override void Creates_overlapping_foreign_keys_with_different_nullability()
             => Assert.Equal(
@@ -631,13 +648,15 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             => new GenericTestModelBuilder(Fixture, configure);
     }
 
-    public class CosmosGenericManyToOne(CosmosModelBuilderFixture fixture) : ManyToOneTestBase(fixture), IClassFixture<CosmosModelBuilderFixture>
+    public class CosmosGenericManyToOne(CosmosModelBuilderFixture fixture)
+        : ManyToOneTestBase(fixture), IClassFixture<CosmosModelBuilderFixture>
     {
         protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder>? configure = null)
             => new GenericTestModelBuilder(Fixture, configure);
     }
 
-    public class CosmosGenericOneToOne(CosmosModelBuilderFixture fixture) : OneToOneTestBase(fixture), IClassFixture<CosmosModelBuilderFixture>
+    public class CosmosGenericOneToOne(CosmosModelBuilderFixture fixture)
+        : OneToOneTestBase(fixture), IClassFixture<CosmosModelBuilderFixture>
     {
         public override void Navigation_to_shared_type_is_not_discovered_by_convention()
         {
@@ -660,7 +679,8 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             => new GenericTestModelBuilder(Fixture, configure);
     }
 
-    public class CosmosGenericManyToMany(CosmosModelBuilderFixture fixture) : ManyToManyTestBase(fixture), IClassFixture<CosmosModelBuilderFixture>
+    public class CosmosGenericManyToMany(CosmosModelBuilderFixture fixture)
+        : ManyToManyTestBase(fixture), IClassFixture<CosmosModelBuilderFixture>
     {
         [ConditionalFact]
         public virtual void Can_use_shared_type_as_join_entity_with_partition_keys()
@@ -705,7 +725,8 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
 
             var joinType = model.FindEntityType("JoinType")!;
             Assert.NotNull(joinType);
-            Assert.Collection(joinType.GetForeignKeys(),
+            Assert.Collection(
+                joinType.GetForeignKeys(),
                 fk => Assert.Equal("Foo", fk["Right"]),
                 fk => Assert.Equal("Bar", fk["Left"]));
             Assert.Equal(3, joinType.FindPrimaryKey()!.Properties.Count);
@@ -759,14 +780,16 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
                 .UsingEntity<Dictionary<string, object>>(
                     "JoinType",
                     e => e.HasOne<NavDependent>().WithMany().HasForeignKey("DependentId", "PartitionId1", "PartitionId2", "PartitionId3"),
-                    e => e.HasOne<ManyToManyNavPrincipal>().WithMany().HasForeignKey("PrincipalId", "PartitionId1", "PartitionId2", "PartitionId3"),
+                    e => e.HasOne<ManyToManyNavPrincipal>().WithMany().HasForeignKey(
+                        "PrincipalId", "PartitionId1", "PartitionId2", "PartitionId3"),
                     e => e.HasPartitionKey("PartitionId1", "PartitionId2", "PartitionId3"));
 
             var model = modelBuilder.FinalizeModel();
 
             var joinType = model.FindEntityType("JoinType")!;
             Assert.NotNull(joinType);
-            Assert.Collection(joinType.GetForeignKeys(),
+            Assert.Collection(
+                joinType.GetForeignKeys(),
                 fk => Assert.Equal("Foo", fk["Right"]),
                 fk => Assert.Equal("Bar", fk["Left"]));
 
@@ -944,7 +967,8 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             => new GenericTestModelBuilder(Fixture, configure);
     }
 
-    public class CosmosGenericOwnedTypes(CosmosModelBuilderFixture fixture) : OwnedTypesTestBase(fixture), IClassFixture<CosmosModelBuilderFixture>
+    public class CosmosGenericOwnedTypes(CosmosModelBuilderFixture fixture)
+        : OwnedTypesTestBase(fixture), IClassFixture<CosmosModelBuilderFixture>
     {
         public override void Deriving_from_owned_type_throws()
             // On Cosmos the base type starts as owned
@@ -990,7 +1014,8 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
 
         public override void Can_configure_chained_ownerships()
             => Assert.Equal(
-                CosmosStrings.IndexesExist("Book.Label#BookLabel.AnotherBookLabel#AnotherBookLabel.SpecialBookLabel#SpecialBookLabel", "BookId"),
+                CosmosStrings.IndexesExist(
+                    "Book.Label#BookLabel.AnotherBookLabel#AnotherBookLabel.SpecialBookLabel#SpecialBookLabel", "BookId"),
                 Assert.Throws<InvalidOperationException>(
                     base.Can_configure_chained_ownerships).Message);
 
@@ -1035,7 +1060,9 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
 
     public class CosmosModelBuilderFixture : ModelBuilderFixtureBase
     {
-        public override TestHelpers TestHelpers => CosmosTestHelpers.Instance;
+        public override TestHelpers TestHelpers
+            => CosmosTestHelpers.Instance;
+
         public override bool ForeignKeysHaveIndexes
             => false;
     }

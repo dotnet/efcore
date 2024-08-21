@@ -22,8 +22,8 @@ await context.Database.BeginTransactionAsync();
 
 var blogs = context.JsonEntities.Where(b => b.IntList[b.Id] == 2).ToList();
 """,
-        typeof(JsonContext),
-        options);
+            typeof(JsonContext),
+            options);
     }
 
     [ConditionalFact]
@@ -117,7 +117,8 @@ Assert.Equal(10, e.PrivateAutoPropertyExposer);
 
                 Assert.Contains("var instance = UnsafeAccessor_Microsoft_EntityFrameworkCore_Query_NonPublicEntity_Ctor();", code);
                 Assert.Contains("UnsafeAccessor_Microsoft_EntityFrameworkCore_Query_NonPublicEntity_Id_Set(instance) =", code);
-                Assert.Contains("UnsafeAccessor_Microsoft_EntityFrameworkCore_Query_NonPublicEntity_PrivateAutoProperty_Set(instance) =", code);
+                Assert.Contains(
+                    "UnsafeAccessor_Microsoft_EntityFrameworkCore_Query_NonPublicEntity_PrivateAutoProperty_Set(instance) =", code);
                 Assert.Contains("UnsafeAccessor_Microsoft_EntityFrameworkCore_Query_NonPublicEntity_set_PrivateProperty(instance,", code);
                 Assert.Contains("UnsafeAccessor_Microsoft_EntityFrameworkCore_Query_NonPublicEntity__privateField_Set(instance) =", code);
             });
@@ -158,6 +159,7 @@ Assert.Equal(10, e.PrivateAutoPropertyExposer);
             get => _privatePropertyBackingField;
             set => _privatePropertyBackingField = value;
         }
+
         private int? _privatePropertyBackingField;
 
         private int? PrivateAutoProperty { get; set; }

@@ -3481,9 +3481,7 @@ public class FixupTest
         }
 
         public Category(int id)
-        {
-            _id = id;
-        }
+            => _id = id;
 
         public string Value1 { get; set; }
         public string Value2 { get; set; }

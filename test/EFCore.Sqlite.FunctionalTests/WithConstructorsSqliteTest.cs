@@ -5,7 +5,8 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public class WithConstructorsSqliteTest(WithConstructorsSqliteTest.WithConstructorsSqliteFixture fixture) : WithConstructorsTestBase<WithConstructorsSqliteTest.WithConstructorsSqliteFixture>(fixture)
+public class WithConstructorsSqliteTest(WithConstructorsSqliteTest.WithConstructorsSqliteFixture fixture)
+    : WithConstructorsTestBase<WithConstructorsSqliteTest.WithConstructorsSqliteFixture>(fixture)
 {
     protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
         => facade.UseTransaction(transaction.GetDbTransaction());

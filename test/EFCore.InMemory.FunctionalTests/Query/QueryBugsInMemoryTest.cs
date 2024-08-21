@@ -583,7 +583,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
                 new Blog5456
                 {
                     Id = i + 1,
-                    Posts = [new() { Comments = [new(), new()] }, new()],
+                    Posts = [new Post5456 { Comments = [new Comment5456(), new Comment5456()] }, new Post5456()],
                     Author = new Author5456()
                 });
         }
@@ -1487,7 +1487,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
 
     private static Task Seed18394(MyContext18394 context)
     {
-        var a = new A18394 { PropertyB = new B18394 { PropertyCList = [new() { SomeText = "TestText" }] } };
+        var a = new A18394 { PropertyB = new B18394 { PropertyCList = [new C18394 { SomeText = "TestText" }] } };
         context.As.Add(a);
 
         return context.SaveChangesAsync();

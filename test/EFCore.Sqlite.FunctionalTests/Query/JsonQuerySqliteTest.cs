@@ -446,12 +446,13 @@ FROM "JsonEntitiesCustomNaming" AS "j"
 """);
     }
 
-    public override async Task Json_nested_collection_anonymous_projection_of_primitives_in_projection_NoTrackingWithIdentityResolution(bool async)
-    => Assert.Equal(
-        SqliteStrings.ApplyNotSupported,
-        (await Assert.ThrowsAsync<InvalidOperationException>(
-            () => base.Json_nested_collection_anonymous_projection_of_primitives_in_projection_NoTrackingWithIdentityResolution(async)))
-        .Message);
+    public override async Task Json_nested_collection_anonymous_projection_of_primitives_in_projection_NoTrackingWithIdentityResolution(
+        bool async)
+        => Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Json_nested_collection_anonymous_projection_of_primitives_in_projection_NoTrackingWithIdentityResolution(async)))
+            .Message);
 
     // Sqlit throws APPLY error, but base expects different exception
     public override Task Json_branch_collection_distinct_and_other_collection_AsNoTrackingWithIdentityResolution(bool async)
