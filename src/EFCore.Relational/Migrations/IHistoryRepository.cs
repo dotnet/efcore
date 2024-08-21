@@ -50,11 +50,43 @@ public interface IHistoryRepository
     /// </summary>
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>
-    ///     A task that represents the asynchronous operation. The task result contains
-    ///     <see langword="true" /> if the table already exists, <see langword="false" /> otherwise.
+    ///     A task that represents the asynchronous operation.
     /// </returns>
     /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
     Task CreateAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    ///     Creates the history table if it doesn't exist.
+    /// </summary>
+    /// <returns><see langword="true" /> if the table was created, <see langword="false" /> otherwise.</returns>
+    bool CreateIfNotExists()
+    {
+        if (!Exists())
+        {
+            Create();
+            return true;
+        }
+        return false;
+    }
+
+    /// <summary>
+    ///     Creates the history table.
+    /// </summary>
+    /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+    /// <returns>
+    ///     A task that represents the asynchronous operation. The task result contains
+    ///     <see langword="true" /> if the table was created, <see langword="false" /> otherwise.
+    /// </returns>
+    /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
+    async Task<bool> CreateIfNotExistsAsync(CancellationToken cancellationToken = default)
+    {
+        if (!await ExistsAsync(cancellationToken).ConfigureAwait(false))
+        {
+            await CreateAsync(cancellationToken).ConfigureAwait(false);
+            return true;
+        }
+        return false;
+    }
 
     /// <summary>
     ///     Queries the history table for all migrations that have been applied.
@@ -75,20 +107,23 @@ public interface IHistoryRepository
         CancellationToken cancellationToken = default);
 
     /// <summary>
+    ///     The condition under witch the lock is released implicitly.
+    /// </summary>
+    LockReleaseBehavior LockReleaseBehavior { get; }
+
+    /// <summary>
     ///     Acquires an exclusive lock on the database.
     /// </summary>
-    /// <param name="transaction">The transaction currently in use.</param>
     /// <returns>An object that can be disposed to release the lock.</returns>
-    IMigrationsDatabaseLock AcquireDatabaseLock(IDbContextTransaction transaction);
+    IMigrationsDatabaseLock AcquireDatabaseLock();
 
     /// <summary>
     ///     Acquires an exclusive lock on the database asynchronously.
     /// </summary>
-    /// <param name="transaction">The transaction currently in use.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>An object that can be disposed to release the lock.</returns>
     /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
-    Task<IMigrationsDatabaseLock> AcquireDatabaseLockAsync(IDbContextTransaction transaction, CancellationToken cancellationToken = default);
+    Task<IMigrationsDatabaseLock> AcquireDatabaseLockAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
     ///     Generates a SQL script that will create the history table.

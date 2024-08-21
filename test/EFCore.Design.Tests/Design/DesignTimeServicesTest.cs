@@ -192,6 +192,8 @@ public class UserMigrationsIdGenerator : IMigrationsIdGenerator
 
     public class ExtensionHistoryRepository : IHistoryRepository
     {
+        public virtual LockReleaseBehavior LockReleaseBehavior => LockReleaseBehavior.Explicit;
+
         public void Create()
             => throw new NotImplementedException();
 
@@ -222,10 +224,10 @@ public class UserMigrationsIdGenerator : IMigrationsIdGenerator
         public string GetCreateScript()
             => throw new NotImplementedException();
 
-        public IMigrationsDatabaseLock AcquireDatabaseLock(IDbContextTransaction transaction)
+        public IMigrationsDatabaseLock AcquireDatabaseLock()
             => throw new NotImplementedException();
 
-        public Task<IMigrationsDatabaseLock> AcquireDatabaseLockAsync(IDbContextTransaction transaction, CancellationToken cancellationToken = default)
+        public Task<IMigrationsDatabaseLock> AcquireDatabaseLockAsync(CancellationToken cancellationToken = default)
             => throw new NotImplementedException();
 
         public string GetDeleteScript(string migrationId)
@@ -264,6 +266,8 @@ public class UserMigrationsIdGenerator : IMigrationsIdGenerator
 
     public class ContextHistoryRepository : IHistoryRepository
     {
+        public virtual LockReleaseBehavior LockReleaseBehavior => LockReleaseBehavior.Explicit;
+
         public bool Exists()
             => throw new NotImplementedException();
 
@@ -294,10 +298,10 @@ public class UserMigrationsIdGenerator : IMigrationsIdGenerator
         public Task CreateAsync(CancellationToken cancellationToken = default)
             => throw new NotImplementedException();
 
-        public IMigrationsDatabaseLock AcquireDatabaseLock(IDbContextTransaction transaction)
+        public IMigrationsDatabaseLock AcquireDatabaseLock()
             => throw new NotImplementedException();
 
-        public Task<IMigrationsDatabaseLock> AcquireDatabaseLockAsync(IDbContextTransaction transaction, CancellationToken cancellationToken = default)
+        public Task<IMigrationsDatabaseLock> AcquireDatabaseLockAsync(CancellationToken cancellationToken = default)
             => throw new NotImplementedException();
 
         public string GetDeleteScript(string migrationId)

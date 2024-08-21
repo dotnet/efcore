@@ -144,6 +144,8 @@ public class MigrationsScaffolderTest
 
     private class MockHistoryRepository : IHistoryRepository
     {
+        public virtual LockReleaseBehavior LockReleaseBehavior => LockReleaseBehavior.Explicit;
+
         public string GetBeginIfExistsScript(string migrationId)
             => null;
 
@@ -183,10 +185,10 @@ public class MigrationsScaffolderTest
         public Task CreateAsync(CancellationToken cancellationToken = default)
             => throw new NotImplementedException();
 
-        public IMigrationsDatabaseLock AcquireDatabaseLock(IDbContextTransaction transaction)
+        public IMigrationsDatabaseLock AcquireDatabaseLock()
             => throw new NotImplementedException();
 
-        public Task<IMigrationsDatabaseLock> AcquireDatabaseLockAsync(IDbContextTransaction transaction, CancellationToken cancellationToken = default)
+        public Task<IMigrationsDatabaseLock> AcquireDatabaseLockAsync(CancellationToken cancellationToken = default)
             => throw new NotImplementedException();
     }
 

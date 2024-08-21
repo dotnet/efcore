@@ -1017,13 +1017,14 @@ DECLARE @result int;
 EXEC @result = sp_getapplock @Resource = '__EFMigrationsLock', @LockOwner = 'Session', @LockMode = 'Exclusive';
 SELECT @result
 
-SELECT OBJECT_ID(N'[__EFMigrationsHistory]');
-
-CREATE TABLE [__EFMigrationsHistory] (
-    [MigrationId] nvarchar(150) NOT NULL,
-    [ProductVersion] nvarchar(32) NOT NULL,
-    CONSTRAINT [PK___EFMigrationsHistory] PRIMARY KEY ([MigrationId])
-);
+IF OBJECT_ID(N'[__EFMigrationsHistory]') IS NULL
+BEGIN
+    CREATE TABLE [__EFMigrationsHistory] (
+        [MigrationId] nvarchar(150) NOT NULL,
+        [ProductVersion] nvarchar(32) NOT NULL,
+        CONSTRAINT [PK___EFMigrationsHistory] PRIMARY KEY ([MigrationId])
+    );
+END;
 
 SELECT OBJECT_ID(N'[__EFMigrationsHistory]');
 
@@ -1046,6 +1047,20 @@ BEGIN
 
     THROW 65536, 'Test', 0;
 END
+
+DECLARE @result int;
+EXEC @result = sp_releaseapplock @Resource = '__EFMigrationsLock', @LockOwner = 'Session';
+SELECT @result
+
+DECLARE @result int;
+EXEC @result = sp_getapplock @Resource = '__EFMigrationsLock', @LockOwner = 'Session', @LockMode = 'Exclusive';
+SELECT @result
+
+SELECT OBJECT_ID(N'[__EFMigrationsHistory]');
+
+SELECT [MigrationId], [ProductVersion]
+FROM [__EFMigrationsHistory]
+ORDER BY [MigrationId];
 
 IF OBJECT_ID(N'Blogs', N'U') IS NULL
 BEGIN
@@ -1110,13 +1125,14 @@ DECLARE @result int;
 EXEC @result = sp_getapplock @Resource = '__EFMigrationsLock', @LockOwner = 'Session', @LockMode = 'Exclusive';
 SELECT @result
 
-SELECT OBJECT_ID(N'[__EFMigrationsHistory]');
-
-CREATE TABLE [__EFMigrationsHistory] (
-    [MigrationId] nvarchar(150) NOT NULL,
-    [ProductVersion] nvarchar(32) NOT NULL,
-    CONSTRAINT [PK___EFMigrationsHistory] PRIMARY KEY ([MigrationId])
-);
+IF OBJECT_ID(N'[__EFMigrationsHistory]') IS NULL
+BEGIN
+    CREATE TABLE [__EFMigrationsHistory] (
+        [MigrationId] nvarchar(150) NOT NULL,
+        [ProductVersion] nvarchar(32) NOT NULL,
+        CONSTRAINT [PK___EFMigrationsHistory] PRIMARY KEY ([MigrationId])
+    );
+END;
 
 SELECT OBJECT_ID(N'[__EFMigrationsHistory]');
 
@@ -1139,6 +1155,20 @@ BEGIN
 
     THROW 65536, 'Test', 0;
 END
+
+DECLARE @result int;
+EXEC @result = sp_releaseapplock @Resource = '__EFMigrationsLock', @LockOwner = 'Session';
+SELECT @result
+
+DECLARE @result int;
+EXEC @result = sp_getapplock @Resource = '__EFMigrationsLock', @LockOwner = 'Session', @LockMode = 'Exclusive';
+SELECT @result
+
+SELECT OBJECT_ID(N'[__EFMigrationsHistory]');
+
+SELECT [MigrationId], [ProductVersion]
+FROM [__EFMigrationsHistory]
+ORDER BY [MigrationId];
 
 IF OBJECT_ID(N'Blogs', N'U') IS NULL
 BEGIN
@@ -2078,7 +2108,8 @@ DROP DATABASE TransactionSuppressed");
             public override MigrationsContext CreateContext()
             {
                 var options = AddOptions(TestStore.AddProviderOptions(new DbContextOptionsBuilder()))
-                    .UseSqlServer(TestStore.ConnectionString, b => b.ApplyConfiguration())
+                    .UseSqlServer(TestStore.ConnectionString, b => b
+                        .ApplyConfiguration())
                     .UseInternalServiceProvider(ServiceProvider)
                     .Options;
                 return new MigrationsContext(options);

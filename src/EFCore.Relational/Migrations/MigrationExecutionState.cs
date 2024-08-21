@@ -19,6 +19,11 @@ public sealed class MigrationExecutionState
     public string? CurrentMigrationId { get; set; }
 
     /// <summary>
+    ///    Indicates whether any migration operation was performed.
+    /// </summary>
+    public bool AnyOperationPerformed { get; set; }
+
+    /// <summary>
     ///     The database lock that is in use.
     /// </summary>
     public IMigrationsDatabaseLock? DatabaseLock { get; set; }

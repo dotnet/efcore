@@ -48,6 +48,14 @@ public abstract class HistoryRepository : IHistoryRepository
     }
 
     /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public abstract LockReleaseBehavior LockReleaseBehavior { get; }
+
+    /// <summary>
     ///     Relational provider-specific dependencies for this service.
     /// </summary>
     protected virtual HistoryRepositoryDependencies Dependencies { get; }
@@ -173,13 +181,15 @@ public abstract class HistoryRepository : IHistoryRepository
     ///     Creates the history table.
     /// </summary>
     public virtual void Create()
-        => Dependencies.MigrationCommandExecutor.ExecuteNonQuery(GetCreateCommands(), Dependencies.Connection);
+        => Dependencies.MigrationCommandExecutor.ExecuteNonQuery(
+            GetCreateCommands(), Dependencies.Connection, new MigrationExecutionState(), commitTransaction: true);
 
     /// <summary>
     ///     Creates the history table.
     /// </summary>
     public virtual Task CreateAsync(CancellationToken cancellationToken = default)
-        => Dependencies.MigrationCommandExecutor.ExecuteNonQueryAsync(GetCreateCommands(), Dependencies.Connection, cancellationToken);
+        => Dependencies.MigrationCommandExecutor.ExecuteNonQueryAsync(
+            GetCreateCommands(), Dependencies.Connection, new MigrationExecutionState(), commitTransaction: true, cancellationToken: cancellationToken);
 
     /// <summary>
     ///     Returns the migration commands that will create the history table.
@@ -194,22 +204,37 @@ public abstract class HistoryRepository : IHistoryRepository
         return commandList;
     }
 
-    /// <summary>
-    ///     Gets an exclusive lock on the database.
-    /// </summary>
-    /// <param name="transaction">The transaction currently in use.</param>
-    /// <returns>An object that can be disposed to release the lock.</returns>
-    public abstract IMigrationsDatabaseLock AcquireDatabaseLock(IDbContextTransaction transaction);
+    bool IHistoryRepository.CreateIfNotExists()
+        => Dependencies.MigrationCommandExecutor.ExecuteNonQuery(
+            GetCreateIfNotExistsCommands(), Dependencies.Connection, new MigrationExecutionState(), commitTransaction: true)
+            != 0;
+
+    async Task<bool> IHistoryRepository.CreateIfNotExistsAsync(CancellationToken cancellationToken)
+        => (await Dependencies.MigrationCommandExecutor.ExecuteNonQueryAsync(
+            GetCreateIfNotExistsCommands(), Dependencies.Connection, new MigrationExecutionState(), commitTransaction: true, cancellationToken: cancellationToken).ConfigureAwait(false))
+            != 0;
+
+    private IReadOnlyList<MigrationCommand> GetCreateIfNotExistsCommands()
+        => Dependencies.MigrationsSqlGenerator.Generate([new SqlOperation
+        {
+            Sql = GetCreateIfNotExistsScript(),
+            SuppressTransaction = true
+        }]);
 
     /// <summary>
     ///     Gets an exclusive lock on the database.
     /// </summary>
-    /// <param name="transaction">The transaction currently in use.</param>
+    /// <returns>An object that can be disposed to release the lock.</returns>
+    public abstract IMigrationsDatabaseLock AcquireDatabaseLock();
+
+    /// <summary>
+    ///     Gets an exclusive lock on the database.
+    /// </summary>
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+    /// 
     /// <returns>An object that can be disposed to release the lock.</returns>
     /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
-    public abstract Task<IMigrationsDatabaseLock> AcquireDatabaseLockAsync(
-        IDbContextTransaction transaction, CancellationToken cancellationToken = default);
+    public abstract Task<IMigrationsDatabaseLock> AcquireDatabaseLockAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
     ///     Configures the entity type mapped to the history table.
