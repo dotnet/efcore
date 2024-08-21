@@ -423,17 +423,14 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
                 };
 
                 SqlExpression CharIndexGreaterThanZero()
-                {
-                    return
-                        _sqlExpressionFactory.GreaterThan(
-                            _sqlExpressionFactory.Function(
-                                "CHARINDEX",
-                                new[] { translatedPattern, translatedInstance },
-                                nullable: true,
-                                argumentsPropagateNullability: new[] { true, true },
-                                typeof(int)),
-                            _sqlExpressionFactory.Constant(0));
-                }
+                    => _sqlExpressionFactory.GreaterThan(
+                        _sqlExpressionFactory.Function(
+                            "CHARINDEX",
+                            new[] { translatedPattern, translatedInstance },
+                            nullable: true,
+                            argumentsPropagateNullability: new[] { true, true },
+                            typeof(int)),
+                        _sqlExpressionFactory.Constant(0));
             }
         }
     }
