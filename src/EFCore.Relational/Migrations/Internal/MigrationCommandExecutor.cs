@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </remarks>
-public class MigrationCommandExecutor(IExecutionStrategy executionStrategy) : IMigrationCommandExecutor
+public class MigrationCommandExecutor : IMigrationCommandExecutor
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -28,39 +28,53 @@ public class MigrationCommandExecutor(IExecutionStrategy executionStrategy) : IM
     public virtual void ExecuteNonQuery(
         IEnumerable<MigrationCommand> migrationCommands,
         IRelationalConnection connection)
+        => ExecuteNonQuery(
+            migrationCommands.ToList(), connection, new MigrationExecutionState(), executeInTransaction: true);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual void ExecuteNonQuery(
+        IReadOnlyList<MigrationCommand> migrationCommands,
+        IRelationalConnection connection,
+        MigrationExecutionState executionState,
+        bool executeInTransaction)
     {
-        // TODO: Remove ToList, see #19710
-        var commands = migrationCommands.ToList();
         var userTransaction = connection.CurrentTransaction;
         if (userTransaction is not null
-            && (commands.Any(x => x.TransactionSuppressed) || executionStrategy.RetriesOnFailure))
+            && migrationCommands.Any(x => x.TransactionSuppressed))
         {
             throw new NotSupportedException(RelationalStrings.TransactionSuppressedMigrationInUserTransaction);
         }
 
         using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
         {
-            var parameters = new ExecuteParameters(commands, connection);
             if (userTransaction is null)
             {
-                executionStrategy.Execute(parameters, static (_, p) => Execute(p, beginTransaction: true), verifySucceeded: null);
+                Execute(migrationCommands, connection, executionState, beginTransaction: true, commitTransaction: !executeInTransaction);
             }
             else
             {
-                Execute(parameters, beginTransaction: false);
+                Execute(migrationCommands, connection, executionState, beginTransaction: false, commitTransaction: false);
             }
         }
     }
 
-    private static bool Execute(ExecuteParameters parameters, bool beginTransaction)
+    private static IDbContextTransaction? Execute(
+        IReadOnlyList<MigrationCommand> migrationCommands,
+        IRelationalConnection connection,
+        MigrationExecutionState executionState,
+        bool beginTransaction,
+        bool commitTransaction)
     {
-        var migrationCommands = parameters.MigrationCommands;
-        var connection = parameters.Connection;
-        IDbContextTransaction? transaction = null;
+        var transaction = executionState.Transaction;
         connection.Open();
         try
         {
-            for (var i = parameters.CurrentCommandIndex; i < migrationCommands.Count; i++)
+            for (var i = executionState.LastCommittedCommandIndex; i < migrationCommands.Count; i++)
             {
                 var command = migrationCommands[i];
                 if (transaction == null
@@ -68,6 +82,12 @@ public class MigrationCommandExecutor(IExecutionStrategy executionStrategy) : IM
                     && beginTransaction)
                 {
                     transaction = connection.BeginTransaction();
+                    executionState.Transaction = transaction;
+
+                    if (executionState.DatabaseLock != null)
+                    {
+                        executionState.DatabaseLock = executionState.DatabaseLock.Reacquire(transaction);
+                    }
                 }
 
                 if (transaction != null
@@ -76,26 +96,40 @@ public class MigrationCommandExecutor(IExecutionStrategy executionStrategy) : IM
                     transaction.Commit();
                     transaction.Dispose();
                     transaction = null;
-                    parameters.CurrentCommandIndex = i;
+                    executionState.Transaction = null;
+                    executionState.LastCommittedCommandIndex = i;
                 }
 
                 command.ExecuteNonQuery(connection);
 
                 if (transaction == null)
                 {
-                    parameters.CurrentCommandIndex = i + 1;
+                    executionState.LastCommittedCommandIndex = i + 1;
                 }
             }
 
-            transaction?.Commit();
+            if (commitTransaction)
+            {
+                transaction?.Commit();
+            }
         }
-        finally
+        catch
         {
             transaction?.Dispose();
             connection.Close();
+            executionState.Transaction = null;
+            throw;
         }
 
-        return true;
+        if (commitTransaction)
+        {
+            transaction?.Dispose();
+            transaction = null;
+            executionState.Transaction = null;
+        }
+
+        connection.Close();
+        return transaction;
     }
 
     /// <summary>
@@ -104,45 +138,58 @@ public class MigrationCommandExecutor(IExecutionStrategy executionStrategy) : IM
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual async Task ExecuteNonQueryAsync(
+    public virtual Task ExecuteNonQueryAsync(
         IEnumerable<MigrationCommand> migrationCommands,
         IRelationalConnection connection,
         CancellationToken cancellationToken = default)
+        => ExecuteNonQueryAsync(
+            migrationCommands.ToList(), connection, new MigrationExecutionState(), executeInTransaction: true, cancellationToken);
+    
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual async Task ExecuteNonQueryAsync(
+        IReadOnlyList<MigrationCommand> migrationCommands,
+        IRelationalConnection connection,
+        MigrationExecutionState executionState,
+        bool executeInTransaction,
+        CancellationToken cancellationToken = default)
     {
-        var commands = migrationCommands.ToList();
         var userTransaction = connection.CurrentTransaction;
         if (userTransaction is not null
-            && (commands.Any(x => x.TransactionSuppressed) || executionStrategy.RetriesOnFailure))
+            && (migrationCommands.Any(x => x.TransactionSuppressed)))
         {
             throw new NotSupportedException(RelationalStrings.TransactionSuppressedMigrationInUserTransaction);
         }
 
         using var transactionScope = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
 
-        var parameters = new ExecuteParameters(commands, connection);
         if (userTransaction is null)
         {
-            await executionStrategy.ExecuteAsync(
-                parameters,
-                static (_, p, ct) => ExecuteAsync(p, beginTransaction: true, ct),
-                verifySucceeded: null,
-                cancellationToken).ConfigureAwait(false);
+            await ExecuteAsync(migrationCommands, connection, executionState, beginTransaction: false, commitTransaction: !executeInTransaction, cancellationToken).ConfigureAwait(false);
         }
         else
         {
-            await ExecuteAsync(parameters, beginTransaction: false, cancellationToken).ConfigureAwait(false);
+            await ExecuteAsync(migrationCommands, connection, executionState, beginTransaction: false, commitTransaction: false, cancellationToken).ConfigureAwait(false);
         }
     }
 
-    private static async Task<bool> ExecuteAsync(ExecuteParameters parameters, bool beginTransaction, CancellationToken cancellationToken)
+    private static async Task<IDbContextTransaction?> ExecuteAsync(
+        IReadOnlyList<MigrationCommand> migrationCommands,
+        IRelationalConnection connection,
+        MigrationExecutionState executionState,
+        bool beginTransaction,
+        bool commitTransaction,
+        CancellationToken cancellationToken)
     {
-        var migrationCommands = parameters.MigrationCommands;
-        var connection = parameters.Connection;
-        IDbContextTransaction? transaction = null;
+        var transaction = executionState.Transaction;
         await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
         try
         {
-            for (var i = parameters.CurrentCommandIndex; i < migrationCommands.Count; i++)
+            for (var i = executionState.LastCommittedCommandIndex; i < migrationCommands.Count; i++)
             {
                 var command = migrationCommands[i];
                 if (transaction == null
@@ -151,6 +198,13 @@ public class MigrationCommandExecutor(IExecutionStrategy executionStrategy) : IM
                 {
                     transaction = await connection.BeginTransactionAsync(cancellationToken)
                         .ConfigureAwait(false);
+                    executionState.Transaction = transaction;
+
+                    if (executionState.DatabaseLock != null)
+                    {
+                        executionState.DatabaseLock = await executionState.DatabaseLock.ReacquireAsync(transaction, cancellationToken)
+                            .ConfigureAwait(false);
+                    }
                 }
 
                 if (transaction != null
@@ -159,7 +213,8 @@ public class MigrationCommandExecutor(IExecutionStrategy executionStrategy) : IM
                     await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
                     await transaction.DisposeAsync().ConfigureAwait(false);
                     transaction = null;
-                    parameters.CurrentCommandIndex = i;
+                    executionState.Transaction = null;
+                    executionState.LastCommittedCommandIndex = i;
                 }
 
                 await command.ExecuteNonQueryAsync(connection, cancellationToken: cancellationToken)
@@ -167,7 +222,7 @@ public class MigrationCommandExecutor(IExecutionStrategy executionStrategy) : IM
 
                 if (transaction == null)
                 {
-                    parameters.CurrentCommandIndex = i + 1;
+                    executionState.LastCommittedCommandIndex = i + 1;
                 }
             }
 
@@ -176,23 +231,26 @@ public class MigrationCommandExecutor(IExecutionStrategy executionStrategy) : IM
                 await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
             }
         }
-        finally
+        catch
         {
             if (transaction != null)
             {
                 await transaction.DisposeAsync().ConfigureAwait(false);
             }
-
             await connection.CloseAsync().ConfigureAwait(false);
+            executionState.Transaction = null;
+            throw;
         }
 
-        return true;
-    }
+        if (commitTransaction
+            && transaction != null)
+        {
+            await transaction.DisposeAsync().ConfigureAwait(false);
+            transaction = null;
+            executionState.Transaction = null;
+        }
 
-    private sealed class ExecuteParameters(List<MigrationCommand> migrationCommands, IRelationalConnection connection)
-    {
-        public int CurrentCommandIndex;
-        public List<MigrationCommand> MigrationCommands { get; } = migrationCommands;
-        public IRelationalConnection Connection { get; } = connection;
+        await connection.CloseAsync().ConfigureAwait(false);
+        return transaction;
     }
 }

@@ -197,16 +197,19 @@ public abstract class HistoryRepository : IHistoryRepository
     /// <summary>
     ///     Gets an exclusive lock on the database.
     /// </summary>
+    /// <param name="transaction">The transaction currently in use.</param>
     /// <returns>An object that can be disposed to release the lock.</returns>
-    public abstract IDisposable GetDatabaseLock();
+    public abstract IMigrationsDatabaseLock AcquireDatabaseLock(IDbContextTransaction transaction);
 
     /// <summary>
     ///     Gets an exclusive lock on the database.
     /// </summary>
+    /// <param name="transaction">The transaction currently in use.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>An object that can be disposed to release the lock.</returns>
     /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
-    public abstract Task<IAsyncDisposable> GetDatabaseLockAsync(CancellationToken cancellationToken = default);
+    public abstract Task<IMigrationsDatabaseLock> AcquireDatabaseLockAsync(
+        IDbContextTransaction transaction, CancellationToken cancellationToken = default);
 
     /// <summary>
     ///     Configures the entity type mapped to the history table.

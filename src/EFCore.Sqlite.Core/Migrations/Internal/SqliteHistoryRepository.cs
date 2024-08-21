@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Data;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Migrations.Internal;
@@ -103,11 +104,13 @@ SELECT COUNT(*) FROM "sqlite_master" WHERE "name" = {stringTypeMapping.GenerateS
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override IDisposable GetDatabaseLock()
+    public override IMigrationsDatabaseLock AcquireDatabaseLock(IDbContextTransaction transaction)
     {
+        Dependencies.MigrationsLogger.AcquiringMigrationLock();
+
         if (!InterpretExistsResult(
-                Dependencies.RawSqlCommandBuilder.Build(CreateExistsSql(LockTableName))
-                    .ExecuteScalar(CreateRelationalCommandParameters())))
+            Dependencies.RawSqlCommandBuilder.Build(CreateExistsSql(LockTableName))
+                .ExecuteScalar(CreateRelationalCommandParameters())))
         {
             CreateLockTableCommand().ExecuteNonQuery(CreateRelationalCommandParameters());
         }
@@ -139,11 +142,14 @@ SELECT COUNT(*) FROM "sqlite_master" WHERE "name" = {stringTypeMapping.GenerateS
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override async Task<IAsyncDisposable> GetDatabaseLockAsync(CancellationToken cancellationToken = default)
+    public override async Task<IMigrationsDatabaseLock> AcquireDatabaseLockAsync(
+        IDbContextTransaction transaction, CancellationToken cancellationToken = default)
     {
+        Dependencies.MigrationsLogger.AcquiringMigrationLock();
+
         if (!InterpretExistsResult(
-                await Dependencies.RawSqlCommandBuilder.Build(CreateExistsSql(LockTableName))
-                    .ExecuteScalarAsync(CreateRelationalCommandParameters(), cancellationToken).ConfigureAwait(false)))
+            await Dependencies.RawSqlCommandBuilder.Build(CreateExistsSql(LockTableName))
+                .ExecuteScalarAsync(CreateRelationalCommandParameters(), cancellationToken).ConfigureAwait(false)))
         {
             await CreateLockTableCommand().ExecuteNonQueryAsync(CreateRelationalCommandParameters(), cancellationToken)
                 .ConfigureAwait(false);

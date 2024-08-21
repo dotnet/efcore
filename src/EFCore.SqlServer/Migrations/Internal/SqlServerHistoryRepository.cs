@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Data;
 using System.Text;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Migrations.Internal;
@@ -59,8 +60,10 @@ public class SqlServerHistoryRepository : HistoryRepository
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override IDisposable GetDatabaseLock()
+    public override IMigrationsDatabaseLock AcquireDatabaseLock(IDbContextTransaction transaction)
     {
+        Dependencies.MigrationsLogger.AcquiringMigrationLock();
+
         var dbLock = CreateMigrationDatabaseLock();
         int result;
         try
@@ -91,8 +94,10 @@ public class SqlServerHistoryRepository : HistoryRepository
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override async Task<IAsyncDisposable> GetDatabaseLockAsync(CancellationToken cancellationToken = default)
+    public override async Task<IMigrationsDatabaseLock> AcquireDatabaseLockAsync(IDbContextTransaction transaction, CancellationToken cancellationToken = default)
     {
+        Dependencies.MigrationsLogger.AcquiringMigrationLock();
+
         var dbLock = CreateMigrationDatabaseLock();
         int result;
         try

@@ -1,7 +1,10 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Threading;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Internal;
 
@@ -29,6 +32,7 @@ public class Migrator : IMigrator
     private readonly IDesignTimeModel _designTimeModel;
     private readonly string _activeProvider;
     private readonly IDbContextOptions _contextOptions;
+    private readonly IExecutionStrategy _executionStrategy;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -52,7 +56,8 @@ public class Migrator : IMigrator
         IDatabaseProvider databaseProvider,
         IMigrationsModelDiffer migrationsModelDiffer,
         IDesignTimeModel designTimeModel,
-        IDbContextOptions contextOptions)
+        IDbContextOptions contextOptions,
+        IExecutionStrategy executionStrategy)
     {
         _migrationsAssembly = migrationsAssembly;
         _historyRepository = historyRepository;
@@ -70,6 +75,7 @@ public class Migrator : IMigrator
         _designTimeModel = designTimeModel;
         _activeProvider = databaseProvider.Name;
         _contextOptions = contextOptions;
+        _executionStrategy = executionStrategy;
     }
 
     /// <summary>
@@ -80,6 +86,12 @@ public class Migrator : IMigrator
     /// </summary>
     public virtual void Migrate(string? targetMigration)
     {
+        if (_connection.CurrentTransaction is not null
+            && _executionStrategy.RetriesOnFailure)
+        {
+            throw new NotSupportedException(RelationalStrings.TransactionSuppressedMigrationInUserTransaction);
+        }
+
         if (RelationalResources.LogPendingModelChanges(_logger).WarningBehavior != WarningBehavior.Ignore
             && HasPendingModelChanges())
         {
@@ -97,48 +109,68 @@ public class Migrator : IMigrator
         {
             _connection.Open();
 
-            _logger.AcquiringMigrationLock();
-            using var _ = _historyRepository.GetDatabaseLock();
-
             if (!_historyRepository.Exists())
             {
                 _historyRepository.Create();
             }
 
-            PopulateMigrations(
-                _historyRepository.GetAppliedMigrations().Select(t => t.MigrationId),
-                targetMigration,
-                out var migratorData);
-
-            var commandLists = GetMigrationCommandLists(migratorData);
-            foreach (var commandList in commandLists)
-            {
-                _migrationCommandExecutor.ExecuteNonQuery(commandList(), _connection);
-            }
-
-            var coreOptionsExtension =
-                _contextOptions.FindExtension<CoreOptionsExtension>()
-                ?? new CoreOptionsExtension();
-
-            var seed = coreOptionsExtension.Seeder;
-            if (seed != null)
-            {
-                var context = _currentContext.Context;
-                var operationsPerformed = migratorData.AppliedMigrations.Count != 0
-                    || migratorData.RevertedMigrations.Count != 0;
-                using var transaction = context.Database.BeginTransaction();
-                seed(context, operationsPerformed);
-                transaction.Commit();
-            }
-            else if (coreOptionsExtension.AsyncSeeder != null)
-            {
-                throw new InvalidOperationException(CoreStrings.MissingSeeder);
-            }
+            _executionStrategy.Execute(
+                (Migrator: this, TargetMigration: targetMigration, State: new MigrationExecutionState()),
+                (_, s) => s.Migrator.MigrateImplementation(s.TargetMigration, s.State), verifySucceeded: null);
         }
         finally
         {
             _connection.Close();
         }
+    }
+
+    private bool MigrateImplementation(string? targetMigration, MigrationExecutionState state)
+    {
+        _connection.Open();
+        var context = _currentContext.Context;
+        using var transaction = context.Database.BeginTransaction();
+        state.DatabaseLock = state.DatabaseLock == null
+            ? _historyRepository.AcquireDatabaseLock(transaction)
+            : state.DatabaseLock.Reacquire(transaction);
+
+        PopulateMigrations(
+            _historyRepository.GetAppliedMigrations().Select(t => t.MigrationId),
+            targetMigration,
+            out var migratorData);
+
+        var commandLists = GetMigrationCommandLists(migratorData);
+        foreach (var commandList in commandLists)
+        {
+            var (id, getCommands) = commandList;
+
+            if (id != state.CurrentMigrationId)
+            {
+                state.CurrentMigrationId = id;
+                state.LastCommittedCommandIndex = 0;
+            }
+
+            _migrationCommandExecutor.ExecuteNonQuery(getCommands(), _connection);
+        }
+
+        var coreOptionsExtension =
+            _contextOptions.FindExtension<CoreOptionsExtension>()
+            ?? new CoreOptionsExtension();
+
+        var seed = coreOptionsExtension.Seeder;
+        if (seed != null)
+        {
+            var operationsPerformed = migratorData.AppliedMigrations.Count != 0
+                || migratorData.RevertedMigrations.Count != 0;
+            seed(context, operationsPerformed);
+        }
+        else if (coreOptionsExtension.AsyncSeeder != null)
+        {
+            throw new InvalidOperationException(CoreStrings.MissingSeeder);
+        }
+
+        transaction.Commit();
+        _connection.Close();
+        return true;
     }
 
     /// <summary>
@@ -151,6 +183,12 @@ public class Migrator : IMigrator
         string? targetMigration,
         CancellationToken cancellationToken = default)
     {
+        if (_connection.CurrentTransaction is not null
+            && _executionStrategy.RetriesOnFailure)
+        {
+            throw new NotSupportedException(RelationalStrings.TransactionSuppressedMigrationInUserTransaction);
+        }
+
         if (RelationalResources.LogPendingModelChanges(_logger).WarningBehavior != WarningBehavior.Ignore
             && HasPendingModelChanges())
         {
@@ -168,46 +206,15 @@ public class Migrator : IMigrator
         {
             await _connection.OpenAsync(cancellationToken).ConfigureAwait(false);
 
-            _logger.AcquiringMigrationLock();
-            var dbLock = await _historyRepository.GetDatabaseLockAsync(cancellationToken).ConfigureAwait(false);
-            await using var _ = dbLock.ConfigureAwait(false);
-
             if (!await _historyRepository.ExistsAsync(cancellationToken).ConfigureAwait(false))
             {
                 await _historyRepository.CreateAsync(cancellationToken).ConfigureAwait(false);
             }
 
-            PopulateMigrations(
-                (await _historyRepository.GetAppliedMigrationsAsync(cancellationToken).ConfigureAwait(false)).Select(t => t.MigrationId),
-                targetMigration,
-                out var migratorData);
-
-            var commandLists = GetMigrationCommandLists(migratorData);
-            foreach (var commandList in commandLists)
-            {
-                await _migrationCommandExecutor.ExecuteNonQueryAsync(commandList(), _connection, cancellationToken)
-                    .ConfigureAwait(false);
-            }
-
-            var coreOptionsExtension =
-                _contextOptions.FindExtension<CoreOptionsExtension>()
-                ?? new CoreOptionsExtension();
-
-            var seedAsync = coreOptionsExtension.AsyncSeeder;
-            if (seedAsync != null)
-            {
-                var context = _currentContext.Context;
-                var operationsPerformed = migratorData.AppliedMigrations.Count != 0
-                    || migratorData.RevertedMigrations.Count != 0;
-                var transaction = await context.Database.BeginTransactionAsync(cancellationToken).ConfigureAwait(false);
-                await using var __ = transaction.ConfigureAwait(false);
-                await seedAsync(context, operationsPerformed, cancellationToken).ConfigureAwait(false);
-                await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
-            }
-            else if (coreOptionsExtension.Seeder != null)
-            {
-                throw new InvalidOperationException(CoreStrings.MissingSeeder);
-            }
+            await _executionStrategy.ExecuteAsync(
+                (Migrator: this, TargetMigration: targetMigration, State: new MigrationExecutionState()),
+                async (_, s, ct) => await s.Migrator.MigrateImplementationAsync(s.TargetMigration, s.State, ct).ConfigureAwait(false), verifySucceeded: null, cancellationToken)
+                .ConfigureAwait(false);
         }
         finally
         {
@@ -215,7 +222,59 @@ public class Migrator : IMigrator
         }
     }
 
-    private IEnumerable<Func<IReadOnlyList<MigrationCommand>>> GetMigrationCommandLists(MigratorData parameters)
+    private async Task<bool> MigrateImplementationAsync(string? targetMigration, MigrationExecutionState state, CancellationToken cancellationToken = default)
+    {
+        await _connection.OpenAsync(cancellationToken).ConfigureAwait(false);
+        var context = _currentContext.Context;
+        using var transaction = await context.Database.BeginTransactionAsync(cancellationToken).ConfigureAwait(false);
+        await using var _ = transaction.ConfigureAwait(false);
+
+        state.DatabaseLock = state.DatabaseLock == null
+            ? await _historyRepository.AcquireDatabaseLockAsync(transaction, cancellationToken).ConfigureAwait(false)
+            : await state.DatabaseLock.ReacquireAsync(transaction, cancellationToken).ConfigureAwait(false);
+
+        PopulateMigrations(
+            (await _historyRepository.GetAppliedMigrationsAsync(cancellationToken).ConfigureAwait(false)).Select(t => t.MigrationId),
+            targetMigration,
+            out var migratorData);
+
+        var commandLists = GetMigrationCommandLists(migratorData);
+        foreach (var commandList in commandLists)
+        {
+            var (id, getCommands) = commandList;
+
+            if (id != state.CurrentMigrationId)
+            {
+                state.CurrentMigrationId = id;
+                state.LastCommittedCommandIndex = 0;
+            }
+
+            await _migrationCommandExecutor.ExecuteNonQueryAsync(getCommands(), _connection, cancellationToken)
+                .ConfigureAwait(false);
+        }
+
+        var coreOptionsExtension =
+            _contextOptions.FindExtension<CoreOptionsExtension>()
+            ?? new CoreOptionsExtension();
+
+        var seedAsync = coreOptionsExtension.AsyncSeeder;
+        if (seedAsync != null)
+        {
+            var operationsPerformed = migratorData.AppliedMigrations.Count != 0
+                || migratorData.RevertedMigrations.Count != 0;
+            await seedAsync(context, operationsPerformed, cancellationToken).ConfigureAwait(false);
+        }
+        else if (coreOptionsExtension.Seeder != null)
+        {
+            throw new InvalidOperationException(CoreStrings.MissingSeeder);
+        }
+
+        await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
+        _connection.Close();
+        return true;
+    }
+
+    private IEnumerable<(string, Func<IReadOnlyList<MigrationCommand>>)> GetMigrationCommandLists(MigratorData parameters)
     {
         var migrationsToApply = parameters.AppliedMigrations;
         var migrationsToRevert = parameters.RevertedMigrations;
@@ -226,7 +285,7 @@ public class Migrator : IMigrator
             var migration = migrationsToRevert[i];
 
             var index = i;
-            yield return () =>
+            yield return (migration.GetId(), () =>
             {
                 _logger.MigrationReverting(this, migration);
 
@@ -242,12 +301,12 @@ public class Migrator : IMigrator
                 }
 
                 return commands;
-            };
+            });
         }
 
         foreach (var migration in migrationsToApply)
         {
-            yield return () =>
+            yield return (migration.GetId(), () =>
             {
                 _logger.MigrationApplying(this, migration);
 
@@ -259,7 +318,7 @@ public class Migrator : IMigrator
                 }
 
                 return commands;
-            };
+            });
         }
 
         if (migrationsToRevert.Count + migrationsToApply.Count == 0)
