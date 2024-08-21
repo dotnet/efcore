@@ -295,17 +295,18 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
                         // (but SqlNullabilityProcess will convert this to a true constant if the instance is non-nullable)
                         "" => _sqlExpressionFactory.Like(translatedInstance, _sqlExpressionFactory.Constant("%")),
 
-                        string s when !s.Any(IsLikeWildChar) => _sqlExpressionFactory.Like(
-                            translatedInstance,
-                            _sqlExpressionFactory.Constant(
-                                methodType switch
-                                {
-                                    StartsEndsWithContains.StartsWith => s + '%',
-                                    StartsEndsWithContains.EndsWith => '%' + s,
-                                    StartsEndsWithContains.Contains => $"%{s}%",
+                        string s when !s.Any(IsLikeWildChar)
+                            => _sqlExpressionFactory.Like(
+                                translatedInstance,
+                                _sqlExpressionFactory.Constant(
+                                    methodType switch
+                                    {
+                                        StartsEndsWithContains.StartsWith => s + '%',
+                                        StartsEndsWithContains.EndsWith => '%' + s,
+                                        StartsEndsWithContains.Contains => $"%{s}%",
 
-                                    _ => throw new ArgumentOutOfRangeException(nameof(methodType), methodType, null)
-                                })),
+                                        _ => throw new ArgumentOutOfRangeException(nameof(methodType), methodType, null)
+                                    })),
 
                         // Azure Synapse does not support ESCAPE clause in LIKE
                         // fallback to translation like with column/expression
