@@ -827,7 +827,8 @@ public class CosmosSqlTranslatingExpressionVisitor(
             ExpressionType.Convert or ExpressionType.ConvertChecked or ExpressionType.TypeAs
                 when operand.Type.IsInterface && unaryExpression.Type.GetInterfaces().Any(e => e == operand.Type)
                 // We strip out implicit conversions, e.g. float[] -> ReadOnlyMemory<float> (for vector search)
-                || unaryExpression.Method is { IsSpecialName: true, Name: "op_Implicit"}
+                || (unaryExpression.Method is { IsSpecialName: true, Name: "op_Implicit" }
+                    && IsRom(unaryExpression.Type.UnwrapNullableType()))
                 || unaryExpression.Type.UnwrapNullableType() == operand.Type
                 || unaryExpression.Type.UnwrapNullableType() == typeof(Enum)
                 // Object convert needs to be converted to explicit cast when mismatching types
@@ -837,6 +838,10 @@ public class CosmosSqlTranslatingExpressionVisitor(
 
             _ => QueryCompilationContext.NotTranslatedExpression
         };
+
+        static bool IsRom(Type type)
+            => type is { IsGenericType: true, IsGenericTypeDefinition: false }
+                && type.GetGenericTypeDefinition() == typeof(ReadOnlyMemory<>);
     }
 
     /// <inheritdoc />
