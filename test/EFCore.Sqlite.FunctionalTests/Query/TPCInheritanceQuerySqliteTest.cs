@@ -5,7 +5,8 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public class TPCInheritanceQuerySqliteTest(TPCInheritanceQuerySqliteFixture fixture, ITestOutputHelper testOutputHelper) : TPCInheritanceQueryTestBase<TPCInheritanceQuerySqliteFixture>(fixture, testOutputHelper)
+public class TPCInheritanceQuerySqliteTest(TPCInheritanceQuerySqliteFixture fixture, ITestOutputHelper testOutputHelper)
+    : TPCInheritanceQueryTestBase<TPCInheritanceQuerySqliteFixture>(fixture, testOutputHelper)
 {
     protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
         => facade.UseTransaction(transaction.GetDbTransaction());

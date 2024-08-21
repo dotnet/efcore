@@ -25,8 +25,9 @@ public class InheritanceQueryCosmosFixture : InheritanceQueryFixtureBase
         => CosmosTestHelpers.Instance.NoSyncTest(async, testCode);
 
     public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-        => base.AddOptions(builder.ConfigureWarnings(
-            w => w.Ignore(CoreEventId.MappedEntityTypeIgnoredWarning, CosmosEventId.NoPartitionKeyDefined)));
+        => base.AddOptions(
+            builder.ConfigureWarnings(
+                w => w.Ignore(CoreEventId.MappedEntityTypeIgnoredWarning, CosmosEventId.NoPartitionKeyDefined)));
 
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {
@@ -36,10 +37,10 @@ public class InheritanceQueryCosmosFixture : InheritanceQueryFixtureBase
         modelBuilder.Entity<Plant>().ToContainer("Plants");
         modelBuilder.Entity<Plant>().Property<string>("Discriminator").ToJsonProperty("_type");
         modelBuilder.Entity<Country>().ToContainer("Countries");
-        modelBuilder.Entity<Drink>().ToContainer("Drinks");;
+        modelBuilder.Entity<Drink>().ToContainer("Drinks");
         modelBuilder.Entity<KiwiQuery>().ToContainer("Animals");
         modelBuilder.Entity<AnimalQuery>().ToContainer("Animals");
-        modelBuilder.Entity<BirdQuery>().ToContainer("Animals");;
-        modelBuilder.Entity<KiwiQuery>().ToContainer("Animals");;
+        modelBuilder.Entity<BirdQuery>().ToContainer("Animals");
+        modelBuilder.Entity<KiwiQuery>().ToContainer("Animals");
     }
 }

@@ -3,7 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class ReadItemPartitionKeyQueryTest : ReadItemPartitionKeyQueryTestBase<ReadItemPartitionKeyQueryTest.ReadItemPartitionKeyQueryFixture>
+public class ReadItemPartitionKeyQueryTest : ReadItemPartitionKeyQueryTestBase<
+    ReadItemPartitionKeyQueryTest.ReadItemPartitionKeyQueryFixture>
 {
     public ReadItemPartitionKeyQueryTest(ReadItemPartitionKeyQueryFixture fixture, ITestOutputHelper testOutputHelper)
         : base(fixture, testOutputHelper)
@@ -314,7 +315,6 @@ FROM root c
 WHERE ((c["Id"] = 1) AND (c["Id"] = 2))
 """);
     }
-
 
     public override async Task Multiple_incompatible_predicate_comparisons_cause_no_ReadItem_with_only_partition_key()
     {

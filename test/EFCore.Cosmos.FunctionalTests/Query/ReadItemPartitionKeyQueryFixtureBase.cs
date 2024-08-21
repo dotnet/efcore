@@ -305,7 +305,7 @@ public class ReadItemPartitionKeyQueryFixtureBase : SharedStoreFixtureBase<DbCon
         private static List<HierarchicalPartitionKeyEntity> CreateHierarchicalPartitionKeyEntities()
             => new()
             {
-                new()
+                new HierarchicalPartitionKeyEntity
                 {
                     Id = 1,
                     PartitionKey1 = "PK1",
@@ -313,7 +313,7 @@ public class ReadItemPartitionKeyQueryFixtureBase : SharedStoreFixtureBase<DbCon
                     PartitionKey3 = true,
                     Payload = "Payload1"
                 },
-                new()
+                new HierarchicalPartitionKeyEntity
                 {
                     Id = 1,
                     PartitionKey1 = "PK2",
@@ -321,7 +321,7 @@ public class ReadItemPartitionKeyQueryFixtureBase : SharedStoreFixtureBase<DbCon
                     PartitionKey3 = false,
                     Payload = "Payload2"
                 },
-                new()
+                new HierarchicalPartitionKeyEntity
                 {
                     Id = 2,
                     PartitionKey1 = "PK1",
@@ -329,7 +329,7 @@ public class ReadItemPartitionKeyQueryFixtureBase : SharedStoreFixtureBase<DbCon
                     PartitionKey3 = true,
                     Payload = "Payload3"
                 },
-                new()
+                new HierarchicalPartitionKeyEntity
                 {
                     Id = 2,
                     PartitionKey1 = "PK2",
@@ -342,25 +342,25 @@ public class ReadItemPartitionKeyQueryFixtureBase : SharedStoreFixtureBase<DbCon
         private static List<SinglePartitionKeyEntity> CreateSinglePartitionKeyEntities()
             => new()
             {
-                new()
+                new SinglePartitionKeyEntity
                 {
                     Id = 1,
                     PartitionKey = "PK1",
                     Payload = "Payload1"
                 },
-                new()
+                new SinglePartitionKeyEntity
                 {
                     Id = 1,
                     PartitionKey = "PK2",
                     Payload = "Payload2"
                 },
-                new()
+                new SinglePartitionKeyEntity
                 {
                     Id = 2,
                     PartitionKey = "PK1",
                     Payload = "Payload3"
                 },
-                new()
+                new SinglePartitionKeyEntity
                 {
                     Id = 2,
                     PartitionKey = "PK2",
@@ -371,28 +371,28 @@ public class ReadItemPartitionKeyQueryFixtureBase : SharedStoreFixtureBase<DbCon
         private static List<OnlyHierarchicalPartitionKeyEntity> CreateOnlyHierarchicalPartitionKeyEntities()
             => new()
             {
-                new()
+                new OnlyHierarchicalPartitionKeyEntity
                 {
                     PartitionKey1 = "PK1a",
                     PartitionKey2 = 1,
                     PartitionKey3 = true,
                     Payload = "Payload1"
                 },
-                new()
+                new OnlyHierarchicalPartitionKeyEntity
                 {
                     PartitionKey1 = "PK2a",
                     PartitionKey2 = 2,
                     PartitionKey3 = false,
                     Payload = "Payload2"
                 },
-                new()
+                new OnlyHierarchicalPartitionKeyEntity
                 {
                     PartitionKey1 = "PK1b",
                     PartitionKey2 = 1,
                     PartitionKey3 = true,
                     Payload = "Payload3"
                 },
-                new()
+                new OnlyHierarchicalPartitionKeyEntity
                 {
                     PartitionKey1 = "PK2b",
                     PartitionKey2 = 2,
@@ -404,37 +404,40 @@ public class ReadItemPartitionKeyQueryFixtureBase : SharedStoreFixtureBase<DbCon
         private static List<OnlySinglePartitionKeyEntity> CreateOnlySinglePartitionKeyEntities()
             => new()
             {
-                new() { PartitionKey = "PK1a", Payload = "Payload1" },
-                new() { PartitionKey = "PK2a", Payload = "Payload2" },
-                new() { PartitionKey = "PK1b", Payload = "Payload3" },
-                new() { PartitionKey = "PK2b", Payload = "Payload4" }
+                new OnlySinglePartitionKeyEntity { PartitionKey = "PK1a", Payload = "Payload1" },
+                new OnlySinglePartitionKeyEntity { PartitionKey = "PK2a", Payload = "Payload2" },
+                new OnlySinglePartitionKeyEntity { PartitionKey = "PK1b", Payload = "Payload3" },
+                new OnlySinglePartitionKeyEntity { PartitionKey = "PK2b", Payload = "Payload4" }
             };
 
         private static List<NoPartitionKeyEntity> CreateNoPartitionKeyEntities()
-            => new() { new() { Id = 1, Payload = "Payload1" }, new() { Id = 2, Payload = "Payload2" } };
+            => new()
+            {
+                new NoPartitionKeyEntity { Id = 1, Payload = "Payload1" }, new NoPartitionKeyEntity { Id = 2, Payload = "Payload2" }
+            };
 
         private static List<SharedContainerEntity1> CreateSharedContainerEntities1()
             => new()
             {
-                new()
+                new SharedContainerEntity1
                 {
                     Id = "1",
                     PartitionKey = "PK1",
                     Payload1 = "Payload1"
                 },
-                new()
+                new SharedContainerEntity1
                 {
                     Id = "1",
                     PartitionKey = "PK2",
                     Payload1 = "Payload2"
                 },
-                new()
+                new SharedContainerEntity1
                 {
                     Id = "2",
                     PartitionKey = "PK1",
                     Payload1 = "Payload3"
                 },
-                new()
+                new SharedContainerEntity1
                 {
                     Id = "2",
                     PartitionKey = "PK2",
@@ -445,13 +448,13 @@ public class ReadItemPartitionKeyQueryFixtureBase : SharedStoreFixtureBase<DbCon
         private static List<SharedContainerEntity2> CreateSharedContainerEntities2()
             => new()
             {
-                new()
+                new SharedContainerEntity2
                 {
                     Id = 4,
                     PartitionKey = "PK1",
                     Payload2 = "Payload4"
                 },
-                new()
+                new SharedContainerEntity2
                 {
                     Id = 4,
                     PartitionKey = "PK2",
@@ -462,14 +465,14 @@ public class ReadItemPartitionKeyQueryFixtureBase : SharedStoreFixtureBase<DbCon
         private static List<SharedContainerEntity2Child> CreateSharedContainerEntities2Children()
             => new()
             {
-                new()
+                new SharedContainerEntity2Child
                 {
                     Id = 5,
                     PartitionKey = "PK1",
                     Payload2 = "Payload6",
                     ChildPayload = "Child1"
                 },
-                new()
+                new SharedContainerEntity2Child
                 {
                     Id = 5,
                     PartitionKey = "PK2",

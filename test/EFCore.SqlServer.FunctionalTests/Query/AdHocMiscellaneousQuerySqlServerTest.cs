@@ -100,7 +100,8 @@ INSERT ZeroKey VALUES (NULL)
             });
     }
 
-    private class Context5456(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context5456(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Blog> Blogs { get; set; }
         public DbSet<Post> Posts { get; set; }
@@ -112,7 +113,7 @@ INSERT ZeroKey VALUES (NULL)
             for (var i = 0; i < 100; i++)
             {
                 Add(
-                    new Blog { Posts = [new() { Comments = [new(), new()] }, new()], Author = new Author() });
+                    new Blog { Posts = [new Post { Comments = [new Comment(), new Comment()] }, new Post()], Author = new Author() });
             }
 
             return SaveChangesAsync();
@@ -191,7 +192,8 @@ WHERE [c].[Id] = @__id_0
 """);
     }
 
-    private class Context8864(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context8864(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Customer> Customers { get; set; }
 
@@ -294,7 +296,6 @@ BEGIN
     return @num + 1 ;
 END
 """);
-
 
             await Database.ExecuteSqlRawAsync(
                 """
@@ -427,7 +428,8 @@ OUTPUT INSERTED.[Id], i._Position;
         }
     }
 
-    private class Context12482(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context12482(DbContextOptions options) : DbContext(options)
     {
         public virtual DbSet<BaseEntity> BaseEntities { get; set; }
 
@@ -550,7 +552,8 @@ WHERE [r].[MyTime] IN (
 """);
     }
 
-    private class Context13118(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context13118(DbContextOptions options) : DbContext(options)
     {
         public virtual DbSet<ReproEntity13118> ReproEntity { get; set; }
 
@@ -567,7 +570,7 @@ WHERE [r].[MyTime] IN (
         }
     }
 
-    private class ReproEntity13118
+    protected class ReproEntity13118
     {
         public Guid Id { get; set; }
         public DateTime MyTime { get; set; }
@@ -907,7 +910,8 @@ ORDER BY [r].[Id]
 """);
     }
 
-    private class Context15518(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context15518(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Repo> Repos { get; set; }
 
@@ -966,7 +970,8 @@ CROSS JOIN (
         }
     }
 
-    private class Context19206(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context19206(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Test> Tests { get; set; }
 
@@ -1018,7 +1023,8 @@ CROSS JOIN (
             });
     }
 
-    private class Context21666(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context21666(DbContextOptions options) : DbContext(options)
     {
         public DbSet<List> Lists { get; set; }
 
@@ -1059,7 +1065,8 @@ WHERE [l].[Name] = N'My Location'
 """);
     }
 
-    private class Context23282(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context23282(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Location> Locations { get; set; }
 
@@ -1166,14 +1173,14 @@ ORDER BY [m0].[Id]
 """);
     }
 
-    private class Gender24216
+    protected class Gender24216
     {
         public long Id { get; set; }
 
         public string Description { get; set; }
     }
 
-    private class Message24216
+    protected class Message24216
     {
         public long Id { get; set; }
 
@@ -1182,7 +1189,7 @@ ORDER BY [m0].[Id]
         public DateTime Timestamp { get; set; }
     }
 
-    private class PersonStatus24216
+    protected class PersonStatus24216
     {
         public long Id { get; set; }
 
@@ -1193,10 +1200,10 @@ ORDER BY [m0].[Id]
         public string StatusMessage { get; set; }
     }
 
-    private class Context24216(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context24216(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Gender24216> Gender { get; set; }
-
         public DbSet<Message24216> Message { get; set; }
 
         public IQueryable<PersonStatus24216> GetPersonStatusAsOf(long personId, DateTime asOf)
@@ -1411,7 +1418,6 @@ FROM [Entities] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e]
                     new Json30478 { Name = "c21", Nested = new JsonNested30478 { Number = 21 } },
 
                     new Json30478 { Name = "c22", Nested = new JsonNested30478 { Number = 22 } }
-
                 ]
             };
 
@@ -1420,7 +1426,6 @@ FROM [Entities] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e]
 
             RemoveRange(e1, e2);
             await SaveChangesAsync();
-
 
             await Database.ExecuteSqlRawAsync("ALTER TABLE [Entities] SET (SYSTEM_VERSIONING = OFF)");
             await Database.ExecuteSqlRawAsync("ALTER TABLE [Entities] DROP PERIOD FOR SYSTEM_TIME");

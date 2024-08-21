@@ -11,7 +11,8 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
-    public class CSharpDbContextGeneratorTest(ModelCodeGeneratorTestFixture fixture, ITestOutputHelper output) : ModelCodeGeneratorTestBase(fixture, output)
+    public class CSharpDbContextGeneratorTest(ModelCodeGeneratorTestFixture fixture, ITestOutputHelper output)
+        : ModelCodeGeneratorTestBase(fixture, output)
     {
         [ConditionalFact]
         public Task Empty_model()
@@ -1360,7 +1361,8 @@ public partial class TestDbContext : DbContext
         protected override IServiceCollection AddScaffoldingServices(IServiceCollection services)
             => services.Replace(ServiceDescriptor.Singleton<IAnnotationCodeGenerator, TestModelAnnotationCodeGenerator>());
 
-        private class TestModelAnnotationProvider(RelationalAnnotationProviderDependencies dependencies) : SqlServerAnnotationProvider(dependencies)
+        private class TestModelAnnotationProvider(RelationalAnnotationProviderDependencies dependencies)
+            : SqlServerAnnotationProvider(dependencies)
         {
             public override IEnumerable<IAnnotation> For(IRelationalModel database, bool designTime)
             {
@@ -1376,7 +1378,8 @@ public partial class TestDbContext : DbContext
             }
         }
 
-        private class TestModelAnnotationCodeGenerator(AnnotationCodeGeneratorDependencies dependencies) : SqlServerAnnotationCodeGenerator(dependencies)
+        private class TestModelAnnotationCodeGenerator(AnnotationCodeGeneratorDependencies dependencies)
+            : SqlServerAnnotationCodeGenerator(dependencies)
         {
             private static readonly MethodInfo _testFluentApiCallMethodInfo
                 = typeof(TestModelBuilderExtensions).GetRuntimeMethod(

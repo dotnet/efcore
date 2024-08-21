@@ -7,7 +7,8 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public class ManyToManyQuerySqliteTest(ManyToManyQuerySqliteFixture fixture) : ManyToManyQueryRelationalTestBase<ManyToManyQuerySqliteFixture>(fixture)
+public class ManyToManyQuerySqliteTest(ManyToManyQuerySqliteFixture fixture)
+    : ManyToManyQueryRelationalTestBase<ManyToManyQuerySqliteFixture>(fixture)
 {
     public override async Task Skip_navigation_order_by_single_or_default(bool async)
         => Assert.Equal(

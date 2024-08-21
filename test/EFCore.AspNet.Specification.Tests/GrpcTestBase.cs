@@ -12,9 +12,7 @@ public abstract class GrpcTestBase<TFixture> : IClassFixture<TFixture>
     where TFixture : GrpcTestBase<TFixture>.GrpcFixtureBase
 {
     protected GrpcTestBase(TFixture fixture)
-    {
-        Fixture = fixture;
-    }
+        => Fixture = fixture;
 
     protected TFixture Fixture { get; }
 

@@ -25,7 +25,8 @@ public class JsonQueryJsonTypeSqlServerFixture : JsonQuerySqlServerFixture
         modelBuilder.Entity<JsonEntityCustomNaming>(
             b =>
             {
-                b.OwnsOne(x => x.OwnedReferenceRoot).ToJson("json_reference_custom_naming").HasColumnType("json");;
+                b.OwnsOne(x => x.OwnedReferenceRoot).ToJson("json_reference_custom_naming").HasColumnType("json");
+                ;
                 b.OwnsMany(x => x.OwnedCollectionRoot).HasColumnType("json").ToJson("json_collection_custom_naming");
             });
 

@@ -1321,7 +1321,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public async virtual Task Can_read_write_point_with_Z()
+    public virtual async Task Can_read_write_point_with_Z()
     {
         var factory = NtsGeometryServices.Instance.CreateGeometryFactory(srid: 4326);
 
@@ -1703,7 +1703,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
             b => b.Entity<IpAddressType>().HasNoKey().Property(e => e.Address),
             b => b.Properties<IpAddress>().HaveConversion<IpAddressConverter>(),
             nameof(IpAddressType.Address),
-            new(IPAddress.Parse(value)),
+            new IpAddress(IPAddress.Parse(value)),
             json);
 
     protected class IpAddressConverter() : ValueConverter<IpAddress, IPAddress>(
@@ -1767,7 +1767,8 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     public virtual Task Can_read_write_collection_of_int_JSON_values()
         => Can_read_and_write_JSON_value<Int32CollectionType, ReadOnlyCollection<int>>(
             nameof(Int32CollectionType.Int32),
-            new ReadOnlyCollection<int>([
+            new ReadOnlyCollection<int>(
+            [
                 int.MinValue,
                 0,
                 int.MaxValue
@@ -1924,7 +1925,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
             nameof(DateOnlyCollectionType.DateOnly),
             [
                 DateOnly.MinValue,
-                new(2023, 5, 29),
+                new DateOnly(2023, 5, 29),
                 DateOnly.MaxValue
             ],
             """{"Prop":["0001-01-01","2023-05-29","9999-12-31"]}""",
@@ -1941,7 +1942,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
             nameof(TimeOnlyCollectionType.TimeOnly),
             [
                 TimeOnly.MinValue,
-                new(11, 5, 2, 3, 4),
+                new TimeOnly(11, 5, 2, 3, 4),
                 TimeOnly.MaxValue
             ],
             """{"Prop":["00:00:00.0000000","11:05:02.0030040","23:59:59.9999999"]}""",
@@ -1960,7 +1961,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
             nameof(DateTimeCollectionType.DateTime),
             [
                 DateTime.MinValue,
-                new(2023, 5, 29, 10, 52, 47),
+                new DateTime(2023, 5, 29, 10, 52, 47),
                 DateTime.MaxValue
             ],
             expected,
@@ -1972,15 +1973,16 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalTheory]
-    [InlineData("""{"Prop":["0001-01-01T00:00:00+00:00","2023-05-29T10:52:47-02:00","2023-05-29T10:52:47+00:00","2023-05-29T10:52:47+02:00","9999-12-31T23:59:59.9999999+00:00"]}""")]
+    [InlineData(
+        """{"Prop":["0001-01-01T00:00:00+00:00","2023-05-29T10:52:47-02:00","2023-05-29T10:52:47+00:00","2023-05-29T10:52:47+02:00","9999-12-31T23:59:59.9999999+00:00"]}""")]
     public virtual Task Can_read_write_collection_of_DateTimeOffset_JSON_values(string expected)
         => Can_read_and_write_JSON_value<DateTimeOffsetCollectionType, List<DateTimeOffset>>(
             nameof(DateTimeOffsetCollectionType.DateTimeOffset),
             [
                 DateTimeOffset.MinValue,
-                new(new DateTime(2023, 5, 29, 10, 52, 47), new TimeSpan(-2, 0, 0)),
-                new(new DateTime(2023, 5, 29, 10, 52, 47), new TimeSpan(0, 0, 0)),
-                new(new DateTime(2023, 5, 29, 10, 52, 47), new TimeSpan(2, 0, 0)),
+                new DateTimeOffset(new DateTime(2023, 5, 29, 10, 52, 47), new TimeSpan(-2, 0, 0)),
+                new DateTimeOffset(new DateTime(2023, 5, 29, 10, 52, 47), new TimeSpan(0, 0, 0)),
+                new DateTimeOffset(new DateTime(2023, 5, 29, 10, 52, 47), new TimeSpan(2, 0, 0)),
                 DateTimeOffset.MaxValue
             ],
             expected,
@@ -1997,7 +1999,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
             nameof(TimeSpanCollectionType.TimeSpan),
             [
                 TimeSpan.MinValue,
-                new(1, 2, 3, 4, 5),
+                new TimeSpan(1, 2, 3, 4, 5),
                 TimeSpan.MaxValue
             ],
             """{"Prop":["-10675199:2:48:05.4775808","1:2:03:04.005","10675199:2:48:05.4775807"]}""",
@@ -2039,13 +2041,14 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalTheory]
-    [InlineData("""{"Prop":["00000000-0000-0000-0000-000000000000","8c44242f-8e3f-4a20-8be8-98c7c1aadebd","ffffffff-ffff-ffff-ffff-ffffffffffff"]}""")]
+    [InlineData(
+        """{"Prop":["00000000-0000-0000-0000-000000000000","8c44242f-8e3f-4a20-8be8-98c7c1aadebd","ffffffff-ffff-ffff-ffff-ffffffffffff"]}""")]
     public virtual Task Can_read_write_collection_of_GUID_JSON_values(string expected)
         => Can_read_and_write_JSON_value<GuidCollectionType, List<Guid>>(
             nameof(GuidCollectionType.Guid),
             [
-                new(),
-                new("8C44242F-8E3F-4A20-8BE8-98C7C1AADEBD"),
+                new Guid(),
+                new Guid("8C44242F-8E3F-4A20-8BE8-98C7C1AADEBD"),
                 Guid.Parse("FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF")
             ],
             expected,
@@ -2097,8 +2100,8 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
         => Can_read_and_write_JSON_value<UriCollectionType, List<Uri>>(
             nameof(UriCollectionType.Uri),
             [
-                new("https://user:password@www.contoso.com:80/Home/Index.htm?q1=v1&q2=v2#FragmentName"),
-                new("file:///C:/test/path/file.txt")
+                new Uri("https://user:password@www.contoso.com:80/Home/Index.htm?q1=v1&q2=v2#FragmentName"),
+                new Uri("file:///C:/test/path/file.txt")
             ],
             """{"Prop":["https://user:password@www.contoso.com:80/Home/Index.htm?q1=v1\u0026q2=v2#FragmentName","file:///C:/test/path/file.txt"]}""",
             mappedCollection: true);
@@ -2112,7 +2115,8 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     public virtual Task Can_read_write_collection_of_IP_address_JSON_values()
         => Can_read_and_write_JSON_value<IpAddressCollectionType, ReadOnlyCollection<IPAddress>>(
             nameof(IpAddressCollectionType.IpAddress),
-            new ReadOnlyCollection<IPAddress>([
+            new ReadOnlyCollection<IPAddress>(
+            [
                 IPAddress.Parse("127.0.0.1"),
                 IPAddress.Parse("0.0.0.0"),
                 IPAddress.Parse("255.255.255.255"),
@@ -2506,7 +2510,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
             nameof(NullableDateOnlyCollectionType.DateOnly),
             [
                 DateOnly.MinValue,
-                new(2023, 5, 29),
+                new DateOnly(2023, 5, 29),
                 DateOnly.MaxValue,
                 null
             ],
@@ -2525,7 +2529,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
             [
                 null,
                 TimeOnly.MinValue,
-                new(11, 5, 2, 3, 4),
+                new TimeOnly(11, 5, 2, 3, 4),
                 TimeOnly.MaxValue
             ],
             """{"Prop":[null,"00:00:00.0000000","11:05:02.0030040","23:59:59.9999999"]}""",
@@ -2544,7 +2548,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
             [
                 DateTime.MinValue,
                 null,
-                new(2023, 5, 29, 10, 52, 47),
+                new DateTime(2023, 5, 29, 10, 52, 47),
                 DateTime.MaxValue
             ],
             expected,
@@ -2556,16 +2560,17 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalTheory]
-    [InlineData("""{"Prop":["0001-01-01T00:00:00+00:00","2023-05-29T10:52:47-02:00","2023-05-29T10:52:47+00:00",null,"2023-05-29T10:52:47+02:00","9999-12-31T23:59:59.9999999+00:00"]}""")]
+    [InlineData(
+        """{"Prop":["0001-01-01T00:00:00+00:00","2023-05-29T10:52:47-02:00","2023-05-29T10:52:47+00:00",null,"2023-05-29T10:52:47+02:00","9999-12-31T23:59:59.9999999+00:00"]}""")]
     public virtual Task Can_read_write_collection_of_nullable_DateTimeOffset_JSON_values(string expected)
         => Can_read_and_write_JSON_value<NullableDateTimeOffsetCollectionType, List<DateTimeOffset?>>(
             nameof(NullableDateTimeOffsetCollectionType.DateTimeOffset),
             [
                 DateTimeOffset.MinValue,
-                new(new DateTime(2023, 5, 29, 10, 52, 47), new TimeSpan(-2, 0, 0)),
-                new(new DateTime(2023, 5, 29, 10, 52, 47), new TimeSpan(0, 0, 0)),
+                new DateTimeOffset(new DateTime(2023, 5, 29, 10, 52, 47), new TimeSpan(-2, 0, 0)),
+                new DateTimeOffset(new DateTime(2023, 5, 29, 10, 52, 47), new TimeSpan(0, 0, 0)),
                 null,
-                new(new DateTime(2023, 5, 29, 10, 52, 47), new TimeSpan(2, 0, 0)),
+                new DateTimeOffset(new DateTime(2023, 5, 29, 10, 52, 47), new TimeSpan(2, 0, 0)),
                 DateTimeOffset.MaxValue
             ],
             expected,
@@ -2582,7 +2587,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
             nameof(NullableTimeSpanCollectionType.TimeSpan),
             [
                 TimeSpan.MinValue,
-                new(1, 2, 3, 4, 5),
+                new TimeSpan(1, 2, 3, 4, 5),
                 TimeSpan.MaxValue,
                 null
             ],
@@ -2631,14 +2636,15 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalTheory]
-    [InlineData("""{"Prop":["00000000-0000-0000-0000-000000000000",null,"8c44242f-8e3f-4a20-8be8-98c7c1aadebd","ffffffff-ffff-ffff-ffff-ffffffffffff"]}""")]
+    [InlineData(
+        """{"Prop":["00000000-0000-0000-0000-000000000000",null,"8c44242f-8e3f-4a20-8be8-98c7c1aadebd","ffffffff-ffff-ffff-ffff-ffffffffffff"]}""")]
     public virtual Task Can_read_write_collection_of_nullable_GUID_JSON_values(string expected)
         => Can_read_and_write_JSON_value<NullableGuidCollectionType, List<Guid?>>(
             nameof(NullableGuidCollectionType.Guid),
             [
-                new(),
+                new Guid(),
                 null,
-                new("8C44242F-8E3F-4A20-8BE8-98C7C1AADEBD"),
+                new Guid("8C44242F-8E3F-4A20-8BE8-98C7C1AADEBD"),
                 Guid.Parse("FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF")
             ],
             expected,
@@ -2692,9 +2698,9 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
         => Can_read_and_write_JSON_value<NullableUriCollectionType, List<Uri?>>(
             nameof(NullableUriCollectionType.Uri),
             [
-                new("https://user:password@www.contoso.com:80/Home/Index.htm?q1=v1&q2=v2#FragmentName"),
+                new Uri("https://user:password@www.contoso.com:80/Home/Index.htm?q1=v1&q2=v2#FragmentName"),
                 null,
-                new("file:///C:/test/path/file.txt")
+                new Uri("file:///C:/test/path/file.txt")
             ],
             """{"Prop":["https://user:password@www.contoso.com:80/Home/Index.htm?q1=v1\u0026q2=v2#FragmentName",null,"file:///C:/test/path/file.txt"]}""",
             mappedCollection: true);
@@ -3344,9 +3350,9 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
                 }),
             nameof(DddIdCollectionType.DddId),
             [
-                new() { Id = int.MinValue },
-                new() { Id = 0 },
-                new() { Id = int.MaxValue }
+                new DddId { Id = int.MinValue },
+                new DddId { Id = 0 },
+                new DddId { Id = int.MaxValue }
             ],
             """{"Prop":[-2147483648,0,2147483647]}""",
             facets: new Dictionary<string, object?> { { CoreAnnotationNames.ValueConverter, typeof(DddIdConverter) } });
@@ -3363,10 +3369,10 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
             nameof(NullableDddIdCollectionType.DddId),
             [
                 null,
-                new() { Id = int.MinValue },
+                new DddId { Id = int.MinValue },
                 null,
-                new() { Id = 0 },
-                new() { Id = int.MaxValue }
+                new DddId { Id = 0 },
+                new DddId { Id = int.MaxValue }
             ],
             """{"Prop":[null,-2147483648,null,0,2147483647]}""",
             facets: new Dictionary<string, object?> { { CoreAnnotationNames.ValueConverter, typeof(DddIdConverter) } });
@@ -3410,8 +3416,8 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
             b => b.ElementType().HasConversion<byte[]>(),
             nameof(GuidCollectionType.Guid),
             [
-                new(),
-                new("8C44242F-8E3F-4A20-8BE8-98C7C1AADEBD"),
+                new Guid(),
+                new Guid("8C44242F-8E3F-4A20-8BE8-98C7C1AADEBD"),
                 Guid.Parse("FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF")
             ],
             expected,
@@ -3547,7 +3553,8 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalTheory]
-    [InlineData("""{"Prop":[["00000000-0000-0000-0000-000000000000","8c44242f-8e3f-4a20-8be8-98c7c1aadebd"],[],["ffffffff-ffff-ffff-ffff-ffffffffffff"]]}""")]
+    [InlineData(
+        """{"Prop":[["00000000-0000-0000-0000-000000000000","8c44242f-8e3f-4a20-8be8-98c7c1aadebd"],[],["ffffffff-ffff-ffff-ffff-ffffffffffff"]]}""")]
     public virtual Task Can_read_write_list_of_array_of_GUID_JSON_values(string expected)
         => Can_read_and_write_JSON_value<GuidArrayListType, List<Guid[]>>(
             nameof(GuidArrayListType.Prop),
@@ -3566,13 +3573,17 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalTheory]
-    [InlineData("""{"Prop":[["00000000-0000-0000-0000-000000000000",null,"8c44242f-8e3f-4a20-8be8-98c7c1aadebd"],[],["ffffffff-ffff-ffff-ffff-ffffffffffff"]]}""")]
+    [InlineData(
+        """{"Prop":[["00000000-0000-0000-0000-000000000000",null,"8c44242f-8e3f-4a20-8be8-98c7c1aadebd"],[],["ffffffff-ffff-ffff-ffff-ffffffffffff"]]}""")]
     public virtual Task Can_read_write_list_of_array_of_nullable_GUID_JSON_values(string expected)
         => Can_read_and_write_JSON_value<NullableGuidArrayListType, List<Guid?[]>>(
             nameof(NullableGuidArrayListType.Prop),
             new List<Guid?[]>
             {
-                new Guid?[] { new Guid("00000000-0000-0000-0000-000000000000"), null, new Guid("8C44242F-8E3F-4A20-8BE8-98C7C1AADEBD") },
+                new Guid?[]
+                {
+                    new Guid("00000000-0000-0000-0000-000000000000"), null, new Guid("8C44242F-8E3F-4A20-8BE8-98C7C1AADEBD")
+                },
                 Array.Empty<Guid?>(),
                 new Guid?[] { new Guid("FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF") }
             },
@@ -3590,7 +3601,12 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
             nameof(Int32ListArrayType.Prop),
             new List<int>[]
             {
-                new() { int.MinValue, 0, int.MaxValue },
+                new()
+                {
+                    int.MinValue,
+                    0,
+                    int.MaxValue
+                },
                 new(),
                 new() { 77 }
             },
@@ -3608,7 +3624,12 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
             nameof(StringListArrayType.Prop),
             new List<string>[]
             {
-                new() { "X", "Y", "" },
+                new()
+                {
+                    "X",
+                    "Y",
+                    ""
+                },
                 new(),
                 new() { "77" }
             },
@@ -3644,7 +3665,12 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
             nameof(ULongListArrayType.Prop),
             new List<ulong>[]
             {
-                new() { ulong.MinValue, 1UL, ulong.MaxValue },
+                new()
+                {
+                    ulong.MinValue,
+                    1UL,
+                    ulong.MaxValue
+                },
                 new(),
                 new() { 77UL }
             },
@@ -3663,7 +3689,12 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
             nameof(BinaryListArrayType.Prop),
             new List<byte[]>[]
             {
-                new() { new byte[] { 0, 1, 2 }, new byte[] { 1 }, new byte[] { 77 } },
+                new()
+                {
+                    new byte[] { 0, 1, 2 },
+                    new byte[] { 1 },
+                    new byte[] { 77 }
+                },
                 new(),
                 new() { new byte[] { 78 } }
             },
@@ -3676,7 +3707,8 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalTheory]
-    [InlineData("""{"Prop":[["00000000-0000-0000-0000-000000000000","8c44242f-8e3f-4a20-8be8-98c7c1aadebd"],[],["ffffffff-ffff-ffff-ffff-ffffffffffff"]]}""")]
+    [InlineData(
+        """{"Prop":[["00000000-0000-0000-0000-000000000000","8c44242f-8e3f-4a20-8be8-98c7c1aadebd"],[],["ffffffff-ffff-ffff-ffff-ffffffffffff"]]}""")]
     public virtual Task Can_read_write_array_of_list_of_GUID_JSON_values(string expected)
         => Can_read_and_write_JSON_value<GuidListArrayType, ICollection<Guid>[]>(
             nameof(GuidListArrayType.Prop),
@@ -3700,9 +3732,23 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
             nameof(Int32ListListListType.Prop),
             new List<List<List<int>>>
             {
-                new() { new () { int.MinValue, 0, int.MaxValue }, new() { 77 } },
+                new()
+                {
+                    new List<int>
+                    {
+                        int.MinValue,
+                        0,
+                        int.MaxValue
+                    },
+                    new List<int> { 77 }
+                },
                 new(),
-                new() { new () { 1, 2 }, new(), new() { 78, 79 } }
+                new()
+                {
+                    new List<int> { 1, 2 },
+                    new List<int>(),
+                    new List<int> { 78, 79 }
+                }
             },
             """{"Prop":[[[-2147483648,0,2147483647],[77]],[],[[1,2],[],[78,79]]]}""",
             mappedCollection: true);
@@ -3735,9 +3781,18 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
             nameof(StringListArrayListType.Prop),
             new List<List<string>[]>
             {
-                new List<string>[] { new () { "int.MinValue", "", "int.MaxValue" }, new() { "77" } },
+                new List<string>[]
+                {
+                    new()
+                    {
+                        "int.MinValue",
+                        "",
+                        "int.MaxValue"
+                    },
+                    new() { "77" }
+                },
                 Array.Empty<List<string>>(),
-                new List<string>[] { new () { "1", "2" }, new(), new() { "78", "79" } }
+                new List<string>[] { new() { "1", "2" }, new(), new() { "78", "79" } }
             },
             """{"Prop":[[["int.MinValue","","int.MaxValue"],["77"]],[],[["1","2"],[],["78","79"]]]}""",
             mappedCollection: true);
@@ -3755,7 +3810,12 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
             {
                 new() { new[] { "int.MinValue", "", "int.MaxValue" }, new[] { "77" } },
                 new(),
-                new() { new[] { "1", "2" }, Array.Empty<string>(), new[] { "78", "79" } }
+                new()
+                {
+                    new[] { "1", "2" },
+                    Array.Empty<string>(),
+                    new[] { "78", "79" }
+                }
             },
             """{"Prop":[[["int.MinValue","","int.MaxValue"],["77"]],[],[["1","2"],[],["78","79"]]]}""",
             mappedCollection: true);
@@ -3789,7 +3849,10 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
             nameof(IpAddressListArrayListType.Prop),
             new List<List<IPAddress>[]>
             {
-                new List<IPAddress>[] { new() { IPAddress.Parse("127.0.0.1"), IPAddress.Parse("2a00:23c7:c60f:4f01:ba43:6d5a:e648:7577") } },
+                new List<IPAddress>[]
+                {
+                    new() { IPAddress.Parse("127.0.0.1"), IPAddress.Parse("2a00:23c7:c60f:4f01:ba43:6d5a:e648:7577") }
+                },
                 Array.Empty<List<IPAddress>>(),
                 new List<IPAddress>[] { new() { new IPAddress(0) } }
             },
@@ -3826,9 +3889,12 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
             nameof(BinaryListArrayArrayListType.Prop),
             new List<List<byte[][]>[]>
             {
-                new List<byte[][]>[] { new() { new byte[][] { new byte[] { 0, 1, 2 }, [1], [77] } }, new(), new() { new byte[][] { }, Array.Empty<byte[]>() } },
+                new List<byte[][]>[]
+                {
+                    new() { new[] { new byte[] { 0, 1, 2 }, [1], [77] } }, new(), new() { new byte[][] { }, Array.Empty<byte[]>() }
+                },
                 Array.Empty<List<byte[][]>>(),
-                new List<byte[][]>[] { new() { new byte[][] { } }, new() { new byte[][] { new byte[] { 0, 1, 2 }, [1], [77] } } },
+                new List<byte[][]>[] { new() { new byte[][] { } }, new() { new[] { new byte[] { 0, 1, 2 }, [1], [77] } } },
             },
             expected,
             mappedCollection: true);
@@ -4223,7 +4289,8 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
         private readonly Expression<Func<JsonGeoJsonReaderWriter>> _instanceLambda = () => Instance;
 
         /// <inheritdoc />
-        public override Expression ConstructorExpression => _instanceLambda.Body;
+        public override Expression ConstructorExpression
+            => _instanceLambda.Body;
     }
 
     private readonly NullabilityInfoContext _nullabilityInfoContext = new();

@@ -68,15 +68,19 @@ public class CosmosTypeMappingSourceTest
 
     [ConditionalFact]
     public void Can_map_TimeOnly()
-        => Can_map_scalar_by_clr_type<TimeOnly, JsonTimeOnlyReaderWriter>(new TimeOnly(20, 19, 12, 254), JTokenType.String, "\"20:19:12.254\"");
+        => Can_map_scalar_by_clr_type<TimeOnly, JsonTimeOnlyReaderWriter>(
+            new TimeOnly(20, 19, 12, 254), JTokenType.String, "\"20:19:12.254\"");
 
     [ConditionalFact]
     public void Can_map_DateTime()
-        => Can_map_scalar_by_clr_type<DateTime, JsonDateTimeReaderWriter>(new DateTime(2003, 12, 25, 20, 19, 12, 254), JTokenType.Date, "\"2003-12-25T20:19:12.254\"");
+        => Can_map_scalar_by_clr_type<DateTime, JsonDateTimeReaderWriter>(
+            new DateTime(2003, 12, 25, 20, 19, 12, 254), JTokenType.Date, "\"2003-12-25T20:19:12.254\"");
 
     [ConditionalFact]
     public void Can_map_DateTimeOffset()
-        => Can_map_scalar_by_clr_type<DateTimeOffset, JsonDateTimeOffsetReaderWriter>(new DateTimeOffset(2003, 12, 25, 20, 19, 12, 254, new TimeSpan(4, 30, 0)), JTokenType.Date, "\"2003-12-25T20:19:12.254+04:30\"", "DefaultDateTimeOffsetValueComparer");
+        => Can_map_scalar_by_clr_type<DateTimeOffset, JsonDateTimeOffsetReaderWriter>(
+            new DateTimeOffset(2003, 12, 25, 20, 19, 12, 254, new TimeSpan(4, 30, 0)), JTokenType.Date, "\"2003-12-25T20:19:12.254+04:30\"",
+            "DefaultDateTimeOffsetValueComparer");
 
     [ConditionalFact]
     public void Can_map_TimeSpan()
@@ -144,15 +148,19 @@ public class CosmosTypeMappingSourceTest
 
     [ConditionalFact]
     public void Can_map_nullable_TimeOnly()
-        => Can_map_scalar_by_clr_type<TimeOnly?, JsonTimeOnlyReaderWriter>(new TimeOnly(20, 19, 12, 254), JTokenType.String, "\"20:19:12.254\"");
+        => Can_map_scalar_by_clr_type<TimeOnly?, JsonTimeOnlyReaderWriter>(
+            new TimeOnly(20, 19, 12, 254), JTokenType.String, "\"20:19:12.254\"");
 
     [ConditionalFact]
     public void Can_map_nullable_DateTime()
-        => Can_map_scalar_by_clr_type<DateTime?, JsonDateTimeReaderWriter>(new DateTime(2003, 12, 25, 20, 19, 12, 254), JTokenType.Date, "\"2003-12-25T20:19:12.254\"");
+        => Can_map_scalar_by_clr_type<DateTime?, JsonDateTimeReaderWriter>(
+            new DateTime(2003, 12, 25, 20, 19, 12, 254), JTokenType.Date, "\"2003-12-25T20:19:12.254\"");
 
     [ConditionalFact]
     public void Can_map_nullable_DateTimeOffset()
-        => Can_map_scalar_by_clr_type<DateTimeOffset?, JsonDateTimeOffsetReaderWriter>(new DateTimeOffset(2003, 12, 25, 20, 19, 12, 254, new TimeSpan(4, 30, 0)), JTokenType.Date, "\"2003-12-25T20:19:12.254+04:30\"", "DefaultDateTimeOffsetValueComparer");
+        => Can_map_scalar_by_clr_type<DateTimeOffset?, JsonDateTimeOffsetReaderWriter>(
+            new DateTimeOffset(2003, 12, 25, 20, 19, 12, 254, new TimeSpan(4, 30, 0)), JTokenType.Date, "\"2003-12-25T20:19:12.254+04:30\"",
+            "DefaultDateTimeOffsetValueComparer");
 
     [ConditionalFact]
     public void Can_map_nullable_TimeSpan()
@@ -209,78 +217,88 @@ public class CosmosTypeMappingSourceTest
     [ConditionalFact]
     public void Can_map_sbyte_array()
         => Can_map_collection_by_clr_type<sbyte[], sbyte, JsonCollectionOfStructsReaderWriter<sbyte[], sbyte>>(
-            [1, -2, 3, -4, 5], "[1,-2,3,-4,5]", "ListOfValueTypesComparer<sbyte[], sbyte>", "ValueComparer<sbyte[]>", "ValueComparer<sbyte[]>" );
+            [1, -2, 3, -4, 5], "[1,-2,3,-4,5]", "ListOfValueTypesComparer<sbyte[], sbyte>", "ValueComparer<sbyte[]>",
+            "ValueComparer<sbyte[]>");
 
     [ConditionalFact]
     public void Can_map_short_array()
         => Can_map_collection_by_clr_type<short[], short, JsonCollectionOfStructsReaderWriter<short[], short>>(
-            [1, -2, 3, -4, 5], "[1,-2,3,-4,5]", "ListOfValueTypesComparer<short[], short>", "ValueComparer<short[]>", "ValueComparer<short[]>" );
+            [1, -2, 3, -4, 5], "[1,-2,3,-4,5]", "ListOfValueTypesComparer<short[], short>", "ValueComparer<short[]>",
+            "ValueComparer<short[]>");
 
     [ConditionalFact]
     public void Can_map_int_array()
         => Can_map_collection_by_clr_type<int[], int, JsonCollectionOfStructsReaderWriter<int[], int>>(
-            [1, -2, 3, -4, 5], "[1,-2,3,-4,5]", "ListOfValueTypesComparer<int[], int>", "ValueComparer<int[]>", "ValueComparer<int[]>" );
+            [1, -2, 3, -4, 5], "[1,-2,3,-4,5]", "ListOfValueTypesComparer<int[], int>", "ValueComparer<int[]>", "ValueComparer<int[]>");
 
     [ConditionalFact]
     public void Can_map_long_array()
         => Can_map_collection_by_clr_type<long[], long, JsonCollectionOfStructsReaderWriter<long[], long>>(
-            [1, -2, 3, -4, 5], "[1,-2,3,-4,5]", "ListOfValueTypesComparer<long[], long>", "ValueComparer<long[]>", "ValueComparer<long[]>" );
+            [1, -2, 3, -4, 5], "[1,-2,3,-4,5]", "ListOfValueTypesComparer<long[], long>", "ValueComparer<long[]>", "ValueComparer<long[]>");
 
     [ConditionalFact]
     public void Can_map_ushort_array()
         => Can_map_collection_by_clr_type<ushort[], ushort, JsonCollectionOfStructsReaderWriter<ushort[], ushort>>(
-            [1, 2, 3, 4, 5], "[1,2,3,4,5]", "ListOfValueTypesComparer<ushort[], ushort>", "ValueComparer<ushort[]>", "ValueComparer<ushort[]>" );
+            [1, 2, 3, 4, 5], "[1,2,3,4,5]", "ListOfValueTypesComparer<ushort[], ushort>", "ValueComparer<ushort[]>",
+            "ValueComparer<ushort[]>");
 
     [ConditionalFact]
     public void Can_map_uint_array()
         => Can_map_collection_by_clr_type<uint[], uint, JsonCollectionOfStructsReaderWriter<uint[], uint>>(
-            [1, 2, 3, 4, 5], "[1,2,3,4,5]", "ListOfValueTypesComparer<uint[], uint>", "ValueComparer<uint[]>", "ValueComparer<uint[]>" );
+            [1, 2, 3, 4, 5], "[1,2,3,4,5]", "ListOfValueTypesComparer<uint[], uint>", "ValueComparer<uint[]>", "ValueComparer<uint[]>");
 
     [ConditionalFact]
     public void Can_map_ulong_array()
         => Can_map_collection_by_clr_type<ulong[], ulong, JsonCollectionOfStructsReaderWriter<ulong[], ulong>>(
-            [1, 2, 3, 4, 5], "[1,2,3,4,5]", "ListOfValueTypesComparer<ulong[], ulong>", "ValueComparer<ulong[]>", "ValueComparer<ulong[]>" );
-
+            [1, 2, 3, 4, 5], "[1,2,3,4,5]", "ListOfValueTypesComparer<ulong[], ulong>", "ValueComparer<ulong[]>", "ValueComparer<ulong[]>");
 
     [ConditionalFact]
     public void Can_map_sbyte_list()
         => Can_map_collection_by_clr_type<List<sbyte>, sbyte, JsonCollectionOfStructsReaderWriter<List<sbyte>, sbyte>>(
-            [1, -2, 3, -4, 5], "[1,-2,3,-4,5]", "ListOfValueTypesComparer<List<sbyte>, sbyte>", "ValueComparer<List<sbyte>>", "ValueComparer<List<sbyte>>" );
+            [1, -2, 3, -4, 5], "[1,-2,3,-4,5]", "ListOfValueTypesComparer<List<sbyte>, sbyte>", "ValueComparer<List<sbyte>>",
+            "ValueComparer<List<sbyte>>");
 
     [ConditionalFact]
     public void Can_map_short_list()
         => Can_map_collection_by_clr_type<List<short>, short, JsonCollectionOfStructsReaderWriter<List<short>, short>>(
-            [1, -2, 3, -4, 5], "[1,-2,3,-4,5]", "ListOfValueTypesComparer<List<short>, short>", "ValueComparer<List<short>>", "ValueComparer<List<short>>" );
+            [1, -2, 3, -4, 5], "[1,-2,3,-4,5]", "ListOfValueTypesComparer<List<short>, short>", "ValueComparer<List<short>>",
+            "ValueComparer<List<short>>");
 
     [ConditionalFact]
     public void Can_map_int_list()
         => Can_map_collection_by_clr_type<List<int>, int, JsonCollectionOfStructsReaderWriter<List<int>, int>>(
-            [1, -2, 3, -4, 5], "[1,-2,3,-4,5]", "ListOfValueTypesComparer<List<int>, int>", "ValueComparer<List<int>>", "ValueComparer<List<int>>" );
+            [1, -2, 3, -4, 5], "[1,-2,3,-4,5]", "ListOfValueTypesComparer<List<int>, int>", "ValueComparer<List<int>>",
+            "ValueComparer<List<int>>");
 
     [ConditionalFact]
     public void Can_map_long_list()
         => Can_map_collection_by_clr_type<List<long>, long, JsonCollectionOfStructsReaderWriter<List<long>, long>>(
-            [1, -2, 3, -4, 5], "[1,-2,3,-4,5]", "ListOfValueTypesComparer<List<long>, long>", "ValueComparer<List<long>>", "ValueComparer<List<long>>" );
+            [1, -2, 3, -4, 5], "[1,-2,3,-4,5]", "ListOfValueTypesComparer<List<long>, long>", "ValueComparer<List<long>>",
+            "ValueComparer<List<long>>");
 
     [ConditionalFact]
     public void Can_map_byte_list()
         => Can_map_collection_by_clr_type<List<byte>, byte, JsonCollectionOfStructsReaderWriter<List<byte>, byte>>(
-            [1, 2, 3, 4, 5], "[1,2,3,4,5]", "ListOfValueTypesComparer<List<byte>, byte>", "ValueComparer<List<byte>>", "ValueComparer<List<byte>>" );
+            [1, 2, 3, 4, 5], "[1,2,3,4,5]", "ListOfValueTypesComparer<List<byte>, byte>", "ValueComparer<List<byte>>",
+            "ValueComparer<List<byte>>");
 
     [ConditionalFact]
     public void Can_map_ushort_list()
         => Can_map_collection_by_clr_type<List<ushort>, ushort, JsonCollectionOfStructsReaderWriter<List<ushort>, ushort>>(
-            [1, 2, 3, 4, 5], "[1,2,3,4,5]", "ListOfValueTypesComparer<List<ushort>, ushort>", "ValueComparer<List<ushort>>", "ValueComparer<List<ushort>>" );
+            [1, 2, 3, 4, 5], "[1,2,3,4,5]", "ListOfValueTypesComparer<List<ushort>, ushort>", "ValueComparer<List<ushort>>",
+            "ValueComparer<List<ushort>>");
 
     [ConditionalFact]
     public void Can_map_uint_list()
         => Can_map_collection_by_clr_type<List<uint>, uint, JsonCollectionOfStructsReaderWriter<List<uint>, uint>>(
-            [1, 2, 3, 4, 5], "[1,2,3,4,5]", "ListOfValueTypesComparer<List<uint>, uint>", "ValueComparer<List<uint>>", "ValueComparer<List<uint>>" );
+            [1, 2, 3, 4, 5], "[1,2,3,4,5]", "ListOfValueTypesComparer<List<uint>, uint>", "ValueComparer<List<uint>>",
+            "ValueComparer<List<uint>>");
 
     [ConditionalFact]
     public void Can_map_ulong_list()
         => Can_map_collection_by_clr_type<List<ulong>, ulong, JsonCollectionOfStructsReaderWriter<List<ulong>, ulong>>(
-            [1, 2, 3, 4, 5], "[1,2,3,4,5]", "ListOfValueTypesComparer<List<ulong>, ulong>", "ValueComparer<List<ulong>>", "ValueComparer<List<ulong>>" );
+            [1, 2, 3, 4, 5], "[1,2,3,4,5]", "ListOfValueTypesComparer<List<ulong>, ulong>", "ValueComparer<List<ulong>>",
+            "ValueComparer<List<ulong>>");
 
     private void Can_map_collection_by_clr_type<TCollection, TElement, TReader>(
         TCollection value,
@@ -382,19 +400,19 @@ public class CosmosTypeMappingSourceTest
 
     protected CoreTypeMapping GetTypeMapping(Type propertyType, bool? nullable = null)
     {
-            var modelBuilder = CreateModelBuilder();
-            var entityType = modelBuilder.Entity<MyType>();
-            entityType.Property(e => e.Id);
-            var property = entityType.Property(propertyType, "MyProp").Metadata;
+        var modelBuilder = CreateModelBuilder();
+        var entityType = modelBuilder.Entity<MyType>();
+        entityType.Property(e => e.Id);
+        var property = entityType.Property(propertyType, "MyProp").Metadata;
 
-            if (nullable.HasValue)
-            {
-                property.IsNullable = nullable.Value;
-            }
+        if (nullable.HasValue)
+        {
+            property.IsNullable = nullable.Value;
+        }
 
-            var model = modelBuilder.Model.FinalizeModel();
+        var model = modelBuilder.Model.FinalizeModel();
 
-            return CreateTypeMappingSource(model).FindMapping(model.FindEntityType(typeof(MyType))!.FindProperty(property.Name)!)!;
+        return CreateTypeMappingSource(model).FindMapping(model.FindEntityType(typeof(MyType))!.FindProperty(property.Name)!)!;
     }
 
     private class MyType

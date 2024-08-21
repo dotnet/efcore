@@ -3,7 +3,6 @@
 
 using Microsoft.EntityFrameworkCore.InMemory.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel;
-using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 

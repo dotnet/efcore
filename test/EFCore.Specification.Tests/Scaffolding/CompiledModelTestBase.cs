@@ -46,7 +46,8 @@ public abstract class CompiledModelTestBase : NonSharedModelTestBase
             options: new CompiledModelCodeGenerationOptions { UseNullableReferenceTypes = true, ForNativeAot = true },
             additionalSourceFiles:
             [
-                new("DbContextModelStub.cs",
+                new ScaffoldedFile(
+                    "DbContextModelStub.cs",
                     """
 using Microsoft.EntityFrameworkCore.Metadata;
 using static TestNamespace.DbContextModel.Dummy;
@@ -313,7 +314,8 @@ namespace TestNamespace
         var principalAlternateKey = principalBase.GetKeys().Single(k => k.Properties.Count == 1 && principalId == k.Properties.Single());
         Assert.False(principalAlternateKey.IsPrimaryKey());
 
-        var principalKey = principalBase.GetKeys().Single(k => k.Properties.Count == 2 && k.Properties.SequenceEqual([principalId, principalAlternateId]));
+        var principalKey = principalBase.GetKeys()
+            .Single(k => k.Properties.Count == 2 && k.Properties.SequenceEqual([principalId, principalAlternateId]));
         Assert.True(principalKey.IsPrimaryKey());
 
         Assert.Equal([principalAlternateKey, principalKey], principalId.GetContainingKeys());
@@ -566,6 +568,7 @@ namespace TestNamespace
 
         await context.SaveChangesAsync();
     }
+
     [ConditionalFact]
     public virtual Task ComplexTypes()
         => Test(
@@ -614,11 +617,12 @@ namespace TestNamespace
                             .HasPrecision(3, 2)
                             .HasAnnotation("foo", "bar");
                         eb.Ignore(e => e.Context);
-                        eb.ComplexProperty(o => o.Principal, cb =>
-                        {
-                            cb.IsRequired();
-                            cb.Property("FlagsEnum2");
-                        });
+                        eb.ComplexProperty(
+                            o => o.Principal, cb =>
+                            {
+                                cb.IsRequired();
+                                cb.Property("FlagsEnum2");
+                            });
                     });
             });
 
@@ -801,10 +805,11 @@ namespace TestNamespace
         public override void ToJsonTyped(Utf8JsonWriter writer, Guid value)
             => writer.WriteStringValue(value);
 
-        private readonly Expression<Func<MyJsonGuidReaderWriter>> _ctorLambda = () => new();
+        private readonly Expression<Func<MyJsonGuidReaderWriter>> _ctorLambda = () => new MyJsonGuidReaderWriter();
 
         /// <inheritdoc />
-        public override Expression ConstructorExpression => _ctorLambda.Body;
+        public override Expression ConstructorExpression
+            => _ctorLambda.Body;
     }
 
     public class ManyTypes
@@ -1156,9 +1161,7 @@ namespace TestNamespace
         }
 
         public OwnedType(DbContext context)
-        {
-            Context = context;
-        }
+            => Context = context;
 
         public DbContext? Context
         {
@@ -1429,8 +1432,7 @@ namespace TestNamespace
     {
         var build = new BuildSource
         {
-            Sources = scaffoldedFiles.ToDictionary(f => f.Path, f => f.Code),
-            NullableReferenceTypes = options.UseNullableReferenceTypes
+            Sources = scaffoldedFiles.ToDictionary(f => f.Path, f => f.Code), NullableReferenceTypes = options.UseNullableReferenceTypes
         };
         AddReferences(build);
 

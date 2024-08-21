@@ -7,8 +7,9 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public class NorthwindChangeTrackingQuerySqliteTest(NorthwindQuerySqliteFixture<NoopModelCustomizer> fixture) : NorthwindChangeTrackingQueryTestBase<
-    NorthwindQuerySqliteFixture<NoopModelCustomizer>>(fixture)
+public class NorthwindChangeTrackingQuerySqliteTest(NorthwindQuerySqliteFixture<NoopModelCustomizer> fixture)
+    : NorthwindChangeTrackingQueryTestBase<
+        NorthwindQuerySqliteFixture<NoopModelCustomizer>>(fixture)
 {
     protected override NorthwindContext CreateNoTrackingContext()
         => new NorthwindSqliteContext(

@@ -549,9 +549,10 @@ public class PropertyTest
         public override void ToJsonTyped(Utf8JsonWriter writer, string value)
             => writer.WriteStringValue(value);
 
-        private readonly Expression<Func<SimpleJasonValueReaderWriter>> _instanceLambda = () => new();
+        private readonly Expression<Func<SimpleJasonValueReaderWriter>> _instanceLambda = () => new SimpleJasonValueReaderWriter();
 
-        public override Expression ConstructorExpression => _instanceLambda.Body;
+        public override Expression ConstructorExpression
+            => _instanceLambda.Body;
     }
 
     private class JasonValueReaderWriterWithPrivateInstance : JsonValueReaderWriter<string>
@@ -566,7 +567,8 @@ public class PropertyTest
 
         private readonly Expression<Func<JasonValueReaderWriterWithPrivateInstance>> _instanceLambda = () => Instance;
 
-        public override Expression ConstructorExpression => _instanceLambda.Body;
+        public override Expression ConstructorExpression
+            => _instanceLambda.Body;
     }
 
     private class JasonValueReaderWriterWithBadInstance : JsonValueReaderWriter<string>
@@ -579,7 +581,8 @@ public class PropertyTest
         public override void ToJsonTyped(Utf8JsonWriter writer, string value)
             => writer.WriteStringValue(value);
 
-        public override Expression ConstructorExpression => Expression.Default(typeof(JasonValueReaderWriterWithBadInstance));
+        public override Expression ConstructorExpression
+            => Expression.Default(typeof(JasonValueReaderWriterWithBadInstance));
     }
 
     private class SimpleJasonValueReaderWriterWithInstance : JsonValueReaderWriter<string>
@@ -594,7 +597,8 @@ public class PropertyTest
 
         private readonly Expression<Func<SimpleJasonValueReaderWriterWithInstance>> _instanceLambda = () => Instance;
 
-        public override Expression ConstructorExpression => _instanceLambda.Body;
+        public override Expression ConstructorExpression
+            => _instanceLambda.Body;
     }
 
     private class SimpleJasonValueReaderWriterWithInstanceAndPrivateConstructor : JsonValueReaderWriter<string>
@@ -613,7 +617,8 @@ public class PropertyTest
 
         private readonly Expression<Func<SimpleJasonValueReaderWriterWithInstanceAndPrivateConstructor>> _instanceLambda = () => Instance;
 
-        public override Expression ConstructorExpression => _instanceLambda.Body;
+        public override Expression ConstructorExpression
+            => _instanceLambda.Body;
     }
 
     private class NonDerivedJsonValueReaderWriter;
@@ -629,9 +634,10 @@ public class PropertyTest
         public override Type ValueType
             => typeof(string);
 
-        private readonly Expression<Func<NonGenericJsonValueReaderWriter>> _instanceLambda = () => new();
+        private readonly Expression<Func<NonGenericJsonValueReaderWriter>> _instanceLambda = () => new NonGenericJsonValueReaderWriter();
 
-        public override Expression ConstructorExpression => _instanceLambda.Body;
+        public override Expression ConstructorExpression
+            => _instanceLambda.Body;
     }
 
     private abstract class AbstractJasonValueReaderWriter : JsonValueReaderWriter<string>;
@@ -648,9 +654,10 @@ public class PropertyTest
         public override void ToJsonTyped(Utf8JsonWriter writer, string value)
             => writer.WriteStringValue(value);
 
-        private readonly Expression<Func<PrivateJasonValueReaderWriter>> _instanceLambda = () => new();
+        private readonly Expression<Func<PrivateJasonValueReaderWriter>> _instanceLambda = () => new PrivateJasonValueReaderWriter();
 
-        public override Expression ConstructorExpression => _instanceLambda.Body;
+        public override Expression ConstructorExpression
+            => _instanceLambda.Body;
     }
 
     private class NonParameterlessJsonValueReaderWriter(bool _) : JsonValueReaderWriter<string>
@@ -663,8 +670,8 @@ public class PropertyTest
 
         private readonly ConstructorInfo _constructorInfo = typeof(NonParameterlessJsonValueReaderWriter).GetConstructor([typeof(bool)])!;
 
-        public override Expression ConstructorExpression =>
-            Expression.New(_constructorInfo, Expression.Constant(_));
+        public override Expression ConstructorExpression
+            => Expression.New(_constructorInfo, Expression.Constant(_));
     }
 
     private static IMutableModel CreateModel()

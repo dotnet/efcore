@@ -31,11 +31,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         [ConditionalFact]
         public virtual Task Global_namespace()
             => Test<GlobalNamespaceContext>(
-                modelBuilder => modelBuilder.Entity("1", e =>
-                {
-                    e.Property<int>("Id");
-                    e.HasKey("Id");
-                }),
+                modelBuilder => modelBuilder.Entity(
+                    "1", e =>
+                    {
+                        e.Property<int>("Id");
+                        e.HasKey("Id");
+                    }),
                 model =>
                 {
                     Assert.NotNull(model.FindEntityType("1"));
@@ -57,7 +58,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                 }
             );
 
-        public class SelfReferentialPropertyValueConverter(ConverterMappingHints hints) : ValueConverter<SelfReferentialProperty?, string?>(v => null, v => null, hints)
+        public class SelfReferentialPropertyValueConverter(ConverterMappingHints hints)
+            : ValueConverter<SelfReferentialProperty?, string?>(v => null, v => null, hints)
         {
             public SelfReferentialPropertyValueConverter()
                 : this(new ConverterMappingHints())
@@ -91,7 +93,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         [ConditionalFact]
         public virtual Task Manual_lazy_loading()
             => Test(
-                modelBuilder => {
+                modelBuilder =>
+                {
                     modelBuilder.Entity<LazyConstructorEntity>();
 
                     modelBuilder.Entity<LazyPropertyDelegateEntity>(
@@ -168,8 +171,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                 {
                     var principal = new LazyProxiesEntity2
                     {
-                        Id = 1,
-                        CollectionNavigation = new List<LazyProxiesEntity1> { new LazyProxiesEntity1 { Id = 1 } }
+                        Id = 1, CollectionNavigation = new List<LazyProxiesEntity1> { new() { Id = 1 } }
                     };
                     c.Set<LazyProxiesEntity2>().Add(principal);
 
@@ -204,8 +206,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                 {
                     var principal = new LazyProxiesEntity3
                     {
-                        Id = 1,
-                        CollectionNavigation = new List<LazyProxiesEntity4> { new LazyProxiesEntity4 { Id = 1 } }
+                        Id = 1, CollectionNavigation = new List<LazyProxiesEntity4> { new() { Id = 1 } }
                     };
                     c.Set<LazyProxiesEntity3>().Add(principal);
 
@@ -242,9 +243,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
             }
 
             protected LazyProxiesEntity3(ILazyLoader lazyLoader)
-            {
-                LazyLoader = lazyLoader;
-            }
+                => LazyLoader = lazyLoader;
 
             private ILazyLoader? LazyLoader { get; set; }
 
@@ -271,9 +270,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
             }
 
             protected LazyProxiesEntity4(Action<object, string> lazyLoader)
-            {
-                LazyLoader = lazyLoader;
-            }
+                => LazyLoader = lazyLoader;
 
             private Action<object, string>? LazyLoader { get; set; }
 
@@ -320,22 +317,24 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         [ConditionalFact]
         public virtual Task Throws_for_value_generator()
             => Test(
-                modelBuilder => modelBuilder.Entity("MyEntity", e =>
-                {
-                    e.Property<int>("Id").HasValueGenerator((p, e) => null!);
-                    e.HasKey("Id");
-                }),
+                modelBuilder => modelBuilder.Entity(
+                    "MyEntity", e =>
+                    {
+                        e.Property<int>("Id").HasValueGenerator((p, e) => null!);
+                        e.HasKey("Id");
+                    }),
                 expectedExceptionMessage: DesignStrings.CompiledModelValueGenerator(
                     "MyEntity", "Id", nameof(PropertyBuilder.HasValueGeneratorFactory)));
 
         [ConditionalFact]
         public virtual Task Custom_value_converter()
             => Test(
-                modelBuilder => modelBuilder.Entity("MyEntity", e =>
-                {
-                    e.Property<int>("Id").HasConversion(i => i, i => i);
-                    e.HasKey("Id");
-                }),
+                modelBuilder => modelBuilder.Entity(
+                    "MyEntity", e =>
+                    {
+                        e.Property<int>("Id").HasConversion(i => i, i => i);
+                        e.HasKey("Id");
+                    }),
                 model =>
                 {
                     var entityType = model.GetEntityTypes().Single();
@@ -347,11 +346,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         [ConditionalFact]
         public virtual Task Custom_value_comparer()
             => Test(
-                modelBuilder => modelBuilder.Entity("MyEntity", e =>
-                {
-                    e.Property<int>("Id").HasConversion(typeof(int), new FakeValueComparer());
-                    e.HasKey("Id");
-                }),
+                modelBuilder => modelBuilder.Entity(
+                    "MyEntity", e =>
+                    {
+                        e.Property<int>("Id").HasConversion(typeof(int), new FakeValueComparer());
+                        e.HasKey("Id");
+                    }),
                 model =>
                 {
                     var entityType = model.GetEntityTypes().Single();
@@ -380,11 +380,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         [ConditionalFact]
         public virtual Task Custom_provider_value_comparer()
             => Test(
-                modelBuilder => modelBuilder.Entity("MyEntity", e =>
-                {
-                    e.Property<int>("Id").HasConversion(typeof(int), null, new FakeValueComparer());
-                    e.HasKey("Id");
-                }),
+                modelBuilder => modelBuilder.Entity(
+                    "MyEntity", e =>
+                    {
+                        e.Property<int>("Id").HasConversion(typeof(int), null, new FakeValueComparer());
+                        e.HasKey("Id");
+                    }),
                 model =>
                 {
                     var entityType = model.GetEntityTypes().Single();
@@ -400,12 +401,13 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         [ConditionalFact]
         public virtual Task Custom_type_mapping()
             => Test(
-                modelBuilder => modelBuilder.Entity("MyEntity", e =>
-                {
-                    e.Property<int>("Id").Metadata.SetTypeMapping(
+                modelBuilder => modelBuilder.Entity(
+                    "MyEntity", e =>
+                    {
+                        e.Property<int>("Id").Metadata.SetTypeMapping(
                             new InMemoryTypeMapping(typeof(int), jsonValueReaderWriter: JsonInt32ReaderWriter.Instance));
-                    e.HasKey("Id");
-                }),
+                        e.HasKey("Id");
+                    }),
                 model =>
                 {
                     var entityType = model.GetEntityTypes().Single();
@@ -418,10 +420,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         [ConditionalFact]
         public virtual Task Fully_qualified_model()
             => Test<DbContext>(
-                modelBuilder => {
+                modelBuilder =>
+                {
                     modelBuilder.Entity<Index>();
                     modelBuilder.Entity<TestModels.AspNetIdentity.IdentityUser>();
-                    modelBuilder.Entity<IdentityUser >(
+                    modelBuilder.Entity<IdentityUser>(
                         eb =>
                         {
                             eb.HasDiscriminator().HasValue("DerivedIdentityUser");
@@ -511,8 +514,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                 => base.ShouldUseFullName(shortTypeName) || shortTypeName is nameof(System.Index) or nameof(Internal);
         }
 
-        protected override TestHelpers TestHelpers => InMemoryTestHelpers.Instance;
-        protected override ITestStoreFactory TestStoreFactory => InMemoryTestStoreFactory.Instance;
+        protected override TestHelpers TestHelpers
+            => InMemoryTestHelpers.Instance;
+
+        protected override ITestStoreFactory TestStoreFactory
+            => InMemoryTestStoreFactory.Instance;
 
         protected override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
             => base.AddOptions(builder)

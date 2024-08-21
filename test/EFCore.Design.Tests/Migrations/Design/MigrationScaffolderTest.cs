@@ -91,20 +91,20 @@ public class MigrationsScaffolderTest
                     services.GetRequiredService<CommandBatchPreparerDependencies>()),
                 idGenerator,
                 new MigrationsCodeGeneratorSelector(
-                    [
-                        new CSharpMigrationsGenerator(
-                            new MigrationsCodeGeneratorDependencies(
-                                sqlServerTypeMappingSource,
-                                sqlServerAnnotationCodeGenerator),
-                            new CSharpMigrationsGeneratorDependencies(
-                                code,
-                                new CSharpMigrationOperationGenerator(
-                                    new CSharpMigrationOperationGeneratorDependencies(
-                                        code)),
-                                new CSharpSnapshotGenerator(
-                                    new CSharpSnapshotGeneratorDependencies(
-                                        code, sqlServerTypeMappingSource, sqlServerAnnotationCodeGenerator))))
-                    ]),
+                [
+                    new CSharpMigrationsGenerator(
+                        new MigrationsCodeGeneratorDependencies(
+                            sqlServerTypeMappingSource,
+                            sqlServerAnnotationCodeGenerator),
+                        new CSharpMigrationsGeneratorDependencies(
+                            code,
+                            new CSharpMigrationOperationGenerator(
+                                new CSharpMigrationOperationGeneratorDependencies(
+                                    code)),
+                            new CSharpSnapshotGenerator(
+                                new CSharpSnapshotGeneratorDependencies(
+                                    code, sqlServerTypeMappingSource, sqlServerAnnotationCodeGenerator))))
+                ]),
                 historyRepository,
                 reporter,
                 new MockProvider(),

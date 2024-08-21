@@ -40,7 +40,5 @@ public class TestDriver : Driver
         int fastestLaps,
         int teamId)
         : base(loader, id, name, carNumber, championships, races, wins, podiums, poles, fastestLaps, teamId)
-    {
-        Assert.IsType<TestDriverProxy>(this);
-    }
+        => Assert.IsType<TestDriverProxy>(this);
 }

@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.Operators;
 
-#nullable disable
-
 public abstract class OperatorEntityBase
 {
     public int Id { get; set; }

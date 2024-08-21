@@ -388,7 +388,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
             {
                 Name = "Order11",
                 OrderDate = new DateTime(2000, 1, 20),
-                Items = [new() { Quantity = 5, Product = product1 }, new() { Quantity = 15, Product = product3 }]
+                Items = [new LineItem { Quantity = 5, Product = product1 }, new LineItem { Quantity = 15, Product = product3 }]
             };
 
             var order12 = new Order
@@ -397,9 +397,9 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
                 OrderDate = new DateTime(2000, 2, 21),
                 Items =
                 [
-                    new() { Quantity = 1, Product = product1 },
-                    new() { Quantity = 6, Product = product2 },
-                    new() { Quantity = 200, Product = product3 }
+                    new LineItem { Quantity = 1, Product = product1 },
+                    new LineItem { Quantity = 6, Product = product2 },
+                    new LineItem { Quantity = 200, Product = product3 }
                 ]
             };
 
@@ -407,7 +407,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
             {
                 Name = "Order13",
                 OrderDate = new DateTime(2001, 3, 20),
-                Items = [new() { Quantity = 50, Product = product4 }]
+                Items = [new LineItem { Quantity = 50, Product = product4 }]
             };
 
             var order21 = new Order
@@ -416,9 +416,9 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
                 OrderDate = new DateTime(2000, 4, 21),
                 Items =
                 [
-                    new() { Quantity = 1, Product = product1 },
-                    new() { Quantity = 34, Product = product4 },
-                    new() { Quantity = 100, Product = product5 }
+                    new LineItem { Quantity = 1, Product = product1 },
+                    new LineItem { Quantity = 34, Product = product4 },
+                    new LineItem { Quantity = 100, Product = product5 }
                 ]
             };
 
@@ -426,14 +426,14 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
             {
                 Name = "Order22",
                 OrderDate = new DateTime(2000, 5, 20),
-                Items = [new() { Quantity = 34, Product = product3 }, new() { Quantity = 100, Product = product4 }]
+                Items = [new LineItem { Quantity = 34, Product = product3 }, new LineItem { Quantity = 100, Product = product4 }]
             };
 
             var order31 = new Order
             {
                 Name = "Order31",
                 OrderDate = new DateTime(2001, 6, 21),
-                Items = [new() { Quantity = 5, Product = product5 }]
+                Items = [new LineItem { Quantity = 5, Product = product5 }]
             };
 
             var address11 = new Address
@@ -1153,8 +1153,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
                     where c.Id == customerId
                     select new
                     {
-                        c.LastName,
-                        OrderCount = context.StarValueInstance(starCount, context.CustomerOrderCountInstance(customerId))
+                        c.LastName, OrderCount = context.StarValueInstance(starCount, context.CustomerOrderCountInstance(customerId))
                     }).Single();
 
         Assert.Equal("Three", cust.LastName);
@@ -1588,8 +1587,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
                 () => (from c in context.Customers
                        select new
                        {
-                           c.Id,
-                           Prods = context.GetTopTwoSellingProducts().ToList(),
+                           c.Id, Prods = context.GetTopTwoSellingProducts().ToList(),
                        }).ToList()).Message;
 
             Assert.Equal(RelationalStrings.InsufficientInformationToIdentifyElementOfCollectionJoin, message);
@@ -1604,8 +1602,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
             var query = (from c in context.Customers
                          select new
                          {
-                             c.Id,
-                             Prods = context.GetTopTwoSellingProducts().Distinct().ToList(),
+                             c.Id, Prods = context.GetTopTwoSellingProducts().Distinct().ToList(),
                          }).ToList();
         }
     }
@@ -1732,8 +1729,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
                 () => (from c in context.Customers
                        select new
                        {
-                           c.Id,
-                           Prods = context.GetTopTwoSellingProducts().Select(p => p.ProductId).ToList(),
+                           c.Id, Prods = context.GetTopTwoSellingProducts().Select(p => p.ProductId).ToList(),
                        }).ToList()).Message;
 
             Assert.Equal(RelationalStrings.InsufficientInformationToIdentifyElementOfCollectionJoin, message);

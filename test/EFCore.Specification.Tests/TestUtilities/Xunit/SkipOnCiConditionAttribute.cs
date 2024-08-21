@@ -7,7 +7,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 public sealed class SkipOnCiConditionAttribute : Attribute, ITestCondition
 {
     public ValueTask<bool> IsMetAsync()
-        => new(Environment.GetEnvironmentVariable("PIPELINE_WORKSPACE") == null
+        => new(
+            Environment.GetEnvironmentVariable("PIPELINE_WORKSPACE") == null
             && Environment.GetEnvironmentVariable("GITHUB_RUN_ID") == null);
 
     public string SkipReason { get; set; } = "Tests not reliable on C.I.";

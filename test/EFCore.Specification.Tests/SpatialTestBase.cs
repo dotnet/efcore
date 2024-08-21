@@ -45,7 +45,7 @@ public abstract class SpatialTestBase<TFixture>(TFixture fixture) : IClassFixtur
 
         Polygon CreatePolygon(double y = 2.2)
             => new(
-                new LinearRing([new(1.1, 2.2), new(2.2, y), new(2.2, 1.1), new(1.1, 2.2)]));
+                new LinearRing([new Coordinate(1.1, 2.2), new Coordinate(2.2, y), new Coordinate(2.2, 1.1), new Coordinate(1.1, 2.2)]));
 
         var id1 = Guid.NewGuid();
         var id2 = Guid.NewGuid();

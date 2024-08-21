@@ -7,7 +7,8 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public class ManyToManyLoadSqlServerTest(ManyToManyLoadSqlServerTest.ManyToManyLoadSqlServerFixture fixture) : ManyToManyLoadTestBase<ManyToManyLoadSqlServerTest.ManyToManyLoadSqlServerFixture>(fixture)
+public class ManyToManyLoadSqlServerTest(ManyToManyLoadSqlServerTest.ManyToManyLoadSqlServerFixture fixture)
+    : ManyToManyLoadTestBase<ManyToManyLoadSqlServerTest.ManyToManyLoadSqlServerFixture>(fixture)
 {
     public override async Task Load_collection(EntityState state, QueryTrackingBehavior queryTrackingBehavior, bool async)
     {

@@ -3,7 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class AspNetIdentityCustomTypesIntKeySqlServerTest(AspNetIdentityCustomTypesIntKeySqlServerTest.AspNetIdentityCustomTypesIntKeySqlServerFixture fixture)
+public class AspNetIdentityCustomTypesIntKeySqlServerTest(
+    AspNetIdentityCustomTypesIntKeySqlServerTest.AspNetIdentityCustomTypesIntKeySqlServerFixture fixture)
     : AspNetIdentityCustomTypesIntKeyTestBase<
         AspNetIdentityCustomTypesIntKeySqlServerTest.AspNetIdentityCustomTypesIntKeySqlServerFixture>(fixture)
 {

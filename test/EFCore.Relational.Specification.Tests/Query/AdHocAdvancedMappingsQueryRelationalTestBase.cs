@@ -71,8 +71,7 @@ public abstract class AdHocAdvancedMappingsQueryRelationalTestBase : AdHocAdvanc
             .Select(
                 x => new
                 {
-                    x.B.A.Id,
-                    x.B.Info.Created,
+                    x.B.A.Id, x.B.Info.Created,
                 }).ToList();
 
         Assert.Equal(new DateTime(2000, 1, 1), query[0].Created);
@@ -153,14 +152,14 @@ public abstract class AdHocAdvancedMappingsQueryRelationalTestBase : AdHocAdvanc
 
         public class Variation : EntityBase
         {
-            public Payment Payment { get; set; } = new Payment(0, 0);
+            public Payment Payment { get; set; } = new(0, 0);
 
             public NestedEntity Nested { get; set; }
         }
 
         public class NestedEntity : EntityBase
         {
-            public Payment Payment { get; set; } = new Payment(0, 0);
+            public Payment Payment { get; set; } = new(0, 0);
         }
 
         public record Payment(decimal Netto, decimal Brutto);

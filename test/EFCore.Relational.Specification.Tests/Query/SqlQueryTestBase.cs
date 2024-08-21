@@ -19,9 +19,7 @@ public abstract class SqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
 
     protected SqlQueryTestBase(TFixture fixture)
         : base(fixture)
-    {
-        Fixture.TestSqlLoggerFactory.Clear();
-    }
+        => Fixture.TestSqlLoggerFactory.Clear();
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -818,7 +816,8 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             _ => Fixture.CreateContext().Database.SqlQueryRaw<UnmappedCustomer>(
                     NormalizeDelimitersInRawString("SELECT * FROM [Customers]"))
                 .Where(c => c.ContactName.Substring(0, 1) == c.CompanyName.Substring(0, 1)),
-            ss => ss.Set<Customer>().Where(c => c.ContactName.Substring(0, 1) == c.CompanyName.Substring(0, 1)).Select(e => UnmappedCustomer.FromCustomer(e)),
+            ss => ss.Set<Customer>().Where(c => c.ContactName.Substring(0, 1) == c.CompanyName.Substring(0, 1))
+                .Select(e => UnmappedCustomer.FromCustomer(e)),
             elementSorter: e => e.CustomerID,
             elementAsserter: AssertUnmappedCustomers);
 

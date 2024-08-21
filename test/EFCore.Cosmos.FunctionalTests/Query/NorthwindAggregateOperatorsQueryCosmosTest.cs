@@ -1447,15 +1447,15 @@ OFFSET 0 LIMIT 1
                 await base.Contains_with_local_array_closure(a);
 
                 AssertSql(
-    """
+                    """
 @__ids_0='["ABCDE","ALFKI"]'
 
 SELECT VALUE c
 FROM root c
 WHERE ARRAY_CONTAINS(@__ids_0, c["id"])
 """,
-    //
-    """
+                    //
+                    """
 @__ids_0='["ABCDE"]'
 
 SELECT VALUE c
@@ -1610,8 +1610,8 @@ SELECT VALUE c
 FROM root c
 WHERE ARRAY_CONTAINS(@__p_0, c["id"])
 """,
-    //
-    """
+                    //
+                    """
 @__p_0='["ABCDE","ANATR"]'
 
 SELECT VALUE c
@@ -1709,8 +1709,8 @@ WHERE EXISTS (
     FROM p IN (SELECT VALUE @__p_0)
     WHERE ((p != null) AND (p = c["id"])))
 """,
-    //
-    """
+                    //
+                    """
 @__p_0='["ABCDE","ANATR"]'
 
 SELECT VALUE c
@@ -1830,8 +1830,8 @@ SELECT VALUE c
 FROM root c
 WHERE ARRAY_CONTAINS(@__ids_0, c["id"])
 """,
-    //
-    """
+                    //
+                    """
 @__ids_0='["ABCDE"]'
 
 SELECT VALUE c
@@ -1900,8 +1900,8 @@ SELECT VALUE c
 FROM root c
 WHERE ARRAY_CONTAINS(@__AsReadOnly_0, c["id"])
 """,
-    //
-    """
+                    //
+                    """
 @__AsReadOnly_0='["ABCDE","ANATR"]'
 
 SELECT VALUE c
@@ -2401,8 +2401,8 @@ SELECT VALUE c
 FROM root c
 WHERE ((c["City"] = "México D.F.") AND ARRAY_CONTAINS(@__ids_0, c["id"]))
 """,
-    //
-    """
+                    //
+                    """
 @__ids_0='["ABCDE","ALFKI","ANATR"]'
 
 SELECT VALUE c
@@ -2471,8 +2471,8 @@ SELECT VALUE c
 FROM root c
 WHERE ((c["City"] = "México D.F.") AND NOT(ARRAY_CONTAINS(@__ids_0, c["id"])))
 """,
-    //
-    """
+                    //
+                    """
 @__ids_0='["ABCDE","ALFKI","ANATR"]'
 
 SELECT VALUE c

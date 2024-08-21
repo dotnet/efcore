@@ -27,6 +27,7 @@ public abstract class NonSharedModelBulkUpdatesRelationalTestBase : NonSharedMod
                 context => context.Set<Owner>(), rowsAffectedCount: 0),
             RelationalStrings.ExecuteDeleteOnTableSplitting(nameof(Owner)));
     }
+
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Update_main_table_in_entity_with_entity_splitting(bool async)

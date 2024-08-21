@@ -313,8 +313,8 @@ public class ChangeDetectionProxyTests
         bool useLazyLoading = false,
         bool checkEquality = true,
         Action<EntityTypeBuilder<TEntity>> entityBuilderAction = null) : TestContext<TEntity>(
-            dbName: "ChangeDetectionContext", useLazyLoading: useLazyLoading, useChangeDetection: true,
-            checkEquality: checkEquality)
+        dbName: "ChangeDetectionContext", useLazyLoading: useLazyLoading, useChangeDetection: true,
+        checkEquality: checkEquality)
         where TEntity : class
     {
         private readonly Action<EntityTypeBuilder<TEntity>> _entityBuilderAction = entityBuilderAction;

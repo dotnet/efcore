@@ -134,7 +134,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
     protected async Task Can_insert_when_PK_property_in_composite_key_has_sentinel_value<T>(bool async, T initialValue)
         where T : new()
     {
-        var inserted = new CompositeKeyWith<T>()
+        var inserted = new CompositeKeyWith<T>
         {
             SourceId = Guid.NewGuid(),
             TargetId = Guid.NewGuid(),
@@ -184,7 +184,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
     protected async Task Throws_for_single_property_key_with_default_value_generation<T>(bool async, T initialValue)
         where T : new()
     {
-        var inserted = new BoolOnlyKey<T>() { PrimaryGroup = initialValue };
+        var inserted = new BoolOnlyKey<T> { PrimaryGroup = initialValue };
 
         await ExecuteWithStrategyInTransactionAsync(
             async context =>
@@ -410,7 +410,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
                 }
 
                 owner.OwnedCollection = addNew
-                    ? [new(), new()]
+                    ? [new Owned(), new Owned()]
                     : new List<Owned>();
 
                 Assert.Equal(
@@ -636,11 +636,11 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
                 }
 
                 owner.OwnedCollection = addNew
-                    ? [new() { Bar = "OfGold" }, new() { Bar = "OfSoap" }]
+                    ? [new OwnedWithKey { Bar = "OfGold" }, new OwnedWithKey { Bar = "OfSoap" }]
                     : new List<OwnedWithKey>();
 
                 owner.OwnedCollectionPrivateKey = addNew
-                    ? [new() { Bar = "OfChocolate" }, new() { Bar = "OfLead" }]
+                    ? [new OwnedWithPrivateKey { Bar = "OfChocolate" }, new OwnedWithPrivateKey { Bar = "OfLead" }]
                     : new List<OwnedWithPrivateKey>();
 
                 if (async)
@@ -1766,8 +1766,8 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
                     context.Entry(root.RequiredSingle).State = EntityState.Deleted;
                 }
 
-                root.OptionalSingle = new() { Name = "OS`", Single = new() { Name = "OS2`" } };
-                root.RequiredSingle = new() { Name = "RS`", Single = new() { Name = "RS2`" } };
+                root.OptionalSingle = new OwnedOptionalSingle1 { Name = "OS`", Single = new OwnedOptionalSingle2 { Name = "OS2`" } };
+                root.RequiredSingle = new OwnedRequiredSingle1 { Name = "RS`", Single = new OwnedRequiredSingle2 { Name = "RS2`" } };
 
                 Assert.True(context.ChangeTracker.HasChanges());
 
@@ -1812,10 +1812,18 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
 
                 root.OptionalChildren.Remove(optionalChildren);
                 root.RequiredChildren.Remove(requiredChildren);
-                root.OptionalChildren.First().Children.Add(new() { Name = "OCC3" });
-                root.OptionalChildren.Add(new() { Name = "OC3", Children = { new() { Name = "OCC4" }, new() { Name = "OCC5" } } });
-                root.RequiredChildren.First().Children.Add(new() { Name = "RCC3" });
-                root.RequiredChildren.Add(new() { Name = "RC3", Children = { new() { Name = "RCC4" }, new() { Name = "RCC5" } } });
+                root.OptionalChildren.First().Children.Add(new OwnedOptional2 { Name = "OCC3" });
+                root.OptionalChildren.Add(
+                    new OwnedOptional1
+                    {
+                        Name = "OC3", Children = { new OwnedOptional2 { Name = "OCC4" }, new OwnedOptional2 { Name = "OCC5" } }
+                    });
+                root.RequiredChildren.First().Children.Add(new OwnedRequired2 { Name = "RCC3" });
+                root.RequiredChildren.Add(
+                    new OwnedRequired1
+                    {
+                        Name = "RC3", Children = { new OwnedRequired2 { Name = "RCC4" }, new OwnedRequired2 { Name = "RCC5" } }
+                    });
 
                 Assert.True(context.ChangeTracker.HasChanges());
 
@@ -2292,7 +2300,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
                     ? await context.FindAsync<StableParent32084>(parentId)
                     : context.Find<StableParent32084>(parentId);
 
-                var child = new StableChild32084()
+                var child = new StableChild32084
                 {
                     Id = childId, ParentId = parent!.Id,
                 };

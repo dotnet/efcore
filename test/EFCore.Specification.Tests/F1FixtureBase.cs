@@ -17,26 +17,28 @@ public abstract class F1FixtureBase<TRowVersion> : SharedStoreFixtureBase<F1Cont
     public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
         => base.AddOptions(builder)
             .UseModel(CreateModelExternal())
-            .UseSeeding((c, _) =>
-            {
-                if (!ShouldSeed((F1Context)c))
+            .UseSeeding(
+                (c, _) =>
                 {
-                    return;
-                }
+                    if (!ShouldSeed((F1Context)c))
+                    {
+                        return;
+                    }
 
-                F1Context.AddSeedData((F1Context)c);
-                c.SaveChanges();
-            })
-            .UseAsyncSeeding(async (c, _, t) =>
-            {
-                if (!await ShouldSeedAsync((F1Context)c))
+                    F1Context.AddSeedData((F1Context)c);
+                    c.SaveChanges();
+                })
+            .UseAsyncSeeding(
+                async (c, _, t) =>
                 {
-                    return;
-                }
+                    if (!await ShouldSeedAsync((F1Context)c))
+                    {
+                        return;
+                    }
 
-                F1Context.AddSeedData((F1Context)c);
-                await c.SaveChangesAsync(t);
-            })
+                    F1Context.AddSeedData((F1Context)c);
+                    await c.SaveChangesAsync(t);
+                })
             .ConfigureWarnings(
                 w => w.Ignore(CoreEventId.SaveChangesStarting, CoreEventId.SaveChangesCompleted));
 

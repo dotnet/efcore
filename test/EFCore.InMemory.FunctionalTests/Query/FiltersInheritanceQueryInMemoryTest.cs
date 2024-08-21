@@ -3,4 +3,5 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class FiltersInheritanceQueryInMemoryTest(FiltersInheritanceQueryInMemoryFixture fixture) : FiltersInheritanceQueryTestBase<FiltersInheritanceQueryInMemoryFixture>(fixture);
+public class FiltersInheritanceQueryInMemoryTest(FiltersInheritanceQueryInMemoryFixture fixture)
+    : FiltersInheritanceQueryTestBase<FiltersInheritanceQueryInMemoryFixture>(fixture);

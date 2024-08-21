@@ -100,11 +100,7 @@ public class SpatialData(GeometryFactory factory) : ISetSource
     public static IReadOnlyList<LineStringEntity> CreateLineStringEntities(GeometryFactory factory)
         => new[]
         {
-            new LineStringEntity
-            {
-                Id = 1,
-                LineString = factory.CreateLineString([new(0, 0), new(1, 0)])
-            },
+            new LineStringEntity { Id = 1, LineString = factory.CreateLineString([new Coordinate(0, 0), new Coordinate(1, 0)]) },
             new LineStringEntity { Id = 2, LineString = null }
         };
 
@@ -128,8 +124,8 @@ public class SpatialData(GeometryFactory factory) : ISetSource
                 Id = 1,
                 MultiLineString = factory.CreateMultiLineString(
                 [
-                    factory.CreateLineString([new(0, 0), new(0, 1)]),
-                        factory.CreateLineString([new(1, 0), new(1, 1)])
+                    factory.CreateLineString([new Coordinate(0, 0), new Coordinate(0, 1)]),
+                    factory.CreateLineString([new Coordinate(1, 0), new Coordinate(1, 1)])
                 ])
             },
             new MultiLineStringEntity { Id = 2, MultiLineString = null }

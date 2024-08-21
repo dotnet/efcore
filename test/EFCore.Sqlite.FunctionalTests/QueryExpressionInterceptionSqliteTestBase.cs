@@ -33,7 +33,8 @@ public abstract class QueryExpressionInterceptionSqliteTestBase(
         }
     }
 
-    public class QueryExpressionInterceptionWithDiagnosticsSqliteTest(QueryExpressionInterceptionWithDiagnosticsSqliteTest.InterceptionSqliteFixture fixture)
+    public class QueryExpressionInterceptionWithDiagnosticsSqliteTest(
+        QueryExpressionInterceptionWithDiagnosticsSqliteTest.InterceptionSqliteFixture fixture)
         : QueryExpressionInterceptionSqliteTestBase(fixture),
             IClassFixture<QueryExpressionInterceptionWithDiagnosticsSqliteTest.InterceptionSqliteFixture>
     {

@@ -73,7 +73,8 @@ public abstract class ConnectionInterceptionSqlServerTestBase(
         }
     }
 
-    public class ConnectionInterceptionWithConnectionStringSqlServerTest(ConnectionInterceptionWithConnectionStringSqlServerTest.InterceptionSqlServerFixture fixture)
+    public class ConnectionInterceptionWithConnectionStringSqlServerTest(
+        ConnectionInterceptionWithConnectionStringSqlServerTest.InterceptionSqlServerFixture fixture)
         : ConnectionInterceptionSqlServerTestBase(fixture),
             IClassFixture<ConnectionInterceptionWithConnectionStringSqlServerTest.InterceptionSqlServerFixture>
     {
@@ -87,8 +88,9 @@ public abstract class ConnectionInterceptionSqlServerTestBase(
             => optionsBuilder.UseSqlServer("Database=Dummy");
     }
 
-    public class ConnectionInterceptionWithDiagnosticsSqlServerTest(ConnectionInterceptionWithDiagnosticsSqlServerTest.InterceptionSqlServerFixture fixture)
-                : ConnectionInterceptionSqlServerTestBase(fixture),
+    public class ConnectionInterceptionWithDiagnosticsSqlServerTest(
+        ConnectionInterceptionWithDiagnosticsSqlServerTest.InterceptionSqlServerFixture fixture)
+        : ConnectionInterceptionSqlServerTestBase(fixture),
             IClassFixture<ConnectionInterceptionWithDiagnosticsSqlServerTest.InterceptionSqlServerFixture>
     {
         public class InterceptionSqlServerFixture : InterceptionSqlServerFixtureBase

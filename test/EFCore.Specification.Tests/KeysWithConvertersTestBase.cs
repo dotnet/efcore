@@ -451,7 +451,8 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
             dependents =
             [
                 await context.Set<IntStructKeyRequiredDependent>().FirstOrDefaultAsync(e => e.Id.Equals(new IntStructKey { Id = 111 })),
-                await context.Set<IntStructKeyRequiredDependent>().FirstOrDefaultAsync(e => e.Id.Equals(new IntStructKey { Id = oneTwelve })),
+                await context.Set<IntStructKeyRequiredDependent>()
+                    .FirstOrDefaultAsync(e => e.Id.Equals(new IntStructKey { Id = oneTwelve })),
                 await context.Set<IntStructKeyRequiredDependent>().FirstOrDefaultAsync(e => e.Id.Equals(oneThirteen)),
                 await context.Set<IntStructKeyRequiredDependent>().FirstOrDefaultAsync(e => e.Id.Equals(new IntStructKey { Id = 114 })),
                 await context.Set<IntStructKeyRequiredDependent>()
@@ -463,7 +464,8 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
             Assert.Same(dependents[1], await context.Set<IntStructKeyRequiredDependent>().FindAsync(new IntStructKey { Id = oneTwelve }));
             Assert.Same(dependents[2], await context.Set<IntStructKeyRequiredDependent>().FindAsync(oneThirteen));
             Assert.Same(dependents[3], await context.FindAsync(typeof(IntStructKeyRequiredDependent), new IntStructKey { Id = 114 }));
-            Assert.Same(dependents[4], await context.FindAsync(typeof(IntStructKeyRequiredDependent), new IntStructKey { Id = oneFifteeen }));
+            Assert.Same(
+                dependents[4], await context.FindAsync(typeof(IntStructKeyRequiredDependent), new IntStructKey { Id = oneFifteeen }));
             Assert.Same(dependents[5], await context.FindAsync(typeof(IntStructKeyRequiredDependent), oneSixteen));
         }
 
@@ -574,13 +576,15 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
             ];
 
             Assert.Same(
-                dependents[0], await context.Set<ComparableIntStructKeyRequiredDependent>().FindAsync(new ComparableIntStructKey { Id = 111 }));
+                dependents[0],
+                await context.Set<ComparableIntStructKeyRequiredDependent>().FindAsync(new ComparableIntStructKey { Id = 111 }));
             Assert.Same(
                 dependents[1],
                 await context.Set<ComparableIntStructKeyRequiredDependent>().FindAsync(new ComparableIntStructKey { Id = oneTwelve }));
             Assert.Same(dependents[2], await context.Set<ComparableIntStructKeyRequiredDependent>().FindAsync(oneThirteen));
             Assert.Same(
-                dependents[3], await context.FindAsync(typeof(ComparableIntStructKeyRequiredDependent), new ComparableIntStructKey { Id = 114 }));
+                dependents[3],
+                await context.FindAsync(typeof(ComparableIntStructKeyRequiredDependent), new ComparableIntStructKey { Id = 114 }));
             Assert.Same(
                 dependents[4],
                 await context.FindAsync(typeof(ComparableIntStructKeyRequiredDependent), new ComparableIntStructKey { Id = oneFifteeen }));
@@ -695,7 +699,8 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
 
             Assert.Same(
                 dependents[0],
-                await context.Set<GenericComparableIntStructKeyRequiredDependent>().FindAsync(new GenericComparableIntStructKey { Id = 111 }));
+                await context.Set<GenericComparableIntStructKeyRequiredDependent>()
+                    .FindAsync(new GenericComparableIntStructKey { Id = 111 }));
             Assert.Same(
                 dependents[1],
                 await context.Set<GenericComparableIntStructKeyRequiredDependent>()
@@ -703,7 +708,8 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
             Assert.Same(dependents[2], await context.Set<GenericComparableIntStructKeyRequiredDependent>().FindAsync(oneThirteen));
             Assert.Same(
                 dependents[3],
-                await context.FindAsync(typeof(GenericComparableIntStructKeyRequiredDependent), new GenericComparableIntStructKey { Id = 114 }));
+                await context.FindAsync(
+                    typeof(GenericComparableIntStructKeyRequiredDependent), new GenericComparableIntStructKey { Id = 114 }));
             Assert.Same(
                 dependents[4],
                 await context.FindAsync(
@@ -924,7 +930,8 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
             ];
 
             Assert.Same(dependents[0], await context.Set<EnumerableClassKeyOptionalDependent>().FindAsync(new EnumerableClassKey(101)));
-            Assert.Same(dependents[1], await context.Set<EnumerableClassKeyOptionalDependent>().FindAsync(new EnumerableClassKey(oneOhTwo)));
+            Assert.Same(
+                dependents[1], await context.Set<EnumerableClassKeyOptionalDependent>().FindAsync(new EnumerableClassKey(oneOhTwo)));
             Assert.Same(dependents[2], await context.Set<EnumerableClassKeyOptionalDependent>().FindAsync(oneOhThree));
             Assert.Same(dependents[3], await context.FindAsync<EnumerableClassKeyOptionalDependent>(new EnumerableClassKey(104)));
             Assert.Same(dependents[4], await context.FindAsync<EnumerableClassKeyOptionalDependent>(new EnumerableClassKey(oneOhFive)));
@@ -1764,11 +1771,13 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
 
             Assert.Same(
                 dependents[0], await context.Set<BytesStructKeyRequiredDependent>().FindAsync(new BytesStructKey { Id = [111] }));
-            Assert.Same(dependents[1], await context.Set<BytesStructKeyRequiredDependent>().FindAsync(new BytesStructKey { Id = oneTwelve }));
+            Assert.Same(
+                dependents[1], await context.Set<BytesStructKeyRequiredDependent>().FindAsync(new BytesStructKey { Id = oneTwelve }));
             Assert.Same(dependents[2], await context.Set<BytesStructKeyRequiredDependent>().FindAsync(oneThirteen));
             Assert.Same(
                 dependents[3], await context.FindAsync(typeof(BytesStructKeyRequiredDependent), new BytesStructKey { Id = [114] }));
-            Assert.Same(dependents[4], await context.FindAsync(typeof(BytesStructKeyRequiredDependent), new BytesStructKey { Id = oneFifteeen }));
+            Assert.Same(
+                dependents[4], await context.FindAsync(typeof(BytesStructKeyRequiredDependent), new BytesStructKey { Id = oneFifteeen }));
             Assert.Same(dependents[5], await context.FindAsync(typeof(BytesStructKeyRequiredDependent), oneSixteen));
         }
 
@@ -1892,7 +1901,8 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
                     typeof(ComparableBytesStructKeyRequiredDependent), new ComparableBytesStructKey { Id = [114] }));
             Assert.Same(
                 dependents[4],
-                await context.FindAsync(typeof(ComparableBytesStructKeyRequiredDependent), new ComparableBytesStructKey { Id = oneFifteeen }));
+                await context.FindAsync(
+                    typeof(ComparableBytesStructKeyRequiredDependent), new ComparableBytesStructKey { Id = oneFifteeen }));
             Assert.Same(dependents[5], await context.FindAsync(typeof(ComparableBytesStructKeyRequiredDependent), oneSixteen));
         }
 
@@ -2250,7 +2260,8 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
 
         using (var context = CreateContext())
         {
-            var owner = await context.Set<OwnerBytesStructKey>().SingleAsync(o => o.Id.Equals(new BytesStructKey(new byte[] { 1, 5, 7, 1 })));
+            var owner = await context.Set<OwnerBytesStructKey>()
+                .SingleAsync(o => o.Id.Equals(new BytesStructKey(new byte[] { 1, 5, 7, 1 })));
             Assert.Equal(77, owner.Owned.Position);
 
             owner.Owned = new OwnedBytesStructKey(88);
@@ -2491,7 +2502,8 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
 
         using (var context = CreateContext())
         {
-            var owner = await context.Set<OwnerGenericComparableIntClassKey>().SingleAsync(o => o.Id.Equals(new GenericComparableIntClassKey(1)));
+            var owner = await context.Set<OwnerGenericComparableIntClassKey>()
+                .SingleAsync(o => o.Id.Equals(new GenericComparableIntClassKey(1)));
             Assert.Equal(77, owner.Owned.Position);
 
             owner.Owned = new OwnedGenericComparableIntClassKey(88);
@@ -2779,12 +2791,15 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
             ];
 
             Assert.Same(
-                dependents[0], await context.Set<ComparableIntStructKeyOptionalDependentShadow>().FindAsync(new ComparableIntStructKey(101)));
+                dependents[0],
+                await context.Set<ComparableIntStructKeyOptionalDependentShadow>().FindAsync(new ComparableIntStructKey(101)));
             Assert.Same(
-                dependents[1], await context.Set<ComparableIntStructKeyOptionalDependentShadow>().FindAsync(new ComparableIntStructKey(oneOhTwo)));
+                dependents[1],
+                await context.Set<ComparableIntStructKeyOptionalDependentShadow>().FindAsync(new ComparableIntStructKey(oneOhTwo)));
             Assert.Same(dependents[2], await context.Set<ComparableIntStructKeyOptionalDependentShadow>().FindAsync(oneOhThree));
             Assert.Same(
-                dependents[3], await context.FindAsync(typeof(ComparableIntStructKeyOptionalDependentShadow), new ComparableIntStructKey(104)));
+                dependents[3],
+                await context.FindAsync(typeof(ComparableIntStructKeyOptionalDependentShadow), new ComparableIntStructKey(104)));
             Assert.Same(
                 dependents[4],
                 await context.FindAsync(typeof(ComparableIntStructKeyOptionalDependentShadow), new ComparableIntStructKey(oneOhFive)));
@@ -2963,14 +2978,17 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
 
             Assert.Same(
                 dependents[0],
-                await context.Set<GenericComparableIntStructKeyOptionalDependentShadow>().FindAsync(new GenericComparableIntStructKey(101)));
+                await context.Set<GenericComparableIntStructKeyOptionalDependentShadow>()
+                    .FindAsync(new GenericComparableIntStructKey(101)));
             Assert.Same(
                 dependents[1],
-                await context.Set<GenericComparableIntStructKeyOptionalDependentShadow>().FindAsync(new GenericComparableIntStructKey(oneOhTwo)));
+                await context.Set<GenericComparableIntStructKeyOptionalDependentShadow>()
+                    .FindAsync(new GenericComparableIntStructKey(oneOhTwo)));
             Assert.Same(dependents[2], await context.Set<GenericComparableIntStructKeyOptionalDependentShadow>().FindAsync(oneOhThree));
             Assert.Same(
                 dependents[3],
-                await context.FindAsync(typeof(GenericComparableIntStructKeyOptionalDependentShadow), new GenericComparableIntStructKey(104)));
+                await context.FindAsync(
+                    typeof(GenericComparableIntStructKeyOptionalDependentShadow), new GenericComparableIntStructKey(104)));
             Assert.Same(
                 dependents[4],
                 await context.FindAsync(
@@ -3120,18 +3138,21 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
 
             dependents =
             [
-                await context.Set<IntStructKeyRequiredDependentShadow>().FirstOrDefaultAsync(e => e.Id.Equals(new IntStructKey { Id = 111 })),
+                await context.Set<IntStructKeyRequiredDependentShadow>()
+                    .FirstOrDefaultAsync(e => e.Id.Equals(new IntStructKey { Id = 111 })),
                 await context.Set<IntStructKeyRequiredDependentShadow>()
                     .FirstOrDefaultAsync(e => e.Id.Equals(new IntStructKey { Id = oneTwelve })),
                 await context.Set<IntStructKeyRequiredDependentShadow>().FirstOrDefaultAsync(e => e.Id.Equals(oneThirteen)),
-                await context.Set<IntStructKeyRequiredDependentShadow>().FirstOrDefaultAsync(e => e.Id.Equals(new IntStructKey { Id = 114 })),
+                await context.Set<IntStructKeyRequiredDependentShadow>()
+                    .FirstOrDefaultAsync(e => e.Id.Equals(new IntStructKey { Id = 114 })),
                 await context.Set<IntStructKeyRequiredDependentShadow>()
                     .FirstOrDefaultAsync(e => e.Id.Equals(new IntStructKey { Id = oneFifteeen })),
                 await context.Set<IntStructKeyRequiredDependentShadow>().FirstOrDefaultAsync(e => e.Id.Equals(oneSixteen))
             ];
 
             Assert.Same(dependents[0], await context.Set<IntStructKeyRequiredDependentShadow>().FindAsync(new IntStructKey { Id = 111 }));
-            Assert.Same(dependents[1], await context.Set<IntStructKeyRequiredDependentShadow>().FindAsync(new IntStructKey { Id = oneTwelve }));
+            Assert.Same(
+                dependents[1], await context.Set<IntStructKeyRequiredDependentShadow>().FindAsync(new IntStructKey { Id = oneTwelve }));
             Assert.Same(dependents[2], await context.Set<IntStructKeyRequiredDependentShadow>().FindAsync(oneThirteen));
             Assert.Same(dependents[3], await context.FindAsync(typeof(IntStructKeyRequiredDependentShadow), new IntStructKey { Id = 114 }));
             Assert.Same(
@@ -3294,14 +3315,16 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
                 await context.Set<ComparableIntStructKeyRequiredDependentShadow>().FindAsync(new ComparableIntStructKey { Id = 111 }));
             Assert.Same(
                 dependents[1],
-                await context.Set<ComparableIntStructKeyRequiredDependentShadow>().FindAsync(new ComparableIntStructKey { Id = oneTwelve }));
+                await context.Set<ComparableIntStructKeyRequiredDependentShadow>()
+                    .FindAsync(new ComparableIntStructKey { Id = oneTwelve }));
             Assert.Same(dependents[2], await context.Set<ComparableIntStructKeyRequiredDependentShadow>().FindAsync(oneThirteen));
             Assert.Same(
                 dependents[3],
                 await context.FindAsync(typeof(ComparableIntStructKeyRequiredDependentShadow), new ComparableIntStructKey { Id = 114 }));
             Assert.Same(
                 dependents[4],
-                await context.FindAsync(typeof(ComparableIntStructKeyRequiredDependentShadow), new ComparableIntStructKey { Id = oneFifteeen }));
+                await context.FindAsync(
+                    typeof(ComparableIntStructKeyRequiredDependentShadow), new ComparableIntStructKey { Id = oneFifteeen }));
             Assert.Same(dependents[5], await context.FindAsync(typeof(ComparableIntStructKeyRequiredDependentShadow), oneSixteen));
         }
 
@@ -3466,7 +3489,8 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
                     .FirstOrDefaultAsync(e => e.Id.Equals(new GenericComparableIntStructKey { Id = 111 })),
                 await context.Set<GenericComparableIntStructKeyRequiredDependentShadow>()
                     .FirstOrDefaultAsync(e => e.Id.Equals(new GenericComparableIntStructKey { Id = oneTwelve })),
-                await context.Set<GenericComparableIntStructKeyRequiredDependentShadow>().FirstOrDefaultAsync(e => e.Id.Equals(oneThirteen)),
+                await context.Set<GenericComparableIntStructKeyRequiredDependentShadow>()
+                    .FirstOrDefaultAsync(e => e.Id.Equals(oneThirteen)),
                 await context.Set<GenericComparableIntStructKeyRequiredDependentShadow>()
                     .FirstOrDefaultAsync(e => e.Id.Equals(new GenericComparableIntStructKey { Id = 114 })),
                 await context.Set<GenericComparableIntStructKeyRequiredDependentShadow>()
@@ -3800,7 +3824,8 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
             ];
 
             Assert.Same(dependents[0], await context.Set<BareIntClassKeyOptionalDependentShadow>().FindAsync(new BareIntClassKey(101)));
-            Assert.Same(dependents[1], await context.Set<BareIntClassKeyOptionalDependentShadow>().FindAsync(new BareIntClassKey(oneOhTwo)));
+            Assert.Same(
+                dependents[1], await context.Set<BareIntClassKeyOptionalDependentShadow>().FindAsync(new BareIntClassKey(oneOhTwo)));
             Assert.Same(dependents[2], await context.Set<BareIntClassKeyOptionalDependentShadow>().FindAsync(oneOhThree));
             Assert.Same(dependents[3], await context.FindAsync<BareIntClassKeyOptionalDependentShadow>(new BareIntClassKey(104)));
             Assert.Same(dependents[4], await context.FindAsync<BareIntClassKeyOptionalDependentShadow>(new BareIntClassKey(oneOhFive)));
@@ -3963,9 +3988,11 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
             Assert.Same(
                 dependents[0], await context.Set<ComparableIntClassKeyOptionalDependentShadow>().FindAsync(new ComparableIntClassKey(101)));
             Assert.Same(
-                dependents[1], await context.Set<ComparableIntClassKeyOptionalDependentShadow>().FindAsync(new ComparableIntClassKey(oneOhTwo)));
+                dependents[1],
+                await context.Set<ComparableIntClassKeyOptionalDependentShadow>().FindAsync(new ComparableIntClassKey(oneOhTwo)));
             Assert.Same(dependents[2], await context.Set<ComparableIntClassKeyOptionalDependentShadow>().FindAsync(oneOhThree));
-            Assert.Same(dependents[3], await context.FindAsync<ComparableIntClassKeyOptionalDependentShadow>(new ComparableIntClassKey(104)));
+            Assert.Same(
+                dependents[3], await context.FindAsync<ComparableIntClassKeyOptionalDependentShadow>(new ComparableIntClassKey(104)));
             Assert.Same(
                 dependents[4], await context.FindAsync<ComparableIntClassKeyOptionalDependentShadow>(new ComparableIntClassKey(oneOhFive)));
             Assert.Same(dependents[5], await context.FindAsync<ComparableIntClassKeyOptionalDependentShadow>(oneOhSix));
@@ -4131,7 +4158,8 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
             Assert.Same(
                 dependents[3],
                 await context.FindAsync(typeof(BytesStructKeyOptionalDependentShadow), new BytesStructKey { Id = [104] }));
-            Assert.Same(dependents[4], await context.FindAsync(typeof(BytesStructKeyOptionalDependentShadow), new BytesStructKey(oneOhFive)));
+            Assert.Same(
+                dependents[4], await context.FindAsync(typeof(BytesStructKeyOptionalDependentShadow), new BytesStructKey(oneOhFive)));
             Assert.Same(dependents[5], await context.FindAsync(typeof(BytesStructKeyOptionalDependentShadow), oneOhSix));
         }
 
@@ -4216,10 +4244,7 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
                 {
                     Id = new StructuralComparableBytesStructKey([105]), Principal = principals0[2]
                 },
-                new StructuralComparableBytesStructKeyOptionalDependentShadow
-                {
-                    Id = new StructuralComparableBytesStructKey([106])
-                });
+                new StructuralComparableBytesStructKeyOptionalDependentShadow { Id = new StructuralComparableBytesStructKey([106]) });
 
             Assert.Equal(10, await context.SaveChangesAsync());
         }
@@ -4322,7 +4347,8 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
                 dependents[1],
                 await context.Set<StructuralComparableBytesStructKeyOptionalDependentShadow>()
                     .FindAsync(new StructuralComparableBytesStructKey(oneOhTwo)));
-            Assert.Same(dependents[2], await context.Set<StructuralComparableBytesStructKeyOptionalDependentShadow>().FindAsync(oneOhThree));
+            Assert.Same(
+                dependents[2], await context.Set<StructuralComparableBytesStructKeyOptionalDependentShadow>().FindAsync(oneOhThree));
             Assert.Same(
                 dependents[3],
                 await context.FindAsync(
@@ -4333,7 +4359,8 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
                 await context.FindAsync(
                     typeof(StructuralComparableBytesStructKeyOptionalDependentShadow),
                     new StructuralComparableBytesStructKey(oneOhFive)));
-            Assert.Same(dependents[5], await context.FindAsync(typeof(StructuralComparableBytesStructKeyOptionalDependentShadow), oneOhSix));
+            Assert.Same(
+                dependents[5], await context.FindAsync(typeof(StructuralComparableBytesStructKeyOptionalDependentShadow), oneOhSix));
         }
 
         void Validate(
@@ -4606,10 +4633,7 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
                 {
                     Id = new GenericComparableBytesStructKey([105]), Principal = principals0[2]
                 },
-                new GenericComparableBytesStructKeyOptionalDependentShadow
-                {
-                    Id = new GenericComparableBytesStructKey([106])
-                });
+                new GenericComparableBytesStructKeyOptionalDependentShadow { Id = new GenericComparableBytesStructKey([106]) });
 
             Assert.Equal(10, await context.SaveChangesAsync());
         }
@@ -4890,7 +4914,8 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
                 dependents[3],
                 await context.FindAsync(typeof(BytesStructKeyRequiredDependentShadow), new BytesStructKey { Id = [114] }));
             Assert.Same(
-                dependents[4], await context.FindAsync(typeof(BytesStructKeyRequiredDependentShadow), new BytesStructKey { Id = oneFifteeen }));
+                dependents[4],
+                await context.FindAsync(typeof(BytesStructKeyRequiredDependentShadow), new BytesStructKey { Id = oneFifteeen }));
             Assert.Same(dependents[5], await context.FindAsync(typeof(BytesStructKeyRequiredDependentShadow), oneSixteen));
         }
 
@@ -5075,7 +5100,8 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
                     .FindAsync(new ComparableBytesStructKey { Id = [111] }));
             Assert.Same(
                 dependents[1],
-                await context.Set<ComparableBytesStructKeyRequiredDependentShadow>().FindAsync(new ComparableBytesStructKey { Id = oneTwelve }));
+                await context.Set<ComparableBytesStructKeyRequiredDependentShadow>()
+                    .FindAsync(new ComparableBytesStructKey { Id = oneTwelve }));
             Assert.Same(dependents[2], await context.Set<ComparableBytesStructKeyRequiredDependentShadow>().FindAsync(oneThirteen));
             Assert.Same(
                 dependents[3],
@@ -5260,12 +5286,14 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
                     .FirstOrDefaultAsync(e => e.Id.Equals(new StructuralComparableBytesStructKey { Id = new byte[] { 111 } })),
                 await context.Set<StructuralComparableBytesStructKeyRequiredDependentShadow>()
                     .FirstOrDefaultAsync(e => e.Id.Equals(new StructuralComparableBytesStructKey { Id = oneTwelve })),
-                await context.Set<StructuralComparableBytesStructKeyRequiredDependentShadow>().FirstOrDefaultAsync(e => e.Id.Equals(oneThirteen)),
+                await context.Set<StructuralComparableBytesStructKeyRequiredDependentShadow>()
+                    .FirstOrDefaultAsync(e => e.Id.Equals(oneThirteen)),
                 await context.Set<StructuralComparableBytesStructKeyRequiredDependentShadow>()
                     .FirstOrDefaultAsync(e => e.Id.Equals(new StructuralComparableBytesStructKey { Id = new byte[] { 114 } })),
                 await context.Set<StructuralComparableBytesStructKeyRequiredDependentShadow>()
                     .FirstOrDefaultAsync(e => e.Id.Equals(new StructuralComparableBytesStructKey { Id = oneFifteeen })),
-                await context.Set<StructuralComparableBytesStructKeyRequiredDependentShadow>().FirstOrDefaultAsync(e => e.Id.Equals(oneSixteen))
+                await context.Set<StructuralComparableBytesStructKeyRequiredDependentShadow>()
+                    .FirstOrDefaultAsync(e => e.Id.Equals(oneSixteen))
             ];
 
             Assert.Same(
@@ -5276,7 +5304,8 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
                 dependents[1],
                 await context.Set<StructuralComparableBytesStructKeyRequiredDependentShadow>()
                     .FindAsync(new StructuralComparableBytesStructKey { Id = oneTwelve }));
-            Assert.Same(dependents[2], await context.Set<StructuralComparableBytesStructKeyRequiredDependentShadow>().FindAsync(oneThirteen));
+            Assert.Same(
+                dependents[2], await context.Set<StructuralComparableBytesStructKeyRequiredDependentShadow>().FindAsync(oneThirteen));
             Assert.Same(
                 dependents[3],
                 await context.FindAsync(
@@ -5287,7 +5316,8 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
                 await context.FindAsync(
                     typeof(StructuralComparableBytesStructKeyRequiredDependentShadow),
                     new StructuralComparableBytesStructKey { Id = oneFifteeen }));
-            Assert.Same(dependents[5], await context.FindAsync(typeof(StructuralComparableBytesStructKeyRequiredDependentShadow), oneSixteen));
+            Assert.Same(
+                dependents[5], await context.FindAsync(typeof(StructuralComparableBytesStructKeyRequiredDependentShadow), oneSixteen));
         }
 
         void Validate(
@@ -5462,12 +5492,14 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
                     .FirstOrDefaultAsync(e => e.Id.Equals(new GenericComparableBytesStructKey { Id = new byte[] { 111 } })),
                 await context.Set<GenericComparableBytesStructKeyRequiredDependentShadow>()
                     .FirstOrDefaultAsync(e => e.Id.Equals(new GenericComparableBytesStructKey { Id = oneTwelve })),
-                await context.Set<GenericComparableBytesStructKeyRequiredDependentShadow>().FirstOrDefaultAsync(e => e.Id.Equals(oneThirteen)),
+                await context.Set<GenericComparableBytesStructKeyRequiredDependentShadow>()
+                    .FirstOrDefaultAsync(e => e.Id.Equals(oneThirteen)),
                 await context.Set<GenericComparableBytesStructKeyRequiredDependentShadow>()
                     .FirstOrDefaultAsync(e => e.Id.Equals(new GenericComparableBytesStructKey { Id = new byte[] { 114 } })),
                 await context.Set<GenericComparableBytesStructKeyRequiredDependentShadow>()
                     .FirstOrDefaultAsync(e => e.Id.Equals(new GenericComparableBytesStructKey { Id = oneFifteeen })),
-                await context.Set<GenericComparableBytesStructKeyRequiredDependentShadow>().FirstOrDefaultAsync(e => e.Id.Equals(oneSixteen))
+                await context.Set<GenericComparableBytesStructKeyRequiredDependentShadow>()
+                    .FirstOrDefaultAsync(e => e.Id.Equals(oneSixteen))
             ];
 
             Assert.Same(

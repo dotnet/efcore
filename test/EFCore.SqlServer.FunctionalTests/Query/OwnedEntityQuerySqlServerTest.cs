@@ -319,13 +319,16 @@ ORDER BY [s1].[Id], [s1].[SecondOwner23211Id]
             Add(
                 new Owner23211
                 {
-                    Dependents = [new(), new()],
+                    Dependents = [new Dependent23211(), new Dependent23211()],
                     Owned1 = new OwnedType23211 { Value = "A" },
                     Owned2 = new OwnedType23211 { Value = "B" }
                 });
 
             Add(
-                new SecondOwner23211 { Dependents = [new(), new()], Owned = new OwnedType23211 { Value = "A" } });
+                new SecondOwner23211
+                {
+                    Dependents = [new SecondDependent23211(), new SecondDependent23211()], Owned = new OwnedType23211 { Value = "A" }
+                });
 
             return SaveChangesAsync();
         }
@@ -414,7 +417,6 @@ LEFT JOIN [Address] AS [a] ON [p].[Id] = [a].[PartnerId]
 ORDER BY [p].[Id]
 """);
     }
-
 
     public override async Task Owned_entity_multiple_level_in_aggregate()
     {

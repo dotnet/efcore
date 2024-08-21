@@ -124,14 +124,14 @@ public class TestRelationalTypeMappingSource(
         bool unicode = false,
         int? size = null,
         bool fixedLength = false) : StringTypeMapping(
-            new RelationalTypeMappingParameters(
-                    new CoreTypeMappingParameters(typeof(string)),
-                    storeType,
-                    StoreTypePostfix.None,
-                    dbType,
-                    unicode,
-                    size,
-                    fixedLength))
+        new RelationalTypeMappingParameters(
+            new CoreTypeMappingParameters(typeof(string)),
+            storeType,
+            StoreTypePostfix.None,
+            dbType,
+            unicode,
+            size,
+            fixedLength))
     {
         protected override string ProcessStoreType(
             RelationalTypeMappingParameters parameters,

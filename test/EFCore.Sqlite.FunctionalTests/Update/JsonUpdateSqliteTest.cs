@@ -11,9 +11,7 @@ public class JsonUpdateSqliteTest : JsonUpdateTestBase<JsonUpdateSqliteFixture>
 {
     public JsonUpdateSqliteTest(JsonUpdateSqliteFixture fixture)
         : base(fixture)
-    {
-        ClearLog();
-    }
+        => ClearLog();
 
     public override async Task Add_element_to_json_collection_branch()
     {
@@ -2129,7 +2127,7 @@ LIMIT 2
                 break;
             default:
                 AssertSql(
-        """
+                    """
 @p0='2'
 @p1=NULL (DbType = Int32)
 @p2='NewEntity' (Size = 9)
@@ -2137,15 +2135,15 @@ LIMIT 2
 INSERT INTO "JsonEntitiesBasic" ("Id", "EntityBasicId", "Name")
 VALUES (@p0, @p1, @p2);
 """,
-                        //
-                        """
+                    //
+                    """
 SELECT "j"."Id", "j"."EntityBasicId", "j"."Name", "j"."OwnedCollectionRoot", "j"."OwnedReferenceRoot"
 FROM "JsonEntitiesBasic" AS "j"
 WHERE "j"."Id" = 2
 LIMIT 2
 """,
-                        //
-                        """
+                    //
+                    """
 @p0='[]' (Nullable = false) (Size = 2)
 @p3='2'
 @p1=NULL (DbType = Int32)
@@ -2155,12 +2153,12 @@ UPDATE "JsonEntitiesBasic" SET "OwnedCollectionRoot" = @p0, "EntityBasicId" = @p
 WHERE "Id" = @p3
 RETURNING 1;
 """,
-                        //
-                        """
+                    //
+                    """
 select OwnedCollectionRoot from JsonEntitiesBasic where Id = 2
 """,
-                        //
-                        """
+                    //
+                    """
 SELECT "j"."Id", "j"."EntityBasicId", "j"."Name", "j"."OwnedCollectionRoot", "j"."OwnedReferenceRoot"
 FROM "JsonEntitiesBasic" AS "j"
 WHERE "j"."Id" = 2
@@ -2288,21 +2286,21 @@ LIMIT 2
     {
         await base.Add_and_update_nested_optional_primitive_collection(value);
 
-        string characterCollection = value switch
+        var characterCollection = value switch
         {
             true => "[\"A\"]",
             false => "[]",
             _ => "null"
         };
 
-        string parameterSize = value switch
+        var parameterSize = value switch
         {
             true => "1562",
             false => "1559",
             _ => "1561"
         };
 
-        string updateParameter = value switch
+        var updateParameter = value switch
         {
             true => "NULL (Nullable = false)",
             false => "'[\"Z\"]' (Nullable = false) (Size = 5)",
@@ -2310,7 +2308,11 @@ LIMIT 2
         };
 
         AssertSql(
-            @"@p0='[{""TestBoolean"":false,""TestBooleanCollection"":[],""TestByte"":0,""TestByteArray"":null,""TestByteCollection"":null,""TestCharacter"":""\u0000"",""TestCharacterCollection"":" + characterCollection + @",""TestDateOnly"":""0001-01-01"",""TestDateOnlyCollection"":[],""TestDateTime"":""0001-01-01 00:00:00"",""TestDateTimeCollection"":[],""TestDateTimeOffset"":""0001-01-01 00:00:00+00:00"",""TestDateTimeOffsetCollection"":[],""TestDecimal"":""0.0"",""TestDecimalCollection"":[],""TestDefaultString"":null,""TestDefaultStringCollection"":[],""TestDouble"":0,""TestDoubleCollection"":[],""TestEnum"":0,""TestEnumCollection"":[],""TestEnumWithIntConverter"":0,""TestEnumWithIntConverterCollection"":[],""TestGuid"":""00000000-0000-0000-0000-000000000000"",""TestGuidCollection"":[],""TestInt16"":0,""TestInt16Collection"":[],""TestInt32"":0,""TestInt32Collection"":[],""TestInt64"":0,""TestInt64Collection"":[],""TestMaxLengthString"":null,""TestMaxLengthStringCollection"":[],""TestNullableEnum"":null,""TestNullableEnumCollection"":[],""TestNullableEnumWithConverterThatHandlesNulls"":null,""TestNullableEnumWithConverterThatHandlesNullsCollection"":[],""TestNullableEnumWithIntConverter"":null,""TestNullableEnumWithIntConverterCollection"":[],""TestNullableInt32"":null,""TestNullableInt32Collection"":[],""TestSignedByte"":0,""TestSignedByteCollection"":[],""TestSingle"":0,""TestSingleCollection"":[],""TestTimeOnly"":""00:00:00.0000000"",""TestTimeOnlyCollection"":[],""TestTimeSpan"":""0:00:00"",""TestTimeSpanCollection"":[],""TestUnsignedInt16"":0,""TestUnsignedInt16Collection"":[],""TestUnsignedInt32"":0,""TestUnsignedInt32Collection"":[],""TestUnsignedInt64"":0,""TestUnsignedInt64Collection"":[]}]' (Nullable = false) (Size = " + parameterSize + @")
+            @"@p0='[{""TestBoolean"":false,""TestBooleanCollection"":[],""TestByte"":0,""TestByteArray"":null,""TestByteCollection"":null,""TestCharacter"":""\u0000"",""TestCharacterCollection"":"
+            + characterCollection
+            + @",""TestDateOnly"":""0001-01-01"",""TestDateOnlyCollection"":[],""TestDateTime"":""0001-01-01 00:00:00"",""TestDateTimeCollection"":[],""TestDateTimeOffset"":""0001-01-01 00:00:00+00:00"",""TestDateTimeOffsetCollection"":[],""TestDecimal"":""0.0"",""TestDecimalCollection"":[],""TestDefaultString"":null,""TestDefaultStringCollection"":[],""TestDouble"":0,""TestDoubleCollection"":[],""TestEnum"":0,""TestEnumCollection"":[],""TestEnumWithIntConverter"":0,""TestEnumWithIntConverterCollection"":[],""TestGuid"":""00000000-0000-0000-0000-000000000000"",""TestGuidCollection"":[],""TestInt16"":0,""TestInt16Collection"":[],""TestInt32"":0,""TestInt32Collection"":[],""TestInt64"":0,""TestInt64Collection"":[],""TestMaxLengthString"":null,""TestMaxLengthStringCollection"":[],""TestNullableEnum"":null,""TestNullableEnumCollection"":[],""TestNullableEnumWithConverterThatHandlesNulls"":null,""TestNullableEnumWithConverterThatHandlesNullsCollection"":[],""TestNullableEnumWithIntConverter"":null,""TestNullableEnumWithIntConverterCollection"":[],""TestNullableInt32"":null,""TestNullableInt32Collection"":[],""TestSignedByte"":0,""TestSignedByteCollection"":[],""TestSingle"":0,""TestSingleCollection"":[],""TestTimeOnly"":""00:00:00.0000000"",""TestTimeOnlyCollection"":[],""TestTimeSpan"":""0:00:00"",""TestTimeSpanCollection"":[],""TestUnsignedInt16"":0,""TestUnsignedInt16Collection"":[],""TestUnsignedInt32"":0,""TestUnsignedInt32Collection"":[],""TestUnsignedInt64"":0,""TestUnsignedInt64Collection"":[]}]' (Nullable = false) (Size = "
+            + parameterSize
+            + @")
 @p1='7624'
 @p2='[]' (Size = 2)
 @p3=NULL (DbType = Binary)
@@ -2340,15 +2342,17 @@ LIMIT 2
 
 INSERT INTO ""JsonEntitiesAllTypes"" (""Collection"", ""Id"", ""TestBooleanCollection"", ""TestByteCollection"", ""TestCharacterCollection"", ""TestDateTimeCollection"", ""TestDateTimeOffsetCollection"", ""TestDecimalCollection"", ""TestDefaultStringCollection"", ""TestDoubleCollection"", ""TestEnumCollection"", ""TestEnumWithIntConverterCollection"", ""TestGuidCollection"", ""TestInt16Collection"", ""TestInt32Collection"", ""TestInt64Collection"", ""TestMaxLengthStringCollection"", ""TestNullableEnumCollection"", ""TestNullableEnumWithConverterThatHandlesNullsCollection"", ""TestNullableEnumWithIntConverterCollection"", ""TestNullableInt32Collection"", ""TestSignedByteCollection"", ""TestSingleCollection"", ""TestTimeSpanCollection"", ""TestUnsignedInt16Collection"", ""TestUnsignedInt32Collection"", ""TestUnsignedInt64Collection"")
 VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14, @p15, @p16, @p17, @p18, @p19, @p20, @p21, @p22, @p23, @p24, @p25, @p26);",
-                //
-                """
+            //
+            """
 SELECT "j"."Id", "j"."TestBooleanCollection", "j"."TestByteCollection", "j"."TestCharacterCollection", "j"."TestDateTimeCollection", "j"."TestDateTimeOffsetCollection", "j"."TestDecimalCollection", "j"."TestDefaultStringCollection", "j"."TestDoubleCollection", "j"."TestEnumCollection", "j"."TestEnumWithIntConverterCollection", "j"."TestGuidCollection", "j"."TestInt16Collection", "j"."TestInt32Collection", "j"."TestInt64Collection", "j"."TestMaxLengthStringCollection", "j"."TestNullableEnumCollection", "j"."TestNullableEnumWithConverterThatHandlesNullsCollection", "j"."TestNullableEnumWithIntConverterCollection", "j"."TestNullableInt32Collection", "j"."TestSignedByteCollection", "j"."TestSingleCollection", "j"."TestTimeSpanCollection", "j"."TestUnsignedInt16Collection", "j"."TestUnsignedInt32Collection", "j"."TestUnsignedInt64Collection", "j"."Collection", "j"."Reference"
 FROM "JsonEntitiesAllTypes" AS "j"
 WHERE "j"."Id" = 7624
 LIMIT 2
 """,
             //
-            "@p0=" + updateParameter + @"
+            "@p0="
+            + updateParameter
+            + @"
 @p1='7624'
 
 UPDATE ""JsonEntitiesAllTypes"" SET ""Collection"" = json_set(""Collection"", '$[0].TestCharacterCollection', json(@p0))
@@ -2389,7 +2393,8 @@ LIMIT 2
 
     // Nested collections are not mapped in the relational model, so there is no data stored in the document for them
     public override Task Edit_single_property_collection_of_collection_of_nullable_enum_with_int_converter()
-        => Assert.ThrowsAsync<IndexOutOfRangeException>(base.Edit_single_property_collection_of_collection_of_nullable_enum_with_int_converter);
+        => Assert.ThrowsAsync<IndexOutOfRangeException>(
+            base.Edit_single_property_collection_of_collection_of_nullable_enum_with_int_converter);
 
     // Nested collections are not mapped in the relational model, so there is no data stored in the document for them
     public override Task Edit_single_property_collection_of_collection_of_nullable_int32()

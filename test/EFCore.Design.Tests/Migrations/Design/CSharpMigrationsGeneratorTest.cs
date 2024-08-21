@@ -369,8 +369,9 @@ public partial class CSharpMigrationsGeneratorTest
         }
 
         var relationalAnnotations = typeof(RelationalAnnotationNames).GetFields()
-            .Where(f => f.FieldType == typeof(string)
-                && f.Name != "Prefix").ToList();
+            .Where(
+                f => f.FieldType == typeof(string)
+                    && f.Name != "Prefix").ToList();
 
         foreach (var field in relationalAnnotations)
         {
@@ -382,7 +383,11 @@ public partial class CSharpMigrationsGeneratorTest
             {
                 Assert.True(
                     RelationalAnnotationNames.AllNames.Contains(annotationName),
-                    nameof(RelationalAnnotationNames) + "." + nameof(RelationalAnnotationNames.AllNames) + " doesn't contain " + annotationName);
+                    nameof(RelationalAnnotationNames)
+                    + "."
+                    + nameof(RelationalAnnotationNames.AllNames)
+                    + " doesn't contain "
+                    + annotationName);
             }
         }
 

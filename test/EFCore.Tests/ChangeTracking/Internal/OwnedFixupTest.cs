@@ -36,7 +36,7 @@ public class OwnedFixupTest
         var thing = new Thing
         {
             ThingId = Guid.NewGuid(),
-            OwnedByThings = [new() { OwnedByThingId = Guid.NewGuid() }, new() { OwnedByThingId = Guid.NewGuid() }]
+            OwnedByThings = [new OwnedByThing { OwnedByThingId = Guid.NewGuid() }, new OwnedByThing { OwnedByThingId = Guid.NewGuid() }]
         };
 
         context.Attach(thing);

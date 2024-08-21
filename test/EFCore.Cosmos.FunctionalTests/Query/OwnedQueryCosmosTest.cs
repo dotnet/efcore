@@ -68,7 +68,8 @@ ORDER BY c["Id"]
         // Always throws for sync.
         if (async)
         {
-            var exception = await Assert.ThrowsAsync<CosmosException>(() => base.Navigation_rewrite_on_owned_collection_with_composition(async));
+            var exception =
+                await Assert.ThrowsAsync<CosmosException>(() => base.Navigation_rewrite_on_owned_collection_with_composition(async));
 
             Assert.Equal(HttpStatusCode.BadRequest, exception.StatusCode);
 
@@ -269,12 +270,14 @@ WHERE (c["Terminator"] = "LeafA")
         AssertSql();
     }
 
-    public override async Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference_in_predicate_and_projection(
-        bool async)
+    public override async Task
+        Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference_in_predicate_and_projection(
+            bool async)
     {
         // Address.Planet is a non-owned navigation, cross-document join
         await AssertTranslationFailedWithDetails(
-            () => base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference_in_predicate_and_projection(async),
+            () => base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference_in_predicate_and_projection(
+                async),
             CosmosStrings.MultipleRootEntityTypesReferencedInQuery("Planet", "OwnedPerson"));
 
         AssertSql();
@@ -1337,8 +1340,9 @@ WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY
             => (TestSqlLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-            => base.AddOptions(builder.ConfigureWarnings(
-                w => w.Ignore(CosmosEventId.NoPartitionKeyDefined)));
+            => base.AddOptions(
+                builder.ConfigureWarnings(
+                    w => w.Ignore(CosmosEventId.NoPartitionKeyDefined)));
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {

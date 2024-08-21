@@ -112,8 +112,8 @@ public class SqlServerTestStore : RelationalTestStore
 
     public override DbContextOptionsBuilder AddProviderOptions(DbContextOptionsBuilder builder)
         => (UseConnectionString
-            ? builder.UseSqlServer(ConnectionString, b => b.ApplyConfiguration())
-            : builder.UseSqlServer(Connection, b => b.ApplyConfiguration()))
+                ? builder.UseSqlServer(ConnectionString, b => b.ApplyConfiguration())
+                : builder.UseSqlServer(Connection, b => b.ApplyConfiguration()))
             .ConfigureWarnings(b => b.Ignore(SqlServerEventId.SavepointsDisabledBecauseOfMARS));
 
     private async Task<bool> CreateDatabase(Func<DbContext, Task>? clean)

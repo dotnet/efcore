@@ -44,7 +44,7 @@ public class InMemoryModelBuilderAssemblyScanTest : ModelBuilderTest
         };
 
         var assembly = MockAssembly.Create(
-            types, null, new ReflectionTypeLoadException([types[1], types[2]], [new(), new()]));
+            types, null, new ReflectionTypeLoadException([types[1], types[2]], [new Exception(), new Exception()]));
 
         var loggerFactory = new ListLoggerFactory();
         var logger = CreateModelLogger(loggerFactory);

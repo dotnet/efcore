@@ -28,9 +28,9 @@ public abstract class AdHocJsonQuerySqlServerTestBase : AdHocJsonQueryTestBase
             Reference = new MyJsonEntity29219 { NonNullableScalar = 10, NullableScalar = 11 },
             Collection =
             [
-                new() { NonNullableScalar = 100, NullableScalar = 101 },
-                new() { NonNullableScalar = 200, NullableScalar = 201 },
-                new() { NonNullableScalar = 300, NullableScalar = null }
+                new MyJsonEntity29219 { NonNullableScalar = 100, NullableScalar = 101 },
+                new MyJsonEntity29219 { NonNullableScalar = 200, NullableScalar = 201 },
+                new MyJsonEntity29219 { NonNullableScalar = 300, NullableScalar = null }
             ]
         };
 
@@ -38,7 +38,7 @@ public abstract class AdHocJsonQuerySqlServerTestBase : AdHocJsonQueryTestBase
         {
             Id = 2,
             Reference = new MyJsonEntity29219 { NonNullableScalar = 20, NullableScalar = null },
-            Collection = [new() { NonNullableScalar = 1001, NullableScalar = null }]
+            Collection = [new MyJsonEntity29219 { NonNullableScalar = 1001, NullableScalar = null }]
         };
 
         ctx.AddRange(entity1, entity2);
@@ -114,8 +114,8 @@ VALUES(N'[{"RoundNumber":11,"SubRounds":[{"SubRoundNumber":111},{"SubRoundNumber
             },
             Collection =
             [
-                new() { IntArray = [111, 112, 113], ListOfString = ["Foo11", "Bar11"] },
-                new() { IntArray = [211, 212, 213], ListOfString = ["Foo12", "Bar12"] }
+                new MyJsonEntityArrayOfPrimitives { IntArray = [111, 112, 113], ListOfString = ["Foo11", "Bar11"] },
+                new MyJsonEntityArrayOfPrimitives { IntArray = [211, 212, 213], ListOfString = ["Foo12", "Bar12"] }
             ]
         };
 
@@ -134,8 +134,8 @@ VALUES(N'[{"RoundNumber":11,"SubRounds":[{"SubRoundNumber":111},{"SubRoundNumber
             },
             Collection =
             [
-                new() { IntArray = [110, 120, 130], ListOfString = ["A1", "Z1"] },
-                new() { IntArray = [210, 220, 230], ListOfString = ["A2", "Z2"] }
+                new MyJsonEntityArrayOfPrimitives { IntArray = [110, 120, 130], ListOfString = ["A1", "Z1"] },
+                new MyJsonEntityArrayOfPrimitives { IntArray = [210, 220, 230], ListOfString = ["A2", "Z2"] }
             ]
         };
 
@@ -350,12 +350,16 @@ N'e1')
 
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public IntEnumLegacyValues IntEnum { get; set; }
+
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public ByteEnumLegacyValues ByteEnum { get; set; }
+
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public LongEnumLegacyValues LongEnum { get; set; }
+
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public ULongEnumLegacyValues ULongEnum { get; set; }
+
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public IntEnumLegacyValues? NullableEnum { get; set; }
     }

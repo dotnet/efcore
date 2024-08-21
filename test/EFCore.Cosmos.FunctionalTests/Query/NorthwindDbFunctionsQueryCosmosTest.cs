@@ -11,9 +11,7 @@ public class NorthwindDbFunctionsQueryCosmosTest : NorthwindDbFunctionsQueryTest
         NorthwindQueryCosmosFixture<NoopModelCustomizer> fixture,
         ITestOutputHelper testOutputHelper)
         : base(fixture)
-    {
-        ClearLog();
-    }
+        => ClearLog();
 
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()

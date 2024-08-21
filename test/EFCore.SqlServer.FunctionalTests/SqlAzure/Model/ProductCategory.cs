@@ -11,9 +11,7 @@ namespace Microsoft.EntityFrameworkCore.SqlAzure.Model;
 public class ProductCategory
 {
     public ProductCategory()
-    {
-        Product = new HashSet<Product>();
-    }
+        => Product = new HashSet<Product>();
 
     public int ProductCategoryID { get; set; }
     public string Name { get; set; }

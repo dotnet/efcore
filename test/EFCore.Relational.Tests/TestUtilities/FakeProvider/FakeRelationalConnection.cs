@@ -8,33 +8,33 @@ using Microsoft.EntityFrameworkCore.Storage.Internal;
 namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
 
 public class FakeRelationalConnection(IDbContextOptions options = null) : RelationalConnection(
-        new RelationalConnectionDependencies(
-                options ?? CreateOptions(),
-                new DiagnosticsLogger<DbLoggerCategory.Database.Transaction>(
-                    new LoggerFactory(),
-                    new LoggingOptions(),
-                    new DiagnosticListener("FakeDiagnosticListener"),
-                    new TestRelationalLoggingDefinitions(),
-                    new NullDbContextLogger()),
-                new RelationalConnectionDiagnosticsLogger(
-                    new LoggerFactory(),
-                    new LoggingOptions(),
-                    new DiagnosticListener("FakeDiagnosticListener"),
-                    new TestRelationalLoggingDefinitions(),
-                    new NullDbContextLogger(),
-                    CreateOptions()),
-                new NamedConnectionStringResolver(options ?? CreateOptions()),
-                new RelationalTransactionFactory(
-                    new RelationalTransactionFactoryDependencies(
-                        new RelationalSqlGenerationHelper(
-                            new RelationalSqlGenerationHelperDependencies()))),
-                new CurrentDbContext(new FakeDbContext()),
-                new RelationalCommandBuilderFactory(
-                    new RelationalCommandBuilderDependencies(
-                        new TestRelationalTypeMappingSource(
-                            TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()),
-                        new ExceptionDetector()))))
+    new RelationalConnectionDependencies(
+        options ?? CreateOptions(),
+        new DiagnosticsLogger<DbLoggerCategory.Database.Transaction>(
+            new LoggerFactory(),
+            new LoggingOptions(),
+            new DiagnosticListener("FakeDiagnosticListener"),
+            new TestRelationalLoggingDefinitions(),
+            new NullDbContextLogger()),
+        new RelationalConnectionDiagnosticsLogger(
+            new LoggerFactory(),
+            new LoggingOptions(),
+            new DiagnosticListener("FakeDiagnosticListener"),
+            new TestRelationalLoggingDefinitions(),
+            new NullDbContextLogger(),
+            CreateOptions()),
+        new NamedConnectionStringResolver(options ?? CreateOptions()),
+        new RelationalTransactionFactory(
+            new RelationalTransactionFactoryDependencies(
+                new RelationalSqlGenerationHelper(
+                    new RelationalSqlGenerationHelperDependencies()))),
+        new CurrentDbContext(new FakeDbContext()),
+        new RelationalCommandBuilderFactory(
+            new RelationalCommandBuilderDependencies(
+                new TestRelationalTypeMappingSource(
+                    TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
+                    TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()),
+                new ExceptionDetector()))))
 {
     private DbConnection _connection;
 

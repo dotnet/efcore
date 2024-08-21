@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable enable
-
 public class ValueConvertersEndToEndCosmosTest(ValueConvertersEndToEndCosmosTest.ValueConvertersEndToEndCosmosFixture fixture)
     : ValueConvertersEndToEndTestBase<ValueConvertersEndToEndCosmosTest.ValueConvertersEndToEndCosmosFixture>(fixture)
 {

@@ -12,9 +12,7 @@ public class FromSqlQuerySqlServerTest : FromSqlQueryTestBase<FromSqlQuerySqlSer
 {
     public FromSqlQuerySqlServerTest(FromSqlQuerySqlServerTestFixture fixture, ITestOutputHelper testOutputHelper)
         : base(fixture)
-    {
-        Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
-    }
+        => Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
 
     public override async Task FromSqlRaw_queryable_simple(bool async)
     {
@@ -70,7 +68,9 @@ SELECT [m].[CustomerID], [m].[Address], [m].[City], [m].[CompanyName], [m].[Cont
 FROM (
 
 
-""" + "        " + """
+"""
+            + "        "
+            + """
 
 
 
@@ -1002,9 +1002,10 @@ FROM (
             };
 
         var orders = context.Set<OrderQuery>()
-                .FromSqlRaw(@"SET @returnValue = 3
-SELECT * FROM [Customers] WHERE [CustomerID] = 'ALFKI'", [output])
-                .ToList();
+            .FromSqlRaw(
+                @"SET @returnValue = 3
+SELECT * FROM [Customers] WHERE [CustomerID] = 'ALFKI'", output)
+            .ToList();
 
         Assert.Equal(1, orders.Count);
         Assert.Equal(3, output.Value);

@@ -172,44 +172,44 @@ SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
 WHERE [f].[FirstName] LIKE N'\%B%' ESCAPE N'\'
 """,
-                //
-                """
+            //
+            """
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
 WHERE [f].[FirstName] LIKE N'\_B%' ESCAPE N'\'
 """,
-                //
-                """
+            //
+            """
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
 WHERE 0 = 1
 """,
-                //
-                """
+            //
+            """
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
 WHERE [f].[FirstName] IS NOT NULL
 """,
-                //
-                """
+            //
+            """
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
 WHERE [f].[FirstName] LIKE N'\_Ba\_%' ESCAPE N'\'
 """,
-                //
-                """
+            //
+            """
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
 WHERE [f].[FirstName] NOT LIKE N'\%B\%a\%r%' ESCAPE N'\' OR [f].[FirstName] IS NULL
 """,
-                //
-                """
+            //
+            """
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
 WHERE [f].[FirstName] IS NULL
 """,
-                //
-                """
+            //
+            """
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
 """);
@@ -370,44 +370,44 @@ SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
 WHERE [f].[FirstName] LIKE N'%\%r' ESCAPE N'\'
 """,
-                //
-                """
+            //
+            """
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
 WHERE [f].[FirstName] LIKE N'%r\_' ESCAPE N'\'
 """,
-                //
-                """
+            //
+            """
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
 WHERE 0 = 1
 """,
-                //
-                """
+            //
+            """
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
 WHERE [f].[FirstName] IS NOT NULL
 """,
-                //
-                """
+            //
+            """
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
 WHERE [f].[FirstName] LIKE N'%\_r\_' ESCAPE N'\'
 """,
-                //
-                """
+            //
+            """
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
 WHERE [f].[FirstName] NOT LIKE N'%a\%r\%' ESCAPE N'\' OR [f].[FirstName] IS NULL
 """,
-                //
-                """
+            //
+            """
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
 WHERE [f].[FirstName] IS NULL
 """,
-                //
-                """
+            //
+            """
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
 """);

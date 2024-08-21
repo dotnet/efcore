@@ -9,9 +9,7 @@ public class LazyLoadProxySqlServerTest : LazyLoadProxyTestBase<LazyLoadProxySql
 {
     public LazyLoadProxySqlServerTest(LoadSqlServerFixture fixture)
         : base(fixture)
-    {
-        fixture.TestSqlLoggerFactory.Clear();
-    }
+        => fixture.TestSqlLoggerFactory.Clear();
 
     public override void Lazy_load_collection(EntityState state, bool useAttach, bool useDetach)
     {
