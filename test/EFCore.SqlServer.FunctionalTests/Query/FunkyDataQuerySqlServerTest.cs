@@ -596,5 +596,8 @@ WHERE [f].[FirstName] LIKE @__s_0_contains ESCAPE N'\' OR [f].[LastName] LIKE @_
 
         protected override ITestStoreFactory TestStoreFactory
             => SqlServerTestStoreFactory.Instance;
+
+        protected override string StoreName
+            => nameof(FunkyDataQuerySqlServerTest);
     }
 }
