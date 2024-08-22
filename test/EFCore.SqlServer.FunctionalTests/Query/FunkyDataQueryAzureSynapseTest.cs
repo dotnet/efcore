@@ -595,5 +595,8 @@ WHERE ([f].[FirstName] IS NOT NULL AND (CHARINDEX(@__s_0, [f].[FirstName]) > 0 O
 
         protected override ITestStoreFactory TestStoreFactory
             => AzureSynapseTestStoreFactory.Instance;
+
+        protected override string StoreName
+            => nameof(FunkyDataQueryAzureSynapseTest);
     }
 }
