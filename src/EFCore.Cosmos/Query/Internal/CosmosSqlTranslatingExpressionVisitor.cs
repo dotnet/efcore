@@ -820,18 +820,28 @@ public class CosmosSqlTranslatingExpressionVisitor(
             ExpressionType.Negate or ExpressionType.NegateChecked
                 => sqlExpressionFactory.Negate(sqlOperand!),
 
-            ExpressionType.Convert or ExpressionType.ConvertChecked
-                when operand.Type.IsInterface
-                && unaryExpression.Type.GetInterfaces().Any(e => e == operand.Type)
+            // Convert nodes can be an explicit user gesture in the query, or they may get introduced by the compiler (e.g. when a Child is
+            // passed as an argument for a parameter of type Parent). The latter type should generally get stripped out as a pure C#/LINQ
+            // artifact that shouldn't affect translation, but the latter may be an indication from the user that they want to apply a
+            // type change.
+            ExpressionType.Convert or ExpressionType.ConvertChecked or ExpressionType.TypeAs
+                when operand.Type.IsInterface && unaryExpression.Type.GetInterfaces().Any(e => e == operand.Type)
+                // We strip out implicit conversions, e.g. float[] -> ReadOnlyMemory<float> (for vector search)
+                || (unaryExpression.Method is { IsSpecialName: true, Name: "op_Implicit" }
+                    && IsReadOnlyMemory(unaryExpression.Type.UnwrapNullableType()))
                 || unaryExpression.Type.UnwrapNullableType() == operand.Type
                 || unaryExpression.Type.UnwrapNullableType() == typeof(Enum)
                 // Object convert needs to be converted to explicit cast when mismatching types
-                // But we let is pass here since we don't have explicit cast mechanism here and in some cases object convert is due to value types
+                // But we let it pass here since we don't have explicit cast mechanism here and in some cases object convert is due to value types
                 || unaryExpression.Type == typeof(object)
                 => sqlOperand!,
 
             _ => QueryCompilationContext.NotTranslatedExpression
         };
+
+        static bool IsReadOnlyMemory(Type type)
+            => type is { IsGenericType: true, IsGenericTypeDefinition: false }
+                && type.GetGenericTypeDefinition() == typeof(ReadOnlyMemory<>);
     }
 
     /// <inheritdoc />

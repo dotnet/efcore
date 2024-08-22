@@ -99,16 +99,19 @@ FROM root c
         await using var context = CreateContext();
         var inputVector = new byte[] { 2, 1, 4, 3, 5, 2, 5, 7, 3, 1 };
 
-        // See Issue #34402
-        await Assert.ThrowsAsync<InvalidOperationException>(
-            () => context.Set<Book>().Select(e => EF.Functions.VectorDistance(e.BytesArray, inputVector)).ToListAsync());
+        var booksFromStore = await context
+            .Set<Book>()
+            .Select(e => EF.Functions.VectorDistance(e.BytesArray, inputVector))
+            .ToListAsync();
 
-        // Assert.Equal(3, booksFromStore.Count);
-        // Assert.All(booksFromStore, s => Assert.NotEqual(0.0, s));
+        Assert.Equal(3, booksFromStore.Count);
+        Assert.All(booksFromStore, s => Assert.NotEqual(0.0, s));
 
         AssertSql(
             """
-SELECT VALUE c["BytesArray"]
+@__p_1='[2,1,4,3,5,2,5,7,3,1]'
+
+SELECT VALUE VectorDistance(c["BytesArray"], @__p_1, false, {'distanceFunction':'cosine', 'dataType':'uint8'})
 FROM root c
 """);
     }
@@ -119,17 +122,20 @@ FROM root c
         await using var context = CreateContext();
         var inputVector = new[] { 0.33f, -0.52f, 0.45f, -0.67f, 0.89f, -0.34f, 0.86f, -0.78f, 0.86f, -0.78f };
 
-        // See Issue #34402
-        await Assert.ThrowsAsync<InvalidOperationException>(
-            () => context.Set<Book>()
-                .Select(e => EF.Functions.VectorDistance(e.SinglesArray, inputVector, false, DistanceFunction.DotProduct)).ToListAsync());
+        var booksFromStore = await context
+            .Set<Book>()
+            .Select(
+                e => EF.Functions.VectorDistance(e.SinglesArray, inputVector, false, DistanceFunction.DotProduct))
+            .ToListAsync();
 
-        // Assert.Equal(3, booksFromStore.Count);
-        // Assert.All(booksFromStore, s => Assert.NotEqual(0.0, s));
+        Assert.Equal(3, booksFromStore.Count);
+        Assert.All(booksFromStore, s => Assert.NotEqual(0.0, s));
 
         AssertSql(
             """
-SELECT VALUE c["SinglesArray"]
+@__p_1='[0.33,-0.52,0.45,-0.67,0.89,-0.34,0.86,-0.78,0.86,-0.78]'
+
+SELECT VALUE VectorDistance(c["SinglesArray"], @__p_1, false, {'distanceFunction':'dotproduct', 'dataType':'float32'})
 FROM root c
 """);
     }
@@ -207,13 +213,20 @@ ORDER BY VectorDistance(c["Singles"], @__p_1, false, {'distanceFunction':'cosine
         await using var context = CreateContext();
         var inputVector = new byte[] { 2, 1, 4, 6, 5, 2, 5, 7, 3, 1 };
 
-        // See Issue #34402
-        await Assert.ThrowsAsync<InvalidOperationException>(
-            () => context.Set<Book>().OrderBy(e => EF.Functions.VectorDistance(e.BytesArray, inputVector)).ToListAsync());
+        var booksFromStore = await context
+            .Set<Book>()
+            .OrderBy(e => EF.Functions.VectorDistance(e.BytesArray, inputVector))
+            .ToListAsync();
 
-        // Assert.Equal(3, booksFromStore.Count);
+        Assert.Equal(3, booksFromStore.Count);
+        AssertSql(
+            """
+@__p_1='[2,1,4,6,5,2,5,7,3,1]'
 
-        AssertSql();
+SELECT VALUE c
+FROM root c
+ORDER BY VectorDistance(c["BytesArray"], @__p_1, false, {'distanceFunction':'cosine', 'dataType':'uint8'})
+""");
     }
 
     [ConditionalFact]
@@ -222,13 +235,20 @@ ORDER BY VectorDistance(c["Singles"], @__p_1, false, {'distanceFunction':'cosine
         await using var context = CreateContext();
         var inputVector = new[] { 0.33f, -0.52f, 0.45f, -0.67f, 0.89f, -0.34f, 0.86f, -0.78f };
 
-        // See Issue #34402
-        await Assert.ThrowsAsync<InvalidOperationException>(
-            () => context.Set<Book>().OrderBy(e => EF.Functions.VectorDistance(e.SinglesArray, inputVector)).ToListAsync());
+        var booksFromStore = await context
+            .Set<Book>()
+            .OrderBy(e => EF.Functions.VectorDistance(e.SinglesArray, inputVector))
+            .ToListAsync();
 
-        // Assert.Equal(3, booksFromStore.Count);
+        Assert.Equal(3, booksFromStore.Count);
+        AssertSql(
+            """
+@__p_1='[0.33,-0.52,0.45,-0.67,0.89,-0.34,0.86,-0.78]'
 
-        AssertSql();
+SELECT VALUE c
+FROM root c
+ORDER BY VectorDistance(c["SinglesArray"], @__p_1, false, {'distanceFunction':'cosine', 'dataType':'float32'})
+""");
     }
 
     [ConditionalFact]
