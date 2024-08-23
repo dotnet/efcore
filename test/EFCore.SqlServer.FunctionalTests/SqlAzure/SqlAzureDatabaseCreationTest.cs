@@ -16,8 +16,8 @@ public class SqlAzureDatabaseCreationTest
     [ConditionalFact]
     public async Task Creates_database_in_elastic_pool()
     {
-        using var testDatabase = SqlServerTestStore.Create(StoreName + "Elastic");
-        using var context = new ElasticPoolContext(testDatabase);
+        await using var testDatabase = SqlServerTestStore.Create(StoreName + "Elastic");
+        await using var context = new ElasticPoolContext(testDatabase);
         await context.Database.EnsureDeletedAsync();
         await context.Database.EnsureCreatedAsync();
 
@@ -41,8 +41,8 @@ public class SqlAzureDatabaseCreationTest
     [ConditionalFact]
     public async Task Creates_basic_database()
     {
-        using var testDatabase = SqlServerTestStore.Create(StoreName + "Basic");
-        using var context = new BasicContext(testDatabase);
+        await using var testDatabase = SqlServerTestStore.Create(StoreName + "Basic");
+        await using var context = new BasicContext(testDatabase);
         await context.Database.EnsureDeletedAsync();
         await context.Database.EnsureCreatedAsync();
 
@@ -69,8 +69,8 @@ public class SqlAzureDatabaseCreationTest
     [ConditionalFact]
     public async Task Creates_business_critical_database()
     {
-        using var testDatabase = SqlServerTestStore.Create(StoreName + "BusinessCritical");
-        using var context = new BusinessCriticalContext(testDatabase);
+        await using var testDatabase = SqlServerTestStore.Create(StoreName + "BusinessCritical");
+        await using var context = new BusinessCriticalContext(testDatabase);
         await context.Database.EnsureDeletedAsync();
         await context.Database.EnsureCreatedAsync();
 
