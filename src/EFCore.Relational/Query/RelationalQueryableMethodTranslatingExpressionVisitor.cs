@@ -198,9 +198,9 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
                     new ColumnExpression(
                         SqlQuerySingleColumnAlias,
                         alias,
-                        sqlQueryRootExpression.Type.UnwrapNullableType(),
+                        sqlQueryRootExpression.ElementType.UnwrapNullableType(),
                         typeMapping,
-                        sqlQueryRootExpression.Type.IsNullableType()),
+                        sqlQueryRootExpression.ElementType.IsNullableType()),
                     identifier: [],
                     _sqlAliasManager);
 
