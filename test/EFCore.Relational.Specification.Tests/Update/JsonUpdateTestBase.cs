@@ -35,12 +35,13 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                         OwnedCollectionBranch = [],
                         OwnedReferenceBranch = new JsonOwnedBranch
                         {
+                            Id = 7,
                             Date = new DateTime(2010, 10, 10),
                             Enum = JsonEnum.Three,
                             Fraction = 42.42m,
                             OwnedCollectionLeaf =
                             [
-                                new() { SomethingSomething = "ss1" }, new() { SomethingSomething = "ss2" }
+                                new JsonOwnedLeaf { SomethingSomething = "ss1" }, new JsonOwnedLeaf { SomethingSomething = "ss2" }
                             ],
                             OwnedReferenceLeaf = new JsonOwnedLeaf { SomethingSomething = "ss3" }
                         }
@@ -65,6 +66,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.Equal(new DateTime(2010, 10, 10), newEntity.OwnedReferenceRoot.OwnedReferenceBranch.Date);
                 Assert.Equal(JsonEnum.Three, newEntity.OwnedReferenceRoot.OwnedReferenceBranch.Enum);
                 Assert.Equal(42.42m, newEntity.OwnedReferenceRoot.OwnedReferenceBranch.Fraction);
+                Assert.Equal(7, newEntity.OwnedReferenceRoot.OwnedReferenceBranch.Id);
 
                 Assert.Equal(42.42m, newEntity.OwnedReferenceRoot.OwnedReferenceBranch.Fraction);
                 Assert.Equal("ss3", newEntity.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf.SomethingSomething);
@@ -94,12 +96,13 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                         //OwnedCollectionBranch missing on purpose
                         OwnedReferenceBranch = new JsonOwnedBranch
                         {
+                            Id = 7,
                             Date = new DateTime(2010, 10, 10),
                             Enum = JsonEnum.Three,
                             Fraction = 42.42m,
                             OwnedCollectionLeaf =
                             [
-                                new() { SomethingSomething = "ss1" }, new() { SomethingSomething = "ss2" }
+                                new JsonOwnedLeaf { SomethingSomething = "ss1" }, new JsonOwnedLeaf { SomethingSomething = "ss2" }
                             ],
                             OwnedReferenceLeaf = null,
                         }
@@ -124,6 +127,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.Equal(new DateTime(2010, 10, 10), newEntity.OwnedReferenceRoot.OwnedReferenceBranch.Date);
                 Assert.Equal(JsonEnum.Three, newEntity.OwnedReferenceRoot.OwnedReferenceBranch.Enum);
                 Assert.Equal(42.42m, newEntity.OwnedReferenceRoot.OwnedReferenceBranch.Fraction);
+                Assert.Equal(7, newEntity.OwnedReferenceRoot.OwnedReferenceBranch.Id);
 
                 Assert.Equal(42.42m, newEntity.OwnedReferenceRoot.OwnedReferenceBranch.Fraction);
                 Assert.Null(newEntity.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf);
@@ -159,12 +163,13 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                     OwnedCollectionBranch = [],
                     OwnedReferenceBranch = new JsonOwnedBranch
                     {
+                        Id = 7,
                         Date = new DateTime(2010, 10, 10),
                         Enum = JsonEnum.Three,
                         Fraction = 42.42m,
                         OwnedCollectionLeaf =
                         [
-                            new() { SomethingSomething = "ss1" }, new() { SomethingSomething = "ss2" }
+                            new JsonOwnedLeaf { SomethingSomething = "ss1" }, new JsonOwnedLeaf { SomethingSomething = "ss2" }
                         ],
                         OwnedReferenceLeaf = new JsonOwnedLeaf { SomethingSomething = "ss3" }
                     }
@@ -182,6 +187,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.Equal(new DateTime(2010, 10, 10), updatedReference.OwnedReferenceBranch.Date);
                 Assert.Equal(JsonEnum.Three, updatedReference.OwnedReferenceBranch.Enum);
                 Assert.Equal(42.42m, updatedReference.OwnedReferenceBranch.Fraction);
+                Assert.Equal(7, updatedReference.OwnedReferenceBranch.Id);
                 Assert.Equal("ss3", updatedReference.OwnedReferenceBranch.OwnedReferenceLeaf.SomethingSomething);
                 var collectionLeaf = updatedReference.OwnedReferenceBranch.OwnedCollectionLeaf;
                 Assert.Equal(2, collectionLeaf.Count);
@@ -237,12 +243,13 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                     OwnedCollectionBranch = [],
                     OwnedReferenceBranch = new JsonOwnedBranch
                     {
+                        Id = 7,
                         Date = new DateTime(2010, 10, 10),
                         Enum = JsonEnum.Three,
                         Fraction = 42.42m,
                         OwnedCollectionLeaf =
                         [
-                            new() { SomethingSomething = "ss1" }, new() { SomethingSomething = "ss2" }
+                            new JsonOwnedLeaf { SomethingSomething = "ss1" }, new JsonOwnedLeaf { SomethingSomething = "ss2" }
                         ],
                         OwnedReferenceLeaf = new JsonOwnedLeaf { SomethingSomething = "ss3" }
                     }
@@ -262,6 +269,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.Empty(updatedCollection[2].OwnedCollectionBranch);
                 Assert.Equal(new DateTime(2010, 10, 10), updatedCollection[2].OwnedReferenceBranch.Date);
                 Assert.Equal(JsonEnum.Three, updatedCollection[2].OwnedReferenceBranch.Enum);
+                Assert.Equal(7, updatedCollection[2].OwnedReferenceBranch.Id);
                 Assert.Equal(42.42m, updatedCollection[2].OwnedReferenceBranch.Fraction);
                 Assert.Equal("ss3", updatedCollection[2].OwnedReferenceBranch.OwnedReferenceLeaf.SomethingSomething);
                 var collectionLeaf = updatedCollection[2].OwnedReferenceBranch.OwnedCollectionLeaf;
@@ -287,6 +295,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                     OwnedCollectionBranch = null,
                     OwnedReferenceBranch = new JsonOwnedBranch
                     {
+                        Id = 7,
                         Date = new DateTime(2010, 10, 10),
                         Enum = JsonEnum.Three,
                         Fraction = 42.42m,
@@ -308,6 +317,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.Null(updatedCollection[2].OwnedCollectionBranch);
                 Assert.Equal(new DateTime(2010, 10, 10), updatedCollection[2].OwnedReferenceBranch.Date);
                 Assert.Equal(JsonEnum.Three, updatedCollection[2].OwnedReferenceBranch.Enum);
+                Assert.Equal(7, updatedCollection[2].OwnedReferenceBranch.Id);
                 Assert.Equal(42.42m, updatedCollection[2].OwnedReferenceBranch.Fraction);
                 Assert.Null(updatedCollection[2].OwnedReferenceBranch.OwnedReferenceLeaf);
                 Assert.Null(updatedCollection[2].OwnedReferenceBranch.OwnedCollectionLeaf);
@@ -324,12 +334,13 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 var entity = query.Single();
                 var newBranch = new JsonOwnedBranch
                 {
+                    Id = 77,
                     Date = new DateTime(2010, 10, 10),
                     Enum = JsonEnum.Three,
                     Fraction = 42.42m,
                     OwnedCollectionLeaf =
                     [
-                        new() { SomethingSomething = "ss1" }, new() { SomethingSomething = "ss2" }
+                        new JsonOwnedLeaf { SomethingSomething = "ss1" }, new JsonOwnedLeaf { SomethingSomething = "ss2" }
                     ],
                     OwnedReferenceLeaf = new JsonOwnedLeaf { SomethingSomething = "ss3" }
                 };
@@ -346,6 +357,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.Equal(new DateTime(2010, 10, 10), updatedCollection[2].Date);
                 Assert.Equal(JsonEnum.Three, updatedCollection[2].Enum);
                 Assert.Equal(42.42m, updatedCollection[2].Fraction);
+                Assert.Equal(77, updatedCollection[2].Id);
                 Assert.Equal("ss3", updatedCollection[2].OwnedReferenceLeaf.SomethingSomething);
                 var collectionLeaf = updatedCollection[2].OwnedCollectionLeaf;
                 Assert.Equal(2, collectionLeaf.Count);
@@ -548,12 +560,13 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
 
                 var newBranch = new JsonOwnedBranch
                 {
+                    Id = 77,
                     Date = new DateTime(2010, 10, 10),
                     Enum = JsonEnum.Three,
                     Fraction = 42.42m,
                     OwnedCollectionLeaf =
                     [
-                        new() { SomethingSomething = "ss1" }, new() { SomethingSomething = "ss2" }
+                        new JsonOwnedLeaf { SomethingSomething = "ss1" }, new JsonOwnedLeaf { SomethingSomething = "ss2" }
                     ],
                     OwnedReferenceLeaf = new JsonOwnedLeaf { SomethingSomething = "ss3" }
                 };
@@ -570,6 +583,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.Equal(new DateTime(2010, 10, 10), updatedCollection[2].Date);
                 Assert.Equal(JsonEnum.Three, updatedCollection[2].Enum);
                 Assert.Equal(42.42m, updatedCollection[2].Fraction);
+                Assert.Equal(77, updatedCollection[2].Id);
                 Assert.Equal("ss3", updatedCollection[2].OwnedReferenceLeaf.SomethingSomething);
                 var collectionLeaf = updatedCollection[2].OwnedCollectionLeaf;
                 Assert.Equal(2, collectionLeaf.Count);
@@ -621,6 +635,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 entity.OwnedReferenceRoot.OwnedCollectionBranch.Add(
                     new JsonOwnedBranch
                     {
+                        Id = 77,
                         Date = new DateTime(2222, 11, 11),
                         Enum = JsonEnum.Three,
                         Fraction = 45.32m,
@@ -638,6 +653,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.Equal(new DateTime(2222, 11, 11), result.OwnedReferenceRoot.OwnedCollectionBranch[2].Date);
                 Assert.Equal(JsonEnum.Three, result.OwnedReferenceRoot.OwnedCollectionBranch[2].Enum);
                 Assert.Equal(45.32m, result.OwnedReferenceRoot.OwnedCollectionBranch[2].Fraction);
+                Assert.Equal(77, result.OwnedReferenceRoot.OwnedCollectionBranch[2].Id);
                 Assert.Equal("cc", result.OwnedReferenceRoot.OwnedCollectionBranch[2].OwnedReferenceLeaf.SomethingSomething);
             });
 
@@ -1468,7 +1484,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 var query = await context.JsonEntitiesBasic.ToListAsync();
                 var entity = query.Single();
                 entity.OwnedReferenceRoot.OwnedReferenceBranch.Fraction = 523.532M;
-                entity.OwnedReferenceRoot.OwnedReferenceBranch.OwnedCollectionLeaf = [new() { SomethingSomething = "edit" }];
+                entity.OwnedReferenceRoot.OwnedReferenceBranch.OwnedCollectionLeaf = [new JsonOwnedLeaf { SomethingSomething = "edit" }];
 
                 ClearLog();
                 await context.SaveChangesAsync();
@@ -1882,8 +1898,8 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
             {
                 var query = await context.JsonEntitiesAllTypes.ToListAsync();
                 var entity = query.Single(x => x.Id == 1);
-                entity.Reference.TestGuidCollection = [new("12345678-1234-4321-5555-987654321000")];
-                entity.Collection[0].TestGuidCollection = [new("12345678-1234-4321-5555-987654321000")];
+                entity.Reference.TestGuidCollection = [new Guid("12345678-1234-4321-5555-987654321000")];
+                entity.Collection[0].TestGuidCollection = [new Guid("12345678-1234-4321-5555-987654321000")];
 
                 ClearLog();
                 await context.SaveChangesAsync();
@@ -1891,8 +1907,8 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
             async context =>
             {
                 var result = await context.Set<JsonEntityAllTypes>().SingleAsync(x => x.Id == 1);
-                Assert.Equal([new("12345678-1234-4321-5555-987654321000")], result.Reference.TestGuidCollection);
-                Assert.Equal([new("12345678-1234-4321-5555-987654321000")], result.Collection[0].TestGuidCollection);
+                Assert.Equal([new Guid("12345678-1234-4321-5555-987654321000")], result.Reference.TestGuidCollection);
+                Assert.Equal([new Guid("12345678-1234-4321-5555-987654321000")], result.Collection[0].TestGuidCollection);
 
                 Assert.False(result.Reference.NewCollectionSet);
                 Assert.False(result.Collection[0].NewCollectionSet);
@@ -2622,7 +2638,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
             {
                 var query = await context.JsonEntitiesAllTypes.ToListAsync();
                 var entity = query.Single(x => x.Id == 1);
-                entity.TestGuidCollection = new ReadOnlyCollection<Guid>([new("12345678-1234-4321-5555-987654321000")]);
+                entity.TestGuidCollection = new ReadOnlyCollection<Guid>([new Guid("12345678-1234-4321-5555-987654321000")]);
 
                 ClearLog();
                 await context.SaveChangesAsync();
@@ -2630,7 +2646,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
             async context =>
             {
                 var result = await context.Set<JsonEntityAllTypes>().SingleAsync(x => x.Id == 1);
-                Assert.Equal(new ReadOnlyCollection<Guid>([new("12345678-1234-4321-5555-987654321000")]), result.TestGuidCollection);
+                Assert.Equal(new ReadOnlyCollection<Guid>([new Guid("12345678-1234-4321-5555-987654321000")]), result.TestGuidCollection);
 
                 Assert.False(result.NewCollectionSet);
             });
@@ -2688,7 +2704,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
             {
                 var query = await context.JsonEntitiesAllTypes.ToListAsync();
                 var entity = query.Single(x => x.Id == 1);
-                entity.TestInt64Collection = new([]);
+                entity.TestInt64Collection = new ReadOnlyCollection<long>([]);
 
                 ClearLog();
                 await context.SaveChangesAsync();
@@ -3096,7 +3112,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 var query = await context.JsonEntitiesAllTypes.ToListAsync();
                 var entity = query.Single(x => x.Id == 1);
                 entity.Reference.TestCharacterCollectionCollection[0] =
-                ['E', 'F', 'C', 'ö', 'r', 'E', '\"', '\\'];
+                    ['E', 'F', 'C', 'ö', 'r', 'E', '\"', '\\'];
                 entity.Collection[0].TestCharacterCollectionCollection[2] = ['D', 'E', 'F', '\0'];
 
                 ClearLog();
@@ -3105,7 +3121,9 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
             async context =>
             {
                 var result = await context.Set<JsonEntityAllTypes>().SingleAsync(x => x.Id == 1);
-                Assert.Equal([['E', 'F', 'C', 'ö', 'r', 'E', '\"', '\\'], null, ['D', 'E', 'F']], result.Reference.TestCharacterCollectionCollection);
+                Assert.Equal(
+                    [['E', 'F', 'C', 'ö', 'r', 'E', '\"', '\\'], null, ['D', 'E', 'F']],
+                    result.Reference.TestCharacterCollectionCollection);
                 Assert.Equal([['A', 'B', 'C'], null, ['D', 'E', 'F', '\0']], result.Collection[0].TestCharacterCollectionCollection);
             });
 
@@ -3150,8 +3168,12 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
             async context =>
             {
                 var result = await context.Set<JsonEntityAllTypes>().SingleAsync(x => x.Id == 1);
-                Assert.Equal([[short.MinValue, 0, short.MaxValue], null, [short.MinValue, 0, short.MaxValue, 3234]], result.Reference.TestInt16CollectionCollection);
-                Assert.Equal([[short.MinValue, 0, short.MaxValue], null, [short.MinValue, 0, short.MaxValue], null], result.Collection[0].TestInt16CollectionCollection);
+                Assert.Equal(
+                    [[short.MinValue, 0, short.MaxValue], null, [short.MinValue, 0, short.MaxValue, 3234]],
+                    result.Reference.TestInt16CollectionCollection);
+                Assert.Equal(
+                    [[short.MinValue, 0, short.MaxValue], null, [short.MinValue, 0, short.MaxValue], null],
+                    result.Collection[0].TestInt16CollectionCollection);
             });
 
     [ConditionalFact]
@@ -3242,8 +3264,12 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
             async context =>
             {
                 var result = await context.Set<JsonEntityAllTypes>().SingleAsync(x => x.Id == 1);
-                Assert.Equal([[77], [int.MinValue, null, int.MaxValue, null], null, [int.MinValue, 0, int.MaxValue], null], result.Reference.TestNullableInt32CollectionCollection);
-                Assert.Equal([null, [int.MinValue, null, int.MaxValue, null], null, [int.MinValue, 0, int.MaxValue], [null, 77]], result.Collection[0].TestNullableInt32CollectionCollection);
+                Assert.Equal(
+                    [[77], [int.MinValue, null, int.MaxValue, null], null, [int.MinValue, 0, int.MaxValue], null],
+                    result.Reference.TestNullableInt32CollectionCollection);
+                Assert.Equal(
+                    [null, [int.MinValue, null, int.MaxValue, null], null, [int.MinValue, 0, int.MaxValue], [null, 77]],
+                    result.Collection[0].TestNullableInt32CollectionCollection);
             });
 
     [ConditionalFact]
@@ -3332,7 +3358,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                     OwnedCollectionRoot =
                         value.HasValue
                             ? value.Value
-                                ? [new()]
+                                ? [new JsonOwnedRoot()]
                                 : []
                             : null
                 };
@@ -3366,6 +3392,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                     // Because just setting the navigation to an empty collection currently doesn't mark it as modified.
                     context.Entry(newEntity).State = EntityState.Modified;
                 }
+
                 await context.SaveChangesAsync();
 
                 var saved = context.Database.SqlQueryRaw<string>("select OwnedCollectionRoot from JsonEntitiesBasic where Id = 2").ToList();
@@ -3405,12 +3432,12 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 {
                     Id = 2,
                     Name = "NewEntity",
-                    OwnedReferenceRoot = new JsonOwnedRoot()
+                    OwnedReferenceRoot = new JsonOwnedRoot
                     {
                         OwnedCollectionBranch =
                             value.HasValue
                                 ? value.Value
-                                    ? [new()]
+                                    ? [new JsonOwnedBranch()]
                                     : []
                                 : null
                     }
@@ -3445,6 +3472,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                     // Because just setting the navigation to an empty collection currently doesn't mark it as modified.
                     context.Entry(newEntity).Reference(e => e.OwnedReferenceRoot).TargetEntry!.State = EntityState.Modified;
                 }
+
                 await context.SaveChangesAsync();
             },
             async context =>
@@ -3468,7 +3496,6 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 }
             });
 
-
     [ConditionalTheory]
     [InlineData(false)]
     [InlineData(true)]
@@ -3490,10 +3517,10 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                     TestDateTimeOffsetCollection = [],
                     TestDoubleCollection = [],
                     TestDecimalCollection = [],
-                    TestGuidCollection = new([]),
+                    TestGuidCollection = new ReadOnlyCollection<Guid>([]),
                     TestInt16Collection = [],
                     TestInt32Collection = [],
-                    TestInt64Collection = new([]),
+                    TestInt64Collection = new ReadOnlyCollection<long>([]),
                     TestSignedByteCollection = [],
                     TestSingleCollection = [],
                     TestTimeSpanCollection = [],
@@ -3519,10 +3546,10 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                     TestNullableEnumWithIntConverterCollectionCollection = [],
                     Collection =
                     [
-                        new()
+                        new JsonOwnedAllTypes
                         {
                             TestDefaultStringCollection = [],
-                            TestMaxLengthStringCollection = new([]),
+                            TestMaxLengthStringCollection = new ReadOnlyCollection<string>([]),
                             TestBooleanCollection = [],
                             TestDateTimeCollection = [],
                             TestDateTimeOffsetCollection = [],

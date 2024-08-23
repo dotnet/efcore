@@ -41,7 +41,8 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
         }
     }
 
-    private class Context603(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context603(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Product> Products { get; set; }
 
@@ -87,7 +88,8 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
         Assert.True(results[3].CustomerName != results[4].CustomerName);
     }
 
-    private class Context6901(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context6901(DbContextOptions options) : DbContext(options)
     {
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -218,7 +220,8 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
         }
     }
 
-    private class Context6986(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context6986(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Contact> Contacts { get; set; }
         public DbSet<EmployerContact> EmployerContacts { get; set; }
@@ -238,18 +241,15 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
             Contacts.AddRange(
                 new ServiceOperatorContact
                 {
-                    UserName = "service.operator@esoterix.co.uk",
-                    ServiceOperator = ServiceOperators.OrderBy(o => o.Id).First()
+                    UserName = "service.operator@esoterix.co.uk", ServiceOperator = ServiceOperators.OrderBy(o => o.Id).First()
                 },
                 new EmployerContact
                 {
-                    UserName = "uwe@esoterix.co.uk",
-                    Employer = Employers.OrderBy(e => e.Id).First(e => e.Name == "UWE")
+                    UserName = "uwe@esoterix.co.uk", Employer = Employers.OrderBy(e => e.Id).First(e => e.Name == "UWE")
                 },
                 new EmployerContact
                 {
-                    UserName = "hp@esoterix.co.uk",
-                    Employer = Employers.OrderBy(e => e.Id).First(e => e.Name == "Hewlett Packard")
+                    UserName = "hp@esoterix.co.uk", Employer = Employers.OrderBy(e => e.Id).First(e => e.Name == "Hewlett Packard")
                 },
                 new Contact { UserName = "noroles@esoterix.co.uk" });
 
@@ -308,7 +308,8 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
         }
     }
 
-    private class Context7222(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context7222(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Blog> Blogs { get; set; }
 
@@ -348,7 +349,8 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
         }
     }
 
-    private class Context7359(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context7359(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Product> Products { get; set; }
 
@@ -393,7 +395,8 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
         Assert.Equal(new[] { "First", "Second", "Third" }, list.Select(dto => dto.Title));
     }
 
-    private class Context7983(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context7983(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Blog> Blogs { get; set; }
         public DbSet<Post> Posts { get; set; }
@@ -483,7 +486,8 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
         }
     }
 
-    private class Context8538(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context8538(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Entity> Entities { get; set; }
 
@@ -671,7 +675,8 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
         }
     }
 
-    private class Context8909(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context8909(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Entity> Entities { get; set; }
 
@@ -711,7 +716,8 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
         Assert.Single(query.Where(t => t.Processing == false));
     }
 
-    private class Context9468(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context9468(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Cart> Carts { get; set; }
 
@@ -755,7 +761,8 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
         Assert.Equal(typeof(Context11104.Derived1), derived1.GetType());
     }
 
-    private class Context11104(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context11104(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Base> Bases { get; set; }
 
@@ -814,7 +821,8 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
         Assert.Equal(prices.Average(e => e.NullableDecimalColumn), context.Prices.Average(e => e.NullableDecimalColumn));
     }
 
-    private class Context11885(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context11885(DbContextOptions options) : DbContext(options)
     {
         public DbSet<PriceEntity> Prices { get; set; }
 
@@ -912,7 +920,8 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
         Assert.False(ReferenceEquals(results[2].Inner, results[3].Inner));
     }
 
-    private class Context12274(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context12274(DbContextOptions options) : DbContext(options)
     {
         public DbSet<MyEntity> Entities { get; set; }
 
@@ -977,7 +986,8 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
         }
     }
 
-    private class Context12549(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context12549(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Table1> Tables1 { get; set; }
         public DbSet<Table2> Tables2 { get; set; }
@@ -1014,7 +1024,8 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
         Assert.Single(equalQuery);
     }
 
-    private class Context15215(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context15215(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Auto> Autos { get; set; }
         public DbSet<EqualAuto> EqualAutos { get; set; }
@@ -1169,7 +1180,8 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
         }
     }
 
-    private class Context19253(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context19253(DbContextOptions options) : DbContext(options)
     {
         public DbSet<A> As { get; set; }
         public DbSet<B> Bs { get; set; }
@@ -1306,7 +1318,8 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
             : query.ToList();
     }
 
-    private class Context21770(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context21770(DbContextOptions options) : DbContext(options)
     {
         public DbSet<IceCream> IceCreams { get; set; }
         public DbSet<Food> Foods { get; set; }
@@ -1369,7 +1382,7 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
     #region 22841
 
     [ConditionalFact]
-    public async virtual Task SaveChangesAsync_accepts_changes_with_ConfigureAwait_true()
+    public virtual async Task SaveChangesAsync_accepts_changes_with_ConfigureAwait_true()
     {
         var contextFactory = await InitializeAsync<Context22841>();
 
@@ -1404,7 +1417,8 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
         Assert.True(isMySyncContext);
     }
 
-    private class Context22841(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context22841(DbContextOptions options) : DbContext(options)
     {
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder
@@ -1452,7 +1466,8 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
         Assert.Equal(2, authors.Count);
     }
 
-    private class Context24657(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context24657(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Author> Authors { get; set; }
 
@@ -1486,17 +1501,13 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
         public class DevBlog : Blog
         {
             public DevBlog()
-            {
-                IsPhotoBlog = false;
-            }
+                => IsPhotoBlog = false;
         }
 
         public class PhotoBlog : Blog
         {
             public PhotoBlog()
-            {
-                IsPhotoBlog = true;
-            }
+                => IsPhotoBlog = true;
 
             public int NumberOfPhotos { get; set; }
         }
@@ -1581,7 +1592,8 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
             : query.ToList();
     }
 
-    private class Context26593(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context26593(DbContextOptions options) : DbContext(options)
     {
         public DbSet<User> Users { get; set; }
         public DbSet<Group> Groups { get; set; }
@@ -1640,8 +1652,7 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
                 o => o.OrderId,
                 (o, g) => new
                 {
-                    Key = o,
-                    IsPending = g.Max(y => y.ShippingDate == null && y.CancellationDate == null ? o : (o - 10000000))
+                    Key = o, IsPending = g.Max(y => y.ShippingDate == null && y.CancellationDate == null ? o : (o - 10000000))
                 })
             .OrderBy(e => e.Key);
 
@@ -1654,7 +1665,8 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
             : query.ToList();
     }
 
-    private class Context26587(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context26587(DbContextOptions options) : DbContext(options)
     {
         public DbSet<OrderItem> OrderItems { get; set; }
 
@@ -1695,7 +1707,8 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
             : query.ToList();
     }
 
-    private class Context26472(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context26472(DbContextOptions options) : DbContext(options)
     {
         public virtual DbSet<Order> Orders { get; set; }
         public virtual DbSet<OrderItem> OrderItems { get; set; }
@@ -1801,7 +1814,8 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
             });
     }
 
-    private class Context27083(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context27083(DbContextOptions options) : DbContext(options)
     {
         public DbSet<TimeSheet> TimeSheets { get; set; }
         public DbSet<Customer> Customers { get; set; }
@@ -1900,8 +1914,7 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
                     into tg
                     select new
                     {
-                        A = tg.Key,
-                        B = context.Tables.Where(t => t.Value == tg.Max() * 6).Max(t => (int?)t.Id),
+                        A = tg.Key, B = context.Tables.Where(t => t.Value == tg.Max() * 6).Max(t => (int?)t.Id),
                     };
 
         var orders = async
@@ -1935,7 +1948,8 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
             : query.ToList();
     }
 
-    private class Context27094(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context27094(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Table> Tables { get; set; }
 
@@ -1999,16 +2013,15 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
         Assert.Single(result);
     }
 
-    private class Context26744(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context26744(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Parent> Parents { get; set; }
 
         public Task SeedAsync()
         {
-            Add(
-                new Parent { Children = [new() { SomeInteger = 1, SomeOtherNullableDateTime = new DateTime(2000, 11, 18) }] });
-
-            Add(new Parent { Children = [new() { SomeInteger = 1, }] });
+            Add(new Parent { Children = [new Child { SomeInteger = 1, SomeOtherNullableDateTime = new DateTime(2000, 11, 18) }] });
+            Add(new Parent { Children = [new Child { SomeInteger = 1, }] });
             return SaveChangesAsync();
         }
 
@@ -2052,7 +2065,8 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
         Assert.Empty(result);
     }
 
-    private class Context27343(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context27343(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Parent> Parents { get; set; }
 
@@ -2109,7 +2123,8 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
             : jsonLookup.ToList();
     }
 
-    private class Context28039(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context28039(DbContextOptions options) : DbContext(options)
     {
         public DbSet<IndexData> IndexDatas { get; set; }
         public DbSet<TableData> TableDatas { get; set; }
@@ -2155,20 +2170,19 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
 
         var query = await context.Customers
             .Select(
-                m => new Context31961.CustomerDto()
+                m => new Context31961.CustomerDto
                 {
                     Id = m.Id,
                     CompanyId = m.CompanyId,
                     Company = m.Company != null
-                        ? new Context31961.CompanyDto()
+                        ? new Context31961.CompanyDto
                         {
                             Id = m.Company.Id,
                             CompanyName = m.Company.CompanyName,
                             CountryId = m.Company.CountryId,
-                            Country = new Context31961.CountryDto()
+                            Country = new Context31961.CountryDto
                             {
-                                Id = m.Company.Country.Id,
-                                CountryName = m.Company.Country.CountryName,
+                                Id = m.Company.Country.Id, CountryName = m.Company.Country.CountryName,
                             },
                         }
                         : null,
@@ -2177,7 +2191,8 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
             .ToListAsync();
     }
 
-    private class Context31961(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context31961(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Customer> Customers { get; set; }
 

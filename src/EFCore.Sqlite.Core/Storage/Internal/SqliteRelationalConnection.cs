@@ -159,7 +159,9 @@ public class SqliteRelationalConnection : RelationalConnection, ISqliteRelationa
                 seed: null,
                 (decimal? sum, decimal? value) => value is null
                     ? sum
-                    : sum is null ? value : sum.Value + value.Value,
+                    : sum is null
+                        ? value
+                        : sum.Value + value.Value,
                 isDeterministic: true);
         }
         else

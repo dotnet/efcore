@@ -44,9 +44,7 @@ public class EntityEntry : IInfrastructure<InternalEntityEntry>
     /// </summary>
     [EntityFrameworkInternal]
     public EntityEntry(InternalEntityEntry internalEntry)
-    {
-        InternalEntry = internalEntry;
-    }
+        => InternalEntry = internalEntry;
 
     /// <summary>
     ///     Gets the entity being tracked by this entry.

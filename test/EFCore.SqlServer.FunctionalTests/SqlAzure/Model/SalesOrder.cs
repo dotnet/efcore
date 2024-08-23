@@ -12,9 +12,7 @@ namespace Microsoft.EntityFrameworkCore.SqlAzure.Model;
 public class SalesOrder
 {
     public SalesOrder()
-    {
-        Details = new HashSet<SalesOrderDetail>();
-    }
+        => Details = new HashSet<SalesOrderDetail>();
 
     public int SalesOrderID { get; set; }
     public string AccountNumber { get; set; }

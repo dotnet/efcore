@@ -60,9 +60,7 @@ public class ChangedChangingMonsterContext(DbContextOptions options) : MonsterCo
         private DateTime _eta;
 
         public BackOrderLine()
-        {
-            ETA = DateTime.Now;
-        }
+            => ETA = DateTime.Now;
 
         public DateTime ETA
         {
@@ -215,9 +213,7 @@ public class ChangedChangingMonsterContext(DbContextOptions options) : MonsterCo
         private IComputer _computer;
 
         public ComputerDetail()
-        {
-            Dimensions = new Dimensions();
-        }
+            => Dimensions = new Dimensions();
 
         public int ComputerDetailId
         {
@@ -560,9 +556,7 @@ public class ChangedChangingMonsterContext(DbContextOptions options) : MonsterCo
         private IDriver _driver;
 
         public License()
-        {
-            LicenseClass = "C";
-        }
+            => LicenseClass = "C";
 
         public string Name
         {
@@ -684,9 +678,7 @@ public class ChangedChangingMonsterContext(DbContextOptions options) : MonsterCo
         private IProduct _product;
 
         public OrderLine()
-        {
-            Quantity = 1;
-        }
+            => Quantity = 1;
 
         public int OrderId
         {
@@ -738,9 +730,7 @@ public class ChangedChangingMonsterContext(DbContextOptions options) : MonsterCo
         private ILogin _login;
 
         public AnOrder()
-        {
-            Concurrency = new ConcurrencyInfo();
-        }
+            => Concurrency = new ConcurrencyInfo();
 
         public void InitializeCollections()
         {
@@ -1628,9 +1618,7 @@ public class ChangedChangingMonsterContext(DbContextOptions options) : MonsterCo
         private string _phoneNumber;
 
         public Phone()
-        {
-            Extension = "None";
-        }
+            => Extension = "None";
 
         public string PhoneNumber
         {

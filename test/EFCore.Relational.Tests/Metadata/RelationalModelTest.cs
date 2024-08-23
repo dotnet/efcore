@@ -35,7 +35,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             var designTimeModel = context.GetService<IDesignTimeModel>().Model;
             var runtimeModel = context.Model;
-            Assert.NotSame(designTimeModel.FindRuntimeAnnotationValue(RelationalAnnotationNames.RelationalModelFactory),
+            Assert.NotSame(
+                designTimeModel.FindRuntimeAnnotationValue(RelationalAnnotationNames.RelationalModelFactory),
                 runtimeModel.FindRuntimeAnnotationValue(RelationalAnnotationNames.RelationalModelFactory));
 
             var designTimeRelationalModel = designTimeModel.GetRelationalModel();
@@ -1341,7 +1342,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 Assert.DoesNotContain(abstractCustomerType.GetInsertStoredProcedureMappings(), m => m.IncludesDerivedTypes != false);
                 Assert.Equal(
                     "SpecialCustomer_Insert",
-                    specialCustomerType.GetInsertStoredProcedureMappings().Single(m => m.IncludesDerivedTypes == true).StoreStoredProcedure.Name);
+                    specialCustomerType.GetInsertStoredProcedureMappings().Single(m => m.IncludesDerivedTypes == true).StoreStoredProcedure
+                        .Name);
                 Assert.Null(baseInsertSproc.Schema);
                 Assert.Equal(
                     new[]
@@ -1379,7 +1381,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 Assert.DoesNotContain(abstractCustomerType.GetUpdateStoredProcedureMappings(), m => m.IncludesDerivedTypes != false);
                 Assert.Equal(
                     "SpecialCustomer_Update",
-                    specialCustomerType.GetUpdateStoredProcedureMappings().Single(m => m.IncludesDerivedTypes == true).StoreStoredProcedure.Name);
+                    specialCustomerType.GetUpdateStoredProcedureMappings().Single(m => m.IncludesDerivedTypes == true).StoreStoredProcedure
+                        .Name);
 
                 Assert.Null(baseUpdateSproc.Schema);
                 Assert.Equal(
@@ -1418,7 +1421,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 Assert.DoesNotContain(abstractCustomerType.GetDeleteStoredProcedureMappings(), m => m.IncludesDerivedTypes != false);
                 Assert.Equal(
                     "SpecialCustomer_Delete",
-                    specialCustomerType.GetDeleteStoredProcedureMappings().Single(m => m.IncludesDerivedTypes == true).StoreStoredProcedure.Name);
+                    specialCustomerType.GetDeleteStoredProcedureMappings().Single(m => m.IncludesDerivedTypes == true).StoreStoredProcedure
+                        .Name);
 
                 Assert.Null(baseDeleteSproc.Schema);
                 Assert.Equal(
@@ -3224,6 +3228,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         private class CustomerDetails
         {
             public string Address { get; set; }
+
             // ReSharper disable once UnusedAutoPropertyAccessor.Local
             public DateTime BirthDay { get; set; }
         }

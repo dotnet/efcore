@@ -748,7 +748,8 @@ public static class RelationalEventId
     ///         This event uses the <see cref="MigrationCommandEventData" /> payload when used with a <see cref="DiagnosticSource" />.
     ///     </para>
     /// </remarks>
-    public static readonly EventId NonTransactionalMigrationOperationWarning = MakeMigrationsId(Id.NonTransactionalMigrationOperationWarning);
+    public static readonly EventId NonTransactionalMigrationOperationWarning =
+        MakeMigrationsId(Id.NonTransactionalMigrationOperationWarning);
 
     /// <summary>
     ///     A migration lock is being acquired.
@@ -762,7 +763,7 @@ public static class RelationalEventId
     ///     </para>
     /// </remarks>
     public static readonly EventId AcquiringMigrationLock = MakeMigrationsId(Id.AcquiringMigrationLock);
-    
+
     private static readonly string _queryPrefix = DbLoggerCategory.Query.Name + ".";
 
     private static EventId MakeQueryId(Id id)

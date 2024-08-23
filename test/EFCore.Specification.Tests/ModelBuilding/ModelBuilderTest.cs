@@ -44,8 +44,12 @@ public abstract partial class ModelBuilderTest
     public abstract class ModelBuilderFixtureBase
     {
         public abstract TestHelpers TestHelpers { get; }
-        public virtual DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder) => builder;
-        public virtual IServiceCollection AddServices(IServiceCollection services) => services;
+
+        public virtual DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+            => builder;
+
+        public virtual IServiceCollection AddServices(IServiceCollection services)
+            => services;
 
         public virtual bool ForeignKeysHaveIndexes
             => true;
@@ -934,7 +938,10 @@ public abstract partial class ModelBuilderTest
         public abstract TestIndexBuilder<TDependentEntity> HasIndex(string[] propertyNames, string name);
 
         public abstract TestIndexBuilder<TDependentEntity> HasIndex(Expression<Func<TDependentEntity, object?>> indexExpression);
-        public abstract TestIndexBuilder<TDependentEntity> HasIndex(Expression<Func<TDependentEntity, object?>> indexExpression, string name);
+
+        public abstract TestIndexBuilder<TDependentEntity> HasIndex(
+            Expression<Func<TDependentEntity, object?>> indexExpression,
+            string name);
 
         public abstract TestOwnershipBuilder<TEntity, TDependentEntity> WithOwner(string? ownerReference);
 

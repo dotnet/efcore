@@ -143,8 +143,9 @@ public static class SqlServerLoggerExtensions
 
         if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
         {
-            var eventData = new EntityTypeEventData(definition, (d, p)
-                => ((EventDefinition<string>)d).GenerateMessage(((EntityTypeEventData)p).EntityType.DisplayName()), entityType);
+            var eventData = new EntityTypeEventData(
+                definition, (d, p)
+                    => ((EventDefinition<string>)d).GenerateMessage(((EntityTypeEventData)p).EntityType.DisplayName()), entityType);
 
             diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
         }

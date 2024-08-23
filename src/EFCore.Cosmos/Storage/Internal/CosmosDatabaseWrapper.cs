@@ -246,7 +246,7 @@ public class CosmosDatabaseWrapper : Database
                     if (propertyName != null)
                     {
                         document[propertyName] =
-                            JToken.FromObject(entityType.GetDiscriminatorValue(), CosmosClientWrapper.Serializer);
+                            JToken.FromObject(entityType.GetDiscriminatorValue()!, CosmosClientWrapper.Serializer);
                     }
                 }
 
@@ -377,7 +377,7 @@ public class CosmosDatabaseWrapper : Database
                     if (propertyName != null)
                     {
                         document[propertyName] =
-                            JToken.FromObject(entityType.GetDiscriminatorValue(), CosmosClientWrapper.Serializer);
+                            JToken.FromObject(entityType.GetDiscriminatorValue()!, CosmosClientWrapper.Serializer);
                     }
                 }
 

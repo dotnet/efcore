@@ -27,7 +27,7 @@ public class GearsOfWarQuerySqliteTest : GearsOfWarQueryRelationalTestBase<Gears
         await base.Non_string_concat_uses_appropriate_type_mapping(async);
 
         AssertSql(
-"""
+            """
 SELECT "m"."Duration"
 FROM "Missions" AS "m"
 """);
@@ -819,7 +819,7 @@ WHERE date("m"."Date", CAST(3 AS TEXT) || ' days') = '1990-11-13'
         await base.Where_DateOnly_FromDateTime_compared_to_property(async);
 
         AssertSql(
-"""
+            """
 SELECT "t"."Id" AS "TagId", "m"."Id" AS "MissionId"
 FROM "Tags" AS "t"
 CROSS JOIN "Missions" AS "m"
@@ -832,7 +832,7 @@ WHERE date("t"."IssueDate") > "m"."Date"
         await base.Where_DateOnly_FromDateTime_compared_to_constant_and_parameter(async);
 
         AssertSql(
-"""
+            """
 @__prm_0='10/11/0002' (DbType = Date)
 
 SELECT "t"."Id", "t"."GearNickName", "t"."GearSquadId", "t"."IssueDate", "t"."Note"
@@ -3516,7 +3516,7 @@ FROM "Gears" AS "g"
         await base.ToString_nullable_enum_property_projection(async);
 
         AssertSql(
-"""
+            """
 SELECT CASE "w"."AmmunitionType"
     WHEN 1 THEN 'Cartridge'
     WHEN 2 THEN 'Shell'
@@ -3531,7 +3531,7 @@ FROM "Weapons" AS "w"
         await base.ToString_enum_contains(async);
 
         AssertSql(
-"""
+            """
 SELECT "m"."CodeName"
 FROM "Missions" AS "m"
 WHERE instr(CAST("m"."Difficulty" AS TEXT), 'Med') > 0
@@ -3543,7 +3543,7 @@ WHERE instr(CAST("m"."Difficulty" AS TEXT), 'Med') > 0
         await base.ToString_nullable_enum_contains(async);
 
         AssertSql(
-"""
+            """
 SELECT "w"."Name"
 FROM "Weapons" AS "w"
 WHERE instr(CASE "w"."AmmunitionType"
@@ -9811,7 +9811,7 @@ ORDER BY "g"."Nickname", "g"."SquadId", "w1"."OwnerFullName", "w1"."Id"
         await base.Include_one_to_many_on_composite_key_then_orderby_key_properties(async);
 
         AssertSql(
-"""
+            """
 SELECT "g"."Nickname", "g"."SquadId", "g"."AssignedCityName", "g"."CityOfBirthName", "g"."Discriminator", "g"."FullName", "g"."HasSoulPatch", "g"."LeaderNickname", "g"."LeaderSquadId", "g"."Rank", "w"."Id", "w"."AmmunitionType", "w"."IsAutomatic", "w"."Name", "w"."OwnerFullName", "w"."SynergyWithId"
 FROM "Gears" AS "g"
 LEFT JOIN "Weapons" AS "w" ON "g"."FullName" = "w"."OwnerFullName"
@@ -9840,23 +9840,23 @@ LEFT JOIN (
         await base.Join_include_coalesce_simple(async);
 
         AssertSql(
-"""
+            """
 SELECT "g0"."Nickname", "g0"."SquadId", "g0"."AssignedCityName", "g0"."CityOfBirthName", "g0"."Discriminator", "g0"."FullName", "g0"."HasSoulPatch", "g0"."LeaderNickname", "g0"."LeaderSquadId", "g0"."Rank", "g"."Nickname", "g"."SquadId", "g"."AssignedCityName", "g"."CityOfBirthName", "g"."Discriminator", "g"."FullName", "g"."HasSoulPatch", "g"."LeaderNickname", "g"."LeaderSquadId", "g"."Rank", "w"."Id", "w"."AmmunitionType", "w"."IsAutomatic", "w"."Name", "w"."OwnerFullName", "w"."SynergyWithId", "g"."Nickname" = 'Marcus'
 FROM "Gears" AS "g"
 LEFT JOIN "Gears" AS "g0" ON "g"."LeaderNickname" = "g0"."Nickname"
 LEFT JOIN "Weapons" AS "w" ON "g"."FullName" = "w"."OwnerFullName"
 ORDER BY "g"."Nickname", "g"."SquadId", "g0"."Nickname", "g0"."SquadId"
 """,
-                //
-                """
+            //
+            """
 SELECT "g0"."Nickname", "g0"."SquadId", "g0"."AssignedCityName", "g0"."CityOfBirthName", "g0"."Discriminator", "g0"."FullName", "g0"."HasSoulPatch", "g0"."LeaderNickname", "g0"."LeaderSquadId", "g0"."Rank", "g"."Nickname", "g"."SquadId", "w"."Id", "w"."AmmunitionType", "w"."IsAutomatic", "w"."Name", "w"."OwnerFullName", "w"."SynergyWithId", "g"."AssignedCityName", "g"."CityOfBirthName", "g"."Discriminator", "g"."FullName", "g"."HasSoulPatch", "g"."LeaderNickname", "g"."LeaderSquadId", "g"."Rank"
 FROM "Gears" AS "g"
 LEFT JOIN "Gears" AS "g0" ON "g"."LeaderNickname" = "g0"."Nickname"
 LEFT JOIN "Weapons" AS "w" ON "g0"."FullName" = "w"."OwnerFullName"
 ORDER BY "g"."Nickname", "g"."SquadId", "g0"."Nickname", "g0"."SquadId"
 """,
-                //
-                """
+            //
+            """
 SELECT "g0"."Nickname", "g0"."SquadId", "g0"."AssignedCityName", "g0"."CityOfBirthName", "g0"."Discriminator", "g0"."FullName", "g0"."HasSoulPatch", "g0"."LeaderNickname", "g0"."LeaderSquadId", "g0"."Rank", "g"."Nickname", "g"."SquadId", "w"."Id", "w"."AmmunitionType", "w"."IsAutomatic", "w"."Name", "w"."OwnerFullName", "w"."SynergyWithId", "g"."AssignedCityName", "g"."CityOfBirthName", "g"."Discriminator", "g"."FullName", "g"."HasSoulPatch", "g"."LeaderNickname", "g"."LeaderSquadId", "g"."Rank", "w0"."Id", "w0"."AmmunitionType", "w0"."IsAutomatic", "w0"."Name", "w0"."OwnerFullName", "w0"."SynergyWithId"
 FROM "Gears" AS "g"
 LEFT JOIN "Gears" AS "g0" ON "g"."LeaderNickname" = "g0"."Nickname"
@@ -9871,15 +9871,15 @@ ORDER BY "g"."Nickname", "g"."SquadId", "g0"."Nickname", "g0"."SquadId", "w"."Id
         await base.Join_include_coalesce_nested(async);
 
         AssertSql(
-"""
+            """
 SELECT "g0"."Nickname", "g0"."SquadId", "g0"."AssignedCityName", "g0"."CityOfBirthName", "g0"."Discriminator", "g0"."FullName", "g0"."HasSoulPatch", "g0"."LeaderNickname", "g0"."LeaderSquadId", "g0"."Rank", "g"."Nickname", "g"."SquadId", "g"."AssignedCityName", "g"."CityOfBirthName", "g"."Discriminator", "g"."FullName", "g"."HasSoulPatch", "g"."LeaderNickname", "g"."LeaderSquadId", "g"."Rank", "w"."Id", "w"."AmmunitionType", "w"."IsAutomatic", "w"."Name", "w"."OwnerFullName", "w"."SynergyWithId", "g"."Nickname" = 'Marcus'
 FROM "Gears" AS "g"
 LEFT JOIN "Gears" AS "g0" ON "g"."LeaderNickname" = "g0"."Nickname"
 LEFT JOIN "Weapons" AS "w" ON "g"."FullName" = "w"."OwnerFullName"
 ORDER BY "g"."Nickname", "g"."SquadId", "g0"."Nickname", "g0"."SquadId"
 """,
-                //
-                """
+            //
+            """
 SELECT "g0"."Nickname", "g0"."SquadId", "g0"."AssignedCityName", "g0"."CityOfBirthName", "g0"."Discriminator", "g0"."FullName", "g0"."HasSoulPatch", "g0"."LeaderNickname", "g0"."LeaderSquadId", "g0"."Rank", "g"."Nickname", "g"."SquadId", "w"."Id", "w"."AmmunitionType", "w"."IsAutomatic", "w"."Name", "w"."OwnerFullName", "w"."SynergyWithId", "w0"."Id", "w0"."AmmunitionType", "w0"."IsAutomatic", "w0"."Name", "w0"."OwnerFullName", "w0"."SynergyWithId", "g"."AssignedCityName", "g"."CityOfBirthName", "g"."Discriminator", "g"."FullName", "g"."HasSoulPatch", "g"."LeaderNickname", "g"."LeaderSquadId", "g"."Rank", "w1"."Id", "w1"."AmmunitionType", "w1"."IsAutomatic", "w1"."Name", "w1"."OwnerFullName", "w1"."SynergyWithId"
 FROM "Gears" AS "g"
 LEFT JOIN "Gears" AS "g0" ON "g"."LeaderNickname" = "g0"."Nickname"
@@ -9895,7 +9895,7 @@ ORDER BY "g"."Nickname", "g"."SquadId", "g0"."Nickname", "g0"."SquadId", "w"."Id
         await base.Join_include_conditional(async);
 
         AssertSql(
-"""
+            """
 SELECT "g0"."Nickname" IS NOT NULL AND "g0"."SquadId" IS NOT NULL, "g0"."Nickname", "g0"."SquadId", "g0"."AssignedCityName", "g0"."CityOfBirthName", "g0"."Discriminator", "g0"."FullName", "g0"."HasSoulPatch", "g0"."LeaderNickname", "g0"."LeaderSquadId", "g0"."Rank", "g"."Nickname", "g"."SquadId", "g"."AssignedCityName", "g"."CityOfBirthName", "g"."Discriminator", "g"."FullName", "g"."HasSoulPatch", "g"."LeaderNickname", "g"."LeaderSquadId", "g"."Rank", "w"."Id", "w"."AmmunitionType", "w"."IsAutomatic", "w"."Name", "w"."OwnerFullName", "w"."SynergyWithId", "g"."Nickname" = 'Marcus'
 FROM "Gears" AS "g"
 LEFT JOIN "Gears" AS "g0" ON "g"."LeaderNickname" = "g0"."Nickname"
@@ -9909,7 +9909,7 @@ ORDER BY "g"."Nickname", "g"."SquadId", "g0"."Nickname", "g0"."SquadId"
         await base.Derived_reference_is_skipped_when_base_type(async);
 
         AssertSql(
-"""
+            """
 SELECT "l"."Name", "l"."Discriminator", "l"."LocustHordeId", "l"."ThreatLevel", "l"."ThreatLevelByte", "l"."ThreatLevelNullableByte", "l"."DefeatedByNickname", "l"."DefeatedBySquadId", "l"."HighCommandId", "l0"."Id", "l0"."IsOperational", "l0"."Name"
 FROM "LocustLeaders" AS "l"
 LEFT JOIN "LocustHighCommands" AS "l0" ON "l"."HighCommandId" = "l0"."Id"

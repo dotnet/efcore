@@ -82,9 +82,9 @@ using static Microsoft.EntityFrameworkCore.Query.PrecompiledQueryRelationalTestB
 
         // This turns on the interceptors feature for the designated namespace(s).
         var parseOptions = new CSharpParseOptions().WithFeatures(
-            [
-                new KeyValuePair<string, string>("InterceptorsPreviewNamespaces", "Microsoft.EntityFrameworkCore.GeneratedInterceptors")
-            ]);
+        [
+            new KeyValuePair<string, string>("InterceptorsPreviewNamespaces", "Microsoft.EntityFrameworkCore.GeneratedInterceptors")
+        ]);
 
         var syntaxTree = CSharpSyntaxTree.ParseText(source, parseOptions, path: "Test.cs");
 
@@ -113,7 +113,8 @@ using static Microsoft.EntityFrameworkCore.Query.PrecompiledQueryRelationalTestB
                 // Perform precompilation
                 var precompilationErrors = new List<PrecompiledQueryCodeGenerator.QueryPrecompilationError>();
                 generatedFiles = precompiledQueryCodeGenerator.GeneratePrecompiledQueries(
-                    compilation, syntaxGenerator, dbContext, memberAccessReplacements: new Dictionary<MemberInfo, QualifiedName>(), precompilationErrors, new HashSet<string>(), additionalAssembly: assembly);
+                    compilation, syntaxGenerator, dbContext, memberAccessReplacements: new Dictionary<MemberInfo, QualifiedName>(),
+                    precompilationErrors, new HashSet<string>(), additionalAssembly: assembly);
 
                 if (errorAsserter is null)
                 {
@@ -277,7 +278,8 @@ using static Microsoft.EntityFrameworkCore.Query.PrecompiledQueryRelationalTestB
         ICurrentDbContext currentContext,
         IEvaluatableExpressionFilter evaluatableExpressionFilter,
         IModel model)
-        : QueryCompiler(queryContextFactory, compiledQueryCache, compiledQueryCacheKeyGenerator, database, logger,
+        : QueryCompiler(
+            queryContextFactory, compiledQueryCache, compiledQueryCacheKeyGenerator, database, logger,
             currentContext, evaluatableExpressionFilter, model)
     {
         public const string ErrorMessage =

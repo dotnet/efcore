@@ -271,6 +271,7 @@ public class CosmosReadItemAndPartitionKeysExtractor : ExpressionVisitor
                             _jsonIdPropertyValues[property] = propertyValue;
                             isCompatibleComparisonForReadItem = true;
                         }
+
                         break;
                     }
                 }

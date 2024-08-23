@@ -55,9 +55,10 @@ public class InMemoryDatabaseCreatorTest
     [ConditionalFact]
     public void EnsureCreated_throws_for_missing_seed()
     {
-        using var context = new FraggleContext( asyncSeed: true);
+        using var context = new FraggleContext(asyncSeed: true);
 
-        Assert.Equal(CoreStrings.MissingSeeder,
+        Assert.Equal(
+            CoreStrings.MissingSeeder,
             Assert.Throws<InvalidOperationException>(() => context.Database.EnsureCreated()).Message);
     }
 
@@ -66,8 +67,9 @@ public class InMemoryDatabaseCreatorTest
     {
         using var context = new FraggleContext(seed: true);
 
-        Assert.Equal(CoreStrings.MissingSeeder,
-           (await Assert.ThrowsAsync<InvalidOperationException>(() => context.Database.EnsureCreatedAsync())).Message);
+        Assert.Equal(
+            CoreStrings.MissingSeeder,
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => context.Database.EnsureCreatedAsync())).Message);
     }
 
     [ConditionalFact]

@@ -11,7 +11,7 @@ public class CosmosModelAsserter : ModelAsserter
     {
     }
 
-    public new static CosmosModelAsserter Instance { get; } = new();
+    public static new CosmosModelAsserter Instance { get; } = new();
 
     public override void AssertEqual(
         IEnumerable<IReadOnlyProperty> expectedProperties,

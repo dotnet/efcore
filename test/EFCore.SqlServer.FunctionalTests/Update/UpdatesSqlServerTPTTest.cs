@@ -5,7 +5,8 @@ using Microsoft.EntityFrameworkCore.TestModels.UpdatesModel;
 
 namespace Microsoft.EntityFrameworkCore.Update;
 
-public class UpdatesSqlServerTPTTest(UpdatesSqlServerTPTTest.UpdatesSqlServerTPTFixture fixture, ITestOutputHelper testOutputHelper) : UpdatesSqlServerTestBase<UpdatesSqlServerTPTTest.UpdatesSqlServerTPTFixture>(fixture, testOutputHelper)
+public class UpdatesSqlServerTPTTest(UpdatesSqlServerTPTTest.UpdatesSqlServerTPTFixture fixture, ITestOutputHelper testOutputHelper)
+    : UpdatesSqlServerTestBase<UpdatesSqlServerTPTTest.UpdatesSqlServerTPTFixture>(fixture, testOutputHelper)
 {
     public override async Task Save_with_shared_foreign_key()
     {

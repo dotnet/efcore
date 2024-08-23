@@ -540,10 +540,12 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
                                 break;
                             case SqlServerEngineType.SqlServer:
                                 throw new InvalidOperationException(
-                                    SqlServerStrings.JsonValuePathExpressionsNotSupported(_sqlServerSingletonOptions.SqlServerCompatibilityLevel));
+                                    SqlServerStrings.JsonValuePathExpressionsNotSupported(
+                                        _sqlServerSingletonOptions.SqlServerCompatibilityLevel));
                             case SqlServerEngineType.AzureSql:
                                 throw new InvalidOperationException(
-                                    SqlServerStrings.JsonValuePathExpressionsNotSupported(_sqlServerSingletonOptions.AzureSqlCompatibilityLevel));
+                                    SqlServerStrings.JsonValuePathExpressionsNotSupported(
+                                        _sqlServerSingletonOptions.AzureSqlCompatibilityLevel));
                         }
                     }
 

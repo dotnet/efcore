@@ -26,9 +26,7 @@ public class EntityQueryRootExpression : QueryRootExpression, IPrintableExpressi
     /// <param name="entityType">The entity type this query root represents.</param>
     public EntityQueryRootExpression(IAsyncQueryProvider asyncQueryProvider, IEntityType entityType)
         : base(asyncQueryProvider, entityType.ClrType)
-    {
-        EntityType = entityType;
-    }
+        => EntityType = entityType;
 
     /// <summary>
     ///     Creates a new instance of the <see cref="EntityQueryRootExpression" /> class without any query provider.
@@ -36,9 +34,7 @@ public class EntityQueryRootExpression : QueryRootExpression, IPrintableExpressi
     /// <param name="entityType">The entity type this query root represents.</param>
     public EntityQueryRootExpression(IEntityType entityType)
         : base(entityType.ClrType)
-    {
-        EntityType = entityType;
-    }
+        => EntityType = entityType;
 
     /// <summary>
     ///     The entity type represented by this query root.

@@ -44,9 +44,7 @@ public class KeyDiscoveryConvention :
     /// </summary>
     /// <param name="dependencies">Parameter object containing dependencies for this convention.</param>
     public KeyDiscoveryConvention(ProviderConventionSetBuilderDependencies dependencies)
-    {
-        Dependencies = dependencies;
-    }
+        => Dependencies = dependencies;
 
     /// <summary>
     ///     Dependencies for this service.
@@ -81,9 +79,9 @@ public class KeyDiscoveryConvention :
     ///     Determines whether key properties should be discovered for the entity type.
     /// </summary>
     /// <param name="entityType">The entity type.</param>
-    /// <returns><see langword="true"/> if key properties should be discovered, otherwise <see langword="false"/>.</returns>
-    protected virtual bool ShouldDiscoverKeyProperties(IConventionEntityType entityType) =>
-        entityType.BaseType == null
+    /// <returns><see langword="true" /> if key properties should be discovered, otherwise <see langword="false" />.</returns>
+    protected virtual bool ShouldDiscoverKeyProperties(IConventionEntityType entityType)
+        => entityType.BaseType == null
             && (!entityType.IsKeyless || entityType.GetIsKeylessConfigurationSource() == ConfigurationSource.Convention)
             && entityType.Builder.CanSetPrimaryKey((IReadOnlyList<IConventionProperty>?)null);
 
@@ -304,7 +302,7 @@ public class KeyDiscoveryConvention :
     {
         var foreignKey = relationshipBuilder.Metadata;
         if ((foreignKey.IsOwnership
-            || foreignKey.GetReferencingSkipNavigations().Any(n => n.IsCollection))
+                || foreignKey.GetReferencingSkipNavigations().Any(n => n.IsCollection))
             && !foreignKey.Properties.SequenceEqual(oldDependentProperties)
             && relationshipBuilder.Metadata.IsInModel)
         {

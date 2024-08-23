@@ -21,7 +21,8 @@ public class TestRelationalTransaction(
     DbTransaction transaction,
     IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> logger,
     bool transactionOwned,
-    ISqlGenerationHelper sqlGenerationHelper) : RelationalTransaction(connection, transaction, new Guid(), logger, transactionOwned, sqlGenerationHelper)
+    ISqlGenerationHelper sqlGenerationHelper) : RelationalTransaction(
+    connection, transaction, new Guid(), logger, transactionOwned, sqlGenerationHelper)
 {
     private readonly TestSqlServerConnection _testConnection = (TestSqlServerConnection)connection;
 

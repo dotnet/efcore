@@ -261,7 +261,11 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
                 elementClrType.UnwrapNullableType(),
                 elementTypeMapping,
                 isElementNullable ?? elementClrType.IsNullableType()),
-            identifier: [(new ColumnExpression(JsonEachKeyColumnName, tableAlias, typeof(int), keyColumnTypeMapping, nullable: false), keyColumnTypeMapping.Comparer)],
+            identifier:
+            [
+                (new ColumnExpression(JsonEachKeyColumnName, tableAlias, typeof(int), keyColumnTypeMapping, nullable: false),
+                    keyColumnTypeMapping.Comparer)
+            ],
             _sqlAliasManager);
 #pragma warning restore EF1001 // Internal EF Core API usage.
 

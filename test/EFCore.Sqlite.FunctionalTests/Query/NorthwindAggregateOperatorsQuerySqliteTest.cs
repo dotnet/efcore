@@ -63,8 +63,6 @@ FROM "Order Details" AS "o"
 """);
     }
 
-
-
     public override async Task Average_over_max_subquery(bool async)
     {
         await base.Average_over_max_subquery(async);

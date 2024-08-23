@@ -35,19 +35,19 @@ public abstract class TrackGraphTestBase
                 Id = 1,
                 Products =
                 [
-                    new()
+                    new Product
                     {
                         Id = 1,
                         CategoryId = 1,
                         Details = new ProductDetails { Id = 1 }
                     },
-                    new()
+                    new Product
                     {
                         Id = 2,
                         CategoryId = 1,
                         Details = new ProductDetails { Id = 2 }
                     },
-                    new()
+                    new Product
                     {
                         Id = 3,
                         CategoryId = 1,
@@ -164,9 +164,9 @@ public abstract class TrackGraphTestBase
         {
             Products =
             [
-                new(),
-                new(),
-                new()
+                new NullbileProduct(),
+                new NullbileProduct(),
+                new NullbileProduct()
             ]
         };
 
@@ -413,9 +413,9 @@ public abstract class TrackGraphTestBase
             Id = 1,
             Products =
             [
-                new() { Id = 1 },
-                new() { Id = 2 },
-                new() { Id = 3 }
+                new Product { Id = 1 },
+                new Product { Id = 2 },
+                new Product { Id = 3 }
             ]
         };
 
@@ -581,9 +581,9 @@ public abstract class TrackGraphTestBase
             Id = 1,
             Products =
             [
-                new() { Id = 1 },
+                new Product { Id = 1 },
                 existingProduct,
-                new() { Id = 3 }
+                new Product { Id = 3 }
             ]
         };
 
@@ -626,19 +626,19 @@ public abstract class TrackGraphTestBase
             Id = 1,
             Products =
             [
-                new()
+                new Product
                 {
                     Id = 1,
                     CategoryId = 1,
                     Details = new ProductDetails { Id = 1 }
                 },
-                new()
+                new Product
                 {
                     Id = 2,
                     CategoryId = 1,
                     Details = new ProductDetails { Id = 2 }
                 },
-                new()
+                new Product
                 {
                     Id = 3,
                     CategoryId = 1,
@@ -795,9 +795,9 @@ public abstract class TrackGraphTestBase
             Id = 1,
             Products =
             [
-                new() { Id = 1 },
-                new() { Id = 2 },
-                new() { Id = 3 }
+                new Product { Id = 1 },
+                new Product { Id = 2 },
+                new Product { Id = 3 }
             ]
         };
 
@@ -845,9 +845,9 @@ public abstract class TrackGraphTestBase
         {
             newCategory.Products =
             [
-                new() { Id = 1 },
-                new() { Id = 2 },
-                new() { Id = 3 }
+                new Product { Id = 1 },
+                new Product { Id = 2 },
+                new Product { Id = 3 }
             ];
         }
 
@@ -940,19 +940,19 @@ public abstract class TrackGraphTestBase
             Id = 1,
             Products =
             [
-                new()
+                new Product
                 {
                     Id = 1,
                     CategoryId = 1,
                     Details = new ProductDetails { Id = 1 }
                 },
-                new()
+                new Product
                 {
                     Id = 2,
                     CategoryId = 1,
                     Details = new ProductDetails { Id = 2 }
                 },
-                new()
+                new Product
                 {
                     Id = 3,
                     CategoryId = 1,
@@ -1056,9 +1056,9 @@ public abstract class TrackGraphTestBase
             Id = 77,
             Products =
             [
-                new() { Id = 77, CategoryId = expectModified ? 0 : 77 },
-                new() { Id = 0, CategoryId = expectModified ? 0 : 77 },
-                new() { Id = 78, CategoryId = expectModified ? 0 : 77 }
+                new Product { Id = 77, CategoryId = expectModified ? 0 : 77 },
+                new Product { Id = 0, CategoryId = expectModified ? 0 : 77 },
+                new Product { Id = 78, CategoryId = expectModified ? 0 : 77 }
             ]
         };
 
@@ -1099,9 +1099,9 @@ public abstract class TrackGraphTestBase
             Id = 77,
             Products =
             [
-                new() { Id = 77, CategoryId = 77 },
-                new() { Id = 0, CategoryId = 77 },
-                new() { Id = 78, CategoryId = 77 }
+                new Product { Id = 77, CategoryId = 77 },
+                new Product { Id = 0, CategoryId = 77 },
+                new Product { Id = 78, CategoryId = 77 }
             ]
         };
 
@@ -1170,19 +1170,19 @@ public abstract class TrackGraphTestBase
             Id = 1,
             Products =
             [
-                new()
+                new Product
                 {
                     Id = 1,
                     CategoryId = 1,
                     Details = new ProductDetails { Id = 1 }
                 },
-                new()
+                new Product
                 {
                     Id = 2,
                     CategoryId = 1,
                     Details = new ProductDetails { Id = 2 }
                 },
-                new()
+                new Product
                 {
                     Id = 3,
                     CategoryId = 1,

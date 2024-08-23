@@ -56,7 +56,8 @@ public ref struct Utf8JsonReaderManager
     }
 
     /// <summary>
-    ///     Skips the children of the current JSON token, which may involve reading more data from the stream and creating a new <see cref="Utf8JsonReader " />
+    ///     Skips the children of the current JSON token, which may involve reading more data from the stream and creating a new
+    ///     <see cref="Utf8JsonReader " />
     ///     instance in <see cref="CurrentReader" />.
     /// </summary>
     public void Skip()

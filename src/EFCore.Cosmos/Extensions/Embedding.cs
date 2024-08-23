@@ -13,6 +13,7 @@ internal class Embedding : IEquatable<Embedding>
     public VectorDataType DataType { get; set; }
     public int Dimensions { get; set; }
     public DistanceFunction DistanceFunction { get; set; }
+
     public bool Equals(Embedding? that)
         => Equals(Path, that?.Path) && Equals(DataType, that?.DataType) && Equals(Dimensions, that.Dimensions);
 }

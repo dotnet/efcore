@@ -18,9 +18,7 @@ public abstract class FromSqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
 
     protected FromSqlQueryTestBase(TFixture fixture)
         : base(fixture)
-    {
-        Fixture.TestSqlLoggerFactory.Clear();
-    }
+        => Fixture.TestSqlLoggerFactory.Clear();
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -206,7 +204,6 @@ public abstract class FromSqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 ? await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync())
                 : Assert.Throws<InvalidOperationException>(() => query.ToList())).Message);
     }
-
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]

@@ -3,8 +3,10 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class AspNetIdentityCustomTypesDefaultSqliteTest(AspNetIdentityCustomTypesDefaultSqliteTest.AspNetIdentityCustomTypesDefaultSqliteFixture fixture)
-    : AspNetIdentityCustomTypesDefaultTestBase<AspNetIdentityCustomTypesDefaultSqliteTest.AspNetIdentityCustomTypesDefaultSqliteFixture>(fixture)
+public class AspNetIdentityCustomTypesDefaultSqliteTest(
+    AspNetIdentityCustomTypesDefaultSqliteTest.AspNetIdentityCustomTypesDefaultSqliteFixture fixture)
+    : AspNetIdentityCustomTypesDefaultTestBase<AspNetIdentityCustomTypesDefaultSqliteTest.AspNetIdentityCustomTypesDefaultSqliteFixture>(
+        fixture)
 {
     public class AspNetIdentityCustomTypesDefaultSqliteFixture : AspNetIdentityFixtureBase
     {

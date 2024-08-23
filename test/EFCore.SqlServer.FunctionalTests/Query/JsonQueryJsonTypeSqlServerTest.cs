@@ -448,7 +448,8 @@ FROM (
         // TODO:SQLJSON Json type is not comparable
         Assert.StartsWith(
             "The json data type cannot be selected as DISTINCT because it is not comparable.",
-            (await Assert.ThrowsAsync<SqlException>(() => base.Json_subquery_reference_pushdown_reference_pushdown_reference(async))).Message);
+            (await Assert.ThrowsAsync<SqlException>(() => base.Json_subquery_reference_pushdown_reference_pushdown_reference(async)))
+            .Message);
 
         AssertSql(
             """
@@ -478,7 +479,8 @@ FROM (
         // TODO:SQLJSON Json type is not comparable
         Assert.StartsWith(
             "The json data type cannot be selected as DISTINCT because it is not comparable.",
-            (await Assert.ThrowsAsync<SqlException>(() => base.Json_subquery_reference_pushdown_reference_pushdown_collection(async))).Message);
+            (await Assert.ThrowsAsync<SqlException>(() => base.Json_subquery_reference_pushdown_reference_pushdown_collection(async)))
+            .Message);
 
         AssertSql(
             """
@@ -3071,7 +3073,6 @@ ORDER BY [m].[Id]
 """);
     }
 
-
     public override async Task Json_projection_nothing_interesting_AsNoTrackingWithIdentityResolution(bool async)
     {
         await base.Json_projection_nothing_interesting_AsNoTrackingWithIdentityResolution(async);
@@ -3094,7 +3095,8 @@ FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
-    public override async Task Json_nested_collection_anonymous_projection_of_primitives_in_projection_NoTrackingWithIdentityResolution(bool async)
+    public override async Task Json_nested_collection_anonymous_projection_of_primitives_in_projection_NoTrackingWithIdentityResolution(
+        bool async)
     {
         await base.Json_nested_collection_anonymous_projection_of_primitives_in_projection_NoTrackingWithIdentityResolution(async);
 
@@ -3111,9 +3113,13 @@ ORDER BY [j].[Id], [s].[c3], [s].[key], [s].[c4]
 """);
     }
 
-    public override async Task Json_projection_second_element_through_collection_element_constant_projected_after_owner_nested_AsNoTrackingWithIdentityResolution(bool async)
+    public override async Task
+        Json_projection_second_element_through_collection_element_constant_projected_after_owner_nested_AsNoTrackingWithIdentityResolution(
+            bool async)
     {
-        await base.Json_projection_second_element_through_collection_element_constant_projected_after_owner_nested_AsNoTrackingWithIdentityResolution(async);
+        await base
+            .Json_projection_second_element_through_collection_element_constant_projected_after_owner_nested_AsNoTrackingWithIdentityResolution(
+                async);
 
         AssertSql(
             """
@@ -3122,7 +3128,8 @@ FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
-    public override async Task Json_projection_reference_collection_and_collection_element_nested_AsNoTrackingWithIdentityResolution(bool async)
+    public override async Task Json_projection_reference_collection_and_collection_element_nested_AsNoTrackingWithIdentityResolution(
+        bool async)
     {
         await base.Json_projection_reference_collection_and_collection_element_nested_AsNoTrackingWithIdentityResolution(async);
 
@@ -3134,9 +3141,13 @@ FROM [JsonEntitiesBasic] AS [j]
     }
 
     [SqlServerCondition(SqlServerCondition.SupportsJsonPathExpressions)]
-    public override async Task Json_projection_second_element_through_collection_element_parameter_correctly_projected_after_owner_nested_AsNoTrackingWithIdentityResolution(bool async)
+    public override async Task
+        Json_projection_second_element_through_collection_element_parameter_correctly_projected_after_owner_nested_AsNoTrackingWithIdentityResolution(
+            bool async)
     {
-        await base.Json_projection_second_element_through_collection_element_parameter_correctly_projected_after_owner_nested_AsNoTrackingWithIdentityResolution(async);
+        await base
+            .Json_projection_second_element_through_collection_element_parameter_correctly_projected_after_owner_nested_AsNoTrackingWithIdentityResolution(
+                async);
 
         AssertSql(
             """
@@ -3147,9 +3158,13 @@ FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
-    public override async Task Json_projection_only_second_element_through_collection_element_constant_projected_nested_AsNoTrackingWithIdentityResolution(bool async)
+    public override async Task
+        Json_projection_only_second_element_through_collection_element_constant_projected_nested_AsNoTrackingWithIdentityResolution(
+            bool async)
     {
-        await base.Json_projection_only_second_element_through_collection_element_constant_projected_nested_AsNoTrackingWithIdentityResolution(async);
+        await base
+            .Json_projection_only_second_element_through_collection_element_constant_projected_nested_AsNoTrackingWithIdentityResolution(
+                async);
 
         AssertSql(
             """
@@ -3159,9 +3174,13 @@ FROM [JsonEntitiesBasic] AS [j]
     }
 
     [SqlServerCondition(SqlServerCondition.SupportsJsonPathExpressions)]
-    public override async Task Json_projection_only_second_element_through_collection_element_parameter_projected_nested_AsNoTrackingWithIdentityResolution(bool async)
+    public override async Task
+        Json_projection_only_second_element_through_collection_element_parameter_projected_nested_AsNoTrackingWithIdentityResolution(
+            bool async)
     {
-        await base.Json_projection_only_second_element_through_collection_element_parameter_projected_nested_AsNoTrackingWithIdentityResolution(async);
+        await base
+            .Json_projection_only_second_element_through_collection_element_parameter_projected_nested_AsNoTrackingWithIdentityResolution(
+                async);
 
         AssertSql(
             """
@@ -3173,9 +3192,13 @@ FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
-    public override async Task Json_projection_second_element_through_collection_element_constant_different_values_projected_before_owner_nested_AsNoTrackingWithIdentityResolution(bool async)
+    public override async Task
+        Json_projection_second_element_through_collection_element_constant_different_values_projected_before_owner_nested_AsNoTrackingWithIdentityResolution(
+            bool async)
     {
-        await base.Json_projection_second_element_through_collection_element_constant_different_values_projected_before_owner_nested_AsNoTrackingWithIdentityResolution(async);
+        await base
+            .Json_projection_second_element_through_collection_element_constant_different_values_projected_before_owner_nested_AsNoTrackingWithIdentityResolution(
+                async);
 
         AssertSql(
             """
@@ -3196,9 +3219,13 @@ FROM [JsonEntitiesBasic] AS [j]
     }
 
     [SqlServerCondition(SqlServerCondition.SupportsJsonPathExpressions)]
-    public override async Task Json_projection_nested_collection_element_using_parameter_and_the_owner_in_correct_order_AsNoTrackingWithIdentityResolution(bool async)
+    public override async Task
+        Json_projection_nested_collection_element_using_parameter_and_the_owner_in_correct_order_AsNoTrackingWithIdentityResolution(
+            bool async)
     {
-        await base.Json_projection_nested_collection_element_using_parameter_and_the_owner_in_correct_order_AsNoTrackingWithIdentityResolution(async);
+        await base
+            .Json_projection_nested_collection_element_using_parameter_and_the_owner_in_correct_order_AsNoTrackingWithIdentityResolution(
+                async);
 
         AssertSql(
             """
@@ -3209,7 +3236,8 @@ FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
-    public override async Task Json_projection_second_element_projected_before_owner_as_well_as_root_AsNoTrackingWithIdentityResolution(bool async)
+    public override async Task Json_projection_second_element_projected_before_owner_as_well_as_root_AsNoTrackingWithIdentityResolution(
+        bool async)
     {
         await base.Json_projection_second_element_projected_before_owner_as_well_as_root_AsNoTrackingWithIdentityResolution(async);
 
@@ -3220,7 +3248,8 @@ FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
-    public override async Task Json_projection_second_element_projected_before_owner_nested_as_well_as_root_AsNoTrackingWithIdentityResolution(bool async)
+    public override async Task
+        Json_projection_second_element_projected_before_owner_nested_as_well_as_root_AsNoTrackingWithIdentityResolution(bool async)
     {
         await base.Json_projection_second_element_projected_before_owner_nested_as_well_as_root_AsNoTrackingWithIdentityResolution(async);
 

@@ -718,8 +718,7 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture>(TFixture fix
                 o => new
                 {
                     // ReSharper disable SimplifyConditionalTernaryExpression
-                    Data1 = param != null ? o.OrderDate == param.Value : true,
-                    Data2 = param == null ? true : o.OrderDate == param.Value
+                    Data1 = param != null ? o.OrderDate == param.Value : true, Data2 = param == null ? true : o.OrderDate == param.Value
                     // ReSharper restore SimplifyConditionalTernaryExpression
                 }));
     }
@@ -2520,7 +2519,8 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture>(TFixture fix
         => AssertQuery(
             async,
             ss => ss.Set<Customer>().Where(c => c.Orders.Order().First().OrderID == 10248).Select(c => c.CustomerID),
-            ss => ss.Set<Customer>().AsEnumerable().Where(c => c.Orders.OrderBy(o => o.OrderID).FirstOrDefault()?.OrderID == 10248).Select(c => c.CustomerID).AsQueryable());
+            ss => ss.Set<Customer>().AsEnumerable().Where(c => c.Orders.OrderBy(o => o.OrderID).FirstOrDefault()?.OrderID == 10248)
+                .Select(c => c.CustomerID).AsQueryable());
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -3307,15 +3307,12 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture>(TFixture fix
             async,
             ss => ss.Set<Order>().Where(o => (o.OrderID | 10248) == 10248));
 
-
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Where_bitwise_binary_xor(bool async)
-    {
-        return AssertQuery(
+        => AssertQuery(
             async,
             ss => ss.Set<Order>().Where(o => (o.OrderID ^ 1) == 10249));
-    }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]

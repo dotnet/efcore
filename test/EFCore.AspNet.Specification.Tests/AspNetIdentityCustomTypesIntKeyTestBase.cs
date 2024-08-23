@@ -172,8 +172,9 @@ public abstract class AspNetIdentityCustomTypesIntKeyTestBase<TFixture>(TFixture
         ];
 }
 
-public class CustomTypesIdentityContextInt(DbContextOptions options) : IdentityDbContext<CustomUserInt, CustomRoleInt, int, CustomUserClaimInt, CustomUserRoleInt,
-    CustomUserLoginInt, CustomRoleClaimInt, CustomUserTokenInt>(options)
+public class CustomTypesIdentityContextInt(DbContextOptions options)
+    : IdentityDbContext<CustomUserInt, CustomRoleInt, int, CustomUserClaimInt, CustomUserRoleInt,
+        CustomUserLoginInt, CustomRoleClaimInt, CustomUserTokenInt>(options)
 {
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

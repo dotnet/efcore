@@ -21,7 +21,8 @@ public class SqlTreePruner : ExpressionVisitor
     /// <summary>
     ///     Maps table aliases to the list of column aliases found referenced on them.
     /// </summary>
-    protected virtual IReadOnlyDictionary<string, HashSet<string>> ReferencedColumnMap => _referencedColumnMap;
+    protected virtual IReadOnlyDictionary<string, HashSet<string>> ReferencedColumnMap
+        => _referencedColumnMap;
 
     /// <summary>
     ///     When visiting a nested <see cref="TableExpressionBase" /> (e.g. a select within a set operation), this holds the table alias
@@ -187,7 +188,7 @@ public class SqlTreePruner : ExpressionVisitor
 
             if (visitedProjection != projection && projections is null)
             {
-                projections = new(select.Projection.Count);
+                projections = new List<ProjectionExpression>(select.Projection.Count);
                 for (var j = 0; j < i; j++)
                 {
                     projections.Add(select.Projection[j]);

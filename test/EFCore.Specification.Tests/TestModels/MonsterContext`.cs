@@ -12,7 +12,8 @@ public class MonsterContext<
     TSmartCard, TRsaToken, TPasswordReset, TPageView, TLastLogin, TMessage, TAnOrder, TOrderNote, TOrderQualityCheck,
     TOrderLine, TProduct, TProductDetail, TProductReview, TProductPhoto, TProductWebFeature, TSupplier, TSupplierLogo,
     TSupplierInfo, TCustomerInfo, TComputer, TComputerDetail, TDriver, TLicense, TConcurrencyInfo, TAuditInfo,
-    TContactDetails, TDimensions, TPhone, TBackOrderLine, TDiscontinuedProduct, TProductPageView>(DbContextOptions options) : MonsterContext(options)
+    TContactDetails, TDimensions, TPhone, TBackOrderLine, TDiscontinuedProduct, TProductPageView>(DbContextOptions options)
+    : MonsterContext(options)
     where TCustomer : class, ICustomer, new()
     where TBarcode : class, IBarcode, new()
     where TIncorrectScan : class, IIncorrectScan, new()
@@ -798,10 +799,7 @@ public class MonsterContext<
             new TSupplier { Name = "Ants By Boris" }).Entity;
 
         var supplierLogo1 = Add(
-                new TSupplierLogo
-                {
-                    SupplierId = Entry(supplier1).Property(e => e.SupplierId).CurrentValue, Logo = [201, 202]
-                })
+                new TSupplierLogo { SupplierId = Entry(supplier1).Property(e => e.SupplierId).CurrentValue, Logo = [201, 202] })
             .Entity;
 
         var supplierInfo1 = Add(
@@ -1416,8 +1414,7 @@ public class MonsterContext<
         var supplierLogo1 = Add(
             new TSupplierLogo
             {
-                SupplierId = !principalNavs ? Entry(supplier1).Property(e => e.SupplierId).CurrentValue : 0,
-                Logo = [201, 202]
+                SupplierId = !principalNavs ? Entry(supplier1).Property(e => e.SupplierId).CurrentValue : 0, Logo = [201, 202]
             }).Entity;
         if (principalNavs)
         {

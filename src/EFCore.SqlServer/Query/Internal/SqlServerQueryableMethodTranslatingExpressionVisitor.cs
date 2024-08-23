@@ -129,15 +129,20 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
         IProperty? property,
         string tableAlias)
     {
-        if (_sqlServerSingletonOptions.EngineType == SqlServerEngineType.SqlServer && _sqlServerSingletonOptions.SqlServerCompatibilityLevel < 130)
+        if (_sqlServerSingletonOptions.EngineType == SqlServerEngineType.SqlServer
+            && _sqlServerSingletonOptions.SqlServerCompatibilityLevel < 130)
         {
-            AddTranslationErrorDetails(SqlServerStrings.CompatibilityLevelTooLowForScalarCollections(_sqlServerSingletonOptions.SqlServerCompatibilityLevel));
+            AddTranslationErrorDetails(
+                SqlServerStrings.CompatibilityLevelTooLowForScalarCollections(_sqlServerSingletonOptions.SqlServerCompatibilityLevel));
 
             return null;
         }
-        if (_sqlServerSingletonOptions.EngineType == SqlServerEngineType.AzureSql && _sqlServerSingletonOptions.AzureSqlCompatibilityLevel < 130)
+
+        if (_sqlServerSingletonOptions.EngineType == SqlServerEngineType.AzureSql
+            && _sqlServerSingletonOptions.AzureSqlCompatibilityLevel < 130)
         {
-            AddTranslationErrorDetails(SqlServerStrings.CompatibilityLevelTooLowForScalarCollections(_sqlServerSingletonOptions.AzureSqlCompatibilityLevel));
+            AddTranslationErrorDetails(
+                SqlServerStrings.CompatibilityLevelTooLowForScalarCollections(_sqlServerSingletonOptions.AzureSqlCompatibilityLevel));
 
             return null;
         }
@@ -182,7 +187,11 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
                 elementClrType.UnwrapNullableType(),
                 elementTypeMapping,
                 isElementNullable ?? elementClrType.IsNullableType()),
-            identifier: [(new ColumnExpression("key", tableAlias, typeof(string), keyColumnTypeMapping, nullable: false), keyColumnTypeMapping.Comparer)],
+            identifier:
+            [
+                (new ColumnExpression("key", tableAlias, typeof(string), keyColumnTypeMapping, nullable: false),
+                    keyColumnTypeMapping.Comparer)
+            ],
             _queryCompilationContext.SqlAliasManager);
 #pragma warning restore EF1001 // Internal EF Core API usage.
 

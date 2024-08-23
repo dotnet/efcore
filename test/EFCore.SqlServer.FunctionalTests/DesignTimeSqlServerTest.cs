@@ -7,7 +7,8 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public class DesignTimeSqlServerTest(DesignTimeSqlServerTest.DesignTimeSqlServerFixture fixture) : DesignTimeTestBase<DesignTimeSqlServerTest.DesignTimeSqlServerFixture>(fixture)
+public class DesignTimeSqlServerTest(DesignTimeSqlServerTest.DesignTimeSqlServerFixture fixture)
+    : DesignTimeTestBase<DesignTimeSqlServerTest.DesignTimeSqlServerFixture>(fixture)
 {
     protected override Assembly ProviderAssembly
         => typeof(SqlServerDesignTimeServices).Assembly;

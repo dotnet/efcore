@@ -89,8 +89,8 @@ public class CosmosTestStore : TestStore
 
     public override DbContextOptionsBuilder AddProviderOptions(DbContextOptionsBuilder builder)
         => TestEnvironment.UseTokenCredential
-        ? builder.UseCosmos(ConnectionUri, TokenCredential, Name, _configureCosmos)
-        : builder.UseCosmos(ConnectionUri, AuthToken, Name, _configureCosmos);
+            ? builder.UseCosmos(ConnectionUri, TokenCredential, Name, _configureCosmos)
+            : builder.UseCosmos(ConnectionUri, AuthToken, Name, _configureCosmos);
 
     public static async ValueTask<bool> IsConnectionAvailableAsync()
     {
@@ -253,7 +253,8 @@ public class CosmosTestStore : TestStore
 
         var databaseAccount = await GetDBAccount(cancellationToken).ConfigureAwait(false);
         var collection = databaseAccount.Value.GetCosmosDBSqlDatabases();
-        var sqlDatabaseCreateUpdateOptions = new CosmosDBSqlDatabaseCreateOrUpdateContent(TestEnvironment.AzureLocation,
+        var sqlDatabaseCreateUpdateOptions = new CosmosDBSqlDatabaseCreateOrUpdateContent(
+            TestEnvironment.AzureLocation,
             new CosmosDBSqlDatabaseResourceInfo(Name));
         if (await collection.ExistsAsync(Name, cancellationToken))
         {
@@ -281,7 +282,8 @@ public class CosmosTestStore : TestStore
             return false;
         }
 
-        var databaseResponse = (await database.Value!.DeleteAsync(WaitUntil.Completed, cancellationToken).ConfigureAwait(false)).GetRawResponse();
+        var databaseResponse = (await database.Value!.DeleteAsync(WaitUntil.Completed, cancellationToken).ConfigureAwait(false))
+            .GetRawResponse();
         return databaseResponse.Status == (int)HttpStatusCode.OK;
     }
 
@@ -344,16 +346,14 @@ public class CosmosTestStore : TestStore
             {
                 AnalyticalStorageTtl = container.AnalyticalStoreTimeToLiveInSeconds,
                 DefaultTtl = container.DefaultTimeToLive,
-                PartitionKey = new CosmosDBContainerPartitionKey
-                {
-                    Version = 2
-                }
+                PartitionKey = new CosmosDBContainerPartitionKey { Version = 2 }
             };
 
             if (container.PartitionKeyStoreNames.Count > 1)
             {
                 resource.PartitionKey.Kind = "MultiHash";
             }
+
             foreach (var partitionKey in container.PartitionKeyStoreNames)
             {
                 resource.PartitionKey.Paths.Add("/" + partitionKey);
@@ -407,6 +407,7 @@ public class CosmosTestStore : TestStore
                 {
                     partitionKeyStoreNames = GetPartitionKeyStoreNames(entityType);
                 }
+
                 analyticalTtl ??= entityType.GetAnalyticalStoreTimeToLive();
                 defaultTtl ??= entityType.GetDefaultTimeToLive();
                 throughput ??= entityType.GetThroughput();
@@ -422,7 +423,7 @@ public class CosmosTestStore : TestStore
             }
 #pragma warning restore EF9103
 
-            yield return new(
+            yield return new Cosmos.Storage.Internal.ContainerProperties(
                 containerName,
                 partitionKeyStoreNames,
                 analyticalTtl,
@@ -538,7 +539,8 @@ public class CosmosTestStore : TestStore
         {
             if (TestEnvironment.UseTokenCredential)
             {
-                optionsBuilder.UseCosmos(_testStore.ConnectionUri, _testStore.TokenCredential, _testStore.Name, _testStore._configureCosmos);
+                optionsBuilder.UseCosmos(
+                    _testStore.ConnectionUri, _testStore.TokenCredential, _testStore.Name, _testStore._configureCosmos);
             }
             else
             {

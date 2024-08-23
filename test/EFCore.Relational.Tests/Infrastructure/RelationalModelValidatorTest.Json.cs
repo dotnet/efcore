@@ -391,7 +391,7 @@ public partial class RelationalModelValidatorTest
                     });
             });
 
-        VerifyError(RelationalStrings.JsonEntityWithExplicitlyConfiguredOrdinalKey("ValidatorJsonOwnedExplicitOrdinal"), modelBuilder);
+        VerifyError(RelationalStrings.JsonEntityWithExplicitlyConfiguredKey("ValidatorJsonOwnedExplicitOrdinal", "Ordinal"), modelBuilder);
     }
 
     [ConditionalFact]

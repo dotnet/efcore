@@ -6,7 +6,6 @@ using Microsoft.EntityFrameworkCore.Query.Internal;
 namespace Microsoft.EntityFrameworkCore.Query;
 
 // ReSharper disable InconsistentNaming
-
 public class PrecompiledSqlPregenerationQuerySqlServerTest(
     PrecompiledSqlPregenerationQuerySqlServerTest.PrecompiledSqlPregenerationQuerySqlServerFixture fixture,
     ITestOutputHelper testOutputHelper)
@@ -263,6 +262,7 @@ WHERE [b].[Name] IN (N'foo', N'bar')
             return builder;
         }
 
-        public override PrecompiledQueryTestHelpers PrecompiledQueryTestHelpers => SqlServerPrecompiledQueryTestHelpers.Instance;
+        public override PrecompiledQueryTestHelpers PrecompiledQueryTestHelpers
+            => SqlServerPrecompiledQueryTestHelpers.Instance;
     }
 }

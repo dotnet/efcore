@@ -896,7 +896,7 @@ WHERE 2 & COALESCE((
         await base.Where_enum_has_flag_subquery_with_pushdown(async);
 
         AssertSql(
-"""
+            """
 SELECT [u].[Nickname], [u].[SquadId], [u].[AssignedCityName], [u].[CityOfBirthName], [u].[FullName], [u].[HasSoulPatch], [u].[LeaderNickname], [u].[LeaderSquadId], [u].[Rank], [u].[Discriminator]
 FROM (
     SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], N'Gear' AS [Discriminator]
@@ -934,8 +934,8 @@ WHERE [u].[Rank] & (
     ) AS [u0]
     ORDER BY [u0].[Nickname], [u0].[SquadId]) IS NULL
 """,
-                //
-                """
+            //
+            """
 SELECT [u].[Nickname], [u].[SquadId], [u].[AssignedCityName], [u].[CityOfBirthName], [u].[FullName], [u].[HasSoulPatch], [u].[LeaderNickname], [u].[LeaderSquadId], [u].[Rank], [u].[Discriminator]
 FROM (
     SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], N'Gear' AS [Discriminator]
@@ -5408,7 +5408,7 @@ FROM (
         await base.ToString_nullable_enum_property_projection(async);
 
         AssertSql(
-"""
+            """
 SELECT CASE [w].[AmmunitionType]
     WHEN 1 THEN N'Cartridge'
     WHEN 2 THEN N'Shell'
@@ -5423,7 +5423,7 @@ FROM [Weapons] AS [w]
         await base.ToString_enum_contains(async);
 
         AssertSql(
-"""
+            """
 SELECT [m].[CodeName]
 FROM [Missions] AS [m]
 WHERE CAST([m].[Difficulty] AS nvarchar(max)) LIKE N'%Med%'
@@ -5435,7 +5435,7 @@ WHERE CAST([m].[Difficulty] AS nvarchar(max)) LIKE N'%Med%'
         await base.ToString_nullable_enum_contains(async);
 
         AssertSql(
-"""
+            """
 SELECT [w].[Name]
 FROM [Weapons] AS [w]
 WHERE CASE [w].[AmmunitionType]
@@ -11964,7 +11964,7 @@ END = CAST(1 AS bit)
         await base.Where_TimeOnly_FromDateTime_compared_to_property(async);
 
         AssertSql(
-"""
+            """
 SELECT [t].[Id] AS [TagId], [m].[Id] AS [MissionId]
 FROM [Tags] AS [t]
 CROSS JOIN [Missions] AS [m]
@@ -11977,7 +11977,7 @@ WHERE CAST([t].[IssueDate] AS time) = [m].[Time]
         await base.Where_TimeOnly_FromDateTime_compared_to_parameter(async);
 
         AssertSql(
-"""
+            """
 @__time_0='02:00' (DbType = Time)
 
 SELECT [t].[Id], [t].[GearNickName], [t].[GearSquadId], [t].[IssueDate], [t].[Note]
@@ -11998,7 +11998,7 @@ WHERE [u].[Nickname] IS NOT NULL AND [u].[SquadId] IS NOT NULL AND CAST(DATEADD(
         await base.Where_TimeOnly_FromDateTime_compared_to_constant(async);
 
         AssertSql(
-"""
+            """
 SELECT [t].[Id], [t].[GearNickName], [t].[GearSquadId], [t].[IssueDate], [t].[Note]
 FROM [Tags] AS [t]
 WHERE CAST(DATEADD(hour, CAST(CAST(CAST(LEN([t].[Note]) AS int) AS float) AS int), [t].[IssueDate]) AS time) > '09:00:00'
@@ -12010,7 +12010,7 @@ WHERE CAST(DATEADD(hour, CAST(CAST(CAST(LEN([t].[Note]) AS int) AS float) AS int
         await base.Where_TimeOnly_FromTimeSpan_compared_to_property(async);
 
         AssertSql(
-"""
+            """
 SELECT [m].[Id], [m].[CodeName], [m].[Date], [m].[Difficulty], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
 FROM [Missions] AS [m]
 WHERE CAST([m].[Duration] AS time) < [m].[Time]
@@ -12022,7 +12022,7 @@ WHERE CAST([m].[Duration] AS time) < [m].[Time]
         await base.Where_TimeOnly_FromTimeSpan_compared_to_parameter(async);
 
         AssertSql(
-"""
+            """
 @__time_0='01:02' (DbType = Time)
 
 SELECT [m].[Id], [m].[CodeName], [m].[Date], [m].[Difficulty], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
@@ -12036,7 +12036,7 @@ WHERE CAST([m].[Duration] AS time) = @__time_0
         await base.Order_by_TimeOnly_FromTimeSpan(async);
 
         AssertSql(
-"""
+            """
 SELECT [m].[Id], [m].[CodeName], [m].[Date], [m].[Difficulty], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
 FROM [Missions] AS [m]
 ORDER BY CAST([m].[Duration] AS time)
@@ -12048,7 +12048,7 @@ ORDER BY CAST([m].[Duration] AS time)
         await base.Where_DateOnly_FromDateTime_compared_to_property(async);
 
         AssertSql(
-"""
+            """
 SELECT [t].[Id] AS [TagId], [m].[Id] AS [MissionId]
 FROM [Tags] AS [t]
 CROSS JOIN [Missions] AS [m]
@@ -12061,7 +12061,7 @@ WHERE CAST([t].[IssueDate] AS date) > [m].[Date]
         await base.Where_DateOnly_FromDateTime_compared_to_constant_and_parameter(async);
 
         AssertSql(
-"""
+            """
 @__prm_0='10/11/0002' (DbType = Date)
 
 SELECT [t].[Id], [t].[GearNickName], [t].[GearSquadId], [t].[IssueDate], [t].[Note]

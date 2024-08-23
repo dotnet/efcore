@@ -518,7 +518,7 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Sql
             op = " || ";
         }
         else if (sqlBinaryExpression.OperatorType == ExpressionType.ExclusiveOr
-            && sqlBinaryExpression.Type == typeof(bool))
+                 && sqlBinaryExpression.Type == typeof(bool))
         {
             op = " != ";
         }
@@ -742,7 +742,6 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Sql
             _sqlBuilder
                 .Append(sourceExpression.Alias)
                 .Append(" IN ");
-
 
             VisitContainerExpression(sourceExpression.Expression);
         }

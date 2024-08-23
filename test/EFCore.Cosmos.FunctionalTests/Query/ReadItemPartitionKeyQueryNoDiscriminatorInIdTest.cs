@@ -394,7 +394,6 @@ WHERE (c["$type"] IN ("SinglePartitionKeyEntity", "DerivedSinglePartitionKeyEnti
         AssertSql("""ReadItem(["PK2"], 5)""");
     }
 
-
     public override async Task Predicate_with_hierarchical_partition_key_leaf()
     {
         await base.Predicate_with_hierarchical_partition_key_leaf();
@@ -757,6 +756,7 @@ WHERE ((c["$type"] = "DerivedSinglePartitionKeyEntity") AND (c["Id"] = 11))
 
         AssertSql("""ReadItem(["PK1"], 1)""");
     }
+
     public override async Task ReadItem_with_single_explicit_incorrect_discriminator_mapping()
     {
         await base.ReadItem_with_single_explicit_incorrect_discriminator_mapping();

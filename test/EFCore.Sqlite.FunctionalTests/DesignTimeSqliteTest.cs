@@ -7,7 +7,8 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public class DesignTimeSqliteTest(DesignTimeSqliteTest.DesignTimeSqliteFixture fixture) : DesignTimeTestBase<DesignTimeSqliteTest.DesignTimeSqliteFixture>(fixture)
+public class DesignTimeSqliteTest(DesignTimeSqliteTest.DesignTimeSqliteFixture fixture)
+    : DesignTimeTestBase<DesignTimeSqliteTest.DesignTimeSqliteFixture>(fixture)
 {
     protected override Assembly ProviderAssembly
         => typeof(SqliteDesignTimeServices).Assembly;

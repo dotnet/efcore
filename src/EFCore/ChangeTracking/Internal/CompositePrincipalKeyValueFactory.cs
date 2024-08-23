@@ -21,9 +21,7 @@ public class CompositePrincipalKeyValueFactory : CompositeValueFactory, IPrincip
     /// </summary>
     public CompositePrincipalKeyValueFactory(IKey key)
         : base(key.Properties)
-    {
-        _key = key;
-    }
+        => _key = key;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

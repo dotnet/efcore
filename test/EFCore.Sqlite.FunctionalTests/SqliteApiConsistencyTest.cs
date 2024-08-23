@@ -7,7 +7,8 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public class SqliteApiConsistencyTest(SqliteApiConsistencyTest.SqliteApiConsistencyFixture fixture) : ApiConsistencyTestBase<SqliteApiConsistencyTest.SqliteApiConsistencyFixture>(fixture)
+public class SqliteApiConsistencyTest(SqliteApiConsistencyTest.SqliteApiConsistencyFixture fixture)
+    : ApiConsistencyTestBase<SqliteApiConsistencyTest.SqliteApiConsistencyFixture>(fixture)
 {
     protected override void AddServices(ServiceCollection serviceCollection)
         => serviceCollection.AddEntityFrameworkSqlite();
@@ -34,7 +35,9 @@ public class SqliteApiConsistencyTest(SqliteApiConsistencyTest.SqliteApiConsiste
                 Type ConventionExtensions,
                 Type ConventionBuilderExtensions,
                 Type RuntimeExtensions)> MetadataExtensionTypes
-        { get; }
+        {
+            get;
+        }
             = new()
             {
                 {

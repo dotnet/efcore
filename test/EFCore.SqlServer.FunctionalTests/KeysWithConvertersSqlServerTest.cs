@@ -5,8 +5,9 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public class KeysWithConvertersSqlServerTest(KeysWithConvertersSqlServerTest.KeysWithConvertersSqlServerFixture fixture) : KeysWithConvertersTestBase<
-    KeysWithConvertersSqlServerTest.KeysWithConvertersSqlServerFixture>(fixture)
+public class KeysWithConvertersSqlServerTest(KeysWithConvertersSqlServerTest.KeysWithConvertersSqlServerFixture fixture)
+    : KeysWithConvertersTestBase<
+        KeysWithConvertersSqlServerTest.KeysWithConvertersSqlServerFixture>(fixture)
 {
     public class KeysWithConvertersSqlServerFixture : KeysWithConvertersFixtureBase
     {

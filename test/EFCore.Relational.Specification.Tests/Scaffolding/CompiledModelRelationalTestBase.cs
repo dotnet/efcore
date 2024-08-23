@@ -432,26 +432,26 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
 
     [ConditionalFact]
     public override Task ComplexTypes()
-    => Test(
-        BuildComplexTypesModel,
-        AssertComplexTypes,
-        c =>
-        {
-            // Sprocs not supported with complex types
-            //c.Set<PrincipalDerived<DependentBase<byte?>>>().Add(
-            //    new PrincipalDerived<DependentBase<byte?>>
-            //    {
-            //        Id = 1,
-            //        AlternateId = new Guid(),
-            //        Dependent = new DependentBase<byte?>(1),
-            //        Owned = new OwnedType(c) { Principal = new PrincipalBase() }
-            //    });
+        => Test(
+            BuildComplexTypesModel,
+            AssertComplexTypes,
+            c =>
+            {
+                // Sprocs not supported with complex types
+                //c.Set<PrincipalDerived<DependentBase<byte?>>>().Add(
+                //    new PrincipalDerived<DependentBase<byte?>>
+                //    {
+                //        Id = 1,
+                //        AlternateId = new Guid(),
+                //        Dependent = new DependentBase<byte?>(1),
+                //        Owned = new OwnedType(c) { Principal = new PrincipalBase() }
+                //    });
 
-            //c.SaveChanges();
+                //c.SaveChanges();
 
-            return Task.CompletedTask;
-        },
-        options: new CompiledModelCodeGenerationOptions { UseNullableReferenceTypes = true, ForNativeAot = true });
+                return Task.CompletedTask;
+            },
+            options: new CompiledModelCodeGenerationOptions { UseNullableReferenceTypes = true, ForNativeAot = true });
 
     protected override void AssertComplexTypes(IModel model)
     {
@@ -1290,7 +1290,8 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
             },
             additionalSourceFiles:
             [
-                new("DbContextModelCustomizer.cs",
+                new ScaffoldedFile(
+                    "DbContextModelCustomizer.cs",
                     """
 using Microsoft.EntityFrameworkCore.Metadata;
 

@@ -26,9 +26,7 @@ public class SqliteRandomTranslator : IMethodCallTranslator
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public SqliteRandomTranslator(ISqlExpressionFactory sqlExpressionFactory)
-    {
-        _sqlExpressionFactory = sqlExpressionFactory;
-    }
+        => _sqlExpressionFactory = sqlExpressionFactory;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -45,7 +43,7 @@ public class SqliteRandomTranslator : IMethodCallTranslator
         => MethodInfo.Equals(method)
             ? _sqlExpressionFactory.Function(
                 "abs",
-                new SqlExpression[]
+                new[]
                 {
                     _sqlExpressionFactory.Divide(
                         _sqlExpressionFactory.Function(

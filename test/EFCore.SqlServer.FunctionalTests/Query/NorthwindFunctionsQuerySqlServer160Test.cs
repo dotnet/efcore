@@ -2686,7 +2686,7 @@ WHERE RTRIM([c].[ContactTitle]) = N'Owner'
 
     public override async Task TrimEnd_with_char_argument_in_predicate(bool async)
     {
-        await  base.TrimEnd_with_char_argument_in_predicate(async);
+        await base.TrimEnd_with_char_argument_in_predicate(async);
 
         AssertSql(
             """

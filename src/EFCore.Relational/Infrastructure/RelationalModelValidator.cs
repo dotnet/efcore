@@ -32,9 +32,7 @@ public class RelationalModelValidator : ModelValidator
         ModelValidatorDependencies dependencies,
         RelationalModelValidatorDependencies relationalDependencies)
         : base(dependencies)
-    {
-        RelationalDependencies = relationalDependencies;
-    }
+        => RelationalDependencies = relationalDependencies;
 
     /// <summary>
     ///     Relational provider-specific dependencies for this service.
@@ -2017,9 +2015,10 @@ public class RelationalModelValidator : ModelValidator
                 var unmappedOwnedType = entityType.GetReferencingForeignKeys()
                     .Where(fk => fk.IsOwnership)
                     .Select(fk => fk.DeclaringEntityType)
-                    .FirstOrDefault(owned => StoreObjectIdentifier.Create(owned, storeObjectType) == null
-                        && ((IConventionEntityType)owned).GetStoreObjectConfigurationSource(storeObjectType) == null
-                        && !owned.IsMappedToJson());
+                    .FirstOrDefault(
+                        owned => StoreObjectIdentifier.Create(owned, storeObjectType) == null
+                            && ((IConventionEntityType)owned).GetStoreObjectConfigurationSource(storeObjectType) == null
+                            && !owned.IsMappedToJson());
                 if (unmappedOwnedType != null
                     && entityType.GetDerivedTypes().Any(derived => StoreObjectIdentifier.Create(derived, storeObjectType) != null))
                 {
@@ -2521,8 +2520,7 @@ public class RelationalModelValidator : ModelValidator
         }
     }
 
-
-    /// <inheritdoc/>
+    /// <inheritdoc />
     protected override void ValidateData(IModel model, IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
     {
         foreach (var entityType in model.GetEntityTypes())
@@ -2532,11 +2530,13 @@ public class RelationalModelValidator : ModelValidator
                 throw new InvalidOperationException(RelationalStrings.HasDataNotSupportedForEntitiesMappedToJson(entityType.DisplayName()));
             }
 
-            foreach (var navigation in entityType.GetNavigations().Where(x => x.ForeignKey.IsOwnership && x.TargetEntityType.IsMappedToJson()))
+            foreach (var navigation in entityType.GetNavigations()
+                         .Where(x => x.ForeignKey.IsOwnership && x.TargetEntityType.IsMappedToJson()))
             {
                 if (entityType.GetSeedData().Any(x => x.TryGetValue(navigation.Name, out var _)))
                 {
-                    throw new InvalidOperationException(RelationalStrings.HasDataNotSupportedForEntitiesMappedToJson(entityType.DisplayName()));
+                    throw new InvalidOperationException(
+                        RelationalStrings.HasDataNotSupportedForEntitiesMappedToJson(entityType.DisplayName()));
                 }
             }
         }
@@ -2788,23 +2788,24 @@ public class RelationalModelValidator : ModelValidator
         {
             if (primaryKeyProperty.GetJsonPropertyName() != null)
             {
-                // issue #28594
+                // Issue #28594
                 throw new InvalidOperationException(
                     RelationalStrings.JsonEntityWithExplicitlyConfiguredJsonPropertyNameOnKey(
                         primaryKeyProperty.Name, jsonEntityType.DisplayName()));
             }
-        }
 
-        if (!ownership.IsUnique)
-        {
-            // for collection entities, make sure that ordinal key is not explicitly defined
-            var ordinalKeyProperty = primaryKeyProperties.Last();
-            if (!ordinalKeyProperty.IsOrdinalKeyProperty())
+            if (!ownership.IsUnique)
             {
-                // issue #28594
-                throw new InvalidOperationException(
-                    RelationalStrings.JsonEntityWithExplicitlyConfiguredOrdinalKey(
-                        jsonEntityType.DisplayName()));
+                // For collection entities, no key properties other than the generated ones are allowed because they
+                // will not be persisted.
+                if (!primaryKeyProperty.IsOrdinalKeyProperty()
+                    && !primaryKeyProperty.IsForeignKey())
+                {
+                    // issue #28594
+                    throw new InvalidOperationException(
+                        RelationalStrings.JsonEntityWithExplicitlyConfiguredKey(
+                            jsonEntityType.DisplayName(), primaryKeyProperty.Name));
+                }
             }
         }
 

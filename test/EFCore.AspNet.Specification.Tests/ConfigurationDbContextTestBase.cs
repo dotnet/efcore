@@ -200,14 +200,14 @@ public abstract class ConfigurationDbContextTestBase<TFixture>(
                 Name = "ApiResource1",
                 DisplayName = "ApiResource 1",
                 Description = "ApiResource 1",
-                Scopes = [new() { Scope = "S1" }, new() { Scope = "S2" }]
+                Scopes = [new ApiResourceScope { Scope = "S1" }, new ApiResourceScope { Scope = "S2" }]
             },
             new ApiResource
             {
                 Name = "ApiResource2",
                 DisplayName = "ApiResource 2",
                 Description = "ApiResource 2",
-                Scopes = [new() { Scope = "S4" }, new() { Scope = "S5" }]
+                Scopes = [new ApiResourceScope { Scope = "S4" }, new ApiResourceScope { Scope = "S5" }]
             },
             new ApiResource
             {

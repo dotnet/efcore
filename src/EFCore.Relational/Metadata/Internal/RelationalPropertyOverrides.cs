@@ -73,8 +73,10 @@ public class RelationalPropertyOverrides :
     public virtual InternalRelationalPropertyOverridesBuilder Builder
     {
         [DebuggerStepThrough]
-        get => _builder ?? throw new InvalidOperationException(CoreStrings.ObjectRemovedFromModel(
-            $"{Property.Name} - {StoreObject.DisplayName()}"));
+        get => _builder
+            ?? throw new InvalidOperationException(
+                CoreStrings.ObjectRemovedFromModel(
+                    $"{Property.Name} - {StoreObject.DisplayName()}"));
     }
 
     /// <summary>

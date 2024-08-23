@@ -55,7 +55,7 @@ public abstract class RuntimeTypeBase : RuntimeAnnotatableBase, IRuntimeTypeBase
         if (baseType != null)
         {
             _baseType = baseType;
-            (baseType._directlyDerivedTypes ??= new(TypeBaseNameComparer.Instance)).Add(this);
+            (baseType._directlyDerivedTypes ??= new SortedSet<RuntimeTypeBase>(TypeBaseNameComparer.Instance)).Add(this);
         }
 
         _changeTrackingStrategy = changeTrackingStrategy;
@@ -64,7 +64,7 @@ public abstract class RuntimeTypeBase : RuntimeAnnotatableBase, IRuntimeTypeBase
         _properties = new OrderedDictionary<string, RuntimeProperty>(propertyCount, new PropertyNameComparer(this));
         if (complexPropertyCount > 0)
         {
-            _complexProperties = new(complexPropertyCount, StringComparer.Ordinal);
+            _complexProperties = new OrderedDictionary<string, RuntimeComplexProperty>(complexPropertyCount, StringComparer.Ordinal);
         }
     }
 
@@ -106,7 +106,7 @@ public abstract class RuntimeTypeBase : RuntimeAnnotatableBase, IRuntimeTypeBase
     [EntityFrameworkInternal]
     protected virtual bool HasDirectlyDerivedTypes
         => _directlyDerivedTypes != null
-        && _directlyDerivedTypes.Count > 0;
+            && _directlyDerivedTypes.Count > 0;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -399,7 +399,7 @@ public abstract class RuntimeTypeBase : RuntimeAnnotatableBase, IRuntimeTypeBase
             propertyCount: propertyCount,
             complexPropertyCount: complexPropertyCount);
 
-        _complexProperties ??= new(StringComparer.Ordinal);
+        _complexProperties ??= new OrderedDictionary<string, RuntimeComplexProperty>(StringComparer.Ordinal);
         _complexProperties.Add(property.Name, property);
 
         return property;
@@ -416,8 +416,8 @@ public abstract class RuntimeTypeBase : RuntimeAnnotatableBase, IRuntimeTypeBase
     private RuntimeComplexProperty? FindDeclaredComplexProperty(string name)
         => _complexProperties != null
             && _complexProperties.TryGetValue(name, out var property)
-            ? property
-            : null;
+                ? property
+                : null;
 
     /// <summary>
     ///     Gets the complex properties declared on this type.

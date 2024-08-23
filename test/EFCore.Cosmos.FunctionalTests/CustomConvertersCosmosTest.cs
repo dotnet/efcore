@@ -11,9 +11,7 @@ public class CustomConvertersCosmosTest : CustomConvertersTestBase<CustomConvert
 {
     public CustomConvertersCosmosTest(CustomConvertersCosmosFixture fixture)
         : base(fixture)
-    {
-        Fixture.TestSqlLoggerFactory.Clear();
-    }
+        => Fixture.TestSqlLoggerFactory.Clear();
 
     [ConditionalTheory(Skip = "Issue #17246 No Explicit Convert")]
     public override Task Can_filter_projection_with_inline_enum_variable(bool async)

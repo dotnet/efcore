@@ -48,7 +48,7 @@ public class RelationalQueryTranslationPostprocessor : QueryTranslationPostproce
         var afterBase = base.Process(query);
         var afterTypeMappings = ProcessTypeMappings(afterBase);
         var afterProjectionApplication = new SelectExpressionProjectionApplyingExpressionVisitor(
-            ((RelationalQueryCompilationContext)QueryCompilationContext).QuerySplittingBehavior)
+                ((RelationalQueryCompilationContext)QueryCompilationContext).QuerySplittingBehavior)
             .Visit(afterTypeMappings);
         var afterPruning = Prune(afterProjectionApplication);
 
@@ -76,11 +76,12 @@ public class RelationalQueryTranslationPostprocessor : QueryTranslationPostproce
     /// </summary>
     /// <param name="expression">The query expression to process.</param>
     protected virtual Expression ProcessTypeMappings(Expression expression)
-        => new RelationalTypeMappingPostprocessor(Dependencies, RelationalDependencies, RelationalQueryCompilationContext).Process(expression);
+        => new RelationalTypeMappingPostprocessor(Dependencies, RelationalDependencies, RelationalQueryCompilationContext).Process(
+            expression);
 
     /// <summary>
-    /// Prunes unnecessary objects from the SQL tree, e.g. tables which aren't referenced by any column.
-    /// Can be overridden by providers for provider-specific pruning.
+    ///     Prunes unnecessary objects from the SQL tree, e.g. tables which aren't referenced by any column.
+    ///     Can be overridden by providers for provider-specific pruning.
     /// </summary>
     protected virtual Expression Prune(Expression query)
         => _pruner.Prune(query);

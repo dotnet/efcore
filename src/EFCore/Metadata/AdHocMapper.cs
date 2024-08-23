@@ -33,9 +33,7 @@ public class AdHocMapper : IAdHocMapper
     ///     the constructor at any point in this process.
     /// </summary>
     public AdHocMapper(AdHocMapperDependencies dependencies)
-    {
-        Dependencies = dependencies;
-    }
+        => Dependencies = dependencies;
 
     /// <summary>
     ///     Dependencies for this service.

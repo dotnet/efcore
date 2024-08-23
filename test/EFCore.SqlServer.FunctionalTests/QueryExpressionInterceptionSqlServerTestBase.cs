@@ -30,7 +30,8 @@ public abstract class QueryExpressionInterceptionSqlServerTestBase(
     }
 
     public class QueryExpressionInterceptionSqlServerTest(QueryExpressionInterceptionSqlServerTest.InterceptionSqlServerFixture fixture)
-        : QueryExpressionInterceptionSqlServerTestBase(fixture), IClassFixture<QueryExpressionInterceptionSqlServerTest.InterceptionSqlServerFixture>
+        : QueryExpressionInterceptionSqlServerTestBase(fixture),
+            IClassFixture<QueryExpressionInterceptionSqlServerTest.InterceptionSqlServerFixture>
     {
         public class InterceptionSqlServerFixture : InterceptionSqlServerFixtureBase
         {
@@ -42,7 +43,8 @@ public abstract class QueryExpressionInterceptionSqlServerTestBase(
         }
     }
 
-    public class QueryExpressionInterceptionWithDiagnosticsSqlServerTest(QueryExpressionInterceptionWithDiagnosticsSqlServerTest.InterceptionSqlServerFixture fixture)
+    public class QueryExpressionInterceptionWithDiagnosticsSqlServerTest(
+        QueryExpressionInterceptionWithDiagnosticsSqlServerTest.InterceptionSqlServerFixture fixture)
         : QueryExpressionInterceptionSqlServerTestBase(fixture),
             IClassFixture<QueryExpressionInterceptionWithDiagnosticsSqlServerTest.InterceptionSqlServerFixture>
     {

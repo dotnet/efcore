@@ -9,8 +9,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure;
 ///     Allows Azure Synapse specific configuration to be performed on <see cref="DbContextOptions" />.
 /// </summary>
 /// <remarks>
-///     Instances of this class are returned from a call to 
-///     <see cref="O:SqlServerDbContextOptionsExtensions.UseAzureSynapse" /> 
+///     Instances of this class are returned from a call to
+///     <see cref="O:SqlServerDbContextOptionsExtensions.UseAzureSynapse" />
 ///     and it is not designed to be directly constructed in your application code.
 /// </remarks>
 public class AzureSynapseDbContextOptionsBuilder

@@ -22,9 +22,7 @@ public class SqlFragmentExpression : SqlExpression
     /// <param name="sql">A string token to print in SQL tree.</param>
     public SqlFragmentExpression(string sql)
         : base(typeof(string), null)
-    {
-        Sql = sql;
-    }
+        => Sql = sql;
 
     /// <summary>
     ///     The string token to print in SQL tree.

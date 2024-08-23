@@ -3,8 +3,9 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class MonsterFixupSnapshotInMemoryTest(MonsterFixupSnapshotInMemoryTest.MonsterFixupSnapshotInMemoryFixture fixture) : MonsterFixupTestBase<
-    MonsterFixupSnapshotInMemoryTest.MonsterFixupSnapshotInMemoryFixture>(fixture)
+public class MonsterFixupSnapshotInMemoryTest(MonsterFixupSnapshotInMemoryTest.MonsterFixupSnapshotInMemoryFixture fixture)
+    : MonsterFixupTestBase<
+        MonsterFixupSnapshotInMemoryTest.MonsterFixupSnapshotInMemoryFixture>(fixture)
 {
     public class MonsterFixupSnapshotInMemoryFixture : MonsterFixupSnapshotFixtureBase
     {

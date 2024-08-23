@@ -21,9 +21,7 @@ public class Table : TableBase, ITable
     /// </summary>
     public Table(string name, string? schema, RelationalModel model)
         : base(name, schema, model)
-    {
-        Columns = new SortedDictionary<string, IColumnBase>(new ColumnNameComparer(this));
-    }
+        => Columns = new SortedDictionary<string, IColumnBase>(new ColumnNameComparer(this));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

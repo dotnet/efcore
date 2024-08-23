@@ -11,10 +11,7 @@ public class InheritanceQueryCosmosTest : InheritanceQueryTestBase<InheritanceQu
 {
     public InheritanceQueryCosmosTest(InheritanceQueryCosmosFixture fixture, ITestOutputHelper testOutputHelper)
         : base(fixture)
-    {
-        ClearLog();
-        //TestLoggerFactory.TestOutputHelper = testOutputHelper;
-    }
+        => ClearLog();
 
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()

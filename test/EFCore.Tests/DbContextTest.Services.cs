@@ -418,7 +418,8 @@ namespace Microsoft.EntityFrameworkCore
                 => _singletonOptions.RootApplicationServiceProvider!.GetService<ApplicationService>();
         }
 
-        private class TestScopedService(ICurrentDbContext currentContext, IEntityEntryGraphIterator graphIterator) : EntityGraphAttacher(graphIterator)
+        private class TestScopedService(ICurrentDbContext currentContext, IEntityEntryGraphIterator graphIterator)
+            : EntityGraphAttacher(graphIterator)
         {
             private readonly ICurrentDbContext _currentContext = currentContext;
 
@@ -426,7 +427,8 @@ namespace Microsoft.EntityFrameworkCore
                 => _currentContext.Context.GetService<ApplicationService>();
         }
 
-        private class TestTransientService(ICurrentDbContext currentContext, IDiagnosticsLogger<DbLoggerCategory.Infrastructure> logger) : LazyLoader(currentContext, logger)
+        private class TestTransientService(ICurrentDbContext currentContext, IDiagnosticsLogger<DbLoggerCategory.Infrastructure> logger)
+            : LazyLoader(currentContext, logger)
         {
             public ApplicationService ApplicationService
                 => Context!.GetService<ApplicationService>();
@@ -919,15 +921,11 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             public EarlyLearningCenter(IServiceProvider serviceProvider)
-            {
-                _serviceProvider = serviceProvider;
-            }
+                => _serviceProvider = serviceProvider;
 
             public EarlyLearningCenter(IServiceProvider serviceProvider, DbContextOptions options)
                 : base(options)
-            {
-                _serviceProvider = serviceProvider;
-            }
+                => _serviceProvider = serviceProvider;
 
             public DbSet<Product> Products { get; set; }
             public DbSet<Category> Categories { get; set; }
@@ -951,7 +949,8 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        private class FakeEntityMaterializerSource(EntityMaterializerSourceDependencies dependencies) : EntityMaterializerSource(dependencies);
+        private class FakeEntityMaterializerSource(EntityMaterializerSourceDependencies dependencies)
+            : EntityMaterializerSource(dependencies);
 
         private class FakeModelSource : IModelSource
         {
@@ -3042,7 +3041,8 @@ namespace Microsoft.EntityFrameworkCore
             ValueGeneratorSelectorDependencies dependencies,
             IInMemoryDatabase inMemoryDatabase) : InMemoryValueGeneratorSelector(dependencies, inMemoryDatabase);
 
-        private class CustomInMemoryTableFactory(ILoggingOptions loggingOptions, IInMemorySingletonOptions options) : InMemoryTableFactory(loggingOptions, options);
+        private class CustomInMemoryTableFactory(ILoggingOptions loggingOptions, IInMemorySingletonOptions options)
+            : InMemoryTableFactory(loggingOptions, options);
 
         [ConditionalFact]
         public void Can_replace_services_in_passed_options()

@@ -55,7 +55,7 @@ public static class CosmosIndexExtensions
             fromDataAnnotation)?.Value;
 
     /// <summary>
-    ///     Returns the <see cref="ConfigurationSource" /> for whether the <see cref="GetVectorIndexType"/>.
+    ///     Returns the <see cref="ConfigurationSource" /> for whether the <see cref="GetVectorIndexType" />.
     /// </summary>
     /// <param name="property">The property.</param>
     /// <returns>The <see cref="ConfigurationSource" /> for whether the index is clustered.</returns>

@@ -2543,8 +2543,7 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture>(TFixture fixture) 
                     g =>
                         new
                         {
-                            g.Key,
-                            Max = g.Distinct().Select(e => e.OrderDate).Distinct().Max(),
+                            g.Key, Max = g.Distinct().Select(e => e.OrderDate).Distinct().Max(),
                         }),
             elementSorter: e => e.Key);
 
@@ -2559,8 +2558,7 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture>(TFixture fixture) 
                     g =>
                         new
                         {
-                            g.Key,
-                            Max = g.Where(e => e.OrderDate.HasValue).Select(e => e.OrderDate).Distinct().Max(),
+                            g.Key, Max = g.Where(e => e.OrderDate.HasValue).Select(e => e.OrderDate).Distinct().Max(),
                         }),
             elementSorter: e => e.Key);
 

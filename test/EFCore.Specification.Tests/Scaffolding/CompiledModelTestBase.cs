@@ -46,7 +46,8 @@ public abstract class CompiledModelTestBase : NonSharedModelTestBase
             options: new CompiledModelCodeGenerationOptions { UseNullableReferenceTypes = true, ForNativeAot = true },
             additionalSourceFiles:
             [
-                new("DbContextModelStub.cs",
+                new ScaffoldedFile(
+                    "DbContextModelStub.cs",
                     """
 using Microsoft.EntityFrameworkCore.Metadata;
 using static TestNamespace.DbContextModel.Dummy;
@@ -77,58 +78,19 @@ namespace TestNamespace
 
     [ConditionalFact]
     public virtual Task No_NativeAOT()
-        => Test(
-            modelBuilder =>
-            {
-                modelBuilder.Ignore<DependentBase<int>>();
-                modelBuilder.Entity<DependentDerived<int>>(
-                    b =>
-                    {
-                        b.Ignore(e => e.Principal);
-                        b.Property(e => e.Id).ValueGeneratedNever();
-                        b.Property<string>("Data");
-                    });
-            },
-            model => Assert.Single(model.GetEntityTypes()),
-            async c =>
-            {
-                c.Add(new DependentDerived<int>(1, "one"));
-
-                await c.SaveChangesAsync();
-
-                var stored = await c.Set<DependentDerived<int>>().SingleAsync();
-                Assert.Equal(0, stored.Id);
-                Assert.Equal(1, stored.GetId());
-                Assert.Equal("one", stored.GetData());
-            },
-            options: new CompiledModelCodeGenerationOptions { UseNullableReferenceTypes = true, ForNativeAot = false });
+        => BigModel(false);
 
     [ConditionalFact]
     public virtual Task BigModel()
+        => BigModel(true);
+
+    protected virtual Task BigModel(bool forNativeAot, [CallerMemberName] string testName = "")
         => Test(
             modelBuilder => BuildBigModel(modelBuilder, jsonColumns: false),
             model => AssertBigModel(model, jsonColumns: false),
-            async c =>
-            {
-                var principalDerived = new PrincipalDerived<DependentBase<byte?>>
-                {
-                    AlternateId = new Guid(),
-                    Dependent = new DependentBase<byte?>(1),
-                    Owned = new OwnedType(c)
-                };
-
-                var principalBase = c.Model.FindEntityType(typeof(PrincipalBase))!;
-                var principalId = principalBase.FindProperty(nameof(PrincipalBase.Id))!;
-                if (principalId.ValueGenerated == ValueGenerated.Never)
-                {
-                    principalDerived.Id = 10;
-                }
-
-                c.Add(principalDerived);
-
-                await c.SaveChangesAsync();
-            },
-            options: new CompiledModelCodeGenerationOptions { UseNullableReferenceTypes = true, ForNativeAot = true });
+            UseBigModel,
+            options: new CompiledModelCodeGenerationOptions { UseNullableReferenceTypes = true, ForNativeAot = forNativeAot },
+            testName: testName);
 
     protected virtual void BuildBigModel(ModelBuilder modelBuilder, bool jsonColumns)
     {
@@ -352,7 +314,8 @@ namespace TestNamespace
         var principalAlternateKey = principalBase.GetKeys().Single(k => k.Properties.Count == 1 && principalId == k.Properties.Single());
         Assert.False(principalAlternateKey.IsPrimaryKey());
 
-        var principalKey = principalBase.GetKeys().Single(k => k.Properties.Count == 2 && k.Properties.SequenceEqual([principalId, principalAlternateId]));
+        var principalKey = principalBase.GetKeys()
+            .Single(k => k.Properties.Count == 2 && k.Properties.SequenceEqual([principalId, principalAlternateId]));
         Assert.True(principalKey.IsPrimaryKey());
 
         Assert.Equal([principalAlternateKey, principalKey], principalId.GetContainingKeys());
@@ -585,6 +548,27 @@ namespace TestNamespace
             principalDerived.GetDeclaredReferencingForeignKeys());
     }
 
+    protected virtual async Task UseBigModel(DbContext context)
+    {
+        var principalDerived = new PrincipalDerived<DependentBase<byte?>>
+        {
+            AlternateId = new Guid(),
+            Dependent = new DependentBase<byte?>(1),
+            Owned = new OwnedType(context)
+        };
+
+        var principalBase = context.Model.FindEntityType(typeof(PrincipalBase))!;
+        var principalId = principalBase.FindProperty(nameof(PrincipalBase.Id))!;
+        if (principalId.ValueGenerated == ValueGenerated.Never)
+        {
+            principalDerived.Id = 10;
+        }
+
+        context.Add(principalDerived);
+
+        await context.SaveChangesAsync();
+    }
+
     [ConditionalFact]
     public virtual Task ComplexTypes()
         => Test(
@@ -633,11 +617,12 @@ namespace TestNamespace
                             .HasPrecision(3, 2)
                             .HasAnnotation("foo", "bar");
                         eb.Ignore(e => e.Context);
-                        eb.ComplexProperty(o => o.Principal, cb =>
-                        {
-                            cb.IsRequired();
-                            cb.Property("FlagsEnum2");
-                        });
+                        eb.ComplexProperty(
+                            o => o.Principal, cb =>
+                            {
+                                cb.IsRequired();
+                                cb.Property("FlagsEnum2");
+                            });
                     });
             });
 
@@ -820,10 +805,11 @@ namespace TestNamespace
         public override void ToJsonTyped(Utf8JsonWriter writer, Guid value)
             => writer.WriteStringValue(value);
 
-        private readonly Expression<Func<MyJsonGuidReaderWriter>> _ctorLambda = () => new();
+        private readonly Expression<Func<MyJsonGuidReaderWriter>> _ctorLambda = () => new MyJsonGuidReaderWriter();
 
         /// <inheritdoc />
-        public override Expression ConstructorExpression => _ctorLambda.Body;
+        public override Expression ConstructorExpression
+            => _ctorLambda.Body;
     }
 
     public class ManyTypes
@@ -1175,9 +1161,7 @@ namespace TestNamespace
         }
 
         public OwnedType(DbContext context)
-        {
-            Context = context;
-        }
+            => Context = context;
 
         public DbContext? Context
         {
@@ -1448,8 +1432,7 @@ namespace TestNamespace
     {
         var build = new BuildSource
         {
-            Sources = scaffoldedFiles.ToDictionary(f => f.Path, f => f.Code),
-            NullableReferenceTypes = options.UseNullableReferenceTypes
+            Sources = scaffoldedFiles.ToDictionary(f => f.Path, f => f.Code), NullableReferenceTypes = options.UseNullableReferenceTypes
         };
         AddReferences(build);
 

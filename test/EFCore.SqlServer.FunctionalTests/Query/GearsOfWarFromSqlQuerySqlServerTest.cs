@@ -9,9 +9,7 @@ public class GearsOfWarFromSqlQuerySqlServerTest : GearsOfWarFromSqlQueryTestBas
 {
     public GearsOfWarFromSqlQuerySqlServerTest(GearsOfWarQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
         : base(fixture)
-    {
-        fixture.TestSqlLoggerFactory.Clear();
-    }
+        => fixture.TestSqlLoggerFactory.Clear();
 
     public override void From_sql_queryable_simple_columns_out_of_order()
     {

@@ -51,8 +51,8 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitBinary(BinaryExpression binaryExpression) =>
-        binaryExpression switch
+    protected override Expression VisitBinary(BinaryExpression binaryExpression)
+        => binaryExpression switch
         {
             // Convert array[x] to array.ElementAt(x)
             { NodeType: ExpressionType.ArrayIndex, Left: var source, Right: var index }
@@ -61,35 +61,35 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
 
             // Convert x.Count > 0 and x.Count != 0 to x.Any()
             {
-                NodeType: ExpressionType.GreaterThan or ExpressionType.NotEqual,
-                Left: MemberExpression
-                {
-                    Member: { Name: nameof(ICollection<object>.Count), DeclaringType.IsGenericType: true } member,
-                    Expression: Expression source
-                },
-                Right: ConstantExpression { Value: 0 }
-            }
-            when (member.DeclaringType.GetGenericTypeDefinition().GetInterfaces().Any(
-                x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(ICollection<>)))
-            => VisitMethodCall(
-                Expression.Call(
-                    EnumerableMethods.AnyWithoutPredicate.MakeGenericMethod(source.Type.GetSequenceType()),
-                    source)),
+                    NodeType: ExpressionType.GreaterThan or ExpressionType.NotEqual,
+                    Left: MemberExpression
+                    {
+                        Member: { Name: nameof(ICollection<object>.Count), DeclaringType.IsGenericType: true } member,
+                        Expression: Expression source
+                    },
+                    Right: ConstantExpression { Value: 0 }
+                }
+                when (member.DeclaringType.GetGenericTypeDefinition().GetInterfaces().Any(
+                    x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(ICollection<>)))
+                => VisitMethodCall(
+                    Expression.Call(
+                        EnumerableMethods.AnyWithoutPredicate.MakeGenericMethod(source.Type.GetSequenceType()),
+                        source)),
 
             // Same for arrays: convert x.Length > 0 and x.Length != 0 to x.Any()
             {
-                NodeType: ExpressionType.GreaterThan or ExpressionType.NotEqual,
-                Left: UnaryExpression
-                {
-                    NodeType: ExpressionType.ArrayLength,
-                    Operand: Expression source
-                },
-                Right: ConstantExpression { Value: 0 }
-            }
-            => VisitMethodCall(
-                Expression.Call(
-                    EnumerableMethods.AnyWithoutPredicate.MakeGenericMethod(source.Type.GetSequenceType()),
-                    source)),
+                    NodeType: ExpressionType.GreaterThan or ExpressionType.NotEqual,
+                    Left: UnaryExpression
+                    {
+                        NodeType: ExpressionType.ArrayLength,
+                        Operand: Expression source
+                    },
+                    Right: ConstantExpression { Value: 0 }
+                }
+                => VisitMethodCall(
+                    Expression.Call(
+                        EnumerableMethods.AnyWithoutPredicate.MakeGenericMethod(source.Type.GetSequenceType()),
+                        source)),
 
             _ => base.VisitBinary(binaryExpression)
         };
@@ -526,7 +526,7 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
         if (genericMethod == QueryableMethods.Order
             || genericMethod == QueryableMethods.OrderDescending)
         {
-            var sourceType = methodCallExpression.Method.GetGenericArguments()[0];            
+            var sourceType = methodCallExpression.Method.GetGenericArguments()[0];
             var parameter = Expression.Parameter(sourceType);
 
             return Expression.Call(

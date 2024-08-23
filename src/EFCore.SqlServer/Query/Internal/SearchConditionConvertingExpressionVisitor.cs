@@ -24,9 +24,7 @@ public class SearchConditionConvertingExpressionVisitor : SqlExpressionVisitor
     /// </summary>
     public SearchConditionConvertingExpressionVisitor(
         ISqlExpressionFactory sqlExpressionFactory)
-    {
-        _sqlExpressionFactory = sqlExpressionFactory;
-    }
+        => _sqlExpressionFactory = sqlExpressionFactory;
 
     private SqlExpression ApplyConversion(SqlExpression sqlExpression, bool condition)
         => _isSearchCondition
@@ -850,6 +848,7 @@ public class SearchConditionConvertingExpressionVisitor : SqlExpressionVisitor
                 {
                     rowValues[i] = (RowValueExpression)Visit(valuesExpression.RowValues[i]);
                 }
+
                 _isSearchCondition = parentSearchCondition;
                 return valuesExpression.Update(rowValues);
 

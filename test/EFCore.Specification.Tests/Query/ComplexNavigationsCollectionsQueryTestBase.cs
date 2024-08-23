@@ -2533,17 +2533,18 @@ public abstract class ComplexNavigationsCollectionsQueryTestBase<TFixture>(TFixt
     public virtual Task Project_collection_and_nested_conditional(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Level1>().OrderBy(x => x.Id).Select(x => new
-            {
-                Collection = x.OneToMany_Optional1.OrderBy(xx => xx.Id).Select(xx => xx.Name).ToList(),
-                Condition = x.Id == 1
-                    ? "01"
-                    : x.Id == 2
-                        ? "02"
-                        : x.Id == 3
-                            ? "03"
-                            : null
-            }).Where(x => x.Condition == "02"),
+            ss => ss.Set<Level1>().OrderBy(x => x.Id).Select(
+                x => new
+                {
+                    Collection = x.OneToMany_Optional1.OrderBy(xx => xx.Id).Select(xx => xx.Name).ToList(),
+                    Condition = x.Id == 1
+                        ? "01"
+                        : x.Id == 2
+                            ? "02"
+                            : x.Id == 3
+                                ? "03"
+                                : null
+                }).Where(x => x.Condition == "02"),
             assertOrder: true,
             elementAsserter: (e, a) =>
             {

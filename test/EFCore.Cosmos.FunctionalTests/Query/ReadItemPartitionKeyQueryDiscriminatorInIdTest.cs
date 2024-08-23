@@ -393,8 +393,8 @@ WHERE (c["$type"] IN ("SinglePartitionKeyEntity", "DerivedSinglePartitionKeyEnti
     public override async Task ReadItem_with_WithPartitionKey_with_only_partition_key()
     {
         await base.ReadItem_with_WithPartitionKey_with_only_partition_key();
-AssertSql(
-    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (c["$type"] IN ("OnlySinglePartitionKeyEntity", "DerivedOnlySinglePartitionKeyEntity") AND (c["PartitionKey"] = "PK1a"))
@@ -413,7 +413,6 @@ FROM root c
 WHERE (c["$type"] IN ("SinglePartitionKeyEntity", "DerivedSinglePartitionKeyEntity") AND ((c["Id"] = 1) AND (c["Id"] = 2)))
 """);
     }
-
 
     public override async Task Multiple_incompatible_predicate_comparisons_cause_no_ReadItem_with_only_partition_key()
     {
@@ -458,8 +457,8 @@ WHERE (c["$type"] IN ("SinglePartitionKeyEntity", "DerivedSinglePartitionKeyEnti
     public override async Task ReadItem_with_non_existent_id()
     {
         await base.ReadItem_with_non_existent_id();
-AssertSql(
-    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (c["$type"] IN ("SinglePartitionKeyEntity", "DerivedSinglePartitionKeyEntity") AND (c["Id"] = 999))
@@ -519,7 +518,6 @@ WHERE (c["$type"] IN ("SharedContainerEntity2", "SharedContainerEntity2Child") A
         // This one _is_ ReadItem because SharedContainerEntity2Child is a leaf type.
         AssertSql("""ReadItem(["PK2"], SharedContainerEntity2Child|5)""");
     }
-
 
     public override async Task Predicate_with_hierarchical_partition_key_leaf()
     {

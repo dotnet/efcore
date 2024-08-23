@@ -481,7 +481,8 @@ WHERE [v0].[ShippingAddress_ZipCode] <> 7728
     // purpose of knowing that it's there.
     public override async Task Project_struct_complex_type_via_optional_navigation(bool async)
     {
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => base.Project_struct_complex_type_via_optional_navigation(async));
+        var exception =
+            await Assert.ThrowsAsync<InvalidOperationException>(() => base.Project_struct_complex_type_via_optional_navigation(async));
 
         Assert.Equal(RelationalStrings.CannotProjectNullableComplexType("ValuedCustomer.ShippingAddress#AddressStruct"), exception.Message);
     }
@@ -866,7 +867,7 @@ WHERE [c].[ShippingAddress_ZipCode] = 7728
         await base.Project_same_entity_with_nested_complex_type_twice_with_pushdown(async);
 
         AssertSql(
-"""
+            """
 SELECT [s].[Id], [s].[Name], [s].[BillingAddress_AddressLine1], [s].[BillingAddress_AddressLine2], [s].[BillingAddress_Tags], [s].[BillingAddress_ZipCode], [s].[BillingAddress_Country_Code], [s].[BillingAddress_Country_FullName], [s].[ShippingAddress_AddressLine1], [s].[ShippingAddress_AddressLine2], [s].[ShippingAddress_Tags], [s].[ShippingAddress_ZipCode], [s].[ShippingAddress_Country_Code], [s].[ShippingAddress_Country_FullName], [s].[Id0], [s].[Name0], [s].[BillingAddress_AddressLine10], [s].[BillingAddress_AddressLine20], [s].[BillingAddress_Tags0], [s].[BillingAddress_ZipCode0], [s].[BillingAddress_Country_Code0], [s].[BillingAddress_Country_FullName0], [s].[ShippingAddress_AddressLine10], [s].[ShippingAddress_AddressLine20], [s].[ShippingAddress_Tags0], [s].[ShippingAddress_ZipCode0], [s].[ShippingAddress_Country_Code0], [s].[ShippingAddress_Country_FullName0]
 FROM (
     SELECT DISTINCT [c].[Id], [c].[Name], [c].[BillingAddress_AddressLine1], [c].[BillingAddress_AddressLine2], [c].[BillingAddress_Tags], [c].[BillingAddress_ZipCode], [c].[BillingAddress_Country_Code], [c].[BillingAddress_Country_FullName], [c].[ShippingAddress_AddressLine1], [c].[ShippingAddress_AddressLine2], [c].[ShippingAddress_Tags], [c].[ShippingAddress_ZipCode], [c].[ShippingAddress_Country_Code], [c].[ShippingAddress_Country_FullName], [c0].[Id] AS [Id0], [c0].[Name] AS [Name0], [c0].[BillingAddress_AddressLine1] AS [BillingAddress_AddressLine10], [c0].[BillingAddress_AddressLine2] AS [BillingAddress_AddressLine20], [c0].[BillingAddress_Tags] AS [BillingAddress_Tags0], [c0].[BillingAddress_ZipCode] AS [BillingAddress_ZipCode0], [c0].[BillingAddress_Country_Code] AS [BillingAddress_Country_Code0], [c0].[BillingAddress_Country_FullName] AS [BillingAddress_Country_FullName0], [c0].[ShippingAddress_AddressLine1] AS [ShippingAddress_AddressLine10], [c0].[ShippingAddress_AddressLine2] AS [ShippingAddress_AddressLine20], [c0].[ShippingAddress_Tags] AS [ShippingAddress_Tags0], [c0].[ShippingAddress_ZipCode] AS [ShippingAddress_ZipCode0], [c0].[ShippingAddress_Country_Code] AS [ShippingAddress_Country_Code0], [c0].[ShippingAddress_Country_FullName] AS [ShippingAddress_Country_FullName0]
@@ -881,7 +882,7 @@ FROM (
         await base.Project_same_nested_complex_type_twice_with_pushdown(async);
 
         AssertSql(
-"""
+            """
 SELECT [s].[BillingAddress_AddressLine1], [s].[BillingAddress_AddressLine2], [s].[BillingAddress_Tags], [s].[BillingAddress_ZipCode], [s].[BillingAddress_Country_Code], [s].[BillingAddress_Country_FullName], [s].[BillingAddress_AddressLine10], [s].[BillingAddress_AddressLine20], [s].[BillingAddress_Tags0], [s].[BillingAddress_ZipCode0], [s].[BillingAddress_Country_Code0], [s].[BillingAddress_Country_FullName0]
 FROM (
     SELECT DISTINCT [c].[BillingAddress_AddressLine1], [c].[BillingAddress_AddressLine2], [c].[BillingAddress_Tags], [c].[BillingAddress_ZipCode], [c].[BillingAddress_Country_Code], [c].[BillingAddress_Country_FullName], [c0].[BillingAddress_AddressLine1] AS [BillingAddress_AddressLine10], [c0].[BillingAddress_AddressLine2] AS [BillingAddress_AddressLine20], [c0].[BillingAddress_Tags] AS [BillingAddress_Tags0], [c0].[BillingAddress_ZipCode] AS [BillingAddress_ZipCode0], [c0].[BillingAddress_Country_Code] AS [BillingAddress_Country_Code0], [c0].[BillingAddress_Country_FullName] AS [BillingAddress_Country_FullName0]
@@ -896,7 +897,7 @@ FROM (
         await base.Project_same_entity_with_nested_complex_type_twice_with_double_pushdown(async);
 
         AssertSql(
-"""
+            """
 @__p_0='50'
 
 SELECT [s0].[Id], [s0].[Name], [s0].[BillingAddress_AddressLine1], [s0].[BillingAddress_AddressLine2], [s0].[BillingAddress_Tags], [s0].[BillingAddress_ZipCode], [s0].[BillingAddress_Country_Code], [s0].[BillingAddress_Country_FullName], [s0].[ShippingAddress_AddressLine1], [s0].[ShippingAddress_AddressLine2], [s0].[ShippingAddress_Tags], [s0].[ShippingAddress_ZipCode], [s0].[ShippingAddress_Country_Code], [s0].[ShippingAddress_Country_FullName], [s0].[Id0], [s0].[Name0], [s0].[BillingAddress_AddressLine10], [s0].[BillingAddress_AddressLine20], [s0].[BillingAddress_Tags0], [s0].[BillingAddress_ZipCode0], [s0].[BillingAddress_Country_Code0], [s0].[BillingAddress_Country_FullName0], [s0].[ShippingAddress_AddressLine10], [s0].[ShippingAddress_AddressLine20], [s0].[ShippingAddress_Tags0], [s0].[ShippingAddress_ZipCode0], [s0].[ShippingAddress_Country_Code0], [s0].[ShippingAddress_Country_FullName0]
@@ -917,7 +918,7 @@ FROM (
         await base.Project_same_nested_complex_type_twice_with_double_pushdown(async);
 
         AssertSql(
-"""
+            """
 @__p_0='50'
 
 SELECT [s0].[BillingAddress_AddressLine1], [s0].[BillingAddress_AddressLine2], [s0].[BillingAddress_Tags], [s0].[BillingAddress_ZipCode], [s0].[BillingAddress_Country_Code], [s0].[BillingAddress_Country_FullName], [s0].[BillingAddress_AddressLine10], [s0].[BillingAddress_AddressLine20], [s0].[BillingAddress_Tags0], [s0].[BillingAddress_ZipCode0], [s0].[BillingAddress_Country_Code0], [s0].[BillingAddress_Country_FullName0]
@@ -938,7 +939,7 @@ FROM (
         await base.Project_same_entity_with_struct_nested_complex_type_twice_with_pushdown(async);
 
         AssertSql(
-"""
+            """
 SELECT [s].[Id], [s].[Name], [s].[BillingAddress_AddressLine1], [s].[BillingAddress_AddressLine2], [s].[BillingAddress_ZipCode], [s].[BillingAddress_Country_Code], [s].[BillingAddress_Country_FullName], [s].[ShippingAddress_AddressLine1], [s].[ShippingAddress_AddressLine2], [s].[ShippingAddress_ZipCode], [s].[ShippingAddress_Country_Code], [s].[ShippingAddress_Country_FullName], [s].[Id0], [s].[Name0], [s].[BillingAddress_AddressLine10], [s].[BillingAddress_AddressLine20], [s].[BillingAddress_ZipCode0], [s].[BillingAddress_Country_Code0], [s].[BillingAddress_Country_FullName0], [s].[ShippingAddress_AddressLine10], [s].[ShippingAddress_AddressLine20], [s].[ShippingAddress_ZipCode0], [s].[ShippingAddress_Country_Code0], [s].[ShippingAddress_Country_FullName0]
 FROM (
     SELECT DISTINCT [v].[Id], [v].[Name], [v].[BillingAddress_AddressLine1], [v].[BillingAddress_AddressLine2], [v].[BillingAddress_ZipCode], [v].[BillingAddress_Country_Code], [v].[BillingAddress_Country_FullName], [v].[ShippingAddress_AddressLine1], [v].[ShippingAddress_AddressLine2], [v].[ShippingAddress_ZipCode], [v].[ShippingAddress_Country_Code], [v].[ShippingAddress_Country_FullName], [v0].[Id] AS [Id0], [v0].[Name] AS [Name0], [v0].[BillingAddress_AddressLine1] AS [BillingAddress_AddressLine10], [v0].[BillingAddress_AddressLine2] AS [BillingAddress_AddressLine20], [v0].[BillingAddress_ZipCode] AS [BillingAddress_ZipCode0], [v0].[BillingAddress_Country_Code] AS [BillingAddress_Country_Code0], [v0].[BillingAddress_Country_FullName] AS [BillingAddress_Country_FullName0], [v0].[ShippingAddress_AddressLine1] AS [ShippingAddress_AddressLine10], [v0].[ShippingAddress_AddressLine2] AS [ShippingAddress_AddressLine20], [v0].[ShippingAddress_ZipCode] AS [ShippingAddress_ZipCode0], [v0].[ShippingAddress_Country_Code] AS [ShippingAddress_Country_Code0], [v0].[ShippingAddress_Country_FullName] AS [ShippingAddress_Country_FullName0]
@@ -953,7 +954,7 @@ FROM (
         await base.Project_same_struct_nested_complex_type_twice_with_pushdown(async);
 
         AssertSql(
-"""
+            """
 SELECT [s].[BillingAddress_AddressLine1], [s].[BillingAddress_AddressLine2], [s].[BillingAddress_ZipCode], [s].[BillingAddress_Country_Code], [s].[BillingAddress_Country_FullName], [s].[BillingAddress_AddressLine10], [s].[BillingAddress_AddressLine20], [s].[BillingAddress_ZipCode0], [s].[BillingAddress_Country_Code0], [s].[BillingAddress_Country_FullName0]
 FROM (
     SELECT DISTINCT [v].[BillingAddress_AddressLine1], [v].[BillingAddress_AddressLine2], [v].[BillingAddress_ZipCode], [v].[BillingAddress_Country_Code], [v].[BillingAddress_Country_FullName], [v0].[BillingAddress_AddressLine1] AS [BillingAddress_AddressLine10], [v0].[BillingAddress_AddressLine2] AS [BillingAddress_AddressLine20], [v0].[BillingAddress_ZipCode] AS [BillingAddress_ZipCode0], [v0].[BillingAddress_Country_Code] AS [BillingAddress_Country_Code0], [v0].[BillingAddress_Country_FullName] AS [BillingAddress_Country_FullName0]
@@ -968,7 +969,7 @@ FROM (
         await base.Project_same_entity_with_struct_nested_complex_type_twice_with_double_pushdown(async);
 
         AssertSql(
-"""
+            """
 @__p_0='50'
 
 SELECT [s0].[Id], [s0].[Name], [s0].[BillingAddress_AddressLine1], [s0].[BillingAddress_AddressLine2], [s0].[BillingAddress_ZipCode], [s0].[BillingAddress_Country_Code], [s0].[BillingAddress_Country_FullName], [s0].[ShippingAddress_AddressLine1], [s0].[ShippingAddress_AddressLine2], [s0].[ShippingAddress_ZipCode], [s0].[ShippingAddress_Country_Code], [s0].[ShippingAddress_Country_FullName], [s0].[Id0], [s0].[Name0], [s0].[BillingAddress_AddressLine10], [s0].[BillingAddress_AddressLine20], [s0].[BillingAddress_ZipCode0], [s0].[BillingAddress_Country_Code0], [s0].[BillingAddress_Country_FullName0], [s0].[ShippingAddress_AddressLine10], [s0].[ShippingAddress_AddressLine20], [s0].[ShippingAddress_ZipCode0], [s0].[ShippingAddress_Country_Code0], [s0].[ShippingAddress_Country_FullName0]
@@ -989,7 +990,7 @@ FROM (
         await base.Project_same_struct_nested_complex_type_twice_with_double_pushdown(async);
 
         AssertSql(
-"""
+            """
 @__p_0='50'
 
 SELECT [s0].[BillingAddress_AddressLine1], [s0].[BillingAddress_AddressLine2], [s0].[BillingAddress_ZipCode], [s0].[BillingAddress_Country_Code], [s0].[BillingAddress_Country_FullName], [s0].[BillingAddress_AddressLine10], [s0].[BillingAddress_AddressLine20], [s0].[BillingAddress_ZipCode0], [s0].[BillingAddress_Country_Code0], [s0].[BillingAddress_Country_FullName0]
@@ -1010,7 +1011,7 @@ FROM (
         await base.Union_of_same_entity_with_nested_complex_type_projected_twice_with_pushdown(async);
 
         AssertSql(
-"""
+            """
 @__p_0='50'
 
 SELECT TOP(@__p_0) [u].[Id], [u].[Name], [u].[BillingAddress_AddressLine1], [u].[BillingAddress_AddressLine2], [u].[BillingAddress_Tags], [u].[BillingAddress_ZipCode], [u].[BillingAddress_Country_Code], [u].[BillingAddress_Country_FullName], [u].[ShippingAddress_AddressLine1], [u].[ShippingAddress_AddressLine2], [u].[ShippingAddress_Tags], [u].[ShippingAddress_ZipCode], [u].[ShippingAddress_Country_Code], [u].[ShippingAddress_Country_FullName], [u].[Id0], [u].[Name0], [u].[BillingAddress_AddressLine10], [u].[BillingAddress_AddressLine20], [u].[BillingAddress_Tags0], [u].[BillingAddress_ZipCode0], [u].[BillingAddress_Country_Code0], [u].[BillingAddress_Country_FullName0], [u].[ShippingAddress_AddressLine10], [u].[ShippingAddress_AddressLine20], [u].[ShippingAddress_Tags0], [u].[ShippingAddress_ZipCode0], [u].[ShippingAddress_Country_Code0], [u].[ShippingAddress_Country_FullName0]
@@ -1032,7 +1033,7 @@ ORDER BY [u].[Id], [u].[Id0]
         await base.Union_of_same_entity_with_nested_complex_type_projected_twice_with_double_pushdown(async);
 
         AssertSql(
-"""
+            """
 @__p_0='50'
 
 SELECT TOP(@__p_0) [u1].[Id], [u1].[Name], [u1].[BillingAddress_AddressLine1], [u1].[BillingAddress_AddressLine2], [u1].[BillingAddress_Tags], [u1].[BillingAddress_ZipCode], [u1].[BillingAddress_Country_Code], [u1].[BillingAddress_Country_FullName], [u1].[ShippingAddress_AddressLine1], [u1].[ShippingAddress_AddressLine2], [u1].[ShippingAddress_Tags], [u1].[ShippingAddress_ZipCode], [u1].[ShippingAddress_Country_Code], [u1].[ShippingAddress_Country_FullName], [u1].[Id0], [u1].[Name0], [u1].[BillingAddress_AddressLine10], [u1].[BillingAddress_AddressLine20], [u1].[BillingAddress_Tags0], [u1].[BillingAddress_ZipCode0], [u1].[BillingAddress_Country_Code0], [u1].[BillingAddress_Country_FullName0], [u1].[ShippingAddress_AddressLine10], [u1].[ShippingAddress_AddressLine20], [u1].[ShippingAddress_Tags0], [u1].[ShippingAddress_ZipCode0], [u1].[ShippingAddress_Country_Code0], [u1].[ShippingAddress_Country_FullName0]
@@ -1061,7 +1062,7 @@ ORDER BY [u1].[Id], [u1].[Id0]
         await base.Union_of_same_nested_complex_type_projected_twice_with_pushdown(async);
 
         AssertSql(
-"""
+            """
 @__p_0='50'
 
 SELECT TOP(@__p_0) [u].[BillingAddress_AddressLine1], [u].[BillingAddress_AddressLine2], [u].[BillingAddress_Tags], [u].[BillingAddress_ZipCode], [u].[BillingAddress_Country_Code], [u].[BillingAddress_Country_FullName], [u].[BillingAddress_AddressLine10], [u].[BillingAddress_AddressLine20], [u].[BillingAddress_Tags0], [u].[BillingAddress_ZipCode0], [u].[BillingAddress_Country_Code0], [u].[BillingAddress_Country_FullName0]
@@ -1083,7 +1084,7 @@ ORDER BY [u].[BillingAddress_ZipCode], [u].[BillingAddress_ZipCode0]
         await base.Union_of_same_nested_complex_type_projected_twice_with_double_pushdown(async);
 
         AssertSql(
-"""
+            """
 @__p_0='50'
 
 SELECT TOP(@__p_0) [u1].[BillingAddress_AddressLine1], [u1].[BillingAddress_AddressLine2], [u1].[BillingAddress_Tags], [u1].[BillingAddress_ZipCode], [u1].[BillingAddress_Country_Code], [u1].[BillingAddress_Country_FullName], [u1].[BillingAddress_AddressLine10], [u1].[BillingAddress_AddressLine20], [u1].[BillingAddress_Tags0], [u1].[BillingAddress_ZipCode0], [u1].[BillingAddress_Country_Code0], [u1].[BillingAddress_Country_FullName0]
@@ -1112,7 +1113,7 @@ ORDER BY [u1].[BillingAddress_ZipCode], [u1].[BillingAddress_ZipCode0]
         await base.Same_entity_with_complex_type_projected_twice_with_pushdown_as_part_of_another_projection(async);
 
         AssertSql(
-"""
+            """
 SELECT [c].[Id], [s].[Id], [s].[Name], [s].[BillingAddress_AddressLine1], [s].[BillingAddress_AddressLine2], [s].[BillingAddress_Tags], [s].[BillingAddress_ZipCode], [s].[BillingAddress_Country_Code], [s].[BillingAddress_Country_FullName], [s].[ShippingAddress_AddressLine1], [s].[ShippingAddress_AddressLine2], [s].[ShippingAddress_Tags], [s].[ShippingAddress_ZipCode], [s].[ShippingAddress_Country_Code], [s].[ShippingAddress_Country_FullName], [s].[Id0], [s].[Name0], [s].[BillingAddress_AddressLine10], [s].[BillingAddress_AddressLine20], [s].[BillingAddress_Tags0], [s].[BillingAddress_ZipCode0], [s].[BillingAddress_Country_Code0], [s].[BillingAddress_Country_FullName0], [s].[ShippingAddress_AddressLine10], [s].[ShippingAddress_AddressLine20], [s].[ShippingAddress_Tags0], [s].[ShippingAddress_ZipCode0], [s].[ShippingAddress_Country_Code0], [s].[ShippingAddress_Country_FullName0], [s].[c]
 FROM [Customer] AS [c]
 OUTER APPLY (
@@ -1199,7 +1200,7 @@ LEFT JOIN (
         await base.Projecting_property_of_complex_type_using_left_join_with_pushdown(async);
 
         AssertSql(
-"""
+            """
 SELECT [c1].[BillingAddress_ZipCode]
 FROM [CustomerGroup] AS [c]
 LEFT JOIN (
@@ -1215,7 +1216,7 @@ LEFT JOIN (
         await base.Projecting_complex_from_optional_navigation_using_conditional(async);
 
         AssertSql(
-"""
+            """
 @__p_0='20'
 
 SELECT [s0].[ShippingAddress_ZipCode]
@@ -1236,7 +1237,7 @@ FROM (
         await base.Project_entity_with_complex_type_pushdown_and_then_left_join(async);
 
         AssertSql(
-"""
+            """
 @__p_0='20'
 @__p_1='30'
 

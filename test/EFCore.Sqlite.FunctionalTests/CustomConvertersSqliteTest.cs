@@ -9,9 +9,7 @@ public class CustomConvertersSqliteTest : CustomConvertersTestBase<CustomConvert
 {
     public CustomConvertersSqliteTest(CustomConvertersSqliteFixture fixture)
         : base(fixture)
-    {
-        Fixture.TestSqlLoggerFactory.Clear();
-    }
+        => Fixture.TestSqlLoggerFactory.Clear();
 
     // Disabled: SQLite database is case-sensitive
     public override Task Can_insert_and_read_back_with_case_insensitive_string_key()

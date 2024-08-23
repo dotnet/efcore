@@ -3,9 +3,7 @@
 
 #nullable disable
 
-using System.Collections;
 using Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal;
-using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Newtonsoft.Json.Linq;
 

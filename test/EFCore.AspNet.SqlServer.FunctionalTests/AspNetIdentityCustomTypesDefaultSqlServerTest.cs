@@ -3,7 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class AspNetIdentityCustomTypesDefaultSqlServerTest(AspNetIdentityCustomTypesDefaultSqlServerTest.AspNetIdentityCustomTypesDefaultSqlServerFixture fixture)
+public class AspNetIdentityCustomTypesDefaultSqlServerTest(
+    AspNetIdentityCustomTypesDefaultSqlServerTest.AspNetIdentityCustomTypesDefaultSqlServerFixture fixture)
     : AspNetIdentityCustomTypesDefaultTestBase<
         AspNetIdentityCustomTypesDefaultSqlServerTest.AspNetIdentityCustomTypesDefaultSqlServerFixture>(fixture)
 {

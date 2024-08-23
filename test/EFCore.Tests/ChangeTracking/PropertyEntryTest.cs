@@ -4782,7 +4782,8 @@ public class PropertyEntryTest
                 });
     }
 
-    private class PrimateContext(ChangeTrackingStrategy fullNotificationStrategy = ChangeTrackingStrategy.ChangingAndChangedNotifications) : DbContext
+    private class PrimateContext(ChangeTrackingStrategy fullNotificationStrategy = ChangeTrackingStrategy.ChangingAndChangedNotifications)
+        : DbContext
     {
         private readonly ChangeTrackingStrategy _fullNotificationStrategy = fullNotificationStrategy;
 

@@ -84,7 +84,7 @@ public class TestRelationalCommandBuilderFactory(
         string commandText,
         IReadOnlyList<IRelationalParameter> parameters) : IRelationalCommand
     {
-        private readonly RelationalCommand _realRelationalCommand = new RelationalCommand(dependencies, commandText, parameters);
+        private readonly RelationalCommand _realRelationalCommand = new(dependencies, commandText, parameters);
 
         public string CommandText
             => _realRelationalCommand.CommandText;

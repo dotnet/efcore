@@ -8,9 +8,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel;
 public class Squad
 {
     public Squad()
-    {
-        Members = [];
-    }
+        => Members = new List<Gear>();
 
     // non-auto generated key
     public int Id { get; set; }

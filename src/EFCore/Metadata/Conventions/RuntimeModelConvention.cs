@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Collections;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
@@ -21,9 +20,7 @@ public class RuntimeModelConvention : IModelFinalizedConvention
     /// <param name="dependencies">Parameter object containing dependencies for this convention.</param>
     public RuntimeModelConvention(
         ProviderConventionSetBuilderDependencies dependencies)
-    {
-        Dependencies = dependencies;
-    }
+        => Dependencies = dependencies;
 
     /// <summary>
     ///     Dependencies for this service.
@@ -863,9 +860,7 @@ public class RuntimeModelConvention : IModelFinalizedConvention
         /// </summary>
         /// <param name="model">The model to look for entity types.</param>
         public QueryRootRewritingExpressionVisitor(IModel model)
-        {
-            _model = model;
-        }
+            => _model = model;
 
         /// <summary>
         ///     Rewrites <see cref="EntityQueryRootExpression" /> encountered in an expression to use a different entity type.

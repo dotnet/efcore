@@ -65,7 +65,8 @@ SELECT "s"."Id", "s"."Type" FROM "Singularity" AS "s"
         }
     }
 
-    public class CommandInterceptionWithDiagnosticsSqliteTest(CommandInterceptionWithDiagnosticsSqliteTest.InterceptionSqliteFixture fixture)
+    public class CommandInterceptionWithDiagnosticsSqliteTest(
+        CommandInterceptionWithDiagnosticsSqliteTest.InterceptionSqliteFixture fixture)
         : CommandInterceptionSqliteTestBase(fixture), IClassFixture<CommandInterceptionWithDiagnosticsSqliteTest.InterceptionSqliteFixture>
     {
         public class InterceptionSqliteFixture : InterceptionSqliteFixtureBase

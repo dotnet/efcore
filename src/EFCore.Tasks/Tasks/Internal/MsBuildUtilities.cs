@@ -44,11 +44,15 @@ internal class MsBuildUtilities
                 .Cast<string>()
                 .ToArray();
 
-    public static bool IsTrue(string? value) => bool.TrueString.Equals(TrimAndGetNullForEmpty(value), StringComparison.OrdinalIgnoreCase);
+    public static bool IsTrue(string? value)
+        => bool.TrueString.Equals(TrimAndGetNullForEmpty(value), StringComparison.OrdinalIgnoreCase);
 
-    public static bool IsTrueOrEmpty(string? value) => TrimAndGetNullForEmpty(value) == null || IsTrue(value);
+    public static bool IsTrueOrEmpty(string? value)
+        => TrimAndGetNullForEmpty(value) == null || IsTrue(value);
 
-    public static bool? GetBooleanOrNull(string? value) => bool.TryParse(value, out var result) ? result : null;
+    public static bool? GetBooleanOrNull(string? value)
+        => bool.TryParse(value, out var result) ? result : null;
 
-    public static string? ToMsBuild(string? value) => value?.Replace(',', ';');
+    public static string? ToMsBuild(string? value)
+        => value?.Replace(',', ';');
 }

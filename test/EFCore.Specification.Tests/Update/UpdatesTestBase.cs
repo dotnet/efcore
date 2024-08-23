@@ -863,7 +863,6 @@ public abstract class UpdatesTestBase<TFixture>(TFixture fixture) : IClassFixtur
     {
         public required string MuffinName { get; set; }
         public Top Top { get; set; } = null!;
-
     }
 
     protected class Tin

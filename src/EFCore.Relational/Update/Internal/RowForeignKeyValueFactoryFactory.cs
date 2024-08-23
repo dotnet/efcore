@@ -57,10 +57,10 @@ public class RowForeignKeyValueFactoryFactory : IRowForeignKeyValueFactoryFactor
 
         return principalColumn.ProviderClrType.IsNullableType()
             || (dependentColumn.IsNullable && principalColumn.IsNullable)
-            ? new SimpleFullyNullableRowForeignKeyValueFactory<TKey, TForeignKey>(
-                foreignKey, dependentColumn, columnAccessors)
-            : new SimpleNullablePrincipalRowForeignKeyValueFactory<TKey, TForeignKey>(
-                   foreignKey, dependentColumn, columnAccessors);
+                ? new SimpleFullyNullableRowForeignKeyValueFactory<TKey, TForeignKey>(
+                    foreignKey, dependentColumn, columnAccessors)
+                : new SimpleNullablePrincipalRowForeignKeyValueFactory<TKey, TForeignKey>(
+                    foreignKey, dependentColumn, columnAccessors);
     }
 
     private static readonly MethodInfo CreateNonNullableMethod = typeof(RowForeignKeyValueFactoryFactory).GetTypeInfo()

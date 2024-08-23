@@ -11,8 +11,8 @@ public class JsonTypesCustomMappingSqlServerTest : JsonTypesSqlServerTestBase
         => serviceCollection.AddSingleton<IRelationalTypeMappingSource, TestSqlServerTypeMappingSource>();
 
     private class TestSqlServerTypeMappingSource(
-            TypeMappingSourceDependencies dependencies,
-            RelationalTypeMappingSourceDependencies relationalDependencies)
+        TypeMappingSourceDependencies dependencies,
+        RelationalTypeMappingSourceDependencies relationalDependencies)
         : SqlServerTypeMappingSource(dependencies, relationalDependencies)
     {
         protected override RelationalTypeMapping? FindMapping(in RelationalTypeMappingInfo mappingInfo)

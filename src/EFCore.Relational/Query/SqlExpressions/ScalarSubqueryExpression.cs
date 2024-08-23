@@ -22,15 +22,11 @@ public class ScalarSubqueryExpression : SqlExpression
     /// <param name="subquery">A subquery projecting single row with a single scalar projection.</param>
     public ScalarSubqueryExpression(SelectExpression subquery)
         : this(subquery, subquery.Projection[0].Expression.TypeMapping)
-    {
-        Subquery = subquery;
-    }
+        => Subquery = subquery;
 
     private ScalarSubqueryExpression(SelectExpression subquery, RelationalTypeMapping? typeMapping)
         : base(Verify(subquery).Projection[0].Type, typeMapping)
-    {
-        Subquery = subquery;
-    }
+        => Subquery = subquery;
 
     private static SelectExpression Verify(SelectExpression selectExpression)
     {

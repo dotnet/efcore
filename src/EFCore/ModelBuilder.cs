@@ -52,9 +52,7 @@ public class ModelBuilder : IInfrastructure<IConventionModelBuilder>
     /// <param name="modelDependencies">The dependencies object for the model.</param>
     public ModelBuilder(ConventionSet conventions, ModelDependencies modelDependencies)
         : this(conventions, modelDependencies, null)
-    {
-        Check.NotNull(modelDependencies, nameof(modelDependencies));
-    }
+        => Check.NotNull(modelDependencies, nameof(modelDependencies));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -85,9 +83,7 @@ public class ModelBuilder : IInfrastructure<IConventionModelBuilder>
     ///     <see href="https://aka.ms/efcore-docs-conventions">EF Core model-building conventions</see> for more information and examples.
     /// </remarks>
     public ModelBuilder()
-    {
-        _builder = new Model().Builder;
-    }
+        => _builder = new Model().Builder;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -97,9 +93,7 @@ public class ModelBuilder : IInfrastructure<IConventionModelBuilder>
     /// </summary>
     [EntityFrameworkInternal]
     public ModelBuilder(IMutableModel model)
-    {
-        _builder = ((Model)model).Builder;
-    }
+        => _builder = ((Model)model).Builder;
 
     /// <summary>
     ///     The model being configured.

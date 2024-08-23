@@ -41,8 +41,8 @@ FROM root c
             async, async a =>
             {
                 await base.KeylessEntity_where_simple(a);
-AssertSql(
-    """
+                AssertSql(
+                    """
 SELECT VALUE c
 FROM root c
 WHERE (c["City"] = "London")
@@ -175,8 +175,8 @@ WHERE ((c["$type"] = "Order") AND (c["CustomerID"] = "ALFKI"))
             async, async a =>
             {
                 await base.Auto_initialized_view_set(a);
-AssertSql(
-    """
+                AssertSql(
+                    """
 SELECT VALUE c
 FROM root c
 """);

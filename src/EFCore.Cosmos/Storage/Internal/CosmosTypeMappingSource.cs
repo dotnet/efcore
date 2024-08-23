@@ -28,8 +28,7 @@ public class CosmosTypeMappingSource : TypeMappingSource
     /// </summary>
     public CosmosTypeMappingSource(TypeMappingSourceDependencies dependencies)
         : base(dependencies)
-    {
-        _clrTypeMappings
+        => _clrTypeMappings
             = new Dictionary<Type, CosmosTypeMapping>
             {
                 {
@@ -37,8 +36,6 @@ public class CosmosTypeMappingSource : TypeMappingSource
                         typeof(JObject), jsonValueReaderWriter: dependencies.JsonValueReaderWriterSource.FindReaderWriter(typeof(JObject)))
                 }
             };
-    }
-
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

@@ -16,10 +16,8 @@ public abstract class ServiceProviderFixtureBase : FixtureBase
         => _listLoggerFactory ??= (ListLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
 
     protected ServiceProviderFixtureBase()
-    {
-        ServiceProvider = AddServices(TestStoreFactory.AddProviderServices(new ServiceCollection()))
+        => ServiceProvider = AddServices(TestStoreFactory.AddProviderServices(new ServiceCollection()))
             .BuildServiceProvider(validateScopes: true);
-    }
 
     public DbContextOptions CreateOptions(TestStore testStore)
         => AddOptions(testStore.AddProviderOptions(new DbContextOptionsBuilder()))

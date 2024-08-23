@@ -436,9 +436,7 @@ public abstract class ModelValidatorTestBase
     }
 
     protected ModelValidatorTestBase()
-    {
-        LoggerFactory = new ListLoggerFactory(l => l == DbLoggerCategory.Model.Validation.Name || l == DbLoggerCategory.Model.Name);
-    }
+        => LoggerFactory = new ListLoggerFactory(l => l == DbLoggerCategory.Model.Validation.Name || l == DbLoggerCategory.Model.Name);
 
     protected ListLoggerFactory LoggerFactory { get; }
 

@@ -5,7 +5,8 @@ using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class InMemoryApiConsistencyTest(InMemoryApiConsistencyTest.InMemoryApiConsistencyFixture fixture) : ApiConsistencyTestBase<InMemoryApiConsistencyTest.InMemoryApiConsistencyFixture>(fixture)
+public class InMemoryApiConsistencyTest(InMemoryApiConsistencyTest.InMemoryApiConsistencyFixture fixture)
+    : ApiConsistencyTestBase<InMemoryApiConsistencyTest.InMemoryApiConsistencyFixture>(fixture)
 {
     protected override void AddServices(ServiceCollection serviceCollection)
         => serviceCollection.AddEntityFrameworkInMemoryDatabase();

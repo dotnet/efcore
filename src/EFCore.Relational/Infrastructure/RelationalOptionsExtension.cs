@@ -394,7 +394,8 @@ public abstract class RelationalOptionsExtension : IDbContextOptionsExtension
     ///     It is unusual to call this method directly. Instead use <see cref="DbContextOptionsBuilder" />.
     /// </summary>
     /// <param name="parameterizedCollectionTranslationMode">The option to change.</param>
-    public virtual RelationalOptionsExtension WithParameterizedCollectionTranslationMode(ParameterizedCollectionTranslationMode parameterizedCollectionTranslationMode)
+    public virtual RelationalOptionsExtension WithParameterizedCollectionTranslationMode(
+        ParameterizedCollectionTranslationMode parameterizedCollectionTranslationMode)
     {
         var clone = Clone();
 
@@ -564,7 +565,8 @@ public abstract class RelationalOptionsExtension : IDbContextOptionsExtension
 
                     if (Extension._parameterizedCollectionTranslationMode != null)
                     {
-                        builder.Append("ParameterizedCollectionTranslationMode=").Append(Extension._parameterizedCollectionTranslationMode).Append(' ');
+                        builder.Append("ParameterizedCollectionTranslationMode=").Append(Extension._parameterizedCollectionTranslationMode)
+                            .Append(' ');
                     }
 
                     _logFragment = builder.ToString();

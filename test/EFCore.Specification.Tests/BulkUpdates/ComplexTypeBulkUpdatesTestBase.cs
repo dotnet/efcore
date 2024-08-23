@@ -106,11 +106,7 @@ public abstract class ComplexTypeBulkUpdatesTestBase<TFixture>(TFixture fixture)
             AddressLine1 = "New AddressLine1",
             AddressLine2 = "New AddressLine2",
             ZipCode = 99999,
-            Country = new()
-            {
-                Code = "FR",
-                FullName = "France"
-            },
+            Country = new Country { Code = "FR", FullName = "France" },
             Tags = new List<string> { "new_tag1", "new_tag2" }
         };
 
@@ -126,11 +122,7 @@ public abstract class ComplexTypeBulkUpdatesTestBase<TFixture>(TFixture fixture)
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Update_nested_complex_type_to_parameter(bool async)
     {
-        var newCountry = new Country
-        {
-            Code = "FR",
-            FullName = "France"
-        };
+        var newCountry = new Country { Code = "FR", FullName = "France" };
 
         return AssertUpdate(
             async,
@@ -157,18 +149,15 @@ public abstract class ComplexTypeBulkUpdatesTestBase<TFixture>(TFixture fixture)
             async,
             ss => ss.Set<Customer>(),
             c => c,
-            s => s.SetProperty(x => x.ShippingAddress, new Address
-            {
-                AddressLine1 = "New AddressLine1",
-                AddressLine2 = "New AddressLine2",
-                ZipCode = 99999,
-                Country = new()
+            s => s.SetProperty(
+                x => x.ShippingAddress, new Address
                 {
-                    Code = "FR",
-                    FullName = "France"
-                },
-                Tags = new List<string> { "new_tag1", "new_tag2" }
-            }),
+                    AddressLine1 = "New AddressLine1",
+                    AddressLine2 = "New AddressLine2",
+                    ZipCode = 99999,
+                    Country = new Country { Code = "FR", FullName = "France" },
+                    Tags = new List<string> { "new_tag1", "new_tag2" }
+                }),
             rowsAffectedCount: 3);
 
     [ConditionalTheory]
@@ -178,18 +167,15 @@ public abstract class ComplexTypeBulkUpdatesTestBase<TFixture>(TFixture fixture)
             async,
             ss => ss.Set<Customer>(),
             c => c,
-            s => s.SetProperty(x => x.ShippingAddress, x => new Address
-            {
-                AddressLine1 = "New AddressLine1",
-                AddressLine2 = "New AddressLine2",
-                ZipCode = 99999,
-                Country = new()
+            s => s.SetProperty(
+                x => x.ShippingAddress, x => new Address
                 {
-                    Code = "FR",
-                    FullName = "France"
-                },
-                Tags = new List<string> { "new_tag1", "new_tag2" }
-            }),
+                    AddressLine1 = "New AddressLine1",
+                    AddressLine2 = "New AddressLine2",
+                    ZipCode = 99999,
+                    Country = new Country { Code = "FR", FullName = "France" },
+                    Tags = new List<string> { "new_tag1", "new_tag2" }
+                }),
             rowsAffectedCount: 3);
 
     [ConditionalTheory]

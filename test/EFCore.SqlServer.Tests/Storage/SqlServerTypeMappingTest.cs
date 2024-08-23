@@ -385,7 +385,7 @@ public class SqlServerTypeMappingTest : RelationalTypeMappingTest
     [ConditionalFact]
     public virtual void DateOnly_code_literal_generated_correctly()
     {
-        var typeMapping = new DateOnlyTypeMapping("date", DbType.Date);
+        var typeMapping = new DateOnlyTypeMapping("date");
 
         Test_GenerateCodeLiteral_helper(typeMapping, new DateOnly(2020, 3, 5), "new DateOnly(2020, 3, 5)");
     }
@@ -393,7 +393,7 @@ public class SqlServerTypeMappingTest : RelationalTypeMappingTest
     [ConditionalFact]
     public virtual void TimeOnly_code_literal_generated_correctly()
     {
-        var typeMapping = new TimeOnlyTypeMapping("time", DbType.Time);
+        var typeMapping = new TimeOnlyTypeMapping("time");
 
         Test_GenerateCodeLiteral_helper(typeMapping, new TimeOnly(12, 30, 10), "new TimeOnly(12, 30, 10)");
         Test_GenerateCodeLiteral_helper(typeMapping, new TimeOnly(12, 30, 10, 500), "new TimeOnly(12, 30, 10, 500)");

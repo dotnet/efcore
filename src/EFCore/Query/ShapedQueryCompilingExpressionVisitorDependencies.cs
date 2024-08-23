@@ -111,7 +111,7 @@ public sealed record ShapedQueryCompilingExpressionVisitorDependencies
     public IEnumerable<ISingletonInterceptor> SingletonInterceptors { get; init; }
 
     /// <summary>
-    /// TODO
+    ///     TODO
     /// </summary>
     public IDbContextServices ContextServices { get; init; }
 }

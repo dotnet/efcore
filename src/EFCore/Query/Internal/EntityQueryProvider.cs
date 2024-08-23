@@ -22,9 +22,7 @@ public class EntityQueryProvider : IAsyncQueryProvider
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public EntityQueryProvider(IQueryCompiler queryCompiler)
-    {
-        _queryCompiler = queryCompiler;
-    }
+        => _queryCompiler = queryCompiler;
 
     private static MethodInfo GenericCreateQueryMethod
         => _genericCreateQueryMethod ??= typeof(EntityQueryProvider)

@@ -48,18 +48,19 @@ public class CosmosAliasManager
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </remarks>
     public virtual string GenerateSourceAlias(Expression expression, string? fallback = null)
-        => GenerateSourceAlias(expression switch
-        {
-            IAccessExpression { PropertyName: string propertyName } => propertyName,
-            FromSqlExpression => "sql",
-            SqlFunctionExpression { Name: "ARRAY_SLICE", Arguments: [var array, ..] } => GenerateSourceAlias(array),
-            ObjectFunctionExpression { Name: "ARRAY_SLICE", Arguments: [var array, ..] } => GenerateSourceAlias(array),
-            SqlFunctionExpression { Name: var name } => name,
-            ObjectFunctionExpression { Name: var name } => name,
-            ArrayConstantExpression => "array",
+        => GenerateSourceAlias(
+            expression switch
+            {
+                IAccessExpression { PropertyName: string propertyName } => propertyName,
+                FromSqlExpression => "sql",
+                SqlFunctionExpression { Name: "ARRAY_SLICE", Arguments: [var array, ..] } => GenerateSourceAlias(array),
+                ObjectFunctionExpression { Name: "ARRAY_SLICE", Arguments: [var array, ..] } => GenerateSourceAlias(array),
+                SqlFunctionExpression { Name: var name } => name,
+                ObjectFunctionExpression { Name: var name } => name,
+                ArrayConstantExpression => "array",
 
-            _ => fallback ?? "value"
-        });
+                _ => fallback ?? "value"
+            });
 
     /// <summary>
     ///     Generates an alias based on the given <paramref name="name" />.
@@ -145,7 +146,7 @@ public class CosmosAliasManager
             }
             else
             {
-                bitmap = aliasBitmaps[aliasBase] = new(aliasNum + 1);
+                bitmap = aliasBitmaps[aliasBase] = new BitArray(aliasNum + 1);
             }
 
             bitmap[aliasNum] = true;
@@ -173,7 +174,7 @@ public class CosmosAliasManager
                     var j = i - numHoles;
                     var newAlias = aliasBase + (j == 0 ? "" : (j - 1).ToString());
 
-                    aliasRewritingMap ??= new();
+                    aliasRewritingMap ??= new Dictionary<string, string>();
                     aliasRewritingMap[oldAlias] = newAlias;
                 }
             }

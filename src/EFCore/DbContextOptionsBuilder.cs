@@ -731,17 +731,17 @@ public class DbContextOptionsBuilder : IDbContextOptionsBuilderInfrastructure
         => WithOption(e => e.WithLoggingCacheTime(timeSpan));
 
     /// <summary>
-    ///     Configures the seed method to run after <see cref="DatabaseFacade.EnsureCreated"/>
+    ///     Configures the seed method to run after <see cref="DatabaseFacade.EnsureCreated" />
     ///     is called or after migrations are applied.
     ///     It will be invoked even if no changes to the store were performed.
     /// </summary>
     /// <remarks>
     ///     <para>
-    ///         The <see langword="bool"/> argument of the seed delegate indicates whether any store management
+    ///         The <see langword="bool" /> argument of the seed delegate indicates whether any store management
     ///         operation was performed.
     ///     </para>
     ///     <para>
-    ///         It is recomended to also call <see cref="UseAsyncSeeding"/> with the same logic.
+    ///         It is recomended to also call <see cref="UseAsyncSeeding" /> with the same logic.
     ///     </para>
     ///     <para>
     ///         See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see> for more information and examples.
@@ -753,17 +753,17 @@ public class DbContextOptionsBuilder : IDbContextOptionsBuilderInfrastructure
         => WithOption(e => e.WithSeeding(seed));
 
     /// <summary>
-    ///     Configures the seed method to run after <see cref="DatabaseFacade.EnsureCreatedAsync"/>
+    ///     Configures the seed method to run after <see cref="DatabaseFacade.EnsureCreatedAsync" />
     ///     is called or after migrations are applied asynchronously.
     ///     It will be invoked even if no changes to the store were performed.
     /// </summary>
     /// <remarks>
     ///     <para>
-    ///         The <see langword="bool"/> argument of the seed delegate indicates whether any store management
+    ///         The <see langword="bool" /> argument of the seed delegate indicates whether any store management
     ///         operation was performed.
     ///     </para>
     ///     <para>
-    ///         It is recomended to also call <see cref="UseSeeding"/> with the same logic.
+    ///         It is recomended to also call <see cref="UseSeeding" /> with the same logic.
     ///     </para>
     ///     <para>
     ///         See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see> for more information and examples.

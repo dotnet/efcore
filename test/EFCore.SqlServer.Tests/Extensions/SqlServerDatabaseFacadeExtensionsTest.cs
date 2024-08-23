@@ -91,9 +91,7 @@ public class SqlServerDatabaseFacadeExtensionsTest
         }
 
         public TimeoutContext(int? commandTimeout)
-        {
-            Database.SetCommandTimeout(commandTimeout);
-        }
+            => Database.SetCommandTimeout(commandTimeout);
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
@@ -240,9 +238,7 @@ public class SqlServerDatabaseFacadeExtensionsTest
     private class SqlServerConstructorContext : SqlServerOnConfiguringContext
     {
         public SqlServerConstructorContext()
-        {
-            IsSqlServerSet = Database.IsSqlServer();
-        }
+            => IsSqlServerSet = Database.IsSqlServer();
     }
 
     private class SqlServerUseInOnConfiguringContext : SqlServerOnConfiguringContext
@@ -265,9 +261,7 @@ public class SqlServerDatabaseFacadeExtensionsTest
     {
         public ProviderConstructorContext(DbContextOptions options)
             : base(options)
-        {
-            IsSqlServerSet = Database.IsSqlServer();
-        }
+            => IsSqlServerSet = Database.IsSqlServer();
     }
 
     private class ProviderUseInOnConfiguringContext(DbContextOptions options) : ProviderContext(options)

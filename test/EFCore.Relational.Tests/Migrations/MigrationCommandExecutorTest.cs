@@ -1,7 +1,6 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
 
@@ -122,15 +121,17 @@ public class MigrationCommandExecutorTest
             {
                 Assert.Equal(
                     RelationalStrings.TransactionSuppressedMigrationInUserTransaction,
-                    (await Assert.ThrowsAsync<NotSupportedException>(async ()
-                        => await migrationCommandExecutor.ExecuteNonQueryAsync(commandList, fakeConnection))).Message);
+                    (await Assert.ThrowsAsync<NotSupportedException>(
+                        async ()
+                            => await migrationCommandExecutor.ExecuteNonQueryAsync(commandList, fakeConnection))).Message);
             }
             else
             {
                 Assert.Equal(
                     RelationalStrings.TransactionSuppressedMigrationInUserTransaction,
-                    Assert.Throws<NotSupportedException>(()
-                        => migrationCommandExecutor.ExecuteNonQuery(commandList, fakeConnection)).Message);
+                    Assert.Throws<NotSupportedException>(
+                        ()
+                            => migrationCommandExecutor.ExecuteNonQuery(commandList, fakeConnection)).Message);
             }
 
             tx.Rollback();
@@ -355,13 +356,15 @@ public class MigrationCommandExecutorTest
 
         if (async)
         {
-            await Assert.ThrowsAsync<InvalidOperationException>(async ()
-                => await migrationCommandExecutor.ExecuteNonQueryAsync(commandList, fakeConnection));
+            await Assert.ThrowsAsync<InvalidOperationException>(
+                async ()
+                    => await migrationCommandExecutor.ExecuteNonQueryAsync(commandList, fakeConnection));
         }
         else
         {
-            Assert.Throws<InvalidOperationException>(()
-                => migrationCommandExecutor.ExecuteNonQuery(commandList, fakeConnection));
+            Assert.Throws<InvalidOperationException>(
+                ()
+                    => migrationCommandExecutor.ExecuteNonQuery(commandList, fakeConnection));
         }
 
         Assert.Equal(1, fakeDbConnection.OpenCount);
