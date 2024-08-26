@@ -38,7 +38,7 @@ public abstract class SpatialTestBase<TFixture>(TFixture fixture) : IClassFixtur
     }
 
     [ConditionalFact]
-    public virtual async void Mutation_of_tracked_values_does_not_mutate_values_in_store()
+    public virtual async Task Mutation_of_tracked_values_does_not_mutate_values_in_store()
     {
         Point CreatePoint(double y = 2.2)
             => new(1.1, y, 3.3);

@@ -327,7 +327,7 @@ public abstract class MusicStoreTestBase<TFixture> : IClassFixture<TFixture>
     }
 
     [ConditionalFact]
-    public virtual async void Music_store_project_to_mapped_entity()
+    public virtual async Task Music_store_project_to_mapped_entity()
     {
         using var context = CreateContext();
         await context.Database.CreateExecutionStrategy().ExecuteAsync(
