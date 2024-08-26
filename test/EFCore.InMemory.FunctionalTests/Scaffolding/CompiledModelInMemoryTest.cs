@@ -47,31 +47,41 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         public virtual Task Self_referential_property()
             => Test(
                 modelBuilder =>
-                    modelBuilder.Entity<SelfReferentialEntity>(
-                        eb =>
-                        {
-                            eb.Property(e => e.Collection).HasConversion(typeof(SelfReferentialPropertyValueConverter));
-                        }),
+                    modelBuilder.Entity<SelfReferentialEntity<long>>(eb =>
+                    {
+                        eb.Property(e => e.Collection)
+                            .HasConversion<SelfReferentialEntity<long>.NonGeneric.SelfReferentialPropertyValueConverter<string>>();
+                    }),
                 model =>
                 {
                     Assert.Single(model.GetEntityTypes());
                 }
             );
 
-        public class SelfReferentialPropertyValueConverter(ConverterMappingHints hints)
-            : ValueConverter<SelfReferentialProperty?, string?>(v => null, v => null, hints)
+        public class SelfReferentialEntity<T>
+            where T : struct
         {
-            public SelfReferentialPropertyValueConverter()
-                : this(new ConverterMappingHints())
-            {
-            }
-        }
-
-        public class SelfReferentialEntity
-        {
-            public long Id { get; set; }
+            public T Id { get; set; }
 
             public SelfReferentialProperty? Collection { get; set; }
+
+            public static class NonGeneric
+            {
+                public class SelfReferentialPropertyValueConverter<TTarget>(ConverterMappingHints hints)
+                    : ValueConverter<SelfReferentialProperty?, TTarget?>(v => ToProvider(v), v => FromProvider(v), hints)
+                {
+                    public SelfReferentialPropertyValueConverter()
+                        : this(new ConverterMappingHints())
+                    {
+                    }
+
+                    public static TTarget? ToProvider(SelfReferentialProperty? v)
+                        => default;
+
+                    public static SelfReferentialProperty? FromProvider(TTarget? v)
+                        => null;
+                }
+            }
         }
 
         public class SelfReferentialProperty : List<SelfReferentialProperty>;
