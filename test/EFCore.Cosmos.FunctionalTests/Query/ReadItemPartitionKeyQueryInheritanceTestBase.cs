@@ -108,17 +108,11 @@ public abstract class ReadItemPartitionKeyQueryInheritanceTestBase<TFixture> : R
             ss => ss.Set<DerivedOnlySinglePartitionKeyEntity>().Where(e => e.PartitionKey == "PK1c"));
 
     [ConditionalFact]
-    public virtual async Task WithPartitionKey_with_missing_value_in_hierarchical_partition_key_leaf()
-    {
-        var message = await Assert.ThrowsAsync<InvalidOperationException>(
-            () => AssertQuery(
-                async: true,
-                ss => ss.Set<DerivedHierarchicalPartitionKeyEntity>().WithPartitionKey("PK1", 1),
-                ss => ss.Set<DerivedHierarchicalPartitionKeyEntity>()
-                    .Where(e => e.PartitionKey1 == "PK1" && e.PartitionKey2 == 1 && e.PartitionKey3)));
-
-        Assert.Equal(CosmosStrings.IncorrectPartitionKeyNumber(nameof(DerivedHierarchicalPartitionKeyEntity), 2, 3), message.Message);
-    }
+    public virtual Task WithPartitionKey_with_partial_value_in_hierarchical_partition_key_leaf()
+        => AssertQuery(
+            async: true,
+            ss => ss.Set<DerivedHierarchicalPartitionKeyEntity>().WithPartitionKey("PK1", 1),
+            ss => ss.Set<DerivedHierarchicalPartitionKeyEntity>().Where(e => e.PartitionKey1 == "PK1" && e.PartitionKey2 == 1));
 
     [ConditionalFact]
     public virtual Task Both_WithPartitionKey_and_predicate_comparisons_with_different_values_leaf()

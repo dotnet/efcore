@@ -48,7 +48,7 @@ public sealed class SelectExpression : Expression, IPrintableExpression
         SqlExpression? limit)
     {
         _sources = sources;
-        Predicate = predicate;
+        Predicate = predicate is SqlConstantExpression { Value: true } ? null : predicate;
         _projection = projections;
         IsDistinct = distinct;
         _orderings = orderings;

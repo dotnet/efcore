@@ -49,6 +49,13 @@ public abstract class ReadItemPartitionKeyQueryTestBase<TFixture> : QueryTestBas
                 .Where(e => e.PartitionKey1 == "PK1" && e.PartitionKey2 == 1));
 
     [ConditionalFact]
+    public virtual Task Predicate_with_partial_values_and_gap_in_hierarchical_partition_key()
+        => AssertQuery(
+            async: true,
+            ss => ss.Set<HierarchicalPartitionKeyEntity>()
+                .Where(e => e.PartitionKey1 == "PK1" && e.PartitionKey3));
+
+    [ConditionalFact]
     public virtual Task Predicate_with_partial_values_in_only_hierarchical_partition_key()
         => AssertQuery(
             async: true,
@@ -108,17 +115,11 @@ public abstract class ReadItemPartitionKeyQueryTestBase<TFixture> : QueryTestBas
             ss => ss.Set<OnlySinglePartitionKeyEntity>().Where(e => e.PartitionKey == "PK1a"));
 
     [ConditionalFact]
-    public virtual async Task WithPartitionKey_with_missing_value_in_hierarchical_partition_key()
-    {
-        var message = await Assert.ThrowsAsync<InvalidOperationException>(
-            () => AssertQuery(
+    public virtual Task WithPartitionKey_with_partial_value_in_hierarchical_partition_key()
+         => AssertQuery(
                 async: true,
                 ss => ss.Set<HierarchicalPartitionKeyEntity>().WithPartitionKey("PK1", 1),
-                ss => ss.Set<HierarchicalPartitionKeyEntity>()
-                    .Where(e => e.PartitionKey1 == "PK1" && e.PartitionKey2 == 1 && e.PartitionKey3)));
-
-        Assert.Equal(CosmosStrings.IncorrectPartitionKeyNumber(nameof(HierarchicalPartitionKeyEntity), 2, 3), message.Message);
-    }
+                ss => ss.Set<HierarchicalPartitionKeyEntity>().Where(e => e.PartitionKey1 == "PK1" && e.PartitionKey2 == 1));
 
     [ConditionalFact]
     public virtual Task Both_WithPartitionKey_and_predicate_comparisons_with_different_values()
