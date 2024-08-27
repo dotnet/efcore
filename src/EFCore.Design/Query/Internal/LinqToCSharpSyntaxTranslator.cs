@@ -1949,7 +1949,7 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
 
         // Extension syntax
         if (call.Method.IsDefined(typeof(ExtensionAttribute), inherit: false)
-            && !(arguments[0].Expression is LiteralExpressionSyntax literal && literal.IsKind(SyntaxKind.NullLiteralExpression)))
+            && !IsNull(arguments[0].Expression))
         {
             Result = InvocationExpression(
                 MemberAccessExpression(
@@ -2029,6 +2029,14 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
                 }
             }
         }
+
+        static bool IsNull(ExpressionSyntax expr) => expr switch
+        {
+            LiteralExpressionSyntax literal when literal.IsKind(SyntaxKind.NullLiteralExpression) => true,
+            CastExpressionSyntax cast => IsNull(cast.Expression),
+            ParenthesizedExpressionSyntax parenthesized => IsNull(parenthesized.Expression),
+            _ => false
+        };
     }
 
     /// <inheritdoc />
@@ -2702,7 +2710,13 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
 
             var liftedStatementsPosition = _liftedState.Statements.Count;
 
-            var translated = Translate<ExpressionSyntax>(expression);
+            var translated = expression switch
+            {
+                // Add an explicit cast to avoid overload resolution ambiguity
+                ConstantExpression c
+                    when c.Value is null => (ExpressionSyntax)_g.ConvertExpression(Generate(c.Type), GenerateValue(c.Value)),
+                _ => Translate<ExpressionSyntax>(expression)
+            };
 
             if (_liftedState.Statements.Count > liftedStatementsPosition)
             {

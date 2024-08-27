@@ -125,7 +125,7 @@ namespace TestNamespace
                 ISnapshot (InternalEntityEntry source) =>
                 {
                     var entity7 = ((CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<byte?>>)(source.Entity));
-                    return ((ISnapshot)(new Snapshot<long?, Guid, object, object, object, object, object>((source.GetCurrentValue<long?>(id) == null ? null : ((ValueComparer<long?>)(((IProperty)id).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<long?>(id))), ((ValueComparer<Guid>)(((IProperty)alternateId).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<Guid>(alternateId)), PrincipalBaseUnsafeAccessors._ownedField(entity7), null, PrincipalDerivedUnsafeAccessors<CompiledModelTestBase.DependentBase<byte?>>.Dependent(entity7), SnapshotFactoryFactory.SnapshotCollection(PrincipalDerivedUnsafeAccessors<CompiledModelTestBase.DependentBase<byte?>>.ManyOwned(entity7)), null)));
+                    return ((ISnapshot)(new Snapshot<long?, Guid, object, object, object, object, object>((source.GetCurrentValue<long?>(id) == null ? null : ((ValueComparer<long?>)(((IProperty)id).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<long?>(id))), ((ValueComparer<Guid>)(((IProperty)alternateId).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<Guid>(alternateId)), PrincipalBaseUnsafeAccessors._ownedField(entity7), (object)(null), PrincipalDerivedUnsafeAccessors<CompiledModelTestBase.DependentBase<byte?>>.Dependent(entity7), SnapshotFactoryFactory.SnapshotCollection(PrincipalDerivedUnsafeAccessors<CompiledModelTestBase.DependentBase<byte?>>.ManyOwned(entity7)), (object)(null))));
                 });
             runtimeEntityType.Counts = new PropertyCounts(
                 propertyCount: 16,

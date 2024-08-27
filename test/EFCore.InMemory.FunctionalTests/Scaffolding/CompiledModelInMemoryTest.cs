@@ -6,6 +6,7 @@
 #nullable enable
 
 using System.Runtime.CompilerServices;
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -342,7 +343,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                 modelBuilder => modelBuilder.Entity(
                     "MyEntity", e =>
                     {
-                        e.Property<int>("Id").HasConversion(i => i, i => i);
+                        e.Property<int>("Id").HasConversion(
+                            i => JsonSerializer.Serialize(i, (JsonSerializerOptions?)default),
+                            i => JsonSerializer.Deserialize<int>(i, (JsonSerializerOptions?)null));
                         e.HasKey("Id");
                     }),
                 model =>
@@ -350,8 +353,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                     var entityType = model.GetEntityTypes().Single();
 
                     var converter = entityType.FindProperty("Id")!.GetTypeMapping().Converter!;
-                    Assert.Equal(1, converter.ConvertToProvider(1));
-                });
+                    Assert.Equal("1", converter.ConvertToProvider(1));
+                },
+                options: new CompiledModelCodeGenerationOptions { UseNullableReferenceTypes = true, ForNativeAot = true });
 
         [ConditionalFact]
         public virtual Task Custom_value_comparer()
