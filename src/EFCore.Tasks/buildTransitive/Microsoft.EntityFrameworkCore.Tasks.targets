@@ -114,15 +114,14 @@ For Publish:
     <Delete Files="$(EFGeneratedSourcesPublishFile)"
             Condition="'$(_EFGenerationStage)'=='publish'"/>
 
-    <CallTarget Targets="Build"/>
-
-    <!-- The files are written after the build to indicate that they are up to date with the assembly used for code generation -->
     <WriteLinesToFile File="$(EFGeneratedSourcesBuildFile)"
                       Lines="$(_EFGeneratedFiles)"
                       Condition="'$(_EFGenerationStage)'=='build'"/>
     <WriteLinesToFile File="$(EFGeneratedSourcesPublishFile)"
                       Lines="$(_EFGeneratedFiles)"
                       Condition="'$(_EFGenerationStage)'=='publish'"/>
+
+    <CallTarget Targets="Build"/>
   </Target>
 
   <Target Name="_EFValidateProperties"
@@ -135,11 +134,11 @@ For Publish:
   <Target Name="_EFReadGeneratedFilesList"
           BeforeTargets="_EFProcessGeneratedFiles;_EFCleanGeneratedFiles">
     <ReadLinesFromFile File="$(EFGeneratedSourcesBuildFile)"
-                       Condition="Exists($(EFGeneratedSourcesBuildFile))">
+                       Condition="Exists('$(EFGeneratedSourcesBuildFile)')">
       <Output TaskParameter="Lines" ItemName="_ReadGeneratedFiles"/>
     </ReadLinesFromFile>
     <ReadLinesFromFile File="$(EFGeneratedSourcesPublishFile)"
-                       Condition="Exists($(EFGeneratedSourcesPublishFile))">
+                       Condition="Exists('$(EFGeneratedSourcesPublishFile)')">
       <Output TaskParameter="Lines" ItemName="_ReadGeneratedFiles"/>
     </ReadLinesFromFile>
 
@@ -185,12 +184,15 @@ For Publish:
                    @(_DebugSymbolsIntermediatePath);
                    $(NonExistentFile);
                    @(CustomAdditionalCompileOutputs)">
+    <CallTarget Targets="_EFRemoveGeneratedFiles" />
+    <Delete Files="$(EFGeneratedSourcesBuildFile)" />
+    <Delete Files="$(EFGeneratedSourcesPublishFile)" />
+  </Target>
+
+  <Target Name="_EFRemoveGeneratedFiles">
     <ItemGroup>
       <Compile Remove="@(_EFGeneratedFiles)" />
     </ItemGroup>
-
-    <Delete Files="$(EFGeneratedSourcesBuildFile)" />
-    <Delete Files="$(EFGeneratedSourcesPublishFile)" />
   </Target>
 
   <!-- Go through the dependencies to check whether they need code generated for Native AOT -->
