@@ -164,14 +164,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 idProperty, entityType, propertyType);
 
         /// <summary>
-        ///     {actual} partition key values were provided, but the entity type '{entityType}' has {expected} partition key values defined.
-        /// </summary>
-        public static string IncorrectPartitionKeyNumber(object? entityType, object? actual, object? expected)
-            => string.Format(
-                GetString("IncorrectPartitionKeyNumber", nameof(entityType), nameof(actual), nameof(expected)),
-                entityType, actual, expected);
-
-        /// <summary>
         ///     The entity type '{entityType}' has an index defined over properties '{properties}'. The Azure Cosmos DB provider for EF Core currently does not support index definitions.
         /// </summary>
         public static string IndexesExist(object? entityType, object? properties)

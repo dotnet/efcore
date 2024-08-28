@@ -2074,7 +2074,7 @@ WHERE ((c["$type"] = "Product") AND (c["UnitsInStock"] >= 20))
                     """
 SELECT VALUE c
 FROM root c
-WHERE false
+WHERE ((c["$type"] = "Product") AND false)
 """);
             });
 

@@ -18,30 +18,24 @@ namespace Microsoft.EntityFrameworkCore;
 /// </remarks>
 public static class CosmosQueryableExtensions
 {
-    internal static readonly MethodInfo WithPartitionKeyMethodInfo
+    internal static readonly MethodInfo WithPartitionKeyMethodInfo1
+        = typeof(CosmosQueryableExtensions).GetTypeInfo()
+            .GetDeclaredMethods(nameof(WithPartitionKey))
+            .Single(mi => mi.GetParameters().Length == 2);
+
+    internal static readonly MethodInfo WithPartitionKeyMethodInfo2
         = typeof(CosmosQueryableExtensions).GetTypeInfo()
             .GetDeclaredMethods(nameof(WithPartitionKey))
             .Single(mi => mi.GetParameters().Length == 3);
 
-    /// <summary>
-    ///     Specify the partition key value for partition used for the query. Required when using
-    ///     a resource token that provides permission based on a partition key for authentication.
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-query">Querying data with EF Core</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
-    /// </remarks>
-    /// <typeparam name="TEntity">The type of entity being queried.</typeparam>
-    /// <param name="source">The source query.</param>
-    /// <param name="partitionKey">The partition key value.</param>
-    /// <returns>A new query with the set partition key.</returns>
-    public static IQueryable<TEntity> WithPartitionKey<TEntity>(this IQueryable<TEntity> source, string partitionKey)
-        where TEntity : class
-        => WithPartitionKey(source, partitionKey, []);
+    internal static readonly MethodInfo WithPartitionKeyMethodInfo3
+        = typeof(CosmosQueryableExtensions).GetTypeInfo()
+            .GetDeclaredMethods(nameof(WithPartitionKey))
+            .Single(mi => mi.GetParameters().Length == 4);
 
     /// <summary>
-    ///     Specify the partition key for partition used for the query. Required when using
-    ///     a resource token that provides permission based on a partition key for authentication,
+    ///     Specify the partition key for partition used for the query.
+    ///     Required when using a resource token that provides permission based on a partition key for authentication,
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-query">Querying data with EF Core</see>, and
@@ -50,26 +44,92 @@ public static class CosmosQueryableExtensions
     /// <typeparam name="TEntity">The type of entity being queried.</typeparam>
     /// <param name="source">The source query.</param>
     /// <param name="partitionKeyValue">The partition key value.</param>
-    /// <param name="additionalPartitionKeyValues">Additional values for hierarchical partitions.</param>
     /// <returns>A new query with the set partition key.</returns>
-    public static IQueryable<TEntity> WithPartitionKey<TEntity>(
-        this IQueryable<TEntity> source,
-        object partitionKeyValue,
-        params object[] additionalPartitionKeyValues)
+    public static IQueryable<TEntity> WithPartitionKey<TEntity>(this IQueryable<TEntity> source, object partitionKeyValue)
         where TEntity : class
     {
         Check.NotNull(partitionKeyValue, nameof(partitionKeyValue));
-        Check.HasNoNulls(additionalPartitionKeyValues, nameof(additionalPartitionKeyValues));
 
         return
             source.Provider is EntityQueryProvider
                 ? source.Provider.CreateQuery<TEntity>(
                     Expression.Call(
                         instance: null,
-                        method: WithPartitionKeyMethodInfo.MakeGenericMethod(typeof(TEntity)),
+                        method: WithPartitionKeyMethodInfo1.MakeGenericMethod(typeof(TEntity)),
                         source.Expression,
-                        Expression.Constant(partitionKeyValue, typeof(object)),
-                        Expression.Constant(additionalPartitionKeyValues, typeof(object[]))))
+                        Expression.Constant(partitionKeyValue, typeof(object))))
+                : source;
+    }
+
+    /// <summary>
+    ///     Specify the partition key for partition used for the query.
+    ///     Required when using a resource token that provides permission based on a partition key for authentication,
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-query">Querying data with EF Core</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
+    /// </remarks>
+    /// <typeparam name="TEntity">The type of entity being queried.</typeparam>
+    /// <param name="source">The source query.</param>
+    /// <param name="partitionKeyValue1">The first value in a hierarchical partition key.</param>
+    /// <param name="partitionKeyValue2">The second value in a hierarchical partition key.</param>
+    /// <returns>A new query with the set partition key.</returns>
+    public static IQueryable<TEntity> WithPartitionKey<TEntity>(
+        this IQueryable<TEntity> source,
+        object partitionKeyValue1,
+        object partitionKeyValue2)
+        where TEntity : class
+    {
+        Check.NotNull(partitionKeyValue1, nameof(partitionKeyValue1));
+        Check.NotNull(partitionKeyValue2, nameof(partitionKeyValue2));
+
+        return
+            source.Provider is EntityQueryProvider
+                ? source.Provider.CreateQuery<TEntity>(
+                    Expression.Call(
+                        instance: null,
+                        method: WithPartitionKeyMethodInfo2.MakeGenericMethod(typeof(TEntity)),
+                        source.Expression,
+                        Expression.Constant(partitionKeyValue1, typeof(object)),
+                        Expression.Constant(partitionKeyValue2, typeof(object))))
+                : source;
+    }
+
+    /// <summary>
+    ///     Specify the partition key for partition used for the query.
+    ///     Required when using a resource token that provides permission based on a partition key for authentication,
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-query">Querying data with EF Core</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
+    /// </remarks>
+    /// <typeparam name="TEntity">The type of entity being queried.</typeparam>
+    /// <param name="source">The source query.</param>
+    /// <param name="partitionKeyValue1">The first value in a hierarchical partition key.</param>
+    /// <param name="partitionKeyValue2">The second value in a hierarchical partition key.</param>
+    /// <param name="partitionKeyValue3">The third value in a hierarchical partition key.</param>
+    /// <returns>A new query with the set partition key.</returns>
+    public static IQueryable<TEntity> WithPartitionKey<TEntity>(
+        this IQueryable<TEntity> source,
+        object partitionKeyValue1,
+        object partitionKeyValue2,
+        object partitionKeyValue3)
+        where TEntity : class
+    {
+        Check.NotNull(partitionKeyValue1, nameof(partitionKeyValue1));
+        Check.NotNull(partitionKeyValue2, nameof(partitionKeyValue2));
+        Check.NotNull(partitionKeyValue3, nameof(partitionKeyValue3));
+
+        return
+            source.Provider is EntityQueryProvider
+                ? source.Provider.CreateQuery<TEntity>(
+                    Expression.Call(
+                        instance: null,
+                        method: WithPartitionKeyMethodInfo3.MakeGenericMethod(typeof(TEntity)),
+                        source.Expression,
+                        Expression.Constant(partitionKeyValue1, typeof(object)),
+                        Expression.Constant(partitionKeyValue2, typeof(object)),
+                        Expression.Constant(partitionKeyValue3, typeof(object))))
                 : source;
     }
 

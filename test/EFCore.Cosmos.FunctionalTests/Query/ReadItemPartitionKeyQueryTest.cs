@@ -60,12 +60,25 @@ FROM root c
     {
         await base.Predicate_with_partial_values_in_hierarchical_partition_key();
 
-        // Not ReadItem because no primary key value
+        // Not ReadItem because no primary key value, but partial partition key value is extracted
         AssertSql(
             """
 SELECT VALUE c
 FROM root c
-WHERE ((c["$type"] = "HierarchicalPartitionKeyEntity") AND ((c["PartitionKey1"] = "PK1") AND (c["PartitionKey2"] = 1)))
+WHERE (c["$type"] = "HierarchicalPartitionKeyEntity")
+""");
+    }
+
+    public override async Task Predicate_with_partial_values_and_gap_in_hierarchical_partition_key()
+    {
+        await base.Predicate_with_partial_values_and_gap_in_hierarchical_partition_key();
+
+        // Not ReadItem because no primary key value, but partial partition key value is extracted
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE ((c["$type"] = "HierarchicalPartitionKeyEntity") AND c["PartitionKey3"])
 """);
     }
 
@@ -79,7 +92,7 @@ WHERE ((c["$type"] = "HierarchicalPartitionKeyEntity") AND ((c["PartitionKey1"] 
             """
 SELECT VALUE c
 FROM root c
-WHERE ((c["$type"] = "OnlyHierarchicalPartitionKeyEntity") AND ((c["PartitionKey1"] = "PK1a") AND (c["PartitionKey2"] = 1)))
+WHERE (c["$type"] = "OnlyHierarchicalPartitionKeyEntity")
 """);
     }
 
@@ -159,11 +172,16 @@ FROM root c
 """);
     }
 
-    public override async Task WithPartitionKey_with_missing_value_in_hierarchical_partition_key()
+    public override async Task WithPartitionKey_with_partial_value_in_hierarchical_partition_key()
     {
-        await base.WithPartitionKey_with_missing_value_in_hierarchical_partition_key();
+        await base.WithPartitionKey_with_partial_value_in_hierarchical_partition_key();
 
-        AssertSql();
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE (c["$type"] = "HierarchicalPartitionKeyEntity")
+""");
     }
 
     public override async Task Both_WithPartitionKey_and_predicate_comparisons_with_different_values()
