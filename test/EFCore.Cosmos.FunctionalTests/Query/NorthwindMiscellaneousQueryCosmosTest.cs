@@ -2354,7 +2354,7 @@ WHERE ((c["$type"] = "Order") AND ((c["OrderID"] < 10400) AND (((c["OrderDate"] 
                     """
 SELECT VALUE c
 FROM root c
-WHERE false
+WHERE ((c["$type"] = "Order") AND false)
 """);
             });
 

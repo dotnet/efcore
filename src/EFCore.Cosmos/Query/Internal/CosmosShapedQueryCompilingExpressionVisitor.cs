@@ -145,8 +145,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
 
         var partitionKeyProperties = rootEntityType.GetPartitionKeyProperties();
 
-        int i;
-        for (i = 0; i < partitionKeyPropertyValues.Count && i < partitionKeyProperties.Count; i++)
+        for (var i = 0; i < partitionKeyPropertyValues.Count && i < partitionKeyProperties.Count; i++)
         {
             var property = partitionKeyProperties[i];
 
@@ -155,25 +154,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
                 case SqlConstantExpression constant:
                     builder.Add(constant.Value, property);
                     continue;
-
-                // If WithPartitionKey() was used, its second argument is a params object[] array, which gets parameterized as a single
-                // parameter. Extract the object[] and iterate over the values within here.
-                case SqlParameterExpression parameter when parameter.Type == typeof(object[]):
-                {
-                    if (!parameterValues.TryGetValue(parameter.Name, out var value)
-                        || value is not object[] remainingValuesArray
-                        || i != 1)
-                    {
-                        throw new UnreachableException("Couldn't find partition key parameter value");
-                    }
-
-                    for (var j = 0; j < remainingValuesArray.Length; j++, i++)
-                    {
-                        builder.Add(remainingValuesArray[j], partitionKeyProperties[i]);
-                    }
-
-                    goto End;
-                }
 
                 case SqlParameterExpression parameter:
                 {
@@ -188,13 +168,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
                 default:
                     throw new UnreachableException();
             }
-        }
-
-        End:
-        if (i != partitionKeyProperties.Count)
-        {
-            throw new InvalidOperationException(
-                CosmosStrings.IncorrectPartitionKeyNumber(rootEntityType.DisplayName(), i, partitionKeyProperties.Count));
         }
 
         return builder.Build();
