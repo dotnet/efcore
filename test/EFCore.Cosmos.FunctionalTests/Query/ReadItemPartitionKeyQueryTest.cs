@@ -234,7 +234,7 @@ WHERE (c["PartitionKey"] = "PK1")
     {
         await base.ReadItem_with_hierarchical_partition_key();
 
-        AssertSql("""ReadItem(["PK1",1.0,true], 1)""");
+        AssertSql("""ReadItem(["PK1",1.0,true], 31887258-bdf9-49b8-89b2-01b6aa741a4a)""");
     }
 
     public override async Task ReadItem_with_only_hierarchical_partition_key()
@@ -248,7 +248,7 @@ WHERE (c["PartitionKey"] = "PK1")
     {
         await base.ReadItem_with_single_partition_key_constant();
 
-        AssertSql("""ReadItem(["PK1"], 1)""");
+        AssertSql("""ReadItem(["PK1"], b29bced8-e1e5-420e-82d7-1c7a51703d34)""");
     }
 
     public override async Task ReadItem_with_only_single_partition_key_constant()
@@ -262,7 +262,7 @@ WHERE (c["PartitionKey"] = "PK1")
     {
         await base.ReadItem_with_single_partition_key_parameter();
 
-        AssertSql("""ReadItem(["PK1"], 1)""");
+        AssertSql("""ReadItem(["PK1"], b29bced8-e1e5-420e-82d7-1c7a51703d34)""");
     }
 
     public override async Task ReadItem_with_only_single_partition_key_parameter()
@@ -276,7 +276,7 @@ WHERE (c["PartitionKey"] = "PK1")
     {
         await base.ReadItem_with_SingleAsync();
 
-        AssertSql("""ReadItem(["PK1"], 1)""");
+        AssertSql("""ReadItem(["PK1"], b29bced8-e1e5-420e-82d7-1c7a51703d34)""");
     }
 
     public override async Task ReadItem_with_SingleAsync_with_only_partition_key()
@@ -290,7 +290,7 @@ WHERE (c["PartitionKey"] = "PK1")
     {
         await base.ReadItem_with_inverse_comparison();
 
-        AssertSql("""ReadItem(["PK1"], 1)""");
+        AssertSql("""ReadItem(["PK1"], b29bced8-e1e5-420e-82d7-1c7a51703d34)""");
     }
 
     public override async Task ReadItem_with_inverse_comparison_with_only_partition_key()
@@ -304,14 +304,14 @@ WHERE (c["PartitionKey"] = "PK1")
     {
         await base.ReadItem_with_EF_Property();
 
-        AssertSql("""ReadItem(["PK1"], 1)""");
+        AssertSql("""ReadItem(["PK1"], b29bced8-e1e5-420e-82d7-1c7a51703d34)""");
     }
 
     public override async Task ReadItem_with_WithPartitionKey()
     {
         await base.ReadItem_with_WithPartitionKey();
 
-        AssertSql("""ReadItem(["PK1"], 1)""");
+        AssertSql("""ReadItem(["PK1"], b29bced8-e1e5-420e-82d7-1c7a51703d34)""");
     }
 
     public override async Task ReadItem_with_WithPartitionKey_with_only_partition_key()
@@ -330,7 +330,7 @@ WHERE (c["PartitionKey"] = "PK1")
             """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Id"] = 1) AND (c["Id"] = 2))
+WHERE ((c["id"] = "b29bced8-e1e5-420e-82d7-1c7a51703d34") AND (c["id"] = "3307a33b-7f28-49ef-9857-48f4e3ebcaed"))
 """);
     }
 
@@ -365,7 +365,7 @@ WHERE ((c["id"] = "PK1a") AND (c["id"] = @__partitionKey_0))
             """
 SELECT VALUE c
 FROM root c
-WHERE (c["Id"] = 1)
+WHERE (c["id"] = "b29bced8-e1e5-420e-82d7-1c7a51703d34")
 """);
     }
 
@@ -373,21 +373,21 @@ WHERE (c["Id"] = 1)
     {
         await base.ReadItem_with_non_existent_id();
 
-        AssertSql("""ReadItem(["PK1"], 999)""");
+        AssertSql("""ReadItem(["PK1"], 50b66960-35be-40c5-bc3d-4c9f2799d4d1)""");
     }
 
     public override async Task ReadItem_with_AsNoTracking()
     {
         await base.ReadItem_with_AsNoTracking();
 
-        AssertSql("""ReadItem(["PK1"], 1)""");
+        AssertSql("""ReadItem(["PK1"], b29bced8-e1e5-420e-82d7-1c7a51703d34)""");
     }
 
     public override async Task ReadItem_with_AsNoTrackingWithIdentityResolution()
     {
         await base.ReadItem_with_AsNoTrackingWithIdentityResolution();
 
-        AssertSql("""ReadItem(["PK1"], 1)""");
+        AssertSql("""ReadItem(["PK1"], b29bced8-e1e5-420e-82d7-1c7a51703d34)""");
     }
 
     public override async Task ReadItem_with_shared_container()
@@ -415,7 +415,7 @@ WHERE (c["Id"] = 1)
     {
         await base.ReadItem_with_single_explicit_discriminator_mapping();
 
-        AssertSql("""ReadItem(["PK1"], 1)""");
+        AssertSql("""ReadItem(["PK1"], b29bced8-e1e5-420e-82d7-1c7a51703d34)""");
     }
 
     public override async Task ReadItem_with_single_explicit_incorrect_discriminator_mapping()
@@ -427,7 +427,7 @@ WHERE (c["Id"] = 1)
             """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Id"] = 1) AND (c["$type"] = "DerivedSinglePartitionKeyEntity"))
+WHERE ((c["id"] = "b29bced8-e1e5-420e-82d7-1c7a51703d34") AND (c["$type"] = "DerivedSinglePartitionKeyEntity"))
 """);
     }
 
@@ -435,14 +435,13 @@ WHERE ((c["Id"] = 1) AND (c["$type"] = "DerivedSinglePartitionKeyEntity"))
     {
         await base.ReadItem_with_single_explicit_parameterized_discriminator_mapping();
 
-        // No ReadItem because discriminator check is parameterized
         AssertSql(
             """
 @__discriminator_0='SinglePartitionKeyEntity'
 
 SELECT VALUE c
 FROM root c
-WHERE ((c["Id"] = 1) AND (c["$type"] = @__discriminator_0))
+WHERE ((c["id"] = "b29bced8-e1e5-420e-82d7-1c7a51703d34") AND (c["$type"] = @__discriminator_0))
 OFFSET 0 LIMIT 2
 """);
     }
