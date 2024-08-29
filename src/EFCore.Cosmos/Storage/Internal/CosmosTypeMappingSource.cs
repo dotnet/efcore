@@ -3,6 +3,7 @@
 
 using System.Collections.ObjectModel;
 using Microsoft.EntityFrameworkCore.Cosmos.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
@@ -16,6 +17,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 public class CosmosTypeMappingSource : TypeMappingSource
 {
     private readonly Dictionary<Type, CosmosTypeMapping> _clrTypeMappings;
+
+    internal static readonly bool UseOldBehavior33704 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue33704", out var enabled33704) && enabled33704;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -67,6 +71,26 @@ public class CosmosTypeMappingSource : TypeMappingSource
         }
 
         return null;
+    }
+
+    /// <inheritdoc/>
+    protected override bool TryFindJsonCollectionMapping(
+        TypeMappingInfo mappingInfo,
+        Type modelClrType,
+        Type? providerClrType,
+        ref CoreTypeMapping? elementMapping,
+        out ValueComparer? elementComparer,
+        out JsonValueReaderWriter? collectionReaderWriter)
+    {
+        if (UseOldBehavior33704)
+        {
+            return base.TryFindJsonCollectionMapping(
+                mappingInfo, modelClrType, providerClrType, ref elementMapping, out elementComparer, out collectionReaderWriter);
+        }
+
+        elementComparer = null;
+        collectionReaderWriter = null;
+        return false;
     }
 
     private CoreTypeMapping? FindCollectionMapping(in TypeMappingInfo mappingInfo)
