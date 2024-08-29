@@ -1,6 +1,6 @@
 <Project>
   <PropertyGroup Label="Version settings">
-    <VersionPrefix>8.0.9</VersionPrefix>
+    <VersionPrefix>8.0.10</VersionPrefix>
     <PreReleaseVersionLabel>servicing</PreReleaseVersionLabel>
     <PreReleaseVersionIteration>
     </PreReleaseVersionIteration>
