@@ -139,8 +139,6 @@ SELECT COUNT(*) FROM "sqlite_master" WHERE "name" = {stringTypeMapping.GenerateS
                 retryDelay = retryDelay.Add(retryDelay);
             }
         }
-
-        throw new TimeoutException();
     }
 
     /// <summary>
@@ -180,8 +178,6 @@ SELECT COUNT(*) FROM "sqlite_master" WHERE "name" = {stringTypeMapping.GenerateS
                 retryDelay = retryDelay.Add(retryDelay);
             }
         }
-
-        throw new TimeoutException();
     }
 
     private IRelationalCommand CreateLockTableCommand()

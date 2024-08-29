@@ -1,7 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Data;
+using System.Transactions;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Internal;
@@ -82,7 +82,7 @@ public class Migrator : IMigrator
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected virtual IsolationLevel MigrationTransactionIsolationLevel => IsolationLevel.Unspecified;
+    protected virtual System.Data.IsolationLevel? MigrationTransactionIsolationLevel => null;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -106,6 +106,8 @@ public class Migrator : IMigrator
         }
 
         _logger.MigrateUsingConnection(this, _connection);
+
+        using var transactionScope = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
 
         if (!_databaseCreator.Exists())
         {
@@ -161,12 +163,14 @@ public class Migrator : IMigrator
         {
             if (useTransaction)
             {
-                state.Transaction = _connection.BeginTransaction(MigrationTransactionIsolationLevel);
+                state.Transaction = MigrationTransactionIsolationLevel == null
+                    ? _connection.BeginTransaction()
+                    : _connection.BeginTransaction(MigrationTransactionIsolationLevel.Value);
             }
 
             state.DatabaseLock = state.DatabaseLock == null
                 ? _historyRepository.AcquireDatabaseLock()
-                : state.DatabaseLock.Refresh(connectionOpened, useTransaction);
+                : state.DatabaseLock.ReacquireIfNeeded(connectionOpened, useTransaction);
 
             PopulateMigrations(
                 _historyRepository.GetAppliedMigrations().Select(t => t.MigrationId),
@@ -239,6 +243,8 @@ public class Migrator : IMigrator
 
         _logger.MigrateUsingConnection(this, _connection);
 
+        using var transactionScope = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
+
         if (!await _databaseCreator.ExistsAsync(cancellationToken).ConfigureAwait(false))
         {
             await _databaseCreator.CreateAsync(cancellationToken).ConfigureAwait(false);
@@ -268,7 +274,7 @@ public class Migrator : IMigrator
                     }
                 },
                 verifySucceeded: null,
-                cancellationToken).ConfigureAwait(false);            
+                cancellationToken).ConfigureAwait(false);
 
             await _executionStrategy.ExecuteAsync(
                 (Migrator: this,
@@ -297,12 +303,15 @@ public class Migrator : IMigrator
         {
             if (useTransaction)
             {
-                state.Transaction = await context.Database.BeginTransactionAsync(MigrationTransactionIsolationLevel, cancellationToken).ConfigureAwait(false);
+                state.Transaction = await (MigrationTransactionIsolationLevel == null
+                    ? context.Database.BeginTransactionAsync(cancellationToken)
+                    : context.Database.BeginTransactionAsync(MigrationTransactionIsolationLevel.Value, cancellationToken))
+                    .ConfigureAwait(false);
             }
 
             state.DatabaseLock = state.DatabaseLock == null
                 ? await _historyRepository.AcquireDatabaseLockAsync(cancellationToken).ConfigureAwait(false)
-                : await state.DatabaseLock.RefreshAsync(connectionOpened, useTransaction, cancellationToken).ConfigureAwait(false);
+                : await state.DatabaseLock.ReacquireIfNeededAsync(connectionOpened, useTransaction, cancellationToken).ConfigureAwait(false);
 
             PopulateMigrations(
                 (await _historyRepository.GetAppliedMigrationsAsync(cancellationToken).ConfigureAwait(false)).Select(t => t.MigrationId),

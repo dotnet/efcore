@@ -128,14 +128,15 @@ public abstract class HistoryRepository : IHistoryRepository
     /// </summary>
     /// <returns><see langword="true" /> if the table already exists, <see langword="false" /> otherwise.</returns>
     public virtual bool Exists()
-        => InterpretExistsResult(
-            Dependencies.RawSqlCommandBuilder.Build(ExistsSql).ExecuteScalar(
-                new RelationalCommandParameterObject(
-                    Dependencies.Connection,
-                    null,
-                    null,
-                    Dependencies.CurrentContext.Context,
-                    Dependencies.CommandLogger, CommandSource.Migrations)));
+        => Dependencies.DatabaseCreator.Exists()
+            && InterpretExistsResult(
+                Dependencies.RawSqlCommandBuilder.Build(ExistsSql).ExecuteScalar(
+                    new RelationalCommandParameterObject(
+                        Dependencies.Connection,
+                        null,
+                        null,
+                        Dependencies.CurrentContext.Context,
+                        Dependencies.CommandLogger, CommandSource.Migrations)));
 
     /// <summary>
     ///     Checks whether or not the history table exists.
@@ -147,15 +148,16 @@ public abstract class HistoryRepository : IHistoryRepository
     /// </returns>
     /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
     public virtual async Task<bool> ExistsAsync(CancellationToken cancellationToken = default)
-        => InterpretExistsResult(
-            await Dependencies.RawSqlCommandBuilder.Build(ExistsSql).ExecuteScalarAsync(
-                new RelationalCommandParameterObject(
-                    Dependencies.Connection,
-                    null,
-                    null,
-                    Dependencies.CurrentContext.Context,
-                    Dependencies.CommandLogger, CommandSource.Migrations),
-                cancellationToken).ConfigureAwait(false));
+        => await Dependencies.DatabaseCreator.ExistsAsync(cancellationToken).ConfigureAwait(false)
+            && InterpretExistsResult(
+                await Dependencies.RawSqlCommandBuilder.Build(ExistsSql).ExecuteScalarAsync(
+                    new RelationalCommandParameterObject(
+                        Dependencies.Connection,
+                        null,
+                        null,
+                        Dependencies.CurrentContext.Context,
+                        Dependencies.CommandLogger, CommandSource.Migrations),
+                    cancellationToken).ConfigureAwait(false));
 
     /// <summary>
     ///     Interprets the result of executing <see cref="ExistsSql" />.

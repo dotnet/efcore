@@ -42,7 +42,7 @@ public class MigrationCommandExecutor(IExecutionStrategy executionStrategy) : IM
         IRelationalConnection connection,
         MigrationExecutionState executionState,
         bool commitTransaction,
-        System.Data.IsolationLevel isolationLevel = System.Data.IsolationLevel.Unspecified)
+        System.Data.IsolationLevel? isolationLevel = null)
     {
         var inUserTransaction = connection.CurrentTransaction is not null && executionState.Transaction == null;
         if (inUserTransaction
@@ -51,19 +51,18 @@ public class MigrationCommandExecutor(IExecutionStrategy executionStrategy) : IM
             throw new NotSupportedException(RelationalStrings.TransactionSuppressedMigrationInUserTransaction);
         }
 
-        using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
-        {
-            return executionStrategy.Execute(
-                (migrationCommands, connection, inUserTransaction, executionState, commitTransaction, isolationLevel),
-                static (_, s) => Execute(
-                    s.migrationCommands,
-                    s.connection,
-                    s.executionState,
-                    beginTransaction: !s.inUserTransaction,
-                    commitTransaction: !s.inUserTransaction && s.commitTransaction,
-                    s.isolationLevel),
-                verifySucceeded: null);
-        }
+        using var transactionScope = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
+
+        return executionStrategy.Execute(
+            (migrationCommands, connection, inUserTransaction, executionState, commitTransaction, isolationLevel),
+            static (_, s) => Execute(
+                s.migrationCommands,
+                s.connection,
+                s.executionState,
+                beginTransaction: !s.inUserTransaction,
+                commitTransaction: !s.inUserTransaction && s.commitTransaction,
+                s.isolationLevel),
+            verifySucceeded: null);
     }
 
     private static int Execute(
@@ -72,7 +71,7 @@ public class MigrationCommandExecutor(IExecutionStrategy executionStrategy) : IM
         MigrationExecutionState executionState,
         bool beginTransaction,
         bool commitTransaction,
-        System.Data.IsolationLevel isolationLevel = System.Data.IsolationLevel.Unspecified)
+        System.Data.IsolationLevel? isolationLevel)
     {
         var result = 0;
         var connectionOpened = connection.Open();
@@ -88,10 +87,12 @@ public class MigrationCommandExecutor(IExecutionStrategy executionStrategy) : IM
                     && !command.TransactionSuppressed
                     && beginTransaction)
                 {
-                    executionState.Transaction = connection.BeginTransaction(isolationLevel);
+                    executionState.Transaction = isolationLevel == null
+                        ? connection.BeginTransaction()
+                        : connection.BeginTransaction(isolationLevel.Value);
                     if (executionState.DatabaseLock != null)
                     {
-                        executionState.DatabaseLock = executionState.DatabaseLock.Refresh(
+                        executionState.DatabaseLock = executionState.DatabaseLock.ReacquireIfNeeded(
                             connectionOpened, transactionRestarted: true);
                         connectionOpened = false;
                     }
@@ -108,7 +109,7 @@ public class MigrationCommandExecutor(IExecutionStrategy executionStrategy) : IM
 
                     if (executionState.DatabaseLock != null)
                     {
-                        executionState.DatabaseLock = executionState.DatabaseLock.Refresh(
+                        executionState.DatabaseLock = executionState.DatabaseLock.ReacquireIfNeeded(
                             connectionOpened, transactionRestarted: null);
                         connectionOpened = false;
                     }
@@ -167,7 +168,7 @@ public class MigrationCommandExecutor(IExecutionStrategy executionStrategy) : IM
         IRelationalConnection connection,
         MigrationExecutionState executionState,
         bool commitTransaction,
-        System.Data.IsolationLevel isolationLevel = System.Data.IsolationLevel.Unspecified,
+        System.Data.IsolationLevel? isolationLevel = null,
         CancellationToken cancellationToken = default)
     {
         var inUserTransaction = connection.CurrentTransaction is not null && executionState.Transaction == null;
@@ -199,7 +200,7 @@ public class MigrationCommandExecutor(IExecutionStrategy executionStrategy) : IM
         MigrationExecutionState executionState,
         bool beginTransaction,
         bool commitTransaction,
-        System.Data.IsolationLevel isolationLevel,
+        System.Data.IsolationLevel? isolationLevel,
         CancellationToken cancellationToken)
     {
         var result = 0;
@@ -211,20 +212,23 @@ public class MigrationCommandExecutor(IExecutionStrategy executionStrategy) : IM
         {
             for (var i = executionState.LastCommittedCommandIndex; i < migrationCommands.Count; i++)
             {
+                var lockReacquired = false;
                 var command = migrationCommands[i];
                 if (executionState.Transaction == null
                     && !command.TransactionSuppressed
                     && beginTransaction)
                 {
-                    executionState.Transaction = await connection.BeginTransactionAsync(isolationLevel, cancellationToken)
+                    executionState.Transaction = await (isolationLevel == null
+                        ? connection.BeginTransactionAsync(cancellationToken)
+                        : connection.BeginTransactionAsync(isolationLevel.Value, cancellationToken))
                         .ConfigureAwait(false);
 
                     if (executionState.DatabaseLock != null)
                     {
-                        executionState.DatabaseLock = await executionState.DatabaseLock.RefreshAsync(
+                        executionState.DatabaseLock = await executionState.DatabaseLock.ReacquireIfNeededAsync(
                             connectionOpened, transactionRestarted: true, cancellationToken)
                             .ConfigureAwait(false);
-                        connectionOpened = false;
+                        lockReacquired = true;
                     }
                 }
 
@@ -237,12 +241,12 @@ public class MigrationCommandExecutor(IExecutionStrategy executionStrategy) : IM
                     executionState.LastCommittedCommandIndex = i;
                     executionState.AnyOperationPerformed = true;
 
-                    if (executionState.DatabaseLock != null)
+                    if (executionState.DatabaseLock != null
+                        && !lockReacquired)
                     {
-                        executionState.DatabaseLock = await executionState.DatabaseLock.RefreshAsync(
+                        executionState.DatabaseLock = await executionState.DatabaseLock.ReacquireIfNeededAsync(
                             connectionOpened, transactionRestarted: null, cancellationToken)
                             .ConfigureAwait(false);
-                        connectionOpened = false;
                     }
                 }
 

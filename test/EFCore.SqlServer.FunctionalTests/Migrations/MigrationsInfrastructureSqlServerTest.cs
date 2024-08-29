@@ -1026,6 +1026,8 @@ BEGIN
     );
 END;
 
+SELECT 1
+
 SELECT OBJECT_ID(N'[__EFMigrationsHistory]');
 
 SELECT [MigrationId], [ProductVersion]
@@ -1055,6 +1057,8 @@ SELECT @result
 DECLARE @result int;
 EXEC @result = sp_getapplock @Resource = '__EFMigrationsLock', @LockOwner = 'Session', @LockMode = 'Exclusive';
 SELECT @result
+
+SELECT 1
 
 SELECT OBJECT_ID(N'[__EFMigrationsHistory]');
 
@@ -1134,6 +1138,8 @@ BEGIN
     );
 END;
 
+SELECT 1
+
 SELECT OBJECT_ID(N'[__EFMigrationsHistory]');
 
 SELECT [MigrationId], [ProductVersion]
@@ -1163,6 +1169,8 @@ SELECT @result
 DECLARE @result int;
 EXEC @result = sp_getapplock @Resource = '__EFMigrationsLock', @LockOwner = 'Session', @LockMode = 'Exclusive';
 SELECT @result
+
+SELECT 1
 
 SELECT OBJECT_ID(N'[__EFMigrationsHistory]');
 

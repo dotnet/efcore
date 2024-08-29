@@ -25,7 +25,7 @@ public interface IMigrationsDatabaseLock : IDisposable, IAsyncDisposable
     ///     <see langword="null"/> if there's no current transaction.
     /// </param>
     /// <returns>An object that can be disposed to release the lock.</returns>
-    IMigrationsDatabaseLock Refresh(bool connectionReopened, bool? transactionRestarted)
+    IMigrationsDatabaseLock ReacquireIfNeeded(bool connectionReopened, bool? transactionRestarted)
     {
         if ((connectionReopened && HistoryRepository.LockReleaseBehavior == LockReleaseBehavior.Connection)
                 || (transactionRestarted is true && HistoryRepository.LockReleaseBehavior == LockReleaseBehavior.Transaction))
@@ -47,7 +47,7 @@ public interface IMigrationsDatabaseLock : IDisposable, IAsyncDisposable
     /// </param>
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>An object that can be disposed to release the lock.</returns>
-    async Task<IMigrationsDatabaseLock> RefreshAsync(
+    async Task<IMigrationsDatabaseLock> ReacquireIfNeededAsync(
         bool connectionReopened, bool? transactionRestarted, CancellationToken cancellationToken = default)
     {
         if ((connectionReopened && HistoryRepository.LockReleaseBehavior == LockReleaseBehavior.Connection)

@@ -46,7 +46,7 @@ public interface IMigrationCommandExecutor
         IRelationalConnection connection,
         MigrationExecutionState executionState,
         bool commitTransaction,
-        IsolationLevel isolationLevel = IsolationLevel.Unspecified);
+        IsolationLevel? isolationLevel = null);
 
     /// <summary>
     ///     Executes the given commands using the given database connection.
@@ -80,6 +80,6 @@ public interface IMigrationCommandExecutor
         IRelationalConnection connection,
         MigrationExecutionState executionState,
         bool commitTransaction,
-        IsolationLevel isolationLevel = IsolationLevel.Unspecified,
+        IsolationLevel? isolationLevel = null,
         CancellationToken cancellationToken = default);
 }
