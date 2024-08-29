@@ -437,7 +437,7 @@ new LinqToCSharpSyntaxTranslatorTest.Blog("foo")
             Call(
                 LinqExpressionToRoslynTranslatorExtensions.SomeExtensionMethod,
                 Constant(null, typeof(LinqExpressionToRoslynTranslatorExtensionType))),
-            "LinqExpressionToRoslynTranslatorExtensions.SomeExtension(null)");
+            "LinqExpressionToRoslynTranslatorExtensions.SomeExtension((LinqExpressionToRoslynTranslatorExtensionType)(null))");
 
     [Fact]
     public void Method_call_generic()

@@ -6,6 +6,7 @@
 #nullable enable
 
 using System.Runtime.CompilerServices;
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -47,31 +48,41 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         public virtual Task Self_referential_property()
             => Test(
                 modelBuilder =>
-                    modelBuilder.Entity<SelfReferentialEntity>(
-                        eb =>
-                        {
-                            eb.Property(e => e.Collection).HasConversion(typeof(SelfReferentialPropertyValueConverter));
-                        }),
+                    modelBuilder.Entity<SelfReferentialEntity<long>>(eb =>
+                    {
+                        eb.Property(e => e.Collection)
+                            .HasConversion<SelfReferentialEntity<long>.NonGeneric.SelfReferentialPropertyValueConverter<string>>();
+                    }),
                 model =>
                 {
                     Assert.Single(model.GetEntityTypes());
                 }
             );
 
-        public class SelfReferentialPropertyValueConverter(ConverterMappingHints hints)
-            : ValueConverter<SelfReferentialProperty?, string?>(v => null, v => null, hints)
+        public class SelfReferentialEntity<T>
+            where T : struct
         {
-            public SelfReferentialPropertyValueConverter()
-                : this(new ConverterMappingHints())
-            {
-            }
-        }
-
-        public class SelfReferentialEntity
-        {
-            public long Id { get; set; }
+            public T Id { get; set; }
 
             public SelfReferentialProperty? Collection { get; set; }
+
+            public static class NonGeneric
+            {
+                public class SelfReferentialPropertyValueConverter<TTarget>(ConverterMappingHints hints)
+                    : ValueConverter<SelfReferentialProperty?, TTarget?>(v => ToProvider(v), v => FromProvider(v), hints)
+                {
+                    public SelfReferentialPropertyValueConverter()
+                        : this(new ConverterMappingHints())
+                    {
+                    }
+
+                    public static TTarget? ToProvider(SelfReferentialProperty? v)
+                        => default;
+
+                    public static SelfReferentialProperty? FromProvider(TTarget? v)
+                        => null;
+                }
+            }
         }
 
         public class SelfReferentialProperty : List<SelfReferentialProperty>;
@@ -332,7 +343,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                 modelBuilder => modelBuilder.Entity(
                     "MyEntity", e =>
                     {
-                        e.Property<int>("Id").HasConversion(i => i, i => i);
+                        e.Property<int>("Id").HasConversion(
+                            i => JsonSerializer.Serialize(i, (JsonSerializerOptions?)default),
+                            i => JsonSerializer.Deserialize<int>(i, (JsonSerializerOptions?)null));
                         e.HasKey("Id");
                     }),
                 model =>
@@ -340,8 +353,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                     var entityType = model.GetEntityTypes().Single();
 
                     var converter = entityType.FindProperty("Id")!.GetTypeMapping().Converter!;
-                    Assert.Equal(1, converter.ConvertToProvider(1));
-                });
+                    Assert.Equal("1", converter.ConvertToProvider(1));
+                },
+                options: new CompiledModelCodeGenerationOptions { UseNullableReferenceTypes = true, ForNativeAot = true });
 
         [ConditionalFact]
         public virtual Task Custom_value_comparer()
