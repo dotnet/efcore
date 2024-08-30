@@ -537,6 +537,186 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             Assert.DoesNotContain(entity.GetKeys(), k => k != entity.FindPrimaryKey());
         }
 
+        [ConditionalFact]
+        public virtual void Single_string_primary_key_maps_to_JSON_id()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<SingleStringKey>();
+
+            var model = modelBuilder.FinalizeModel();
+
+            var entityType = model.FindEntityType(typeof(SingleStringKey))!;
+
+            Assert.Equal(
+                [nameof(SingleStringKey.Id)],
+                entityType.FindPrimaryKey()!.Properties.Select(p => p.Name));
+
+            Assert.Equal(
+                [
+                    nameof(SingleStringKey.Id), "$type", nameof(SingleStringKey.Name), nameof(SingleStringKey.P1),
+                    nameof(SingleStringKey.P2), nameof(SingleStringKey.P3), "__jObject"
+                ],
+                entityType.GetProperties().Select(p => p.Name));
+
+            Assert.Equal(1, entityType.GetKeys().Count());
+            Assert.Null(entityType.FindProperty("__id"));
+            Assert.Equal("id", entityType.FindProperty("Id")!.GetJsonPropertyName());
+        }
+
+        [ConditionalFact] // Issue #34511
+        public virtual void Single_string_primary_key_with_single_partition_key_maps_to_JSON_id()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<SingleStringKey>().HasPartitionKey(e => e.P1);
+
+            var model = modelBuilder.FinalizeModel();
+
+            var entityType = model.FindEntityType(typeof(SingleStringKey))!;
+
+            Assert.Equal(
+                [nameof(SingleStringKey.Id), nameof(SingleStringKey.P1)],
+                entityType.FindPrimaryKey()!.Properties.Select(p => p.Name));
+
+            Assert.Equal(
+                [
+                    nameof(SingleStringKey.Id), nameof(SingleStringKey.P1), "$type", nameof(SingleStringKey.Name),
+                    nameof(SingleStringKey.P2), nameof(SingleStringKey.P3), "__jObject"
+                ],
+                entityType.GetProperties().Select(p => p.Name));
+
+            Assert.Equal(1, entityType.GetKeys().Count());
+            Assert.Null(entityType.FindProperty("__id"));
+            Assert.Equal("id", entityType.FindProperty("Id")!.GetJsonPropertyName());
+        }
+
+        [ConditionalFact] // Issue #34511
+        public virtual void Single_string_primary_key_with_hierarchical_partition_key_maps_to_JSON_id()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<SingleStringKey>().HasPartitionKey(e => new { e.P1, e.P2, e.P3 });
+
+            var model = modelBuilder.FinalizeModel();
+
+            var entityType = model.FindEntityType(typeof(SingleStringKey))!;
+
+            Assert.Equal(
+                [nameof(SingleStringKey.Id), nameof(SingleStringKey.P1), nameof(SingleStringKey.P2), nameof(SingleStringKey.P3)],
+                entityType.FindPrimaryKey()!.Properties.Select(p => p.Name));
+
+            Assert.Equal(
+                [
+                    nameof(SingleStringKey.Id), nameof(SingleStringKey.P1), nameof(SingleStringKey.P2), nameof(SingleStringKey.P3),
+                    "$type", nameof(SingleStringKey.Name), "__jObject"
+                ],
+                entityType.GetProperties().Select(p => p.Name));
+
+            Assert.Equal(1, entityType.GetKeys().Count());
+            Assert.Null(entityType.FindProperty("__id"));
+            Assert.Equal("id", entityType.FindProperty("Id")!.GetJsonPropertyName());
+        }
+
+        protected class SingleStringKey
+        {
+            public string Id { get; set; } = null!;
+            public string? Name { get; set; }
+            public string P1 { get; set; } = null!;
+            public string P2 { get; set; } = null!;
+            public string P3 { get; set; } = null!;
+        }
+
+        [ConditionalFact] // Issue #34554
+        public virtual void Single_GUID_primary_key_maps_to_JSON_id()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<SingleGuidKey>();
+
+            var model = modelBuilder.FinalizeModel();
+
+            var entityType = model.FindEntityType(typeof(SingleGuidKey))!;
+
+            Assert.Equal(
+                [nameof(SingleGuidKey.Id)],
+                entityType.FindPrimaryKey()!.Properties.Select(p => p.Name));
+
+            Assert.Equal(
+                [
+                    nameof(SingleGuidKey.Id), "$type", nameof(SingleGuidKey.Name), nameof(SingleGuidKey.P1),
+                    nameof(SingleGuidKey.P2), nameof(SingleGuidKey.P3), "__jObject"
+                ],
+                entityType.GetProperties().Select(p => p.Name));
+
+            Assert.Equal(1, entityType.GetKeys().Count());
+            Assert.Null(entityType.FindProperty("__id"));
+            Assert.Equal("id", entityType.FindProperty("Id")!.GetJsonPropertyName());
+        }
+
+        [ConditionalFact] // Issue #34554
+        public virtual void Single_GUID_primary_key_with_single_partition_key_maps_to_JSON_id()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<SingleGuidKey>().HasPartitionKey(e => e.P1);
+
+            var model = modelBuilder.FinalizeModel();
+
+            var entityType = model.FindEntityType(typeof(SingleGuidKey))!;
+
+            Assert.Equal(
+                [nameof(SingleGuidKey.Id), nameof(SingleGuidKey.P1)],
+                entityType.FindPrimaryKey()!.Properties.Select(p => p.Name));
+
+            Assert.Equal(
+                [
+                    nameof(SingleGuidKey.Id), nameof(SingleGuidKey.P1), "$type", nameof(SingleGuidKey.Name),
+                    nameof(SingleGuidKey.P2), nameof(SingleGuidKey.P3), "__jObject"
+                ],
+                entityType.GetProperties().Select(p => p.Name));
+
+            Assert.Equal(1, entityType.GetKeys().Count());
+            Assert.Null(entityType.FindProperty("__id"));
+            Assert.Equal("id", entityType.FindProperty("Id")!.GetJsonPropertyName());
+        }
+
+        [ConditionalFact] // Issue #34554
+        public virtual void Single_GUID_primary_key_with_hierarchical_partition_key_maps_to_JSON_id()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<SingleGuidKey>().HasPartitionKey(e => new { e.P1, e.P2, e.P3 });
+
+            var model = modelBuilder.FinalizeModel();
+
+            var entityType = model.FindEntityType(typeof(SingleGuidKey))!;
+
+            Assert.Equal(
+                [nameof(SingleGuidKey.Id), nameof(SingleGuidKey.P1), nameof(SingleGuidKey.P2), nameof(SingleGuidKey.P3)],
+                entityType.FindPrimaryKey()!.Properties.Select(p => p.Name));
+
+            Assert.Equal(
+                [
+                    nameof(SingleGuidKey.Id), nameof(SingleGuidKey.P1), nameof(SingleGuidKey.P2), nameof(SingleGuidKey.P3),
+                    "$type", nameof(SingleGuidKey.Name), "__jObject"
+                ],
+                entityType.GetProperties().Select(p => p.Name));
+
+            Assert.Equal(1, entityType.GetKeys().Count());
+            Assert.Null(entityType.FindProperty("__id"));
+            Assert.Equal("id", entityType.FindProperty("Id")!.GetJsonPropertyName());
+        }
+
+        protected class SingleGuidKey
+        {
+            public Guid Id { get; set; }
+            public string? Name { get; set; }
+            public string P1 { get; set; } = null!;
+            public string P2 { get; set; } = null!;
+            public string P3 { get; set; } = null!;
+        }
+
         protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder>? configure = null)
             => new GenericTestModelBuilder(Fixture, configure);
     }
