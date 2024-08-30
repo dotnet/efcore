@@ -700,12 +700,12 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
 
         var entry = await context.AddAsync(item);
 
-        var id = entry.Property("__id").CurrentValue;
+        var id = entry.Property("Id").CurrentValue;
 
         Assert.NotNull(item.Id);
         Assert.NotNull(id);
 
-        Assert.Equal($"{item.Id}", id);
+        Assert.Equal(item.Id, id);
         Assert.Equal(EntityState.Added, entry.State);
     }
 
