@@ -51,10 +51,6 @@ dotnet ef database update
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Resources\EntityFrameworkCore.targets" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Update="Properties\Resources.Designer.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
