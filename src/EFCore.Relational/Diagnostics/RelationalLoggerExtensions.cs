@@ -2426,6 +2426,36 @@ public static class RelationalLoggerExtensions
     }
 
     /// <summary>
+    ///     Logs for the <see cref="RelationalEventId.MigrationsUserTransactionWarning" /> event.
+    /// </summary>
+    /// <param name="diagnostics">The diagnostics logger to use.</param>
+    public static void MigrationsUserTransactionWarning(
+        this IDiagnosticsLogger<DbLoggerCategory.Migrations> diagnostics)
+    {
+        var definition = RelationalResources.LogMigrationsUserTransaction(diagnostics);
+
+        if (diagnostics.ShouldLog(definition))
+        {
+            definition.Log(diagnostics);
+        }
+
+        if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+        {
+            var eventData = new EventData(
+                definition,
+                MigrationsUserTransactionWarning);
+
+            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+        }
+    }
+
+    private static string MigrationsUserTransactionWarning(EventDefinitionBase definition, EventData payload)
+    {
+        var d = (EventDefinition)definition;
+        return d.GenerateMessage();
+    }
+
+    /// <summary>
     ///     Logs for the <see cref="RelationalEventId.QueryPossibleUnintendedUseOfEqualsWarning" /> event.
     /// </summary>
     /// <param name="diagnostics">The diagnostics logger to use.</param>

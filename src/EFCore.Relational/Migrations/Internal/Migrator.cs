@@ -105,6 +105,11 @@ public class Migrator : IMigrator
             _logger.PendingModelChangesWarning(_currentContext.Context.GetType());
         }
 
+        if (!useTransaction)
+        {
+            _logger.MigrationsUserTransactionWarning();
+        }
+
         _logger.MigrateUsingConnection(this, _connection);
 
         using var transactionScope = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
@@ -118,7 +123,8 @@ public class Migrator : IMigrator
         try
         {
             var state = new MigrationExecutionState();
-            if (_historyRepository.LockReleaseBehavior != LockReleaseBehavior.Transaction)
+            if (_historyRepository.LockReleaseBehavior != LockReleaseBehavior.Transaction
+                && useTransaction)
             {
                 state.DatabaseLock = _historyRepository.AcquireDatabaseLock();
             }
@@ -166,11 +172,11 @@ public class Migrator : IMigrator
                 state.Transaction = MigrationTransactionIsolationLevel == null
                     ? _connection.BeginTransaction()
                     : _connection.BeginTransaction(MigrationTransactionIsolationLevel.Value);
-            }
 
-            state.DatabaseLock = state.DatabaseLock == null
-                ? _historyRepository.AcquireDatabaseLock()
-                : state.DatabaseLock.ReacquireIfNeeded(connectionOpened, useTransaction);
+                state.DatabaseLock = state.DatabaseLock == null
+                    ? _historyRepository.AcquireDatabaseLock()
+                    : state.DatabaseLock.ReacquireIfNeeded(connectionOpened, useTransaction);
+            }
 
             PopulateMigrations(
                 _historyRepository.GetAppliedMigrations().Select(t => t.MigrationId),
@@ -241,6 +247,11 @@ public class Migrator : IMigrator
             _logger.PendingModelChangesWarning(_currentContext.Context.GetType());
         }
 
+        if (!useTransaction)
+        {
+            _logger.MigrationsUserTransactionWarning();
+        }
+
         _logger.MigrateUsingConnection(this, _connection);
 
         using var transactionScope = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
@@ -254,7 +265,8 @@ public class Migrator : IMigrator
         try
         {
             var state = new MigrationExecutionState();
-            if (_historyRepository.LockReleaseBehavior != LockReleaseBehavior.Transaction)
+            if (_historyRepository.LockReleaseBehavior != LockReleaseBehavior.Transaction
+                && useTransaction)
             {
                 state.DatabaseLock = await _historyRepository.AcquireDatabaseLockAsync(cancellationToken).ConfigureAwait(false);
             }
@@ -306,12 +318,13 @@ public class Migrator : IMigrator
                 state.Transaction = await (MigrationTransactionIsolationLevel == null
                     ? context.Database.BeginTransactionAsync(cancellationToken)
                     : context.Database.BeginTransactionAsync(MigrationTransactionIsolationLevel.Value, cancellationToken))
-                    .ConfigureAwait(false);
-            }
+                        .ConfigureAwait(false);
 
-            state.DatabaseLock = state.DatabaseLock == null
-                ? await _historyRepository.AcquireDatabaseLockAsync(cancellationToken).ConfigureAwait(false)
-                : await state.DatabaseLock.ReacquireIfNeededAsync(connectionOpened, useTransaction, cancellationToken).ConfigureAwait(false);
+                state.DatabaseLock = state.DatabaseLock == null
+                    ? await _historyRepository.AcquireDatabaseLockAsync(cancellationToken).ConfigureAwait(false)
+                    : await state.DatabaseLock.ReacquireIfNeededAsync(connectionOpened, useTransaction, cancellationToken)
+                        .ConfigureAwait(false);
+            }
 
             PopulateMigrations(
                 (await _historyRepository.GetAppliedMigrationsAsync(cancellationToken).ConfigureAwait(false)).Select(t => t.MigrationId),
