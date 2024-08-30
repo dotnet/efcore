@@ -87,13 +87,13 @@ public class CosmosJsonIdConvention
             if (jsonIdProperty is not null)
             {
                 jsonIdProperty.Builder.ToJsonProperty(null);
+                entityType.Builder.RemoveUnusedImplicitProperties([jsonIdProperty]);
             }
 
             if (computedIdProperty is not null
                 && computedIdProperty != jsonIdProperty)
             {
-                entityType.Builder.HasNoProperty(computedIdProperty);
-            }
+                entityType.Builder.RemoveUnusedImplicitProperties([computedIdProperty]);            }
 
             return;
         }
