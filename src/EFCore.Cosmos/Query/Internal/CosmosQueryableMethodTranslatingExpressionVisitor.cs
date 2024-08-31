@@ -172,23 +172,15 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
 
             var innerQueryable = Visit(methodCallExpression.Arguments[0]);
 
-            var firstValue = _sqlTranslator.Translate(methodCallExpression.Arguments[1], applyDefaultTypeMapping: false);
-            if (firstValue is not SqlConstantExpression and not SqlParameterExpression)
+            for (var i = 1; i < methodCallExpression.Arguments.Count; i++)
             {
-                throw new InvalidOperationException(CosmosStrings.WithPartitionKeyNotConstantOrParameter);
-            }
-
-            _queryCompilationContext.PartitionKeyPropertyValues.Add(firstValue);
-
-            if (methodCallExpression.Arguments.Count == 3)
-            {
-                var remainingValuesArray = _sqlTranslator.Translate(methodCallExpression.Arguments[2], applyDefaultTypeMapping: false);
-                if (remainingValuesArray is not SqlParameterExpression)
+                var value = _sqlTranslator.Translate(methodCallExpression.Arguments[i], applyDefaultTypeMapping: false);
+                if (value is not SqlConstantExpression and not SqlParameterExpression)
                 {
                     throw new InvalidOperationException(CosmosStrings.WithPartitionKeyNotConstantOrParameter);
                 }
 
-                _queryCompilationContext.PartitionKeyPropertyValues.Add(remainingValuesArray);
+                _queryCompilationContext.PartitionKeyPropertyValues.Add(value);
             }
 
             return innerQueryable;

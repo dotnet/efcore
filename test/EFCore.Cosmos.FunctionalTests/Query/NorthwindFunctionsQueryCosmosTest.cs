@@ -1647,7 +1647,7 @@ WHERE ((c["$type"] = "Order") AND (c["OrderDate"] = @__arg_0))
                     """
 SELECT VALUE c
 FROM root c
-WHERE false
+WHERE ((c["$type"] = "Order") AND false)
 """);
             });
 

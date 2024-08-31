@@ -544,13 +544,13 @@ internal static class SharedTypeExtensions
             return;
         }
 
-        var offset = type.IsNested ? type.DeclaringType!.GetGenericArguments().Length : 0;
+        var offset = type.DeclaringType != null ? type.DeclaringType.GetGenericArguments().Length : 0;
 
         if (compilable)
         {
-            if (type.IsNested)
+            if (type.DeclaringType != null)
             {
-                ProcessType(builder, type.DeclaringType!, fullName, compilable);
+                ProcessGenericType(builder, type.DeclaringType, genericArguments, offset, fullName, compilable);
                 builder.Append('.');
             }
             else if (fullName)
@@ -563,9 +563,9 @@ internal static class SharedTypeExtensions
         {
             if (fullName)
             {
-                if (type.IsNested)
+                if (type.DeclaringType != null)
                 {
-                    ProcessGenericType(builder, type.DeclaringType!, genericArguments, offset, fullName, compilable);
+                    ProcessGenericType(builder, type.DeclaringType, genericArguments, offset, fullName, compilable);
                     builder.Append('+');
                 }
                 else

@@ -250,7 +250,8 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                             constraintList.Add("class");
                         }
 
-                        if (constraintAttributes.HasFlag(GenericParameterAttributes.DefaultConstructorConstraint))
+                        if (constraintAttributes.HasFlag(GenericParameterAttributes.DefaultConstructorConstraint)
+                            && !constraintAttributes.HasFlag(GenericParameterAttributes.NotNullableValueTypeConstraint))
                         {
                             constraintList.Add("new()");
                         }
@@ -265,6 +266,11 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                     {
                         foreach (var constraint in constraints)
                         {
+                            if (constraint == typeof(ValueType))
+                            {
+                                continue;
+                            }
+
                             AddNamespace(constraint, namespaces);
                             constraintList.Add(_code.Reference(constraint));
                         }

@@ -133,7 +133,7 @@ public class ReadItemPartitionKeyQueryInheritanceFixtureBase : ReadItemPartition
             {
                 new DerivedHierarchicalPartitionKeyEntity
                 {
-                    Id = 11,
+                    Id = Guid.Parse("316C846C-787F-44B9-AADF-272F1658C5FF"),
                     PartitionKey1 = "PK1",
                     PartitionKey2 = 1,
                     PartitionKey3 = true,
@@ -142,7 +142,7 @@ public class ReadItemPartitionKeyQueryInheritanceFixtureBase : ReadItemPartition
                 },
                 new DerivedHierarchicalPartitionKeyEntity
                 {
-                    Id = 11,
+                    Id = Guid.Parse("316C846C-787F-44B9-AADF-272F1658C5FF"), // Same Id as previous; different partition.
                     PartitionKey1 = "PK2",
                     PartitionKey2 = 2,
                     PartitionKey3 = false,
@@ -151,7 +151,7 @@ public class ReadItemPartitionKeyQueryInheritanceFixtureBase : ReadItemPartition
                 },
                 new DerivedHierarchicalPartitionKeyEntity
                 {
-                    Id = 22,
+                    Id = Guid.Parse("C6E8E6D2-F33E-4695-9FA5-D0E9517EF04E"), // New Id.
                     PartitionKey1 = "PK1",
                     PartitionKey2 = 1,
                     PartitionKey3 = true,
@@ -160,7 +160,7 @@ public class ReadItemPartitionKeyQueryInheritanceFixtureBase : ReadItemPartition
                 },
                 new DerivedHierarchicalPartitionKeyEntity
                 {
-                    Id = 22,
+                    Id = Guid.Parse("C6E8E6D2-F33E-4695-9FA5-D0E9517EF04E"), // Same Id as previous; different partition.
                     PartitionKey1 = "PK2",
                     PartitionKey2 = 2,
                     PartitionKey3 = false,
@@ -174,28 +174,28 @@ public class ReadItemPartitionKeyQueryInheritanceFixtureBase : ReadItemPartition
             {
                 new DerivedSinglePartitionKeyEntity
                 {
-                    Id = 11,
+                    Id = Guid.Parse("188D3253-81BE-4A87-B58F-A2BD07E6B98C"),
                     PartitionKey = "PK1",
                     Payload = "Payload1",
                     DerivedPayload = "DerivedPayload1"
                 },
                 new DerivedSinglePartitionKeyEntity
                 {
-                    Id = 11,
+                    Id = Guid.Parse("188D3253-81BE-4A87-B58F-A2BD07E6B98C"),
                     PartitionKey = "PK2",
                     Payload = "Payload2",
                     DerivedPayload = "DerivedPayload2"
                 },
                 new DerivedSinglePartitionKeyEntity
                 {
-                    Id = 22,
+                    Id = Guid.Parse("11F8D1FD-7472-46F5-9E20-16AF42B3B8D1"),
                     PartitionKey = "PK1",
                     Payload = "Payload3",
                     DerivedPayload = "DerivedPayload3"
                 },
                 new DerivedSinglePartitionKeyEntity
                 {
-                    Id = 22,
+                    Id = Guid.Parse("11F8D1FD-7472-46F5-9E20-16AF42B3B8D1"),
                     PartitionKey = "PK2",
                     Payload = "Payload4",
                     DerivedPayload = "DerivedPayload4"
