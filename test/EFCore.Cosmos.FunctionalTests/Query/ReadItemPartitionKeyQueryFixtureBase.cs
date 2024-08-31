@@ -307,7 +307,7 @@ public class ReadItemPartitionKeyQueryFixtureBase : SharedStoreFixtureBase<DbCon
             {
                 new HierarchicalPartitionKeyEntity
                 {
-                    Id = 1,
+                    Id = Guid.Parse("31887258-BDF9-49B8-89B2-01B6AA741A4A"),
                     PartitionKey1 = "PK1",
                     PartitionKey2 = 1,
                     PartitionKey3 = true,
@@ -315,7 +315,7 @@ public class ReadItemPartitionKeyQueryFixtureBase : SharedStoreFixtureBase<DbCon
                 },
                 new HierarchicalPartitionKeyEntity
                 {
-                    Id = 1,
+                    Id = Guid.Parse("31887258-BDF9-49B8-89B2-01B6AA741A4A"), // Same Id as previous; different partition.
                     PartitionKey1 = "PK2",
                     PartitionKey2 = 2,
                     PartitionKey3 = false,
@@ -323,7 +323,7 @@ public class ReadItemPartitionKeyQueryFixtureBase : SharedStoreFixtureBase<DbCon
                 },
                 new HierarchicalPartitionKeyEntity
                 {
-                    Id = 2,
+                    Id = Guid.Parse("BBA46A5D-BDB8-40F0-BA80-BA5731147B9A"), // Different Id.
                     PartitionKey1 = "PK1",
                     PartitionKey2 = 1,
                     PartitionKey3 = true,
@@ -331,7 +331,7 @@ public class ReadItemPartitionKeyQueryFixtureBase : SharedStoreFixtureBase<DbCon
                 },
                 new HierarchicalPartitionKeyEntity
                 {
-                    Id = 2,
+                    Id = Guid.Parse("BBA46A5D-BDB8-40F0-BA80-BA5731147B9A"), // Same Id as previous; different partition.
                     PartitionKey1 = "PK2",
                     PartitionKey2 = 2,
                     PartitionKey3 = false,
@@ -344,25 +344,25 @@ public class ReadItemPartitionKeyQueryFixtureBase : SharedStoreFixtureBase<DbCon
             {
                 new SinglePartitionKeyEntity
                 {
-                    Id = 1,
+                    Id = Guid.Parse("B29BCED8-E1E5-420E-82D7-1C7A51703D34"),
                     PartitionKey = "PK1",
                     Payload = "Payload1"
                 },
                 new SinglePartitionKeyEntity
                 {
-                    Id = 1,
+                    Id = Guid.Parse("B29BCED8-E1E5-420E-82D7-1C7A51703D34"),
                     PartitionKey = "PK2",
                     Payload = "Payload2"
                 },
                 new SinglePartitionKeyEntity
                 {
-                    Id = 2,
+                    Id = Guid.Parse("3307A33B-7F28-49EF-9857-48F4E3EBCAED"),
                     PartitionKey = "PK1",
                     Payload = "Payload3"
                 },
                 new SinglePartitionKeyEntity
                 {
-                    Id = 2,
+                    Id = Guid.Parse("3307A33B-7F28-49EF-9857-48F4E3EBCAED"),
                     PartitionKey = "PK2",
                     Payload = "Payload4"
                 }
@@ -485,7 +485,7 @@ public class ReadItemPartitionKeyQueryFixtureBase : SharedStoreFixtureBase<DbCon
 
 public class HierarchicalPartitionKeyEntity
 {
-    public int Id { get; set; }
+    public Guid Id { get; set; }
 
     public required string PartitionKey1 { get; set; }
     public int PartitionKey2 { get; set; }
@@ -496,7 +496,7 @@ public class HierarchicalPartitionKeyEntity
 
 public class SinglePartitionKeyEntity
 {
-    public int Id { get; set; }
+    public Guid Id { get; set; }
 
     public required string PartitionKey { get; set; }
 

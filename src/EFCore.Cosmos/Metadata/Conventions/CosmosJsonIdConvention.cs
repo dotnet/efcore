@@ -84,17 +84,16 @@ public class CosmosJsonIdConvention
         {
             // If the entity type is not a keyed, root document in the container, then it doesn't have an `id` mapping, so
             // undo anything that was done by previous execution of this convention.
-            if (jsonIdProperty != null)
+            if (jsonIdProperty is not null)
             {
                 jsonIdProperty.Builder.ToJsonProperty(null);
-                entityType.Builder.HasNoProperty(jsonIdProperty);
+                entityType.Builder.RemoveUnusedImplicitProperties([jsonIdProperty]);
             }
 
-            if (computedIdProperty != null
+            if (computedIdProperty is not null
                 && computedIdProperty != jsonIdProperty)
             {
-                entityType.Builder.HasNoProperty(computedIdProperty);
-            }
+                entityType.Builder.RemoveUnusedImplicitProperties([computedIdProperty]);            }
 
             return;
         }
@@ -115,10 +114,17 @@ public class CosmosJsonIdConvention
             // - IDiscriminatorPropertySetConvention
             // - IEntityTypeBaseTypeChangedConvention
             var idDefinition = DefinitionFactory.Create((IEntityType)entityType)!;
-            var keyProperty = (IConventionProperty?)idDefinition.Properties.FirstOrDefault();
             if (idDefinition is { IncludesDiscriminator: false, Properties.Count: 1 })
             {
-                var clrType = keyProperty!.GetValueConverter()?.ProviderClrType ?? keyProperty.ClrType;
+                // If the property maps to a string in the JSON document, then we can use it directly, even if a value converter
+                // is applied. On the other hand, if it maps to a numeric or bool, then we need to duplicate this to preserve the
+                // non-string value for queries.
+                var keyProperty = (IConventionProperty)idDefinition.Properties.First();
+                var mapping = Dependencies.TypeMappingSource.FindMapping((IProperty)keyProperty);
+                var clrType = mapping?.Converter?.ProviderClrType
+                    ?? mapping?.ClrType
+                    ?? keyProperty!.ClrType;
+
                 if (clrType == typeof(string))
                 {
                     // We are at the point where we are going to map the `id` directly to the PK.

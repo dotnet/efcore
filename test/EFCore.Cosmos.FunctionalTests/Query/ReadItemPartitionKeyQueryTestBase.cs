@@ -161,7 +161,11 @@ public abstract class ReadItemPartitionKeyQueryTestBase<TFixture> : QueryTestBas
         return AssertQuery(
             async: true,
             ss => ss.Set<HierarchicalPartitionKeyEntity>()
-                .Where(e => e.Id == 1 && e.PartitionKey1 == "PK1" && e.PartitionKey2 == partitionKey2 && e.PartitionKey3));
+                .Where(
+                    e => e.Id == Guid.Parse("31887258-BDF9-49B8-89B2-01B6AA741A4A")
+                        && e.PartitionKey1 == "PK1"
+                        && e.PartitionKey2 == partitionKey2
+                        && e.PartitionKey3));
     }
 
     [ConditionalFact]
@@ -179,7 +183,8 @@ public abstract class ReadItemPartitionKeyQueryTestBase<TFixture> : QueryTestBas
     public virtual Task ReadItem_with_single_partition_key_constant()
         => AssertQuery(
             async: true,
-            ss => ss.Set<SinglePartitionKeyEntity>().Where(e => e.Id == 1 && e.PartitionKey == "PK1"));
+            ss => ss.Set<SinglePartitionKeyEntity>()
+                .Where(e => e.Id == Guid.Parse("B29BCED8-E1E5-420E-82D7-1C7A51703D34") && e.PartitionKey == "PK1"));
 
     [ConditionalFact]
     public virtual Task ReadItem_with_only_single_partition_key_constant()
@@ -194,7 +199,8 @@ public abstract class ReadItemPartitionKeyQueryTestBase<TFixture> : QueryTestBas
 
         return AssertQuery(
             async: true,
-            ss => ss.Set<SinglePartitionKeyEntity>().Where(e => e.Id == 1 && e.PartitionKey == partitionKey));
+            ss => ss.Set<SinglePartitionKeyEntity>().Where(
+                e => e.Id == Guid.Parse("B29BCED8-E1E5-420E-82D7-1C7A51703D34") && e.PartitionKey == partitionKey));
     }
 
     [ConditionalFact]
@@ -214,7 +220,8 @@ public abstract class ReadItemPartitionKeyQueryTestBase<TFixture> : QueryTestBas
 
         return AssertSingle(
             async: true,
-            ss => ss.Set<SinglePartitionKeyEntity>().Where(e => e.Id == 1 && e.PartitionKey == partitionKey));
+            ss => ss.Set<SinglePartitionKeyEntity>().Where(
+                e => e.Id == Guid.Parse("B29BCED8-E1E5-420E-82D7-1C7A51703D34") && e.PartitionKey == partitionKey));
     }
 
     [ConditionalFact]
@@ -231,7 +238,8 @@ public abstract class ReadItemPartitionKeyQueryTestBase<TFixture> : QueryTestBas
     public virtual Task ReadItem_with_inverse_comparison()
         => AssertQuery(
             async: true,
-            ss => ss.Set<SinglePartitionKeyEntity>().Where(e => 1 == e.Id && "PK1" == e.PartitionKey));
+            ss => ss.Set<SinglePartitionKeyEntity>()
+                .Where(e => Guid.Parse("B29BCED8-E1E5-420E-82D7-1C7A51703D34") == e.Id && "PK1" == e.PartitionKey));
 
     [ConditionalFact]
     public virtual Task ReadItem_with_inverse_comparison_with_only_partition_key()
@@ -244,15 +252,17 @@ public abstract class ReadItemPartitionKeyQueryTestBase<TFixture> : QueryTestBas
         => AssertQuery(
             async: true,
             ss => ss.Set<SinglePartitionKeyEntity>().Where(
-                e => EF.Property<int>(e, nameof(SinglePartitionKeyEntity.Id)) == 1
+                e => EF.Property<Guid>(e, nameof(SinglePartitionKeyEntity.Id)) == Guid.Parse("B29BCED8-E1E5-420E-82D7-1C7A51703D34")
                     && EF.Property<string>(e, nameof(SinglePartitionKeyEntity.PartitionKey)) == "PK1"));
 
     [ConditionalFact]
     public virtual Task ReadItem_with_WithPartitionKey()
         => AssertQuery(
             async: true,
-            ss => ss.Set<SinglePartitionKeyEntity>().WithPartitionKey("PK1").Where(e => e.Id == 1),
-            ss => ss.Set<SinglePartitionKeyEntity>().Where(e => e.PartitionKey == "PK1").Where(e => e.Id == 1));
+            ss => ss.Set<SinglePartitionKeyEntity>().WithPartitionKey("PK1")
+                .Where(e => e.Id == Guid.Parse("B29BCED8-E1E5-420E-82D7-1C7A51703D34")),
+            ss => ss.Set<SinglePartitionKeyEntity>().Where(e => e.PartitionKey == "PK1")
+                .Where(e => e.Id == Guid.Parse("B29BCED8-E1E5-420E-82D7-1C7A51703D34")));
 
     [ConditionalFact]
     public virtual Task ReadItem_with_WithPartitionKey_with_only_partition_key()
@@ -268,7 +278,10 @@ public abstract class ReadItemPartitionKeyQueryTestBase<TFixture> : QueryTestBas
 
         return AssertQuery(
             async: true,
-            ss => ss.Set<SinglePartitionKeyEntity>().Where(e => e.Id == 1 && e.Id == 2 && e.PartitionKey == partitionKey),
+            ss => ss.Set<SinglePartitionKeyEntity>().Where(
+                e => e.Id == Guid.Parse("B29BCED8-E1E5-420E-82D7-1C7A51703D34")
+                    && e.Id == Guid.Parse("3307A33B-7F28-49EF-9857-48F4E3EBCAED")
+                    && e.PartitionKey == partitionKey),
             assertEmpty: true);
     }
 
@@ -294,26 +307,26 @@ public abstract class ReadItemPartitionKeyQueryTestBase<TFixture> : QueryTestBas
     public virtual Task ReadItem_is_not_used_without_partition_key()
         => AssertQuery(
             async: true,
-            ss => ss.Set<SinglePartitionKeyEntity>().Where(e => e.Id == 1));
+            ss => ss.Set<SinglePartitionKeyEntity>().Where(e => e.Id == Guid.Parse("B29BCED8-E1E5-420E-82D7-1C7A51703D34")));
 
     [ConditionalFact]
     public virtual Task ReadItem_with_non_existent_id()
         => AssertQuery(
             async: true,
-            ss => ss.Set<SinglePartitionKeyEntity>().Where(e => e.Id == 999 && e.PartitionKey == "PK1"),
+            ss => ss.Set<SinglePartitionKeyEntity>().Where(e => e.Id == Guid.Parse("50B66960-35BE-40C5-BC3D-4C9F2799D4D1") && e.PartitionKey == "PK1"),
             assertEmpty: true);
 
     [ConditionalFact]
     public virtual Task ReadItem_with_AsNoTracking()
         => AssertQuery(
             async: true,
-            ss => ss.Set<SinglePartitionKeyEntity>().AsNoTracking().Where(e => e.Id == 1 && e.PartitionKey == "PK1"));
+            ss => ss.Set<SinglePartitionKeyEntity>().AsNoTracking().Where(e => e.Id == Guid.Parse("B29BCED8-E1E5-420E-82D7-1C7A51703D34") && e.PartitionKey == "PK1"));
 
     [ConditionalFact]
     public virtual Task ReadItem_with_AsNoTrackingWithIdentityResolution()
         => AssertQuery(
             async: true,
-            ss => ss.Set<SinglePartitionKeyEntity>().AsNoTrackingWithIdentityResolution().Where(e => e.Id == 1 && e.PartitionKey == "PK1"));
+            ss => ss.Set<SinglePartitionKeyEntity>().AsNoTrackingWithIdentityResolution().Where(e => e.Id == Guid.Parse("B29BCED8-E1E5-420E-82D7-1C7A51703D34") && e.PartitionKey == "PK1"));
 
     [ConditionalFact]
     public virtual Task ReadItem_with_shared_container()
@@ -342,11 +355,11 @@ public abstract class ReadItemPartitionKeyQueryTestBase<TFixture> : QueryTestBas
             async: true,
             ss => ss.Set<SinglePartitionKeyEntity>()
                 .Where(
-                    e => e.Id == 1
+                    e => e.Id == Guid.Parse("B29BCED8-E1E5-420E-82D7-1C7A51703D34")
                         && EF.Property<string>(e, "$type") == nameof(SinglePartitionKeyEntity)
                         && e.PartitionKey == partitionKey),
             ss => ss.Set<SinglePartitionKeyEntity>()
-                .Where(e => e.Id == 1 && e.PartitionKey == partitionKey));
+                .Where(e => e.Id == Guid.Parse("B29BCED8-E1E5-420E-82D7-1C7A51703D34") && e.PartitionKey == partitionKey));
     }
 
     [ConditionalFact]
@@ -358,7 +371,7 @@ public abstract class ReadItemPartitionKeyQueryTestBase<TFixture> : QueryTestBas
             async: true,
             ss => ss.Set<SinglePartitionKeyEntity>()
                 .Where(
-                    e => e.Id == 1
+                    e => e.Id == Guid.Parse("B29BCED8-E1E5-420E-82D7-1C7A51703D34")
                         && EF.Property<string>(e, "$type") == nameof(DerivedSinglePartitionKeyEntity)
                         && e.PartitionKey == partitionKey),
             ss => ss.Set<SinglePartitionKeyEntity>().Where(e => false),
@@ -374,8 +387,12 @@ public abstract class ReadItemPartitionKeyQueryTestBase<TFixture> : QueryTestBas
         return AssertSingle(
             async: true,
             ss => ss.Set<SinglePartitionKeyEntity>()
-                .Where(e => e.Id == 1 && EF.Property<string>(e, "$type") == discriminator && e.PartitionKey == partitionKey),
-            ss => ss.Set<SinglePartitionKeyEntity>().Where(e => e.Id == 1 && e.PartitionKey == partitionKey));
+                .Where(
+                    e => e.Id == Guid.Parse("B29BCED8-E1E5-420E-82D7-1C7A51703D34")
+                        && EF.Property<string>(e, "$type") == discriminator
+                        && e.PartitionKey == partitionKey),
+            ss => ss.Set<SinglePartitionKeyEntity>().Where(
+                e => e.Id == Guid.Parse("B29BCED8-E1E5-420E-82D7-1C7A51703D34") && e.PartitionKey == partitionKey));
     }
 
     protected void AssertSql(params string[] expected)
