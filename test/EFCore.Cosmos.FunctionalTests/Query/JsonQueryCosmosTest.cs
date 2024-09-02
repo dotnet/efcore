@@ -5,6 +5,7 @@ using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.JsonQuery;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
+using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
@@ -938,14 +939,22 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedCollectionRoot"][@__prm_0]["N
         Assert.Equal(NotImplementedBindPropertyMessage, message);
     }
 
-    [ConditionalTheory(Skip = "issue #34350")]
     public override Task Json_collection_index_in_projection_when_owner_is_not_present_misc2(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
             {
                 await base.Json_collection_index_in_projection_when_owner_is_not_present_misc2(a);
 
-                AssertSql("");
+                AssertSql(
+                    """
+SELECT VALUE
+{
+    "Id" : c["Id"],
+    "CollectionElement" : c["OwnedReferenceRoot"]["OwnedReferenceBranch"]["OwnedCollectionLeaf"][1]
+}
+FROM root c
+WHERE (c["Discriminator"] = "Basic")
+""");
             });
 
     public override async Task Json_collection_index_in_projection_when_owner_is_not_present_multiple(bool async)
@@ -995,19 +1004,42 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedCollectionRoot"][@__prm_0]["N
                 AssertSql("");
             });
 
-    [ConditionalTheory(Skip = "issue #34350")]
-    public override Task Json_collection_index_outside_bounds2(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Json_collection_index_outside_bounds2(a);
+    public override async Task Json_collection_index_outside_bounds2(bool async)
+    {
+        // Always throws for sync.
+        if (async)
+        {
+            // The array index is out of bounds, returning undefined; this causes Cosmos to filter out the row (in contrast to the
+            // null-returning behavior of relational). See #34351.
+            await Assert.ThrowsAsync<EqualException>(() => base.Json_collection_index_outside_bounds2(async));
 
-                AssertSql("");
-            });
+            AssertSql(
+                """
+SELECT VALUE c["OwnedReferenceRoot"]["OwnedReferenceBranch"]["OwnedCollectionLeaf"][25]
+FROM root c
+WHERE (c["Discriminator"] = "Basic")
+""");
+        }
+    }
 
-    // returns "wrong" results by design - see #34351 for more context
-    public override Task Json_collection_index_outside_bounds_with_property_access(bool async)
-        => Task.CompletedTask;
+    public override async Task Json_collection_index_outside_bounds_with_property_access(bool async)
+    {
+        // Always throws for sync.
+        if (async)
+        {
+            // The array index is out of bounds, returning undefined; this causes Cosmos to filter out the row (in contrast to the
+            // null-returning behavior of relational). See #34351.
+            await Assert.ThrowsAsync<EqualException>(() => base.Json_collection_index_outside_bounds_with_property_access(async));
+
+            AssertSql(
+                """
+SELECT VALUE c["OwnedCollectionRoot"][25]["Number"]
+FROM root c
+WHERE (c["Discriminator"] = "Basic")
+ORDER BY c["Id"]
+""");
+        }
+    }
 
     public override async Task Json_collection_index_with_expression_Select_ElementAt(bool async)
     {

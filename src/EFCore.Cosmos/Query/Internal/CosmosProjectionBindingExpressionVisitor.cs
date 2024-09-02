@@ -146,15 +146,38 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
         }
         else
         {
-            var translation = _sqlTranslator.Translate(expression);
-            if (translation == null)
+            switch (_sqlTranslator.TranslateProjection(expression))
             {
-                return QueryCompilationContext.NotTranslatedExpression;
+                case SqlExpression sqlExpression:
+                    _projectionMapping[_projectionMembers.Peek()] = sqlExpression;
+                    return new ProjectionBindingExpression(_selectExpression, _projectionMembers.Peek(), expression.Type.MakeNullable());
+
+                // TODO: Projection out of a complex type
+                // case StructuralTypeShaperExpression { StructuralType: IComplexType } shaper:
+                //     return base.Visit(shaper);
+
+                // TODO: This duplicates the logic from CosmosSqlTranslatingEV.VisitExtension(), which does the same kind of thing but
+                // for scalars. Rethink the larger design around this.
+                case ShapedQueryExpression
+                {
+                    ShaperExpression: StructuralTypeShaperExpression
+                    {
+                        ValueBufferExpression: ProjectionBindingExpression { ProjectionMember: ProjectionMember projectionMember }
+                    },
+                    QueryExpression: SelectExpression { Sources: [] } subquery
+                } when subquery.GetMappedProjection(projectionMember) is EntityProjectionExpression entityProjection:
+                    _projectionMapping[_projectionMembers.Peek()] = entityProjection;
+                    return new ProjectionBindingExpression(_selectExpression, _projectionMembers.Peek(), expression.Type.MakeNullable());
+
+                case StructuralTypeShaperExpression { StructuralType: IEntityType } shaper:
+                    return base.Visit(shaper);
+
+                case null:
+                    return QueryCompilationContext.NotTranslatedExpression;
+
+                default:
+                    throw new UnreachableException();
             }
-
-            _projectionMapping[_projectionMembers.Peek()] = translation;
-
-            return new ProjectionBindingExpression(_selectExpression, _projectionMembers.Peek(), expression.Type.MakeNullable());
         }
     }
 
@@ -720,8 +743,7 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
     {
         var operand = Visit(unaryExpression.Operand);
 
-        return (unaryExpression.NodeType == ExpressionType.Convert
-                || unaryExpression.NodeType == ExpressionType.ConvertChecked)
+        return unaryExpression.NodeType is ExpressionType.Convert or ExpressionType.ConvertChecked
             && unaryExpression.Type == operand.Type
                 ? operand
                 : unaryExpression.Update(MatchTypes(operand, unaryExpression.Operand.Type));
