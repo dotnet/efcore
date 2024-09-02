@@ -48,4 +48,8 @@
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.CodeFix.Testing.XUnit" Version="$(MicrosoftCodeAnalysisTestingVersion)" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Include="..\..\src\Shared\EFDiagnostics.cs" />
+  </ItemGroup>
+
 </Project>

@@ -60,4 +60,8 @@
     </EmbeddedResource>
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Include="..\..\src\Shared\EFDiagnostics.cs" />
+  </ItemGroup>
+
 </Project>
