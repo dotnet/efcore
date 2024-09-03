@@ -3,6 +3,7 @@
 
 #nullable enable
 
+using System.Collections;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
@@ -809,9 +810,12 @@ public abstract partial class ModelBuilderTest
         public ValueCategory? Category { get; set; }
     }
 
-    protected class CustomId
+    protected class CustomId : IEnumerable<byte>
     {
         public int Id { get; set; }
+
+        public IEnumerator<byte> GetEnumerator() => throw new NotImplementedException();
+        IEnumerator IEnumerable.GetEnumerator() => throw new NotImplementedException();
     }
 
     protected class ValueCategory

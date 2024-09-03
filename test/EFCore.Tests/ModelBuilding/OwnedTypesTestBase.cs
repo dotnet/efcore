@@ -1076,11 +1076,12 @@ public abstract partial class ModelBuilderTest
         }
 
         [ConditionalFact]
-        public virtual void Can_configure_relationship_with_PK_ValueConverter()
+        public virtual void Can_configure_relationship_with_PK_ValueConverter_shadow_FK()
         {
             var modelBuilder = CreateModelBuilder();
 
-            modelBuilder.Entity<QueryResult>().Property(x => x.Id)
+            modelBuilder.Entity<QueryResult>()
+                .Property(x => x.Id)
                 .HasConversion(x => x.Id, x => new CustomId { Id = x });
 
             modelBuilder.Entity<ValueCategory>()
@@ -1089,8 +1090,7 @@ public abstract partial class ModelBuilderTest
 
             modelBuilder.Entity<QueryResult>()
                 .OwnsOne(q => q.Value)
-                .Property(x => x.CategoryId)
-                .HasConversion(x => x.Id, x => new CustomId { Id = x });
+                .Property(x => x.CategoryId);
 
             var model = modelBuilder.FinalizeModel();
 
@@ -1106,12 +1106,43 @@ public abstract partial class ModelBuilderTest
             var category = model.FindEntityType(typeof(ValueCategory));
             Assert.Null(category.FindProperty("TempId"));
 
-            var barNavigation = owned.GetDeclaredNavigations().Single(n => !n.ForeignKey.IsOwnership);
-            Assert.Same(category, barNavigation.TargetEntityType);
-            var fkProperty = barNavigation.ForeignKey.Properties.Single();
+            var categoryNavigation = owned.GetDeclaredNavigations().Single(n => !n.ForeignKey.IsOwnership);
+            Assert.Same(category, categoryNavigation.TargetEntityType);
+            var fkProperty = categoryNavigation.ForeignKey.Properties.Single();
             Assert.Equal("CategoryId", fkProperty.Name);
 
             Assert.Equal(3, model.GetEntityTypes().Count());
+        }
+
+        [ConditionalFact]
+        public virtual void Can_configure_relationship_with_PK_ValueConverter()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<QueryResult>(eb =>
+            {
+                eb.Property(x => x.Id)
+                    .HasConversion(x => x.Id, x => new CustomId { Id = x });
+                eb.OwnsOne(q => q.Value)
+                    .WithOwner()
+                    .HasForeignKey(q => q.CategoryId);
+            });
+
+            modelBuilder.Ignore<ValueCategory>();
+
+            var model = modelBuilder.FinalizeModel();
+
+            var result = model.FindEntityType(typeof(QueryResult));
+            Assert.Null(result.FindProperty("TempId"));
+
+            var owned = result.GetDeclaredNavigations().Single().TargetEntityType;
+            Assert.Null(owned.FindProperty("TempId"));
+
+            var ownedPkProperty = owned.FindPrimaryKey().Properties.Single();
+            Assert.NotNull(ownedPkProperty.GetValueConverter());
+
+            Assert.Empty(owned.GetDeclaredNavigations().Where(n => !n.ForeignKey.IsOwnership));
+            Assert.Equal(2, model.GetEntityTypes().Count());
         }
 
         [ConditionalFact]

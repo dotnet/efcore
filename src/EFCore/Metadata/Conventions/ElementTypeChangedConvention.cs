@@ -9,10 +9,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.
 /// </remarks>
-public class ElementTypeChangedConvention : IPropertyElementTypeChangedConvention, IForeignKeyAddedConvention
+public class ElementTypeChangedConvention :
+    IPropertyElementTypeChangedConvention, IForeignKeyAddedConvention, IForeignKeyPropertiesChangedConvention
 {
     internal static readonly bool UseOldBehavior32411 =
         AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue32411", out var enabled32411) && enabled32411;
+
+    internal static readonly bool UseOldBehavior33704 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue33704", out var enabled33704) && enabled33704;
 
     /// <summary>
     ///     Creates a new instance of <see cref="ElementTypeChangedConvention" />.
@@ -50,6 +54,23 @@ public class ElementTypeChangedConvention : IPropertyElementTypeChangedConventio
     /// <inheritdoc />
     public void ProcessForeignKeyAdded(
         IConventionForeignKeyBuilder foreignKeyBuilder, IConventionContext<IConventionForeignKeyBuilder> context)
+        => ProcessForeignKey(foreignKeyBuilder);
+
+    /// <inheritdoc />
+    public void ProcessForeignKeyPropertiesChanged(
+        IConventionForeignKeyBuilder relationshipBuilder,
+        IReadOnlyList<IConventionProperty> oldDependentProperties,
+        IConventionKey oldPrincipalKey,
+        IConventionContext<IReadOnlyList<IConventionProperty>> context)
+    {
+        if (relationshipBuilder.Metadata.IsInModel
+            && !UseOldBehavior33704)
+        {
+            ProcessForeignKey(relationshipBuilder);
+        }
+    }
+
+    private static void ProcessForeignKey(IConventionForeignKeyBuilder foreignKeyBuilder)
     {
         var foreignKeyProperties = foreignKeyBuilder.Metadata.Properties;
         var principalKeyProperties = foreignKeyBuilder.Metadata.PrincipalKey.Properties;
