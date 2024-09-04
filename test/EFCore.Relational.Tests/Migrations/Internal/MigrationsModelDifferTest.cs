@@ -8646,7 +8646,7 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                         x.Property<string>("Name");
                         x.Property<int>("Discriminator");
 
-                        x.HasDiscriminator<int>("Discriminator")
+                        x.HasDiscriminator()
                             .HasValue(1)
                             .HasValue<Eagle>(2);
 
