@@ -855,6 +855,47 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
                 owned.DisplayName());
         }
 
+        [ConditionalFact] // Issue #34329
+        public virtual void Navigation_cycle_can_be_broken()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<EntityType1>().Ignore(x => x.E2);
+
+            var model = modelBuilder.FinalizeModel();
+
+            var principal = model.FindEntityType(typeof(EntityType1))!;
+            Assert.Null(principal.FindNavigation(nameof(EntityType1.E2)));
+            Assert.Null(model.FindEntityType(typeof(EntityType2)));
+        }
+
+        protected class EntityType1
+        {
+            public int Id { get; set; }
+            public EntityType2? E2 { get; set; }
+        }
+
+
+        protected class EntityType2
+        {
+            public int Id { get; set; }
+            public EntityType3? E3 { get; set; }
+
+            public EntityType4? E4 { get; set; }
+        }
+
+        protected class EntityType3
+        {
+            public int Id { get; set; }
+            public EntityType2? U2 { get; set; }
+        }
+
+        protected class EntityType4
+        {
+            public int Id { get; set; }
+            public EntityType3? E3 { get; set; }
+        }
+
         protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder>? configure = null)
             => new GenericTestModelBuilder(Fixture, configure);
     }
