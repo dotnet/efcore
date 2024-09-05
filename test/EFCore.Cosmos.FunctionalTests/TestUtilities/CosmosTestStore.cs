@@ -172,7 +172,15 @@ public class CosmosTestStore : TestStore
     {
         if (await EnsureCreatedAsync(context).ConfigureAwait(false))
         {
-            await context.Database.EnsureCreatedAsync().ConfigureAwait(false);
+            if (!TestEnvironment.UseTokenCredential)
+            {
+                await context.Database.EnsureCreatedAsync().ConfigureAwait(false);
+            }
+            else
+            {
+                await CreateContainersAsync(context).ConfigureAwait(false);
+            }
+
             var cosmosClient = context.GetService<ICosmosClientWrapper>();
             var serializer = CosmosClientWrapper.Serializer;
             using var fs = new FileStream(_dataFilePath!, FileMode.Open, FileAccess.Read);
@@ -253,7 +261,7 @@ public class CosmosTestStore : TestStore
 
         var databaseAccount = await GetDBAccount(cancellationToken).ConfigureAwait(false);
         var collection = databaseAccount.Value.GetCosmosDBSqlDatabases();
-        var sqlDatabaseCreateUpdateOptions = new CosmosDBSqlDatabaseCreateOrUpdateContent(
+        var sqlDatabaseCreateUpdateContent = new CosmosDBSqlDatabaseCreateOrUpdateContent(
             TestEnvironment.AzureLocation,
             new CosmosDBSqlDatabaseResourceInfo(Name));
         if (await collection.ExistsAsync(Name, cancellationToken))
@@ -261,9 +269,28 @@ public class CosmosTestStore : TestStore
             return false;
         }
 
-        var databaseResponse = (await collection.CreateOrUpdateAsync(
-            WaitUntil.Completed, Name, sqlDatabaseCreateUpdateOptions, cancellationToken).ConfigureAwait(false)).GetRawResponse();
-        return databaseResponse.Status == (int)HttpStatusCode.OK;
+        var model = context.GetService<IDesignTimeModel>().Model;
+
+        var modelThrouput = model.GetThroughput();
+        if (modelThrouput == null
+            && GetContainersToCreate(model).All(c => c.Throughput == null))
+        {
+            modelThrouput = ThroughputProperties.CreateManualThroughput(400);
+        }
+
+        if (modelThrouput != null)
+        {
+            sqlDatabaseCreateUpdateContent.Options = new CosmosDBCreateUpdateConfig
+            {
+                Throughput = modelThrouput.Throughput,
+                AutoscaleMaxThroughput = modelThrouput.AutoscaleMaxThroughput
+            };
+        }
+
+        var databaseResponse = await collection.CreateOrUpdateAsync(
+            WaitUntil.Completed, Name, sqlDatabaseCreateUpdateContent, cancellationToken).ConfigureAwait(false);
+
+        return databaseResponse.GetRawResponse().Status == (int)HttpStatusCode.OK;
     }
 
     private async Task<bool> EnsureDeletedAsync(DbContext context, CancellationToken cancellationToken = default)
@@ -362,8 +389,11 @@ public class CosmosTestStore : TestStore
             var content = new CosmosDBSqlContainerCreateOrUpdateContent(TestEnvironment.AzureLocation, resource);
             if (container.Throughput != null)
             {
-                content.Options.AutoscaleMaxThroughput = container.Throughput.AutoscaleMaxThroughput;
-                content.Options.Throughput = container.Throughput.Throughput;
+                content.Options = new CosmosDBCreateUpdateConfig
+                {
+                    AutoscaleMaxThroughput = container.Throughput.AutoscaleMaxThroughput,
+                    Throughput = container.Throughput.Throughput
+                };
             }
 
             await database.Value.GetCosmosDBSqlContainers().CreateOrUpdateAsync(
