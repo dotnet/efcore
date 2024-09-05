@@ -39,8 +39,8 @@ public class SqlServerDatabaseCreatorExistsTest : SqlServerDatabaseCreatorTestBa
         bool useCanConnect,
         bool file)
     {
-        using var testDatabase = SqlServerTestStore.Create("NonExisting", file);
-        using var context = new BloggingContext(testDatabase);
+        await using var testDatabase = SqlServerTestStore.Create("NonExisting", file);
+        await using var context = new BloggingContext(testDatabase);
         var creator = GetDatabaseCreator(context);
 
         await context.Database.CreateExecutionStrategy().ExecuteAsync(
@@ -81,10 +81,10 @@ public class SqlServerDatabaseCreatorExistsTest : SqlServerDatabaseCreatorTestBa
 
     private static async Task Returns_true_when_database_exists_test(bool async, bool ambientTransaction, bool useCanConnect, bool file)
     {
-        using var testDatabase = file
+        await using var testDatabase = file
             ? await SqlServerTestStore.CreateInitializedAsync("ExistingBloggingFile", useFileName: true)
             : await SqlServerTestStore.GetOrCreateInitializedAsync("ExistingBlogging");
-        using var context = new BloggingContext(testDatabase);
+        await using var context = new BloggingContext(testDatabase);
         var creator = GetDatabaseCreator(context);
 
         await context.Database.CreateExecutionStrategy().ExecuteAsync(
@@ -129,7 +129,7 @@ public class SqlServerDatabaseCreatorEnsureDeletedTest : SqlServerDatabaseCreato
 
     private static async Task Delete_database_test(bool async, bool open, bool ambientTransaction, bool file)
     {
-        using var testDatabase = await SqlServerTestStore.CreateInitializedAsync("EnsureDeleteBlogging" + (file ? "File" : ""), file);
+        await using var testDatabase = await SqlServerTestStore.CreateInitializedAsync("EnsureDeleteBlogging" + (file ? "File" : ""), file);
         if (!open)
         {
             testDatabase.CloseConnection();
@@ -178,8 +178,8 @@ public class SqlServerDatabaseCreatorEnsureDeletedTest : SqlServerDatabaseCreato
 
     private static async Task Noop_when_database_does_not_exist_test(bool async, bool file)
     {
-        using var testDatabase = SqlServerTestStore.Create("NonExisting", file);
-        using var context = new BloggingContext(testDatabase);
+        await using var testDatabase = SqlServerTestStore.Create("NonExisting", file);
+        await using var context = new BloggingContext(testDatabase);
         var creator = GetDatabaseCreator(context);
 
         Assert.False(async ? await creator.ExistsAsync() : creator.Exists());
@@ -247,15 +247,15 @@ public class SqlServerDatabaseCreatorEnsureCreatedTest : SqlServerDatabaseCreato
         (bool CreateDatabase, bool Async, bool ambientTransaction, bool File) options)
     {
         var (createDatabase, async, ambientTransaction, file) = options;
-        using var testDatabase = SqlServerTestStore.Create("EnsureCreatedTest" + (file ? "File" : ""), file);
-        using var context = new BloggingContext(testDatabase);
+        await using var testDatabase = SqlServerTestStore.Create("EnsureCreatedTest" + (file ? "File" : ""), file);
+        await using var context = new BloggingContext(testDatabase);
         if (createDatabase)
         {
             await testDatabase.InitializeAsync(null, (Func<DbContext>)null);
         }
         else
         {
-            testDatabase.DeleteDatabase();
+            await testDatabase.DeleteDatabaseAsync();
         }
 
         var creator = GetDatabaseCreator(context);
@@ -327,8 +327,8 @@ public class SqlServerDatabaseCreatorEnsureCreatedTest : SqlServerDatabaseCreato
 
     private static async Task Noop_when_database_exists_and_has_schema_test(bool async, bool file)
     {
-        using var testDatabase = await SqlServerTestStore.CreateInitializedAsync("InitializedBlogging" + (file ? "File" : ""), file);
-        using var context = new BloggingContext(testDatabase);
+        await using var testDatabase = await SqlServerTestStore.CreateInitializedAsync("InitializedBlogging" + (file ? "File" : ""), file);
+        await using var context = new BloggingContext(testDatabase);
         context.Database.EnsureCreatedResiliently();
 
         if (async)
@@ -346,8 +346,8 @@ public class SqlServerDatabaseCreatorEnsureCreatedTest : SqlServerDatabaseCreato
     [ConditionalFact]
     public async Task Throws_for_missing_seed()
     {
-        using var testDatabase = await SqlServerTestStore.CreateInitializedAsync("EnsureCreatedSeedTest");
-        using var context = new BloggingContext(testDatabase.ConnectionString, asyncSeed: true);
+        await using var testDatabase = await SqlServerTestStore.CreateInitializedAsync("EnsureCreatedSeedTest");
+        await using var context = new BloggingContext(testDatabase.ConnectionString, asyncSeed: true);
 
         Assert.Equal(
             CoreStrings.MissingSeeder,
@@ -357,8 +357,8 @@ public class SqlServerDatabaseCreatorEnsureCreatedTest : SqlServerDatabaseCreato
     [ConditionalFact]
     public async Task Throws_for_missing_seed_async()
     {
-        using var testDatabase = await SqlServerTestStore.CreateInitializedAsync("EnsureCreatedSeedTest");
-        using var context = new BloggingContext(testDatabase.ConnectionString, seed: true);
+        await using var testDatabase = await SqlServerTestStore.CreateInitializedAsync("EnsureCreatedSeedTest");
+        await using var context = new BloggingContext(testDatabase.ConnectionString, seed: true);
 
         Assert.Equal(
             CoreStrings.MissingSeeder,
@@ -374,7 +374,7 @@ public class SqlServerDatabaseCreatorHasTablesTest : SqlServerDatabaseCreatorTes
     [InlineData(false)]
     public async Task Throws_when_database_does_not_exist(bool async)
     {
-        using var testDatabase = SqlServerTestStore.GetOrCreate("NonExisting");
+        await using var testDatabase = SqlServerTestStore.GetOrCreate("NonExisting");
         var databaseCreator = GetDatabaseCreator(testDatabase);
         await databaseCreator.ExecutionStrategy.ExecuteAsync(
             databaseCreator,
@@ -398,7 +398,7 @@ public class SqlServerDatabaseCreatorHasTablesTest : SqlServerDatabaseCreatorTes
     [InlineData(false, true)]
     public async Task Returns_false_when_database_exists_but_has_no_tables(bool async, bool ambientTransaction)
     {
-        using var testDatabase = await SqlServerTestStore.GetOrCreateInitializedAsync("Empty");
+        await using var testDatabase = await SqlServerTestStore.GetOrCreateInitializedAsync("Empty");
         var creator = GetDatabaseCreator(testDatabase);
 
         await GetExecutionStrategy(testDatabase).ExecuteAsync(
@@ -416,7 +416,7 @@ public class SqlServerDatabaseCreatorHasTablesTest : SqlServerDatabaseCreatorTes
     [InlineData(false, false)]
     public async Task Returns_true_when_database_exists_and_has_any_tables(bool async, bool ambientTransaction)
     {
-        using var testDatabase = await SqlServerTestStore.GetOrCreate("ExistingTables")
+        await using var testDatabase = await SqlServerTestStore.GetOrCreate("ExistingTables")
             .InitializeSqlServerAsync(null, t => new BloggingContext(t), null);
         var creator = GetDatabaseCreator(testDatabase);
 
@@ -439,7 +439,7 @@ public class SqlServerDatabaseCreatorDeleteTest : SqlServerDatabaseCreatorTestBa
     [InlineData(false, false)]
     public static async Task Deletes_database(bool async, bool ambientTransaction)
     {
-        using var testDatabase = await SqlServerTestStore.CreateInitializedAsync("DeleteBlogging");
+        await using var testDatabase = await SqlServerTestStore.CreateInitializedAsync("DeleteBlogging");
         testDatabase.CloseConnection();
 
         var creator = GetDatabaseCreator(testDatabase);
@@ -466,7 +466,7 @@ public class SqlServerDatabaseCreatorDeleteTest : SqlServerDatabaseCreatorTestBa
     [InlineData(false)]
     public async Task Throws_when_database_does_not_exist(bool async)
     {
-        using var testDatabase = SqlServerTestStore.GetOrCreate("NonExistingBlogging");
+        await using var testDatabase = SqlServerTestStore.GetOrCreate("NonExistingBlogging");
         var creator = GetDatabaseCreator(testDatabase);
 
         if (async)
@@ -501,8 +501,8 @@ public class SqlServerDatabaseCreatorCreateTablesTest : SqlServerDatabaseCreator
     [InlineData(false, false)]
     public async Task Creates_schema_in_existing_database_test(bool async, bool ambientTransaction)
     {
-        using var testDatabase = await SqlServerTestStore.GetOrCreateInitializedAsync("ExistingBlogging" + (async ? "Async" : ""));
-        using var context = new BloggingContext(testDatabase);
+        await using var testDatabase = await SqlServerTestStore.GetOrCreateInitializedAsync("ExistingBlogging" + (async ? "Async" : ""));
+        await using var context = new BloggingContext(testDatabase);
         var creator = GetDatabaseCreator(context);
 
         using (CreateTransactionScope(ambientTransaction))
@@ -551,7 +551,7 @@ public class SqlServerDatabaseCreatorCreateTablesTest : SqlServerDatabaseCreator
     [InlineData(false)]
     public async Task Throws_if_database_does_not_exist(bool async)
     {
-        using var testDatabase = SqlServerTestStore.GetOrCreate("NonExisting");
+        await using var testDatabase = SqlServerTestStore.GetOrCreate("NonExisting");
         var creator = GetDatabaseCreator(testDatabase);
 
         var exception = async
@@ -628,7 +628,7 @@ public class SqlServerDatabaseCreatorCreateTest : SqlServerDatabaseCreatorTestBa
     [InlineData(false, true)]
     public async Task Creates_physical_database_but_not_tables(bool async, bool ambientTransaction)
     {
-        using var testDatabase = SqlServerTestStore.GetOrCreate("CreateTest");
+        await using var testDatabase = SqlServerTestStore.GetOrCreate("CreateTest");
         var creator = GetDatabaseCreator(testDatabase);
 
         creator.EnsureDeleted();
@@ -673,7 +673,7 @@ public class SqlServerDatabaseCreatorCreateTest : SqlServerDatabaseCreatorTestBa
     [InlineData(false)]
     public async Task Throws_if_database_already_exists(bool async)
     {
-        using var testDatabase = await SqlServerTestStore.GetOrCreateInitializedAsync("ExistingBlogging");
+        await using var testDatabase = await SqlServerTestStore.GetOrCreateInitializedAsync("ExistingBlogging");
         var creator = GetDatabaseCreator(testDatabase);
 
         var ex = async

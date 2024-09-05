@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
+    <TargetFramework>$(DefaultNetCoreTargetFramework)</TargetFramework>
+    <AssemblyName>Microsoft.EntityFrameworkCore.FSharp.FunctionalTests</AssemblyName>
+    <SkipTests Condition="'$(OS)' != 'Windows_NT' AND '$(Test__SqlServer__DefaultConnection)' == ''">True</SkipTests>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\EFCore.SqlServer.FunctionalTests\EFCore.SqlServer.FunctionalTests.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="NorthwindFSharpQuerySqlServerFixture.fs" />
+    <Compile Include="NorthwindQueryFSharpTest.fs" />
+  </ItemGroup>
+
+</Project>
