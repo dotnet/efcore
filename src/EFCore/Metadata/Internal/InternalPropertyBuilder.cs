@@ -826,6 +826,12 @@ public class InternalPropertyBuilder
                 Metadata.SetValueConverter((Type?)null, configurationSource);
             }
 
+            if (elementType == null
+                && CanSetConversion((Type?)null, configurationSource))
+            {
+                Metadata.RemoveAnnotation(CoreAnnotationNames.ValueConverter);
+            }
+
             return new InternalElementTypeBuilder(Metadata.GetElementType()!, ModelBuilder);
         }
 
