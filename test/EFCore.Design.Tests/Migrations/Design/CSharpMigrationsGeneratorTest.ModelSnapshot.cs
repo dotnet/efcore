@@ -5944,6 +5944,72 @@ namespace RootNamespace
 
     #endregion
 
+    #region Primitive collection
+
+    [ConditionalFact]
+    public virtual void PrimitiveCollection_is_stored_in_snapshot()
+        => Test(
+            builder =>
+            {
+                builder.Entity<EntityWithOneProperty>()
+                    .PrimitiveCollection<List<int>>("List")
+                    .IsSparse()
+                    .IsFixedLength()
+                    .HasMaxLength(100)
+                    .IsUnicode()
+                    .UseCollation("ListCollation")
+                    .HasSentinel([])
+                    .HasColumnName("ListColumn")
+                    .HasColumnType("nvarchar")
+                    .HasColumnOrder(1)
+                    .HasComment("ListComment")
+                    .HasComputedColumnSql("ListSql")
+                    .HasJsonPropertyName("ListJson")
+                    .ElementType(b => b.HasConversion<string>())
+                    .ValueGeneratedOnUpdateSometimes()
+                    .HasAnnotation("AnnotationName", "AnnotationValue");
+
+                builder.Ignore<EntityWithTwoProperties>();
+            },
+            AddBoilerPlate(
+                GetHeading()
+                + """
+            modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithOneProperty", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.PrimitiveCollection<string>("List")
+                        .ValueGeneratedOnUpdateSometimes()
+                        .HasMaxLength(100)
+                        .IsUnicode(true)
+                        .HasColumnType("nvarchar")
+                        .HasColumnName("ListColumn")
+                        .HasColumnOrder(1)
+                        .HasComputedColumnSql("ListSql")
+                        .IsFixedLength()
+                        .HasComment("ListComment")
+                        .UseCollation("ListCollation")
+                        .HasAnnotation("AnnotationName", "AnnotationValue")
+                        .HasAnnotation("Relational:JsonPropertyName", "ListJson");
+
+                    SqlServerPrimitiveCollectionBuilderExtensions.IsSparse(b.PrimitiveCollection<string>("List"));
+
+                    b.HasKey("Id");
+
+                    b.ToTable("EntityWithOneProperty", "DefaultSchema");
+                });
+"""),
+            o =>
+            {
+                var property = o.GetEntityTypes().First().FindProperty("List");
+                Assert.Equal("AnnotationValue", property["AnnotationName"]);
+            });
+    #endregion
+
     #region Complex types
 
     [ConditionalFact]
@@ -5958,8 +6024,13 @@ namespace RootNamespace
                             eo => eo.EntityWithTwoProperties, eb =>
                             {
                                 eb.IsRequired();
-                                eb.Property(e => e.AlternateId).HasColumnOrder(1);
-                                eb.ComplexProperty(e => e.EntityWithStringKey).IsRequired();
+                                eb.Property(e => e.AlternateId).HasColumnOrder(1).IsSparse();
+                                eb.PrimitiveCollection<List<string>>("List")
+                                    .HasColumnType("nvarchar(max)")
+                                    .IsSparse();
+                                eb.ComplexProperty(e => e.EntityWithStringKey)
+                                    .IsRequired()
+                                    .Ignore(e => e.Properties);
                                 eb.HasPropertyAnnotation("PropertyAnnotation", 1);
                                 eb.HasTypeAnnotation("TypeAnnotation", 2);
                             });
@@ -5984,8 +6055,15 @@ namespace RootNamespace
                                 .HasColumnType("int")
                                 .HasColumnOrder(1);
 
+                            SqlServerComplexTypePropertyBuilderExtensions.IsSparse(b1.Property<int>("AlternateId"));
+
                             b1.Property<int>("Id")
                                 .HasColumnType("int");
+
+                            b1.PrimitiveCollection<string>("List")
+                                .HasColumnType("nvarchar(max)");
+
+                            SqlServerComplexTypePrimitiveCollectionBuilderExtensions.IsSparse(b1.PrimitiveCollection<string>("List"));
 
                             b1.ComplexProperty<Dictionary<string, object>>("EntityWithStringKey", "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithOneProperty.EntityWithTwoProperties#EntityWithTwoProperties.EntityWithStringKey#EntityWithStringKey", b2 =>
                                 {
@@ -6005,7 +6083,7 @@ namespace RootNamespace
                     b.ToTable("EntityWithOneProperty", "DefaultSchema");
                 });
 """, usingCollections: true),
-            o =>
+            (_, o) =>
             {
                 var entityWithOneProperty = o.FindEntityType(typeof(EntityWithOneProperty));
                 Assert.Equal(nameof(EntityWithOneProperty), entityWithOneProperty.GetTableName());
@@ -6037,7 +6115,8 @@ namespace RootNamespace
                 Assert.Equal(nameof(EntityWithOneProperty), nestedComplexType.GetTableName());
                 var nestedIdProperty = nestedComplexType.FindProperty(nameof(EntityWithStringKey.Id));
                 Assert.True(nestedIdProperty.IsNullable);
-            });
+            },
+            validate: true);
 
     #endregion
 
@@ -7981,7 +8060,7 @@ namespace RootNamespace
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("BoolCollection")
+                    b.PrimitiveCollection<string>("BoolCollection")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("Boolean")
@@ -7993,7 +8072,7 @@ namespace RootNamespace
                     b.Property<byte[]>("Bytes")
                         .HasColumnType("varbinary(max)");
 
-                    b.Property<string>("BytesCollection")
+                    b.PrimitiveCollection<string>("BytesCollection")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Character")
@@ -8003,7 +8082,7 @@ namespace RootNamespace
                     b.Property<DateTime>("DateTime")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("DateTimeCollection")
+                    b.PrimitiveCollection<string>("DateTimeCollection")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTimeOffset>("DateTimeOffset")
@@ -8015,7 +8094,7 @@ namespace RootNamespace
                     b.Property<double>("Double")
                         .HasColumnType("float");
 
-                    b.Property<string>("DoubleCollection")
+                    b.PrimitiveCollection<string>("DoubleCollection")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<short>("Enum16")
@@ -8048,7 +8127,7 @@ namespace RootNamespace
                     b.Property<int>("Int32")
                         .HasColumnType("int");
 
-                    b.Property<string>("Int32Collection")
+                    b.PrimitiveCollection<string>("Int32Collection")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<long>("Int64")
@@ -8108,7 +8187,7 @@ namespace RootNamespace
                     b.Property<string>("String")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("StringCollection")
+                    b.PrimitiveCollection<string>("StringCollection")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<TimeSpan>("TimeSpan")
@@ -8403,7 +8482,7 @@ namespace RootNamespace
     protected void Test(Action<ModelBuilder> buildModel, string expectedCode, Action<IModel> assert)
         => Test(buildModel, expectedCode, (m, _) => assert(m));
 
-    protected void Test(Action<ModelBuilder> buildModel, string expectedCode, Action<IModel, IModel> assert)
+    protected void Test(Action<ModelBuilder> buildModel, string expectedCode, Action<IModel, IModel> assert, bool validate = false)
     {
         var modelBuilder = CreateConventionalModelBuilder();
         modelBuilder.HasDefaultSchema("DefaultSchema");
@@ -8411,7 +8490,7 @@ namespace RootNamespace
         modelBuilder.Model.RemoveAnnotation(CoreAnnotationNames.ProductVersion);
         buildModel(modelBuilder);
 
-        var model = modelBuilder.FinalizeModel(designTime: true, skipValidation: true);
+        var model = modelBuilder.FinalizeModel(designTime: true, skipValidation: !validate);
 
         Test(model, expectedCode, assert);
     }

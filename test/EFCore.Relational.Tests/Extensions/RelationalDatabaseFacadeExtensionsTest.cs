@@ -321,6 +321,8 @@ public class RelationalDatabaseFacadeExtensionsTest
 
     private class FakeHistoryRepository : IHistoryRepository
     {
+        public virtual LockReleaseBehavior LockReleaseBehavior => LockReleaseBehavior.Explicit;
+
         public List<HistoryRow> AppliedMigrations { get; set; }
 
         public IReadOnlyList<HistoryRow> GetAppliedMigrations()
@@ -362,10 +364,10 @@ public class RelationalDatabaseFacadeExtensionsTest
         public Task CreateAsync(CancellationToken cancellationToken = default)
             => throw new NotImplementedException();
 
-        public IDisposable GetDatabaseLock()
+        public IMigrationsDatabaseLock AcquireDatabaseLock()
             => throw new NotImplementedException();
 
-        public Task<IAsyncDisposable> GetDatabaseLockAsync(CancellationToken cancellationToken = default)
+        public Task<IMigrationsDatabaseLock> AcquireDatabaseLockAsync(CancellationToken cancellationToken = default)
             => throw new NotImplementedException();
     }
 

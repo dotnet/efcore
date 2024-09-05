@@ -103,11 +103,21 @@ SELECT COUNT(*) FROM "sqlite_master" WHERE "name" = {stringTypeMapping.GenerateS
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override IDisposable GetDatabaseLock()
+    public override LockReleaseBehavior LockReleaseBehavior => LockReleaseBehavior.Explicit;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public override IMigrationsDatabaseLock AcquireDatabaseLock()
     {
+        Dependencies.MigrationsLogger.AcquiringMigrationLock();
+
         if (!InterpretExistsResult(
-                Dependencies.RawSqlCommandBuilder.Build(CreateExistsSql(LockTableName))
-                    .ExecuteScalar(CreateRelationalCommandParameters())))
+            Dependencies.RawSqlCommandBuilder.Build(CreateExistsSql(LockTableName))
+                .ExecuteScalar(CreateRelationalCommandParameters())))
         {
             CreateLockTableCommand().ExecuteNonQuery(CreateRelationalCommandParameters());
         }
@@ -129,8 +139,6 @@ SELECT COUNT(*) FROM "sqlite_master" WHERE "name" = {stringTypeMapping.GenerateS
                 retryDelay = retryDelay.Add(retryDelay);
             }
         }
-
-        throw new TimeoutException();
     }
 
     /// <summary>
@@ -139,11 +147,14 @@ SELECT COUNT(*) FROM "sqlite_master" WHERE "name" = {stringTypeMapping.GenerateS
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override async Task<IAsyncDisposable> GetDatabaseLockAsync(CancellationToken cancellationToken = default)
+    public override async Task<IMigrationsDatabaseLock> AcquireDatabaseLockAsync(
+        CancellationToken cancellationToken = default)
     {
+        Dependencies.MigrationsLogger.AcquiringMigrationLock();
+
         if (!InterpretExistsResult(
-                await Dependencies.RawSqlCommandBuilder.Build(CreateExistsSql(LockTableName))
-                    .ExecuteScalarAsync(CreateRelationalCommandParameters(), cancellationToken).ConfigureAwait(false)))
+            await Dependencies.RawSqlCommandBuilder.Build(CreateExistsSql(LockTableName))
+                .ExecuteScalarAsync(CreateRelationalCommandParameters(), cancellationToken).ConfigureAwait(false)))
         {
             await CreateLockTableCommand().ExecuteNonQueryAsync(CreateRelationalCommandParameters(), cancellationToken)
                 .ConfigureAwait(false);
@@ -167,8 +178,6 @@ SELECT COUNT(*) FROM "sqlite_master" WHERE "name" = {stringTypeMapping.GenerateS
                 retryDelay = retryDelay.Add(retryDelay);
             }
         }
-
-        throw new TimeoutException();
     }
 
     private IRelationalCommand CreateLockTableCommand()
@@ -206,7 +215,7 @@ DELETE FROM "{LockTableName}"
     }
 
     private SqliteMigrationDatabaseLock CreateMigrationDatabaseLock()
-        => new(CreateDeleteLockCommand(), CreateRelationalCommandParameters());
+        => new(CreateDeleteLockCommand(), CreateRelationalCommandParameters(), this);
 
     private RelationalCommandParameterObject CreateRelationalCommandParameters()
         => new(

@@ -125,7 +125,8 @@ public class MigrationsScaffolderTest
                     services.GetRequiredService<IDatabaseProvider>(),
                     services.GetRequiredService<IMigrationsModelDiffer>(),
                     services.GetRequiredService<IDesignTimeModel>(),
-                    services.GetRequiredService<IDbContextOptions>())));
+                    services.GetRequiredService<IDbContextOptions>(),
+                    services.GetRequiredService<IExecutionStrategy>())));
     }
 
     // ReSharper disable once UnusedTypeParameter
@@ -143,6 +144,8 @@ public class MigrationsScaffolderTest
 
     private class MockHistoryRepository : IHistoryRepository
     {
+        public virtual LockReleaseBehavior LockReleaseBehavior => LockReleaseBehavior.Explicit;
+
         public string GetBeginIfExistsScript(string migrationId)
             => null;
 
@@ -182,10 +185,10 @@ public class MigrationsScaffolderTest
         public Task CreateAsync(CancellationToken cancellationToken = default)
             => throw new NotImplementedException();
 
-        public IDisposable GetDatabaseLock()
+        public IMigrationsDatabaseLock AcquireDatabaseLock()
             => throw new NotImplementedException();
 
-        public Task<IAsyncDisposable> GetDatabaseLockAsync(CancellationToken cancellationToken = default)
+        public Task<IMigrationsDatabaseLock> AcquireDatabaseLockAsync(CancellationToken cancellationToken = default)
             => throw new NotImplementedException();
     }
 

@@ -61,7 +61,7 @@ public abstract partial class ModelBuilderTest
         {
             var testHelpers = fixture.TestHelpers;
             var options = new LoggingOptions();
-            options.Initialize(new DbContextOptionsBuilder().EnableSensitiveDataLogging(false).Options);
+            options.Initialize(OnConfiguring(new DbContextOptionsBuilder()).Options);
             ValidationLoggerFactory = new ListLoggerFactory(l => l == DbLoggerCategory.Model.Validation.Name);
             ValidationLogger = new DiagnosticsLogger<DbLoggerCategory.Model.Validation>(
                 ValidationLoggerFactory,
@@ -85,6 +85,9 @@ public abstract partial class ModelBuilderTest
                 fixture.AddOptions,
                 fixture.AddServices);
         }
+
+        protected virtual DbContextOptionsBuilder OnConfiguring(DbContextOptionsBuilder builder)
+            => builder.EnableSensitiveDataLogging(false);
 
         public virtual IMutableModel Model
             => ModelBuilder.Model;

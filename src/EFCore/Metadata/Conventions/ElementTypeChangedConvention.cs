@@ -9,7 +9,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.
 /// </remarks>
-public class ElementTypeChangedConvention : IPropertyElementTypeChangedConvention, IForeignKeyAddedConvention
+public class ElementTypeChangedConvention :
+    IPropertyElementTypeChangedConvention, IForeignKeyAddedConvention, IForeignKeyPropertiesChangedConvention
 {
     /// <summary>
     ///     Creates a new instance of <see cref="ElementTypeChangedConvention" />.
@@ -46,6 +47,22 @@ public class ElementTypeChangedConvention : IPropertyElementTypeChangedConventio
     public void ProcessForeignKeyAdded(
         IConventionForeignKeyBuilder foreignKeyBuilder,
         IConventionContext<IConventionForeignKeyBuilder> context)
+        => ProcessForeignKey(foreignKeyBuilder);
+
+    /// <inheritdoc />
+    public void ProcessForeignKeyPropertiesChanged(
+        IConventionForeignKeyBuilder relationshipBuilder,
+        IReadOnlyList<IConventionProperty> oldDependentProperties,
+        IConventionKey oldPrincipalKey,
+        IConventionContext<IReadOnlyList<IConventionProperty>> context)
+    {
+        if (relationshipBuilder.Metadata.IsInModel)
+        {
+            ProcessForeignKey(relationshipBuilder);
+        }
+    }
+
+    private static void ProcessForeignKey(IConventionForeignKeyBuilder foreignKeyBuilder)
     {
         var foreignKeyProperties = foreignKeyBuilder.Metadata.Properties;
         var principalKeyProperties = foreignKeyBuilder.Metadata.PrincipalKey.Properties;

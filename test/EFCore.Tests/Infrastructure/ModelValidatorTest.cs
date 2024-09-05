@@ -47,7 +47,6 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         var modelBuilder = CreateConventionModelBuilder();
 
         modelBuilder.Entity<MyEntity<List<JsonbField>>>().OwnsMany(x => x.JsonbFields, r => r.ToJson());
-        ;
 
         VerifyError(
             CoreStrings.WarningAsErrorTemplate(
