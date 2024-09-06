@@ -29,7 +29,8 @@ public class UpdatesContext(DbContextOptions options) : PoolableDbContext(option
                 Id = productId1,
                 Name = "Apple Cider",
                 Price = 1.49M,
-                DependentId = 778
+                DependentId = 778,
+                IsPrimary = true
             });
         context.Add(
             new Product
@@ -37,7 +38,8 @@ public class UpdatesContext(DbContextOptions options) : PoolableDbContext(option
                 Id = productId2,
                 Name = "Apple Cobler",
                 Price = 2.49M,
-                DependentId = 778
+                DependentId = 778,
+                IsPrimary = false
             });
 
         return context.SaveChangesAsync();

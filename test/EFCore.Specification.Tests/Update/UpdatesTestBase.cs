@@ -935,6 +935,10 @@ public abstract class UpdatesTestBase<TFixture>(TFixture fixture) : IClassFixtur
                 .HasForeignKey(e => e.DependentId)
                 .HasPrincipalKey(e => e.PrincipalId);
 
+            modelBuilder.Entity<Product>()
+                .HasIndex(e => new { e.Name, e.IsPrimaryNormalized })
+                .IsUnique();
+
             modelBuilder.Entity<Person>(
                 pb =>
                 {
