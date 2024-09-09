@@ -106,11 +106,16 @@ public class RelationalCommandCache : IPrintableExpression
         }
     }
 
-    private readonly struct CommandCacheKey(Expression queryExpression, IReadOnlyDictionary<string, object?> parameterValues)
+    private readonly struct CommandCacheKey
         : IEquatable<CommandCacheKey>
     {
-        private readonly Expression _queryExpression = queryExpression;
-        private readonly IReadOnlyDictionary<string, object?> _parameterValues = parameterValues;
+        private readonly Expression _queryExpression;
+        private readonly IReadOnlyDictionary<string, ParameterValueInfo> _parameterValues;
+
+        public CommandCacheKey(Expression queryExpression, IReadOnlyDictionary<string, object?> parameterValues) {
+            _queryExpression = queryExpression;
+            _parameterValues = parameterValues.ToDictionary(p => p.Key, p => new ParameterValueInfo(p.Value));
+        }
 
         public override bool Equals(object? obj)
             => obj is CommandCacheKey commandCacheKey
@@ -133,18 +138,8 @@ public class RelationalCommandCache : IPrintableExpression
                         return false;
                     }
 
-                    // ReSharper disable once ArrangeRedundantParentheses
-                    if ((value == null) != (otherValue == null))
-                    {
+                    if (value != otherValue)
                         return false;
-                    }
-
-                    if (value is IEnumerable
-                        && value.GetType() == typeof(object[]))
-                    {
-                        // FromSql parameters must have the same number of elements
-                        return ((object[])value).Length == (otherValue as object[])?.Length;
-                    }
                 }
             }
 
@@ -153,5 +148,16 @@ public class RelationalCommandCache : IPrintableExpression
 
         public override int GetHashCode()
             => RuntimeHelpers.GetHashCode(_queryExpression);
+
+        private record ParameterValueInfo {
+            public bool IsNull { get; init; }
+            public int? ObjectArrayLength { get; init; } // FromSql parameters must have the same number of elements
+
+            public ParameterValueInfo(object? parameterValue) {
+                IsNull = parameterValue == null;
+                var isObjectArray = parameterValue is IEnumerable && parameterValue.GetType() == typeof(object[]);
+                ObjectArrayLength = isObjectArray ? ((object[])parameterValue).Length : null;
+            }
+        };
     }
 }
