@@ -59,6 +59,8 @@
     <PackageReference Include="Humanizer.Core" Version="2.14.1" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="$(MicrosoftCodeAnalysisVersion)" />
     <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.MSBuild" Version="$(MicrosoftCodeAnalysisVersion)" />
+    <!--Pinned transitive dependency as a workaround for Microsoft.CodeAnalysis.Workspaces.MSBuild 4.8.0-->
+    <PackageReference Include="Microsoft.Build.Framework" Version="17.3.2" ExcludeAssets="Runtime" />
     <PackageReference Include="Microsoft.Build.Locator" Version="1.7.8" />
     <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="$(MicrosoftExtensionsDependencyModelVersion)" />
     <PackageReference Include="Microsoft.Extensions.HostFactoryResolver.Sources" PrivateAssets="All" Version="$(MicrosoftExtensionsHostFactoryResolverSourcesVersion)" />
