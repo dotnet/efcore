@@ -258,6 +258,15 @@ LEFT JOIN [Person] AS [p2] ON [p1].[ParentId] = [p2].[PersonId]
                 .Property(p => p.Id).HasDefaultValueSql("NEWID()");
 
             modelBuilder.Entity<Product>().HasIndex(p => new { p.Name, p.Price }).HasFilter("Name IS NOT NULL");
+
+            modelBuilder.Entity<Product>()
+                .HasIndex(e => new { e.Name, e.IsPrimaryNormalized })
+                .IsUnique()
+                .HasFilter(null);
+
+            modelBuilder.Entity<Product>()
+                .Property(e => e.IsPrimaryNormalized)
+                .HasComputedColumnSql($"IIF(IsPrimary = 1, CONVERT(bit, 1), NULL)", stored: true);
         }
 
         public virtual async Task ResetIdentity()

@@ -993,18 +993,30 @@ public class CommandBatchPreparer : ICommandBatchPreparer
                 var entry = command.Entries[entryIndex];
                 var columnMapping = column.FindColumnMapping(entry.EntityType);
                 var property = columnMapping?.Property;
-                if (property != null
-                    && (property.GetAfterSaveBehavior() == PropertySaveBehavior.Save
-                        || (!property.IsPrimaryKey() && entry.EntityState != EntityState.Modified)))
+                if (property != null)
                 {
                     switch (entry.EntityState)
                     {
                         case EntityState.Added:
                             currentValue = entry.GetCurrentProviderValue(property);
+                            if (entry.SharedIdentityEntry != null)
+                            {
+                                var sharedProperty = entry.SharedIdentityEntry.EntityType == entry.EntityType
+                                    ? property
+                                    : column.FindColumnMapping(entry.SharedIdentityEntry.EntityType)?.Property;
+
+                                if (sharedProperty != null)
+                                {
+                                    originalValue ??= entry.SharedIdentityEntry.GetOriginalProviderValue(sharedProperty);
+                                }
+                            }
+
                             break;
                         case EntityState.Deleted:
                         case EntityState.Unchanged:
                             originalValue ??= entry.GetOriginalProviderValue(property);
+                            Check.DebugAssert(entry.SharedIdentityEntry == null, "entry.SharedIdentityEntry != null");
+
                             break;
                         case EntityState.Modified:
                             if (entry.IsModified(property))
