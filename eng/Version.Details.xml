@@ -27,7 +27,7 @@
     </Dependency>
     <Dependency Name="Microsoft.Extensions.DependencyModel" Version="6.0.1">
       <Uri>https://dev.azure.com/dnceng/internal/_git/dotnet-runtime</Uri>
-      <Sha>7442e7d200fd02d8d0bf7ba1de30ecfd453bb2e6</Sha>
+      <Sha>40d60a122dfd637e1b8a7cccbbbc363d508fb0d7</Sha>
     </Dependency>
     <Dependency Name="Microsoft.Extensions.HostFactoryResolver.Sources" Version="6.0.1-servicing.21567.5">
       <Uri>https://dev.azure.com/dnceng/internal/_git/dotnet-runtime</Uri>
