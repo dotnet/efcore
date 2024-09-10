@@ -18,7 +18,9 @@ public static class CSharpCodeFixVerifier<TAnalyzer, TCodeFix>
     where TCodeFix : CodeFixProvider, new()
 {
     public static DiagnosticResult Diagnostic(string diagnosticId)
+#pragma warning disable CS0618 // Type or member is obsolete
         => CSharpAnalyzerVerifier<TAnalyzer, XUnitVerifier>.Diagnostic(diagnosticId);
+#pragma warning restore CS0618 // Type or member is obsolete
 
     public static Task VerifyAnalyzerAsync(string source, params DiagnosticResult[] expected)
     {
@@ -34,7 +36,9 @@ public static class CSharpCodeFixVerifier<TAnalyzer, TCodeFix>
         await test.RunAsync();
     }
 
+#pragma warning disable CS0618 // Type or member is obsolete
     public class Test : CSharpCodeFixTest<TAnalyzer, TCodeFix, XUnitVerifier>
+#pragma warning restore CS0618 // Type or member is obsolete
     {
         protected override async Task<Project> CreateProjectImplAsync(
             EvaluatedProjectState primaryProject,
