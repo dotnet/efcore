@@ -1112,16 +1112,23 @@ public abstract partial class ModelBuilderTest
 
     protected class Ownee1
     {
+        public string Data { get; private set; } = "";
+
+        public OwnerOfOwnees Owner { get; private set; } = null!;
         public Ownee3? NewOwnee3 { get; private set; }
     }
 
     protected class Ownee2
     {
+        public Guid Data { get; private set; }
+
         public Ownee3? Ownee3 { get; private set; }
     }
 
     protected class Ownee3
     {
+        public DateTime Data { get; private set; }
+
         public string? Name { get; private set; }
     }
 
@@ -1189,6 +1196,7 @@ public abstract partial class ModelBuilderTest
         public OneToManyOwnerWithField? OneToManyOwner { get; set; }
     }
 
+    [Index(nameof(OwnedDependent))]
     protected class OneToOneOwnerWithField
     {
         public int Id;
