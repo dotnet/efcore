@@ -905,6 +905,9 @@ ORDER BY [p].[Id]
     public override Task Parameter_collection_Concat_column_collection(bool async)
         => AssertCompatibilityLevelTooLow(() => base.Parameter_collection_Concat_column_collection(async));
 
+    public override Task Parameter_collection_with_type_inference_for_JsonScalarExpression(bool async)
+        => AssertCompatibilityLevelTooLow(() => base.Parameter_collection_Concat_column_collection(async));
+
     public override Task Column_collection_Union_parameter_collection(bool async)
         => AssertCompatibilityLevelTooLow(() => base.Column_collection_Union_parameter_collection(async));
 

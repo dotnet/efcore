@@ -925,11 +925,22 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Parameter_collection_Concat_column_collection(bool async)
     {
-        var ints = new[] { 11, 111 };
+        int[] ints = [11, 111];
 
         return AssertQuery(
             async,
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => ints.Concat(c.Ints).Count() == 2));
+    }
+
+    [ConditionalTheory] // #33582
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Parameter_collection_with_type_inference_for_JsonScalarExpression(bool async)
+    {
+        string[] values = ["one", "two"];
+
+        return AssertQuery(
+            async,
+            ss => ss.Set<PrimitiveCollectionsEntity>().Select(c => c.Id != 0 ? values[c.Int % 2] : "foo"));
     }
 
     [ConditionalTheory]
@@ -1557,8 +1568,8 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
                     DateTimes = [],
                     Bools = [],
                     Enums = [],
-                    NullableInts = Array.Empty<int?>(),
-                    NullableStrings = Array.Empty<string?>()
+                    NullableInts = [],
+                    NullableStrings = []
                 }
             };
     }

@@ -357,7 +357,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
 
     private SqlExpression ApplyTypeMappingOnJsonScalar(
         JsonScalarExpression jsonScalarExpression,
-        RelationalTypeMapping? typeMapping)
+        RelationalTypeMapping? elementMapping)
     {
         if (jsonScalarExpression is not { Json: var array, Path: [{ ArrayIndex: { } index }] })
         {
@@ -369,24 +369,28 @@ public class SqlExpressionFactory : ISqlExpressionFactory
         var newPath = indexWithTypeMapping == index ? jsonScalarExpression.Path : [new PathSegment(indexWithTypeMapping)];
 
         // If a type mapping is being applied from the outside, it applies to the element resulting from the array indexing operation;
-        // we can infer the array's type mapping from it. Otherwise there's nothing to do but apply the default type mapping to the array.
-        if (typeMapping is null)
+        // we can infer the array's type mapping from it.
+        if (elementMapping is null)
         {
             return new JsonScalarExpression(
-                ApplyDefaultTypeMapping(array),
+                array,
                 newPath,
                 jsonScalarExpression.Type,
-                _typeMappingSource.FindMapping(jsonScalarExpression.Type, Dependencies.Model),
+                jsonScalarExpression.TypeMapping,
                 jsonScalarExpression.IsNullable);
         }
 
-        // TODO: blocked on #30730: we need to be able to construct a JSON collection type mapping based on the element's.
-        // For now, hacking to apply the default type mapping instead.
+        // Resolve the array type mapping for the given element mapping.
+        if (_typeMappingSource.FindMapping(array.Type, Dependencies.Model, elementMapping) is not RelationalTypeMapping arrayMapping)
+        {
+            throw new UnreachableException($"Couldn't find collection type mapping for element type mapping {elementMapping.ClrType.Name}");
+        }
+
         return new JsonScalarExpression(
-            ApplyDefaultTypeMapping(array), // Hack, until #30730
+            ApplyTypeMapping(array, arrayMapping),
             newPath,
             jsonScalarExpression.Type,
-            typeMapping,
+            elementMapping,
             jsonScalarExpression.IsNullable);
     }
 
