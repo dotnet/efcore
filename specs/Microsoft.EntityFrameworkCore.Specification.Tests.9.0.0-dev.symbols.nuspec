@@ -14,7 +14,7 @@
     <copyright>© Microsoft Corporation. All rights reserved.</copyright>
     <tags>Entity Framework Core entity-framework-core EF Data O/RM EntityFramework EntityFrameworkCore EFCore</tags>
     <serviceable>true</serviceable>
-    <repository type="git" url="https://github.com/dotnet/efcore.git" commit="40a655c5a828322bd096009a8588d98b1d05e8f2" />
+    <repository type="git" url="https://github.com/dotnet/efcore.git" commit="86d976328389199b2322266a745bd4f45124cf30" />
     <dependencies>
       <group targetFramework="net9.0">
         <dependency id="Microsoft.EntityFrameworkCore.Abstractions" version="9.0.0-dev" exclude="Build,Analyzers" />
@@ -22,12 +22,30 @@
         <dependency id="Microsoft.EntityFrameworkCore.Design" version="9.0.0-dev" exclude="Build,Analyzers" />
         <dependency id="Microsoft.EntityFrameworkCore.Proxies" version="9.0.0-dev" exclude="Build,Analyzers" />
         <dependency id="Microsoft.EntityFrameworkCore" version="9.0.0-dev" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.NET.Test.Sdk" version="17.5.0" exclude="Build,Analyzers" />
         <dependency id="NetTopologySuite" version="2.5.0" exclude="Build,Analyzers" />
         <dependency id="NetTopologySuite.IO.GeoJSON" version="4.0.0" exclude="Build,Analyzers" />
         <dependency id="Newtonsoft.Json" version="13.0.3" exclude="Build,Analyzers" />
         <dependency id="xunit.assert" version="2.9.0" exclude="Build,Analyzers" />
         <dependency id="xunit.core" version="2.9.0" exclude="Build,Analyzers" />
         <dependency id="xunit.runner.visualstudio" version="2.8.2" exclude="Build,Analyzers" />
+        <dependency id="Castle.Core" version="5.1.1" exclude="Build,Analyzers" />
+        <dependency id="Humanizer.Core" version="2.14.1" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Build.Framework" version="17.8.3" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Build.Locator" version="1.7.8" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Build.Tasks.Core" version="17.8.3" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Build.Utilities.Core" version="17.8.3" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.CodeAnalysis.CSharp" version="4.10.0" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.CodeAnalysis.CSharp.Workspaces" version="4.10.0" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.CodeAnalysis.Workspaces.MSBuild" version="4.10.0" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.Caching.Memory" version="9.0.0-rc.2.24456.9" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.Configuration.Abstractions" version="9.0.0-rc.2.24456.9" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.DependencyModel" version="9.0.0-rc.2.24456.9" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.Logging" version="9.0.0-rc.2.24456.9" exclude="Build,Analyzers" />
+        <dependency id="Mono.TextTemplating" version="3.0.0" exclude="Build,Analyzers" />
+        <dependency id="System.Formats.Asn1" version="9.0.0-rc.2.24456.9" exclude="Build,Analyzers" />
+        <dependency id="System.Text.Encodings.Web" version="9.0.0-rc.2.24456.9" exclude="Build,Analyzers" />
+        <dependency id="System.Text.Json" version="9.0.0-rc.2.24456.9" exclude="Build,Analyzers" />
       </group>
     </dependencies>
   </metadata>

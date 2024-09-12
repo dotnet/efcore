@@ -23,16 +23,16 @@ Microsoft.Data.Sqlite.SqliteParameter
 Microsoft.Data.Sqlite.SqliteTransaction</description>
     <copyright>© Microsoft Corporation. All rights reserved.</copyright>
     <tags>SQLite Data ADO.NET</tags>
-    <repository type="git" url="https://github.com/dotnet/efcore.git" commit="40a655c5a828322bd096009a8588d98b1d05e8f2" />
+    <repository type="git" url="https://github.com/dotnet/efcore.git" commit="86d976328389199b2322266a745bd4f45124cf30" />
     <dependencies>
       <group targetFramework="net6.0">
-        <dependency id="SQLitePCLRaw.core" version="2.1.8" exclude="Build,Analyzers" />
+        <dependency id="SQLitePCLRaw.core" version="2.1.10" exclude="Build,Analyzers" />
       </group>
       <group targetFramework="net8.0">
-        <dependency id="SQLitePCLRaw.core" version="2.1.8" exclude="Build,Analyzers" />
+        <dependency id="SQLitePCLRaw.core" version="2.1.10" exclude="Build,Analyzers" />
       </group>
       <group targetFramework=".NETStandard2.0">
-        <dependency id="SQLitePCLRaw.core" version="2.1.8" exclude="Build,Analyzers" />
+        <dependency id="SQLitePCLRaw.core" version="2.1.10" exclude="Build,Analyzers" />
       </group>
     </dependencies>
   </metadata>

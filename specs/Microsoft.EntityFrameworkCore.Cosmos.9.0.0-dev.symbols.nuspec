@@ -14,11 +14,16 @@
     <copyright>© Microsoft Corporation. All rights reserved.</copyright>
     <tags>Entity Framework Core entity-framework-core EF Data O/RM EntityFramework EntityFrameworkCore EFCore CosmosDb SQL API</tags>
     <serviceable>true</serviceable>
-    <repository type="git" url="https://github.com/dotnet/efcore.git" commit="40a655c5a828322bd096009a8588d98b1d05e8f2" />
+    <repository type="git" url="https://github.com/dotnet/efcore.git" commit="86d976328389199b2322266a745bd4f45124cf30" />
     <dependencies>
       <group targetFramework="net8.0">
         <dependency id="Microsoft.EntityFrameworkCore" version="9.0.0-dev" exclude="Build" />
         <dependency id="Microsoft.Azure.Cosmos" version="3.43.0" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.Caching.Memory" version="9.0.0-rc.2.24456.9" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.Logging" version="9.0.0-rc.2.24456.9" exclude="Build,Analyzers" />
+        <dependency id="Newtonsoft.Json" version="13.0.3" exclude="Build,Analyzers" />
+        <dependency id="System.Text.Encodings.Web" version="9.0.0-rc.2.24456.9" exclude="Build,Analyzers" />
+        <dependency id="System.Text.Json" version="9.0.0-rc.2.24456.9" exclude="Build,Analyzers" />
       </group>
     </dependencies>
   </metadata>

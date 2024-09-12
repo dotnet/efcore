@@ -14,17 +14,23 @@
     <description>Shared design-time components for Entity Framework Core tools.</description>
     <copyright>© Microsoft Corporation. All rights reserved.</copyright>
     <tags>Entity Framework Core entity-framework-core EF Data O/RM EntityFramework EntityFrameworkCore EFCore</tags>
-    <repository type="git" url="https://github.com/dotnet/efcore.git" commit="40a655c5a828322bd096009a8588d98b1d05e8f2" />
+    <repository type="git" url="https://github.com/dotnet/efcore.git" commit="86d976328389199b2322266a745bd4f45124cf30" />
     <dependencies>
       <group targetFramework="net8.0">
         <dependency id="Microsoft.EntityFrameworkCore.Relational" version="9.0.0-dev" exclude="Build" />
         <dependency id="Humanizer.Core" version="2.14.1" exclude="Build,Analyzers" />
-        <dependency id="Microsoft.Build.Framework" version="17.3.2" exclude="Runtime,Build,Analyzers" />
         <dependency id="Microsoft.Build.Locator" version="1.7.8" exclude="Build,Analyzers" />
         <dependency id="Microsoft.CodeAnalysis.CSharp.Workspaces" version="4.8.0" exclude="Build,Analyzers" />
         <dependency id="Microsoft.CodeAnalysis.Workspaces.MSBuild" version="4.8.0" exclude="Build,Analyzers" />
         <dependency id="Microsoft.Extensions.DependencyModel" version="9.0.0-rc.2.24456.9" exclude="Build,Analyzers" />
         <dependency id="Mono.TextTemplating" version="3.0.0" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Build.Framework" version="17.8.3" exclude="Runtime,Build,Analyzers" />
+        <dependency id="Microsoft.CodeAnalysis.CSharp" version="4.8.0" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.Caching.Memory" version="9.0.0-rc.2.24456.9" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.Configuration.Abstractions" version="9.0.0-rc.2.24456.9" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.Logging" version="9.0.0-rc.2.24456.9" exclude="Build,Analyzers" />
+        <dependency id="System.Text.Encodings.Web" version="9.0.0-rc.2.24456.9" exclude="Build,Analyzers" />
+        <dependency id="System.Text.Json" version="9.0.0-rc.2.24456.9" exclude="Build,Analyzers" />
       </group>
     </dependencies>
   </metadata>

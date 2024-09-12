@@ -14,12 +14,20 @@
     <copyright>© Microsoft Corporation. All rights reserved.</copyright>
     <tags>Entity Framework Core entity-framework-core EF Data O/RM EntityFramework EntityFrameworkCore EFCore SQL Server GIS NTS OGC Spatial</tags>
     <serviceable>true</serviceable>
-    <repository type="git" url="https://github.com/dotnet/efcore.git" commit="40a655c5a828322bd096009a8588d98b1d05e8f2" />
+    <repository type="git" url="https://github.com/dotnet/efcore.git" commit="86d976328389199b2322266a745bd4f45124cf30" />
     <dependencies>
       <group targetFramework="net8.0">
         <dependency id="Microsoft.EntityFrameworkCore.SqlServer" version="9.0.0-dev" exclude="Build" />
-        <dependency id="NetTopologySuite" version="2.5.0" exclude="Build,Analyzers" />
         <dependency id="NetTopologySuite.IO.SqlServerBytes" version="2.1.0" exclude="Build,Analyzers" />
+        <dependency id="Azure.Identity" version="1.12.0" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Data.SqlClient" version="5.1.6" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.Caching.Memory" version="9.0.0-rc.2.24456.9" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.Configuration.Abstractions" version="9.0.0-rc.2.24456.9" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.Logging" version="9.0.0-rc.2.24456.9" exclude="Build,Analyzers" />
+        <dependency id="NetTopologySuite" version="2.5.0" exclude="Build,Analyzers" />
+        <dependency id="System.Formats.Asn1" version="9.0.0-rc.2.24456.9" exclude="Compile,Build,Analyzers" />
+        <dependency id="System.Text.Encodings.Web" version="9.0.0-rc.2.24456.9" exclude="Build,Analyzers" />
+        <dependency id="System.Text.Json" version="9.0.0-rc.2.24456.9" exclude="Build,Analyzers" />
       </group>
     </dependencies>
   </metadata>
