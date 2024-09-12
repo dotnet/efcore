@@ -1606,8 +1606,12 @@ public static class RelationalEntityTypeExtensions
     /// <param name="entityType">The entity type to get the container column name for.</param>
     /// <returns>The container column name to which the entity type is mapped.</returns>
     public static string? GetContainerColumnName(this IReadOnlyEntityType entityType)
-        => entityType.FindAnnotation(RelationalAnnotationNames.ContainerColumnName)?.Value as string
-            ?? entityType.FindOwnership()?.PrincipalEntityType.GetContainerColumnName();
+    {
+        var containerColumnName = entityType.FindAnnotation(RelationalAnnotationNames.ContainerColumnName);
+        return containerColumnName == null
+                ? entityType.FindOwnership()?.PrincipalEntityType.GetContainerColumnName()
+                : (string?)containerColumnName.Value;
+    }
 
     /// <summary>
     ///     Sets the column type to use for the container column to which the entity type is mapped.
@@ -1720,8 +1724,14 @@ public static class RelationalEntityTypeExtensions
     ///     <see langword="null" /> is returned for entities that are not mapped to a JSON column.
     /// </returns>
     public static string? GetJsonPropertyName(this IReadOnlyEntityType entityType)
-        => (string?)entityType.FindAnnotation(RelationalAnnotationNames.JsonPropertyName)?.Value
-            ?? (!entityType.IsMappedToJson() ? null : entityType.FindOwnership()!.GetNavigation(pointsToPrincipal: false)!.Name);
+    {
+        var propertyName = entityType.FindAnnotation(RelationalAnnotationNames.JsonPropertyName);
+        return propertyName == null
+                ? (entityType.IsMappedToJson()
+                    ? entityType.FindOwnership()!.GetNavigation(pointsToPrincipal: false)!.Name
+                    : null)
+                : (string?)propertyName.Value;
+    }
 
     /// <summary>
     ///     Sets the value of JSON property name used for the given entity mapped to a JSON column.

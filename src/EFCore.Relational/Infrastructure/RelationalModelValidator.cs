@@ -2833,8 +2833,13 @@ public class RelationalModelValidator : ModelValidator
         IEntityType jsonEntityType)
     {
         var jsonPropertyNames = new List<string>();
-        foreach (var property in jsonEntityType.GetDeclaredProperties().Where(p => !string.IsNullOrEmpty(p.GetJsonPropertyName())))
+        foreach (var property in jsonEntityType.GetDeclaredProperties())
         {
+            if (string.IsNullOrEmpty(property.GetJsonPropertyName()))
+            {
+                continue;
+            }
+
             if (property.TryGetDefaultValue(out var _))
             {
                 throw new InvalidOperationException(
@@ -2857,6 +2862,12 @@ public class RelationalModelValidator : ModelValidator
 
         foreach (var navigation in jsonEntityType.GetDeclaredNavigations())
         {
+            if (!navigation.TargetEntityType.IsMappedToJson()
+                || navigation.IsOnDependent)
+            {
+                continue;
+            }
+
             var jsonPropertyName = navigation.TargetEntityType.GetJsonPropertyName()!;
             if (!jsonPropertyNames.Contains(jsonPropertyName))
             {
