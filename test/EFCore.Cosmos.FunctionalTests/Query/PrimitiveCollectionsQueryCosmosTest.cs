@@ -1537,6 +1537,27 @@ WHERE (ARRAY_LENGTH(ARRAY_CONCAT(@__ints_0, c["Ints"])) = 2)
 """);
             });
 
+    public override async Task Parameter_collection_with_type_inference_for_JsonScalarExpression(bool async)
+    {
+        // Always throws for sync.
+        if (async)
+        {
+            // Member indexer (c.Array[c.SomeMember]) isn't supported by Cosmos
+            var exception = await Assert.ThrowsAsync<CosmosException>(
+                () => base.Parameter_collection_with_type_inference_for_JsonScalarExpression(async));
+
+            Assert.Equal(HttpStatusCode.BadRequest, exception.StatusCode);
+
+            AssertSql(
+                """
+@__values_0='["one","two"]'
+
+SELECT VALUE ((c["Id"] != 0) ? @__values_0[(c["Int"] % 2)] : "foo")
+FROM root c
+""");
+        }
+    }
+
     public override Task Column_collection_Union_parameter_collection(bool async)
         => CosmosTestHelpers.Instance.NoSyncTest(
             async, async a =>
