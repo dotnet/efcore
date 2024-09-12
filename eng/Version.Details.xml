@@ -53,6 +53,14 @@
       <Uri>https://github.com/dotnet/runtime</Uri>
       <Sha>dec716d1c4651b70e4710e781e832a64be1e713b</Sha>
     </Dependency>
+    <Dependency Name="System.Text.Encodings.Web" Version="9.0.0-rc.2.24456.9">
+      <Uri>https://github.com/dotnet/runtime</Uri>
+      <Sha>dec716d1c4651b70e4710e781e832a64be1e713b</Sha>
+    </Dependency>
+    <Dependency Name="System.Formats.Asn1" Version="9.0.0-rc.2.24456.9">
+      <Uri>https://github.com/dotnet/runtime</Uri>
+      <Sha>dec716d1c4651b70e4710e781e832a64be1e713b</Sha>
+    </Dependency>
   </ProductDependencies>
   <ToolsetDependencies>
     <Dependency Name="Microsoft.DotNet.Arcade.Sdk" Version="9.0.0-beta.24453.1">
