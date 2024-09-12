@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+  <metadata>
+    <id>Microsoft.EntityFrameworkCore.Specification.Tests</id>
+    <version>9.0.0-dev</version>
+    <authors>Microsoft</authors>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <license type="expression">MIT</license>
+    <licenseUrl>https://licenses.nuget.org/MIT</licenseUrl>
+    <icon>Icon.png</icon>
+    <readme>PACKAGE.md</readme>
+    <projectUrl>https://docs.microsoft.com/ef/core/</projectUrl>
+    <description>Shared test suite for Entity Framework Core database providers.</description>
+    <copyright>© Microsoft Corporation. All rights reserved.</copyright>
+    <tags>Entity Framework Core entity-framework-core EF Data O/RM EntityFramework EntityFrameworkCore EFCore</tags>
+    <serviceable>true</serviceable>
+    <repository type="git" url="https://github.com/dotnet/efcore.git" commit="40a655c5a828322bd096009a8588d98b1d05e8f2" />
+    <dependencies>
+      <group targetFramework="net9.0">
+        <dependency id="Microsoft.EntityFrameworkCore.Abstractions" version="9.0.0-dev" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.EntityFrameworkCore.Analyzers" version="9.0.0-dev" exclude="Build" />
+        <dependency id="Microsoft.EntityFrameworkCore.Design" version="9.0.0-dev" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.EntityFrameworkCore.Proxies" version="9.0.0-dev" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.EntityFrameworkCore" version="9.0.0-dev" exclude="Build,Analyzers" />
+        <dependency id="NetTopologySuite" version="2.5.0" exclude="Build,Analyzers" />
+        <dependency id="NetTopologySuite.IO.GeoJSON" version="4.0.0" exclude="Build,Analyzers" />
+        <dependency id="Newtonsoft.Json" version="13.0.3" exclude="Build,Analyzers" />
+        <dependency id="xunit.assert" version="2.9.0" exclude="Build,Analyzers" />
+        <dependency id="xunit.core" version="2.9.0" exclude="Build,Analyzers" />
+        <dependency id="xunit.runner.visualstudio" version="2.8.2" exclude="Build,Analyzers" />
+      </group>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="C:\repos\efcore\artifacts\bin\EFCore.Specification.Tests\Debug\net9.0\Microsoft.EntityFrameworkCore.Specification.Tests.pdb" target="lib\net9.0\Microsoft.EntityFrameworkCore.Specification.Tests.pdb" />
+    <file src="C:\repos\efcore\artifacts\bin\EFCore.Specification.Tests\Debug\net9.0\Microsoft.EntityFrameworkCore.Specification.Tests.runtimeconfig.json" target="lib\net9.0\Microsoft.EntityFrameworkCore.Specification.Tests.runtimeconfig.json" />
+    <file src="C:\repos\efcore\artifacts\bin\EFCore.Specification.Tests\Debug\net9.0\Microsoft.EntityFrameworkCore.Specification.Tests.dll" target="lib\net9.0\Microsoft.EntityFrameworkCore.Specification.Tests.dll" />
+    <file src="C:\repos\efcore\artifacts\bin\EFCore.Specification.Tests\Debug\net9.0\Microsoft.EntityFrameworkCore.Specification.Tests.xml" target="lib\net9.0\Microsoft.EntityFrameworkCore.Specification.Tests.xml" />
+    <file src="C:\repos\efcore\test\EFCore.Specification.Tests\PACKAGE.md" target="\PACKAGE.md" />
+    <file src="C:\repos\efcore\logo\ef-logo.png" target="Icon.png" />
+  </files>
+</package>

@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/01/nuspec.xsd">
+  <metadata minClientVersion="3.6">
+    <id>Microsoft.EntityFrameworkCore.Cosmos</id>
+    <version>9.0.0-dev</version>
+    <authors>Microsoft</authors>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <license type="expression">MIT</license>
+    <licenseUrl>https://licenses.nuget.org/MIT</licenseUrl>
+    <icon>Icon.png</icon>
+    <readme>PACKAGE.md</readme>
+    <projectUrl>https://docs.microsoft.com/ef/core/</projectUrl>
+    <description>Azure Cosmos provider for Entity Framework Core.</description>
+    <copyright>© Microsoft Corporation. All rights reserved.</copyright>
+    <tags>Entity Framework Core entity-framework-core EF Data O/RM EntityFramework EntityFrameworkCore EFCore CosmosDb SQL API</tags>
+    <repository type="git" url="https://github.com/dotnet/efcore.git" commit="40a655c5a828322bd096009a8588d98b1d05e8f2" />
+    <dependencies>
+      <group targetFramework="net8.0">
+        <dependency id="Microsoft.EntityFrameworkCore" version="9.0.0-dev" exclude="Build" />
+        <dependency id="Microsoft.Azure.Cosmos" version="3.43.0" exclude="Build,Analyzers" />
+      </group>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="C:\repos\efcore\artifacts\bin\EFCore.Cosmos\Debug\net8.0\Microsoft.EntityFrameworkCore.Cosmos.dll" target="lib\net8.0\Microsoft.EntityFrameworkCore.Cosmos.dll" />
+    <file src="C:\repos\efcore\artifacts\bin\EFCore.Cosmos\Debug\net8.0\Microsoft.EntityFrameworkCore.Cosmos.xml" target="lib\net8.0\Microsoft.EntityFrameworkCore.Cosmos.xml" />
+    <file src="C:\repos\efcore\src\EFCore.Cosmos\PACKAGE.md" target="\PACKAGE.md" />
+    <file src="C:\repos\efcore\logo\ef-logo.png" target="Icon.png" />
+  </files>
+</package>

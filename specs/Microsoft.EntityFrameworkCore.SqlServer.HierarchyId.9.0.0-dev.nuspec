@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/01/nuspec.xsd">
+  <metadata minClientVersion="3.6">
+    <id>Microsoft.EntityFrameworkCore.SqlServer.HierarchyId</id>
+    <version>9.0.0-dev</version>
+    <authors>Microsoft</authors>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <license type="expression">MIT</license>
+    <licenseUrl>https://licenses.nuget.org/MIT</licenseUrl>
+    <icon>Icon.png</icon>
+    <readme>PACKAGE.md</readme>
+    <projectUrl>https://docs.microsoft.com/ef/core/</projectUrl>
+    <description>Adds hierarchyid support to the SQL Server EF Core provider</description>
+    <copyright>© Microsoft Corporation. All rights reserved.</copyright>
+    <tags>Entity Framework Core entity-framework-core EF Data O/RM EntityFramework EntityFrameworkCore EFCore SQL Server HierarchyId</tags>
+    <repository type="git" url="https://github.com/dotnet/efcore.git" commit="40a655c5a828322bd096009a8588d98b1d05e8f2" />
+    <dependencies>
+      <group targetFramework="net8.0">
+        <dependency id="Microsoft.EntityFrameworkCore.SqlServer.Abstractions" version="9.0.0-dev" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.EntityFrameworkCore.SqlServer" version="9.0.0-dev" exclude="Build" />
+      </group>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="C:\repos\efcore\artifacts\bin\EFCore.SqlServer.HierarchyId\Debug\net8.0\Microsoft.EntityFrameworkCore.SqlServer.HierarchyId.dll" target="lib\net8.0\Microsoft.EntityFrameworkCore.SqlServer.HierarchyId.dll" />
+    <file src="C:\repos\efcore\artifacts\bin\EFCore.SqlServer.HierarchyId\Debug\net8.0\Microsoft.EntityFrameworkCore.SqlServer.HierarchyId.xml" target="lib\net8.0\Microsoft.EntityFrameworkCore.SqlServer.HierarchyId.xml" />
+    <file src="C:\repos\efcore\src\EFCore.SqlServer.HierarchyId\build\net8.0\Microsoft.EntityFrameworkCore.SqlServer.HierarchyId.targets" target="build\net8.0\Microsoft.EntityFrameworkCore.SqlServer.HierarchyId.targets" />
+    <file src="C:\repos\efcore\src\EFCore.SqlServer.HierarchyId\PACKAGE.md" target="\PACKAGE.md" />
+    <file src="C:\repos\efcore\logo\ef-logo.png" target="Icon.png" />
+  </files>
+</package>

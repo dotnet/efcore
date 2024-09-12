@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+  <metadata>
+    <id>Microsoft.EntityFrameworkCore.Design</id>
+    <version>9.0.0-dev</version>
+    <authors>Microsoft</authors>
+    <developmentDependency>true</developmentDependency>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <license type="expression">MIT</license>
+    <licenseUrl>https://licenses.nuget.org/MIT</licenseUrl>
+    <icon>Icon.png</icon>
+    <readme>PACKAGE.md</readme>
+    <projectUrl>https://docs.microsoft.com/ef/core/</projectUrl>
+    <description>Shared design-time components for Entity Framework Core tools.</description>
+    <copyright>© Microsoft Corporation. All rights reserved.</copyright>
+    <tags>Entity Framework Core entity-framework-core EF Data O/RM EntityFramework EntityFrameworkCore EFCore</tags>
+    <serviceable>true</serviceable>
+    <repository type="git" url="https://github.com/dotnet/efcore.git" commit="40a655c5a828322bd096009a8588d98b1d05e8f2" />
+    <dependencies>
+      <group targetFramework="net8.0">
+        <dependency id="Microsoft.EntityFrameworkCore.Relational" version="9.0.0-dev" exclude="Build" />
+        <dependency id="Humanizer.Core" version="2.14.1" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Build.Framework" version="17.3.2" exclude="Runtime,Build,Analyzers" />
+        <dependency id="Microsoft.Build.Locator" version="1.7.8" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.CodeAnalysis.CSharp.Workspaces" version="4.8.0" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.CodeAnalysis.Workspaces.MSBuild" version="4.8.0" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.DependencyModel" version="9.0.0-rc.2.24456.9" exclude="Build,Analyzers" />
+        <dependency id="Mono.TextTemplating" version="3.0.0" exclude="Build,Analyzers" />
+      </group>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="C:\repos\efcore\artifacts\bin\EFCore.Design\Debug\net8.0\Microsoft.EntityFrameworkCore.Design.pdb" target="lib\net8.0\Microsoft.EntityFrameworkCore.Design.pdb" />
+    <file src="C:\repos\efcore\artifacts\bin\EFCore.Design\Debug\net8.0\Microsoft.EntityFrameworkCore.Design.dll" target="lib\net8.0\Microsoft.EntityFrameworkCore.Design.dll" />
+    <file src="C:\repos\efcore\artifacts\bin\EFCore.Design\Debug\net8.0\Microsoft.EntityFrameworkCore.Design.xml" target="lib\net8.0\Microsoft.EntityFrameworkCore.Design.xml" />
+    <file src="C:\repos\efcore\src\EFCore.Design\build\net8.0\Microsoft.EntityFrameworkCore.Design.props" target="build\net8.0\Microsoft.EntityFrameworkCore.Design.props" />
+    <file src="C:\repos\efcore\src\EFCore.Design\PACKAGE.md" target="\PACKAGE.md" />
+    <file src="C:\repos\efcore\logo\ef-logo.png" target="Icon.png" />
+  </files>
+</package>

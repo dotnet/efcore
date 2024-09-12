@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+  <metadata>
+    <id>Microsoft.EntityFrameworkCore.Templates</id>
+    <version>9.0.0-dev</version>
+    <authors>Microsoft</authors>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <license type="expression">MIT</license>
+    <licenseUrl>https://licenses.nuget.org/MIT</licenseUrl>
+    <icon>Icon.png</icon>
+    <readme>PACKAGE.md</readme>
+    <projectUrl>https://docs.microsoft.com/ef/core/</projectUrl>
+    <description>Entity Framework Core templates for dotnet-new.
+
+      Enables these commonly used templates:
+      ef-templates</description>
+    <copyright>© Microsoft Corporation. All rights reserved.</copyright>
+    <tags>Entity Framework Core entity-framework-core EF Data O/RM EntityFramework EntityFrameworkCore EFCore</tags>
+    <packageTypes>
+      <packageType name="Template" />
+    </packageTypes>
+    <repository type="git" url="https://github.com/dotnet/efcore.git" commit="40a655c5a828322bd096009a8588d98b1d05e8f2" />
+    <dependencies>
+      <group targetFramework=".NETStandard2.0" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="C:\repos\efcore\src\EFCore.Templates\templates\ef-templates\.template.config\template.json" target="content\templates\ef-templates\.template.config\template.json" />
+    <file src="C:\repos\efcore\artifacts\obj\EFCore.Templates\Debug\netstandard2.0\content\templates\ef-templates\CodeTemplates\EFCore\DbContext.t4" target="content\templates\ef-templates\CodeTemplates\EFCore\DbContext.t4" />
+    <file src="C:\repos\efcore\artifacts\obj\EFCore.Templates\Debug\netstandard2.0\content\templates\ef-templates\CodeTemplates\EFCore\EntityType.t4" target="content\templates\ef-templates\CodeTemplates\EFCore\EntityType.t4" />
+    <file src="C:\repos\efcore\src\EFCore.Templates\PACKAGE.md" target="\PACKAGE.md" />
+    <file src="C:\repos\efcore\logo\ef-logo.png" target="Icon.png" />
+  </files>
+</package>

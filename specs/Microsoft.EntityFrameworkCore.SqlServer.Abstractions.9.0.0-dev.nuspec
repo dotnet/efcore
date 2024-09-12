@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/01/nuspec.xsd">
+  <metadata minClientVersion="3.6">
+    <id>Microsoft.EntityFrameworkCore.SqlServer.Abstractions</id>
+    <version>9.0.0-dev</version>
+    <authors>Microsoft</authors>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <license type="expression">MIT</license>
+    <licenseUrl>https://licenses.nuget.org/MIT</licenseUrl>
+    <icon>Icon.png</icon>
+    <readme>PACKAGE.md</readme>
+    <projectUrl>https://docs.microsoft.com/ef/core/</projectUrl>
+    <description>Provides abstractions that are used by models in conjunction with the SQL Server EF Core provider
+
+      Commonly Used Types:
+      Microsoft.EntityFrameworkCore.HierarchyId</description>
+    <copyright>© Microsoft Corporation. All rights reserved.</copyright>
+    <tags>Entity Framework Core entity-framework-core EF Data O/RM EntityFramework EntityFrameworkCore EFCore SQL Server HierarchyId</tags>
+    <repository type="git" url="https://github.com/dotnet/efcore.git" commit="40a655c5a828322bd096009a8588d98b1d05e8f2" />
+    <dependencies>
+      <group targetFramework=".NETStandard2.1">
+        <dependency id="Microsoft.SqlServer.Types" version="160.1000.6" exclude="Build,Analyzers" />
+        <dependency id="System.Text.Json" version="9.0.0-rc.2.24456.9" exclude="Build,Analyzers" />
+      </group>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="C:\repos\efcore\artifacts\bin\EFCore.SqlServer.Abstractions\Debug\netstandard2.1\Microsoft.EntityFrameworkCore.SqlServer.Abstractions.dll" target="lib\netstandard2.1\Microsoft.EntityFrameworkCore.SqlServer.Abstractions.dll" />
+    <file src="C:\repos\efcore\artifacts\bin\EFCore.SqlServer.Abstractions\Debug\netstandard2.1\Microsoft.EntityFrameworkCore.SqlServer.Abstractions.xml" target="lib\netstandard2.1\Microsoft.EntityFrameworkCore.SqlServer.Abstractions.xml" />
+    <file src="C:\repos\efcore\src\EFCore.SqlServer.Abstractions\PACKAGE.md" target="\PACKAGE.md" />
+    <file src="C:\repos\efcore\logo\ef-logo.png" target="Icon.png" />
+  </files>
+</package>
