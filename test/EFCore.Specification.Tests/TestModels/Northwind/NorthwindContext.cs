@@ -75,11 +75,7 @@ public class NorthwindContext(DbContextOptions options) : PoolableDbContext(opti
             });
 
         modelBuilder.Entity<OrderDetail>(
-            e =>
-            {
-                e.HasKey(
-                    od => new { od.OrderID, od.ProductID });
-            });
+            e => e.HasKey(od => new { od.OrderID, od.ProductID }));
 
         modelBuilder.Entity<CustomerQuery>().HasNoKey();
         modelBuilder.Entity<OrderQuery>().HasNoKey();
