@@ -56,12 +56,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="NetTopologySuite" Version="2.5.0" />
-    <PackageReference Include="NetTopologySuite.IO.GeoJSON" Version="4.0.0" />
-    <PackageReference Include="xunit.assert" Version="$(XUnitVersion)" />
-    <PackageReference Include="xunit.core" Version="$(XUnitVersion)" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="$(XUnitRunnerVisualstudioVersion)" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="NetTopologySuite" />
+    <PackageReference Include="NetTopologySuite.IO.GeoJSON" />
+    <!-- Workaround for https://github.com/dotnet/arcade/issues/13798 -->
+    <PackageReference Include="xunit.assert" VersionOverride="$(XUnitVersion)" />
+    <PackageReference Include="xunit.core" VersionOverride="$(XUnitVersion)" />
+    <PackageReference Include="xunit.runner.visualstudio" VersionOverride="$(XUnitRunnerVisualstudioVersion)" />
+    <PackageReference Include="Newtonsoft.Json" />
   </ItemGroup>
 
   <ItemGroup>

@@ -359,7 +359,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
             response.Diagnostics.GetClientElapsedTime(),
             response.Headers.RequestCharge,
             response.Headers.ActivityId,
-            parameters.Document["id"].ToString(),
+            parameters.Document["id"]!.ToString(),
             parameters.ContainerId,
             partitionKeyValue);
 
