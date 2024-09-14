@@ -2499,9 +2499,7 @@ GROUP BY [o].[CustomerID]
 
         AssertSql(
             """
-SELECT [o].[CustomerID] AS [Key], MAX(DISTINCT (CASE
-    WHEN [o].[OrderDate] IS NOT NULL THEN [o].[OrderDate]
-END)) AS [Max]
+SELECT [o].[CustomerID] AS [Key], MAX(DISTINCT ([o].[OrderDate])) AS [Max]
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]
 """);
