@@ -72,8 +72,12 @@ public static class CosmosEntityTypeExtensions
     /// <param name="entityType">The entity type to get the containing property name for.</param>
     /// <returns>The name of the parent property to which the entity type is mapped.</returns>
     public static string? GetContainingPropertyName(this IReadOnlyEntityType entityType)
-        => entityType[CosmosAnnotationNames.PropertyName] as string
-            ?? GetDefaultContainingPropertyName(entityType);
+    {
+        var propertyName = entityType.FindAnnotation(CosmosAnnotationNames.PropertyName);
+        return propertyName == null
+            ? GetDefaultContainingPropertyName(entityType)
+            : (string?)propertyName.Value;
+    }
 
     private static string? GetDefaultContainingPropertyName(IReadOnlyEntityType entityType)
         => entityType.FindOwnership() is IReadOnlyForeignKey ownership
@@ -198,7 +202,7 @@ public static class CosmosEntityTypeExtensions
     public static IReadOnlyList<string> GetPartitionKeyPropertyNames(this IReadOnlyEntityType entityType)
         => entityType[CosmosAnnotationNames.PartitionKeyNames] as IReadOnlyList<string>
             ?? entityType.BaseType?.GetPartitionKeyPropertyNames()
-            ?? Array.Empty<string>();
+            ?? [];
 
     /// <summary>
     ///     Sets the names of the properties that are used to store the hierarchical partition key.

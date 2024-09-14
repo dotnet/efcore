@@ -774,7 +774,7 @@ public abstract class InternalTypeBaseBuilder : AnnotatableBuilder<TypeBase, Int
         {
             if (conflictingProperty.GetConfigurationSource() != ConfigurationSource.Explicit)
             {
-                conflictingProperty.DeclaringType.RemoveProperty(conflictingProperty);
+                conflictingProperty.DeclaringType.Builder.RemoveProperty(conflictingProperty, configurationSource);
             }
         }
 
