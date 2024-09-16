@@ -205,6 +205,7 @@ public class SqlServerDatabaseCreatorEnsureDeletedTest : SqlServerDatabaseCreato
 public class SqlServerDatabaseCreatorEnsureCreatedTest : SqlServerDatabaseCreatorTestBase
 {
     [ConditionalTheory]
+    [SqlServerCondition(SqlServerCondition.IsNotAzureSql)]
     [InlineData(true, true)]
     [InlineData(false, false)]
     public Task Creates_schema_in_existing_database(bool async, bool ambientTransaction)
@@ -226,7 +227,7 @@ public class SqlServerDatabaseCreatorEnsureCreatedTest : SqlServerDatabaseCreato
     [ConditionalTheory]
     [InlineData(true, false)]
     [InlineData(false, true)]
-    [SqlServerCondition(SqlServerCondition.IsNotSqlAzure)]
+    [SqlServerCondition(SqlServerCondition.IsNotAzureSql)]
     public Task Creates_physical_database_and_schema(bool async, bool ambientTransaction)
         => Creates_new_physical_database_and_schema_test(async, ambientTransaction, file: false);
 
@@ -686,7 +687,7 @@ public class SqlServerDatabaseCreatorCreateTest : SqlServerDatabaseCreatorTestBa
 }
 
 #pragma warning disable RCS1102 // Make class static.
-[SqlServerCondition(SqlServerCondition.IsNotSqlAzure | SqlServerCondition.IsNotCI)]
+[SqlServerCondition(SqlServerCondition.IsNotAzureSql | SqlServerCondition.IsNotCI)]
 public abstract class SqlServerDatabaseCreatorTestBase
 {
     protected static IDisposable CreateTransactionScope(bool useTransaction)

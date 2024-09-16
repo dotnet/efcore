@@ -1293,7 +1293,7 @@ END");
     }
 
     [ConditionalFact]
-    [SqlServerCondition(SqlServerCondition.IsNotSqlAzure)]
+    [SqlServerCondition(SqlServerCondition.IsNotAzureSql)]
     public async Task Insert_with_ValueGeneratedOnAdd_GUID_nonkey_property_throws()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);

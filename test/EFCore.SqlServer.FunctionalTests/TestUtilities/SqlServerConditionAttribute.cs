@@ -25,12 +25,12 @@ public sealed class SqlServerConditionAttribute(SqlServerCondition conditions) :
             isMet &= TestEnvironment.IsMemoryOptimizedTablesSupported;
         }
 
-        if (Conditions.HasFlag(SqlServerCondition.IsSqlAzure))
+        if (Conditions.HasFlag(SqlServerCondition.IsAzureSql))
         {
             isMet &= TestEnvironment.IsSqlAzure;
         }
 
-        if (Conditions.HasFlag(SqlServerCondition.IsNotSqlAzure))
+        if (Conditions.HasFlag(SqlServerCondition.IsNotAzureSql))
         {
             isMet &= !TestEnvironment.IsSqlAzure;
         }
