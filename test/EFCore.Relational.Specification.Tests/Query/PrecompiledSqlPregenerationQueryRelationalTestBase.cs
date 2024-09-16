@@ -13,6 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 ///     See <see cref="PrecompiledQueryRelationalTestBase" /> for general precompiled query tests not related to
 ///     SQL pregeneration.
 /// </summary>
+[Collection("PrecompiledQuery")]
 public class PrecompiledSqlPregenerationQueryRelationalTestBase
 {
     public PrecompiledSqlPregenerationQueryRelationalTestBase(

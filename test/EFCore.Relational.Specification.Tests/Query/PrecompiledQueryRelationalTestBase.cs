@@ -16,6 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 ///     General tests for precompiled queries.
 ///     See also <see cref="PrecompiledSqlPregenerationQueryRelationalTestBase" /> for tests specifically related to SQL pregeneration.
 /// </summary>
+[Collection("PrecompiledQuery")]
 public class PrecompiledQueryRelationalTestBase
 {
     public PrecompiledQueryRelationalTestBase(PrecompiledQueryRelationalFixture fixture, ITestOutputHelper testOutputHelper)
