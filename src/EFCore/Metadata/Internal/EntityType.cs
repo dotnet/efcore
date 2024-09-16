@@ -990,7 +990,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
 
         removed = foreignKey.PrincipalKey.ReferencingForeignKeys!.Remove(foreignKey);
         Check.DebugAssert(removed, "removed is false");
-        removed = foreignKey.PrincipalEntityType.DeclaredReferencingForeignKeys!.Remove(foreignKey);
+        removed = foreignKey.PrincipalEntityType._declaredReferencingForeignKeys!.Remove(foreignKey);
         Check.DebugAssert(removed, "removed is false");
     }
 
@@ -1029,13 +1029,13 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
         }
 
         var principalEntityType = foreignKey.PrincipalEntityType;
-        if (principalEntityType.DeclaredReferencingForeignKeys == null)
+        if (principalEntityType._declaredReferencingForeignKeys == null)
         {
-            principalEntityType.DeclaredReferencingForeignKeys = new SortedSet<ForeignKey>(ForeignKeyComparer.Instance) { foreignKey };
+            principalEntityType._declaredReferencingForeignKeys = new SortedSet<ForeignKey>(ForeignKeyComparer.Instance) { foreignKey };
         }
         else
         {
-            added = principalEntityType.DeclaredReferencingForeignKeys.Add(foreignKey);
+            added = principalEntityType._declaredReferencingForeignKeys.Add(foreignKey);
             Check.DebugAssert(added, "added is false");
         }
     }
@@ -1371,7 +1371,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     /// </summary>
     public virtual IEnumerable<ForeignKey> GetReferencingForeignKeys()
         => BaseType != null
-            ? (DeclaredReferencingForeignKeys?.Count ?? 0) == 0
+            ? (_declaredReferencingForeignKeys?.Count ?? 0) == 0
                 ? BaseType.GetReferencingForeignKeys()
                 : BaseType.GetReferencingForeignKeys().Concat(GetDeclaredReferencingForeignKeys())
             : GetDeclaredReferencingForeignKeys();
@@ -1383,9 +1383,9 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual IEnumerable<ForeignKey> GetDeclaredReferencingForeignKeys()
-        => DeclaredReferencingForeignKeys ?? Enumerable.Empty<ForeignKey>();
+        => _declaredReferencingForeignKeys ?? Enumerable.Empty<ForeignKey>();
 
-    private SortedSet<ForeignKey>? DeclaredReferencingForeignKeys { get; set; }
+    private SortedSet<ForeignKey>? _declaredReferencingForeignKeys;
 
     #endregion
 
@@ -1673,14 +1673,14 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
 
         _skipNavigations.Add(name, skipNavigation);
 
-        if (targetEntityType.DeclaredReferencingSkipNavigations == null)
+        if (targetEntityType._declaredReferencingSkipNavigations == null)
         {
-            targetEntityType.DeclaredReferencingSkipNavigations =
+            targetEntityType._declaredReferencingSkipNavigations =
                 new SortedSet<SkipNavigation>(SkipNavigationComparer.Instance) { skipNavigation };
         }
         else
         {
-            var added = targetEntityType.DeclaredReferencingSkipNavigations.Add(skipNavigation);
+            var added = targetEntityType._declaredReferencingSkipNavigations.Add(skipNavigation);
             Check.DebugAssert(added, "added is false");
         }
 
@@ -1826,7 +1826,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
             || foreignKey.ReferencingSkipNavigations!.Remove(navigation);
         Check.DebugAssert(removed, "removed is false");
 
-        removed = navigation.TargetEntityType.DeclaredReferencingSkipNavigations!.Remove(navigation);
+        removed = navigation.TargetEntityType._declaredReferencingSkipNavigations!.Remove(navigation);
         Check.DebugAssert(removed, "removed is false");
 
         navigation.SetRemovedFromModel();
@@ -1855,7 +1855,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     /// </summary>
     public virtual IEnumerable<SkipNavigation> GetReferencingSkipNavigations()
         => BaseType != null
-            ? (DeclaredReferencingSkipNavigations?.Count ?? 0) == 0
+            ? (_declaredReferencingSkipNavigations?.Count ?? 0) == 0
                 ? BaseType.GetReferencingSkipNavigations()
                 : BaseType.GetReferencingSkipNavigations().Concat(GetDeclaredReferencingSkipNavigations())
             : GetDeclaredReferencingSkipNavigations();
@@ -1867,7 +1867,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual IEnumerable<SkipNavigation> GetDeclaredReferencingSkipNavigations()
-        => DeclaredReferencingSkipNavigations ?? Enumerable.Empty<SkipNavigation>();
+        => _declaredReferencingSkipNavigations ?? Enumerable.Empty<SkipNavigation>();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1880,7 +1880,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
             ? Enumerable.Empty<SkipNavigation>()
             : GetDerivedTypes<EntityType>().SelectMany(et => et.GetDeclaredReferencingSkipNavigations());
 
-    private SortedSet<SkipNavigation>? DeclaredReferencingSkipNavigations { get; set; }
+    private SortedSet<SkipNavigation>? _declaredReferencingSkipNavigations;
 
     #endregion
 

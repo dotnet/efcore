@@ -687,6 +687,11 @@ public class InternalModelBuilder : AnnotatableBuilder<Model, InternalModelBuild
         {
             foreach (var foreignKey in entityType.GetDeclaredReferencingForeignKeys().ToList())
             {
+                if (!foreignKey.IsInModel)
+                {
+                    continue;
+                }
+
                 if (foreignKey.IsOwnership
                     && configurationSource.Overrides(foreignKey.DeclaringEntityType.GetConfigurationSource()))
                 {

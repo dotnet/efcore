@@ -205,6 +205,7 @@ public abstract class InternalTypeBaseBuilder : AnnotatableBuilder<TypeBase, Int
                 || (memberInfo is PropertyInfo propertyInfo && propertyInfo.IsIndexerProperty()))
             {
                 if (existingProperty.GetTypeConfigurationSource() is ConfigurationSource existingTypeConfigurationSource
+                    && typeConfigurationSource != null
                     && !typeConfigurationSource.Overrides(existingTypeConfigurationSource))
                 {
                     return null;
@@ -773,7 +774,7 @@ public abstract class InternalTypeBaseBuilder : AnnotatableBuilder<TypeBase, Int
         {
             if (conflictingProperty.GetConfigurationSource() != ConfigurationSource.Explicit)
             {
-                conflictingProperty.DeclaringType.RemoveProperty(conflictingProperty);
+                conflictingProperty.DeclaringType.Builder.RemoveProperty(conflictingProperty, configurationSource);
             }
         }
 

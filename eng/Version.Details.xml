@@ -53,19 +53,27 @@
       <Uri>https://github.com/dotnet/runtime</Uri>
       <Sha>39c84a3a1b57866b1a4ac17a8667971b34c9ac91</Sha>
     </Dependency>
+    <Dependency Name="System.Text.Encodings.Web" Version="10.0.0-alpha.1.24458.4">
+      <Uri>https://github.com/dotnet/runtime</Uri>
+      <Sha>dec716d1c4651b70e4710e781e832a64be1e713b</Sha>
+    </Dependency>
+    <Dependency Name="System.Formats.Asn1" Version="10.0.0-alpha.1.24458.4">
+      <Uri>https://github.com/dotnet/runtime</Uri>
+      <Sha>dec716d1c4651b70e4710e781e832a64be1e713b</Sha>
+    </Dependency>
   </ProductDependencies>
   <ToolsetDependencies>
-    <Dependency Name="Microsoft.DotNet.Arcade.Sdk" Version="9.0.0-beta.24423.2">
+    <Dependency Name="Microsoft.DotNet.Arcade.Sdk" Version="10.0.0-beta.24463.4">
       <Uri>https://github.com/dotnet/arcade</Uri>
-      <Sha>91599268652b51969b8d8088d4f2f2ba7b3ebb19</Sha>
+      <Sha>9ba9980c4996a540387b9a0ef0d68accf00689c0</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.DotNet.Build.Tasks.Templating" Version="9.0.0-beta.24423.2">
+    <Dependency Name="Microsoft.DotNet.Build.Tasks.Templating" Version="10.0.0-beta.24463.4">
       <Uri>https://github.com/dotnet/arcade</Uri>
-      <Sha>91599268652b51969b8d8088d4f2f2ba7b3ebb19</Sha>
+      <Sha>9ba9980c4996a540387b9a0ef0d68accf00689c0</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.DotNet.Helix.Sdk" Version="9.0.0-beta.24423.2">
+    <Dependency Name="Microsoft.DotNet.Helix.Sdk" Version="10.0.0-beta.24463.4">
       <Uri>https://github.com/dotnet/arcade</Uri>
-      <Sha>91599268652b51969b8d8088d4f2f2ba7b3ebb19</Sha>
+      <Sha>9ba9980c4996a540387b9a0ef0d68accf00689c0</Sha>
     </Dependency>
   </ToolsetDependencies>
 </Dependencies>

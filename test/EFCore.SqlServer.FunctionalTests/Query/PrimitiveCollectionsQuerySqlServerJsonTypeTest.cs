@@ -1481,6 +1481,22 @@ WHERE (
 """);
     }
 
+    public override async Task Parameter_collection_with_type_inference_for_JsonScalarExpression(bool async)
+    {
+        await base.Parameter_collection_with_type_inference_for_JsonScalarExpression(async);
+
+        AssertSql(
+            """
+@__values_0='["one","two"]' (Size = 4000)
+
+SELECT CASE
+    WHEN [p].[Id] <> 0 THEN JSON_VALUE(@__values_0, '$[' + CAST([p].[Int] % 2 AS nvarchar(max)) + ']')
+    ELSE N'foo'
+END
+FROM [PrimitiveCollectionsEntity] AS [p]
+""");
+    }
+
     public override async Task Column_collection_Union_parameter_collection(bool async)
     {
         await base.Column_collection_Union_parameter_collection(async);

@@ -484,7 +484,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
             || TranslationFailed(conditionalExpression.IfTrue, ifTrue, out var sqlIfTrue)
             || TranslationFailed(conditionalExpression.IfFalse, ifFalse, out var sqlIfFalse)
                 ? QueryCompilationContext.NotTranslatedExpression
-                : _sqlExpressionFactory.Case(new[] { new CaseWhenClause(sqlTest!, sqlIfTrue!) }, sqlIfFalse);
+                : _sqlExpressionFactory.Case([new CaseWhenClause(sqlTest!, sqlIfTrue!)], sqlIfFalse);
     }
 
     /// <inheritdoc />

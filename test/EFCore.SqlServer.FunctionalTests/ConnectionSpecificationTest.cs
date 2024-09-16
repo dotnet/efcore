@@ -22,7 +22,7 @@ public class ConnectionSpecificationTest
                 .AddDbContext<NoneInOnConfiguringContext>()
                 .BuildServiceProvider(validateScopes: true);
 
-        using (await SqlServerTestStore.GetNorthwindStoreAsync())
+        await using (await SqlServerTestStore.GetNorthwindStoreAsync())
         {
             using var scope = serviceProvider.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<NoneInOnConfiguringContext>();
@@ -36,7 +36,7 @@ public class ConnectionSpecificationTest
     [ConditionalFact]
     public async Task Can_specify_no_connection_string_in_OnConfiguring_with_default_service_provider()
     {
-        using (await SqlServerTestStore.GetNorthwindStoreAsync())
+        await using (await SqlServerTestStore.GetNorthwindStoreAsync())
         {
             using var context = new NoneInOnConfiguringContext();
 
@@ -49,7 +49,7 @@ public class ConnectionSpecificationTest
     [ConditionalFact]
     public async Task Throws_if_context_used_with_no_connection_or_connection_string()
     {
-        using (await SqlServerTestStore.GetNorthwindStoreAsync())
+        await using (await SqlServerTestStore.GetNorthwindStoreAsync())
         {
             using var context = new NoneInOnConfiguringContext();
 
@@ -73,7 +73,7 @@ public class ConnectionSpecificationTest
                 .AddDbContext<StringInOnConfiguringContext>()
                 .BuildServiceProvider(validateScopes: true);
 
-        using (await SqlServerTestStore.GetNorthwindStoreAsync())
+        await using (await SqlServerTestStore.GetNorthwindStoreAsync())
         {
             using var scope = serviceProvider.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<StringInOnConfiguringContext>();
@@ -84,7 +84,7 @@ public class ConnectionSpecificationTest
     [ConditionalFact]
     public async Task Can_specify_connection_string_in_OnConfiguring_with_default_service_provider()
     {
-        using (await SqlServerTestStore.GetNorthwindStoreAsync())
+        await using (await SqlServerTestStore.GetNorthwindStoreAsync())
         {
             using var context = new StringInOnConfiguringContext();
             Assert.True(await context.Customers.AnyAsync());
@@ -111,7 +111,7 @@ public class ConnectionSpecificationTest
 
         SqlConnection connection;
 
-        using (await SqlServerTestStore.GetNorthwindStoreAsync())
+        await using (await SqlServerTestStore.GetNorthwindStoreAsync())
         {
             using var scope = serviceProvider.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<NoneInOnConfiguringContext>();
@@ -141,7 +141,7 @@ public class ConnectionSpecificationTest
     {
         SqlConnection connection;
 
-        using (await SqlServerTestStore.GetNorthwindStoreAsync())
+        await using (await SqlServerTestStore.GetNorthwindStoreAsync())
         {
             using var context = new NoneInOnConfiguringContext();
 
@@ -171,7 +171,7 @@ public class ConnectionSpecificationTest
                 .AddScoped(p => new SqlConnection(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString))
                 .AddDbContext<ConnectionInOnConfiguringContext>().BuildServiceProvider(validateScopes: true);
 
-        using (await SqlServerTestStore.GetNorthwindStoreAsync())
+        await using (await SqlServerTestStore.GetNorthwindStoreAsync())
         {
             using var scope = serviceProvider.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<ConnectionInOnConfiguringContext>();
@@ -182,7 +182,7 @@ public class ConnectionSpecificationTest
     [ConditionalFact]
     public async Task Can_specify_connection_in_OnConfiguring_with_default_service_provider()
     {
-        using (await SqlServerTestStore.GetNorthwindStoreAsync())
+        await using (await SqlServerTestStore.GetNorthwindStoreAsync())
         {
             using var connection = new SqlConnection(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString);
             using var context = new ConnectionInOnConfiguringContext(connection);
@@ -201,7 +201,7 @@ public class ConnectionSpecificationTest
 
         SqlConnection connection;
 
-        using (await SqlServerTestStore.GetNorthwindStoreAsync())
+        await using (await SqlServerTestStore.GetNorthwindStoreAsync())
         {
             connection = serviceProvider.GetRequiredService<SqlConnection>();
 
@@ -218,7 +218,7 @@ public class ConnectionSpecificationTest
     {
         SqlConnection connection;
 
-        using (await SqlServerTestStore.GetNorthwindStoreAsync())
+        await using (await SqlServerTestStore.GetNorthwindStoreAsync())
         {
             connection = new SqlConnection(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString);
             using var context = new OwnedConnectionInOnConfiguringContext(connection);
@@ -239,7 +239,7 @@ public class ConnectionSpecificationTest
                 .AddScoped(p => connection)
                 .AddDbContext<ConnectionInOnConfiguringContext>().BuildServiceProvider(validateScopes: true);
 
-        using (await SqlServerTestStore.GetNorthwindStoreAsync())
+        await using (await SqlServerTestStore.GetNorthwindStoreAsync())
         {
             using var scope = serviceProvider.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<ConnectionInOnConfiguringContext>();
@@ -265,7 +265,7 @@ public class ConnectionSpecificationTest
                 .AddScoped(p => connection)
                 .AddDbContext<OwnedConnectionInOnConfiguringContext>().BuildServiceProvider(validateScopes: true);
 
-        using (await SqlServerTestStore.GetNorthwindStoreAsync())
+        await using (await SqlServerTestStore.GetNorthwindStoreAsync())
         {
             using var scope = serviceProvider.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<OwnedConnectionInOnConfiguringContext>();
@@ -292,7 +292,7 @@ public class ConnectionSpecificationTest
                 .AddScoped(p => connection)
                 .AddDbContext<ConnectionInOnConfiguringContext>().BuildServiceProvider(validateScopes: true);
 
-        using (await SqlServerTestStore.GetNorthwindStoreAsync())
+        await using (await SqlServerTestStore.GetNorthwindStoreAsync())
         {
             using var scope = serviceProvider.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<ConnectionInOnConfiguringContext>();
@@ -378,7 +378,7 @@ public class ConnectionSpecificationTest
                 .AddDbContext<OptionsContext>()
                 .BuildServiceProvider(validateScopes: true);
 
-        using (await SqlServerTestStore.GetNorthwindStoreAsync())
+        await using (await SqlServerTestStore.GetNorthwindStoreAsync())
         {
             using var scope = serviceProvider.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<OptionsContext>();
@@ -389,7 +389,7 @@ public class ConnectionSpecificationTest
     [ConditionalFact]
     public async Task Can_depend_on_DbContextOptions_with_default_service_provider()
     {
-        using (await SqlServerTestStore.GetNorthwindStoreAsync())
+        await using (await SqlServerTestStore.GetNorthwindStoreAsync())
         {
             using var connection = new SqlConnection(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString);
 
@@ -432,7 +432,7 @@ public class ConnectionSpecificationTest
                 .AddDbContext<NonGenericOptionsContext>()
                 .BuildServiceProvider(validateScopes: true);
 
-        using (await SqlServerTestStore.GetNorthwindStoreAsync())
+        await using (await SqlServerTestStore.GetNorthwindStoreAsync())
         {
             using var scope = serviceProvider.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<NonGenericOptionsContext>();
@@ -443,7 +443,7 @@ public class ConnectionSpecificationTest
     [ConditionalFact]
     public async Task Can_depend_on_non_generic_options_when_only_one_context_with_default_service_provider()
     {
-        using (await SqlServerTestStore.GetNorthwindStoreAsync())
+        await using (await SqlServerTestStore.GetNorthwindStoreAsync())
         {
             using var context = new NonGenericOptionsContext(new DbContextOptions<DbContext>());
             Assert.True(await context.Customers.AnyAsync());
@@ -483,7 +483,7 @@ public class ConnectionSpecificationTest
                     b => b.UseSqlServer(connectionString).EnableServiceProviderCaching(false))
                 .BuildServiceProvider(validateScopes: true);
 
-        using (await SqlServerTestStore.GetNorthwindStoreAsync())
+        await using (await SqlServerTestStore.GetNorthwindStoreAsync())
         {
             using var serviceScope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope();
             using var context = serviceScope.ServiceProvider.GetRequiredService<UseConfigurationContext>();
@@ -535,7 +535,7 @@ public class ConnectionSpecificationTest
             .AddEntityFrameworkSqlServer()
             .BuildServiceProvider(validateScopes: true);
 
-        using var store = await SqlServerTestStore.GetNorthwindStoreAsync();
+        await using var store = await SqlServerTestStore.GetNorthwindStoreAsync();
         store.CloseConnection();
 
         var openCount = 0;

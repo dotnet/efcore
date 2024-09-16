@@ -2130,7 +2130,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 nodeType, expressionType);
 
         /// <summary>
-        ///     No relational type mapping can be found for property '{entity}.{property}' and the current provider doesn't specify a default store type for the properties of type '{clrType}'.
+        ///     No relational type mapping can be found for property '{entity}.{property}' and the current provider doesn't specify a default store type for the properties of type '{clrType}'. 
         /// </summary>
         public static string UnsupportedPropertyType(object? entity, object? property, object? clrType)
             => string.Format(
@@ -2256,7 +2256,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             = new ResourceManager("Microsoft.EntityFrameworkCore.Properties.RelationalStrings", typeof(RelationalResources).Assembly);
 
         /// <summary>
-        ///     Acquiring an exclusive lock for migration application. See https://aka.ms/efcore-docs-migrations for more information if this takes too long.
+        ///     Acquiring an exclusive lock for migration application. See https://aka.ms/efcore-docs-migrations-lock for more information if this takes too long.
         /// </summary>
         public static EventDefinition LogAcquiringMigrationLock(IDiagnosticsLogger logger)
         {
@@ -3422,6 +3422,31 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             }
 
             return (EventDefinition<string>)definition;
+        }
+
+        /// <summary>
+        ///     A transaction was started before applying migrations. This prevents a database lock to be acquired and hence the database will not be protected from concurrent migration applications. The transactions and execution strategy are already managed by EF as needed. Remove the external transaction.
+        /// </summary>
+        public static EventDefinition LogMigrationsUserTransaction(IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogMigrationsUserTransactionWarning;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogMigrationsUserTransactionWarning,
+                    logger,
+                    static logger => new EventDefinition(
+                        logger.Options,
+                        RelationalEventId.MigrationsUserTransactionWarning,
+                        LogLevel.Warning,
+                        "RelationalEventId.MigrationsUserTransactionWarning",
+                        level => LoggerMessage.Define(
+                            level,
+                            RelationalEventId.MigrationsUserTransactionWarning,
+                            _resourceManager.GetString("LogMigrationsUserTransaction")!)));
+            }
+
+            return (EventDefinition)definition;
         }
 
         /// <summary>

@@ -26,21 +26,23 @@
     <MicrosoftExtensionsHostFactoryResolverSourcesVersion>10.0.0-alpha.1.24458.4</MicrosoftExtensionsHostFactoryResolverSourcesVersion>
     <MicrosoftExtensionsLoggingVersion>10.0.0-alpha.1.24458.4</MicrosoftExtensionsLoggingVersion>
     <MicrosoftNETCoreAppRefVersion>10.0.0-alpha.1.24458.4</MicrosoftNETCoreAppRefVersion>
-    <MicrosoftNETCoreAppRuntimewinx64Version>10.0.0-alpha.1.24458.4</MicrosoftNETCoreAppRuntimewinx64Version>
+    <MicrosoftNETCoreAppRuntimewinx64Version>10.0.0-alpha.1.24458.4</MicrosoftNETCoreAppRuntimewinx64Version>  
+    <SystemTextEncodingsWebVersion>10.0.0-alpha.1.24458.4</SystemTextEncodingsWebVersion>
     <SystemTextJsonVersion>10.0.0-alpha.1.24458.4</SystemTextJsonVersion>
+    <SystemFormatsAsn1Version>10.0.0-alpha.1.24458.4</SystemFormatsAsn1Version>
   </PropertyGroup>
   <PropertyGroup Label="Dependencies from dotnet/arcade">
-    <MicrosoftDotNetBuildTasksTemplatingVersion>9.0.0-beta.24423.2</MicrosoftDotNetBuildTasksTemplatingVersion>
+    <MicrosoftDotNetBuildTasksTemplatingVersion>10.0.0-beta.24463.4</MicrosoftDotNetBuildTasksTemplatingVersion>
   </PropertyGroup>
   <PropertyGroup Label="Other dependencies">
-    <MicrosoftBuildFrameworkVersion>17.9.5</MicrosoftBuildFrameworkVersion>
-    <MicrosoftBuildTasksCoreVersion>17.9.5</MicrosoftBuildTasksCoreVersion>
-    <MicrosoftBuildUtilitiesCoreVersion>17.9.5</MicrosoftBuildUtilitiesCoreVersion>
-    <!-- NB: This version affects Visual Studio compatibility. See https://learn.microsoft.com/visualstudio/extensibility/roslyn-version-support -->
+    <MicrosoftBuildFrameworkVersion>17.8.3</MicrosoftBuildFrameworkVersion>
+    <MicrosoftBuildUtilitiesCoreVersion>17.8.3</MicrosoftBuildUtilitiesCoreVersion>
+    <!-- NB: This version affects Visual Studio compatibility. See https://learn.microsoft.com/visualstudio/extensibility/roslyn-version-support and https://github.com/dotnet/efcore/issues/34637 -->
     <MicrosoftCodeAnalysisVersion>4.8.0</MicrosoftCodeAnalysisVersion>
-    <MicrosoftCodeAnalysisTestingVersion>1.1.2-beta1.24121.1</MicrosoftCodeAnalysisTestingVersion>
-    <AzureIdentityVersion>1.11.3</AzureIdentityVersion>
+    <MicrosoftCodeAnalysisTestingVersion>1.1.2</MicrosoftCodeAnalysisTestingVersion>
+    <AzureIdentityVersion>1.12.0</AzureIdentityVersion>
     <AzureResourceManagerCosmosDBVersion>1.3.2</AzureResourceManagerCosmosDBVersion>
     <OpenTelemetryExporterInMemoryVersion>1.8.1</OpenTelemetryExporterInMemoryVersion>
+    <SQLitePCLRawVersion>2.1.10</SQLitePCLRawVersion>
   </PropertyGroup>
 </Project>
