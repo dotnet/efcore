@@ -16,20 +16,20 @@
     <UsingToolXliff>False</UsingToolXliff>
   </PropertyGroup>
   <PropertyGroup Label="Dependencies from dotnet/runtime">
-    <MicrosoftExtensionsCachingMemoryVersion>10.0.0-alpha.1.24458.4</MicrosoftExtensionsCachingMemoryVersion>
-    <MicrosoftExtensionsConfigurationVersion>10.0.0-alpha.1.24458.4</MicrosoftExtensionsConfigurationVersion>
-    <MicrosoftExtensionsConfigurationAbstractionsVersion>10.0.0-alpha.1.24458.4</MicrosoftExtensionsConfigurationAbstractionsVersion>
-    <MicrosoftExtensionsConfigurationEnvironmentVariablesVersion>10.0.0-alpha.1.24458.4</MicrosoftExtensionsConfigurationEnvironmentVariablesVersion>
-    <MicrosoftExtensionsConfigurationJsonVersion>10.0.0-alpha.1.24458.4</MicrosoftExtensionsConfigurationJsonVersion>
-    <MicrosoftExtensionsDependencyInjectionVersion>10.0.0-alpha.1.24458.4</MicrosoftExtensionsDependencyInjectionVersion>
-    <MicrosoftExtensionsDependencyModelVersion>10.0.0-alpha.1.24458.4</MicrosoftExtensionsDependencyModelVersion>
-    <MicrosoftExtensionsHostFactoryResolverSourcesVersion>10.0.0-alpha.1.24458.4</MicrosoftExtensionsHostFactoryResolverSourcesVersion>
-    <MicrosoftExtensionsLoggingVersion>10.0.0-alpha.1.24458.4</MicrosoftExtensionsLoggingVersion>
-    <MicrosoftNETCoreAppRefVersion>10.0.0-alpha.1.24458.4</MicrosoftNETCoreAppRefVersion>
-    <MicrosoftNETCoreAppRuntimewinx64Version>10.0.0-alpha.1.24458.4</MicrosoftNETCoreAppRuntimewinx64Version>  
-    <SystemTextEncodingsWebVersion>10.0.0-alpha.1.24458.4</SystemTextEncodingsWebVersion>
-    <SystemTextJsonVersion>10.0.0-alpha.1.24458.4</SystemTextJsonVersion>
-    <SystemFormatsAsn1Version>10.0.0-alpha.1.24458.4</SystemFormatsAsn1Version>
+    <MicrosoftExtensionsCachingMemoryVersion>10.0.0-alpha.1.24463.8</MicrosoftExtensionsCachingMemoryVersion>
+    <MicrosoftExtensionsConfigurationVersion>10.0.0-alpha.1.24463.8</MicrosoftExtensionsConfigurationVersion>
+    <MicrosoftExtensionsConfigurationAbstractionsVersion>10.0.0-alpha.1.24463.8</MicrosoftExtensionsConfigurationAbstractionsVersion>
+    <MicrosoftExtensionsConfigurationEnvironmentVariablesVersion>10.0.0-alpha.1.24463.8</MicrosoftExtensionsConfigurationEnvironmentVariablesVersion>
+    <MicrosoftExtensionsConfigurationJsonVersion>10.0.0-alpha.1.24463.8</MicrosoftExtensionsConfigurationJsonVersion>
+    <MicrosoftExtensionsDependencyInjectionVersion>10.0.0-alpha.1.24463.8</MicrosoftExtensionsDependencyInjectionVersion>
+    <MicrosoftExtensionsDependencyModelVersion>10.0.0-alpha.1.24463.8</MicrosoftExtensionsDependencyModelVersion>
+    <MicrosoftExtensionsHostFactoryResolverSourcesVersion>10.0.0-alpha.1.24463.8</MicrosoftExtensionsHostFactoryResolverSourcesVersion>
+    <MicrosoftExtensionsLoggingVersion>10.0.0-alpha.1.24463.8</MicrosoftExtensionsLoggingVersion>
+    <MicrosoftNETCoreAppRefVersion>10.0.0-alpha.1.24463.8</MicrosoftNETCoreAppRefVersion>
+    <MicrosoftNETCoreAppRuntimewinx64Version>10.0.0-alpha.1.24463.8</MicrosoftNETCoreAppRuntimewinx64Version>
+    <SystemTextEncodingsWebVersion>10.0.0-alpha.1.24463.8</SystemTextEncodingsWebVersion>
+    <SystemTextJsonVersion>10.0.0-alpha.1.24463.8</SystemTextJsonVersion>
+    <SystemFormatsAsn1Version>10.0.0-alpha.1.24463.8</SystemFormatsAsn1Version>
   </PropertyGroup>
   <PropertyGroup Label="Dependencies from dotnet/arcade">
     <MicrosoftDotNetBuildTasksTemplatingVersion>10.0.0-beta.24463.4</MicrosoftDotNetBuildTasksTemplatingVersion>
