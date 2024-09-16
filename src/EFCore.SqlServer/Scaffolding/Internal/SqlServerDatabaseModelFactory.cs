@@ -682,10 +682,7 @@ AND [v].[is_date_correlation_view] = 0
         // This is done separately due to MARS property may be turned off
         GetColumns(connection, tables, tableFilterSql, viewFilter, typeAliases, databaseCollation);
 
-        if (SupportsIndexes())
-        {
-            GetIndexes(connection, tables, tableFilterSql);
-        }
+        GetIndexes(connection, tables, tableFilterSql);
 
         GetForeignKeys(connection, tables, tableFilterSql);
 
@@ -1028,7 +1025,7 @@ SELECT
     [i].[has_filter],
     [i].[filter_definition],
     [i].[fill_factor],
-    COL_NAME([ic].[object_id], [ic].[column_id]) AS [column_name],
+    [c].[name] AS [column_name],
     [ic].[is_descending_key],
     [ic].[is_included_column]
 FROM [sys].[indexes] AS [i]
@@ -1089,7 +1086,7 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal];";
 
             if (primaryKeyGroups.Length == 1)
             {
-                if (TryGetPrimaryKey(primaryKeyGroups[0], out var primaryKey))
+                if (TryGetPrimaryKey(primaryKeyGroups[0], out var primaryKey) && IsValidPrimaryKey(primaryKey))
                 {
                     _logger.PrimaryKeyFound(primaryKey.Name!, DisplayName(tableSchema, tableName));
                     table.PrimaryKey = primaryKey;
@@ -1135,6 +1132,14 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal];";
                     _logger.IndexFound(indexGroup.Key.Name!, DisplayName(tableSchema, tableName), indexGroup.Key.IsUnique);
                     table.Indexes.Add(index);
                 }
+            }
+
+            bool IsValidPrimaryKey(DatabasePrimaryKey primaryKey)
+            {
+                if (_engineEdition != EngineEdition.DynamicsTdsEndpoint)
+                    return true;
+
+                return primaryKey.Columns.Count == 1 && primaryKey.Columns[0].StoreType == "uniqueidentifier";
             }
 
             bool TryGetPrimaryKey(
@@ -1377,6 +1382,14 @@ ORDER BY [table_schema], [table_name], [f].[name], [fc].[constraint_column_id];
                     foreignKey.PrincipalColumns.Add(principalColumn);
                 }
 
+                if (!invalid && _engineEdition == EngineEdition.DynamicsTdsEndpoint && !IsValidDataverseForeignKey(foreignKey))
+                {
+                    invalid = true;
+                    _logger.DataverseForeignKeyInvalidWarning(
+                        fkName!,
+                        DisplayName(table.Schema, table.Name));
+                }
+
                 if (!invalid)
                 {
                     if (foreignKey.Columns.SequenceEqual(foreignKey.PrincipalColumns))
@@ -1405,6 +1418,26 @@ ORDER BY [table_schema], [table_name], [f].[name], [fc].[constraint_column_id];
                     }
                 }
             }
+        }
+
+        bool IsValidDataverseForeignKey(DatabaseForeignKey foreignKey)
+        {
+            if (foreignKey.Columns.Count != 1)
+                return false;
+
+            if (foreignKey.Columns[0].StoreType != "uniqueidentifier")
+                return false;
+
+            if (foreignKey.PrincipalTable.PrimaryKey == null)
+                return false;
+
+            if (foreignKey.PrincipalTable.PrimaryKey.Columns.Count != 1)
+                return false;
+
+            if (foreignKey.PrincipalTable.PrimaryKey.Columns[0].Name != foreignKey.PrincipalColumns[0].Name)
+                return false;
+            
+            return true;
         }
     }
 
@@ -1455,9 +1488,6 @@ ORDER BY [table_schema], [table_name], [tr].[name];
 
     private bool SupportsSequences()
         => _compatibilityLevel >= 110 && IsFullFeaturedEngineEdition();
-
-    private bool SupportsIndexes()
-        => _engineEdition != EngineEdition.DynamicsTdsEndpoint;
 
     private bool SupportsViews()
         => _engineEdition != EngineEdition.DynamicsTdsEndpoint;
