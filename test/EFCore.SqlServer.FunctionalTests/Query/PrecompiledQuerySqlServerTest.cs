@@ -1952,7 +1952,7 @@ FROM [Blogs] AS [b]
 
         AssertSql(
             """
-@__starts_0_startswith='blog%' (Size = 4000)
+@__starts_0_startswith='Blog%' (Size = 4000)
 @__ends_1_endswith='%2' (Size = 4000)
 
 SELECT TOP(2) [b].[Id], [b].[Name], [b].[Json]
