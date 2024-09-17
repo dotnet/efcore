@@ -954,6 +954,9 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
     /// <inheritdoc />
     protected override ShapedQueryExpression? TranslateMax(ShapedQueryExpression source, LambdaExpression? selector, Type resultType)
     {
+        var selectExpression = (SelectExpression)source.QueryExpression;
+        selectExpression.IsDistinct = false;
+
         // For Max() over an inline array, translate to GREATEST() if possible; otherwise use the default translation of aggregate SQL
         // MAX().
         // Note that some providers propagate NULL arguments (SQLite, MySQL), while others only return NULL if all arguments evaluate to
@@ -974,6 +977,9 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
     /// <inheritdoc />
     protected override ShapedQueryExpression? TranslateMin(ShapedQueryExpression source, LambdaExpression? selector, Type resultType)
     {
+        var selectExpression = (SelectExpression)source.QueryExpression;
+        selectExpression.IsDistinct = false;
+
         // See comments above in TranslateMax()
         if (TryExtractBareInlineCollectionValues(source, out var values)
             && _sqlTranslator.GenerateLeast(values, resultType.UnwrapNullableType()) is SqlFunctionExpression leastExpression

@@ -4744,11 +4744,8 @@ FROM (
 
         AssertSql(
             """
-SELECT MAX([o0].[OrderID])
-FROM (
-    SELECT DISTINCT [o].[OrderID]
-    FROM [Orders] AS [o]
-) AS [o0]
+SELECT MAX([o].[OrderID])
+FROM [Orders] AS [o]
 """);
     }
 
@@ -4758,11 +4755,8 @@ FROM (
 
         AssertSql(
             """
-SELECT MIN([o0].[OrderID])
-FROM (
-    SELECT DISTINCT [o].[OrderID]
-    FROM [Orders] AS [o]
-) AS [o0]
+SELECT MIN([o].[OrderID])
+FROM [Orders] AS [o]
 """);
     }
 
