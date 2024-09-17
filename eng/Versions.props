@@ -32,7 +32,7 @@
     <SystemFormatsAsn1Version>9.0.0-rc.2.24456.9</SystemFormatsAsn1Version>
   </PropertyGroup>
   <PropertyGroup Label="Dependencies from dotnet/arcade">
-    <MicrosoftDotNetBuildTasksTemplatingVersion>9.0.0-beta.24453.1</MicrosoftDotNetBuildTasksTemplatingVersion>
+    <MicrosoftDotNetBuildTasksTemplatingVersion>9.0.0-beta.24466.2</MicrosoftDotNetBuildTasksTemplatingVersion>
   </PropertyGroup>
   <PropertyGroup Label="Other dependencies">
     <MicrosoftBuildFrameworkVersion>17.8.3</MicrosoftBuildFrameworkVersion>
@@ -43,6 +43,6 @@
     <AzureIdentityVersion>1.12.0</AzureIdentityVersion>
     <AzureResourceManagerCosmosDBVersion>1.3.2</AzureResourceManagerCosmosDBVersion>
     <OpenTelemetryExporterInMemoryVersion>1.8.1</OpenTelemetryExporterInMemoryVersion>
-    <SQLitePCLRawVersion>2.1.10</SQLitePCLRawVersion>	
+    <SQLitePCLRawVersion>2.1.10</SQLitePCLRawVersion>
   </PropertyGroup>
 </Project>
