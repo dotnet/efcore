@@ -812,6 +812,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 operation);
 
         /// <summary>
+        ///     ExecuteUpdate was called on entity type '{entityType}', but that entity type is not mapped to a table.
+        /// </summary>
+        public static string ExecuteUpdateOnEntityNotMappedToTable(object? entityType)
+            => string.Format(
+                GetString("ExecuteUpdateOnEntityNotMappedToTable", nameof(entityType)),
+                entityType);
+
+        /// <summary>
         ///     ExecuteUpdate is being used over a LINQ operator which isn't natively supported by the database; this cannot be translated because complex type '{complexType}' is projected out. Rewrite your query to project out the containing entity type instead.
         /// </summary>
         public static string ExecuteUpdateSubqueryNotSupportedOverComplexTypes(object? complexType)
@@ -2130,7 +2138,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 nodeType, expressionType);
 
         /// <summary>
-        ///     No relational type mapping can be found for property '{entity}.{property}' and the current provider doesn't specify a default store type for the properties of type '{clrType}'. 
+        ///     No relational type mapping can be found for property '{entity}.{property}' and the current provider doesn't specify a default store type for the properties of type '{clrType}'.
         /// </summary>
         public static string UnsupportedPropertyType(object? entity, object? property, object? clrType)
             => string.Format(

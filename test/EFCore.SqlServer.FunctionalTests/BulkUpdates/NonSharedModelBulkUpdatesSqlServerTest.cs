@@ -192,6 +192,37 @@ WHERE [o].[Id] = 1
 """);
     }
 
+    public override async Task Delete_with_view_mapping(bool async)
+    {
+        await base.Delete_with_view_mapping(async);
+
+        AssertSql(
+            """
+DELETE FROM [b]
+FROM [Blogs] AS [b]
+""");
+    }
+
+    public override async Task Update_with_view_mapping(bool async)
+    {
+        await base.Update_with_view_mapping(async);
+
+        AssertSql(
+            """
+UPDATE [b]
+SET [b].[Data] = N'Updated'
+FROM [Blogs] AS [b]
+""");
+    }
+
+    public override async Task Update_complex_type_type_with_view_mapping(bool async)
+    {
+        await base.Update_complex_type_type_with_view_mapping(async);
+
+        // #34706
+        AssertSql();
+    }
+
     private void AssertSql(params string[] expected)
         => TestSqlLoggerFactory.AssertBaseline(expected);
 
