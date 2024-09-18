@@ -1137,7 +1137,9 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal];";
             bool IsValidPrimaryKey(DatabasePrimaryKey primaryKey)
             {
                 if (_engineEdition != EngineEdition.DynamicsTdsEndpoint)
+                {
                     return true;
+                }
 
                 return primaryKey.Columns.Count == 1 && primaryKey.Columns[0].StoreType == "uniqueidentifier";
             }
@@ -1423,19 +1425,29 @@ ORDER BY [table_schema], [table_name], [f].[name], [fc].[constraint_column_id];
         bool IsValidDataverseForeignKey(DatabaseForeignKey foreignKey)
         {
             if (foreignKey.Columns.Count != 1)
+            {
                 return false;
+            }
 
             if (foreignKey.Columns[0].StoreType != "uniqueidentifier")
+            {
                 return false;
+            }
 
             if (foreignKey.PrincipalTable.PrimaryKey == null)
+            {
                 return false;
+            }
 
             if (foreignKey.PrincipalTable.PrimaryKey.Columns.Count != 1)
+            {
                 return false;
+            }
 
             if (foreignKey.PrincipalTable.PrimaryKey.Columns[0].Name != foreignKey.PrincipalColumns[0].Name)
+            {
                 return false;
+            }
             
             return true;
         }
