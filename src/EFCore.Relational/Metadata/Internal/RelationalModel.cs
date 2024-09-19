@@ -2068,7 +2068,7 @@ public class RelationalModel : Annotatable, IRelationalModel
     IEnumerable<IStoreFunction> IRelationalModel.Functions
     {
         [DebuggerStepThrough]
-        get => Functions.OrderBy(f => f.Key).Select(t => t.Value);
+        get => Functions.OrderBy(f => f.Key, NamedListComparer.Instance).Select(t => t.Value);
     }
 
     IEnumerable<IStoreStoredProcedure> IRelationalModel.StoredProcedures
