@@ -214,9 +214,9 @@ SET "Data" = 'Updated'
 """);
     }
 
-    public override async Task Update_complex_type_type_with_view_mapping(bool async)
+    public override async Task Update_complex_type_with_view_mapping(bool async)
     {
-        await base.Update_complex_type_type_with_view_mapping(async);
+        await base.Update_complex_type_with_view_mapping(async);
 
         // #34706
         AssertSql();

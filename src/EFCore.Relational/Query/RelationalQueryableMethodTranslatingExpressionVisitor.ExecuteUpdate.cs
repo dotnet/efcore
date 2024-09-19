@@ -160,19 +160,14 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                             // Get the column on the (mutable) table which corresponds to the property being set
                             var targetColumnModel = property.DeclaringType.GetTableMappings()
                                 .SelectMany(tm => tm.ColumnMappings)
-                                .SingleOrDefault(cm => cm.Property == property)?.Column;
+                                .Where(cm => cm.Property == property)
+                                .Select(cm => cm.Column)
+                                .SingleOrDefault();
 
                             if (targetColumnModel is null)
                             {
                                 throw new InvalidOperationException(
-                                    RelationalStrings.ExecuteUpdateOnEntityNotMappedToTable(property.DeclaringType.DisplayName()));
-                            }
-
-                            if (targetColumnModel.Name != column.Name)
-                            {
-                                // If we ever allow mapping the same property to different column names on the view and table, we'll need
-                                // to also recursively visit the SelectExpression and replace ColumnExpressions
-                                throw new UnreachableException("Table and view column names should match");
+                                    RelationalStrings.ExecuteUpdateDeleteOnEntityNotMappedToTable(property.DeclaringType.DisplayName()));
                             }
 
                             unwrappedTableExpression = new TableExpression(unwrappedTableExpression.Alias, targetColumnModel.Table);
@@ -182,8 +177,8 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                             var newTables = select.Tables.ToList();
                             newTables[tableIndex] = tableExpression;
 
-                            // Note that we need to keep the select mutable, because if IsValidSelectExpressionForExecuteDelete below returns false,
-                            // we need to compose on top of it.
+                            // Note that we need to keep the select mutable, because if IsValidSelectExpressionForExecuteDelete below
+                            // returns false, we need to compose on top of it.
                             select.SetTables(newTables);
                         }
 

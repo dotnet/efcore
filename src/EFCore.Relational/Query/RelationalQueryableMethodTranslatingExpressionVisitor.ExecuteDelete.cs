@@ -44,7 +44,8 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
         switch (entityType.GetTableMappings().ToList())
         {
             case []:
-                throw new NotImplementedException(); // TODO: Throw message to indicate that the entity type is not mapped to any table.
+                throw new InvalidOperationException(
+                    RelationalStrings.ExecuteUpdateDeleteOnEntityNotMappedToTable(entityType.DisplayName()));
 
             case [var singleTableMapping]:
                 targetTable = singleTableMapping.Table;
@@ -103,7 +104,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
             // Providers may override IsValidSelectExpressionForExecuteDelete to add support for more cases via provider-specific DELETE syntax.
             if (IsValidSelectExpressionForExecuteDelete(selectExpression))
             {
-                if (AreOtherNonOwnedEntityTypesInTheTable(entityType.GetRootType(), unwrappedTableExpression.Table))
+                if (AreOtherNonOwnedEntityTypesInTheTable(entityType.GetRootType(), targetTable))
                 {
                     AddTranslationErrorDetails(
                         RelationalStrings.ExecuteDeleteOnTableSplitting(unwrappedTableExpression.Table.SchemaQualifiedName));

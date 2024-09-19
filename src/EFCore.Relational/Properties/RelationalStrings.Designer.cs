@@ -812,11 +812,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 operation);
 
         /// <summary>
-        ///     ExecuteUpdate was called on entity type '{entityType}', but that entity type is not mapped to a table.
+        ///     ExecuteUpdate or ExecuteDelete was called on entity type '{entityType}', but that entity type is not mapped to a table.
         /// </summary>
-        public static string ExecuteUpdateOnEntityNotMappedToTable(object? entityType)
+        public static string ExecuteUpdateDeleteOnEntityNotMappedToTable(object? entityType)
             => string.Format(
-                GetString("ExecuteUpdateOnEntityNotMappedToTable", nameof(entityType)),
+                GetString("ExecuteUpdateDeleteOnEntityNotMappedToTable", nameof(entityType)),
                 entityType);
 
         /// <summary>

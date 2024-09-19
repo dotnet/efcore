@@ -2726,7 +2726,7 @@ public sealed partial class SelectExpression : TableExpressionBase
             if (table.UnwrapJoin().Alias == column.TableAlias)
             {
                 tableIndex = i;
-                return _tables[i];
+                return table;
             }
         }
 

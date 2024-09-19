@@ -115,7 +115,7 @@ public abstract class NonSharedModelBulkUpdatesRelationalTestBase : NonSharedMod
 
     [ConditionalTheory] // #34677, #34706
     [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Update_complex_type_type_with_view_mapping(bool async)
+    public virtual async Task Update_complex_type_with_view_mapping(bool async)
     {
         var contextFactory = await InitializeAsync<Context34677>(seed: async context => await context.Seed());
 
