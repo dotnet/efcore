@@ -238,6 +238,20 @@ public sealed partial class SelectExpression : TableExpressionBase
     public SqlExpression? Offset { get; private set; }
 
     /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public void SetTables(IReadOnlyList<TableExpressionBase> tables)
+    {
+        Check.DebugAssert(IsMutable, "Attempt to mutate an immutable SelectExpression");
+        _tables.Clear();
+        _tables.AddRange(tables);
+    }
+
+    /// <summary>
     ///     Applies a given set of tags.
     /// </summary>
     /// <param name="tags">A list of tags to apply.</param>
@@ -2698,11 +2712,20 @@ public sealed partial class SelectExpression : TableExpressionBase
     ///     <see cref="SelectExpression" /> based on its alias.
     /// </summary>
     public TableExpressionBase GetTable(ColumnExpression column)
+        => GetTable(column, out _);
+
+    /// <summary>
+    ///     Retrieves the <see cref="TableExpressionBase" /> referenced by the given column, looking it up on this
+    ///     <see cref="SelectExpression" /> based on its alias.
+    /// </summary>
+    public TableExpressionBase GetTable(ColumnExpression column, out int tableIndex)
     {
-        foreach (var table in Tables)
+        for (var i = 0; i < _tables.Count; i++)
         {
+            var table = _tables[i];
             if (table.UnwrapJoin().Alias == column.TableAlias)
             {
+                tableIndex = i;
                 return table;
             }
         }
