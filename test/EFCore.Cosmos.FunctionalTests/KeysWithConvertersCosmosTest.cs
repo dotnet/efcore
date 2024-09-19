@@ -20,7 +20,7 @@ public class KeysWithConvertersCosmosTest(KeysWithConvertersCosmosTest.KeysWithC
         {
             base.OnModelCreating(modelBuilder, context);
 
-            modelBuilder.IncludeRootDiscriminatorInJsonId();
+            modelBuilder.HasRootDiscriminatorInJsonId();
         }
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
