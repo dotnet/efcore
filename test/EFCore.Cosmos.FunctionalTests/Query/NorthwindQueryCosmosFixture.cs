@@ -42,32 +42,32 @@ public class NorthwindQueryCosmosFixture<TModelCustomizer> : NorthwindQueryFixtu
         modelBuilder.Entity<Employee>().ToContainer("Employees");
 
         modelBuilder.Entity<Order>()
-            .IncludeRootDiscriminatorInJsonId()
+            .HasRootDiscriminatorInJsonId()
             .ToContainer("ProductsAndOrders");
 
         modelBuilder.Entity<OrderDetail>()
-            .IncludeRootDiscriminatorInJsonId()
+            .HasRootDiscriminatorInJsonId()
             .ToContainer("ProductsAndOrders");
 
         modelBuilder.Entity<Product>()
-            .IncludeRootDiscriminatorInJsonId()
+            .HasRootDiscriminatorInJsonId()
             .ToContainer("ProductsAndOrders");
 
         modelBuilder.Entity<OrderQuery>()
             .ToContainer("ProductsAndOrders")
-            .IncludeRootDiscriminatorInJsonId()
+            .HasRootDiscriminatorInJsonId()
             .HasDiscriminator<string>("$type").HasValue("Order");
 
         modelBuilder
             .Entity<ProductQuery>()
             .ToContainer("ProductsAndOrders")
-            .IncludeRootDiscriminatorInJsonId()
+            .HasRootDiscriminatorInJsonId()
             .HasDiscriminator<string>("$type").HasValue("Product");
 
         modelBuilder
             .Entity<ProductView>()
             .ToContainer("ProductsAndOrders")
-            .IncludeRootDiscriminatorInJsonId()
+            .HasRootDiscriminatorInJsonId()
             .HasDiscriminator<string>("$type").HasValue("ProductView");
 
         modelBuilder
