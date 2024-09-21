@@ -2283,4 +2283,181 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
     }
 
     #endregion
+
+    #region 34618
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Ternary_Not_Null_Contains(bool async)
+    {
+        var contextFactory = await InitializeAsync<Context34618>(seed: x => x.SeedAsync());
+        using var context = contextFactory.CreateContext();
+        context.Set<Entity34618>().Select(x => x != null ? x.Id + "" : null).FirstOrDefault(x => x!.Contains("1"));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Ternary_Not_Null_Contains_Non_Numeric_First_Part(bool async)
+    {
+        var contextFactory = await InitializeAsync<Context34618>(seed: x => x.SeedAsync());
+        using var context = contextFactory.CreateContext();
+        context.Set<Entity34618>().Select(x => x != null ? "" + x.Id + "" : null).FirstOrDefault(x => x!.Contains("1"));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Ternary_Not_Null_EndsWith(bool async)
+    {
+        var contextFactory = await InitializeAsync<Context34618>(seed: x => x.SeedAsync());
+        using var context = contextFactory.CreateContext();
+        context.Set<Entity34618>().Select(x => x != null ? x.Id + "" : null).FirstOrDefault(x => x!.EndsWith("1"));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Ternary_Not_Null_EndsWith_Non_Numeric_First_Part(bool async)
+    {
+        var contextFactory = await InitializeAsync<Context34618>(seed: x => x.SeedAsync());
+        using var context = contextFactory.CreateContext();
+        context.Set<Entity34618>().Select(x => x != null ? "" + x.Id + "" : null).FirstOrDefault(x => x!.EndsWith("1"));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Ternary_Not_Null_Equals(bool async)
+    {
+        var contextFactory = await InitializeAsync<Context34618>(seed: x => x.SeedAsync());
+        using var context = contextFactory.CreateContext();
+        context.Set<Entity34618>().Select(x => x != null ? x.Id + "" : null).FirstOrDefault(x => x == "1");
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Ternary_Not_Null_Equals_Non_Numeric_First_Part(bool async)
+    {
+        var contextFactory = await InitializeAsync<Context34618>(seed: x => x.SeedAsync());
+        using var context = contextFactory.CreateContext();
+        context.Set<Entity34618>().Select(x => x != null ? "" + x.Id + "" : null).FirstOrDefault(x => x == "1");
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Ternary_Not_Null_StartsWith(bool async)
+    {
+        var contextFactory = await InitializeAsync<Context34618>(seed: x => x.SeedAsync());
+        using var context = contextFactory.CreateContext();
+        context.Set<Entity34618>().Select(x => x != null ? x.Id + "" : null).FirstOrDefault(x => x!.StartsWith("1"));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Ternary_Not_Null_StartsWith_Non_Numeric_First_Part(bool async)
+    {
+        var contextFactory = await InitializeAsync<Context34618>(seed: x => x.SeedAsync());
+        using var context = contextFactory.CreateContext();
+        context.Set<Entity34618>().Select(x => x != null ? "" + x.Id + "" : null).FirstOrDefault(x => x!.StartsWith("1"));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Ternary_Null_Contains(bool async)
+    {
+        var contextFactory = await InitializeAsync<Context34618>(seed: x => x.SeedAsync());
+        using var context = contextFactory.CreateContext();
+        context.Set<Entity34618>().Select(x => x == null ? null : x.Id + "").FirstOrDefault(x => x!.Contains("1"));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Ternary_Null_Contains_Non_Numeric_First_Part(bool async)
+    {
+        var contextFactory = await InitializeAsync<Context34618>(seed: x => x.SeedAsync());
+        using var context = contextFactory.CreateContext();
+        context.Set<Entity34618>().Select(x => x == null ? null : "" + x.Id + "").FirstOrDefault(x => x!.Contains("1"));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Ternary_Null_EndsWith(bool async)
+    {
+        var contextFactory = await InitializeAsync<Context34618>(seed: x => x.SeedAsync());
+        using var context = contextFactory.CreateContext();
+        context.Set<Entity34618>().Select(x => x == null ? null : x.Id + "").FirstOrDefault(x => x!.EndsWith("1"));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Ternary_Null_EndsWith_Non_Numeric_First_Part(bool async)
+    {
+        var contextFactory = await InitializeAsync<Context34618>(seed: x => x.SeedAsync());
+        using var context = contextFactory.CreateContext();
+        context.Set<Entity34618>().Select(x => x == null ? null : "" + x.Id + "").FirstOrDefault(x => x!.EndsWith("1"));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Ternary_Null_Equals(bool async)
+    {
+        var contextFactory = await InitializeAsync<Context34618>(seed: x => x.SeedAsync());
+        using var context = contextFactory.CreateContext();
+        context.Set<Entity34618>().Select(x => x == null ? null : x.Id + "").FirstOrDefault(x => x == "1");
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Ternary_Null_Equals_Non_Numeric_First_Part(bool async)
+    {
+        var contextFactory = await InitializeAsync<Context34618>(seed: x => x.SeedAsync());
+        using var context = contextFactory.CreateContext();
+        context.Set<Entity34618>().Select(x => x == null ? null : "" + x.Id + "").FirstOrDefault(x => x == "1");
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Ternary_Null_StartsWith(bool async)
+    {
+        var contextFactory = await InitializeAsync<Context34618>(seed: x => x.SeedAsync());
+        using var context = contextFactory.CreateContext();
+        context.Set<Entity34618>().Select(x => x == null ? null : x.Id + "").FirstOrDefault(x => x!.StartsWith("1"));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Ternary_Null_StartsWith_Non_Numeric_First_Part(bool async)
+    {
+        var contextFactory = await InitializeAsync<Context34618>(seed: x => x.SeedAsync());
+        using var context = contextFactory.CreateContext();
+        context.Set<Entity34618>().Select(x => x == null ? null : "" + x.Id + "").FirstOrDefault(x => x!.StartsWith("1"));
+    }
+
+    protected class Context34618(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<Entity34618> Entities { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<Entity34618>().Property(x => x.Id).ValueGeneratedNever();
+
+        public async Task SeedAsync()
+        {
+            var e1 = new Entity34618
+            {
+                Id = 1,
+            };
+
+            var e2 = new Entity34618
+            {
+                Id = 2,
+            };
+
+            AddRange(e1, e2);
+            await SaveChangesAsync();
+        }
+    }
+
+    protected class Entity34618
+    {
+        public int Id { get; set; }
+    }
+
+    #endregion
 }
