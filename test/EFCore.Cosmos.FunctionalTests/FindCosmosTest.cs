@@ -461,11 +461,11 @@ public abstract class FindCosmosTest : FindTestBase<FindCosmosTest.FindCosmosFix
 
             modelBuilder.Entity<IntKey>()
                 .ToContainer("Ints")
-                .IncludeRootDiscriminatorInJsonId();
+                .HasRootDiscriminatorInJsonId();
 
             modelBuilder.Entity<NullableIntKey>()
                 .ToContainer("Ints")
-                .IncludeRootDiscriminatorInJsonId();
+                .HasRootDiscriminatorInJsonId();
 
             modelBuilder.Entity<StringKey>()
                 .ToContainer("Strings");
@@ -475,7 +475,7 @@ public abstract class FindCosmosTest : FindTestBase<FindCosmosTest.FindCosmosFix
 
             modelBuilder.Entity<BaseType>()
                 .ToContainer("Base")
-                .IncludeRootDiscriminatorInJsonId();
+                .HasRootDiscriminatorInJsonId();
 
             modelBuilder.Entity<ShadowKey>().ToContainer("ShadowKeys");
         }

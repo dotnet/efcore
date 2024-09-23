@@ -7,6 +7,8 @@
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
     <CentralPackageVersionOverrideEnabled>true</CentralPackageVersionOverrideEnabled>
+    <!-- Do not warn for missing source mappings -->
+    <NoWarn>$(NoWarn);NU1507</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <!-- core dependencies-->

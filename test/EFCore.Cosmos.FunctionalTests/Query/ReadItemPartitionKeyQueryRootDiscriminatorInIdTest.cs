@@ -858,7 +858,7 @@ OFFSET 0 LIMIT 2
         {
             base.OnModelCreating(modelBuilder, context);
 
-            modelBuilder.IncludeRootDiscriminatorInJsonId();
+            modelBuilder.HasRootDiscriminatorInJsonId();
         }
     }
 }
