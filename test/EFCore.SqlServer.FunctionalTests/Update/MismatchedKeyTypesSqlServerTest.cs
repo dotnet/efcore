@@ -796,11 +796,8 @@ public class MismatchedKeyTypesSqlServerTest(MismatchedKeyTypesSqlServerTest.Mis
             await SeedAsync();
         }
 
-        public Task DisposeAsync()
-        {
-            Store.Dispose();
-            return Task.CompletedTask;
-        }
+        public async Task DisposeAsync()
+            => await Store.DisposeAsync();
     }
 
     private class TemporaryByteValueGenerator : ValueGenerator<int>

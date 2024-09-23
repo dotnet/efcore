@@ -5161,6 +5161,7 @@ CREATE INDEX ixHypo ON HypotheticalIndexTable ( Id1 ) WITH STATISTICS_ONLY = -1;
             "DROP TABLE HypotheticalIndexTable;");
 
     [ConditionalFact]
+    [SqlServerCondition(SqlServerCondition.IsNotAzureSql)]
     public void Ignore_columnstore_index()
         => Test(
             @"

@@ -446,7 +446,7 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
         Assert.Equal(0, operations.Count);
     }
 
-    private void SetSql(string value)
+    protected void SetSql(string value)
         => Sql = value.Replace(ProductInfo.GetVersion(), "7.0.0-test");
 }
 
