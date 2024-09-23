@@ -3049,7 +3049,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
         {
             private bool _insideCollection;
             private bool _insideInclude;
-
+            private SelectExpression _selectExpression = selectExpression;
             private readonly
                 List<(IEntityType JsonEntityType, List<(IProperty? KeyProperty, int? ConstantKeyValue, int? KeyProjectionIndex)>
                     KeyAccessInfo)> _projectedKeyAccessInfos = [];
@@ -3206,8 +3206,11 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 {
                     var insideCollection = _insideCollection;
                     _insideCollection = true;
+                    var oldSelectExpression = _selectExpression;
+                    _selectExpression = splitCollectionShaperExpression.SelectExpression;
                     Visit(splitCollectionShaperExpression.InnerShaper);
                     _insideCollection = insideCollection;
+                    _selectExpression = oldSelectExpression;
 
                     return splitCollectionShaperExpression;
                 }
@@ -3225,7 +3228,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                         ValueBufferExpression: ProjectionBindingExpression entityProjectionBindingExpression
                     } entityShaperExpression)
                 {
-                    var entityProjection = selectExpression.GetProjection(entityProjectionBindingExpression).GetConstantValue<object>();
+                    var entityProjection = _selectExpression.GetProjection(entityProjectionBindingExpression).GetConstantValue<object>();
 
                     switch (entityProjection)
                     {
@@ -3264,7 +3267,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     } collectionResultExpression)
                 {
                     var collectionProjection =
-                        selectExpression.GetProjection(collectionProjectionBindingExpression).GetConstantValue<object>();
+                        _selectExpression.GetProjection(collectionProjectionBindingExpression).GetConstantValue<object>();
 
                     switch (collectionProjection)
                     {
