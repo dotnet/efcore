@@ -1102,7 +1102,7 @@ var blogs = await context.Blogs.Select(b => b.Id == 3 ? yes : no).ToListAsync();
     public virtual Task Two_captured_variables_in_different_lambdas()
         => Test(
             """
-var starts = "blog";
+var starts = "Blog";
 var ends = "2";
 var blog = await context.Blogs.Where(b => b.Name.StartsWith(starts)).Where(b => b.Name.EndsWith(ends)).SingleAsync();
 Assert.Equal(9, blog.Id);

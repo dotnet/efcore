@@ -504,15 +504,14 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                                 : propertyMap.Values.Max() + 1;
 
                         var updatedExpression = newExpression.Update(
-                            new[]
-                            {
-                                _parentVisitor.Dependencies.LiftableConstantFactory.CreateLiftableConstant(
+                        [
+                            _parentVisitor.Dependencies.LiftableConstantFactory.CreateLiftableConstant(
                                     ValueBuffer.Empty,
                                     static _ => ValueBuffer.Empty,
                                     "emptyValueBuffer",
                                     typeof(ValueBuffer)),
                                 newExpression.Arguments[1]
-                            });
+                        ]);
 
                         return Assign(binaryExpression.Left, updatedExpression);
                     }
@@ -524,15 +523,14 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                         _jsonMaterializationContextToJsonReaderDataAndKeyValuesParameterMapping[parameterExpression] = mappedParameter;
 
                         var updatedExpression = newExpression.Update(
-                            new[]
-                            {
-                                _parentVisitor.Dependencies.LiftableConstantFactory.CreateLiftableConstant(
+                        [
+                            _parentVisitor.Dependencies.LiftableConstantFactory.CreateLiftableConstant(
                                     ValueBuffer.Empty,
                                     static _ => ValueBuffer.Empty,
                                     "emptyValueBuffer",
                                     typeof(ValueBuffer)),
                                 newExpression.Arguments[1]
-                            });
+                        ]);
 
                         return Assign(binaryExpression.Left, updatedExpression);
                     }
@@ -1392,7 +1390,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                         var valueExpression = MakeIndex(
                             keyPropertyValuesParameter,
                             ObjectArrayIndexerPropertyInfo,
-                            new[] { Constant(index) });
+                            [Constant(index)]);
                         return methodCallExpression.Type != valueExpression.Type
                             ? Convert(valueExpression, methodCallExpression.Type)
                             : valueExpression;
@@ -1744,8 +1742,11 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     //sometimes we have shadow snapshot and sometimes not, but type initializer always comes last
                     switch (body.Expressions[^1])
                     {
-                        case UnaryExpression { Operand: BlockExpression innerBlock } jsonEntityTypeInitializerUnary
-                            when jsonEntityTypeInitializerUnary.NodeType is ExpressionType.Convert or ExpressionType.ConvertChecked:
+                        case UnaryExpression
+                        {
+                            Operand: BlockExpression innerBlock,
+                            NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked
+                        } jsonEntityTypeInitializerUnary:
                         {
                             // in case of proxies, the entity initializer block is wrapped around Convert node
                             // that converts from the proxy type to the actual entity type.
@@ -1796,7 +1797,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                         case NewExpression jsonEntityTypeInitializerCtor:
                             var newInstanceVariable = Variable(jsonEntityTypeInitializerCtor.Type, "instance");
                             jsonEntityTypeInitializerBlock = Block(
-                                new[] { newInstanceVariable },
+                                [newInstanceVariable],
                                 Assign(newInstanceVariable, jsonEntityTypeInitializerCtor),
                                 newInstanceVariable);
                             break;
@@ -1886,14 +1887,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
                     // Fixup is only needed for non-tracking queries, in case of tracking (or NoTrackingWithIdentityResolution) - ChangeTracker does the job
                     // or for empty/null collections of a tracking queries.
-                    if (queryStateManager)
-                    {
-                        ProcessFixup(trackingInnerFixupMap);
-                    }
-                    else
-                    {
-                        ProcessFixup(innerFixupMap);
-                    }
+                    ProcessFixup(queryStateManager ? trackingInnerFixupMap : innerFixupMap);
 
                     finalBlockExpressions.Add(jsonEntityTypeVariable);
 
@@ -2113,7 +2107,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                             Block(
                                 ifTrueBlock.Variables,
                                 ifTrueBlock.Expressions.Concat(
-                                    new Expression[] { Assign(entityAlreadyTrackedVariable, Constant(true)), Default(typeof(void)) })))
+                                    [Assign(entityAlreadyTrackedVariable, Constant(true)), Default(typeof(void))])))
                     };
 
                     resultBlockVariables.AddRange(ifFalseBlock.Variables.ToList());
@@ -2266,7 +2260,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                                 ? (Expression)currentVariable
                                 : Convert(currentVariable, genericMethod.GetParameters()[1].ParameterType);
                             return Block(
-                                new[] { currentVariable },
+                                [currentVariable],
                                 MakeMemberAccess(instance, property.GetMemberInfo(forMaterialization: true, forSet: false))
                                     .Assign(currentVariable),
                                 IfThenElse(
