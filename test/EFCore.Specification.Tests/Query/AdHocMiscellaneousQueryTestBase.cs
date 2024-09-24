@@ -1381,7 +1381,7 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
 
     #region 22841
 
-    [ConditionalFact]
+    [ConditionalFact(Skip = "Issue #34727 - flaky test")]
     public virtual async Task SaveChangesAsync_accepts_changes_with_ConfigureAwait_true()
     {
         var contextFactory = await InitializeAsync<Context22841>();
