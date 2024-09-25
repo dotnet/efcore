@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.InMemory.Infrastructure.Internal;
-
 namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 
 /// <summary>
@@ -11,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public static class InMemoryStoreCacheExtensions
+public interface IInMemoryDatabaseRootCache
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -19,6 +17,5 @@ public static class InMemoryStoreCacheExtensions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public static IInMemoryStore GetStore(this IInMemoryStoreCache storeCache, IDbContextOptions options)
-        => storeCache.GetStore(options.Extensions.OfType<InMemoryOptionsExtension>().First().StoreName);
+    InMemoryDatabaseRoot SharedRoot { get; }
 }

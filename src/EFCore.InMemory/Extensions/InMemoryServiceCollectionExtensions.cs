@@ -53,7 +53,8 @@ public static class InMemoryServiceCollectionExtensions
             .TryAddProviderSpecificServices(
                 b => b
                     .TryAddSingleton<IInMemorySingletonOptions, InMemorySingletonOptions>()
-                    .TryAddSingleton<IInMemoryStoreCache, InMemoryStoreCache>()
+                    .TryAddScoped<IInMemoryStoreProvider, InMemoryStoreProvider>()
+                    .TryAddSingleton<IInMemoryDatabaseRootCache, InMemoryDatabaseRootCache>()
                     .TryAddSingleton<IInMemoryTableFactory, InMemoryTableFactory>()
                     .TryAddScoped<IInMemoryDatabase, InMemoryDatabase>());
 
