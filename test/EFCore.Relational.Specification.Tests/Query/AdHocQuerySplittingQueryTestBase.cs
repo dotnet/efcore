@@ -360,4 +360,104 @@ public abstract class AdHocQuerySplittingQueryTestBase : NonSharedModelTestBase
     }
 
     #endregion
+
+    #region 34728
+
+    [ConditionalTheory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public virtual async Task NoTrackingWithIdentityResolution_split_query_basic(bool async)
+    {
+        var contextFactory = await InitializeAsync<Context34728>(
+            onConfiguring: o => SetQuerySplittingBehavior(o, QuerySplittingBehavior.SplitQuery));
+
+        using var context = contextFactory.CreateContext();
+        var query = context.Set<Context34728.Blog>()
+            .AsNoTrackingWithIdentityResolution()
+            .Select(
+                blog => new
+                {
+                    blog.Id,
+                    Posts = blog.Posts.Select(
+                        blogPost => new 
+                        {
+                            blogPost.Id,
+                            blogPost.Author
+                        }).ToList()
+                });
+
+        var test = async
+            ? await query.ToListAsync()
+            : query.ToList();
+    }
+
+    [ConditionalTheory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public virtual async Task NoTrackingWithIdentityResolution_split_query_complex(bool async)
+    {
+        var contextFactory = await InitializeAsync<Context34728>(
+            onConfiguring: o => SetQuerySplittingBehavior(o, QuerySplittingBehavior.SplitQuery));
+
+        using var context = contextFactory.CreateContext();
+        var query = context.Set<Context34728.Blog>()
+            .AsNoTrackingWithIdentityResolution()
+            .Select(
+                blog => new
+                {
+                    blog.Id,
+                    Posts = blog.Posts.Select(
+                        blogPost => new
+                        {
+                            blogPost.Id,
+                            blogPost.Author
+                        }).ToList(),
+                    Posts2 = blog.Posts.Select(x => new
+                    {
+                        x.Id,
+                        Tags = x.Tags.Select(xx => new
+                        {
+                            xx.Id,
+                            xx.Name,
+                            xx.Name.Length
+                        }).ToList()
+                    }).ToList()
+                });
+
+        var test = async
+            ? await query.ToListAsync()
+            : query.ToList();
+    }
+
+    protected class Context34728(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<Blog> Tests { get; set; }
+
+        public sealed class Blog
+        {
+            public long Id { get; set; }
+            public string Name { get; set; }
+            public ISet<BlogPost> Posts { get; set; } = new HashSet<BlogPost>();
+        }
+
+        public sealed class BlogPost
+        {
+            public long Id { get; set; }
+            public WebAccount Author { get; set; }
+            public List<Tag> Tags { get; set; }
+        }
+
+        public sealed class WebAccount
+        {
+            public long Id { get; set; }
+        }
+
+        public sealed class Tag
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+        }
+    }
+
+    #endregion
 }
