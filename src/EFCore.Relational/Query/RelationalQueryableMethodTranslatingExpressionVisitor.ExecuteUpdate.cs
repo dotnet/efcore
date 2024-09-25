@@ -4,6 +4,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using static Microsoft.EntityFrameworkCore.Query.QueryHelpers;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
@@ -105,6 +106,8 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
             [NotNullWhen(true)] out List<ColumnValueSetter>? translatedSetters,
             [NotNullWhen(true)] out TableExpressionBase? targetTable)
         {
+            var select = (SelectExpression)source.QueryExpression;
+
             targetTable = null;
             string? targetTableAlias = null;
             var tempTranslatedSetters = new List<ColumnValueSetter>();
@@ -118,10 +121,67 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                 (propertySelector, var valueSelector) = setter;
                 var propertySelectorBody = RemapLambdaBody(source, propertySelector).UnwrapTypeConversion(out _);
 
-                switch (_sqlTranslator.TranslateProjection(propertySelectorBody))
+                // The top-most node on the property selector must be a member access; chop it off to get the base expression and member.
+                // We'll bind the member manually below, so as to get the IPropertyBase it represents - that's important for later.
+                if (!IsMemberAccess(propertySelectorBody, QueryCompilationContext.Model, out var baseExpression, out var member))
+                {
+                    AddTranslationErrorDetails(RelationalStrings.InvalidPropertyInSetProperty(propertySelector.Print()));
+                    return false;
+                }
+
+                if (!_sqlTranslator.TryBindMember(_sqlTranslator.Visit(baseExpression), member, out var translatedBaseExpression, out var propertyBase))
+                {
+                    AddTranslationErrorDetails(RelationalStrings.InvalidPropertyInSetProperty(propertySelector.Print()));
+                    return false;
+                }
+
+                // Hack: when returning a StructuralTypeShaperExpression, _sqlTranslator returns it wrapped by a
+                // StructuralTypeReferenceExpression, which is supposed to be a private wrapper only with the SQL translator.
+                // Call TranslateProjection to unwrap it (need to look into getting rid StructuralTypeReferenceExpression altogether).
+                translatedBaseExpression = _sqlTranslator.TranslateProjection(translatedBaseExpression);
+
+                switch (translatedBaseExpression)
                 {
                     case ColumnExpression column:
                     {
+                        if (propertyBase is not IProperty property)
+                        {
+                            throw new UnreachableException("Property selector translated to ColumnExpression but no IProperty");
+                        }
+
+                        var tableExpression = select.GetTable(column, out var tableIndex);
+                        if (tableExpression.UnwrapJoin() is TableExpression { Table: not ITable } unwrappedTableExpression)
+                        {
+                            // If the entity is also mapped to a view, the SelectExpression will refer to the view instead, since
+                            // translation happens with the assumption that we're querying, not deleting.
+                            // For this case, we must replace the TableExpression in the SelectExpression - referring to the view - with the
+                            // one that refers to the mutable table.
+
+                            // Get the column on the (mutable) table which corresponds to the property being set
+                            var targetColumnModel = property.DeclaringType.GetTableMappings()
+                                .SelectMany(tm => tm.ColumnMappings)
+                                .Where(cm => cm.Property == property)
+                                .Select(cm => cm.Column)
+                                .SingleOrDefault();
+
+                            if (targetColumnModel is null)
+                            {
+                                throw new InvalidOperationException(
+                                    RelationalStrings.ExecuteUpdateDeleteOnEntityNotMappedToTable(property.DeclaringType.DisplayName()));
+                            }
+
+                            unwrappedTableExpression = new TableExpression(unwrappedTableExpression.Alias, targetColumnModel.Table);
+                            tableExpression = tableExpression is JoinExpressionBase join
+                                ? join.Update(unwrappedTableExpression)
+                                : unwrappedTableExpression;
+                            var newTables = select.Tables.ToList();
+                            newTables[tableIndex] = tableExpression;
+
+                            // Note that we need to keep the select mutable, because if IsValidSelectExpressionForExecuteDelete below
+                            // returns false, we need to compose on top of it.
+                            select.SetTables(newTables);
+                        }
+
                         if (!IsColumnOnSameTable(column, propertySelector)
                             || TranslateSqlSetterValueSelector(source, valueSelector, column) is not SqlExpression translatedValueSelector)
                         {
@@ -135,10 +195,14 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                     // TODO: This is for column flattening; implement JSON complex type support as well.
                     case StructuralTypeShaperExpression
                     {
-                        StructuralType: IComplexType,
+                        StructuralType: IComplexType complexType,
                         ValueBufferExpression: StructuralTypeProjectionExpression
                     } shaper:
                     {
+                        Check.DebugAssert(
+                            propertyBase is IComplexProperty complexProperty && complexProperty.ComplexType == complexType,
+                            "PropertyBase should be a complex property referring to the correct complex type");
+
                         if (TranslateSetterValueSelector(source, valueSelector, shaper.Type) is not Expression translatedValueSelector
                             || !TryProcessComplexType(shaper, translatedValueSelector))
                         {
@@ -373,26 +437,12 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
             // The following mechanism for extracting the entity type from property selectors only supports simple member access,
             // EF.Function, etc. We also unwrap casts to interface/base class (#29618). Note that owned IncludeExpressions have already
             // been pruned from the source before remapping the lambda (#28727).
-
             var firstPropertySelector = setters[0].PropertySelector;
-            var shaper = RemapLambdaBody(source, firstPropertySelector).UnwrapTypeConversion(out _) switch
-            {
-                MemberExpression { Expression : not null } memberExpression
-                    when memberExpression.Expression.UnwrapTypeConversion(out _) is StructuralTypeShaperExpression s
-                    => s,
-
-                MethodCallExpression mce when mce.TryGetEFPropertyArguments(out var source, out _)
-                    && source.UnwrapTypeConversion(out _) is StructuralTypeShaperExpression s
-                    => s,
-
-                MethodCallExpression mce when mce.TryGetIndexerArguments(RelationalDependencies.Model, out var source2, out _)
-                    && source2.UnwrapTypeConversion(out _) is StructuralTypeShaperExpression s
-                    => s,
-
-                _ => null
-            };
-
-            if (shaper is null)
+            if (!IsMemberAccess(
+                    RemapLambdaBody(source, firstPropertySelector).UnwrapTypeConversion(out _),
+                    RelationalDependencies.Model,
+                    out var baseExpression)
+                || baseExpression.UnwrapTypeConversion(out _) is not StructuralTypeShaperExpression shaper)
             {
                 AddTranslationErrorDetails(RelationalStrings.InvalidPropertyInSetProperty(firstPropertySelector));
                 return null;
@@ -474,20 +524,9 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
         static Expression GetEntitySource(IModel model, Expression propertyAccessExpression)
         {
             propertyAccessExpression = propertyAccessExpression.UnwrapTypeConversion(out _);
-            if (propertyAccessExpression is MethodCallExpression mce)
-            {
-                if (mce.TryGetEFPropertyArguments(out var source, out _))
-                {
-                    return source;
-                }
-
-                if (mce.TryGetIndexerArguments(model, out var source2, out _))
-                {
-                    return source2;
-                }
-            }
-
-            return ((MemberExpression)propertyAccessExpression).Expression!;
+            return IsMemberAccess(propertyAccessExpression, model, out var source)
+                ? source
+                : ((MemberExpression)propertyAccessExpression).Expression!;
         }
     }
 
