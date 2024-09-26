@@ -348,12 +348,11 @@ public class CustomTypesIdentityContext(DbContextOptions options)
                     .WithMany(e => e.Users)
                     .UsingEntity<CustomUserRoleString>(
                         j => j.HasOne(e => e.Role).WithMany(e => e.UserRoles).HasForeignKey(e => e.RoleId),
-                        j => j.HasOne(e => e.User).WithMany(e => e.UserRoles).HasForeignKey(e => e.RoleId));
+                        j => j.HasOne(e => e.User).WithMany(e => e.UserRoles).HasForeignKey(e => e.UserId));
 
                 b.HasMany(e => e.Claims).WithOne(e => e.User).HasForeignKey(uc => uc.UserId).IsRequired();
                 b.HasMany(e => e.Logins).WithOne(e => e.User).HasForeignKey(ul => ul.UserId).IsRequired();
                 b.HasMany(e => e.Tokens).WithOne(e => e.User).HasForeignKey(ut => ut.UserId).IsRequired();
-                b.HasMany(e => e.UserRoles).WithOne(e => e.User).HasForeignKey(ur => ur.UserId).IsRequired();
                 b.ToTable("MyUsers");
                 b.Property(u => u.UserName).HasMaxLength(128);
                 b.Property(u => u.NormalizedUserName).HasMaxLength(128);

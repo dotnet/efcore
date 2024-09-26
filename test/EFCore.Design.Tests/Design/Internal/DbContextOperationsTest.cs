@@ -10,7 +10,11 @@ public class DbContextOperationsTest
 {
     [ConditionalFact]
     public void CreateContext_gets_service()
-        => CreateOperations(typeof(TestProgram)).CreateContext(typeof(TestContext).FullName.ToLower());
+        => CreateOperations(typeof(TestProgram), includeContext: false).CreateContext(typeof(TestContext).FullName.ToLower());
+
+    [ConditionalFact]
+    public void CreateContext_gets_service_without_name()
+        => CreateOperations(typeof(TestProgram), includeContext: false).CreateContext(null);
 
     [ConditionalFact]
     public void CreateContext_gets_service_without_AddDbContext()
@@ -18,7 +22,11 @@ public class DbContextOperationsTest
 
     [ConditionalFact]
     public void CreateContext_gets_service_when_context_factory_used()
-        => CreateOperations(typeof(TestProgramWithContextFactory)).CreateContext(typeof(TestContextFromFactory).FullName);
+        => CreateOperations(typeof(TestProgramWithContextFactory), includeContext: false).CreateContext(typeof(TestContextFromFactory).FullName);
+
+    [ConditionalFact]
+    public void CreateContext_gets_service_when_context_factory_used_without_name()
+        => CreateOperations(typeof(TestProgramWithContextFactory), includeContext: false).CreateContext(null);
 
     [ConditionalFact]
     public void CreateContext_throws_if_context_type_not_found()
@@ -230,10 +238,9 @@ public class DbContextOperationsTest
 
         Assert.Equal(
             DesignStrings.NoContextsToOptimize,
-            Assert.Throws<OperationException>(
-                () =>
-                    operations.Optimize(
-                        null, null, contextTypeName: "*", null, scaffoldModel: true, precompileQueries: false, nativeAot: false)).Message);
+            Assert.Throws<OperationException>(() =>
+                operations.Optimize(
+                    null, null, contextTypeName: "*", null, scaffoldModel: true, precompileQueries: false, nativeAot: false)).Message);
 
         Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Critical);
         Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Error);
@@ -364,9 +371,14 @@ public class DbContextOperationsTest
             => CreateWebHost(b => b.UseSqlServer(@"Cake=None"));
     }
 
-    private static TestDbContextOperations CreateOperations(Type testProgramType)
+    private static TestDbContextOperations CreateOperations(Type testProgramType, bool includeContext = true)
     {
-        var assembly = MockAssembly.Create(testProgramType, typeof(TestContext));
+        List<Type> types = [testProgramType];
+        if (includeContext)
+        {
+            types.Add(typeof(TestContext));
+        }
+        var assembly = MockAssembly.Create([.. types]);
         var reporter = new TestOperationReporter();
         var operations = new TestDbContextOperations(
             reporter,
