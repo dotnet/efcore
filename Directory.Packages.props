@@ -12,14 +12,14 @@
   </PropertyGroup>
   <ItemGroup>
     <!-- core dependencies-->
-    <PackageVersion Include="System.Text.Json" Version="$(SystemTextJsonVersion)" />
+    <PackageVersion Include="System.Text.Json" Version="8.0.4" />
 
     <!-- runtime dependencies-->
-    <PackageVersion Include="Microsoft.Extensions.Caching.Memory" Version="$(MicrosoftExtensionsCachingMemoryVersion)" />
-    <PackageVersion Include="Microsoft.Extensions.Logging" Version="$(MicrosoftExtensionsLoggingVersion)" />
-    <PackageVersion Include="Microsoft.Extensions.DependencyModel" Version="$(MicrosoftExtensionsDependencyModelVersion)" />
+    <PackageVersion Include="Microsoft.Extensions.Caching.Memory" Version="8.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Logging" Version="8.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyModel" Version="8.0.1" />
     <PackageVersion Include="Microsoft.Extensions.HostFactoryResolver.Sources" Version="$(MicrosoftExtensionsHostFactoryResolverSourcesVersion)" />
-    <PackageVersion Include="Microsoft.Extensions.Configuration.Abstractions" Version="$(MicrosoftExtensionsConfigurationAbstractionsVersion)" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.Abstractions" Version="8.0.0" />
 
     <!-- Roslyn dependencies-->
     <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="$(MicrosoftCodeAnalysisVersion)" />
@@ -57,8 +57,8 @@
 
     <!-- Pinned versions for Component Governance/NuGetAudit - Remove when root dependencies are updated -->
     <!--Workaround for Microsoft.CodeAnalysis.Workspaces.MSBuild 4.8.0, see https://github.com/dotnet/efcore/issues/34637-->
-    <PackageVersion Include="Microsoft.Build.Framework" Version="$(MicrosoftBuildFrameworkVersion)" />    
-    <!--Workaround for Microsoft.Data.SqlClient v5.1.6 and Microsoft.CodeAnalysis.Analyzer.Testing v1.1.2-->    
-    <PackageVersion Include="System.Formats.Asn1" Version="$(SystemFormatsAsn1Version)" />
+    <PackageVersion Include="Microsoft.Build.Framework" Version="$(MicrosoftBuildFrameworkVersion)" />
+    <!--Workaround for Microsoft.Data.SqlClient v5.1.6 and Microsoft.CodeAnalysis.Analyzer.Testing v1.1.2-->
+    <PackageVersion Include="System.Formats.Asn1" Version="8.0.1" />
   </ItemGroup>
 </Project>
