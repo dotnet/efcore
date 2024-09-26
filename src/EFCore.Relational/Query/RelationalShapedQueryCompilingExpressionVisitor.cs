@@ -85,40 +85,26 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
 
     /// <inheritdoc />
     protected override Expression VisitExtension(Expression extensionExpression)
-        => extensionExpression is NonQueryExpression nonQueryExpression
-            ? VisitNonQuery(nonQueryExpression)
-            : base.VisitExtension(extensionExpression);
-
-    /// <summary>
-    ///     Visits the given <paramref name="nonQueryExpression" />, returning an expression that when compiled, can execute the non-
-    ///     query operation against the database.
-    /// </summary>
-    /// <param name="nonQueryExpression">The expression to be compiled.</param>
-    /// <returns>An expression which executes a non-query operation.</returns>
-    protected virtual Expression VisitNonQuery(NonQueryExpression nonQueryExpression)
     {
-        // Apply tags
-        var innerExpression = nonQueryExpression.Expression;
-        switch (innerExpression)
+        return extensionExpression switch
         {
-            case UpdateExpression updateExpression:
-                innerExpression = updateExpression.ApplyTags(_tags);
-                break;
+            UpdateExpression updateExpression => GenerateNonQueryShaper(updateExpression.ApplyTags(_tags), CommandSource.ExecuteUpdate),
+            DeleteExpression deleteExpression => GenerateNonQueryShaper(deleteExpression.ApplyTags(_tags), CommandSource.ExecuteUpdate),
+            _ => base.VisitExtension(extensionExpression)
+        };
 
-            case DeleteExpression deleteExpression:
-                innerExpression = deleteExpression.ApplyTags(_tags);
-                break;
+        Expression GenerateNonQueryShaper(Expression nonQueryExpression, CommandSource commandSource)
+        {
+            var relationalCommandResolver = CreateRelationalCommandResolverExpression(nonQueryExpression);
+
+            return Call(
+                QueryCompilationContext.IsAsync ? NonQueryAsyncMethodInfo : NonQueryMethodInfo,
+                Convert(QueryCompilationContext.QueryContextParameter, typeof(RelationalQueryContext)),
+                relationalCommandResolver,
+                Constant(_contextType),
+                Constant(commandSource),
+                Constant(_threadSafetyChecksEnabled));
         }
-
-        var relationalCommandResolver = CreateRelationalCommandResolverExpression(innerExpression);
-
-        return Call(
-            QueryCompilationContext.IsAsync ? NonQueryAsyncMethodInfo : NonQueryMethodInfo,
-            Convert(QueryCompilationContext.QueryContextParameter, typeof(RelationalQueryContext)),
-            relationalCommandResolver,
-            Constant(_contextType),
-            Constant(nonQueryExpression.CommandSource),
-            Constant(_threadSafetyChecksEnabled));
     }
 
     private static readonly MethodInfo NonQueryMethodInfo
