@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 public partial class RelationalQueryableMethodTranslatingExpressionVisitor
 {
     /// <inheritdoc />
-    protected override NonQueryExpression? TranslateExecuteDelete(ShapedQueryExpression source)
+    protected override DeleteExpression? TranslateExecuteDelete(ShapedQueryExpression source)
     {
         source = source.UpdateShaperExpression(new IncludePruner().Visit(source.ShaperExpression));
 
@@ -115,7 +115,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                 selectExpression.ReplaceProjection(new List<Expression>());
                 selectExpression.ApplyProjection();
 
-                return new NonQueryExpression(new DeleteExpression(unwrappedTableExpression, selectExpression));
+                return new DeleteExpression(unwrappedTableExpression, selectExpression);
             }
         }
 

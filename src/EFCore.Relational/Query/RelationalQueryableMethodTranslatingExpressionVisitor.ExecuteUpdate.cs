@@ -16,7 +16,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
         typeof(RelationalSqlTranslatingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(ParameterValueExtractor))!;
 
     /// <inheritdoc />
-    protected override NonQueryExpression? TranslateExecuteUpdate(ShapedQueryExpression source, LambdaExpression setPropertyCalls)
+    protected override UpdateExpression? TranslateExecuteUpdate(ShapedQueryExpression source, LambdaExpression setPropertyCalls)
     {
         // Our source may have IncludeExpressions because of owned entities or auto-include; unwrap these, as they're meaningless for
         // ExecuteUpdate's lambdas. Note that we don't currently support updates across tables.
@@ -62,7 +62,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
             selectExpression.ReplaceProjection(new List<Expression>());
             selectExpression.ApplyProjection();
 
-            return new NonQueryExpression(new UpdateExpression(tableExpression, selectExpression, translatedSetters));
+            return new UpdateExpression(tableExpression, selectExpression, translatedSetters);
         }
 
         return PushdownWithPkInnerJoinPredicate();
@@ -420,7 +420,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
             return translatedValueSelector;
         }
 
-        NonQueryExpression? PushdownWithPkInnerJoinPredicate()
+        UpdateExpression? PushdownWithPkInnerJoinPredicate()
         {
             // The provider doesn't natively support the update.
             // As a fallback, we place the original query in a subquery and user an INNER JOIN on the primary key columns.
@@ -518,7 +518,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
 
             outerSelectExpression.ReplaceProjection(new List<Expression>());
             outerSelectExpression.ApplyProjection();
-            return new NonQueryExpression(new UpdateExpression(tableExpression, outerSelectExpression, translatedSetters));
+            return new UpdateExpression(tableExpression, outerSelectExpression, translatedSetters);
         }
 
         static Expression GetEntitySource(IModel model, Expression propertyAccessExpression)
