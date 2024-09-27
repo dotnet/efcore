@@ -78,6 +78,46 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
             });
 
     [ConditionalFact]
+    public virtual Task Add_owned_entity_with_json()
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                var newEntity = new JsonEntityHasComplexChild
+                {
+                    Id = 1,
+                    Name = "NewEntity",
+                    EntityReference = new JsonEntityHasComplexChildForReference
+                    {
+                        Id = 2,
+                        Name = "NewReference",
+                        AEntityReference = new AJsonEntityHasComplexChildForReferenceForReference
+                        {
+                            Id = 3,
+                            Name = "NewReferenceReference"
+                        }
+                    }
+                };
+
+                context.Set<JsonEntityHasComplexChild>().Add(newEntity);
+                ClearLog();
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                var query = await context.JsonEntitiesHasComplexChild.ToListAsync();
+                Assert.Equal(1, query.Count);
+
+                var newEntity = query.Where(e => e.Id == 1).Single();
+                Assert.Equal("NewEntity", newEntity.Name);
+                Assert.Equal(2, newEntity.EntityReference.Id);
+                Assert.Equal("NewReference", newEntity.EntityReference.Name);
+                Assert.Equal(3, newEntity.EntityReference.AEntityReference.Id);
+                Assert.Equal("NewReferenceReference", newEntity.EntityReference.AEntityReference.Name);
+            });
+
+    [ConditionalFact]
     public virtual Task Add_entity_with_json_null_navigations()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
