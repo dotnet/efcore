@@ -203,6 +203,7 @@ public abstract class JsonUpdateFixtureBase : SharedStoreFixtureBase<JsonQueryCo
 
         modelBuilder.Entity<JsonEntityHasComplexChild>().OwnsOne(x => x.EntityReference, b =>
         {
+            b.Property(x => x.Id).ValueGeneratedNever();
             b.ToJson();
             b.OwnsOne(x => x.AEntityReference, bb =>
             {
