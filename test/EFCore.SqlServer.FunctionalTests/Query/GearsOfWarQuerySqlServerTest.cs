@@ -7610,6 +7610,20 @@ WHERE CHARINDEX(0x01, [s].[Banner]) > 0
 """);
     }
 
+    public override async Task Byte_array_contains_parameter(bool async)
+    {
+        await base.Byte_array_contains_parameter(async);
+
+        AssertSql(
+            """
+@__someByte_0='1' (Size = 1)
+
+SELECT [s].[Id], [s].[Banner], [s].[Banner5], [s].[InternalNumber], [s].[Name]
+FROM [Squads] AS [s]
+WHERE CHARINDEX(CAST(@__someByte_0 AS varbinary(max)), [s].[Banner]) > 0
+""");
+    }
+
     public override async Task Byte_array_filter_by_length_literal(bool async)
     {
         await base.Byte_array_filter_by_length_literal(async);
@@ -7650,20 +7664,6 @@ WHERE CAST(DATALENGTH([s].[Banner]) AS int) = CAST(DATALENGTH(@__byteArrayParam)
 """);
     }
 
-    public override async Task Byte_array_contains_parameter(bool async)
-    {
-        await base.Byte_array_contains_parameter(async);
-
-        AssertSql(
-            """
-@__someByte_0='1' (Size = 1)
-
-SELECT [s].[Id], [s].[Banner], [s].[Banner5], [s].[InternalNumber], [s].[Name]
-FROM [Squads] AS [s]
-WHERE CHARINDEX(CAST(@__someByte_0 AS varbinary(max)), [s].[Banner]) > 0
-""");
-    }
-
     public override async Task Byte_array_filter_by_length_literal_does_not_cast_on_varbinary_n(bool async)
     {
         await base.Byte_array_filter_by_length_literal_does_not_cast_on_varbinary_n(async);
@@ -7675,6 +7675,116 @@ FROM [Squads] AS [s]
 WHERE DATALENGTH([s].[Banner5]) = 5
 """);
     }
+
+    #region Byte Array IndexOf Translation
+
+    public override async Task Byte_array_IndexOf_with_literal(bool async)
+    {
+        await base.Byte_array_IndexOf_with_literal(async);
+
+        AssertSql(
+            """
+SELECT [s].[Id], [s].[Banner], [s].[Banner5], [s].[InternalNumber], [s].[Name]
+FROM [Squads] AS [s]
+WHERE CAST(CHARINDEX(0x01, [s].[Banner]) AS int) - 1 = 1
+""");
+    }
+
+    public override async Task Byte_array_IndexOf_with_parameter(bool async)
+    {
+        await base.Byte_array_IndexOf_with_parameter(async);
+
+        AssertSql(
+            """
+@__b_0='0' (Size = 1)
+
+SELECT [s].[Id], [s].[Banner], [s].[Banner5], [s].[InternalNumber], [s].[Name]
+FROM [Squads] AS [s]
+WHERE CAST(CHARINDEX(CAST(@__b_0 AS varbinary(max)), [s].[Banner]) AS int) - 1 = 0
+""");
+    }
+
+    public override async Task Byte_array_with_length_IndexOf_with_literal(bool async)
+    {
+        await base.Byte_array_with_length_IndexOf_with_literal(async);
+
+        AssertSql(
+            """
+SELECT [s].[Id], [s].[Banner], [s].[Banner5], [s].[InternalNumber], [s].[Name]
+FROM [Squads] AS [s]
+WHERE CHARINDEX(0x05, [s].[Banner5]) - 1 = 1
+""");
+    }
+
+    public override async Task Byte_array_with_length_IndexOf_with_parameter(bool async)
+    {
+        await base.Byte_array_with_length_IndexOf_with_parameter(async);
+
+        AssertSql(
+            """
+@__b_0='4' (Size = 1)
+
+SELECT [s].[Id], [s].[Banner], [s].[Banner5], [s].[InternalNumber], [s].[Name]
+FROM [Squads] AS [s]
+WHERE CHARINDEX(CAST(@__b_0 AS varbinary(5)), [s].[Banner5]) - 1 = 0
+""");
+    }
+
+    public override async Task Byte_array_IndexOf_with_startIndex_with_literals(bool async)
+    {
+        await base.Byte_array_IndexOf_with_startIndex_with_literals(async);
+
+        AssertSql(
+            """
+SELECT [s].[Id], [s].[Banner], [s].[Banner5], [s].[InternalNumber], [s].[Name]
+FROM [Squads] AS [s]
+WHERE CAST(CHARINDEX(0x01, [s].[Banner], 2) AS int) - 1 = 1
+""");
+    }
+
+    public override async Task Byte_array_IndexOf_with_startIndex_with_parameters(bool async)
+    {
+        await base.Byte_array_IndexOf_with_startIndex_with_parameters(async);
+
+        AssertSql(
+            """
+@__b_0='0' (Size = 1)
+@__startPos_1='0'
+
+SELECT [s].[Id], [s].[Banner], [s].[Banner5], [s].[InternalNumber], [s].[Name]
+FROM [Squads] AS [s]
+WHERE CAST(CHARINDEX(CAST(@__b_0 AS varbinary(max)), [s].[Banner], @__startPos_1 + 1) AS int) - 1 = 0
+""");
+    }
+
+    public override async Task Byte_array_with_length_IndexOf_with_startIndex_with_literals(bool async)
+    {
+        await base.Byte_array_with_length_IndexOf_with_startIndex_with_literals(async);
+
+        AssertSql(
+            """
+SELECT [s].[Id], [s].[Banner], [s].[Banner5], [s].[InternalNumber], [s].[Name]
+FROM [Squads] AS [s]
+WHERE CHARINDEX(0x05, [s].[Banner5], 2) - 1 = 1
+""");
+    }
+
+    public override async Task Byte_array_with_length_IndexOf_with_startIndex_with_parameters(bool async)
+    {
+        await base.Byte_array_with_length_IndexOf_with_startIndex_with_parameters(async);
+
+        AssertSql(
+            """
+@__b_0='4' (Size = 1)
+@__startPos_1='0'
+
+SELECT [s].[Id], [s].[Banner], [s].[Banner5], [s].[InternalNumber], [s].[Name]
+FROM [Squads] AS [s]
+WHERE CHARINDEX(CAST(@__b_0 AS varbinary(5)), [s].[Banner5], @__startPos_1 + 1) - 1 = 0
+""");
+    }
+
+    #endregion
 
     public override async Task Conditional_expression_with_test_being_simplified_to_constant_simple(bool isAsync)
     {

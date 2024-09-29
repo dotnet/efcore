@@ -14,6 +14,9 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
 /// </summary>
 public class SqliteByteArrayMethodTranslator : IMethodCallTranslator
 {
+    private static readonly MethodInfo ArrayIndexOf
+        = typeof(Array).GetMethod(nameof(Array.IndexOf), 1, BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly, null, CallingConventions.Any, [Type.MakeGenericMethodParameter(0).MakeArrayType(), Type.MakeGenericMethodParameter(0)], null)!;
+
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
     /// <summary>
@@ -38,28 +41,26 @@ public class SqliteByteArrayMethodTranslator : IMethodCallTranslator
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
     {
         if (method.IsGenericMethod
-            && method.GetGenericMethodDefinition().Equals(EnumerableMethods.Contains)
+            && arguments.Count >= 1
             && arguments[0].Type == typeof(byte[]))
         {
-            var source = arguments[0];
+            var genericMethodDefinition = method.GetGenericMethodDefinition();
+            if (genericMethodDefinition.Equals(EnumerableMethods.Contains))
+            {
+                return _sqlExpressionFactory.GreaterThan(
+                        GetInStrSqlFunctionExpression(arguments[0], arguments[1]),
+                    _sqlExpressionFactory.Constant(0));
 
-            var value = arguments[1] is SqlConstantExpression constantValue
-                ? (SqlExpression)_sqlExpressionFactory.Constant(new[] { (byte)constantValue.Value! }, source.TypeMapping)
-                : _sqlExpressionFactory.Function(
-                    "char",
-                    new[] { arguments[1] },
-                    nullable: false,
-                    argumentsPropagateNullability: new[] { false },
-                    typeof(string));
+            }
 
-            return _sqlExpressionFactory.GreaterThan(
-                _sqlExpressionFactory.Function(
-                    "instr",
-                    new[] { source, value },
-                    nullable: true,
-                    argumentsPropagateNullability: new[] { true, true },
-                    typeof(int)),
-                _sqlExpressionFactory.Constant(0));
+            if (genericMethodDefinition.Equals(ArrayIndexOf))
+            {
+                return _sqlExpressionFactory.Subtract(
+                        GetInStrSqlFunctionExpression(arguments[0], arguments[1]),
+                    _sqlExpressionFactory.Constant(1));
+            }
+
+            // NOTE: IndexOf Method with a starting position is not supported by SQLite
         }
 
         // See issue#16428
@@ -89,5 +90,24 @@ public class SqliteByteArrayMethodTranslator : IMethodCallTranslator
         //}
 
         return null;
+
+        SqlExpression GetInStrSqlFunctionExpression(SqlExpression source, SqlExpression valueToSearch)
+        {
+            var value = valueToSearch is SqlConstantExpression { Value: byte constantValue }
+                ? _sqlExpressionFactory.Constant(new byte[] { constantValue }, source.TypeMapping)
+                : _sqlExpressionFactory.Function(
+                    "char",
+                    [valueToSearch],
+                    nullable: false,
+                    argumentsPropagateNullability: [false],
+                    typeof(string));
+
+            return _sqlExpressionFactory.Function(
+                "instr",
+                [source, value],
+                nullable: true,
+                argumentsPropagateNullability: [true, true],
+                typeof(int));
+        }
     }
 }

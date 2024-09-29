@@ -301,6 +301,74 @@ WHERE "s"."Banner5" = @__byteArrayParam_0
 """);
     }
 
+    #region Byte Array IndexOf Translation
+
+    public override async Task Byte_array_IndexOf_with_literal(bool async)
+    {
+        await base.Byte_array_IndexOf_with_literal(async);
+
+        AssertSql(
+            """
+SELECT "s"."Id", "s"."Banner", "s"."Banner5", "s"."InternalNumber", "s"."Name"
+FROM "Squads" AS "s"
+WHERE instr("s"."Banner", X'01') - 1 = 1
+""");
+    }
+
+    public override async Task Byte_array_IndexOf_with_parameter(bool async)
+    {
+        await base.Byte_array_IndexOf_with_parameter(async);
+
+        AssertSql(
+            """
+@__b_0='0'
+
+SELECT "s"."Id", "s"."Banner", "s"."Banner5", "s"."InternalNumber", "s"."Name"
+FROM "Squads" AS "s"
+WHERE instr("s"."Banner", char(@__b_0)) - 1 = 0
+""");
+    }
+
+    public override async Task Byte_array_with_length_IndexOf_with_literal(bool async)
+    {
+        await base.Byte_array_with_length_IndexOf_with_literal(async);
+
+        AssertSql(
+            """
+SELECT "s"."Id", "s"."Banner", "s"."Banner5", "s"."InternalNumber", "s"."Name"
+FROM "Squads" AS "s"
+WHERE instr("s"."Banner5", X'05') - 1 = 1
+""");
+    }
+
+    public override async Task Byte_array_with_length_IndexOf_with_parameter(bool async)
+    {
+        await base.Byte_array_with_length_IndexOf_with_parameter(async);
+
+        AssertSql(
+            """
+@__b_0='4'
+
+SELECT "s"."Id", "s"."Banner", "s"."Banner5", "s"."InternalNumber", "s"."Name"
+FROM "Squads" AS "s"
+WHERE instr("s"."Banner5", char(@__b_0)) - 1 = 0
+""");
+    }
+
+    public override Task Byte_array_IndexOf_with_startIndex_with_literals(bool async)
+        => AssertTranslationFailed(() => base.Byte_array_IndexOf_with_startIndex_with_literals(async));
+
+    public override Task Byte_array_IndexOf_with_startIndex_with_parameters(bool async)
+        => AssertTranslationFailed(() => base.Byte_array_IndexOf_with_startIndex_with_parameters(async));
+
+    public override Task Byte_array_with_length_IndexOf_with_startIndex_with_literals(bool async)
+        => AssertTranslationFailed(() => base.Byte_array_with_length_IndexOf_with_startIndex_with_literals(async));
+
+    public override Task Byte_array_with_length_IndexOf_with_startIndex_with_parameters(bool async)
+        => AssertTranslationFailed(() => base.Byte_array_with_length_IndexOf_with_startIndex_with_parameters(async));
+
+    #endregion
+
     public override Task Where_TimeSpan_Hours(bool async)
         // TimeSpan. Issue #18844.
         => AssertTranslationFailed(() => base.Where_TimeSpan_Hours(async));

@@ -14,6 +14,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 /// </summary>
 public class SqlServerByteArrayMethodTranslator : IMethodCallTranslator
 {
+    private static readonly MethodInfo ArrayIndexOf
+        = typeof(Array).GetMethod(nameof(Array.IndexOf), 1, BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly, null, CallingConventions.Any, [Type.MakeGenericMethodParameter(0).MakeArrayType(), Type.MakeGenericMethodParameter(0)], null)!;
+
+    private static readonly MethodInfo ArrayIndexOfWithStartIndex
+        = typeof(Array).GetMethod(nameof(Array.IndexOf), 1, BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly, null, CallingConventions.Any, [Type.MakeGenericMethodParameter(0).MakeArrayType(), Type.MakeGenericMethodParameter(0), typeof(int)], null)!;
+
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
     /// <summary>
@@ -38,31 +44,32 @@ public class SqlServerByteArrayMethodTranslator : IMethodCallTranslator
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
     {
         if (method.IsGenericMethod
-            && method.GetGenericMethodDefinition().Equals(EnumerableMethods.Contains)
+            && arguments.Count >= 1
             && arguments[0].Type == typeof(byte[]))
         {
-            var source = arguments[0];
-            var sourceTypeMapping = source.TypeMapping;
+            var methodDefinition = method.GetGenericMethodDefinition();
+            if (methodDefinition.Equals(EnumerableMethods.Contains))
+            {
+                var source = arguments[0];
+                var sourceTypeMapping = source.TypeMapping;
 
-            var value = arguments[1] is SqlConstantExpression constantValue
-                ? _sqlExpressionFactory.Constant(new[] { (byte)constantValue.Value! }, sourceTypeMapping)
-                : _sqlExpressionFactory.Convert(arguments[1], typeof(byte[]), sourceTypeMapping);
+                var value = arguments[1] is SqlConstantExpression constantValue
+                    ? _sqlExpressionFactory.Constant(new[] { (byte)constantValue.Value! }, sourceTypeMapping)
+                    : _sqlExpressionFactory.Convert(arguments[1], typeof(byte[]), sourceTypeMapping);
 
-            return _sqlExpressionFactory.GreaterThan(
-                _sqlExpressionFactory.Function(
-                    "CHARINDEX",
-                    [value, source],
-                    nullable: true,
-                    argumentsPropagateNullability: [true, true],
-                    typeof(int)),
-                _sqlExpressionFactory.Constant(0));
-        }
+                return _sqlExpressionFactory.GreaterThan(
+                    _sqlExpressionFactory.Function(
+                        "CHARINDEX",
+                        [value, source],
+                        nullable: true,
+                        argumentsPropagateNullability: [true, true],
+                        typeof(int)),
+                    _sqlExpressionFactory.Constant(0));
+            }
 
-        if (method.IsGenericMethod
-            && method.GetGenericMethodDefinition().Equals(EnumerableMethods.FirstWithoutPredicate)
-            && arguments[0].Type == typeof(byte[]))
-        {
-            return _sqlExpressionFactory.Convert(
+            if (methodDefinition.Equals(EnumerableMethods.FirstWithoutPredicate))
+            {
+                return _sqlExpressionFactory.Convert(
                 _sqlExpressionFactory.Function(
                     "SUBSTRING",
                     [arguments[0], _sqlExpressionFactory.Constant(1), _sqlExpressionFactory.Constant(1)],
@@ -70,8 +77,69 @@ public class SqlServerByteArrayMethodTranslator : IMethodCallTranslator
                     argumentsPropagateNullability: [true, true, true],
                     typeof(byte[])),
                 method.ReturnType);
+            }
+
+            if (methodDefinition.Equals(ArrayIndexOf))
+            {
+                return TranslateByteArrayIndexOf(method, arguments[0], arguments[1], null);
+            }
+
+            if (methodDefinition.Equals(ArrayIndexOfWithStartIndex))
+            {
+                return TranslateByteArrayIndexOf(method, arguments[0], arguments[1], arguments[2]);
+            }
         }
 
         return null;
+    }
+
+    private SqlExpression TranslateByteArrayIndexOf(
+        MethodInfo method,
+        SqlExpression source,
+        SqlExpression valueToSearch,
+        SqlExpression? startIndex)
+    {
+        var sourceTypeMapping = source.TypeMapping;
+        var sqlArguments = new List<SqlExpression>
+        {
+            valueToSearch is SqlConstantExpression { Value: byte constantValue }
+                ? _sqlExpressionFactory.Constant(new byte[] { constantValue }, sourceTypeMapping)
+                : _sqlExpressionFactory.Convert(valueToSearch, typeof(byte[]), sourceTypeMapping),
+            source
+        };
+
+        if (startIndex is not null)
+        {
+            sqlArguments.Add(
+                startIndex is SqlConstantExpression { Value : int index }
+                    ? _sqlExpressionFactory.Constant(index + 1, typeof(int))
+                    : _sqlExpressionFactory.Add(startIndex, _sqlExpressionFactory.Constant(1)));
+        }
+
+        var argumentsPropagateNullability = Enumerable.Repeat(true, sqlArguments.Count);
+
+        SqlExpression charIndexExpr;
+        var storeType = sourceTypeMapping?.StoreType;
+        if (storeType == "varbinary(max)")
+        {
+            charIndexExpr = GetCharIndexSqlFunctionExpression(sqlArguments, argumentsPropagateNullability, typeof(long));
+            charIndexExpr = _sqlExpressionFactory.Convert(charIndexExpr, typeof(int));
+        }
+        else
+        {
+            charIndexExpr = GetCharIndexSqlFunctionExpression(sqlArguments, argumentsPropagateNullability, method.ReturnType);
+        }
+
+        return _sqlExpressionFactory.Subtract(charIndexExpr, _sqlExpressionFactory.Constant(1));
+
+        SqlExpression GetCharIndexSqlFunctionExpression(List<SqlExpression> sqlArguments, IEnumerable<bool> argumentsPropagateNullability, Type returnType)
+        {
+            return _sqlExpressionFactory.Function(
+                "CHARINDEX",
+                sqlArguments,
+                nullable: true,
+                argumentsPropagateNullability: argumentsPropagateNullability,
+                returnType);
+        }
     }
 }
