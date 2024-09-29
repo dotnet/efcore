@@ -3595,6 +3595,8 @@ ORDER BY [c].[CustomerID]
         AssertSql();
     }
 
+    #region FinalGroupBy
+
     public override async Task Final_GroupBy_property_entity(bool async)
     {
         await base.Final_GroupBy_property_entity(async);
@@ -3771,6 +3773,22 @@ WHERE [c].[Country] = N'USA'
 ORDER BY [c].[City], [c].[CustomerID]
 """);
     }
+
+    public override async Task Final_GroupBy_TagWith(bool async)
+    {
+        await base.Final_GroupBy_TagWith(async);
+
+        AssertSql(
+            """
+-- foo
+
+SELECT [c].[City], [c].[CustomerID], [c].[Address], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+ORDER BY [c].[City]
+""");
+    }
+
+    #endregion FinalGroupBy
 
     public override async Task GroupBy_Where_with_grouping_result(bool async)
     {

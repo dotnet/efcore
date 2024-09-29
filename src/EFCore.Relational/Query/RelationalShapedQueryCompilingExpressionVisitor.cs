@@ -265,7 +265,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
 
         if (shapedQueryExpression.ShaperExpression is RelationalGroupByResultExpression relationalGroupByResultExpression)
         {
-            var elementSelector = new ShaperProcessingExpressionVisitor(this, selectExpression, selectExpression.Tags, splitQuery, false)
+            var elementSelector = new ShaperProcessingExpressionVisitor(this, selectExpression, _tags, splitQuery, indexMap: false)
                 .ProcessRelationalGroupingResult(
                     relationalGroupByResultExpression,
                     out var relationalCommandResolver,
