@@ -1396,10 +1396,11 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             .Split(["\r\n", "\n"], StringSplitOptions.None);
 
         var batchBuilder = new StringBuilder();
+        var prevLineStatementTerminated = false;
         foreach (var line in preBatched)
         {
             var trimmed = line.TrimStart();
-            if (trimmed.StartsWith("GO", StringComparison.OrdinalIgnoreCase)
+            if (trimmed.StartsWith("GO", StringComparison.OrdinalIgnoreCase) && prevLineStatementTerminated
                 && (trimmed.Length == 2
                     || char.IsWhiteSpace(trimmed[2])))
             {
@@ -1419,6 +1420,12 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             else
             {
                 batchBuilder.AppendLine(line);
+                if (!string.IsNullOrWhiteSpace(line))
+                {
+                    prevLineStatementTerminated =
+                        line.EndsWith(Dependencies.SqlGenerationHelper.StatementTerminator, StringComparison.Ordinal)
+                        || line.StartsWith("--", StringComparison.Ordinal);
+                }
             }
         }
 
@@ -1426,7 +1433,11 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
 
         void AppendBatch(string batch)
         {
-            builder.Append(batch);
+            if (!string.IsNullOrEmpty(batch))
+            {
+                builder.Append(batch);
+            }
+
             EndStatement(builder, operation.SuppressTransaction);
         }
     }

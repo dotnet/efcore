@@ -83,7 +83,8 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
             x => Assert.Equal("00000000000004_Migration4", x.MigrationId),
             x => Assert.Equal("00000000000005_Migration5", x.MigrationId),
             x => Assert.Equal("00000000000006_Migration6", x.MigrationId),
-            x => Assert.Equal("00000000000007_Migration7", x.MigrationId));
+            x => Assert.Equal("00000000000007_Migration7", x.MigrationId),
+            x => Assert.Equal("00000000000008_Migration8", x.MigrationId));
 
         Assert.Equal(1, Fixture.SeedCallCount);
         Assert.Equal(0, Fixture.SeedAsyncCallCount);
@@ -110,7 +111,8 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
             x => Assert.Equal("00000000000004_Migration4", x.MigrationId),
             x => Assert.Equal("00000000000005_Migration5", x.MigrationId),
             x => Assert.Equal("00000000000006_Migration6", x.MigrationId),
-            x => Assert.Equal("00000000000007_Migration7", x.MigrationId));
+            x => Assert.Equal("00000000000007_Migration7", x.MigrationId),
+            x => Assert.Equal("00000000000008_Migration8", x.MigrationId));
 
         Assert.Equal(0, Fixture.SeedCallCount);
         Assert.Equal(1, Fixture.SeedAsyncCallCount);
@@ -681,6 +683,32 @@ public abstract class MigrationsInfrastructureFixtureBase
 
         protected override void Up(MigrationBuilder migrationBuilder)
             => migrationBuilder.Sql($"INSERT INTO Table1 (Id, Bar, Description) VALUES (-3, 5, '{TestValue}')");
+
+        protected override void Down(MigrationBuilder migrationBuilder)
+        {
+        }
+    }
+
+    [DbContext(typeof(MigrationsContext))]
+    [Migration("00000000000008_Migration8")]
+    private class Migration8 : Migration
+    {
+        protected override void Up(MigrationBuilder migrationBuilder)
+        {
+            if (ActiveProvider == "Microsoft.EntityFrameworkCore.SqlServer")
+            {
+                migrationBuilder.Sql(@"
+
+SELECT GetDate()
+GO
+SELECT GetDate()
+GO
+SELECT GetDate()
+GO
+
+");
+            }
+        }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {

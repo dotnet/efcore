@@ -17,12 +17,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         MigrationsInfrastructureSqlServerTest.MigrationsInfrastructureSqlServerFixture fixture)
         : MigrationsInfrastructureTestBase<MigrationsInfrastructureSqlServerTest.MigrationsInfrastructureSqlServerFixture>(fixture)
     {
-        public override void Can_apply_all_migrations() // Issue #32826
-            => Assert.Throws<SqlException>(base.Can_apply_all_migrations);
-
-        public override Task Can_apply_all_migrations_async() // Issue #32826
-            => Assert.ThrowsAsync<SqlException>(base.Can_apply_all_migrations_async);
-
         public override void Can_apply_range_of_migrations()
         {
             base.Can_apply_range_of_migrations();
@@ -183,13 +177,28 @@ Value With
 
 GO
 
-
 Empty Lines
 GO')
 GO
 
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
 VALUES (N'00000000000007_Migration7', N'7.0.0-test');
+GO
+
+
+
+SELECT GetDate()
+GO
+SELECT GetDate()
+GO
+SELECT GetDate()
+GO
+
+
+GO
+
+INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+VALUES (N'00000000000008_Migration8', N'7.0.0-test');
 GO
 
 COMMIT;
@@ -296,13 +305,28 @@ Value With
 
 GO
 
-
 Empty Lines
 GO')
 GO
 
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
 VALUES (N'00000000000007_Migration7', N'7.0.0-test');
+GO
+
+
+
+SELECT GetDate()
+GO
+SELECT GetDate()
+GO
+SELECT GetDate()
+GO
+
+
+GO
+
+INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+VALUES (N'00000000000008_Migration8', N'7.0.0-test');
 GO
 
 
@@ -546,14 +570,7 @@ BEGIN
     INSERT INTO Table1 (Id, Bar, Description) VALUES (-3, 5, 'GO
     Value With
 
-END;
-GO
-
-IF NOT EXISTS (
-    SELECT * FROM [__EFMigrationsHistory]
-    WHERE [MigrationId] = N'00000000000007_Migration7'
-)
-BEGIN
+    GO
 
     Empty Lines
     GO')
@@ -567,6 +584,34 @@ IF NOT EXISTS (
 BEGIN
     INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
     VALUES (N'00000000000007_Migration7', N'7.0.0-test');
+END;
+GO
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'00000000000008_Migration8'
+)
+BEGIN
+
+
+    SELECT GetDate()
+    GO
+    SELECT GetDate()
+    GO
+    SELECT GetDate()
+    GO
+
+
+END;
+GO
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'00000000000008_Migration8'
+)
+BEGIN
+    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+    VALUES (N'00000000000008_Migration8', N'7.0.0-test');
 END;
 GO
 
@@ -755,14 +800,7 @@ BEGIN
     INSERT INTO Table1 (Id, Bar, Description) VALUES (-3, 5, 'GO
     Value With
 
-END;
-GO
-
-IF NOT EXISTS (
-    SELECT * FROM [__EFMigrationsHistory]
-    WHERE [MigrationId] = N'00000000000007_Migration7'
-)
-BEGIN
+    GO
 
     Empty Lines
     GO')
@@ -776,6 +814,34 @@ IF NOT EXISTS (
 BEGIN
     INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
     VALUES (N'00000000000007_Migration7', N'7.0.0-test');
+END;
+GO
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'00000000000008_Migration8'
+)
+BEGIN
+
+
+    SELECT GetDate()
+    GO
+    SELECT GetDate()
+    GO
+    SELECT GetDate()
+    GO
+
+
+END;
+GO
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'00000000000008_Migration8'
+)
+BEGIN
+    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+    VALUES (N'00000000000008_Migration8', N'7.0.0-test');
 END;
 GO
 
