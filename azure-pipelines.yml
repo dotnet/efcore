@@ -55,7 +55,7 @@ extends:
       baseline:
         baselineFile: $(Build.SourcesDirectory)\.config\guardian\.gdnbaselines
       binskim:
-        analyzeTargetGlob: $(Build.SourcesDirectory)/artifacts/bin/**.dll;$(Build.SourcesDirectory)/artifacts/bin/**.exe;
+        analyzeTargetGlob: $(Build.SourcesDirectory)/artifacts/bin/*.dll;$(Build.SourcesDirectory)/artifacts/bin/*.exe;
       policheck:
         enabled: true
       tsa:
