@@ -105,6 +105,9 @@ GO')
 INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
 VALUES ('00000000000007_Migration7', '7.0.0-test');
 
+INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
+VALUES ('00000000000008_Migration8', '7.0.0-test');
+
 COMMIT;
 
 
@@ -169,6 +172,9 @@ GO')
 
 INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
 VALUES ('00000000000007_Migration7', '7.0.0-test');
+
+INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
+VALUES ('00000000000008_Migration8', '7.0.0-test');
 
 
 """,
