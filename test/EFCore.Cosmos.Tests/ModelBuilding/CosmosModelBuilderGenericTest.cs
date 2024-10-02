@@ -1023,28 +1023,20 @@ public class CosmosModelBuilderGenericTest : ModelBuilderGenericTest
         {
             var modelBuilder = CreateModelBuilder();
 
-            modelBuilder.Entity<OneToOneOwnerWithField>(
-                e =>
-                {
-                    e.Property(p => p.Id);
-                    e.Property(p => p.AlternateKey);
-                    e.Property(p => p.Description);
-                    e.HasKey(p => p.Id);
-                });
+            modelBuilder.Entity<OwnerOfOwnees>();
 
             var model = modelBuilder.FinalizeModel();
 
-            var owner = model.FindEntityType(typeof(OneToOneOwnerWithField));
-            Assert.Equal(typeof(OneToOneOwnerWithField).FullName, owner.Name);
-            var ownership = owner.FindNavigation(nameof(OneToOneOwnerWithField.OwnedDependent)).ForeignKey;
+            var owner = model.FindEntityType(typeof(OwnerOfOwnees))!;
+            var ownership = owner.FindNavigation(nameof(OwnerOfOwnees.Ownee1))!.ForeignKey;
             Assert.True(ownership.IsOwnership);
-            Assert.Equal(nameof(OneToOneOwnerWithField.OwnedDependent), ownership.PrincipalToDependent.Name);
-            Assert.Equal(nameof(OneToOneOwnedWithField.OneToOneOwner), ownership.DependentToPrincipal.Name);
-            Assert.Equal(nameof(OneToOneOwnerWithField.Id), ownership.PrincipalKey.Properties.Single().Name);
+            Assert.Equal(nameof(OwnerOfOwnees.Ownee1), ownership.PrincipalToDependent!.Name);
+            Assert.Equal(nameof(Ownee1.Owner), ownership.DependentToPrincipal!.Name);
+            Assert.Equal(nameof(OwnerOfOwnees.Id), ownership.PrincipalKey.Properties.Single().Name);
             var owned = ownership.DeclaringEntityType;
             Assert.Single(owned.GetForeignKeys());
-            Assert.NotNull(model.FindEntityType(typeof(OneToOneOwnedWithField)));
-            Assert.Equal(1, model.GetEntityTypes().Count(e => e.ClrType == typeof(OneToOneOwnedWithField)));
+            Assert.NotNull(model.FindEntityType(typeof(Ownee1)));
+            Assert.Equal(1, model.GetEntityTypes().Count(e => e.ClrType == typeof(Ownee1)));
         }
 
         protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder> configure = null)

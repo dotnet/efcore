@@ -18,6 +18,9 @@ public abstract class InternalTypeBaseBuilder : AnnotatableBuilder<TypeBase, Int
     private static readonly bool UseOldBehavior34201 =
         AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue34201", out var enabled34201) && enabled34201;
 
+    internal static readonly bool UseOldBehavior29997 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue29997", out var enabled29997) && enabled29997;
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -754,7 +757,14 @@ public abstract class InternalTypeBaseBuilder : AnnotatableBuilder<TypeBase, Int
         {
             if (conflictingProperty.GetConfigurationSource() != ConfigurationSource.Explicit)
             {
-                conflictingProperty.DeclaringType.RemoveProperty(conflictingProperty);
+                if (UseOldBehavior29997)
+                {
+                    conflictingProperty.DeclaringType.RemoveProperty(conflictingProperty);
+                }
+                else
+                {
+                    conflictingProperty.DeclaringType.Builder.RemoveProperty(conflictingProperty, configurationSource);
+                }
             }
         }
 

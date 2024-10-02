@@ -559,6 +559,12 @@ public abstract partial class ModelBuilderTest
             modelBuilder.Owned<Ownee1>();
             modelBuilder.Owned<Ownee2>();
             modelBuilder.Owned<Ownee3>();
+
+            var model = modelBuilder.FinalizeModel();
+
+            var owner = model.FindEntityType(typeof(OwnerOfOwnees))!;
+            var ownership = owner.FindNavigation(nameof(OwnerOfOwnees.Ownee1))!.ForeignKey;
+            Assert.True(ownership.IsOwnership);
         }
 
         [Flags]
