@@ -5,6 +5,15 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Models.AdventureWorks;
 
 public abstract class AdventureWorksContextBase : DbContext
 {
+    public AdventureWorksContextBase()
+    {
+    }
+
+    public AdventureWorksContextBase(DbContextOptions options)
+        : base(options)
+    {
+    }
+
     public virtual DbSet<Address> Address { get; set; }
     public virtual DbSet<AddressType> AddressType { get; set; }
     public virtual DbSet<BillOfMaterials> BillOfMaterials { get; set; }

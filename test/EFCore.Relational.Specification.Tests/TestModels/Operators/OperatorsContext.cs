@@ -3,13 +3,10 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.Operators;
 
-public class OperatorsContext : DbContext
-{
-    public OperatorsContext(DbContextOptions options)
-        : base(options)
-    {
-    }
+#nullable disable
 
+public class OperatorsContext(DbContextOptions options) : DbContext(options)
+{
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<OperatorEntityString>().Property(x => x.Id).ValueGeneratedNever();
@@ -19,5 +16,6 @@ public class OperatorsContext : DbContext
         modelBuilder.Entity<OperatorEntityBool>().Property(x => x.Id).ValueGeneratedNever();
         modelBuilder.Entity<OperatorEntityNullableBool>().Property(x => x.Id).ValueGeneratedNever();
         modelBuilder.Entity<OperatorEntityDateTimeOffset>().Property(x => x.Id).ValueGeneratedNever();
+        modelBuilder.Entity<OperatorEntityNullableDateTimeOffset>().Property(x => x.Id).ValueGeneratedNever();
     }
 }

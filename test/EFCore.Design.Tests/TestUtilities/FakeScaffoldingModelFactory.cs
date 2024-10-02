@@ -7,21 +7,16 @@ using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
-public class FakeScaffoldingModelFactory : RelationalScaffoldingModelFactory
+public class FakeScaffoldingModelFactory(
+    IOperationReporter reporter,
+    ICandidateNamingService candidateNamingService,
+    IPluralizer pluralizer,
+    ICSharpUtilities cSharpUtilities,
+    IScaffoldingTypeMapper scaffoldingTypeMapper,
+    IModelRuntimeInitializer modelRuntimeInitializer) : RelationalScaffoldingModelFactory(
+    reporter, candidateNamingService, pluralizer, cSharpUtilities, scaffoldingTypeMapper,
+    modelRuntimeInitializer)
 {
-    public FakeScaffoldingModelFactory(
-        IOperationReporter reporter,
-        ICandidateNamingService candidateNamingService,
-        IPluralizer pluralizer,
-        ICSharpUtilities cSharpUtilities,
-        IScaffoldingTypeMapper scaffoldingTypeMapper,
-        IModelRuntimeInitializer modelRuntimeInitializer)
-        : base(
-            reporter, candidateNamingService, pluralizer, cSharpUtilities, scaffoldingTypeMapper,
-            modelRuntimeInitializer)
-    {
-    }
-
     public override IModel Create(DatabaseModel databaseModel, ModelReverseEngineerOptions options)
     {
         foreach (var sequence in databaseModel.Sequences)

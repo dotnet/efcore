@@ -5,11 +5,13 @@
     <TargetFramework>$(DefaultNetCoreTargetFramework)</TargetFramework>
     <AssemblyName>Microsoft.EntityFrameworkCore.AspNet.Specification.Tests</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
+    <Nullable>disable</Nullable>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <IsPackable>true</IsPackable>
     <IncludeSymbols>true</IncludeSymbols>
     <ImplicitUsings>true</ImplicitUsings>
     <NoWarn>$(NoWarn);8981</NoWarn>
+    <DefineConstants Condition="$([MSBuild]::IsOSPlatform('OSX'))">$(DefineConstants);EXCLUDE_ON_MAC</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
@@ -48,13 +50,15 @@
     <ProjectReference Include="..\..\src\EFCore.Relational\EFCore.Relational.csproj" />
     <ProjectReference Include="..\..\src\EFCore.Design\EFCore.Design.csproj" />
     <ProjectReference Include="..\EFCore.Specification.Tests\EFCore.Specification.Tests.csproj" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="7.0.12" />
-    <PackageReference Include="IdentityServer4.EntityFramework" Version="4.1.2" />
-    <PackageReference Include="Grpc.AspNetCore" Version="2.45.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" />
+    <PackageReference Include="IdentityServer4.EntityFramework" />
+    <PackageReference Condition="!$([MSBuild]::IsOSPlatform('OSX'))" Include="Grpc.AspNetCore" />
+    <!-- Suppress NuGet audit warnings for IdentityServer4, see https://github.com/dotnet/efcore/issues/34485 -->
+    <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-ff4q-64jc-gx98;https://github.com/advisories/GHSA-55p7-v223-x366" />
   </ItemGroup>
 
   <ItemGroup>
-    <Protobuf Include="ProtoTest.proto" />
+    <Protobuf Condition="!$([MSBuild]::IsOSPlatform('OSX'))" Include="ProtoTest.proto" />
   </ItemGroup>
 
 </Project>

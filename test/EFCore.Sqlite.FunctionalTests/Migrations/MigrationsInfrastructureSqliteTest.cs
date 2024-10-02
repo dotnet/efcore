@@ -1,20 +1,17 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+#nullable disable
+
 using Identity30.Data;
 using Microsoft.EntityFrameworkCore.TestModels.AspNetIdentity;
 using ModelSnapshot22;
 
 namespace Microsoft.EntityFrameworkCore.Migrations
 {
-    public class MigrationsInfrastructureSqliteTest
-        : MigrationsInfrastructureTestBase<MigrationsInfrastructureSqliteTest.MigrationsInfrastructureSqliteFixture>
+    public class MigrationsInfrastructureSqliteTest(MigrationsInfrastructureSqliteTest.MigrationsInfrastructureSqliteFixture fixture)
+        : MigrationsInfrastructureTestBase<MigrationsInfrastructureSqliteTest.MigrationsInfrastructureSqliteFixture>(fixture)
     {
-        public MigrationsInfrastructureSqliteTest(MigrationsInfrastructureSqliteFixture fixture)
-            : base(fixture)
-        {
-        }
-
         public override void Can_generate_migration_from_initial_database_to_initial()
         {
             base.Can_generate_migration_from_initial_database_to_initial();
@@ -71,45 +68,25 @@ CREATE TABLE "Table1" (
 INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
 VALUES ('00000000000001_Migration1', '7.0.0-test');
 
-COMMIT;
-
-BEGIN TRANSACTION;
-
 ALTER TABLE "Table1" RENAME COLUMN "Foo" TO "Bar";
 
 INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
 VALUES ('00000000000002_Migration2', '7.0.0-test');
 
-COMMIT;
-
-BEGIN TRANSACTION;
-
 INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
 VALUES ('00000000000003_Migration3', '7.0.0-test');
-
-COMMIT;
-
-BEGIN TRANSACTION;
 
 INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
 VALUES ('00000000000004_Migration4', '7.0.0-test');
 
-COMMIT;
-
-BEGIN TRANSACTION;
-
-INSERT INTO Table1 (Id, Bar, Description) VALUES (-1, ' ', 'Value With
+INSERT INTO Table1 (Id, Bar, Description) VALUES (-1, 3, 'Value With
 
 Empty Lines')
 
 INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
 VALUES ('00000000000005_Migration5', '7.0.0-test');
 
-COMMIT;
-
-BEGIN TRANSACTION;
-
-INSERT INTO Table1 (Id, Bar, Description) VALUES (-2, ' ', 'GO
+INSERT INTO Table1 (Id, Bar, Description) VALUES (-2, 4, 'GO
 Value With
 
 Empty Lines')
@@ -117,11 +94,7 @@ Empty Lines')
 INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
 VALUES ('00000000000006_Migration6', '7.0.0-test');
 
-COMMIT;
-
-BEGIN TRANSACTION;
-
-INSERT INTO Table1 (Id, Bar, Description) VALUES (-3, ' ', 'GO
+INSERT INTO Table1 (Id, Bar, Description) VALUES (-3, 5, 'GO
 Value With
 
 GO
@@ -171,14 +144,14 @@ VALUES ('00000000000003_Migration3', '7.0.0-test');
 INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
 VALUES ('00000000000004_Migration4', '7.0.0-test');
 
-INSERT INTO Table1 (Id, Bar, Description) VALUES (-1, ' ', 'Value With
+INSERT INTO Table1 (Id, Bar, Description) VALUES (-1, 3, 'Value With
 
 Empty Lines')
 
 INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
 VALUES ('00000000000005_Migration5', '7.0.0-test');
 
-INSERT INTO Table1 (Id, Bar, Description) VALUES (-2, ' ', 'GO
+INSERT INTO Table1 (Id, Bar, Description) VALUES (-2, 4, 'GO
 Value With
 
 Empty Lines')
@@ -186,7 +159,7 @@ Empty Lines')
 INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
 VALUES ('00000000000006_Migration6', '7.0.0-test');
 
-INSERT INTO Table1 (Id, Bar, Description) VALUES (-3, ' ', 'GO
+INSERT INTO Table1 (Id, Bar, Description) VALUES (-3, 5, 'GO
 Value With
 
 GO
@@ -263,10 +236,6 @@ ALTER TABLE "Table1" RENAME COLUMN "Bar" TO "Foo";
 
 DELETE FROM "__EFMigrationsHistory"
 WHERE "MigrationId" = '00000000000002_Migration2';
-
-COMMIT;
-
-BEGIN TRANSACTION;
 
 DROP TABLE "Table1";
 
