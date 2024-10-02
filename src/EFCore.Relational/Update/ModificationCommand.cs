@@ -673,13 +673,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
             var processedEntries = new List<IUpdateEntry>();
             foreach (var entry in _entries.Where(e => e.EntityType.IsMappedToJson()))
             {
-                var jsonColumn = GetTableMapping(entry.EntityType)!.Table.FindColumn(entry.EntityType.GetContainerColumnName()!);
-
-                if (jsonColumn == null)
-                {
-                    continue;
-                }
-
+                var jsonColumn = GetTableMapping(entry.EntityType)!.Table.FindColumn(entry.EntityType.GetContainerColumnName()!)!;
                 var jsonPartialUpdateInfo = FindJsonPartialUpdateInfo(entry, processedEntries);
 
                 if (jsonPartialUpdateInfo == null)

@@ -1084,6 +1084,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("JsonEmptyString");
 
         /// <summary>
+        ///     Entity '{jsonType}' is mapped to JSON column '{containingColumn}', but its owner '{ownerType}' is mapped to a different JSON column '{ownerContainingColumn}'. All owned entities must be mapped to the same JSON column. Only call '.ToJson()' on the outermost owned entity type.
+        /// </summary>
+        public static string JsonEntityMappedToDifferentColumnThanOwner(object? jsonType, object? containingColumn, object? ownerType, object? ownerContainingColumn)
+            => string.Format(
+                GetString("JsonEntityMappedToDifferentColumnThanOwner", nameof(jsonType), nameof(containingColumn), nameof(ownerType), nameof(ownerContainingColumn)),
+                jsonType, containingColumn, ownerType, ownerContainingColumn);
+
+        /// <summary>
         ///     Entity '{jsonType}' is mapped to JSON and also to a table or view '{tableOrViewName}', but its owner '{ownerType}' is mapped to a different table or view '{ownerTableOrViewName}'. Every entity mapped to JSON must also map to the same table or view as its owner.
         /// </summary>
         public static string JsonEntityMappedToDifferentTableOrViewThanOwner(object? jsonType, object? tableOrViewName, object? ownerType, object? ownerTableOrViewName)
@@ -1124,7 +1132,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 nonJsonType, table);
 
         /// <summary>
-        ///     Entity type '{jsonEntity}' is mapped to JSON and has a navigation to a regular entity which is not the owner.
+        ///     Entity type '{jsonEntity}' is mapped to JSON and has a navigation to a non-owned entity which is not the owner. This is currently not supported.
         /// </summary>
         public static string JsonEntityReferencingRegularEntity(object? jsonEntity)
             => string.Format(
@@ -2138,7 +2146,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 nodeType, expressionType);
 
         /// <summary>
-        ///     No relational type mapping can be found for property '{entity}.{property}' and the current provider doesn't specify a default store type for the properties of type '{clrType}'.
+        ///     No relational type mapping can be found for property '{entity}.{property}' and the current provider doesn't specify a default store type for the properties of type '{clrType}'. 
         /// </summary>
         public static string UnsupportedPropertyType(object? entity, object? property, object? clrType)
             => string.Format(
@@ -3437,11 +3445,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         /// </summary>
         public static EventDefinition LogMigrationsUserTransaction(IDiagnosticsLogger logger)
         {
-            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogMigrationsUserTransactionWarning;
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogMigrationsUserTransaction;
             if (definition == null)
             {
                 definition = NonCapturingLazyInitializer.EnsureInitialized(
-                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogMigrationsUserTransactionWarning,
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogMigrationsUserTransaction,
                     logger,
                     static logger => new EventDefinition(
                         logger.Options,
