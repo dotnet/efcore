@@ -27,6 +27,7 @@
     <MicrosoftExtensionsHostFactoryResolverSourcesVersion>8.0.8-servicing.24366.12</MicrosoftExtensionsHostFactoryResolverSourcesVersion>
     <MicrosoftExtensionsLoggingVersion>8.0.0</MicrosoftExtensionsLoggingVersion>
     <SystemTextJsonVersion>8.0.4</SystemTextJsonVersion>
+    <SystemFormatsAsn1Version>8.0.1</SystemFormatsAsn1Version>
     <MicrosoftNETCoreAppRefVersion>8.0.8</MicrosoftNETCoreAppRefVersion>
     <MicrosoftNETCoreAppRuntimewinx64Version>8.0.8</MicrosoftNETCoreAppRuntimewinx64Version>
     <MicrosoftNETCoreBrowserDebugHostTransportVersion>8.0.8-servicing.24366.12</MicrosoftNETCoreBrowserDebugHostTransportVersion>
