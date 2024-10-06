@@ -76,7 +76,7 @@ public class SqlServerDatabaseModelFactory : DatabaseModelFactory
 
     private byte? _compatibilityLevel;
     private EngineEdition? _engineEdition;
-    private string _version;
+    private string? _version;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
