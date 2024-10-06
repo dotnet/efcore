@@ -198,7 +198,7 @@ public class SqlServerDatabaseModelFactory : DatabaseModelFactory
             using var command = connection.CreateCommand();
             command.CommandText = "SELECT @@VERSION;";
             var result = command.ExecuteScalar();
-            return result != null ? result : "";
+            return result != null ? (string)result : string.Empty;
         }
 
         static byte GetCompatibilityLevel(DbConnection connection)
