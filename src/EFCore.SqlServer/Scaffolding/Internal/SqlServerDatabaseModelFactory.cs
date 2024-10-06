@@ -1478,7 +1478,7 @@ ORDER BY [table_schema], [table_name], [tr].[name];
 
     private bool IsFullFeaturedEngineEdition() 
     {
-        if (_version != null && _version.Contains("Kusto", StringComparision.Ordinal))
+        if (_version != null && _version.Contains("Kusto", StringComparison.Ordinal))
         {
             return false;
         }
