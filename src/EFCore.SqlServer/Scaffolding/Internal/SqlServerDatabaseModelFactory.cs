@@ -1464,7 +1464,7 @@ ORDER BY [table_schema], [table_name], [tr].[name];
         => _compatibilityLevel >= 120 && IsFullFeaturedEngineEdition();
 
     private bool SupportsSequences()
-        => _compatibilityLevel >= 110 && IsFullFeaturedEngineEdition() && !IsKusto();
+        => _compatibilityLevel >= 110 && IsFullFeaturedEngineEdition();
 
     private bool SupportsIndexes()
         => _engineEdition != EngineEdition.DynamicsTdsEndpoint;
@@ -1475,11 +1475,8 @@ ORDER BY [table_schema], [table_name], [tr].[name];
     private bool SupportsTriggers()
         => IsFullFeaturedEngineEdition();
 
-    private bool IsKusto()
-        => _version.Contains("Kusto");
-
     private bool IsFullFeaturedEngineEdition()
-        => _engineEdition is not EngineEdition.SqlDataWarehouse and not EngineEdition.SqlOnDemand and not EngineEdition.DynamicsTdsEndpoint;
+        => _engineEdition is not EngineEdition.SqlDataWarehouse and not EngineEdition.SqlOnDemand and not EngineEdition.DynamicsTdsEndpoint && !_version.Contains("Kusto", StringComparision.Ordinal);
 
     private static string DisplayName(string? schema, string name)
         => (!string.IsNullOrEmpty(schema) ? schema + "." : "") + name;
