@@ -76,6 +76,7 @@ public class SqlServerDatabaseModelFactory : DatabaseModelFactory
 
     private byte? _compatibilityLevel;
     private EngineEdition? _engineEdition;
+    private string _version;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -125,6 +126,7 @@ public class SqlServerDatabaseModelFactory : DatabaseModelFactory
 
             _compatibilityLevel = GetCompatibilityLevel(connection);
             _engineEdition = GetEngineEdition(connection);
+            _version = GetVersion(connection);
 
             databaseModel.DatabaseName = connection.Database;
             databaseModel.DefaultSchema = GetDefaultSchema(connection);
@@ -189,6 +191,14 @@ public class SqlServerDatabaseModelFactory : DatabaseModelFactory
             command.CommandText = "SELECT SERVERPROPERTY('EngineEdition');";
             var result = command.ExecuteScalar();
             return result != null ? (EngineEdition)Convert.ToInt32(result) : 0;
+        }
+
+        static string GetVersion(DbConnection connection)
+        {
+            using var command = connection.CreateCommand();
+            command.CommandText = "SELECT @@VERSION;";
+            var result = command.ExecuteScalar();
+            return result != null ? result : "";
         }
 
         static byte GetCompatibilityLevel(DbConnection connection)
@@ -1454,7 +1464,7 @@ ORDER BY [table_schema], [table_name], [tr].[name];
         => _compatibilityLevel >= 120 && IsFullFeaturedEngineEdition();
 
     private bool SupportsSequences()
-        => _compatibilityLevel >= 110 && IsFullFeaturedEngineEdition();
+        => _compatibilityLevel >= 110 && IsFullFeaturedEngineEdition() && !IsKusto();
 
     private bool SupportsIndexes()
         => _engineEdition != EngineEdition.DynamicsTdsEndpoint;
@@ -1464,6 +1474,9 @@ ORDER BY [table_schema], [table_name], [tr].[name];
 
     private bool SupportsTriggers()
         => IsFullFeaturedEngineEdition();
+
+    private bool IsKusto()
+        => _version.Contains("Kusto");
 
     private bool IsFullFeaturedEngineEdition()
         => _engineEdition is not EngineEdition.SqlDataWarehouse and not EngineEdition.SqlOnDemand and not EngineEdition.DynamicsTdsEndpoint;
