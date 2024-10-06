@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
 using System.Data;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
@@ -77,7 +76,7 @@ public class SqlServerDatabaseModelFactory : DatabaseModelFactory
 
     private byte? _compatibilityLevel;
     private EngineEdition? _engineEdition;
-    private string? _version;
+    private string? _versionInformation;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -127,7 +126,7 @@ public class SqlServerDatabaseModelFactory : DatabaseModelFactory
 
             _compatibilityLevel = GetCompatibilityLevel(connection);
             _engineEdition = GetEngineEdition(connection);
-            _version = GetVersion(connection);
+            _versionInformation = GetVersionInformation(connection);
 
             databaseModel.DatabaseName = connection.Database;
             databaseModel.DefaultSchema = GetDefaultSchema(connection);
@@ -194,12 +193,12 @@ public class SqlServerDatabaseModelFactory : DatabaseModelFactory
             return result != null ? (EngineEdition)Convert.ToInt32(result) : 0;
         }
 
-        static string GetVersion(DbConnection connection)
+        static string? GetVersionInformation(DbConnection connection)
         {
             using var command = connection.CreateCommand();
             command.CommandText = "SELECT @@VERSION;";
             var result = command.ExecuteScalar();
-            return result != null ? (string)result : string.Empty;
+            return result as string;
         }
 
         static byte GetCompatibilityLevel(DbConnection connection)
@@ -1476,9 +1475,9 @@ ORDER BY [table_schema], [table_name], [tr].[name];
     private bool SupportsTriggers()
         => IsFullFeaturedEngineEdition();
 
-    private bool IsFullFeaturedEngineEdition() 
+    private bool IsFullFeaturedEngineEdition()
     {
-        if (_version != null && _version.Contains("Kusto", StringComparison.Ordinal))
+        if (_versionInformation != null && _versionInformation.Contains("Kusto", StringComparison.Ordinal))
         {
             return false;
         }
