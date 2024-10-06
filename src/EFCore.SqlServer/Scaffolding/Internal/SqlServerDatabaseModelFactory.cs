@@ -1475,8 +1475,14 @@ ORDER BY [table_schema], [table_name], [tr].[name];
     private bool SupportsTriggers()
         => IsFullFeaturedEngineEdition();
 
-    private bool IsFullFeaturedEngineEdition()
-        => _engineEdition is not EngineEdition.SqlDataWarehouse and not EngineEdition.SqlOnDemand and not EngineEdition.DynamicsTdsEndpoint && !(_version != null && _version.Contains("Kusto", StringComparision.Ordinal));
+    private bool IsFullFeaturedEngineEdition() 
+    {
+        if (_version != null && _version.Contains("Kusto", StringComparision.Ordinal))
+        {
+            return false;
+        }
+        return _engineEdition is not EngineEdition.SqlDataWarehouse and not EngineEdition.SqlOnDemand and not EngineEdition.DynamicsTdsEndpoint;
+    }
 
     private static string DisplayName(string? schema, string name)
         => (!string.IsNullOrEmpty(schema) ? schema + "." : "") + name;
