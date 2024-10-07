@@ -134,15 +134,10 @@ public class SqlServerDatabaseCreator(
 IF EXISTS
     (SELECT *
      FROM [sys].[objects] o
+     LEFT JOIN sys.extended_properties AS [ep] on [ep].[major_id] = [o].[object_id] AND [ep].minor_id = 0 AND [ep].class = 1 AND [ep].[name] = N'microsoft_database_tools_support'
      WHERE [o].[type] = 'U'
      AND [o].[is_ms_shipped] = 0
-     AND NOT EXISTS (SELECT *
-         FROM [sys].[extended_properties] AS [ep]
-         WHERE [ep].[major_id] = [o].[object_id]
-             AND [ep].[minor_id] = 0
-             AND [ep].[class] = 1
-             AND [ep].[name] = N'microsoft_database_tools_support'
-    )
+     AND [ep].[major_id] IS NULL
 )
 SELECT 1 ELSE SELECT 0");
 
