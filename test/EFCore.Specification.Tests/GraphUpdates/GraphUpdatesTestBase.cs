@@ -898,15 +898,23 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
     protected virtual OwnerRoot CreateOwnerRoot()
         => new()
         {
-            OptionalSingle = new() { Name = "OS", Single = new() { Name = "OS2" } },
-            RequiredSingle = new() { Name = "RS", Single = new() { Name = "RS2 " } },
+            OptionalSingle = new OwnedOptionalSingle1 { Name = "OS", Single = new OwnedOptionalSingle2 { Name = "OS2" } },
+            RequiredSingle = new OwnedRequiredSingle1 { Name = "RS", Single = new OwnedRequiredSingle2 { Name = "RS2 " } },
             OptionalChildren =
             {
-                new() { Name = "OC1" }, new() { Name = "OC2", Children = { new() { Name = "OCC1" }, new() { Name = "OCC2" } } }
+                new OwnedOptional1 { Name = "OC1" },
+                new OwnedOptional1
+                {
+                    Name = "OC2", Children = { new OwnedOptional2 { Name = "OCC1" }, new OwnedOptional2 { Name = "OCC2" } }
+                }
             },
             RequiredChildren =
             {
-                new() { Name = "RC1", Children = { new() { Name = "RCC1" }, new() { Name = "RCC2" } } }, new() { Name = "RC2" }
+                new OwnedRequired1
+                {
+                    Name = "RC1", Children = { new OwnedRequired2 { Name = "RCC1" }, new OwnedRequired2 { Name = "RCC2" } }
+                },
+                new OwnedRequired1 { Name = "RC2" }
             }
         };
 

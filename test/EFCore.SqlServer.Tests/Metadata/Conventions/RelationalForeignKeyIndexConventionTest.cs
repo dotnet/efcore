@@ -64,6 +64,7 @@ public class RelationalForeignKeyIndexConventionTest
         Assert.Equal(Order.CustomerIdProperty.Name, dependentEntityBuilder.Metadata.GetIndexes().First().Properties.First().Name);
         Assert.Empty(dependentEntityBuilder.Metadata.GetForeignKeys());
     }
+
     private static TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions> CreateTestLogger()
         => new() { EnabledFor = LogLevel.Warning };
 

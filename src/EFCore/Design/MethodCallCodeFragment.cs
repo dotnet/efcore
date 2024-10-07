@@ -64,18 +64,14 @@ public class MethodCallCodeFragment : IMethodCallCodeFragment
         object?[] arguments,
         MethodCallCodeFragment chainedCall)
         : this(methodInfo, arguments)
-    {
-        ChainedCall = chainedCall;
-    }
+        => ChainedCall = chainedCall;
 
     private MethodCallCodeFragment(
         string method,
         object?[] arguments,
         MethodCallCodeFragment chainedCall)
         : this(method, arguments)
-    {
-        ChainedCall = chainedCall;
-    }
+        => ChainedCall = chainedCall;
 
     /// <summary>
     ///     Gets the <see cref="MethodInfo" /> for this method call.

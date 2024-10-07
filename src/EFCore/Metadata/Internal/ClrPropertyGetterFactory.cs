@@ -45,8 +45,10 @@ public class ClrPropertyGetterFactory : ClrAccessorFactory<IClrPropertyGetter>
         MemberInfo memberInfo,
         IPropertyBase? propertyBase)
     {
-        CreateExpressions<TEntity, TStructuralType, TValue>(memberInfo, propertyBase,
-            out var getterExpression, out var hasSentinelExpression, out var structuralGetterExpression, out var hasStructuralSentinelExpression);
+        CreateExpressions<TEntity, TStructuralType, TValue>(
+            memberInfo, propertyBase,
+            out var getterExpression, out var hasSentinelExpression, out var structuralGetterExpression,
+            out var hasStructuralSentinelExpression);
         return new ClrPropertyGetter<TEntity, TStructuralType, TValue>(
             getterExpression.Compile(),
             hasSentinelExpression.Compile(),
@@ -125,7 +127,8 @@ public class ClrPropertyGetterFactory : ClrAccessorFactory<IClrPropertyGetter>
         getterExpression = Expression.Lambda<Func<TEntity, TValue>>(readExpression, entityParameter);
         hasSentinelExpression = Expression.Lambda<Func<TEntity, bool>>(hasSentinelValueExpression, entityParameter);
         structuralGetterExpression = Expression.Lambda<Func<TStructuralType, TValue>>(structuralReadExpression, structuralParameter);
-        hasStructuralSentinelExpression = Expression.Lambda<Func<TStructuralType, bool>>(hasStructuralSentinelValueExpression, structuralParameter);
+        hasStructuralSentinelExpression =
+            Expression.Lambda<Func<TStructuralType, bool>>(hasStructuralSentinelValueExpression, structuralParameter);
 
         Expression CreateReadExpression(ParameterExpression parameter, bool fromContainingType)
         {

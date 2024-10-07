@@ -179,7 +179,7 @@ public class TextTemplatingModelGenerator : TemplatedModelGenerator
 
                     var entityTypeFileName = entityType.Name + entityTypeExtension;
                     resultingFiles.AdditionalFiles.Add(
-                        new ScaffoldedFile(entityTypeFileName,  generatedCode));
+                        new ScaffoldedFile(entityTypeFileName, generatedCode));
                 }
             }
             finally

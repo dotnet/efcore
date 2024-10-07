@@ -27,6 +27,7 @@ public class PrecompiledQuerySqliteTest(
         protected override ITestStoreFactory TestStoreFactory
             => SqliteTestStoreFactory.Instance;
 
-        public override PrecompiledQueryTestHelpers PrecompiledQueryTestHelpers => SqlitePrecompiledQueryTestHelpers.Instance;
+        public override PrecompiledQueryTestHelpers PrecompiledQueryTestHelpers
+            => SqlitePrecompiledQueryTestHelpers.Instance;
     }
 }

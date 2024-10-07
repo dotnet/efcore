@@ -34,9 +34,7 @@ public abstract class TypeMappingSourceBase : ITypeMappingSource
     /// </summary>
     /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
     protected TypeMappingSourceBase(TypeMappingSourceDependencies dependencies)
-    {
-        Dependencies = dependencies;
-    }
+        => Dependencies = dependencies;
 
     /// <summary>
     ///     Dependencies for this service.
@@ -120,10 +118,10 @@ public abstract class TypeMappingSourceBase : ITypeMappingSource
     /// <returns>The type mapping, or <see langword="null" /> if none was found.</returns>
     public abstract CoreTypeMapping? FindMapping(Type type, IModel model, CoreTypeMapping? elementMapping = null);
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public abstract CoreTypeMapping? FindMapping(MemberInfo member);
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public virtual CoreTypeMapping? FindMapping(MemberInfo member, IModel model, bool useAttributes)
         => FindMapping(member);
 

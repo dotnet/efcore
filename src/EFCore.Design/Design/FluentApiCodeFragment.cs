@@ -15,9 +15,7 @@ public class FluentApiCodeFragment : IMethodCallCodeFragment
     /// </summary>
     /// <param name="method">The method's name.</param>
     public FluentApiCodeFragment(string method)
-    {
-        Method = method;
-    }
+        => Method = method;
 
     /// <summary>
     ///     Gets the namespace of the method's declaring type.

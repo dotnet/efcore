@@ -51,7 +51,7 @@ public class CosmosJsonIdConvention
     ///     Creates a new instance of <see cref="CosmosJsonIdConvention" />.
     /// </summary>
     /// <param name="dependencies">Parameter object containing dependencies for this convention.</param>
-    /// <param name="definitionFactory">The factory to create a <see cref="IJsonIdDefinition"/> for each entity type.</param>
+    /// <param name="definitionFactory">The factory to create a <see cref="IJsonIdDefinition" /> for each entity type.</param>
     public CosmosJsonIdConvention(
         ProviderConventionSetBuilderDependencies dependencies,
         IJsonIdDefinitionFactory definitionFactory)
@@ -66,7 +66,7 @@ public class CosmosJsonIdConvention
     protected virtual ProviderConventionSetBuilderDependencies Dependencies { get; }
 
     /// <summary>
-    ///     The factory to create a <see cref="IJsonIdDefinition"/> for each entity type.
+    ///     The factory to create a <see cref="IJsonIdDefinition" /> for each entity type.
     /// </summary>
     protected virtual IJsonIdDefinitionFactory DefinitionFactory { get; }
 
@@ -78,22 +78,22 @@ public class CosmosJsonIdConvention
         var primaryKey = entityType.FindPrimaryKey();
         if (entityType.BaseType != null // Requires: IEntityTypeBaseTypeChangedConvention
             || !entityType.IsDocumentRoot() // Requires: IEntityTypeAnnotationChangedConvention (ContainerName)
-            || entityType.GetForeignKeys().Any(fk => fk.IsOwnership) // Requires: IForeignKeyOwnershipChangedConvention, IForeignKeyRemovedConvention
+            || entityType.GetForeignKeys()
+                .Any(fk => fk.IsOwnership) // Requires: IForeignKeyOwnershipChangedConvention, IForeignKeyRemovedConvention
             || primaryKey == null) // Requires: IKeyAddedConvention, IKeyRemovedConvention
         {
             // If the entity type is not a keyed, root document in the container, then it doesn't have an `id` mapping, so
             // undo anything that was done by previous execution of this convention.
-            if (jsonIdProperty != null)
+            if (jsonIdProperty is not null)
             {
                 jsonIdProperty.Builder.ToJsonProperty(null);
-                entityType.Builder.HasNoProperty(jsonIdProperty);
+                entityType.Builder.RemoveUnusedImplicitProperties([jsonIdProperty]);
             }
 
-            if (computedIdProperty != null
+            if (computedIdProperty is not null
                 && computedIdProperty != jsonIdProperty)
             {
-                entityType.Builder.HasNoProperty(computedIdProperty);
-            }
+                entityType.Builder.RemoveUnusedImplicitProperties([computedIdProperty]);            }
 
             return;
         }
@@ -114,10 +114,17 @@ public class CosmosJsonIdConvention
             // - IDiscriminatorPropertySetConvention
             // - IEntityTypeBaseTypeChangedConvention
             var idDefinition = DefinitionFactory.Create((IEntityType)entityType)!;
-            var keyProperty = (IConventionProperty?)idDefinition.Properties.FirstOrDefault();
             if (idDefinition is { IncludesDiscriminator: false, Properties.Count: 1 })
             {
-                var clrType = keyProperty!.GetValueConverter()?.ProviderClrType ?? keyProperty.ClrType;
+                // If the property maps to a string in the JSON document, then we can use it directly, even if a value converter
+                // is applied. On the other hand, if it maps to a numeric or bool, then we need to duplicate this to preserve the
+                // non-string value for queries.
+                var keyProperty = (IConventionProperty)idDefinition.Properties.First();
+                var mapping = Dependencies.TypeMappingSource.FindMapping((IProperty)keyProperty);
+                var clrType = mapping?.Converter?.ProviderClrType
+                    ?? mapping?.ClrType
+                    ?? keyProperty!.ClrType;
+
                 if (clrType == typeof(string))
                 {
                     // We are at the point where we are going to map the `id` directly to the PK.
@@ -227,6 +234,7 @@ public class CosmosJsonIdConvention
                 {
                     ProcessEntityType(entityTypeBuilder.Metadata, context);
                 }
+
                 break;
 
             case CosmosAnnotationNames.HasShadowId:
@@ -235,12 +243,15 @@ public class CosmosJsonIdConvention
                 {
                     ProcessEntityType(entityTypeBuilder.Metadata, context);
                 }
+
                 break;
         }
     }
 
     /// <inheritdoc />
-    public virtual void ProcessForeignKeyOwnershipChanged(IConventionForeignKeyBuilder relationshipBuilder, IConventionContext<bool?> context)
+    public virtual void ProcessForeignKeyOwnershipChanged(
+        IConventionForeignKeyBuilder relationshipBuilder,
+        IConventionContext<bool?> context)
         => ProcessEntityType(relationshipBuilder.Metadata.DeclaringEntityType, context);
 
     /// <inheritdoc />
@@ -262,7 +273,9 @@ public class CosmosJsonIdConvention
     }
 
     /// <inheritdoc />
-    public virtual void ProcessPropertyAdded(IConventionPropertyBuilder propertyBuilder, IConventionContext<IConventionPropertyBuilder> context)
+    public virtual void ProcessPropertyAdded(
+        IConventionPropertyBuilder propertyBuilder,
+        IConventionContext<IConventionPropertyBuilder> context)
         => ProcessEntityType(propertyBuilder.Metadata.DeclaringType.ContainingEntityType, context);
 
     /// <inheritdoc />

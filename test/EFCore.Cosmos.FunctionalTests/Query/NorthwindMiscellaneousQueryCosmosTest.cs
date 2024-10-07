@@ -672,8 +672,8 @@ FROM root c
             async, async a =>
             {
                 await base.Queryable_nested_simple(a);
-AssertSql(
-    """
+                AssertSql(
+                    """
 SELECT VALUE c
 FROM root c
 """);
@@ -733,8 +733,8 @@ OFFSET 0 LIMIT @__p_0
             async, async a =>
             {
                 await base.Take_simple_parameterized(a);
-AssertSql(
-    """
+                AssertSql(
+                    """
 @__p_0='10'
 
 SELECT VALUE c
@@ -749,8 +749,8 @@ OFFSET 0 LIMIT @__p_0
             async, async a =>
             {
                 await base.Take_simple_projection(a);
-AssertSql(
-    """
+                AssertSql(
+                    """
 @__p_0='10'
 
 SELECT VALUE c["City"]
@@ -765,8 +765,8 @@ OFFSET 0 LIMIT @__p_0
             async, async a =>
             {
                 await base.Take_subquery_projection(a);
-AssertSql(
-    """
+                AssertSql(
+                    """
 @__p_0='2'
 
 SELECT VALUE c["City"]
@@ -821,8 +821,8 @@ SELECT VALUE EXISTS (
             var exception = await Assert.ThrowsAsync<CosmosException>(() => base.Any_predicate(async));
 
             Assert.Equal(HttpStatusCode.BadRequest, exception.StatusCode);
-AssertSql(
-    """
+            AssertSql(
+                """
 SELECT VALUE EXISTS (
     SELECT 1
     FROM root c
@@ -1340,8 +1340,8 @@ SELECT VALUE EXISTS (
             async, async a =>
             {
                 await base.OrderBy(a);
-AssertSql(
-    """
+                AssertSql(
+                    """
 SELECT VALUE c
 FROM root c
 ORDER BY c["id"]
@@ -1374,8 +1374,8 @@ ORDER BY true
             // Cosmos client evaluation. Issue #17246.
             await Assert.ThrowsAsync<CosmosException>(
                 async () => await base.OrderBy_integer(async));
-AssertSql(
-    """
+            AssertSql(
+                """
 SELECT VALUE c
 FROM root c
 ORDER BY 3
@@ -1408,8 +1408,8 @@ ORDER BY @__param_0
             async, async a =>
             {
                 await base.OrderBy_anon(a);
-AssertSql(
-    """
+                AssertSql(
+                    """
 SELECT VALUE c["id"]
 FROM root c
 ORDER BY c["id"]
@@ -1421,8 +1421,8 @@ ORDER BY c["id"]
             async, async a =>
             {
                 await base.OrderBy_anon2(a);
-AssertSql(
-    """
+                AssertSql(
+                    """
 SELECT VALUE c
 FROM root c
 ORDER BY c["id"]
@@ -1471,8 +1471,8 @@ ORDER BY c["id"]
             // Cosmos client evaluation. Issue #17246.
             await Assert.ThrowsAsync<CosmosException>(
                 async () => await base.OrderBy_shadow(async));
-AssertSql(
-    """
+            AssertSql(
+                """
 SELECT VALUE c
 FROM root c
 ORDER BY c["Title"], c["EmployeeID"]
@@ -1743,8 +1743,8 @@ ORDER BY ((c["Region"] != null) ? c["Region"] : "ZZ"), c["id"]
             // Cosmos client evaluation. Issue #17246.
             await Assert.ThrowsAsync<CosmosException>(
                 async () => await base.Select_null_coalesce_operator(async));
-AssertSql(
-    """
+            AssertSql(
+                """
 SELECT VALUE
 {
     "CustomerID" : c["id"],
@@ -1765,8 +1765,8 @@ ORDER BY ((c["Region"] != null) ? c["Region"] : "ZZ"), c["id"]
             // Cosmos client evaluation. Issue #17246.
             await Assert.ThrowsAsync<CosmosException>(
                 async () => await base.OrderBy_conditional_operator(async));
-AssertSql(
-    """
+            AssertSql(
+                """
 SELECT VALUE c
 FROM root c
 ORDER BY ((c["Region"] = null) ? "ZZ" : c["Region"]), c["id"]
@@ -1811,8 +1811,8 @@ ORDER BY (c["Region"] = "ASK")
             async, async a =>
             {
                 await base.Projection_null_coalesce_operator(a);
-AssertSql(
-    """
+                AssertSql(
+                    """
 SELECT VALUE
 {
     "CustomerID" : c["id"],
@@ -1828,8 +1828,8 @@ FROM root c
             async, async a =>
             {
                 await base.Filter_coalesce_operator(a);
-AssertSql(
-    """
+                AssertSql(
+                    """
 SELECT VALUE c
 FROM root c
 WHERE (((c["ContactName"] != null) ? c["ContactName"] : c["CompanyName"]) = "Liz Nixon")
@@ -1906,8 +1906,8 @@ OFFSET 0 LIMIT @__p_0
             // Unsupported ORDER BY clause.
             await Assert.ThrowsAsync<CosmosException>(
                 () => base.Selected_column_can_coalesce(async));
-AssertSql(
-    """
+            AssertSql(
+                """
 SELECT VALUE c
 FROM root c
 ORDER BY ((c["Region"] != null) ? c["Region"] : "ZZ")
@@ -2073,8 +2073,8 @@ WHERE CONTAINS(c["id"], @__NewLine_0)
         {
             // Bitwise operators on booleans. Issue #13168.
             await Assert.ThrowsAsync<InvalidOperationException>(() => base.Select_bitwise_or(async));
-AssertSql(
-    """
+            AssertSql(
+                """
 SELECT VALUE
 {
     "CustomerID" : c["id"],
@@ -2093,8 +2093,8 @@ ORDER BY c["id"]
         {
             // Bitwise operators on booleans. Issue #13168.
             await Assert.ThrowsAsync<InvalidOperationException>(() => base.Select_bitwise_or_multiple(async));
-AssertSql(
-    """
+            AssertSql(
+                """
 SELECT VALUE
 {
     "CustomerID" : c["id"],
@@ -2113,8 +2113,8 @@ ORDER BY c["id"]
         {
             // Bitwise operators on booleans. Issue #13168.
             await Assert.ThrowsAsync<InvalidOperationException>(() => base.Select_bitwise_and(async));
-AssertSql(
-    """
+            AssertSql(
+                """
 SELECT VALUE
 {
     "CustomerID" : c["id"],
@@ -2133,8 +2133,8 @@ ORDER BY c["id"]
         {
             // Bitwise operators on booleans. Issue #13168.
             await Assert.ThrowsAsync<InvalidOperationException>(() => base.Select_bitwise_and_or(async));
-AssertSql(
-    """
+            AssertSql(
+                """
 SELECT VALUE
 {
     "CustomerID" : c["id"],
@@ -2153,8 +2153,8 @@ ORDER BY c["id"]
         {
             // Bitwise operators on booleans. Issue #13168.
             await Assert.ThrowsAsync<EqualException>(() => base.Where_bitwise_or_with_logical_or(async));
-AssertSql(
-    """
+            AssertSql(
+                """
 SELECT VALUE c
 FROM root c
 WHERE (((c["id"] = "ALFKI") | (c["id"] = "ANATR")) OR (c["id"] = "ANTON"))
@@ -2167,8 +2167,8 @@ WHERE (((c["id"] = "ALFKI") | (c["id"] = "ANATR")) OR (c["id"] = "ANTON"))
             async, async a =>
             {
                 await base.Where_bitwise_and_with_logical_and(a);
-AssertSql(
-    """
+                AssertSql(
+                    """
 SELECT VALUE c
 FROM root c
 WHERE (((c["id"] = "ALFKI") & (c["id"] = "ANATR")) AND (c["id"] = "ANTON"))
@@ -2182,8 +2182,8 @@ WHERE (((c["id"] = "ALFKI") & (c["id"] = "ANATR")) AND (c["id"] = "ANTON"))
         {
             // Bitwise operators on booleans. Issue #13168.
             await Assert.ThrowsAsync<EqualException>(() => base.Where_bitwise_or_with_logical_and(async));
-AssertSql(
-    """
+            AssertSql(
+                """
 SELECT VALUE c
 FROM root c
 WHERE (((c["id"] = "ALFKI") | (c["id"] = "ANATR")) AND (c["Country"] = "Germany"))
@@ -2196,8 +2196,8 @@ WHERE (((c["id"] = "ALFKI") | (c["id"] = "ANATR")) AND (c["Country"] = "Germany"
             async, async a =>
             {
                 await base.Where_bitwise_and_with_logical_or(a);
-AssertSql(
-    """
+                AssertSql(
+                    """
 SELECT VALUE c
 FROM root c
 WHERE (((c["id"] = "ALFKI") & (c["id"] = "ANATR")) OR (c["id"] = "ANTON"))
@@ -2269,8 +2269,8 @@ WHERE ((c["$type"] = "Order") AND ((c["OrderID"] ^ 1) = 10249))
         {
             // Bitwise operators on booleans. Issue #13168.
             await Assert.ThrowsAsync<InvalidOperationException>(() => base.Select_bitwise_or_with_logical_or(async));
-AssertSql(
-    """
+            AssertSql(
+                """
 SELECT VALUE
 {
     "CustomerID" : c["id"],
@@ -2289,8 +2289,8 @@ ORDER BY c["id"]
         {
             // Bitwise operators on booleans. Issue #13168.
             await Assert.ThrowsAsync<InvalidOperationException>(() => base.Select_bitwise_and_with_logical_and(async));
-AssertSql(
-    """
+            AssertSql(
+                """
 SELECT VALUE
 {
     "CustomerID" : c["id"],
@@ -2354,7 +2354,7 @@ WHERE ((c["$type"] = "Order") AND ((c["OrderID"] < 10400) AND (((c["OrderDate"] 
                     """
 SELECT VALUE c
 FROM root c
-WHERE false
+WHERE ((c["$type"] = "Order") AND false)
 """);
             });
 
@@ -2641,7 +2641,7 @@ WHERE (((c["$type"] = "Order") AND (c["OrderDate"] != null)) AND (DateTimePart("
         await AssertTranslationFailed(() => base.DefaultIfEmpty_in_subquery_nested_filter_order_comparison(async));
 
         AssertSql(
-);
+        );
     }
 
     public override async Task OrderBy_skip_take(bool async)
@@ -2700,7 +2700,7 @@ OFFSET @__p_0 LIMIT @__p_1
             CosmosStrings.LimitOffsetNotSupportedInSubqueries);
 
         AssertSql(
-);
+        );
     }
 
     public override Task OrderBy_skip_take_distinct(bool async)
@@ -2811,8 +2811,8 @@ OFFSET @__p_0 LIMIT @__p_1
             async, async a =>
             {
                 await base.Anonymous_member_distinct_where(a);
-AssertSql(
-    """
+                AssertSql(
+                    """
 SELECT DISTINCT VALUE c["id"]
 FROM root c
 WHERE (c["id"] = "ALFKI")
@@ -2842,8 +2842,8 @@ WHERE (c["id"] = "ALFKI")
             async, async a =>
             {
                 await base.Anonymous_complex_distinct_where(a);
-AssertSql(
-    """
+                AssertSql(
+                    """
 SELECT DISTINCT VALUE (c["id"] || c["City"])
 FROM root c
 WHERE ((c["id"] || c["City"]) = "ALFKIBerlin")
@@ -2865,7 +2865,7 @@ WHERE ((c["id"] || c["City"]) = "ALFKIBerlin")
         // Cosmos client evaluation. Issue #17246.
         await AssertTranslationFailed(() => base.Anonymous_complex_distinct_result(async));
         AssertSql(
-);
+        );
     }
 
     public override async Task Anonymous_complex_orderby(bool async)
@@ -2889,8 +2889,8 @@ ORDER BY (c["id"] || c["City"])
     {
         // Cosmos client evaluation. Issue #17246.
         await AssertTranslationFailed(() => base.Anonymous_subquery_orderby(async));
-AssertSql(
-);
+        AssertSql(
+        );
     }
 
     public override Task DTO_member_distinct_where(bool async)
@@ -2898,8 +2898,8 @@ AssertSql(
             async, async a =>
             {
                 await base.DTO_member_distinct_where(a);
-AssertSql(
-    """
+                AssertSql(
+                    """
 SELECT DISTINCT VALUE c["id"]
 FROM root c
 WHERE (c["id"] = "ALFKI")
@@ -2929,8 +2929,8 @@ WHERE (c["id"] = "ALFKI")
             async, async a =>
             {
                 await base.DTO_complex_distinct_where(a);
-AssertSql(
-    """
+                AssertSql(
+                    """
 SELECT DISTINCT VALUE (c["id"] || c["City"])
 FROM root c
 WHERE ((c["id"] || c["City"]) = "ALFKIBerlin")
@@ -2963,8 +2963,8 @@ WHERE ((c["id"] || c["City"]) = "ALFKIBerlin")
             // Cosmos client evaluation. Issue #17246.
             await Assert.ThrowsAsync<CosmosException>(
                 async () => await base.DTO_complex_orderby(async));
-AssertSql(
-    """
+            AssertSql(
+                """
 SELECT VALUE (c["id"] || c["City"])
 FROM root c
 ORDER BY (c["id"] || c["City"])
@@ -3190,8 +3190,8 @@ ORDER BY (c["id"] || c["City"])
     {
         // Cosmos client evaluation. Issue #17246.
         await AssertTranslationFailed(() => base.Select_distinct_sum(async));
-AssertSql(
-);
+        AssertSql(
+        );
     }
 
     public override Task Comparing_to_fixed_string_parameter(bool async)
@@ -3199,8 +3199,8 @@ AssertSql(
             async, async a =>
             {
                 await base.Comparing_to_fixed_string_parameter(a);
-AssertSql(
-    """
+                AssertSql(
+                    """
 @__prefix_0='A'
 
 SELECT VALUE c["id"]
@@ -3277,8 +3277,8 @@ ORDER BY c["id"]
             async, async a =>
             {
                 await base.Comparing_collection_navigation_to_null(a);
-AssertSql(
-    """
+                AssertSql(
+                    """
 SELECT VALUE c["id"]
 FROM root c
 WHERE (c["id"] = null)
@@ -3291,7 +3291,7 @@ WHERE (c["id"] = null)
         await AssertTranslationFailed(() => base.Comparing_collection_navigation_to_null_complex(async));
 
         AssertSql(
-);
+        );
     }
 
     public override Task Compare_collection_navigation_with_itself(bool async)
@@ -3299,8 +3299,8 @@ WHERE (c["id"] = null)
             async, async a =>
             {
                 await base.Compare_collection_navigation_with_itself(a);
-AssertSql(
-    """
+                AssertSql(
+                    """
 SELECT VALUE c["id"]
 FROM root c
 WHERE (STARTSWITH(c["id"], "A") AND (c["id"] = c["id"]))
@@ -3329,7 +3329,7 @@ WHERE (STARTSWITH(c["id"], "A") AND (c["id"] = c["id"]))
         await AssertTranslationFailed(() => base.Compare_two_collection_navigations_with_different_property_chains(async));
 
         AssertSql(
-);
+        );
     }
 
     public override Task OrderBy_ThenBy_same_column_different_direction(bool async)
@@ -3337,8 +3337,8 @@ WHERE (STARTSWITH(c["id"], "A") AND (c["id"] = c["id"]))
             async, async a =>
             {
                 await base.OrderBy_ThenBy_same_column_different_direction(a);
-AssertSql(
-    """
+                AssertSql(
+                    """
 SELECT VALUE c["id"]
 FROM root c
 WHERE STARTSWITH(c["id"], "A")
@@ -3351,8 +3351,8 @@ ORDER BY c["id"]
             async, async a =>
             {
                 await base.OrderBy_OrderBy_same_column_different_direction(a);
-AssertSql(
-    """
+                AssertSql(
+                    """
 SELECT VALUE c["id"]
 FROM root c
 WHERE STARTSWITH(c["id"], "A")
@@ -3383,8 +3383,8 @@ ORDER BY c["id"] DESC
             async, async a =>
             {
                 await base.OrderBy_Dto_projection_skip_take(a);
-AssertSql(
-    """
+                AssertSql(
+                    """
 @__p_0='5'
 @__p_1='10'
 
@@ -3399,8 +3399,8 @@ OFFSET @__p_0 LIMIT @__p_1
     {
         // Cosmos client evaluation. Issue #17246.
         await AssertTranslationFailed(() => base.Join_take_count_works(async));
-AssertSql(
-);
+        AssertSql(
+        );
     }
 
     public override async Task OrderBy_empty_list_contains(bool async)
@@ -3410,8 +3410,8 @@ AssertSql(
         {
             await Assert.ThrowsAsync<CosmosException>(
                 async () => await base.OrderBy_empty_list_contains(async));
-AssertSql(
-    """
+            AssertSql(
+                """
 @__list_0='[]'
 
 SELECT VALUE c
@@ -3615,8 +3615,8 @@ ORDER BY c["id"] DESC, c["Country"]
             // Cosmos client evaluation. Issue #17246.
             await Assert.ThrowsAsync<CosmosException>(
                 async () => await base.OrderByDescending_ThenByDescending(async));
-AssertSql(
-    """
+            AssertSql(
+                """
 SELECT VALUE c["City"]
 FROM root c
 ORDER BY c["id"] DESC, c["Country"] DESC
@@ -3630,7 +3630,7 @@ ORDER BY c["id"] DESC, c["Country"] DESC
         await AssertTranslationFailed(() => base.OrderBy_Join(async));
 
         AssertSql(
-);
+        );
     }
 
     public override async Task OrderBy_ThenBy(bool async)
@@ -3763,8 +3763,8 @@ FROM root c
             async, async a =>
             {
                 await base.Where_Property_when_shadow_unconstrained_generic_method(a);
-AssertSql(
-    """
+                AssertSql(
+                    """
 @__value_0='Sales Representative'
 
 SELECT VALUE c
@@ -4006,8 +4006,8 @@ WHERE (c["$type"] = "OrderDetail")
             async, async a =>
             {
                 await base.Entity_equality_contains_with_list_of_null(a);
-AssertSql(
-    """
+                AssertSql(
+                    """
 SELECT VALUE c
 FROM root c
 WHERE c["id"] IN (null, "ALFKI")
@@ -4208,8 +4208,8 @@ WHERE c["id"] IN (null, "ALFKI")
             async, async a =>
             {
                 await base.AsEnumerable_over_string(a);
-AssertSql(
-    """
+                AssertSql(
+                    """
 SELECT VALUE c["City"]
 FROM root c
 ORDER BY c["id"]
@@ -4289,8 +4289,8 @@ WHERE ((c["$type"] = "Order") AND (c["OrderDate"] != null))
         if (async)
         {
             await base.Throws_on_concurrent_query_first(async);
-AssertSql(
-    """
+            AssertSql(
+                """
 SELECT VALUE c
 FROM root c
 """);
@@ -4302,8 +4302,8 @@ FROM root c
             async, async a =>
             {
                 await base.Entity_equality_through_include(a);
-AssertSql(
-    """
+                AssertSql(
+                    """
 SELECT VALUE c["id"]
 FROM root c
 WHERE (c["id"] = null)
@@ -4352,8 +4352,8 @@ ORDER BY c["EmployeeID"]
             async, async a =>
             {
                 await base.OrderBy_Select(a);
-AssertSql(
-    """
+                AssertSql(
+                    """
 SELECT VALUE c["ContactName"]
 FROM root c
 ORDER BY c["id"]
@@ -4397,8 +4397,8 @@ FROM root c
             async, async a =>
             {
                 await base.ToList_over_string(a);
-AssertSql(
-    """
+                AssertSql(
+                    """
 SELECT VALUE c["City"]
 FROM root c
 ORDER BY c["id"]
@@ -4431,8 +4431,8 @@ WHERE ((c["$type"] = "OrderDetail") AND ((c["OrderID"] != null) AND (c["ProductI
             true, async _ =>
             {
                 await base.ToListAsync_with_canceled_token();
-AssertSql(
-    """
+                AssertSql(
+                    """
 SELECT VALUE c
 FROM root c
 """);
@@ -4460,8 +4460,8 @@ FROM root c
             async, async a =>
             {
                 await base.Entity_equality_orderby(a);
-AssertSql(
-    """
+                AssertSql(
+                    """
 SELECT VALUE c
 FROM root c
 ORDER BY c["id"]
@@ -4473,8 +4473,8 @@ ORDER BY c["id"]
             async, async a =>
             {
                 await base.Load_should_track_results(a);
-AssertSql(
-    """
+                AssertSql(
+                    """
 SELECT VALUE c
 FROM root c
 """);
@@ -4494,16 +4494,16 @@ FROM root c
             async, async a =>
             {
                 await base.Where_Property_shadow_closure(a);
-AssertSql(
-    """
+                AssertSql(
+                    """
 @__value_0='Sales Representative'
 
 SELECT VALUE c
 FROM root c
 WHERE (c["Title"] = @__value_0)
 """,
-    //
-    """
+                    //
+                    """
 @__value_0='Steven'
 
 SELECT VALUE c
@@ -4547,8 +4547,8 @@ ORDER BY c["id"]
             async, async a =>
             {
                 await base.MemberInitExpression_NewExpression_is_funcletized_even_when_bindings_are_not_evaluatable(a);
-AssertSql(
-    """
+                AssertSql(
+                    """
 SELECT VALUE c["id"]
 FROM root c
 WHERE STARTSWITH(c["id"], "A")
@@ -4608,8 +4608,8 @@ WHERE (c["Title"] = "Sales Representative")
         if (async)
         {
             await base.Throws_on_concurrent_query_list(async);
-AssertSql(
-    """
+            AssertSql(
+                """
 SELECT VALUE c
 FROM root c
 """);
@@ -4667,8 +4667,8 @@ FROM root c
             async, async a =>
             {
                 await base.OrderByDescending(a);
-AssertSql(
-    """
+                AssertSql(
+                    """
 SELECT VALUE c["City"]
 FROM root c
 ORDER BY c["id"] DESC
@@ -4964,8 +4964,8 @@ OFFSET @__p_0 LIMIT @__p_0
             async, async a =>
             {
                 await base.Contains_over_concatenated_columns_with_different_sizes(a);
-AssertSql(
-    """
+                AssertSql(
+                    """
 @__data_0='["ALFKIAlfreds Futterkiste","ANATRAna Trujillo Emparedados y helados"]'
 
 SELECT VALUE c
@@ -5003,8 +5003,8 @@ WHERE ARRAY_CONTAINS(@__data_0, (c["id"] || "SomeConstant"))
             async, async a =>
             {
                 await base.Contains_over_concatenated_column_and_parameter(a);
-AssertSql(
-    """
+                AssertSql(
+                    """
 @__data_1='["ALFKISomeVariable","ANATRSomeVariable","ALFKIX"]'
 @__someVariable_0='SomeVariable'
 
@@ -5035,8 +5035,8 @@ WHERE @__Contains_0
             async, async a =>
             {
                 await base.Compiler_generated_local_closure_produces_valid_parameter_name(a);
-AssertSql(
-    """
+                AssertSql(
+                    """
 @__customerId_0='ALFKI'
 @__details_City_1='Berlin'
 
@@ -5054,6 +5054,42 @@ WHERE ((c["id"] = @__customerId_0) AND (c["City"] = @__details_City_1))
 
                 AssertSql("ReadItem(None, ALFKI)");
             });
+
+    public override Task Select_Order(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Select_Order(a);
+
+                AssertSql(
+                    """
+SELECT VALUE c["id"]
+FROM root c
+ORDER BY c["id"]
+""");
+            });
+
+    public override Task Select_OrderDescending(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Select_OrderDescending(a);
+
+                AssertSql(
+                    """
+SELECT VALUE c["id"]
+FROM root c
+ORDER BY c["id"] DESC
+""");
+            });
+
+    public override async Task Where_Order_First(bool async)
+    {
+        await AssertTranslationFailed(
+            () => base.Where_Order_First(async));
+
+        AssertSql();
+    }
 
     #region ToPageAsync
 
@@ -5184,13 +5220,13 @@ ORDER BY c["id"]
         Assert.Equal("ALFKI", onlyPage.Values[0].CustomerID);
         Assert.Equal("WOLZA", onlyPage.Values[^1].CustomerID);
         Assert.Null(onlyPage.ContinuationToken);
-AssertSql(
-    """
+        AssertSql(
+            """
 SELECT VALUE COUNT(1)
 FROM root c
 """,
-    //
-    """
+            //
+            """
 SELECT VALUE c
 FROM root c
 ORDER BY c["id"]
@@ -5208,8 +5244,8 @@ ORDER BY c["id"]
 
         Assert.Equal("ALFKI", onlyPage.Values[0].CustomerID);
         Assert.Null(onlyPage.ContinuationToken);
-AssertSql(
-    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (c["id"] = "ALFKI")

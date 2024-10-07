@@ -431,6 +431,40 @@ WHERE (
 """);
     }
 
+    public override async Task Inline_collection_Contains_with_EF_Parameter(bool async)
+    {
+        await base.Inline_collection_Contains_with_EF_Parameter(async);
+
+        AssertSql(
+            """
+@__p_0='[2,999,1000]' (Size = 12)
+
+SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."String", "p"."Strings"
+FROM "PrimitiveCollectionsEntity" AS "p"
+WHERE "p"."Id" IN (
+    SELECT "p0"."value"
+    FROM json_each(@__p_0) AS "p0"
+)
+""");
+    }
+
+    public override async Task Inline_collection_Count_with_column_predicate_with_EF_Parameter(bool async)
+    {
+        await base.Inline_collection_Count_with_column_predicate_with_EF_Parameter(async);
+
+        AssertSql(
+            """
+@__p_0='[2,999,1000]' (Size = 12)
+
+SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."String", "p"."Strings"
+FROM "PrimitiveCollectionsEntity" AS "p"
+WHERE (
+    SELECT COUNT(*)
+    FROM json_each(@__p_0) AS "p0"
+    WHERE "p0"."value" > "p"."Id") = 2
+""");
+    }
+
     public override async Task Parameter_collection_Count(bool async)
     {
         await base.Parameter_collection_Count(async);
@@ -491,8 +525,8 @@ WHERE "p"."Int" IN (
     FROM json_each(@__ints_0) AS "i"
 )
 """,
-                //
-                """
+            //
+            """
 @__ints_0='[10,999]' (Size = 8)
 
 SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."String", "p"."Strings"
@@ -1455,6 +1489,22 @@ WHERE (
 """);
     }
 
+    public override async Task Parameter_collection_with_type_inference_for_JsonScalarExpression(bool async)
+    {
+        await base.Parameter_collection_with_type_inference_for_JsonScalarExpression(async);
+
+        AssertSql(
+            """
+@__values_0='["one","two"]' (Size = 13)
+
+SELECT CASE
+    WHEN "p"."Id" <> 0 THEN @__values_0 ->> ("p"."Int" % 2)
+    ELSE 'foo'
+END
+FROM "PrimitiveCollectionsEntity" AS "p"
+""");
+    }
+
     public override async Task Column_collection_Union_parameter_collection(bool async)
     {
         await base.Column_collection_Union_parameter_collection(async);
@@ -1921,7 +1971,8 @@ END IN (
 
     public class SimpleContext(SqliteConnection connection) : DbContext
     {
-        public DbSet<SimpleEntity> SimpleEntities => Set<SimpleEntity>();
+        public DbSet<SimpleEntity> SimpleEntities
+            => Set<SimpleEntity>();
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder.UseSqlite(connection);

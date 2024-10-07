@@ -2365,6 +2365,7 @@ public static class RelationalLoggerExtensions
             {
                 commandText = commandText.Substring(0, 100) + "...";
             }
+
             definition.Log(diagnostics, commandText, migration.GetType().ShortDisplayName());
         }
 
@@ -2390,7 +2391,68 @@ public static class RelationalLoggerExtensions
         {
             commandText = commandText.Substring(0, 100) + "...";
         }
+
         return d.GenerateMessage(commandText, p.Migration.GetType().ShortDisplayName());
+    }
+
+    /// <summary>
+    ///     Logs for the <see cref="RelationalEventId.AcquiringMigrationLock" /> event.
+    /// </summary>
+    /// <param name="diagnostics">The diagnostics logger to use.</param>
+    public static void AcquiringMigrationLock(
+        this IDiagnosticsLogger<DbLoggerCategory.Migrations> diagnostics)
+    {
+        var definition = RelationalResources.LogAcquiringMigrationLock(diagnostics);
+
+        if (diagnostics.ShouldLog(definition))
+        {
+            definition.Log(diagnostics);
+        }
+
+        if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+        {
+            var eventData = new EventData(
+                definition,
+                AcquiringMigrationLock);
+
+            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+        }
+    }
+
+    private static string AcquiringMigrationLock(EventDefinitionBase definition, EventData payload)
+    {
+        var d = (EventDefinition)definition;
+        return d.GenerateMessage();
+    }
+
+    /// <summary>
+    ///     Logs for the <see cref="RelationalEventId.MigrationsUserTransactionWarning" /> event.
+    /// </summary>
+    /// <param name="diagnostics">The diagnostics logger to use.</param>
+    public static void MigrationsUserTransactionWarning(
+        this IDiagnosticsLogger<DbLoggerCategory.Migrations> diagnostics)
+    {
+        var definition = RelationalResources.LogMigrationsUserTransaction(diagnostics);
+
+        if (diagnostics.ShouldLog(definition))
+        {
+            definition.Log(diagnostics);
+        }
+
+        if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+        {
+            var eventData = new EventData(
+                definition,
+                MigrationsUserTransactionWarning);
+
+            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+        }
+    }
+
+    private static string MigrationsUserTransactionWarning(EventDefinitionBase definition, EventData payload)
+    {
+        var d = (EventDefinition)definition;
+        return d.GenerateMessage();
     }
 
     /// <summary>

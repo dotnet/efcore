@@ -37,7 +37,8 @@ public class SqlServerOptionsExtensionTest
     }
 
     [DbContext(typeof(EmptyContext))]
-    private class EmptyContextModel(bool skipDetectChanges, Guid modelId, int entityTypeCount, int typeConfigurationCount) : RuntimeModel(skipDetectChanges, modelId, entityTypeCount, typeConfigurationCount)
+    private class EmptyContextModel(bool skipDetectChanges, Guid modelId, int entityTypeCount, int typeConfigurationCount) : RuntimeModel(
+        skipDetectChanges, modelId, entityTypeCount, typeConfigurationCount)
     {
         static EmptyContextModel()
         {

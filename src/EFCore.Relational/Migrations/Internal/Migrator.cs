@@ -1,8 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Transactions;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
-using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Internal;
 
@@ -26,11 +26,11 @@ public class Migrator : IMigrator
     private readonly IModelRuntimeInitializer _modelRuntimeInitializer;
     private readonly IDiagnosticsLogger<DbLoggerCategory.Migrations> _logger;
     private readonly IRelationalCommandDiagnosticsLogger _commandLogger;
-    private readonly IEnumerable<IMigratorPlugin> _plugins;
     private readonly IMigrationsModelDiffer _migrationsModelDiffer;
     private readonly IDesignTimeModel _designTimeModel;
     private readonly string _activeProvider;
-    private static readonly TimeSpan _defaultLockTimeout = TimeSpan.FromHours(1);
+    private readonly IDbContextOptions _contextOptions;
+    private readonly IExecutionStrategy _executionStrategy;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -52,9 +52,10 @@ public class Migrator : IMigrator
         IDiagnosticsLogger<DbLoggerCategory.Migrations> logger,
         IRelationalCommandDiagnosticsLogger commandLogger,
         IDatabaseProvider databaseProvider,
-        IEnumerable<IMigratorPlugin> plugins,
         IMigrationsModelDiffer migrationsModelDiffer,
-        IDesignTimeModel designTimeModel)
+        IDesignTimeModel designTimeModel,
+        IDbContextOptions contextOptions,
+        IExecutionStrategy executionStrategy)
     {
         _migrationsAssembly = migrationsAssembly;
         _historyRepository = historyRepository;
@@ -68,10 +69,11 @@ public class Migrator : IMigrator
         _modelRuntimeInitializer = modelRuntimeInitializer;
         _logger = logger;
         _commandLogger = commandLogger;
-        _plugins = plugins;
         _migrationsModelDiffer = migrationsModelDiffer;
         _designTimeModel = designTimeModel;
         _activeProvider = databaseProvider.Name;
+        _contextOptions = contextOptions;
+        _executionStrategy = executionStrategy;
     }
 
     /// <summary>
@@ -80,30 +82,100 @@ public class Migrator : IMigrator
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual void Migrate(Action<DbContext, IMigratorData>? seed, string? targetMigration, TimeSpan? lockTimeout)
+    protected virtual System.Data.IsolationLevel? MigrationTransactionIsolationLevel => null;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual void Migrate(string? targetMigration)
     {
+        var useTransaction = _connection.CurrentTransaction is null;
+        if (!useTransaction
+            && _executionStrategy.RetriesOnFailure)
+        {
+            throw new NotSupportedException(RelationalStrings.TransactionSuppressedMigrationInUserTransaction);
+        }
+
         if (RelationalResources.LogPendingModelChanges(_logger).WarningBehavior != WarningBehavior.Ignore
             && HasPendingModelChanges())
         {
             _logger.PendingModelChangesWarning(_currentContext.Context.GetType());
         }
 
+        if (!useTransaction)
+        {
+            _logger.MigrationsUserTransactionWarning();
+        }
+
         _logger.MigrateUsingConnection(this, _connection);
+
+        using var transactionScope = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
 
         if (!_databaseCreator.Exists())
         {
             _databaseCreator.Create();
         }
 
+        _connection.Open();
         try
         {
-            _connection.Open();
-
-            using var _ = _historyRepository.GetDatabaseLock(lockTimeout ?? _defaultLockTimeout);
-
-            if (!_historyRepository.Exists())
+            var state = new MigrationExecutionState();
+            if (_historyRepository.LockReleaseBehavior != LockReleaseBehavior.Transaction
+                && useTransaction)
             {
-                _historyRepository.Create();
+                state.DatabaseLock = _historyRepository.AcquireDatabaseLock();
+            }
+
+            _executionStrategy.Execute(
+                this,
+                static (_, migrator) =>
+                {
+                    migrator._connection.Open();
+                    try
+                    {
+                        return migrator._historyRepository.CreateIfNotExists();
+                    }
+                    finally
+                    {
+                        migrator._connection.Close();
+                    }
+                },
+                verifySucceeded: null);
+
+            _executionStrategy.Execute(
+                (Migrator: this,
+                TargetMigration: targetMigration,
+                State: state,
+                UseTransaction: useTransaction),
+                static (c, s) => s.Migrator.MigrateImplementation(c, s.TargetMigration, s.State, s.UseTransaction),
+                static (_, s) => new ExecutionResult<bool>(
+                    successful: s.Migrator.VerifyMigrationSucceeded(s.TargetMigration, s.State),
+                    result: true));
+        }
+        finally
+        {
+            _connection.Close();
+        }
+    }
+
+    private bool MigrateImplementation(
+        DbContext context, string? targetMigration, MigrationExecutionState state, bool useTransaction)
+    {
+        var connectionOpened = _connection.Open();
+        try
+        {
+            if (useTransaction)
+            {
+                state.Transaction = MigrationTransactionIsolationLevel == null
+                    ? _connection.BeginTransaction()
+                    : _connection.BeginTransaction(MigrationTransactionIsolationLevel.Value);
+
+                state.DatabaseLock = state.DatabaseLock == null
+                    ? _historyRepository.AcquireDatabaseLock()
+                    : state.DatabaseLock.ReacquireIfNeeded(connectionOpened, useTransaction);
             }
 
             PopulateMigrations(
@@ -111,31 +183,43 @@ public class Migrator : IMigrator
                 targetMigration,
                 out var migratorData);
 
-            foreach (var plugin in _plugins)
-            {
-                plugin.Migrating(_currentContext.Context, migratorData);
-            }
-
             var commandLists = GetMigrationCommandLists(migratorData);
             foreach (var commandList in commandLists)
             {
-                _migrationCommandExecutor.ExecuteNonQuery(commandList(), _connection);
+                var (id, getCommands) = commandList;
+                if (id != state.CurrentMigrationId)
+                {
+                    state.CurrentMigrationId = id;
+                    state.LastCommittedCommandIndex = 0;
+                }
+
+                _migrationCommandExecutor.ExecuteNonQuery(
+                    getCommands(), _connection, state, commitTransaction: false, MigrationTransactionIsolationLevel);
             }
 
-            foreach (var plugin in _plugins)
-            {
-                plugin.Migrated(_currentContext.Context, migratorData);
-            }
+            var coreOptionsExtension =
+                _contextOptions.FindExtension<CoreOptionsExtension>()
+                ?? new CoreOptionsExtension();
 
+            var seed = coreOptionsExtension.Seeder;
             if (seed != null)
             {
-                using var transaction = _connection.BeginTransaction();
-                seed(_currentContext.Context, migratorData);
-                transaction.Commit();
+                seed(context, state.AnyOperationPerformed);
             }
+            else if (coreOptionsExtension.AsyncSeeder != null)
+            {
+                throw new InvalidOperationException(CoreStrings.MissingSeeder);
+            }
+
+            state.Transaction?.Commit();
+            return state.AnyOperationPerformed;
         }
         finally
         {
+            state.DatabaseLock?.Dispose();
+            state.DatabaseLock = null;
+            state.Transaction?.Dispose();
+            state.Transaction = null;
             _connection.Close();
         }
     }
@@ -147,34 +231,99 @@ public class Migrator : IMigrator
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual async Task MigrateAsync(
-        Func<DbContext, IMigratorData, CancellationToken, Task>? seed,
         string? targetMigration,
-        TimeSpan? lockTimeout = null,
         CancellationToken cancellationToken = default)
     {
+        var useTransaction = _connection.CurrentTransaction is null;
+        if (!useTransaction
+            && _executionStrategy.RetriesOnFailure)
+        {
+            throw new NotSupportedException(RelationalStrings.TransactionSuppressedMigrationInUserTransaction);
+        }
+
         if (RelationalResources.LogPendingModelChanges(_logger).WarningBehavior != WarningBehavior.Ignore
             && HasPendingModelChanges())
         {
             _logger.PendingModelChangesWarning(_currentContext.Context.GetType());
         }
 
+        if (!useTransaction)
+        {
+            _logger.MigrationsUserTransactionWarning();
+        }
+
         _logger.MigrateUsingConnection(this, _connection);
+
+        using var transactionScope = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
 
         if (!await _databaseCreator.ExistsAsync(cancellationToken).ConfigureAwait(false))
         {
             await _databaseCreator.CreateAsync(cancellationToken).ConfigureAwait(false);
         }
 
+        await _connection.OpenAsync(cancellationToken).ConfigureAwait(false);
         try
         {
-            await _connection.OpenAsync(cancellationToken).ConfigureAwait(false);
-
-            var dbLock = await _historyRepository.GetDatabaseLockAsync(lockTimeout ?? _defaultLockTimeout, cancellationToken).ConfigureAwait(false);
-            await using var _ = dbLock.ConfigureAwait(false);
-
-            if (!await _historyRepository.ExistsAsync(cancellationToken).ConfigureAwait(false))
+            var state = new MigrationExecutionState();
+            if (_historyRepository.LockReleaseBehavior != LockReleaseBehavior.Transaction
+                && useTransaction)
             {
-                await _historyRepository.CreateAsync(cancellationToken).ConfigureAwait(false);
+                state.DatabaseLock = await _historyRepository.AcquireDatabaseLockAsync(cancellationToken).ConfigureAwait(false);
+            }
+
+            await _executionStrategy.ExecuteAsync(
+                this,
+                static async (_, migrator, ct) =>
+                {
+                    await migrator._connection.OpenAsync(ct).ConfigureAwait(false);
+                    try
+                    {
+                        return await migrator._historyRepository.CreateIfNotExistsAsync(ct).ConfigureAwait(false);
+                    }
+                    finally
+                    {
+                        await migrator._connection.CloseAsync().ConfigureAwait(false);
+                    }
+                },
+                verifySucceeded: null,
+                cancellationToken).ConfigureAwait(false);
+
+            await _executionStrategy.ExecuteAsync(
+                (Migrator: this,
+                TargetMigration: targetMigration,
+                State: state,
+                UseTransaction: useTransaction),
+                async static (c, s, ct) => await s.Migrator.MigrateImplementationAsync(
+                    c, s.TargetMigration, s.State, s.UseTransaction, ct).ConfigureAwait(false),
+                async static (_, s, ct) => new ExecutionResult<bool>(
+                    successful: await s.Migrator.VerifyMigrationSucceededAsync(s.TargetMigration, s.State, ct).ConfigureAwait(false),
+                    result: true),
+                cancellationToken)
+                .ConfigureAwait(false);
+        }
+        finally
+        {
+            await _connection.CloseAsync().ConfigureAwait(false);
+        }
+    }
+
+    private async Task<bool> MigrateImplementationAsync(
+        DbContext context, string? targetMigration, MigrationExecutionState state, bool useTransaction, CancellationToken cancellationToken = default)
+    {
+        var connectionOpened = await _connection.OpenAsync(cancellationToken).ConfigureAwait(false);
+        try
+        {
+            if (useTransaction)
+            {
+                state.Transaction = await (MigrationTransactionIsolationLevel == null
+                    ? context.Database.BeginTransactionAsync(cancellationToken)
+                    : context.Database.BeginTransactionAsync(MigrationTransactionIsolationLevel.Value, cancellationToken))
+                        .ConfigureAwait(false);
+
+                state.DatabaseLock = state.DatabaseLock == null
+                    ? await _historyRepository.AcquireDatabaseLockAsync(cancellationToken).ConfigureAwait(false)
+                    : await state.DatabaseLock.ReacquireIfNeededAsync(connectionOpened, useTransaction, cancellationToken)
+                        .ConfigureAwait(false);
             }
 
             PopulateMigrations(
@@ -182,38 +331,58 @@ public class Migrator : IMigrator
                 targetMigration,
                 out var migratorData);
 
-            foreach (var plugin in _plugins)
-            {
-                await plugin.MigratingAsync(_currentContext.Context, migratorData, cancellationToken).ConfigureAwait(false);
-            }
-
             var commandLists = GetMigrationCommandLists(migratorData);
             foreach (var commandList in commandLists)
             {
-                await _migrationCommandExecutor.ExecuteNonQueryAsync(commandList(), _connection, cancellationToken)
+                var (id, getCommands) = commandList;
+                if (id != state.CurrentMigrationId)
+                {
+                    state.CurrentMigrationId = id;
+                    state.LastCommittedCommandIndex = 0;
+                }
+
+                await _migrationCommandExecutor.ExecuteNonQueryAsync(
+                    getCommands(), _connection, state, commitTransaction: false, MigrationTransactionIsolationLevel, cancellationToken)
                     .ConfigureAwait(false);
             }
 
-            foreach (var plugin in _plugins)
+            var coreOptionsExtension =
+                _contextOptions.FindExtension<CoreOptionsExtension>()
+                ?? new CoreOptionsExtension();
+
+            var seedAsync = coreOptionsExtension.AsyncSeeder;
+            if (seedAsync != null)
             {
-                await plugin.MigratedAsync(_currentContext.Context, migratorData, cancellationToken).ConfigureAwait(false);
+                await seedAsync(context, state.AnyOperationPerformed, cancellationToken).ConfigureAwait(false);
+            }
+            else if (coreOptionsExtension.Seeder != null)
+            {
+                throw new InvalidOperationException(CoreStrings.MissingSeeder);
             }
 
-            if (seed != null)
+            if (state.Transaction != null)
             {
-                var transaction = await _connection.BeginTransactionAsync(cancellationToken).ConfigureAwait(false);
-                await using var __ = transaction.ConfigureAwait(false);
-                await seed(_currentContext.Context, migratorData, cancellationToken).ConfigureAwait(false);
-                await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
+                await state.Transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
             }
+            return state.AnyOperationPerformed;
         }
         finally
         {
-            _connection.Close();
+            if (state.DatabaseLock != null)
+            {
+                state.DatabaseLock.Dispose();
+                state.DatabaseLock = null;
+            }
+            if (state.Transaction != null)
+            {
+                await state.Transaction.DisposeAsync().ConfigureAwait(false);
+                state.Transaction = null;
+            }
+            await _connection.CloseAsync().ConfigureAwait(false);
         }
     }
 
-    private IEnumerable<Func<IReadOnlyList<MigrationCommand>>> GetMigrationCommandLists(IMigratorData parameters)
+    private IEnumerable<(string, Func<IReadOnlyList<MigrationCommand>>)> GetMigrationCommandLists(MigratorData parameters)
     {
         var migrationsToApply = parameters.AppliedMigrations;
         var migrationsToRevert = parameters.RevertedMigrations;
@@ -224,7 +393,7 @@ public class Migrator : IMigrator
             var migration = migrationsToRevert[i];
 
             var index = i;
-            yield return () =>
+            yield return (migration.GetId(), () =>
             {
                 _logger.MigrationReverting(this, migration);
 
@@ -238,13 +407,14 @@ public class Migrator : IMigrator
                 {
                     _logger.NonTransactionalMigrationOperationWarning(this, migration, nonTransactionalCommand);
                 }
+
                 return commands;
-            };
+            });
         }
 
         foreach (var migration in migrationsToApply)
         {
-            yield return () =>
+            yield return (migration.GetId(), () =>
             {
                 _logger.MigrationApplying(this, migration);
 
@@ -254,8 +424,9 @@ public class Migrator : IMigrator
                 {
                     _logger.NonTransactionalMigrationOperationWarning(this, migration, nonTransactionalCommand);
                 }
+
                 return commands;
-            };
+            });
         }
 
         if (migrationsToRevert.Count + migrationsToApply.Count == 0)
@@ -273,7 +444,7 @@ public class Migrator : IMigrator
     protected virtual void PopulateMigrations(
         IEnumerable<string> appliedMigrationEntries,
         string? targetMigration,
-        out IMigratorData parameters)
+        out MigratorData parameters)
     {
         var appliedMigrations = new Dictionary<string, TypeInfo>();
         var unappliedMigrations = new Dictionary<string, TypeInfo>();
@@ -335,6 +506,26 @@ public class Migrator : IMigrator
 
         parameters = new MigratorData(migrationsToApply, migrationsToRevert, actualTargetMigration);
     }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected virtual bool VerifyMigrationSucceeded(
+        string? targetMigration, MigrationExecutionState state)
+        => false;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected virtual Task<bool> VerifyMigrationSucceededAsync(
+        string? targetMigration, MigrationExecutionState state, CancellationToken cancellationToken)
+        => Task.FromResult(false);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -518,8 +709,8 @@ public class Migrator : IMigrator
 
     private IModel? FinalizeModel(IModel? model)
         => model == null
-        ? null
-        : _modelRuntimeInitializer.Initialize(model);
+            ? null
+            : _modelRuntimeInitializer.Initialize(model);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

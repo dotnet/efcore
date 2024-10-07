@@ -25,12 +25,12 @@ public sealed class SqlServerConditionAttribute(SqlServerCondition conditions) :
             isMet &= TestEnvironment.IsMemoryOptimizedTablesSupported;
         }
 
-        if (Conditions.HasFlag(SqlServerCondition.IsSqlAzure))
+        if (Conditions.HasFlag(SqlServerCondition.IsAzureSql))
         {
             isMet &= TestEnvironment.IsSqlAzure;
         }
 
-        if (Conditions.HasFlag(SqlServerCondition.IsNotSqlAzure))
+        if (Conditions.HasFlag(SqlServerCondition.IsNotAzureSql))
         {
             isMet &= !TestEnvironment.IsSqlAzure;
         }
@@ -90,6 +90,11 @@ public sealed class SqlServerConditionAttribute(SqlServerCondition conditions) :
         if (Conditions.HasFlag(SqlServerCondition.SupportsFunctions2022))
         {
             isMet &= TestEnvironment.IsFunctions2022Supported;
+        }
+
+        if (Conditions.HasFlag(SqlServerCondition.SupportsJsonType))
+        {
+            isMet &= TestEnvironment.IsJsonTypeSupported;
         }
 
         return ValueTask.FromResult(isMet);

@@ -84,9 +84,9 @@ namespace TestNamespace
                     long (long v) => v),
                 clrType: typeof(long),
                 jsonValueReaderWriter: JsonInt64ReaderWriter.Instance);
-            id.SetValueComparer(new NullableValueComparer<long>(id.TypeMapping.Comparer));
-            id.SetKeyValueComparer(new NullableValueComparer<long>(id.TypeMapping.KeyComparer));
             id.SetCurrentValueComparer(new EntryCurrentValueComparer<long?>(id));
+            id.SetComparer(new NullableValueComparer<long>(id.TypeMapping.Comparer));
+            id.SetKeyComparer(new NullableValueComparer<long>(id.TypeMapping.KeyComparer));
 
             var type = runtimeEntityType.AddProperty(
                 "$type",
@@ -218,8 +218,8 @@ namespace TestNamespace
                     new ValueConverter<CompiledModelTestBase.AnEnum, int>(
                         int (CompiledModelTestBase.AnEnum value) => ((int)(value)),
                         CompiledModelTestBase.AnEnum (int value) => ((CompiledModelTestBase.AnEnum)(value)))));
-            enum2.SetValueComparer(new NullableValueComparer<CompiledModelTestBase.AnEnum>(enum2.TypeMapping.Comparer));
-            enum2.SetKeyValueComparer(new NullableValueComparer<CompiledModelTestBase.AnEnum>(enum2.TypeMapping.KeyComparer));
+            enum2.SetComparer(new NullableValueComparer<CompiledModelTestBase.AnEnum>(enum2.TypeMapping.Comparer));
+            enum2.SetKeyComparer(new NullableValueComparer<CompiledModelTestBase.AnEnum>(enum2.TypeMapping.KeyComparer));
 
             var flagsEnum1 = runtimeEntityType.AddProperty(
                 "FlagsEnum1",
@@ -350,9 +350,9 @@ namespace TestNamespace
                     long (long v) => v),
                 clrType: typeof(long),
                 jsonValueReaderWriter: JsonInt64ReaderWriter.Instance);
-            principalBaseId.SetValueComparer(new NullableValueComparer<long>(principalBaseId.TypeMapping.Comparer));
-            principalBaseId.SetKeyValueComparer(new NullableValueComparer<long>(principalBaseId.TypeMapping.KeyComparer));
             principalBaseId.SetCurrentValueComparer(new EntryCurrentValueComparer<long?>(principalBaseId));
+            principalBaseId.SetComparer(new NullableValueComparer<long>(principalBaseId.TypeMapping.Comparer));
+            principalBaseId.SetKeyComparer(new NullableValueComparer<long>(principalBaseId.TypeMapping.KeyComparer));
 
             var refTypeEnumerable = runtimeEntityType.AddProperty(
                 "RefTypeEnumerable",
@@ -1553,8 +1553,8 @@ namespace TestNamespace
                             new ValueConverter<CompiledModelTestBase.AnEnum, int>(
                                 int (CompiledModelTestBase.AnEnum value) => ((int)(value)),
                                 CompiledModelTestBase.AnEnum (int value) => ((CompiledModelTestBase.AnEnum)(value)))));
-                    enum2.SetValueComparer(new NullableValueComparer<CompiledModelTestBase.AnEnum>(enum2.TypeMapping.Comparer));
-                    enum2.SetKeyValueComparer(new NullableValueComparer<CompiledModelTestBase.AnEnum>(enum2.TypeMapping.KeyComparer));
+                    enum2.SetComparer(new NullableValueComparer<CompiledModelTestBase.AnEnum>(enum2.TypeMapping.Comparer));
+                    enum2.SetKeyComparer(new NullableValueComparer<CompiledModelTestBase.AnEnum>(enum2.TypeMapping.KeyComparer));
 
                     var flagsEnum1 = complexType.AddProperty(
                         "FlagsEnum1",
@@ -1726,8 +1726,8 @@ namespace TestNamespace
                             long (long v) => v),
                         clrType: typeof(long),
                         jsonValueReaderWriter: JsonInt64ReaderWriter.Instance);
-                    id.SetValueComparer(new NullableValueComparer<long>(id.TypeMapping.Comparer));
-                    id.SetKeyValueComparer(new NullableValueComparer<long>(id.TypeMapping.KeyComparer));
+                    id.SetComparer(new NullableValueComparer<long>(id.TypeMapping.Comparer));
+                    id.SetKeyComparer(new NullableValueComparer<long>(id.TypeMapping.KeyComparer));
 
                     var refTypeEnumerable = complexType.AddProperty(
                         "RefTypeEnumerable",
@@ -2193,49 +2193,49 @@ namespace TestNamespace
 
         public static void CreateAnnotations(RuntimeEntityType runtimeEntityType)
         {
-            var id = runtimeEntityType.FindProperty("Id")!;
-            var type = runtimeEntityType.FindProperty("$type")!;
-            var enum1 = runtimeEntityType.FindProperty("Enum1")!;
-            var enum2 = runtimeEntityType.FindProperty("Enum2")!;
-            var flagsEnum1 = runtimeEntityType.FindProperty("FlagsEnum1")!;
-            var flagsEnum2 = runtimeEntityType.FindProperty("FlagsEnum2")!;
-            var principalBaseId = runtimeEntityType.FindProperty("PrincipalBaseId")!;
-            var refTypeEnumerable = runtimeEntityType.FindProperty("RefTypeEnumerable")!;
-            var refTypeIList = runtimeEntityType.FindProperty("RefTypeIList")!;
-            var valueTypeArray = runtimeEntityType.FindProperty("ValueTypeArray")!;
-            var valueTypeEnumerable = runtimeEntityType.FindProperty("ValueTypeEnumerable")!;
-            var valueTypeIList = runtimeEntityType.FindProperty("ValueTypeIList")!;
-            var valueTypeList = runtimeEntityType.FindProperty("ValueTypeList")!;
-            var __id = runtimeEntityType.FindProperty("__id")!;
-            var __jObject = runtimeEntityType.FindProperty("__jObject")!;
-            var owned = runtimeEntityType.FindComplexProperty("Owned")!;
+            var id = runtimeEntityType.FindProperty("Id");
+            var type = runtimeEntityType.FindProperty("$type");
+            var enum1 = runtimeEntityType.FindProperty("Enum1");
+            var enum2 = runtimeEntityType.FindProperty("Enum2");
+            var flagsEnum1 = runtimeEntityType.FindProperty("FlagsEnum1");
+            var flagsEnum2 = runtimeEntityType.FindProperty("FlagsEnum2");
+            var principalBaseId = runtimeEntityType.FindProperty("PrincipalBaseId");
+            var refTypeEnumerable = runtimeEntityType.FindProperty("RefTypeEnumerable");
+            var refTypeIList = runtimeEntityType.FindProperty("RefTypeIList");
+            var valueTypeArray = runtimeEntityType.FindProperty("ValueTypeArray");
+            var valueTypeEnumerable = runtimeEntityType.FindProperty("ValueTypeEnumerable");
+            var valueTypeIList = runtimeEntityType.FindProperty("ValueTypeIList");
+            var valueTypeList = runtimeEntityType.FindProperty("ValueTypeList");
+            var __id = runtimeEntityType.FindProperty("__id");
+            var __jObject = runtimeEntityType.FindProperty("__jObject");
+            var owned = runtimeEntityType.FindComplexProperty("Owned");
             var ownedType = owned.ComplexType;
-            var details = ownedType.FindProperty("Details")!;
-            var number = ownedType.FindProperty("Number")!;
-            var refTypeEnumerable0 = ownedType.FindProperty("RefTypeEnumerable")!;
-            var refTypeIList0 = ownedType.FindProperty("RefTypeIList")!;
-            var valueTypeArray0 = ownedType.FindProperty("ValueTypeArray")!;
-            var valueTypeEnumerable0 = ownedType.FindProperty("ValueTypeEnumerable")!;
-            var valueTypeIList0 = ownedType.FindProperty("ValueTypeIList")!;
-            var valueTypeList0 = ownedType.FindProperty("ValueTypeList")!;
-            var principal = ownedType.FindComplexProperty("Principal")!;
+            var details = ownedType.FindProperty("Details");
+            var number = ownedType.FindProperty("Number");
+            var refTypeEnumerable0 = ownedType.FindProperty("RefTypeEnumerable");
+            var refTypeIList0 = ownedType.FindProperty("RefTypeIList");
+            var valueTypeArray0 = ownedType.FindProperty("ValueTypeArray");
+            var valueTypeEnumerable0 = ownedType.FindProperty("ValueTypeEnumerable");
+            var valueTypeIList0 = ownedType.FindProperty("ValueTypeIList");
+            var valueTypeList0 = ownedType.FindProperty("ValueTypeList");
+            var principal = ownedType.FindComplexProperty("Principal");
             var principalBase = principal.ComplexType;
-            var alternateId = principalBase.FindProperty("AlternateId")!;
-            var enum10 = principalBase.FindProperty("Enum1")!;
-            var enum20 = principalBase.FindProperty("Enum2")!;
-            var flagsEnum10 = principalBase.FindProperty("FlagsEnum1")!;
-            var flagsEnum20 = principalBase.FindProperty("FlagsEnum2")!;
-            var id0 = principalBase.FindProperty("Id")!;
-            var refTypeEnumerable1 = principalBase.FindProperty("RefTypeEnumerable")!;
-            var refTypeIList1 = principalBase.FindProperty("RefTypeIList")!;
-            var valueTypeArray1 = principalBase.FindProperty("ValueTypeArray")!;
-            var valueTypeEnumerable1 = principalBase.FindProperty("ValueTypeEnumerable")!;
-            var valueTypeIList1 = principalBase.FindProperty("ValueTypeIList")!;
-            var valueTypeList1 = principalBase.FindProperty("ValueTypeList")!;
+            var alternateId = principalBase.FindProperty("AlternateId");
+            var enum10 = principalBase.FindProperty("Enum1");
+            var enum20 = principalBase.FindProperty("Enum2");
+            var flagsEnum10 = principalBase.FindProperty("FlagsEnum1");
+            var flagsEnum20 = principalBase.FindProperty("FlagsEnum2");
+            var id0 = principalBase.FindProperty("Id");
+            var refTypeEnumerable1 = principalBase.FindProperty("RefTypeEnumerable");
+            var refTypeIList1 = principalBase.FindProperty("RefTypeIList");
+            var valueTypeArray1 = principalBase.FindProperty("ValueTypeArray");
+            var valueTypeEnumerable1 = principalBase.FindProperty("ValueTypeEnumerable");
+            var valueTypeIList1 = principalBase.FindProperty("ValueTypeIList");
+            var valueTypeList1 = principalBase.FindProperty("ValueTypeList");
             var key = runtimeEntityType.FindKey(new[] { id });
             key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.CreateSimpleNullableFactory<long?, long>(key));
             key.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<long?>(key));
-            var deriveds = runtimeEntityType.FindNavigation("Deriveds")!;
+            var deriveds = runtimeEntityType.FindNavigation("Deriveds");
             runtimeEntityType.SetOriginalValuesFactory(
                 ISnapshot (InternalEntityEntry source) =>
                 {

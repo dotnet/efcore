@@ -23,7 +23,8 @@ public class TestLogger(LoggingDefinitions definitions) : TestLoggerBase, IDiagn
     public bool IsEnabled(LogLevel logLevel)
         => EnabledFor == logLevel;
 
-    public IDisposable? BeginScope<TState>(TState state) where TState : notnull
+    public IDisposable? BeginScope<TState>(TState state)
+        where TState : notnull
         => null;
 
     public void Log<TState>(

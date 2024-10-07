@@ -118,11 +118,12 @@ public class CaseExpression : SqlExpression
         var whenClauses = NewArrayInit(
             typeof(CaseWhenClause),
             initializers: WhenClauses
-                .Select(c => New(
-                    _caseWhenClauseQuotingConstructor ??=
-                        typeof(CaseWhenClause).GetConstructor([typeof(SqlExpression), typeof(SqlExpression)])!,
-                    c.Test.Quote(),
-                    c.Result.Quote())));
+                .Select(
+                    c => New(
+                        _caseWhenClauseQuotingConstructor ??=
+                            typeof(CaseWhenClause).GetConstructor([typeof(SqlExpression), typeof(SqlExpression)])!,
+                        c.Test.Quote(),
+                        c.Result.Quote())));
 
         return Operand is null
             ? New(

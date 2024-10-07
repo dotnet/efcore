@@ -377,10 +377,10 @@ WHERE ((
         => CosmosTestHelpers.Instance.NoSyncTest(
             async, async a =>
             {
-        await base.Inline_collection_Max_with_three_values(a);
+                await base.Inline_collection_Max_with_three_values(a);
 
-        AssertSql(
-            """
+                AssertSql(
+                    """
 @__i_0='35'
 
 SELECT VALUE c
@@ -514,6 +514,41 @@ WHERE ((
     SELECT VALUE COUNT(1)
     FROM a IN (SELECT VALUE [@__i_0])
     WHERE (a > c["Id"])) = 1)
+""");
+            });
+
+    public override Task Inline_collection_Contains_with_EF_Parameter(bool async)
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async a =>
+            {
+                await base.Inline_collection_Contains_with_EF_Parameter(async);
+
+                AssertSql(
+                    """
+@__p_0='[2,999,1000]'
+
+SELECT VALUE c
+FROM root c
+WHERE ARRAY_CONTAINS(@__p_0, c["Id"])
+""");
+            });
+
+    public override Task Inline_collection_Count_with_column_predicate_with_EF_Parameter(bool async)
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async a =>
+            {
+                await base.Inline_collection_Count_with_column_predicate_with_EF_Parameter(async);
+
+                AssertSql(
+                    """
+@__p_0='[2,999,1000]'
+
+SELECT VALUE c
+FROM root c
+WHERE ((
+    SELECT VALUE COUNT(1)
+    FROM p IN (SELECT VALUE @__p_0)
+    WHERE (p > c["Id"])) = 2)
 """);
             });
 
@@ -1502,6 +1537,27 @@ WHERE (ARRAY_LENGTH(ARRAY_CONCAT(@__ints_0, c["Ints"])) = 2)
 """);
             });
 
+    public override async Task Parameter_collection_with_type_inference_for_JsonScalarExpression(bool async)
+    {
+        // Always throws for sync.
+        if (async)
+        {
+            // Member indexer (c.Array[c.SomeMember]) isn't supported by Cosmos
+            var exception = await Assert.ThrowsAsync<CosmosException>(
+                () => base.Parameter_collection_with_type_inference_for_JsonScalarExpression(async));
+
+            Assert.Equal(HttpStatusCode.BadRequest, exception.StatusCode);
+
+            AssertSql(
+                """
+@__values_0='["one","two"]'
+
+SELECT VALUE ((c["Id"] != 0) ? @__values_0[(c["Int"] % 2)] : "foo")
+FROM root c
+""");
+        }
+    }
+
     public override Task Column_collection_Union_parameter_collection(bool async)
         => CosmosTestHelpers.Instance.NoSyncTest(
             async, async a =>
@@ -2057,8 +2113,9 @@ WHERE ((c["Ints"][2] ?? 999) = 999)
             => CosmosTestStoreFactory.Instance;
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-            => base.AddOptions(builder.ConfigureWarnings(
-                w => w.Ignore(CosmosEventId.NoPartitionKeyDefined)));
+            => base.AddOptions(
+                builder.ConfigureWarnings(
+                    w => w.Ignore(CosmosEventId.NoPartitionKeyDefined)));
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {

@@ -37,7 +37,8 @@ public abstract class SaveChangesInterceptionInMemoryTestBase(
         }
     }
 
-    public class SaveChangesInterceptionWithDiagnosticsInMemoryTest(SaveChangesInterceptionWithDiagnosticsInMemoryTest.InterceptionInMemoryFixture fixture)
+    public class SaveChangesInterceptionWithDiagnosticsInMemoryTest(
+        SaveChangesInterceptionWithDiagnosticsInMemoryTest.InterceptionInMemoryFixture fixture)
         : SaveChangesInterceptionInMemoryTestBase(fixture),
             IClassFixture<SaveChangesInterceptionWithDiagnosticsInMemoryTest.InterceptionInMemoryFixture>
     {

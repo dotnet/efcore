@@ -19,9 +19,7 @@ public class Customer : IComparable<Customer>
 
     // Custom ctor binding
     public Customer(DbContext context, ILazyLoader lazyLoader, string customerID)
-    {
-        CustomerID = customerID;
-    }
+        => CustomerID = customerID;
 
     [MaxLength(5)]
     [Required]

@@ -23,8 +23,8 @@ public static class RelationalTypeBaseExtensions
     {
         typeBase.Model.EnsureRelationalModel();
         return (IEnumerable<ITableMappingBase>?)(typeBase.FindRuntimeAnnotationValue(
-                        RelationalAnnotationNames.ViewMappings)
-                    ?? typeBase.FindRuntimeAnnotationValue(RelationalAnnotationNames.TableMappings))
-                ?? Enumerable.Empty<ITableMappingBase>();
+                    RelationalAnnotationNames.ViewMappings)
+                ?? typeBase.FindRuntimeAnnotationValue(RelationalAnnotationNames.TableMappings))
+            ?? Enumerable.Empty<ITableMappingBase>();
     }
 }

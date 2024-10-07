@@ -5,7 +5,9 @@ namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
 #nullable disable
 
-public class ComplexTypeBulkUpdatesSqlServerTest(ComplexTypeBulkUpdatesSqlServerTest.ComplexTypeBulkUpdatesSqlServerFixture fixture, ITestOutputHelper testOutputHelper) : ComplexTypeBulkUpdatesRelationalTestBase<
+public class ComplexTypeBulkUpdatesSqlServerTest(
+    ComplexTypeBulkUpdatesSqlServerTest.ComplexTypeBulkUpdatesSqlServerFixture fixture,
+    ITestOutputHelper testOutputHelper) : ComplexTypeBulkUpdatesRelationalTestBase<
     ComplexTypeBulkUpdatesSqlServerTest.ComplexTypeBulkUpdatesSqlServerFixture>(fixture, testOutputHelper)
 {
     public override async Task Delete_entity_type_with_complex_type(bool async)

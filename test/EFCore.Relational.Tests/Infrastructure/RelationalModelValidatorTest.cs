@@ -2510,10 +2510,11 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
 
         modelBuilder.Entity<LivingBeing>()
             .UseTptMappingStrategy()
-            .OwnsOne(b => b.Details, ob =>
-            {
-                ob.ToTable((string)null);
-            });
+            .OwnsOne(
+                b => b.Details, ob =>
+                {
+                    ob.ToTable((string)null);
+                });
 
         modelBuilder.Entity<Animal>()
             .ToView("Animal");
@@ -3809,8 +3810,9 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
         modelBuilder.Entity<Animal>();
         modelBuilder.Entity<Cat>().ToTable(tb => tb.HasTrigger("SomeTrigger"));
 
-        VerifyWarning(RelationalResources.LogTriggerOnNonRootTphEntity(new TestLogger<TestRelationalLoggingDefinitions>())
-            .GenerateMessage("Cat", "Animal"), modelBuilder);
+        VerifyWarning(
+            RelationalResources.LogTriggerOnNonRootTphEntity(new TestLogger<TestRelationalLoggingDefinitions>())
+                .GenerateMessage("Cat", "Animal"), modelBuilder);
     }
 
     private class TpcBase

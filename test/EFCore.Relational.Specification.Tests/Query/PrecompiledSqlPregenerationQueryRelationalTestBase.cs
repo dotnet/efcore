@@ -13,9 +13,12 @@ namespace Microsoft.EntityFrameworkCore.Query;
 ///     See <see cref="PrecompiledQueryRelationalTestBase" /> for general precompiled query tests not related to
 ///     SQL pregeneration.
 /// </summary>
+[Collection("PrecompiledQuery")]
 public class PrecompiledSqlPregenerationQueryRelationalTestBase
 {
-    public PrecompiledSqlPregenerationQueryRelationalTestBase(PrecompiledSqlPregenerationQueryRelationalFixture fixture, ITestOutputHelper testOutputHelper)
+    public PrecompiledSqlPregenerationQueryRelationalTestBase(
+        PrecompiledSqlPregenerationQueryRelationalFixture fixture,
+        ITestOutputHelper testOutputHelper)
     {
         Fixture = fixture;
         TestOutputHelper = testOutputHelper;
@@ -301,6 +304,7 @@ await using var context = new Microsoft.EntityFrameworkCore.Query.PrecompiledSql
 
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id { get; set; }
+
         public string? Name { get; set; }
 
         public List<Post> Posts { get; set; } = new();

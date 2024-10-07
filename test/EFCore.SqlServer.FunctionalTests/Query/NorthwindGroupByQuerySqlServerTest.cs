@@ -2475,7 +2475,7 @@ FROM (
 
         AssertSql(
             """
-SELECT [o].[CustomerID] AS [Key], AVG(DISTINCT (CAST([o].[OrderID] AS float))) AS [Average], COUNT(DISTINCT ([o].[EmployeeID])) AS [Count], COUNT_BIG(DISTINCT ([o].[EmployeeID])) AS [LongCount], MAX(DISTINCT ([o].[OrderDate])) AS [Max], MIN(DISTINCT ([o].[OrderDate])) AS [Min], COALESCE(SUM(DISTINCT ([o].[OrderID])), 0) AS [Sum]
+SELECT [o].[CustomerID] AS [Key], AVG(DISTINCT (CAST([o].[OrderID] AS float))) AS [Average], COUNT(DISTINCT ([o].[EmployeeID])) AS [Count], COUNT_BIG(DISTINCT ([o].[EmployeeID])) AS [LongCount], MAX([o].[OrderDate]) AS [Max], MIN([o].[OrderDate]) AS [Min], COALESCE(SUM(DISTINCT ([o].[OrderID])), 0) AS [Sum]
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]
 """);
@@ -2487,7 +2487,7 @@ GROUP BY [o].[CustomerID]
 
         AssertSql(
             """
-SELECT [o].[CustomerID] AS [Key], MAX(DISTINCT ([o].[OrderDate])) AS [Max]
+SELECT [o].[CustomerID] AS [Key], MAX([o].[OrderDate]) AS [Max]
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]
 """);
@@ -2499,9 +2499,9 @@ GROUP BY [o].[CustomerID]
 
         AssertSql(
             """
-SELECT [o].[CustomerID] AS [Key], MAX(DISTINCT (CASE
+SELECT [o].[CustomerID] AS [Key], MAX(CASE
     WHEN [o].[OrderDate] IS NOT NULL THEN [o].[OrderDate]
-END)) AS [Max]
+END) AS [Max]
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]
 """);
@@ -3595,6 +3595,8 @@ ORDER BY [c].[CustomerID]
         AssertSql();
     }
 
+    #region FinalGroupBy
+
     public override async Task Final_GroupBy_property_entity(bool async)
     {
         await base.Final_GroupBy_property_entity(async);
@@ -3771,6 +3773,22 @@ WHERE [c].[Country] = N'USA'
 ORDER BY [c].[City], [c].[CustomerID]
 """);
     }
+
+    public override async Task Final_GroupBy_TagWith(bool async)
+    {
+        await base.Final_GroupBy_TagWith(async);
+
+        AssertSql(
+            """
+-- foo
+
+SELECT [c].[City], [c].[CustomerID], [c].[Address], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+ORDER BY [c].[City]
+""");
+    }
+
+    #endregion FinalGroupBy
 
     public override async Task GroupBy_Where_with_grouping_result(bool async)
     {

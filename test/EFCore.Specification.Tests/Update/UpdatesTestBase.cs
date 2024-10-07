@@ -863,7 +863,6 @@ public abstract class UpdatesTestBase<TFixture>(TFixture fixture) : IClassFixtur
     {
         public required string MuffinName { get; set; }
         public Top Top { get; set; } = null!;
-
     }
 
     protected class Tin
@@ -935,6 +934,10 @@ public abstract class UpdatesTestBase<TFixture>(TFixture fixture) : IClassFixtur
             modelBuilder.Entity<Product>().HasOne(p => p.DefaultCategory).WithMany()
                 .HasForeignKey(e => e.DependentId)
                 .HasPrincipalKey(e => e.PrincipalId);
+
+            modelBuilder.Entity<Product>()
+                .HasIndex(e => new { e.Name, e.IsPrimaryNormalized })
+                .IsUnique();
 
             modelBuilder.Entity<Person>(
                 pb =>

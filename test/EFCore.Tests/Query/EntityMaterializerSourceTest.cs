@@ -3,7 +3,6 @@
 
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Proxies.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 
 // ReSharper disable UnusedMember.Local
@@ -519,7 +518,6 @@ public class EntityMaterializerSourceTest
 
     private class WithProperties(int id)
     {
-
         // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Local
         public int Id { get; set; } = id;
     }
@@ -531,9 +529,7 @@ public class EntityMaterializerSourceTest
         }
 
         public ParameterlessAndWithProperties(int id)
-        {
-            Id = id;
-        }
+            => Id = id;
 
         // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Local
         public int Id { get; set; }
@@ -567,9 +563,7 @@ public class EntityMaterializerSourceTest
     {
         public WithServiceAndWithProperties(ILazyLoader lazyLoader, int id)
             : this(lazyLoader)
-        {
-            Id = id;
-        }
+            => Id = id;
 
         public ILazyLoader LazyLoader { get; } = lazyLoader;
 

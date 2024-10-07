@@ -187,8 +187,8 @@ namespace TestNamespace
                     bool (byte v1, byte v2) => v1 == v2,
                     int (byte v) => ((int)(v)),
                     byte (byte v) => v));
-            id.SetValueComparer(new NullableValueComparer<byte>(id.TypeMapping.Comparer));
-            id.SetKeyValueComparer(new NullableValueComparer<byte>(id.TypeMapping.KeyComparer));
+            id.SetComparer(new NullableValueComparer<byte>(id.TypeMapping.Comparer));
+            id.SetKeyComparer(new NullableValueComparer<byte>(id.TypeMapping.KeyComparer));
             id.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var key = runtimeEntityType.AddKey(
@@ -286,14 +286,14 @@ namespace TestNamespace
 
         public static void CreateAnnotations(RuntimeEntityType runtimeEntityType)
         {
-            var principalId = runtimeEntityType.FindProperty("PrincipalId")!;
-            var principalAlternateId = runtimeEntityType.FindProperty("PrincipalAlternateId")!;
-            var enumDiscriminator = runtimeEntityType.FindProperty("EnumDiscriminator")!;
-            var id = runtimeEntityType.FindProperty("Id")!;
+            var principalId = runtimeEntityType.FindProperty("PrincipalId");
+            var principalAlternateId = runtimeEntityType.FindProperty("PrincipalAlternateId");
+            var enumDiscriminator = runtimeEntityType.FindProperty("EnumDiscriminator");
+            var id = runtimeEntityType.FindProperty("Id");
             var key = runtimeEntityType.FindKey(new[] { principalId, principalAlternateId });
             key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.CreateCompositeFactory(key));
             key.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<IReadOnlyList<object>>(key));
-            var principal = runtimeEntityType.FindNavigation("Principal")!;
+            var principal = runtimeEntityType.FindNavigation("Principal");
             runtimeEntityType.SetOriginalValuesFactory(
                 ISnapshot (InternalEntityEntry source) =>
                 {

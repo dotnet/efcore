@@ -25,6 +25,7 @@ public abstract class RelationalComplianceTestBase : ComplianceTestBase
 
         Assert.False(
             queryFixturesWithoutTestSqlLogger.Count > 0,
-            "\r\n-- Missing ITestSqlLoggerFactory implementation for relational QueryFixtures --\r\n" + string.Join(Environment.NewLine, queryFixturesWithoutTestSqlLogger));
+            "\r\n-- Missing ITestSqlLoggerFactory implementation for relational QueryFixtures --\r\n"
+            + string.Join(Environment.NewLine, queryFixturesWithoutTestSqlLogger));
     }
 }

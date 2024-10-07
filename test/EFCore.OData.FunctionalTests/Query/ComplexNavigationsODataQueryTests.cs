@@ -7,7 +7,8 @@ using Newtonsoft.Json.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class ComplexNavigationsODataQueryTests(ComplexNavigationsODataQueryTestFixture fixture) : ODataQueryTestBase(fixture), IClassFixture<ComplexNavigationsODataQueryTestFixture>
+public class ComplexNavigationsODataQueryTests(ComplexNavigationsODataQueryTestFixture fixture)
+    : ODataQueryTestBase(fixture), IClassFixture<ComplexNavigationsODataQueryTestFixture>
 {
     [ConditionalFact]
     public async Task Query_level_ones()

@@ -179,7 +179,6 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
 
     protected class User(Email email)
     {
-
         // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Local
         public Guid Id { get; private set; } = Guid.NewGuid();
 
@@ -192,9 +191,7 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
         private readonly string _value;
 
         private Email(string value)
-        {
-            _value = value;
-        }
+            => _value = value;
 
         public override bool Equals(object obj)
             => _value == ((Email)obj)?._value;
@@ -344,9 +341,7 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
     public struct OrderId
     {
         private OrderId(string stringValue)
-        {
-            StringValue = stringValue;
-        }
+            => StringValue = stringValue;
 
         public string StringValue { get; }
 

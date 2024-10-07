@@ -49,26 +49,46 @@ public class InMemoryValueGeneratorSelectorTest
 
         var selector = InMemoryTestHelpers.Instance.CreateContextServices(model).GetRequiredService<IValueGeneratorSelector>();
 
-        Assert.IsType<CustomValueGenerator>(selector.TrySelect(entityType.FindProperty("Custom")!, entityType, out var generator) ? generator : null);
-        Assert.IsType<InMemoryIntegerValueGenerator<int>>(selector.TrySelect(entityType.FindProperty("Id")!, entityType, out generator) ? generator : null);
-        Assert.IsType<InMemoryIntegerValueGenerator<long>>(selector.TrySelect(entityType.FindProperty("Long")!, entityType, out  generator) ? generator : null);
-        Assert.IsType<InMemoryIntegerValueGenerator<short>>(selector.TrySelect(entityType.FindProperty("Short")!, entityType, out generator) ? generator : null);
-        Assert.IsType<InMemoryIntegerValueGenerator<byte>>(selector.TrySelect(entityType.FindProperty("Byte")!, entityType, out generator) ? generator : null);
-        Assert.IsType<InMemoryIntegerValueGenerator<int>>(selector.TrySelect(entityType.FindProperty("NullableInt")!, entityType, out generator) ? generator : null);
-        Assert.IsType<InMemoryIntegerValueGenerator<long>>(selector.TrySelect(entityType.FindProperty("NullableLong")!, entityType, out generator) ? generator : null);
-        Assert.IsType<InMemoryIntegerValueGenerator<short>>(selector.TrySelect(entityType.FindProperty("NullableShort")!, entityType, out generator) ? generator : null);
-        Assert.IsType<InMemoryIntegerValueGenerator<byte>>(selector.TrySelect(entityType.FindProperty("NullableByte")!, entityType, out generator) ? generator : null);
-        Assert.IsType<InMemoryIntegerValueGenerator<uint>>(selector.TrySelect(entityType.FindProperty("UInt")!, entityType, out generator) ? generator : null);
-        Assert.IsType<InMemoryIntegerValueGenerator<ulong>>(selector.TrySelect(entityType.FindProperty("ULong")!, entityType, out generator) ? generator : null);
-        Assert.IsType<InMemoryIntegerValueGenerator<ushort>>(selector.TrySelect(entityType.FindProperty("UShort")!, entityType, out generator) ? generator : null);
-        Assert.IsType<InMemoryIntegerValueGenerator<sbyte>>(selector.TrySelect(entityType.FindProperty("SByte")!, entityType, out generator) ? generator : null);
-        Assert.IsType<InMemoryIntegerValueGenerator<uint>>(selector.TrySelect(entityType.FindProperty("NullableUInt")!, entityType, out generator) ? generator : null);
-        Assert.IsType<InMemoryIntegerValueGenerator<ulong>>(selector.TrySelect(entityType.FindProperty("NullableULong")!, entityType, out generator) ? generator : null);
-        Assert.IsType<InMemoryIntegerValueGenerator<ushort>>(selector.TrySelect(entityType.FindProperty("NullableUShort")!, entityType, out generator) ? generator : null);
-        Assert.IsType<InMemoryIntegerValueGenerator<sbyte>>(selector.TrySelect(entityType.FindProperty("NullableSByte")!, entityType, out generator) ? generator : null);
-        Assert.IsType<StringValueGenerator>(selector.TrySelect(entityType.FindProperty("String")!, entityType, out generator) ? generator : null);
-        Assert.IsType<GuidValueGenerator>(selector.TrySelect(entityType.FindProperty("Guid")!, entityType, out generator) ? generator : null);
-        Assert.IsType<BinaryValueGenerator>(selector.TrySelect(entityType.FindProperty("Binary")!, entityType, out generator) ? generator : null);
+        Assert.IsType<CustomValueGenerator>(
+            selector.TrySelect(entityType.FindProperty("Custom")!, entityType, out var generator) ? generator : null);
+        Assert.IsType<InMemoryIntegerValueGenerator<int>>(
+            selector.TrySelect(entityType.FindProperty("Id")!, entityType, out generator) ? generator : null);
+        Assert.IsType<InMemoryIntegerValueGenerator<long>>(
+            selector.TrySelect(entityType.FindProperty("Long")!, entityType, out generator) ? generator : null);
+        Assert.IsType<InMemoryIntegerValueGenerator<short>>(
+            selector.TrySelect(entityType.FindProperty("Short")!, entityType, out generator) ? generator : null);
+        Assert.IsType<InMemoryIntegerValueGenerator<byte>>(
+            selector.TrySelect(entityType.FindProperty("Byte")!, entityType, out generator) ? generator : null);
+        Assert.IsType<InMemoryIntegerValueGenerator<int>>(
+            selector.TrySelect(entityType.FindProperty("NullableInt")!, entityType, out generator) ? generator : null);
+        Assert.IsType<InMemoryIntegerValueGenerator<long>>(
+            selector.TrySelect(entityType.FindProperty("NullableLong")!, entityType, out generator) ? generator : null);
+        Assert.IsType<InMemoryIntegerValueGenerator<short>>(
+            selector.TrySelect(entityType.FindProperty("NullableShort")!, entityType, out generator) ? generator : null);
+        Assert.IsType<InMemoryIntegerValueGenerator<byte>>(
+            selector.TrySelect(entityType.FindProperty("NullableByte")!, entityType, out generator) ? generator : null);
+        Assert.IsType<InMemoryIntegerValueGenerator<uint>>(
+            selector.TrySelect(entityType.FindProperty("UInt")!, entityType, out generator) ? generator : null);
+        Assert.IsType<InMemoryIntegerValueGenerator<ulong>>(
+            selector.TrySelect(entityType.FindProperty("ULong")!, entityType, out generator) ? generator : null);
+        Assert.IsType<InMemoryIntegerValueGenerator<ushort>>(
+            selector.TrySelect(entityType.FindProperty("UShort")!, entityType, out generator) ? generator : null);
+        Assert.IsType<InMemoryIntegerValueGenerator<sbyte>>(
+            selector.TrySelect(entityType.FindProperty("SByte")!, entityType, out generator) ? generator : null);
+        Assert.IsType<InMemoryIntegerValueGenerator<uint>>(
+            selector.TrySelect(entityType.FindProperty("NullableUInt")!, entityType, out generator) ? generator : null);
+        Assert.IsType<InMemoryIntegerValueGenerator<ulong>>(
+            selector.TrySelect(entityType.FindProperty("NullableULong")!, entityType, out generator) ? generator : null);
+        Assert.IsType<InMemoryIntegerValueGenerator<ushort>>(
+            selector.TrySelect(entityType.FindProperty("NullableUShort")!, entityType, out generator) ? generator : null);
+        Assert.IsType<InMemoryIntegerValueGenerator<sbyte>>(
+            selector.TrySelect(entityType.FindProperty("NullableSByte")!, entityType, out generator) ? generator : null);
+        Assert.IsType<StringValueGenerator>(
+            selector.TrySelect(entityType.FindProperty("String")!, entityType, out generator) ? generator : null);
+        Assert.IsType<GuidValueGenerator>(
+            selector.TrySelect(entityType.FindProperty("Guid")!, entityType, out generator) ? generator : null);
+        Assert.IsType<BinaryValueGenerator>(
+            selector.TrySelect(entityType.FindProperty("Binary")!, entityType, out generator) ? generator : null);
     }
 
     [ConditionalTheory]

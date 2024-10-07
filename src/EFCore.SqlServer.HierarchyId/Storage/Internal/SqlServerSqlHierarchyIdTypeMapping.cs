@@ -2,9 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Data.SqlTypes;
-using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Json;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.SqlServer.Types;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;

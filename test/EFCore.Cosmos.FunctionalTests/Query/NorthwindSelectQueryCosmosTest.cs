@@ -141,8 +141,8 @@ WHERE (c["EmployeeID"] = 1)
             async, async a =>
             {
                 await base.Projection_of_entity_type_into_object_array(a);
-AssertSql(
-    """
+                AssertSql(
+                    """
 SELECT VALUE c
 FROM root c
 WHERE STARTSWITH(c["id"], "A")
@@ -163,8 +163,8 @@ ORDER BY c["id"]
             async, async a =>
             {
                 await base.Projection_of_entity_type_into_object_list(a);
-AssertSql(
-    """
+                AssertSql(
+                    """
 SELECT VALUE c
 FROM root c
 ORDER BY c["id"]
@@ -230,8 +230,8 @@ FROM root c
             async, async a =>
             {
                 await base.Select_anonymous_one(a);
-AssertSql(
-    """
+                AssertSql(
+                    """
 SELECT VALUE c["City"]
 FROM root c
 """);
@@ -285,8 +285,8 @@ FROM root c
             async, async a =>
             {
                 await base.Select_anonymous_constant_in_expression(a);
-AssertSql(
-    """
+                AssertSql(
+                    """
 SELECT VALUE
 {
     "CustomerID" : c["id"],
@@ -332,8 +332,8 @@ FROM root c
             async, async a =>
             {
                 await base.Select_constant_int(a);
-AssertSql(
-    """
+                AssertSql(
+                    """
 SELECT VALUE 0
 FROM root c
 """);
@@ -357,8 +357,8 @@ FROM root c
             async, async a =>
             {
                 await base.Select_local(a);
-AssertSql(
-    """
+                AssertSql(
+                    """
 @__x_0='10'
 
 SELECT VALUE @__x_0
@@ -387,8 +387,8 @@ OFFSET 0 LIMIT @__p_0
             async, async a =>
             {
                 await base.Select_project_filter(a);
-AssertSql(
-    """
+                AssertSql(
+                    """
 SELECT VALUE c["CompanyName"]
 FROM root c
 WHERE (c["City"] = "London")
@@ -478,8 +478,8 @@ WHERE (c["City"] = "London")
             async, async a =>
             {
                 await base.New_date_time_in_anonymous_type_works(a);
-AssertSql(
-    """
+                AssertSql(
+                    """
 SELECT 1
 FROM root c
 WHERE STARTSWITH(c["id"], "A")
@@ -952,8 +952,8 @@ WHERE (c["$type"] = "Order")
             async, async a =>
             {
                 await base.Anonymous_projection_with_repeated_property_being_ordered(a);
-AssertSql(
-    """
+                AssertSql(
+                    """
 SELECT VALUE c["id"]
 FROM root c
 ORDER BY c["id"]
@@ -995,8 +995,8 @@ WHERE (c["$type"] = "Order")
             async, async a =>
             {
                 await base.Client_method_in_projection_requiring_materialization_1(a);
-AssertSql(
-    """
+                AssertSql(
+                    """
 SELECT VALUE c
 FROM root c
 WHERE STARTSWITH(c["id"], "A")
@@ -1008,8 +1008,8 @@ WHERE STARTSWITH(c["id"], "A")
             async, async a =>
             {
                 await base.Client_method_in_projection_requiring_materialization_2(a);
-AssertSql(
-    """
+                AssertSql(
+                    """
 SELECT VALUE c
 FROM root c
 WHERE STARTSWITH(c["id"], "A")
@@ -1400,8 +1400,8 @@ ORDER BY c["id"]
             async, async a =>
             {
                 await base.Projection_take_projection_doesnt_project_intermittent_column(a);
-AssertSql(
-    """
+                AssertSql(
+                    """
 @__p_0='10'
 
 SELECT VALUE ((c["id"] || " ") || c["City"])
@@ -1694,13 +1694,13 @@ ORDER BY c["EmployeeID"] DESC, c["City"]
             async, async a =>
             {
                 await base.Select_bool_closure(a);
-AssertSql(
-    """
+                AssertSql(
+                    """
 SELECT 1
 FROM root c
 """,
-    //
-    """
+                    //
+                    """
 SELECT 1
 FROM root c
 """);
@@ -1824,8 +1824,8 @@ WHERE (c["$type"] = "Order")
             async, async a =>
             {
                 await base.Select_anonymous_empty(a);
-AssertSql(
-    """
+                AssertSql(
+                    """
 SELECT 1
 FROM root c
 """);
@@ -1849,8 +1849,8 @@ FROM root c
             async, async a =>
             {
                 await base.Select_into(a);
-AssertSql(
-    """
+                AssertSql(
+                    """
 SELECT VALUE c["id"]
 FROM root c
 WHERE (c["id"] = "ALFKI")
@@ -1947,8 +1947,8 @@ FROM root c
             async, async a =>
             {
                 await base.Select_over_10_nested_ternary_condition(a);
-AssertSql(
-    """
+                AssertSql(
+                    """
 SELECT VALUE ((c["id"] = "1") ? "01" : ((c["id"] = "2") ? "02" : ((c["id"] = "3") ? "03" : ((c["id"] = "4") ? "04" : ((c["id"] = "5") ? "05" : ((c["id"] = "6") ? "06" : ((c["id"] = "7") ? "07" : ((c["id"] = "8") ? "08" : ((c["id"] = "9") ? "09" : ((c["id"] = "10") ? "10" : ((c["id"] = "11") ? "11" : null)))))))))))
 FROM root c
 """);

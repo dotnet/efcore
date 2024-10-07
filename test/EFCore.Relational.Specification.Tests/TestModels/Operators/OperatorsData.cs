@@ -56,7 +56,7 @@ public class OperatorsData : ISetSource
         () => new DateTimeOffset(new DateTime(2000, 1, 1, 9, 0, 0), new TimeSpan(13, 0, 0))
     ];
 
-   private readonly List<Expression<Func<DateTimeOffset?>>> _nullableDateTimeOffsetValues =
+    private readonly List<Expression<Func<DateTimeOffset?>>> _nullableDateTimeOffsetValues =
     [
         () => null,
         () => new DateTimeOffset(new DateTime(2000, 1, 1, 10, 0, 0), new TimeSpan(-8, 0, 0)),
@@ -168,6 +168,7 @@ public class OperatorsData : ISetSource
             .Select((x, i) => new OperatorEntityDateTimeOffset { Id = i + 1, Value = _dateTimeOffsetValues[i].Compile()() }).ToList();
 
     public IReadOnlyList<OperatorEntityNullableDateTimeOffset> CreateNullableDateTimeOffsets()
-        => _nullableDateTimeOffsetValues.Select((x, i) => new OperatorEntityNullableDateTimeOffset { Id = i + 1, Value = _nullableDateTimeOffsetValues[i].Compile()() })
+        => _nullableDateTimeOffsetValues.Select(
+                (x, i) => new OperatorEntityNullableDateTimeOffset { Id = i + 1, Value = _nullableDateTimeOffsetValues[i].Compile()() })
             .ToList();
 }

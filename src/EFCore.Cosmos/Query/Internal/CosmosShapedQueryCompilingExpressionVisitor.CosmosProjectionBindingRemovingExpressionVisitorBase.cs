@@ -97,6 +97,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                                 {
                                     storeName = projection.Alias;
                                 }
+
                                 break;
                             }
 
@@ -114,7 +115,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         {
                             case ObjectArrayAccessExpression objectArrayProjectionExpression:
                                 _projectionBindings[objectArrayProjectionExpression] = parameterExpression;
-                                valueExpression = CreateGetValueExpression(objectArrayProjectionExpression.Object, storeName, parameterExpression.Type);
+                                valueExpression = CreateGetValueExpression(
+                                    objectArrayProjectionExpression.Object, storeName, parameterExpression.Type);
                                 break;
 
                             case EntityProjectionExpression entityProjectionExpression:
@@ -144,11 +146,13 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                                         {
                                             valueExpression = CreateGetValueExpression(valueExpression, storeNames[i], typeof(JObject));
                                         }
+
                                         break;
                                     default:
                                         throw new InvalidOperationException(
                                             CoreStrings.TranslationFailed(binaryExpression.Print()));
                                 }
+
                                 break;
 
                             default:

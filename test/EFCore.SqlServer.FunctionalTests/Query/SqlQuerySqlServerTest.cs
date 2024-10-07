@@ -11,9 +11,7 @@ public class SqlQuerySqlServerTest : SqlQueryTestBase<NorthwindQuerySqlServerFix
 {
     public SqlQuerySqlServerTest(NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)
         : base(fixture)
-    {
-        Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
-    }
+        => Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
 
     public override async Task SqlQueryRaw_queryable_simple(bool async)
     {
@@ -456,7 +454,7 @@ SELECT * FROM "Customers"
         await base.SqlQueryRaw_composed_with_predicate(async);
 
         AssertSql(
-"""
+            """
 SELECT [m].[Address], [m].[City], [m].[CompanyName], [m].[ContactName], [m].[ContactTitle], [m].[Country], [m].[CustomerID], [m].[Fax], [m].[Phone], [m].[Region], [m].[PostalCode]
 FROM (
     SELECT * FROM "Customers"

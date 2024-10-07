@@ -324,9 +324,7 @@ public abstract class SqlExecutorTestBase<TFixture>(TFixture fixture) : IClassFi
 public class SqlExecutorModelCustomizer : NoopModelCustomizer
 {
     public override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
-    {
-        configurationBuilder.DefaultTypeMapping<City>().HasConversion<CityToStringConverter>();
-    }
+        => configurationBuilder.DefaultTypeMapping<City>().HasConversion<CityToStringConverter>();
 
     private sealed class CityToStringConverter() : ValueConverter<City, string>(value => value.Name, value => new City { Name = value });
 }

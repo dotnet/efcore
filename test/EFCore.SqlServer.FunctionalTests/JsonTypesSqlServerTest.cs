@@ -3,6 +3,4 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class JsonTypesSqlServerTest : JsonTypesSqlServerTestBase;

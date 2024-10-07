@@ -46,7 +46,8 @@ public class LazyLoader : ILazyLoader, IInjectableService
     public virtual void Injected(DbContext context, object entity, QueryTrackingBehavior? queryTrackingBehavior, ITypeBase structuralType)
     {
         _queryTrackingBehavior = queryTrackingBehavior;
-        _nonLazyNavigations ??= InitNavigationsMetadata(structuralType as IEntityType
+        _nonLazyNavigations ??= InitNavigationsMetadata(
+            structuralType as IEntityType
             ?? throw new NotImplementedException("Navigations on complex types are not supported"));
     }
 

@@ -539,7 +539,6 @@ public abstract class FunkyDataQueryTestBase<TFixture>(TFixture fixture) : Query
                 AssertEqual(e.last, a.last);
             });
 
-
     [ConditionalTheory] // #32432
     [MemberData(nameof(IsAsyncData))]
     public virtual Task String_Contains_and_StartsWith_with_same_parameter(bool async)

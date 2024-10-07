@@ -15,7 +15,9 @@ public class AdHocQuerySplittingQuerySqliteTest : AdHocQuerySplittingQueryTestBa
     private static readonly FieldInfo _querySplittingBehaviorFieldInfo =
         typeof(RelationalOptionsExtension).GetField("_querySplittingBehavior", BindingFlags.NonPublic | BindingFlags.Instance);
 
-    protected override DbContextOptionsBuilder SetQuerySplittingBehavior(DbContextOptionsBuilder optionsBuilder, QuerySplittingBehavior splittingBehavior)
+    protected override DbContextOptionsBuilder SetQuerySplittingBehavior(
+        DbContextOptionsBuilder optionsBuilder,
+        QuerySplittingBehavior splittingBehavior)
     {
         new SqliteDbContextOptionsBuilder(optionsBuilder).UseQuerySplittingBehavior(splittingBehavior);
 

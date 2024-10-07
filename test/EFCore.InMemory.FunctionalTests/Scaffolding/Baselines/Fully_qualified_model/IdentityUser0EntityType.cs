@@ -32,22 +32,22 @@ namespace Scaffolding
 
         public static void CreateAnnotations(RuntimeEntityType runtimeEntityType)
         {
-            var id = runtimeEntityType.FindProperty("Id")!;
-            var accessFailedCount = runtimeEntityType.FindProperty("AccessFailedCount")!;
-            var concurrencyStamp = runtimeEntityType.FindProperty("ConcurrencyStamp")!;
-            var discriminator = runtimeEntityType.FindProperty("Discriminator")!;
-            var email = runtimeEntityType.FindProperty("Email")!;
-            var emailConfirmed = runtimeEntityType.FindProperty("EmailConfirmed")!;
-            var lockoutEnabled = runtimeEntityType.FindProperty("LockoutEnabled")!;
-            var lockoutEnd = runtimeEntityType.FindProperty("LockoutEnd")!;
-            var normalizedEmail = runtimeEntityType.FindProperty("NormalizedEmail")!;
-            var normalizedUserName = runtimeEntityType.FindProperty("NormalizedUserName")!;
-            var passwordHash = runtimeEntityType.FindProperty("PasswordHash")!;
-            var phoneNumber = runtimeEntityType.FindProperty("PhoneNumber")!;
-            var phoneNumberConfirmed = runtimeEntityType.FindProperty("PhoneNumberConfirmed")!;
-            var securityStamp = runtimeEntityType.FindProperty("SecurityStamp")!;
-            var twoFactorEnabled = runtimeEntityType.FindProperty("TwoFactorEnabled")!;
-            var userName = runtimeEntityType.FindProperty("UserName")!;
+            var id = runtimeEntityType.FindProperty("Id");
+            var accessFailedCount = runtimeEntityType.FindProperty("AccessFailedCount");
+            var concurrencyStamp = runtimeEntityType.FindProperty("ConcurrencyStamp");
+            var discriminator = runtimeEntityType.FindProperty("Discriminator");
+            var email = runtimeEntityType.FindProperty("Email");
+            var emailConfirmed = runtimeEntityType.FindProperty("EmailConfirmed");
+            var lockoutEnabled = runtimeEntityType.FindProperty("LockoutEnabled");
+            var lockoutEnd = runtimeEntityType.FindProperty("LockoutEnd");
+            var normalizedEmail = runtimeEntityType.FindProperty("NormalizedEmail");
+            var normalizedUserName = runtimeEntityType.FindProperty("NormalizedUserName");
+            var passwordHash = runtimeEntityType.FindProperty("PasswordHash");
+            var phoneNumber = runtimeEntityType.FindProperty("PhoneNumber");
+            var phoneNumberConfirmed = runtimeEntityType.FindProperty("PhoneNumberConfirmed");
+            var securityStamp = runtimeEntityType.FindProperty("SecurityStamp");
+            var twoFactorEnabled = runtimeEntityType.FindProperty("TwoFactorEnabled");
+            var userName = runtimeEntityType.FindProperty("UserName");
             runtimeEntityType.SetOriginalValuesFactory(
                 ISnapshot (InternalEntityEntry source) =>
                 {

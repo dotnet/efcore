@@ -175,8 +175,10 @@ public class CompositeKeyEndToEndTest
 
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<Pegasus> Pegasuses { get; set; }
+
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<Unicorn> Unicorns { get; set; }
+
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<EarthPony> EarthPonies { get; set; }
 

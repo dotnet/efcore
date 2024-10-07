@@ -5,8 +5,10 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public class InheritanceRelationshipsQuerySqliteTest(InheritanceRelationshipsQuerySqliteTest.InheritanceRelationshipsQuerySqliteFixture fixture) :
-    InheritanceRelationshipsQueryRelationalTestBase<InheritanceRelationshipsQuerySqliteTest.InheritanceRelationshipsQuerySqliteFixture>(fixture)
+public class InheritanceRelationshipsQuerySqliteTest(
+    InheritanceRelationshipsQuerySqliteTest.InheritanceRelationshipsQuerySqliteFixture fixture) :
+    InheritanceRelationshipsQueryRelationalTestBase<InheritanceRelationshipsQuerySqliteTest.InheritanceRelationshipsQuerySqliteFixture>(
+        fixture)
 {
     public class InheritanceRelationshipsQuerySqliteFixture : InheritanceRelationshipsQueryRelationalFixture
     {

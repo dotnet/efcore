@@ -56,7 +56,7 @@ public class ReadOnlyMemoryConverter<T> : ValueConverter<ReadOnlyMemory<T>, T[]>
     public static ReadOnlyMemory<T> ToMemory(T[] array)
         // If the array is empty, then return the default ReadOnlyMemory instance because this will compare the same as other empty
         // ReadOnlyMemory instances, while the instance created with an empty array is considered not equal to the default.
-        => array.Length == 0 ? default : new(array);
+        => array.Length == 0 ? default : new ReadOnlyMemory<T>(array);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

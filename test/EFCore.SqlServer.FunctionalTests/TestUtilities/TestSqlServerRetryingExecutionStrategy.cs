@@ -43,6 +43,13 @@ public class TestSqlServerRetryingExecutionStrategy : SqlServerRetryingExecution
     {
     }
 
+    public TestSqlServerRetryingExecutionStrategy(
+        ExecutionStrategyDependencies dependencies,
+        IEnumerable<int> errorNumbersToAdd)
+        : base(dependencies, DefaultMaxRetryCount, DefaultMaxDelay, _additionalErrorNumbers.Concat(errorNumbersToAdd))
+    {
+    }
+
     protected override bool ShouldRetryOn(Exception exception)
     {
         if (base.ShouldRetryOn(exception))

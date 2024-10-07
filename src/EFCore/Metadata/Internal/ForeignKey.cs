@@ -117,8 +117,10 @@ public class ForeignKey : ConventionAnnotatable, IMutableForeignKey, IConvention
     public virtual InternalForeignKeyBuilder Builder
     {
         [DebuggerStepThrough]
-        get => _builder ?? throw new InvalidOperationException(CoreStrings.ObjectRemovedFromModel(
-            Property.Format(Properties.Select(p => p.Name))));
+        get => _builder
+            ?? throw new InvalidOperationException(
+                CoreStrings.ObjectRemovedFromModel(
+                    Property.Format(Properties.Select(p => p.Name))));
     }
 
     /// <summary>

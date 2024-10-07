@@ -673,7 +673,13 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
             var processedEntries = new List<IUpdateEntry>();
             foreach (var entry in _entries.Where(e => e.EntityType.IsMappedToJson()))
             {
-                var jsonColumn = GetTableMapping(entry.EntityType)!.Table.FindColumn(entry.EntityType.GetContainerColumnName()!)!;
+                var jsonColumn = GetTableMapping(entry.EntityType)!.Table.FindColumn(entry.EntityType.GetContainerColumnName()!);
+
+                if (jsonColumn == null)
+                {
+                    continue;
+                }
+
                 var jsonPartialUpdateInfo = FindJsonPartialUpdateInfo(entry, processedEntries);
 
                 if (jsonPartialUpdateInfo == null)
@@ -694,9 +700,10 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
             foreach (var entry in _entries.Where(e => !e.EntityType.IsMappedToJson()))
             {
                 foreach (var jsonCollectionNavigation in entry.EntityType.GetNavigations()
-                             .Where(n => n.IsCollection
-                                 && n.TargetEntityType.IsMappedToJson()
-                                 && (entry.GetCurrentValue(n) as IEnumerable)?.Any() == false))
+                             .Where(
+                                 n => n.IsCollection
+                                     && n.TargetEntityType.IsMappedToJson()
+                                     && (entry.GetCurrentValue(n) as IEnumerable)?.Any() == false))
                 {
                     var jsonCollectionEntityType = jsonCollectionNavigation.TargetEntityType;
                     var jsonCollectionColumn =

@@ -475,11 +475,13 @@ public class ComplexPropertyEntryTest
     private struct Culture
     {
         public string Species { get; set; }
+
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public string? Subspecies { get; set; }
         public int Rating { get; set; }
+
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public bool? Validation  { get; set; }
+        public bool? Validation { get; set; }
         public Manufacturer Manufacturer { get; set; }
         public License License { get; set; }
     }

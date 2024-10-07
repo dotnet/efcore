@@ -18,6 +18,8 @@ public class CosmosDatabaseCreator : IDatabaseCreator
     private readonly IDesignTimeModel _designTimeModel;
     private readonly IUpdateAdapterFactory _updateAdapterFactory;
     private readonly IDatabase _database;
+    private readonly ICurrentDbContext _currentContext;
+    private readonly IDbContextOptions _contextOptions;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -29,12 +31,16 @@ public class CosmosDatabaseCreator : IDatabaseCreator
         ICosmosClientWrapper cosmosClient,
         IDesignTimeModel designTimeModel,
         IUpdateAdapterFactory updateAdapterFactory,
-        IDatabase database)
+        IDatabase database,
+        ICurrentDbContext currentContext,
+        IDbContextOptions contextOptions)
     {
         _cosmosClient = cosmosClient;
         _designTimeModel = designTimeModel;
         _updateAdapterFactory = updateAdapterFactory;
         _database = database;
+        _currentContext = currentContext;
+        _contextOptions = contextOptions;
     }
 
     /// <summary>
@@ -55,8 +61,10 @@ public class CosmosDatabaseCreator : IDatabaseCreator
 
         if (created)
         {
-            Seed();
+            InsertData();
         }
+
+        SeedData(created);
 
         return created;
     }
@@ -81,8 +89,10 @@ public class CosmosDatabaseCreator : IDatabaseCreator
 
         if (created)
         {
-            await SeedAsync(cancellationToken).ConfigureAwait(false);
+            await InsertDataAsync(cancellationToken).ConfigureAwait(false);
         }
+
+        await SeedDataAsync(created, cancellationToken).ConfigureAwait(false);
 
         return created;
     }
@@ -122,6 +132,7 @@ public class CosmosDatabaseCreator : IDatabaseCreator
                 {
                     partitionKeyStoreNames = GetPartitionKeyStoreNames(entityType);
                 }
+
                 analyticalTtl ??= entityType.GetAnalyticalStoreTimeToLive();
                 defaultTtl ??= entityType.GetDefaultTimeToLive();
                 throughput ??= entityType.GetThroughput();
@@ -153,9 +164,9 @@ public class CosmosDatabaseCreator : IDatabaseCreator
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual void Seed()
+    public virtual void InsertData()
     {
-        var updateAdapter = AddSeedData();
+        var updateAdapter = AddModelData();
 
         _database.SaveChanges(updateAdapter.GetEntriesToSave());
     }
@@ -166,14 +177,14 @@ public class CosmosDatabaseCreator : IDatabaseCreator
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual Task SeedAsync(CancellationToken cancellationToken = default)
+    public virtual Task InsertDataAsync(CancellationToken cancellationToken = default)
     {
-        var updateAdapter = AddSeedData();
+        var updateAdapter = AddModelData();
 
         return _database.SaveChangesAsync(updateAdapter.GetEntriesToSave(), cancellationToken);
     }
 
-    private IUpdateAdapter AddSeedData()
+    private IUpdateAdapter AddModelData()
     {
         var updateAdapter = _updateAdapterFactory.CreateStandalone();
         foreach (var entityType in _designTimeModel.Model.GetEntityTypes())
@@ -187,6 +198,52 @@ public class CosmosDatabaseCreator : IDatabaseCreator
         }
 
         return updateAdapter;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual void SeedData(bool created)
+    {
+        var coreOptionsExtension =
+            _contextOptions.FindExtension<CoreOptionsExtension>()
+            ?? new CoreOptionsExtension();
+
+        var seed = coreOptionsExtension.Seeder;
+        if (seed != null)
+        {
+            seed(_currentContext.Context, created);
+        }
+        else if (coreOptionsExtension.AsyncSeeder != null)
+        {
+            throw new InvalidOperationException(CoreStrings.MissingSeeder);
+        }
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual async Task SeedDataAsync(bool created, CancellationToken cancellationToken = default)
+    {
+        var coreOptionsExtension =
+            _contextOptions.FindExtension<CoreOptionsExtension>()
+            ?? new CoreOptionsExtension();
+
+        var seedAsync = coreOptionsExtension.AsyncSeeder;
+        if (seedAsync != null)
+        {
+            await seedAsync(_currentContext.Context, created, cancellationToken).ConfigureAwait(false);
+        }
+        else if (coreOptionsExtension.Seeder != null)
+        {
+            throw new InvalidOperationException(CoreStrings.MissingSeeder);
+        }
     }
 
     /// <summary>

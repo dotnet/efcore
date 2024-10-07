@@ -5,7 +5,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
 public class TestRelationalConventionSetBuilder(
     ProviderConventionSetBuilderDependencies dependencies,
-    RelationalConventionSetBuilderDependencies relationalDependencies) : RelationalConventionSetBuilder(dependencies, relationalDependencies)
+    RelationalConventionSetBuilderDependencies relationalDependencies)
+    : RelationalConventionSetBuilder(dependencies, relationalDependencies)
 {
     public static ConventionSet Build()
         => ConventionSet.CreateConventionSet(FakeRelationalTestHelpers.Instance.CreateContext());

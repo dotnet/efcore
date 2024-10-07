@@ -106,8 +106,6 @@ public class ServiceProviderExtensionsTest
     private class Karl : IPilkington
     {
         public Karl()
-        {
-            throw new NotSupportedException(KarlQuote);
-        }
+            => throw new NotSupportedException(KarlQuote);
     }
 }

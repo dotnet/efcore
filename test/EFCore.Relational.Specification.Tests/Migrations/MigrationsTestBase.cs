@@ -2864,7 +2864,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                             new ValueConverter<List<int>, string>(
                                 convertToProviderExpression: x => x != null && x.Count > 0 ? "some numbers" : "nothing",
                                 convertFromProviderExpression: x => x == "nothing"
-                                    ? new List<int> { }
+                                    ? new List<int>()
                                     : new List<int>
                                     {
                                         7,
@@ -2908,7 +2908,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                             new ValueConverter<List<int>, string>(
                                 convertToProviderExpression: x => x != null && x.Count > 0 ? "some numbers" : "nothing",
                                 convertFromProviderExpression: x => x == "nothing"
-                                    ? new List<int> { }
+                                    ? new List<int>()
                                     : new List<int>
                                     {
                                         7,
@@ -3145,7 +3145,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                             new ValueConverter<List<int>, string>(
                                 convertToProviderExpression: x => x != null && x.Count > 0 ? "some numbers" : "nothing",
                                 convertFromProviderExpression: x => x == "nothing"
-                                    ? new List<int> { }
+                                    ? new List<int>()
                                     : new List<int>
                                     {
                                         7,
@@ -3189,7 +3189,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                             new ValueConverter<List<int>, string>(
                                 convertToProviderExpression: x => x != null && x.Count > 0 ? "some numbers" : "nothing",
                                 convertFromProviderExpression: x => x == "nothing"
-                                    ? new List<int> { }
+                                    ? new List<int>()
                                     : new List<int>
                                     {
                                         7,

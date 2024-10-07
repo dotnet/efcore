@@ -25,12 +25,14 @@ public static class CosmosEntityTypeExtensions
                 || entityType[CosmosAnnotationNames.ContainerName] != null);
 
     /// <summary>
-    ///     Returns the JSON `id` definition, or <see langword="null"/> if there is none.
+    ///     Returns the JSON `id` definition, or <see langword="null" /> if there is none.
     /// </summary>
     /// <param name="entityType">The entity type.</param>
     public static IJsonIdDefinition? GetJsonIdDefinition(this IEntityType entityType)
-        => entityType.GetOrAddRuntimeAnnotationValue(CosmosAnnotationNames.JsonIdDefinition,
+        => entityType.GetOrAddRuntimeAnnotationValue(
+            CosmosAnnotationNames.JsonIdDefinition,
             static e =>
                 ((CosmosModelRuntimeInitializerDependencies)e!.Model.FindRuntimeAnnotationValue(
                     CosmosAnnotationNames.ModelDependencies)!).JsonIdDefinitionFactory.Create(e),
-            entityType);}
+            entityType);
+}

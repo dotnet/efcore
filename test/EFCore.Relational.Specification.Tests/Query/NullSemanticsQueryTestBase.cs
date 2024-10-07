@@ -24,7 +24,7 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Rewrite_compare_int_with_int(bool async)
     {
-        var bools = new bool[] { false, true };
+        var bools = new[] { false, true };
 
         foreach (var neq in bools)
         {
@@ -37,12 +37,38 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
                         var queryBuilder = (ISetSource ss) =>
                         {
                             var data = nullableA
-                                ? ss.Set<NullSemanticsEntity1>().Select(e => new { e.Id, A = e.NullableIntA, e.IntB, e.NullableIntB })
-                                : ss.Set<NullSemanticsEntity1>().Select(e => new { e.Id, A = (int?)e.IntA, e.IntB, e.NullableIntB });
+                                ? ss.Set<NullSemanticsEntity1>().Select(
+                                    e => new
+                                    {
+                                        e.Id,
+                                        A = e.NullableIntA,
+                                        e.IntB,
+                                        e.NullableIntB
+                                    })
+                                : ss.Set<NullSemanticsEntity1>().Select(
+                                    e => new
+                                    {
+                                        e.Id,
+                                        A = (int?)e.IntA,
+                                        e.IntB,
+                                        e.NullableIntB
+                                    });
 
                             var query = nullableB
-                                ? data.Select(e => new { e.Id, e.A, B = e.NullableIntB })
-                                : data.Select(e => new { e.Id, e.A, B = (int?)e.IntB });
+                                ? data.Select(
+                                    e => new
+                                    {
+                                        e.Id,
+                                        e.A,
+                                        B = e.NullableIntB
+                                    })
+                                : data.Select(
+                                    e => new
+                                    {
+                                        e.Id,
+                                        e.A,
+                                        B = (int?)e.IntB
+                                    });
 
                             var result = neq
                                 ? query.Select(e => new { e.Id, X = e.A != e.B })
@@ -65,7 +91,7 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Rewrite_compare_bool_with_bool(bool async)
     {
-        var bools = new bool[] { false, true };
+        var bools = new[] { false, true };
 
         foreach (var neq in bools)
         {
@@ -82,15 +108,57 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
                                 var queryBuilder = (ISetSource ss) =>
                                 {
                                     var data = nullableA
-                                        ? ss.Set<NullSemanticsEntity1>().Select(e => new { e.Id, A = e.NullableBoolA, e.BoolB, e.NullableBoolB })
-                                        : ss.Set<NullSemanticsEntity1>().Select(e => new { e.Id, A = (bool?)e.BoolA, e.BoolB, e.NullableBoolB });
+                                        ? ss.Set<NullSemanticsEntity1>().Select(
+                                            e => new
+                                            {
+                                                e.Id,
+                                                A = e.NullableBoolA,
+                                                e.BoolB,
+                                                e.NullableBoolB
+                                            })
+                                        : ss.Set<NullSemanticsEntity1>().Select(
+                                            e => new
+                                            {
+                                                e.Id,
+                                                A = (bool?)e.BoolA,
+                                                e.BoolB,
+                                                e.NullableBoolB
+                                            });
 
                                     var query = nullableB
-                                        ? data.Select(e => new { e.Id, e.A, B = e.NullableBoolB })
-                                        : data.Select(e => new { e.Id, e.A, B = (bool?)e.BoolB });
+                                        ? data.Select(
+                                            e => new
+                                            {
+                                                e.Id,
+                                                e.A,
+                                                B = e.NullableBoolB
+                                            })
+                                        : data.Select(
+                                            e => new
+                                            {
+                                                e.Id,
+                                                e.A,
+                                                B = (bool?)e.BoolB
+                                            });
 
-                                    query = negateA ? query.Select(e => new { e.Id, A = !e.A, e.B }) : query;
-                                    query = negateB ? query.Select(e => new { e.Id, e.A, B = !e.B }) : query;
+                                    query = negateA
+                                        ? query.Select(
+                                            e => new
+                                            {
+                                                e.Id,
+                                                A = !e.A,
+                                                e.B
+                                            })
+                                        : query;
+                                    query = negateB
+                                        ? query.Select(
+                                            e => new
+                                            {
+                                                e.Id,
+                                                e.A,
+                                                B = !e.B
+                                            })
+                                        : query;
 
                                     var result = neq
                                         ? query.Select(e => new { e.Id, X = e.A != e.B })
@@ -495,7 +563,7 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
             async,
             ss => from e1 in ss.Set<NullSemanticsEntity1>()
                   join e2 in ss.Set<NullSemanticsEntity2>() on
-                    new { NullInt = e1.NullableIntA } equals new { NullInt = e2.NullableIntB }
+                      new { NullInt = e1.NullableIntA } equals new { NullInt = e2.NullableIntB }
                   select new
                   {
                       Id1 = e1.Id,
@@ -615,14 +683,17 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Where_coalesce_shortcircuit(bool async)
-        => AssertQueryScalar(async, ss => ss.Set<NullSemanticsEntity1>().Where(e => (bool?)(e.BoolA | e.BoolB) ?? e.NullableBoolA ?? true)
-            .Select(e => e.Id));
+        => AssertQueryScalar(
+            async, ss => ss.Set<NullSemanticsEntity1>().Where(e => (bool?)(e.BoolA | e.BoolB) ?? e.NullableBoolA ?? true)
+                .Select(e => e.Id));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Where_coalesce_shortcircuit_many(bool async)
-        => AssertQueryScalar(async, ss => ss.Set<NullSemanticsEntity1>().Where(e => e.NullableBoolA ?? (bool?)(e.BoolA | e.BoolB) ?? e.NullableBoolB ?? e.BoolB)
-            .Select(e => e.Id));
+        => AssertQueryScalar(
+            async, ss => ss.Set<NullSemanticsEntity1>()
+                .Where(e => e.NullableBoolA ?? (bool?)(e.BoolA | e.BoolB) ?? e.NullableBoolB ?? e.BoolB)
+                .Select(e => e.Id));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1061,7 +1132,8 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
         => AssertQueryScalar(
             async,
             ss => ss.Set<NullSemanticsEntity1>().Where(e => e.NullableStringA.IndexOf("") == e.NullableIntA).Select(e => e.Id),
-            ss => ss.Set<NullSemanticsEntity1>().Where(e => 0 == e.NullableIntA || (e.NullableStringA == null && e.NullableIntA == null)).Select(e => e.Id));
+            ss => ss.Set<NullSemanticsEntity1>().Where(e => 0 == e.NullableIntA || (e.NullableStringA == null && e.NullableIntA == null))
+                .Select(e => e.Id));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1543,11 +1615,13 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
         await AssertQueryScalar(async, ss => ss.Set<NullSemanticsEntity1>().Where(e => !ids2.Contains(e.IntA)).Select(e => e.Id));
 
         var ids3 = new List<int?>();
-        await AssertQueryScalar(async, ss => ss.Set<NullSemanticsEntity1>().Where(e => ids3.Contains(e.IntA)).Select(e => e.Id), assertEmpty: true);
+        await AssertQueryScalar(
+            async, ss => ss.Set<NullSemanticsEntity1>().Where(e => ids3.Contains(e.IntA)).Select(e => e.Id), assertEmpty: true);
         await AssertQueryScalar(async, ss => ss.Set<NullSemanticsEntity1>().Where(e => !ids3.Contains(e.IntA)).Select(e => e.Id));
 
         var ids4 = new List<int?> { null };
-        await AssertQueryScalar(async, ss => ss.Set<NullSemanticsEntity1>().Where(e => ids4.Contains(e.IntA)).Select(e => e.Id), assertEmpty: true);
+        await AssertQueryScalar(
+            async, ss => ss.Set<NullSemanticsEntity1>().Where(e => ids4.Contains(e.IntA)).Select(e => e.Id), assertEmpty: true);
         await AssertQueryScalar(async, ss => ss.Set<NullSemanticsEntity1>().Where(e => !ids4.Contains(e.IntA)).Select(e => e.Id));
     }
 
@@ -1844,11 +1918,13 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
         => AssertQuery(
             async,
             ss => ss.Set<NullSemanticsEntity1>()
-                .Where(x => NullSemanticsQueryFixtureBase.Cases(
-                    x.StringA == "Foo", 3,
-                    x.StringB == "Foo", 2,
-                    x.StringC == "Foo", 3
-                ) == 2)
+                .Where(
+                    x => NullSemanticsQueryFixtureBase.Cases(
+                            x.StringA == "Foo", 3,
+                            x.StringB == "Foo", 2,
+                            x.StringC == "Foo", 3
+                        )
+                        == 2)
         );
 
     [ConditionalTheory]
@@ -1857,11 +1933,13 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
         => AssertQuery(
             async,
             ss => ss.Set<NullSemanticsEntity1>()
-                .Where(x => NullSemanticsQueryFixtureBase.Cases(
-                    x.StringA == "Foo", 3,
-                    x.StringB == "Foo", 2,
-                    x.StringC == "Foo", 3
-                ) == 3)
+                .Where(
+                    x => NullSemanticsQueryFixtureBase.Cases(
+                            x.StringA == "Foo", 3,
+                            x.StringB == "Foo", 2,
+                            x.StringC == "Foo", 3
+                        )
+                        == 3)
         );
 
     [ConditionalTheory]
@@ -1871,11 +1949,13 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
             async,
             ss => ss.Set<NullSemanticsEntity1>()
                 .OrderBy(x => x.Id)
-                .Select(x => NullSemanticsQueryFixtureBase.Cases(
-                    x.StringA == "Foo", 3,
-                    x.StringB == "Foo", 2,
-                    x.StringC == "Foo", 3
-                ) == 2),
+                .Select(
+                    x => NullSemanticsQueryFixtureBase.Cases(
+                            x.StringA == "Foo", 3,
+                            x.StringB == "Foo", 2,
+                            x.StringC == "Foo", 3
+                        )
+                        == 2),
             assertOrder: true
         );
 
@@ -1886,13 +1966,14 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
             async,
             ss => ss.Set<NullSemanticsEntity1>()
                 .OrderBy(x => x.Id)
-                .Select(x => NullSemanticsQueryFixtureBase.Cases(
-                    x.StringA == "Foo", 3,
-                    x.StringB == "Foo", 2,
-                    x.StringC == "Foo", 3
-                ) == 3),
-            assertOrder: true
-        );
+                .Select(
+                    x => NullSemanticsQueryFixtureBase.Cases(
+                            x.StringA == "Foo", 3,
+                            x.StringB == "Foo", 2,
+                            x.StringC == "Foo", 3
+                        )
+                        == 3),
+            assertOrder: true);
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1901,11 +1982,10 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
             async,
             ss => ss.Set<NullSemanticsEntity1>()
                 .OrderBy(x => x.Id)
-                .Select(x => NullSemanticsQueryFixtureBase.BoolSwitch(
-                    x.StringA == "Foo", 3, 2
-                )),
-            assertOrder: true
-        );
+                .Select(
+                    x => NullSemanticsQueryFixtureBase.BoolSwitch(
+                        x.StringA == "Foo", 3, 2)),
+                    assertOrder: true);
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1913,9 +1993,11 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
         => AssertQuery(
             async,
             ss => ss.Set<NullSemanticsEntity1>()
-                .Where(x => NullSemanticsQueryFixtureBase.BoolSwitch(
-                    x.StringA == "Foo", 3, 2
-                ) == 2),
+                .Where(
+                    x => NullSemanticsQueryFixtureBase.BoolSwitch(
+                            x.StringA == "Foo", 3, 2
+                        )
+                        == 2),
             assertOrder: true
         );
 

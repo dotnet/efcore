@@ -72,8 +72,12 @@ public static class CosmosEntityTypeExtensions
     /// <param name="entityType">The entity type to get the containing property name for.</param>
     /// <returns>The name of the parent property to which the entity type is mapped.</returns>
     public static string? GetContainingPropertyName(this IReadOnlyEntityType entityType)
-        => entityType[CosmosAnnotationNames.PropertyName] as string
-            ?? GetDefaultContainingPropertyName(entityType);
+    {
+        var propertyName = entityType.FindAnnotation(CosmosAnnotationNames.PropertyName);
+        return propertyName == null
+            ? GetDefaultContainingPropertyName(entityType)
+            : (string?)propertyName.Value;
+    }
 
     private static string? GetDefaultContainingPropertyName(IReadOnlyEntityType entityType)
         => entityType.FindOwnership() is IReadOnlyForeignKey ownership
@@ -194,17 +198,17 @@ public static class CosmosEntityTypeExtensions
     ///     Returns the names of the properties that are used to store the hierarchical partition key, if any.
     /// </summary>
     /// <param name="entityType">The entity type.</param>
-    /// <returns>The names of the partition key properties, or <see langword="null"/> if not set.</returns>
+    /// <returns>The names of the partition key properties, or <see langword="null" /> if not set.</returns>
     public static IReadOnlyList<string> GetPartitionKeyPropertyNames(this IReadOnlyEntityType entityType)
         => entityType[CosmosAnnotationNames.PartitionKeyNames] as IReadOnlyList<string>
             ?? entityType.BaseType?.GetPartitionKeyPropertyNames()
-            ?? Array.Empty<string>();
+            ?? [];
 
     /// <summary>
     ///     Sets the names of the properties that are used to store the hierarchical partition key.
     /// </summary>
     /// <param name="entityType">The entity type.</param>
-    /// <param name="names">The names to set, or <see langword="null"/> to clear all names.</param>
+    /// <param name="names">The names to set, or <see langword="null" /> to clear all names.</param>
     public static void SetPartitionKeyPropertyNames(this IMutableEntityType entityType, IReadOnlyList<string>? names)
         => entityType.SetOrRemoveAnnotation(
             CosmosAnnotationNames.PartitionKeyNames, names is null ? names : Check.HasNoEmptyElements(names, nameof(names)));
@@ -352,7 +356,7 @@ public static class CosmosEntityTypeExtensions
     /// <returns>
     ///     <see langword="true" /> to force __id creation, <see langword="false" /> to not force __id creation,
     ///     <see langword="null" /> to revert to the default setting.
-    /// .</returns>
+    /// </returns>
     public static bool? GetHasShadowId(this IReadOnlyEntityType entityType)
         => (entityType.BaseType != null
                 ? entityType.GetRootType().GetHasShadowId()
@@ -389,7 +393,7 @@ public static class CosmosEntityTypeExtensions
             CosmosAnnotationNames.HasShadowId, alwaysCreate, fromDataAnnotation)?.Value;
 
     /// <summary>
-    ///     Gets the <see cref="ConfigurationSource" /> for <see cref="GetHasShadowId"/>.
+    ///     Gets the <see cref="ConfigurationSource" /> for <see cref="GetHasShadowId" />.
     /// </summary>
     /// <param name="entityType">The entity typer.</param>
     /// <returns>The <see cref="ConfigurationSource" />.</returns>
@@ -401,7 +405,7 @@ public static class CosmosEntityTypeExtensions
     ///     Prior to EF Core 9, it was always included. Starting with EF Core 9, it is not included by default.
     /// </summary>
     /// <param name="entityType">The entity type.</param>
-    /// <returns>The <see cref="IdDiscriminatorMode"/> or <see langword="null" /> if not set.</returns>
+    /// <returns>The <see cref="IdDiscriminatorMode" /> or <see langword="null" /> if not set.</returns>
     public static IdDiscriminatorMode? GetDiscriminatorInKey(this IReadOnlyEntityType entityType)
         => (entityType.BaseType != null
                 ? entityType.GetRootType().GetDiscriminatorInKey()
@@ -423,12 +427,14 @@ public static class CosmosEntityTypeExtensions
     /// <param name="behavior">The behavior to use, or <see langword="null" /> to reset the behavior to the default.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     public static IdDiscriminatorMode? SetDiscriminatorInKey(
-        this IConventionEntityType entityType, IdDiscriminatorMode? behavior, bool fromDataAnnotation = false)
+        this IConventionEntityType entityType,
+        IdDiscriminatorMode? behavior,
+        bool fromDataAnnotation = false)
         => (IdDiscriminatorMode?)entityType.SetOrRemoveAnnotation(
             CosmosAnnotationNames.DiscriminatorInKey, behavior, fromDataAnnotation)?.Value;
 
     /// <summary>
-    ///     Gets the <see cref="ConfigurationSource" /> for <see cref="GetDiscriminatorInKey"/>.
+    ///     Gets the <see cref="ConfigurationSource" /> for <see cref="GetDiscriminatorInKey" />.
     /// </summary>
     /// <param name="entityType">The entity typer.</param>
     /// <returns>The <see cref="ConfigurationSource" />.</returns>

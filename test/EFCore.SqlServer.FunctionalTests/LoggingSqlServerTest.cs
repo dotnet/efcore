@@ -27,7 +27,8 @@ public class LoggingSqlServerTest : LoggingRelationalTestBase<SqlServerDbContext
                 () => context.Model).Message);
     }
 
-    protected class StoredProcedureConcurrencyTokenNotMappedContext(DbContextOptionsBuilder optionsBuilder) : DbContext(optionsBuilder.Options)
+    protected class StoredProcedureConcurrencyTokenNotMappedContext(DbContextOptionsBuilder optionsBuilder)
+        : DbContext(optionsBuilder.Options)
     {
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Animal>(

@@ -795,7 +795,7 @@ FROM [Customers] AS [c]
         AssertSql(
             """
 SELECT (
-    SELECT DISTINCT TOP(1) [o].[CustomerID]
+    SELECT TOP(1) [o].[CustomerID]
     FROM [Orders] AS [o]
     WHERE [c].[CustomerID] = [o].[CustomerID])
 FROM [Customers] AS [c]
@@ -2791,7 +2791,7 @@ WHERE [c].[CustomerID] LIKE N'F%'
         await base.Entity_passed_to_DTO_constructor_works(async);
 
         AssertSql(
-"""
+            """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 """);

@@ -15,7 +15,13 @@ internal interface IOperationExecutor : IDisposable
     void UpdateDatabase(string? migration, string? connectionString, string? contextType);
     IEnumerable<IDictionary> GetContextTypes();
     IEnumerable<string> OptimizeContext(
-        string? outputDir, string? modelNamespace, string? contextType, string? suffix, bool scaffoldModel, bool precompileQueries);
+        string? outputDir,
+        string? modelNamespace,
+        string? contextType,
+        string? suffix,
+        bool scaffoldModel,
+        bool precompileQueries,
+        bool nativeAot);
 
     IDictionary ScaffoldContext(
         string provider,

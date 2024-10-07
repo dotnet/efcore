@@ -453,6 +453,12 @@ WHERE (
 """);
     }
 
+    public override Task Inline_collection_Contains_with_EF_Parameter(bool async)
+        => AssertCompatibilityLevelTooLow(() => base.Inline_collection_Contains_with_EF_Parameter(async));
+
+    public override Task Inline_collection_Count_with_column_predicate_with_EF_Parameter(bool async)
+        => AssertCompatibilityLevelTooLow(() => base.Inline_collection_Count_with_column_predicate_with_EF_Parameter(async));
+
     public override Task Parameter_collection_Count(bool async)
         => AssertCompatibilityLevelTooLow(() => base.Parameter_collection_Count(async));
 
@@ -897,6 +903,9 @@ ORDER BY [p].[Id]
         => AssertCompatibilityLevelTooLow(() => base.Inline_collection_Join_ordered_column_collection(async));
 
     public override Task Parameter_collection_Concat_column_collection(bool async)
+        => AssertCompatibilityLevelTooLow(() => base.Parameter_collection_Concat_column_collection(async));
+
+    public override Task Parameter_collection_with_type_inference_for_JsonScalarExpression(bool async)
         => AssertCompatibilityLevelTooLow(() => base.Parameter_collection_Concat_column_collection(async));
 
     public override Task Column_collection_Union_parameter_collection(bool async)

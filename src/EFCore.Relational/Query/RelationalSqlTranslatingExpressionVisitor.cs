@@ -484,7 +484,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
             || TranslationFailed(conditionalExpression.IfTrue, ifTrue, out var sqlIfTrue)
             || TranslationFailed(conditionalExpression.IfFalse, ifFalse, out var sqlIfFalse)
                 ? QueryCompilationContext.NotTranslatedExpression
-                : _sqlExpressionFactory.Case(new[] { new CaseWhenClause(sqlTest!, sqlIfTrue!) }, sqlIfFalse);
+                : _sqlExpressionFactory.Case([new CaseWhenClause(sqlTest!, sqlIfTrue!)], sqlIfFalse);
     }
 
     /// <inheritdoc />
@@ -1266,7 +1266,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                 if (allRequiredNonPkProperties.Count > 0)
                 {
                     condition = allRequiredNonPkProperties.Select(p => projection.BindProperty(p))
-                        .Select(c => (SqlExpression)_sqlExpressionFactory.NotEqual(c, _sqlExpressionFactory.Constant(null, c.Type)))
+                        .Select(c => _sqlExpressionFactory.NotEqual(c, _sqlExpressionFactory.Constant(null, c.Type)))
                         .Aggregate((a, b) => _sqlExpressionFactory.AndAlso(a, b));
                 }
 
@@ -1362,12 +1362,15 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
             {
                 switch (genericMethod.Name)
                 {
-                    case nameof(Queryable.Average)
-                        when QueryableMethods.IsAverageWithoutSelector(genericMethod):
                     case nameof(Queryable.Max)
                         when genericMethod == QueryableMethods.MaxWithoutSelector:
                     case nameof(Queryable.Min)
                         when genericMethod == QueryableMethods.MinWithoutSelector:
+                        enumerableExpression = enumerableExpression.SetDistinct(false);
+                        break;
+
+                    case nameof(Queryable.Average)
+                        when QueryableMethods.IsAverageWithoutSelector(genericMethod):
                     case nameof(Queryable.Sum)
                         when QueryableMethods.IsSumWithoutSelector(genericMethod):
                     case nameof(Queryable.Count)
@@ -1376,12 +1379,16 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                         when genericMethod == QueryableMethods.LongCountWithoutPredicate:
                         break;
 
-                    case nameof(Queryable.Average)
-                        when QueryableMethods.IsAverageWithSelector(genericMethod):
                     case nameof(Queryable.Max)
                         when genericMethod == QueryableMethods.MaxWithSelector:
                     case nameof(Queryable.Min)
                         when genericMethod == QueryableMethods.MinWithSelector:
+                        enumerableExpression = enumerableExpression.SetDistinct(false);
+                        enumerableExpression = ProcessSelector(enumerableExpression, arguments[1].UnwrapLambdaFromQuote());
+                        break;
+
+                    case nameof(Queryable.Average)
+                        when QueryableMethods.IsAverageWithSelector(genericMethod):
                     case nameof(Queryable.Sum)
                         when QueryableMethods.IsSumWithSelector(genericMethod):
                         enumerableExpression = ProcessSelector(enumerableExpression, arguments[1].UnwrapLambdaFromQuote());
@@ -1478,7 +1485,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
 
                         if (!enumerableSource.IsDistinct)
                         {
-                            enumerableExpression = enumerableSource.ApplyDistinct();
+                            enumerableExpression = enumerableSource.SetDistinct(true);
                             return true;
                         }
 

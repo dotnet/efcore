@@ -9,7 +9,8 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 
-public class CSharpEntityTypeGeneratorTest(ModelCodeGeneratorTestFixture fixture, ITestOutputHelper output) : ModelCodeGeneratorTestBase(fixture, output)
+public class CSharpEntityTypeGeneratorTest(ModelCodeGeneratorTestFixture fixture, ITestOutputHelper output)
+    : ModelCodeGeneratorTestBase(fixture, output)
 {
     [ConditionalFact]
     public Task KeylessAttribute_is_generated_for_key_less_entity()
@@ -2934,7 +2935,8 @@ public partial class TestDbContext : DbContext
     protected override IServiceCollection AddScaffoldingServices(IServiceCollection services)
         => services.Replace(ServiceDescriptor.Singleton<IAnnotationCodeGenerator, TestModelAnnotationCodeGenerator>());
 
-    private class TestModelAnnotationProvider(RelationalAnnotationProviderDependencies dependencies) : SqlServerAnnotationProvider(dependencies)
+    private class TestModelAnnotationProvider(RelationalAnnotationProviderDependencies dependencies)
+        : SqlServerAnnotationProvider(dependencies)
     {
         public override IEnumerable<IAnnotation> For(ITable table, bool designTime)
         {
@@ -2968,7 +2970,8 @@ public partial class TestDbContext : DbContext
         }
     }
 
-    private class TestModelAnnotationCodeGenerator(AnnotationCodeGeneratorDependencies dependencies) : SqlServerAnnotationCodeGenerator(dependencies)
+    private class TestModelAnnotationCodeGenerator(AnnotationCodeGeneratorDependencies dependencies)
+        : SqlServerAnnotationCodeGenerator(dependencies)
     {
         protected override AttributeCodeFragment GenerateDataAnnotation(IEntityType entityType, IAnnotation annotation)
             => annotation.Name switch

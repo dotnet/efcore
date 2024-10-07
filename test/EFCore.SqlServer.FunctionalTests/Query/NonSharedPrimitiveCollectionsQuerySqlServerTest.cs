@@ -6,11 +6,24 @@ using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
-
 using static Expression;
 
 public class NonSharedPrimitiveCollectionsQuerySqlServerTest : NonSharedPrimitiveCollectionsQueryRelationalTestBase
 {
+    protected override DbContextOptionsBuilder SetTranslateParameterizedCollectionsToConstants(DbContextOptionsBuilder optionsBuilder)
+    {
+        new SqlServerDbContextOptionsBuilder(optionsBuilder).TranslateParameterizedCollectionsToConstants();
+
+        return optionsBuilder;
+    }
+
+    protected override DbContextOptionsBuilder SetTranslateParameterizedCollectionsToParameters(DbContextOptionsBuilder optionsBuilder)
+    {
+        new SqlServerDbContextOptionsBuilder(optionsBuilder).TranslateParameterizedCollectionsToParameters();
+
+        return optionsBuilder;
+    }
+
     #region Support for specific element types
 
     public override async Task Array_of_string()
@@ -700,7 +713,7 @@ WHERE (
         await base.Column_with_custom_converter();
 
         AssertSql(
-"""
+            """
 @__ints_0='1,2,3' (Size = 4000)
 
 SELECT TOP(2) [t].[Id], [t].[Ints]
@@ -776,6 +789,128 @@ WHERE JSON_VALUE([t].[Owned], '$.Strings[1]') = N'bar'
             """
 SELECT [t].[Ints]
 FROM [TestEntityWithOwned] AS [t]
+""");
+    }
+
+    public override async Task Parameter_collection_Count_with_column_predicate_with_default_constants()
+    {
+        await base.Parameter_collection_Count_with_column_predicate_with_default_constants();
+
+        AssertSql(
+            """
+SELECT [t].[Id]
+FROM [TestEntity] AS [t]
+WHERE (
+    SELECT COUNT(*)
+    FROM (VALUES (2), (999)) AS [i]([Value])
+    WHERE [i].[Value] > [t].[Id]) = 1
+""");
+    }
+
+    public override async Task Parameter_collection_of_ints_Contains_int_with_default_constants()
+    {
+        await base.Parameter_collection_of_ints_Contains_int_with_default_constants();
+
+        AssertSql(
+            """
+SELECT [t].[Id]
+FROM [TestEntity] AS [t]
+WHERE [t].[Id] IN (2, 999)
+""");
+    }
+
+    public override async Task Parameter_collection_Count_with_column_predicate_with_default_constants_EF_Parameter()
+    {
+        await base.Parameter_collection_Count_with_column_predicate_with_default_constants_EF_Parameter();
+
+        AssertSql(
+            """
+@__ids_0='[2,999]' (Size = 4000)
+
+SELECT [t].[Id]
+FROM [TestEntity] AS [t]
+WHERE (
+    SELECT COUNT(*)
+    FROM OPENJSON(@__ids_0) WITH ([value] int '$') AS [i]
+    WHERE [i].[value] > [t].[Id]) = 1
+""");
+    }
+
+    public override async Task Parameter_collection_of_ints_Contains_int_with_default_constants_EF_Parameter()
+    {
+        await base.Parameter_collection_of_ints_Contains_int_with_default_constants_EF_Parameter();
+
+        AssertSql(
+            """
+@__ints_0='[2,999]' (Size = 4000)
+
+SELECT [t].[Id]
+FROM [TestEntity] AS [t]
+WHERE [t].[Id] IN (
+    SELECT [i].[value]
+    FROM OPENJSON(@__ints_0) WITH ([value] int '$') AS [i]
+)
+""");
+    }
+
+    public override async Task Parameter_collection_Count_with_column_predicate_with_default_parameters()
+    {
+        await base.Parameter_collection_Count_with_column_predicate_with_default_parameters();
+
+        AssertSql(
+            """
+@__ids_0='[2,999]' (Size = 4000)
+
+SELECT [t].[Id]
+FROM [TestEntity] AS [t]
+WHERE (
+    SELECT COUNT(*)
+    FROM OPENJSON(@__ids_0) WITH ([value] int '$') AS [i]
+    WHERE [i].[value] > [t].[Id]) = 1
+""");
+    }
+
+    public override async Task Parameter_collection_of_ints_Contains_int_with_default_parameters()
+    {
+        await base.Parameter_collection_of_ints_Contains_int_with_default_parameters();
+
+        AssertSql(
+            """
+@__ints_0='[2,999]' (Size = 4000)
+
+SELECT [t].[Id]
+FROM [TestEntity] AS [t]
+WHERE [t].[Id] IN (
+    SELECT [i].[value]
+    FROM OPENJSON(@__ints_0) WITH ([value] int '$') AS [i]
+)
+""");
+    }
+
+    public override async Task Parameter_collection_Count_with_column_predicate_with_default_parameters_EF_Constant()
+    {
+        await base.Parameter_collection_Count_with_column_predicate_with_default_parameters_EF_Constant();
+
+        AssertSql(
+            """
+SELECT [t].[Id]
+FROM [TestEntity] AS [t]
+WHERE (
+    SELECT COUNT(*)
+    FROM (VALUES (2), (999)) AS [i]([Value])
+    WHERE [i].[Value] > [t].[Id]) = 1
+""");
+    }
+
+    public override async Task Parameter_collection_of_ints_Contains_int_with_default_parameters_EF_Constant()
+    {
+        await base.Parameter_collection_of_ints_Contains_int_with_default_parameters_EF_Constant();
+
+        AssertSql(
+            """
+SELECT [t].[Id]
+FROM [TestEntity] AS [t]
+WHERE [t].[Id] IN (2, 999)
 """);
     }
 

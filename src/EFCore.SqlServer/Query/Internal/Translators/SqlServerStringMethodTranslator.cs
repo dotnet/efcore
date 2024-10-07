@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Text;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 using ExpressionExtensions = Microsoft.EntityFrameworkCore.Query.ExpressionExtensions;
@@ -202,8 +201,10 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
             // an overload that accepts the characters to trim.
             if (method == TrimStartMethodInfoWithoutArgs
                 || (method == TrimStartMethodInfoWithCharArrayArg && arguments[0] is SqlConstantExpression { Value: char[] { Length: 0 } })
-                || (((_sqlServerSingletonOptions.EngineType == SqlServerEngineType.SqlServer && _sqlServerSingletonOptions.SqlServerCompatibilityLevel >= 160)
-                        || (_sqlServerSingletonOptions.EngineType == SqlServerEngineType.AzureSql && _sqlServerSingletonOptions.AzureSqlCompatibilityLevel >= 160)
+                || (((_sqlServerSingletonOptions.EngineType == SqlServerEngineType.SqlServer
+                            && _sqlServerSingletonOptions.SqlServerCompatibilityLevel >= 160)
+                        || (_sqlServerSingletonOptions.EngineType == SqlServerEngineType.AzureSql
+                            && _sqlServerSingletonOptions.AzureSqlCompatibilityLevel >= 160)
                         || (_sqlServerSingletonOptions.EngineType == SqlServerEngineType.AzureSynapse))
                     && (method == TrimStartMethodInfoWithCharArg || method == TrimStartMethodInfoWithCharArrayArg)))
             {
@@ -212,8 +213,10 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
 
             if (method == TrimEndMethodInfoWithoutArgs
                 || (method == TrimEndMethodInfoWithCharArrayArg && arguments[0] is SqlConstantExpression { Value: char[] { Length: 0 } })
-                || (((_sqlServerSingletonOptions.EngineType == SqlServerEngineType.SqlServer && _sqlServerSingletonOptions.SqlServerCompatibilityLevel >= 160)
-                        || (_sqlServerSingletonOptions.EngineType == SqlServerEngineType.AzureSql && _sqlServerSingletonOptions.AzureSqlCompatibilityLevel >= 160)
+                || (((_sqlServerSingletonOptions.EngineType == SqlServerEngineType.SqlServer
+                            && _sqlServerSingletonOptions.SqlServerCompatibilityLevel >= 160)
+                        || (_sqlServerSingletonOptions.EngineType == SqlServerEngineType.AzureSql
+                            && _sqlServerSingletonOptions.AzureSqlCompatibilityLevel >= 160)
                         || (_sqlServerSingletonOptions.EngineType == SqlServerEngineType.AzureSynapse))
                     && (method == TrimEndMethodInfoWithCharArg || method == TrimEndMethodInfoWithCharArrayArg)))
             {
@@ -364,12 +367,12 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
         if (searchExpression is SqlConstantExpression { Value: "" })
         {
             return _sqlExpressionFactory.Case(
-                [new(_sqlExpressionFactory.IsNotNull(instance), _sqlExpressionFactory.Constant(0))],
+                [new CaseWhenClause(_sqlExpressionFactory.IsNotNull(instance), _sqlExpressionFactory.Constant(0))],
                 elseResult: null
             );
         }
 
-        SqlExpression offsetExpression = searchExpression is SqlConstantExpression
+        var offsetExpression = searchExpression is SqlConstantExpression
             ? _sqlExpressionFactory.Constant(1)
             : _sqlExpressionFactory.Case(
                 new[]
@@ -381,7 +384,6 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
                         _sqlExpressionFactory.Constant(0))
                 },
                 _sqlExpressionFactory.Constant(1));
-
 
         return _sqlExpressionFactory.Subtract(charIndexExpression, offsetExpression);
     }

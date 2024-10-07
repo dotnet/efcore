@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel;
+using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure;
 
@@ -26,9 +27,7 @@ public abstract class RelationalDbContextOptionsBuilder<TBuilder, TExtension> : 
     /// </summary>
     /// <param name="optionsBuilder">The core options builder.</param>
     protected RelationalDbContextOptionsBuilder(DbContextOptionsBuilder optionsBuilder)
-    {
-        OptionsBuilder = optionsBuilder;
-    }
+        => OptionsBuilder = optionsBuilder;
 
     /// <summary>
     ///     Gets the core options builder.
@@ -102,7 +101,7 @@ public abstract class RelationalDbContextOptionsBuilder<TBuilder, TExtension> : 
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information and examples.
     /// </remarks>
-    /// <param name="assembly">The <see cref="Assembly"/> where the migrations are located.</param>
+    /// <param name="assembly">The <see cref="Assembly" /> where the migrations are located.</param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
     public virtual TBuilder MigrationsAssembly(Assembly assembly)
         => WithOption(e => (TExtension)e.WithMigrationsAssembly(assembly));
@@ -158,6 +157,54 @@ public abstract class RelationalDbContextOptionsBuilder<TBuilder, TExtension> : 
         Func<ExecutionStrategyDependencies, IExecutionStrategy> getExecutionStrategy)
         => WithOption(
             e => (TExtension)e.WithExecutionStrategyFactory(Check.NotNull(getExecutionStrategy, nameof(getExecutionStrategy))));
+
+    /// <summary>
+    ///     Configures the context to translate parameterized collections to inline constants.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         When a LINQ query contains a parameterized collection, by default EF Core parameterizes the entire collection as a single
+    ///         SQL parameter, if possible. For example, on SQL Server, the LINQ query <c>Where(b => ids.Contains(b.Id)</c> is translated to
+    ///         <c>WHERE [b].[Id] IN (SELECT [i].[value] FROM OPENJSON(@__ids_0) ...)</c>. While this helps with query plan caching, it can
+    ///         produce worse query plans for certain query types.
+    ///     </para>
+    ///     <para>
+    ///         <see cref="TranslateParameterizedCollectionsToConstants" /> instructs EF to translate the collection to a set of constants:
+    ///         <c>WHERE [b].[Id] IN (1, 2, 3)</c>. This can produce better query plans for certain query types, but can also lead to query
+    ///         plan bloat.
+    ///     </para>
+    ///     <para>
+    ///         Note that it's possible to cause EF to translate a specific collection in a specific query to constants by wrapping the
+    ///         parameterized collection in <see cref="EF.Constant{T}" />: <c>Where(b => EF.Constant(ids).Contains(b.Id)</c>. This overrides
+    ///         the default.
+    ///     </para>
+    /// </remarks>
+    public virtual TBuilder TranslateParameterizedCollectionsToConstants()
+        => WithOption(e => (TExtension)e.WithParameterizedCollectionTranslationMode(ParameterizedCollectionTranslationMode.Constantize));
+
+    /// <summary>
+    ///     Configures the context to translate parameterized collections to inline constants.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         When a LINQ query contains a parameterized collection, by default EF Core parameterizes the entire collection as a single
+    ///         SQL parameter, if possible. For example, on SQL Server, the LINQ query <c>Where(b => ids.Contains(b.Id)</c> is translated to
+    ///         <c>WHERE [b].[Id] IN (SELECT [i].[value] FROM OPENJSON(@__ids_0) ...)</c>. While this helps with query plan caching, it can
+    ///         produce worse query plans for certain query types.
+    ///     </para>
+    ///     <para>
+    ///         <see cref="TranslateParameterizedCollectionsToConstants" /> instructs EF to translate the collection to a set of constants:
+    ///         <c>WHERE [b].[Id] IN (1, 2, 3)</c>. This can produce better query plans for certain query types, but can also lead to query
+    ///         plan bloat.
+    ///     </para>
+    ///     <para>
+    ///         Note that it's possible to cause EF to translate a specific collection in a specific query to constants by wrapping the
+    ///         parameterized collection in <see cref="EF.Constant{T}" />: <c>Where(b => EF.Constant(ids).Contains(b.Id)</c>. This overrides
+    ///         the default.
+    ///     </para>
+    /// </remarks>
+    public virtual TBuilder TranslateParameterizedCollectionsToParameters()
+        => WithOption(e => (TExtension)e.WithParameterizedCollectionTranslationMode(ParameterizedCollectionTranslationMode.Parameterize));
 
     /// <summary>
     ///     Sets an option by cloning the extension used to store the settings. This ensures the builder

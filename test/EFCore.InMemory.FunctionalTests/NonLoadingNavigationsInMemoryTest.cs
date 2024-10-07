@@ -3,7 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class NonLoadingNavigationsInMemoryTest(NonLoadingNavigationsInMemoryTest.NonLoadingNavigationsInMemoryFixture fixture) : LoadTestBase<NonLoadingNavigationsInMemoryTest.NonLoadingNavigationsInMemoryFixture>(fixture)
+public class NonLoadingNavigationsInMemoryTest(NonLoadingNavigationsInMemoryTest.NonLoadingNavigationsInMemoryFixture fixture)
+    : LoadTestBase<NonLoadingNavigationsInMemoryTest.NonLoadingNavigationsInMemoryFixture>(fixture)
 {
     protected override bool LazyLoadingEnabled
         => false;

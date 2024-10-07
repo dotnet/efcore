@@ -10,9 +10,7 @@ public class NorthwindStringIncludeQuerySqlServerTest : NorthwindStringIncludeQu
 {
     public NorthwindStringIncludeQuerySqlServerTest(NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture)
         : base(fixture)
-    {
-        Fixture.TestSqlLoggerFactory.Clear();
-    }
+        => Fixture.TestSqlLoggerFactory.Clear();
 
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()

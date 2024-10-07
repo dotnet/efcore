@@ -44,8 +44,12 @@ public abstract partial class ModelBuilderTest
     public abstract class ModelBuilderFixtureBase
     {
         public abstract TestHelpers TestHelpers { get; }
-        public virtual DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder) => builder;
-        public virtual IServiceCollection AddServices(IServiceCollection services) => services;
+
+        public virtual DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+            => builder;
+
+        public virtual IServiceCollection AddServices(IServiceCollection services)
+            => services;
 
         public virtual bool ForeignKeysHaveIndexes
             => true;
@@ -57,7 +61,7 @@ public abstract partial class ModelBuilderTest
         {
             var testHelpers = fixture.TestHelpers;
             var options = new LoggingOptions();
-            options.Initialize(new DbContextOptionsBuilder().EnableSensitiveDataLogging(false).Options);
+            options.Initialize(OnConfiguring(new DbContextOptionsBuilder()).Options);
             ValidationLoggerFactory = new ListLoggerFactory(l => l == DbLoggerCategory.Model.Validation.Name);
             ValidationLogger = new DiagnosticsLogger<DbLoggerCategory.Model.Validation>(
                 ValidationLoggerFactory,
@@ -81,6 +85,9 @@ public abstract partial class ModelBuilderTest
                 fixture.AddOptions,
                 fixture.AddServices);
         }
+
+        protected virtual DbContextOptionsBuilder OnConfiguring(DbContextOptionsBuilder builder)
+            => builder.EnableSensitiveDataLogging(false);
 
         public virtual IMutableModel Model
             => ModelBuilder.Model;
@@ -931,7 +938,13 @@ public abstract partial class ModelBuilderTest
             Expression<Func<TDependentEntity, object?>> propertyExpression);
 
         public abstract TestIndexBuilder<TDependentEntity> HasIndex(params string[] propertyNames);
+        public abstract TestIndexBuilder<TDependentEntity> HasIndex(string[] propertyNames, string name);
+
         public abstract TestIndexBuilder<TDependentEntity> HasIndex(Expression<Func<TDependentEntity, object?>> indexExpression);
+
+        public abstract TestIndexBuilder<TDependentEntity> HasIndex(
+            Expression<Func<TDependentEntity, object?>> indexExpression,
+            string name);
 
         public abstract TestOwnershipBuilder<TEntity, TDependentEntity> WithOwner(string? ownerReference);
 

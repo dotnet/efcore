@@ -89,8 +89,8 @@ public class CosmosTestStore : TestStore
 
     public override DbContextOptionsBuilder AddProviderOptions(DbContextOptionsBuilder builder)
         => TestEnvironment.UseTokenCredential
-        ? builder.UseCosmos(ConnectionUri, TokenCredential, Name, _configureCosmos)
-        : builder.UseCosmos(ConnectionUri, AuthToken, Name, _configureCosmos);
+            ? builder.UseCosmos(ConnectionUri, TokenCredential, Name, _configureCosmos)
+            : builder.UseCosmos(ConnectionUri, AuthToken, Name, _configureCosmos);
 
     public static async ValueTask<bool> IsConnectionAvailableAsync()
     {
@@ -172,7 +172,15 @@ public class CosmosTestStore : TestStore
     {
         if (await EnsureCreatedAsync(context).ConfigureAwait(false))
         {
-            await context.Database.EnsureCreatedAsync().ConfigureAwait(false);
+            if (!TestEnvironment.UseTokenCredential)
+            {
+                await context.Database.EnsureCreatedAsync().ConfigureAwait(false);
+            }
+            else
+            {
+                await CreateContainersAsync(context).ConfigureAwait(false);
+            }
+
             var cosmosClient = context.GetService<ICosmosClientWrapper>();
             var serializer = CosmosClientWrapper.Serializer;
             using var fs = new FileStream(_dataFilePath!, FileMode.Open, FileAccess.Read);
@@ -253,16 +261,36 @@ public class CosmosTestStore : TestStore
 
         var databaseAccount = await GetDBAccount(cancellationToken).ConfigureAwait(false);
         var collection = databaseAccount.Value.GetCosmosDBSqlDatabases();
-        var sqlDatabaseCreateUpdateOptions = new CosmosDBSqlDatabaseCreateOrUpdateContent(TestEnvironment.AzureLocation,
+        var sqlDatabaseCreateUpdateContent = new CosmosDBSqlDatabaseCreateOrUpdateContent(
+            TestEnvironment.AzureLocation,
             new CosmosDBSqlDatabaseResourceInfo(Name));
         if (await collection.ExistsAsync(Name, cancellationToken))
         {
             return false;
         }
 
-        var databaseResponse = (await collection.CreateOrUpdateAsync(
-            WaitUntil.Completed, Name, sqlDatabaseCreateUpdateOptions, cancellationToken).ConfigureAwait(false)).GetRawResponse();
-        return databaseResponse.Status == (int)HttpStatusCode.OK;
+        var model = context.GetService<IDesignTimeModel>().Model;
+
+        var modelThrouput = model.GetThroughput();
+        if (modelThrouput == null
+            && GetContainersToCreate(model).All(c => c.Throughput == null))
+        {
+            modelThrouput = ThroughputProperties.CreateManualThroughput(400);
+        }
+
+        if (modelThrouput != null)
+        {
+            sqlDatabaseCreateUpdateContent.Options = new CosmosDBCreateUpdateConfig
+            {
+                Throughput = modelThrouput.Throughput,
+                AutoscaleMaxThroughput = modelThrouput.AutoscaleMaxThroughput
+            };
+        }
+
+        var databaseResponse = await collection.CreateOrUpdateAsync(
+            WaitUntil.Completed, Name, sqlDatabaseCreateUpdateContent, cancellationToken).ConfigureAwait(false);
+
+        return databaseResponse.GetRawResponse().Status == (int)HttpStatusCode.OK;
     }
 
     private async Task<bool> EnsureDeletedAsync(DbContext context, CancellationToken cancellationToken = default)
@@ -281,7 +309,8 @@ public class CosmosTestStore : TestStore
             return false;
         }
 
-        var databaseResponse = (await database.Value!.DeleteAsync(WaitUntil.Completed, cancellationToken).ConfigureAwait(false)).GetRawResponse();
+        var databaseResponse = (await database.Value!.DeleteAsync(WaitUntil.Completed, cancellationToken).ConfigureAwait(false))
+            .GetRawResponse();
         return databaseResponse.Status == (int)HttpStatusCode.OK;
     }
 
@@ -344,16 +373,14 @@ public class CosmosTestStore : TestStore
             {
                 AnalyticalStorageTtl = container.AnalyticalStoreTimeToLiveInSeconds,
                 DefaultTtl = container.DefaultTimeToLive,
-                PartitionKey = new CosmosDBContainerPartitionKey
-                {
-                    Version = 2
-                }
+                PartitionKey = new CosmosDBContainerPartitionKey { Version = 2 }
             };
 
             if (container.PartitionKeyStoreNames.Count > 1)
             {
                 resource.PartitionKey.Kind = "MultiHash";
             }
+
             foreach (var partitionKey in container.PartitionKeyStoreNames)
             {
                 resource.PartitionKey.Paths.Add("/" + partitionKey);
@@ -362,8 +389,11 @@ public class CosmosTestStore : TestStore
             var content = new CosmosDBSqlContainerCreateOrUpdateContent(TestEnvironment.AzureLocation, resource);
             if (container.Throughput != null)
             {
-                content.Options.AutoscaleMaxThroughput = container.Throughput.AutoscaleMaxThroughput;
-                content.Options.Throughput = container.Throughput.Throughput;
+                content.Options = new CosmosDBCreateUpdateConfig
+                {
+                    AutoscaleMaxThroughput = container.Throughput.AutoscaleMaxThroughput,
+                    Throughput = container.Throughput.Throughput
+                };
             }
 
             await database.Value.GetCosmosDBSqlContainers().CreateOrUpdateAsync(
@@ -407,6 +437,7 @@ public class CosmosTestStore : TestStore
                 {
                     partitionKeyStoreNames = GetPartitionKeyStoreNames(entityType);
                 }
+
                 analyticalTtl ??= entityType.GetAnalyticalStoreTimeToLive();
                 defaultTtl ??= entityType.GetDefaultTimeToLive();
                 throughput ??= entityType.GetThroughput();
@@ -422,7 +453,7 @@ public class CosmosTestStore : TestStore
             }
 #pragma warning restore EF9103
 
-            yield return new(
+            yield return new Cosmos.Storage.Internal.ContainerProperties(
                 containerName,
                 partitionKeyStoreNames,
                 analyticalTtl,
@@ -502,13 +533,11 @@ public class CosmosTestStore : TestStore
     private static async Task SeedAsync(DbContext context)
     {
         var creator = (CosmosDatabaseCreator)context.GetService<IDatabaseCreator>();
-        await creator.SeedAsync().ConfigureAwait(false);
+        await creator.InsertDataAsync().ConfigureAwait(false);
+        await creator.SeedDataAsync(created: true).ConfigureAwait(false);
     }
 
-    public override void Dispose()
-        => throw new InvalidOperationException("Calling Dispose can cause deadlocks. Use DisposeAsync instead.");
-
-    public override async Task DisposeAsync()
+    public override async ValueTask DisposeAsync()
     {
         if (_initialized
             && _dataFilePath == null)
@@ -537,7 +566,8 @@ public class CosmosTestStore : TestStore
         {
             if (TestEnvironment.UseTokenCredential)
             {
-                optionsBuilder.UseCosmos(_testStore.ConnectionUri, _testStore.TokenCredential, _testStore.Name, _testStore._configureCosmos);
+                optionsBuilder.UseCosmos(
+                    _testStore.ConnectionUri, _testStore.TokenCredential, _testStore.Name, _testStore._configureCosmos);
             }
             else
             {

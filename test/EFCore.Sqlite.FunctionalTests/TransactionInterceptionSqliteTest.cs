@@ -32,7 +32,8 @@ public abstract class TransactionInterceptionSqliteTestBase(TransactionIntercept
         }
     }
 
-    public class TransactionInterceptionWithDiagnosticsSqliteTest(TransactionInterceptionWithDiagnosticsSqliteTest.InterceptionSqliteFixture fixture)
+    public class TransactionInterceptionWithDiagnosticsSqliteTest(
+        TransactionInterceptionWithDiagnosticsSqliteTest.InterceptionSqliteFixture fixture)
         : TransactionInterceptionSqliteTestBase(fixture),
             IClassFixture<TransactionInterceptionWithDiagnosticsSqliteTest.InterceptionSqliteFixture>
     {

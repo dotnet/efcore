@@ -7,7 +7,8 @@ using static Microsoft.EntityFrameworkCore.Query.RelationalShapedQueryCompilingE
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class RelationalApiConsistencyTest(RelationalApiConsistencyTest.RelationalApiConsistencyFixture fixture) : ApiConsistencyTestBase<RelationalApiConsistencyTest.RelationalApiConsistencyFixture>(fixture)
+public class RelationalApiConsistencyTest(RelationalApiConsistencyTest.RelationalApiConsistencyFixture fixture)
+    : ApiConsistencyTestBase<RelationalApiConsistencyTest.RelationalApiConsistencyFixture>(fixture)
 {
     protected override void AddServices(ServiceCollection serviceCollection)
         => new EntityFrameworkRelationalServicesBuilder(serviceCollection).TryAddCoreServices();
@@ -556,10 +557,11 @@ public class RelationalApiConsistencyTest(RelationalApiConsistencyTest.Relationa
                 nameof(IRelationalConnectionDiagnosticsLogger.ConnectionDisposedAsync)),
 
             // internal methods made public for AOT
-            typeof(ShaperProcessingExpressionVisitor).GetMethod(nameof(ShaperProcessingExpressionVisitor.PopulateSplitIncludeCollectionAsync)),
+            typeof(ShaperProcessingExpressionVisitor).GetMethod(
+                nameof(ShaperProcessingExpressionVisitor.PopulateSplitIncludeCollectionAsync)),
             typeof(ShaperProcessingExpressionVisitor).GetMethod(nameof(ShaperProcessingExpressionVisitor.PopulateSplitCollectionAsync)),
             typeof(ShaperProcessingExpressionVisitor).GetMethod(nameof(ShaperProcessingExpressionVisitor.TaskAwaiter)),
-            typeof(RelationalShapedQueryCompilingExpressionVisitor).GetMethod(nameof(RelationalShapedQueryCompilingExpressionVisitor.NonQueryResultAsync)),
+            typeof(RelationalShapedQueryCompilingExpressionVisitor).GetMethod(nameof(NonQueryResultAsync)),
         ];
 
         public override HashSet<MethodInfo> MetadataMethodExceptions { get; } =
@@ -576,9 +578,21 @@ public class RelationalApiConsistencyTest(RelationalApiConsistencyTest.Relationa
             typeof(RelationalMaterializerLiftableConstantContext).GetMethod("set_RelationalDependencies"),
             typeof(RelationalMaterializerLiftableConstantContext).GetMethod("get_CommandBuilderDependencies"),
             typeof(RelationalMaterializerLiftableConstantContext).GetMethod("set_CommandBuilderDependencies"),
-            typeof(RelationalMaterializerLiftableConstantContext).GetMethod("Deconstruct", [typeof(ShapedQueryCompilingExpressionVisitorDependencies).MakeByRefType()]),
-            typeof(RelationalMaterializerLiftableConstantContext).GetMethod("Deconstruct", [typeof(ShapedQueryCompilingExpressionVisitorDependencies).MakeByRefType(), typeof(RelationalShapedQueryCompilingExpressionVisitorDependencies).MakeByRefType()]),
-            typeof(RelationalMaterializerLiftableConstantContext).GetMethod("Deconstruct", [typeof(ShapedQueryCompilingExpressionVisitorDependencies).MakeByRefType(), typeof(RelationalShapedQueryCompilingExpressionVisitorDependencies).MakeByRefType(), typeof(RelationalCommandBuilderDependencies).MakeByRefType()]),
+            typeof(RelationalMaterializerLiftableConstantContext).GetMethod(
+                "Deconstruct", [typeof(ShapedQueryCompilingExpressionVisitorDependencies).MakeByRefType()]),
+            typeof(RelationalMaterializerLiftableConstantContext).GetMethod(
+                "Deconstruct",
+                [
+                    typeof(ShapedQueryCompilingExpressionVisitorDependencies).MakeByRefType(),
+                    typeof(RelationalShapedQueryCompilingExpressionVisitorDependencies).MakeByRefType()
+                ]),
+            typeof(RelationalMaterializerLiftableConstantContext).GetMethod(
+                "Deconstruct",
+                [
+                    typeof(ShapedQueryCompilingExpressionVisitorDependencies).MakeByRefType(),
+                    typeof(RelationalShapedQueryCompilingExpressionVisitorDependencies).MakeByRefType(),
+                    typeof(RelationalCommandBuilderDependencies).MakeByRefType()
+                ]),
 #pragma warning restore EF9100 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
         ];
 

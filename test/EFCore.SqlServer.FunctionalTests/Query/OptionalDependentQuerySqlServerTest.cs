@@ -13,6 +13,7 @@ public class OptionalDependentQuerySqlServerTest : OptionalDependentQueryTestBas
         Fixture.TestSqlLoggerFactory.Clear();
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
+
     public override async Task Basic_projection_entity_with_all_optional(bool async)
     {
         await base.Basic_projection_entity_with_all_optional(async);

@@ -70,7 +70,8 @@ public abstract class ComplexNavigationsSharedTypeQueryTestBase<TFixture>(TFixtu
 
     public override async Task Null_check_removal_applied_recursively_complex(bool async)
     {
-        var message = (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Null_check_removal_applied_recursively_complex(async))).Message;
+        var message =
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Null_check_removal_applied_recursively_complex(async))).Message;
 
         Assert.Equal(CoreStrings.IncludeOnNonEntity("x => x.OneToMany_Required_Inverse3"), message);
     }

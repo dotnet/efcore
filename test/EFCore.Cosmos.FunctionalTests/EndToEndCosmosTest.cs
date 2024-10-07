@@ -700,12 +700,12 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
 
         var entry = await context.AddAsync(item);
 
-        var id = entry.Property("__id").CurrentValue;
+        var id = entry.Property("Id").CurrentValue;
 
         Assert.NotNull(item.Id);
         Assert.NotNull(id);
 
-        Assert.Equal($"{item.Id}", id);
+        Assert.Equal(item.Id, id);
         Assert.Equal(EntityState.Added, entry.State);
     }
 
@@ -933,8 +933,7 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
         await Can_add_update_delete_with_collection<IReadOnlyDictionary<string, Dictionary<string, short?>>>(
             new Dictionary<string, Dictionary<string, short?>>
             {
-                { "2" , new Dictionary<string, short?> { { "value", 2 } } },
-                { "1" , new Dictionary<string, short?> { { "value", 1 } } }
+                { "2", new Dictionary<string, short?> { { "value", 2 } } }, { "1", new Dictionary<string, short?> { { "value", 1 } } }
             },
             c =>
             {
@@ -1525,8 +1524,21 @@ OFFSET 0 LIMIT 1
             => modelBuilder.Entity<Customer>(
                 cb =>
                 {
-                    cb.HasPartitionKey(c => new { c.PartitionKey1, c.PartitionKey2, c.PartitionKey3 });
-                    cb.HasKey(c => new { c.Id, c.PartitionKey1, c.PartitionKey2, c.PartitionKey3 });
+                    cb.HasPartitionKey(
+                        c => new
+                        {
+                            c.PartitionKey1,
+                            c.PartitionKey2,
+                            c.PartitionKey3
+                        });
+                    cb.HasKey(
+                        c => new
+                        {
+                            c.Id,
+                            c.PartitionKey1,
+                            c.PartitionKey2,
+                            c.PartitionKey3
+                        });
                 });
     }
 
@@ -1613,7 +1625,7 @@ OFFSET 0 LIMIT 1
             => modelBuilder.Entity<CustomerWithResourceId>(
                 cb =>
                 {
-                    cb.HasPartitionKey(c => new { c.PartitionKey1, c.PartitionKey2 } );
+                    cb.HasPartitionKey(c => new { c.PartitionKey1, c.PartitionKey2 });
                     cb.Property(c => c.id).HasConversion<string>();
                     cb.HasKey(c => new { c.id });
                 });
@@ -1625,8 +1637,14 @@ OFFSET 0 LIMIT 1
             => modelBuilder.Entity<CustomerWithResourceId>(
                 cb =>
                 {
-                    cb.HasPartitionKey(c => new { c.PartitionKey1, c.PartitionKey2 } );
-                    cb.HasKey(c => new { c.PartitionKey1, c.PartitionKey2, c.id });
+                    cb.HasPartitionKey(c => new { c.PartitionKey1, c.PartitionKey2 });
+                    cb.HasKey(
+                        c => new
+                        {
+                            c.PartitionKey1,
+                            c.PartitionKey2,
+                            c.id
+                        });
                 });
     }
 

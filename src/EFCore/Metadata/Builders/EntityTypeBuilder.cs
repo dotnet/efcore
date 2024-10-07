@@ -27,9 +27,7 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
     /// </summary>
     [EntityFrameworkInternal]
     public EntityTypeBuilder(IMutableEntityType entityType)
-    {
-        Builder = ((EntityType)entityType).Builder;
-    }
+        => Builder = ((EntityType)entityType).Builder;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1148,7 +1146,8 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
             && skipNavigation.ForeignKey?.DeclaringEntityType == Builder.Metadata)
         {
             return navigationId.MemberInfo != null
-                ? skipNavigation.ForeignKey.Builder.HasNavigation(navigationId.MemberInfo, pointsToPrincipal: true, ConfigurationSource.Explicit)
+                ? skipNavigation.ForeignKey.Builder.HasNavigation(
+                        navigationId.MemberInfo, pointsToPrincipal: true, ConfigurationSource.Explicit)
                     !.Metadata
                 : skipNavigation.ForeignKey.Builder.HasNavigation(navigationId.Name, pointsToPrincipal: true, ConfigurationSource.Explicit)
                     !.Metadata;

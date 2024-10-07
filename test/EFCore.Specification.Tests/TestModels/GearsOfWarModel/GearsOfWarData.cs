@@ -608,7 +608,8 @@ public class GearsOfWarData : ISetSource
         ((LocustHorde)factions[1]).Commander = ((LocustCommander)locustLeaders[5]);
         ((LocustHorde)factions[2]).Commander = ((LocustCommander)locustLeaders[6]);
 
-        locustHighCommands[0].Commanders = [
+        locustHighCommands[0].Commanders =
+        [
             (LocustCommander)locustLeaders[3],
             (LocustCommander)locustLeaders[5],
             (LocustCommander)locustLeaders[6],

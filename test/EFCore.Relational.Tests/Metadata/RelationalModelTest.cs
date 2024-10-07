@@ -35,7 +35,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             var designTimeModel = context.GetService<IDesignTimeModel>().Model;
             var runtimeModel = context.Model;
-            Assert.NotSame(designTimeModel.FindRuntimeAnnotationValue(RelationalAnnotationNames.RelationalModelFactory),
+            Assert.NotSame(
+                designTimeModel.FindRuntimeAnnotationValue(RelationalAnnotationNames.RelationalModelFactory),
                 runtimeModel.FindRuntimeAnnotationValue(RelationalAnnotationNames.RelationalModelFactory));
 
             var designTimeRelationalModel = designTimeModel.GetRelationalModel();
@@ -1341,7 +1342,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 Assert.DoesNotContain(abstractCustomerType.GetInsertStoredProcedureMappings(), m => m.IncludesDerivedTypes != false);
                 Assert.Equal(
                     "SpecialCustomer_Insert",
-                    specialCustomerType.GetInsertStoredProcedureMappings().Single(m => m.IncludesDerivedTypes == true).StoreStoredProcedure.Name);
+                    specialCustomerType.GetInsertStoredProcedureMappings().Single(m => m.IncludesDerivedTypes == true).StoreStoredProcedure
+                        .Name);
                 Assert.Null(baseInsertSproc.Schema);
                 Assert.Equal(
                     new[]
@@ -1379,7 +1381,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 Assert.DoesNotContain(abstractCustomerType.GetUpdateStoredProcedureMappings(), m => m.IncludesDerivedTypes != false);
                 Assert.Equal(
                     "SpecialCustomer_Update",
-                    specialCustomerType.GetUpdateStoredProcedureMappings().Single(m => m.IncludesDerivedTypes == true).StoreStoredProcedure.Name);
+                    specialCustomerType.GetUpdateStoredProcedureMappings().Single(m => m.IncludesDerivedTypes == true).StoreStoredProcedure
+                        .Name);
 
                 Assert.Null(baseUpdateSproc.Schema);
                 Assert.Equal(
@@ -1418,7 +1421,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 Assert.DoesNotContain(abstractCustomerType.GetDeleteStoredProcedureMappings(), m => m.IncludesDerivedTypes != false);
                 Assert.Equal(
                     "SpecialCustomer_Delete",
-                    specialCustomerType.GetDeleteStoredProcedureMappings().Single(m => m.IncludesDerivedTypes == true).StoreStoredProcedure.Name);
+                    specialCustomerType.GetDeleteStoredProcedureMappings().Single(m => m.IncludesDerivedTypes == true).StoreStoredProcedure
+                        .Name);
 
                 Assert.Null(baseDeleteSproc.Schema);
                 Assert.Equal(
@@ -3042,6 +3046,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         private static IQueryable<Order> GetOrdersForCustomer(int id)
             => throw new NotImplementedException();
 
+        private static IQueryable<Order> GetOrdersForCustomer(string name)
+            => throw new NotImplementedException();
+
         [ConditionalFact]
         public void Can_use_relational_model_with_functions()
         {
@@ -3060,41 +3067,50 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             modelBuilder.HasDbFunction(
                 typeof(RelationalModelTest).GetMethod(
-                    nameof(GetOrdersForCustomer), BindingFlags.NonPublic | BindingFlags.Static));
+                    nameof(GetOrdersForCustomer), BindingFlags.NonPublic | BindingFlags.Static, [typeof(int)] ));
+
+            modelBuilder.HasDbFunction(
+                typeof(RelationalModelTest).GetMethod(
+                    nameof(GetOrdersForCustomer), BindingFlags.NonPublic | BindingFlags.Static, [typeof(string)]));
 
             var model = Finalize(modelBuilder);
 
             Assert.Single(model.Model.GetEntityTypes());
-            Assert.Equal(2, model.Functions.Count());
+            Assert.Equal(3, model.Functions.Count());
             Assert.Empty(model.Views);
             Assert.Empty(model.Tables);
 
             var orderType = model.Model.FindEntityType(typeof(Order));
             Assert.Null(orderType.FindPrimaryKey());
 
-            Assert.Equal(2, orderType.GetFunctionMappings().Count());
+            Assert.Equal(3, orderType.GetFunctionMappings().Count());
             var orderMapping = orderType.GetFunctionMappings().First();
             Assert.Null(orderMapping.IsSharedTablePrincipal);
             Assert.Null(orderMapping.IsSplitEntityTypePrincipal);
             Assert.True(orderMapping.IsDefaultFunctionMapping);
 
-            var tvfMapping = orderType.GetFunctionMappings().Last();
+            var tvfMapping = orderType.GetFunctionMappings().ElementAt(1);
             Assert.Null(tvfMapping.IsSharedTablePrincipal);
             Assert.Null(tvfMapping.IsSplitEntityTypePrincipal);
             Assert.False(tvfMapping.IsDefaultFunctionMapping);
 
+            var tvfMapping2 = orderType.GetFunctionMappings().Last();
+            Assert.Null(tvfMapping2.IsSharedTablePrincipal);
+            Assert.Null(tvfMapping2.IsSplitEntityTypePrincipal);
+            Assert.False(tvfMapping2.IsDefaultFunctionMapping);
+
             Assert.Null(orderMapping.IncludesDerivedTypes);
             Assert.Equal(
-                new[] { nameof(Order.AlternateId), nameof(Order.CustomerId), nameof(Order.Id), nameof(Order.OrderDate) },
+                [nameof(Order.AlternateId), nameof(Order.CustomerId), nameof(Order.Id), nameof(Order.OrderDate)],
                 orderMapping.ColumnMappings.Select(m => m.Property.Name));
 
             var ordersFunction = orderMapping.StoreFunction;
             Assert.Same(ordersFunction, model.FindFunction(ordersFunction.Name, ordersFunction.Schema, []));
             Assert.Equal(
-                new[] { orderType },
+                [orderType],
                 ordersFunction.EntityTypeMappings.Select(m => m.TypeBase));
             Assert.Equal(
-                new[] { nameof(Order.CustomerId), nameof(Order.Id), nameof(Order.OrderDate), "SomeName" },
+                [nameof(Order.CustomerId), nameof(Order.Id), nameof(Order.OrderDate), "SomeName"],
                 ordersFunction.Columns.Select(m => m.Name));
             Assert.Equal("GetOrders", ordersFunction.Name);
             Assert.Null(ordersFunction.Schema);
@@ -3113,7 +3129,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Same(orderDateColumn, ordersFunction.FindColumn(nameof(Order.OrderDate)));
             Assert.Same(orderDateColumn, orderDate.FindColumn(StoreObjectIdentifier.DbFunction(ordersFunction.Name)));
             Assert.Same(orderDateColumn, ordersFunction.FindColumn(orderDate));
-            Assert.Equal(new[] { orderDate }, orderDateColumn.PropertyMappings.Select(m => m.Property));
+            Assert.Equal([orderDate], orderDateColumn.PropertyMappings.Select(m => m.Property));
             Assert.Equal(nameof(Order.OrderDate), orderDateColumn.Name);
             Assert.Equal("default_datetime_mapping", orderDateColumn.StoreType);
             Assert.False(orderDateColumn.IsNullable);
@@ -3123,7 +3139,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             var tvfFunction = tvfMapping.StoreFunction;
             Assert.Same(tvfMapping, tvfFunction.EntityTypeMappings.Single());
-            Assert.Same(tvfFunction, model.FindFunction(tvfFunction.Name, tvfFunction.Schema, new[] { "default_int_mapping" }));
+            Assert.Same(tvfFunction, model.FindFunction(tvfFunction.Name, tvfFunction.Schema, ["default_int_mapping"]));
             Assert.Equal(nameof(GetOrdersForCustomer), tvfFunction.Name);
             Assert.Null(tvfFunction.Schema);
             Assert.False(tvfFunction.IsBuiltIn);
@@ -3132,9 +3148,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             var tvfDbFunction = tvfFunction.DbFunctions.Single();
             Assert.Same(tvfFunction, tvfDbFunction.StoreFunction);
-            Assert.Same(model.Model.GetDbFunctions().Single(f => f.Parameters.Count() == 1), tvfDbFunction);
+            Assert.Same(model.Model.GetDbFunctions().First(f => f.Parameters.Count() == 1), tvfDbFunction);
             Assert.Same(tvfFunction.Parameters.Single(), tvfDbFunction.Parameters.Single().StoreFunctionParameter);
             Assert.Equal(tvfDbFunction.Parameters.Single().Name, tvfFunction.Parameters.Single().DbFunctionParameters.Single().Name);
+
+            var tvfFunction2 = tvfMapping2.StoreFunction;
+            Assert.Same(tvfMapping2, tvfFunction2.EntityTypeMappings.Single());
+            Assert.Same(tvfFunction2, model.FindFunction(tvfFunction2.Name, tvfFunction2.Schema, ["just_string(max)"]));
+            Assert.Equal(nameof(GetOrdersForCustomer), tvfFunction2.Name);
+            Assert.Null(tvfFunction2.Schema);
+            Assert.False(tvfFunction2.IsBuiltIn);
+            Assert.False(tvfFunction2.IsShared);
+            Assert.Null(tvfFunction2.ReturnType);
+
+            var tvfDbFunction2 = tvfFunction2.DbFunctions.Single();
+            Assert.Same(tvfFunction2, tvfDbFunction2.StoreFunction);
+            Assert.Same(model.Model.GetDbFunctions().Last(f => f.Parameters.Count() == 1), tvfDbFunction2);
+            Assert.Same(tvfFunction2.Parameters.Single(), tvfDbFunction2.Parameters.Single().StoreFunctionParameter);
+            Assert.Equal(tvfDbFunction2.Parameters.Single().Name, tvfFunction2.Parameters.Single().DbFunctionParameters.Single().Name);
         }
 
         [ConditionalFact]
@@ -3224,6 +3255,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         private class CustomerDetails
         {
             public string Address { get; set; }
+
             // ReSharper disable once UnusedAutoPropertyAccessor.Local
             public DateTime BirthDay { get; set; }
         }

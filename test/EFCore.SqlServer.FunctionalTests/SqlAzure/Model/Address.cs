@@ -12,9 +12,7 @@ namespace Microsoft.EntityFrameworkCore.SqlAzure.Model;
 public class Address
 {
     public Address()
-    {
-        CustomerAddress = new HashSet<CustomerAddress>();
-    }
+        => CustomerAddress = new HashSet<CustomerAddress>();
 
     public int AddressID { get; set; }
 

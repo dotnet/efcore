@@ -336,10 +336,11 @@ public class ProxyTests
     private class NeweyContext(string dbName = null, bool useLazyLoading = true, bool useChangeDetection = false) : DbContext
     {
         private readonly IServiceProvider _internalServiceProvider
-                = new ServiceCollection()
-                    .AddEntityFrameworkInMemoryDatabase()
-                    .AddEntityFrameworkProxies()
-                    .BuildServiceProvider(validateScopes: true);
+            = new ServiceCollection()
+                .AddEntityFrameworkInMemoryDatabase()
+                .AddEntityFrameworkProxies()
+                .BuildServiceProvider(validateScopes: true);
+
         private static readonly InMemoryDatabaseRoot _dbRoot = new();
         private readonly bool _useLazyLoadingProxies = useLazyLoading;
         private readonly bool _useChangeDetectionProxies = useChangeDetection;
@@ -351,9 +352,7 @@ public class ProxyTests
             bool useLazyLoading = true,
             bool useChangeDetection = false)
             : this(dbName, useLazyLoading, useChangeDetection)
-        {
-            _internalServiceProvider = internalServiceProvider;
-        }
+            => _internalServiceProvider = internalServiceProvider;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

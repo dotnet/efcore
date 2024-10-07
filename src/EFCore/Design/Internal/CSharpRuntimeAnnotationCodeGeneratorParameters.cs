@@ -33,7 +33,8 @@ public sealed record CSharpRuntimeAnnotationCodeGeneratorParameters
         IDictionary<string, object> scopeObjects,
         IDictionary<object, string> scopeVariables,
         Dictionary<ITypeBase, string> configurationClassNames,
-        bool nullable)
+        bool nullable,
+        bool nativeAot)
     {
         TargetName = targetName;
         ClassName = className;
@@ -45,6 +46,7 @@ public sealed record CSharpRuntimeAnnotationCodeGeneratorParameters
         ScopeVariables = scopeVariables;
         ConfigurationClassNames = configurationClassNames;
         UseNullableReferenceTypes = nullable;
+        ForNativeAot = nativeAot;
     }
 
     /// <summary>
@@ -107,4 +109,10 @@ public sealed record CSharpRuntimeAnnotationCodeGeneratorParameters
     /// </summary>
     /// <value>A value indicating whether nullable reference types are enabled.</value>
     public bool UseNullableReferenceTypes { get; init; }
+
+    /// <summary>
+    ///     Gets or sets a value indicating whether the generated code should be compatible with NativeAOT.
+    /// </summary>
+    /// <value> A value indicating whether the generated code should be compatible with NativeAOT. </value>
+    public bool ForNativeAot { get; init; }
 }

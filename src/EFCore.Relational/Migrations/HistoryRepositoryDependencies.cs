@@ -59,7 +59,8 @@ public sealed record HistoryRepositoryDependencies
         IRelationalTypeMappingSource typeMappingSource,
         ICurrentDbContext currentContext,
         IModelRuntimeInitializer modelRuntimeInitializer,
-        IRelationalCommandDiagnosticsLogger commandLogger)
+        IRelationalCommandDiagnosticsLogger commandLogger,
+        IDiagnosticsLogger<DbLoggerCategory.Migrations> migrationsLogger)
     {
         DatabaseCreator = databaseCreator;
         RawSqlCommandBuilder = rawSqlCommandBuilder;
@@ -75,6 +76,7 @@ public sealed record HistoryRepositoryDependencies
         CurrentContext = currentContext;
         ModelRuntimeInitializer = modelRuntimeInitializer;
         CommandLogger = commandLogger;
+        MigrationsLogger = migrationsLogger;
     }
 
     /// <summary>
@@ -146,4 +148,9 @@ public sealed record HistoryRepositoryDependencies
     ///     The command logger
     /// </summary>
     public IRelationalCommandDiagnosticsLogger CommandLogger { get; init; }
+
+    /// <summary>
+    ///     The migrations logger
+    /// </summary>
+    public IDiagnosticsLogger<DbLoggerCategory.Migrations> MigrationsLogger { get; init; }
 }

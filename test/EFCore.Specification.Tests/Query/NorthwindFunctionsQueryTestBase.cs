@@ -88,25 +88,29 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture>(TFixture fixture
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task String_StartsWith_with_StringComparison_unsupported(bool async)
     {
-        await AssertTranslationFailed(() =>
-            AssertQuery(
-                async,
-                ss => ss.Set<Customer>().Where(c => c.CompanyName.StartsWith("Qu", StringComparison.CurrentCulture))));
+        await AssertTranslationFailed(
+            () =>
+                AssertQuery(
+                    async,
+                    ss => ss.Set<Customer>().Where(c => c.CompanyName.StartsWith("Qu", StringComparison.CurrentCulture))));
 
-        await AssertTranslationFailed(() =>
-            AssertQuery(
-                async,
-                ss => ss.Set<Customer>().Where(c => c.ContactName.Contains("M", StringComparison.CurrentCultureIgnoreCase))));
+        await AssertTranslationFailed(
+            () =>
+                AssertQuery(
+                    async,
+                    ss => ss.Set<Customer>().Where(c => c.ContactName.Contains("M", StringComparison.CurrentCultureIgnoreCase))));
 
-        await AssertTranslationFailed(() =>
-            AssertQuery(
-                async,
-                ss => ss.Set<Customer>().Where(c => c.ContactName.Contains("Qu", StringComparison.InvariantCulture))));
+        await AssertTranslationFailed(
+            () =>
+                AssertQuery(
+                    async,
+                    ss => ss.Set<Customer>().Where(c => c.ContactName.Contains("Qu", StringComparison.InvariantCulture))));
 
-        await AssertTranslationFailed(() =>
-            AssertQuery(
-                async,
-                ss => ss.Set<Customer>().Where(c => c.ContactName.Contains("Qu", StringComparison.InvariantCultureIgnoreCase))));
+        await AssertTranslationFailed(
+            () =>
+                AssertQuery(
+                    async,
+                    ss => ss.Set<Customer>().Where(c => c.ContactName.Contains("Qu", StringComparison.InvariantCultureIgnoreCase))));
     }
 
     #endregion String.StartsWith
@@ -171,25 +175,29 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture>(TFixture fixture
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task String_EndsWith_with_StringComparison_unsupported(bool async)
     {
-        await AssertTranslationFailed(() =>
-            AssertQuery(
-                async,
-                ss => ss.Set<Customer>().Where(c => c.ContactName.EndsWith("Qu", StringComparison.CurrentCulture))));
+        await AssertTranslationFailed(
+            () =>
+                AssertQuery(
+                    async,
+                    ss => ss.Set<Customer>().Where(c => c.ContactName.EndsWith("Qu", StringComparison.CurrentCulture))));
 
-        await AssertTranslationFailed(() =>
-            AssertQuery(
-                async,
-                ss => ss.Set<Customer>().Where(c => c.ContactName.Contains("M", StringComparison.CurrentCultureIgnoreCase))));
+        await AssertTranslationFailed(
+            () =>
+                AssertQuery(
+                    async,
+                    ss => ss.Set<Customer>().Where(c => c.ContactName.Contains("M", StringComparison.CurrentCultureIgnoreCase))));
 
-        await AssertTranslationFailed(() =>
-            AssertQuery(
-                async,
-                ss => ss.Set<Customer>().Where(c => c.ContactName.Contains("Qu", StringComparison.InvariantCulture))));
+        await AssertTranslationFailed(
+            () =>
+                AssertQuery(
+                    async,
+                    ss => ss.Set<Customer>().Where(c => c.ContactName.Contains("Qu", StringComparison.InvariantCulture))));
 
-        await AssertTranslationFailed(() =>
-            AssertQuery(
-                async,
-                ss => ss.Set<Customer>().Where(c => c.ContactName.Contains("Qu", StringComparison.InvariantCultureIgnoreCase))));
+        await AssertTranslationFailed(
+            () =>
+                AssertQuery(
+                    async,
+                    ss => ss.Set<Customer>().Where(c => c.ContactName.Contains("Qu", StringComparison.InvariantCultureIgnoreCase))));
     }
 
     #endregion String.EndsWith
@@ -258,25 +266,29 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture>(TFixture fixture
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task String_Contains_with_StringComparison_unsupported(bool async)
     {
-        await AssertTranslationFailed(() =>
-            AssertQuery(
-                async,
-                ss => ss.Set<Customer>().Where(c => c.ContactName.Contains("M", StringComparison.CurrentCulture))));
+        await AssertTranslationFailed(
+            () =>
+                AssertQuery(
+                    async,
+                    ss => ss.Set<Customer>().Where(c => c.ContactName.Contains("M", StringComparison.CurrentCulture))));
 
-        await AssertTranslationFailed(() =>
-            AssertQuery(
-                async,
-                ss => ss.Set<Customer>().Where(c => c.ContactName.Contains("M", StringComparison.CurrentCultureIgnoreCase))));
+        await AssertTranslationFailed(
+            () =>
+                AssertQuery(
+                    async,
+                    ss => ss.Set<Customer>().Where(c => c.ContactName.Contains("M", StringComparison.CurrentCultureIgnoreCase))));
 
-        await AssertTranslationFailed(() =>
-            AssertQuery(
-                async,
-                ss => ss.Set<Customer>().Where(c => c.ContactName.Contains("M", StringComparison.InvariantCulture))));
+        await AssertTranslationFailed(
+            () =>
+                AssertQuery(
+                    async,
+                    ss => ss.Set<Customer>().Where(c => c.ContactName.Contains("M", StringComparison.InvariantCulture))));
 
-        await AssertTranslationFailed(() =>
-            AssertQuery(
-                async,
-                ss => ss.Set<Customer>().Where(c => c.ContactName.Contains("M", StringComparison.InvariantCultureIgnoreCase))));
+        await AssertTranslationFailed(
+            () =>
+                AssertQuery(
+                    async,
+                    ss => ss.Set<Customer>().Where(c => c.ContactName.Contains("M", StringComparison.InvariantCultureIgnoreCase))));
     }
 
     #endregion String.Contains
@@ -350,7 +362,8 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture>(TFixture fixture
                 .Select(
                     g => new
                     {
-                        City = g.Key, Customers = string.Join("|", g.Where(e => e.ContactName.Length > 10).Select(e => e.CustomerID))
+                        City = g.Key,
+                        Customers = string.Join("|", g.Where(e => e.ContactName.Length > 10).Select(e => e.CustomerID))
                     }),
             elementSorter: x => x.City,
             elementAsserter: (e, a) =>

@@ -2077,8 +2077,8 @@ public abstract partial class ModelBuilderTest
             Assert.Null(complexType.FindProperty("Up")!.Sentinel);
             Assert.Equal(new ObservableCollection<string>(), complexType.FindProperty("Down")!.Sentinel);
             Assert.Equal(Array.Empty<int>(), complexType.FindProperty("Charm")!.Sentinel);
-            Assert.Equal(new List<string> { }, complexType.FindProperty("Strange")!.Sentinel);
-            Assert.Equal(new int[] { 77 }, complexType.FindProperty("Top")!.Sentinel);
+            Assert.Equal(new List<string>(), complexType.FindProperty("Strange")!.Sentinel);
+            Assert.Equal(new[] { 77 }, complexType.FindProperty("Top")!.Sentinel);
             Assert.Equal(new List<string> { "" }, complexType.FindProperty("Bottom")!.Sentinel);
         }
 
@@ -2168,22 +2168,23 @@ public abstract partial class ModelBuilderTest
                 .Entity<ComplexProperties>()
                 .ComplexProperty(e => e.CollectionQuarks)
                 .PrimitiveCollection(e => e.Up)
-                .ElementType(t => t
-                    .HasAnnotation("B", "C")
-                    .HasConversion(typeof(long))
-                    .HasConversion(new CastingConverter<int, long>())
-                    .HasConversion(typeof(long), typeof(CustomValueComparer<int>))
-                    .HasConversion(typeof(long), new CustomValueComparer<int>())
-                    .HasConversion(new CastingConverter<int, long>())
-                    .HasConversion(new CastingConverter<int, long>(), new CustomValueComparer<int>())
-                    .HasConversion<long>()
-                    .HasConversion<long>(new CustomValueComparer<int>())
-                    .HasConversion<long, CustomValueComparer<int>>()
-                    .HasMaxLength(2)
-                    .HasPrecision(1)
-                    .HasPrecision(1, 2)
-                    .IsRequired()
-                    .IsUnicode())
+                .ElementType(
+                    t => t
+                        .HasAnnotation("B", "C")
+                        .HasConversion(typeof(long))
+                        .HasConversion(new CastingConverter<int, long>())
+                        .HasConversion(typeof(long), typeof(CustomValueComparer<int>))
+                        .HasConversion(typeof(long), new CustomValueComparer<int>())
+                        .HasConversion(new CastingConverter<int, long>())
+                        .HasConversion(new CastingConverter<int, long>(), new CustomValueComparer<int>())
+                        .HasConversion<long>()
+                        .HasConversion<long>(new CustomValueComparer<int>())
+                        .HasConversion<long, CustomValueComparer<int>>()
+                        .HasMaxLength(2)
+                        .HasPrecision(1)
+                        .HasPrecision(1, 2)
+                        .IsRequired()
+                        .IsUnicode())
                 .IsRequired()
                 .HasAnnotation("A", "V")
                 .IsConcurrencyToken()

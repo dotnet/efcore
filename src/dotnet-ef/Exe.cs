@@ -34,10 +34,7 @@ internal static class Exe
             startInfo.WorkingDirectory = workingDirectory;
         }
 
-        var process = new Process
-        {
-            StartInfo = startInfo
-        };
+        var process = new Process { StartInfo = startInfo };
 
         if (handleOutput != null)
         {

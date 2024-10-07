@@ -59,9 +59,10 @@ public abstract class RowForeignKeyValueFactory<TKey, TForeignKey> : IRowForeign
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
 #pragma warning disable EF1001 // Internal EF Core API usage.
-    public virtual IEqualityComparer<TKey> EqualityComparer => NonCapturingLazyInitializer.EnsureInitialized(
-        ref _equalityComparer, this, static factory
-            => NullableComparerAdapter<TKey>.Wrap(factory.Column.ProviderValueComparer, factory.ValueConverter));
+    public virtual IEqualityComparer<TKey> EqualityComparer
+        => NonCapturingLazyInitializer.EnsureInitialized(
+            ref _equalityComparer, this, static factory
+                => NullableComparerAdapter<TKey>.Wrap(factory.Column.ProviderValueComparer, factory.ValueConverter));
 #pragma warning restore EF1001 // Internal EF Core API usage.
 
     /// <summary>
@@ -86,25 +87,26 @@ public abstract class RowForeignKeyValueFactory<TKey, TForeignKey> : IRowForeign
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual ValueConverter? ValueConverter => typeof(TKey) == typeof(TForeignKey)
-        ? null
-        : NonCapturingLazyInitializer.EnsureInitialized(
-            ref _valueConverter, this, static factory =>
-            {
-                var foreignKey = factory._foreignKey;
-                var column = factory.Column;
-                var valueConverterSelector = foreignKey.Table.Model.Model.GetRelationalDependencies().ValueConverterSelector;
-                var converterInfos = valueConverterSelector.Select(typeof(TKey), typeof(TForeignKey)).ToList();
-                if (converterInfos.Count == 0)
+    public virtual ValueConverter? ValueConverter
+        => typeof(TKey) == typeof(TForeignKey)
+            ? null
+            : NonCapturingLazyInitializer.EnsureInitialized(
+                ref _valueConverter, this, static factory =>
                 {
-                    var pkColumn = foreignKey.PrincipalColumns[0];
-                    throw new InvalidOperationException(
-                        RelationalStrings.StoredKeyTypesNotConvertable(
-                            column.Name, column.StoreType, pkColumn.StoreType, pkColumn.Name));
-                }
+                    var foreignKey = factory._foreignKey;
+                    var column = factory.Column;
+                    var valueConverterSelector = foreignKey.Table.Model.Model.GetRelationalDependencies().ValueConverterSelector;
+                    var converterInfos = valueConverterSelector.Select(typeof(TKey), typeof(TForeignKey)).ToList();
+                    if (converterInfos.Count == 0)
+                    {
+                        var pkColumn = foreignKey.PrincipalColumns[0];
+                        throw new InvalidOperationException(
+                            RelationalStrings.StoredKeyTypesNotConvertable(
+                                column.Name, column.StoreType, pkColumn.StoreType, pkColumn.Name));
+                    }
 
-                return converterInfos.First().Create();
-            });
+                    return converterInfos.First().Create();
+                });
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

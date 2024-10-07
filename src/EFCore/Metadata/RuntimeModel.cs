@@ -50,10 +50,9 @@ public class RuntimeModel : RuntimeAnnotatableBase, IRuntimeModel
     [EntityFrameworkInternal]
     [Obsolete("Use a constructor with parameters")]
     public RuntimeModel()
-        : base()
     {
-        _entityTypes = new(StringComparer.Ordinal);
-        _typeConfigurations = new();
+        _entityTypes = new Dictionary<string, RuntimeEntityType>(StringComparer.Ordinal);
+        _typeConfigurations = new Dictionary<Type, RuntimeTypeMappingConfiguration>();
     }
 
     /// <summary>
@@ -71,8 +70,8 @@ public class RuntimeModel : RuntimeAnnotatableBase, IRuntimeModel
     {
         _skipDetectChanges = skipDetectChanges;
         _modelId = modelId;
-        _entityTypes = new(entityTypeCount, StringComparer.Ordinal);
-        _typeConfigurations = new(typeConfigurationCount);
+        _entityTypes = new Dictionary<string, RuntimeEntityType>(entityTypeCount, StringComparer.Ordinal);
+        _typeConfigurations = new Dictionary<Type, RuntimeTypeMappingConfiguration>(typeConfigurationCount);
     }
 
     /// <summary>
@@ -212,9 +211,7 @@ public class RuntimeModel : RuntimeAnnotatableBase, IRuntimeModel
     /// <param name="name">The name of the entity type to find.</param>
     /// <returns>The entity type, or <see langword="null" /> if none is found.</returns>
     public virtual RuntimeEntityType? FindEntityType(string name)
-        => _entityTypes.TryGetValue(name, out var entityType)
-            ? entityType
-            : null;
+        => _entityTypes.GetValueOrDefault(name);
 
     /// <summary>
     ///     Gets the entity type with the given name. Returns <see langword="null" /> if no entity type with the given name has been
@@ -223,9 +220,7 @@ public class RuntimeModel : RuntimeAnnotatableBase, IRuntimeModel
     /// <param name="clrType">The CLR type of the entity type to find.</param>
     /// <returns>The entity type, or <see langword="null" /> if none is found.</returns>
     public virtual RuntimeEntityType? FindAdHocEntityType(Type clrType)
-        => _adHocEntityTypes.TryGetValue(clrType, out var entityType)
-            ? entityType
-            : null;
+        => _adHocEntityTypes.GetValueOrDefault(clrType);
 
     private RuntimeEntityType? FindEntityType(Type type)
         => FindEntityType(GetDisplayName(type));

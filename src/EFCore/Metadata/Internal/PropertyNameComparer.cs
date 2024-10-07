@@ -20,9 +20,7 @@ public sealed class PropertyNameComparer : IComparer<string>, IEqualityComparer<
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public PropertyNameComparer(IReadOnlyTypeBase typeBase)
-    {
-        _entityType = typeBase as IReadOnlyEntityType;
-    }
+        => _entityType = typeBase as IReadOnlyEntityType;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

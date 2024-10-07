@@ -54,5 +54,6 @@ public class RelationalQueryCompilationContextFactory : IQueryCompilationContext
     /// </summary>
     [Experimental(EFDiagnostics.PrecompiledQueryExperimental)]
     public virtual QueryCompilationContext CreatePrecompiled(bool async, IReadOnlySet<string> nonNullableReferenceTypeParameters)
-        => new RelationalQueryCompilationContext(Dependencies, RelationalDependencies, async, precompiling: true, nonNullableReferenceTypeParameters);
+        => new RelationalQueryCompilationContext(
+            Dependencies, RelationalDependencies, async, precompiling: true, nonNullableReferenceTypeParameters);
 }

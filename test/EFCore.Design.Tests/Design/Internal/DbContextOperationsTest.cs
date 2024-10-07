@@ -24,7 +24,8 @@ public class DbContextOperationsTest
     public void CreateContext_throws_if_context_type_not_found()
         => Assert.Equal(
             DesignStrings.NoContextWithName(typeof(TestContextFromFactory).FullName),
-            Assert.Throws<OperationException>(() => CreateOperations(typeof(TestProgramRelationalBad)).CreateContext(typeof(TestContextFromFactory).FullName)).Message);
+            Assert.Throws<OperationException>(
+                () => CreateOperations(typeof(TestProgramRelationalBad)).CreateContext(typeof(TestContextFromFactory).FullName)).Message);
 
     [ConditionalFact]
     public void CreateContext_throws_if_ambiguous_context_type_by_case()
@@ -200,7 +201,8 @@ public class DbContextOperationsTest
             new TestAppServiceProviderFactory(assembly, reporter, throwOnCreate: true));
 
         var contexts = operations.CreateAllContexts().ToList();
-        Assert.Collection(contexts,
+        Assert.Collection(
+            contexts,
             c => Assert.Equal(nameof(BaseContext), Assert.IsType<BaseContext>(c).FactoryUsed),
             c => Assert.Equal(nameof(DerivedContext), Assert.IsType<DerivedContext>(c).FactoryUsed));
 
@@ -228,8 +230,10 @@ public class DbContextOperationsTest
 
         Assert.Equal(
             DesignStrings.NoContextsToOptimize,
-            Assert.Throws<OperationException>(() =>
-                operations.Optimize(null, null, contextTypeName: "*", null, scaffoldModel: true, precompileQueries: false)).Message);
+            Assert.Throws<OperationException>(
+                () =>
+                    operations.Optimize(
+                        null, null, contextTypeName: "*", null, scaffoldModel: true, precompileQueries: false, nativeAot: false)).Message);
 
         Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Critical);
         Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Error);
@@ -253,7 +257,7 @@ public class DbContextOperationsTest
             args: [],
             new TestAppServiceProviderFactory(assembly, reporter, throwOnCreate: true));
 
-        operations.Optimize(null, null, contextTypeName: "*", null, scaffoldModel: true, precompileQueries: false);
+        operations.Optimize(null, null, contextTypeName: "*", null, scaffoldModel: true, precompileQueries: false, nativeAot: false);
 
         Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Critical);
         Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Error);
@@ -393,9 +397,7 @@ public class DbContextOperationsTest
     private class TestContext : DbContext
     {
         public TestContext()
-        {
-            throw new Exception("This isn't the constructor you're looking for.");
-        }
+            => throw new Exception("This isn't the constructor you're looking for.");
 
         public TestContext(DbContextOptions<TestContext> options)
             : base(options)
@@ -406,9 +408,7 @@ public class DbContextOperationsTest
     private class TestContextFromFactory : DbContext
     {
         private TestContextFromFactory()
-        {
-            throw new Exception("This isn't the constructor you're looking for.");
-        }
+            => throw new Exception("This isn't the constructor you're looking for.");
 
         public TestContextFromFactory(DbContextOptions<TestContextFromFactory> options)
             : base(options)
@@ -419,9 +419,7 @@ public class DbContextOperationsTest
     private class Testcontext : DbContext
     {
         public Testcontext()
-        {
-            throw new Exception("This isn't the constructor you're looking for.");
-        }
+            => throw new Exception("This isn't the constructor you're looking for.");
 
         public Testcontext(DbContextOptions<TestContext> options)
             : base(options)

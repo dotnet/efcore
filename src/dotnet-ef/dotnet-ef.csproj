@@ -84,7 +84,8 @@ dotnet ef database update
       <NuspecProperty Include="targetFramework=$(TargetFramework)" />
 
       <NuspecProperty Include="SettingsFile=$(_ToolsSettingsFilePath)" />
-      <NuspecProperty Include="Output=$(PublishDir)**\*" />
+      <!-- https://github.com/dotnet/msbuild/issues/10715. %2A replaces * working around an issue building Linux. -->
+      <NuspecProperty Include="Output=$(PublishDir)%2A%2A/%2A" />
       <NuspecProperty Include="OutputBinary=..\..\artifacts\bin\ef\$(Configuration)\netcoreapp2.0\ef.dll" />
       <NuspecProperty Include="OutputRuntimeConfig=..\..\artifacts\bin\ef\$(Configuration)\netcoreapp2.0\ef.runtimeconfig.json" />
       <NuspecProperty Include="OutputSymbol=..\..\artifacts\bin\ef\$(Configuration)\netcoreapp2.0\ef.pdb" />
