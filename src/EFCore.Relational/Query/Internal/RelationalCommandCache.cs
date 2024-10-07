@@ -105,19 +105,23 @@ public class RelationalCommandCache : IPrintableExpression
         }
     }
 
-    private readonly struct CommandCacheKey
-        : IEquatable<CommandCacheKey>
+    private readonly struct CommandCacheKey : IEquatable<CommandCacheKey>
     {
         private readonly Expression _queryExpression;
-        private readonly ParameterValueInfo[] _parameterValues;
+        private readonly Dictionary<string, ParameterInfo> _parameterInfos;
 
-        internal CommandCacheKey(Expression queryExpression, IReadOnlyDictionary<string, object?> parameterValues) {
+        internal CommandCacheKey(Expression queryExpression, IReadOnlyDictionary<string, object?> parameterValues)
+        {
             _queryExpression = queryExpression;
-            _parameterValues = new ParameterValueInfo[parameterValues.Count];
-            var i = 0;
+            _parameterInfos = new Dictionary<string, ParameterInfo>();
+
             foreach (var (key, value) in parameterValues)
             {
-                _parameterValues[i++] = new ParameterValueInfo(key, value);
+                _parameterInfos[key] = new ParameterInfo
+                {
+                    IsNull = value == null,
+                    ObjectArrayLength = value is object[] arr ? arr.Length : null
+                };
             }
         }
 
@@ -134,26 +138,17 @@ public class RelationalCommandCache : IPrintableExpression
             }
 
             Check.DebugAssert(
-                _parameterValues.Length == commandCacheKey._parameterValues.Length,
-                "Parameter Count mismatch between identical expressions");
+                _parameterInfos.Count == commandCacheKey._parameterInfos.Count,
+                "Parameter Count mismatch between identical queries");
 
-            for (var i = 0; i < _parameterValues.Length; i++)
+            if (_parameterInfos.Count > 0)
             {
-                var thisValue = _parameterValues[i];
-                var otherValue = commandCacheKey._parameterValues[i];
-
-                Check.DebugAssert(
-                    thisValue.Key == otherValue.Key,
-                    "Parameter Name mismatch between identical expressions");
-
-                if (thisValue.IsNull != otherValue.IsNull)
+                foreach (var (key, info) in _parameterInfos)
                 {
-                    return false;
-                }
-
-                if (thisValue.ObjectArrayLength != otherValue.ObjectArrayLength)
-                {
-                    return false;
+                    if (!commandCacheKey._parameterInfos.TryGetValue(key, out var otherInfo) || info != otherInfo)
+                    {
+                        return false;
+                    }
                 }
             }
 
@@ -164,20 +159,7 @@ public class RelationalCommandCache : IPrintableExpression
             => RuntimeHelpers.GetHashCode(_queryExpression);
     }
 
-    // Note that we keep only the nullness of parameters (and array length for FromSql object arrays), and avoid referencing the actual parameter data (see #34028).
-    private readonly struct ParameterValueInfo
-    {
-        public string Key { get; }
-
-        public bool IsNull { get; }
-
-        public int? ObjectArrayLength { get; }
-
-        internal ParameterValueInfo(string key, object? parameterValue)
-        {
-            Key = key;
-            IsNull = parameterValue == null;
-            ObjectArrayLength = parameterValue is object[] arr ? arr.Length : null;
-        }
-    }
+    // Note that we keep only the null-ness of parameters (and array length for FromSql object arrays),
+    // and avoid referencing the actual parameter data (see #34028).
+    private readonly record struct ParameterInfo(bool IsNull, int? ObjectArrayLength);
 }
