@@ -54,6 +54,7 @@ public class LazyLoaderFactory : ILazyLoaderFactory
         {
             loader.Dispose();
         }
+
         _loaders.Clear();
     }
 

@@ -91,20 +91,20 @@ public class MigrationsScaffolderTest
                     services.GetRequiredService<CommandBatchPreparerDependencies>()),
                 idGenerator,
                 new MigrationsCodeGeneratorSelector(
-                    [
-                        new CSharpMigrationsGenerator(
-                            new MigrationsCodeGeneratorDependencies(
-                                sqlServerTypeMappingSource,
-                                sqlServerAnnotationCodeGenerator),
-                            new CSharpMigrationsGeneratorDependencies(
-                                code,
-                                new CSharpMigrationOperationGenerator(
-                                    new CSharpMigrationOperationGeneratorDependencies(
-                                        code)),
-                                new CSharpSnapshotGenerator(
-                                    new CSharpSnapshotGeneratorDependencies(
-                                        code, sqlServerTypeMappingSource, sqlServerAnnotationCodeGenerator))))
-                    ]),
+                [
+                    new CSharpMigrationsGenerator(
+                        new MigrationsCodeGeneratorDependencies(
+                            sqlServerTypeMappingSource,
+                            sqlServerAnnotationCodeGenerator),
+                        new CSharpMigrationsGeneratorDependencies(
+                            code,
+                            new CSharpMigrationOperationGenerator(
+                                new CSharpMigrationOperationGeneratorDependencies(
+                                    code)),
+                            new CSharpSnapshotGenerator(
+                                new CSharpSnapshotGeneratorDependencies(
+                                    code, sqlServerTypeMappingSource, sqlServerAnnotationCodeGenerator))))
+                ]),
                 historyRepository,
                 reporter,
                 new MockProvider(),
@@ -123,9 +123,10 @@ public class MigrationsScaffolderTest
                     services.GetRequiredService<IDiagnosticsLogger<DbLoggerCategory.Migrations>>(),
                     services.GetRequiredService<IRelationalCommandDiagnosticsLogger>(),
                     services.GetRequiredService<IDatabaseProvider>(),
-                    services.GetServices<IMigratorPlugin>(),
                     services.GetRequiredService<IMigrationsModelDiffer>(),
-                    services.GetRequiredService<IDesignTimeModel>())));
+                    services.GetRequiredService<IDesignTimeModel>(),
+                    services.GetRequiredService<IDbContextOptions>(),
+                    services.GetRequiredService<IExecutionStrategy>())));
     }
 
     // ReSharper disable once UnusedTypeParameter
@@ -143,6 +144,8 @@ public class MigrationsScaffolderTest
 
     private class MockHistoryRepository : IHistoryRepository
     {
+        public virtual LockReleaseBehavior LockReleaseBehavior => LockReleaseBehavior.Explicit;
+
         public string GetBeginIfExistsScript(string migrationId)
             => null;
 
@@ -182,10 +185,10 @@ public class MigrationsScaffolderTest
         public Task CreateAsync(CancellationToken cancellationToken = default)
             => throw new NotImplementedException();
 
-        public IDisposable GetDatabaseLock(TimeSpan timeout)
+        public IMigrationsDatabaseLock AcquireDatabaseLock()
             => throw new NotImplementedException();
 
-        public Task<IAsyncDisposable> GetDatabaseLockAsync(TimeSpan timeout, CancellationToken cancellationToken = default)
+        public Task<IMigrationsDatabaseLock> AcquireDatabaseLockAsync(CancellationToken cancellationToken = default)
             => throw new NotImplementedException();
     }
 

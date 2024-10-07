@@ -321,6 +321,8 @@ public class RelationalDatabaseFacadeExtensionsTest
 
     private class FakeHistoryRepository : IHistoryRepository
     {
+        public virtual LockReleaseBehavior LockReleaseBehavior => LockReleaseBehavior.Explicit;
+
         public List<HistoryRow> AppliedMigrations { get; set; }
 
         public IReadOnlyList<HistoryRow> GetAppliedMigrations()
@@ -355,16 +357,17 @@ public class RelationalDatabaseFacadeExtensionsTest
 
         public string GetEndIfScript()
             => throw new NotImplementedException();
+
         public void Create()
             => throw new NotImplementedException();
 
         public Task CreateAsync(CancellationToken cancellationToken = default)
             => throw new NotImplementedException();
 
-        public IDisposable GetDatabaseLock(TimeSpan timeout)
+        public IMigrationsDatabaseLock AcquireDatabaseLock()
             => throw new NotImplementedException();
 
-        public Task<IAsyncDisposable> GetDatabaseLockAsync(TimeSpan timeout, CancellationToken cancellationToken = default)
+        public Task<IMigrationsDatabaseLock> AcquireDatabaseLockAsync(CancellationToken cancellationToken = default)
             => throw new NotImplementedException();
     }
 
@@ -389,7 +392,8 @@ public class RelationalDatabaseFacadeExtensionsTest
                 .AddSingleton<IHistoryRepository>(repository)
                 .AddSingleton<IMigrationsAssembly>(migrationsAssembly));
 
-        Assert.Equal(["00000000000003_Three"],
+        Assert.Equal(
+            ["00000000000003_Three"],
             async
                 ? await context.Database.GetPendingMigrationsAsync()
                 : context.Database.GetPendingMigrations());

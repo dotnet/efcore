@@ -6,7 +6,6 @@ using System.Data;
 using System.Transactions;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
 using Index = Microsoft.EntityFrameworkCore.Metadata.Internal.Index;
@@ -144,15 +143,6 @@ public class RelationalEventIdTest : EventIdTestBase
             MigrationsSqlGenerationOptions options = MigrationsSqlGenerationOptions.Default)
             => throw new NotImplementedException();
 
-        public void Migrate(Action<DbContext, IMigratorData> seed, string targetMigration, TimeSpan? lockTimeout)
-            => throw new NotImplementedException();
-
-        public Task MigrateAsync(Func<DbContext, IMigratorData, CancellationToken, Task> seed,
-            string targetMigration,
-            TimeSpan? lockTimeout,
-            CancellationToken cancellationToken = default)
-            => throw new NotImplementedException();
-
         public bool HasPendingModelChanges()
             => throw new NotImplementedException();
     }
@@ -175,7 +165,8 @@ public class RelationalEventIdTest : EventIdTestBase
             => throw new NotImplementedException();
     }
 
-    private class FakeMigrationCommand() : MigrationCommand(new FakeRelationalCommand(), null, new FakeRelationalCommandDiagnosticsLogger());
+    private class FakeMigrationCommand()
+        : MigrationCommand(new FakeRelationalCommand(), null, new FakeRelationalCommandDiagnosticsLogger());
 
     private class FakeRelationalCommand : IRelationalCommand
     {
@@ -195,7 +186,9 @@ public class RelationalEventIdTest : EventIdTestBase
         public RelationalDataReader ExecuteReader(RelationalCommandParameterObject parameterObject)
             => throw new NotImplementedException();
 
-        public Task<RelationalDataReader> ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+        public Task<RelationalDataReader> ExecuteReaderAsync(
+            RelationalCommandParameterObject parameterObject,
+            CancellationToken cancellationToken)
             => throw new NotImplementedException();
 
         public object ExecuteScalar(RelationalCommandParameterObject parameterObject)

@@ -165,7 +165,7 @@ public static class CosmosModelBuilderExtensions
     ///     <see langword="null" /> to revert to the default setting.
     /// </param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
-    public static ModelBuilder IncludeRootDiscriminatorInJsonId(
+    public static ModelBuilder HasRootDiscriminatorInJsonId(
         this ModelBuilder modelBuilder,
         bool? includeDiscriminator = true)
     {

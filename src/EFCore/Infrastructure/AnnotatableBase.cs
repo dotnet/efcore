@@ -178,11 +178,7 @@ public class AnnotatableBase : IAnnotatable
     {
         Check.NotEmpty(name, nameof(name));
 
-        return _annotations == null
-            ? null
-            : _annotations.TryGetValue(name, out var annotation)
-                ? annotation
-                : null;
+        return _annotations?.GetValueOrDefault(name);
     }
 
     /// <summary>
@@ -389,11 +385,7 @@ public class AnnotatableBase : IAnnotatable
     {
         Check.NotEmpty(name, nameof(name));
 
-        return _runtimeAnnotations == null
-            ? null
-            : _runtimeAnnotations.TryGetValue(name, out var annotation)
-                ? annotation
-                : null;
+        return _runtimeAnnotations?.GetValueOrDefault(name);
     }
 
     /// <summary>

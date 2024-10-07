@@ -31,7 +31,6 @@ public class ReadItemPartitionKeyQueryInheritanceFixtureBase : ReadItemPartition
                         ((DerivedSinglePartitionKeyEntity?)a)?.DerivedPayload);
                 });
 
-
         asserters[typeof(DerivedOnlyHierarchicalPartitionKeyEntity)] =
             new Action<object, object>(
                 (e, a) =>
@@ -112,7 +111,8 @@ public class ReadItemPartitionKeyQueryInheritanceFixtureBase : ReadItemPartition
 
             if (typeof(TEntity) == typeof(DerivedOnlyHierarchicalPartitionKeyEntity))
             {
-                return (IQueryable<TEntity>)OnlyHierarchicalPartitionKeyEntities.OfType<DerivedOnlyHierarchicalPartitionKeyEntity>().AsQueryable();
+                return (IQueryable<TEntity>)OnlyHierarchicalPartitionKeyEntities.OfType<DerivedOnlyHierarchicalPartitionKeyEntity>()
+                    .AsQueryable();
             }
 
             if (typeof(TEntity) == typeof(DerivedOnlySinglePartitionKeyEntity))
@@ -131,36 +131,36 @@ public class ReadItemPartitionKeyQueryInheritanceFixtureBase : ReadItemPartition
         private static List<DerivedHierarchicalPartitionKeyEntity> CreateDerivedHierarchicalPartitionKeyEntities()
             => new()
             {
-                new()
+                new DerivedHierarchicalPartitionKeyEntity
                 {
-                    Id = 11,
+                    Id = Guid.Parse("316C846C-787F-44B9-AADF-272F1658C5FF"),
                     PartitionKey1 = "PK1",
                     PartitionKey2 = 1,
                     PartitionKey3 = true,
                     Payload = "Payload1",
                     DerivedPayload = "DerivedPayload1"
                 },
-                new()
+                new DerivedHierarchicalPartitionKeyEntity
                 {
-                    Id = 11,
+                    Id = Guid.Parse("316C846C-787F-44B9-AADF-272F1658C5FF"), // Same Id as previous; different partition.
                     PartitionKey1 = "PK2",
                     PartitionKey2 = 2,
                     PartitionKey3 = false,
                     Payload = "Payload2",
                     DerivedPayload = "DerivedPayload2"
                 },
-                new()
+                new DerivedHierarchicalPartitionKeyEntity
                 {
-                    Id = 22,
+                    Id = Guid.Parse("C6E8E6D2-F33E-4695-9FA5-D0E9517EF04E"), // New Id.
                     PartitionKey1 = "PK1",
                     PartitionKey2 = 1,
                     PartitionKey3 = true,
                     Payload = "Payload3",
                     DerivedPayload = "DerivedPayload3"
                 },
-                new()
+                new DerivedHierarchicalPartitionKeyEntity
                 {
-                    Id = 22,
+                    Id = Guid.Parse("C6E8E6D2-F33E-4695-9FA5-D0E9517EF04E"), // Same Id as previous; different partition.
                     PartitionKey1 = "PK2",
                     PartitionKey2 = 2,
                     PartitionKey3 = false,
@@ -172,30 +172,30 @@ public class ReadItemPartitionKeyQueryInheritanceFixtureBase : ReadItemPartition
         private static List<DerivedSinglePartitionKeyEntity> CreateDerivedSinglePartitionKeyEntities()
             => new()
             {
-                new()
+                new DerivedSinglePartitionKeyEntity
                 {
-                    Id = 11,
+                    Id = Guid.Parse("188D3253-81BE-4A87-B58F-A2BD07E6B98C"),
                     PartitionKey = "PK1",
                     Payload = "Payload1",
                     DerivedPayload = "DerivedPayload1"
                 },
-                new()
+                new DerivedSinglePartitionKeyEntity
                 {
-                    Id = 11,
+                    Id = Guid.Parse("188D3253-81BE-4A87-B58F-A2BD07E6B98C"),
                     PartitionKey = "PK2",
                     Payload = "Payload2",
                     DerivedPayload = "DerivedPayload2"
                 },
-                new()
+                new DerivedSinglePartitionKeyEntity
                 {
-                    Id = 22,
+                    Id = Guid.Parse("11F8D1FD-7472-46F5-9E20-16AF42B3B8D1"),
                     PartitionKey = "PK1",
                     Payload = "Payload3",
                     DerivedPayload = "DerivedPayload3"
                 },
-                new()
+                new DerivedSinglePartitionKeyEntity
                 {
-                    Id = 22,
+                    Id = Guid.Parse("11F8D1FD-7472-46F5-9E20-16AF42B3B8D1"),
                     PartitionKey = "PK2",
                     Payload = "Payload4",
                     DerivedPayload = "DerivedPayload4"
@@ -205,7 +205,7 @@ public class ReadItemPartitionKeyQueryInheritanceFixtureBase : ReadItemPartition
         private static List<DerivedOnlyHierarchicalPartitionKeyEntity> CreateDerivedOnlyHierarchicalPartitionKeyEntities()
             => new()
             {
-                new()
+                new DerivedOnlyHierarchicalPartitionKeyEntity
                 {
                     PartitionKey1 = "PK1c",
                     PartitionKey2 = 1,
@@ -213,7 +213,7 @@ public class ReadItemPartitionKeyQueryInheritanceFixtureBase : ReadItemPartition
                     Payload = "Payload1",
                     DerivedPayload = "DerivedPayload1"
                 },
-                new()
+                new DerivedOnlyHierarchicalPartitionKeyEntity
                 {
                     PartitionKey1 = "PK2c",
                     PartitionKey2 = 2,
@@ -221,7 +221,7 @@ public class ReadItemPartitionKeyQueryInheritanceFixtureBase : ReadItemPartition
                     Payload = "Payload2",
                     DerivedPayload = "DerivedPayload2"
                 },
-                new()
+                new DerivedOnlyHierarchicalPartitionKeyEntity
                 {
                     PartitionKey1 = "PK1d",
                     PartitionKey2 = 1,
@@ -229,7 +229,7 @@ public class ReadItemPartitionKeyQueryInheritanceFixtureBase : ReadItemPartition
                     Payload = "Payload3",
                     DerivedPayload = "DerivedPayload3"
                 },
-                new()
+                new DerivedOnlyHierarchicalPartitionKeyEntity
                 {
                     PartitionKey1 = "PK2d",
                     PartitionKey2 = 2,
@@ -242,25 +242,25 @@ public class ReadItemPartitionKeyQueryInheritanceFixtureBase : ReadItemPartition
         private static List<DerivedOnlySinglePartitionKeyEntity> CreateDerivedOnlySinglePartitionKeyEntities()
             => new()
             {
-                new()
+                new DerivedOnlySinglePartitionKeyEntity
                 {
                     PartitionKey = "PK1c",
                     Payload = "Payload1",
                     DerivedPayload = "DerivedPayload1"
                 },
-                new()
+                new DerivedOnlySinglePartitionKeyEntity
                 {
                     PartitionKey = "PK2c",
                     Payload = "Payload2",
                     DerivedPayload = "DerivedPayload2"
                 },
-                new()
+                new DerivedOnlySinglePartitionKeyEntity
                 {
                     PartitionKey = "PK1d",
                     Payload = "Payload3",
                     DerivedPayload = "DerivedPayload3"
                 },
-                new()
+                new DerivedOnlySinglePartitionKeyEntity
                 {
                     PartitionKey = "PK2d",
                     Payload = "Payload4",
@@ -271,13 +271,13 @@ public class ReadItemPartitionKeyQueryInheritanceFixtureBase : ReadItemPartition
         private static List<DerivedNoPartitionKeyEntity> CreateDerivedNoPartitionKeyEntities()
             => new()
             {
-                new()
+                new DerivedNoPartitionKeyEntity
                 {
                     Id = 11,
                     Payload = "Payload1",
                     DerivedPayload = "DerivedPayload1"
                 },
-                new()
+                new DerivedNoPartitionKeyEntity
                 {
                     Id = 22,
                     Payload = "Payload2",

@@ -600,7 +600,6 @@ public partial class EntityTypeTest
         Assert.Equal([fk2, fk1], orderType.GetForeignKeys().ToArray());
     }
 
-
     [ConditionalFact]
     public void Adding_a_foreign_key_throws_if_duplicate()
     {
@@ -3315,6 +3314,7 @@ public partial class EntityTypeTest
         public int? SelfRefId { get; set; }
         public int ForeignKey { get; set; }
     }
+
     private static IMutableModel CreateEmptyModel()
         => new Model();
 

@@ -50,9 +50,11 @@
     <ProjectReference Include="..\..\src\EFCore.Relational\EFCore.Relational.csproj" />
     <ProjectReference Include="..\..\src\EFCore.Design\EFCore.Design.csproj" />
     <ProjectReference Include="..\EFCore.Specification.Tests\EFCore.Specification.Tests.csproj" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.2" />
-    <PackageReference Include="IdentityServer4.EntityFramework" Version="4.1.2" />
-    <PackageReference Condition="!$([MSBuild]::IsOSPlatform('OSX'))" Include="Grpc.AspNetCore" Version="2.59.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" />
+    <PackageReference Include="IdentityServer4.EntityFramework" />
+    <PackageReference Condition="!$([MSBuild]::IsOSPlatform('OSX'))" Include="Grpc.AspNetCore" />
+    <!-- Suppress NuGet audit warnings for IdentityServer4, see https://github.com/dotnet/efcore/issues/34485 -->
+    <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-ff4q-64jc-gx98;https://github.com/advisories/GHSA-55p7-v223-x366" />
   </ItemGroup>
 
   <ItemGroup>

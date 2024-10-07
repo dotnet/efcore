@@ -7,7 +7,8 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public class SqlServerApiConsistencyTest(SqlServerApiConsistencyTest.SqlServerApiConsistencyFixture fixture) : ApiConsistencyTestBase<SqlServerApiConsistencyTest.SqlServerApiConsistencyFixture>(fixture)
+public class SqlServerApiConsistencyTest(SqlServerApiConsistencyTest.SqlServerApiConsistencyFixture fixture)
+    : ApiConsistencyTestBase<SqlServerApiConsistencyTest.SqlServerApiConsistencyFixture>(fixture)
 {
     protected override void AddServices(ServiceCollection serviceCollection)
         => serviceCollection.AddEntityFrameworkSqlServer();
@@ -31,6 +32,7 @@ public class SqlServerApiConsistencyTest(SqlServerApiConsistencyTest.SqlServerAp
             typeof(SqlServerEntityTypeBuilderExtensions),
             typeof(SqlServerServiceCollectionExtensions),
             typeof(SqlServerDbFunctionsExtensions),
+            typeof(SqlServerTableBuilderExtensions),
             typeof(OwnedNavigationTemporalPeriodPropertyBuilder),
             typeof(OwnedNavigationTemporalTableBuilder),
             typeof(OwnedNavigationTemporalTableBuilder<,>),

@@ -13,9 +13,14 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 /// </remarks>
 public class StringToBytesConverter : ValueConverter<string?, byte[]?>
 {
-    private static readonly MethodInfo EncodingGetBytesMethodInfo = typeof(Encoding).GetMethod(nameof(Encoding.GetBytes), [typeof(string)])!;
-    private static readonly MethodInfo EncodingGetStringMethodInfo = typeof(Encoding).GetMethod(nameof(Encoding.GetString), [typeof(byte[])])!;
-    private static readonly MethodInfo EncodingGetEncodingMethodInfo = typeof(Encoding).GetMethod(nameof(Encoding.GetEncoding), [typeof(int)])!;
+    private static readonly MethodInfo EncodingGetBytesMethodInfo =
+        typeof(Encoding).GetMethod(nameof(Encoding.GetBytes), [typeof(string)])!;
+
+    private static readonly MethodInfo EncodingGetStringMethodInfo =
+        typeof(Encoding).GetMethod(nameof(Encoding.GetString), [typeof(byte[])])!;
+
+    private static readonly MethodInfo EncodingGetEncodingMethodInfo =
+        typeof(Encoding).GetMethod(nameof(Encoding.GetEncoding), [typeof(int)])!;
 
     /// <summary>
     ///     Creates a new instance of this converter.

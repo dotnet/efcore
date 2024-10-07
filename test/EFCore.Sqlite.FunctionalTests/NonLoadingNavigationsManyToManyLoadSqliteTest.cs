@@ -7,7 +7,8 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public class NonLoadingNavigationsManyToManyLoadSqliteTest(NonLoadingNavigationsManyToManyLoadSqliteTest.NonLoadingNavigationsManyToManyLoadSqliteFixture fixture)
+public class NonLoadingNavigationsManyToManyLoadSqliteTest(
+    NonLoadingNavigationsManyToManyLoadSqliteTest.NonLoadingNavigationsManyToManyLoadSqliteFixture fixture)
     : ManyToManyLoadTestBase<NonLoadingNavigationsManyToManyLoadSqliteTest.NonLoadingNavigationsManyToManyLoadSqliteFixture>(fixture)
 {
     public class NonLoadingNavigationsManyToManyLoadSqliteFixture : ManyToManyLoadFixtureBase, ITestSqlLoggerFactory

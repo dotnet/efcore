@@ -67,27 +67,27 @@ FROM [Blogs] AS [b]
         AssertSql();
     }
 
-     public override async Task ListInit_no_evaluatability()
-     {
-         await base.ListInit_no_evaluatability();
+    public override async Task ListInit_no_evaluatability()
+    {
+        await base.ListInit_no_evaluatability();
 
-         AssertSql(
-             """
+        AssertSql(
+            """
 SELECT [b].[Id], [b].[Id] + 1
 FROM [Blogs] AS [b]
 """);
-     }
+    }
 
-     public override async Task ListInit_with_evaluatable_with_captured_variable()
-     {
-         await base.ListInit_with_evaluatable_with_captured_variable();
+    public override async Task ListInit_with_evaluatable_with_captured_variable()
+    {
+        await base.ListInit_with_evaluatable_with_captured_variable();
 
-         AssertSql(
-             """
+        AssertSql(
+            """
 SELECT [b].[Id]
 FROM [Blogs] AS [b]
 """);
-     }
+    }
 
     public override async Task ListInit_with_evaluatable_without_captured_variable()
     {
@@ -112,17 +112,17 @@ WHERE [b].[Id] IN (7, 8)
 """);
     }
 
-     public override async Task MethodCallExpression_no_evaluatability()
-     {
-         await base.MethodCallExpression_no_evaluatability();
+    public override async Task MethodCallExpression_no_evaluatability()
+    {
+        await base.MethodCallExpression_no_evaluatability();
 
-         AssertSql(
-             """
+        AssertSql(
+            """
 SELECT [b].[Id], [b].[Name], [b].[Json]
 FROM [Blogs] AS [b]
 WHERE [b].[Name] IS NOT NULL AND LEFT([b].[Name], LEN([b].[Name])) = [b].[Name]
 """);
-     }
+    }
 
     public override async Task MethodCallExpression_with_evaluatable_with_captured_variable()
     {
@@ -1952,7 +1952,7 @@ FROM [Blogs] AS [b]
 
         AssertSql(
             """
-@__starts_0_startswith='blog%' (Size = 4000)
+@__starts_0_startswith='Blog%' (Size = 4000)
 @__ends_1_endswith='%2' (Size = 4000)
 
 SELECT TOP(2) [b].[Id], [b].[Name], [b].[Json]
@@ -2094,6 +2094,7 @@ FROM [Blogs] AS [b]
             return builder;
         }
 
-        public override PrecompiledQueryTestHelpers PrecompiledQueryTestHelpers => SqlServerPrecompiledQueryTestHelpers.Instance;
+        public override PrecompiledQueryTestHelpers PrecompiledQueryTestHelpers
+            => SqlServerPrecompiledQueryTestHelpers.Instance;
     }
 }

@@ -1280,7 +1280,7 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase
     {
         public Expression Expression { get; } = expression;
 
-        public bool Used { get; set; } = false;
+        public bool Used { get; set; }
     }
 
     private class ActualSetSource(DbContext context) : ISetSource

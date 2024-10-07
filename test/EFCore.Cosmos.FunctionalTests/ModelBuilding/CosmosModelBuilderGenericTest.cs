@@ -10,7 +10,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding;
 
 public class CosmosModelBuilderGenericTest : ModelBuilderTest
 {
-    public class CosmosGenericNonRelationship(CosmosModelBuilderFixture fixture) : NonRelationshipTestBase(fixture), IClassFixture<CosmosModelBuilderFixture>
+    public class CosmosGenericNonRelationship(CosmosModelBuilderFixture fixture)
+        : NonRelationshipTestBase(fixture), IClassFixture<CosmosModelBuilderFixture>
     {
         // Cosmos provider cannot map collections of elements with converters. See Issue #34026.
         public override void Element_types_can_have_custom_type_value_converter_type_set()
@@ -177,7 +178,13 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             modelBuilder.Entity<Customer>()
                 .Ignore(b => b.Details)
                 .Ignore(b => b.Orders)
-                .HasPartitionKey(b => new { b.Title, b.Name, b.AlternateKey })
+                .HasPartitionKey(
+                    b => new
+                    {
+                        b.Title,
+                        b.Name,
+                        b.AlternateKey
+                    })
                 .Property(b => b.AlternateKey).HasConversion<string>();
 
             var model = modelBuilder.FinalizeModel();
@@ -470,12 +477,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
                 entity.GetPartitionKeyProperties().Select(p => p.Name));
 
             Assert.Equal(
-                new[]
-                {
-                    nameof(Customer.Title),
-                    nameof(Customer.AlternateKey),
-                    CosmosJsonIdConvention.DefaultIdPropertyName
-                },
+                new[] { nameof(Customer.Title), nameof(Customer.AlternateKey), CosmosJsonIdConvention.DefaultIdPropertyName },
                 entity.FindPrimaryKey()!.Properties.Select(p => p.Name));
         }
 
@@ -506,11 +508,23 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
         {
             var modelBuilder = CreateModelBuilder();
 
-            modelBuilder.Entity<Customer>().HasKey(e => new { e.Name, e.AlternateKey, e.Title });
+            modelBuilder.Entity<Customer>().HasKey(
+                e => new
+                {
+                    e.Name,
+                    e.AlternateKey,
+                    e.Title
+                });
             modelBuilder.Entity<Customer>()
                 .Ignore(b => b.Details)
                 .Ignore(b => b.Orders)
-                .HasPartitionKey(b => new { b.Name, b.AlternateKey, b.Title })
+                .HasPartitionKey(
+                    b => new
+                    {
+                        b.Name,
+                        b.AlternateKey,
+                        b.Title
+                    })
                 .Property(b => b.AlternateKey).HasConversion<string>().ToJsonProperty("id");
 
             var model = modelBuilder.FinalizeModel();
@@ -523,11 +537,192 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             Assert.DoesNotContain(entity.GetKeys(), k => k != entity.FindPrimaryKey());
         }
 
+        [ConditionalFact]
+        public virtual void Single_string_primary_key_maps_to_JSON_id()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<SingleStringKey>();
+
+            var model = modelBuilder.FinalizeModel();
+
+            var entityType = model.FindEntityType(typeof(SingleStringKey))!;
+
+            Assert.Equal(
+                [nameof(SingleStringKey.Id)],
+                entityType.FindPrimaryKey()!.Properties.Select(p => p.Name));
+
+            Assert.Equal(
+                [
+                    nameof(SingleStringKey.Id), "$type", nameof(SingleStringKey.Name), nameof(SingleStringKey.P1),
+                    nameof(SingleStringKey.P2), nameof(SingleStringKey.P3), "__jObject"
+                ],
+                entityType.GetProperties().Select(p => p.Name));
+
+            Assert.Equal(1, entityType.GetKeys().Count());
+            Assert.Null(entityType.FindProperty("__id"));
+            Assert.Equal("id", entityType.FindProperty("Id")!.GetJsonPropertyName());
+        }
+
+        [ConditionalFact] // Issue #34511
+        public virtual void Single_string_primary_key_with_single_partition_key_maps_to_JSON_id()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<SingleStringKey>().HasPartitionKey(e => e.P1);
+
+            var model = modelBuilder.FinalizeModel();
+
+            var entityType = model.FindEntityType(typeof(SingleStringKey))!;
+
+            Assert.Equal(
+                [nameof(SingleStringKey.Id), nameof(SingleStringKey.P1)],
+                entityType.FindPrimaryKey()!.Properties.Select(p => p.Name));
+
+            Assert.Equal(
+                [
+                    nameof(SingleStringKey.Id), nameof(SingleStringKey.P1), "$type", nameof(SingleStringKey.Name),
+                    nameof(SingleStringKey.P2), nameof(SingleStringKey.P3), "__jObject"
+                ],
+                entityType.GetProperties().Select(p => p.Name));
+
+            Assert.Equal(1, entityType.GetKeys().Count());
+            Assert.Null(entityType.FindProperty("__id"));
+            Assert.Equal("id", entityType.FindProperty("Id")!.GetJsonPropertyName());
+        }
+
+        [ConditionalFact] // Issue #34511
+        public virtual void Single_string_primary_key_with_hierarchical_partition_key_maps_to_JSON_id()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<SingleStringKey>().HasPartitionKey(e => new { e.P1, e.P2, e.P3 });
+
+            var model = modelBuilder.FinalizeModel();
+
+            var entityType = model.FindEntityType(typeof(SingleStringKey))!;
+
+            Assert.Equal(
+                [nameof(SingleStringKey.Id), nameof(SingleStringKey.P1), nameof(SingleStringKey.P2), nameof(SingleStringKey.P3)],
+                entityType.FindPrimaryKey()!.Properties.Select(p => p.Name));
+
+            Assert.Equal(
+                [
+                    nameof(SingleStringKey.Id), nameof(SingleStringKey.P1), nameof(SingleStringKey.P2), nameof(SingleStringKey.P3),
+                    "$type", nameof(SingleStringKey.Name), "__jObject"
+                ],
+                entityType.GetProperties().Select(p => p.Name));
+
+            Assert.Equal(1, entityType.GetKeys().Count());
+            Assert.Null(entityType.FindProperty("__id"));
+            Assert.Equal("id", entityType.FindProperty("Id")!.GetJsonPropertyName());
+        }
+
+        protected class SingleStringKey
+        {
+            public string Id { get; set; } = null!;
+            public string? Name { get; set; }
+            public string P1 { get; set; } = null!;
+            public string P2 { get; set; } = null!;
+            public string P3 { get; set; } = null!;
+        }
+
+        [ConditionalFact] // Issue #34554
+        public virtual void Single_GUID_primary_key_maps_to_JSON_id()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<SingleGuidKey>();
+
+            var model = modelBuilder.FinalizeModel();
+
+            var entityType = model.FindEntityType(typeof(SingleGuidKey))!;
+
+            Assert.Equal(
+                [nameof(SingleGuidKey.Id)],
+                entityType.FindPrimaryKey()!.Properties.Select(p => p.Name));
+
+            Assert.Equal(
+                [
+                    nameof(SingleGuidKey.Id), "$type", nameof(SingleGuidKey.Name), nameof(SingleGuidKey.P1),
+                    nameof(SingleGuidKey.P2), nameof(SingleGuidKey.P3), "__jObject"
+                ],
+                entityType.GetProperties().Select(p => p.Name));
+
+            Assert.Equal(1, entityType.GetKeys().Count());
+            Assert.Null(entityType.FindProperty("__id"));
+            Assert.Equal("id", entityType.FindProperty("Id")!.GetJsonPropertyName());
+        }
+
+        [ConditionalFact] // Issue #34554
+        public virtual void Single_GUID_primary_key_with_single_partition_key_maps_to_JSON_id()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<SingleGuidKey>().HasPartitionKey(e => e.P1);
+
+            var model = modelBuilder.FinalizeModel();
+
+            var entityType = model.FindEntityType(typeof(SingleGuidKey))!;
+
+            Assert.Equal(
+                [nameof(SingleGuidKey.Id), nameof(SingleGuidKey.P1)],
+                entityType.FindPrimaryKey()!.Properties.Select(p => p.Name));
+
+            Assert.Equal(
+                [
+                    nameof(SingleGuidKey.Id), nameof(SingleGuidKey.P1), "$type", nameof(SingleGuidKey.Name),
+                    nameof(SingleGuidKey.P2), nameof(SingleGuidKey.P3), "__jObject"
+                ],
+                entityType.GetProperties().Select(p => p.Name));
+
+            Assert.Equal(1, entityType.GetKeys().Count());
+            Assert.Null(entityType.FindProperty("__id"));
+            Assert.Equal("id", entityType.FindProperty("Id")!.GetJsonPropertyName());
+        }
+
+        [ConditionalFact] // Issue #34554
+        public virtual void Single_GUID_primary_key_with_hierarchical_partition_key_maps_to_JSON_id()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<SingleGuidKey>().HasPartitionKey(e => new { e.P1, e.P2, e.P3 });
+
+            var model = modelBuilder.FinalizeModel();
+
+            var entityType = model.FindEntityType(typeof(SingleGuidKey))!;
+
+            Assert.Equal(
+                [nameof(SingleGuidKey.Id), nameof(SingleGuidKey.P1), nameof(SingleGuidKey.P2), nameof(SingleGuidKey.P3)],
+                entityType.FindPrimaryKey()!.Properties.Select(p => p.Name));
+
+            Assert.Equal(
+                [
+                    nameof(SingleGuidKey.Id), nameof(SingleGuidKey.P1), nameof(SingleGuidKey.P2), nameof(SingleGuidKey.P3),
+                    "$type", nameof(SingleGuidKey.Name), "__jObject"
+                ],
+                entityType.GetProperties().Select(p => p.Name));
+
+            Assert.Equal(1, entityType.GetKeys().Count());
+            Assert.Null(entityType.FindProperty("__id"));
+            Assert.Equal("id", entityType.FindProperty("Id")!.GetJsonPropertyName());
+        }
+
+        protected class SingleGuidKey
+        {
+            public Guid Id { get; set; }
+            public string? Name { get; set; }
+            public string P1 { get; set; } = null!;
+            public string P2 { get; set; } = null!;
+            public string P3 { get; set; } = null!;
+        }
+
         protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder>? configure = null)
             => new GenericTestModelBuilder(Fixture, configure);
     }
 
-    public class CosmosGenericComplexType(CosmosModelBuilderFixture fixture) : ComplexTypeTestBase(fixture), IClassFixture<CosmosModelBuilderFixture>
+    public class CosmosGenericComplexType(CosmosModelBuilderFixture fixture)
+        : ComplexTypeTestBase(fixture), IClassFixture<CosmosModelBuilderFixture>
     {
         public override void Properties_can_have_custom_type_value_converter_type_set()
             => Properties_can_have_custom_type_value_converter_type_set<string>();
@@ -573,7 +768,8 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             => new GenericTestModelBuilder(Fixture, configure);
     }
 
-    public class CosmosGenericInheritance(CosmosModelBuilderFixture fixture) : InheritanceTestBase(fixture), IClassFixture<CosmosModelBuilderFixture>
+    public class CosmosGenericInheritance(CosmosModelBuilderFixture fixture)
+        : InheritanceTestBase(fixture), IClassFixture<CosmosModelBuilderFixture>
     {
         public override void Base_type_can_be_discovered_after_creating_foreign_keys_on_derived()
         {
@@ -602,7 +798,8 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             => new GenericTestModelBuilder(Fixture, configure);
     }
 
-    public class CosmosGenericOneToMany(CosmosModelBuilderFixture fixture) : OneToManyTestBase(fixture), IClassFixture<CosmosModelBuilderFixture>
+    public class CosmosGenericOneToMany(CosmosModelBuilderFixture fixture)
+        : OneToManyTestBase(fixture), IClassFixture<CosmosModelBuilderFixture>
     {
         public override void Creates_overlapping_foreign_keys_with_different_nullability()
             => Assert.Equal(
@@ -631,13 +828,15 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             => new GenericTestModelBuilder(Fixture, configure);
     }
 
-    public class CosmosGenericManyToOne(CosmosModelBuilderFixture fixture) : ManyToOneTestBase(fixture), IClassFixture<CosmosModelBuilderFixture>
+    public class CosmosGenericManyToOne(CosmosModelBuilderFixture fixture)
+        : ManyToOneTestBase(fixture), IClassFixture<CosmosModelBuilderFixture>
     {
         protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder>? configure = null)
             => new GenericTestModelBuilder(Fixture, configure);
     }
 
-    public class CosmosGenericOneToOne(CosmosModelBuilderFixture fixture) : OneToOneTestBase(fixture), IClassFixture<CosmosModelBuilderFixture>
+    public class CosmosGenericOneToOne(CosmosModelBuilderFixture fixture)
+        : OneToOneTestBase(fixture), IClassFixture<CosmosModelBuilderFixture>
     {
         public override void Navigation_to_shared_type_is_not_discovered_by_convention()
         {
@@ -656,11 +855,53 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
                 owned.DisplayName());
         }
 
+        [ConditionalFact] // Issue #34329
+        public virtual void Navigation_cycle_can_be_broken()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<EntityType1>().Ignore(x => x.E2);
+
+            var model = modelBuilder.FinalizeModel();
+
+            var principal = model.FindEntityType(typeof(EntityType1))!;
+            Assert.Null(principal.FindNavigation(nameof(EntityType1.E2)));
+            Assert.Null(model.FindEntityType(typeof(EntityType2)));
+        }
+
+        protected class EntityType1
+        {
+            public int Id { get; set; }
+            public EntityType2? E2 { get; set; }
+        }
+
+
+        protected class EntityType2
+        {
+            public int Id { get; set; }
+            public EntityType3? E3 { get; set; }
+
+            public EntityType4? E4 { get; set; }
+        }
+
+        protected class EntityType3
+        {
+            public int Id { get; set; }
+            public EntityType2? U2 { get; set; }
+        }
+
+        protected class EntityType4
+        {
+            public int Id { get; set; }
+            public EntityType3? E3 { get; set; }
+        }
+
         protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder>? configure = null)
             => new GenericTestModelBuilder(Fixture, configure);
     }
 
-    public class CosmosGenericManyToMany(CosmosModelBuilderFixture fixture) : ManyToManyTestBase(fixture), IClassFixture<CosmosModelBuilderFixture>
+    public class CosmosGenericManyToMany(CosmosModelBuilderFixture fixture)
+        : ManyToManyTestBase(fixture), IClassFixture<CosmosModelBuilderFixture>
     {
         [ConditionalFact]
         public virtual void Can_use_shared_type_as_join_entity_with_partition_keys()
@@ -705,7 +946,8 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
 
             var joinType = model.FindEntityType("JoinType")!;
             Assert.NotNull(joinType);
-            Assert.Collection(joinType.GetForeignKeys(),
+            Assert.Collection(
+                joinType.GetForeignKeys(),
                 fk => Assert.Equal("Foo", fk["Right"]),
                 fk => Assert.Equal("Bar", fk["Left"]));
             Assert.Equal(3, joinType.FindPrimaryKey()!.Properties.Count);
@@ -759,14 +1001,16 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
                 .UsingEntity<Dictionary<string, object>>(
                     "JoinType",
                     e => e.HasOne<NavDependent>().WithMany().HasForeignKey("DependentId", "PartitionId1", "PartitionId2", "PartitionId3"),
-                    e => e.HasOne<ManyToManyNavPrincipal>().WithMany().HasForeignKey("PrincipalId", "PartitionId1", "PartitionId2", "PartitionId3"),
+                    e => e.HasOne<ManyToManyNavPrincipal>().WithMany().HasForeignKey(
+                        "PrincipalId", "PartitionId1", "PartitionId2", "PartitionId3"),
                     e => e.HasPartitionKey("PartitionId1", "PartitionId2", "PartitionId3"));
 
             var model = modelBuilder.FinalizeModel();
 
             var joinType = model.FindEntityType("JoinType")!;
             Assert.NotNull(joinType);
-            Assert.Collection(joinType.GetForeignKeys(),
+            Assert.Collection(
+                joinType.GetForeignKeys(),
                 fk => Assert.Equal("Foo", fk["Right"]),
                 fk => Assert.Equal("Bar", fk["Left"]));
 
@@ -944,7 +1188,8 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             => new GenericTestModelBuilder(Fixture, configure);
     }
 
-    public class CosmosGenericOwnedTypes(CosmosModelBuilderFixture fixture) : OwnedTypesTestBase(fixture), IClassFixture<CosmosModelBuilderFixture>
+    public class CosmosGenericOwnedTypes(CosmosModelBuilderFixture fixture)
+        : OwnedTypesTestBase(fixture), IClassFixture<CosmosModelBuilderFixture>
     {
         public override void Deriving_from_owned_type_throws()
             // On Cosmos the base type starts as owned
@@ -978,7 +1223,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
 
         public override void Can_configure_owned_type_collection()
             => Assert.Equal(
-                CosmosStrings.IndexesExist(nameof(Order), "foo"),
+                CosmosStrings.IndexesExist(nameof(Order), "CustomerId"),
                 Assert.Throws<InvalidOperationException>(
                     base.Can_configure_owned_type_collection).Message);
 
@@ -990,7 +1235,8 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
 
         public override void Can_configure_chained_ownerships()
             => Assert.Equal(
-                CosmosStrings.IndexesExist("Book.Label#BookLabel.AnotherBookLabel#AnotherBookLabel.SpecialBookLabel#SpecialBookLabel", "BookId"),
+                CosmosStrings.IndexesExist(
+                    "Book.Label#BookLabel.AnotherBookLabel#AnotherBookLabel.SpecialBookLabel#SpecialBookLabel", "BookId"),
                 Assert.Throws<InvalidOperationException>(
                     base.Can_configure_chained_ownerships).Message);
 
@@ -1005,28 +1251,20 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
         {
             var modelBuilder = CreateModelBuilder();
 
-            modelBuilder.Entity<OneToOneOwnerWithField>(
-                e =>
-                {
-                    e.Property(p => p.Id);
-                    e.Property(p => p.AlternateKey);
-                    e.Property(p => p.Description);
-                    e.HasKey(p => p.Id);
-                });
+            modelBuilder.Entity<OwnerOfOwnees>();
 
             var model = modelBuilder.FinalizeModel();
 
-            var owner = model.FindEntityType(typeof(OneToOneOwnerWithField))!;
-            Assert.Equal(typeof(OneToOneOwnerWithField).FullName, owner.Name);
-            var ownership = owner.FindNavigation(nameof(OneToOneOwnerWithField.OwnedDependent))!.ForeignKey;
+            var owner = model.FindEntityType(typeof(OwnerOfOwnees))!;
+            var ownership = owner.FindNavigation(nameof(OwnerOfOwnees.Ownee1))!.ForeignKey;
             Assert.True(ownership.IsOwnership);
-            Assert.Equal(nameof(OneToOneOwnerWithField.OwnedDependent), ownership.PrincipalToDependent!.Name);
-            Assert.Equal(nameof(OneToOneOwnedWithField.OneToOneOwner), ownership.DependentToPrincipal!.Name);
-            Assert.Equal(nameof(OneToOneOwnerWithField.Id), ownership.PrincipalKey.Properties.Single().Name);
+            Assert.Equal(nameof(OwnerOfOwnees.Ownee1), ownership.PrincipalToDependent!.Name);
+            Assert.Equal(nameof(Ownee1.Owner), ownership.DependentToPrincipal!.Name);
+            Assert.Equal(nameof(OwnerOfOwnees.Id), ownership.PrincipalKey.Properties.Single().Name);
             var owned = ownership.DeclaringEntityType;
             Assert.Single(owned.GetForeignKeys());
-            Assert.NotNull(model.FindEntityType(typeof(OneToOneOwnedWithField)));
-            Assert.Equal(1, model.GetEntityTypes().Count(e => e.ClrType == typeof(OneToOneOwnedWithField)));
+            Assert.NotNull(model.FindEntityType(typeof(Ownee1)));
+            Assert.Equal(1, model.GetEntityTypes().Count(e => e.ClrType == typeof(Ownee1)));
         }
 
         protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder>? configure = null)
@@ -1035,7 +1273,9 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
 
     public class CosmosModelBuilderFixture : ModelBuilderFixtureBase
     {
-        public override TestHelpers TestHelpers => CosmosTestHelpers.Instance;
+        public override TestHelpers TestHelpers
+            => CosmosTestHelpers.Instance;
+
         public override bool ForeignKeysHaveIndexes
             => false;
     }

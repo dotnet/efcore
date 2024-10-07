@@ -100,7 +100,7 @@ SELECT [l].[Id], [l].[Tenant]
 FROM [ListFilter] AS [l]
 WHERE [l].[Tenant] IN (
     SELECT [e].[value]
-    FROM OPENJSON(NULL) AS [e]
+    FROM OPENJSON(NULL) WITH ([value] int '$') AS [e]
 )
 """,
             //

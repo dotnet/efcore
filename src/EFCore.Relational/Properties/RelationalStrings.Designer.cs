@@ -196,6 +196,22 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 column);
 
         /// <summary>
+        ///     The entity type '{entityType}' has a container column type configured, but is nested in another owned type. The container column type can only be specified on a top-level owned type mapped to a container.
+        /// </summary>
+        public static string ContainerTypeOnNestedOwnedEntityType(object? entityType)
+            => string.Format(
+                GetString("ContainerTypeOnNestedOwnedEntityType", nameof(entityType)),
+                entityType);
+
+        /// <summary>
+        ///     The entity type '{entityType}' has a container column type configured, but is not mapped to a container column, such as for JSON. The container column type can only be specified on a top-level owned type mapped to a container.
+        /// </summary>
+        public static string ContainerTypeOnNonContainer(object? entityType)
+            => string.Format(
+                GetString("ContainerTypeOnNonContainer", nameof(entityType)),
+                entityType);
+
+        /// <summary>
         ///     {numSortOrderProperties} values were provided in CreateIndexOperations.IsDescending, but the operation has {numColumns} columns.
         /// </summary>
         public static string CreateIndexOperationWithInvalidSortOrder(object? numSortOrderProperties, object? numColumns)
@@ -796,6 +812,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 operation);
 
         /// <summary>
+        ///     ExecuteUpdate or ExecuteDelete was called on entity type '{entityType}', but that entity type is not mapped to a table.
+        /// </summary>
+        public static string ExecuteUpdateDeleteOnEntityNotMappedToTable(object? entityType)
+            => string.Format(
+                GetString("ExecuteUpdateDeleteOnEntityNotMappedToTable", nameof(entityType)),
+                entityType);
+
+        /// <summary>
         ///     ExecuteUpdate is being used over a LINQ operator which isn't natively supported by the database; this cannot be translated because complex type '{complexType}' is projected out. Rewrite your query to project out the containing entity type instead.
         /// </summary>
         public static string ExecuteUpdateSubqueryNotSupportedOverComplexTypes(object? complexType)
@@ -1054,6 +1078,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 jsonEntity, parentEntity, navigation);
 
         /// <summary>
+        ///     The database returned the empty string when a JSON object was expected.
+        /// </summary>
+        public static string JsonEmptyString
+            => GetString("JsonEmptyString");
+
+        /// <summary>
         ///     Entity '{jsonType}' is mapped to JSON and also to a table or view '{tableOrViewName}', but its owner '{ownerType}' is mapped to a different table or view '{ownerTableOrViewName}'. Every entity mapped to JSON must also map to the same table or view as its owner.
         /// </summary>
         public static string JsonEntityMappedToDifferentTableOrViewThanOwner(object? jsonType, object? tableOrViewName, object? ownerType, object? ownerTableOrViewName)
@@ -1118,12 +1148,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 keyProperty, jsonEntity);
 
         /// <summary>
-        ///     Entity type '{jsonEntity}' is part of a collection mapped to JSON and has its ordinal key defined explicitly. Only implicitly defined ordinal keys are supported.
+        ///     The property '{entityType}.{property}' is configured as part of the primary key. Explicitly configured primary keys are not supported on entities stored in JSON collections, and any key configuration should be removed.
         /// </summary>
-        public static string JsonEntityWithExplicitlyConfiguredOrdinalKey(object? jsonEntity)
+        public static string JsonEntityWithExplicitlyConfiguredKey(object? entityType, object? property)
             => string.Format(
-                GetString("JsonEntityWithExplicitlyConfiguredOrdinalKey", nameof(jsonEntity)),
-                jsonEntity);
+                GetString("JsonEntityWithExplicitlyConfiguredKey", nameof(entityType), nameof(property)),
+                entityType, property);
 
         /// <summary>
         ///     Entity type '{jsonEntity}' has an incorrect number of primary key properties. Expected number is: {expectedCount}, actual number is: {actualCount}.
@@ -2232,6 +2262,31 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
     {
         private static readonly ResourceManager _resourceManager
             = new ResourceManager("Microsoft.EntityFrameworkCore.Properties.RelationalStrings", typeof(RelationalResources).Assembly);
+
+        /// <summary>
+        ///     Acquiring an exclusive lock for migration application. See https://aka.ms/efcore-docs-migrations-lock for more information if this takes too long.
+        /// </summary>
+        public static EventDefinition LogAcquiringMigrationLock(IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogAcquiringMigrationLock;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogAcquiringMigrationLock,
+                    logger,
+                    static logger => new EventDefinition(
+                        logger.Options,
+                        RelationalEventId.AcquiringMigrationLock,
+                        LogLevel.Information,
+                        "RelationalEventId.AcquiringMigrationLock",
+                        level => LoggerMessage.Define(
+                            level,
+                            RelationalEventId.AcquiringMigrationLock,
+                            _resourceManager.GetString("LogAcquiringMigrationLock")!)));
+            }
+
+            return (EventDefinition)definition;
+        }
 
         /// <summary>
         ///     An ambient transaction has been detected, but the current provider does not support ambient transactions. See https://go.microsoft.com/fwlink/?LinkId=800142
@@ -3375,6 +3430,31 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             }
 
             return (EventDefinition<string>)definition;
+        }
+
+        /// <summary>
+        ///     A transaction was started before applying migrations. This prevents a database lock to be acquired and hence the database will not be protected from concurrent migration applications. The transactions and execution strategy are already managed by EF as needed. Remove the external transaction.
+        /// </summary>
+        public static EventDefinition LogMigrationsUserTransaction(IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogMigrationsUserTransactionWarning;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogMigrationsUserTransactionWarning,
+                    logger,
+                    static logger => new EventDefinition(
+                        logger.Options,
+                        RelationalEventId.MigrationsUserTransactionWarning,
+                        LogLevel.Warning,
+                        "RelationalEventId.MigrationsUserTransactionWarning",
+                        level => LoggerMessage.Define(
+                            level,
+                            RelationalEventId.MigrationsUserTransactionWarning,
+                            _resourceManager.GetString("LogMigrationsUserTransaction")!)));
+            }
+
+            return (EventDefinition)definition;
         }
 
         /// <summary>

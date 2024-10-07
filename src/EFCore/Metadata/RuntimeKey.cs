@@ -27,9 +27,7 @@ public class RuntimeKey : RuntimeAnnotatableBase, IRuntimeKey
     /// </summary>
     [EntityFrameworkInternal]
     public RuntimeKey(IReadOnlyList<RuntimeProperty> properties)
-    {
-        Properties = properties;
-    }
+        => Properties = properties;
 
     /// <summary>
     ///     Gets the properties that make up the key.

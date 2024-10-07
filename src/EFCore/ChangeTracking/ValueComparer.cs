@@ -51,13 +51,14 @@ public abstract class ValueComparer : IEqualityComparer, IEqualityComparer<objec
     /// </summary>
     [EntityFrameworkInternal]
     public static MethodInfo GetGenericSnapshotMethod(Type type)
-        => _genericSnapshotMethodMap.GetOrAdd(type, t =>
-            typeof(ValueComparer<>).MakeGenericType(t).GetGenericMethod(
-                nameof(ValueComparer<object>.Snapshot),
-                genericParameterCount: 0,
-                BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly,
-                (a, b) => new[] { a[0] },
-                @override: false)!);
+        => _genericSnapshotMethodMap.GetOrAdd(
+            type, t =>
+                typeof(ValueComparer<>).MakeGenericType(t).GetGenericMethod(
+                    nameof(ValueComparer<object>.Snapshot),
+                    genericParameterCount: 0,
+                    BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly,
+                    (a, b) => new[] { a[0] },
+                    @override: false)!);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

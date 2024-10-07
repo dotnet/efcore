@@ -251,9 +251,7 @@ public class ConfigurationPatternsTest(CrossStoreFixture fixture) : IClassFixtur
             }
 
             public BlogContext(IServiceProvider serviceProvider)
-            {
-                _serviceProvider = serviceProvider;
-            }
+                => _serviceProvider = serviceProvider;
 
             // ReSharper disable once UnusedAutoPropertyAccessor.Local
             public DbSet<Blog> Blogs { get; set; }
@@ -279,9 +277,7 @@ public class ConfigurationPatternsTest(CrossStoreFixture fixture) : IClassFixtur
             }
 
             public ExternalProviderContext(IServiceProvider serviceProvider)
-            {
-                _serviceProvider = serviceProvider;
-            }
+                => _serviceProvider = serviceProvider;
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder
@@ -290,23 +286,15 @@ public class ConfigurationPatternsTest(CrossStoreFixture fixture) : IClassFixtur
         }
 
         public async Task InitializeAsync()
-        {
-            ExistingTestStore = await Fixture.CreateTestStoreAsync(SqlServerTestStoreFactory.Instance, StoreName, SeedAsync);
-        }
+            => ExistingTestStore = await Fixture.CreateTestStoreAsync(SqlServerTestStoreFactory.Instance, StoreName, SeedAsync);
 
-        public Task DisposeAsync()
-        {
-            ExistingTestStore.Dispose();
-            return Task.CompletedTask;
-        }
+        public async Task DisposeAsync()
+            => await ExistingTestStore.DisposeAsync();
     }
 
     public async Task InitializeAsync()
         => ExistingTestStore = await Fixture.CreateTestStoreAsync(SqlServerTestStoreFactory.Instance, StoreName, SeedAsync);
 
-    public Task DisposeAsync()
-    {
-        ExistingTestStore.Dispose();
-        return Task.CompletedTask;
-    }
+    public async Task DisposeAsync()
+        => await ExistingTestStore.DisposeAsync();
 }

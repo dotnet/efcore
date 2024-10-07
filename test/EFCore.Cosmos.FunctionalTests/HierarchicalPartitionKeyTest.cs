@@ -275,8 +275,21 @@ OFFSET 0 LIMIT 2
             => modelBuilder.Entity<Customer>(
                 cb =>
                 {
-                    cb.HasPartitionKey(c => new { c.PartitionKey1, c.PartitionKey2, c.PartitionKey3 });
-                    cb.HasKey(c => new { c.Id, c.PartitionKey1, c.PartitionKey2, c.PartitionKey3 });
+                    cb.HasPartitionKey(
+                        c => new
+                        {
+                            c.PartitionKey1,
+                            c.PartitionKey2,
+                            c.PartitionKey3
+                        });
+                    cb.HasKey(
+                        c => new
+                        {
+                            c.Id,
+                            c.PartitionKey1,
+                            c.PartitionKey2,
+                            c.PartitionKey3
+                        });
                 });
     }
 

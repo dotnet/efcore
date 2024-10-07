@@ -23,9 +23,7 @@ public class SqlServerByteArrayMethodTranslator : IMethodCallTranslator
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public SqlServerByteArrayMethodTranslator(ISqlExpressionFactory sqlExpressionFactory)
-    {
-        _sqlExpressionFactory = sqlExpressionFactory;
-    }
+        => _sqlExpressionFactory = sqlExpressionFactory;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -49,15 +47,15 @@ public class SqlServerByteArrayMethodTranslator : IMethodCallTranslator
                 var sourceTypeMapping = source.TypeMapping;
 
                 var value = arguments[1] is SqlConstantExpression constantValue
-                    ? (SqlExpression)_sqlExpressionFactory.Constant(new[] { (byte)constantValue.Value! }, sourceTypeMapping)
+                    ? _sqlExpressionFactory.Constant(new[] { (byte)constantValue.Value! }, sourceTypeMapping)
                     : _sqlExpressionFactory.Convert(arguments[1], typeof(byte[]), sourceTypeMapping);
 
                 return _sqlExpressionFactory.GreaterThan(
                     _sqlExpressionFactory.Function(
                         "CHARINDEX",
-                        new[] { value, source },
+                        [value, source],
                         nullable: true,
-                        argumentsPropagateNullability: new[] { true, true },
+                        argumentsPropagateNullability: [true, true],
                         typeof(int)),
                     _sqlExpressionFactory.Constant(0));
             }
@@ -68,9 +66,9 @@ public class SqlServerByteArrayMethodTranslator : IMethodCallTranslator
                 return _sqlExpressionFactory.Convert(
                     _sqlExpressionFactory.Function(
                         "SUBSTRING",
-                        new[] { arguments[0], _sqlExpressionFactory.Constant(1), _sqlExpressionFactory.Constant(1) },
+                        [arguments[0], _sqlExpressionFactory.Constant(1), _sqlExpressionFactory.Constant(1)],
                         nullable: true,
-                        argumentsPropagateNullability: new[] { true, true, true },
+                        argumentsPropagateNullability: [true, true, true],
                         typeof(byte[])),
                     method.ReturnType);
             }

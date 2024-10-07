@@ -37,9 +37,7 @@ public class DbContextActivatorTest
     private class ThrowingTestContext : DbContext
     {
         public ThrowingTestContext()
-        {
-            throw new Exception("Bang!");
-        }
+            => throw new Exception("Bang!");
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)
             => options

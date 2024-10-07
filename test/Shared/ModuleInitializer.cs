@@ -8,9 +8,7 @@ internal static class ModuleInitializer
 {
     [ModuleInitializer]
     internal static void Initialize()
-    {
-        InitializeLocale();
-    }
+        => InitializeLocale();
 
     private static void InitializeLocale()
     {

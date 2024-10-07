@@ -6,7 +6,8 @@ using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 
 /// <summary>
-///     Identifies Cosmos queries that can be transformed to optimized ReadItem form and performs the transformation.
+///     Identifies Cosmos queries that can be transformed to optimized ReadItem form and performs the transformation; also extracts out
+///     partition key comparisons from the predicate.
 /// </summary>
 /// <remarks>
 ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -23,7 +24,7 @@ public class CosmosReadItemAndPartitionKeysExtractor : ExpressionVisitor
     private bool _discriminatorHandled;
     private string? _discriminatorJsonPropertyName;
     private Dictionary<IProperty, Expression?> _jsonIdPropertyValues = null!;
-    private Dictionary<IProperty, Expression?> _partitionKeyPropertyValues = null!;
+    private Dictionary<IProperty, (Expression? ValueExpression, Expression? OriginalExpression)> _partitionKeyPropertyValues = null!;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -74,51 +75,48 @@ public class CosmosReadItemAndPartitionKeysExtractor : ExpressionVisitor
         _jsonIdPropertyValues = jsonIdProperties.ToDictionary(p => p, _ => (Expression?)null);
 
         var partitionKeyProperties = _entityType.GetPartitionKeyProperties();
-        _partitionKeyPropertyValues = partitionKeyProperties.ToDictionary(p => p, _ => (Expression?)null);
+        _partitionKeyPropertyValues = partitionKeyProperties.ToDictionary(
+            p => p, _ => (ValueExpression: (Expression?)null, (Expression?)null));
+
         _discriminatorJsonPropertyName = _entityType.FindDiscriminatorProperty()?.GetJsonPropertyName();
 
         // Visit the predicate.
-        // This will populate _jsonIdPropertyValues and _partitionKeyPropertyValues with comparisons found in the predicate, and return
-        // a rewritten predicate where the partition key comparisons have been removed.
-        var predicateWithoutPartitionKeyComparisons = (SqlExpression)Visit(predicate);
+        // This will populate _jsonIdPropertyValues and _partitionKeyPropertyValues with comparisons found in the predicate.
+        // It does not modify the predicate (this may happen below if we lift our partition key comparisons).
+        var samePredicate = (SqlExpression)Visit(predicate);
+        Check.DebugAssert(ReferenceEquals(samePredicate, predicate), "Visitation shouldn't have changed the predicate.");
 
         var allIdPropertiesSpecified =
             _jsonIdPropertyValues.Values.All(p => p is not null) && _jsonIdPropertyValues.Count > 0;
-        var allPartitionKeyPropertiesSpecified = _partitionKeyPropertyValues.Values.All(p => p is not null);
 
-        // First, take care of the partition key properties; if the visitation above returned a different predicate, that means that some
-        // partition key comparisons were extracted (and therefore found). Lift these up to the query compilation context and rewrite
-        // the SelectExpression with the new, reduced predicate.
-        // Note that if the user called WithPartitionKey(), we'll have already populated the partition key property values from there, and
-        // we skip lifting the predicate comparisons.
-        if (allPartitionKeyPropertiesSpecified
-            && queryCompilationContext.PartitionKeyPropertyValues.Count == 0)
+        // First, go over the partition key properties and lift them from the predicate to the query compilation context, as possible.
+        // We do this only as long as all partition key values are provided; the moment there's a gap we stop (so if PK1 and PK3 are
+        // provided but not PK2, only PK1 will be lifted out).
+        // Note that if the user called WithPartitionKey(), we'll have already populated the partition key property values from there; for
+        // this case, we skip lifting the predicate comparisons and leave the predicate exactly as it is (it may conflict with the values
+        // given in WithPartitionKey and return zero results - that's the expected behavior).
+        var liftPartitionKeys = queryCompilationContext.PartitionKeyPropertyValues.Count == 0;
+        foreach (var property in partitionKeyProperties)
         {
-            foreach (var partitionKeyProperty in partitionKeyProperties)
+            if (liftPartitionKeys && _partitionKeyPropertyValues[property].ValueExpression is Expression valueExpression)
             {
-                queryCompilationContext.PartitionKeyPropertyValues.Add(_partitionKeyPropertyValues[partitionKeyProperty]!);
+                queryCompilationContext.PartitionKeyPropertyValues.Add(valueExpression);
             }
-
-            select = select.Update(
-                select.Sources.ToList(),
-                predicateWithoutPartitionKeyComparisons is SqlConstantExpression { Value: true }
-                    ? null
-                    : predicateWithoutPartitionKeyComparisons,
-                select.Projection.ToList(),
-                select.Orderings.ToList(),
-                select.Offset,
-                select.Limit);
-
-            shapedQuery = shapedQuery.UpdateQueryExpression(select);
+            else
+            {
+                // We either have a gap in the partition key comparisons in the predicate (so we can't lift later ones), or the user
+                // specified a partition key value via WithPartitionKey. In either case, we need to not lift out comparisons and null out
+                // _partitionKeyPropertyValues, to prevent us removing the comparisons from the predicate below.
+                liftPartitionKeys = false;
+                _partitionKeyPropertyValues[property] = (null, null);
+            }
         }
 
-        // Now, attempt to also transform the query to ReadItem form if possible.
+        // Now, attempt to also transform the query to ReadItem form; this is only possible if all JSON ID properties were compared in the
+        // predicate, and *all* partition key values are specified(in the predicate or via WithPartitionKey)
         if (_isPredicateCompatibleWithReadItem
             && allIdPropertiesSpecified
-            // Note that queryCompilationContext.PartitionKeyPropertyValues may have been populated with WithPartitionKey(), which has
-            // a params object[] argument that gets parameterized as a single array. So the number of property values may not match the
-            // number of partition key properties.
-            && (partitionKeyProperties.Count == 0 || queryCompilationContext.PartitionKeyPropertyValues.Count > 0)
+            && queryCompilationContext.PartitionKeyPropertyValues.Count == partitionKeyProperties.Count
             && select is
             {
                 Offset: null or SqlConstantExpression { Value: 0 },
@@ -130,6 +128,28 @@ public class CosmosReadItemAndPartitionKeysExtractor : ExpressionVisitor
             && projectedStructuralType == _entityType)
         {
             return shapedQuery.UpdateQueryExpression(select.WithReadItemInfo(new ReadItemInfo(_jsonIdPropertyValues!)));
+        }
+
+        // We couldn't transform to ReadItem - some JSON ID or partition key property comparison was missing in the predicate.
+        // However, comparisons might still be there for some (or all) of the partition key properties. These have already been lifted
+        // up to the query compilation context (above), but we still need to remove them from the predicate.
+        if (partitionKeyProperties.Count > 0 && _partitionKeyPropertyValues[partitionKeyProperties[0]].ValueExpression is not null)
+        {
+            var predicateWithoutPartitionKeyComparisons = (SqlExpression)new PredicateComparisonRemover(
+                    _sqlExpressionFactory,
+                    _partitionKeyPropertyValues.Values.Select(p => p.OriginalExpression).OfType<Expression>().ToList())
+                .Visit(predicate);
+            Check.DebugAssert(!ReferenceEquals(predicateWithoutPartitionKeyComparisons, predicate), "Predicate should have changed.");
+
+            select = select.Update(
+                select.Sources.ToList(),
+                predicateWithoutPartitionKeyComparisons,
+                select.Projection.ToList(),
+                select.Orderings.ToList(),
+                select.Offset,
+                select.Limit);
+
+            shapedQuery = shapedQuery.UpdateQueryExpression(select);
         }
 
         return shapedQuery;
@@ -194,6 +214,7 @@ public class CosmosReadItemAndPartitionKeysExtractor : ExpressionVisitor
                 _isPredicateCompatibleWithReadItem = false;
                 return node;
             }
+
             case SqlBinaryExpression { OperatorType: ExpressionType.Equal, Left: var left, Right: var right } binary:
             {
                 // TODO: Handle property accesses into complex types/owned entity types, #25548
@@ -209,7 +230,8 @@ public class CosmosReadItemAndPartitionKeysExtractor : ExpressionVisitor
                 if (scalarAccess?.Object is ObjectReferenceExpression { Name: var referencedSourceAlias }
                     && referencedSourceAlias == _rootAlias)
                 {
-                    return ProcessPropertyComparison(scalarAccess.PropertyName, propertyValue!, binary);
+                    ProcessPropertyComparison(scalarAccess.PropertyName, propertyValue!, binary);
+                    return node;
                 }
 
                 _isPredicateCompatibleWithReadItem = false;
@@ -218,7 +240,8 @@ public class CosmosReadItemAndPartitionKeysExtractor : ExpressionVisitor
 
             // Bool property access (e.g. Where(b => b.BoolPartitionKey))
             case ScalarAccessExpression { PropertyName: var propertyName } scalarAccess:
-                return ProcessPropertyComparison(propertyName, _sqlExpressionFactory.Constant(true), scalarAccess);
+                ProcessPropertyComparison(propertyName, _sqlExpressionFactory.Constant(true), scalarAccess);
+                return node;
 
             // Negated bool property access (e.g. Where(b => !b.BoolPartitionKey))
             case SqlUnaryExpression
@@ -226,15 +249,11 @@ public class CosmosReadItemAndPartitionKeysExtractor : ExpressionVisitor
                 OperatorType: ExpressionType.Not,
                 Operand: ScalarAccessExpression { PropertyName: var propertyName }
             } unary:
-                return ProcessPropertyComparison(propertyName, _sqlExpressionFactory.Constant(false), unary);
+                ProcessPropertyComparison(propertyName, _sqlExpressionFactory.Constant(false), unary);
+                return node;
 
             case SqlBinaryExpression { OperatorType: ExpressionType.AndAlso } binary:
-                return _sqlExpressionFactory.MakeBinary(
-                    ExpressionType.AndAlso,
-                    (SqlExpression)Visit(binary.Left),
-                    (SqlExpression)Visit(binary.Right),
-                    binary.TypeMapping,
-                    binary)!;
+                return binary.Update((SqlExpression)Visit(binary.Left), (SqlExpression)Visit(binary.Right));
 
             default:
                 // Anything else in the predicate, e.g. an OR, immediately disqualifies it from being a ReadItem query, and means we
@@ -243,7 +262,7 @@ public class CosmosReadItemAndPartitionKeysExtractor : ExpressionVisitor
                 return node;
         }
 
-        SqlExpression ProcessPropertyComparison(string propertyName, SqlExpression propertyValue, SqlExpression originalExpression)
+        void ProcessPropertyComparison(string propertyName, SqlExpression propertyValue, SqlExpression originalExpression)
         {
             // We assume that the comparison is incompatible with ReadItem until proven otherwise, i.e. the comparison is for a JSON ID
             // property, a partition key property, or certain cases involving the discriminator property.
@@ -271,6 +290,7 @@ public class CosmosReadItemAndPartitionKeysExtractor : ExpressionVisitor
                             _jsonIdPropertyValues[property] = propertyValue;
                             isCompatibleComparisonForReadItem = true;
                         }
+
                         break;
                     }
                 }
@@ -282,11 +302,11 @@ public class CosmosReadItemAndPartitionKeysExtractor : ExpressionVisitor
                 // Extract its value expression and elide the comparison from the predicate - it'll be lifted out to the Cosmos SDK
                 // call. Note that this is always considered a compatible comparison for ReadItem.
                 if (propertyName == property.GetJsonPropertyName()
-                    && _partitionKeyPropertyValues.TryGetValue(property, out var previousValue)
-                    && (previousValue is null || previousValue.Equals(propertyValue)))
+                    && _partitionKeyPropertyValues.TryGetValue(property, out var previousValues)
+                    && (previousValues.ValueExpression is null || previousValues.Equals(propertyValue)))
                 {
-                    _partitionKeyPropertyValues[property] = propertyValue;
-                    return _sqlExpressionFactory.Constant(true);
+                    _partitionKeyPropertyValues[property] = (ValueExpression: propertyValue, OriginalExpression: originalExpression);
+                    return;
                 }
             }
 
@@ -294,8 +314,29 @@ public class CosmosReadItemAndPartitionKeysExtractor : ExpressionVisitor
             {
                 _isPredicateCompatibleWithReadItem = false;
             }
-
-            return originalExpression;
         }
+    }
+
+    private sealed class PredicateComparisonRemover(ISqlExpressionFactory sqlExpressionFactory, List<Expression> comparisonsToRemove)
+        : ExpressionVisitor
+    {
+        protected override Expression VisitExtension(Expression node)
+            => node switch
+            {
+                _ when comparisonsToRemove.Contains(node)
+                    => sqlExpressionFactory.Constant(true),
+
+                // This elides `AND true` from the predicate.
+                // TODO: We shouldn't need to do this explicitly, see #34556.
+                SqlBinaryExpression { OperatorType: ExpressionType.AndAlso } binary
+                    => sqlExpressionFactory.MakeBinary(
+                        ExpressionType.AndAlso,
+                        (SqlExpression)Visit(binary.Left),
+                        (SqlExpression)Visit(binary.Right),
+                        binary.TypeMapping,
+                        binary)!,
+
+                _ => base.VisitExtension(node)
+            };
     }
 }

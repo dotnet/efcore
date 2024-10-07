@@ -16,6 +16,7 @@ public class JsonQueryContext(DbContextOptions options) : DbContext(options)
     public DbSet<JsonEntityInheritanceBase> JsonEntitiesInheritance { get; set; }
     public DbSet<JsonEntityAllTypes> JsonEntitiesAllTypes { get; set; }
     public DbSet<JsonEntityConverters> JsonEntitiesConverters { get; set; }
+    public DbSet<JsonEntityHasComplexChild> JsonEntitiesHasComplexChild { get; set; }
 
     public static Task SeedAsync(JsonQueryContext context)
     {

@@ -7,7 +7,8 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public class SqliteApiConsistencyTest(SqliteApiConsistencyTest.SqliteApiConsistencyFixture fixture) : ApiConsistencyTestBase<SqliteApiConsistencyTest.SqliteApiConsistencyFixture>(fixture)
+public class SqliteApiConsistencyTest(SqliteApiConsistencyTest.SqliteApiConsistencyFixture fixture)
+    : ApiConsistencyTestBase<SqliteApiConsistencyTest.SqliteApiConsistencyFixture>(fixture)
 {
     protected override void AddServices(ServiceCollection serviceCollection)
         => serviceCollection.AddEntityFrameworkSqlite();
@@ -22,7 +23,9 @@ public class SqliteApiConsistencyTest(SqliteApiConsistencyTest.SqliteApiConsiste
             typeof(SqliteServiceCollectionExtensions),
             typeof(SqliteDbContextOptionsBuilderExtensions),
             typeof(SqliteDbContextOptionsBuilder),
-            typeof(SqlitePropertyBuilderExtensions)
+            typeof(SqlitePropertyBuilderExtensions),
+            typeof(SqliteEntityTypeBuilderExtensions),
+            typeof(SqliteTableBuilderExtensions)
         ];
 
         public override
@@ -31,7 +34,10 @@ public class SqliteApiConsistencyTest(SqliteApiConsistencyTest.SqliteApiConsiste
                 Type MutableExtensions,
                 Type ConventionExtensions,
                 Type ConventionBuilderExtensions,
-                Type RuntimeExtensions)> MetadataExtensionTypes { get; }
+                Type RuntimeExtensions)> MetadataExtensionTypes
+        {
+            get;
+        }
             = new()
             {
                 {
@@ -40,6 +46,15 @@ public class SqliteApiConsistencyTest(SqliteApiConsistencyTest.SqliteApiConsiste
                         typeof(SqlitePropertyExtensions),
                         typeof(SqlitePropertyExtensions),
                         typeof(SqlitePropertyBuilderExtensions),
+                        null
+                    )
+                },
+                {
+                    typeof(IReadOnlyEntityType), (
+                        typeof(SqliteEntityTypeExtensions),
+                        typeof(SqliteEntityTypeExtensions),
+                        typeof(SqliteEntityTypeExtensions),
+                        typeof(SqliteEntityTypeBuilderExtensions),
                         null
                     )
                 }

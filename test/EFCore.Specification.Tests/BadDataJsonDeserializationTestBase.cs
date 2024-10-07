@@ -165,9 +165,9 @@ public abstract class BadDataJsonDeserializationTestBase
     }
 
     protected class SingleTypeDbContext(
-            Action<DbContextOptionsBuilder> buildOptions,
-            Action<ModelBuilder> buildModel,
-            Action<ModelConfigurationBuilder>? configureConventions = null)
+        Action<DbContextOptionsBuilder> buildOptions,
+        Action<ModelBuilder> buildModel,
+        Action<ModelConfigurationBuilder>? configureConventions = null)
         : DbContext
     {
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

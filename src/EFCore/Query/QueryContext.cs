@@ -125,10 +125,10 @@ public abstract class QueryContext : IParameterValues
     /// </summary>
     [EntityFrameworkInternal]
     public virtual InternalEntityEntry? TryGetEntry(
-        IKey key,
-        object[] keyValues,
-        bool throwOnNullKey,
-        out bool hasNullKey)
+            IKey key,
+            object[] keyValues,
+            bool throwOnNullKey,
+            out bool hasNullKey)
         // InitializeStateManager will populate the field before calling here
         => _stateManager!.TryGetEntry(key, keyValues, throwOnNullKey, out hasNullKey);
 

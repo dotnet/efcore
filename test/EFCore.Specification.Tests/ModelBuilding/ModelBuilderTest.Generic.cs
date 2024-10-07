@@ -2,11 +2,13 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 // ReSharper disable InconsistentNaming
+
 namespace Microsoft.EntityFrameworkCore.ModelBuilding;
 
 public abstract partial class ModelBuilderTest
 {
-    public class GenericTestModelBuilder(ModelBuilderFixtureBase fixture, Action<ModelConfigurationBuilder>? configure) : TestModelBuilder(fixture, configure)
+    public class GenericTestModelBuilder(ModelBuilderFixtureBase fixture, Action<ModelConfigurationBuilder>? configure)
+        : TestModelBuilder(fixture, configure)
     {
         public override TestEntityTypeBuilder<TEntity> Entity<TEntity>()
             => new GenericTestEntityTypeBuilder<TEntity>(ModelBuilder.Entity<TEntity>());
@@ -41,7 +43,8 @@ public abstract partial class ModelBuilderTest
         }
     }
 
-    protected class GenericTestEntityTypeBuilder<TEntity>(EntityTypeBuilder<TEntity> entityTypeBuilder) : TestEntityTypeBuilder<TEntity>, IInfrastructure<EntityTypeBuilder<TEntity>>
+    protected class GenericTestEntityTypeBuilder<TEntity>(EntityTypeBuilder<TEntity> entityTypeBuilder)
+        : TestEntityTypeBuilder<TEntity>, IInfrastructure<EntityTypeBuilder<TEntity>>
         where TEntity : class
     {
         protected EntityTypeBuilder<TEntity> EntityTypeBuilder { get; } = entityTypeBuilder;
@@ -454,7 +457,8 @@ public abstract partial class ModelBuilderTest
             => PropertyBuilder;
     }
 
-    protected class GenericTestDiscriminatorBuilder<TDiscriminator>(DiscriminatorBuilder<TDiscriminator> discriminatorBuilder) : TestDiscriminatorBuilder<TDiscriminator>
+    protected class GenericTestDiscriminatorBuilder<TDiscriminator>(DiscriminatorBuilder<TDiscriminator> discriminatorBuilder)
+        : TestDiscriminatorBuilder<TDiscriminator>
     {
         protected DiscriminatorBuilder<TDiscriminator> DiscriminatorBuilder { get; } = discriminatorBuilder;
 
@@ -477,8 +481,9 @@ public abstract partial class ModelBuilderTest
             => Wrap(DiscriminatorBuilder.HasValue(entityTypeName, value));
     }
 
-    protected class GenericTestOwnedEntityTypeBuilder<TEntity>(OwnedEntityTypeBuilder<TEntity> ownedEntityTypeBuilder) : TestOwnedEntityTypeBuilder<TEntity>,
-        IInfrastructure<OwnedEntityTypeBuilder<TEntity>>
+    protected class GenericTestOwnedEntityTypeBuilder<TEntity>(OwnedEntityTypeBuilder<TEntity> ownedEntityTypeBuilder)
+        : TestOwnedEntityTypeBuilder<TEntity>,
+            IInfrastructure<OwnedEntityTypeBuilder<TEntity>>
         where TEntity : class
     {
         protected OwnedEntityTypeBuilder<TEntity> OwnedEntityTypeBuilder { get; } = ownedEntityTypeBuilder;
@@ -487,7 +492,8 @@ public abstract partial class ModelBuilderTest
             => OwnedEntityTypeBuilder;
     }
 
-    protected class GenericTestPropertyBuilder<TProperty>(PropertyBuilder<TProperty> propertyBuilder) : TestPropertyBuilder<TProperty>, IInfrastructure<PropertyBuilder<TProperty>>
+    protected class GenericTestPropertyBuilder<TProperty>(PropertyBuilder<TProperty> propertyBuilder)
+        : TestPropertyBuilder<TProperty>, IInfrastructure<PropertyBuilder<TProperty>>
     {
         protected PropertyBuilder<TProperty> PropertyBuilder { get; } = propertyBuilder;
 
@@ -850,7 +856,8 @@ public abstract partial class ModelBuilderTest
             => PropertyBuilder;
     }
 
-    protected class GenericTestComplexTypePrimitiveCollectionBuilder<TProperty>(ComplexTypePrimitiveCollectionBuilder<TProperty> primitiveCollectionBuilder) :
+    protected class GenericTestComplexTypePrimitiveCollectionBuilder<TProperty>(
+        ComplexTypePrimitiveCollectionBuilder<TProperty> primitiveCollectionBuilder) :
         TestComplexTypePrimitiveCollectionBuilder<TProperty>,
         IInfrastructure<ComplexTypePrimitiveCollectionBuilder<TProperty>>
     {
@@ -921,7 +928,8 @@ public abstract partial class ModelBuilderTest
             => PrimitiveCollectionBuilder;
     }
 
-    protected class GenericTestKeyBuilder<TEntity>(KeyBuilder<TEntity> keyBuilder) : TestKeyBuilder<TEntity>, IInfrastructure<KeyBuilder<TEntity>>
+    protected class GenericTestKeyBuilder<TEntity>(KeyBuilder<TEntity> keyBuilder)
+        : TestKeyBuilder<TEntity>, IInfrastructure<KeyBuilder<TEntity>>
     {
         private KeyBuilder<TEntity> KeyBuilder { get; } = keyBuilder;
 
@@ -935,7 +943,8 @@ public abstract partial class ModelBuilderTest
             => KeyBuilder;
     }
 
-    protected class GenericTestIndexBuilder<TEntity>(IndexBuilder<TEntity> indexBuilder) : TestIndexBuilder<TEntity>, IInfrastructure<IndexBuilder<TEntity>>
+    protected class GenericTestIndexBuilder<TEntity>(IndexBuilder<TEntity> indexBuilder)
+        : TestIndexBuilder<TEntity>, IInfrastructure<IndexBuilder<TEntity>>
     {
         private IndexBuilder<TEntity> IndexBuilder { get; } = indexBuilder;
 
@@ -955,7 +964,8 @@ public abstract partial class ModelBuilderTest
             => IndexBuilder;
     }
 
-    protected class GenericTestNavigationBuilder<TSource, TTarget>(NavigationBuilder<TSource, TTarget> navigationBuilder) : TestNavigationBuilder
+    protected class GenericTestNavigationBuilder<TSource, TTarget>(NavigationBuilder<TSource, TTarget> navigationBuilder)
+        : TestNavigationBuilder
         where TSource : class
         where TTarget : class
     {
@@ -981,7 +991,9 @@ public abstract partial class ModelBuilderTest
     }
 
     protected class
-        GenericTestReferenceNavigationBuilder<TEntity, TRelatedEntity>(ReferenceNavigationBuilder<TEntity, TRelatedEntity> referenceNavigationBuilder) : TestReferenceNavigationBuilder<TEntity, TRelatedEntity>
+        GenericTestReferenceNavigationBuilder<TEntity, TRelatedEntity>(
+            ReferenceNavigationBuilder<TEntity, TRelatedEntity> referenceNavigationBuilder)
+        : TestReferenceNavigationBuilder<TEntity, TRelatedEntity>
         where TEntity : class
         where TRelatedEntity : class
     {
@@ -1006,7 +1018,8 @@ public abstract partial class ModelBuilderTest
                 ReferenceNavigationBuilder.WithOne(navigationExpression));
     }
 
-    protected class GenericTestCollectionNavigationBuilder<TEntity, TRelatedEntity>(CollectionNavigationBuilder<TEntity, TRelatedEntity> collectionNavigationBuilder) :
+    protected class GenericTestCollectionNavigationBuilder<TEntity, TRelatedEntity>(
+        CollectionNavigationBuilder<TEntity, TRelatedEntity> collectionNavigationBuilder) :
         TestCollectionNavigationBuilder<TEntity, TRelatedEntity>
         where TEntity : class
         where TRelatedEntity : class
@@ -1033,7 +1046,8 @@ public abstract partial class ModelBuilderTest
                 CollectionNavigationBuilder.WithMany(navigationExpression));
     }
 
-    protected class GenericTestReferenceCollectionBuilder<TEntity, TRelatedEntity>(ReferenceCollectionBuilder<TEntity, TRelatedEntity> referenceCollectionBuilder)
+    protected class GenericTestReferenceCollectionBuilder<TEntity, TRelatedEntity>(
+        ReferenceCollectionBuilder<TEntity, TRelatedEntity> referenceCollectionBuilder)
         : TestReferenceCollectionBuilder<TEntity, TRelatedEntity>
         where TEntity : class
         where TRelatedEntity : class
@@ -1071,7 +1085,8 @@ public abstract partial class ModelBuilderTest
             => Wrap(ReferenceCollectionBuilder.OnDelete(deleteBehavior));
     }
 
-    protected class GenericTestReferenceReferenceBuilder<TEntity, TRelatedEntity>(ReferenceReferenceBuilder<TEntity, TRelatedEntity> referenceReferenceBuilder) :
+    protected class GenericTestReferenceReferenceBuilder<TEntity, TRelatedEntity>(
+        ReferenceReferenceBuilder<TEntity, TRelatedEntity> referenceReferenceBuilder) :
         TestReferenceReferenceBuilder<TEntity, TRelatedEntity>
         where TEntity : class
         where TRelatedEntity : class
@@ -1336,7 +1351,8 @@ public abstract partial class ModelBuilderTest
             => OwnershipBuilder;
     }
 
-    protected class GenericTestOwnedNavigationBuilder<TEntity, TDependentEntity>(OwnedNavigationBuilder<TEntity, TDependentEntity> ownedNavigationBuilder)
+    protected class GenericTestOwnedNavigationBuilder<TEntity, TDependentEntity>(
+        OwnedNavigationBuilder<TEntity, TDependentEntity> ownedNavigationBuilder)
         : TestOwnedNavigationBuilder<TEntity, TDependentEntity>,
             IInfrastructure<OwnedNavigationBuilder<TEntity, TDependentEntity>>
         where TEntity : class
@@ -1407,8 +1423,16 @@ public abstract partial class ModelBuilderTest
         public override TestIndexBuilder<TDependentEntity> HasIndex(params string[] propertyNames)
             => new GenericTestIndexBuilder<TDependentEntity>(OwnedNavigationBuilder.HasIndex(propertyNames));
 
+        public override TestIndexBuilder<TDependentEntity> HasIndex(string[] propertyNames, string name)
+            => new GenericTestIndexBuilder<TDependentEntity>(OwnedNavigationBuilder.HasIndex(propertyNames, name));
+
         public override TestIndexBuilder<TDependentEntity> HasIndex(Expression<Func<TDependentEntity, object?>> indexExpression)
             => new GenericTestIndexBuilder<TDependentEntity>(OwnedNavigationBuilder.HasIndex(indexExpression));
+
+        public override TestIndexBuilder<TDependentEntity> HasIndex(
+            Expression<Func<TDependentEntity, object?>> indexExpression,
+            string name)
+            => new GenericTestIndexBuilder<TDependentEntity>(OwnedNavigationBuilder.HasIndex(indexExpression, name));
 
         public override TestOwnershipBuilder<TEntity, TDependentEntity> WithOwner(string? ownerReference)
             => new GenericTestOwnershipBuilder<TEntity, TDependentEntity>(

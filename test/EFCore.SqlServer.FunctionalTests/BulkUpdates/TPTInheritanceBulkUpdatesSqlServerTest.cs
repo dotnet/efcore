@@ -9,9 +9,7 @@ public class TPTInheritanceBulkUpdatesSqlServerTest : TPTInheritanceBulkUpdatesT
 {
     public TPTInheritanceBulkUpdatesSqlServerTest(TPTInheritanceBulkUpdatesSqlServerFixture fixture, ITestOutputHelper testOutputHelper)
         : base(fixture, testOutputHelper)
-    {
-        ClearLog();
-    }
+        => ClearLog();
 
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()

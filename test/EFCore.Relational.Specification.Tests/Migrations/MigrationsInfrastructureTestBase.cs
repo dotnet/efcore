@@ -3,8 +3,6 @@
 
 // ReSharper disable InconsistentNaming
 
-using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
-
 namespace Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -19,6 +17,7 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
         Fixture = fixture;
         Fixture.TestStore.CloseConnection();
         Fixture.TestSqlLoggerFactory.Clear();
+        Fixture.ResetCounts();
     }
 
     protected string Sql { get; private set; }
@@ -71,12 +70,9 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
 
         GiveMeSomeTime(db);
 
-        MigrationsInfrastructureFixtureBase.MigratorPlugin.ResetCounts();
-        db.Database.Migrate((c, d) =>
-        {
-            c.Add(new MigrationsInfrastructureFixtureBase.Foo { Id = 1, Bar = 10, Description = "Test" });
-            c.SaveChanges();
-        });
+        Assert.Equal(0, Fixture.SeedCallCount);
+
+        db.Database.Migrate();
 
         var history = db.GetService<IHistoryRepository>();
         Assert.Collection(
@@ -89,12 +85,8 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
             x => Assert.Equal("00000000000006_Migration6", x.MigrationId),
             x => Assert.Equal("00000000000007_Migration7", x.MigrationId));
 
-        Assert.NotNull(db.Find<MigrationsInfrastructureFixtureBase.Foo>(1));
-
-        Assert.Equal(1, MigrationsInfrastructureFixtureBase.MigratorPlugin.MigratingCallCount);
-        Assert.Equal(1, MigrationsInfrastructureFixtureBase.MigratorPlugin.MigratedCallCount);
-        Assert.Equal(0, MigrationsInfrastructureFixtureBase.MigratorPlugin.MigratingAsyncCallCount);
-        Assert.Equal(0, MigrationsInfrastructureFixtureBase.MigratorPlugin.MigratedAsyncCallCount);
+        Assert.Equal(1, Fixture.SeedCallCount);
+        Assert.Equal(0, Fixture.SeedAsyncCallCount);
     }
 
     [ConditionalFact]
@@ -105,12 +97,9 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
 
         await GiveMeSomeTimeAsync(db);
 
-        MigrationsInfrastructureFixtureBase.MigratorPlugin.ResetCounts();
-        await db.Database.MigrateAsync(async (c, d, ct) =>
-        {
-            c.Add(new MigrationsInfrastructureFixtureBase.Foo { Id = 1, Bar = 10, Description = "Test" });
-            await c.SaveChangesAsync(ct);
-        });
+        Assert.Equal(0, Fixture.SeedAsyncCallCount);
+
+        await db.Database.MigrateAsync();
 
         var history = db.GetService<IHistoryRepository>();
         Assert.Collection(
@@ -123,12 +112,8 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
             x => Assert.Equal("00000000000006_Migration6", x.MigrationId),
             x => Assert.Equal("00000000000007_Migration7", x.MigrationId));
 
-        Assert.NotNull(await db.FindAsync<MigrationsInfrastructureFixtureBase.Foo>(1));
-
-        Assert.Equal(0, MigrationsInfrastructureFixtureBase.MigratorPlugin.MigratingCallCount);
-        Assert.Equal(0, MigrationsInfrastructureFixtureBase.MigratorPlugin.MigratedCallCount);
-        Assert.Equal(1, MigrationsInfrastructureFixtureBase.MigratorPlugin.MigratingAsyncCallCount);
-        Assert.Equal(1, MigrationsInfrastructureFixtureBase.MigratorPlugin.MigratedAsyncCallCount);
+        Assert.Equal(0, Fixture.SeedCallCount);
+        Assert.Equal(1, Fixture.SeedAsyncCallCount);
     }
 
     [ConditionalFact]
@@ -139,7 +124,7 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
 
         GiveMeSomeTime(db);
 
-        db.Database.Migrate(null, "Migration6");
+        db.Database.Migrate("Migration6");
 
         var history = db.GetService<IHistoryRepository>();
         Assert.Collection(
@@ -161,14 +146,15 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
         GiveMeSomeTime(db);
 
         var migrator = db.GetService<IMigrator>();
-        migrator.Migrate(targetMigration: "Migration1");
+        migrator.Migrate("Migration1");
 
         var history = db.GetService<IHistoryRepository>();
         Assert.Collection(
             history.GetAppliedMigrations(),
             x => Assert.Equal("00000000000001_Migration1", x.MigrationId));
 
-        Assert.Equal(LogLevel.Error,
+        Assert.Equal(
+            LogLevel.Error,
             Fixture.TestSqlLoggerFactory.Log.Single(l => l.Id == RelationalEventId.PendingModelChangesWarning).Level);
     }
 
@@ -181,8 +167,8 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
         GiveMeSomeTime(db);
 
         var migrator = db.GetService<IMigrator>();
-        migrator.Migrate(targetMigration: "Migration5");
-        migrator.Migrate(targetMigration: Migration.InitialDatabase);
+        migrator.Migrate("Migration5");
+        migrator.Migrate(Migration.InitialDatabase);
 
         var history = db.GetService<IHistoryRepository>();
         Assert.Empty(history.GetAppliedMigrations());
@@ -197,8 +183,8 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
         GiveMeSomeTime(db);
 
         var migrator = db.GetService<IMigrator>();
-        migrator.Migrate(targetMigration: "Migration5");
-        migrator.Migrate(targetMigration: "Migration4");
+        migrator.Migrate("Migration5");
+        migrator.Migrate("Migration4");
 
         var history = db.GetService<IHistoryRepository>();
         Assert.Collection(
@@ -217,12 +203,13 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
         GiveMeSomeTime(db);
         db.GetService<IRelationalDatabaseCreator>().Create();
 
-        Parallel.For(0, Environment.ProcessorCount, i =>
-        {
-            using var context = Fixture.CreateContext();
-            var migrator = context.GetService<IMigrator>();
-            migrator.Migrate(targetMigration: "Migration1");
-        });
+        Parallel.For(
+            0, Environment.ProcessorCount, i =>
+            {
+                using var context = Fixture.CreateContext();
+                var migrator = context.GetService<IMigrator>();
+                migrator.Migrate("Migration1");
+            });
 
         var history = db.GetService<IHistoryRepository>();
         Assert.Collection(
@@ -238,12 +225,13 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
         await GiveMeSomeTimeAsync(db);
         await db.GetService<IRelationalDatabaseCreator>().CreateAsync();
 
-        await Parallel.ForAsync(0, Environment.ProcessorCount, async (i, _) =>
-        {
-            using var context = Fixture.CreateContext();
-            var migrator = context.GetService<IMigrator>();
-            await migrator.MigrateAsync(targetMigration: "Migration1");
-        });
+        await Parallel.ForAsync(
+            0, Environment.ProcessorCount, async (i, _) =>
+            {
+                using var context = Fixture.CreateContext();
+                var migrator = context.GetService<IMigrator>();
+                await migrator.MigrateAsync("Migration1");
+            });
 
         var history = db.GetService<IHistoryRepository>();
         Assert.Collection(
@@ -257,14 +245,15 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
         using var db = Fixture.CreateContext();
         db.Database.EnsureDeleted();
         GiveMeSomeTime(db);
-        db.GetService<IMigrator>().Migrate(targetMigration: "Migration1");
+        db.GetService<IMigrator>().Migrate("Migration1");
 
-        Parallel.For(0, Environment.ProcessorCount, i =>
-        {
-            using var context = Fixture.CreateContext();
-            var migrator = context.GetService<IMigrator>();
-            migrator.Migrate(targetMigration: "Migration2");
-        });
+        Parallel.For(
+            0, Environment.ProcessorCount, i =>
+            {
+                using var context = Fixture.CreateContext();
+                var migrator = context.GetService<IMigrator>();
+                migrator.Migrate("Migration2");
+            });
 
         var history = db.GetService<IHistoryRepository>();
         Assert.Collection(
@@ -279,14 +268,15 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
         using var db = Fixture.CreateContext();
         await db.Database.EnsureDeletedAsync();
         await GiveMeSomeTimeAsync(db);
-        await db.GetService<IMigrator>().MigrateAsync(targetMigration: "Migration1");
+        await db.GetService<IMigrator>().MigrateAsync("Migration1");
 
-        await Parallel.ForAsync(0, Environment.ProcessorCount, async (i, _) =>
-        {
-            using var context = Fixture.CreateContext();
-            var migrator = context.GetService<IMigrator>();
-            await migrator.MigrateAsync(targetMigration: "Migration2");
-        });
+        await Parallel.ForAsync(
+            0, Environment.ProcessorCount, async (i, _) =>
+            {
+                using var context = Fixture.CreateContext();
+                var migrator = context.GetService<IMigrator>();
+                await migrator.MigrateAsync("Migration2");
+            });
 
         var history = db.GetService<IHistoryRepository>();
         Assert.Collection(
@@ -456,7 +446,7 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
         Assert.Equal(0, operations.Count);
     }
 
-    private void SetSql(string value)
+    protected void SetSql(string value)
         => Sql = value.Replace(ProductInfo.GetVersion(), "7.0.0-test");
 }
 
@@ -468,11 +458,19 @@ public abstract class MigrationsInfrastructureFixtureBase
     public new RelationalTestStore TestStore
         => (RelationalTestStore)base.TestStore;
 
+    public int SeedCallCount { get; private set; }
+    public int SeedAsyncCallCount { get; private set; }
+
+    public void ResetCounts()
+    {
+        SeedCallCount = 0;
+        SeedAsyncCallCount = 0;
+    }
+
     protected override IServiceCollection AddServices(IServiceCollection serviceCollection)
     {
         TestStore.UseConnectionString = true;
-        return base.AddServices(serviceCollection)
-            .AddSingleton<IMigratorPlugin, MigratorPlugin>();
+        return base.AddServices(serviceCollection);
     }
 
     protected override string StoreName
@@ -499,15 +497,26 @@ public abstract class MigrationsInfrastructureFixtureBase
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
-    {
-        modelBuilder.Entity<Foo>(b => b.ToTable("Table1"));
-    }
+        => modelBuilder.Entity<Foo>(b => b.ToTable("Table1"));
 
     public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-        => base.AddOptions(builder).ConfigureWarnings(e => e
-            .Log(RelationalEventId.PendingModelChangesWarning)
-            .Log(RelationalEventId.NonTransactionalMigrationOperationWarning)
-        );
+        => base.AddOptions(builder)
+            .UseSeeding(
+                (context, migrated) =>
+                {
+                    SeedCallCount++;
+                })
+            .UseAsyncSeeding(
+                (context, migrated, token) =>
+                {
+                    SeedAsyncCallCount++;
+                    return Task.CompletedTask;
+                })
+            .ConfigureWarnings(
+                e => e
+                    .Log(RelationalEventId.PendingModelChangesWarning)
+                    .Log(RelationalEventId.NonTransactionalMigrationOperationWarning)
+            );
 
     protected override bool ShouldLogCategory(string logCategory)
         => logCategory == DbLoggerCategory.Migrations.Name;
@@ -517,42 +526,6 @@ public abstract class MigrationsInfrastructureFixtureBase
         public int Id { get; set; }
         public int Bar { get; set; }
         public string Description { get; set; }
-    }
-
-    public class MigratorPlugin : IMigratorPlugin
-    {
-        public static int MigratedCallCount { get; private set; }
-        public static int MigratedAsyncCallCount { get; private set; }
-        public static int MigratingCallCount { get; private set; }
-        public static int MigratingAsyncCallCount { get; private set; }
-
-        public static void ResetCounts()
-        {
-            MigratedCallCount = 0;
-            MigratedAsyncCallCount = 0;
-            MigratingCallCount = 0;
-            MigratingAsyncCallCount = 0;
-        }
-
-        public void Migrated(DbContext context, IMigratorData data)
-        {
-            MigratedCallCount++;
-        }
-
-        public Task MigratedAsync(DbContext context, IMigratorData data, CancellationToken cancellationToken)
-        {
-            MigratedAsyncCallCount++;
-            return Task.CompletedTask;
-        }
-
-        public void Migrating(DbContext context, IMigratorData data)
-            => MigratingCallCount++;
-
-        public Task MigratingAsync(DbContext context, IMigratorData data, CancellationToken cancellationToken = default)
-        {
-            MigratingAsyncCallCount++;
-            return Task.CompletedTask;
-        }
     }
 
     [DbContext(typeof(MigrationsContext))]
@@ -566,7 +539,12 @@ public abstract class MigrationsInfrastructureFixtureBase
             migrationBuilder
                 .CreateTable(
                     name: "Table1",
-                    columns: x => new { Id = x.Column<int>(), Foo = x.Column<int>(), Description = x.Column<string>() })
+                    columns: x => new
+                    {
+                        Id = x.Column<int>(),
+                        Foo = x.Column<int>(),
+                        Description = x.Column<string>()
+                    })
                 .PrimaryKey(
                     name: "PK_Table1",
                     columns: x => x.Id);
@@ -619,7 +597,8 @@ public abstract class MigrationsInfrastructureFixtureBase
         {
             if (ActiveProvider == "Microsoft.EntityFrameworkCore.SqlServer")
             {
-                migrationBuilder.Sql("""
+                migrationBuilder.Sql(
+                    """
                 CREATE PROCEDURE [dbo].[GotoReproduction]
                 AS
                 BEGIN
@@ -660,13 +639,10 @@ public abstract class MigrationsInfrastructureFixtureBase
             """;
 
         protected override void Up(MigrationBuilder migrationBuilder)
-        {
-            migrationBuilder.Sql($"INSERT INTO Table1 (Id, Bar, Description) VALUES (-1, 3, '{TestValue}')");
-        }
+            => migrationBuilder.Sql($"INSERT INTO Table1 (Id, Bar, Description) VALUES (-1, 3, '{TestValue}')");
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-
         }
     }
 
@@ -682,13 +658,10 @@ public abstract class MigrationsInfrastructureFixtureBase
             """;
 
         protected override void Up(MigrationBuilder migrationBuilder)
-        {
-            migrationBuilder.Sql($"INSERT INTO Table1 (Id, Bar, Description) VALUES (-2, 4, '{TestValue}')");
-        }
+            => migrationBuilder.Sql($"INSERT INTO Table1 (Id, Bar, Description) VALUES (-2, 4, '{TestValue}')");
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-
         }
     }
 
@@ -707,13 +680,10 @@ public abstract class MigrationsInfrastructureFixtureBase
             """;
 
         protected override void Up(MigrationBuilder migrationBuilder)
-        {
-            migrationBuilder.Sql($"INSERT INTO Table1 (Id, Bar, Description) VALUES (-3, 5, '{TestValue}')");
-        }
+            => migrationBuilder.Sql($"INSERT INTO Table1 (Id, Bar, Description) VALUES (-3, 5, '{TestValue}')");
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-
         }
     }
 }

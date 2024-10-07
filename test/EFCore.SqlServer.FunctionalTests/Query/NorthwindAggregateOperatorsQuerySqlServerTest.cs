@@ -1888,7 +1888,7 @@ WHERE [c].[CustomerID] IN (
 )
 """,
             //
-"""
+            """
 @__ids_0='["ABCDE"]' (Size = 4000)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -1970,7 +1970,7 @@ WHERE [c].[CustomerID] IN (
 )
 """,
             //
-"""
+            """
 @__ids_0='["ABCDE"]' (Size = 4000)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -2044,7 +2044,7 @@ WHERE [c].[CustomerID] IN (
 )
 """,
             //
-"""
+            """
 @__Order_0='["ABCDE","ANATR"]' (Size = 4000)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -2071,8 +2071,8 @@ WHERE [c].[CustomerID] IN (
     FROM OPENJSON(@__ids_0) WITH ([value] nchar(5) '$') AS [i]
 )
 """,
-                //
-                """
+            //
+            """
 @__ids_0='["ABCDE"]' (Size = 4000)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -2145,8 +2145,8 @@ WHERE [c].[CustomerID] IN (
     FROM OPENJSON(@__AsReadOnly_0) WITH ([value] nchar(5) '$') AS [a]
 )
 """,
-        //
-        """
+            //
+            """
 @__AsReadOnly_0='["ABCDE","ANATR"]' (Size = 4000)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -3169,38 +3169,38 @@ OUTER APPLY (
         await base.Return_type_of_singular_operator_is_preserved(async);
 
         AssertSql(
-"""
+            """
 SELECT TOP(1) [c].[CustomerID], [c].[City]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] = N'ALFKI'
 """,
-                //
-                """
+            //
+            """
 SELECT TOP(1) [c].[CustomerID], [c].[City]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] = N'ALFKI'
 """,
-                //
-                """
+            //
+            """
 SELECT TOP(2) [c].[CustomerID], [c].[City]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] = N'ALFKI'
 """,
-                //
-                """
+            //
+            """
 SELECT TOP(2) [c].[CustomerID], [c].[City]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] = N'ALFKI'
 """,
-                //
-                """
+            //
+            """
 SELECT TOP(1) [c].[CustomerID], [c].[City]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'A%'
 ORDER BY [c].[CustomerID] DESC
 """,
-                //
-                """
+            //
+            """
 SELECT TOP(1) [c].[CustomerID], [c].[City]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'A%'
@@ -3213,7 +3213,7 @@ ORDER BY [c].[CustomerID] DESC
         await base.Type_casting_inside_sum(async);
 
         AssertSql(
-"""
+            """
 SELECT COALESCE(SUM(CAST([o].[Discount] AS decimal(18,2))), 0.0)
 FROM [Order Details] AS [o]
 """);

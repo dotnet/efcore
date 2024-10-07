@@ -54,7 +54,8 @@ public abstract class FilteredQueryTestBase<TFixture>(TFixture fixture) : QueryT
         bool assertEmpty = false,
         [CallerMemberName] string testMethodName = null)
         where TResult : struct
-        => QueryAsserter.AssertQueryScalar(actualQuery, expectedQuery, asserter, assertOrder, assertEmpty, async, testMethodName, filteredQuery: true);
+        => QueryAsserter.AssertQueryScalar(
+            actualQuery, expectedQuery, asserter, assertOrder, assertEmpty, async, testMethodName, filteredQuery: true);
 
     protected Task AssertFilteredCount<TResult>(
         bool async,

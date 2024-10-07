@@ -84,7 +84,7 @@ public class SqlServerAggregateOverSubqueryPostprocessor(SqlAliasManager sqlAlia
                 var parentAggregateArgumentContainsSubquery = _aggregateArgumentContainsSubquery;
                 _inAggregateInvocation = true;
                 _isCorrelatedSubquery = false;
-                _tableAliasesInScope = new();
+                _tableAliasesInScope = new HashSet<string>();
                 _aggregateArgumentContainsSubquery = false;
 
                 var result = base.VisitExtension(function);
@@ -151,7 +151,7 @@ public class SqlServerAggregateOverSubqueryPostprocessor(SqlAliasManager sqlAlia
 #pragma warning restore EF1001
                     }
 
-                    _joinsToAdd ??= new();
+                    _joinsToAdd ??= new List<JoinExpressionBase>();
                     _joinsToAdd.Add(
                         _isCorrelatedSubquery ? new OuterApplyExpression(liftedSubquery) : new CrossJoinExpression(liftedSubquery));
 

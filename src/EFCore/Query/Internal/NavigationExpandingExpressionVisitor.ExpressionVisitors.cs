@@ -183,9 +183,7 @@ public partial class NavigationExpandingExpressionVisitor
             bool derivedTypeConversion)
         {
             var inverseNavigation = navigation.Inverse;
-            var includeTree = entityReference.IncludePaths.TryGetValue(navigation, out var tree)
-                ? tree
-                : null;
+            var includeTree = entityReference.IncludePaths.GetValueOrDefault(navigation);
 
             var primaryExpansion = ExpandForeignKey(
                 root,
@@ -498,8 +496,11 @@ public partial class NavigationExpandingExpressionVisitor
 
         private readonly bool _queryStateManager = navigationExpandingExpressionVisitor._queryCompilationContext.QueryTrackingBehavior is
             QueryTrackingBehavior.TrackAll or QueryTrackingBehavior.NoTrackingWithIdentityResolution;
+
         private readonly bool _ignoreAutoIncludes = navigationExpandingExpressionVisitor._queryCompilationContext.IgnoreAutoIncludes;
-        private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger = navigationExpandingExpressionVisitor._queryCompilationContext.Logger;
+
+        private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger = navigationExpandingExpressionVisitor._queryCompilationContext
+            .Logger;
 
         protected override Expression VisitBinary(BinaryExpression binaryExpression)
         {

@@ -5958,8 +5958,8 @@ namespace TestNamespace
                     bool (bool v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "INTEGER"));
-            nullableBool.SetValueComparer(new NullableValueComparer<bool>(nullableBool.TypeMapping.Comparer));
-            nullableBool.SetKeyValueComparer(new NullableValueComparer<bool>(nullableBool.TypeMapping.KeyComparer));
+            nullableBool.SetComparer(new NullableValueComparer<bool>(nullableBool.TypeMapping.Comparer));
+            nullableBool.SetKeyComparer(new NullableValueComparer<bool>(nullableBool.TypeMapping.KeyComparer));
 
             var nullableBoolArray = runtimeEntityType.AddProperty(
                 "NullableBoolArray",
@@ -6160,8 +6160,8 @@ namespace TestNamespace
                     char (char v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "TEXT"));
-            nullableChar.SetValueComparer(new NullableValueComparer<char>(nullableChar.TypeMapping.Comparer));
-            nullableChar.SetKeyValueComparer(new NullableValueComparer<char>(nullableChar.TypeMapping.KeyComparer));
+            nullableChar.SetComparer(new NullableValueComparer<char>(nullableChar.TypeMapping.Comparer));
+            nullableChar.SetKeyComparer(new NullableValueComparer<char>(nullableChar.TypeMapping.KeyComparer));
 
             var nullableCharArray = runtimeEntityType.AddProperty(
                 "NullableCharArray",
@@ -6250,8 +6250,8 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableDateOnly.TypeMapping = SqliteDateOnlyTypeMapping.Default;
-            nullableDateOnly.SetValueComparer(new NullableValueComparer<DateOnly>(nullableDateOnly.TypeMapping.Comparer));
-            nullableDateOnly.SetKeyValueComparer(new NullableValueComparer<DateOnly>(nullableDateOnly.TypeMapping.KeyComparer));
+            nullableDateOnly.SetComparer(new NullableValueComparer<DateOnly>(nullableDateOnly.TypeMapping.Comparer));
+            nullableDateOnly.SetKeyComparer(new NullableValueComparer<DateOnly>(nullableDateOnly.TypeMapping.KeyComparer));
 
             var nullableDateOnlyArray = runtimeEntityType.AddProperty(
                 "NullableDateOnlyArray",
@@ -6326,8 +6326,8 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableDateTime.TypeMapping = SqliteDateTimeTypeMapping.Default;
-            nullableDateTime.SetValueComparer(new NullableValueComparer<DateTime>(nullableDateTime.TypeMapping.Comparer));
-            nullableDateTime.SetKeyValueComparer(new NullableValueComparer<DateTime>(nullableDateTime.TypeMapping.KeyComparer));
+            nullableDateTime.SetComparer(new NullableValueComparer<DateTime>(nullableDateTime.TypeMapping.Comparer));
+            nullableDateTime.SetKeyComparer(new NullableValueComparer<DateTime>(nullableDateTime.TypeMapping.KeyComparer));
 
             var nullableDateTimeArray = runtimeEntityType.AddProperty(
                 "NullableDateTimeArray",
@@ -6402,8 +6402,8 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableDecimal.TypeMapping = SqliteDecimalTypeMapping.Default;
-            nullableDecimal.SetValueComparer(new NullableValueComparer<decimal>(nullableDecimal.TypeMapping.Comparer));
-            nullableDecimal.SetKeyValueComparer(new NullableValueComparer<decimal>(nullableDecimal.TypeMapping.KeyComparer));
+            nullableDecimal.SetComparer(new NullableValueComparer<decimal>(nullableDecimal.TypeMapping.Comparer));
+            nullableDecimal.SetKeyComparer(new NullableValueComparer<decimal>(nullableDecimal.TypeMapping.KeyComparer));
 
             var nullableDecimalArray = runtimeEntityType.AddProperty(
                 "NullableDecimalArray",
@@ -6492,8 +6492,8 @@ namespace TestNamespace
                     double (double v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "REAL"));
-            nullableDouble.SetValueComparer(new NullableValueComparer<double>(nullableDouble.TypeMapping.Comparer));
-            nullableDouble.SetKeyValueComparer(new NullableValueComparer<double>(nullableDouble.TypeMapping.KeyComparer));
+            nullableDouble.SetComparer(new NullableValueComparer<double>(nullableDouble.TypeMapping.Comparer));
+            nullableDouble.SetKeyComparer(new NullableValueComparer<double>(nullableDouble.TypeMapping.KeyComparer));
 
             var nullableDoubleArray = runtimeEntityType.AddProperty(
                 "NullableDoubleArray",
@@ -6604,8 +6604,8 @@ namespace TestNamespace
                     new ValueConverter<CompiledModelTestBase.Enum16, short>(
                         short (CompiledModelTestBase.Enum16 value) => ((short)(value)),
                         CompiledModelTestBase.Enum16 (short value) => ((CompiledModelTestBase.Enum16)(value)))));
-            nullableEnum16.SetValueComparer(new NullableValueComparer<CompiledModelTestBase.Enum16>(nullableEnum16.TypeMapping.Comparer));
-            nullableEnum16.SetKeyValueComparer(new NullableValueComparer<CompiledModelTestBase.Enum16>(nullableEnum16.TypeMapping.KeyComparer));
+            nullableEnum16.SetComparer(new NullableValueComparer<CompiledModelTestBase.Enum16>(nullableEnum16.TypeMapping.Comparer));
+            nullableEnum16.SetKeyComparer(new NullableValueComparer<CompiledModelTestBase.Enum16>(nullableEnum16.TypeMapping.KeyComparer));
 
             var nullableEnum16Array = runtimeEntityType.AddProperty(
                 "NullableEnum16Array",
@@ -6732,8 +6732,8 @@ namespace TestNamespace
                     new ValueConverter<CompiledModelTestBase.Enum16, short>(
                         short (CompiledModelTestBase.Enum16 value) => ((short)(value)),
                         CompiledModelTestBase.Enum16 (short value) => ((CompiledModelTestBase.Enum16)(value)))));
-            nullableEnum16AsString.SetValueComparer(new NullableValueComparer<CompiledModelTestBase.Enum16>(nullableEnum16AsString.TypeMapping.Comparer));
-            nullableEnum16AsString.SetKeyValueComparer(new NullableValueComparer<CompiledModelTestBase.Enum16>(nullableEnum16AsString.TypeMapping.KeyComparer));
+            nullableEnum16AsString.SetComparer(new NullableValueComparer<CompiledModelTestBase.Enum16>(nullableEnum16AsString.TypeMapping.Comparer));
+            nullableEnum16AsString.SetKeyComparer(new NullableValueComparer<CompiledModelTestBase.Enum16>(nullableEnum16AsString.TypeMapping.KeyComparer));
 
             var nullableEnum16AsStringArray = runtimeEntityType.AddProperty(
                 "NullableEnum16AsStringArray",
@@ -7010,8 +7010,8 @@ namespace TestNamespace
                     new ValueConverter<CompiledModelTestBase.Enum32, int>(
                         int (CompiledModelTestBase.Enum32 value) => ((int)(value)),
                         CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)(value)))));
-            nullableEnum32.SetValueComparer(new NullableValueComparer<CompiledModelTestBase.Enum32>(nullableEnum32.TypeMapping.Comparer));
-            nullableEnum32.SetKeyValueComparer(new NullableValueComparer<CompiledModelTestBase.Enum32>(nullableEnum32.TypeMapping.KeyComparer));
+            nullableEnum32.SetComparer(new NullableValueComparer<CompiledModelTestBase.Enum32>(nullableEnum32.TypeMapping.Comparer));
+            nullableEnum32.SetKeyComparer(new NullableValueComparer<CompiledModelTestBase.Enum32>(nullableEnum32.TypeMapping.KeyComparer));
 
             var nullableEnum32Array = runtimeEntityType.AddProperty(
                 "NullableEnum32Array",
@@ -7138,8 +7138,8 @@ namespace TestNamespace
                     new ValueConverter<CompiledModelTestBase.Enum32, int>(
                         int (CompiledModelTestBase.Enum32 value) => ((int)(value)),
                         CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)(value)))));
-            nullableEnum32AsString.SetValueComparer(new NullableValueComparer<CompiledModelTestBase.Enum32>(nullableEnum32AsString.TypeMapping.Comparer));
-            nullableEnum32AsString.SetKeyValueComparer(new NullableValueComparer<CompiledModelTestBase.Enum32>(nullableEnum32AsString.TypeMapping.KeyComparer));
+            nullableEnum32AsString.SetComparer(new NullableValueComparer<CompiledModelTestBase.Enum32>(nullableEnum32AsString.TypeMapping.Comparer));
+            nullableEnum32AsString.SetKeyComparer(new NullableValueComparer<CompiledModelTestBase.Enum32>(nullableEnum32AsString.TypeMapping.KeyComparer));
 
             var nullableEnum32AsStringArray = runtimeEntityType.AddProperty(
                 "NullableEnum32AsStringArray",
@@ -7416,8 +7416,8 @@ namespace TestNamespace
                     new ValueConverter<CompiledModelTestBase.Enum64, long>(
                         long (CompiledModelTestBase.Enum64 value) => ((long)(value)),
                         CompiledModelTestBase.Enum64 (long value) => ((CompiledModelTestBase.Enum64)(value)))));
-            nullableEnum64.SetValueComparer(new NullableValueComparer<CompiledModelTestBase.Enum64>(nullableEnum64.TypeMapping.Comparer));
-            nullableEnum64.SetKeyValueComparer(new NullableValueComparer<CompiledModelTestBase.Enum64>(nullableEnum64.TypeMapping.KeyComparer));
+            nullableEnum64.SetComparer(new NullableValueComparer<CompiledModelTestBase.Enum64>(nullableEnum64.TypeMapping.Comparer));
+            nullableEnum64.SetKeyComparer(new NullableValueComparer<CompiledModelTestBase.Enum64>(nullableEnum64.TypeMapping.KeyComparer));
 
             var nullableEnum64Array = runtimeEntityType.AddProperty(
                 "NullableEnum64Array",
@@ -7544,8 +7544,8 @@ namespace TestNamespace
                     new ValueConverter<CompiledModelTestBase.Enum64, long>(
                         long (CompiledModelTestBase.Enum64 value) => ((long)(value)),
                         CompiledModelTestBase.Enum64 (long value) => ((CompiledModelTestBase.Enum64)(value)))));
-            nullableEnum64AsString.SetValueComparer(new NullableValueComparer<CompiledModelTestBase.Enum64>(nullableEnum64AsString.TypeMapping.Comparer));
-            nullableEnum64AsString.SetKeyValueComparer(new NullableValueComparer<CompiledModelTestBase.Enum64>(nullableEnum64AsString.TypeMapping.KeyComparer));
+            nullableEnum64AsString.SetComparer(new NullableValueComparer<CompiledModelTestBase.Enum64>(nullableEnum64AsString.TypeMapping.Comparer));
+            nullableEnum64AsString.SetKeyComparer(new NullableValueComparer<CompiledModelTestBase.Enum64>(nullableEnum64AsString.TypeMapping.KeyComparer));
 
             var nullableEnum64AsStringArray = runtimeEntityType.AddProperty(
                 "NullableEnum64AsStringArray",
@@ -7822,8 +7822,8 @@ namespace TestNamespace
                     new ValueConverter<CompiledModelTestBase.Enum8, sbyte>(
                         sbyte (CompiledModelTestBase.Enum8 value) => ((sbyte)(value)),
                         CompiledModelTestBase.Enum8 (sbyte value) => ((CompiledModelTestBase.Enum8)(value)))));
-            nullableEnum8.SetValueComparer(new NullableValueComparer<CompiledModelTestBase.Enum8>(nullableEnum8.TypeMapping.Comparer));
-            nullableEnum8.SetKeyValueComparer(new NullableValueComparer<CompiledModelTestBase.Enum8>(nullableEnum8.TypeMapping.KeyComparer));
+            nullableEnum8.SetComparer(new NullableValueComparer<CompiledModelTestBase.Enum8>(nullableEnum8.TypeMapping.Comparer));
+            nullableEnum8.SetKeyComparer(new NullableValueComparer<CompiledModelTestBase.Enum8>(nullableEnum8.TypeMapping.KeyComparer));
 
             var nullableEnum8Array = runtimeEntityType.AddProperty(
                 "NullableEnum8Array",
@@ -7950,8 +7950,8 @@ namespace TestNamespace
                     new ValueConverter<CompiledModelTestBase.Enum8, sbyte>(
                         sbyte (CompiledModelTestBase.Enum8 value) => ((sbyte)(value)),
                         CompiledModelTestBase.Enum8 (sbyte value) => ((CompiledModelTestBase.Enum8)(value)))));
-            nullableEnum8AsString.SetValueComparer(new NullableValueComparer<CompiledModelTestBase.Enum8>(nullableEnum8AsString.TypeMapping.Comparer));
-            nullableEnum8AsString.SetKeyValueComparer(new NullableValueComparer<CompiledModelTestBase.Enum8>(nullableEnum8AsString.TypeMapping.KeyComparer));
+            nullableEnum8AsString.SetComparer(new NullableValueComparer<CompiledModelTestBase.Enum8>(nullableEnum8AsString.TypeMapping.Comparer));
+            nullableEnum8AsString.SetKeyComparer(new NullableValueComparer<CompiledModelTestBase.Enum8>(nullableEnum8AsString.TypeMapping.KeyComparer));
 
             var nullableEnum8AsStringArray = runtimeEntityType.AddProperty(
                 "NullableEnum8AsStringArray",
@@ -8228,8 +8228,8 @@ namespace TestNamespace
                     new ValueConverter<CompiledModelTestBase.EnumU16, ushort>(
                         ushort (CompiledModelTestBase.EnumU16 value) => ((ushort)(value)),
                         CompiledModelTestBase.EnumU16 (ushort value) => ((CompiledModelTestBase.EnumU16)(value)))));
-            nullableEnumU16.SetValueComparer(new NullableValueComparer<CompiledModelTestBase.EnumU16>(nullableEnumU16.TypeMapping.Comparer));
-            nullableEnumU16.SetKeyValueComparer(new NullableValueComparer<CompiledModelTestBase.EnumU16>(nullableEnumU16.TypeMapping.KeyComparer));
+            nullableEnumU16.SetComparer(new NullableValueComparer<CompiledModelTestBase.EnumU16>(nullableEnumU16.TypeMapping.Comparer));
+            nullableEnumU16.SetKeyComparer(new NullableValueComparer<CompiledModelTestBase.EnumU16>(nullableEnumU16.TypeMapping.KeyComparer));
 
             var nullableEnumU16Array = runtimeEntityType.AddProperty(
                 "NullableEnumU16Array",
@@ -8356,8 +8356,8 @@ namespace TestNamespace
                     new ValueConverter<CompiledModelTestBase.EnumU16, ushort>(
                         ushort (CompiledModelTestBase.EnumU16 value) => ((ushort)(value)),
                         CompiledModelTestBase.EnumU16 (ushort value) => ((CompiledModelTestBase.EnumU16)(value)))));
-            nullableEnumU16AsString.SetValueComparer(new NullableValueComparer<CompiledModelTestBase.EnumU16>(nullableEnumU16AsString.TypeMapping.Comparer));
-            nullableEnumU16AsString.SetKeyValueComparer(new NullableValueComparer<CompiledModelTestBase.EnumU16>(nullableEnumU16AsString.TypeMapping.KeyComparer));
+            nullableEnumU16AsString.SetComparer(new NullableValueComparer<CompiledModelTestBase.EnumU16>(nullableEnumU16AsString.TypeMapping.Comparer));
+            nullableEnumU16AsString.SetKeyComparer(new NullableValueComparer<CompiledModelTestBase.EnumU16>(nullableEnumU16AsString.TypeMapping.KeyComparer));
 
             var nullableEnumU16AsStringArray = runtimeEntityType.AddProperty(
                 "NullableEnumU16AsStringArray",
@@ -8634,8 +8634,8 @@ namespace TestNamespace
                     new ValueConverter<CompiledModelTestBase.EnumU32, uint>(
                         uint (CompiledModelTestBase.EnumU32 value) => ((uint)(value)),
                         CompiledModelTestBase.EnumU32 (uint value) => ((CompiledModelTestBase.EnumU32)(value)))));
-            nullableEnumU32.SetValueComparer(new NullableValueComparer<CompiledModelTestBase.EnumU32>(nullableEnumU32.TypeMapping.Comparer));
-            nullableEnumU32.SetKeyValueComparer(new NullableValueComparer<CompiledModelTestBase.EnumU32>(nullableEnumU32.TypeMapping.KeyComparer));
+            nullableEnumU32.SetComparer(new NullableValueComparer<CompiledModelTestBase.EnumU32>(nullableEnumU32.TypeMapping.Comparer));
+            nullableEnumU32.SetKeyComparer(new NullableValueComparer<CompiledModelTestBase.EnumU32>(nullableEnumU32.TypeMapping.KeyComparer));
 
             var nullableEnumU32Array = runtimeEntityType.AddProperty(
                 "NullableEnumU32Array",
@@ -8762,8 +8762,8 @@ namespace TestNamespace
                     new ValueConverter<CompiledModelTestBase.EnumU32, uint>(
                         uint (CompiledModelTestBase.EnumU32 value) => ((uint)(value)),
                         CompiledModelTestBase.EnumU32 (uint value) => ((CompiledModelTestBase.EnumU32)(value)))));
-            nullableEnumU32AsString.SetValueComparer(new NullableValueComparer<CompiledModelTestBase.EnumU32>(nullableEnumU32AsString.TypeMapping.Comparer));
-            nullableEnumU32AsString.SetKeyValueComparer(new NullableValueComparer<CompiledModelTestBase.EnumU32>(nullableEnumU32AsString.TypeMapping.KeyComparer));
+            nullableEnumU32AsString.SetComparer(new NullableValueComparer<CompiledModelTestBase.EnumU32>(nullableEnumU32AsString.TypeMapping.Comparer));
+            nullableEnumU32AsString.SetKeyComparer(new NullableValueComparer<CompiledModelTestBase.EnumU32>(nullableEnumU32AsString.TypeMapping.KeyComparer));
 
             var nullableEnumU32AsStringArray = runtimeEntityType.AddProperty(
                 "NullableEnumU32AsStringArray",
@@ -9038,8 +9038,8 @@ namespace TestNamespace
                     new ValueConverter<CompiledModelTestBase.EnumU64, ulong>(
                         ulong (CompiledModelTestBase.EnumU64 value) => ((ulong)(value)),
                         CompiledModelTestBase.EnumU64 (ulong value) => ((CompiledModelTestBase.EnumU64)(value)))));
-            nullableEnumU64.SetValueComparer(new NullableValueComparer<CompiledModelTestBase.EnumU64>(nullableEnumU64.TypeMapping.Comparer));
-            nullableEnumU64.SetKeyValueComparer(new NullableValueComparer<CompiledModelTestBase.EnumU64>(nullableEnumU64.TypeMapping.KeyComparer));
+            nullableEnumU64.SetComparer(new NullableValueComparer<CompiledModelTestBase.EnumU64>(nullableEnumU64.TypeMapping.Comparer));
+            nullableEnumU64.SetKeyComparer(new NullableValueComparer<CompiledModelTestBase.EnumU64>(nullableEnumU64.TypeMapping.KeyComparer));
 
             var nullableEnumU64Array = runtimeEntityType.AddProperty(
                 "NullableEnumU64Array",
@@ -9162,8 +9162,8 @@ namespace TestNamespace
                     new ValueConverter<CompiledModelTestBase.EnumU64, ulong>(
                         ulong (CompiledModelTestBase.EnumU64 value) => ((ulong)(value)),
                         CompiledModelTestBase.EnumU64 (ulong value) => ((CompiledModelTestBase.EnumU64)(value)))));
-            nullableEnumU64AsString.SetValueComparer(new NullableValueComparer<CompiledModelTestBase.EnumU64>(nullableEnumU64AsString.TypeMapping.Comparer));
-            nullableEnumU64AsString.SetKeyValueComparer(new NullableValueComparer<CompiledModelTestBase.EnumU64>(nullableEnumU64AsString.TypeMapping.KeyComparer));
+            nullableEnumU64AsString.SetComparer(new NullableValueComparer<CompiledModelTestBase.EnumU64>(nullableEnumU64AsString.TypeMapping.Comparer));
+            nullableEnumU64AsString.SetKeyComparer(new NullableValueComparer<CompiledModelTestBase.EnumU64>(nullableEnumU64AsString.TypeMapping.KeyComparer));
 
             var nullableEnumU64AsStringArray = runtimeEntityType.AddProperty(
                 "NullableEnumU64AsStringArray",
@@ -9434,8 +9434,8 @@ namespace TestNamespace
                     new ValueConverter<CompiledModelTestBase.EnumU8, byte>(
                         byte (CompiledModelTestBase.EnumU8 value) => ((byte)(value)),
                         CompiledModelTestBase.EnumU8 (byte value) => ((CompiledModelTestBase.EnumU8)(value)))));
-            nullableEnumU8.SetValueComparer(new NullableValueComparer<CompiledModelTestBase.EnumU8>(nullableEnumU8.TypeMapping.Comparer));
-            nullableEnumU8.SetKeyValueComparer(new NullableValueComparer<CompiledModelTestBase.EnumU8>(nullableEnumU8.TypeMapping.KeyComparer));
+            nullableEnumU8.SetComparer(new NullableValueComparer<CompiledModelTestBase.EnumU8>(nullableEnumU8.TypeMapping.Comparer));
+            nullableEnumU8.SetKeyComparer(new NullableValueComparer<CompiledModelTestBase.EnumU8>(nullableEnumU8.TypeMapping.KeyComparer));
 
             var nullableEnumU8Array = runtimeEntityType.AddProperty(
                 "NullableEnumU8Array",
@@ -9562,8 +9562,8 @@ namespace TestNamespace
                     new ValueConverter<CompiledModelTestBase.EnumU8, byte>(
                         byte (CompiledModelTestBase.EnumU8 value) => ((byte)(value)),
                         CompiledModelTestBase.EnumU8 (byte value) => ((CompiledModelTestBase.EnumU8)(value)))));
-            nullableEnumU8AsString.SetValueComparer(new NullableValueComparer<CompiledModelTestBase.EnumU8>(nullableEnumU8AsString.TypeMapping.Comparer));
-            nullableEnumU8AsString.SetKeyValueComparer(new NullableValueComparer<CompiledModelTestBase.EnumU8>(nullableEnumU8AsString.TypeMapping.KeyComparer));
+            nullableEnumU8AsString.SetComparer(new NullableValueComparer<CompiledModelTestBase.EnumU8>(nullableEnumU8AsString.TypeMapping.Comparer));
+            nullableEnumU8AsString.SetKeyComparer(new NullableValueComparer<CompiledModelTestBase.EnumU8>(nullableEnumU8AsString.TypeMapping.KeyComparer));
 
             var nullableEnumU8AsStringArray = runtimeEntityType.AddProperty(
                 "NullableEnumU8AsStringArray",
@@ -9832,8 +9832,8 @@ namespace TestNamespace
                     float (float v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "REAL"));
-            nullableFloat.SetValueComparer(new NullableValueComparer<float>(nullableFloat.TypeMapping.Comparer));
-            nullableFloat.SetKeyValueComparer(new NullableValueComparer<float>(nullableFloat.TypeMapping.KeyComparer));
+            nullableFloat.SetComparer(new NullableValueComparer<float>(nullableFloat.TypeMapping.Comparer));
+            nullableFloat.SetKeyComparer(new NullableValueComparer<float>(nullableFloat.TypeMapping.KeyComparer));
 
             var nullableFloatArray = runtimeEntityType.AddProperty(
                 "NullableFloatArray",
@@ -9922,8 +9922,8 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableGuid.TypeMapping = SqliteGuidTypeMapping.Default;
-            nullableGuid.SetValueComparer(new NullableValueComparer<Guid>(nullableGuid.TypeMapping.Comparer));
-            nullableGuid.SetKeyValueComparer(new NullableValueComparer<Guid>(nullableGuid.TypeMapping.KeyComparer));
+            nullableGuid.SetComparer(new NullableValueComparer<Guid>(nullableGuid.TypeMapping.Comparer));
+            nullableGuid.SetKeyComparer(new NullableValueComparer<Guid>(nullableGuid.TypeMapping.KeyComparer));
 
             var nullableGuidArray = runtimeEntityType.AddProperty(
                 "NullableGuidArray",
@@ -10138,8 +10138,8 @@ namespace TestNamespace
                     short (short v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "INTEGER"));
-            nullableInt16.SetValueComparer(new NullableValueComparer<short>(nullableInt16.TypeMapping.Comparer));
-            nullableInt16.SetKeyValueComparer(new NullableValueComparer<short>(nullableInt16.TypeMapping.KeyComparer));
+            nullableInt16.SetComparer(new NullableValueComparer<short>(nullableInt16.TypeMapping.Comparer));
+            nullableInt16.SetKeyComparer(new NullableValueComparer<short>(nullableInt16.TypeMapping.KeyComparer));
 
             var nullableInt16Array = runtimeEntityType.AddProperty(
                 "NullableInt16Array",
@@ -10242,8 +10242,8 @@ namespace TestNamespace
                     int (int v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "INTEGER"));
-            nullableInt32.SetValueComparer(new NullableValueComparer<int>(nullableInt32.TypeMapping.Comparer));
-            nullableInt32.SetKeyValueComparer(new NullableValueComparer<int>(nullableInt32.TypeMapping.KeyComparer));
+            nullableInt32.SetComparer(new NullableValueComparer<int>(nullableInt32.TypeMapping.Comparer));
+            nullableInt32.SetKeyComparer(new NullableValueComparer<int>(nullableInt32.TypeMapping.KeyComparer));
 
             var nullableInt32Array = runtimeEntityType.AddProperty(
                 "NullableInt32Array",
@@ -10346,8 +10346,8 @@ namespace TestNamespace
                     long (long v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "INTEGER"));
-            nullableInt64.SetValueComparer(new NullableValueComparer<long>(nullableInt64.TypeMapping.Comparer));
-            nullableInt64.SetKeyValueComparer(new NullableValueComparer<long>(nullableInt64.TypeMapping.KeyComparer));
+            nullableInt64.SetComparer(new NullableValueComparer<long>(nullableInt64.TypeMapping.Comparer));
+            nullableInt64.SetKeyComparer(new NullableValueComparer<long>(nullableInt64.TypeMapping.KeyComparer));
 
             var nullableInt64Array = runtimeEntityType.AddProperty(
                 "NullableInt64Array",
@@ -10450,8 +10450,8 @@ namespace TestNamespace
                     sbyte (sbyte v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "INTEGER"));
-            nullableInt8.SetValueComparer(new NullableValueComparer<sbyte>(nullableInt8.TypeMapping.Comparer));
-            nullableInt8.SetKeyValueComparer(new NullableValueComparer<sbyte>(nullableInt8.TypeMapping.KeyComparer));
+            nullableInt8.SetComparer(new NullableValueComparer<sbyte>(nullableInt8.TypeMapping.Comparer));
+            nullableInt8.SetKeyComparer(new NullableValueComparer<sbyte>(nullableInt8.TypeMapping.KeyComparer));
 
             var nullableInt8Array = runtimeEntityType.AddProperty(
                 "NullableInt8Array",
@@ -10740,8 +10740,8 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableTimeOnly.TypeMapping = SqliteTimeOnlyTypeMapping.Default;
-            nullableTimeOnly.SetValueComparer(new NullableValueComparer<TimeOnly>(nullableTimeOnly.TypeMapping.Comparer));
-            nullableTimeOnly.SetKeyValueComparer(new NullableValueComparer<TimeOnly>(nullableTimeOnly.TypeMapping.KeyComparer));
+            nullableTimeOnly.SetComparer(new NullableValueComparer<TimeOnly>(nullableTimeOnly.TypeMapping.Comparer));
+            nullableTimeOnly.SetKeyComparer(new NullableValueComparer<TimeOnly>(nullableTimeOnly.TypeMapping.KeyComparer));
 
             var nullableTimeOnlyArray = runtimeEntityType.AddProperty(
                 "NullableTimeOnlyArray",
@@ -10830,8 +10830,8 @@ namespace TestNamespace
                     TimeSpan (TimeSpan v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "TEXT"));
-            nullableTimeSpan.SetValueComparer(new NullableValueComparer<TimeSpan>(nullableTimeSpan.TypeMapping.Comparer));
-            nullableTimeSpan.SetKeyValueComparer(new NullableValueComparer<TimeSpan>(nullableTimeSpan.TypeMapping.KeyComparer));
+            nullableTimeSpan.SetComparer(new NullableValueComparer<TimeSpan>(nullableTimeSpan.TypeMapping.Comparer));
+            nullableTimeSpan.SetKeyComparer(new NullableValueComparer<TimeSpan>(nullableTimeSpan.TypeMapping.KeyComparer));
 
             var nullableTimeSpanArray = runtimeEntityType.AddProperty(
                 "NullableTimeSpanArray",
@@ -10934,8 +10934,8 @@ namespace TestNamespace
                     ushort (ushort v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "INTEGER"));
-            nullableUInt16.SetValueComparer(new NullableValueComparer<ushort>(nullableUInt16.TypeMapping.Comparer));
-            nullableUInt16.SetKeyValueComparer(new NullableValueComparer<ushort>(nullableUInt16.TypeMapping.KeyComparer));
+            nullableUInt16.SetComparer(new NullableValueComparer<ushort>(nullableUInt16.TypeMapping.Comparer));
+            nullableUInt16.SetKeyComparer(new NullableValueComparer<ushort>(nullableUInt16.TypeMapping.KeyComparer));
 
             var nullableUInt16Array = runtimeEntityType.AddProperty(
                 "NullableUInt16Array",
@@ -11038,8 +11038,8 @@ namespace TestNamespace
                     uint (uint v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "INTEGER"));
-            nullableUInt32.SetValueComparer(new NullableValueComparer<uint>(nullableUInt32.TypeMapping.Comparer));
-            nullableUInt32.SetKeyValueComparer(new NullableValueComparer<uint>(nullableUInt32.TypeMapping.KeyComparer));
+            nullableUInt32.SetComparer(new NullableValueComparer<uint>(nullableUInt32.TypeMapping.Comparer));
+            nullableUInt32.SetKeyComparer(new NullableValueComparer<uint>(nullableUInt32.TypeMapping.KeyComparer));
 
             var nullableUInt32Array = runtimeEntityType.AddProperty(
                 "NullableUInt32Array",
@@ -11128,8 +11128,8 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableUInt64.TypeMapping = SqliteULongTypeMapping.Default;
-            nullableUInt64.SetValueComparer(new NullableValueComparer<ulong>(nullableUInt64.TypeMapping.Comparer));
-            nullableUInt64.SetKeyValueComparer(new NullableValueComparer<ulong>(nullableUInt64.TypeMapping.KeyComparer));
+            nullableUInt64.SetComparer(new NullableValueComparer<ulong>(nullableUInt64.TypeMapping.Comparer));
+            nullableUInt64.SetKeyComparer(new NullableValueComparer<ulong>(nullableUInt64.TypeMapping.KeyComparer));
 
             var nullableUInt64Array = runtimeEntityType.AddProperty(
                 "NullableUInt64Array",
@@ -11218,8 +11218,8 @@ namespace TestNamespace
                     byte (byte v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "INTEGER"));
-            nullableUInt8.SetValueComparer(new NullableValueComparer<byte>(nullableUInt8.TypeMapping.Comparer));
-            nullableUInt8.SetKeyValueComparer(new NullableValueComparer<byte>(nullableUInt8.TypeMapping.KeyComparer));
+            nullableUInt8.SetComparer(new NullableValueComparer<byte>(nullableUInt8.TypeMapping.Comparer));
+            nullableUInt8.SetKeyComparer(new NullableValueComparer<byte>(nullableUInt8.TypeMapping.KeyComparer));
 
             var nullableUInt8Array = runtimeEntityType.AddProperty(
                 "NullableUInt8Array",
@@ -13317,242 +13317,242 @@ namespace TestNamespace
 
         public static void CreateAnnotations(RuntimeEntityType runtimeEntityType)
         {
-            var id = runtimeEntityType.FindProperty("Id")!;
-            var @bool = runtimeEntityType.FindProperty("Bool")!;
-            var boolArray = runtimeEntityType.FindProperty("BoolArray")!;
-            var boolToStringConverterProperty = runtimeEntityType.FindProperty("BoolToStringConverterProperty")!;
-            var boolToTwoValuesConverterProperty = runtimeEntityType.FindProperty("BoolToTwoValuesConverterProperty")!;
-            var boolToZeroOneConverterProperty = runtimeEntityType.FindProperty("BoolToZeroOneConverterProperty")!;
-            var bytes = runtimeEntityType.FindProperty("Bytes")!;
-            var bytesArray = runtimeEntityType.FindProperty("BytesArray")!;
-            var bytesToStringConverterProperty = runtimeEntityType.FindProperty("BytesToStringConverterProperty")!;
-            var castingConverterProperty = runtimeEntityType.FindProperty("CastingConverterProperty")!;
-            var @char = runtimeEntityType.FindProperty("Char")!;
-            var charArray = runtimeEntityType.FindProperty("CharArray")!;
-            var charToStringConverterProperty = runtimeEntityType.FindProperty("CharToStringConverterProperty")!;
-            var dateOnly = runtimeEntityType.FindProperty("DateOnly")!;
-            var dateOnlyArray = runtimeEntityType.FindProperty("DateOnlyArray")!;
-            var dateOnlyToStringConverterProperty = runtimeEntityType.FindProperty("DateOnlyToStringConverterProperty")!;
-            var dateTime = runtimeEntityType.FindProperty("DateTime")!;
-            var dateTimeArray = runtimeEntityType.FindProperty("DateTimeArray")!;
-            var dateTimeOffsetToBinaryConverterProperty = runtimeEntityType.FindProperty("DateTimeOffsetToBinaryConverterProperty")!;
-            var dateTimeOffsetToBytesConverterProperty = runtimeEntityType.FindProperty("DateTimeOffsetToBytesConverterProperty")!;
-            var dateTimeOffsetToStringConverterProperty = runtimeEntityType.FindProperty("DateTimeOffsetToStringConverterProperty")!;
-            var dateTimeToBinaryConverterProperty = runtimeEntityType.FindProperty("DateTimeToBinaryConverterProperty")!;
-            var dateTimeToStringConverterProperty = runtimeEntityType.FindProperty("DateTimeToStringConverterProperty")!;
-            var dateTimeToTicksConverterProperty = runtimeEntityType.FindProperty("DateTimeToTicksConverterProperty")!;
-            var @decimal = runtimeEntityType.FindProperty("Decimal")!;
-            var decimalArray = runtimeEntityType.FindProperty("DecimalArray")!;
-            var decimalNumberToBytesConverterProperty = runtimeEntityType.FindProperty("DecimalNumberToBytesConverterProperty")!;
-            var decimalNumberToStringConverterProperty = runtimeEntityType.FindProperty("DecimalNumberToStringConverterProperty")!;
-            var @double = runtimeEntityType.FindProperty("Double")!;
-            var doubleArray = runtimeEntityType.FindProperty("DoubleArray")!;
-            var doubleNumberToBytesConverterProperty = runtimeEntityType.FindProperty("DoubleNumberToBytesConverterProperty")!;
-            var doubleNumberToStringConverterProperty = runtimeEntityType.FindProperty("DoubleNumberToStringConverterProperty")!;
-            var enum16 = runtimeEntityType.FindProperty("Enum16")!;
-            var enum16Array = runtimeEntityType.FindProperty("Enum16Array")!;
-            var enum16AsString = runtimeEntityType.FindProperty("Enum16AsString")!;
-            var enum16AsStringArray = runtimeEntityType.FindProperty("Enum16AsStringArray")!;
-            var enum16AsStringCollection = runtimeEntityType.FindProperty("Enum16AsStringCollection")!;
-            var enum16Collection = runtimeEntityType.FindProperty("Enum16Collection")!;
-            var enum32 = runtimeEntityType.FindProperty("Enum32")!;
-            var enum32Array = runtimeEntityType.FindProperty("Enum32Array")!;
-            var enum32AsString = runtimeEntityType.FindProperty("Enum32AsString")!;
-            var enum32AsStringArray = runtimeEntityType.FindProperty("Enum32AsStringArray")!;
-            var enum32AsStringCollection = runtimeEntityType.FindProperty("Enum32AsStringCollection")!;
-            var enum32Collection = runtimeEntityType.FindProperty("Enum32Collection")!;
-            var enum64 = runtimeEntityType.FindProperty("Enum64")!;
-            var enum64Array = runtimeEntityType.FindProperty("Enum64Array")!;
-            var enum64AsString = runtimeEntityType.FindProperty("Enum64AsString")!;
-            var enum64AsStringArray = runtimeEntityType.FindProperty("Enum64AsStringArray")!;
-            var enum64AsStringCollection = runtimeEntityType.FindProperty("Enum64AsStringCollection")!;
-            var enum64Collection = runtimeEntityType.FindProperty("Enum64Collection")!;
-            var enum8 = runtimeEntityType.FindProperty("Enum8")!;
-            var enum8Array = runtimeEntityType.FindProperty("Enum8Array")!;
-            var enum8AsString = runtimeEntityType.FindProperty("Enum8AsString")!;
-            var enum8AsStringArray = runtimeEntityType.FindProperty("Enum8AsStringArray")!;
-            var enum8AsStringCollection = runtimeEntityType.FindProperty("Enum8AsStringCollection")!;
-            var enum8Collection = runtimeEntityType.FindProperty("Enum8Collection")!;
-            var enumToNumberConverterProperty = runtimeEntityType.FindProperty("EnumToNumberConverterProperty")!;
-            var enumToStringConverterProperty = runtimeEntityType.FindProperty("EnumToStringConverterProperty")!;
-            var enumU16 = runtimeEntityType.FindProperty("EnumU16")!;
-            var enumU16Array = runtimeEntityType.FindProperty("EnumU16Array")!;
-            var enumU16AsString = runtimeEntityType.FindProperty("EnumU16AsString")!;
-            var enumU16AsStringArray = runtimeEntityType.FindProperty("EnumU16AsStringArray")!;
-            var enumU16AsStringCollection = runtimeEntityType.FindProperty("EnumU16AsStringCollection")!;
-            var enumU16Collection = runtimeEntityType.FindProperty("EnumU16Collection")!;
-            var enumU32 = runtimeEntityType.FindProperty("EnumU32")!;
-            var enumU32Array = runtimeEntityType.FindProperty("EnumU32Array")!;
-            var enumU32AsString = runtimeEntityType.FindProperty("EnumU32AsString")!;
-            var enumU32AsStringArray = runtimeEntityType.FindProperty("EnumU32AsStringArray")!;
-            var enumU32AsStringCollection = runtimeEntityType.FindProperty("EnumU32AsStringCollection")!;
-            var enumU32Collection = runtimeEntityType.FindProperty("EnumU32Collection")!;
-            var enumU64 = runtimeEntityType.FindProperty("EnumU64")!;
-            var enumU64Array = runtimeEntityType.FindProperty("EnumU64Array")!;
-            var enumU64AsString = runtimeEntityType.FindProperty("EnumU64AsString")!;
-            var enumU64AsStringArray = runtimeEntityType.FindProperty("EnumU64AsStringArray")!;
-            var enumU64AsStringCollection = runtimeEntityType.FindProperty("EnumU64AsStringCollection")!;
-            var enumU64Collection = runtimeEntityType.FindProperty("EnumU64Collection")!;
-            var enumU8 = runtimeEntityType.FindProperty("EnumU8")!;
-            var enumU8Array = runtimeEntityType.FindProperty("EnumU8Array")!;
-            var enumU8AsString = runtimeEntityType.FindProperty("EnumU8AsString")!;
-            var enumU8AsStringArray = runtimeEntityType.FindProperty("EnumU8AsStringArray")!;
-            var enumU8AsStringCollection = runtimeEntityType.FindProperty("EnumU8AsStringCollection")!;
-            var enumU8Collection = runtimeEntityType.FindProperty("EnumU8Collection")!;
-            var @float = runtimeEntityType.FindProperty("Float")!;
-            var floatArray = runtimeEntityType.FindProperty("FloatArray")!;
-            var guid = runtimeEntityType.FindProperty("Guid")!;
-            var guidArray = runtimeEntityType.FindProperty("GuidArray")!;
-            var guidToBytesConverterProperty = runtimeEntityType.FindProperty("GuidToBytesConverterProperty")!;
-            var guidToStringConverterProperty = runtimeEntityType.FindProperty("GuidToStringConverterProperty")!;
-            var iPAddress = runtimeEntityType.FindProperty("IPAddress")!;
-            var iPAddressArray = runtimeEntityType.FindProperty("IPAddressArray")!;
-            var iPAddressToBytesConverterProperty = runtimeEntityType.FindProperty("IPAddressToBytesConverterProperty")!;
-            var iPAddressToStringConverterProperty = runtimeEntityType.FindProperty("IPAddressToStringConverterProperty")!;
-            var int16 = runtimeEntityType.FindProperty("Int16")!;
-            var int16Array = runtimeEntityType.FindProperty("Int16Array")!;
-            var int32 = runtimeEntityType.FindProperty("Int32")!;
-            var int32Array = runtimeEntityType.FindProperty("Int32Array")!;
-            var int64 = runtimeEntityType.FindProperty("Int64")!;
-            var int64Array = runtimeEntityType.FindProperty("Int64Array")!;
-            var int8 = runtimeEntityType.FindProperty("Int8")!;
-            var int8Array = runtimeEntityType.FindProperty("Int8Array")!;
-            var intNumberToBytesConverterProperty = runtimeEntityType.FindProperty("IntNumberToBytesConverterProperty")!;
-            var intNumberToStringConverterProperty = runtimeEntityType.FindProperty("IntNumberToStringConverterProperty")!;
-            var nullIntToNullStringConverterProperty = runtimeEntityType.FindProperty("NullIntToNullStringConverterProperty")!;
-            var nullableBool = runtimeEntityType.FindProperty("NullableBool")!;
-            var nullableBoolArray = runtimeEntityType.FindProperty("NullableBoolArray")!;
-            var nullableBytes = runtimeEntityType.FindProperty("NullableBytes")!;
-            var nullableBytesArray = runtimeEntityType.FindProperty("NullableBytesArray")!;
-            var nullableChar = runtimeEntityType.FindProperty("NullableChar")!;
-            var nullableCharArray = runtimeEntityType.FindProperty("NullableCharArray")!;
-            var nullableDateOnly = runtimeEntityType.FindProperty("NullableDateOnly")!;
-            var nullableDateOnlyArray = runtimeEntityType.FindProperty("NullableDateOnlyArray")!;
-            var nullableDateTime = runtimeEntityType.FindProperty("NullableDateTime")!;
-            var nullableDateTimeArray = runtimeEntityType.FindProperty("NullableDateTimeArray")!;
-            var nullableDecimal = runtimeEntityType.FindProperty("NullableDecimal")!;
-            var nullableDecimalArray = runtimeEntityType.FindProperty("NullableDecimalArray")!;
-            var nullableDouble = runtimeEntityType.FindProperty("NullableDouble")!;
-            var nullableDoubleArray = runtimeEntityType.FindProperty("NullableDoubleArray")!;
-            var nullableEnum16 = runtimeEntityType.FindProperty("NullableEnum16")!;
-            var nullableEnum16Array = runtimeEntityType.FindProperty("NullableEnum16Array")!;
-            var nullableEnum16AsString = runtimeEntityType.FindProperty("NullableEnum16AsString")!;
-            var nullableEnum16AsStringArray = runtimeEntityType.FindProperty("NullableEnum16AsStringArray")!;
-            var nullableEnum16AsStringCollection = runtimeEntityType.FindProperty("NullableEnum16AsStringCollection")!;
-            var nullableEnum16Collection = runtimeEntityType.FindProperty("NullableEnum16Collection")!;
-            var nullableEnum32 = runtimeEntityType.FindProperty("NullableEnum32")!;
-            var nullableEnum32Array = runtimeEntityType.FindProperty("NullableEnum32Array")!;
-            var nullableEnum32AsString = runtimeEntityType.FindProperty("NullableEnum32AsString")!;
-            var nullableEnum32AsStringArray = runtimeEntityType.FindProperty("NullableEnum32AsStringArray")!;
-            var nullableEnum32AsStringCollection = runtimeEntityType.FindProperty("NullableEnum32AsStringCollection")!;
-            var nullableEnum32Collection = runtimeEntityType.FindProperty("NullableEnum32Collection")!;
-            var nullableEnum64 = runtimeEntityType.FindProperty("NullableEnum64")!;
-            var nullableEnum64Array = runtimeEntityType.FindProperty("NullableEnum64Array")!;
-            var nullableEnum64AsString = runtimeEntityType.FindProperty("NullableEnum64AsString")!;
-            var nullableEnum64AsStringArray = runtimeEntityType.FindProperty("NullableEnum64AsStringArray")!;
-            var nullableEnum64AsStringCollection = runtimeEntityType.FindProperty("NullableEnum64AsStringCollection")!;
-            var nullableEnum64Collection = runtimeEntityType.FindProperty("NullableEnum64Collection")!;
-            var nullableEnum8 = runtimeEntityType.FindProperty("NullableEnum8")!;
-            var nullableEnum8Array = runtimeEntityType.FindProperty("NullableEnum8Array")!;
-            var nullableEnum8AsString = runtimeEntityType.FindProperty("NullableEnum8AsString")!;
-            var nullableEnum8AsStringArray = runtimeEntityType.FindProperty("NullableEnum8AsStringArray")!;
-            var nullableEnum8AsStringCollection = runtimeEntityType.FindProperty("NullableEnum8AsStringCollection")!;
-            var nullableEnum8Collection = runtimeEntityType.FindProperty("NullableEnum8Collection")!;
-            var nullableEnumU16 = runtimeEntityType.FindProperty("NullableEnumU16")!;
-            var nullableEnumU16Array = runtimeEntityType.FindProperty("NullableEnumU16Array")!;
-            var nullableEnumU16AsString = runtimeEntityType.FindProperty("NullableEnumU16AsString")!;
-            var nullableEnumU16AsStringArray = runtimeEntityType.FindProperty("NullableEnumU16AsStringArray")!;
-            var nullableEnumU16AsStringCollection = runtimeEntityType.FindProperty("NullableEnumU16AsStringCollection")!;
-            var nullableEnumU16Collection = runtimeEntityType.FindProperty("NullableEnumU16Collection")!;
-            var nullableEnumU32 = runtimeEntityType.FindProperty("NullableEnumU32")!;
-            var nullableEnumU32Array = runtimeEntityType.FindProperty("NullableEnumU32Array")!;
-            var nullableEnumU32AsString = runtimeEntityType.FindProperty("NullableEnumU32AsString")!;
-            var nullableEnumU32AsStringArray = runtimeEntityType.FindProperty("NullableEnumU32AsStringArray")!;
-            var nullableEnumU32AsStringCollection = runtimeEntityType.FindProperty("NullableEnumU32AsStringCollection")!;
-            var nullableEnumU32Collection = runtimeEntityType.FindProperty("NullableEnumU32Collection")!;
-            var nullableEnumU64 = runtimeEntityType.FindProperty("NullableEnumU64")!;
-            var nullableEnumU64Array = runtimeEntityType.FindProperty("NullableEnumU64Array")!;
-            var nullableEnumU64AsString = runtimeEntityType.FindProperty("NullableEnumU64AsString")!;
-            var nullableEnumU64AsStringArray = runtimeEntityType.FindProperty("NullableEnumU64AsStringArray")!;
-            var nullableEnumU64AsStringCollection = runtimeEntityType.FindProperty("NullableEnumU64AsStringCollection")!;
-            var nullableEnumU64Collection = runtimeEntityType.FindProperty("NullableEnumU64Collection")!;
-            var nullableEnumU8 = runtimeEntityType.FindProperty("NullableEnumU8")!;
-            var nullableEnumU8Array = runtimeEntityType.FindProperty("NullableEnumU8Array")!;
-            var nullableEnumU8AsString = runtimeEntityType.FindProperty("NullableEnumU8AsString")!;
-            var nullableEnumU8AsStringArray = runtimeEntityType.FindProperty("NullableEnumU8AsStringArray")!;
-            var nullableEnumU8AsStringCollection = runtimeEntityType.FindProperty("NullableEnumU8AsStringCollection")!;
-            var nullableEnumU8Collection = runtimeEntityType.FindProperty("NullableEnumU8Collection")!;
-            var nullableFloat = runtimeEntityType.FindProperty("NullableFloat")!;
-            var nullableFloatArray = runtimeEntityType.FindProperty("NullableFloatArray")!;
-            var nullableGuid = runtimeEntityType.FindProperty("NullableGuid")!;
-            var nullableGuidArray = runtimeEntityType.FindProperty("NullableGuidArray")!;
-            var nullableIPAddress = runtimeEntityType.FindProperty("NullableIPAddress")!;
-            var nullableIPAddressArray = runtimeEntityType.FindProperty("NullableIPAddressArray")!;
-            var nullableInt16 = runtimeEntityType.FindProperty("NullableInt16")!;
-            var nullableInt16Array = runtimeEntityType.FindProperty("NullableInt16Array")!;
-            var nullableInt32 = runtimeEntityType.FindProperty("NullableInt32")!;
-            var nullableInt32Array = runtimeEntityType.FindProperty("NullableInt32Array")!;
-            var nullableInt64 = runtimeEntityType.FindProperty("NullableInt64")!;
-            var nullableInt64Array = runtimeEntityType.FindProperty("NullableInt64Array")!;
-            var nullableInt8 = runtimeEntityType.FindProperty("NullableInt8")!;
-            var nullableInt8Array = runtimeEntityType.FindProperty("NullableInt8Array")!;
-            var nullablePhysicalAddress = runtimeEntityType.FindProperty("NullablePhysicalAddress")!;
-            var nullablePhysicalAddressArray = runtimeEntityType.FindProperty("NullablePhysicalAddressArray")!;
-            var nullableString = runtimeEntityType.FindProperty("NullableString")!;
-            var nullableStringArray = runtimeEntityType.FindProperty("NullableStringArray")!;
-            var nullableTimeOnly = runtimeEntityType.FindProperty("NullableTimeOnly")!;
-            var nullableTimeOnlyArray = runtimeEntityType.FindProperty("NullableTimeOnlyArray")!;
-            var nullableTimeSpan = runtimeEntityType.FindProperty("NullableTimeSpan")!;
-            var nullableTimeSpanArray = runtimeEntityType.FindProperty("NullableTimeSpanArray")!;
-            var nullableUInt16 = runtimeEntityType.FindProperty("NullableUInt16")!;
-            var nullableUInt16Array = runtimeEntityType.FindProperty("NullableUInt16Array")!;
-            var nullableUInt32 = runtimeEntityType.FindProperty("NullableUInt32")!;
-            var nullableUInt32Array = runtimeEntityType.FindProperty("NullableUInt32Array")!;
-            var nullableUInt64 = runtimeEntityType.FindProperty("NullableUInt64")!;
-            var nullableUInt64Array = runtimeEntityType.FindProperty("NullableUInt64Array")!;
-            var nullableUInt8 = runtimeEntityType.FindProperty("NullableUInt8")!;
-            var nullableUInt8Array = runtimeEntityType.FindProperty("NullableUInt8Array")!;
-            var nullableUri = runtimeEntityType.FindProperty("NullableUri")!;
-            var nullableUriArray = runtimeEntityType.FindProperty("NullableUriArray")!;
-            var physicalAddress = runtimeEntityType.FindProperty("PhysicalAddress")!;
-            var physicalAddressArray = runtimeEntityType.FindProperty("PhysicalAddressArray")!;
-            var physicalAddressToBytesConverterProperty = runtimeEntityType.FindProperty("PhysicalAddressToBytesConverterProperty")!;
-            var physicalAddressToStringConverterProperty = runtimeEntityType.FindProperty("PhysicalAddressToStringConverterProperty")!;
-            var @string = runtimeEntityType.FindProperty("String")!;
-            var stringArray = runtimeEntityType.FindProperty("StringArray")!;
-            var stringToBoolConverterProperty = runtimeEntityType.FindProperty("StringToBoolConverterProperty")!;
-            var stringToBytesConverterProperty = runtimeEntityType.FindProperty("StringToBytesConverterProperty")!;
-            var stringToCharConverterProperty = runtimeEntityType.FindProperty("StringToCharConverterProperty")!;
-            var stringToDateOnlyConverterProperty = runtimeEntityType.FindProperty("StringToDateOnlyConverterProperty")!;
-            var stringToDateTimeConverterProperty = runtimeEntityType.FindProperty("StringToDateTimeConverterProperty")!;
-            var stringToDateTimeOffsetConverterProperty = runtimeEntityType.FindProperty("StringToDateTimeOffsetConverterProperty")!;
-            var stringToDecimalNumberConverterProperty = runtimeEntityType.FindProperty("StringToDecimalNumberConverterProperty")!;
-            var stringToDoubleNumberConverterProperty = runtimeEntityType.FindProperty("StringToDoubleNumberConverterProperty")!;
-            var stringToEnumConverterProperty = runtimeEntityType.FindProperty("StringToEnumConverterProperty")!;
-            var stringToGuidConverterProperty = runtimeEntityType.FindProperty("StringToGuidConverterProperty")!;
-            var stringToIntNumberConverterProperty = runtimeEntityType.FindProperty("StringToIntNumberConverterProperty")!;
-            var stringToTimeOnlyConverterProperty = runtimeEntityType.FindProperty("StringToTimeOnlyConverterProperty")!;
-            var stringToTimeSpanConverterProperty = runtimeEntityType.FindProperty("StringToTimeSpanConverterProperty")!;
-            var stringToUriConverterProperty = runtimeEntityType.FindProperty("StringToUriConverterProperty")!;
-            var timeOnly = runtimeEntityType.FindProperty("TimeOnly")!;
-            var timeOnlyArray = runtimeEntityType.FindProperty("TimeOnlyArray")!;
-            var timeOnlyToStringConverterProperty = runtimeEntityType.FindProperty("TimeOnlyToStringConverterProperty")!;
-            var timeOnlyToTicksConverterProperty = runtimeEntityType.FindProperty("TimeOnlyToTicksConverterProperty")!;
-            var timeSpan = runtimeEntityType.FindProperty("TimeSpan")!;
-            var timeSpanArray = runtimeEntityType.FindProperty("TimeSpanArray")!;
-            var timeSpanToStringConverterProperty = runtimeEntityType.FindProperty("TimeSpanToStringConverterProperty")!;
-            var timeSpanToTicksConverterProperty = runtimeEntityType.FindProperty("TimeSpanToTicksConverterProperty")!;
-            var uInt16 = runtimeEntityType.FindProperty("UInt16")!;
-            var uInt16Array = runtimeEntityType.FindProperty("UInt16Array")!;
-            var uInt32 = runtimeEntityType.FindProperty("UInt32")!;
-            var uInt32Array = runtimeEntityType.FindProperty("UInt32Array")!;
-            var uInt64 = runtimeEntityType.FindProperty("UInt64")!;
-            var uInt64Array = runtimeEntityType.FindProperty("UInt64Array")!;
-            var uInt8 = runtimeEntityType.FindProperty("UInt8")!;
-            var uInt8Array = runtimeEntityType.FindProperty("UInt8Array")!;
-            var uri = runtimeEntityType.FindProperty("Uri")!;
-            var uriArray = runtimeEntityType.FindProperty("UriArray")!;
-            var uriToStringConverterProperty = runtimeEntityType.FindProperty("UriToStringConverterProperty")!;
+            var id = runtimeEntityType.FindProperty("Id");
+            var @bool = runtimeEntityType.FindProperty("Bool");
+            var boolArray = runtimeEntityType.FindProperty("BoolArray");
+            var boolToStringConverterProperty = runtimeEntityType.FindProperty("BoolToStringConverterProperty");
+            var boolToTwoValuesConverterProperty = runtimeEntityType.FindProperty("BoolToTwoValuesConverterProperty");
+            var boolToZeroOneConverterProperty = runtimeEntityType.FindProperty("BoolToZeroOneConverterProperty");
+            var bytes = runtimeEntityType.FindProperty("Bytes");
+            var bytesArray = runtimeEntityType.FindProperty("BytesArray");
+            var bytesToStringConverterProperty = runtimeEntityType.FindProperty("BytesToStringConverterProperty");
+            var castingConverterProperty = runtimeEntityType.FindProperty("CastingConverterProperty");
+            var @char = runtimeEntityType.FindProperty("Char");
+            var charArray = runtimeEntityType.FindProperty("CharArray");
+            var charToStringConverterProperty = runtimeEntityType.FindProperty("CharToStringConverterProperty");
+            var dateOnly = runtimeEntityType.FindProperty("DateOnly");
+            var dateOnlyArray = runtimeEntityType.FindProperty("DateOnlyArray");
+            var dateOnlyToStringConverterProperty = runtimeEntityType.FindProperty("DateOnlyToStringConverterProperty");
+            var dateTime = runtimeEntityType.FindProperty("DateTime");
+            var dateTimeArray = runtimeEntityType.FindProperty("DateTimeArray");
+            var dateTimeOffsetToBinaryConverterProperty = runtimeEntityType.FindProperty("DateTimeOffsetToBinaryConverterProperty");
+            var dateTimeOffsetToBytesConverterProperty = runtimeEntityType.FindProperty("DateTimeOffsetToBytesConverterProperty");
+            var dateTimeOffsetToStringConverterProperty = runtimeEntityType.FindProperty("DateTimeOffsetToStringConverterProperty");
+            var dateTimeToBinaryConverterProperty = runtimeEntityType.FindProperty("DateTimeToBinaryConverterProperty");
+            var dateTimeToStringConverterProperty = runtimeEntityType.FindProperty("DateTimeToStringConverterProperty");
+            var dateTimeToTicksConverterProperty = runtimeEntityType.FindProperty("DateTimeToTicksConverterProperty");
+            var @decimal = runtimeEntityType.FindProperty("Decimal");
+            var decimalArray = runtimeEntityType.FindProperty("DecimalArray");
+            var decimalNumberToBytesConverterProperty = runtimeEntityType.FindProperty("DecimalNumberToBytesConverterProperty");
+            var decimalNumberToStringConverterProperty = runtimeEntityType.FindProperty("DecimalNumberToStringConverterProperty");
+            var @double = runtimeEntityType.FindProperty("Double");
+            var doubleArray = runtimeEntityType.FindProperty("DoubleArray");
+            var doubleNumberToBytesConverterProperty = runtimeEntityType.FindProperty("DoubleNumberToBytesConverterProperty");
+            var doubleNumberToStringConverterProperty = runtimeEntityType.FindProperty("DoubleNumberToStringConverterProperty");
+            var enum16 = runtimeEntityType.FindProperty("Enum16");
+            var enum16Array = runtimeEntityType.FindProperty("Enum16Array");
+            var enum16AsString = runtimeEntityType.FindProperty("Enum16AsString");
+            var enum16AsStringArray = runtimeEntityType.FindProperty("Enum16AsStringArray");
+            var enum16AsStringCollection = runtimeEntityType.FindProperty("Enum16AsStringCollection");
+            var enum16Collection = runtimeEntityType.FindProperty("Enum16Collection");
+            var enum32 = runtimeEntityType.FindProperty("Enum32");
+            var enum32Array = runtimeEntityType.FindProperty("Enum32Array");
+            var enum32AsString = runtimeEntityType.FindProperty("Enum32AsString");
+            var enum32AsStringArray = runtimeEntityType.FindProperty("Enum32AsStringArray");
+            var enum32AsStringCollection = runtimeEntityType.FindProperty("Enum32AsStringCollection");
+            var enum32Collection = runtimeEntityType.FindProperty("Enum32Collection");
+            var enum64 = runtimeEntityType.FindProperty("Enum64");
+            var enum64Array = runtimeEntityType.FindProperty("Enum64Array");
+            var enum64AsString = runtimeEntityType.FindProperty("Enum64AsString");
+            var enum64AsStringArray = runtimeEntityType.FindProperty("Enum64AsStringArray");
+            var enum64AsStringCollection = runtimeEntityType.FindProperty("Enum64AsStringCollection");
+            var enum64Collection = runtimeEntityType.FindProperty("Enum64Collection");
+            var enum8 = runtimeEntityType.FindProperty("Enum8");
+            var enum8Array = runtimeEntityType.FindProperty("Enum8Array");
+            var enum8AsString = runtimeEntityType.FindProperty("Enum8AsString");
+            var enum8AsStringArray = runtimeEntityType.FindProperty("Enum8AsStringArray");
+            var enum8AsStringCollection = runtimeEntityType.FindProperty("Enum8AsStringCollection");
+            var enum8Collection = runtimeEntityType.FindProperty("Enum8Collection");
+            var enumToNumberConverterProperty = runtimeEntityType.FindProperty("EnumToNumberConverterProperty");
+            var enumToStringConverterProperty = runtimeEntityType.FindProperty("EnumToStringConverterProperty");
+            var enumU16 = runtimeEntityType.FindProperty("EnumU16");
+            var enumU16Array = runtimeEntityType.FindProperty("EnumU16Array");
+            var enumU16AsString = runtimeEntityType.FindProperty("EnumU16AsString");
+            var enumU16AsStringArray = runtimeEntityType.FindProperty("EnumU16AsStringArray");
+            var enumU16AsStringCollection = runtimeEntityType.FindProperty("EnumU16AsStringCollection");
+            var enumU16Collection = runtimeEntityType.FindProperty("EnumU16Collection");
+            var enumU32 = runtimeEntityType.FindProperty("EnumU32");
+            var enumU32Array = runtimeEntityType.FindProperty("EnumU32Array");
+            var enumU32AsString = runtimeEntityType.FindProperty("EnumU32AsString");
+            var enumU32AsStringArray = runtimeEntityType.FindProperty("EnumU32AsStringArray");
+            var enumU32AsStringCollection = runtimeEntityType.FindProperty("EnumU32AsStringCollection");
+            var enumU32Collection = runtimeEntityType.FindProperty("EnumU32Collection");
+            var enumU64 = runtimeEntityType.FindProperty("EnumU64");
+            var enumU64Array = runtimeEntityType.FindProperty("EnumU64Array");
+            var enumU64AsString = runtimeEntityType.FindProperty("EnumU64AsString");
+            var enumU64AsStringArray = runtimeEntityType.FindProperty("EnumU64AsStringArray");
+            var enumU64AsStringCollection = runtimeEntityType.FindProperty("EnumU64AsStringCollection");
+            var enumU64Collection = runtimeEntityType.FindProperty("EnumU64Collection");
+            var enumU8 = runtimeEntityType.FindProperty("EnumU8");
+            var enumU8Array = runtimeEntityType.FindProperty("EnumU8Array");
+            var enumU8AsString = runtimeEntityType.FindProperty("EnumU8AsString");
+            var enumU8AsStringArray = runtimeEntityType.FindProperty("EnumU8AsStringArray");
+            var enumU8AsStringCollection = runtimeEntityType.FindProperty("EnumU8AsStringCollection");
+            var enumU8Collection = runtimeEntityType.FindProperty("EnumU8Collection");
+            var @float = runtimeEntityType.FindProperty("Float");
+            var floatArray = runtimeEntityType.FindProperty("FloatArray");
+            var guid = runtimeEntityType.FindProperty("Guid");
+            var guidArray = runtimeEntityType.FindProperty("GuidArray");
+            var guidToBytesConverterProperty = runtimeEntityType.FindProperty("GuidToBytesConverterProperty");
+            var guidToStringConverterProperty = runtimeEntityType.FindProperty("GuidToStringConverterProperty");
+            var iPAddress = runtimeEntityType.FindProperty("IPAddress");
+            var iPAddressArray = runtimeEntityType.FindProperty("IPAddressArray");
+            var iPAddressToBytesConverterProperty = runtimeEntityType.FindProperty("IPAddressToBytesConverterProperty");
+            var iPAddressToStringConverterProperty = runtimeEntityType.FindProperty("IPAddressToStringConverterProperty");
+            var int16 = runtimeEntityType.FindProperty("Int16");
+            var int16Array = runtimeEntityType.FindProperty("Int16Array");
+            var int32 = runtimeEntityType.FindProperty("Int32");
+            var int32Array = runtimeEntityType.FindProperty("Int32Array");
+            var int64 = runtimeEntityType.FindProperty("Int64");
+            var int64Array = runtimeEntityType.FindProperty("Int64Array");
+            var int8 = runtimeEntityType.FindProperty("Int8");
+            var int8Array = runtimeEntityType.FindProperty("Int8Array");
+            var intNumberToBytesConverterProperty = runtimeEntityType.FindProperty("IntNumberToBytesConverterProperty");
+            var intNumberToStringConverterProperty = runtimeEntityType.FindProperty("IntNumberToStringConverterProperty");
+            var nullIntToNullStringConverterProperty = runtimeEntityType.FindProperty("NullIntToNullStringConverterProperty");
+            var nullableBool = runtimeEntityType.FindProperty("NullableBool");
+            var nullableBoolArray = runtimeEntityType.FindProperty("NullableBoolArray");
+            var nullableBytes = runtimeEntityType.FindProperty("NullableBytes");
+            var nullableBytesArray = runtimeEntityType.FindProperty("NullableBytesArray");
+            var nullableChar = runtimeEntityType.FindProperty("NullableChar");
+            var nullableCharArray = runtimeEntityType.FindProperty("NullableCharArray");
+            var nullableDateOnly = runtimeEntityType.FindProperty("NullableDateOnly");
+            var nullableDateOnlyArray = runtimeEntityType.FindProperty("NullableDateOnlyArray");
+            var nullableDateTime = runtimeEntityType.FindProperty("NullableDateTime");
+            var nullableDateTimeArray = runtimeEntityType.FindProperty("NullableDateTimeArray");
+            var nullableDecimal = runtimeEntityType.FindProperty("NullableDecimal");
+            var nullableDecimalArray = runtimeEntityType.FindProperty("NullableDecimalArray");
+            var nullableDouble = runtimeEntityType.FindProperty("NullableDouble");
+            var nullableDoubleArray = runtimeEntityType.FindProperty("NullableDoubleArray");
+            var nullableEnum16 = runtimeEntityType.FindProperty("NullableEnum16");
+            var nullableEnum16Array = runtimeEntityType.FindProperty("NullableEnum16Array");
+            var nullableEnum16AsString = runtimeEntityType.FindProperty("NullableEnum16AsString");
+            var nullableEnum16AsStringArray = runtimeEntityType.FindProperty("NullableEnum16AsStringArray");
+            var nullableEnum16AsStringCollection = runtimeEntityType.FindProperty("NullableEnum16AsStringCollection");
+            var nullableEnum16Collection = runtimeEntityType.FindProperty("NullableEnum16Collection");
+            var nullableEnum32 = runtimeEntityType.FindProperty("NullableEnum32");
+            var nullableEnum32Array = runtimeEntityType.FindProperty("NullableEnum32Array");
+            var nullableEnum32AsString = runtimeEntityType.FindProperty("NullableEnum32AsString");
+            var nullableEnum32AsStringArray = runtimeEntityType.FindProperty("NullableEnum32AsStringArray");
+            var nullableEnum32AsStringCollection = runtimeEntityType.FindProperty("NullableEnum32AsStringCollection");
+            var nullableEnum32Collection = runtimeEntityType.FindProperty("NullableEnum32Collection");
+            var nullableEnum64 = runtimeEntityType.FindProperty("NullableEnum64");
+            var nullableEnum64Array = runtimeEntityType.FindProperty("NullableEnum64Array");
+            var nullableEnum64AsString = runtimeEntityType.FindProperty("NullableEnum64AsString");
+            var nullableEnum64AsStringArray = runtimeEntityType.FindProperty("NullableEnum64AsStringArray");
+            var nullableEnum64AsStringCollection = runtimeEntityType.FindProperty("NullableEnum64AsStringCollection");
+            var nullableEnum64Collection = runtimeEntityType.FindProperty("NullableEnum64Collection");
+            var nullableEnum8 = runtimeEntityType.FindProperty("NullableEnum8");
+            var nullableEnum8Array = runtimeEntityType.FindProperty("NullableEnum8Array");
+            var nullableEnum8AsString = runtimeEntityType.FindProperty("NullableEnum8AsString");
+            var nullableEnum8AsStringArray = runtimeEntityType.FindProperty("NullableEnum8AsStringArray");
+            var nullableEnum8AsStringCollection = runtimeEntityType.FindProperty("NullableEnum8AsStringCollection");
+            var nullableEnum8Collection = runtimeEntityType.FindProperty("NullableEnum8Collection");
+            var nullableEnumU16 = runtimeEntityType.FindProperty("NullableEnumU16");
+            var nullableEnumU16Array = runtimeEntityType.FindProperty("NullableEnumU16Array");
+            var nullableEnumU16AsString = runtimeEntityType.FindProperty("NullableEnumU16AsString");
+            var nullableEnumU16AsStringArray = runtimeEntityType.FindProperty("NullableEnumU16AsStringArray");
+            var nullableEnumU16AsStringCollection = runtimeEntityType.FindProperty("NullableEnumU16AsStringCollection");
+            var nullableEnumU16Collection = runtimeEntityType.FindProperty("NullableEnumU16Collection");
+            var nullableEnumU32 = runtimeEntityType.FindProperty("NullableEnumU32");
+            var nullableEnumU32Array = runtimeEntityType.FindProperty("NullableEnumU32Array");
+            var nullableEnumU32AsString = runtimeEntityType.FindProperty("NullableEnumU32AsString");
+            var nullableEnumU32AsStringArray = runtimeEntityType.FindProperty("NullableEnumU32AsStringArray");
+            var nullableEnumU32AsStringCollection = runtimeEntityType.FindProperty("NullableEnumU32AsStringCollection");
+            var nullableEnumU32Collection = runtimeEntityType.FindProperty("NullableEnumU32Collection");
+            var nullableEnumU64 = runtimeEntityType.FindProperty("NullableEnumU64");
+            var nullableEnumU64Array = runtimeEntityType.FindProperty("NullableEnumU64Array");
+            var nullableEnumU64AsString = runtimeEntityType.FindProperty("NullableEnumU64AsString");
+            var nullableEnumU64AsStringArray = runtimeEntityType.FindProperty("NullableEnumU64AsStringArray");
+            var nullableEnumU64AsStringCollection = runtimeEntityType.FindProperty("NullableEnumU64AsStringCollection");
+            var nullableEnumU64Collection = runtimeEntityType.FindProperty("NullableEnumU64Collection");
+            var nullableEnumU8 = runtimeEntityType.FindProperty("NullableEnumU8");
+            var nullableEnumU8Array = runtimeEntityType.FindProperty("NullableEnumU8Array");
+            var nullableEnumU8AsString = runtimeEntityType.FindProperty("NullableEnumU8AsString");
+            var nullableEnumU8AsStringArray = runtimeEntityType.FindProperty("NullableEnumU8AsStringArray");
+            var nullableEnumU8AsStringCollection = runtimeEntityType.FindProperty("NullableEnumU8AsStringCollection");
+            var nullableEnumU8Collection = runtimeEntityType.FindProperty("NullableEnumU8Collection");
+            var nullableFloat = runtimeEntityType.FindProperty("NullableFloat");
+            var nullableFloatArray = runtimeEntityType.FindProperty("NullableFloatArray");
+            var nullableGuid = runtimeEntityType.FindProperty("NullableGuid");
+            var nullableGuidArray = runtimeEntityType.FindProperty("NullableGuidArray");
+            var nullableIPAddress = runtimeEntityType.FindProperty("NullableIPAddress");
+            var nullableIPAddressArray = runtimeEntityType.FindProperty("NullableIPAddressArray");
+            var nullableInt16 = runtimeEntityType.FindProperty("NullableInt16");
+            var nullableInt16Array = runtimeEntityType.FindProperty("NullableInt16Array");
+            var nullableInt32 = runtimeEntityType.FindProperty("NullableInt32");
+            var nullableInt32Array = runtimeEntityType.FindProperty("NullableInt32Array");
+            var nullableInt64 = runtimeEntityType.FindProperty("NullableInt64");
+            var nullableInt64Array = runtimeEntityType.FindProperty("NullableInt64Array");
+            var nullableInt8 = runtimeEntityType.FindProperty("NullableInt8");
+            var nullableInt8Array = runtimeEntityType.FindProperty("NullableInt8Array");
+            var nullablePhysicalAddress = runtimeEntityType.FindProperty("NullablePhysicalAddress");
+            var nullablePhysicalAddressArray = runtimeEntityType.FindProperty("NullablePhysicalAddressArray");
+            var nullableString = runtimeEntityType.FindProperty("NullableString");
+            var nullableStringArray = runtimeEntityType.FindProperty("NullableStringArray");
+            var nullableTimeOnly = runtimeEntityType.FindProperty("NullableTimeOnly");
+            var nullableTimeOnlyArray = runtimeEntityType.FindProperty("NullableTimeOnlyArray");
+            var nullableTimeSpan = runtimeEntityType.FindProperty("NullableTimeSpan");
+            var nullableTimeSpanArray = runtimeEntityType.FindProperty("NullableTimeSpanArray");
+            var nullableUInt16 = runtimeEntityType.FindProperty("NullableUInt16");
+            var nullableUInt16Array = runtimeEntityType.FindProperty("NullableUInt16Array");
+            var nullableUInt32 = runtimeEntityType.FindProperty("NullableUInt32");
+            var nullableUInt32Array = runtimeEntityType.FindProperty("NullableUInt32Array");
+            var nullableUInt64 = runtimeEntityType.FindProperty("NullableUInt64");
+            var nullableUInt64Array = runtimeEntityType.FindProperty("NullableUInt64Array");
+            var nullableUInt8 = runtimeEntityType.FindProperty("NullableUInt8");
+            var nullableUInt8Array = runtimeEntityType.FindProperty("NullableUInt8Array");
+            var nullableUri = runtimeEntityType.FindProperty("NullableUri");
+            var nullableUriArray = runtimeEntityType.FindProperty("NullableUriArray");
+            var physicalAddress = runtimeEntityType.FindProperty("PhysicalAddress");
+            var physicalAddressArray = runtimeEntityType.FindProperty("PhysicalAddressArray");
+            var physicalAddressToBytesConverterProperty = runtimeEntityType.FindProperty("PhysicalAddressToBytesConverterProperty");
+            var physicalAddressToStringConverterProperty = runtimeEntityType.FindProperty("PhysicalAddressToStringConverterProperty");
+            var @string = runtimeEntityType.FindProperty("String");
+            var stringArray = runtimeEntityType.FindProperty("StringArray");
+            var stringToBoolConverterProperty = runtimeEntityType.FindProperty("StringToBoolConverterProperty");
+            var stringToBytesConverterProperty = runtimeEntityType.FindProperty("StringToBytesConverterProperty");
+            var stringToCharConverterProperty = runtimeEntityType.FindProperty("StringToCharConverterProperty");
+            var stringToDateOnlyConverterProperty = runtimeEntityType.FindProperty("StringToDateOnlyConverterProperty");
+            var stringToDateTimeConverterProperty = runtimeEntityType.FindProperty("StringToDateTimeConverterProperty");
+            var stringToDateTimeOffsetConverterProperty = runtimeEntityType.FindProperty("StringToDateTimeOffsetConverterProperty");
+            var stringToDecimalNumberConverterProperty = runtimeEntityType.FindProperty("StringToDecimalNumberConverterProperty");
+            var stringToDoubleNumberConverterProperty = runtimeEntityType.FindProperty("StringToDoubleNumberConverterProperty");
+            var stringToEnumConverterProperty = runtimeEntityType.FindProperty("StringToEnumConverterProperty");
+            var stringToGuidConverterProperty = runtimeEntityType.FindProperty("StringToGuidConverterProperty");
+            var stringToIntNumberConverterProperty = runtimeEntityType.FindProperty("StringToIntNumberConverterProperty");
+            var stringToTimeOnlyConverterProperty = runtimeEntityType.FindProperty("StringToTimeOnlyConverterProperty");
+            var stringToTimeSpanConverterProperty = runtimeEntityType.FindProperty("StringToTimeSpanConverterProperty");
+            var stringToUriConverterProperty = runtimeEntityType.FindProperty("StringToUriConverterProperty");
+            var timeOnly = runtimeEntityType.FindProperty("TimeOnly");
+            var timeOnlyArray = runtimeEntityType.FindProperty("TimeOnlyArray");
+            var timeOnlyToStringConverterProperty = runtimeEntityType.FindProperty("TimeOnlyToStringConverterProperty");
+            var timeOnlyToTicksConverterProperty = runtimeEntityType.FindProperty("TimeOnlyToTicksConverterProperty");
+            var timeSpan = runtimeEntityType.FindProperty("TimeSpan");
+            var timeSpanArray = runtimeEntityType.FindProperty("TimeSpanArray");
+            var timeSpanToStringConverterProperty = runtimeEntityType.FindProperty("TimeSpanToStringConverterProperty");
+            var timeSpanToTicksConverterProperty = runtimeEntityType.FindProperty("TimeSpanToTicksConverterProperty");
+            var uInt16 = runtimeEntityType.FindProperty("UInt16");
+            var uInt16Array = runtimeEntityType.FindProperty("UInt16Array");
+            var uInt32 = runtimeEntityType.FindProperty("UInt32");
+            var uInt32Array = runtimeEntityType.FindProperty("UInt32Array");
+            var uInt64 = runtimeEntityType.FindProperty("UInt64");
+            var uInt64Array = runtimeEntityType.FindProperty("UInt64Array");
+            var uInt8 = runtimeEntityType.FindProperty("UInt8");
+            var uInt8Array = runtimeEntityType.FindProperty("UInt8Array");
+            var uri = runtimeEntityType.FindProperty("Uri");
+            var uriArray = runtimeEntityType.FindProperty("UriArray");
+            var uriToStringConverterProperty = runtimeEntityType.FindProperty("UriToStringConverterProperty");
             var key = runtimeEntityType.FindKey(new[] { id });
             key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.CreateSimpleNonNullableFactory<CompiledModelTestBase.ManyTypesId>(key));
             key.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<CompiledModelTestBase.ManyTypesId>(key));

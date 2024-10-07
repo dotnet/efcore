@@ -531,7 +531,7 @@ public static class CosmosEntityTypeBuilderExtensions
     ///     <see langword="null" /> to revert to the default setting.
     /// </param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
-    public static EntityTypeBuilder IncludeRootDiscriminatorInJsonId(
+    public static EntityTypeBuilder HasRootDiscriminatorInJsonId(
         this EntityTypeBuilder entityTypeBuilder,
         bool? includeDiscriminator = true)
     {
@@ -559,7 +559,8 @@ public static class CosmosEntityTypeBuilderExtensions
     /// </param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
     public static EntityTypeBuilder<TEntity> HasDiscriminatorInJsonId<TEntity>(
-        this EntityTypeBuilder<TEntity> entityTypeBuilder, bool? includeDiscriminator = true)
+        this EntityTypeBuilder<TEntity> entityTypeBuilder,
+        bool? includeDiscriminator = true)
         where TEntity : class
         => (EntityTypeBuilder<TEntity>)HasDiscriminatorInJsonId((EntityTypeBuilder)entityTypeBuilder, includeDiscriminator);
 
@@ -577,10 +578,11 @@ public static class CosmosEntityTypeBuilderExtensions
     ///     <see langword="null" /> to revert to the default setting.
     /// </param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
-    public static EntityTypeBuilder<TEntity> IncludeRootDiscriminatorInJsonId<TEntity>(
-        this EntityTypeBuilder<TEntity> entityTypeBuilder, bool? includeDiscriminator = true)
+    public static EntityTypeBuilder<TEntity> HasRootDiscriminatorInJsonId<TEntity>(
+        this EntityTypeBuilder<TEntity> entityTypeBuilder,
+        bool? includeDiscriminator = true)
         where TEntity : class
-        => (EntityTypeBuilder<TEntity>)IncludeRootDiscriminatorInJsonId((EntityTypeBuilder)entityTypeBuilder, includeDiscriminator);
+        => (EntityTypeBuilder<TEntity>)HasRootDiscriminatorInJsonId((EntityTypeBuilder)entityTypeBuilder, includeDiscriminator);
 
     /// <summary>
     ///     Includes the discriminator value of the entity type in the JSON "id" value. This was the default behavior before EF Core 9.
@@ -597,7 +599,9 @@ public static class CosmosEntityTypeBuilderExtensions
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>The same builder instance if the configuration was applied, <see langword="null" /> otherwise.</returns>
     public static IConventionEntityTypeBuilder? HasDiscriminatorInJsonId(
-        this IConventionEntityTypeBuilder entityTypeBuilder, bool? includeDiscriminator, bool fromDataAnnotation = false)
+        this IConventionEntityTypeBuilder entityTypeBuilder,
+        bool? includeDiscriminator,
+        bool fromDataAnnotation = false)
     {
         if (!entityTypeBuilder.CanSetDiscriminatorInJsonId(includeDiscriminator, fromDataAnnotation))
         {
@@ -629,10 +633,12 @@ public static class CosmosEntityTypeBuilderExtensions
     /// </param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>The same builder instance if the configuration was applied, <see langword="null" /> otherwise.</returns>
-    public static IConventionEntityTypeBuilder? IncludeRootDiscriminatorInJsonId(
-        this IConventionEntityTypeBuilder entityTypeBuilder, bool? includeDiscriminator, bool fromDataAnnotation = false)
+    public static IConventionEntityTypeBuilder? HasRootDiscriminatorInJsonId(
+        this IConventionEntityTypeBuilder entityTypeBuilder,
+        bool? includeDiscriminator,
+        bool fromDataAnnotation = false)
     {
-        if (!entityTypeBuilder.CanSetIncludeRootDiscriminatorInJsonId(includeDiscriminator, fromDataAnnotation))
+        if (!entityTypeBuilder.CanSetRootDiscriminatorInJsonId(includeDiscriminator, fromDataAnnotation))
         {
             return null;
         }
@@ -678,7 +684,6 @@ public static class CosmosEntityTypeBuilderExtensions
                     : IdDiscriminatorMode.None, fromDataAnnotation);
     }
 
-
     /// <summary>
     ///     Returns a value indicating whether the setting for including the discriminator can be set
     ///     from the current configuration source
@@ -694,7 +699,7 @@ public static class CosmosEntityTypeBuilderExtensions
     /// </param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns><see langword="true" /> if the configuration can be applied.</returns>
-    public static bool CanSetIncludeRootDiscriminatorInJsonId(
+    public static bool CanSetRootDiscriminatorInJsonId(
         this IConventionEntityTypeBuilder entityTypeBuilder,
         bool? includeDiscriminator,
         bool fromDataAnnotation = false)

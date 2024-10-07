@@ -414,7 +414,7 @@ WHERE "s"."Banner5" = @__byteArrayParam_0
         await base.Where_DateOnly_FromDateTime_compared_to_property(async);
 
         AssertSql(
-"""
+            """
 SELECT "t"."Id" AS "TagId", "m"."Id" AS "MissionId"
 FROM "Tags" AS "t"
 CROSS JOIN "Missions" AS "m"
@@ -427,7 +427,7 @@ WHERE date("t"."IssueDate") > "m"."Date"
         await base.Where_DateOnly_FromDateTime_compared_to_constant_and_parameter(async);
 
         AssertSql(
-"""
+            """
 @__prm_0='10/11/0002' (DbType = Date)
 
 SELECT "t"."Id", "t"."GearNickName", "t"."GearSquadId", "t"."IssueDate", "t"."Note"

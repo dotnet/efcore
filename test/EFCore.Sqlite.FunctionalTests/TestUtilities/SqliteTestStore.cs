@@ -72,7 +72,7 @@ public class SqliteTestStore : RelationalTestStore
         }
 
         using var context = createContext();
-        if (!await context.Database.EnsureCreatedAsync())
+        if (!await context.Database.EnsureCreatedResilientlyAsync())
         {
             if (clean != null)
             {
@@ -80,6 +80,9 @@ public class SqliteTestStore : RelationalTestStore
             }
 
             await CleanAsync(context);
+
+            // Run context seeding
+            await context.Database.EnsureCreatedResilientlyAsync();
         }
 
         if (seed != null)

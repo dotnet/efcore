@@ -2543,8 +2543,7 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture>(TFixture fixture) 
                     g =>
                         new
                         {
-                            g.Key,
-                            Max = g.Distinct().Select(e => e.OrderDate).Distinct().Max(),
+                            g.Key, Max = g.Distinct().Select(e => e.OrderDate).Distinct().Max(),
                         }),
             elementSorter: e => e.Key);
 
@@ -2559,8 +2558,7 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture>(TFixture fixture) 
                     g =>
                         new
                         {
-                            g.Key,
-                            Max = g.Where(e => e.OrderDate.HasValue).Select(e => e.OrderDate).Distinct().Max(),
+                            g.Key, Max = g.Where(e => e.OrderDate.HasValue).Select(e => e.OrderDate).Distinct().Max(),
                         }),
             elementSorter: e => e.Key);
 
@@ -2759,6 +2757,15 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture>(TFixture fixture) 
                     AssertCollection(ee.Orders, aa.Orders);
                     AssertEqual(ee.LastOrder, aa.LastOrder);
                 }));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Final_GroupBy_TagWith(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().TagWith("foo").GroupBy(c => c.City),
+            elementSorter: e => e.Key,
+            elementAsserter: (e, a) => AssertGrouping(e, a));
 
     #endregion
 

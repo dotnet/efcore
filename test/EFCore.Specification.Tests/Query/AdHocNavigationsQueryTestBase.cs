@@ -79,7 +79,8 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
         }
     }
 
-    private class Context3409(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context3409(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Parent> Parents { get; set; }
         public DbSet<Child> Children { get; set; }
@@ -201,8 +202,7 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
         public DbSet<Order> Orders { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<Customer>(
+            => modelBuilder.Entity<Customer>(
                 b =>
                 {
                     b.HasMany(e => e.Orders1).WithOne().HasForeignKey("CustomerId1");
@@ -210,7 +210,6 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
                     b.HasMany(e => e.Orders3).WithOne().HasForeignKey("CustomerId3");
                     b.HasMany(e => e.Orders4).WithOne().HasForeignKey("CustomerId4");
                 });
-        }
 
         public Task SeedAsync()
         {
@@ -313,7 +312,8 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
         }
     }
 
-    private class Context7312(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context7312(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Proposal> Proposals { get; set; }
         public DbSet<ProposalCustom> ProposalCustoms { get; set; }
@@ -387,7 +387,8 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
         }
     }
 
-    private class Context9038(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context9038(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Person9038> People { get; set; }
 
@@ -493,7 +494,8 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
         }
     }
 
-    private class Context10635(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context10635(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Parent10635> Parents { get; set; }
         public DbSet<Child10635> Children { get; set; }
@@ -570,7 +572,8 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
                     }).ToList());
     }
 
-    private class Context11923(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context11923(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Blog> Blogs { get; set; }
         public DbSet<Post> Posts { get; set; }
@@ -760,7 +763,8 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
         }
     }
 
-    private class Context12456(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context12456(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Activity> Activities { get; set; }
         public DbSet<CompetitionSeason> CompetitionSeasons { get; set; }
@@ -841,7 +845,8 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
         }
     }
 
-    private class Context12582(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context12582(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Employee> Employees { get; set; }
         public DbSet<EmployeeDevice> Devices { get; set; }
@@ -903,7 +908,8 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
         Assert.Single(result[0].Comments);
     }
 
-    private class Context12748(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context12748(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Blog> Blogs { get; set; }
         public DbSet<Comment> Comments { get; set; }
@@ -1010,7 +1016,8 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
                 }).SingleOrDefault();
     }
 
-    private class Context20813(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context20813(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Order> Orders { get; set; }
 
@@ -1088,7 +1095,8 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
         var result = context.Books.Where(b => b.Id == 1).Select(projection).SingleOrDefault();
     }
 
-    private class Context21768(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context21768(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Book> Books { get; set; }
         public DbSet<BookCover> BookCovers { get; set; }
@@ -1274,10 +1282,7 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
         {
             Add(new PrincipalOneToOne { Dependent = new DependentOneToOne() });
             Add(
-                new PrincipalOneToMany
-                {
-                    Dependents = [new(), new()]
-                });
+                new PrincipalOneToMany { Dependents = [new DependentOneToMany(), new DependentOneToMany()] });
 
             return SaveChangesAsync();
         }
@@ -1431,11 +1436,11 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
         }
     }
 
-    private class Context23674(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context23674(DbContextOptions options) : DbContext(options)
     {
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Principal>();
-
 
         public class Principal
         {
@@ -1516,7 +1521,8 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
             .FirstOrDefaultAsync(x => x.Id == id);
     }
 
-    private class Context23676(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context23676(DbContextOptions options) : DbContext(options)
     {
         public DbSet<PersonEntity> Persons { get; set; }
 

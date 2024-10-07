@@ -206,8 +206,8 @@ public class PropertyAccessorsFactory
         }
 
         return Expression.Lambda<Func<InternalEntityEntry, TProperty>>(
-                currentValueExpression,
-                entryParameter);
+            currentValueExpression,
+            entryParameter);
     }
 
     private static Expression<Func<InternalEntityEntry, TProperty>> CreateOriginalValueGetter<TProperty>(IProperty property)
@@ -216,19 +216,19 @@ public class PropertyAccessorsFactory
         var originalValuesIndex = property.GetOriginalValueIndex();
 
         return Expression.Lambda<Func<InternalEntityEntry, TProperty>>(
-                originalValuesIndex >= 0
-                    ? Expression.Call(
-                        entryParameter,
-                        InternalEntityEntry.MakeReadOriginalValueMethod(typeof(TProperty)),
-                        Expression.Constant(property),
-                        Expression.Constant(originalValuesIndex))
-                    : Expression.Block(
-                        Expression.Throw(
-                            Expression.Constant(
-                                new InvalidOperationException(
-                                    CoreStrings.OriginalValueNotTracked(property.Name, property.DeclaringType.DisplayName())))),
-                        Expression.Constant(default(TProperty), typeof(TProperty))),
-                entryParameter);
+            originalValuesIndex >= 0
+                ? Expression.Call(
+                    entryParameter,
+                    InternalEntityEntry.MakeReadOriginalValueMethod(typeof(TProperty)),
+                    Expression.Constant(property),
+                    Expression.Constant(originalValuesIndex))
+                : Expression.Block(
+                    Expression.Throw(
+                        Expression.Constant(
+                            new InvalidOperationException(
+                                CoreStrings.OriginalValueNotTracked(property.Name, property.DeclaringType.DisplayName())))),
+                    Expression.Constant(default(TProperty), typeof(TProperty))),
+            entryParameter);
     }
 
     private static Expression<Func<InternalEntityEntry, TProperty>> CreateRelationshipSnapshotGetter<TProperty>(IPropertyBase propertyBase)
@@ -237,17 +237,17 @@ public class PropertyAccessorsFactory
         var relationshipIndex = (propertyBase as IProperty)?.GetRelationshipIndex() ?? -1;
 
         return Expression.Lambda<Func<InternalEntityEntry, TProperty>>(
-                relationshipIndex >= 0
-                    ? Expression.Call(
-                        entryParameter,
-                        InternalEntityEntry.MakeReadRelationshipSnapshotValueMethod(typeof(TProperty)),
-                        Expression.Constant(propertyBase),
-                        Expression.Constant(relationshipIndex))
-                    : Expression.Call(
-                        entryParameter,
-                        InternalEntityEntry.MakeGetCurrentValueMethod(typeof(TProperty)),
-                        Expression.Constant(propertyBase)),
-                entryParameter);
+            relationshipIndex >= 0
+                ? Expression.Call(
+                    entryParameter,
+                    InternalEntityEntry.MakeReadRelationshipSnapshotValueMethod(typeof(TProperty)),
+                    Expression.Constant(propertyBase),
+                    Expression.Constant(relationshipIndex))
+                : Expression.Call(
+                    entryParameter,
+                    InternalEntityEntry.MakeGetCurrentValueMethod(typeof(TProperty)),
+                    Expression.Constant(propertyBase)),
+            entryParameter);
     }
 
     private static Expression<Func<ValueBuffer, object>> CreateValueBufferGetter(IProperty property)
@@ -255,11 +255,11 @@ public class PropertyAccessorsFactory
         var valueBufferParameter = Expression.Parameter(typeof(ValueBuffer), "valueBuffer");
 
         return Expression.Lambda<Func<ValueBuffer, object>>(
-                Expression.Call(
-                    valueBufferParameter,
-                    ValueBuffer.GetValueMethod,
-                    Expression.Constant(property.GetIndex())),
-                valueBufferParameter);
+            Expression.Call(
+                valueBufferParameter,
+                ValueBuffer.GetValueMethod,
+                Expression.Constant(property.GetIndex())),
+            valueBufferParameter);
     }
 
     /// <summary>
@@ -313,9 +313,9 @@ public class PropertyAccessorsFactory
                 || instanceExpression.Type.IsNullableValueType())
             {
                 return Expression.Condition(
-                        Expression.Equal(instanceExpression, Expression.Constant(null)),
-                        Expression.Default(memberInfo.GetMemberType()),
-                        Expression.MakeMemberAccess(instanceExpression, memberInfo));
+                    Expression.Equal(instanceExpression, Expression.Constant(null)),
+                    Expression.Default(memberInfo.GetMemberType()),
+                    Expression.MakeMemberAccess(instanceExpression, memberInfo));
             }
         }
 

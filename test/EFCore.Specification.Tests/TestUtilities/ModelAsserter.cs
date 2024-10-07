@@ -3,6 +3,7 @@
 
 using System.ComponentModel;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Index = Microsoft.EntityFrameworkCore.Metadata.Internal.Index;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
@@ -54,7 +55,8 @@ public class ModelAsserter
                     Assert.Equal(expected.GetPropertyAccessMode(), actual.GetPropertyAccessMode());
                 }
             },
-            () => AssertEqual(expected.GetEntityTypes(), actual.GetEntityTypes(),
+            () => AssertEqual(
+                expected.GetEntityTypes(), actual.GetEntityTypes(),
                 assertOrder: true, compareAnnotations: compareMemberAnnotations),
             () => Assert.Equal(expectedAnnotations, actualAnnotations, TestAnnotationComparer.Instance));
     }
@@ -75,7 +77,8 @@ public class ModelAsserter
             expectedEntityTypes = expectedEntityTypes.Select(x => x);
         }
 
-        Assert.Equal(expectedEntityTypes, actualEntityTypes,
+        Assert.Equal(
+            expectedEntityTypes, actualEntityTypes,
             (expected, actual) =>
                 AssertEqual(
                     expected,
@@ -86,9 +89,13 @@ public class ModelAsserter
                     compareMemberAnnotations: compareAnnotations));
     }
 
-    public virtual bool AssertEqual(IReadOnlyEntityType? expected, IReadOnlyEntityType? actual,
-        IEnumerable<IAnnotation> expectedAnnotations, IEnumerable<IAnnotation> actualAnnotations,
-        bool compareBackreferences = false, bool compareMemberAnnotations = false)
+    public virtual bool AssertEqual(
+        IReadOnlyEntityType? expected,
+        IReadOnlyEntityType? actual,
+        IEnumerable<IAnnotation> expectedAnnotations,
+        IEnumerable<IAnnotation> actualAnnotations,
+        bool compareBackreferences = false,
+        bool compareMemberAnnotations = false)
     {
         if (expected == null)
         {
@@ -135,19 +142,26 @@ public class ModelAsserter
             () => Assert.Equal(expected.GetDiscriminatorPropertyName(), actual.GetDiscriminatorPropertyName()),
             () => Assert.Equal(expected.GetDiscriminatorValue(), actual.GetDiscriminatorValue()),
             () => Assert.Equal(expected.GetIsDiscriminatorMappingComplete(), actual.GetIsDiscriminatorMappingComplete()),
-            () => AssertEqual(expected.GetProperties(), actual.GetProperties(),
+            () => AssertEqual(
+                expected.GetProperties(), actual.GetProperties(),
                 assertOrder: true, compareAnnotations: compareMemberAnnotations),
-            () => AssertEqual(expected.GetServiceProperties(), actual.GetServiceProperties(),
+            () => AssertEqual(
+                expected.GetServiceProperties(), actual.GetServiceProperties(),
                 assertOrder: true, compareAnnotations: compareMemberAnnotations),
-            () => AssertEqual(expected.GetSkipNavigations(), actual.GetSkipNavigations(),
+            () => AssertEqual(
+                expected.GetSkipNavigations(), actual.GetSkipNavigations(),
                 assertOrder: true, compareAnnotations: compareMemberAnnotations),
-            () => AssertEqual(expected.GetForeignKeys(), actual.GetForeignKeys(),
+            () => AssertEqual(
+                expected.GetForeignKeys(), actual.GetForeignKeys(),
                 assertOrder: true, compareAnnotations: compareMemberAnnotations),
-            () => AssertEqual(expected.GetKeys(), actual.GetKeys(),
+            () => AssertEqual(
+                expected.GetKeys(), actual.GetKeys(),
                 assertOrder: true, compareAnnotations: compareMemberAnnotations),
-            () => AssertEqual(expected.GetIndexes(), actual.GetIndexes(),
+            () => AssertEqual(
+                expected.GetIndexes(), actual.GetIndexes(),
                 assertOrder: true, compareAnnotations: compareMemberAnnotations),
-            () => AssertEqual(expected.GetComplexProperties(), actual.GetComplexProperties(),
+            () => AssertEqual(
+                expected.GetComplexProperties(), actual.GetComplexProperties(),
                 assertOrder: true, compareAnnotations: compareMemberAnnotations),
             () =>
             {
@@ -168,8 +182,11 @@ public class ModelAsserter
         return true;
     }
 
-    public virtual bool AssertEqual(IReadOnlyComplexType expected, IReadOnlyComplexType actual,
-        IEnumerable<IAnnotation> expectedAnnotations, IEnumerable<IAnnotation> actualAnnotations,
+    public virtual bool AssertEqual(
+        IReadOnlyComplexType expected,
+        IReadOnlyComplexType actual,
+        IEnumerable<IAnnotation> expectedAnnotations,
+        IEnumerable<IAnnotation> actualAnnotations,
         bool compareBackreferences = false,
         bool compareMemberAnnotations = false)
     {
@@ -189,9 +206,11 @@ public class ModelAsserter
                 }
             },
             () => Assert.Equal(expected.GetChangeTrackingStrategy(), actual.GetChangeTrackingStrategy()),
-            () => AssertEqual(expected.GetProperties(), actual.GetProperties(),
+            () => AssertEqual(
+                expected.GetProperties(), actual.GetProperties(),
                 assertOrder: true, compareAnnotations: compareMemberAnnotations),
-            () => AssertEqual(expected.GetComplexProperties(), actual.GetComplexProperties(),
+            () => AssertEqual(
+                expected.GetComplexProperties(), actual.GetComplexProperties(),
                 assertOrder: true, compareAnnotations: compareMemberAnnotations),
             () =>
             {
@@ -221,7 +240,8 @@ public class ModelAsserter
             expectedProperties = expectedProperties.Select(x => x);
         }
 
-        Assert.Equal(expectedProperties, actualProperties,
+        Assert.Equal(
+            expectedProperties, actualProperties,
             (expected, actual) =>
                 AssertEqual(
                     expected,
@@ -232,8 +252,11 @@ public class ModelAsserter
                     compareMemberAnnotations: compareAnnotations));
     }
 
-    public virtual bool AssertEqual(IReadOnlyComplexProperty? expected, IReadOnlyComplexProperty? actual,
-        IEnumerable<IAnnotation> expectedAnnotations, IEnumerable<IAnnotation> actualAnnotations,
+    public virtual bool AssertEqual(
+        IReadOnlyComplexProperty? expected,
+        IReadOnlyComplexProperty? actual,
+        IEnumerable<IAnnotation> expectedAnnotations,
+        IEnumerable<IAnnotation> actualAnnotations,
         bool compareBackreferences = false,
         bool compareMemberAnnotations = false)
     {
@@ -258,7 +281,8 @@ public class ModelAsserter
             () => Assert.Equal(expected.IsNullable, actual.IsNullable),
             () => Assert.Equal(expected.Sentinel, actual.Sentinel),
             () => Assert.Equal(expected.GetPropertyAccessMode(), actual.GetPropertyAccessMode()),
-            () => AssertEqual(expected.ComplexType, actual.ComplexType,
+            () => AssertEqual(
+                expected.ComplexType, actual.ComplexType,
                 compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
                 compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
                 compareBackreferences: false,
@@ -291,7 +315,8 @@ public class ModelAsserter
             expectedProperties = expectedProperties.Select(x => x);
         }
 
-        Assert.Equal(expectedProperties, actualProperties,
+        Assert.Equal(
+            expectedProperties, actualProperties,
             (expected, actual) =>
                 AssertEqual(
                     expected,
@@ -422,7 +447,8 @@ public class ModelAsserter
             expectedProperties = expectedProperties.Select(x => x);
         }
 
-        Assert.Equal(expectedProperties, actualProperties,
+        Assert.Equal(
+            expectedProperties, actualProperties,
             (expected, actual) =>
                 AssertEqual(
                     expected,
@@ -432,8 +458,11 @@ public class ModelAsserter
                     compareBackreferences: false));
     }
 
-    public virtual bool AssertEqual(IReadOnlyServiceProperty? expected, IReadOnlyServiceProperty? actual,
-        IEnumerable<IAnnotation> expectedAnnotations, IEnumerable<IAnnotation> actualAnnotations,
+    public virtual bool AssertEqual(
+        IReadOnlyServiceProperty? expected,
+        IReadOnlyServiceProperty? actual,
+        IEnumerable<IAnnotation> expectedAnnotations,
+        IEnumerable<IAnnotation> actualAnnotations,
         bool compareBackreferences = false)
     {
         if (expected == null)
@@ -484,7 +513,8 @@ public class ModelAsserter
             expectedNavigations = expectedNavigations.Select(x => x);
         }
 
-        Assert.Equal(expectedNavigations, actualNavigations,
+        Assert.Equal(
+            expectedNavigations, actualNavigations,
             (expected, actual) =>
                 AssertEqual(
                     expected,
@@ -494,8 +524,11 @@ public class ModelAsserter
                     compareBackreferences: false));
     }
 
-    public virtual bool AssertEqual(IReadOnlyNavigation? expected, IReadOnlyNavigation? actual,
-        IEnumerable<IAnnotation> expectedAnnotations, IEnumerable<IAnnotation> actualAnnotations,
+    public virtual bool AssertEqual(
+        IReadOnlyNavigation? expected,
+        IReadOnlyNavigation? actual,
+        IEnumerable<IAnnotation> expectedAnnotations,
+        IEnumerable<IAnnotation> actualAnnotations,
         bool compareBackreferences = false)
     {
         if (expected == null)
@@ -563,7 +596,8 @@ public class ModelAsserter
             expectedNavigations = expectedNavigations.Select(x => x);
         }
 
-        Assert.Equal(expectedNavigations, actualNavigations,
+        Assert.Equal(
+            expectedNavigations, actualNavigations,
             (expected, actual) =>
                 AssertEqual(
                     expected,
@@ -573,8 +607,11 @@ public class ModelAsserter
                     compareBackreferences: false));
     }
 
-    public virtual bool AssertEqual(IReadOnlySkipNavigation expected, IReadOnlySkipNavigation actual,
-        IEnumerable<IAnnotation> expectedAnnotations, IEnumerable<IAnnotation> actualAnnotations,
+    public virtual bool AssertEqual(
+        IReadOnlySkipNavigation expected,
+        IReadOnlySkipNavigation actual,
+        IEnumerable<IAnnotation> expectedAnnotations,
+        IEnumerable<IAnnotation> actualAnnotations,
         bool compareBackreferences = false)
     {
         if (expected == null)
@@ -642,7 +679,8 @@ public class ModelAsserter
             expectedKeys = expectedKeys.Select(x => x);
         }
 
-        Assert.Equal(expectedKeys, actualKeys,
+        Assert.Equal(
+            expectedKeys, actualKeys,
             (expected, actual) =>
                 AssertEqual(
                     expected,
@@ -696,7 +734,8 @@ public class ModelAsserter
             {
                 if (compareBackreferences)
                 {
-                    Assert.Equal(expected.GetReferencingForeignKeys().ToList(), actual.GetReferencingForeignKeys(), ForeignKeyComparer.Instance);
+                    Assert.Equal(
+                        expected.GetReferencingForeignKeys().ToList(), actual.GetReferencingForeignKeys(), ForeignKeyComparer.Instance);
                 }
             },
             () => Assert.Equal(expectedAnnotations, actualAnnotations, TestAnnotationComparer.Instance));
@@ -720,7 +759,8 @@ public class ModelAsserter
             expectedForeignKey = expectedForeignKey.Select(x => x);
         }
 
-        Assert.Equal(expectedForeignKey, actualForeignKey,
+        Assert.Equal(
+            expectedForeignKey, actualForeignKey,
             (expected, actual) =>
                 AssertEqual(
                     expected,
@@ -768,7 +808,8 @@ public class ModelAsserter
             () => Assert.Equal(expected.IsRequiredDependent, actual.IsRequiredDependent),
             () => Assert.Equal(expected.IsUnique, actual.IsUnique),
             () => Assert.Equal(expected.DeleteBehavior, actual.DeleteBehavior),
-            () => AssertEqual(expected.DependentToPrincipal, actual.DependentToPrincipal,
+            () => AssertEqual(
+                expected.DependentToPrincipal, actual.DependentToPrincipal,
                 compareMemberAnnotations
                     ? expected.DependentToPrincipal?.GetAnnotations() ?? Enumerable.Empty<IAnnotation>()
                     : Enumerable.Empty<IAnnotation>(),
@@ -776,7 +817,8 @@ public class ModelAsserter
                     ? actual.DependentToPrincipal?.GetAnnotations() ?? Enumerable.Empty<IAnnotation>()
                     : Enumerable.Empty<IAnnotation>(),
                 compareBackreferences: true),
-            () => AssertEqual(expected.PrincipalToDependent, actual.PrincipalToDependent,
+            () => AssertEqual(
+                expected.PrincipalToDependent, actual.PrincipalToDependent,
                 compareMemberAnnotations
                     ? expected.PrincipalToDependent?.GetAnnotations() ?? Enumerable.Empty<IAnnotation>()
                     : Enumerable.Empty<IAnnotation>(),
@@ -812,7 +854,8 @@ public class ModelAsserter
             expectedIndex = expectedIndex.Select(x => x);
         }
 
-        Assert.Equal(expectedIndex, actualIndex,
+        Assert.Equal(
+            expectedIndex, actualIndex,
             (expected, actual) =>
                 AssertEqual(
                     expected,
@@ -842,7 +885,7 @@ public class ModelAsserter
         expectedAnnotations = expectedAnnotations.Where(a => !CoreAnnotationNames.AllNames.Contains(a.Name));
         actualAnnotations = actualAnnotations.Where(a => !CoreAnnotationNames.AllNames.Contains(a.Name));
 
-        var designTime = expected is Metadata.Internal.Index && actual is Metadata.Internal.Index;
+        var designTime = expected is Index && actual is Index;
 
         Assert.Multiple(
             () =>
@@ -922,12 +965,13 @@ public class ModelAsserter
             {
                 var targetEntityType = clonedEntityType.Value;
                 var otherEntityType = targetEntityType.Model.FindEntityType(skipNavigation.TargetEntityType.Name)!;
-                Copy(skipNavigation, clonedEntityType.Value.AddSkipNavigation(
-                    skipNavigation.Name,
-                    skipNavigation.GetIdentifyingMemberInfo(),
-                    otherEntityType,
-                    skipNavigation.IsCollection,
-                    skipNavigation.IsOnDependent));
+                Copy(
+                    skipNavigation, clonedEntityType.Value.AddSkipNavigation(
+                        skipNavigation.Name,
+                        skipNavigation.GetIdentifyingMemberInfo(),
+                        otherEntityType,
+                        skipNavigation.IsCollection,
+                        skipNavigation.IsOnDependent));
             }
         }
 
@@ -965,24 +1009,27 @@ public class ModelAsserter
 
         foreach (var property in sourceEntityType.GetDeclaredComplexProperties())
         {
-            Copy(property, targetEntityType.AddComplexProperty(
-                property.Name,
-                property.ClrType,
-                property.ComplexType.ClrType,
-                property.ComplexType.Name,
-                collection: property.IsCollection));
+            Copy(
+                property, targetEntityType.AddComplexProperty(
+                    property.Name,
+                    property.ClrType,
+                    property.ComplexType.ClrType,
+                    property.ComplexType.Name,
+                    collection: property.IsCollection));
         }
 
         foreach (var property in sourceEntityType.GetDeclaredServiceProperties())
         {
-            Copy(property, targetEntityType.AddServiceProperty(
-                property.GetIdentifyingMemberInfo()!, property.ClrType));
+            Copy(
+                property, targetEntityType.AddServiceProperty(
+                    property.GetIdentifyingMemberInfo()!, property.ClrType));
         }
 
         foreach (var key in sourceEntityType.GetDeclaredKeys())
         {
-            Copy(key, targetEntityType.AddKey(
-                key.Properties.Select(p => targetEntityType.FindProperty(p.Name)!).ToList()));
+            Copy(
+                key, targetEntityType.AddKey(
+                    key.Properties.Select(p => targetEntityType.FindProperty(p.Name)!).ToList()));
         }
 
         foreach (var index in sourceEntityType.GetDeclaredIndexes())
@@ -1003,6 +1050,7 @@ public class ModelAsserter
         {
             targetProperty.FieldInfo = fieldInfo;
         }
+
         targetProperty.IsNullable = sourceProperty.IsNullable;
         targetProperty.IsConcurrencyToken = sourceProperty.IsConcurrencyToken;
         targetProperty.Sentinel = sourceProperty.Sentinel;
@@ -1025,6 +1073,7 @@ public class ModelAsserter
         {
             targetProperty.FieldInfo = fieldInfo;
         }
+
         targetProperty.SetPropertyAccessMode(sourceProperty.GetPropertyAccessMode());
         targetProperty.AddAnnotations(sourceProperty.GetAnnotations().Where(a => !CoreAnnotationNames.AllNames.Contains(a.Name)));
     }
@@ -1035,6 +1084,7 @@ public class ModelAsserter
         {
             targetProperty.FieldInfo = fieldInfo;
         }
+
         targetProperty.IsNullable = sourceProperty.IsNullable;
         targetProperty.SetPropertyAccessMode(sourceProperty.GetPropertyAccessMode());
         targetProperty.AddAnnotations(sourceProperty.GetAnnotations().Where(a => !CoreAnnotationNames.AllNames.Contains(a.Name)));
@@ -1053,12 +1103,13 @@ public class ModelAsserter
 
         foreach (var property in sourceComplexType.GetDeclaredComplexProperties())
         {
-            Copy(property, targetComplexType.AddComplexProperty(
-                property.Name,
-                property.ClrType,
-                property.ComplexType.ClrType,
-                property.ComplexType.Name,
-                collection: property.IsCollection));
+            Copy(
+                property, targetComplexType.AddComplexProperty(
+                    property.Name,
+                    property.ClrType,
+                    property.ComplexType.ClrType,
+                    property.ComplexType.Name,
+                    collection: property.IsCollection));
         }
 
         targetComplexType.AddAnnotations(sourceComplexType.GetAnnotations().Where(a => !CoreAnnotationNames.AllNames.Contains(a.Name)));
@@ -1104,8 +1155,9 @@ public class ModelAsserter
             Copy(sourceForeignKey.PrincipalToDependent, clonedNavigation!);
         }
 
-        targetForeignKey.AddAnnotations(sourceForeignKey.GetAnnotations()
-            .Where(a => !CoreAnnotationNames.AllNames.Contains(a.Name)));
+        targetForeignKey.AddAnnotations(
+            sourceForeignKey.GetAnnotations()
+                .Where(a => !CoreAnnotationNames.AllNames.Contains(a.Name)));
     }
 
     protected virtual void Copy(IReadOnlyNavigation sourceNavigation, IMutableNavigation targetNavigation)
@@ -1118,8 +1170,9 @@ public class ModelAsserter
         targetNavigation.SetPropertyAccessMode(sourceNavigation.GetPropertyAccessMode());
         targetNavigation.SetIsEagerLoaded(sourceNavigation.IsEagerLoaded);
         targetNavigation.SetLazyLoadingEnabled(sourceNavigation.LazyLoadingEnabled);
-        targetNavigation.AddAnnotations(sourceNavigation.GetAnnotations()
-            .Where(a => !CoreAnnotationNames.AllNames.Contains(a.Name)));
+        targetNavigation.AddAnnotations(
+            sourceNavigation.GetAnnotations()
+                .Where(a => !CoreAnnotationNames.AllNames.Contains(a.Name)));
     }
 
     protected virtual void Copy(IReadOnlySkipNavigation sourceNavigation, IMutableSkipNavigation targetNavigation)

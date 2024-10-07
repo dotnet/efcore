@@ -1,20 +1,20 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+#nullable disable
+
 using Identity30.Data;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.AspNetIdentity;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
-
-#nullable disable
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Migrations
 {
-    [SqlServerCondition(SqlServerCondition.IsNotSqlAzure | SqlServerCondition.IsNotCI)]
-    public class MigrationsInfrastructureSqlServerTest(MigrationsInfrastructureSqlServerTest.MigrationsInfrastructureSqlServerFixture fixture)
+    [SqlServerCondition(SqlServerCondition.IsNotAzureSql | SqlServerCondition.IsNotCI)]
+    public class MigrationsInfrastructureSqlServerTest(
+        MigrationsInfrastructureSqlServerTest.MigrationsInfrastructureSqlServerFixture fixture)
         : MigrationsInfrastructureTestBase<MigrationsInfrastructureSqlServerTest.MigrationsInfrastructureSqlServerFixture>(fixture)
     {
         public override void Can_apply_all_migrations() // Issue #32826
@@ -29,8 +29,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             var sql = @"CREATE DATABASE TransactionSuppressed;
 ";
-            Assert.Equal(RelationalResources.LogNonTransactionalMigrationOperationWarning(new TestLogger<TestRelationalLoggingDefinitions>())
-                        .GenerateMessage(sql, "Migration3"),
+            Assert.Equal(
+                RelationalResources.LogNonTransactionalMigrationOperationWarning(new TestLogger<TestRelationalLoggingDefinitions>())
+                    .GenerateMessage(sql, "Migration3"),
                 Fixture.TestSqlLoggerFactory.Log.Single(l => l.Id == RelationalEventId.NonTransactionalMigrationOperationWarning).Message);
         }
 
@@ -966,8 +967,8 @@ GO
         {
             using var context = new BloggingContext(
                 Fixture.TestStore.AddProviderOptions(
-                    new DbContextOptionsBuilder().EnableServiceProviderCaching(false))
-                .ConfigureWarnings(e => e.Log(RelationalEventId.PendingModelChangesWarning)).Options);
+                        new DbContextOptionsBuilder().EnableServiceProviderCaching(false))
+                    .ConfigureWarnings(e => e.Log(RelationalEventId.PendingModelChangesWarning)).Options);
 
             context.Database.EnsureDeleted();
             GiveMeSomeTime(context);
@@ -975,7 +976,7 @@ GO
             var creator = (SqlServerDatabaseCreator)context.GetService<IRelationalDatabaseCreator>();
             creator.RetryTimeout = TimeSpan.FromMinutes(10);
 
-            await context.Database.MigrateAsync(null, "Empty");
+            await context.Database.MigrateAsync("Empty");
 
             Assert.True(creator.Exists());
         }
@@ -1001,6 +1002,8 @@ GO
 
             context.Database.Migrate();
 
+            SetSql(Fixture.TestSqlLoggerFactory.Sql);
+
             Assert.Equal(
                 """
 CREATE DATABASE [MigrationsTest];
@@ -1012,19 +1015,20 @@ END;
 
 SELECT 1
 
-@LockTimeout='?' (DbType = Double)
-
 DECLARE @result int;
-EXEC @result = sp_getapplock @Resource = '__EFMigrationsLock', @LockOwner = 'Session', @LockMode = 'Exclusive', @LockTimeout = @LockTimeout;
+EXEC @result = sp_getapplock @Resource = '__EFMigrationsLock', @LockOwner = 'Session', @LockMode = 'Exclusive';
 SELECT @result
 
-SELECT OBJECT_ID(N'[__EFMigrationsHistory]');
+IF OBJECT_ID(N'[__EFMigrationsHistory]') IS NULL
+BEGIN
+    CREATE TABLE [__EFMigrationsHistory] (
+        [MigrationId] nvarchar(150) NOT NULL,
+        [ProductVersion] nvarchar(32) NOT NULL,
+        CONSTRAINT [PK___EFMigrationsHistory] PRIMARY KEY ([MigrationId])
+    );
+END;
 
-CREATE TABLE [__EFMigrationsHistory] (
-    [MigrationId] nvarchar(150) NOT NULL,
-    [ProductVersion] nvarchar(32) NOT NULL,
-    CONSTRAINT [PK___EFMigrationsHistory] PRIMARY KEY ([MigrationId])
-);
+SELECT 1
 
 SELECT OBJECT_ID(N'[__EFMigrationsHistory]');
 
@@ -1033,7 +1037,7 @@ FROM [__EFMigrationsHistory]
 ORDER BY [MigrationId];
 
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-VALUES (N'00000000000000_Empty', N'9.0.0-dev');
+VALUES (N'00000000000000_Empty', N'7.0.0-test');
 
 --Before
 
@@ -1048,6 +1052,22 @@ BEGIN
     THROW 65536, 'Test', 0;
 END
 
+DECLARE @result int;
+EXEC @result = sp_releaseapplock @Resource = '__EFMigrationsLock', @LockOwner = 'Session';
+SELECT @result
+
+DECLARE @result int;
+EXEC @result = sp_getapplock @Resource = '__EFMigrationsLock', @LockOwner = 'Session', @LockMode = 'Exclusive';
+SELECT @result
+
+SELECT 1
+
+SELECT OBJECT_ID(N'[__EFMigrationsHistory]');
+
+SELECT [MigrationId], [ProductVersion]
+FROM [__EFMigrationsHistory]
+ORDER BY [MigrationId];
+
 IF OBJECT_ID(N'Blogs', N'U') IS NULL
 BEGIN
     CREATE TABLE [Blogs] (
@@ -1060,18 +1080,18 @@ BEGIN
 END
 
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-VALUES (N'00000000000001_Migration1', N'9.0.0-dev');
+VALUES (N'00000000000001_Migration1', N'7.0.0-test');
 
 --After
 
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-VALUES (N'00000000000002_Migration2', N'9.0.0-dev');
+VALUES (N'00000000000002_Migration2', N'7.0.0-test');
 
 DECLARE @result int;
 EXEC @result = sp_releaseapplock @Resource = '__EFMigrationsLock', @LockOwner = 'Session';
 SELECT @result
 """,
-                Fixture.TestSqlLoggerFactory.Sql,
+                Sql,
                 ignoreLineEndingDifferences: true);
         }
 
@@ -1096,6 +1116,8 @@ SELECT @result
 
             await context.Database.MigrateAsync();
 
+            SetSql(Fixture.TestSqlLoggerFactory.Sql);
+
             Assert.Equal(
                 """
 CREATE DATABASE [MigrationsTest];
@@ -1107,19 +1129,20 @@ END;
 
 SELECT 1
 
-@LockTimeout='?' (DbType = Double)
-
 DECLARE @result int;
-EXEC @result = sp_getapplock @Resource = '__EFMigrationsLock', @LockOwner = 'Session', @LockMode = 'Exclusive', @LockTimeout = @LockTimeout;
+EXEC @result = sp_getapplock @Resource = '__EFMigrationsLock', @LockOwner = 'Session', @LockMode = 'Exclusive';
 SELECT @result
 
-SELECT OBJECT_ID(N'[__EFMigrationsHistory]');
+IF OBJECT_ID(N'[__EFMigrationsHistory]') IS NULL
+BEGIN
+    CREATE TABLE [__EFMigrationsHistory] (
+        [MigrationId] nvarchar(150) NOT NULL,
+        [ProductVersion] nvarchar(32) NOT NULL,
+        CONSTRAINT [PK___EFMigrationsHistory] PRIMARY KEY ([MigrationId])
+    );
+END;
 
-CREATE TABLE [__EFMigrationsHistory] (
-    [MigrationId] nvarchar(150) NOT NULL,
-    [ProductVersion] nvarchar(32) NOT NULL,
-    CONSTRAINT [PK___EFMigrationsHistory] PRIMARY KEY ([MigrationId])
-);
+SELECT 1
 
 SELECT OBJECT_ID(N'[__EFMigrationsHistory]');
 
@@ -1128,7 +1151,7 @@ FROM [__EFMigrationsHistory]
 ORDER BY [MigrationId];
 
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-VALUES (N'00000000000000_Empty', N'9.0.0-dev');
+VALUES (N'00000000000000_Empty', N'7.0.0-test');
 
 --Before
 
@@ -1143,6 +1166,22 @@ BEGIN
     THROW 65536, 'Test', 0;
 END
 
+DECLARE @result int;
+EXEC @result = sp_releaseapplock @Resource = '__EFMigrationsLock', @LockOwner = 'Session';
+SELECT @result
+
+DECLARE @result int;
+EXEC @result = sp_getapplock @Resource = '__EFMigrationsLock', @LockOwner = 'Session', @LockMode = 'Exclusive';
+SELECT @result
+
+SELECT 1
+
+SELECT OBJECT_ID(N'[__EFMigrationsHistory]');
+
+SELECT [MigrationId], [ProductVersion]
+FROM [__EFMigrationsHistory]
+ORDER BY [MigrationId];
+
 IF OBJECT_ID(N'Blogs', N'U') IS NULL
 BEGIN
     CREATE TABLE [Blogs] (
@@ -1155,18 +1194,18 @@ BEGIN
 END
 
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-VALUES (N'00000000000001_Migration1', N'9.0.0-dev');
+VALUES (N'00000000000001_Migration1', N'7.0.0-test');
 
 --After
 
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-VALUES (N'00000000000002_Migration2', N'9.0.0-dev');
+VALUES (N'00000000000002_Migration2', N'7.0.0-test');
 
 DECLARE @result int;
 EXEC @result = sp_releaseapplock @Resource = '__EFMigrationsLock', @LockOwner = 'Session';
 SELECT @result
 """,
-                Fixture.TestSqlLoggerFactory.Sql,
+                Sql,
                 ignoreLineEndingDifferences: true);
         }
 
@@ -1202,7 +1241,8 @@ SELECT @result
             protected override void Up(MigrationBuilder migrationBuilder)
             {
                 migrationBuilder.Sql("--Before", suppressTransaction: true);
-                migrationBuilder.Sql("""
+                migrationBuilder.Sql(
+                    """
 IF OBJECT_ID(N'Blogs', N'U') IS NULL
 BEGIN
     CREATE TABLE [Blogs] (
@@ -1226,9 +1266,7 @@ END
         private class BloggingMigration2 : Migration
         {
             protected override void Up(MigrationBuilder migrationBuilder)
-            {
-                migrationBuilder.Sql("--After");
-            }
+                => migrationBuilder.Sql("--After");
 
             protected override void Down(MigrationBuilder migrationBuilder)
             {
@@ -2082,7 +2120,8 @@ DROP DATABASE TransactionSuppressed");
             public override MigrationsContext CreateContext()
             {
                 var options = AddOptions(TestStore.AddProviderOptions(new DbContextOptionsBuilder()))
-                    .UseSqlServer(TestStore.ConnectionString, b => b.ApplyConfiguration())
+                    .UseSqlServer(TestStore.ConnectionString, b => b
+                        .ApplyConfiguration())
                     .UseInternalServiceProvider(ServiceProvider)
                     .Options;
                 return new MigrationsContext(options);

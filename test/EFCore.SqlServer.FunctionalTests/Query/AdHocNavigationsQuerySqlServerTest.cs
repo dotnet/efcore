@@ -82,13 +82,13 @@ ORDER BY [b].[Id]
                 {
                     Posts =
                     [
-                        new(),
-                        new(),
-                        new()
+                        new Post(),
+                        new Post(),
+                        new Post()
                     ]
                 },
-                new Blog { Posts = [new(), new()] },
-                new Blog { Posts = [new()] });
+                new Blog { Posts = [new Post(), new Post()] },
+                new Blog { Posts = [new Post()] });
 
             return SaveChangesAsync();
         }

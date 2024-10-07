@@ -3,7 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class NullKeysInMemoryTest(NullKeysInMemoryTest.NullKeysInMemoryFixture fixture) : NullKeysTestBase<NullKeysInMemoryTest.NullKeysInMemoryFixture>(fixture)
+public class NullKeysInMemoryTest(NullKeysInMemoryTest.NullKeysInMemoryFixture fixture)
+    : NullKeysTestBase<NullKeysInMemoryTest.NullKeysInMemoryFixture>(fixture)
 {
     public class NullKeysInMemoryFixture : NullKeysFixtureBase
     {

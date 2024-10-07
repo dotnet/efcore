@@ -5,7 +5,8 @@ using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class DesignApiConsistencyTest(DesignApiConsistencyTest.DesignApiConsistencyFixture fixture) : ApiConsistencyTestBase<DesignApiConsistencyTest.DesignApiConsistencyFixture>(fixture)
+public class DesignApiConsistencyTest(DesignApiConsistencyTest.DesignApiConsistencyFixture fixture)
+    : ApiConsistencyTestBase<DesignApiConsistencyTest.DesignApiConsistencyFixture>(fixture)
 {
     protected override void AddServices(ServiceCollection serviceCollection)
     {

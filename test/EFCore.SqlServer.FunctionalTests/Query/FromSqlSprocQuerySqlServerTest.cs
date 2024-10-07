@@ -9,9 +9,7 @@ public class FromSqlSprocQuerySqlServerTest : FromSqlSprocQueryTestBase<Northwin
 {
     public FromSqlSprocQuerySqlServerTest(NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture)
         : base(fixture)
-    {
-        fixture.TestSqlLoggerFactory.Clear();
-    }
+        => fixture.TestSqlLoggerFactory.Clear();
 
     public override async Task From_sql_queryable_stored_procedure(bool async)
     {

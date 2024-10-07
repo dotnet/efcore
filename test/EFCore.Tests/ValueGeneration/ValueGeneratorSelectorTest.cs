@@ -70,7 +70,8 @@ public class ValueGeneratorSelectorTest
         var selector = new ValueGeneratorSelector(
             new ValueGeneratorSelectorDependencies(new ValueGeneratorCache(new ValueGeneratorCacheDependencies())));
 
-        Assert.IsType<CustomValueGenerator>(selector.TrySelect(entityType.FindProperty("Custom")!, entityType, out var generator) ? generator : null);
+        Assert.IsType<CustomValueGenerator>(
+            selector.TrySelect(entityType.FindProperty("Custom")!, entityType, out var generator) ? generator : null);
 
         Assert.Null(selector.TrySelect(entityType.FindProperty("Id")!, entityType, out generator) ? generator : null);
         Assert.Null(selector.TrySelect(entityType.FindProperty("Long")!, entityType, out generator) ? generator : null);
@@ -107,12 +108,16 @@ public class ValueGeneratorSelectorTest
         Assert.Null(selector.TrySelect(entityType.FindProperty("DateTimeOffset")!, entityType, out generator) ? generator : null);
         Assert.Null(selector.TrySelect(entityType.FindProperty("NullableDateTimeOffset")!, entityType, out generator) ? generator : null);
 
-        Assert.IsType<StringValueGenerator>(selector.TrySelect(entityType.FindProperty("String")!, entityType, out generator) ? generator : null);
+        Assert.IsType<StringValueGenerator>(
+            selector.TrySelect(entityType.FindProperty("String")!, entityType, out generator) ? generator : null);
 
-        Assert.IsType<GuidValueGenerator>(selector.TrySelect(entityType.FindProperty("Guid")!, entityType, out generator) ? generator : null);
-        Assert.IsType<GuidValueGenerator>(selector.TrySelect(entityType.FindProperty("NullableGuid")!, entityType, out generator) ? generator : null);
+        Assert.IsType<GuidValueGenerator>(
+            selector.TrySelect(entityType.FindProperty("Guid")!, entityType, out generator) ? generator : null);
+        Assert.IsType<GuidValueGenerator>(
+            selector.TrySelect(entityType.FindProperty("NullableGuid")!, entityType, out generator) ? generator : null);
 
-        Assert.IsType<BinaryValueGenerator>(selector.TrySelect(entityType.FindProperty("Binary")!, entityType, out generator) ? generator : null);
+        Assert.IsType<BinaryValueGenerator>(
+            selector.TrySelect(entityType.FindProperty("Binary")!, entityType, out generator) ? generator : null);
     }
 
     [ConditionalFact]

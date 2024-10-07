@@ -19,11 +19,7 @@ public abstract class GraphUpdatesSqlServerTestBase<TFixture>(TFixture fixture) 
             UniqueIndex = "UniqueIndex"
         };
 
-        var child = new StringKeyAndIndexChild
-        {
-            Id = "Child",
-            ParentId = "parent"
-        };
+        var child = new StringKeyAndIndexChild { Id = "Child", ParentId = "parent" };
 
         using var context = CreateContext();
         context.AttachRange(parent, child);
@@ -61,7 +57,6 @@ public abstract class GraphUpdatesSqlServerTestBase<TFixture>(TFixture fixture) 
             Assert.False(childEntry.Property(e => e.Id).IsModified);
             Assert.False(childEntry.Property(e => e.ParentId).IsModified);
         }
-
     }
 
     protected class StringKeyAndIndexParent : NotifyingEntity
@@ -121,7 +116,6 @@ public abstract class GraphUpdatesSqlServerTestBase<TFixture>(TFixture fixture) 
             get => _parentId;
             set => SetWithNotify(value, ref _parentId);
         }
-
 
         public int Foo
         {

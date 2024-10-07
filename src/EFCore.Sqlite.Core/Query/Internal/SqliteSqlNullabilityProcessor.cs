@@ -84,7 +84,7 @@ public class SqliteSqlNullabilityProcessor : SqlNullabilityProcessor
         return regexpExpression.Update(match, pattern);
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     protected override SqlExpression VisitSqlFunction(
         SqlFunctionExpression sqlFunctionExpression,
         bool allowOptimizedExpansion,

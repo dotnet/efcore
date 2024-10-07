@@ -14,22 +14,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal;
 /// </summary>
 public class QueryOptimizingExpressionVisitor : ExpressionVisitor
 {
-    private static readonly List<MethodInfo> SingleResultMethodInfos =
-    [
-        QueryableMethods.FirstWithPredicate,
-        QueryableMethods.FirstWithoutPredicate,
-        QueryableMethods.FirstOrDefaultWithPredicate,
-        QueryableMethods.FirstOrDefaultWithoutPredicate,
-        QueryableMethods.SingleWithPredicate,
-        QueryableMethods.SingleWithoutPredicate,
-        QueryableMethods.SingleOrDefaultWithPredicate,
-        QueryableMethods.SingleOrDefaultWithoutPredicate,
-        QueryableMethods.LastWithPredicate,
-        QueryableMethods.LastWithoutPredicate,
-        QueryableMethods.LastOrDefaultWithPredicate,
-        QueryableMethods.LastOrDefaultWithoutPredicate
-    ];
-
     private static readonly MethodInfo StringCompareWithComparisonMethod =
         typeof(string).GetRuntimeMethod(nameof(string.Compare), [typeof(string), typeof(string), typeof(StringComparison)])!;
 
@@ -378,11 +362,17 @@ public class QueryOptimizingExpressionVisitor : ExpressionVisitor
             var (conditional, convert) = inner switch
             {
                 ConditionalExpression c => (c, null),
-                UnaryExpression { NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked, Operand: ConditionalExpression cond } conv => (cond, conv),
+                UnaryExpression
+                {
+                    NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked, Operand: ConditionalExpression cond
+                } conv => (cond, conv),
                 _ => (null, null)
             };
 
-            if (conditional is { Test: BinaryExpression { NodeType: ExpressionType.Equal or ExpressionType.NotEqual } binaryTest } conditionalExpression
+            if (conditional is
+                {
+                    Test: BinaryExpression { NodeType: ExpressionType.Equal or ExpressionType.NotEqual } binaryTest
+                } conditionalExpression
                 && !(conditionalExpression.Type.IsNullableValueType()
                     && visitedMemberExpression.Member.Name is nameof(Nullable<int>.HasValue) or nameof(Nullable<int>.Value)))
             {

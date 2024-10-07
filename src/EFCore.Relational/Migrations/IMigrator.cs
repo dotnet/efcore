@@ -26,36 +26,22 @@ public interface IMigrator
     ///     Migrates the database to either a specified target migration or up to the latest
     ///     migration that exists in the <see cref="IMigrationsAssembly" />.
     /// </summary>
-    /// <param name="seed">
-    ///     The optional seed method to run after migrating the database. It will be invoked even if no migrations were applied.
-    /// </param>
     /// <param name="targetMigration">
     ///     The target migration to migrate the database to, or <see langword="null" /> to migrate to the latest.
-    /// </param>
-    /// <param name="lockTimeout">
-    ///     The maximum amount of time that the migration lock should be held. Unless a catastrophic failure occurs, the
-    ///     lock is released when the migration operation completes.
     /// </param>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information and examples.
     /// </remarks>
     [RequiresUnreferencedCode("Migration generation currently isn't compatible with trimming")]
     [RequiresDynamicCode("Migrations operations are not supported with NativeAOT")]
-    void Migrate(Action<DbContext, IMigratorData>? seed = null, string? targetMigration = null, TimeSpan? lockTimeout = null);
+    void Migrate(string? targetMigration = null);
 
     /// <summary>
     ///     Migrates the database to either a specified target migration or up to the latest
     ///     migration that exists in the <see cref="IMigrationsAssembly" />.
     /// </summary>
-    /// <param name="seed">
-    ///     The optional seed method to run after migrating the database. It will be invoked even if no migrations were applied.
-    /// </param>
     /// <param name="targetMigration">
     ///     The target migration to migrate the database to, or <see langword="null" /> to migrate to the latest.
-    /// </param>
-    /// <param name="lockTimeout">
-    ///     The maximum amount of time that the migration lock should be held. Unless a catastrophic failure occurs, the
-    ///     lock is released when the migration operation completes.
     /// </param>
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation</returns>
@@ -66,9 +52,7 @@ public interface IMigrator
     [RequiresUnreferencedCode("Migration generation currently isn't compatible with trimming")]
     [RequiresDynamicCode("Migrations operations are not supported with NativeAOT")]
     Task MigrateAsync(
-        Func<DbContext, IMigratorData, CancellationToken, Task>? seed = null,
         string? targetMigration = null,
-        TimeSpan? lockTimeout = null,
         CancellationToken cancellationToken = default);
 
     /// <summary>

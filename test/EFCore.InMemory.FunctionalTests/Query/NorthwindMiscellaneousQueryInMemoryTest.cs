@@ -55,4 +55,9 @@ public class NorthwindMiscellaneousQueryInMemoryTest(NorthwindQueryInMemoryFixtu
 
     public override Task Collection_navigation_equal_to_null_for_subquery_using_ElementAtOrDefault_parameter(bool async)
         => Task.CompletedTask;
+
+    public override Task Where_Order_First(bool async)
+        // Sequence contains no elements.
+        => Assert.ThrowsAsync<InvalidOperationException>(
+            () => base.Where_Order_First(async));
 }

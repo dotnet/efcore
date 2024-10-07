@@ -34,9 +34,7 @@ public class ReaderColumn<T> : ReaderColumn
         IPropertyBase? property,
         Expression<Func<DbDataReader, int[], T>> getFieldValueExpression)
         : base(typeof(T), nullable, name, property, getFieldValueExpression)
-    {
-        GetFieldValue = getFieldValueExpression.Compile();
-    }
+        => GetFieldValue = getFieldValueExpression.Compile();
 
     /// <summary>
     ///     The function to get field value for the column from the reader.

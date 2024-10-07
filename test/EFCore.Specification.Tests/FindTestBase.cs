@@ -1,10 +1,10 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+#nullable disable
+
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-
-#nullable disable
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
@@ -817,13 +817,13 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         Id = 77,
                         Foo = "Smokey",
-                        OwnedReference = new()
+                        OwnedReference = new Owned1
                         {
                             Prop = 7,
-                            NestedOwned = new() { Prop = "7" },
-                            NestedOwnedCollection = new() { new() { Prop = "71" }, new() { Prop = "72" } }
+                            NestedOwned = new Owned2 { Prop = "7" },
+                            NestedOwnedCollection = new List<Owned2> { new() { Prop = "71" }, new() { Prop = "72" } }
                         },
-                        OwnedCollection = new() { new() { Prop = 71 }, new() { Prop = 72 } }
+                        OwnedCollection = new List<Owned1> { new Owned1 { Prop = 71 }, new Owned1 { Prop = 72 } }
                     },
                     new NullableIntKey { Id = 77, Foo = "Smokey" },
                     new StringKey { Id = "Cat", Foo = "Alice" },

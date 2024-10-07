@@ -192,8 +192,14 @@ public class UserMigrationsIdGenerator : IMigrationsIdGenerator
 
     public class ExtensionHistoryRepository : IHistoryRepository
     {
-        public void Create() => throw new NotImplementedException();
-        public Task CreateAsync(CancellationToken cancellationToken = default) => throw new NotImplementedException();
+        public virtual LockReleaseBehavior LockReleaseBehavior => LockReleaseBehavior.Explicit;
+
+        public void Create()
+            => throw new NotImplementedException();
+
+        public Task CreateAsync(CancellationToken cancellationToken = default)
+            => throw new NotImplementedException();
+
         public bool Exists()
             => throw new NotImplementedException();
 
@@ -218,10 +224,10 @@ public class UserMigrationsIdGenerator : IMigrationsIdGenerator
         public string GetCreateScript()
             => throw new NotImplementedException();
 
-        public IDisposable GetDatabaseLock(TimeSpan timeout)
+        public IMigrationsDatabaseLock AcquireDatabaseLock()
             => throw new NotImplementedException();
 
-        public Task<IAsyncDisposable> GetDatabaseLockAsync(TimeSpan timeout, CancellationToken cancellationToken = default)
+        public Task<IMigrationsDatabaseLock> AcquireDatabaseLockAsync(CancellationToken cancellationToken = default)
             => throw new NotImplementedException();
 
         public string GetDeleteScript(string migrationId)
@@ -260,6 +266,8 @@ public class UserMigrationsIdGenerator : IMigrationsIdGenerator
 
     public class ContextHistoryRepository : IHistoryRepository
     {
+        public virtual LockReleaseBehavior LockReleaseBehavior => LockReleaseBehavior.Explicit;
+
         public bool Exists()
             => throw new NotImplementedException();
 
@@ -290,10 +298,10 @@ public class UserMigrationsIdGenerator : IMigrationsIdGenerator
         public Task CreateAsync(CancellationToken cancellationToken = default)
             => throw new NotImplementedException();
 
-        public IDisposable GetDatabaseLock(TimeSpan timeout)
+        public IMigrationsDatabaseLock AcquireDatabaseLock()
             => throw new NotImplementedException();
 
-        public Task<IAsyncDisposable> GetDatabaseLockAsync(TimeSpan timeout, CancellationToken cancellationToken = default)
+        public Task<IMigrationsDatabaseLock> AcquireDatabaseLockAsync(CancellationToken cancellationToken = default)
             => throw new NotImplementedException();
 
         public string GetDeleteScript(string migrationId)

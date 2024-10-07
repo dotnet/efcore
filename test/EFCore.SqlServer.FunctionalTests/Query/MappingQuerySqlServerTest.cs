@@ -53,9 +53,7 @@ FROM [dbo].[Orders] AS [o]
 
     public MappingQuerySqlServerTest(MappingQuerySqlServerFixture fixture)
         : base(fixture)
-    {
-        Fixture.TestSqlLoggerFactory.Clear();
-    }
+        => Fixture.TestSqlLoggerFactory.Clear();
 
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);

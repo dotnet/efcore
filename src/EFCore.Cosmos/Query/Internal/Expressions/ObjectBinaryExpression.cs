@@ -85,7 +85,7 @@ public class ObjectBinaryExpression : Expression, IPrintableExpression
     /// </summary>
     protected override Expression VisitChildren(ExpressionVisitor visitor)
     {
-        var left = (Expression)visitor.Visit(Left);
+        var left = visitor.Visit(Left);
         var right = (Expression)visitor.Visit(Right);
 
         return Update(left, right);

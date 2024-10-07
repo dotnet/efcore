@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Threading;
-
 namespace Microsoft.EntityFrameworkCore.Storage;
 
 /// <summary>
@@ -39,9 +37,7 @@ public class RelationalDatabase : Database
         DatabaseDependencies dependencies,
         RelationalDatabaseDependencies relationalDependencies)
         : base(dependencies)
-    {
-        RelationalDependencies = relationalDependencies;
-    }
+        => RelationalDependencies = relationalDependencies;
 
     private IUpdateAdapter UpdateAdapter
         => _updateAdapter ??= Dependencies.UpdateAdapterFactory.Create();
@@ -59,8 +55,8 @@ public class RelationalDatabase : Database
     public override int SaveChanges(IList<IUpdateEntry> entries)
     {
         var result = RelationalDependencies.BatchExecutor.Execute(
-                RelationalDependencies.BatchPreparer.BatchCommands(entries, UpdateAdapter),
-                RelationalDependencies.Connection);
+            RelationalDependencies.BatchPreparer.BatchCommands(entries, UpdateAdapter),
+            RelationalDependencies.Connection);
 
         RelationalDependencies.BatchPreparer.ResetState();
 
@@ -82,9 +78,9 @@ public class RelationalDatabase : Database
         CancellationToken cancellationToken = default)
     {
         var result = await RelationalDependencies.BatchExecutor.ExecuteAsync(
-                RelationalDependencies.BatchPreparer.BatchCommands(entries, UpdateAdapter),
-                RelationalDependencies.Connection,
-                cancellationToken).ConfigureAwait(false);
+            RelationalDependencies.BatchPreparer.BatchCommands(entries, UpdateAdapter),
+            RelationalDependencies.Connection,
+            cancellationToken).ConfigureAwait(false);
 
         await RelationalDependencies.BatchPreparer.ResetStateAsync(cancellationToken).ConfigureAwait(false);
 

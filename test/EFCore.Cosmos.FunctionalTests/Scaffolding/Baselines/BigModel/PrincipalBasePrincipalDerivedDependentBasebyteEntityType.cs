@@ -532,14 +532,14 @@ namespace TestNamespace
 
         public static void CreateAnnotations(RuntimeEntityType runtimeEntityType)
         {
-            var derivedsId = runtimeEntityType.FindProperty("DerivedsId")!;
-            var derivedsAlternateId = runtimeEntityType.FindProperty("DerivedsAlternateId")!;
-            var principalsId = runtimeEntityType.FindProperty("PrincipalsId")!;
-            var principalsAlternateId = runtimeEntityType.FindProperty("PrincipalsAlternateId")!;
-            var type = runtimeEntityType.FindProperty("$type")!;
-            var __id = runtimeEntityType.FindProperty("__id")!;
-            var __jObject = runtimeEntityType.FindProperty("__jObject")!;
-            var rowid = runtimeEntityType.FindProperty("rowid")!;
+            var derivedsId = runtimeEntityType.FindProperty("DerivedsId");
+            var derivedsAlternateId = runtimeEntityType.FindProperty("DerivedsAlternateId");
+            var principalsId = runtimeEntityType.FindProperty("PrincipalsId");
+            var principalsAlternateId = runtimeEntityType.FindProperty("PrincipalsAlternateId");
+            var type = runtimeEntityType.FindProperty("$type");
+            var __id = runtimeEntityType.FindProperty("__id");
+            var __jObject = runtimeEntityType.FindProperty("__jObject");
+            var rowid = runtimeEntityType.FindProperty("rowid");
             var key = runtimeEntityType.FindKey(new[] { derivedsId, derivedsAlternateId, principalsId, principalsAlternateId });
             key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.CreateCompositeFactory(key));
             key.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<IReadOnlyList<object>>(key));

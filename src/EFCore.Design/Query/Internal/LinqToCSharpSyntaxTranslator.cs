@@ -50,6 +50,7 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
             {
                 child.Variables.Add(parameter, name);
             }
+
             child.VariableNames.UnionWith(VariableNames);
 
             return child;
@@ -81,9 +82,7 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public LinqToCSharpSyntaxTranslator(SyntaxGenerator syntaxGenerator)
-    {
-        _g = syntaxGenerator;
-    }
+        => _g = syntaxGenerator;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -645,10 +644,8 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
             {
                 throw new NotImplementedException("Label on last expression of an expression block");
             }
-            else
-            {
-                statements.Add(pendingLabeledStatement.WithStatement(EmptyStatement()));
-            }
+
+            statements.Add(pendingLabeledStatement.WithStatement(EmptyStatement()));
         }
 
         // Above we transform top-level assignments (i = 8) to var-declarations with initializers (var i = 8); those variables have
@@ -657,7 +654,8 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
         // and either add them to the block, or lift them if we're an expression block.
         var unassignedVariableDeclarations =
             unassignedVariables.Select(
-                v => (LocalDeclarationStatementSyntax)_g.LocalDeclarationStatement(Generate(v.Type), LookupVariableName(v), initializer: _g.DefaultExpression(Generate(v.Type))));
+                v => (LocalDeclarationStatementSyntax)_g.LocalDeclarationStatement(
+                    Generate(v.Type), LookupVariableName(v), initializer: _g.DefaultExpression(Generate(v.Type))));
 
         if (blockContext == ExpressionContext.Expression)
         {
@@ -990,25 +988,25 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
         return value switch
         {
             int or long or uint or ulong or short or sbyte or ushort or byte or double or float or decimal or char
-            or string or bool or null
+                or string or bool or null
                 => (ExpressionSyntax)_g.LiteralExpression(value),
 
             Type t => TypeOfExpression(Generate(t)),
             Enum e => HandleEnum(e),
 
             Guid g => ObjectCreationExpression(IdentifierName(nameof(Guid)))
-                        .WithArgumentList(
-                            ArgumentList(
-                                SingletonSeparatedList(
-                                    Argument(
-                                        LiteralExpression(
-                                            SyntaxKind.StringLiteralExpression,
-                                            Literal(g.ToString())))))),
+                .WithArgumentList(
+                    ArgumentList(
+                        SingletonSeparatedList(
+                            Argument(
+                                LiteralExpression(
+                                    SyntaxKind.StringLiteralExpression,
+                                    Literal(g.ToString())))))),
 
             ITuple tuple
                 when tuple.GetType() is { IsGenericType: true } tupleType
-                     && tupleType.Name.StartsWith("ValueTuple`", StringComparison.Ordinal)
-                     && tupleType.Namespace == "System"
+                && tupleType.Name.StartsWith("ValueTuple`", StringComparison.Ordinal)
+                && tupleType.Namespace == "System"
                 => HandleValueTuple(tuple),
 
             ReferenceEqualityComparer equalityComparer
@@ -1184,7 +1182,8 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
 
         throw new NotSupportedException(
             $"Encountered a constant of unsupported type '{value.GetType().Name}'. Only primitive constant nodes are supported."
-            + Environment.NewLine + value);
+            + Environment.NewLine
+            + value);
     }
 
     /// <inheritdoc />
@@ -1339,30 +1338,19 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
                 {
                     return false;
                 }
+
                 genericArguments.Add(syntax);
             }
 
-            var generic = GenericName(
-                Identifier(type.Name.Substring(0, type.Name.IndexOf('`'))),
-                TypeArgumentList(SeparatedList(genericArguments)));
-            if (type.IsNested)
-            {
-                result = QualifiedName(
-                    (NameSyntax)Generate(type.DeclaringType!),
-                    generic);
-                return true;
-            }
-
-            AddNamespace(type);
-
-            result = generic;
+            result = GenerateGenericType(type, genericArguments, genericArguments.Count);
             return true;
         }
 
         if (type.IsArray)
         {
             result = ArrayType(Generate(type.GetElementType()!))
-                .WithRankSpecifiers(SingletonList(ArrayRankSpecifier(SingletonSeparatedList<ExpressionSyntax>(OmittedArraySizeExpression()))));
+                .WithRankSpecifiers(
+                    SingletonList(ArrayRankSpecifier(SingletonSeparatedList<ExpressionSyntax>(OmittedArraySizeExpression()))));
             return true;
         }
 
@@ -1470,17 +1458,35 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
             return true;
         }
 
-        if (type.IsNested)
-        {
-            AddNamespace(type.DeclaringType!);
-        }
-        else if (type.Namespace != null)
+        if (type.Namespace != null)
         {
             _collectedNamespaces.Add(type.Namespace);
         }
 
         result = IdentifierName(type.Name);
         return true;
+
+        NameSyntax GenerateGenericType(Type type, List<TypeSyntax> genericArguments, int length)
+        {
+            var offset = type.DeclaringType != null ? type.DeclaringType.GetGenericArguments().Length : 0;
+
+            var genericPartIndex = type.Name.IndexOf('`');
+            SimpleNameSyntax nameSyntax = genericPartIndex <= 0
+                ? IdentifierName(type.Name)
+                : GenericName(
+                    Identifier(type.Name.Substring(0, genericPartIndex)),
+                    TypeArgumentList(SeparatedList(genericArguments.Skip(offset).Take(length - offset))));
+            if (type.DeclaringType == null)
+            {
+                AddNamespace(type);
+
+                return nameSyntax;
+            }
+
+            return QualifiedName(
+                GenerateGenericType(type.DeclaringType, genericArguments, offset),
+                nameSyntax);
+        }
     }
 
     /// <inheritdoc />
@@ -1537,7 +1543,7 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
                 SeparatedList(
                     lambda.Parameters.Select(
                         p => Parameter(Identifier(LookupVariableName(p)))
-                                .WithType(p.Type.IsAnonymousType() ? null : Generate(p.Type))))),
+                            .WithType(p.Type.IsAnonymousType() ? null : Generate(p.Type))))),
             blockBody,
             expressionBody);
 
@@ -1617,7 +1623,7 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
 
             case { Member: FieldInfo closureField, Expression: ConstantExpression constantExpression }
                 when constantExpression.Type.Attributes.HasFlag(TypeAttributes.NestedPrivate)
-                    && System.Attribute.IsDefined(constantExpression.Type, typeof(CompilerGeneratedAttribute), inherit: true):
+                && System.Attribute.IsDefined(constantExpression.Type, typeof(CompilerGeneratedAttribute), inherit: true):
                 // Unwrap closure
                 VisitConstant(Expression.Constant(closureField.GetValue(constantExpression.Value), member.Type));
                 break;
@@ -1943,7 +1949,7 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
 
         // Extension syntax
         if (call.Method.IsDefined(typeof(ExtensionAttribute), inherit: false)
-            && !(arguments[0].Expression is LiteralExpressionSyntax literal && literal.IsKind(SyntaxKind.NullLiteralExpression)))
+            && !IsNull(arguments[0].Expression))
         {
             Result = InvocationExpression(
                 MemberAccessExpression(
@@ -1963,7 +1969,7 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
         {
             var expression = call switch
             {
-                { Method.IsStatic: true } => GetMemberAccessesForAllDeclaringTypes(call.Method.DeclaringType),
+                { Method.IsStatic: true } => Generate(call.Method.DeclaringType),
 
                 // If the member isn't declared on the same type as the expression, (e.g. explicit interface implementation), add
                 // a cast up to the declaring type.
@@ -1972,14 +1978,6 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
 
                 _ => Translate<ExpressionSyntax>(call.Object)
             };
-
-            ExpressionSyntax GetMemberAccessesForAllDeclaringTypes(Type type)
-                => type.DeclaringType is null
-                    ? Generate(type)
-                    : MemberAccessExpression(
-                        SyntaxKind.SimpleMemberAccessExpression,
-                        GetMemberAccessesForAllDeclaringTypes(type.DeclaringType),
-                        IdentifierName(type.Name));
 
             if (call.Method.Name.StartsWith("get_", StringComparison.Ordinal)
                 && call.Method.GetParameters().Length == 1
@@ -2031,6 +2029,14 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
                 }
             }
         }
+
+        static bool IsNull(ExpressionSyntax expr) => expr switch
+        {
+            LiteralExpressionSyntax literal when literal.IsKind(SyntaxKind.NullLiteralExpression) => true,
+            CastExpressionSyntax cast => IsNull(cast.Expression),
+            ParenthesizedExpressionSyntax parenthesized => IsNull(parenthesized.Expression),
+            _ => false
+        };
     }
 
     /// <inheritdoc />
@@ -2704,7 +2710,13 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
 
             var liftedStatementsPosition = _liftedState.Statements.Count;
 
-            var translated = Translate<ExpressionSyntax>(expression);
+            var translated = expression switch
+            {
+                // Add an explicit cast to avoid overload resolution ambiguity
+                ConstantExpression c
+                    when c.Value is null => (ExpressionSyntax)_g.ConvertExpression(Generate(c.Type), GenerateValue(c.Value)),
+                _ => Translate<ExpressionSyntax>(expression)
+            };
 
             if (_liftedState.Statements.Count > liftedStatementsPosition)
             {

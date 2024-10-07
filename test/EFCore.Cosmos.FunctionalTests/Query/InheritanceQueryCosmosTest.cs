@@ -13,7 +13,7 @@ public class InheritanceQueryCosmosTest : InheritanceQueryTestBase<InheritanceQu
         : base(fixture)
     {
         ClearLog();
-        //TestLoggerFactory.TestOutputHelper = testOutputHelper;
+        Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
     [ConditionalFact]
@@ -172,7 +172,7 @@ WHERE c["Discriminator"] IN ("Eagle", "Kiwi")
                     """
 SELECT VALUE c
 FROM root c
-WHERE c["Discriminator"] IN ("Eagle", "Kiwi")
+WHERE (c["Discriminator"] IN ("Eagle", "Kiwi") AND c["Discriminator"] IN ("Eagle", "Kiwi"))
 ORDER BY c["Species"]
 """);
             });
@@ -202,7 +202,7 @@ ORDER BY c["Species"]
                     """
 SELECT VALUE c["EagleId"]
 FROM root c
-WHERE c["Discriminator"] IN ("Eagle", "Kiwi")
+WHERE (c["Discriminator"] IN ("Eagle", "Kiwi") AND c["Discriminator"] IN ("Eagle", "Kiwi"))
 """);
             });
 
@@ -216,7 +216,7 @@ WHERE c["Discriminator"] IN ("Eagle", "Kiwi")
                     """
 SELECT VALUE c
 FROM root c
-WHERE c["Discriminator"] IN ("Eagle", "Kiwi")
+WHERE (c["Discriminator"] IN ("Eagle", "Kiwi") AND c["Discriminator"] IN ("Eagle", "Kiwi"))
 ORDER BY c["Species"]
 OFFSET 0 LIMIT 1
 """);
@@ -589,7 +589,7 @@ WHERE c["Discriminator"] IN ("Eagle", "Kiwi")
                     """
 SELECT VALUE c
 FROM root c
-WHERE false
+WHERE (c["Discriminator"] IN ("Eagle", "Kiwi") AND false)
 """);
             });
 
@@ -603,7 +603,7 @@ WHERE false
                     """
 SELECT VALUE c
 FROM root c
-WHERE false
+WHERE (c["Discriminator"] IN ("Eagle", "Kiwi") AND false)
 """);
             });
 

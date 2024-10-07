@@ -36,9 +36,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
     /// </summary>
     /// <param name="dependencies">The dependencies.</param>
     public CSharpSnapshotGenerator(CSharpSnapshotGeneratorDependencies dependencies)
-    {
-        Dependencies = dependencies;
-    }
+        => Dependencies = dependencies;
 
     /// <summary>
     ///     Dependencies for this service.
@@ -445,7 +443,8 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         var clrType = (FindValueConverter(property)?.ProviderClrType ?? property.ClrType)
             .MakeNullable(property.IsNullable);
 
-        var propertyBuilderName = $"{entityTypeBuilderName}.Property<{Code.Reference(clrType)}>({Code.Literal(property.Name)})";
+        var propertyCall = property.IsPrimitiveCollection ? "PrimitiveCollection" : "Property";
+        var propertyBuilderName = $"{entityTypeBuilderName}.{propertyCall}<{Code.Reference(clrType)}>({Code.Literal(property.Name)})";
 
         stringBuilder
             .AppendLine()

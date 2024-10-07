@@ -75,7 +75,7 @@ namespace TestNamespace
 
         public static void CreateAnnotations(RuntimeEntityType runtimeEntityType)
         {
-            var blob = runtimeEntityType.FindProperty("Blob")!;
+            var blob = runtimeEntityType.FindProperty("Blob");
             runtimeEntityType.SetOriginalValuesFactory(
                 ISnapshot (InternalEntityEntry source) =>
                 {

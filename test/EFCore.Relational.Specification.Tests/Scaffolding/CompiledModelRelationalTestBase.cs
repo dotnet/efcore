@@ -32,7 +32,7 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
                 var dependent = c.Set<PrincipalDerived<DependentBase<byte?>>>().Include(p => p.Dependent).Single().Dependent!;
                 Assert.Equal("one", ((DependentDerived<byte?>)dependent).GetData());
             },
-            options: new CompiledModelCodeGenerationOptions { UseNullableReferenceTypes = true });
+            options: new CompiledModelCodeGenerationOptions { UseNullableReferenceTypes = true, ForNativeAot = true });
 
     protected override void BuildBigModel(ModelBuilder modelBuilder, bool jsonColumns)
     {
@@ -430,6 +430,29 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
             });
     }
 
+    [ConditionalFact]
+    public override Task ComplexTypes()
+        => Test(
+            BuildComplexTypesModel,
+            AssertComplexTypes,
+            c =>
+            {
+                // Sprocs not supported with complex types
+                //c.Set<PrincipalDerived<DependentBase<byte?>>>().Add(
+                //    new PrincipalDerived<DependentBase<byte?>>
+                //    {
+                //        Id = 1,
+                //        AlternateId = new Guid(),
+                //        Dependent = new DependentBase<byte?>(1),
+                //        Owned = new OwnedType(c) { Principal = new PrincipalBase() }
+                //    });
+
+                //c.SaveChanges();
+
+                return Task.CompletedTask;
+            },
+            options: new CompiledModelCodeGenerationOptions { UseNullableReferenceTypes = true, ForNativeAot = true });
+
     protected override void AssertComplexTypes(IModel model)
     {
         base.AssertComplexTypes(model);
@@ -500,7 +523,7 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
         => Test(
             BuildTpcSprocsModel,
             AssertTpcSprocs,
-            options: new CompiledModelCodeGenerationOptions { UseNullableReferenceTypes = true });
+            options: new CompiledModelCodeGenerationOptions { UseNullableReferenceTypes = true, ForNativeAot = true });
 
     protected virtual void BuildTpcSprocsModel(ModelBuilder modelBuilder)
     {
@@ -1267,7 +1290,8 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
             },
             additionalSourceFiles:
             [
-                new("DbContextModelCustomizer.cs",
+                new ScaffoldedFile(
+                    "DbContextModelCustomizer.cs",
                     """
 using Microsoft.EntityFrameworkCore.Metadata;
 

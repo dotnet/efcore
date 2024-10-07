@@ -237,24 +237,16 @@ internal static class EnumerableMethods
         => AverageWithSelectorMethods[type];
 
     public static MethodInfo GetMaxWithoutSelector(Type type)
-        => MaxWithoutSelectorMethods.TryGetValue(type, out var method)
-            ? method
-            : MaxWithoutSelector;
+        => MaxWithoutSelectorMethods.GetValueOrDefault(type, MaxWithoutSelector);
 
     public static MethodInfo GetMaxWithSelector(Type type)
-        => MaxWithSelectorMethods.TryGetValue(type, out var method)
-            ? method
-            : MaxWithSelector;
+        => MaxWithSelectorMethods.GetValueOrDefault(type, MaxWithSelector);
 
     public static MethodInfo GetMinWithoutSelector(Type type)
-        => MinWithoutSelectorMethods.TryGetValue(type, out var method)
-            ? method
-            : MinWithoutSelector;
+        => MinWithoutSelectorMethods.GetValueOrDefault(type, MinWithoutSelector);
 
     public static MethodInfo GetMinWithSelector(Type type)
-        => MinWithSelectorMethods.TryGetValue(type, out var method)
-            ? method
-            : MinWithSelector;
+        => MinWithSelectorMethods.GetValueOrDefault(type, MinWithSelector);
 
     static EnumerableMethods()
     {

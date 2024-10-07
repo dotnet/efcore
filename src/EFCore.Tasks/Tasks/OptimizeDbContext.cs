@@ -43,7 +43,7 @@ public class OptimizeDbContext : OperationTaskBase
     [Output]
     public ITaskItem[] GeneratedFiles { get; private set; } = null!;
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public override bool Execute()
     {
         try
@@ -82,6 +82,8 @@ public class OptimizeDbContext : OperationTaskBase
                 AdditionalArguments.Add("--precompile-queries");
             }
 
+            AdditionalArguments.Add("--nativeaot");
+
             AdditionalArguments.Add("--suffix");
             AdditionalArguments.Add(".g");
 
@@ -94,7 +96,7 @@ public class OptimizeDbContext : OperationTaskBase
                 return false;
             }
 
-            GeneratedFiles = Output.Split(new string[] { Environment.NewLine }, StringSplitOptions.None)
+            GeneratedFiles = Output.Split(new[] { Environment.NewLine }, StringSplitOptions.None)
                 .Select(f => new TaskItem(f)).ToArray();
         }
         catch (Exception e)

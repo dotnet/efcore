@@ -16,7 +16,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     [ConditionalFact]
     public virtual async Task Include_throw_when_empty_9849()
     {
-        using (await CreateScratchAsync<DatabaseContext>(_ => Task.CompletedTask, "9849"))
+        await using (await CreateScratchAsync<DatabaseContext>(_ => Task.CompletedTask, "9849"))
         {
             using var context = new DatabaseContext();
             var results = context.VehicleInspections.Include(_ => _.Motors).ToList();
@@ -28,7 +28,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     [ConditionalFact]
     public virtual async Task Include_throw_when_empty_9849_2()
     {
-        using (await CreateScratchAsync<DatabaseContext>(_ => Task.CompletedTask, "9849"))
+        await using (await CreateScratchAsync<DatabaseContext>(_ => Task.CompletedTask, "9849"))
         {
             using var context = new DatabaseContext();
 #pragma warning disable IDE1006 // Naming Styles
@@ -42,7 +42,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     [ConditionalFact]
     public virtual async Task Include_throw_when_empty_9849_3()
     {
-        using (await CreateScratchAsync<DatabaseContext>(_ => Task.CompletedTask, "9849"))
+        await using (await CreateScratchAsync<DatabaseContext>(_ => Task.CompletedTask, "9849"))
         {
             using var context = new DatabaseContext();
 #pragma warning disable IDE1006 // Naming Styles
@@ -56,7 +56,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     [ConditionalFact]
     public virtual async Task Include_throw_when_empty_9849_4()
     {
-        using (await CreateScratchAsync<DatabaseContext>(_ => Task.CompletedTask, "9849"))
+        await using (await CreateScratchAsync<DatabaseContext>(_ => Task.CompletedTask, "9849"))
         {
             using var context = new DatabaseContext();
 #pragma warning disable IDE1006 // Naming Styles
@@ -70,7 +70,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     [ConditionalFact]
     public virtual async Task Include_throw_when_empty_9849_5()
     {
-        using (await CreateScratchAsync<DatabaseContext>(_ => Task.CompletedTask, "9849"))
+        await using (await CreateScratchAsync<DatabaseContext>(_ => Task.CompletedTask, "9849"))
         {
             using var context = new DatabaseContext();
             var results
@@ -86,7 +86,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     [ConditionalFact]
     public virtual async Task Include_throw_when_empty_9849_6()
     {
-        using (await CreateScratchAsync<DatabaseContext>(_ => Task.CompletedTask, "9849"))
+        await using (await CreateScratchAsync<DatabaseContext>(_ => Task.CompletedTask, "9849"))
         {
             using var context = new DatabaseContext();
 #pragma warning disable IDE1006 // Naming Styles
@@ -146,7 +146,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     [ConditionalFact]
     public virtual async Task GroupBy_with_uninitialized_datetime_projection_3595()
     {
-        using (await CreateScratchAsync<Context3595>(Seed3595, "3595"))
+        await using (await CreateScratchAsync<Context3595>(Seed3595, "3595"))
         {
             using var context = new Context3595();
             var q0 = from instance in context.Exams
@@ -224,7 +224,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     [ConditionalFact]
     public virtual async Task Repro3101_simple_coalesce1()
     {
-        using (await CreateScratchAsync<MyContext3101>(Seed3101, "3101"))
+        await using (await CreateScratchAsync<MyContext3101>(Seed3101, "3101"))
         {
             using var ctx = new MyContext3101();
             var query = from eVersion in ctx.Entities
@@ -241,7 +241,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     [ConditionalFact]
     public virtual async Task Repro3101_simple_coalesce2()
     {
-        using (await CreateScratchAsync<MyContext3101>(Seed3101, "3101"))
+        await using (await CreateScratchAsync<MyContext3101>(Seed3101, "3101"))
         {
             using var ctx = new MyContext3101();
             var query = from eVersion in ctx.Entities
@@ -259,7 +259,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     [ConditionalFact]
     public virtual async Task Repro3101_simple_coalesce3()
     {
-        using (await CreateScratchAsync<MyContext3101>(Seed3101, "3101"))
+        await using (await CreateScratchAsync<MyContext3101>(Seed3101, "3101"))
         {
             using var ctx = new MyContext3101();
             var query = from eVersion in ctx.Entities.Include(e => e.Children)
@@ -278,7 +278,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     [ConditionalFact]
     public virtual async Task Repro3101_complex_coalesce1()
     {
-        using (await CreateScratchAsync<MyContext3101>(Seed3101, "3101"))
+        await using (await CreateScratchAsync<MyContext3101>(Seed3101, "3101"))
         {
             using var ctx = new MyContext3101();
             var query = from eVersion in ctx.Entities.Include(e => e.Children)
@@ -296,7 +296,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     [ConditionalFact]
     public virtual async Task Repro3101_complex_coalesce2()
     {
-        using (await CreateScratchAsync<MyContext3101>(Seed3101, "3101"))
+        await using (await CreateScratchAsync<MyContext3101>(Seed3101, "3101"))
         {
             using var ctx = new MyContext3101();
             var query = from eVersion in ctx.Entities
@@ -314,7 +314,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     [ConditionalFact]
     public virtual async Task Repro3101_nested_coalesce1()
     {
-        using (await CreateScratchAsync<MyContext3101>(Seed3101, "3101"))
+        await using (await CreateScratchAsync<MyContext3101>(Seed3101, "3101"))
         {
             using var ctx = new MyContext3101();
             var query = from eVersion in ctx.Entities
@@ -332,7 +332,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     [ConditionalFact]
     public virtual async Task Repro3101_nested_coalesce2()
     {
-        using (await CreateScratchAsync<MyContext3101>(Seed3101, "3101"))
+        await using (await CreateScratchAsync<MyContext3101>(Seed3101, "3101"))
         {
             using var ctx = new MyContext3101();
             var query = from eVersion in ctx.Entities.Include(e => e.Children)
@@ -355,7 +355,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     [ConditionalFact]
     public virtual async Task Repro3101_conditional()
     {
-        using (await CreateScratchAsync<MyContext3101>(Seed3101, "3101"))
+        await using (await CreateScratchAsync<MyContext3101>(Seed3101, "3101"))
         {
             using var ctx = new MyContext3101();
             var query = from eVersion in ctx.Entities.Include(e => e.Children)
@@ -375,7 +375,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     [ConditionalFact]
     public virtual async Task Repro3101_coalesce_tracking()
     {
-        using (await CreateScratchAsync<MyContext3101>(Seed3101, "3101"))
+        await using (await CreateScratchAsync<MyContext3101>(Seed3101, "3101"))
         {
             using var ctx = new MyContext3101();
             var query = from eVersion in ctx.Entities
@@ -459,7 +459,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     [ConditionalFact]
     public virtual async Task Repro5456_include_group_join_is_per_query_context()
     {
-        using (await CreateScratchAsync<MyContext5456>(Seed5456, "5456"))
+        await using (await CreateScratchAsync<MyContext5456>(Seed5456, "5456"))
         {
             Parallel.For(
                 0, 10, i =>
@@ -475,7 +475,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     [ConditionalFact]
     public virtual async Task Repro5456_include_group_join_is_per_query_context_async()
     {
-        using (await CreateScratchAsync<MyContext5456>(Seed5456, "5456"))
+        await using (await CreateScratchAsync<MyContext5456>(Seed5456, "5456"))
         {
             var tasks = new List<Task>();
             for (var i = 0; i < 10; i++)
@@ -498,7 +498,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     [ConditionalFact]
     public virtual async Task Repro5456_multiple_include_group_join_is_per_query_context()
     {
-        using (await CreateScratchAsync<MyContext5456>(Seed5456, "5456"))
+        await using (await CreateScratchAsync<MyContext5456>(Seed5456, "5456"))
         {
             Parallel.For(
                 0, 10, i =>
@@ -514,7 +514,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     [ConditionalFact]
     public virtual async Task Repro5456_multiple_include_group_join_is_per_query_context_async()
     {
-        using (await CreateScratchAsync<MyContext5456>(Seed5456, "5456"))
+        await using (await CreateScratchAsync<MyContext5456>(Seed5456, "5456"))
         {
             var tasks = new List<Task>();
             for (var i = 0; i < 10; i++)
@@ -538,7 +538,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     [ConditionalFact]
     public virtual async Task Repro5456_multi_level_include_group_join_is_per_query_context()
     {
-        using (await CreateScratchAsync<MyContext5456>(Seed5456, "5456"))
+        await using (await CreateScratchAsync<MyContext5456>(Seed5456, "5456"))
         {
             Parallel.For(
                 0, 10, i =>
@@ -554,7 +554,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     [ConditionalFact]
     public virtual async Task Repro5456_multi_level_include_group_join_is_per_query_context_async()
     {
-        using (await CreateScratchAsync<MyContext5456>(Seed5456, "5456"))
+        await using (await CreateScratchAsync<MyContext5456>(Seed5456, "5456"))
         {
             var tasks = new List<Task>();
             for (var i = 0; i < 10; i++)
@@ -583,7 +583,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
                 new Blog5456
                 {
                     Id = i + 1,
-                    Posts = [new() { Comments = [new(), new()] }, new()],
+                    Posts = [new Post5456 { Comments = [new Comment5456(), new Comment5456()] }, new Post5456()],
                     Author = new Author5456()
                 });
         }
@@ -642,7 +642,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     [ConditionalFact]
     public virtual async Task Entity_passed_to_DTO_constructor_works()
     {
-        using (await CreateScratchAsync<MyContext8282>(_ => Task.CompletedTask, "8282"))
+        await using (await CreateScratchAsync<MyContext8282>(_ => Task.CompletedTask, "8282"))
         {
             using var context = new MyContext8282();
             var query = context.Entity.Select(e => new EntityDto8282(e)).ToList();
@@ -679,7 +679,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     [ConditionalFact]
     public virtual async Task Select_enumerable_navigation_backed_by_collection()
     {
-        using (await CreateScratchAsync<MyContext21803>(Seed21803, "21803"))
+        await using (await CreateScratchAsync<MyContext21803>(Seed21803, "21803"))
         {
             using var context = new MyContext21803();
 
@@ -734,7 +734,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     [ConditionalFact]
     public virtual async Task Multiple_owned_references_at_same_level_maintains_valueBuffer_positions()
     {
-        using (await CreateScratchAsync<MyContext20729>(Seed20729, "20729"))
+        await using (await CreateScratchAsync<MyContext20729>(Seed20729, "20729"))
         {
             using var context = new MyContext20729();
 
@@ -812,7 +812,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     [ConditionalFact]
     public virtual async Task Owned_reference_on_base_with_hierarchy()
     {
-        using (await CreateScratchAsync<MyContext23285>(Seed23285, "23285"))
+        await using (await CreateScratchAsync<MyContext23285>(Seed23285, "23285"))
         {
             using var context = new MyContext23285();
 
@@ -877,7 +877,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     [ConditionalFact]
     public virtual async Task Owned_reference_with_composite_key()
     {
-        using (await CreateScratchAsync<MyContext23687>(Seed23687, "23687"))
+        await using (await CreateScratchAsync<MyContext23687>(Seed23687, "23687"))
         {
             using var context = new MyContext23687();
 
@@ -938,7 +938,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     [ConditionalFact]
     public virtual async Task Join_with_enum_as_key_selector()
     {
-        using (await CreateScratchAsync<MyContext23593>(Seed23593, "23593"))
+        await using (await CreateScratchAsync<MyContext23593>(Seed23593, "23593"))
         {
             using var context = new MyContext23593();
 
@@ -954,7 +954,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     [ConditionalFact]
     public virtual async Task Join_with_enum_inside_anonymous_type_as_key_selector()
     {
-        using (await CreateScratchAsync<MyContext23593>(Seed23593, "23593"))
+        await using (await CreateScratchAsync<MyContext23593>(Seed23593, "23593"))
         {
             using var context = new MyContext23593();
 
@@ -970,7 +970,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     [ConditionalFact]
     public virtual async Task Join_with_enum_inside_anonymous_type_with_other_property_as_key_selector()
     {
-        using (await CreateScratchAsync<MyContext23593>(Seed23593, "23593"))
+        await using (await CreateScratchAsync<MyContext23593>(Seed23593, "23593"))
         {
             using var context = new MyContext23593();
 
@@ -1031,7 +1031,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     [ConditionalFact]
     public virtual async Task Left_join_with_entity_with_enum_discriminator()
     {
-        using (await CreateScratchAsync<MyContext23926>(Seed23926, "23926"))
+        await using (await CreateScratchAsync<MyContext23926>(Seed23926, "23926"))
         {
             using var context = new MyContext23926();
 
@@ -1098,7 +1098,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     [ConditionalFact]
     public virtual async Task Shared_owned_property_on_multiple_level_in_Select()
     {
-        using (await CreateScratchAsync<MyContext18435>(Seed18435, "18435"))
+        await using (await CreateScratchAsync<MyContext18435>(Seed18435, "18435"))
         {
             using var context = new MyContext18435();
 
@@ -1188,7 +1188,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     [ConditionalFact(Skip = "Issue#19425")]
     public virtual async Task Non_nullable_cast_in_null_check()
     {
-        using (await CreateScratchAsync<MyContext19425>(Seed19425, "19425"))
+        await using (await CreateScratchAsync<MyContext19425>(Seed19425, "19425"))
         {
             using var context = new MyContext19425();
 
@@ -1236,7 +1236,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     [ConditionalFact]
     public virtual async Task Property_access_on_nullable_converted_scalar_type()
     {
-        using (await CreateScratchAsync<MyContext19667>(Seed19667, "19667"))
+        await using (await CreateScratchAsync<MyContext19667>(Seed19667, "19667"))
         {
             using var context = new MyContext19667();
 
@@ -1285,7 +1285,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     [ConditionalFact]
     public virtual async Task Changing_order_of_projection_in_anonymous_type_works()
     {
-        using (await CreateScratchAsync<MyContext20359>(Seed20359, "20359"))
+        await using (await CreateScratchAsync<MyContext20359>(Seed20359, "20359"))
         {
             using var context = new MyContext20359();
 
@@ -1372,7 +1372,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     [ConditionalFact]
     public virtual async Task Union_with_different_property_name_using_same_anonymous_type()
     {
-        using (await CreateScratchAsync<MyContext23360>(Seed23360, "23360"))
+        await using (await CreateScratchAsync<MyContext23360>(Seed23360, "23360"))
         {
             using var context = new MyContext23360();
 
@@ -1460,7 +1460,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     [ConditionalFact]
     public virtual async Task Ordering_of_collection_result_is_correct()
     {
-        using (await CreateScratchAsync<MyContext18394>(Seed18394, "18394"))
+        await using (await CreateScratchAsync<MyContext18394>(Seed18394, "18394"))
         {
             using var context = new MyContext18394();
 
@@ -1487,7 +1487,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
 
     private static Task Seed18394(MyContext18394 context)
     {
-        var a = new A18394 { PropertyB = new B18394 { PropertyCList = [new() { SomeText = "TestText" }] } };
+        var a = new A18394 { PropertyB = new B18394 { PropertyCList = [new C18394 { SomeText = "TestText" }] } };
         context.As.Add(a);
 
         return context.SaveChangesAsync();
@@ -1565,7 +1565,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     [ConditionalFact]
     public virtual async Task Owned_entity_indexes_are_maintained_properly()
     {
-        using (await CreateScratchAsync<MyContext23934>(Seed23934, "23934"))
+        await using (await CreateScratchAsync<MyContext23934>(Seed23934, "23934"))
         {
             using var context = new MyContext23934();
 

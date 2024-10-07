@@ -220,8 +220,7 @@ public class MigrationsOperations
             EnsureServices(services);
 
             var migrator = services.GetRequiredService<IMigrator>();
-
-            migrator.Migrate(targetMigration: targetMigration);
+            migrator.Migrate(targetMigration);
         }
 
         _reporter.WriteInformation(DesignStrings.Done);

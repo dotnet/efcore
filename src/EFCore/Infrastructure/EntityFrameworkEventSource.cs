@@ -126,43 +126,32 @@ public sealed class EntityFrameworkEventSource : EventSource
             _activeDbContextsCounter ??= new PollingCounter(
                 "active-db-contexts",
                 this,
-                () => EntityFrameworkMetricsData.GetActiveDbContexts())
-            {
-                DisplayName = "Active DbContexts"
-            };
+                () => EntityFrameworkMetricsData.GetActiveDbContexts()) { DisplayName = "Active DbContexts" };
 
             _totalQueriesCounter ??= new PollingCounter(
                 "total-queries",
                 this,
-                () => EntityFrameworkMetricsData.GetTotalQueriesExecuted())
-            {
-                DisplayName = "Queries (Total)"
-            };
+                () => EntityFrameworkMetricsData.GetTotalQueriesExecuted()) { DisplayName = "Queries (Total)" };
 
             _queriesPerSecondCounter ??= new IncrementingPollingCounter(
                 "queries-per-second",
                 this,
                 () => EntityFrameworkMetricsData.GetTotalQueriesExecuted())
             {
-                DisplayName = "Queries",
-                DisplayRateTimeScale = TimeSpan.FromSeconds(1)
+                DisplayName = "Queries", DisplayRateTimeScale = TimeSpan.FromSeconds(1)
             };
 
             _totalSaveChangesCounter ??= new PollingCounter(
                 "total-save-changes",
                 this,
-                () => EntityFrameworkMetricsData.GetTotalSaveChanges())
-            {
-                DisplayName = "SaveChanges (Total)"
-            };
+                () => EntityFrameworkMetricsData.GetTotalSaveChanges()) { DisplayName = "SaveChanges (Total)" };
 
             _saveChangesPerSecondCounter ??= new IncrementingPollingCounter(
                 "save-changes-per-second",
                 this,
                 () => EntityFrameworkMetricsData.GetTotalSaveChanges())
             {
-                DisplayName = "SaveChanges",
-                DisplayRateTimeScale = TimeSpan.FromSeconds(1)
+                DisplayName = "SaveChanges", DisplayRateTimeScale = TimeSpan.FromSeconds(1)
             };
 
             _compiledQueryCacheHitRateCounter ??= new PollingCounter(
@@ -170,8 +159,7 @@ public sealed class EntityFrameworkEventSource : EventSource
                 this,
                 () => EntityFrameworkMetricsData.GetCompiledQueryCacheHitRateEventSource().hitRate)
             {
-                DisplayName = "Query Cache Hit Rate",
-                DisplayUnits = "%"
+                DisplayName = "Query Cache Hit Rate", DisplayUnits = "%"
             };
 
             _totalExecutionStrategyOperationFailuresCounter ??= new PollingCounter(
@@ -187,8 +175,7 @@ public sealed class EntityFrameworkEventSource : EventSource
                 this,
                 () => EntityFrameworkMetricsData.GetTotalExecutionStrategyOperationFailures())
             {
-                DisplayName = "Execution Strategy Operation Failures",
-                DisplayRateTimeScale = TimeSpan.FromSeconds(1)
+                DisplayName = "Execution Strategy Operation Failures", DisplayRateTimeScale = TimeSpan.FromSeconds(1)
             };
 
             _totalOptimisticConcurrencyFailuresCounter ??= new PollingCounter(
@@ -204,8 +191,7 @@ public sealed class EntityFrameworkEventSource : EventSource
                 this,
                 () => EntityFrameworkMetricsData.GetTotalOptimisticConcurrencyFailures())
             {
-                DisplayName = "Optimistic Concurrency Failures",
-                DisplayRateTimeScale = TimeSpan.FromSeconds(1)
+                DisplayName = "Optimistic Concurrency Failures", DisplayRateTimeScale = TimeSpan.FromSeconds(1)
             };
         }
     }

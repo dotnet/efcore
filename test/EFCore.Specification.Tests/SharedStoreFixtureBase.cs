@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 // ReSharper disable VirtualMemberCallInConstructor
+
 namespace Microsoft.EntityFrameworkCore;
 
 public abstract class SharedStoreFixtureBase<TContext> : FixtureBase, IAsyncLifetime
@@ -110,6 +111,6 @@ public abstract class SharedStoreFixtureBase<TContext> : FixtureBase, IAsyncLife
         return Task.CompletedTask;
     }
 
-    public virtual Task DisposeAsync()
-        => TestStore.DisposeAsync();
+    public virtual async Task DisposeAsync()
+        => await TestStore.DisposeAsync();
 }

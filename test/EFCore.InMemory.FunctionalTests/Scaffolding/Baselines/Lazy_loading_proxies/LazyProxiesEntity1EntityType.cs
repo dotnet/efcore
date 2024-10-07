@@ -111,9 +111,9 @@ namespace TestNamespace
                     int (int v) => v),
                 clrType: typeof(int),
                 jsonValueReaderWriter: JsonInt32ReaderWriter.Instance);
-            referenceNavigationId.SetValueComparer(new NullableValueComparer<int>(referenceNavigationId.TypeMapping.Comparer));
-            referenceNavigationId.SetKeyValueComparer(new NullableValueComparer<int>(referenceNavigationId.TypeMapping.KeyComparer));
             referenceNavigationId.SetCurrentValueComparer(new EntryCurrentValueComparer<int?>(referenceNavigationId));
+            referenceNavigationId.SetComparer(new NullableValueComparer<int>(referenceNavigationId.TypeMapping.Comparer));
+            referenceNavigationId.SetKeyComparer(new NullableValueComparer<int>(referenceNavigationId.TypeMapping.KeyComparer));
 
             var lazyLoader = runtimeEntityType.AddServiceProperty(
                 "LazyLoader",
@@ -208,12 +208,12 @@ namespace TestNamespace
 
         public static void CreateAnnotations(RuntimeEntityType runtimeEntityType)
         {
-            var id = runtimeEntityType.FindProperty("Id")!;
-            var referenceNavigationId = runtimeEntityType.FindProperty("ReferenceNavigationId")!;
+            var id = runtimeEntityType.FindProperty("Id");
+            var referenceNavigationId = runtimeEntityType.FindProperty("ReferenceNavigationId");
             var key = runtimeEntityType.FindKey(new[] { id });
             key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.CreateSimpleNonNullableFactory<int>(key));
             key.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<int>(key));
-            var referenceNavigation = runtimeEntityType.FindNavigation("ReferenceNavigation")!;
+            var referenceNavigation = runtimeEntityType.FindNavigation("ReferenceNavigation");
             runtimeEntityType.SetOriginalValuesFactory(
                 ISnapshot (InternalEntityEntry source) =>
                 {

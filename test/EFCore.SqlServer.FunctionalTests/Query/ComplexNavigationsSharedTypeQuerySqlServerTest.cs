@@ -36,7 +36,7 @@ public class ComplexNavigationsSharedTypeQuerySqlServerTest :
                           select l3).Distinct().Skip(1).OrderBy(e => e.Id).FirstOrDefault().Name);
 
         AssertSql(
-"""
+            """
 SELECT (
     SELECT TOP(1) [s0].[Level3_Name]
     FROM (
@@ -78,18 +78,18 @@ WHERE [l].[Id] < 3
     public virtual async Task Distinct_take_without_orderby(bool async)
     {
         await AssertQuery(
-                async,
-                ss => from l1 in ss.Set<Level1>()
-                      where l1.Id < 3
-                      select (from l3 in ss.Set<Level3>()
-                              select l3).Distinct().Take(1).OrderBy(e => e.Id).FirstOrDefault().Name);
+            async,
+            ss => from l1 in ss.Set<Level1>()
+                  where l1.Id < 3
+                  select (from l3 in ss.Set<Level3>()
+                          select l3).Distinct().Take(1).OrderBy(e => e.Id).FirstOrDefault().Name);
 
         AssertSql(
-"""
+            """
 SELECT (
     SELECT TOP(1) [s].[Level3_Name]
     FROM (
-        SELECT DISTINCT TOP(1) [l4].[Id], [l4].[Level2_Optional_Id], [l4].[Level2_Required_Id], [l4].[Level3_Name], [l4].[OneToMany_Optional_Inverse3Id], [l4].[OneToMany_Required_Inverse3Id], [l4].[OneToOne_Optional_PK_Inverse3Id]
+        SELECT TOP(1) [l4].[Id], [l4].[Level2_Required_Id], [l4].[Level3_Name], [l4].[OneToMany_Required_Inverse3Id]
         FROM [Level1] AS [l0]
         LEFT JOIN (
             SELECT [l1].[Id], [l1].[OneToOne_Required_PK_Date], [l1].[Level1_Required_Id], [l1].[OneToMany_Required_Inverse2Id]
@@ -99,7 +99,7 @@ SELECT (
             WHEN [l2].[OneToOne_Required_PK_Date] IS NOT NULL AND [l2].[Level1_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [l2].[Id]
         END
         LEFT JOIN (
-            SELECT [l3].[Id], [l3].[Level2_Optional_Id], [l3].[Level2_Required_Id], [l3].[Level3_Name], [l3].[OneToMany_Optional_Inverse3Id], [l3].[OneToMany_Required_Inverse3Id], [l3].[OneToOne_Optional_PK_Inverse3Id]
+            SELECT [l3].[Id], [l3].[Level2_Required_Id], [l3].[Level3_Name], [l3].[OneToMany_Required_Inverse3Id]
             FROM [Level1] AS [l3]
             WHERE [l3].[Level2_Required_Id] IS NOT NULL AND [l3].[OneToMany_Required_Inverse3Id] IS NOT NULL
         ) AS [l4] ON CASE
@@ -1020,7 +1020,7 @@ LEFT JOIN (
 """);
     }
 
-    [ConditionalTheory()]
+    [ConditionalTheory]
     public override async Task GroupBy_aggregate_where_required_relationship_2(bool async)
     {
         await base.GroupBy_aggregate_where_required_relationship_2(async);
@@ -1171,7 +1171,7 @@ WHERE [l5].[OneToOne_Required_PK_Date] IS NOT NULL AND [l5].[Level1_Required_Id]
 """);
     }
 
-    [ConditionalTheory()]
+    [ConditionalTheory]
     public override async Task GroupBy_aggregate_where_required_relationship(bool async)
     {
         await base.GroupBy_aggregate_where_required_relationship(async);

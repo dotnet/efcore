@@ -33,9 +33,7 @@ public class ModelValidator : IModelValidator
     /// </summary>
     /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
     public ModelValidator(ModelValidatorDependencies dependencies)
-    {
-        Dependencies = dependencies;
-    }
+        => Dependencies = dependencies;
 
     /// <summary>
     ///     Dependencies for this service.

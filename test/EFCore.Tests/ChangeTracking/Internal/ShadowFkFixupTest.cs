@@ -1583,10 +1583,8 @@ public class ShadowFkFixupTest
     private class FixupContext : DbContext
     {
         public FixupContext()
-        {
             // ReSharper disable once VirtualMemberCallInConstructor
-            ChangeTracker.AutoDetectChangesEnabled = false;
-        }
+            => ChangeTracker.AutoDetectChangesEnabled = false;
 
         protected internal override void OnModelCreating(ModelBuilder modelBuilder)
         {

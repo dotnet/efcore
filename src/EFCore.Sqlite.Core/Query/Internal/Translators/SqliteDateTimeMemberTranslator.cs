@@ -118,11 +118,11 @@ public class SqliteDateTimeMemberTranslator(SqliteSqlExpressionFactory sqlExpres
 
         return sqlExpressionFactory.Function(
             "rtrim",
-            new SqlExpression[]
+            new[]
             {
                 sqlExpressionFactory.Function(
                     "rtrim",
-                    new SqlExpression[]
+                    new[]
                     {
                         sqlExpressionFactory.Strftime(
                             returnType,

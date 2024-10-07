@@ -14,7 +14,7 @@ public class SqlServerTypeAliasTest(SqlServerFixture fixture) : IClassFixture<Sq
     [ConditionalFact]
     public async Task Can_create_database_with_alias_columns()
     {
-        using var testDatabase = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
+        await using var testDatabase = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
         var options = Fixture.CreateOptions(testDatabase);
 
         using (var context = new TypeAliasContext(options))

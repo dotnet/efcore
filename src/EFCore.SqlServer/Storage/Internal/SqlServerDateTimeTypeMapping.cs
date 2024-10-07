@@ -72,9 +72,7 @@ public class SqlServerDateTimeTypeMapping : DateTimeTypeMapping
     /// </summary>
     protected SqlServerDateTimeTypeMapping(RelationalTypeMappingParameters parameters, SqlDbType? sqlDbType)
         : base(parameters)
-    {
-        _sqlDbType = sqlDbType;
-    }
+        => _sqlDbType = sqlDbType;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

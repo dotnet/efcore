@@ -4,7 +4,6 @@
 #nullable enable
 
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
-using Microsoft.EntityFrameworkCore.InMemory.ValueGeneration.Internal;
 
 // ReSharper disable ClassNeverInstantiated.Local
 // ReSharper disable ParameterOnlyUsedForPreconditionCheck.Local
@@ -507,7 +506,12 @@ public class ChangeTrackerTest
     [InlineData(true, true)]
     public void Detect_nested_property_change_is_logged(bool sensitive, bool callDetectChangesTwice)
     {
-        var wocket = new Wocket { Id = 1, Name = "Gollum", Pocket = new() { Contents = "Handsies" } };
+        var wocket = new Wocket
+        {
+            Id = 1,
+            Name = "Gollum",
+            Pocket = new Pocket { Contents = "Handsies" }
+        };
 
         using var context = sensitive ? new LikeAZooContextSensitive() : new LikeAZooContext();
         context.Database.EnsureDeleted();
@@ -2206,7 +2210,6 @@ public class ChangeTrackerTest
 
     private class Hat(int id)
     {
-
         // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Local
         public int Id { get; private set; } = id;
 
@@ -2218,7 +2221,6 @@ public class ChangeTrackerTest
 
     private class Mat(int id)
     {
-
         // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Local
         public int Id { get; private set; } = id;
 

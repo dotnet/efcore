@@ -21,9 +21,7 @@ public class DbContextOptionsConfiguration<TContext> : IDbContextOptionsConfigur
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public DbContextOptionsConfiguration(Action<IServiceProvider, DbContextOptionsBuilder> configure)
-    {
-        _configure = configure;
-    }
+        => _configure = configure;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

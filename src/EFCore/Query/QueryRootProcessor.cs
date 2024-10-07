@@ -21,9 +21,7 @@ public class QueryRootProcessor : ExpressionVisitor
     public QueryRootProcessor(
         QueryTranslationPreprocessorDependencies dependencies,
         QueryCompilationContext queryCompilationContext)
-    {
-        _queryCompilationContext = queryCompilationContext;
-    }
+        => _queryCompilationContext = queryCompilationContext;
 
     /// <inheritdoc />
     protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)

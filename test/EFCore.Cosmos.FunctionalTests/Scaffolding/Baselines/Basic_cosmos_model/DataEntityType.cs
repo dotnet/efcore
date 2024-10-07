@@ -108,9 +108,9 @@ namespace TestNamespace
                     new ValueConverter<long, string>(
                         string (long v) => string.Format(CultureInfo.InvariantCulture, "{0}", ((object)(v))),
                         long (string v) => long.Parse(v, NumberStyles.Any, CultureInfo.InvariantCulture))));
-            partitionId.SetValueComparer(new NullableValueComparer<long>(partitionId.TypeMapping.Comparer));
-            partitionId.SetKeyValueComparer(new NullableValueComparer<long>(partitionId.TypeMapping.KeyComparer));
             partitionId.SetCurrentValueComparer(new EntryCurrentValueComparer<long?>(partitionId));
+            partitionId.SetComparer(new NullableValueComparer<long>(partitionId.TypeMapping.Comparer));
+            partitionId.SetKeyComparer(new NullableValueComparer<long>(partitionId.TypeMapping.KeyComparer));
 
             var blob = runtimeEntityType.AddProperty(
                 "Blob",
@@ -393,15 +393,15 @@ namespace TestNamespace
 
         public static void CreateAnnotations(RuntimeEntityType runtimeEntityType)
         {
-            var id = runtimeEntityType.FindProperty("Id")!;
-            var partitionId = runtimeEntityType.FindProperty("PartitionId")!;
-            var blob = runtimeEntityType.FindProperty("Blob")!;
-            var bytes = runtimeEntityType.FindProperty("Bytes")!;
-            var list = runtimeEntityType.FindProperty("List")!;
-            var map = runtimeEntityType.FindProperty("Map")!;
-            var __id = runtimeEntityType.FindProperty("__id")!;
-            var __jObject = runtimeEntityType.FindProperty("__jObject")!;
-            var _etag = runtimeEntityType.FindProperty("_etag")!;
+            var id = runtimeEntityType.FindProperty("Id");
+            var partitionId = runtimeEntityType.FindProperty("PartitionId");
+            var blob = runtimeEntityType.FindProperty("Blob");
+            var bytes = runtimeEntityType.FindProperty("Bytes");
+            var list = runtimeEntityType.FindProperty("List");
+            var map = runtimeEntityType.FindProperty("Map");
+            var __id = runtimeEntityType.FindProperty("__id");
+            var __jObject = runtimeEntityType.FindProperty("__jObject");
+            var _etag = runtimeEntityType.FindProperty("_etag");
             var key = runtimeEntityType.FindKey(new[] { id, partitionId });
             key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.CreateCompositeFactory(key));
             key.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<IReadOnlyList<object>>(key));

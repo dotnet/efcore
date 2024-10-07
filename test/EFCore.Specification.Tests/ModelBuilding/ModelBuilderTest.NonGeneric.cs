@@ -1,13 +1,12 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Reflection;
-
 namespace Microsoft.EntityFrameworkCore.ModelBuilding;
 
 public abstract partial class ModelBuilderTest
 {
-    public class NonGenericTestModelBuilder(ModelBuilderFixtureBase fixture, Action<ModelConfigurationBuilder>? configure) : TestModelBuilder(fixture, configure)
+    public class NonGenericTestModelBuilder(ModelBuilderFixtureBase fixture, Action<ModelConfigurationBuilder>? configure)
+        : TestModelBuilder(fixture, configure)
     {
         public override TestEntityTypeBuilder<TEntity> Entity<TEntity>()
             => new NonGenericTestEntityTypeBuilder<TEntity>(ModelBuilder.Entity(typeof(TEntity)));
@@ -42,7 +41,8 @@ public abstract partial class ModelBuilderTest
         }
     }
 
-    protected class NonGenericTestEntityTypeBuilder<TEntity>(EntityTypeBuilder entityTypeBuilder) : TestEntityTypeBuilder<TEntity>, IInfrastructure<EntityTypeBuilder>
+    protected class NonGenericTestEntityTypeBuilder<TEntity>(EntityTypeBuilder entityTypeBuilder)
+        : TestEntityTypeBuilder<TEntity>, IInfrastructure<EntityTypeBuilder>
         where TEntity : class
     {
         protected EntityTypeBuilder EntityTypeBuilder { get; } = entityTypeBuilder;
@@ -525,7 +525,8 @@ public abstract partial class ModelBuilderTest
             => PropertyBuilder;
     }
 
-    protected class NonGenericTestDiscriminatorBuilder<TDiscriminator>(DiscriminatorBuilder discriminatorBuilder) : TestDiscriminatorBuilder<TDiscriminator>
+    protected class NonGenericTestDiscriminatorBuilder<TDiscriminator>(DiscriminatorBuilder discriminatorBuilder)
+        : TestDiscriminatorBuilder<TDiscriminator>
     {
         protected DiscriminatorBuilder DiscriminatorBuilder { get; } = discriminatorBuilder;
 
@@ -548,8 +549,9 @@ public abstract partial class ModelBuilderTest
             => Wrap(DiscriminatorBuilder.HasValue(entityTypeName, value));
     }
 
-    protected class NonGenericTestOwnedEntityTypeBuilder<TEntity>(OwnedEntityTypeBuilder ownedEntityTypeBuilder) : TestOwnedEntityTypeBuilder<TEntity>,
-        IInfrastructure<OwnedEntityTypeBuilder>
+    protected class NonGenericTestOwnedEntityTypeBuilder<TEntity>(OwnedEntityTypeBuilder ownedEntityTypeBuilder)
+        : TestOwnedEntityTypeBuilder<TEntity>,
+            IInfrastructure<OwnedEntityTypeBuilder>
         where TEntity : class
     {
         protected OwnedEntityTypeBuilder OwnedEntityTypeBuilder { get; } = ownedEntityTypeBuilder;
@@ -558,7 +560,8 @@ public abstract partial class ModelBuilderTest
             => OwnedEntityTypeBuilder;
     }
 
-    protected class NonGenericTestPropertyBuilder<TProperty>(PropertyBuilder propertyBuilder) : TestPropertyBuilder<TProperty>, IInfrastructure<PropertyBuilder>
+    protected class NonGenericTestPropertyBuilder<TProperty>(PropertyBuilder propertyBuilder)
+        : TestPropertyBuilder<TProperty>, IInfrastructure<PropertyBuilder>
     {
         private PropertyBuilder PropertyBuilder { get; } = propertyBuilder;
 
@@ -703,8 +706,9 @@ public abstract partial class ModelBuilderTest
             => PropertyBuilder;
     }
 
-    protected class NonGenericTestPrimitiveCollectionBuilder<TProperty>(PrimitiveCollectionBuilder primitiveCollectionBuilder) : TestPrimitiveCollectionBuilder<TProperty>,
-        IInfrastructure<PrimitiveCollectionBuilder>
+    protected class NonGenericTestPrimitiveCollectionBuilder<TProperty>(PrimitiveCollectionBuilder primitiveCollectionBuilder)
+        : TestPrimitiveCollectionBuilder<TProperty>,
+            IInfrastructure<PrimitiveCollectionBuilder>
     {
         private PrimitiveCollectionBuilder PrimitiveCollectionBuilder { get; } = primitiveCollectionBuilder;
 
@@ -915,7 +919,8 @@ public abstract partial class ModelBuilderTest
             => PropertyBuilder;
     }
 
-    protected class NonGenericTestComplexTypePrimitiveCollectionBuilder<TProperty>(ComplexTypePrimitiveCollectionBuilder primitiveCollectionBuilder) :
+    protected class NonGenericTestComplexTypePrimitiveCollectionBuilder<TProperty>(
+        ComplexTypePrimitiveCollectionBuilder primitiveCollectionBuilder) :
         TestComplexTypePrimitiveCollectionBuilder<TProperty>,
         IInfrastructure<ComplexTypePrimitiveCollectionBuilder>
     {
@@ -1023,7 +1028,8 @@ public abstract partial class ModelBuilderTest
             => KeyBuilder;
     }
 
-    protected class NonGenericTestIndexBuilder<TEntity>(IndexBuilder indexBuilder) : TestIndexBuilder<TEntity>, IInfrastructure<IndexBuilder>
+    protected class NonGenericTestIndexBuilder<TEntity>(IndexBuilder indexBuilder)
+        : TestIndexBuilder<TEntity>, IInfrastructure<IndexBuilder>
     {
         private IndexBuilder IndexBuilder { get; } = indexBuilder;
 
@@ -1044,7 +1050,8 @@ public abstract partial class ModelBuilderTest
     }
 
     protected class
-        NonGenericTestReferenceNavigationBuilder<TEntity, TRelatedEntity>(ReferenceNavigationBuilder referenceNavigationBuilder) : TestReferenceNavigationBuilder<TEntity, TRelatedEntity>
+        NonGenericTestReferenceNavigationBuilder<TEntity, TRelatedEntity>(ReferenceNavigationBuilder referenceNavigationBuilder)
+        : TestReferenceNavigationBuilder<TEntity, TRelatedEntity>
         where TEntity : class
         where TRelatedEntity : class
     {
@@ -1071,7 +1078,8 @@ public abstract partial class ModelBuilderTest
                     navigationExpression?.GetMemberAccess().GetSimpleMemberName()));
     }
 
-    protected class NonGenericTestCollectionNavigationBuilder<TEntity, TRelatedEntity>(CollectionNavigationBuilder collectionNavigationBuilder)
+    protected class NonGenericTestCollectionNavigationBuilder<TEntity, TRelatedEntity>(
+        CollectionNavigationBuilder collectionNavigationBuilder)
         : TestCollectionNavigationBuilder<TEntity, TRelatedEntity>
         where TEntity : class
         where TRelatedEntity : class
@@ -1143,7 +1151,8 @@ public abstract partial class ModelBuilderTest
     }
 
     protected class
-        NonGenericTestReferenceReferenceBuilder<TEntity, TRelatedEntity>(ReferenceReferenceBuilder referenceReferenceBuilder) : TestReferenceReferenceBuilder<TEntity, TRelatedEntity>
+        NonGenericTestReferenceReferenceBuilder<TEntity, TRelatedEntity>(ReferenceReferenceBuilder referenceReferenceBuilder)
+        : TestReferenceReferenceBuilder<TEntity, TRelatedEntity>
         where TEntity : class
         where TRelatedEntity : class
     {
@@ -1187,7 +1196,8 @@ public abstract partial class ModelBuilderTest
             => Wrap(ReferenceReferenceBuilder.OnDelete(deleteBehavior));
     }
 
-    protected class NonGenericTestCollectionCollectionBuilder<TLeftEntity, TRightEntity>(CollectionCollectionBuilder collectionCollectionBuilder) :
+    protected class NonGenericTestCollectionCollectionBuilder<TLeftEntity, TRightEntity>(
+        CollectionCollectionBuilder collectionCollectionBuilder) :
         TestCollectionCollectionBuilder<TLeftEntity, TRightEntity>
         where TLeftEntity : class
         where TRightEntity : class
@@ -1482,10 +1492,20 @@ public abstract partial class ModelBuilderTest
         public override TestIndexBuilder<TDependentEntity> HasIndex(params string[] propertyNames)
             => new NonGenericTestIndexBuilder<TDependentEntity>(OwnedNavigationBuilder.HasIndex(propertyNames));
 
+        public override TestIndexBuilder<TDependentEntity> HasIndex(string[] propertyNames, string name)
+            => new NonGenericTestIndexBuilder<TDependentEntity>(OwnedNavigationBuilder.HasIndex(propertyNames, name));
+
         public override TestIndexBuilder<TDependentEntity> HasIndex(Expression<Func<TDependentEntity, object?>> indexExpression)
             => new NonGenericTestIndexBuilder<TDependentEntity>(
                 OwnedNavigationBuilder.HasIndex(
                     indexExpression.GetMemberAccessList().Select(p => p.GetSimpleMemberName()).ToArray()));
+
+        public override TestIndexBuilder<TDependentEntity> HasIndex(
+            Expression<Func<TDependentEntity, object?>> indexExpression,
+            string name)
+            => new NonGenericTestIndexBuilder<TDependentEntity>(
+                OwnedNavigationBuilder.HasIndex(
+                    indexExpression.GetMemberAccessList().Select(p => p.GetSimpleMemberName()).ToArray(), name));
 
         public override TestOwnershipBuilder<TEntity, TDependentEntity> WithOwner(string? ownerReference)
             => new NonGenericTestOwnershipBuilder<TEntity, TDependentEntity>(

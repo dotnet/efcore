@@ -80,9 +80,7 @@ public class ShadowStateUpdateTest(InMemoryFixture fixture) : IClassFixture<InMe
     private class Customer
     {
         private Customer(object[] values)
-        {
-            Id = (int)values[0];
-        }
+            => Id = (int)values[0];
 
         public Customer()
         {

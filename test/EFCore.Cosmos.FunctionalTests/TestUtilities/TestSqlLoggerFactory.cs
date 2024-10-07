@@ -28,9 +28,7 @@ public class TestSqlLoggerFactory : ListLoggerFactory
 
     public TestSqlLoggerFactory(Func<string, bool> shouldLogCategory)
         : base(c => shouldLogCategory(c) || c == DbLoggerCategory.Database.Command.Name)
-    {
-        Logger = new TestSqlLogger();
-    }
+        => Logger = new TestSqlLogger();
 
     public IReadOnlyList<string> SqlStatements
         => ((TestSqlLogger)Logger).SqlStatements;

@@ -8,7 +8,8 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public class OptimisticConcurrencyULongSqlServerTest(F1ULongSqlServerFixture fixture) : OptimisticConcurrencySqlServerTestBase<F1ULongSqlServerFixture, ulong>(fixture)
+public class OptimisticConcurrencyULongSqlServerTest(F1ULongSqlServerFixture fixture)
+    : OptimisticConcurrencySqlServerTestBase<F1ULongSqlServerFixture, ulong>(fixture)
 {
     [ConditionalFact]
     public async Task ULong_row_version_can_handle_empty_array_from_the_database()
@@ -67,7 +68,8 @@ public class OptimisticConcurrencyULongSqlServerTest(F1ULongSqlServerFixture fix
         => Row_version_with_table_splitting<StreetCircuitTpc, CityTpc, ulong>(updateDependentFirst, Mapping.Tpc, "ULongVersion");
 }
 
-public class OptimisticConcurrencySqlServerTest(F1SqlServerFixture fixture) : OptimisticConcurrencySqlServerTestBase<F1SqlServerFixture, byte[]>(fixture)
+public class OptimisticConcurrencySqlServerTest(F1SqlServerFixture fixture)
+    : OptimisticConcurrencySqlServerTestBase<F1SqlServerFixture, byte[]>(fixture)
 {
     [ConditionalTheory]
     [InlineData(true)]

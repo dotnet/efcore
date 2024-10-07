@@ -19,7 +19,8 @@ public class InMemoryModelBuilderGenericRelationshipTypeTest : InMemoryModelBuil
             => new GenericTypeTestModelBuilder(Fixture, configure);
     }
 
-    public class GenericTypeTestModelBuilder(ModelBuilderFixtureBase fixture, Action<ModelConfigurationBuilder>? configure) : TestModelBuilder(fixture, configure)
+    public class GenericTypeTestModelBuilder(ModelBuilderFixtureBase fixture, Action<ModelConfigurationBuilder>? configure)
+        : TestModelBuilder(fixture, configure)
     {
         public override TestEntityTypeBuilder<TEntity> Entity<TEntity>()
             => new GenericTypeTestEntityTypeBuilder<TEntity>(ModelBuilder.Entity<TEntity>());
@@ -54,7 +55,8 @@ public class InMemoryModelBuilderGenericRelationshipTypeTest : InMemoryModelBuil
         }
     }
 
-    protected class GenericTypeTestEntityTypeBuilder<TEntity>(EntityTypeBuilder<TEntity> entityTypeBuilder) : GenericTestEntityTypeBuilder<TEntity>(entityTypeBuilder)
+    protected class GenericTypeTestEntityTypeBuilder<TEntity>(EntityTypeBuilder<TEntity> entityTypeBuilder)
+        : GenericTestEntityTypeBuilder<TEntity>(entityTypeBuilder)
         where TEntity : class
     {
         protected override TestEntityTypeBuilder<TEntity> Wrap(EntityTypeBuilder<TEntity> entityTypeBuilder)
@@ -89,7 +91,8 @@ public class InMemoryModelBuilderGenericRelationshipTypeTest : InMemoryModelBuil
             => new GenericTypeTestCollectionNavigationBuilder<TEntity, TRelatedEntity>(EntityTypeBuilder.HasMany(navigationExpression));
     }
 
-    protected class GenericTypeTestPropertyBuilder<TProperty>(PropertyBuilder<TProperty> propertyBuilder) : GenericTestPropertyBuilder<TProperty>(propertyBuilder)
+    protected class GenericTypeTestPropertyBuilder<TProperty>(PropertyBuilder<TProperty> propertyBuilder)
+        : GenericTestPropertyBuilder<TProperty>(propertyBuilder)
     {
         protected override TestPropertyBuilder<TProperty> Wrap(PropertyBuilder<TProperty> propertyBuilder)
             => new GenericTypeTestPropertyBuilder<TProperty>(propertyBuilder);
@@ -112,7 +115,8 @@ public class InMemoryModelBuilderGenericRelationshipTypeTest : InMemoryModelBuil
             => Wrap(PropertyBuilder.HasConversion(typeof(TConverter), typeof(TComparer), typeof(TProviderComparer)));
     }
 
-    protected class GenericTypeTestReferenceNavigationBuilder<TEntity, TRelatedEntity>(ReferenceNavigationBuilder<TEntity, TRelatedEntity> referenceNavigationBuilder) : GenericTestReferenceNavigationBuilder<TEntity,
+    protected class GenericTypeTestReferenceNavigationBuilder<TEntity, TRelatedEntity>(
+        ReferenceNavigationBuilder<TEntity, TRelatedEntity> referenceNavigationBuilder) : GenericTestReferenceNavigationBuilder<TEntity,
         TRelatedEntity>(referenceNavigationBuilder)
         where TEntity : class
         where TRelatedEntity : class
@@ -135,7 +139,8 @@ public class InMemoryModelBuilderGenericRelationshipTypeTest : InMemoryModelBuil
                 CollectionNavigationBuilder.WithMany(navigationExpression));
     }
 
-    protected class GenericTypeTestReferenceReferenceBuilder<TEntity, TRelatedEntity>(ReferenceReferenceBuilder<TEntity, TRelatedEntity> referenceReferenceBuilder)
+    protected class GenericTypeTestReferenceReferenceBuilder<TEntity, TRelatedEntity>(
+        ReferenceReferenceBuilder<TEntity, TRelatedEntity> referenceReferenceBuilder)
         : GenericTestReferenceReferenceBuilder<TEntity, TRelatedEntity>(referenceReferenceBuilder)
         where TEntity : class
         where TRelatedEntity : class
@@ -278,7 +283,8 @@ public class InMemoryModelBuilderGenericRelationshipTypeTest : InMemoryModelBuil
                         new GenericTypeTestEntityTypeBuilder<TJoinEntity>(new EntityTypeBuilder<TJoinEntity>(e.Metadata)))));
     }
 
-    protected class GenericTypeTestOwnedNavigationBuilder<TEntity, TRelatedEntity>(OwnedNavigationBuilder<TEntity, TRelatedEntity> ownedNavigationBuilder)
+    protected class GenericTypeTestOwnedNavigationBuilder<TEntity, TRelatedEntity>(
+        OwnedNavigationBuilder<TEntity, TRelatedEntity> ownedNavigationBuilder)
         : GenericTestOwnedNavigationBuilder<TEntity, TRelatedEntity>(ownedNavigationBuilder)
         where TEntity : class
         where TRelatedEntity : class
