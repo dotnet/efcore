@@ -21,6 +21,6 @@ internal static class Statics
         [false, false, false],
     ];
 
-    public static IReadOnlyList<bool> FalseTrue = [false, true];
-    public static IReadOnlyList<bool> TrueFalse = [true, false];
+    internal static IReadOnlyList<bool> FalseTrue = [false, true];
+    internal static IReadOnlyList<bool> TrueFalse = [true, false];
 }
