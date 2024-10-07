@@ -49,7 +49,7 @@ public class SqliteByteArrayMethodTranslator : IMethodCallTranslator
                     "char",
                     new[] { arguments[1] },
                     nullable: false,
-                    argumentsPropagateNullability: CachedBools.False,
+                    argumentsPropagateNullability: Statics.FalseArrays[1],
                     typeof(string));
 
             return _sqlExpressionFactory.GreaterThan(
@@ -57,7 +57,7 @@ public class SqliteByteArrayMethodTranslator : IMethodCallTranslator
                     "instr",
                     new[] { source, value },
                     nullable: true,
-                    argumentsPropagateNullability: CachedBools.TrueTrue,
+                    argumentsPropagateNullability: Statics.TrueArrays[2],
                     typeof(int)),
                 _sqlExpressionFactory.Constant(0));
         }

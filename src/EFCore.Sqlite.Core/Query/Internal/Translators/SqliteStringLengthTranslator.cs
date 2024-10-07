@@ -42,7 +42,7 @@ public class SqliteStringLengthTranslator : IMemberTranslator
                     "length",
                     new[] { instance! },
                     nullable: true,
-                    argumentsPropagateNullability: CachedBools.True,
+                    argumentsPropagateNullability: Statics.TrueArrays[1],
                     returnType)
                 : null;
 }

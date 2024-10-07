@@ -75,7 +75,7 @@ public class SqliteGeometryMemberTranslator : IMemberTranslator
                                     functionName,
                                     new[] { instance },
                                     nullable: false,
-                                    argumentsPropagateNullability: CachedBools.False,
+                                    argumentsPropagateNullability: Statics.FalseArrays[1],
                                     returnType))
                         },
                         null)
@@ -83,7 +83,7 @@ public class SqliteGeometryMemberTranslator : IMemberTranslator
                         functionName,
                         new[] { instance },
                         nullable: true,
-                        argumentsPropagateNullability: CachedBools.True,
+                        argumentsPropagateNullability: Statics.TrueArrays[1],
                         returnType);
             }
 
@@ -98,12 +98,12 @@ public class SqliteGeometryMemberTranslator : IMemberTranslator
                                 "GeometryType",
                                 new[] { instance },
                                 nullable: true,
-                                argumentsPropagateNullability: CachedBools.True,
+                                argumentsPropagateNullability: Statics.TrueArrays[1],
                                 returnType),
                             _sqlExpressionFactory.Constant(" ZM")
                         },
                         nullable: true,
-                        argumentsPropagateNullability: CachedBools.TrueTrue,
+                        argumentsPropagateNullability: Statics.TrueArrays[2],
                         returnType),
                     new[]
                     {
@@ -132,12 +132,12 @@ public class SqliteGeometryMemberTranslator : IMemberTranslator
                                 "GeometryType",
                                 new[] { instance },
                                 nullable: true,
-                                argumentsPropagateNullability: CachedBools.True,
+                                argumentsPropagateNullability: Statics.TrueArrays[1],
                                 typeof(string)),
                             _sqlExpressionFactory.Constant(" ZM")
                         },
                         nullable: true,
-                        argumentsPropagateNullability: CachedBools.TrueTrue,
+                        argumentsPropagateNullability: Statics.TrueArrays[2],
                         typeof(string)),
                     new[]
                     {

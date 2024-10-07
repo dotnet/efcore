@@ -44,7 +44,7 @@ public class SqliteGeometryCollectionMemberTranslator : IMemberTranslator
                 "NumGeometries",
                 new[] { instance! },
                 nullable: true,
-                argumentsPropagateNullability: CachedBools.True,
+                argumentsPropagateNullability: Statics.TrueArrays[1],
                 returnType)
             : null;
 }

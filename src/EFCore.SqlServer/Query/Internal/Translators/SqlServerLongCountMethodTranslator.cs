@@ -66,7 +66,7 @@ public class SqlServerLongCountMethodTranslator : IAggregateMethodCallTranslator
                     "COUNT_BIG",
                     new[] { sqlExpression },
                     nullable: false,
-                    argumentsPropagateNullability: CachedBools.False,
+                    argumentsPropagateNullability: Statics.FalseArrays[1],
                     typeof(long)));
         }
 

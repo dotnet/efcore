@@ -594,7 +594,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
                 [left, right],
                 nullable: true,
                 // COALESCE is handled separately since it's only nullable if *all* arguments are null
-                argumentsPropagateNullability: CachedBools.FalseFalse,
+                argumentsPropagateNullability: Statics.FalseArrays[2],
                 resultType,
                 inferredTypeMapping)
         };

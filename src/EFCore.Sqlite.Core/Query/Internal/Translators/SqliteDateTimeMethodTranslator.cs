@@ -101,12 +101,12 @@ public class SqliteDateTimeMethodTranslator(SqliteSqlExpressionFactory sqlExpres
                             sqlExpressionFactory.Constant("0")
                         },
                         nullable: true,
-                        argumentsPropagateNullability: CachedBools.TrueFalse,
+                        argumentsPropagateNullability: Statics.TrueFalse,
                         method.ReturnType),
                     sqlExpressionFactory.Constant(".")
                 },
                 nullable: true,
-                argumentsPropagateNullability: CachedBools.TrueFalse,
+                argumentsPropagateNullability: Statics.TrueFalse,
                 method.ReturnType);
         }
 

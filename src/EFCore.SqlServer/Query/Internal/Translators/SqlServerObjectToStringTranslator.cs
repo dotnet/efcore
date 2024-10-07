@@ -113,7 +113,7 @@ public class SqlServerObjectToStringTranslator : IMethodCallTranslator
                     "CONVERT",
                     new[] { _sqlExpressionFactory.Fragment(storeType), instance },
                     nullable: true,
-                    argumentsPropagateNullability: CachedBools.FalseTrue,
+                    argumentsPropagateNullability: Statics.FalseTrue,
                     typeof(string),
                     _typeMappingSource.GetMapping(storeType)),
                 _sqlExpressionFactory.Constant(string.Empty))
