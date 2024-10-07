@@ -738,6 +738,7 @@ FROM
 (
     SELECT [t].[name], [t].[object_id], [t].[schema_id]
     FROM [sys].[tables] t
+    LEFT JOIN [sys].[extended_properties] AS [ep] ON [ep].[major_id] = [t].[object_id] AND [ep].[minor_id] = 0 AND [ep].[class] = 1 AND [ep].[name] = 'microsoft_database_tools_support'
     WHERE {tableFilter}
 """);
 
