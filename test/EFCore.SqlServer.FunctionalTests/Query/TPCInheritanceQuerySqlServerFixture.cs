@@ -3,6 +3,4 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public class TPCInheritanceQuerySqlServerFixture : TPCInheritanceQuerySqlServerFixtureBase;

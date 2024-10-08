@@ -32,7 +32,7 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
                 var dependent = c.Set<PrincipalDerived<DependentBase<byte?>>>().Include(p => p.Dependent).Single().Dependent!;
                 Assert.Equal("one", ((DependentDerived<byte?>)dependent).GetData());
             },
-            options: new CompiledModelCodeGenerationOptions { UseNullableReferenceTypes = true });
+            options: new CompiledModelCodeGenerationOptions { UseNullableReferenceTypes = true, ForNativeAot = true });
 
     protected override void BuildBigModel(ModelBuilder modelBuilder, bool jsonColumns)
     {
@@ -121,6 +121,33 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
             {
                 eb.Property<string>("Data")
                     .IsFixedLength();
+            });
+
+        modelBuilder.Entity<ManyTypes>(
+            b =>
+            {
+                b.Ignore(e => e.BoolNestedCollection);
+                b.Ignore(e => e.UInt8NestedCollection);
+                b.Ignore(e => e.Int8NestedCollection);
+                b.Ignore(e => e.Int32NestedCollection);
+                b.Ignore(e => e.Int64NestedCollection);
+                b.Ignore(e => e.CharNestedCollection);
+                b.Ignore(e => e.GuidNestedCollection);
+                b.Ignore(e => e.StringNestedCollection);
+                b.Ignore(e => e.BytesNestedCollection);
+                b.Ignore(e => e.NullableUInt8NestedCollection);
+                b.Ignore(e => e.NullableInt32NestedCollection);
+                b.Ignore(e => e.NullableInt64NestedCollection);
+                b.Ignore(e => e.NullableGuidNestedCollection);
+                b.Ignore(e => e.NullableStringNestedCollection);
+                b.Ignore(e => e.NullableBytesNestedCollection);
+                b.Ignore(e => e.NullablePhysicalAddressNestedCollection);
+                b.Ignore(e => e.Enum8NestedCollection);
+                b.Ignore(e => e.Enum32NestedCollection);
+                b.Ignore(e => e.EnumU64NestedCollection);
+                b.Ignore(e => e.NullableEnum8NestedCollection);
+                b.Ignore(e => e.NullableEnum32NestedCollection);
+                b.Ignore(e => e.NullableEnumU64NestedCollection);
             });
     }
 
@@ -403,6 +430,29 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
             });
     }
 
+    [ConditionalFact]
+    public override Task ComplexTypes()
+        => Test(
+            BuildComplexTypesModel,
+            AssertComplexTypes,
+            c =>
+            {
+                // Sprocs not supported with complex types
+                //c.Set<PrincipalDerived<DependentBase<byte?>>>().Add(
+                //    new PrincipalDerived<DependentBase<byte?>>
+                //    {
+                //        Id = 1,
+                //        AlternateId = new Guid(),
+                //        Dependent = new DependentBase<byte?>(1),
+                //        Owned = new OwnedType(c) { Principal = new PrincipalBase() }
+                //    });
+
+                //c.SaveChanges();
+
+                return Task.CompletedTask;
+            },
+            options: new CompiledModelCodeGenerationOptions { UseNullableReferenceTypes = true, ForNativeAot = true });
+
     protected override void AssertComplexTypes(IModel model)
     {
         base.AssertComplexTypes(model);
@@ -473,7 +523,7 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
         => Test(
             BuildTpcSprocsModel,
             AssertTpcSprocs,
-            options: new CompiledModelCodeGenerationOptions { UseNullableReferenceTypes = true });
+            options: new CompiledModelCodeGenerationOptions { UseNullableReferenceTypes = true, ForNativeAot = true });
 
     protected virtual void BuildTpcSprocsModel(ModelBuilder modelBuilder)
     {
@@ -1240,7 +1290,8 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
             },
             additionalSourceFiles:
             [
-                new("DbContextModelCustomizer.cs",
+                new ScaffoldedFile(
+                    "DbContextModelCustomizer.cs",
                     """
 using Microsoft.EntityFrameworkCore.Metadata;
 

@@ -533,9 +533,9 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
 
             AssertSql(
                 """
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] IN ("Vehicle", "PoweredVehicle") AND (c["Name"] = "AIM-9M Sidewinder"))
+WHERE (c["$type"] IN ("Vehicle", "PoweredVehicle") AND (c["Name"] = "AIM-9M Sidewinder"))
 OFFSET 0 LIMIT 1
 """);
             Assert.Equal("Heat-seeking", missile.Operator.Details.Type);
@@ -679,15 +679,10 @@ OFFSET 0 LIMIT 1
 
     public class CosmosFixture : ServiceProviderFixtureBase, IAsyncLifetime
     {
-        public CosmosFixture()
-        {
-            TestStore = CosmosTestStore.Create(DatabaseName);
-        }
-
         protected override ITestStoreFactory TestStoreFactory
             => CosmosTestStoreFactory.Instance;
 
-        public virtual CosmosTestStore TestStore { get; }
+        public virtual CosmosTestStore TestStore { get; } = CosmosTestStore.Create(DatabaseName);
 
         public async Task<EmbeddedTransportationContextOptions> CreateOptions(
             Action<ModelBuilder> onModelCreating = null,
@@ -725,8 +720,8 @@ OFFSET 0 LIMIT 1
         public Task InitializeAsync()
             => Task.CompletedTask;
 
-        public Task DisposeAsync()
-            => TestStore.DisposeAsync();
+        public async Task DisposeAsync()
+            => await TestStore.DisposeAsync();
     }
 
     public record class EmbeddedTransportationContextOptions(DbContextOptions Options, Action<ModelBuilder> OnModelCreating);
@@ -737,6 +732,8 @@ OFFSET 0 LIMIT 1
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.HasDiscriminatorInJsonIds();
+
             modelBuilder.Entity<Vehicle>(
                 eb =>
                 {

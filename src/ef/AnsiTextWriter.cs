@@ -6,15 +6,8 @@ using System.Text.RegularExpressions;
 
 namespace Microsoft.EntityFrameworkCore.Tools;
 
-internal class AnsiTextWriter
+internal class AnsiTextWriter(TextWriter writer)
 {
-    private readonly TextWriter _writer;
-
-    public AnsiTextWriter(TextWriter writer)
-    {
-        _writer = writer;
-    }
-
     public void WriteLine(string? text)
     {
         if (text != null)
@@ -22,7 +15,7 @@ internal class AnsiTextWriter
             Interpret(text);
         }
 
-        _writer.Write(Environment.NewLine);
+        writer.Write(Environment.NewLine);
     }
 
     private void Interpret(string value)
@@ -35,7 +28,7 @@ internal class AnsiTextWriter
             var length = match.Index - start;
             if (length != 0)
             {
-                _writer.Write(value.Substring(start, length));
+                writer.Write(value.Substring(start, length));
             }
 
             Apply(match.Groups[1].Value);
@@ -45,7 +38,7 @@ internal class AnsiTextWriter
 
         if (start != value.Length)
         {
-            _writer.Write(value.Substring(start));
+            writer.Write(value.Substring(start));
         }
     }
 

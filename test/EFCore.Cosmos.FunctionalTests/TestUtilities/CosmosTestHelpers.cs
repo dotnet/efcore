@@ -2,8 +2,8 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal;
-// ReSharper disable once CheckNamespace
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
+// ReSharper disable once CheckNamespace
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
@@ -23,14 +23,14 @@ public class CosmosTestHelpers : TestHelpers
 
     public override DbContextOptionsBuilder UseProviderOptions(DbContextOptionsBuilder optionsBuilder)
         => TestEnvironment.UseTokenCredential
-        ? optionsBuilder.UseCosmos(
-            TestEnvironment.DefaultConnection,
-            TestEnvironment.TokenCredential,
-            "UnitTests")
-        : optionsBuilder.UseCosmos(
-            TestEnvironment.DefaultConnection,
-            TestEnvironment.AuthToken,
-            "UnitTests");
+            ? optionsBuilder.UseCosmos(
+                TestEnvironment.DefaultConnection,
+                TestEnvironment.TokenCredential,
+                "UnitTests")
+            : optionsBuilder.UseCosmos(
+                TestEnvironment.DefaultConnection,
+                TestEnvironment.AuthToken,
+                "UnitTests");
 
     private static readonly string SyncMessage
         = CoreStrings.WarningAsErrorTemplate(

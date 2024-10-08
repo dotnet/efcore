@@ -93,25 +93,19 @@ public class TestOkObjectResult : TestObjectResult
 {
     public TestOkObjectResult(object innerResult)
         : base(innerResult)
-    {
-        StatusCode = 200;
-    }
+        => StatusCode = 200;
 }
 
 public class TestOkObjectResult<T> : TestObjectResult
 {
     public TestOkObjectResult(object innerResult)
         : base(innerResult)
-    {
-        StatusCode = 200;
-    }
+        => StatusCode = 200;
 
     public TestOkObjectResult(T content, TestODataController controller)
         : base(content)
-    {
-        // Controller is unused.
-        StatusCode = 200;
-    }
+    // Controller is unused.
+        => StatusCode = 200;
 }
 
 public class TestStatusCodeObjectResult(ObjectResult innerResult) : TestObjectResult(innerResult);

@@ -13,7 +13,8 @@ public class InMemoryModelBuilderNonGenericUnqualifiedStringTest : InMemoryModel
             => new NonGenericStringTestModelBuilder(Fixture, configure);
     }
 
-    private class NonGenericStringTestModelBuilder(ModelBuilderFixtureBase fixture, Action<ModelConfigurationBuilder>? configure) : TestModelBuilder(fixture, configure)
+    private class NonGenericStringTestModelBuilder(ModelBuilderFixtureBase fixture, Action<ModelConfigurationBuilder>? configure)
+        : TestModelBuilder(fixture, configure)
     {
         public override TestEntityTypeBuilder<TEntity> Entity<TEntity>()
             => new NonGenericStringTestEntityTypeBuilder<TEntity>(ModelBuilder.Entity(typeof(TEntity)));
@@ -48,7 +49,8 @@ public class InMemoryModelBuilderNonGenericUnqualifiedStringTest : InMemoryModel
         }
     }
 
-    private class NonGenericStringTestEntityTypeBuilder<TEntity>(EntityTypeBuilder entityTypeBuilder) : NonGenericTestEntityTypeBuilder<TEntity>(entityTypeBuilder)
+    private class NonGenericStringTestEntityTypeBuilder<TEntity>(EntityTypeBuilder entityTypeBuilder)
+        : NonGenericTestEntityTypeBuilder<TEntity>(entityTypeBuilder)
         where TEntity : class
     {
         protected override NonGenericTestEntityTypeBuilder<TEntity> Wrap(EntityTypeBuilder entityTypeBuilder)
@@ -112,7 +114,8 @@ public class InMemoryModelBuilderNonGenericUnqualifiedStringTest : InMemoryModel
         }
     }
 
-    private class NonGenericStringTestReferenceNavigationBuilder<TEntity, TRelatedEntity>(ReferenceNavigationBuilder referenceNavigationBuilder) : NonGenericTestReferenceNavigationBuilder<
+    private class NonGenericStringTestReferenceNavigationBuilder<TEntity, TRelatedEntity>(
+        ReferenceNavigationBuilder referenceNavigationBuilder) : NonGenericTestReferenceNavigationBuilder<
         TEntity, TRelatedEntity>(referenceNavigationBuilder)
         where TEntity : class
         where TRelatedEntity : class
@@ -124,7 +127,8 @@ public class InMemoryModelBuilderNonGenericUnqualifiedStringTest : InMemoryModel
                     navigationExpression?.GetMemberAccess().GetSimpleMemberName()));
     }
 
-    private class NonGenericStringTestReferenceReferenceBuilder<TEntity, TRelatedEntity>(ReferenceReferenceBuilder referenceReferenceBuilder) : NonGenericTestReferenceReferenceBuilder<
+    private class NonGenericStringTestReferenceReferenceBuilder<TEntity, TRelatedEntity>(
+        ReferenceReferenceBuilder referenceReferenceBuilder) : NonGenericTestReferenceReferenceBuilder<
         TEntity, TRelatedEntity>(referenceReferenceBuilder)
         where TEntity : class
         where TRelatedEntity : class

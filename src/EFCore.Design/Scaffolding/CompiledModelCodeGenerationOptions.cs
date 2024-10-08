@@ -39,6 +39,12 @@ public class CompiledModelCodeGenerationOptions
     public virtual string? Suffix { get; set; }
 
     /// <summary>
+    ///     Gets or sets a value indicating whether the generated code should be compatible with NativeAOT.
+    /// </summary>
+    /// <value> A value indicating whether the generated code should be compatible with NativeAOT. </value>
+    public virtual bool ForNativeAot { get; set; }
+
+    /// <summary>
     ///     Gets or sets the set of file names generated so far.
     /// </summary>
     /// <value> The file names generated so far. </value>

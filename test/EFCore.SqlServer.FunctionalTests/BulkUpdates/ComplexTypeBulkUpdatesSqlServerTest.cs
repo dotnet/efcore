@@ -5,7 +5,9 @@ namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
 #nullable disable
 
-public class ComplexTypeBulkUpdatesSqlServerTest(ComplexTypeBulkUpdatesSqlServerTest.ComplexTypeBulkUpdatesSqlServerFixture fixture, ITestOutputHelper testOutputHelper) : ComplexTypeBulkUpdatesTestBase<
+public class ComplexTypeBulkUpdatesSqlServerTest(
+    ComplexTypeBulkUpdatesSqlServerTest.ComplexTypeBulkUpdatesSqlServerFixture fixture,
+    ITestOutputHelper testOutputHelper) : ComplexTypeBulkUpdatesRelationalTestBase<
     ComplexTypeBulkUpdatesSqlServerTest.ComplexTypeBulkUpdatesSqlServerFixture>(fixture, testOutputHelper)
 {
     public override async Task Delete_entity_type_with_complex_type(bool async)
@@ -20,9 +22,9 @@ WHERE [c].[Name] = N'Monty Elias'
 """);
     }
 
-    public override async Task Delete_complex_type_throws(bool async)
+    public override async Task Delete_complex_type(bool async)
     {
-        await base.Delete_complex_type_throws(async);
+        await base.Delete_complex_type(async);
 
         AssertSql();
     }
@@ -93,9 +95,9 @@ FROM [Customer] AS [c]
 """);
     }
 
-    public override async Task Update_projected_complex_type_via_OrderBy_Skip_throws(bool async)
+    public override async Task Update_projected_complex_type_via_OrderBy_Skip(bool async)
     {
-        await base.Update_projected_complex_type_via_OrderBy_Skip_throws(async);
+        await base.Update_projected_complex_type_via_OrderBy_Skip(async);
 
         AssertExecuteUpdateSql();
     }
@@ -241,7 +243,7 @@ FROM [Customer] AS [c]
     protected void ClearLog()
         => Fixture.TestSqlLoggerFactory.Clear();
 
-    public class ComplexTypeBulkUpdatesSqlServerFixture : ComplexTypeBulkUpdatesFixtureBase
+    public class ComplexTypeBulkUpdatesSqlServerFixture : ComplexTypeBulkUpdatesRelationalFixtureBase
     {
         protected override ITestStoreFactory TestStoreFactory
             => SqlServerTestStoreFactory.Instance;

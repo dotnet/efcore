@@ -214,7 +214,6 @@ public static class CosmosShapedQueryExpressionExtensions
                             Limit: null,
                             Orderings: [],
                             IsDistinct: false,
-                            UsesSingleValueProjection: true,
                             Projection: [{ Expression: var a }]
                         },
                     }

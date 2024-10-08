@@ -5,7 +5,7 @@ namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
 #nullable disable
 
-public class NonSharedModelBulkUpdatesSqlServerTest : NonSharedModelBulkUpdatesTestBase
+public class NonSharedModelBulkUpdatesSqlServerTest : NonSharedModelBulkUpdatesRelationalTestBase
 {
     protected override ITestStoreFactory TestStoreFactory
         => SqlServerTestStoreFactory.Instance;
@@ -120,7 +120,7 @@ INNER JOIN [Owner] AS [o0] ON [o].[Id] = [o0].[Id]
             """
 UPDATE [o]
 SET [o].[OwnedReference_Number] = CAST(LEN([o].[Title]) AS int),
-    [o].[Title] = CONVERT(varchar(11), [o].[OwnedReference_Number])
+    [o].[Title] = COALESCE(CONVERT(varchar(11), [o].[OwnedReference_Number]), '')
 FROM [Owner] AS [o]
 """);
     }
@@ -190,6 +190,37 @@ SET [o].[Total] = (
 FROM [Orders] AS [o]
 WHERE [o].[Id] = 1
 """);
+    }
+
+    public override async Task Delete_with_view_mapping(bool async)
+    {
+        await base.Delete_with_view_mapping(async);
+
+        AssertSql(
+            """
+DELETE FROM [b]
+FROM [Blogs] AS [b]
+""");
+    }
+
+    public override async Task Update_with_view_mapping(bool async)
+    {
+        await base.Update_with_view_mapping(async);
+
+        AssertSql(
+            """
+UPDATE [b]
+SET [b].[Data] = N'Updated'
+FROM [Blogs] AS [b]
+""");
+    }
+
+    public override async Task Update_complex_type_with_view_mapping(bool async)
+    {
+        await base.Update_complex_type_with_view_mapping(async);
+
+        // #34706
+        AssertSql();
     }
 
     private void AssertSql(params string[] expected)

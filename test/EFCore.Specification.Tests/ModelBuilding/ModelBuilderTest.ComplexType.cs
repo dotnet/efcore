@@ -673,21 +673,9 @@ public abstract partial class ModelBuilderTest
             Assert.True(strange.GetProviderValueComparer().IsDefault());
         }
 
-        protected  class UTF8StringToBytesConverter : StringToBytesConverter
-        {
-            public UTF8StringToBytesConverter()
-                : base(Encoding.UTF8)
-            {
-            }
-        }
+        protected class UTF8StringToBytesConverter() : StringToBytesConverter(Encoding.UTF8);
 
-        protected class CustomValueComparer<T> : ValueComparer<T>
-        {
-            public CustomValueComparer()
-                : base(false)
-            {
-            }
-        }
+        protected class CustomValueComparer<T>() : ValueComparer<T>(false);
 
         [ConditionalFact]
         public virtual void Properties_can_have_value_converter_set_inline()
@@ -821,21 +809,10 @@ public abstract partial class ModelBuilderTest
             return obj;
         }
 
-        private class ExpandoObjectConverter : ValueConverter<ExpandoObject, string>
-        {
-            public ExpandoObjectConverter()
-                : base(v => (string)((IDictionary<string, object>)v)["Value"], v => DeserializeExpandoObject(v))
-            {
-            }
-        }
+        private class ExpandoObjectConverter() : ValueConverter<ExpandoObject, string>(
+            v => (string)((IDictionary<string, object>)v)["Value"], v => DeserializeExpandoObject(v));
 
-        private class ExpandoObjectComparer : ValueComparer<ExpandoObject>
-        {
-            public ExpandoObjectComparer()
-                : base((v1, v2) => v1.SequenceEqual(v2), v => v.GetHashCode())
-            {
-            }
-        }
+        private class ExpandoObjectComparer() : ValueComparer<ExpandoObject>((v1, v2) => v1.SequenceEqual(v2), v => v.GetHashCode());
 
         [ConditionalFact]
         public virtual void Properties_can_have_value_converter_configured_by_type()
@@ -932,13 +909,8 @@ public abstract partial class ModelBuilderTest
             Assert.IsType<CustomValueComparer<string>>(wierd.GetProviderValueComparer());
         }
 
-        private class WrappedStringToStringConverter : ValueConverter<WrappedString, string>
-        {
-            public WrappedStringToStringConverter()
-                : base(v => v.Value, v => new WrappedString { Value = v })
-            {
-            }
-        }
+        private class WrappedStringToStringConverter()
+            : ValueConverter<WrappedString, string>(v => v.Value, v => new WrappedString { Value = v });
 
         [ConditionalFact]
         public virtual void Value_converter_type_is_checked()
@@ -2105,8 +2077,8 @@ public abstract partial class ModelBuilderTest
             Assert.Null(complexType.FindProperty("Up")!.Sentinel);
             Assert.Equal(new ObservableCollection<string>(), complexType.FindProperty("Down")!.Sentinel);
             Assert.Equal(Array.Empty<int>(), complexType.FindProperty("Charm")!.Sentinel);
-            Assert.Equal(new List<string> { }, complexType.FindProperty("Strange")!.Sentinel);
-            Assert.Equal(new int[] { 77 }, complexType.FindProperty("Top")!.Sentinel);
+            Assert.Equal(new List<string>(), complexType.FindProperty("Strange")!.Sentinel);
+            Assert.Equal(new[] { 77 }, complexType.FindProperty("Top")!.Sentinel);
             Assert.Equal(new List<string> { "" }, complexType.FindProperty("Bottom")!.Sentinel);
         }
 
@@ -2196,22 +2168,23 @@ public abstract partial class ModelBuilderTest
                 .Entity<ComplexProperties>()
                 .ComplexProperty(e => e.CollectionQuarks)
                 .PrimitiveCollection(e => e.Up)
-                .ElementType(t => t
-                    .HasAnnotation("B", "C")
-                    .HasConversion(typeof(long))
-                    .HasConversion(new CastingConverter<int, long>())
-                    .HasConversion(typeof(long), typeof(CustomValueComparer<int>))
-                    .HasConversion(typeof(long), new CustomValueComparer<int>())
-                    .HasConversion(new CastingConverter<int, long>())
-                    .HasConversion(new CastingConverter<int, long>(), new CustomValueComparer<int>())
-                    .HasConversion<long>()
-                    .HasConversion<long>(new CustomValueComparer<int>())
-                    .HasConversion<long, CustomValueComparer<int>>()
-                    .HasMaxLength(2)
-                    .HasPrecision(1)
-                    .HasPrecision(1, 2)
-                    .IsRequired()
-                    .IsUnicode())
+                .ElementType(
+                    t => t
+                        .HasAnnotation("B", "C")
+                        .HasConversion(typeof(long))
+                        .HasConversion(new CastingConverter<int, long>())
+                        .HasConversion(typeof(long), typeof(CustomValueComparer<int>))
+                        .HasConversion(typeof(long), new CustomValueComparer<int>())
+                        .HasConversion(new CastingConverter<int, long>())
+                        .HasConversion(new CastingConverter<int, long>(), new CustomValueComparer<int>())
+                        .HasConversion<long>()
+                        .HasConversion<long>(new CustomValueComparer<int>())
+                        .HasConversion<long, CustomValueComparer<int>>()
+                        .HasMaxLength(2)
+                        .HasPrecision(1)
+                        .HasPrecision(1, 2)
+                        .IsRequired()
+                        .IsUnicode())
                 .IsRequired()
                 .HasAnnotation("A", "V")
                 .IsConcurrencyToken()

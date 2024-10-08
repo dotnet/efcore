@@ -384,6 +384,7 @@ public class IntegerValueGeneratorTest
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<Toast> CookedBreads { get; set; }
         public DbSet<Olive> Olives { get; set; }
+
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<Mac> Macs { get; set; }
         public DbSet<Smokey> Smokeys { get; set; }

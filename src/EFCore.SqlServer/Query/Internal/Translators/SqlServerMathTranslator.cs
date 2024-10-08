@@ -2,8 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
-using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
-using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using ExpressionExtensions = Microsoft.EntityFrameworkCore.Query.ExpressionExtensions;
 
 // ReSharper disable once CheckNamespace
@@ -71,6 +69,8 @@ public class SqlServerMathTranslator : IMethodCallTranslator
         { typeof(float).GetRuntimeMethod(nameof(float.RadiansToDegrees), [typeof(float)])!, "DEGREES" }
     };
 
+    // Note: Math.Max/Min are handled in RelationalSqlTranslatingExpressionVisitor
+
     private static readonly IEnumerable<MethodInfo> TruncateMethodInfos = new[]
     {
         typeof(Math).GetRuntimeMethod(nameof(Math.Truncate), [typeof(decimal)])!,
@@ -97,9 +97,7 @@ public class SqlServerMathTranslator : IMethodCallTranslator
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public SqlServerMathTranslator(ISqlExpressionFactory sqlExpressionFactory)
-    {
-        _sqlExpressionFactory = sqlExpressionFactory;
-    }
+        => _sqlExpressionFactory = sqlExpressionFactory;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -147,11 +145,11 @@ public class SqlServerMathTranslator : IMethodCallTranslator
                 resultType = typeof(double);
             }
 
-            var result = (SqlExpression)_sqlExpressionFactory.Function(
+            var result = _sqlExpressionFactory.Function(
                 "ROUND",
                 new[] { argument, _sqlExpressionFactory.Constant(0), _sqlExpressionFactory.Constant(1) },
                 nullable: true,
-                argumentsPropagateNullability: new[] { true, false, false },
+                argumentsPropagateNullability: [true, false, false],
                 resultType);
 
             if (argument.Type == typeof(float))
@@ -174,11 +172,11 @@ public class SqlServerMathTranslator : IMethodCallTranslator
                 resultType = typeof(double);
             }
 
-            var result = (SqlExpression)_sqlExpressionFactory.Function(
+            var result = _sqlExpressionFactory.Function(
                 "ROUND",
                 new[] { argument, digits },
                 nullable: true,
-                argumentsPropagateNullability: new[] { true, true },
+                argumentsPropagateNullability: Statics.TrueArrays[2],
                 resultType);
 
             if (argument.Type == typeof(float))
@@ -187,31 +185,6 @@ public class SqlServerMathTranslator : IMethodCallTranslator
             }
 
             return _sqlExpressionFactory.ApplyTypeMapping(result, argument.TypeMapping);
-        }
-
-        if (method.DeclaringType == typeof(Math))
-        {
-            if (method.Name == nameof(Math.Min))
-            {
-                if (_sqlExpressionFactory.TryCreateLeast(
-                        new[] { arguments[0], arguments[1] }, method.ReturnType, out var leastExpression))
-                {
-                    return leastExpression;
-                }
-
-                throw new InvalidOperationException(SqlServerStrings.LeastGreatestCompatibilityLevelTooLow);
-            }
-
-            if (method.Name == nameof(Math.Max))
-            {
-                if (_sqlExpressionFactory.TryCreateGreatest(
-                        new[] { arguments[0], arguments[1] }, method.ReturnType, out var leastExpression))
-                {
-                    return leastExpression;
-                }
-
-                throw new InvalidOperationException(SqlServerStrings.LeastGreatestCompatibilityLevelTooLow);
-            }
         }
 
         return null;

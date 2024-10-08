@@ -15,7 +15,9 @@ public class BufferedDataReaderTest
     public async Task Metadata_methods_return_expected_results(bool async)
     {
         var reader = new FakeDbDataReader(["columnName"], new[] { [new object()], new[] { new object() } });
+#pragma warning disable EF9100 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
         var columns = new ReaderColumn[] { new ReaderColumn<object>(true, null, null, (r, _) => r.GetValue(0)) };
+#pragma warning restore EF9100 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
         var bufferedDataReader = new BufferedDataReader(reader, false);
         if (async)
         {
@@ -43,8 +45,10 @@ public class BufferedDataReaderTest
             new List<IList<object[]>> { new[] { new object[] { 1, "a" } }, Array.Empty<object[]>() });
         var columns = new ReaderColumn[]
         {
+#pragma warning disable EF9100 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
             new ReaderColumn<int>(false, null, null, (r, _) => r.GetInt32(0)),
             new ReaderColumn<object>(true, null, null, (r, _) => r.GetValue(1))
+#pragma warning restore EF9100 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
         };
 
         var bufferedDataReader = new BufferedDataReader(reader, false);
@@ -108,7 +112,9 @@ public class BufferedDataReaderTest
     public async Task Initialize_is_idempotent(bool async)
     {
         var reader = new FakeDbDataReader(["name"], new[] { new[] { new object() } });
+#pragma warning disable EF9100 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
         var columns = new ReaderColumn[] { new ReaderColumn<object>(true, null, null, (r, _) => r.GetValue(0)) };
+#pragma warning restore EF9100 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
         var bufferedReader = new BufferedDataReader(reader, false);
 
         Assert.False(reader.IsClosed);
@@ -186,7 +192,9 @@ public class BufferedDataReaderTest
 
         var columns = new[]
         {
+#pragma warning disable EF9100 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
             ReaderColumn.Create(columnType, true, null, null, getFieldValueLambda)
+#pragma warning restore EF9100 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
         };
 
         var bufferedReader = new BufferedDataReader(reader, false);

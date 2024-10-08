@@ -8,15 +8,12 @@ using IdentityServer4.EntityFramework.Stores;
 
 namespace Microsoft.EntityFrameworkCore;
 
-public abstract class ConfigurationDbContextTestBase<TFixture> : IClassFixture<TFixture>
+public abstract class ConfigurationDbContextTestBase<TFixture>(
+    ConfigurationDbContextTestBase<TFixture>.ConfigurationDbContextFixtureBase fixture)
+    : IClassFixture<TFixture>
     where TFixture : ConfigurationDbContextTestBase<TFixture>.ConfigurationDbContextFixtureBase
 {
-    protected ConfigurationDbContextTestBase(ConfigurationDbContextFixtureBase fixture)
-    {
-        Fixture = fixture;
-    }
-
-    protected ConfigurationDbContextFixtureBase Fixture { get; }
+    protected ConfigurationDbContextFixtureBase Fixture { get; } = fixture;
 
     protected virtual bool HasForeignKeyIndexes
         => true;
@@ -203,14 +200,14 @@ public abstract class ConfigurationDbContextTestBase<TFixture> : IClassFixture<T
                 Name = "ApiResource1",
                 DisplayName = "ApiResource 1",
                 Description = "ApiResource 1",
-                Scopes = [new() { Scope = "S1" }, new() { Scope = "S2" }]
+                Scopes = [new ApiResourceScope { Scope = "S1" }, new ApiResourceScope { Scope = "S2" }]
             },
             new ApiResource
             {
                 Name = "ApiResource2",
                 DisplayName = "ApiResource 2",
                 Description = "ApiResource 2",
-                Scopes = [new() { Scope = "S4" }, new() { Scope = "S5" }]
+                Scopes = [new ApiResourceScope { Scope = "S4" }, new ApiResourceScope { Scope = "S5" }]
             },
             new ApiResource
             {

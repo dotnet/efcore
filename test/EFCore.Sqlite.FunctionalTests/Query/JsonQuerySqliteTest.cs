@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public class JsonQuerySqliteTest : JsonQueryTestBase<JsonQuerySqliteFixture>
+public class JsonQuerySqliteTest : JsonQueryRelationalTestBase<JsonQuerySqliteFixture>
 {
     public JsonQuerySqliteTest(JsonQuerySqliteFixture fixture, ITestOutputHelper testOutputHelper)
         : base(fixture)
@@ -99,7 +99,7 @@ FROM "JsonEntitiesBasic" AS "j"
 WHERE (
     SELECT "o0"."OwnedReferenceLeaf" ->> 'SomethingSomething'
     FROM (
-        SELECT "o"."value" ->> 'Date' AS "Date", "o"."value" ->> 'Enum' AS "Enum", "o"."value" ->> 'Fraction' AS "Fraction", "o"."value" ->> 'OwnedReferenceLeaf' AS "OwnedReferenceLeaf", "o"."key"
+        SELECT "o"."value" ->> 'Date' AS "Date", "o"."value" ->> 'Enum' AS "Enum", "o"."value" ->> 'Fraction' AS "Fraction", "o"."value" ->> 'Id' AS "Id", "o"."value" ->> 'OwnedReferenceLeaf' AS "OwnedReferenceLeaf", "o"."key"
         FROM json_each("j"."OwnedReferenceRoot", '$.OwnedCollectionBranch') AS "o"
     ) AS "o0"
     WHERE "o0"."Enum" = -3
@@ -145,7 +145,7 @@ WHERE (
     FROM (
         SELECT "o0"."OwnedReferenceLeaf" ->> 'SomethingSomething' AS "c", "o0"."Date" AS "c0"
         FROM (
-            SELECT "o"."value" ->> 'Date' AS "Date", "o"."value" ->> 'Enum' AS "Enum", "o"."value" ->> 'Fraction' AS "Fraction", "o"."value" ->> 'OwnedReferenceLeaf' AS "OwnedReferenceLeaf"
+            SELECT "o"."value" ->> 'Date' AS "Date", "o"."value" ->> 'Enum' AS "Enum", "o"."value" ->> 'Fraction' AS "Fraction", "o"."value" ->> 'Id' AS "Id", "o"."value" ->> 'OwnedReferenceLeaf' AS "OwnedReferenceLeaf"
             FROM json_each("j"."OwnedReferenceRoot", '$.OwnedCollectionBranch') AS "o"
         ) AS "o0"
         ORDER BY "o0"."Date" DESC
@@ -446,12 +446,13 @@ FROM "JsonEntitiesCustomNaming" AS "j"
 """);
     }
 
-    public override async Task Json_nested_collection_anonymous_projection_of_primitives_in_projection_NoTrackingWithIdentityResolution(bool async)
-    => Assert.Equal(
-        SqliteStrings.ApplyNotSupported,
-        (await Assert.ThrowsAsync<InvalidOperationException>(
-            () => base.Json_nested_collection_anonymous_projection_of_primitives_in_projection_NoTrackingWithIdentityResolution(async)))
-        .Message);
+    public override async Task Json_nested_collection_anonymous_projection_of_primitives_in_projection_NoTrackingWithIdentityResolution(
+        bool async)
+        => Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Json_nested_collection_anonymous_projection_of_primitives_in_projection_NoTrackingWithIdentityResolution(async)))
+            .Message);
 
     // Sqlit throws APPLY error, but base expects different exception
     public override Task Json_branch_collection_distinct_and_other_collection_AsNoTrackingWithIdentityResolution(bool async)

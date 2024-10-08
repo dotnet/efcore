@@ -22,9 +22,7 @@ public class RelationalQueryRootProcessor : QueryRootProcessor
         RelationalQueryTranslationPreprocessorDependencies relationalDependencies,
         QueryCompilationContext queryCompilationContext)
         : base(dependencies, queryCompilationContext)
-    {
-        _model = queryCompilationContext.Model;
-    }
+        => _model = queryCompilationContext.Model;
 
     /// <summary>
     ///     Indicates that a <see cref="Expression" /> can be converted to a <see cref="InlineQueryRootExpression" />;

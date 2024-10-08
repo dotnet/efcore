@@ -6,7 +6,8 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class SqlServerAbstractionsApiConsistencyTest(SqlServerAbstractionsApiConsistencyTest.SqlServerAbstractionsApiConsistencyFixture fixture) : ApiConsistencyTestBase<
+public class SqlServerAbstractionsApiConsistencyTest(
+    SqlServerAbstractionsApiConsistencyTest.SqlServerAbstractionsApiConsistencyFixture fixture) : ApiConsistencyTestBase<
     SqlServerAbstractionsApiConsistencyTest.SqlServerAbstractionsApiConsistencyFixture>(fixture)
 {
     protected override void AddServices(ServiceCollection serviceCollection)

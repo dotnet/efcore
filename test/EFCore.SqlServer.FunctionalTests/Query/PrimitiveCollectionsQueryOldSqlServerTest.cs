@@ -161,18 +161,6 @@ WHERE [p].[Id] IN (2, 999, 1000)
 """);
     }
 
-    public override async Task Inline_collection_Contains_with_EF_Constant(bool async)
-    {
-        await base.Inline_collection_Contains_with_EF_Constant(async);
-
-        AssertSql(
-            """
-SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[String], [p].[Strings]
-FROM [PrimitiveCollectionsEntity] AS [p]
-WHERE [p].[Id] IN (2, 999, 1000)
-""");
-    }
-
     public override async Task Inline_collection_Contains_with_all_parameters(bool async)
     {
         await base.Inline_collection_Contains_with_all_parameters(async);
@@ -373,6 +361,103 @@ WHERE (
     FROM (VALUES (CAST(30 AS int)), ([p].[Int]), (@__i_0)) AS [v]([Value])) = 35
 """);
     }
+
+    public override async Task Inline_collection_of_nullable_value_type_Min(bool async)
+    {
+        await base.Inline_collection_of_nullable_value_type_Min(async);
+
+        AssertSql(
+            """
+@__i_0='25' (Nullable = true)
+
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[String], [p].[Strings]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE (
+    SELECT MIN([v].[Value])
+    FROM (VALUES (CAST(30 AS int)), ([p].[Int]), (@__i_0)) AS [v]([Value])) = 25
+""");
+    }
+
+    public override async Task Inline_collection_of_nullable_value_type_Max(bool async)
+    {
+        await base.Inline_collection_of_nullable_value_type_Max(async);
+
+        AssertSql(
+            """
+@__i_0='35' (Nullable = true)
+
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[String], [p].[Strings]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE (
+    SELECT MAX([v].[Value])
+    FROM (VALUES (CAST(30 AS int)), ([p].[Int]), (@__i_0)) AS [v]([Value])) = 35
+""");
+    }
+
+    public override async Task Inline_collection_of_nullable_value_type_with_null_Min(bool async)
+    {
+        await base.Inline_collection_of_nullable_value_type_with_null_Min(async);
+
+        AssertSql(
+            """
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[String], [p].[Strings]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE (
+    SELECT MIN([v].[Value])
+    FROM (VALUES (CAST(30 AS int)), ([p].[NullableInt]), (NULL)) AS [v]([Value])) = 30
+""");
+    }
+
+    public override async Task Inline_collection_of_nullable_value_type_with_null_Max(bool async)
+    {
+        await base.Inline_collection_of_nullable_value_type_with_null_Max(async);
+
+        AssertSql(
+            """
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[String], [p].[Strings]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE (
+    SELECT MAX([v].[Value])
+    FROM (VALUES (CAST(30 AS int)), ([p].[NullableInt]), (NULL)) AS [v]([Value])) = 30
+""");
+    }
+
+    public override async Task Inline_collection_with_single_parameter_element_Contains(bool async)
+    {
+        await base.Inline_collection_with_single_parameter_element_Contains(async);
+
+        AssertSql(
+            """
+@__i_0='2'
+
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[String], [p].[Strings]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE [p].[Id] = @__i_0
+""");
+    }
+
+    public override async Task Inline_collection_with_single_parameter_element_Count(bool async)
+    {
+        await base.Inline_collection_with_single_parameter_element_Count(async);
+
+        AssertSql(
+            """
+@__i_0='2'
+
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[String], [p].[Strings]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE (
+    SELECT COUNT(*)
+    FROM (VALUES (CAST(@__i_0 AS int))) AS [v]([Value])
+    WHERE [v].[Value] > [p].[Id]) = 1
+""");
+    }
+
+    public override Task Inline_collection_Contains_with_EF_Parameter(bool async)
+        => AssertCompatibilityLevelTooLow(() => base.Inline_collection_Contains_with_EF_Parameter(async));
+
+    public override Task Inline_collection_Count_with_column_predicate_with_EF_Parameter(bool async)
+        => AssertCompatibilityLevelTooLow(() => base.Inline_collection_Count_with_column_predicate_with_EF_Parameter(async));
 
     public override Task Parameter_collection_Count(bool async)
         => AssertCompatibilityLevelTooLow(() => base.Parameter_collection_Count(async));
@@ -587,6 +672,48 @@ WHERE 0 = 1
 """);
     }
 
+    public override async Task Parameter_collection_Contains_with_EF_Constant(bool async)
+    {
+        await base.Parameter_collection_Contains_with_EF_Constant(async);
+
+        AssertSql(
+            """
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[String], [p].[Strings]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE [p].[Id] IN (2, 999, 1000)
+""");
+    }
+
+    public override async Task Parameter_collection_Where_with_EF_Constant_Where_Any(bool async)
+    {
+        await base.Parameter_collection_Where_with_EF_Constant_Where_Any(async);
+
+        AssertSql(
+            """
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[String], [p].[Strings]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE EXISTS (
+    SELECT 1
+    FROM (VALUES (2), (999), (1000)) AS [i]([Value])
+    WHERE [i].[Value] > 0)
+""");
+    }
+
+    public override async Task Parameter_collection_Count_with_column_predicate_with_EF_Constant(bool async)
+    {
+        await base.Parameter_collection_Count_with_column_predicate_with_EF_Constant(async);
+
+        AssertSql(
+            """
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[String], [p].[Strings]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE (
+    SELECT COUNT(*)
+    FROM (VALUES (2), (999), (1000)) AS [i]([Value])
+    WHERE [i].[Value] > [p].[Id]) = 2
+""");
+    }
+
     public override Task Column_collection_of_ints_Contains(bool async)
         => AssertCompatibilityLevelTooLow(() => base.Column_collection_of_ints_Contains(async));
 
@@ -776,6 +903,9 @@ ORDER BY [p].[Id]
         => AssertCompatibilityLevelTooLow(() => base.Inline_collection_Join_ordered_column_collection(async));
 
     public override Task Parameter_collection_Concat_column_collection(bool async)
+        => AssertCompatibilityLevelTooLow(() => base.Parameter_collection_Concat_column_collection(async));
+
+    public override Task Parameter_collection_with_type_inference_for_JsonScalarExpression(bool async)
         => AssertCompatibilityLevelTooLow(() => base.Parameter_collection_Concat_column_collection(async));
 
     public override Task Column_collection_Union_parameter_collection(bool async)

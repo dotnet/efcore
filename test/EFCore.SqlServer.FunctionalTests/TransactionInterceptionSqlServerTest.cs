@@ -5,13 +5,10 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public abstract class TransactionInterceptionSqlServerTestBase : TransactionInterceptionTestBase
+public abstract class TransactionInterceptionSqlServerTestBase(
+    TransactionInterceptionSqlServerTestBase.InterceptionSqlServerFixtureBase fixture)
+    : TransactionInterceptionTestBase(fixture)
 {
-    protected TransactionInterceptionSqlServerTestBase(InterceptionSqlServerFixtureBase fixture)
-        : base(fixture)
-    {
-    }
-
     public abstract class InterceptionSqlServerFixtureBase : InterceptionFixtureBase
     {
         protected override string StoreName
@@ -27,9 +24,9 @@ public abstract class TransactionInterceptionSqlServerTestBase : TransactionInte
     }
 
     public class TransactionInterceptionSqlServerTest(TransactionInterceptionSqlServerTest.InterceptionSqlServerFixture fixture)
-        : TransactionInterceptionSqlServerTestBase(fixture), IClassFixture<TransactionInterceptionSqlServerTest.InterceptionSqlServerFixture>
+        : TransactionInterceptionSqlServerTestBase(fixture),
+            IClassFixture<TransactionInterceptionSqlServerTest.InterceptionSqlServerFixture>
     {
-
         // ReleaseSavepoint is unsupported by SQL Server and is ignored
         public override Task Intercept_ReleaseSavepoint(bool async)
             => Task.CompletedTask;
@@ -41,11 +38,11 @@ public abstract class TransactionInterceptionSqlServerTestBase : TransactionInte
         }
     }
 
-    public class TransactionInterceptionWithDiagnosticsSqlServerTest(TransactionInterceptionWithDiagnosticsSqlServerTest.InterceptionSqlServerFixture fixture)
+    public class TransactionInterceptionWithDiagnosticsSqlServerTest(
+        TransactionInterceptionWithDiagnosticsSqlServerTest.InterceptionSqlServerFixture fixture)
         : TransactionInterceptionSqlServerTestBase(fixture),
             IClassFixture<TransactionInterceptionWithDiagnosticsSqlServerTest.InterceptionSqlServerFixture>
     {
-
         // ReleaseSavepoint is unsupported by SQL Server and is ignored
         public override Task Intercept_ReleaseSavepoint(bool async)
             => Task.CompletedTask;

@@ -19,13 +19,11 @@ public class NorthwindODataQueryTestFixture : NorthwindQuerySqlServerFixture<Noo
         => "ODataNorthwind";
 
     public NorthwindODataQueryTestFixture()
-    {
-        (BaseAddress, ClientFactory, _selfHostServer)
+        => (BaseAddress, ClientFactory, _selfHostServer)
             = ODataQueryTestFixtureInitializer.Initialize<NorthwindODataContext>(
                 StoreName,
                 GetEdmModel(),
                 [new OrderDetailsControllerActionConvention()]);
-    }
 
     private static IEdmModel GetEdmModel()
     {

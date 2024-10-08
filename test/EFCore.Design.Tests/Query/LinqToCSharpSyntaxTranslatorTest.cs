@@ -56,7 +56,9 @@ public class LinqToCSharpSyntaxTranslatorTest(ITestOutputHelper testOutputHelper
 
     [Fact]
     public void Enum_with_multiple_values()
-        => AssertExpression(Constant(SomeEnum.One | SomeEnum.Two), "LinqToCSharpSyntaxTranslatorTest.SomeEnum.One | LinqToCSharpSyntaxTranslatorTest.SomeEnum.Two");
+        => AssertExpression(
+            Constant(SomeEnum.One | SomeEnum.Two),
+            "LinqToCSharpSyntaxTranslatorTest.SomeEnum.One | LinqToCSharpSyntaxTranslatorTest.SomeEnum.Two");
 
     [Fact]
     public void Enum_with_unknown_value()
@@ -145,9 +147,8 @@ private static extern ref int UnsafeAccessor_Microsoft_EntityFrameworkCore_Query
                 expressionType,
                 Field(Parameter(typeof(Blog), "blog"), "_privateField"),
                 Constant(3)),
-            $"""AccessPrivateField(blog) {op} Three""", new Dictionary<object, string>() { { 3, "Three" } }, new Dictionary<MemberInfo, QualifiedName>() {
-                { BlogPrivateField, new QualifiedName("AccessPrivateField", "") }
-            });
+            $"""AccessPrivateField(blog) {op} Three""", new Dictionary<object, string> { { 3, "Three" } },
+            new Dictionary<MemberInfo, QualifiedName> { { BlogPrivateField, new QualifiedName("AccessPrivateField", "") } });
 
     [Theory]
     [InlineData(ExpressionType.Negate, "-(i)")]
@@ -297,13 +298,14 @@ private static extern ref int UnsafeAccessor_Microsoft_EntityFrameworkCore_Query
             Field(
                 Parameter(typeof(Blog), "blog"),
                 "InternalField"),
-            "UnsafeAccessor_Microsoft_EntityFrameworkCore_Query_Blog_InternalField_Get(blog)", unsafeAccessorsAsserter: unsafeAccessors => Assert.Equal(
-                """
+            "UnsafeAccessor_Microsoft_EntityFrameworkCore_Query_Blog_InternalField_Get(blog)", unsafeAccessorsAsserter: unsafeAccessors
+                => Assert.Equal(
+                    """
 [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "InternalField")]
 private static extern int UnsafeAccessor_Microsoft_EntityFrameworkCore_Query_Blog_InternalField_Get(LinqToCSharpSyntaxTranslatorTest.Blog instance);
 """,
-                Assert.Single(unsafeAccessors),
-                ignoreLineEndingDifferences: true));
+                    Assert.Single(unsafeAccessors),
+                    ignoreLineEndingDifferences: true));
 
     [Fact]
     public void Not()
@@ -435,7 +437,7 @@ new LinqToCSharpSyntaxTranslatorTest.Blog("foo")
             Call(
                 LinqExpressionToRoslynTranslatorExtensions.SomeExtensionMethod,
                 Constant(null, typeof(LinqExpressionToRoslynTranslatorExtensionType))),
-            "LinqExpressionToRoslynTranslatorExtensions.SomeExtension(null)");
+            "LinqExpressionToRoslynTranslatorExtensions.SomeExtension((LinqExpressionToRoslynTranslatorExtensionType)(null))");
 
     [Fact]
     public void Method_call_generic()
@@ -1142,7 +1144,8 @@ f1 = bool (int i) =>
 
     [Fact]
     public void Block_with_non_standalone_expression_as_statement()
-        => AssertStatement(Block(Add(Constant(1), Constant(2))),
+        => AssertStatement(
+            Block(Add(Constant(1), Constant(2))),
             """
 {
     _ = (1 + 2);
@@ -1413,8 +1416,7 @@ new int[]
                     ReturnsIntWithParamMethod,
                     Block(
                         Call(FooMethod),
-                        Call(BarMethod))),
-                []),
+                        Call(BarMethod)))),
             """
 int () =>
 {
@@ -1427,8 +1429,7 @@ int () =>
     public void Do_not_lift_block_in_lambda_body()
         => AssertExpression(
             Lambda<Func<int>>(
-                Block(Block(Constant(8))),
-                []),
+                Block(Block(Constant(8)))),
             """
 int () =>
 {
@@ -2073,7 +2074,8 @@ catch
     public static int MethodWithSixParams(int a, int b, int c, int d, int e, int f)
         => a + b + c + d + e + f;
 
-    public static Expression<Func<int, bool>> LambdaExpressionProperty => f => f > 5;
+    public static Expression<Func<int, bool>> LambdaExpressionProperty
+        => f => f > 5;
 
     private static readonly FieldInfo BlogPrivateField
         = typeof(Blog).GetField("_privateField", BindingFlags.NonPublic | BindingFlags.Instance)!;
@@ -2126,9 +2128,7 @@ catch
         public BlogWithRequiredProperties() { }
 
         public BlogWithRequiredProperties(string name)
-        {
-            Name = name;
-        }
+            => Name = name;
 
         [SetsRequiredMembers]
         public BlogWithRequiredProperties(string name, int rating)

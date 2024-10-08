@@ -7,8 +7,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
 public class DataGenerator<T> : IEnumerable<object[]>
 {
-    public IEnumerator<object[]> GetEnumerator() =>
-        DataGenerator.GetCombinations(typeof(T)).AsEnumerable().GetEnumerator();
+    public IEnumerator<object[]> GetEnumerator()
+        => DataGenerator.GetCombinations(typeof(T)).AsEnumerable().GetEnumerator();
 
-    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    IEnumerator IEnumerable.GetEnumerator()
+        => GetEnumerator();
 }

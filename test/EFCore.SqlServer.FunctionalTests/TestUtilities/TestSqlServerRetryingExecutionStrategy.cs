@@ -14,7 +14,8 @@ public class TestSqlServerRetryingExecutionStrategy : SqlServerRetryingExecution
         -1, // Physical connection is not usable
         -2, // Timeout
         42008, // Mirroring (Only when a database is deleted and another one is created in fast succession)
-        42019 // CREATE DATABASE operation failed
+        42019, // CREATE DATABASE operation failed
+        65536, // Used for testing
     ];
 
     public TestSqlServerRetryingExecutionStrategy()
@@ -39,6 +40,13 @@ public class TestSqlServerRetryingExecutionStrategy : SqlServerRetryingExecution
 
     public TestSqlServerRetryingExecutionStrategy(ExecutionStrategyDependencies dependencies)
         : base(dependencies, DefaultMaxRetryCount, DefaultMaxDelay, _additionalErrorNumbers)
+    {
+    }
+
+    public TestSqlServerRetryingExecutionStrategy(
+        ExecutionStrategyDependencies dependencies,
+        IEnumerable<int> errorNumbersToAdd)
+        : base(dependencies, DefaultMaxRetryCount, DefaultMaxDelay, _additionalErrorNumbers.Concat(errorNumbersToAdd))
     {
     }
 

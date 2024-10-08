@@ -6,18 +6,13 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace Microsoft.EntityFrameworkCore;
 
-public abstract class AspNetIdentityCustomTypesDefaultTestBase<TFixture>
+public abstract class AspNetIdentityCustomTypesDefaultTestBase<TFixture>(TFixture fixture)
     : AspNetIdentityTestBase<TFixture, CustomTypesIdentityContext, CustomUserString, CustomRoleString, string, CustomUserClaimString,
-        CustomUserRoleString, CustomUserLoginString, CustomRoleClaimString, CustomUserTokenString>
+        CustomUserRoleString, CustomUserLoginString, CustomRoleClaimString, CustomUserTokenString>(fixture)
     where TFixture : AspNetIdentityTestBase<TFixture, CustomTypesIdentityContext, CustomUserString, CustomRoleString, string,
         CustomUserClaimString, CustomUserRoleString, CustomUserLoginString, CustomRoleClaimString, CustomUserTokenString>.
     AspNetIdentityFixtureBase
 {
-    protected AspNetIdentityCustomTypesDefaultTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-
     [ConditionalFact]
     public async Task Can_lazy_load_User_navigations()
     {
@@ -335,9 +330,10 @@ public abstract class AspNetIdentityCustomTypesDefaultTestBase<TFixture>
         ];
 }
 
-public class CustomTypesIdentityContext(DbContextOptions options) : IdentityDbContext<CustomUserString, CustomRoleString, string, CustomUserClaimString,
-    CustomUserRoleString,
-    CustomUserLoginString, CustomRoleClaimString, CustomUserTokenString>(options)
+public class CustomTypesIdentityContext(DbContextOptions options)
+    : IdentityDbContext<CustomUserString, CustomRoleString, string, CustomUserClaimString,
+        CustomUserRoleString,
+        CustomUserLoginString, CustomRoleClaimString, CustomUserTokenString>(options)
 {
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -410,9 +406,7 @@ public class CustomTypesIdentityContext(DbContextOptions options) : IdentityDbCo
 public class CustomUserString : IdentityUser<string>
 {
     public CustomUserString()
-    {
-        Id = Guid.NewGuid().ToString();
-    }
+        => Id = Guid.NewGuid().ToString();
 
     public string CustomTag { get; set; }
 
@@ -427,9 +421,7 @@ public class CustomUserString : IdentityUser<string>
 public class CustomRoleString : IdentityRole<string>
 {
     public CustomRoleString()
-    {
-        Id = Guid.NewGuid().ToString();
-    }
+        => Id = Guid.NewGuid().ToString();
 
     public virtual ICollection<CustomUserString> Users { get; set; }
 

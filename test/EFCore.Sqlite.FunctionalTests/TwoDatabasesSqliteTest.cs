@@ -5,7 +5,8 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public class TwoDatabasesSqliteTest(TwoDatabasesSqliteTest.TwoDatabasesFixture fixture) : TwoDatabasesTestBase(fixture), IClassFixture<TwoDatabasesSqliteTest.TwoDatabasesFixture>
+public class TwoDatabasesSqliteTest(TwoDatabasesSqliteTest.TwoDatabasesFixture fixture)
+    : TwoDatabasesTestBase(fixture), IClassFixture<TwoDatabasesSqliteTest.TwoDatabasesFixture>
 {
     protected new TwoDatabasesFixture Fixture
         => (TwoDatabasesFixture)base.Fixture;

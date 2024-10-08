@@ -9,6 +9,8 @@ public abstract class RelationalTestStore(string name, bool shared, DbConnection
 {
     public virtual string ConnectionString { get; } = connection.ConnectionString;
 
+    public virtual bool UseConnectionString { get; set; }
+
     public ConnectionState ConnectionState
         => Connection.State;
 
@@ -42,10 +44,10 @@ public abstract class RelationalTestStore(string name, bool shared, DbConnection
         return this;
     }
 
-    public override void Dispose()
+    public override async ValueTask DisposeAsync()
     {
-        Connection?.Dispose();
-        base.Dispose();
+        await Connection.DisposeAsync();
+        await base.DisposeAsync();
     }
 
     public virtual string NormalizeDelimitersInRawString(string sql)

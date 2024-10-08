@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections.ObjectModel;
-using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 
@@ -32,9 +31,7 @@ public class JsonCollectionOfStructsReaderWriter<TConcreteCollection, TElement> 
     /// </summary>
     /// <param name="elementReaderWriter">The reader/writer to use for each element.</param>
     public JsonCollectionOfStructsReaderWriter(JsonValueReaderWriter<TElement> elementReaderWriter)
-    {
-        _elementReaderWriter = elementReaderWriter;
-    }
+        => _elementReaderWriter = elementReaderWriter;
 
     /// <inheritdoc />
     public override IEnumerable<TElement> FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
@@ -94,7 +91,7 @@ public class JsonCollectionOfStructsReaderWriter<TConcreteCollection, TElement> 
         return IsReadOnly
             ? IsArray
                 ? collection.ToArray()
-                : (IList<TElement>)Activator.CreateInstance(typeof(TConcreteCollection), [collection])!
+                : (IList<TElement>)Activator.CreateInstance(typeof(TConcreteCollection), collection)!
             : collection;
     }
 
@@ -113,9 +110,11 @@ public class JsonCollectionOfStructsReaderWriter<TConcreteCollection, TElement> 
     JsonValueReaderWriter ICompositeJsonValueReaderWriter.InnerReaderWriter
         => _elementReaderWriter;
 
-    private readonly ConstructorInfo _constructorInfo = typeof(JsonCollectionOfStructsReaderWriter<TConcreteCollection, TElement>).GetConstructor([typeof(JsonValueReaderWriter<TElement>)])!;
+    private readonly ConstructorInfo _constructorInfo =
+        typeof(JsonCollectionOfStructsReaderWriter<TConcreteCollection, TElement>).GetConstructor([typeof(JsonValueReaderWriter<TElement>)])
+        !;
 
     /// <inheritdoc />
-    public override Expression ConstructorExpression =>
-        Expression.New(_constructorInfo, ((ICompositeJsonValueReaderWriter)this).InnerReaderWriter.ConstructorExpression);
+    public override Expression ConstructorExpression
+        => Expression.New(_constructorInfo, ((ICompositeJsonValueReaderWriter)this).InnerReaderWriter.ConstructorExpression);
 }

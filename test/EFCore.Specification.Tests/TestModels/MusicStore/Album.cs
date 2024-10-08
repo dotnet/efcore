@@ -37,10 +37,5 @@ public class Album
 
     [ScaffoldColumn(false)]
     [Required]
-    public DateTime Created { get; set; }
-
-    public Album()
-    {
-        Created = DateTime.UtcNow;
-    }
+    public DateTime Created { get; set; } = DateTime.UtcNow;
 }

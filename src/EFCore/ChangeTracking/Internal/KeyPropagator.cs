@@ -23,9 +23,7 @@ public class KeyPropagator : IKeyPropagator
     /// </summary>
     public KeyPropagator(
         IValueGeneratorSelector valueGeneratorSelector)
-    {
-        _valueGeneratorSelector = valueGeneratorSelector;
-    }
+        => _valueGeneratorSelector = valueGeneratorSelector;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

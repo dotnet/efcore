@@ -6,7 +6,6 @@ namespace Microsoft.EntityFrameworkCore.Query;
 public class NorthwindKeylessEntitiesQueryInMemoryTest(NorthwindQueryInMemoryFixture<NoopModelCustomizer> fixture)
     : NorthwindKeylessEntitiesQueryTestBase<NorthwindQueryInMemoryFixture<NoopModelCustomizer>>(fixture)
 {
-
     // mapping to view not supported on InMemory
     public override Task KeylessEntity_by_database_view(bool async)
         => Task.CompletedTask;

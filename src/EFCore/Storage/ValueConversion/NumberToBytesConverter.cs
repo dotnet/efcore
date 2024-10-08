@@ -299,7 +299,7 @@ public class NumberToBytesConverter<TNumber> : ValueConverter<TNumber, byte[]>
     [EntityFrameworkInternal]
     public static decimal BytesToDecimal(byte[] bytes)
     {
-        Span<byte> gotBytes = BitConverter.IsLittleEndian ? stackalloc byte[16] : bytes;
+        var gotBytes = BitConverter.IsLittleEndian ? stackalloc byte[16] : bytes;
         if (BitConverter.IsLittleEndian)
         {
             bytes.CopyTo(gotBytes);

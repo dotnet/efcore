@@ -10,15 +10,10 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public abstract partial class LoadTestBase<TFixture> : IClassFixture<TFixture>
+public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : LoadTestBase<TFixture>.LoadFixtureBase
 {
-    protected LoadTestBase(TFixture fixture)
-    {
-        Fixture = fixture;
-    }
-
-    protected TFixture Fixture { get; }
+    protected TFixture Fixture { get; } = fixture;
 
     [ConditionalTheory]
     [InlineData(EntityState.Unchanged, false)]
@@ -5358,9 +5353,7 @@ public abstract partial class LoadTestBase<TFixture> : IClassFixture<TFixture>
     protected abstract class RootClass
     {
         protected RootClass(Action<object, string> lazyLoader)
-        {
-            LazyLoader = lazyLoader;
-        }
+            => LazyLoader = lazyLoader;
 
         protected RootClass()
         {
@@ -5427,9 +5420,7 @@ public abstract partial class LoadTestBase<TFixture> : IClassFixture<TFixture>
         }
 
         public OptionalChildView(Action<object, string> lazyLoader)
-        {
-            _loader = lazyLoader;
-        }
+            => _loader = lazyLoader;
 
         public int? RootId { get; set; }
 
@@ -5450,9 +5441,7 @@ public abstract partial class LoadTestBase<TFixture> : IClassFixture<TFixture>
         }
 
         public RequiredChildView(Action<object, string> lazyLoader)
-        {
-            _loader = lazyLoader;
-        }
+            => _loader = lazyLoader;
 
         public int RootId { get; set; }
 
@@ -5474,9 +5463,7 @@ public abstract partial class LoadTestBase<TFixture> : IClassFixture<TFixture>
         }
 
         private ParentFullLoaderByConstructor(ILazyLoader loader)
-        {
-            _loader = loader;
-        }
+            => _loader = loader;
 
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id { get; set; }
@@ -5526,9 +5513,7 @@ public abstract partial class LoadTestBase<TFixture> : IClassFixture<TFixture>
         }
 
         public ChildFullLoaderByConstructor(ILazyLoader loader)
-        {
-            _loader = loader;
-        }
+            => _loader = loader;
 
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id { get; set; }
@@ -5563,9 +5548,7 @@ public abstract partial class LoadTestBase<TFixture> : IClassFixture<TFixture>
         }
 
         public SingleFullLoaderByConstructor(ILazyLoader loader)
-        {
-            _loader = loader;
-        }
+            => _loader = loader;
 
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id { get; set; }
@@ -5601,9 +5584,7 @@ public abstract partial class LoadTestBase<TFixture> : IClassFixture<TFixture>
         }
 
         private ParentDelegateLoaderByConstructor(Action<object, string> lazyLoader)
-        {
-            _loader = lazyLoader;
-        }
+            => _loader = lazyLoader;
 
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id { get; set; }
@@ -5632,9 +5613,7 @@ public abstract partial class LoadTestBase<TFixture> : IClassFixture<TFixture>
         }
 
         private ChildDelegateLoaderByConstructor(Action<object, string> lazyLoader)
-        {
-            _loader = lazyLoader;
-        }
+            => _loader = lazyLoader;
 
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id { get; set; }
@@ -5670,9 +5649,7 @@ public abstract partial class LoadTestBase<TFixture> : IClassFixture<TFixture>
         }
 
         private SingleDelegateLoaderByConstructor(Action<object, string> lazyLoader)
-        {
-            _loader = lazyLoader;
-        }
+            => _loader = lazyLoader;
 
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id { get; set; }

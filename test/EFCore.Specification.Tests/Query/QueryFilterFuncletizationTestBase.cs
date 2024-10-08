@@ -7,15 +7,10 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public abstract class QueryFilterFuncletizationTestBase<TFixture> : IClassFixture<TFixture>
+public abstract class QueryFilterFuncletizationTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : QueryFilterFuncletizationFixtureBase, new()
 {
-    protected QueryFilterFuncletizationTestBase(TFixture fixture)
-    {
-        Fixture = fixture;
-    }
-
-    protected TFixture Fixture { get; }
+    protected TFixture Fixture { get; } = fixture;
 
     protected QueryFilterFuncletizationContext CreateContext()
         => Fixture.CreateContext();

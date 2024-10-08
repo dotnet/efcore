@@ -3,13 +3,9 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public abstract class ConnectionInterceptionSqliteTestBase : ConnectionInterceptionTestBase
+public abstract class ConnectionInterceptionSqliteTestBase(ConnectionInterceptionSqliteTestBase.InterceptionSqliteFixtureBase fixture)
+    : ConnectionInterceptionTestBase(fixture)
 {
-    protected ConnectionInterceptionSqliteTestBase(InterceptionSqliteFixtureBase fixture)
-        : base(fixture)
-    {
-    }
-
     protected override DbContextOptionsBuilder ConfigureProvider(DbContextOptionsBuilder optionsBuilder)
         => optionsBuilder.UseSqlite();
 
@@ -40,8 +36,10 @@ public abstract class ConnectionInterceptionSqliteTestBase : ConnectionIntercept
         }
     }
 
-    public class ConnectionInterceptionWithDiagnosticsSqliteTest(ConnectionInterceptionWithDiagnosticsSqliteTest.InterceptionSqliteFixture fixture)
-        : ConnectionInterceptionSqliteTestBase(fixture), IClassFixture<ConnectionInterceptionWithDiagnosticsSqliteTest.InterceptionSqliteFixture>
+    public class ConnectionInterceptionWithDiagnosticsSqliteTest(
+        ConnectionInterceptionWithDiagnosticsSqliteTest.InterceptionSqliteFixture fixture)
+        : ConnectionInterceptionSqliteTestBase(fixture),
+            IClassFixture<ConnectionInterceptionWithDiagnosticsSqliteTest.InterceptionSqliteFixture>
     {
         public class InterceptionSqliteFixture : InterceptionSqliteFixtureBase
         {

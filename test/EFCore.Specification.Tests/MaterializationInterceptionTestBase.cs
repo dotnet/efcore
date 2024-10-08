@@ -163,7 +163,7 @@ public abstract class MaterializationInterceptionTestBase<TContext> : SingletonI
         }
     }
 
-    private static int _id;
+    private static int _id = 1;
 
     [ConditionalTheory] // Issue #30244
     [ClassData(typeof(DataGenerator<bool, bool>))]

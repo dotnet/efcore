@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Text;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 using ExpressionExtensions = Microsoft.EntityFrameworkCore.Query.ExpressionExtensions;
@@ -140,7 +139,7 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
                     "REPLACE",
                     new[] { instance, firstArgument, secondArgument },
                     nullable: true,
-                    argumentsPropagateNullability: new[] { true, true, true },
+                    argumentsPropagateNullability: Statics.TrueArrays[3],
                     method.ReturnType,
                     stringTypeMapping);
             }
@@ -152,7 +151,7 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
                     ToLowerMethodInfo.Equals(method) ? "LOWER" : "UPPER",
                     new[] { instance },
                     nullable: true,
-                    argumentsPropagateNullability: new[] { true },
+                    argumentsPropagateNullability: Statics.TrueArrays[1],
                     method.ReturnType,
                     instance.TypeMapping);
             }
@@ -171,11 +170,11 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
                             "LEN",
                             new[] { instance },
                             nullable: true,
-                            argumentsPropagateNullability: new[] { true },
+                            argumentsPropagateNullability: Statics.TrueArrays[1],
                             typeof(int))
                     },
                     nullable: true,
-                    argumentsPropagateNullability: new[] { true, true, true },
+                    argumentsPropagateNullability: Statics.TrueArrays[3],
                     method.ReturnType,
                     instance.TypeMapping);
             }
@@ -193,7 +192,7 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
                         arguments[1]
                     },
                     nullable: true,
-                    argumentsPropagateNullability: new[] { true, true, true },
+                    argumentsPropagateNullability: Statics.TrueArrays[3],
                     method.ReturnType,
                     instance.TypeMapping);
             }
@@ -202,7 +201,11 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
             // an overload that accepts the characters to trim.
             if (method == TrimStartMethodInfoWithoutArgs
                 || (method == TrimStartMethodInfoWithCharArrayArg && arguments[0] is SqlConstantExpression { Value: char[] { Length: 0 } })
-                || (_sqlServerSingletonOptions.CompatibilityLevel >= 160
+                || (((_sqlServerSingletonOptions.EngineType == SqlServerEngineType.SqlServer
+                            && _sqlServerSingletonOptions.SqlServerCompatibilityLevel >= 160)
+                        || (_sqlServerSingletonOptions.EngineType == SqlServerEngineType.AzureSql
+                            && _sqlServerSingletonOptions.AzureSqlCompatibilityLevel >= 160)
+                        || (_sqlServerSingletonOptions.EngineType == SqlServerEngineType.AzureSynapse))
                     && (method == TrimStartMethodInfoWithCharArg || method == TrimStartMethodInfoWithCharArrayArg)))
             {
                 return ProcessTrimStartEnd(instance, arguments, "LTRIM");
@@ -210,7 +213,11 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
 
             if (method == TrimEndMethodInfoWithoutArgs
                 || (method == TrimEndMethodInfoWithCharArrayArg && arguments[0] is SqlConstantExpression { Value: char[] { Length: 0 } })
-                || (_sqlServerSingletonOptions.CompatibilityLevel >= 160
+                || (((_sqlServerSingletonOptions.EngineType == SqlServerEngineType.SqlServer
+                            && _sqlServerSingletonOptions.SqlServerCompatibilityLevel >= 160)
+                        || (_sqlServerSingletonOptions.EngineType == SqlServerEngineType.AzureSql
+                            && _sqlServerSingletonOptions.AzureSqlCompatibilityLevel >= 160)
+                        || (_sqlServerSingletonOptions.EngineType == SqlServerEngineType.AzureSynapse))
                     && (method == TrimEndMethodInfoWithCharArg || method == TrimEndMethodInfoWithCharArrayArg)))
             {
                 return ProcessTrimStartEnd(instance, arguments, "RTRIM");
@@ -227,12 +234,12 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
                             "RTRIM",
                             new[] { instance },
                             nullable: true,
-                            argumentsPropagateNullability: new[] { true },
+                            argumentsPropagateNullability: Statics.TrueArrays[1],
                             instance.Type,
                             instance.TypeMapping)
                     },
                     nullable: true,
-                    argumentsPropagateNullability: new[] { true },
+                    argumentsPropagateNullability: Statics.TrueArrays[1],
                     instance.Type,
                     instance.TypeMapping);
             }
@@ -267,7 +274,7 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
                 "SUBSTRING",
                 new[] { argument, _sqlExpressionFactory.Constant(1), _sqlExpressionFactory.Constant(1) },
                 nullable: true,
-                argumentsPropagateNullability: new[] { true, true, true },
+                argumentsPropagateNullability: Statics.TrueArrays[3],
                 method.ReturnType);
         }
 
@@ -283,12 +290,12 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
                         "LEN",
                         new[] { argument },
                         nullable: true,
-                        argumentsPropagateNullability: new[] { true },
+                        argumentsPropagateNullability: Statics.TrueArrays[1],
                         typeof(int)),
                     _sqlExpressionFactory.Constant(1)
                 },
                 nullable: true,
-                argumentsPropagateNullability: new[] { true, true, true },
+                argumentsPropagateNullability: Statics.TrueArrays[3],
                 method.ReturnType);
         }
 
@@ -301,7 +308,7 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
                 "PATINDEX",
                 new[] { pattern, expression },
                 nullable: true,
-                argumentsPropagateNullability: new[] { true, true },
+                argumentsPropagateNullability: Statics.TrueArrays[2],
                 method.ReturnType
             );
         }
@@ -360,12 +367,12 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
         if (searchExpression is SqlConstantExpression { Value: "" })
         {
             return _sqlExpressionFactory.Case(
-                [new(_sqlExpressionFactory.IsNotNull(instance), _sqlExpressionFactory.Constant(0))],
+                [new CaseWhenClause(_sqlExpressionFactory.IsNotNull(instance), _sqlExpressionFactory.Constant(0))],
                 elseResult: null
             );
         }
 
-        SqlExpression offsetExpression = searchExpression is SqlConstantExpression
+        var offsetExpression = searchExpression is SqlConstantExpression
             ? _sqlExpressionFactory.Constant(1)
             : _sqlExpressionFactory.Case(
                 new[]
@@ -377,7 +384,6 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
                         _sqlExpressionFactory.Constant(0))
                 },
                 _sqlExpressionFactory.Constant(1));
-
 
         return _sqlExpressionFactory.Subtract(charIndexExpression, offsetExpression);
     }
@@ -399,7 +405,7 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
             functionName,
             arguments: charactersToTrim is null ? [instance] : [instance, charactersToTrim],
             nullable: true,
-            argumentsPropagateNullability: charactersToTrim is null ? [true] : [true, true],
+            argumentsPropagateNullability: Statics.TrueArrays[charactersToTrim is null ? 1 : 2],
             instance.Type,
             instance.TypeMapping);
     }

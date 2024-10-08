@@ -205,6 +205,7 @@ public abstract class InternalTypeBaseBuilder : AnnotatableBuilder<TypeBase, Int
                 || (memberInfo is PropertyInfo propertyInfo && propertyInfo.IsIndexerProperty()))
             {
                 if (existingProperty.GetTypeConfigurationSource() is ConfigurationSource existingTypeConfigurationSource
+                    && typeConfigurationSource != null
                     && !typeConfigurationSource.Overrides(existingTypeConfigurationSource))
                 {
                     return null;
@@ -224,8 +225,10 @@ public abstract class InternalTypeBaseBuilder : AnnotatableBuilder<TypeBase, Int
         else
         {
             if (configurationSource != ConfigurationSource.Explicit
-                && (!configurationSource.HasValue || !CanAddProperty(propertyType ?? memberInfo?.GetMemberType(),
-                    propertyName, configurationSource.Value, skipTypeCheck: skipTypeCheck)))
+                && (!configurationSource.HasValue
+                    || !CanAddProperty(
+                        propertyType ?? memberInfo?.GetMemberType(),
+                        propertyName, configurationSource.Value, skipTypeCheck: skipTypeCheck)))
             {
                 return null;
             }
@@ -648,7 +651,7 @@ public abstract class InternalTypeBaseBuilder : AnnotatableBuilder<TypeBase, Int
             return properties;
         }
 
-        for (var i = 0; ; i++)
+        for (var i = 0;; i++)
         {
             var property = properties[i];
             if (!property.IsInModel || !property.DeclaringType.IsAssignableFrom(Metadata))
@@ -669,7 +672,7 @@ public abstract class InternalTypeBaseBuilder : AnnotatableBuilder<TypeBase, Int
             var typeConfigurationSource = property.GetTypeConfigurationSource();
             var builder = Property(
                 typeConfigurationSource.Overrides(ConfigurationSource.DataAnnotation)
-                    || (property.IsInModel && Metadata.IsAssignableFrom(property.DeclaringType))
+                || (property.IsInModel && Metadata.IsAssignableFrom(property.DeclaringType))
                     ? property.ClrType
                     : null,
                 property.Name,
@@ -771,7 +774,7 @@ public abstract class InternalTypeBaseBuilder : AnnotatableBuilder<TypeBase, Int
         {
             if (conflictingProperty.GetConfigurationSource() != ConfigurationSource.Explicit)
             {
-                conflictingProperty.DeclaringType.RemoveProperty(conflictingProperty);
+                conflictingProperty.DeclaringType.Builder.RemoveProperty(conflictingProperty, configurationSource);
             }
         }
 
@@ -808,7 +811,8 @@ public abstract class InternalTypeBaseBuilder : AnnotatableBuilder<TypeBase, Int
                     || typeConfigurationSource.Overrides(existingTypeConfigurationSource)))
             || configurationSource.Overrides(existingProperty.GetConfigurationSource())
             : configurationSource.HasValue
-            && CanAddProperty(propertyType ?? memberInfo?.GetMemberType(),
+            && CanAddProperty(
+                propertyType ?? memberInfo?.GetMemberType(),
                 propertyName, configurationSource.Value, checkClrProperty: checkClrProperty);
     }
 

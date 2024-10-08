@@ -768,7 +768,7 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase
             CreateContext,
             UseTransaction,
             async context => Assert.Contains(
-                RelationalStrings.NonQueryTranslationFailedWithDetails(
+                CoreStrings.NonQueryTranslationFailedWithDetails(
                     "", RelationalStrings.ExecuteDeleteOnTableSplitting("Vehicles"))[21..],
                 (await Assert.ThrowsAsync<InvalidOperationException>(
                     async () =>

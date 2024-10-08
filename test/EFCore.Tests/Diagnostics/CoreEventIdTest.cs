@@ -92,7 +92,8 @@ public class CoreEventIdTest : EventIdTestBase
             => null;
     }
 
-    private class FakeNavigationBase(string name, ConfigurationSource configurationSource, EntityType entityType) : PropertyBase(name, null, null, configurationSource), INavigationBase
+    private class FakeNavigationBase(string name, ConfigurationSource configurationSource, EntityType entityType)
+        : PropertyBase(name, null, null, configurationSource), INavigationBase
     {
         public IEntityType DeclaringEntityType
             => (IEntityType)DeclaringType;

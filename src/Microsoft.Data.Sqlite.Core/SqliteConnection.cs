@@ -66,7 +66,7 @@ namespace Microsoft.Data.Sqlite
                     storageFolderType = Type.GetType("Windows.Storage.StorageFolder, Windows, ContentType=WindowsRuntime")
                         ?? Type.GetType("Windows.Storage.StorageFolder, Microsoft.Windows.SDK.NET");
                 }
-                catch (Exception)
+                catch
                 {
                     // Ignore "Could not load assembly." or any type initialization error.
                 }
@@ -347,13 +347,7 @@ namespace Microsoft.Data.Sqlite
                     // NB: Calls RemoveCommand()
                     command.Dispose();
                 }
-                else
-                {
-                    _commands.Remove(reference);
-                }
             }
-
-            Debug.Assert(_commands.Count == 0);
 
             _commands.Clear();
             _innerConnection!.Close();
@@ -450,7 +444,9 @@ namespace Microsoft.Data.Sqlite
         {
             for (var i = _commands.Count - 1; i >= 0; i--)
             {
-                if (_commands[i].TryGetTarget(out var item)
+                var reference = _commands[i];
+                if (reference != null
+                    && reference.TryGetTarget(out var item)
                     && item == command)
                 {
                     _commands.RemoveAt(i);
@@ -935,28 +931,21 @@ namespace Microsoft.Data.Sqlite
             return values;
         }
 
-        private sealed class AggregateDefinition<TAccumulate, TResult>
+        private sealed class AggregateDefinition<TAccumulate, TResult>(
+            string name,
+            TAccumulate seed,
+            Func<TAccumulate, SqliteValueReader, TAccumulate>? func,
+            Func<TAccumulate, TResult>? resultSelector)
         {
-            public AggregateDefinition(string name, TAccumulate seed, Func<TAccumulate, SqliteValueReader, TAccumulate>? func, Func<TAccumulate, TResult>? resultSelector)
-            {
-                Name = name;
-                Seed = seed;
-                Func = func;
-                ResultSelector = resultSelector;
-            }
-
-            public string Name { get; }
-            public TAccumulate Seed { get; }
-            public Func<TAccumulate, SqliteValueReader, TAccumulate>? Func { get; }
-            public Func<TAccumulate, TResult>? ResultSelector { get; }
+            public string Name { get; } = name;
+            public TAccumulate Seed { get; } = seed;
+            public Func<TAccumulate, SqliteValueReader, TAccumulate>? Func { get; } = func;
+            public Func<TAccumulate, TResult>? ResultSelector { get; } = resultSelector;
         }
 
-        private sealed class AggregateContext<T>
+        private sealed class AggregateContext<T>(T seed)
         {
-            public AggregateContext(T seed)
-                => Accumulate = seed;
-
-            public T Accumulate { get; set; }
+            public T Accumulate { get; set; } = seed;
             public Exception? Exception { get; set; }
         }
 

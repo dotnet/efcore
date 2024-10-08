@@ -11,9 +11,7 @@ public class NorthwindDbFunctionsQueryCosmosTest : NorthwindDbFunctionsQueryTest
         NorthwindQueryCosmosFixture<NoopModelCustomizer> fixture,
         ITestOutputHelper testOutputHelper)
         : base(fixture)
-    {
-        ClearLog();
-    }
+        => ClearLog();
 
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()
@@ -62,9 +60,9 @@ public class NorthwindDbFunctionsQueryCosmosTest : NorthwindDbFunctionsQueryTest
 
                 AssertSql(
                     """
-SELECT COUNT(1) AS c
+SELECT VALUE COUNT(1)
 FROM root c
-WHERE ((c["Discriminator"] = "Order") AND (RAND() < 1.0))
+WHERE ((c["$type"] = "Order") AND (RAND() < 1.0))
 """);
             });
 
@@ -76,9 +74,9 @@ WHERE ((c["Discriminator"] = "Order") AND (RAND() < 1.0))
 
                 AssertSql(
                     """
-SELECT COUNT(1) AS c
+SELECT VALUE COUNT(1)
 FROM root c
-WHERE ((c["Discriminator"] = "Order") AND (RAND() >= 0.0))
+WHERE ((c["$type"] = "Order") AND (RAND() >= 0.0))
 """);
             });
 

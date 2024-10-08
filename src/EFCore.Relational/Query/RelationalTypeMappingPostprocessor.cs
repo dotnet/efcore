@@ -10,9 +10,14 @@ namespace Microsoft.EntityFrameworkCore.Query;
 ///     A visitor executed after translation, which verifies that all <see cref="SqlExpression" /> nodes have a type mapping,
 ///     and applies type mappings inferred for queryable constants (VALUES) and parameters (e.g. OPENJSON) back on their root tables.
 /// </summary>
-public class RelationalTypeMappingPostprocessor : ExpressionVisitor
+public class RelationalTypeMappingPostprocessor(
+    QueryTranslationPostprocessorDependencies dependencies,
+    RelationalQueryTranslationPostprocessorDependencies relationalDependencies,
+    RelationalQueryCompilationContext queryCompilationContext)
+    : ExpressionVisitor
 {
-    private readonly ISqlExpressionFactory _sqlExpressionFactory;
+    private readonly ISqlExpressionFactory _sqlExpressionFactory = relationalDependencies.SqlExpressionFactory;
+
     private SelectExpression? _currentSelectExpression;
 
     /// <summary>
@@ -21,36 +26,19 @@ public class RelationalTypeMappingPostprocessor : ExpressionVisitor
     private IReadOnlyDictionary<(string TableAlias, string ColumnName), RelationalTypeMapping?> _inferredTypeMappings = null!;
 
     /// <summary>
-    ///     Creates a new instance of the <see cref="RelationalTypeMappingPostprocessor" /> class.
-    /// </summary>
-    /// <param name="dependencies">Parameter object containing dependencies for this class.</param>
-    /// <param name="relationalDependencies">Parameter object containing relational dependencies for this class.</param>
-    /// <param name="queryCompilationContext">The query compilation context object to use.</param>
-    public RelationalTypeMappingPostprocessor(
-        QueryTranslationPostprocessorDependencies dependencies,
-        RelationalQueryTranslationPostprocessorDependencies relationalDependencies,
-        RelationalQueryCompilationContext queryCompilationContext)
-    {
-        Dependencies = dependencies;
-        RelationalDependencies = relationalDependencies;
-        QueryCompilationContext = queryCompilationContext;
-        _sqlExpressionFactory = relationalDependencies.SqlExpressionFactory;
-    }
-
-    /// <summary>
     ///     Parameter object containing dependencies for this class.
     /// </summary>
-    protected virtual QueryTranslationPostprocessorDependencies Dependencies { get; }
+    protected virtual QueryTranslationPostprocessorDependencies Dependencies { get; } = dependencies;
 
     /// <summary>
     ///     Parameter object containing relational dependencies for this class.
     /// </summary>
-    protected virtual RelationalQueryTranslationPostprocessorDependencies RelationalDependencies { get; }
+    protected virtual RelationalQueryTranslationPostprocessorDependencies RelationalDependencies { get; } = relationalDependencies;
 
     /// <summary>
     ///     The query compilation context object to use.
     /// </summary>
-    protected virtual RelationalQueryCompilationContext QueryCompilationContext { get; }
+    protected virtual RelationalQueryCompilationContext QueryCompilationContext { get; } = queryCompilationContext;
 
     /// <summary>
     ///     Processes type mappings in the expression tree.
@@ -162,40 +150,68 @@ public class RelationalTypeMappingPostprocessor : ExpressionVisitor
             ? valuesExpression.ColumnNames.Skip(1).ToArray()
             : valuesExpression.ColumnNames;
 
-        var newRowValues = new RowValueExpression[valuesExpression.RowValues.Count];
-        for (var i = 0; i < newRowValues.Length; i++)
+        switch (valuesExpression)
         {
-            var rowValue = valuesExpression.RowValues[i];
-            var newValues = new SqlExpression[newColumnNames.Count];
-            for (var j = 0; j < valuesExpression.ColumnNames.Count; j++)
+            // Regular VALUES over a collection of scalar values. Apply the inferred type mappings on each of the values.
+            case { RowValues: IReadOnlyList<RowValueExpression> rowValues }:
             {
-                if (j == 0 && stripOrdering)
+                var newRowValues = new RowValueExpression[rowValues.Count];
+                for (var i = 0; i < newRowValues.Length; i++)
                 {
-                    continue;
+                    var rowValue = rowValues[i];
+                    var newValues = new SqlExpression[newColumnNames.Count];
+                    for (var j = 0; j < valuesExpression.ColumnNames.Count; j++)
+                    {
+                        if (j == 0 && stripOrdering)
+                        {
+                            continue;
+                        }
+
+                        var value = rowValue.Values[j];
+
+                        if (value.TypeMapping is null
+                            && inferredTypeMappings[j] is RelationalTypeMapping inferredTypeMapping)
+                        {
+                            value = _sqlExpressionFactory.ApplyTypeMapping(value, inferredTypeMapping);
+                        }
+
+                        // We currently add explicit conversions on the first row (but not to the _ord column), to ensure that the inferred
+                        // types are properly typed. See #30605 for removing that when not needed.
+                        if (i == 0 && j > 0 && value is not ColumnExpression)
+                        {
+                            value = new SqlUnaryExpression(ExpressionType.Convert, value, value.Type, value.TypeMapping);
+                        }
+
+                        newValues[j - (stripOrdering ? 1 : 0)] = value;
+                    }
+
+                    newRowValues[i] = new RowValueExpression(newValues);
                 }
 
-                var value = rowValue.Values[j];
-
-                if (value.TypeMapping is null
-                    && inferredTypeMappings[j] is RelationalTypeMapping inferredTypeMapping)
-                {
-                    value = _sqlExpressionFactory.ApplyTypeMapping(value, inferredTypeMapping);
-                }
-
-                // We currently add explicit conversions on the first row (but not to the _ord column), to ensure that the inferred types
-                // are properly typed. See #30605 for removing that when not needed.
-                if (i == 0 && j > 0 && value is not ColumnExpression)
-                {
-                    value = new SqlUnaryExpression(ExpressionType.Convert, value, value.Type, value.TypeMapping);
-                }
-
-                newValues[j - (stripOrdering ? 1 : 0)] = value;
+                return new ValuesExpression(valuesExpression.Alias, newRowValues, null, newColumnNames);
             }
 
-            newRowValues[i] = new RowValueExpression(newValues);
-        }
+            // VALUES over a values parameter (i.e. a parameter representing the entire collection, that will be constantized into the SQL
+            // later). Apply the inferred type mapping on the parameter.
+            case { ValuesParameter: { TypeMapping: null } valuesParameter }
+                when inferredTypeMappings[1] is RelationalTypeMapping elementTypeMapping:
+            {
+                if (RelationalDependencies.TypeMappingSource.FindMapping(
+                        valuesParameter.Type, QueryCompilationContext.Model, elementTypeMapping) is not
+                    { ElementTypeMapping: not null } collectionParameterTypeMapping)
+                {
+                    throw new UnreachableException("A RelationalTypeMapping collection type mapping could not be found");
+                }
 
-        return new ValuesExpression(valuesExpression.Alias, newRowValues, newColumnNames);
+                return new ValuesExpression(
+                    valuesExpression.Alias,
+                    (SqlParameterExpression)valuesParameter.ApplyTypeMapping(collectionParameterTypeMapping),
+                    newColumnNames);
+            }
+
+            default:
+                throw new UnreachableException();
+        }
     }
 
     /// <summary>
@@ -266,10 +282,10 @@ public class RelationalTypeMappingPostprocessor : ExpressionVisitor
                 // Similar to the above, but with ScalarSubqueryExpression the inferred type mapping is on the expression itself, while the
                 // ColumnExpression we need is on the subquery's projection.
                 case ScalarSubqueryExpression
-                    {
-                        TypeMapping: { } typeMapping,
-                        Subquery.Projection: [{ Expression: ColumnExpression columnExpression }]
-                    }:
+                {
+                    TypeMapping: { } typeMapping,
+                    Subquery.Projection: [{ Expression: ColumnExpression columnExpression }]
+                }:
                 {
                     var visitedSubquery = base.VisitExtension(node);
 
@@ -283,10 +299,10 @@ public class RelationalTypeMappingPostprocessor : ExpressionVisitor
 
                 // InExpression over a subquery: apply the item's type mapping on the subquery
                 case InExpression
-                    {
-                        Item.TypeMapping: { } typeMapping,
-                        Subquery.Projection: [{ Expression: ColumnExpression columnExpression }]
-                    }:
+                {
+                    Item.TypeMapping: { } typeMapping,
+                    Subquery.Projection: [{ Expression: ColumnExpression columnExpression }]
+                }:
                 {
                     var visited = base.VisitExtension(node);
 

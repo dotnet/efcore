@@ -5,7 +5,8 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public class PropertyValuesSqlServerTest(PropertyValuesSqlServerTest.PropertyValuesSqlServerFixture fixture) : PropertyValuesTestBase<PropertyValuesSqlServerTest.PropertyValuesSqlServerFixture>(fixture)
+public class PropertyValuesSqlServerTest(PropertyValuesSqlServerTest.PropertyValuesSqlServerFixture fixture)
+    : PropertyValuesTestBase<PropertyValuesSqlServerTest.PropertyValuesSqlServerFixture>(fixture)
 {
     public class PropertyValuesSqlServerFixture : PropertyValuesFixtureBase
     {

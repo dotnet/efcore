@@ -27,7 +27,7 @@ public class HierarchicalPartitionKeyTest : IClassFixture<HierarchicalPartitionK
     {
         const string read1Sql =
             """
-SELECT c
+SELECT VALUE c
 FROM root c
 ORDER BY c["PartitionKey1"]
 OFFSET 0 LIMIT 1
@@ -37,7 +37,7 @@ OFFSET 0 LIMIT 1
             """
 @__p_0='1'
 
-SELECT c
+SELECT VALUE c
 FROM root c
 ORDER BY c["PartitionKey1"]
 OFFSET @__p_0 LIMIT 1
@@ -58,7 +58,7 @@ OFFSET @__p_0 LIMIT 1
     {
         const string readSql =
             """
-SELECT c
+SELECT VALUE c
 FROM root c
 OFFSET 0 LIMIT 2
 """;
@@ -78,7 +78,7 @@ OFFSET 0 LIMIT 2
     {
         const string readSql =
             """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((c["Id"] = 42) OR (c["Name"] = "John Snow"))
 OFFSET 0 LIMIT 2
@@ -275,8 +275,21 @@ OFFSET 0 LIMIT 2
             => modelBuilder.Entity<Customer>(
                 cb =>
                 {
-                    cb.HasPartitionKey(c => new { c.PartitionKey1, c.PartitionKey2, c.PartitionKey3 });
-                    cb.HasKey(c => new { c.Id, c.PartitionKey1, c.PartitionKey2, c.PartitionKey3 });
+                    cb.HasPartitionKey(
+                        c => new
+                        {
+                            c.PartitionKey1,
+                            c.PartitionKey2,
+                            c.PartitionKey3
+                        });
+                    cb.HasKey(
+                        c => new
+                        {
+                            c.Id,
+                            c.PartitionKey1,
+                            c.PartitionKey2,
+                            c.PartitionKey3
+                        });
                 });
     }
 

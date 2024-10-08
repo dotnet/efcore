@@ -37,9 +37,7 @@ public class ProviderConventionSetBuilder : IProviderConventionSetBuilder
     /// </summary>
     /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
     public ProviderConventionSetBuilder(ProviderConventionSetBuilderDependencies dependencies)
-    {
-        Dependencies = dependencies;
-    }
+        => Dependencies = dependencies;
 
     /// <summary>
     ///     Dependencies for this service.

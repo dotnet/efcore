@@ -33,7 +33,6 @@ public class QueryLocator : CSharpSyntaxWalker
     private List<InvocationExpressionSyntax> _locatedQueries = null!;
     private List<PrecompiledQueryCodeGenerator.QueryPrecompilationError> _precompilationErrors = null!;
 
-
     /// <summary>
     ///     Loads a new <see cref="Compilation" />, representing a user project in which to locate queries.
     /// </summary>
@@ -55,7 +54,7 @@ public class QueryLocator : CSharpSyntaxWalker
     /// </summary>
     /// <param name="syntaxTree">A <see cref="SyntaxTree" /> in which to locate EF LINQ queries.</param>
     /// <param name="precompilationErrors">
-    ///     A list of errors populated with dynamic LINQ queries detected in <paramref name="syntaxTree"/>.
+    ///     A list of errors populated with dynamic LINQ queries detected in <paramref name="syntaxTree" />.
     /// </param>
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>A list of EF LINQ queries confirmed to be compatible with precompilation.</returns>
@@ -82,7 +81,7 @@ public class QueryLocator : CSharpSyntaxWalker
 
         _cancellationToken = cancellationToken;
         _semanticModel = _compilation.GetSemanticModel(syntaxTree);
-        _locatedQueries = new();
+        _locatedQueries = new List<InvocationExpressionSyntax>();
         _precompilationErrors = precompilationErrors;
         Visit(syntaxTree.GetRoot(cancellationToken));
 
@@ -174,11 +173,11 @@ public class QueryLocator : CSharpSyntaxWalker
                     or nameof(EntityFrameworkQueryableExtensions.ForEachAsync)
                     when IsOnEfQueryableExtensions():
 
-                case nameof(RelationalQueryableExtensions.ExecuteDelete)
-                    or nameof(RelationalQueryableExtensions.ExecuteUpdate)
-                    or nameof(RelationalQueryableExtensions.ExecuteDeleteAsync)
-                    or nameof(RelationalQueryableExtensions.ExecuteUpdateAsync)
-                    when IsOnEfRelationalQueryableExtensions():
+                case nameof(EntityFrameworkQueryableExtensions.ExecuteDelete)
+                    or nameof(EntityFrameworkQueryableExtensions.ExecuteUpdate)
+                    or nameof(EntityFrameworkQueryableExtensions.ExecuteDeleteAsync)
+                    or nameof(EntityFrameworkQueryableExtensions.ExecuteUpdateAsync)
+                    when IsOnEfQueryableExtensions():
                     if (ProcessQueryCandidate(invocation))
                     {
                         return;
@@ -201,9 +200,6 @@ public class QueryLocator : CSharpSyntaxWalker
 
         bool IsOnEfQueryableExtensions()
             => IsOnTypeSymbol(_symbols.EfQueryableExtensions);
-
-        bool IsOnEfRelationalQueryableExtensions()
-            => IsOnTypeSymbol(_symbols.EfRelationalQueryableExtensions);
 
         bool IsOnTypeSymbol(ITypeSymbol typeSymbol)
             => _semanticModel.GetSymbolInfo(invocation, _cancellationToken).Symbol is IMethodSymbol methodSymbol
@@ -250,7 +246,8 @@ public class QueryLocator : CSharpSyntaxWalker
             if (innerExpression is QueryExpressionSyntax or ParenthesizedExpressionSyntax { Expression: QueryExpressionSyntax })
             {
                 _precompilationErrors.Add(
-                    new(query, new InvalidOperationException(DesignStrings.QueryComprehensionSyntaxNotSupportedInPrecompiledQueries)));
+                    new PrecompiledQueryCodeGenerator.QueryPrecompilationError(
+                        query, new InvalidOperationException(DesignStrings.QueryComprehensionSyntaxNotSupportedInPrecompiledQueries)));
                 return false;
             }
 
@@ -276,7 +273,9 @@ public class QueryLocator : CSharpSyntaxWalker
             return true;
         }
 
-        _precompilationErrors.Add(new(query, new InvalidOperationException(DesignStrings.DynamicQueryNotSupported)));
+        _precompilationErrors.Add(
+            new PrecompiledQueryCodeGenerator.QueryPrecompilationError(
+                query, new InvalidOperationException(DesignStrings.DynamicQueryNotSupported)));
         return false;
 
         bool IsDbContext(ExpressionSyntax expression)
@@ -342,7 +341,6 @@ public class QueryLocator : CSharpSyntaxWalker
         public readonly INamedTypeSymbol IEnumerableOfT;
         public readonly INamedTypeSymbol Queryable;
         public readonly INamedTypeSymbol EfQueryableExtensions;
-        public readonly INamedTypeSymbol EfRelationalQueryableExtensions;
         // ReSharper restore InconsistentNaming
 
         private Symbols(Compilation compilation)
@@ -358,7 +356,6 @@ public class QueryLocator : CSharpSyntaxWalker
             IEnumerableOfT = GetTypeSymbolOrThrow("System.Collections.Generic.IEnumerable`1");
             Queryable = GetTypeSymbolOrThrow("System.Linq.Queryable");
             EfQueryableExtensions = GetTypeSymbolOrThrow("Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions");
-            EfRelationalQueryableExtensions = GetTypeSymbolOrThrow("Microsoft.EntityFrameworkCore.RelationalQueryableExtensions");
         }
 
         public static Symbols Load(Compilation compilation)

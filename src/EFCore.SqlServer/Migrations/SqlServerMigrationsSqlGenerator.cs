@@ -42,9 +42,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
         MigrationsSqlGeneratorDependencies dependencies,
         ICommandBatchPreparer commandBatchPreparer)
         : base(dependencies)
-    {
-        _commandBatchPreparer = commandBatchPreparer;
-    }
+        => _commandBatchPreparer = commandBatchPreparer;
 
     /// <summary>
     ///     Generates commands from a list of operations.
@@ -1548,22 +1546,6 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
         }
 
         builder.Append(operation.IsCyclic ? " CYCLE" : " NO CYCLE");
-
-        if (!operation.IsCached)
-        {
-            builder.Append(" NO CACHE");
-        }
-        else if (operation.CacheSize.HasValue)
-        {
-            builder
-            .Append(" CACHE ")
-                .Append(IntegerConstant(operation.CacheSize.Value));
-        }
-        else if (forAlter)
-        {
-            builder
-                .Append(" CACHE");
-        }
     }
 
     /// <summary>
@@ -1738,7 +1720,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
     }
 
     /// <summary>
-    ///     Generates a transfer from one schema to another..
+    ///     Generates a transfer from one schema to another.
     /// </summary>
     /// <param name="newSchema">The schema to transfer to.</param>
     /// <param name="schema">The schema to transfer from.</param>
@@ -2297,9 +2279,6 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
     private static string IntegerConstant(long value)
         => string.Format(CultureInfo.InvariantCulture, "{0}", value);
 
-    private static string IntegerConstant(int value)
-        => string.Format(CultureInfo.InvariantCulture, "{0}", value);
-
     private static bool IsMemoryOptimized(Annotatable annotatable, IModel? model, string? schema, string tableName)
         => annotatable[SqlServerAnnotationNames.MemoryOptimized] as bool?
             ?? model?.GetRelationalModel().FindTable(tableName, schema)?[SqlServerAnnotationNames.MemoryOptimized] as bool? == true;
@@ -2403,6 +2382,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                         var temporalTableInformation = BuildTemporalInformationFromMigrationOperation(schema, createTableOperation);
                         temporalTableInformationMap[(tableName, rawSchema)] = temporalTableInformation;
                     }
+
                     // no need to remove from missingTemporalTableInformation - CreateTable should be first operation for this table
                     // so there can't be entry for it in missingTemporalTableInformation (they are added by other/earlier operations on that table)
                     // the only possibility is that we had a table before, dropped it and now creating a new table with the same name
@@ -2476,6 +2456,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                             missingTemporalTableInformation.Add((tableName, rawSchema));
                         }
                     }
+
                     break;
                 }
             }
@@ -2584,7 +2565,8 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                         operations.Add(operation);
 
                         var historyTableName = dropTableOperation[SqlServerAnnotationNames.TemporalHistoryTableName] as string;
-                        var historyTableSchema = dropTableOperation[SqlServerAnnotationNames.TemporalHistoryTableSchema] as string ?? schema;
+                        var historyTableSchema =
+                            dropTableOperation[SqlServerAnnotationNames.TemporalHistoryTableSchema] as string ?? schema;
                         var dropHistoryTableOperation = new DropTableOperation { Name = historyTableName!, Schema = historyTableSchema };
                         operations.Add(dropHistoryTableOperation);
                     }
@@ -2761,7 +2743,8 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                         // and de-compress the HistoryTable
                         if (isSparse)
                         {
-                            DecompressTable(temporalInformation.HistoryTableName!, temporalInformation.HistoryTableSchema, suppressTransaction);
+                            DecompressTable(
+                                temporalInformation.HistoryTableName!, temporalInformation.HistoryTableSchema, suppressTransaction);
                         }
 
                         if (addColumnOperation.ComputedColumnSql != null)
@@ -2836,18 +2819,20 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
 
                         if (!droppingPeriodColumn)
                         {
-                            operations.Add(new DropColumnOperation
-                            {
-                                Name = dropColumnOperation.Name,
-                                Table = temporalInformation.HistoryTableName!,
-                                Schema = temporalInformation.HistoryTableSchema
-                            });
+                            operations.Add(
+                                new DropColumnOperation
+                                {
+                                    Name = dropColumnOperation.Name,
+                                    Table = temporalInformation.HistoryTableName!,
+                                    Schema = temporalInformation.HistoryTableSchema
+                                });
                         }
                     }
                     else
                     {
                         operations.Add(operation);
                     }
+
                     break;
                 }
 
@@ -2918,7 +2903,8 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
 
                         if (changeToSparse)
                         {
-                            DecompressTable(temporalInformation.HistoryTableName!, temporalInformation.HistoryTableSchema, suppressTransaction);
+                            DecompressTable(
+                                temporalInformation.HistoryTableName!, temporalInformation.HistoryTableSchema, suppressTransaction);
                         }
 
                         operations.Add(alterColumnOperation);
@@ -2946,6 +2932,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                     {
                         operations.Add(alterColumnOperation);
                     }
+
                     break;
                 }
 
@@ -3038,8 +3025,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
         }
 
         void AddDisableVersioningOperation(string tableName, string? schema, bool suppressTransaction)
-        {
-            operations.Add(
+            => operations.Add(
                 new SqlOperation
                 {
                     Sql = new StringBuilder()
@@ -3049,7 +3035,6 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                         .ToString(),
                     SuppressTransaction = suppressTransaction
                 });
-        }
 
         void EnableVersioning(string table, string? schema, string historyTableName, string? historyTableSchema, bool suppressTransaction)
         {
@@ -3172,19 +3157,17 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
 
             decompressTableCommand.AppendLine("AND data_compression <> 0)")
                 .Append("EXEC(")
-                .Append(stringTypeMapping.GenerateSqlLiteral("ALTER TABLE " +
-                    Dependencies.SqlGenerationHelper.DelimitIdentifier(tableName, schema) +
-                    " REBUILD PARTITION = ALL WITH (DATA_COMPRESSION = NONE)" +
-                    Dependencies.SqlGenerationHelper.StatementTerminator))
+                .Append(
+                    stringTypeMapping.GenerateSqlLiteral(
+                        "ALTER TABLE "
+                        + Dependencies.SqlGenerationHelper.DelimitIdentifier(tableName, schema)
+                        + " REBUILD PARTITION = ALL WITH (DATA_COMPRESSION = NONE)"
+                        + Dependencies.SqlGenerationHelper.StatementTerminator))
                 .Append(")")
                 .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
 
             operations.Add(
-                new SqlOperation
-                {
-                    Sql = decompressTableCommand.ToString(),
-                    SuppressTransaction = suppressTransaction
-                });
+                new SqlOperation { Sql = decompressTableCommand.ToString(), SuppressTransaction = suppressTransaction });
         }
 
         static TOperation CopyColumnOperation<TOperation>(ColumnOperation source)
@@ -3230,11 +3213,11 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
         public string? PeriodStartColumnName { get; set; }
         public string? PeriodEndColumnName { get; set; }
 
-        public bool DisabledVersioning { get; set; } = false;
-        public bool DisabledPeriod { get; set; } = false;
+        public bool DisabledVersioning { get; set; }
+        public bool DisabledPeriod { get; set; }
 
-        public bool ShouldEnableVersioning { get; set; } = false;
-        public bool ShouldEnablePeriod { get; set; } = false;
-        public bool SuppressTransaction { get; set; } = false;
+        public bool ShouldEnableVersioning { get; set; }
+        public bool ShouldEnablePeriod { get; set; }
+        public bool SuppressTransaction { get; set; }
     }
 }

@@ -23,9 +23,7 @@ public class SqlServerLongCountMethodTranslator : IAggregateMethodCallTranslator
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public SqlServerLongCountMethodTranslator(ISqlExpressionFactory sqlExpressionFactory)
-    {
-        _sqlExpressionFactory = sqlExpressionFactory;
-    }
+        => _sqlExpressionFactory = sqlExpressionFactory;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -68,7 +66,7 @@ public class SqlServerLongCountMethodTranslator : IAggregateMethodCallTranslator
                     "COUNT_BIG",
                     new[] { sqlExpression },
                     nullable: false,
-                    argumentsPropagateNullability: new[] { false },
+                    argumentsPropagateNullability: Statics.FalseArrays[1],
                     typeof(long)));
         }
 

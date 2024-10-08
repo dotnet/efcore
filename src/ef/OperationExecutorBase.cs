@@ -144,7 +144,13 @@ internal abstract class OperationExecutorBase : IOperationExecutor
         => InvokeOperation<IEnumerable<IDictionary>>("GetContextTypes");
 
     public IEnumerable<string> OptimizeContext(
-        string? outputDir, string? modelNamespace, string? contextType, string? suffix, bool scaffoldModel, bool precompileQueries)
+        string? outputDir,
+        string? modelNamespace,
+        string? contextType,
+        string? suffix,
+        bool scaffoldModel,
+        bool precompileQueries,
+        bool nativeAot)
         => InvokeOperation<IEnumerable<string>>(
             "OptimizeContext",
             new Dictionary<string, object?>
@@ -154,7 +160,8 @@ internal abstract class OperationExecutorBase : IOperationExecutor
                 ["contextType"] = contextType,
                 ["suffix"] = suffix,
                 ["scaffoldModel"] = scaffoldModel,
-                ["precompileQueries"] = precompileQueries
+                ["precompileQueries"] = precompileQueries,
+                ["nativeAot"] = nativeAot
             });
 
     public IDictionary ScaffoldContext(

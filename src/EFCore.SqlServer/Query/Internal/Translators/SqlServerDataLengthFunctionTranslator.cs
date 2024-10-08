@@ -53,9 +53,7 @@ public class SqlServerDataLengthFunctionTranslator : IMethodCallTranslator
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public SqlServerDataLengthFunctionTranslator(ISqlExpressionFactory sqlExpressionFactory)
-    {
-        _sqlExpressionFactory = sqlExpressionFactory;
-    }
+        => _sqlExpressionFactory = sqlExpressionFactory;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -83,7 +81,7 @@ public class SqlServerDataLengthFunctionTranslator : IMethodCallTranslator
                     "DATALENGTH",
                     arguments.Skip(1),
                     nullable: true,
-                    argumentsPropagateNullability: new[] { true },
+                    argumentsPropagateNullability: Statics.TrueArrays[1],
                     typeof(long));
 
                 return _sqlExpressionFactory.Convert(result, method.ReturnType.UnwrapNullableType());
@@ -93,7 +91,7 @@ public class SqlServerDataLengthFunctionTranslator : IMethodCallTranslator
                 "DATALENGTH",
                 arguments.Skip(1),
                 nullable: true,
-                argumentsPropagateNullability: new[] { true },
+                argumentsPropagateNullability: Statics.TrueArrays[1],
                 method.ReturnType.UnwrapNullableType());
         }
 

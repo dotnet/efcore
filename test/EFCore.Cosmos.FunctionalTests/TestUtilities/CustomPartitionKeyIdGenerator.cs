@@ -33,7 +33,7 @@ public class CustomPartitionKeyIdGenerator<T> : ValueGenerator<T>
         foreach (var property in primaryKey.Properties)
         {
             if (partitionKeyNames.Contains(property.Name)
-                || property.GetJsonPropertyName() == StoreKeyConvention.IdPropertyJsonName)
+                || property.GetJsonPropertyName() == CosmosJsonIdConvention.IdPropertyJsonName)
             {
                 continue;
             }

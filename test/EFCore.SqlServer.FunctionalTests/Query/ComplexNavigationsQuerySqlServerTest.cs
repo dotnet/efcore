@@ -35,7 +35,7 @@ public class ComplexNavigationsQuerySqlServerTest : ComplexNavigationsQueryRelat
                           select l3).Distinct().Skip(1).OrderBy(e => e.Id).FirstOrDefault().Name);
 
         AssertSql(
-"""
+            """
 SELECT (
     SELECT TOP(1) [l2].[Name]
     FROM (
@@ -58,18 +58,18 @@ WHERE [l].[Id] < 3
     public virtual async Task Distinct_take_without_orderby(bool async)
     {
         await AssertQuery(
-                async,
-                ss => from l1 in ss.Set<Level1>()
-                      where l1.Id < 3
-                      select (from l3 in ss.Set<Level3>()
-                              select l3).Distinct().Take(1).OrderBy(e => e.Id).FirstOrDefault().Name);
+            async,
+            ss => from l1 in ss.Set<Level1>()
+                  where l1.Id < 3
+                  select (from l3 in ss.Set<Level3>()
+                          select l3).Distinct().Take(1).OrderBy(e => e.Id).FirstOrDefault().Name);
 
         AssertSql(
-"""
+            """
 SELECT (
     SELECT TOP(1) [l1].[Name]
     FROM (
-        SELECT DISTINCT TOP(1) [l0].[Id], [l0].[Level2_Optional_Id], [l0].[Level2_Required_Id], [l0].[Name], [l0].[OneToMany_Optional_Inverse3Id], [l0].[OneToMany_Optional_Self_Inverse3Id], [l0].[OneToMany_Required_Inverse3Id], [l0].[OneToMany_Required_Self_Inverse3Id], [l0].[OneToOne_Optional_PK_Inverse3Id], [l0].[OneToOne_Optional_Self3Id]
+        SELECT TOP(1) [l0].[Id], [l0].[Name]
         FROM [LevelThree] AS [l0]
     ) AS [l1]
     ORDER BY [l1].[Id])
@@ -2068,7 +2068,7 @@ SELECT [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id
 FROM [LevelOne] AS [l]
 LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Optional_Id]
 WHERE 5 IN (
-    SELECT DISTINCT CAST(LEN([l1].[Name]) AS int)
+    SELECT CAST(LEN([l1].[Name]) AS int)
     FROM [LevelThree] AS [l1]
     WHERE [l0].[Id] IS NOT NULL AND [l0].[Id] = [l1].[OneToMany_Optional_Inverse3Id]
 )
@@ -3122,14 +3122,13 @@ ORDER BY [i].[Id], [i0].[Id], [i1].[Id], [i2].[Id], [s].[Id], [s].[Id0]
 """);
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
     public override async Task Nav_rewrite_doesnt_apply_null_protection_for_function_arguments(bool async)
     {
         await base.Nav_rewrite_doesnt_apply_null_protection_for_function_arguments(async);
 
         AssertSql(
             """
-SELECT GREATEST([l0].[Level1_Required_Id], 7)
+SELECT [l0].[Level1_Required_Id]
 FROM [LevelOne] AS [l]
 LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[OneToOne_Optional_PK_Inverse2Id]
 WHERE [l0].[Id] IS NOT NULL
@@ -4761,7 +4760,7 @@ INNER JOIN (
         await base.Multiple_optional_navs_should_not_deadlock(async);
 
         AssertSql(
-"""
+            """
 SELECT COUNT(*)
 FROM [LevelTwo] AS [l]
 LEFT JOIN [LevelOne] AS [l0] ON [l].[OneToMany_Optional_Inverse2Id] = [l0].[Id]
@@ -4775,7 +4774,7 @@ WHERE ([l0].[Id] IS NOT NULL AND [l0].[Name] LIKE N'%L1 01%') OR ([l1].[Id] IS N
         await base.Null_check_removal_applied_recursively_complex(async);
 
         AssertSql(
-"""
+            """
 SELECT [l].[Id], [l].[Level2_Optional_Id], [l].[Level2_Required_Id], [l].[Name], [l].[OneToMany_Optional_Inverse3Id], [l].[OneToMany_Optional_Self_Inverse3Id], [l].[OneToMany_Required_Inverse3Id], [l].[OneToMany_Required_Self_Inverse3Id], [l].[OneToOne_Optional_PK_Inverse3Id], [l].[OneToOne_Optional_Self3Id], [l0].[Id], [l0].[Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Optional_Self_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToMany_Required_Self_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id], [l0].[OneToOne_Optional_Self2Id], [l1].[Id], [l1].[Date], [l1].[Name], [l1].[OneToMany_Optional_Self_Inverse1Id], [l1].[OneToMany_Required_Self_Inverse1Id], [l1].[OneToOne_Optional_Self1Id], [l2].[Id], [l2].[Level3_Optional_Id], [l2].[Level3_Required_Id], [l2].[Name], [l2].[OneToMany_Optional_Inverse4Id], [l2].[OneToMany_Optional_Self_Inverse4Id], [l2].[OneToMany_Required_Inverse4Id], [l2].[OneToMany_Required_Self_Inverse4Id], [l2].[OneToOne_Optional_PK_Inverse4Id], [l2].[OneToOne_Optional_Self4Id]
 FROM [LevelThree] AS [l]
 INNER JOIN [LevelTwo] AS [l0] ON [l].[OneToMany_Required_Inverse3Id] = [l0].[Id]

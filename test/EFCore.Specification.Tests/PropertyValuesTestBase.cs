@@ -8,15 +8,10 @@ using System.Globalization;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore;
 
-public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
+public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : PropertyValuesTestBase<TFixture>.PropertyValuesFixtureBase, new()
 {
-    protected PropertyValuesTestBase(TFixture fixture)
-    {
-        Fixture = fixture;
-    }
-
-    protected TFixture Fixture { get; }
+    protected TFixture Fixture { get; } = fixture;
 
     [ConditionalFact]
     public virtual Task Scalar_current_values_can_be_accessed_as_a_property_dictionary()
@@ -2754,29 +2749,31 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
                 Assert.True((bool)joinEntry.Entity["InitializedCalled"]);
             }
 
-            context.Add(new Supplier33307
-            {
-                Name = "Foo",
-                Address = new()
+            context.Add(
+                new Supplier33307
                 {
-                    Street = "One",
-                    Altitude = Math.PI,
-                    Number = 42,
-                },
-                Foo = "F"
-            });
+                    Name = "Foo",
+                    Address = new Address33307
+                    {
+                        Street = "One",
+                        Altitude = Math.PI,
+                        Number = 42,
+                    },
+                    Foo = "F"
+                });
 
-            context.Add(new Customer33307
-            {
-                Name = "Bar",
-                Address = new()
+            context.Add(
+                new Customer33307
                 {
-                    Street = "Two",
-                    Altitude = Math.E,
-                    Number = 42,
-                },
-                Bar = 11
-            });
+                    Name = "Bar",
+                    Address = new Address33307
+                    {
+                        Street = "Two",
+                        Altitude = Math.E,
+                        Number = 42,
+                    },
+                    Bar = 11
+                });
 
             return context.SaveChangesAsync();
         }

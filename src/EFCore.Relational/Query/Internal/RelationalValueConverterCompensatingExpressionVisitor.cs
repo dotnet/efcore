@@ -24,9 +24,7 @@ public class RelationalValueConverterCompensatingExpressionVisitor : ExpressionV
     /// </summary>
     public RelationalValueConverterCompensatingExpressionVisitor(
         ISqlExpressionFactory sqlExpressionFactory)
-    {
-        _sqlExpressionFactory = sqlExpressionFactory;
-    }
+        => _sqlExpressionFactory = sqlExpressionFactory;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -72,7 +70,7 @@ public class RelationalValueConverterCompensatingExpressionVisitor : ExpressionV
 
         var elseResult = (SqlExpression?)Visit(caseExpression.ElseResult);
 
-        return caseExpression.Update(operand, whenClauses, elseResult);
+        return _sqlExpressionFactory.Case(operand, whenClauses, elseResult, caseExpression);
     }
 
     private Expression VisitSelect(SelectExpression selectExpression)

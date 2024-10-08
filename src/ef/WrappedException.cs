@@ -3,19 +3,10 @@
 
 namespace Microsoft.EntityFrameworkCore.Tools;
 
-internal class WrappedException : Exception
+internal class WrappedException(string type, string message, string stackTrace) : Exception(message)
 {
-    private readonly string _stackTrace;
-
-    public WrappedException(string type, string message, string stackTrace)
-        : base(message)
-    {
-        Type = type;
-        _stackTrace = stackTrace;
-    }
-
-    public string Type { get; }
+    public string Type { get; } = type;
 
     public override string ToString()
-        => _stackTrace;
+        => stackTrace;
 }

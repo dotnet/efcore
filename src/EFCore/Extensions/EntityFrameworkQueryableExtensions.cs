@@ -1033,7 +1033,7 @@ public static class EntityFrameworkQueryableExtensions
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>
     ///     A task that represents the asynchronous operation.
-    ///     The task result contains the sum of the projected values..
+    ///     The task result contains the sum of the projected values.
     /// </returns>
     /// <exception cref="ArgumentNullException">
     ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
@@ -1069,7 +1069,7 @@ public static class EntityFrameworkQueryableExtensions
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>
     ///     A task that represents the asynchronous operation.
-    ///     The task result contains the sum of the projected values..
+    ///     The task result contains the sum of the projected values.
     /// </returns>
     /// <exception cref="ArgumentNullException">
     ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
@@ -1157,7 +1157,7 @@ public static class EntityFrameworkQueryableExtensions
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>
     ///     A task that represents the asynchronous operation.
-    ///     The task result contains the sum of the projected values..
+    ///     The task result contains the sum of the projected values.
     /// </returns>
     /// <exception cref="ArgumentNullException">
     ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
@@ -1192,7 +1192,7 @@ public static class EntityFrameworkQueryableExtensions
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>
     ///     A task that represents the asynchronous operation.
-    ///     The task result contains the sum of the projected values..
+    ///     The task result contains the sum of the projected values.
     /// </returns>
     /// <exception cref="ArgumentNullException">
     ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
@@ -1280,7 +1280,7 @@ public static class EntityFrameworkQueryableExtensions
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>
     ///     A task that represents the asynchronous operation.
-    ///     The task result contains the sum of the projected values..
+    ///     The task result contains the sum of the projected values.
     /// </returns>
     /// <exception cref="ArgumentNullException">
     ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
@@ -1316,7 +1316,7 @@ public static class EntityFrameworkQueryableExtensions
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>
     ///     A task that represents the asynchronous operation.
-    ///     The task result contains the sum of the projected values..
+    ///     The task result contains the sum of the projected values.
     /// </returns>
     /// <exception cref="ArgumentNullException">
     ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
@@ -1404,7 +1404,7 @@ public static class EntityFrameworkQueryableExtensions
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>
     ///     A task that represents the asynchronous operation.
-    ///     The task result contains the sum of the projected values..
+    ///     The task result contains the sum of the projected values.
     /// </returns>
     /// <exception cref="ArgumentNullException">
     ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
@@ -1440,7 +1440,7 @@ public static class EntityFrameworkQueryableExtensions
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>
     ///     A task that represents the asynchronous operation.
-    ///     The task result contains the sum of the projected values..
+    ///     The task result contains the sum of the projected values.
     /// </returns>
     /// <exception cref="ArgumentNullException">
     ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
@@ -1528,7 +1528,7 @@ public static class EntityFrameworkQueryableExtensions
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>
     ///     A task that represents the asynchronous operation.
-    ///     The task result contains the sum of the projected values..
+    ///     The task result contains the sum of the projected values.
     /// </returns>
     /// <exception cref="ArgumentNullException">
     ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
@@ -1564,7 +1564,7 @@ public static class EntityFrameworkQueryableExtensions
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>
     ///     A task that represents the asynchronous operation.
-    ///     The task result contains the sum of the projected values..
+    ///     The task result contains the sum of the projected values.
     /// </returns>
     /// <exception cref="ArgumentNullException">
     ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
@@ -2391,7 +2391,10 @@ public static class EntityFrameworkQueryableExtensions
     /// </remarks>
     /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
     /// <param name="source">An <see cref="IQueryable{T}" /> to create a set from.</param>
-    /// <param name="comparer">The <see cref="IEqualityComparer{T}"/> implementation to use when comparing values in the set, or null to use the default <see cref="EqualityComparer{T}"/> implementation for the set type.</param>
+    /// <param name="comparer">
+    ///     The <see cref="IEqualityComparer{T}" /> implementation to use when comparing values in the set, or null to use the
+    ///     default <see cref="EqualityComparer{T}" /> implementation for the set type.
+    /// </param>
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>
     ///     A task that represents the asynchronous operation.
@@ -2565,29 +2568,23 @@ public static class EntityFrameworkQueryableExtensions
                         arguments: [source.Expression, Expression.Quote(navigationPropertyPath)]))
                 : source);
 
-    private sealed class IncludableQueryable<TEntity, TProperty> : IIncludableQueryable<TEntity, TProperty>, IAsyncEnumerable<TEntity>
+    private sealed class IncludableQueryable<TEntity, TProperty>(IQueryable<TEntity> queryable)
+        : IIncludableQueryable<TEntity, TProperty>, IAsyncEnumerable<TEntity>
     {
-        private readonly IQueryable<TEntity> _queryable;
-
-        public IncludableQueryable(IQueryable<TEntity> queryable)
-        {
-            _queryable = queryable;
-        }
-
         public Expression Expression
-            => _queryable.Expression;
+            => queryable.Expression;
 
         public Type ElementType
-            => _queryable.ElementType;
+            => queryable.ElementType;
 
         public IQueryProvider Provider
-            => _queryable.Provider;
+            => queryable.Provider;
 
         public IAsyncEnumerator<TEntity> GetAsyncEnumerator(CancellationToken cancellationToken = default)
-            => ((IAsyncEnumerable<TEntity>)_queryable).GetAsyncEnumerator(cancellationToken);
+            => ((IAsyncEnumerable<TEntity>)queryable).GetAsyncEnumerator(cancellationToken);
 
         public IEnumerator<TEntity> GetEnumerator()
-            => _queryable.GetEnumerator();
+            => queryable.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator()
             => GetEnumerator();
@@ -2912,8 +2909,8 @@ public static class EntityFrameworkQueryableExtensions
     /// </exception>
     public static IQueryable<T> TagWithCallSite<T>(
         this IQueryable<T> source,
-        [NotParameterized][CallerFilePath] string? filePath = null,
-        [NotParameterized][CallerLineNumber] int lineNumber = 0)
+        [NotParameterized] [CallerFilePath] string? filePath = null,
+        [NotParameterized] [CallerLineNumber] int lineNumber = 0)
         => source.Provider is EntityQueryProvider
             ? source.Provider.CreateQuery<T>(
                 Expression.Call(
@@ -3264,6 +3261,117 @@ public static class EntityFrameworkQueryableExtensions
         CancellationToken cancellationToken = default)
         => ExecuteAsync<TSource, TResult>(
             operatorMethodInfo, source, (Expression?)null, cancellationToken);
+
+    #endregion
+
+    #region ExecuteDelete
+
+    /// <summary>
+    ///     Deletes all database rows for the entity instances which match the LINQ query from the database.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This operation executes immediately against the database, rather than being deferred until
+    ///         <see cref="DbContext.SaveChanges()" /> is called. It also does not interact with the EF change tracker in any way:
+    ///         entity instances which happen to be tracked when this operation is invoked aren't taken into account, and aren't updated
+    ///         to reflect the changes.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-bulk-operations">Executing bulk operations with EF Core</see>
+    ///         for more information and examples.
+    ///     </para>
+    /// </remarks>
+    /// <param name="source">The source query.</param>
+    /// <returns>The total number of rows deleted in the database.</returns>
+    public static int ExecuteDelete<TSource>(this IQueryable<TSource> source)
+        => source.Provider.Execute<int>(Expression.Call(ExecuteDeleteMethodInfo.MakeGenericMethod(typeof(TSource)), source.Expression));
+
+    /// <summary>
+    ///     Asynchronously deletes database rows for the entity instances which match the LINQ query from the database.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This operation executes immediately against the database, rather than being deferred until
+    ///         <see cref="DbContext.SaveChanges()" /> is called. It also does not interact with the EF change tracker in any way:
+    ///         entity instances which happen to be tracked when this operation is invoked aren't taken into account, and aren't updated
+    ///         to reflect the changes.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-bulk-operations">Executing bulk operations with EF Core</see>
+    ///         for more information and examples.
+    ///     </para>
+    /// </remarks>
+    /// <param name="source">The source query.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+    /// <returns>The total number of rows deleted in the database.</returns>
+    public static Task<int> ExecuteDeleteAsync<TSource>(this IQueryable<TSource> source, CancellationToken cancellationToken = default)
+        => source.Provider is IAsyncQueryProvider provider
+            ? provider.ExecuteAsync<Task<int>>(
+                Expression.Call(ExecuteDeleteMethodInfo.MakeGenericMethod(typeof(TSource)), source.Expression), cancellationToken)
+            : throw new InvalidOperationException(CoreStrings.IQueryableProviderNotAsync);
+
+    internal static readonly MethodInfo ExecuteDeleteMethodInfo
+        = typeof(EntityFrameworkQueryableExtensions).GetTypeInfo().GetDeclaredMethod(nameof(ExecuteDelete))!;
+
+    #endregion
+
+    #region ExecuteUpdate
+
+    /// <summary>
+    ///     Updates all database rows for the entity instances which match the LINQ query from the database.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This operation executes immediately against the database, rather than being deferred until
+    ///         <see cref="DbContext.SaveChanges()" /> is called. It also does not interact with the EF change tracker in any way:
+    ///         entity instances which happen to be tracked when this operation is invoked aren't taken into account, and aren't updated
+    ///         to reflect the changes.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-bulk-operations">Executing bulk operations with EF Core</see>
+    ///         for more information and examples.
+    ///     </para>
+    /// </remarks>
+    /// <param name="source">The source query.</param>
+    /// <param name="setPropertyCalls">A collection of set property statements specifying properties to update.</param>
+    /// <returns>The total number of rows updated in the database.</returns>
+    public static int ExecuteUpdate<TSource>(
+        this IQueryable<TSource> source,
+        Expression<Func<SetPropertyCalls<TSource>, SetPropertyCalls<TSource>>> setPropertyCalls)
+        => source.Provider.Execute<int>(
+            Expression.Call(ExecuteUpdateMethodInfo.MakeGenericMethod(typeof(TSource)), source.Expression, setPropertyCalls));
+
+    /// <summary>
+    ///     Asynchronously updates database rows for the entity instances which match the LINQ query from the database.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This operation executes immediately against the database, rather than being deferred until
+    ///         <see cref="DbContext.SaveChanges()" /> is called. It also does not interact with the EF change tracker in any way:
+    ///         entity instances which happen to be tracked when this operation is invoked aren't taken into account, and aren't updated
+    ///         to reflect the changes.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-bulk-operations">Executing bulk operations with EF Core</see>
+    ///         for more information and examples.
+    ///     </para>
+    /// </remarks>
+    /// <param name="source">The source query.</param>
+    /// <param name="setPropertyCalls">A collection of set property statements specifying properties to update.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+    /// <returns>The total number of rows updated in the database.</returns>
+    public static Task<int> ExecuteUpdateAsync<TSource>(
+        this IQueryable<TSource> source,
+        Expression<Func<SetPropertyCalls<TSource>, SetPropertyCalls<TSource>>> setPropertyCalls,
+        CancellationToken cancellationToken = default)
+        => source.Provider is IAsyncQueryProvider provider
+            ? provider.ExecuteAsync<Task<int>>(
+                Expression.Call(
+                    ExecuteUpdateMethodInfo.MakeGenericMethod(typeof(TSource)), source.Expression, setPropertyCalls), cancellationToken)
+            : throw new InvalidOperationException(CoreStrings.IQueryableProviderNotAsync);
+
+    internal static readonly MethodInfo ExecuteUpdateMethodInfo
+        = typeof(EntityFrameworkQueryableExtensions).GetTypeInfo().GetDeclaredMethod(nameof(ExecuteUpdate))!;
 
     #endregion
 }

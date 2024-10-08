@@ -10,6 +10,8 @@ public class IdValueGeneratorTest
     {
         var modelBuilder = CosmosTestHelpers.Instance.CreateConventionBuilder();
 
+        modelBuilder.HasDiscriminatorInJsonIds();
+
         modelBuilder.Entity<Blog>().HasKey(p => new { p.OtherId, p.Id });
         modelBuilder.Entity<Post>().HasKey(p => new { p.OtherId, p.Id });
 
@@ -39,7 +41,7 @@ public class IdValueGeneratorTest
         string Create<TEntity>(TEntity entity)
             where TEntity : class, new()
             => (string)CosmosTestHelpers.Instance.CreateInternalEntry(model, EntityState.Added, entity)
-                [model.FindEntityType(typeof(TEntity)).FindProperty(StoreKeyConvention.DefaultIdPropertyName)];
+                [model.FindEntityType(typeof(TEntity)).FindProperty(CosmosJsonIdConvention.DefaultIdPropertyName)];
     }
 
     private class Blog
@@ -105,9 +107,9 @@ public class IdValueGeneratorTest
 
         public bool Equals(BytesStruct other)
             => Value == null
-                    && other.Value == null
+                && other.Value == null
                 || other.Value != null
-                    && Value?.SequenceEqual(other.Value) == true;
+                && Value?.SequenceEqual(other.Value) == true;
 
         public override int GetHashCode()
         {

@@ -28,15 +28,13 @@ public class CollectionToJsonStringConverter<TElement> : ValueConverter<IEnumera
         : base(
             ToJsonString(collectionJsonReaderWriter),
             FromJsonString(collectionJsonReaderWriter))
-    {
-        JsonReaderWriter = collectionJsonReaderWriter;
-    }
+        => JsonReaderWriter = collectionJsonReaderWriter;
 
     private static Expression<Func<IEnumerable<TElement>, string>> ToJsonString(JsonValueReaderWriter collectionJsonReaderWriter)
     {
         var prm = Parameter(typeof(IEnumerable<TElement>), "v");
 
-        return  Lambda<Func<IEnumerable<TElement>, string>>(
+        return Lambda<Func<IEnumerable<TElement>, string>>(
             Call(
                 collectionJsonReaderWriter.ConstructorExpression,
                 ToJsonStringMethod,

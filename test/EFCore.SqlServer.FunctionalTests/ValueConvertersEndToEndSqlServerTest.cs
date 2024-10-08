@@ -181,13 +181,8 @@ WHERE CAST(DATALENGTH(CAST(N'' AS nvarchar(max))) AS int) = 1
         public string Value { get; init; }
     }
 
-    private class WrappedStringToStringConverter : ValueConverter<WrappedString, string>
-    {
-        public WrappedStringToStringConverter()
-            : base(v => v.Value, v => new WrappedString { Value = v })
-        {
-        }
-    }
+    private class WrappedStringToStringConverter()
+        : ValueConverter<WrappedString, string>(v => v.Value, v => new WrappedString { Value = v });
 
     [ConditionalFact]
     public virtual void Fixed_length_hints_are_respected()

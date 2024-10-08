@@ -5,7 +5,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
 public class TestLoggerFactory(LoggingDefinitions definitions) : ILoggerFactory
 {
-    public TestLogger Logger { get; } = new TestLogger(definitions);
+    public TestLogger Logger { get; } = new(definitions);
 
     public LogLevel? LoggedAt
         => Logger.LoggedAt;

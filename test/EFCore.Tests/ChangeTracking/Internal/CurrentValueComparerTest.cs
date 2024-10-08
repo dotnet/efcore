@@ -177,17 +177,7 @@ public class CurrentValueComparerTest
             .ToList();
 
         Assert.Equal(
-            new byte[][]
-            {
-                [],
-                [],
-                [7],
-                [9],
-                [9],
-                [1, 1],
-                [3, 3],
-                [3, 3, 3]
-            },
+            new byte[][] { [], [], [7], [9], [9], [1, 1], [3, 3], [3, 3, 3] },
             entries);
     }
 
@@ -350,17 +340,7 @@ public class CurrentValueComparerTest
             .ToList();
 
         Assert.Equal(
-            new[]
-            {
-                null,
-                null,
-                [7],
-                [9],
-                [9],
-                [1, 1],
-                [3, 3],
-                new byte[] { 3, 3, 3 }
-            },
+            new[] { null, null, [7], [9], [9], [1, 1], [3, 3], new byte[] { 3, 3, 3 } },
             entries);
     }
 

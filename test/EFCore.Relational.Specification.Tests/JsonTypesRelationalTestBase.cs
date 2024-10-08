@@ -7,6 +7,126 @@ namespace Microsoft.EntityFrameworkCore;
 
 public abstract class JsonTypesRelationalTestBase : JsonTypesTestBase
 {
+    public override Task Can_read_write_array_of_array_of_array_of_int_JSON_values()
+        => NoNestedCollections(
+            "int[][][]", nameof(Int32ArrayArrayArrayType),
+            base.Can_read_write_array_of_array_of_array_of_int_JSON_values);
+
+    public override Task Can_read_write_array_of_list_of_array_of_IPAddress_JSON_values()
+        => NoNestedCollections(
+            "List<IPAddress[]>[]", nameof(IpAddressArrayListArrayType),
+            base.Can_read_write_array_of_list_of_array_of_IPAddress_JSON_values);
+
+    public override Task Can_read_write_array_of_list_of_array_of_string_JSON_values()
+        => NoNestedCollections(
+            "List<string[]>[]", nameof(StringArrayListArrayType),
+            base.Can_read_write_array_of_list_of_array_of_string_JSON_values);
+
+    public override Task Can_read_write_array_of_list_of_binary_JSON_values(string expected)
+        => NoNestedCollections(
+            "List<byte[]>[]", nameof(BinaryListArrayType),
+            () => base.Can_read_write_array_of_list_of_binary_JSON_values(expected));
+
+    public override Task Can_read_write_array_of_list_of_GUID_JSON_values(string expected)
+        => NoNestedCollections(
+            "ICollection<Guid>[]", nameof(GuidListArrayType),
+            () => base.Can_read_write_array_of_list_of_GUID_JSON_values(expected));
+
+    public override Task Can_read_write_array_of_list_of_int_JSON_values()
+        => NoNestedCollections(
+            "IList<int>[]", nameof(Int32ListArrayType),
+            base.Can_read_write_array_of_list_of_int_JSON_values);
+
+    public override Task Can_read_write_array_of_list_of_IPAddress_JSON_values()
+        => NoNestedCollections(
+            "Collection<IPAddress>[]", nameof(IpAddressListArrayType),
+            base.Can_read_write_array_of_list_of_IPAddress_JSON_values);
+
+    public override Task Can_read_write_array_of_list_of_string_JSON_values()
+        => NoNestedCollections(
+            "List<string>[]", nameof(StringListArrayType),
+            base.Can_read_write_array_of_list_of_string_JSON_values);
+
+    public override Task Can_read_write_array_of_list_of_ulong_JSON_values()
+        => NoNestedCollections(
+            "List<ulong>[]", nameof(ULongListArrayType),
+            base.Can_read_write_array_of_list_of_ulong_JSON_values);
+
+    public override Task Can_read_write_list_of_array_of_int_JSON_values()
+        => NoNestedCollections(
+            "List<int[]>", nameof(Int32ArrayListType),
+            base.Can_read_write_list_of_array_of_int_JSON_values);
+
+    public override Task Can_read_write_list_of_array_of_IPAddress_JSON_values()
+        => NoNestedCollections(
+            "ObservableCollection<IPAddress[]>", nameof(IpAddressArrayListType),
+            base.Can_read_write_list_of_array_of_IPAddress_JSON_values);
+
+    public override Task Can_read_write_list_of_array_of_list_of_IPAddress_JSON_values()
+        => NoNestedCollections(
+            "List<List<IPAddress>[]>", nameof(IpAddressListArrayListType),
+            base.Can_read_write_list_of_array_of_list_of_IPAddress_JSON_values);
+
+    public override Task Can_read_write_list_of_array_of_list_of_string_JSON_values()
+        => NoNestedCollections(
+            "List<List<string>[]>", nameof(StringListArrayListType),
+            base.Can_read_write_list_of_array_of_list_of_string_JSON_values);
+
+    public override Task Can_read_write_list_of_array_of_list_of_ulong_JSON_values()
+        => NoNestedCollections(
+            "List<List<ulong[]>>", nameof(ULongListArrayListType),
+            base.Can_read_write_list_of_array_of_list_of_ulong_JSON_values);
+
+    public override Task Can_read_write_list_of_array_of_nullable_int_JSON_values()
+        => NoNestedCollections(
+            "List<int?[]>", nameof(NullableInt32ArrayListType),
+            base.Can_read_write_list_of_array_of_nullable_int_JSON_values);
+
+    public override Task Can_read_write_list_of_array_of_nullable_ulong_JSON_values()
+        => NoNestedCollections(
+            "List<ulong?[]>", nameof(NullableULongArrayListType),
+            base.Can_read_write_list_of_array_of_nullable_ulong_JSON_values);
+
+    public override Task Can_read_write_list_of_array_of_string_JSON_values()
+        => NoNestedCollections(
+            "List<string[]>", nameof(StringArrayListType),
+            base.Can_read_write_list_of_array_of_string_JSON_values);
+
+    public override Task Can_read_write_list_of_array_of_ulong_JSON_values()
+        => NoNestedCollections(
+            "List<ulong[]>", nameof(ULongArrayListType),
+            base.Can_read_write_list_of_array_of_ulong_JSON_values);
+
+    public override Task Can_read_write_list_of_list_of_list_of_int_JSON_values()
+        => NoNestedCollections(
+            "List<List<List<int>>>", nameof(Int32ListListListType),
+            base.Can_read_write_list_of_list_of_list_of_int_JSON_values);
+
+    public override Task Can_read_write_list_of_array_of_binary_JSON_values(string expected)
+        => NoNestedCollections(
+            "IEnumerable<byte[][]>", nameof(BinaryArrayListType),
+            () => base.Can_read_write_list_of_array_of_binary_JSON_values(expected));
+
+    public override Task Can_read_write_list_of_array_of_GUID_JSON_values(string expected)
+        => NoNestedCollections(
+            "List<Guid[]>", nameof(GuidArrayListType),
+            () => base.Can_read_write_list_of_array_of_GUID_JSON_values(expected));
+
+    public override Task Can_read_write_list_of_array_of_list_of_array_of_binary_JSON_values(string expected)
+        => NoNestedCollections(
+            "List<List<byte[][]>[]>", nameof(BinaryListArrayArrayListType),
+            () => base.Can_read_write_list_of_array_of_list_of_array_of_binary_JSON_values(expected));
+
+    public override Task Can_read_write_list_of_array_of_nullable_GUID_JSON_values(string expected)
+        => NoNestedCollections(
+            "List<Guid?[]>", nameof(NullableGuidArrayListType),
+            () => base.Can_read_write_list_of_array_of_nullable_GUID_JSON_values(expected));
+
+    private async Task NoNestedCollections(string propertyType, string entityType, Func<Task> testCode)
+        => Assert.Equal(
+            RelationalStrings.NestedCollectionsNotSupported(propertyType, entityType, "Prop"),
+            (await Assert.ThrowsAsync<InvalidOperationException>(testCode)).Message);
+
     [ConditionalTheory]
     [InlineData(null)]
     public virtual Task Can_read_write_collection_of_fixed_length_string_JSON_values(object? storeType)

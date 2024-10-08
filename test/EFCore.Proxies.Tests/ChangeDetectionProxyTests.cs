@@ -313,8 +313,8 @@ public class ChangeDetectionProxyTests
         bool useLazyLoading = false,
         bool checkEquality = true,
         Action<EntityTypeBuilder<TEntity>> entityBuilderAction = null) : TestContext<TEntity>(
-            dbName: "ChangeDetectionContext", useLazyLoading: useLazyLoading, useChangeDetection: true,
-            checkEquality: checkEquality)
+        dbName: "ChangeDetectionContext", useLazyLoading: useLazyLoading, useChangeDetection: true,
+        checkEquality: checkEquality)
         where TEntity : class
     {
         private readonly Action<EntityTypeBuilder<TEntity>> _entityBuilderAction = entityBuilderAction;
@@ -405,47 +405,19 @@ public class ChangeDetectionProxyTests
         }
     }
 
-    private class DefaultContext : TestContext<ChangeValueEntity>
-    {
-        public DefaultContext()
-            : base(nameof(DefaultContext), false, true)
-        {
-        }
-    }
+    private class DefaultContext() : TestContext<ChangeValueEntity>(nameof(DefaultContext), false, true);
 
-    private class SnapshotContext : TestContext<ChangeValueEntity>
-    {
-        public SnapshotContext()
-            : base(nameof(SnapshotContext), false, true, true, ChangeTrackingStrategy.Snapshot)
-        {
-        }
-    }
+    private class SnapshotContext() : TestContext<ChangeValueEntity>(
+        nameof(SnapshotContext), false, true, true, ChangeTrackingStrategy.Snapshot);
 
-    private class ChangedNotificationsContext : TestContext<ChangeValueEntity>
-    {
-        public ChangedNotificationsContext()
-            : base(nameof(ChangedNotificationsContext), false, true, true, ChangeTrackingStrategy.ChangedNotifications)
-        {
-        }
-    }
+    private class ChangedNotificationsContext() : TestContext<ChangeValueEntity>(
+        nameof(ChangedNotificationsContext), false, true, true, ChangeTrackingStrategy.ChangedNotifications);
 
-    private class ChangingAndChangedNotificationsContext : TestContext<ChangeValueEntity>
-    {
-        public ChangingAndChangedNotificationsContext()
-            : base(
-                nameof(ChangingAndChangedNotificationsContext), false, true, true,
-                ChangeTrackingStrategy.ChangingAndChangedNotifications)
-        {
-        }
-    }
+    private class ChangingAndChangedNotificationsContext() : TestContext<ChangeValueEntity>(
+        nameof(ChangingAndChangedNotificationsContext), false, true, true,
+        ChangeTrackingStrategy.ChangingAndChangedNotifications);
 
-    private class ChangingAndChangedNotificationsWithOriginalValuesContext : TestContext<ChangeValueEntity>
-    {
-        public ChangingAndChangedNotificationsWithOriginalValuesContext()
-            : base(
-                nameof(ChangingAndChangedNotificationsWithOriginalValuesContext), false, true, true,
-                ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)
-        {
-        }
-    }
+    private class ChangingAndChangedNotificationsWithOriginalValuesContext() : TestContext<ChangeValueEntity>(
+        nameof(ChangingAndChangedNotificationsWithOriginalValuesContext), false, true, true,
+        ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues);
 }

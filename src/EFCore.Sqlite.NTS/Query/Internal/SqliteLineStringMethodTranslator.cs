@@ -26,9 +26,7 @@ public class SqliteLineStringMethodTranslator : IMethodCallTranslator
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public SqliteLineStringMethodTranslator(ISqlExpressionFactory sqlExpressionFactory)
-    {
-        _sqlExpressionFactory = sqlExpressionFactory;
-    }
+        => _sqlExpressionFactory = sqlExpressionFactory;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -54,7 +52,7 @@ public class SqliteLineStringMethodTranslator : IMethodCallTranslator
                         _sqlExpressionFactory.Constant(1))
                 },
                 nullable: true,
-                argumentsPropagateNullability: new[] { true, true },
+                argumentsPropagateNullability: Statics.TrueArrays[2],
                 method.ReturnType);
         }
 

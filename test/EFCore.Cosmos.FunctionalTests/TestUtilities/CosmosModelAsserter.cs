@@ -11,7 +11,7 @@ public class CosmosModelAsserter : ModelAsserter
     {
     }
 
-    public new static CosmosModelAsserter Instance { get; } = new();
+    public static new CosmosModelAsserter Instance { get; } = new();
 
     public override void AssertEqual(
         IEnumerable<IReadOnlyProperty> expectedProperties,
@@ -19,8 +19,8 @@ public class CosmosModelAsserter : ModelAsserter
         bool assertOrder = false,
         bool compareAnnotations = false)
     {
-        expectedProperties = expectedProperties.Where(p => p.Name != "__jObject" && p.Name != "__id" && p.Name != "Discriminator");
-        actualProperties = actualProperties.Where(p => p.Name != "__jObject" && p.Name != "__id" && p.Name != "Discriminator");
+        expectedProperties = expectedProperties.Where(p => p.Name != "__jObject" && p.Name != "__id" && p.Name != "$type");
+        actualProperties = actualProperties.Where(p => p.Name != "__jObject" && p.Name != "__id" && p.Name != "$type");
 
         base.AssertEqual(expectedProperties, actualProperties, assertOrder, compareAnnotations);
     }

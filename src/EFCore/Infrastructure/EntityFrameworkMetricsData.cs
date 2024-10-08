@@ -30,90 +30,102 @@ public static class EntityFrameworkMetricsData
     private static long _totalExecutionStrategyOperationFailures;
     private static long _totalOptimisticConcurrencyFailures;
     private static CacheInfo _compiledQueryCacheInfo;
+    private static CacheInfo _compiledQueryCacheInfoEventSource;
 
     /// <summary>
-    /// Indicates that a new <see cref="DbContext" /> instance is being initialized.
+    ///     Indicates that a new <see cref="DbContext" /> instance is being initialized.
     /// </summary>
     public static void ReportDbContextInitializing()
         => Interlocked.Increment(ref _activeDbContexts);
 
     /// <summary>
-    /// Indicates that a <see cref="DbContext" /> instance is being disposed.
+    ///     Indicates that a <see cref="DbContext" /> instance is being disposed.
     /// </summary>
     public static void ReportDbContextDisposing()
         => Interlocked.Decrement(ref _activeDbContexts);
 
     /// <summary>
-    /// Number of currently active <see cref="DbContext" /> instances.
+    ///     Number of currently active <see cref="DbContext" /> instances.
     /// </summary>
-    public static int GetActiveDbContexts()
+    internal static int GetActiveDbContexts()
         => Volatile.Read(ref _activeDbContexts);
 
     /// <summary>
-    /// Indicates that a query is about to begin execution.
+    ///     Indicates that a query is about to begin execution.
     /// </summary>
     public static void ReportQueryExecuting()
         => Interlocked.Increment(ref _totalQueriesExecuted);
 
     /// <summary>
-    /// Cumulative count of queries executed.
+    ///     Cumulative count of queries executed.
     /// </summary>
-    public static long GetTotalQueriesExecuted()
+    internal static long GetTotalQueriesExecuted()
         => Interlocked.Read(ref _totalQueriesExecuted);
 
     /// <summary>
-    /// Indicates that changes are about to be saved.
+    ///     Indicates that changes are about to be saved.
     /// </summary>
     public static void ReportSavingChanges()
         => Interlocked.Increment(ref _totalSaveChanges);
 
     /// <summary>
-    /// Cumulative count of changes saved.
+    ///     Cumulative count of changes saved.
     /// </summary>
-    public static long GetTotalSaveChanges()
+    internal static long GetTotalSaveChanges()
         => Interlocked.Read(ref _totalSaveChanges);
 
     /// <summary>
-    /// Indicates a hit in the compiled query cache, signifying that query compilation will not need to occur.
+    ///     Indicates a hit in the compiled query cache, signifying that query compilation will not need to occur.
     /// </summary>
     public static void ReportCompiledQueryCacheHit()
-        => Interlocked.Increment(ref _compiledQueryCacheInfo.Hits);
+    {
+        Interlocked.Increment(ref _compiledQueryCacheInfo.Hits);
+        Interlocked.Increment(ref _compiledQueryCacheInfoEventSource.Hits);
+    }
 
     /// <summary>
-    /// Indicates a miss in the compiled query cache, signifying that query compilation will need to occur.
+    ///     Indicates a miss in the compiled query cache, signifying that query compilation will need to occur.
     /// </summary>
     public static void ReportCompiledQueryCacheMiss()
-        => Interlocked.Increment(ref _compiledQueryCacheInfo.Misses);
+    {
+        Interlocked.Increment(ref _compiledQueryCacheInfo.Misses);
+        Interlocked.Increment(ref _compiledQueryCacheInfoEventSource.Misses);
+    }
 
     /// <summary>
-    /// Gets number of hits and misses and also the computed hit rate for the compiled query cache.
+    ///     Gets number of hits and misses and also the computed hit rate for the compiled query cache.
     /// </summary>
-    /// <param name="reset">Whether to reset counters when returning the result.</param>
-    public static (int hits, int misses, double hitRate) GetCompiledQueryCacheHitsMissesHitRate(bool reset = true)
-        => _compiledQueryCacheInfo.CalculateHitsMissesHitRate(reset);
+    internal static (int hits, int misses, double hitRate) GetCompiledQueryCacheHitRate()
+        => _compiledQueryCacheInfo.CalculateHitsMissesHitRate(false);
 
     /// <summary>
-    /// Indicates that an operation executed by an <see cref="IExecutionStrategy" /> failed (and may be retried).
+    ///     Gets number of hits and misses and also the computed hit rate for the compiled query cache.
+    /// </summary>
+    internal static (int hits, int misses, double hitRate) GetCompiledQueryCacheHitRateEventSource()
+        => _compiledQueryCacheInfoEventSource.CalculateHitsMissesHitRate(true);
+
+    /// <summary>
+    ///     Indicates that an operation executed by an <see cref="IExecutionStrategy" /> failed (and may be retried).
     /// </summary>
     public static void ReportExecutionStrategyOperationFailure()
         => Interlocked.Increment(ref _totalExecutionStrategyOperationFailures);
 
     /// <summary>
-    /// Cumulative number of failed operation executed by an <see cref="IExecutionStrategy" />.
+    ///     Cumulative number of failed operation executed by an <see cref="IExecutionStrategy" />.
     /// </summary>
-    public static long GetTotalExecutionStrategyOperationFailures()
+    internal static long GetTotalExecutionStrategyOperationFailures()
         => Interlocked.Read(ref _totalExecutionStrategyOperationFailures);
 
     /// <summary>
-    /// Indicates that an optimistic concurrency failure has occurred.
+    ///     Indicates that an optimistic concurrency failure has occurred.
     /// </summary>
     public static void ReportOptimisticConcurrencyFailure()
         => Interlocked.Increment(ref _totalOptimisticConcurrencyFailures);
 
     /// <summary>
-    /// Cumulative number of optimistic concurrency failures.
+    ///     Cumulative number of optimistic concurrency failures.
     /// </summary>
-    public static long GetTotalOptimisticConcurrencyFailures()
+    internal static long GetTotalOptimisticConcurrencyFailures()
         => Interlocked.Read(ref _totalOptimisticConcurrencyFailures);
 
     [StructLayout(LayoutKind.Explicit)]
@@ -147,7 +159,6 @@ public static class EntityFrameworkMetricsData
                     : ((double)cacheInfo.Hits / hitsAndMisses) * 100;
                 return (cacheInfo.Hits, cacheInfo.Misses, hitRate);
             }
-
         }
     }
 }

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
@@ -92,18 +93,18 @@ namespace TestNamespace
                     bool (int v1, int v2) => v1 == v2,
                     int (int v) => v,
                     int (int v) => v),
-                providerValueComparer: new ValueComparer<int>(
-                    bool (int v1, int v2) => v1 == v2,
-                    int (int v) => v,
-                    int (int v) => v),
-                converter: new ValueConverter<int, int>(
-                    int (int i) => i,
-                    int (int i) => i),
-                jsonValueReaderWriter: new JsonConvertedValueReaderWriter<int, int>(
-                    JsonInt32ReaderWriter.Instance,
-                    new ValueConverter<int, int>(
-                        int (int i) => i,
-                        int (int i) => i)));
+                providerValueComparer: new ValueComparer<string>(
+                    bool (string v1, string v2) => v1 == v2,
+                    int (string v) => ((object)v).GetHashCode(),
+                    string (string v) => v),
+                converter: new ValueConverter<int, string>(
+                    string (int i) => JsonSerializer.Serialize(i, (JsonSerializerOptions)(null)),
+                    int (string i) => JsonSerializer.Deserialize<int>(i, (JsonSerializerOptions)(null))),
+                jsonValueReaderWriter: new JsonConvertedValueReaderWriter<int, string>(
+                    JsonStringReaderWriter.Instance,
+                    new ValueConverter<int, string>(
+                        string (int i) => JsonSerializer.Serialize(i, (JsonSerializerOptions)(null)),
+                        int (string i) => JsonSerializer.Deserialize<int>(i, (JsonSerializerOptions)(null)))));
             id.SetCurrentValueComparer(new EntryCurrentValueComparer<int>(id));
 
             var key = runtimeEntityType.AddKey(
@@ -115,7 +116,7 @@ namespace TestNamespace
 
         public static void CreateAnnotations(RuntimeEntityType runtimeEntityType)
         {
-            var id = runtimeEntityType.FindProperty("Id")!;
+            var id = runtimeEntityType.FindProperty("Id");
             var key = runtimeEntityType.FindKey(new[] { id });
             key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.CreateSimpleNonNullableFactory<int>(key));
             key.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<int>(key));

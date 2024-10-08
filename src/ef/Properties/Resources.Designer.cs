@@ -404,6 +404,18 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("NamespaceDescription");
 
         /// <summary>
+        ///     Additionally generate all the code required for NativeAOT compilation and precompiled queries (experimental).
+        /// </summary>
+        public static string NativeAotDescription
+            => GetString("NativeAotDescription");
+
+        /// <summary>
+        ///     NativeAOT support is experimental and can change in the future.
+        /// </summary>
+        public static string NativeAotWarning
+            => GetString("NativeAotWarning");
+
+        /// <summary>
         ///     Don't colorize output.
         /// </summary>
         public static string NoColorDescription

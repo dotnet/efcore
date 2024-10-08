@@ -34,9 +34,7 @@ public class ModelRuntimeInitializer : IModelRuntimeInitializer
     /// </summary>
     /// <param name="dependencies">The dependencies to use.</param>
     public ModelRuntimeInitializer(ModelRuntimeInitializerDependencies dependencies)
-    {
-        Dependencies = dependencies;
-    }
+        => Dependencies = dependencies;
 
     /// <summary>
     ///     Dependencies for this service.

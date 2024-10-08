@@ -53,9 +53,7 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
     /// </summary>
     public Model(Guid? modelId = null)
         : this(new ConventionSet())
-    {
-        ModelId = modelId ?? Guid.NewGuid();
-    }
+        => ModelId = modelId ?? Guid.NewGuid();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -845,12 +843,7 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
             return null;
         }
 
-        if (_propertiesByType.TryGetValue(unwrappedType, out var properties))
-        {
-            return properties;
-        }
-
-        return null;
+        return _propertiesByType.GetValueOrDefault(unwrappedType);
     }
 
     /// <summary>
@@ -1006,6 +999,45 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
     /// </summary>
     public virtual ConfigurationSource? GetPropertyAccessModeConfigurationSource()
         => FindAnnotation(CoreAnnotationNames.PropertyAccessMode)?.GetConfigurationSource();
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual string GetEmbeddedDiscriminatorName()
+        => (string?)this[CoreAnnotationNames.EmbeddedDiscriminatorName]
+            ?? DefaultEmbeddedDiscriminatorName;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public const string DefaultEmbeddedDiscriminatorName = "$type";
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual string? SetEmbeddedDiscriminatorName(
+        string? name,
+        ConfigurationSource configurationSource)
+        => (string?)SetOrRemoveAnnotation(
+            CoreAnnotationNames.EmbeddedDiscriminatorName, name, configurationSource)?.Value;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual ConfigurationSource? GetEmbeddedDiscriminatorNameConfigurationSource()
+        => FindAnnotation(CoreAnnotationNames.EmbeddedDiscriminatorName)?.GetConfigurationSource();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1252,6 +1284,30 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
         bool fromDataAnnotation)
         => SetPropertyAccessMode(
             propertyAccessMode,
+            fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    void IMutableModel.SetEmbeddedDiscriminatorName(string? name)
+        => SetEmbeddedDiscriminatorName(name, ConfigurationSource.Explicit);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    string? IConventionModel.SetEmbeddedDiscriminatorName(
+        string? name,
+        bool fromDataAnnotation)
+        => SetEmbeddedDiscriminatorName(
+            name,
             fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>

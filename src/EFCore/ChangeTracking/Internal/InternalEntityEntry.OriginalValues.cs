@@ -7,14 +7,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
 public sealed partial class InternalEntityEntry
 {
-    private readonly struct OriginalValues
+    private readonly struct OriginalValues(InternalEntityEntry entry)
     {
-        private readonly ISnapshot _values;
-
-        public OriginalValues(InternalEntityEntry entry)
-        {
-            _values = entry.EntityType.OriginalValuesFactory(entry);
-        }
+        private readonly ISnapshot _values = entry.EntityType.OriginalValuesFactory(entry);
 
         public object? GetValue(InternalEntityEntry entry, IProperty property)
             => property.GetOriginalValueIndex() is var index && index == -1

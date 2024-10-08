@@ -267,6 +267,12 @@
   <data name="NamespaceDescription" xml:space="preserve">
     <value>The namespace to use. Matches the directory by default.</value>
   </data>
+  <data name="NativeAotDescription" xml:space="preserve">
+    <value>Additionally generate all the code required for NativeAOT compilation and precompiled queries (experimental).</value>
+  </data>
+  <data name="NativeAotWarning" xml:space="preserve">
+    <value>NativeAOT support is experimental and can change in the future.</value>
+  </data>
   <data name="NETCoreApp1StartupProject" xml:space="preserve">
     <value>Startup project '{startupProject}' targets framework '.NETCoreApp' version '{targetFrameworkVersion}'. This version of the Entity Framework Core .NET Command-line Tools only supports version 2.0 or higher. For information on using older versions of the tools, see https://go.microsoft.com/fwlink/?linkid=871254</value>
   </data>

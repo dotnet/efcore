@@ -5,11 +5,6 @@ namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
 #nullable disable
 
-public abstract class TPHInheritanceBulkUpdatesTestBase<TFixture> : InheritanceBulkUpdatesTestBase<TFixture>
-    where TFixture : InheritanceBulkUpdatesFixtureBase, new()
-{
-    protected TPHInheritanceBulkUpdatesTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-}
+public abstract class TPHInheritanceBulkUpdatesTestBase<TFixture>(TFixture fixture, ITestOutputHelper testOutputHelper)
+    : InheritanceBulkUpdatesRelationalTestBase<TFixture>(fixture, testOutputHelper)
+    where TFixture : InheritanceBulkUpdatesRelationalFixtureBase, new();

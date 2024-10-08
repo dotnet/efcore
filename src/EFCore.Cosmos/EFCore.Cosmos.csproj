@@ -11,6 +11,7 @@
     <ImplicitUsings>true</ImplicitUsings>
     <NoWarn>$(NoWarn);EF9101</NoWarn> <!-- Metrics is experimental -->
     <NoWarn>$(NoWarn);EF9102</NoWarn> <!-- Paging is experimental -->
+    <NoWarn>$(NoWarn);EF9103</NoWarn> <!-- Vector search is experimental -->
   </PropertyGroup>
 
   <ItemGroup>
@@ -42,12 +43,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\EFCore\EFCore.csproj" PrivateAssets="contentfiles;build" />
+    <ProjectReference Include="..\EFCore\EFCore.csproj" />
     <ProjectReference Include="..\EFCore.Analyzers\EFCore.Analyzers.csproj" ReferenceOutputAssembly="False" OutputItemType="Analyzer" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.41.0" />
+    <PackageReference Include="Microsoft.Azure.Cosmos" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1420,24 +1420,16 @@ public class RelationshipDiscoveryConvention :
         => entityTypeBuilder.HasAnnotation(CoreAnnotationNames.AmbiguousNavigations, ambiguousNavigations);
 
     [DebuggerDisplay("{DebuggerDisplay(),nq}")]
-    private sealed class RelationshipCandidate
+    private sealed class RelationshipCandidate(
+        IConventionEntityTypeBuilder targetTypeBuilder,
+        List<PropertyInfo> navigations,
+        List<PropertyInfo> inverseNavigations,
+        bool ownership)
     {
-        public RelationshipCandidate(
-            IConventionEntityTypeBuilder targetTypeBuilder,
-            List<PropertyInfo> navigations,
-            List<PropertyInfo> inverseNavigations,
-            bool ownership)
-        {
-            TargetTypeBuilder = targetTypeBuilder;
-            NavigationProperties = navigations;
-            InverseProperties = inverseNavigations;
-            IsOwnership = ownership;
-        }
-
-        public IConventionEntityTypeBuilder TargetTypeBuilder { [DebuggerStepThrough] get; }
-        public List<PropertyInfo> NavigationProperties { [DebuggerStepThrough] get; }
-        public List<PropertyInfo> InverseProperties { [DebuggerStepThrough] get; }
-        public bool IsOwnership { [DebuggerStepThrough] get; }
+        public IConventionEntityTypeBuilder TargetTypeBuilder { [DebuggerStepThrough] get; } = targetTypeBuilder;
+        public List<PropertyInfo> NavigationProperties { [DebuggerStepThrough] get; } = navigations;
+        public List<PropertyInfo> InverseProperties { [DebuggerStepThrough] get; } = inverseNavigations;
+        public bool IsOwnership { [DebuggerStepThrough] get; } = ownership;
 
         private string DebuggerDisplay()
             => TargetTypeBuilder.Metadata.ToDebugString(MetadataDebugStringOptions.SingleLineDefault)

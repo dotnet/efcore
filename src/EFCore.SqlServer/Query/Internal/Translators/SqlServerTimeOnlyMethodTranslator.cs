@@ -39,9 +39,7 @@ public class SqlServerTimeOnlyMethodTranslator : IMethodCallTranslator
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public SqlServerTimeOnlyMethodTranslator(ISqlExpressionFactory sqlExpressionFactory)
-    {
-        _sqlExpressionFactory = sqlExpressionFactory;
-    }
+        => _sqlExpressionFactory = sqlExpressionFactory;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -88,7 +86,7 @@ public class SqlServerTimeOnlyMethodTranslator : IMethodCallTranslator
                 "DATEADD",
                 new[] { _sqlExpressionFactory.Fragment(datePart), _sqlExpressionFactory.Convert(arguments[0], typeof(int)), instance },
                 nullable: true,
-                argumentsPropagateNullability: new[] { false, true, true },
+                argumentsPropagateNullability: [false, true, true],
                 instance.Type,
                 instance.TypeMapping);
         }

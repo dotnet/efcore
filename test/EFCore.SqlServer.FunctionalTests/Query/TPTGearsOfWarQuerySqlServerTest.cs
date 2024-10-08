@@ -711,7 +711,7 @@ WHERE [g].[Rank] | 2 > 0
 
         AssertSql(
             """
-SELECT TOP(1) CAST(([g].[Rank] & 2) ^ 2 AS bit) ^ CAST(1 AS bit) AS [BitwiseTrue], CAST(([g].[Rank] & 2) ^ 4 AS bit) ^ CAST(1 AS bit) AS [BitwiseFalse], [g].[Rank] & 2 AS [BitwiseValue]
+SELECT TOP(1) ~CAST(([g].[Rank] & 2) ^ 2 AS bit) AS [BitwiseTrue], ~CAST(([g].[Rank] & 2) ^ 4 AS bit) AS [BitwiseFalse], [g].[Rank] & 2 AS [BitwiseValue]
 FROM [Gears] AS [g]
 WHERE [g].[Rank] & 2 = 2
 """);
@@ -910,7 +910,7 @@ WHERE [g].[Rank] & @__parameter_0 = @__parameter_0
 
         AssertSql(
             """
-SELECT TOP(1) CAST(([g].[Rank] & 2) ^ 2 AS bit) ^ CAST(1 AS bit) AS [hasFlagTrue], CAST(([g].[Rank] & 4) ^ 4 AS bit) ^ CAST(1 AS bit) AS [hasFlagFalse]
+SELECT TOP(1) ~CAST(([g].[Rank] & 2) ^ 2 AS bit) AS [hasFlagTrue], ~CAST(([g].[Rank] & 4) ^ 4 AS bit) AS [hasFlagFalse]
 FROM [Gears] AS [g]
 WHERE [g].[Rank] & 2 = 2
 """);
@@ -958,7 +958,7 @@ WHERE EXISTS (
 
         AssertSql(
             """
-SELECT [w].[Id], [w].[IsAutomatic] ^ CAST(1 AS bit) AS [Manual]
+SELECT [w].[Id], ~[w].[IsAutomatic] AS [Manual]
 FROM [Weapons] AS [w]
 WHERE [w].[IsAutomatic] = CAST(1 AS bit)
 """);
@@ -970,7 +970,7 @@ WHERE [w].[IsAutomatic] = CAST(1 AS bit)
 
         AssertSql(
             """
-SELECT [f].[Id], [l].[Eradicated] ^ CAST(1 AS bit) AS [Alive]
+SELECT [f].[Id], ~[l].[Eradicated] AS [Alive]
 FROM [Factions] AS [f]
 INNER JOIN [LocustHordes] AS [l] ON [f].[Id] = [l].[Id]
 """);
@@ -1163,10 +1163,8 @@ FROM [Gears] AS [g]
 LEFT JOIN [Officers] AS [o] ON [g].[Nickname] = [o].[Nickname] AND [g].[SquadId] = [o].[SquadId]
 WHERE CASE
     WHEN [g].[LeaderNickname] IS NULL THEN NULL
-    ELSE CASE
-        WHEN [g].[LeaderNickname] LIKE N'%us' AND [g].[LeaderNickname] IS NOT NULL THEN CAST(1 AS bit)
-        ELSE CAST(0 AS bit)
-    END
+    WHEN [g].[LeaderNickname] LIKE N'%us' THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
 END = CAST(1 AS bit)
 """);
     }
@@ -1188,7 +1186,6 @@ WHERE CASE
         WHEN [g].[LeaderNickname] LIKE N'%us' THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
     END
-    ELSE NULL
 END = CAST(1 AS bit)
 """);
     }
@@ -1226,7 +1223,6 @@ FROM [Gears] AS [g]
 LEFT JOIN [Officers] AS [o] ON [g].[Nickname] = [o].[Nickname] AND [g].[SquadId] = [o].[SquadId]
 WHERE CASE
     WHEN [g].[LeaderNickname] IS NOT NULL THEN CAST(LEN([g].[LeaderNickname]) AS int)
-    ELSE NULL
 END = 5
 """);
     }
@@ -1245,7 +1241,6 @@ FROM [Gears] AS [g]
 LEFT JOIN [Officers] AS [o] ON [g].[Nickname] = [o].[Nickname] AND [g].[SquadId] = [o].[SquadId]
 WHERE CASE
     WHEN [g].[LeaderNickname] IS NOT NULL THEN CAST(LEN([g].[LeaderNickname]) AS int)
-    ELSE NULL
 END = 5
 """);
     }
@@ -1259,7 +1254,6 @@ END = 5
             """
 SELECT CASE
     WHEN [g].[LeaderNickname] IS NOT NULL THEN [g].[LeaderNickname] + [g].[LeaderNickname]
-    ELSE NULL
 END
 FROM [Gears] AS [g]
 """);
@@ -1294,8 +1288,7 @@ FROM [Gears] AS [g]
         AssertSql(
             """
 SELECT CASE
-    WHEN [g].[LeaderNickname] IS NOT NULL THEN CAST(CAST(LEN([g].[Nickname]) AS int) ^ 5 AS bit) ^ CAST(1 AS bit)
-    ELSE NULL
+    WHEN [g].[LeaderNickname] IS NOT NULL THEN ~CAST(CAST(LEN([g].[Nickname]) AS int) ^ 5 AS bit)
 END
 FROM [Gears] AS [g]
 """);
@@ -1309,7 +1302,6 @@ FROM [Gears] AS [g]
             """
 SELECT CASE
     WHEN [g].[LeaderNickname] IS NOT NULL THEN [s].[LeaderNickname]
-    ELSE NULL
 END
 FROM [Gears] AS [g]
 CROSS JOIN (
@@ -1330,7 +1322,6 @@ SELECT [s].[Nickname], CASE
         WHEN [s].[LeaderNickname] IS NOT NULL THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
     END
-    ELSE NULL
 END AS [Condition]
 FROM [Gears] AS [g]
 LEFT JOIN (
@@ -1387,7 +1378,6 @@ ORDER BY [s].[Nickname]
             """
 SELECT CASE
     WHEN [g].[LeaderNickname] IS NOT NULL THEN CAST(0 AS bit)
-    ELSE NULL
 END
 FROM [Gears] AS [g]
 """);
@@ -1401,7 +1391,6 @@ FROM [Gears] AS [g]
             """
 SELECT CASE
     WHEN [g].[LeaderNickname] IS NOT NULL THEN CAST(1 AS bit)
-    ELSE NULL
 END
 FROM [Gears] AS [g]
 """);
@@ -1415,7 +1404,6 @@ FROM [Gears] AS [g]
             """
 SELECT CASE
     WHEN [s0].[Id] IS NOT NULL THEN [c].[Name]
-    ELSE NULL
 END
 FROM [Tags] AS [t]
 LEFT JOIN (
@@ -1434,8 +1422,7 @@ LEFT JOIN [Cities] AS [c] ON [s].[AssignedCityName] = [c].[Name]
         AssertSql(
             """
 SELECT CASE
-    WHEN [g].[LeaderNickname] IS NOT NULL THEN CAST(CAST(LEN([g].[Nickname]) AS int) ^ 5 AS bit) ^ CAST(1 AS bit)
-    ELSE NULL
+    WHEN [g].[LeaderNickname] IS NOT NULL THEN ~CAST(CAST(LEN([g].[Nickname]) AS int) ^ 5 AS bit)
 END
 FROM [Gears] AS [g]
 """);
@@ -1464,7 +1451,6 @@ LEFT JOIN (
             """
 SELECT CASE
     WHEN [c].[Name] IS NOT NULL THEN [c].[Name]
-    ELSE NULL
 END
 FROM [Tags] AS [t]
 LEFT JOIN (
@@ -1873,7 +1859,7 @@ END AS [Discriminator]
 FROM [Gears] AS [g]
 LEFT JOIN [Officers] AS [o] ON [g].[Nickname] = [o].[Nickname] AND [g].[SquadId] = [o].[SquadId]
 WHERE [g].[HasSoulPatch] = CAST(1 AS bit) AND COALESCE((
-    SELECT DISTINCT TOP(1) [w].[IsAutomatic]
+    SELECT TOP(1) [w].[IsAutomatic]
     FROM [Weapons] AS [w]
     WHERE [g].[FullName] = [w].[OwnerFullName] AND [w].[Name] LIKE N'%Lancer%'), CAST(0 AS bit)) = CAST(1 AS bit)
 ORDER BY [g].[Nickname]
@@ -4147,7 +4133,6 @@ WHERE [s].[Discriminator] = N'Officer' AND (
             """
 SELECT CASE
     WHEN [l].[CommanderName] IS NOT NULL THEN [l].[CommanderName]
-    ELSE NULL
 END
 FROM [Factions] AS [f]
 LEFT JOIN [LocustHordes] AS [l] ON [f].[Id] = [l].[Id]
@@ -4163,7 +4148,6 @@ WHERE [l].[Id] IS NOT NULL
             """
 SELECT CASE
     WHEN [l].[CommanderName] IS NOT NULL THEN [l].[Eradicated]
-    ELSE NULL
 END
 FROM [Factions] AS [f]
 LEFT JOIN [LocustHordes] AS [l] ON [f].[Id] = [l].[Id]
@@ -4696,7 +4680,7 @@ FROM [Gears] AS [g]
         await base.ToString_nullable_enum_property_projection(async);
 
         AssertSql(
-"""
+            """
 SELECT CASE [w].[AmmunitionType]
     WHEN 1 THEN N'Cartridge'
     WHEN 2 THEN N'Shell'
@@ -4723,7 +4707,7 @@ WHERE CAST([m].[Difficulty] AS nvarchar(max)) LIKE N'%Med%'
         await base.ToString_nullable_enum_contains(async);
 
         AssertSql(
-"""
+            """
 SELECT [w].[Name]
 FROM [Weapons] AS [w]
 WHERE CASE [w].[AmmunitionType]
@@ -5949,10 +5933,10 @@ ORDER BY [g].[Nickname], [g].[SquadId], [s0].[Id], [s0].[Nickname]
 
         AssertSql(
             """
-SELECT CASE
+SELECT ~CASE
     WHEN [s].[HasSoulPatch] = CAST(1 AS bit) THEN CAST(1 AS bit)
     ELSE COALESCE([s].[HasSoulPatch], CAST(1 AS bit))
-END ^ CAST(1 AS bit) AS [c]
+END AS [c]
 FROM [Tags] AS [t]
 LEFT JOIN (
     SELECT [g].[Nickname], [g].[SquadId], [g].[HasSoulPatch]
@@ -6694,7 +6678,7 @@ WHERE [g].[HasSoulPatch] = CAST(1 AS bit)
         AssertSql(
             """
 SELECT COALESCE((
-    SELECT DISTINCT TOP(1) [w].[IsAutomatic]
+    SELECT TOP(1) [w].[IsAutomatic]
     FROM [Weapons] AS [w]
     WHERE [g].[FullName] = [w].[OwnerFullName] AND [w].[Name] LIKE N'%Lancer%'), CAST(0 AS bit))
 FROM [Gears] AS [g]
@@ -6745,7 +6729,7 @@ WHERE [g].[HasSoulPatch] = CAST(1 AS bit)
         AssertSql(
             """
 SELECT COALESCE((
-    SELECT DISTINCT TOP(1) [w].[IsAutomatic]
+    SELECT TOP(1) [w].[IsAutomatic]
     FROM [Weapons] AS [w]
     WHERE [g].[FullName] = [w].[OwnerFullName] AND [w].[Name] = N'BFG'), CAST(0 AS bit))
 FROM [Gears] AS [g]
@@ -7197,14 +7181,12 @@ ORDER BY [s].[Id], [s0].[Nickname], [s0].[SquadId]
         AssertSql(
             """
 SELECT CASE
-    WHEN [g].[LeaderNickname] IS NOT NULL THEN CAST(CAST(LEN([g].[Nickname]) AS int) ^ 5 AS bit) ^ CAST(1 AS bit)
-    ELSE NULL
+    WHEN [g].[LeaderNickname] IS NOT NULL THEN ~CAST(CAST(LEN([g].[Nickname]) AS int) ^ 5 AS bit)
 END
 FROM [Gears] AS [g]
 ORDER BY CASE
     WHEN CASE
-        WHEN [g].[LeaderNickname] IS NOT NULL THEN CAST(CAST(LEN([g].[Nickname]) AS int) ^ 5 AS bit) ^ CAST(1 AS bit)
-        ELSE NULL
+        WHEN [g].[LeaderNickname] IS NOT NULL THEN ~CAST(CAST(LEN([g].[Nickname]) AS int) ^ 5 AS bit)
     END IS NOT NULL THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END
@@ -7826,10 +7808,7 @@ LEFT JOIN (
     INNER JOIN [LocustCommanders] AS [l1] ON [l0].[Name] = [l1].[Name]
 ) AS [s] ON [l].[CommanderName] = [s].[Name]
 WHERE CASE
-    WHEN [l].[Id] IS NOT NULL THEN CASE
-        WHEN [s].[Name] IS NOT NULL THEN CAST(1 AS bit)
-        ELSE CAST(0 AS bit)
-    END
+    WHEN [l].[Id] IS NOT NULL AND [s].[Name] IS NOT NULL THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END = CAST(1 AS bit)
 """);
@@ -8507,14 +8486,14 @@ WHERE [g].[Rank] & @__ranks_0 <> 0
             """
 @__ranks_0='134'
 
-SELECT CAST(([g].[Rank] | @__ranks_0) ^ @__ranks_0 AS bit) ^ CAST(1 AS bit)
+SELECT ~CAST(([g].[Rank] | @__ranks_0) ^ @__ranks_0 AS bit)
 FROM [Gears] AS [g]
 """,
             //
             """
 @__ranks_0='134'
 
-SELECT CAST(([g].[Rank] | [g].[Rank] | @__ranks_0 | [g].[Rank] | @__ranks_0) ^ @__ranks_0 AS bit) ^ CAST(1 AS bit)
+SELECT ~CAST(([g].[Rank] | [g].[Rank] | @__ranks_0 | [g].[Rank] | @__ranks_0) ^ @__ranks_0 AS bit)
 FROM [Gears] AS [g]
 """);
     }
@@ -8613,7 +8592,6 @@ WHERE [o].[Nickname] IS NOT NULL
             """
 SELECT CASE
     WHEN [s].[Name] = N'Locust' THEN CAST(1 AS bit)
-    ELSE NULL
 END AS [IsEradicated], [s].[CommanderName], [s].[Name]
 FROM [LocustLeaders] AS [l]
 INNER JOIN (
@@ -8624,10 +8602,8 @@ INNER JOIN (
 ) AS [s] ON [l].[Name] = [s].[CommanderName]
 WHERE CASE
     WHEN [s].[Name] = N'Locust' THEN CAST(1 AS bit)
-    ELSE NULL
 END = CAST(0 AS bit) OR CASE
     WHEN [s].[Name] = N'Locust' THEN CAST(1 AS bit)
-    ELSE NULL
 END IS NULL
 """);
     }
@@ -8745,16 +8721,10 @@ END AS [Discriminator]
 FROM [Gears] AS [g]
 LEFT JOIN [Officers] AS [o] ON [g].[Nickname] = [o].[Nickname] AND [g].[SquadId] = [o].[SquadId]
 WHERE CASE
-    WHEN [g].[HasSoulPatch] = @__prm_0 THEN CASE
-        WHEN (
-            SELECT TOP(1) [w].[Name]
-            FROM [Weapons] AS [w]
-            WHERE [w].[Id] = [g].[SquadId]) = @__prm2_1 AND (
-            SELECT TOP(1) [w].[Name]
-            FROM [Weapons] AS [w]
-            WHERE [w].[Id] = [g].[SquadId]) IS NOT NULL THEN CAST(1 AS bit)
-        ELSE CAST(0 AS bit)
-    END
+    WHEN [g].[HasSoulPatch] = @__prm_0 AND (
+        SELECT TOP(1) [w].[Name]
+        FROM [Weapons] AS [w]
+        WHERE [w].[Id] = [g].[SquadId]) = @__prm2_1 THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END = CAST(1 AS bit)
 """);
@@ -9668,7 +9638,6 @@ LEFT JOIN (
 ) AS [s] ON [t].[GearNickName] = [s].[Nickname] AND [t].[GearSquadId] = [s].[SquadId]
 WHERE CASE
     WHEN [t].[GearNickName] IS NOT NULL THEN [s].[SquadId]
-    ELSE NULL
 END = 1
 """);
     }
@@ -9690,7 +9659,6 @@ LEFT JOIN (
 ) AS [s] ON [t].[GearNickName] = [s].[Nickname] AND [t].[GearSquadId] = [s].[SquadId]
 WHERE CASE
     WHEN [t].[GearNickName] IS NOT NULL THEN [s].[SquadId]
-    ELSE NULL
 END + 1 = 2
 """);
     }
@@ -9703,7 +9671,6 @@ END + 1 = 2
             """
 SELECT [t].[Note], CASE
     WHEN [t].[GearNickName] IS NOT NULL THEN [s].[SquadId]
-    ELSE NULL
 END + 1 AS [Value]
 FROM [Tags] AS [t]
 LEFT JOIN (
@@ -9712,7 +9679,6 @@ LEFT JOIN (
 ) AS [s] ON [t].[GearNickName] = [s].[Nickname] AND [t].[GearSquadId] = [s].[SquadId]
 WHERE CASE
     WHEN [t].[GearNickName] IS NOT NULL THEN [s].[Nickname]
-    ELSE NULL
 END IS NOT NULL
 """);
     }
@@ -9726,7 +9692,6 @@ END IS NOT NULL
 SELECT CASE
     WHEN [t].[Note] <> N'K.I.A.' OR [t].[Note] IS NULL THEN CASE
         WHEN [t].[GearNickName] IS NOT NULL THEN [s].[SquadId]
-        ELSE NULL
     END
     ELSE -1
 END
@@ -9746,7 +9711,6 @@ LEFT JOIN (
             """
 SELECT SUBSTRING(CASE
     WHEN [t].[GearNickName] IS NOT NULL THEN [s].[Nickname]
-    ELSE NULL
 END, 0 + 1, 3)
 FROM [Tags] AS [t]
 LEFT JOIN (
@@ -9764,7 +9728,6 @@ LEFT JOIN (
             """
 SELECT [t].[Note], SUBSTRING([t].[Note], 0 + 1, CASE
     WHEN [t].[GearNickName] IS NOT NULL THEN [s].[SquadId]
-    ELSE NULL
 END) AS [Function]
 FROM [Tags] AS [t]
 LEFT JOIN (
@@ -9773,7 +9736,6 @@ LEFT JOIN (
 ) AS [s] ON [t].[GearNickName] = [s].[Nickname] AND [t].[GearSquadId] = [s].[SquadId]
 WHERE CASE
     WHEN [t].[GearNickName] IS NOT NULL THEN [s].[Nickname]
-    ELSE NULL
 END IS NOT NULL
 """);
     }
@@ -9786,13 +9748,10 @@ END IS NOT NULL
             """
 SELECT CASE
     WHEN [t].[GearNickName] IS NOT NULL THEN CAST(LEN([s].[Nickname]) AS int)
-    ELSE NULL
 END, CASE
     WHEN [t].[GearNickName] IS NOT NULL THEN [s].[SquadId]
-    ELSE NULL
 END, CASE
     WHEN [t].[GearNickName] IS NOT NULL THEN [s].[SquadId]
-    ELSE NULL
 END + 1
 FROM [Tags] AS [t]
 LEFT JOIN (
@@ -9801,7 +9760,6 @@ LEFT JOIN (
 ) AS [s] ON [t].[GearNickName] = [s].[Nickname] AND [t].[GearSquadId] = [s].[SquadId]
 WHERE CASE
     WHEN [t].[GearNickName] IS NOT NULL THEN [s].[Nickname]
-    ELSE NULL
 END IS NOT NULL
 ORDER BY [t].[Note]
 """);
@@ -9815,7 +9773,6 @@ ORDER BY [t].[Note]
             """
 SELECT CASE
     WHEN [t].[GearNickName] IS NOT NULL THEN [s].[SquadId]
-    ELSE NULL
 END AS [Id]
 FROM [Tags] AS [t]
 LEFT JOIN (
@@ -9824,7 +9781,6 @@ LEFT JOIN (
 ) AS [s] ON [t].[GearNickName] = [s].[Nickname] AND [t].[GearSquadId] = [s].[SquadId]
 WHERE CASE
     WHEN [t].[GearNickName] IS NOT NULL THEN [s].[Nickname]
-    ELSE NULL
 END IS NOT NULL
 ORDER BY [t].[Note]
 """);
@@ -9838,13 +9794,10 @@ ORDER BY [t].[Note]
             """
 SELECT CASE
     WHEN [t].[GearNickName] IS NOT NULL THEN CAST(LEN([s].[Nickname]) AS int)
-    ELSE NULL
 END, CASE
     WHEN [t].[GearNickName] IS NOT NULL THEN [s].[SquadId]
-    ELSE NULL
 END, CASE
     WHEN [t].[GearNickName] IS NOT NULL THEN [s].[SquadId]
-    ELSE NULL
 END + 1
 FROM [Tags] AS [t]
 LEFT JOIN (
@@ -9853,7 +9806,6 @@ LEFT JOIN (
 ) AS [s] ON [t].[GearNickName] = [s].[Nickname] AND [t].[GearSquadId] = [s].[SquadId]
 WHERE CASE
     WHEN [t].[GearNickName] IS NOT NULL THEN [s].[Nickname]
-    ELSE NULL
 END IS NOT NULL
 ORDER BY [t].[Note]
 """);
@@ -9873,10 +9825,8 @@ LEFT JOIN (
 ) AS [s] ON [t].[GearNickName] = [s].[Nickname] AND [t].[GearSquadId] = [s].[SquadId]
 WHERE CASE
     WHEN [t].[GearNickName] IS NOT NULL THEN [s].[Nickname]
-    ELSE NULL
 END IS NOT NULL AND CASE
     WHEN [t].[GearNickName] IS NOT NULL THEN [s].[HasSoulPatch]
-    ELSE NULL
 END = CAST(0 AS bit)
 ORDER BY [t].[Note]
 """);
@@ -9913,11 +9863,9 @@ LEFT JOIN (
 ) AS [s] ON [t].[GearNickName] = [s].[Nickname] AND [t].[GearSquadId] = [s].[SquadId]
 WHERE CASE
     WHEN [t].[GearNickName] IS NOT NULL THEN [s].[Nickname]
-    ELSE NULL
 END IS NOT NULL
 ORDER BY CASE
     WHEN [t].[GearNickName] IS NOT NULL THEN [s].[SquadId]
-    ELSE NULL
 END, [t].[Note]
 """);
     }
@@ -10122,7 +10070,7 @@ END = CAST(1 AS bit)
         await base.Where_TimeOnly_FromDateTime_compared_to_property(async);
 
         AssertSql(
-"""
+            """
 SELECT [t].[Id] AS [TagId], [m].[Id] AS [MissionId]
 FROM [Tags] AS [t]
 CROSS JOIN [Missions] AS [m]
@@ -10135,7 +10083,7 @@ WHERE CAST([t].[IssueDate] AS time) = [m].[Time]
         await base.Where_TimeOnly_FromDateTime_compared_to_parameter(async);
 
         AssertSql(
-"""
+            """
 @__time_0='02:00' (DbType = Time)
 
 SELECT [t].[Id], [t].[GearNickName], [t].[GearSquadId], [t].[IssueDate], [t].[Note]
@@ -10153,7 +10101,7 @@ WHERE [s].[Nickname] IS NOT NULL AND [s].[SquadId] IS NOT NULL AND CAST(DATEADD(
         await base.Where_TimeOnly_FromDateTime_compared_to_constant(async);
 
         AssertSql(
-"""
+            """
 SELECT [t].[Id], [t].[GearNickName], [t].[GearSquadId], [t].[IssueDate], [t].[Note]
 FROM [Tags] AS [t]
 WHERE CAST(DATEADD(hour, CAST(CAST(CAST(LEN([t].[Note]) AS int) AS float) AS int), [t].[IssueDate]) AS time) > '09:00:00'
@@ -10165,7 +10113,7 @@ WHERE CAST(DATEADD(hour, CAST(CAST(CAST(LEN([t].[Note]) AS int) AS float) AS int
         await base.Where_TimeOnly_FromTimeSpan_compared_to_property(async);
 
         AssertSql(
-"""
+            """
 SELECT [m].[Id], [m].[CodeName], [m].[Date], [m].[Difficulty], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
 FROM [Missions] AS [m]
 WHERE CAST([m].[Duration] AS time) < [m].[Time]
@@ -10177,7 +10125,7 @@ WHERE CAST([m].[Duration] AS time) < [m].[Time]
         await base.Where_TimeOnly_FromTimeSpan_compared_to_parameter(async);
 
         AssertSql(
-"""
+            """
 @__time_0='01:02' (DbType = Time)
 
 SELECT [m].[Id], [m].[CodeName], [m].[Date], [m].[Difficulty], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
@@ -10191,7 +10139,7 @@ WHERE CAST([m].[Duration] AS time) = @__time_0
         await base.Order_by_TimeOnly_FromTimeSpan(async);
 
         AssertSql(
-"""
+            """
 SELECT [m].[Id], [m].[CodeName], [m].[Date], [m].[Difficulty], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
 FROM [Missions] AS [m]
 ORDER BY CAST([m].[Duration] AS time)
@@ -10203,7 +10151,7 @@ ORDER BY CAST([m].[Duration] AS time)
         await base.Where_DateOnly_FromDateTime_compared_to_property(async);
 
         AssertSql(
-"""
+            """
 SELECT [t].[Id] AS [TagId], [m].[Id] AS [MissionId]
 FROM [Tags] AS [t]
 CROSS JOIN [Missions] AS [m]
@@ -10216,7 +10164,7 @@ WHERE CAST([t].[IssueDate] AS date) > [m].[Date]
         await base.Where_DateOnly_FromDateTime_compared_to_constant_and_parameter(async);
 
         AssertSql(
-"""
+            """
 @__prm_0='10/11/0002' (DbType = Date)
 
 SELECT [t].[Id], [t].[GearNickName], [t].[GearSquadId], [t].[IssueDate], [t].[Note]
@@ -10841,7 +10789,27 @@ GROUP BY [m].[CodeName]
 SELECT CASE [l].[Eradicated]
     WHEN CAST(0 AS bit) THEN N'False'
     WHEN CAST(1 AS bit) THEN N'True'
-    ELSE NULL
+    ELSE N''
+END
+FROM [Factions] AS [f]
+INNER JOIN [LocustHordes] AS [l] ON [f].[Id] = [l].[Id]
+""");
+    }
+
+    [ConditionalTheory(Skip = "Issue #34001 SqlServer never returns null for bool?")]
+    public override async Task ToString_boolean_computed_nullable(bool async)
+    {
+        await base.ToString_boolean_computed_nullable(async);
+
+        AssertSql(
+            """
+SELECT CASE CASE
+    WHEN NOT ([l].[Eradicated] = CAST(1 AS bit) OR ([l].[CommanderName] = N'Unknown' AND [l].[CommanderName] IS NOT NULL)) THEN CAST(0 AS bit)
+    WHEN [l].[Eradicated] = CAST(1 AS bit) OR ([l].[CommanderName] = N'Unknown' AND [l].[CommanderName] IS NOT NULL) THEN CAST(1 AS bit)
+END
+    WHEN CAST(0 AS bit) THEN N'False'
+    WHEN CAST(1 AS bit) THEN N'True'
+    ELSE N''
 END
 FROM [Factions] AS [f]
 INNER JOIN [LocustHordes] AS [l] ON [f].[Id] = [l].[Id]
@@ -11659,7 +11627,7 @@ ORDER BY [g].[Nickname], [g].[SquadId], [w1].[OwnerFullName], [w1].[Id]
         await base.Include_one_to_many_on_composite_key_then_orderby_key_properties(async);
 
         AssertSql(
-"""
+            """
 SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], CASE
     WHEN [o].[Nickname] IS NOT NULL THEN N'Officer'
 END AS [Discriminator], [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
@@ -11827,7 +11795,7 @@ ORDER BY [g].[Nickname], [g].[SquadId], [s].[Nickname], [s].[SquadId]
         await base.Derived_reference_is_skipped_when_base_type(async);
 
         AssertSql(
-"""
+            """
 SELECT [l].[Name], [l].[LocustHordeId], [l].[ThreatLevel], [l].[ThreatLevelByte], [l].[ThreatLevelNullableByte], [l0].[DefeatedByNickname], [l0].[DefeatedBySquadId], [l0].[HighCommandId], CASE
     WHEN [l0].[Name] IS NOT NULL THEN N'LocustCommander'
 END AS [Discriminator], [l1].[Id], [l1].[IsOperational], [l1].[Name]

@@ -148,7 +148,8 @@ public abstract partial class ModelBuilderTest
             Fixture.TestHelpers.ModelAsserter.AssertEqual(
                 initialProperties.Where(p => p.Name != "Discriminator"),
                 actualProperties.Where(p => p.Name != "Discriminator"));
-            Assert.Equal(initialKeys, pickle.GetKeys(),
+            Assert.Equal(
+                initialKeys, pickle.GetKeys(),
                 (expected, actual) =>
                 {
                     Fixture.TestHelpers.ModelAsserter.AssertEqual(
@@ -179,7 +180,8 @@ public abstract partial class ModelBuilderTest
             Fixture.TestHelpers.ModelAsserter.AssertEqual(
                 initialProperties.Where(p => p.Name != "Discriminator"),
                 actualProperties.Where(p => p.Name != "Discriminator"));
-            Assert.Equal(initialKeys, ingredient.GetKeys(),
+            Assert.Equal(
+                initialKeys, ingredient.GetKeys(),
                 (expected, actual) =>
                 {
                     Fixture.TestHelpers.ModelAsserter.AssertEqual(
@@ -782,12 +784,12 @@ public abstract partial class ModelBuilderTest
             Assert.Null(model.FindEntityType(typeof(BookLabel).FullName));
             foreach (var entityType in model.GetEntityTypes())
             {
-                Assert.Empty(
-                    entityType.GetForeignKeys()
-                        .Where(fk => fk.PrincipalEntityType.ClrType == typeof(BookLabel)));
-                Assert.Empty(
-                    entityType.GetForeignKeys()
-                        .Where(fk => fk.PrincipalKey.DeclaringEntityType.ClrType == typeof(BookLabel)));
+                Assert.DoesNotContain(
+                    entityType.GetForeignKeys(),
+                    fk => fk.PrincipalEntityType.ClrType == typeof(BookLabel));
+                Assert.DoesNotContain(
+                    entityType.GetForeignKeys(),
+                    fk => fk.PrincipalKey.DeclaringEntityType.ClrType == typeof(BookLabel));
             }
         }
 

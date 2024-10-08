@@ -11,9 +11,7 @@ public class NorthwindSqlQuerySqliteTest : NorthwindSqlQueryTestBase<NorthwindQu
 {
     public NorthwindSqlQuerySqliteTest(NorthwindQuerySqliteFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)
         : base(fixture)
-    {
-        Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
-    }
+        => Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
 
     protected override DbParameter CreateDbParameter(string name, object value)
         => new SqliteParameter { ParameterName = name, Value = value };

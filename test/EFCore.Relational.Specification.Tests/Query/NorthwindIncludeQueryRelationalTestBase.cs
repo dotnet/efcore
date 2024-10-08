@@ -5,14 +5,9 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public abstract class NorthwindIncludeQueryRelationalTestBase<TFixture> : NorthwindIncludeQueryTestBase<TFixture>
+public abstract class NorthwindIncludeQueryRelationalTestBase<TFixture>(TFixture fixture) : NorthwindIncludeQueryTestBase<TFixture>(fixture)
     where TFixture : NorthwindQueryFixtureBase<NoopModelCustomizer>, new()
 {
-    protected NorthwindIncludeQueryRelationalTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-
     public override async Task Include_collection_with_last_no_orderby(bool async)
         => Assert.Equal(
             RelationalStrings.LastUsedWithoutOrderBy(nameof(Enumerable.Last)),

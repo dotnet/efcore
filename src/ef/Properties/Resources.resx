@@ -297,6 +297,12 @@
   <data name="NamespaceDescription" xml:space="preserve">
     <value>The namespace to use. Matches the directory by default.</value>
   </data>
+  <data name="NativeAotDescription" xml:space="preserve">
+    <value>Additionally generate all the code required for NativeAOT compilation and precompiled queries (experimental).</value>
+  </data>
+  <data name="NativeAotWarning" xml:space="preserve">
+    <value>NativeAOT support is experimental and can change in the future.</value>
+  </data>
   <data name="NoColorDescription" xml:space="preserve">
     <value>Don't colorize output.</value>
   </data>

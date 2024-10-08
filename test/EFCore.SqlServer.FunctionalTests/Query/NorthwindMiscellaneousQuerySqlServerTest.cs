@@ -1009,16 +1009,24 @@ END, [p].[ProductID]
     }
 
     public override async Task OrderBy_ternary_conditions(bool async)
-        => await base.OrderBy_ternary_conditions(async);
+    {
+        await base.OrderBy_ternary_conditions(async);
 
-    // issue #18774
-    //            AssertSql(
-    //                @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
-    //FROM [Products] AS [p]
-    //ORDER BY CASE
-    //    WHEN (([p].[UnitsInStock] > CAST(10 AS smallint)) AND ([p].[ProductID] > 40)) OR (([p].[UnitsInStock] <= CAST(10 AS smallint)) AND ([p].[ProductID] <= 40))
-    //    THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
-    //END, [p].[ProductID]");
+        AssertSql(
+            """
+SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
+FROM [Products] AS [p]
+ORDER BY CASE
+    WHEN [p].[UnitsInStock] > CAST(10 AS smallint) THEN CASE
+        WHEN [p].[ProductID] > 40 THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END
+    WHEN [p].[ProductID] <= 40 THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END, [p].[ProductID]
+""");
+    }
+
     public override async Task OrderBy_any(bool async)
     {
         await base.OrderBy_any(async);
@@ -1589,6 +1597,52 @@ WHERE EXISTS (
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[City] = N'London' AND EXISTS (
+    SELECT 1
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID] AND [o].[EmployeeID] = 1)
+""");
+    }
+
+    public override async Task Any_on_distinct(bool async)
+    {
+        await base.Any_on_distinct(async);
+
+        AssertSql(
+            """
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE EXISTS (
+    SELECT 1
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID] AND ([o].[EmployeeID] <> 1 OR [o].[EmployeeID] IS NULL))
+""");
+    }
+
+    public override async Task Contains_on_distinct(bool async)
+    {
+        await base.Contains_on_distinct(async);
+
+        AssertSql(
+            """
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE 1 IN (
+    SELECT [o].[EmployeeID]
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+)
+""");
+    }
+
+    public override async Task All_on_distinct(bool async)
+    {
+        await base.All_on_distinct(async);
+
+        AssertSql(
+            """
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE NOT EXISTS (
     SELECT 1
     FROM [Orders] AS [o]
     WHERE [c].[CustomerID] = [o].[CustomerID] AND [o].[EmployeeID] = 1)
@@ -3428,7 +3482,7 @@ ORDER BY (
             """
 SELECT [o].[CustomerID]
 FROM [Orders] AS [o]
-WHERE [o].[OrderDate] IS NOT NULL AND CONVERT(varchar(10), [o].[EmployeeID]) LIKE '%7%'
+WHERE [o].[OrderDate] IS NOT NULL AND COALESCE(CONVERT(varchar(10), [o].[EmployeeID]), '') LIKE '%7%'
 """);
     }
 
@@ -3480,7 +3534,7 @@ WHERE [o].[OrderDate] IS NOT NULL
 
         AssertSql(
             """
-SELECT CONVERT(varchar(100), [o].[OrderDate]) AS [ShipName]
+SELECT COALESCE(CONVERT(varchar(100), [o].[OrderDate]), '') AS [ShipName]
 FROM [Orders] AS [o]
 WHERE [o].[OrderDate] IS NOT NULL
 """);
@@ -4053,7 +4107,7 @@ WHERE [c].[CustomerID] = N'ALFKI' AND EXISTS (
         SELECT 1
         FROM [Customers] AS [c1]
         WHERE EXISTS (
-            SELECT DISTINCT 1
+            SELECT 1
             FROM (
                 SELECT TOP(10) 1 AS empty
                 FROM [Customers] AS [c2]
@@ -4690,11 +4744,8 @@ FROM (
 
         AssertSql(
             """
-SELECT MAX([o0].[OrderID])
-FROM (
-    SELECT DISTINCT [o].[OrderID]
-    FROM [Orders] AS [o]
-) AS [o0]
+SELECT MAX([o].[OrderID])
+FROM [Orders] AS [o]
 """);
     }
 
@@ -4704,11 +4755,8 @@ FROM (
 
         AssertSql(
             """
-SELECT MIN([o0].[OrderID])
-FROM (
-    SELECT DISTINCT [o].[OrderID]
-    FROM [Orders] AS [o]
-) AS [o0]
+SELECT MIN([o].[OrderID])
+FROM [Orders] AS [o]
 """);
     }
 
@@ -5873,7 +5921,6 @@ SELECT [c].[CustomerID], CASE
         SELECT TOP(1) [o0].[OrderDate]
         FROM [Orders] AS [o0]
         WHERE [c].[CustomerID] = [o0].[CustomerID])
-    ELSE NULL
 END AS [OrderDate]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'F%'
@@ -7256,7 +7303,7 @@ ORDER BY (
 
     public override async Task Contains_over_concatenated_columns_with_different_sizes(bool async)
     {
-        await base.Contains_over_concatenated_columns_with_different_sizes (async);
+        await base.Contains_over_concatenated_columns_with_different_sizes(async);
 
         AssertSql(
             """
@@ -7273,7 +7320,7 @@ WHERE [c].[CustomerID] + [c].[CompanyName] IN (
 
     public override async Task Contains_over_concatenated_column_and_constant(bool async)
     {
-        await base.Contains_over_concatenated_column_and_constant (async);
+        await base.Contains_over_concatenated_column_and_constant(async);
 
         AssertSql(
             """
@@ -7339,13 +7386,10 @@ WHERE @__Contains_0 = CAST(1 AS bit)
     }
 
     public override async Task Compiler_generated_local_closure_produces_valid_parameter_name(bool async)
-    {
-        await base.Compiler_generated_local_closure_produces_valid_parameter_name(async);
+        => await base.Compiler_generated_local_closure_produces_valid_parameter_name(async);
 
-        // No AssertSQL since compiler generated variable names are different between local and CI
-        //AssertSql("");
-    }
-
+    // No AssertSQL since compiler generated variable names are different between local and CI
+    //AssertSql("");
     public override async Task Static_member_access_gets_parameterized_within_larger_evaluatable(bool async)
     {
         await base.Static_member_access_gets_parameterized_within_larger_evaluatable(async);
@@ -7357,6 +7401,46 @@ WHERE @__Contains_0 = CAST(1 AS bit)
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] = @__p_0
+""");
+    }
+
+    public override async Task Select_Order(bool async)
+    {
+        await base.Select_Order(async);
+
+        AssertSql(
+            """
+SELECT [c].[CustomerID]
+FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]
+""");
+    }
+
+    public override async Task Select_OrderDescending(bool async)
+    {
+        await base.Select_OrderDescending(async);
+
+        AssertSql(
+            """
+SELECT [c].[CustomerID]
+FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID] DESC
+""");
+    }
+
+    public override async Task Where_Order_First(bool async)
+    {
+        await base.Where_Order_First(async);
+
+        AssertSql(
+            """
+SELECT [c].[CustomerID]
+FROM [Customers] AS [c]
+WHERE (
+    SELECT TOP(1) [o].[OrderID]
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+    ORDER BY [o].[OrderID]) = 10248
 """);
     }
 

@@ -6,14 +6,9 @@ using Microsoft.EntityFrameworkCore.TestModels;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore;
 
-public abstract class EndToEndTest : IAsyncLifetime
+public abstract class EndToEndTest(CrossStoreFixture fixture) : IAsyncLifetime
 {
-    protected EndToEndTest(CrossStoreFixture fixture)
-    {
-        Fixture = fixture;
-    }
-
-    protected CrossStoreFixture Fixture { get; }
+    protected CrossStoreFixture Fixture { get; } = fixture;
     protected abstract ITestStoreFactory TestStoreFactory { get; }
     protected TestStore TestStore { get; private set; }
 
@@ -69,11 +64,8 @@ public abstract class EndToEndTest : IAsyncLifetime
     public async Task InitializeAsync()
         => TestStore = await Fixture.CreateTestStoreAsync(TestStoreFactory, "CrossStoreTest");
 
-    public Task DisposeAsync()
-    {
-        TestStore.Dispose();
-        return Task.CompletedTask;
-    }
+    public async Task DisposeAsync()
+        => await TestStore.DisposeAsync();
 }
 
 public class InMemoryEndToEndTest(CrossStoreFixture fixture) : EndToEndTest(fixture), IClassFixture<CrossStoreFixture>

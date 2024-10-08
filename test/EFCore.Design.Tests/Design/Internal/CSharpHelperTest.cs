@@ -846,13 +846,8 @@ public class CSharpHelperTest
             => throw new NotSupportedException();
     }
 
-    private class SimpleTestNonImplementedTypeMapping : RelationalTypeMapping
+    private class SimpleTestNonImplementedTypeMapping() : RelationalTypeMapping("storeType", typeof(SimpleTestType))
     {
-        public SimpleTestNonImplementedTypeMapping()
-            : base("storeType", typeof(SimpleTestType))
-        {
-        }
-
         protected override RelationalTypeMapping Clone(RelationalTypeMappingParameters parameters)
             => throw new NotSupportedException();
     }
@@ -899,9 +894,7 @@ internal class SimpleTestTypeFactory
     }
 
     public SimpleTestTypeFactory(string factoryArg)
-    {
-        FactoryArg = factoryArg;
-    }
+        => FactoryArg = factoryArg;
 
     public string FactoryArg { get; } = null!;
 

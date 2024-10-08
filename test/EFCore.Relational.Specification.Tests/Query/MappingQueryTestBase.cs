@@ -8,15 +8,11 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public abstract class MappingQueryTestBase<TFixture> : IClassFixture<TFixture>
+public abstract class MappingQueryTestBase<TFixture>(MappingQueryTestBase<TFixture>.MappingQueryFixtureBase fixture)
+    : IClassFixture<TFixture>
     where TFixture : MappingQueryTestBase<TFixture>.MappingQueryFixtureBase, new()
 {
-    protected MappingQueryTestBase(MappingQueryFixtureBase fixture)
-    {
-        Fixture = fixture;
-    }
-
-    protected MappingQueryFixtureBase Fixture { get; }
+    protected MappingQueryFixtureBase Fixture { get; } = fixture;
 
     [ConditionalFact]
     public virtual void All_customers()

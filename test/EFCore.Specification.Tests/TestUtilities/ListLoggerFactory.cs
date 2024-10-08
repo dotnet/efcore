@@ -18,7 +18,7 @@ public class ListLoggerFactory(Func<string, bool> shouldLogCategory) : ILoggerFa
     public List<(LogLevel Level, EventId Id, string? Message, object? State, Exception? Exception)> Log
         => Logger.LoggedEvents;
 
-    protected ListLogger Logger { get; set; } = new ListLogger();
+    protected ListLogger Logger { get; set; } = new();
 
     public virtual void Clear()
         => Logger.Clear();
@@ -48,12 +48,7 @@ public class ListLoggerFactory(Func<string, bool> shouldLogCategory) : ILoggerFa
     }
 
     private void CheckDisposed()
-    {
-        if (_disposed)
-        {
-            throw new ObjectDisposedException(nameof(ListLoggerFactory));
-        }
-    }
+        => ObjectDisposedException.ThrowIf(_disposed, typeof(ListLoggerFactory));
 
     public void AddProvider(ILoggerProvider provider)
         => CheckDisposed();
@@ -154,7 +149,8 @@ public class ListLoggerFactory(Func<string, bool> shouldLogCategory) : ILoggerFa
         public IDisposable? BeginScope(object state)
             => null;
 
-        public IDisposable? BeginScope<TState>(TState state)  where TState : notnull
+        public IDisposable? BeginScope<TState>(TState state)
+            where TState : notnull
             => null;
 
         public void SuspendTestOutput(bool writeAllPreviousMessages = true)

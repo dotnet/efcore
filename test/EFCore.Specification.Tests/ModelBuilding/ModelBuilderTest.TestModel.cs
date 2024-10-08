@@ -1,6 +1,7 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
@@ -463,7 +464,11 @@ public abstract partial class ModelBuilderTest
     {
         public int Id { get; set; }
 
-        public List<DependentEntity>? InverseNav { get; set; }
+        public MyList<DependentEntity>? InverseNav { get; set; }
+    }
+
+    protected class MyList<T> : List<T>
+    {
     }
 
     protected class DependentEntity
@@ -780,9 +785,12 @@ public abstract partial class ModelBuilderTest
         public ValueCategory? Category { get; set; }
     }
 
-    protected class CustomId
+    protected class CustomId : IEnumerable<byte>
     {
         public int Id { get; set; }
+
+        public IEnumerator<byte> GetEnumerator() => throw new NotImplementedException();
+        IEnumerator IEnumerable.GetEnumerator() => throw new NotImplementedException();
     }
 
     protected class ValueCategory
@@ -1031,12 +1039,7 @@ public abstract partial class ModelBuilderTest
 
     protected class ManyToManyNavPrincipal
     {
-        private readonly List<NavDependent> _randomField;
-
-        public ManyToManyNavPrincipal()
-        {
-            _randomField = [];
-        }
+        private readonly List<NavDependent> _randomField = [];
 
         public int Id { get; set; }
         public string? Name { get; set; }
@@ -1109,16 +1112,23 @@ public abstract partial class ModelBuilderTest
 
     protected class Ownee1
     {
+        public string Data { get; private set; } = "";
+
+        public OwnerOfOwnees Owner { get; private set; } = null!;
         public Ownee3? NewOwnee3 { get; private set; }
     }
 
     protected class Ownee2
     {
+        public Guid Data { get; private set; }
+
         public Ownee3? Ownee3 { get; private set; }
     }
 
     protected class Ownee3
     {
+        public DateTime Data { get; private set; }
+
         public string? Name { get; private set; }
     }
 
@@ -1186,6 +1196,7 @@ public abstract partial class ModelBuilderTest
         public OneToManyOwnerWithField? OneToManyOwner { get; set; }
     }
 
+    [Index(nameof(OwnedDependent))]
     protected class OneToOneOwnerWithField
     {
         public int Id;

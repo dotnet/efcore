@@ -32,10 +32,34 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 ttl1, entityType1, entityType2, ttl2, container);
 
         /// <summary>
+        ///     The type '{givenType}' cannot be mapped as a dictionary because it does not implement '{dictionaryType}'.
+        /// </summary>
+        public static string BadDictionaryType(object? givenType, object? dictionaryType)
+            => string.Format(
+                GetString("BadDictionaryType", nameof(givenType), nameof(dictionaryType)),
+                givenType, dictionaryType);
+
+        /// <summary>
+        ///     The type '{clrType}' is being used as a vector, but the vector data type cannot be inferred. Only 'ReadOnlyMemory&lt;byte&gt;, ReadOnlyMemory&lt;sbyte&gt;, ReadOnlyMemory&lt;float&gt;, byte[], sbyte[], and float[] are supported.
+        /// </summary>
+        public static string BadVectorDataType(object? clrType)
+            => string.Format(
+                GetString("BadVectorDataType", nameof(clrType)),
+                clrType);
+
+        /// <summary>
         ///     The Cosmos database does not support 'CanConnect' or 'CanConnectAsync'.
         /// </summary>
         public static string CanConnectNotSupported
             => GetString("CanConnectNotSupported");
+
+        /// <summary>
+        ///     A vector index on '{entityType}' is defined over properties `{properties}`. A vector index can only target a single property.
+        /// </summary>
+        public static string CompositeVectorIndex(object? entityType, object? properties)
+            => string.Format(
+                GetString("CompositeVectorIndex", nameof(entityType), nameof(properties)),
+                entityType, properties);
 
         /// <summary>
         ///     Complex projections in subqueries are currently unsupported.
@@ -58,6 +82,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 entityType, container, property);
 
         /// <summary>
+        ///     An Azure Cosmos DB container name is defined on entity type '{entityType}', which inherits from '{baseEntityType}'. Container names must be defined on the root entity type of a hierarchy.
+        /// </summary>
+        public static string ContainerNotOnRoot(object? entityType, object? baseEntityType)
+            => string.Format(
+                GetString("ContainerNotOnRoot", nameof(entityType), nameof(baseEntityType)),
+                entityType, baseEntityType);
+
+        /// <summary>
         ///     Cosmos-specific methods can only be used when the context is using the Cosmos provider.
         /// </summary>
         public static string CosmosNotInUse
@@ -78,12 +110,28 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 ttl1, entityType1, entityType2, ttl2, container);
 
         /// <summary>
+        ///     'HasDiscriminatorInJsonId' or 'HasRootDiscriminatorInJsonId' was called on a non-root entity type '{entityType}'. Discriminator configuration for the JSON 'id' property can only be made on the document root.
+        /// </summary>
+        public static string DiscriminatorInKeyOnNonRoot(object? entityType)
+            => string.Format(
+                GetString("DiscriminatorInKeyOnNonRoot", nameof(entityType)),
+                entityType);
+
+        /// <summary>
         ///     The discriminator value for '{entityType1}' is '{discriminatorValue}' which is the same for '{entityType2}'. Every concrete entity type mapped to the container '{container}' must have a unique discriminator value.
         /// </summary>
         public static string DuplicateDiscriminatorValue(object? entityType1, object? discriminatorValue, object? entityType2, object? container)
             => string.Format(
                 GetString("DuplicateDiscriminatorValue", nameof(entityType1), nameof(discriminatorValue), nameof(entityType2), nameof(container)),
                 entityType1, discriminatorValue, entityType2, container);
+
+        /// <summary>
+        ///     The property '{propertyType} {structuralType}.{property}' has element type '{elementType}', which requires a value converter. Elements types requiring value converters are not currently supported with the Azure Cosmos DB database provider.
+        /// </summary>
+        public static string ElementWithValueConverter(object? propertyType, object? structuralType, object? property, object? elementType)
+            => string.Format(
+                GetString("ElementWithValueConverter", nameof(propertyType), nameof(structuralType), nameof(property), nameof(elementType)),
+                propertyType, structuralType, property, elementType);
 
         /// <summary>
         ///     The type of the etag property '{property}' on '{entityType}' is '{propertyType}'. All etag properties must be strings or have a string value converter.
@@ -100,20 +148,20 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
             => GetString("ExceptNotSupported");
 
         /// <summary>
+        ///     'HasShadowId' was called on a non-root entity type '{entityType}'. JSON 'id' configuration can only be made on the document root.
+        /// </summary>
+        public static string HasShadowIdOnNonRoot(object? entityType)
+            => string.Format(
+                GetString("HasShadowIdOnNonRoot", nameof(entityType)),
+                entityType);
+
+        /// <summary>
         ///     The type of the '{idProperty}' property on '{entityType}' is '{propertyType}'. All 'id' properties must be strings or have a string value converter.
         /// </summary>
         public static string IdNonStringStoreType(object? idProperty, object? entityType, object? propertyType)
             => string.Format(
                 GetString("IdNonStringStoreType", nameof(idProperty), nameof(entityType), nameof(propertyType)),
                 idProperty, entityType, propertyType);
-
-        /// <summary>
-        ///     {actual} partition key values were provided, but the entity type '{entityType}' has {expected} partition key values defined.
-        /// </summary>
-        public static string IncorrectPartitionKeyNumber(object? entityType, object? actual, object? expected)
-            => string.Format(
-                GetString("IncorrectPartitionKeyNumber", nameof(entityType), nameof(actual), nameof(expected)),
-                entityType, actual, expected);
 
         /// <summary>
         ///     The entity type '{entityType}' has an index defined over properties '{properties}'. The Azure Cosmos DB provider for EF Core currently does not support index definitions.
@@ -206,14 +254,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 entityType, container);
 
         /// <summary>
-        ///     The entity type '{entityType}' does not have a key declared on the '{idProperty}' property. Add a key to '{entityType}' that contains '{idProperty}'.
-        /// </summary>
-        public static string NoIdKey(object? entityType, object? idProperty)
-            => string.Format(
-                GetString("NoIdKey", nameof(entityType), nameof(idProperty)),
-                entityType, idProperty);
-
-        /// <summary>
         ///     The entity type '{entityType}' does not have a property mapped to the 'id' property in the database. Add a property mapped to 'id'.
         /// </summary>
         public static string NoIdProperty(object? entityType)
@@ -252,14 +292,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 entityType1, props1, entityType2, props2, containerName);
 
         /// <summary>
-        ///     The entity type '{entityType}' does not have a key declared on '{partitionKey}' and '{idProperty}' properties. Add a key to '{entityType}' that contains '{partitionKey}' and '{idProperty}'.
-        /// </summary>
-        public static string NoPartitionKeyKey(object? entityType, object? partitionKey, object? idProperty)
-            => string.Format(
-                GetString("NoPartitionKeyKey", nameof(entityType), nameof(partitionKey), nameof(idProperty)),
-                entityType, partitionKey, idProperty);
-
-        /// <summary>
         ///     There is no string-based representation of this query as it's executed using 'ReadItemQueryAsync({resourceId}, {partitionKey})'.
         /// </summary>
         public static string NoReadItemQueryString(object? resourceId, object? partitionKey)
@@ -272,6 +304,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
         /// </summary>
         public static string NoSubqueryPushdown
             => GetString("NoSubqueryPushdown");
+
+        /// <summary>
+        ///     Container configuration for embeddings is not yet supported by the Cosmos SDK. Instead, configure the container manually. See https://aka.ms/ef-cosmos-vectors for more information.
+        /// </summary>
+        public static string NoVectorContainerConfig
+            => GetString("NoVectorContainerConfig");
 
         /// <summary>
         ///     The expression '{sqlExpression}' in the SQL tree does not have a type mapping assigned.
@@ -342,6 +380,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
             => string.Format(
                 GetString("PartitionKeyBadValueType", nameof(propertyType), nameof(entityType), nameof(property), nameof(valueType)),
                 propertyType, entityType, property, valueType);
+
+        /// <summary>
+        ///     A partition key is defined on entity type '{entityType}', which inherits from '{baseEntityType}'. Partition keys must be defined on the root entity type of a hierarchy.
+        /// </summary>
+        public static string PartitionKeyNotOnRoot(object? entityType, object? baseEntityType)
+            => string.Format(
+                GetString("PartitionKeyNotOnRoot", nameof(entityType), nameof(baseEntityType)),
+                entityType, baseEntityType);
 
         /// <summary>
         ///     Unable to execute a 'ReadItem' query since the partition key value is missing. Consider using the 'WithPartitionKey' method on the query to specify partition key to use.
@@ -436,6 +482,20 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
             => string.Format(
                 GetString("UpdateStoreException", nameof(itemId)),
                 itemId);
+
+        /// <summary>
+        ///     A vector index is defined for `{entityType}.{property}`, but this property has not been configured as a vector. Use 'IsVector()' in 'OnModelCreating' to configure the property as a vector.
+        /// </summary>
+        public static string VectorIndexOnNonVector(object? entityType, object? property)
+            => string.Format(
+                GetString("VectorIndexOnNonVector", nameof(entityType), nameof(property)),
+                entityType, property);
+
+        /// <summary>
+        ///     The 'VectorDistance' function can only be used with a property mapped as a vector. Use 'IsVector()' in 'OnModelCreating' to configure the property as a vector.
+        /// </summary>
+        public static string VectorSearchRequiresVector
+            => GetString("VectorSearchRequiresVector");
 
         /// <summary>
         ///     'VisitChildren' must be overridden in the class deriving from 'SqlExpression'.
@@ -682,6 +742,31 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
             }
 
             return (EventDefinition<string>)definition;
+        }
+
+        /// <summary>
+        ///     The key property '{entityType}.{property}' is not configured to generate values and has the CLR default or sentinel value while saving a new entity to the database. The Azure Cosmos DB database provider for EF Core does not generate key values by default. This means key values must be explicitly set before saving new entities. See https://aka.ms/ef-cosmos-keys for more information.
+        /// </summary>
+        public static EventDefinition<string, string> LogPrimaryKeyValueNotSet(IDiagnosticsLogger logger)
+        {
+            var definition = ((Diagnostics.Internal.CosmosLoggingDefinitions)logger.Definitions).LogPrimaryKeyValueNotSet;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((Diagnostics.Internal.CosmosLoggingDefinitions)logger.Definitions).LogPrimaryKeyValueNotSet,
+                    logger,
+                    static logger => new EventDefinition<string, string>(
+                        logger.Options,
+                        CosmosEventId.PrimaryKeyValueNotSet,
+                        LogLevel.Warning,
+                        "CosmosEventId.PrimaryKeyValueNotSet",
+                        level => LoggerMessage.Define<string, string>(
+                            level,
+                            CosmosEventId.PrimaryKeyValueNotSet,
+                            _resourceManager.GetString("LogPrimaryKeyValueNotSet")!)));
+            }
+
+            return (EventDefinition<string, string>)definition;
         }
 
         /// <summary>

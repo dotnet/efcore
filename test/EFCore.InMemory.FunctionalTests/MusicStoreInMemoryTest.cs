@@ -3,7 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class MusicStoreInMemoryTest(MusicStoreInMemoryTest.MusicStoreInMemoryFixture fixture) : MusicStoreTestBase<MusicStoreInMemoryTest.MusicStoreInMemoryFixture>(fixture)
+public class MusicStoreInMemoryTest(MusicStoreInMemoryTest.MusicStoreInMemoryFixture fixture)
+    : MusicStoreTestBase<MusicStoreInMemoryTest.MusicStoreInMemoryFixture>(fixture)
 {
     public class MusicStoreInMemoryFixture : MusicStoreFixtureBase
     {

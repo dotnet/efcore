@@ -115,6 +115,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 annotation, annotatable);
 
         /// <summary>
+        ///     The '{parameter}' value passed to '{methodName}' must be a constant.
+        /// </summary>
+        public static string ArgumentNotConstant(object? parameter, object? methodName)
+            => string.Format(
+                GetString("ArgumentNotConstant", nameof(parameter), nameof(methodName)),
+                parameter, methodName);
+
+        /// <summary>
         ///     The property '{property}' of the argument '{argument}' cannot be null.
         /// </summary>
         public static string ArgumentPropertyNull(object? property, object? argument)
@@ -995,6 +1003,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("EFConstantInvoked");
 
         /// <summary>
+        ///     'EF.Constant()' isn't supported your by provider.
+        /// </summary>
+        public static string EFConstantNotSupported
+            => GetString("EFConstantNotSupported");
+
+        /// <summary>
         ///     The EF.Constant&lt;T&gt; method is not supported when using precompiled queries.
         /// </summary>
         public static string EFConstantNotSupportedInPrecompiledQueries
@@ -1139,6 +1153,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("ErrorMaterializingPropertyInvalidCast", nameof(entityType), nameof(property), nameof(expectedType), nameof(actualType)),
                 entityType, property, expectedType, actualType);
+
+        /// <summary>
+        ///     The methods '{methodName}' and '{asyncMethodName}' are not supported by the current database provider. Please contact the publisher of the database provider for more information. 
+        /// </summary>
+        public static string ExecuteQueriesNotSupported(object? methodName, object? asyncMethodName)
+            => string.Format(
+                GetString("ExecuteQueriesNotSupported", nameof(methodName), nameof(asyncMethodName)),
+                methodName, asyncMethodName);
 
         /// <summary>
         ///     The configured execution strategy '{strategy}' does not support user-initiated transactions. Use the execution strategy returned by '{getExecutionStrategyMethod}' to execute all the operations in the transaction as a retriable unit.
@@ -1806,12 +1828,24 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("MemberMemberBindingNotSupported");
 
         /// <summary>
+        ///     An asynchronous store managment operation was performed and no asynchronous seed delegate has been provided, however a synchronous seed delegate was. Set 'UseAsyncSeeding' option with a delegate equivalent to the one supplied in 'UseSeeding'.
+        /// </summary>
+        public static string MissingAsyncSeeder
+            => GetString("MissingAsyncSeeder");
+
+        /// <summary>
         ///     The specified field '{field}' could not be found for property '{2_entityType}.{1_property}'.
         /// </summary>
         public static string MissingBackingField(object? field, object? property, object? entityType)
             => string.Format(
                 GetString("MissingBackingField", nameof(field), "1_property", "2_entityType"),
                 field, property, entityType);
+
+        /// <summary>
+        ///     A synchronous store managment operation was performed and no synchronous seed delegate has been provided, however an asynchronous seed delegate was. Set 'UseSeeding' option with a delegate equivalent to the one supplied in 'UseAsyncSeeding'.
+        /// </summary>
+        public static string MissingSeeder
+            => GetString("MissingSeeder");
 
         /// <summary>
         ///     Runtime metadata changes are not allowed when the model hasn't been marked as read-only.
@@ -2144,6 +2178,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("NonNotifyingCollection", "0_navigation", "1_entityType", "2_collectionType", nameof(changeTrackingStrategy)),
                 navigation, entityType, collectionType, changeTrackingStrategy);
+
+        /// <summary>
+        ///     The LINQ expression '{expression}' could not be translated. Additional information: {details} See https://go.microsoft.com/fwlink/?linkid=2101038 for more information.
+        /// </summary>
+        public static string NonQueryTranslationFailedWithDetails(object? expression, object? details)
+            => string.Format(
+                GetString("NonQueryTranslationFailedWithDetails", nameof(expression), nameof(details)),
+                expression, details);
 
         /// <summary>
         ///     The foreign key {foreignKeyProperties} on the entity type '{declaringEntityType}' cannot have a required dependent end since it is not unique.
@@ -2908,6 +2950,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("SetOperationWithDifferentIncludesInOperands");
 
         /// <summary>
+        ///     The SetProperty&lt;TProperty&gt; method can only be used within 'ExecuteUpdate' method.
+        /// </summary>
+        public static string SetPropertyMethodInvoked
+            => GetString("SetPropertyMethodInvoked");
+
+        /// <summary>
         ///     The shared-type entity type '{entityType}' cannot have a base type.
         /// </summary>
         public static string SharedTypeDerivedType(object? entityType)
@@ -3250,6 +3298,31 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
     {
         private static readonly ResourceManager _resourceManager
             = new ResourceManager("Microsoft.EntityFrameworkCore.Properties.CoreStrings", typeof(CoreResources).Assembly);
+
+        /// <summary>
+        ///     The type '{entityType}' has been mapped as an entity type. If you are mapping this type intentionally, then please suppress this warning and report the issue on GitHub.
+        /// </summary>
+        public static EventDefinition<string> LogAccidentalEntityType(IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogAccidentalEntityType;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((LoggingDefinitions)logger.Definitions).LogAccidentalEntityType,
+                    logger,
+                    static logger => new EventDefinition<string>(
+                        logger.Options,
+                        CoreEventId.AccidentalEntityType,
+                        LogLevel.Warning,
+                        "CoreEventId.AccidentalEntityType",
+                        level => LoggerMessage.Define<string>(
+                            level,
+                            CoreEventId.AccidentalEntityType,
+                            _resourceManager.GetString("LogAccidentalEntityType")!)));
+            }
+
+            return (EventDefinition<string>)definition;
+        }
 
         /// <summary>
         ///     The foreign key {foreignKeyProperties} on entity type '{entityType}' cannot be configured as required since the dependent side cannot be determined. To identify the dependent side of the relationship, configure the foreign key property or the principal key before configuring the foreign key as required in 'OnModelCreating'. See https://go.microsoft.com/fwlink/?LinkId=724062 for more details.

@@ -60,7 +60,7 @@ public class SqliteDateTimeMemberTranslator(SqliteSqlExpressionFactory sqlExpres
                                 "julianday",
                                 new[] { instance! },
                                 nullable: true,
-                                argumentsPropagateNullability: new[] { true },
+                                argumentsPropagateNullability: Statics.TrueArrays[1],
                                 typeof(double)),
                             sqlExpressionFactory.Constant(1721425.5)), // NB: Result of julianday('0001-01-01 00:00:00')
                         sqlExpressionFactory.Constant(TimeSpan.TicksPerDay)),
@@ -118,11 +118,11 @@ public class SqliteDateTimeMemberTranslator(SqliteSqlExpressionFactory sqlExpres
 
         return sqlExpressionFactory.Function(
             "rtrim",
-            new SqlExpression[]
+            new[]
             {
                 sqlExpressionFactory.Function(
                     "rtrim",
-                    new SqlExpression[]
+                    new[]
                     {
                         sqlExpressionFactory.Strftime(
                             returnType,
@@ -132,12 +132,12 @@ public class SqliteDateTimeMemberTranslator(SqliteSqlExpressionFactory sqlExpres
                         sqlExpressionFactory.Constant("0")
                     },
                     nullable: true,
-                    argumentsPropagateNullability: new[] { true, false },
+                    argumentsPropagateNullability: Statics.TrueFalse,
                     returnType),
                 sqlExpressionFactory.Constant(".")
             },
             nullable: true,
-            argumentsPropagateNullability: new[] { true, false },
+            argumentsPropagateNullability: Statics.TrueFalse,
             returnType);
 
         SqlExpression DatePart(string part)

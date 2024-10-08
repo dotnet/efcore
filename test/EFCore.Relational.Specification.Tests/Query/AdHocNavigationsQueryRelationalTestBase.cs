@@ -44,7 +44,8 @@ public abstract class AdHocNavigationsQueryRelationalTestBase : AdHocNavigations
         }
     }
 
-    private class Context21803(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context21803(DbContextOptions options) : DbContext(options)
     {
         public DbSet<AppEntity> Entities { get; set; }
 

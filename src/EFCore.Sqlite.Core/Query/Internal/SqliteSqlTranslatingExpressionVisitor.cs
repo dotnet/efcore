@@ -128,7 +128,7 @@ public class SqliteSqlTranslatingExpressionVisitor : RelationalSqlTranslatingExp
                     "length",
                     new[] { sqlExpression },
                     nullable: true,
-                    argumentsPropagateNullability: new[] { true },
+                    argumentsPropagateNullability: Statics.TrueArrays[1],
                     typeof(int))
                 : QueryCompilationContext.NotTranslatedExpression;
         }
@@ -224,7 +224,7 @@ public class SqliteSqlTranslatingExpressionVisitor : RelationalSqlTranslatingExp
                     function,
                     new[] { sqlBinary.Left, sqlBinary.Right },
                     nullable: true,
-                    argumentsPropagateNullability: new[] { false, false },
+                    argumentsPropagateNullability: Statics.FalseArrays[2],
                     visitedExpression.Type,
                     visitedExpression.TypeMapping);
             }
@@ -373,11 +373,11 @@ public class SqliteSqlTranslatingExpressionVisitor : RelationalSqlTranslatingExp
                                                     "length",
                                                     new[] { translatedPattern },
                                                     nullable: true,
-                                                    argumentsPropagateNullability: new[] { true },
+                                                    argumentsPropagateNullability: Statics.TrueArrays[1],
                                                     typeof(int))
                                             },
                                             nullable: true,
-                                            argumentsPropagateNullability: new[] { true, false, true },
+                                            argumentsPropagateNullability: [true, false, false],
                                             typeof(string),
                                             stringTypeMapping),
                                         translatedPattern),
@@ -407,11 +407,11 @@ public class SqliteSqlTranslatingExpressionVisitor : RelationalSqlTranslatingExp
                                                             "length",
                                                             new[] { translatedPattern },
                                                             nullable: true,
-                                                            argumentsPropagateNullability: new[] { true },
+                                                            argumentsPropagateNullability: Statics.TrueArrays[1],
                                                             typeof(int)))
                                                 },
                                                 nullable: true,
-                                                argumentsPropagateNullability: new[] { true, true },
+                                                argumentsPropagateNullability: Statics.TrueArrays[2],
                                                 typeof(string),
                                                 stringTypeMapping),
                                             translatedPattern),
@@ -467,6 +467,38 @@ public class SqliteSqlTranslatingExpressionVisitor : RelationalSqlTranslatingExp
         }
 
         return builder.ToString();
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public override SqlExpression GenerateGreatest(IReadOnlyList<SqlExpression> expressions, Type resultType)
+    {
+        // Docs: https://sqlite.org/lang_corefunc.html#max_scalar
+        var resultTypeMapping = ExpressionExtensions.InferTypeMapping(expressions);
+
+        // The multi-argument max() function returns the argument with the maximum value, or return NULL if any argument is NULL.
+        return _sqlExpressionFactory.Function(
+            "max", expressions, nullable: true, Enumerable.Repeat(true, expressions.Count), resultType, resultTypeMapping);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public override SqlExpression GenerateLeast(IReadOnlyList<SqlExpression> expressions, Type resultType)
+    {
+        // Docs: https://sqlite.org/lang_corefunc.html#min_scalar
+        var resultTypeMapping = ExpressionExtensions.InferTypeMapping(expressions);
+
+        // The multi-argument min() function returns the argument with the minimum value, or return NULL if any argument is NULL.
+        return _sqlExpressionFactory.Function(
+            "min", expressions, nullable: true, Enumerable.Repeat(true, expressions.Count), resultType, resultTypeMapping);
     }
 
     [return: NotNullIfNotNull(nameof(expression))]

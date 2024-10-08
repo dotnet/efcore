@@ -2865,12 +2865,13 @@ ALTER TABLE [People] ADD CONSTRAINT [PK_People] PRIMARY KEY ([SomeField]) WITH (
     public virtual async Task Add_alternate_key_with_fill_factor()
     {
         await Test(
-            builder => {
+            builder =>
+            {
                 builder.Entity("People").Property<string>("SomeField").IsRequired().HasMaxLength(450);
                 builder.Entity("People").Property<string>("SomeOtherField").IsRequired().HasMaxLength(450);
-                },
+            },
             builder => { },
-            builder => builder.Entity("People").HasAlternateKey(["SomeField", "SomeOtherField"]).HasFillFactor(80),
+            builder => builder.Entity("People").HasAlternateKey("SomeField", "SomeOtherField").HasFillFactor(80),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -3120,39 +3121,9 @@ CREATE SEQUENCE [TestSequence] AS smallint START WITH 1 INCREMENT BY 1 NO CYCLE;
             """
 IF SCHEMA_ID(N'dbo2') IS NULL EXEC(N'CREATE SCHEMA [dbo2];');
 """,
-//
+            //
             """
-CREATE SEQUENCE [dbo2].[TestSequence] START WITH 3 INCREMENT BY 2 MINVALUE 2 MAXVALUE 916 CYCLE CACHE 20;
-""");
-    }
-
-    public override async Task Create_sequence_nocache()
-    {
-        await base.Create_sequence_nocache();
-
-        AssertSql(
-            """
-CREATE SEQUENCE [Alpha] START WITH 1 INCREMENT BY 1 NO CYCLE NO CACHE;
-""");
-    }
-
-    public override async Task Create_sequence_cache()
-    {
-        await base.Create_sequence_cache();
-
-        AssertSql(
-            """
-CREATE SEQUENCE [Beta] START WITH 1 INCREMENT BY 1 NO CYCLE CACHE 20;
-""");
-    }
-
-    public override async Task Create_sequence_default_cache()
-    {
-        await base.Create_sequence_default_cache();
-
-        AssertSql(
-            """
-CREATE SEQUENCE [Gamma] START WITH 1 INCREMENT BY 1 NO CYCLE;
+CREATE SEQUENCE [dbo2].[TestSequence] START WITH 3 INCREMENT BY 2 MINVALUE 2 MAXVALUE 916 CYCLE;
 """);
     }
 
@@ -3162,7 +3133,7 @@ CREATE SEQUENCE [Gamma] START WITH 1 INCREMENT BY 1 NO CYCLE;
 
         AssertSql(
             """
-ALTER SEQUENCE [foo] INCREMENT BY 2 MINVALUE -5 MAXVALUE 10 CYCLE CACHE 20;
+ALTER SEQUENCE [foo] INCREMENT BY 2 MINVALUE -5 MAXVALUE 10 CYCLE;
 """,
             //
             """
@@ -3176,67 +3147,7 @@ ALTER SEQUENCE [foo] RESTART WITH -3;
 
         AssertSql(
             """
-ALTER SEQUENCE [foo] INCREMENT BY 2 NO MINVALUE NO MAXVALUE NO CYCLE CACHE;
-""");
-    }
-
-    public override async Task Alter_sequence_default_cache_to_cache()
-    {
-        await base.Alter_sequence_default_cache_to_cache();
-
-        AssertSql(
-            """
-ALTER SEQUENCE [Delta] INCREMENT BY 1 NO MINVALUE NO MAXVALUE NO CYCLE CACHE 20;
-""");
-    }
-
-    public override async Task Alter_sequence_default_cache_to_nocache()
-    {
-        await base.Alter_sequence_default_cache_to_nocache();
-
-        AssertSql(
-            """
-ALTER SEQUENCE [Epsilon] INCREMENT BY 1 NO MINVALUE NO MAXVALUE NO CYCLE NO CACHE;
-""");
-    }
-
-    public override async Task Alter_sequence_cache_to_nocache()
-    {
-        await base.Alter_sequence_cache_to_nocache();
-
-        AssertSql(
-            """
-ALTER SEQUENCE [Zeta] INCREMENT BY 1 NO MINVALUE NO MAXVALUE NO CYCLE NO CACHE;
-""");
-    }
-
-    public override async Task Alter_sequence_cache_to_default_cache()
-    {
-        await base.Alter_sequence_cache_to_default_cache();
-
-        AssertSql(
-            """
-ALTER SEQUENCE [Eta] INCREMENT BY 1 NO MINVALUE NO MAXVALUE NO CYCLE CACHE;
-""");
-    }
-
-    public override async Task Alter_sequence_nocache_to_cache()
-    {
-        await base.Alter_sequence_nocache_to_cache();
-
-        AssertSql(
-            """
-ALTER SEQUENCE [Theta] INCREMENT BY 1 NO MINVALUE NO MAXVALUE NO CYCLE CACHE 20;
-""");
-    }
-
-    public override async Task Alter_sequence_nocache_to_default_cache()
-    {
-        await base.Alter_sequence_nocache_to_default_cache();
-
-        AssertSql(
-"""
-ALTER SEQUENCE [Iota] INCREMENT BY 1 NO MINVALUE NO MAXVALUE NO CYCLE CACHE;
+ALTER SEQUENCE [foo] INCREMENT BY 2 NO MINVALUE NO MAXVALUE NO CYCLE;
 """);
     }
 
@@ -7137,8 +7048,8 @@ EXEC sp_rename N'[Customer].[Name]', N'FullName', 'COLUMN';
             """
 ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = OFF)
 """,
-                //
-                """
+            //
+            """
 DECLARE @var0 sysname;
 SELECT @var0 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -7149,8 +7060,8 @@ UPDATE [Customer] SET [IsVip] = CAST(0 AS bit) WHERE [IsVip] IS NULL;
 ALTER TABLE [Customer] ALTER COLUMN [IsVip] bit NOT NULL;
 ALTER TABLE [Customer] ADD DEFAULT CAST(0 AS bit) FOR [IsVip];
 """,
-                //
-                """
+            //
+            """
 DECLARE @var1 sysname;
 SELECT @var1 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -7161,8 +7072,8 @@ UPDATE [HistoryTable] SET [IsVip] = CAST(0 AS bit) WHERE [IsVip] IS NULL;
 ALTER TABLE [HistoryTable] ALTER COLUMN [IsVip] bit NOT NULL;
 ALTER TABLE [HistoryTable] ADD DEFAULT CAST(0 AS bit) FOR [IsVip];
 """,
-                //
-                """
+            //
+            """
 DECLARE @historyTableSchema sysname = SCHEMA_NAME()
 EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + '].[HistoryTable]))')
 """);
@@ -7275,16 +7186,16 @@ EXEC(N'CREATE TABLE [Customer] (
             """
 ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = OFF)
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [Customer] ADD [IdPlusFive] AS Id + 5 PERSISTED;
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [HistoryTable] ADD [IdPlusFive] int NULL;
 """,
-                //
-                """
+            //
+            """
 DECLARE @historyTableSchema sysname = SCHEMA_NAME()
 EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + '].[HistoryTable]))')
 """);
@@ -7339,16 +7250,16 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + 
             """
 ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = OFF)
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [Customer] ADD [Five] AS 5 PERSISTED;
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [HistoryTable] ADD [Five] int NOT NULL DEFAULT 0;
 """,
-                //
-                """
+            //
+            """
 DECLARE @historyTableSchema sysname = SCHEMA_NAME()
 EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + '].[HistoryTable]))')
 """);
@@ -7402,8 +7313,8 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + 
             """
 ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = OFF)
 """,
-                //
-                """
+            //
+            """
 DECLARE @var0 sysname;
 SELECT @var0 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -7412,8 +7323,8 @@ WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customer]') AND [c].[name] = N'IdPl
 IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Customer] DROP CONSTRAINT [' + @var0 + '];');
 ALTER TABLE [Customer] DROP COLUMN [IdPlusFive];
 """,
-                //
-                """
+            //
+            """
 DECLARE @var1 sysname;
 SELECT @var1 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -7422,8 +7333,8 @@ WHERE ([d].[parent_object_id] = OBJECT_ID(N'[HistoryTable]') AND [c].[name] = N'
 IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [HistoryTable] DROP CONSTRAINT [' + @var1 + '];');
 ALTER TABLE [HistoryTable] DROP COLUMN [IdPlusFive];
 """,
-                //
-                """
+            //
+            """
 DECLARE @historyTableSchema sysname = SCHEMA_NAME()
 EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + '].[HistoryTable]))')
 """);
@@ -7432,51 +7343,52 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + 
     [ConditionalFact]
     public virtual async Task Alter_computed_column_sql_on_temporal_table()
     {
-        var message = (await Assert.ThrowsAsync<NotSupportedException>(() => Test(
-            builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.Property<int>("Id").ValueGeneratedOnAdd();
-                    e.Property<DateTime>("Start").ValueGeneratedOnAddOrUpdate();
-                    e.Property<DateTime>("End").ValueGeneratedOnAddOrUpdate();
-                    e.HasKey("Id");
+        var message = (await Assert.ThrowsAsync<NotSupportedException>(
+            () => Test(
+                builder => builder.Entity(
+                    "Customer", e =>
+                    {
+                        e.Property<int>("Id").ValueGeneratedOnAdd();
+                        e.Property<DateTime>("Start").ValueGeneratedOnAddOrUpdate();
+                        e.Property<DateTime>("End").ValueGeneratedOnAddOrUpdate();
+                        e.HasKey("Id");
 
-                    e.ToTable(
-                        tb => tb.IsTemporal(
-                            ttb =>
-                            {
-                                ttb.UseHistoryTable("HistoryTable");
-                                ttb.HasPeriodStart("Start");
-                                ttb.HasPeriodEnd("End");
-                            }));
-                }),
-            builder => builder.Entity(
-                "Customer", e =>
+                        e.ToTable(
+                            tb => tb.IsTemporal(
+                                ttb =>
+                                {
+                                    ttb.UseHistoryTable("HistoryTable");
+                                    ttb.HasPeriodStart("Start");
+                                    ttb.HasPeriodEnd("End");
+                                }));
+                    }),
+                builder => builder.Entity(
+                    "Customer", e =>
+                    {
+                        e.Property<int?>("IdPlusFive").HasComputedColumnSql("Id + 5 PERSISTED");
+                    }),
+                builder => builder.Entity(
+                    "Customer", e =>
+                    {
+                        e.Property<int?>("IdPlusFive").HasComputedColumnSql("Id + 10 PERSISTED");
+                    }),
+                model =>
                 {
-                    e.Property<int?>("IdPlusFive").HasComputedColumnSql("Id + 5 PERSISTED");
-                }),
-            builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.Property<int?>("IdPlusFive").HasComputedColumnSql("Id + 10 PERSISTED");
-                }),
-            model =>
-            {
-                var table = Assert.Single(model.Tables);
-                Assert.Equal("Customer", table.Name);
-                Assert.NotNull(table[SqlServerAnnotationNames.IsTemporal]);
-                Assert.Equal("HistoryTable", table[SqlServerAnnotationNames.TemporalHistoryTableName]);
-                Assert.Equal("Start", table[SqlServerAnnotationNames.TemporalPeriodStartPropertyName]);
-                Assert.Equal("End", table[SqlServerAnnotationNames.TemporalPeriodEndPropertyName]);
+                    var table = Assert.Single(model.Tables);
+                    Assert.Equal("Customer", table.Name);
+                    Assert.NotNull(table[SqlServerAnnotationNames.IsTemporal]);
+                    Assert.Equal("HistoryTable", table[SqlServerAnnotationNames.TemporalHistoryTableName]);
+                    Assert.Equal("Start", table[SqlServerAnnotationNames.TemporalPeriodStartPropertyName]);
+                    Assert.Equal("End", table[SqlServerAnnotationNames.TemporalPeriodEndPropertyName]);
 
-                Assert.Collection(
-                    table.Columns,
-                    c => Assert.Equal("Id", c.Name),
-                    c => Assert.Equal("IdPlusFive", c.Name));
-                Assert.Same(
-                    table.Columns.Single(c => c.Name == "Id"),
-                    Assert.Single(table.PrimaryKey!.Columns));
-            }))).Message;
+                    Assert.Collection(
+                        table.Columns,
+                        c => Assert.Equal("Id", c.Name),
+                        c => Assert.Equal("IdPlusFive", c.Name));
+                    Assert.Same(
+                        table.Columns.Single(c => c.Name == "Id"),
+                        Assert.Single(table.PrimaryKey!.Columns));
+                }))).Message;
 
         Assert.Equal(
             SqlServerStrings.TemporalMigrationModifyingComputedColumnNotSupported("IdPlusFive", "Customer"),
@@ -7592,8 +7504,8 @@ ALTER TABLE [Customer] ADD [Number] int NOT NULL DEFAULT 0;
             """
 ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = OFF)
 """,
-                //
-                """
+            //
+            """
 DECLARE @var0 sysname;
 SELECT @var0 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -7602,8 +7514,8 @@ WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customer]') AND [c].[name] = N'Numb
 IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Customer] DROP CONSTRAINT [' + @var0 + '];');
 ALTER TABLE [Customer] DROP COLUMN [Number];
 """,
-                //
-                """
+            //
+            """
 DECLARE @var1 sysname;
 SELECT @var1 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -7612,8 +7524,8 @@ WHERE ([d].[parent_object_id] = OBJECT_ID(N'[HistoryTable]') AND [c].[name] = N'
 IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [HistoryTable] DROP CONSTRAINT [' + @var1 + '];');
 ALTER TABLE [HistoryTable] DROP COLUMN [Number];
 """,
-                //
-                """
+            //
+            """
 DECLARE @historyTableSchema sysname = SCHEMA_NAME()
 EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + '].[HistoryTable]))')
 """);
@@ -7725,21 +7637,21 @@ EXEC sp_rename N'[Customer].[Number]', N'RenamedNumber', 'COLUMN';
             """
 ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = OFF)
 """,
-                //
-                """
+            //
+            """
 IF EXISTS (SELECT 1 FROM [sys].[tables] [t] INNER JOIN [sys].[partitions] [p] ON [t].[object_id] = [p].[object_id] WHERE [t].[name] = 'HistoryTable' AND data_compression <> 0)
 EXEC(N'ALTER TABLE [HistoryTable] REBUILD PARTITION = ALL WITH (DATA_COMPRESSION = NONE);');
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [Customer] ADD [MyColumn] int SPARSE NULL;
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [HistoryTable] ADD [MyColumn] int SPARSE NULL;
 """,
-                //
-                """
+            //
+            """
 DECLARE @historyTableSchema sysname = SCHEMA_NAME()
 EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + '].[HistoryTable]))')
 """);
@@ -7757,7 +7669,8 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + 
                     e.Property<DateTime>("Start").ValueGeneratedOnAddOrUpdate();
                     e.Property<DateTime>("End").ValueGeneratedOnAddOrUpdate();
                     e.HasKey("Id");
-                    e.ToTable("Customers", "mySchema",
+                    e.ToTable(
+                        "Customers", "mySchema",
                         tb => tb.IsTemporal(
                             ttb =>
                             {
@@ -7796,21 +7709,21 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + 
             """
 ALTER TABLE [mySchema].[Customers] SET (SYSTEM_VERSIONING = OFF)
 """,
-                //
-                """
+            //
+            """
 IF EXISTS (SELECT 1 FROM [sys].[tables] [t] INNER JOIN [sys].[partitions] [p] ON [t].[object_id] = [p].[object_id] WHERE [t].[name] = 'HistoryTable' AND [t].[schema_id] = schema_id('myHistorySchema') AND data_compression <> 0)
 EXEC(N'ALTER TABLE [myHistorySchema].[HistoryTable] REBUILD PARTITION = ALL WITH (DATA_COMPRESSION = NONE);');
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [mySchema].[Customers] ADD [MyColumn] int SPARSE NULL;
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [myHistorySchema].[HistoryTable] ADD [MyColumn] int SPARSE NULL;
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [mySchema].[Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [myHistorySchema].[HistoryTable]))
 """);
     }
@@ -7873,13 +7786,13 @@ ALTER TABLE [mySchema].[Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = 
             """
 ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = OFF)
 """,
-                //
-                """
+            //
+            """
 IF EXISTS (SELECT 1 FROM [sys].[tables] [t] INNER JOIN [sys].[partitions] [p] ON [t].[object_id] = [p].[object_id] WHERE [t].[name] = 'HistoryTable' AND data_compression <> 0)
 EXEC(N'ALTER TABLE [HistoryTable] REBUILD PARTITION = ALL WITH (DATA_COMPRESSION = NONE);');
 """,
-                //
-                """
+            //
+            """
 DECLARE @var0 sysname;
 SELECT @var0 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -7888,8 +7801,8 @@ WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customer]') AND [c].[name] = N'MyCo
 IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Customer] DROP CONSTRAINT [' + @var0 + '];');
 ALTER TABLE [Customer] ALTER COLUMN [MyColumn] int SPARSE NULL;
 """,
-                //
-                """
+            //
+            """
 DECLARE @var1 sysname;
 SELECT @var1 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -7898,8 +7811,8 @@ WHERE ([d].[parent_object_id] = OBJECT_ID(N'[HistoryTable]') AND [c].[name] = N'
 IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [HistoryTable] DROP CONSTRAINT [' + @var1 + '];');
 ALTER TABLE [HistoryTable] ALTER COLUMN [MyColumn] int SPARSE NULL;
 """,
-                //
-                """
+            //
+            """
 DECLARE @historyTableSchema sysname = SCHEMA_NAME()
 EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + '].[HistoryTable]))')
 """);
@@ -8029,24 +7942,24 @@ ALTER TABLE [Customer] ALTER COLUMN [MyColumn] int NULL;
             """
 ALTER TABLE [Customers] ADD [End] datetime2 NOT NULL DEFAULT '9999-12-31T23:59:59.9999999';
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [Customers] ADD [Start] datetime2 NOT NULL DEFAULT '0001-01-01T00:00:00.0000000';
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [Customers] ADD PERIOD FOR SYSTEM_TIME ([Start], [End])
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [Customers] ALTER COLUMN [Start] ADD HIDDEN
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [Customers] ALTER COLUMN [End] ADD HIDDEN
 """,
-                //
-                """
+            //
+            """
 DECLARE @historyTableSchema sysname = SCHEMA_NAME()
 EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + '].[HistoryTable]))')
 """);
@@ -9748,8 +9661,8 @@ EXEC sp_rename N'[CustomersHistory]', N'HistoryTable', 'OBJECT';
             """
 EXEC sp_rename N'[Customers].[PeriodStart]', N'ValidFrom', 'COLUMN';
 """,
-                //
-                """
+            //
+            """
 EXEC sp_rename N'[Customers].[PeriodEnd]', N'ValidTo', 'COLUMN';
 """);
     }
@@ -9807,28 +9720,28 @@ EXEC sp_rename N'[Customers].[PeriodEnd]', N'ValidTo', 'COLUMN';
             """
 ALTER TABLE [Customers] ADD [End] datetime2 NOT NULL DEFAULT '9999-12-31T23:59:59.9999999';
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [Customers] ADD [Number] int NOT NULL DEFAULT 0;
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [Customers] ADD [Start] datetime2 NOT NULL DEFAULT '0001-01-01T00:00:00.0000000';
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [Customers] ADD PERIOD FOR SYSTEM_TIME ([Start], [End])
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [Customers] ALTER COLUMN [Start] ADD HIDDEN
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [Customers] ALTER COLUMN [End] ADD HIDDEN
 """,
-                //
-                """
+            //
+            """
 DECLARE @historyTableSchema sysname = SCHEMA_NAME()
 EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + '].[HistoryTable]))')
 """);
@@ -9892,28 +9805,28 @@ WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'Num
 IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT [' + @var0 + '];');
 ALTER TABLE [Customers] DROP COLUMN [Number];
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [Customers] ADD [End] datetime2 NOT NULL DEFAULT '9999-12-31T23:59:59.9999999';
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [Customers] ADD [Start] datetime2 NOT NULL DEFAULT '0001-01-01T00:00:00.0000000';
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [Customers] ADD PERIOD FOR SYSTEM_TIME ([Start], [End])
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [Customers] ALTER COLUMN [Start] ADD HIDDEN
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [Customers] ALTER COLUMN [End] ADD HIDDEN
 """,
-                //
-                """
+            //
+            """
 DECLARE @historyTableSchema sysname = SCHEMA_NAME()
 EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + '].[HistoryTable]))')
 """);
@@ -9973,28 +9886,28 @@ EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' +
             """
 EXEC sp_rename N'[Customers].[Number]', N'NewNumber', 'COLUMN';
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [Customers] ADD [End] datetime2 NOT NULL DEFAULT '9999-12-31T23:59:59.9999999';
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [Customers] ADD [Start] datetime2 NOT NULL DEFAULT '0001-01-01T00:00:00.0000000';
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [Customers] ADD PERIOD FOR SYSTEM_TIME ([Start], [End])
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [Customers] ALTER COLUMN [Start] ADD HIDDEN
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [Customers] ALTER COLUMN [End] ADD HIDDEN
 """,
-                //
-                """
+            //
+            """
 DECLARE @historyTableSchema sysname = SCHEMA_NAME()
 EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + '].[HistoryTable]))')
 """);
@@ -10014,13 +9927,12 @@ EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' +
                     e.Property<string>("Name");
                     e.ToTable(
                         "Customers", tb => tb.IsTemporal(
-                        ttb =>
-                        {
-                            ttb.UseHistoryTable("HistoryTable");
-                            ttb.HasPeriodStart("Start");
-                            ttb.HasPeriodEnd("End");
-                        }));
-
+                            ttb =>
+                            {
+                                ttb.UseHistoryTable("HistoryTable");
+                                ttb.HasPeriodStart("Start");
+                                ttb.HasPeriodEnd("End");
+                            }));
                 }),
             builder => builder.Entity(
                 "Customer", e =>
@@ -10050,12 +9962,12 @@ EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' +
             """
 ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = OFF)
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [Customers] DROP PERIOD FOR SYSTEM_TIME
 """,
-                //
-                """
+            //
+            """
 DECLARE @var0 sysname;
 SELECT @var0 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -10064,8 +9976,8 @@ WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'End
 IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT [' + @var0 + '];');
 ALTER TABLE [Customers] DROP COLUMN [End];
 """,
-                //
-                """
+            //
+            """
 DECLARE @var1 sysname;
 SELECT @var1 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -10074,12 +9986,12 @@ WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'Sta
 IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT [' + @var1 + '];');
 ALTER TABLE [Customers] DROP COLUMN [Start];
 """,
-                //
-                """
+            //
+            """
 DROP TABLE [HistoryTable];
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [Customers] ADD [Number] int NOT NULL DEFAULT 0;
 """);
     }
@@ -10132,12 +10044,12 @@ ALTER TABLE [Customers] ADD [Number] int NOT NULL DEFAULT 0;
             """
 ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = OFF)
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [Customers] DROP PERIOD FOR SYSTEM_TIME
 """,
-                //
-                """
+            //
+            """
 DECLARE @var0 sysname;
 SELECT @var0 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -10146,8 +10058,8 @@ WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'End
 IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT [' + @var0 + '];');
 ALTER TABLE [Customers] DROP COLUMN [End];
 """,
-                //
-                """
+            //
+            """
 DECLARE @var1 sysname;
 SELECT @var1 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -10156,8 +10068,8 @@ WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'Num
 IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT [' + @var1 + '];');
 ALTER TABLE [Customers] DROP COLUMN [Number];
 """,
-                //
-                """
+            //
+            """
 DECLARE @var2 sysname;
 SELECT @var2 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -10166,8 +10078,8 @@ WHERE ([d].[parent_object_id] = OBJECT_ID(N'[HistoryTable]') AND [c].[name] = N'
 IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [HistoryTable] DROP CONSTRAINT [' + @var2 + '];');
 ALTER TABLE [HistoryTable] DROP COLUMN [Number];
 """,
-                //
-                """
+            //
+            """
 DECLARE @var3 sysname;
 SELECT @var3 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -10176,8 +10088,8 @@ WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'Sta
 IF @var3 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT [' + @var3 + '];');
 ALTER TABLE [Customers] DROP COLUMN [Start];
 """,
-                //
-                """
+            //
+            """
 DROP TABLE [HistoryTable];
 """);
     }
@@ -10232,12 +10144,12 @@ DROP TABLE [HistoryTable];
             """
 ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = OFF)
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [Customers] DROP PERIOD FOR SYSTEM_TIME
 """,
-                //
-                """
+            //
+            """
 DECLARE @var0 sysname;
 SELECT @var0 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -10246,8 +10158,8 @@ WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'End
 IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT [' + @var0 + '];');
 ALTER TABLE [Customers] DROP COLUMN [End];
 """,
-                //
-                """
+            //
+            """
 DECLARE @var1 sysname;
 SELECT @var1 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -10256,12 +10168,12 @@ WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'Sta
 IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT [' + @var1 + '];');
 ALTER TABLE [Customers] DROP COLUMN [Start];
 """,
-                //
-                """
+            //
+            """
 EXEC sp_rename N'[Customers].[Number]', N'NewNumber', 'COLUMN';
 """,
-                //
-                """
+            //
+            """
 DROP TABLE [HistoryTable];
 """);
     }
@@ -10800,19 +10712,18 @@ EXEC(N'ALTER TABLE [NewCustomers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [
                 Assert.Same(
                     historyTable.Columns.Single(c => c.Name == "Id"),
                     Assert.Single(historyTable.PrimaryKey!.Columns));
-
             });
 
         AssertSql(
             """
 ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = OFF)
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [Customers] DROP PERIOD FOR SYSTEM_TIME
 """,
-                //
-                """
+            //
+            """
 DECLARE @var0 sysname;
 SELECT @var0 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -10821,8 +10732,8 @@ WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'End
 IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT [' + @var0 + '];');
 ALTER TABLE [Customers] DROP COLUMN [End];
 """,
-                //
-                """
+            //
+            """
 DECLARE @var1 sysname;
 SELECT @var1 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -10831,12 +10742,12 @@ WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'Sta
 IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT [' + @var1 + '];');
 ALTER TABLE [Customers] DROP COLUMN [Start];
 """,
-                //
-                """
+            //
+            """
 DROP TABLE [HistoryTable];
 """,
-                //
-                """
+            //
+            """
 CREATE TABLE [HistoryTable] (
     [Id] int NOT NULL IDENTITY,
     [Name] nvarchar(max) NULL,
@@ -10852,7 +10763,7 @@ CREATE TABLE [HistoryTable] (
         await base.Add_required_primitive_collection_to_existing_table();
 
         AssertSql(
-"""
+            """
 ALTER TABLE [Customers] ADD [Numbers] nvarchar(max) NOT NULL DEFAULT N'[]';
 """);
     }
@@ -10863,7 +10774,7 @@ ALTER TABLE [Customers] ADD [Numbers] nvarchar(max) NOT NULL DEFAULT N'[]';
         await base.Add_required_primitive_collection_with_custom_default_value_to_existing_table();
 
         AssertSql(
-"""
+            """
 ALTER TABLE [Customers] ADD [Numbers] nvarchar(max) NOT NULL DEFAULT N'[1,2,3]';
 """);
     }
@@ -10874,7 +10785,7 @@ ALTER TABLE [Customers] ADD [Numbers] nvarchar(max) NOT NULL DEFAULT N'[1,2,3]';
         await base.Add_required_primitive_collection_with_custom_default_value_sql_to_existing_table_core("N'[3, 2, 1]'");
 
         AssertSql(
-"""
+            """
 ALTER TABLE [Customers] ADD [Numbers] nvarchar(max) NOT NULL DEFAULT (N'[3, 2, 1]');
 """);
     }
@@ -10885,7 +10796,7 @@ ALTER TABLE [Customers] ADD [Numbers] nvarchar(max) NOT NULL DEFAULT (N'[3, 2, 1
         await base.Add_required_primitive_collection_with_custom_converter_to_existing_table();
 
         AssertSql(
-"""
+            """
 ALTER TABLE [Customers] ADD [Numbers] nvarchar(max) NOT NULL DEFAULT N'nothing';
 """);
     }
@@ -10896,7 +10807,7 @@ ALTER TABLE [Customers] ADD [Numbers] nvarchar(max) NOT NULL DEFAULT N'nothing';
         await base.Add_required_primitive_collection_with_custom_converter_and_custom_default_value_to_existing_table();
 
         AssertSql(
-"""
+            """
 ALTER TABLE [Customers] ADD [Numbers] nvarchar(max) NOT NULL DEFAULT N'some numbers';
 """);
     }
@@ -10907,7 +10818,7 @@ ALTER TABLE [Customers] ADD [Numbers] nvarchar(max) NOT NULL DEFAULT N'some numb
         await base.Add_optional_primitive_collection_to_existing_table();
 
         AssertSql(
-"""
+            """
 ALTER TABLE [Customers] ADD [Numbers] nvarchar(max) NULL;
 """);
     }
@@ -10918,7 +10829,7 @@ ALTER TABLE [Customers] ADD [Numbers] nvarchar(max) NULL;
         await base.Create_table_with_required_primitive_collection();
 
         AssertSql(
-"""
+            """
 CREATE TABLE [Customers] (
     [Id] int NOT NULL IDENTITY,
     [Name] nvarchar(max) NULL,
@@ -10934,7 +10845,7 @@ CREATE TABLE [Customers] (
         await base.Create_table_with_optional_primitive_collection();
 
         AssertSql(
-"""
+            """
 CREATE TABLE [Customers] (
     [Id] int NOT NULL IDENTITY,
     [Name] nvarchar(max) NULL,
@@ -10950,7 +10861,7 @@ CREATE TABLE [Customers] (
         await base.Create_table_with_complex_type_with_required_properties_on_derived_entity_in_TPH();
 
         AssertSql(
-"""
+            """
 CREATE TABLE [Contacts] (
     [Id] int NOT NULL IDENTITY,
     [Discriminator] nvarchar(8) NOT NULL,
@@ -10970,7 +10881,7 @@ CREATE TABLE [Contacts] (
         await base.Add_required_primitve_collection_to_existing_table();
 
         AssertSql(
-"""
+            """
 ALTER TABLE [Customers] ADD [Numbers] nvarchar(max) NOT NULL DEFAULT N'[]';
 """);
     }
@@ -10981,7 +10892,7 @@ ALTER TABLE [Customers] ADD [Numbers] nvarchar(max) NOT NULL DEFAULT N'[]';
         await base.Add_required_primitve_collection_with_custom_default_value_to_existing_table();
 
         AssertSql(
-"""
+            """
 ALTER TABLE [Customers] ADD [Numbers] nvarchar(max) NOT NULL DEFAULT N'[1,2,3]';
 """);
     }
@@ -10992,7 +10903,7 @@ ALTER TABLE [Customers] ADD [Numbers] nvarchar(max) NOT NULL DEFAULT N'[1,2,3]';
         await base.Add_required_primitve_collection_with_custom_default_value_sql_to_existing_table_core("N'[3, 2, 1]'");
 
         AssertSql(
-"""
+            """
 ALTER TABLE [Customers] ADD [Numbers] nvarchar(max) NOT NULL DEFAULT (N'[3, 2, 1]');
 """);
     }
@@ -11003,7 +10914,7 @@ ALTER TABLE [Customers] ADD [Numbers] nvarchar(max) NOT NULL DEFAULT (N'[3, 2, 1
         await base.Add_required_primitve_collection_with_custom_converter_to_existing_table();
 
         AssertSql(
-"""
+            """
 ALTER TABLE [Customers] ADD [Numbers] nvarchar(max) NOT NULL DEFAULT N'nothing';
 """);
     }
@@ -11014,7 +10925,7 @@ ALTER TABLE [Customers] ADD [Numbers] nvarchar(max) NOT NULL DEFAULT N'nothing';
         await base.Add_required_primitve_collection_with_custom_converter_and_custom_default_value_to_existing_table();
 
         AssertSql(
-"""
+            """
 ALTER TABLE [Customers] ADD [Numbers] nvarchar(max) NOT NULL DEFAULT N'some numbers';
 """);
     }

@@ -7,14 +7,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding;
 
 public class InMemoryModelBuilderAssemblyScanTest : ModelBuilderTest
 {
-    private readonly Assembly _mockEntityTypeAssembly;
-
-    public InMemoryModelBuilderAssemblyScanTest()
-    {
-        _mockEntityTypeAssembly = MockAssembly.Create(
-            typeof(ScannerCustomerEntityConfiguration), typeof(ScannerCustomerEntityConfiguration2),
-            typeof(AbstractCustomerEntityConfiguration), typeof(AbstractCustomerEntityConfigurationImpl));
-    }
+    private readonly Assembly _mockEntityTypeAssembly = MockAssembly.Create(
+        typeof(ScannerCustomerEntityConfiguration), typeof(ScannerCustomerEntityConfiguration2),
+        typeof(AbstractCustomerEntityConfiguration), typeof(AbstractCustomerEntityConfigurationImpl));
 
     [ConditionalFact]
     public void Should_scan_assemblies_for_entity_type_configurations()
@@ -49,7 +44,7 @@ public class InMemoryModelBuilderAssemblyScanTest : ModelBuilderTest
         };
 
         var assembly = MockAssembly.Create(
-            types, null, new ReflectionTypeLoadException([types[1], types[2]], [new(), new()]));
+            types, null, new ReflectionTypeLoadException([types[1], types[2]], [new Exception(), new Exception()]));
 
         var loggerFactory = new ListLoggerFactory();
         var logger = CreateModelLogger(loggerFactory);

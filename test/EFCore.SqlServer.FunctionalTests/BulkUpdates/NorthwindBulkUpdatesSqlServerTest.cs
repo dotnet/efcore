@@ -7,7 +7,8 @@ namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
 public class NorthwindBulkUpdatesSqlServerTest(
     NorthwindBulkUpdatesSqlServerFixture<NoopModelCustomizer> fixture,
-    ITestOutputHelper testOutputHelper) : NorthwindBulkUpdatesTestBase<NorthwindBulkUpdatesSqlServerFixture<NoopModelCustomizer>>(fixture, testOutputHelper)
+    ITestOutputHelper testOutputHelper)
+    : NorthwindBulkUpdatesRelationalTestBase<NorthwindBulkUpdatesSqlServerFixture<NoopModelCustomizer>>(fixture, testOutputHelper)
 {
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()
@@ -1035,7 +1036,7 @@ WHERE [c].[CustomerID] LIKE N'F%'
         await base.Update_Where_set_property_plus_parameter(async);
 
         AssertExecuteUpdateSql(
-"""
+            """
 @__value_0='Abc' (Size = 4000)
 
 UPDATE [c]
@@ -1414,11 +1415,11 @@ INNER JOIN (
         AssertExecuteUpdateSql(
             """
 UPDATE [c]
-SET [c].[City] = CONVERT(varchar(11), DATEPART(year, (
+SET [c].[City] = COALESCE(CONVERT(varchar(11), DATEPART(year, (
     SELECT TOP(1) [o].[OrderDate]
     FROM [Orders] AS [o]
     WHERE [c].[CustomerID] = [o].[CustomerID]
-    ORDER BY [o].[OrderDate] DESC)))
+    ORDER BY [o].[OrderDate] DESC))), '')
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'F%'
 """);
@@ -1449,11 +1450,11 @@ WHERE [c].[CustomerID] LIKE N'F%'
         AssertExecuteUpdateSql(
             """
 UPDATE [c]
-SET [c].[City] = CONVERT(varchar(11), DATEPART(year, (
+SET [c].[City] = COALESCE(CONVERT(varchar(11), DATEPART(year, (
     SELECT TOP(1) [o].[OrderDate]
     FROM [Orders] AS [o]
     WHERE [c].[CustomerID] = [o].[CustomerID]
-    ORDER BY [o].[OrderDate] DESC)))
+    ORDER BY [o].[OrderDate] DESC))), '')
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'F%'
 """);

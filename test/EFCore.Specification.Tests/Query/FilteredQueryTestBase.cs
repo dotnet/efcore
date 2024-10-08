@@ -7,14 +7,9 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public abstract class FilteredQueryTestBase<TFixture> : QueryTestBase<TFixture>
+public abstract class FilteredQueryTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)
     where TFixture : class, IQueryFixtureBase, new()
 {
-    protected FilteredQueryTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-
     public Task AssertFilteredQuery<TResult>(
         bool async,
         Func<ISetSource, IQueryable<TResult>> query,
@@ -59,7 +54,8 @@ public abstract class FilteredQueryTestBase<TFixture> : QueryTestBase<TFixture>
         bool assertEmpty = false,
         [CallerMemberName] string testMethodName = null)
         where TResult : struct
-        => QueryAsserter.AssertQueryScalar(actualQuery, expectedQuery, asserter, assertOrder, assertEmpty, async, testMethodName, filteredQuery: true);
+        => QueryAsserter.AssertQueryScalar(
+            actualQuery, expectedQuery, asserter, assertOrder, assertEmpty, async, testMethodName, filteredQuery: true);
 
     protected Task AssertFilteredCount<TResult>(
         bool async,

@@ -19,9 +19,7 @@ public class CSharpMigrationOperationGenerator : ICSharpMigrationOperationGenera
     /// </summary>
     /// <param name="dependencies">The dependencies.</param>
     public CSharpMigrationOperationGenerator(CSharpMigrationOperationGeneratorDependencies dependencies)
-    {
-        Dependencies = dependencies;
-    }
+        => Dependencies = dependencies;
 
     /// <summary>
     ///     Dependencies for this service.
@@ -778,24 +776,6 @@ public class CSharpMigrationOperationGenerator : ICSharpMigrationOperationGenera
                     .Append("cyclic: true");
             }
 
-            if (operation.IsCached && operation.CacheSize.HasValue)
-            {
-                builder
-                    .AppendLine(",")
-                    .Append("cached: ")
-                    .Append(Code.Literal(operation.IsCached))
-                    .AppendLine(",")
-                    .Append("cacheSize: ")
-                    .Append(Code.Literal(operation.CacheSize));
-            }
-            else if (!operation.IsCached)
-            {
-                builder
-                    .AppendLine(",")
-                    .Append("cached: ")
-                    .Append(Code.Literal(operation.IsCached));
-            }
-
             if (operation.OldSequence.IncrementBy != 1)
             {
                 builder
@@ -825,24 +805,6 @@ public class CSharpMigrationOperationGenerator : ICSharpMigrationOperationGenera
                 builder
                     .AppendLine(",")
                     .Append("oldCyclic: true");
-            }
-
-            if (operation.OldSequence.IsCached && operation.OldSequence.CacheSize.HasValue)
-            {
-                builder
-                    .AppendLine(",")
-                    .Append("oldCached: ")
-                    .Append(Code.Literal(operation.OldSequence.IsCached))
-                    .AppendLine(",")
-                    .Append("oldCacheSize: ")
-                    .Append(Code.Literal(operation.OldSequence.CacheSize));
-            }
-            else if (!operation.IsCached)
-            {
-                builder
-                    .AppendLine(",")
-                    .Append("oldCached: ")
-                    .Append(Code.Literal(operation.OldSequence.IsCached));
             }
 
             builder.Append(")");
@@ -1059,24 +1021,6 @@ public class CSharpMigrationOperationGenerator : ICSharpMigrationOperationGenera
                 builder
                     .AppendLine(",")
                     .Append("cyclic: true");
-            }
-
-            if (operation.IsCached && operation.CacheSize.HasValue)
-            {
-                builder
-                    .AppendLine(",")
-                    .Append("cached: ")
-                    .Append(Code.Literal(operation.IsCached))
-                    .AppendLine(",")
-                    .Append("cacheSize: ")
-                    .Append(Code.Literal(operation.CacheSize));
-            }
-            else if(!operation.IsCached)
-            {
-                builder
-                    .AppendLine(",")
-                    .Append("cached: ")
-                    .Append(Code.Literal(operation.IsCached));
             }
 
             builder.Append(")");

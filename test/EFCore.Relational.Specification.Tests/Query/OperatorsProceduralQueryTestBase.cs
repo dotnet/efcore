@@ -118,6 +118,7 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase
             { typeof(bool), typeof(OperatorEntityBool) },
             { typeof(bool?), typeof(OperatorEntityNullableBool) },
             { typeof(DateTimeOffset), typeof(OperatorEntityDateTimeOffset) },
+            { typeof(DateTimeOffset?), typeof(OperatorEntityNullableDateTimeOffset) },
         };
 
         ExpectedData = OperatorsData.Instance;
@@ -136,6 +137,7 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase
         ctx.Set<OperatorEntityBool>().AddRange(ExpectedData.OperatorEntitiesBool);
         ctx.Set<OperatorEntityNullableBool>().AddRange(ExpectedData.OperatorEntitiesNullableBool);
         ctx.Set<OperatorEntityDateTimeOffset>().AddRange(ExpectedData.OperatorEntitiesDateTimeOffset);
+        ctx.Set<OperatorEntityNullableDateTimeOffset>().AddRange(ExpectedData.OperatorEntitiesNullableDateTimeOffset);
 
         await ctx.SaveChangesAsync();
     }
@@ -1278,7 +1280,7 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase
     {
         public Expression Expression { get; } = expression;
 
-        public bool Used { get; set; } = false;
+        public bool Used { get; set; }
     }
 
     private class ActualSetSource(DbContext context) : ISetSource

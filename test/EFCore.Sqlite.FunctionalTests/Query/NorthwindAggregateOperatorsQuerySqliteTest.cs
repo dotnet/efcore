@@ -63,11 +63,9 @@ FROM "Order Details" AS "o"
 """);
     }
 
-
-
-    public override async Task Average_over_max_subquery_is_client_eval(bool async)
+    public override async Task Average_over_max_subquery(bool async)
     {
-        await base.Average_over_max_subquery_is_client_eval(async);
+        await base.Average_over_max_subquery(async);
 
         AssertSql(
             """
@@ -89,9 +87,9 @@ FROM (
 """);
     }
 
-    public override async Task Average_over_nested_subquery_is_client_eval(bool async)
+    public override async Task Average_over_nested_subquery(bool async)
     {
-        await base.Average_over_nested_subquery_is_client_eval(async);
+        await base.Average_over_nested_subquery(async);
 
         AssertSql(
             """
@@ -120,7 +118,6 @@ FROM (
                 () => base.Multiple_collection_navigation_with_FirstOrDefault_chained(async))).Message);
 
     public override async Task Contains_with_local_anonymous_type_array_closure(bool async)
-        // Aggregates. Issue #15937.
         => await AssertTranslationFailed(() => base.Contains_with_local_anonymous_type_array_closure(async));
 
     public override async Task Contains_with_local_tuple_array_closure(bool async)

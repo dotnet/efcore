@@ -6,7 +6,6 @@ namespace Microsoft.EntityFrameworkCore.Query;
 public class NorthwindAggregateOperatorsQueryInMemoryTest(NorthwindQueryInMemoryFixture<NoopModelCustomizer> fixture)
     : NorthwindAggregateOperatorsQueryTestBase<NorthwindQueryInMemoryFixture<NoopModelCustomizer>>(fixture)
 {
-
     // InMemory can throw server side exception
     public override async Task Average_no_data_subquery(bool async)
         => Assert.Equal(
@@ -31,6 +30,12 @@ public class NorthwindAggregateOperatorsQueryInMemoryTest(NorthwindQueryInMemory
             "Sequence contains no elements",
             (await Assert.ThrowsAsync<InvalidOperationException>(
                 () => base.Average_on_nav_subquery_in_projection(async))).Message);
+
+    public override async Task Sum_over_scalar_returning_subquery(bool async)
+        => Assert.Equal(
+            "Nullable object must have a value.",
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Sum_over_scalar_returning_subquery(async))).Message);
 
     public override Task Collection_Last_member_access_in_projection_translated(bool async)
         => Assert.ThrowsAsync<InvalidOperationException>(

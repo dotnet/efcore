@@ -93,7 +93,6 @@ public abstract class OptionalDependentQueryFixtureBase : SharedStoreFixtureBase
         Assert.Equal(expected.OpProp2, actual.OpProp2);
         Assert.Equal(expected.ReqProp, actual.ReqProp);
 
-
         if (expected.OpNav1 is not null || actual.OpNav1 is not null)
         {
             AssertOptionalDependentNestedJsonAllOptional(expected.OpNav1, actual.OpNav1);

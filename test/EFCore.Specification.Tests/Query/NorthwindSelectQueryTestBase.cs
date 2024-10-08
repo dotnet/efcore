@@ -10,14 +10,9 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public abstract class NorthwindSelectQueryTestBase<TFixture> : QueryTestBase<TFixture>
+public abstract class NorthwindSelectQueryTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)
     where TFixture : NorthwindQueryFixtureBase<NoopModelCustomizer>, new()
 {
-    protected NorthwindSelectQueryTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-
     protected NorthwindContext CreateContext()
         => Fixture.CreateContext();
 
@@ -768,6 +763,52 @@ public abstract class NorthwindSelectQueryTestBase<TFixture> : QueryTestBase<TFi
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task Select_conditional_drops_false(bool async)
+        => AssertQueryScalar(
+            async,
+            ss => from o in ss.Set<Order>()
+                  select o.OrderID % 2 == 0
+                      ? o.OrderID
+                      : false
+                          ? 0
+                          : -o.OrderID);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Select_conditional_terminates_at_true(bool async)
+        => AssertQueryScalar(
+            async,
+            ss => from o in ss.Set<Order>()
+                  select o.OrderID % 2 == 0
+                      ? o.OrderID
+                      : true
+                          ? 0
+                          : -o.OrderID);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Select_conditional_flatten_nested_results(bool async)
+        => AssertQueryScalar(
+            async,
+            ss => from o in ss.Set<Order>()
+                  select o.OrderID % 2 == 0
+                      ? o.OrderID % 5 == 0
+                          ? -o.OrderID
+                          : o.OrderID
+                      : o.OrderID);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Select_conditional_flatten_nested_tests(bool async)
+        => AssertQueryScalar(
+            async,
+            ss => from o in ss.Set<Order>()
+                  select (o.OrderID % 2 == 0 ? false : true)
+                      ? o.OrderID
+                      : -o.OrderID);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task Projection_in_a_subquery_should_be_liftable(bool async)
         => AssertQuery(
             async,
@@ -1507,7 +1548,8 @@ public abstract class NorthwindSelectQueryTestBase<TFixture> : QueryTestBase<TFi
         => AssertQueryScalar(
             async,
             ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI").Select(c => (int?)c.Region.IndexOf("")),
-            ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI").Select(c => c.Region == null ? default(int?) : c.Region.IndexOf("")),
+            ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI")
+                .Select(c => c.Region == null ? default(int?) : c.Region.IndexOf("")),
             assertOrder: true);
 
     [ConditionalTheory]
@@ -2442,16 +2484,18 @@ public abstract class NorthwindSelectQueryTestBase<TFixture> : QueryTestBase<TFi
             async,
             ss => ss.Set<Customer>()
                 .OrderBy(x => x.CustomerID)
-                .Select(x => new
-                {
-                    OrderIds = (from o1 in ss.Set<Order>()
-                                where o1.CustomerID == x.CustomerID
-                                select o1.OrderID)
-                        .Union(from o2 in ss.Set<Order>()
-                               where o2.CustomerID == x.CustomerID
-                               select o2.OrderID)
-                    .ToList()
-                }).Take(5),
+                .Select(
+                    x => new
+                    {
+                        OrderIds = (from o1 in ss.Set<Order>()
+                                    where o1.CustomerID == x.CustomerID
+                                    select o1.OrderID)
+                            .Union(
+                                from o2 in ss.Set<Order>()
+                                where o2.CustomerID == x.CustomerID
+                                select o2.OrderID)
+                            .ToList()
+                    }).Take(5),
             assertOrder: true,
             elementAsserter: (e, a) => AssertCollection(e.OrderIds, a.OrderIds, elementSorter: ee => ee));
 }

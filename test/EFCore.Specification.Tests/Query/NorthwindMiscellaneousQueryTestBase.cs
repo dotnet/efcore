@@ -10,14 +10,9 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestBase<TFixture>
+public abstract class NorthwindMiscellaneousQueryTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)
     where TFixture : NorthwindQueryFixtureBase<NoopModelCustomizer>, new()
 {
-    protected NorthwindMiscellaneousQueryTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-
     protected NorthwindContext CreateContext()
         => Fixture.CreateContext();
 
@@ -723,8 +718,7 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
                 o => new
                 {
                     // ReSharper disable SimplifyConditionalTernaryExpression
-                    Data1 = param != null ? o.OrderDate == param.Value : true,
-                    Data2 = param == null ? true : o.OrderDate == param.Value
+                    Data1 = param != null ? o.OrderDate == param.Value : true, Data2 = param == null ? true : o.OrderDate == param.Value
                     // ReSharper restore SimplifyConditionalTernaryExpression
                 }));
     }
@@ -952,6 +946,27 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
         => AssertQuery(
             async,
             ss => ss.Set<Customer>().Where(c => c.City == "London" && c.Orders.Any(o => o.EmployeeID == 1)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Any_on_distinct(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.Orders.Select(o => o.EmployeeID).Distinct().Any(id => id != 1)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Contains_on_distinct(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.Orders.Select(o => o.EmployeeID).Distinct().Contains(1u)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task All_on_distinct(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.Orders.Select(o => o.EmployeeID).Distinct().All(id => id != 1)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -2183,7 +2198,7 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
                  from o in ss.Set<Order>()
                  select c));
 
-    private class Foo
+    protected class Foo
     {
         public string Bar { get; set; }
     }
@@ -2479,6 +2494,33 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
                 .ThenByDescending(c => c.Country, StringComparer.Ordinal)
                 .Select(c => c.City),
             assertOrder: true);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Select_Order(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Select(c => c.CustomerID).Order(),
+            ss => ss.Set<Customer>().Select(c => c.CustomerID).Order(StringComparer.Ordinal),
+            assertOrder: true);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Select_OrderDescending(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Select(c => c.CustomerID).OrderDescending(),
+            ss => ss.Set<Customer>().Select(c => c.CustomerID).OrderDescending(StringComparer.Ordinal),
+            assertOrder: true);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Where_Order_First(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.Orders.Order().First().OrderID == 10248).Select(c => c.CustomerID),
+            ss => ss.Set<Customer>().AsEnumerable().Where(c => c.Orders.OrderBy(o => o.OrderID).FirstOrDefault()?.OrderID == 10248)
+                .Select(c => c.CustomerID).AsQueryable());
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -3265,15 +3307,12 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
             async,
             ss => ss.Set<Order>().Where(o => (o.OrderID | 10248) == 10248));
 
-
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Where_bitwise_binary_xor(bool async)
-    {
-        return AssertQuery(
+        => AssertQuery(
             async,
             ss => ss.Set<Order>().Where(o => (o.OrderID ^ 1) == 10249));
-    }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]

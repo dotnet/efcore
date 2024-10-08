@@ -8,15 +8,10 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public abstract class CompositeKeyEndToEndTestBase<TFixture> : IClassFixture<TFixture>
+public abstract class CompositeKeyEndToEndTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : CompositeKeyEndToEndTestBase<TFixture>.CompositeKeyEndToEndFixtureBase
 {
-    protected CompositeKeyEndToEndTestBase(TFixture fixture)
-    {
-        Fixture = fixture;
-    }
-
-    private TFixture Fixture { get; }
+    private TFixture Fixture { get; } = fixture;
 
     [ConditionalFact]
     public virtual async Task Can_use_two_non_generated_integers_as_composite_key_end_to_end()

@@ -1,20 +1,14 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.TestModels.Northwind;
-
 namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public abstract class NorthwindFunctionsQueryRelationalTestBase<TFixture> : NorthwindFunctionsQueryTestBase<TFixture>
+public abstract class NorthwindFunctionsQueryRelationalTestBase<TFixture>(TFixture fixture)
+    : NorthwindFunctionsQueryTestBase<TFixture>(fixture)
     where TFixture : NorthwindQueryFixtureBase<NoopModelCustomizer>, new()
 {
-    protected NorthwindFunctionsQueryRelationalTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-
     // StartsWith with StringComparison not supported in relational databases, where the column collation is used to control comparison
     // semantics.
     public override Task String_StartsWith_with_StringComparison_Ordinal(bool async)

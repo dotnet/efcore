@@ -27,7 +27,7 @@ public class PrimitiveCollectionsQueryCosmosTest : PrimitiveCollectionsQueryTest
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE c["Int"] IN (10, 999)
 """);
@@ -41,7 +41,7 @@ WHERE c["Int"] IN (10, 999)
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE c["NullableInt"] IN (10, 999)
 """);
@@ -55,7 +55,7 @@ WHERE c["NullableInt"] IN (10, 999)
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE c["NullableInt"] IN (null, 999)
 """);
@@ -69,7 +69,7 @@ WHERE c["NullableInt"] IN (null, 999)
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((
     SELECT VALUE COUNT(1)
@@ -86,7 +86,7 @@ WHERE ((
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((
     SELECT VALUE COUNT(1)
@@ -103,7 +103,7 @@ WHERE ((
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((
     SELECT VALUE COUNT(1)
@@ -120,7 +120,7 @@ WHERE ((
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((
     SELECT VALUE COUNT(1)
@@ -137,7 +137,7 @@ WHERE ((
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE false
 """);
@@ -149,7 +149,7 @@ WHERE false
             {
                 await base.Inline_collection_Contains_with_one_value(a);
 
-                AssertSql("ReadItem(None, PrimitiveCollectionsEntity|2)");
+                AssertSql("ReadItem(None, 2)");
             });
 
     public override Task Inline_collection_Contains_with_two_values(bool async)
@@ -160,7 +160,7 @@ WHERE false
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE c["Id"] IN (2, 999)
 """);
@@ -174,21 +174,7 @@ WHERE c["Id"] IN (2, 999)
 
                 AssertSql(
                     """
-SELECT c
-FROM root c
-WHERE c["Id"] IN (2, 999, 1000)
-""");
-            });
-
-    public override Task Inline_collection_Contains_with_EF_Constant(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Inline_collection_Contains_with_EF_Constant(a);
-
-                AssertSql(
-                    """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE c["Id"] IN (2, 999, 1000)
 """);
@@ -205,7 +191,7 @@ WHERE c["Id"] IN (2, 999, 1000)
 @__i_0='2'
 @__j_1='999'
 
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE c["Id"] IN (@__i_0, @__j_1)
 """);
@@ -221,7 +207,7 @@ WHERE c["Id"] IN (@__i_0, @__j_1)
                     """
 @__j_0='999'
 
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE c["Id"] IN (2, @__j_0)
 """);
@@ -237,7 +223,7 @@ WHERE c["Id"] IN (2, @__j_0)
                     """
 @__i_0='11'
 
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE c["Int"] IN (999, @__i_0, c["Id"], (c["Id"] + c["Int"]))
 """);
@@ -253,7 +239,7 @@ WHERE c["Int"] IN (999, @__i_0, c["Id"], (c["Id"] + c["Int"]))
                     """
 @__i_0='11'
 
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE c["Int"] IN (999, @__i_0, c["Id"], (c["Id"] + c["Int"]))
 """);
@@ -267,7 +253,7 @@ WHERE c["Int"] IN (999, @__i_0, c["Id"], (c["Id"] + c["Int"]))
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE c["Id"] IN (2, 999)
 """);
@@ -281,7 +267,7 @@ WHERE c["Id"] IN (2, 999)
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE c["Id"] NOT IN (2, 999)
 """);
@@ -295,7 +281,7 @@ WHERE c["Id"] NOT IN (2, 999)
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((
     SELECT VALUE MIN(a)
@@ -311,7 +297,7 @@ WHERE ((
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((
     SELECT VALUE MIN(a)
@@ -327,7 +313,7 @@ WHERE ((
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((
     SELECT VALUE MAX(a)
@@ -343,7 +329,7 @@ WHERE ((
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((
     SELECT VALUE MAX(a)
@@ -361,7 +347,7 @@ WHERE ((
                     """
 @__i_0='25'
 
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((
     SELECT VALUE MIN(a)
@@ -379,7 +365,7 @@ WHERE ((
                     """
 @__i_0='25'
 
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((
     SELECT VALUE MIN(a)
@@ -391,13 +377,13 @@ WHERE ((
         => CosmosTestHelpers.Instance.NoSyncTest(
             async, async a =>
             {
-        await base.Inline_collection_Max_with_three_values(a);
+                await base.Inline_collection_Max_with_three_values(a);
 
-        AssertSql(
-            """
+                AssertSql(
+                    """
 @__i_0='35'
 
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((
     SELECT VALUE MAX(a)
@@ -415,11 +401,154 @@ WHERE ((
                     """
 @__i_0='35'
 
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((
     SELECT VALUE MAX(a)
     FROM a IN (SELECT VALUE [30, c["Int"], @__i_0])) = 35)
+""");
+            });
+
+    public override Task Inline_collection_of_nullable_value_type_Min(bool async)
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async a =>
+            {
+                await base.Inline_collection_of_nullable_value_type_Min(a);
+
+                AssertSql(
+                    """
+@__i_0='25'
+
+SELECT VALUE c
+FROM root c
+WHERE ((
+    SELECT VALUE MIN(a)
+    FROM a IN (SELECT VALUE [30, c["Int"], @__i_0])) = 25)
+""");
+            });
+
+    public override Task Inline_collection_of_nullable_value_type_Max(bool async)
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async a =>
+            {
+                await base.Inline_collection_of_nullable_value_type_Max(a);
+
+                AssertSql(
+                    """
+@__i_0='35'
+
+SELECT VALUE c
+FROM root c
+WHERE ((
+    SELECT VALUE MAX(a)
+    FROM a IN (SELECT VALUE [30, c["Int"], @__i_0])) = 35)
+""");
+            });
+
+    public override async Task Inline_collection_of_nullable_value_type_with_null_Min(bool async)
+    {
+        // Always throws for sync.
+        if (async)
+        {
+            // Cosmos MIN()/MAX() sort nulls as smaller than ints (https://learn.microsoft.com/azure/cosmos-db/nosql/query/min);
+            // since some of the columns included contain null, MIN() returns null as opposed to the smallest number.
+            // In relational, aggregate MIN()/MAX() ignores nulls.
+            await Assert.ThrowsAsync<EqualException>(() => base.Inline_collection_of_nullable_value_type_with_null_Min(async));
+
+            AssertSql(
+                """
+@__i_0=null
+
+SELECT VALUE c
+FROM root c
+WHERE ((
+    SELECT VALUE MIN(a)
+    FROM a IN (SELECT VALUE [30, c["NullableInt"], @__i_0])) = 30)
+""");
+        }
+    }
+
+    public override Task Inline_collection_of_nullable_value_type_with_null_Max(bool async)
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async a =>
+            {
+                await base.Inline_collection_of_nullable_value_type_with_null_Max(a);
+
+                AssertSql(
+                    """
+@__i_0=null
+
+SELECT VALUE c
+FROM root c
+WHERE ((
+    SELECT VALUE MAX(a)
+    FROM a IN (SELECT VALUE [30, c["NullableInt"], @__i_0])) = 30)
+""");
+            });
+
+    public override Task Inline_collection_with_single_parameter_element_Contains(bool async)
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async a =>
+            {
+                await base.Inline_collection_with_single_parameter_element_Contains(a);
+
+                AssertSql(
+                    """
+ReadItem(None, 2)
+""");
+            });
+
+    public override Task Inline_collection_with_single_parameter_element_Count(bool async)
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async a =>
+            {
+                await base.Inline_collection_with_single_parameter_element_Count(a);
+
+                AssertSql(
+                    """
+@__i_0='2'
+
+SELECT VALUE c
+FROM root c
+WHERE ((
+    SELECT VALUE COUNT(1)
+    FROM a IN (SELECT VALUE [@__i_0])
+    WHERE (a > c["Id"])) = 1)
+""");
+            });
+
+    public override Task Inline_collection_Contains_with_EF_Parameter(bool async)
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async a =>
+            {
+                await base.Inline_collection_Contains_with_EF_Parameter(async);
+
+                AssertSql(
+                    """
+@__p_0='[2,999,1000]'
+
+SELECT VALUE c
+FROM root c
+WHERE ARRAY_CONTAINS(@__p_0, c["Id"])
+""");
+            });
+
+    public override Task Inline_collection_Count_with_column_predicate_with_EF_Parameter(bool async)
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async a =>
+            {
+                await base.Inline_collection_Count_with_column_predicate_with_EF_Parameter(async);
+
+                AssertSql(
+                    """
+@__p_0='[2,999,1000]'
+
+SELECT VALUE c
+FROM root c
+WHERE ((
+    SELECT VALUE COUNT(1)
+    FROM p IN (SELECT VALUE @__p_0)
+    WHERE (p > c["Id"])) = 2)
 """);
             });
 
@@ -433,7 +562,7 @@ WHERE ((
                     """
 @__ids_0='[2,999]'
 
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((
     SELECT VALUE COUNT(1)
@@ -452,7 +581,7 @@ WHERE ((
                     """
 @__ints_0='[10,999]'
 
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ARRAY_CONTAINS(@__ints_0, c["Int"])
 """,
@@ -460,7 +589,7 @@ WHERE ARRAY_CONTAINS(@__ints_0, c["Int"])
                     """
 @__ints_0='[10,999]'
 
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE NOT(ARRAY_CONTAINS(@__ints_0, c["Int"]))
 """);
@@ -476,7 +605,7 @@ WHERE NOT(ARRAY_CONTAINS(@__ints_0, c["Int"]))
                     """
 @__ints_0='[10,999]'
 
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ARRAY_CONTAINS(@__ints_0, c["Int"])
 """,
@@ -484,7 +613,7 @@ WHERE ARRAY_CONTAINS(@__ints_0, c["Int"])
                     """
 @__ints_0='[10,999]'
 
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE NOT(ARRAY_CONTAINS(@__ints_0, c["Int"]))
 """);
@@ -500,7 +629,7 @@ WHERE NOT(ARRAY_CONTAINS(@__ints_0, c["Int"]))
                     """
 @__ints_0='[10,999]'
 
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ARRAY_CONTAINS(@__ints_0, c["NullableInt"])
 """,
@@ -508,7 +637,7 @@ WHERE ARRAY_CONTAINS(@__ints_0, c["NullableInt"])
                     """
 @__ints_0='[10,999]'
 
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE NOT(ARRAY_CONTAINS(@__ints_0, c["NullableInt"]))
 """);
@@ -524,7 +653,7 @@ WHERE NOT(ARRAY_CONTAINS(@__ints_0, c["NullableInt"]))
                     """
 @__nullableInts_0='[10,999]'
 
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ARRAY_CONTAINS(@__nullableInts_0, c["Int"])
 """,
@@ -532,7 +661,7 @@ WHERE ARRAY_CONTAINS(@__nullableInts_0, c["Int"])
                     """
 @__nullableInts_0='[10,999]'
 
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE NOT(ARRAY_CONTAINS(@__nullableInts_0, c["Int"]))
 """);
@@ -548,7 +677,7 @@ WHERE NOT(ARRAY_CONTAINS(@__nullableInts_0, c["Int"]))
                     """
 @__nullableInts_0='[null,999]'
 
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ARRAY_CONTAINS(@__nullableInts_0, c["NullableInt"])
 """,
@@ -556,7 +685,7 @@ WHERE ARRAY_CONTAINS(@__nullableInts_0, c["NullableInt"])
                     """
 @__nullableInts_0='[null,999]'
 
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE NOT(ARRAY_CONTAINS(@__nullableInts_0, c["NullableInt"]))
 """);
@@ -572,7 +701,7 @@ WHERE NOT(ARRAY_CONTAINS(@__nullableInts_0, c["NullableInt"]))
                     """
 @__strings_0='["10","999"]'
 
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ARRAY_CONTAINS(@__strings_0, c["String"])
 """,
@@ -580,7 +709,7 @@ WHERE ARRAY_CONTAINS(@__strings_0, c["String"])
                     """
 @__strings_0='["10","999"]'
 
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE NOT(ARRAY_CONTAINS(@__strings_0, c["String"]))
 """);
@@ -596,7 +725,7 @@ WHERE NOT(ARRAY_CONTAINS(@__strings_0, c["String"]))
                     """
 @__strings_0='["10","999"]'
 
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ARRAY_CONTAINS(@__strings_0, c["NullableString"])
 """,
@@ -604,7 +733,7 @@ WHERE ARRAY_CONTAINS(@__strings_0, c["NullableString"])
                     """
 @__strings_0='["10","999"]'
 
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE NOT(ARRAY_CONTAINS(@__strings_0, c["NullableString"]))
 """);
@@ -620,7 +749,7 @@ WHERE NOT(ARRAY_CONTAINS(@__strings_0, c["NullableString"]))
                     """
 @__strings_0='["10",null]'
 
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ARRAY_CONTAINS(@__strings_0, c["String"])
 """,
@@ -628,7 +757,7 @@ WHERE ARRAY_CONTAINS(@__strings_0, c["String"])
                     """
 @__strings_0='["10",null]'
 
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE NOT(ARRAY_CONTAINS(@__strings_0, c["String"]))
 """);
@@ -644,7 +773,7 @@ WHERE NOT(ARRAY_CONTAINS(@__strings_0, c["String"]))
                     """
 @__strings_0='["999",null]'
 
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ARRAY_CONTAINS(@__strings_0, c["NullableString"])
 """,
@@ -652,7 +781,7 @@ WHERE ARRAY_CONTAINS(@__strings_0, c["NullableString"])
                     """
 @__strings_0='["999",null]'
 
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE NOT(ARRAY_CONTAINS(@__strings_0, c["NullableString"]))
 """);
@@ -668,7 +797,7 @@ WHERE NOT(ARRAY_CONTAINS(@__strings_0, c["NullableString"]))
                     """
 @__dateTimes_0='["2020-01-10T12:30:00Z","9999-01-01T00:00:00Z"]'
 
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ARRAY_CONTAINS(@__dateTimes_0, c["DateTime"])
 """);
@@ -684,7 +813,7 @@ WHERE ARRAY_CONTAINS(@__dateTimes_0, c["DateTime"])
                     """
 @__bools_0='[true]'
 
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ARRAY_CONTAINS(@__bools_0, c["Bool"])
 """);
@@ -700,7 +829,7 @@ WHERE ARRAY_CONTAINS(@__bools_0, c["Bool"])
                     """
 @__enums_0='[0,3]'
 
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ARRAY_CONTAINS(@__enums_0, c["Enum"])
 """);
@@ -716,11 +845,35 @@ WHERE ARRAY_CONTAINS(@__enums_0, c["Enum"])
                     """
 @__ints_0=null
 
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ARRAY_CONTAINS(@__ints_0, c["Int"])
 """);
             });
+
+    public override async Task Parameter_collection_Contains_with_EF_Constant(bool async)
+    {
+        // #34327
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
+            () => base.Parameter_collection_Contains_with_EF_Constant(async));
+        Assert.Equal(CoreStrings.EFConstantNotSupported, exception.Message);
+    }
+
+    public override async Task Parameter_collection_Where_with_EF_Constant_Where_Any(bool async)
+    {
+        // #34327
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
+            () => base.Parameter_collection_Where_with_EF_Constant_Where_Any(async));
+        Assert.Equal(CoreStrings.EFConstantNotSupported, exception.Message);
+    }
+
+    public override async Task Parameter_collection_Count_with_column_predicate_with_EF_Constant(bool async)
+    {
+        // #34327
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
+            () => base.Parameter_collection_Count_with_column_predicate_with_EF_Constant(async));
+        Assert.Equal(CoreStrings.EFConstantNotSupported, exception.Message);
+    }
 
     public override Task Column_collection_of_ints_Contains(bool async)
         => CosmosTestHelpers.Instance.NoSyncTest(
@@ -730,7 +883,7 @@ WHERE ARRAY_CONTAINS(@__ints_0, c["Int"])
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ARRAY_CONTAINS(c["Ints"], 10)
 """);
@@ -744,7 +897,7 @@ WHERE ARRAY_CONTAINS(c["Ints"], 10)
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ARRAY_CONTAINS(c["NullableInts"], 10)
 """);
@@ -758,7 +911,7 @@ WHERE ARRAY_CONTAINS(c["NullableInts"], 10)
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ARRAY_CONTAINS(c["NullableInts"], null)
 """);
@@ -772,7 +925,7 @@ WHERE ARRAY_CONTAINS(c["NullableInts"], null)
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ARRAY_CONTAINS(c["Strings"], null)
 """);
@@ -786,7 +939,7 @@ WHERE ARRAY_CONTAINS(c["Strings"], null)
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ARRAY_CONTAINS(c["NullableStrings"], null)
 """);
@@ -800,7 +953,7 @@ WHERE ARRAY_CONTAINS(c["NullableStrings"], null)
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ARRAY_CONTAINS(c["Bools"], true)
 """);
@@ -814,7 +967,7 @@ WHERE ARRAY_CONTAINS(c["Bools"], true)
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (ARRAY_LENGTH(c["Ints"]) = 2)
 """);
@@ -828,7 +981,7 @@ WHERE (ARRAY_LENGTH(c["Ints"]) = 2)
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (ARRAY_LENGTH(c["Ints"]) = 2)
 """);
@@ -842,7 +995,7 @@ WHERE (ARRAY_LENGTH(c["Ints"]) = 2)
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((
     SELECT VALUE COUNT(1)
@@ -859,7 +1012,7 @@ WHERE ((
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((
     SELECT VALUE COUNT(1)
@@ -876,7 +1029,7 @@ WHERE ((
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (c["Ints"][1] = 10)
 """);
@@ -890,7 +1043,7 @@ WHERE (c["Ints"][1] = 10)
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (c["Strings"][1] = "10")
 """);
@@ -904,7 +1057,7 @@ WHERE (c["Strings"][1] = "10")
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (c["DateTimes"][1] = "2020-01-10T12:30:00Z")
 """);
@@ -918,7 +1071,7 @@ WHERE (c["DateTimes"][1] = "2020-01-10T12:30:00Z")
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (c["Ints"][999] = 10)
 """);
@@ -933,7 +1086,7 @@ WHERE (c["Ints"][999] = 10)
 
             AssertSql(
                 """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (c["NullableStrings"][2] = c["NullableString"])
 """);
@@ -948,7 +1101,7 @@ WHERE (c["NullableStrings"][2] = c["NullableString"])
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((ARRAY_LENGTH(c["Strings"]) > 0) AND (c["Strings"][1] = c["NullableString"]))
 """);
@@ -966,7 +1119,7 @@ WHERE ((ARRAY_LENGTH(c["Strings"]) > 0) AND (c["Strings"][1] = c["NullableString
 
             AssertSql(
                 """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ([1, 2, 3][c["Int"]] = 1)
 """);
@@ -985,7 +1138,7 @@ WHERE ([1, 2, 3][c["Int"]] = 1)
 
             AssertSql(
                 """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ([1, c["Int"], 3][c["Int"]] = 1)
 """);
@@ -1004,7 +1157,7 @@ WHERE ([1, c["Int"], 3][c["Int"]] = 1)
 
             AssertSql(
                 """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ([1, c["Int"], 3][c["Int"]] = 1)
 """);
@@ -1025,7 +1178,7 @@ WHERE ([1, c["Int"], 3][c["Int"]] = 1)
                 """
 @__ints_0='[0,2,3]'
 
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (@__ints_0[c["Int"]] = c["Int"])
 """);
@@ -1046,7 +1199,7 @@ WHERE (@__ints_0[c["Int"]] = c["Int"])
                 """
 @__ints_0='[1,2,3]'
 
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (@__ints_0[c["Int"]] = 1)
 """);
@@ -1061,7 +1214,7 @@ WHERE (@__ints_0[c["Int"]] = 1)
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (c["Ints"][1] = 10)
 """);
@@ -1075,7 +1228,7 @@ WHERE (c["Ints"][1] = 10)
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (c["Ints"][0] = 1)
 """);
@@ -1089,7 +1242,7 @@ WHERE (c["Ints"][0] = 1)
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((c["Ints"][0] ?? 0) = 1)
 """);
@@ -1103,7 +1256,7 @@ WHERE ((c["Ints"][0] ?? 0) = 1)
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (c["Ints"][0] = 1)
 """);
@@ -1117,7 +1270,7 @@ WHERE (c["Ints"][0] = 1)
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((c["Ints"][0] ?? 0) = 1)
 """);
@@ -1131,7 +1284,7 @@ WHERE ((c["Ints"][0] ?? 0) = 1)
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (ARRAY_LENGTH(ARRAY_SLICE(c["Ints"], 1)) = 2)
 """);
@@ -1145,7 +1298,7 @@ WHERE (ARRAY_LENGTH(ARRAY_SLICE(c["Ints"], 1)) = 2)
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ARRAY_CONTAINS(ARRAY_SLICE(c["Ints"], 0, 2), 11)
 """);
@@ -1159,7 +1312,7 @@ WHERE ARRAY_CONTAINS(ARRAY_SLICE(c["Ints"], 0, 2), 11)
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ARRAY_CONTAINS(ARRAY_SLICE(c["Ints"], 1, 2), 11)
 """);
@@ -1173,7 +1326,7 @@ WHERE ARRAY_CONTAINS(ARRAY_SLICE(c["Ints"], 1, 2), 11)
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (ARRAY_LENGTH(ARRAY_SLICE(ARRAY(
     SELECT VALUE i
@@ -1190,7 +1343,7 @@ WHERE (ARRAY_LENGTH(ARRAY_SLICE(ARRAY(
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (ARRAY_LENGTH(ARRAY_SLICE(ARRAY(
     SELECT VALUE i
@@ -1207,7 +1360,7 @@ WHERE (ARRAY_LENGTH(ARRAY_SLICE(ARRAY(
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (ARRAY_LENGTH(ARRAY_SLICE(ARRAY(
     SELECT VALUE i
@@ -1224,7 +1377,7 @@ WHERE (ARRAY_LENGTH(ARRAY_SLICE(ARRAY(
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE EXISTS (
     SELECT 1
@@ -1245,7 +1398,7 @@ WHERE EXISTS (
 
             AssertSql(
                 """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (ARRAY(
     SELECT VALUE i
@@ -1263,7 +1416,7 @@ WHERE (ARRAY(
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (ARRAY(
     SELECT VALUE i
@@ -1280,7 +1433,7 @@ WHERE (ARRAY(
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (ARRAY_LENGTH(c["Ints"]) > 0)
 """);
@@ -1302,7 +1455,7 @@ WHERE (ARRAY_LENGTH(c["Ints"]) > 0)
 
                 AssertSql(
                     """
-SELECT i AS i0
+SELECT VALUE i
 FROM root c
 JOIN i IN c["Ints"]
 """);
@@ -1316,7 +1469,7 @@ JOIN i IN c["Ints"]
 
                 AssertSql(
                     """
-SELECT j
+SELECT VALUE j
 FROM root c
 JOIN (
     SELECT VALUE i
@@ -1346,7 +1499,7 @@ JOIN (
 
                 AssertSql(
                     """
-SELECT c["Ints"]
+SELECT VALUE c["Ints"]
 FROM root c
 ORDER BY c["Id"]
 """);
@@ -1378,11 +1531,32 @@ ORDER BY c["Id"]
                     """
 @__ints_0='[11,111]'
 
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (ARRAY_LENGTH(ARRAY_CONCAT(@__ints_0, c["Ints"])) = 2)
 """);
             });
+
+    public override async Task Parameter_collection_with_type_inference_for_JsonScalarExpression(bool async)
+    {
+        // Always throws for sync.
+        if (async)
+        {
+            // Member indexer (c.Array[c.SomeMember]) isn't supported by Cosmos
+            var exception = await Assert.ThrowsAsync<CosmosException>(
+                () => base.Parameter_collection_with_type_inference_for_JsonScalarExpression(async));
+
+            Assert.Equal(HttpStatusCode.BadRequest, exception.StatusCode);
+
+            AssertSql(
+                """
+@__values_0='["one","two"]'
+
+SELECT VALUE ((c["Id"] != 0) ? @__values_0[(c["Int"] % 2)] : "foo")
+FROM root c
+""");
+        }
+    }
 
     public override Task Column_collection_Union_parameter_collection(bool async)
         => CosmosTestHelpers.Instance.NoSyncTest(
@@ -1394,7 +1568,7 @@ WHERE (ARRAY_LENGTH(ARRAY_CONCAT(@__ints_0, c["Ints"])) = 2)
                     """
 @__ints_0='[11,111]'
 
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (ARRAY_LENGTH(SetUnion(c["Ints"], @__ints_0)) = 2)
 """);
@@ -1408,7 +1582,7 @@ WHERE (ARRAY_LENGTH(SetUnion(c["Ints"], @__ints_0)) = 2)
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (ARRAY_LENGTH(SetIntersect(c["Ints"], [11, 111])) = 2)
 """);
@@ -1431,7 +1605,7 @@ WHERE (ARRAY_LENGTH(SetIntersect(c["Ints"], [11, 111])) = 2)
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (ARRAY_LENGTH(SetUnion(ARRAY(
     SELECT VALUE i
@@ -1450,7 +1624,7 @@ WHERE (ARRAY_LENGTH(SetUnion(ARRAY(
                     """
 @__ints_0='[1,10]'
 
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (c["Ints"] = @__ints_0)
 """);
@@ -1466,7 +1640,7 @@ WHERE (c["Ints"] = @__ints_0)
                     """
 @__ints_0='[1,10]'
 
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (ARRAY_CONCAT(c["Ints"], @__ints_0) = [1,11,111,1,10])
 """);
@@ -1480,7 +1654,7 @@ WHERE (ARRAY_CONCAT(c["Ints"], @__ints_0) = [1,11,111,1,10])
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (c["Ints"] = [1,10])
 """);
@@ -1497,7 +1671,7 @@ WHERE (c["Ints"] = [1,10])
 @__i_0='1'
 @__j_1='10'
 
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (c["Ints"] = [@__i_0, @__j_1])
 """);
@@ -1511,7 +1685,7 @@ WHERE (c["Ints"] = [@__i_0, @__j_1])
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (ARRAY(
     SELECT VALUE i
@@ -1542,7 +1716,7 @@ WHERE (ARRAY(
                     """
 @__Skip_0='[111]'
 
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (ARRAY_LENGTH(SetUnion(@__Skip_0, c["Ints"])) = 3)
 """);
@@ -1609,7 +1783,7 @@ WHERE (ARRAY_LENGTH(SetUnion(@__Skip_0, c["Ints"])) = 3)
 
                 AssertSql(
                     """
-SELECT c["Ints"]
+SELECT VALUE c["Ints"]
 FROM root c
 ORDER BY c["Id"]
 """);
@@ -1627,10 +1801,10 @@ ORDER BY c["Id"]
 
             AssertSql(
                 """
-SELECT ARRAY(
+SELECT VALUE ARRAY(
     SELECT VALUE i
     FROM i IN c["Ints"]
-    ORDER BY i DESC) AS c
+    ORDER BY i DESC)
 FROM root c
 ORDER BY c["Id"]
 """);
@@ -1645,10 +1819,10 @@ ORDER BY c["Id"]
 
                 AssertSql(
                     """
-SELECT ARRAY(
+SELECT VALUE ARRAY(
     SELECT VALUE d
     FROM d IN c["DateTimes"]
-    WHERE (DateTimePart("dd", d) != 1)) AS c
+    WHERE (DateTimePart("dd", d) != 1))
 FROM root c
 ORDER BY c["Id"]
 """);
@@ -1698,9 +1872,9 @@ ORDER BY c["Id"]
 
                 AssertSql(
                     """
-SELECT ARRAY(
+SELECT VALUE ARRAY(
     SELECT DISTINCT VALUE i
-    FROM i IN c["Ints"]) AS c
+    FROM i IN c["Ints"])
 FROM root c
 ORDER BY c["Id"]
 """);
@@ -1716,7 +1890,7 @@ ORDER BY c["Id"]
                     """
 SELECT VALUE {"c" : [c["String"], "foo"]}
 FROM root c
-WHERE (c["Discriminator"] = "PrimitiveCollectionsEntity")
+WHERE (c["$type"] = "PrimitiveCollectionsEntity")
 """);
             });
 
@@ -1726,12 +1900,11 @@ WHERE (c["Discriminator"] = "PrimitiveCollectionsEntity")
             {
                 await base.Project_collection_of_ints_with_ToList_and_FirstOrDefault(a);
 
-                // TODO: Improve SQL, #34081
                 AssertSql(
                     """
-SELECT ARRAY(
+SELECT VALUE ARRAY(
     SELECT VALUE i
-    FROM i IN c["Ints"]) AS c
+    FROM i IN c["Ints"])
 FROM root c
 ORDER BY c["Id"]
 OFFSET 0 LIMIT 1
@@ -1771,7 +1944,6 @@ ORDER BY c["Id"]
 
             Assert.Equal(HttpStatusCode.BadRequest, exception.StatusCode);
 
-            // TODO: Improve SQL, #34081
             AssertSql(
                 """
 SELECT VALUE
@@ -1827,7 +1999,7 @@ ORDER BY c["Id"]
                 // The following should be SELECT VALUE [c["String"], "foo"], #33779
                 AssertSql(
                     """
-SELECT [c["String"], "foo"] AS c
+SELECT VALUE [c["String"], "foo"]
 FROM root c
 """);
             });
@@ -1863,7 +2035,7 @@ FROM root c
 @__strings_1='["one","two","three"]'
 @__ints_0='[1,2,3]'
 
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ARRAY_CONTAINS(@__strings_1, (ARRAY_CONTAINS(@__ints_0, c["Int"]) ? "one" : "two"))
 """);
@@ -1880,7 +2052,7 @@ WHERE ARRAY_CONTAINS(@__strings_1, (ARRAY_CONTAINS(@__ints_0, c["Int"]) ? "one" 
 @__strings_1='["one","two","three"]'
 @__ints_0='[1,2,3]'
 
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ARRAY_CONTAINS(@__strings_1, (ARRAY_CONTAINS(@__ints_0, c["Int"]) ? "one" : "two"))
 """);
@@ -1901,7 +2073,7 @@ WHERE ARRAY_CONTAINS(@__strings_1, (ARRAY_CONTAINS(@__ints_0, c["Int"]) ? "one" 
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE IS_DEFINED(c["Ints"][2])
 """);
@@ -1920,7 +2092,7 @@ WHERE IS_DEFINED(c["Ints"][2])
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((c["Ints"][2] ?? 999) = 999)
 """);
@@ -1941,8 +2113,17 @@ WHERE ((c["Ints"][2] ?? 999) = 999)
             => CosmosTestStoreFactory.Instance;
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-            => base.AddOptions(builder.ConfigureWarnings(
-                w => w.Ignore(CosmosEventId.NoPartitionKeyDefined)));
+            => base.AddOptions(
+                builder.ConfigureWarnings(
+                    w => w.Ignore(CosmosEventId.NoPartitionKeyDefined)));
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
+        {
+            base.OnModelCreating(modelBuilder, context);
+
+            // Requires element type mapping; Issue #34026
+            modelBuilder.Entity<PrimitiveCollectionsEntity>().Ignore(e => e.Enums);
+        }
     }
 
     private void AssertSql(params string[] expected)

@@ -37,7 +37,8 @@ public class InMemoryModelBuilderGenericRelationshipStringTest : InMemoryModelBu
             => new GenericStringTestModelBuilder(Fixture, configure);
     }
 
-    public class GenericStringTestModelBuilder(ModelBuilderFixtureBase fixture, Action<ModelConfigurationBuilder>? configure) : TestModelBuilder(fixture, configure)
+    public class GenericStringTestModelBuilder(ModelBuilderFixtureBase fixture, Action<ModelConfigurationBuilder>? configure)
+        : TestModelBuilder(fixture, configure)
     {
         public override TestEntityTypeBuilder<TEntity> Entity<TEntity>()
             => new GenericStringTestEntityTypeBuilder<TEntity>(ModelBuilder.Entity<TEntity>());
@@ -75,7 +76,8 @@ public class InMemoryModelBuilderGenericRelationshipStringTest : InMemoryModelBu
             => entityType.FullName!;
     }
 
-    protected class GenericStringTestEntityTypeBuilder<TEntity>(EntityTypeBuilder<TEntity> entityTypeBuilder) : GenericTestEntityTypeBuilder<TEntity>(entityTypeBuilder)
+    protected class GenericStringTestEntityTypeBuilder<TEntity>(EntityTypeBuilder<TEntity> entityTypeBuilder)
+        : GenericTestEntityTypeBuilder<TEntity>(entityTypeBuilder)
         where TEntity : class
     {
         protected override TestEntityTypeBuilder<TEntity> Wrap(EntityTypeBuilder<TEntity> entityTypeBuilder)
@@ -187,7 +189,8 @@ public class InMemoryModelBuilderGenericRelationshipStringTest : InMemoryModelBu
                     keyExpression.GetMemberAccessList().Select(p => p.GetSimpleMemberName()).ToArray()));
     }
 
-    protected class GenericStringTestReferenceReferenceBuilder<TEntity, TRelatedEntity>(ReferenceReferenceBuilder<TEntity, TRelatedEntity> referenceReferenceBuilder)
+    protected class GenericStringTestReferenceReferenceBuilder<TEntity, TRelatedEntity>(
+        ReferenceReferenceBuilder<TEntity, TRelatedEntity> referenceReferenceBuilder)
         : GenericTestReferenceReferenceBuilder<TEntity, TRelatedEntity>(referenceReferenceBuilder)
         where TEntity : class
         where TRelatedEntity : class
@@ -229,7 +232,8 @@ public class InMemoryModelBuilderGenericRelationshipStringTest : InMemoryModelBu
         where TLeftEntity : class
         where TRightEntity : class;
 
-    protected class GenericStringTestOwnedNavigationBuilder<TEntity, TDependentEntity>(OwnedNavigationBuilder<TEntity, TDependentEntity> ownedNavigationBuilder)
+    protected class GenericStringTestOwnedNavigationBuilder<TEntity, TDependentEntity>(
+        OwnedNavigationBuilder<TEntity, TDependentEntity> ownedNavigationBuilder)
         : GenericTestOwnedNavigationBuilder<TEntity, TDependentEntity>(ownedNavigationBuilder)
         where TEntity : class
         where TDependentEntity : class

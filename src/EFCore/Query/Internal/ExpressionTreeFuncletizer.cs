@@ -6,6 +6,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using static System.Linq.Expressions.Expression;
+using ElementInit = System.Linq.Expressions.ElementInit;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal;
 
@@ -251,10 +252,10 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
         {
             _ = Evaluate(root, out var parameterName, out _);
 
-            state = new()
+            state = new State
             {
                 StateType = StateType.ContainsEvaluatable,
-                Path = new()
+                Path = new PathNode
                 {
                     ExpressionType = state.ExpressionType!,
                     ParameterName = parameterName,
@@ -289,10 +290,10 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
         {
             _ = Evaluate(root, out var parameterName, out _);
 
-            state = new()
+            state = new State
             {
                 StateType = StateType.ContainsEvaluatable,
-                Path = new()
+                Path = new PathNode
                 {
                     ExpressionType = state.ExpressionType!,
                     ParameterName = parameterName,
@@ -480,7 +481,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
 
                     if (rightState.ContainsEvaluatable)
                     {
-                        children ??= new();
+                        children ??= new List<PathNode>();
                         children.Add(rightState.Path! with { PathFromParent = static e => Property(e, nameof(BinaryExpression.Right)) });
                     }
                 }
@@ -555,21 +556,21 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                 {
                     if (testState.ContainsEvaluatable)
                     {
-                        children ??= new();
+                        children ??= new List<PathNode>();
                         children.Add(
                             testState.Path! with { PathFromParent = static e => Property(e, nameof(ConditionalExpression.Test)) });
                     }
 
                     if (ifTrueState.ContainsEvaluatable)
                     {
-                        children ??= new();
+                        children ??= new List<PathNode>();
                         children.Add(
                             ifTrueState.Path! with { PathFromParent = static e => Property(e, nameof(ConditionalExpression.IfTrue)) });
                     }
 
                     if (ifFalseState.ContainsEvaluatable)
                     {
-                        children ??= new();
+                        children ??= new List<PathNode>();
                         children.Add(
                             ifFalseState.Path! with { PathFromParent = static e => Property(e, nameof(ConditionalExpression.IfFalse)) });
                     }
@@ -925,13 +926,12 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                         throw new InvalidOperationException(CoreStrings.EFConstantWithNonEvaluatableArgument);
                     }
 
-                    argumentState = argumentState with
-                    {
-                        StateType = StateType.EvaluatableWithoutCapturedVariable, ForceConstantization = true
-                    };
+                    // Even EF.Constant will be parameter here.
+                    // To have a query cache hit, the constantization will happen later in pipeline.
+                    argumentState = argumentState with { StateType = StateType.EvaluatableWithCapturedVariable };
                     var evaluatedArgument = ProcessEvaluatableRoot(argument, ref argumentState);
                     _state = argumentState;
-                    return evaluatedArgument;
+                    return Call(method, evaluatedArgument);
                 }
 
                 case nameof(EF.Parameter):
@@ -944,9 +944,9 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                     }
 
                     argumentState = argumentState with { StateType = StateType.EvaluatableWithCapturedVariable };
-                    var evaluatedArgument = ProcessEvaluatableRoot(argument, ref argumentState);
+                    var evaluatedArgument = ProcessEvaluatableRoot(argument, ref argumentState, forceEvaluation: true);
                     _state = argumentState;
-                    return evaluatedArgument;
+                    return Call(method, evaluatedArgument);
                 }
             }
         }
@@ -1446,7 +1446,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                                         Property(e, nameof(ListInitExpression.Initializers)),
                                         ReadOnlyElementInitCollectionIndexerGetter,
                                         arguments: [Constant(initializerIndex)]),
-                                    nameof(System.Linq.Expressions.ElementInit.Arguments)),
+                                    nameof(ElementInit.Arguments)),
                                 ReadOnlyCollectionIndexerGetter,
                                 arguments: [Constant(j)]));
 
@@ -1827,7 +1827,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
     }
 
     [return: NotNullIfNotNull(nameof(evaluatableRoot))]
-    private Expression? ProcessEvaluatableRoot(Expression? evaluatableRoot, ref State state)
+    private Expression? ProcessEvaluatableRoot(Expression? evaluatableRoot, ref State state, bool forceEvaluation = false)
     {
         if (evaluatableRoot is null)
         {
@@ -1849,7 +1849,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
         // We have some cases where a node is evaluatable, but only as part of a larger subtree, and should not be evaluated as a tree root.
         // For these cases, the node's state has a notEvaluatableAsRootHandler lambda, which we can invoke to make evaluate the node's
         // children (as needed), but not itself.
-        if (TryHandleNonEvaluatableAsRoot(evaluatableRoot, state, evaluateAsParameter, out var result))
+        if (!forceEvaluation && TryHandleNonEvaluatableAsRoot(evaluatableRoot, state, evaluateAsParameter, out var result))
         {
             return result;
         }
@@ -1887,10 +1887,10 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
 
             if (_calculatingPath)
             {
-                state = new()
+                state = new State
                 {
                     StateType = StateType.ContainsEvaluatable,
-                    Path = new()
+                    Path = new PathNode
                     {
                         ExpressionType = state.ExpressionType!,
                         ParameterName = parameterName,
@@ -2114,12 +2114,12 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
     private enum StateType
     {
         /// <summary>
-        /// A temporary initial state, before any children have been examined.
+        ///     A temporary initial state, before any children have been examined.
         /// </summary>
         Unknown,
 
         /// <summary>
-        /// Means that the current node is neither evaluatable, nor does it contains an evaluatable node.
+        ///     Means that the current node is neither evaluatable, nor does it contains an evaluatable node.
         /// </summary>
         NoEvaluatability,
 
@@ -2136,7 +2136,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
         EvaluatableWithCapturedVariable,
 
         /// <summary>
-        /// Whether the current node contains (parameterizable) evaluatable nodes anywhere within its children.
+        ///     Whether the current node contains (parameterizable) evaluatable nodes anywhere within its children.
         /// </summary>
         ContainsEvaluatable
     }
@@ -2159,13 +2159,12 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
         public static State CreateContainsEvaluatable(Type expressionType, IReadOnlyList<PathNode> children)
             => new()
             {
-                StateType = StateType.ContainsEvaluatable,
-                Path = new() { ExpressionType = expressionType, Children = children }
+                StateType = StateType.ContainsEvaluatable, Path = new PathNode { ExpressionType = expressionType, Children = children }
             };
 
         /// <summary>
-        /// Means that we're neither within an evaluatable subtree, nor on a node which contains one (and therefore needs to track the
-        /// path to it).
+        ///     Means that we're neither within an evaluatable subtree, nor on a node which contains one (and therefore needs to track the
+        ///     path to it).
         /// </summary>
         public static readonly State NoEvaluatability = new() { StateType = StateType.NoEvaluatability };
 
@@ -2174,7 +2173,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
         public Type? ExpressionType { get; init; }
 
         /// <summary>
-        /// A tree containing information on reaching all evaluatable nodes contained within this node.
+        ///     A tree containing information on reaching all evaluatable nodes contained within this node.
         /// </summary>
         public PathNode? Path { get; init; }
 

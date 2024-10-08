@@ -1335,12 +1335,8 @@ public partial class DbContextTest
 
     public class FakeServiceProvider : IServiceProvider, IDisposable
     {
-        private readonly IServiceProvider _realProvider;
-
-        public FakeServiceProvider()
-        {
-            _realProvider = new ServiceCollection().AddEntityFrameworkInMemoryDatabase().BuildServiceProvider(validateScopes: true);
-        }
+        private readonly IServiceProvider _realProvider =
+            new ServiceCollection().AddEntityFrameworkInMemoryDatabase().BuildServiceProvider(validateScopes: true);
 
         public bool Disposed { get; set; }
 

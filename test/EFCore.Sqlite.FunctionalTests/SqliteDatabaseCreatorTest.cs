@@ -36,7 +36,7 @@ public class SqliteDatabaseCreatorTest
     [InlineData(true)]
     public async Task HasTables_returns_false_when_database_is_empty(bool async)
     {
-        using var testStore = await SqliteTestStore.GetOrCreateInitializedAsync("Empty");
+        await using var testStore = await SqliteTestStore.GetOrCreateInitializedAsync("Empty");
         var context = CreateContext(testStore.ConnectionString);
 
         var creator = context.GetService<IRelationalDatabaseCreator>();
@@ -48,7 +48,7 @@ public class SqliteDatabaseCreatorTest
     [InlineData(true)]
     public async Task HasTables_returns_true_when_database_is_not_empty(bool async)
     {
-        using var testStore = await SqliteTestStore.GetOrCreateInitializedAsync($"HasATable{(async ? 'A' : 'S')}");
+        await using var testStore = await SqliteTestStore.GetOrCreateInitializedAsync($"HasATable{(async ? 'A' : 'S')}");
         var context = CreateContext(testStore.ConnectionString);
         context.Database.ExecuteSqlRaw("CREATE TABLE Dummy (Foo INTEGER)");
 
@@ -63,7 +63,7 @@ public class SqliteDatabaseCreatorTest
     [InlineData(true, true)]
     public async Task Exists_returns_true_when_database_exists(bool async, bool useCanConnect)
     {
-        using var testStore = await SqliteTestStore.GetOrCreateInitializedAsync("Empty");
+        await using var testStore = await SqliteTestStore.GetOrCreateInitializedAsync("Empty");
         var context = CreateContext(testStore.ConnectionString);
 
         if (useCanConnect)
@@ -82,7 +82,7 @@ public class SqliteDatabaseCreatorTest
     [InlineData(true)]
     public async Task Create_sets_journal_mode_to_wal(bool async)
     {
-        using var testStore = SqliteTestStore.GetOrCreate("Create");
+        await using var testStore = SqliteTestStore.GetOrCreate("Create");
         using var context = CreateContext(testStore.ConnectionString);
         var creator = context.GetService<IRelationalDatabaseCreator>();
 

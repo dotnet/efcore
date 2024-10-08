@@ -11,7 +11,8 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
-    public class CSharpDbContextGeneratorTest(ModelCodeGeneratorTestFixture fixture, ITestOutputHelper output) : ModelCodeGeneratorTestBase(fixture, output)
+    public class CSharpDbContextGeneratorTest(ModelCodeGeneratorTestFixture fixture, ITestOutputHelper output)
+        : ModelCodeGeneratorTestBase(fixture, output)
     {
         [ConditionalFact]
         public Task Empty_model()
@@ -1174,8 +1175,7 @@ public partial class TestDbContext : DbContext
                     .IncrementsBy(2)
                     .HasMin(2)
                     .HasMax(100)
-                    .IsCyclic()
-                    .UseCache(20),
+                    .IsCyclic(),
                 new ModelCodeGenerationOptions(),
                 code => AssertContains(
                     """
@@ -1184,8 +1184,7 @@ public partial class TestDbContext : DbContext
             .IncrementsBy(2)
             .HasMin(2L)
             .HasMax(100L)
-            .IsCyclic()
-            .UseCache(20);
+            .IsCyclic();
 """,
                     code.ContextFile.Code),
                 model =>
@@ -1199,8 +1198,6 @@ public partial class TestDbContext : DbContext
                     Assert.Equal(2, sequence.MinValue);
                     Assert.Equal(100, sequence.MaxValue);
                     Assert.True(sequence.IsCyclic);
-                    Assert.True(sequence.IsCached);
-                    Assert.Equal(20, sequence.CacheSize);
                 });
 
         [ConditionalFact]
@@ -1364,7 +1361,8 @@ public partial class TestDbContext : DbContext
         protected override IServiceCollection AddScaffoldingServices(IServiceCollection services)
             => services.Replace(ServiceDescriptor.Singleton<IAnnotationCodeGenerator, TestModelAnnotationCodeGenerator>());
 
-        private class TestModelAnnotationProvider(RelationalAnnotationProviderDependencies dependencies) : SqlServerAnnotationProvider(dependencies)
+        private class TestModelAnnotationProvider(RelationalAnnotationProviderDependencies dependencies)
+            : SqlServerAnnotationProvider(dependencies)
         {
             public override IEnumerable<IAnnotation> For(IRelationalModel database, bool designTime)
             {
@@ -1380,7 +1378,8 @@ public partial class TestDbContext : DbContext
             }
         }
 
-        private class TestModelAnnotationCodeGenerator(AnnotationCodeGeneratorDependencies dependencies) : SqlServerAnnotationCodeGenerator(dependencies)
+        private class TestModelAnnotationCodeGenerator(AnnotationCodeGeneratorDependencies dependencies)
+            : SqlServerAnnotationCodeGenerator(dependencies)
         {
             private static readonly MethodInfo _testFluentApiCallMethodInfo
                 = typeof(TestModelBuilderExtensions).GetRuntimeMethod(

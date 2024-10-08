@@ -5,7 +5,8 @@ using Microsoft.EntityFrameworkCore.InMemory.Internal;
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class UpdatesInMemoryWithoutSensitiveDataLoggingTest(UpdatesInMemoryWithoutSensitiveDataLoggingTest.UpdatesInMemoryWithoutSensitiveDataLoggingFixture fixture)
+public class UpdatesInMemoryWithoutSensitiveDataLoggingTest(
+    UpdatesInMemoryWithoutSensitiveDataLoggingTest.UpdatesInMemoryWithoutSensitiveDataLoggingFixture fixture)
     : UpdatesInMemoryTestBase<UpdatesInMemoryWithoutSensitiveDataLoggingTest.UpdatesInMemoryWithoutSensitiveDataLoggingFixture>(fixture)
 {
     protected override string UpdateConcurrencyTokenMessage

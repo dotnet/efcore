@@ -110,7 +110,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
                         "json_array_length",
                         new[] { array },
                         nullable: true,
-                        argumentsPropagateNullability: new[] { true },
+                        argumentsPropagateNullability: Statics.TrueArrays[1],
                         typeof(int)),
                     _sqlExpressionFactory.Constant(0));
 
@@ -209,7 +209,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
                 "json_array_length",
                 new[] { array },
                 nullable: true,
-                argumentsPropagateNullability: new[] { true },
+                argumentsPropagateNullability: Statics.TrueArrays[1],
                 typeof(int));
 
 #pragma warning disable EF1001
@@ -261,7 +261,11 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
                 elementClrType.UnwrapNullableType(),
                 elementTypeMapping,
                 isElementNullable ?? elementClrType.IsNullableType()),
-            identifier: [(new ColumnExpression(JsonEachKeyColumnName, tableAlias, typeof(int), keyColumnTypeMapping, nullable: false), keyColumnTypeMapping.Comparer)],
+            identifier:
+            [
+                (new ColumnExpression(JsonEachKeyColumnName, tableAlias, typeof(int), keyColumnTypeMapping, nullable: false),
+                    keyColumnTypeMapping.Comparer)
+            ],
             _sqlAliasManager);
 #pragma warning restore EF1001 // Internal EF Core API usage.
 
@@ -582,7 +586,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
                     "unhex",
                     new[] { expression },
                     nullable: true,
-                    argumentsPropagateNullability: new[] { true },
+                    argumentsPropagateNullability: Statics.TrueArrays[1],
                     typeof(byte[]),
                     typeMapping),
 

@@ -255,9 +255,9 @@ public class EntityMaterializerSource : IEntityMaterializerSource
         = typeof(MaterializationInterceptionData).GetDeclaredConstructor(
         [
             typeof(MaterializationContext),
-                typeof(IEntityType),
-                typeof(QueryTrackingBehavior?),
-                typeof(Dictionary<IPropertyBase, (object, Func<MaterializationContext, object?>)>)
+            typeof(IEntityType),
+            typeof(QueryTrackingBehavior?),
+            typeof(Dictionary<IPropertyBase, (object, Func<MaterializationContext, object?>)>)
         ])!;
 
     private static readonly MethodInfo CreatingInstanceMethod

@@ -8,7 +8,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-public abstract class MigrationsSqlGeneratorTestBase
+public abstract class MigrationsSqlGeneratorTestBase(
+    TestHelpers testHelpers,
+    IServiceCollection customServices = null,
+    DbContextOptions options = null)
 {
     protected static string EOL
         => Environment.NewLine;
@@ -178,20 +181,14 @@ public abstract class MigrationsSqlGeneratorTestBase
         [new Coordinate(1.1, 2.2), new Coordinate(2.2, 2.2), new Coordinate(2.2, 1.1), new Coordinate(7.1, 7.2)]) { SRID = 4326 };
 
     private static readonly LineString _lineString2 = new(
-        [new Coordinate(7.1, 7.2), new Coordinate(20.2, 20.2), new Coordinate(20.20, 1.1), new Coordinate(70.1, 70.2)])
-    {
-        SRID = 4326
-    };
+        [new Coordinate(7.1, 7.2), new Coordinate(20.2, 20.2), new Coordinate(20.20, 1.1), new Coordinate(70.1, 70.2)]) { SRID = 4326 };
 
     private static readonly MultiPoint _multiPoint = new(
         [new Point(1.1, 2.2), new Point(2.2, 2.2), new Point(2.2, 1.1)]) { SRID = 4326 };
 
     private static readonly Polygon _polygon1 = new(
         new LinearRing(
-            [new Coordinate(1.1, 2.2), new Coordinate(2.2, 2.2), new Coordinate(2.2, 1.1), new Coordinate(1.1, 2.2)]))
-    {
-        SRID = 4326
-    };
+            [new Coordinate(1.1, 2.2), new Coordinate(2.2, 2.2), new Coordinate(2.2, 1.1), new Coordinate(1.1, 2.2)])) { SRID = 4326 };
 
     private static readonly Polygon _polygon2 = new(
         new LinearRing(
@@ -209,10 +206,7 @@ public abstract class MigrationsSqlGeneratorTestBase
         [_polygon2, _polygon1]) { SRID = 4326 };
 
     private static readonly GeometryCollection _geometryCollection = new(
-        [_lineString1, _lineString2, _multiPoint, _polygon1, _polygon2, _point1, _multiLineString, _multiPolygon])
-    {
-        SRID = 4326
-    };
+        [_lineString1, _lineString2, _multiPoint, _polygon1, _polygon2, _point1, _multiLineString, _multiPolygon]) { SRID = 4326 };
 
     [ConditionalFact]
     public virtual void InsertDataOperation_all_args_spatial()
@@ -750,19 +744,9 @@ public abstract class MigrationsSqlGeneratorTestBase
                 pb.HasKey("FirstName", "LastName");
             });
 
-    protected TestHelpers TestHelpers { get; }
-    protected DbContextOptions ContextOptions { get; }
-    protected IServiceCollection CustomServices { get; }
-
-    protected MigrationsSqlGeneratorTestBase(
-        TestHelpers testHelpers,
-        IServiceCollection customServices = null,
-        DbContextOptions options = null)
-    {
-        TestHelpers = testHelpers;
-        CustomServices = customServices;
-        ContextOptions = options;
-    }
+    protected TestHelpers TestHelpers { get; } = testHelpers;
+    protected DbContextOptions ContextOptions { get; } = options;
+    protected IServiceCollection CustomServices { get; } = customServices;
 
     protected virtual void Generate(MigrationOperation operation, MigrationsSqlGenerationOptions options)
         => Generate(null, [operation], options);

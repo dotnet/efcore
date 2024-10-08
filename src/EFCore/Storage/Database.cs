@@ -33,9 +33,7 @@ public abstract class Database : IDatabase
     /// </summary>
     /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
     protected Database(DatabaseDependencies dependencies)
-    {
-        Dependencies = dependencies;
-    }
+        => Dependencies = dependencies;
 
     /// <summary>
     ///     Dependencies for this service.

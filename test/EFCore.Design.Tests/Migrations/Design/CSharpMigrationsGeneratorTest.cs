@@ -95,6 +95,7 @@ public partial class CSharpMigrationsGeneratorTest
             RelationalAnnotationNames.JsonPropertyName,
             // Appears on entity type but requires specific model (i.e. owned types that can map to json, otherwise validation throws)
             RelationalAnnotationNames.ContainerColumnName,
+            RelationalAnnotationNames.ContainerColumnType,
 #pragma warning disable CS0618
             RelationalAnnotationNames.ContainerColumnTypeMapping,
 #pragma warning restore CS0618
@@ -262,6 +263,7 @@ public partial class CSharpMigrationsGeneratorTest
             RelationalAnnotationNames.ModelDependencies,
             RelationalAnnotationNames.FieldValueGetter,
             RelationalAnnotationNames.ContainerColumnName,
+            RelationalAnnotationNames.ContainerColumnType,
 #pragma warning disable CS0618
             RelationalAnnotationNames.ContainerColumnTypeMapping,
 #pragma warning restore CS0618
@@ -367,8 +369,9 @@ public partial class CSharpMigrationsGeneratorTest
         }
 
         var relationalAnnotations = typeof(RelationalAnnotationNames).GetFields()
-            .Where(f => f.FieldType == typeof(string)
-                && f.Name != "Prefix").ToList();
+            .Where(
+                f => f.FieldType == typeof(string)
+                    && f.Name != "Prefix").ToList();
 
         foreach (var field in relationalAnnotations)
         {
@@ -380,7 +383,11 @@ public partial class CSharpMigrationsGeneratorTest
             {
                 Assert.True(
                     RelationalAnnotationNames.AllNames.Contains(annotationName),
-                    nameof(RelationalAnnotationNames) + "." + nameof(RelationalAnnotationNames.AllNames) + " doesn't contain " + annotationName);
+                    nameof(RelationalAnnotationNames)
+                    + "."
+                    + nameof(RelationalAnnotationNames.AllNames)
+                    + " doesn't contain "
+                    + annotationName);
             }
         }
 

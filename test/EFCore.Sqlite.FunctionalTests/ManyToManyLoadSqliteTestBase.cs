@@ -7,14 +7,9 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public abstract class ManyToManyLoadSqliteTestBase<TFixture> : ManyToManyLoadTestBase<TFixture>
+public abstract class ManyToManyLoadSqliteTestBase<TFixture>(TFixture fixture) : ManyToManyLoadTestBase<TFixture>(fixture)
     where TFixture : ManyToManyLoadSqliteTestBase<TFixture>.ManyToManyLoadSqliteFixtureBase
 {
-    protected ManyToManyLoadSqliteTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-
     public class ManyToManyLoadSqliteFixtureBase : ManyToManyLoadFixtureBase, ITestSqlLoggerFactory
     {
         public TestSqlLoggerFactory TestSqlLoggerFactory

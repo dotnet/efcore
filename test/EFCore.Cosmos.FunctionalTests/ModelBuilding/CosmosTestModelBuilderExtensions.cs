@@ -26,6 +26,24 @@ public static class CosmosTestModelBuilderExtensions
         return builder;
     }
 
+    public static ModelBuilderTest.TestEntityTypeBuilder<TEntity> AlwaysHasShadowId<TEntity>(
+        this ModelBuilderTest.TestEntityTypeBuilder<TEntity> builder,
+        bool? alwaysCreate = true)
+        where TEntity : class
+    {
+        switch (builder)
+        {
+            case IInfrastructure<EntityTypeBuilder<TEntity>> genericBuilder:
+                genericBuilder.Instance.HasShadowId(alwaysCreate);
+                break;
+            case IInfrastructure<EntityTypeBuilder> nonGenericBuilder:
+                nonGenericBuilder.Instance.HasShadowId(alwaysCreate);
+                break;
+        }
+
+        return builder;
+    }
+
     public static ModelBuilderTest.TestEntityTypeBuilder<TEntity> HasPartitionKey<TEntity>(
         this ModelBuilderTest.TestEntityTypeBuilder<TEntity> builder,
         string name,

@@ -5,14 +5,9 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public abstract class Ef6GroupByTestBase<TFixture> : QueryTestBase<TFixture>
+public abstract class Ef6GroupByTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)
     where TFixture : Ef6GroupByTestBase<TFixture>.Ef6GroupByFixtureBase, new()
 {
-    protected Ef6GroupByTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task GroupBy_is_optimized_when_projecting_group_key(bool async)

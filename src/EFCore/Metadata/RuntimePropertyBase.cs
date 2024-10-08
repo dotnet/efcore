@@ -93,8 +93,13 @@ public abstract class RuntimePropertyBase : RuntimeAnnotatableBase, IRuntimeProp
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    public virtual void SetPropertyIndexes(int index, int originalValueIndex, int shadowIndex, int relationshipIndex, int storeGenerationIndex)
-        => _indexes = new(index, originalValueIndex, shadowIndex, relationshipIndex, storeGenerationIndex);
+    public virtual void SetPropertyIndexes(
+        int index,
+        int originalValueIndex,
+        int shadowIndex,
+        int relationshipIndex,
+        int storeGenerationIndex)
+        => _indexes = new PropertyIndexes(index, originalValueIndex, shadowIndex, relationshipIndex, storeGenerationIndex);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -109,7 +114,7 @@ public abstract class RuntimePropertyBase : RuntimeAnnotatableBase, IRuntimeProp
         Func<InternalEntityEntry, TProperty>? originalValueGetter,
         Func<InternalEntityEntry, TProperty> relationshipSnapshotGetter,
         Func<ValueBuffer, object>? valueBufferGetter)
-        => _accessors = new(
+        => _accessors = new PropertyAccessors(
             currentValueGetter,
             preStoreGeneratedCurrentValueGetter,
             originalValueGetter,

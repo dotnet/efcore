@@ -33,13 +33,13 @@ namespace TestNamespace
                 typeof(Dictionary<string, object>),
                 baseEntityType,
                 sharedClrType: true,
-                discriminatorProperty: "Discriminator",
+                discriminatorProperty: "$type",
                 indexerPropertyInfo: RuntimeEntityType.FindIndexerProperty(typeof(Dictionary<string, object>)),
                 propertyBag: true,
                 discriminatorValue: "PrincipalBasePrincipalDerived<DependentBase<byte?>>",
                 propertyCount: 8,
                 foreignKeyCount: 2,
-                keyCount: 2);
+                keyCount: 1);
 
             var derivedsId = runtimeEntityType.AddProperty(
                 "DerivedsId",
@@ -321,34 +321,34 @@ namespace TestNamespace
                         Guid (string v) => new Guid(v))));
             principalsAlternateId.SetCurrentValueComparer(new EntryCurrentValueComparer<Guid>(principalsAlternateId));
 
-            var discriminator = runtimeEntityType.AddProperty(
-                "Discriminator",
+            var type = runtimeEntityType.AddProperty(
+                "$type",
                 typeof(string),
                 propertyInfo: runtimeEntityType.FindIndexerPropertyInfo(),
                 afterSaveBehavior: PropertySaveBehavior.Throw,
                 valueGeneratorFactory: new DiscriminatorValueGeneratorFactory().Create);
-            discriminator.SetGetter(
-                string (Dictionary<string, object> entity) => ((((IDictionary<string, object>)entity).ContainsKey("Discriminator") ? entity["Discriminator"] : null) == null ? null : ((string)((((IDictionary<string, object>)entity).ContainsKey("Discriminator") ? entity["Discriminator"] : null)))),
-                bool (Dictionary<string, object> entity) => (((IDictionary<string, object>)entity).ContainsKey("Discriminator") ? entity["Discriminator"] : null) == null,
-                string (Dictionary<string, object> instance) => ((((IDictionary<string, object>)instance).ContainsKey("Discriminator") ? instance["Discriminator"] : null) == null ? null : ((string)((((IDictionary<string, object>)instance).ContainsKey("Discriminator") ? instance["Discriminator"] : null)))),
-                bool (Dictionary<string, object> instance) => (((IDictionary<string, object>)instance).ContainsKey("Discriminator") ? instance["Discriminator"] : null) == null);
-            discriminator.SetSetter(
-                (Dictionary<string, object> entity, string value) => entity["Discriminator"] = ((object)(value)));
-            discriminator.SetMaterializationSetter(
-                (Dictionary<string, object> entity, string value) => entity["Discriminator"] = ((object)(value)));
-            discriminator.SetAccessors(
-                string (InternalEntityEntry entry) => ((string)((((IDictionary<string, object>)((Dictionary<string, object>)(entry.Entity))).ContainsKey("Discriminator") ? ((Dictionary<string, object>)(entry.Entity))["Discriminator"] : null))),
-                string (InternalEntityEntry entry) => ((string)((((IDictionary<string, object>)((Dictionary<string, object>)(entry.Entity))).ContainsKey("Discriminator") ? ((Dictionary<string, object>)(entry.Entity))["Discriminator"] : null))),
-                string (InternalEntityEntry entry) => entry.ReadOriginalValue<string>(discriminator, 4),
-                string (InternalEntityEntry entry) => entry.GetCurrentValue<string>(discriminator),
+            type.SetGetter(
+                string (Dictionary<string, object> entity) => ((((IDictionary<string, object>)entity).ContainsKey("$type") ? entity["$type"] : null) == null ? null : ((string)((((IDictionary<string, object>)entity).ContainsKey("$type") ? entity["$type"] : null)))),
+                bool (Dictionary<string, object> entity) => (((IDictionary<string, object>)entity).ContainsKey("$type") ? entity["$type"] : null) == null,
+                string (Dictionary<string, object> instance) => ((((IDictionary<string, object>)instance).ContainsKey("$type") ? instance["$type"] : null) == null ? null : ((string)((((IDictionary<string, object>)instance).ContainsKey("$type") ? instance["$type"] : null)))),
+                bool (Dictionary<string, object> instance) => (((IDictionary<string, object>)instance).ContainsKey("$type") ? instance["$type"] : null) == null);
+            type.SetSetter(
+                (Dictionary<string, object> entity, string value) => entity["$type"] = ((object)(value)));
+            type.SetMaterializationSetter(
+                (Dictionary<string, object> entity, string value) => entity["$type"] = ((object)(value)));
+            type.SetAccessors(
+                string (InternalEntityEntry entry) => ((string)((((IDictionary<string, object>)((Dictionary<string, object>)(entry.Entity))).ContainsKey("$type") ? ((Dictionary<string, object>)(entry.Entity))["$type"] : null))),
+                string (InternalEntityEntry entry) => ((string)((((IDictionary<string, object>)((Dictionary<string, object>)(entry.Entity))).ContainsKey("$type") ? ((Dictionary<string, object>)(entry.Entity))["$type"] : null))),
+                string (InternalEntityEntry entry) => entry.ReadOriginalValue<string>(type, 4),
+                string (InternalEntityEntry entry) => entry.GetCurrentValue<string>(type),
                 object (ValueBuffer valueBuffer) => valueBuffer[4]);
-            discriminator.SetPropertyIndexes(
+            type.SetPropertyIndexes(
                 index: 4,
                 originalValueIndex: 4,
                 shadowIndex: -1,
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
-            discriminator.TypeMapping = CosmosTypeMapping.Default.Clone(
+            type.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ValueComparer<string>(
                     bool (string v1, string v2) => v1 == v2,
                     int (string v) => ((object)v).GetHashCode(),
@@ -383,13 +383,13 @@ namespace TestNamespace
                 string (InternalEntityEntry entry) => ((string)((((IDictionary<string, object>)((Dictionary<string, object>)(entry.Entity))).ContainsKey("__id") ? ((Dictionary<string, object>)(entry.Entity))["__id"] : null))),
                 string (InternalEntityEntry entry) => ((string)((((IDictionary<string, object>)((Dictionary<string, object>)(entry.Entity))).ContainsKey("__id") ? ((Dictionary<string, object>)(entry.Entity))["__id"] : null))),
                 string (InternalEntityEntry entry) => entry.ReadOriginalValue<string>(__id, 5),
-                string (InternalEntityEntry entry) => entry.ReadRelationshipSnapshotValue<string>(__id, 4),
+                string (InternalEntityEntry entry) => entry.GetCurrentValue<string>(__id),
                 object (ValueBuffer valueBuffer) => valueBuffer[5]);
             __id.SetPropertyIndexes(
                 index: 5,
                 originalValueIndex: 5,
                 shadowIndex: -1,
-                relationshipIndex: 4,
+                relationshipIndex: -1,
                 storeGenerationIndex: -1);
             __id.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ValueComparer<string>(
@@ -406,7 +406,6 @@ namespace TestNamespace
                     string (string v) => v),
                 clrType: typeof(string),
                 jsonValueReaderWriter: JsonStringReaderWriter.Instance);
-            __id.SetCurrentValueComparer(new EntryCurrentValueComparer<string>(__id));
             __id.AddAnnotation("Cosmos:PropertyName", "id");
 
             var __jObject = runtimeEntityType.AddProperty(
@@ -503,11 +502,8 @@ namespace TestNamespace
                         byte[] (string v) => Convert.FromBase64String(v))));
 
             var key = runtimeEntityType.AddKey(
-                new[] { __id });
-
-            var key0 = runtimeEntityType.AddKey(
                 new[] { derivedsId, derivedsAlternateId, principalsId, principalsAlternateId });
-            runtimeEntityType.SetPrimaryKey(key0);
+            runtimeEntityType.SetPrimaryKey(key);
 
             return runtimeEntityType;
         }
@@ -536,25 +532,22 @@ namespace TestNamespace
 
         public static void CreateAnnotations(RuntimeEntityType runtimeEntityType)
         {
-            var derivedsId = runtimeEntityType.FindProperty("DerivedsId")!;
-            var derivedsAlternateId = runtimeEntityType.FindProperty("DerivedsAlternateId")!;
-            var principalsId = runtimeEntityType.FindProperty("PrincipalsId")!;
-            var principalsAlternateId = runtimeEntityType.FindProperty("PrincipalsAlternateId")!;
-            var discriminator = runtimeEntityType.FindProperty("Discriminator")!;
-            var __id = runtimeEntityType.FindProperty("__id")!;
-            var __jObject = runtimeEntityType.FindProperty("__jObject")!;
-            var rowid = runtimeEntityType.FindProperty("rowid")!;
-            var key = runtimeEntityType.FindKey(new[] { __id });
-            key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.CreateSimpleNullableFactory<string, int>(key));
-            key.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<string>(key));
-            var key0 = runtimeEntityType.FindKey(new[] { derivedsId, derivedsAlternateId, principalsId, principalsAlternateId });
-            key0.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.CreateCompositeFactory(key0));
-            key0.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<IReadOnlyList<object>>(key0));
+            var derivedsId = runtimeEntityType.FindProperty("DerivedsId");
+            var derivedsAlternateId = runtimeEntityType.FindProperty("DerivedsAlternateId");
+            var principalsId = runtimeEntityType.FindProperty("PrincipalsId");
+            var principalsAlternateId = runtimeEntityType.FindProperty("PrincipalsAlternateId");
+            var type = runtimeEntityType.FindProperty("$type");
+            var __id = runtimeEntityType.FindProperty("__id");
+            var __jObject = runtimeEntityType.FindProperty("__jObject");
+            var rowid = runtimeEntityType.FindProperty("rowid");
+            var key = runtimeEntityType.FindKey(new[] { derivedsId, derivedsAlternateId, principalsId, principalsAlternateId });
+            key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.CreateCompositeFactory(key));
+            key.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<IReadOnlyList<object>>(key));
             runtimeEntityType.SetOriginalValuesFactory(
                 ISnapshot (InternalEntityEntry source) =>
                 {
-                    var entity8 = ((Dictionary<string, object>)(source.Entity));
-                    return ((ISnapshot)(new Snapshot<long, Guid, long, Guid, string, string, JObject, byte[]>(((ValueComparer<long>)(((IProperty)derivedsId).GetValueComparer())).Snapshot(source.GetCurrentValue<long>(derivedsId)), ((ValueComparer<Guid>)(((IProperty)derivedsAlternateId).GetValueComparer())).Snapshot(source.GetCurrentValue<Guid>(derivedsAlternateId)), ((ValueComparer<long>)(((IProperty)principalsId).GetValueComparer())).Snapshot(source.GetCurrentValue<long>(principalsId)), ((ValueComparer<Guid>)(((IProperty)principalsAlternateId).GetValueComparer())).Snapshot(source.GetCurrentValue<Guid>(principalsAlternateId)), (source.GetCurrentValue<string>(discriminator) == null ? null : ((ValueComparer<string>)(((IProperty)discriminator).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(discriminator))), (source.GetCurrentValue<string>(__id) == null ? null : ((ValueComparer<string>)(((IProperty)__id).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(__id))), (source.GetCurrentValue<JObject>(__jObject) == null ? null : ((ValueComparer<JObject>)(((IProperty)__jObject).GetValueComparer())).Snapshot(source.GetCurrentValue<JObject>(__jObject))), (source.GetCurrentValue<byte[]>(rowid) == null ? null : ((ValueComparer<byte[]>)(((IProperty)rowid).GetValueComparer())).Snapshot(source.GetCurrentValue<byte[]>(rowid))))));
+                    var entity5 = ((Dictionary<string, object>)(source.Entity));
+                    return ((ISnapshot)(new Snapshot<long, Guid, long, Guid, string, string, JObject, byte[]>(((ValueComparer<long>)(((IProperty)derivedsId).GetValueComparer())).Snapshot(source.GetCurrentValue<long>(derivedsId)), ((ValueComparer<Guid>)(((IProperty)derivedsAlternateId).GetValueComparer())).Snapshot(source.GetCurrentValue<Guid>(derivedsAlternateId)), ((ValueComparer<long>)(((IProperty)principalsId).GetValueComparer())).Snapshot(source.GetCurrentValue<long>(principalsId)), ((ValueComparer<Guid>)(((IProperty)principalsAlternateId).GetValueComparer())).Snapshot(source.GetCurrentValue<Guid>(principalsAlternateId)), (source.GetCurrentValue<string>(type) == null ? null : ((ValueComparer<string>)(((IProperty)type).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(type))), (source.GetCurrentValue<string>(__id) == null ? null : ((ValueComparer<string>)(((IProperty)__id).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(__id))), (source.GetCurrentValue<JObject>(__jObject) == null ? null : ((ValueComparer<JObject>)(((IProperty)__jObject).GetValueComparer())).Snapshot(source.GetCurrentValue<JObject>(__jObject))), (source.GetCurrentValue<byte[]>(rowid) == null ? null : ((ValueComparer<byte[]>)(((IProperty)rowid).GetValueComparer())).Snapshot(source.GetCurrentValue<byte[]>(rowid))))));
                 });
             runtimeEntityType.SetStoreGeneratedValuesFactory(
                 ISnapshot () => ((ISnapshot)(new Snapshot<long, Guid, long, Guid, JObject>(((ValueComparer<long>)(((IProperty)derivedsId).GetValueComparer())).Snapshot(default(long)), ((ValueComparer<Guid>)(((IProperty)derivedsAlternateId).GetValueComparer())).Snapshot(default(Guid)), ((ValueComparer<long>)(((IProperty)principalsId).GetValueComparer())).Snapshot(default(long)), ((ValueComparer<Guid>)(((IProperty)principalsAlternateId).GetValueComparer())).Snapshot(default(Guid)), (default(JObject) == null ? null : ((ValueComparer<JObject>)(((IProperty)__jObject).GetValueComparer())).Snapshot(default(JObject)))))));
@@ -567,8 +560,8 @@ namespace TestNamespace
             runtimeEntityType.SetRelationshipSnapshotFactory(
                 ISnapshot (InternalEntityEntry source) =>
                 {
-                    var entity8 = ((Dictionary<string, object>)(source.Entity));
-                    return ((ISnapshot)(new Snapshot<long, Guid, long, Guid, string>(((ValueComparer<long>)(((IProperty)derivedsId).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<long>(derivedsId)), ((ValueComparer<Guid>)(((IProperty)derivedsAlternateId).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<Guid>(derivedsAlternateId)), ((ValueComparer<long>)(((IProperty)principalsId).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<long>(principalsId)), ((ValueComparer<Guid>)(((IProperty)principalsAlternateId).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<Guid>(principalsAlternateId)), (source.GetCurrentValue<string>(__id) == null ? null : ((ValueComparer<string>)(((IProperty)__id).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<string>(__id))))));
+                    var entity5 = ((Dictionary<string, object>)(source.Entity));
+                    return ((ISnapshot)(new Snapshot<long, Guid, long, Guid>(((ValueComparer<long>)(((IProperty)derivedsId).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<long>(derivedsId)), ((ValueComparer<Guid>)(((IProperty)derivedsAlternateId).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<Guid>(derivedsAlternateId)), ((ValueComparer<long>)(((IProperty)principalsId).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<long>(principalsId)), ((ValueComparer<Guid>)(((IProperty)principalsAlternateId).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<Guid>(principalsAlternateId)))));
                 });
             runtimeEntityType.Counts = new PropertyCounts(
                 propertyCount: 8,
@@ -576,7 +569,7 @@ namespace TestNamespace
                 complexPropertyCount: 0,
                 originalValueCount: 8,
                 shadowCount: 0,
-                relationshipCount: 5,
+                relationshipCount: 4,
                 storeGeneratedCount: 5);
 
             Customize(runtimeEntityType);

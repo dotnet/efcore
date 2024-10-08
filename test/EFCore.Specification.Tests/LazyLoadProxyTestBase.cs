@@ -12,15 +12,10 @@ using JsonSerializer = System.Text.Json.JsonSerializer;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore;
 
-public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
+public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : LazyLoadProxyTestBase<TFixture>.LoadFixtureBase
 {
-    protected LazyLoadProxyTestBase(TFixture fixture)
-    {
-        Fixture = fixture;
-    }
-
-    protected TFixture Fixture { get; }
+    protected TFixture Fixture { get; } = fixture;
 
     [ConditionalTheory] // Issue #32390
     [InlineData(false)]
@@ -4538,9 +4533,7 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
         }
 
         public Applicant(FullName name)
-        {
-            Name = name ?? throw new ArgumentNullException(nameof(name));
-        }
+            => Name = name ?? throw new ArgumentNullException(nameof(name));
     }
 
     public class FirstName
@@ -4552,9 +4545,7 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
         }
 
         private FirstName(string value)
-        {
-            _value = value;
-        }
+            => _value = value;
 
         public static FirstName Create(string firstName)
             => new(firstName);
@@ -4569,9 +4560,7 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
         }
 
         private LastName(string value)
-        {
-            _value = value;
-        }
+            => _value = value;
 
         public static LastName Create(string lastName)
             => new(lastName);
@@ -4588,9 +4577,7 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
         }
 
         public Pyrson(FullName name)
-        {
-            Name = name ?? throw new ArgumentNullException(nameof(name));
-        }
+            => Name = name ?? throw new ArgumentNullException(nameof(name));
 
         public virtual Culture Culture { get; set; }
         public virtual Milk Milk { get; set; } = null!;

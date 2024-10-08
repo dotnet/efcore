@@ -5,7 +5,8 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public class OwnedQuerySqliteTest(OwnedQuerySqliteTest.OwnedQuerySqliteFixture fixture) : OwnedQueryRelationalTestBase<OwnedQuerySqliteTest.OwnedQuerySqliteFixture>(fixture)
+public class OwnedQuerySqliteTest(OwnedQuerySqliteTest.OwnedQuerySqliteFixture fixture)
+    : OwnedQueryRelationalTestBase<OwnedQuerySqliteTest.OwnedQuerySqliteFixture>(fixture)
 {
     public class OwnedQuerySqliteFixture : RelationalOwnedQueryFixture
     {

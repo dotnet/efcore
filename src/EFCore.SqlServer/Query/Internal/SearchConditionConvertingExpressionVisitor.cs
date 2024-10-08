@@ -24,9 +24,7 @@ public class SearchConditionConvertingExpressionVisitor : SqlExpressionVisitor
     /// </summary>
     public SearchConditionConvertingExpressionVisitor(
         ISqlExpressionFactory sqlExpressionFactory)
-    {
-        _sqlExpressionFactory = sqlExpressionFactory;
-    }
+        => _sqlExpressionFactory = sqlExpressionFactory;
 
     private SqlExpression ApplyConversion(SqlExpression sqlExpression, bool condition)
         => _isSearchCondition
@@ -132,7 +130,7 @@ public class SearchConditionConvertingExpressionVisitor : SqlExpressionVisitor
 
         _isSearchCondition = parentSearchCondition;
 
-        return ApplyConversion(caseExpression.Update(operand, whenClauses, elseResult), condition: false);
+        return ApplyConversion(_sqlExpressionFactory.Case(operand, whenClauses, elseResult, caseExpression), condition: false);
     }
 
     /// <summary>
@@ -364,18 +362,26 @@ public class SearchConditionConvertingExpressionVisitor : SqlExpressionVisitor
                 result = _sqlExpressionFactory.Convert(result, typeof(bool), sqlBinaryExpression.TypeMapping);
             }
 
-            // "lhs == rhs" is the same as "NOT(lhs == rhs)" aka "lhs ^ rhs ^ 1"
+            // "lhs == rhs" is the same as "NOT(lhs != rhs)" aka "~(lhs ^ rhs)"
             if (sqlBinaryExpression.OperatorType is ExpressionType.Equal)
             {
-                result = _sqlExpressionFactory.MakeBinary(
-                    ExpressionType.ExclusiveOr,
+                result = _sqlExpressionFactory.MakeUnary(
+                    ExpressionType.OnesComplement,
                     result,
-                    _sqlExpressionFactory.Constant(true, result.TypeMapping),
+                    result.Type,
                     result.TypeMapping
                 )!;
             }
 
             return result;
+        }
+
+        if (sqlBinaryExpression.OperatorType is ExpressionType.NotEqual or ExpressionType.Equal
+            && newLeft is SqlUnaryExpression { OperatorType: ExpressionType.OnesComplement } negatedLeft
+            && newRight is SqlUnaryExpression { OperatorType: ExpressionType.OnesComplement } negatedRight)
+        {
+            newLeft = negatedLeft.Operand;
+            newRight = negatedRight.Operand;
         }
 
         sqlBinaryExpression = sqlBinaryExpression.Update(newLeft, newRight);
@@ -410,10 +416,16 @@ public class SearchConditionConvertingExpressionVisitor : SqlExpressionVisitor
                 if (!_isSearchCondition && sqlUnaryExpression.Operand is not (ExistsExpression or InExpression or LikeExpression))
                 {
                     var negatedOperand = (SqlExpression)Visit(sqlUnaryExpression.Operand);
-                    return _sqlExpressionFactory.MakeBinary(
-                        ExpressionType.ExclusiveOr,
+
+                    if (negatedOperand is SqlUnaryExpression { OperatorType: ExpressionType.OnesComplement } unary)
+                    {
+                        return unary.Operand;
+                    }
+
+                    return _sqlExpressionFactory.MakeUnary(
+                        ExpressionType.OnesComplement,
                         negatedOperand,
-                        _sqlExpressionFactory.Constant(true, negatedOperand.TypeMapping),
+                        negatedOperand.Type,
                         negatedOperand.TypeMapping
                     )!;
                 }
@@ -828,14 +840,25 @@ public class SearchConditionConvertingExpressionVisitor : SqlExpressionVisitor
     {
         var parentSearchCondition = _isSearchCondition;
         _isSearchCondition = false;
-
-        var rowValues = new RowValueExpression[valuesExpression.RowValues.Count];
-        for (var i = 0; i < rowValues.Length; i++)
+        switch (valuesExpression)
         {
-            rowValues[i] = (RowValueExpression)Visit(valuesExpression.RowValues[i]);
-        }
+            case { RowValues: not null }:
+                var rowValues = new RowValueExpression[valuesExpression.RowValues!.Count];
+                for (var i = 0; i < rowValues.Length; i++)
+                {
+                    rowValues[i] = (RowValueExpression)Visit(valuesExpression.RowValues[i]);
+                }
 
-        _isSearchCondition = parentSearchCondition;
-        return valuesExpression.Update(rowValues);
+                _isSearchCondition = parentSearchCondition;
+                return valuesExpression.Update(rowValues);
+
+            case { ValuesParameter: not null }:
+                var valuesParameter = (SqlParameterExpression)Visit(valuesExpression.ValuesParameter);
+                _isSearchCondition = parentSearchCondition;
+                return valuesExpression.Update(valuesParameter);
+
+            default:
+                throw new UnreachableException();
+        }
     }
 }

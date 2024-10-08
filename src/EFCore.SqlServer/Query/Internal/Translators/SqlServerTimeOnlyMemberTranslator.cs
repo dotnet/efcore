@@ -33,9 +33,7 @@ public class SqlServerTimeOnlyMemberTranslator : IMemberTranslator
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public SqlServerTimeOnlyMemberTranslator(ISqlExpressionFactory sqlExpressionFactory)
-    {
-        _sqlExpressionFactory = sqlExpressionFactory;
-    }
+        => _sqlExpressionFactory = sqlExpressionFactory;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -54,7 +52,7 @@ public class SqlServerTimeOnlyMemberTranslator : IMemberTranslator
             return _sqlExpressionFactory.Function(
                 "DATEPART", new[] { _sqlExpressionFactory.Fragment(value), instance! },
                 nullable: true,
-                argumentsPropagateNullability: new[] { false, true },
+                argumentsPropagateNullability: Statics.FalseTrue,
                 returnType);
         }
 

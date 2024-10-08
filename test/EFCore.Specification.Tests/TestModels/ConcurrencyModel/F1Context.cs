@@ -15,17 +15,9 @@ public class F1Context(DbContextOptions options) : PoolableDbContext(options)
     public DbSet<Fan> Fans { get; set; }
     public DbSet<FanTpt> FanTpts { get; set; }
     public DbSet<FanTpc> FanTpcs { get; set; }
-
     public DbSet<Circuit> Circuits { get; set; }
 
-    public static Task SeedAsync(F1Context context)
-    {
-        AddEntities(context);
-
-        return context.SaveChangesAsync();
-    }
-
-    private static void AddEntities(F1Context context)
+    public static void AddSeedData(F1Context context)
     {
         foreach (var engineSupplier in new List<EngineSupplier>
                  {

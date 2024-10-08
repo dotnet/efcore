@@ -492,9 +492,9 @@ public class RelationalCommandTest
         var relationalCommand = CreateRelationalCommand(
             parameters: new[]
             {
-                new TypeMappedRelationalParameter("FirstInvariant", "FirstParameter", new IntTypeMapping("int", DbType.Int32), false),
+                new TypeMappedRelationalParameter("FirstInvariant", "FirstParameter", new IntTypeMapping("int"), false),
                 new TypeMappedRelationalParameter(
-                    "SecondInvariant", "SecondParameter", new LongTypeMapping("long", DbType.Int64), true),
+                    "SecondInvariant", "SecondParameter", new LongTypeMapping("long"), true),
                 new TypeMappedRelationalParameter("ThirdInvariant", "ThirdParameter", RelationalTypeMapping.NullMapping, null)
             });
 
@@ -529,9 +529,9 @@ public class RelationalCommandTest
         var relationalCommand = CreateRelationalCommand(
             parameters: new[]
             {
-                new TypeMappedRelationalParameter("FirstInvariant", "FirstParameter", new IntTypeMapping("int", DbType.Int32), false),
+                new TypeMappedRelationalParameter("FirstInvariant", "FirstParameter", new IntTypeMapping("int"), false),
                 new TypeMappedRelationalParameter(
-                    "SecondInvariant", "SecondParameter", new LongTypeMapping("long", DbType.Int64), true),
+                    "SecondInvariant", "SecondParameter", new LongTypeMapping("long"), true),
                 new TypeMappedRelationalParameter("ThirdInvariant", "ThirdParameter", RelationalTypeMapping.NullMapping, null)
             });
 
@@ -568,9 +568,9 @@ public class RelationalCommandTest
         var relationalCommand = CreateRelationalCommand(
             parameters: new[]
             {
-                new TypeMappedRelationalParameter("FirstInvariant", "FirstParameter", new IntTypeMapping("int", DbType.Int32), false),
+                new TypeMappedRelationalParameter("FirstInvariant", "FirstParameter", new IntTypeMapping("int"), false),
                 new TypeMappedRelationalParameter(
-                    "SecondInvariant", "SecondParameter", new LongTypeMapping("long", DbType.Int64), true),
+                    "SecondInvariant", "SecondParameter", new LongTypeMapping("long"), true),
                 new TypeMappedRelationalParameter("ThirdInvariant", "ThirdParameter", RelationalTypeMapping.NullMapping, null)
             });
 
@@ -636,9 +636,9 @@ public class RelationalCommandTest
                     new[]
                     {
                         new TypeMappedRelationalParameter(
-                            "FirstInvariant", "FirstParameter", new IntTypeMapping("int", DbType.Int32), false),
+                            "FirstInvariant", "FirstParameter", new IntTypeMapping("int"), false),
                         new TypeMappedRelationalParameter(
-                            "SecondInvariant", "SecondParameter", new LongTypeMapping("long", DbType.Int64), true),
+                            "SecondInvariant", "SecondParameter", new LongTypeMapping("long"), true),
                         new TypeMappedRelationalParameter("ThirdInvariant", "ThirdParameter", RelationalTypeMapping.NullMapping, null)
                     })
             });
@@ -700,9 +700,9 @@ public class RelationalCommandTest
                     new[]
                     {
                         new TypeMappedRelationalParameter(
-                            "FirstInvariant", "FirstParameter", new IntTypeMapping("int", DbType.Int32), false),
+                            "FirstInvariant", "FirstParameter", new IntTypeMapping("int"), false),
                         new TypeMappedRelationalParameter(
-                            "SecondInvariant", "SecondParameter", new LongTypeMapping("long", DbType.Int64), true),
+                            "SecondInvariant", "SecondParameter", new LongTypeMapping("long"), true),
                         new TypeMappedRelationalParameter("ThirdInvariant", "ThirdParameter", RelationalTypeMapping.NullMapping, null)
                     })
             });
@@ -745,7 +745,7 @@ public class RelationalCommandTest
                     new[]
                     {
                         new TypeMappedRelationalParameter(
-                            "FirstInvariant", "FirstParameter", new IntTypeMapping("int", DbType.Int32), false)
+                            "FirstInvariant", "FirstParameter", new IntTypeMapping("int"), false)
                     })
             });
 
@@ -996,7 +996,7 @@ public class RelationalCommandTest
             parameters: new[]
             {
                 new TypeMappedRelationalParameter(
-                    "FirstInvariant", "FirstParameter", new IntTypeMapping("int", DbType.Int32), false)
+                    "FirstInvariant", "FirstParameter", new IntTypeMapping("int"), false)
             });
 
         var parameterValues = new Dictionary<string, object> { { "FirstInvariant", 17 } };
@@ -1054,7 +1054,7 @@ public class RelationalCommandTest
             parameters: new[]
             {
                 new TypeMappedRelationalParameter(
-                    "FirstInvariant", "FirstParameter", new IntTypeMapping("int", DbType.Int32), false)
+                    "FirstInvariant", "FirstParameter", new IntTypeMapping("int"), false)
             });
 
         var parameterValues = new Dictionary<string, object> { { "FirstInvariant", 17 } };
@@ -1113,7 +1113,7 @@ public class RelationalCommandTest
             parameters: new[]
             {
                 new TypeMappedRelationalParameter(
-                    "FirstInvariant", "FirstParameter", new IntTypeMapping("int", DbType.Int32), false)
+                    "FirstInvariant", "FirstParameter", new IntTypeMapping("int"), false)
             });
 
         var parameterValues = new Dictionary<string, object> { { "FirstInvariant", 17 } };
@@ -1186,7 +1186,7 @@ public class RelationalCommandTest
             parameters: new[]
             {
                 new TypeMappedRelationalParameter(
-                    "FirstInvariant", "FirstParameter", new IntTypeMapping("int", DbType.Int32), false)
+                    "FirstInvariant", "FirstParameter", new IntTypeMapping("int"), false)
             });
 
         var parameterValues = new Dictionary<string, object> { { "FirstInvariant", 17 } };
@@ -1265,7 +1265,7 @@ public class RelationalCommandTest
             parameters: new[]
             {
                 new TypeMappedRelationalParameter(
-                    "FirstInvariant", "FirstParameter", new IntTypeMapping("int", DbType.Int32), false)
+                    "FirstInvariant", "FirstParameter", new IntTypeMapping("int"), false)
             });
 
         var parameterValues = new Dictionary<string, object> { { "FirstInvariant", 17 } };

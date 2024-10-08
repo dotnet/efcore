@@ -7,14 +7,9 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public abstract class CustomConvertersTestBase<TFixture> : BuiltInDataTypesTestBase<TFixture>
+public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : BuiltInDataTypesTestBase<TFixture>(fixture)
     where TFixture : BuiltInDataTypesTestBase<TFixture>.BuiltInDataTypesFixtureBase, new()
 {
-    protected CustomConvertersTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-
     [ConditionalFact]
     public virtual async Task Can_query_and_update_with_nullable_converter_on_unique_index()
     {
@@ -184,7 +179,6 @@ public abstract class CustomConvertersTestBase<TFixture> : BuiltInDataTypesTestB
 
     protected class User(Email email)
     {
-
         // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Local
         public Guid Id { get; private set; } = Guid.NewGuid();
 
@@ -197,9 +191,7 @@ public abstract class CustomConvertersTestBase<TFixture> : BuiltInDataTypesTestB
         private readonly string _value;
 
         private Email(string value)
-        {
-            _value = value;
-        }
+            => _value = value;
 
         public override bool Equals(object obj)
             => _value == ((Email)obj)?._value;
@@ -349,9 +341,7 @@ public abstract class CustomConvertersTestBase<TFixture> : BuiltInDataTypesTestB
     public struct OrderId
     {
         private OrderId(string stringValue)
-        {
-            StringValue = stringValue;
-        }
+            => StringValue = stringValue;
 
         public string StringValue { get; }
 
@@ -766,14 +756,9 @@ public abstract class CustomConvertersTestBase<TFixture> : BuiltInDataTypesTestB
 
     public class Dashboard
     {
-        public Dashboard()
-        {
-            Layouts = [];
-        }
-
         public int Id { get; set; }
         public string Name { get; set; }
-        public List<Layout> Layouts { get; set; }
+        public List<Layout> Layouts { get; set; } = [];
     }
 
     public class Layout
@@ -1447,24 +1432,12 @@ public abstract class CustomConvertersTestBase<TFixture> : BuiltInDataTypesTestB
             }
         }
 
-        private class UrlSchemeRemover : ValueConverter<string, string>
-        {
-            public UrlSchemeRemover()
-                : base(x => x.Remove(0, 7), x => "http://" + x)
-            {
-            }
-        }
+        private class UrlSchemeRemover() : ValueConverter<string, string>(x => x.Remove(0, 7), x => "http://" + x);
 
-        private class RolesToStringConveter : ValueConverter<ICollection<Roles>, string>
-        {
-            public RolesToStringConveter()
-                : base(
-                    v => string.Join(";", v.Select(f => f.ToString())),
-                    v => v.Length > 0
-                        ? v.Split(new[] { ';' }).Select(f => (Roles)Enum.Parse(typeof(Roles), f)).ToList()
-                        : new List<Roles>())
-            {
-            }
-        }
+        private class RolesToStringConveter() : ValueConverter<ICollection<Roles>, string>(
+            v => string.Join(";", v.Select(f => f.ToString())),
+            v => v.Length > 0
+                ? v.Split(new[] { ';' }).Select(f => (Roles)Enum.Parse(typeof(Roles), f)).ToList()
+                : new List<Roles>());
     }
 }

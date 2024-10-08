@@ -115,19 +115,19 @@ namespace TestNamespace
 
         public static void CreateAnnotations(RuntimeEntityType runtimeEntityType)
         {
-            var principalId = runtimeEntityType.FindProperty("PrincipalId")!;
-            var principalAlternateId = runtimeEntityType.FindProperty("PrincipalAlternateId")!;
-            var enumDiscriminator = runtimeEntityType.FindProperty("EnumDiscriminator")!;
-            var id = runtimeEntityType.FindProperty("Id")!;
-            var __id = runtimeEntityType.FindProperty("__id")!;
-            var __jObject = runtimeEntityType.FindProperty("__jObject")!;
-            var data = runtimeEntityType.FindProperty("Data")!;
-            var money = runtimeEntityType.FindProperty("Money")!;
-            var principal = runtimeEntityType.FindNavigation("Principal")!;
+            var principalId = runtimeEntityType.FindProperty("PrincipalId");
+            var principalAlternateId = runtimeEntityType.FindProperty("PrincipalAlternateId");
+            var enumDiscriminator = runtimeEntityType.FindProperty("EnumDiscriminator");
+            var id = runtimeEntityType.FindProperty("Id");
+            var __id = runtimeEntityType.FindProperty("__id");
+            var __jObject = runtimeEntityType.FindProperty("__jObject");
+            var data = runtimeEntityType.FindProperty("Data");
+            var money = runtimeEntityType.FindProperty("Money");
+            var principal = runtimeEntityType.FindNavigation("Principal");
             runtimeEntityType.SetOriginalValuesFactory(
                 ISnapshot (InternalEntityEntry source) =>
                 {
-                    var entity8 = ((CompiledModelTestBase.DependentDerived<byte?>)(source.Entity));
+                    var entity5 = ((CompiledModelTestBase.DependentDerived<byte?>)(source.Entity));
                     return ((ISnapshot)(new Snapshot<long, Guid, CompiledModelTestBase.Enum1, byte?, string, JObject, string, decimal>(((ValueComparer<long>)(((IProperty)principalId).GetValueComparer())).Snapshot(source.GetCurrentValue<long>(principalId)), ((ValueComparer<Guid>)(((IProperty)principalAlternateId).GetValueComparer())).Snapshot(source.GetCurrentValue<Guid>(principalAlternateId)), ((ValueComparer<CompiledModelTestBase.Enum1>)(((IProperty)enumDiscriminator).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.Enum1>(enumDiscriminator)), (source.GetCurrentValue<byte?>(id) == null ? null : ((ValueComparer<byte?>)(((IProperty)id).GetValueComparer())).Snapshot(source.GetCurrentValue<byte?>(id))), (source.GetCurrentValue<string>(__id) == null ? null : ((ValueComparer<string>)(((IProperty)__id).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(__id))), (source.GetCurrentValue<JObject>(__jObject) == null ? null : ((ValueComparer<JObject>)(((IProperty)__jObject).GetValueComparer())).Snapshot(source.GetCurrentValue<JObject>(__jObject))), (source.GetCurrentValue<string>(data) == null ? null : ((ValueComparer<string>)(((IProperty)data).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(data))), ((ValueComparer<decimal>)(((IProperty)money).GetValueComparer())).Snapshot(source.GetCurrentValue<decimal>(money)))));
                 });
             runtimeEntityType.SetStoreGeneratedValuesFactory(
@@ -141,8 +141,8 @@ namespace TestNamespace
             runtimeEntityType.SetRelationshipSnapshotFactory(
                 ISnapshot (InternalEntityEntry source) =>
                 {
-                    var entity8 = ((CompiledModelTestBase.DependentDerived<byte?>)(source.Entity));
-                    return ((ISnapshot)(new Snapshot<long, Guid, string, object>(((ValueComparer<long>)(((IProperty)principalId).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<long>(principalId)), ((ValueComparer<Guid>)(((IProperty)principalAlternateId).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<Guid>(principalAlternateId)), (source.GetCurrentValue<string>(__id) == null ? null : ((ValueComparer<string>)(((IProperty)__id).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<string>(__id))), DependentBaseUnsafeAccessors<byte?>.Principal(entity8))));
+                    var entity5 = ((CompiledModelTestBase.DependentDerived<byte?>)(source.Entity));
+                    return ((ISnapshot)(new Snapshot<long, Guid, object>(((ValueComparer<long>)(((IProperty)principalId).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<long>(principalId)), ((ValueComparer<Guid>)(((IProperty)principalAlternateId).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<Guid>(principalAlternateId)), DependentBaseUnsafeAccessors<byte?>.Principal(entity5))));
                 });
             runtimeEntityType.Counts = new PropertyCounts(
                 propertyCount: 8,
@@ -150,7 +150,7 @@ namespace TestNamespace
                 complexPropertyCount: 0,
                 originalValueCount: 8,
                 shadowCount: 6,
-                relationshipCount: 4,
+                relationshipCount: 3,
                 storeGeneratedCount: 2);
             runtimeEntityType.AddAnnotation("DiscriminatorMappingComplete", false);
 

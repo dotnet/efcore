@@ -273,9 +273,7 @@ public class ModelConfiguration
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual PropertyConfiguration? FindProperty(Type type)
-        => _properties.TryGetValue(type, out var property)
-            ? property
-            : null;
+        => _properties.GetValueOrDefault(type);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -322,9 +320,7 @@ public class ModelConfiguration
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual PropertyConfiguration? FindTypeMapping(Type type)
-        => _typeMappings.TryGetValue(type, out var property)
-            ? property
-            : null;
+        => _typeMappings.GetValueOrDefault(type);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -353,9 +349,7 @@ public class ModelConfiguration
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual ComplexPropertyConfiguration? FindComplexProperty(Type type)
-        => _complexProperties.TryGetValue(type, out var property)
-            ? property
-            : null;
+        => _complexProperties.GetValueOrDefault(type);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

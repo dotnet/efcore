@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -148,6 +147,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
 
             case ExpressionType.Not:
             case ExpressionType.Negate:
+            case ExpressionType.OnesComplement:
                 resultTypeMapping = typeMapping;
                 // While Not is logical, negate is numeric hence we use clrType from TypeMapping
                 resultType = resultTypeMapping?.ClrType ?? sqlUnaryExpression.Type;
@@ -357,7 +357,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
 
     private SqlExpression ApplyTypeMappingOnJsonScalar(
         JsonScalarExpression jsonScalarExpression,
-        RelationalTypeMapping? typeMapping)
+        RelationalTypeMapping? elementMapping)
     {
         if (jsonScalarExpression is not { Json: var array, Path: [{ ArrayIndex: { } index }] })
         {
@@ -369,24 +369,28 @@ public class SqlExpressionFactory : ISqlExpressionFactory
         var newPath = indexWithTypeMapping == index ? jsonScalarExpression.Path : [new PathSegment(indexWithTypeMapping)];
 
         // If a type mapping is being applied from the outside, it applies to the element resulting from the array indexing operation;
-        // we can infer the array's type mapping from it. Otherwise there's nothing to do but apply the default type mapping to the array.
-        if (typeMapping is null)
+        // we can infer the array's type mapping from it.
+        if (elementMapping is null)
         {
             return new JsonScalarExpression(
-                ApplyDefaultTypeMapping(array),
+                array,
                 newPath,
                 jsonScalarExpression.Type,
-                _typeMappingSource.FindMapping(jsonScalarExpression.Type, Dependencies.Model),
+                jsonScalarExpression.TypeMapping,
                 jsonScalarExpression.IsNullable);
         }
 
-        // TODO: blocked on #30730: we need to be able to construct a JSON collection type mapping based on the element's.
-        // For now, hacking to apply the default type mapping instead.
+        // Resolve the array type mapping for the given element mapping.
+        if (_typeMappingSource.FindMapping(array.Type, Dependencies.Model, elementMapping) is not RelationalTypeMapping arrayMapping)
+        {
+            throw new UnreachableException($"Couldn't find collection type mapping for element type mapping {elementMapping.ClrType.Name}");
+        }
+
         return new JsonScalarExpression(
-            ApplyDefaultTypeMapping(array), // Hack, until #30730
+            ApplyTypeMapping(array, arrayMapping),
             newPath,
             jsonScalarExpression.Type,
-            typeMapping,
+            elementMapping,
             jsonScalarExpression.IsNullable);
     }
 
@@ -396,14 +400,14 @@ public class SqlExpressionFactory : ISqlExpressionFactory
         SqlExpression left,
         SqlExpression right,
         RelationalTypeMapping? typeMapping,
-        SqlExpression? existingExpr = null)
+        SqlExpression? existingExpression = null)
     {
         switch (operatorType)
         {
             case ExpressionType.AndAlso:
-                return ApplyTypeMapping(AndAlso(left, right, existingExpr), typeMapping);
+                return ApplyTypeMapping(AndAlso(left, right, existingExpression), typeMapping);
             case ExpressionType.OrElse:
-                return ApplyTypeMapping(OrElse(left, right, existingExpr), typeMapping);
+                return ApplyTypeMapping(OrElse(left, right, existingExpression), typeMapping);
         }
 
         if (!SqlBinaryExpression.IsValidOperator(operatorType))
@@ -456,7 +460,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
     public virtual SqlExpression AndAlso(SqlExpression left, SqlExpression right)
         => MakeBinary(ExpressionType.AndAlso, left, right, null)!;
 
-    private SqlExpression AndAlso(SqlExpression left, SqlExpression right, SqlExpression? existingExpr)
+    private SqlExpression AndAlso(SqlExpression left, SqlExpression right, SqlExpression? existingExpression)
     {
         // false && x -> false
         // x && true -> x
@@ -467,12 +471,14 @@ public class SqlExpressionFactory : ISqlExpressionFactory
         {
             return left;
         }
+
         // true && x -> x
         // x && false -> false
         if (left is SqlConstantExpression { Value: true } || right is SqlConstantExpression { Value: false })
         {
             return right;
         }
+
         // x is null && x is not null -> false
         // x is not null && x is null -> false
         if (left is SqlUnaryExpression { OperatorType: ExpressionType.Equal or ExpressionType.NotEqual } leftUnary
@@ -482,11 +488,12 @@ public class SqlExpressionFactory : ISqlExpressionFactory
             // the case in which left and right are the same expression is handled above
             return Constant(false);
         }
-        if (existingExpr is SqlBinaryExpression { OperatorType: ExpressionType.AndAlso } binaryExpr
+
+        if (existingExpression is SqlBinaryExpression { OperatorType: ExpressionType.AndAlso } binaryExpr
             && left == binaryExpr.Left
             && right == binaryExpr.Right)
         {
-            return existingExpr;
+            return existingExpression;
         }
 
         return new SqlBinaryExpression(ExpressionType.AndAlso, left, right, typeof(bool), null);
@@ -496,7 +503,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
     public virtual SqlExpression OrElse(SqlExpression left, SqlExpression right)
         => MakeBinary(ExpressionType.OrElse, left, right, null)!;
 
-    private SqlExpression OrElse(SqlExpression left, SqlExpression right, SqlExpression? existingExpr)
+    private SqlExpression OrElse(SqlExpression left, SqlExpression right, SqlExpression? existingExpression)
     {
         // true || x -> true
         // x || false -> x
@@ -507,6 +514,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
         {
             return left;
         }
+
         // false || x -> x
         // x || true -> true
         if (left is SqlConstantExpression { Value: false }
@@ -514,6 +522,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
         {
             return right;
         }
+
         // x is null || x is not null -> true
         // x is not null || x is null -> true
         if (left is SqlUnaryExpression { OperatorType: ExpressionType.Equal or ExpressionType.NotEqual } leftUnary
@@ -523,11 +532,12 @@ public class SqlExpressionFactory : ISqlExpressionFactory
             // the case in which left and right are the same expression is handled above
             return Constant(true);
         }
-        if (existingExpr is SqlBinaryExpression { OperatorType: ExpressionType.OrElse } binaryExpr
+
+        if (existingExpression is SqlBinaryExpression { OperatorType: ExpressionType.OrElse } binaryExpr
             && left == binaryExpr.Left
             && right == binaryExpr.Right)
         {
-            return existingExpr;
+            return existingExpression;
         }
 
         return new SqlBinaryExpression(ExpressionType.OrElse, left, right, typeof(bool), null);
@@ -577,14 +587,14 @@ public class SqlExpressionFactory : ISqlExpressionFactory
             SqlConstantExpression { Value: null } => right,
 
             SqlConstantExpression { Value: not null } or
-            ColumnExpression { IsNullable: false } => left,
+                ColumnExpression { IsNullable: false } => left,
 
             _ => new SqlFunctionExpression(
                 "COALESCE",
                 [left, right],
                 nullable: true,
                 // COALESCE is handled separately since it's only nullable if *all* arguments are null
-                argumentsPropagateNullability: [false, false],
+                argumentsPropagateNullability: Statics.FalseArrays[2],
                 resultType,
                 inferredTypeMapping)
         };
@@ -596,10 +606,10 @@ public class SqlExpressionFactory : ISqlExpressionFactory
         SqlExpression operand,
         Type type,
         RelationalTypeMapping? typeMapping = null,
-        SqlExpression? existingExpr = null)
+        SqlExpression? existingExpression = null)
         => operatorType switch
         {
-            ExpressionType.Not => ApplyTypeMapping(Not(operand, existingExpr), typeMapping),
+            ExpressionType.Not => ApplyTypeMapping(Not(operand, existingExpression), typeMapping),
             _ when SqlUnaryExpression.IsValidOperator(operatorType)
                 => ApplyTypeMapping(new SqlUnaryExpression(operatorType, operand, type, null), typeMapping),
             _ => null,
@@ -621,7 +631,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
     public virtual SqlExpression Not(SqlExpression operand)
         => MakeUnary(ExpressionType.Not, operand, operand.Type, operand.TypeMapping)!;
 
-    private SqlExpression Not(SqlExpression operand, SqlExpression? existingExpr)
+    private SqlExpression Not(SqlExpression operand, SqlExpression? existingExpression)
         => operand switch
         {
             // !(null) -> null
@@ -662,9 +672,11 @@ public class SqlExpressionFactory : ISqlExpressionFactory
                 => Equal(Not(binary.Left), binary.Right),
 
             // !(a == b) -> a != b
-            SqlBinaryExpression { OperatorType: ExpressionType.Equal } sqlBinaryOperand => NotEqual(sqlBinaryOperand.Left, sqlBinaryOperand.Right),
+            SqlBinaryExpression { OperatorType: ExpressionType.Equal } sqlBinaryOperand => NotEqual(
+                sqlBinaryOperand.Left, sqlBinaryOperand.Right),
             // !(a != b) -> a == b
-            SqlBinaryExpression { OperatorType: ExpressionType.NotEqual } sqlBinaryOperand => Equal(sqlBinaryOperand.Left, sqlBinaryOperand.Right),
+            SqlBinaryExpression { OperatorType: ExpressionType.NotEqual } sqlBinaryOperand => Equal(
+                sqlBinaryOperand.Left, sqlBinaryOperand.Right),
 
             // !(CASE x WHEN t1 THEN r1 ... ELSE rN) -> CASE x WHEN t1 THEN !r1 ... ELSE !rN
             CaseExpression caseExpression
@@ -676,8 +688,8 @@ public class SqlExpressionFactory : ISqlExpressionFactory
                     [.. caseExpression.WhenClauses.Select(clause => new CaseWhenClause(clause.Test, Not(clause.Result)))],
                     caseExpression.ElseResult is null ? null : Not(caseExpression.ElseResult)),
 
-            _ => existingExpr is SqlUnaryExpression { OperatorType: ExpressionType.Not } unaryExpr && unaryExpr.Operand == operand
-                ? existingExpr
+            _ => existingExpression is SqlUnaryExpression { OperatorType: ExpressionType.Not } unaryExpr && unaryExpr.Operand == operand
+                ? existingExpression
                 : new SqlUnaryExpression(ExpressionType.Not, operand, operand.Type, null),
         };
 
@@ -686,7 +698,11 @@ public class SqlExpressionFactory : ISqlExpressionFactory
         => MakeUnary(ExpressionType.Negate, operand, operand.Type, operand.TypeMapping)!;
 
     /// <inheritdoc />
-    public virtual SqlExpression Case(SqlExpression? operand, IReadOnlyList<CaseWhenClause> whenClauses, SqlExpression? elseResult)
+    public virtual SqlExpression Case(
+        SqlExpression? operand,
+        IReadOnlyList<CaseWhenClause> whenClauses,
+        SqlExpression? elseResult,
+        SqlExpression? existingExpression = null)
     {
         RelationalTypeMapping? testTypeMapping;
         if (operand == null)
@@ -714,13 +730,113 @@ public class SqlExpressionFactory : ISqlExpressionFactory
         var typeMappedWhenClauses = new List<CaseWhenClause>();
         foreach (var caseWhenClause in whenClauses)
         {
+            var test = caseWhenClause.Test;
+
+            if (operand == null && test is CaseExpression { Operand: null, WhenClauses: [var nestedSingleClause] } testExpr)
+            {
+                if (nestedSingleClause.Result is SqlConstantExpression { Value: true }
+                    && testExpr.ElseResult is null or SqlConstantExpression { Value: false or null })
+                {
+                    // WHEN CASE
+                    //   WHEN x THEN TRUE
+                    //   ELSE FALSE/NULL
+                    // END THEN y
+                    // simplifies to
+                    // WHEN x THEN y
+                    test = nestedSingleClause.Test;
+                }
+                else if (nestedSingleClause.Result is SqlConstantExpression { Value: false or null }
+                         && testExpr.ElseResult is SqlConstantExpression { Value: true })
+                {
+                    // same for the negated results
+                    test = Not(nestedSingleClause.Test);
+                }
+            }
+
             typeMappedWhenClauses.Add(
                 new CaseWhenClause(
-                    ApplyTypeMapping(caseWhenClause.Test, testTypeMapping),
+                    ApplyTypeMapping(test, testTypeMapping),
                     ApplyTypeMapping(caseWhenClause.Result, resultTypeMapping)));
         }
 
-        return new CaseExpression(operand, typeMappedWhenClauses, elseResult);
+        if (operand is null && elseResult is CaseExpression { Operand: null } nestedCaseExpression)
+        {
+            typeMappedWhenClauses.AddRange(nestedCaseExpression.WhenClauses);
+            elseResult = nestedCaseExpression.ElseResult;
+        }
+
+        typeMappedWhenClauses = typeMappedWhenClauses
+            .Where(c => !IsSkipped(c))
+            .TakeUpTo(IsMatched)
+            .DistinctBy(c => c.Test)
+            .ToList();
+
+        // CASE
+        //   ...
+        //   WHEN TRUE THEN a
+        //   ELSE b
+        // END
+        // simplifies to
+        // CASE
+        //   ...
+        //   ELSE a
+        // END
+        if (typeMappedWhenClauses.Count > 0 && IsMatched(typeMappedWhenClauses[^1]))
+        {
+            elseResult = typeMappedWhenClauses[^1].Result;
+            typeMappedWhenClauses.RemoveAt(typeMappedWhenClauses.Count - 1);
+        }
+
+        var nullResult = Constant(null, elseResult?.Type ?? whenClauses[0].Result.Type, resultTypeMapping);
+
+        // if there are no whenClauses left (e.g. their tests evaluated to false):
+        // - if there is Else block, return it
+        // - if there is no Else block, return null
+        if (typeMappedWhenClauses.Count == 0)
+        {
+            return elseResult ?? nullResult;
+        }
+
+        // omit `ELSE NULL` (this makes it easier to compare/reuse expressions)
+        if (elseResult is SqlConstantExpression { Value: null })
+        {
+            elseResult = null;
+        }
+
+        // CASE
+        //   ...
+        //   WHEN x THEN CASE
+        //     WHEN y THEN a
+        //     ELSE b
+        //   END
+        //   ELSE b
+        // END
+        // simplifies to
+        // CASE
+        //   ...
+        //   WHEN x AND y THEN a
+        //   ELSE b
+        // END
+        if (operand == null
+            && typeMappedWhenClauses[^1].Result is CaseExpression { Operand: null, WhenClauses: [var lastClause] } lastCase
+            && Equals(elseResult, lastCase.ElseResult))
+        {
+            typeMappedWhenClauses[^1] = new CaseWhenClause(AndAlso(typeMappedWhenClauses[^1].Test, lastClause.Test), lastClause.Result);
+            elseResult = lastCase.ElseResult;
+        }
+
+        return existingExpression is CaseExpression expr
+            && operand == expr.Operand
+            && typeMappedWhenClauses.SequenceEqual(expr.WhenClauses)
+            && elseResult == expr.ElseResult
+                ? expr
+                : new CaseExpression(operand, typeMappedWhenClauses, elseResult);
+
+        bool IsSkipped(CaseWhenClause clause)
+            => operand is null && clause.Test is SqlConstantExpression { Value: false or null };
+
+        bool IsMatched(CaseWhenClause clause)
+            => operand is null && clause.Test is SqlConstantExpression { Value: true };
     }
 
     /// <inheritdoc />
@@ -850,65 +966,4 @@ public class SqlExpressionFactory : ISqlExpressionFactory
     /// <inheritdoc />
     public virtual SqlExpression Constant(object? value, Type type, RelationalTypeMapping? typeMapping = null)
         => new SqlConstantExpression(value, type, typeMapping);
-
-    /// <inheritdoc />
-    public virtual bool TryCreateLeast(
-        IReadOnlyList<SqlExpression> expressions,
-        Type resultType,
-        [NotNullWhen(true)] out SqlExpression? leastExpression)
-    {
-        var resultTypeMapping = ExpressionExtensions.InferTypeMapping(expressions);
-
-        expressions = FlattenLeastGreatest("LEAST", expressions);
-
-        leastExpression = Function(
-            "LEAST", expressions, nullable: true, Enumerable.Repeat(true, expressions.Count), resultType, resultTypeMapping);
-        return true;
-    }
-
-    /// <inheritdoc />
-    public virtual bool TryCreateGreatest(
-        IReadOnlyList<SqlExpression> expressions,
-        Type resultType,
-        [NotNullWhen(true)] out SqlExpression? greatestExpression)
-    {
-        var resultTypeMapping = ExpressionExtensions.InferTypeMapping(expressions);
-
-        expressions = FlattenLeastGreatest("GREATEST", expressions);
-
-        greatestExpression = Function(
-            "GREATEST", expressions, nullable: true, Enumerable.Repeat(true, expressions.Count), resultType, resultTypeMapping);
-        return true;
-    }
-
-    private IReadOnlyList<SqlExpression> FlattenLeastGreatest(string functionName, IReadOnlyList<SqlExpression> expressions)
-    {
-        List<SqlExpression>? flattenedExpressions = null;
-
-        for (var i = 0; i < expressions.Count; i++)
-        {
-            var expression = expressions[i];
-            if (expression is SqlFunctionExpression { IsBuiltIn: true } nestedFunction
-                && nestedFunction.Name == functionName)
-            {
-                if (flattenedExpressions is null)
-                {
-                    flattenedExpressions = [];
-                    for (var j = 0; j < i; j++)
-                    {
-                        flattenedExpressions.Add(expressions[j]);
-                    }
-                }
-
-                Check.DebugAssert(nestedFunction.Arguments is not null, "Null arguments to " + functionName);
-                flattenedExpressions.AddRange(nestedFunction.Arguments);
-            }
-            else
-            {
-                flattenedExpressions?.Add(expressions[i]);
-            }
-        }
-
-        return flattenedExpressions ?? expressions;
-    }
 }

@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
 #nullable disable
 
-public class NonSharedModelBulkUpdatesSqliteTest : NonSharedModelBulkUpdatesTestBase
+public class NonSharedModelBulkUpdatesSqliteTest : NonSharedModelBulkUpdatesRelationalTestBase
 {
     protected override ITestStoreFactory TestStoreFactory
         => SqliteTestStoreFactory.Instance;
@@ -118,7 +118,7 @@ WHERE "o"."Id" = "o0"."Id"
             """
 UPDATE "Owner" AS "o"
 SET "OwnedReference_Number" = length("o"."Title"),
-    "Title" = CAST("o"."OwnedReference_Number" AS TEXT)
+    "Title" = COALESCE(CAST("o"."OwnedReference_Number" AS TEXT), '')
 """);
     }
 
@@ -191,6 +191,35 @@ SET "Total" = (
     WHERE "o"."Id" = "o0"."OrderId")
 WHERE "o"."Id" = 1
 """);
+    }
+
+    public override async Task Delete_with_view_mapping(bool async)
+    {
+        await base.Delete_with_view_mapping(async);
+
+        AssertSql(
+            """
+DELETE FROM "Blogs" AS "b"
+""");
+    }
+
+    public override async Task Update_with_view_mapping(bool async)
+    {
+        await base.Update_with_view_mapping(async);
+
+        AssertSql(
+            """
+UPDATE "Blogs" AS "b"
+SET "Data" = 'Updated'
+""");
+    }
+
+    public override async Task Update_complex_type_with_view_mapping(bool async)
+    {
+        await base.Update_complex_type_with_view_mapping(async);
+
+        // #34706
+        AssertSql();
     }
 
     protected override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)

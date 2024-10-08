@@ -25,9 +25,7 @@ public class InMemoryValueGeneratorSelector : ValueGeneratorSelector
         ValueGeneratorSelectorDependencies dependencies,
         IInMemoryDatabase inMemoryDatabase)
         : base(dependencies)
-    {
-        _inMemoryStore = inMemoryDatabase.Store;
-    }
+        => _inMemoryStore = inMemoryDatabase.Store;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

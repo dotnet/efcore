@@ -24,7 +24,8 @@ public class DbContextOperationsTest
     public void CreateContext_throws_if_context_type_not_found()
         => Assert.Equal(
             DesignStrings.NoContextWithName(typeof(TestContextFromFactory).FullName),
-            Assert.Throws<OperationException>(() => CreateOperations(typeof(TestProgramRelationalBad)).CreateContext(typeof(TestContextFromFactory).FullName)).Message);
+            Assert.Throws<OperationException>(
+                () => CreateOperations(typeof(TestProgramRelationalBad)).CreateContext(typeof(TestContextFromFactory).FullName)).Message);
 
     [ConditionalFact]
     public void CreateContext_throws_if_ambiguous_context_type_by_case()
@@ -47,9 +48,9 @@ public class DbContextOperationsTest
             DesignStrings.MultipleContextsWithName(typeof(TestContext).FullName.ToLower()),
             Assert.Throws<OperationException>(() => operations.CreateContext(typeof(TestContext).FullName.ToLower())).Message);
 
-        Assert.Empty(reporter.Messages.Where(m => m.Level == LogLevel.Critical));
-        Assert.Empty(reporter.Messages.Where(m => m.Level == LogLevel.Error));
-        Assert.Empty(reporter.Messages.Where(m => m.Level == LogLevel.Warning));
+        Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Critical);
+        Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Error);
+        Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Warning);
     }
 
     [ConditionalFact]
@@ -73,9 +74,9 @@ public class DbContextOperationsTest
             DesignStrings.MultipleContextsWithQualifiedName(nameof(TestContext)),
             Assert.Throws<OperationException>(() => operations.CreateContext(nameof(TestContext))).Message);
 
-        Assert.Empty(reporter.Messages.Where(m => m.Level == LogLevel.Critical));
-        Assert.Empty(reporter.Messages.Where(m => m.Level == LogLevel.Error));
-        Assert.Empty(reporter.Messages.Where(m => m.Level == LogLevel.Warning));
+        Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Critical);
+        Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Error);
+        Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Warning);
     }
 
     [ConditionalFact]
@@ -99,9 +100,9 @@ public class DbContextOperationsTest
             DesignStrings.MultipleContexts,
             Assert.Throws<OperationException>(() => operations.CreateContext(null)).Message);
 
-        Assert.Empty(reporter.Messages.Where(m => m.Level == LogLevel.Critical));
-        Assert.Empty(reporter.Messages.Where(m => m.Level == LogLevel.Error));
-        Assert.Empty(reporter.Messages.Where(m => m.Level == LogLevel.Warning));
+        Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Critical);
+        Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Error);
+        Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Warning);
     }
 
     [ConditionalFact]
@@ -125,9 +126,9 @@ public class DbContextOperationsTest
             DesignStrings.NoContext(nameof(MockAssembly)),
             Assert.Throws<OperationException>(() => operations.CreateContext(null)).Message);
 
-        Assert.Empty(reporter.Messages.Where(m => m.Level == LogLevel.Critical));
-        Assert.Empty(reporter.Messages.Where(m => m.Level == LogLevel.Error));
-        Assert.Empty(reporter.Messages.Where(m => m.Level == LogLevel.Warning));
+        Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Critical);
+        Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Error);
+        Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Warning);
     }
 
     [ConditionalFact]
@@ -149,9 +150,9 @@ public class DbContextOperationsTest
             args: null,
             new TestAppServiceProviderFactory(assembly, reporter));
 
-        Assert.Empty(reporter.Messages.Where(m => m.Level == LogLevel.Critical));
-        Assert.Empty(reporter.Messages.Where(m => m.Level == LogLevel.Error));
-        Assert.Empty(reporter.Messages.Where(m => m.Level == LogLevel.Warning));
+        Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Critical);
+        Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Error);
+        Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Warning);
     }
 
     [ConditionalFact]
@@ -177,9 +178,9 @@ public class DbContextOperationsTest
         var derivedContext = Assert.IsType<DerivedContext>(operations.CreateContext(nameof(DerivedContext)));
         Assert.Equal(nameof(DerivedContext), derivedContext.FactoryUsed);
 
-        Assert.Empty(reporter.Messages.Where(m => m.Level == LogLevel.Critical));
-        Assert.Empty(reporter.Messages.Where(m => m.Level == LogLevel.Error));
-        Assert.Empty(reporter.Messages.Where(m => m.Level == LogLevel.Warning));
+        Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Critical);
+        Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Error);
+        Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Warning);
     }
 
     [ConditionalFact]
@@ -200,13 +201,14 @@ public class DbContextOperationsTest
             new TestAppServiceProviderFactory(assembly, reporter, throwOnCreate: true));
 
         var contexts = operations.CreateAllContexts().ToList();
-        Assert.Collection(contexts,
+        Assert.Collection(
+            contexts,
             c => Assert.Equal(nameof(BaseContext), Assert.IsType<BaseContext>(c).FactoryUsed),
             c => Assert.Equal(nameof(DerivedContext), Assert.IsType<DerivedContext>(c).FactoryUsed));
 
-        Assert.Empty(reporter.Messages.Where(m => m.Level == LogLevel.Critical));
-        Assert.Empty(reporter.Messages.Where(m => m.Level == LogLevel.Error));
-        Assert.Empty(reporter.Messages.Where(m => m.Level == LogLevel.Warning));
+        Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Critical);
+        Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Error);
+        Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Warning);
     }
 
     [ConditionalFact]
@@ -228,12 +230,14 @@ public class DbContextOperationsTest
 
         Assert.Equal(
             DesignStrings.NoContextsToOptimize,
-            Assert.Throws<OperationException>(() =>
-                operations.Optimize(null, null, contextTypeName: "*", null, scaffoldModel: true, precompileQueries: false)).Message);
+            Assert.Throws<OperationException>(
+                () =>
+                    operations.Optimize(
+                        null, null, contextTypeName: "*", null, scaffoldModel: true, precompileQueries: false, nativeAot: false)).Message);
 
-        Assert.Empty(reporter.Messages.Where(m => m.Level == LogLevel.Critical));
-        Assert.Empty(reporter.Messages.Where(m => m.Level == LogLevel.Error));
-        Assert.Empty(reporter.Messages.Where(m => m.Level == LogLevel.Warning));
+        Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Critical);
+        Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Error);
+        Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Warning);
     }
 
     [ConditionalFact]
@@ -253,10 +257,10 @@ public class DbContextOperationsTest
             args: [],
             new TestAppServiceProviderFactory(assembly, reporter, throwOnCreate: true));
 
-        operations.Optimize(null, null, contextTypeName: "*", null, scaffoldModel: true, precompileQueries: false);
+        operations.Optimize(null, null, contextTypeName: "*", null, scaffoldModel: true, precompileQueries: false, nativeAot: false);
 
-        Assert.Empty(reporter.Messages.Where(m => m.Level == LogLevel.Critical));
-        Assert.Empty(reporter.Messages.Where(m => m.Level == LogLevel.Error));
+        Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Critical);
+        Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Error);
 
         Assert.Equal(
             DesignStrings.OptimizeNoFilesGenerated,
@@ -270,7 +274,7 @@ public class DbContextOperationsTest
 
         Assert.Equal("Test", info.DatabaseName);
         Assert.Equal(@"(localdb)\mssqllocaldb", info.DataSource);
-        Assert.Equal("None", info.Options);
+        Assert.Equal("EngineType=SqlServer", info.Options);
         Assert.Equal("Microsoft.EntityFrameworkCore.SqlServer", info.ProviderName);
     }
 
@@ -291,7 +295,7 @@ public class DbContextOperationsTest
 
         Assert.Equal(DesignStrings.BadConnection(expected.Message), info.DatabaseName);
         Assert.Equal(DesignStrings.BadConnection(expected.Message), info.DataSource);
-        Assert.Equal("None", info.Options);
+        Assert.Equal("EngineType=SqlServer", info.Options);
         Assert.Equal("Microsoft.EntityFrameworkCore.SqlServer", info.ProviderName);
     }
 
@@ -376,9 +380,9 @@ public class DbContextOperationsTest
             /* args: */ [],
             new TestAppServiceProviderFactory(assembly, reporter));
 
-        Assert.Empty(reporter.Messages.Where(m => m.Level == LogLevel.Critical));
-        Assert.Empty(reporter.Messages.Where(m => m.Level == LogLevel.Error));
-        Assert.Empty(reporter.Messages.Where(m => m.Level == LogLevel.Warning));
+        Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Critical);
+        Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Error);
+        Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Warning);
 
         return operations;
     }
@@ -393,9 +397,7 @@ public class DbContextOperationsTest
     private class TestContext : DbContext
     {
         public TestContext()
-        {
-            throw new Exception("This isn't the constructor you're looking for.");
-        }
+            => throw new Exception("This isn't the constructor you're looking for.");
 
         public TestContext(DbContextOptions<TestContext> options)
             : base(options)
@@ -406,9 +408,7 @@ public class DbContextOperationsTest
     private class TestContextFromFactory : DbContext
     {
         private TestContextFromFactory()
-        {
-            throw new Exception("This isn't the constructor you're looking for.");
-        }
+            => throw new Exception("This isn't the constructor you're looking for.");
 
         public TestContextFromFactory(DbContextOptions<TestContextFromFactory> options)
             : base(options)
@@ -419,9 +419,7 @@ public class DbContextOperationsTest
     private class Testcontext : DbContext
     {
         public Testcontext()
-        {
-            throw new Exception("This isn't the constructor you're looking for.");
-        }
+            => throw new Exception("This isn't the constructor you're looking for.");
 
         public Testcontext(DbContextOptions<TestContext> options)
             : base(options)

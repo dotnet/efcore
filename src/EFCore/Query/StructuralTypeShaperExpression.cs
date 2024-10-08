@@ -34,8 +34,8 @@ public class StructuralTypeShaperExpression : Expression, IPrintableExpression
     /// </summary>
     [UsedImplicitly]
     [EntityFrameworkInternal]
-    public static Exception CreateUnableToDiscriminateException(ITypeBase type, object discriminator)
-        => new InvalidOperationException(CoreStrings.UnableToDiscriminate(type.DisplayName(), discriminator.ToString()));
+    public static Exception CreateUnableToDiscriminateException(ITypeBase type, object? discriminator)
+        => new InvalidOperationException(CoreStrings.UnableToDiscriminate(type.DisplayName(), discriminator?.ToString()));
 
     /// <summary>
     ///     Creates a new instance of the <see cref="StructuralTypeShaperExpression" /> class.
@@ -161,14 +161,14 @@ public class StructuralTypeShaperExpression : Expression, IPrintableExpression
                         discriminatorComparer.ExtractEqualsBody(
                             discriminatorValueVariable,
                             LiftableConstantExpressionHelpers.IsLiteral(discriminatorValueObject)
-                            ? Constant(
-                                discriminatorValueObject,
-                                discriminatorProperty.ClrType)
-                            : Convert(
-                                Call(
-                                    Constant(concreteEntityTypes[i], typeof(IEntityType)),
-                                    GetDiscriminatorValueMethod),
-                                discriminatorProperty.ClrType)),
+                                ? Constant(
+                                    discriminatorValueObject,
+                                    discriminatorProperty.ClrType)
+                                : Convert(
+                                    Call(
+                                        Constant(concreteEntityTypes[i], typeof(IEntityType)),
+                                        GetDiscriminatorValueMethod),
+                                    discriminatorProperty.ClrType)),
                         Constant(concreteEntityTypes[i], typeof(IEntityType)),
                         conditions);
                 }

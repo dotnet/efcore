@@ -22,8 +22,8 @@ public class SqliteSqlNullabilityProcessor : SqlNullabilityProcessor
     /// </summary>
     public SqliteSqlNullabilityProcessor(
         RelationalParameterBasedSqlProcessorDependencies dependencies,
-        bool useRelationalNulls)
-        : base(dependencies, useRelationalNulls)
+        RelationalParameterBasedSqlProcessorParameters parameters)
+        : base(dependencies, parameters)
     {
     }
 
@@ -84,7 +84,7 @@ public class SqliteSqlNullabilityProcessor : SqlNullabilityProcessor
         return regexpExpression.Update(match, pattern);
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     protected override SqlExpression VisitSqlFunction(
         SqlFunctionExpression sqlFunctionExpression,
         bool allowOptimizedExpansion,

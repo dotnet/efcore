@@ -30,9 +30,7 @@ public class RelationalAdHocMapper : AdHocMapper
     /// </summary>
     public RelationalAdHocMapper(AdHocMapperDependencies dependencies, RelationalAdHocMapperDependencies relationalDependencies)
         : base(dependencies)
-    {
-        RelationalDependencies = relationalDependencies;
-    }
+        => RelationalDependencies = relationalDependencies;
 
     /// <summary>
     ///     Relational-specific dependencies for this service.

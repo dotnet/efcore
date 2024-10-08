@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 // ReSharper disable once CheckNamespace
+
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 
 /// <summary>
@@ -20,9 +21,7 @@ public class TemporalAsOfQueryRootExpression : TemporalQueryRootExpression
     /// </summary>
     public TemporalAsOfQueryRootExpression(IEntityType entityType, DateTime pointInTime)
         : base(entityType)
-    {
-        PointInTime = pointInTime;
-    }
+        => PointInTime = pointInTime;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -35,9 +34,7 @@ public class TemporalAsOfQueryRootExpression : TemporalQueryRootExpression
         IEntityType entityType,
         DateTime pointInTime)
         : base(queryProvider, entityType)
-    {
-        PointInTime = pointInTime;
-    }
+        => PointInTime = pointInTime;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

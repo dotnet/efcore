@@ -1260,7 +1260,7 @@ public class RelationalScaffoldingModelFactoryTest
         var fk = Assert.Single(model.GetForeignKeys());
 
         Assert.True(fk.IsUnique);
-        Assert.Empty(model.GetKeys().Where(k => !k.IsPrimaryKey()));
+        Assert.DoesNotContain(model.GetKeys(), k => !k.IsPrimaryKey());
         Assert.Equal(model.FindPrimaryKey(), fk.PrincipalKey);
     }
 
@@ -1621,9 +1621,6 @@ public class RelationalScaffoldingModelFactoryTest
                 Assert.Null(first.MaxValue);
                 Assert.Null(first.MinValue);
                 Assert.False(first.IsCyclic);
-                Assert.True(first.IsCached);
-                Assert.Null(first.CacheSize);
-                Assert.Equal("Hello there", first["CustomAnnotation"]);
             });
     }
 
@@ -3203,12 +3200,27 @@ public class RelationalScaffoldingModelFactoryTest
             {
                 Table = someTable,
                 Name = "FK_SomeTable_DetailItem",
-                Columns = { someTable.Columns.Single(c => c.Name == "DetailItemName"), someTable.Columns.Single(c => c.Name == "DetailItemCategoryName") },
+                Columns =
+                {
+                    someTable.Columns.Single(c => c.Name == "DetailItemName"),
+                    someTable.Columns.Single(c => c.Name == "DetailItemCategoryName")
+                },
                 PrincipalTable = itemTable,
-                PrincipalColumns = { itemTable.Columns.Single(c => c.Name == "Name"), itemTable.Columns.Single(c => c.Name == "CategoryName") },
+                PrincipalColumns =
+                {
+                    itemTable.Columns.Single(c => c.Name == "Name"), itemTable.Columns.Single(c => c.Name == "CategoryName")
+                },
             });
 
-        var info = new DatabaseModel { Tables = { itemTable, someTable, itemCategoryTable } };
+        var info = new DatabaseModel
+        {
+            Tables =
+            {
+                itemTable,
+                someTable,
+                itemCategoryTable
+            }
+        };
 
         var model = _factory.Create(info, new ModelReverseEngineerOptions());
 

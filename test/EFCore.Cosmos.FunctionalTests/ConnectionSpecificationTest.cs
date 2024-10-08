@@ -38,7 +38,8 @@ public class ConnectionSpecificationTest
         using var context = new NoConnectionContext();
         var creator = context.GetService<IDatabaseCreator>();
 
-        Assert.Equal(CosmosStrings.ConnectionInfoMissing,
+        Assert.Equal(
+            CosmosStrings.ConnectionInfoMissing,
             (await Assert.ThrowsAsync<InvalidOperationException>(() => creator.EnsureDeletedAsync())).Message);
     }
 
@@ -48,7 +49,6 @@ public class ConnectionSpecificationTest
             => optionsBuilder.UseCosmos(b => b.ApplyConfiguration())
                 .ConfigureWarnings(w => w.Ignore(CoreEventId.ManyServiceProvidersCreatedWarning));
     }
-
 
     public class Blog
     {

@@ -11,9 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
 {
     protected EntitySplittingQueryTestBase()
-    {
-        _setSourceCreator = GetSetSourceCreator();
-    }
+        => _setSourceCreator = GetSetSourceCreator();
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -2920,10 +2918,25 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
                 {
                     wc.Log(RelationalEventId.ForeignKeyTpcPrincipalWarning);
                 }),
-            shouldLogCategory: _ => true, seed: c => SeedAsync(c));
+            shouldLogCategory: _ => true);
 
     protected virtual EntitySplittingContext CreateContext()
         => ContextFactory.CreateContext();
+
+    protected override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+        => base.AddOptions(builder)
+            .UseSeeding(
+                (c, _) =>
+                {
+                    EntitySplittingData.Instance.AddSeedData((EntitySplittingContext)c);
+                    c.SaveChanges();
+                })
+            .UseAsyncSeeding(
+                (c, _, t) =>
+                {
+                    EntitySplittingData.Instance.AddSeedData((EntitySplittingContext)c);
+                    return c.SaveChangesAsync(t);
+                });
 
     public void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
         => facade.UseTransaction(transaction.GetDbTransaction());
@@ -2946,9 +2959,6 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
         modelBuilder.Entity<SiblingEntity>();
         modelBuilder.Entity<LeafEntity>();
     }
-
-    protected virtual Task SeedAsync(EntitySplittingContext context)
-        => EntitySplittingData.Instance.Seed(context);
 
     public override async Task DisposeAsync()
     {

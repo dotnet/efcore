@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -13,6 +14,60 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure;
 
 public partial class ModelValidatorTest : ModelValidatorTestBase
 {
+    [ConditionalFact] // Issue #33913
+    public virtual void Detects_well_known_concrete_collections_mapped_as_entity_type()
+    {
+        Detects_well_known_concrete_collections_mapped_as_entity_type<List<Customer>>();
+        Detects_well_known_concrete_collections_mapped_as_entity_type<HashSet<Customer>>();
+        Detects_well_known_concrete_collections_mapped_as_entity_type<Collection<Customer>>();
+        Detects_well_known_concrete_collections_mapped_as_entity_type<ObservableCollection<Customer>>();
+    }
+
+    public virtual void Detects_well_known_concrete_collections_mapped_as_entity_type<T>()
+        where T : class
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<T>().HasNoKey();
+
+        VerifyError(
+            CoreStrings.WarningAsErrorTemplate(
+                CoreEventId.AccidentalEntityType.ToString(),
+                CoreResources.LogAccidentalEntityType(new TestLogger<TestLoggingDefinitions>())
+                    .GenerateMessage(typeof(T).ShortDisplayName()),
+                "CoreEventId.AccidentalEntityType"),
+            modelBuilder);
+
+        LoggerFactory.Clear();
+    }
+
+    [ConditionalFact] // Issue #33913
+    public virtual void Detects_well_known_concrete_collections_mapped_as_owned_entity_type()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<MyEntity<List<JsonbField>>>().OwnsMany(x => x.JsonbFields, r => r.ToJson());
+
+        VerifyError(
+            CoreStrings.WarningAsErrorTemplate(
+                CoreEventId.AccidentalEntityType.ToString(),
+                CoreResources.LogAccidentalEntityType(new TestLogger<TestLoggingDefinitions>()).GenerateMessage("List<JsonbField>"),
+                "CoreEventId.AccidentalEntityType"),
+            modelBuilder);
+    }
+
+    private class MyEntity<T>
+    {
+        public int Id { get; set; }
+        public List<T> JsonbFields { get; set; }
+    }
+
+    private class JsonbField
+    {
+        public required string Key { get; set; }
+        public required string Value { get; set; }
+    }
+
     [ConditionalFact]
     public virtual void Detects_key_property_which_cannot_be_compared()
     {
@@ -71,13 +126,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
             modelBuilder);
     }
 
-    public class CustomValueComparer<T> : ValueComparer<T> // Doesn't implement IComparer
-    {
-        public CustomValueComparer()
-            : base(false)
-        {
-        }
-    }
+    public class CustomValueComparer<T>() : ValueComparer<T>(false); // Doesn't implement IComparer
 
     [ConditionalFact]
     public virtual void Detects_unique_index_property_which_cannot_be_compared()
@@ -173,7 +222,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
 
         Validate(modelBuilder);
 
-        Assert.Empty(LoggerFactory.Log.Where(l => l.Level == LogLevel.Warning));
+        Assert.DoesNotContain(LoggerFactory.Log, l => l.Level == LogLevel.Warning);
     }
 
     protected class WithCollectionConversion
@@ -263,18 +312,43 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     protected class MyCollection : IList<int>
     {
         private readonly List<int> _list = [];
-        public IEnumerator<int> GetEnumerator() => _list.GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-        public void Add(int item) => _list.Add(item);
-        public void Clear() => _list.Clear();
-        public bool Contains(int item) => _list.Contains(item);
-        public void CopyTo(int[] array, int arrayIndex) => _list.CopyTo(array, arrayIndex);
-        public bool Remove(int item) => _list.Remove(item);
-        public int Count => _list.Count;
-        public bool IsReadOnly => ((ICollection<int>)_list).IsReadOnly;
-        public int IndexOf(int item) => _list.IndexOf(item);
-        public void Insert(int index, int item) => _list.Insert(index, item);
-        public void RemoveAt(int index) => _list.RemoveAt(index);
+
+        public IEnumerator<int> GetEnumerator()
+            => _list.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator()
+            => GetEnumerator();
+
+        public void Add(int item)
+            => _list.Add(item);
+
+        public void Clear()
+            => _list.Clear();
+
+        public bool Contains(int item)
+            => _list.Contains(item);
+
+        public void CopyTo(int[] array, int arrayIndex)
+            => _list.CopyTo(array, arrayIndex);
+
+        public bool Remove(int item)
+            => _list.Remove(item);
+
+        public int Count
+            => _list.Count;
+
+        public bool IsReadOnly
+            => ((ICollection<int>)_list).IsReadOnly;
+
+        public int IndexOf(int item)
+            => _list.IndexOf(item);
+
+        public void Insert(int index, int item)
+            => _list.Insert(index, item);
+
+        public void RemoveAt(int index)
+            => _list.RemoveAt(index);
+
         public int this[int index]
         {
             get => _list[index];
@@ -308,7 +382,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
 
         Validate(modelBuilder);
 
-        Assert.Empty(LoggerFactory.Log.Where(l => l.Level == LogLevel.Warning));
+        Assert.DoesNotContain(LoggerFactory.Log, l => l.Level == LogLevel.Warning);
     }
 
     protected class WithStringAndBinaryKey
@@ -660,9 +734,11 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
 
         var dId = modelBuilder.Model.FindEntityType(typeof(D)).FindProperty(nameof(D.Id));
 
-        Assert.Equal(CoreStrings.ConflictingRelationshipConversions("D", "Id", "string", "CastingConverter<int, int>"),
+        Assert.Equal(
+            CoreStrings.ConflictingRelationshipConversions("D", "Id", "string", "CastingConverter<int, int>"),
             Assert.Throws<InvalidOperationException>(dId.GetValueConverter).Message);
-        Assert.Equal(CoreStrings.ConflictingRelationshipConversions("D", "Id", "string", "CastingConverter<int, int>"),
+        Assert.Equal(
+            CoreStrings.ConflictingRelationshipConversions("D", "Id", "string", "CastingConverter<int, int>"),
             Assert.Throws<InvalidOperationException>(dId.GetProviderClrType).Message);
     }
 
@@ -683,9 +759,11 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
 
         var dId = modelBuilder.Model.FindEntityType(typeof(D)).FindProperty(nameof(D.Id));
 
-        Assert.Equal(CoreStrings.ConflictingRelationshipConversions("D", "Id", "string", "long"),
+        Assert.Equal(
+            CoreStrings.ConflictingRelationshipConversions("D", "Id", "string", "long"),
             Assert.Throws<InvalidOperationException>(dId.GetValueConverter).Message);
-        Assert.Equal(CoreStrings.ConflictingRelationshipConversions("D", "Id", "string", "long"),
+        Assert.Equal(
+            CoreStrings.ConflictingRelationshipConversions("D", "Id", "string", "long"),
             Assert.Throws<InvalidOperationException>(dId.GetProviderClrType).Message);
     }
 

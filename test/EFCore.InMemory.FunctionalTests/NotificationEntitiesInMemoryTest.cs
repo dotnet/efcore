@@ -3,8 +3,9 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class NotificationEntitiesInMemoryTest(NotificationEntitiesInMemoryTest.NotificationEntitiesInMemoryFixture fixture) : NotificationEntitiesTestBase<
-    NotificationEntitiesInMemoryTest.NotificationEntitiesInMemoryFixture>(fixture)
+public class NotificationEntitiesInMemoryTest(NotificationEntitiesInMemoryTest.NotificationEntitiesInMemoryFixture fixture)
+    : NotificationEntitiesTestBase<
+        NotificationEntitiesInMemoryTest.NotificationEntitiesInMemoryFixture>(fixture)
 {
     public class NotificationEntitiesInMemoryFixture : NotificationEntitiesFixtureBase
     {

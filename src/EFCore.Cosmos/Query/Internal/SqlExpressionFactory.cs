@@ -166,7 +166,9 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
                 // TODO: This infers based on the CLR type; need to properly infer based on the element type mapping
                 // TODO: being applied here (e.g. WHERE @p[1] = c.PropertyWithValueConverter). #34026
                 var arrayTypeMapping = left.TypeMapping
-                    ?? (typeMapping is null ? null : typeMappingSource.FindMapping(typeof(IEnumerable<>).MakeGenericType(typeMapping.ClrType)));
+                    ?? (typeMapping is null
+                        ? null
+                        : typeMappingSource.FindMapping(typeof(IEnumerable<>).MakeGenericType(typeMapping.ClrType)));
                 return new SqlBinaryExpression(
                     ExpressionType.ArrayIndex,
                     ApplyTypeMapping(left, arrayTypeMapping),
@@ -320,14 +322,14 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
         SqlExpression left,
         SqlExpression right,
         CoreTypeMapping? typeMapping,
-        SqlExpression? existingExpr = null)
+        SqlExpression? existingExpression = null)
     {
         switch (operatorType)
         {
             case ExpressionType.AndAlso:
-                return ApplyTypeMapping(AndAlso(left, right, existingExpr), typeMapping);
+                return ApplyTypeMapping(AndAlso(left, right, existingExpression), typeMapping);
             case ExpressionType.OrElse:
-                return ApplyTypeMapping(OrElse(left, right, existingExpr), typeMapping);
+                return ApplyTypeMapping(OrElse(left, right, existingExpression), typeMapping);
         }
 
         if (!SqlBinaryExpression.IsValidOperator(operatorType))
@@ -424,7 +426,7 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
     public virtual SqlExpression AndAlso(SqlExpression left, SqlExpression right)
         => MakeBinary(ExpressionType.AndAlso, left, right, null)!;
 
-    private SqlExpression AndAlso(SqlExpression left, SqlExpression right, SqlExpression? existingExpr)
+    private SqlExpression AndAlso(SqlExpression left, SqlExpression right, SqlExpression? existingExpression)
     {
         // false && x -> false
         // x && true -> x
@@ -435,12 +437,14 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
         {
             return left;
         }
+
         // true && x -> x
         // x && false -> false
         if (left is SqlConstantExpression { Value: true } || right is SqlConstantExpression { Value: false })
         {
             return right;
         }
+
         // x is null && x is not null -> false
         // x is not null && x is null -> false
         if (left is SqlUnaryExpression { OperatorType: ExpressionType.Equal or ExpressionType.NotEqual } leftUnary
@@ -450,11 +454,12 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
             // the case in which left and right are the same expression is handled above
             return Constant(false);
         }
-        if (existingExpr is SqlBinaryExpression { OperatorType: ExpressionType.AndAlso } binaryExpr
+
+        if (existingExpression is SqlBinaryExpression { OperatorType: ExpressionType.AndAlso } binaryExpr
             && left == binaryExpr.Left
             && right == binaryExpr.Right)
         {
-            return existingExpr;
+            return existingExpression;
         }
 
         return new SqlBinaryExpression(ExpressionType.AndAlso, left, right, typeof(bool), null);
@@ -469,7 +474,7 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
     public virtual SqlExpression OrElse(SqlExpression left, SqlExpression right)
         => MakeBinary(ExpressionType.OrElse, left, right, null)!;
 
-    private SqlExpression OrElse(SqlExpression left, SqlExpression right, SqlExpression? existingExpr)
+    private SqlExpression OrElse(SqlExpression left, SqlExpression right, SqlExpression? existingExpression)
     {
         // true || x -> true
         // x || false -> x
@@ -480,6 +485,7 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
         {
             return left;
         }
+
         // false || x -> x
         // x || true -> true
         if (left is SqlConstantExpression { Value: false }
@@ -487,6 +493,7 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
         {
             return right;
         }
+
         // x is null || x is not null -> true
         // x is not null || x is null -> true
         if (left is SqlUnaryExpression { OperatorType: ExpressionType.Equal or ExpressionType.NotEqual } leftUnary
@@ -496,11 +503,12 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
             // the case in which left and right are the same expression is handled above
             return Constant(true);
         }
-        if (existingExpr is SqlBinaryExpression { OperatorType: ExpressionType.OrElse } binaryExpr
+
+        if (existingExpression is SqlBinaryExpression { OperatorType: ExpressionType.OrElse } binaryExpr
             && left == binaryExpr.Left
             && right == binaryExpr.Right)
         {
-            return existingExpr;
+            return existingExpression;
         }
 
         return new SqlBinaryExpression(ExpressionType.OrElse, left, right, typeof(bool), null);

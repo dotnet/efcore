@@ -23,7 +23,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         private readonly CosmosQueryContext _cosmosQueryContext;
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
         private readonly SelectExpression _selectExpression;
-        private readonly Func<CosmosQueryContext, JObject, T> _shaper;
+        private readonly Func<CosmosQueryContext, JToken, T> _shaper;
         private readonly IQuerySqlGeneratorFactory _querySqlGeneratorFactory;
         private readonly Type _contextType;
         private readonly string _cosmosContainer;
@@ -37,7 +37,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             ISqlExpressionFactory sqlExpressionFactory,
             IQuerySqlGeneratorFactory querySqlGeneratorFactory,
             SelectExpression selectExpression,
-            Func<CosmosQueryContext, JObject, T> shaper,
+            Func<CosmosQueryContext, JToken, T> shaper,
             Type contextType,
             IEntityType rootEntityType,
             List<Expression> partitionKeyPropertyValues,
@@ -103,7 +103,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         {
             private readonly QueryingEnumerable<T> _queryingEnumerable;
             private readonly CosmosQueryContext _cosmosQueryContext;
-            private readonly Func<CosmosQueryContext, JObject, T> _shaper;
+            private readonly Func<CosmosQueryContext, JToken, T> _shaper;
             private readonly Type _contextType;
             private readonly string _cosmosContainer;
             private readonly PartitionKey _cosmosPartitionKey;
@@ -112,7 +112,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             private readonly IConcurrencyDetector _concurrencyDetector;
             private readonly IExceptionDetector _exceptionDetector;
 
-            private IEnumerator<JObject> _enumerator;
+            private IEnumerator<JToken> _enumerator;
 
             public Enumerator(QueryingEnumerable<T> queryingEnumerable)
             {
@@ -192,7 +192,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         {
             private readonly QueryingEnumerable<T> _queryingEnumerable;
             private readonly CosmosQueryContext _cosmosQueryContext;
-            private readonly Func<CosmosQueryContext, JObject, T> _shaper;
+            private readonly Func<CosmosQueryContext, JToken, T> _shaper;
             private readonly Type _contextType;
             private readonly string _cosmosContainer;
             private readonly PartitionKey _cosmosPartitionKey;
@@ -202,7 +202,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             private readonly IConcurrencyDetector _concurrencyDetector;
             private readonly IExceptionDetector _exceptionDetector;
 
-            private IAsyncEnumerator<JObject> _enumerator;
+            private IAsyncEnumerator<JToken> _enumerator;
 
             public AsyncEnumerator(QueryingEnumerable<T> queryingEnumerable, CancellationToken cancellationToken)
             {

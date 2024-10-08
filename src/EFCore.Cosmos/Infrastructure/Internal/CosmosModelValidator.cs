@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
@@ -41,6 +42,51 @@ public class CosmosModelValidator : ModelValidator
         ValidateSharedContainerCompatibility(model, logger);
         ValidateOnlyETagConcurrencyToken(model, logger);
         ValidateIndexes(model, logger);
+        ValidateDiscriminatorMappings(model, logger);
+        ValidateCollectionElementTypes(model, logger);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected virtual void ValidateCollectionElementTypes(
+        IModel model,
+        IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+    {
+        foreach (var entityType in model.GetEntityTypes())
+        {
+            ValidateType(entityType, logger);
+        }
+
+        static void ValidateType(ITypeBase typeBase, IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+        {
+            foreach (var property in typeBase.GetDeclaredProperties())
+            {
+                var typeMapping = property.GetElementType()?.GetTypeMapping();
+                while (typeMapping != null)
+                {
+                    if (typeMapping.Converter != null)
+                    {
+                        throw new InvalidOperationException(
+                            CosmosStrings.ElementWithValueConverter(
+                                property.ClrType.ShortDisplayName(),
+                                typeBase.ShortName(),
+                                property.Name,
+                                typeMapping.ClrType.ShortDisplayName()));
+                    }
+
+                    typeMapping = typeMapping.ElementTypeMapping;
+                }
+            }
+
+            foreach (var complexProperty in typeBase.GetDeclaredComplexProperties())
+            {
+                ValidateType(complexProperty.ComplexType, logger);
+            }
+        }
     }
 
     /// <summary>
@@ -63,19 +109,30 @@ public class CosmosModelValidator : ModelValidator
                 continue;
             }
 
+            if (entityType.BaseType != null
+                && entityType.FindAnnotation(CosmosAnnotationNames.ContainerName)?.Value != null)
+            {
+                throw new InvalidOperationException(
+                    CosmosStrings.ContainerNotOnRoot(entityType.DisplayName(), entityType.BaseType.DisplayName()));
+            }
+
             var ownership = entityType.FindOwnership();
             if (ownership != null)
             {
                 throw new InvalidOperationException(
                     CosmosStrings.OwnedTypeDifferentContainer(
-                        entityType.DisplayName(), ownership.PrincipalEntityType.DisplayName(), container));
+                        entityType.DisplayName(),
+                        ownership.PrincipalEntityType.DisplayName(),
+                        container));
             }
 
             if (entityType.GetContainingPropertyName() != null)
             {
                 throw new InvalidOperationException(
                     CosmosStrings.ContainerContainingPropertyConflict(
-                        entityType.DisplayName(), container, entityType.GetContainingPropertyName()));
+                        entityType.DisplayName(),
+                        container,
+                        entityType.GetContainingPropertyName()));
             }
 
             if (!containers.TryGetValue(container, out var mappedTypes))
@@ -144,8 +201,12 @@ public class CosmosModelValidator : ModelValidator
                     {
                         throw new InvalidOperationException(
                             CosmosStrings.PartitionKeyStoreNameMismatch(
-                                firstEntityType.GetPartitionKeyPropertyNames()[i], firstEntityType.DisplayName(), partitionKeyStoreNames[i],
-                                entityType.GetPartitionKeyPropertyNames()[i], entityType.DisplayName(), storeNames[i]));
+                                firstEntityType.GetPartitionKeyPropertyNames()[i],
+                                firstEntityType.DisplayName(),
+                                partitionKeyStoreNames[i],
+                                entityType.GetPartitionKeyPropertyNames()[i],
+                                entityType.DisplayName(),
+                                storeNames[i]));
                     }
                 }
             }
@@ -160,22 +221,23 @@ public class CosmosModelValidator : ModelValidator
             {
                 if (entityType.FindDiscriminatorProperty() == null)
                 {
-                    throw new InvalidOperationException(
-                        CosmosStrings.NoDiscriminatorProperty(entityType.DisplayName(), container));
+                    throw new InvalidOperationException(CosmosStrings.NoDiscriminatorProperty(entityType.DisplayName(), container));
                 }
 
                 var discriminatorValue = entityType.GetDiscriminatorValue();
                 if (discriminatorValue == null)
                 {
-                    throw new InvalidOperationException(
-                        CosmosStrings.NoDiscriminatorValue(entityType.DisplayName(), container));
+                    throw new InvalidOperationException(CosmosStrings.NoDiscriminatorValue(entityType.DisplayName(), container));
                 }
 
                 if (discriminatorValues.TryGetValue(discriminatorValue, out var duplicateEntityType))
                 {
                     throw new InvalidOperationException(
                         CosmosStrings.DuplicateDiscriminatorValue(
-                            entityType.DisplayName(), discriminatorValue, duplicateEntityType.DisplayName(), container));
+                            entityType.DisplayName(),
+                            discriminatorValue,
+                            duplicateEntityType.DisplayName(),
+                            container));
                 }
 
                 discriminatorValues[discriminatorValue] = entityType;
@@ -206,7 +268,10 @@ public class CosmosModelValidator : ModelValidator
                     var conflictingEntityType = mappedTypes.First(et => et.GetAnalyticalStoreTimeToLive() != null);
                     throw new InvalidOperationException(
                         CosmosStrings.AnalyticalTTLMismatch(
-                            analyticalTtl, conflictingEntityType.DisplayName(), entityType.DisplayName(), currentAnalyticalTtl,
+                            analyticalTtl,
+                            conflictingEntityType.DisplayName(),
+                            entityType.DisplayName(),
+                            currentAnalyticalTtl,
                             container));
                 }
             }
@@ -223,7 +288,11 @@ public class CosmosModelValidator : ModelValidator
                     var conflictingEntityType = mappedTypes.First(et => et.GetDefaultTimeToLive() != null);
                     throw new InvalidOperationException(
                         CosmosStrings.DefaultTTLMismatch(
-                            defaultTtl, conflictingEntityType.DisplayName(), entityType.DisplayName(), currentDefaultTtl, container));
+                            defaultTtl,
+                            conflictingEntityType.DisplayName(),
+                            entityType.DisplayName(),
+                            currentDefaultTtl,
+                            container));
                 }
             }
 
@@ -240,8 +309,10 @@ public class CosmosModelValidator : ModelValidator
                     var conflictingEntityType = mappedTypes.First(et => et.GetThroughput() != null);
                     throw new InvalidOperationException(
                         CosmosStrings.ThroughputMismatch(
-                            throughput.AutoscaleMaxThroughput ?? throughput.Throughput, conflictingEntityType.DisplayName(),
-                            entityType.DisplayName(), currentThroughput.AutoscaleMaxThroughput ?? currentThroughput.Throughput,
+                            throughput.AutoscaleMaxThroughput ?? throughput.Throughput,
+                            conflictingEntityType.DisplayName(),
+                            entityType.DisplayName(),
+                            currentThroughput.AutoscaleMaxThroughput ?? currentThroughput.Throughput,
                             container));
                 }
                 else if ((throughput.AutoscaleMaxThroughput == null)
@@ -256,8 +327,7 @@ public class CosmosModelValidator : ModelValidator
                         : conflictingEntityType;
 
                     throw new InvalidOperationException(
-                        CosmosStrings.ThroughputTypeMismatch(
-                            manualType.DisplayName(), autoscaleType.DisplayName(), container));
+                        CosmosStrings.ThroughputTypeMismatch(manualType.DisplayName(), autoscaleType.DisplayName(), container));
                 }
             }
         }
@@ -282,16 +352,14 @@ public class CosmosModelValidator : ModelValidator
                     var storeName = property.GetJsonPropertyName();
                     if (storeName != "_etag")
                     {
-                        throw new InvalidOperationException(
-                            CosmosStrings.NonETagConcurrencyToken(entityType.DisplayName(), storeName));
+                        throw new InvalidOperationException(CosmosStrings.NonETagConcurrencyToken(entityType.DisplayName(), storeName));
                     }
 
                     var etagType = property.GetTypeMapping().Converter?.ProviderClrType ?? property.ClrType;
                     if (etagType != typeof(string))
                     {
                         throw new InvalidOperationException(
-                            CosmosStrings.ETagNonStringStoreType(
-                                property.Name, entityType.DisplayName(), etagType.ShortDisplayName()));
+                            CosmosStrings.ETagNonStringStoreType(property.Name, entityType.DisplayName(), etagType.ShortDisplayName()));
                     }
                 }
             }
@@ -318,7 +386,7 @@ public class CosmosModelValidator : ModelValidator
             }
 
             var idProperty = entityType.GetProperties()
-                .FirstOrDefault(p => p.GetJsonPropertyName() == StoreKeyConvention.IdPropertyJsonName);
+                .FirstOrDefault(p => p.GetJsonPropertyName() == CosmosJsonIdConvention.IdPropertyJsonName);
             if (idProperty == null)
             {
                 throw new InvalidOperationException(CosmosStrings.NoIdProperty(entityType.DisplayName()));
@@ -329,13 +397,7 @@ public class CosmosModelValidator : ModelValidator
             if (idType != typeof(string))
             {
                 throw new InvalidOperationException(
-                    CosmosStrings.IdNonStringStoreType(
-                        idProperty.Name, entityType.DisplayName(), idType.ShortDisplayName()));
-            }
-
-            if (!idProperty.IsKey())
-            {
-                throw new InvalidOperationException(CosmosStrings.NoIdKey(entityType.DisplayName(), idProperty.Name));
+                    CosmosStrings.IdNonStringStoreType(idProperty.Name, entityType.DisplayName(), idType.ShortDisplayName()));
             }
 
             var partitionKeyPropertyNames = entityType.GetPartitionKeyPropertyNames();
@@ -345,6 +407,13 @@ public class CosmosModelValidator : ModelValidator
             }
             else
             {
+                if (entityType.BaseType != null
+                    && entityType.FindAnnotation(CosmosAnnotationNames.PartitionKeyNames)?.Value != null)
+                {
+                    throw new InvalidOperationException(
+                        CosmosStrings.PartitionKeyNotOnRoot(entityType.DisplayName(), entityType.BaseType.DisplayName()));
+                }
+
                 foreach (var partitionKeyPropertyName in partitionKeyPropertyNames)
                 {
                     var partitionKey = entityType.FindProperty(partitionKeyPropertyName);
@@ -362,14 +431,9 @@ public class CosmosModelValidator : ModelValidator
                     {
                         throw new InvalidOperationException(
                             CosmosStrings.PartitionKeyBadStoreType(
-                                partitionKeyPropertyName, entityType.DisplayName(), partitionKeyType.ShortDisplayName()));
-                    }
-
-                    if (!partitionKey.GetContainingKeys().Any(k => k.Properties.Contains(idProperty)))
-                    {
-                        throw new InvalidOperationException(
-                            CosmosStrings.NoPartitionKeyKey(
-                                entityType.DisplayName(), partitionKeyPropertyName, idProperty.Name));
+                                partitionKeyPropertyName,
+                                entityType.DisplayName(),
+                                partitionKeyType.ShortDisplayName()));
                     }
                 }
             }
@@ -454,6 +518,32 @@ public class CosmosModelValidator : ModelValidator
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    protected virtual void ValidateDiscriminatorMappings(
+        IModel model,
+        IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+    {
+        foreach (var entityType in model.GetEntityTypes())
+        {
+            if (!entityType.IsDocumentRoot()
+                && entityType.FindAnnotation(CosmosAnnotationNames.DiscriminatorInKey) != null)
+            {
+                throw new InvalidOperationException(CosmosStrings.DiscriminatorInKeyOnNonRoot(entityType.DisplayName()));
+            }
+
+            if (!entityType.IsDocumentRoot()
+                && entityType.FindAnnotation(CosmosAnnotationNames.HasShadowId) != null)
+            {
+                throw new InvalidOperationException(CosmosStrings.HasShadowIdOnNonRoot(entityType.DisplayName()));
+            }
+        }
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     protected virtual void ValidateIndexes(
         IModel model,
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
@@ -462,10 +552,58 @@ public class CosmosModelValidator : ModelValidator
         {
             foreach (var index in entityType.GetDeclaredIndexes())
             {
-                throw new InvalidOperationException(
-                    CosmosStrings.IndexesExist(
-                        entityType.DisplayName(),
-                        string.Join(",", index.Properties.Select(e => e.Name))));
+                if (index.FindAnnotation(CosmosAnnotationNames.VectorIndexType) != null)
+                {
+                    if (index.Properties.Count > 1)
+                    {
+                        throw new InvalidOperationException(
+                            CosmosStrings.CompositeVectorIndex(
+                                entityType.DisplayName(),
+                                string.Join(",", index.Properties.Select(e => e.Name))));
+                    }
+
+                    if (index.Properties[0].FindAnnotation(CosmosAnnotationNames.VectorType) == null)
+                    {
+                        throw new InvalidOperationException(
+                            CosmosStrings.VectorIndexOnNonVector(
+                                entityType.DisplayName(),
+                                index.Properties[0].Name));
+                    }
+                }
+                else
+                {
+                    throw new InvalidOperationException(
+                        CosmosStrings.IndexesExist(
+                            entityType.DisplayName(),
+                            string.Join(",", index.Properties.Select(e => e.Name))));
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [Experimental(EFDiagnostics.CosmosVectorSearchExperimental)]
+    protected override void ValidatePropertyMapping(
+        IModel model,
+        IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+    {
+        base.ValidatePropertyMapping(model, logger);
+
+        foreach (var entityType in model.GetEntityTypes())
+        {
+            foreach (var property in entityType.GetDeclaredProperties())
+            {
+                var cosmosVectorType = property.GetVectorType();
+                if (cosmosVectorType is not null)
+                {
+                    // Will throw if the data type is not set and cannot be inferred.
+                    CosmosVectorType.CreateDefaultVectorDataType(property.ClrType);
+                }
             }
         }
     }

@@ -19,9 +19,9 @@ using Microsoft.EntityFrameworkCore.Internal;
 namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
-
 #pragma warning disable CS9113 // Parameter is unread.
-public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper) : IClassFixture<NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
+public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)
+    : IClassFixture<NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
 #pragma warning restore CS9113 // Parameter is unread.
 {
     private static DbContextOptionsBuilder<TContext> ConfigureOptions<TContext>(DbContextOptionsBuilder<TContext> optionsBuilder)
@@ -531,15 +531,11 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
         public string ConstructorUsed { get; }
 
         public WithParameterlessConstructorContext()
-        {
-            ConstructorUsed = "Parameterless";
-        }
+            => ConstructorUsed = "Parameterless";
 
         public WithParameterlessConstructorContext(DbContextOptions<WithParameterlessConstructorContext> options)
             : base(options)
-        {
-            ConstructorUsed = "Options";
-        }
+            => ConstructorUsed = "Options";
     }
 
     [ConditionalTheory]
@@ -2010,7 +2006,7 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
             });
     }
 
-    [ConditionalTheory (Skip = "Issue #32700")]
+    [ConditionalTheory(Skip = "Issue #32700")]
     [InlineData(false, false)]
     [InlineData(true, false)]
     [InlineData(false, true)]

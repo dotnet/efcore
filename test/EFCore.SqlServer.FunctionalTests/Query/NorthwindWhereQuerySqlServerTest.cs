@@ -2033,8 +2033,8 @@ SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE [o].[OrderID] = @__SettableProperty_0
 """,
-                //
-                """
+            //
+            """
 @__SettableProperty_0='10275'
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
@@ -3356,37 +3356,37 @@ WHERE [c].[CustomerID] = @__id_0 + N'KI'
         await base.Implicit_cast_in_predicate(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE [o].[CustomerID] = N'1337'
 """,
-                //
-                """
+            //
+            """
 @__prm_Value_0='1337' (Size = 5)
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE [o].[CustomerID] = @__prm_Value_0
 """,
-                //
-                """
+            //
+            """
 @__ToString_0='1337' (Size = 5)
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE [o].[CustomerID] = @__ToString_0
 """,
-                //
-                """
+            //
+            """
 @__p_0='1337' (Size = 5)
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE [o].[CustomerID] = @__p_0
 """,
-                //
-                """
+            //
+            """
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE [o].[CustomerID] = N'1337'
@@ -3398,32 +3398,92 @@ WHERE [o].[CustomerID] = N'1337'
         await base.Interface_casting_though_generic_method(async);
 
         AssertSql(
-"""
+            """
 @__id_0='10252'
 
 SELECT [o].[OrderID] AS [Id]
 FROM [Orders] AS [o]
 WHERE [o].[OrderID] = @__id_0
 """,
-                //
-                """
+            //
+            """
 SELECT [o].[OrderID] AS [Id]
 FROM [Orders] AS [o]
 WHERE [o].[OrderID] = 10252
 """,
-                //
-                """
+            //
+            """
 SELECT [o].[OrderID] AS [Id]
 FROM [Orders] AS [o]
 WHERE [o].[OrderID] = 10252
 """,
-                //
-                """
+            //
+            """
 SELECT [o].[OrderID] AS [Id]
 FROM [Orders] AS [o]
 WHERE [o].[OrderID] = 10252
 """);
     }
+
+    #region Evaluation order of predicates
+
+    public override async Task Take_and_Where_evaluation_order(bool async)
+    {
+        await base.Take_and_Where_evaluation_order(async);
+
+        AssertSql(
+            """
+@__p_0='3'
+
+SELECT [e0].[EmployeeID], [e0].[City], [e0].[Country], [e0].[FirstName], [e0].[ReportsTo], [e0].[Title]
+FROM (
+    SELECT TOP(@__p_0) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+    FROM [Employees] AS [e]
+    ORDER BY [e].[EmployeeID]
+) AS [e0]
+WHERE [e0].[EmployeeID] % 2 = 0
+ORDER BY [e0].[EmployeeID]
+""");
+    }
+
+    public override async Task Skip_and_Where_evaluation_order(bool async)
+    {
+        await base.Skip_and_Where_evaluation_order(async);
+
+        AssertSql(
+            """
+@__p_0='3'
+
+SELECT [e0].[EmployeeID], [e0].[City], [e0].[Country], [e0].[FirstName], [e0].[ReportsTo], [e0].[Title]
+FROM (
+    SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+    FROM [Employees] AS [e]
+    ORDER BY [e].[EmployeeID]
+    OFFSET @__p_0 ROWS
+) AS [e0]
+WHERE [e0].[EmployeeID] % 2 = 0
+ORDER BY [e0].[EmployeeID]
+""");
+    }
+
+    public override async Task Take_and_Distinct_evaluation_order(bool async)
+    {
+        await base.Take_and_Distinct_evaluation_order(async);
+
+        AssertSql(
+            """
+@__p_0='3'
+
+SELECT DISTINCT [c0].[ContactTitle]
+FROM (
+    SELECT TOP(@__p_0) [c].[ContactTitle]
+    FROM [Customers] AS [c]
+    ORDER BY [c].[ContactTitle]
+) AS [c0]
+""");
+    }
+
+    #endregion Evaluation order of predicates
 
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);

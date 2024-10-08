@@ -470,13 +470,6 @@ public static class EntityFrameworkServiceCollectionExtensions
     ///         and examples.
     ///     </para>
     ///     <para>
-    ///         Entity Framework Core does not support multiple parallel operations being run on the same <see cref="DbContext" />
-    ///         instance. This includes both parallel execution of async queries and any explicit concurrent use from multiple threads.
-    ///         Therefore, always await async calls immediately, or use separate DbContext instances for operations that execute
-    ///         in parallel. See <see href="https://aka.ms/efcore-docs-threading">Avoiding DbContext threading issues</see> for more information
-    ///         and examples.
-    ///     </para>
-    ///     <para>
     ///         See <see href="https://aka.ms/efcore-docs-di">Using DbContext with dependency injection</see> for more information and examples.
     ///     </para>
     ///     <para>
@@ -1041,7 +1034,7 @@ public static class EntityFrameworkServiceCollectionExtensions
     /// <remarks>
     ///     <para>
     ///         <see cref="AddDbContext{TContext}(IServiceCollection,Action{DbContextOptionsBuilder},ServiceLifetime,ServiceLifetime)" />,
-    ///         <see cref="AddDbContextPool{TContext}(IServiceCollection,Action{DbContextOptionsBuilder},int)" />, 
+    ///         <see cref="AddDbContextPool{TContext}(IServiceCollection,Action{DbContextOptionsBuilder},int)" />,
     ///         <see cref="AddDbContextFactory{TContext, TFactory}(IServiceCollection,Action{DbContextOptionsBuilder}?,ServiceLifetime)" /> or
     ///         <see cref="AddPooledDbContextFactory{TContext}(IServiceCollection,Action{DbContextOptionsBuilder},int)" />
     ///         must also be called for the specified configuration to take effect.
@@ -1077,7 +1070,7 @@ public static class EntityFrameworkServiceCollectionExtensions
     /// <remarks>
     ///     <para>
     ///         <see cref="AddDbContext{TContext}(IServiceCollection,Action{DbContextOptionsBuilder},ServiceLifetime,ServiceLifetime)" />,
-    ///         <see cref="AddDbContextPool{TContext}(IServiceCollection,Action{DbContextOptionsBuilder},int)" />, 
+    ///         <see cref="AddDbContextPool{TContext}(IServiceCollection,Action{DbContextOptionsBuilder},int)" />,
     ///         <see cref="AddDbContextFactory{TContext, TFactory}(IServiceCollection,Action{DbContextOptionsBuilder}?,ServiceLifetime)" /> or
     ///         <see cref="AddPooledDbContextFactory{TContext}(IServiceCollection,Action{DbContextOptionsBuilder},int)" />
     ///         must also be called for the specified configuration to take effect.

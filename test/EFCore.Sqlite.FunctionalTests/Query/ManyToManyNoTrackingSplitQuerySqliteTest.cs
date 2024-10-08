@@ -10,7 +10,6 @@ namespace Microsoft.EntityFrameworkCore.Query;
 public class ManyToManyNoTrackingSplitQuerySqliteTest(ManyToManySplitQuerySqliteFixture fixture)
     : ManyToManyNoTrackingQueryRelationalTestBase<ManyToManySplitQuerySqliteFixture>(fixture)
 {
-
     // Sqlite does not support Apply operations
 
     public override async Task Skip_navigation_order_by_single_or_default(bool async)

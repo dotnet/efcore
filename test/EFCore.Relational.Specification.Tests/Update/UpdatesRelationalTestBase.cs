@@ -8,14 +8,9 @@ namespace Microsoft.EntityFrameworkCore.Update;
 
 #nullable disable
 
-public abstract class UpdatesRelationalTestBase<TFixture> : UpdatesTestBase<TFixture>
+public abstract class UpdatesRelationalTestBase<TFixture>(TFixture fixture) : UpdatesTestBase<TFixture>(fixture)
     where TFixture : UpdatesRelationalTestBase<TFixture>.UpdatesRelationalFixture
 {
-    protected UpdatesRelationalTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-
     [ConditionalFact]
     public virtual Task SaveChanges_works_for_entities_also_mapped_to_view()
         => ExecuteWithStrategyInTransactionAsync(
@@ -180,6 +175,43 @@ public abstract class UpdatesRelationalTestBase<TFixture> : UpdatesTestBase<TFix
             });
     }
 
+    [ConditionalFact] // Issue #33023
+    public virtual Task Swap_computed_unique_index_values()
+    {
+        var productId1 = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146");
+        var productId2 = new Guid("0edc9136-7eed-463b-9b97-bdb9648ab877");
+
+        return ExecuteWithStrategyInTransactionAsync(
+            async context =>
+            {
+                var product1 = (await context.Products.FindAsync(productId1))!;
+                var product2 = (await context.Products.FindAsync(productId2))!;
+
+                product1.IsPrimary = false;
+                product2.Name = product1.Name;
+                product2.IsPrimary = true;
+
+                await context.SaveChangesAsync();
+            }, async context =>
+            {
+                var product1 = (await context.Products.FindAsync(productId1))!;
+                var product2 = (await context.Products.FindAsync(productId2))!;
+
+                product1.Name = "Apple Cobler";
+                product1.IsPrimary = true;
+                product2.IsPrimary = false;
+
+                await context.SaveChangesAsync();
+            }, async context =>
+            {
+                var product1 = (await context.Products.FindAsync(productId1))!;
+                var product2 = (await context.Products.FindAsync(productId2))!;
+
+                Assert.True(product1.IsPrimary);
+                Assert.False(product2.IsPrimary);
+            });
+    }
+
     [ConditionalFact]
     public virtual Task Update_non_indexed_values()
     {
@@ -202,13 +234,15 @@ public abstract class UpdatesRelationalTestBase<TFixture> : UpdatesTestBase<TFix
                 {
                     Id = productId1,
                     Name = "",
-                    Price = 1.49M
+                    Price = 1.49M,
+                    IsPrimary = true
                 };
                 var product2 = new Product
                 {
                     Id = productId2,
                     Name = "",
-                    Price = 1.49M
+                    Price = 1.49M,
+                    IsPrimary = false
                 };
 
                 context.Attach(product1).Property(p => p.DependentId).IsModified = true;

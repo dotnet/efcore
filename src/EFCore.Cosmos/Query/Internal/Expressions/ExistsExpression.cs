@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 // ReSharper disable once CheckNamespace
+
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 
 /// <summary>
@@ -30,9 +31,7 @@ public class ExistsExpression : SqlExpression
     /// </summary>
     public ExistsExpression(SelectExpression subquery, CoreTypeMapping? typeMapping)
         : base(typeof(bool), typeMapping)
-    {
-        Subquery = subquery;
-    }
+        => Subquery = subquery;
 
     /// <summary>
     ///     The subquery for which to check for element existence.

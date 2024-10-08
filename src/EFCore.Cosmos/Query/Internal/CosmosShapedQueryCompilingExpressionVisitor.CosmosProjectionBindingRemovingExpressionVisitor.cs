@@ -9,9 +9,9 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 {
     private sealed class CosmosProjectionBindingRemovingExpressionVisitor(
         SelectExpression selectExpression,
-        ParameterExpression jObjectParameter,
+        ParameterExpression jTokenParameter,
         bool trackQueryResults)
-        : CosmosProjectionBindingRemovingExpressionVisitorBase(jObjectParameter, trackQueryResults)
+        : CosmosProjectionBindingRemovingExpressionVisitorBase(jTokenParameter, trackQueryResults)
     {
         protected override ProjectionExpression GetProjection(ProjectionBindingExpression projectionBindingExpression)
             => selectExpression.Projection[GetProjectionIndex(projectionBindingExpression)];

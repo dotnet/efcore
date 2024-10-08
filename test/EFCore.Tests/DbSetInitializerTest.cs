@@ -46,11 +46,12 @@ public class DbSetInitializerTest
 
     private class JustAContext(DbContextOptions options) : DbContext(options)
     {
-
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<string> One { get; set; }
+
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
         private DbSet<object> Two { get; set; }
+
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<string> Three { get; private set; }
 

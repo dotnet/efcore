@@ -51,7 +51,7 @@ FROM (
             """
 @__category_PrincipalId_0='778' (Nullable = true)
 
-SELECT [p].[Id], [p].[Discriminator], [p].[DependentId], [p].[Name], [p].[Price]
+SELECT [p].[Id], [p].[Discriminator], [p].[DependentId], [p].[IsPrimary], [p].[IsPrimaryNormalized], [p].[Name], [p].[Price]
 FROM [ProductBase] AS [p]
 WHERE [p].[Discriminator] = N'Product' AND [p].[DependentId] = @__category_PrincipalId_0
 """,
@@ -81,7 +81,7 @@ FROM (
             """
 @__category_PrincipalId_0='778' (Nullable = true)
 
-SELECT [p].[Id], [p].[Discriminator], [p].[DependentId], [p].[Name], [p].[Price]
+SELECT [p].[Id], [p].[Discriminator], [p].[DependentId], [p].[IsPrimary], [p].[IsPrimaryNormalized], [p].[Name], [p].[Price]
 FROM [ProductBase] AS [p]
 WHERE [p].[Discriminator] = N'Product' AND [p].[DependentId] = @__category_PrincipalId_0
 """);

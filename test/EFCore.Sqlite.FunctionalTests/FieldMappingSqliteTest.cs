@@ -7,14 +7,9 @@ namespace Microsoft.EntityFrameworkCore;
 
 public abstract class FieldMappingSqliteTest
 {
-    public abstract class FieldMappingSqliteTestBase<TFixture> : FieldMappingTestBase<TFixture>
+    public abstract class FieldMappingSqliteTestBase<TFixture>(TFixture fixture) : FieldMappingTestBase<TFixture>(fixture)
         where TFixture : FieldMappingSqliteTestBase<TFixture>.FieldMappingSqliteFixtureBase, new()
     {
-        protected FieldMappingSqliteTestBase(TFixture fixture)
-            : base(fixture)
-        {
-        }
-
         protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
             => facade.UseTransaction(transaction.GetDbTransaction());
 
@@ -66,7 +61,6 @@ public abstract class FieldMappingSqliteTest
     public class EnforcePropertyTest(EnforcePropertyTest.EnforcePropertyFixture fixture)
         : FieldMappingSqliteTestBase<EnforcePropertyTest.EnforcePropertyFixture>(fixture)
     {
-
         // Cannot force property access when properties missing getter/setter
         public override void Simple_query_read_only_props(bool tracking)
         {

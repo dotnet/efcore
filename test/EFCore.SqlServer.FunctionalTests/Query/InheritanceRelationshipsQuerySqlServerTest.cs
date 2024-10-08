@@ -13,9 +13,7 @@ public class InheritanceRelationshipsQuerySqlServerTest
         InheritanceRelationshipsQuerySqlServerFixture fixture,
         ITestOutputHelper testOutputHelper)
         : base(fixture)
-    {
-        fixture.TestSqlLoggerFactory.Clear();
-    }
+        => fixture.TestSqlLoggerFactory.Clear();
 
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()

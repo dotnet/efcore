@@ -693,37 +693,14 @@ public class RelationalModelBuilderTest : ModelBuilderTest
         }
     }
 
-    public abstract class RelationalOneToManyTestBase : OneToManyTestBase
-    {
-        protected RelationalOneToManyTestBase(RelationalModelBuilderFixture fixture)
-            : base(fixture)
-        {
-        }
-    }
+    public abstract class RelationalOneToManyTestBase(RelationalModelBuilderFixture fixture) : OneToManyTestBase(fixture);
 
-    public abstract class RelationalManyToOneTestBase : ManyToOneTestBase
-    {
-        protected RelationalManyToOneTestBase(RelationalModelBuilderFixture fixture)
-            : base(fixture)
-        {
-        }
-    }
+    public abstract class RelationalManyToOneTestBase(RelationalModelBuilderFixture fixture) : ManyToOneTestBase(fixture);
 
-    public abstract class RelationalOneToOneTestBase : OneToOneTestBase
-    {
-        protected RelationalOneToOneTestBase(RelationalModelBuilderFixture fixture)
-            : base(fixture)
-        {
-        }
-    }
+    public abstract class RelationalOneToOneTestBase(RelationalModelBuilderFixture fixture) : OneToOneTestBase(fixture);
 
-    public abstract class RelationalManyToManyTestBase : ManyToManyTestBase
+    public abstract class RelationalManyToManyTestBase(RelationalModelBuilderFixture fixture) : ManyToManyTestBase(fixture)
     {
-        protected RelationalManyToManyTestBase(RelationalModelBuilderFixture fixture)
-            : base(fixture)
-        {
-        }
-
         [ConditionalFact] // Issue #27990
         public virtual void Can_use_ForeignKeyAttribute_with_InversePropertyAttribute()
         {
@@ -739,32 +716,36 @@ public class RelationalModelBuilderTest : ModelBuilderTest
 
             var model = modelBuilder.FinalizeModel();
 
-            Assert.Collection(model.GetEntityTypes(),
+            Assert.Collection(
+                model.GetEntityTypes(),
                 e =>
                 {
                     Assert.Equal("FuelTypeMotorArt", e.ShortName());
                     Assert.Collection(e.GetProperties(), p => Assert.Equal("FuelTypeId", p.Name), p => Assert.Equal("MotorArtId", p.Name));
-                    Assert.Collection(e.GetKeys(), k =>Assert.Collection(k.Properties,
-                        p => Assert.Equal("FuelTypeId", p.Name),
-                        p => Assert.Equal("MotorArtId", p.Name)));
-                    Assert.Collection(e.GetForeignKeys(), k =>
-                    {
-                        Assert.Equal("FuelType", k.PrincipalEntityType.ShortName());
-                        Assert.Collection(k.Properties, p => Assert.Equal("FuelTypeId", p.Name));
-                        Assert.Collection(k.PrincipalKey.Properties, p => Assert.Equal("FuelTypeId", p.Name));
-                    }, k =>
-                    {
-                        Assert.Equal("MotorArt", k.PrincipalEntityType.ShortName());
-                        Assert.Collection(k.Properties, p => Assert.Equal("MotorArtId", p.Name));
-                        Assert.Collection(k.PrincipalKey.Properties, p => Assert.Equal("MotorArtId", p.Name));
-                    });
+                    Assert.Collection(
+                        e.GetKeys(), k => Assert.Collection(
+                            k.Properties,
+                            p => Assert.Equal("FuelTypeId", p.Name),
+                            p => Assert.Equal("MotorArtId", p.Name)));
+                    Assert.Collection(
+                        e.GetForeignKeys(), k =>
+                        {
+                            Assert.Equal("FuelType", k.PrincipalEntityType.ShortName());
+                            Assert.Collection(k.Properties, p => Assert.Equal("FuelTypeId", p.Name));
+                            Assert.Collection(k.PrincipalKey.Properties, p => Assert.Equal("FuelTypeId", p.Name));
+                        }, k =>
+                        {
+                            Assert.Equal("MotorArt", k.PrincipalEntityType.ShortName());
+                            Assert.Collection(k.Properties, p => Assert.Equal("MotorArtId", p.Name));
+                            Assert.Collection(k.PrincipalKey.Properties, p => Assert.Equal("MotorArtId", p.Name));
+                        });
                     Assert.Empty(e.GetNavigations());
                     Assert.Empty(e.GetSkipNavigations());
                 },
                 e =>
                 {
                     Assert.Equal("FuelType", e.ShortName());
-                    Assert.Collection(e.GetKeys(), k =>Assert.Collection(k.Properties, p => Assert.Equal("FuelTypeId", p.Name)));
+                    Assert.Collection(e.GetKeys(), k => Assert.Collection(k.Properties, p => Assert.Equal("FuelTypeId", p.Name)));
                     Assert.Collection(e.GetProperties(), p => Assert.Equal("FuelTypeId", p.Name), p => Assert.Equal("Bezeichnung", p.Name));
                     Assert.Empty(e.GetForeignKeys());
                     Assert.Empty(e.GetNavigations());
@@ -773,18 +754,19 @@ public class RelationalModelBuilderTest : ModelBuilderTest
                 e =>
                 {
                     Assert.Equal("MotorArt", e.ShortName());
-                    Assert.Collection(e.GetKeys(), k =>Assert.Collection(k.Properties, p => Assert.Equal("MotorArtId", p.Name)));
+                    Assert.Collection(e.GetKeys(), k => Assert.Collection(k.Properties, p => Assert.Equal("MotorArtId", p.Name)));
                     Assert.Collection(e.GetProperties(), p => Assert.Equal("MotorArtId", p.Name));
                     Assert.Empty(e.GetForeignKeys());
                     Assert.Empty(e.GetNavigations());
-                    Assert.Collection(e.GetSkipNavigations(),
+                    Assert.Collection(
+                        e.GetSkipNavigations(),
                         n => Assert.Equal("FuelType", n.Name),
                         n => Assert.Equal("MotorBauArt", n.Name));
                 },
                 e =>
                 {
                     Assert.Equal("MotorBauart", e.ShortName());
-                    Assert.Collection(e.GetKeys(), k =>Assert.Collection(k.Properties, p => Assert.Equal("MotorBauartId", p.Name)));
+                    Assert.Collection(e.GetKeys(), k => Assert.Collection(k.Properties, p => Assert.Equal("MotorBauartId", p.Name)));
                     Assert.Collection(e.GetProperties(), p => Assert.Equal("MotorBauartId", p.Name));
                     Assert.Empty(e.GetForeignKeys());
                     Assert.Empty(e.GetNavigations());
@@ -793,23 +775,27 @@ public class RelationalModelBuilderTest : ModelBuilderTest
                 e =>
                 {
                     Assert.Equal("MotorArtXMotorBauart", e.ShortName());
-                    Assert.Collection(e.GetProperties(),
+                    Assert.Collection(
+                        e.GetProperties(),
                         p => Assert.Equal("MotorArtId", p.Name),
                         p => Assert.Equal("MotorBauArtId", p.Name));
-                    Assert.Collection(e.GetKeys(), k =>Assert.Collection(k.Properties,
-                        p => Assert.Equal("MotorArtId", p.Name),
-                        p => Assert.Equal("MotorBauArtId", p.Name)));
-                    Assert.Collection(e.GetForeignKeys(), k =>
-                    {
-                        Assert.Equal("MotorArt", k.PrincipalEntityType.ShortName());
-                        Assert.Collection(k.Properties, p => Assert.Equal("MotorArtId", p.Name));
-                        Assert.Collection(k.PrincipalKey.Properties, p => Assert.Equal("MotorArtId", p.Name));
-                    }, k =>
-                    {
-                        Assert.Equal("MotorBauart", k.PrincipalEntityType.ShortName());
-                        Assert.Collection(k.Properties, p => Assert.Equal("MotorBauArtId", p.Name));
-                        Assert.Collection(k.PrincipalKey.Properties, p => Assert.Equal("MotorBauartId", p.Name));
-                    });
+                    Assert.Collection(
+                        e.GetKeys(), k => Assert.Collection(
+                            k.Properties,
+                            p => Assert.Equal("MotorArtId", p.Name),
+                            p => Assert.Equal("MotorBauArtId", p.Name)));
+                    Assert.Collection(
+                        e.GetForeignKeys(), k =>
+                        {
+                            Assert.Equal("MotorArt", k.PrincipalEntityType.ShortName());
+                            Assert.Collection(k.Properties, p => Assert.Equal("MotorArtId", p.Name));
+                            Assert.Collection(k.PrincipalKey.Properties, p => Assert.Equal("MotorArtId", p.Name));
+                        }, k =>
+                        {
+                            Assert.Equal("MotorBauart", k.PrincipalEntityType.ShortName());
+                            Assert.Collection(k.Properties, p => Assert.Equal("MotorBauArtId", p.Name));
+                            Assert.Collection(k.PrincipalKey.Properties, p => Assert.Equal("MotorBauartId", p.Name));
+                        });
                     Assert.Empty(e.GetNavigations());
                     Assert.Empty(e.GetSkipNavigations());
                 });
@@ -856,16 +842,10 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             [InverseProperty("MotorBauArt")]
             public virtual ICollection<MotorArt> MotorArt { get; set; } = new HashSet<MotorArt>();
         }
-
     }
 
-    public abstract class RelationalOwnedTypesTestBase : OwnedTypesTestBase
+    public abstract class RelationalOwnedTypesTestBase(RelationalModelBuilderFixture fixture) : OwnedTypesTestBase(fixture)
     {
-        protected RelationalOwnedTypesTestBase(RelationalModelBuilderFixture fixture)
-            : base(fixture)
-        {
-        }
-
         [ConditionalFact]
         public virtual void Can_use_table_splitting_with_owned_reference()
         {
@@ -1103,7 +1083,6 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             Assert.Null(bookOwnership2.DeclaringEntityType.GetUpdateStoredProcedure());
             Assert.Null(bookOwnership2.DeclaringEntityType.GetDeleteStoredProcedure());
         }
-#nullable disable
 
         protected class JsonEntity
         {
@@ -1233,6 +1212,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
                     owned.GetProperties().Select(p => p.Name));
             }
         }
+
         public override void Can_configure_owned_type_key()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1275,7 +1255,8 @@ public class RelationalModelBuilderTest : ModelBuilderTest
         public abstract TestColumnBuilder<TProperty> Property<TProperty>(Expression<Func<TEntity, TProperty>> propertyExpression);
     }
 
-    public class GenericTestTableBuilder<TEntity>(TableBuilder<TEntity> tableBuilder) : TestTableBuilder<TEntity>, IInfrastructure<TableBuilder<TEntity>>
+    public class GenericTestTableBuilder<TEntity>(TableBuilder<TEntity> tableBuilder)
+        : TestTableBuilder<TEntity>, IInfrastructure<TableBuilder<TEntity>>
         where TEntity : class
     {
         private TableBuilder<TEntity> TableBuilder { get; } = tableBuilder;
@@ -1360,7 +1341,8 @@ public class RelationalModelBuilderTest : ModelBuilderTest
         public abstract TestColumnBuilder<TProperty> Property<TProperty>(Expression<Func<TDependentEntity, TProperty>> propertyExpression);
     }
 
-    public class GenericTestOwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity>(OwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity> tableBuilder) :
+    public class GenericTestOwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity>(
+        OwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity> tableBuilder) :
         TestOwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity>,
         IInfrastructure<OwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity>>
         where TOwnerEntity : class
@@ -1448,7 +1430,8 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             object? value);
     }
 
-    public class GenericTestSplitTableBuilder<TEntity>(SplitTableBuilder<TEntity> tableBuilder) : TestSplitTableBuilder<TEntity>, IInfrastructure<SplitTableBuilder<TEntity>>
+    public class GenericTestSplitTableBuilder<TEntity>(SplitTableBuilder<TEntity> tableBuilder)
+        : TestSplitTableBuilder<TEntity>, IInfrastructure<SplitTableBuilder<TEntity>>
         where TEntity : class
     {
         private SplitTableBuilder<TEntity> TableBuilder { get; } = tableBuilder;
@@ -1481,7 +1464,8 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             => Wrap(TableBuilder.HasAnnotation(annotation, value));
     }
 
-    public class NonGenericTestSplitTableBuilder<TEntity>(SplitTableBuilder tableBuilder) : TestSplitTableBuilder<TEntity>, IInfrastructure<SplitTableBuilder>
+    public class NonGenericTestSplitTableBuilder<TEntity>(SplitTableBuilder tableBuilder)
+        : TestSplitTableBuilder<TEntity>, IInfrastructure<SplitTableBuilder>
         where TEntity : class
     {
         private SplitTableBuilder TableBuilder { get; } = tableBuilder;
@@ -1533,7 +1517,8 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             object? value);
     }
 
-    public class GenericTestOwnedNavigationSplitTableBuilder<TOwnerEntity, TDependentEntity>(OwnedNavigationSplitTableBuilder<TOwnerEntity, TDependentEntity> tableBuilder) :
+    public class GenericTestOwnedNavigationSplitTableBuilder<TOwnerEntity, TDependentEntity>(
+        OwnedNavigationSplitTableBuilder<TOwnerEntity, TDependentEntity> tableBuilder) :
         TestOwnedNavigationSplitTableBuilder<TOwnerEntity, TDependentEntity>,
         IInfrastructure<OwnedNavigationSplitTableBuilder<TOwnerEntity, TDependentEntity>>
         where TOwnerEntity : class
@@ -1568,7 +1553,8 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             => Wrap(TableBuilder.HasAnnotation(annotation, value));
     }
 
-    public class NonGenericTestOwnedNavigationSplitTableBuilder<TOwnerEntity, TDependentEntity>(OwnedNavigationSplitTableBuilder tableBuilder) :
+    public class NonGenericTestOwnedNavigationSplitTableBuilder<TOwnerEntity, TDependentEntity>(
+        OwnedNavigationSplitTableBuilder tableBuilder) :
         TestOwnedNavigationSplitTableBuilder<TOwnerEntity, TDependentEntity>,
         IInfrastructure<OwnedNavigationSplitTableBuilder>
         where TOwnerEntity : class
@@ -1611,7 +1597,8 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             object? value);
     }
 
-    public class GenericTestColumnBuilder<TProperty>(ColumnBuilder<TProperty> columnBuilder) : TestColumnBuilder<TProperty>, IInfrastructure<ColumnBuilder<TProperty>>
+    public class GenericTestColumnBuilder<TProperty>(ColumnBuilder<TProperty> columnBuilder)
+        : TestColumnBuilder<TProperty>, IInfrastructure<ColumnBuilder<TProperty>>
     {
         private ColumnBuilder<TProperty> ColumnBuilder { get; } = columnBuilder;
 
@@ -1630,7 +1617,8 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             => Wrap(ColumnBuilder.HasAnnotation(annotation, value));
     }
 
-    public class NonGenericTestColumnBuilder<TProperty>(ColumnBuilder tableBuilder) : TestColumnBuilder<TProperty>, IInfrastructure<ColumnBuilder>
+    public class NonGenericTestColumnBuilder<TProperty>(ColumnBuilder tableBuilder)
+        : TestColumnBuilder<TProperty>, IInfrastructure<ColumnBuilder>
     {
         private ColumnBuilder ColumnBuilder { get; } = tableBuilder;
 
@@ -1661,7 +1649,8 @@ public class RelationalModelBuilderTest : ModelBuilderTest
         public abstract TestViewColumnBuilder<TProperty> Property<TProperty>(Expression<Func<TEntity, TProperty>> propertyExpression);
     }
 
-    public class GenericTestViewBuilder<TEntity>(ViewBuilder<TEntity> tableBuilder) : TestViewBuilder<TEntity>, IInfrastructure<ViewBuilder<TEntity>>
+    public class GenericTestViewBuilder<TEntity>(ViewBuilder<TEntity> tableBuilder)
+        : TestViewBuilder<TEntity>, IInfrastructure<ViewBuilder<TEntity>>
         where TEntity : class
     {
         private ViewBuilder<TEntity> ViewBuilder { get; } = tableBuilder;
@@ -1723,7 +1712,8 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             Expression<Func<TDependentEntity, TProperty>> propertyExpression);
     }
 
-    public class GenericTestOwnedNavigationViewBuilder<TOwnerEntity, TDependentEntity>(OwnedNavigationViewBuilder<TOwnerEntity, TDependentEntity> tableBuilder) :
+    public class GenericTestOwnedNavigationViewBuilder<TOwnerEntity, TDependentEntity>(
+        OwnedNavigationViewBuilder<TOwnerEntity, TDependentEntity> tableBuilder) :
         TestOwnedNavigationViewBuilder<TOwnerEntity, TDependentEntity>,
         IInfrastructure<OwnedNavigationViewBuilder<TOwnerEntity, TDependentEntity>>
         where TOwnerEntity : class
@@ -1797,7 +1787,8 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             object? value);
     }
 
-    public class GenericTestSplitViewBuilder<TEntity>(SplitViewBuilder<TEntity> tableBuilder) : TestSplitViewBuilder<TEntity>, IInfrastructure<SplitViewBuilder<TEntity>>
+    public class GenericTestSplitViewBuilder<TEntity>(SplitViewBuilder<TEntity> tableBuilder)
+        : TestSplitViewBuilder<TEntity>, IInfrastructure<SplitViewBuilder<TEntity>>
         where TEntity : class
     {
         private SplitViewBuilder<TEntity> ViewBuilder { get; } = tableBuilder;
@@ -1824,7 +1815,8 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             => Wrap(ViewBuilder.HasAnnotation(annotation, value));
     }
 
-    public class NonGenericTestSplitViewBuilder<TEntity>(SplitViewBuilder tableBuilder) : TestSplitViewBuilder<TEntity>, IInfrastructure<SplitViewBuilder>
+    public class NonGenericTestSplitViewBuilder<TEntity>(SplitViewBuilder tableBuilder)
+        : TestSplitViewBuilder<TEntity>, IInfrastructure<SplitViewBuilder>
         where TEntity : class
     {
         private SplitViewBuilder ViewBuilder { get; } = tableBuilder;
@@ -1869,7 +1861,8 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             object? value);
     }
 
-    public class GenericTestOwnedNavigationSplitViewBuilder<TOwnerEntity, TDependentEntity>(OwnedNavigationSplitViewBuilder<TOwnerEntity, TDependentEntity> tableBuilder) :
+    public class GenericTestOwnedNavigationSplitViewBuilder<TOwnerEntity, TDependentEntity>(
+        OwnedNavigationSplitViewBuilder<TOwnerEntity, TDependentEntity> tableBuilder) :
         TestOwnedNavigationSplitViewBuilder<TOwnerEntity, TDependentEntity>,
         IInfrastructure<OwnedNavigationSplitViewBuilder<TOwnerEntity, TDependentEntity>>
         where TOwnerEntity : class
@@ -1902,9 +1895,10 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             => Wrap(ViewBuilder.HasAnnotation(annotation, value));
     }
 
-    public class NonGenericTestOwnedNavigationSplitViewBuilder<TOwnerEntity, TDependentEntity>(OwnedNavigationSplitViewBuilder tableBuilder) :
-        TestOwnedNavigationSplitViewBuilder<TOwnerEntity, TDependentEntity>,
-        IInfrastructure<OwnedNavigationSplitViewBuilder>
+    public class NonGenericTestOwnedNavigationSplitViewBuilder<TOwnerEntity, TDependentEntity>(OwnedNavigationSplitViewBuilder tableBuilder)
+        :
+            TestOwnedNavigationSplitViewBuilder<TOwnerEntity, TDependentEntity>,
+            IInfrastructure<OwnedNavigationSplitViewBuilder>
         where TOwnerEntity : class
         where TDependentEntity : class
     {
@@ -1943,7 +1937,8 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             object? value);
     }
 
-    public class GenericTestViewColumnBuilder<TProperty>(ViewColumnBuilder<TProperty> columnBuilder) : TestViewColumnBuilder<TProperty>, IInfrastructure<ViewColumnBuilder<TProperty>>
+    public class GenericTestViewColumnBuilder<TProperty>(ViewColumnBuilder<TProperty> columnBuilder)
+        : TestViewColumnBuilder<TProperty>, IInfrastructure<ViewColumnBuilder<TProperty>>
     {
         private ViewColumnBuilder<TProperty> ViewColumnBuilder { get; } = columnBuilder;
 
@@ -2394,7 +2389,8 @@ public class RelationalModelBuilderTest : ModelBuilderTest
         where TOwnerEntity : class
         where TDependentEntity : class
     {
-        private OwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> StoredProcedureBuilder { get; } = storedProcedureBuilder;
+        private OwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> StoredProcedureBuilder { get; } =
+            storedProcedureBuilder;
 
         OwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity>
             IInfrastructure<OwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity>>.Instance
@@ -2488,7 +2484,8 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             => Wrap(StoredProcedureBuilder.HasAnnotation(annotation, value));
     }
 
-    public class NonGenericTestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity>(OwnedNavigationStoredProcedureBuilder storedProcedureBuilder)
+    public class NonGenericTestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity>(
+        OwnedNavigationStoredProcedureBuilder storedProcedureBuilder)
         : TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity>,
             IInfrastructure<OwnedNavigationStoredProcedureBuilder>
         where TOwnerEntity : class
@@ -2589,7 +2586,8 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             => Wrap(StoredProcedureBuilder.HasAnnotation(annotation, value));
     }
 
-    public class TestStoredProcedureParameterBuilder(StoredProcedureParameterBuilder storedProcedureParameterBuilder) : IInfrastructure<StoredProcedureParameterBuilder>
+    public class TestStoredProcedureParameterBuilder(StoredProcedureParameterBuilder storedProcedureParameterBuilder)
+        : IInfrastructure<StoredProcedureParameterBuilder>
     {
         private StoredProcedureParameterBuilder StoredProcedureParameterBuilder { get; } = storedProcedureParameterBuilder;
 
@@ -2614,7 +2612,8 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             => Wrap(StoredProcedureParameterBuilder.HasAnnotation(annotation, value));
     }
 
-    public class TestStoredProcedureResultColumnBuilder(StoredProcedureResultColumnBuilder storedProcedureResultColumnBuilder) : IInfrastructure<StoredProcedureResultColumnBuilder>
+    public class TestStoredProcedureResultColumnBuilder(StoredProcedureResultColumnBuilder storedProcedureResultColumnBuilder)
+        : IInfrastructure<StoredProcedureResultColumnBuilder>
     {
         private StoredProcedureResultColumnBuilder StoredProcedureResultColumnBuilder { get; } = storedProcedureResultColumnBuilder;
 
@@ -2633,14 +2632,9 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             => Wrap(StoredProcedureResultColumnBuilder.HasAnnotation(annotation, value));
     }
 
-    public abstract class TestTableValuedFunctionBuilder<TEntity> : DbFunctionBuilderBase
+    public abstract class TestTableValuedFunctionBuilder<TEntity>(IMutableDbFunction function) : DbFunctionBuilderBase(function)
         where TEntity : class
     {
-        protected TestTableValuedFunctionBuilder(IMutableDbFunction function)
-            : base(function)
-        {
-        }
-
         public new abstract TestTableValuedFunctionBuilder<TEntity> HasName(string name);
 
         public new abstract TestTableValuedFunctionBuilder<TEntity> HasSchema(string? schema);

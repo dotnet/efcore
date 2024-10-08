@@ -555,6 +555,13 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                             thenInclude: false,
                             setLoaded: false);
 
+                    // Handled by relational/provider even though method is on `EntityFrameworkQueryableExtensions`
+                    case nameof(EntityFrameworkQueryableExtensions.ExecuteDelete):
+                    case nameof(EntityFrameworkQueryableExtensions.ExecuteDeleteAsync):
+                    case nameof(EntityFrameworkQueryableExtensions.ExecuteUpdate):
+                    case nameof(EntityFrameworkQueryableExtensions.ExecuteUpdateAsync):
+                        return ProcessUnknownMethod(methodCallExpression);
+
                     case nameof(Queryable.GroupBy)
                         when genericMethod == QueryableMethods.GroupByWithKeySelector:
                         return ProcessGroupBy(
