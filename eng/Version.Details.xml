@@ -37,6 +37,10 @@
       <Uri>https://dev.azure.com/dnceng/internal/_git/dotnet-runtime</Uri>
       <Sha>dcf4a22cf8671c1abe880ebec4cfd906c99588bf</Sha>
     </Dependency>
+    <Dependency Name="System.Formats.Asn1" Version="8.0.1">
+      <Uri>https://dev.azure.com/dnceng/internal/_git/dotnet-runtime</Uri>
+      <Sha>2aade6beb02ea367fd97c4070a4198802fe61c03</Sha>
+    </Dependency>
     <Dependency Name="System.Text.Json" Version="8.0.5">
       <Uri>https://dev.azure.com/dnceng/internal/_git/dotnet-runtime</Uri>
       <Sha>dcf4a22cf8671c1abe880ebec4cfd906c99588bf</Sha>
