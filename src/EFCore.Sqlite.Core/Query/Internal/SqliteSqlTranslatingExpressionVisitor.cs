@@ -128,7 +128,7 @@ public class SqliteSqlTranslatingExpressionVisitor : RelationalSqlTranslatingExp
                     "length",
                     new[] { sqlExpression },
                     nullable: true,
-                    argumentsPropagateNullability: new[] { true },
+                    argumentsPropagateNullability: Statics.TrueArrays[1],
                     typeof(int))
                 : QueryCompilationContext.NotTranslatedExpression;
         }
@@ -224,7 +224,7 @@ public class SqliteSqlTranslatingExpressionVisitor : RelationalSqlTranslatingExp
                     function,
                     new[] { sqlBinary.Left, sqlBinary.Right },
                     nullable: true,
-                    argumentsPropagateNullability: new[] { false, false },
+                    argumentsPropagateNullability: Statics.FalseArrays[2],
                     visitedExpression.Type,
                     visitedExpression.TypeMapping);
             }
@@ -373,11 +373,11 @@ public class SqliteSqlTranslatingExpressionVisitor : RelationalSqlTranslatingExp
                                                     "length",
                                                     new[] { translatedPattern },
                                                     nullable: true,
-                                                    argumentsPropagateNullability: new[] { true },
+                                                    argumentsPropagateNullability: Statics.TrueArrays[1],
                                                     typeof(int))
                                             },
                                             nullable: true,
-                                            argumentsPropagateNullability: new[] { true, false, true },
+                                            argumentsPropagateNullability: [true, false, false],
                                             typeof(string),
                                             stringTypeMapping),
                                         translatedPattern),
@@ -407,11 +407,11 @@ public class SqliteSqlTranslatingExpressionVisitor : RelationalSqlTranslatingExp
                                                             "length",
                                                             new[] { translatedPattern },
                                                             nullable: true,
-                                                            argumentsPropagateNullability: new[] { true },
+                                                            argumentsPropagateNullability: Statics.TrueArrays[1],
                                                             typeof(int)))
                                                 },
                                                 nullable: true,
-                                                argumentsPropagateNullability: new[] { true, true },
+                                                argumentsPropagateNullability: Statics.TrueArrays[2],
                                                 typeof(string),
                                                 stringTypeMapping),
                                             translatedPattern),

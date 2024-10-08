@@ -50,7 +50,7 @@ public class SqlServerDateOnlyMemberTranslator : IMemberTranslator
                 "DATEPART",
                 new[] { _sqlExpressionFactory.Fragment(datePart), instance! },
                 nullable: true,
-                argumentsPropagateNullability: new[] { false, true },
+                argumentsPropagateNullability: Statics.FalseTrue,
                 returnType)
             : null;
 }

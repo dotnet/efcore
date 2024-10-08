@@ -45,7 +45,7 @@ public class SqlServerStringMemberTranslator : IMemberTranslator
                     "LEN",
                     new[] { instance! },
                     nullable: true,
-                    argumentsPropagateNullability: new[] { true },
+                    argumentsPropagateNullability: Statics.TrueArrays[1],
                     typeof(long)),
                 returnType);
         }

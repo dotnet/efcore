@@ -55,7 +55,7 @@ public class SqlServerByteArrayMethodTranslator : IMethodCallTranslator
                         "CHARINDEX",
                         [value, source],
                         nullable: true,
-                        argumentsPropagateNullability: [true, true],
+                        argumentsPropagateNullability: Statics.TrueArrays[2],
                         typeof(int)),
                     _sqlExpressionFactory.Constant(0));
             }
@@ -68,7 +68,7 @@ public class SqlServerByteArrayMethodTranslator : IMethodCallTranslator
                         "SUBSTRING",
                         [arguments[0], _sqlExpressionFactory.Constant(1), _sqlExpressionFactory.Constant(1)],
                         nullable: true,
-                        argumentsPropagateNullability: [true, true, true],
+                        argumentsPropagateNullability: Statics.TrueArrays[3],
                         typeof(byte[])),
                     method.ReturnType);
             }
