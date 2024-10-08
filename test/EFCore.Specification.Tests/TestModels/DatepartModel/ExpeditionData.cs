@@ -24,9 +24,7 @@ public class ExpeditionData : ISetSource
             : throw new InvalidOperationException("Invalid entity type: " + typeof(TEntity));
 
     public static IReadOnlyList<Expedition> CreateExpeditions()
-    {
-        return new List<Expedition>()
-        {
+        => [
             new Expedition()
             {
                 Id = 1,
@@ -72,6 +70,5 @@ public class ExpeditionData : ISetSource
                 EndDate = new DateTimeOffset(638739396001111111, new()), // "1/31/2025 5:00:00.1111111 PM +00:00"
                 Duration = new TimeSpan(863991111111) // "23:59:59.1111111"
             },
-        };
-    }
+        ];
 }

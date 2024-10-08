@@ -11,7 +11,6 @@ public abstract class DatepartQueryTestBase<TFixture> : QueryTestBase<TFixture>
     protected DatepartQueryTestBase(TFixture fixture) : base(fixture)
     { }
 
-
     protected ExpeditionContext CreateContext()
         => Fixture.CreateContext();
 
@@ -46,8 +45,7 @@ public abstract class DatepartQueryTestBase<TFixture> : QueryTestBase<TFixture>
             ss => ss.Set<Expedition>().OrderBy(e => e.StartDate.Microsecond).Select(e => e.Id),
             ss => ss.Set<Expedition>()
                 .OrderBy(e => e.StartDate.Millisecond * 1000 + e.StartDate.Microsecond)
-                .Select(e => e.Id)
-            );
+                .Select(e => e.Id));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -57,8 +55,7 @@ public abstract class DatepartQueryTestBase<TFixture> : QueryTestBase<TFixture>
             ss => ss.Set<Expedition>().OrderByDescending(e => e.StartDate.Microsecond).Select(e => e.Id),
             ss => ss.Set<Expedition>()
                 .OrderByDescending(e => e.StartDate.Millisecond * 1000 + e.StartDate.Microsecond)
-                .Select(e => e.Id)
-            );
+                .Select(e => e.Id));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -86,8 +83,7 @@ public abstract class DatepartQueryTestBase<TFixture> : QueryTestBase<TFixture>
             ss => ss.Set<Expedition>().OrderBy(e => e.StartDate.Nanosecond).Select(e => e.Id),
             ss => ss.Set<Expedition>()
                 .OrderBy(e => e.StartDate.Millisecond * 1000000 + e.StartDate.Microsecond * 1000 + e.StartDate.Nanosecond)
-                .Select(e => e.Id)
-            );
+                .Select(e => e.Id));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -97,8 +93,7 @@ public abstract class DatepartQueryTestBase<TFixture> : QueryTestBase<TFixture>
             ss => ss.Set<Expedition>().OrderByDescending(e => e.StartDate.Nanosecond).Select(e => e.Id),
             ss => ss.Set<Expedition>()
                 .OrderByDescending(e => e.StartDate.Millisecond * 1000000 + e.StartDate.Microsecond * 1000 + e.StartDate.Nanosecond)
-                .Select(e => e.Id)
-            );
+                .Select(e => e.Id));
 
     #endregion
 
@@ -130,8 +125,7 @@ public abstract class DatepartQueryTestBase<TFixture> : QueryTestBase<TFixture>
             ss => ss.Set<Expedition>().OrderBy(e => e.EndDate.Microsecond).Select(e => e.Id),
             ss => ss.Set<Expedition>()
                 .OrderBy(e => e.EndDate.Millisecond * 1000 + e.EndDate.Microsecond)
-                .Select(e => e.Id)
-            );
+                .Select(e => e.Id));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -141,8 +135,7 @@ public abstract class DatepartQueryTestBase<TFixture> : QueryTestBase<TFixture>
             ss => ss.Set<Expedition>().OrderByDescending(e => e.EndDate.Microsecond).Select(e => e.Id),
             ss => ss.Set<Expedition>()
                 .OrderByDescending(e => e.EndDate.Millisecond * 1000 + e.EndDate.Microsecond)
-                .Select(e => e.Id)
-            );
+                .Select(e => e.Id));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -170,8 +163,7 @@ public abstract class DatepartQueryTestBase<TFixture> : QueryTestBase<TFixture>
             ss => ss.Set<Expedition>().OrderBy(e => e.EndDate.Nanosecond).Select(e => e.Id),
             ss => ss.Set<Expedition>()
                 .OrderBy(e => e.EndDate.Millisecond * 1000000 + e.EndDate.Microsecond * 1000 + e.EndDate.Nanosecond)
-                .Select(e => e.Id)
-            );
+                .Select(e => e.Id));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -181,8 +173,7 @@ public abstract class DatepartQueryTestBase<TFixture> : QueryTestBase<TFixture>
             ss => ss.Set<Expedition>().OrderByDescending(e => e.EndDate.Nanosecond).Select(e => e.Id),
             ss => ss.Set<Expedition>()
                 .OrderByDescending(e => e.EndDate.Millisecond * 1000000 + e.EndDate.Microsecond * 1000 + e.EndDate.Nanosecond)
-                .Select(e => e.Id)
-            );
+                .Select(e => e.Id));
 
     #endregion
 
@@ -214,8 +205,7 @@ public abstract class DatepartQueryTestBase<TFixture> : QueryTestBase<TFixture>
             ss => ss.Set<Expedition>().OrderBy(e => e.StartTime.Microsecond).Select(e => e.Id),
             ss => ss.Set<Expedition>()
                 .OrderBy(e => e.StartTime.Millisecond * 1000 + e.StartTime.Microsecond)
-                .Select(e => e.Id)
-            );
+                .Select(e => e.Id));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -225,8 +215,7 @@ public abstract class DatepartQueryTestBase<TFixture> : QueryTestBase<TFixture>
             ss => ss.Set<Expedition>().OrderByDescending(e => e.StartTime.Microsecond).Select(e => e.Id),
             ss => ss.Set<Expedition>()
                 .OrderByDescending(e => e.StartTime.Millisecond * 1000 + e.StartTime.Microsecond)
-                .Select(e => e.Id)
-            );
+                .Select(e => e.Id));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -254,8 +243,7 @@ public abstract class DatepartQueryTestBase<TFixture> : QueryTestBase<TFixture>
             ss => ss.Set<Expedition>().OrderBy(e => e.StartTime.Nanosecond).Select(e => e.Id),
             ss => ss.Set<Expedition>()
                 .OrderBy(e => e.StartTime.Millisecond * 1000000 + e.StartTime.Microsecond * 1000 + e.StartTime.Nanosecond)
-                .Select(e => e.Id)
-            );
+                .Select(e => e.Id) );
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -265,8 +253,7 @@ public abstract class DatepartQueryTestBase<TFixture> : QueryTestBase<TFixture>
             ss => ss.Set<Expedition>().OrderByDescending(e => e.StartTime.Nanosecond).Select(e => e.Id),
             ss => ss.Set<Expedition>()
                 .OrderByDescending(e => e.StartTime.Millisecond * 1000000 + e.StartTime.Microsecond * 1000 + e.StartTime.Nanosecond)
-                .Select(e => e.Id)
-            );
+                .Select(e => e.Id));
 
     #endregion
 
@@ -296,8 +283,7 @@ public abstract class DatepartQueryTestBase<TFixture> : QueryTestBase<TFixture>
         => AssertQueryScalar(
             async,
             ss => ss.Set<Expedition>().OrderBy(e => e.Duration.Microseconds).Select(e => e.Id),
-            ss => ss.Set<Expedition>().OrderBy(e => e.Duration.Milliseconds * 1000 + e.Duration.Microseconds).Select(e => e.Id)
-            );
+            ss => ss.Set<Expedition>().OrderBy(e => e.Duration.Milliseconds * 1000 + e.Duration.Microseconds).Select(e => e.Id));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -305,8 +291,7 @@ public abstract class DatepartQueryTestBase<TFixture> : QueryTestBase<TFixture>
         => AssertQueryScalar(
             async,
             ss => ss.Set<Expedition>().OrderByDescending(e => e.Duration.Microseconds).Select(e => e.Id),
-            ss => ss.Set<Expedition>().OrderByDescending(e => e.Duration.Milliseconds * 1000 + e.Duration.Microseconds).Select(e => e.Id)
-            );
+            ss => ss.Set<Expedition>().OrderByDescending(e => e.Duration.Milliseconds * 1000 + e.Duration.Microseconds).Select(e => e.Id));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -334,8 +319,7 @@ public abstract class DatepartQueryTestBase<TFixture> : QueryTestBase<TFixture>
             ss => ss.Set<Expedition>().OrderBy(e => e.Duration.Nanoseconds).Select(e => e.Id),
             ss => ss.Set<Expedition>()
                 .OrderBy(e => e.Duration.Milliseconds * 1000000 + e.Duration.Microseconds * 1000 + e.Duration.Nanoseconds)
-                .Select(e => e.Id)
-            );
+                .Select(e => e.Id));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -345,8 +329,7 @@ public abstract class DatepartQueryTestBase<TFixture> : QueryTestBase<TFixture>
             ss => ss.Set<Expedition>().OrderByDescending(e => e.Duration.Nanoseconds).Select(e => e.Id),
             ss => ss.Set<Expedition>()
                 .OrderByDescending(e => e.Duration.Milliseconds * 1000000 + e.Duration.Microseconds * 1000 + e.Duration.Nanoseconds)
-                .Select(e => e.Id)
-            );
+                .Select(e => e.Id));
 
     #endregion
 }

@@ -16,15 +16,11 @@ public abstract class DatepartQueryRelationalFixture : DatepartQueryFixtureBase,
 
     public override Dictionary<(Type, string), Func<object, object>> GetShadowPropertyMappings()
     {
-        var discriminatorMapping = new Dictionary<(Type, string), Func<object, object>>
-        {
-        };
-
+        var discriminatorMapping = new Dictionary<(Type, string), Func<object, object>>();
         foreach (var shadowPropertyMappingElement in base.GetShadowPropertyMappings())
         {
             discriminatorMapping.Add(shadowPropertyMappingElement.Key, shadowPropertyMappingElement.Value);
         }
-
         return discriminatorMapping;
     }
 }

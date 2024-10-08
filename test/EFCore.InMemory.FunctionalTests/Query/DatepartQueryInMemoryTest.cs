@@ -11,254 +11,167 @@ public class DatepartQueryInMemoryTest(DatepartQueryInMemoryFixture fixture)
     #region DATEPART DateTime
 
     public override Task Select_datetime_microsecond_component(bool async)
-    {
-        AssertQueryScalar(
+        => AssertQueryScalar(
             async,
-            ss => ss.Set<Expedition>().Select(e => e.StartDate.Millisecond * 1000 + e.StartDate.Microsecond)
-            );
-
-        return Task.CompletedTask;
-    }
+            ss => ss.Set<Expedition>().Select(e => e.StartDate.Millisecond * 1000 + e.StartDate.Microsecond));
 
     public override Task Select_by_datetime_microsecond_component(bool async)
-    { 
-        AssertQueryScalar(
+        => AssertQueryScalar(
             async,
             ss => ss.Set<Expedition>()
                 .Where(e => e.StartDate.Millisecond * 1000 + e.StartDate.Microsecond == 111111)
-                .Select(e => e.Id)
-            );
+                .Select(e => e.Id));
 
-        return Task.CompletedTask;
-    }
+    public override Task OrderBy_datetime_microsecond_component(bool async)
+        => base.OrderBy_datetime_microsecond_component(async);
 
-    public override async Task OrderBy_datetime_microsecond_component(bool async)
-        => await base.OrderBy_datetime_microsecond_component(async);
-
-    public override async Task OrderByDescending_datetime_microsecond_component(bool async)
-        => await base.OrderByDescending_datetime_microsecond_component(async);
+    public override Task OrderByDescending_datetime_microsecond_component(bool async)
+        => base.OrderByDescending_datetime_microsecond_component(async);
 
     public override Task Select_datetime_nanosecond_component(bool async)
-    {
-        AssertQueryScalar(
+        => AssertQueryScalar(
             async,
-            ss => ss.Set<Expedition>().Select(e => e.StartDate.Millisecond * 1000000 + e.StartDate.Microsecond * 1000 + e.StartDate.Nanosecond)
-            );
-
-        return Task.CompletedTask;
-    }
+            ss => ss.Set<Expedition>().Select(e => e.StartDate.Millisecond * 1000000 + e.StartDate.Microsecond * 1000 + e.StartDate.Nanosecond));
 
     public override Task Select_by_datetime_nanosecond_component(bool async)
-    {
-        AssertQueryScalar(
+        => AssertQueryScalar(
             async,
             ss => ss.Set<Expedition>()
                 .Where(e => e.StartDate.Millisecond * 1000000 + e.StartDate.Microsecond * 1000 + e.StartDate.Nanosecond == 111111100)
-                .Select(e => e.Id)
-            );
+                .Select(e => e.Id));
 
-        return Task.CompletedTask;
-    }
+    public override Task OrderBy_datetime_nanosecond_component(bool async)
+        => base.OrderBy_datetime_nanosecond_component(async);
 
-    public override async Task OrderBy_datetime_nanosecond_component(bool async)
-        => await base.OrderBy_datetime_nanosecond_component(async);
-
-    public override async Task OrderByDescending_datetime_nanosecond_component(bool async)
-        => await base.OrderByDescending_datetime_nanosecond_component(async);
+    public override Task OrderByDescending_datetime_nanosecond_component(bool async)
+        => base.OrderByDescending_datetime_nanosecond_component(async);
 
     #endregion
 
     #region DATEPART DateTimeOffset
 
     public override Task Select_datetimeoffset_microsecond_component(bool async)
-    {
-        AssertQueryScalar(
+        => AssertQueryScalar(
             async,
-            ss => ss.Set<Expedition>().Select(e => e.EndDate.Millisecond * 1000 + e.EndDate.Microsecond)
-            );
-
-        return Task.CompletedTask;
-    }
+            ss => ss.Set<Expedition>().Select(e => e.EndDate.Millisecond * 1000 + e.EndDate.Microsecond));
 
     public override Task Select_by_datetimeoffset_microsecond_component(bool async)
-    {
-        AssertQueryScalar(
+        => AssertQueryScalar(
             async,
             ss => ss.Set<Expedition>()
                 .Where(e => e.EndDate.Millisecond * 1000 + e.EndDate.Microsecond == 111111)
-                .Select(e => e.Id)
-            );
+                .Select(e => e.Id));
 
-        return Task.CompletedTask;
-    }
+    public override Task OrderBy_datetimeoffset_microsecond_component(bool async)
+        => base.OrderBy_datetimeoffset_microsecond_component(async);
 
-    public override async Task OrderBy_datetimeoffset_microsecond_component(bool async)
-        => await base.OrderBy_datetimeoffset_microsecond_component(async);
-
-    public override async Task OrderByDescending_datetimeoffset_microsecond_component(bool async)
-        => await base.OrderByDescending_datetimeoffset_microsecond_component(async);
+    public override Task OrderByDescending_datetimeoffset_microsecond_component(bool async)
+        => base.OrderByDescending_datetimeoffset_microsecond_component(async);
 
     public override Task Select_datetimeoffset_nanosecond_component(bool async)
-    {
-        AssertQueryScalar(
+        => AssertQueryScalar(
             async,
             ss => ss.Set<Expedition>()
-                .Select(e => e.EndDate.Millisecond * 1000000 + e.EndDate.Microsecond * 1000 + e.EndDate.Nanosecond)
-            );
-
-        return Task.CompletedTask;
-    }
+                .Select(e => e.EndDate.Millisecond * 1000000 + e.EndDate.Microsecond * 1000 + e.EndDate.Nanosecond));
 
     public override Task Select_by_datetimeoffset_nanosecond_component(bool async)
-    {
-        AssertQueryScalar(
+        => AssertQueryScalar(
             async,
             ss => ss.Set<Expedition>()
                 .Where(e => e.EndDate.Millisecond * 1000000 + e.EndDate.Microsecond * 1000 + e.EndDate.Nanosecond == 111111100)
-                .Select(e => e.Id)
-            );
+                .Select(e => e.Id));
 
-        return Task.CompletedTask;
-    }
+    public override Task OrderBy_datetimeoffset_nanosecond_component(bool async)
+        => base.OrderBy_datetimeoffset_nanosecond_component(async);
 
-    public override async Task OrderBy_datetimeoffset_nanosecond_component(bool async)
-        => await base.OrderBy_datetimeoffset_nanosecond_component(async);
-
-    public override async Task OrderByDescending_datetimeoffset_nanosecond_component(bool async)
-        => await base.OrderByDescending_datetimeoffset_nanosecond_component(async);
+    public override Task OrderByDescending_datetimeoffset_nanosecond_component(bool async)
+        => base.OrderByDescending_datetimeoffset_nanosecond_component(async);
 
     #endregion
 
     #region DATEPART TimeOnly
 
     public override Task Select_timeonly_microsecond_component(bool async)
-    {
-        AssertQueryScalar(
+        => AssertQueryScalar(
             async,
-            ss => ss.Set<Expedition>().Select(e => e.StartTime.Millisecond * 1000 + e.StartTime.Microsecond)
-            );
-
-        return Task.CompletedTask;
-    }
+            ss => ss.Set<Expedition>().Select(e => e.StartTime.Millisecond * 1000 + e.StartTime.Microsecond));
 
     public override Task Select_by_timeonly_microsecond_component(bool async)
-    {
-        AssertQueryScalar(
+        => AssertQueryScalar(
             async,
             ss => ss.Set<Expedition>()
                 .Where(e => e.StartTime.Millisecond * 1000 + e.StartTime.Microsecond == 111111)
-                .Select(e => e.Id)
-            );
-
-        return Task.CompletedTask;
-    }
+                .Select(e => e.Id));
 
     public override Task OrderBy_timeonly_microsecond_component(bool async)
-    {
-        AssertQueryScalar(
+        => AssertQueryScalar(
             async,
             ss => ss.Set<Expedition>()
                 .OrderBy(e => e.StartTime.Millisecond * 1000 + e.StartTime.Microsecond)
-                .Select(e => e.Id)
-            );
+                .Select(e => e.Id));
 
-        return Task.CompletedTask;
-    }
-
-    public override async Task OrderByDescending_timeonly_microsecond_component(bool async)
-    {
-        await base.OrderByDescending_timeonly_microsecond_component(async);
-    }
+    public override Task OrderByDescending_timeonly_microsecond_component(bool async)
+        => base.OrderByDescending_timeonly_microsecond_component(async);
 
     public override Task Select_timeonly_nanosecond_component(bool async)
-    {
-        AssertQueryScalar(
+        => AssertQueryScalar(
             async,
             ss => ss.Set<Expedition>()
-                .Select(e => e.StartTime.Millisecond * 1000000 + e.StartTime.Microsecond * 1000 + e.StartTime.Nanosecond)
-            );
-
-        return Task.CompletedTask;
-    }
+                .Select(e => e.StartTime.Millisecond * 1000000 + e.StartTime.Microsecond * 1000 + e.StartTime.Nanosecond));
 
     public override Task Select_by_timeonly_nanosecond_component(bool async)
-    {
-        AssertQueryScalar(
+        => AssertQueryScalar(
             async,
             ss => ss.Set<Expedition>()
                 .Where(e => e.StartTime.Millisecond * 1000000 + e.StartTime.Microsecond * 1000 + e.StartTime.Nanosecond == 111111100)
-                .Select(e => e.Id)
-            );
+                .Select(e => e.Id));
 
-        return Task.CompletedTask;
-    }
+    public override Task OrderBy_timeonly_nanosecond_component(bool async)
+        => base.OrderBy_timeonly_nanosecond_component(async);
 
-    public override async Task OrderBy_timeonly_nanosecond_component(bool async)
-        => await base.OrderBy_timeonly_nanosecond_component(async);
-
-    public override async Task OrderByDescending_timeonly_nanosecond_component(bool async)
-        => await base.OrderByDescending_timeonly_nanosecond_component(async);
+    public override Task OrderByDescending_timeonly_nanosecond_component(bool async)
+        => base.OrderByDescending_timeonly_nanosecond_component(async);
 
     #endregion
 
     #region DATEPART TimeSpan
 
     public override Task Select_timespan_microsecond_component(bool async)
-    {
-        AssertQueryScalar(
+        => AssertQueryScalar(
             async,
-            ss => ss.Set<Expedition>().Select(e => e.Duration.Milliseconds * 1000 + e.Duration.Microseconds)
-            );
-
-        return Task.CompletedTask;
-    }
+            ss => ss.Set<Expedition>().Select(e => e.Duration.Milliseconds * 1000 + e.Duration.Microseconds));
 
     public override Task Select_by_timespan_microsecond_component(bool async)
-    {
-        AssertQueryScalar(
+        => AssertQueryScalar(
             async,
             ss => ss.Set<Expedition>()
                 .Where(e => e.Duration.Milliseconds * 1000 + e.Duration.Microseconds == 111111)
-                .Select(e => e.Id)
-            );
+                .Select(e => e.Id));
 
-        return Task.CompletedTask;
-    }
+    public override Task OrderBy_timespan_microsecond_component(bool async)
+        => base.OrderBy_timespan_microsecond_component(async);
 
-    public override async Task OrderBy_timespan_microsecond_component(bool async)
-        => await base.OrderBy_timespan_microsecond_component(async);
-
-    public override async Task OrderByDescending_timespan_microsecond_component(bool async)
-        => await base.OrderByDescending_timespan_microsecond_component(async);
+    public override Task OrderByDescending_timespan_microsecond_component(bool async)
+        => base.OrderByDescending_timespan_microsecond_component(async);
 
     public override Task Select_timespan_nanosecond_component(bool async)
-    {
-        AssertQueryScalar(
+        => AssertQueryScalar(
             async,
             ss => ss.Set<Expedition>()
-                .Select(e => e.Duration.Milliseconds * 1000000 + e.Duration.Microseconds * 1000 + e.Duration.Nanoseconds)
-            );
-
-        return Task.CompletedTask;
-    }
+                .Select(e => e.Duration.Milliseconds * 1000000 + e.Duration.Microseconds * 1000 + e.Duration.Nanoseconds));
 
     public override Task Select_by_timespan_nanosecond_component(bool async)
-    {
-        AssertQueryScalar(
+        => AssertQueryScalar(
             async,
             ss => ss.Set<Expedition>()
                 .Where(e => e.Duration.Milliseconds * 1000000 + e.Duration.Microseconds * 1000 + e.Duration.Nanoseconds == 111111100)
-                .Select(e => e.Id)
-            );
+                .Select(e => e.Id));
 
-        return Task.CompletedTask;
-    }
+    public override Task OrderBy_timespan_nanosecond_component(bool async)
+        => base.OrderBy_timespan_nanosecond_component(async);
 
-    public override async Task OrderBy_timespan_nanosecond_component(bool async)
-        => await base.OrderBy_timespan_nanosecond_component(async);
-
-    public override async Task OrderByDescending_timespan_nanosecond_component(bool async)
-        => await base.OrderByDescending_timespan_nanosecond_component(async);
+    public override Task OrderByDescending_timespan_nanosecond_component(bool async)
+        => base.OrderByDescending_timespan_nanosecond_component(async);
 
     #endregion
 }

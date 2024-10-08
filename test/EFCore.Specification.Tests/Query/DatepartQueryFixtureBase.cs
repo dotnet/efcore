@@ -10,7 +10,7 @@ public abstract class DatepartQueryFixtureBase : SharedStoreFixtureBase<Expediti
     protected override string StoreName => "DatepartQueryTest";
 
     public Func<DbContext> GetContextCreator()
-        => () => CreateContext();
+        => CreateContext;
 
     public virtual ISetSource GetExpectedData()
         => ExpeditionData.Instance;
@@ -64,11 +64,6 @@ public abstract class DatepartQueryFixtureBase : SharedStoreFixtureBase<Expediti
             e.Property(e => e.Id).ValueGeneratedNever();
         });
     }
-
-    //public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder) =>
-    //    base.AddOptions(builder).ConfigureWarnings(
-    //        w => w.Log(CoreEventId.RowLimitingOperationWithoutOrderByWarning)
-    //    );
 
     protected override Task SeedAsync(ExpeditionContext context)
         => ExpeditionContext.SeedAsync(context);

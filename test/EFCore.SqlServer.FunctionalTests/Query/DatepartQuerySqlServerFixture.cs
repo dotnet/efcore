@@ -14,13 +14,9 @@ public class DatepartQuerySqlServerFixture : DatepartQueryRelationalFixture
     {
         base.OnModelCreating(modelBuilder, context);
 
-        modelBuilder.Entity<Expedition>(o => {
+        modelBuilder.Entity<Expedition>(o =>
+        {
             o.Property(p => p.StartDate).HasColumnType("datetime2");
         });
     }
-
-    //protected override async Task SeedAsync(ExpeditionContext context)
-    //{
-    //    await base.SeedAsync(context);
-    //}
 }
