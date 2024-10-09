@@ -159,6 +159,30 @@ public partial class RelationalModelValidatorTest
     }
 
     [ConditionalFact]
+    public void Throw_when_json_entity_is_the_owner_of_json_entity_with_different_column_name()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<ValidatorJsonEntityBasic>(
+            b =>
+            {
+                b.OwnsOne(
+                    x => x.OwnedReference, bb =>
+                    {
+                        bb.ToJson();
+                        bb.Ignore(x => x.NestedCollection);
+                        bb.OwnsOne(x => x.NestedReference, bbb => bbb.ToJson());
+                    });
+                b.Ignore(x => x.OwnedCollection);
+            });
+
+        VerifyError(
+            RelationalStrings.JsonEntityMappedToDifferentColumnThanOwner(
+                nameof(ValidatorJsonOwnedBranch), nameof(ValidatorJsonOwnedRoot.NestedReference),
+                nameof(ValidatorJsonOwnedRoot), nameof(ValidatorJsonEntityBasic.OwnedReference)),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
     public void Tpt_not_supported_for_owner_of_json_entity_on_base()
     {
         var modelBuilder = CreateConventionModelBuilder();
