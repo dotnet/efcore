@@ -176,14 +176,16 @@ public abstract class RelationalDbContextOptionsBuilder<TBuilder, TExtension> : 
     ///     <para>
     ///         Note that it's possible to cause EF to translate a specific collection in a specific query to constants by wrapping the
     ///         parameterized collection in <see cref="EF.Constant{T}" />: <c>Where(b => EF.Constant(ids).Contains(b.Id)</c>. This overrides
-    ///         the default.
+    ///         the default. Likewise, you can translate a specific collection in a specific query to a single parameter by wrapping the
+    ///         parameterized collection in <see cref="EF.Parameter{T}(T)" />: <c>Where(b => EF.Parameter(ids).Contains(b.Id)</c>. This
+    ///         overrides the <see cref="TranslateParameterizedCollectionsToConstants" /> setting.
     ///     </para>
     /// </remarks>
     public virtual TBuilder TranslateParameterizedCollectionsToConstants()
         => WithOption(e => (TExtension)e.WithParameterizedCollectionTranslationMode(ParameterizedCollectionTranslationMode.Constantize));
 
     /// <summary>
-    ///     Configures the context to translate parameterized collections to inline constants.
+    ///     Configures the context to translate parameterized collections to parameters.
     /// </summary>
     /// <remarks>
     ///     <para>
@@ -193,9 +195,8 @@ public abstract class RelationalDbContextOptionsBuilder<TBuilder, TExtension> : 
     ///         produce worse query plans for certain query types.
     ///     </para>
     ///     <para>
-    ///         <see cref="TranslateParameterizedCollectionsToConstants" /> instructs EF to translate the collection to a set of constants:
-    ///         <c>WHERE [b].[Id] IN (1, 2, 3)</c>. This can produce better query plans for certain query types, but can also lead to query
-    ///         plan bloat.
+    ///         <see cref="TranslateParameterizedCollectionsToParameters" /> explicitly instructs EF to perform the default translation
+    ///         of parameterized collections, which is translating them to parameters.
     ///     </para>
     ///     <para>
     ///         Note that it's possible to cause EF to translate a specific collection in a specific query to constants by wrapping the
