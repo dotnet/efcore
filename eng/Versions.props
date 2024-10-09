@@ -30,6 +30,7 @@
     <SystemTextEncodingsWebVersion>10.0.0-alpha.1.24504.10</SystemTextEncodingsWebVersion>
     <SystemTextJsonVersion>10.0.0-alpha.1.24504.10</SystemTextJsonVersion>
     <SystemFormatsAsn1Version>10.0.0-alpha.1.24504.10</SystemFormatsAsn1Version>
+    <SystemRuntimeCachingVersion>10.0.0-alpha.1.24504.10</SystemRuntimeCachingVersion>
   </PropertyGroup>
   <PropertyGroup Label="Dependencies from dotnet/arcade">
     <MicrosoftDotNetBuildTasksTemplatingVersion>10.0.0-beta.24504.4</MicrosoftDotNetBuildTasksTemplatingVersion>

@@ -61,6 +61,10 @@
       <Uri>https://github.com/dotnet/runtime</Uri>
       <Sha>0372b5080a4aec8d73d6861ad4b993d9d0fe3a11</Sha>
     </Dependency>
+    <Dependency Name="System.Runtime.Caching" Version="10.0.0-alpha.1.24504.10">
+      <Uri>https://github.com/dotnet/runtime</Uri>
+      <Sha>0372b5080a4aec8d73d6861ad4b993d9d0fe3a11</Sha>
+    </Dependency>
   </ProductDependencies>
   <ToolsetDependencies>
     <Dependency Name="Microsoft.DotNet.Arcade.Sdk" Version="10.0.0-beta.24504.4">
