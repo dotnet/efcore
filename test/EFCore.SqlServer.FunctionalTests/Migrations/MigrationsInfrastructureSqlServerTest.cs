@@ -152,9 +152,6 @@ SELECT GetDate();
 SELECT GetDate()
 GO
 
-
-GO
-
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
 VALUES (N'00000000000004_Migration4', N'7.0.0-test');
 GO
@@ -297,9 +294,6 @@ GO
 SELECT GetDate();
 --GO
 SELECT GetDate()
-GO
-
-
 GO
 
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
