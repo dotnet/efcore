@@ -1562,7 +1562,7 @@ ORDER BY [g].[Nickname]
 SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
 FROM [Gears] AS [g]
 WHERE [g].[HasSoulPatch] = CAST(1 AS bit) AND COALESCE((
-    SELECT DISTINCT TOP(1) [w].[IsAutomatic]
+    SELECT TOP(1) [w].[IsAutomatic]
     FROM [Weapons] AS [w]
     WHERE [g].[FullName] = [w].[OwnerFullName] AND [w].[Name] LIKE N'%Lancer%'), CAST(0 AS bit)) = CAST(1 AS bit)
 ORDER BY [g].[Nickname]
@@ -5838,7 +5838,7 @@ WHERE [g].[HasSoulPatch] = CAST(1 AS bit)
         AssertSql(
             """
 SELECT COALESCE((
-    SELECT DISTINCT TOP(1) [w].[IsAutomatic]
+    SELECT TOP(1) [w].[IsAutomatic]
     FROM [Weapons] AS [w]
     WHERE [g].[FullName] = [w].[OwnerFullName] AND [w].[Name] LIKE N'%Lancer%'), CAST(0 AS bit))
 FROM [Gears] AS [g]
@@ -5889,7 +5889,7 @@ WHERE [g].[HasSoulPatch] = CAST(1 AS bit)
         AssertSql(
             """
 SELECT COALESCE((
-    SELECT DISTINCT TOP(1) [w].[IsAutomatic]
+    SELECT TOP(1) [w].[IsAutomatic]
     FROM [Weapons] AS [w]
     WHERE [g].[FullName] = [w].[OwnerFullName] AND [w].[Name] = N'BFG'), CAST(0 AS bit))
 FROM [Gears] AS [g]

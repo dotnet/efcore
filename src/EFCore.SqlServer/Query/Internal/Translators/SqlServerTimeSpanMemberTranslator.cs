@@ -50,7 +50,7 @@ public class SqlServerTimeSpanMemberTranslator : IMemberTranslator
             return _sqlExpressionFactory.Function(
                 "DATEPART", new[] { _sqlExpressionFactory.Fragment(value), instance! },
                 nullable: true,
-                argumentsPropagateNullability: new[] { false, true },
+                argumentsPropagateNullability: Statics.FalseTrue,
                 returnType);
         }
 

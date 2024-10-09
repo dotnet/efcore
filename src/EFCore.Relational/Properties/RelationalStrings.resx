@@ -421,6 +421,9 @@
   <data name="ExecuteOperationWithUnsupportedOperatorInSqlGeneration" xml:space="preserve">
     <value>The operation '{operation}' contains a select expression feature that isn't supported in the query SQL generator, but has been declared as supported by provider during translation phase. This is a bug in your EF Core provider, please file an issue.</value>
   </data>
+  <data name="ExecuteUpdateDeleteOnEntityNotMappedToTable" xml:space="preserve">
+    <value>ExecuteUpdate or ExecuteDelete was called on entity type '{entityType}', but that entity type is not mapped to a table.</value>
+  </data>
   <data name="ExecuteUpdateSubqueryNotSupportedOverComplexTypes" xml:space="preserve">
     <value>ExecuteUpdate is being used over a LINQ operator which isn't natively supported by the database; this cannot be translated because complex type '{complexType}' is projected out. Rewrite your query to project out the containing entity type instead.</value>
   </data>
@@ -523,6 +526,9 @@
   <data name="JsonEmptyString" xml:space="preserve">
     <value>The database returned the empty string when a JSON object was expected.</value>
   </data>
+  <data name="JsonEntityMappedToDifferentColumnThanOwner" xml:space="preserve">
+    <value>Entity '{jsonType}' is mapped to JSON column '{containingColumn}', but its owner '{ownerType}' is mapped to a different JSON column '{ownerContainingColumn}'. All owned entities must be mapped to the same JSON column. Only call '.ToJson()' on the outermost owned entity type.</value>
+  </data>
   <data name="JsonEntityMappedToDifferentTableOrViewThanOwner" xml:space="preserve">
     <value>Entity '{jsonType}' is mapped to JSON and also to a table or view '{tableOrViewName}', but its owner '{ownerType}' is mapped to a different table or view '{ownerTableOrViewName}'. Every entity mapped to JSON must also map to the same table or view as its owner.</value>
   </data>
@@ -539,7 +545,7 @@
     <value>Owned entity type '{nonJsonType}' is mapped to table '{table}' and contains JSON columns. This is currently not supported. All owned types containing a JSON column must be mapped to a JSON column themselves.</value>
   </data>
   <data name="JsonEntityReferencingRegularEntity" xml:space="preserve">
-    <value>Entity type '{jsonEntity}' is mapped to JSON and has a navigation to a regular entity which is not the owner.</value>
+    <value>Entity type '{jsonEntity}' is mapped to JSON and has a navigation to a non-owned entity which is not the owner. This is currently not supported.</value>
   </data>
   <data name="JsonEntityWithDefaultValueSetOnItsProperty" xml:space="preserve">
     <value>Setting a default value on properties of an entity mapped to JSON is not supported. Entity: '{jsonEntity}', property: '{property}'.</value>

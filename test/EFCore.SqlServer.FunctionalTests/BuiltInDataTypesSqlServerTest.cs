@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-[SqlServerCondition(SqlServerCondition.IsNotSqlAzure | SqlServerCondition.SupportsUtf8)]
+[SqlServerCondition(SqlServerCondition.IsNotAzureSql | SqlServerCondition.SupportsUtf8)]
 public class BuiltInDataTypesSqlServerTest : BuiltInDataTypesTestBase<BuiltInDataTypesSqlServerTest.BuiltInDataTypesSqlServerFixture>
 {
     private static readonly string _eol = Environment.NewLine;

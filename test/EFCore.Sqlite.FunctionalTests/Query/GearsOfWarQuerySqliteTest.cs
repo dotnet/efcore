@@ -2335,7 +2335,7 @@ LEFT JOIN "Weapons" AS "w" ON "w"."SynergyWithId" IS NOT NULL
 SELECT "g"."Nickname", "g"."SquadId", "g"."AssignedCityName", "g"."CityOfBirthName", "g"."Discriminator", "g"."FullName", "g"."HasSoulPatch", "g"."LeaderNickname", "g"."LeaderSquadId", "g"."Rank"
 FROM "Gears" AS "g"
 WHERE "g"."HasSoulPatch" AND COALESCE((
-    SELECT DISTINCT "w"."IsAutomatic"
+    SELECT "w"."IsAutomatic"
     FROM "Weapons" AS "w"
     WHERE "g"."FullName" = "w"."OwnerFullName" AND instr("w"."Name", 'Lancer') > 0
     LIMIT 1), 0)
@@ -4852,7 +4852,7 @@ END IS NOT NULL
         AssertSql(
             """
 SELECT COALESCE((
-    SELECT DISTINCT "w"."IsAutomatic"
+    SELECT "w"."IsAutomatic"
     FROM "Weapons" AS "w"
     WHERE "g"."FullName" = "w"."OwnerFullName" AND instr("w"."Name", 'Lancer') > 0
     LIMIT 1), 0)
@@ -7320,7 +7320,7 @@ ORDER BY "g"."FullName"
         AssertSql(
             """
 SELECT COALESCE((
-    SELECT DISTINCT "w"."IsAutomatic"
+    SELECT "w"."IsAutomatic"
     FROM "Weapons" AS "w"
     WHERE "g"."FullName" = "w"."OwnerFullName" AND "w"."Name" = 'BFG'
     LIMIT 1), 0)

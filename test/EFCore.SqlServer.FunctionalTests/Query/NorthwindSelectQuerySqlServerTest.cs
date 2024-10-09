@@ -795,7 +795,7 @@ FROM [Customers] AS [c]
         AssertSql(
             """
 SELECT (
-    SELECT DISTINCT TOP(1) [o].[CustomerID]
+    SELECT TOP(1) [o].[CustomerID]
     FROM [Orders] AS [o]
     WHERE [c].[CustomerID] = [o].[CustomerID])
 FROM [Customers] AS [c]
