@@ -21,6 +21,17 @@ WHERE [e].[ComplexContainer_Id] = @__entity_equality_container_0_Id AND [e].[Com
 """);
     }
 
+    public override async Task Projecting_complex_property_does_not_auto_include_owned_types()
+    {
+        await base.Projecting_complex_property_does_not_auto_include_owned_types();
+
+        AssertSql(
+"""
+SELECT [e].[Complex_Name], [e].[Complex_Number]
+FROM [EntityType] AS [e]
+""");
+    }
+
     protected TestSqlLoggerFactory TestSqlLoggerFactory
         => (TestSqlLoggerFactory)ListLoggerFactory;
 

@@ -565,6 +565,12 @@ public partial class NavigationExpandingExpressionVisitor
                 {
                     return memberExpression;
                 }
+
+                var complexProperty = entityType?.FindComplexProperty(memberExpression.Member);
+                if (complexProperty != null)
+                {
+                    return memberExpression;
+                }
             }
 
             return base.VisitMember(memberExpression);
