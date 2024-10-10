@@ -745,6 +745,159 @@ EXEC sp_rename N'[dbo].[People]', N'Person', 'OBJECT';
     }
 
     [ConditionalFact]
+    public virtual void SqlOperation_handles_single_quote_literal()
+    {
+        Generate(
+            new SqlOperation { Sql = """
+    INSERT INTO Table1 (Id, Bar, Description) VALUES (-2, 4, 'GO
+    Value With
+    
+    GO
+
+    Empty Lines')
+    GO
+    """ });
+
+        AssertSql(
+            """
+INSERT INTO Table1 (Id, Bar, Description) VALUES (-2, 4, 'GO
+Value With
+
+GO
+
+Empty Lines')
+
+""");
+    }
+
+    [ConditionalFact]
+    public virtual void SqlOperation_handles_single_quote_literal_escaped()
+    {
+        Generate(
+            new SqlOperation { Sql = """
+    INSERT INTO Table1 (Id, Bar, Description) VALUES (-2, 4, 'GO
+    Value'' With
+    
+    GO
+
+    Empty Lines')
+    GO
+    """ });
+
+        AssertSql(
+            """
+INSERT INTO Table1 (Id, Bar, Description) VALUES (-2, 4, 'GO
+Value'' With
+
+GO
+
+Empty Lines')
+
+""");
+    }
+
+    [ConditionalFact]
+    public virtual void SqlOperation_handles_single_quote_literal_with_double_quote()
+    {
+        Generate(
+            new SqlOperation { Sql = """
+    INSERT INTO Table1 (Id, Bar, Description) VALUES (-2, 4, 'GO
+    Value" With
+    
+    GO
+
+    Empty Lines')
+    GO
+    """ });
+
+        AssertSql(
+            """
+INSERT INTO Table1 (Id, Bar, Description) VALUES (-2, 4, 'GO
+Value" With
+
+GO
+
+Empty Lines')
+
+""");
+    }
+
+
+    [ConditionalFact]
+    public virtual void SqlOperation_handles_double_quote_literal()
+    {
+        Generate(
+            new SqlOperation { Sql = """
+    INSERT INTO Table1 (Id, Bar, Description) VALUES (-2, 4, "GO
+    Value With
+    
+    GO
+
+    Empty Lines")
+    GO
+    """ });
+
+        AssertSql(
+            """
+INSERT INTO Table1 (Id, Bar, Description) VALUES (-2, 4, "GO
+Value With
+
+GO
+
+Empty Lines")
+
+""");
+    }
+
+    [ConditionalFact]
+    public virtual void SqlOperation_handles_double_quote_literal_escaped()
+    {
+        Generate(
+            new SqlOperation { Sql = """
+    INSERT INTO Table1 (Id, Bar, Description) VALUES (-2, 4, "GO
+    Value"" With
+    
+    GO
+
+    Empty Lines")
+    GO
+    """ });
+
+        AssertSql(
+            """
+INSERT INTO Table1 (Id, Bar, Description) VALUES (-2, 4, "GO
+Value"" With
+
+GO
+
+Empty Lines")
+
+""");
+    }
+
+    [ConditionalFact]
+    public virtual void SqlOperation_handles_double_quote_literal_with_single_quote()
+    {
+        Generate(
+            new SqlOperation { Sql = """
+    INSERT INTO Table1 (Id, Bar, Description) VALUES (-2, 4, "GO
+    Value' With
+
+    Empty Lines")
+    GO
+    """ });
+
+        AssertSql(
+            """
+INSERT INTO Table1 (Id, Bar, Description) VALUES (-2, 4, "GO
+Value' With
+
+Empty Lines")
+
+""");
+    }
+
+    [ConditionalFact]
     public virtual void SqlOperation_ignores_sequential_gos()
     {
         Generate(

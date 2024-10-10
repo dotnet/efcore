@@ -189,12 +189,11 @@ GO
 
 SELECT GetDate()
 GO
-SELECT GetDate()
-GO
+
 SELECT GetDate()
 GO
 
-
+SELECT GetDate()
 GO
 
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
@@ -317,12 +316,11 @@ GO
 
 SELECT GetDate()
 GO
-SELECT GetDate()
-GO
+
 SELECT GetDate()
 GO
 
-
+SELECT GetDate()
 GO
 
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
@@ -595,13 +593,24 @@ BEGIN
 
 
     SELECT GetDate()
-    GO
-    SELECT GetDate()
-    GO
-    SELECT GetDate()
-    GO
+END;
+GO
 
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'00000000000008_Migration8'
+)
+BEGIN
+    SELECT GetDate()
+END;
+GO
 
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'00000000000008_Migration8'
+)
+BEGIN
+    SELECT GetDate()
 END;
 GO
 
@@ -825,13 +834,24 @@ BEGIN
 
 
     SELECT GetDate()
-    GO
-    SELECT GetDate()
-    GO
-    SELECT GetDate()
-    GO
+END;
+GO
 
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'00000000000008_Migration8'
+)
+BEGIN
+    SELECT GetDate()
+END;
+GO
 
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'00000000000008_Migration8'
+)
+BEGIN
+    SELECT GetDate()
 END;
 GO
 

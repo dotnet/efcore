@@ -1396,11 +1396,12 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             .Split(["\r\n", "\n"], StringSplitOptions.None);
 
         var batchBuilder = new StringBuilder();
-        var prevLineStatementTerminated = false;
+        bool inStringLiteralS = false, inStringLiteralD = false;
         foreach (var line in preBatched)
         {
             var trimmed = line.TrimStart();
-            if (trimmed.StartsWith("GO", StringComparison.OrdinalIgnoreCase) && prevLineStatementTerminated
+            LineEndsInOpenStringLiteral(trimmed, ref inStringLiteralS, ref inStringLiteralD);
+            if (trimmed.StartsWith("GO", StringComparison.OrdinalIgnoreCase) && !inStringLiteralS && !inStringLiteralD
                 && (trimmed.Length == 2
                     || char.IsWhiteSpace(trimmed[2])))
             {
@@ -1420,12 +1421,6 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             else
             {
                 batchBuilder.AppendLine(line);
-                if (!string.IsNullOrWhiteSpace(line))
-                {
-                    prevLineStatementTerminated =
-                        line.EndsWith(Dependencies.SqlGenerationHelper.StatementTerminator, StringComparison.Ordinal)
-                        || line.StartsWith("--", StringComparison.Ordinal);
-                }
             }
         }
 
@@ -1433,12 +1428,40 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
 
         void AppendBatch(string batch)
         {
-            if (!string.IsNullOrEmpty(batch))
+            if (!string.IsNullOrWhiteSpace(batch))
             {
                 builder.Append(batch);
             }
 
             EndStatement(builder, operation.SuppressTransaction);
+        }
+
+        void LineEndsInOpenStringLiteral(string line, ref bool inSingleQuote, ref bool inDoubleQuote)
+        {
+            for (var i = 0; i < line.Length; i++)
+            {
+                switch (line[i])
+                {
+                    case '\'':
+                    {
+                        if (!inDoubleQuote)
+                        {
+                            inSingleQuote = !inSingleQuote;
+                        }
+
+                        break;
+                    }
+                    case '"':
+                    {
+                        if (!inSingleQuote)
+                        {
+                            inDoubleQuote = !inDoubleQuote;
+                        }
+
+                        break;
+                    }
+                }
+            }
         }
     }
 
