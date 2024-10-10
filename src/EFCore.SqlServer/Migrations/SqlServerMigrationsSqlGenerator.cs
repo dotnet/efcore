@@ -1426,8 +1426,11 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
 
         void AppendBatch(string batch)
         {
-            builder.Append(batch);
-            EndStatement(builder, operation.SuppressTransaction);
+            if (!string.IsNullOrWhiteSpace(batch))
+            {
+                builder.Append(batch);
+                EndStatement(builder, operation.SuppressTransaction);
+            }
         }
     }
 
@@ -2524,7 +2527,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                 {
                     // for create table we always generate new temporal information from the operation itself
                     // just in case there was a table with that name before that got deleted/renamed
-                    // this shouldn't happen as we re-use existin tables rather than drop/recreate
+                    // this shouldn't happen as we re-use existing tables rather than drop/recreate
                     // but we are being extra defensive here
                     // and also, temporal state (disabled versioning etc.) should always reset when creating a table
                     temporalInformation = BuildTemporalInformationFromMigrationOperation(schema, createTableOperation);
