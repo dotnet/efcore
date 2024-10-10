@@ -13,6 +13,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 /// </summary>
 public class CosmosDateTimeMemberTranslator(ISqlExpressionFactory sqlExpressionFactory) : IMemberTranslator
 {
+    private const string MillisecondPart = "ms";
+    private const string MicrosecondPart = "mcs";
+    private const string NanosecondPart = "ns";
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -34,15 +38,15 @@ public class CosmosDateTimeMemberTranslator(ISqlExpressionFactory sqlExpressionF
 
         return member.Name switch
         {
-            nameof(DateTime.Year) => DatePart("yyyy"),
-            nameof(DateTime.Month) => DatePart("mm"),
-            nameof(DateTime.Day) => DatePart("dd"),
-            nameof(DateTime.Hour) => DatePart("hh"),
-            nameof(DateTime.Minute) => DatePart("mi"),
-            nameof(DateTime.Second) => DatePart("ss"),
-            nameof(DateTime.Millisecond) => DatePart("ms"),
-            nameof(DateTime.Microsecond) => DatePart("mcs"),
-            nameof(DateTime.Nanosecond) => DatePart("ns"),
+            nameof(DateTime.Year) => DateTimePart("yyyy"),
+            nameof(DateTime.Month) => DateTimePart("mm"),
+            nameof(DateTime.Day) => DateTimePart("dd"),
+            nameof(DateTime.Hour) => DateTimePart("hh"),
+            nameof(DateTime.Minute) => DateTimePart("mi"),
+            nameof(DateTime.Second) => DateTimePart("ss"),
+            nameof(DateTime.Millisecond) => DateTimePart(MillisecondPart),
+            nameof(DateTime.Microsecond) => DateTimePartMicrosecond(),
+            nameof(DateTime.Nanosecond) => DateTimePartNanosecond(),
 
             nameof(DateTime.UtcNow)
                 => sqlExpressionFactory.Function(
@@ -53,7 +57,32 @@ public class CosmosDateTimeMemberTranslator(ISqlExpressionFactory sqlExpressionF
             _ => null
         };
 
-        SqlExpression DatePart(string part)
-            => sqlExpressionFactory.Function("DateTimePart", arguments: [sqlExpressionFactory.Constant(part), instance!], returnType);
+        SqlExpression DateTimePartMicrosecond()
+            => sqlExpressionFactory.MakeBinary(
+                    ExpressionType.Subtract,
+                    DateTimePart(MicrosecondPart),
+                    sqlExpressionFactory.MakeBinary(
+                        ExpressionType.Multiply,
+                        DateTimePart(MillisecondPart),
+                        sqlExpressionFactory.Constant(1000),
+                        null)!,
+                    null)!;
+
+        SqlExpression DateTimePartNanosecond()
+            => sqlExpressionFactory.MakeBinary(
+                    ExpressionType.Subtract,
+                    DateTimePart(NanosecondPart),
+                    sqlExpressionFactory.MakeBinary(
+                        ExpressionType.Multiply,
+                        DateTimePart(MicrosecondPart),
+                        sqlExpressionFactory.Constant(1000),
+                        null)!,
+                    null)!;
+
+        SqlExpression DateTimePart(string part)
+            => sqlExpressionFactory.Function(
+                "DateTimePart",
+                arguments: [sqlExpressionFactory.Constant(part), instance!],
+                returnType);
     }
 }

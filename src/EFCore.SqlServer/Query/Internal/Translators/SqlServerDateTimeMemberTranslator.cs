@@ -17,6 +17,10 @@ public class SqlServerDateTimeMemberTranslator(
     IRelationalTypeMappingSource typeMappingSource)
     : IMemberTranslator
 {
+    private const string MillisecondPart = "millisecond";
+    private const string MicrosecondPart = "microsecond";
+    private const string NanosecondPart = "nanosecond";
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -45,7 +49,9 @@ public class SqlServerDateTimeMemberTranslator(
             nameof(DateTime.Hour) => DatePart("hour"),
             nameof(DateTime.Minute) => DatePart("minute"),
             nameof(DateTime.Second) => DatePart("second"),
-            nameof(DateTime.Millisecond) => DatePart("millisecond"),
+            nameof(DateTime.Millisecond) => DatePart(MillisecondPart),
+            nameof(DateTime.Microsecond) => DatePartMicrosecond(),
+            nameof(DateTime.Nanosecond) => DatePartNanosecond(),
 
             nameof(DateTime.Date)
                 => sqlExpressionFactory.Function(
@@ -112,6 +118,28 @@ public class SqlServerDateTimeMemberTranslator(
 
             _ => null
         };
+
+        SqlExpression DatePartMicrosecond()
+            => sqlExpressionFactory.MakeBinary(
+                    ExpressionType.Subtract,
+                    DatePart(MicrosecondPart),
+                    sqlExpressionFactory.MakeBinary(
+                        ExpressionType.Multiply,
+                        DatePart(MillisecondPart),
+                        sqlExpressionFactory.Constant(1000),
+                        null)!,
+                    null)!;
+
+        SqlExpression DatePartNanosecond()
+            => sqlExpressionFactory.MakeBinary(
+                    ExpressionType.Subtract,
+                    DatePart(NanosecondPart),
+                    sqlExpressionFactory.MakeBinary(
+                        ExpressionType.Multiply,
+                        DatePart(MicrosecondPart),
+                        sqlExpressionFactory.Constant(1000),
+                        null)!,
+                    null)!;
 
         SqlExpression DatePart(string part)
             => sqlExpressionFactory.Function(

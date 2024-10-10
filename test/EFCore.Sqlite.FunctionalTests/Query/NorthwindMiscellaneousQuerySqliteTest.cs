@@ -445,6 +445,9 @@ FROM "Orders" AS "o"
     public override Task Max_on_empty_sequence_throws(bool async)
         => Assert.ThrowsAsync<InvalidOperationException>(() => base.Max_on_empty_sequence_throws(async));
 
+    public override Task Where_nanosecond_and_microsecond_component(bool async)
+        => AssertTranslationFailed(() => base.Where_nanosecond_and_microsecond_component(async));
+
     [ConditionalFact]
     public async Task Single_Predicate_Cancellation()
         => await Assert.ThrowsAnyAsync<OperationCanceledException>(

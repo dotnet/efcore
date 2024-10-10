@@ -14,12 +14,17 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 /// </summary>
 public class SqlServerTimeOnlyMemberTranslator : IMemberTranslator
 {
+    private const string MillisecondPart = "millisecond";
+    private const string MicrosecondPart = "microsecond";
+    private const string NanosecondPart = "nanosecond";
     private static readonly Dictionary<string, string> DatePartMappings = new()
     {
         { nameof(TimeOnly.Hour), "hour" },
         { nameof(TimeOnly.Minute), "minute" },
         { nameof(TimeOnly.Second), "second" },
-        { nameof(TimeOnly.Millisecond), "millisecond" }
+        { nameof(TimeOnly.Millisecond), MillisecondPart },
+        { nameof(TimeOnly.Microsecond), MicrosecondPart },
+        { nameof(TimeOnly.Nanosecond), NanosecondPart }
     };
 
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
@@ -45,15 +50,43 @@ public class SqlServerTimeOnlyMemberTranslator : IMemberTranslator
         Type returnType,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
     {
-        if (member.DeclaringType == typeof(TimeOnly) && DatePartMappings.TryGetValue(member.Name, out var value))
-        {
-            return _sqlExpressionFactory.Function(
-                "DATEPART", new[] { _sqlExpressionFactory.Fragment(value), instance! },
+        return member.DeclaringType == typeof(TimeOnly) && DatePartMappings.TryGetValue(member.Name, out var value)
+             ? value switch
+             {
+                 MicrosecondPart => DatePartMicrosecond(),
+                 NanosecondPart => DatePartNanosecond(),
+                 _ => DatePart(value),
+             }
+            : null;
+
+        SqlExpression DatePartMicrosecond()
+            => _sqlExpressionFactory.MakeBinary(
+                    ExpressionType.Subtract,
+                    DatePart(MicrosecondPart),
+                    _sqlExpressionFactory.MakeBinary(
+                        ExpressionType.Multiply,
+                        DatePart(MillisecondPart),
+                        _sqlExpressionFactory.Constant(1000),
+                        null)!,
+                    null)!;
+
+        SqlExpression DatePartNanosecond()
+            => _sqlExpressionFactory.MakeBinary(
+                    ExpressionType.Subtract,
+                    DatePart(NanosecondPart),
+                    _sqlExpressionFactory.MakeBinary(
+                        ExpressionType.Multiply,
+                        DatePart(MicrosecondPart),
+                        _sqlExpressionFactory.Constant(1000),
+                        null)!,
+                    null)!;
+
+        SqlExpression DatePart(string part)
+            => _sqlExpressionFactory.Function(
+                "DATEPART",
+                arguments: [_sqlExpressionFactory.Fragment(part), instance!],
                 nullable: true,
                 argumentsPropagateNullability: Statics.FalseTrue,
                 returnType);
-        }
-
-        return null;
     }
 }

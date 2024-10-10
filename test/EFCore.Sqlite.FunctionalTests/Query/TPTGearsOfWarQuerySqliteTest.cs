@@ -462,6 +462,24 @@ WHERE (
     public override Task DateTimeOffset_to_unix_time_seconds(bool async)
         => AssertTranslationFailed(() => base.DateTimeOffset_to_unix_time_seconds(async));
 
+    public override Task Where_datetimeoffset_microsecond_component(bool async)
+        => AssertTranslationFailed(() => base.Where_datetimeoffset_microsecond_component(async));
+
+    public override Task Where_datetimeoffset_nanosecond_component(bool async)
+        => AssertTranslationFailed(() => base.Where_datetimeoffset_nanosecond_component(async));
+
+    public override Task Where_timespan_microsecond_component(bool async)
+        => AssertTranslationFailed(() => base.Where_timespan_microsecond_component(async));
+
+    public override Task Where_timespan_nanosecond_component(bool async)
+        => AssertTranslationFailed(() => base.Where_timespan_nanosecond_component(async));
+
+    public override Task Where_timeonly_microsecond_component(bool async)
+        => AssertTranslationFailed(() => base.Where_timeonly_microsecond_component(async));
+
+    public override Task Where_timeonly_nanosecond_component(bool async)
+        => AssertTranslationFailed(() => base.Where_timeonly_nanosecond_component(async));
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 }
