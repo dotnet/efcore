@@ -156,7 +156,7 @@ public class MigrationCommandExecutor(IExecutionStrategy executionStrategy) : IM
         CancellationToken cancellationToken = default)
         => ExecuteNonQueryAsync(
             migrationCommands.ToList(), connection, new MigrationExecutionState(), commitTransaction: true, System.Data.IsolationLevel.Unspecified, cancellationToken);
-    
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in

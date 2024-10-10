@@ -3,6 +3,8 @@
 
 using System.Diagnostics.CodeAnalysis;
 
+#nullable disable
+
 namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration;
 
 public class InjectWhereExpressionMutator(DbContext context) : ExpressionMutator(context)
@@ -98,6 +100,8 @@ public class InjectWhereExpressionMutator(DbContext context) : ExpressionMutator
 
         return injector.Visit(expression);
     }
+
+#nullable restore
 
     private class ExpressionFinder(InjectWhereExpressionMutator mutator) : ExpressionVisitor
     {
