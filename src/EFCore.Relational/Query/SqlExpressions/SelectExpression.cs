@@ -912,6 +912,18 @@ public sealed partial class SelectExpression : TableExpressionBase
                         {
                             var outerSelectExpression = (SelectExpression)cloningExpressionVisitor!.Visit(baseSelectExpression!);
 
+                            // Inject deterministic orderings (the identifier columns) to both the main query and the split query.
+                            // Note that just below we pushdown the split query if it has limit/offset/distinct/groupby; this ensures
+                            // that the orderings are also propagated to that split subquery if it has limit/offset, which ensures that
+                            // that subquery returns the same rows as the main query (#26808)
+                            var actualParentIdentifier = _identifier.Take(outerSelectExpression._identifier.Count).ToList();
+                            for (var j = 0; j < actualParentIdentifier.Count; j++)
+                            {
+                                AppendOrdering(new OrderingExpression(actualParentIdentifier[j].Column, ascending: true));
+                                outerSelectExpression.AppendOrdering(
+                                    new OrderingExpression(outerSelectExpression._identifier[j].Column, ascending: true));
+                            }
+
                             if (outerSelectExpression.Limit != null
                                 || outerSelectExpression.Offset != null
                                 || outerSelectExpression.IsDistinct
@@ -923,7 +935,6 @@ public sealed partial class SelectExpression : TableExpressionBase
                                 innerSelectExpression = sqlRemappingVisitor.Remap(innerSelectExpression);
                             }
 
-                            var actualParentIdentifier = _identifier.Take(outerSelectExpression._identifier.Count).ToList();
                             var containsOrdering = innerSelectExpression.Orderings.Count > 0;
                             List<OrderingExpression>? orderingsToBeErased = null;
                             if (containsOrdering
@@ -940,13 +951,6 @@ public sealed partial class SelectExpression : TableExpressionBase
                             outerSelectExpression._clientProjections.AddRange(innerSelectExpression._clientProjections);
                             outerSelectExpression._aliasForClientProjections.AddRange(innerSelectExpression._aliasForClientProjections);
                             innerSelectExpression = outerSelectExpression;
-
-                            for (var j = 0; j < actualParentIdentifier.Count; j++)
-                            {
-                                AppendOrdering(new OrderingExpression(actualParentIdentifier[j].Column, ascending: true));
-                                innerSelectExpression.AppendOrdering(
-                                    new OrderingExpression(innerSelectExpression._identifier[j].Column, ascending: true));
-                            }
 
                             // Copy over any nested ordering if there were any
                             if (containsOrdering)
