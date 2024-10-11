@@ -738,6 +738,61 @@ public abstract partial class ModelBuilding101TestBase
     }
 
     [ConditionalFact]
+    public virtual void ManyToManyWithPayloadAndNavsToJoinClassShadowFKsTest()
+        => Model101Test();
+
+    protected class ManyToManyWithPayloadAndNavsToJoinClassShadowFKs
+    {
+        public class Post
+        {
+            public int Id { get; set; }
+            public List<Tag> Tag { get; } = [];
+            public List<PostTag> PostTags { get; } = [];
+        }
+
+        public class Tag
+        {
+            public int Id { get; set; }
+            public List<Post> Post { get; } = [];
+            public List<PostTag> PostTags { get; } = [];
+        }
+
+        public class PostTag
+        {
+        }
+
+        public class Context0 : Context101
+        {
+            public DbSet<Post> Post
+                => Set<Post>();
+
+            public DbSet<Tag> Tag
+                => Set<Tag>();
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+                => modelBuilder.Entity<Post>()
+                    .HasMany(e => e.Tag)
+                    .WithMany(e => e.Post)
+                    .UsingEntity<PostTag>(
+                        l => l.HasOne<Tag>().WithMany(t => t.PostTags),
+                        r => r.HasOne<Post>().WithMany(p => p.PostTags),
+                        j => { });
+        }
+
+        public class Context1 : Context0
+        {
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+                => modelBuilder.Entity<Post>()
+                    .HasMany(e => e.Tag)
+                    .WithMany(e => e.Post)
+                    .UsingEntity<PostTag>(
+                        l => l.HasOne<Tag>().WithMany(t => t.PostTags).HasForeignKey("TagId"),
+                        r => r.HasOne<Post>().WithMany(p => p.PostTags).HasForeignKey("PostId"),
+                        j => { });
+        }
+    }
+
+    [ConditionalFact]
     public virtual void ManyToManyWithNoCascadeDeleteTest()
         => Model101Test();
 
