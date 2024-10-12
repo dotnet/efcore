@@ -5152,6 +5152,16 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture>(TFixture fix
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task Funcletize_conditional_with_evaluatable_test(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => (AlwaysFalse() && c.CustomerID == "ALFKI" ? "yes" : "no") == "no"));
+
+    private static bool AlwaysFalse()
+        => false;
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual async Task Null_parameter_name_works(bool async)
     {
         using var context = CreateContext();

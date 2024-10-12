@@ -509,7 +509,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
         var test = Visit(conditional.Test, out var testState);
 
         // If the test evaluates, simplify the conditional away by bubbling up the leg that remains
-        if (testState.IsEvaluatable && Evaluate(conditional.Test) is bool testBoolValue)
+        if (testState.IsEvaluatable && Evaluate(test) is bool testBoolValue)
         {
             return testBoolValue
                 ? Visit(conditional.IfTrue, out _state)
@@ -905,7 +905,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
         var method = methodCall.Method;
 
         // Handle some special, well-known functions
-        // If this is a call to EF.Constant(), or EF.Parameter(), then examine the operand; it it's isn't evaluatable (i.e. contains a
+        // If this is a call to EF.Constant(), or EF.Parameter(), then examine the operand; if it isn't evaluatable (i.e. contains a
         // reference to a database table), throw immediately. Otherwise, evaluate the operand (either as a constant or as a parameter) and
         // return that.
         if (method.DeclaringType == typeof(EF))
