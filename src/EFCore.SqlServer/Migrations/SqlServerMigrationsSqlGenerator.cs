@@ -1453,8 +1453,11 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
 
         void AppendBatch(string batch)
         {
-            builder.Append(batch);
-            EndStatement(builder, operation.SuppressTransaction);
+            if (!string.IsNullOrWhiteSpace(batch))
+            {
+                builder.Append(batch);
+                EndStatement(builder, operation.SuppressTransaction);
+            }
         }
     }
 
