@@ -17,20 +17,20 @@
     <UsingToolXliff>False</UsingToolXliff>
   </PropertyGroup>
   <PropertyGroup Label="Dependencies from dotnet/runtime">
-    <MicrosoftExtensionsCachingMemoryVersion>8.0.0</MicrosoftExtensionsCachingMemoryVersion>
+    <MicrosoftExtensionsCachingMemoryVersion>8.0.1</MicrosoftExtensionsCachingMemoryVersion>
     <MicrosoftExtensionsConfigurationVersion>8.0.0</MicrosoftExtensionsConfigurationVersion>
     <MicrosoftExtensionsConfigurationAbstractionsVersion>8.0.0</MicrosoftExtensionsConfigurationAbstractionsVersion>
     <MicrosoftExtensionsConfigurationEnvironmentVariablesVersion>8.0.0</MicrosoftExtensionsConfigurationEnvironmentVariablesVersion>
-    <MicrosoftExtensionsConfigurationJsonVersion>8.0.0</MicrosoftExtensionsConfigurationJsonVersion>
-    <MicrosoftExtensionsDependencyInjectionVersion>8.0.0</MicrosoftExtensionsDependencyInjectionVersion>
-    <MicrosoftExtensionsDependencyModelVersion>8.0.1</MicrosoftExtensionsDependencyModelVersion>
+    <MicrosoftExtensionsConfigurationJsonVersion>8.0.1</MicrosoftExtensionsConfigurationJsonVersion>
+    <MicrosoftExtensionsDependencyInjectionVersion>8.0.1</MicrosoftExtensionsDependencyInjectionVersion>
+    <MicrosoftExtensionsDependencyModelVersion>8.0.2</MicrosoftExtensionsDependencyModelVersion>
     <MicrosoftExtensionsHostFactoryResolverSourcesVersion>8.0.11-servicing.24508.13</MicrosoftExtensionsHostFactoryResolverSourcesVersion>
-    <MicrosoftExtensionsLoggingVersion>8.0.0</MicrosoftExtensionsLoggingVersion>
-    <SystemTextJsonVersion>8.0.4</SystemTextJsonVersion>
+    <MicrosoftExtensionsLoggingVersion>8.0.1</MicrosoftExtensionsLoggingVersion>
+    <SystemTextJsonVersion>8.0.5</SystemTextJsonVersion>
     <SystemFormatsAsn1Version>8.0.1</SystemFormatsAsn1Version>
-    <MicrosoftNETCoreAppRefVersion>8.0.8</MicrosoftNETCoreAppRefVersion>
-    <MicrosoftNETCoreAppRuntimewinx64Version>8.0.8</MicrosoftNETCoreAppRuntimewinx64Version>
-    <MicrosoftNETCoreBrowserDebugHostTransportVersion>8.0.8-servicing.24366.12</MicrosoftNETCoreBrowserDebugHostTransportVersion>
+    <MicrosoftNETCoreAppRefVersion>8.0.10</MicrosoftNETCoreAppRefVersion>
+    <MicrosoftNETCoreAppRuntimewinx64Version>8.0.10</MicrosoftNETCoreAppRuntimewinx64Version>
+    <MicrosoftNETCoreBrowserDebugHostTransportVersion>8.0.10-servicing.24474.6</MicrosoftNETCoreBrowserDebugHostTransportVersion>
   </PropertyGroup>
   <PropertyGroup Label="Dependencies from dotnet/arcade">
     <MicrosoftDotNetBuildTasksTemplatingVersion>8.0.0-beta.24508.1</MicrosoftDotNetBuildTasksTemplatingVersion>
