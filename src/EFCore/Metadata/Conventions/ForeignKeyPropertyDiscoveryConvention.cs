@@ -50,6 +50,9 @@ public class ForeignKeyPropertyDiscoveryConvention :
     IPropertyFieldChangedConvention,
     IModelFinalizingConvention
 {
+    private static readonly bool UseOldBehavior34875 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue34875", out var enabled34875) && enabled34875;
+
     /// <summary>
     ///     Creates a new instance of <see cref="ForeignKeyPropertyDiscoveryConvention" />.
     /// </summary>
@@ -142,7 +145,7 @@ public class ForeignKeyPropertyDiscoveryConvention :
                     && fkProperty.ClrType.IsNullableType() == foreignKey.IsRequired
                     && fkProperty.GetContainingForeignKeys().All(otherFk => otherFk.IsRequired == foreignKey.IsRequired))
                 {
-                    var newType = fkProperty.ClrType.MakeNullable(!foreignKey.IsRequired);
+                    var newType = fkProperty.ClrType.MakeNullable(!foreignKey.IsRequired && (!fkProperty.IsKey() || UseOldBehavior34875));
                     if (fkProperty.ClrType != newType)
                     {
                         fkProperty.DeclaringType.Builder.Property(
