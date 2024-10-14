@@ -42,7 +42,7 @@ public class SqlServerParameterBasedSqlProcessor : RelationalParameterBasedSqlPr
 
         canCache &= canCache2;
 
-        return new SearchConditionConvertingExpressionVisitor(Dependencies.SqlExpressionFactory).Visit(optimizedQueryExpression);
+        return new SearchConditionConverter(Dependencies.SqlExpressionFactory).Visit(optimizedQueryExpression);
     }
 
     /// <inheritdoc />
