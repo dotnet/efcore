@@ -337,9 +337,7 @@ public class ForeignKeyTest
         public IEnumerable<OneToManyDependent> Deception { get; set; }
     }
 
-    public class DerivedOneToManyPrincipal : OneToManyPrincipal
-    {
-    }
+    public class DerivedOneToManyPrincipal : OneToManyPrincipal;
 
     public class OneToManyDependent : NavigationBase
     {
@@ -348,9 +346,7 @@ public class ForeignKeyTest
         public OneToManyPrincipal Deception { get; set; }
     }
 
-    public class DerivedOneToManyDependent : OneToManyDependent
-    {
-    }
+    public class DerivedOneToManyDependent : OneToManyDependent;
 
     [ConditionalFact]
     public void Throws_when_setting_navigation_to_principal_on_wrong_FK()
@@ -698,29 +694,29 @@ public class ForeignKeyTest
         Assert.Same(fk.DeclaringEntityType, fk.GetRelatedEntityType(fk.PrincipalEntityType));
 
         Assert.Equal(
-            new[] { fk.PrincipalToDependent, fk.DependentToPrincipal },
+            [fk.PrincipalToDependent, fk.DependentToPrincipal],
             fk.FindNavigationsFrom(fk.PrincipalEntityType).ToArray());
         Assert.Equal(
-            new[] { fk.PrincipalToDependent, fk.DependentToPrincipal },
+            [fk.PrincipalToDependent, fk.DependentToPrincipal],
             fk.FindNavigationsFrom(fk.DeclaringEntityType).ToArray());
         Assert.Equal(
-            new[] { fk.PrincipalToDependent, fk.DependentToPrincipal },
+            [fk.PrincipalToDependent, fk.DependentToPrincipal],
             fk.FindNavigationsTo(fk.PrincipalEntityType).ToArray());
         Assert.Equal(
-            new[] { fk.PrincipalToDependent, fk.DependentToPrincipal },
+            [fk.PrincipalToDependent, fk.DependentToPrincipal],
             fk.FindNavigationsTo(fk.DeclaringEntityType).ToArray());
 
         Assert.Equal(
-            new[] { fk.PrincipalToDependent, fk.DependentToPrincipal },
+            [fk.PrincipalToDependent, fk.DependentToPrincipal],
             fk.FindNavigationsFromInHierarchy(fk.PrincipalEntityType).ToArray());
         Assert.Equal(
-            new[] { fk.PrincipalToDependent, fk.DependentToPrincipal },
+            [fk.PrincipalToDependent, fk.DependentToPrincipal],
             fk.FindNavigationsFromInHierarchy(fk.DeclaringEntityType).ToArray());
         Assert.Equal(
-            new[] { fk.PrincipalToDependent, fk.DependentToPrincipal },
+            [fk.PrincipalToDependent, fk.DependentToPrincipal],
             fk.FindNavigationsToInHierarchy(fk.PrincipalEntityType).ToArray());
         Assert.Equal(
-            new[] { fk.PrincipalToDependent, fk.DependentToPrincipal },
+            [fk.PrincipalToDependent, fk.DependentToPrincipal],
             fk.FindNavigationsToInHierarchy(fk.DeclaringEntityType).ToArray());
     }
 

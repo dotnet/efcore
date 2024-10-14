@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public abstract class SharedTypeQueryRelationalTestBase : SharedTypeQueryTestBase
 {
     protected TestSqlLoggerFactory TestSqlLoggerFactory
@@ -19,7 +21,7 @@ public abstract class SharedTypeQueryRelationalTestBase : SharedTypeQueryTestBas
     public virtual async Task Can_use_shared_type_entity_type_in_query_filter_with_from_sql(bool async)
     {
         var contextFactory = await InitializeAsync<MyContextRelational24601>(
-            seed: c => c.Seed());
+            seed: c => c.SeedAsync());
 
         using var context = contextFactory.CreateContext();
         var query = context.Set<ViewQuery24601>();
@@ -31,24 +33,24 @@ public abstract class SharedTypeQueryRelationalTestBase : SharedTypeQueryTestBas
     }
 
     [ConditionalFact]
-    public virtual void Ad_hoc_query_for_shared_type_entity_type_works()
+    public virtual async Task Ad_hoc_query_for_shared_type_entity_type_works()
     {
-        var contextFactory = Initialize<MyContextRelational24601>(
-            seed: c => c.Seed());
+        var contextFactory = await InitializeAsync<MyContextRelational24601>(
+            seed: c => c.SeedAsync());
 
         using var context = contextFactory.CreateContext();
 
         var result = context.Database.SqlQueryRaw<ViewQuery24601>(
             ((RelationalTestStore)TestStore).NormalizeDelimitersInRawString(@"SELECT * FROM [ViewQuery24601]"));
 
-        Assert.Empty(result);
+        Assert.Empty(await result.ToListAsync());
     }
 
     [ConditionalFact]
-    public virtual void Ad_hoc_query_for_default_shared_type_entity_type_throws()
+    public virtual async Task Ad_hoc_query_for_default_shared_type_entity_type_throws()
     {
-        var contextFactory = Initialize<MyContextRelational24601>(
-            seed: c => c.Seed());
+        var contextFactory = await InitializeAsync<MyContextRelational24601>(
+            seed: c => c.SeedAsync());
 
         using var context = contextFactory.CreateContext();
 
@@ -58,13 +60,8 @@ public abstract class SharedTypeQueryRelationalTestBase : SharedTypeQueryTestBas
                 () => context.Database.SqlQueryRaw<Dictionary<string, object>>(@"SELECT * FROM X")).Message);
     }
 
-    protected class MyContextRelational24601 : MyContext24601
+    protected class MyContextRelational24601(DbContextOptions options) : MyContext24601(options)
     {
-        public MyContextRelational24601(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

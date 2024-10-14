@@ -31,9 +31,12 @@ public class MigrationsAssembly : IMigrationsAssembly
     {
         _contextType = currentContext.Context.GetType();
 
-        var assemblyName = RelationalOptionsExtension.Extract(options).MigrationsAssembly;
+        var optionsExtension = RelationalOptionsExtension.Extract(options);
+        var assemblyName = optionsExtension.MigrationsAssembly;
+        var assemblyObject = optionsExtension.MigrationsAssemblyObject;
+
         Assembly = assemblyName == null
-            ? _contextType.Assembly
+            ? assemblyObject ?? _contextType.Assembly
             : Assembly.Load(new AssemblyName(assemblyName));
 
         _idGenerator = idGenerator;
