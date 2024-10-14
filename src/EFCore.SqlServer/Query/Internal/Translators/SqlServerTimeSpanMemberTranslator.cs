@@ -12,27 +12,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class SqlServerTimeSpanMemberTranslator : IMemberTranslator
+public class SqlServerTimeSpanMemberTranslator(
+    ISqlExpressionFactory sqlExpressionFactory)
+    : IMemberTranslator
 {
-    private static readonly Dictionary<string, string> DatePartMappings = new()
-    {
-        { nameof(TimeSpan.Hours), "hour" },
-        { nameof(TimeSpan.Minutes), "minute" },
-        { nameof(TimeSpan.Seconds), "second" },
-        { nameof(TimeSpan.Milliseconds), "millisecond" }
-    };
-
-    private readonly ISqlExpressionFactory _sqlExpressionFactory;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public SqlServerTimeSpanMemberTranslator(ISqlExpressionFactory sqlExpressionFactory)
-        => _sqlExpressionFactory = sqlExpressionFactory;
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -45,15 +28,30 @@ public class SqlServerTimeSpanMemberTranslator : IMemberTranslator
         Type returnType,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
     {
-        if (member.DeclaringType == typeof(TimeSpan) && DatePartMappings.TryGetValue(member.Name, out var value))
+        var declaringType = member.DeclaringType;
+
+        if (declaringType != typeof(TimeSpan))
         {
-            return _sqlExpressionFactory.Function(
-                "DATEPART", new[] { _sqlExpressionFactory.Fragment(value), instance! },
+            return null;
+        }
+
+        return member.Name switch
+        {
+            nameof(TimeSpan.Hours) => DatePart("hour"),
+            nameof(TimeSpan.Minutes) => DatePart("minute"),
+            nameof(TimeSpan.Seconds) => DatePart("second"),
+            nameof(TimeSpan.Milliseconds) => DatePart("millisecond"),
+            nameof(TimeSpan.Microseconds) => sqlExpressionFactory.Modulo(DatePart("microsecond"), sqlExpressionFactory.Constant(1000)),
+            nameof(TimeSpan.Nanoseconds) => sqlExpressionFactory.Modulo(DatePart("nanosecond"), sqlExpressionFactory.Constant(1000)),
+            _ => null,
+        };
+
+        SqlExpression DatePart(string part)
+            => sqlExpressionFactory.Function(
+                "DATEPART",
+                arguments: [sqlExpressionFactory.Fragment(part), instance!],
                 nullable: true,
                 argumentsPropagateNullability: Statics.FalseTrue,
                 returnType);
-        }
-
-        return null;
     }
 }
