@@ -141,7 +141,7 @@ public class ForeignKeyPropertyDiscoveryConvention :
                     && fkProperty.ClrType.IsNullableType() == foreignKey.IsRequired
                     && fkProperty.GetContainingForeignKeys().All(otherFk => otherFk.IsRequired == foreignKey.IsRequired))
                 {
-                    var newType = fkProperty.ClrType.MakeNullable(!foreignKey.IsRequired);
+                    var newType = fkProperty.ClrType.MakeNullable(!foreignKey.IsRequired && !fkProperty.IsKey());
                     if (fkProperty.ClrType != newType)
                     {
                         newProperties.Add(
