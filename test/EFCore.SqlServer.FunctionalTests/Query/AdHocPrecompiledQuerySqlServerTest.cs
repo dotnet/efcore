@@ -72,6 +72,35 @@ FROM [NonPublicEntities] AS [n]
 """);
     }
 
+    public override async Task Projecting_property_requiring_converter_with_closure_is_not_supported()
+    {
+        await base.Projecting_property_requiring_converter_with_closure_is_not_supported();
+
+        AssertSql();
+    }
+
+    public override async Task Projecting_expression_requiring_converter_without_closure_works()
+    {
+        await base.Projecting_expression_requiring_converter_without_closure_works();
+
+        AssertSql(
+"""
+SELECT [b].[AudiobookDate]
+FROM [Books] AS [b]
+""");
+    }
+
+    public override async Task Projecting_entity_with_property_requiring_converter_with_closure_works()
+    {
+        await base.Projecting_entity_with_property_requiring_converter_with_closure_works();
+
+        AssertSql(
+"""
+SELECT [b].[Id], [b].[AudiobookDate], [b].[Name], [b].[PublishDate]
+FROM [Books] AS [b]
+""");
+    }
+
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
