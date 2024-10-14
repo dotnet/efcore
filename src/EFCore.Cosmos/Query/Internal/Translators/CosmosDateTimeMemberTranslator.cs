@@ -41,8 +41,8 @@ public class CosmosDateTimeMemberTranslator(ISqlExpressionFactory sqlExpressionF
             nameof(DateTime.Minute) => DatePart("mi"),
             nameof(DateTime.Second) => DatePart("ss"),
             nameof(DateTime.Millisecond) => DatePart("ms"),
-            nameof(DateTime.Microsecond) => DatePart("mcs"),
-            nameof(DateTime.Nanosecond) => DatePart("ns"),
+            nameof(DateTime.Microsecond) => sqlExpressionFactory.Modulo(DatePart("mcs"), sqlExpressionFactory.Constant(1000)),
+            nameof(DateTime.Nanosecond) => sqlExpressionFactory.Modulo(DatePart("ns"), sqlExpressionFactory.Constant(1000)),
 
             nameof(DateTime.UtcNow)
                 => sqlExpressionFactory.Function(
