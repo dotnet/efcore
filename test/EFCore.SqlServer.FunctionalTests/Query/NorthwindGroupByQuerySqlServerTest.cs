@@ -2886,6 +2886,19 @@ GROUP BY [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
         AssertSql();
     }
 
+    public override async Task GroupBy_entity_followed_by_project_non_key(bool async)
+    {
+        await base.GroupBy_entity_followed_by_project_non_key(async);
+
+        AssertSql(
+            """
+SELECT [o0].[OrderID], [o0].[OrderDate], COUNT(*) AS [Aggregate]
+FROM [Order Details] AS [o]
+INNER JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
+GROUP BY [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
+""");
+    }
+
     public override async Task GroupBy_with_order_by_skip_and_another_order_by(bool async)
     {
         await base.GroupBy_with_order_by_skip_and_another_order_by(async);
@@ -3619,7 +3632,7 @@ SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[Cont
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 WHERE [o].[OrderID] < 10500
-ORDER BY [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+ORDER BY [c].[CustomerID]
 """);
     }
 

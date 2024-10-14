@@ -3035,6 +3035,27 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture>(TFixture fixture) 
                 Assert.Equal(e.Aggregate, a.Aggregate);
             });
 
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_entity_followed_by_project_non_key(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<OrderDetail>()
+                .GroupBy(x => x.Order)
+                .Select(g => new
+                {
+                    g.Key.OrderID,
+                    g.Key.OrderDate,
+                    Aggregate = g.Count()
+                }),
+            elementSorter: e => e.OrderID,
+            elementAsserter: (e, a) =>
+            {
+                Assert.Equal(e.OrderID, a.OrderID);
+                Assert.Equal(e.OrderDate, a.OrderDate);
+                Assert.Equal(e.Aggregate, a.Aggregate);
+            });
+
     #endregion
 
     #region ResultOperatorsAfterGroupBy

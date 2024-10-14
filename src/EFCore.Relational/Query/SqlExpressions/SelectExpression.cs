@@ -527,9 +527,24 @@ public sealed partial class SelectExpression : TableExpressionBase
             }
 
             // Convert GroupBy to OrderBy
-            foreach (var groupingTerm in _groupBy)
+            if (relationalGroupByShaperExpression.KeySelector is RelationalStructuralTypeShaperExpression
+                {
+                    StructuralType: IEntityType entityType,
+                    ValueBufferExpression: StructuralTypeProjectionExpression projection
+                })
             {
-                AppendOrdering(new OrderingExpression(groupingTerm, ascending: true));
+                // if grouping key is entity type we just need to add it's PK columns to the ordering
+                foreach (var keyProperty in entityType.FindPrimaryKey()!.Properties)
+                {
+                    AppendOrdering(new OrderingExpression(projection.BindProperty(keyProperty), ascending: true));
+                }
+            }
+            else
+            {
+                foreach (var groupingTerm in _groupBy)
+                {
+                    AppendOrdering(new OrderingExpression(groupingTerm, ascending: true));
+                }
             }
 
             _groupBy.Clear();
@@ -1780,9 +1795,25 @@ public sealed partial class SelectExpression : TableExpressionBase
         {
             _preGroupByIdentifier = _identifier.ToList();
             _identifier.Clear();
-            if (_groupBy.All(e => e is ColumnExpression))
+
+            // if grouping key is an entity, we only need it's PK columns as identifiers
+            if (keySelector is RelationalStructuralTypeShaperExpression {
+                ValueBufferExpression: StructuralTypeProjectionExpression projection,
+                StructuralType: IEntityType entityType
+            })
             {
-                _identifier.AddRange(_groupBy.Select(e => ((ColumnExpression)e, e.TypeMapping!.KeyComparer)));
+                foreach (var keyProperty in entityType.FindPrimaryKey()!.Properties)
+                {
+                    var keyColumn = projection.BindProperty(keyProperty);
+                    _identifier.Add((keyColumn, keyColumn.TypeMapping!.KeyComparer));
+                }
+            }
+            else
+            {
+                if (_groupBy.All(e => e is ColumnExpression))
+                {
+                    _identifier.AddRange(_groupBy.Select(e => ((ColumnExpression)e, e.TypeMapping!.KeyComparer)));
+                }
             }
         }
 
