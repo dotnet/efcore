@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore;
 public sealed class UninitializedDbSetDiagnosticSuppressor : DiagnosticSuppressor
 {
     private static readonly SuppressionDescriptor SuppressUninitializedDbSetRule = new(
-        id: "EFSPR1001",
+        id: EFDiagnostics.SuppressUninitializedDbSetRule,
         suppressedDiagnosticId: "CS8618",
         justification: AnalyzerStrings.UninitializedDbSetWarningSuppressionJustification);
 
