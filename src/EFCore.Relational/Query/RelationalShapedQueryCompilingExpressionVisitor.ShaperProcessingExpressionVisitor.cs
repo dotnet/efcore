@@ -2863,20 +2863,33 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 && !buffering)
             {
                 var exceptionParameter = Parameter(typeof(Exception), name: "e");
-
-                var catchBlock = Catch(
-                    exceptionParameter,
-                    Call(
-                        ThrowReadValueExceptionMethod.MakeGenericMethod(valueExpression.Type),
+                CatchBlock? catchBlock = null;
+                if (property != null)
+                {
+                    catchBlock = Catch(
                         exceptionParameter,
-                        Call(dbDataReader, GetFieldValueMethod.MakeGenericMethod(typeof(object)), indexExpression),
-                        Constant(valueExpression.Type.MakeNullable(nullable), typeof(Type)),
-                        _parentVisitor.Dependencies.LiftableConstantFactory.CreateLiftableConstant(
-                            property,
-                            LiftableConstantExpressionHelpers.BuildMemberAccessLambdaForProperty(property),
-                            property + "Property",
-                            typeof(IPropertyBase))));
-
+                        Call(
+                            ThrowReadValueExceptionMethod.MakeGenericMethod(valueExpression.Type),
+                            exceptionParameter,
+                            Call(dbDataReader, GetFieldValueMethod.MakeGenericMethod(typeof(object)), indexExpression),
+                            Constant(valueExpression.Type.MakeNullable(nullable)),
+                            _parentVisitor.Dependencies.LiftableConstantFactory.CreateLiftableConstant(
+                                property,
+                                LiftableConstantExpressionHelpers.BuildMemberAccessLambdaForProperty(property),
+                                property.Name + "Property",
+                                typeof(IPropertyBase))));
+                }
+                else
+                {
+                    catchBlock = Catch(
+                        exceptionParameter,
+                        Call(
+                            ThrowReadValueExceptionMethod.MakeGenericMethod(valueExpression.Type),
+                            exceptionParameter,
+                            Call(dbDataReader, GetFieldValueMethod.MakeGenericMethod(typeof(object)), indexExpression),
+                            Constant(valueExpression.Type.MakeNullable(nullable)),
+                            Constant(null,typeof(IPropertyBase))));
+                }
                 valueExpression = TryCatch(valueExpression, catchBlock);
             }
 
@@ -3005,7 +3018,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     Call(
                         ThrowExtractJsonPropertyExceptionMethod.MakeGenericMethod(resultExpression.Type),
                         exceptionParameter,
-                        Constant(property, typeof(IProperty))));
+                        Constant(property.DeclaringType.DisplayName(), typeof(string)),
+                        Constant(property.Name, typeof(string))));
 
                 resultExpression = TryCatch(resultExpression, catchBlock);
             }
