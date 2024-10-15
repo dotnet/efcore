@@ -77,7 +77,7 @@ public class SearchConditionConverter(ISqlExpressionFactory sqlExpressionFactory
 
             // A search condition expression in non-search condition context - wrap in CASE/WHEN to convert to bit:
             // e.g. SELECT a LIKE b => SELECT CASE WHEN a LIKE b THEN 1 ELSE 0 END
-            // TODO: NULL is handled properly here, see #34001
+            // TODO: NULL is not handled properly here, see #34001
             (false, true) => sqlExpressionFactory.Case(
                 [
                     new CaseWhenClause(
