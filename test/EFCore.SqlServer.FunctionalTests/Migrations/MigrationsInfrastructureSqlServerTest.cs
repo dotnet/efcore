@@ -8,11 +8,12 @@ using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.AspNetIdentity;
+using Newtonsoft.Json.Linq;
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Migrations
 {
-    [SqlServerCondition(SqlServerCondition.IsNotSqlAzure | SqlServerCondition.IsNotCI)]
+    [SqlServerCondition(SqlServerCondition.IsNotAzureSql | SqlServerCondition.IsNotCI)]
     public class MigrationsInfrastructureSqlServerTest(
         MigrationsInfrastructureSqlServerTest.MigrationsInfrastructureSqlServerFixture fixture)
         : MigrationsInfrastructureTestBase<MigrationsInfrastructureSqlServerTest.MigrationsInfrastructureSqlServerFixture>(fixture)
@@ -755,7 +756,7 @@ FROM [__EFMigrationsHistory]
 ORDER BY [MigrationId];
 
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-VALUES (N'00000000000000_Empty', N'9.0.0-dev');
+VALUES (N'00000000000000_Empty', N'7.0.0-test');
 
 --Before
 
@@ -798,18 +799,18 @@ BEGIN
 END
 
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-VALUES (N'00000000000001_Migration1', N'9.0.0-dev');
+VALUES (N'00000000000001_Migration1', N'7.0.0-test');
 
 --After
 
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-VALUES (N'00000000000002_Migration2', N'9.0.0-dev');
+VALUES (N'00000000000002_Migration2', N'7.0.0-test');
 
 DECLARE @result int;
 EXEC @result = sp_releaseapplock @Resource = '__EFMigrationsLock', @LockOwner = 'Session';
 SELECT @result
 """,
-                Fixture.TestSqlLoggerFactory.Sql,
+                Fixture.TestSqlLoggerFactory.Sql.Replace(ProductInfo.GetVersion(), "7.0.0-test"),
                 ignoreLineEndingDifferences: true);
         }
 
@@ -867,7 +868,7 @@ FROM [__EFMigrationsHistory]
 ORDER BY [MigrationId];
 
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-VALUES (N'00000000000000_Empty', N'9.0.0-dev');
+VALUES (N'00000000000000_Empty', N'7.0.0-test');
 
 --Before
 
@@ -910,18 +911,18 @@ BEGIN
 END
 
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-VALUES (N'00000000000001_Migration1', N'9.0.0-dev');
+VALUES (N'00000000000001_Migration1', N'7.0.0-test');
 
 --After
 
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-VALUES (N'00000000000002_Migration2', N'9.0.0-dev');
+VALUES (N'00000000000002_Migration2', N'7.0.0-test');
 
 DECLARE @result int;
 EXEC @result = sp_releaseapplock @Resource = '__EFMigrationsLock', @LockOwner = 'Session';
 SELECT @result
 """,
-                Fixture.TestSqlLoggerFactory.Sql,
+                Fixture.TestSqlLoggerFactory.Sql.Replace(ProductInfo.GetVersion(), "7.0.0-test"),
                 ignoreLineEndingDifferences: true);
         }
 

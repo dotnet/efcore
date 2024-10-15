@@ -1973,8 +1973,7 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
                             x.StringC == "Foo", 3
                         )
                         == 3),
-            assertOrder: true
-        );
+            assertOrder: true);
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1985,10 +1984,8 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
                 .OrderBy(x => x.Id)
                 .Select(
                     x => NullSemanticsQueryFixtureBase.BoolSwitch(
-                        x.StringA == "Foo", 3, 2
-                    )),
-            assertOrder: true
-        );
+                        x.StringA == "Foo", 3, 2)),
+                    assertOrder: true);
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]

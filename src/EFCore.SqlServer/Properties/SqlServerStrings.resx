@@ -321,9 +321,6 @@
   <data name="SequenceBadType" xml:space="preserve">
     <value>SQL Server sequences cannot be used to generate values for the property '{property}' on entity type '{entityType}' because the property type is '{propertyType}'. Sequences can only be used with integer properties.</value>
   </data>
-  <data name="SplitQueryOffsetWithoutOrderBy" xml:space="preserve">
-    <value>The query uses 'Skip' without specifying ordering and uses split query mode. This generates incorrect results. Either provide ordering or run query in single query mode using `AsSingleQuery()`. See https://go.microsoft.com/fwlink/?linkid=2196526 for more information.</value>
-  </data>
   <data name="TemporalAllEntitiesMappedToSameTableMustBeTemporal" xml:space="preserve">
     <value>Entity type '{entityType}' should be marked as temporal because it shares table mapping with another entity that has been marked as temporal. Alternatively, other entity types that share the same table must be non-temporal.</value>
   </data>

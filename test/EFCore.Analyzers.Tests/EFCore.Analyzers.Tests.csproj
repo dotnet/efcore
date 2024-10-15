@@ -51,4 +51,8 @@
     <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.MSBuild" VersionOverride="$(MicrosoftCodeAnalysisVersion)" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Include="..\..\src\Shared\EFDiagnostics.cs" />
+  </ItemGroup>
+
 </Project>

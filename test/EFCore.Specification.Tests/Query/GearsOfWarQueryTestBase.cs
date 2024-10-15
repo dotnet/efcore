@@ -8652,6 +8652,48 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
             ss => ss.Set<Mission>().Select(e => e.Duration + interval));
     }
 
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Where_datetimeoffset_microsecond_component(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Mission>().Where(e => e.Timeline.Microsecond == 200));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Where_datetimeoffset_nanosecond_component(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Mission>().Where(e => e.Timeline.Nanosecond == 400));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Where_timespan_microsecond_component(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Mission>().Where(e => e.Duration.Microseconds == 200));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Where_timespan_nanosecond_component(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Mission>().Where(e => e.Duration.Nanoseconds == 400));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Where_timeonly_microsecond_component(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Mission>().Where(e => e.Time.Microsecond == 200));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Where_timeonly_nanosecond_component(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Mission>().Where(e => e.Time.Nanosecond == 400));
+
     protected GearsOfWarContext CreateContext()
         => Fixture.CreateContext();
 

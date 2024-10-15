@@ -2758,6 +2758,15 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture>(TFixture fixture) 
                     AssertEqual(ee.LastOrder, aa.LastOrder);
                 }));
 
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Final_GroupBy_TagWith(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().TagWith("foo").GroupBy(c => c.City),
+            elementSorter: e => e.Key,
+            elementAsserter: (e, a) => AssertGrouping(e, a));
+
     #endregion
 
     #region GroupByWithoutAggregate

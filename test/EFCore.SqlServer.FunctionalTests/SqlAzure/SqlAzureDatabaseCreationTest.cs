@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.SqlAzure;
 
 #nullable disable
 
-[SqlServerCondition(SqlServerCondition.IsSqlAzure)]
+[SqlServerCondition(SqlServerCondition.IsAzureSql)]
 public class SqlAzureDatabaseCreationTest
 {
     protected string StoreName { get; } = "SqlAzureDatabaseCreationTest";
@@ -16,12 +16,12 @@ public class SqlAzureDatabaseCreationTest
     [ConditionalFact]
     public async Task Creates_database_in_elastic_pool()
     {
-        using var testDatabase = SqlServerTestStore.Create(StoreName + "Elastic");
-        using var context = new ElasticPoolContext(testDatabase);
+        await using var testDatabase = SqlServerTestStore.Create(StoreName + "Elastic");
+        await using var context = new ElasticPoolContext(testDatabase);
         await context.Database.EnsureDeletedAsync();
         await context.Database.EnsureCreatedAsync();
 
-        await AssertOptionsAsync(context.Database.GetDbConnection(), 1000 * (1L << 28), "Standard", "ElasticPool");
+        await AssertOptionsAsync(context.Database.GetDbConnection(), 1L << 35, "GeneralPurpose", "ElasticPool");
     }
 
     private class ElasticPoolContext(SqlServerTestStore testStore) : DbContext
@@ -41,12 +41,12 @@ public class SqlAzureDatabaseCreationTest
     [ConditionalFact]
     public async Task Creates_basic_database()
     {
-        using var testDatabase = SqlServerTestStore.Create(StoreName + "Basic");
-        using var context = new BasicContext(testDatabase);
+        await using var testDatabase = SqlServerTestStore.Create(StoreName + "Basic");
+        await using var context = new BasicContext(testDatabase);
         await context.Database.EnsureDeletedAsync();
         await context.Database.EnsureCreatedAsync();
 
-        await AssertOptionsAsync(context.Database.GetDbConnection(), 1L << 30, "Basic", "Basic");
+        await AssertOptionsAsync(context.Database.GetDbConnection(), 1L << 35, "GeneralPurpose", "GP_Gen5_2");
     }
 
     private class BasicContext(SqlServerTestStore testStore) : DbContext
@@ -61,20 +61,21 @@ public class SqlAzureDatabaseCreationTest
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.HasDatabaseMaxSize("1 GB");
-            modelBuilder.HasServiceTier("'basic'");
+            modelBuilder.HasDatabaseMaxSize("32 GB");
+            modelBuilder.HasServiceTier("'GeneralPurpose'");
+            modelBuilder.HasPerformanceLevel("GP_Gen5_2");
         }
     }
 
     [ConditionalFact]
     public async Task Creates_business_critical_database()
     {
-        using var testDatabase = SqlServerTestStore.Create(StoreName + "BusinessCritical");
-        using var context = new BusinessCriticalContext(testDatabase);
+        await using var testDatabase = SqlServerTestStore.Create(StoreName + "BusinessCritical");
+        await using var context = new BusinessCriticalContext(testDatabase);
         await context.Database.EnsureDeletedAsync();
         await context.Database.EnsureCreatedAsync();
 
-        await AssertOptionsAsync(context.Database.GetDbConnection(), 1L << 31, "BusinessCritical", "BC_Gen4_1");
+        await AssertOptionsAsync(context.Database.GetDbConnection(), 1L << 33, "BusinessCritical", "BC_Gen5_2");
     }
 
     private class BusinessCriticalContext(SqlServerTestStore testStore) : DbContext
@@ -89,9 +90,9 @@ public class SqlAzureDatabaseCreationTest
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.HasDatabaseMaxSize("2 GB");
+            modelBuilder.HasDatabaseMaxSize("8 GB");
             modelBuilder.HasServiceTier("BusinessCritical");
-            modelBuilder.HasPerformanceLevel("BC_Gen4_1");
+            modelBuilder.HasPerformanceLevel("BC_Gen5_2");
         }
     }
 

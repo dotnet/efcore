@@ -2335,7 +2335,7 @@ LEFT JOIN "Weapons" AS "w" ON "w"."SynergyWithId" IS NOT NULL
 SELECT "g"."Nickname", "g"."SquadId", "g"."AssignedCityName", "g"."CityOfBirthName", "g"."Discriminator", "g"."FullName", "g"."HasSoulPatch", "g"."LeaderNickname", "g"."LeaderSquadId", "g"."Rank"
 FROM "Gears" AS "g"
 WHERE "g"."HasSoulPatch" AND COALESCE((
-    SELECT DISTINCT "w"."IsAutomatic"
+    SELECT "w"."IsAutomatic"
     FROM "Weapons" AS "w"
     WHERE "g"."FullName" = "w"."OwnerFullName" AND instr("w"."Name", 'Lancer') > 0
     LIMIT 1), 0)
@@ -4852,7 +4852,7 @@ END IS NOT NULL
         AssertSql(
             """
 SELECT COALESCE((
-    SELECT DISTINCT "w"."IsAutomatic"
+    SELECT "w"."IsAutomatic"
     FROM "Weapons" AS "w"
     WHERE "g"."FullName" = "w"."OwnerFullName" AND instr("w"."Name", 'Lancer') > 0
     LIMIT 1), 0)
@@ -7320,7 +7320,7 @@ ORDER BY "g"."FullName"
         AssertSql(
             """
 SELECT COALESCE((
-    SELECT DISTINCT "w"."IsAutomatic"
+    SELECT "w"."IsAutomatic"
     FROM "Weapons" AS "w"
     WHERE "g"."FullName" = "w"."OwnerFullName" AND "w"."Name" = 'BFG'
     LIMIT 1), 0)
@@ -9891,6 +9891,24 @@ END IN (
 )
 """);
     }
+
+    public override Task Where_datetimeoffset_microsecond_component(bool async)
+        => AssertTranslationFailed(() => base.Where_datetimeoffset_microsecond_component(async));
+
+    public override Task Where_datetimeoffset_nanosecond_component(bool async)
+        => AssertTranslationFailed(() => base.Where_datetimeoffset_nanosecond_component(async));
+
+    public override Task Where_timespan_microsecond_component(bool async)
+        => AssertTranslationFailed(() => base.Where_timespan_microsecond_component(async));
+
+    public override Task Where_timespan_nanosecond_component(bool async)
+        => AssertTranslationFailed(() => base.Where_timespan_nanosecond_component(async));
+
+    public override Task Where_timeonly_microsecond_component(bool async)
+        => AssertTranslationFailed(() => base.Where_timeonly_microsecond_component(async));
+
+    public override Task Where_timeonly_nanosecond_component(bool async)
+        => AssertTranslationFailed(() => base.Where_timeonly_nanosecond_component(async));
 
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
