@@ -291,7 +291,7 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
         using var db = Fixture.CreateEmptyContext();
         var migrator = db.GetService<IMigrator>();
 
-        SetSql(migrator.GenerateScript());
+        SetAndExecuteSqlAsync(migrator.GenerateScript());
     }
 
     [ConditionalFact]
@@ -300,113 +300,138 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
         using var db = Fixture.CreateContext();
         var migrator = db.GetService<IMigrator>();
 
-        SetSql(migrator.GenerateScript(fromMigration: Migration.InitialDatabase, toMigration: Migration.InitialDatabase));
+        SetAndExecuteSqlAsync(migrator.GenerateScript(fromMigration: Migration.InitialDatabase, toMigration: Migration.InitialDatabase));
     }
 
     [ConditionalFact]
-    public virtual void Can_generate_up_scripts()
+    public virtual async Task Can_generate_up_and_down_scripts()
     {
         using var db = Fixture.CreateContext();
         var migrator = db.GetService<IMigrator>();
 
-        SetSql(migrator.GenerateScript());
+        await db.Database.EnsureDeletedAsync();
+        await GiveMeSomeTimeAsync(db);
+
+        await db.GetService<IRelationalDatabaseCreator>().CreateAsync();
+
+        await SetAndExecuteSqlAsync(migrator.GenerateScript());
+
+        await SetAndExecuteSqlAsync(migrator.GenerateScript(
+            fromMigration: "Migration7",
+            toMigration: Migration.InitialDatabase),
+            append: true);
     }
 
     [ConditionalFact]
-    public virtual void Can_generate_up_scripts_noTransactions()
+    public virtual async Task Can_generate_up_and_down_scripts_noTransactions()
     {
         using var db = Fixture.CreateContext();
         var migrator = db.GetService<IMigrator>();
 
-        SetSql(migrator.GenerateScript(options: MigrationsSqlGenerationOptions.NoTransactions));
+        await db.Database.EnsureDeletedAsync();
+        await GiveMeSomeTimeAsync(db);
+
+        await db.GetService<IRelationalDatabaseCreator>().CreateAsync();
+
+        await SetAndExecuteSqlAsync(migrator.GenerateScript(options: MigrationsSqlGenerationOptions.NoTransactions));
+
+        await SetAndExecuteSqlAsync(migrator.GenerateScript(
+            fromMigration: "Migration7",
+            toMigration: Migration.InitialDatabase,
+            MigrationsSqlGenerationOptions.NoTransactions),
+            append: true);
     }
 
     [ConditionalFact]
-    public virtual void Can_generate_one_up_script()
+    public virtual async Task Can_generate_one_up_and_down_script()
     {
         using var db = Fixture.CreateContext();
         var migrator = db.GetService<IMigrator>();
 
-        SetSql(migrator.GenerateScript(fromMigration: "00000000000001_Migration1", toMigration: "00000000000002_Migration2"));
+        await db.Database.EnsureDeletedAsync();
+        await GiveMeSomeTimeAsync(db);
+
+        await db.GetService<IRelationalDatabaseCreator>().CreateAsync();
+
+        await ExecuteSqlAsync(migrator.GenerateScript(
+            toMigration: "00000000000001_Migration1"));
+
+        await SetAndExecuteSqlAsync(migrator.GenerateScript(
+            fromMigration: "00000000000001_Migration1",
+            toMigration: "00000000000002_Migration2"));
+
+        await SetAndExecuteSqlAsync(migrator.GenerateScript(
+            fromMigration: "00000000000002_Migration2",
+            toMigration: "00000000000001_Migration1"),
+            append: true);
     }
 
     [ConditionalFact]
-    public virtual void Can_generate_up_script_using_names()
+    public virtual async Task Can_generate_up_and_down_script_using_names()
     {
         using var db = Fixture.CreateContext();
         var migrator = db.GetService<IMigrator>();
 
-        SetSql(migrator.GenerateScript(fromMigration: "Migration1", toMigration: "Migration2"));
+        await db.Database.EnsureDeletedAsync();
+        await GiveMeSomeTimeAsync(db);
+
+        await db.GetService<IRelationalDatabaseCreator>().CreateAsync();
+
+        await ExecuteSqlAsync(migrator.GenerateScript(
+            toMigration: "Migration1"));
+
+        await SetAndExecuteSqlAsync(migrator.GenerateScript(
+            fromMigration: "Migration1",
+            toMigration: "Migration2"));
+
+        await SetAndExecuteSqlAsync(migrator.GenerateScript(
+            fromMigration: "Migration2",
+            toMigration: "Migration1"),
+            append: true);
     }
 
     [ConditionalFact]
-    public virtual void Can_generate_idempotent_up_scripts()
+    public virtual async Task Can_generate_idempotent_up_and_down_scripts()
     {
         using var db = Fixture.CreateContext();
         var migrator = db.GetService<IMigrator>();
 
-        SetSql(migrator.GenerateScript(options: MigrationsSqlGenerationOptions.Idempotent));
+        await db.Database.EnsureDeletedAsync();
+        await GiveMeSomeTimeAsync(db);
+
+        await db.GetService<IRelationalDatabaseCreator>().CreateAsync();
+
+        await SetAndExecuteSqlAsync(migrator.GenerateScript(
+            toMigration: "Migration2",
+            options: MigrationsSqlGenerationOptions.Idempotent));
+
+        await SetAndExecuteSqlAsync(migrator.GenerateScript(
+            fromMigration: "Migration2",
+            toMigration: Migration.InitialDatabase,
+            MigrationsSqlGenerationOptions.Idempotent),
+            append: true);
     }
 
     [ConditionalFact]
-    public virtual void Can_generate_idempotent_up_scripts_noTransactions()
+    public virtual async Task Can_generate_idempotent_up_and_down_scripts_noTransactions()
     {
         using var db = Fixture.CreateContext();
         var migrator = db.GetService<IMigrator>();
 
-        SetSql(
-            migrator.GenerateScript(
-                options: MigrationsSqlGenerationOptions.Idempotent
-                | MigrationsSqlGenerationOptions.NoTransactions));
-    }
+        await db.Database.EnsureDeletedAsync();
+        await GiveMeSomeTimeAsync(db);
 
-    [ConditionalFact]
-    public virtual void Can_generate_down_scripts()
-    {
-        using var db = Fixture.CreateContext();
-        var migrator = db.GetService<IMigrator>();
+        await db.GetService<IRelationalDatabaseCreator>().CreateAsync();
 
-        SetSql(
-            migrator.GenerateScript(
-                fromMigration: "Migration2",
-                toMigration: Migration.InitialDatabase));
-    }
+        await SetAndExecuteSqlAsync(migrator.GenerateScript(
+            toMigration: "Migration2",
+            options: MigrationsSqlGenerationOptions.Idempotent | MigrationsSqlGenerationOptions.NoTransactions));
 
-    [ConditionalFact]
-    public virtual void Can_generate_one_down_script()
-    {
-        using var db = Fixture.CreateContext();
-        var migrator = db.GetService<IMigrator>();
-
-        SetSql(
-            migrator.GenerateScript(
-                fromMigration: "00000000000002_Migration2",
-                toMigration: "00000000000001_Migration1"));
-    }
-
-    [ConditionalFact]
-    public virtual void Can_generate_down_script_using_names()
-    {
-        using var db = Fixture.CreateContext();
-        var migrator = db.GetService<IMigrator>();
-
-        SetSql(
-            migrator.GenerateScript(
-                fromMigration: "Migration2",
-                toMigration: "Migration1"));
-    }
-
-    [ConditionalFact]
-    public virtual void Can_generate_idempotent_down_scripts()
-    {
-        using var db = Fixture.CreateContext();
-        var migrator = db.GetService<IMigrator>();
-
-        SetSql(
-            migrator.GenerateScript(
-                fromMigration: "Migration2",
-                toMigration: Migration.InitialDatabase,
-                MigrationsSqlGenerationOptions.Idempotent));
+        await SetAndExecuteSqlAsync(migrator.GenerateScript(
+            fromMigration: "Migration2",
+            toMigration: Migration.InitialDatabase,
+            MigrationsSqlGenerationOptions.Idempotent | MigrationsSqlGenerationOptions.NoTransactions),
+            append: true);
     }
 
     [ConditionalFact]
@@ -446,8 +471,14 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
         Assert.Equal(0, operations.Count);
     }
 
-    protected void SetSql(string value)
-        => Sql = value.Replace(ProductInfo.GetVersion(), "7.0.0-test");
+    private Task SetAndExecuteSqlAsync(string value, bool append = false)
+    {
+        var sql = value.Replace(ProductInfo.GetVersion(), "7.0.0-test");
+        Sql = append ? Sql + sql : sql;
+        return ExecuteSqlAsync(sql);
+    }
+
+    protected abstract Task ExecuteSqlAsync(string value);
 }
 
 public abstract class MigrationsInfrastructureFixtureBase
@@ -599,27 +630,34 @@ public abstract class MigrationsInfrastructureFixtureBase
             {
                 migrationBuilder.Sql(
                     """
-                CREATE PROCEDURE [dbo].[GotoReproduction]
-                AS
-                BEGIN
-                    DECLARE @Counter int;
-                    SET @Counter = 1;
-                    WHILE @Counter < 10
+                    CREATE PROCEDURE [dbo].[GotoReproduction]
+                    AS
                     BEGIN
-                        SELECT @Counter
-                        SET @Counter = @Counter + 1
-                        IF @Counter = 4 GOTO Branch_One --Jumps to the first branch.
-                        IF @Counter = 5 GOTO Branch_Two --This will never execute.
-                    END
-                    Branch_One:
-                        SELECT 'Jumping To Branch One.'
-                        GOTO Branch_Three; --This will prevent Branch_Two from executing.
-                    Branch_Two:
-                        SELECT 'Jumping To Branch Two.'
-                    Branch_Three:
-                        SELECT 'Jumping To Branch Three.'
-                END;
-            """);
+                        DECLARE @Counter int;
+                        SET @Counter = 1;
+                        WHILE @Counter < 10
+                        BEGIN
+                            SELECT @Counter
+                            SET @Counter = @Counter + 1
+                            IF @Counter = 4 GOTO Branch_One --Jumps to the first branch.
+                            IF @Counter = 5 GOTO Branch_Two --This will never execute.
+                        END
+                        Branch_One:
+                            SELECT 'Jumping To Branch One.'
+                            GOTO Branch_Three; --This will prevent Branch_Two from executing.'
+                        Branch_Two:
+                            SELECT 'Jumping To Branch Two.'
+                        Branch_Three:
+                            SELECT 'Jumping To Branch Three.'
+                    END;
+
+                    GO
+                    SELECT GetDate();
+                    --GO
+                    SELECT GetDate()
+                    GO
+
+                    """, suppressTransaction: true);
             }
         }
 
@@ -639,7 +677,12 @@ public abstract class MigrationsInfrastructureFixtureBase
             """;
 
         protected override void Up(MigrationBuilder migrationBuilder)
-            => migrationBuilder.Sql($"INSERT INTO Table1 (Id, Bar, Description) VALUES (-1, 3, '{TestValue}')");
+        {
+            if (ActiveProvider == "Microsoft.EntityFrameworkCore.SqlServer")
+            {
+                migrationBuilder.Sql($"INSERT INTO Table1 (Id, Bar, Description) VALUES (-1, 3, '{TestValue}')");
+            }
+        }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
@@ -658,7 +701,12 @@ public abstract class MigrationsInfrastructureFixtureBase
             """;
 
         protected override void Up(MigrationBuilder migrationBuilder)
-            => migrationBuilder.Sql($"INSERT INTO Table1 (Id, Bar, Description) VALUES (-2, 4, '{TestValue}')");
+        {
+            if (ActiveProvider == "Microsoft.EntityFrameworkCore.SqlServer")
+            {
+                migrationBuilder.Sql($"INSERT INTO Table1 (Id, Bar, Description) VALUES (-2, 4, '{TestValue}')");
+            }
+        }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
@@ -670,17 +718,24 @@ public abstract class MigrationsInfrastructureFixtureBase
     private class Migration7 : Migration
     {
         public const string TestValue = """
+            --Start
             GO
             Value With
 
             GO
 
-            Empty Lines
+            Empty Lines;
             GO
+
             """;
 
         protected override void Up(MigrationBuilder migrationBuilder)
-            => migrationBuilder.Sql($"INSERT INTO Table1 (Id, Bar, Description) VALUES (-3, 5, '{TestValue}')");
+        {
+            if (ActiveProvider == "Microsoft.EntityFrameworkCore.SqlServer")
+            {
+                migrationBuilder.Sql($"INSERT INTO Table1 (Id, Bar, Description) VALUES (-3, 5, '{TestValue}')");
+            }
+        }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {

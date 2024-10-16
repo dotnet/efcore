@@ -4547,11 +4547,25 @@ ORDER BY c["id"]
             async, async a =>
             {
                 await base.MemberInitExpression_NewExpression_is_funcletized_even_when_bindings_are_not_evaluatable(a);
+
                 AssertSql(
                     """
 SELECT VALUE c["id"]
 FROM root c
 WHERE STARTSWITH(c["id"], "A")
+""");
+            });
+
+    public override Task Funcletize_conditional_with_evaluatable_test(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Funcletize_conditional_with_evaluatable_test(a);
+
+                AssertSql(
+                    """
+SELECT VALUE c
+FROM root c
 """);
             });
 

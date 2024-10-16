@@ -233,7 +233,7 @@ public abstract class HistoryRepository : IHistoryRepository
     ///     Gets an exclusive lock on the database.
     /// </summary>
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
-    /// 
+    ///
     /// <returns>An object that can be disposed to release the lock.</returns>
     /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
     public abstract Task<IMigrationsDatabaseLock> AcquireDatabaseLockAsync(CancellationToken cancellationToken = default);

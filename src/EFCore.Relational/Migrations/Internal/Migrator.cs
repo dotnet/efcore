@@ -607,7 +607,7 @@ public class Migrator : IMigrator
                 builder, _sqlGenerationHelper, ref transactionStarted, noTransactions, idempotencyCondition, idempotencyEnd);
         }
 
-        if (!noTransactions && transactionStarted)
+        if (transactionStarted)
         {
             builder
                 .AppendLine(_sqlGenerationHelper.CommitTransactionStatement)
@@ -633,8 +633,7 @@ public class Migrator : IMigrator
                 if (!transactionStarted && !command.TransactionSuppressed)
                 {
                     builder
-                        .AppendLine(sqlGenerationHelper.StartTransactionStatement)
-                        .Append(sqlGenerationHelper.BatchTerminator);
+                        .AppendLine(sqlGenerationHelper.StartTransactionStatement);
                     transactionStarted = true;
                 }
 
@@ -663,7 +662,14 @@ public class Migrator : IMigrator
                 builder.Append(command.CommandText);
             }
 
-            builder.Append(sqlGenerationHelper.BatchTerminator);
+            if (!transactionStarted)
+            {
+                builder.Append(sqlGenerationHelper.BatchTerminator);
+            }
+            else
+            {
+                builder .Append(Environment.NewLine);
+            }
         }
     }
 
@@ -680,10 +686,20 @@ public class Migrator : IMigrator
         var insertCommand = _rawSqlCommandBuilder.Build(
             _historyRepository.GetInsertScript(new HistoryRow(migration.GetId(), ProductInfo.GetVersion())));
 
-        return _migrationsSqlGenerator
-            .Generate(migration.UpOperations, FinalizeModel(migration.TargetModel), options)
-            .Concat([new MigrationCommand(insertCommand, _currentContext.Context, _commandLogger)])
-            .ToList();
+        var operations = _migrationsSqlGenerator
+            .Generate(
+                migration.UpOperations,
+                FinalizeModel(migration.TargetModel),
+                options);
+
+        return
+        [
+            .. operations,
+            new MigrationCommand(insertCommand, _currentContext.Context, _commandLogger,
+                transactionSuppressed: operations.Any(o => o.TransactionSuppressed)),
+            // If any command was transaction-suppressed then the migrations history table is also updated without a transaction
+            // to decrease the risk that a non-recoverable exception happens during execution and the database is left in a broken state.
+        ];
     }
 
     /// <summary>
@@ -700,11 +716,19 @@ public class Migrator : IMigrator
         var deleteCommand = _rawSqlCommandBuilder.Build(
             _historyRepository.GetDeleteScript(migration.GetId()));
 
-        return _migrationsSqlGenerator
+        var operations = _migrationsSqlGenerator
             .Generate(
-                migration.DownOperations, previousMigration == null ? null : FinalizeModel(previousMigration.TargetModel), options)
-            .Concat([new MigrationCommand(deleteCommand, _currentContext.Context, _commandLogger)])
-            .ToList();
+                migration.DownOperations,
+                previousMigration == null ? null : FinalizeModel(previousMigration.TargetModel),
+                options);
+
+        return [
+            .. operations,
+            new MigrationCommand(deleteCommand, _currentContext.Context, _commandLogger,
+                transactionSuppressed: operations.Any(o => o.TransactionSuppressed))
+            // If any command was transaction-suppressed then the migrations history table is also updated without a transaction
+            // to decrease the risk that a non-recoverable exception happens during execution and the database is left in a broken state.
+            ];
     }
 
     private IModel? FinalizeModel(IModel? model)

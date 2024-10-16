@@ -308,4 +308,39 @@ LEFT JOIN [As] AS [a] ON [s].[AId] = [a].[Id]
 ORDER BY [s].[Id]
 """);
     }
+
+    public override async Task Projecting_property_with_converter_with_closure(bool async)
+    {
+        await base.Projecting_property_with_converter_with_closure(async);
+
+        AssertSql(
+"""
+SELECT [b].[PublishDate]
+FROM [Books] AS [b]
+""");
+    }
+
+    public override async Task Projecting_expression_with_converter_with_closure(bool async)
+    {
+        await base.Projecting_expression_with_converter_with_closure(async);
+
+        AssertSql(
+"""
+SELECT MIN([b].[PublishDate]) AS [Day]
+FROM [Books] AS [b]
+GROUP BY [b].[Id]
+""");
+    }
+
+    public override async Task Projecting_property_with_converter_without_closure(bool async)
+    {
+        await base.Projecting_property_with_converter_without_closure(async);
+
+        AssertSql(
+"""
+SELECT MIN([b].[AudiobookDate]) AS [Day]
+FROM [Books] AS [b]
+GROUP BY [b].[Id]
+""");
+    }
 }

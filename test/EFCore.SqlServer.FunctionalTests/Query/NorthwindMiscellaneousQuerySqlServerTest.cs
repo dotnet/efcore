@@ -5651,6 +5651,17 @@ WHERE [c].[CustomerID] LIKE N'A%'
 """);
     }
 
+    public override async Task Funcletize_conditional_with_evaluatable_test(bool async)
+    {
+        await base.Funcletize_conditional_with_evaluatable_test(async);
+
+        AssertSql(
+            """
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+""");
+    }
+
     public override async Task Projecting_collection_split(bool async)
     {
         await base.Projecting_collection_split(async);
