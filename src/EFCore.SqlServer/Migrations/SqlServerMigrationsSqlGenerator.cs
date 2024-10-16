@@ -1395,11 +1395,13 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             .Replace("\\\r\n", "")
             .Split(["\r\n", "\n"], StringSplitOptions.None);
 
+        var quoted = false;
         var batchBuilder = new StringBuilder();
         foreach (var line in preBatched)
         {
             var trimmed = line.TrimStart();
-            if (trimmed.StartsWith("GO", StringComparison.OrdinalIgnoreCase)
+            if (!quoted
+                && trimmed.StartsWith("GO", StringComparison.OrdinalIgnoreCase)
                 && (trimmed.Length == 2
                     || char.IsWhiteSpace(trimmed[2])))
             {
@@ -1407,7 +1409,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                 batchBuilder.Clear();
 
                 var count = trimmed.Length >= 4
-                    && int.TryParse(trimmed.Substring(3), out var specifiedCount)
+                    && int.TryParse(trimmed.AsSpan(3), out var specifiedCount)
                         ? specifiedCount
                         : 1;
 
@@ -1418,6 +1420,32 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             }
             else
             {
+                var commentStart = false;
+                foreach (var c in trimmed)
+                {
+                    switch (c)
+                    {
+                        case '\'':
+                            quoted = !quoted;
+                            commentStart = false;
+                            break;
+                        case '-':
+                            if (!quoted)
+                            {
+                                if (commentStart)
+                                {
+                                    goto LineEnd;
+                                }
+                                commentStart = true;
+                            }
+                            break;
+                        default:
+                            commentStart = false;
+                            break;
+                    }
+                }
+
+                LineEnd:
                 batchBuilder.AppendLine(line);
             }
         }

@@ -4,7 +4,6 @@
 #nullable disable
 
 using Identity30.Data;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.AspNetIdentity;
@@ -18,12 +17,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         MigrationsInfrastructureSqlServerTest.MigrationsInfrastructureSqlServerFixture fixture)
         : MigrationsInfrastructureTestBase<MigrationsInfrastructureSqlServerTest.MigrationsInfrastructureSqlServerFixture>(fixture)
     {
-        public override void Can_apply_all_migrations() // Issue #32826
-            => Assert.Throws<SqlException>(base.Can_apply_all_migrations);
-
-        public override Task Can_apply_all_migrations_async() // Issue #32826
-            => Assert.ThrowsAsync<SqlException>(base.Can_apply_all_migrations_async);
-
         public override void Can_apply_range_of_migrations()
         {
             base.Can_apply_range_of_migrations();
@@ -174,13 +167,13 @@ INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
 VALUES (N'00000000000006_Migration6', N'7.0.0-test');
 
 INSERT INTO Table1 (Id, Bar, Description) VALUES (-3, 5, '--Start
-
+GO
 Value With
 
-
+GO
 
 Empty Lines;
-
+GO
 ')
 
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
@@ -322,15 +315,12 @@ GO
 
 INSERT INTO Table1 (Id, Bar, Description) VALUES (-3, 5, '--Start
 GO
-
 Value With
 
 GO
 
-
 Empty Lines;
 GO
-
 ')
 GO
 
