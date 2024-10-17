@@ -55,11 +55,6 @@
     <NoWarn>$(NoWarn.Replace(';1591', ''))</NoWarn>
   </PropertyGroup>
 
-  <!-- unblock stable branding -->
-  <PropertyGroup>
-    <NoWarn>$(NoWarn);NU5104</NoWarn>
-  </PropertyGroup>
-
   <ItemGroup>
     <AdditionalFiles Include="$(MSBuildThisFileDirectory)stylecop.json" />
   </ItemGroup>
