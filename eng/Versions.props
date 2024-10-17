@@ -28,6 +28,8 @@
     <MicrosoftExtensionsLoggingVersion>9.0.0-rtm.24516.5</MicrosoftExtensionsLoggingVersion>
     <MicrosoftNETCoreAppRefVersion>9.0.0-rtm.24516.5</MicrosoftNETCoreAppRefVersion>
     <MicrosoftNETCoreAppRuntimewinx64Version>9.0.0-rtm.24516.5</MicrosoftNETCoreAppRuntimewinx64Version>
+    <!-- NB: Using BrowserDebugHost to represent the nonshipping version of Microsoft.NETCore.App -->
+    <MicrosoftNETCoreBrowserDebugHostTransportVersion>9.0.0-rtm.24516.5</MicrosoftNETCoreBrowserDebugHostTransportVersion>
     <SystemTextEncodingsWebVersion>9.0.0-rtm.24516.5</SystemTextEncodingsWebVersion>
     <SystemTextJsonVersion>9.0.0-rtm.24516.5</SystemTextJsonVersion>
     <SystemFormatsAsn1Version>9.0.0-rtm.24516.5</SystemFormatsAsn1Version>
