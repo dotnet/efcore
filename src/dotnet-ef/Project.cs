@@ -44,16 +44,11 @@ internal class Project
 
     public static Project FromFile(
         string file,
-        string? buildExtensionsDir,
         string? framework = null,
         string? configuration = null,
         string? runtime = null)
     {
         Debug.Assert(!string.IsNullOrEmpty(file), "file is null or empty.");
-
-        buildExtensionsDir ??= Path.Combine(Path.GetDirectoryName(file)!, "obj");
-
-        Directory.CreateDirectory(buildExtensionsDir);
 
         IDictionary<string, string> metadata;
         var metadataFile = Path.GetTempFileName();
