@@ -30,7 +30,7 @@
       <SasToken>$([System.Environment]::GetEnvironmentVariable('DotNetBuildsInternalReadSasToken'))</SasToken>
     </AdditionalDotNetPackageFeed>
 
-    <AdditionalDotNetPackage Include="$(MicrosoftNETCoreBrowserDebugHostTransportVersion)">
+    <AdditionalDotNetPackage Include="$(MicrosoftNETCoreAppRuntimewinx64Version)">
       <PackageType>runtime</PackageType>
     </AdditionalDotNetPackage>
   </ItemGroup>
