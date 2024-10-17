@@ -537,10 +537,7 @@ public class CosmosTestStore : TestStore
         await creator.SeedDataAsync(created: true).ConfigureAwait(false);
     }
 
-    public override void Dispose()
-        => throw new InvalidOperationException("Calling Dispose can cause deadlocks. Use DisposeAsync instead.");
-
-    public override async Task DisposeAsync()
+    public override async ValueTask DisposeAsync()
     {
         if (_initialized
             && _dataFilePath == null)

@@ -122,26 +122,24 @@ public abstract class NullSemanticsQueryFixtureBase : SharedStoreFixtureBase<Nul
         modelBuilder.Entity<NullSemanticsEntity2>().Property(e => e.StringC).IsRequired();
 
         modelBuilder.HasDbFunction(
-            typeof(NullSemanticsQueryFixtureBase).GetMethod(nameof(Cases)),
+            typeof(NullSemanticsQueryFixtureBase).GetMethod(nameof(Cases))!,
             b => b.HasTranslation(
                 args => new CaseExpression(
                 [
                     new CaseWhenClause(args[0], args[1]),
                     new CaseWhenClause(args[2], args[3]),
-                    new CaseWhenClause(args[4], args[5]),
-                ]))
-        );
+                    new CaseWhenClause(args[4], args[5])
+                ])));
 
         modelBuilder.HasDbFunction(
-            typeof(NullSemanticsQueryFixtureBase).GetMethod(nameof(BoolSwitch)),
+            typeof(NullSemanticsQueryFixtureBase).GetMethod(nameof(BoolSwitch))!,
             b => b.HasTranslation(
                 args => new CaseExpression(
                     operand: args[0],
                     [
-                        new CaseWhenClause(new SqlConstantExpression(true, typeMapping: BoolTypeMapping.Default), args[1]),
-                        new CaseWhenClause(new SqlConstantExpression(false, typeMapping: BoolTypeMapping.Default), args[2]),
-                    ]))
-        );
+                        new CaseWhenClause(new SqlConstantExpression(true, typeMapping: args[0].TypeMapping), args[1]),
+                        new CaseWhenClause(new SqlConstantExpression(false, typeMapping: args[0].TypeMapping), args[2])
+                    ])));
     }
 
     public static int? Cases(bool c1, int v1, bool c2, int v2, bool c3, int v3)
@@ -151,9 +149,5 @@ public abstract class NullSemanticsQueryFixtureBase : SharedStoreFixtureBase<Nul
             null;
 
     public static int BoolSwitch(bool x, int whenTrue, int whenFalse)
-        => x switch
-        {
-            true => whenTrue,
-            false => whenFalse,
-        };
+        => x ? whenTrue : whenFalse;
 }

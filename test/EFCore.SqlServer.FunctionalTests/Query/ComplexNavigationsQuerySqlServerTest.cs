@@ -69,7 +69,7 @@ WHERE [l].[Id] < 3
 SELECT (
     SELECT TOP(1) [l1].[Name]
     FROM (
-        SELECT DISTINCT TOP(1) [l0].[Id], [l0].[Level2_Optional_Id], [l0].[Level2_Required_Id], [l0].[Name], [l0].[OneToMany_Optional_Inverse3Id], [l0].[OneToMany_Optional_Self_Inverse3Id], [l0].[OneToMany_Required_Inverse3Id], [l0].[OneToMany_Required_Self_Inverse3Id], [l0].[OneToOne_Optional_PK_Inverse3Id], [l0].[OneToOne_Optional_Self3Id]
+        SELECT TOP(1) [l0].[Id], [l0].[Name]
         FROM [LevelThree] AS [l0]
     ) AS [l1]
     ORDER BY [l1].[Id])

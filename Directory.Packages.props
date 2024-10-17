@@ -36,10 +36,10 @@
     <PackageVersion Include="Microsoft.DotNet.Build.Tasks.Templating" Version="$(MicrosoftDotNetBuildTasksTemplatingVersion)" />
 
     <!-- Azure SDK for .NET dependencies -->
-    <PackageVersion Include="Microsoft.Azure.Cosmos" Version="3.43.0" />
+    <PackageVersion Include="Microsoft.Azure.Cosmos" Version="3.44.0" />
 
     <!-- SQL Server dependencies -->
-    <PackageVersion Include="Microsoft.Data.SqlClient" Version="5.1.6" />
+    <PackageVersion Include="Microsoft.Data.SqlClient" Version="5.2.2" />
     <PackageVersion Include="Microsoft.SqlServer.Types" Version="160.1000.6" />
 
     <!-- external dependencies -->
@@ -57,8 +57,9 @@
 
     <!-- Pinned versions for Component Governance/NuGetAudit - Remove when root dependencies are updated -->
     <!--Workaround for Microsoft.CodeAnalysis.Workspaces.MSBuild 4.8.0, see https://github.com/dotnet/efcore/issues/34637-->
-    <PackageVersion Include="Microsoft.Build.Framework" Version="$(MicrosoftBuildFrameworkVersion)" />    
-    <!--Workaround for Microsoft.Data.SqlClient v5.1.6 and Microsoft.CodeAnalysis.Analyzer.Testing v1.1.2-->    
-    <PackageVersion Include="System.Formats.Asn1" Version="$(SystemFormatsAsn1Version)" />
+    <PackageVersion Include="Microsoft.Build.Framework" Version="$(MicrosoftBuildFrameworkVersion)" />
+    <!--Workaround for Microsoft.Data.SqlClient v5.1.6 and Microsoft.CodeAnalysis.Analyzer.Testing v1.1.2-->
+    <PackageVersion Include="System.Formats.Asn1" Version="$(SystemFormatsAsn1Version)" /> 
+    <PackageVersion Include="System.Runtime.Caching" Version="$(SystemRuntimeCachingVersion)" />
   </ItemGroup>
 </Project>

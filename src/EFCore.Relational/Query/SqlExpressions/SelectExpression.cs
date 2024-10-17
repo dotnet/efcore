@@ -238,6 +238,20 @@ public sealed partial class SelectExpression : TableExpressionBase
     public SqlExpression? Offset { get; private set; }
 
     /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public void SetTables(IReadOnlyList<TableExpressionBase> tables)
+    {
+        Check.DebugAssert(IsMutable, "Attempt to mutate an immutable SelectExpression");
+        _tables.Clear();
+        _tables.AddRange(tables);
+    }
+
+    /// <summary>
     ///     Applies a given set of tags.
     /// </summary>
     /// <param name="tags">A list of tags to apply.</param>
@@ -253,6 +267,11 @@ public sealed partial class SelectExpression : TableExpressionBase
             && _clientProjections.Any(e => e is ShapedQueryExpression { ResultCardinality: ResultCardinality.Enumerable }))
         {
             throw new InvalidOperationException(RelationalStrings.DistinctOnCollectionNotSupported);
+        }
+
+        if (Limit is SqlConstantExpression { Value: 1 })
+        {
+            return;
         }
 
         if (Limit != null
@@ -893,6 +912,18 @@ public sealed partial class SelectExpression : TableExpressionBase
                         {
                             var outerSelectExpression = (SelectExpression)cloningExpressionVisitor!.Visit(baseSelectExpression!);
 
+                            // Inject deterministic orderings (the identifier columns) to both the main query and the split query.
+                            // Note that just below we pushdown the split query if it has limit/offset/distinct/groupby; this ensures
+                            // that the orderings are also propagated to that split subquery if it has limit/offset, which ensures that
+                            // that subquery returns the same rows as the main query (#26808)
+                            var actualParentIdentifier = _identifier.Take(outerSelectExpression._identifier.Count).ToList();
+                            for (var j = 0; j < actualParentIdentifier.Count; j++)
+                            {
+                                AppendOrdering(new OrderingExpression(actualParentIdentifier[j].Column, ascending: true));
+                                outerSelectExpression.AppendOrdering(
+                                    new OrderingExpression(outerSelectExpression._identifier[j].Column, ascending: true));
+                            }
+
                             if (outerSelectExpression.Limit != null
                                 || outerSelectExpression.Offset != null
                                 || outerSelectExpression.IsDistinct
@@ -904,7 +935,6 @@ public sealed partial class SelectExpression : TableExpressionBase
                                 innerSelectExpression = sqlRemappingVisitor.Remap(innerSelectExpression);
                             }
 
-                            var actualParentIdentifier = _identifier.Take(outerSelectExpression._identifier.Count).ToList();
                             var containsOrdering = innerSelectExpression.Orderings.Count > 0;
                             List<OrderingExpression>? orderingsToBeErased = null;
                             if (containsOrdering
@@ -921,13 +951,6 @@ public sealed partial class SelectExpression : TableExpressionBase
                             outerSelectExpression._clientProjections.AddRange(innerSelectExpression._clientProjections);
                             outerSelectExpression._aliasForClientProjections.AddRange(innerSelectExpression._aliasForClientProjections);
                             innerSelectExpression = outerSelectExpression;
-
-                            for (var j = 0; j < actualParentIdentifier.Count; j++)
-                            {
-                                AppendOrdering(new OrderingExpression(actualParentIdentifier[j].Column, ascending: true));
-                                innerSelectExpression.AppendOrdering(
-                                    new OrderingExpression(innerSelectExpression._identifier[j].Column, ascending: true));
-                            }
 
                             // Copy over any nested ordering if there were any
                             if (containsOrdering)
@@ -1901,6 +1924,11 @@ public sealed partial class SelectExpression : TableExpressionBase
         }
 
         Limit = sqlExpression;
+
+        if (Offset is null && Limit is SqlConstantExpression { Value: 1 })
+        {
+            IsDistinct = false;
+        }
     }
 
     /// <summary>
@@ -2698,11 +2726,20 @@ public sealed partial class SelectExpression : TableExpressionBase
     ///     <see cref="SelectExpression" /> based on its alias.
     /// </summary>
     public TableExpressionBase GetTable(ColumnExpression column)
+        => GetTable(column, out _);
+
+    /// <summary>
+    ///     Retrieves the <see cref="TableExpressionBase" /> referenced by the given column, looking it up on this
+    ///     <see cref="SelectExpression" /> based on its alias.
+    /// </summary>
+    public TableExpressionBase GetTable(ColumnExpression column, out int tableIndex)
     {
-        foreach (var table in Tables)
+        for (var i = 0; i < _tables.Count; i++)
         {
+            var table = _tables[i];
             if (table.UnwrapJoin().Alias == column.TableAlias)
             {
+                tableIndex = i;
                 return table;
             }
         }
@@ -4222,6 +4259,16 @@ public sealed partial class SelectExpression : TableExpressionBase
             && limit == Limit)
         {
             return this;
+        }
+
+        if (predicate is SqlConstantExpression { Value: true })
+        {
+            predicate = null;
+        }
+
+        if (having is SqlConstantExpression { Value: true })
+        {
+            having = null;
         }
 
         var projectionMapping = new Dictionary<ProjectionMember, Expression>();

@@ -5,6 +5,7 @@ using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
+using static Microsoft.EntityFrameworkCore.Query.QueryHelpers;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 
@@ -517,10 +518,9 @@ public class CosmosSqlTranslatingExpressionVisitor(
     /// </summary>
     protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
     {
-        if (methodCallExpression.TryGetEFPropertyArguments(out var source, out var propertyName)
-            || methodCallExpression.TryGetIndexerArguments(_model, out source, out propertyName))
+        if (IsMemberAccess(methodCallExpression, _model, out var source, out var memberIdentity))
         {
-            return TryBindMember(Visit(source), MemberIdentity.Create(propertyName), out var result, out _)
+            return TryBindMember(Visit(source), memberIdentity, out var result, out _)
                 ? result
                 : QueryCompilationContext.NotTranslatedExpression;
         }

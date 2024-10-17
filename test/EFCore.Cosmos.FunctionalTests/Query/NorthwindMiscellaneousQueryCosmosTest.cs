@@ -5105,6 +5105,19 @@ ORDER BY c["id"] DESC
         AssertSql();
     }
 
+    public override Task Where_nanosecond_and_microsecond_component(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Where_nanosecond_and_microsecond_component(a);
+
+                AssertSql("""
+SELECT VALUE c
+FROM root c
+WHERE ((c["$type"] = "Order") AND (((DateTimePart("ns", c["OrderDate"]) % 1000) != 0) AND ((DateTimePart("mcs", c["OrderDate"]) % 1000) != 0)))
+""");
+            });
+
     #region ToPageAsync
 
     [ConditionalFact]

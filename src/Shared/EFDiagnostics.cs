@@ -6,7 +6,7 @@ namespace Microsoft.EntityFrameworkCore;
 /// <summary>
 ///     Contains the IDs of diagnostics emitted by EF Core analyzers, [Experimental] and other mechanisms.
 /// </summary>
-public static class EFDiagnostics
+internal static class EFDiagnostics
 {
     public const string InternalUsage = "EF1001";
     public const string InterpolatedStringUsageInRawQueries = "EF1002";

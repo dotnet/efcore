@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-[SqlServerCondition(SqlServerCondition.IsNotSqlAzure)]
+[SqlServerCondition(SqlServerCondition.IsNotAzureSql)]
 public class CustomConvertersSqlServerTest : CustomConvertersTestBase<CustomConvertersSqlServerTest.CustomConvertersSqlServerFixture>
 {
     public CustomConvertersSqlServerTest(CustomConvertersSqlServerFixture fixture)
