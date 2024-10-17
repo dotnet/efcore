@@ -2405,4 +2405,186 @@ WHERE CASE
 END = N'COUNTRY'
 """);
     }
+
+    #region 34618
+
+    public override async Task Ternary_Not_Null_Contains(bool async)
+    {
+        await base.Ternary_Not_Null_Contains(async);
+
+        AssertSql(
+            """
+SELECT TOP(1) CAST([e].[Id] AS nvarchar(max)) + N''
+FROM [Entities] AS [e]
+WHERE CAST([e].[Id] AS nvarchar(max)) + N'' LIKE N'%1%'
+""");
+    }
+
+    public override async Task Ternary_Not_Null_Contains_Non_Numeric_First_Part(bool async)
+    {
+        await base.Ternary_Not_Null_Contains_Non_Numeric_First_Part(async);
+
+        AssertSql("""
+SELECT TOP(1) N'' + CAST([e].[Id] AS nvarchar(max)) + N''
+FROM [Entities] AS [e]
+WHERE N'' + CAST([e].[Id] AS nvarchar(max)) + N'' LIKE N'%1%'
+""");
+    }
+
+    public override async Task Ternary_Not_Null_EndsWith(bool async)
+    {
+        await base.Ternary_Not_Null_EndsWith(async);
+
+        AssertSql(
+            """
+SELECT TOP(1) CAST([e].[Id] AS nvarchar(max)) + N''
+FROM [Entities] AS [e]
+WHERE CAST([e].[Id] AS nvarchar(max)) + N'' LIKE N'%1'
+""");
+    }
+
+    public override async Task Ternary_Not_Null_EndsWith_Non_Numeric_First_Part(bool async)
+    {
+        await base.Ternary_Not_Null_EndsWith_Non_Numeric_First_Part(async);
+
+        AssertSql("""
+SELECT TOP(1) N'' + CAST([e].[Id] AS nvarchar(max)) + N''
+FROM [Entities] AS [e]
+WHERE N'' + CAST([e].[Id] AS nvarchar(max)) + N'' LIKE N'%1'
+""");
+    }
+
+    public override async Task Ternary_Not_Null_Equals(bool async)
+    {
+        await base.Ternary_Not_Null_Equals(async);
+
+        AssertSql("""
+SELECT TOP(1) CAST([e].[Id] AS nvarchar(max)) + N''
+FROM [Entities] AS [e]
+WHERE CAST([e].[Id] AS nvarchar(max)) + N'' = N'1'
+""");
+    }
+
+    public override async Task Ternary_Not_Null_Equals_Non_Numeric_First_Part(bool async)
+    {
+        await base.Ternary_Not_Null_Equals_Non_Numeric_First_Part(async);
+
+        AssertSql("""
+SELECT TOP(1) N'' + CAST([e].[Id] AS nvarchar(max)) + N''
+FROM [Entities] AS [e]
+WHERE N'' + CAST([e].[Id] AS nvarchar(max)) + N'' = N'1'
+""");
+    }
+
+    public override async Task Ternary_Not_Null_StartsWith(bool async)
+    {
+        await base.Ternary_Not_Null_StartsWith(async);
+
+        AssertSql("""
+SELECT TOP(1) CAST([e].[Id] AS nvarchar(max)) + N''
+FROM [Entities] AS [e]
+WHERE CAST([e].[Id] AS nvarchar(max)) + N'' LIKE N'1%'
+""");
+    }
+
+    public override async Task Ternary_Not_Null_StartsWith_Non_Numeric_First_Part(bool async)
+    {
+        await base.Ternary_Not_Null_StartsWith_Non_Numeric_First_Part(async);
+
+        AssertSql("""
+SELECT TOP(1) N'' + CAST([e].[Id] AS nvarchar(max)) + N''
+FROM [Entities] AS [e]
+WHERE N'' + CAST([e].[Id] AS nvarchar(max)) + N'' LIKE N'1%'
+""");
+    }
+
+    public override async Task Ternary_Null_Contains(bool async)
+    {
+        await base.Ternary_Null_Contains(async);
+
+        AssertSql("""
+SELECT TOP(1) CAST([e].[Id] AS nvarchar(max)) + N''
+FROM [Entities] AS [e]
+WHERE CAST([e].[Id] AS nvarchar(max)) + N'' LIKE N'%1%'
+""");
+    }
+
+    public override async Task Ternary_Null_Contains_Non_Numeric_First_Part(bool async)
+    {
+        await base.Ternary_Null_Contains_Non_Numeric_First_Part(async);
+
+        AssertSql("""
+SELECT TOP(1) N'' + CAST([e].[Id] AS nvarchar(max)) + N''
+FROM [Entities] AS [e]
+WHERE N'' + CAST([e].[Id] AS nvarchar(max)) + N'' LIKE N'%1%'
+""");
+    }
+
+    public override async Task Ternary_Null_EndsWith(bool async)
+    {
+        await base.Ternary_Null_EndsWith(async);
+
+        AssertSql("""
+SELECT TOP(1) CAST([e].[Id] AS nvarchar(max)) + N''
+FROM [Entities] AS [e]
+WHERE CAST([e].[Id] AS nvarchar(max)) + N'' LIKE N'%1'
+""");
+    }
+
+    public override async Task Ternary_Null_EndsWith_Non_Numeric_First_Part(bool async)
+    {
+        await base.Ternary_Null_EndsWith_Non_Numeric_First_Part(async);
+
+        AssertSql("""
+SELECT TOP(1) N'' + CAST([e].[Id] AS nvarchar(max)) + N''
+FROM [Entities] AS [e]
+WHERE N'' + CAST([e].[Id] AS nvarchar(max)) + N'' LIKE N'%1'
+""");
+    }
+
+    public override async Task Ternary_Null_Equals(bool async)
+    {
+        await base.Ternary_Null_Equals(async);
+
+        AssertSql("""
+SELECT TOP(1) CAST([e].[Id] AS nvarchar(max)) + N''
+FROM [Entities] AS [e]
+WHERE CAST([e].[Id] AS nvarchar(max)) + N'' = N'1'
+""");
+    }
+
+    public override async Task Ternary_Null_Equals_Non_Numeric_First_Part(bool async)
+    {
+        await base.Ternary_Null_Equals_Non_Numeric_First_Part(async);
+
+        AssertSql("""
+SELECT TOP(1) N'' + CAST([e].[Id] AS nvarchar(max)) + N''
+FROM [Entities] AS [e]
+WHERE N'' + CAST([e].[Id] AS nvarchar(max)) + N'' = N'1'
+""");
+    }
+
+    public override async Task Ternary_Null_StartsWith(bool async)
+    {
+        await base.Ternary_Null_StartsWith(async);
+
+        AssertSql("""
+SELECT TOP(1) CAST([e].[Id] AS nvarchar(max)) + N''
+FROM [Entities] AS [e]
+WHERE CAST([e].[Id] AS nvarchar(max)) + N'' LIKE N'1%'
+""");
+    }
+
+    public override async Task Ternary_Null_StartsWith_Non_Numeric_First_Part(bool async)
+    {
+        await base.Ternary_Null_StartsWith_Non_Numeric_First_Part(async);
+
+        AssertSql("""
+SELECT TOP(1) N'' + CAST([e].[Id] AS nvarchar(max)) + N''
+FROM [Entities] AS [e]
+WHERE N'' + CAST([e].[Id] AS nvarchar(max)) + N'' LIKE N'1%'
+""");
+    }
+
+    #endregion
 }
