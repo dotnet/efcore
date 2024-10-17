@@ -230,7 +230,10 @@ WHERE length("c"."City") = 6
             """
 SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
 FROM "Customers" AS "c"
-WHERE instr("c"."City", 'Sea') - 1 <> -1 OR "c"."City" IS NULL
+WHERE CASE
+    WHEN instr("c"."City", 'Sea') - 1 = -1 THEN 0
+    ELSE 1
+END
 """);
     }
 
