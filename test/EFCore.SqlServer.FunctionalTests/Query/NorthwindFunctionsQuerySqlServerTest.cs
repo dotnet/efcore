@@ -41,7 +41,10 @@ WHERE [o].[OrderDate] = @__myDatetime_0
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE [o].[OrderDate] <> @__myDatetime_0 OR [o].[OrderDate] IS NULL
+WHERE CASE
+    WHEN [o].[OrderDate] = @__myDatetime_0 THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
 """,
             //
             """
@@ -667,7 +670,10 @@ WHERE [c].[CustomerID] >= N'ALFKI' AND [c].[CustomerID] < N'CACTU'
             """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[ContactTitle] = N'Owner' AND ([c].[Country] <> N'USA' OR [c].[Country] IS NULL)
+WHERE [c].[ContactTitle] = N'Owner' AND CASE
+    WHEN [c].[Country] = N'USA' THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
 """);
     }
 
@@ -901,7 +907,10 @@ WHERE [c].[CustomerID] >= N'ALFKI' AND [c].[CustomerID] < N'CACTU'
             """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[ContactTitle] = N'Owner' AND ([c].[Country] <> N'USA' OR [c].[Country] IS NULL)
+WHERE [c].[ContactTitle] = N'Owner' AND CASE
+    WHEN [c].[Country] = N'USA' THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
 """);
     }
 
@@ -923,7 +932,10 @@ WHERE [o].[OrderDate] = @__myDatetime_0
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE [o].[OrderDate] <> @__myDatetime_0 OR [o].[OrderDate] IS NULL
+WHERE CASE
+    WHEN [o].[OrderDate] = @__myDatetime_0 THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
 """,
             //
             """
