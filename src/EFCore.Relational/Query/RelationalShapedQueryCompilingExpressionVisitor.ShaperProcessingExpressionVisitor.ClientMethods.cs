@@ -126,16 +126,17 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             throw new InvalidOperationException(message, exception);
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static TValue ThrowExtractJsonPropertyException<TValue>(Exception exception, IProperty property)
-        {
-            var entityType = property.DeclaringType.DisplayName();
-            var propertyName = property.Name;
-
-            throw new InvalidOperationException(
+        [EntityFrameworkInternal]
+        public static TValue ThrowExtractJsonPropertyException<TValue>(Exception exception, string entityType, string propertyName) => throw new InvalidOperationException(
                 RelationalStrings.JsonErrorExtractingJsonProperty(entityType, propertyName),
                 exception);
-        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
