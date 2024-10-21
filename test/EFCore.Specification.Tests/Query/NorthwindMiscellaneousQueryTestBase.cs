@@ -5858,4 +5858,36 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture>(TFixture fix
             // TODO: this is basically just about translation, we don't have data with nanoseconds and microseconds
             ss => ss.Set<Order>().Where(o => o.OrderDate.Value.Nanosecond != 0 && o.OrderDate.Value.Microsecond != 0),
             assertEmpty: true);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Ternary_Not_Null_Contains(bool async)
+        => AssertFirstOrDefault(
+            async,
+            ss => ss.Set<Order>().OrderBy(x => x.OrderID).Select(x => x != null ? x.OrderID + "" : null),
+            x => x.Contains("1"));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Ternary_Not_Null_endsWith_Non_Numeric_First_Part(bool async)
+        => AssertFirstOrDefault(
+            async,
+            ss => ss.Set<Order>().OrderBy(x => x.OrderID).Select(x => x != null ? "" + x.OrderID + "" : null),
+            x => x.EndsWith("1"));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Ternary_Null_Equals_Non_Numeric_First_Part(bool async)
+    => AssertFirstOrDefault(
+        async,
+        ss => ss.Set<Order>().OrderBy(x => x.OrderID).Select(x => x == null ? null : "" + x.OrderID + ""),
+        x => x == "1");
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Ternary_Null_StartsWith(bool async)
+        => AssertFirstOrDefault(
+            async,
+            ss => ss.Set<Order>().OrderBy(x => x.OrderID).Select(x => x == null ? null : x.OrderID + ""),
+            x => x.StartsWith("1"));
 }

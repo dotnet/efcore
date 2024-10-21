@@ -7464,6 +7464,58 @@ WHERE (DATEPART(nanosecond, [o].[OrderDate]) % 1000 <> 0 OR [o].[OrderDate] IS N
 """);
     }
 
+    public override async Task Ternary_Not_Null_Contains(bool async)
+    {
+        await base.Ternary_Not_Null_Contains(async);
+
+        AssertSql(
+            """
+SELECT TOP(1) CAST([o].[OrderID] AS nvarchar(max)) + N''
+FROM [Orders] AS [o]
+WHERE CAST([o].[OrderID] AS nvarchar(max)) + N'' LIKE N'%1%'
+ORDER BY [o].[OrderID]
+""");
+    }
+
+    public override async Task Ternary_Not_Null_endsWith_Non_Numeric_First_Part(bool async)
+    {
+        await base.Ternary_Not_Null_endsWith_Non_Numeric_First_Part(async);
+
+        AssertSql(
+            """
+SELECT TOP(1) N'' + CAST([o].[OrderID] AS nvarchar(max)) + N''
+FROM [Orders] AS [o]
+WHERE N'' + CAST([o].[OrderID] AS nvarchar(max)) + N'' LIKE N'%1'
+ORDER BY [o].[OrderID]
+""");
+    }
+
+    public override async Task Ternary_Null_Equals_Non_Numeric_First_Part(bool async)
+    {
+        await base.Ternary_Null_Equals_Non_Numeric_First_Part(async);
+
+        AssertSql(
+            """
+SELECT TOP(1) N'' + CAST([o].[OrderID] AS nvarchar(max)) + N''
+FROM [Orders] AS [o]
+WHERE N'' + CAST([o].[OrderID] AS nvarchar(max)) + N'' = N'1'
+ORDER BY [o].[OrderID]
+""");
+    }
+
+    public override async Task Ternary_Null_StartsWith(bool async)
+    {
+        await base.Ternary_Null_StartsWith(async);
+
+        AssertSql(
+            """
+SELECT TOP(1) CAST([o].[OrderID] AS nvarchar(max)) + N''
+FROM [Orders] AS [o]
+WHERE CAST([o].[OrderID] AS nvarchar(max)) + N'' LIKE N'1%'
+ORDER BY [o].[OrderID]
+""");
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
