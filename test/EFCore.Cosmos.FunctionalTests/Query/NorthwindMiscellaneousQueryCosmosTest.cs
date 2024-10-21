@@ -5289,6 +5289,34 @@ WHERE (c["id"] = "ALFKI")
 
     #endregion ToPageAsync
 
+    public override async Task Ternary_Not_Null_Contains(bool async)
+    {
+        await AssertTranslationFailed(() => base.Ternary_Not_Null_Contains(async));
+
+        AssertSql();
+    }
+
+    public override async Task Ternary_Not_Null_endsWith_Non_Numeric_First_Part(bool async)
+    {
+        await AssertTranslationFailed(() => base.Ternary_Not_Null_endsWith_Non_Numeric_First_Part(async));
+
+        AssertSql();
+    }
+
+    public override async Task Ternary_Null_Equals_Non_Numeric_First_Part(bool async)
+    {
+        await AssertTranslationFailed(() => base.Ternary_Null_Equals_Non_Numeric_First_Part(async));
+
+        AssertSql();
+    }
+
+    public override async Task Ternary_Null_StartsWith(bool async)
+    {
+        await AssertTranslationFailed(() => base.Ternary_Null_StartsWith(async));
+
+        AssertSql();
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
