@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal;
 /// </summary>
 public class InMemoryQueryContextFactory : IQueryContextFactory
 {
-    private readonly IInMemoryStore _store;
+    private readonly IInMemoryStoreProvider _storeProvider;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -23,10 +23,9 @@ public class InMemoryQueryContextFactory : IQueryContextFactory
     /// </summary>
     public InMemoryQueryContextFactory(
         QueryContextDependencies dependencies,
-        IInMemoryStoreCache storeCache,
-        IDbContextOptions contextOptions)
+        IInMemoryStoreProvider storeProvider)
     {
-        _store = storeCache.GetStore(contextOptions);
+        _storeProvider = storeProvider;
         Dependencies = dependencies;
     }
 
@@ -42,5 +41,5 @@ public class InMemoryQueryContextFactory : IQueryContextFactory
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual QueryContext Create()
-        => new InMemoryQueryContext(Dependencies, _store);
+        => new InMemoryQueryContext(Dependencies, _storeProvider.Store);
 }
