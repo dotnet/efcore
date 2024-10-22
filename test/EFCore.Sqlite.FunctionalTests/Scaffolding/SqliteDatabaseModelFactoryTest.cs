@@ -150,8 +150,8 @@ CREATE TABLE MountainsColumns (
                 Assert.All(
                     table.Columns, c => Assert.Equal("MountainsColumns", c.Table.Name));
 
-                Assert.Single(table.Columns.Where(c => c.Name == "Id"));
-                Assert.Single(table.Columns.Where(c => c.Name == "Name"));
+                Assert.Single(table.Columns, c => c.Name == "Id");
+                Assert.Single(table.Columns, c => c.Name == "Name");
             },
             "DROP TABLE MountainsColumns;");
 
@@ -175,8 +175,8 @@ SELECT
                 Assert.All(
                     table.Columns, c => Assert.Equal("MountainsColumnsView", c.Table.Name));
 
-                Assert.Single(table.Columns.Where(c => c.Name == "Id"));
-                Assert.Single(table.Columns.Where(c => c.Name == "Name"));
+                Assert.Single(table.Columns, c => c.Name == "Id");
+                Assert.Single(table.Columns, c => c.Name == "Name");
             },
             "DROP VIEW MountainsColumnsView;");
 
@@ -242,8 +242,8 @@ CREATE INDEX IX_INDEX on IndexTable ( IndexProperty );",
                 Assert.All(
                     table.Indexes, c => Assert.Equal("IndexTable", c.Table.Name));
 
-                Assert.Single(table.Indexes.Where(c => c.Name == "IX_NAME"));
-                Assert.Single(table.Indexes.Where(c => c.Name == "IX_INDEX"));
+                Assert.Single(table.Indexes, c => c.Name == "IX_NAME");
+                Assert.Single(table.Indexes, c => c.Name == "IX_INDEX");
             },
             "DROP TABLE IndexTable;");
 
@@ -1372,7 +1372,7 @@ CREATE TABLE DependentTable (
 
                 Assert.Equal(2, foreignKeys.Count);
 
-                var principalFk = Assert.Single(foreignKeys.Where(f => f.PrincipalTable.Name == "PrincipalTable"));
+                var principalFk = Assert.Single(foreignKeys, f => f.PrincipalTable.Name == "PrincipalTable");
 
                 // ReSharper disable once PossibleNullReferenceException
                 Assert.Equal("DependentTable", principalFk.Table.Name);
@@ -1383,7 +1383,7 @@ CREATE TABLE DependentTable (
                     ["Id"], principalFk.PrincipalColumns.Select(ic => ic.Name).ToList());
                 Assert.Equal(ReferentialAction.Cascade, principalFk.OnDelete);
 
-                var anotherPrincipalFk = Assert.Single(foreignKeys.Where(f => f.PrincipalTable.Name == "AnotherPrincipalTable"));
+                var anotherPrincipalFk = Assert.Single(foreignKeys, f => f.PrincipalTable.Name == "AnotherPrincipalTable");
 
                 // ReSharper disable once PossibleNullReferenceException
                 Assert.Equal("DependentTable", anotherPrincipalFk.Table.Name);
@@ -1509,7 +1509,7 @@ DROP TABLE PrincipalTable;");
             new[] { "dbo" },
             dbModel =>
             {
-                var (_, Id, Message, _, _) = Assert.Single(Fixture.ListLoggerFactory.Log.Where(t => t.Level == LogLevel.Warning));
+                var (_, Id, Message, _, _) = Assert.Single(Fixture.ListLoggerFactory.Log, t => t.Level == LogLevel.Warning);
 
                 Assert.Equal(SqliteResources.LogUsingSchemaSelectionsWarning(new TestLogger<SqliteLoggingDefinitions>()).EventId, Id);
                 Assert.Equal(
@@ -1528,7 +1528,7 @@ DROP TABLE PrincipalTable;");
             {
                 Assert.Empty(dbModel.Tables);
 
-                var (Level, Id, Message, _, _) = Assert.Single(Fixture.ListLoggerFactory.Log.Where(t => t.Level == LogLevel.Warning));
+                var (Level, Id, Message, _, _) = Assert.Single(Fixture.ListLoggerFactory.Log, t => t.Level == LogLevel.Warning);
 
                 Assert.Equal(SqliteResources.LogMissingTable(new TestLogger<SqliteLoggingDefinitions>()).EventId, Id);
                 Assert.Equal(
@@ -1553,7 +1553,7 @@ CREATE TABLE DependentTable (
             Enumerable.Empty<string>(),
             dbModel =>
             {
-                var (_, Id, Message, _, _) = Assert.Single(Fixture.ListLoggerFactory.Log.Where(t => t.Level == LogLevel.Warning));
+                var (_, Id, Message, _, _) = Assert.Single(Fixture.ListLoggerFactory.Log, t => t.Level == LogLevel.Warning);
 
                 Assert.Equal(
                     SqliteResources.LogForeignKeyScaffoldErrorPrincipalTableNotFound(new TestLogger<SqliteLoggingDefinitions>())
@@ -1583,7 +1583,7 @@ CREATE TABLE DependentTable (
             Enumerable.Empty<string>(),
             dbModel =>
             {
-                var (_, Id, Message, _, _) = Assert.Single(Fixture.ListLoggerFactory.Log.Where(t => t.Level == LogLevel.Warning));
+                var (_, Id, Message, _, _) = Assert.Single(Fixture.ListLoggerFactory.Log, t => t.Level == LogLevel.Warning);
 
                 Assert.Equal(SqliteResources.LogPrincipalColumnNotFound(new TestLogger<SqliteLoggingDefinitions>()).EventId, Id);
                 Assert.Equal(

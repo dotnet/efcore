@@ -254,17 +254,17 @@ N'{"Collection":[{"Bar":21,"Foo":"c21"},{"Bar":22,"Foo":"c22"}]}',
 
         var testLogger = new TestLogger<SqlServerLoggingDefinitions>();
         Assert.Single(
-            ListLoggerFactory.Log.Where(
-                l => l.Message == CoreResources.LogStringEnumValueInJson(testLogger).GenerateMessage(nameof(ByteEnumLegacyValues))));
+            ListLoggerFactory.Log,
+            l => l.Message == CoreResources.LogStringEnumValueInJson(testLogger).GenerateMessage(nameof(ByteEnumLegacyValues)));
         Assert.Single(
-            ListLoggerFactory.Log.Where(
-                l => l.Message == CoreResources.LogStringEnumValueInJson(testLogger).GenerateMessage(nameof(IntEnumLegacyValues))));
+            ListLoggerFactory.Log,
+            l => l.Message == CoreResources.LogStringEnumValueInJson(testLogger).GenerateMessage(nameof(IntEnumLegacyValues)));
         Assert.Single(
-            ListLoggerFactory.Log.Where(
-                l => l.Message == CoreResources.LogStringEnumValueInJson(testLogger).GenerateMessage(nameof(LongEnumLegacyValues))));
+            ListLoggerFactory.Log,
+            l => l.Message == CoreResources.LogStringEnumValueInJson(testLogger).GenerateMessage(nameof(LongEnumLegacyValues)));
         Assert.Single(
-            ListLoggerFactory.Log.Where(
-                l => l.Message == CoreResources.LogStringEnumValueInJson(testLogger).GenerateMessage(nameof(ULongEnumLegacyValues))));
+            ListLoggerFactory.Log,
+            l => l.Message == CoreResources.LogStringEnumValueInJson(testLogger).GenerateMessage(nameof(ULongEnumLegacyValues)));
     }
 
     [ConditionalTheory]
@@ -301,17 +301,17 @@ N'{"Collection":[{"Bar":21,"Foo":"c21"},{"Bar":22,"Foo":"c22"}]}',
 
         var testLogger = new TestLogger<SqlServerLoggingDefinitions>();
         Assert.Single(
-            ListLoggerFactory.Log.Where(
-                l => l.Message == CoreResources.LogStringEnumValueInJson(testLogger).GenerateMessage(nameof(ByteEnumLegacyValues))));
+            ListLoggerFactory.Log,
+            l => l.Message == CoreResources.LogStringEnumValueInJson(testLogger).GenerateMessage(nameof(ByteEnumLegacyValues)));
         Assert.Single(
-            ListLoggerFactory.Log.Where(
-                l => l.Message == CoreResources.LogStringEnumValueInJson(testLogger).GenerateMessage(nameof(IntEnumLegacyValues))));
+            ListLoggerFactory.Log,
+            l => l.Message == CoreResources.LogStringEnumValueInJson(testLogger).GenerateMessage(nameof(IntEnumLegacyValues)));
         Assert.Single(
-            ListLoggerFactory.Log.Where(
-                l => l.Message == CoreResources.LogStringEnumValueInJson(testLogger).GenerateMessage(nameof(LongEnumLegacyValues))));
+            ListLoggerFactory.Log,
+            l => l.Message == CoreResources.LogStringEnumValueInJson(testLogger).GenerateMessage(nameof(LongEnumLegacyValues)));
         Assert.Single(
-            ListLoggerFactory.Log.Where(
-                l => l.Message == CoreResources.LogStringEnumValueInJson(testLogger).GenerateMessage(nameof(ULongEnumLegacyValues))));
+            ListLoggerFactory.Log,
+            l => l.Message == CoreResources.LogStringEnumValueInJson(testLogger).GenerateMessage(nameof(ULongEnumLegacyValues)));
     }
 
     private Task SeedEnumLegacyValues(DbContext ctx)

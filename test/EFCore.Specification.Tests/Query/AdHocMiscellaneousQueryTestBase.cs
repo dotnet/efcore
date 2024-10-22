@@ -711,9 +711,9 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
         var query = context.Carts.Select(
             t => new { Processing = t.Configuration != null ? !t.Configuration.Processed : (bool?)null }).ToList();
 
-        Assert.Single(query.Where(t => t.Processing == null));
-        Assert.Single(query.Where(t => t.Processing == true));
-        Assert.Single(query.Where(t => t.Processing == false));
+        Assert.Single(query, t => t.Processing == null);
+        Assert.Single(query, t => t.Processing == true);
+        Assert.Single(query, t => t.Processing == false);
     }
 
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.

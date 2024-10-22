@@ -561,7 +561,7 @@ public abstract class AdHocQueryFiltersQueryTestBase : NonSharedModelTestBase
             : query.ToList();
 
         Assert.Equal(4, suppliers.Count);
-        Assert.Single(suppliers.Where(e => e.Location != null));
+        Assert.Single(suppliers, e => e.Location != null);
     }
 
     protected class Context26428(DbContextOptions options) : DbContext(options)
