@@ -91,9 +91,35 @@ WHERE [c].[ContactName] LIKE N'M%'
 """);
     }
 
+    public override async Task String_StartsWith_Literal_Char(bool async)
+    {
+        await base.String_StartsWith_Literal_Char(async);
+
+        AssertSql(
+            """
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[ContactName] LIKE N'M%'
+""");
+    }
+
     public override async Task String_StartsWith_Parameter(bool async)
     {
         await base.String_StartsWith_Parameter(async);
+
+        AssertSql(
+            """
+@__pattern_0_startswith='M%' (Size = 30)
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[ContactName] LIKE @__pattern_0_startswith ESCAPE N'\'
+""");
+    }
+
+    public override async Task String_StartsWith_Parameter_Char(bool async)
+    {
+        await base.String_StartsWith_Parameter_Char(async);
 
         AssertSql(
             """
@@ -178,9 +204,35 @@ WHERE [c].[ContactName] LIKE N'%b'
 """);
     }
 
+    public override async Task String_EndsWith_Literal_Char(bool async)
+    {
+        await base.String_EndsWith_Literal_Char(async);
+
+        AssertSql(
+            """
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[ContactName] LIKE N'%b'
+""");
+    }
+
     public override async Task String_EndsWith_Parameter(bool async)
     {
         await base.String_EndsWith_Parameter(async);
+
+        AssertSql(
+            """
+@__pattern_0_endswith='%b' (Size = 30)
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[ContactName] LIKE @__pattern_0_endswith ESCAPE N'\'
+""");
+    }
+
+    public override async Task String_EndsWith_Parameter_Char(bool async)
+    {
+        await base.String_EndsWith_Parameter_Char(async);
 
         AssertSql(
             """
@@ -251,12 +303,29 @@ WHERE [c].[ContactName] LIKE N'%m'
 
     #endregion String.EndsWith
 
+    #region String.Contains
+
     public override async Task String_Contains_Literal(bool async)
     {
         await AssertQuery(
             async,
             ss => ss.Set<Customer>().Where(c => c.ContactName.Contains("M")), // case-insensitive
             ss => ss.Set<Customer>().Where(c => c.ContactName.Contains("M") || c.ContactName.Contains("m"))); // case-sensitive
+
+        AssertSql(
+            """
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[ContactName] LIKE N'%M%'
+""");
+    }
+
+    public override async Task String_Contains_Literal_Char(bool async)
+    {
+        await AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.ContactName.Contains('M')), // case-insensitive
+            ss => ss.Set<Customer>().Where(c => c.ContactName.Contains('M') || c.ContactName.Contains('m'))); // case-sensitive
 
         AssertSql(
             """
@@ -315,6 +384,8 @@ FROM [Customers] AS [c]
 WHERE [c].[ContactName] LIKE @__pattern_0_contains ESCAPE N'\'
 """);
     }
+
+    #endregion
 
     public override async Task String_FirstOrDefault_MethodCall(bool async)
     {
@@ -2329,6 +2400,18 @@ END = 0
 """);
     }
 
+    public override async Task Indexof_with_one_constant_arg_char(bool async)
+    {
+        await base.Indexof_with_one_constant_arg_char(async);
+
+        AssertSql(
+            """
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE CHARINDEX('a', [c].[ContactName]) - 1 = 1
+""");
+    }
+
     public override async Task Indexof_with_one_constant_arg(bool async)
     {
         await base.Indexof_with_one_constant_arg(async);
@@ -2358,6 +2441,35 @@ END = 1
 """);
     }
 
+    public override async Task Indexof_with_one_parameter_arg_char(bool async)
+    {
+        await base.Indexof_with_one_parameter_arg_char(async);
+
+        AssertSql(
+            """
+@__pattern_0='a' (Size = 1) (DbType = String)
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE CHARINDEX(@__pattern_0, [c].[ContactName]) - CASE
+    WHEN @__pattern_0 = N'' THEN 0
+    ELSE 1
+END = 1
+""");
+    }
+
+    public override async Task Indexof_with_constant_starting_position_char(bool async)
+    {
+        await base.Indexof_with_constant_starting_position_char(async);
+
+        AssertSql(
+            """
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE CHARINDEX('a', [c].[ContactName], 3) - 1 = 4
+""");
+    }
+
     public override async Task Indexof_with_constant_starting_position(bool async)
     {
         await base.Indexof_with_constant_starting_position(async);
@@ -2381,6 +2493,18 @@ WHERE CHARINDEX(N'a', [c].[ContactName], 3) - 1 = 4
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE CHARINDEX(N'a', [c].[ContactName], @__start_0 + 1) - 1 = 4
+""");
+    }
+
+    public override async Task Replace_with_char(bool async)
+    {
+        await base.Replace_with_char(async);
+
+        AssertSql(
+            """
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE REPLACE([c].[ContactName], 'i', 'y') = N'Marya Anders'
 """);
     }
 

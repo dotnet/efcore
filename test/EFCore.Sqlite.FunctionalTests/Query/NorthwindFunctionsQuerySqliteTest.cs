@@ -708,9 +708,35 @@ WHERE "c"."ContactName" LIKE 'M%'
 """);
     }
 
+    public override async Task String_StartsWith_Literal_Char(bool async)
+    {
+        await base.String_StartsWith_Literal_Char(async);
+
+        AssertSql(
+            """
+SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
+FROM "Customers" AS "c"
+WHERE "c"."ContactName" LIKE 'M%'
+""");
+    }
+
     public override async Task String_StartsWith_Parameter(bool async)
     {
         await base.String_StartsWith_Parameter(async);
+
+        AssertSql(
+            """
+@__pattern_0_startswith='M%' (Size = 2)
+
+SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
+FROM "Customers" AS "c"
+WHERE "c"."ContactName" LIKE @__pattern_0_startswith ESCAPE '\'
+""");
+    }
+
+    public override async Task String_StartsWith_Parameter_Char(bool async)
+    {
+        await base.String_StartsWith_Parameter_Char(async);
 
         AssertSql(
             """
@@ -770,9 +796,35 @@ WHERE "c"."ContactName" LIKE '%b'
 """);
     }
 
+    public override async Task String_EndsWith_Literal_Char(bool async)
+    {
+        await base.String_EndsWith_Literal_Char(async);
+
+        AssertSql(
+            """
+SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
+FROM "Customers" AS "c"
+WHERE "c"."ContactName" LIKE '%b'
+""");
+    }
+
     public override async Task String_EndsWith_Parameter(bool async)
     {
         await base.String_EndsWith_Parameter(async);
+
+        AssertSql(
+            """
+@__pattern_0_endswith='%b' (Size = 2)
+
+SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
+FROM "Customers" AS "c"
+WHERE "c"."ContactName" LIKE @__pattern_0_endswith ESCAPE '\'
+""");
+    }
+
+    public override async Task String_EndsWith_Parameter_Char(bool async)
+    {
+        await base.String_EndsWith_Parameter_Char(async);
 
         AssertSql(
             """
@@ -823,6 +875,18 @@ WHERE "c"."ContactName" LIKE '%m'
     public override async Task String_Contains_Literal(bool async)
     {
         await base.String_Contains_Literal(async);
+
+        AssertSql(
+            """
+SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
+FROM "Customers" AS "c"
+WHERE instr("c"."ContactName", 'M') > 0
+""");
+    }
+
+    public override async Task String_Contains_Literal_Char(bool async)
+    {
+        await base.String_Contains_Literal_Char(async);
 
         AssertSql(
             """
@@ -1054,11 +1118,43 @@ WHERE instr("c"."ContactName", @__pattern_0) - 1 = 1
 """);
     }
 
-    public override Task Indexof_with_constant_starting_position(bool async)
-        => AssertTranslationFailed(() => base.Indexof_with_constant_starting_position(async));
+    public override async Task Indexof_with_constant_starting_position(bool async)
+    {
+        await base.Indexof_with_constant_starting_position(async);
 
-    public override Task Indexof_with_parameter_starting_position(bool async)
-        => AssertTranslationFailed(() => base.Indexof_with_parameter_starting_position(async));
+        AssertSql(
+            """
+SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
+FROM "Customers" AS "c"
+WHERE (instr(substr("c"."ContactName", 2 + 1), 'a') - 1) + 2 = 4
+""");
+    }
+
+    public override async Task Indexof_with_constant_starting_position_char(bool async)
+    {
+        await base.Indexof_with_constant_starting_position_char(async);
+
+        AssertSql(
+            """
+SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
+FROM "Customers" AS "c"
+WHERE (instr(substr("c"."ContactName", 2 + 1), 'a') - 1) + 2 = 4
+""");
+    }
+
+    public override async Task Indexof_with_parameter_starting_position(bool async)
+    {
+        await base.Indexof_with_parameter_starting_position(async);
+
+        AssertSql(
+            """
+@__start_0='2'
+
+SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
+FROM "Customers" AS "c"
+WHERE (instr(substr("c"."ContactName", @__start_0 + 1), 'a') - 1) + @__start_0 = 4
+""");
+    }
 
     public override async Task Replace_with_emptystring(bool async)
     {

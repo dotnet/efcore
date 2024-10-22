@@ -40,9 +40,27 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture>(TFixture fixture
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task String_StartsWith_Literal_Char(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.ContactName.StartsWith('M')));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task String_StartsWith_Parameter(bool async)
     {
         var pattern = "M";
+
+        return AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.ContactName.StartsWith(pattern)));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task String_StartsWith_Parameter_Char(bool async)
+    {
+        var pattern = 'M';
 
         return AssertQuery(
             async,
@@ -126,9 +144,27 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture>(TFixture fixture
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task String_EndsWith_Literal_Char(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.ContactName.EndsWith('b')));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task String_EndsWith_Parameter(bool async)
     {
         var pattern = "b";
+
+        return AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.ContactName.EndsWith(pattern)));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task String_EndsWith_Parameter_Char(bool async)
+    {
+        var pattern = 'b';
 
         return AssertQuery(
             async,
@@ -210,6 +246,13 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture>(TFixture fixture
         => AssertQuery(
             async,
             ss => ss.Set<Customer>().Where(c => c.ContactName.Contains("M")));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task String_Contains_Literal_Char(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.ContactName.Contains('M')));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1704,6 +1747,13 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture>(TFixture fixture
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task Indexof_with_one_constant_arg_char(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.ContactName.IndexOf('a') == 1));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task Indexof_with_one_parameter_arg(bool async)
     {
         var pattern = "a";
@@ -1712,6 +1762,24 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture>(TFixture fixture
             async,
             ss => ss.Set<Customer>().Where(c => c.ContactName.IndexOf(pattern) == 1));
     }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Indexof_with_one_parameter_arg_char(bool async)
+    {
+        var pattern = 'a';
+
+        return AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.ContactName.IndexOf(pattern) == 1));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Indexof_with_constant_starting_position_char(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.ContactName.IndexOf('a', 2) == 4));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1730,6 +1798,13 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture>(TFixture fixture
             async,
             ss => ss.Set<Customer>().Where(c => c.ContactName.IndexOf("a", start) == 4));
     }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Replace_with_char(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.ContactName.Replace('i', 'y') == "Marya Anders"));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
