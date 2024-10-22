@@ -5359,7 +5359,7 @@ CREATE TABLE DependentTable (
 
                 Assert.Equal(2, foreignKeys.Count);
 
-                var principalFk = Assert.Single(foreignKeys.Where(f => f.PrincipalTable.Name == "PrincipalTable"));
+                var principalFk = Assert.Single(foreignKeys, f => f.PrincipalTable.Name == "PrincipalTable");
 
                 // ReSharper disable once PossibleNullReferenceException
                 Assert.Equal("dbo", principalFk.Table.Schema);
@@ -5370,7 +5370,7 @@ CREATE TABLE DependentTable (
                 Assert.Equal(["Id"], principalFk.PrincipalColumns.Select(ic => ic.Name).ToList());
                 Assert.Equal(ReferentialAction.Cascade, principalFk.OnDelete);
 
-                var anotherPrincipalFk = Assert.Single(foreignKeys.Where(f => f.PrincipalTable.Name == "AnotherPrincipalTable"));
+                var anotherPrincipalFk = Assert.Single(foreignKeys, f => f.PrincipalTable.Name == "AnotherPrincipalTable");
 
                 // ReSharper disable once PossibleNullReferenceException
                 Assert.Equal("dbo", anotherPrincipalFk.Table.Schema);
