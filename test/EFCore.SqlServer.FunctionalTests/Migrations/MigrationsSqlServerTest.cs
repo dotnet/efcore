@@ -10692,8 +10692,8 @@ EXEC(N'ALTER TABLE [NewCustomers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [
             },
             model =>
             {
-                var customersTable = Assert.Single(model.Tables.Where(t => t.Name == "Customers"));
-                var historyTable = Assert.Single(model.Tables.Where(t => t.Name == "HistoryTable"));
+                var customersTable = Assert.Single(model.Tables, t => t.Name == "Customers");
+                var historyTable = Assert.Single(model.Tables, t => t.Name == "HistoryTable");
 
                 Assert.Collection(
                     customersTable.Columns,
