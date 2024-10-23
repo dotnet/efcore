@@ -174,6 +174,18 @@ public class CosmosSqlTranslatingExpressionVisitor(
         var visitedLeft = Visit(left);
         var visitedRight = Visit(right);
 
+        if (binaryExpression.Method == ConcatMethodInfo)
+        {
+            if (left is UnaryExpression { NodeType: ExpressionType.Convert })
+            {
+                visitedLeft = sqlExpressionFactory.Function("ToString", [visitedLeft], typeof(string));
+            }
+            if (right is UnaryExpression { NodeType: ExpressionType.Convert })
+            {
+                visitedRight = sqlExpressionFactory.Function("ToString", [visitedRight], typeof(string));
+            }
+        }
+
         switch (binaryExpression)
         {
             // Visited expression could be null, We need to pass MemberInitExpression
@@ -185,10 +197,6 @@ public class CosmosSqlTranslatingExpressionVisitor(
                     equalsMethod: false,
                     out var result):
                 return result;
-
-            case { Method: var method } when method == ConcatMethodInfo:
-                return QueryCompilationContext.NotTranslatedExpression;
-
             default:
                 var uncheckedNodeTypeVariant = binaryExpression.NodeType switch
                 {

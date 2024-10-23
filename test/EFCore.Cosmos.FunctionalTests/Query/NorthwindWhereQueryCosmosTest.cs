@@ -1922,38 +1922,68 @@ WHERE (c["Fax"] = null)
                 AssertSql("ReadItem(None, ALFKI)");
             });
 
-    public override async Task Where_concat_string_int_comparison1(bool async)
-    {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Where_concat_string_int_comparison1(async));
+    public override Task Where_concat_string_int_comparison1(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Where_concat_string_int_comparison1(a);
 
-        AssertSql();
-    }
+                AssertSql(
+                    """
+@__i_0='10'
 
-    public override async Task Where_concat_string_int_comparison2(bool async)
-    {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Where_concat_string_int_comparison2(async));
+SELECT VALUE c["id"]
+FROM root c
+WHERE ((c["id"] || ToString(@__i_0)) = c["CompanyName"])
+""");
+            });
 
-        AssertSql();
-    }
+    public override Task Where_concat_string_int_comparison2(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Where_concat_string_int_comparison2(a);
 
-    public override async Task Where_concat_string_int_comparison3(bool async)
-    {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Where_concat_string_int_comparison3(async));
+                AssertSql(
+                    """
+@__i_0='10'
 
-        AssertSql();
-    }
+SELECT VALUE c["id"]
+FROM root c
+WHERE ((ToString(@__i_0) || c["id"]) = c["CompanyName"])
+""");
+            });
 
-    public override async Task Where_concat_string_int_comparison4(bool async)
-    {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Where_concat_string_int_comparison4(async));
+    public override Task Where_concat_string_int_comparison3(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Where_concat_string_int_comparison3(a);
 
-        AssertSql(
-        );
-    }
+                AssertSql(
+                    """
+@__p_0='30'
+@__j_1='21'
+
+SELECT VALUE c["id"]
+FROM root c
+WHERE ((((ToString(@__p_0) || c["id"]) || ToString(@__j_1)) || ToString(42)) = c["CompanyName"])
+""");
+            });
+
+    public override Task Where_concat_string_int_comparison4(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Where_concat_string_int_comparison4(a);
+
+                AssertSql(
+                    """
+SELECT VALUE c["CustomerID"]
+FROM root c
+WHERE ((c["$type"] = "Order") AND ((ToString(c["OrderID"]) || c["CustomerID"]) = c["CustomerID"]))
+""");
+            });
 
     public override Task Where_string_concat_method_comparison(bool async)
         => Fixture.NoSyncTest(
@@ -2344,13 +2374,21 @@ WHERE ((c["$type"] = "Product") AND (true ? false : true))
         AssertSql();
     }
 
-    public override async Task Using_same_parameter_twice_in_query_generates_one_sql_parameter(bool async)
-    {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Using_same_parameter_twice_in_query_generates_one_sql_parameter(async));
+    public override Task Using_same_parameter_twice_in_query_generates_one_sql_parameter(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Using_same_parameter_twice_in_query_generates_one_sql_parameter(a);
 
-        AssertSql();
-    }
+                AssertSql(
+                    """
+@__i_0='10'
+
+SELECT VALUE c["id"]
+FROM root c
+WHERE (((ToString(@__i_0) || c["id"]) || ToString(@__i_0)) = "10ALFKI10")
+""");
+            });
 
     public override async Task Where_Queryable_ToList_Count(bool async)
     {
