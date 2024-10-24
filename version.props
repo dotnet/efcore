@@ -1,9 +1,9 @@
 ﻿<Project>
   <PropertyGroup>
     <MajorVersion>2</MajorVersion>
-    <MinorVersion>1</MinorVersion>
-    <PatchVersion>39</PatchVersion>
-    <PreReleaseLabel>servicing</PreReleaseLabel>
+    <MinorVersion>3</MinorVersion>
+    <PatchVersion>0</PatchVersion>
+    <PreReleaseLabel>rtm</PreReleaseLabel>
     <OfficialBuildId Condition="'$(OfficialBuildId)' == ''">$(BUILD_BUILDNUMBER)</OfficialBuildId>
   </PropertyGroup>
 
@@ -45,7 +45,7 @@
     <PackageVersion>$(VersionPrefix)</PackageVersion>
     <PackageVersion Condition=" '$(IncludePreReleaseLabelInPackageVersion)' == 'true' ">$(VersionPrefix)-$(VersionSuffix)</PackageVersion>
 
-    <ExperimentalVersionPrefix>0.1.$(PatchVersion)</ExperimentalVersionPrefix>
+    <ExperimentalVersionPrefix>0.3.$(PatchVersion)</ExperimentalVersionPrefix>
     <ExperimentalPackageVersion>$(ExperimentalVersionPrefix)</ExperimentalPackageVersion>
     <ExperimentalPackageVersion Condition=" '$(IncludePreReleaseLabelInPackageVersion)' == 'true' ">$(ExperimentalVersionPrefix)-$(VersionSuffix)</ExperimentalPackageVersion>
   </PropertyGroup>
