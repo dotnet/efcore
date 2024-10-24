@@ -143,7 +143,7 @@ public static class RelationalEntityTypeExtensions
         var schemaAnnotation = entityType.FindAnnotation(RelationalAnnotationNames.Schema);
         if (schemaAnnotation != null)
         {
-            return (string?)schemaAnnotation.Value ?? GetDefaultSchema(entityType);
+            return (string?)schemaAnnotation.Value ?? entityType.Model.GetDefaultSchema();
         }
 
         return entityType.BaseType != null && entityType.BaseType.GetTableName() != null
