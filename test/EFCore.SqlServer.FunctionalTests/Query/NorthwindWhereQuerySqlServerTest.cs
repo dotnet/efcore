@@ -2125,18 +2125,18 @@ WHERE CAST([o].[OrderID] AS nvarchar(max)) LIKE N'%20%'
 """);
     }
 
-    [ConditionalTheory(Skip = "issue #31917")]
+    [ConditionalTheory]
     public override async Task Using_same_parameter_twice_in_query_generates_one_sql_parameter(bool async)
     {
         await base.Using_same_parameter_twice_in_query_generates_one_sql_parameter(async);
 
         AssertSql(
-            """
+"""
 @__i_0='10'
 
 SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
-WHERE CAST(@__i_0 AS nchar(5)) + [c].[CustomerID] + CAST(@__i_0 AS nchar(5)) = N'10ALFKI10'
+WHERE CAST(@__i_0 AS nvarchar(max)) + [c].[CustomerID] + CAST(@__i_0 AS nvarchar(max)) = N'10ALFKI10'
 """);
     }
 
