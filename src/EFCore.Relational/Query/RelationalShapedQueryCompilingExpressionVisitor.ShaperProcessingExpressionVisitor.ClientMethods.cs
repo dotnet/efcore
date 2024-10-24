@@ -1096,6 +1096,20 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 return;
             }
 
+            var manager = new Utf8JsonReaderManager(jsonReaderData, queryContext.QueryLogger);
+            var tokenType = manager.CurrentReader.TokenType;
+
+            if (tokenType == JsonTokenType.Null)
+            {
+                return;
+            }
+
+            if (tokenType != JsonTokenType.StartObject)
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.JsonReaderInvalidTokenType(tokenType.ToString()));
+            }
+
             var included = innerShaper(queryContext, keyPropertyValues, jsonReaderData);
 
             if (!trackingQuery)
@@ -1130,6 +1144,11 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
             var manager = new Utf8JsonReaderManager(jsonReaderData, queryContext.QueryLogger);
             var tokenType = manager.CurrentReader.TokenType;
+
+            if (tokenType == JsonTokenType.Null)
+            {
+                return;
+            }
 
             if (tokenType != JsonTokenType.StartArray)
             {

@@ -97,6 +97,21 @@ INSERT INTO [Reviews] ([Rounds], [Id])
 VALUES(N'[{"RoundNumber":11,"SubRounds":[{"SubRoundNumber":111},{"SubRoundNumber":112}]}]', 1)
 """);
 
+    protected override async Task Seed34960(Context34960 ctx)
+    {
+        await base.Seed34960(ctx);
+
+        // JSON nulls
+        await ctx.Database.ExecuteSqlAsync(
+            $$"""
+INSERT INTO [Entities] ([Collection], [Reference], [Id])
+VALUES(
+N'null',
+N'null',
+4)
+""");
+    }
+
     protected override Task SeedArrayOfPrimitives(DbContext ctx)
     {
         var entity1 = new MyEntityArrayOfPrimitives
