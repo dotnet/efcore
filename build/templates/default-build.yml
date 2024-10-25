@@ -70,10 +70,10 @@ jobs:
       name: ${{ parameters.poolName }}
     ${{ if and(eq(parameters.poolName, ''), eq(parameters.agentOs, 'macOS')) }}:
       ${{ if eq(variables['System.TeamProject'], 'public') }}:
-        vmImage: macOS-11
+        vmImage: macOS-13
       ${{ if ne(variables['System.TeamProject'], 'public') }}:
         name: Azure Pipelines
-        image: macOS-11
+        image: macOS-13
         os: macOS
     ${{ if and(eq(parameters.poolName, ''), eq(parameters.agentOs, 'Linux')) }}:
       ${{ if eq(variables['System.TeamProject'], 'public') }}:
