@@ -1306,7 +1306,6 @@ public abstract class NorthwindWhereQueryTestBase<TFixture>(TFixture fixture) : 
             ss => ss.Set<Customer>().Where(lambda));
     }
 
-    //see issue #31917
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Where_concat_string_int_comparison1(bool async)
@@ -1319,7 +1318,6 @@ public abstract class NorthwindWhereQueryTestBase<TFixture>(TFixture fixture) : 
             assertEmpty: true);
     }
 
-    //see issue #31917
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Where_concat_string_int_comparison2(bool async)
@@ -1332,7 +1330,6 @@ public abstract class NorthwindWhereQueryTestBase<TFixture>(TFixture fixture) : 
             assertEmpty: true);
     }
 
-    //see issue #31917
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Where_concat_string_int_comparison3(bool async)
@@ -1346,7 +1343,6 @@ public abstract class NorthwindWhereQueryTestBase<TFixture>(TFixture fixture) : 
             assertEmpty: true);
     }
 
-    //see issue #31917
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Where_concat_string_int_comparison4(bool async)
