@@ -563,6 +563,20 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Sql
     /// </summary>
     protected override Expression VisitSqlUnary(SqlUnaryExpression sqlUnaryExpression)
     {
+        if (sqlUnaryExpression.OperatorType == ExpressionType.Convert)
+        {
+            if (sqlUnaryExpression.TypeMapping?.ClrType == typeof(string))
+            {
+                _sqlBuilder.Append("ToString(");
+                Visit(sqlUnaryExpression.Operand);
+                _sqlBuilder.Append(")");
+            }
+            else
+            {
+                Visit(sqlUnaryExpression.Operand);
+            }
+            return sqlUnaryExpression;
+        }
         var op = sqlUnaryExpression.OperatorType switch
         {
             ExpressionType.UnaryPlus => "+",

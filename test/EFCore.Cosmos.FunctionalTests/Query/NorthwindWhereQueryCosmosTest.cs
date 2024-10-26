@@ -26,6 +26,17 @@ public class NorthwindWhereQueryCosmosTest : NorthwindWhereQueryTestBase<Northwi
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task Equality_operator_int_to_long(bool async)
+    {
+        long arg = 10248;
+
+        return AssertQuery(
+            async,
+            ss => ss.Set<Order>().Where(o => o.OrderID == arg));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task Where_add(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -603,21 +614,53 @@ WHERE (c["City"] = @__city_0)
 """);
             });
 
-    public override async Task Where_method_call_nullable_type_closure_via_query_cache(bool async)
-    {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Where_method_call_nullable_type_closure_via_query_cache(async));
+    public override Task Where_method_call_nullable_type_closure_via_query_cache(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Where_method_call_nullable_type_closure_via_query_cache(a);
 
-        AssertSql();
-    }
+                AssertSql(
+                    """
+@__p_0='2'
 
-    public override async Task Where_method_call_nullable_type_reverse_closure_via_query_cache(bool async)
-    {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Where_method_call_nullable_type_reverse_closure_via_query_cache(async));
+SELECT VALUE c
+FROM root c
+WHERE (c["ReportsTo"] = @__p_0)
+""",
+                    //
+                    """
+@__p_0='5'
 
-        AssertSql();
-    }
+SELECT VALUE c
+FROM root c
+WHERE (c["ReportsTo"] = @__p_0)
+""");
+            });
+
+    public override Task Where_method_call_nullable_type_reverse_closure_via_query_cache(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Where_method_call_nullable_type_reverse_closure_via_query_cache(a);
+
+                AssertSql(
+                    """
+@__p_0='1'
+
+SELECT VALUE c
+FROM root c
+WHERE (c["EmployeeID"] > @__p_0)
+""",
+                    //
+                    """
+@__p_0='5'
+
+SELECT VALUE c
+FROM root c
+WHERE (c["EmployeeID"] > @__p_0)
+""");
+            });
 
     public override Task Where_method_call_closure_via_query_cache(bool async)
         => Fixture.NoSyncTest(
@@ -835,21 +878,69 @@ WHERE (c["City"] = @__InstanceFieldValue_0)
 """);
             });
 
-    public override async Task Where_simple_closure_via_query_cache_nullable_type(bool async)
-    {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Where_simple_closure_via_query_cache_nullable_type(async));
+    public override Task Where_simple_closure_via_query_cache_nullable_type(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Where_simple_closure_via_query_cache_nullable_type(a);
 
-        AssertSql();
-    }
+                AssertSql(
+                    """
+@__p_0='2'
 
-    public override async Task Where_simple_closure_via_query_cache_nullable_type_reverse(bool async)
-    {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Where_simple_closure_via_query_cache_nullable_type_reverse(async));
+SELECT VALUE c
+FROM root c
+WHERE (c["ReportsTo"] = @__p_0)
+""",
+                    //
+                    """
+@__p_0='5'
 
-        AssertSql();
-    }
+SELECT VALUE c
+FROM root c
+WHERE (c["ReportsTo"] = @__p_0)
+""",
+                    //
+                    """
+@__p_0=null
+
+SELECT VALUE c
+FROM root c
+WHERE (c["ReportsTo"] = @__p_0)
+""");
+            });
+
+    public override Task Where_simple_closure_via_query_cache_nullable_type_reverse(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Where_simple_closure_via_query_cache_nullable_type_reverse(a);
+
+                AssertSql(
+                    """
+@__p_0=null
+
+SELECT VALUE c
+FROM root c
+WHERE (c["ReportsTo"] = @__p_0)
+""",
+                    //
+                    """
+@__p_0='5'
+
+SELECT VALUE c
+FROM root c
+WHERE (c["ReportsTo"] = @__p_0)
+""",
+                    //
+                    """
+@__p_0='2'
+
+SELECT VALUE c
+FROM root c
+WHERE (c["ReportsTo"] = @__p_0)
+""");
+            });
 
     [ConditionalTheory(Skip = "Always uses sync code.")]
     public override Task Where_subquery_closure_via_query_cache(bool async)
@@ -1386,13 +1477,19 @@ WHERE ((c["$type"] = "Order") AND (DateTimePart("ms", c["OrderDate"]) = 0))
         AssertSql();
     }
 
-    public override async Task Where_datetimeoffset_utcnow_component(bool async)
-    {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Where_datetimeoffset_utcnow_component(async));
+    public override Task Where_datetimeoffset_utcnow_component(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Where_datetimeoffset_utcnow_component(a);
 
-        AssertSql();
-    }
+                AssertSql(
+                    """
+SELECT VALUE c
+FROM root c
+WHERE ((c["$type"] = "Order") AND (c["OrderDate"] != GetCurrentDateTime()))
+""");
+            });
 
     public override Task Where_simple_reversed(bool async)
         => Fixture.NoSyncTest(
@@ -2328,13 +2425,19 @@ WHERE ((c["$type"] = "Order") AND @__p_0)
 """);
             });
 
-    public override async Task Decimal_cast_to_double_works(bool async)
-    {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Decimal_cast_to_double_works(async));
+    public override Task Decimal_cast_to_double_works(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Decimal_cast_to_double_works(a);
 
-        AssertSql();
-    }
+                AssertSql(
+                    """
+SELECT VALUE c
+FROM root c
+WHERE ((c["$type"] = "Product") AND (c["UnitPrice"] > 100.0))
+""");
+            });
 
     public override Task Where_is_conditional(bool async)
         => Fixture.NoSyncTest(

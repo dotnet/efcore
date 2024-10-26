@@ -438,22 +438,33 @@ WHERE (c["$type"] = "Order")
 """);
             });
 
-    public override async Task Sum_with_division_on_decimal(bool async)
-    {
-        // Aggregate selecting non-mapped type. Issue #20677.
-        await Assert.ThrowsAsync<KeyNotFoundException>(async () => await base.Sum_with_division_on_decimal(async));
+    public override Task Sum_with_division_on_decimal(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Sum_with_division_on_decimal(a);
 
-        AssertSql();
-    }
+                AssertSql(
+                    """
+SELECT VALUE SUM((c["Quantity"] / 2.09))
+FROM root c
+WHERE (c["$type"] = "OrderDetail")
+""");
+            });
 
-    public override async Task Sum_with_division_on_decimal_no_significant_digits(bool async)
-    {
-        // Aggregate selecting non-mapped type. Issue #20677.
-        await Assert.ThrowsAsync<KeyNotFoundException>(
-            async () => await base.Sum_with_division_on_decimal_no_significant_digits(async));
+    public override Task Sum_with_division_on_decimal_no_significant_digits(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Sum_with_division_on_decimal_no_significant_digits(a);
 
-        AssertSql();
-    }
+                AssertSql(
+                    """
+SELECT VALUE SUM((c["Quantity"] / 2.0))
+FROM root c
+WHERE (c["$type"] = "OrderDetail")
+""");
+            });
 
     public override Task Sum_with_coalesce(bool async)
         => Fixture.NoSyncTest(
@@ -761,22 +772,33 @@ WHERE (c["$type"] = "Order")
 """);
             });
 
-    public override async Task Average_with_division_on_decimal(bool async)
-    {
-        // Aggregate selecting non-mapped type. Issue #20677.
-        await Assert.ThrowsAsync<KeyNotFoundException>(async () => await base.Average_with_division_on_decimal(async));
+    public override Task Average_with_division_on_decimal(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Average_with_division_on_decimal(a);
 
-        AssertSql();
-    }
+                AssertSql(
+                    """
+SELECT VALUE AVG((c["Quantity"] / 2.09))
+FROM root c
+WHERE (c["$type"] = "OrderDetail")
+""");
+            });
 
-    public override async Task Average_with_division_on_decimal_no_significant_digits(bool async)
-    {
-        // Aggregate selecting non-mapped type. Issue #20677.
-        await Assert.ThrowsAsync<KeyNotFoundException>(
-            async () => await base.Average_with_division_on_decimal_no_significant_digits(async));
+    public override Task Average_with_division_on_decimal_no_significant_digits(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Average_with_division_on_decimal_no_significant_digits(a);
 
-        AssertSql();
-    }
+                AssertSql(
+                    """
+SELECT VALUE AVG((c["Quantity"] / 2.0))
+FROM root c
+WHERE (c["$type"] = "OrderDetail")
+""");
+            });
 
     public override Task Average_with_coalesce(bool async)
         => Fixture.NoSyncTest(
@@ -2090,36 +2112,47 @@ SELECT VALUE EXISTS (
         AssertSql();
     }
 
-    public override async Task Average_with_non_matching_types_in_projection_doesnt_produce_second_explicit_cast(bool async)
-    {
-        // Aggregate selecting non-mapped type. Issue #20677.
-        await Assert.ThrowsAsync<KeyNotFoundException>(
-            async () => await base.Average_with_non_matching_types_in_projection_doesnt_produce_second_explicit_cast(async));
+    public override Task Average_with_non_matching_types_in_projection_doesnt_produce_second_explicit_cast(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Average_with_non_matching_types_in_projection_doesnt_produce_second_explicit_cast(a);
 
-        AssertSql();
-    }
+                AssertSql(
+                    """
+SELECT VALUE MAX(c["OrderID"])
+FROM root c
+WHERE ((c["$type"] = "Order") AND STARTSWITH(c["CustomerID"], "A"))
+""");
+            });
 
-    public override async Task Max_with_non_matching_types_in_projection_introduces_explicit_cast(bool async)
-    {
-        // Always throws for sync.
-        if (async)
-        {
-            // Aggregate selecting non-mapped type. Issue #20677.
-            await Assert.ThrowsAsync<KeyNotFoundException>(
-                async () => await base.Max_with_non_matching_types_in_projection_introduces_explicit_cast(async));
+    public override Task Max_with_non_matching_types_in_projection_introduces_explicit_cast(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Max_with_non_matching_types_in_projection_introduces_explicit_cast(a);
 
-            AssertSql();
-        }
-    }
+                AssertSql(
+                    """
+SELECT VALUE MAX(c["OrderID"])
+FROM root c
+WHERE ((c["$type"] = "Order") AND STARTSWITH(c["CustomerID"], "A"))
+""");
+            });
 
-    public override async Task Min_with_non_matching_types_in_projection_introduces_explicit_cast(bool async)
-    {
-        // Aggregate selecting non-mapped type. Issue #20677.
-        await Assert.ThrowsAsync<KeyNotFoundException>(
-            async () => await base.Min_with_non_matching_types_in_projection_introduces_explicit_cast(async));
+    public override Task Min_with_non_matching_types_in_projection_introduces_explicit_cast(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Min_with_non_matching_types_in_projection_introduces_explicit_cast(a);
 
-        AssertSql();
-    }
+                AssertSql(
+                    """
+SELECT VALUE MIN(c["OrderID"])
+FROM root c
+WHERE ((c["$type"] = "Order") AND STARTSWITH(c["CustomerID"], "A"))
+""");
+            });
 
     public override async Task OrderBy_Take_Last_gives_correct_result(bool async)
     {
@@ -2542,13 +2575,19 @@ FROM root c
         AssertSql();
     }
 
-    public override async Task Sum_over_explicit_cast_over_column(bool async)
-    {
-        // Aggregate selecting non-mapped type. Issue #20677.
-        await Assert.ThrowsAsync<KeyNotFoundException>(async () => await base.Sum_over_explicit_cast_over_column(async));
+    public override Task Sum_over_explicit_cast_over_column(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Sum_over_explicit_cast_over_column(a);
 
-        AssertSql();
-    }
+                AssertSql(
+                    """
+SELECT VALUE SUM(c["OrderID"])
+FROM root c
+WHERE (c["$type"] = "Order")
+""");
+            });
 
     public override async Task Contains_over_scalar_with_null_should_rewrite_to_identity_equality_subquery(bool async)
     {

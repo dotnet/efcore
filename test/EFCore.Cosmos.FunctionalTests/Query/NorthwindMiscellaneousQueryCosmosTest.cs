@@ -2566,7 +2566,9 @@ WHERE ((c["$type"] = "Order") AND (c["OrderDate"] != null))
 
                 AssertSql(
                     """
-SELECT c["OrderDate"], DateTimePart("ms", c["OrderDate"]) AS c
+@__millisecondsPerDay_0='86400000'
+
+SELECT VALUE DateTimeAdd("ms", (DateTimePart("ms", c["OrderDate"]) % @__millisecondsPerDay_0), DateTimeAdd("dd", (DateTimePart("ms", c["OrderDate"]) / @__millisecondsPerDay_0), c["OrderDate"]))
 FROM root c
 WHERE ((c["$type"] = "Order") AND (c["OrderDate"] != null))
 """);
@@ -2580,7 +2582,7 @@ WHERE ((c["$type"] = "Order") AND (c["OrderDate"] != null))
 
                 AssertSql(
                     """
-SELECT VALUE (c["OrderID"] % 25)
+SELECT VALUE DateTimeAdd("mi", (c["OrderID"] % 25), "1900-01-01T00:00:00")
 FROM root c
 WHERE ((c["$type"] = "Order") AND (c["OrderID"] < 10500))
 ORDER BY c["OrderID"]

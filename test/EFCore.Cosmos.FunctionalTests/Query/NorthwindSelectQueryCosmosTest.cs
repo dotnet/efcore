@@ -570,7 +570,7 @@ ORDER BY c["OrderID"]
 
                 AssertSql(
                     """
-SELECT VALUE c["OrderID"]
+SELECT VALUE (c["OrderID"] + c["OrderID"])
 FROM root c
 WHERE ((c["$type"] = "Order") AND (c["CustomerID"] = "ALFKI"))
 ORDER BY c["OrderID"]
@@ -600,7 +600,7 @@ ORDER BY c["OrderID"]
 
                 AssertSql(
                     """
-SELECT VALUE c["OrderID"]
+SELECT VALUE -(c["OrderID"])
 FROM root c
 WHERE ((c["$type"] = "Order") AND (c["CustomerID"] = "ALFKI"))
 ORDER BY c["OrderID"]
@@ -645,7 +645,12 @@ ORDER BY c["OrderID"]
 
                 AssertSql(
                     """
-SELECT VALUE c["OrderID"]
+SELECT VALUE
+{
+    "LongOrder" : c["OrderID"],
+    "ShortOrder" : c["OrderID"],
+    "Order" : c["OrderID"]
+}
 FROM root c
 WHERE ((c["$type"] = "Order") AND (c["CustomerID"] = "ALFKI"))
 ORDER BY c["OrderID"]
@@ -1168,11 +1173,7 @@ WHERE STARTSWITH(c["id"], "A")
 
                 AssertSql(
                     """
-SELECT VALUE
-{
-    "OrderID" : c["OrderID"],
-    "c" : (c["OrderID"] + 1000)
-}
+SELECT VALUE (c["OrderID"] / (c["OrderID"] + 1000))
 FROM root c
 WHERE ((c["$type"] = "Order") AND (c["OrderID"] = 10250))
 """);

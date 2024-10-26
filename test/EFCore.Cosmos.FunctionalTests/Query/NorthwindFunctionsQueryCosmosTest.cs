@@ -526,13 +526,19 @@ WHERE (((c["$type"] = "OrderDetail") AND (c["UnitPrice"] < 7.0)) AND (10 < c["Pr
 """);
             });
 
-    public override async Task Where_math_ceiling1(bool async)
-    {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Where_math_ceiling1(async));
+    public override Task Where_math_ceiling1(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Where_math_ceiling1(a);
 
-        AssertSql();
-    }
+                AssertSql(
+                    """
+SELECT VALUE c
+FROM root c
+WHERE (((c["$type"] = "OrderDetail") AND (c["UnitPrice"] < 7.0)) AND (CEILING(c["Discount"]) > 0.0))
+""");
+            });
 
     public override Task Where_math_ceiling2(bool async)
         => Fixture.NoSyncTest(
@@ -562,21 +568,33 @@ WHERE (((c["$type"] = "OrderDetail") AND (c["Quantity"] < 5)) AND (FLOOR(c["Unit
 """);
             });
 
-    public override async Task Where_math_power(bool async)
-    {
-        // Convert node. Issue #25120.
-        await AssertTranslationFailed(() => base.Where_math_power(async));
+    public override Task Where_math_power(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Where_math_power(a);
 
-        AssertSql();
-    }
+                AssertSql(
+                    """
+SELECT VALUE c
+FROM root c
+WHERE ((c["$type"] = "OrderDetail") AND (POWER(c["Discount"], 3.0) > 0.004999999888241291))
+""");
+            });
 
-    public override async Task Where_math_square(bool async)
-    {
-        // Convert node. Issue #25120.
-        await AssertTranslationFailed(() => base.Where_math_square(async));
+    public override Task Where_math_square(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Where_math_square(a);
 
-        AssertSql();
-    }
+                AssertSql(
+                    """
+SELECT VALUE c
+FROM root c
+WHERE ((c["$type"] = "OrderDetail") AND (POWER(c["Discount"], 2.0) > 0.05000000074505806))
+""");
+            });
 
     public override Task Where_math_round(bool async)
         => Fixture.NoSyncTest(
@@ -612,7 +630,7 @@ WHERE (((c["$type"] = "OrderDetail") AND (c["Quantity"] < 5)) AND (ROUND(c["Unit
 
                 AssertSql(
                     """
-SELECT VALUE c["OrderID"]
+SELECT VALUE ROUND(c["OrderID"])
 FROM root c
 WHERE ((c["$type"] = "Order") AND (c["OrderID"] < 10250))
 """);
@@ -626,7 +644,7 @@ WHERE ((c["$type"] = "Order") AND (c["OrderID"] < 10250))
 
                 AssertSql(
                     """
-SELECT VALUE c["OrderID"]
+SELECT VALUE TRUNC(c["OrderID"])
 FROM root c
 WHERE ((c["$type"] = "Order") AND (c["OrderID"] < 10250))
 """);
@@ -654,101 +672,173 @@ WHERE (((c["$type"] = "OrderDetail") AND (c["Quantity"] < 5)) AND (TRUNC(c["Unit
 """);
             });
 
-    public override async Task Where_math_exp(bool async)
-    {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Where_math_exp(async));
+    public override Task Where_math_exp(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Where_math_exp(a);
 
-        AssertSql();
-    }
+                AssertSql(
+                    """
+SELECT VALUE c
+FROM root c
+WHERE (((c["$type"] = "OrderDetail") AND (c["OrderID"] = 11077)) AND (EXP(c["Discount"]) > 1.0))
+""");
+            });
 
-    public override async Task Where_math_log10(bool async)
-    {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Where_math_log10(async));
+    public override Task Where_math_log10(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Where_math_log10(a);
 
-        AssertSql();
-    }
+                AssertSql(
+                    """
+SELECT VALUE c
+FROM root c
+WHERE (((c["$type"] = "OrderDetail") AND ((c["OrderID"] = 11077) AND (c["Discount"] > 0.0))) AND (LOG10(c["Discount"]) < 0.0))
+""");
+            });
 
-    public override async Task Where_math_log(bool async)
-    {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Where_math_log(async));
+    public override Task Where_math_log(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Where_math_log(a);
 
-        AssertSql();
-    }
+                AssertSql(
+                    """
+SELECT VALUE c
+FROM root c
+WHERE (((c["$type"] = "OrderDetail") AND ((c["OrderID"] = 11077) AND (c["Discount"] > 0.0))) AND (LOG(c["Discount"]) < 0.0))
+""");
+            });
 
-    public override async Task Where_math_log_new_base(bool async)
-    {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Where_math_log_new_base(async));
+    public override Task Where_math_log_new_base(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Where_math_log_new_base(a);
 
-        AssertSql();
-    }
+                AssertSql(
+                    """
+SELECT VALUE c
+FROM root c
+WHERE (((c["$type"] = "OrderDetail") AND ((c["OrderID"] = 11077) AND (c["Discount"] > 0.0))) AND (LOG(c["Discount"], 7.0) < -1.0))
+""");
+            });
 
-    public override async Task Where_math_sqrt(bool async)
-    {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Where_math_sqrt(async));
+    public override Task Where_math_sqrt(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Where_math_sqrt(a);
 
-        AssertSql();
-    }
+                AssertSql(
+                    """
+SELECT VALUE c
+FROM root c
+WHERE (((c["$type"] = "OrderDetail") AND (c["OrderID"] = 11077)) AND (SQRT(c["Discount"]) > 0.0))
+""");
+            });
 
-    public override async Task Where_math_acos(bool async)
-    {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Where_math_acos(async));
+    public override Task Where_math_acos(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Where_math_acos(a);
 
-        AssertSql();
-    }
+                AssertSql(
+                    """
+SELECT VALUE c
+FROM root c
+WHERE (((c["$type"] = "OrderDetail") AND (c["OrderID"] = 11077)) AND (ACOS(c["Discount"]) > 1.0))
+""");
+            });
 
-    public override async Task Where_math_asin(bool async)
-    {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Where_math_asin(async));
+    public override Task Where_math_asin(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Where_math_asin(a);
 
-        AssertSql();
-    }
+                AssertSql(
+                    """
+SELECT VALUE c
+FROM root c
+WHERE (((c["$type"] = "OrderDetail") AND (c["OrderID"] = 11077)) AND (ASIN(c["Discount"]) > 0.0))
+""");
+            });
 
-    public override async Task Where_math_atan(bool async)
-    {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Where_math_atan(async));
+    public override Task Where_math_atan(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Where_math_atan(a);
 
-        AssertSql();
-    }
+                AssertSql(
+                    """
+SELECT VALUE c
+FROM root c
+WHERE (((c["$type"] = "OrderDetail") AND (c["OrderID"] = 11077)) AND (ATAN(c["Discount"]) > 0.0))
+""");
+            });
 
-    public override async Task Where_math_atan2(bool async)
-    {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Where_math_atan2(async));
+    public override Task Where_math_atan2(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Where_math_atan2(a);
 
-        AssertSql();
-    }
+                AssertSql(
+                    """
+SELECT VALUE c
+FROM root c
+WHERE (((c["$type"] = "OrderDetail") AND (c["OrderID"] = 11077)) AND (ATN2(c["Discount"], 1.0) > 0.0))
+""");
+            });
 
-    public override async Task Where_math_cos(bool async)
-    {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Where_math_cos(async));
+    public override Task Where_math_cos(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Where_math_cos(a);
 
-        AssertSql();
-    }
+                AssertSql(
+                    """
+SELECT VALUE c
+FROM root c
+WHERE (((c["$type"] = "OrderDetail") AND (c["OrderID"] = 11077)) AND (COS(c["Discount"]) > 0.0))
+""");
+            });
 
-    public override async Task Where_math_sin(bool async)
-    {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Where_math_sin(async));
+    public override Task Where_math_sin(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Where_math_sin(a);
 
-        AssertSql();
-    }
+                AssertSql(
+                    """
+SELECT VALUE c
+FROM root c
+WHERE (((c["$type"] = "OrderDetail") AND (c["OrderID"] = 11077)) AND (SIN(c["Discount"]) > 0.0))
+""");
+            });
 
-    public override async Task Where_math_tan(bool async)
-    {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Where_math_tan(async));
+    public override Task Where_math_tan(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Where_math_tan(a);
 
-        AssertSql();
-    }
+                AssertSql(
+                    """
+SELECT VALUE c
+FROM root c
+WHERE (((c["$type"] = "OrderDetail") AND (c["OrderID"] = 11077)) AND (TAN(c["Discount"]) > 0.0))
+""");
+            });
 
     public override Task Where_math_sign(bool async)
         => Fixture.NoSyncTest(
@@ -812,29 +902,47 @@ WHERE (((c["$type"] = "OrderDetail") AND (c["OrderID"] = 11077)) AND (SIGN(c["Di
         AssertSql();
     }
 
-    public override async Task Where_math_degrees(bool async)
-    {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Where_math_degrees(async));
+    public override Task Where_math_degrees(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Where_math_degrees(a);
 
-        AssertSql();
-    }
+                AssertSql(
+                    """
+SELECT VALUE c
+FROM root c
+WHERE (((c["$type"] = "OrderDetail") AND (c["OrderID"] = 11077)) AND (DEGREES(c["Discount"]) > 0.0))
+""");
+            });
 
-    public override async Task Where_math_radians(bool async)
-    {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Where_math_radians(async));
+    public override Task Where_math_radians(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Where_math_radians(a);
 
-        AssertSql();
-    }
+                AssertSql(
+                    """
+SELECT VALUE c
+FROM root c
+WHERE (((c["$type"] = "OrderDetail") AND (c["OrderID"] = 11077)) AND (RADIANS(c["Discount"]) > 0.0))
+""");
+            });
 
-    public override async Task Where_mathf_abs1(bool async)
-    {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Where_mathf_abs1(async));
+    public override Task Where_mathf_abs1(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Where_mathf_abs1(a);
 
-        AssertSql();
-    }
+                AssertSql(
+                    """
+SELECT VALUE c
+FROM root c
+WHERE ((c["$type"] = "Product") AND (ABS(c["ProductID"]) > 10.0))
+""");
+            });
 
     public override Task Where_mathf_ceiling1(bool async)
         => Fixture.NoSyncTest(
@@ -850,13 +958,19 @@ WHERE (((c["$type"] = "OrderDetail") AND (c["UnitPrice"] < 7.0)) AND (CEILING(c[
 """);
             });
 
-    public override async Task Where_mathf_floor(bool async)
-    {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Where_mathf_floor(async));
+    public override Task Where_mathf_floor(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Where_mathf_floor(a);
 
-        AssertSql();
-    }
+                AssertSql(
+                    """
+SELECT VALUE c
+FROM root c
+WHERE (((c["$type"] = "OrderDetail") AND (c["Quantity"] < 5)) AND (FLOOR(c["UnitPrice"]) > 10.0))
+""");
+            });
 
     public override Task Where_mathf_power(bool async)
         => Fixture.NoSyncTest(
@@ -894,13 +1008,19 @@ WHERE ((c["$type"] = "OrderDetail") AND (POWER(c["Discount"], 2.0) > 0.05))
         AssertSql();
     }
 
-    public override async Task Where_mathf_truncate(bool async)
-    {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Where_mathf_truncate(async));
+    public override Task Where_mathf_truncate(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Where_mathf_truncate(a);
 
-        AssertSql();
-    }
+                AssertSql(
+                    """
+SELECT VALUE c
+FROM root c
+WHERE (((c["$type"] = "OrderDetail") AND (c["Quantity"] < 5)) AND (TRUNC(c["UnitPrice"]) > 10.0))
+""");
+            });
 
     public override Task Where_mathf_exp(bool async)
         => Fixture.NoSyncTest(
@@ -1148,13 +1268,19 @@ WHERE (LOWER(c["id"]) = "alfki")
 """);
             });
 
-    public override async Task Where_functions_nested(bool async)
-    {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Where_functions_nested(async));
+    public override Task Where_functions_nested(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Where_functions_nested(a);
 
-        AssertSql();
-    }
+                AssertSql(
+                    """
+SELECT VALUE c
+FROM root c
+WHERE (POWER(LENGTH(c["id"]), 2.0) = 25.0)
+""");
+            });
 
     public override async Task Convert_ToBoolean(bool async)
     {
@@ -1651,29 +1777,47 @@ WHERE ((c["$type"] = "Order") AND false)
 """);
             });
 
-    public override async Task Projecting_Math_Truncate_and_ordering_by_it_twice(bool async)
-    {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Projecting_Math_Truncate_and_ordering_by_it_twice(async));
+    public override Task Projecting_Math_Truncate_and_ordering_by_it_twice(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Projecting_Math_Truncate_and_ordering_by_it_twice(a);
 
-        AssertSql();
-    }
+                AssertSql(
+                    """
+SELECT VALUE c
+FROM root c
+WHERE (((c["$type"] = "OrderDetail") AND (c["Quantity"] < 5)) AND (TRUNC(c["UnitPrice"]) > 10.0))
+""");
+            });
 
-    public override async Task Projecting_Math_Truncate_and_ordering_by_it_twice2(bool async)
-    {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Projecting_Math_Truncate_and_ordering_by_it_twice2(async));
+    public override Task Projecting_Math_Truncate_and_ordering_by_it_twice2(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Projecting_Math_Truncate_and_ordering_by_it_twice2(a);
 
-        AssertSql();
-    }
+                AssertSql(
+                    """
+SELECT VALUE c
+FROM root c
+WHERE (((c["$type"] = "OrderDetail") AND (c["Quantity"] < 5)) AND (TRUNC(c["UnitPrice"]) > 10.0))
+""");
+            });
 
-    public override async Task Projecting_Math_Truncate_and_ordering_by_it_twice3(bool async)
-    {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Projecting_Math_Truncate_and_ordering_by_it_twice3(async));
+    public override Task Projecting_Math_Truncate_and_ordering_by_it_twice3(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Projecting_Math_Truncate_and_ordering_by_it_twice3(a);
 
-        AssertSql();
-    }
+                AssertSql(
+                    """
+SELECT VALUE c
+FROM root c
+WHERE (((c["$type"] = "OrderDetail") AND (c["Quantity"] < 5)) AND (TRUNC(c["UnitPrice"]) > 10.0))
+""");
+            });
 
     public override async Task DateTime_Compare_to_simple_zero(bool async, bool compareTo)
     {
@@ -1971,7 +2115,7 @@ WHERE CONTAINS(c["ContactName"], @__pattern_0)
 
                 AssertSql(
                     """
-SELECT VALUE c["OrderID"]
+SELECT VALUE ROUND(c["OrderID"])
 FROM root c
 WHERE ((c["$type"] = "Order") AND (c["OrderID"] < 10250))
 """);
@@ -1999,7 +2143,7 @@ WHERE ((c["$type"] = "OrderDetail") AND (c["Quantity"] < 5))
 
                 AssertSql(
                     """
-SELECT VALUE c["UnitPrice"]
+SELECT VALUE TRUNC(c["UnitPrice"])
 FROM root c
 WHERE ((c["$type"] = "OrderDetail") AND (c["Quantity"] < 5))
 """);
