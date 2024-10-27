@@ -27,13 +27,24 @@ public class NorthwindWhereQueryCosmosTest : NorthwindWhereQueryTestBase<Northwi
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Equality_operator_int_to_long(bool async)
-    {
-        long arg = 10248;
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                long arg = 10248;
 
-        return AssertQuery(
-            async,
-            ss => ss.Set<Order>().Where(o => o.OrderID == arg));
-    }
+                await AssertQuery(
+                    async,
+                    ss => ss.Set<Order>().Where(o => o.OrderID == arg));
+
+                AssertSql(
+                    """
+@__arg_0='10248'
+
+SELECT VALUE c
+FROM root c
+WHERE ((c["$type"] = "Order") AND (c["OrderID"] = @__arg_0))
+""");
+            });
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]

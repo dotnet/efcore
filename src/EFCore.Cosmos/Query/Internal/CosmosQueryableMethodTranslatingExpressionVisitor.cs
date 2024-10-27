@@ -492,6 +492,12 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     /// </summary>
     protected override ShapedQueryExpression? TranslateContains(ShapedQueryExpression source, Expression item)
     {
+        //Strip convert to object. Other converts should be fine as they will have a type mapping found but object won't
+
+        if (item is UnaryExpression { NodeType:ExpressionType.Convert} unaryExpression && unaryExpression.Type == typeof(object))
+        {
+            item = unaryExpression.Operand;
+        }
         // Simplify x.Array.Contains[1] => ARRAY_CONTAINS(x.Array, 1) insert of IN+subquery
         if (source.TryExtractArray(out var array, ignoreOrderings: true)
             && array is SqlExpression scalarArray // TODO: Contains over arrays of structural types, #34027

@@ -618,7 +618,7 @@ public class CosmosSqlTranslatingExpressionVisitor(
                 arguments = new SqlExpression[methodCallExpression.Arguments.Count];
                 for (var i = 0; i < arguments.Length; i++)
                 {
-                    var argument = methodCallExpression.Arguments[i];
+                    var argument = RemoveObjectConvert(methodCallExpression.Arguments[i]);
                     if (TranslationFailed(argument, Visit(argument), out var sqlArgument))
                     {
                         return TranslateAsSubquery(methodCallExpression);

@@ -2112,19 +2112,21 @@ SELECT VALUE EXISTS (
         AssertSql();
     }
 
-    public override Task Average_with_non_matching_types_in_projection_doesnt_produce_second_explicit_cast(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Average_with_non_matching_types_in_projection_doesnt_produce_second_explicit_cast(a);
+    public override async Task Average_with_non_matching_types_in_projection_doesnt_produce_second_explicit_cast(bool async)
+    {
+        if (async)
+        {
+            // Average truncates. Issue #26378.
+            await Assert.ThrowsAsync<EqualException>(() => base.Average_with_non_matching_types_in_projection_doesnt_produce_second_explicit_cast(async));
 
-                AssertSql(
-                    """
-SELECT VALUE MAX(c["OrderID"])
+            AssertSql(
+                """
+SELECT VALUE AVG(c["OrderID"])
 FROM root c
 WHERE ((c["$type"] = "Order") AND STARTSWITH(c["CustomerID"], "A"))
 """);
-            });
+        }
+    }
 
     public override Task Max_with_non_matching_types_in_projection_introduces_explicit_cast(bool async)
         => Fixture.NoSyncTest(
@@ -2871,13 +2873,19 @@ OFFSET 0 LIMIT 1
 """);
             });
 
-    [ConditionalTheory(Skip = "Issue #20677")]
-    public override async Task Type_casting_inside_sum(bool async)
-    {
-        await base.Type_casting_inside_sum(async);
+    public override Task Type_casting_inside_sum(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Type_casting_inside_sum(a);
 
-        AssertSql();
-    }
+                AssertSql(
+                    """
+SELECT VALUE SUM(c["Discount"])
+FROM root c
+WHERE (c["$type"] = "OrderDetail")
+""");
+            });
 
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);

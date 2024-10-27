@@ -1777,47 +1777,56 @@ WHERE ((c["$type"] = "Order") AND false)
 """);
             });
 
-    public override Task Projecting_Math_Truncate_and_ordering_by_it_twice(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Projecting_Math_Truncate_and_ordering_by_it_twice(a);
+    public override async Task Projecting_Math_Truncate_and_ordering_by_it_twice(bool async)
+    {
+        if (async)
+        {
+            // Unsupported ORDER BY clause. Issue #27037.
+            await Assert.ThrowsAsync<CosmosException>(() => base.Projecting_Math_Truncate_and_ordering_by_it_twice(async));
 
-                AssertSql(
-                    """
-SELECT VALUE c
+            AssertSql(
+                """
+SELECT VALUE TRUNC(c["OrderID"])
 FROM root c
-WHERE (((c["$type"] = "OrderDetail") AND (c["Quantity"] < 5)) AND (TRUNC(c["UnitPrice"]) > 10.0))
+WHERE ((c["$type"] = "Order") AND (c["OrderID"] < 10250))
+ORDER BY TRUNC(c["OrderID"])
 """);
-            });
+        }
+    }
 
-    public override Task Projecting_Math_Truncate_and_ordering_by_it_twice2(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Projecting_Math_Truncate_and_ordering_by_it_twice2(a);
+    public override async Task Projecting_Math_Truncate_and_ordering_by_it_twice2(bool async)
+    {
+        if (async)
+        {
+            // Unsupported ORDER BY clause. Issue #27037.
+            await Assert.ThrowsAsync<CosmosException>(() => base.Projecting_Math_Truncate_and_ordering_by_it_twice2(async));
 
-                AssertSql(
-                    """
-SELECT VALUE c
+            AssertSql(
+                """
+SELECT VALUE TRUNC(c["OrderID"])
 FROM root c
-WHERE (((c["$type"] = "OrderDetail") AND (c["Quantity"] < 5)) AND (TRUNC(c["UnitPrice"]) > 10.0))
+WHERE ((c["$type"] = "Order") AND (c["OrderID"] < 10250))
+ORDER BY TRUNC(c["OrderID"]) DESC
 """);
-            });
+        }
+    }
 
-    public override Task Projecting_Math_Truncate_and_ordering_by_it_twice3(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Projecting_Math_Truncate_and_ordering_by_it_twice3(a);
+    public override async Task Projecting_Math_Truncate_and_ordering_by_it_twice3(bool async)
+    {
+        if (async)
+        {
+            // Unsupported ORDER BY clause. Issue #27037.
+            await Assert.ThrowsAsync<CosmosException>(() => base.Projecting_Math_Truncate_and_ordering_by_it_twice3(async));
 
-                AssertSql(
-                    """
-SELECT VALUE c
+            AssertSql(
+                """
+SELECT VALUE TRUNC(c["OrderID"])
 FROM root c
-WHERE (((c["$type"] = "OrderDetail") AND (c["Quantity"] < 5)) AND (TRUNC(c["UnitPrice"]) > 10.0))
+WHERE ((c["$type"] = "Order") AND (c["OrderID"] < 10250))
+ORDER BY TRUNC(c["OrderID"]) DESC
 """);
-            });
+        }
+    }
 
     public override async Task DateTime_Compare_to_simple_zero(bool async, bool compareTo)
     {
