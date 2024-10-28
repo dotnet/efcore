@@ -1,6 +1,8 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Text.Json;
+
 namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
@@ -374,6 +376,251 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
     public class SubRound
     {
         public int SubRoundNumber { get; set; }
+    }
+
+    #endregion
+
+    #region 34960
+
+    [ConditionalFact]
+    public virtual async Task Project_entity_with_json_null_values()
+    {
+        var contextFactory = await InitializeAsync<Context34960>(seed: Seed34960, onModelCreating: OnModelCreating34960);
+
+        using var context = contextFactory.CreateContext();
+        var query = await context.Entities.ToListAsync();
+    }
+
+    [ConditionalFact]
+    public virtual async Task Try_project_collection_but_JSON_is_entity()
+    {
+        var contextFactory = await InitializeAsync<Context34960>(seed: Seed34960, onModelCreating: OnModelCreating34960);
+        using var context = contextFactory.CreateContext();
+
+        Assert.Equal(
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => context.Junk.AsNoTracking().Where(x => x.Id == 1).Select(x => x.Collection).FirstOrDefaultAsync())).Message,
+            CoreStrings.JsonReaderInvalidTokenType(nameof(JsonTokenType.StartObject)));
+    }
+
+    [ConditionalFact]
+    public virtual async Task Try_project_reference_but_JSON_is_collection()
+    {
+        var contextFactory = await InitializeAsync<Context34960>(seed: Seed34960, onModelCreating: OnModelCreating34960);
+        using var context = contextFactory.CreateContext();
+
+        Assert.Equal(
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => context.Junk.AsNoTracking().Where(x => x.Id == 2).Select(x => x.Reference).FirstOrDefaultAsync())).Message,
+            CoreStrings.JsonReaderInvalidTokenType(nameof(JsonTokenType.StartArray)));
+    }
+
+    protected class Context34960(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<Entity> Entities { get; set; }
+        public DbSet<JunkEntity> Junk { get; set; }
+
+        public class Entity
+        {
+            public int Id { get; set; }
+            public JsonEntity Reference { get; set; }
+            public List<JsonEntity> Collection { get; set; }
+        }
+
+        public class JsonEntity
+        {
+            public string Name { get; set; }
+            public double Number { get; set; }
+
+            public JsonEntityNested NestedReference { get; set; }
+            public List<JsonEntityNested> NestedCollection { get; set; }
+        }
+
+        public class JsonEntityNested
+        {
+            public DateTime DoB { get; set; }
+            public string Text { get; set; }
+        }
+
+        public class JunkEntity
+        {
+            public int Id { get; set; }
+            public JsonEntity Reference { get; set; }
+            public List<JsonEntity> Collection { get; set; }
+        }
+    }
+
+    protected virtual void OnModelCreating34960(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Context34960.Entity>(
+            b =>
+            {
+                b.ToTable("Entities");
+                b.Property(x => x.Id).ValueGeneratedNever();
+
+                b.OwnsOne(
+                    x => x.Reference, b =>
+                    {
+                        b.ToJson().HasColumnType(JsonColumnType);
+                        b.OwnsOne(x => x.NestedReference);
+                        b.OwnsMany(x => x.NestedCollection);
+                    });
+
+                b.OwnsMany(
+                    x => x.Collection, b =>
+                    {
+                        b.ToJson().HasColumnType(JsonColumnType);
+                        b.OwnsOne(x => x.NestedReference);
+                        b.OwnsMany(x => x.NestedCollection);
+                    });
+            });
+
+        modelBuilder.Entity<Context34960.JunkEntity>(
+            b =>
+            {
+                b.ToTable("Junk");
+                b.Property(x => x.Id).ValueGeneratedNever();
+
+                b.OwnsOne(
+                    x => x.Reference, b =>
+                    {
+                        b.ToJson().HasColumnType(JsonColumnType);
+                        b.Ignore(x => x.NestedReference);
+                        b.Ignore(x => x.NestedCollection);
+                    });
+
+                b.OwnsMany(
+                    x => x.Collection, b =>
+                    {
+                        b.ToJson().HasColumnType(JsonColumnType);
+                        b.Ignore(x => x.NestedReference);
+                        b.Ignore(x => x.NestedCollection);
+                    });
+            });
+    }
+
+    protected virtual async Task Seed34960(Context34960 ctx)
+    {
+        // everything
+        var e1 = new Context34960.Entity
+        {
+            Id = 1,
+            Reference = new Context34960.JsonEntity
+            {
+                Name = "ref1",
+                Number = 1.5f,
+                NestedReference = new Context34960.JsonEntityNested
+                {
+                    DoB = new DateTime(2000, 1, 1),
+                    Text = "nested ref 1"
+                },
+                NestedCollection =
+                [
+                    new Context34960.JsonEntityNested
+                    {
+                        DoB = new DateTime(2001, 1, 1),
+                        Text = "nested col 1 1"
+                    },
+                    new Context34960.JsonEntityNested
+                    {
+                        DoB = new DateTime(2001, 2, 2),
+                        Text = "nested col 1 2"
+                    },
+                ],
+            },
+
+            Collection =
+            [
+                new Context34960.JsonEntity
+                {
+                    Name = "col 1 1",
+                    Number = 2.5f,
+                    NestedReference = new Context34960.JsonEntityNested
+                    {
+                        DoB = new DateTime(2010, 1, 1),
+                        Text = "nested col 1 1 ref 1"
+                    },
+                    NestedCollection =
+                    [
+                        new Context34960.JsonEntityNested
+                        {
+                            DoB = new DateTime(2011, 1, 1),
+                            Text = "nested col 1 1 col 1 1"
+                        },
+                        new Context34960.JsonEntityNested
+                        {
+                            DoB = new DateTime(2011, 2, 2),
+                            Text = "nested col 1 1 col 1 2"
+                        },
+                    ],
+                },
+                new Context34960.JsonEntity
+                {
+                    Name = "col 1 2",
+                    Number = 2.5f,
+                    NestedReference = new Context34960.JsonEntityNested
+                    {
+                        DoB = new DateTime(2020, 1, 1),
+                        Text = "nested col 1 2 ref 1"
+                    },
+                    NestedCollection =
+                    [
+                        new Context34960.JsonEntityNested
+                        {
+                            DoB = new DateTime(2021, 1, 1),
+                            Text = "nested col 1 2 col 1 1"
+                        },
+                        new Context34960.JsonEntityNested
+                        {
+                            DoB = new DateTime(2021, 2, 2),
+                            Text = "nested col 1 2 col 1 2"
+                        },
+                    ],
+                },
+            ],
+        };
+
+        // relational nulls
+        var e2 = new Context34960.Entity
+        {
+            Id = 2,
+            Reference = null,
+            Collection = null
+        };
+
+        // nested relational nulls
+        var e3 = new Context34960.Entity
+        {
+            Id = 3,
+            Reference = new Context34960.JsonEntity
+            {
+                Name = "ref3",
+                Number = 3.5f,
+                NestedReference = null,
+                NestedCollection = null
+            },
+
+            Collection =
+            [
+                new Context34960.JsonEntity
+                {
+                    Name = "col 3 1",
+                    Number = 32.5f,
+                    NestedReference = null,
+                    NestedCollection = null,
+                },
+                new Context34960.JsonEntity
+                {
+                    Name = "col 3 2",
+                    Number = 33.5f,
+                    NestedReference = null,
+                    NestedCollection = null,
+                },
+            ],
+        };
+
+        ctx.Entities.AddRange(e1, e2, e3);
+        await ctx.SaveChangesAsync();
     }
 
     #endregion
