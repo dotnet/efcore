@@ -631,7 +631,10 @@ internal static class SharedTypeExtensions
         }
         else
         {
-            yield return type.Namespace!;
+            if (type.Namespace is not null)
+            {
+                yield return type.Namespace;
+            }
         }
 
         if (type.IsGenericType)
