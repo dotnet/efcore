@@ -615,12 +615,13 @@ public class OperationExecutor : MarshalByRefObject
             var useDatabaseNames = (bool)args["useDatabaseNames"]!;
             var suppressOnConfiguring = (bool)(args["suppressOnConfiguring"] ?? false);
             var noPluralize = (bool)(args["noPluralize"] ?? false);
+            var fileHeader = (string?)args["fileHeader"];
 
             Execute(
                 () => executor.ScaffoldContextImpl(
                     provider, connectionString, outputDir, outputDbContextDir, dbContextClassName,
                     schemaFilters, tableFilters, modelNamespace, contextNamespace, useDataAnnotations,
-                    overwriteFiles, useDatabaseNames, suppressOnConfiguring, noPluralize));
+                    overwriteFiles, useDatabaseNames, suppressOnConfiguring, noPluralize, fileHeader));
         }
     }
 
@@ -638,7 +639,9 @@ public class OperationExecutor : MarshalByRefObject
         bool overwriteFiles,
         bool useDatabaseNames,
         bool suppressOnConfiguring,
-        bool noPluralize)
+        bool noPluralize,
+        string? fileHeader
+        )
     {
         Check.NotNull(provider, nameof(provider));
         Check.NotNull(connectionString, nameof(connectionString));
@@ -648,7 +651,7 @@ public class OperationExecutor : MarshalByRefObject
         var files = DatabaseOperations.ScaffoldContext(
             provider, connectionString, outputDir, outputDbContextDir, dbContextClassName,
             schemaFilters, tableFilters, modelNamespace, contextNamespace, useDataAnnotations,
-            overwriteFiles, useDatabaseNames, suppressOnConfiguring, noPluralize);
+            overwriteFiles, useDatabaseNames, suppressOnConfiguring, noPluralize, fileHeader);
 
         return new Hashtable { ["ContextFile"] = files.ContextFile, ["EntityTypeFiles"] = files.AdditionalFiles.ToArray() };
     }

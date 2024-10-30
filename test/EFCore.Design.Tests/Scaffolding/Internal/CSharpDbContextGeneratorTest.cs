@@ -1355,6 +1355,58 @@ public partial class TestDbContext : DbContext
                     Assert.Null(entity.GetProperty("Property").GetColumnOrder());
                 });
 
+        [ConditionalFact]
+        public Task Custom_file_header()
+            => TestAsync(
+                _ => { },
+                new ModelCodeGenerationOptions { FileHeader =
+                    """
+                    // Licensed to the .NET Foundation under one or more agreements.
+                    // The .NET Foundation licenses this file to you under the MIT license.
+
+                    """ },
+                code =>
+                {
+                    AssertFileContents(
+                        $$"""
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+
+using System;
+using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
+
+namespace TestNamespace;
+
+public partial class TestDbContext : DbContext
+{
+    public TestDbContext()
+    {
+    }
+
+    public TestDbContext(DbContextOptions<TestDbContext> options)
+        : base(options)
+    {
+    }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#warning {{DesignStrings.SensitiveInformationWarning}}
+        => optionsBuilder.UseSqlServer("Initial Catalog=TestDatabase");
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        OnModelCreatingPartial(modelBuilder);
+    }
+
+    partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+}
+""",
+                        code.ContextFile);
+
+                    Assert.Empty(code.AdditionalFiles);
+                },
+                _ => { });
+
         protected override IServiceCollection AddModelServices(IServiceCollection services)
             => services.Replace(ServiceDescriptor.Singleton<IRelationalAnnotationProvider, TestModelAnnotationProvider>());
 

@@ -336,6 +336,11 @@ public partial class <#= Options.ContextName #> : DbContext
     mainEnvironment = GenerationEnvironment;
     GenerationEnvironment = new StringBuilder();
 
+    if (!string.IsNullOrEmpty(Options.FileHeader))
+    {
+        WriteLine(Options.FileHeader);
+    }
+
     foreach (var ns in usings.Distinct().OrderBy(x => x, new NamespaceComparer()))
     {
 #>

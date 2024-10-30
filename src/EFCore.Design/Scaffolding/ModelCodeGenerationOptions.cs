@@ -79,4 +79,10 @@ public class ModelCodeGenerationOptions
     /// </summary>
     /// <value>The directory.</value>
     public virtual string? ProjectDir { get; set; }
+
+    /// <summary>
+    ///     Gets or sets the custom file header added to the DbContext and model files
+    /// </summary>
+    /// <value>The custom file header.</value>
+    public virtual string? FileHeader { get; set; }
 }

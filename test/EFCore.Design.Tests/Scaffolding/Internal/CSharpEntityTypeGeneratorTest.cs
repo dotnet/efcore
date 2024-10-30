@@ -2929,6 +2929,49 @@ public partial class TestDbContext : DbContext
                     Assert.Equal("Post_Blogs_Source", skipNavigation.ForeignKey.GetConstraintName());
                 }));
 
+    [ConditionalFact]
+    public Task Custom_file_header()
+        => TestAsync(
+            modelBuilder => modelBuilder
+                .Entity(
+                    "Entity",
+                    x =>
+                    {
+                        x.ToTable("Entity");
+                        x.Property<int>("Id");
+                    })
+            ,
+            new ModelCodeGenerationOptions { UseDataAnnotations = true, FileHeader =
+                """
+                // Licensed to the .NET Foundation under one or more agreements.
+                // The .NET Foundation licenses this file to you under the MIT license.
+
+                """ },
+            code =>
+            {
+                AssertFileContents(
+                    """
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
+
+namespace TestNamespace;
+
+public partial class Entity
+{
+    [Key]
+    public int Id { get; set; }
+}
+""",
+                    code.AdditionalFiles.Single(f => f.Path == "Entity.cs"));
+            },
+            _ => { });
+
     protected override IServiceCollection AddModelServices(IServiceCollection services)
         => services.Replace(ServiceDescriptor.Singleton<IRelationalAnnotationProvider, TestModelAnnotationProvider>());
 

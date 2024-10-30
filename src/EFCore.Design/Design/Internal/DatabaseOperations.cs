@@ -63,7 +63,8 @@ public class DatabaseOperations
         bool overwriteFiles,
         bool useDatabaseNames,
         bool suppressOnConfiguring,
-        bool noPluralize)
+        bool noPluralize,
+        string? fileHeader)
     {
         outputDir = outputDir != null
             ? Path.GetFullPath(Path.Combine(_projectDir, outputDir))
@@ -97,7 +98,8 @@ public class DatabaseOperations
                 ContextDir = MakeDirRelative(outputDir, outputContextDir),
                 ContextName = dbContextClassName,
                 SuppressOnConfiguring = suppressOnConfiguring,
-                ProjectDir = _projectDir
+                ProjectDir = _projectDir,
+                FileHeader = fileHeader,
             });
 
         return scaffolder.Save(
