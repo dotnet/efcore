@@ -28,7 +28,7 @@ namespace TestNamespace
                 "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+ManyTypes",
                 typeof(CompiledModelTestBase.ManyTypes),
                 baseEntityType,
-                propertyCount: 236,
+                propertyCount: 241,
                 keyCount: 1);
 
             var id = runtimeEntityType.AddProperty(
@@ -56,6 +56,13 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("BoolArray", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<BoolArray>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
             boolArray.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+
+            var boolReadOnlyCollection = runtimeEntityType.AddProperty(
+                "BoolReadOnlyCollection",
+                typeof(IReadOnlyCollection<bool>),
+                propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("BoolReadOnlyCollection", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("_boolReadOnlyCollection", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            boolReadOnlyCollection.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var boolToStringConverterProperty = runtimeEntityType.AddProperty(
                 "BoolToStringConverterProperty",
@@ -766,6 +773,13 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<IPAddressArray>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
             iPAddressArray.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
+            var iPAddressReadOnlyCollection = runtimeEntityType.AddProperty(
+                "IPAddressReadOnlyCollection",
+                typeof(IReadOnlyCollection<IPAddress>),
+                propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("IPAddressReadOnlyCollection", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("_ipAddressReadOnlyCollection", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            iPAddressReadOnlyCollection.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+
             var iPAddressToBytesConverterProperty = runtimeEntityType.AddProperty(
                 "IPAddressToBytesConverterProperty",
                 typeof(IPAddress),
@@ -811,6 +825,13 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("Int32Array", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<Int32Array>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
             int32Array.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+
+            var int32ReadOnlyCollection = runtimeEntityType.AddProperty(
+                "Int32ReadOnlyCollection",
+                typeof(IReadOnlyCollection<int>),
+                propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("Int32ReadOnlyCollection", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("_int32ReadOnlyCollection", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            int32ReadOnlyCollection.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var int64 = runtimeEntityType.AddProperty(
                 "Int64",
@@ -1610,6 +1631,13 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<StringArray>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
             stringArray.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
+            var stringReadOnlyCollection = runtimeEntityType.AddProperty(
+                "StringReadOnlyCollection",
+                typeof(IReadOnlyCollection<string>),
+                propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("StringReadOnlyCollection", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("_stringReadOnlyCollection", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            stringReadOnlyCollection.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+
             var stringToBoolConverterProperty = runtimeEntityType.AddProperty(
                 "StringToBoolConverterProperty",
                 typeof(string),
@@ -1849,6 +1877,13 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("UInt8Array", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<UInt8Array>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
             uInt8Array.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+
+            var uInt8ReadOnlyCollection = runtimeEntityType.AddProperty(
+                "UInt8ReadOnlyCollection",
+                typeof(IReadOnlyCollection<byte>),
+                propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("UInt8ReadOnlyCollection", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("_uInt8ReadOnlyCollection", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            uInt8ReadOnlyCollection.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var uri = runtimeEntityType.AddProperty(
                 "Uri",
