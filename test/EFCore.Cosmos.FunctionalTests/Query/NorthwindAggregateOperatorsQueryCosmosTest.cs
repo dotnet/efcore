@@ -2068,6 +2068,20 @@ SELECT VALUE EXISTS (
         AssertSql();
     }
 
+    public override Task Contains_with_static_IList(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Contains_with_static_IList(a);
+
+                AssertSql(
+                    """
+SELECT VALUE c
+FROM root c
+WHERE c["id"] IN ("ALFKI", "ANATR")
+""");
+            });
+
     public override async Task OfType_Select(bool async)
     {
         // Contains over subquery. Issue #17246.

@@ -1361,6 +1361,15 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture>(TFixtur
             ss => ss.Set<OrderDetail>().Where(o => ids.Contains(new { Id1 = o.OrderID, Id2 = o.ProductID })));
     }
 
+    private static readonly IList<string> StaticIds = new List<string> { "ALFKI", "ANATR" };
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Contains_with_static_IList(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => StaticIds.Contains(c.CustomerID)));
+
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task OfType_Select(bool async)

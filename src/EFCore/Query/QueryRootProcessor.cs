@@ -85,7 +85,7 @@ public class QueryRootProcessor : ExpressionVisitor
 
     private Expression VisitQueryRootCandidate(Expression expression, Type elementClrType)
     {
-        switch (expression)
+        switch (RemoveConvert(expression))
         {
             // An array containing only constants is represented as a ConstantExpression with the array as the value.
             // Convert that into a NewArrayExpression for use with InlineQueryRootExpression
@@ -122,6 +122,11 @@ public class QueryRootProcessor : ExpressionVisitor
             default:
                 return Visit(expression);
         }
+
+        static Expression RemoveConvert(Expression e)
+            => e is UnaryExpression { NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked } unary
+                ? RemoveConvert(unary.Operand)
+                : e;
     }
 
     /// <summary>
