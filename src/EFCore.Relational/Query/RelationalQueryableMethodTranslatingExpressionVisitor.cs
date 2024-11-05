@@ -1650,12 +1650,14 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
                 {
                     var newJsonQueryExpression = jsonQueryExpression.BindNavigation(navigation);
 
+                    Debug.Assert(!navigation.IsOnDependent, "JSON navigations should always be from principal do dependent");
+
                     return navigation.IsCollection
                         ? newJsonQueryExpression
                         : new RelationalStructuralTypeShaperExpression(
                             navigation.TargetEntityType,
                             newJsonQueryExpression,
-                            nullable: shaper.IsNullable || !navigation.ForeignKey.IsRequired);
+                            nullable: shaper.IsNullable || !navigation.ForeignKey.IsRequiredDependent);
                 }
 
                 var entityProjectionExpression = GetEntityProjectionExpression(shaper);

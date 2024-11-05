@@ -1475,12 +1475,14 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             foreach (var ownedNavigation in entityType.GetNavigations().Where(
                          n => n.TargetEntityType.IsMappedToJson() && n.ForeignKey.IsOwnership && n == n.ForeignKey.PrincipalToDependent))
             {
+                Debug.Assert(!ownedNavigation.IsOnDependent, "JSON navigations should always be from principal do dependent");
+
                 // we need to build entity shapers and fixup separately
                 // we don't know the order in which data comes, so we need to read through everything
                 // before we can do fixup safely
                 var innerShaper = CreateJsonShapers(
                     ownedNavigation.TargetEntityType,
-                    nullable || !ownedNavigation.ForeignKey.IsRequired,
+                    nullable || !ownedNavigation.ForeignKey.IsRequiredDependent,
                     jsonReaderDataShaperLambdaParameter,
                     keyValuesShaperLambdaParameter,
                     parentEntityExpression: null,
