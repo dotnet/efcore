@@ -380,6 +380,156 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
 
     #endregion
 
+    #region 34293
+
+    [ConditionalFact]
+    public virtual async Task Project_entity_with_optional_json_entity_owned_by_required_json()
+    {
+        var contextFactory = await InitializeAsync<Context34293>(
+            onModelCreating: OnModelCreating34293,
+            seed: ctx => ctx.Seed());
+
+        using var context = contextFactory.CreateContext();
+        var entityProjection = await context.Set<Context34293.Entity>().ToListAsync();
+
+        Assert.Equal(3, entityProjection.Count);
+    }
+
+    [ConditionalFact]
+    public virtual async Task Project_required_json_entity()
+    {
+        var contextFactory = await InitializeAsync<Context34293>(
+            onModelCreating: OnModelCreating34293,
+            seed: ctx => ctx.Seed());
+
+        using var context = contextFactory.CreateContext();
+
+        var rootProjection = await context.Set<Context34293.Entity>().AsNoTracking().Where(x => x.Id != 3).Select(x => x.Json).ToListAsync();
+        Assert.Equal(2, rootProjection.Count);
+
+        var branchProjection = await context.Set<Context34293.Entity>().AsNoTracking().Where(x => x.Id != 3).Select(x => x.Json.Required).ToListAsync();
+        Assert.Equal(2, rootProjection.Count);
+
+        var badRootProjectionMessage = (await Assert.ThrowsAsync<InvalidOperationException>(
+            () => context.Set<Context34293.Entity>().AsNoTracking().Where(x => x.Id == 3).Select(x => x.Json).ToListAsync())).Message;
+        Assert.Equal(RelationalStrings.JsonRequiredEntityWithNullJson(nameof(Context34293.JsonBranch)), badRootProjectionMessage);
+
+        var badBranchProjectionMessage = (await Assert.ThrowsAsync<InvalidOperationException>(
+            () => context.Set<Context34293.Entity>().AsNoTracking().Where(x => x.Id == 3).Select(x => x.Json.Required).ToListAsync())).Message;
+        Assert.Equal(RelationalStrings.JsonRequiredEntityWithNullJson(nameof(Context34293.JsonBranch)), badBranchProjectionMessage);
+    }
+
+    [ConditionalFact]
+    public virtual async Task Project_optional_json_entity_owned_by_required_json_entity()
+    {
+        var contextFactory = await InitializeAsync<Context34293>(
+            onModelCreating: OnModelCreating34293,
+            seed: ctx => ctx.Seed());
+
+        using var context = contextFactory.CreateContext();
+        var leafProjection = await context.Set<Context34293.Entity>().AsNoTracking().Select(x => x.Json.Required.Optional).ToListAsync();
+        Assert.Equal(3, leafProjection.Count);
+    }
+
+    protected class Context34293(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<Entity> Entities { get; set; }
+
+        public class Entity
+        {
+            public int Id { get; set; }
+            public JsonRoot Json { get; set; }
+        }
+
+        public class JsonRoot
+        {
+            public DateTime Date { get; set; }
+
+            public JsonBranch Required { get; set; }
+        }
+
+        public class JsonBranch
+        {
+            public int Number { get; set; }
+            public JsonLeaf Optional { get; set; }
+        }
+
+        public class JsonLeaf
+        {
+            public string Name { get; set; }
+        }
+
+        public async Task Seed()
+        {
+            // everything - ok
+            var e1 = new Entity
+            {
+                Id = 1,
+                Json = new JsonRoot
+                {
+                    Date = new DateTime(2001, 1, 1),
+                    Required = new JsonBranch
+                    {
+                        Number = 1,
+                        Optional = new JsonLeaf { Name = "optional 1" }
+                    }
+                }
+            };
+
+            // null leaf - ok (optional nav)
+            var e2 = new Entity
+            {
+                Id = 2,
+                Json = new JsonRoot
+                {
+                    Date = new DateTime(2002, 2, 2),
+                    Required = new JsonBranch
+                    {
+                        Number = 2,
+                        Optional = null
+                    }
+                }
+            };
+
+            // null branch - invalid (required nav)
+            var e3 = new Entity
+            {
+                Id = 3,
+                Json = new JsonRoot
+                {
+                    Date = new DateTime(2003, 3, 3),
+                    Required = null,
+                }
+            };
+
+            Entities.AddRange(e1, e2, e3);
+            await SaveChangesAsync();
+        }
+    }
+
+    protected virtual void OnModelCreating34293(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Context34293.Entity>(
+            b =>
+            {
+                b.Property(x => x.Id).ValueGeneratedNever();
+                b.OwnsOne(
+                    x => x.Json, b =>
+                    {
+                        b.ToJson().HasColumnType(JsonColumnType);
+                        b.OwnsOne(x => x.Required, bb =>
+                        {
+                            bb.OwnsOne(x => x.Optional);
+                            bb.Navigation(x => x.Optional).IsRequired(false);
+                        });
+                        b.Navigation(x => x.Required).IsRequired(true);
+                    });
+                b.Navigation(x => x.Json).IsRequired(true);
+            });
+    }
+
+    #endregion
+
     #region 34960
 
     [ConditionalFact]
