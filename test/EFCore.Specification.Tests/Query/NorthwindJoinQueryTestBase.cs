@@ -656,6 +656,55 @@ public abstract class NorthwindJoinQueryTestBase<TFixture>(TFixture fixture) : Q
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupJoin_aggregate_anonymous_key_selectors(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().GroupJoin(
+                ss.Set<Order>(),
+                x => new { x.CustomerID, x.City },
+                x => new { x.CustomerID, City = "London" },
+                (c, g) => new { c.CustomerID, Sum = g.Sum(x => x.CustomerID.Length) }),
+            elementSorter: e => e.CustomerID);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupJoin_aggregate_anonymous_key_selectors2(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().GroupJoin(
+                ss.Set<Order>(),
+                x => new { x.CustomerID, Year = 1996 },
+                x => new { x.CustomerID, x.OrderDate.Value.Year },
+                (c, g) => new { c.CustomerID, Sum = g.Sum(x => x.CustomerID.Length) }),
+            elementSorter: e => e.CustomerID);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupJoin_aggregate_anonymous_key_selectors_one_argument(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().GroupJoin(
+                ss.Set<Order>(),
+                x => new { x.CustomerID },
+                x => new { x.CustomerID },
+                (c, g) => new { c.CustomerID, Sum = g.Sum(x => x.CustomerID.Length) }),
+            elementSorter: e => e.CustomerID);
+
+    [ConditionalTheory(Skip = "issue 35028")]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupJoin_aggregate_nested_anonymous_key_selectors(bool async)
+        => AssertTranslationFailed(
+            () => AssertQuery(
+                async,
+                ss => ss.Set<Customer>().GroupJoin(
+                    ss.Set<Order>(),
+                    x => new { x.CustomerID, Nested = new { x.City, Year = 1996 } },
+                    x => new { x.CustomerID, Nested = new { City = "London", x.OrderDate.Value.Year } },
+                    (c, g) => new { c.CustomerID, Sum = g.Sum(x => x.CustomerID.Length) }),
+                elementSorter: e => e.CustomerID));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task Inner_join_with_tautology_predicate_converts_to_cross_join(bool async)
         => AssertQuery(
             async,
@@ -909,4 +958,21 @@ public abstract class NorthwindJoinQueryTestBase<TFixture>(TFixture fixture) : Q
                       on c.CustomerID equals o.CustomerID into g
                   from o in g.DefaultIfEmpty()
                   select new { a = o != null ? o.OrderID : -1 });
+
+    [ConditionalTheory(Skip = "issue #35028")]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Join_with_key_selectors_being_nested_anonymous_objects(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Order().Take(10).Join(
+                ss.Set<Order>(),
+                x => new { x.CustomerID, Nested = new { x.City, Year = 1996 } },
+                x => new { x.CustomerID, Nested = new { City = "London", x.OrderDate.Value.Year } },
+                (c, o) => new { c, o }),
+            elementSorter: e => (e.c.CustomerID, e.o.OrderID ),
+            elementAsserter: (e, a) =>
+            {
+                AssertEqual(e.c, a.c);
+                AssertEqual(e.o, a.o);
+            });
 }
