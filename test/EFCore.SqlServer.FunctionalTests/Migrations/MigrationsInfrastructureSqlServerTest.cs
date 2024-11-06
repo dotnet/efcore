@@ -755,7 +755,7 @@ FROM [__EFMigrationsHistory]
 ORDER BY [MigrationId];
 
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-VALUES (N'00000000000000_Empty', N'9.0.0');
+VALUES (N'00000000000000_Empty', N'9.0.1');
 
 --Before
 
@@ -798,12 +798,12 @@ BEGIN
 END
 
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-VALUES (N'00000000000001_Migration1', N'9.0.0');
+VALUES (N'00000000000001_Migration1', N'9.0.1');
 
 --After
 
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-VALUES (N'00000000000002_Migration2', N'9.0.0');
+VALUES (N'00000000000002_Migration2', N'9.0.1');
 
 DECLARE @result int;
 EXEC @result = sp_releaseapplock @Resource = '__EFMigrationsLock', @LockOwner = 'Session';
@@ -867,7 +867,7 @@ FROM [__EFMigrationsHistory]
 ORDER BY [MigrationId];
 
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-VALUES (N'00000000000000_Empty', N'9.0.0');
+VALUES (N'00000000000000_Empty', N'9.0.1');
 
 --Before
 
@@ -910,12 +910,12 @@ BEGIN
 END
 
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-VALUES (N'00000000000001_Migration1', N'9.0.0');
+VALUES (N'00000000000001_Migration1', N'9.0.1');
 
 --After
 
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-VALUES (N'00000000000002_Migration2', N'9.0.0');
+VALUES (N'00000000000002_Migration2', N'9.0.1');
 
 DECLARE @result int;
 EXEC @result = sp_releaseapplock @Resource = '__EFMigrationsLock', @LockOwner = 'Session';
