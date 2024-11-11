@@ -9,8 +9,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 #pragma warning disable EF9103
 
-// These tests are skipped for now because we cannot create a compatible test container until the SDK supports it.
-internal class VectorSearchCosmosTest : IClassFixture<VectorSearchCosmosTest.VectorSearchFixture>
+public class VectorSearchCosmosTest : IClassFixture<VectorSearchCosmosTest.VectorSearchFixture>
 {
     public VectorSearchCosmosTest(VectorSearchFixture fixture, ITestOutputHelper testOutputHelper)
     {
