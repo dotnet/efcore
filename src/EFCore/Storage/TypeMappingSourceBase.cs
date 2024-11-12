@@ -34,9 +34,7 @@ public abstract class TypeMappingSourceBase : ITypeMappingSource
     /// </summary>
     /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
     protected TypeMappingSourceBase(TypeMappingSourceDependencies dependencies)
-    {
-        Dependencies = dependencies;
-    }
+        => Dependencies = dependencies;
 
     /// <summary>
     ///     Dependencies for this service.
@@ -120,22 +118,12 @@ public abstract class TypeMappingSourceBase : ITypeMappingSource
     /// <returns>The type mapping, or <see langword="null" /> if none was found.</returns>
     public abstract CoreTypeMapping? FindMapping(Type type, IModel model, CoreTypeMapping? elementMapping = null);
 
-    /// <summary>
-    ///     Finds the type mapping for a given <see cref="MemberInfo" /> representing
-    ///     a field or a property of a CLR type.
-    /// </summary>
-    /// <remarks>
-    ///     <para>
-    ///         Note: Only call this method if there is no <see cref="IProperty" /> available, otherwise
-    ///         call <see cref="FindMapping(IProperty)" />
-    ///     </para>
-    ///     <para>
-    ///         Note: providers should typically not need to override this method.
-    ///     </para>
-    /// </remarks>
-    /// <param name="member">The field or property.</param>
-    /// <returns>The type mapping, or <see langword="null" /> if none was found.</returns>
+    /// <inheritdoc />
     public abstract CoreTypeMapping? FindMapping(MemberInfo member);
+
+    /// <inheritdoc />
+    public virtual CoreTypeMapping? FindMapping(MemberInfo member, IModel model, bool useAttributes)
+        => FindMapping(member);
 
     /// <summary>
     ///     Attempts to find a JSON-based type mapping for a collection of primitive types.
@@ -162,7 +150,7 @@ public abstract class TypeMappingSourceBase : ITypeMappingSource
         {
             elementMapping ??= FindMapping(elementType);
 
-            if (elementMapping is { ElementTypeMapping: null, JsonValueReaderWriter: not null })
+            if (elementMapping is { JsonValueReaderWriter: not null })
             {
                 var elementReader = elementMapping.JsonValueReaderWriter!;
 
@@ -178,17 +166,19 @@ public abstract class TypeMappingSourceBase : ITypeMappingSource
                 collectionReaderWriter = mappingInfo.JsonValueReaderWriter
                     ?? (JsonValueReaderWriter?)Activator.CreateInstance(
                         (elementType.IsNullableValueType()
-                            ? typeof(JsonNullableStructCollectionReaderWriter<,,>)
-                            : typeof(JsonCollectionReaderWriter<,,>))
-                        .MakeGenericType(modelClrType, typeToInstantiate, elementType.UnwrapNullableType()),
+                            ? typeof(JsonCollectionOfNullableStructsReaderWriter<,>)
+                            : elementType.IsValueType
+                                ? typeof(JsonCollectionOfStructsReaderWriter<,>)
+                                : typeof(JsonCollectionOfReferencesReaderWriter<,>))
+                        .MakeGenericType(typeToInstantiate, elementType.UnwrapNullableType()),
                         elementReader);
 
                 elementComparer = (ValueComparer?)Activator.CreateInstance(
                     elementType.IsNullableValueType()
-                        ? typeof(NullableValueTypeListComparer<>).MakeGenericType(elementType.UnwrapNullableType())
-                        : elementMapping.Comparer.Type.IsAssignableFrom(elementType)
-                            ? typeof(ListComparer<>).MakeGenericType(elementType)
-                            : typeof(ObjectListComparer<>).MakeGenericType(elementType),
+                        ? typeof(ListOfNullableValueTypesComparer<,>).MakeGenericType(typeToInstantiate, elementType.UnwrapNullableType())
+                        : elementType.IsValueType
+                            ? typeof(ListOfValueTypesComparer<,>).MakeGenericType(typeToInstantiate, elementType)
+                            : typeof(ListOfReferenceTypesComparer<,>).MakeGenericType(typeToInstantiate, elementType),
                     elementMapping.Comparer.ToNullableComparer(elementType)!);
 
                 return true;

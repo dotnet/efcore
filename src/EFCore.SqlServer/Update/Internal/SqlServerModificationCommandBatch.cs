@@ -23,7 +23,7 @@ public class SqlServerModificationCommandBatch : AffectedCountModificationComman
     /// </summary>
     private const int MaxParameterCount = 2100 - 2;
 
-    private readonly List<IReadOnlyModificationCommand> _pendingBulkInsertCommands = new();
+    private readonly List<IReadOnlyModificationCommand> _pendingBulkInsertCommands = [];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

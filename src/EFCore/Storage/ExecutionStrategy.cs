@@ -87,10 +87,7 @@ public abstract class ExecutionStrategy : IExecutionStrategy
         int maxRetryCount,
         TimeSpan maxRetryDelay)
     {
-        if (maxRetryCount < 0)
-        {
-            throw new ArgumentOutOfRangeException(nameof(maxRetryCount));
-        }
+        ArgumentOutOfRangeException.ThrowIfNegative(maxRetryCount);
 
         if (maxRetryDelay.TotalMilliseconds < 0.0)
         {
@@ -109,7 +106,7 @@ public abstract class ExecutionStrategy : IExecutionStrategy
     ///     See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
     ///     for more information and examples.
     /// </remarks>
-    protected virtual List<Exception> ExceptionsEncountered { get; } = new();
+    protected virtual List<Exception> ExceptionsEncountered { get; } = [];
 
     /// <summary>
     ///     A pseudo-random number generator that can be used to vary the delay between retries.
@@ -229,7 +226,7 @@ public abstract class ExecutionStrategy : IExecutionStrategy
             {
                 Current = null;
 
-                EntityFrameworkEventSource.Log.ExecutionStrategyOperationFailure();
+                EntityFrameworkMetricsData.ReportExecutionStrategyOperationFailure();
 
                 if (verifySucceeded != null
                     && CallOnWrappedException(ex, ShouldVerifySuccessOn))
@@ -258,8 +255,7 @@ public abstract class ExecutionStrategy : IExecutionStrategy
 
                 OnRetry();
 
-                using var waitEvent = new ManualResetEventSlim(false);
-                waitEvent.WaitHandle.WaitOne(delay.Value);
+                Thread.Sleep(delay.Value);
             }
         }
     }
@@ -340,7 +336,7 @@ public abstract class ExecutionStrategy : IExecutionStrategy
             {
                 Current = null;
 
-                EntityFrameworkEventSource.Log.ExecutionStrategyOperationFailure();
+                EntityFrameworkMetricsData.ReportExecutionStrategyOperationFailure();
 
                 if (verifySucceeded != null
                     && CallOnWrappedException(ex, ShouldVerifySuccessOn))

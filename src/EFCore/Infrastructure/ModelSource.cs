@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure;
@@ -36,9 +37,7 @@ public class ModelSource : IModelSource
     /// </summary>
     /// <param name="dependencies">The dependencies to use.</param>
     public ModelSource(ModelSourceDependencies dependencies)
-    {
-        Dependencies = dependencies;
-    }
+        => Dependencies = dependencies;
 
     /// <summary>
     ///     Dependencies for this service.
@@ -69,10 +68,19 @@ public class ModelSource : IModelSource
                     model = CreateModel(
                         context, modelCreationDependencies.ConventionSetBuilder, modelCreationDependencies.ModelDependencies);
 
-                    model = modelCreationDependencies.ModelRuntimeInitializer.Initialize(
-                        model, designTime, modelCreationDependencies.ValidationLogger);
+                    var designTimeModel = modelCreationDependencies.ModelRuntimeInitializer.Initialize(
+                        model, designTime: true, modelCreationDependencies.ValidationLogger);
 
-                    model = cache.Set(cacheKey, model, new MemoryCacheEntryOptions { Size = 100, Priority = CacheItemPriority.High });
+                    var runtimeModel = (IModel)designTimeModel.FindRuntimeAnnotationValue(CoreAnnotationNames.ReadOnlyModel)!;
+
+                    var designTimeKey = designTime ? cacheKey : Dependencies.ModelCacheKeyFactory.Create(context, designTime: true);
+                    var runtimeKey = designTime ? Dependencies.ModelCacheKeyFactory.Create(context, designTime: false) : cacheKey;
+
+                    cache.Set(
+                        designTimeKey, designTimeModel, new MemoryCacheEntryOptions { Size = 150, Priority = CacheItemPriority.High });
+                    cache.Set(runtimeKey, runtimeModel, new MemoryCacheEntryOptions { Size = 100, Priority = CacheItemPriority.High });
+
+                    model = designTime ? designTimeModel : runtimeModel;
                 }
             }
         }

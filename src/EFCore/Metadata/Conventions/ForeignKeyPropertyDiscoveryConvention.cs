@@ -50,17 +50,12 @@ public class ForeignKeyPropertyDiscoveryConvention :
     IPropertyFieldChangedConvention,
     IModelFinalizingConvention
 {
-    private static readonly bool UseOldBehavior34875 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue34875", out var enabled34875) && enabled34875;
-
     /// <summary>
     ///     Creates a new instance of <see cref="ForeignKeyPropertyDiscoveryConvention" />.
     /// </summary>
     /// <param name="dependencies">Parameter object containing dependencies for this convention.</param>
     public ForeignKeyPropertyDiscoveryConvention(ProviderConventionSetBuilderDependencies dependencies)
-    {
-        Dependencies = dependencies;
-    }
+        => Dependencies = dependencies;
 
     /// <summary>
     ///     Dependencies for this service.
@@ -137,6 +132,7 @@ public class ForeignKeyPropertyDiscoveryConvention :
                         || !foreignKey.Properties.SequenceEqual(foreignKeyProperties)))))
         {
             var batch = context.DelayConventions();
+            var newProperties = new List<IConventionProperty?>();
             using var foreignKeyReference = batch.Track(foreignKey);
             foreach (var fkProperty in foreignKey.Properties)
             {
@@ -145,18 +141,26 @@ public class ForeignKeyPropertyDiscoveryConvention :
                     && fkProperty.ClrType.IsNullableType() == foreignKey.IsRequired
                     && fkProperty.GetContainingForeignKeys().All(otherFk => otherFk.IsRequired == foreignKey.IsRequired))
                 {
-                    var newType = fkProperty.ClrType.MakeNullable(!foreignKey.IsRequired && (!fkProperty.IsKey() || UseOldBehavior34875));
+                    var newType = fkProperty.ClrType.MakeNullable(!foreignKey.IsRequired && !fkProperty.IsKey());
                     if (fkProperty.ClrType != newType)
                     {
-                        fkProperty.DeclaringType.Builder.Property(
-                            newType,
-                            fkProperty.Name,
-                            fkProperty.GetConfigurationSource() == ConfigurationSource.DataAnnotation);
+                        newProperties.Add(
+                            fkProperty.DeclaringType.Builder.Property(
+                                newType,
+                                fkProperty.Name,
+                                fkProperty.GetConfigurationSource() == ConfigurationSource.DataAnnotation)?.Metadata);
                     }
                 }
             }
 
             batch.Dispose();
+
+            // If the new properties didn't end up being used we need to remove them
+            foreach (var newProperty in newProperties)
+            {
+                newProperty?.DeclaringType.Builder.RemoveUnusedImplicitProperties([newProperty]);
+            }
+
             return foreignKeyReference.Object is null || !foreignKeyReference.Object.IsInModel
                 ? null
                 : foreignKeyReference.Object.Builder;
