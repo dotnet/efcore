@@ -92,9 +92,9 @@ public class FromSqlParameterExpandingExpressionVisitor : ExpressionVisitor
 
         switch (fromSql.Arguments)
         {
-            case ParameterExpression parameterExpression:
+            case QueryParameterExpression queryParameter:
                 // parameter value will never be null. It could be empty object?[]
-                var parameterValues = (object?[])_parametersValues[parameterExpression.Name!]!;
+                var parameterValues = (object?[])_parametersValues[queryParameter.Name]!;
                 _canCache = false;
 
                 var subParameters = new List<IRelationalParameter>(parameterValues.Length);
@@ -127,7 +127,7 @@ public class FromSqlParameterExpandingExpressionVisitor : ExpressionVisitor
                 }
 
                 return _visitedFromSqlExpressions[fromSql] = fromSql.Update(
-                    Expression.Constant(new CompositeRelationalParameter(parameterExpression.Name!, subParameters)));
+                    Expression.Constant(new CompositeRelationalParameter(queryParameter.Name!, subParameters)));
 
             case ConstantExpression { Value: object?[] existingValues }:
             {
@@ -158,7 +158,7 @@ public class FromSqlParameterExpandingExpressionVisitor : ExpressionVisitor
             }
 
             default:
-                Check.DebugFail("FromSql.Arguments must be Constant/ParameterExpression");
+                Check.DebugFail("FromSql.Arguments must be Constant/QueryParameterExpression");
                 return null;
         }
 

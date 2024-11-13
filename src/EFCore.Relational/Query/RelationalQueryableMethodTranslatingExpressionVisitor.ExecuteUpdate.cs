@@ -305,9 +305,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                                     : property.GetGetter().GetClrValue(constantExpression.Value),
                                 property.ClrType.MakeNullable());
 
-                        case SqlParameterExpression parameterExpression
-                            when parameterExpression.Name.StartsWith(
-                                QueryCompilationContext.QueryParameterPrefix, StringComparison.Ordinal):
+                        case SqlParameterExpression parameterExpression:
                         {
                             var lambda = Expression.Lambda(
                                 Expression.Call(
@@ -319,8 +317,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                                 QueryCompilationContext.QueryContextParameter);
 
                             var newParameterName =
-                                $"{ExecuteUpdateRuntimeParameterPrefix}"
-                                + $"{parameterExpression.Name[QueryCompilationContext.QueryParameterPrefix.Length..]}_{property.Name}";
+                                $"{ExecuteUpdateRuntimeParameterPrefix}{parameterExpression.Name[QueryCompilationContext.QueryParameterPrefix.Length..]}_{property.Name}";
 
                             return _queryCompilationContext.RegisterRuntimeParameter(newParameterName, lambda);
                         }
@@ -337,8 +334,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                                 QueryCompilationContext.QueryContextParameter);
 
                             var newParameterName =
-                                $"{ExecuteUpdateRuntimeParameterPrefix}"
-                                + $"{chainExpression.ParameterExpression.Name![QueryCompilationContext.QueryParameterPrefix.Length..]}_{property.Name}";
+                                $"{ExecuteUpdateRuntimeParameterPrefix}{chainExpression.ParameterExpression.Name[QueryCompilationContext.QueryParameterPrefix.Length..]}_{property.Name}";
 
                             return _queryCompilationContext.RegisterRuntimeParameter(newParameterName, lambda);
                         }
@@ -368,7 +364,6 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                             complexProperty.ClrType.MakeNullable()),
 
                         SqlParameterExpression parameter
-                            when parameter.Name.StartsWith(QueryCompilationContext.QueryParameterPrefix, StringComparison.Ordinal)
                             => new ParameterBasedComplexPropertyChainExpression(parameter, complexProperty),
 
                         StructuralTypeShaperExpression

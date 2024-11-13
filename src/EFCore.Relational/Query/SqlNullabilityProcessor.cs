@@ -35,7 +35,6 @@ public class SqlNullabilityProcessor : ExpressionVisitor
     {
         Dependencies = dependencies;
         UseRelationalNulls = parameters.UseRelationalNulls;
-        ParametersToConstantize = parameters.ParametersToConstantize;
 
         _sqlExpressionFactory = dependencies.SqlExpressionFactory;
         _nonNullableColumns = [];
@@ -52,11 +51,6 @@ public class SqlNullabilityProcessor : ExpressionVisitor
     ///     A bool value indicating whether relational null semantics are in use.
     /// </summary>
     protected virtual bool UseRelationalNulls { get; }
-
-    /// <summary>
-    ///     A collection of parameter names to constantize.
-    /// </summary>
-    protected virtual IReadOnlySet<string> ParametersToConstantize { get; }
 
     /// <summary>
     ///     Dictionary of current parameter values in use.
@@ -1333,9 +1327,10 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                 sqlParameterExpression.TypeMapping);
         }
 
-        if (ParametersToConstantize.Contains(sqlParameterExpression.Name))
+        if (sqlParameterExpression.ShouldBeConstantized)
         {
             DoNotCache();
+
             return _sqlExpressionFactory.Constant(
                 parameterValue,
                 sqlParameterExpression.Type,
