@@ -1770,7 +1770,6 @@ public abstract class NorthwindWhereQueryTestBase<TFixture>(TFixture fixture) : 
             ss => ss.Set<Order>().Where(o => EF.Functions.Like((string)(object)o.OrderID, "%20%")),
             ss => ss.Set<Order>().Where(o => o.OrderID.ToString().Contains("20")));
 
-    // see issue #31917
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Using_same_parameter_twice_in_query_generates_one_sql_parameter(bool async)

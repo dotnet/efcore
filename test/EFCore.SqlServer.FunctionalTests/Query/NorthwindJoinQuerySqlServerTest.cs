@@ -567,6 +567,55 @@ INNER JOIN (
 """);
     }
 
+    public override async Task GroupJoin_aggregate_anonymous_key_selectors(bool async)
+    {
+        await base.GroupJoin_aggregate_anonymous_key_selectors(async);
+
+        AssertSql(
+"""
+SELECT [c].[CustomerID], (
+    SELECT COALESCE(SUM(CAST(LEN([o].[CustomerID]) AS int)), 0)
+    FROM [Orders] AS [o]
+    WHERE [c].[City] IS NOT NULL AND [c].[CustomerID] = [o].[CustomerID] AND [c].[City] = N'London') AS [Sum]
+FROM [Customers] AS [c]
+""");
+    }
+
+    public override async Task GroupJoin_aggregate_anonymous_key_selectors2(bool async)
+    {
+        await base.GroupJoin_aggregate_anonymous_key_selectors2(async);
+
+        AssertSql(
+"""
+SELECT [c].[CustomerID], (
+    SELECT COALESCE(SUM(CAST(LEN([o].[CustomerID]) AS int)), 0)
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID] AND 1996 = DATEPART(year, [o].[OrderDate])) AS [Sum]
+FROM [Customers] AS [c]
+""");
+    }
+
+    public override async Task GroupJoin_aggregate_anonymous_key_selectors_one_argument(bool async)
+    {
+        await base.GroupJoin_aggregate_anonymous_key_selectors_one_argument(async);
+
+        AssertSql(
+"""
+SELECT [c].[CustomerID], (
+    SELECT COALESCE(SUM(CAST(LEN([o].[CustomerID]) AS int)), 0)
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]) AS [Sum]
+FROM [Customers] AS [c]
+""");
+    }
+
+    public override async Task GroupJoin_aggregate_nested_anonymous_key_selectors(bool async)
+    {
+        await base.GroupJoin_aggregate_nested_anonymous_key_selectors(async);
+
+        AssertSql();
+    }
+
     public override async Task Inner_join_with_tautology_predicate_converts_to_cross_join(bool async)
     {
         await base.Inner_join_with_tautology_predicate_converts_to_cross_join(async);
@@ -990,6 +1039,13 @@ CROSS JOIN (
 ) AS [o0]
 INNER JOIN [Orders] AS [o1] ON [c].[CustomerID] = [o1].[CustomerID]
 """);
+    }
+
+    public override async Task Join_with_key_selectors_being_nested_anonymous_objects(bool async)
+    {
+        await base.Join_with_key_selectors_being_nested_anonymous_objects(async);
+
+        AssertSql();
     }
 
     private void AssertSql(params string[] expected)

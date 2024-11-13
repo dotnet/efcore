@@ -5105,6 +5105,19 @@ ORDER BY c["id"] DESC
         AssertSql();
     }
 
+    public override Task Where_nanosecond_and_microsecond_component(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Where_nanosecond_and_microsecond_component(a);
+
+                AssertSql("""
+SELECT VALUE c
+FROM root c
+WHERE ((c["$type"] = "Order") AND (((DateTimePart("ns", c["OrderDate"]) % 1000) != 0) AND ((DateTimePart("mcs", c["OrderDate"]) % 1000) != 0)))
+""");
+            });
+
     #region ToPageAsync
 
     [ConditionalFact]
@@ -5275,6 +5288,34 @@ WHERE (c["id"] = "ALFKI")
             CosmosStrings.ToPageAsyncAtTopLevelOnly);
 
     #endregion ToPageAsync
+
+    public override async Task Ternary_Not_Null_Contains(bool async)
+    {
+        await AssertTranslationFailed(() => base.Ternary_Not_Null_Contains(async));
+
+        AssertSql();
+    }
+
+    public override async Task Ternary_Not_Null_endsWith_Non_Numeric_First_Part(bool async)
+    {
+        await AssertTranslationFailed(() => base.Ternary_Not_Null_endsWith_Non_Numeric_First_Part(async));
+
+        AssertSql();
+    }
+
+    public override async Task Ternary_Null_Equals_Non_Numeric_First_Part(bool async)
+    {
+        await AssertTranslationFailed(() => base.Ternary_Null_Equals_Non_Numeric_First_Part(async));
+
+        AssertSql();
+    }
+
+    public override async Task Ternary_Null_StartsWith(bool async)
+    {
+        await AssertTranslationFailed(() => base.Ternary_Null_StartsWith(async));
+
+        AssertSql();
+    }
 
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);

@@ -50,7 +50,7 @@ public class SqliteGeometryCollectionMethodTranslator : IMethodCallTranslator
                         _sqlExpressionFactory.Constant(1))
                 },
                 nullable: true,
-                argumentsPropagateNullability: new[] { true, true },
+                argumentsPropagateNullability: Statics.TrueArrays[2],
                 method.ReturnType);
         }
 

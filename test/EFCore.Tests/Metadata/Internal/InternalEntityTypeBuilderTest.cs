@@ -2067,7 +2067,7 @@ public class InternalEntityTypeBuilderTest
 
         Assert.Null(dependentEntityBuilder.Ignore(Order.CustomerIdProperty.Name, ConfigurationSource.Convention));
 
-        Assert.NotEmpty(dependentEntityBuilder.Metadata.GetProperties().Where(p => p.Name == Order.CustomerIdProperty.Name));
+        Assert.Contains(dependentEntityBuilder.Metadata.GetProperties(), p => p.Name == Order.CustomerIdProperty.Name);
         Assert.NotEmpty(dependentEntityBuilder.Metadata.GetForeignKeys());
     }
 
@@ -2207,7 +2207,7 @@ public class InternalEntityTypeBuilderTest
 
         Assert.Null(entityBuilder.Ignore(Order.CustomerIdProperty.Name, ConfigurationSource.DataAnnotation));
 
-        Assert.NotEmpty(entityBuilder.Metadata.GetProperties().Where(p => p.Name == Order.CustomerIdProperty.Name));
+        Assert.Contains(entityBuilder.Metadata.GetProperties(), p => p.Name == Order.CustomerIdProperty.Name);
         Assert.NotEmpty(entityBuilder.Metadata.GetIndexes());
     }
 
@@ -2279,7 +2279,7 @@ public class InternalEntityTypeBuilderTest
 
         Assert.Null(entityBuilder.Ignore(Order.CustomerIdProperty.Name, ConfigurationSource.DataAnnotation));
 
-        Assert.NotEmpty(entityBuilder.Metadata.GetProperties().Where(p => p.Name == Order.CustomerIdProperty.Name));
+        Assert.Contains(entityBuilder.Metadata.GetProperties(), p => p.Name == Order.CustomerIdProperty.Name);
         Assert.NotEmpty(entityBuilder.Metadata.GetKeys());
     }
 
