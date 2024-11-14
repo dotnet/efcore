@@ -20,7 +20,7 @@ jobs:
           Start-CosmosDbEmulator -Timeout 360
 
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Restore
         run: restore.cmd
@@ -35,7 +35,7 @@ jobs:
         shell: cmd
 
       - name: Publish Test Results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: test-results

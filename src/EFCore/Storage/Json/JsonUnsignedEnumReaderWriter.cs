@@ -11,6 +11,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.Json;
 public sealed class JsonUnsignedEnumReaderWriter<TEnum> : JsonValueReaderWriter<TEnum>
     where TEnum : struct, Enum
 {
+    private static readonly PropertyInfo InstanceProperty = typeof(JsonUnsignedEnumReaderWriter<TEnum>).GetProperty(nameof(Instance))!;
+
     /// <summary>
     ///     The singleton instance of this stateless reader/writer.
     /// </summary>
@@ -27,4 +29,8 @@ public sealed class JsonUnsignedEnumReaderWriter<TEnum> : JsonValueReaderWriter<
     /// <inheritdoc />
     public override void ToJsonTyped(Utf8JsonWriter writer, TEnum value)
         => writer.WriteNumberValue((ulong)Convert.ChangeType(value, typeof(ulong))!);
+
+    /// <inheritdoc />
+    public override Expression ConstructorExpression
+        => Expression.Property(null, InstanceProperty);
 }

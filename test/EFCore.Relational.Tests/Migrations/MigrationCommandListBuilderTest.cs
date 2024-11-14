@@ -151,7 +151,5 @@ Statement3
                 migrationsLogger));
     }
 
-    private class FakeDbContext : DbContext
-    {
-    }
+    private class FakeDbContext : DbContext;
 }

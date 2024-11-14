@@ -3,8 +3,11 @@
 
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
+using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore.Query;
+
+#nullable disable
 
 public class PrimitiveCollectionsQuerySqliteTest : PrimitiveCollectionsQueryRelationalTestBase<
     PrimitiveCollectionsQuerySqliteTest.PrimitiveCollectionsQuerySqlServerFixture>
@@ -152,18 +155,6 @@ WHERE "p"."Id" IN (2, 999, 1000)
 """);
     }
 
-    public override async Task Inline_collection_Contains_with_EF_Constant(bool async)
-    {
-        await base.Inline_collection_Contains_with_EF_Constant(async);
-
-        AssertSql(
-            """
-SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."String", "p"."Strings"
-FROM "PrimitiveCollectionsEntity" AS "p"
-WHERE "p"."Id" IN (2, 999, 1000)
-""");
-    }
-
     public override async Task Inline_collection_Contains_with_all_parameters(bool async)
     {
         await base.Inline_collection_Contains_with_all_parameters(async);
@@ -207,6 +198,20 @@ WHERE "p"."Int" IN (999, @__i_0, "p"."Id", "p"."Id" + "p"."Int")
 """);
     }
 
+    public override async Task Inline_collection_List_Contains_with_mixed_value_types(bool async)
+    {
+        await base.Inline_collection_List_Contains_with_mixed_value_types(async);
+
+        AssertSql(
+            """
+@__i_0='11'
+
+SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."String", "p"."Strings"
+FROM "PrimitiveCollectionsEntity" AS "p"
+WHERE "p"."Int" IN (999, @__i_0, "p"."Id", "p"."Id" + "p"."Int")
+""");
+    }
+
     public override async Task Inline_collection_Contains_as_Any_with_predicate(bool async)
     {
         await base.Inline_collection_Contains_as_Any_with_predicate(async);
@@ -231,6 +236,235 @@ WHERE "p"."Id" NOT IN (2, 999)
 """);
     }
 
+    public override async Task Inline_collection_Min_with_two_values(bool async)
+    {
+        await base.Inline_collection_Min_with_two_values(async);
+
+        AssertSql(
+            """
+SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."String", "p"."Strings"
+FROM "PrimitiveCollectionsEntity" AS "p"
+WHERE min(30, "p"."Int") = 30
+""");
+    }
+
+    public override async Task Inline_collection_List_Min_with_two_values(bool async)
+    {
+        await base.Inline_collection_List_Min_with_two_values(async);
+
+        AssertSql(
+            """
+SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."String", "p"."Strings"
+FROM "PrimitiveCollectionsEntity" AS "p"
+WHERE min(30, "p"."Int") = 30
+""");
+    }
+
+    public override async Task Inline_collection_Max_with_two_values(bool async)
+    {
+        await base.Inline_collection_Max_with_two_values(async);
+
+        AssertSql(
+            """
+SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."String", "p"."Strings"
+FROM "PrimitiveCollectionsEntity" AS "p"
+WHERE max(30, "p"."Int") = 30
+""");
+    }
+
+    public override async Task Inline_collection_List_Max_with_two_values(bool async)
+    {
+        await base.Inline_collection_List_Max_with_two_values(async);
+
+        AssertSql(
+            """
+SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."String", "p"."Strings"
+FROM "PrimitiveCollectionsEntity" AS "p"
+WHERE max(30, "p"."Int") = 30
+""");
+    }
+
+    public override async Task Inline_collection_Min_with_three_values(bool async)
+    {
+        await base.Inline_collection_Min_with_three_values(async);
+
+        AssertSql(
+            """
+@__i_0='25'
+
+SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."String", "p"."Strings"
+FROM "PrimitiveCollectionsEntity" AS "p"
+WHERE min(30, "p"."Int", @__i_0) = 25
+""");
+    }
+
+    public override async Task Inline_collection_List_Min_with_three_values(bool async)
+    {
+        await base.Inline_collection_List_Min_with_three_values(async);
+
+        AssertSql(
+            """
+@__i_0='25'
+
+SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."String", "p"."Strings"
+FROM "PrimitiveCollectionsEntity" AS "p"
+WHERE min(30, "p"."Int", @__i_0) = 25
+""");
+    }
+
+    public override async Task Inline_collection_Max_with_three_values(bool async)
+    {
+        await base.Inline_collection_Max_with_three_values(async);
+
+        AssertSql(
+            """
+@__i_0='35'
+
+SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."String", "p"."Strings"
+FROM "PrimitiveCollectionsEntity" AS "p"
+WHERE max(30, "p"."Int", @__i_0) = 35
+""");
+    }
+
+    public override async Task Inline_collection_List_Max_with_three_values(bool async)
+    {
+        await base.Inline_collection_List_Max_with_three_values(async);
+
+        AssertSql(
+            """
+@__i_0='35'
+
+SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."String", "p"."Strings"
+FROM "PrimitiveCollectionsEntity" AS "p"
+WHERE max(30, "p"."Int", @__i_0) = 35
+""");
+    }
+
+    public override async Task Inline_collection_of_nullable_value_type_Min(bool async)
+    {
+        await base.Inline_collection_of_nullable_value_type_Min(async);
+
+        AssertSql(
+            """
+@__i_0='25' (Nullable = true)
+
+SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."String", "p"."Strings"
+FROM "PrimitiveCollectionsEntity" AS "p"
+WHERE (
+    SELECT MIN("v"."Value")
+    FROM (SELECT CAST(30 AS INTEGER) AS "Value" UNION ALL VALUES ("p"."Int"), (@__i_0)) AS "v") = 25
+""");
+    }
+
+    public override async Task Inline_collection_of_nullable_value_type_Max(bool async)
+    {
+        await base.Inline_collection_of_nullable_value_type_Max(async);
+
+        AssertSql(
+            """
+@__i_0='35' (Nullable = true)
+
+SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."String", "p"."Strings"
+FROM "PrimitiveCollectionsEntity" AS "p"
+WHERE (
+    SELECT MAX("v"."Value")
+    FROM (SELECT CAST(30 AS INTEGER) AS "Value" UNION ALL VALUES ("p"."Int"), (@__i_0)) AS "v") = 35
+""");
+    }
+
+    public override async Task Inline_collection_of_nullable_value_type_with_null_Min(bool async)
+    {
+        await base.Inline_collection_of_nullable_value_type_with_null_Min(async);
+
+        AssertSql(
+            """
+SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."String", "p"."Strings"
+FROM "PrimitiveCollectionsEntity" AS "p"
+WHERE (
+    SELECT MIN("v"."Value")
+    FROM (SELECT CAST(30 AS INTEGER) AS "Value" UNION ALL VALUES ("p"."NullableInt"), (NULL)) AS "v") = 30
+""");
+    }
+
+    public override async Task Inline_collection_of_nullable_value_type_with_null_Max(bool async)
+    {
+        await base.Inline_collection_of_nullable_value_type_with_null_Max(async);
+
+        AssertSql(
+            """
+SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."String", "p"."Strings"
+FROM "PrimitiveCollectionsEntity" AS "p"
+WHERE (
+    SELECT MAX("v"."Value")
+    FROM (SELECT CAST(30 AS INTEGER) AS "Value" UNION ALL VALUES ("p"."NullableInt"), (NULL)) AS "v") = 30
+""");
+    }
+
+    public override async Task Inline_collection_with_single_parameter_element_Contains(bool async)
+    {
+        await base.Inline_collection_with_single_parameter_element_Contains(async);
+
+        AssertSql(
+            """
+@__i_0='2'
+
+SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."String", "p"."Strings"
+FROM "PrimitiveCollectionsEntity" AS "p"
+WHERE "p"."Id" = @__i_0
+""");
+    }
+
+    public override async Task Inline_collection_with_single_parameter_element_Count(bool async)
+    {
+        await base.Inline_collection_with_single_parameter_element_Count(async);
+
+        AssertSql(
+            """
+@__i_0='2'
+
+SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."String", "p"."Strings"
+FROM "PrimitiveCollectionsEntity" AS "p"
+WHERE (
+    SELECT COUNT(*)
+    FROM (SELECT CAST(@__i_0 AS INTEGER) AS "Value") AS "v"
+    WHERE "v"."Value" > "p"."Id") = 1
+""");
+    }
+
+    public override async Task Inline_collection_Contains_with_EF_Parameter(bool async)
+    {
+        await base.Inline_collection_Contains_with_EF_Parameter(async);
+
+        AssertSql(
+            """
+@__p_0='[2,999,1000]' (Size = 12)
+
+SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."String", "p"."Strings"
+FROM "PrimitiveCollectionsEntity" AS "p"
+WHERE "p"."Id" IN (
+    SELECT "p0"."value"
+    FROM json_each(@__p_0) AS "p0"
+)
+""");
+    }
+
+    public override async Task Inline_collection_Count_with_column_predicate_with_EF_Parameter(bool async)
+    {
+        await base.Inline_collection_Count_with_column_predicate_with_EF_Parameter(async);
+
+        AssertSql(
+            """
+@__p_0='[2,999,1000]' (Size = 12)
+
+SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."String", "p"."Strings"
+FROM "PrimitiveCollectionsEntity" AS "p"
+WHERE (
+    SELECT COUNT(*)
+    FROM json_each(@__p_0) AS "p0"
+    WHERE "p0"."value" > "p"."Id") = 2
+""");
+    }
+
     public override async Task Parameter_collection_Count(bool async)
     {
         await base.Parameter_collection_Count(async);
@@ -251,6 +485,34 @@ WHERE (
     public override async Task Parameter_collection_of_ints_Contains_int(bool async)
     {
         await base.Parameter_collection_of_ints_Contains_int(async);
+
+        AssertSql(
+            """
+@__ints_0='[10,999]' (Size = 8)
+
+SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."String", "p"."Strings"
+FROM "PrimitiveCollectionsEntity" AS "p"
+WHERE "p"."Int" IN (
+    SELECT "i"."value"
+    FROM json_each(@__ints_0) AS "i"
+)
+""",
+            //
+            """
+@__ints_0='[10,999]' (Size = 8)
+
+SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."String", "p"."Strings"
+FROM "PrimitiveCollectionsEntity" AS "p"
+WHERE "p"."Int" NOT IN (
+    SELECT "i"."value"
+    FROM json_each(@__ints_0) AS "i"
+)
+""");
+    }
+
+    public override async Task Parameter_collection_HashSet_of_ints_Contains_int(bool async)
+    {
+        await base.Parameter_collection_HashSet_of_ints_Contains_int(async);
 
         AssertSql(
             """
@@ -538,6 +800,48 @@ WHERE "p"."Int" IN (
 """);
     }
 
+    public override async Task Parameter_collection_Contains_with_EF_Constant(bool async)
+    {
+        await base.Parameter_collection_Contains_with_EF_Constant(async);
+
+        AssertSql(
+            """
+SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."String", "p"."Strings"
+FROM "PrimitiveCollectionsEntity" AS "p"
+WHERE "p"."Id" IN (2, 999, 1000)
+""");
+    }
+
+    public override async Task Parameter_collection_Where_with_EF_Constant_Where_Any(bool async)
+    {
+        await base.Parameter_collection_Where_with_EF_Constant_Where_Any(async);
+
+        AssertSql(
+            """
+SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."String", "p"."Strings"
+FROM "PrimitiveCollectionsEntity" AS "p"
+WHERE EXISTS (
+    SELECT 1
+    FROM (SELECT 2 AS "Value" UNION ALL VALUES (999), (1000)) AS "i"
+    WHERE "i"."Value" > 0)
+""");
+    }
+
+    public override async Task Parameter_collection_Count_with_column_predicate_with_EF_Constant(bool async)
+    {
+        await base.Parameter_collection_Count_with_column_predicate_with_EF_Constant(async);
+
+        AssertSql(
+            """
+SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."String", "p"."Strings"
+FROM "PrimitiveCollectionsEntity" AS "p"
+WHERE (
+    SELECT COUNT(*)
+    FROM (SELECT 2 AS "Value" UNION ALL VALUES (999), (1000)) AS "i"
+    WHERE "i"."Value" > "p"."Id") = 2
+""");
+    }
+
     public override async Task Column_collection_of_ints_Contains(bool async)
     {
         await base.Column_collection_of_ints_Contains(async);
@@ -769,6 +1073,40 @@ WHERE (
 """);
     }
 
+    public override async Task Inline_collection_value_index_Column(bool async)
+    {
+        // SQLite doesn't support correlated subqueries where the outer column is used as the LIMIT/OFFSET (see OFFSET "p"."Int" below)
+        await Assert.ThrowsAsync<SqliteException>(() => base.Inline_collection_value_index_Column(async));
+
+        AssertSql(
+            """
+SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."String", "p"."Strings"
+FROM "PrimitiveCollectionsEntity" AS "p"
+WHERE (
+    SELECT "v"."Value"
+    FROM (SELECT 0 AS "_ord", CAST(1 AS INTEGER) AS "Value" UNION ALL VALUES (1, "p"."Int"), (2, 3)) AS "v"
+    ORDER BY "v"."_ord"
+    LIMIT 1 OFFSET "p"."Int") = 1
+""");
+    }
+
+    public override async Task Inline_collection_List_value_index_Column(bool async)
+    {
+        // SQLite doesn't support correlated subqueries where the outer column is used as the LIMIT/OFFSET (see OFFSET "p"."Int" below)
+        await Assert.ThrowsAsync<SqliteException>(() => base.Inline_collection_List_value_index_Column(async));
+
+        AssertSql(
+            """
+SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."String", "p"."Strings"
+FROM "PrimitiveCollectionsEntity" AS "p"
+WHERE (
+    SELECT "v"."Value"
+    FROM (SELECT 0 AS "_ord", CAST(1 AS INTEGER) AS "Value" UNION ALL VALUES (1, "p"."Int"), (2, 3)) AS "v"
+    ORDER BY "v"."_ord"
+    LIMIT 1 OFFSET "p"."Int") = 1
+""");
+    }
+
     public override async Task Parameter_collection_index_Column_equal_Column(bool async)
     {
         await base.Parameter_collection_index_Column_equal_Column(async);
@@ -809,6 +1147,70 @@ WHERE "p"."Ints" ->> 1 = 10
 """);
     }
 
+    public override async Task Column_collection_First(bool async)
+    {
+        await base.Column_collection_First(async);
+
+        AssertSql(
+            """
+SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."String", "p"."Strings"
+FROM "PrimitiveCollectionsEntity" AS "p"
+WHERE (
+    SELECT "i"."value"
+    FROM json_each("p"."Ints") AS "i"
+    ORDER BY "i"."key"
+    LIMIT 1) = 1
+""");
+    }
+
+    public override async Task Column_collection_FirstOrDefault(bool async)
+    {
+        await base.Column_collection_FirstOrDefault(async);
+
+        AssertSql(
+            """
+SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."String", "p"."Strings"
+FROM "PrimitiveCollectionsEntity" AS "p"
+WHERE COALESCE((
+    SELECT "i"."value"
+    FROM json_each("p"."Ints") AS "i"
+    ORDER BY "i"."key"
+    LIMIT 1), 0) = 1
+""");
+    }
+
+    public override async Task Column_collection_Single(bool async)
+    {
+        await base.Column_collection_Single(async);
+
+        AssertSql(
+            """
+SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."String", "p"."Strings"
+FROM "PrimitiveCollectionsEntity" AS "p"
+WHERE (
+    SELECT "i"."value"
+    FROM json_each("p"."Ints") AS "i"
+    ORDER BY "i"."key"
+    LIMIT 1) = 1
+""");
+    }
+
+    public override async Task Column_collection_SingleOrDefault(bool async)
+    {
+        await base.Column_collection_SingleOrDefault(async);
+
+        AssertSql(
+            """
+SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."String", "p"."Strings"
+FROM "PrimitiveCollectionsEntity" AS "p"
+WHERE COALESCE((
+    SELECT "i"."value"
+    FROM json_each("p"."Ints") AS "i"
+    ORDER BY "i"."key"
+    LIMIT 1), 0) = 1
+""");
+    }
+
     public override async Task Column_collection_Skip(bool async)
     {
         await base.Column_collection_Skip(async);
@@ -820,11 +1222,11 @@ FROM "PrimitiveCollectionsEntity" AS "p"
 WHERE (
     SELECT COUNT(*)
     FROM (
-        SELECT "i"."key"
+        SELECT 1
         FROM json_each("p"."Ints") AS "i"
         ORDER BY "i"."key"
         LIMIT -1 OFFSET 1
-    ) AS "t") = 2
+    ) AS "i0") = 2
 """);
     }
 
@@ -862,6 +1264,82 @@ WHERE 11 IN (
 """);
     }
 
+    public override async Task Column_collection_Where_Skip(bool async)
+    {
+        await base.Column_collection_Where_Skip(async);
+
+        AssertSql(
+            """
+SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."String", "p"."Strings"
+FROM "PrimitiveCollectionsEntity" AS "p"
+WHERE (
+    SELECT COUNT(*)
+    FROM (
+        SELECT 1
+        FROM json_each("p"."Ints") AS "i"
+        WHERE "i"."value" > 1
+        ORDER BY "i"."key"
+        LIMIT -1 OFFSET 1
+    ) AS "i0") = 3
+""");
+    }
+
+    public override async Task Column_collection_Where_Take(bool async)
+    {
+        await base.Column_collection_Where_Take(async);
+
+        AssertSql(
+            """
+SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."String", "p"."Strings"
+FROM "PrimitiveCollectionsEntity" AS "p"
+WHERE (
+    SELECT COUNT(*)
+    FROM (
+        SELECT 1
+        FROM json_each("p"."Ints") AS "i"
+        WHERE "i"."value" > 1
+        ORDER BY "i"."key"
+        LIMIT 2
+    ) AS "i0") = 2
+""");
+    }
+
+    public override async Task Column_collection_Where_Skip_Take(bool async)
+    {
+        await base.Column_collection_Where_Skip_Take(async);
+
+        AssertSql(
+            """
+SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."String", "p"."Strings"
+FROM "PrimitiveCollectionsEntity" AS "p"
+WHERE (
+    SELECT COUNT(*)
+    FROM (
+        SELECT 1
+        FROM json_each("p"."Ints") AS "i"
+        WHERE "i"."value" > 1
+        ORDER BY "i"."key"
+        LIMIT 2 OFFSET 1
+    ) AS "i0") = 1
+""");
+    }
+
+    public override async Task Column_collection_Contains_over_subquery(bool async)
+    {
+        await base.Column_collection_Contains_over_subquery(async);
+
+        AssertSql(
+            """
+SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."String", "p"."Strings"
+FROM "PrimitiveCollectionsEntity" AS "p"
+WHERE 11 IN (
+    SELECT "i"."value"
+    FROM json_each("p"."Ints") AS "i"
+    WHERE "i"."value" > 1
+)
+""");
+    }
+
     public override async Task Column_collection_OrderByDescending_ElementAt(bool async)
     {
         await base.Column_collection_OrderByDescending_ElementAt(async);
@@ -875,6 +1353,23 @@ WHERE (
     FROM json_each("p"."Ints") AS "i"
     ORDER BY "i"."value" DESC
     LIMIT 1 OFFSET 0) = 111
+""");
+    }
+
+    public override async Task Column_collection_Where_ElementAt(bool async)
+    {
+        await base.Column_collection_Where_ElementAt(async);
+
+        AssertSql(
+            """
+SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."String", "p"."Strings"
+FROM "PrimitiveCollectionsEntity" AS "p"
+WHERE (
+    SELECT "i"."value"
+    FROM json_each("p"."Ints") AS "i"
+    WHERE "i"."value" > 1
+    ORDER BY "i"."key"
+    LIMIT 1 OFFSET 0) = 11
 """);
     }
 
@@ -903,9 +1398,27 @@ WHERE (
     FROM (
         SELECT DISTINCT "i"."value"
         FROM json_each("p"."Ints") AS "i"
-    ) AS "t") = 3
+    ) AS "i0") = 3
 """);
     }
+
+    public override async Task Column_collection_SelectMany(bool async)
+        => Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Column_collection_SelectMany(async))).Message);
+
+    public override async Task Column_collection_SelectMany_with_filter(bool async)
+        => Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Column_collection_SelectMany_with_filter(async))).Message);
+
+    public override async Task Column_collection_SelectMany_with_Select_to_anonymous_type(bool async)
+        => Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Column_collection_SelectMany_with_Select_to_anonymous_type(async))).Message);
 
     public override async Task Column_collection_projection_from_top_level(bool async)
     {
@@ -951,9 +1464,12 @@ WHERE (
 """);
     }
 
+    [ConditionalTheory]
     public override async Task Parameter_collection_Concat_column_collection(bool async)
     {
-        await base.Parameter_collection_Concat_column_collection(async);
+        // Issue #32561
+        await Assert.ThrowsAsync<EqualException>(
+            () => base.Parameter_collection_Concat_column_collection(async));
 
         AssertSql(
             """
@@ -964,12 +1480,28 @@ FROM "PrimitiveCollectionsEntity" AS "p"
 WHERE (
     SELECT COUNT(*)
     FROM (
-        SELECT "i"."value"
+        SELECT 1
         FROM json_each(@__ints_0) AS "i"
         UNION ALL
-        SELECT "i0"."value"
+        SELECT 1
         FROM json_each("p"."Ints") AS "i0"
-    ) AS "t") = 2
+    ) AS "u") = 2
+""");
+    }
+
+    public override async Task Parameter_collection_with_type_inference_for_JsonScalarExpression(bool async)
+    {
+        await base.Parameter_collection_with_type_inference_for_JsonScalarExpression(async);
+
+        AssertSql(
+            """
+@__values_0='["one","two"]' (Size = 13)
+
+SELECT CASE
+    WHEN "p"."Id" <> 0 THEN @__values_0 ->> ("p"."Int" % 2)
+    ELSE 'foo'
+END
+FROM "PrimitiveCollectionsEntity" AS "p"
 """);
     }
 
@@ -991,7 +1523,7 @@ WHERE (
         UNION
         SELECT "i0"."value"
         FROM json_each(@__ints_0) AS "i0"
-    ) AS "t") = 2
+    ) AS "u") = 2
 """);
     }
 
@@ -1010,7 +1542,7 @@ WHERE (
         FROM json_each("p"."Ints") AS "i"
         INTERSECT
         SELECT CAST(11 AS INTEGER) AS "Value" UNION ALL VALUES (111)
-    ) AS "t") = 2
+    ) AS "i0") = 2
 """);
     }
 
@@ -1029,8 +1561,28 @@ WHERE (
         EXCEPT
         SELECT "i"."value" AS "Value"
         FROM json_each("p"."Ints") AS "i"
-    ) AS "t"
-    WHERE "t"."Value" % 2 = 1) = 2
+    ) AS "e"
+    WHERE "e"."Value" % 2 = 1) = 2
+""");
+    }
+
+    public override async Task Column_collection_Where_Union(bool async)
+    {
+        await base.Column_collection_Where_Union(async);
+
+        AssertSql(
+            """
+SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."String", "p"."Strings"
+FROM "PrimitiveCollectionsEntity" AS "p"
+WHERE (
+    SELECT COUNT(*)
+    FROM (
+        SELECT "i"."value"
+        FROM json_each("p"."Ints") AS "i"
+        WHERE "i"."value" > 100
+        UNION
+        SELECT CAST(50 AS INTEGER) AS "Value"
+    ) AS "u") = 2
 """);
     }
 
@@ -1074,6 +1626,13 @@ WHERE "p"."Ints" = '[1,10]'
         AssertSql();
     }
 
+    public override async Task Column_collection_Where_equality_inline_collection(bool async)
+    {
+        await base.Column_collection_Where_equality_inline_collection(async);
+
+        AssertSql();
+    }
+
     public override async Task Parameter_collection_in_subquery_Count_as_compiled_query(bool async)
     {
         await base.Parameter_collection_in_subquery_Count_as_compiled_query(async);
@@ -1087,12 +1646,12 @@ FROM "PrimitiveCollectionsEntity" AS "p"
 WHERE (
     SELECT COUNT(*)
     FROM (
-        SELECT "i"."value", "i"."key", "i"."value" AS "value0"
+        SELECT "i"."value" AS "value0"
         FROM json_each(@__ints) AS "i"
         ORDER BY "i"."key"
         LIMIT -1 OFFSET 1
-    ) AS "t"
-    WHERE "t"."value0" > "p"."Id") = 1
+    ) AS "i0"
+    WHERE "i0"."value0" > "p"."Id") = 1
 """);
     }
 
@@ -1116,17 +1675,17 @@ FROM "PrimitiveCollectionsEntity" AS "p"
 WHERE (
     SELECT COUNT(*)
     FROM (
-        SELECT "t"."value"
+        SELECT "i1"."value"
         FROM (
-            SELECT "i"."value", "i"."key"
+            SELECT "i"."value"
             FROM json_each(@__ints) AS "i"
             ORDER BY "i"."key"
             LIMIT -1 OFFSET 1
-        ) AS "t"
+        ) AS "i1"
         UNION
         SELECT "i0"."value"
         FROM json_each("p"."Ints") AS "i0"
-    ) AS "t0") = 3
+    ) AS "u") = 3
 """);
     }
 
@@ -1148,7 +1707,7 @@ WHERE (
         UNION
         SELECT "i"."value"
         FROM json_each("p"."Ints") AS "i"
-    ) AS "t") = 3
+    ) AS "u") = 3
 """);
     }
 
@@ -1168,22 +1727,22 @@ WHERE (
         SELECT "s"."value"
         FROM json_each(@__Skip_0) AS "s"
         UNION
-        SELECT "t1"."value"
+        SELECT "i2"."value"
         FROM (
-            SELECT "t0"."value"
+            SELECT "i1"."value"
             FROM (
-                SELECT DISTINCT "t2"."value"
+                SELECT DISTINCT "i0"."value"
                 FROM (
-                    SELECT "i"."value", "i"."key"
+                    SELECT "i"."value"
                     FROM json_each("p"."Ints") AS "i"
                     ORDER BY "i"."value"
                     LIMIT -1 OFFSET 1
-                ) AS "t2"
-            ) AS "t0"
-            ORDER BY "t0"."value" DESC
+                ) AS "i0"
+            ) AS "i1"
+            ORDER BY "i1"."value" DESC
             LIMIT 20
-        ) AS "t1"
-    ) AS "t") = 3
+        ) AS "i2"
+    ) AS "u") = 3
 """);
     }
 
@@ -1207,17 +1766,17 @@ FROM "PrimitiveCollectionsEntity" AS "p"
 WHERE (
     SELECT COUNT(*)
     FROM (
-        SELECT "t"."value"
+        SELECT "i1"."value"
         FROM (
-            SELECT "i"."value", "i"."key"
+            SELECT "i"."value"
             FROM json_each("p"."Ints") AS "i"
             ORDER BY "i"."key"
             LIMIT -1 OFFSET 1
-        ) AS "t"
+        ) AS "i1"
         UNION
         SELECT "i0"."value"
         FROM json_each(@__ints_0) AS "i0"
-    ) AS "t0") = 3
+    ) AS "u") = 3
 """);
     }
 
@@ -1275,6 +1834,12 @@ ORDER BY "p"."Id"
             (await Assert.ThrowsAsync<InvalidOperationException>(
                 () => base.Project_collection_of_nullable_ints_with_distinct(async))).Message);
 
+    public override async Task Project_collection_of_ints_with_ToList_and_FirstOrDefault(bool async)
+        => Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Project_collection_of_ints_with_ToList_and_FirstOrDefault(async))).Message);
+
     public override async Task Project_multiple_collections(bool async)
         => Assert.Equal(
             SqliteStrings.ApplyNotSupported,
@@ -1294,6 +1859,30 @@ ORDER BY "p"."Id"
 """);
     }
 
+    public override async Task Project_inline_collection(bool async)
+    {
+        await base.Project_inline_collection(async);
+
+        AssertSql(
+            """
+SELECT "p"."String"
+FROM "PrimitiveCollectionsEntity" AS "p"
+""");
+    }
+
+    public override async Task Project_inline_collection_with_Union(bool async)
+        => Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Project_inline_collection_with_Union(async))).Message);
+
+    public override async Task Project_inline_collection_with_Concat(bool async)
+    {
+        await base.Project_inline_collection_with_Concat(async);
+
+        AssertSql();
+    }
+
     public override async Task Project_empty_collection_of_nullables_and_collection_only_containing_nulls(bool async)
         => Assert.Equal(
             SqliteStrings.ApplyNotSupported,
@@ -1306,20 +1895,20 @@ ORDER BY "p"."Id"
 
         AssertSql(
             """
-@__ints_1='[1,2,3]' (Size = 7)
-@__strings_0='["one","two","three"]' (Size = 21)
+@__ints_0='[1,2,3]' (Size = 7)
+@__strings_1='["one","two","three"]' (Size = 21)
 
 SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."String", "p"."Strings"
 FROM "PrimitiveCollectionsEntity" AS "p"
 WHERE CASE
     WHEN "p"."Int" IN (
         SELECT "i"."value"
-        FROM json_each(@__ints_1) AS "i"
+        FROM json_each(@__ints_0) AS "i"
     ) THEN 'one'
     ELSE 'two'
 END IN (
     SELECT "s"."value"
-    FROM json_each(@__strings_0) AS "s"
+    FROM json_each(@__strings_1) AS "s"
 )
 """);
     }
@@ -1330,20 +1919,20 @@ END IN (
 
         AssertSql(
             """
-@__ints_1='[1,2,3]' (Size = 7)
-@__strings_0='["one","two","three"]' (Size = 21)
+@__ints_0='[1,2,3]' (Size = 7)
+@__strings_1='["one","two","three"]' (Size = 21)
 
 SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."String", "p"."Strings"
 FROM "PrimitiveCollectionsEntity" AS "p"
 WHERE CASE
     WHEN "p"."Int" IN (
         SELECT "i"."value"
-        FROM json_each(@__ints_1) AS "i"
+        FROM json_each(@__ints_0) AS "i"
     ) THEN 'one'
     ELSE 'two'
 END IN (
     SELECT "s"."value"
-    FROM json_each(@__strings_0) AS "s"
+    FROM json_each(@__strings_1) AS "s"
 )
 """);
     }
@@ -1382,7 +1971,8 @@ END IN (
 
     public class SimpleContext(SqliteConnection connection) : DbContext
     {
-        public DbSet<SimpleEntity> SimpleEntities => Set<SimpleEntity>();
+        public DbSet<SimpleEntity> SimpleEntities
+            => Set<SimpleEntity>();
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder.UseSqlite(connection);
@@ -1400,7 +1990,7 @@ END IN (
     private PrimitiveCollectionsContext CreateContext()
         => Fixture.CreateContext();
 
-    public class PrimitiveCollectionsQuerySqlServerFixture : PrimitiveCollectionsQueryFixtureBase
+    public class PrimitiveCollectionsQuerySqlServerFixture : PrimitiveCollectionsQueryFixtureBase, ITestSqlLoggerFactory
     {
         public TestSqlLoggerFactory TestSqlLoggerFactory
             => (TestSqlLoggerFactory)ListLoggerFactory;

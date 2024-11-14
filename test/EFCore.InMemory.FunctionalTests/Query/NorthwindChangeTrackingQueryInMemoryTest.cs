@@ -5,17 +5,9 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class NorthwindChangeTrackingQueryInMemoryTest : NorthwindChangeTrackingQueryTestBase<
-    NorthwindQueryInMemoryFixture<NoopModelCustomizer>>
+public class NorthwindChangeTrackingQueryInMemoryTest(NorthwindQueryInMemoryFixture<NoopModelCustomizer> fixture)
+    : NorthwindChangeTrackingQueryTestBase<NorthwindQueryInMemoryFixture<NoopModelCustomizer>>(fixture)
 {
-    public NorthwindChangeTrackingQueryInMemoryTest(
-        NorthwindQueryInMemoryFixture<NoopModelCustomizer> fixture,
-        ITestOutputHelper testOutputHelper)
-        : base(fixture)
-    {
-        //TestLoggerFactory.TestOutputHelper = testOutputHelper;
-    }
-
     protected override NorthwindContext CreateNoTrackingContext()
         => new NorthwindInMemoryContext(
             new DbContextOptionsBuilder(Fixture.CreateOptions())

@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
+
 namespace Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 
 /// <summary>
@@ -21,4 +23,16 @@ public static class CosmosEntityTypeExtensions
         => entityType.BaseType?.IsDocumentRoot()
             ?? (entityType.FindOwnership() == null
                 || entityType[CosmosAnnotationNames.ContainerName] != null);
+
+    /// <summary>
+    ///     Returns the JSON `id` definition, or <see langword="null" /> if there is none.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    public static IJsonIdDefinition? GetJsonIdDefinition(this IEntityType entityType)
+        => entityType.GetOrAddRuntimeAnnotationValue(
+            CosmosAnnotationNames.JsonIdDefinition,
+            static e =>
+                ((CosmosModelRuntimeInitializerDependencies)e!.Model.FindRuntimeAnnotationValue(
+                    CosmosAnnotationNames.ModelDependencies)!).JsonIdDefinitionFactory.Create(e),
+            entityType);
 }

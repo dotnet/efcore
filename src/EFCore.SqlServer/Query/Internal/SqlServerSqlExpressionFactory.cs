@@ -22,11 +22,10 @@ public class SqlServerSqlExpressionFactory : SqlExpressionFactory
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public SqlServerSqlExpressionFactory(SqlExpressionFactoryDependencies dependencies)
+    public SqlServerSqlExpressionFactory(
+        SqlExpressionFactoryDependencies dependencies)
         : base(dependencies)
-    {
-        _typeMappingSource = dependencies.TypeMappingSource;
-    }
+        => _typeMappingSource = dependencies.TypeMappingSource;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -34,7 +33,7 @@ public class SqlServerSqlExpressionFactory : SqlExpressionFactory
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [return: NotNullIfNotNull("sqlExpression")]
+    [return: NotNullIfNotNull(nameof(sqlExpression))]
     public override SqlExpression? ApplyTypeMapping(SqlExpression? sqlExpression, RelationalTypeMapping? typeMapping)
         => sqlExpression switch
         {

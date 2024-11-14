@@ -141,7 +141,7 @@ public class CosmosSingletonOptions : ICosmosSingletonOptions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual bool? EnableContentResponseOnWrite { get; private set; }
+    public virtual bool? EnableContentResponseOnWrite { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -169,7 +169,6 @@ public class CosmosSingletonOptions : ICosmosSingletonOptions
             Region = cosmosOptions.Region;
             PreferredRegions = cosmosOptions.PreferredRegions;
             LimitToEndpoint = cosmosOptions.LimitToEndpoint;
-            EnableContentResponseOnWrite = cosmosOptions.EnableContentResponseOnWrite;
             ConnectionMode = cosmosOptions.ConnectionMode;
             WebProxy = cosmosOptions.WebProxy;
             RequestTimeout = cosmosOptions.RequestTimeout;
@@ -208,7 +207,6 @@ public class CosmosSingletonOptions : ICosmosSingletonOptions
                 || GatewayModeMaxConnectionLimit != cosmosOptions.GatewayModeMaxConnectionLimit
                 || MaxTcpConnectionsPerEndpoint != cosmosOptions.MaxTcpConnectionsPerEndpoint
                 || MaxRequestsPerTcpConnection != cosmosOptions.MaxRequestsPerTcpConnection
-                || EnableContentResponseOnWrite != cosmosOptions.EnableContentResponseOnWrite
                 || HttpClientFactory != cosmosOptions.HttpClientFactory
             ))
         {

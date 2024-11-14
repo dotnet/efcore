@@ -13,9 +13,17 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 ///     <see href="https://github.com/dotnet/efcore">github.com/dotnet/efcore</see>.
 /// </remarks>
 [DebuggerDisplay("{Microsoft.EntityFrameworkCore.Query.ExpressionPrinter.Print(this), nq}")]
-public sealed class ProjectionExpression : Expression, IPrintableExpression
+public sealed class ProjectionExpression : Expression, IRelationalQuotableExpression, IPrintableExpression
 {
-    internal ProjectionExpression(SqlExpression expression, string alias)
+    private static ConstructorInfo? _quotingConstructor;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public ProjectionExpression(SqlExpression expression, string alias)
     {
         Expression = expression;
         Alias = alias;
@@ -53,6 +61,13 @@ public sealed class ProjectionExpression : Expression, IPrintableExpression
         => expression != Expression
             ? new ProjectionExpression(expression, Alias)
             : this;
+
+    /// <inheritdoc />
+    public Expression Quote()
+        => New(
+            _quotingConstructor ??= typeof(ProjectionExpression).GetConstructor([typeof(SqlExpression), typeof(string)])!,
+            Expression.Quote(),
+            Constant(Alias));
 
     /// <inheritdoc />
     void IPrintableExpression.Print(ExpressionPrinter expressionPrinter)
