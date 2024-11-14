@@ -173,6 +173,11 @@ public class QueryCompilationContext
     public virtual bool IgnoreQueryFilters { get; internal set; }
 
     /// <summary>
+    ///     A value indicating whether query filters are ignored in this query.
+    /// </summary>
+    public virtual HashSet<object>? IgnoredQueryFilters { get; internal set; }
+
+    /// <summary>
     ///     A value indicating whether eager loaded navigations are ignored in this query.
     /// </summary>
     public virtual bool IgnoreAutoIncludes { get; internal set; }

@@ -301,10 +301,10 @@ public class RuntimeModelConvention : IModelFinalizedConvention
                 }
             }
 
-            if (annotations.TryGetValue(CoreAnnotationNames.QueryFilter, out var queryFilter))
+            if (annotations.TryGetValue(CoreAnnotationNames.QueryFilter, out var queryFilters))
             {
-                annotations[CoreAnnotationNames.QueryFilter] =
-                    new QueryRootRewritingExpressionVisitor(runtimeEntityType.Model).Rewrite((Expression)queryFilter!);
+                annotations[CoreAnnotationNames.QueryFilter] = (queryFilters as Dictionary<object, LambdaExpression>)?
+                    .ToDictionary(x => x.Key, x => (LambdaExpression)new QueryRootRewritingExpressionVisitor(runtimeEntityType.Model).Rewrite(x.Value));
             }
 
 #pragma warning disable CS0612 // Type or member is obsolete

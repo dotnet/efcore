@@ -286,7 +286,7 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
         Assert.Equal(
             CoreStrings.RuntimeModelMissingData,
             Assert.Throws<InvalidOperationException>(joinType.GetComment).Message);
-        Assert.Null(joinType.GetQueryFilter());
+        Assert.Null(joinType.GetQueryFilters());
         Assert.Null(joinType[RelationalAnnotationNames.IsTableExcludedFromMigrations]);
         Assert.Equal(
             CoreStrings.RuntimeModelMissingData,

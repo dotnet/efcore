@@ -43,10 +43,13 @@ public class QueryFilterRewritingConvention : IModelFinalizingConvention
     {
         foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
         {
-            var queryFilter = entityType.GetQueryFilter();
-            if (queryFilter != null)
+            var queryFilters = entityType.GetQueryFilters();
+            if (queryFilters != null)
             {
-                entityType.SetQueryFilter((LambdaExpression)DbSetAccessRewriter.Rewrite(modelBuilder.Metadata, queryFilter));
+                foreach (var queryFilter in queryFilters)
+                {
+                    entityType.SetQueryFilter(queryFilter.Key, (LambdaExpression)DbSetAccessRewriter.Rewrite(modelBuilder.Metadata, queryFilter.Value));
+                }
             }
         }
     }

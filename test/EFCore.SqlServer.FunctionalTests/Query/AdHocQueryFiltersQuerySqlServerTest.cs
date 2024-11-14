@@ -10,6 +10,50 @@ public class AdHocQueryFiltersQuerySqlServerTest : AdHocQueryFiltersQueryRelatio
     protected override ITestStoreFactory TestStoreFactory
         => SqlServerTestStoreFactory.Instance;
 
+    #region 8576
+
+    public override async Task Named_Query_filters()
+    {
+        await base.Named_Query_filters();
+
+        AssertSql(
+            """
+@__ef_filter___ids_0='[1,7]' (Size = 4000)
+
+SELECT [e].[Id], [e].[IsDeleted], [e].[IsDraft], [e].[Name]
+FROM [Entities] AS [e]
+WHERE [e].[Id] NOT IN (
+    SELECT [e0].[value]
+    FROM OPENJSON(@__ef_filter___ids_0) WITH ([value] int '$') AS [e0]
+) AND [e].[Name] LIKE N'Name%' AND [e].[IsDeleted] = CAST(0 AS bit) AND [e].[IsDraft] = CAST(0 AS bit)
+""");
+    }
+
+    public override async Task Named_query_filters_ignore_some()
+    {
+        await base.Named_query_filters_ignore_some();
+
+        AssertSql(
+            """
+SELECT [e].[Id], [e].[IsDeleted], [e].[IsDraft], [e].[Name]
+FROM [Entities] AS [e]
+WHERE [e].[IsDraft] = CAST(0 AS bit)
+""");
+    }
+
+    public override async Task Named_query_filters_ignore_all()
+    {
+        await base.Named_query_filters_ignore_all();
+
+        AssertSql(
+            """
+SELECT [e].[Id], [e].[IsDeleted], [e].[IsDraft], [e].[Name]
+FROM [Entities] AS [e]
+""");
+    }
+
+    #endregion
+
     #region 11803
 
     [ConditionalFact]

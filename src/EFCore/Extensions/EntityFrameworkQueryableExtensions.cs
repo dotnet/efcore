@@ -2674,17 +2674,18 @@ public static class EntityFrameworkQueryableExtensions
     /// </remarks>
     /// <typeparam name="TEntity">The type of entity being queried.</typeparam>
     /// <param name="source">The source query.</param>
+    /// <param name="filterKeys">The filter keys.</param>
     /// <returns>A new query that will not apply any model-level entity query filters.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="source" /> is <see langword="null" />.</exception>
     public static IQueryable<TEntity> IgnoreQueryFilters<TEntity>(
-        this IQueryable<TEntity> source)
+        this IQueryable<TEntity> source, [NotParameterized] params object[] filterKeys)
         where TEntity : class
         => source.Provider is EntityQueryProvider
             ? source.Provider.CreateQuery<TEntity>(
                 Expression.Call(
                     instance: null,
                     method: IgnoreQueryFiltersMethodInfo.MakeGenericMethod(typeof(TEntity)),
-                    arguments: source.Expression))
+                    arguments: [source.Expression, Expression.Constant(filterKeys)]))
             : source;
 
     #endregion

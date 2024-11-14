@@ -398,10 +398,10 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         var entityTypeA = modelBuilder.Entity<A>().Metadata;
         var entityTypeD = modelBuilder.Entity<D>().Metadata;
 
-        entityTypeD.SetQueryFilter((Expression<Func<D, bool>>)(_ => true));
+        entityTypeD.SetQueryFilter(string.Empty, (Expression<Func<D, bool>>)(_ => true));
 
         VerifyError(
-            CoreStrings.BadFilterDerivedType(entityTypeD.GetQueryFilter(), entityTypeD.DisplayName(), entityTypeA.DisplayName()),
+            CoreStrings.BadFilterDerivedType(entityTypeD.GetQueryFilters()[string.Empty], entityTypeD.DisplayName(), entityTypeA.DisplayName()),
             modelBuilder);
     }
 

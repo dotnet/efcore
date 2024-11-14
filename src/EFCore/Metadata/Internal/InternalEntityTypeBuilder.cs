@@ -1301,10 +1301,22 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
     public virtual InternalEntityTypeBuilder? HasQueryFilter(
         LambdaExpression? filter,
         ConfigurationSource configurationSource)
+        => HasQueryFilter(string.Empty, filter, configurationSource);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual InternalEntityTypeBuilder? HasQueryFilter(
+        object filterKey,
+        LambdaExpression? filter,
+        ConfigurationSource configurationSource)
     {
-        if (CanSetQueryFilter(filter, configurationSource))
+        if (CanSetQueryFilter(filterKey, filter, configurationSource))
         {
-            Metadata.SetQueryFilter(filter, configurationSource);
+            Metadata.SetQueryFilter(filterKey, filter, configurationSource);
 
             return this;
         }
@@ -1319,8 +1331,31 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual bool CanSetQueryFilter(LambdaExpression? filter, ConfigurationSource configurationSource)
-        => configurationSource.Overrides(Metadata.GetQueryFilterConfigurationSource())
-            || Metadata.GetQueryFilter() == filter;
+        => CanSetQueryFilter(string.Empty, filter, configurationSource);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual bool CanSetQueryFilter(object filterKey, LambdaExpression? filter, ConfigurationSource configurationSource)
+    {
+        if (configurationSource.Overrides(Metadata.GetQueryFilterConfigurationSource()))
+        {
+            return true;
+        }
+        var queryFilters = Metadata.GetQueryFilters();
+        if (queryFilters == null && filter == null)
+        {
+            return true;
+        }
+        if (queryFilters != null && queryFilters.ContainsKey(filterKey))
+        {
+            return true;
+        }
+        return false;
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -5487,6 +5522,26 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
     [DebuggerStepThrough]
     bool IConventionEntityTypeBuilder.CanSetQueryFilter(LambdaExpression? filter, bool fromDataAnnotation)
         => CanSetQueryFilter(filter, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    IConventionEntityTypeBuilder? IConventionEntityTypeBuilder.HasQueryFilter(object filterKey, LambdaExpression? filter, bool fromDataAnnotation)
+        => HasQueryFilter(filterKey, filter, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    bool IConventionEntityTypeBuilder.CanSetQueryFilter(object filterKey, LambdaExpression? filter, bool fromDataAnnotation)
+        => CanSetQueryFilter(filterKey, filter, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

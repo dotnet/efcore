@@ -323,6 +323,16 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
         if (genericMethodDefinition == EntityFrameworkQueryableExtensions.IgnoreQueryFiltersMethodInfo)
         {
             var visitedExpression = Visit(methodCallExpression.Arguments[0]);
+            var filterKeys = methodCallExpression.Arguments[1].GetConstantValue<object[]>();
+            if(filterKeys == null || filterKeys.Length == 0)
+            {
+                _queryCompilationContext.IgnoredQueryFilters = null;
+            }
+            else
+            {
+                _queryCompilationContext.IgnoredQueryFilters ??= [];
+                _queryCompilationContext.IgnoredQueryFilters.UnionWith(filterKeys);
+            }
             _queryCompilationContext.IgnoreQueryFilters = true;
 
             return visitedExpression;

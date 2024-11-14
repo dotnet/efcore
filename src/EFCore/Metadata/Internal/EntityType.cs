@@ -2855,7 +2855,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual LambdaExpression? SetQueryFilter(LambdaExpression? queryFilter, ConfigurationSource configurationSource)
+    public virtual Dictionary<object, LambdaExpression>? SetQueryFilter(object filterKey, LambdaExpression? queryFilter, ConfigurationSource configurationSource)
     {
         var errorMessage = CheckQueryFilter(queryFilter);
         if (errorMessage != null)
@@ -2863,7 +2863,34 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
             throw new InvalidOperationException(errorMessage);
         }
 
-        return (LambdaExpression?)SetOrRemoveAnnotation(CoreAnnotationNames.QueryFilter, queryFilter, configurationSource)?.Value;
+        var queryFilters = FindAnnotation(CoreAnnotationNames.QueryFilter)?.Value as Dictionary<object, LambdaExpression> ?? new Dictionary<object, LambdaExpression>();
+
+        var hasChanged = false;
+        if(queryFilters.TryGetValue(filterKey, out var existingFilter))
+        {
+            if (queryFilter == null)
+            {
+                queryFilters.Remove(filterKey);
+                hasChanged = true;
+            }
+            else if (queryFilter != existingFilter)
+            {
+                queryFilters[filterKey] = queryFilter;
+                hasChanged = true;
+            }
+        }
+        else if(queryFilter != null)
+        {
+            queryFilters.Add(filterKey, queryFilter);
+            hasChanged = true;
+        }
+
+        if (hasChanged)
+        {
+            queryFilters = new Dictionary<object, LambdaExpression>(queryFilters);
+        }
+
+        return (Dictionary<object, LambdaExpression>?)SetOrRemoveAnnotation(CoreAnnotationNames.QueryFilter, queryFilters, configurationSource)?.Value;
     }
 
     /// <summary>
@@ -2891,8 +2918,8 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual LambdaExpression? GetQueryFilter()
-        => (LambdaExpression?)this[CoreAnnotationNames.QueryFilter];
+    public virtual IReadOnlyDictionary<object, LambdaExpression>? GetQueryFilters()
+        => ((Dictionary<object, LambdaExpression>?)this[CoreAnnotationNames.QueryFilter])?.AsReadOnly();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -3257,7 +3284,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     /// </summary>
     [DebuggerStepThrough]
     void IMutableEntityType.SetQueryFilter(LambdaExpression? queryFilter)
-        => SetQueryFilter(queryFilter, ConfigurationSource.Explicit);
+        => SetQueryFilter(string.Empty, queryFilter, ConfigurationSource.Explicit);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -3266,8 +3293,18 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
-    LambdaExpression? IConventionEntityType.SetQueryFilter(LambdaExpression? queryFilter, bool fromDataAnnotation)
-        => SetQueryFilter(queryFilter, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+    void IMutableEntityType.SetQueryFilter(object filterKey, LambdaExpression? queryFilter)
+        => SetQueryFilter(filterKey, queryFilter, ConfigurationSource.Explicit);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    IReadOnlyDictionary<object, LambdaExpression>? IConventionEntityType.SetQueryFilter(object filterKey, LambdaExpression? queryFilter, bool fromDataAnnotation)
+        => SetQueryFilter(filterKey, queryFilter, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

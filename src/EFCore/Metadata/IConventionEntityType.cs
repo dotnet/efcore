@@ -45,15 +45,16 @@ public interface IConventionEntityType : IReadOnlyEntityType, IConventionTypeBas
     /// <summary>
     ///     Sets the LINQ expression filter automatically applied to queries for this entity type.
     /// </summary>
+    /// <param name="filterKey">The filter key</param>
     /// <param name="queryFilter">The LINQ expression filter.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>The configured filter.</returns>
-    LambdaExpression? SetQueryFilter(LambdaExpression? queryFilter, bool fromDataAnnotation = false);
+    IReadOnlyDictionary<object, LambdaExpression>? SetQueryFilter(object filterKey, LambdaExpression? queryFilter, bool fromDataAnnotation = false);
 
     /// <summary>
-    ///     Returns the configuration source for <see cref="IReadOnlyEntityType.GetQueryFilter" />.
+    ///     Returns the configuration source for <see cref="IReadOnlyEntityType.GetQueryFilters" />.
     /// </summary>
-    /// <returns>The configuration source for <see cref="IReadOnlyEntityType.GetQueryFilter" />.</returns>
+    /// <returns>The configuration source for <see cref="IReadOnlyEntityType.GetQueryFilters" />.</returns>
     ConfigurationSource? GetQueryFilterConfigurationSource();
 
     /// <summary>

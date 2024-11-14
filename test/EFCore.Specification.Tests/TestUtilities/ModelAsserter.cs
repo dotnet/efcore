@@ -116,7 +116,7 @@ public class ModelAsserter
             () => Assert.Equal(expected.ClrType, actual.ClrType),
             () => Assert.Equal(expected.HasSharedClrType, actual.HasSharedClrType),
             () => Assert.Equal(expected.IsPropertyBag, actual.IsPropertyBag),
-            () => Assert.Equal(expected.GetQueryFilter(), actual.GetQueryFilter()),
+            () => Assert.Equal(expected.GetQueryFilters(), actual.GetQueryFilters()),
             () =>
             {
                 if (designTime)
@@ -985,7 +985,14 @@ public class ModelAsserter
             targetEntityType.BaseType = targetEntityType.Model.FindEntityType(sourceEntityType.BaseType.Name);
         }
 
-        targetEntityType.SetQueryFilter(sourceEntityType.GetQueryFilter());
+        var queryFilters = sourceEntityType.GetQueryFilters();
+        if (queryFilters != null)
+        {
+            foreach (var queryFilter in queryFilters)
+            {
+                targetEntityType.SetQueryFilter(queryFilter.Key, queryFilter.Value);
+            }
+        }
         targetEntityType.AddData(sourceEntityType.GetSeedData());
         targetEntityType.SetPropertyAccessMode(sourceEntityType.GetPropertyAccessMode());
         targetEntityType.SetChangeTrackingStrategy(sourceEntityType.GetChangeTrackingStrategy());

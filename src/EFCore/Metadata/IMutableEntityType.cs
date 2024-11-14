@@ -44,6 +44,13 @@ public interface IMutableEntityType : IReadOnlyEntityType, IMutableTypeBase
     void SetQueryFilter(LambdaExpression? queryFilter);
 
     /// <summary>
+    ///     Sets the LINQ expression filter automatically applied to queries for this entity type.
+    /// </summary>
+    /// <param name="filterKey">The filter key</param>
+    /// <param name="queryFilter">The LINQ expression filter.</param>
+    void SetQueryFilter(object filterKey, LambdaExpression? queryFilter);
+
+    /// <summary>
     ///     Returns the property that will be used for storing a discriminator value.
     /// </summary>
     /// <returns>The property that will be used for storing a discriminator value.</returns>

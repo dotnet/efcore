@@ -817,7 +817,7 @@ public class CosmosTestStore : TestStore
         public PropertyAccessMode GetPropertyAccessMode()
             => throw new NotImplementedException();
 
-        public LambdaExpression GetQueryFilter()
+        public IReadOnlyDictionary<object, LambdaExpression> GetQueryFilters()
             => throw new NotImplementedException();
 
         public IEnumerable<IForeignKey> GetReferencingForeignKeys()
