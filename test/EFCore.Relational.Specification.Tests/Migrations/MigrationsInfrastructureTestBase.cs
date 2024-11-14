@@ -286,21 +286,21 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
     }
 
     [ConditionalFact]
-    public virtual void Can_generate_no_migration_script()
+    public virtual async Task Can_generate_no_migration_script()
     {
         using var db = Fixture.CreateEmptyContext();
         var migrator = db.GetService<IMigrator>();
 
-        SetAndExecuteSqlAsync(migrator.GenerateScript());
+        await SetAndExecuteSqlAsync(migrator.GenerateScript());
     }
 
     [ConditionalFact]
-    public virtual void Can_generate_migration_from_initial_database_to_initial()
+    public virtual async Task Can_generate_migration_from_initial_database_to_initial()
     {
         using var db = Fixture.CreateContext();
         var migrator = db.GetService<IMigrator>();
 
-        SetAndExecuteSqlAsync(migrator.GenerateScript(fromMigration: Migration.InitialDatabase, toMigration: Migration.InitialDatabase));
+        await SetAndExecuteSqlAsync(migrator.GenerateScript(fromMigration: Migration.InitialDatabase, toMigration: Migration.InitialDatabase));
     }
 
     [ConditionalFact]
