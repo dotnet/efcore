@@ -341,11 +341,11 @@ WHERE ((c["id"] = "b29bced8-e1e5-420e-82d7-1c7a51703d34") AND (c["id"] = "3307a3
         // Not ReadItem because conflicting primary key values
         AssertSql(
             """
-@__partitionKey_0='PK1a'
+@partitionKey='PK1a'
 
 SELECT VALUE c
 FROM root c
-WHERE ((c["id"] = "PK1a") AND (c["id"] = @__partitionKey_0))
+WHERE ((c["id"] = "PK1a") AND (c["id"] = @partitionKey))
 """);
     }
 
@@ -437,11 +437,11 @@ WHERE ((c["id"] = "b29bced8-e1e5-420e-82d7-1c7a51703d34") AND (c["$type"] = "Der
 
         AssertSql(
             """
-@__discriminator_0='SinglePartitionKeyEntity'
+@discriminator='SinglePartitionKeyEntity'
 
 SELECT VALUE c
 FROM root c
-WHERE ((c["id"] = "b29bced8-e1e5-420e-82d7-1c7a51703d34") AND (c["$type"] = @__discriminator_0))
+WHERE ((c["id"] = "b29bced8-e1e5-420e-82d7-1c7a51703d34") AND (c["$type"] = @discriminator))
 OFFSET 0 LIMIT 2
 """);
     }

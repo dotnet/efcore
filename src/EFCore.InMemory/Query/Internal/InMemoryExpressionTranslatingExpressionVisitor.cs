@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal;
 /// </summary>
 public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
 {
-    private const string RuntimeParameterPrefix = QueryCompilationContext.QueryParameterPrefix + "entity_equality_";
+    private const string RuntimeParameterPrefix = "entity_equality_";
 
     private static readonly List<MethodInfo> SingleResultMethodInfos =
     [
@@ -1298,9 +1298,7 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
                     QueryCompilationContext.QueryContextParameter
                 );
 
-                var newParameterName =
-                    $"{RuntimeParameterPrefix}"
-                    + $"{parameterName[QueryCompilationContext.QueryParameterPrefix.Length..]}_{property.Name}";
+                var newParameterName = $"{RuntimeParameterPrefix}{parameterName}_{property.Name}";
 
                 rewrittenSource = _queryCompilationContext.RegisterRuntimeParameter(newParameterName, lambda);
                 break;
@@ -1442,9 +1440,7 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
                         Expression.Constant(property, typeof(IProperty))),
                     QueryCompilationContext.QueryContextParameter);
 
-                var newParameterName =
-                    $"{RuntimeParameterPrefix}"
-                    + $"{parameterName[QueryCompilationContext.QueryParameterPrefix.Length..]}_{property.Name}";
+                var newParameterName = $"{RuntimeParameterPrefix}{parameterName}_{property.Name}";
 
                 return _queryCompilationContext.RegisterRuntimeParameter(newParameterName, lambda);
 

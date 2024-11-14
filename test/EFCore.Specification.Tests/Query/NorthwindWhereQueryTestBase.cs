@@ -1783,6 +1783,19 @@ public abstract class NorthwindWhereQueryTestBase<TFixture>(TFixture fixture) : 
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task Two_parameters_with_same_name_get_uniquified(bool async)
+    {
+        var i = 10;
+
+        // i+1 and i+2 each get parameterized using the same parameter name (since they're complex expressions).
+        // This exercises that query parameters are properly uniquified.
+        return AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => (c.CustomerID + (i + 1)) + (c.CustomerID + (i + 2)) == "ALFKI11ALFKI12"));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task Where_Queryable_ToList_Count(bool async)
         => AssertQuery(
             async,

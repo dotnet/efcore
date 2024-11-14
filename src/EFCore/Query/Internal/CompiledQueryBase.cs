@@ -69,9 +69,7 @@ public abstract class CompiledQueryBase<TContext, TResult>
 
         for (var i = 0; i < parameters.Length; i++)
         {
-            queryContext.AddParameter(
-                QueryCompilationContext.QueryParameterPrefix + _queryExpression.Parameters[i + 1].Name,
-                parameters[i]);
+            queryContext.AddParameter(_queryExpression.Parameters[i + 1].Name!, parameters[i]);
         }
 
         return _executor.Executor(queryContext);
@@ -105,8 +103,7 @@ public abstract class CompiledQueryBase<TContext, TResult>
             => typeof(TContext).IsAssignableFrom(parameterExpression.Type)
                 ? Expression.Constant(context)
                 : parameters.Contains(parameterExpression)
-                    ? new QueryParameterExpression(
-                        QueryCompilationContext.QueryParameterPrefix + parameterExpression.Name, parameterExpression.Type)
+                    ? new QueryParameterExpression(parameterExpression.Name!, parameterExpression.Type)
                     : parameterExpression;
     }
 }

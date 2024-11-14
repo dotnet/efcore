@@ -446,13 +446,13 @@ SELECT * FROM "Employees" WHERE "ReportsTo" = @p0 OR ("ReportsTo" IS NULL AND @p
         AssertSql(
             """
 p0='London' (Size = 4000)
-@__contactTitle_1='Sales Representative' (Size = 30)
+@contactTitle='Sales Representative' (Size = 30)
 
 SELECT [m].[CustomerID], [m].[Address], [m].[City], [m].[CompanyName], [m].[ContactName], [m].[ContactTitle], [m].[Country], [m].[Fax], [m].[Phone], [m].[PostalCode], [m].[Region]
 FROM (
     SELECT * FROM "Customers" WHERE "City" = @p0
 ) AS [m]
-WHERE [m].[ContactTitle] = @__contactTitle_1
+WHERE [m].[ContactTitle] = @contactTitle
 """);
 
         return null;
@@ -615,9 +615,26 @@ SELECT * FROM "Customers" WHERE "City" = @p0 AND "ContactTitle" = @title
             //
             """
 @city='London' (Nullable = false) (Size = 6)
-p1='Sales Representative' (Size = 4000)
+p0='Sales Representative' (Size = 4000)
 
-SELECT * FROM "Customers" WHERE "City" = @city AND "ContactTitle" = @p1
+SELECT * FROM "Customers" WHERE "City" = @city AND "ContactTitle" = @p0
+""");
+    }
+
+    public override async Task FromSqlRaw_with_dbParameter_and_regular_parameter_with_same_name(bool async)
+    {
+        await base.FromSqlRaw_with_dbParameter_and_regular_parameter_with_same_name(async);
+
+        AssertSql(
+            """
+@foo='London' (Nullable = false) (Size = 6)
+@foo0='Sales Representative' (Size = 30)
+
+SELECT [m].[CustomerID], [m].[Address], [m].[City], [m].[CompanyName], [m].[ContactName], [m].[ContactTitle], [m].[Country], [m].[Fax], [m].[Phone], [m].[PostalCode], [m].[Region]
+FROM (
+    SELECT * FROM "Customers" WHERE "City" = @foo
+) AS [m]
+WHERE [m].[ContactTitle] = @foo0
 """);
     }
 
@@ -738,12 +755,12 @@ FROM (
 """,
             //
             """
-@__max_0='10400'
+@max='10400'
 p0='10300'
 
 SELECT [o].[OrderID]
 FROM [Orders] AS [o]
-WHERE [o].[OrderID] <= @__max_0 AND [o].[OrderID] IN (
+WHERE [o].[OrderID] <= @max AND [o].[OrderID] IN (
     SELECT [m].[OrderID]
     FROM (
         SELECT * FROM "Orders" WHERE "OrderID" >= @p0
@@ -752,12 +769,12 @@ WHERE [o].[OrderID] <= @__max_0 AND [o].[OrderID] IN (
 """,
             //
             """
-@__max_0='10400'
+@max='10400'
 p0='10300'
 
 SELECT [o].[OrderID]
 FROM [Orders] AS [o]
-WHERE [o].[OrderID] <= @__max_0 AND [o].[OrderID] IN (
+WHERE [o].[OrderID] <= @max AND [o].[OrderID] IN (
     SELECT [m].[OrderID]
     FROM (
         SELECT * FROM "Orders" WHERE "OrderID" >= @p0
@@ -943,35 +960,36 @@ WHERE [o].[CustomerID] IN (
             //
             """
 @city='London' (Nullable = false) (Size = 6)
-p1='Sales Representative' (Size = 4000)
+p0='Sales Representative' (Size = 4000)
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE [o].[CustomerID] IN (
     SELECT [m].[CustomerID]
     FROM (
-        SELECT * FROM "Customers" WHERE "City" = @city AND "ContactTitle" = @p1
+        SELECT * FROM "Customers" WHERE "City" = @city AND "ContactTitle" = @p0
     ) AS [m]
 )
 """);
     }
 
-    public override async Task Multiple_occurrences_of_FromSql_with_db_parameter_adds_parameter_only_once(bool async)
+    public override async Task Multiple_occurrences_of_FromSql_with_db_parameter_adds_two_parameters(bool async)
     {
-        await base.Multiple_occurrences_of_FromSql_with_db_parameter_adds_parameter_only_once(async);
+        await base.Multiple_occurrences_of_FromSql_with_db_parameter_adds_two_parameters(async);
 
         AssertSql(
             """
 city='Seattle' (Nullable = false) (Size = 7)
+city0='Seattle' (Nullable = false) (Size = 3)
 
-SELECT [m].[CustomerID], [m].[Address], [m].[City], [m].[CompanyName], [m].[ContactName], [m].[ContactTitle], [m].[Country], [m].[Fax], [m].[Phone], [m].[PostalCode], [m].[Region]
+SELECT [m].[Address], [m].[City], [m].[CompanyName], [m].[ContactName], [m].[ContactTitle], [m].[Country], [m].[CustomerID], [m].[Fax], [m].[Phone], [m].[Region], [m].[PostalCode]
 FROM (
     SELECT * FROM "Customers" WHERE "City" = @city
 ) AS [m]
 INTERSECT
-SELECT [m0].[CustomerID], [m0].[Address], [m0].[City], [m0].[CompanyName], [m0].[ContactName], [m0].[ContactTitle], [m0].[Country], [m0].[Fax], [m0].[Phone], [m0].[PostalCode], [m0].[Region]
+SELECT [m0].[Address], [m0].[City], [m0].[CompanyName], [m0].[ContactName], [m0].[ContactTitle], [m0].[Country], [m0].[CustomerID], [m0].[Fax], [m0].[Phone], [m0].[Region], [m0].[PostalCode]
 FROM (
-    SELECT * FROM "Customers" WHERE "City" = @city
+    SELECT * FROM "Customers" WHERE "City" = @city0
 ) AS [m0]
 """);
     }

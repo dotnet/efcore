@@ -35,12 +35,12 @@ OFFSET 0 LIMIT 1
 
         const string read2Sql =
             """
-@__p_0='1'
+@p='1'
 
 SELECT VALUE c
 FROM root c
 ORDER BY c["PartitionKey1"]
-OFFSET @__p_0 LIMIT 1
+OFFSET @p LIMIT 1
 """;
 
         await PartitionKeyTestAsync(

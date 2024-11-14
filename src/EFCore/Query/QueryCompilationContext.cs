@@ -22,17 +22,6 @@ public class QueryCompilationContext
 {
     /// <summary>
     ///     <para>
-    ///         Prefix for all the query parameters generated during parameter extraction in query pipeline.
-    ///     </para>
-    ///     <para>
-    ///         This property is typically used by database providers (and other extensions). It is generally
-    ///         not used in application code.
-    ///     </para>
-    /// </summary>
-    public const string QueryParameterPrefix = "__";
-
-    /// <summary>
-    ///     <para>
     ///         ParameterExpression representing <see cref="QueryContext" /> parameter in query expression.
     ///     </para>
     ///     <para>

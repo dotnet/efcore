@@ -714,11 +714,11 @@ WHERE "c"."ContactName" LIKE 'M%'
 
         AssertSql(
             """
-@__pattern_0_startswith='M%' (Size = 2)
+@pattern_startswith='M%' (Size = 2)
 
 SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
 FROM "Customers" AS "c"
-WHERE "c"."ContactName" LIKE @__pattern_0_startswith ESCAPE '\'
+WHERE "c"."ContactName" LIKE @pattern_startswith ESCAPE '\'
 """);
     }
 
@@ -776,11 +776,11 @@ WHERE "c"."ContactName" LIKE '%b'
 
         AssertSql(
             """
-@__pattern_0_endswith='%b' (Size = 2)
+@pattern_endswith='%b' (Size = 2)
 
 SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
 FROM "Customers" AS "c"
-WHERE "c"."ContactName" LIKE @__pattern_0_endswith ESCAPE '\'
+WHERE "c"."ContactName" LIKE @pattern_endswith ESCAPE '\'
 """);
     }
 
@@ -1046,11 +1046,11 @@ WHERE instr("c"."ContactName", 'a') - 1 = 1
 
         AssertSql(
             """
-@__pattern_0='a' (Size = 1)
+@pattern='a' (Size = 1)
 
 SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
 FROM "Customers" AS "c"
-WHERE instr("c"."ContactName", @__pattern_0) - 1 = 1
+WHERE instr("c"."ContactName", @pattern) - 1 = 1
 """);
     }
 
@@ -1114,11 +1114,11 @@ WHERE substr("c"."CustomerID", 1 + 1) = 'LFKI'
 
         AssertSql(
             """
-@__start_0='2'
+@start='2'
 
 SELECT "c"."ContactName"
 FROM "Customers" AS "c"
-WHERE substr("c"."CustomerID", @__start_0 + 1) = 'FKI'
+WHERE substr("c"."CustomerID", @start + 1) = 'FKI'
 """);
     }
 
@@ -1152,9 +1152,9 @@ WHERE "c"."CustomerID" = 'ALFKI'
 
         AssertSql(
             """
-@__start_0='2'
+@start='2'
 
-SELECT substr("c"."ContactName", @__start_0 + 1, 3)
+SELECT substr("c"."ContactName", @start + 1, 3)
 FROM "Customers" AS "c"
 WHERE "c"."CustomerID" = 'ALFKI'
 """);

@@ -345,11 +345,11 @@ WHERE (c["$type"] IN ("SinglePartitionKeyEntity", "DerivedSinglePartitionKeyEnti
         // Not ReadItem because conflicting primary key values
         AssertSql(
             """
-@__partitionKey_0='PK1a'
+@partitionKey='PK1a'
 
 SELECT VALUE c
 FROM root c
-WHERE (c["$type"] IN ("OnlySinglePartitionKeyEntity", "DerivedOnlySinglePartitionKeyEntity") AND ((c["PartitionKey"] = "PK1a") AND (c["PartitionKey"] = @__partitionKey_0)))
+WHERE (c["$type"] IN ("OnlySinglePartitionKeyEntity", "DerivedOnlySinglePartitionKeyEntity") AND ((c["PartitionKey"] = "PK1a") AND (c["PartitionKey"] = @partitionKey)))
 """);
     }
 
@@ -729,11 +729,11 @@ WHERE ((c["$type"] = "DerivedSinglePartitionKeyEntity") AND ((c["Id"] = "188d325
         // Not ReadItem because conflicting primary key values
         AssertSql(
             """
-@__partitionKey_0='PK1c'
+@partitionKey='PK1c'
 
 SELECT VALUE c
 FROM root c
-WHERE ((c["$type"] = "DerivedOnlySinglePartitionKeyEntity") AND ((c["PartitionKey"] = "PK1c") AND (c["PartitionKey"] = @__partitionKey_0)))
+WHERE ((c["$type"] = "DerivedOnlySinglePartitionKeyEntity") AND ((c["PartitionKey"] = "PK1c") AND (c["PartitionKey"] = @partitionKey)))
 """);
     }
 
@@ -804,11 +804,11 @@ WHERE (c["$type"] IN ("SinglePartitionKeyEntity", "DerivedSinglePartitionKeyEnti
         // No ReadItem because discriminator check is parameterized
         AssertSql(
             """
-@__discriminator_0='SinglePartitionKeyEntity'
+@discriminator='SinglePartitionKeyEntity'
 
 SELECT VALUE c
 FROM root c
-WHERE (c["$type"] IN ("SinglePartitionKeyEntity", "DerivedSinglePartitionKeyEntity") AND ((c["Id"] = "b29bced8-e1e5-420e-82d7-1c7a51703d34") AND (c["$type"] = @__discriminator_0)))
+WHERE (c["$type"] IN ("SinglePartitionKeyEntity", "DerivedSinglePartitionKeyEntity") AND ((c["Id"] = "b29bced8-e1e5-420e-82d7-1c7a51703d34") AND (c["$type"] = @discriminator)))
 OFFSET 0 LIMIT 2
 """);
     }
@@ -840,11 +840,11 @@ WHERE ((c["$type"] = "DerivedSinglePartitionKeyEntity") AND ((c["Id"] = "188d325
         // No ReadItem because discriminator check is parameterized
         AssertSql(
             """
-@__discriminator_0='DerivedSinglePartitionKeyEntity'
+@discriminator='DerivedSinglePartitionKeyEntity'
 
 SELECT VALUE c
 FROM root c
-WHERE ((c["$type"] = "DerivedSinglePartitionKeyEntity") AND ((c["Id"] = "188d3253-81be-4a87-b58f-a2bd07e6b98c") AND (c["$type"] = @__discriminator_0)))
+WHERE ((c["$type"] = "DerivedSinglePartitionKeyEntity") AND ((c["Id"] = "188d3253-81be-4a87-b58f-a2bd07e6b98c") AND (c["$type"] = @discriminator)))
 OFFSET 0 LIMIT 2
 """);
     }

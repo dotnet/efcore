@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 /// </summary>
 public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
 {
-    private const string RuntimeParameterPrefix = QueryCompilationContext.QueryParameterPrefix + "entity_equality_";
+    private const string RuntimeParameterPrefix = "entity_equality_";
 
     private static readonly List<MethodInfo> SingleResultMethodInfos =
     [
@@ -512,11 +512,20 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                         _queryCompilationContext.IsPrecompiling,
                         "Parameters can only be known to has non-nullable reference types in query precompilation.");
                     return new SqlParameterExpression(
-                        queryParameter.Name, queryParameter.Type, nullable: false, queryParameter.ShouldBeConstantized, typeMapping: null);
+                        invariantName: queryParameter.Name,
+                        name: queryParameter.Name,
+                        queryParameter.Type,
+                        nullable: false,
+                        queryParameter.ShouldBeConstantized,
+                        typeMapping: null);
                 }
 
                 return new SqlParameterExpression(
-                    queryParameter.Name, queryParameter.Type, queryParameter.Type.IsNullableType(), queryParameter.ShouldBeConstantized,
+                    invariantName: queryParameter.Name,
+                    name: queryParameter.Name,
+                    queryParameter.Type,
+                    queryParameter.Type.IsNullableType(),
+                    queryParameter.ShouldBeConstantized,
                     typeMapping: null);
 
             case StructuralTypeShaperExpression shaper:
@@ -1689,7 +1698,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                     QueryCompilationContext.QueryContextParameter);
 
                 var newParameterName =
-                    $"{RuntimeParameterPrefix}{sqlParameterExpression.Name[QueryCompilationContext.QueryParameterPrefix.Length..]}_{property.Name}";
+                    $"{RuntimeParameterPrefix}{sqlParameterExpression.Name}_{property.Name}";
 
                 rewrittenSource = _queryCompilationContext.RegisterRuntimeParameter(newParameterName, lambda);
                 break;
@@ -2004,7 +2013,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                     QueryCompilationContext.QueryContextParameter);
 
                 var newParameterName =
-                    $"{RuntimeParameterPrefix}{sqlParameterExpression.Name[QueryCompilationContext.QueryParameterPrefix.Length..]}_{property.Name}";
+                    $"{RuntimeParameterPrefix}{sqlParameterExpression.Name}_{property.Name}";
 
                 return _queryCompilationContext.RegisterRuntimeParameter(newParameterName, lambda);
             }
@@ -2021,7 +2030,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                     QueryCompilationContext.QueryContextParameter);
 
                 var parameterNameBuilder = new StringBuilder(RuntimeParameterPrefix)
-                    .Append(chainExpression.ParameterExpression.Name[QueryCompilationContext.QueryParameterPrefix.Length..])
+                    .Append(chainExpression.ParameterExpression.Name)
                     .Append('_');
 
                 foreach (var complexProperty in chainExpression.ComplexPropertyChain)
