@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
@@ -1573,7 +1574,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                         Left: ColumnExpression leftColumn,
                         Right: SqlConstantExpression { Value: string s1 }
                     }
-                    when GetTable(leftColumn) is TpcTablesExpression
+                    when TryGetTable(leftColumn, out var table, out _) && table is TpcTablesExpression
                     {
                         DiscriminatorColumn: var discriminatorColumn,
                         DiscriminatorValues: var discriminatorValues
@@ -1596,7 +1597,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                         Left: SqlConstantExpression { Value: string s2 },
                         Right: ColumnExpression rightColumn
                     }
-                    when GetTable(rightColumn) is TpcTablesExpression
+                    when TryGetTable(rightColumn, out var table, out _) && table is TpcTablesExpression
                     {
                         DiscriminatorColumn: var discriminatorColumn,
                         DiscriminatorValues: var discriminatorValues
@@ -1620,7 +1621,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                         Item: ColumnExpression itemColumn,
                         Values: IReadOnlyList<SqlExpression> valueExpressions
                     }
-                    when GetTable(itemColumn) is TpcTablesExpression
+                    when TryGetTable(itemColumn, out var table, out _) && table is TpcTablesExpression
                     {
                         DiscriminatorColumn: var discriminatorColumn,
                         DiscriminatorValues: var discriminatorValues
@@ -2733,31 +2734,28 @@ public sealed partial class SelectExpression : TableExpressionBase
     ///     <see cref="SelectExpression" /> based on its alias.
     /// </summary>
     public TableExpressionBase GetTable(ColumnExpression column, out int tableIndex)
+        => TryGetTable(column, out var table, out tableIndex)
+            ? table
+            : throw new InvalidOperationException($"Table not found with alias '{column.TableAlias}'");
+
+    private bool ContainsReferencedTable(ColumnExpression column)
+        => TryGetTable(column, out _, out _);
+
+    private bool TryGetTable(ColumnExpression column, [NotNullWhen(true)] out TableExpressionBase? table, out int tableIndex)
     {
         for (var i = 0; i < _tables.Count; i++)
         {
-            var table = _tables[i];
-            if (table.UnwrapJoin().Alias == column.TableAlias)
+            var t = _tables[i];
+            if (t.UnwrapJoin().Alias == column.TableAlias)
             {
+                table = t;
                 tableIndex = i;
-                return table;
-            }
-        }
-
-        throw new InvalidOperationException($"Table not found with alias '{column.TableAlias}'");
-    }
-
-    private bool ContainsReferencedTable(ColumnExpression column)
-    {
-        foreach (var table in Tables)
-        {
-            var unwrappedTable = table.UnwrapJoin();
-            if (unwrappedTable.Alias == column.TableAlias)
-            {
                 return true;
             }
         }
 
+        table = null;
+        tableIndex = 0;
         return false;
     }
 
