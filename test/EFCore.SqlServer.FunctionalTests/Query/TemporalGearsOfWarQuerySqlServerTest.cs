@@ -6999,6 +6999,20 @@ WHERE [f].[ServerAddress] = CAST(N'127.0.0.1' AS nvarchar(45))
 """);
     }
 
+    public override async Task Project_equality_with_value_converted_property(bool async)
+    {
+        await base.Project_equality_with_value_converted_property(async);
+
+        AssertSql(
+            """
+SELECT CASE
+    WHEN [m].[Difficulty] = N'Unknown' THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END
+FROM [Missions] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [m]
+""");
+    }
+
     public override async Task Navigation_access_on_derived_materialized_entity_using_cast(bool async)
     {
         await base.Navigation_access_on_derived_materialized_entity_using_cast(async);
