@@ -206,9 +206,11 @@ public class SearchConditionConverter(ISqlExpressionFactory sqlExpressionFactory
 
         if (binary.OperatorType is ExpressionType.NotEqual or ExpressionType.Equal)
         {
+            var leftType = newLeft.TypeMapping?.Converter?.ProviderClrType ?? newLeft.Type;
+            var rightType = newRight.TypeMapping?.Converter?.ProviderClrType ?? newRight.Type;
             if (!inSearchConditionContext
-                && (newLeft.Type == typeof(bool) || newLeft.Type.IsEnum || newLeft.Type.IsInteger())
-                && (newRight.Type == typeof(bool) || newRight.Type.IsEnum || newRight.Type.IsInteger()))
+                && (leftType == typeof(bool) || leftType.IsInteger())
+                && (rightType == typeof(bool) || rightType.IsInteger()))
             {
                 // "lhs != rhs" is the same as "CAST(lhs ^ rhs AS BIT)", except that
                 // the first is a boolean, the second is a BIT
@@ -262,7 +264,8 @@ public class SearchConditionConverter(ISqlExpressionFactory sqlExpressionFactory
 
         switch (sqlUnaryExpression.OperatorType)
         {
-            case ExpressionType.Not when sqlUnaryExpression.Type == typeof(bool):
+            case ExpressionType.Not
+                when (sqlUnaryExpression.TypeMapping?.Converter?.ProviderClrType ?? sqlUnaryExpression.Type) == typeof(bool):
             {
                 // when possible, avoid converting to/from predicate form
                 if (!inSearchConditionContext && sqlUnaryExpression.Operand is not (ExistsExpression or InExpression or LikeExpression))
