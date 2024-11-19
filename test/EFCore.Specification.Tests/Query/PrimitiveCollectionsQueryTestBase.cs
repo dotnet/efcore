@@ -427,10 +427,10 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
 
         await AssertQuery(
             async,
-            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => strings.Contains(c.NullableString)));
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => strings.Any(s => s == c.NullableString)));
         await AssertQuery(
             async,
-            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => !strings.Contains(c.NullableString)));
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => !strings.Any(s => s == c.NullableString)));
     }
 
     [ConditionalTheory]
@@ -574,7 +574,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
     public virtual Task Column_collection_of_strings_contains_null(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.Strings.Contains(null)),
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.Strings.Any(s => s == null)),
             assertEmpty: true);
 
     [ConditionalTheory]
