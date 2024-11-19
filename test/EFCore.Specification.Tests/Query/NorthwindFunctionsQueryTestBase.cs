@@ -362,7 +362,8 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture>(TFixture fixture
                 .Select(
                     g => new
                     {
-                        City = g.Key, Customers = string.Join("|", g.Where(e => e.ContactName.Length > 10).Select(e => e.CustomerID))
+                        City = g.Key,
+                        Customers = string.Join("|", g.Where(e => e.ContactName.Length > 10).Select(e => e.CustomerID))
                     }),
             elementSorter: x => x.City,
             elementAsserter: (e, a) =>

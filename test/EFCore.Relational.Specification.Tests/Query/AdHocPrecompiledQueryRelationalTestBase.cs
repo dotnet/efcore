@@ -7,6 +7,7 @@ using static Microsoft.EntityFrameworkCore.TestUtilities.PrecompiledQueryTestHel
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+[Collection("PrecompiledQuery")]
 public abstract class AdHocPrecompiledQueryRelationalTestBase(ITestOutputHelper testOutputHelper) : NonSharedModelTestBase
 {
     [ConditionalFact]

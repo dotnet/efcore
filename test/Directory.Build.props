@@ -8,4 +8,11 @@
     <DefaultNetCoreTargetFramework>net9.0</DefaultNetCoreTargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <FrameworkReference Update="Microsoft.NETCore.App"
+                        Condition="'$(TargetFramework)' == '$(DefaultNetCoreTargetFramework)'"
+                        RuntimeFrameworkVersion="$(MicrosoftNETCoreAppRuntimewinx64Version)"
+                        TargetingPackVersion="$(MicrosoftNETCoreAppRefVersion)" />
+  </ItemGroup>
+
 </Project>

@@ -3939,8 +3939,8 @@ SELECT CASE CASE
     WHEN [e].[StringA] = N'Foo' THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END
-    WHEN 1 THEN 3
-    WHEN 0 THEN 2
+    WHEN CAST(1 AS bit) THEN 3
+    WHEN CAST(0 AS bit) THEN 2
 END
 FROM [Entities1] AS [e]
 ORDER BY [e].[Id]
@@ -3959,8 +3959,8 @@ WHERE CASE CASE
     WHEN [e].[StringA] = N'Foo' THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END
-    WHEN 1 THEN 3
-    WHEN 0 THEN 2
+    WHEN CAST(1 AS bit) THEN 3
+    WHEN CAST(0 AS bit) THEN 2
 END = 2
 """);
     }

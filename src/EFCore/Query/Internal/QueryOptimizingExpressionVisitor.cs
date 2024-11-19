@@ -14,22 +14,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal;
 /// </summary>
 public class QueryOptimizingExpressionVisitor : ExpressionVisitor
 {
-    private static readonly List<MethodInfo> SingleResultMethodInfos =
-    [
-        QueryableMethods.FirstWithPredicate,
-        QueryableMethods.FirstWithoutPredicate,
-        QueryableMethods.FirstOrDefaultWithPredicate,
-        QueryableMethods.FirstOrDefaultWithoutPredicate,
-        QueryableMethods.SingleWithPredicate,
-        QueryableMethods.SingleWithoutPredicate,
-        QueryableMethods.SingleOrDefaultWithPredicate,
-        QueryableMethods.SingleOrDefaultWithoutPredicate,
-        QueryableMethods.LastWithPredicate,
-        QueryableMethods.LastWithoutPredicate,
-        QueryableMethods.LastOrDefaultWithPredicate,
-        QueryableMethods.LastOrDefaultWithoutPredicate
-    ];
-
     private static readonly MethodInfo StringCompareWithComparisonMethod =
         typeof(string).GetRuntimeMethod(nameof(string.Compare), [typeof(string), typeof(string), typeof(StringComparison)])!;
 

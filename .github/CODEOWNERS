@@ -3,7 +3,10 @@
 
 /azure-pipelines.yml                    @AndriySvyryd @maumar
 /azure-pipelines-public.yml             @AndriySvyryd @maumar
+/github-merge-flow.jsonc                @AndriySvyryd @maumar
+/global.json                            @AndriySvyryd @maumar
+/NuGet.config                           @AndriySvyryd @maumar
+/.config/                               @AndriySvyryd
+/.github/                               @dotnet/efteam
 /eng/                                   @AndriySvyryd @maumar
-/eng/common/                            @dotnet-maestro-bot @AndriySvyryd @maumar
-/eng/Versions.props                     @dotnet-maestro-bot @AndriySvyryd @maumar
-/eng/Version.Details.xml                @dotnet-maestro-bot @AndriySvyryd @maumar
+/src/                                   @dotnet/efteam

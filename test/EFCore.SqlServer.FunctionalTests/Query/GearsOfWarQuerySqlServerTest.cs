@@ -1562,7 +1562,7 @@ ORDER BY [g].[Nickname]
 SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
 FROM [Gears] AS [g]
 WHERE [g].[HasSoulPatch] = CAST(1 AS bit) AND COALESCE((
-    SELECT DISTINCT TOP(1) [w].[IsAutomatic]
+    SELECT TOP(1) [w].[IsAutomatic]
     FROM [Weapons] AS [w]
     WHERE [g].[FullName] = [w].[OwnerFullName] AND [w].[Name] LIKE N'%Lancer%'), CAST(0 AS bit)) = CAST(1 AS bit)
 ORDER BY [g].[Nickname]
@@ -5838,7 +5838,7 @@ WHERE [g].[HasSoulPatch] = CAST(1 AS bit)
         AssertSql(
             """
 SELECT COALESCE((
-    SELECT DISTINCT TOP(1) [w].[IsAutomatic]
+    SELECT TOP(1) [w].[IsAutomatic]
     FROM [Weapons] AS [w]
     WHERE [g].[FullName] = [w].[OwnerFullName] AND [w].[Name] LIKE N'%Lancer%'), CAST(0 AS bit))
 FROM [Gears] AS [g]
@@ -5889,7 +5889,7 @@ WHERE [g].[HasSoulPatch] = CAST(1 AS bit)
         AssertSql(
             """
 SELECT COALESCE((
-    SELECT DISTINCT TOP(1) [w].[IsAutomatic]
+    SELECT TOP(1) [w].[IsAutomatic]
     FROM [Weapons] AS [w]
     WHERE [g].[FullName] = [w].[OwnerFullName] AND [w].[Name] = N'BFG'), CAST(0 AS bit))
 FROM [Gears] AS [g]
@@ -10515,6 +10515,78 @@ SELECT [m].[Duration]
 FROM [Missions] AS [m]
 """
         );
+    }
+
+    public override async Task Where_datetimeoffset_microsecond_component(bool async)
+    {
+        await base.Where_datetimeoffset_microsecond_component(async);
+
+        AssertSql(
+            """
+SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Date], [m].[Difficulty], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
+FROM [Missions] AS [m]
+WHERE DATEPART(microsecond, [m].[Timeline]) % 1000 = 200
+""");
+    }
+
+    public override async Task Where_datetimeoffset_nanosecond_component(bool async)
+    {
+        await base.Where_datetimeoffset_nanosecond_component(async);
+
+        AssertSql(
+            """
+SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Date], [m].[Difficulty], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
+FROM [Missions] AS [m]
+WHERE DATEPART(nanosecond, [m].[Timeline]) % 1000 = 400
+""");
+    }
+
+    public override async Task Where_timespan_microsecond_component(bool async)
+    {
+        await base.Where_timespan_microsecond_component(async);
+
+        AssertSql(
+            """
+SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Date], [m].[Difficulty], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
+FROM [Missions] AS [m]
+WHERE DATEPART(microsecond, [m].[Duration]) % 1000 = 200
+""");
+    }
+
+    public override async Task Where_timespan_nanosecond_component(bool async)
+    {
+        await base.Where_timespan_nanosecond_component(async);
+
+        AssertSql(
+            """
+SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Date], [m].[Difficulty], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
+FROM [Missions] AS [m]
+WHERE DATEPART(nanosecond, [m].[Duration]) % 1000 = 400
+""");
+    }
+
+    public override async Task Where_timeonly_microsecond_component(bool async)
+    {
+        await base.Where_timeonly_microsecond_component(async);
+
+        AssertSql(
+            """
+SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Date], [m].[Difficulty], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
+FROM [Missions] AS [m]
+WHERE DATEPART(microsecond, [m].[Time]) % 1000 = 200
+""");
+    }
+
+    public override async Task Where_timeonly_nanosecond_component(bool async)
+    {
+        await base.Where_timeonly_nanosecond_component(async);
+
+        AssertSql(
+            """
+SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Date], [m].[Difficulty], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
+FROM [Missions] AS [m]
+WHERE DATEPART(nanosecond, [m].[Time]) % 1000 = 400
+""");
     }
 
     private void AssertSql(params string[] expected)

@@ -259,7 +259,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
             case ExpressionType.ExclusiveOr:
             {
                 inferredTypeMapping = typeMapping ?? ExpressionExtensions.InferTypeMapping(left, right);
-                resultType = inferredTypeMapping?.ClrType ?? left.Type;
+                resultType = inferredTypeMapping?.ClrType ?? (left.Type != typeof(object) ? left.Type : right.Type);
                 resultTypeMapping = inferredTypeMapping;
                 break;
             }
@@ -594,7 +594,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
                 [left, right],
                 nullable: true,
                 // COALESCE is handled separately since it's only nullable if *all* arguments are null
-                argumentsPropagateNullability: [false, false],
+                argumentsPropagateNullability: Statics.FalseArrays[2],
                 resultType,
                 inferredTypeMapping)
         };

@@ -140,6 +140,15 @@ public interface IReadOnlyNavigation : IReadOnlyNavigationBase
             {
                 builder.Append(" Collection");
             }
+            else if ((IsOnDependent && ForeignKey.IsRequired)
+                || (!IsOnDependent && ForeignKey.IsRequiredDependent))
+            {
+                builder.Append(" Required");
+            }
+            else
+            {
+                builder.Append(" Optional");
+            }
 
             builder.Append(IsOnDependent ? " ToPrincipal " : " ToDependent ");
 

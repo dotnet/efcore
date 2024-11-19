@@ -782,7 +782,7 @@ SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[
 FROM [PrimitiveCollectionsEntity] AS [p]
 WHERE [p].[Int] IN (
     SELECT [i].[value]
-    FROM OPENJSON(NULL) AS [i]
+    FROM OPENJSON(NULL) WITH ([value] int '$') AS [i]
 )
 """);
     }
