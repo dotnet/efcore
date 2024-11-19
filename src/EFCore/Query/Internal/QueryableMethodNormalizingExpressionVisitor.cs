@@ -124,16 +124,18 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
                         throw new InvalidOperationException(CoreStrings.EFConstantNotSupported);
                     }
 
-                    var parameterExpression = (ParameterExpression)Visit(methodCallExpression.Arguments[0]);
-                    _queryCompilationContext.ParametersToConstantize.Add(parameterExpression.Name!);
-                    return parameterExpression;
+                    var queryParameter = (QueryParameterExpression)Visit(methodCallExpression.Arguments[0]);
+                    return new QueryParameterExpression(
+                        queryParameter.Name, queryParameter.Type, shouldBeConstantized: true, shouldNotBeConstantized: false,
+                        queryParameter.IsNonNullableReferenceType);
                 }
 
                 case nameof(EF.Parameter):
                 {
-                    var parameterExpression = (ParameterExpression)Visit(methodCallExpression.Arguments[0]);
-                    _queryCompilationContext.ParametersToNotConstantize.Add(parameterExpression.Name!);
-                    return parameterExpression;
+                    var queryParameter = (QueryParameterExpression)Visit(methodCallExpression.Arguments[0]);
+                    return new QueryParameterExpression(
+                        queryParameter.Name, queryParameter.Type, shouldBeConstantized: false, shouldNotBeConstantized: true,
+                        queryParameter.IsNonNullableReferenceType);
                 }
             }
         }
@@ -936,8 +938,7 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
 
         protected override Expression VisitParameter(ParameterExpression parameterExpression)
         {
-            if (_allowedParameters.Contains(parameterExpression)
-                || parameterExpression.Name?.StartsWith(QueryCompilationContext.QueryParameterPrefix, StringComparison.Ordinal) == true)
+            if (_allowedParameters.Contains(parameterExpression))
             {
                 return parameterExpression;
             }
@@ -953,5 +954,8 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
 
             return base.VisitParameter(parameterExpression);
         }
+
+        protected override Expression VisitExtension(Expression node)
+            => node is QueryParameterExpression ? node : base.VisitExtension(node);
     }
 }

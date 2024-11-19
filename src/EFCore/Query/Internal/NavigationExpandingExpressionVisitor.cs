@@ -212,7 +212,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                     // TODO: filter into the QueryCompilationContext.NonNullableReferenceTypeParameters
                     var processedDefiningQueryBody = _funcletizer.ExtractParameters(
                         definingQuery.Body, _parameters, parameterize: false, clearParameterizedValues: false,
-                        _queryCompilationContext.IsPrecompiling, out var nonNullableReferenceTypeParameters);
+                        _queryCompilationContext.IsPrecompiling);
                     processedDefiningQueryBody = _queryTranslationPreprocessor.NormalizeQueryableMethod(processedDefiningQueryBody);
                     processedDefiningQueryBody = _nullCheckRemovingExpressionVisitor.Visit(processedDefiningQueryBody);
                     processedDefiningQueryBody =
@@ -1766,7 +1766,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                     // TODO: filter into the QueryCompilationContext.NonNullableReferenceTypeParameters
                     filterPredicate = (LambdaExpression)_funcletizer.ExtractParameters(
                         filterPredicate, _parameters, parameterize: false, clearParameterizedValues: false,
-                        _queryCompilationContext.IsPrecompiling, out var nonNullableReferenceTypeParameters);
+                        _queryCompilationContext.IsPrecompiling);
                     filterPredicate = (LambdaExpression)_queryTranslationPreprocessor.NormalizeQueryableMethod(filterPredicate);
 
                     // We need to do entity equality, but that requires a full method call on a query root to properly flow the

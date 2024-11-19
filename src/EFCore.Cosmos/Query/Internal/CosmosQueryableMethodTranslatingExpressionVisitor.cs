@@ -122,9 +122,9 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
             if (arguments is not
                 [
                     _, // source
-                    ParameterExpression maxItemCount,
-                    ParameterExpression continuationToken,
-                    ParameterExpression responseContinuationTokenLimitInKb,
+                    QueryParameterExpression maxItemCount,
+                    QueryParameterExpression continuationToken,
+                    QueryParameterExpression responseContinuationTokenLimitInKb,
                     _ // cancellation token
                 ]
                 || _sqlTranslator.Translate(maxItemCount) is not SqlParameterExpression translatedMaxItemCount
@@ -1496,18 +1496,14 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     /// </summary>
     protected override ShapedQueryExpression? TranslateParameterQueryRoot(ParameterQueryRootExpression parameterQueryRootExpression)
     {
-        var parameter = parameterQueryRootExpression.ParameterExpression;
-        if (parameter.Name?.StartsWith(QueryCompilationContext.QueryParameterPrefix, StringComparison.Ordinal) != true)
-        {
-            return null;
-        }
+        var queryParameter = parameterQueryRootExpression.QueryParameterExpression;
 
         // TODO: Temporary hack - need to perform proper derivation of the array type mapping from the element (e.g. for
         // value conversion). #34026.
         var elementClrType = parameterQueryRootExpression.ElementType;
         var arrayTypeMapping = _typeMappingSource.FindMapping(typeof(IEnumerable<>).MakeGenericType(elementClrType));
         var elementTypeMapping = _typeMappingSource.FindMapping(elementClrType)!;
-        var sqlParameterExpression = new SqlParameterExpression(parameter.Name, parameter.Type, arrayTypeMapping);
+        var sqlParameterExpression = new SqlParameterExpression(queryParameter.Name, queryParameter.Type, arrayTypeMapping);
 
         var sourceAlias = _aliasManager.GenerateSourceAlias(sqlParameterExpression.Name.TrimStart('_'));
         var select = SelectExpression.CreateForCollection(

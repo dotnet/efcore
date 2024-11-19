@@ -103,21 +103,17 @@ public class QueryRootProcessor : ExpressionVisitor
 
                 goto default;
 
-            case NewArrayExpression newArrayExpression
-                when ShouldConvertToInlineQueryRoot(newArrayExpression):
-                return new InlineQueryRootExpression(newArrayExpression.Expressions, elementClrType);
+            case NewArrayExpression newArray when ShouldConvertToInlineQueryRoot(newArray):
+                return new InlineQueryRootExpression(newArray.Expressions, elementClrType);
 
-            case ParameterExpression parameterExpression
-                when parameterExpression.Name?.StartsWith(QueryCompilationContext.QueryParameterPrefix, StringComparison.Ordinal)
-                == true
-                && ShouldConvertToParameterQueryRoot(parameterExpression):
-                return new ParameterQueryRootExpression(parameterExpression.Type.GetSequenceType(), parameterExpression);
+            case QueryParameterExpression queryParameter when ShouldConvertToParameterQueryRoot(queryParameter):
+                return new ParameterQueryRootExpression(queryParameter.Type.GetSequenceType(), queryParameter);
 
-            case ListInitExpression listInitExpression
-                when listInitExpression.Type.TryGetElementType(typeof(IList<>)) is not null
-                && listInitExpression.Initializers.All(x => x.Arguments.Count == 1)
-                && ShouldConvertToInlineQueryRoot(listInitExpression):
-                return new InlineQueryRootExpression(listInitExpression.Initializers.Select(x => x.Arguments[0]).ToList(), elementClrType);
+            case ListInitExpression listInit
+                when listInit.Type.TryGetElementType(typeof(IList<>)) is not null
+                && listInit.Initializers.All(x => x.Arguments.Count == 1)
+                && ShouldConvertToInlineQueryRoot(listInit):
+                return new InlineQueryRootExpression(listInit.Initializers.Select(x => x.Arguments[0]).ToList(), elementClrType);
 
             default:
                 return Visit(expression);
@@ -132,9 +128,10 @@ public class QueryRootProcessor : ExpressionVisitor
         => false;
 
     /// <summary>
-    ///     Determines whether a <see cref="ParameterExpression" /> should be converted to a <see cref="ParameterQueryRootExpression" />.
+    ///     Determines whether a <see cref="QueryParameterExpression" /> should be converted to a
+    ///     <see cref="ParameterQueryRootExpression" />.
     /// </summary>
-    /// <param name="parameterExpression">The parameter expression that's a candidate for conversion to a query root.</param>
-    protected virtual bool ShouldConvertToParameterQueryRoot(ParameterExpression parameterExpression)
+    /// <param name="queryParameterExpression">The query parameter expression that's a candidate for conversion to a query root.</param>
+    protected virtual bool ShouldConvertToParameterQueryRoot(QueryParameterExpression queryParameterExpression)
         => false;
 }

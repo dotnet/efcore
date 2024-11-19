@@ -83,9 +83,7 @@ public abstract class CompiledQueryBase<TContext, TResult>
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected abstract Func<QueryContext, TResult> CreateCompiledQuery(
-        IQueryCompiler queryCompiler,
-        Expression expression);
+    protected abstract Func<QueryContext, TResult> CreateCompiledQuery(IQueryCompiler queryCompiler, Expression expression);
 
     private void EnsureExecutor(TContext context)
         => NonCapturingLazyInitializer.EnsureInitialized(
@@ -101,23 +99,14 @@ public abstract class CompiledQueryBase<TContext, TResult>
                 return new ExecutorAndModel(t.CreateCompiledQuery(queryCompiler, expression), c.Model);
             });
 
-    private sealed class QueryExpressionRewriter(
-        TContext context,
-        IReadOnlyCollection<ParameterExpression> parameters)
-        : ExpressionVisitor
+    private sealed class QueryExpressionRewriter(TContext context, IReadOnlyCollection<ParameterExpression> parameters) : ExpressionVisitor
     {
         protected override Expression VisitParameter(ParameterExpression parameterExpression)
-        {
-            if (typeof(TContext).IsAssignableFrom(parameterExpression.Type))
-            {
-                return Expression.Constant(context);
-            }
-
-            return parameters.Contains(parameterExpression)
-                ? Expression.Parameter(
-                    parameterExpression.Type,
-                    QueryCompilationContext.QueryParameterPrefix + parameterExpression.Name)
-                : parameterExpression;
-        }
+            => typeof(TContext).IsAssignableFrom(parameterExpression.Type)
+                ? Expression.Constant(context)
+                : parameters.Contains(parameterExpression)
+                    ? new QueryParameterExpression(
+                        QueryCompilationContext.QueryParameterPrefix + parameterExpression.Name, parameterExpression.Type)
+                    : parameterExpression;
     }
 }

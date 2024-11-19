@@ -75,7 +75,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
     ///     A cache of tree fragments that have already been parameterized, along with their parameter. This allows us to reuse the same
     ///     query parameter twice when the same captured variable is referenced in the query.
     /// </summary>
-    private readonly Dictionary<Expression, Expression> _parameterizedValues = new(ExpressionEqualityComparer.Instance);
+    private readonly Dictionary<Expression, QueryParameterExpression> _parameterizedValues = new(ExpressionEqualityComparer.Instance);
 
     /// <summary>
     ///     Used only when evaluating arbitrary QueryRootExpressions (specifically SqlQueryRootExpression), to force any evaluatable nested
@@ -92,7 +92,6 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
     private IQueryProvider? _currentQueryProvider;
     private State _state;
     private IParameterValues _parameterValues = null!;
-    private HashSet<string>? _nonNullableReferenceTypeParameters;
 
     private readonly IModel _model;
     private readonly ContextParameterReplacer _contextParameterReplacer;
@@ -155,15 +154,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
         IParameterValues parameterValues,
         bool parameterize,
         bool clearParameterizedValues)
-    {
-        var result = ExtractParameters(
-            expression, parameterValues, parameterize, clearParameterizedValues, precompiledQuery: false,
-            out var nonNullableReferenceTypeParameters);
-        Check.DebugAssert(
-            nonNullableReferenceTypeParameters.Count == 0,
-            "Non-nullable reference type parameters can only be detected when precompiling.");
-        return result;
-    }
+        => ExtractParameters(expression, parameterValues, parameterize, clearParameterizedValues, precompiledQuery: false);
 
     /// <summary>
     ///     Processes an expression tree, extracting parameters and evaluating evaluatable fragments as part of the pass.
@@ -181,8 +172,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
         IParameterValues parameterValues,
         bool parameterize,
         bool clearParameterizedValues,
-        bool precompiledQuery,
-        out IReadOnlySet<string> nonNullableReferenceTypeParameters)
+        bool precompiledQuery)
     {
         Reset(clearParameterizedValues);
         _parameterValues = parameterValues;
@@ -199,8 +189,6 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
         {
             root = ProcessEvaluatableRoot(root, ref state);
         }
-
-        nonNullableReferenceTypeParameters = _nonNullableReferenceTypeParameters ?? EmptyStringSet;
 
         return root;
     }
@@ -632,34 +620,46 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
     /// </summary>
     protected override Expression VisitExtension(Expression extension)
     {
-        if (extension is QueryRootExpression queryRoot)
+        switch (extension)
         {
-            var queryProvider = queryRoot.QueryProvider;
-            if (_currentQueryProvider == null)
+            case QueryRootExpression queryRoot:
             {
-                _currentQueryProvider = queryProvider;
-            }
-            else if (!ReferenceEquals(queryProvider, _currentQueryProvider))
-            {
-                throw new InvalidOperationException(CoreStrings.ErrorInvalidQueryable);
+                var queryProvider = queryRoot.QueryProvider;
+                if (_currentQueryProvider == null)
+                {
+                    _currentQueryProvider = queryProvider;
+                }
+                else if (!ReferenceEquals(queryProvider, _currentQueryProvider))
+                {
+                    throw new InvalidOperationException(CoreStrings.ErrorInvalidQueryable);
+                }
+
+                // Visit after detaching query provider since custom query roots can have additional components
+                extension = queryRoot.DetachQueryProvider();
+
+                // The following is somewhat hacky. We're going to visit the query root's children via VisitChildren - this is primarily for
+                // FromSqlQueryRootExpression. Since the query root itself is never evaluatable, its children should all be handled as
+                // evaluatable roots - we set _evaluateRoot and do that in Visit.
+                // In addition, FromSqlQueryRootExpression's Arguments need to be a parameter rather than constant, so we set _inLambda to
+                // make that happen (quite hacky, but was done this way in the old ParameterExtractingEV as well). Think about a better way.
+                _evaluateRoot = true;
+                var parentInLambda = _inLambda;
+                _inLambda = false;
+                var visitedExtension = base.VisitExtension(extension);
+                _evaluateRoot = false;
+                _inLambda = parentInLambda;
+                _state = State.NoEvaluatability;
+                return visitedExtension;
             }
 
-            // Visit after detaching query provider since custom query roots can have additional components
-            extension = queryRoot.DetachQueryProvider();
-
-            // The following is somewhat hacky. We're going to visit the query root's children via VisitChildren - this is primarily for
-            // FromSqlQueryRootExpression. Since the query root itself is never evaluatable, its children should all be handled as
-            // evaluatable roots - we set _evaluateRoot and do that in Visit.
-            // In addition, FromSqlQueryRootExpression's Arguments need to be a parameter rather than constant, so we set _inLambda to
-            // make that happen (quite hacky, but was done this way in the old ParameterExtractingEV as well). Think about a better way.
-            _evaluateRoot = true;
-            var parentInLambda = _inLambda;
-            _inLambda = false;
-            var visitedExtension = base.VisitExtension(extension);
-            _evaluateRoot = false;
-            _inLambda = parentInLambda;
-            _state = State.NoEvaluatability;
-            return visitedExtension;
+            // In regular queries, query parameters are represented as captured variables, i.e. member accesses over a ConstantExpression
+            // referencing the closure type (see VisitConstant).
+            // However, compiled queries work differently, and their query parameters are actual ParameterExpressions that correspond to the
+            // compiled query lambda parameters. These are replaced with QueryParameterExpression in CompiledQueryBase, so we need to handle
+            // those here.
+            case QueryParameterExpression queryParameter:
+                _state = State.NoEvaluatability;
+                return queryParameter;
         }
 
         return base.VisitExtension(extension);
@@ -1875,14 +1875,14 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
 
         if (evaluateAsParameter)
         {
-            if (_parameterizedValues.TryGetValue(evaluatableRoot, out var cachedParameter))
+            if (_parameterizedValues.TryGetValue(evaluatableRoot, out var cachedQueryParameter))
             {
                 // We're here when the same captured variable (or other fragment) is referenced more than once in the query; we want to
                 // use the same query parameter rather than sending it twice.
                 // Note that in path calculation (precompiled query), we don't have to do anything, as the path only needs to be returned
                 // once.
                 state = State.NoEvaluatability;
-                return cachedParameter;
+                return cachedQueryParameter;
             }
 
             if (_calculatingPath)
@@ -1911,17 +1911,19 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
             // TODO: This currently only knows about the NRT status of a directly captured variable, but not the NRT status of any
             // TODO: larger expression composed on top of a captured variable (e.g. Where(b => b.Name == foo + "Bla"))
             // TODO: This would require bubbling nullability information up the tree via State.
-            if (_precompiledQuery
+            var isNonNullableReferenceType =
+                _precompiledQuery
                 && !evaluatableRoot.Type.IsValueType
-                && evaluatableRoot is MemberExpression { Member: IParameterNullabilityInfo { IsNonNullableReferenceType: true } })
-            {
-                _nonNullableReferenceTypeParameters ??= [];
-                _nonNullableReferenceTypeParameters.Add(parameterName);
-            }
+                && evaluatableRoot is MemberExpression { Member: IParameterNullabilityInfo { IsNonNullableReferenceType: true } };
 
             _parameterValues.AddParameter(parameterName, value);
 
-            return _parameterizedValues[evaluatableRoot] = Parameter(evaluatableRoot.Type, parameterName);
+            return _parameterizedValues[evaluatableRoot] = new QueryParameterExpression(
+                parameterName,
+                evaluatableRoot.Type,
+                shouldBeConstantized: false,
+                shouldNotBeConstantized: false,
+                isNonNullableReferenceType);
         }
 
         // Evaluate as constant

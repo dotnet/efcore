@@ -240,8 +240,8 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
             && method.GetGenericMethodDefinition() == QueryableMethods.Contains
             && methodCallExpression.Arguments[0] is ParameterQueryRootExpression parameterSource
             && TranslateExpression(methodCallExpression.Arguments[1]) is SqlExpression item
-            && _sqlTranslator.Visit(parameterSource.ParameterExpression) is SqlParameterExpression sqlParameterExpression
-            && !QueryCompilationContext.ParametersToNotConstantize.Contains(sqlParameterExpression.Name))
+            && _sqlTranslator.Visit(parameterSource.QueryParameterExpression) is SqlParameterExpression sqlParameterExpression
+            && !parameterSource.QueryParameterExpression.ShouldNotBeConstantized)
         {
             var inExpression = _sqlExpressionFactory.In(item, sqlParameterExpression);
             var selectExpression = new SelectExpression(inExpression, _sqlAliasManager);
@@ -288,8 +288,8 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
     /// <inheritdoc />
     protected override ShapedQueryExpression? TranslateParameterQueryRoot(ParameterQueryRootExpression parameterQueryRootExpression)
     {
-        var sqlParameterExpression =
-            _sqlTranslator.Visit(parameterQueryRootExpression.ParameterExpression) as SqlParameterExpression;
+        var queryParameter = parameterQueryRootExpression.QueryParameterExpression;
+        var sqlParameterExpression = _sqlTranslator.Visit(queryParameter) as SqlParameterExpression;
 
         Check.DebugAssert(sqlParameterExpression is not null, "sqlParameterExpression is not null");
 
@@ -297,9 +297,9 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
             .ParameterizedCollectionTranslationMode;
 
         var tableAlias = _sqlAliasManager.GenerateTableAlias(sqlParameterExpression.Name.TrimStart('_'));
-        if (QueryCompilationContext.ParametersToConstantize.Contains(sqlParameterExpression.Name)
+        if (queryParameter.ShouldBeConstantized
             || (primitiveCollectionsBehavior == ParameterizedCollectionTranslationMode.Constantize
-                && !QueryCompilationContext.ParametersToNotConstantize.Contains(sqlParameterExpression.Name)))
+                && !queryParameter.ShouldNotBeConstantized))
         {
             var valuesExpression = new ValuesExpression(
                 tableAlias,
