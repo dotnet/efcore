@@ -574,7 +574,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
     public virtual Task Column_collection_of_strings_contains_null(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.Strings.Any(s => s == null)),
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => ((string?[])c.Strings).Contains(null)),
             assertEmpty: true);
 
     [ConditionalTheory]
