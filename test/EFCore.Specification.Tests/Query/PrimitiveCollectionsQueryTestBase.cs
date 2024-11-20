@@ -423,14 +423,14 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Parameter_collection_of_strings_Contains_nullable_string(bool async)
     {
-        var strings = new[] { "10", "999" };
+        string?[] strings = ["10", "999"];
 
         await AssertQuery(
             async,
-            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => strings.Any(s => s == c.NullableString)));
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => strings.Contains(c.NullableString)));
         await AssertQuery(
             async,
-            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => !strings.Any(s => s == c.NullableString)));
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => !strings.Contains(c.NullableString)));
     }
 
     [ConditionalTheory]
