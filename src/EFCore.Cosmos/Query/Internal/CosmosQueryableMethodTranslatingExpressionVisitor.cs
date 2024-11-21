@@ -444,7 +444,25 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     /// </summary>
     protected override ShapedQueryExpression? TranslateAverage(ShapedQueryExpression source, LambdaExpression? selector, Type resultType)
     {
-        var selectExpression = (SelectExpression)source.QueryExpression;
+        var updatedSource = TranslateAggregateCommon(source, selector, resultType, out var selectExpression);
+        if (updatedSource == null)
+        {
+            return null;
+        }
+
+        var projection = (SqlExpression)selectExpression.GetMappedProjection(new ProjectionMember());
+        projection = _sqlExpressionFactory.Function("AVG", new[] { projection }, resultType, _typeMappingSource.FindMapping(resultType));
+
+        return AggregateResultShaper(updatedSource, projection, resultType);
+    }
+
+    private ShapedQueryExpression? TranslateAggregateCommon(
+        ShapedQueryExpression source,
+        LambdaExpression? selector,
+        Type resultType,
+        out SelectExpression selectExpression)
+    {
+        selectExpression = (SelectExpression)source.QueryExpression;
         if (selectExpression.IsDistinct
             || selectExpression.Limit != null
             || selectExpression.Offset != null)
@@ -457,10 +475,13 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
             source = TranslateSelect(source, selector);
         }
 
-        var projection = (SqlExpression)selectExpression.GetMappedProjection(new ProjectionMember());
-        projection = _sqlExpressionFactory.Function("AVG", new[] { projection }, resultType, _typeMappingSource.FindMapping(resultType));
+        if (resultType.IsNullableType())
+        {
+            // For nullable types, we want to return null from Max, Min, and Average, rather than throwing. See Issue #35094.
+            source = source.UpdateResultCardinality(ResultCardinality.SingleOrDefault);
+        }
 
-        return AggregateResultShaper(source, projection, throwOnNullResult: true, resultType);
+        return source;
     }
 
     /// <summary>
@@ -842,24 +863,17 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     /// </summary>
     protected override ShapedQueryExpression? TranslateMax(ShapedQueryExpression source, LambdaExpression? selector, Type resultType)
     {
-        var selectExpression = (SelectExpression)source.QueryExpression;
-        if (selectExpression.IsDistinct
-            || selectExpression.Limit != null
-            || selectExpression.Offset != null)
+        var updatedSource = TranslateAggregateCommon(source, selector, resultType, out var selectExpression);
+        if (updatedSource == null)
         {
             return null;
-        }
-
-        if (selector != null)
-        {
-            source = TranslateSelect(source, selector);
         }
 
         var projection = (SqlExpression)selectExpression.GetMappedProjection(new ProjectionMember());
 
         projection = _sqlExpressionFactory.Function("MAX", new[] { projection }, resultType, projection.TypeMapping);
 
-        return AggregateResultShaper(source, projection, throwOnNullResult: true, resultType);
+        return AggregateResultShaper(updatedSource, projection, resultType);
     }
 
     /// <summary>
@@ -870,24 +884,17 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     /// </summary>
     protected override ShapedQueryExpression? TranslateMin(ShapedQueryExpression source, LambdaExpression? selector, Type resultType)
     {
-        var selectExpression = (SelectExpression)source.QueryExpression;
-        if (selectExpression.IsDistinct
-            || selectExpression.Limit != null
-            || selectExpression.Offset != null)
+        var updatedSource = TranslateAggregateCommon(source, selector, resultType, out var selectExpression);
+        if (updatedSource == null)
         {
             return null;
-        }
-
-        if (selector != null)
-        {
-            source = TranslateSelect(source, selector);
         }
 
         var projection = (SqlExpression)selectExpression.GetMappedProjection(new ProjectionMember());
 
         projection = _sqlExpressionFactory.Function("MIN", new[] { projection }, resultType, projection.TypeMapping);
 
-        return AggregateResultShaper(source, projection, throwOnNullResult: true, resultType);
+        return AggregateResultShaper(updatedSource, projection, resultType);
     }
 
     /// <summary>
@@ -1241,7 +1248,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
 
         projection = _sqlExpressionFactory.Function("SUM", new[] { projection }, serverOutputType, projection.TypeMapping);
 
-        return AggregateResultShaper(source, projection, throwOnNullResult: false, resultType);
+        return AggregateResultShaper(source, projection, resultType);
     }
 
     /// <summary>
@@ -1695,7 +1702,6 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     private static ShapedQueryExpression AggregateResultShaper(
         ShapedQueryExpression source,
         Expression projection,
-        bool throwOnNullResult,
         Type resultType)
     {
         var selectExpression = (SelectExpression)source.QueryExpression;
@@ -1706,29 +1712,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         var nullableResultType = resultType.MakeNullable();
         Expression shaper = new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), nullableResultType);
 
-        if (throwOnNullResult)
-        {
-            var resultVariable = Expression.Variable(nullableResultType, "result");
-            var returnValueForNull = resultType.IsNullableType()
-                ? (Expression)Expression.Constant(null, resultType)
-                : Expression.Throw(
-                    Expression.New(
-                        typeof(InvalidOperationException).GetConstructors()
-                            .Single(ci => ci.GetParameters().Length == 1),
-                        Expression.Constant(CoreStrings.SequenceContainsNoElements)),
-                    resultType);
-
-            shaper = Expression.Block(
-                new[] { resultVariable },
-                Expression.Assign(resultVariable, shaper),
-                Expression.Condition(
-                    Expression.Equal(resultVariable, Expression.Default(nullableResultType)),
-                    returnValueForNull,
-                    resultType != resultVariable.Type
-                        ? Expression.Convert(resultVariable, resultType)
-                        : resultVariable));
-        }
-        else if (resultType != shaper.Type)
+        if (resultType != shaper.Type)
         {
             shaper = Expression.Convert(shaper, resultType);
         }
