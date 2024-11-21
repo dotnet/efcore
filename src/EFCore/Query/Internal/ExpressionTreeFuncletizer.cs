@@ -1556,14 +1556,11 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                 operand = ProcessEvaluatableRoot(operand, ref operandState);
             }
 
-            if (_state.ContainsEvaluatable)
-            {
-                _state = _calculatingPath
-                    ? State.CreateContainsEvaluatable(
-                        typeof(UnaryExpression),
-                        [_state.Path! with { PathFromParent = static e => Property(e, nameof(UnaryExpression.Operand)) }])
-                    : State.NoEvaluatability;
-            }
+            _state = operandState.ContainsEvaluatable && _calculatingPath
+                ? State.CreateContainsEvaluatable(
+                    typeof(UnaryExpression),
+                    [_state.Path! with { PathFromParent = static e => Property(e, nameof(UnaryExpression.Operand)) }])
+                : State.NoEvaluatability;
 
             return unary.Update(operand);
         }
