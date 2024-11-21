@@ -36,7 +36,7 @@
     <PackageVersion Include="Microsoft.DotNet.Build.Tasks.Templating" Version="$(MicrosoftDotNetBuildTasksTemplatingVersion)" />
 
     <!-- Azure SDK for .NET dependencies -->
-    <PackageVersion Include="Microsoft.Azure.Cosmos" Version="3.45.2" />
+    <PackageVersion Include="Microsoft.Azure.Cosmos" Version="3.46.0" />
 
     <!-- SQL Server dependencies -->
     <PackageVersion Include="Microsoft.Data.SqlClient" Version="5.2.2" />
@@ -51,7 +51,7 @@
     <PackageVersion Include="NetTopologySuite.IO.SqlServerBytes" Version="2.1.0" />
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageVersion Include="mod_spatialite" Version="4.3.0.1" />
-    <PackageVersion Include="SQLitePCLRaw.core" Version="$(SQLitePCLRawVersion)" />    
+    <PackageVersion Include="SQLitePCLRaw.core" Version="$(SQLitePCLRawVersion)" />
     <PackageVersion Include="SQLitePCLRaw.bundle_sqlite3" Version="$(SQLitePCLRawVersion)" />
     <PackageVersion Include="SQLitePCLRaw.bundle_e_sqlite3" Version="$(SQLitePCLRawVersion)" />
 
@@ -59,7 +59,7 @@
     <!--Workaround for Microsoft.CodeAnalysis.Workspaces.MSBuild 4.8.0, see https://github.com/dotnet/efcore/issues/34637-->
     <PackageVersion Include="Microsoft.Build.Framework" Version="$(MicrosoftBuildFrameworkVersion)" />
     <!--Workaround for Microsoft.Data.SqlClient v5.1.6 and Microsoft.CodeAnalysis.Analyzer.Testing v1.1.2-->
-    <PackageVersion Include="System.Formats.Asn1" Version="$(SystemFormatsAsn1Version)" /> 
+    <PackageVersion Include="System.Formats.Asn1" Version="$(SystemFormatsAsn1Version)" />
     <PackageVersion Include="System.Runtime.Caching" Version="$(SystemRuntimeCachingVersion)" />
   </ItemGroup>
 </Project>
