@@ -57,6 +57,13 @@ public interface IRelationalCommandBuilder
     IRelationalCommandBuilder Append(string value);
 
     /// <summary>
+    ///     Appends an object to the command text.
+    /// </summary>
+    /// <param name="value">The object to be written.</param>
+    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    IRelationalCommandBuilder Append(FormattableString value);
+
+    /// <summary>
     ///     Appends a blank line to the command text.
     /// </summary>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
