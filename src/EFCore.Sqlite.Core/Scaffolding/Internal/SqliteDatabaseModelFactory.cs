@@ -87,6 +87,8 @@ public class SqliteDatabaseModelFactory : DatabaseModelFactory
 
     private static readonly HashSet<string> _floatTypes = new(StringComparer.OrdinalIgnoreCase) { "SINGLE" };
 
+    private static readonly HashSet<string> _halfTypes = new(StringComparer.OrdinalIgnoreCase) { "HALF" };
+
     private static readonly HashSet<string> _decimalTypes = new(StringComparer.OrdinalIgnoreCase) { "DECIMAL" };
 
     private static readonly HashSet<string> _ushortTypes = new(StringComparer.OrdinalIgnoreCase)
@@ -127,6 +129,7 @@ public class SqliteDatabaseModelFactory : DatabaseModelFactory
         .Concat(_shortTypes.Select(t => KeyValuePair.Create(t, typeof(short))))
         .Concat(_sbyteTypes.Select(t => KeyValuePair.Create(t, typeof(sbyte))))
         .Concat(_floatTypes.Select(t => KeyValuePair.Create(t, typeof(float))))
+        .Concat(_halfTypes.Select(t => KeyValuePair.Create(t, typeof(Half))))
         .Concat(_decimalTypes.Select(t => KeyValuePair.Create(t, typeof(decimal))))
         .Concat(_timeOnlyTypes.Select(t => KeyValuePair.Create(t, typeof(TimeOnly))))
         .Concat(_ushortTypes.Select(t => KeyValuePair.Create(t, typeof(ushort))))
@@ -809,6 +812,19 @@ ORDER BY "cid"
                     }
 
                     _logger.OutOfRangeWarning(column.Name, table.Name, "float");
+                }
+
+                if (_halfTypes.Contains(baseColumnType))
+                {
+                    if (min >= (double)Half.MinValue
+                        && max <= (double)Half.MaxValue)
+                    {
+                        column["ClrType"] = typeof(Half);
+
+                        continue;
+                    }
+
+                    _logger.OutOfRangeWarning(column.Name, table.Name, "Half");
                 }
 
                 if (_decimalTypes.Contains(baseColumnType))
