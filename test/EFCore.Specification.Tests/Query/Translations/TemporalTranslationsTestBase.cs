@@ -218,6 +218,47 @@ public abstract class TemporalTranslationsTestBase<TFixture>(TFixture fixture) :
                 .Where(x => new[] { dateOnly, new DateOnly(1998, 5, 4) }.Contains(DateOnly.FromDateTime(x.DateTime))));
     }
 
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task DateOnly_ToDateTime_property_DateOnly_with_constant_TimeOnly(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<BasicTypesEntity>()
+                .Where(o => o.DateOnly.ToDateTime(new TimeOnly(21, 5, 19, 940, 500)) == new DateTime(2020, 1, 1, 21, 5, 19, 940, 500)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task DateOnly_ToDateTime_property_DateOnly_with_property_TimeOnly(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<BasicTypesEntity>()
+                .Where(o => o.DateOnly.ToDateTime(o.TimeOnly) == new DateTime(2020, 1, 1, 15, 30, 10)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task DateOnly_ToDateTime_constant_DateTime_with_property_TimeOnly(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<BasicTypesEntity>()
+                .Where(o => new DateOnly(1990, 11, 10).ToDateTime(o.TimeOnly) == new DateTime(1990, 11, 10, 15, 30, 10)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task DateOnly_ToDateTime_with_complex_DateTime(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<BasicTypesEntity>()
+                .Where(o => o.DateOnly.AddYears(1).ToDateTime(o.TimeOnly) == new DateTime(2021, 1, 1, 15, 30, 10)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task DateOnly_ToDateTime_with_complex_TimeOnly(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<BasicTypesEntity>()
+                .Where(o => o.DateOnly.ToDateTime(o.TimeOnly.AddHours(1)) == new DateTime(2020, 1, 1, 16, 30, 10))
+                .AsTracking());
+
     #endregion DateOnly
 
     #region TimeOnly

@@ -324,6 +324,56 @@ WHERE CAST([b].[DateTime] AS date) IN (@dateOnly, '1998-05-04')
 """);
     }
 
+    public override async Task DateOnly_ToDateTime_property_DateOnly_with_constant_TimeOnly(bool async)
+    {
+        await base.DateOnly_ToDateTime_property_DateOnly_with_constant_TimeOnly(async);
+
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE DATETIME2FROMPARTS(DATEPART(year, [b].[DateOnly]), DATEPART(month, [b].[DateOnly]), DATEPART(day, [b].[DateOnly]), 21, 5, 19, 9405000, 7) = '2020-01-01T21:05:19.9405000'
+""");
+    }
+
+    public override async Task DateOnly_ToDateTime_property_DateOnly_with_property_TimeOnly(bool async)
+    {
+        await base.DateOnly_ToDateTime_property_DateOnly_with_property_TimeOnly(async);
+
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE DATETIME2FROMPARTS(DATEPART(year, [b].[DateOnly]), DATEPART(month, [b].[DateOnly]), DATEPART(day, [b].[DateOnly]), DATEPART(hour, [b].[TimeOnly]), DATEPART(minute, [b].[TimeOnly]), DATEPART(second, [b].[TimeOnly]), DATEPART(nanosecond, [b].[TimeOnly]) / 100, 7) = '2020-01-01T15:30:10.0000000'
+""");
+    }
+
+    public override async Task DateOnly_ToDateTime_constant_DateTime_with_property_TimeOnly(bool async)
+    {
+        await base.DateOnly_ToDateTime_constant_DateTime_with_property_TimeOnly(async);
+
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE DATETIME2FROMPARTS(1990, 11, 10, DATEPART(hour, [b].[TimeOnly]), DATEPART(minute, [b].[TimeOnly]), DATEPART(second, [b].[TimeOnly]), DATEPART(nanosecond, [b].[TimeOnly]) / 100, 7) = '1990-11-10T15:30:10.0000000'
+""");
+    }
+
+    public override async Task DateOnly_ToDateTime_with_complex_DateTime(bool async)
+    {
+        await AssertTranslationFailed(() => base.DateOnly_ToDateTime_with_complex_DateTime(async));
+
+        AssertSql();
+    }
+
+    public override async Task DateOnly_ToDateTime_with_complex_TimeOnly(bool async)
+    {
+        await AssertTranslationFailed(() => base.DateOnly_ToDateTime_with_complex_TimeOnly(async));
+
+        AssertSql();
+    }
+
     #endregion DateOnly
 
     #region TimeOnly
