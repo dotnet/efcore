@@ -5849,4 +5849,11 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture>(TFixture fix
 
     private static string StaticProperty
         => "ALF";
+
+    [ConditionalTheory] // #35118
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Column_access_inside_subquery_predicate(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => ss.Set<Order>().Where(o => c.CustomerID == "ALFKI").Any()));
 }
