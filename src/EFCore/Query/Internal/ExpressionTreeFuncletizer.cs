@@ -103,6 +103,9 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
     private static readonly bool UseOldBehavior35095 =
         AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue35095", out var enabled35095) && enabled35095;
 
+    private static readonly bool UseOldBehavior35152 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue35152", out var enabled35152) && enabled35152;
+
     private static readonly MethodInfo ReadOnlyCollectionIndexerGetter = typeof(ReadOnlyCollection<Expression>).GetProperties()
         .Single(p => p.GetIndexParameters() is { Length: 1 } indexParameters && indexParameters[0].ParameterType == typeof(int)).GetMethod!;
 
@@ -1558,9 +1561,20 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                 operand = ProcessEvaluatableRoot(operand, ref operandState);
             }
 
-            if (_state.ContainsEvaluatable)
+            if (UseOldBehavior35152)
             {
-                _state = _calculatingPath
+                if (_state.ContainsEvaluatable)
+                {
+                    _state = _calculatingPath
+                        ? State.CreateContainsEvaluatable(
+                            typeof(UnaryExpression),
+                            [_state.Path! with { PathFromParent = static e => Property(e, nameof(UnaryExpression.Operand)) }])
+                        : State.NoEvaluatability;
+                }
+            }
+            else
+            {
+                _state = operandState.ContainsEvaluatable && _calculatingPath
                     ? State.CreateContainsEvaluatable(
                         typeof(UnaryExpression),
                         [_state.Path! with { PathFromParent = static e => Property(e, nameof(UnaryExpression.Operand)) }])
