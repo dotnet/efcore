@@ -14,7 +14,7 @@
     <PackageVersion Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="$(MicrosoftExtensionsConfigurationEnvironmentVariablesVersion)" />
     <PackageVersion Include="Microsoft.Extensions.Configuration.Json" Version="$(MicrosoftExtensionsConfigurationJsonVersion)" />
     <PackageVersion Include="IdentityServer4.EntityFramework" Version="4.1.2" />
-    <PackageVersion Include="Grpc.AspNetCore" Version="2.66.0" />
+    <PackageVersion Include="Grpc.AspNetCore" Version="2.67.0" />
     <PackageVersion Include="NetTopologySuite.IO.GeoJSON" Version="4.0.0" />
     <PackageVersion Include="OpenTelemetry.Exporter.InMemory" Version="$(OpenTelemetryExporterInMemoryVersion)" />
     <PackageVersion Include="SQLitePCLRaw.bundle_e_sqlcipher" Version="$(SQLitePCLRawVersion)" />
