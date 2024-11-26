@@ -12,7 +12,7 @@ public class PrecompiledQuerySqlServerTest(
         IClassFixture<PrecompiledQuerySqlServerTest.PrecompiledQuerySqlServerFixture>
 {
     protected override bool AlwaysPrintGeneratedSources
-        => true;
+        => false;
 
     #region Expression types
 
@@ -1372,9 +1372,9 @@ FROM [Blogs] AS [b]
 """);
     }
 
-    public override async Task Terminating_ExecuteUpdate()
+    public override async Task Terminating_ExecuteUpdate_with_lambda()
     {
-        await base.Terminating_ExecuteUpdate();
+        await base.Terminating_ExecuteUpdate_with_lambda();
 
         AssertSql(
             """
@@ -1393,9 +1393,30 @@ WHERE [b].[Id] = 9 AND [b].[Name] = N'Blog2Suffix'
 """);
     }
 
-    public override async Task Terminating_ExecuteUpdateAsync()
+    public override async Task Terminating_ExecuteUpdate_without_lambda()
     {
-        await base.Terminating_ExecuteUpdateAsync();
+        await base.Terminating_ExecuteUpdate_without_lambda();
+
+        AssertSql(
+            """
+@newValue='NewValue' (Size = 4000)
+
+UPDATE [b]
+SET [b].[Name] = @newValue
+FROM [Blogs] AS [b]
+WHERE [b].[Id] > 8
+""",
+            //
+            """
+SELECT COUNT(*)
+FROM [Blogs] AS [b]
+WHERE [b].[Id] = 9 AND [b].[Name] = N'NewValue'
+""");
+    }
+
+    public override async Task Terminating_ExecuteUpdateAsync_with_lambda()
+    {
+        await base.Terminating_ExecuteUpdateAsync_with_lambda();
 
         AssertSql(
             """
@@ -1411,6 +1432,27 @@ WHERE [b].[Id] > 8
 SELECT COUNT(*)
 FROM [Blogs] AS [b]
 WHERE [b].[Id] = 9 AND [b].[Name] = N'Blog2Suffix'
+""");
+    }
+
+    public override async Task Terminating_ExecuteUpdateAsync_without_lambda()
+    {
+        await base.Terminating_ExecuteUpdateAsync_without_lambda();
+
+        AssertSql(
+            """
+@newValue='NewValue' (Size = 4000)
+
+UPDATE [b]
+SET [b].[Name] = @newValue
+FROM [Blogs] AS [b]
+WHERE [b].[Id] > 8
+""",
+            //
+            """
+SELECT COUNT(*)
+FROM [Blogs] AS [b]
+WHERE [b].[Id] = 9 AND [b].[Name] = N'NewValue'
 """);
     }
 

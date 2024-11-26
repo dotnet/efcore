@@ -321,7 +321,7 @@ public abstract class NonSharedModelBulkUpdatesTestBase : NonSharedModelTestBase
         bool async,
         Func<TContext> contextCreator,
         Func<TContext, IQueryable<TResult>> query,
-        Expression<Func<SetPropertyCalls<TResult>, SetPropertyCalls<TResult>>> setPropertyCalls,
+        Func<SetPropertyCalls<TResult>, SetPropertyCalls<TResult>> setPropertyCalls,
         int rowsAffectedCount)
         where TResult : class
         where TContext : DbContext

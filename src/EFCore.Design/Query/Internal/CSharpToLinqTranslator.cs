@@ -1245,10 +1245,10 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
         public bool IsNonNullableReferenceType { get; } = isNonNullableReferenceType;
 
         public override object[] GetCustomAttributes(bool inherit)
-            => Array.Empty<object>();
+            => [];
 
         public override object[] GetCustomAttributes(Type attributeType, bool inherit)
-            => Array.Empty<object>();
+            => [];
 
         public override bool IsDefined(Type attributeType, bool inherit)
             => false;
@@ -1289,10 +1289,10 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
     private sealed class FakeConstructorInfo(Type type, ParameterInfo[] parameters) : ConstructorInfo
     {
         public override object[] GetCustomAttributes(bool inherit)
-            => Array.Empty<object>();
+            => [];
 
         public override object[] GetCustomAttributes(Type attributeType, bool inherit)
-            => Array.Empty<object>();
+            => [];
 
         public override bool IsDefined(Type attributeType, bool inherit)
             => false;

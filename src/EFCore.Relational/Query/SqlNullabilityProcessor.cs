@@ -1316,7 +1316,12 @@ public class SqlNullabilityProcessor : ExpressionVisitor
         bool allowOptimizedExpansion,
         out bool nullable)
     {
-        var parameterValue = ParameterValues[sqlParameterExpression.Name];
+        if (!ParameterValues.TryGetValue(sqlParameterExpression.Name, out var parameterValue))
+        {
+            throw new UnreachableException(
+                $"Encountered SqlParameter with name '{sqlParameterExpression.Name}', but such a parameter does not exist.");
+        }
+
         nullable = parameterValue == null;
 
         if (nullable)

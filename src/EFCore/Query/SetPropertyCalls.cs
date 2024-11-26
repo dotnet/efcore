@@ -1,7 +1,7 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.ComponentModel;
+using System.Runtime.CompilerServices;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
@@ -19,72 +19,60 @@ namespace Microsoft.EntityFrameworkCore.Query;
 ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
 ///     and <see href="https://aka.ms/efcore-docs-how-query-works">How EF Core queries work</see> for more information and examples.
 /// </remarks>
-/// <typeparam name="TSource">The type of source element on which ExecuteUpdate operation is being applied.</typeparam>
-public sealed class SetPropertyCalls<TSource>
+public class SetPropertyCalls
 {
-    private SetPropertyCalls()
+    private readonly List<NewExpression> _setters = new();
+
+    private static ConstructorInfo? _setterTupleConstructor;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public virtual NewArrayExpression BuildSettersExpression()
+        => Expression.NewArrayInit(typeof(ITuple), _setters);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public virtual SetPropertyCalls SetProperty(LambdaExpression propertyExpression, LambdaExpression valueExpression)
     {
+        _setters.Add(
+            Expression.New(
+                _setterTupleConstructor ??= typeof(Tuple<Delegate, object>).GetConstructor([typeof(Delegate), typeof(object)])!,
+                propertyExpression,
+                valueExpression));
+
+        return this;
     }
 
     /// <summary>
-    ///     Specifies a property and corresponding value it should be updated to in ExecuteUpdate method.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    /// <typeparam name="TProperty">The type of property.</typeparam>
-    /// <param name="propertyExpression">A property access expression.</param>
-    /// <param name="valueExpression">A value expression.</param>
-    /// <returns>
-    ///     The same instance so that multiple calls to
-    ///     <see cref="SetPropertyCalls{TSource}.SetProperty{TProperty}(Func{TSource, TProperty}, Func{TSource, TProperty})" />
-    ///     can be chained.
-    /// </returns>
-    public SetPropertyCalls<TSource> SetProperty<TProperty>(
-        Func<TSource, TProperty> propertyExpression,
-        Func<TSource, TProperty> valueExpression)
-        => throw new InvalidOperationException(CoreStrings.SetPropertyMethodInvoked);
+    [EntityFrameworkInternal]
+    public virtual SetPropertyCalls SetProperty(LambdaExpression propertyExpression, Expression valueExpression)
+    {
+        if (valueExpression.Type.IsValueType)
+        {
+            valueExpression = Expression.Convert(valueExpression, typeof(object));
+        }
 
-    /// <summary>
-    ///     Specifies a property and corresponding value it should be updated to in ExecuteUpdate method.
-    /// </summary>
-    /// <typeparam name="TProperty">The type of property.</typeparam>
-    /// <param name="propertyExpression">A property access expression.</param>
-    /// <param name="valueExpression">A value expression.</param>
-    /// <returns>
-    ///     The same instance so that multiple calls to
-    ///     <see cref="SetPropertyCalls{TSource}.SetProperty{TProperty}(Func{TSource, TProperty}, TProperty)" /> can be chained.
-    /// </returns>
-    public SetPropertyCalls<TSource> SetProperty<TProperty>(
-        Func<TSource, TProperty> propertyExpression,
-        TProperty valueExpression)
-        => throw new InvalidOperationException(CoreStrings.SetPropertyMethodInvoked);
+        _setters.Add(
+            Expression.New(
+                _setterTupleConstructor ??= typeof(Tuple<Delegate, object>).GetConstructor([typeof(Delegate), typeof(object)])!,
+                propertyExpression,
+                valueExpression));
 
-    #region Hidden System.Object members
-
-    /// <summary>
-    ///     Returns a string that represents the current object.
-    /// </summary>
-    /// <returns>A string that represents the current object.</returns>
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public override string? ToString()
-        => base.ToString();
-
-    /// <summary>
-    ///     Determines whether the specified object is equal to the current object.
-    /// </summary>
-    /// <param name="obj">The object to compare with the current object.</param>
-    /// <returns><see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />.</returns>
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    // ReSharper disable once BaseObjectEqualsIsObjectEquals
-    public override bool Equals(object? obj)
-        => base.Equals(obj);
-
-    /// <summary>
-    ///     Serves as the default hash function.
-    /// </summary>
-    /// <returns>A hash code for the current object.</returns>
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    // ReSharper disable once BaseObjectGetHashCodeCallInGetHashCode
-    public override int GetHashCode()
-        => base.GetHashCode();
-
-    #endregion
+        return this;
+    }
 }
