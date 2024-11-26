@@ -555,49 +555,33 @@ WHERE ((c["$type"] = "Order") AND (c["OrderID"] = -1))
         }
     }
 
-    public override async Task Average_no_data_nullable(bool async)
-    {
-        // Sync always throws before getting to exception being tested.
-        if (async)
-        {
-            await Fixture.NoSyncTest(
-                async, async a =>
-                {
-                    Assert.Equal(
-                        CoreStrings.SequenceContainsNoElements,
-                        (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Average_no_data_nullable(a))).Message);
+    public override Task Average_no_data_nullable(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Average_no_data_nullable(a);
 
-                    AssertSql(
-                        """
+                AssertSql(
+                    """
 SELECT VALUE AVG(c["SupplierID"])
 FROM root c
 WHERE ((c["$type"] = "Product") AND (c["SupplierID"] = -1))
 """);
-                });
-        }
-    }
+            });
 
-    public override async Task Average_no_data_cast_to_nullable(bool async)
-    {
-        // Sync always throws before getting to exception being tested.
-        if (async)
-        {
-            await Fixture.NoSyncTest(
-                async, async a =>
-                {
-                    Assert.Equal(
-                        CoreStrings.SequenceContainsNoElements,
-                        (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Average_no_data_cast_to_nullable(a))).Message);
+    public override Task Average_no_data_cast_to_nullable(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Average_no_data_cast_to_nullable(a);
 
-                    AssertSql(
-                        """
+                AssertSql(
+                    """
 SELECT VALUE AVG(c["OrderID"])
 FROM root c
 WHERE ((c["$type"] = "Order") AND (c["OrderID"] = -1))
 """);
-                });
-        }
-    }
+            });
 
     public override async Task Min_no_data(bool async)
     {
@@ -647,49 +631,33 @@ WHERE ((c["$type"] = "Order") AND (c["OrderID"] = -1))
         AssertSql();
     }
 
-    public override async Task Max_no_data_nullable(bool async)
-    {
-        // Sync always throws before getting to exception being tested.
-        if (async)
-        {
-            await Fixture.NoSyncTest(
-                async, async a =>
-                {
-                    Assert.Equal(
-                        CoreStrings.SequenceContainsNoElements,
-                        (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Max_no_data_nullable(a))).Message);
+    public override Task Max_no_data_nullable(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Max_no_data_nullable(a);
 
-                    AssertSql(
-                        """
+                AssertSql(
+                    """
 SELECT VALUE MAX(c["SupplierID"])
 FROM root c
 WHERE ((c["$type"] = "Product") AND (c["SupplierID"] = -1))
 """);
-                });
-        }
-    }
+            });
 
-    public override async Task Max_no_data_cast_to_nullable(bool async)
-    {
-        // Sync always throws before getting to exception being tested.
-        if (async)
-        {
-            await Fixture.NoSyncTest(
-                async, async a =>
-                {
-                    Assert.Equal(
-                        CoreStrings.SequenceContainsNoElements,
-                        (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Max_no_data_cast_to_nullable(a))).Message);
+    public override Task Max_no_data_cast_to_nullable(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Max_no_data_cast_to_nullable(a);
 
-                    AssertSql(
-                        """
+                AssertSql(
+                    """
 SELECT VALUE MAX(c["OrderID"])
 FROM root c
 WHERE ((c["$type"] = "Order") AND (c["OrderID"] = -1))
 """);
-                });
-        }
-    }
+            });
 
     public override async Task Min_no_data_subquery(bool async)
     {
@@ -874,49 +842,33 @@ WHERE (c["$type"] = "Order")
 """);
             });
 
-    public override async Task Min_no_data_nullable(bool async)
-    {
-        // Sync always throws before getting to exception being tested.
-        if (async)
-        {
-            await Fixture.NoSyncTest(
-                async, async a =>
-                {
-                    Assert.Equal(
-                        CoreStrings.SequenceContainsNoElements,
-                        (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Min_no_data_nullable(a))).Message);
+    public override  Task Min_no_data_nullable(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Min_no_data_nullable(a);
 
-                    AssertSql(
-                        """
+                AssertSql(
+                    """
 SELECT VALUE MIN(c["SupplierID"])
 FROM root c
 WHERE ((c["$type"] = "Product") AND (c["SupplierID"] = -1))
 """);
-                });
-        }
-    }
+            });
 
-    public override async Task Min_no_data_cast_to_nullable(bool async)
-    {
-        // Sync always throws before getting to exception being tested.
-        if (async)
-        {
-            await Fixture.NoSyncTest(
-                async, async a =>
-                {
-                    Assert.Equal(
-                        CoreStrings.SequenceContainsNoElements,
-                        (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Min_no_data_cast_to_nullable(a))).Message);
+    public override Task Min_no_data_cast_to_nullable(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Min_no_data_cast_to_nullable(a);
 
-                    AssertSql(
-                        """
+                AssertSql(
+                    """
 SELECT VALUE MIN(c["OrderID"])
 FROM root c
 WHERE ((c["$type"] = "Order") AND (c["OrderID"] = -1))
 """);
-                });
-        }
-    }
+            });
 
     public override Task Min_with_coalesce(bool async)
         => Fixture.NoSyncTest(

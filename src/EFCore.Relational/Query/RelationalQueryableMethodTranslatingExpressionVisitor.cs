@@ -518,7 +518,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         ShapedQueryExpression source,
         LambdaExpression? selector,
         Type resultType)
-        => TranslateAggregateWithSelector(source, selector, QueryableMethods.GetAverageWithoutSelector, throwWhenEmpty: true, resultType);
+        => TranslateAggregateWithSelector(source, selector, QueryableMethods.GetAverageWithoutSelector, resultType);
 
     /// <inheritdoc />
     protected override ShapedQueryExpression TranslateCast(ShapedQueryExpression source, Type resultType)
@@ -968,7 +968,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         }
 
         return TranslateAggregateWithSelector(
-            source, selector, t => QueryableMethods.MaxWithoutSelector.MakeGenericMethod(t), throwWhenEmpty: true, resultType);
+            source, selector, t => QueryableMethods.MaxWithoutSelector.MakeGenericMethod(t), resultType);
     }
 
     /// <inheritdoc />
@@ -984,7 +984,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         }
 
         return TranslateAggregateWithSelector(
-            source, selector, t => QueryableMethods.MinWithoutSelector.MakeGenericMethod(t), throwWhenEmpty: true, resultType);
+            source, selector, t => QueryableMethods.MinWithoutSelector.MakeGenericMethod(t), resultType);
     }
 
     /// <inheritdoc />
@@ -1235,7 +1235,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
 
     /// <inheritdoc />
     protected override ShapedQueryExpression? TranslateSum(ShapedQueryExpression source, LambdaExpression? selector, Type resultType)
-        => TranslateAggregateWithSelector(source, selector, QueryableMethods.GetSumWithoutSelector, throwWhenEmpty: false, resultType);
+        => TranslateAggregateWithSelector(source, selector, QueryableMethods.GetSumWithoutSelector, resultType);
 
     /// <inheritdoc />
     protected override ShapedQueryExpression? TranslateTake(ShapedQueryExpression source, Expression count)
@@ -1958,7 +1958,6 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         ShapedQueryExpression source,
         LambdaExpression? selectorLambda,
         Func<Type, MethodInfo> methodGenerator,
-        bool throwWhenEmpty,
         Type resultType)
     {
         var selectExpression = (SelectExpression)source.QueryExpression;
@@ -2004,48 +2003,13 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
             new Dictionary<ProjectionMember, Expression> { { new ProjectionMember(), translation } });
 
         selectExpression.ClearOrdering();
-        Expression shaper;
 
-        if (throwWhenEmpty)
+        // Sum case. Projection is always non-null. We read nullable value.
+        Expression shaper = new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), translation.Type.MakeNullable());
+
+        if (resultType != shaper.Type)
         {
-            // Avg/Max/Min case.
-            // We always read nullable value
-            // If resultType is nullable then we always return null. Only non-null result shows throwing behavior.
-            // otherwise, if projection.Type is nullable then server result is passed through DefaultIfEmpty, hence we return default
-            // otherwise, server would return null only if it is empty, and we throw
-            var nullableResultType = resultType.MakeNullable();
-            shaper = new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), nullableResultType);
-            var resultVariable = Expression.Variable(nullableResultType, "result");
-            var returnValueForNull = resultType.IsNullableType()
-                ? (Expression)Expression.Default(resultType)
-                : translation.Type.IsNullableType()
-                    ? Expression.Default(resultType)
-                    : Expression.Throw(
-                        Expression.New(
-                            typeof(InvalidOperationException).GetConstructors()
-                                .Single(ci => ci.GetParameters().Length == 1),
-                            Expression.Constant(CoreStrings.SequenceContainsNoElements)),
-                        resultType);
-
-            shaper = Expression.Block(
-                new[] { resultVariable },
-                Expression.Assign(resultVariable, shaper),
-                Expression.Condition(
-                    Expression.Equal(resultVariable, Expression.Default(nullableResultType)),
-                    returnValueForNull,
-                    resultType != resultVariable.Type
-                        ? Expression.Convert(resultVariable, resultType)
-                        : resultVariable));
-        }
-        else
-        {
-            // Sum case. Projection is always non-null. We read nullable value.
-            shaper = new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), translation.Type.MakeNullable());
-
-            if (resultType != shaper.Type)
-            {
-                shaper = Expression.Convert(shaper, resultType);
-            }
+            shaper = Expression.Convert(shaper, resultType);
         }
 
         return source.UpdateShaperExpression(shaper);
