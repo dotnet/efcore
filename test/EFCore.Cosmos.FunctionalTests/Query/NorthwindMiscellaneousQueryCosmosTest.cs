@@ -5276,6 +5276,14 @@ WHERE (c["id"] = "ALFKI")
 
     #endregion ToPageAsync
 
+    public override async Task Column_access_inside_subquery_predicate(bool async)
+    {
+        // Uncorrelated subquery, not supported by Cosmos
+        await AssertTranslationFailed(() => base.Column_access_inside_subquery_predicate(async));
+
+        AssertSql();
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
