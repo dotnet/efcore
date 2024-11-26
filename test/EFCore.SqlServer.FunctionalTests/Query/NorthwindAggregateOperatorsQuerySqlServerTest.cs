@@ -2303,6 +2303,18 @@ END
         AssertSql();
     }
 
+    public override async Task Contains_with_static_IList(bool async)
+    {
+        await base.Contains_with_static_IList(async);
+
+        AssertSql(
+            """
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] IN (N'ALFKI', N'ANATR')
+""");
+    }
+
     public override async Task OfType_Select(bool async)
     {
         await base.OfType_Select(async);
