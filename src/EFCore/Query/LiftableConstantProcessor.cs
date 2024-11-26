@@ -198,7 +198,8 @@ public class LiftableConstantProcessor : ExpressionVisitor, ILiftableConstantPro
             // Make sure there aren't any problematic un-lifted constants within the resolver expression.
             _unsupportedConstantChecker.Check(resolverExpression);
 
-            var resolver = resolverExpression.Compile(preferInterpretation: true);
+            // TODO: deep dive into this - see issue #35210
+            var resolver = resolverExpression.Compile(preferInterpretation: false);
             var value = resolver(_materializerLiftableConstantContext);
 
             return Expression.Constant(value, liftableConstant.Type);
