@@ -100,6 +100,9 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
 
     private static readonly IReadOnlySet<string> EmptyStringSet = new HashSet<string>();
 
+    private static readonly bool UseOldBehavior35095 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue35095", out var enabled35095) && enabled35095;
+
     private static readonly MethodInfo ReadOnlyCollectionIndexerGetter = typeof(ReadOnlyCollection<Expression>).GetProperties()
         .Single(p => p.GetIndexParameters() is { Length: 1 } indexParameters && indexParameters[0].ParameterType == typeof(int)).GetMethod!;
 
@@ -379,16 +382,22 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                 case ExpressionType.Coalesce:
                     leftValue = Evaluate(left);
 
+                    Expression returnValue;
                     switch (leftValue)
                     {
                         case null:
-                            return Visit(binary.Right, out _state);
+                            returnValue = Visit(binary.Right, out _state);
+                            break;
                         case bool b:
                             _state = leftState with { StateType = StateType.EvaluatableWithoutCapturedVariable };
-                            return Constant(b);
+                            returnValue = Constant(b);
+                            break;
                         default:
-                            return left;
+                            returnValue = left;
+                            break;
                     }
+
+                    return UseOldBehavior35095 ? returnValue : ConvertIfNeeded(returnValue, binary.Type);
 
                 case ExpressionType.OrElse or ExpressionType.AndAlso when Evaluate(left) is bool leftBoolValue:
                 {
@@ -511,9 +520,10 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
         // If the test evaluates, simplify the conditional away by bubbling up the leg that remains
         if (testState.IsEvaluatable && Evaluate(test) is bool testBoolValue)
         {
-            return testBoolValue
+            var returnValue = testBoolValue
                 ? Visit(conditional.IfTrue, out _state)
                 : Visit(conditional.IfFalse, out _state);
+            return UseOldBehavior35095 ? returnValue : ConvertIfNeeded(returnValue, conditional.Type);
         }
 
         var ifTrue = Visit(conditional.IfTrue, out var ifTrueState);
@@ -2100,6 +2110,9 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
             }
         }
     }
+
+    private static Expression ConvertIfNeeded(Expression expression, Type type)
+        => expression.Type == type ? expression : Convert(expression, type);
 
     private bool IsGenerallyEvaluatable(Expression expression)
         => _evaluatableExpressionFilter.IsEvaluatableExpression(expression, _model)

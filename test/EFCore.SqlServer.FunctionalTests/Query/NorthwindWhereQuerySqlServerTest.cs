@@ -3425,7 +3425,21 @@ WHERE [o].[OrderID] = 10252
 """);
     }
 
-    #region Evaluation order of predicates
+    public override async Task Simplifiable_coalesce_over_nullable(bool async)
+    {
+        await base.Simplifiable_coalesce_over_nullable(async);
+
+        AssertSql(
+            """
+@__p_0='10248'
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE [o].[OrderID] = @__p_0
+""");
+    }
+
+    #region Evaluation order of operators
 
     public override async Task Take_and_Where_evaluation_order(bool async)
     {
@@ -3483,7 +3497,7 @@ FROM (
 """);
     }
 
-    #endregion Evaluation order of predicates
+    #endregion Evaluation order of operators
 
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
