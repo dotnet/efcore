@@ -31,7 +31,7 @@ FROM [Owner] AS [o]
 
         AssertSql(
             """
-@__p_0='1'
+@p='1'
 
 DELETE FROM [o]
 FROM [Owner] AS [o]
@@ -39,7 +39,7 @@ WHERE [o].[Id] IN (
     SELECT [o0].[Id]
     FROM [Owner] AS [o0]
     ORDER BY [o0].[Title]
-    OFFSET @__p_0 ROWS
+    OFFSET @p ROWS
 )
 """);
     }

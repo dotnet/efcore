@@ -866,15 +866,17 @@ ORDER BY c["PersonAddress"]["PlaceType"], c["Id"]
                 await base.Query_on_collection_entry_works_for_owned_collection(a);
 
                 AssertSql(
-                    """ReadItem(None, 1)""",
+                    """
+ReadItem(None, 1)
+""",
                     //
                     """
-@__p_0='1'
+@p='1'
 
 SELECT VALUE o
 FROM root c
 JOIN o IN c["Orders"]
-WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (o["ClientId"] = @__p_0))
+WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (o["ClientId"] = @p))
 """);
             });
 
@@ -978,14 +980,14 @@ WHERE c["Terminator"] IN ("HeliumBalloon", "HydrogenBalloon")
 
                 AssertSql(
                     """
-@__p_0='1'
-@__p_1='2'
+@p='1'
+@p0='2'
 
 SELECT VALUE c
 FROM root c
 WHERE c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 ORDER BY c["Id"]
-OFFSET @__p_0 LIMIT @__p_1
+OFFSET @p LIMIT @p0
 """);
             });
 
@@ -997,14 +999,14 @@ OFFSET @__p_0 LIMIT @__p_1
 
                 AssertSql(
                     """
-@__p_0='1'
-@__p_1='2'
+@p='1'
+@p0='2'
 
 SELECT VALUE c
 FROM root c
 WHERE c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 ORDER BY c["Id"]
-OFFSET @__p_0 LIMIT @__p_1
+OFFSET @p LIMIT @p0
 """);
             });
 
@@ -1095,13 +1097,13 @@ WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c["Id
 
                 AssertSql(
                     """
-@__p_0='2'
+@p='2'
 
 SELECT VALUE c
 FROM root c
 WHERE c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 ORDER BY c["Id"]
-OFFSET 0 LIMIT @__p_0
+OFFSET 0 LIMIT @p
 """);
             });
 
@@ -1115,13 +1117,13 @@ OFFSET 0 LIMIT @__p_0
 
                 AssertSql(
                     """
-@__p_0='2'
+@p='2'
 
 SELECT VALUE c
 FROM root c
 WHERE c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 ORDER BY c["Id"]
-OFFSET 0 LIMIT @__p_0
+OFFSET 0 LIMIT @p
 """);
             });
 

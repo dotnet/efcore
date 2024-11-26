@@ -44,19 +44,22 @@ END
 
         AssertSql(
             """
-@__city_0='London' (Size = 6)
+@city='London' (Size = 6)
 
 SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
 FROM "Customers" AS "c"
-WHERE "c"."City" = @__city_0
+WHERE "c"."City" = @city
 """);
 
         Assert.Equal(
-            @".param set @__city_0 'London'
+            """
+.param set @city 'London'
 
-SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
-FROM ""Customers"" AS ""c""
-WHERE ""c"".""City"" = @__city_0", queryString, ignoreLineEndingDifferences: true, ignoreWhiteSpaceDifferences: true);
+SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
+FROM "Customers" AS "c"
+WHERE "c"."City" = @city
+""",
+            queryString, ignoreLineEndingDifferences: true, ignoreWhiteSpaceDifferences: true);
 
         return null;
     }
@@ -67,11 +70,11 @@ WHERE ""c"".""City"" = @__city_0", queryString, ignoreLineEndingDifferences: tru
 
         AssertSql(
             """
-@__myDatetime_0='2015-04-10T00:00:00.0000000' (DbType = DateTime)
+@myDatetime='2015-04-10T00:00:00.0000000' (DbType = DateTime)
 
 SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
 FROM "Customers" AS "c"
-WHERE rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime'), '0'), '.') <> @__myDatetime_0
+WHERE rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime'), '0'), '.') <> @myDatetime
 """);
     }
 
@@ -81,11 +84,11 @@ WHERE rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime'), '0'), '.') 
 
         AssertSql(
             """
-@__myDatetime_0='2015-04-10T00:00:00.0000000' (DbType = DateTime)
+@myDatetime='2015-04-10T00:00:00.0000000' (DbType = DateTime)
 
 SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
 FROM "Customers" AS "c"
-WHERE rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', 'now'), '0'), '.') <> @__myDatetime_0
+WHERE rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', 'now'), '0'), '.') <> @myDatetime
 """);
     }
 
@@ -106,11 +109,11 @@ FROM "Employees" AS "e"
 
         AssertSql(
             """
-@__myDatetime_0='1998-05-04T00:00:00.0000000' (DbType = DateTime)
+@myDatetime='1998-05-04T00:00:00.0000000' (DbType = DateTime)
 
 SELECT "o"."OrderID", "o"."CustomerID", "o"."EmployeeID", "o"."OrderDate"
 FROM "Orders" AS "o"
-WHERE rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', "o"."OrderDate", 'start of day'), '0'), '.') = @__myDatetime_0
+WHERE rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', "o"."OrderDate", 'start of day'), '0'), '.') = @myDatetime
 """);
     }
 

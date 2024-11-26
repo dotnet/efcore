@@ -80,8 +80,7 @@ public class QueryParameterExpression : Expression, IPrintableExpression
 
     /// <inheritdoc />
     public void Print(ExpressionPrinter expressionPrinter)
-        // => expressionPrinter.Append("@").Append(Name);
-        => expressionPrinter.Append(Name);
+        => expressionPrinter.Append("@").Append(Name);
 
     /// <inheritdoc />
     public override bool Equals(object? obj)

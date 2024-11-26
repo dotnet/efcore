@@ -91,11 +91,11 @@ WHERE [r].[OwnedEntity_OwnedValue] = N'Abc'
 """,
             //
             """
-@__id_0='1'
+@id='1'
 
 SELECT [p].[Id], [p].[RemovableEntityId]
 FROM [Parents] AS [p]
-WHERE [p].[Id] = @__id_0
+WHERE [p].[Id] = @id
 """);
     }
 
@@ -105,14 +105,14 @@ WHERE [p].[Id] = @__id_0
 
         AssertSql(
             """
-@__action_0='1'
+@action='1'
 
 SELECT COUNT(*)
 FROM [Offers] AS [o]
 WHERE EXISTS (
     SELECT 1
     FROM [OfferActions] AS [o0]
-    WHERE [o].[Id] = [o0].[OfferId] AND [o0].[Action] = @__action_0)
+    WHERE [o].[Id] = [o0].[OfferId] AND [o0].[Action] = @action)
 """);
     }
 
@@ -122,11 +122,11 @@ WHERE EXISTS (
 
         AssertSql(
             """
-@__id_0='1'
+@id='1'
 
 SELECT TOP(1) [m].[Id], [m].[Name], [m].[NavigationEntityId]
 FROM [MockEntities] AS [m]
-WHERE [m].[Id] = @__id_0
+WHERE [m].[Id] = @id
 """,
             //
             """
@@ -152,11 +152,11 @@ FROM [Businesses] AS [b]
 
         AssertSql(
             $"""
-@__parameter_0='2021-11-12T13:14:15.1234567'{postfix}
+@parameter='2021-11-12T13:14:15.1234567'{postfix}
 
 SELECT TOP(1) [e].[DateTime]
 FROM [Entities] AS [e]
-WHERE [e].[DateTime] = @__parameter_0
+WHERE [e].[DateTime] = @parameter
 """);
     }
 
@@ -166,11 +166,11 @@ WHERE [e].[DateTime] = @__parameter_0
 
         AssertSql(
             $"""
-@__parameter_0='2021-11-12T13:14:15.1234567+10:00'{postfix}
+@parameter='2021-11-12T13:14:15.1234567+10:00'{postfix}
 
 SELECT TOP(1) [e].[DateTimeOffset]
 FROM [Entities] AS [e]
-WHERE [e].[DateTimeOffset] = @__parameter_0
+WHERE [e].[DateTimeOffset] = @parameter
 """);
     }
 
@@ -180,11 +180,11 @@ WHERE [e].[DateTimeOffset] = @__parameter_0
 
         AssertSql(
             $"""
-@__parameter_0='12:34:56.7890123'{postfix}
+@parameter='12:34:56.7890123'{postfix}
 
 SELECT TOP(1) [e].[TimeSpan]
 FROM [Entities] AS [e]
-WHERE [e].[TimeSpan] = @__parameter_0
+WHERE [e].[TimeSpan] = @parameter
 """);
     }
 
@@ -294,11 +294,11 @@ ORDER BY [o0].[Id]
 
         AssertSql(
             """
-@__p_0='10'
+@p='10'
 
 SELECT [a].[Id], [s].[Info_Created0] AS [Created]
 FROM (
-    SELECT TOP(@__p_0) [c].[Id], [b].[AId], [b].[Info_Created] AS [Info_Created0]
+    SELECT TOP(@p) [c].[Id], [b].[AId], [b].[Info_Created] AS [Info_Created0]
     FROM [Cs] AS [c]
     INNER JOIN [Bs] AS [b] ON [c].[BId] = [b].[Id]
     WHERE [b].[AId] = 1

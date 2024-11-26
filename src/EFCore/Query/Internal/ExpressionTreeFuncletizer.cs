@@ -78,6 +78,11 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
     private readonly Dictionary<Expression, QueryParameterExpression> _parameterizedValues = new(ExpressionEqualityComparer.Instance);
 
     /// <summary>
+    ///     A set of the names of parameters that have already been created. Used to ensure different parameters have unique names.
+    /// </summary>
+    private readonly HashSet<string> _parameterNames = new();
+
+    /// <summary>
     ///     Used only when evaluating arbitrary QueryRootExpressions (specifically SqlQueryRootExpression), to force any evaluatable nested
     ///     expressions to get evaluated as roots, since the query root itself is never evaluatable.
     /// </summary>
@@ -96,8 +101,6 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
     private readonly IModel _model;
     private readonly ContextParameterReplacer _contextParameterReplacer;
     private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
-
-    private static readonly IReadOnlySet<string> EmptyStringSet = new HashSet<string>();
 
     private static readonly MethodInfo ReadOnlyCollectionIndexerGetter = typeof(ReadOnlyCollection<Expression>).GetProperties()
         .Single(p => p.GetIndexParameters() is { Length: 1 } indexParameters && indexParameters[0].ParameterType == typeof(int)).GetMethod!;
@@ -238,7 +241,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
         if (state.IsEvaluatable
             && IsParameterParameterizable(linqOperatorMethodCall.Method, linqOperatorMethodCall.Method.GetParameters()[argumentIndex]))
         {
-            _ = Evaluate(root, out var parameterName, out _);
+            _ = Evaluate(root, out var parameterName);
 
             state = new State
             {
@@ -276,7 +279,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
         // parameterized since we're not inside a lambda (e.g. Skip/Take), except for [NotParameterized].
         if (state.IsEvaluatable)
         {
-            _ = Evaluate(root, out var parameterName, out _);
+            _ = Evaluate(root, out var parameterName);
 
             state = new State
             {
@@ -303,6 +306,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
         if (clearParameterizedValues)
         {
             _parameterizedValues.Clear();
+            _parameterNames.Clear();
         }
     }
 
@@ -1859,7 +1863,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
             return result;
         }
 
-        var value = Evaluate(evaluatableRoot, out var parameterName, out var isContextAccessor);
+        var value = Evaluate(evaluatableRoot, ref evaluateAsParameter, out var parameterName, out var isContextAccessor);
 
         switch (value)
         {
@@ -1870,12 +1874,6 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
 
             case Expression innerExpression when !isContextAccessor:
                 return Visit(innerExpression);
-        }
-
-        if (isContextAccessor)
-        {
-            // Context accessors (query filters accessing the context) never get constantized
-            evaluateAsParameter = true;
         }
 
         if (evaluateAsParameter)
@@ -1999,30 +1997,53 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
     }
 
     private object? Evaluate(Expression? expression)
-        => Evaluate(expression, out _, out _);
-
-    private object? Evaluate(Expression? expression, out string parameterName, out bool isContextAccessor)
     {
-        var value = EvaluateCore(expression, out var tempParameterName, out isContextAccessor);
-        parameterName = tempParameterName ?? "p";
+        var evaluateAsParameter = false;
+        return Evaluate(expression, ref evaluateAsParameter, out _, out _);
+    }
 
-        var compilerPrefixIndex = parameterName.LastIndexOf('>');
-        if (compilerPrefixIndex != -1)
+    private object? Evaluate(Expression? expression, out string parameterName)
+    {
+        var evaluateAsParameter = true;
+        return Evaluate(expression, ref evaluateAsParameter, out parameterName, out _);
+    }
+
+    private object? Evaluate(Expression? expression, ref bool evaluateAsParameter, out string parameterName, out bool isContextAccessor)
+    {
+        var value = EvaluateCore(expression, ref evaluateAsParameter, out var tempParameterName, out isContextAccessor);
+
+        if (evaluateAsParameter)
         {
-            parameterName = parameterName[(compilerPrefixIndex + 1)..];
-        }
+            parameterName = tempParameterName ?? "p";
 
-        // The VB compiler prefixes closure member names with $VB$Local_, remove that (#33150)
-        if (parameterName.StartsWith("$VB$Local_", StringComparison.Ordinal))
+            var compilerPrefixIndex = parameterName.LastIndexOf('>');
+            if (compilerPrefixIndex != -1)
+            {
+                parameterName = parameterName[(compilerPrefixIndex + 1)..];
+            }
+
+            // The VB compiler prefixes closure member names with $VB$Local_, remove that (#33150)
+            if (parameterName.StartsWith("$VB$Local_", StringComparison.Ordinal))
+            {
+                parameterName = parameterName.Substring("$VB$Local_".Length);
+            }
+
+            // Uniquify the parameter name
+            var originalParameterName = parameterName;
+            for (var i = 0; _parameterNames.Contains(parameterName); i++)
+            {
+                parameterName = originalParameterName + i;
+            }
+            _parameterNames.Add(parameterName);
+        }
+        else
         {
-            parameterName = parameterName.Substring("$VB$Local_".Length);
+            parameterName = string.Empty;
         }
-
-        parameterName = $"{QueryCompilationContext.QueryParameterPrefix}{parameterName}_{_parameterValues.ParameterValues.Count}";
 
         return value;
 
-        object? EvaluateCore(Expression? expression, out string? parameterName, out bool isContextAccessor)
+        object? EvaluateCore(Expression? expression, ref bool evaluateAsParameter, out string? parameterName, out bool isContextAccessor)
         {
             parameterName = null;
             isContextAccessor = false;
@@ -2042,6 +2063,9 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                         + (RemoveConvert(expression) is MemberExpression { Member.Name: var memberName } ? ("__" + memberName) : "__p");
                     isContextAccessor = true;
 
+                    // Context accessors (query filters accessing the context) never get constantized
+                    evaluateAsParameter = true;
+
                     return Lambda(visited, _contextParameterReplacer.ContextParameterExpression);
                 }
 
@@ -2054,7 +2078,8 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
             switch (expression)
             {
                 case MemberExpression memberExpression:
-                    var instanceValue = EvaluateCore(memberExpression.Expression, out parameterName, out isContextAccessor);
+                    var instanceValue = EvaluateCore(
+                        memberExpression.Expression, ref evaluateAsParameter, out parameterName, out isContextAccessor);
                     try
                     {
                         switch (memberExpression.Member)
@@ -2084,7 +2109,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
 
                 case UnaryExpression { NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked } unaryExpression
                     when (unaryExpression.Type.UnwrapNullableType() == unaryExpression.Operand.Type):
-                    return EvaluateCore(unaryExpression.Operand, out parameterName, out isContextAccessor);
+                    return EvaluateCore(unaryExpression.Operand, ref evaluateAsParameter, out parameterName, out isContextAccessor);
             }
 
             try

@@ -46,11 +46,11 @@ WHERE [o].[OrderID] < 10300
 
         AssertSql(
             """
-@__quantity_0='1' (Nullable = true) (DbType = Int16)
+@quantity='1' (Nullable = true) (DbType = Int16)
 
 DELETE FROM [o]
 FROM [Order Details] AS [o]
-WHERE [o].[Quantity] = @__quantity_0
+WHERE [o].[Quantity] = @quantity
 """,
             //
             """
@@ -81,7 +81,7 @@ WHERE EXISTS (
 
         AssertSql(
             """
-@__p_0='100'
+@p='100'
 
 DELETE FROM [o]
 FROM [Order Details] AS [o]
@@ -92,7 +92,7 @@ WHERE EXISTS (
         FROM [Order Details] AS [o0]
         WHERE [o0].[OrderID] < 10300
         ORDER BY [o0].[OrderID]
-        OFFSET @__p_0 ROWS
+        OFFSET @p ROWS
     ) AS [o1]
     WHERE [o1].[OrderID] = [o].[OrderID] AND [o1].[ProductID] = [o].[ProductID])
 """);
@@ -104,14 +104,14 @@ WHERE EXISTS (
 
         AssertSql(
             """
-@__p_0='100'
+@p='100'
 
 DELETE FROM [o]
 FROM [Order Details] AS [o]
 WHERE EXISTS (
     SELECT 1
     FROM (
-        SELECT TOP(@__p_0) [o0].[OrderID], [o0].[ProductID]
+        SELECT TOP(@p) [o0].[OrderID], [o0].[ProductID]
         FROM [Order Details] AS [o0]
         WHERE [o0].[OrderID] < 10300
         ORDER BY [o0].[OrderID]
@@ -126,7 +126,7 @@ WHERE EXISTS (
 
         AssertSql(
             """
-@__p_0='100'
+@p='100'
 
 DELETE FROM [o]
 FROM [Order Details] AS [o]
@@ -137,7 +137,7 @@ WHERE EXISTS (
         FROM [Order Details] AS [o0]
         WHERE [o0].[OrderID] < 10300
         ORDER BY [o0].[OrderID]
-        OFFSET @__p_0 ROWS FETCH NEXT @__p_0 ROWS ONLY
+        OFFSET @p ROWS FETCH NEXT @p ROWS ONLY
     ) AS [o1]
     WHERE [o1].[OrderID] = [o].[OrderID] AND [o1].[ProductID] = [o].[ProductID])
 """);
@@ -149,7 +149,7 @@ WHERE EXISTS (
 
         AssertSql(
             """
-@__p_0='100'
+@p='100'
 
 DELETE FROM [o]
 FROM [Order Details] AS [o]
@@ -160,7 +160,7 @@ WHERE EXISTS (
         FROM [Order Details] AS [o0]
         WHERE [o0].[OrderID] < 10300
         ORDER BY (SELECT 1)
-        OFFSET @__p_0 ROWS
+        OFFSET @p ROWS
     ) AS [o1]
     WHERE [o1].[OrderID] = [o].[OrderID] AND [o1].[ProductID] = [o].[ProductID])
 """);
@@ -172,9 +172,9 @@ WHERE EXISTS (
 
         AssertSql(
             """
-@__p_0='100'
+@p='100'
 
-DELETE TOP(@__p_0) FROM [o]
+DELETE TOP(@p) FROM [o]
 FROM [Order Details] AS [o]
 WHERE [o].[OrderID] < 10300
 """);
@@ -186,7 +186,7 @@ WHERE [o].[OrderID] < 10300
 
         AssertSql(
             """
-@__p_0='100'
+@p='100'
 
 DELETE FROM [o]
 FROM [Order Details] AS [o]
@@ -197,7 +197,7 @@ WHERE EXISTS (
         FROM [Order Details] AS [o0]
         WHERE [o0].[OrderID] < 10300
         ORDER BY (SELECT 1)
-        OFFSET @__p_0 ROWS FETCH NEXT @__p_0 ROWS ONLY
+        OFFSET @p ROWS FETCH NEXT @p ROWS ONLY
     ) AS [o1]
     WHERE [o1].[OrderID] = [o].[OrderID] AND [o1].[ProductID] = [o].[ProductID])
 """);
@@ -263,9 +263,9 @@ WHERE [o0].[OrderID] IN (
 
         AssertSql(
             """
-@__p_0='100'
-@__p_1='20'
-@__p_2='5'
+@p='100'
+@p1='20'
+@p2='5'
 
 DELETE FROM [o]
 FROM [Order Details] AS [o]
@@ -278,10 +278,10 @@ WHERE EXISTS (
             FROM [Order Details] AS [o1]
             WHERE [o1].[OrderID] < 10300
             ORDER BY (SELECT 1)
-            OFFSET @__p_0 ROWS FETCH NEXT @__p_0 ROWS ONLY
+            OFFSET @p ROWS FETCH NEXT @p ROWS ONLY
         ) AS [o0]
         ORDER BY (SELECT 1)
-        OFFSET @__p_1 ROWS FETCH NEXT @__p_2 ROWS ONLY
+        OFFSET @p1 ROWS FETCH NEXT @p2 ROWS ONLY
     ) AS [o2]
     WHERE [o2].[OrderID] = [o].[OrderID] AND [o2].[ProductID] = [o].[ProductID])
 """);
@@ -511,8 +511,8 @@ WHERE [c].[City] LIKE N'Se%'
 
         AssertSql(
             """
-@__p_0='0'
-@__p_1='100'
+@p='0'
+@p0='100'
 
 DELETE FROM [o]
 FROM [Order Details] AS [o]
@@ -521,7 +521,7 @@ INNER JOIN (
     FROM [Orders] AS [o0]
     WHERE [o0].[OrderID] < 10300
     ORDER BY [o0].[OrderID]
-    OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
+    OFFSET @p ROWS FETCH NEXT @p0 ROWS ONLY
 ) AS [o1] ON [o].[OrderID] = [o1].[OrderID]
 """);
     }
@@ -532,8 +532,8 @@ INNER JOIN (
 
         AssertSql(
             """
-@__p_0='0'
-@__p_1='100'
+@p='0'
+@p0='100'
 
 DELETE FROM [o]
 FROM [Order Details] AS [o]
@@ -542,7 +542,7 @@ LEFT JOIN (
     FROM [Orders] AS [o0]
     WHERE [o0].[OrderID] < 10300
     ORDER BY [o0].[OrderID]
-    OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
+    OFFSET @p ROWS FETCH NEXT @p0 ROWS ONLY
 ) AS [o1] ON [o].[OrderID] = [o1].[OrderID]
 WHERE [o].[OrderID] < 10276
 """);
@@ -639,20 +639,20 @@ WHERE [c].[CustomerID] LIKE N'F%'
 
         AssertExecuteUpdateSql(
             """
-@__customer_0='ALFKI' (Size = 5) (DbType = StringFixedLength)
+@customer='ALFKI' (Size = 5) (DbType = StringFixedLength)
 
 UPDATE [c]
 SET [c].[ContactName] = N'Updated'
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] = @__customer_0
+WHERE [c].[CustomerID] = @customer
 """,
             //
             """
-@__customer_0='ALFKI' (Size = 5) (DbType = StringFixedLength)
+@customer='ALFKI' (Size = 5) (DbType = StringFixedLength)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] = @__customer_0
+WHERE [c].[CustomerID] = @customer
 """,
             //
             """
@@ -675,10 +675,10 @@ WHERE 0 = 1
 
         AssertExecuteUpdateSql(
             """
-@__value_0='Abc' (Size = 30)
+@value='Abc' (Size = 30)
 
 UPDATE [c]
-SET [c].[ContactName] = @__value_0
+SET [c].[ContactName] = @value
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'F%'
 """);
@@ -690,10 +690,10 @@ WHERE [c].[CustomerID] LIKE N'F%'
 
         AssertExecuteUpdateSql(
             """
-@__p_0='Abc' (Size = 30)
+@p='Abc' (Size = 30)
 
 UPDATE [c]
-SET [c].[ContactName] = @__p_0
+SET [c].[ContactName] = @p
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'F%'
 """);
@@ -718,10 +718,10 @@ WHERE [c].[CustomerID] LIKE N'F%'
 
         AssertExecuteUpdateSql(
             """
-@__container_Containee_Property_0='Abc' (Size = 30)
+@container_Containee_Property='Abc' (Size = 30)
 
 UPDATE [c]
-SET [c].[ContactName] = @__container_Containee_Property_0
+SET [c].[ContactName] = @container_Containee_Property
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'F%'
 """);
@@ -733,7 +733,7 @@ WHERE [c].[CustomerID] LIKE N'F%'
 
         AssertExecuteUpdateSql(
             """
-@__p_0='4'
+@p='4'
 
 UPDATE [c0]
 SET [c0].[ContactName] = N'Updated'
@@ -743,7 +743,7 @@ INNER JOIN (
     FROM [Customers] AS [c]
     WHERE [c].[CustomerID] LIKE N'F%'
     ORDER BY (SELECT 1)
-    OFFSET @__p_0 ROWS
+    OFFSET @p ROWS
 ) AS [c1] ON [c0].[CustomerID] = [c1].[CustomerID]
 """);
     }
@@ -754,9 +754,9 @@ INNER JOIN (
 
         AssertExecuteUpdateSql(
             """
-@__p_0='4'
+@p='4'
 
-UPDATE TOP(@__p_0) [c]
+UPDATE TOP(@p) [c]
 SET [c].[ContactName] = N'Updated'
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'F%'
@@ -769,8 +769,8 @@ WHERE [c].[CustomerID] LIKE N'F%'
 
         AssertExecuteUpdateSql(
             """
-@__p_0='2'
-@__p_1='4'
+@p='2'
+@p0='4'
 
 UPDATE [c0]
 SET [c0].[ContactName] = N'Updated'
@@ -780,7 +780,7 @@ INNER JOIN (
     FROM [Customers] AS [c]
     WHERE [c].[CustomerID] LIKE N'F%'
     ORDER BY (SELECT 1)
-    OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
+    OFFSET @p ROWS FETCH NEXT @p0 ROWS ONLY
 ) AS [c1] ON [c0].[CustomerID] = [c1].[CustomerID]
 """);
     }
@@ -808,7 +808,7 @@ INNER JOIN (
 
         AssertExecuteUpdateSql(
             """
-@__p_0='4'
+@p='4'
 
 UPDATE [c0]
 SET [c0].[ContactName] = N'Updated'
@@ -818,7 +818,7 @@ INNER JOIN (
     FROM [Customers] AS [c]
     WHERE [c].[CustomerID] LIKE N'F%'
     ORDER BY [c].[City]
-    OFFSET @__p_0 ROWS
+    OFFSET @p ROWS
 ) AS [c1] ON [c0].[CustomerID] = [c1].[CustomerID]
 """);
     }
@@ -829,13 +829,13 @@ INNER JOIN (
 
         AssertExecuteUpdateSql(
             """
-@__p_0='4'
+@p='4'
 
 UPDATE [c0]
 SET [c0].[ContactName] = N'Updated'
 FROM [Customers] AS [c0]
 INNER JOIN (
-    SELECT TOP(@__p_0) [c].[CustomerID]
+    SELECT TOP(@p) [c].[CustomerID]
     FROM [Customers] AS [c]
     WHERE [c].[CustomerID] LIKE N'F%'
     ORDER BY [c].[City]
@@ -849,8 +849,8 @@ INNER JOIN (
 
         AssertExecuteUpdateSql(
             """
-@__p_0='2'
-@__p_1='4'
+@p='2'
+@p0='4'
 
 UPDATE [c0]
 SET [c0].[ContactName] = N'Updated'
@@ -860,7 +860,7 @@ INNER JOIN (
     FROM [Customers] AS [c]
     WHERE [c].[CustomerID] LIKE N'F%'
     ORDER BY [c].[City]
-    OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
+    OFFSET @p ROWS FETCH NEXT @p0 ROWS ONLY
 ) AS [c1] ON [c0].[CustomerID] = [c1].[CustomerID]
 """);
     }
@@ -871,8 +871,8 @@ INNER JOIN (
 
         AssertExecuteUpdateSql(
             """
-@__p_0='2'
-@__p_1='6'
+@p='2'
+@p0='6'
 
 UPDATE [c1]
 SET [c1].[ContactName] = N'Updated'
@@ -884,10 +884,10 @@ INNER JOIN (
         FROM [Customers] AS [c]
         WHERE [c].[CustomerID] LIKE N'F%'
         ORDER BY [c].[City]
-        OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
+        OFFSET @p ROWS FETCH NEXT @p0 ROWS ONLY
     ) AS [c0]
     ORDER BY [c0].[City]
-    OFFSET @__p_0 ROWS FETCH NEXT @__p_0 ROWS ONLY
+    OFFSET @p ROWS FETCH NEXT @p ROWS ONLY
 ) AS [c2] ON [c1].[CustomerID] = [c2].[CustomerID]
 """);
     }
@@ -1037,10 +1037,10 @@ WHERE [c].[CustomerID] LIKE N'F%'
 
         AssertExecuteUpdateSql(
             """
-@__value_0='Abc' (Size = 4000)
+@value='Abc' (Size = 4000)
 
 UPDATE [c]
-SET [c].[ContactName] = COALESCE([c].[ContactName], N'') + @__value_0
+SET [c].[ContactName] = COALESCE([c].[ContactName], N'') + @value
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'F%'
 """);
@@ -1105,11 +1105,11 @@ WHERE [c].[CustomerID] LIKE N'F%'
 
         AssertExecuteUpdateSql(
             """
-@__value_0='Abc' (Size = 30)
+@value='Abc' (Size = 30)
 
 UPDATE [c]
 SET [c].[City] = N'Seattle',
-    [c].[ContactName] = @__value_0
+    [c].[ContactName] = @value
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'F%'
 """);

@@ -115,8 +115,8 @@ WHERE [a].[Id] IN (
 
         AssertSql(
             """
-@__p_0='0'
-@__p_1='3'
+@p='0'
+@p0='3'
 
 DELETE FROM [a]
 FROM [Animals] AS [a]
@@ -125,7 +125,7 @@ WHERE [a].[Id] IN (
     FROM [Animals] AS [a0]
     WHERE [a0].[Name] = N'Great spotted kiwi'
     ORDER BY [a0].[Name]
-    OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
+    OFFSET @p ROWS FETCH NEXT @p0 ROWS ONLY
 )
 """);
     }

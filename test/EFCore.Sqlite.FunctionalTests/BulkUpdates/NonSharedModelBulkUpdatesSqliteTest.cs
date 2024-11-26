@@ -32,14 +32,14 @@ DELETE FROM "Owner" AS "o"
 
         AssertSql(
             """
-@__p_0='1'
+@p='1'
 
 DELETE FROM "Owner" AS "o"
 WHERE "o"."Id" IN (
     SELECT "o0"."Id"
     FROM "Owner" AS "o0"
     ORDER BY "o0"."Title"
-    LIMIT -1 OFFSET @__p_0
+    LIMIT -1 OFFSET @p
 )
 """);
     }

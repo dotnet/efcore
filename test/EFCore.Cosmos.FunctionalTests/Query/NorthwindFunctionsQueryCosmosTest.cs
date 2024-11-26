@@ -48,11 +48,11 @@ WHERE STARTSWITH(c["ContactName"], "M")
 
                 AssertSql(
                     """
-@__pattern_0='M'
+@pattern='M'
 
 SELECT VALUE c
 FROM root c
-WHERE STARTSWITH(c["ContactName"], @__pattern_0)
+WHERE STARTSWITH(c["ContactName"], @pattern)
 """);
             });
 
@@ -161,11 +161,11 @@ WHERE ENDSWITH(c["ContactName"], "b")
 
                 AssertSql(
                     """
-@__pattern_0='b'
+@pattern='b'
 
 SELECT VALUE c
 FROM root c
-WHERE ENDSWITH(c["ContactName"], @__pattern_0)
+WHERE ENDSWITH(c["ContactName"], @pattern)
 """);
             });
 
@@ -1256,11 +1256,11 @@ WHERE (INDEX_OF(c["ContactName"], "a") = 1)
 
                 AssertSql(
                     """
-@__pattern_0='a'
+@pattern='a'
 
 SELECT VALUE c
 FROM root c
-WHERE (INDEX_OF(c["ContactName"], @__pattern_0) = 1)
+WHERE (INDEX_OF(c["ContactName"], @pattern) = 1)
 """);
             });
 
@@ -1286,11 +1286,11 @@ WHERE (INDEX_OF(c["ContactName"], "a", 2) = 4)
 
                 AssertSql(
                     """
-@__start_0='2'
+@start='2'
 
 SELECT VALUE c
 FROM root c
-WHERE (INDEX_OF(c["ContactName"], "a", @__start_0) = 4)
+WHERE (INDEX_OF(c["ContactName"], "a", @start) = 4)
 """);
             });
 
@@ -1358,11 +1358,11 @@ WHERE (SUBSTRING(c["id"], 1, LENGTH(c["id"])) = "LFKI")
 
                 AssertSql(
                     """
-@__start_0='2'
+@start='2'
 
 SELECT VALUE c["ContactName"]
 FROM root c
-WHERE (SUBSTRING(c["id"], @__start_0, LENGTH(c["id"])) = "FKI")
+WHERE (SUBSTRING(c["id"], @start, LENGTH(c["id"])) = "FKI")
 """);
             });
 
@@ -1416,9 +1416,9 @@ WHERE (c["id"] = "ALFKI")
 
                 AssertSql(
                     """
-@__start_0='2'
+@start='2'
 
-SELECT VALUE SUBSTRING(c["ContactName"], @__start_0, 3)
+SELECT VALUE SUBSTRING(c["ContactName"], @start, 3)
 FROM root c
 WHERE (c["id"] = "ALFKI")
 """);
@@ -1629,11 +1629,11 @@ ORDER BY LENGTH(c["id"]), c["id"]
 
                 AssertSql(
                     """
-@__arg_0='1996-07-04T00:00:00'
+@arg='1996-07-04T00:00:00'
 
 SELECT VALUE c
 FROM root c
-WHERE ((c["$type"] = "Order") AND (c["OrderDate"] = @__arg_0))
+WHERE ((c["$type"] = "Order") AND (c["OrderDate"] = @arg))
 """);
             });
 
@@ -1955,11 +1955,11 @@ WHERE CONTAINS(c["ContactName"], "     ")
 
                 AssertSql(
                     """
-@__pattern_0='     '
+@pattern='     '
 
 SELECT VALUE c
 FROM root c
-WHERE CONTAINS(c["ContactName"], @__pattern_0)
+WHERE CONTAINS(c["ContactName"], @pattern)
 """);
             });
 
