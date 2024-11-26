@@ -225,13 +225,16 @@ FROM [NullTestEmployees] AS [n]
             """
 @__ids_1='[1,2,3]' (Size = 4000)
 
-SELECT [e].[Id], [e].[Name], AVG(CASE
-    WHEN [e].[EmployeeId] IN (
-        SELECT [i].[value]
-        FROM OPENJSON(@__ids_1) WITH ([value] int '$') AS [i]
-    ) THEN [e].[Salary]
-END) OVER (PARTITION BY [e].[DepartmentName] ORDER BY [e].[Name]) AS [Avg]
+SELECT [e].[Id], [e].[Name], AVG([s].[value]) OVER (PARTITION BY [e].[DepartmentName] ORDER BY [e].[Name]) AS [Avg]
 FROM [Employees] AS [e]
+OUTER APPLY (
+    SELECT CASE
+        WHEN [e].[EmployeeId] IN (
+            SELECT [i].[value]
+            FROM OPENJSON(@__ids_1) WITH ([value] int '$') AS [i]
+        ) THEN [e].[Salary]
+    END AS [value]
+) AS [s]
 """);
     }
 
@@ -280,13 +283,16 @@ FROM [NullTestEmployees] AS [n]
             """
 @__ids_1='[1,2,3]' (Size = 4000)
 
-SELECT [e].[Id], [e].[Name], SUM(CASE
-    WHEN [e].[EmployeeId] IN (
-        SELECT [i].[value]
-        FROM OPENJSON(@__ids_1) WITH ([value] int '$') AS [i]
-    ) THEN [e].[Salary]
-END) OVER (PARTITION BY [e].[DepartmentName] ORDER BY [e].[Name]) AS [Sum]
+SELECT [e].[Id], [e].[Name], SUM([s].[value]) OVER (PARTITION BY [e].[DepartmentName] ORDER BY [e].[Name]) AS [Sum]
 FROM [Employees] AS [e]
+OUTER APPLY (
+    SELECT CASE
+        WHEN [e].[EmployeeId] IN (
+            SELECT [i].[value]
+            FROM OPENJSON(@__ids_1) WITH ([value] int '$') AS [i]
+        ) THEN [e].[Salary]
+    END AS [value]
+) AS [s]
 """);
     }
 
