@@ -5284,6 +5284,17 @@ WHERE (c["id"] = "ALFKI")
         AssertSql();
     }
 
+    public override async Task Cast_to_object_over_parameter_directly_in_lambda(bool async)
+    {
+        // Sync always throws before getting to exception being tested.
+        if (async)
+        {
+            // Cosmos doesn't support ORDER BY over parameter/constant:
+            // Unsupported ORDER BY clause. ORDER BY item expression could not be mapped to a document path.
+            await Assert.ThrowsAsync<CosmosException>(() => base.Cast_to_object_over_parameter_directly_in_lambda(async: true));
+        }
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

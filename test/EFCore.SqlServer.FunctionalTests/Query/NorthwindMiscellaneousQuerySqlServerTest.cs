@@ -7476,6 +7476,17 @@ WHERE EXISTS (
 """);
     }
 
+    public override async Task Cast_to_object_over_parameter_directly_in_lambda(bool async)
+    {
+        await base.Cast_to_object_over_parameter_directly_in_lambda(async);
+
+        AssertSql(
+            """
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+""");
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
