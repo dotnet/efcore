@@ -2606,9 +2606,8 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                         operations.Add(operation);
                     }
 
-                    // we removed the table, so we no longer need it's temporal information
-                    // there will be no more operations involving this table
-                    temporalTableInformationMap.Remove((tableName, schema));
+                    // Note that we leave the information in temporalTableInformationMap in case there's a later CreateTable operation
+                    // on the same table name (see #35162).
 
                     break;
                 }
