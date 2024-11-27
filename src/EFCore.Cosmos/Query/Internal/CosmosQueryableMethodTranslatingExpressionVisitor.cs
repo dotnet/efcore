@@ -1565,7 +1565,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         var projection = (SqlExpression)selectExpression.GetMappedProjection(new ProjectionMember());
         projection = _sqlExpressionFactory.Function(functionName, [projection], resultType, _typeMappingSource.FindMapping(resultType));
 
-        return AggregateResultShaper(source, projection, throwOnNullResult: false, resultType);
+        return AggregateResultShaper(source, projection, throwOnNullResult: true, resultType);
     }
 
     private bool TryApplyPredicate(ShapedQueryExpression source, LambdaExpression predicate)

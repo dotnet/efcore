@@ -667,22 +667,19 @@ WHERE ((c["$type"] = "Order") AND (c["OrderID"] = -1))
         AssertSql();
     }
 
-    public override async Task Average_with_no_arg(bool async)
-    {
-        // Always throws for sync.
-        if (async)
-        {
-            // Average truncates. Issue #26378.
-            await Assert.ThrowsAsync<EqualException>(async () => await base.Average_with_no_arg(async));
+    public override Task Average_with_no_arg(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Average_with_no_arg(a);
 
-            AssertSql(
-                """
+                AssertSql(
+                    """
 SELECT VALUE AVG(c["OrderID"])
 FROM root c
 WHERE (c["$type"] = "Order")
 """);
-        }
-    }
+            });
 
     public override Task Average_with_binary_expression(bool async)
         => Fixture.NoSyncTest(
@@ -698,22 +695,19 @@ WHERE (c["$type"] = "Order")
 """);
             });
 
-    public override async Task Average_with_arg(bool async)
-    {
-        // Always throws for sync.
-        if (async)
-        {
-            // Average truncates. Issue #26378.
-            await Assert.ThrowsAsync<EqualException>(async () => await base.Average_with_arg(async));
+    public override Task Average_with_arg(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Average_with_arg(a);
 
-            AssertSql(
-                """
+                AssertSql(
+                    """
 SELECT VALUE AVG(c["OrderID"])
 FROM root c
 WHERE (c["$type"] = "Order")
 """);
-        }
-    }
+            });
 
     public override Task Average_with_arg_expression(bool async)
         => Fixture.NoSyncTest(
