@@ -36,7 +36,7 @@ public class RelationalLiftableConstantProcessor : LiftableConstantProcessor
         if (liftableConstant.ResolverExpression is Expression<Func<RelationalMaterializerLiftableConstantContext, object>>
             resolverExpression)
         {
-            var resolver = resolverExpression.Compile(preferInterpretation: true);
+            var resolver = resolverExpression.Compile(preferInterpretation: UseOldBehavior35208);
             var value = resolver(_relationalMaterializerLiftableConstantContext);
             return Expression.Constant(value, liftableConstant.Type);
         }
