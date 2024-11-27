@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Reflection.Emit;
 using Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
 
 // ReSharper disable UnusedAutoPropertyAccessor.Local
@@ -9762,6 +9763,62 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                         v => Assert.Equal(42, v),
                         v => Assert.Equal(4242, v));
                 }));
+
+    [ConditionalFact]
+    public void Owned_collection_with_explicit_id()
+        => Execute(
+            modelBuilder =>
+            {
+            },
+            source =>
+            {
+                source.Entity("Microsoft.EntityFrameworkCore.Migrations.Internal.Account", b =>
+                {
+                    b.Property<string>("Id");
+                    b.HasKey("Id");
+                    b.ToTable("account");
+                });
+
+                source.Entity("Microsoft.EntityFrameworkCore.Migrations.Internal.Account", b =>
+                {
+                    b.OwnsMany("Microsoft.EntityFrameworkCore.Migrations.Internal.AccountHolder", "AccountHolders", b1 =>
+                    {
+                        b1.Property<string>("Id");
+                        b1.Property<string>("account_id");
+                        b1.HasKey("Id");
+                        b1.HasIndex("account_id");
+                        b1.ToTable("account_holder");
+                        b1.WithOwner().HasForeignKey("account_id");
+                    });
+                });
+            },
+            target =>
+            {
+                target.Entity<Account>(builder =>
+                {
+                    builder.ToTable("account");
+                    builder.HasKey("Id");
+                    builder.OwnsMany(a => a.AccountHolders, navigationBuilder =>
+                    {
+                        navigationBuilder.ToTable("account_holder");
+                        navigationBuilder.Property<string>("Id");
+                        navigationBuilder.HasKey("Id");
+                        navigationBuilder.Property<string>("account_id");
+                        navigationBuilder.WithOwner().HasForeignKey("account_id");
+                    });
+                });
+            },
+            Assert.Empty);
+
+    public class Account
+    {
+        public string Id { get; set; }
+        public IEnumerable<AccountHolder> AccountHolders { get; set; } = [];
+    }
+
+    public class AccountHolder
+    {
+    }
 
     [ConditionalFact]
     public void SeedData_with_guid_AK_and_multiple_owned_types()
