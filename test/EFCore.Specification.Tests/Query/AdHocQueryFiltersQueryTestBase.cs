@@ -743,8 +743,8 @@ public abstract class AdHocQueryFiltersQueryTestBase : NonSharedModelTestBase
         using var context = contextFactory.CreateContext();
 
         var data = async
-           ? await context.FooBars.ToListAsync()
-           : context.FooBars.ToList();
+           ? await context.Set<FooBar35111>().ToListAsync()
+           : context.Set<FooBar35111>().ToList();
     }
 
     protected class Context35111(DbContextOptions options) : DbContext(options)
@@ -753,11 +753,9 @@ public abstract class AdHocQueryFiltersQueryTestBase : NonSharedModelTestBase
         public long? Bar { get; set; }
         public List<long> Baz { get; set; }
 
-        public DbSet<FooBar> FooBars { get; set; }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<FooBar>()
+            modelBuilder.Entity<FooBar35111>()
                 .HasQueryFilter(e =>
                     Foo == 1
                         ? Baz.Contains(e.Bar)
@@ -765,7 +763,7 @@ public abstract class AdHocQueryFiltersQueryTestBase : NonSharedModelTestBase
         }
     }
 
-    public class FooBar
+    public class FooBar35111
     {
         public long Id { get; set; }
         public long Bar { get; set; }
