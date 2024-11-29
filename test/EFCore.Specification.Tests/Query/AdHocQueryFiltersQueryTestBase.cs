@@ -1,6 +1,8 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+
 namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
@@ -727,6 +729,46 @@ public abstract class AdHocQueryFiltersQueryTestBase : NonSharedModelTestBase
         public int Id { get; set; }
         public string Filter2 { get; set; }
         public string Value2 { get; set; }
+    }
+
+    #endregion
+
+    #region 35111
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Query_filter_with_context_accessor_with_constant(bool async)
+    {
+        var contextFactory = await InitializeAsync<Context35111>();
+        using var context = contextFactory.CreateContext();
+
+        var data = async
+           ? await context.FooBars.ToListAsync()
+           : context.FooBars.ToList();
+    }
+
+    protected class Context35111(DbContextOptions options) : DbContext(options)
+    {
+        public int Foo { get; set; }
+        public long? Bar { get; set; }
+        public List<long> Baz { get; set; }
+
+        public DbSet<FooBar> FooBars { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<FooBar>()
+                .HasQueryFilter(e =>
+                    Foo == 1
+                        ? Baz.Contains(e.Bar)
+                        : e.Bar == Bar);
+        }
+    }
+
+    public class FooBar
+    {
+        public long Id { get; set; }
+        public long Bar { get; set; }
     }
 
     #endregion
