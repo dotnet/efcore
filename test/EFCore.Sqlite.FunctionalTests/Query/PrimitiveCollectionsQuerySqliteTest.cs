@@ -538,6 +538,34 @@ WHERE "p"."Int" NOT IN (
 """);
     }
 
+    public override async Task Parameter_collection_ImmutableArray_of_ints_Contains_int(bool async)
+    {
+        await base.Parameter_collection_ImmutableArray_of_ints_Contains_int(async);
+
+        AssertSql(
+            """
+@ints='[10,999]' (Nullable = false) (Size = 8)
+
+SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."String", "p"."Strings"
+FROM "PrimitiveCollectionsEntity" AS "p"
+WHERE "p"."Int" IN (
+    SELECT "i"."value"
+    FROM json_each(@ints) AS "i"
+)
+""",
+            //
+            """
+@ints='[10,999]' (Nullable = false) (Size = 8)
+
+SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."String", "p"."Strings"
+FROM "PrimitiveCollectionsEntity" AS "p"
+WHERE "p"."Int" NOT IN (
+    SELECT "i"."value"
+    FROM json_each(@ints) AS "i"
+)
+""");
+    }
+
     public override async Task Parameter_collection_of_ints_Contains_nullable_int(bool async)
     {
         await base.Parameter_collection_of_ints_Contains_nullable_int(async);
