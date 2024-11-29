@@ -516,6 +516,11 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                 conditional.Type);
         }
 
+        if (testState.IsEvaluatable)
+        {
+            test = ProcessEvaluatableRoot(test, ref testState);
+        }
+
         var ifTrue = Visit(conditional.IfTrue, out var ifTrueState);
         var ifFalse = Visit(conditional.IfFalse, out var ifFalseState);
 
