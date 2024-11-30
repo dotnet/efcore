@@ -539,7 +539,11 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                 goto case StateType.ContainsEvaluatable;
 
             case StateType.ContainsEvaluatable:
-                // The case where the test is evaluatable has been handled above
+                if (testState.IsEvaluatable)
+                {
+                    test = ProcessEvaluatableRoot(test, ref testState);
+                }
+
                 if (ifTrueState.IsEvaluatable)
                 {
                     ifTrue = ProcessEvaluatableRoot(ifTrue, ref ifTrueState);
