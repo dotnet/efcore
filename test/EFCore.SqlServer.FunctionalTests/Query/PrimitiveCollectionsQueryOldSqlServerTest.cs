@@ -498,6 +498,24 @@ WHERE [p].[Int] NOT IN (10, 999)
 """);
     }
 
+    public override async Task Parameter_collection_ImmutableArray_of_ints_Contains_int(bool async)
+    {
+        await base.Parameter_collection_ImmutableArray_of_ints_Contains_int(async);
+
+        AssertSql(
+            """
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE [p].[Int] IN (10, 999)
+""",
+            //
+            """
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE [p].[Int] NOT IN (10, 999)
+""");
+    }
+
     public override async Task Parameter_collection_of_ints_Contains_nullable_int(bool async)
     {
         await base.Parameter_collection_of_ints_Contains_nullable_int(async);

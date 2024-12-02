@@ -619,6 +619,30 @@ WHERE NOT(ARRAY_CONTAINS(@__ints_0, c["Int"]))
 """);
             });
 
+    public override Task Parameter_collection_ImmutableArray_of_ints_Contains_int(bool async)
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async a =>
+            {
+                await base.Parameter_collection_ImmutableArray_of_ints_Contains_int(a);
+
+                AssertSql(
+                    """
+@ints='[10,999]'
+
+SELECT VALUE c
+FROM root c
+WHERE ARRAY_CONTAINS(@ints, c["Int"])
+""",
+                    //
+                    """
+@ints='[10,999]'
+
+SELECT VALUE c
+FROM root c
+WHERE NOT(ARRAY_CONTAINS(@ints, c["Int"]))
+""");
+            });
+
     public override Task Parameter_collection_of_ints_Contains_nullable_int(bool async)
         => CosmosTestHelpers.Instance.NoSyncTest(
             async, async a =>
