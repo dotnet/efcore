@@ -154,8 +154,8 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
             x => Assert.Equal("00000000000001_Migration1", x.MigrationId));
 
         Assert.Equal(
-            LogLevel.Error,
-            Fixture.TestSqlLoggerFactory.Log.Single(l => l.Id == RelationalEventId.PendingModelChangesWarning).Level);
+            LogLevel.Information,
+            Fixture.TestSqlLoggerFactory.Log.Single(l => l.Id == RelationalEventId.ModelSnapshotNotFound).Level);
     }
 
     [ConditionalFact]
@@ -291,6 +291,10 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
         using var db = Fixture.CreateEmptyContext();
         var migrator = db.GetService<IMigrator>();
 
+        await db.Database.EnsureDeletedAsync();
+        await GiveMeSomeTimeAsync(db);
+        await db.GetService<IRelationalDatabaseCreator>().CreateAsync();
+
         await SetAndExecuteSqlAsync(migrator.GenerateScript());
     }
 
@@ -299,6 +303,10 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
     {
         using var db = Fixture.CreateContext();
         var migrator = db.GetService<IMigrator>();
+
+        await db.Database.EnsureDeletedAsync();
+        await GiveMeSomeTimeAsync(db);
+        await db.GetService<IRelationalDatabaseCreator>().CreateAsync();
 
         await SetAndExecuteSqlAsync(migrator.GenerateScript(fromMigration: Migration.InitialDatabase, toMigration: Migration.InitialDatabase));
     }
@@ -310,6 +318,7 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
         var migrator = db.GetService<IMigrator>();
 
         await db.Database.EnsureDeletedAsync();
+        await GiveMeSomeTimeAsync(db);
         await db.GetService<IRelationalDatabaseCreator>().CreateAsync();
 
         await SetAndExecuteSqlAsync(migrator.GenerateScript());
@@ -327,6 +336,7 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
         var migrator = db.GetService<IMigrator>();
 
         await db.Database.EnsureDeletedAsync();
+        await GiveMeSomeTimeAsync(db);
         await db.GetService<IRelationalDatabaseCreator>().CreateAsync();
 
         await SetAndExecuteSqlAsync(migrator.GenerateScript(options: MigrationsSqlGenerationOptions.NoTransactions));
@@ -345,6 +355,7 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
         var migrator = db.GetService<IMigrator>();
 
         await db.Database.EnsureDeletedAsync();
+        await GiveMeSomeTimeAsync(db);
         await db.GetService<IRelationalDatabaseCreator>().CreateAsync();
 
         await ExecuteSqlAsync(migrator.GenerateScript(
@@ -367,6 +378,7 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
         var migrator = db.GetService<IMigrator>();
 
         await db.Database.EnsureDeletedAsync();
+        await GiveMeSomeTimeAsync(db);
         await db.GetService<IRelationalDatabaseCreator>().CreateAsync();
 
         await ExecuteSqlAsync(migrator.GenerateScript(
@@ -389,6 +401,7 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
         var migrator = db.GetService<IMigrator>();
 
         await db.Database.EnsureDeletedAsync();
+        await GiveMeSomeTimeAsync(db);
         await db.GetService<IRelationalDatabaseCreator>().CreateAsync();
 
         await SetAndExecuteSqlAsync(migrator.GenerateScript(
@@ -409,6 +422,7 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
         var migrator = db.GetService<IMigrator>();
 
         await db.Database.EnsureDeletedAsync();
+        await GiveMeSomeTimeAsync(db);
         await db.GetService<IRelationalDatabaseCreator>().CreateAsync();
 
         await SetAndExecuteSqlAsync(migrator.GenerateScript(
