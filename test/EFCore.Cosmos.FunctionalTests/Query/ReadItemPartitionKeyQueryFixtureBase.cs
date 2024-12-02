@@ -65,6 +65,11 @@ public class ReadItemPartitionKeyQueryFixtureBase : SharedStoreFixtureBase<DbCon
             .HasKey(e => new { e.Id, e.PartitionKey });
 
         modelBuilder.Entity<SharedContainerEntity2Child>();
+
+        modelBuilder.Entity<Cat35224>()
+            .ToContainer(nameof(Cat35224))
+            .HasPartitionKey(e => e.Id)
+            .HasDiscriminator<string>("Discriminator");
     }
 
     public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
@@ -90,6 +95,7 @@ public class ReadItemPartitionKeyQueryFixtureBase : SharedStoreFixtureBase<DbCon
         context.AddRange(data.SharedContainerEntities1);
         context.AddRange(data.SharedContainerEntities2);
         context.AddRange(data.SharedContainerEntities2Children);
+        context.AddRange(data.Cat35224Entities);
 
         return context.SaveChangesAsync();
     }
@@ -102,6 +108,7 @@ public class ReadItemPartitionKeyQueryFixtureBase : SharedStoreFixtureBase<DbCon
         { typeof(HierarchicalPartitionKeyEntity), e => ((HierarchicalPartitionKeyEntity?)e)?.Id },
         { typeof(OnlyHierarchicalPartitionKeyEntity), e => ((OnlyHierarchicalPartitionKeyEntity?)e)?.Payload },
         { typeof(SinglePartitionKeyEntity), e => ((SinglePartitionKeyEntity?)e)?.Id },
+        { typeof(Cat35224), e => ((Cat35224?)e)?.Id },
         { typeof(OnlySinglePartitionKeyEntity), e => ((OnlySinglePartitionKeyEntity?)e)?.Payload },
         { typeof(NoPartitionKeyEntity), e => ((NoPartitionKeyEntity?)e)?.Id },
         { typeof(SharedContainerEntity1), e => ((SharedContainerEntity1?)e)?.Id },
@@ -239,6 +246,22 @@ public class ReadItemPartitionKeyQueryFixtureBase : SharedStoreFixtureBase<DbCon
                     Assert.Equal(ee.ChildPayload, aa.ChildPayload);
                 }
             }
+        },
+        {
+            typeof(Cat35224), (e, a) =>
+            {
+                Assert.Equal(e == null, a == null);
+
+                if (a != null)
+                {
+                    var ee = (Cat35224)e!;
+                    var aa = (Cat35224)a;
+
+                    Assert.Equal(ee.Id, aa.Id);
+                    Assert.Equal(ee.Name, aa.Name);
+                    Assert.Equal(ee.Discriminator, aa.Discriminator);
+                }
+            }
         }
     }.ToDictionary(e => e.Key, e => (object)e.Value);
 
@@ -255,6 +278,8 @@ public class ReadItemPartitionKeyQueryFixtureBase : SharedStoreFixtureBase<DbCon
         public List<SharedContainerEntity1> SharedContainerEntities1 { get; } = CreateSharedContainerEntities1();
         public List<SharedContainerEntity2> SharedContainerEntities2 { get; } = CreateSharedContainerEntities2();
         public List<SharedContainerEntity2Child> SharedContainerEntities2Children { get; } = CreateSharedContainerEntities2Children();
+
+        public List<Cat35224> Cat35224Entities { get; } = CreateCat35224Entities();
 
         public virtual IQueryable<TEntity> Set<TEntity>()
             where TEntity : class
@@ -297,6 +322,11 @@ public class ReadItemPartitionKeyQueryFixtureBase : SharedStoreFixtureBase<DbCon
             if (typeof(TEntity) == typeof(SharedContainerEntity2Child))
             {
                 return (IQueryable<TEntity>)SharedContainerEntities2Children.AsQueryable();
+            }
+
+            if (typeof(TEntity) == typeof(Cat35224))
+            {
+                return (IQueryable<TEntity>)Cat35224Entities.AsQueryable();
             }
 
             throw new InvalidOperationException("Invalid entity type: " + typeof(TEntity));
@@ -480,6 +510,32 @@ public class ReadItemPartitionKeyQueryFixtureBase : SharedStoreFixtureBase<DbCon
                     ChildPayload = "Child2"
                 }
             };
+
+        private static List<Cat35224> CreateCat35224Entities()
+            => new()
+            {
+                new Cat35224
+                {
+                    Id = "Cat|1",
+                    Name = "Smokey"
+                },
+                new Cat35224
+                {
+                    Id = "Cat2||",
+                    Name = "Clippy"
+                },
+                new Cat35224
+                {
+                    Id = "Cat|3|$|5",
+                    Name = "Sid"
+                },
+                new Cat35224
+                {
+                    Id = "|Cat|",
+                    Name = "Killes"
+                }
+            };
+
     }
 }
 
@@ -501,6 +557,13 @@ public class SinglePartitionKeyEntity
     public required string PartitionKey { get; set; }
 
     public required string Payload { get; set; }
+}
+
+public class Cat35224
+{
+    public string Id { get; set; } = null!;
+    public string? Name { get; set; }
+    public string Discriminator { get; set; } = null!;
 }
 
 // This type is configured with all partition key properties, and nothing else, in the primary key.
