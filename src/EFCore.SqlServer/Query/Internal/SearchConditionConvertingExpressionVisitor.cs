@@ -16,6 +16,9 @@ public class SearchConditionConvertingExpressionVisitor : SqlExpressionVisitor
     private bool _isSearchCondition;
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
+    private static readonly bool UseOldBehavior35093 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue35093", out var enabled35093) && enabled35093;
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -344,9 +347,12 @@ public class SearchConditionConvertingExpressionVisitor : SqlExpressionVisitor
 
         _isSearchCondition = parentIsSearchCondition;
 
+        var leftType = UseOldBehavior35093 ? newLeft.Type : newLeft.TypeMapping?.Converter?.ProviderClrType ?? newLeft.Type;
+        var rightType = UseOldBehavior35093 ? newRight.Type : newRight.TypeMapping?.Converter?.ProviderClrType ?? newRight.Type;
+
         if (!parentIsSearchCondition
-            && (newLeft.Type == typeof(bool) || newLeft.Type.IsEnum || newLeft.Type.IsInteger())
-            && (newRight.Type == typeof(bool) || newRight.Type.IsEnum || newRight.Type.IsInteger())
+            && (leftType == typeof(bool) || leftType.IsEnum || leftType.IsInteger())
+            && (rightType == typeof(bool) || rightType.IsEnum || rightType.IsInteger())
             && sqlBinaryExpression.OperatorType is ExpressionType.NotEqual or ExpressionType.Equal)
         {
             // "lhs != rhs" is the same as "CAST(lhs ^ rhs AS BIT)", except that
@@ -410,7 +416,10 @@ public class SearchConditionConvertingExpressionVisitor : SqlExpressionVisitor
         switch (sqlUnaryExpression.OperatorType)
         {
             case ExpressionType.Not
-                when sqlUnaryExpression.Type == typeof(bool):
+                when (UseOldBehavior35093
+                    ? sqlUnaryExpression.Type
+                    : (sqlUnaryExpression.TypeMapping?.Converter?.ProviderClrType ?? sqlUnaryExpression.Type))
+                == typeof(bool):
             {
                 // when possible, avoid converting to/from predicate form
                 if (!_isSearchCondition && sqlUnaryExpression.Operand is not (ExistsExpression or InExpression or LikeExpression))

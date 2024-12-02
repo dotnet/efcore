@@ -271,9 +271,6 @@
   <data name="NoSubqueryPushdown" xml:space="preserve">
     <value>Azure Cosmos DB does not have an appropriate subquery for this translation.</value>
   </data>
-  <data name="NoVectorContainerConfig" xml:space="preserve">
-    <value>Container configuration for embeddings is not yet supported by the Cosmos SDK. Instead, configure the container manually. See https://aka.ms/ef-cosmos-vectors for more information.</value>
-  </data>
   <data name="NullTypeMappingInSqlTree" xml:space="preserve">
     <value>The expression '{sqlExpression}' in the SQL tree does not have a type mapping assigned.</value>
   </data>

@@ -15,6 +15,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 /// </summary>
 public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEntityTypeBuilder
 {
+    private static readonly bool UseOldBehavior35110 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue35110", out var enabled) && enabled;
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -3161,17 +3164,9 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
                         && targetEntityType.Name == existingTargetType.ClrType.DisplayName())))
             {
                 relationship = existingNavigation.ForeignKey.Builder;
-                if (existingNavigation.ForeignKey.IsOwnership)
-                {
-                    relationship = relationship.IsOwnership(true, configurationSource)
-                        ?.HasNavigations(inverse, navigation, configurationSource);
-
-                    relationship?.Metadata.UpdateConfigurationSource(configurationSource);
-                    return relationship;
-                }
-
                 Check.DebugAssert(
-                    !existingTargetType.IsOwned()
+                    existingNavigation.ForeignKey.IsOwnership
+                    || !existingTargetType.IsOwned()
                     || existingNavigation.DeclaringEntityType.IsInOwnershipPath(existingTargetType)
                     || (existingTargetType.IsInOwnershipPath(existingNavigation.DeclaringEntityType)
                         && existingTargetType.FindOwnership()!.PrincipalEntityType != existingNavigation.DeclaringEntityType),
@@ -3180,6 +3175,11 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
 
                 relationship = relationship.IsOwnership(true, configurationSource)
                     ?.HasNavigations(inverse, navigation, configurationSource);
+
+                if (!UseOldBehavior35110)
+                {
+                    relationship = relationship?.IsRequired(true, configurationSource);
+                }
 
                 relationship?.Metadata.UpdateConfigurationSource(configurationSource);
                 return relationship;

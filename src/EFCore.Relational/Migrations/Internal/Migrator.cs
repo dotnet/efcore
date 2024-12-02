@@ -3,6 +3,7 @@
 
 using System.Transactions;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Internal;
 
@@ -93,24 +94,7 @@ public class Migrator : IMigrator
     public virtual void Migrate(string? targetMigration)
     {
         var useTransaction = _connection.CurrentTransaction is null;
-        if (!useTransaction
-            && _executionStrategy.RetriesOnFailure)
-        {
-            throw new NotSupportedException(RelationalStrings.TransactionSuppressedMigrationInUserTransaction);
-        }
-
-        if (RelationalResources.LogPendingModelChanges(_logger).WarningBehavior != WarningBehavior.Ignore
-            && HasPendingModelChanges())
-        {
-            _logger.PendingModelChangesWarning(_currentContext.Context.GetType());
-        }
-
-        if (!useTransaction)
-        {
-            _logger.MigrationsUserTransactionWarning();
-        }
-
-        _logger.MigrateUsingConnection(this, _connection);
+        ValidateMigrations(useTransaction);
 
         using var transactionScope = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
 
@@ -235,24 +219,7 @@ public class Migrator : IMigrator
         CancellationToken cancellationToken = default)
     {
         var useTransaction = _connection.CurrentTransaction is null;
-        if (!useTransaction
-            && _executionStrategy.RetriesOnFailure)
-        {
-            throw new NotSupportedException(RelationalStrings.TransactionSuppressedMigrationInUserTransaction);
-        }
-
-        if (RelationalResources.LogPendingModelChanges(_logger).WarningBehavior != WarningBehavior.Ignore
-            && HasPendingModelChanges())
-        {
-            _logger.PendingModelChangesWarning(_currentContext.Context.GetType());
-        }
-
-        if (!useTransaction)
-        {
-            _logger.MigrationsUserTransactionWarning();
-        }
-
-        _logger.MigrateUsingConnection(this, _connection);
+        ValidateMigrations(useTransaction);
 
         using var transactionScope = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
 
@@ -382,6 +349,48 @@ public class Migrator : IMigrator
         }
     }
 
+    private void ValidateMigrations(bool useTransaction)
+    {
+        if (!useTransaction
+            && _executionStrategy.RetriesOnFailure)
+        {
+            throw new NotSupportedException(RelationalStrings.TransactionSuppressedMigrationInUserTransaction);
+        }
+
+        if (_migrationsAssembly.Migrations.Count == 0)
+        {
+            _logger.MigrationsNotFound(this, _migrationsAssembly);
+        }
+        else if (_migrationsAssembly.ModelSnapshot == null)
+        {
+            _logger.ModelSnapshotNotFound(this, _migrationsAssembly);
+        }
+        else if (RelationalResources.LogPendingModelChanges(_logger).WarningBehavior != WarningBehavior.Ignore
+            && HasPendingModelChanges())
+        {
+            var modelSource = (ModelSource)_currentContext.Context.GetService<IModelSource>();
+#pragma warning disable EF1001 // Internal EF Core API usage.
+            var newDesignTimeModel = modelSource.CreateModel(
+                _currentContext.Context, _currentContext.Context.GetService<ModelCreationDependencies>(), designTime: true);
+#pragma warning restore EF1001 // Internal EF Core API usage.
+            if (_migrationsModelDiffer.HasDifferences(newDesignTimeModel.GetRelationalModel(), _designTimeModel.Model.GetRelationalModel()))
+            {
+                _logger.NonDeterministicModel(_currentContext.Context.GetType());
+            }
+            else
+            {
+                _logger.PendingModelChangesWarning(_currentContext.Context.GetType());
+            }
+        }
+
+        if (!useTransaction)
+        {
+            _logger.MigrationsUserTransactionWarning();
+        }
+
+        _logger.MigrateUsingConnection(this, _connection);
+    }
+
     private IEnumerable<(string, Func<IReadOnlyList<MigrationCommand>>)> GetMigrationCommandLists(MigratorData parameters)
     {
         var migrationsToApply = parameters.AppliedMigrations;
@@ -449,10 +458,6 @@ public class Migrator : IMigrator
         var appliedMigrations = new Dictionary<string, TypeInfo>();
         var unappliedMigrations = new Dictionary<string, TypeInfo>();
         var appliedMigrationEntrySet = new HashSet<string>(appliedMigrationEntries, StringComparer.OrdinalIgnoreCase);
-        if (_migrationsAssembly.Migrations.Count == 0)
-        {
-            _logger.MigrationsNotFound(this, _migrationsAssembly);
-        }
 
         foreach (var (key, typeInfo) in _migrationsAssembly.Migrations)
         {
