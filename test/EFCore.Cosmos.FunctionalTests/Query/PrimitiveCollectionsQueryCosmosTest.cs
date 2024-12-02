@@ -627,19 +627,19 @@ WHERE NOT(ARRAY_CONTAINS(@__ints_0, c["Int"]))
 
                 AssertSql(
                     """
-@ints='[10,999]'
+@__ints_0='[10,999]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@ints, c["Int"])
+WHERE ARRAY_CONTAINS(@__ints_0, c["Int"])
 """,
                     //
                     """
-@ints='[10,999]'
+@__ints_0='[10,999]'
 
 SELECT VALUE c
 FROM root c
-WHERE NOT(ARRAY_CONTAINS(@ints, c["Int"]))
+WHERE NOT(ARRAY_CONTAINS(@__ints_0, c["Int"]))
 """);
             });
 

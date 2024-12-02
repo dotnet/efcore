@@ -544,24 +544,24 @@ WHERE "p"."Int" NOT IN (
 
         AssertSql(
             """
-@ints='[10,999]' (Nullable = false) (Size = 8)
+@__ints_0='[10,999]' (Nullable = false) (Size = 8)
 
-SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."NullableWrappedId", "p"."NullableWrappedIdWithNullableComparer", "p"."String", "p"."Strings", "p"."WrappedId"
+SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."String", "p"."Strings"
 FROM "PrimitiveCollectionsEntity" AS "p"
 WHERE "p"."Int" IN (
     SELECT "i"."value"
-    FROM json_each(@ints) AS "i"
+    FROM json_each(@__ints_0) AS "i"
 )
 """,
             //
             """
-@ints='[10,999]' (Nullable = false) (Size = 8)
+@__ints_0='[10,999]' (Nullable = false) (Size = 8)
 
-SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."NullableWrappedId", "p"."NullableWrappedIdWithNullableComparer", "p"."String", "p"."Strings", "p"."WrappedId"
+SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."String", "p"."Strings"
 FROM "PrimitiveCollectionsEntity" AS "p"
 WHERE "p"."Int" NOT IN (
     SELECT "i"."value"
-    FROM json_each(@ints) AS "i"
+    FROM json_each(@__ints_0) AS "i"
 )
 """);
     }
