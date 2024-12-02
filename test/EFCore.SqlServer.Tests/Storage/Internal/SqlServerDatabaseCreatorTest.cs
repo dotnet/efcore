@@ -198,6 +198,13 @@ public class SqlServerDatabaseCreatorTest
             return this;
         }
 
+        public IRelationalCommandBuilder Append(FormattableString value)
+        {
+            Instance.Append(value);
+
+            return this;
+        }
+
         public IRelationalCommandBuilder AppendLine()
         {
             Instance.AppendLine();
