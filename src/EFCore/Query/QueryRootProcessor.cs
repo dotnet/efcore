@@ -91,6 +91,7 @@ public class QueryRootProcessor : ExpressionVisitor
         {
             candidateExpression = convertExpression.Operand;
         }
+
         switch (candidateExpression)
         {
             // An array containing only constants is represented as a ConstantExpression with the array as the value.
