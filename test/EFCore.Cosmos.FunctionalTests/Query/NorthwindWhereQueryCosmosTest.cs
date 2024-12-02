@@ -3306,6 +3306,18 @@ WHERE ((c["$type"] = "Order") AND (c["OrderID"] = 10252))
 """);
             });
 
+    public override Task Simplifiable_coalesce_over_nullable(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Simplifiable_coalesce_over_nullable(a);
+
+                AssertSql(
+                    """
+ReadItem(None, Order|10248)
+""");
+            });
+
     #region Evaluation order of predicates
 
     public override Task Take_and_Where_evaluation_order(bool async)

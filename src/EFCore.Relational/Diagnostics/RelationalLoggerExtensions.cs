@@ -2344,6 +2344,77 @@ public static class RelationalLoggerExtensions
     }
 
     /// <summary>
+    ///     Logs for the <see cref="RelationalEventId.PendingModelChangesWarning" /> event.
+    /// </summary>
+    /// <param name="diagnostics">The diagnostics logger to use.</param>
+    /// <param name="contextType">The <see cref="DbContext" /> type being used.</param>
+    public static void NonDeterministicModel(
+        this IDiagnosticsLogger<DbLoggerCategory.Migrations> diagnostics,
+        Type contextType)
+    {
+        var definition = RelationalResources.LogNonDeterministicModel(diagnostics);
+
+        if (diagnostics.ShouldLog(definition))
+        {
+            definition.Log(diagnostics, contextType.ShortDisplayName());
+        }
+
+        if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+        {
+            var eventData = new DbContextTypeEventData(
+                definition,
+                NonDeterministicModel,
+                contextType);
+
+            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+        }
+    }
+
+    private static string NonDeterministicModel(EventDefinitionBase definition, EventData payload)
+    {
+        var d = (EventDefinition<string>)definition;
+        var p = (DbContextTypeEventData)payload;
+        return d.GenerateMessage(p.ContextType.ShortDisplayName());
+    }
+
+    /// <summary>
+    ///     Logs for the <see cref="RelationalEventId.MigrationsNotFound" /> event.
+    /// </summary>
+    /// <param name="diagnostics">The diagnostics logger to use.</param>
+    /// <param name="migrator">The migrator.</param>
+    /// <param name="migrationsAssembly">The assembly in which migrations are stored.</param>
+    public static void ModelSnapshotNotFound(
+        this IDiagnosticsLogger<DbLoggerCategory.Migrations> diagnostics,
+        IMigrator migrator,
+        IMigrationsAssembly migrationsAssembly)
+    {
+        var definition = RelationalResources.LogNoModelSnapshotFound(diagnostics);
+
+        if (diagnostics.ShouldLog(definition))
+        {
+            definition.Log(diagnostics, migrationsAssembly.Assembly.GetName().Name!);
+        }
+
+        if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+        {
+            var eventData = new MigrationAssemblyEventData(
+                definition,
+                ModelSnapshotNotFound,
+                migrator,
+                migrationsAssembly);
+
+            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+        }
+    }
+
+    private static string ModelSnapshotNotFound(EventDefinitionBase definition, EventData payload)
+    {
+        var d = (EventDefinition<string>)definition;
+        var p = (MigrationAssemblyEventData)payload;
+        return d.GenerateMessage(p.MigrationsAssembly.Assembly.GetName().Name!);
+    }
+
+    /// <summary>
     ///     Logs for the <see cref="RelationalEventId.NonTransactionalMigrationOperationWarning" /> event.
     /// </summary>
     /// <param name="diagnostics">The diagnostics logger to use.</param>

@@ -2536,7 +2536,18 @@ public abstract class NorthwindWhereQueryTestBase<TFixture>(TFixture fixture) : 
             elementAsserter: (e, a) => AssertEqual(e.Id, a.Id));
     }
 
-    #region Evaluation order of predicates
+    [ConditionalTheory] // #35095
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Simplifiable_coalesce_over_nullable(bool async)
+    {
+        int? orderId = 10248;
+
+        return AssertQuery(
+            async,
+            ss => ss.Set<Order>().Where(o => o.OrderID == (orderId ?? 0)));
+    }
+
+    #region Evaluation order of operators
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -2559,5 +2570,5 @@ public abstract class NorthwindWhereQueryTestBase<TFixture>(TFixture fixture) : 
             async,
             ss => ss.Set<Customer>().Select(c => c.ContactTitle).OrderBy(t => t).Take(3).Distinct());
 
-    #endregion Evaluation order of predicates
+    #endregion Evaluation order of operators
 }

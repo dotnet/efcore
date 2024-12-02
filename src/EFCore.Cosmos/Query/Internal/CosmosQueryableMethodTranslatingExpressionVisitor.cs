@@ -16,6 +16,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 /// </summary>
 public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethodTranslatingExpressionVisitor
 {
+    private static readonly bool UseOldBehavior35094 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue35094", out var enabled) && enabled;
+
     private readonly CosmosQueryCompilationContext _queryCompilationContext;
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
     private readonly ITypeMappingSource _typeMappingSource;
@@ -445,23 +448,29 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     /// </summary>
     protected override ShapedQueryExpression? TranslateAverage(ShapedQueryExpression source, LambdaExpression? selector, Type resultType)
     {
-        var selectExpression = (SelectExpression)source.QueryExpression;
-        if (selectExpression.IsDistinct
-            || selectExpression.Limit != null
-            || selectExpression.Offset != null)
+        if (UseOldBehavior35094)
         {
-            return null;
+            var selectExpression = (SelectExpression)source.QueryExpression;
+            if (selectExpression.IsDistinct
+                || selectExpression.Limit != null
+                || selectExpression.Offset != null)
+            {
+                return null;
+            }
+
+            if (selector != null)
+            {
+                source = TranslateSelect(source, selector);
+            }
+
+            var projection = (SqlExpression)selectExpression.GetMappedProjection(new ProjectionMember());
+            projection = _sqlExpressionFactory.Function("AVG", new[] { projection }, projection.Type, projection.TypeMapping);
+
+            return AggregateResultShaper(source, projection, throwOnNullResult: true, resultType);
+
         }
 
-        if (selector != null)
-        {
-            source = TranslateSelect(source, selector);
-        }
-
-        var projection = (SqlExpression)selectExpression.GetMappedProjection(new ProjectionMember());
-        projection = _sqlExpressionFactory.Function("AVG", new[] { projection }, projection.Type, projection.TypeMapping);
-
-        return AggregateResultShaper(source, projection, throwOnNullResult: true, resultType);
+        return TranslateAggregate(source, selector, resultType, "AVG");
     }
 
     /// <summary>
@@ -843,24 +852,29 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     /// </summary>
     protected override ShapedQueryExpression? TranslateMax(ShapedQueryExpression source, LambdaExpression? selector, Type resultType)
     {
-        var selectExpression = (SelectExpression)source.QueryExpression;
-        if (selectExpression.IsDistinct
-            || selectExpression.Limit != null
-            || selectExpression.Offset != null)
+        if (UseOldBehavior35094)
         {
-            return null;
+            var selectExpression = (SelectExpression)source.QueryExpression;
+            if (selectExpression.IsDistinct
+                || selectExpression.Limit != null
+                || selectExpression.Offset != null)
+            {
+                return null;
+            }
+
+            if (selector != null)
+            {
+                source = TranslateSelect(source, selector);
+            }
+
+            var projection = (SqlExpression)selectExpression.GetMappedProjection(new ProjectionMember());
+
+            projection = _sqlExpressionFactory.Function("MAX", new[] { projection }, resultType, projection.TypeMapping);
+
+            return AggregateResultShaper(source, projection, throwOnNullResult: true, resultType);
         }
 
-        if (selector != null)
-        {
-            source = TranslateSelect(source, selector);
-        }
-
-        var projection = (SqlExpression)selectExpression.GetMappedProjection(new ProjectionMember());
-
-        projection = _sqlExpressionFactory.Function("MAX", new[] { projection }, resultType, projection.TypeMapping);
-
-        return AggregateResultShaper(source, projection, throwOnNullResult: true, resultType);
+        return TranslateAggregate(source, selector, resultType, "MAX");
     }
 
     /// <summary>
@@ -871,24 +885,29 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     /// </summary>
     protected override ShapedQueryExpression? TranslateMin(ShapedQueryExpression source, LambdaExpression? selector, Type resultType)
     {
-        var selectExpression = (SelectExpression)source.QueryExpression;
-        if (selectExpression.IsDistinct
-            || selectExpression.Limit != null
-            || selectExpression.Offset != null)
+        if (UseOldBehavior35094)
         {
-            return null;
+            var selectExpression = (SelectExpression)source.QueryExpression;
+            if (selectExpression.IsDistinct
+                || selectExpression.Limit != null
+                || selectExpression.Offset != null)
+            {
+                return null;
+            }
+
+            if (selector != null)
+            {
+                source = TranslateSelect(source, selector);
+            }
+
+            var projection = (SqlExpression)selectExpression.GetMappedProjection(new ProjectionMember());
+
+            projection = _sqlExpressionFactory.Function("MIN", new[] { projection }, resultType, projection.TypeMapping);
+
+            return AggregateResultShaper(source, projection, throwOnNullResult: true, resultType);
         }
 
-        if (selector != null)
-        {
-            source = TranslateSelect(source, selector);
-        }
-
-        var projection = (SqlExpression)selectExpression.GetMappedProjection(new ProjectionMember());
-
-        projection = _sqlExpressionFactory.Function("MIN", new[] { projection }, resultType, projection.TypeMapping);
-
-        return AggregateResultShaper(source, projection, throwOnNullResult: true, resultType);
+        return TranslateAggregate(source, selector, resultType, "MIN");
     }
 
     /// <summary>
@@ -1519,6 +1538,35 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     }
 
     #endregion Queryable collection support
+
+    private ShapedQueryExpression? TranslateAggregate(ShapedQueryExpression source, LambdaExpression? selector, Type resultType, string functionName)
+    {
+        var selectExpression = (SelectExpression)source.QueryExpression;
+        if (selectExpression.IsDistinct
+            || selectExpression.Limit != null
+            || selectExpression.Offset != null)
+        {
+            return null;
+        }
+
+        if (selector != null)
+        {
+            source = TranslateSelect(source, selector);
+        }
+
+        if (!_subquery && resultType.IsNullableType())
+        {
+            // For nullable types, we want to return null from Max, Min, and Average, rather than throwing. See Issue #35094.
+            // Note that relational databases typically return null, which propagates. Cosmos will instead return no elements,
+            // and hence for Cosmos only we need to change no elements into null.
+            source = source.UpdateResultCardinality(ResultCardinality.SingleOrDefault);
+        }
+
+        var projection = (SqlExpression)selectExpression.GetMappedProjection(new ProjectionMember());
+        projection = _sqlExpressionFactory.Function(functionName, [projection], resultType, _typeMappingSource.FindMapping(resultType));
+
+        return AggregateResultShaper(source, projection, throwOnNullResult: true, resultType);
+    }
 
     private bool TryApplyPredicate(ShapedQueryExpression source, LambdaExpression predicate)
     {

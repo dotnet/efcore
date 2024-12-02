@@ -414,6 +414,8 @@ public class DbContextOperationsTest
         public TestContext(DbContextOptions<TestContext> options)
             : base(options)
         {
+            Assert.Equal("Development", Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"));
+            Assert.Equal("Development", Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT"));
         }
     }
 
@@ -425,6 +427,8 @@ public class DbContextOperationsTest
         public TestContextFromFactory(DbContextOptions<TestContextFromFactory> options)
             : base(options)
         {
+            Assert.Equal("Development", Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"));
+            Assert.Equal("Development", Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT"));
         }
     }
 

@@ -5849,4 +5849,22 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture>(TFixture fix
 
     private static string StaticProperty
         => "ALF";
+
+    [ConditionalTheory] // #35118
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Column_access_inside_subquery_predicate(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => ss.Set<Order>().Where(o => c.CustomerID == "ALFKI").Any()));
+
+    [ConditionalTheory] // #35152
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Cast_to_object_over_parameter_directly_in_lambda(bool async)
+    {
+        var i = 8;
+
+        return AssertQuery(
+            async,
+            ss => ss.Set<Order>().OrderBy(o => (object)i).Select(o => o));
+    }
 }

@@ -44,6 +44,9 @@ public class ValueComparer
     private static readonly PropertyInfo StructuralComparisonsStructuralEqualityComparerProperty =
         typeof(StructuralComparisons).GetProperty(nameof(StructuralComparisons.StructuralEqualityComparer))!;
 
+    private static readonly bool UseOldBehavior35206 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue35206", out var enabled35206) && enabled35206;
+
     /// <summary>
     ///     Creates a new <see cref="ValueComparer{T}" /> with a default comparison
     ///     expression and a shallow copy for the snapshot.
@@ -263,18 +266,38 @@ public class ValueComparer
                 var left = Parameter(typeof(object), "left");
                 var right = Parameter(typeof(object), "right");
 
-                _objectEqualsExpression = Lambda<Func<object?, object?, bool>>(
-                    Condition(
-                        Equal(left, Constant(null)),
-                        Equal(right, Constant(null)),
-                        AndAlso(
-                            NotEqual(right, Constant(null)),
-                            Invoke(
-                                EqualsExpression,
-                                Convert(left, typeof(T)),
-                                Convert(right, typeof(T))))),
-                    left,
-                    right);
+                if (!UseOldBehavior35206)
+                {
+                    var remap = ReplacingExpressionVisitor.Replace(
+                        [EqualsExpression.Parameters[0], EqualsExpression.Parameters[1]],
+                        [Convert(left, typeof(T)), Convert(right, typeof(T))],
+                        EqualsExpression.Body);
+
+                    _objectEqualsExpression = Lambda<Func<object?, object?, bool>>(
+                        Condition(
+                            Equal(left, Constant(null)),
+                            Equal(right, Constant(null)),
+                            AndAlso(
+                                NotEqual(right, Constant(null)),
+                                remap)),
+                        left,
+                        right);
+                }
+                else
+                {
+                    _objectEqualsExpression = Lambda<Func<object?, object?, bool>>(
+                        Condition(
+                            Equal(left, Constant(null)),
+                            Equal(right, Constant(null)),
+                            AndAlso(
+                                NotEqual(right, Constant(null)),
+                                Invoke(
+                                    EqualsExpression,
+                                    Convert(left, typeof(T)),
+                                    Convert(right, typeof(T))))),
+                        left,
+                        right);
+                }
             }
 
             return _objectEqualsExpression;
