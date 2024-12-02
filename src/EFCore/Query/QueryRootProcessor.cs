@@ -85,7 +85,13 @@ public class QueryRootProcessor : ExpressionVisitor
 
     private Expression VisitQueryRootCandidate(Expression expression, Type elementClrType)
     {
-        switch (expression)
+        var candidateExpression = expression;
+        if (expression is UnaryExpression { NodeType: ExpressionType.Convert } convertExpression
+            && convertExpression.Type.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+        {
+            candidateExpression = convertExpression.Operand;
+        }
+        switch (candidateExpression)
         {
             // An array containing only constants is represented as a ConstantExpression with the array as the value.
             // Convert that into a NewArrayExpression for use with InlineQueryRootExpression
