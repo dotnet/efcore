@@ -13,6 +13,9 @@ public class QueryRootProcessor : ExpressionVisitor
 {
     private readonly QueryCompilationContext _queryCompilationContext;
 
+    private static readonly bool UseOldBehavior35102 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue35102", out var enabled35102) && enabled35102;
+
     /// <summary>
     ///     Creates a new instance of the <see cref="QueryRootProcessor" /> class with associated query provider.
     /// </summary>
@@ -87,13 +90,16 @@ public class QueryRootProcessor : ExpressionVisitor
     {
         var candidateExpression = expression;
 
-        // In case the collection was value type, in order to call methods like AsQueryable,
-        // we need to convert it to IEnumerable<T> which requires boxing.
-        // We do that with Convert expression which we need to unwrap here.
-        if (expression is UnaryExpression { NodeType: ExpressionType.Convert } convertExpression
-            && convertExpression.Type.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+        if (!UseOldBehavior35102)
         {
-            candidateExpression = convertExpression.Operand;
+            // In case the collection was value type, in order to call methods like AsQueryable,
+            // we need to convert it to IEnumerable<T> which requires boxing.
+            // We do that with Convert expression which we need to unwrap here.
+            if (expression is UnaryExpression { NodeType: ExpressionType.Convert } convertExpression
+                && convertExpression.Type.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+            {
+                candidateExpression = convertExpression.Operand;
+            }
         }
 
         switch (candidateExpression)
