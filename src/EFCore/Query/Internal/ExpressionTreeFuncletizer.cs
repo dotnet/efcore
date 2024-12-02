@@ -106,6 +106,9 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
     private static readonly bool UseOldBehavior35152 =
         AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue35152", out var enabled35152) && enabled35152;
 
+    private static readonly bool UseOldBehavior35111 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue35111", out var enabled35111) && enabled35111;
+
     private static readonly MethodInfo ReadOnlyCollectionIndexerGetter = typeof(ReadOnlyCollection<Expression>).GetProperties()
         .Single(p => p.GetIndexParameters() is { Length: 1 } indexParameters && indexParameters[0].ParameterType == typeof(int)).GetMethod!;
 
@@ -552,7 +555,11 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                 goto case StateType.ContainsEvaluatable;
 
             case StateType.ContainsEvaluatable:
-                // The case where the test is evaluatable has been handled above
+                if (testState.IsEvaluatable)
+                {
+                    test = UseOldBehavior35111 ? test : ProcessEvaluatableRoot(test, ref testState);
+                }
+
                 if (ifTrueState.IsEvaluatable)
                 {
                     ifTrue = ProcessEvaluatableRoot(ifTrue, ref ifTrueState);
