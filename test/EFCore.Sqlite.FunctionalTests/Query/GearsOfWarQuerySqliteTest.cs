@@ -3076,6 +3076,17 @@ WHERE "f"."ServerAddress" = CAST('127.0.0.1' AS TEXT)
 """);
     }
 
+    public override async Task Project_equality_with_value_converted_property(bool async)
+    {
+        await base.Project_equality_with_value_converted_property(async);
+
+        AssertSql(
+            """
+SELECT "m"."Difficulty" = 'Unknown'
+FROM "Missions" AS "m"
+""");
+    }
+
     public override async Task GetValueOrDefault_in_filter_non_nullable_column(bool async)
     {
         await base.GetValueOrDefault_in_filter_non_nullable_column(async);

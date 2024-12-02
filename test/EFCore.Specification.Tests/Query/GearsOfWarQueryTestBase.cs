@@ -8047,6 +8047,13 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
             async,
             ss => ss.Set<Faction>().Where(f => f.ServerAddress == IPAddress.Loopback));
 
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Project_equality_with_value_converted_property(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Mission>().Select(m => m.Difficulty == MissionDifficulty.Unknown));
+
     private static readonly IEnumerable<AmmunitionType?> _weaponTypes = new AmmunitionType?[] { AmmunitionType.Cartridge };
 
     [ConditionalTheory]

@@ -3429,11 +3429,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         /// </summary>
         public static EventDefinition LogMigrationsUserTransaction(IDiagnosticsLogger logger)
         {
-            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogMigrationsUserTransactionWarning;
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogMigrationsUserTransaction;
             if (definition == null)
             {
                 definition = NonCapturingLazyInitializer.EnsureInitialized(
-                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogMigrationsUserTransactionWarning,
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogMigrationsUserTransaction,
                     logger,
                     static logger => new EventDefinition(
                         logger.Options,
@@ -3572,7 +3572,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     No migrations were found in assembly '{migrationsAssembly}'.
+        ///     No migrations were found in assembly '{migrationsAssembly}'. A migration needs to be added before the database can be updated.
         /// </summary>
         public static EventDefinition<string> LogNoMigrationsFound(IDiagnosticsLogger logger)
         {
@@ -3585,12 +3585,62 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                     static logger => new EventDefinition<string>(
                         logger.Options,
                         RelationalEventId.MigrationsNotFound,
-                        LogLevel.Debug,
+                        LogLevel.Information,
                         "RelationalEventId.MigrationsNotFound",
                         level => LoggerMessage.Define<string>(
                             level,
                             RelationalEventId.MigrationsNotFound,
                             _resourceManager.GetString("LogNoMigrationsFound")!)));
+            }
+
+            return (EventDefinition<string>)definition;
+        }
+
+        /// <summary>
+        ///     Model snapshot was not found in assembly '{migrationsAssembly}'. Skipping pending model changes check.
+        /// </summary>
+        public static EventDefinition<string> LogNoModelSnapshotFound(IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogNoModelSnapshotFound;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogNoModelSnapshotFound,
+                    logger,
+                    static logger => new EventDefinition<string>(
+                        logger.Options,
+                        RelationalEventId.ModelSnapshotNotFound,
+                        LogLevel.Information,
+                        "RelationalEventId.ModelSnapshotNotFound",
+                        level => LoggerMessage.Define<string>(
+                            level,
+                            RelationalEventId.ModelSnapshotNotFound,
+                            _resourceManager.GetString("LogNoModelSnapshotFound")!)));
+            }
+
+            return (EventDefinition<string>)definition;
+        }
+
+        /// <summary>
+        ///     The model for context '{contextType}' changes each time it is built. This is usually caused by dynamic values used in a 'HasData' call (e.g. `new DateTime()`, `Guid.NewGuid()`). Add a new migration and examine its contents to locate the cause, and replace the dynamic call with a static, hardcoded value. See https://aka.ms/efcore-docs-pending-changes.
+        /// </summary>
+        public static EventDefinition<string> LogNonDeterministicModel(IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogNonDeterministicModel;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogNonDeterministicModel,
+                    logger,
+                    static logger => new EventDefinition<string>(
+                        logger.Options,
+                        RelationalEventId.PendingModelChangesWarning,
+                        LogLevel.Error,
+                        "RelationalEventId.PendingModelChangesWarning",
+                        level => LoggerMessage.Define<string>(
+                            level,
+                            RelationalEventId.PendingModelChangesWarning,
+                            _resourceManager.GetString("LogNonDeterministicModel")!)));
             }
 
             return (EventDefinition<string>)definition;
@@ -3610,7 +3660,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                     static logger => new EventDefinition<string, string>(
                         logger.Options,
                         RelationalEventId.NonTransactionalMigrationOperationWarning,
-                        LogLevel.Error,
+                        LogLevel.Warning,
                         "RelationalEventId.NonTransactionalMigrationOperationWarning",
                         level => LoggerMessage.Define<string, string>(
                             level,
@@ -3747,7 +3797,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     The model for context '{contextType}' has pending changes. Add a new migration before updating the database.
+        ///     The model for context '{contextType}' has pending changes. Add a new migration before updating the database. See https://aka.ms/efcore-docs-pending-changes.
         /// </summary>
         public static EventDefinition<string> LogPendingModelChanges(IDiagnosticsLogger logger)
         {
