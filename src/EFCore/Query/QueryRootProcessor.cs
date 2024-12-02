@@ -86,6 +86,10 @@ public class QueryRootProcessor : ExpressionVisitor
     private Expression VisitQueryRootCandidate(Expression expression, Type elementClrType)
     {
         var candidateExpression = expression;
+
+        // In case the collection was value type, in order to call methods like AsQueryable,
+        // we need to convert it to IEnumerable<T> which requires boxing.
+        // We do that with Convert expression which we need to unwrap here.
         if (expression is UnaryExpression { NodeType: ExpressionType.Convert } convertExpression
             && convertExpression.Type.GetGenericTypeDefinition() == typeof(IEnumerable<>))
         {
