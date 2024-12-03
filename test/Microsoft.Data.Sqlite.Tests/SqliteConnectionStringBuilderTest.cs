@@ -71,6 +71,14 @@ public class SqliteConnectionStringBuilderTest
     }
 
     [Fact]
+    public void Ctor_parses_Vfs()
+    {
+        var builder = new SqliteConnectionStringBuilder("Vfs=win32-longpath");
+
+        Assert.Equal("win32-longpath", builder.Vfs);
+    }
+
+    [Fact]
     public void ConnectionString_defaults_to_empty()
     {
         var builder = new SqliteConnectionStringBuilder();
