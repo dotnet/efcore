@@ -57,7 +57,7 @@ namespace Microsoft.Data.Sqlite
         private bool _recursiveTriggers;
         private int _defaultTimeout = 30;
         private bool _pooling = true;
-        private string? _vfs = string.Empty;
+        private string? _vfs;
 
         static SqliteConnectionStringBuilder()
         {
@@ -286,7 +286,7 @@ namespace Microsoft.Data.Sqlite
                         Pooling = Convert.ToBoolean(value, CultureInfo.InvariantCulture);
                         return;
                     case Keywords.Vfs:
-                        Vfs = Convert.ToString(value, CultureInfo.InvariantCulture);;
+                        Vfs = Convert.ToString(value, CultureInfo.InvariantCulture);
                         return;
 
                     default:
@@ -478,7 +478,7 @@ namespace Microsoft.Data.Sqlite
                     _pooling = true;
                     return;
                 case Keywords.Vfs:
-                    _vfs = string.Empty;
+                    _vfs = null;
                     return;
 
                 default:
