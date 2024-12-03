@@ -1184,8 +1184,8 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
                     b.Property(e => e.ByteArray5)
                         .HasConversion(
                             new ValueConverter<byte[], byte[]>(
-                                v => v.Reverse().Concat(new byte[] { 4, 20 }).ToArray(),
-                                v => v.Reverse().Skip(2).ToArray()),
+                                v => ((IEnumerable<byte>)v).Reverse().Concat(new byte[] { 4, 20 }).ToArray(),
+                                v => ((IEnumerable<byte>)v).Reverse().Skip(2).ToArray()),
                             bytesComparer)
                         .HasMaxLength(7);
 

@@ -286,6 +286,62 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
     }
 
     [ConditionalFact]
+    public virtual void Can_apply_two_migrations_in_transaction()
+    {
+        using var db = Fixture.CreateContext();
+        db.Database.EnsureDeleted();
+        GiveMeSomeTime(db);
+        db.GetService<IRelationalDatabaseCreator>().Create();
+
+        var strategy = db.Database.CreateExecutionStrategy();
+        strategy.Execute(() =>
+        {
+            using var transaction = db.Database.BeginTransaction();
+            var migrator = db.GetService<IMigrator>();
+            migrator.Migrate("Migration1");
+            migrator.Migrate("Migration2");
+
+            var history = db.GetService<IHistoryRepository>();
+            Assert.Collection(
+                history.GetAppliedMigrations(),
+                x => Assert.Equal("00000000000001_Migration1", x.MigrationId),
+                x => Assert.Equal("00000000000002_Migration2", x.MigrationId));
+        });
+
+        Assert.Equal(
+            LogLevel.Warning,
+            Fixture.TestSqlLoggerFactory.Log.First(l => l.Id == RelationalEventId.MigrationsUserTransactionWarning).Level);
+    }
+
+    [ConditionalFact]
+    public virtual async Task Can_apply_two_migrations_in_transaction_async()
+    {
+        using var db = Fixture.CreateContext();
+        await db.Database.EnsureDeletedAsync();
+        await GiveMeSomeTimeAsync(db);
+        await db.GetService<IRelationalDatabaseCreator>().CreateAsync();
+
+        var strategy = db.Database.CreateExecutionStrategy();
+        await strategy.ExecuteAsync(async () =>
+        {
+            using var transaction = db.Database.BeginTransactionAsync();
+            var migrator = db.GetService<IMigrator>();
+            await migrator.MigrateAsync("Migration1");
+            await migrator.MigrateAsync("Migration2");
+
+            var history = db.GetService<IHistoryRepository>();
+            Assert.Collection(
+                await history.GetAppliedMigrationsAsync(),
+                x => Assert.Equal("00000000000001_Migration1", x.MigrationId),
+                x => Assert.Equal("00000000000002_Migration2", x.MigrationId));
+        });
+
+        Assert.Equal(
+            LogLevel.Warning,
+            Fixture.TestSqlLoggerFactory.Log.First(l => l.Id == RelationalEventId.MigrationsUserTransactionWarning).Level);
+    }
+
+    [ConditionalFact]
     public virtual async Task Can_generate_no_migration_script()
     {
         using var db = Fixture.CreateEmptyContext();
@@ -549,6 +605,7 @@ public abstract class MigrationsInfrastructureFixtureBase
                 e => e
                     .Log(RelationalEventId.PendingModelChangesWarning)
                     .Log(RelationalEventId.NonTransactionalMigrationOperationWarning)
+                    .Log(RelationalEventId.MigrationsUserTransactionWarning)
             );
 
     protected override bool ShouldLogCategory(string logCategory)
