@@ -103,6 +103,7 @@ namespace Microsoft.Data.Sqlite
         public virtual Half GetHalf(int ordinal)
             => (Half)GetDouble(ordinal);
 #endif
+
         public virtual Guid GetGuid(int ordinal)
         {
             var sqliteType = GetSqliteType(ordinal);
