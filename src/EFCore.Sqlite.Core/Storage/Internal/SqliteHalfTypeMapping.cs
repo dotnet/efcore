@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
     /// </summary>
     public class SqliteHalfTypeMapping : RelationalTypeMapping
     {
-        private const string HalfFormatConst = "{0:0.0####}";
+        private const string HalfFormatConst = "{0:0.0###}";
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -42,8 +42,5 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
         /// </summary>
         protected override string SqlLiteralFormatString
             => "'" + HalfFormatConst + "'";
-
-        /// <inheritdoc/>
-        protected override string GenerateNonNullSqlLiteral(object value) => Convert.ToDouble((Half)value).ToString("R");
     }
 }

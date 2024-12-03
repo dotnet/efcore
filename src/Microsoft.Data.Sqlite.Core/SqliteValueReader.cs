@@ -214,6 +214,7 @@ namespace Microsoft.Data.Sqlite
                 return (T)(object)GetHalf(ordinal);
             }
 #endif
+
             if (typeof(T) == typeof(Guid))
             {
                 return (T)(object)GetGuid(ordinal);
