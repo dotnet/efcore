@@ -946,34 +946,6 @@ WHERE (c["Title"] = "Sales Representative")
         AssertSql();
     }
 
-    public override Task Where_equals_method_string(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Where_equals_method_string(a);
-
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-WHERE (c["City"] = "London")
-""");
-            });
-
-    public override Task Where_equals_method_string_with_ignore_case(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Where_equals_method_string_with_ignore_case(a);
-
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-WHERE STRINGEQUALS(c["City"], "London", true)
-""");
-            });
-
     public override Task Where_equals_method_int(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1145,254 +1117,6 @@ FROM root c
 WHERE (c["ReportsTo"] = null)
 """);
             });
-
-    public override Task Where_string_length(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Where_string_length(a);
-
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-WHERE (LENGTH(c["City"]) = 6)
-""");
-            });
-
-    public override Task Where_string_indexof(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Where_string_indexof(a);
-
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-WHERE (INDEX_OF(c["City"], "Sea") != -1)
-""");
-            });
-
-    public override Task Where_string_replace(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Where_string_replace(a);
-
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-WHERE (REPLACE(c["City"], "Sea", "Rea") = "Reattle")
-""");
-            });
-
-    public override Task Where_string_substring(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Where_string_substring(a);
-
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-WHERE (SUBSTRING(c["City"], 1, 2) = "ea")
-""");
-            });
-
-    public override async Task Where_datetime_now(bool async)
-    {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Where_datetime_now(async));
-
-        AssertSql();
-    }
-
-    public override Task Where_datetime_utcnow(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Where_datetime_utcnow(a);
-
-                AssertSql(
-                    """
-@myDatetime='2015-04-10T00:00:00'
-
-SELECT VALUE c
-FROM root c
-WHERE (GetCurrentDateTime() != @myDatetime)
-""");
-            });
-
-    public override Task Where_datetimeoffset_utcnow(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Where_datetimeoffset_utcnow(a);
-
-                AssertSql(
-                    """
-@myDatetimeOffset='2015-04-10T00:00:00-08:00'
-
-SELECT VALUE c
-FROM root c
-WHERE (GetCurrentDateTime() != @myDatetimeOffset)
-""");
-            });
-
-    public override async Task Where_datetime_today(bool async)
-    {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Where_datetime_today(async));
-
-        AssertSql();
-    }
-
-    public override async Task Where_datetime_date_component(bool async)
-    {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Where_datetime_date_component(async));
-
-        AssertSql();
-    }
-
-    public override Task Where_date_add_year_constant_component(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Where_date_add_year_constant_component(a);
-
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-WHERE ((c["$type"] = "Order") AND (DateTimePart("yyyy", DateTimeAdd("yyyy", -1, c["OrderDate"])) = 1997))
-""");
-            });
-
-    public override Task Where_datetime_year_component(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Where_datetime_year_component(a);
-
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-WHERE ((c["$type"] = "Order") AND (DateTimePart("yyyy", c["OrderDate"]) = 1998))
-""");
-            });
-
-    public override Task Where_datetime_month_component(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Where_datetime_month_component(a);
-
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-WHERE ((c["$type"] = "Order") AND (DateTimePart("mm", c["OrderDate"]) = 4))
-""");
-            });
-
-    public override async Task Where_datetime_dayOfYear_component(bool async)
-    {
-        // DateTime.DayOfYear not supported by Cosmos
-        await AssertTranslationFailed(() => base.Where_datetime_dayOfYear_component(async));
-
-        AssertSql();
-    }
-
-    public override Task Where_datetime_day_component(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Where_datetime_day_component(a);
-
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-WHERE ((c["$type"] = "Order") AND (DateTimePart("dd", c["OrderDate"]) = 4))
-""");
-            });
-
-    public override Task Where_datetime_hour_component(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Where_datetime_hour_component(a);
-
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-WHERE ((c["$type"] = "Order") AND (DateTimePart("hh", c["OrderDate"]) = 0))
-""");
-            });
-
-    public override Task Where_datetime_minute_component(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Where_datetime_minute_component(a);
-
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-WHERE ((c["$type"] = "Order") AND (DateTimePart("mi", c["OrderDate"]) = 0))
-""");
-            });
-
-    public override Task Where_datetime_second_component(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Where_datetime_second_component(a);
-
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-WHERE ((c["$type"] = "Order") AND (DateTimePart("ss", c["OrderDate"]) = 0))
-""");
-            });
-
-    public override Task Where_datetime_millisecond_component(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Where_datetime_millisecond_component(a);
-
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-WHERE ((c["$type"] = "Order") AND (DateTimePart("ms", c["OrderDate"]) = 0))
-""");
-            });
-
-    public override async Task Where_datetimeoffset_now_component(bool async)
-    {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Where_datetimeoffset_now_component(async));
-
-        AssertSql();
-    }
-
-    public override async Task Where_datetimeoffset_utcnow_component(bool async)
-    {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Where_datetimeoffset_utcnow_component(async));
-
-        AssertSql();
-    }
 
     public override Task Where_simple_reversed(bool async)
         => Fixture.NoSyncTest(
@@ -1922,90 +1646,6 @@ WHERE (c["Fax"] = null)
                 AssertSql("ReadItem(None, ALFKI)");
             });
 
-    public override async Task Where_concat_string_int_comparison1(bool async)
-    {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Where_concat_string_int_comparison1(async));
-
-        AssertSql();
-    }
-
-    public override async Task Where_concat_string_int_comparison2(bool async)
-    {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Where_concat_string_int_comparison2(async));
-
-        AssertSql();
-    }
-
-    public override async Task Where_concat_string_int_comparison3(bool async)
-    {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Where_concat_string_int_comparison3(async));
-
-        AssertSql();
-    }
-
-    public override async Task Where_concat_string_int_comparison4(bool async)
-    {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Where_concat_string_int_comparison4(async));
-
-        AssertSql(
-        );
-    }
-
-    public override Task Where_string_concat_method_comparison(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Where_string_concat_method_comparison(a);
-
-                AssertSql(
-                    """
-@i='A'
-
-SELECT VALUE c["id"]
-FROM root c
-WHERE ((@i || c["id"]) = "AAROUT")
-""");
-            });
-
-    public override Task Where_string_concat_method_comparison_2(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Where_string_concat_method_comparison_2(a);
-
-                AssertSql(
-                    """
-@i='A'
-@j='B'
-
-SELECT VALUE c["id"]
-FROM root c
-WHERE ((@i || (@j || c["id"])) = "ABANATR")
-""");
-            });
-
-    public override Task Where_string_concat_method_comparison_3(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Where_string_concat_method_comparison_3(a);
-
-                AssertSql(
-                    """
-@i='A'
-@j='B'
-@k='C'
-
-SELECT VALUE c["id"]
-FROM root c
-WHERE ((@i || (@j || (@k || c["id"]))) = "ABCANTON")
-""");
-            });
-
     public override Task Where_ternary_boolean_condition_true(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -2268,20 +1908,6 @@ WHERE (((c["$type"] = "Order") AND (c["CustomerID"] = "QUICK")) AND (c["OrderDat
         AssertSql();
     }
 
-    public override Task Time_of_day_datetime(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Time_of_day_datetime(a);
-
-                AssertSql(
-                    """
-SELECT VALUE c["OrderDate"]
-FROM root c
-WHERE (c["$type"] = "Order")
-""");
-            });
-
     public override Task TypeBinary_short_circuit(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -2324,22 +1950,6 @@ WHERE ((c["$type"] = "Product") AND (true ? false : true))
     {
         // Uncorrelated subquery, not supported by Cosmos
         await AssertTranslationFailed(() => base.Filter_non_nullable_value_after_FirstOrDefault_on_empty_collection(async));
-
-        AssertSql();
-    }
-
-    public override async Task Like_with_non_string_column_using_ToString(bool async)
-    {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Like_with_non_string_column_using_ToString(async));
-
-        AssertSql();
-    }
-
-    public override async Task Like_with_non_string_column_using_double_cast(bool async)
-    {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Like_with_non_string_column_using_double_cast(async));
 
         AssertSql();
     }
@@ -2705,21 +2315,6 @@ FROM root c
 WHERE (ARRAY_CONTAINS(@customerIds, c["id"]) OR (c["City"] = "Seattle"))
 """);
             });
-
-    public override async Task Where_Like_and_comparison(bool async)
-    {
-        await AssertTranslationFailed(() => base.Where_Like_and_comparison(async));
-
-        AssertSql();
-    }
-
-    public override async Task Where_Like_or_comparison(bool async)
-    {
-        await AssertTranslationFailed(() => base.Where_Like_or_comparison(async));
-
-        AssertSql(
-        );
-    }
 
     public override Task GetType_on_non_hierarchy1(bool async)
         => Fixture.NoSyncTest(
@@ -3145,22 +2740,6 @@ WHERE (c["id"] = @entity_equality_customer_CustomerID)
 SELECT VALUE c["id"]
 FROM root c
 WHERE (c["id"] = @entity_equality_customer_CustomerID)
-""");
-            });
-
-    public override Task Where_concat_string_string_comparison(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Where_concat_string_string_comparison(a);
-
-                AssertSql(
-                    """
-@i='A'
-
-SELECT VALUE c["id"]
-FROM root c
-WHERE ((@i || c["id"]) = "AALFKI")
 """);
             });
 
