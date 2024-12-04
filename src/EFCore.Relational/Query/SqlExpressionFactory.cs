@@ -956,8 +956,8 @@ public class SqlExpressionFactory : ISqlExpressionFactory
         => ApplyDefaultTypeMapping(new LikeExpression(match, pattern, escapeChar, null));
 
     /// <inheritdoc />
-    public virtual SqlExpression Fragment(string sql)
-        => new SqlFragmentExpression(sql);
+    public virtual SqlExpression Fragment(string sql, Type? type = null, RelationalTypeMapping? typeMapping = null)
+        => new SqlFragmentExpression(sql, type, typeMapping);
 
     /// <inheritdoc />
     public virtual SqlExpression Constant(object value, RelationalTypeMapping? typeMapping = null)
