@@ -49,7 +49,7 @@ public class SqlitePointMemberTranslator : IMemberTranslator
                 functionName,
                 new[] { instance! },
                 nullable: true,
-                argumentsPropagateNullability: new[] { true },
+                argumentsPropagateNullability: Statics.TrueArrays[1],
                 returnType)
             : null;
 }

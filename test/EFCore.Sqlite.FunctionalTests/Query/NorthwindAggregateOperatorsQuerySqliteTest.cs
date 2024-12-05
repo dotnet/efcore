@@ -69,7 +69,7 @@ FROM "Order Details" AS "o"
 
         AssertSql(
             """
-@__p_0='3'
+@p='3'
 
 SELECT ef_avg(CAST((
     SELECT AVG(CAST(5 + (
@@ -82,7 +82,7 @@ FROM (
     SELECT "c"."CustomerID"
     FROM "Customers" AS "c"
     ORDER BY "c"."CustomerID"
-    LIMIT @__p_0
+    LIMIT @p
 ) AS "c0"
 """);
     }
@@ -93,7 +93,7 @@ FROM (
 
         AssertSql(
             """
-@__p_0='3'
+@p='3'
 
 SELECT ef_avg(CAST((
     SELECT AVG(5.0 + (
@@ -106,7 +106,7 @@ FROM (
     SELECT "c"."CustomerID"
     FROM "Customers" AS "c"
     ORDER BY "c"."CustomerID"
-    LIMIT @__p_0
+    LIMIT @p
 ) AS "c0"
 """);
     }
@@ -129,12 +129,12 @@ FROM (
 
         AssertSql(
             """
-@__cities_0='["London","Berlin"]' (Size = 19)
+@cities='["London","Berlin"]' (Size = 19)
 
 SELECT COUNT(CASE
     WHEN "c"."City" IN (
         SELECT "c0"."value"
-        FROM json_each(@__cities_0) AS "c0"
+        FROM json_each(@cities) AS "c0"
     ) THEN 1
 END)
 FROM "Customers" AS "c"
@@ -148,12 +148,12 @@ GROUP BY "c"."Country"
 
         AssertSql(
             """
-@__cities_0='["London","Berlin"]' (Size = 19)
+@cities='["London","Berlin"]' (Size = 19)
 
 SELECT AVG(CASE
     WHEN "c"."City" IN (
         SELECT "c0"."value"
-        FROM json_each(@__cities_0) AS "c0"
+        FROM json_each(@cities) AS "c0"
     ) THEN 1.0
     ELSE 0.0
 END)
@@ -167,12 +167,12 @@ FROM "Customers" AS "c"
 
         AssertSql(
             """
-@__cities_0='["London","Berlin"]' (Size = 19)
+@cities='["London","Berlin"]' (Size = 19)
 
 SELECT COALESCE(SUM(CASE
     WHEN "c"."City" IN (
         SELECT "c0"."value"
-        FROM json_each(@__cities_0) AS "c0"
+        FROM json_each(@cities) AS "c0"
     ) THEN 1
     ELSE 0
 END), 0)
@@ -186,13 +186,13 @@ FROM "Customers" AS "c"
 
         AssertSql(
             """
-@__cities_0='["London","Berlin"]' (Size = 19)
+@cities='["London","Berlin"]' (Size = 19)
 
 SELECT COUNT(*)
 FROM "Customers" AS "c"
 WHERE "c"."City" IN (
     SELECT "c0"."value"
-    FROM json_each(@__cities_0) AS "c0"
+    FROM json_each(@cities) AS "c0"
 )
 """);
     }
@@ -203,13 +203,13 @@ WHERE "c"."City" IN (
 
         AssertSql(
             """
-@__cities_0='["London","Berlin"]' (Size = 19)
+@cities='["London","Berlin"]' (Size = 19)
 
 SELECT COUNT(*)
 FROM "Customers" AS "c"
 WHERE "c"."City" IN (
     SELECT "c0"."value"
-    FROM json_each(@__cities_0) AS "c0"
+    FROM json_each(@cities) AS "c0"
 )
 """);
     }
@@ -220,12 +220,12 @@ WHERE "c"."City" IN (
 
         AssertSql(
             """
-@__cities_0='["London","Berlin"]' (Size = 19)
+@cities='["London","Berlin"]' (Size = 19)
 
 SELECT MAX(CASE
     WHEN "c"."City" IN (
         SELECT "c0"."value"
-        FROM json_each(@__cities_0) AS "c0"
+        FROM json_each(@cities) AS "c0"
     ) THEN 1
     ELSE 0
 END)
@@ -239,12 +239,12 @@ FROM "Customers" AS "c"
 
         AssertSql(
             """
-@__cities_0='["London","Berlin"]' (Size = 19)
+@cities='["London","Berlin"]' (Size = 19)
 
 SELECT MIN(CASE
     WHEN "c"."City" IN (
         SELECT "c0"."value"
-        FROM json_each(@__cities_0) AS "c0"
+        FROM json_each(@cities) AS "c0"
     ) THEN 1
     ELSE 0
 END)

@@ -291,7 +291,7 @@ public abstract class ConfigurationDbContextTestBase<TFixture>(
                 {
                     "ForeignKey: ApiResourceClaim {'ApiResourceId'} -> ApiResource {'Id'} Required Cascade ToDependent: UserClaims ToPrincipal: ApiResource",
                 },
-                Navigations = { "Navigation: ApiResourceClaim.ApiResource (ApiResource) ToPrincipal ApiResource Inverse: UserClaims", },
+                Navigations = { "Navigation: ApiResourceClaim.ApiResource (ApiResource) Required ToPrincipal ApiResource Inverse: UserClaims", },
             },
             new EntityTypeMapping
             {
@@ -310,7 +310,7 @@ public abstract class ConfigurationDbContextTestBase<TFixture>(
                 {
                     "ForeignKey: ApiResourceProperty {'ApiResourceId'} -> ApiResource {'Id'} Required Cascade ToDependent: Properties ToPrincipal: ApiResource",
                 },
-                Navigations = { "Navigation: ApiResourceProperty.ApiResource (ApiResource) ToPrincipal ApiResource Inverse: Properties", },
+                Navigations = { "Navigation: ApiResourceProperty.ApiResource (ApiResource) Required ToPrincipal ApiResource Inverse: Properties", },
             },
             new EntityTypeMapping
             {
@@ -328,7 +328,7 @@ public abstract class ConfigurationDbContextTestBase<TFixture>(
                 {
                     "ForeignKey: ApiResourceScope {'ApiResourceId'} -> ApiResource {'Id'} Required Cascade ToDependent: Scopes ToPrincipal: ApiResource",
                 },
-                Navigations = { "Navigation: ApiResourceScope.ApiResource (ApiResource) ToPrincipal ApiResource Inverse: Scopes", },
+                Navigations = { "Navigation: ApiResourceScope.ApiResource (ApiResource) Required ToPrincipal ApiResource Inverse: Scopes", },
             },
             new EntityTypeMapping
             {
@@ -350,7 +350,7 @@ public abstract class ConfigurationDbContextTestBase<TFixture>(
                 {
                     "ForeignKey: ApiResourceSecret {'ApiResourceId'} -> ApiResource {'Id'} Required Cascade ToDependent: Secrets ToPrincipal: ApiResource",
                 },
-                Navigations = { "Navigation: ApiResourceSecret.ApiResource (ApiResource) ToPrincipal ApiResource Inverse: Secrets", },
+                Navigations = { "Navigation: ApiResourceSecret.ApiResource (ApiResource) Required ToPrincipal ApiResource Inverse: Secrets", },
             },
             new EntityTypeMapping
             {
@@ -391,7 +391,7 @@ public abstract class ConfigurationDbContextTestBase<TFixture>(
                 {
                     "ForeignKey: ApiScopeClaim {'ScopeId'} -> ApiScope {'Id'} Required Cascade ToDependent: UserClaims ToPrincipal: Scope",
                 },
-                Navigations = { "Navigation: ApiScopeClaim.Scope (ApiScope) ToPrincipal ApiScope Inverse: UserClaims", },
+                Navigations = { "Navigation: ApiScopeClaim.Scope (ApiScope) Required ToPrincipal ApiScope Inverse: UserClaims", },
             },
             new EntityTypeMapping
             {
@@ -410,7 +410,7 @@ public abstract class ConfigurationDbContextTestBase<TFixture>(
                 {
                     "ForeignKey: ApiScopeProperty {'ScopeId'} -> ApiScope {'Id'} Required Cascade ToDependent: Properties ToPrincipal: Scope",
                 },
-                Navigations = { "Navigation: ApiScopeProperty.Scope (ApiScope) ToPrincipal ApiScope Inverse: Properties", },
+                Navigations = { "Navigation: ApiScopeProperty.Scope (ApiScope) Required ToPrincipal ApiScope Inverse: Properties", },
             },
             new EntityTypeMapping
             {
@@ -492,7 +492,7 @@ public abstract class ConfigurationDbContextTestBase<TFixture>(
                 },
                 Indexes = HasForeignKeyIndexes ? ["{'ClientId'} "] : [],
                 FKs = { "ForeignKey: ClientClaim {'ClientId'} -> Client {'Id'} Required Cascade ToDependent: Claims ToPrincipal: Client", },
-                Navigations = { "Navigation: ClientClaim.Client (Client) ToPrincipal Client Inverse: Claims", },
+                Navigations = { "Navigation: ClientClaim.Client (Client) Required ToPrincipal Client Inverse: Claims", },
             },
             new EntityTypeMapping
             {
@@ -510,7 +510,7 @@ public abstract class ConfigurationDbContextTestBase<TFixture>(
                 {
                     "ForeignKey: ClientCorsOrigin {'ClientId'} -> Client {'Id'} Required Cascade ToDependent: AllowedCorsOrigins ToPrincipal: Client",
                 },
-                Navigations = { "Navigation: ClientCorsOrigin.Client (Client) ToPrincipal Client Inverse: AllowedCorsOrigins", },
+                Navigations = { "Navigation: ClientCorsOrigin.Client (Client) Required ToPrincipal Client Inverse: AllowedCorsOrigins", },
             },
             new EntityTypeMapping
             {
@@ -528,7 +528,7 @@ public abstract class ConfigurationDbContextTestBase<TFixture>(
                 {
                     "ForeignKey: ClientGrantType {'ClientId'} -> Client {'Id'} Required Cascade ToDependent: AllowedGrantTypes ToPrincipal: Client",
                 },
-                Navigations = { "Navigation: ClientGrantType.Client (Client) ToPrincipal Client Inverse: AllowedGrantTypes", },
+                Navigations = { "Navigation: ClientGrantType.Client (Client) Required ToPrincipal Client Inverse: AllowedGrantTypes", },
             },
             new EntityTypeMapping
             {
@@ -548,7 +548,7 @@ public abstract class ConfigurationDbContextTestBase<TFixture>(
                 },
                 Navigations =
                 {
-                    "Navigation: ClientIdPRestriction.Client (Client) ToPrincipal Client Inverse: IdentityProviderRestrictions",
+                    "Navigation: ClientIdPRestriction.Client (Client) Required ToPrincipal Client Inverse: IdentityProviderRestrictions",
                 },
             },
             new EntityTypeMapping
@@ -569,7 +569,7 @@ public abstract class ConfigurationDbContextTestBase<TFixture>(
                 },
                 Navigations =
                 {
-                    "Navigation: ClientPostLogoutRedirectUri.Client (Client) ToPrincipal Client Inverse: PostLogoutRedirectUris",
+                    "Navigation: ClientPostLogoutRedirectUri.Client (Client) Required ToPrincipal Client Inverse: PostLogoutRedirectUris",
                 },
             },
             new EntityTypeMapping
@@ -589,7 +589,7 @@ public abstract class ConfigurationDbContextTestBase<TFixture>(
                 {
                     "ForeignKey: ClientProperty {'ClientId'} -> Client {'Id'} Required Cascade ToDependent: Properties ToPrincipal: Client",
                 },
-                Navigations = { "Navigation: ClientProperty.Client (Client) ToPrincipal Client Inverse: Properties", },
+                Navigations = { "Navigation: ClientProperty.Client (Client) Required ToPrincipal Client Inverse: Properties", },
             },
             new EntityTypeMapping
             {
@@ -607,7 +607,7 @@ public abstract class ConfigurationDbContextTestBase<TFixture>(
                 {
                     "ForeignKey: ClientRedirectUri {'ClientId'} -> Client {'Id'} Required Cascade ToDependent: RedirectUris ToPrincipal: Client",
                 },
-                Navigations = { "Navigation: ClientRedirectUri.Client (Client) ToPrincipal Client Inverse: RedirectUris", },
+                Navigations = { "Navigation: ClientRedirectUri.Client (Client) Required ToPrincipal Client Inverse: RedirectUris", },
             },
             new EntityTypeMapping
             {
@@ -625,7 +625,7 @@ public abstract class ConfigurationDbContextTestBase<TFixture>(
                 {
                     "ForeignKey: ClientScope {'ClientId'} -> Client {'Id'} Required Cascade ToDependent: AllowedScopes ToPrincipal: Client",
                 },
-                Navigations = { "Navigation: ClientScope.Client (Client) ToPrincipal Client Inverse: AllowedScopes", },
+                Navigations = { "Navigation: ClientScope.Client (Client) Required ToPrincipal Client Inverse: AllowedScopes", },
             },
             new EntityTypeMapping
             {
@@ -647,7 +647,7 @@ public abstract class ConfigurationDbContextTestBase<TFixture>(
                 {
                     "ForeignKey: ClientSecret {'ClientId'} -> Client {'Id'} Required Cascade ToDependent: ClientSecrets ToPrincipal: Client",
                 },
-                Navigations = { "Navigation: ClientSecret.Client (Client) ToPrincipal Client Inverse: ClientSecrets", },
+                Navigations = { "Navigation: ClientSecret.Client (Client) Required ToPrincipal Client Inverse: ClientSecrets", },
             },
             new EntityTypeMapping
             {
@@ -693,7 +693,7 @@ public abstract class ConfigurationDbContextTestBase<TFixture>(
                 },
                 Navigations =
                 {
-                    "Navigation: IdentityResourceClaim.IdentityResource (IdentityResource) ToPrincipal IdentityResource Inverse: UserClaims",
+                    "Navigation: IdentityResourceClaim.IdentityResource (IdentityResource) Required ToPrincipal IdentityResource Inverse: UserClaims",
                 },
             },
             new EntityTypeMapping
@@ -715,7 +715,7 @@ public abstract class ConfigurationDbContextTestBase<TFixture>(
                 },
                 Navigations =
                 {
-                    "Navigation: IdentityResourceProperty.IdentityResource (IdentityResource) ToPrincipal IdentityResource Inverse: Properties",
+                    "Navigation: IdentityResourceProperty.IdentityResource (IdentityResource) Required ToPrincipal IdentityResource Inverse: Properties",
                 },
             }
         ];

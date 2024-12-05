@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
@@ -267,6 +268,11 @@ public sealed partial class SelectExpression : TableExpressionBase
             && _clientProjections.Any(e => e is ShapedQueryExpression { ResultCardinality: ResultCardinality.Enumerable }))
         {
             throw new InvalidOperationException(RelationalStrings.DistinctOnCollectionNotSupported);
+        }
+
+        if (Limit is SqlConstantExpression { Value: 1 })
+        {
+            return;
         }
 
         if (Limit != null
@@ -907,6 +913,18 @@ public sealed partial class SelectExpression : TableExpressionBase
                         {
                             var outerSelectExpression = (SelectExpression)cloningExpressionVisitor!.Visit(baseSelectExpression!);
 
+                            // Inject deterministic orderings (the identifier columns) to both the main query and the split query.
+                            // Note that just below we pushdown the split query if it has limit/offset/distinct/groupby; this ensures
+                            // that the orderings are also propagated to that split subquery if it has limit/offset, which ensures that
+                            // that subquery returns the same rows as the main query (#26808)
+                            var actualParentIdentifier = _identifier.Take(outerSelectExpression._identifier.Count).ToList();
+                            for (var j = 0; j < actualParentIdentifier.Count; j++)
+                            {
+                                AppendOrdering(new OrderingExpression(actualParentIdentifier[j].Column, ascending: true));
+                                outerSelectExpression.AppendOrdering(
+                                    new OrderingExpression(outerSelectExpression._identifier[j].Column, ascending: true));
+                            }
+
                             if (outerSelectExpression.Limit != null
                                 || outerSelectExpression.Offset != null
                                 || outerSelectExpression.IsDistinct
@@ -918,7 +936,6 @@ public sealed partial class SelectExpression : TableExpressionBase
                                 innerSelectExpression = sqlRemappingVisitor.Remap(innerSelectExpression);
                             }
 
-                            var actualParentIdentifier = _identifier.Take(outerSelectExpression._identifier.Count).ToList();
                             var containsOrdering = innerSelectExpression.Orderings.Count > 0;
                             List<OrderingExpression>? orderingsToBeErased = null;
                             if (containsOrdering
@@ -935,13 +952,6 @@ public sealed partial class SelectExpression : TableExpressionBase
                             outerSelectExpression._clientProjections.AddRange(innerSelectExpression._clientProjections);
                             outerSelectExpression._aliasForClientProjections.AddRange(innerSelectExpression._aliasForClientProjections);
                             innerSelectExpression = outerSelectExpression;
-
-                            for (var j = 0; j < actualParentIdentifier.Count; j++)
-                            {
-                                AppendOrdering(new OrderingExpression(actualParentIdentifier[j].Column, ascending: true));
-                                innerSelectExpression.AppendOrdering(
-                                    new OrderingExpression(innerSelectExpression._identifier[j].Column, ascending: true));
-                            }
 
                             // Copy over any nested ordering if there were any
                             if (containsOrdering)
@@ -1564,7 +1574,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                         Left: ColumnExpression leftColumn,
                         Right: SqlConstantExpression { Value: string s1 }
                     }
-                    when GetTable(leftColumn) is TpcTablesExpression
+                    when TryGetTable(leftColumn, out var table, out _) && table is TpcTablesExpression
                     {
                         DiscriminatorColumn: var discriminatorColumn,
                         DiscriminatorValues: var discriminatorValues
@@ -1587,7 +1597,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                         Left: SqlConstantExpression { Value: string s2 },
                         Right: ColumnExpression rightColumn
                     }
-                    when GetTable(rightColumn) is TpcTablesExpression
+                    when TryGetTable(rightColumn, out var table, out _) && table is TpcTablesExpression
                     {
                         DiscriminatorColumn: var discriminatorColumn,
                         DiscriminatorValues: var discriminatorValues
@@ -1611,7 +1621,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                         Item: ColumnExpression itemColumn,
                         Values: IReadOnlyList<SqlExpression> valueExpressions
                     }
-                    when GetTable(itemColumn) is TpcTablesExpression
+                    when TryGetTable(itemColumn, out var table, out _) && table is TpcTablesExpression
                     {
                         DiscriminatorColumn: var discriminatorColumn,
                         DiscriminatorValues: var discriminatorValues
@@ -1915,6 +1925,11 @@ public sealed partial class SelectExpression : TableExpressionBase
         }
 
         Limit = sqlExpression;
+
+        if (Offset is null && Limit is SqlConstantExpression { Value: 1 })
+        {
+            IsDistinct = false;
+        }
     }
 
     /// <summary>
@@ -2719,31 +2734,28 @@ public sealed partial class SelectExpression : TableExpressionBase
     ///     <see cref="SelectExpression" /> based on its alias.
     /// </summary>
     public TableExpressionBase GetTable(ColumnExpression column, out int tableIndex)
+        => TryGetTable(column, out var table, out tableIndex)
+            ? table
+            : throw new InvalidOperationException($"Table not found with alias '{column.TableAlias}'");
+
+    private bool ContainsReferencedTable(ColumnExpression column)
+        => TryGetTable(column, out _, out _);
+
+    private bool TryGetTable(ColumnExpression column, [NotNullWhen(true)] out TableExpressionBase? table, out int tableIndex)
     {
         for (var i = 0; i < _tables.Count; i++)
         {
-            var table = _tables[i];
-            if (table.UnwrapJoin().Alias == column.TableAlias)
+            var t = _tables[i];
+            if (t.UnwrapJoin().Alias == column.TableAlias)
             {
+                table = t;
                 tableIndex = i;
-                return table;
-            }
-        }
-
-        throw new InvalidOperationException($"Table not found with alias '{column.TableAlias}'");
-    }
-
-    private bool ContainsReferencedTable(ColumnExpression column)
-    {
-        foreach (var table in Tables)
-        {
-            var unwrappedTable = table.UnwrapJoin();
-            if (unwrappedTable.Alias == column.TableAlias)
-            {
                 return true;
             }
         }
 
+        table = null;
+        tableIndex = 0;
         return false;
     }
 
@@ -2901,7 +2913,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                                 ? innerSelect.Orderings
                                 : innerSelect._identifier.Count > 0
                                     ? innerSelect._identifier.Select(e => new OrderingExpression(e.Column, true))
-                                    : new[] { new OrderingExpression(new SqlFragmentExpression("(SELECT 1)"), true) };
+                                    : new[] { new OrderingExpression(new SqlFragmentExpression("(SELECT 1)", typeof(int)), true) };
 
                             var rowNumberExpression = new RowNumberExpression(
                                 partitions, orderings.ToList(), (limit ?? offset)!.TypeMapping);

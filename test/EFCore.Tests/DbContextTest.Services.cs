@@ -3205,7 +3205,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Equal(3, replacedServices.Count);
 
                 Assert.Equal(2, replacedServices.Count(t => t is CustomParameterBindingFactory2));
-                Assert.Single(replacedServices.Where(t => t is CustomParameterBindingFactory));
+                Assert.Single(replacedServices, t => t is CustomParameterBindingFactory);
             }
         }
 
@@ -3852,7 +3852,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Equal(3, replacedServices.Count);
 
                 Assert.Equal(2, replacedServices.Count(t => t is CustomParameterBindingFactory));
-                Assert.Single(replacedServices.Where(t => t is CustomParameterBindingFactory2));
+                Assert.Single(replacedServices, t => t is CustomParameterBindingFactory2);
             }
         }
 
@@ -3894,7 +3894,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Equal(3, replacedServices.Count);
 
                 Assert.DoesNotContain(replacedServices, t => t is CustomParameterBindingFactory);
-                Assert.Single(replacedServices.Where(t => t is CustomParameterBindingFactory2));
+                Assert.Single(replacedServices, t => t is CustomParameterBindingFactory2);
             }
         }
 

@@ -29,11 +29,11 @@ WHERE CAST(JSON_VALUE([j].[IntList], '$[' + CAST([j].[Id] AS nvarchar(max)) + ']
 
         AssertSql(
             """
-@__id_0='1'
+@id='1'
 
 SELECT [j].[Id], [j].[IntList], [j].[JsonThing]
 FROM [JsonEntities] AS [j]
-WHERE CAST(JSON_VALUE([j].[IntList], '$[' + CAST(@__id_0 AS nvarchar(max)) + ']') AS int) = 2
+WHERE CAST(JSON_VALUE([j].[IntList], '$[' + CAST(@id AS nvarchar(max)) + ']') AS int) = 2
 """);
     }
 
@@ -69,6 +69,35 @@ VALUES (@p0, @p1, @p2);
             """
 SELECT TOP(2) [n].[Id], [n].[PrivateAutoProperty], [n].[PrivateProperty], [n].[_privateField]
 FROM [NonPublicEntities] AS [n]
+""");
+    }
+
+    public override async Task Projecting_property_requiring_converter_with_closure_is_not_supported()
+    {
+        await base.Projecting_property_requiring_converter_with_closure_is_not_supported();
+
+        AssertSql();
+    }
+
+    public override async Task Projecting_expression_requiring_converter_without_closure_works()
+    {
+        await base.Projecting_expression_requiring_converter_without_closure_works();
+
+        AssertSql(
+"""
+SELECT [b].[AudiobookDate]
+FROM [Books] AS [b]
+""");
+    }
+
+    public override async Task Projecting_entity_with_property_requiring_converter_with_closure_works()
+    {
+        await base.Projecting_entity_with_property_requiring_converter_with_closure_works();
+
+        AssertSql(
+"""
+SELECT [b].[Id], [b].[AudiobookDate], [b].[Name], [b].[PublishDate]
+FROM [Books] AS [b]
 """);
     }
 

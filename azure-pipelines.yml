@@ -55,7 +55,7 @@ extends:
       baseline:
         baselineFile: $(Build.SourcesDirectory)\.config\guardian\.gdnbaselines
       binskim:
-        analyzeTargetGlob: $(Build.SourcesDirectory)/artifacts/bin/*.dll;$(Build.SourcesDirectory)/artifacts/bin/*.exe;
+        scanOutputDirectoryOnly: true
       policheck:
         enabled: true
       tsa:
@@ -139,7 +139,7 @@ extends:
           - job: macOS
             pool:
               name: Azure Pipelines
-              image: macOS-12
+              image: macOS-13
               os: macOS
             variables:
               # Rely on task Arcade injects, not auto-injected build step.
@@ -187,6 +187,7 @@ extends:
                 displayName: Build
               - task: AzureCLI@2
                 displayName: Run Cosmos tests
+                condition: notin(variables['Build.Reason'], 'PullRequest', 'Schedule')
                 inputs:
                   azureSubscription: EFCosmosTesting
                   scriptType: bash
@@ -231,6 +232,16 @@ extends:
                   arguments: 'locals all -clear'
               - template: /eng/common/templates-official/steps/enable-internal-sources.yml
               - template: /eng/common/templates-official/steps/enable-internal-runtimes.yml
+              - ${{ if ne(variables['System.TeamProject'], 'public') }}:
+                - template: /eng/common/core-templates/steps/get-delegation-sas.yml
+                  parameters:
+                    federatedServiceConnection: 'dotnetbuilds-internal-read'
+                    outputVariableName: 'dotnetbuilds-internal-container-read-token'
+                    expiryInHours: 1
+                    base64Encode: false
+                    storageAccount: dotnetbuilds
+                    container: internal
+                    permissions: rl
               - script: restore.cmd -ci /p:configuration=$(_BuildConfig) $(_InternalRuntimeDownloadArgs)
                 displayName: Restore packages
               - script: .dotnet\dotnet build eng\helix.proj /restore /t:Test /p:configuration=$(_BuildConfig) /bl:$(Build.SourcesDirectory)/artifacts/log/$(_BuildConfig)/SendToHelix.binlog $(_InternalRuntimeDownloadArgs)

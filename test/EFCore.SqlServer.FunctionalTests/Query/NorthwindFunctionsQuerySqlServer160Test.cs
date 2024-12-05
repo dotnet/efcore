@@ -27,51 +27,51 @@ public class NorthwindFunctionsQuerySqlServer160Test
 
         AssertSql(
             """
-@__myDatetime_0='1998-05-04T00:00:00.0000000' (DbType = DateTime)
+@myDatetime='1998-05-04T00:00:00.0000000' (DbType = DateTime)
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE [o].[OrderDate] = @__myDatetime_0
+WHERE [o].[OrderDate] = @myDatetime
 """,
             //
             """
-@__myDatetime_0='1998-05-04T00:00:00.0000000' (DbType = DateTime)
+@myDatetime='1998-05-04T00:00:00.0000000' (DbType = DateTime)
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE [o].[OrderDate] <> @__myDatetime_0 OR [o].[OrderDate] IS NULL
+WHERE [o].[OrderDate] <> @myDatetime OR [o].[OrderDate] IS NULL
 """,
             //
             """
-@__myDatetime_0='1998-05-04T00:00:00.0000000' (DbType = DateTime)
+@myDatetime='1998-05-04T00:00:00.0000000' (DbType = DateTime)
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE [o].[OrderDate] > @__myDatetime_0
+WHERE [o].[OrderDate] > @myDatetime
 """,
             //
             """
-@__myDatetime_0='1998-05-04T00:00:00.0000000' (DbType = DateTime)
+@myDatetime='1998-05-04T00:00:00.0000000' (DbType = DateTime)
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE [o].[OrderDate] <= @__myDatetime_0
+WHERE [o].[OrderDate] <= @myDatetime
 """,
             //
             """
-@__myDatetime_0='1998-05-04T00:00:00.0000000' (DbType = DateTime)
+@myDatetime='1998-05-04T00:00:00.0000000' (DbType = DateTime)
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE [o].[OrderDate] > @__myDatetime_0
+WHERE [o].[OrderDate] > @myDatetime
 """,
             //
             """
-@__myDatetime_0='1998-05-04T00:00:00.0000000' (DbType = DateTime)
+@myDatetime='1998-05-04T00:00:00.0000000' (DbType = DateTime)
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE [o].[OrderDate] <= @__myDatetime_0
+WHERE [o].[OrderDate] <= @myDatetime
 """);
     }
 
@@ -95,11 +95,11 @@ WHERE [c].[ContactName] LIKE N'M%'
 
         AssertSql(
             """
-@__pattern_0_startswith='M%' (Size = 30)
+@pattern_startswith='M%' (Size = 30)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[ContactName] LIKE @__pattern_0_startswith ESCAPE N'\'
+WHERE [c].[ContactName] LIKE @pattern_startswith ESCAPE N'\'
 """);
     }
 
@@ -182,11 +182,11 @@ WHERE [c].[ContactName] LIKE N'%b'
 
         AssertSql(
             """
-@__pattern_0_endswith='%b' (Size = 30)
+@pattern_endswith='%b' (Size = 30)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[ContactName] LIKE @__pattern_0_endswith ESCAPE N'\'
+WHERE [c].[ContactName] LIKE @pattern_endswith ESCAPE N'\'
 """);
     }
 
@@ -306,11 +306,11 @@ WHERE [c].[ContactName] LIKE N'%     %'
 
         AssertSql(
             """
-@__pattern_0_contains='%     %' (Size = 30)
+@pattern_contains='%     %' (Size = 30)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[ContactName] LIKE @__pattern_0_contains ESCAPE N'\'
+WHERE [c].[ContactName] LIKE @pattern_contains ESCAPE N'\'
 """);
     }
 
@@ -414,11 +414,11 @@ GROUP BY [c].[City]
 
         AssertSql(
             """
-@__foo_0='foo' (Size = 4000)
+@foo='foo' (Size = 4000)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE CONCAT_WS(N'|', [c].[CompanyName], @__foo_0, N'', N'bar') = N'Around the Horn|foo||bar'
+WHERE CONCAT_WS(N'|', [c].[CompanyName], @foo, N'', N'bar') = N'Around the Horn|foo||bar'
 """);
     }
 
@@ -525,51 +525,51 @@ WHERE [c].[CustomerID] >= N'AROUT'
 
         AssertSql(
             """
-@__customer_CustomerID_0='AROUT' (Size = 5) (DbType = StringFixedLength)
+@customer_CustomerID='AROUT' (Size = 5) (DbType = StringFixedLength)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] > @__customer_CustomerID_0
+WHERE [c].[CustomerID] > @customer_CustomerID
 """,
             //
             """
-@__customer_CustomerID_0='AROUT' (Size = 5) (DbType = StringFixedLength)
+@customer_CustomerID='AROUT' (Size = 5) (DbType = StringFixedLength)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] < @__customer_CustomerID_0
+WHERE [c].[CustomerID] < @customer_CustomerID
 """,
             //
             """
-@__customer_CustomerID_0='AROUT' (Size = 5) (DbType = StringFixedLength)
+@customer_CustomerID='AROUT' (Size = 5) (DbType = StringFixedLength)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] <= @__customer_CustomerID_0
+WHERE [c].[CustomerID] <= @customer_CustomerID
 """,
             //
             """
-@__customer_CustomerID_0='AROUT' (Size = 5) (DbType = StringFixedLength)
+@customer_CustomerID='AROUT' (Size = 5) (DbType = StringFixedLength)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] <= @__customer_CustomerID_0
+WHERE [c].[CustomerID] <= @customer_CustomerID
 """,
             //
             """
-@__customer_CustomerID_0='AROUT' (Size = 5) (DbType = StringFixedLength)
+@customer_CustomerID='AROUT' (Size = 5) (DbType = StringFixedLength)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] >= @__customer_CustomerID_0
+WHERE [c].[CustomerID] >= @customer_CustomerID
 """,
             //
             """
-@__customer_CustomerID_0='AROUT' (Size = 5) (DbType = StringFixedLength)
+@customer_CustomerID='AROUT' (Size = 5) (DbType = StringFixedLength)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] >= @__customer_CustomerID_0
+WHERE [c].[CustomerID] >= @customer_CustomerID
 """);
     }
 
@@ -759,51 +759,51 @@ WHERE [c].[CustomerID] >= N'AROUT'
 
         AssertSql(
             """
-@__customer_CustomerID_0='AROUT' (Size = 5) (DbType = StringFixedLength)
+@customer_CustomerID='AROUT' (Size = 5) (DbType = StringFixedLength)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] > @__customer_CustomerID_0
+WHERE [c].[CustomerID] > @customer_CustomerID
 """,
             //
             """
-@__customer_CustomerID_0='AROUT' (Size = 5) (DbType = StringFixedLength)
+@customer_CustomerID='AROUT' (Size = 5) (DbType = StringFixedLength)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] < @__customer_CustomerID_0
+WHERE [c].[CustomerID] < @customer_CustomerID
 """,
             //
             """
-@__customer_CustomerID_0='AROUT' (Size = 5) (DbType = StringFixedLength)
+@customer_CustomerID='AROUT' (Size = 5) (DbType = StringFixedLength)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] <= @__customer_CustomerID_0
+WHERE [c].[CustomerID] <= @customer_CustomerID
 """,
             //
             """
-@__customer_CustomerID_0='AROUT' (Size = 5) (DbType = StringFixedLength)
+@customer_CustomerID='AROUT' (Size = 5) (DbType = StringFixedLength)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] <= @__customer_CustomerID_0
+WHERE [c].[CustomerID] <= @customer_CustomerID
 """,
             //
             """
-@__customer_CustomerID_0='AROUT' (Size = 5) (DbType = StringFixedLength)
+@customer_CustomerID='AROUT' (Size = 5) (DbType = StringFixedLength)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] >= @__customer_CustomerID_0
+WHERE [c].[CustomerID] >= @customer_CustomerID
 """,
             //
             """
-@__customer_CustomerID_0='AROUT' (Size = 5) (DbType = StringFixedLength)
+@customer_CustomerID='AROUT' (Size = 5) (DbType = StringFixedLength)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] >= @__customer_CustomerID_0
+WHERE [c].[CustomerID] >= @customer_CustomerID
 """);
     }
 
@@ -909,51 +909,51 @@ WHERE [c].[ContactTitle] = N'Owner' AND ([c].[Country] <> N'USA' OR [c].[Country
 
         AssertSql(
             """
-@__myDatetime_0='1998-05-04T00:00:00.0000000' (DbType = DateTime)
+@myDatetime='1998-05-04T00:00:00.0000000' (DbType = DateTime)
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE [o].[OrderDate] = @__myDatetime_0
+WHERE [o].[OrderDate] = @myDatetime
 """,
             //
             """
-@__myDatetime_0='1998-05-04T00:00:00.0000000' (DbType = DateTime)
+@myDatetime='1998-05-04T00:00:00.0000000' (DbType = DateTime)
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE [o].[OrderDate] <> @__myDatetime_0 OR [o].[OrderDate] IS NULL
+WHERE [o].[OrderDate] <> @myDatetime OR [o].[OrderDate] IS NULL
 """,
             //
             """
-@__myDatetime_0='1998-05-04T00:00:00.0000000' (DbType = DateTime)
+@myDatetime='1998-05-04T00:00:00.0000000' (DbType = DateTime)
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE [o].[OrderDate] > @__myDatetime_0
+WHERE [o].[OrderDate] > @myDatetime
 """,
             //
             """
-@__myDatetime_0='1998-05-04T00:00:00.0000000' (DbType = DateTime)
+@myDatetime='1998-05-04T00:00:00.0000000' (DbType = DateTime)
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE [o].[OrderDate] <= @__myDatetime_0
+WHERE [o].[OrderDate] <= @myDatetime
 """,
             //
             """
-@__myDatetime_0='1998-05-04T00:00:00.0000000' (DbType = DateTime)
+@myDatetime='1998-05-04T00:00:00.0000000' (DbType = DateTime)
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE [o].[OrderDate] > @__myDatetime_0
+WHERE [o].[OrderDate] > @myDatetime
 """,
             //
             """
-@__myDatetime_0='1998-05-04T00:00:00.0000000' (DbType = DateTime)
+@myDatetime='1998-05-04T00:00:00.0000000' (DbType = DateTime)
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE [o].[OrderDate] <= @__myDatetime_0
+WHERE [o].[OrderDate] <= @myDatetime
 """);
     }
 
@@ -963,51 +963,51 @@ WHERE [o].[OrderDate] <= @__myDatetime_0
 
         AssertSql(
             """
-@__orderId_0='10250'
+@orderId='10250'
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE [o].[OrderID] = @__orderId_0
+WHERE [o].[OrderID] = @orderId
 """,
             //
             """
-@__orderId_0='10250'
+@orderId='10250'
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE [o].[OrderID] <> @__orderId_0
+WHERE [o].[OrderID] <> @orderId
 """,
             //
             """
-@__orderId_0='10250'
+@orderId='10250'
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE [o].[OrderID] > @__orderId_0
+WHERE [o].[OrderID] > @orderId
 """,
             //
             """
-@__orderId_0='10250'
+@orderId='10250'
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE [o].[OrderID] <= @__orderId_0
+WHERE [o].[OrderID] <= @orderId
 """,
             //
             """
-@__orderId_0='10250'
+@orderId='10250'
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE [o].[OrderID] > @__orderId_0
+WHERE [o].[OrderID] > @orderId
 """,
             //
             """
-@__orderId_0='10250'
+@orderId='10250'
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE [o].[OrderID] <= @__orderId_0
+WHERE [o].[OrderID] <= @orderId
 """);
     }
 
@@ -2399,12 +2399,12 @@ WHERE CHARINDEX(N'a', [c].[ContactName]) - 1 = 1
 
         AssertSql(
             """
-@__pattern_0='a' (Size = 30)
+@pattern='a' (Size = 30)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE CHARINDEX(@__pattern_0, [c].[ContactName]) - CASE
-    WHEN @__pattern_0 = N'' THEN 0
+WHERE CHARINDEX(@pattern, [c].[ContactName]) - CASE
+    WHEN @pattern = N'' THEN 0
     ELSE 1
 END = 1
 """);
@@ -2428,11 +2428,11 @@ WHERE CHARINDEX(N'a', [c].[ContactName], 3) - 1 = 4
 
         AssertSql(
             """
-@__start_0='2'
+@start='2'
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE CHARINDEX(N'a', [c].[ContactName], @__start_0 + 1) - 1 = 4
+WHERE CHARINDEX(N'a', [c].[ContactName], @start + 1) - 1 = 4
 """);
     }
 
@@ -2490,11 +2490,11 @@ WHERE SUBSTRING([c].[CustomerID], 1 + 1, LEN([c].[CustomerID])) = N'LFKI'
 
         AssertSql(
             """
-@__start_0='2'
+@start='2'
 
 SELECT [c].[ContactName]
 FROM [Customers] AS [c]
-WHERE SUBSTRING([c].[CustomerID], @__start_0 + 1, LEN([c].[CustomerID])) = N'FKI'
+WHERE SUBSTRING([c].[CustomerID], @start + 1, LEN([c].[CustomerID])) = N'FKI'
 """);
     }
 
@@ -2540,9 +2540,9 @@ WHERE [c].[CustomerID] = N'ALFKI'
 
         AssertSql(
             """
-@__start_0='2'
+@start='2'
 
-SELECT SUBSTRING([c].[ContactName], @__start_0 + 1, 3)
+SELECT SUBSTRING([c].[ContactName], @start + 1, 3)
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] = N'ALFKI'
 """);
@@ -2779,11 +2779,11 @@ WHERE [c].[CustomerID] = N'ANATR'
 
         AssertSql(
             """
-@__arg_0='1996-07-04T00:00:00.0000000' (DbType = DateTime)
+@arg='1996-07-04T00:00:00.0000000' (DbType = DateTime)
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE [o].[OrderDate] = @__arg_0
+WHERE [o].[OrderDate] = @arg
 """);
     }
 

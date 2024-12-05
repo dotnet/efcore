@@ -5152,6 +5152,16 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture>(TFixture fix
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task Funcletize_conditional_with_evaluatable_test(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => (AlwaysFalse() && c.CustomerID == "ALFKI" ? "yes" : "no") == "no"));
+
+    private static bool AlwaysFalse()
+        => false;
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual async Task Null_parameter_name_works(bool async)
     {
         using var context = CreateContext();
@@ -5839,4 +5849,63 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture>(TFixture fix
 
     private static string StaticProperty
         => "ALF";
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Where_nanosecond_and_microsecond_component(bool async)
+        => AssertQuery(
+            async,
+            // TODO: this is basically just about translation, we don't have data with nanoseconds and microseconds
+            ss => ss.Set<Order>().Where(o => o.OrderDate.Value.Nanosecond != 0 && o.OrderDate.Value.Microsecond != 0),
+            assertEmpty: true);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Ternary_Not_Null_Contains(bool async)
+        => AssertFirstOrDefault(
+            async,
+            ss => ss.Set<Order>().OrderBy(x => x.OrderID).Select(x => x != null ? x.OrderID + "" : null),
+            x => x.Contains("1"));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Ternary_Not_Null_endsWith_Non_Numeric_First_Part(bool async)
+        => AssertFirstOrDefault(
+            async,
+            ss => ss.Set<Order>().OrderBy(x => x.OrderID).Select(x => x != null ? "" + x.OrderID + "" : null),
+            x => x.EndsWith("1"));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Ternary_Null_Equals_Non_Numeric_First_Part(bool async)
+    => AssertFirstOrDefault(
+        async,
+        ss => ss.Set<Order>().OrderBy(x => x.OrderID).Select(x => x == null ? null : "" + x.OrderID + ""),
+        x => x == "1");
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Ternary_Null_StartsWith(bool async)
+        => AssertFirstOrDefault(
+            async,
+            ss => ss.Set<Order>().OrderBy(x => x.OrderID).Select(x => x == null ? null : x.OrderID + ""),
+            x => x.StartsWith("1"));
+
+    [ConditionalTheory] // #35118
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Column_access_inside_subquery_predicate(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => ss.Set<Order>().Where(o => c.CustomerID == "ALFKI").Any()));
+
+    [ConditionalTheory] // #35152
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Cast_to_object_over_parameter_directly_in_lambda(bool async)
+    {
+        var i = 8;
+
+        return AssertQuery(
+            async,
+            ss => ss.Set<Order>().OrderBy(o => (object)i).Select(o => o));
+    }
 }

@@ -409,7 +409,7 @@ public abstract class AdHocAdvancedMappingsQueryTestBase : NonSharedModelTestBas
 
             Assert.Equal(
                 CoreStrings.TranslationFailed(
-                    @"DbSet<MockEntity>()    .Cast<IDummyEntity>()    .Where(e => e.Id == __id_0)"),
+                    @"DbSet<MockEntity>()    .Cast<IDummyEntity>()    .Where(e => e.Id == @id)"),
                 message.Replace("\r", "").Replace("\n", ""));
         }
     }
@@ -688,6 +688,125 @@ public abstract class AdHocAdvancedMappingsQueryTestBase : NonSharedModelTestBas
         public class Dog : Pet
         {
             public string FavoriteToy { get; set; }
+        }
+    }
+
+    #endregion
+
+    #region 34760
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Projecting_property_with_converter_with_closure(bool async)
+    {
+        var contextFactory = await InitializeAsync<Context34760>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateContext();
+
+        var query = context.Books.Select(x => x.PublishDate);
+
+        var result = await query.ToListAsync();
+        Assert.Equal(2, result.Count);
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Projecting_expression_with_converter_with_closure(bool async)
+    {
+        var contextFactory = await InitializeAsync<Context34760>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateContext();
+
+        var query = context.Books
+            .GroupBy(t => t.Id)
+            .Select(g => new
+            {
+                Day = g.Min(t => t.PublishDate)
+            });
+
+        var result = await query.ToListAsync();
+        Assert.Equal(2, result.Count);
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Projecting_property_with_converter_without_closure(bool async)
+    {
+        var contextFactory = await InitializeAsync<Context34760>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateContext();
+
+        var query = context.Books
+            .GroupBy(t => t.Id)
+            .Select(g => new
+            {
+                Day = g.Min(t => t.AudiobookDate)
+            });
+
+        var result = await query.ToListAsync();
+        Assert.Equal(2, result.Count);
+    }
+
+    protected class Context34760(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<Book> Books { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Book>().Property(e => e.Id).ValueGeneratedNever();
+            modelBuilder.Entity<Book>().Property(e => e.PublishDate).HasConversion(new MyDateTimeValueConverterWithClosure(new MyDatetimeConverter()));
+            modelBuilder.Entity<Book>().Property(e => e.AudiobookDate).HasConversion(new MyDateTimeValueConverterWithoutClosure());
+        }
+
+        public Task SeedAsync()
+        {
+            AddRange(
+                new Book {
+                    Id = 1,
+                    Name = "The Blade Itself",
+                    PublishDate = new DateTime(2006, 5, 4, 11, 59, 59),
+                    AudiobookDate = new DateTime(2015, 9, 8, 23, 59, 59)
+                },
+                new Book {
+                    Id = 2,
+                    Name = "Red Rising",
+                    PublishDate = new DateTime(2014, 1, 27, 23, 59, 59),
+                    AudiobookDate = new DateTime(2014, 1, 27, 23, 59, 59),
+                });
+
+            return SaveChangesAsync();
+        }
+
+        public class Book
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+
+            public virtual DateTime PublishDate { get; set; }
+            public virtual DateTime AudiobookDate { get; set; }
+        }
+
+        public class MyDateTimeValueConverterWithClosure : ValueConverter<DateTime, DateTime>
+        {
+            public MyDateTimeValueConverterWithClosure(MyDatetimeConverter myDatetimeConverter)
+                : base(
+                    x => myDatetimeConverter.Normalize(x),
+                    x => myDatetimeConverter.Normalize(x))
+            {
+            }
+        }
+
+        public class MyDateTimeValueConverterWithoutClosure : ValueConverter<DateTime, DateTime>
+        {
+            public MyDateTimeValueConverterWithoutClosure()
+                : base(
+                    x => new MyDatetimeConverter().Normalize(x),
+                    x => new MyDatetimeConverter().Normalize(x))
+            {
+            }
+        }
+
+        public class MyDatetimeConverter
+        {
+            public virtual DateTime Normalize(DateTime dateTime)
+                => dateTime.Date;
         }
     }
 

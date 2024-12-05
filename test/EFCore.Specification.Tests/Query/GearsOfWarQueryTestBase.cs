@@ -8047,6 +8047,13 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
             async,
             ss => ss.Set<Faction>().Where(f => f.ServerAddress == IPAddress.Loopback));
 
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Project_equality_with_value_converted_property(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Mission>().Select(m => m.Difficulty == MissionDifficulty.Unknown));
+
     private static readonly IEnumerable<AmmunitionType?> _weaponTypes = new AmmunitionType?[] { AmmunitionType.Cartridge };
 
     [ConditionalTheory]
@@ -8651,6 +8658,48 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
             async,
             ss => ss.Set<Mission>().Select(e => e.Duration + interval));
     }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Where_datetimeoffset_microsecond_component(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Mission>().Where(e => e.Timeline.Microsecond == 200));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Where_datetimeoffset_nanosecond_component(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Mission>().Where(e => e.Timeline.Nanosecond == 400));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Where_timespan_microsecond_component(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Mission>().Where(e => e.Duration.Microseconds == 200));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Where_timespan_nanosecond_component(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Mission>().Where(e => e.Duration.Nanoseconds == 400));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Where_timeonly_microsecond_component(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Mission>().Where(e => e.Time.Microsecond == 200));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Where_timeonly_nanosecond_component(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Mission>().Where(e => e.Time.Nanosecond == 400));
 
     protected GearsOfWarContext CreateContext()
         => Fixture.CreateContext();

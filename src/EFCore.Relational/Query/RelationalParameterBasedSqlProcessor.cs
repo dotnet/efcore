@@ -87,5 +87,5 @@ public class RelationalParameterBasedSqlProcessor
         Expression queryExpression,
         IReadOnlyDictionary<string, object?> parametersValues,
         out bool canCache)
-        => new FromSqlParameterExpandingExpressionVisitor(Dependencies).Expand(queryExpression, parametersValues, out canCache);
+        => new RelationalParameterProcessor(Dependencies).Expand(queryExpression, parametersValues, out canCache);
 }

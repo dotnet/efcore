@@ -239,11 +239,11 @@ WHERE instr("s"."Banner", X'01') > 0
 
         AssertSql(
             """
-@__someByte_0='1'
+@someByte='1'
 
 SELECT "s"."Id", "s"."Banner", "s"."Banner5", "s"."InternalNumber", "s"."Name"
 FROM "Squads" AS "s"
-WHERE instr("s"."Banner", char(@__someByte_0)) > 0
+WHERE instr("s"."Banner", char(@someByte)) > 0
 """);
     }
 
@@ -265,11 +265,11 @@ WHERE length("s"."Banner") = 2
 
         AssertSql(
             """
-@__p_0='2'
+@p='2'
 
 SELECT "s"."Id", "s"."Banner", "s"."Banner5", "s"."InternalNumber", "s"."Name"
 FROM "Squads" AS "s"
-WHERE length("s"."Banner") = @__p_0
+WHERE length("s"."Banner") = @p
 """);
     }
 
@@ -279,11 +279,11 @@ WHERE length("s"."Banner") = @__p_0
 
         AssertSql(
             """
-@__byteArrayParam='0x2A80' (Size = 2)
+@byteArrayParam='0x2A80' (Size = 2)
 
 SELECT COUNT(*)
 FROM "Squads" AS "s"
-WHERE length("s"."Banner") = length(@__byteArrayParam)
+WHERE length("s"."Banner") = length(@byteArrayParam)
 """);
     }
 
@@ -293,11 +293,11 @@ WHERE length("s"."Banner") = length(@__byteArrayParam)
 
         AssertSql(
             """
-@__byteArrayParam_0='0x0405060708' (Size = 5)
+@byteArrayParam='0x0405060708' (Size = 5)
 
 SELECT "s"."Id", "s"."Banner", "s"."Banner5", "s"."InternalNumber", "s"."Name"
 FROM "Squads" AS "s"
-WHERE "s"."Banner5" = @__byteArrayParam_0
+WHERE "s"."Banner5" = @byteArrayParam
 """);
     }
 
@@ -428,11 +428,11 @@ WHERE date("t"."IssueDate") > "m"."Date"
 
         AssertSql(
             """
-@__prm_0='10/11/0002' (DbType = Date)
+@prm='10/11/0002' (DbType = Date)
 
 SELECT "t"."Id", "t"."GearNickName", "t"."GearSquadId", "t"."IssueDate", "t"."Note"
 FROM "Tags" AS "t"
-WHERE date("t"."IssueDate") IN (@__prm_0, '0015-03-07')
+WHERE date("t"."IssueDate") IN (@prm, '0015-03-07')
 """);
     }
 
@@ -461,6 +461,24 @@ WHERE (
 
     public override Task DateTimeOffset_to_unix_time_seconds(bool async)
         => AssertTranslationFailed(() => base.DateTimeOffset_to_unix_time_seconds(async));
+
+    public override Task Where_datetimeoffset_microsecond_component(bool async)
+        => AssertTranslationFailed(() => base.Where_datetimeoffset_microsecond_component(async));
+
+    public override Task Where_datetimeoffset_nanosecond_component(bool async)
+        => AssertTranslationFailed(() => base.Where_datetimeoffset_nanosecond_component(async));
+
+    public override Task Where_timespan_microsecond_component(bool async)
+        => AssertTranslationFailed(() => base.Where_timespan_microsecond_component(async));
+
+    public override Task Where_timespan_nanosecond_component(bool async)
+        => AssertTranslationFailed(() => base.Where_timespan_nanosecond_component(async));
+
+    public override Task Where_timeonly_microsecond_component(bool async)
+        => AssertTranslationFailed(() => base.Where_timeonly_microsecond_component(async));
+
+    public override Task Where_timeonly_nanosecond_component(bool async)
+        => AssertTranslationFailed(() => base.Where_timeonly_nanosecond_component(async));
 
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);

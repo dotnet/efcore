@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections;
+using System.Collections.ObjectModel;
 using Microsoft.EntityFrameworkCore.Internal;
 using ExpressionExtensions = Microsoft.EntityFrameworkCore.Infrastructure.ExpressionExtensions;
 
@@ -123,16 +124,18 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
                         throw new InvalidOperationException(CoreStrings.EFConstantNotSupported);
                     }
 
-                    var parameterExpression = (ParameterExpression)Visit(methodCallExpression.Arguments[0]);
-                    _queryCompilationContext.ParametersToConstantize.Add(parameterExpression.Name!);
-                    return parameterExpression;
+                    var queryParameter = (QueryParameterExpression)Visit(methodCallExpression.Arguments[0]);
+                    return new QueryParameterExpression(
+                        queryParameter.Name, queryParameter.Type, shouldBeConstantized: true, shouldNotBeConstantized: false,
+                        queryParameter.IsNonNullableReferenceType);
                 }
 
                 case nameof(EF.Parameter):
                 {
-                    var parameterExpression = (ParameterExpression)Visit(methodCallExpression.Arguments[0]);
-                    _queryCompilationContext.ParametersToNotConstantize.Add(parameterExpression.Name!);
-                    return parameterExpression;
+                    var queryParameter = (QueryParameterExpression)Visit(methodCallExpression.Arguments[0]);
+                    return new QueryParameterExpression(
+                        queryParameter.Name, queryParameter.Type, shouldBeConstantized: false, shouldNotBeConstantized: true,
+                        queryParameter.IsNonNullableReferenceType);
                 }
             }
         }
@@ -499,12 +502,16 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
 
         var sourceType = methodCallExpression.Method.DeclaringType!.GetGenericArguments()[0];
 
+        var objectExpression = methodCallExpression.Object!.Type.IsValueType
+            ? Expression.Convert(methodCallExpression.Object!, typeof(IEnumerable<>).MakeGenericType(sourceType))
+            : methodCallExpression.Object!;
+
         return VisitMethodCall(
             Expression.Call(
                 QueryableMethods.Contains.MakeGenericMethod(sourceType),
                 Expression.Call(
                     QueryableMethods.AsQueryable.MakeGenericMethod(sourceType),
-                    methodCallExpression.Object!),
+                    objectExpression),
                 methodCallExpression.Arguments[0]));
     }
 
@@ -763,17 +770,52 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
                         innerSource);
                 }
 
-                var correlationPredicate = ReplacingExpressionVisitor.Replace(
-                    outerKeySelector.Parameters[0],
-                    resultSelector.Parameters[0],
-                    Expression.AndAlso(
-                        ExpressionExtensions.CreateEqualsExpression(
-                            outerKeySelector.Body,
-                            Expression.Constant(null),
-                            negated: true),
-                        ExpressionExtensions.CreateEqualsExpression(
-                            outerKeySelector.Body,
-                            innerKeySelector.Body)));
+                Expression correlationPredicate;
+                if (outerKeySelector.Body is NewExpression { Arguments: ReadOnlyCollection<Expression> outerArguments }
+                    && innerKeySelector.Body is NewExpression { Arguments: ReadOnlyCollection<Expression> innerArguments }
+                    && outerArguments.Count == innerArguments.Count
+                    && outerArguments.Count > 0)
+                {
+                    Expression? outerNotEqualsNull = null;
+                    Expression? outerEqualsInner = null;
+                    for (var i = 0; i < outerArguments.Count; i++)
+                    {
+                        var outerArgumentNotEqualsNull = ExpressionExtensions.CreateEqualsExpression(outerArguments[i], Expression.Constant(null), negated: true);
+                        var outerArgumentEqualsInnerArgument = ExpressionExtensions.CreateEqualsExpression(outerArguments[i], innerArguments[i]);
+
+                        if (i == 0)
+                        {
+                            outerNotEqualsNull = outerArgumentNotEqualsNull;
+                            outerEqualsInner = outerArgumentEqualsInnerArgument;
+                        }
+                        else
+                        {
+                            outerNotEqualsNull = Expression.AndAlso(outerNotEqualsNull!, outerArgumentNotEqualsNull);
+                            outerEqualsInner = Expression.AndAlso(outerEqualsInner!, outerArgumentEqualsInnerArgument);
+                        }
+                    }
+
+                    correlationPredicate = ReplacingExpressionVisitor.Replace(
+                        outerKeySelector.Parameters[0],
+                        resultSelector.Parameters[0],
+                        Expression.AndAlso(
+                            outerNotEqualsNull!,
+                            outerEqualsInner!));
+                }
+                else
+                {
+                    correlationPredicate = ReplacingExpressionVisitor.Replace(
+                        outerKeySelector.Parameters[0],
+                        resultSelector.Parameters[0],
+                        Expression.AndAlso(
+                            ExpressionExtensions.CreateEqualsExpression(
+                                outerKeySelector.Body,
+                                Expression.Constant(null),
+                                negated: true),
+                            ExpressionExtensions.CreateEqualsExpression(
+                                outerKeySelector.Body,
+                                innerKeySelector.Body)));
+                }
 
                 innerSource = Expression.Call(
                     QueryableMethods.Where.MakeGenericMethod(genericArguments[1]),
@@ -910,8 +952,7 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
 
         protected override Expression VisitParameter(ParameterExpression parameterExpression)
         {
-            if (_allowedParameters.Contains(parameterExpression)
-                || parameterExpression.Name?.StartsWith(QueryCompilationContext.QueryParameterPrefix, StringComparison.Ordinal) == true)
+            if (_allowedParameters.Contains(parameterExpression))
             {
                 return parameterExpression;
             }
@@ -927,5 +968,8 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
 
             return base.VisitParameter(parameterExpression);
         }
+
+        protected override Expression VisitExtension(Expression node)
+            => node is QueryParameterExpression ? node : base.VisitExtension(node);
     }
 }

@@ -61,11 +61,11 @@ WHERE ((c["$type"] = "Order") AND (c["OrderID"] = 10248))
 
                 AssertSql(
                     """
-@__Select_0='["ABCDE","ALFKI"]'
+@Select='["ABCDE","ALFKI"]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__Select_0, c["id"])
+WHERE ARRAY_CONTAINS(@Select, c["id"])
 """);
             });
 
@@ -77,19 +77,19 @@ WHERE ARRAY_CONTAINS(@__Select_0, c["id"])
 
                 AssertSql(
                     """
-@__Select_0='["ABCDE","ALFKI"]'
+@Select='["ABCDE","ALFKI"]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__Select_0, c["id"])
+WHERE ARRAY_CONTAINS(@Select, c["id"])
 """,
                     //
                     """
-@__Select_0='["ABCDE","ANATR"]'
+@Select='["ABCDE","ANATR"]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__Select_0, c["id"])
+WHERE ARRAY_CONTAINS(@Select, c["id"])
 """);
             });
 
@@ -555,49 +555,33 @@ WHERE ((c["$type"] = "Order") AND (c["OrderID"] = -1))
         }
     }
 
-    public override async Task Average_no_data_nullable(bool async)
-    {
-        // Sync always throws before getting to exception being tested.
-        if (async)
-        {
-            await Fixture.NoSyncTest(
-                async, async a =>
-                {
-                    Assert.Equal(
-                        CoreStrings.SequenceContainsNoElements,
-                        (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Average_no_data_nullable(a))).Message);
+    public override Task Average_no_data_nullable(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Average_no_data_nullable(a);
 
-                    AssertSql(
-                        """
+                AssertSql(
+                    """
 SELECT VALUE AVG(c["SupplierID"])
 FROM root c
 WHERE ((c["$type"] = "Product") AND (c["SupplierID"] = -1))
 """);
-                });
-        }
-    }
+            });
 
-    public override async Task Average_no_data_cast_to_nullable(bool async)
-    {
-        // Sync always throws before getting to exception being tested.
-        if (async)
-        {
-            await Fixture.NoSyncTest(
-                async, async a =>
-                {
-                    Assert.Equal(
-                        CoreStrings.SequenceContainsNoElements,
-                        (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Average_no_data_cast_to_nullable(a))).Message);
+    public override Task Average_no_data_cast_to_nullable(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Average_no_data_cast_to_nullable(a);
 
-                    AssertSql(
-                        """
+                AssertSql(
+                    """
 SELECT VALUE AVG(c["OrderID"])
 FROM root c
 WHERE ((c["$type"] = "Order") AND (c["OrderID"] = -1))
 """);
-                });
-        }
-    }
+            });
 
     public override async Task Min_no_data(bool async)
     {
@@ -647,49 +631,33 @@ WHERE ((c["$type"] = "Order") AND (c["OrderID"] = -1))
         AssertSql();
     }
 
-    public override async Task Max_no_data_nullable(bool async)
-    {
-        // Sync always throws before getting to exception being tested.
-        if (async)
-        {
-            await Fixture.NoSyncTest(
-                async, async a =>
-                {
-                    Assert.Equal(
-                        CoreStrings.SequenceContainsNoElements,
-                        (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Max_no_data_nullable(a))).Message);
+    public override Task Max_no_data_nullable(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Max_no_data_nullable(a);
 
-                    AssertSql(
-                        """
+                AssertSql(
+                    """
 SELECT VALUE MAX(c["SupplierID"])
 FROM root c
 WHERE ((c["$type"] = "Product") AND (c["SupplierID"] = -1))
 """);
-                });
-        }
-    }
+            });
 
-    public override async Task Max_no_data_cast_to_nullable(bool async)
-    {
-        // Sync always throws before getting to exception being tested.
-        if (async)
-        {
-            await Fixture.NoSyncTest(
-                async, async a =>
-                {
-                    Assert.Equal(
-                        CoreStrings.SequenceContainsNoElements,
-                        (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Max_no_data_cast_to_nullable(a))).Message);
+    public override Task Max_no_data_cast_to_nullable(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Max_no_data_cast_to_nullable(a);
 
-                    AssertSql(
-                        """
+                AssertSql(
+                    """
 SELECT VALUE MAX(c["OrderID"])
 FROM root c
 WHERE ((c["$type"] = "Order") AND (c["OrderID"] = -1))
 """);
-                });
-        }
-    }
+            });
 
     public override async Task Min_no_data_subquery(bool async)
     {
@@ -699,22 +667,19 @@ WHERE ((c["$type"] = "Order") AND (c["OrderID"] = -1))
         AssertSql();
     }
 
-    public override async Task Average_with_no_arg(bool async)
-    {
-        // Always throws for sync.
-        if (async)
-        {
-            // Average truncates. Issue #26378.
-            await Assert.ThrowsAsync<EqualException>(async () => await base.Average_with_no_arg(async));
+    public override Task Average_with_no_arg(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Average_with_no_arg(a);
 
-            AssertSql(
-                """
+                AssertSql(
+                    """
 SELECT VALUE AVG(c["OrderID"])
 FROM root c
 WHERE (c["$type"] = "Order")
 """);
-        }
-    }
+            });
 
     public override Task Average_with_binary_expression(bool async)
         => Fixture.NoSyncTest(
@@ -730,22 +695,19 @@ WHERE (c["$type"] = "Order")
 """);
             });
 
-    public override async Task Average_with_arg(bool async)
-    {
-        // Always throws for sync.
-        if (async)
-        {
-            // Average truncates. Issue #26378.
-            await Assert.ThrowsAsync<EqualException>(async () => await base.Average_with_arg(async));
+    public override Task Average_with_arg(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Average_with_arg(a);
 
-            AssertSql(
-                """
+                AssertSql(
+                    """
 SELECT VALUE AVG(c["OrderID"])
 FROM root c
 WHERE (c["$type"] = "Order")
 """);
-        }
-    }
+            });
 
     public override Task Average_with_arg_expression(bool async)
         => Fixture.NoSyncTest(
@@ -874,49 +836,33 @@ WHERE (c["$type"] = "Order")
 """);
             });
 
-    public override async Task Min_no_data_nullable(bool async)
-    {
-        // Sync always throws before getting to exception being tested.
-        if (async)
-        {
-            await Fixture.NoSyncTest(
-                async, async a =>
-                {
-                    Assert.Equal(
-                        CoreStrings.SequenceContainsNoElements,
-                        (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Min_no_data_nullable(a))).Message);
+    public override  Task Min_no_data_nullable(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Min_no_data_nullable(a);
 
-                    AssertSql(
-                        """
+                AssertSql(
+                    """
 SELECT VALUE MIN(c["SupplierID"])
 FROM root c
 WHERE ((c["$type"] = "Product") AND (c["SupplierID"] = -1))
 """);
-                });
-        }
-    }
+            });
 
-    public override async Task Min_no_data_cast_to_nullable(bool async)
-    {
-        // Sync always throws before getting to exception being tested.
-        if (async)
-        {
-            await Fixture.NoSyncTest(
-                async, async a =>
-                {
-                    Assert.Equal(
-                        CoreStrings.SequenceContainsNoElements,
-                        (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Min_no_data_cast_to_nullable(a))).Message);
+    public override Task Min_no_data_cast_to_nullable(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Min_no_data_cast_to_nullable(a);
 
-                    AssertSql(
-                        """
+                AssertSql(
+                    """
 SELECT VALUE MIN(c["OrderID"])
 FROM root c
 WHERE ((c["$type"] = "Order") AND (c["OrderID"] = -1))
 """);
-                });
-        }
-    }
+            });
 
     public override Task Min_with_coalesce(bool async)
         => Fixture.NoSyncTest(
@@ -1195,12 +1141,12 @@ WHERE (((c["$type"] = "Order") AND (c["OrderID"] > 10)) AND (c["CustomerID"] != 
 
             AssertSql(
                 """
-@__p_0='10'
+@p='10'
 
 SELECT VALUE c
 FROM root c
 ORDER BY 42
-OFFSET 0 LIMIT @__p_0
+OFFSET 0 LIMIT @p
 """);
         }
     }
@@ -1448,19 +1394,19 @@ OFFSET 0 LIMIT 1
 
                 AssertSql(
                     """
-@__ids_0='["ABCDE","ALFKI"]'
+@ids='["ABCDE","ALFKI"]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__ids_0, c["id"])
+WHERE ARRAY_CONTAINS(@ids, c["id"])
 """,
                     //
                     """
-@__ids_0='["ABCDE"]'
+@ids='["ABCDE"]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__ids_0, c["id"])
+WHERE ARRAY_CONTAINS(@ids, c["id"])
 """);
             });
 
@@ -1480,19 +1426,19 @@ WHERE ARRAY_CONTAINS(@__ids_0, c["id"])
 
                 AssertSql(
                     """
-@__ids_0='[0,1]'
+@ids='[0,1]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__ids_0, c["EmployeeID"])
+WHERE ARRAY_CONTAINS(@ids, c["EmployeeID"])
 """,
                     //
                     """
-@__ids_0='[0]'
+@ids='[0]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__ids_0, c["EmployeeID"])
+WHERE ARRAY_CONTAINS(@ids, c["EmployeeID"])
 """);
             });
 
@@ -1504,19 +1450,19 @@ WHERE ARRAY_CONTAINS(@__ids_0, c["EmployeeID"])
 
                 AssertSql(
                     """
-@__ids_0='[0,1]'
+@ids='[0,1]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__ids_0, c["EmployeeID"])
+WHERE ARRAY_CONTAINS(@ids, c["EmployeeID"])
 """,
                     //
                     """
-@__ids_0='[0]'
+@ids='[0]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__ids_0, c["EmployeeID"])
+WHERE ARRAY_CONTAINS(@ids, c["EmployeeID"])
 """);
             });
 
@@ -1542,11 +1488,11 @@ WHERE c["id"] IN ("ABCDE", "ALFKI")
 
                 AssertSql(
                     """
-@__ids_0='["ABCDE","ALFKI"]'
+@ids='["ABCDE","ALFKI"]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__ids_0, c["id"])
+WHERE ARRAY_CONTAINS(@ids, c["id"])
 """);
             });
 
@@ -1558,11 +1504,11 @@ WHERE ARRAY_CONTAINS(@__ids_0, c["id"])
 
                 AssertSql(
                     """
-@__ids_0='["ABCDE","ALFKI"]'
+@ids='["ABCDE","ALFKI"]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__ids_0, c["id"])
+WHERE ARRAY_CONTAINS(@ids, c["id"])
 """);
             });
 
@@ -1574,11 +1520,11 @@ WHERE ARRAY_CONTAINS(@__ids_0, c["id"])
 
                 AssertSql(
                     """
-@__ids_0='[null,null]'
+@ids='[null,null]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__ids_0, c["id"])
+WHERE ARRAY_CONTAINS(@ids, c["id"])
 """);
             });
 
@@ -1604,19 +1550,19 @@ WHERE c["id"] IN ("ABCDE", "ALFKI")
 
                 AssertSql(
                     """
-@__p_0='["ABCDE","ALFKI"]'
+@p='["ABCDE","ALFKI"]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__p_0, c["id"])
+WHERE ARRAY_CONTAINS(@p, c["id"])
 """,
                     //
                     """
-@__p_0='["ABCDE","ANATR"]'
+@p='["ABCDE","ANATR"]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__p_0, c["id"])
+WHERE ARRAY_CONTAINS(@p, c["id"])
 """);
             });
 
@@ -1627,19 +1573,19 @@ WHERE ARRAY_CONTAINS(@__p_0, c["id"])
                 await base.Contains_with_local_enumerable_closure(a);
                 AssertSql(
                     """
-@__ids_0='["ABCDE","ALFKI"]'
+@ids='["ABCDE","ALFKI"]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__ids_0, c["id"])
+WHERE ARRAY_CONTAINS(@ids, c["id"])
 """,
                     //
                     """
-@__ids_0='["ABCDE"]'
+@ids='["ABCDE"]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__ids_0, c["id"])
+WHERE ARRAY_CONTAINS(@ids, c["id"])
 """);
             });
 
@@ -1651,11 +1597,11 @@ WHERE ARRAY_CONTAINS(@__ids_0, c["id"])
 
                 AssertSql(
                     """
-@__ids_0='["ABCDE","ALFKI"]'
+@ids='["ABCDE","ALFKI"]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__ids_0, c["id"])
+WHERE ARRAY_CONTAINS(@ids, c["id"])
 """);
             });
 
@@ -1667,11 +1613,11 @@ WHERE ARRAY_CONTAINS(@__ids_0, c["id"])
 
                 AssertSql(
                     """
-@__ids_0='[]'
+@ids='[]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__ids_0, c["id"])
+WHERE ARRAY_CONTAINS(@ids, c["id"])
 """);
             });
 
@@ -1700,24 +1646,24 @@ WHERE EXISTS (
 
                 AssertSql(
                     """
-@__p_0='["ABCDE","ALFKI"]'
+@p='["ABCDE","ALFKI"]'
 
 SELECT VALUE c
 FROM root c
 WHERE EXISTS (
     SELECT 1
-    FROM p IN (SELECT VALUE @__p_0)
+    FROM p IN (SELECT VALUE @p)
     WHERE ((p != null) AND (p = c["id"])))
 """,
                     //
                     """
-@__p_0='["ABCDE","ANATR"]'
+@p='["ABCDE","ANATR"]'
 
 SELECT VALUE c
 FROM root c
 WHERE EXISTS (
     SELECT 1
-    FROM p IN (SELECT VALUE @__p_0)
+    FROM p IN (SELECT VALUE @p)
     WHERE ((p != null) AND (p = c["id"])))
 """);
             });
@@ -1730,19 +1676,19 @@ WHERE EXISTS (
 
                 AssertSql(
                     """
-@__ids_0='["ABCDE","ALFKI"]'
+@ids='["ABCDE","ALFKI"]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__ids_0, c["id"])
+WHERE ARRAY_CONTAINS(@ids, c["id"])
 """,
                     //
                     """
-@__ids_0='["ABCDE"]'
+@ids='["ABCDE"]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__ids_0, c["id"])
+WHERE ARRAY_CONTAINS(@ids, c["id"])
 """);
             });
 
@@ -1754,11 +1700,11 @@ WHERE ARRAY_CONTAINS(@__ids_0, c["id"])
 
                 AssertSql(
                     """
-@__ids_0='["ABCDE","ALFKI"]'
+@ids='["ABCDE","ALFKI"]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__ids_0, c["id"])
+WHERE ARRAY_CONTAINS(@ids, c["id"])
 """);
             });
 
@@ -1770,11 +1716,11 @@ WHERE ARRAY_CONTAINS(@__ids_0, c["id"])
 
                 AssertSql(
                     """
-@__ids_0='[null,null]'
+@ids='[null,null]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__ids_0, c["id"])
+WHERE ARRAY_CONTAINS(@ids, c["id"])
 """);
             });
 
@@ -1800,19 +1746,19 @@ WHERE c["id"] IN ("ABCDE", "ALFKI")
 
                 AssertSql(
                     """
-@__Order_0='["ABCDE","ALFKI"]'
+@Order='["ABCDE","ALFKI"]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__Order_0, c["id"])
+WHERE ARRAY_CONTAINS(@Order, c["id"])
 """,
                     //
                     """
-@__Order_0='["ABCDE","ANATR"]'
+@Order='["ABCDE","ANATR"]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__Order_0, c["id"])
+WHERE ARRAY_CONTAINS(@Order, c["id"])
 """);
             });
 
@@ -1824,19 +1770,19 @@ WHERE ARRAY_CONTAINS(@__Order_0, c["id"])
 
                 AssertSql(
                     """
-@__ids_0='["ABCDE","ALFKI"]'
+@ids='["ABCDE","ALFKI"]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__ids_0, c["id"])
+WHERE ARRAY_CONTAINS(@ids, c["id"])
 """,
                     //
                     """
-@__ids_0='["ABCDE"]'
+@ids='["ABCDE"]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__ids_0, c["id"])
+WHERE ARRAY_CONTAINS(@ids, c["id"])
 """);
             });
 
@@ -1848,11 +1794,11 @@ WHERE ARRAY_CONTAINS(@__ids_0, c["id"])
 
                 AssertSql(
                     """
-@__ids_0='["ABCDE","ALFKI"]'
+@ids='["ABCDE","ALFKI"]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__ids_0, c["id"])
+WHERE ARRAY_CONTAINS(@ids, c["id"])
 """);
             });
 
@@ -1864,11 +1810,11 @@ WHERE ARRAY_CONTAINS(@__ids_0, c["id"])
 
                 AssertSql(
                     """
-@__ids_0='[null,null]'
+@ids='[null,null]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__ids_0, c["id"])
+WHERE ARRAY_CONTAINS(@ids, c["id"])
 """);
             });
 
@@ -1894,19 +1840,19 @@ WHERE c["id"] IN ("ABCDE", "ALFKI")
 
                 AssertSql(
                     """
-@__AsReadOnly_0='["ABCDE","ALFKI"]'
+@AsReadOnly='["ABCDE","ALFKI"]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__AsReadOnly_0, c["id"])
+WHERE ARRAY_CONTAINS(@AsReadOnly, c["id"])
 """,
                     //
                     """
-@__AsReadOnly_0='["ABCDE","ANATR"]'
+@AsReadOnly='["ABCDE","ANATR"]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__AsReadOnly_0, c["id"])
+WHERE ARRAY_CONTAINS(@AsReadOnly, c["id"])
 """);
             });
 
@@ -1918,11 +1864,11 @@ WHERE ARRAY_CONTAINS(@__AsReadOnly_0, c["id"])
 
                 AssertSql(
                     """
-@__ids_0='["ABCDE","ALFKI"]'
+@ids='["ABCDE","ALFKI"]'
 
 SELECT VALUE c
 FROM root c
-WHERE NOT(ARRAY_CONTAINS(@__ids_0, c["id"]))
+WHERE NOT(ARRAY_CONTAINS(@ids, c["id"]))
 """);
             });
 
@@ -1934,11 +1880,11 @@ WHERE NOT(ARRAY_CONTAINS(@__ids_0, c["id"]))
 
                 AssertSql(
                     """
-@__ids_0='["ABCDE","ALFKI"]'
+@ids='["ABCDE","ALFKI"]'
 
 SELECT VALUE c
 FROM root c
-WHERE (((c["id"] = "ALFKI") OR (c["id"] = "ABCDE")) AND ARRAY_CONTAINS(@__ids_0, c["id"]))
+WHERE (((c["id"] = "ALFKI") OR (c["id"] = "ABCDE")) AND ARRAY_CONTAINS(@ids, c["id"]))
 """);
             });
 
@@ -1950,11 +1896,11 @@ WHERE (((c["id"] = "ALFKI") OR (c["id"] = "ABCDE")) AND ARRAY_CONTAINS(@__ids_0,
 
                 AssertSql(
                     """
-@__ids_0='["ABCDE","ALFKI"]'
+@ids='["ABCDE","ALFKI"]'
 
 SELECT VALUE c
 FROM root c
-WHERE (ARRAY_CONTAINS(@__ids_0, c["id"]) OR ((c["id"] = "ALFKI") OR (c["id"] = "ABCDE")))
+WHERE (ARRAY_CONTAINS(@ids, c["id"]) OR ((c["id"] = "ALFKI") OR (c["id"] = "ABCDE")))
 """);
             });
 
@@ -1966,11 +1912,11 @@ WHERE (ARRAY_CONTAINS(@__ids_0, c["id"]) OR ((c["id"] = "ALFKI") OR (c["id"] = "
 
                 AssertSql(
                     """
-@__ids_0='["ABCDE","ALFKI"]'
+@ids='["ABCDE","ALFKI"]'
 
 SELECT VALUE c
 FROM root c
-WHERE (((c["id"] = "ALFKI") OR (c["id"] = "ABCDE")) OR NOT(ARRAY_CONTAINS(@__ids_0, c["id"])))
+WHERE (((c["id"] = "ALFKI") OR (c["id"] = "ABCDE")) OR NOT(ARRAY_CONTAINS(@ids, c["id"])))
 """);
             });
 
@@ -1982,11 +1928,11 @@ WHERE (((c["id"] = "ALFKI") OR (c["id"] = "ABCDE")) OR NOT(ARRAY_CONTAINS(@__ids
 
                 AssertSql(
                     """
-@__ids_0='["ABCDE","ALFKI"]'
+@ids='["ABCDE","ALFKI"]'
 
 SELECT VALUE c
 FROM root c
-WHERE (ARRAY_CONTAINS(@__ids_0, c["id"]) AND ((c["id"] != "ALFKI") AND (c["id"] != "ABCDE")))
+WHERE (ARRAY_CONTAINS(@ids, c["id"]) AND ((c["id"] != "ALFKI") AND (c["id"] != "ABCDE")))
 """);
             });
 
@@ -1998,11 +1944,11 @@ WHERE (ARRAY_CONTAINS(@__ids_0, c["id"]) AND ((c["id"] != "ALFKI") AND (c["id"] 
 
                 AssertSql(
                     """
-@__ids_0='["ALFKI","ABC')); GO; DROP TABLE Orders; GO; --"]'
+@ids='["ALFKI","ABC')); GO; DROP TABLE Orders; GO; --"]'
 
 SELECT VALUE c
 FROM root c
-WHERE (ARRAY_CONTAINS(@__ids_0, c["id"]) OR ((c["id"] = "ALFKI") OR (c["id"] = "ABCDE")))
+WHERE (ARRAY_CONTAINS(@ids, c["id"]) OR ((c["id"] = "ALFKI") OR (c["id"] = "ABCDE")))
 """);
             });
 
@@ -2014,11 +1960,11 @@ WHERE (ARRAY_CONTAINS(@__ids_0, c["id"]) OR ((c["id"] = "ALFKI") OR (c["id"] = "
 
                 AssertSql(
                     """
-@__ids_0='[]'
+@ids='[]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__ids_0, c["id"])
+WHERE ARRAY_CONTAINS(@ids, c["id"])
 """);
             });
 
@@ -2048,12 +1994,12 @@ WHERE NOT(false)
 
             AssertSql(
                 """
-@__p_0='ALFKI'
+@p='ALFKI'
 
 SELECT VALUE EXISTS (
     SELECT 1
     FROM root c
-    WHERE (c["id"] = @__p_0))
+    WHERE (c["id"] = @p))
 """);
         }
     }
@@ -2260,11 +2206,11 @@ WHERE (c["id"] = "ALFKI")
 
                 AssertSql(
                     """
-@__ids_0='["ALFKI"]'
+@ids='["ALFKI"]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__ids_0, c["id"])
+WHERE ARRAY_CONTAINS(@ids, c["id"])
 """);
             });
 
@@ -2276,11 +2222,11 @@ WHERE ARRAY_CONTAINS(@__ids_0, c["id"])
 
                 AssertSql(
                     """
-@__ids_0='["ALFKI"]'
+@ids='["ALFKI"]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__ids_0, c["id"])
+WHERE ARRAY_CONTAINS(@ids, c["id"])
 """);
             });
 
@@ -2297,12 +2243,12 @@ WHERE ARRAY_CONTAINS(@__ids_0, c["id"])
 
             AssertSql(
                 """
-@__entity_equality_p_0_OrderID=null
+@entity_equality_p_OrderID=null
 
 SELECT VALUE EXISTS (
     SELECT 1
     FROM root c
-    WHERE (((c["$type"] = "Order") AND (c["CustomerID"] = "VINET")) AND (c["OrderID"] = @__entity_equality_p_0_OrderID)))
+    WHERE (((c["$type"] = "Order") AND (c["CustomerID"] = "VINET")) AND (c["OrderID"] = @entity_equality_p_OrderID)))
 """);
         }
     }
@@ -2349,11 +2295,11 @@ FROM root c
 
                 AssertSql(
                     """
-@__ids_0='["ABCDE","ALFKI","ANATR"]'
+@ids='["ABCDE","ALFKI","ANATR"]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__ids_0, c["id"])
+WHERE ARRAY_CONTAINS(@ids, c["id"])
 """);
             });
 
@@ -2379,11 +2325,11 @@ WHERE c["id"] IN ("ABCDE", "ALFKI", "ANATR")
 
                 AssertSql(
                     """
-@__ids_0='["ABCDE","ALFKI","ANATR"]'
+@ids='["ABCDE","ALFKI","ANATR"]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__ids_0, c["id"])
+WHERE ARRAY_CONTAINS(@ids, c["id"])
 """);
             });
 
@@ -2395,19 +2341,19 @@ WHERE ARRAY_CONTAINS(@__ids_0, c["id"])
 
                 AssertSql(
                     """
-@__ids_0='["ABCDE","ALFKI","ANATR"]'
+@ids='["ABCDE","ALFKI","ANATR"]'
 
 SELECT VALUE c
 FROM root c
-WHERE ((c["City"] = "México D.F.") AND ARRAY_CONTAINS(@__ids_0, c["id"]))
+WHERE ((c["City"] = "México D.F.") AND ARRAY_CONTAINS(@ids, c["id"]))
 """,
                     //
                     """
-@__ids_0='["ABCDE","ALFKI","ANATR"]'
+@ids='["ABCDE","ALFKI","ANATR"]'
 
 SELECT VALUE c
 FROM root c
-WHERE ((c["City"] = "México D.F.") AND ARRAY_CONTAINS(@__ids_0, c["id"]))
+WHERE ((c["City"] = "México D.F.") AND ARRAY_CONTAINS(@ids, c["id"]))
 """);
             });
 
@@ -2419,11 +2365,11 @@ WHERE ((c["City"] = "México D.F.") AND ARRAY_CONTAINS(@__ids_0, c["id"]))
 
                 AssertSql(
                     """
-@__ids_0='["ABCDE","ALFKI","ANATR"]'
+@ids='["ABCDE","ALFKI","ANATR"]'
 
 SELECT VALUE c
 FROM root c
-WHERE NOT(ARRAY_CONTAINS(@__ids_0, c["id"]))
+WHERE NOT(ARRAY_CONTAINS(@ids, c["id"]))
 """);
             });
 
@@ -2449,11 +2395,11 @@ WHERE c["id"] NOT IN ("ABCDE", "ALFKI", "ANATR")
 
                 AssertSql(
                     """
-@__ids_0='["ABCDE","ALFKI","ANATR"]'
+@ids='["ABCDE","ALFKI","ANATR"]'
 
 SELECT VALUE c
 FROM root c
-WHERE NOT(ARRAY_CONTAINS(@__ids_0, c["id"]))
+WHERE NOT(ARRAY_CONTAINS(@ids, c["id"]))
 """);
             });
 
@@ -2465,19 +2411,19 @@ WHERE NOT(ARRAY_CONTAINS(@__ids_0, c["id"]))
 
                 AssertSql(
                     """
-@__ids_0='["ABCDE","ALFKI","ANATR"]'
+@ids='["ABCDE","ALFKI","ANATR"]'
 
 SELECT VALUE c
 FROM root c
-WHERE ((c["City"] = "México D.F.") AND NOT(ARRAY_CONTAINS(@__ids_0, c["id"])))
+WHERE ((c["City"] = "México D.F.") AND NOT(ARRAY_CONTAINS(@ids, c["id"])))
 """,
                     //
                     """
-@__ids_0='["ABCDE","ALFKI","ANATR"]'
+@ids='["ABCDE","ALFKI","ANATR"]'
 
 SELECT VALUE c
 FROM root c
-WHERE ((c["City"] = "México D.F.") AND NOT(ARRAY_CONTAINS(@__ids_0, c["id"])))
+WHERE ((c["City"] = "México D.F.") AND NOT(ARRAY_CONTAINS(@ids, c["id"])))
 """);
             });
 
@@ -2696,9 +2642,9 @@ FROM root c
 
                 AssertSql(
                     """
-@__cities_0='["London","Berlin"]'
+@cities='["London","Berlin"]'
 
-SELECT VALUE AVG((ARRAY_CONTAINS(@__cities_0, c["City"]) ? 1.0 : 0.0))
+SELECT VALUE AVG((ARRAY_CONTAINS(@cities, c["City"]) ? 1.0 : 0.0))
 FROM root c
 """);
             });
@@ -2711,9 +2657,9 @@ FROM root c
 
                 AssertSql(
                     """
-@__cities_0='["London","Berlin"]'
+@cities='["London","Berlin"]'
 
-SELECT VALUE SUM((ARRAY_CONTAINS(@__cities_0, c["City"]) ? 1 : 0))
+SELECT VALUE SUM((ARRAY_CONTAINS(@cities, c["City"]) ? 1 : 0))
 FROM root c
 """);
             });
@@ -2726,11 +2672,11 @@ FROM root c
 
                 AssertSql(
                     """
-@__cities_0='["London","Berlin"]'
+@cities='["London","Berlin"]'
 
 SELECT VALUE COUNT(1)
 FROM root c
-WHERE ARRAY_CONTAINS(@__cities_0, c["City"])
+WHERE ARRAY_CONTAINS(@cities, c["City"])
 """);
             });
 
@@ -2742,11 +2688,11 @@ WHERE ARRAY_CONTAINS(@__cities_0, c["City"])
 
                 AssertSql(
                     """
-@__cities_0='["London","Berlin"]'
+@cities='["London","Berlin"]'
 
 SELECT VALUE COUNT(1)
 FROM root c
-WHERE ARRAY_CONTAINS(@__cities_0, c["City"])
+WHERE ARRAY_CONTAINS(@cities, c["City"])
 """);
             });
 
@@ -2758,9 +2704,9 @@ WHERE ARRAY_CONTAINS(@__cities_0, c["City"])
 
                 AssertSql(
                     """
-@__cities_0='["London","Berlin"]'
+@cities='["London","Berlin"]'
 
-SELECT VALUE MAX((ARRAY_CONTAINS(@__cities_0, c["City"]) ? 1 : 0))
+SELECT VALUE MAX((ARRAY_CONTAINS(@cities, c["City"]) ? 1 : 0))
 FROM root c
 """);
             });
@@ -2773,9 +2719,9 @@ FROM root c
 
                 AssertSql(
                     """
-@__cities_0='["London","Berlin"]'
+@cities='["London","Berlin"]'
 
-SELECT VALUE MIN((ARRAY_CONTAINS(@__cities_0, c["City"]) ? 1 : 0))
+SELECT VALUE MIN((ARRAY_CONTAINS(@cities, c["City"]) ? 1 : 0))
 FROM root c
 """);
             });

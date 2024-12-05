@@ -4,10 +4,10 @@
 #nullable disable
 
 using Identity30.Data;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.AspNetIdentity;
+using Newtonsoft.Json.Linq;
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Migrations
@@ -17,12 +17,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         MigrationsInfrastructureSqlServerTest.MigrationsInfrastructureSqlServerFixture fixture)
         : MigrationsInfrastructureTestBase<MigrationsInfrastructureSqlServerTest.MigrationsInfrastructureSqlServerFixture>(fixture)
     {
-        public override void Can_apply_all_migrations() // Issue #32826
-            => Assert.Throws<SqlException>(base.Can_apply_all_migrations);
-
-        public override Task Can_apply_all_migrations_async() // Issue #32826
-            => Assert.ThrowsAsync<SqlException>(base.Can_apply_all_migrations_async);
-
         public override void Can_apply_range_of_migrations()
         {
             base.Can_apply_range_of_migrations();
@@ -35,9 +29,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 Fixture.TestSqlLoggerFactory.Log.Single(l => l.Id == RelationalEventId.NonTransactionalMigrationOperationWarning).Message);
         }
 
-        public override void Can_generate_migration_from_initial_database_to_initial()
+        public override async Task Can_generate_migration_from_initial_database_to_initial()
         {
-            base.Can_generate_migration_from_initial_database_to_initial();
+            await base.Can_generate_migration_from_initial_database_to_initial();
 
             Assert.Equal(
                 """
@@ -57,9 +51,9 @@ GO
                 ignoreLineEndingDifferences: true);
         }
 
-        public override void Can_generate_no_migration_script()
+        public override async Task Can_generate_no_migration_script()
         {
-            base.Can_generate_no_migration_script();
+            await base.Can_generate_no_migration_script();
 
             Assert.Equal(
                 """
@@ -79,9 +73,9 @@ GO
                 ignoreLineEndingDifferences: true);
         }
 
-        public override void Can_generate_up_scripts()
+        public override async Task Can_generate_up_and_down_scripts()
         {
-            base.Can_generate_up_scripts();
+            await base.Can_generate_up_and_down_scripts();
 
             Assert.Equal(
                 """
@@ -96,6 +90,147 @@ END;
 GO
 
 BEGIN TRANSACTION;
+CREATE TABLE [Table1] (
+    [Id] int NOT NULL,
+    [Foo] int NOT NULL,
+    [Description] nvarchar(max) NOT NULL,
+    CONSTRAINT [PK_Table1] PRIMARY KEY ([Id])
+);
+
+INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+VALUES (N'00000000000001_Migration1', N'7.0.0-test');
+
+EXEC sp_rename N'[Table1].[Foo]', N'Bar', 'COLUMN';
+
+INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+VALUES (N'00000000000002_Migration2', N'7.0.0-test');
+
+COMMIT;
+GO
+
+CREATE DATABASE TransactionSuppressed;
+GO
+
+DROP DATABASE TransactionSuppressed;
+GO
+
+INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+VALUES (N'00000000000003_Migration3', N'7.0.0-test');
+GO
+
+CREATE PROCEDURE [dbo].[GotoReproduction]
+AS
+BEGIN
+    DECLARE @Counter int;
+    SET @Counter = 1;
+    WHILE @Counter < 10
+    BEGIN
+        SELECT @Counter
+        SET @Counter = @Counter + 1
+        IF @Counter = 4 GOTO Branch_One --Jumps to the first branch.
+        IF @Counter = 5 GOTO Branch_Two --This will never execute.
+    END
+    Branch_One:
+        SELECT 'Jumping To Branch One.'
+        GOTO Branch_Three; --This will prevent Branch_Two from executing.'
+    Branch_Two:
+        SELECT 'Jumping To Branch Two.'
+    Branch_Three:
+        SELECT 'Jumping To Branch Three.'
+END;
+
+GO
+
+SELECT GetDate();
+--GO
+SELECT GetDate()
+GO
+
+INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+VALUES (N'00000000000004_Migration4', N'7.0.0-test');
+GO
+
+BEGIN TRANSACTION;
+INSERT INTO Table1 (Id, Bar, Description) VALUES (-1, 3, 'Value With
+
+Empty Lines')
+
+INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+VALUES (N'00000000000005_Migration5', N'7.0.0-test');
+
+INSERT INTO Table1 (Id, Bar, Description) VALUES (-2, 4, 'GO
+Value With
+
+Empty Lines')
+
+INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+VALUES (N'00000000000006_Migration6', N'7.0.0-test');
+
+INSERT INTO Table1 (Id, Bar, Description) VALUES (-3, 5, '--Start
+GO
+Value With
+
+GO
+
+Empty Lines;
+GO
+')
+
+INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+VALUES (N'00000000000007_Migration7', N'7.0.0-test');
+
+COMMIT;
+GO
+
+BEGIN TRANSACTION;
+DELETE FROM [__EFMigrationsHistory]
+WHERE [MigrationId] = N'00000000000007_Migration7';
+
+DELETE FROM [__EFMigrationsHistory]
+WHERE [MigrationId] = N'00000000000006_Migration6';
+
+DELETE FROM [__EFMigrationsHistory]
+WHERE [MigrationId] = N'00000000000005_Migration5';
+
+DELETE FROM [__EFMigrationsHistory]
+WHERE [MigrationId] = N'00000000000004_Migration4';
+
+DELETE FROM [__EFMigrationsHistory]
+WHERE [MigrationId] = N'00000000000003_Migration3';
+
+EXEC sp_rename N'[Table1].[Bar]', N'Foo', 'COLUMN';
+
+DELETE FROM [__EFMigrationsHistory]
+WHERE [MigrationId] = N'00000000000002_Migration2';
+
+DROP TABLE [Table1];
+
+DELETE FROM [__EFMigrationsHistory]
+WHERE [MigrationId] = N'00000000000001_Migration1';
+
+COMMIT;
+GO
+
+
+""",
+                Sql,
+                ignoreLineEndingDifferences: true);
+        }
+
+        public override async Task Can_generate_up_and_down_scripts_noTransactions()
+        {
+            await base.Can_generate_up_and_down_scripts_noTransactions();
+
+            Assert.Equal(
+                """
+IF OBJECT_ID(N'[__EFMigrationsHistory]') IS NULL
+BEGIN
+    CREATE TABLE [__EFMigrationsHistory] (
+        [MigrationId] nvarchar(150) NOT NULL,
+        [ProductVersion] nvarchar(32) NOT NULL,
+        CONSTRAINT [PK___EFMigrationsHistory] PRIMARY KEY ([MigrationId])
+    );
+END;
 GO
 
 CREATE TABLE [Table1] (
@@ -117,42 +252,42 @@ INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
 VALUES (N'00000000000002_Migration2', N'7.0.0-test');
 GO
 
-COMMIT;
-GO
-
 CREATE DATABASE TransactionSuppressed;
 GO
 
 DROP DATABASE TransactionSuppressed;
 GO
 
-BEGIN TRANSACTION;
-GO
-
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
 VALUES (N'00000000000003_Migration3', N'7.0.0-test');
 GO
 
-    CREATE PROCEDURE [dbo].[GotoReproduction]
-    AS
+CREATE PROCEDURE [dbo].[GotoReproduction]
+AS
+BEGIN
+    DECLARE @Counter int;
+    SET @Counter = 1;
+    WHILE @Counter < 10
     BEGIN
-        DECLARE @Counter int;
-        SET @Counter = 1;
-        WHILE @Counter < 10
-        BEGIN
-            SELECT @Counter
-            SET @Counter = @Counter + 1
-            IF @Counter = 4 GOTO Branch_One --Jumps to the first branch.
-            IF @Counter = 5 GOTO Branch_Two --This will never execute.
-        END
-        Branch_One:
-            SELECT 'Jumping To Branch One.'
-            GOTO Branch_Three; --This will prevent Branch_Two from executing.
-        Branch_Two:
-            SELECT 'Jumping To Branch Two.'
-        Branch_Three:
-            SELECT 'Jumping To Branch Three.'
-    END;
+        SELECT @Counter
+        SET @Counter = @Counter + 1
+        IF @Counter = 4 GOTO Branch_One --Jumps to the first branch.
+        IF @Counter = 5 GOTO Branch_Two --This will never execute.
+    END
+    Branch_One:
+        SELECT 'Jumping To Branch One.'
+        GOTO Branch_Three; --This will prevent Branch_Two from executing.'
+    Branch_Two:
+        SELECT 'Jumping To Branch Two.'
+    Branch_Three:
+        SELECT 'Jumping To Branch Three.'
+END;
+
+GO
+
+SELECT GetDate();
+--GO
+SELECT GetDate()
 GO
 
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
@@ -178,620 +313,39 @@ INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
 VALUES (N'00000000000006_Migration6', N'7.0.0-test');
 GO
 
-INSERT INTO Table1 (Id, Bar, Description) VALUES (-3, 5, 'GO
+INSERT INTO Table1 (Id, Bar, Description) VALUES (-3, 5, '--Start
+GO
 Value With
 
 GO
 
-
-Empty Lines
-GO')
+Empty Lines;
+GO
+')
 GO
 
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
 VALUES (N'00000000000007_Migration7', N'7.0.0-test');
 GO
 
-COMMIT;
+DELETE FROM [__EFMigrationsHistory]
+WHERE [MigrationId] = N'00000000000007_Migration7';
 GO
 
-
-""",
-                Sql,
-                ignoreLineEndingDifferences: true);
-        }
-
-        public override void Can_generate_up_scripts_noTransactions()
-        {
-            base.Can_generate_up_scripts_noTransactions();
-
-            Assert.Equal(
-                """
-IF OBJECT_ID(N'[__EFMigrationsHistory]') IS NULL
-BEGIN
-    CREATE TABLE [__EFMigrationsHistory] (
-        [MigrationId] nvarchar(150) NOT NULL,
-        [ProductVersion] nvarchar(32) NOT NULL,
-        CONSTRAINT [PK___EFMigrationsHistory] PRIMARY KEY ([MigrationId])
-    );
-END;
-GO
-
-CREATE TABLE [Table1] (
-    [Id] int NOT NULL,
-    [Foo] int NOT NULL,
-    [Description] nvarchar(max) NOT NULL,
-    CONSTRAINT [PK_Table1] PRIMARY KEY ([Id])
-);
-GO
-
-INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-VALUES (N'00000000000001_Migration1', N'7.0.0-test');
-GO
-
-EXEC sp_rename N'[Table1].[Foo]', N'Bar', 'COLUMN';
-GO
-
-INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-VALUES (N'00000000000002_Migration2', N'7.0.0-test');
-GO
-
-CREATE DATABASE TransactionSuppressed;
-GO
-
-DROP DATABASE TransactionSuppressed;
-GO
-
-INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-VALUES (N'00000000000003_Migration3', N'7.0.0-test');
-GO
-
-    CREATE PROCEDURE [dbo].[GotoReproduction]
-    AS
-    BEGIN
-        DECLARE @Counter int;
-        SET @Counter = 1;
-        WHILE @Counter < 10
-        BEGIN
-            SELECT @Counter
-            SET @Counter = @Counter + 1
-            IF @Counter = 4 GOTO Branch_One --Jumps to the first branch.
-            IF @Counter = 5 GOTO Branch_Two --This will never execute.
-        END
-        Branch_One:
-            SELECT 'Jumping To Branch One.'
-            GOTO Branch_Three; --This will prevent Branch_Two from executing.
-        Branch_Two:
-            SELECT 'Jumping To Branch Two.'
-        Branch_Three:
-            SELECT 'Jumping To Branch Three.'
-    END;
-GO
-
-INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-VALUES (N'00000000000004_Migration4', N'7.0.0-test');
-GO
-
-INSERT INTO Table1 (Id, Bar, Description) VALUES (-1, 3, 'Value With
-
-Empty Lines')
-GO
-
-INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-VALUES (N'00000000000005_Migration5', N'7.0.0-test');
-GO
-
-INSERT INTO Table1 (Id, Bar, Description) VALUES (-2, 4, 'GO
-Value With
-
-Empty Lines')
-GO
-
-INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-VALUES (N'00000000000006_Migration6', N'7.0.0-test');
-GO
-
-INSERT INTO Table1 (Id, Bar, Description) VALUES (-3, 5, 'GO
-Value With
-
-GO
-
-
-Empty Lines
-GO')
-GO
-
-INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-VALUES (N'00000000000007_Migration7', N'7.0.0-test');
-GO
-
-
-""",
-                Sql,
-                ignoreLineEndingDifferences: true);
-        }
-
-        public override void Can_generate_one_up_script()
-        {
-            base.Can_generate_one_up_script();
-
-            Assert.Equal(
-                """
-BEGIN TRANSACTION;
-GO
-
-EXEC sp_rename N'[Table1].[Foo]', N'Bar', 'COLUMN';
-GO
-
-INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-VALUES (N'00000000000002_Migration2', N'7.0.0-test');
-GO
-
-COMMIT;
-GO
-
-
-""",
-                Sql,
-                ignoreLineEndingDifferences: true);
-        }
-
-        public override void Can_generate_up_script_using_names()
-        {
-            base.Can_generate_up_script_using_names();
-
-            Assert.Equal(
-                """
-BEGIN TRANSACTION;
-GO
-
-EXEC sp_rename N'[Table1].[Foo]', N'Bar', 'COLUMN';
-GO
-
-INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-VALUES (N'00000000000002_Migration2', N'7.0.0-test');
-GO
-
-COMMIT;
-GO
-
-
-""",
-                Sql,
-                ignoreLineEndingDifferences: true);
-        }
-
-        public override void Can_generate_idempotent_up_scripts()
-        {
-            base.Can_generate_idempotent_up_scripts();
-
-            Assert.Equal(
-                """
-IF OBJECT_ID(N'[__EFMigrationsHistory]') IS NULL
-BEGIN
-    CREATE TABLE [__EFMigrationsHistory] (
-        [MigrationId] nvarchar(150) NOT NULL,
-        [ProductVersion] nvarchar(32) NOT NULL,
-        CONSTRAINT [PK___EFMigrationsHistory] PRIMARY KEY ([MigrationId])
-    );
-END;
-GO
-
-BEGIN TRANSACTION;
-GO
-
-IF NOT EXISTS (
-    SELECT * FROM [__EFMigrationsHistory]
-    WHERE [MigrationId] = N'00000000000001_Migration1'
-)
-BEGIN
-    CREATE TABLE [Table1] (
-        [Id] int NOT NULL,
-        [Foo] int NOT NULL,
-        [Description] nvarchar(max) NOT NULL,
-        CONSTRAINT [PK_Table1] PRIMARY KEY ([Id])
-    );
-END;
-GO
-
-IF NOT EXISTS (
-    SELECT * FROM [__EFMigrationsHistory]
-    WHERE [MigrationId] = N'00000000000001_Migration1'
-)
-BEGIN
-    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-    VALUES (N'00000000000001_Migration1', N'7.0.0-test');
-END;
-GO
-
-IF NOT EXISTS (
-    SELECT * FROM [__EFMigrationsHistory]
-    WHERE [MigrationId] = N'00000000000002_Migration2'
-)
-BEGIN
-    EXEC sp_rename N'[Table1].[Foo]', N'Bar', 'COLUMN';
-END;
-GO
-
-IF NOT EXISTS (
-    SELECT * FROM [__EFMigrationsHistory]
-    WHERE [MigrationId] = N'00000000000002_Migration2'
-)
-BEGIN
-    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-    VALUES (N'00000000000002_Migration2', N'7.0.0-test');
-END;
-GO
-
-COMMIT;
-GO
-
-IF NOT EXISTS (
-    SELECT * FROM [__EFMigrationsHistory]
-    WHERE [MigrationId] = N'00000000000003_Migration3'
-)
-BEGIN
-    CREATE DATABASE TransactionSuppressed;
-END;
-GO
-
-IF NOT EXISTS (
-    SELECT * FROM [__EFMigrationsHistory]
-    WHERE [MigrationId] = N'00000000000003_Migration3'
-)
-BEGIN
-    DROP DATABASE TransactionSuppressed;
-END;
-GO
-
-BEGIN TRANSACTION;
-GO
-
-IF NOT EXISTS (
-    SELECT * FROM [__EFMigrationsHistory]
-    WHERE [MigrationId] = N'00000000000003_Migration3'
-)
-BEGIN
-    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-    VALUES (N'00000000000003_Migration3', N'7.0.0-test');
-END;
-GO
-
-IF NOT EXISTS (
-    SELECT * FROM [__EFMigrationsHistory]
-    WHERE [MigrationId] = N'00000000000004_Migration4'
-)
-BEGIN
-        CREATE PROCEDURE [dbo].[GotoReproduction]
-        AS
-        BEGIN
-            DECLARE @Counter int;
-            SET @Counter = 1;
-            WHILE @Counter < 10
-            BEGIN
-                SELECT @Counter
-                SET @Counter = @Counter + 1
-                IF @Counter = 4 GOTO Branch_One --Jumps to the first branch.
-                IF @Counter = 5 GOTO Branch_Two --This will never execute.
-            END
-            Branch_One:
-                SELECT 'Jumping To Branch One.'
-                GOTO Branch_Three; --This will prevent Branch_Two from executing.
-            Branch_Two:
-                SELECT 'Jumping To Branch Two.'
-            Branch_Three:
-                SELECT 'Jumping To Branch Three.'
-        END;
-END;
-GO
-
-IF NOT EXISTS (
-    SELECT * FROM [__EFMigrationsHistory]
-    WHERE [MigrationId] = N'00000000000004_Migration4'
-)
-BEGIN
-    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-    VALUES (N'00000000000004_Migration4', N'7.0.0-test');
-END;
-GO
-
-IF NOT EXISTS (
-    SELECT * FROM [__EFMigrationsHistory]
-    WHERE [MigrationId] = N'00000000000005_Migration5'
-)
-BEGIN
-    INSERT INTO Table1 (Id, Bar, Description) VALUES (-1, 3, 'Value With
-
-    Empty Lines')
-END;
-GO
-
-IF NOT EXISTS (
-    SELECT * FROM [__EFMigrationsHistory]
-    WHERE [MigrationId] = N'00000000000005_Migration5'
-)
-BEGIN
-    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-    VALUES (N'00000000000005_Migration5', N'7.0.0-test');
-END;
-GO
-
-IF NOT EXISTS (
-    SELECT * FROM [__EFMigrationsHistory]
-    WHERE [MigrationId] = N'00000000000006_Migration6'
-)
-BEGIN
-    INSERT INTO Table1 (Id, Bar, Description) VALUES (-2, 4, 'GO
-    Value With
-
-    Empty Lines')
-END;
-GO
-
-IF NOT EXISTS (
-    SELECT * FROM [__EFMigrationsHistory]
-    WHERE [MigrationId] = N'00000000000006_Migration6'
-)
-BEGIN
-    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-    VALUES (N'00000000000006_Migration6', N'7.0.0-test');
-END;
-GO
-
-IF NOT EXISTS (
-    SELECT * FROM [__EFMigrationsHistory]
-    WHERE [MigrationId] = N'00000000000007_Migration7'
-)
-BEGIN
-    INSERT INTO Table1 (Id, Bar, Description) VALUES (-3, 5, 'GO
-    Value With
-
-END;
-GO
-
-IF NOT EXISTS (
-    SELECT * FROM [__EFMigrationsHistory]
-    WHERE [MigrationId] = N'00000000000007_Migration7'
-)
-BEGIN
-
-    Empty Lines
-    GO')
-END;
-GO
-
-IF NOT EXISTS (
-    SELECT * FROM [__EFMigrationsHistory]
-    WHERE [MigrationId] = N'00000000000007_Migration7'
-)
-BEGIN
-    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-    VALUES (N'00000000000007_Migration7', N'7.0.0-test');
-END;
-GO
-
-COMMIT;
-GO
-
-
-""",
-                Sql,
-                ignoreLineEndingDifferences: true);
-        }
-
-        public override void Can_generate_idempotent_up_scripts_noTransactions()
-        {
-            base.Can_generate_idempotent_up_scripts_noTransactions();
-
-            Assert.Equal(
-                """
-IF OBJECT_ID(N'[__EFMigrationsHistory]') IS NULL
-BEGIN
-    CREATE TABLE [__EFMigrationsHistory] (
-        [MigrationId] nvarchar(150) NOT NULL,
-        [ProductVersion] nvarchar(32) NOT NULL,
-        CONSTRAINT [PK___EFMigrationsHistory] PRIMARY KEY ([MigrationId])
-    );
-END;
-GO
-
-IF NOT EXISTS (
-    SELECT * FROM [__EFMigrationsHistory]
-    WHERE [MigrationId] = N'00000000000001_Migration1'
-)
-BEGIN
-    CREATE TABLE [Table1] (
-        [Id] int NOT NULL,
-        [Foo] int NOT NULL,
-        [Description] nvarchar(max) NOT NULL,
-        CONSTRAINT [PK_Table1] PRIMARY KEY ([Id])
-    );
-END;
-GO
-
-IF NOT EXISTS (
-    SELECT * FROM [__EFMigrationsHistory]
-    WHERE [MigrationId] = N'00000000000001_Migration1'
-)
-BEGIN
-    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-    VALUES (N'00000000000001_Migration1', N'7.0.0-test');
-END;
-GO
-
-IF NOT EXISTS (
-    SELECT * FROM [__EFMigrationsHistory]
-    WHERE [MigrationId] = N'00000000000002_Migration2'
-)
-BEGIN
-    EXEC sp_rename N'[Table1].[Foo]', N'Bar', 'COLUMN';
-END;
-GO
-
-IF NOT EXISTS (
-    SELECT * FROM [__EFMigrationsHistory]
-    WHERE [MigrationId] = N'00000000000002_Migration2'
-)
-BEGIN
-    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-    VALUES (N'00000000000002_Migration2', N'7.0.0-test');
-END;
-GO
-
-IF NOT EXISTS (
-    SELECT * FROM [__EFMigrationsHistory]
-    WHERE [MigrationId] = N'00000000000003_Migration3'
-)
-BEGIN
-    CREATE DATABASE TransactionSuppressed;
-END;
-GO
-
-IF NOT EXISTS (
-    SELECT * FROM [__EFMigrationsHistory]
-    WHERE [MigrationId] = N'00000000000003_Migration3'
-)
-BEGIN
-    DROP DATABASE TransactionSuppressed;
-END;
-GO
-
-IF NOT EXISTS (
-    SELECT * FROM [__EFMigrationsHistory]
-    WHERE [MigrationId] = N'00000000000003_Migration3'
-)
-BEGIN
-    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-    VALUES (N'00000000000003_Migration3', N'7.0.0-test');
-END;
-GO
-
-IF NOT EXISTS (
-    SELECT * FROM [__EFMigrationsHistory]
-    WHERE [MigrationId] = N'00000000000004_Migration4'
-)
-BEGIN
-        CREATE PROCEDURE [dbo].[GotoReproduction]
-        AS
-        BEGIN
-            DECLARE @Counter int;
-            SET @Counter = 1;
-            WHILE @Counter < 10
-            BEGIN
-                SELECT @Counter
-                SET @Counter = @Counter + 1
-                IF @Counter = 4 GOTO Branch_One --Jumps to the first branch.
-                IF @Counter = 5 GOTO Branch_Two --This will never execute.
-            END
-            Branch_One:
-                SELECT 'Jumping To Branch One.'
-                GOTO Branch_Three; --This will prevent Branch_Two from executing.
-            Branch_Two:
-                SELECT 'Jumping To Branch Two.'
-            Branch_Three:
-                SELECT 'Jumping To Branch Three.'
-        END;
-END;
+DELETE FROM [__EFMigrationsHistory]
+WHERE [MigrationId] = N'00000000000006_Migration6';
 GO
 
-IF NOT EXISTS (
-    SELECT * FROM [__EFMigrationsHistory]
-    WHERE [MigrationId] = N'00000000000004_Migration4'
-)
-BEGIN
-    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-    VALUES (N'00000000000004_Migration4', N'7.0.0-test');
-END;
+DELETE FROM [__EFMigrationsHistory]
+WHERE [MigrationId] = N'00000000000005_Migration5';
 GO
 
-IF NOT EXISTS (
-    SELECT * FROM [__EFMigrationsHistory]
-    WHERE [MigrationId] = N'00000000000005_Migration5'
-)
-BEGIN
-    INSERT INTO Table1 (Id, Bar, Description) VALUES (-1, 3, 'Value With
-
-    Empty Lines')
-END;
-GO
-
-IF NOT EXISTS (
-    SELECT * FROM [__EFMigrationsHistory]
-    WHERE [MigrationId] = N'00000000000005_Migration5'
-)
-BEGIN
-    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-    VALUES (N'00000000000005_Migration5', N'7.0.0-test');
-END;
-GO
-
-IF NOT EXISTS (
-    SELECT * FROM [__EFMigrationsHistory]
-    WHERE [MigrationId] = N'00000000000006_Migration6'
-)
-BEGIN
-    INSERT INTO Table1 (Id, Bar, Description) VALUES (-2, 4, 'GO
-    Value With
-
-    Empty Lines')
-END;
-GO
-
-IF NOT EXISTS (
-    SELECT * FROM [__EFMigrationsHistory]
-    WHERE [MigrationId] = N'00000000000006_Migration6'
-)
-BEGIN
-    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-    VALUES (N'00000000000006_Migration6', N'7.0.0-test');
-END;
-GO
-
-IF NOT EXISTS (
-    SELECT * FROM [__EFMigrationsHistory]
-    WHERE [MigrationId] = N'00000000000007_Migration7'
-)
-BEGIN
-    INSERT INTO Table1 (Id, Bar, Description) VALUES (-3, 5, 'GO
-    Value With
-
-END;
-GO
-
-IF NOT EXISTS (
-    SELECT * FROM [__EFMigrationsHistory]
-    WHERE [MigrationId] = N'00000000000007_Migration7'
-)
-BEGIN
-
-    Empty Lines
-    GO')
-END;
+DELETE FROM [__EFMigrationsHistory]
+WHERE [MigrationId] = N'00000000000004_Migration4';
 GO
-
-IF NOT EXISTS (
-    SELECT * FROM [__EFMigrationsHistory]
-    WHERE [MigrationId] = N'00000000000007_Migration7'
-)
-BEGIN
-    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-    VALUES (N'00000000000007_Migration7', N'7.0.0-test');
-END;
-GO
-
-
-""",
-                Sql,
-                ignoreLineEndingDifferences: true);
-        }
-
-        public override void Can_generate_down_scripts()
-        {
-            base.Can_generate_down_scripts();
 
-            Assert.Equal(
-                """
-BEGIN TRANSACTION;
+DELETE FROM [__EFMigrationsHistory]
+WHERE [MigrationId] = N'00000000000003_Migration3';
 GO
 
 EXEC sp_rename N'[Table1].[Bar]', N'Foo', 'COLUMN';
@@ -808,6 +362,33 @@ DELETE FROM [__EFMigrationsHistory]
 WHERE [MigrationId] = N'00000000000001_Migration1';
 GO
 
+
+""",
+                Sql,
+                ignoreLineEndingDifferences: true);
+        }
+
+        public override async Task Can_generate_one_up_and_down_script()
+        {
+            await base.Can_generate_one_up_and_down_script();
+
+            Assert.Equal(
+                """
+BEGIN TRANSACTION;
+EXEC sp_rename N'[Table1].[Foo]', N'Bar', 'COLUMN';
+
+INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+VALUES (N'00000000000002_Migration2', N'7.0.0-test');
+
+COMMIT;
+GO
+
+BEGIN TRANSACTION;
+EXEC sp_rename N'[Table1].[Bar]', N'Foo', 'COLUMN';
+
+DELETE FROM [__EFMigrationsHistory]
+WHERE [MigrationId] = N'00000000000002_Migration2';
+
 COMMIT;
 GO
 
@@ -817,13 +398,196 @@ GO
                 ignoreLineEndingDifferences: true);
         }
 
-        public override void Can_generate_idempotent_down_scripts()
+        public override async Task Can_generate_up_and_down_script_using_names()
         {
-            base.Can_generate_idempotent_down_scripts();
+            await base.Can_generate_up_and_down_script_using_names();
 
             Assert.Equal(
                 """
 BEGIN TRANSACTION;
+EXEC sp_rename N'[Table1].[Foo]', N'Bar', 'COLUMN';
+
+INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+VALUES (N'00000000000002_Migration2', N'7.0.0-test');
+
+COMMIT;
+GO
+
+BEGIN TRANSACTION;
+EXEC sp_rename N'[Table1].[Bar]', N'Foo', 'COLUMN';
+
+DELETE FROM [__EFMigrationsHistory]
+WHERE [MigrationId] = N'00000000000002_Migration2';
+
+COMMIT;
+GO
+
+
+""",
+                Sql,
+                ignoreLineEndingDifferences: true);
+        }
+
+        public override async Task Can_generate_idempotent_up_and_down_scripts()
+        {
+            await base.Can_generate_idempotent_up_and_down_scripts();
+
+            Assert.Equal(
+                """
+IF OBJECT_ID(N'[__EFMigrationsHistory]') IS NULL
+BEGIN
+    CREATE TABLE [__EFMigrationsHistory] (
+        [MigrationId] nvarchar(150) NOT NULL,
+        [ProductVersion] nvarchar(32) NOT NULL,
+        CONSTRAINT [PK___EFMigrationsHistory] PRIMARY KEY ([MigrationId])
+    );
+END;
+GO
+
+BEGIN TRANSACTION;
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'00000000000001_Migration1'
+)
+BEGIN
+    CREATE TABLE [Table1] (
+        [Id] int NOT NULL,
+        [Foo] int NOT NULL,
+        [Description] nvarchar(max) NOT NULL,
+        CONSTRAINT [PK_Table1] PRIMARY KEY ([Id])
+    );
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'00000000000001_Migration1'
+)
+BEGIN
+    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+    VALUES (N'00000000000001_Migration1', N'7.0.0-test');
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'00000000000002_Migration2'
+)
+BEGIN
+    EXEC sp_rename N'[Table1].[Foo]', N'Bar', 'COLUMN';
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'00000000000002_Migration2'
+)
+BEGIN
+    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+    VALUES (N'00000000000002_Migration2', N'7.0.0-test');
+END;
+
+COMMIT;
+GO
+
+BEGIN TRANSACTION;
+IF EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'00000000000002_Migration2'
+)
+BEGIN
+    EXEC sp_rename N'[Table1].[Bar]', N'Foo', 'COLUMN';
+END;
+
+IF EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'00000000000002_Migration2'
+)
+BEGIN
+    DELETE FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'00000000000002_Migration2';
+END;
+
+IF EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'00000000000001_Migration1'
+)
+BEGIN
+    DROP TABLE [Table1];
+END;
+
+IF EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'00000000000001_Migration1'
+)
+BEGIN
+    DELETE FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'00000000000001_Migration1';
+END;
+
+COMMIT;
+GO
+
+
+""",
+                Sql,
+                ignoreLineEndingDifferences: true);
+        }
+
+        public override async Task Can_generate_idempotent_up_and_down_scripts_noTransactions()
+        {
+            await base.Can_generate_idempotent_up_and_down_scripts_noTransactions();
+
+            Assert.Equal(
+                """
+IF OBJECT_ID(N'[__EFMigrationsHistory]') IS NULL
+BEGIN
+    CREATE TABLE [__EFMigrationsHistory] (
+        [MigrationId] nvarchar(150) NOT NULL,
+        [ProductVersion] nvarchar(32) NOT NULL,
+        CONSTRAINT [PK___EFMigrationsHistory] PRIMARY KEY ([MigrationId])
+    );
+END;
+GO
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'00000000000001_Migration1'
+)
+BEGIN
+    CREATE TABLE [Table1] (
+        [Id] int NOT NULL,
+        [Foo] int NOT NULL,
+        [Description] nvarchar(max) NOT NULL,
+        CONSTRAINT [PK_Table1] PRIMARY KEY ([Id])
+    );
+END;
+GO
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'00000000000001_Migration1'
+)
+BEGIN
+    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+    VALUES (N'00000000000001_Migration1', N'7.0.0-test');
+END;
+GO
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'00000000000002_Migration2'
+)
+BEGIN
+    EXEC sp_rename N'[Table1].[Foo]', N'Bar', 'COLUMN';
+END;
+GO
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'00000000000002_Migration2'
+)
+BEGIN
+    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+    VALUES (N'00000000000002_Migration2', N'7.0.0-test');
+END;
 GO
 
 IF EXISTS (
@@ -862,59 +626,6 @@ BEGIN
     DELETE FROM [__EFMigrationsHistory]
     WHERE [MigrationId] = N'00000000000001_Migration1';
 END;
-GO
-
-COMMIT;
-GO
-
-
-""",
-                Sql,
-                ignoreLineEndingDifferences: true);
-        }
-
-        public override void Can_generate_one_down_script()
-        {
-            base.Can_generate_one_down_script();
-
-            Assert.Equal(
-                """
-BEGIN TRANSACTION;
-GO
-
-EXEC sp_rename N'[Table1].[Bar]', N'Foo', 'COLUMN';
-GO
-
-DELETE FROM [__EFMigrationsHistory]
-WHERE [MigrationId] = N'00000000000002_Migration2';
-GO
-
-COMMIT;
-GO
-
-
-""",
-                Sql,
-                ignoreLineEndingDifferences: true);
-        }
-
-        public override void Can_generate_down_script_using_names()
-        {
-            base.Can_generate_down_script_using_names();
-
-            Assert.Equal(
-                """
-BEGIN TRANSACTION;
-GO
-
-EXEC sp_rename N'[Table1].[Bar]', N'Foo', 'COLUMN';
-GO
-
-DELETE FROM [__EFMigrationsHistory]
-WHERE [MigrationId] = N'00000000000002_Migration2';
-GO
-
-COMMIT;
 GO
 
 
@@ -1002,8 +713,6 @@ GO
 
             context.Database.Migrate();
 
-            SetSql(Fixture.TestSqlLoggerFactory.Sql);
-
             Assert.Equal(
                 """
 CREATE DATABASE [MigrationsTest];
@@ -1091,7 +800,7 @@ DECLARE @result int;
 EXEC @result = sp_releaseapplock @Resource = '__EFMigrationsLock', @LockOwner = 'Session';
 SELECT @result
 """,
-                Sql,
+                Fixture.TestSqlLoggerFactory.Sql.Replace(ProductInfo.GetVersion(), "7.0.0-test"),
                 ignoreLineEndingDifferences: true);
         }
 
@@ -1116,8 +825,6 @@ SELECT @result
 
             await context.Database.MigrateAsync();
 
-            SetSql(Fixture.TestSqlLoggerFactory.Sql);
-
             Assert.Equal(
                 """
 CREATE DATABASE [MigrationsTest];
@@ -1205,7 +912,7 @@ DECLARE @result int;
 EXEC @result = sp_releaseapplock @Resource = '__EFMigrationsLock', @LockOwner = 'Session';
 SELECT @result
 """,
-                Sql,
+                Fixture.TestSqlLoggerFactory.Sql.Replace(ProductInfo.GetVersion(), "7.0.0-test"),
                 ignoreLineEndingDifferences: true);
         }
 
@@ -1825,6 +1532,12 @@ END
         {
             using var context = new ApplicationDbContext();
             DiffSnapshot(new AspNetIdentity30ModelSnapshot(), context);
+        }
+
+        protected override Task ExecuteSqlAsync(string value)
+        {
+            ((SqlServerTestStore)Fixture.TestStore).ExecuteScript(value);
+            return Task.CompletedTask;
         }
 
         public class AspNetIdentity30ModelSnapshot : ModelSnapshot

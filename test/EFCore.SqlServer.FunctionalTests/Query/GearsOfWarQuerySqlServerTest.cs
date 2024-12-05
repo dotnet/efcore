@@ -208,14 +208,14 @@ FROM [Tags] AS [t]
 """,
             //
             """
-@__tags_0='["34c8d86e-a4ac-4be5-827f-584dda348a07","df36f493-463f-4123-83f9-6b135deeb7ba","a8ad98f9-e023-4e2a-9a70-c2728455bd34","70534e05-782c-4052-8720-c2c54481ce5f","a7be028a-0cf2-448f-ab55-ce8bc5d8cf69","b39a6fba-9026-4d69-828e-fd7068673e57"]' (Size = 4000)
+@tags='["34c8d86e-a4ac-4be5-827f-584dda348a07","df36f493-463f-4123-83f9-6b135deeb7ba","a8ad98f9-e023-4e2a-9a70-c2728455bd34","70534e05-782c-4052-8720-c2c54481ce5f","a7be028a-0cf2-448f-ab55-ce8bc5d8cf69","b39a6fba-9026-4d69-828e-fd7068673e57"]' (Size = 4000)
 
 SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], [t].[Id], [t].[GearNickName], [t].[GearSquadId], [t].[IssueDate], [t].[Note]
 FROM [Gears] AS [g]
 LEFT JOIN [Tags] AS [t] ON [g].[Nickname] = [t].[GearNickName] AND [g].[SquadId] = [t].[GearSquadId]
 WHERE [t].[Id] IS NOT NULL AND [t].[Id] IN (
     SELECT [t0].[value]
-    FROM OPENJSON(@__tags_0) WITH ([value] uniqueidentifier '$') AS [t0]
+    FROM OPENJSON(@tags) WITH ([value] uniqueidentifier '$') AS [t0]
 )
 """);
     }
@@ -231,7 +231,7 @@ FROM [Tags] AS [t]
 """,
             //
             """
-@__tags_0='["34c8d86e-a4ac-4be5-827f-584dda348a07","df36f493-463f-4123-83f9-6b135deeb7ba","a8ad98f9-e023-4e2a-9a70-c2728455bd34","70534e05-782c-4052-8720-c2c54481ce5f","a7be028a-0cf2-448f-ab55-ce8bc5d8cf69","b39a6fba-9026-4d69-828e-fd7068673e57"]' (Size = 4000)
+@tags='["34c8d86e-a4ac-4be5-827f-584dda348a07","df36f493-463f-4123-83f9-6b135deeb7ba","a8ad98f9-e023-4e2a-9a70-c2728455bd34","70534e05-782c-4052-8720-c2c54481ce5f","a7be028a-0cf2-448f-ab55-ce8bc5d8cf69","b39a6fba-9026-4d69-828e-fd7068673e57"]' (Size = 4000)
 
 SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], [t].[Id], [t].[GearNickName], [t].[GearSquadId], [t].[IssueDate], [t].[Note]
 FROM [Gears] AS [g]
@@ -239,7 +239,7 @@ INNER JOIN [Cities] AS [c] ON [g].[CityOfBirthName] = [c].[Name]
 LEFT JOIN [Tags] AS [t] ON [g].[Nickname] = [t].[GearNickName] AND [g].[SquadId] = [t].[GearSquadId]
 WHERE [c].[Location] IS NOT NULL AND [t].[Id] IN (
     SELECT [t0].[value]
-    FROM OPENJSON(@__tags_0) WITH ([value] uniqueidentifier '$') AS [t0]
+    FROM OPENJSON(@tags) WITH ([value] uniqueidentifier '$') AS [t0]
 )
 """);
     }
@@ -255,14 +255,14 @@ FROM [Tags] AS [t]
 """,
             //
             """
-@__tags_0='["34c8d86e-a4ac-4be5-827f-584dda348a07","df36f493-463f-4123-83f9-6b135deeb7ba","a8ad98f9-e023-4e2a-9a70-c2728455bd34","70534e05-782c-4052-8720-c2c54481ce5f","a7be028a-0cf2-448f-ab55-ce8bc5d8cf69","b39a6fba-9026-4d69-828e-fd7068673e57"]' (Size = 4000)
+@tags='["34c8d86e-a4ac-4be5-827f-584dda348a07","df36f493-463f-4123-83f9-6b135deeb7ba","a8ad98f9-e023-4e2a-9a70-c2728455bd34","70534e05-782c-4052-8720-c2c54481ce5f","a7be028a-0cf2-448f-ab55-ce8bc5d8cf69","b39a6fba-9026-4d69-828e-fd7068673e57"]' (Size = 4000)
 
 SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
 FROM [Gears] AS [g]
 LEFT JOIN [Tags] AS [t] ON [g].[Nickname] = [t].[GearNickName] AND [g].[SquadId] = [t].[GearSquadId]
 WHERE [t].[Id] IS NOT NULL AND [t].[Id] IN (
     SELECT [t0].[value]
-    FROM OPENJSON(@__tags_0) WITH ([value] uniqueidentifier '$') AS [t0]
+    FROM OPENJSON(@tags) WITH ([value] uniqueidentifier '$') AS [t0]
 )
 """);
     }
@@ -407,11 +407,11 @@ WHERE [w].[AmmunitionType] IS NULL
 
         AssertSql(
             """
-@__ammunitionType_0='1'
+@ammunitionType='1'
 
 SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
 FROM [Weapons] AS [w]
-WHERE [w].[AmmunitionType] = @__ammunitionType_0
+WHERE [w].[AmmunitionType] = @ammunitionType
 """);
     }
 
@@ -421,11 +421,11 @@ WHERE [w].[AmmunitionType] = @__ammunitionType_0
 
         AssertSql(
             """
-@__ammunitionType_0='1' (Nullable = true)
+@ammunitionType='1' (Nullable = true)
 
 SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
 FROM [Weapons] AS [w]
-WHERE [w].[AmmunitionType] = @__ammunitionType_0
+WHERE [w].[AmmunitionType] = @ammunitionType
 """,
             //
             """
@@ -507,11 +507,11 @@ WHERE [w].[AmmunitionType] & NULL > 0
 
         AssertSql(
             """
-@__ammunitionType_0='1'
+@ammunitionType='1'
 
 SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
 FROM [Weapons] AS [w]
-WHERE [w].[AmmunitionType] & @__ammunitionType_0 > 0
+WHERE [w].[AmmunitionType] & @ammunitionType > 0
 """);
     }
 
@@ -521,11 +521,11 @@ WHERE [w].[AmmunitionType] & @__ammunitionType_0 > 0
 
         AssertSql(
             """
-@__ammunitionType_0='1' (Nullable = true)
+@ammunitionType='1' (Nullable = true)
 
 SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
 FROM [Weapons] AS [w]
-WHERE [w].[AmmunitionType] & @__ammunitionType_0 > 0
+WHERE [w].[AmmunitionType] & @ammunitionType > 0
 """,
             //
             """
@@ -688,11 +688,11 @@ WHERE [g].[Rank] & (
 
         AssertSql(
             """
-@__parameter_0='2'
+@parameter='2'
 
 SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
 FROM [Gears] AS [g]
-WHERE [g].[Rank] & @__parameter_0 = @__parameter_0
+WHERE [g].[Rank] & @parameter = @parameter
 """);
     }
 
@@ -702,11 +702,11 @@ WHERE [g].[Rank] & @__parameter_0 = @__parameter_0
 
         AssertSql(
             """
-@__parameter_0='2' (Nullable = true)
+@parameter='2' (Nullable = true)
 
 SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
 FROM [Gears] AS [g]
-WHERE [g].[Rank] & @__parameter_0 = @__parameter_0
+WHERE [g].[Rank] & @parameter = @parameter
 """);
     }
 
@@ -781,14 +781,14 @@ FROM [Factions] AS [f]
 
         AssertSql(
             """
-@__ammunitionType_0='1' (Nullable = true)
+@ammunitionType='1' (Nullable = true)
 
 SELECT [w].[Id], CASE
-    WHEN [w].[AmmunitionType] = @__ammunitionType_0 AND [w].[AmmunitionType] IS NOT NULL THEN CAST(1 AS bit)
+    WHEN [w].[AmmunitionType] = @ammunitionType AND [w].[AmmunitionType] IS NOT NULL THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END AS [Cartridge]
 FROM [Weapons] AS [w]
-WHERE [w].[AmmunitionType] = @__ammunitionType_0
+WHERE [w].[AmmunitionType] = @ammunitionType
 """,
             //
             """
@@ -807,9 +807,9 @@ WHERE [w].[AmmunitionType] IS NULL
 
         AssertSql(
             """
-@__ammunitionType_0='1' (Nullable = true)
+@ammunitionType='1' (Nullable = true)
 
-SELECT [w].[Id], @__ammunitionType_0 AS [AmmoType]
+SELECT [w].[Id], @ammunitionType AS [AmmoType]
 FROM [Weapons] AS [w]
 """,
             //
@@ -819,9 +819,9 @@ FROM [Weapons] AS [w]
 """,
             //
             """
-@__ammunitionType_0='2' (Nullable = true)
+@ammunitionType='2' (Nullable = true)
 
-SELECT [w].[Id], @__ammunitionType_0 AS [AmmoType]
+SELECT [w].[Id], @ammunitionType AS [AmmoType]
 FROM [Weapons] AS [w]
 """,
             //
@@ -1562,7 +1562,7 @@ ORDER BY [g].[Nickname]
 SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
 FROM [Gears] AS [g]
 WHERE [g].[HasSoulPatch] = CAST(1 AS bit) AND COALESCE((
-    SELECT DISTINCT TOP(1) [w].[IsAutomatic]
+    SELECT TOP(1) [w].[IsAutomatic]
     FROM [Weapons] AS [w]
     WHERE [g].[FullName] = [w].[OwnerFullName] AND [w].[Name] LIKE N'%Lancer%'), CAST(0 AS bit)) = CAST(1 AS bit)
 ORDER BY [g].[Nickname]
@@ -2047,11 +2047,11 @@ WHERE 'Unknown' = [c].[Location]
 
         AssertSql(
             """
-@__value_0='Unknown' (Size = 100) (DbType = AnsiString)
+@value='Unknown' (Size = 100) (DbType = AnsiString)
 
 SELECT [c].[Name], [c].[Location], [c].[Nation]
 FROM [Cities] AS [c]
-WHERE [c].[Location] = @__value_0
+WHERE [c].[Location] = @value
 """);
     }
 
@@ -2061,13 +2061,13 @@ WHERE [c].[Location] = @__value_0
 
         AssertSql(
             """
-@__cities_0='["Unknown","Jacinto\u0027s location","Ephyra\u0027s location"]' (Size = 4000)
+@cities='["Unknown","Jacinto\u0027s location","Ephyra\u0027s location"]' (Size = 4000)
 
 SELECT [c].[Name], [c].[Location], [c].[Nation]
 FROM [Cities] AS [c]
 WHERE [c].[Location] IN (
     SELECT [c0].[value]
-    FROM OPENJSON(@__cities_0) WITH ([value] varchar(100) '$') AS [c0]
+    FROM OPENJSON(@cities) WITH ([value] varchar(100) '$') AS [c0]
 )
 """);
     }
@@ -2697,11 +2697,11 @@ WHERE [m].[Timeline] <> CAST(SYSUTCDATETIME() AS datetimeoffset)
 
         AssertSql(
             """
-@__Date_0='0001-01-01T00:00:00.0000000'
+@Date='0001-01-01T00:00:00.0000000'
 
 SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Date], [m].[Difficulty], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
 FROM [Missions] AS [m]
-WHERE CONVERT(date, [m].[Timeline]) > @__Date_0
+WHERE CONVERT(date, [m].[Timeline]) > @Date
 """);
     }
 
@@ -2923,12 +2923,12 @@ WHERE [m].[Timeline] = CAST('0010-05-03T12:00:00.0000000' AS datetime2) AT TIME 
 
         AssertSql(
             """
-@__dateTime_1='0010-05-03T12:00:00.0000000'
-@__timeZone_2='UTC' (Size = 8000) (DbType = AnsiString)
+@dateTime='0010-05-03T12:00:00.0000000'
+@timeZone='UTC' (Size = 8000) (DbType = AnsiString)
 
 SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Date], [m].[Difficulty], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
 FROM [Missions] AS [m]
-WHERE [m].[Timeline] = @__dateTime_1 AT TIME ZONE @__timeZone_2
+WHERE [m].[Timeline] = @dateTime AT TIME ZONE @timeZone
 """);
     }
 
@@ -3069,13 +3069,13 @@ END
 
         AssertSql(
             """
-@__ids_0='["df36f493-463f-4123-83f9-6b135deeb7ba","23cbcf9b-ce14-45cf-aafa-2c2667ebfdd3","ab1b82d7-88db-42bd-a132-7eef9aa68af4"]' (Size = 4000)
+@ids='["df36f493-463f-4123-83f9-6b135deeb7ba","23cbcf9b-ce14-45cf-aafa-2c2667ebfdd3","ab1b82d7-88db-42bd-a132-7eef9aa68af4"]' (Size = 4000)
 
 SELECT [t].[Id], [t].[GearNickName], [t].[GearSquadId], [t].[IssueDate], [t].[Note]
 FROM [Tags] AS [t]
 WHERE [t].[Id] IN (
     SELECT [i].[value]
-    FROM OPENJSON(@__ids_0) WITH ([value] uniqueidentifier '$') AS [i]
+    FROM OPENJSON(@ids) WITH ([value] uniqueidentifier '$') AS [i]
 )
 """);
     }
@@ -3239,11 +3239,11 @@ ORDER BY [g].[FullName]
 
         AssertSql(
             """
-@__p_0='2'
+@p='2'
 
 SELECT [g0].[FullName]
 FROM (
-    SELECT TOP(@__p_0) [g].[FullName], [g].[Rank]
+    SELECT TOP(@p) [g].[FullName], [g].[Rank]
     FROM [Gears] AS [g]
     WHERE [g].[HasSoulPatch] = CAST(0 AS bit)
     ORDER BY [g].[FullName]
@@ -3258,7 +3258,7 @@ ORDER BY [g0].[Rank]
 
         AssertSql(
             """
-@__p_0='1'
+@p='1'
 
 SELECT [g0].[FullName]
 FROM (
@@ -3266,7 +3266,7 @@ FROM (
     FROM [Gears] AS [g]
     WHERE [g].[HasSoulPatch] = CAST(0 AS bit)
     ORDER BY [g].[FullName]
-    OFFSET @__p_0 ROWS
+    OFFSET @p ROWS
 ) AS [g0]
 ORDER BY [g0].[Rank]
 """);
@@ -3278,11 +3278,11 @@ ORDER BY [g0].[Rank]
 
         AssertSql(
             """
-@__p_0='999'
+@p='999'
 
 SELECT [g0].[FullName]
 FROM (
-    SELECT TOP(@__p_0) [g].[FullName], [g].[Rank]
+    SELECT TOP(@p) [g].[FullName], [g].[Rank]
     FROM [Gears] AS [g]
     WHERE [g].[HasSoulPatch] = CAST(0 AS bit)
 ) AS [g0]
@@ -3296,11 +3296,11 @@ ORDER BY [g0].[Rank]
 
         AssertSql(
             """
-@__p_0='999'
+@p='999'
 
 SELECT [g0].[FullName]
 FROM (
-    SELECT TOP(@__p_0) [g].[FullName], [g].[Rank]
+    SELECT TOP(@p) [g].[FullName], [g].[Rank]
     FROM [Gears] AS [g]
     WHERE [g].[HasSoulPatch] = CAST(0 AS bit)
 ) AS [g0]
@@ -3314,11 +3314,11 @@ ORDER BY [g0].[Rank]
 
         AssertSql(
             """
-@__p_0='999'
+@p='999'
 
 SELECT [g0].[FullName]
 FROM (
-    SELECT TOP(@__p_0) [g].[FullName], [g].[Rank]
+    SELECT TOP(@p) [g].[FullName], [g].[Rank]
     FROM [Gears] AS [g]
     WHERE [g].[HasSoulPatch] = CAST(0 AS bit)
 ) AS [g0]
@@ -3592,14 +3592,14 @@ ORDER BY [g].[Nickname], [g1].[Nickname]
 
         AssertSql(
             """
-@__cities_0_without_nulls='["Ephyra"]' (Size = 4000)
+@cities_without_nulls='["Ephyra"]' (Size = 4000)
 
 SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
 FROM [Gears] AS [g]
 LEFT JOIN [Cities] AS [c] ON [g].[AssignedCityName] = [c].[Name]
 WHERE [g].[SquadId] < 2 AND ([c].[Name] IN (
     SELECT [c0].[value]
-    FROM OPENJSON(@__cities_0_without_nulls) AS [c0]
+    FROM OPENJSON(@cities_without_nulls) AS [c0]
 ) OR [c].[Name] IS NULL)
 """);
     }
@@ -5048,11 +5048,11 @@ WHERE [f0].[Eradicated] = CAST(0 AS bit) OR [f0].[Eradicated] IS NULL
 
         AssertSql(
             """
-@__p_0='10'
+@p='10'
 
 SELECT [s].[Name], [s].[Discriminator], [s].[LocustHordeId], [s].[ThreatLevel], [s].[ThreatLevelByte], [s].[ThreatLevelNullableByte], [s].[DefeatedByNickname], [s].[DefeatedBySquadId], [s].[HighCommandId], [s].[Nickname], [s].[SquadId], [s].[AssignedCityName], [s].[CityOfBirthName], [s].[Discriminator0], [s].[FullName], [s].[HasSoulPatch], [s].[LeaderNickname], [s].[LeaderSquadId], [s].[Rank], [s].[Id], [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
 FROM (
-    SELECT TOP(@__p_0) [l].[Name], [l].[Discriminator], [l].[LocustHordeId], [l].[ThreatLevel], [l].[ThreatLevelByte], [l].[ThreatLevelNullableByte], [l].[DefeatedByNickname], [l].[DefeatedBySquadId], [l].[HighCommandId], [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator] AS [Discriminator0], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], [t].[Id], [t].[Note]
+    SELECT TOP(@p) [l].[Name], [l].[Discriminator], [l].[LocustHordeId], [l].[ThreatLevel], [l].[ThreatLevelByte], [l].[ThreatLevelNullableByte], [l].[DefeatedByNickname], [l].[DefeatedBySquadId], [l].[HighCommandId], [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator] AS [Discriminator0], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], [t].[Id], [t].[Note]
     FROM [LocustLeaders] AS [l]
     LEFT JOIN [Gears] AS [g] ON [l].[DefeatedByNickname] = [g].[Nickname] AND [l].[DefeatedBySquadId] = [g].[SquadId]
     LEFT JOIN [Tags] AS [t] ON ([g].[Nickname] = [t].[GearNickName] OR ([g].[Nickname] IS NULL AND [t].[GearNickName] IS NULL)) AND ([g].[SquadId] = [t].[GearSquadId] OR ([g].[SquadId] IS NULL AND [t].[GearSquadId] IS NULL))
@@ -5838,7 +5838,7 @@ WHERE [g].[HasSoulPatch] = CAST(1 AS bit)
         AssertSql(
             """
 SELECT COALESCE((
-    SELECT DISTINCT TOP(1) [w].[IsAutomatic]
+    SELECT TOP(1) [w].[IsAutomatic]
     FROM [Weapons] AS [w]
     WHERE [g].[FullName] = [w].[OwnerFullName] AND [w].[Name] LIKE N'%Lancer%'), CAST(0 AS bit))
 FROM [Gears] AS [g]
@@ -5889,7 +5889,7 @@ WHERE [g].[HasSoulPatch] = CAST(1 AS bit)
         AssertSql(
             """
 SELECT COALESCE((
-    SELECT DISTINCT TOP(1) [w].[IsAutomatic]
+    SELECT TOP(1) [w].[IsAutomatic]
     FROM [Weapons] AS [w]
     WHERE [g].[FullName] = [w].[OwnerFullName] AND [w].[Name] = N'BFG'), CAST(0 AS bit))
 FROM [Gears] AS [g]
@@ -5949,7 +5949,7 @@ ORDER BY [c].[Name], [g].[Nickname] DESC
 
         AssertSql(
             """
-@__nicknames_0='[]' (Size = 4000)
+@nicknames='[]' (Size = 4000)
 
 SELECT [g].[Nickname], [g].[SquadId], [w].[Name], [w].[Id]
 FROM [Gears] AS [g]
@@ -5957,7 +5957,7 @@ LEFT JOIN [Weapons] AS [w] ON [g].[FullName] = [w].[OwnerFullName]
 ORDER BY CASE
     WHEN [g].[Nickname] IN (
         SELECT [n].[value]
-        FROM OPENJSON(@__nicknames_0) WITH ([value] nvarchar(450) '$') AS [n]
+        FROM OPENJSON(@nicknames) WITH ([value] nvarchar(450) '$') AS [n]
     ) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END DESC, [g].[Nickname], [g].[SquadId]
@@ -6480,19 +6480,19 @@ WHERE [t].[Id] = 'df36f493-463f-4123-83f9-6b135deeb7ba'
 
         AssertSql(
             """
-@__p_0='df36f493-463f-4123-83f9-6b135deeb7bd'
+@p='df36f493-463f-4123-83f9-6b135deeb7bd'
 
 SELECT [t].[Id], [t].[GearNickName], [t].[GearSquadId], [t].[Note]
 FROM [Tags] AS [t]
-WHERE [t].[Id] = @__p_0
+WHERE [t].[Id] = @p
 """,
             //
             """
-@__p_0='b39a6fba-9026-4d69-828e-fd7068673e57'
+@p='b39a6fba-9026-4d69-828e-fd7068673e57'
 
 SELECT [t].[Id], [t].[GearNickName], [t].[GearSquadId], [t].[Note]
 FROM [Tags] AS [t]
-WHERE [t].[Id] = @__p_0
+WHERE [t].[Id] = @p
 """);
     }
 
@@ -6647,11 +6647,11 @@ ORDER BY (
 
         AssertSql(
             """
-@__p_0='25'
+@p='25'
 
 SELECT [w1].[Id], [w1].[AmmunitionType], [w1].[IsAutomatic], [w1].[Name], [w1].[OwnerFullName], [w1].[SynergyWithId]
 FROM (
-    SELECT TOP(@__p_0) [g].[FullName]
+    SELECT TOP(@p) [g].[FullName]
     FROM [Gears] AS [g]
 ) AS [g0]
 LEFT JOIN (
@@ -6686,15 +6686,15 @@ WHERE (
 
         AssertSql(
             """
-@__start_0='1902-01-01T10:00:00.1234567+01:30'
-@__end_1='1902-01-03T10:00:00.1234567+01:30'
-@__dates_2='["1902-01-02T10:00:00.1234567+01:30"]' (Size = 4000)
+@start='1902-01-01T10:00:00.1234567+01:30'
+@end='1902-01-03T10:00:00.1234567+01:30'
+@dates='["1902-01-02T10:00:00.1234567+01:30"]' (Size = 4000)
 
 SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Date], [m].[Difficulty], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
 FROM [Missions] AS [m]
-WHERE @__start_0 <= CAST(CONVERT(date, [m].[Timeline]) AS datetimeoffset) AND [m].[Timeline] < @__end_1 AND [m].[Timeline] IN (
+WHERE @start <= CAST(CONVERT(date, [m].[Timeline]) AS datetimeoffset) AND [m].[Timeline] < @end AND [m].[Timeline] IN (
     SELECT [d].[value]
-    FROM OPENJSON(@__dates_2) WITH ([value] datetimeoffset '$') AS [d]
+    FROM OPENJSON(@dates) WITH ([value] datetimeoffset '$') AS [d]
 )
 """);
     }
@@ -6800,7 +6800,7 @@ ORDER BY [t].[Id], [g].[Nickname]
 
         AssertSql(
             """
-@__isAutomatic_0='True'
+@isAutomatic='True'
 
 SELECT [g].[Nickname], [g].[FullName], CASE
     WHEN [w0].[Id] IS NOT NULL THEN CAST(1 AS bit)
@@ -6810,7 +6810,7 @@ FROM [Gears] AS [g]
 LEFT JOIN (
     SELECT [w].[Id], [w].[OwnerFullName]
     FROM [Weapons] AS [w]
-    WHERE [w].[IsAutomatic] = @__isAutomatic_0
+    WHERE [w].[IsAutomatic] = @isAutomatic
 ) AS [w0] ON [g].[FullName] = [w0].[OwnerFullName]
 """);
     }
@@ -6821,7 +6821,7 @@ LEFT JOIN (
 
         AssertSql(
             """
-@__isAutomatic_0='True'
+@isAutomatic='True'
 
 SELECT [g].[Nickname], [g].[FullName], CASE
     WHEN [w0].[Id] IS NOT NULL THEN CAST(1 AS bit)
@@ -6831,7 +6831,7 @@ FROM [Gears] AS [g]
 LEFT JOIN (
     SELECT [w].[Id], [w].[OwnerFullName]
     FROM [Weapons] AS [w]
-    WHERE [w].[IsAutomatic] <> @__isAutomatic_0
+    WHERE [w].[IsAutomatic] <> @isAutomatic
 ) AS [w0] ON [g].[FullName] = [w0].[OwnerFullName]
 """);
     }
@@ -6842,7 +6842,7 @@ LEFT JOIN (
 
         AssertSql(
             """
-@__prm_0='1'
+@prm='1'
 
 SELECT [g].[Nickname], [g].[FullName], CASE
     WHEN [w0].[Id] IS NOT NULL THEN CAST(1 AS bit)
@@ -6852,7 +6852,7 @@ FROM [Gears] AS [g]
 LEFT JOIN (
     SELECT [w].[Id], [w].[OwnerFullName]
     FROM [Weapons] AS [w]
-    WHERE [w].[Id] > @__prm_0
+    WHERE [w].[Id] > @prm
 ) AS [w0] ON [g].[FullName] = [w0].[OwnerFullName]
 """);
     }
@@ -7127,13 +7127,13 @@ WHERE EXISTS (
 
         AssertSql(
             """
-@__prm_Inner_Nickname_0='Marcus' (Size = 450)
+@prm_Inner_Nickname='Marcus' (Size = 450)
 
 SELECT [g0].[Nickname], [g0].[SquadId], [g0].[AssignedCityName], [g0].[CityOfBirthName], [g0].[Discriminator], [g0].[FullName], [g0].[HasSoulPatch], [g0].[LeaderNickname], [g0].[LeaderSquadId], [g0].[Rank]
 FROM (
     SELECT DISTINCT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
     FROM [Gears] AS [g]
-    WHERE [g].[Nickname] <> @__prm_Inner_Nickname_0
+    WHERE [g].[Nickname] <> @prm_Inner_Nickname
 ) AS [g0]
 ORDER BY [g0].[FullName]
 """);
@@ -7145,7 +7145,7 @@ ORDER BY [g0].[FullName]
 
         AssertSql(
             """
-@__squadId_0='1'
+@squadId='1'
 
 SELECT [u].[Nickname], [u].[SquadId], [u].[AssignedCityName], [u].[CityOfBirthName], [u].[Discriminator], [u].[FullName], [u].[HasSoulPatch], [u].[LeaderNickname], [u].[LeaderSquadId], [u].[Rank]
 FROM (
@@ -7155,7 +7155,7 @@ FROM (
     WHERE [s].[Id] IN (
         SELECT [s0].[Id]
         FROM [Squads] AS [s0]
-        WHERE [s0].[Id] = @__squadId_0
+        WHERE [s0].[Id] = @squadId
     )
     UNION ALL
     SELECT [g0].[Nickname], [g0].[SquadId], [g0].[AssignedCityName], [g0].[CityOfBirthName], [g0].[Discriminator], [g0].[FullName], [g0].[HasSoulPatch], [g0].[LeaderNickname], [g0].[LeaderSquadId], [g0].[Rank]
@@ -7164,7 +7164,7 @@ FROM (
     WHERE [s1].[Id] IN (
         SELECT [s2].[Id]
         FROM [Squads] AS [s2]
-        WHERE [s2].[Id] = @__squadId_0
+        WHERE [s2].[Id] = @squadId
     )
 ) AS [u]
 ORDER BY [u].[FullName]
@@ -7177,14 +7177,14 @@ ORDER BY [u].[FullName]
 
         AssertSql(
             """
-@__gearId_0='1'
+@gearId='1'
 
 SELECT [s].[Id], [s].[Banner], [s].[Banner5], [s].[InternalNumber], [s].[Name]
 FROM [Squads] AS [s]
 WHERE EXISTS (
     SELECT 1
     FROM [Gears] AS [g]
-    WHERE [s].[Id] = [g].[SquadId] AND [g].[SquadId] = @__gearId_0 AND [g].[SquadId] = @__gearId_0)
+    WHERE [s].[Id] = [g].[SquadId] AND [g].[SquadId] = @gearId AND [g].[SquadId] = @gearId)
 """);
     }
 
@@ -7194,17 +7194,17 @@ WHERE EXISTS (
 
         AssertSql(
             """
-@__entity_equality_prm_Inner_Squad_0_Id='1' (Nullable = true)
+@entity_equality_prm_Inner_Squad_Id='1' (Nullable = true)
 
 SELECT [s1].[Nickname], [s1].[SquadId], [s1].[AssignedCityName], [s1].[CityOfBirthName], [s1].[Discriminator], [s1].[FullName], [s1].[HasSoulPatch], [s1].[LeaderNickname], [s1].[LeaderSquadId], [s1].[Rank]
 FROM (
     SELECT DISTINCT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
     FROM [Gears] AS [g]
     INNER JOIN [Squads] AS [s] ON [g].[SquadId] = [s].[Id]
-    WHERE [s].[Id] = @__entity_equality_prm_Inner_Squad_0_Id
+    WHERE [s].[Id] = @entity_equality_prm_Inner_Squad_Id
 ) AS [s1]
 INNER JOIN [Squads] AS [s0] ON [s1].[SquadId] = [s0].[Id]
-WHERE [s0].[Id] = @__entity_equality_prm_Inner_Squad_0_Id
+WHERE [s0].[Id] = @entity_equality_prm_Inner_Squad_Id
 ORDER BY [s1].[FullName]
 """);
     }
@@ -7365,9 +7365,9 @@ FROM [Gears] AS [g]
 
         AssertSql(
             """
-@__p_0='False'
+@p='False'
 
-SELECT @__p_0
+SELECT @p
 FROM [Gears] AS [g]
 """);
     }
@@ -7378,11 +7378,11 @@ FROM [Gears] AS [g]
 
         AssertSql(
             """
-@__p_0='False'
+@p='False'
 
 SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
 FROM [Gears] AS [g]
-WHERE @__p_0 = CAST(1 AS bit)
+WHERE @p = CAST(1 AS bit)
 """);
     }
 
@@ -7404,14 +7404,14 @@ ORDER BY [g].[Nickname]
 
         AssertSql(
             """
-@__ids_0='[]' (Size = 4000)
+@ids='[]' (Size = 4000)
 
 SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
 FROM [Gears] AS [g]
 ORDER BY CASE
     WHEN [g].[SquadId] IN (
         SELECT [i].[value]
-        FROM OPENJSON(@__ids_0) WITH ([value] int '$') AS [i]
+        FROM OPENJSON(@ids) WITH ([value] int '$') AS [i]
     ) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END
@@ -7424,11 +7424,11 @@ END
 
         AssertSql(
             """
-@__rank_0='1' (Nullable = true)
+@rank='1' (Nullable = true)
 
 SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
 FROM [Gears] AS [g]
-WHERE [g].[Rank] & @__rank_0 = @__rank_0
+WHERE [g].[Rank] & @rank = @rank
 """,
             //
             """
@@ -7437,11 +7437,11 @@ FROM [Gears] AS [g]
 """,
             //
             """
-@__rank_0='2' (Nullable = true)
+@rank='2' (Nullable = true)
 
 SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
 FROM [Gears] AS [g]
-WHERE [g].[Rank] | @__rank_0 <> @__rank_0
+WHERE [g].[Rank] | @rank <> @rank
 """,
             //
             """
@@ -7478,24 +7478,24 @@ WHERE [c].[Name] = (
 
         AssertSql(
             """
-@__ranks_0='134'
+@ranks='134'
 
 SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
 FROM [Gears] AS [g]
-WHERE [g].[Rank] & @__ranks_0 <> 0
+WHERE [g].[Rank] & @ranks <> 0
 """,
             //
             """
-@__ranks_0='134'
+@ranks='134'
 
-SELECT ~CAST(([g].[Rank] | @__ranks_0) ^ @__ranks_0 AS bit)
+SELECT ~CAST(([g].[Rank] | @ranks) ^ @ranks AS bit)
 FROM [Gears] AS [g]
 """,
             //
             """
-@__ranks_0='134'
+@ranks='134'
 
-SELECT ~CAST(([g].[Rank] | [g].[Rank] | @__ranks_0 | [g].[Rank] | @__ranks_0) ^ @__ranks_0 AS bit)
+SELECT ~CAST(([g].[Rank] | [g].[Rank] | @ranks | [g].[Rank] | @ranks) ^ @ranks AS bit)
 FROM [Gears] AS [g]
 """);
     }
@@ -7529,19 +7529,19 @@ FROM [Weapons] AS [w]
 """,
             //
             """
-@__prm_0='2' (Nullable = true)
+@prm='2' (Nullable = true)
 
 SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
 FROM [Weapons] AS [w]
-WHERE [w].[AmmunitionType] & @__prm_0 <> 0 OR [w].[AmmunitionType] IS NULL
+WHERE [w].[AmmunitionType] & @prm <> 0 OR [w].[AmmunitionType] IS NULL
 """,
             //
             """
-@__prm_0='1' (Nullable = true)
+@prm='1' (Nullable = true)
 
 SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
 FROM [Weapons] AS [w]
-WHERE [w].[AmmunitionType] & @__prm_0 = @__prm_0
+WHERE [w].[AmmunitionType] & @prm = @prm
 """);
     }
 
@@ -7551,19 +7551,19 @@ WHERE [w].[AmmunitionType] & @__prm_0 = @__prm_0
 
         AssertSql(
             """
-@__prm_0='True'
+@prm='True'
 
 SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
 FROM [Gears] AS [g]
-WHERE [g].[HasSoulPatch] <> @__prm_0
+WHERE [g].[HasSoulPatch] <> @prm
 """,
             //
             """
-@__prm_0='False'
+@prm='False'
 
 SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
 FROM [Gears] AS [g]
-WHERE [g].[HasSoulPatch] <> @__prm_0
+WHERE [g].[HasSoulPatch] <> @prm
 """);
     }
 
@@ -7628,11 +7628,11 @@ WHERE CAST(DATALENGTH([s].[Banner]) AS int) = 2
 
         AssertSql(
             """
-@__p_0='2'
+@p='2'
 
 SELECT [s].[Id], [s].[Banner], [s].[Banner5], [s].[InternalNumber], [s].[Name]
 FROM [Squads] AS [s]
-WHERE CAST(DATALENGTH([s].[Banner]) AS int) = @__p_0
+WHERE CAST(DATALENGTH([s].[Banner]) AS int) = @p
 """);
     }
 
@@ -7642,11 +7642,11 @@ WHERE CAST(DATALENGTH([s].[Banner]) AS int) = @__p_0
 
         AssertSql(
             """
-@__byteArrayParam='0x2A80' (Size = 8000)
+@byteArrayParam='0x2A80' (Size = 8000)
 
 SELECT COUNT(*)
 FROM [Squads] AS [s]
-WHERE CAST(DATALENGTH([s].[Banner]) AS int) = CAST(DATALENGTH(@__byteArrayParam) AS int)
+WHERE CAST(DATALENGTH([s].[Banner]) AS int) = CAST(DATALENGTH(@byteArrayParam) AS int)
 """);
     }
 
@@ -7656,11 +7656,11 @@ WHERE CAST(DATALENGTH([s].[Banner]) AS int) = CAST(DATALENGTH(@__byteArrayParam)
 
         AssertSql(
             """
-@__someByte_0='1' (Size = 1)
+@someByte='1' (Size = 1)
 
 SELECT [s].[Id], [s].[Banner], [s].[Banner5], [s].[InternalNumber], [s].[Name]
 FROM [Squads] AS [s]
-WHERE CHARINDEX(CAST(@__someByte_0 AS varbinary(max)), [s].[Banner]) > 0
+WHERE CHARINDEX(CAST(@someByte AS varbinary(max)), [s].[Banner]) > 0
 """);
     }
 
@@ -7682,12 +7682,12 @@ WHERE DATALENGTH([s].[Banner5]) = 5
 
         AssertSql(
             """
-@__prm_0='True'
+@prm='True'
 
 SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
 FROM [Gears] AS [g]
 WHERE CASE
-    WHEN [g].[HasSoulPatch] = @__prm_0 THEN CAST(1 AS bit)
+    WHEN [g].[HasSoulPatch] = @prm THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END = CAST(1 AS bit)
 """);
@@ -7699,16 +7699,16 @@ END = CAST(1 AS bit)
 
         AssertSql(
             """
-@__prm_0='True'
-@__prm2_1='Marcus' Lancer' (Size = 4000)
+@prm='True'
+@prm2='Marcus' Lancer' (Size = 4000)
 
 SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
 FROM [Gears] AS [g]
 WHERE CASE
-    WHEN [g].[HasSoulPatch] = @__prm_0 AND (
+    WHEN [g].[HasSoulPatch] = @prm AND (
         SELECT TOP(1) [w].[Name]
         FROM [Weapons] AS [w]
-        WHERE [w].[Id] = [g].[SquadId]) = @__prm2_1 THEN CAST(1 AS bit)
+        WHERE [w].[Id] = [g].[SquadId]) = @prm2 THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END = CAST(1 AS bit)
 """);
@@ -7733,11 +7733,11 @@ ORDER BY [w0].[IsAutomatic]
 
         AssertSql(
             """
-@__dateTimeOffset_Date_0='0002-03-01T00:00:00.0000000'
+@dateTimeOffset_Date='0002-03-01T00:00:00.0000000'
 
 SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Date], [m].[Difficulty], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
 FROM [Missions] AS [m]
-WHERE CONVERT(date, [m].[Timeline]) >= @__dateTimeOffset_Date_0
+WHERE CONVERT(date, [m].[Timeline]) >= @dateTimeOffset_Date
 """);
     }
 
@@ -7780,11 +7780,11 @@ FROM [Gears] AS [g]
 
         AssertSql(
             """
-@__byteArrayParam_0='0x0405060708' (Size = 5)
+@byteArrayParam='0x0405060708' (Size = 5)
 
 SELECT [s].[Id], [s].[Banner], [s].[Banner5], [s].[InternalNumber], [s].[Name]
 FROM [Squads] AS [s]
-WHERE [s].[Banner5] = @__byteArrayParam_0
+WHERE [s].[Banner5] = @byteArrayParam
 """);
     }
 
@@ -8094,11 +8094,11 @@ CROSS APPLY (
 
         AssertSql(
             """
-@__prm_0='1' (Nullable = true)
+@prm='1' (Nullable = true)
 
 SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
 FROM [Weapons] AS [w]
-WHERE @__prm_0 = [w].[AmmunitionType]
+WHERE @prm = [w].[AmmunitionType]
 """);
     }
 
@@ -8108,11 +8108,11 @@ WHERE @__prm_0 = [w].[AmmunitionType]
 
         AssertSql(
             """
-@__prm_0='133'
+@prm='133'
 
 SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
 FROM [Gears] AS [g]
-WHERE @__prm_0 & [g].[Rank] = [g].[Rank]
+WHERE @prm & [g].[Rank] = [g].[Rank]
 """);
     }
 
@@ -8122,11 +8122,11 @@ WHERE @__prm_0 & [g].[Rank] = [g].[Rank]
 
         AssertSql(
             """
-@__prm_0='5'
+@prm='5'
 
 SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
 FROM [Gears] AS [g]
-WHERE @__prm_0 & CAST([g].[Rank] AS int) = CAST([g].[Rank] AS int)
+WHERE @prm & CAST([g].[Rank] AS int) = CAST([g].[Rank] AS int)
 """);
     }
 
@@ -8136,9 +8136,9 @@ WHERE @__prm_0 & CAST([g].[Rank] AS int) = CAST([g].[Rank] AS int)
 
         AssertSql(
             """
-@__p_0='1'
+@p='1'
 
-SELECT TOP(@__p_0) [g].[Rank] & 1
+SELECT TOP(@p) [g].[Rank] & 1
 FROM [Gears] AS [g]
 ORDER BY [g].[Nickname]
 """);
@@ -8150,14 +8150,14 @@ ORDER BY [g].[Nickname]
 
         AssertSql(
             """
-@__types_0_without_nulls='[1]' (Size = 4000)
+@types_without_nulls='[1]' (Size = 4000)
 
 SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
 FROM [Weapons] AS [w]
 LEFT JOIN [Weapons] AS [w0] ON [w].[SynergyWithId] = [w0].[Id]
 WHERE [w0].[Id] IS NOT NULL AND ([w0].[AmmunitionType] IN (
     SELECT [t].[value]
-    FROM OPENJSON(@__types_0_without_nulls) AS [t]
+    FROM OPENJSON(@types_without_nulls) AS [t]
 ) OR [w0].[AmmunitionType] IS NULL)
 """);
     }
@@ -9268,12 +9268,12 @@ WHERE CAST([t].[IssueDate] AS time) = [m].[Time]
 
         AssertSql(
             """
-@__time_0='02:00' (DbType = Time)
+@time='02:00' (DbType = Time)
 
 SELECT [t].[Id], [t].[GearNickName], [t].[GearSquadId], [t].[IssueDate], [t].[Note]
 FROM [Tags] AS [t]
 LEFT JOIN [Gears] AS [g] ON [t].[GearNickName] = [g].[Nickname] AND [t].[GearSquadId] = [g].[SquadId]
-WHERE [g].[Nickname] IS NOT NULL AND [g].[SquadId] IS NOT NULL AND CAST(DATEADD(hour, CAST(CAST([g].[SquadId] AS float) AS int), [t].[IssueDate]) AS time) = @__time_0
+WHERE [g].[Nickname] IS NOT NULL AND [g].[SquadId] IS NOT NULL AND CAST(DATEADD(hour, CAST(CAST([g].[SquadId] AS float) AS int), [t].[IssueDate]) AS time) = @time
 """);
     }
 
@@ -9307,11 +9307,11 @@ WHERE CAST([m].[Duration] AS time) < [m].[Time]
 
         AssertSql(
             """
-@__time_0='01:02' (DbType = Time)
+@time='01:02' (DbType = Time)
 
 SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Date], [m].[Difficulty], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
 FROM [Missions] AS [m]
-WHERE CAST([m].[Duration] AS time) = @__time_0
+WHERE CAST([m].[Duration] AS time) = @time
 """);
     }
 
@@ -9346,11 +9346,11 @@ WHERE CAST([t].[IssueDate] AS date) > [m].[Date]
 
         AssertSql(
             """
-@__prm_0='10/11/0002' (DbType = Date)
+@prm='10/11/0002' (DbType = Date)
 
 SELECT [t].[Id], [t].[GearNickName], [t].[GearSquadId], [t].[IssueDate], [t].[Note]
 FROM [Tags] AS [t]
-WHERE CAST([t].[IssueDate] AS date) IN (@__prm_0, '0015-03-07')
+WHERE CAST([t].[IssueDate] AS date) IN (@prm, '0015-03-07')
 """);
     }
 
@@ -9377,6 +9377,20 @@ FROM [Gears] AS [g]
 SELECT [f].[Id], [f].[CapitalName], [f].[Discriminator], [f].[Name], [f].[ServerAddress], [f].[CommanderName], [f].[Eradicated]
 FROM [Factions] AS [f]
 WHERE [f].[ServerAddress] = CAST(N'127.0.0.1' AS nvarchar(45))
+""");
+    }
+
+    public override async Task Project_equality_with_value_converted_property(bool async)
+    {
+        await base.Project_equality_with_value_converted_property(async);
+
+        AssertSql(
+            """
+SELECT CASE
+    WHEN [m].[Difficulty] = N'Unknown' THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END
+FROM [Missions] AS [m]
 """);
     }
 
@@ -9444,8 +9458,8 @@ LEFT JOIN [LocustHighCommands] AS [l0] ON [l].[HighCommandId] = [l0].[Id]
 
         AssertSql(
             """
-@__p_0='0'
-@__p_1='10'
+@p='0'
+@p0='10'
 
 SELECT [s].[Nickname], [s].[SquadId], [s].[AssignedCityName], [s].[CityOfBirthName], [s].[Discriminator], [s].[FullName], [s].[HasSoulPatch], [s].[LeaderNickname], [s].[LeaderSquadId], [s].[Rank], [s].[HasSoulPatch0], [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
 FROM (
@@ -9458,7 +9472,7 @@ FROM (
         GROUP BY [g0].[HasSoulPatch]
     ) AS [g1] ON CAST(LEN([g].[Nickname]) AS int) = [g1].[c]
     ORDER BY [g].[Nickname]
-    OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
+    OFFSET @p ROWS FETCH NEXT @p0 ROWS ONLY
 ) AS [s]
 LEFT JOIN [Weapons] AS [w] ON [s].[FullName] = [w].[OwnerFullName]
 ORDER BY [s].[Nickname], [s].[SquadId], [s].[HasSoulPatch0]
@@ -9471,13 +9485,13 @@ ORDER BY [s].[Nickname], [s].[SquadId], [s].[HasSoulPatch0]
 
         AssertSql(
             """
-@__values_0='[false,true]' (Size = 4000)
+@values='[false,true]' (Size = 4000)
 
 SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
 FROM [Gears] AS [g]
 WHERE [g].[HasSoulPatch] = CAST(1 AS bit) AND [g].[HasSoulPatch] IN (
     SELECT [v].[value]
-    FROM OPENJSON(@__values_0) WITH ([value] bit '$') AS [v]
+    FROM OPENJSON(@values) WITH ([value] bit '$') AS [v]
 )
 """);
     }
@@ -9488,13 +9502,13 @@ WHERE [g].[HasSoulPatch] = CAST(1 AS bit) AND [g].[HasSoulPatch] IN (
 
         AssertSql(
             """
-@__values_0='[false,true]' (Size = 4000)
+@values='[false,true]' (Size = 4000)
 
 SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
 FROM [Gears] AS [g]
 WHERE [g].[HasSoulPatch] = CAST(1 AS bit) AND [g].[HasSoulPatch] IN (
     SELECT [v].[value]
-    FROM OPENJSON(@__values_0) WITH ([value] bit '$') AS [v]
+    FROM OPENJSON(@values) WITH ([value] bit '$') AS [v]
 )
 """);
     }
@@ -9505,11 +9519,11 @@ WHERE [g].[HasSoulPatch] = CAST(1 AS bit) AND [g].[HasSoulPatch] IN (
 
         AssertSql(
             """
-@__place_0='Ephyra's location' (Size = 4000), @__place_0_1='Ephyra's location' (Size = 100) (DbType = AnsiString)
+@place='Ephyra's location' (Size = 4000), @place0='Ephyra's location' (Size = 100) (DbType = AnsiString)
 
 SELECT [c].[Name], [c].[Location], [c].[Nation]
 FROM [Cities] AS [c]
-WHERE [c].[Nation] = @__place_0 OR [c].[Location] = @__place_0_1 OR [c].[Location] = @__place_0_1
+WHERE [c].[Nation] = @place OR [c].[Location] = @place0 OR [c].[Location] = @place
 """);
     }
 
@@ -9519,10 +9533,10 @@ WHERE [c].[Nation] = @__place_0 OR [c].[Location] = @__place_0_1 OR [c].[Locatio
 
         AssertSql(
             """
-@__p_0='1'
-@__value_1='1'
+@p='1'
+@value='1'
 
-SELECT TOP(@__p_0) [g].[Rank] & @__value_1
+SELECT TOP(@p) [g].[Rank] & @value
 FROM [Gears] AS [g]
 ORDER BY [g].[Nickname]
 """);
@@ -10084,12 +10098,12 @@ ORDER BY [g].[Nickname], [g].[SquadId], [g0].[Nickname]
 
         AssertSql(
             """
-@__p_0='0'
+@p='0'
 
 SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
 FROM [Gears] AS [g]
 ORDER BY [g].[FullName]
-OFFSET @__p_0 ROWS FETCH NEXT 1 ROWS ONLY
+OFFSET @p ROWS FETCH NEXT 1 ROWS ONLY
 """);
     }
 
@@ -10099,12 +10113,12 @@ OFFSET @__p_0 ROWS FETCH NEXT 1 ROWS ONLY
 
         AssertSql(
             """
-@__p_0='1'
+@p='1'
 
 SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
 FROM [Gears] AS [g]
 ORDER BY [g].[FullName]
-OFFSET @__p_0 ROWS FETCH NEXT 1 ROWS ONLY
+OFFSET @p ROWS FETCH NEXT 1 ROWS ONLY
 """);
     }
 
@@ -10114,12 +10128,12 @@ OFFSET @__p_0 ROWS FETCH NEXT 1 ROWS ONLY
 
         AssertSql(
             """
-@__p_0='2'
+@p='2'
 
 SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
 FROM [Gears] AS [g]
 ORDER BY [g].[FullName]
-OFFSET @__p_0 ROWS FETCH NEXT 1 ROWS ONLY
+OFFSET @p ROWS FETCH NEXT 1 ROWS ONLY
 """);
     }
 
@@ -10174,7 +10188,7 @@ FROM [Squads] AS [s]
 
         AssertSql(
             """
-@__unixEpochMilliseconds_0='0'
+@unixEpochMilliseconds='0'
 
 SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], [s].[Id], [s].[Banner], [s].[Banner5], [s].[InternalNumber], [s].[Name], [s1].[SquadId], [s1].[MissionId]
 FROM [Gears] AS [g]
@@ -10184,7 +10198,7 @@ WHERE NOT EXISTS (
     SELECT 1
     FROM [SquadMissions] AS [s0]
     INNER JOIN [Missions] AS [m] ON [s0].[MissionId] = [m].[Id]
-    WHERE [s].[Id] = [s0].[SquadId] AND @__unixEpochMilliseconds_0 = DATEDIFF_BIG(millisecond, '1970-01-01T00:00:00.0000000+00:00', [m].[Timeline]))
+    WHERE [s].[Id] = [s0].[SquadId] AND @unixEpochMilliseconds = DATEDIFF_BIG(millisecond, '1970-01-01T00:00:00.0000000+00:00', [m].[Timeline]))
 ORDER BY [g].[Nickname], [g].[SquadId], [s].[Id], [s1].[SquadId]
 """);
     }
@@ -10195,7 +10209,7 @@ ORDER BY [g].[Nickname], [g].[SquadId], [s].[Id], [s1].[SquadId]
 
         AssertSql(
             """
-@__unixEpochSeconds_0='0'
+@unixEpochSeconds='0'
 
 SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], [s].[Id], [s].[Banner], [s].[Banner5], [s].[InternalNumber], [s].[Name], [s1].[SquadId], [s1].[MissionId]
 FROM [Gears] AS [g]
@@ -10205,7 +10219,7 @@ WHERE NOT EXISTS (
     SELECT 1
     FROM [SquadMissions] AS [s0]
     INNER JOIN [Missions] AS [m] ON [s0].[MissionId] = [m].[Id]
-    WHERE [s].[Id] = [s0].[SquadId] AND @__unixEpochSeconds_0 = DATEDIFF_BIG(second, '1970-01-01T00:00:00.0000000+00:00', [m].[Timeline]))
+    WHERE [s].[Id] = [s0].[SquadId] AND @unixEpochSeconds = DATEDIFF_BIG(second, '1970-01-01T00:00:00.0000000+00:00', [m].[Timeline]))
 ORDER BY [g].[Nickname], [g].[SquadId], [s].[Id], [s1].[SquadId]
 """);
     }
@@ -10247,7 +10261,7 @@ GROUP BY [s].[Name]
 
         AssertSql(
             """
-@__numbers_0='[1,-1]' (Size = 4000)
+@numbers='[1,-1]' (Size = 4000)
 
 SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
 FROM [Gears] AS [g]
@@ -10259,7 +10273,7 @@ WHERE CASE
     ELSE 0
 END IN (
     SELECT [n].[value]
-    FROM OPENJSON(@__numbers_0) WITH ([value] int '$') AS [n]
+    FROM OPENJSON(@numbers) WITH ([value] int '$') AS [n]
 )
 """);
     }
@@ -10270,7 +10284,7 @@ END IN (
 
         AssertSql(
             """
-@__weapons_0='["Marcus\u0027 Lancer","Dom\u0027s Gnasher"]' (Size = 4000)
+@weapons='["Marcus\u0027 Lancer","Dom\u0027s Gnasher"]' (Size = 4000)
 
 SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
 FROM [Gears] AS [g]
@@ -10280,7 +10294,7 @@ WHERE (
     WHERE [g].[FullName] = [w0].[OwnerFullName]
     ORDER BY [w0].[Id]) IN (
     SELECT [w].[value]
-    FROM OPENJSON(@__weapons_0) WITH ([value] nvarchar(max) '$') AS [w]
+    FROM OPENJSON(@weapons) WITH ([value] nvarchar(max) '$') AS [w]
 )
 """);
     }
@@ -10291,7 +10305,7 @@ WHERE (
 
         AssertSql(
             """
-@__numbers_0='[0,1,2]' (Size = 4000)
+@numbers='[0,1,2]' (Size = 4000)
 
 SELECT [g].[Nickname], [g].[SquadId], [w1].[Id], [w1].[AmmunitionType], [w1].[IsAutomatic], [w1].[Name], [w1].[OwnerFullName], [w1].[SynergyWithId]
 FROM [Gears] AS [g]
@@ -10303,7 +10317,7 @@ LEFT JOIN (
     ) AS [w0]
     WHERE [w0].[row] <= COALESCE((
         SELECT [n].[value]
-        FROM OPENJSON(@__numbers_0) WITH ([value] int '$') AS [n]
+        FROM OPENJSON(@numbers) WITH ([value] int '$') AS [n]
         ORDER BY [n].[value]
         OFFSET 1 ROWS FETCH NEXT 1 ROWS ONLY), 0)
 ) AS [w1] ON [g].[FullName] = [w1].[OwnerFullName]
@@ -10467,40 +10481,40 @@ LEFT JOIN [LocustHighCommands] AS [l0] ON [l].[HighCommandId] = [l0].[Id]
 
         AssertSql(
             """
-@__ranks_0='[1]' (Size = 4000)
-@__key_1='5f221fb9-66f4-442a-92c9-d97ed5989cc7'
-@__keys_2='["0a47bcb7-a1cb-4345-8944-c58f82d6aac7","5f221fb9-66f4-442a-92c9-d97ed5989cc7"]' (Size = 4000)
+@ranks='[1]' (Size = 4000)
+@key='5f221fb9-66f4-442a-92c9-d97ed5989cc7'
+@keys='["0a47bcb7-a1cb-4345-8944-c58f82d6aac7","5f221fb9-66f4-442a-92c9-d97ed5989cc7"]' (Size = 4000)
 
 SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
 FROM [Gears] AS [g]
 WHERE CASE
     WHEN [g].[Rank] IN (
         SELECT [r].[value]
-        FROM OPENJSON(@__ranks_0) WITH ([value] int '$') AS [r]
-    ) THEN @__key_1
-    ELSE @__key_1
+        FROM OPENJSON(@ranks) WITH ([value] int '$') AS [r]
+    ) THEN @key
+    ELSE @key
 END IN (
     SELECT [k].[value]
-    FROM OPENJSON(@__keys_2) WITH ([value] uniqueidentifier '$') AS [k]
+    FROM OPENJSON(@keys) WITH ([value] uniqueidentifier '$') AS [k]
 )
 """,
             //
             """
-@__ammoTypes_0='[1]' (Size = 4000)
-@__key_1='5f221fb9-66f4-442a-92c9-d97ed5989cc7'
-@__keys_2='["0a47bcb7-a1cb-4345-8944-c58f82d6aac7","5f221fb9-66f4-442a-92c9-d97ed5989cc7"]' (Size = 4000)
+@ammoTypes='[1]' (Size = 4000)
+@key='5f221fb9-66f4-442a-92c9-d97ed5989cc7'
+@keys='["0a47bcb7-a1cb-4345-8944-c58f82d6aac7","5f221fb9-66f4-442a-92c9-d97ed5989cc7"]' (Size = 4000)
 
 SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
 FROM [Weapons] AS [w]
 WHERE CASE
     WHEN [w].[AmmunitionType] IN (
         SELECT [a].[value]
-        FROM OPENJSON(@__ammoTypes_0) WITH ([value] int '$') AS [a]
-    ) THEN @__key_1
-    ELSE @__key_1
+        FROM OPENJSON(@ammoTypes) WITH ([value] int '$') AS [a]
+    ) THEN @key
+    ELSE @key
 END IN (
     SELECT [k].[value]
-    FROM OPENJSON(@__keys_2) WITH ([value] uniqueidentifier '$') AS [k]
+    FROM OPENJSON(@keys) WITH ([value] uniqueidentifier '$') AS [k]
 )
 """);
     }
@@ -10515,6 +10529,78 @@ SELECT [m].[Duration]
 FROM [Missions] AS [m]
 """
         );
+    }
+
+    public override async Task Where_datetimeoffset_microsecond_component(bool async)
+    {
+        await base.Where_datetimeoffset_microsecond_component(async);
+
+        AssertSql(
+            """
+SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Date], [m].[Difficulty], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
+FROM [Missions] AS [m]
+WHERE DATEPART(microsecond, [m].[Timeline]) % 1000 = 200
+""");
+    }
+
+    public override async Task Where_datetimeoffset_nanosecond_component(bool async)
+    {
+        await base.Where_datetimeoffset_nanosecond_component(async);
+
+        AssertSql(
+            """
+SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Date], [m].[Difficulty], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
+FROM [Missions] AS [m]
+WHERE DATEPART(nanosecond, [m].[Timeline]) % 1000 = 400
+""");
+    }
+
+    public override async Task Where_timespan_microsecond_component(bool async)
+    {
+        await base.Where_timespan_microsecond_component(async);
+
+        AssertSql(
+            """
+SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Date], [m].[Difficulty], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
+FROM [Missions] AS [m]
+WHERE DATEPART(microsecond, [m].[Duration]) % 1000 = 200
+""");
+    }
+
+    public override async Task Where_timespan_nanosecond_component(bool async)
+    {
+        await base.Where_timespan_nanosecond_component(async);
+
+        AssertSql(
+            """
+SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Date], [m].[Difficulty], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
+FROM [Missions] AS [m]
+WHERE DATEPART(nanosecond, [m].[Duration]) % 1000 = 400
+""");
+    }
+
+    public override async Task Where_timeonly_microsecond_component(bool async)
+    {
+        await base.Where_timeonly_microsecond_component(async);
+
+        AssertSql(
+            """
+SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Date], [m].[Difficulty], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
+FROM [Missions] AS [m]
+WHERE DATEPART(microsecond, [m].[Time]) % 1000 = 200
+""");
+    }
+
+    public override async Task Where_timeonly_nanosecond_component(bool async)
+    {
+        await base.Where_timeonly_nanosecond_component(async);
+
+        AssertSql(
+            """
+SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Date], [m].[Difficulty], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
+FROM [Missions] AS [m]
+WHERE DATEPART(nanosecond, [m].[Time]) % 1000 = 400
+""");
     }
 
     private void AssertSql(params string[] expected)

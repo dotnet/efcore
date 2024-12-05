@@ -2627,6 +2627,16 @@ public class RelationalModelValidator : ModelValidator
                         RelationalStrings.JsonEntityMappedToDifferentTableOrViewThanOwner(
                             jsonEntityType.DisplayName(), table.Name, ownership.PrincipalEntityType.DisplayName(), ownerTableOrViewName));
                 }
+
+                var principalContainerColumn = ownership.PrincipalEntityType.GetContainerColumnName();
+                if (principalContainerColumn != null
+                    && principalContainerColumn != jsonEntityType.GetContainerColumnName())
+                {
+                    throw new InvalidOperationException(
+                        RelationalStrings.JsonEntityMappedToDifferentColumnThanOwner(
+                            jsonEntityType.DisplayName(), jsonEntityType.GetContainerColumnName(),
+                            ownership.PrincipalEntityType.DisplayName(), principalContainerColumn));
+                }
             }
 
             var nonOwnedTypes = mappedTypes.Where(x => !x.IsOwned());
@@ -2652,7 +2662,7 @@ public class RelationalModelValidator : ModelValidator
 
             var rootType = distinctRootTypes[0];
             var jsonEntitiesMappedToSameJsonColumn = mappedTypes
-                .Where(x => x.FindOwnership() is IForeignKey ownership && !ownership.PrincipalEntityType.IsOwned())
+                .Where(x => x.FindOwnership() is IForeignKey ownership && !ownership.PrincipalEntityType.IsMappedToJson())
                 .GroupBy(x => x.GetContainerColumnName())
                 .Where(x => x.Key is not null)
                 .Select(g => new { g.Key, Count = g.Count() })
@@ -2661,7 +2671,7 @@ public class RelationalModelValidator : ModelValidator
 
             if (jsonEntitiesMappedToSameJsonColumn.FirstOrDefault() is string jsonEntityMappedToSameJsonColumn)
             {
-                // issue #28584
+                // TODO: handle JSON columns on views, issue #28584
                 throw new InvalidOperationException(
                     RelationalStrings.JsonEntityMultipleRootsMappedToTheSameJsonColumn(
                         jsonEntityMappedToSameJsonColumn, table.Name));
@@ -2754,7 +2764,7 @@ public class RelationalModelValidator : ModelValidator
         if (ownership.PrincipalEntityType.IsOwned()
             && !ownership.PrincipalEntityType.IsMappedToJson())
         {
-            // issue #28441
+            //TODO: Allow non-JSON owner, issue #28441
             throw new InvalidOperationException(
                 RelationalStrings.JsonEntityOwnedByNonJsonOwnedType(
                     ownership.PrincipalEntityType.DisplayName(),

@@ -38,11 +38,11 @@ WHERE IsDate([c].[FirstName]) = CAST(0 AS bit)
 
         AssertSql(
             """
-@__customerId_0='3'
+@customerId='3'
 
 SELECT TOP(2) len([c].[LastName])
 FROM [Customers] AS [c]
-WHERE [c].[Id] = @__customerId_0
+WHERE [c].[Id] = @customerId
 """);
     }
 
@@ -52,9 +52,9 @@ WHERE [c].[Id] = @__customerId_0
 
         AssertSql(
             """
-@__customerId_0='1'
+@customerId='1'
 
-SELECT [dbo].[CustomerOrderCount](@__customerId_0)
+SELECT [dbo].[CustomerOrderCount](@customerId)
 FROM [Customers] AS [c]
 """);
     }
@@ -89,11 +89,11 @@ WHERE [c].[Id] = 1
 
         AssertSql(
             """
-@__customerId_0='1'
+@customerId='1'
 
-SELECT TOP(2) [c].[LastName], [dbo].[CustomerOrderCount](@__customerId_0) AS [OrderCount]
+SELECT TOP(2) [c].[LastName], [dbo].[CustomerOrderCount](@customerId) AS [OrderCount]
 FROM [Customers] AS [c]
-WHERE [c].[Id] = @__customerId_0
+WHERE [c].[Id] = @customerId
 """);
     }
 
@@ -103,12 +103,12 @@ WHERE [c].[Id] = @__customerId_0
 
         AssertSql(
             """
-@__starCount_1='3'
-@__customerId_0='3'
+@starCount='3'
+@customerId='3'
 
-SELECT TOP(2) [c].[LastName], [dbo].[StarValue](@__starCount_1, [dbo].[CustomerOrderCount](@__customerId_0)) AS [OrderCount]
+SELECT TOP(2) [c].[LastName], [dbo].[StarValue](@starCount, [dbo].[CustomerOrderCount](@customerId)) AS [OrderCount]
 FROM [Customers] AS [c]
-WHERE [c].[Id] = @__customerId_0
+WHERE [c].[Id] = @customerId
 """);
     }
 
@@ -130,11 +130,11 @@ WHERE [dbo].[IsTopCustomer]([c].[Id]) = CAST(1 AS bit)
 
         AssertSql(
             """
-@__startDate_0='2000-04-01T00:00:00.0000000' (Nullable = true)
+@startDate='2000-04-01T00:00:00.0000000' (Nullable = true)
 
 SELECT TOP(2) [c].[Id]
 FROM [Customers] AS [c]
-WHERE [dbo].[GetCustomerWithMostOrdersAfterDate](@__startDate_0) = [c].[Id]
+WHERE [dbo].[GetCustomerWithMostOrdersAfterDate](@startDate) = [c].[Id]
 """);
     }
 
@@ -144,11 +144,11 @@ WHERE [dbo].[GetCustomerWithMostOrdersAfterDate](@__startDate_0) = [c].[Id]
 
         AssertSql(
             """
-@__period_0='0'
+@period='0'
 
 SELECT TOP(2) [c].[Id]
 FROM [Customers] AS [c]
-WHERE [c].[Id] = [dbo].[GetCustomerWithMostOrdersAfterDate]([dbo].[GetReportingPeriodStartDate](@__period_0))
+WHERE [c].[Id] = [dbo].[GetCustomerWithMostOrdersAfterDate]([dbo].[GetReportingPeriodStartDate](@period))
 """);
     }
 
@@ -194,11 +194,11 @@ WHERE [c].[Id] = 2
 
         AssertSql(
             """
-@__customerId_0='2'
+@customerId='2'
 
-SELECT TOP(2) [c].[LastName], [dbo].[CustomerOrderCount](@__customerId_0) AS [OrderCount]
+SELECT TOP(2) [c].[LastName], [dbo].[CustomerOrderCount](@customerId) AS [OrderCount]
 FROM [Customers] AS [c]
-WHERE [c].[Id] = @__customerId_0
+WHERE [c].[Id] = @customerId
 """);
     }
 
@@ -208,12 +208,12 @@ WHERE [c].[Id] = @__customerId_0
 
         AssertSql(
             """
-@__starCount_1='3'
-@__customerId_0='1'
+@starCount='3'
+@customerId='1'
 
-SELECT TOP(2) [c].[LastName], [dbo].[StarValue](@__starCount_1, [dbo].[CustomerOrderCount](@__customerId_0)) AS [OrderCount]
+SELECT TOP(2) [c].[LastName], [dbo].[StarValue](@starCount, [dbo].[CustomerOrderCount](@customerId)) AS [OrderCount]
 FROM [Customers] AS [c]
-WHERE [c].[Id] = @__customerId_0
+WHERE [c].[Id] = @customerId
 """);
     }
 
@@ -378,11 +378,11 @@ WHERE IsDate([c].[FirstName]) = CAST(0 AS bit)
 
         AssertSql(
             """
-@__customerId_0='3'
+@customerId='3'
 
 SELECT TOP(2) len([c].[LastName])
 FROM [Customers] AS [c]
-WHERE [c].[Id] = @__customerId_0
+WHERE [c].[Id] = @customerId
 """);
     }
 
@@ -392,9 +392,9 @@ WHERE [c].[Id] = @__customerId_0
 
         AssertSql(
             """
-@__customerId_1='1'
+@customerId='1'
 
-SELECT [dbo].[CustomerOrderCount](@__customerId_1)
+SELECT [dbo].[CustomerOrderCount](@customerId)
 FROM [Customers] AS [c]
 """);
     }
@@ -429,11 +429,11 @@ WHERE [c].[Id] = 1
 
         AssertSql(
             """
-@__customerId_0='1'
+@customerId='1'
 
-SELECT TOP(2) [c].[LastName], [dbo].[CustomerOrderCount](@__customerId_0) AS [OrderCount]
+SELECT TOP(2) [c].[LastName], [dbo].[CustomerOrderCount](@customerId) AS [OrderCount]
 FROM [Customers] AS [c]
-WHERE [c].[Id] = @__customerId_0
+WHERE [c].[Id] = @customerId
 """);
     }
 
@@ -443,12 +443,12 @@ WHERE [c].[Id] = @__customerId_0
 
         AssertSql(
             """
-@__starCount_2='3'
-@__customerId_0='3'
+@starCount='3'
+@customerId='3'
 
-SELECT TOP(2) [c].[LastName], [dbo].[StarValue](@__starCount_2, [dbo].[CustomerOrderCount](@__customerId_0)) AS [OrderCount]
+SELECT TOP(2) [c].[LastName], [dbo].[StarValue](@starCount, [dbo].[CustomerOrderCount](@customerId)) AS [OrderCount]
 FROM [Customers] AS [c]
-WHERE [c].[Id] = @__customerId_0
+WHERE [c].[Id] = @customerId
 """);
     }
 
@@ -470,11 +470,11 @@ WHERE [dbo].[IsTopCustomer]([c].[Id]) = CAST(1 AS bit)
 
         AssertSql(
             """
-@__startDate_1='2000-04-01T00:00:00.0000000' (Nullable = true)
+@startDate='2000-04-01T00:00:00.0000000' (Nullable = true)
 
 SELECT TOP(2) [c].[Id]
 FROM [Customers] AS [c]
-WHERE [dbo].[GetCustomerWithMostOrdersAfterDate](@__startDate_1) = [c].[Id]
+WHERE [dbo].[GetCustomerWithMostOrdersAfterDate](@startDate) = [c].[Id]
 """);
     }
 
@@ -484,11 +484,11 @@ WHERE [dbo].[GetCustomerWithMostOrdersAfterDate](@__startDate_1) = [c].[Id]
 
         AssertSql(
             """
-@__period_1='0'
+@period='0'
 
 SELECT TOP(2) [c].[Id]
 FROM [Customers] AS [c]
-WHERE [c].[Id] = [dbo].[GetCustomerWithMostOrdersAfterDate]([dbo].[GetReportingPeriodStartDate](@__period_1))
+WHERE [c].[Id] = [dbo].[GetCustomerWithMostOrdersAfterDate]([dbo].[GetReportingPeriodStartDate](@period))
 """);
     }
 
@@ -534,11 +534,11 @@ WHERE [c].[Id] = 2
 
         AssertSql(
             """
-@__customerId_1='2'
+@customerId='2'
 
-SELECT TOP(2) [c].[LastName], [dbo].[CustomerOrderCount](@__customerId_1) AS [OrderCount]
+SELECT TOP(2) [c].[LastName], [dbo].[CustomerOrderCount](@customerId) AS [OrderCount]
 FROM [Customers] AS [c]
-WHERE [c].[Id] = @__customerId_1
+WHERE [c].[Id] = @customerId
 """);
     }
 
@@ -548,12 +548,12 @@ WHERE [c].[Id] = @__customerId_1
 
         AssertSql(
             """
-@__starCount_2='3'
-@__customerId_1='1'
+@starCount='3'
+@customerId='1'
 
-SELECT TOP(2) [c].[LastName], [dbo].[StarValue](@__starCount_2, [dbo].[CustomerOrderCount](@__customerId_1)) AS [OrderCount]
+SELECT TOP(2) [c].[LastName], [dbo].[StarValue](@starCount, [dbo].[CustomerOrderCount](@customerId)) AS [OrderCount]
 FROM [Customers] AS [c]
-WHERE [c].[Id] = @__customerId_1
+WHERE [c].[Id] = @customerId
 """);
     }
 
@@ -617,10 +617,10 @@ ORDER BY [g].[ProductId]
 
         AssertSql(
             """
-@__customerId_1='1'
+@customerId='1'
 
 SELECT [g].[Count], [g].[CustomerId], [g].[Year]
-FROM [dbo].[GetCustomerOrderCountByYear](@__customerId_1) AS [g]
+FROM [dbo].[GetCustomerOrderCountByYear](@customerId) AS [g]
 ORDER BY [g].[Count] DESC
 """);
     }
@@ -752,12 +752,12 @@ ORDER BY [g].[Count]
 
         AssertSql(
             """
-@__custId_1='2'
+@custId='2'
 
 SELECT [c].[Id], [c].[LastName], [g].[Year], [g].[Count]
 FROM [Customers] AS [c]
-CROSS JOIN [dbo].[GetCustomerOrderCountByYear](@__custId_1) AS [g]
-WHERE [c].[Id] = @__custId_1
+CROSS JOIN [dbo].[GetCustomerOrderCountByYear](@custId) AS [g]
+WHERE [c].[Id] = @custId
 ORDER BY [g].[Count]
 """);
     }
@@ -847,12 +847,12 @@ ORDER BY [c].[Id], [g].[Year]
 
         AssertSql(
             """
-@__custId_1='2'
+@custId='2'
 
 SELECT [c].[Id], [c].[LastName], [g].[Year], [g].[Count]
 FROM [Customers] AS [c]
 CROSS JOIN [dbo].[GetCustomerOrderCountByYear]([dbo].[AddValues](1, 1)) AS [g]
-WHERE [c].[Id] = @__custId_1
+WHERE [c].[Id] = @custId
 ORDER BY [g].[Year]
 """);
     }
@@ -863,12 +863,12 @@ ORDER BY [g].[Year]
 
         AssertSql(
             """
-@__custId_1='2'
+@custId='2'
 
 SELECT [c].[Id], [g].[Count], [g].[Year]
 FROM [Customers] AS [c]
 CROSS APPLY [dbo].[GetCustomerOrderCountByYear]([dbo].[AddValues]([c].[Id], 1)) AS [g]
-WHERE [c].[Id] = @__custId_1
+WHERE [c].[Id] = @custId
 """);
     }
 

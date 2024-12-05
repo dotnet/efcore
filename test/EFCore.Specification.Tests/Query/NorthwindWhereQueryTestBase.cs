@@ -1770,7 +1770,6 @@ public abstract class NorthwindWhereQueryTestBase<TFixture>(TFixture fixture) : 
             ss => ss.Set<Order>().Where(o => EF.Functions.Like((string)(object)o.OrderID, "%20%")),
             ss => ss.Set<Order>().Where(o => o.OrderID.ToString().Contains("20")));
 
-    // see issue #31917
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Using_same_parameter_twice_in_query_generates_one_sql_parameter(bool async)
@@ -1780,6 +1779,19 @@ public abstract class NorthwindWhereQueryTestBase<TFixture>(TFixture fixture) : 
             async,
             ss => ss.Set<Customer>().Where(c => i + c.CustomerID + i == "10ALFKI10")
                 .Select(c => c.CustomerID));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Two_parameters_with_same_name_get_uniquified(bool async)
+    {
+        var i = 10;
+
+        // i+1 and i+2 each get parameterized using the same parameter name (since they're complex expressions).
+        // This exercises that query parameters are properly uniquified.
+        return AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => (c.CustomerID + (i + 1)) + (c.CustomerID + (i + 2)) == "ALFKI11ALFKI12"));
     }
 
     [ConditionalTheory]
@@ -2536,7 +2548,18 @@ public abstract class NorthwindWhereQueryTestBase<TFixture>(TFixture fixture) : 
             elementAsserter: (e, a) => AssertEqual(e.Id, a.Id));
     }
 
-    #region Evaluation order of predicates
+    [ConditionalTheory] // #35095
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Simplifiable_coalesce_over_nullable(bool async)
+    {
+        int? orderId = 10248;
+
+        return AssertQuery(
+            async,
+            ss => ss.Set<Order>().Where(o => o.OrderID == (orderId ?? 0)));
+    }
+
+    #region Evaluation order of operators
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -2559,5 +2582,5 @@ public abstract class NorthwindWhereQueryTestBase<TFixture>(TFixture fixture) : 
             async,
             ss => ss.Set<Customer>().Select(c => c.ContactTitle).OrderBy(t => t).Take(3).Distinct());
 
-    #endregion Evaluation order of predicates
+    #endregion Evaluation order of operators
 }

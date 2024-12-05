@@ -447,7 +447,7 @@ public class DbContextOperations
     public virtual IEnumerable<DbContext> CreateAllContexts()
     {
         EF.IsDesignTime = true;
-        var types = FindContextTypes();
+        var types = FindContextTypes(useServiceProvider: false);
         foreach (var contextPair in types)
         {
             yield return CreateContext(null, contextPair);
@@ -499,7 +499,7 @@ public class DbContextOperations
     public virtual Type GetContextType(string? name)
         => FindContextType(name).Key;
 
-    private IDictionary<Type, Func<DbContext>> FindContextTypes(string? name = null)
+    private IDictionary<Type, Func<DbContext>> FindContextTypes(string? name = null, bool useServiceProvider = true)
     {
         _reporter.WriteVerbose(DesignStrings.FindingContexts);
 
@@ -576,7 +576,7 @@ public class DbContextOperations
             }
 
             if (contexts.Values.All(f => f != null)
-                && (string.IsNullOrEmpty(name) || contexts.Count == 1))
+                && (!useServiceProvider || contexts.Count == 1))
             {
                 return contexts!;
             }

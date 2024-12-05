@@ -162,9 +162,7 @@ public class SqlServerTestStore : RelationalTestStore
         => Execute(
             Connection, command =>
             {
-                foreach (var batch in
-                         new Regex("^GO", RegexOptions.IgnoreCase | RegexOptions.Multiline, TimeSpan.FromMilliseconds(1000.0))
-                             .Split(script).Where(b => !string.IsNullOrEmpty(b)))
+                foreach (var batch in RelationalDatabaseCleaner.SplitBatches(script))
                 {
                     command.CommandText = batch;
                     command.ExecuteNonQuery();

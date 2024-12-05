@@ -46,10 +46,10 @@ WHERE "o"."OrderID" < 10300
 
         AssertSql(
             """
-@__quantity_0='1' (Nullable = true) (DbType = Int16)
+@quantity='1' (Nullable = true) (DbType = Int16)
 
 DELETE FROM "Order Details" AS "o"
-WHERE "o"."Quantity" = @__quantity_0
+WHERE "o"."Quantity" = @quantity
 """,
             //
             """
@@ -78,7 +78,7 @@ WHERE EXISTS (
 
         AssertSql(
             """
-@__p_0='100'
+@p='100'
 
 DELETE FROM "Order Details" AS "o"
 WHERE EXISTS (
@@ -88,7 +88,7 @@ WHERE EXISTS (
         FROM "Order Details" AS "o0"
         WHERE "o0"."OrderID" < 10300
         ORDER BY "o0"."OrderID"
-        LIMIT -1 OFFSET @__p_0
+        LIMIT -1 OFFSET @p
     ) AS "o1"
     WHERE "o1"."OrderID" = "o"."OrderID" AND "o1"."ProductID" = "o"."ProductID")
 """);
@@ -100,7 +100,7 @@ WHERE EXISTS (
 
         AssertSql(
             """
-@__p_0='100'
+@p='100'
 
 DELETE FROM "Order Details" AS "o"
 WHERE EXISTS (
@@ -110,7 +110,7 @@ WHERE EXISTS (
         FROM "Order Details" AS "o0"
         WHERE "o0"."OrderID" < 10300
         ORDER BY "o0"."OrderID"
-        LIMIT @__p_0
+        LIMIT @p
     ) AS "o1"
     WHERE "o1"."OrderID" = "o"."OrderID" AND "o1"."ProductID" = "o"."ProductID")
 """);
@@ -122,7 +122,7 @@ WHERE EXISTS (
 
         AssertSql(
             """
-@__p_0='100'
+@p='100'
 
 DELETE FROM "Order Details" AS "o"
 WHERE EXISTS (
@@ -132,7 +132,7 @@ WHERE EXISTS (
         FROM "Order Details" AS "o0"
         WHERE "o0"."OrderID" < 10300
         ORDER BY "o0"."OrderID"
-        LIMIT @__p_0 OFFSET @__p_0
+        LIMIT @p OFFSET @p
     ) AS "o1"
     WHERE "o1"."OrderID" = "o"."OrderID" AND "o1"."ProductID" = "o"."ProductID")
 """);
@@ -144,7 +144,7 @@ WHERE EXISTS (
 
         AssertSql(
             """
-@__p_0='100'
+@p='100'
 
 DELETE FROM "Order Details" AS "o"
 WHERE EXISTS (
@@ -153,7 +153,7 @@ WHERE EXISTS (
         SELECT "o0"."OrderID", "o0"."ProductID"
         FROM "Order Details" AS "o0"
         WHERE "o0"."OrderID" < 10300
-        LIMIT -1 OFFSET @__p_0
+        LIMIT -1 OFFSET @p
     ) AS "o1"
     WHERE "o1"."OrderID" = "o"."OrderID" AND "o1"."ProductID" = "o"."ProductID")
 """);
@@ -165,7 +165,7 @@ WHERE EXISTS (
 
         AssertSql(
             """
-@__p_0='100'
+@p='100'
 
 DELETE FROM "Order Details" AS "o"
 WHERE EXISTS (
@@ -174,7 +174,7 @@ WHERE EXISTS (
         SELECT "o0"."OrderID", "o0"."ProductID"
         FROM "Order Details" AS "o0"
         WHERE "o0"."OrderID" < 10300
-        LIMIT @__p_0
+        LIMIT @p
     ) AS "o1"
     WHERE "o1"."OrderID" = "o"."OrderID" AND "o1"."ProductID" = "o"."ProductID")
 """);
@@ -186,7 +186,7 @@ WHERE EXISTS (
 
         AssertSql(
             """
-@__p_0='100'
+@p='100'
 
 DELETE FROM "Order Details" AS "o"
 WHERE EXISTS (
@@ -195,7 +195,7 @@ WHERE EXISTS (
         SELECT "o0"."OrderID", "o0"."ProductID"
         FROM "Order Details" AS "o0"
         WHERE "o0"."OrderID" < 10300
-        LIMIT @__p_0 OFFSET @__p_0
+        LIMIT @p OFFSET @p
     ) AS "o1"
     WHERE "o1"."OrderID" = "o"."OrderID" AND "o1"."ProductID" = "o"."ProductID")
 """);
@@ -265,9 +265,9 @@ WHERE EXISTS (
 
         AssertSql(
             """
-@__p_0='100'
-@__p_2='5'
-@__p_1='20'
+@p='100'
+@p2='5'
+@p1='20'
 
 DELETE FROM "Order Details" AS "o"
 WHERE EXISTS (
@@ -278,9 +278,9 @@ WHERE EXISTS (
             SELECT "o1"."OrderID", "o1"."ProductID"
             FROM "Order Details" AS "o1"
             WHERE "o1"."OrderID" < 10300
-            LIMIT @__p_0 OFFSET @__p_0
+            LIMIT @p OFFSET @p
         ) AS "o0"
-        LIMIT @__p_2 OFFSET @__p_1
+        LIMIT @p2 OFFSET @p1
     ) AS "o2"
     WHERE "o2"."OrderID" = "o"."OrderID" AND "o2"."ProductID" = "o"."ProductID")
 """);
@@ -511,8 +511,8 @@ WHERE EXISTS (
 
         AssertSql(
             """
-@__p_1='100'
-@__p_0='0'
+@p0='100'
+@p='0'
 
 DELETE FROM "Order Details" AS "o"
 WHERE EXISTS (
@@ -523,7 +523,7 @@ WHERE EXISTS (
         FROM "Orders" AS "o2"
         WHERE "o2"."OrderID" < 10300
         ORDER BY "o2"."OrderID"
-        LIMIT @__p_1 OFFSET @__p_0
+        LIMIT @p0 OFFSET @p
     ) AS "o1" ON "o0"."OrderID" = "o1"."OrderID"
     WHERE "o0"."OrderID" = "o"."OrderID" AND "o0"."ProductID" = "o"."ProductID")
 """);
@@ -535,8 +535,8 @@ WHERE EXISTS (
 
         AssertSql(
             """
-@__p_1='100'
-@__p_0='0'
+@p0='100'
+@p='0'
 
 DELETE FROM "Order Details" AS "o"
 WHERE EXISTS (
@@ -547,7 +547,7 @@ WHERE EXISTS (
         FROM "Orders" AS "o2"
         WHERE "o2"."OrderID" < 10300
         ORDER BY "o2"."OrderID"
-        LIMIT @__p_1 OFFSET @__p_0
+        LIMIT @p0 OFFSET @p
     ) AS "o1" ON "o0"."OrderID" = "o1"."OrderID"
     WHERE "o0"."OrderID" < 10276 AND "o0"."OrderID" = "o"."OrderID" AND "o0"."ProductID" = "o"."ProductID")
 """);
@@ -616,19 +616,19 @@ WHERE "c"."CustomerID" LIKE 'F%'
 
         AssertExecuteUpdateSql(
             """
-@__customer_0='ALFKI' (Size = 5)
+@customer='ALFKI' (Size = 5)
 
 UPDATE "Customers" AS "c"
 SET "ContactName" = 'Updated'
-WHERE "c"."CustomerID" = @__customer_0
+WHERE "c"."CustomerID" = @customer
 """,
             //
             """
-@__customer_0='ALFKI' (Size = 5)
+@customer='ALFKI' (Size = 5)
 
 SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
 FROM "Customers" AS "c"
-WHERE "c"."CustomerID" = @__customer_0
+WHERE "c"."CustomerID" = @customer
 """,
             //
             """
@@ -650,10 +650,10 @@ WHERE 0
 
         AssertExecuteUpdateSql(
             """
-@__value_0='Abc' (Size = 3)
+@value='Abc' (Size = 3)
 
 UPDATE "Customers" AS "c"
-SET "ContactName" = @__value_0
+SET "ContactName" = @value
 WHERE "c"."CustomerID" LIKE 'F%'
 """);
     }
@@ -664,10 +664,10 @@ WHERE "c"."CustomerID" LIKE 'F%'
 
         AssertExecuteUpdateSql(
             """
-@__p_0='Abc' (Size = 3)
+@p='Abc' (Size = 3)
 
 UPDATE "Customers" AS "c"
-SET "ContactName" = @__p_0
+SET "ContactName" = @p
 WHERE "c"."CustomerID" LIKE 'F%'
 """);
     }
@@ -690,10 +690,10 @@ WHERE "c"."CustomerID" LIKE 'F%'
 
         AssertExecuteUpdateSql(
             """
-@__container_Containee_Property_0='Abc' (Size = 3)
+@container_Containee_Property='Abc' (Size = 3)
 
 UPDATE "Customers" AS "c"
-SET "ContactName" = @__container_Containee_Property_0
+SET "ContactName" = @container_Containee_Property
 WHERE "c"."CustomerID" LIKE 'F%'
 """);
     }
@@ -704,7 +704,7 @@ WHERE "c"."CustomerID" LIKE 'F%'
 
         AssertExecuteUpdateSql(
             """
-@__p_0='4'
+@p='4'
 
 UPDATE "Customers" AS "c0"
 SET "ContactName" = 'Updated'
@@ -712,7 +712,7 @@ FROM (
     SELECT "c"."CustomerID"
     FROM "Customers" AS "c"
     WHERE "c"."CustomerID" LIKE 'F%'
-    LIMIT -1 OFFSET @__p_0
+    LIMIT -1 OFFSET @p
 ) AS "c1"
 WHERE "c0"."CustomerID" = "c1"."CustomerID"
 """);
@@ -724,7 +724,7 @@ WHERE "c0"."CustomerID" = "c1"."CustomerID"
 
         AssertExecuteUpdateSql(
             """
-@__p_0='4'
+@p='4'
 
 UPDATE "Customers" AS "c0"
 SET "ContactName" = 'Updated'
@@ -732,7 +732,7 @@ FROM (
     SELECT "c"."CustomerID"
     FROM "Customers" AS "c"
     WHERE "c"."CustomerID" LIKE 'F%'
-    LIMIT @__p_0
+    LIMIT @p
 ) AS "c1"
 WHERE "c0"."CustomerID" = "c1"."CustomerID"
 """);
@@ -744,8 +744,8 @@ WHERE "c0"."CustomerID" = "c1"."CustomerID"
 
         AssertExecuteUpdateSql(
             """
-@__p_1='4'
-@__p_0='2'
+@p0='4'
+@p='2'
 
 UPDATE "Customers" AS "c0"
 SET "ContactName" = 'Updated'
@@ -753,7 +753,7 @@ FROM (
     SELECT "c"."CustomerID"
     FROM "Customers" AS "c"
     WHERE "c"."CustomerID" LIKE 'F%'
-    LIMIT @__p_1 OFFSET @__p_0
+    LIMIT @p0 OFFSET @p
 ) AS "c1"
 WHERE "c0"."CustomerID" = "c1"."CustomerID"
 """);
@@ -782,7 +782,7 @@ WHERE "c0"."CustomerID" = "c1"."CustomerID"
 
         AssertExecuteUpdateSql(
             """
-@__p_0='4'
+@p='4'
 
 UPDATE "Customers" AS "c0"
 SET "ContactName" = 'Updated'
@@ -791,7 +791,7 @@ FROM (
     FROM "Customers" AS "c"
     WHERE "c"."CustomerID" LIKE 'F%'
     ORDER BY "c"."City"
-    LIMIT -1 OFFSET @__p_0
+    LIMIT -1 OFFSET @p
 ) AS "c1"
 WHERE "c0"."CustomerID" = "c1"."CustomerID"
 """);
@@ -803,7 +803,7 @@ WHERE "c0"."CustomerID" = "c1"."CustomerID"
 
         AssertExecuteUpdateSql(
             """
-@__p_0='4'
+@p='4'
 
 UPDATE "Customers" AS "c0"
 SET "ContactName" = 'Updated'
@@ -812,7 +812,7 @@ FROM (
     FROM "Customers" AS "c"
     WHERE "c"."CustomerID" LIKE 'F%'
     ORDER BY "c"."City"
-    LIMIT @__p_0
+    LIMIT @p
 ) AS "c1"
 WHERE "c0"."CustomerID" = "c1"."CustomerID"
 """);
@@ -824,8 +824,8 @@ WHERE "c0"."CustomerID" = "c1"."CustomerID"
 
         AssertExecuteUpdateSql(
             """
-@__p_1='4'
-@__p_0='2'
+@p0='4'
+@p='2'
 
 UPDATE "Customers" AS "c0"
 SET "ContactName" = 'Updated'
@@ -834,7 +834,7 @@ FROM (
     FROM "Customers" AS "c"
     WHERE "c"."CustomerID" LIKE 'F%'
     ORDER BY "c"."City"
-    LIMIT @__p_1 OFFSET @__p_0
+    LIMIT @p0 OFFSET @p
 ) AS "c1"
 WHERE "c0"."CustomerID" = "c1"."CustomerID"
 """);
@@ -846,8 +846,8 @@ WHERE "c0"."CustomerID" = "c1"."CustomerID"
 
         AssertExecuteUpdateSql(
             """
-@__p_1='6'
-@__p_0='2'
+@p0='6'
+@p='2'
 
 UPDATE "Customers" AS "c1"
 SET "ContactName" = 'Updated'
@@ -858,10 +858,10 @@ FROM (
         FROM "Customers" AS "c"
         WHERE "c"."CustomerID" LIKE 'F%'
         ORDER BY "c"."City"
-        LIMIT @__p_1 OFFSET @__p_0
+        LIMIT @p0 OFFSET @p
     ) AS "c0"
     ORDER BY "c0"."City"
-    LIMIT @__p_0 OFFSET @__p_0
+    LIMIT @p OFFSET @p
 ) AS "c2"
 WHERE "c1"."CustomerID" = "c2"."CustomerID"
 """);
@@ -1014,10 +1014,10 @@ WHERE "c"."CustomerID" LIKE 'F%'
 
         AssertExecuteUpdateSql(
             """
-@__value_0='Abc' (Size = 3)
+@value='Abc' (Size = 3)
 
 UPDATE "Customers" AS "c"
-SET "ContactName" = COALESCE("c"."ContactName", '') || @__value_0
+SET "ContactName" = COALESCE("c"."ContactName", '') || @value
 WHERE "c"."CustomerID" LIKE 'F%'
 """);
     }
@@ -1078,11 +1078,11 @@ WHERE "c"."CustomerID" LIKE 'F%'
 
         AssertExecuteUpdateSql(
             """
-@__value_0='Abc' (Size = 3)
+@value='Abc' (Size = 3)
 
 UPDATE "Customers" AS "c"
 SET "City" = 'Seattle',
-    "ContactName" = @__value_0
+    "ContactName" = @value
 WHERE "c"."CustomerID" LIKE 'F%'
 """);
     }

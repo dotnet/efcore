@@ -11532,6 +11532,67 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
             Assert.Empty);
 
     [ConditionalFact]
+    public void Change_default_schema_with_owned_entities()
+        => Execute(
+            common =>
+            {
+                common.Entity(
+                    "Order", b =>
+                    {
+                        b.Property<int>("Id")
+                            .ValueGeneratedOnAdd();
+
+                        b.HasKey("Id");
+
+                        b.ToTable("Order", "OrderSchema");
+
+                        b.OwnsOne(
+                            "OrderInfo", "OrderInfo", b1 =>
+                            {
+                                b1.Property<int>("OrderId")
+                                    .ValueGeneratedOnAdd();
+
+                                b1.HasKey("OrderId");
+
+                                b1.HasOne("Order", "Order")
+                                    .WithOne("OrderInfo")
+                                    .HasForeignKey("OrderInfo", "OrderId")
+                                    .OnDelete(DeleteBehavior.Cascade);
+                            });
+                    });
+            },
+            source =>
+            {
+                source.HasDefaultSchema(null);
+
+                source.Entity(
+                    "Order", b =>
+                    {
+                        b.OwnsOne(
+                            "OrderInfo", "OrderInfo", b1 =>
+                            {
+                                b1.ToTable("Order", "MySchema");
+                            });
+                    });
+            },
+            target =>
+            {
+                target.HasDefaultSchema("MySchema");
+
+                target.Entity(
+                    "Order", b =>
+                    {
+                        b.OwnsOne(
+                            "OrderInfo", "OrderInfo", b1 =>
+                            {
+                                b1.ToTable("Order", (string)null);
+                            });
+                    });
+            },
+            Assert.Empty,
+            Assert.Empty);
+
+    [ConditionalFact]
     public void Move_properties_to_owned_type()
         => Execute(
             source => source.Ignore<Address>().Entity<OldOrder>(),

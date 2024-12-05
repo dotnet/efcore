@@ -198,7 +198,8 @@ public class LiftableConstantProcessor : ExpressionVisitor, ILiftableConstantPro
             // Make sure there aren't any problematic un-lifted constants within the resolver expression.
             _unsupportedConstantChecker.Check(resolverExpression);
 
-            var resolver = resolverExpression.Compile(preferInterpretation: true);
+            // TODO: deep dive into this - see issue #35210
+            var resolver = resolverExpression.Compile(preferInterpretation: false);
             var value = resolver(_materializerLiftableConstantContext);
 
             return Expression.Constant(value, liftableConstant.Type);
@@ -256,11 +257,17 @@ public class LiftableConstantProcessor : ExpressionVisitor, ILiftableConstantPro
             ? memberExpression
             : base.VisitMember(memberExpression);
 
-    protected override Expression VisitConstant(ConstantExpression node)
-    {
-        _unsupportedConstantChecker.Check(node);
-        return node;
-    }
+    // issue #34760 - disabling the liftable constant verification because we sometimes are forced to
+    // use them (when type mapping has custom converter but we can't reliably get the correct type mapping
+    // when building the shaper) - if that converter uses a closure, we will embed it in the shaper
+    // we don't have a reasonalbe alternative currently
+    // Once #33517 is done, we should re-enable this check
+    //protected override Expression VisitConstant(ConstantExpression node)
+    //{
+    //    _unsupportedConstantChecker.Check(node);
+
+    //    return node;
+    //}
 #endif
 
     private sealed class UnsupportedConstantChecker(LiftableConstantProcessor liftableConstantProcessor) : ExpressionVisitor

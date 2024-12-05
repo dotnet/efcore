@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 /// </summary>
 public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
 {
-    private const string RuntimeParameterPrefix = QueryCompilationContext.QueryParameterPrefix + "entity_equality_";
+    private const string RuntimeParameterPrefix = "entity_equality_";
 
     private static readonly List<MethodInfo> SingleResultMethodInfos =
     [
@@ -503,6 +503,31 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
             case JsonQueryExpression:
                 return extensionExpression;
 
+            case QueryParameterExpression queryParameter:
+                // If we're precompiling a query, nullability information about reference type parameters has been extracted by the
+                // funcletizer and stored on the query compilation context; use that information when creating the SqlParameterExpression.
+                if (queryParameter.IsNonNullableReferenceType)
+                {
+                    Check.DebugAssert(
+                        _queryCompilationContext.IsPrecompiling,
+                        "Parameters can only be known to has non-nullable reference types in query precompilation.");
+                    return new SqlParameterExpression(
+                        invariantName: queryParameter.Name,
+                        name: queryParameter.Name,
+                        queryParameter.Type,
+                        nullable: false,
+                        queryParameter.ShouldBeConstantized,
+                        typeMapping: null);
+                }
+
+                return new SqlParameterExpression(
+                    invariantName: queryParameter.Name,
+                    name: queryParameter.Name,
+                    queryParameter.Type,
+                    queryParameter.Type.IsNullableType(),
+                    queryParameter.ShouldBeConstantized,
+                    typeMapping: null);
+
             case StructuralTypeShaperExpression shaper:
                 return new StructuralTypeReferenceExpression(shaper);
 
@@ -584,7 +609,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
             // that we can translate queryable operators over it (query root in subquery context), but in normal SQL translation context
             // we just unwrap the query root expression to get the parameter out.
             case ParameterQueryRootExpression queryableParameterQueryRootExpression:
-                return Visit(queryableParameterQueryRootExpression.ParameterExpression);
+                return Visit(queryableParameterQueryRootExpression.QueryParameterExpression);
 
             default:
                 return QueryCompilationContext.NotTranslatedExpression;
@@ -977,24 +1002,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
 
     /// <inheritdoc />
     protected override Expression VisitParameter(ParameterExpression parameterExpression)
-    {
-        if (parameterExpression.Name?.StartsWith(QueryCompilationContext.QueryParameterPrefix, StringComparison.Ordinal) == true)
-        {
-            // If we're precompiling a query, nullability information about reference type parameters has been extracted by the
-            // funcletizer and stored on the query compilation context; use that information when creating the SqlParameterExpression.
-            if (_queryCompilationContext.NonNullableReferenceTypeParameters.Contains(parameterExpression.Name))
-            {
-                Check.DebugAssert(
-                    _queryCompilationContext.IsPrecompiling,
-                    "Parameters can only be known to has non-nullable reference types in query precompilation.");
-                return new SqlParameterExpression(parameterExpression.Name, parameterExpression.Type, typeMapping: null, nullable: false);
-            }
-
-            return new SqlParameterExpression(parameterExpression.Name, parameterExpression.Type, typeMapping: null);
-        }
-
-        throw new InvalidOperationException(CoreStrings.TranslationFailed(parameterExpression.Print()));
-    }
+        => throw new InvalidOperationException(CoreStrings.TranslationFailed(parameterExpression.Print()));
 
     /// <inheritdoc />
     protected override Expression VisitTypeBinary(TypeBinaryExpression typeBinaryExpression)
@@ -1680,8 +1688,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                 rewrittenSource = Expression.Constant(propertyValueList);
                 break;
 
-            case SqlParameterExpression sqlParameterExpression
-                when sqlParameterExpression.Name.StartsWith(QueryCompilationContext.QueryParameterPrefix, StringComparison.Ordinal):
+            case SqlParameterExpression sqlParameterExpression:
                 var lambda = Expression.Lambda(
                     Expression.Call(
                         ParameterListValueExtractorMethod.MakeGenericMethod(entityType.ClrType, property.ClrType.MakeNullable()),
@@ -1691,8 +1698,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                     QueryCompilationContext.QueryContextParameter);
 
                 var newParameterName =
-                    $"{RuntimeParameterPrefix}"
-                    + $"{sqlParameterExpression.Name[QueryCompilationContext.QueryParameterPrefix.Length..]}_{property.Name}";
+                    $"{RuntimeParameterPrefix}{sqlParameterExpression.Name}_{property.Name}";
 
                 rewrittenSource = _queryCompilationContext.RegisterRuntimeParameter(newParameterName, lambda);
                 break;
@@ -1995,8 +2001,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                         : property.GetGetter().GetClrValue(sqlConstantExpression.Value),
                     property.ClrType.MakeNullable());
 
-            case SqlParameterExpression sqlParameterExpression
-                when sqlParameterExpression.Name.StartsWith(QueryCompilationContext.QueryParameterPrefix, StringComparison.Ordinal):
+            case SqlParameterExpression sqlParameterExpression:
             {
                 var lambda = Expression.Lambda(
                     Expression.Call(
@@ -2008,8 +2013,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                     QueryCompilationContext.QueryContextParameter);
 
                 var newParameterName =
-                    $"{RuntimeParameterPrefix}"
-                    + $"{sqlParameterExpression.Name[QueryCompilationContext.QueryParameterPrefix.Length..]}_{property.Name}";
+                    $"{RuntimeParameterPrefix}{sqlParameterExpression.Name}_{property.Name}";
 
                 return _queryCompilationContext.RegisterRuntimeParameter(newParameterName, lambda);
             }
@@ -2026,7 +2030,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                     QueryCompilationContext.QueryContextParameter);
 
                 var parameterNameBuilder = new StringBuilder(RuntimeParameterPrefix)
-                    .Append(chainExpression.ParameterExpression.Name[QueryCompilationContext.QueryParameterPrefix.Length..])
+                    .Append(chainExpression.ParameterExpression.Name)
                     .Append('_');
 
                 foreach (var complexProperty in chainExpression.ComplexPropertyChain)
@@ -2057,7 +2061,6 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                 complexProperty.ClrType.MakeNullable()),
 
             SqlParameterExpression sqlParameterExpression
-                when sqlParameterExpression.Name.StartsWith(QueryCompilationContext.QueryParameterPrefix, StringComparison.Ordinal)
                 => new ParameterBasedComplexPropertyChainExpression(sqlParameterExpression, complexProperty),
 
             MemberInitExpression memberInitExpression

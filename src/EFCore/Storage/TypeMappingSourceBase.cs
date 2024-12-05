@@ -174,7 +174,7 @@ public abstract class TypeMappingSourceBase : ITypeMappingSource
                         elementReader);
 
                 elementComparer = (ValueComparer?)Activator.CreateInstance(
-                    elementType.IsNullableValueType()
+                    elementType.IsNullableValueType() || elementMapping.Comparer.Type.IsNullableValueType()
                         ? typeof(ListOfNullableValueTypesComparer<,>).MakeGenericType(typeToInstantiate, elementType.UnwrapNullableType())
                         : elementType.IsValueType
                             ? typeof(ListOfValueTypesComparer<,>).MakeGenericType(typeToInstantiate, elementType)

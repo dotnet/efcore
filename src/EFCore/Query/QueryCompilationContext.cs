@@ -22,17 +22,6 @@ public class QueryCompilationContext
 {
     /// <summary>
     ///     <para>
-    ///         Prefix for all the query parameters generated during parameter extraction in query pipeline.
-    ///     </para>
-    ///     <para>
-    ///         This property is typically used by database providers (and other extensions). It is generally
-    ///         not used in application code.
-    ///     </para>
-    /// </summary>
-    public const string QueryParameterPrefix = "__";
-
-    /// <summary>
-    ///     <para>
     ///         ParameterExpression representing <see cref="QueryContext" /> parameter in query expression.
     ///     </para>
     ///     <para>
@@ -53,31 +42,6 @@ public class QueryCompilationContext
     /// </summary>
     public static readonly Expression NotTranslatedExpression = new NotTranslatedExpressionType();
 
-    /// <summary>
-    ///     <para>
-    ///         Names of parameters on which <see cref="EF.Constant{T}" /> was used. Such parameters are later transformed into constants.
-    ///     </para>
-    ///     <para>
-    ///         This property is typically used by database providers (and other extensions). It is generally
-    ///         not used in application code.
-    ///     </para>
-    /// </summary>
-    public virtual ISet<string> ParametersToConstantize { get; } = new HashSet<string>(StringComparer.Ordinal);
-
-    /// <summary>
-    ///     <para>
-    ///         Names of parameters on which <see cref="EF.Parameter{T}" /> was used. Such parameters are later not transformed into
-    ///         constants even when parameterized collection constantization is configured as the default.
-    ///     </para>
-    ///     <para>
-    ///         This property is typically used by database providers (and other extensions). It is generally
-    ///         not used in application code.
-    ///     </para>
-    /// </summary>
-    public virtual ISet<string> ParametersToNotConstantize { get; } = new HashSet<string>(StringComparer.Ordinal);
-
-    private static readonly IReadOnlySet<string> EmptySet = new HashSet<string>();
-
     private readonly IQueryTranslationPreprocessorFactory _queryTranslationPreprocessorFactory;
     private readonly IQueryableMethodTranslatingExpressionVisitorFactory _queryableMethodTranslatingExpressionVisitorFactory;
     private readonly IQueryTranslationPostprocessorFactory _queryTranslationPostprocessorFactory;
@@ -93,10 +57,8 @@ public class QueryCompilationContext
     /// </summary>
     /// <param name="dependencies">Parameter object containing dependencies for this class.</param>
     /// <param name="async">A bool value indicating whether it is for async query.</param>
-    public QueryCompilationContext(
-        QueryCompilationContextDependencies dependencies,
-        bool async)
-        : this(dependencies, async, precompiling: false, nonNullableReferenceTypeParameters: null)
+    public QueryCompilationContext(QueryCompilationContextDependencies dependencies, bool async)
+        : this(dependencies, async, precompiling: false)
     {
     }
 
@@ -106,13 +68,8 @@ public class QueryCompilationContext
     /// <param name="dependencies">Parameter object containing dependencies for this class.</param>
     /// <param name="async">A bool value indicating whether it is for async query.</param>
     /// <param name="precompiling">Indicates whether the query is being precompiled.</param>
-    /// <param name="nonNullableReferenceTypeParameters">Names of parameters which have non-nullable reference types.</param>
     [Experimental(EFDiagnostics.PrecompiledQueryExperimental)]
-    public QueryCompilationContext(
-        QueryCompilationContextDependencies dependencies,
-        bool async,
-        bool precompiling,
-        IReadOnlySet<string>? nonNullableReferenceTypeParameters)
+    public QueryCompilationContext(QueryCompilationContextDependencies dependencies, bool async, bool precompiling)
     {
         Dependencies = dependencies;
         IsAsync = async;
@@ -123,7 +80,6 @@ public class QueryCompilationContext
         ContextOptions = dependencies.ContextOptions;
         ContextType = dependencies.ContextType;
         Logger = dependencies.Logger;
-        NonNullableReferenceTypeParameters = nonNullableReferenceTypeParameters ?? EmptySet;
 
         _queryTranslationPreprocessorFactory = dependencies.QueryTranslationPreprocessorFactory;
         _queryableMethodTranslatingExpressionVisitorFactory = dependencies.QueryableMethodTranslatingExpressionVisitorFactory;
@@ -196,12 +152,6 @@ public class QueryCompilationContext
     ///     The CLR type of derived DbContext to use during query compilation.
     /// </summary>
     public virtual Type ContextType { get; }
-
-    /// <summary>
-    ///     Names of parameters which have non-nullable reference types.
-    /// </summary>
-    [Experimental(EFDiagnostics.PrecompiledQueryExperimental)]
-    public virtual IReadOnlySet<string> NonNullableReferenceTypeParameters { get; }
 
     /// <summary>
     ///     Adds a tag to <see cref="Tags" />.
@@ -278,7 +228,7 @@ public class QueryCompilationContext
     ///     A lambda must be provided, which will extract the parameter's value from the QueryContext every time
     ///     the query is executed.
     /// </summary>
-    public virtual ParameterExpression RegisterRuntimeParameter(string name, LambdaExpression valueExtractor)
+    public virtual QueryParameterExpression RegisterRuntimeParameter(string name, LambdaExpression valueExtractor)
     {
         var valueExtractorBody = valueExtractor.Body;
         if (SupportsPrecompiledQuery)
@@ -297,7 +247,7 @@ public class QueryCompilationContext
         _runtimeParameters ??= new Dictionary<string, LambdaExpression>();
 
         _runtimeParameters[name] = valueExtractor;
-        return Expression.Parameter(valueExtractor.ReturnType, name);
+        return new QueryParameterExpression(name, valueExtractor.ReturnType);
     }
 
     private Expression InsertRuntimeParameters(Expression query)

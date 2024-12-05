@@ -212,7 +212,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                     // TODO: filter into the QueryCompilationContext.NonNullableReferenceTypeParameters
                     var processedDefiningQueryBody = _funcletizer.ExtractParameters(
                         definingQuery.Body, _parameters, parameterize: false, clearParameterizedValues: false,
-                        _queryCompilationContext.IsPrecompiling, out var nonNullableReferenceTypeParameters);
+                        _queryCompilationContext.IsPrecompiling);
                     processedDefiningQueryBody = _queryTranslationPreprocessor.NormalizeQueryableMethod(processedDefiningQueryBody);
                     processedDefiningQueryBody = _nullCheckRemovingExpressionVisitor.Visit(processedDefiningQueryBody);
                     processedDefiningQueryBody =
@@ -1794,7 +1794,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                     // TODO: filter into the QueryCompilationContext.NonNullableReferenceTypeParameters
                     tempFilterPredicate = (LambdaExpression)_funcletizer.ExtractParameters(
                         tempFilterPredicate, _parameters, parameterize: false, clearParameterizedValues: false,
-                            _queryCompilationContext.IsPrecompiling, out var nonNullableReferenceTypeParameters);
+                            _queryCompilationContext.IsPrecompiling);
 
                     if (queryFilters.Count != 1)
                     {

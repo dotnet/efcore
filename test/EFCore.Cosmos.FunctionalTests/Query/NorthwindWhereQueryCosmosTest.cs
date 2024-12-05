@@ -488,11 +488,11 @@ WHERE (c["City"] = "London")
 
                 AssertSql(
                     """
-@__city_0='London'
+@city='London'
 
 SELECT VALUE c
 FROM root c
-WHERE (c["City"] = @__city_0)
+WHERE (c["City"] = @city)
 """);
             });
 
@@ -507,11 +507,11 @@ WHERE (c["City"] = @__city_0)
 
                 AssertSql(
                     """
-@__p_0='London'
+@p='London'
 
 SELECT VALUE c
 FROM root c
-WHERE (c["City"] = @__p_0)
+WHERE (c["City"] = @p)
 """);
             });
 
@@ -523,11 +523,11 @@ WHERE (c["City"] = @__p_0)
 
                 AssertSql(
                     """
-@__get_Item_0='London'
+@get_Item='London'
 
 SELECT VALUE c
 FROM root c
-WHERE (c["City"] = @__get_Item_0)
+WHERE (c["City"] = @get_Item)
 """);
             });
 
@@ -539,11 +539,11 @@ WHERE (c["City"] = @__get_Item_0)
 
                 AssertSql(
                     """
-@__predicateTuple_Item2_0='London'
+@predicateTuple_Item2='London'
 
 SELECT VALUE c
 FROM root c
-WHERE (c["City"] = @__predicateTuple_Item2_0)
+WHERE (c["City"] = @predicateTuple_Item2)
 """);
             });
 
@@ -555,11 +555,11 @@ WHERE (c["City"] = @__predicateTuple_Item2_0)
 
                 AssertSql(
                     """
-@__predicateTuple_Item2_0='London'
+@predicateTuple_Item2='London'
 
 SELECT VALUE c
 FROM root c
-WHERE (c["City"] = @__predicateTuple_Item2_0)
+WHERE (c["City"] = @predicateTuple_Item2)
 """);
             });
 
@@ -571,11 +571,11 @@ WHERE (c["City"] = @__predicateTuple_Item2_0)
 
                 AssertSql(
                     """
-@__predicate_0='true'
+@predicate='true'
 
 SELECT VALUE c
 FROM root c
-WHERE @__predicate_0
+WHERE @predicate
 """);
             });
 
@@ -587,19 +587,19 @@ WHERE @__predicate_0
 
                 AssertSql(
                     """
-@__city_0='London'
+@city='London'
 
 SELECT VALUE c
 FROM root c
-WHERE (c["City"] = @__city_0)
+WHERE (c["City"] = @city)
 """,
                     //
                     """
-@__city_0='Seattle'
+@city='Seattle'
 
 SELECT VALUE c
 FROM root c
-WHERE (c["City"] = @__city_0)
+WHERE (c["City"] = @city)
 """);
             });
 
@@ -627,19 +627,19 @@ WHERE (c["City"] = @__city_0)
 
                 AssertSql(
                     """
-@__GetCity_0='London'
+@GetCity='London'
 
 SELECT VALUE c
 FROM root c
-WHERE (c["City"] = @__GetCity_0)
+WHERE (c["City"] = @GetCity)
 """,
                     //
                     """
-@__GetCity_0='Seattle'
+@GetCity='Seattle'
 
 SELECT VALUE c
 FROM root c
-WHERE (c["City"] = @__GetCity_0)
+WHERE (c["City"] = @GetCity)
 """);
             });
 
@@ -651,19 +651,19 @@ WHERE (c["City"] = @__GetCity_0)
 
                 AssertSql(
                     """
-@__city_InstanceFieldValue_0='London'
+@city_InstanceFieldValue='London'
 
 SELECT VALUE c
 FROM root c
-WHERE (c["City"] = @__city_InstanceFieldValue_0)
+WHERE (c["City"] = @city_InstanceFieldValue)
 """,
                     //
                     """
-@__city_InstanceFieldValue_0='Seattle'
+@city_InstanceFieldValue='Seattle'
 
 SELECT VALUE c
 FROM root c
-WHERE (c["City"] = @__city_InstanceFieldValue_0)
+WHERE (c["City"] = @city_InstanceFieldValue)
 """);
             });
 
@@ -675,19 +675,19 @@ WHERE (c["City"] = @__city_InstanceFieldValue_0)
 
                 AssertSql(
                     """
-@__city_InstancePropertyValue_0='London'
+@city_InstancePropertyValue='London'
 
 SELECT VALUE c
 FROM root c
-WHERE (c["City"] = @__city_InstancePropertyValue_0)
+WHERE (c["City"] = @city_InstancePropertyValue)
 """,
                     //
                     """
-@__city_InstancePropertyValue_0='Seattle'
+@city_InstancePropertyValue='Seattle'
 
 SELECT VALUE c
 FROM root c
-WHERE (c["City"] = @__city_InstancePropertyValue_0)
+WHERE (c["City"] = @city_InstancePropertyValue)
 """);
             });
 
@@ -699,19 +699,19 @@ WHERE (c["City"] = @__city_InstancePropertyValue_0)
 
                 AssertSql(
                     """
-@__StaticFieldValue_0='London'
+@StaticFieldValue='London'
 
 SELECT VALUE c
 FROM root c
-WHERE (c["City"] = @__StaticFieldValue_0)
+WHERE (c["City"] = @StaticFieldValue)
 """,
                     //
                     """
-@__StaticFieldValue_0='Seattle'
+@StaticFieldValue='Seattle'
 
 SELECT VALUE c
 FROM root c
-WHERE (c["City"] = @__StaticFieldValue_0)
+WHERE (c["City"] = @StaticFieldValue)
 """);
             });
 
@@ -723,19 +723,19 @@ WHERE (c["City"] = @__StaticFieldValue_0)
 
                 AssertSql(
                     """
-@__StaticPropertyValue_0='London'
+@StaticPropertyValue='London'
 
 SELECT VALUE c
 FROM root c
-WHERE (c["City"] = @__StaticPropertyValue_0)
+WHERE (c["City"] = @StaticPropertyValue)
 """,
                     //
                     """
-@__StaticPropertyValue_0='Seattle'
+@StaticPropertyValue='Seattle'
 
 SELECT VALUE c
 FROM root c
-WHERE (c["City"] = @__StaticPropertyValue_0)
+WHERE (c["City"] = @StaticPropertyValue)
 """);
             });
 
@@ -747,19 +747,19 @@ WHERE (c["City"] = @__StaticPropertyValue_0)
 
                 AssertSql(
                     """
-@__city_Nested_InstanceFieldValue_0='London'
+@city_Nested_InstanceFieldValue='London'
 
 SELECT VALUE c
 FROM root c
-WHERE (c["City"] = @__city_Nested_InstanceFieldValue_0)
+WHERE (c["City"] = @city_Nested_InstanceFieldValue)
 """,
                     //
                     """
-@__city_Nested_InstanceFieldValue_0='Seattle'
+@city_Nested_InstanceFieldValue='Seattle'
 
 SELECT VALUE c
 FROM root c
-WHERE (c["City"] = @__city_Nested_InstanceFieldValue_0)
+WHERE (c["City"] = @city_Nested_InstanceFieldValue)
 """);
             });
 
@@ -771,19 +771,19 @@ WHERE (c["City"] = @__city_Nested_InstanceFieldValue_0)
 
                 AssertSql(
                     """
-@__city_Nested_InstancePropertyValue_0='London'
+@city_Nested_InstancePropertyValue='London'
 
 SELECT VALUE c
 FROM root c
-WHERE (c["City"] = @__city_Nested_InstancePropertyValue_0)
+WHERE (c["City"] = @city_Nested_InstancePropertyValue)
 """,
                     //
                     """
-@__city_Nested_InstancePropertyValue_0='Seattle'
+@city_Nested_InstancePropertyValue='Seattle'
 
 SELECT VALUE c
 FROM root c
-WHERE (c["City"] = @__city_Nested_InstancePropertyValue_0)
+WHERE (c["City"] = @city_Nested_InstancePropertyValue)
 """);
             });
 
@@ -795,19 +795,19 @@ WHERE (c["City"] = @__city_Nested_InstancePropertyValue_0)
 
                 AssertSql(
                     """
-@__InstanceFieldValue_0='London'
+@InstanceFieldValue='London'
 
 SELECT VALUE c
 FROM root c
-WHERE (c["City"] = @__InstanceFieldValue_0)
+WHERE (c["City"] = @InstanceFieldValue)
 """,
                     //
                     """
-@__InstanceFieldValue_0='Seattle'
+@InstanceFieldValue='Seattle'
 
 SELECT VALUE c
 FROM root c
-WHERE (c["City"] = @__InstanceFieldValue_0)
+WHERE (c["City"] = @InstanceFieldValue)
 """);
             });
 
@@ -819,19 +819,19 @@ WHERE (c["City"] = @__InstanceFieldValue_0)
 
                 AssertSql(
                     """
-@__InstanceFieldValue_0='London'
+@InstanceFieldValue='London'
 
 SELECT VALUE c
 FROM root c
-WHERE (c["City"] = @__InstanceFieldValue_0)
+WHERE (c["City"] = @InstanceFieldValue)
 """,
                     //
                     """
-@__InstanceFieldValue_0='Seattle'
+@InstanceFieldValue='Seattle'
 
 SELECT VALUE c
 FROM root c
-WHERE (c["City"] = @__InstanceFieldValue_0)
+WHERE (c["City"] = @InstanceFieldValue)
 """);
             });
 
@@ -1054,19 +1054,19 @@ WHERE false
 
                 AssertSql(
                     """
-@__intPrm_0='2'
+@intPrm='2'
 
 SELECT VALUE c
 FROM root c
-WHERE (c["ReportsTo"] = @__intPrm_0)
+WHERE (c["ReportsTo"] = @intPrm)
 """,
                     //
                     """
-@__intPrm_0='2'
+@intPrm='2'
 
 SELECT VALUE c
 FROM root c
-WHERE (@__intPrm_0 = c["ReportsTo"])
+WHERE (@intPrm = c["ReportsTo"])
 """);
             });
 
@@ -1078,19 +1078,19 @@ WHERE (@__intPrm_0 = c["ReportsTo"])
 
                 AssertSql(
                     """
-@__nullableIntPrm_0='2'
+@nullableIntPrm='2'
 
 SELECT VALUE c
 FROM root c
-WHERE (@__nullableIntPrm_0 = c["ReportsTo"])
+WHERE (@nullableIntPrm = c["ReportsTo"])
 """,
                     //
                     """
-@__nullableIntPrm_0='2'
+@nullableIntPrm='2'
 
 SELECT VALUE c
 FROM root c
-WHERE (c["ReportsTo"] = @__nullableIntPrm_0)
+WHERE (c["ReportsTo"] = @nullableIntPrm)
 """);
             });
 
@@ -1102,19 +1102,19 @@ WHERE (c["ReportsTo"] = @__nullableIntPrm_0)
 
                 AssertSql(
                     """
-@__nullableIntPrm_0=null
+@nullableIntPrm=null
 
 SELECT VALUE c
 FROM root c
-WHERE (@__nullableIntPrm_0 = c["ReportsTo"])
+WHERE (@nullableIntPrm = c["ReportsTo"])
 """,
                     //
                     """
-@__nullableIntPrm_0=null
+@nullableIntPrm=null
 
 SELECT VALUE c
 FROM root c
-WHERE (c["ReportsTo"] = @__nullableIntPrm_0)
+WHERE (c["ReportsTo"] = @nullableIntPrm)
 """);
             });
 
@@ -1218,11 +1218,11 @@ WHERE (SUBSTRING(c["City"], 1, 2) = "ea")
 
                 AssertSql(
                     """
-@__myDatetime_0='2015-04-10T00:00:00'
+@myDatetime='2015-04-10T00:00:00'
 
 SELECT VALUE c
 FROM root c
-WHERE (GetCurrentDateTime() != @__myDatetime_0)
+WHERE (GetCurrentDateTime() != @myDatetime)
 """);
             });
 
@@ -1234,11 +1234,11 @@ WHERE (GetCurrentDateTime() != @__myDatetime_0)
 
                 AssertSql(
                     """
-@__myDatetimeOffset_0='2015-04-10T00:00:00-08:00'
+@myDatetimeOffset='2015-04-10T00:00:00-08:00'
 
 SELECT VALUE c
 FROM root c
-WHERE (GetCurrentDateTime() != @__myDatetimeOffset_0)
+WHERE (GetCurrentDateTime() != @myDatetimeOffset)
 """);
             });
 
@@ -1725,11 +1725,11 @@ WHERE ((c["$type"] = "Product") AND (NOT(c["Discontinued"]) = (c["ProductID"] > 
 
                 AssertSql(
                     """
-@__prm_0='true'
+@prm='true'
 
 SELECT VALUE c
 FROM root c
-WHERE ((c["$type"] = "Product") AND @__prm_0)
+WHERE ((c["$type"] = "Product") AND @prm)
 """);
             });
 
@@ -1741,11 +1741,11 @@ WHERE ((c["$type"] = "Product") AND @__prm_0)
 
                 AssertSql(
                     """
-@__prm_0='true'
+@prm='true'
 
 SELECT VALUE c
 FROM root c
-WHERE ((c["$type"] = "Product") AND ((c["ProductID"] > 50) != @__prm_0))
+WHERE ((c["$type"] = "Product") AND ((c["ProductID"] > 50) != @prm))
 """);
             });
 
@@ -1757,11 +1757,11 @@ WHERE ((c["$type"] = "Product") AND ((c["ProductID"] > 50) != @__prm_0))
 
                 AssertSql(
                     """
-@__prm_0='true'
+@prm='true'
 
 SELECT VALUE c
 FROM root c
-WHERE ((c["$type"] = "Product") AND (c["Discontinued"] = ((c["ProductID"] > 50) != @__prm_0)))
+WHERE ((c["$type"] = "Product") AND (c["Discontinued"] = ((c["ProductID"] > 50) != @prm)))
 """);
             });
 
@@ -1963,11 +1963,11 @@ WHERE (c["Fax"] = null)
 
                 AssertSql(
                     """
-@__i_0='A'
+@i='A'
 
 SELECT VALUE c["id"]
 FROM root c
-WHERE ((@__i_0 || c["id"]) = "AAROUT")
+WHERE ((@i || c["id"]) = "AAROUT")
 """);
             });
 
@@ -1979,12 +1979,12 @@ WHERE ((@__i_0 || c["id"]) = "AAROUT")
 
                 AssertSql(
                     """
-@__i_0='A'
-@__j_1='B'
+@i='A'
+@j='B'
 
 SELECT VALUE c["id"]
 FROM root c
-WHERE ((@__i_0 || (@__j_1 || c["id"])) = "ABANATR")
+WHERE ((@i || (@j || c["id"])) = "ABANATR")
 """);
             });
 
@@ -1996,13 +1996,13 @@ WHERE ((@__i_0 || (@__j_1 || c["id"])) = "ABANATR")
 
                 AssertSql(
                     """
-@__i_0='A'
-@__j_1='B'
-@__k_2='C'
+@i='A'
+@j='B'
+@k='C'
 
 SELECT VALUE c["id"]
 FROM root c
-WHERE ((@__i_0 || (@__j_1 || (@__k_2 || c["id"]))) = "ABCANTON")
+WHERE ((@i || (@j || (@k || c["id"]))) = "ABCANTON")
 """);
             });
 
@@ -2042,11 +2042,11 @@ WHERE ((c["$type"] = "Product") AND (c["UnitsInStock"] < 20))
 
                 AssertSql(
                     """
-@__productId_0='15'
+@productId='15'
 
 SELECT VALUE c
 FROM root c
-WHERE ((c["$type"] = "Product") AND ((c["ProductID"] < @__productId_0) AND (c["UnitsInStock"] >= 20)))
+WHERE ((c["$type"] = "Product") AND ((c["ProductID"] < @productId) AND (c["UnitsInStock"] >= 20)))
 """);
             });
 
@@ -2290,11 +2290,11 @@ WHERE (c["$type"] = "Order")
 
                 AssertSql(
                     """
-@__p_0='false'
+@p='false'
 
 SELECT VALUE c
 FROM root c
-WHERE ((c["$type"] = "Order") AND @__p_0)
+WHERE ((c["$type"] = "Order") AND @p)
 """);
             });
 
@@ -2347,6 +2347,14 @@ WHERE ((c["$type"] = "Product") AND (true ? false : true))
     public override async Task Using_same_parameter_twice_in_query_generates_one_sql_parameter(bool async)
     {
         // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Using_same_parameter_twice_in_query_generates_one_sql_parameter(async));
+
+        AssertSql();
+    }
+
+    public override async Task Two_parameters_with_same_name_get_uniquified(bool async)
+    {
+        // Concat with conversion, issue #34963.
         await AssertTranslationFailed(() => base.Using_same_parameter_twice_in_query_generates_one_sql_parameter(async));
 
         AssertSql();
@@ -2496,11 +2504,11 @@ WHERE ((c["$type"] = "Product") AND (true ? false : true))
 
                 AssertSql(
                     """
-@__orderIds_0='[10248,10249]'
+@orderIds='[10248,10249]'
 
 SELECT VALUE c
 FROM root c
-WHERE ((c["$type"] = "Order") AND ARRAY_CONTAINS(@__orderIds_0, c["OrderID"]))
+WHERE ((c["$type"] = "Order") AND ARRAY_CONTAINS(@orderIds, c["OrderID"]))
 """);
             });
 
@@ -2512,11 +2520,11 @@ WHERE ((c["$type"] = "Order") AND ARRAY_CONTAINS(@__orderIds_0, c["OrderID"]))
 
                 AssertSql(
                     """
-@__orderIds_0='[10248,10249]'
+@orderIds='[10248,10249]'
 
 SELECT VALUE c
 FROM root c
-WHERE ((c["$type"] = "Order") AND ARRAY_CONTAINS(@__orderIds_0, c["OrderID"]))
+WHERE ((c["$type"] = "Order") AND ARRAY_CONTAINS(@orderIds, c["OrderID"]))
 """);
             });
 
@@ -2674,11 +2682,11 @@ WHERE ((c["$type"] = "Order") AND ARRAY_CONTAINS(@__orderIds_0, c["OrderID"]))
 
                 AssertSql(
                     """
-@__customerIds_0='["ALFKI","FISSA","WHITC"]'
+@customerIds='["ALFKI","FISSA","WHITC"]'
 
 SELECT VALUE c
 FROM root c
-WHERE (ARRAY_CONTAINS(@__customerIds_0, c["id"]) AND (c["City"] = "Seattle"))
+WHERE (ARRAY_CONTAINS(@customerIds, c["id"]) AND (c["City"] = "Seattle"))
 """);
             });
 
@@ -2690,11 +2698,11 @@ WHERE (ARRAY_CONTAINS(@__customerIds_0, c["id"]) AND (c["City"] = "Seattle"))
 
                 AssertSql(
                     """
-@__customerIds_0='["ALFKI","FISSA"]'
+@customerIds='["ALFKI","FISSA"]'
 
 SELECT VALUE c
 FROM root c
-WHERE (ARRAY_CONTAINS(@__customerIds_0, c["id"]) OR (c["City"] = "Seattle"))
+WHERE (ARRAY_CONTAINS(@customerIds, c["id"]) OR (c["City"] = "Seattle"))
 """);
             });
 
@@ -2858,11 +2866,11 @@ WHERE (c["City"] = "London")
                 await base.Generic_Ilist_contains_translates_to_server(a);
                 AssertSql(
                     """
-@__cities_0='["Seattle"]'
+@cities='["Seattle"]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__cities_0, c["City"])
+WHERE ARRAY_CONTAINS(@cities, c["City"])
 """);
             });
 
@@ -2956,13 +2964,13 @@ WHERE (c["id"] NOT IN ("ALFKI", "ANATR") AND c["id"] NOT IN ("ALFKI", "ANTON"))
 
                 AssertSql(
                     """
-@__prm1_0='ALFKI'
-@__prm2_1='ANATR'
-@__prm3_2='ANTON'
+@prm1='ALFKI'
+@prm2='ANATR'
+@prm3='ANTON'
 
 SELECT VALUE c
 FROM root c
-WHERE (((c["id"] != @__prm1_0) AND (c["id"] != @__prm2_1)) AND (c["id"] != @__prm3_2))
+WHERE (((c["id"] != @prm1) AND (c["id"] != @prm2)) AND (c["id"] != @prm3))
 """);
             });
 
@@ -2974,12 +2982,12 @@ WHERE (((c["id"] != @__prm1_0) AND (c["id"] != @__prm2_1)) AND (c["id"] != @__pr
 
                 AssertSql(
                     """
-@__prm1_0='ALFKI'
-@__prm2_1='ANATR'
+@prm1='ALFKI'
+@prm2='ANATR'
 
 SELECT VALUE c
 FROM root c
-WHERE (c["id"] IN (@__prm1_0, @__prm2_1) OR (c["id"] = "ANTON"))
+WHERE (c["id"] IN (@prm1, @prm2) OR (c["id"] = "ANTON"))
 """);
             });
 
@@ -2991,11 +2999,11 @@ WHERE (c["id"] IN (@__prm1_0, @__prm2_1) OR (c["id"] = "ANTON"))
 
                 AssertSql(
                     """
-@__prm_0=null
+@prm=null
 
 SELECT VALUE c
 FROM root c
-WHERE ((((c["Region"] = "WA") OR (c["Region"] = "OR")) OR (c["Region"] = @__prm_0)) OR (c["Region"] = "BC"))
+WHERE ((((c["Region"] = "WA") OR (c["Region"] = "OR")) OR (c["Region"] = @prm)) OR (c["Region"] = "BC"))
 """);
             });
 
@@ -3007,11 +3015,11 @@ WHERE ((((c["Region"] = "WA") OR (c["Region"] = "OR")) OR (c["Region"] = @__prm_
 
                 AssertSql(
                     """
-@__array_0='["ALFKI","ANATR"]'
+@array='["ALFKI","ANATR"]'
 
 SELECT VALUE c
 FROM root c
-WHERE (ARRAY_CONTAINS(@__array_0, c["id"]) OR (c["id"] = "ANTON"))
+WHERE (ARRAY_CONTAINS(@array, c["id"]) OR (c["id"] = "ANTON"))
 """);
             });
 
@@ -3023,13 +3031,13 @@ WHERE (ARRAY_CONTAINS(@__array_0, c["id"]) OR (c["id"] = "ANTON"))
 
                 AssertSql(
                     """
-@__prm1_0='ANTON'
-@__array_1='["ALFKI","ANATR"]'
-@__prm2_2='ALFKI'
+@prm1='ANTON'
+@array='["ALFKI","ANATR"]'
+@prm2='ALFKI'
 
 SELECT VALUE c
 FROM root c
-WHERE (((c["id"] = @__prm1_0) OR ARRAY_CONTAINS(@__array_1, c["id"])) OR (c["id"] = @__prm2_2))
+WHERE (((c["id"] = @prm1) OR ARRAY_CONTAINS(@array, c["id"])) OR (c["id"] = @prm2))
 """);
             });
 
@@ -3124,19 +3132,19 @@ WHERE (c["Title"] = "Sales Representative")
                 await base.Where_poco_closure(a);
                 AssertSql(
                     """
-@__entity_equality_customer_0_CustomerID='ALFKI'
+@entity_equality_customer_CustomerID='ALFKI'
 
 SELECT VALUE c["id"]
 FROM root c
-WHERE (c["id"] = @__entity_equality_customer_0_CustomerID)
+WHERE (c["id"] = @entity_equality_customer_CustomerID)
 """,
                     //
                     """
-@__entity_equality_customer_0_CustomerID='ANATR'
+@entity_equality_customer_CustomerID='ANATR'
 
 SELECT VALUE c["id"]
 FROM root c
-WHERE (c["id"] = @__entity_equality_customer_0_CustomerID)
+WHERE (c["id"] = @entity_equality_customer_CustomerID)
 """);
             });
 
@@ -3148,11 +3156,11 @@ WHERE (c["id"] = @__entity_equality_customer_0_CustomerID)
 
                 AssertSql(
                     """
-@__i_0='A'
+@i='A'
 
 SELECT VALUE c["id"]
 FROM root c
-WHERE ((@__i_0 || c["id"]) = "AALFKI")
+WHERE ((@i || c["id"]) = "AALFKI")
 """);
             });
 
@@ -3213,11 +3221,11 @@ WHERE ((@__i_0 || c["id"]) = "AALFKI")
 
                 AssertSql(
                     """
-@__id_0='ALF'
+@id='ALF'
 
 SELECT VALUE c
 FROM root c
-WHERE (c["id"] = (@__id_0 || "KI"))
+WHERE (c["id"] = (@id || "KI"))
 """);
             });
 
@@ -3242,27 +3250,27 @@ WHERE ((c["$type"] = "Order") AND (c["CustomerID"] = "1337"))
 """,
                     //
                     """
-@__prm_Value_0='1337'
+@prm_Value='1337'
 
 SELECT VALUE c
 FROM root c
-WHERE ((c["$type"] = "Order") AND (c["CustomerID"] = @__prm_Value_0))
+WHERE ((c["$type"] = "Order") AND (c["CustomerID"] = @prm_Value))
 """,
                     //
                     """
-@__ToString_0='1337'
+@ToString='1337'
 
 SELECT VALUE c
 FROM root c
-WHERE ((c["$type"] = "Order") AND (c["CustomerID"] = @__ToString_0))
+WHERE ((c["$type"] = "Order") AND (c["CustomerID"] = @ToString))
 """,
                     //
                     """
-@__p_0='1337'
+@p='1337'
 
 SELECT VALUE c
 FROM root c
-WHERE ((c["$type"] = "Order") AND (c["CustomerID"] = @__p_0))
+WHERE ((c["$type"] = "Order") AND (c["CustomerID"] = @p))
 """,
                     //
                     """
@@ -3280,11 +3288,11 @@ WHERE ((c["$type"] = "Order") AND (c["CustomerID"] = "1337"))
 
                 AssertSql(
                     """
-@__id_0='10252'
+@id='10252'
 
 SELECT VALUE c["OrderID"]
 FROM root c
-WHERE ((c["$type"] = "Order") AND (c["OrderID"] = @__id_0))
+WHERE ((c["$type"] = "Order") AND (c["OrderID"] = @id))
 """,
                     //
                     """
@@ -3303,6 +3311,18 @@ WHERE ((c["$type"] = "Order") AND (c["OrderID"] = 10252))
 SELECT VALUE c["OrderID"]
 FROM root c
 WHERE ((c["$type"] = "Order") AND (c["OrderID"] = 10252))
+""");
+            });
+
+    public override Task Simplifiable_coalesce_over_nullable(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Simplifiable_coalesce_over_nullable(a);
+
+                AssertSql(
+                    """
+ReadItem(None, Order|10248)
 """);
             });
 
