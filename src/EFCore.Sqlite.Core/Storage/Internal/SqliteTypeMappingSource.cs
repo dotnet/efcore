@@ -83,7 +83,7 @@ public class SqliteTypeMappingSource : RelationalTypeMappingSource
         { typeof(double), Real },
         { typeof(float), new FloatTypeMapping(RealTypeName) },
 #if NET5_0_OR_GREATER
-        { typeof(Half), new SqliteHalfTypeMapping(RealTypeName) },
+        { typeof(Half), new HalfTypeMapping(RealTypeName) },
 #endif
         { typeof(Guid), SqliteGuidTypeMapping.Default },
         { typeof(JsonElement), SqliteJsonTypeMapping.Default }

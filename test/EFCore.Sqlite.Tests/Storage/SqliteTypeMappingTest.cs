@@ -72,7 +72,7 @@ public class SqliteTypeMappingTest : RelationalTypeMappingTest
     [InlineData(typeof(SqliteDecimalTypeMapping), typeof(decimal))]
     [InlineData(typeof(SqliteGuidTypeMapping), typeof(Guid))]
     [InlineData(typeof(SqliteULongTypeMapping), typeof(ulong))]
-    [InlineData(typeof(SqliteHalfTypeMapping), typeof(Half))]
+    [InlineData(typeof(HalfTypeMapping), typeof(Half))]
     public override void Create_and_clone_with_converter(Type mappingType, Type type)
         => base.Create_and_clone_with_converter(mappingType, type);
 
