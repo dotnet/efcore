@@ -18,13 +18,13 @@ public class AdHocQueryFiltersQuerySqlServerTest : AdHocQueryFiltersQueryRelatio
 
         AssertSql(
             """
-@__ef_filter___ids_0='[1,7]' (Size = 4000)
+@ef_filter___ids='[1,7]' (Size = 4000)
 
 SELECT [e].[Id], [e].[IsDeleted], [e].[IsDraft], [e].[Name]
 FROM [Entities] AS [e]
 WHERE [e].[Id] NOT IN (
     SELECT [e0].[value]
-    FROM OPENJSON(@__ef_filter___ids_0) WITH ([value] int '$') AS [e0]
+    FROM OPENJSON(@ef_filter___ids) WITH ([value] int '$') AS [e0]
 ) AND [e].[Name] LIKE N'Name%' AND [e].[IsDeleted] = CAST(0 AS bit) AND [e].[IsDraft] = CAST(0 AS bit)
 """);
     }
