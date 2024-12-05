@@ -1854,7 +1854,19 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
             return result;
         }
 
-        var value = Evaluate(evaluatableRoot, out var parameterName, out var isContextAccessor);
+        object? value = null;
+        string? parameterName = null;
+        bool isContextAccessor = false;
+        if (evaluatableRoot is MethodCallExpression { Method.Name: "op_Implicit" } evaluatableRootMethod)
+        {
+            //can we get the arguments state so that we can do notEvaluatableAsRootHandler
+            value = Evaluate(evaluatableRootMethod.Arguments[0], out parameterName, out isContextAccessor);
+        }
+        else
+        {
+            value = Evaluate(evaluatableRoot, out parameterName, out isContextAccessor);
+        }
+
 
         switch (value)
         {
@@ -2043,11 +2055,13 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                     return Lambda(visited, _contextParameterReplacer.ContextParameterExpression);
                 }
 
-                static Expression RemoveConvert(Expression expression)
+                static Expression? RemoveConvert(Expression? expression)
                     => expression is UnaryExpression { NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked } unaryExpression
                         ? RemoveConvert(unaryExpression.Operand)
-                        : expression;
-            }
+                        : expression is MethodCallExpression { Method.Name: "op_Implicit" } methodCallExpression ?
+                            RemoveConvert(methodCallExpression.Object)
+                            : expression;
+}
 
             switch (expression)
             {
@@ -2078,6 +2092,10 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
 
                 case MethodCallExpression methodCallExpression:
                     parameterName = methodCallExpression.Method.Name;
+                    if (parameterName == "op_Implicit")
+                    {
+                        return expression;
+                    }
                     break;
 
                 case UnaryExpression { NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked } unaryExpression

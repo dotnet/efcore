@@ -6,6 +6,7 @@ using System.Globalization;
 using System.Text;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using ExpressionExtensions = Microsoft.EntityFrameworkCore.Query.ExpressionExtensions;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
@@ -267,6 +268,19 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
             StartsEndsWithContains methodType,
             [NotNullWhen(true)] out SqlExpression? translation)
         {
+            if (pattern is UnaryExpression
+                {
+                    NodeType:ExpressionType.Convert
+                } unary)
+            {
+                if (unary.Type == typeof(Span<string>))
+                {
+                    pattern = unary.Operand;
+                }
+            }
+
+            instance = RemoveConvert(instance);
+            pattern = RemoveConvert(pattern);
             if (Visit(instance) is not SqlExpression translatedInstance
                 || Visit(pattern) is not SqlExpression translatedPattern)
             {
@@ -648,4 +662,125 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
 
     private static string? GetProviderType(SqlExpression expression)
         => expression.TypeMapping?.StoreType;
+
+    [return: NotNullIfNotNull(nameof(expression))]
+    private static Expression? RemoveConvert(Expression? expression)
+        => expression is UnaryExpression { NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked } unaryExpression
+            ? RemoveConvert(unaryExpression.Operand)
+            : expression is MethodCallExpression { Method.Name: "op_Implicit" } methodCallExpression ?
+                RemoveConvert(methodCallExpression.Arguments[0])
+                : expression;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override ShapedQueryExpression? TranslatePrimitiveCollection(
+        SqlExpression sqlExpression,
+        IProperty? property,
+        string tableAlias)
+    {
+        if (_sqlServerSingletonOptions.EngineType == SqlServerEngineType.SqlServer
+            && _sqlServerSingletonOptions.SqlServerCompatibilityLevel < 130)
+        {
+            AddTranslationErrorDetails(
+                SqlServerStrings.CompatibilityLevelTooLowForScalarCollections(_sqlServerSingletonOptions.SqlServerCompatibilityLevel));
+
+            return null;
+        }
+
+        if (_sqlServerSingletonOptions.EngineType == SqlServerEngineType.AzureSql
+            && _sqlServerSingletonOptions.AzureSqlCompatibilityLevel < 130)
+        {
+            AddTranslationErrorDetails(
+                SqlServerStrings.CompatibilityLevelTooLowForScalarCollections(_sqlServerSingletonOptions.AzureSqlCompatibilityLevel));
+
+            return null;
+        }
+
+        // Generate the OPENJSON function expression, and wrap it in a SelectExpression.
+
+        // Note that where the elementTypeMapping is known (i.e. collection columns), we immediately generate OPENJSON with a WITH clause
+        // (i.e. with a columnInfo), which determines the type conversion to apply to the JSON elements coming out.
+        // For parameter collections, the element type mapping will only be inferred and applied later (see
+        // SqlServerInferredTypeMappingApplier below), at which point the we'll apply it to add the WITH clause.
+        var elementTypeMapping = (RelationalTypeMapping?)sqlExpression.TypeMapping?.ElementTypeMapping;
+
+        var openJsonExpression = elementTypeMapping is null
+            ? new SqlServerOpenJsonExpression(tableAlias, sqlExpression)
+            : new SqlServerOpenJsonExpression(
+                tableAlias, sqlExpression,
+                columnInfos: new[]
+                {
+                    new SqlServerOpenJsonExpression.ColumnInfo
+                    {
+                        Name = "value",
+                        TypeMapping = elementTypeMapping,
+                        Path = []
+                    }
+                });
+
+        var elementClrType = sqlExpression.Type.GetSequenceType();
+
+        // If this is a collection property, get the element's nullability out of metadata. Otherwise, this is a parameter property, in
+        // which case we only have the CLR type (note that we cannot produce different SQLs based on the nullability of an *element* in
+        // a parameter collection - our caching mechanism only supports varying by the nullability of the parameter itself (i.e. the
+        // collection).
+        var isElementNullable = property?.GetElementType()!.IsNullable;
+
+        var keyColumnTypeMapping = _typeMappingSource.FindMapping("nvarchar(4000)")!;
+#pragma warning disable EF1001 // Internal EF Core API usage.
+        var selectExpression = new SelectExpression(
+            [openJsonExpression],
+            new ColumnExpression(
+                "value",
+                tableAlias,
+                elementClrType.UnwrapNullableType(),
+                elementTypeMapping,
+                isElementNullable ?? elementClrType.IsNullableType()),
+            identifier:
+            [
+                (new ColumnExpression("key", tableAlias, typeof(string), keyColumnTypeMapping, nullable: false),
+                    keyColumnTypeMapping.Comparer)
+            ],
+            _queryCompilationContext.SqlAliasManager);
+#pragma warning restore EF1001 // Internal EF Core API usage.
+
+        // OPENJSON doesn't guarantee the ordering of the elements coming out; when using OPENJSON without WITH, a [key] column is returned
+        // with the JSON array's ordering, which we can ORDER BY; this option doesn't exist with OPENJSON with WITH, unfortunately.
+        // However, OPENJSON with WITH has better performance, and also applies JSON-specific conversions we cannot be done otherwise
+        // (e.g. OPENJSON with WITH does base64 decoding for VARBINARY).
+        // Here we generate OPENJSON with WITH, but also add an ordering by [key] - this is a temporary invalid representation.
+        // In SqlServerQueryTranslationPostprocessor, we'll post-process the expression; if the ORDER BY was stripped (e.g. because of
+        // IN, EXISTS or a set operation), we'll just leave the OPENJSON with WITH. If not, we'll convert the OPENJSON with WITH to an
+        // OPENJSON without WITH.
+        // Note that the OPENJSON 'key' column is an nvarchar - we convert it to an int before sorting.
+        selectExpression.AppendOrdering(
+            new OrderingExpression(
+                _sqlExpressionFactory.Convert(
+                    selectExpression.CreateColumnExpression(
+                        openJsonExpression,
+                        "key",
+                        typeof(string),
+                        typeMapping: _typeMappingSource.FindMapping("nvarchar(4000)"),
+                        columnNullable: false),
+                    typeof(int),
+                    _typeMappingSource.FindMapping(typeof(int))),
+                ascending: true));
+
+        var shaperExpression = (Expression)new ProjectionBindingExpression(
+            selectExpression, new ProjectionMember(), elementClrType.MakeNullable());
+        if (shaperExpression.Type != elementClrType)
+        {
+            Check.DebugAssert(
+                elementClrType.MakeNullable() == shaperExpression.Type,
+                "expression.Type must be nullable of targetType");
+
+            shaperExpression = Expression.Convert(shaperExpression, elementClrType);
+        }
+
+        return new ShapedQueryExpression(selectExpression, shaperExpression);
+    }
 }

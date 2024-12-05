@@ -44,6 +44,13 @@ public class ByteArraySequenceEqualTranslator : IMethodCallTranslator
             return _sqlExpressionFactory.Equal(arguments[0], arguments[1]);
         }
 
+        if (method.IsGenericMethod
+            && method.GetGenericMethodDefinition().Equals(MemoryExtensionsMethods.SequenceEqual)
+            && arguments[0].Type == typeof(byte[]))
+        {
+            return _sqlExpressionFactory.Equal(arguments[0], arguments[1]);
+        }
+
         return null;
     }
 }

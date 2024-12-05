@@ -441,10 +441,10 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
 
         await AssertQuery(
             async,
-            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => strings.Contains(c.String)));
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => strings.AsEnumerable().Contains(c.String)));
         await AssertQuery(
             async,
-            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => !strings.Contains(c.String)));
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => !strings.AsEnumerable().Contains(c.String)));
     }
 
     [ConditionalTheory]
@@ -458,7 +458,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => strings.Contains(c.NullableString)));
         await AssertQuery(
             async,
-            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => !strings.Contains(c.NullableString)));
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => !strings.AsEnumerable().Contains(c.NullableString)));
     }
 
     // See more nullability-related tests in NullSemanticsQueryTestBase

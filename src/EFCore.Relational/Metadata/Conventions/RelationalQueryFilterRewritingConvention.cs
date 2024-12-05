@@ -85,7 +85,7 @@ public class RelationalQueryFilterRewritingConvention : QueryFilterRewritingConv
                 {
                     var formattableString = Expression.Lambda<Func<FormattableString>>(
                             Expression.Convert(methodCallExpression.Arguments[1], typeof(FormattableString)))
-                        .Compile(preferInterpretation: true)
+                        .Compile(preferInterpretation: false)
                         .Invoke();
 
                     sql = formattableString.Format;

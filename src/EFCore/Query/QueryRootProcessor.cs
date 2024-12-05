@@ -114,7 +114,18 @@ public class QueryRootProcessor : ExpressionVisitor
                 && listInit.Initializers.All(x => x.Arguments.Count == 1)
                 && ShouldConvertToInlineQueryRoot(listInit):
                 return new InlineQueryRootExpression(listInit.Initializers.Select(x => x.Arguments[0]).ToList(), elementClrType);
-
+            case MethodCallExpression { Method.Name: "op_Implicit" } methodCallExpression:
+            {
+                if (elementClrType.GetGenericTypeDefinition() == typeof(Span<>))
+                {
+                    var baseType = elementClrType.GetGenericArguments()[0];
+                    var newArgument = VisitQueryRootCandidate(methodCallExpression.Arguments[0], baseType);
+                    return newArgument == methodCallExpression.Arguments[0]
+                        ? methodCallExpression
+                        : Expression.Call(methodCallExpression.Method, newArgument);
+                }
+                goto default;
+            }
             default:
                 return Visit(expression);
         }

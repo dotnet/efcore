@@ -179,7 +179,7 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
                 };
 
                 penultimateOperator = Expression.Lambda<Func<IQueryable>>(penultimateOperator)
-                    .Compile(preferInterpretation: true)().Expression;
+                    .Compile(preferInterpretation: false)().Expression;
 
                 // Pass the query through EF's query pipeline; this returns the query's executor function, which can produce an enumerable
                 // that invokes the query.
@@ -817,7 +817,7 @@ namespace System.Runtime.CompilerServices
                                     code
                                         .Append('"').Append(capturedVariablesPathTree.ParameterName!).AppendLine("\",")
                                         .AppendLine($"Expression.Lambda<Func<object?>>(Expression.Convert({variableName}, typeof(object)))")
-                                        .AppendLine(".Compile(preferInterpretation: true)")
+                                        .AppendLine(".Compile(preferInterpretation: false)")
                                         .AppendLine(".Invoke());");
                                 }
                             }

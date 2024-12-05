@@ -79,7 +79,8 @@ public class EvaluatableExpressionFilter : IEvaluatableExpressionFilter
                     || Equals(method, RandomNextNoArgs)
                     || Equals(method, RandomNextOneArg)
                     || Equals(method, RandomNextTwoArgs)
-                    || method.DeclaringType == typeof(DbFunctionsExtensions))
+                    || method.DeclaringType == typeof(DbFunctionsExtensions)
+                    || method.Name == "op_Implicit")//should this be not evaluatble?
                 {
                     return false;
                 }

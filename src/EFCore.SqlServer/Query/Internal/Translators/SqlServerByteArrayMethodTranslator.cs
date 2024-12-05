@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using MemoryExtensions = System.MemoryExtensions;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
@@ -59,19 +60,41 @@ public class SqlServerByteArrayMethodTranslator : IMethodCallTranslator
                         typeof(int)),
                     _sqlExpressionFactory.Constant(0));
             }
+        }
 
-            if (methodDefinition.Equals(EnumerableMethods.FirstWithoutPredicate)
-                && arguments[0].Type == typeof(byte[]))
-            {
-                return _sqlExpressionFactory.Convert(
-                    _sqlExpressionFactory.Function(
-                        "SUBSTRING",
-                        [arguments[0], _sqlExpressionFactory.Constant(1), _sqlExpressionFactory.Constant(1)],
-                        nullable: true,
-                        argumentsPropagateNullability: Statics.TrueArrays[3],
-                        typeof(byte[])),
-                    method.ReturnType);
-            }
+        if (method.IsGenericMethod
+            && method.GetGenericMethodDefinition() == MemoryExtensionsMethods.Contains
+            && (arguments[0].Type == typeof(Span<byte>) || arguments[0].Type == typeof(byte[])))
+        {
+            var source = arguments[0];
+            var sourceTypeMapping = source.TypeMapping;
+
+            var value = arguments[1] is SqlConstantExpression constantValue
+                ? _sqlExpressionFactory.Constant(new[] { (byte)constantValue.Value! }, sourceTypeMapping)
+                : _sqlExpressionFactory.Convert(arguments[1], typeof(byte[]), sourceTypeMapping);
+
+            return _sqlExpressionFactory.GreaterThan(
+                _sqlExpressionFactory.Function(
+                    "CHARINDEX",
+                    [value, source],
+                    nullable: true,
+                    argumentsPropagateNullability: [true, true],
+                    typeof(int)),
+                _sqlExpressionFactory.Constant(0));
+        }
+
+        if (method.IsGenericMethod
+            && method.GetGenericMethodDefinition().Equals(EnumerableMethods.FirstWithoutPredicate)
+            && arguments[0].Type == typeof(byte[]))
+        {
+            return _sqlExpressionFactory.Convert(
+                _sqlExpressionFactory.Function(
+                    "SUBSTRING",
+                    [arguments[0], _sqlExpressionFactory.Constant(1), _sqlExpressionFactory.Constant(1)],
+                    nullable: true,
+                    argumentsPropagateNullability: [true, true, true],
+                    typeof(byte[])),
+                method.ReturnType);
         }
 
         return null;

@@ -201,7 +201,9 @@ public static class ExpressionExtensions
     private static Expression? RemoveConvert(Expression? expression)
         => expression is UnaryExpression { NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked } unaryExpression
             ? RemoveConvert(unaryExpression.Operand)
-            : expression;
+            : expression is MethodCallExpression { Method.Name: "op_Implicit" } methodCallExpression ?
+                RemoveConvert(methodCallExpression.Object)
+                : expression;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
