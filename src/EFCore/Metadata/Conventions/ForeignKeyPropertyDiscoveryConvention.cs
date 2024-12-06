@@ -81,13 +81,16 @@ public class ForeignKeyPropertyDiscoveryConvention :
         IConventionContext context)
     {
         var shouldBeRequired = true;
-        foreach (var property in relationshipBuilder.Metadata.Properties)
+        if (!relationshipBuilder.Metadata.IsOwnership)
         {
-            if (property.IsNullable)
+            foreach (var property in relationshipBuilder.Metadata.Properties)
             {
-                shouldBeRequired = false;
-                relationshipBuilder = relationshipBuilder.IsRequired(false) ?? relationshipBuilder;
-                break;
+                if (property.IsNullable)
+                {
+                    shouldBeRequired = false;
+                    relationshipBuilder = relationshipBuilder.IsRequired(false) ?? relationshipBuilder;
+                    break;
+                }
             }
         }
 

@@ -55,23 +55,6 @@ public class AppServiceProviderFactory
             return null;
         }
 
-        var aspnetCoreEnvironment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-        var dotnetEnvironment = Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT");
-        var environment = aspnetCoreEnvironment
-            ?? dotnetEnvironment
-            ?? "Development";
-        if (aspnetCoreEnvironment == null)
-        {
-            Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", environment);
-        }
-
-        if (dotnetEnvironment == null)
-        {
-            Environment.SetEnvironmentVariable("DOTNET_ENVIRONMENT", environment);
-        }
-
-        _reporter.WriteVerbose(DesignStrings.UsingEnvironment(environment));
-
         try
         {
             var services = serviceProviderFactory(args);
