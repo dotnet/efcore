@@ -8570,10 +8570,7 @@ namespace RootNamespace
         var sqlServerTypeMappingSource = new SqlServerTypeMappingSource(
             TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
             new RelationalTypeMappingSourceDependencies(
-                new IRelationalTypeMappingSourcePlugin[]
-                {
-                    new SqlServerNetTopologySuiteTypeMappingSourcePlugin(NtsGeometryServices.Instance)
-                }));
+                [new SqlServerNetTopologySuiteTypeMappingSourcePlugin(NtsGeometryServices.Instance)]));
 
         var codeHelper = new CSharpHelper(sqlServerTypeMappingSource);
 

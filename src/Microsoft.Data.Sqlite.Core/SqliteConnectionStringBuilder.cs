@@ -431,6 +431,9 @@ namespace Microsoft.Data.Sqlite
                 case Keywords.Pooling:
                     return Pooling;
 
+                case Keywords.Vfs:
+                    return Vfs;
+
                 default:
                     Debug.Fail("Unexpected keyword: " + index);
                     return null;
@@ -477,6 +480,7 @@ namespace Microsoft.Data.Sqlite
                 case Keywords.Pooling:
                     _pooling = true;
                     return;
+
                 case Keywords.Vfs:
                     _vfs = null;
                     return;
