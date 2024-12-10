@@ -1636,7 +1636,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
         {
             sqlConstantExpression = new SqlConstantExpression(
                 Expression.Lambda<Func<object>>(Expression.Convert(expression, typeof(object)))
-                    .Compile(preferInterpretation: true)
+                    .Compile(preferInterpretation: false)
                     .Invoke(),
                 expression.Type,
                 typeMapping: null);

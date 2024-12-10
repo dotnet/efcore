@@ -2120,7 +2120,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
             {
                 return Lambda<Func<object>>(
                         Convert(expression, typeof(object)))
-                    .Compile(preferInterpretation: true)
+                    .Compile(preferInterpretation: false)
                     .Invoke();
             }
             catch (Exception exception)
