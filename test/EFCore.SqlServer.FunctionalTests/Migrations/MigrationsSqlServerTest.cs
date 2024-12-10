@@ -10881,7 +10881,7 @@ EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' +
             })
             .Annotation("SqlServer:IsTemporal", true)
             .Annotation("SqlServer:TemporalHistoryTableName", "CustomersHistory")
-            .Annotation("SqlServer:TemporalHistoryTableSchema", null!)
+            .Annotation("SqlServer:TemporalHistoryTableSchema", null)
             .Annotation("SqlServer:TemporalPeriodEndColumnName", "PeriodEnd")
             .Annotation("SqlServer:TemporalPeriodStartColumnName", "PeriodStart");
 
