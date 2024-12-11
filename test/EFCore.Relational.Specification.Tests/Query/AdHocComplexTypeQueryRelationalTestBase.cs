@@ -51,4 +51,56 @@ public abstract class AdHocComplexTypeQueryRelationalTestBase(NonSharedFixture f
     }
 
     #endregion 37205
+
+    #region 35025
+
+    [ConditionalFact]
+    public virtual async Task Select_TPC_base_with_ComplexType()
+    {
+        var contextFactory = await InitializeAsync<Context35025>();
+        using var context = contextFactory.CreateContext();
+
+        var count = await context.Events.ToListAsync();
+
+        // TODO: Seed data and assert materialization as well
+        // Assert.Equal(0, count);
+    }
+
+    protected class Context35025(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<EventBase> Events { get; set; } = null!;
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<EventBase>(builder =>
+            {
+                builder.ComplexProperty(e => e.Knowledge).IsRequired();
+                builder.UseTpcMappingStrategy();
+            });
+            modelBuilder.Entity<EventWithIdentification>();
+            modelBuilder.Entity<RealEvent>();
+        }
+
+        public abstract class EventBase
+        {
+            public int Id { get; set; }
+            public required Period Knowledge { get; set; }
+        }
+
+        public class EventWithIdentification : EventBase
+        {
+            public long ExtraId { get; set; }
+        }
+
+        public class RealEvent : EventBase
+        {
+        }
+
+        public class Period
+        {
+            public DateTimeOffset From { get; set; }
+        }
+    }
+
+    #endregion 35025
 }

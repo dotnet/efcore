@@ -250,7 +250,9 @@ public class SharedTableConvention : IModelFinalizingConvention
             var declaringEntityType = property.DeclaringType as IConventionEntityType;
 #pragma warning disable EF1001 // Internal EF Core API usage.
             var identifyingMemberInfo = property.GetIdentifyingMemberInfo();
-            var isInheritedSharedMember = identifyingMemberInfo != null
+            var isInheritedSharedMember =
+                type is not IConventionComplexType
+                && identifyingMemberInfo != null
                 && ((declaringEntityType != null && identifyingMemberInfo.DeclaringType != type.ClrType)
                     || (declaringEntityType == null
                         && otherProperty.DeclaringType is IConventionComplexType otherDeclaringComplexType
@@ -307,7 +309,7 @@ public class SharedTableConvention : IModelFinalizingConvention
             }
         }
 
-        foreach (var complexProperty in type.GetDeclaredComplexProperties())
+        foreach (var complexProperty in type.GetComplexProperties())
         {
             UniquifyColumnNames(complexProperty.ComplexType, columns, storeObject, maxLength);
         }

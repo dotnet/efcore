@@ -2870,13 +2870,51 @@ public sealed partial class SelectExpression : TableExpressionBase
 
         // We do not support complex type splitting, so we will only ever have a single table/view mapping to it.
         // See Issue #32853 and Issue #31248
-        var viewOrTableTable = complexType.GetViewOrTableMappings().Single().Table;
-        var complexTypeTable = viewOrTableTable;
+        var mappedViewOrTables = complexType.GetViewOrTableMappings().Select(m => m.Table).ToList();
+        ITableBase? complexTypeTable = null, viewOrTableTable = null;
+        string? tableAlias = null;
 
-        if (!containerProjection.TableMap.TryGetValue(complexTypeTable, out var tableAlias))
+        switch (mappedViewOrTables)
         {
-            complexTypeTable = complexType.GetDefaultMappings().Single().Table;
-            tableAlias = containerProjection.TableMap[complexTypeTable];
+            case [var singleViewOrTable]:
+                // Easy case - the complex type is mapped to a single table (or view).
+                // That table/view will usually be projected out in the current container projection, but not if the
+                // query is e.g. a SQL query (no tables/views in that case). For the latter, fall back to the
+                // default mappings.
+                viewOrTableTable = singleViewOrTable;
+
+                if (containerProjection.TableMap.TryGetValue(singleViewOrTable, out tableAlias))
+                {
+                    complexTypeTable = singleViewOrTable;
+                }
+                else
+                {
+                    complexTypeTable = complexType.GetDefaultMappings().Single().Table;
+                    tableAlias = containerProjection.TableMap[complexTypeTable];
+                }
+                break;
+
+            case []:
+                viewOrTableTable = complexTypeTable = complexType.GetDefaultMappings().Single().Table;
+                tableAlias = containerProjection.TableMap[complexTypeTable];
+                break;
+
+            default:
+                // The complex type is mapped to multiple tables. Since we don't support complex type splitting,
+                // this can only occur with TPC, where the complex type is defined in a base class, and therefore
+                // is mapped to multiple concrete leaf tables.
+                // For this case, all the complex type's mapped tables will all be mapped to a single table alias,
+                // referencing a UNION query over all those tables (TpcTablesExpression) - simply get that table
+                // alias out.
+                Debug.Assert(containerProjection.StructuralType.ContainingEntityType.GetMappingStrategy()
+                    is RelationalAnnotationNames.TpcMappingStrategy,
+                    "Complex type mapped to multiple tables without containing entity type being mapped via TPC");
+                Debug.Assert(mappedViewOrTables.Select(t => containerProjection.TableMap[t]).Distinct().Count() == 1,
+                    "Complex type mapped to multiple actual tables (as opposed to a single TPC union table)");
+
+                viewOrTableTable = complexTypeTable = mappedViewOrTables[0];
+                tableAlias = containerProjection.TableMap[complexTypeTable];
+                break;
         }
 
         var isComplexTypeNullable = containerProjection.IsNullable || complexProperty.IsNullable;
