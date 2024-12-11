@@ -967,6 +967,40 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
             }
         }
 
+        // strip implicit conversion to ReadOnlySpan as it's not supported in the expression world
+        // and would fail during compilation
+        if (methodCall.Arguments.Count == 1
+            && methodCall.Method.Name == "op_Implicit"
+            && methodCall.Type is Type { IsGenericType: true } genericExpressionType
+            && genericExpressionType.GetGenericTypeDefinition() == typeof(ReadOnlySpan<>)
+            && genericExpressionType.GetGenericArguments() is { Length: 1 } genericArguments)
+        {
+            var readOnlySpanType = typeof(ReadOnlySpan<>).MakeGenericType(genericArguments[0]);
+            var arrayImplicitOp = readOnlySpanType
+                .GetMethods()
+                .SingleOrDefault(m => m.Name == "op_Implicit" && m.GetParameters() is { Length: 1 } parameters
+                    && parameters[0].ParameterType.IsArray);
+
+            if (arrayImplicitOp != null && methodCall.Method == arrayImplicitOp)
+            {
+                return Visit(methodCall.Arguments[0]);
+            }
+            else
+            {
+                var arraySegmentImplicitOp = readOnlySpanType
+                    .GetMethods()
+                    .SingleOrDefault(m => m.Name == "op_Implicit" && m.GetParameters() is { Length: 1 } parameters
+                        && parameters[0].ParameterType is Type parameterType
+                        && parameterType.IsGenericType
+                        && parameterType == typeof(ArraySegment<>));
+
+                if (arraySegmentImplicitOp != null && methodCall.Method == arraySegmentImplicitOp)
+                {
+                    return Visit(methodCall.Arguments[0]);
+                }
+            }
+        }
+
         // Regular/arbitrary method handling from here on
 
         // First, visit the object and all arguments, saving states as well
@@ -2056,6 +2090,41 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
             {
                 return null;
             }
+
+            //// strip implicit conversion to ReadOnlySpan as it's not supported in the expression world
+            //// and would fail during compilation
+            //if (expression is MethodCallExpression mce
+            //    && mce.Arguments.Count == 1
+            //    && mce.Method.Name == "op_Implicit"
+            //    && expression.Type is Type { IsGenericType: true } genericExpressionType
+            //    && genericExpressionType.GetGenericTypeDefinition() == typeof(ReadOnlySpan<>)
+            //    && genericExpressionType.GetGenericArguments() is { Length: 1 } genericArguments)
+            //{
+            //    var readOnlySpanType = typeof(ReadOnlySpan<>).MakeGenericType(genericArguments[0]);
+            //    var arrayImplicitOp = readOnlySpanType
+            //        .GetMethods()
+            //        .SingleOrDefault(m => m.Name == "op_Implicit" && m.GetParameters() is { Length: 1 } parameters
+            //            && parameters[0].ParameterType.IsArray);
+
+            //    if (arrayImplicitOp != null && mce.Method == arrayImplicitOp)
+            //    {
+            //        expression = mce.Arguments[0];
+            //    }
+            //    else
+            //    {
+            //        var arraySegmentImplicitOp = readOnlySpanType
+            //            .GetMethods()
+            //            .SingleOrDefault(m => m.Name == "op_Implicit" && m.GetParameters() is { Length: 1 } parameters
+            //                && parameters[0].ParameterType is Type parameterType
+            //                && parameterType.IsGenericType
+            //                && parameterType == typeof(ArraySegment<>));
+
+            //        if (arraySegmentImplicitOp != null && mce.Method == arraySegmentImplicitOp)
+            //        {
+            //            expression = mce.Arguments[0];
+            //        }
+            //    }
+            //}
 
             if (_generateContextAccessors)
             {
