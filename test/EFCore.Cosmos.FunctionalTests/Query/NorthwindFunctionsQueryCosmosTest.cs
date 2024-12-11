@@ -40,6 +40,20 @@ WHERE STARTSWITH(c["ContactName"], "M")
 """);
             });
 
+    public override Task String_StartsWith_Literal_Char(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.String_StartsWith_Literal_Char(a);
+
+                AssertSql(
+                    """
+SELECT VALUE c
+FROM root c
+WHERE STARTSWITH(c["ContactName"], "M")
+""");
+            });
+
     public override Task String_StartsWith_Parameter(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -53,6 +67,22 @@ WHERE STARTSWITH(c["ContactName"], "M")
 SELECT VALUE c
 FROM root c
 WHERE STARTSWITH(c["ContactName"], @pattern)
+""");
+            });
+
+    public override Task String_StartsWith_Parameter_Char(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.String_StartsWith_Parameter_Char(a);
+
+                AssertSql(
+                    """
+@__pattern_0='M'
+
+SELECT VALUE c
+FROM root c
+WHERE STARTSWITH(c["ContactName"], @__pattern_0)
 """);
             });
 
@@ -153,6 +183,20 @@ WHERE ENDSWITH(c["ContactName"], "b")
 """);
             });
 
+    public override Task String_EndsWith_Literal_Char(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.String_EndsWith_Literal_Char(a);
+
+                AssertSql(
+                    """
+SELECT VALUE c
+FROM root c
+WHERE ENDSWITH(c["ContactName"], "b")
+""");
+            });
+
     public override Task String_EndsWith_Parameter(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -166,6 +210,22 @@ WHERE ENDSWITH(c["ContactName"], "b")
 SELECT VALUE c
 FROM root c
 WHERE ENDSWITH(c["ContactName"], @pattern)
+""");
+            });
+
+    public override Task String_EndsWith_Parameter_Char(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.String_EndsWith_Parameter_Char(a);
+
+                AssertSql(
+                    """
+@__pattern_0='b'
+
+SELECT VALUE c
+FROM root c
+WHERE ENDSWITH(c["ContactName"], @__pattern_0)
 """);
             });
 
@@ -257,6 +317,20 @@ WHERE ENDSWITH(c["ContactName"], "DY", true)
             async, async a =>
             {
                 await base.String_Contains_Literal(a);
+
+                AssertSql(
+                    """
+SELECT VALUE c
+FROM root c
+WHERE CONTAINS(c["ContactName"], "M")
+""");
+            });
+
+    public override Task String_Contains_Literal_Char(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.String_Contains_Literal_Char(a);
 
                 AssertSql(
                     """
@@ -1248,6 +1322,20 @@ WHERE (INDEX_OF(c["ContactName"], "a") = 1)
 """);
             });
 
+    public override Task Indexof_with_one_constant_arg_char(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Indexof_with_one_constant_arg_char(a);
+
+                AssertSql(
+                    """
+SELECT VALUE c
+FROM root c
+WHERE (INDEX_OF(c["ContactName"], "a") = 1)
+""");
+            });
+
     public override Task Indexof_with_one_parameter_arg(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1264,11 +1352,41 @@ WHERE (INDEX_OF(c["ContactName"], @pattern) = 1)
 """);
             });
 
+    public override Task Indexof_with_one_parameter_arg_char(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Indexof_with_one_parameter_arg_char(a);
+
+                AssertSql(
+                    """
+@__pattern_0='a'
+
+SELECT VALUE c
+FROM root c
+WHERE (INDEX_OF(c["ContactName"], @__pattern_0) = 1)
+""");
+            });
+
     public override Task Indexof_with_constant_starting_position(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
             {
                 await base.Indexof_with_constant_starting_position(a);
+
+                AssertSql(
+                    """
+SELECT VALUE c
+FROM root c
+WHERE (INDEX_OF(c["ContactName"], "a", 2) = 4)
+""");
+            });
+
+    public override Task Indexof_with_constant_starting_position_char(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Indexof_with_constant_starting_position_char(a);
 
                 AssertSql(
                     """
@@ -1291,6 +1409,20 @@ WHERE (INDEX_OF(c["ContactName"], "a", 2) = 4)
 SELECT VALUE c
 FROM root c
 WHERE (INDEX_OF(c["ContactName"], "a", @start) = 4)
+""");
+            });
+
+    public override Task Replace_with_char(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Replace_with_char(a);
+
+                AssertSql(
+                    """
+SELECT VALUE c
+FROM root c
+WHERE (REPLACE(c["ContactName"], "i", "y") = "Marya Anders")
 """);
             });
 
