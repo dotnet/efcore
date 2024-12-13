@@ -50,6 +50,7 @@ public class SqliteTypeMappingSourceTest : RelationalTypeMappingSourceTestBase
     [InlineData("TEXT", typeof(TimeSpan?), DbType.Time)]
     [InlineData("TEXT", typeof(decimal?), DbType.Decimal)]
     [InlineData("REAL", typeof(float?), DbType.Single)]
+    [InlineData("REAL", typeof(Half?), DbType.Single)]
     [InlineData("REAL", typeof(double?), DbType.Double)]
     [InlineData("INTEGER", typeof(ByteEnum?), DbType.Byte)]
     [InlineData("INTEGER", typeof(ShortEnum?), DbType.Int16)]
@@ -176,6 +177,7 @@ public class SqliteTypeMappingSourceTest : RelationalTypeMappingSourceTestBase
     [InlineData("REAL", typeof(float), DbType.Single)]
     [InlineData("UNREALISTIC", typeof(float), DbType.Single)]
     [InlineData("RUBBISH", typeof(float), DbType.Single)]
+    [InlineData("RUBBISH", typeof(Half?), DbType.Single)]
     [InlineData("REAL", typeof(double), DbType.Double)]
     [InlineData("UNREALISTIC", typeof(double), DbType.Double)]
     [InlineData("RUBBISH", typeof(double), DbType.Double)]
@@ -304,6 +306,7 @@ public class SqliteTypeMappingSourceTest : RelationalTypeMappingSourceTestBase
         Assert.Equal("TEXT", CreateRelationalTypeMappingSource(model).GetMappingForValue(1.0m).StoreType);
         Assert.Equal("REAL", CreateRelationalTypeMappingSource(model).GetMappingForValue(1.0).StoreType);
         Assert.Equal("REAL", CreateRelationalTypeMappingSource(model).GetMappingForValue(1.0f).StoreType);
+        Assert.Equal("REAL", CreateRelationalTypeMappingSource(model).GetMappingForValue((Half)1.0).StoreType);
     }
 
     [ConditionalFact]
