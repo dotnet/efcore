@@ -19,8 +19,18 @@ public class BasicTypesQueryCosmosFixture : BasicTypesQueryFixtureBase
     {
         base.OnModelCreating(modelBuilder, context);
 
-        modelBuilder.Entity<BasicTypesEntity>().ToContainer(nameof(BasicTypesEntity));
-        modelBuilder.Entity<NullableBasicTypesEntity>().ToContainer(nameof(NullableBasicTypesEntity));
+        modelBuilder.Entity<BasicTypesEntity>(
+            builder =>
+            {
+                builder.ToContainer(nameof(BasicTypesEntity));
+                builder.HasPartitionKey(b => b.Id);
+            });
+        modelBuilder.Entity<NullableBasicTypesEntity>(
+            builder =>
+            {
+                builder.ToContainer(nameof(NullableBasicTypesEntity));
+                builder.HasPartitionKey(n => n.Id);
+            });
     }
 
     public Task NoSyncTest(bool async, Func<bool, Task> testCode)
