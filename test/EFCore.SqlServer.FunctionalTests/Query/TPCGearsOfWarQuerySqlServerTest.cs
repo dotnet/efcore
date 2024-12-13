@@ -1157,9 +1157,7 @@ LEFT JOIN (
 
         AssertSql(
             """
-SELECT CASE
-    WHEN [c].[Name] IS NOT NULL THEN [c].[Name]
-END
+SELECT [c].[Name]
 FROM [Tags] AS [t]
 LEFT JOIN (
     SELECT [g].[Nickname], [g].[SquadId]
@@ -2741,10 +2739,7 @@ LEFT JOIN (
     SELECT [o].[Nickname], [o].[SquadId], [o].[HasSoulPatch]
     FROM [Officers] AS [o]
 ) AS [u] ON [t].[GearNickName] = [u].[Nickname] AND [t].[GearSquadId] = [u].[SquadId]
-WHERE CASE
-    WHEN [u].[HasSoulPatch] = CAST(1 AS bit) THEN CAST(1 AS bit)
-    ELSE [u].[HasSoulPatch]
-END = CAST(0 AS bit)
+WHERE [u].[HasSoulPatch] = CAST(0 AS bit)
 """);
     }
 
@@ -2763,10 +2758,7 @@ LEFT JOIN (
     SELECT [o].[Nickname], [o].[SquadId], [o].[HasSoulPatch]
     FROM [Officers] AS [o]
 ) AS [u] ON [t].[GearNickName] = [u].[Nickname] AND [t].[GearSquadId] = [u].[SquadId]
-WHERE CASE
-    WHEN [u].[HasSoulPatch] = CAST(0 AS bit) THEN CAST(0 AS bit)
-    ELSE [u].[HasSoulPatch]
-END = CAST(0 AS bit)
+WHERE [u].[HasSoulPatch] = CAST(0 AS bit)
 """);
     }
 
@@ -4066,9 +4058,7 @@ WHERE [u].[Discriminator] = N'Officer' AND (
 
         AssertSql(
             """
-SELECT CASE
-    WHEN [l].[CommanderName] IS NOT NULL THEN [l].[CommanderName]
-END
+SELECT [l].[CommanderName]
 FROM [LocustHordes] AS [l]
 """);
     }

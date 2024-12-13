@@ -14,6 +14,94 @@ public class OperatorTranslationsCosmosTest : OperatorTranslationsTestBase<Basic
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
+    #region Conditional
+
+    public override Task Conditional_simplifiable_equality(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Conditional_simplifiable_equality(a);
+
+                AssertSql(
+                    """
+SELECT VALUE c
+FROM root c
+WHERE (c["Int"] > 1)
+""");
+            });
+
+    public override Task Conditional_simplifiable_inequality(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Conditional_simplifiable_inequality(a);
+
+                AssertSql(
+                    """
+SELECT VALUE c
+FROM root c
+WHERE (c["Int"] > 1)
+""");
+            });
+
+    public override Task Conditional_uncoalesce_with_equality_left(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Conditional_uncoalesce_with_equality_left(a);
+
+                AssertSql(
+                    """
+SELECT VALUE c
+FROM root c
+WHERE (((c["Int"] = 9) ? null : c["Int"]) > 1)
+""");
+            });
+
+    public override Task Conditional_uncoalesce_with_equality_right(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Conditional_uncoalesce_with_equality_right(a);
+
+                AssertSql(
+                    """
+SELECT VALUE c
+FROM root c
+WHERE (((9 = c["Int"]) ? null : c["Int"]) > 1)
+""");
+            });
+
+    public override Task Conditional_uncoalesce_with_unequality_left(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Conditional_uncoalesce_with_unequality_left(a);
+
+                AssertSql(
+                    """
+SELECT VALUE c
+FROM root c
+WHERE (((c["Int"] != 9) ? c["Int"] : null) > 1)
+""");
+            });
+
+    public override Task Conditional_uncoalesce_with_inequality_right(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Conditional_uncoalesce_with_inequality_right(a);
+
+                AssertSql(
+                    """
+SELECT VALUE c
+FROM root c
+WHERE (((9 != c["Int"]) ? c["Int"] : null) > 1)
+""");
+            });
+
+    #endregion Conditional
+
     #region Bitwise
 
     public override Task Bitwise_or(bool async)

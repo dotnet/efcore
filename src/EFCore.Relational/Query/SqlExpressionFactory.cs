@@ -825,6 +825,58 @@ public class SqlExpressionFactory : ISqlExpressionFactory
             elseResult = lastCase.ElseResult;
         }
 
+        // Simplify:
+        // a == b ? b : a -> a
+        // a != b ? a : b -> a
+        // And lift:
+        // a == b ? null : a -> NULLIF(a, b)
+        // a != b ? a : null -> NULLIF(a, b)
+        if (operand is null
+            && typeMappedWhenClauses is
+            [
+                {
+                    Test: SqlBinaryExpression
+                    {
+                        OperatorType: ExpressionType.Equal or ExpressionType.NotEqual,
+                        Left: var left,
+                        Right: var right
+                    } binary,
+                    Result: var result
+                }
+            ])
+        {
+            // Reverse ifEqual/ifNotEqual for ExpressionType.NotEqual for easier reasoning below
+            var (ifEqual, ifNotEqual) = binary.OperatorType is ExpressionType.Equal
+                ? (result, elseResult ?? Constant(null, result.Type, result.TypeMapping))
+                : (elseResult ?? Constant(null, result.Type, result.TypeMapping), result);
+
+            if (left.Equals(ifNotEqual))
+            {
+                switch (ifEqual)
+                {
+                    // a == b ? b : a -> a
+                    case var _ when ifEqual.Equals(right):
+                        return left;
+                    // a == b ? null : a -> NULLIF(a, b)
+                    case SqlConstantExpression { Value: null }:
+                        return Function("NULLIF", [left, right], nullable: true, [false, false], left.Type, left.TypeMapping);
+                }
+            }
+
+            if (right.Equals(ifNotEqual))
+            {
+                switch (ifEqual)
+                {
+                    // b == a ? b : a -> a
+                    case var _ when ifEqual.Equals(left):
+                        return right;
+                    // b == a ? null : a -> NULLIF(a, b)
+                    case SqlConstantExpression { Value: null }:
+                        return Function("NULLIF", [right, left], nullable: true, [false, false], right.Type, right.TypeMapping);
+                }
+            }
+        }
+
         return existingExpression is CaseExpression expr
             && operand == expr.Operand
             && typeMappedWhenClauses.SequenceEqual(expr.WhenClauses)

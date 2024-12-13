@@ -855,9 +855,7 @@ LEFT JOIN [Gears] AS [g] ON [t].[GearNickName] = [g].[Nickname] AND [t].[GearSqu
 
         AssertSql(
             """
-SELECT CASE
-    WHEN [c].[Name] IS NOT NULL THEN [c].[Name]
-END
+SELECT [c].[Name]
 FROM [Tags] AS [t]
 LEFT JOIN [Gears] AS [g] ON [t].[GearNickName] = [g].[Nickname] AND [t].[GearSquadId] = [g].[SquadId]
 LEFT JOIN [Tags] AS [t0] ON ([g].[Nickname] = [t0].[GearNickName] OR ([g].[Nickname] IS NULL AND [t0].[GearNickName] IS NULL)) AND ([g].[SquadId] = [t0].[GearSquadId] OR ([g].[SquadId] IS NULL AND [t0].[GearSquadId] IS NULL))
@@ -1981,10 +1979,7 @@ WHERE [g].[HasSoulPatch] = CAST(0 AS bit)
 SELECT [t].[Id], [t].[GearNickName], [t].[GearSquadId], [t].[IssueDate], [t].[Note]
 FROM [Tags] AS [t]
 LEFT JOIN [Gears] AS [g] ON [t].[GearNickName] = [g].[Nickname] AND [t].[GearSquadId] = [g].[SquadId]
-WHERE CASE
-    WHEN [g].[HasSoulPatch] = CAST(1 AS bit) THEN CAST(1 AS bit)
-    ELSE [g].[HasSoulPatch]
-END = CAST(0 AS bit)
+WHERE [g].[HasSoulPatch] = CAST(0 AS bit)
 """);
     }
 
@@ -1997,10 +1992,7 @@ END = CAST(0 AS bit)
 SELECT [t].[Id], [t].[GearNickName], [t].[GearSquadId], [t].[IssueDate], [t].[Note]
 FROM [Tags] AS [t]
 LEFT JOIN [Gears] AS [g] ON [t].[GearNickName] = [g].[Nickname] AND [t].[GearSquadId] = [g].[SquadId]
-WHERE CASE
-    WHEN [g].[HasSoulPatch] = CAST(0 AS bit) THEN CAST(0 AS bit)
-    ELSE [g].[HasSoulPatch]
-END = CAST(0 AS bit)
+WHERE [g].[HasSoulPatch] = CAST(0 AS bit)
 """);
     }
 
@@ -3057,9 +3049,7 @@ WHERE [g].[Discriminator] = N'Officer' AND (
 
         AssertSql(
             """
-SELECT CASE
-    WHEN [f].[CommanderName] IS NOT NULL THEN [f].[CommanderName]
-END
+SELECT [f].[CommanderName]
 FROM [Factions] AS [f]
 """);
     }
