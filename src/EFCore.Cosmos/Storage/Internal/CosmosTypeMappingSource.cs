@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Text.Json;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
@@ -191,10 +192,10 @@ public class CosmosTypeMappingSource : TypeMappingSource
         var unwrappedType = elementType.UnwrapNullableType();
 
         return (ValueComparer)Activator.CreateInstance(
-            elementType == unwrappedType
-                ? typeof(StringDictionaryComparer<,>).MakeGenericType(dictType, elementType)
-                : typeof(NullableStringDictionaryComparer<,>).MakeGenericType(unwrappedType, dictType),
-            elementMapping.Comparer)!;
+            typeof(StringDictionaryComparer<,>).MakeGenericType(dictType, elementType),
+#pragma warning disable EF1001 // Internal EF Core API usage.
+            elementMapping.Comparer.ComposeConversion(elementType))!;
+#pragma warning restore EF1001 // Internal EF Core API usage.
     }
 
     // This ensures that the element reader/writers are not null when using Cosmos dictionary type mappings, but

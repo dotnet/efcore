@@ -15,13 +15,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.ChangeTracking.Internal;
 public sealed class StringDictionaryComparer<TDictionary, TElement> : ValueComparer<object>, IInfrastructure<ValueComparer>
 {
     private static readonly MethodInfo CompareMethod = typeof(StringDictionaryComparer<TDictionary, TElement>).GetMethod(
-        nameof(Compare), BindingFlags.Static | BindingFlags.NonPublic, [typeof(object), typeof(object), typeof(ValueComparer)])!;
+        nameof(Compare), BindingFlags.Static | BindingFlags.NonPublic, [typeof(object), typeof(object), typeof(Func<TElement, TElement, bool>)])!;
 
     private static readonly MethodInfo GetHashCodeMethod = typeof(StringDictionaryComparer<TDictionary, TElement>).GetMethod(
-        nameof(GetHashCode), BindingFlags.Static | BindingFlags.NonPublic, [typeof(IEnumerable), typeof(ValueComparer)])!;
+        nameof(GetHashCode), BindingFlags.Static | BindingFlags.NonPublic, [typeof(IEnumerable), typeof(Func<TElement, int>)])!;
 
     private static readonly MethodInfo SnapshotMethod = typeof(StringDictionaryComparer<TDictionary, TElement>).GetMethod(
-        nameof(Snapshot), BindingFlags.Static | BindingFlags.NonPublic, [typeof(object), typeof(ValueComparer)])!;
+        nameof(Snapshot), BindingFlags.Static | BindingFlags.NonPublic, [typeof(object), typeof(Func<TElement, TElement>)])!;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -57,9 +57,7 @@ public sealed class StringDictionaryComparer<TDictionary, TElement> : ValueCompa
                 CompareMethod,
                 prm1,
                 prm2,
-#pragma warning disable EF9100
-                elementComparer.ConstructorExpression),
-#pragma warning restore EF9100
+                elementComparer.EqualsExpression),
             prm1,
             prm2);
     }
@@ -74,9 +72,7 @@ public sealed class StringDictionaryComparer<TDictionary, TElement> : ValueCompa
                 Expression.Convert(
                     prm,
                     typeof(IEnumerable)),
-#pragma warning disable EF9100
-                elementComparer.ConstructorExpression),
-#pragma warning restore EF9100
+                    elementComparer.HashCodeExpression),
             prm);
     }
 
@@ -88,13 +84,11 @@ public sealed class StringDictionaryComparer<TDictionary, TElement> : ValueCompa
             Expression.Call(
                 SnapshotMethod,
                 prm,
-#pragma warning disable EF9100
-                elementComparer.ConstructorExpression),
-#pragma warning restore EF9100
+                elementComparer.SnapshotExpression),
             prm);
     }
 
-    private static bool Compare(object? a, object? b, ValueComparer elementComparer)
+    private static bool Compare(object? a, object? b, Func<TElement?, TElement?, bool> elementCompare)
     {
         if (ReferenceEquals(a, b))
         {
@@ -121,7 +115,7 @@ public sealed class StringDictionaryComparer<TDictionary, TElement> : ValueCompa
             foreach (var pair in aDictionary)
             {
                 if (!bDictionary.TryGetValue(pair.Key, out var bValue)
-                    || !elementComparer.Equals(pair.Value, bValue))
+                    || !elementCompare(pair.Value, bValue))
                 {
                     return false;
                 }
@@ -133,17 +127,17 @@ public sealed class StringDictionaryComparer<TDictionary, TElement> : ValueCompa
         throw new InvalidOperationException(
             CosmosStrings.BadDictionaryType(
                 (a is IDictionary<string, TElement?> ? b : a).GetType().ShortDisplayName(),
-                typeof(IDictionary<,>).MakeGenericType(typeof(string), elementComparer.Type).ShortDisplayName()));
+                typeof(IDictionary<,>).MakeGenericType(typeof(string), typeof(TElement)).ShortDisplayName()));
     }
 
-    private static int GetHashCode(IEnumerable source, ValueComparer elementComparer)
+    private static int GetHashCode(IEnumerable source, Func<TElement?, int> elementGetHashCode)
     {
         if (source is not IReadOnlyDictionary<string, TElement?> sourceDictionary)
         {
             throw new InvalidOperationException(
                 CosmosStrings.BadDictionaryType(
                     source.GetType().ShortDisplayName(),
-                    typeof(IList<>).MakeGenericType(elementComparer.Type).ShortDisplayName()));
+                    typeof(IList<>).MakeGenericType(typeof(TElement)).ShortDisplayName()));
         }
 
         var hash = new HashCode();
@@ -151,26 +145,26 @@ public sealed class StringDictionaryComparer<TDictionary, TElement> : ValueCompa
         foreach (var pair in sourceDictionary)
         {
             hash.Add(pair.Key);
-            hash.Add(pair.Value == null ? 0 : elementComparer.GetHashCode(pair.Value));
+            hash.Add(pair.Value == null ? 0 : elementGetHashCode(pair.Value));
         }
 
         return hash.ToHashCode();
     }
 
-    private static IReadOnlyDictionary<string, TElement?> Snapshot(object source, ValueComparer elementComparer)
+    private static IReadOnlyDictionary<string, TElement?> Snapshot(object source, Func<TElement?, TElement?> elementSnapshot)
     {
         if (source is not IReadOnlyDictionary<string, TElement?> sourceDictionary)
         {
             throw new InvalidOperationException(
                 CosmosStrings.BadDictionaryType(
                     source.GetType().ShortDisplayName(),
-                    typeof(IDictionary<,>).MakeGenericType(typeof(string), elementComparer.Type).ShortDisplayName()));
+                    typeof(IDictionary<,>).MakeGenericType(typeof(string), typeof(TElement)).ShortDisplayName()));
         }
 
         var snapshot = new Dictionary<string, TElement?>();
         foreach (var pair in sourceDictionary)
         {
-            snapshot[pair.Key] = pair.Value == null ? default : (TElement?)elementComparer.Snapshot(pair.Value);
+            snapshot[pair.Key] = pair.Value == null ? default : (TElement?)elementSnapshot(pair.Value);
         }
 
         return snapshot;

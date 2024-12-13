@@ -312,12 +312,6 @@ public abstract class ValueComparer : IEqualityComparer, IEqualityComparer<objec
                 : new ValueComparer<T>(favorStructuralComparisons);
     }
 
-    /// <summary>
-    ///     The expression representing construction of this object.
-    /// </summary>
-    [Experimental(EFDiagnostics.PrecompiledQueryExperimental)]
-    public abstract Expression ConstructorExpression { get; }
-
     // PublicMethods is required to preserve e.g. GetHashCode
     internal class DefaultValueComparer<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicMethods)] T> : ValueComparer<T>
     {

@@ -30,13 +30,13 @@ public sealed class ListOfReferenceTypesComparer<TConcreteList, TElement> : Valu
             && typeof(TConcreteList).GetGenericTypeDefinition() == typeof(ReadOnlyCollection<>));
 
     private static readonly MethodInfo CompareMethod = typeof(ListOfReferenceTypesComparer<TConcreteList, TElement>).GetMethod(
-        nameof(Compare), BindingFlags.Static | BindingFlags.NonPublic, [typeof(object), typeof(object), typeof(ValueComparer)])!;
+        nameof(Compare), BindingFlags.Static | BindingFlags.NonPublic, [typeof(object), typeof(object), typeof(Func<TElement, TElement, bool>)])!;
 
     private static readonly MethodInfo GetHashCodeMethod = typeof(ListOfReferenceTypesComparer<TConcreteList, TElement>).GetMethod(
-        nameof(GetHashCode), BindingFlags.Static | BindingFlags.NonPublic, [typeof(IEnumerable), typeof(ValueComparer)])!;
+        nameof(GetHashCode), BindingFlags.Static | BindingFlags.NonPublic, [typeof(IEnumerable), typeof(Func<TElement, int>)])!;
 
     private static readonly MethodInfo SnapshotMethod = typeof(ListOfReferenceTypesComparer<TConcreteList, TElement>).GetMethod(
-        nameof(Snapshot), BindingFlags.Static | BindingFlags.NonPublic, [typeof(object), typeof(ValueComparer)])!;
+        nameof(Snapshot), BindingFlags.Static | BindingFlags.NonPublic, [typeof(object), typeof(Func<TElement, TElement>)])!;
 
     /// <summary>
     ///     Creates a new instance of the list comparer.
@@ -62,13 +62,12 @@ public sealed class ListOfReferenceTypesComparer<TConcreteList, TElement> : Valu
         var prm1 = Expression.Parameter(typeof(object), "a");
         var prm2 = Expression.Parameter(typeof(object), "b");
 
-        // (a, b) => Compare(a, b, elementComparer)
         return Expression.Lambda<Func<object?, object?, bool>>(
             Expression.Call(
                 CompareMethod,
                 prm1,
                 prm2,
-                elementComparer.ConstructorExpression),
+                elementComparer.EqualsExpression),
             prm1,
             prm2);
     }
@@ -77,14 +76,13 @@ public sealed class ListOfReferenceTypesComparer<TConcreteList, TElement> : Valu
     {
         var prm = Expression.Parameter(typeof(object), "o");
 
-        //o => GetHashCode((IEnumerable)o, elementComparer)
         return Expression.Lambda<Func<object, int>>(
             Expression.Call(
                 GetHashCodeMethod,
                 Expression.Convert(
                     prm,
                     typeof(IEnumerable)),
-                elementComparer.ConstructorExpression),
+                elementComparer.HashCodeExpression),
             prm);
     }
 
@@ -92,16 +90,15 @@ public sealed class ListOfReferenceTypesComparer<TConcreteList, TElement> : Valu
     {
         var prm = Expression.Parameter(typeof(object), "source");
 
-        //source => Snapshot(source, elementComparer)
         return Expression.Lambda<Func<object, object>>(
             Expression.Call(
                 SnapshotMethod,
                 prm,
-                elementComparer.ConstructorExpression),
+                elementComparer.SnapshotExpression),
             prm);
     }
 
-    private static bool Compare(object? a, object? b, ValueComparer elementComparer)
+    private static bool Compare(object? a, object? b, Func<TElement?, TElement?, bool> elementCompare)
     {
         if (ReferenceEquals(a, b))
         {
@@ -143,7 +140,7 @@ public sealed class ListOfReferenceTypesComparer<TConcreteList, TElement> : Valu
                     return false;
                 }
 
-                if (!elementComparer.Equals(el1, el2))
+                if (!elementCompare(el1, el2))
                 {
                     return false;
                 }
@@ -155,29 +152,29 @@ public sealed class ListOfReferenceTypesComparer<TConcreteList, TElement> : Valu
         throw new InvalidOperationException(
             CoreStrings.BadListType(
                 (a is IList<TElement?> ? b : a).GetType().ShortDisplayName(),
-                typeof(IList<>).MakeGenericType(elementComparer.Type).ShortDisplayName()));
+                typeof(IList<>).MakeGenericType(typeof(TElement)).ShortDisplayName()));
     }
 
-    private static int GetHashCode(IEnumerable source, ValueComparer elementComparer)
+    private static int GetHashCode(IEnumerable source, Func<TElement?, int> elementGetHashCode)
     {
         var hash = new HashCode();
 
         foreach (var el in source)
         {
-            hash.Add(el == null ? 0 : elementComparer.GetHashCode(el));
+            hash.Add(el == null ? 0 : elementGetHashCode((TElement?)el));
         }
 
         return hash.ToHashCode();
     }
 
-    private static IList<TElement?> Snapshot(object source, ValueComparer elementComparer)
+    private static IList<TElement?> Snapshot(object source, Func<TElement?, TElement?> elementSnapshot)
     {
         if (source is not IList<TElement?> sourceList)
         {
             throw new InvalidOperationException(
                 CoreStrings.BadListType(
                     source.GetType().ShortDisplayName(),
-                    typeof(IList<>).MakeGenericType(elementComparer.Type).ShortDisplayName()));
+                    typeof(IList<>).MakeGenericType(typeof(TElement)).ShortDisplayName()));
         }
 
         if (IsArray)
@@ -186,7 +183,7 @@ public sealed class ListOfReferenceTypesComparer<TConcreteList, TElement> : Valu
             for (var i = 0; i < sourceList.Count; i++)
             {
                 var instance = sourceList[i];
-                snapshot[i] = instance == null ? null : (TElement?)elementComparer.Snapshot(instance);
+                snapshot[i] = instance == null ? null : elementSnapshot(instance);
             }
 
             return snapshot;
@@ -196,7 +193,7 @@ public sealed class ListOfReferenceTypesComparer<TConcreteList, TElement> : Valu
             var snapshot = IsReadOnly ? new List<TElement?>() : (IList<TElement?>)Activator.CreateInstance<TConcreteList>()!;
             foreach (var e in sourceList)
             {
-                snapshot.Add(e == null ? null : (TElement?)elementComparer.Snapshot(e));
+                snapshot.Add(e == null ? null : elementSnapshot(e));
             }
 
             return IsReadOnly
