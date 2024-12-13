@@ -63,7 +63,7 @@ public class SqlServerByteArrayMethodTranslator : IMethodCallTranslator
         }
 
         if (method.IsGenericMethod
-            && method.GetGenericMethodDefinition() == MemoryExtensionsMethods.Contains
+            && MemoryExtensionsMethods.Contains.Contains(method.GetGenericMethodDefinition())
             && (arguments[0].Type == typeof(Span<byte>) || arguments[0].Type == typeof(byte[])))
         {
             var source = arguments[0];

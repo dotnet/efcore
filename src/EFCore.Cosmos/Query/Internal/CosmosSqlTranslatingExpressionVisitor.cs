@@ -1210,7 +1210,7 @@ public class CosmosSqlTranslatingExpressionVisitor(
         {
             sqlConstantExpression = new SqlConstantExpression(
                 Expression.Lambda<Func<object>>(Expression.Convert(expression, typeof(object)))
-                    .Compile(preferInterpretation: false)
+                    .Compile(preferInterpretation: true)
                     .Invoke(),
                 expression.Type,
                 null);

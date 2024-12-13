@@ -694,24 +694,24 @@ WHERE [p].[NullableString] NOT IN (
 
         AssertSql(
             """
-@__strings_0='["10",null]' (Size = 4000)
+@__AsEnumerable_0='["10",null]' (Size = 4000)
 
 SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[String], [p].[Strings]
 FROM [PrimitiveCollectionsEntity] AS [p]
 WHERE [p].[String] IN (
-    SELECT [s].[value]
-    FROM OPENJSON(@__strings_0) WITH ([value] nvarchar(max) '$') AS [s]
+    SELECT [a].[value]
+    FROM OPENJSON(@__AsEnumerable_0) WITH ([value] nvarchar(max) '$') AS [a]
 )
 """,
             //
             """
-@__strings_0_without_nulls='["10"]' (Size = 4000)
+@__AsEnumerable_0_without_nulls='["10"]' (Size = 4000)
 
 SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[String], [p].[Strings]
 FROM [PrimitiveCollectionsEntity] AS [p]
 WHERE [p].[String] NOT IN (
-    SELECT [s].[value]
-    FROM OPENJSON(@__strings_0_without_nulls) AS [s]
+    SELECT [a].[value]
+    FROM OPENJSON(@__AsEnumerable_0_without_nulls) AS [a]
 )
 """);
     }
@@ -733,13 +733,13 @@ WHERE [p].[NullableString] IN (
 """,
             //
             """
-@__strings_0_without_nulls='["999"]' (Size = 4000)
+@__AsEnumerable_0_without_nulls='["999"]' (Size = 4000)
 
 SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[String], [p].[Strings]
 FROM [PrimitiveCollectionsEntity] AS [p]
 WHERE [p].[NullableString] NOT IN (
-    SELECT [s].[value]
-    FROM OPENJSON(@__strings_0_without_nulls) AS [s]
+    SELECT [a].[value]
+    FROM OPENJSON(@__AsEnumerable_0_without_nulls) AS [a]
 ) AND [p].[NullableString] IS NOT NULL
 """);
     }
@@ -2086,20 +2086,20 @@ END IN (
 
         AssertSql(
             """
-@__ints_0='[1,2,3]' (Size = 4000)
-@__strings_1='["one","two","three"]' (Size = 4000)
+@__ints_1='[1,2,3]' (Size = 4000)
+@__strings_0='["one","two","three"]' (Size = 4000)
 
 SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[String], [p].[Strings]
 FROM [PrimitiveCollectionsEntity] AS [p]
 WHERE CASE
     WHEN [p].[Int] IN (
         SELECT [i].[value]
-        FROM OPENJSON(@__ints_0) WITH ([value] int '$') AS [i]
+        FROM OPENJSON(@__ints_1) WITH ([value] int '$') AS [i]
     ) THEN N'one'
     ELSE N'two'
 END IN (
     SELECT [s].[value]
-    FROM OPENJSON(@__strings_1) WITH ([value] nvarchar(max) '$') AS [s]
+    FROM OPENJSON(@__strings_0) WITH ([value] nvarchar(max) '$') AS [s]
 )
 """);
     }

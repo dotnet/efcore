@@ -855,60 +855,54 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                         .ParameterizedCollectionTranslationMode;
 
                     var tableAlias = _sqlAliasManager.GenerateTableAlias(sqlParameterExpression.Name.TrimStart('_'));
-                    if (sqlParameterExpression.ShouldBeConstantized
-                        || (primitiveCollectionsBehavior == ParameterizedCollectionTranslationMode.Constantize))
+                    var elementType = sqlParameterExpression.Type.GetSequenceType();
+                    var elementTypeMapping = Dependencies.TypeMappingSource.FindMapping(elementType);
+                    if (sqlParameterExpression.ShouldBeConstantized)
                     {
-                        var valuesExpression = new ValuesExpression(
-                            tableAlias,
-                            sqlParameterExpression,
-                            [RelationalQueryableMethodTranslatingExpressionVisitor.ValuesOrderingColumnName, RelationalQueryableMethodTranslatingExpressionVisitor.ValuesValueColumnName]);
-                        return CreateShapedQueryExpressionForValuesExpression(
-                            valuesExpression,
-                            tableAlias,
-                            sqlParameterExpression.TypeMapping!.ElementTypeMapping!.GetType(),
-                            sqlParameterExpression.TypeMapping,
-                            sqlParameterExpression.IsNullable);
+                        return _sqlExpressionFactory.In((SqlExpression)item, sqlParameterExpression);
                     }
-
-                    var param = sqlParameterExpression;
-                    if (sqlParameterExpression.Type.IsGenericType && sqlParameterExpression.Type.GetGenericTypeDefinition() == typeof(Span<>))
+                    else
                     {
-                        var newElement = sqlParameterExpression.Type.GetSequenceType();
-                        param = new SqlParameterExpression(
-                            sqlParameterExpression.Name, newElement.MakeArrayType(), sqlParameterExpression.IsNullable,
-                            sqlParameterExpression.ShouldBeConstantized, sqlParameterExpression.TypeMapping);
-                    }
-
-                    var primitiveresult =  TranslatePrimitiveCollection(param, property: null, tableAlias);
-                    var shaperExpression = primitiveresult?.ShaperExpression;
-                    // No need to check ConvertChecked since this is convert node which we may have added during projection
-                    if (shaperExpression is UnaryExpression { NodeType: ExpressionType.Convert } unaryExpression
-                        && unaryExpression.Operand.Type.IsNullableType()
-                        && unaryExpression.Operand.Type.UnwrapNullableType() == unaryExpression.Type)
-                    {
-                        shaperExpression = unaryExpression.Operand;
-                    }
-                    if (primitiveresult?.QueryExpression is SelectExpression selectExpression
-                        && shaperExpression is ProjectionBindingExpression projectionBindingExpression
-                        && selectExpression.GetProjection(projectionBindingExpression) is SqlExpression projection)
-                    {
-                        // Translate to IN with a subquery.
-                        // Note that because of null semantics, this may get transformed to an EXISTS subquery in SqlNullabilityProcessor.
-                        var subquery = (SelectExpression)primitiveresult.QueryExpression;
-                        if (subquery.Limit == null
-                            && subquery.Offset == null)
+                        var param = sqlParameterExpression;
+                        if (sqlParameterExpression.Type.IsGenericType && sqlParameterExpression.Type.GetGenericTypeDefinition() == typeof(Span<>))
                         {
-                            subquery.ClearOrdering();
+                            var newElement = sqlParameterExpression.Type.GetSequenceType();
+                            param = new SqlParameterExpression(
+                                sqlParameterExpression.Name, newElement.MakeArrayType(), sqlParameterExpression.IsNullable,
+                                sqlParameterExpression.ShouldBeConstantized, sqlParameterExpression.TypeMapping);
                         }
 
-                        subquery.IsDistinct = false;
+                        var primitiveresult = TranslatePrimitiveCollection(param, property: null, tableAlias);
+                        var shaperExpression = primitiveresult?.ShaperExpression;
+                        // No need to check ConvertChecked since this is convert node which we may have added during projection
+                        if (shaperExpression is UnaryExpression { NodeType: ExpressionType.Convert } unaryExpression
+                            && unaryExpression.Operand.Type.IsNullableType()
+                            && unaryExpression.Operand.Type.UnwrapNullableType() == unaryExpression.Type)
+                        {
+                            shaperExpression = unaryExpression.Operand;
+                        }
+                        if (primitiveresult?.QueryExpression is SelectExpression selectExpression
+                            && shaperExpression is ProjectionBindingExpression projectionBindingExpression
+                            && selectExpression.GetProjection(projectionBindingExpression) is SqlExpression projection)
+                        {
+                            // Translate to IN with a subquery.
+                            // Note that because of null semantics, this may get transformed to an EXISTS subquery in SqlNullabilityProcessor.
+                            var subquery = (SelectExpression)primitiveresult.QueryExpression;
+                            if (subquery.Limit == null
+                                && subquery.Offset == null)
+                            {
+                                subquery.ClearOrdering();
+                            }
 
-                        subquery.ReplaceProjection(new List<Expression> { projection });
-                        subquery.ApplyProjection();
+                            subquery.IsDistinct = false;
 
-                        var translation1 = _sqlExpressionFactory.In((SqlExpression)item, subquery);
-                        subquery = new SelectExpression(translation1, _sqlAliasManager);
-                        return translation1;
+                            subquery.ReplaceProjection(new List<Expression> { projection });
+                            subquery.ApplyProjection();
+
+                            var translation1 = _sqlExpressionFactory.In((SqlExpression)item, subquery);
+                            subquery = new SelectExpression(translation1, _sqlAliasManager);
+                            return translation1;
+                        }
                     }
                 }
 
@@ -1873,7 +1867,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
         {
             sqlConstantExpression = new SqlConstantExpression(
                 Expression.Lambda<Func<object>>(Expression.Convert(expression, typeof(object)))
-                    .Compile(preferInterpretation: false)
+                    .Compile(preferInterpretation: true)
                     .Invoke(),
                 expression.Type,
                 typeMapping: null);

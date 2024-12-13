@@ -45,7 +45,7 @@ public class ContainsTranslator : IMethodCallTranslator
 
         // Identify static Enumerable.Contains and instance List.Contains
         if (method.IsGenericMethod
-            && (method.GetGenericMethodDefinition() == EnumerableMethods.Contains || method.GetGenericMethodDefinition() == MemoryExtensionsMethods.Contains)
+            && (method.GetGenericMethodDefinition() == EnumerableMethods.Contains || MemoryExtensionsMethods.Contains.Contains(method.GetGenericMethodDefinition()))
             && ValidateValues(arguments[0]))
         {
             (itemExpression, valuesExpression) = (RemoveObjectConvert(arguments[1]), arguments[0]);

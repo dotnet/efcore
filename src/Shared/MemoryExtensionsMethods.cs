@@ -27,7 +27,7 @@ internal static class MemoryExtensionsMethods
 
     public static MethodInfo Concat { get; }
 
-    public static MethodInfo Contains { get; }
+    public static List<MethodInfo> Contains { get; }
 
     //public static MethodInfo ContainsWithComparer { get; }
 
@@ -81,7 +81,7 @@ internal static class MemoryExtensionsMethods
 
     //public static MethodInfo SelectManyWithCollectionSelectorOrdinal { get; }
 
-    public static MethodInfo SequenceEqual { get; }
+    public static List<MethodInfo> SequenceEqual { get; }
 
     //public static MethodInfo SequenceEqualWithComparer { get; }
 
@@ -230,7 +230,7 @@ internal static class MemoryExtensionsMethods
             types => [typeof(IEnumerable<>).MakeGenericType(types[0]), typeof(IEnumerable<>).MakeGenericType(types[0])]);
 
         Contains = typeof(MemoryExtensions).GetMethods(BindingFlags.Static | BindingFlags.Public)
-            .First(m => m is { Name: nameof(MemoryExtensions.Contains), IsGenericMethodDefinition: true });
+            .Where(m => m is { Name: nameof(MemoryExtensions.Contains), IsGenericMethodDefinition: true }).ToList();
 
         CountWithoutPredicate = GetMethod(
             nameof(Enumerable.Count), 1,
@@ -311,7 +311,7 @@ internal static class MemoryExtensionsMethods
             ]);
 
         SequenceEqual = typeof(MemoryExtensions).GetMethods(BindingFlags.Static | BindingFlags.Public)
-            .First(m => m is { Name: nameof(MemoryExtensions.SequenceEqual), IsGenericMethodDefinition: true });
+            .Where(m => m is { Name: nameof(MemoryExtensions.SequenceEqual), IsGenericMethodDefinition: true }).ToList();
 
         SingleWithoutPredicate = GetMethod(
             nameof(Enumerable.Single), 1, types => [typeof(IEnumerable<>).MakeGenericType(types[0])]);

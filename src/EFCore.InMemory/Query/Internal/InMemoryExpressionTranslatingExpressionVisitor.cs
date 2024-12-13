@@ -1493,7 +1493,7 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
     private static ConstantExpression GetValue(Expression expression)
         => Expression.Constant(
             Expression.Lambda<Func<object>>(Expression.Convert(expression, typeof(object)))
-                .Compile(preferInterpretation: false)
+                .Compile(preferInterpretation: true)
                 .Invoke(),
             expression.Type);
 
