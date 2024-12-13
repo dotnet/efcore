@@ -2337,7 +2337,7 @@ public abstract class NorthwindSelectQueryTestBase<TFixture>(TFixture fixture) :
                     c => new
                     {
                         c.CustomerID,
-                        Order = c.Orders.FirstOrDefault(o => o.OrderID < 11000).MaybeScalar(e => e.OrderDate),
+                        Order = Enumerable.FirstOrDefault(c.Orders, o => o.OrderID < 11000).MaybeScalar(e => e.OrderDate),
                         InterpolatedString = $"test{c.City}",
                         NonInterpolatedString = "test" + c.City,
                         Collection = new List<string>

@@ -987,7 +987,7 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
             async,
             ss => ss.Set<OwnedPerson>().Where(p => ((DateTime)p.Orders.FirstOrDefault(o => o.Id > -20)["OrderDate"]).Year == 2018),
             ss => ss.Set<OwnedPerson>().Where(
-                p => p.Orders.FirstOrDefault(o => o.Id > -20) != null
+                p => Enumerable.FirstOrDefault(p.Orders, o => o.Id > -20) != null
                     && ((DateTime)p.Orders.FirstOrDefault(o => o.Id > -20)["OrderDate"]).Year == 2018));
 
     [ConditionalTheory]

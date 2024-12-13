@@ -588,18 +588,6 @@ WHERE EXISTS (
 """);
     }
 
-    public override async Task Where_equals_method_string(bool async)
-    {
-        await base.Where_equals_method_string(async);
-
-        AssertSql(
-            """
-SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]
-WHERE [c].[City] = N'London'
-""");
-    }
-
     public override async Task Where_equals_method_int(bool async)
     {
         await base.Where_equals_method_int(async);
@@ -775,253 +763,6 @@ WHERE [e].[ReportsTo] = 2
 SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
 WHERE [e].[ReportsTo] IS NULL
-""");
-    }
-
-    public override async Task Where_string_length(bool async)
-    {
-        await base.Where_string_length(async);
-
-        AssertSql(
-            """
-SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]
-WHERE CAST(LEN([c].[City]) AS int) = 6
-""");
-    }
-
-    public override async Task Where_string_indexof(bool async)
-    {
-        await base.Where_string_indexof(async);
-
-        AssertSql(
-            """
-SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]
-WHERE CHARINDEX(N'Sea', [c].[City]) - 1 <> -1 OR [c].[City] IS NULL
-""");
-    }
-
-    public override async Task Where_string_replace(bool async)
-    {
-        await base.Where_string_replace(async);
-
-        AssertSql(
-            """
-SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]
-WHERE REPLACE([c].[City], N'Sea', N'Rea') = N'Reattle'
-""");
-    }
-
-    public override async Task Where_string_substring(bool async)
-    {
-        await base.Where_string_substring(async);
-
-        AssertSql(
-            """
-SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]
-WHERE SUBSTRING([c].[City], 1 + 1, 2) = N'ea'
-""");
-    }
-
-    public override async Task Where_datetime_now(bool async)
-    {
-        await base.Where_datetime_now(async);
-
-        AssertSql(
-            """
-@myDatetime='2015-04-10T00:00:00.0000000'
-
-SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]
-WHERE GETDATE() <> @myDatetime
-""");
-    }
-
-    public override async Task Where_datetime_utcnow(bool async)
-    {
-        await base.Where_datetime_utcnow(async);
-
-        AssertSql(
-            """
-@myDatetime='2015-04-10T00:00:00.0000000'
-
-SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]
-WHERE GETUTCDATE() <> @myDatetime
-""");
-    }
-
-    public override async Task Where_datetimeoffset_utcnow(bool async)
-    {
-        await base.Where_datetimeoffset_utcnow(async);
-
-        AssertSql(
-            """
-@myDatetimeOffset='2015-04-10T00:00:00.0000000-08:00'
-
-SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]
-WHERE CAST(SYSUTCDATETIME() AS datetimeoffset) <> @myDatetimeOffset
-""");
-    }
-
-    public override async Task Where_datetime_today(bool async)
-    {
-        await base.Where_datetime_today(async);
-
-        AssertSql(
-            """
-SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
-FROM [Employees] AS [e]
-""");
-    }
-
-    public override async Task Where_datetime_date_component(bool async)
-    {
-        await base.Where_datetime_date_component(async);
-
-        AssertSql(
-            """
-@myDatetime='1998-05-04T00:00:00.0000000' (DbType = DateTime)
-
-SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]
-WHERE CONVERT(date, [o].[OrderDate]) = @myDatetime
-""");
-    }
-
-    public override async Task Where_date_add_year_constant_component(bool async)
-    {
-        await base.Where_date_add_year_constant_component(async);
-
-        AssertSql(
-            """
-SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]
-WHERE DATEPART(year, DATEADD(year, CAST(-1 AS int), [o].[OrderDate])) = 1997
-""");
-    }
-
-    public override async Task Where_datetime_year_component(bool async)
-    {
-        await base.Where_datetime_year_component(async);
-
-        AssertSql(
-            """
-SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]
-WHERE DATEPART(year, [o].[OrderDate]) = 1998
-""");
-    }
-
-    public override async Task Where_datetime_month_component(bool async)
-    {
-        await base.Where_datetime_month_component(async);
-
-        AssertSql(
-            """
-SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]
-WHERE DATEPART(month, [o].[OrderDate]) = 4
-""");
-    }
-
-    public override async Task Where_datetime_dayOfYear_component(bool async)
-    {
-        await base.Where_datetime_dayOfYear_component(async);
-
-        AssertSql(
-            """
-SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]
-WHERE DATEPART(dayofyear, [o].[OrderDate]) = 68
-""");
-    }
-
-    public override async Task Where_datetime_day_component(bool async)
-    {
-        await base.Where_datetime_day_component(async);
-
-        AssertSql(
-            """
-SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]
-WHERE DATEPART(day, [o].[OrderDate]) = 4
-""");
-    }
-
-    public override async Task Where_datetime_hour_component(bool async)
-    {
-        await base.Where_datetime_hour_component(async);
-
-        AssertSql(
-            """
-SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]
-WHERE DATEPART(hour, [o].[OrderDate]) = 0
-""");
-    }
-
-    public override async Task Where_datetime_minute_component(bool async)
-    {
-        await base.Where_datetime_minute_component(async);
-
-        AssertSql(
-            """
-SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]
-WHERE DATEPART(minute, [o].[OrderDate]) = 0
-""");
-    }
-
-    public override async Task Where_datetime_second_component(bool async)
-    {
-        await base.Where_datetime_second_component(async);
-
-        AssertSql(
-            """
-SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]
-WHERE DATEPART(second, [o].[OrderDate]) = 0
-""");
-    }
-
-    public override async Task Where_datetime_millisecond_component(bool async)
-    {
-        await base.Where_datetime_millisecond_component(async);
-
-        AssertSql(
-            """
-SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]
-WHERE DATEPART(millisecond, [o].[OrderDate]) = 0
-""");
-    }
-
-    public override async Task Where_datetimeoffset_now_component(bool async)
-    {
-        await base.Where_datetimeoffset_now_component(async);
-
-        AssertSql(
-            """
-SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]
-WHERE CAST([o].[OrderDate] AS datetimeoffset) < SYSDATETIMEOFFSET()
-""");
-    }
-
-    public override async Task Where_datetimeoffset_utcnow_component(bool async)
-    {
-        await base.Where_datetimeoffset_utcnow_component(async);
-
-        AssertSql(
-            """
-SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]
-WHERE CAST([o].[OrderDate] AS datetimeoffset) <> CAST(SYSUTCDATETIME() AS datetimeoffset) OR [o].[OrderDate] IS NULL
 """);
     }
 
@@ -1537,120 +1278,6 @@ WHERE [c].[CustomerID] = N'ALFKI'
 """);
     }
 
-    public override async Task Where_concat_string_int_comparison1(bool async)
-    {
-        await base.Where_concat_string_int_comparison1(async);
-
-        AssertSql(
-            """
-@i='10'
-
-SELECT [c].[CustomerID]
-FROM [Customers] AS [c]
-WHERE [c].[CustomerID] + CAST(@i AS nvarchar(max)) = [c].[CompanyName]
-""");
-    }
-
-    public override async Task Where_concat_string_int_comparison2(bool async)
-    {
-        await base.Where_concat_string_int_comparison2(async);
-
-        AssertSql(
-            """
-@i='10'
-
-SELECT [c].[CustomerID]
-FROM [Customers] AS [c]
-WHERE CAST(@i AS nvarchar(max)) + [c].[CustomerID] = [c].[CompanyName]
-""");
-    }
-
-    public override async Task Where_concat_string_int_comparison3(bool async)
-    {
-        await base.Where_concat_string_int_comparison3(async);
-
-        AssertSql(
-            """
-@p='30'
-@j='21'
-
-SELECT [c].[CustomerID]
-FROM [Customers] AS [c]
-WHERE CAST(@p AS nvarchar(max)) + [c].[CustomerID] + CAST(@j AS nvarchar(max)) + CAST(42 AS nvarchar(max)) = [c].[CompanyName]
-""");
-    }
-
-    public override async Task Where_concat_string_int_comparison4(bool async)
-    {
-        await base.Where_concat_string_int_comparison4(async);
-
-        AssertSql(
-            """
-SELECT [o].[CustomerID]
-FROM [Orders] AS [o]
-WHERE CAST([o].[OrderID] AS nvarchar(max)) + COALESCE([o].[CustomerID], N'') = [o].[CustomerID]
-""");
-    }
-
-    public override async Task Where_concat_string_string_comparison(bool async)
-    {
-        await base.Where_concat_string_string_comparison(async);
-
-        AssertSql(
-            """
-@i='A' (Size = 4000)
-
-SELECT [c].[CustomerID]
-FROM [Customers] AS [c]
-WHERE @i + [c].[CustomerID] = N'AALFKI'
-""");
-    }
-
-    public override async Task Where_string_concat_method_comparison(bool async)
-    {
-        await base.Where_string_concat_method_comparison(async);
-
-        AssertSql(
-            """
-@i='A' (Size = 4000)
-
-SELECT [c].[CustomerID]
-FROM [Customers] AS [c]
-WHERE @i + [c].[CustomerID] = N'AAROUT'
-""");
-    }
-
-    public override async Task Where_string_concat_method_comparison_2(bool async)
-    {
-        await base.Where_string_concat_method_comparison_2(async);
-
-        AssertSql(
-            """
-@i='A' (Size = 4000)
-@j='B' (Size = 4000)
-
-SELECT [c].[CustomerID]
-FROM [Customers] AS [c]
-WHERE @i + @j + [c].[CustomerID] = N'ABANATR'
-""");
-    }
-
-    public override async Task Where_string_concat_method_comparison_3(bool async)
-    {
-        await base.Where_string_concat_method_comparison_3(async);
-
-        AssertSql(
-            """
-@i='A' (Size = 4000)
-@j='B' (Size = 4000)
-@k='C' (Size = 4000)
-
-SELECT [c].[CustomerID]
-FROM [Customers] AS [c]
-WHERE @i + @j + @k + [c].[CustomerID] = N'ABCANTON'
-""");
-    }
-
     public override async Task Where_ternary_boolean_condition_true(bool async)
     {
         await base.Where_ternary_boolean_condition_true(async);
@@ -1987,17 +1614,6 @@ WHERE (
 """);
     }
 
-    public override async Task Time_of_day_datetime(bool async)
-    {
-        await base.Time_of_day_datetime(async);
-
-        AssertSql(
-            """
-SELECT CONVERT(time, [o].[OrderDate])
-FROM [Orders] AS [o]
-""");
-    }
-
     public override async Task TypeBinary_short_circuit(bool async)
     {
         await base.TypeBinary_short_circuit(async);
@@ -2101,30 +1717,6 @@ WHERE (
     SELECT TOP(1) CAST(LEN([o].[CustomerID]) AS int)
     FROM [Orders] AS [o]
     WHERE [o].[CustomerID] = N'John Doe') = 0
-""");
-    }
-
-    public override async Task Like_with_non_string_column_using_ToString(bool async)
-    {
-        await base.Like_with_non_string_column_using_ToString(async);
-
-        AssertSql(
-            """
-SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]
-WHERE CONVERT(varchar(11), [o].[OrderID]) LIKE '%20%'
-""");
-    }
-
-    public override async Task Like_with_non_string_column_using_double_cast(bool async)
-    {
-        await base.Like_with_non_string_column_using_double_cast(async);
-
-        AssertSql(
-            """
-SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]
-WHERE CAST([o].[OrderID] AS nvarchar(max)) LIKE N'%20%'
 """);
     }
 
@@ -2971,30 +2563,6 @@ WHERE [c].[CustomerID] IN (
 """);
     }
 
-    public override async Task Where_Like_and_comparison(bool async)
-    {
-        await base.Where_Like_and_comparison(async);
-
-        AssertSql(
-            """
-SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]
-WHERE [c].[CustomerID] LIKE N'F%' AND [c].[City] = N'Seattle'
-""");
-    }
-
-    public override async Task Where_Like_or_comparison(bool async)
-    {
-        await base.Where_Like_or_comparison(async);
-
-        AssertSql(
-            """
-SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]
-WHERE [c].[CustomerID] LIKE N'F%' OR [c].[City] = N'Seattle'
-""");
-    }
-
     public override async Task GetType_on_non_hierarchy1(bool async)
     {
         await base.GetType_on_non_hierarchy1(async);
@@ -3211,13 +2779,6 @@ WHERE CAST([p].[UnitPrice] AS float) > 100.0E0
     public override async Task Where_bool_client_side_negated(bool async)
     {
         await base.Where_bool_client_side_negated(async);
-
-        AssertSql();
-    }
-
-    public override async Task Where_equals_method_string_with_ignore_case(bool async)
-    {
-        await base.Where_equals_method_string_with_ignore_case(async);
 
         AssertSql();
     }
