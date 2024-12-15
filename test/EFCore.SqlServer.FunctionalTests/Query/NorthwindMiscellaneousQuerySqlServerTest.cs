@@ -7368,14 +7368,14 @@ WHERE COALESCE([o].[CustomerID], N'') + COALESCE([c].[CustomerID], N'') IN (
 
         AssertSql(
             """
-@__someVariable_0='SomeVariable' (Size = 4000)
-@__data_1='["ALFKISomeVariable","ANATRSomeVariable","ALFKIX"]' (Size = 4000)
+@__someVariable_1='SomeVariable' (Size = 4000)
+@__data_0='["ALFKISomeVariable","ANATRSomeVariable","ALFKIX"]' (Size = 4000)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] + @__someVariable_0 IN (
+WHERE [c].[CustomerID] + @__someVariable_1 IN (
     SELECT [d].[value]
-    FROM OPENJSON(@__data_1) WITH ([value] nvarchar(max) '$') AS [d]
+    FROM OPENJSON(@__data_0) WITH ([value] nvarchar(max) '$') AS [d]
 )
 """);
     }
@@ -7386,11 +7386,15 @@ WHERE [c].[CustomerID] + @__someVariable_0 IN (
 
         AssertSql(
             """
-@__Contains_0='True'
+@__p_1='ALFKISomeConstant' (Size = 4000)
+@__data_0='["ALFKISomeConstant","ANATRSomeConstant"]' (Size = 4000)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE @__Contains_0 = CAST(1 AS bit)
+WHERE @__p_1 IN (
+    SELECT [d].[value]
+    FROM OPENJSON(@__data_0) WITH ([value] nvarchar(max) '$') AS [d]
+)
 """);
     }
 

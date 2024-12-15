@@ -196,13 +196,11 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
                                 : anySubquery);
                     }
 
-                    static Expression? RemoveConvert(Expression? expression)
-                        => expression is UnaryExpression { NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked } unaryExpression
-                            ? RemoveConvert(unaryExpression.Operand)
-                            : expression is MethodCallExpression { Method.Name: "op_Implicit" } methodCallExpression ?
-                                RemoveConvert(methodCallExpression.Object)
-                                : expression;
-}
+                    static Expression RemoveConvert(Expression e)
+                        => e is UnaryExpression { NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked } unary
+                            ? RemoveConvert(unary.Operand)
+                            : e;
+                }
             }
         }
 

@@ -344,11 +344,14 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
                 : base.VisitExtension(extensionExpression);
 
         private static Expression? RemoveConvert(Expression? expression)
-            => expression is UnaryExpression { NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked } unaryExpression
-                ? RemoveConvert(unaryExpression.Operand)
-                : expression is MethodCallExpression { Method.Name: "op_Implicit" } methodCallExpression ?
-                    RemoveConvert(methodCallExpression.Object)
-                    : expression;
+        {
+            while (expression is { NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked })
+            {
+                expression = RemoveConvert(((UnaryExpression)expression).Operand);
+            }
+
+            return expression;
+        }
     }
 
     private sealed class EntityMaterializerInjectingExpressionVisitor(

@@ -651,17 +651,18 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
         // EF.Property case
         if (methodCallExpression.TryGetEFPropertyArguments(out var source, out var propertyName))
         {
-            if (TryBindMember(Visit(source), MemberIdentity.Create(propertyName), out var result,out var property))
+            if (QueryHelpers.IsMemberAccess(methodCallExpression, Dependencies.Model, out _) && TryBindMember(Visit(source), MemberIdentity.Create(propertyName), out var result,out var property))
             {
-                /*if (property is IProperty { IsPrimitiveCollection: true } regularProperty
+                if (property is IProperty { IsPrimitiveCollection: true } regularProperty
                     && result is SqlExpression sqlExpression
                     && TranslatePrimitiveCollection(
                             sqlExpression, regularProperty, _sqlAliasManager.GenerateTableAlias(GenerateTableAlias(sqlExpression))) is
                         { } primitiveCollectionTranslation)
                 {
                     return primitiveCollectionTranslation;
-                }*/
-                return result;
+                }
+
+                return QueryCompilationContext.NotTranslatedExpression;
 
                 string GenerateTableAlias(SqlExpression sqlExpression)
                     => sqlExpression switch
