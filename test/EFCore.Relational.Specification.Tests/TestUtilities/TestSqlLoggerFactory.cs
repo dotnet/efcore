@@ -159,7 +159,9 @@ public class TestSqlLoggerFactory : ListLoggerFactory
                     using (var stream = File.OpenRead(fileName))
                     using (var bufferedStream = new BufferedStream(stream))
                     {
-                        syntaxTree = CSharpSyntaxTree.ParseText(SourceText.From(bufferedStream));
+                        syntaxTree = CSharpSyntaxTree.ParseText(
+                            SourceText.From(bufferedStream),
+                            new CSharpParseOptions(preprocessorSymbols: ["DEBUG"]));
                     }
 
                     // Read through the source file, copying contents to a temp file (with the baseline change)
@@ -278,14 +280,13 @@ public class TestSqlLoggerFactory : ListLoggerFactory
                             writer.Write(tempBuf, 0, c);
                         }
                     }
+
+                    File.Move(fileName + ".tmp", fileName, overwrite: true);
                 }
-                catch
+                finally
                 {
                     File.Delete(fileName + ".tmp");
-                    throw;
                 }
-
-                File.Move(fileName + ".tmp", fileName, overwrite: true);
             }
         }
     }
