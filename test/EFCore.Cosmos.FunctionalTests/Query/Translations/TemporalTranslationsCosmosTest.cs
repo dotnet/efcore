@@ -228,6 +228,21 @@ WHERE (DateTimePart("ms", c["DateTime"]) = 123)
     public override Task DateOnly_FromDateTime_compared_to_constant_and_parameter(bool async)
         => AssertTranslationFailed(() => base.DateOnly_FromDateTime(async));
 
+    public override Task DateOnly_ToDateTime_property_DateOnly_with_constant_TimeOnly(bool async)
+        => AssertTranslationFailed(() => base.DateOnly_ToDateTime_property_DateOnly_with_constant_TimeOnly(async));
+
+    public override Task DateOnly_ToDateTime_property_DateOnly_with_property_TimeOnly(bool async)
+        => AssertTranslationFailed(() => base.DateOnly_ToDateTime_property_DateOnly_with_property_TimeOnly(async));
+
+    public override Task DateOnly_ToDateTime_constant_DateTime_with_property_TimeOnly(bool async)
+        => AssertTranslationFailed(() => base.DateOnly_ToDateTime_constant_DateTime_with_property_TimeOnly(async));
+
+    public override Task DateOnly_ToDateTime_with_complex_DateTime(bool async)
+        => AssertTranslationFailed(() => base.DateOnly_ToDateTime_with_complex_DateTime(async));
+
+    public override Task DateOnly_ToDateTime_with_complex_TimeOnly(bool async)
+        => AssertTranslationFailed(() => base.DateOnly_ToDateTime_with_complex_TimeOnly(async));
+
     #endregion DateOnly
 
     #region TimeOnly

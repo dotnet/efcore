@@ -363,6 +363,41 @@ WHERE date("b"."DateOnly", CAST(3 AS TEXT) || ' years', CAST(3 AS TEXT) || ' mon
 """);
     }
 
+    public override async Task DateOnly_ToDateTime_property_DateOnly_with_constant_TimeOnly(bool async)
+    {
+        await AssertTranslationFailed(() => base.DateOnly_ToDateTime_property_DateOnly_with_constant_TimeOnly(async));
+
+        AssertSql();
+    }
+
+    public override async Task DateOnly_ToDateTime_property_DateOnly_with_property_TimeOnly(bool async)
+    {
+        await AssertTranslationFailed(() => base.DateOnly_ToDateTime_property_DateOnly_with_property_TimeOnly(async));
+
+        AssertSql();
+    }
+
+    public override async Task DateOnly_ToDateTime_constant_DateTime_with_property_TimeOnly(bool async)
+    {
+        await AssertTranslationFailed(() => base.DateOnly_ToDateTime_constant_DateTime_with_property_TimeOnly(async));
+
+        AssertSql();
+    }
+
+    public override async Task DateOnly_ToDateTime_with_complex_DateTime(bool async)
+    {
+        await AssertTranslationFailed(() => base.DateOnly_ToDateTime_with_complex_DateTime(async));
+
+        AssertSql();
+    }
+
+    public override async Task DateOnly_ToDateTime_with_complex_TimeOnly(bool async)
+    {
+        await AssertTranslationFailed(() => base.DateOnly_ToDateTime_with_complex_TimeOnly(async));
+
+        AssertSql();
+    }
+
     #endregion DateOnly
 
     #region TimeOnly
