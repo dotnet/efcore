@@ -3,7 +3,6 @@
 
 using System.Transactions;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Internal;
 
@@ -94,7 +93,7 @@ public class Migrator : IMigrator
     public virtual void Migrate(string? targetMigration)
     {
         var useTransaction = _connection.CurrentTransaction is null;
-        ValidateMigrations(useTransaction);
+        ValidateMigrations(useTransaction, targetMigration);
 
         using var transactionScope = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
 
@@ -219,7 +218,7 @@ public class Migrator : IMigrator
         CancellationToken cancellationToken = default)
     {
         var useTransaction = _connection.CurrentTransaction is null;
-        ValidateMigrations(useTransaction);
+        ValidateMigrations(useTransaction, targetMigration);
 
         using var transactionScope = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
 
@@ -349,7 +348,7 @@ public class Migrator : IMigrator
         }
     }
 
-    private void ValidateMigrations(bool useTransaction)
+    private void ValidateMigrations(bool useTransaction, string? targetMigration)
     {
         if (!useTransaction
             && _executionStrategy.RetriesOnFailure)
@@ -365,7 +364,8 @@ public class Migrator : IMigrator
         {
             _logger.ModelSnapshotNotFound(this, _migrationsAssembly);
         }
-        else if (RelationalResources.LogPendingModelChanges(_logger).WarningBehavior != WarningBehavior.Ignore
+        else if (targetMigration == null
+            && RelationalResources.LogPendingModelChanges(_logger).WarningBehavior != WarningBehavior.Ignore
             && HasPendingModelChanges())
         {
             var modelSource = (ModelSource)_currentContext.Context.GetService<IModelSource>();
