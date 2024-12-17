@@ -71,6 +71,63 @@ public abstract class MiscellaneousTranslationsTestBase<TFixture>(TFixture fixtu
 
     #endregion Byte array
 
+    #region Random
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Random_on_EF_Functions(bool async)
+        => AssertCount(
+            async,
+            ss => ss.Set<BasicTypesEntity>(),
+            ss => ss.Set<BasicTypesEntity>(),
+            ss => EF.Functions.Random() >= 0 && EF.Functions.Random() < 1,
+            c => true);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Random_Shared_Next_with_no_args(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<BasicTypesEntity>().Where(o => o.Int < (Random.Shared.Next() - 2147483647)),
+            assertEmpty: true);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Random_Shared_Next_with_one_arg(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<BasicTypesEntity>().Where(o => o.Int > Random.Shared.Next(5) - 2147483647));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Random_Shared_Next_with_two_args(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<BasicTypesEntity>().Where(o => o.Int > Random.Shared.Next(0, 10) - 2147483647));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Random_new_Next_with_no_args(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<BasicTypesEntity>().Where(o => o.Int > new Random(15).Next() - 2147483647));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Random_new_Next_with_one_arg(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<BasicTypesEntity>().Where(o => o.Int > new Random(15).Next(5) - 2147483647));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Random_new_Next_with_two_args(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<BasicTypesEntity>().Where(o => o.Int > new Random(15).Next(0, 10) - 2147483647));
+
+    #endregion Random
+
     #region Convert
 
     [ConditionalTheory]

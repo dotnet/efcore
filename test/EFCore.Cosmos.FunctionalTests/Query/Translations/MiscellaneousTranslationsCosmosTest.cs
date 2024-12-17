@@ -79,6 +79,66 @@ FROM root c
 
     #endregion Byte array
 
+    #region Random
+
+    public override Task Random_on_EF_Functions(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Random_on_EF_Functions(a);
+
+                AssertSql(
+                    """
+SELECT VALUE COUNT(1)
+FROM root c
+WHERE ((RAND() >= 0.0) AND (RAND() < 1.0))
+""");
+            });
+
+    public override async Task Random_Shared_Next_with_no_args(bool async)
+    {
+        await AssertTranslationFailed(() => base.Random_Shared_Next_with_no_args(async));
+
+        AssertSql();
+    }
+
+    public override async Task Random_Shared_Next_with_one_arg(bool async)
+    {
+        await AssertTranslationFailed(() => base.Random_Shared_Next_with_one_arg(async));
+
+        AssertSql();
+    }
+
+    public override async Task Random_Shared_Next_with_two_args(bool async)
+    {
+        await AssertTranslationFailed(() => base.Random_Shared_Next_with_two_args(async));
+
+        AssertSql();
+    }
+
+    public override async Task Random_new_Next_with_no_args(bool async)
+    {
+        await AssertTranslationFailed(() => base.Random_new_Next_with_no_args(async));
+
+        AssertSql();
+    }
+
+    public override async Task Random_new_Next_with_one_arg(bool async)
+    {
+        await AssertTranslationFailed(() => base.Random_new_Next_with_one_arg(async));
+
+        AssertSql();
+    }
+
+    public override async Task Random_new_Next_with_two_args(bool async)
+    {
+        await AssertTranslationFailed(() => base.Random_new_Next_with_two_args(async));
+
+        AssertSql();
+    }
+
+    #endregion Random
+
     #region Convert
 
     public override async Task Convert_ToBoolean(bool async)

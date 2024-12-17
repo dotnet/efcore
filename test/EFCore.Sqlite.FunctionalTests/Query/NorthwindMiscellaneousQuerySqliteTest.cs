@@ -317,11 +317,6 @@ FROM (
 """);
     }
 
-    [ConditionalTheory(Skip = "Issue #16645 bitwise xor support")]
-    [MemberData(nameof(IsAsyncData))]
-    public override Task Where_bitwise_binary_xor(bool async)
-        => AssertTranslationFailed(() => base.Where_bitwise_binary_xor(async));
-
     public override Task Complex_nested_query_doesnt_try_binding_to_grandparent_when_parent_returns_complex_result(bool async)
         => null;
 

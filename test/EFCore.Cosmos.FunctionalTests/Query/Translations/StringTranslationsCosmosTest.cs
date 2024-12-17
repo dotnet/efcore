@@ -837,10 +837,7 @@ WHERE (TRIM(c["String"]) = "Boston")
 
         AssertSql(
             """
-SELECT VALUE c
-FROM root c
-WHERE (c["String"] = "Seattle")
-OFFSET 0 LIMIT 2
+ReadItem(?, ?)
 """);
     }
 
@@ -891,10 +888,7 @@ OFFSET 0 LIMIT 2
 
         AssertSql(
             """
-SELECT VALUE c
-FROM root c
-WHERE (c["String"] = "Seattle")
-OFFSET 0 LIMIT 2
+ReadItem(?, ?)
 """);
     }
 
