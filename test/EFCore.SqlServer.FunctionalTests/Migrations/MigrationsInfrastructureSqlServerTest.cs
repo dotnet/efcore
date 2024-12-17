@@ -807,8 +807,7 @@ GO
         {
             using var context = new BloggingContext(
                 Fixture.TestStore.AddProviderOptions(
-                        new DbContextOptionsBuilder().EnableServiceProviderCaching(false))
-                    .ConfigureWarnings(e => e.Log(RelationalEventId.PendingModelChangesWarning)).Options);
+                        new DbContextOptionsBuilder().EnableServiceProviderCaching(false)).Options);
 
             context.Database.EnsureDeleted();
             GiveMeSomeTime(context);

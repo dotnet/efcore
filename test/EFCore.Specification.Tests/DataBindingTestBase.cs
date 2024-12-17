@@ -281,20 +281,20 @@ public abstract class DataBindingTestBase<TFixture>(TFixture fixture) : IClassFi
         Assert.Equal(2, local.ToList().Count);
 
         Assert.True(local.Contains(driver1));
-        Assert.True(localView.Contains(driver1));
+        Assert.Contains(driver1, localView);
         Assert.True(local.Contains(driver2));
-        Assert.True(localView.Contains(driver2));
+        Assert.Contains(driver2, localView);
         Assert.False(local.Contains(driver3));
-        Assert.False(localView.Contains(driver3));
+        Assert.DoesNotContain(driver3, localView);
 
         context.Entry(driver3);
 
         Assert.True(local.Contains(driver1));
-        Assert.True(localView.Contains(driver1));
+        Assert.Contains(driver1, localView);
         Assert.True(local.Contains(driver2));
-        Assert.True(localView.Contains(driver2));
+        Assert.Contains(driver2, localView);
         Assert.False(local.Contains(driver3));
-        Assert.False(localView.Contains(driver3));
+        Assert.DoesNotContain(driver3, localView);
 
         local.Remove(driver3);
 
@@ -302,11 +302,11 @@ public abstract class DataBindingTestBase<TFixture>(TFixture fixture) : IClassFi
         Assert.Equal(2, local.ToList().Count);
 
         Assert.True(local.Contains(driver1));
-        Assert.True(localView.Contains(driver1));
+        Assert.Contains(driver1, localView);
         Assert.True(local.Contains(driver2));
-        Assert.True(localView.Contains(driver2));
+        Assert.Contains(driver2, localView);
         Assert.False(local.Contains(driver3));
-        Assert.False(localView.Contains(driver3));
+        Assert.DoesNotContain(driver3, localView);
     }
 
     [ConditionalTheory]
