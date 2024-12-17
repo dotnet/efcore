@@ -5,7 +5,6 @@
     <NoWarn>$(NoWarn);CA1707;1591;xUnit1000;xUnit1003;xUnit1004;xUnit1010;xUnit1013;xUnit1026;xUnit2013;xUnit1024</NoWarn>
     <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)..\rulesets\EFCore.test.ruleset</CodeAnalysisRuleSet>
     <LangVersion>preview</LangVersion>
-    <DefaultNetCoreTargetFramework>net9.0</DefaultNetCoreTargetFramework>
   </PropertyGroup>
 
   <ItemGroup>

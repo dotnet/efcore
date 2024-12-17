@@ -19,8 +19,8 @@ public abstract class RuntimeTypeBase : RuntimeAnnotatableBase, IRuntimeTypeBase
     private RuntimeModel _model;
     private readonly RuntimeTypeBase? _baseType;
     private SortedSet<RuntimeTypeBase>? _directlyDerivedTypes;
-    private readonly OrderedDictionary<string, RuntimeProperty> _properties;
-    private OrderedDictionary<string, RuntimeComplexProperty>? _complexProperties;
+    private readonly Utilities.OrderedDictionary<string, RuntimeProperty> _properties;
+    private Utilities.OrderedDictionary<string, RuntimeComplexProperty>? _complexProperties;
     private readonly PropertyInfo? _indexerPropertyInfo;
     private readonly bool _isPropertyBag;
     private readonly ChangeTrackingStrategy _changeTrackingStrategy;
@@ -61,10 +61,10 @@ public abstract class RuntimeTypeBase : RuntimeAnnotatableBase, IRuntimeTypeBase
         _changeTrackingStrategy = changeTrackingStrategy;
         _indexerPropertyInfo = indexerPropertyInfo;
         _isPropertyBag = propertyBag;
-        _properties = new OrderedDictionary<string, RuntimeProperty>(propertyCount, new PropertyNameComparer(this));
+        _properties = new Utilities.OrderedDictionary<string, RuntimeProperty>(propertyCount, new PropertyNameComparer(this));
         if (complexPropertyCount > 0)
         {
-            _complexProperties = new OrderedDictionary<string, RuntimeComplexProperty>(complexPropertyCount, StringComparer.Ordinal);
+            _complexProperties = new Utilities.OrderedDictionary<string, RuntimeComplexProperty>(complexPropertyCount, StringComparer.Ordinal);
         }
     }
 
@@ -399,7 +399,7 @@ public abstract class RuntimeTypeBase : RuntimeAnnotatableBase, IRuntimeTypeBase
             propertyCount: propertyCount,
             complexPropertyCount: complexPropertyCount);
 
-        _complexProperties ??= new OrderedDictionary<string, RuntimeComplexProperty>(StringComparer.Ordinal);
+        _complexProperties ??= new Utilities.OrderedDictionary<string, RuntimeComplexProperty>(StringComparer.Ordinal);
         _complexProperties.Add(property.Name, property);
 
         return property;
