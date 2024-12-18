@@ -183,7 +183,34 @@ public class BasicTypesData : ISetSource
                 Double = 12,
                 Decimal = 12,
 
-                String = "",
+                String = "Berlin",
+
+                // DateTime = DateTime.MinValue,
+                // DateOnly = DateOnly.MinValue,
+                // TimeOnly = TimeOnly.MinValue,
+                // DateTimeOffset = DateTimeOffset.MinValue,
+                // TimeSpan = TimeSpan.MinValue,
+
+                Bool = false,
+                // Guid = new Guid("088ca6e6-c756-42f8-a298-8c28e63fdba6"),
+                ByteArray = [],
+
+                // Enum = BasicEnum.One,
+            },
+
+            new()
+            {
+                Id = 6,
+
+                Byte = 1,
+                Short = 2,
+                Int = 3,
+                Long = 4,
+                Float = 5.6f,
+                Double = 6.7f,
+                Decimal = 8.8m,
+
+                String = "Seattle",
 
                 // DateTime = DateTime.MinValue,
                 // DateOnly = DateOnly.MinValue,

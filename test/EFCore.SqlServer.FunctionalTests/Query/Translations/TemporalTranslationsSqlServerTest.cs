@@ -191,6 +191,58 @@ WHERE CONVERT(time, [b].[DateTime]) = '00:00:00'
     public override Task DateTime_subtract_and_TotalDays(bool async)
         => AssertTranslationFailed(() => base.DateTime_subtract_and_TotalDays(async));
 
+    public override async Task DateTime_Parse_with_constant(bool async)
+    {
+        await base.DateTime_Parse_with_constant(async);
+
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE [b].[DateTime] = '1998-05-04T15:30:10.0000000'
+""");
+    }
+
+    public override async Task DateTime_Parse_with_parameter(bool async)
+    {
+        await base.DateTime_Parse_with_parameter(async);
+
+        AssertSql(
+            """
+@Parse='1998-05-04T15:30:10.0000000'
+
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE [b].[DateTime] = @Parse
+""");
+    }
+
+    public override async Task DateTime_new_with_constant(bool async)
+    {
+        await base.DateTime_new_with_constant(async);
+
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE [b].[DateTime] = '1998-05-04T15:30:10.0000000'
+""");
+    }
+
+    public override async Task DateTime_new_with_parameters(bool async)
+    {
+        await base.DateTime_new_with_parameters(async);
+
+        AssertSql(
+            """
+@p='1998-05-04T15:30:10.0000000'
+
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE [b].[DateTime] = @p
+""");
+    }
+
     #endregion DateTime
 
     #region DateOnly

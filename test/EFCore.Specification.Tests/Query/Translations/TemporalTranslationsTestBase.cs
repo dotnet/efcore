@@ -132,6 +132,45 @@ public abstract class TemporalTranslationsTestBase<TFixture>(TFixture fixture) :
             ss => ss.Set<BasicTypesEntity>().Where(o => (o.DateTime - date).TotalDays > 365));
     }
 
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task DateTime_Parse_with_constant(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<BasicTypesEntity>().Where(o => o.DateTime == DateTime.Parse("5/4/1998 15:30:10 PM")));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task DateTime_Parse_with_parameter(bool async)
+    {
+        var date = "5/4/1998 15:30:10 PM";
+
+        return AssertQuery(
+            async,
+            ss => ss.Set<BasicTypesEntity>().Where(o => o.DateTime == DateTime.Parse(date)));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task DateTime_new_with_constant(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<BasicTypesEntity>().Where(o => o.DateTime == new DateTime(1998, 5, 4, 15, 30, 10)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task DateTime_new_with_parameters(bool async)
+    {
+        var year = 1998;
+        var month = 5;
+        var date = 4;
+        var hour = 15;
+
+        await AssertQuery(
+            async,
+            ss => ss.Set<BasicTypesEntity>().Where(o => o.DateTime == new DateTime(year, month, date, hour, 30, 10)));
+    }
+
     #endregion DateTime
 
     #region DateOnly

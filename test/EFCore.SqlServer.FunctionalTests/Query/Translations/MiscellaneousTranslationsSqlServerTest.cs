@@ -3,7 +3,7 @@
 
 namespace Microsoft.EntityFrameworkCore.Query.Translations;
 
-public class MiscellaneousTranslationsSqlServerTest : MiscellaneousTranslationsTestBase<BasicTypesQuerySqlServerFixture>
+public class MiscellaneousTranslationsSqlServerTest : MiscellaneousTranslationsRelationalTestBase<BasicTypesQuerySqlServerFixture>
 {
     public MiscellaneousTranslationsSqlServerTest(BasicTypesQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
         : base(fixture)
@@ -104,6 +104,64 @@ WHERE CAST(DATALENGTH([b].[ByteArray]) AS int) >= 1 AND CAST(SUBSTRING([b].[Byte
     }
 
     #endregion Byte array
+
+    #region Random
+
+    public override async Task Random_on_EF_Functions(bool async)
+    {
+        await base.Random_on_EF_Functions(async);
+
+        AssertSql(
+            """
+SELECT COUNT(*)
+FROM [BasicTypesEntities] AS [b]
+WHERE RAND() >= 0.0E0 AND RAND() < 1.0E0
+""");
+    }
+
+    public override async Task Random_Shared_Next_with_no_args(bool async)
+    {
+        await base.Random_Shared_Next_with_no_args(async);
+
+        AssertSql();
+    }
+
+    public override async Task Random_Shared_Next_with_one_arg(bool async)
+    {
+        await base.Random_Shared_Next_with_one_arg(async);
+
+        AssertSql();
+    }
+
+    public override async Task Random_Shared_Next_with_two_args(bool async)
+    {
+        await base.Random_Shared_Next_with_two_args(async);
+
+        AssertSql();
+    }
+
+    public override async Task Random_new_Next_with_no_args(bool async)
+    {
+        await base.Random_new_Next_with_no_args(async);
+
+        AssertSql();
+    }
+
+    public override async Task Random_new_Next_with_one_arg(bool async)
+    {
+        await base.Random_new_Next_with_one_arg(async);
+
+        AssertSql();
+    }
+
+    public override async Task Random_new_Next_with_two_args(bool async)
+    {
+        await base.Random_new_Next_with_two_args(async);
+
+        AssertSql();
+    }
+
+    #endregion Random
 
     #region Convert
 

@@ -808,7 +808,7 @@ WHERE "b"."String" >= 'Seattle'
             """
 SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
 FROM "BasicTypesEntities" AS "b"
-WHERE "b"."String" = 'Seattle'
+WHERE "b"."Id" = 1
 LIMIT 2
 """,
             //
@@ -1043,7 +1043,7 @@ WHERE "b"."String" >= 'Seattle'
             """
 SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
 FROM "BasicTypesEntities" AS "b"
-WHERE "b"."String" = 'Seattle'
+WHERE "b"."Id" = 1
 LIMIT 2
 """,
             //

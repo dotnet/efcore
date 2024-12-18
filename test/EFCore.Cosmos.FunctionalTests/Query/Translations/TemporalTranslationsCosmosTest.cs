@@ -191,6 +191,66 @@ WHERE (DateTimePart("ms", c["DateTime"]) = 123)
         AssertSql();
     }
 
+    public override Task DateTime_Parse_with_constant(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.DateTime_Parse_with_constant(a);
+
+                AssertSql(
+                    """
+SELECT VALUE c
+FROM root c
+WHERE (c["DateTime"] = "1998-05-04T15:30:10")
+""");
+            });
+
+    public override Task DateTime_Parse_with_parameter(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.DateTime_Parse_with_parameter(a);
+
+                AssertSql(
+                    """
+@Parse=?
+
+SELECT VALUE c
+FROM root c
+WHERE (c["DateTime"] = @Parse)
+""");
+            });
+
+    public override Task DateTime_new_with_constant(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.DateTime_new_with_constant(a);
+
+                AssertSql(
+                    """
+SELECT VALUE c
+FROM root c
+WHERE (c["DateTime"] = "1998-05-04T15:30:10")
+""");
+            });
+
+    public override Task DateTime_new_with_parameters(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.DateTime_new_with_parameters(a);
+
+                AssertSql(
+                    """
+@p=?
+
+SELECT VALUE c
+FROM root c
+WHERE (c["DateTime"] = @p)
+""");
+            });
+
     #endregion DateTime
 
     #region DateOnly

@@ -664,7 +664,7 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
         BasicTypesEntity? basicTypeEntity;
         await using (var context = CreateContext())
         {
-            basicTypeEntity = await context.BasicTypesEntities.SingleAsync(c => c.String == "Seattle");
+            basicTypeEntity = await context.BasicTypesEntities.SingleAsync(c => c.Id == 1);
         }
 
         ClearLog();
@@ -818,7 +818,7 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
         BasicTypesEntity? basicTypesEntity;
         using (var context = CreateContext())
         {
-            basicTypesEntity = await context.BasicTypesEntities.SingleAsync(x => x.String == "Seattle");
+            basicTypesEntity = await context.BasicTypesEntities.SingleAsync(x => x.Id == 1);
         }
 
         ClearLog();
