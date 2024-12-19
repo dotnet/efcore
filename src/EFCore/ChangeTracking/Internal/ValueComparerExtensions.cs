@@ -25,4 +25,35 @@ public static class ValueComparerExtensions
                 : (ValueComparer)Activator.CreateInstance(
                     typeof(NullableValueComparer<>).MakeGenericType(valueComparer.Type),
                     valueComparer)!;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static ValueComparer? ComposeConversion(this ValueComparer? valueComparer, Type targetClrType)
+    {
+        if (valueComparer is null || valueComparer.Type == targetClrType)
+        {
+            return valueComparer;
+        }
+
+        if (targetClrType.IsNullableValueType() && !valueComparer.Type.IsNullableValueType())
+        {
+            return (ValueComparer)Activator.CreateInstance(
+                typeof(NullableValueComparer<>).MakeGenericType(valueComparer.Type),
+                valueComparer)!;
+        }
+
+        if (valueComparer.Type.IsAssignableTo(targetClrType))
+        {
+            return (ValueComparer)Activator.CreateInstance(
+                typeof(ConvertingValueComparer<,>).MakeGenericType(valueComparer.Type, targetClrType),
+                valueComparer)!;
+        }
+
+        throw new UnreachableException(
+            $"Can't use a value converter for type '{valueComparer.Type.Name}' where type '{targetClrType.Name}' is required");
+    }
 }

@@ -132,7 +132,7 @@ public abstract class TypeMappingSourceBase : ITypeMappingSource
     /// <param name="modelClrType">The model CLR type.</param>
     /// <param name="providerClrType">The provider CLR type.</param>
     /// <param name="elementMapping">The type mapping for elements of the collection.</param>
-    /// <param name="elementComparer">The element comparer.</param>
+    /// <param name="collectionComparer">The comparer for the collection.</param>
     /// <param name="collectionReaderWriter">The reader/writer for the collection.</param>
     /// <returns><see langword="true" /> if a collection mapping was found; <see langword="false" /> otherwise.</returns>
     protected virtual bool TryFindJsonCollectionMapping(
@@ -140,7 +140,7 @@ public abstract class TypeMappingSourceBase : ITypeMappingSource
         Type modelClrType,
         Type? providerClrType,
         ref CoreTypeMapping? elementMapping,
-        out ValueComparer? elementComparer,
+        out ValueComparer? collectionComparer,
         out JsonValueReaderWriter? collectionReaderWriter)
     {
         if ((providerClrType == null || providerClrType == typeof(string))
@@ -173,13 +173,13 @@ public abstract class TypeMappingSourceBase : ITypeMappingSource
                         .MakeGenericType(typeToInstantiate, elementType.UnwrapNullableType()),
                         elementReader);
 
-                elementComparer = (ValueComparer?)Activator.CreateInstance(
+                collectionComparer = (ValueComparer?)Activator.CreateInstance(
                     elementType.IsNullableValueType() || elementMapping.Comparer.Type.IsNullableValueType()
                         ? typeof(ListOfNullableValueTypesComparer<,>).MakeGenericType(typeToInstantiate, elementType.UnwrapNullableType())
                         : elementType.IsValueType
                             ? typeof(ListOfValueTypesComparer<,>).MakeGenericType(typeToInstantiate, elementType)
                             : typeof(ListOfReferenceTypesComparer<,>).MakeGenericType(typeToInstantiate, elementType),
-                    elementMapping.Comparer.ToNullableComparer(elementType)!);
+                    elementMapping.Comparer.ComposeConversion(elementType)!);
 
                 return true;
 
@@ -212,7 +212,7 @@ public abstract class TypeMappingSourceBase : ITypeMappingSource
         }
 
         elementMapping = null;
-        elementComparer = null;
+        collectionComparer = null;
         collectionReaderWriter = null;
         return false;
     }
