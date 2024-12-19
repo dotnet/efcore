@@ -14,13 +14,25 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.ChangeTracking.Internal;
 /// </summary>
 public sealed class StringDictionaryComparer<TDictionary, TElement> : ValueComparer<object>, IInfrastructure<ValueComparer>
 {
+    private static readonly bool UseOldBehavior35239 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue35239", out var enabled35239) && enabled35239;
+
     private static readonly MethodInfo CompareMethod = typeof(StringDictionaryComparer<TDictionary, TElement>).GetMethod(
+        nameof(Compare), BindingFlags.Static | BindingFlags.NonPublic, [typeof(object), typeof(object), typeof(Func<TElement, TElement, bool>)])!;
+
+    private static readonly MethodInfo LegacyCompareMethod = typeof(StringDictionaryComparer<TDictionary, TElement>).GetMethod(
         nameof(Compare), BindingFlags.Static | BindingFlags.NonPublic, [typeof(object), typeof(object), typeof(ValueComparer)])!;
 
     private static readonly MethodInfo GetHashCodeMethod = typeof(StringDictionaryComparer<TDictionary, TElement>).GetMethod(
+        nameof(GetHashCode), BindingFlags.Static | BindingFlags.NonPublic, [typeof(IEnumerable), typeof(Func<TElement, int>)])!;
+
+    private static readonly MethodInfo LegacyGetHashCodeMethod = typeof(StringDictionaryComparer<TDictionary, TElement>).GetMethod(
         nameof(GetHashCode), BindingFlags.Static | BindingFlags.NonPublic, [typeof(IEnumerable), typeof(ValueComparer)])!;
 
     private static readonly MethodInfo SnapshotMethod = typeof(StringDictionaryComparer<TDictionary, TElement>).GetMethod(
+        nameof(Snapshot), BindingFlags.Static | BindingFlags.NonPublic, [typeof(object), typeof(Func<TElement, TElement>)])!;
+
+    private static readonly MethodInfo LegacySnapshotMethod = typeof(StringDictionaryComparer<TDictionary, TElement>).GetMethod(
         nameof(Snapshot), BindingFlags.Static | BindingFlags.NonPublic, [typeof(object), typeof(ValueComparer)])!;
 
     /// <summary>
@@ -52,9 +64,23 @@ public sealed class StringDictionaryComparer<TDictionary, TElement> : ValueCompa
         var prm1 = Expression.Parameter(typeof(object), "a");
         var prm2 = Expression.Parameter(typeof(object), "b");
 
+        if (elementComparer is ValueComparer<TElement> && !UseOldBehavior35239)
+        {
+            // (a, b) => Compare(a, b, elementComparer.Equals)
+            return Expression.Lambda<Func<object?, object?, bool>>(
+                Expression.Call(
+                    CompareMethod,
+                    prm1,
+                    prm2,
+                    elementComparer.EqualsExpression),
+                prm1,
+                prm2);
+        }
+
+        // (a, b) => Compare(a, b, new Comparer(...))
         return Expression.Lambda<Func<object?, object?, bool>>(
             Expression.Call(
-                CompareMethod,
+                LegacyCompareMethod,
                 prm1,
                 prm2,
 #pragma warning disable EF9100
@@ -68,9 +94,23 @@ public sealed class StringDictionaryComparer<TDictionary, TElement> : ValueCompa
     {
         var prm = Expression.Parameter(typeof(object), "o");
 
+        if (elementComparer is ValueComparer<TElement> && !UseOldBehavior35239)
+        {
+            // o => GetHashCode((IEnumerable)o, elementComparer.GetHashCode)
+            return Expression.Lambda<Func<object, int>>(
+                Expression.Call(
+                    GetHashCodeMethod,
+                    Expression.Convert(
+                        prm,
+                        typeof(IEnumerable)),
+                        elementComparer.HashCodeExpression),
+                prm);
+        }
+
+        // o => GetHashCode((IEnumerable)o, new Comparer(...))
         return Expression.Lambda<Func<object, int>>(
             Expression.Call(
-                GetHashCodeMethod,
+                LegacyGetHashCodeMethod,
                 Expression.Convert(
                     prm,
                     typeof(IEnumerable)),
@@ -84,14 +124,68 @@ public sealed class StringDictionaryComparer<TDictionary, TElement> : ValueCompa
     {
         var prm = Expression.Parameter(typeof(object), "source");
 
+        if (elementComparer is ValueComparer<TElement> && !UseOldBehavior35239)
+        {
+            // source => Snapshot(source, elementComparer.Snapshot)
+            return Expression.Lambda<Func<object, object>>(
+                Expression.Call(
+                    SnapshotMethod,
+                    prm,
+                    elementComparer.SnapshotExpression),
+                prm);
+        }
+
+        // source => Snapshot(source, new Comparer(..))
         return Expression.Lambda<Func<object, object>>(
             Expression.Call(
-                SnapshotMethod,
+                LegacySnapshotMethod,
                 prm,
 #pragma warning disable EF9100
                 elementComparer.ConstructorExpression),
 #pragma warning restore EF9100
             prm);
+    }
+
+    private static bool Compare(object? a, object? b, Func<TElement?, TElement?, bool> elementCompare)
+    {
+        if (ReferenceEquals(a, b))
+        {
+            return true;
+        }
+
+        if (a is null)
+        {
+            return b is null;
+        }
+
+        if (b is null)
+        {
+            return false;
+        }
+
+        if (a is IReadOnlyDictionary<string, TElement?> aDictionary && b is IReadOnlyDictionary<string, TElement?> bDictionary)
+        {
+            if (aDictionary.Count != bDictionary.Count)
+            {
+                return false;
+            }
+
+            foreach (var pair in aDictionary)
+            {
+                if (!bDictionary.TryGetValue(pair.Key, out var bValue)
+                    || !elementCompare(pair.Value, bValue))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        throw new InvalidOperationException(
+            CosmosStrings.BadDictionaryType(
+                (a is IDictionary<string, TElement?> ? b : a).GetType().ShortDisplayName(),
+                typeof(IDictionary<,>).MakeGenericType(typeof(string), typeof(TElement)).ShortDisplayName()));
     }
 
     private static bool Compare(object? a, object? b, ValueComparer elementComparer)
@@ -136,6 +230,27 @@ public sealed class StringDictionaryComparer<TDictionary, TElement> : ValueCompa
                 typeof(IDictionary<,>).MakeGenericType(typeof(string), elementComparer.Type).ShortDisplayName()));
     }
 
+    private static int GetHashCode(IEnumerable source, Func<TElement?, int> elementGetHashCode)
+    {
+        if (source is not IReadOnlyDictionary<string, TElement?> sourceDictionary)
+        {
+            throw new InvalidOperationException(
+                CosmosStrings.BadDictionaryType(
+                    source.GetType().ShortDisplayName(),
+                    typeof(IList<>).MakeGenericType(typeof(TElement)).ShortDisplayName()));
+        }
+
+        var hash = new HashCode();
+
+        foreach (var pair in sourceDictionary)
+        {
+            hash.Add(pair.Key);
+            hash.Add(pair.Value == null ? 0 : elementGetHashCode(pair.Value));
+        }
+
+        return hash.ToHashCode();
+    }
+
     private static int GetHashCode(IEnumerable source, ValueComparer elementComparer)
     {
         if (source is not IReadOnlyDictionary<string, TElement?> sourceDictionary)
@@ -155,6 +270,25 @@ public sealed class StringDictionaryComparer<TDictionary, TElement> : ValueCompa
         }
 
         return hash.ToHashCode();
+    }
+
+    private static IReadOnlyDictionary<string, TElement?> Snapshot(object source, Func<TElement?, TElement?> elementSnapshot)
+    {
+        if (source is not IReadOnlyDictionary<string, TElement?> sourceDictionary)
+        {
+            throw new InvalidOperationException(
+                CosmosStrings.BadDictionaryType(
+                    source.GetType().ShortDisplayName(),
+                    typeof(IDictionary<,>).MakeGenericType(typeof(string), typeof(TElement)).ShortDisplayName()));
+        }
+
+        var snapshot = new Dictionary<string, TElement?>();
+        foreach (var pair in sourceDictionary)
+        {
+            snapshot[pair.Key] = pair.Value == null ? default : (TElement?)elementSnapshot(pair.Value);
+        }
+
+        return snapshot;
     }
 
     private static IReadOnlyDictionary<string, TElement?> Snapshot(object source, ValueComparer elementComparer)
