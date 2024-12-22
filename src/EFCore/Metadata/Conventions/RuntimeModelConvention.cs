@@ -63,7 +63,8 @@ public class RuntimeModelConvention : IModelFinalizedConvention
                 var elementType = property.GetElementType();
                 if (elementType != null)
                 {
-                    var runtimeElementType = Create(runtimeProperty, elementType, property.IsPrimitiveCollection);
+                    Check.DebugAssert(property.IsPrimitiveCollection, $"{property.Name} has an element type, but it's not a primitive collection.");
+                    var runtimeElementType = Create(runtimeProperty, elementType);
                     CreateAnnotations(
                         elementType, runtimeElementType, static (convention, annotations, source, target, runtime) =>
                             convention.ProcessElementTypeAnnotations(annotations, source, target, runtime));
@@ -410,7 +411,7 @@ public class RuntimeModelConvention : IModelFinalizedConvention
                 typeMapping: property.GetTypeMapping(),
                 sentinel: property.Sentinel);
 
-    private static RuntimeElementType Create(RuntimeProperty runtimeProperty, IElementType element, bool primitiveCollection)
+    private static RuntimeElementType Create(RuntimeProperty runtimeProperty, IElementType element)
         => runtimeProperty.SetElementType(
             element.ClrType,
             element.IsNullable,
@@ -422,8 +423,7 @@ public class RuntimeModelConvention : IModelFinalizedConvention
             element.GetValueConverter(),
             element.GetValueComparer(),
             element.GetJsonValueReaderWriter(),
-            element.GetTypeMapping(),
-            primitiveCollection);
+            element.GetTypeMapping());
 
     /// <summary>
     ///     Updates the property annotations that will be set on the read-only object.
@@ -539,7 +539,8 @@ public class RuntimeModelConvention : IModelFinalizedConvention
             var elementType = property.GetElementType();
             if (elementType != null)
             {
-                var runtimeElementType = Create(runtimeProperty, elementType, property.IsPrimitiveCollection);
+                Check.DebugAssert(property.IsPrimitiveCollection, $"{property.Name} has an element type, but it's not a primitive collection.");
+                var runtimeElementType = Create(runtimeProperty, elementType);
                 CreateAnnotations(
                     elementType, runtimeElementType, static (convention, annotations, source, target, runtime) =>
                         convention.ProcessElementTypeAnnotations(annotations, source, target, runtime));

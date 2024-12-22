@@ -393,7 +393,7 @@ public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
 
             await ConsumeAsync(dataReader, cancellationToken).ConfigureAwait(false);
         }
-        catch (Exception ex) when (ex is not DbUpdateException and not OperationCanceledException)
+        catch (Exception ex) when (ex is not DbUpdateException and not OperationCanceledException and not UnreachableException)
         {
             throw new DbUpdateException(
                 RelationalStrings.UpdateStoreException,

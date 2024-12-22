@@ -128,7 +128,7 @@ public class RuntimeProperty : RuntimePropertyBase, IProperty
     /// <param name="unicode">A value indicating whether or not the property can persist Unicode characters.</param>
     /// <param name="precision">The precision of data that is allowed in this property.</param>
     /// <param name="scale">The scale of data that is allowed in this property.</param>
-    /// <param name="providerPropertyType">
+    /// <param name="providerClrType">
     ///     The type that the property value will be converted to before being sent to the database provider.
     /// </param>
     /// <param name="valueConverter">The custom <see cref="ValueConverter" /> set for this property.</param>
@@ -144,12 +144,11 @@ public class RuntimeProperty : RuntimePropertyBase, IProperty
         bool? unicode = null,
         int? precision = null,
         int? scale = null,
-        Type? providerPropertyType = null,
+        Type? providerClrType = null,
         ValueConverter? valueConverter = null,
         ValueComparer? valueComparer = null,
         JsonValueReaderWriter? jsonValueReaderWriter = null,
-        CoreTypeMapping? typeMapping = null,
-        bool primitiveCollection = false)
+        CoreTypeMapping? typeMapping = null)
     {
         var elementType = new RuntimeElementType(
             clrType,
@@ -159,7 +158,7 @@ public class RuntimeProperty : RuntimePropertyBase, IProperty
             unicode,
             precision,
             scale,
-            providerPropertyType,
+            providerClrType,
             valueConverter,
             valueComparer,
             jsonValueReaderWriter,
@@ -167,7 +166,7 @@ public class RuntimeProperty : RuntimePropertyBase, IProperty
 
         SetAnnotation(CoreAnnotationNames.ElementType, elementType);
 
-        IsPrimitiveCollection = primitiveCollection;
+        IsPrimitiveCollection = true;
 
         return elementType;
     }
