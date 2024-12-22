@@ -424,28 +424,6 @@ public abstract class NorthwindWhereQueryTestBase<TFixture>(TFixture fixture) : 
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Where_bitwise_or(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI" | c.CustomerID == "ANATR"));
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Where_bitwise_and(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI" & c.CustomerID == "ANATR"),
-            assertEmpty: true);
-
-    [ConditionalTheory]
-    [InlineData(false)]
-    public virtual Task Where_bitwise_xor(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<Customer>().Where(c => (c.CustomerID == "ALFKI") ^ true));
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
     public virtual Task Where_simple_shadow(bool async)
         => AssertQuery(
             async,

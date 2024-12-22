@@ -15,6 +15,10 @@ public class StringTranslationsSqlServer160Test : StringTranslationsRelationalTe
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
+    /// <inheritdoc />
+    protected override bool IsCaseSensitive
+        => false;
+
     public override async Task TrimStart_with_char_argument(bool async)
     {
         await base.TrimStart_with_char_argument(async);

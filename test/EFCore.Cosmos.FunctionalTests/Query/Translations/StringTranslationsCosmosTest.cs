@@ -126,6 +126,11 @@ WHERE (LENGTH(c["String"]) = 7)
 SELECT VALUE c
 FROM root c
 WHERE (UPPER(c["String"]) = "SEATTLE")
+""",
+                    //
+                    """
+SELECT VALUE UPPER(c["String"])
+FROM root c
 """);
             });
 
@@ -140,6 +145,11 @@ WHERE (UPPER(c["String"]) = "SEATTLE")
 SELECT VALUE c
 FROM root c
 WHERE (LOWER(c["String"]) = "seattle")
+""",
+                    //
+                    """
+SELECT VALUE LOWER(c["String"])
+FROM root c
 """);
             });
 
@@ -938,6 +948,20 @@ ReadItem(?, ?)
     #endregion Join
 
     #region Concatenation
+
+    public override Task Concat_operator(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Concat_operator(a);
+
+                AssertSql(
+                    """
+SELECT VALUE c
+FROM root c
+WHERE ((c["String"] || "Boston") = "SeattleBoston")
+""");
+            });
 
     public override Task Concat_aggregate(bool async)
         => AssertTranslationFailed(() => base.Concat_aggregate(async));

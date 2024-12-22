@@ -77,6 +77,18 @@ FROM root c
     public override Task Byte_array_First(bool async)
         => AssertTranslationFailed(() => base.Byte_array_First(async));
 
+    public override Task Byte_array_Contains_with_constant(bool async)
+        => AssertTranslationFailed(() => base.Byte_array_Contains_with_constant(async));
+
+    public override Task Byte_array_Contains_with_parameter(bool async)
+        => AssertTranslationFailed(() => base.Byte_array_Contains_with_parameter(async));
+
+    public override Task Byte_array_Contains_with_column(bool async)
+        => AssertTranslationFailed(() => base.Byte_array_Contains_with_column(async));
+
+    public override Task Byte_array_SequenceEqual(bool async)
+        => AssertTranslationFailed(() => base.Byte_array_SequenceEqual(async));
+
     #endregion Byte array
 
     #region Random

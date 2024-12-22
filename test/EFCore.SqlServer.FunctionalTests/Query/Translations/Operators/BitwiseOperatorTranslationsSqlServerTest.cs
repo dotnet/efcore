@@ -1,22 +1,20 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-namespace Microsoft.EntityFrameworkCore.Query.Translations;
+namespace Microsoft.EntityFrameworkCore.Query.Translations.Operators;
 
-public class OperatorTranslationsSqlServerTest : OperatorTranslationsTestBase<BasicTypesQuerySqlServerFixture>
+public class BitwiseOperatorTranslationsSqlServerTest : BitwiseOperatorTranslationsTestBase<BasicTypesQuerySqlServerFixture>
 {
-    public OperatorTranslationsSqlServerTest(BasicTypesQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
+    public BitwiseOperatorTranslationsSqlServerTest(BasicTypesQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
         : base(fixture)
     {
         Fixture.TestSqlLoggerFactory.Clear();
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    #region Bitwise
-
-    public override async Task Bitwise_or(bool async)
+    public override async Task Or(bool async)
     {
-        await base.Bitwise_or(async);
+        await base.Or(async);
 
         AssertSql(
             """
@@ -31,9 +29,9 @@ FROM [BasicTypesEntities] AS [b]
 """);
     }
 
-    public override async Task Bitwise_or_over_boolean(bool async)
+    public override async Task Or_over_boolean(bool async)
     {
-        await base.Bitwise_or_over_boolean(async);
+        await base.Or_over_boolean(async);
 
         AssertSql(
             """
@@ -51,9 +49,9 @@ FROM [BasicTypesEntities] AS [b]
 """);
     }
 
-    public override async Task Bitwise_or_multiple(bool async)
+    public override async Task Or_multiple(bool async)
     {
-        await base.Bitwise_or_multiple(async);
+        await base.Or_multiple(async);
 
         AssertSql(
             """
@@ -63,9 +61,9 @@ WHERE CAST([b].[Int] | [b].[Short] AS bigint) | [b].[Long] = CAST(7 AS bigint)
 """);
     }
 
-    public override async Task Bitwise_and(bool async)
+    public override async Task And(bool async)
     {
-        await base.Bitwise_and(async);
+        await base.And(async);
 
         AssertSql(
             """
@@ -80,9 +78,9 @@ FROM [BasicTypesEntities] AS [b]
 """);
     }
 
-    public override async Task Bitwise_and_over_boolean(bool async)
+    public override async Task And_over_boolean(bool async)
     {
-        await base.Bitwise_and_over_boolean(async);
+        await base.And_over_boolean(async);
 
         AssertSql(
             """
@@ -100,9 +98,9 @@ FROM [BasicTypesEntities] AS [b]
 """);
     }
 
-    public override async Task Bitwise_xor(bool async)
+    public override async Task Xor(bool async)
     {
-        await base.Bitwise_xor(async);
+        await base.Xor(async);
 
         AssertSql(
             """
@@ -117,9 +115,9 @@ FROM [BasicTypesEntities] AS [b]
 """);
     }
 
-    public override async Task Bitwise_xor_over_boolean(bool async)
+    public override async Task Xor_over_boolean(bool async)
     {
-        await base.Bitwise_xor_over_boolean(async);
+        await base.Xor_over_boolean(async);
 
         AssertSql(
             """
@@ -132,9 +130,9 @@ END = CAST(1 AS bit)
 """);
     }
 
-    public override async Task Bitwise_complement(bool async)
+    public override async Task Complement(bool async)
     {
-        await base.Bitwise_complement(async);
+        await base.Complement(async);
 
         AssertSql(
             """
@@ -144,9 +142,9 @@ WHERE ~[b].[Int] = -9
 """);
     }
 
-    public override async Task Bitwise_and_or_over_boolean(bool async)
+    public override async Task And_or_over_boolean(bool async)
     {
-        await base.Bitwise_and_or_over_boolean(async);
+        await base.And_or_over_boolean(async);
 
         AssertSql(
             """
@@ -156,9 +154,9 @@ WHERE ([b].[Int] = 12 AND [b].[Short] = CAST(12 AS smallint)) OR [b].[String] = 
 """);
     }
 
-    public override async Task Bitwise_or_with_logical_or(bool async)
+    public override async Task Or_with_logical_or(bool async)
     {
-        await base.Bitwise_or_with_logical_or(async);
+        await base.Or_with_logical_or(async);
 
         AssertSql(
             """
@@ -168,9 +166,9 @@ WHERE [b].[Int] = 12 OR [b].[Short] = CAST(12 AS smallint) OR [b].[String] = N'S
 """);
     }
 
-    public override async Task Bitwise_and_with_logical_and(bool async)
+    public override async Task And_with_logical_and(bool async)
     {
-        await base.Bitwise_and_with_logical_and(async);
+        await base.And_with_logical_and(async);
 
         AssertSql(
             """
@@ -180,9 +178,9 @@ WHERE [b].[Int] = 8 AND [b].[Short] = CAST(8 AS smallint) AND [b].[String] = N'S
 """);
     }
 
-    public override async Task Bitwise_or_with_logical_and(bool async)
+    public override async Task Or_with_logical_and(bool async)
     {
-        await base.Bitwise_or_with_logical_and(async);
+        await base.Or_with_logical_and(async);
 
         AssertSql(
             """
@@ -192,9 +190,9 @@ WHERE ([b].[Int] = 8 OR [b].[Short] = CAST(9 AS smallint)) AND [b].[String] = N'
 """);
     }
 
-    public override async Task Bitwise_and_with_logical_or(bool async)
+    public override async Task And_with_logical_or(bool async)
     {
-        await base.Bitwise_and_with_logical_or(async);
+        await base.And_with_logical_or(async);
 
         AssertSql(
             """
@@ -204,7 +202,11 @@ WHERE ([b].[Int] = 12 AND [b].[Short] = CAST(12 AS smallint)) OR [b].[String] = 
 """);
     }
 
-    #endregion Bitwise
+    public override Task Left_shift(bool async)
+        => AssertTranslationFailed(() => base.Left_shift(async));
+
+    public override Task Right_shift(bool async)
+        => AssertTranslationFailed(() => base.Right_shift(async));
 
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()

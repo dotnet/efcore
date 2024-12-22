@@ -293,86 +293,6 @@ FROM "Missions" AS "m"
 """);
     }
 
-    public override async Task Byte_array_contains_literal(bool async)
-    {
-        await base.Byte_array_contains_literal(async);
-
-        AssertSql(
-            """
-SELECT "s"."Id", "s"."Banner", "s"."Banner5", "s"."InternalNumber", "s"."Name"
-FROM "Squads" AS "s"
-WHERE instr("s"."Banner", X'01') > 0
-""");
-    }
-
-    public override async Task Byte_array_contains_parameter(bool async)
-    {
-        await base.Byte_array_contains_parameter(async);
-
-        AssertSql(
-            """
-@someByte='1'
-
-SELECT "s"."Id", "s"."Banner", "s"."Banner5", "s"."InternalNumber", "s"."Name"
-FROM "Squads" AS "s"
-WHERE instr("s"."Banner", char(@someByte)) > 0
-""");
-    }
-
-    public override async Task Byte_array_filter_by_length_literal(bool async)
-    {
-        await base.Byte_array_filter_by_length_literal(async);
-
-        AssertSql(
-            """
-SELECT "s"."Id", "s"."Banner", "s"."Banner5", "s"."InternalNumber", "s"."Name"
-FROM "Squads" AS "s"
-WHERE length("s"."Banner") = 2
-""");
-    }
-
-    public override async Task Byte_array_filter_by_length_parameter(bool async)
-    {
-        await base.Byte_array_filter_by_length_parameter(async);
-
-        AssertSql(
-            """
-@p='2'
-
-SELECT "s"."Id", "s"."Banner", "s"."Banner5", "s"."InternalNumber", "s"."Name"
-FROM "Squads" AS "s"
-WHERE length("s"."Banner") = @p
-""");
-    }
-
-    public override void Byte_array_filter_by_length_parameter_compiled()
-    {
-        base.Byte_array_filter_by_length_parameter_compiled();
-
-        AssertSql(
-            """
-@byteArrayParam='0x2A80' (Size = 2)
-
-SELECT COUNT(*)
-FROM "Squads" AS "s"
-WHERE length("s"."Banner") = length(@byteArrayParam)
-""");
-    }
-
-    public override async Task Byte_array_filter_by_SequenceEqual(bool async)
-    {
-        await base.Byte_array_filter_by_SequenceEqual(async);
-
-        AssertSql(
-            """
-@byteArrayParam='0x0405060708' (Size = 5)
-
-SELECT "s"."Id", "s"."Banner", "s"."Banner5", "s"."InternalNumber", "s"."Name"
-FROM "Squads" AS "s"
-WHERE "s"."Banner5" = @byteArrayParam
-""");
-    }
-
     public override async Task Optional_navigation_type_compensation_works_with_DTOs(bool async)
     {
         await base.Optional_navigation_type_compensation_works_with_DTOs(async);
@@ -2703,19 +2623,6 @@ SELECT COALESCE((
     LIMIT 1), 0)
 FROM "Gears" AS "g"
 WHERE "g"."HasSoulPatch"
-""");
-    }
-
-    public override async Task Contains_on_byte_array_property_using_byte_column(bool async)
-    {
-        await base.Contains_on_byte_array_property_using_byte_column(async);
-
-        AssertSql(
-            """
-SELECT "s"."Id", "s"."Banner", "s"."Banner5", "s"."InternalNumber", "s"."Name", "l"."Name", "l"."Discriminator", "l"."LocustHordeId", "l"."ThreatLevel", "l"."ThreatLevelByte", "l"."ThreatLevelNullableByte", "l"."DefeatedByNickname", "l"."DefeatedBySquadId", "l"."HighCommandId"
-FROM "Squads" AS "s"
-CROSS JOIN "LocustLeaders" AS "l"
-WHERE instr("s"."Banner", char("l"."ThreatLevelByte")) > 0
 """);
     }
 
