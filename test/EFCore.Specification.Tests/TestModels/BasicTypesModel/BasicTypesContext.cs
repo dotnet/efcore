@@ -13,12 +13,4 @@ public class BasicTypesContext(DbContextOptions options) : PoolableDbContext(opt
         modelBuilder.Entity<BasicTypesEntity>().Property(b => b.Id).ValueGeneratedNever();
         modelBuilder.Entity<NullableBasicTypesEntity>().Property(b => b.Id).ValueGeneratedNever();
     }
-
-    public static Task SeedAsync(BasicTypesContext context, bool useGeneratedKeys)
-    {
-        context.BasicTypesEntities.AddRange(BasicTypesData.CreateBasicTypesEntities());
-        context.NullableBasicTypesEntities.AddRange(BasicTypesData.CreateNullableBasicTypesEntities());
-
-        return context.SaveChangesAsync();
-    }
 }
