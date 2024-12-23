@@ -1924,6 +1924,15 @@ public sealed partial class SelectExpression : TableExpressionBase
             PushdownIntoSubquery();
         }
 
+        SetLimit(sqlExpression);
+    }
+
+    /// <summary>
+    ///     Sets a new limit of the <see cref="SelectExpression" /> to limit the number of rows returned in the result set.
+    /// </summary>
+    /// <param name="sqlExpression">An expression representing limit row count.</param>
+    public void SetLimit(SqlExpression sqlExpression)
+    {
         Limit = sqlExpression;
 
         if (Offset is null && Limit is SqlConstantExpression { Value: 1 })
