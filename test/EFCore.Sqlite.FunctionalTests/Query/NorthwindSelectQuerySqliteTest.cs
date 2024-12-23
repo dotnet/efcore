@@ -207,6 +207,33 @@ FROM "Orders" AS "o"
             (await Assert.ThrowsAsync<InvalidOperationException>(
                 () => base.SelectMany_correlated_with_outer_7(async))).Message);
 
+    public override async Task SelectMany_with_multiple_Take(bool async)
+        => Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.SelectMany_with_multiple_Take(async))).Message);
+
+    public override async Task Select_with_multiple_Take(bool async)
+    {
+        await base.Select_with_multiple_Take(async);
+
+        AssertSql(
+            """
+@p='5'
+@p0='3'
+
+SELECT "c0"."CustomerID", "c0"."Address", "c0"."City", "c0"."CompanyName", "c0"."ContactName", "c0"."ContactTitle", "c0"."Country", "c0"."Fax", "c0"."Phone", "c0"."PostalCode", "c0"."Region"
+FROM (
+    SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
+    FROM "Customers" AS "c"
+    ORDER BY "c"."CustomerID"
+    LIMIT @p
+) AS "c0"
+ORDER BY "c0"."CustomerID"
+LIMIT @p0
+""");
+    }
+
     public override async Task SelectMany_whose_selector_references_outer_source(bool async)
         => Assert.Equal(
             SqliteStrings.ApplyNotSupported,

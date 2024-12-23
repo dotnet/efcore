@@ -1336,6 +1336,46 @@ OUTER APPLY (
 """);
     }
 
+    public override async Task SelectMany_with_multiple_Take(bool async)
+    {
+        await base.SelectMany_with_multiple_Take(async);
+
+        AssertSql(
+            """
+SELECT [o1].[OrderID], [o1].[CustomerID], [o1].[EmployeeID], [o1].[OrderDate]
+FROM [Customers] AS [c]
+CROSS APPLY (
+    SELECT TOP(3) [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
+    FROM (
+        SELECT TOP(5) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+        FROM [Orders] AS [o]
+        WHERE [c].[CustomerID] = [o].[CustomerID]
+        ORDER BY [o].[OrderID]
+    ) AS [o0]
+    ORDER BY [o0].[OrderID]
+) AS [o1]
+""");
+    }
+
+    public override async Task Select_with_multiple_Take(bool async)
+    {
+        await base.Select_with_multiple_Take(async);
+
+        AssertSql(
+            """
+@p0='3'
+@p='5'
+
+SELECT TOP(@p0) [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
+FROM (
+    SELECT TOP(@p) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    FROM [Customers] AS [c]
+    ORDER BY [c].[CustomerID]
+) AS [c0]
+ORDER BY [c0].[CustomerID]
+""");
+    }
+
     public override async Task FirstOrDefault_over_empty_collection_of_value_type_returns_correct_results(bool async)
     {
         await base.FirstOrDefault_over_empty_collection_of_value_type_returns_correct_results(async);
