@@ -760,14 +760,10 @@ WHERE [o].[OrderID] < 10300
         AssertSql(
             """
 SELECT (
-    SELECT TOP(1) [o0].[CustomerID]
-    FROM (
-        SELECT TOP(1) [o].[CustomerID], [o].[OrderID]
-        FROM [Orders] AS [o]
-        WHERE [c].[CustomerID] = [o].[CustomerID]
-        ORDER BY [o].[OrderID]
-    ) AS [o0]
-    ORDER BY [o0].[OrderID])
+    SELECT TOP(1) [o].[CustomerID]
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+    ORDER BY [o].[OrderID])
 FROM [Customers] AS [c]
 """);
     }
@@ -828,14 +824,10 @@ FROM [Customers] AS [c]
         AssertSql(
             """
 SELECT (
-    SELECT TOP(1) [o0].[CustomerID]
-    FROM (
-        SELECT TOP(1) [o].[CustomerID], [o].[OrderID]
-        FROM [Orders] AS [o]
-        WHERE [c].[CustomerID] = [o].[CustomerID]
-        ORDER BY [o].[OrderID]
-    ) AS [o0]
-    ORDER BY [o0].[OrderID])
+    SELECT TOP(1) [o].[CustomerID]
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+    ORDER BY [o].[OrderID])
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] = N'ALFKI'
 """);
@@ -869,14 +861,10 @@ FROM [Customers] AS [c]
         AssertSql(
             """
 SELECT (
-    SELECT TOP(1) [o0].[CustomerID]
-    FROM (
-        SELECT TOP(2) [o].[CustomerID], [o].[OrderID], [o].[OrderDate]
-        FROM [Orders] AS [o]
-        WHERE [c].[CustomerID] = [o].[CustomerID]
-        ORDER BY [o].[OrderID], [o].[OrderDate] DESC
-    ) AS [o0]
-    ORDER BY [o0].[OrderID], [o0].[OrderDate] DESC)
+    SELECT TOP(1) [o].[CustomerID]
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+    ORDER BY [o].[OrderID], [o].[OrderDate] DESC)
 FROM [Customers] AS [c]
 """);
     }
@@ -892,14 +880,10 @@ FROM [Customers] AS [c]
         AssertSql(
             """
 SELECT (
-    SELECT TOP(1) [o0].[c]
-    FROM (
-        SELECT TOP(2) CAST(LEN([o].[CustomerID]) AS int) AS [c], [o].[OrderID], [o].[OrderDate]
-        FROM [Orders] AS [o]
-        WHERE [c].[CustomerID] = [o].[CustomerID]
-        ORDER BY [o].[OrderID], [o].[OrderDate] DESC
-    ) AS [o0]
-    ORDER BY [o0].[OrderID], [o0].[OrderDate] DESC)
+    SELECT TOP(1) CAST(LEN([o].[CustomerID]) AS int)
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+    ORDER BY [o].[OrderID], [o].[OrderDate] DESC)
 FROM [Customers] AS [c]
 """);
     }
@@ -911,14 +895,10 @@ FROM [Customers] AS [c]
         AssertSql(
             """
 SELECT (
-    SELECT TOP(1) [o0].[CustomerID]
-    FROM (
-        SELECT TOP(2) [o].[CustomerID], [o].[OrderDate]
-        FROM [Orders] AS [o]
-        WHERE [c].[CustomerID] = [o].[CustomerID]
-        ORDER BY [o].[CustomerID], [o].[OrderDate] DESC
-    ) AS [o0]
-    ORDER BY [o0].[CustomerID], [o0].[OrderDate] DESC)
+    SELECT TOP(1) [o].[CustomerID]
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+    ORDER BY [o].[CustomerID], [o].[OrderDate] DESC)
 FROM [Customers] AS [c]
 """);
     }
@@ -930,15 +910,11 @@ FROM [Customers] AS [c]
         AssertSql(
             """
 SELECT COALESCE((
-    SELECT TOP(1) [s].[OrderID]
-    FROM (
-        SELECT TOP(1) [o0].[OrderID], [p].[ProductName]
-        FROM [Order Details] AS [o0]
-        INNER JOIN [Products] AS [p] ON [o0].[ProductID] = [p].[ProductID]
-        WHERE [o].[OrderID] = [o0].[OrderID]
-        ORDER BY [p].[ProductName]
-    ) AS [s]
-    ORDER BY [s].[ProductName]), 0)
+    SELECT TOP(1) [o0].[OrderID]
+    FROM [Order Details] AS [o0]
+    INNER JOIN [Products] AS [p] ON [o0].[ProductID] = [p].[ProductID]
+    WHERE [o].[OrderID] = [o0].[OrderID]
+    ORDER BY [p].[ProductName]), 0)
 FROM [Orders] AS [o]
 WHERE [o].[OrderID] < 10300
 """);
@@ -953,17 +929,15 @@ WHERE [o].[OrderID] < 10300
             """
 SELECT [s0].[OrderID], [s0].[ProductID], [s0].[Discount], [s0].[Quantity], [s0].[UnitPrice]
 FROM [Orders] AS [o]
-OUTER APPLY (
-    SELECT TOP(1) [s].[OrderID], [s].[ProductID], [s].[Discount], [s].[Quantity], [s].[UnitPrice]
+LEFT JOIN (
+    SELECT [s].[OrderID], [s].[ProductID], [s].[Discount], [s].[Quantity], [s].[UnitPrice]
     FROM (
-        SELECT TOP(1) [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice], [p].[ProductName]
+        SELECT [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice], ROW_NUMBER() OVER(PARTITION BY [o0].[OrderID] ORDER BY [p].[ProductName]) AS [row]
         FROM [Order Details] AS [o0]
         INNER JOIN [Products] AS [p] ON [o0].[ProductID] = [p].[ProductID]
-        WHERE [o].[OrderID] = [o0].[OrderID]
-        ORDER BY [p].[ProductName]
     ) AS [s]
-    ORDER BY [s].[ProductName]
-) AS [s0]
+    WHERE [s].[row] <= 1
+) AS [s0] ON [o].[OrderID] = [s0].[OrderID]
 WHERE [o].[OrderID] < 10250
 """);
     }
@@ -1344,16 +1318,14 @@ OUTER APPLY (
             """
 SELECT [o1].[OrderID], [o1].[CustomerID], [o1].[EmployeeID], [o1].[OrderDate]
 FROM [Customers] AS [c]
-CROSS APPLY (
-    SELECT TOP(3) [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
+INNER JOIN (
+    SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
     FROM (
-        SELECT TOP(5) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+        SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], ROW_NUMBER() OVER(PARTITION BY [o].[CustomerID] ORDER BY [o].[OrderID]) AS [row]
         FROM [Orders] AS [o]
-        WHERE [c].[CustomerID] = [o].[CustomerID]
-        ORDER BY [o].[OrderID]
     ) AS [o0]
-    ORDER BY [o0].[OrderID]
-) AS [o1]
+    WHERE [o0].[row] <= 3
+) AS [o1] ON [c].[CustomerID] = [o1].[CustomerID]
 """);
     }
 

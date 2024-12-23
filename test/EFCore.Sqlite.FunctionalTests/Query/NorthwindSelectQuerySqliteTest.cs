@@ -208,10 +208,23 @@ FROM "Orders" AS "o"
                 () => base.SelectMany_correlated_with_outer_7(async))).Message);
 
     public override async Task SelectMany_with_multiple_Take(bool async)
-        => Assert.Equal(
-            SqliteStrings.ApplyNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.SelectMany_with_multiple_Take(async))).Message);
+    {
+        await base.SelectMany_with_multiple_Take(async);
+
+        AssertSql(
+            """
+SELECT "o1"."OrderID", "o1"."CustomerID", "o1"."EmployeeID", "o1"."OrderDate"
+FROM "Customers" AS "c"
+INNER JOIN (
+    SELECT "o0"."OrderID", "o0"."CustomerID", "o0"."EmployeeID", "o0"."OrderDate"
+    FROM (
+        SELECT "o"."OrderID", "o"."CustomerID", "o"."EmployeeID", "o"."OrderDate", ROW_NUMBER() OVER(PARTITION BY "o"."CustomerID" ORDER BY "o"."OrderID") AS "row"
+        FROM "Orders" AS "o"
+    ) AS "o0"
+    WHERE "o0"."row" <= 3
+) AS "o1" ON "c"."CustomerID" = "o1"."CustomerID"
+""");
+    }
 
     public override async Task Select_with_multiple_Take(bool async)
     {
@@ -222,15 +235,10 @@ FROM "Orders" AS "o"
 @p='5'
 @p0='3'
 
-SELECT "c0"."CustomerID", "c0"."Address", "c0"."City", "c0"."CompanyName", "c0"."ContactName", "c0"."ContactTitle", "c0"."Country", "c0"."Fax", "c0"."Phone", "c0"."PostalCode", "c0"."Region"
-FROM (
-    SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
-    FROM "Customers" AS "c"
-    ORDER BY "c"."CustomerID"
-    LIMIT @p
-) AS "c0"
-ORDER BY "c0"."CustomerID"
-LIMIT @p0
+SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
+FROM "Customers" AS "c"
+ORDER BY "c"."CustomerID"
+LIMIT min(@p, @p0)
 """);
     }
 
@@ -301,12 +309,6 @@ LIMIT @p0
             SqliteStrings.ApplyNotSupported,
             (await Assert.ThrowsAsync<InvalidOperationException>(
                 () => base.Reverse_in_SelectMany_with_Take(async))).Message);
-
-    public override async Task Project_single_element_from_collection_with_OrderBy_over_navigation_Take_and_FirstOrDefault_2(bool async)
-        => Assert.Equal(
-            SqliteStrings.ApplyNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Project_single_element_from_collection_with_OrderBy_over_navigation_Take_and_FirstOrDefault_2(async))).Message);
 
     public override Task Member_binding_after_ctor_arguments_fails_with_client_eval(bool async)
         => AssertTranslationFailed(() => base.Member_binding_after_ctor_arguments_fails_with_client_eval(async));
