@@ -776,16 +776,14 @@ FROM [Customers] AS [c]
             """
 SELECT [o1].[OrderID], [o1].[CustomerID], [o1].[EmployeeID], [o1].[OrderDate]
 FROM [Customers] AS [c]
-OUTER APPLY (
-    SELECT TOP(1) [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
+LEFT JOIN (
+    SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
     FROM (
-        SELECT TOP(1) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+        SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], ROW_NUMBER() OVER(PARTITION BY [o].[CustomerID] ORDER BY [o].[OrderID]) AS [row]
         FROM [Orders] AS [o]
-        WHERE [c].[CustomerID] = [o].[CustomerID]
-        ORDER BY [o].[OrderID]
     ) AS [o0]
-    ORDER BY [o0].[OrderDate]
-) AS [o1]
+    WHERE [o0].[row] <= 1
+) AS [o1] ON [c].[CustomerID] = [o1].[CustomerID]
 """);
     }
 
