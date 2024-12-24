@@ -87,11 +87,11 @@ WHERE EXISTS (
             """
 SELECT [e].[Id], [e].[Name]
 FROM [EntityOnes] AS [e]
-WHERE (
-    SELECT COUNT(*)
+WHERE EXISTS (
+    SELECT 1
     FROM [JoinOneSelfPayload] AS [j]
     INNER JOIN [EntityOnes] AS [e0] ON [j].[LeftId] = [e0].[Id]
-    WHERE [e].[Id] = [j].[RightId]) > 0
+    WHERE [e].[Id] = [j].[RightId])
 """);
     }
 

@@ -70,8 +70,10 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
                 },
                 Right: ConstantExpression { Value: 0 }
             }
-            when (member.DeclaringType.GetGenericTypeDefinition().GetInterfaces().Any(
-                x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(ICollection<>)))
+            when member.DeclaringType.GetGenericTypeDefinition() is Type genericTypeDefinition
+            && (genericTypeDefinition == typeof(ICollection<>)
+                || genericTypeDefinition.GetInterfaces()
+                    .Any(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(ICollection<>)))
             => VisitMethodCall(
                 Expression.Call(
                     EnumerableMethods.AnyWithoutPredicate.MakeGenericMethod(source.Type.GetSequenceType()),

@@ -120,11 +120,11 @@ WHERE EXISTS (
             """
 SELECT [e].[Id], [e].[Name], [e].[PeriodEnd], [e].[PeriodStart]
 FROM [EntityOnes] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e]
-WHERE (
-    SELECT COUNT(*)
+WHERE EXISTS (
+    SELECT 1
     FROM [JoinOneSelfPayload] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [j]
     INNER JOIN [EntityOnes] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e0] ON [j].[LeftId] = [e0].[Id]
-    WHERE [e].[Id] = [j].[RightId]) > 0
+    WHERE [e].[Id] = [j].[RightId])
 """);
     }
 

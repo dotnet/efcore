@@ -90,11 +90,11 @@ WHERE EXISTS (
             """
 SELECT [e].[Id], [e].[Name]
 FROM [EntityOnes] AS [e]
-WHERE (
-    SELECT COUNT(*)
+WHERE EXISTS (
+    SELECT 1
     FROM [JoinOneSelfPayload] AS [j]
     INNER JOIN [EntityOnes] AS [e0] ON [j].[LeftId] = [e0].[Id]
-    WHERE [e].[Id] = [j].[RightId]) > 0
+    WHERE [e].[Id] = [j].[RightId])
 """);
     }
 
@@ -2177,11 +2177,11 @@ WHERE EXISTS (
             """
 SELECT [u].[Id], [u].[Name]
 FROM [UnidirectionalEntityOnes] AS [u]
-WHERE (
-    SELECT COUNT(*)
+WHERE EXISTS (
+    SELECT 1
     FROM [UnidirectionalJoinOneSelfPayload] AS [u0]
     INNER JOIN [UnidirectionalEntityOnes] AS [u1] ON [u0].[LeftId] = [u1].[Id]
-    WHERE [u].[Id] = [u0].[RightId]) > 0
+    WHERE [u].[Id] = [u0].[RightId])
 """);
     }
 
