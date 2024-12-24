@@ -1096,6 +1096,22 @@ WHERE STARTSWITH(c["id"], "A")
         AssertSql();
     }
 
+    public override async Task SelectMany_with_multiple_Take(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.SelectMany_with_multiple_Take(async));
+
+        AssertSql();
+    }
+
+    public override async Task Select_with_multiple_Take(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Select_with_multiple_Take(async));
+
+        AssertSql();
+    }
+
     public override async Task FirstOrDefault_over_empty_collection_of_value_type_returns_correct_results(bool async)
     {
         // Cosmos client evaluation. Issue #17246.

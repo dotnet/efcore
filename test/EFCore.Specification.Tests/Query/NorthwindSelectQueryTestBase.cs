@@ -1443,6 +1443,20 @@ public abstract class NorthwindSelectQueryTestBase<TFixture>(TFixture fixture) :
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task SelectMany_with_multiple_Take(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().SelectMany(c => c.Orders.OrderBy(o => o.OrderID).Take(5).Take(3)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Select_with_multiple_Take(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().OrderBy(o => o.CustomerID).Take(5).Take(3));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task FirstOrDefault_over_empty_collection_of_value_type_returns_correct_results(bool async)
         => AssertQuery(
             async,
