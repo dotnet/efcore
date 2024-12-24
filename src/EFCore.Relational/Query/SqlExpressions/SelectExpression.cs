@@ -1931,6 +1931,7 @@ public sealed partial class SelectExpression : TableExpressionBase
     ///     Sets a new limit of the <see cref="SelectExpression" /> to limit the number of rows returned in the result set.
     /// </summary>
     /// <param name="sqlExpression">An expression representing limit row count.</param>
+    [EntityFrameworkInternal]
     public void SetLimit(SqlExpression sqlExpression)
     {
         Limit = sqlExpression;
