@@ -30,6 +30,7 @@ public class SqliteMethodCallTranslatorProvider : RelationalMethodCallTranslator
             new SqliteDateTimeMethodTranslator(sqlExpressionFactory),
             new SqliteGlobMethodTranslator(sqlExpressionFactory),
             new SqliteHexMethodTranslator(sqlExpressionFactory),
+            new SqliteJsonFunctionsTranslator(sqlExpressionFactory),
             new SqliteMathTranslator(sqlExpressionFactory),
             new SqliteObjectToStringTranslator(sqlExpressionFactory),
             new SqliteRandomTranslator(sqlExpressionFactory),
