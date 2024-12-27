@@ -64,7 +64,25 @@ public sealed class StringDictionaryComparer<TDictionary, TElement> : ValueCompa
         var prm1 = Expression.Parameter(typeof(object), "a");
         var prm2 = Expression.Parameter(typeof(object), "b");
 
-        if (elementComparer is ValueComparer<TElement> && !UseOldBehavior35239)
+        if (UseOldBehavior35239)
+        {
+            // (a, b) => Compare(a, b, new Comparer(...))
+            return Expression.Lambda<Func<object?, object?, bool>>(
+                Expression.Call(
+                    LegacyCompareMethod,
+                    prm1,
+                    prm2,
+#pragma warning disable EF9100
+                    elementComparer.ConstructorExpression),
+#pragma warning restore EF9100
+                prm1,
+                prm2);
+        }
+
+        // we check the compatibility between element type we expect on the Equals methods
+        // vs what we actually get from the element comparer
+        // if the expected is assignable from actual we can just do simple call...
+        if (typeof(TElement).IsAssignableFrom(elementComparer.Type))
         {
             // (a, b) => Compare(a, b, elementComparer.Equals)
             return Expression.Lambda<Func<object?, object?, bool>>(
@@ -77,15 +95,25 @@ public sealed class StringDictionaryComparer<TDictionary, TElement> : ValueCompa
                 prm2);
         }
 
-        // (a, b) => Compare(a, b, new Comparer(...))
+        // ...otherwise we need to rewrite the actual lambda (as we can't change the expected signature)
+        // in that case we are rewriting the inner lambda parameters to TElement and cast to the element comparer
+        // type argument in the body, so that semantics of the element comparison func don't change
+        var newInnerPrm1 = Expression.Parameter(typeof(TElement), "a");
+        var newInnerPrm2 = Expression.Parameter(typeof(TElement), "b");
+
+        var newEqualsExpressionBody = elementComparer.ExtractEqualsBody(
+            Expression.Convert(newInnerPrm1, elementComparer.Type),
+            Expression.Convert(newInnerPrm2, elementComparer.Type));
+
         return Expression.Lambda<Func<object?, object?, bool>>(
             Expression.Call(
-                LegacyCompareMethod,
+                CompareMethod,
                 prm1,
                 prm2,
-#pragma warning disable EF9100
-                elementComparer.ConstructorExpression),
-#pragma warning restore EF9100
+                Expression.Lambda(
+                    newEqualsExpressionBody,
+                    newInnerPrm1,
+                    newInnerPrm2)),
             prm1,
             prm2);
     }
@@ -94,7 +122,22 @@ public sealed class StringDictionaryComparer<TDictionary, TElement> : ValueCompa
     {
         var prm = Expression.Parameter(typeof(object), "o");
 
-        if (elementComparer is ValueComparer<TElement> && !UseOldBehavior35239)
+        if (UseOldBehavior35239)
+        {
+            // o => GetHashCode((IEnumerable)o, new Comparer(...))
+            return Expression.Lambda<Func<object, int>>(
+                Expression.Call(
+                    LegacyGetHashCodeMethod,
+                    Expression.Convert(
+                        prm,
+                        typeof(IEnumerable)),
+#pragma warning disable EF9100
+                    elementComparer.ConstructorExpression),
+#pragma warning restore EF9100
+                prm);
+        }
+
+        if (typeof(TElement).IsAssignableFrom(elementComparer.Type))
         {
             // o => GetHashCode((IEnumerable)o, elementComparer.GetHashCode)
             return Expression.Lambda<Func<object, int>>(
@@ -107,16 +150,22 @@ public sealed class StringDictionaryComparer<TDictionary, TElement> : ValueCompa
                 prm);
         }
 
-        // o => GetHashCode((IEnumerable)o, new Comparer(...))
+        var newInnerPrm = Expression.Parameter(typeof(TElement), "o");
+
+        var newInnerBody = elementComparer.ExtractHashCodeBody(
+            Expression.Convert(
+                newInnerPrm,
+                elementComparer.Type));
+
         return Expression.Lambda<Func<object, int>>(
             Expression.Call(
-                LegacyGetHashCodeMethod,
+                GetHashCodeMethod,
                 Expression.Convert(
                     prm,
                     typeof(IEnumerable)),
-#pragma warning disable EF9100
-                elementComparer.ConstructorExpression),
-#pragma warning restore EF9100
+                Expression.Lambda(
+                    newInnerBody,
+                    newInnerPrm)),
             prm);
     }
 
@@ -124,7 +173,21 @@ public sealed class StringDictionaryComparer<TDictionary, TElement> : ValueCompa
     {
         var prm = Expression.Parameter(typeof(object), "source");
 
-        if (elementComparer is ValueComparer<TElement> && !UseOldBehavior35239)
+        if (UseOldBehavior35239)
+        {
+            // source => Snapshot(source, new Comparer(..))
+            return Expression.Lambda<Func<object, object>>(
+                Expression.Call(
+                    LegacySnapshotMethod,
+                    prm,
+#pragma warning disable EF9100
+                    elementComparer.ConstructorExpression),
+#pragma warning restore EF9100
+                prm);
+        }
+
+        // TElement is both argument and return type so the types need to be the same
+        if (typeof(TElement) == elementComparer.Type)
         {
             // source => Snapshot(source, elementComparer.Snapshot)
             return Expression.Lambda<Func<object, object>>(
@@ -135,14 +198,23 @@ public sealed class StringDictionaryComparer<TDictionary, TElement> : ValueCompa
                 prm);
         }
 
-        // source => Snapshot(source, new Comparer(..))
+        var newInnerPrm = Expression.Parameter(typeof(TElement), "source");
+
+        var newInnerBody = elementComparer.ExtractSnapshotBody(
+            Expression.Convert(
+                newInnerPrm,
+                elementComparer.Type));
+
+        // note we need to also convert the result of inner lambda back to TElement
         return Expression.Lambda<Func<object, object>>(
             Expression.Call(
-                LegacySnapshotMethod,
+                SnapshotMethod,
                 prm,
-#pragma warning disable EF9100
-                elementComparer.ConstructorExpression),
-#pragma warning restore EF9100
+                Expression.Lambda(
+                    Expression.Convert(
+                        newInnerBody,
+                        typeof(TElement)),
+                    newInnerPrm)),
             prm);
     }
 
