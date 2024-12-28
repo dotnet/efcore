@@ -46,21 +46,17 @@ public class SqliteJsonFunctionsTranslator : IMethodCallTranslator
         if (JsonExistsMethodInfo.Equals(method)
             && arguments[0].TypeMapping is SqliteJsonTypeMapping or StringTypeMapping)
         {
-            // IIF(arguments_0 IS NULL, NULL, JSON_TYPE(arguments_0, arguments_1) IS NOT NULL)
-            return _sqlExpressionFactory.Function("IFF",
-                [
-                    _sqlExpressionFactory.IsNull(arguments[0]),
-                    _sqlExpressionFactory.Fragment("NULL", method.ReturnType),
+            return _sqlExpressionFactory.Case(
+                [new CaseWhenClause(
+                    _sqlExpressionFactory.IsNotNull(arguments[0]),
                     _sqlExpressionFactory.IsNotNull(
                         _sqlExpressionFactory.Function("JSON_TYPE",
                             arguments,
                             nullable: true,
                             argumentsPropagateNullability: Statics.TrueArrays[2],
-                            returnType: typeof(string)))
+                            returnType: typeof(string))))
                 ],
-                nullable: true,
-                argumentsPropagateNullability: Statics.TrueArrays[3],
-                method.ReturnType);
+                null);
         }
 
         return null;
