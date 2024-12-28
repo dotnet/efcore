@@ -5796,9 +5796,7 @@ SELECT CASE
 END
 FROM [Gears] AS [g]
 ORDER BY CASE
-    WHEN CASE
-        WHEN [g].[LeaderNickname] IS NOT NULL THEN ~CAST(CAST(LEN([g].[Nickname]) AS int) ^ 5 AS bit)
-    END IS NOT NULL THEN CAST(1 AS bit)
+    WHEN [g].[LeaderNickname] IS NOT NULL THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END
 """);

@@ -7206,8 +7206,9 @@ SELECT CASE
 END
 FROM "Gears" AS "g"
 ORDER BY CASE
-    WHEN "g"."LeaderNickname" IS NOT NULL THEN length("g"."Nickname") = 5
-END IS NOT NULL
+    WHEN "g"."LeaderNickname" IS NOT NULL THEN 1
+    ELSE 0
+END
 """);
     }
 

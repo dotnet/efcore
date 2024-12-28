@@ -7361,9 +7361,7 @@ SELECT CASE
 END
 FROM [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g]
 ORDER BY CASE
-    WHEN CASE
-        WHEN [g].[LeaderNickname] IS NOT NULL THEN ~CAST(CAST(LEN([g].[Nickname]) AS int) ^ 5 AS bit)
-    END IS NOT NULL THEN CAST(1 AS bit)
+    WHEN [g].[LeaderNickname] IS NOT NULL THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END
 """);

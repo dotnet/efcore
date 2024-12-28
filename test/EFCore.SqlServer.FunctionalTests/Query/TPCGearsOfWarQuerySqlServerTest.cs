@@ -7871,9 +7871,7 @@ FROM (
     FROM [Officers] AS [o]
 ) AS [u]
 ORDER BY CASE
-    WHEN CASE
-        WHEN [u].[LeaderNickname] IS NOT NULL THEN ~CAST(CAST(LEN([u].[Nickname]) AS int) ^ 5 AS bit)
-    END IS NOT NULL THEN CAST(1 AS bit)
+    WHEN [u].[LeaderNickname] IS NOT NULL THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END
 """);
