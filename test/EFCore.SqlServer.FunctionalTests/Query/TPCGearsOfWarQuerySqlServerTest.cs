@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel;
@@ -1363,6 +1363,75 @@ LEFT JOIN (
     FROM [Officers] AS [o0]
 ) AS [u0] ON [t0].[GearNickName] = [u0].[Nickname] AND [t0].[GearSquadId] = [u0].[SquadId]
 WHERE [u].[Nickname] = [u0].[Nickname] OR ([u].[Nickname] IS NULL AND [u0].[Nickname] IS NULL)
+""");
+    }
+
+    public override async Task Conditional_Navigation_With_Trivial_Member_Access(bool async)
+    {
+        await base.Conditional_Navigation_With_Trivial_Member_Access(async);
+
+        AssertSql(
+            """
+SELECT [u].[Nickname]
+FROM (
+    SELECT [g].[Nickname], [g].[AssignedCityName], [g].[CityOfBirthName]
+    FROM [Gears] AS [g]
+    UNION ALL
+    SELECT [o].[Nickname], [o].[AssignedCityName], [o].[CityOfBirthName]
+    FROM [Officers] AS [o]
+) AS [u]
+LEFT JOIN [Cities] AS [c] ON [u].[AssignedCityName] = [c].[Name]
+INNER JOIN [Cities] AS [c0] ON [u].[CityOfBirthName] = [c0].[Name]
+WHERE CASE
+    WHEN [c].[Name] IS NOT NULL THEN [c].[Name]
+    ELSE [c0].[Name]
+END <> N'Ephyra'
+""");
+    }
+
+    public override async Task Conditional_Navigation_With_Member_Access_On_Same_Type(bool async)
+    {
+        await base.Conditional_Navigation_With_Member_Access_On_Same_Type(async);
+
+        AssertSql(
+            """
+SELECT [u].[Nickname], [u].[FullName]
+FROM (
+    SELECT [g].[Nickname], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[FullName]
+    FROM [Gears] AS [g]
+    UNION ALL
+    SELECT [o].[Nickname], [o].[AssignedCityName], [o].[CityOfBirthName], [o].[FullName]
+    FROM [Officers] AS [o]
+) AS [u]
+LEFT JOIN [Cities] AS [c] ON [u].[AssignedCityName] = [c].[Name]
+INNER JOIN [Cities] AS [c0] ON [u].[CityOfBirthName] = [c0].[Name]
+WHERE CASE
+    WHEN [c].[Name] IS NOT NULL THEN [c].[Nation]
+    ELSE [c0].[Nation]
+END = N'Tyrus'
+""");
+    }
+
+    public override async Task Conditional_Navigation_With_Member_Access_On_Related_Types(bool async)
+    {
+        await base.Conditional_Navigation_With_Member_Access_On_Related_Types(async);
+
+        AssertSql(
+            """
+SELECT [l].[Name]
+FROM [LocustHordes] AS [l]
+LEFT JOIN (
+    SELECT [l0].[Name], [l0].[ThreatLevel]
+    FROM [LocustLeaders] AS [l0]
+    UNION ALL
+    SELECT [l1].[Name], [l1].[ThreatLevel]
+    FROM [LocustCommanders] AS [l1]
+) AS [u] ON [l].[DeputyCommanderName] = [u].[Name]
+LEFT JOIN [LocustCommanders] AS [l2] ON [l].[CommanderName] = [l2].[Name]
+WHERE CASE
+    WHEN [u].[Name] IS NOT NULL THEN [u].[ThreatLevel]
+    ELSE [l2].[ThreatLevel]
+END = CAST(4 AS smallint)
 """);
     }
 
