@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class SqlliteHalfTypeMapping : HalfTypeMapping
+    public class SqliteHalfTypeMapping : HalfTypeMapping
     {
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static new SqlliteHalfTypeMapping Default { get; } = new(SqliteTypeMappingSource.RealTypeName);
+        public static new SqliteHalfTypeMapping Default { get; } = new(SqliteTypeMappingSource.RealTypeName);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public SqlliteHalfTypeMapping(
+        public SqliteHalfTypeMapping(
             string storeType,
             DbType? dbType = System.Data.DbType.Single)
             : base(storeType, dbType)
@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected SqlliteHalfTypeMapping(RelationalTypeMappingParameters parameters)
+        protected SqliteHalfTypeMapping(RelationalTypeMappingParameters parameters)
             : base(parameters)
         {
         }
@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
         /// <param name="parameters">The parameters for this mapping.</param>
         /// <returns>The newly created mapping.</returns>
         protected override RelationalTypeMapping Clone(RelationalTypeMappingParameters parameters)
-            => new SqlliteHalfTypeMapping(parameters);
+            => new SqliteHalfTypeMapping(parameters);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

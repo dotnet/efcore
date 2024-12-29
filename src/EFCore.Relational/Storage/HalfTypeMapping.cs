@@ -43,11 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public HalfTypeMapping(
             string storeType,
             DbType? dbType = System.Data.DbType.Single)
-            : this(new RelationalTypeMappingParameters(
-                new CoreTypeMappingParameters(
-                    typeof(Half), jsonValueReaderWriter: JsonHalfReaderWriter.Instance),
-                storeType,
-                dbType: dbType))
+            : base(storeType, typeof(Half), dbType, jsonValueReaderWriter: JsonHalfReaderWriter.Instance)
         {
         }
 
