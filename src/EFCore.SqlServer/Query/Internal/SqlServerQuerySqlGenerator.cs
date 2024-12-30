@@ -700,6 +700,7 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
 
             CollateExpression => (900, false),
             LikeExpression => (350, false),
+            IsDistinctFromExpression => (500, false),
             AtTimeZoneExpression => (1200, false),
 
             // On SQL Server, JsonScalarExpression renders as a function (JSON_VALUE()), so there's never a need for parentheses.

@@ -7,9 +7,10 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public class NullSemanticsQuerySqlServerTest : NullSemanticsQueryTestBase<NullSemanticsQuerySqlServerFixture>
+public class NullSemanticsQueryOldSqlServerTest : NullSemanticsQueryTestBase<
+    NullSemanticsQueryOldSqlServerTest.NullSemanticsQueryOldSqlServerFixture>
 {
-    public NullSemanticsQuerySqlServerTest(NullSemanticsQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
+    public NullSemanticsQueryOldSqlServerTest(NullSemanticsQueryOldSqlServerFixture fixture, ITestOutputHelper testOutputHelper)
         : base(fixture)
     {
         Fixture.TestSqlLoggerFactory.Clear();
@@ -2098,33 +2099,6 @@ WHERE COALESCE([e].[NullableBoolA], CAST(1 AS bit)) = CAST(1 AS bit)
 """);
     }
 
-    public override async Task Where_coalesce_shortcircuit(bool async)
-    {
-        await base.Where_coalesce_shortcircuit(async);
-
-        AssertSql(
-            """
-SELECT [e].[Id]
-FROM [Entities1] AS [e]
-WHERE [e].[BoolA] = CAST(1 AS bit) OR [e].[BoolB] = CAST(1 AS bit)
-""");
-    }
-
-    public override async Task Where_coalesce_shortcircuit_many(bool async)
-    {
-        await base.Where_coalesce_shortcircuit_many(async);
-
-        AssertSql(
-            """
-SELECT [e].[Id]
-FROM [Entities1] AS [e]
-WHERE COALESCE([e].[NullableBoolA], CASE
-    WHEN [e].[BoolA] = CAST(1 AS bit) OR [e].[BoolB] = CAST(1 AS bit) THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END) = CAST(1 AS bit)
-""");
-    }
-
     public override async Task Where_equal_nullable_with_null_value_parameter(bool async)
     {
         await base.Where_equal_nullable_with_null_value_parameter(async);
@@ -3099,8 +3073,8 @@ WHERE EXISTS (
     FROM [Entities2] AS [e0]
     WHERE [e0].[NullableStringA] = [e].[NullableStringB] OR ([e0].[NullableStringA] IS NULL AND [e].[NullableStringB] IS NULL))
 """,
-            //
-            """
+                //
+                """
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
 WHERE NOT EXISTS (
@@ -4588,4 +4562,15 @@ FROM [Entities1] AS [e]
 
     protected override void ClearLog()
         => Fixture.TestSqlLoggerFactory.Clear();
+
+    public class NullSemanticsQueryOldSqlServerFixture : NullSemanticsQuerySqlServerFixture
+    {
+        // Use a different store name to prevent concurrency issues with the non-old PrimitiveCollectionsQuerySqlServerTest
+        protected override string StoreName
+            => "Old" + base.StoreName;
+
+        // Compatibility level below 160 (SQL Server 2022) doesn't support IS [NOT] DISTINCT FROM
+        public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+            => base.AddOptions(builder).UseSqlServer(o => o.UseCompatibilityLevel(150));
+    }
 }

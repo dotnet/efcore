@@ -53,7 +53,7 @@ public class SearchConditionConverter(ISqlExpressionFactory sqlExpressionFactory
             // The following are search condition expressions: they can appear directly in a WHERE, and cannot e.g. be projected out
             // directly
             SqlExpression e and
-                (ExistsExpression or InExpression or LikeExpression or SqlFunctionExpression { Name: "FREETEXT" or "CONTAINS" })
+                (ExistsExpression or InExpression or IsDistinctFromExpression or LikeExpression or SqlFunctionExpression { Name: "FREETEXT" or "CONTAINS" })
                 => ApplyConversion((SqlExpression)base.VisitExtension(e), inSearchConditionContext, isExpressionSearchCondition: true),
 
             SqlExpression e => ApplyConversion(
@@ -268,7 +268,8 @@ public class SearchConditionConverter(ISqlExpressionFactory sqlExpressionFactory
                 when (sqlUnaryExpression.TypeMapping?.Converter?.ProviderClrType ?? sqlUnaryExpression.Type) == typeof(bool):
             {
                 // when possible, avoid converting to/from predicate form
-                if (!inSearchConditionContext && sqlUnaryExpression.Operand is not (ExistsExpression or InExpression or LikeExpression))
+                if (!inSearchConditionContext && sqlUnaryExpression.Operand
+                    is not (ExistsExpression or InExpression or IsDistinctFromExpression or LikeExpression))
                 {
                     var negatedOperand = (SqlExpression)Visit(sqlUnaryExpression.Operand);
 

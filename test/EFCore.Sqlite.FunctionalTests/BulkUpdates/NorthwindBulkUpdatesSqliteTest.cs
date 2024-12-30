@@ -212,7 +212,7 @@ WHERE "o"."OrderID" < (
     SELECT (
         SELECT "o1"."OrderID"
         FROM "Orders" AS "o1"
-        WHERE "o0"."CustomerID" = "o1"."CustomerID" OR ("o0"."CustomerID" IS NULL AND "o1"."CustomerID" IS NULL)
+        WHERE "o0"."CustomerID" IS "o1"."CustomerID"
         LIMIT 1)
     FROM "Orders" AS "o0"
     GROUP BY "o0"."CustomerID"
@@ -236,7 +236,7 @@ WHERE EXISTS (
         SELECT (
             SELECT "o3"."OrderID"
             FROM "Orders" AS "o3"
-            WHERE "o2"."CustomerID" = "o3"."CustomerID" OR ("o2"."CustomerID" IS NULL AND "o3"."CustomerID" IS NULL)
+            WHERE "o2"."CustomerID" IS "o3"."CustomerID"
             LIMIT 1)
         FROM "Orders" AS "o2"
         GROUP BY "o2"."CustomerID"
@@ -896,7 +896,7 @@ WHERE "c"."CustomerID" = (
     SELECT (
         SELECT "o0"."CustomerID"
         FROM "Orders" AS "o0"
-        WHERE "o"."CustomerID" = "o0"."CustomerID" OR ("o"."CustomerID" IS NULL AND "o0"."CustomerID" IS NULL)
+        WHERE "o"."CustomerID" IS "o0"."CustomerID"
         LIMIT 1)
     FROM "Orders" AS "o"
     GROUP BY "o"."CustomerID"
@@ -925,7 +925,7 @@ WHERE "c"."CustomerID" IN (
         SELECT "c0"."CustomerID"
         FROM "Orders" AS "o0"
         LEFT JOIN "Customers" AS "c0" ON "o0"."CustomerID" = "c0"."CustomerID"
-        WHERE "o"."CustomerID" = "o0"."CustomerID" OR ("o"."CustomerID" IS NULL AND "o0"."CustomerID" IS NULL)
+        WHERE "o"."CustomerID" IS "o0"."CustomerID"
         LIMIT 1)
     FROM "Orders" AS "o"
     GROUP BY "o"."CustomerID"

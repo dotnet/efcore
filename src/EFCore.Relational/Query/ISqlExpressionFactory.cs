@@ -68,6 +68,14 @@ public interface ISqlExpressionFactory
 
     // Comparison
     /// <summary>
+    ///     Creates a <see cref="SqlExpression" /> which represents an IS DISTINCT FROM expression.
+    /// </summary>
+    /// <param name="left">The left operand.</param>
+    /// <param name="right">The right operand.</param>
+    /// <returns>An expression representing a SQL IS DISTINCT FROM expression.</returns>
+    SqlExpression IsDistinctFrom(SqlExpression left, SqlExpression right);
+
+    /// <summary>
     ///     Creates a <see cref="SqlExpression" /> which represents an equality comparison.
     /// </summary>
     /// <param name="left">The left operand.</param>

@@ -113,6 +113,36 @@ public class SqliteQuerySqlGenerator : QuerySqlGenerator
         Visit(globExpression.Pattern);
     }
 
+    /// <inheritdoc />
+    protected override void GenerateIsDistinctFrom(IsDistinctFromExpression isExpression, bool negated)
+    {
+        var requiresBrackets = RequiresParentheses(isExpression, isExpression.Left);
+        if (requiresBrackets)
+        {
+            Sql.Append("(");
+        }
+
+        Visit(isExpression.Left);
+        if (requiresBrackets)
+        {
+            Sql.Append(")");
+        }
+
+        Sql.Append(negated ? " IS " : " IS NOT ");
+
+        requiresBrackets = RequiresParentheses(isExpression, isExpression.Right);
+        if (requiresBrackets)
+        {
+            Sql.Append("(");
+        }
+
+        Visit(isExpression.Right);
+        if (requiresBrackets)
+        {
+            Sql.Append(")");
+        }
+    }
+
     private void GenerateRegexp(RegexpExpression regexpExpression, bool negated = false)
     {
         Visit(regexpExpression.Match);
@@ -400,6 +430,7 @@ public class SqliteQuerySqlGenerator : QuerySqlGenerator
             },
 
             CollateExpression => (1100, false),
+            IsDistinctFromExpression => (500, false),
             LikeExpression => (500, false),
             JsonScalarExpression => (1000, true),
 
