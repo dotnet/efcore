@@ -4576,7 +4576,7 @@ FROM [Entities1] AS [e]
             """
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE CAST(1 AS bit) <> [e].[NullableBoolA] OR [e].[NullableBoolA] IS NULL
+WHERE CAST(0 AS bit) = [e].[NullableBoolA] OR [e].[NullableBoolA] IS NULL
 """);
     }
 

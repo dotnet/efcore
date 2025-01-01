@@ -6051,7 +6051,7 @@ INNER JOIN (
     FROM [LocustHordes] AS [l1]
     WHERE [l1].[Name] = N'Swarm'
 ) AS [l2] ON [u].[Name] = [l2].[CommanderName]
-WHERE [l2].[Eradicated] <> CAST(1 AS bit) OR [l2].[Eradicated] IS NULL
+WHERE [l2].[Eradicated] = CAST(0 AS bit) OR [l2].[Eradicated] IS NULL
 """);
     }
 
@@ -6074,7 +6074,7 @@ LEFT JOIN (
     FROM [LocustHordes] AS [l1]
     WHERE [l1].[Name] = N'Swarm'
 ) AS [l2] ON [u].[Name] = [l2].[CommanderName]
-WHERE [l2].[Eradicated] <> CAST(1 AS bit) OR [l2].[Eradicated] IS NULL
+WHERE [l2].[Eradicated] = CAST(0 AS bit) OR [l2].[Eradicated] IS NULL
 """);
     }
 
@@ -9333,7 +9333,7 @@ FROM (
 INNER JOIN [LocustHordes] AS [l1] ON [u].[Name] = [l1].[CommanderName]
 WHERE CASE
     WHEN [l1].[Name] = N'Locust' THEN CAST(1 AS bit)
-END <> CAST(1 AS bit) OR CASE
+END = CAST(0 AS bit) OR CASE
     WHEN [l1].[Name] = N'Locust' THEN CAST(1 AS bit)
 END IS NULL
 """);
