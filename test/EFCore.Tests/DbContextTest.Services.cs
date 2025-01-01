@@ -295,7 +295,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [ConditionalTheory(Skip = "https://github.com/dotnet/runtime/issues/89109")]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public void Resolve_scoped_application_service(bool autoResolve)
@@ -396,6 +396,7 @@ namespace Microsoft.EntityFrameworkCore
                     (p, b) =>
                     {
                         b = b.UseInMemoryDatabase(nameof(ServiceResolutionContext))
+                            .ConfigureWarnings(w => w.Ignore(CoreEventId.ManyServiceProvidersCreatedWarning))
                             .ReplaceService<IDbSetFinder, TestSingletonService>()
                             .ReplaceService<IEntityGraphAttacher, TestScopedService>()
                             .ReplaceService<ILazyLoader, TestTransientService>();
