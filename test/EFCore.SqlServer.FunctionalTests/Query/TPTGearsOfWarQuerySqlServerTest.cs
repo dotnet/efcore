@@ -5129,7 +5129,7 @@ ORDER BY [s].[FullName] DESC, [s].[Nickname], [s].[SquadId], [w].[Name]
         await base.Null_semantics_on_nullable_bool_from_inner_join_subquery_is_fully_applied(async);
 
         AssertSql(
-            """
+"""
 SELECT [s].[Id], [s].[CapitalName], [s].[Name], [s].[ServerAddress], [s].[CommanderName], [s].[Eradicated], [s].[Discriminator]
 FROM [LocustLeaders] AS [l]
 INNER JOIN (
@@ -5140,7 +5140,7 @@ INNER JOIN (
     LEFT JOIN [LocustHordes] AS [l0] ON [f].[Id] = [l0].[Id]
     WHERE [l0].[Id] IS NOT NULL AND [f].[Name] = N'Swarm'
 ) AS [s] ON [l].[Name] = [s].[CommanderName]
-WHERE [s].[Eradicated] = CAST(0 AS bit) OR [s].[Eradicated] IS NULL
+WHERE [s].[Eradicated] <> CAST(1 AS bit) OR [s].[Eradicated] IS NULL
 """);
     }
 
@@ -5160,7 +5160,7 @@ LEFT JOIN (
     LEFT JOIN [LocustHordes] AS [l0] ON [f].[Id] = [l0].[Id]
     WHERE [l0].[Id] IS NOT NULL AND [f].[Name] = N'Swarm'
 ) AS [s] ON [l].[Name] = [s].[CommanderName]
-WHERE [s].[Eradicated] = CAST(0 AS bit) OR [s].[Eradicated] IS NULL
+WHERE [s].[Eradicated] <> CAST(1 AS bit) OR [s].[Eradicated] IS NULL
 """);
     }
 
@@ -7918,7 +7918,7 @@ WHERE [o].[Nickname] IS NOT NULL
         await base.Join_inner_source_custom_projection_followed_by_filter(async);
 
         AssertSql(
-            """
+"""
 SELECT CASE
     WHEN [s].[Name] = N'Locust' THEN CAST(1 AS bit)
 END AS [IsEradicated], [s].[CommanderName], [s].[Name]
@@ -7931,7 +7931,7 @@ INNER JOIN (
 ) AS [s] ON [l].[Name] = [s].[CommanderName]
 WHERE CASE
     WHEN [s].[Name] = N'Locust' THEN CAST(1 AS bit)
-END = CAST(0 AS bit) OR CASE
+END <> CAST(1 AS bit) OR CASE
     WHEN [s].[Name] = N'Locust' THEN CAST(1 AS bit)
 END IS NULL
 """);

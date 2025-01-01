@@ -660,20 +660,36 @@ public class SqlExpressionFactory : ISqlExpressionFactory
             SqlBinaryExpression { OperatorType: ExpressionType.OrElse } binary
                 => AndAlso(Not(binary.Left), Not(binary.Right)),
 
-            // use equality where possible
+            // use equality where possible - we can only do this when we know a is not null
+            // at this point we are limited to constants, parameters and columns
+            // more comprehensive optimization is done during null expansion
             // !(a == true) -> a == false
             // !(a == false) -> a == true
-            SqlBinaryExpression { OperatorType: ExpressionType.Equal, Right: SqlConstantExpression { Value: bool } } binary
+            SqlBinaryExpression
+            {
+                OperatorType: ExpressionType.Equal,
+                Right: SqlConstantExpression { Value: bool },
+                Left: SqlConstantExpression { Value: bool }
+                    or SqlParameterExpression { IsNullable: false }
+                    or ColumnExpression { IsNullable: false } } binary
                 => Equal(binary.Left, Not(binary.Right)),
 
             // !(true == a) -> false == a
             // !(false == a) -> true == a
-            SqlBinaryExpression { OperatorType: ExpressionType.Equal, Left: SqlConstantExpression { Value: bool } } binary
+            SqlBinaryExpression
+            {
+                OperatorType: ExpressionType.Equal,
+                Left: SqlConstantExpression { Value: bool },
+                Right: SqlConstantExpression { Value: bool }
+                    or SqlParameterExpression { IsNullable: false }
+                    or ColumnExpression { IsNullable: false }
+            } binary
                 => Equal(Not(binary.Left), binary.Right),
 
             // !(a == b) -> a != b
             SqlBinaryExpression { OperatorType: ExpressionType.Equal } sqlBinaryOperand => NotEqual(
                 sqlBinaryOperand.Left, sqlBinaryOperand.Right),
+
             // !(a != b) -> a == b
             SqlBinaryExpression { OperatorType: ExpressionType.NotEqual } sqlBinaryOperand => Equal(
                 sqlBinaryOperand.Left, sqlBinaryOperand.Right),

@@ -2459,6 +2459,33 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
             ss => ss.Set<NullSemanticsEntity1>().Where(e => true).Select(e => e.Id));
     }
 
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Compare_constant_true_to_nullable_column_negated(bool async)
+        => await AssertQueryScalar(
+            async,
+            ss => ss.Set<NullSemanticsEntity1>().Where(x => !(true == x.NullableBoolA)).Select(x => x.Id));
+
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Compare_constant_true_to_non_nullable_column_negated(bool async)
+        => await AssertQueryScalar(
+            async,
+            ss => ss.Set<NullSemanticsEntity1>().Where(x => !(true == x.BoolA)).Select(x => x.Id));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Compare_constant_true_to_expression_which_evaluates_to_null(bool async)
+    {
+        var prm = default(bool?);
+
+        await AssertQueryScalar(
+            async,
+            ss => ss.Set<NullSemanticsEntity1>().Where(x => x.NullableBoolA != null
+                && !object.Equals(true, x.NullableBoolA == null ? null : prm)).Select(x => x.Id));
+    }
+
     // We can't client-evaluate Like (for the expected results).
     // However, since the test data has no LIKE wildcards, it effectively functions like equality - except that 'null like null' returns
     // false instead of true. So we have this "lite" implementation which doesn't support wildcards.
