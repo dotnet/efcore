@@ -1124,7 +1124,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
             // we assume that NullSemantics rewrite is only needed (on the current level)
             // if the optimization didn't make any changes.
             // Reason is that optimization can/will change the nullability of the resulting expression
-            // and that inforation is not tracked/stored anywhere
+            // and that information is not tracked/stored anywhere
             // so we can no longer rely on nullabilities that we computed earlier (leftNullable, rightNullable)
             // when performing null semantics rewrite.
             // It should be fine because current optimizations *radically* change the expression
@@ -1590,10 +1590,10 @@ public class SqlNullabilityProcessor : ExpressionVisitor
         }
 
         var leftIsNull = ProcessNullNotNull(_sqlExpressionFactory.IsNull(left), leftNullable);
-        var leftIsNotNull = _sqlExpressionFactory.Not(leftIsNull);
+        var leftIsNotNull = OptimizeNotExpression(_sqlExpressionFactory.Not(leftIsNull));
 
         var rightIsNull = ProcessNullNotNull(_sqlExpressionFactory.IsNull(right), rightNullable);
-        var rightIsNotNull = _sqlExpressionFactory.Not(rightIsNull);
+        var rightIsNotNull = OptimizeNotExpression(_sqlExpressionFactory.Not(rightIsNull));
 
         SqlExpression body;
         if (leftNegated == rightNegated)
@@ -1625,7 +1625,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
         if (sqlBinaryExpression.OperatorType == ExpressionType.NotEqual)
         {
             // the factory takes care of simplifying using DeMorgan
-            body = _sqlExpressionFactory.Not(body);
+            body = OptimizeNotExpression(_sqlExpressionFactory.Not(body));
         }
 
         return body;
@@ -1643,18 +1643,40 @@ public class SqlNullabilityProcessor : ExpressionVisitor
             return expression;
         }
 
-        // !(a > b) -> a <= b
-        // !(a >= b) -> a < b
-        // !(a < b) -> a >= b
-        // !(a <= b) -> a > b
-        if (sqlUnaryExpression.Operand is SqlBinaryExpression sqlBinaryOperand
-            && TryNegate(sqlBinaryOperand.OperatorType, out var negated))
+        if (sqlUnaryExpression.Operand is SqlBinaryExpression sqlBinaryOperand)
         {
-            return _sqlExpressionFactory.MakeBinary(
-                negated,
-                sqlBinaryOperand.Left,
-                sqlBinaryOperand.Right,
-                sqlBinaryOperand.TypeMapping)!;
+            // !(a > b) -> a <= b
+            // !(a >= b) -> a < b
+            // !(a < b) -> a >= b
+            // !(a <= b) -> a > b
+            if (TryNegate(sqlBinaryOperand.OperatorType, out var negated))
+            {
+                return _sqlExpressionFactory.MakeBinary(
+                    negated,
+                    sqlBinaryOperand.Left,
+                    sqlBinaryOperand.Right,
+                    sqlBinaryOperand.TypeMapping)!;
+            }
+
+            // use equality where possible - at this point (true == null) and (false == null) have been converted to
+            // IS NULL / IS NOT NULL (i.e. false), so this optimization is safe to do. See #35393
+            // !(a == true) -> a == false
+            // !(a == false) -> a == true
+            if (sqlBinaryOperand is { OperatorType: ExpressionType.Equal, Right: SqlConstantExpression { Value: bool } })
+            {
+                return _sqlExpressionFactory.Equal(
+                    sqlBinaryOperand.Left,
+                    OptimizeNotExpression(_sqlExpressionFactory.Not(sqlBinaryOperand.Right)));
+            }
+
+            // !(true == a) -> false == a
+            // !(false == a) -> true == a
+            if (sqlBinaryOperand is { OperatorType: ExpressionType.Equal, Left: SqlConstantExpression { Value: bool } })
+            {
+                return _sqlExpressionFactory.Equal(
+                    OptimizeNotExpression(_sqlExpressionFactory.Not(sqlBinaryOperand.Left)),
+                    sqlBinaryOperand.Right);
+            }
         }
 
         // the factory can optimize most `NOT` expressions
@@ -2039,7 +2061,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                     return result;
                 }
             }
-                break;
+            break;
         }
 
         return sqlUnaryExpression;
