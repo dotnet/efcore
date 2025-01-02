@@ -396,7 +396,7 @@ namespace Microsoft.EntityFrameworkCore
                     (p, b) =>
                     {
                         b = b.UseInMemoryDatabase(nameof(ServiceResolutionContext))
-                            .ConfigureWarnings(w => w.Ignore(CoreEventId.ManyServiceProvidersCreatedWarning))
+                            .EnableServiceProviderCaching(false)
                             .ReplaceService<IDbSetFinder, TestSingletonService>()
                             .ReplaceService<IEntityGraphAttacher, TestScopedService>()
                             .ReplaceService<ILazyLoader, TestTransientService>();
