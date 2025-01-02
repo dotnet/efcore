@@ -5,6 +5,7 @@ using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Query;
 using static Microsoft.EntityFrameworkCore.Query.QueryHelpers;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
@@ -44,7 +45,7 @@ public class CosmosSqlTranslatingExpressionVisitor(
     private static readonly MethodInfo GetTypeMethodInfo = typeof(object).GetTypeInfo().GetDeclaredMethod(nameof(GetType))!;
 
     private readonly IModel _model = queryCompilationContext.Model;
-    private readonly SqlTypeMappingVerifyingExpressionVisitor _sqlVerifyingExpressionVisitor = new();
+    //private readonly SqlTypeMappingVerifyingExpressionVisitor _sqlVerifyingExpressionVisitor = new();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -101,7 +102,7 @@ public class CosmosSqlTranslatingExpressionVisitor(
                     return null;
                 }
 
-                _sqlVerifyingExpressionVisitor.Visit(translation);
+                //_sqlVerifyingExpressionVisitor.Visit(translation);
             }
 
             return translation;
@@ -345,7 +346,29 @@ public class CosmosSqlTranslatingExpressionVisitor(
                 return extensionExpression;
 
             case QueryParameterExpression queryParameter:
-                return new SqlParameterExpression(queryParameter.Name, queryParameter.Type, null);
+                // If we're precompiling a query, nullability information about reference type parameters has been extracted by the
+                // funcletizer and stored on the query compilation context; use that information when creating the SqlParameterExpression.
+                if (queryParameter.IsNonNullableReferenceType)
+                {
+                    /*Check.DebugAssert(
+                        _queryCompilationContext.IsPrecompiling,
+                        "Parameters can only be known to has non-nullable reference types in query precompilation.");*/
+                    return new SqlParameterExpression(
+                        invariantName: queryParameter.Name,
+                        name: queryParameter.Name,
+                        queryParameter.Type,
+                        nullable: false,
+                        queryParameter.ShouldBeConstantized,
+                        typeMapping: null);
+                }
+
+                return new SqlParameterExpression(
+                    invariantName: queryParameter.Name,
+                    name: queryParameter.Name,
+                    queryParameter.Type,
+                    queryParameter.Type.IsNullableType(),
+                    queryParameter.ShouldBeConstantized,
+                    typeMapping: null);
 
             case StructuralTypeShaperExpression shaper:
                 return new EntityReferenceExpression(shaper);

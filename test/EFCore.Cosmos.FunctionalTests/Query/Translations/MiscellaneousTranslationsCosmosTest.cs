@@ -209,29 +209,173 @@ WHERE ((RAND() >= 0.0) AND (RAND() < 1.0))
 
     #region Compare
 
-    public override async Task Int_Compare_to_simple_zero(bool async)
-    {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Int_Compare_to_simple_zero(async));
+    public override Task Int_Compare_to_simple_zero(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Int_Compare_to_simple_zero(a);
 
-        AssertSql();
-    }
+                AssertSql(
+                    """
+@orderId=?
 
-    public override async Task DateTime_Compare_to_simple_zero(bool async, bool compareTo)
-    {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.DateTime_Compare_to_simple_zero(async, compareTo));
+SELECT VALUE c
+FROM root c
+WHERE (IIF((c["Int"] = @orderId), 0, IIF((c["Int"] > @orderId), 1, IIF((c["Int"] < @orderId), -1, null))) = 0)
+""",
+                    //
+                    """
+@orderId=?
 
-        AssertSql();
-    }
+SELECT VALUE c
+FROM root c
+WHERE (0 != IIF((c["Int"] = @orderId), 0, IIF((c["Int"] > @orderId), 1, IIF((c["Int"] < @orderId), -1, null))))
+""",
+                    //
+                    """
+@orderId=?
 
-    public override async Task TimeSpan_Compare_to_simple_zero(bool async, bool compareTo)
-    {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.TimeSpan_Compare_to_simple_zero(async, compareTo));
+SELECT VALUE c
+FROM root c
+WHERE (IIF((c["Int"] = @orderId), 0, IIF((c["Int"] > @orderId), 1, IIF((c["Int"] < @orderId), -1, null))) > 0)
+""",
+                    //
+                    """
+@orderId=?
 
-        AssertSql();
-    }
+SELECT VALUE c
+FROM root c
+WHERE (0 >= IIF((c["Int"] = @orderId), 0, IIF((c["Int"] > @orderId), 1, IIF((c["Int"] < @orderId), -1, null))))
+""",
+                    //
+                    """
+@orderId=?
+
+SELECT VALUE c
+FROM root c
+WHERE (0 < IIF((c["Int"] = @orderId), 0, IIF((c["Int"] > @orderId), 1, IIF((c["Int"] < @orderId), -1, null))))
+""",
+                    //
+                    """
+@orderId=?
+
+SELECT VALUE c
+FROM root c
+WHERE (IIF((c["Int"] = @orderId), 0, IIF((c["Int"] > @orderId), 1, IIF((c["Int"] < @orderId), -1, null))) <= 0)
+""");
+            });
+
+    public override Task DateTime_Compare_to_simple_zero(bool async, bool compareTo)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.DateTime_Compare_to_simple_zero(a,compareTo);
+
+                AssertSql(
+                    """
+@dateTime=?
+
+SELECT VALUE c
+FROM root c
+WHERE (IIF((c["DateTime"] = @dateTime), 0, IIF((c["DateTime"] > @dateTime), 1, IIF((c["DateTime"] < @dateTime), -1, null))) = 0)
+""",
+                    //
+                    """
+@dateTime=?
+
+SELECT VALUE c
+FROM root c
+WHERE (0 != IIF((c["DateTime"] = @dateTime), 0, IIF((c["DateTime"] > @dateTime), 1, IIF((c["DateTime"] < @dateTime), -1, null))))
+""",
+                    //
+                    """
+@dateTime=?
+
+SELECT VALUE c
+FROM root c
+WHERE (IIF((c["DateTime"] = @dateTime), 0, IIF((c["DateTime"] > @dateTime), 1, IIF((c["DateTime"] < @dateTime), -1, null))) > 0)
+""",
+                    //
+                    """
+@dateTime=?
+
+SELECT VALUE c
+FROM root c
+WHERE (0 >= IIF((c["DateTime"] = @dateTime), 0, IIF((c["DateTime"] > @dateTime), 1, IIF((c["DateTime"] < @dateTime), -1, null))))
+""",
+                    //
+                    """
+@dateTime=?
+
+SELECT VALUE c
+FROM root c
+WHERE (0 < IIF((c["DateTime"] = @dateTime), 0, IIF((c["DateTime"] > @dateTime), 1, IIF((c["DateTime"] < @dateTime), -1, null))))
+""",
+                    //
+                    """
+@dateTime=?
+
+SELECT VALUE c
+FROM root c
+WHERE (IIF((c["DateTime"] = @dateTime), 0, IIF((c["DateTime"] > @dateTime), 1, IIF((c["DateTime"] < @dateTime), -1, null))) <= 0)
+""");
+            });
+
+    public override Task TimeSpan_Compare_to_simple_zero(bool async, bool compareTo)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.TimeSpan_Compare_to_simple_zero(a, compareTo);
+
+                AssertSql(
+                    """
+@timeSpan=?
+
+SELECT VALUE c
+FROM root c
+WHERE (IIF((c["TimeSpan"] = @timeSpan), 0, IIF((c["TimeSpan"] > @timeSpan), 1, IIF((c["TimeSpan"] < @timeSpan), -1, null))) = 0)
+""",
+                    //
+                    """
+@timeSpan=?
+
+SELECT VALUE c
+FROM root c
+WHERE (0 != IIF((c["TimeSpan"] = @timeSpan), 0, IIF((c["TimeSpan"] > @timeSpan), 1, IIF((c["TimeSpan"] < @timeSpan), -1, null))))
+""",
+                    //
+                    """
+@timeSpan=?
+
+SELECT VALUE c
+FROM root c
+WHERE (IIF((c["TimeSpan"] = @timeSpan), 0, IIF((c["TimeSpan"] > @timeSpan), 1, IIF((c["TimeSpan"] < @timeSpan), -1, null))) > 0)
+""",
+                    //
+                    """
+@timeSpan=?
+
+SELECT VALUE c
+FROM root c
+WHERE (0 >= IIF((c["TimeSpan"] = @timeSpan), 0, IIF((c["TimeSpan"] > @timeSpan), 1, IIF((c["TimeSpan"] < @timeSpan), -1, null))))
+""",
+                    //
+                    """
+@timeSpan=?
+
+SELECT VALUE c
+FROM root c
+WHERE (0 < IIF((c["TimeSpan"] = @timeSpan), 0, IIF((c["TimeSpan"] > @timeSpan), 1, IIF((c["TimeSpan"] < @timeSpan), -1, null))))
+""",
+                    //
+                    """
+@timeSpan=?
+
+SELECT VALUE c
+FROM root c
+WHERE (IIF((c["TimeSpan"] = @timeSpan), 0, IIF((c["TimeSpan"] > @timeSpan), 1, IIF((c["TimeSpan"] < @timeSpan), -1, null))) <= 0)
+""");
+            });
 
     #endregion Compare
 
