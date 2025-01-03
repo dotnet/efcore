@@ -2618,9 +2618,7 @@ FROM "Squads" AS "s"
 
         AssertSql(
             """
-SELECT CASE
-    WHEN "c"."Name" IS NOT NULL THEN "c"."Name"
-END
+SELECT "c"."Name"
 FROM "Tags" AS "t"
 LEFT JOIN "Gears" AS "g" ON "t"."GearNickName" = "g"."Nickname" AND "t"."GearSquadId" = "g"."SquadId"
 LEFT JOIN "Tags" AS "t0" ON ("g"."Nickname" = "t0"."GearNickName" OR ("g"."Nickname" IS NULL AND "t0"."GearNickName" IS NULL)) AND ("g"."SquadId" = "t0"."GearSquadId" OR ("g"."SquadId" IS NULL AND "t0"."GearSquadId" IS NULL))
@@ -5600,9 +5598,7 @@ LEFT JOIN (
 
         AssertSql(
             """
-SELECT CASE
-    WHEN "f"."CommanderName" IS NOT NULL THEN "f"."CommanderName"
-END
+SELECT "f"."CommanderName"
 FROM "Factions" AS "f"
 """);
     }

@@ -753,7 +753,7 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
             ss => ss.Set<NullSemanticsEntity1>().Where(
                 e => (e.NullableStringA == e.NullableStringB
                         ? e.NullableStringA
-                        : e.NullableStringB)
+                        : e.NullableStringC)
                     == e.NullableStringC).Select(e => e.Id));
 
     [ConditionalTheory]
@@ -765,7 +765,7 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
                 e => e.NullableStringC
                     != (e.NullableStringA == e.NullableStringB
                         ? e.NullableStringA
-                        : e.NullableStringB)).Select(e => e.Id));
+                        : e.NullableStringC)).Select(e => e.Id));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]

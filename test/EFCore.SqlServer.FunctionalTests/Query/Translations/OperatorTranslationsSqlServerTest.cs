@@ -12,6 +12,82 @@ public class OperatorTranslationsSqlServerTest : OperatorTranslationsTestBase<Ba
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
+    #region Conditional
+
+    public override async Task Conditional_simplifiable_equality(bool async)
+    {
+        await base.Conditional_simplifiable_equality(async);
+
+        AssertSql(
+            """
+SELECT [n].[Id], [n].[Bool], [n].[Byte], [n].[ByteArray], [n].[DateOnly], [n].[DateTime], [n].[DateTimeOffset], [n].[Decimal], [n].[Double], [n].[Enum], [n].[FlagsEnum], [n].[Float], [n].[Guid], [n].[Int], [n].[Long], [n].[Short], [n].[String], [n].[TimeOnly], [n].[TimeSpan]
+FROM [NullableBasicTypesEntities] AS [n]
+WHERE [n].[Int] > 1
+""");
+    }
+
+    public override async Task Conditional_simplifiable_inequality(bool async)
+    {
+        await base.Conditional_simplifiable_inequality(async);
+
+        AssertSql(
+            """
+SELECT [n].[Id], [n].[Bool], [n].[Byte], [n].[ByteArray], [n].[DateOnly], [n].[DateTime], [n].[DateTimeOffset], [n].[Decimal], [n].[Double], [n].[Enum], [n].[FlagsEnum], [n].[Float], [n].[Guid], [n].[Int], [n].[Long], [n].[Short], [n].[String], [n].[TimeOnly], [n].[TimeSpan]
+FROM [NullableBasicTypesEntities] AS [n]
+WHERE [n].[Int] > 1
+""");
+    }
+
+    public override async Task Conditional_uncoalesce_with_equality_left(bool async)
+    {
+        await base.Conditional_uncoalesce_with_equality_left(async);
+
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE NULLIF([b].[Int], 9) > 1
+""");
+    }
+
+    public override async Task Conditional_uncoalesce_with_equality_right(bool async)
+    {
+        await base.Conditional_uncoalesce_with_equality_right(async);
+
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE NULLIF([b].[Int], 9) > 1
+""");
+    }
+
+    public override async Task Conditional_uncoalesce_with_unequality_left(bool async)
+    {
+        await base.Conditional_uncoalesce_with_unequality_left(async);
+
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE NULLIF([b].[Int], 9) > 1
+""");
+    }
+
+    public override async Task Conditional_uncoalesce_with_inequality_right(bool async)
+    {
+        await base.Conditional_uncoalesce_with_inequality_right(async);
+
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE NULLIF([b].[Int], 9) > 1
+""");
+    }
+
+    #endregion Conditional
+
     #region Bitwise
 
     public override async Task Bitwise_or(bool async)

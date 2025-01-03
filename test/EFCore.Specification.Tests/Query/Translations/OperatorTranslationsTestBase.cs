@@ -8,6 +8,58 @@ namespace Microsoft.EntityFrameworkCore.Query.Translations;
 public abstract class OperatorTranslationsTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)
     where TFixture : BasicTypesQueryFixtureBase, new()
 {
+    // See also operators precedence tests in OperatorsQueryTestBase
+
+    #region Conditional
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Conditional_simplifiable_equality(bool async)
+        => AssertQuery(
+            async,
+            // ReSharper disable once MergeConditionalExpression
+            cs => cs.Set<NullableBasicTypesEntity>().Where(x => (x.Int == 9 ? 9 : x.Int) > 1));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Conditional_simplifiable_inequality(bool async)
+        => AssertQuery(
+            async,
+            // ReSharper disable once MergeConditionalExpression
+            cs => cs.Set<NullableBasicTypesEntity>().Where(x => (x.Int != 8 ? x.Int : 8) > 1));
+
+    // In relational providers, x == a ? null : x ("un-coalescing conditional") is translated to SQL NULLIF
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Conditional_uncoalesce_with_equality_left(bool async)
+        => AssertQuery(
+            async,
+            cs => cs.Set<BasicTypesEntity>().Where(x => (x.Int == 9 ? null : x.Int) > 1));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Conditional_uncoalesce_with_equality_right(bool async)
+        => AssertQuery(
+            async,
+            cs => cs.Set<BasicTypesEntity>().Where(x => (9 == x.Int ? null : x.Int) > 1));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Conditional_uncoalesce_with_unequality_left(bool async)
+        => AssertQuery(
+            async,
+            cs => cs.Set<BasicTypesEntity>().Where(x => (x.Int != 9 ? x.Int : null) > 1));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Conditional_uncoalesce_with_inequality_right(bool async)
+        => AssertQuery(
+            async,
+            cs => cs.Set<BasicTypesEntity>().Where(x => (9 != x.Int ? x.Int : null) > 1));
+
+    #endregion Conditional
+
     #region Bitwise
 #pragma warning disable CS0675 // Bitwise-or operator used on a sign-extended operand
 
