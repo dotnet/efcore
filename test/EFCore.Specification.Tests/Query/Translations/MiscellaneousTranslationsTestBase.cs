@@ -69,6 +69,42 @@ public abstract class MiscellaneousTranslationsTestBase<TFixture>(TFixture fixtu
             async,
             ss => ss.Set<BasicTypesEntity>().Where(e => e.ByteArray.Length >= 1 && e.ByteArray.First() == 0xDE));
 
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Byte_array_Contains_with_constant(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<BasicTypesEntity>().Where(s => s.ByteArray.Contains((byte)1)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Byte_array_Contains_with_parameter(bool async)
+    {
+        byte someByte = 1;
+
+        return AssertQuery(
+            async,
+            ss => ss.Set<BasicTypesEntity>().Where(s => s.ByteArray.Contains(someByte)));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Byte_array_Contains_with_column(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<BasicTypesEntity>().Where(s => s.ByteArray.Contains(s.Byte)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Byte_array_SequenceEqual(bool async)
+    {
+        var byteArrayParam = new byte[] { 0xDE, 0xAD, 0xBE, 0xEF };
+
+        return AssertQuery(
+            async,
+            ss => ss.Set<BasicTypesEntity>().Where(s => s.ByteArray.SequenceEqual(byteArrayParam)));
+    }
+
     #endregion Byte array
 
     #region Random

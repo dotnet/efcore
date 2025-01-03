@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Text.RegularExpressions;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.BasicTypesModel;
 
 namespace Microsoft.EntityFrameworkCore.Query.Translations;
@@ -10,14 +11,24 @@ namespace Microsoft.EntityFrameworkCore.Query.Translations;
 public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)
     where TFixture : BasicTypesQueryFixtureBase, new()
 {
+    /// <summary>
+    ///     Controls whether the tests assert case-sensitive or insensitive string comparisons. Defaults to <see langword="true" />.
+    /// </summary>
+    protected virtual bool IsCaseSensitive => true;
+
     #region Equals
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Equals(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<BasicTypesEntity>().Where(b => b.String.Equals("Seattle")));
+        => IsCaseSensitive
+            ? AssertQuery(
+                async,
+                ss => ss.Set<BasicTypesEntity>().Where(b => b.String.Equals("Seattle")))
+            : AssertQuery(
+                async,
+                ss => ss.Set<BasicTypesEntity>().Where(b => b.String.Equals("seattle")),
+                ss => ss.Set<BasicTypesEntity>().Where(b => b.String.Equals("seattle", StringComparison.OrdinalIgnoreCase)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -36,9 +47,14 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Static_Equals(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<BasicTypesEntity>().Where(b => string.Equals(b.String, "Seattle")));
+        => IsCaseSensitive
+            ? AssertQuery(
+                async,
+                ss => ss.Set<BasicTypesEntity>().Where(b => string.Equals(b.String, "Seattle")))
+            : AssertQuery(
+                async,
+                ss => ss.Set<BasicTypesEntity>().Where(b => string.Equals(b.String, "seattle")),
+                ss => ss.Set<BasicTypesEntity>().Where(b => string.Equals(b.String, "seattle", StringComparison.OrdinalIgnoreCase)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -67,17 +83,31 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task ToUpper(bool async)
-        => AssertQuery(
+    public virtual async Task ToUpper(bool async)
+    {
+        // Note that if the database is case-insensitive, the Where() assertion checks nothing.
+        await AssertQuery(
             async,
             ss => ss.Set<BasicTypesEntity>().Where(b => b.String.ToUpper() == "SEATTLE"));
 
+        await AssertQuery(
+            async,
+            ss => ss.Set<BasicTypesEntity>().Select(b => b.String.ToUpper()));
+    }
+
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task ToLower(bool async)
-        => AssertQuery(
+    public virtual async Task ToLower(bool async)
+    {
+        // Note that if the database is case-insensitive, the Where() assertion checks nothing.
+        await AssertQuery(
             async,
             ss => ss.Set<BasicTypesEntity>().Where(b => b.String.ToLower() == "seattle"));
+
+        await AssertQuery(
+            async,
+            ss => ss.Set<BasicTypesEntity>().Select(b => b.String.ToLower()));
+    }
 
     #endregion Miscellaneous
 
@@ -86,9 +116,14 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task IndexOf(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<BasicTypesEntity>().Where(b => b.String.IndexOf("eattl") != -1));
+        => IsCaseSensitive
+            ? AssertQuery(
+                async,
+                ss => ss.Set<BasicTypesEntity>().Where(b => b.String.IndexOf("eattl") != -1))
+            : AssertQuery(
+                async,
+                ss => ss.Set<BasicTypesEntity>().Where(b => b.String.IndexOf("Eattl") != -1),
+                ss => ss.Set<BasicTypesEntity>().Where(b => b.String.IndexOf("Eattl", StringComparison.OrdinalIgnoreCase) != -1));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -96,18 +131,29 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
         => AssertQuery(
             async,
             ss => ss.Set<BasicTypesEntity>().Where(b => b.String.IndexOf(string.Empty) == 0),
-            ss => ss.Set<BasicTypesEntity>().Where(b => b.String != null && b.String.IndexOf(string.Empty) == 0)
-        );
+            ss => ss.Set<BasicTypesEntity>().Where(b => b.String != null && b.String.IndexOf(string.Empty) == 0));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task IndexOf_with_one_parameter_arg(bool async)
     {
-        var pattern = "eattl";
+        if (IsCaseSensitive)
+        {
+            var pattern = "eattl";
 
-        return AssertQuery(
-            async,
-            ss => ss.Set<BasicTypesEntity>().Where(b => b.String.IndexOf(pattern) == 1));
+            return AssertQuery(
+                async,
+                ss => ss.Set<BasicTypesEntity>().Where(b => b.String.IndexOf(pattern) == 1));
+        }
+        else
+        {
+            var pattern = "Eattl";
+
+            return AssertQuery(
+                async,
+                ss => ss.Set<BasicTypesEntity>().Where(b => b.String.IndexOf(pattern) == 1),
+                ss => ss.Set<BasicTypesEntity>().Where(b => b.String.IndexOf(pattern, StringComparison.OrdinalIgnoreCase) == 1));
+        }
     }
 
     [ConditionalTheory]
@@ -117,16 +163,25 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
             async,
             ss => ss.Set<BasicTypesEntity>().Where(b => b.String.Length > 2 && b.String.IndexOf("e", 2) == 6));
 
+#pragma warning disable CA1866 // Use 'string.Method(char)' instead of 'string.Method(string)' for string with single char
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task IndexOf_with_parameter_starting_position(bool async)
     {
         var start = 2;
 
-        return AssertQuery(
-            async,
-            ss => ss.Set<BasicTypesEntity>().Where(b => b.String.Length > 2 && b.String.IndexOf("e", start) == 6));
+        return IsCaseSensitive
+            ? AssertQuery(
+                async,
+                ss => ss.Set<BasicTypesEntity>().Where(b => b.String.Length > 2 && b.String.IndexOf("e", start) == 6))
+            : AssertQuery(
+                async,
+                ss => ss.Set<BasicTypesEntity>().Where(
+                    b => b.String.Length > 2 && b.String.IndexOf("E", start) == 6),
+                ss => ss.Set<BasicTypesEntity>().Where(
+                    b => b.String.Length > 2 && b.String.IndexOf("E", start, StringComparison.OrdinalIgnoreCase) == 6));
     }
+#pragma warning restore CA1866
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -149,9 +204,14 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Replace(bool async)
-        => AssertQuery(
+        => IsCaseSensitive
+        ? AssertQuery(
             async,
-            ss => ss.Set<BasicTypesEntity>().Where(b => b.String.Replace("Sea", "Rea") == "Reattle"));
+            ss => ss.Set<BasicTypesEntity>().Where(b => b.String.Replace("Sea", "Rea") == "Reattle"))
+        : AssertQuery(
+            async,
+            ss => ss.Set<BasicTypesEntity>().Where(b => b.String.Replace("sea", "rea") == "reattle"),
+            ss => ss.Set<BasicTypesEntity>().Where(b => b.String.Replace("sea", "rea", StringComparison.OrdinalIgnoreCase) == "reattle"));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -284,19 +344,36 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task StartsWith_Literal(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<BasicTypesEntity>().Where(b => b.String.StartsWith("Se")));
+        => IsCaseSensitive
+            ? AssertQuery(
+                async,
+                ss => ss.Set<BasicTypesEntity>().Where(b => b.String.StartsWith("Se")))
+            : AssertQuery(
+                async,
+                ss => ss.Set<BasicTypesEntity>().Where(b => b.String.StartsWith("se")),
+                ss => ss.Set<BasicTypesEntity>().Where(b => b.String.StartsWith("se", StringComparison.OrdinalIgnoreCase)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task StartsWith_Parameter(bool async)
     {
-        var pattern = "Se";
+        if (IsCaseSensitive)
+        {
+            var pattern = "Se";
 
-        return AssertQuery(
-            async,
-            ss => ss.Set<BasicTypesEntity>().Where(b => b.String.StartsWith(pattern)));
+            return AssertQuery(
+                async,
+                ss => ss.Set<BasicTypesEntity>().Where(b => b.String.StartsWith(pattern)));
+        }
+        else
+        {
+            var pattern = "se";
+
+            return AssertQuery(
+                async,
+                ss => ss.Set<BasicTypesEntity>().Where(b => b.String.StartsWith(pattern)),
+                ss => ss.Set<BasicTypesEntity>().Where(b => b.String.StartsWith(pattern, StringComparison.OrdinalIgnoreCase)));
+        }
     }
 
     [ConditionalTheory]
@@ -356,19 +433,36 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task EndsWith_Literal(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<BasicTypesEntity>().Where(b => b.String.EndsWith("le")));
+        => IsCaseSensitive
+            ? AssertQuery(
+                async,
+                ss => ss.Set<BasicTypesEntity>().Where(b => b.String.EndsWith("le")))
+            : AssertQuery(
+                async,
+                ss => ss.Set<BasicTypesEntity>().Where(b => b.String.EndsWith("Le")),
+                ss => ss.Set<BasicTypesEntity>().Where(b => b.String.EndsWith("Le", StringComparison.OrdinalIgnoreCase)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task EndsWith_Parameter(bool async)
     {
-        var pattern = "le";
+        if (IsCaseSensitive)
+        {
+            var pattern = "le";
 
-        return AssertQuery(
-            async,
-            ss => ss.Set<BasicTypesEntity>().Where(b => b.String.EndsWith(pattern)));
+            return AssertQuery(
+                async,
+                ss => ss.Set<BasicTypesEntity>().Where(b => b.String.EndsWith(pattern)));
+        }
+        else
+        {
+            var pattern = "LE";
+
+            return AssertQuery(
+                async,
+                ss => ss.Set<BasicTypesEntity>().Where(b => b.String.EndsWith(pattern)),
+                ss => ss.Set<BasicTypesEntity>().Where(b => b.String.EndsWith(pattern, StringComparison.OrdinalIgnoreCase)));
+        }
     }
 
     [ConditionalTheory]
@@ -428,9 +522,14 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Contains_Literal(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<BasicTypesEntity>().Where(b => b.String.Contains("eattl")));
+        => IsCaseSensitive
+            ? AssertQuery(
+                async,
+                ss => ss.Set<BasicTypesEntity>().Where(b => b.String.Contains("eattl")))
+            : AssertQuery(
+                async,
+                ss => ss.Set<BasicTypesEntity>().Where(b => b.String.Contains("Eattl")),
+                ss => ss.Set<BasicTypesEntity>().Where(b => b.String.Contains("Eattl", StringComparison.OrdinalIgnoreCase)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -449,13 +548,28 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Contains_negated(bool async)
     {
-        await AssertQuery(
-            async,
-            ss => ss.Set<BasicTypesEntity>().Where(c => !c.String.Contains("eattle")));
+        if (IsCaseSensitive)
+        {
+            await AssertQuery(
+                async,
+                ss => ss.Set<BasicTypesEntity>().Where(c => !c.String.Contains("eattle")));
 
-        await AssertQueryScalar(
-            async,
-            ss => ss.Set<BasicTypesEntity>().Select(c => !c.String.Contains("eattle")));
+            await AssertQueryScalar(
+                async,
+                ss => ss.Set<BasicTypesEntity>().Select(c => !c.String.Contains("eattle")));
+        }
+        else
+        {
+            await AssertQuery(
+                async,
+                ss => ss.Set<BasicTypesEntity>().Where(c => !c.String.Contains("Eattle")),
+                ss => ss.Set<BasicTypesEntity>().Where(c => !c.String.Contains("Eattle", StringComparison.OrdinalIgnoreCase)));
+
+            await AssertQueryScalar(
+                async,
+                ss => ss.Set<BasicTypesEntity>().Select(c => !c.String.Contains("Eattle")),
+                ss => ss.Set<BasicTypesEntity>().Select(c => !c.String.Contains("Eattle", StringComparison.OrdinalIgnoreCase)));
+        }
     }
 
     [ConditionalTheory]
@@ -603,29 +717,64 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Compare_simple_zero(bool async)
     {
-        await AssertQuery(
-            async,
-            ss => ss.Set<BasicTypesEntity>().Where(c => string.Compare(c.String, "Seattle") == 0));
+        if (IsCaseSensitive)
+        {
+            await AssertQuery(
+                async,
+                ss => ss.Set<BasicTypesEntity>().Where(c => string.Compare(c.String, "Seattle") == 0));
 
-        await AssertQuery(
-            async,
-            ss => ss.Set<BasicTypesEntity>().Where(c => 0 != string.Compare(c.String, "Seattle")));
+            await AssertQuery(
+                async,
+                ss => ss.Set<BasicTypesEntity>().Where(c => 0 != string.Compare(c.String, "Seattle")));
 
-        await AssertQuery(
-            async,
-            ss => ss.Set<BasicTypesEntity>().Where(c => string.Compare(c.String, "Seattle") > 0));
+            await AssertQuery(
+                async,
+                ss => ss.Set<BasicTypesEntity>().Where(c => string.Compare(c.String, "Seattle") > 0));
 
-        await AssertQuery(
-            async,
-            ss => ss.Set<BasicTypesEntity>().Where(c => 0 >= string.Compare(c.String, "Seattle")));
+            await AssertQuery(
+                async,
+                ss => ss.Set<BasicTypesEntity>().Where(c => 0 >= string.Compare(c.String, "Seattle")));
 
-        await AssertQuery(
-            async,
-            ss => ss.Set<BasicTypesEntity>().Where(c => 0 < string.Compare(c.String, "Seattle")));
+            await AssertQuery(
+                async,
+                ss => ss.Set<BasicTypesEntity>().Where(c => 0 < string.Compare(c.String, "Seattle")));
 
-        await AssertQuery(
-            async,
-            ss => ss.Set<BasicTypesEntity>().Where(c => string.Compare(c.String, "Seattle") <= 0));
+            await AssertQuery(
+                async,
+                ss => ss.Set<BasicTypesEntity>().Where(c => string.Compare(c.String, "Seattle") <= 0));
+        }
+        else
+        {
+            await AssertQuery(
+                async,
+                ss => ss.Set<BasicTypesEntity>().Where(c => string.Compare(c.String, "seattle") == 0),
+                ss => ss.Set<BasicTypesEntity>().Where(c => string.Compare(c.String, "seattle", StringComparison.OrdinalIgnoreCase) == 0));
+
+            await AssertQuery(
+                async,
+                ss => ss.Set<BasicTypesEntity>().Where(c => 0 != string.Compare(c.String, "seattle")),
+                ss => ss.Set<BasicTypesEntity>().Where(c => 0 != string.Compare(c.String, "seattle", StringComparison.OrdinalIgnoreCase)));
+
+            await AssertQuery(
+                async,
+                ss => ss.Set<BasicTypesEntity>().Where(c => string.Compare(c.String, "seattle") > 0),
+                ss => ss.Set<BasicTypesEntity>().Where(c => string.Compare(c.String, "seattle", StringComparison.OrdinalIgnoreCase) > 0));
+
+            await AssertQuery(
+                async,
+                ss => ss.Set<BasicTypesEntity>().Where(c => 0 >= string.Compare(c.String, "seattle")),
+                ss => ss.Set<BasicTypesEntity>().Where(c => 0 >= string.Compare(c.String, "seattle", StringComparison.OrdinalIgnoreCase)));
+
+            await AssertQuery(
+                async,
+                ss => ss.Set<BasicTypesEntity>().Where(c => 0 < string.Compare(c.String, "seattle")),
+                ss => ss.Set<BasicTypesEntity>().Where(c => 0 < string.Compare(c.String, "seattle", StringComparison.OrdinalIgnoreCase)));
+
+            await AssertQuery(
+                async,
+                ss => ss.Set<BasicTypesEntity>().Where(c => string.Compare(c.String, "seattle") <= 0),
+                ss => ss.Set<BasicTypesEntity>().Where(c => string.Compare(c.String, "seattle", StringComparison.OrdinalIgnoreCase) <= 0));
+        }
     }
 
     [ConditionalTheory]
@@ -1002,6 +1151,13 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
 
     #region Concatenation
 
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Concat_operator(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<BasicTypesEntity>().Where(b => b.String + "Boston" == "SeattleBoston"));
+
     // TODO: Possibly move to aggregate-specific test suite, not sure. Also Join above.
 
     [ConditionalTheory]
@@ -1135,16 +1291,26 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Regex_IsMatch(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<BasicTypesEntity>().Where(o => Regex.IsMatch(o.String, "^S")));
+        => IsCaseSensitive
+            ? AssertQuery(
+                async,
+                ss => ss.Set<BasicTypesEntity>().Where(o => Regex.IsMatch(o.String, "^S")))
+            : AssertQuery(
+                async,
+                ss => ss.Set<BasicTypesEntity>().Where(o => Regex.IsMatch(o.String, "^s")),
+                ss => ss.Set<BasicTypesEntity>().Where(o => Regex.IsMatch(o.String, "^s", RegexOptions.IgnoreCase)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Regex_IsMatch_constant_input(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<BasicTypesEntity>().Where(o => Regex.IsMatch("Seattle", o.String)));
+        => IsCaseSensitive
+            ? AssertQuery(
+                async,
+                ss => ss.Set<BasicTypesEntity>().Where(o => Regex.IsMatch("Seattle", o.String)))
+            : AssertQuery(
+                async,
+                ss => ss.Set<BasicTypesEntity>().Where(o => Regex.IsMatch("seattle", o.String)),
+                ss => ss.Set<BasicTypesEntity>().Where(o => Regex.IsMatch("seattle", o.String, RegexOptions.IgnoreCase)));
 
     #endregion Regex
 

@@ -492,45 +492,6 @@ WHERE EXISTS (
 """);
     }
 
-    public override async Task Where_bitwise_or(bool async)
-    {
-        await base.Where_bitwise_or(async);
-
-        AssertSql(
-            """
-SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]
-WHERE [c].[CustomerID] IN (N'ALFKI', N'ANATR')
-""");
-    }
-
-    public override async Task Where_bitwise_and(bool async)
-    {
-        await base.Where_bitwise_and(async);
-
-        AssertSql(
-            """
-SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]
-WHERE 0 = 1
-""");
-    }
-
-    public override async Task Where_bitwise_xor(bool async)
-    {
-        await base.Where_bitwise_xor(async);
-
-        AssertSql(
-            """
-SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]
-WHERE CASE
-    WHEN [c].[CustomerID] = N'ALFKI' THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END ^ CAST(1 AS bit) = CAST(1 AS bit)
-""");
-    }
-
     public override async Task Where_simple_shadow(bool async)
     {
         await base.Where_simple_shadow(async);

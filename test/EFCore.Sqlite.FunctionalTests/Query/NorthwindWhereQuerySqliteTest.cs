@@ -67,14 +67,6 @@ WHERE CAST("p"."UnitPrice" AS REAL) > 100.0
 """);
     }
 
-    public override async Task Where_bitwise_xor(bool async)
-    {
-        // Cannot eval 'where (([c].CustomerID == \"ALFKI\") ^ True)'. Issue #16645.
-        await AssertTranslationFailed(() => base.Where_bitwise_xor(async));
-
-        AssertSql();
-    }
-
     public override async Task Where_compare_constructed_equal(bool async)
     {
         //  Anonymous type to constant comparison. Issue #14672.

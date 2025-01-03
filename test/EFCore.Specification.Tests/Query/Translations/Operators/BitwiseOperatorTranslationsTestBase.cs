@@ -3,17 +3,16 @@
 
 using Microsoft.EntityFrameworkCore.TestModels.BasicTypesModel;
 
-namespace Microsoft.EntityFrameworkCore.Query.Translations;
+namespace Microsoft.EntityFrameworkCore.Query.Translations.Operators;
 
-public abstract class OperatorTranslationsTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)
-    where TFixture : BasicTypesQueryFixtureBase, new()
-{
-    #region Bitwise
 #pragma warning disable CS0675 // Bitwise-or operator used on a sign-extended operand
 
+public abstract class BitwiseOperatorTranslationsTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)
+    where TFixture : BasicTypesQueryFixtureBase, new()
+{
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Bitwise_or(bool async)
+    public virtual async Task Or(bool async)
     {
         await AssertQuery(
             async,
@@ -26,7 +25,7 @@ public abstract class OperatorTranslationsTestBase<TFixture>(TFixture fixture) :
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Bitwise_or_over_boolean(bool async)
+    public virtual async Task Or_over_boolean(bool async)
     {
         await AssertQuery(
             async,
@@ -39,14 +38,14 @@ public abstract class OperatorTranslationsTestBase<TFixture>(TFixture fixture) :
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Bitwise_or_multiple(bool async)
+    public virtual Task Or_multiple(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<BasicTypesEntity>().Where(b => (b.Int | b.Short | b.Long) == 7));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Bitwise_and(bool async)
+    public virtual async Task And(bool async)
     {
         await AssertQuery(
             async,
@@ -59,7 +58,7 @@ public abstract class OperatorTranslationsTestBase<TFixture>(TFixture fixture) :
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Bitwise_and_over_boolean(bool async)
+    public virtual async Task And_over_boolean(bool async)
     {
         await AssertQuery(
             async,
@@ -72,7 +71,7 @@ public abstract class OperatorTranslationsTestBase<TFixture>(TFixture fixture) :
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Bitwise_xor(bool async)
+    public virtual async Task Xor(bool async)
     {
         await AssertQuery(
             async,
@@ -85,53 +84,64 @@ public abstract class OperatorTranslationsTestBase<TFixture>(TFixture fixture) :
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Bitwise_xor_over_boolean(bool async)
+    public virtual Task Xor_over_boolean(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<BasicTypesEntity>().Where(b => (b.Int == b.Short) ^ (b.String == "Seattle")));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Bitwise_complement(bool async)
+    public virtual Task Complement(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<BasicTypesEntity>().Where(b => ~b.Int == -9));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Bitwise_and_or_over_boolean(bool async)
+    public virtual Task And_or_over_boolean(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<BasicTypesEntity>().Where(b => b.Int == 12 & b.Short == 12 | b.String == "Seattle"));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Bitwise_or_with_logical_or(bool async)
+    public virtual Task Or_with_logical_or(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<BasicTypesEntity>().Where(b => b.Int == 12 | b.Short == 12 || b.String == "Seattle"));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Bitwise_and_with_logical_and(bool async)
+    public virtual Task And_with_logical_and(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<BasicTypesEntity>().Where(b => b.Int == 8 & b.Short == 8 && b.String == "Seattle"));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Bitwise_or_with_logical_and(bool async)
+    public virtual Task Or_with_logical_and(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<BasicTypesEntity>().Where(b => b.Int == 8 | b.Short == 9 && b.String == "Seattle"));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Bitwise_and_with_logical_or(bool async)
+    public virtual Task And_with_logical_or(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<BasicTypesEntity>().Where(b => b.Int == 12 & b.Short == 12 || b.String == "Seattle"));
 
-#pragma warning restore CS0675 // Bitwise-or operator used on a sign-extended operand
-    #endregion Bitwise
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Left_shift(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<BasicTypesEntity>().Where(b => b.Int << 1 == 16));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Right_shift(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<BasicTypesEntity>().Where(b => b.Int >> 1 == 4));
 }
