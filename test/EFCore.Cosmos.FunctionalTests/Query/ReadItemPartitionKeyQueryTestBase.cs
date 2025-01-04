@@ -19,25 +19,25 @@ public abstract class ReadItemPartitionKeyQueryTestBase<TFixture> : QueryTestBas
     public virtual Task Key_with_special_characters_1()
         => AssertQuery(
             async: true,
-            ss => ss.Set<Cat35224>().Where(c => c.Id == "Cat|1"));
+            ss => ss.Set<FancyDiscriminatorEntity>().Where(c => c.Id == "Cat|1"));
 
     [ConditionalFact]
     public virtual Task Key_with_special_characters_2()
         => AssertQuery(
             async: true,
-            ss => ss.Set<Cat35224>().Where(c => c.Id == "Cat2||"));
+            ss => ss.Set<FancyDiscriminatorEntity>().Where(c => c.Id == "Cat2||"));
 
     [ConditionalFact]
     public virtual Task Key_with_special_characters_3()
         => AssertQuery(
             async: true,
-            ss => ss.Set<Cat35224>().Where(c => c.Id == "Cat|3|$|5"));
+            ss => ss.Set<FancyDiscriminatorEntity>().Where(c => c.Id == "Cat|3|$|5"));
 
     [ConditionalFact]
     public virtual Task Key_with_special_characters_4()
         => AssertQuery(
             async: true,
-            ss => ss.Set<Cat35224>().Where(c => c.Id == "|Cat|"));
+            ss => ss.Set<FancyDiscriminatorEntity>().Where(c => c.Id == "|Cat|"));
 
     [ConditionalFact]
     public virtual Task Predicate_with_hierarchical_partition_key()

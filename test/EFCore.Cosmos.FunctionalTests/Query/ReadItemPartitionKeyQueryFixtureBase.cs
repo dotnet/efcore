@@ -66,8 +66,8 @@ public class ReadItemPartitionKeyQueryFixtureBase : SharedStoreFixtureBase<DbCon
 
         modelBuilder.Entity<SharedContainerEntity2Child>();
 
-        modelBuilder.Entity<Cat35224>()
-            .ToContainer(nameof(Cat35224))
+        modelBuilder.Entity<FancyDiscriminatorEntity>()
+            .ToContainer("Cat35224")
             .HasPartitionKey(e => e.Id)
             .HasDiscriminator<string>("Discriminator");
     }
@@ -108,7 +108,7 @@ public class ReadItemPartitionKeyQueryFixtureBase : SharedStoreFixtureBase<DbCon
         { typeof(HierarchicalPartitionKeyEntity), e => ((HierarchicalPartitionKeyEntity?)e)?.Id },
         { typeof(OnlyHierarchicalPartitionKeyEntity), e => ((OnlyHierarchicalPartitionKeyEntity?)e)?.Payload },
         { typeof(SinglePartitionKeyEntity), e => ((SinglePartitionKeyEntity?)e)?.Id },
-        { typeof(Cat35224), e => ((Cat35224?)e)?.Id },
+        { typeof(FancyDiscriminatorEntity), e => ((FancyDiscriminatorEntity?)e)?.Id },
         { typeof(OnlySinglePartitionKeyEntity), e => ((OnlySinglePartitionKeyEntity?)e)?.Payload },
         { typeof(NoPartitionKeyEntity), e => ((NoPartitionKeyEntity?)e)?.Id },
         { typeof(SharedContainerEntity1), e => ((SharedContainerEntity1?)e)?.Id },
@@ -248,14 +248,14 @@ public class ReadItemPartitionKeyQueryFixtureBase : SharedStoreFixtureBase<DbCon
             }
         },
         {
-            typeof(Cat35224), (e, a) =>
+            typeof(FancyDiscriminatorEntity), (e, a) =>
             {
                 Assert.Equal(e == null, a == null);
 
                 if (a != null)
                 {
-                    var ee = (Cat35224)e!;
-                    var aa = (Cat35224)a;
+                    var ee = (FancyDiscriminatorEntity)e!;
+                    var aa = (FancyDiscriminatorEntity)a;
 
                     Assert.Equal(ee.Id, aa.Id);
                     Assert.Equal(ee.Name, aa.Name);
@@ -279,7 +279,7 @@ public class ReadItemPartitionKeyQueryFixtureBase : SharedStoreFixtureBase<DbCon
         public List<SharedContainerEntity2> SharedContainerEntities2 { get; } = CreateSharedContainerEntities2();
         public List<SharedContainerEntity2Child> SharedContainerEntities2Children { get; } = CreateSharedContainerEntities2Children();
 
-        public List<Cat35224> Cat35224Entities { get; } = CreateCat35224Entities();
+        public List<FancyDiscriminatorEntity> Cat35224Entities { get; } = CreateCat35224Entities();
 
         public virtual IQueryable<TEntity> Set<TEntity>()
             where TEntity : class
@@ -324,7 +324,7 @@ public class ReadItemPartitionKeyQueryFixtureBase : SharedStoreFixtureBase<DbCon
                 return (IQueryable<TEntity>)SharedContainerEntities2Children.AsQueryable();
             }
 
-            if (typeof(TEntity) == typeof(Cat35224))
+            if (typeof(TEntity) == typeof(FancyDiscriminatorEntity))
             {
                 return (IQueryable<TEntity>)Cat35224Entities.AsQueryable();
             }
@@ -511,25 +511,25 @@ public class ReadItemPartitionKeyQueryFixtureBase : SharedStoreFixtureBase<DbCon
                 }
             };
 
-        private static List<Cat35224> CreateCat35224Entities()
+        private static List<FancyDiscriminatorEntity> CreateCat35224Entities()
             => new()
             {
-                new Cat35224
+                new FancyDiscriminatorEntity
                 {
                     Id = "Cat|1",
                     Name = "Smokey"
                 },
-                new Cat35224
+                new FancyDiscriminatorEntity
                 {
                     Id = "Cat2||",
                     Name = "Clippy"
                 },
-                new Cat35224
+                new FancyDiscriminatorEntity
                 {
                     Id = "Cat|3|$|5",
                     Name = "Sid"
                 },
-                new Cat35224
+                new FancyDiscriminatorEntity
                 {
                     Id = "|Cat|",
                     Name = "Killes"
@@ -559,7 +559,7 @@ public class SinglePartitionKeyEntity
     public required string Payload { get; set; }
 }
 
-public class Cat35224
+public class FancyDiscriminatorEntity
 {
     public string Id { get; set; } = null!;
     public string? Name { get; set; }

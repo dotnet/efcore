@@ -21,28 +21,28 @@ public class ReadItemPartitionKeyQueryDiscriminatorInIdTest
     {
         await base.Key_with_special_characters_1();
 
-        AssertSql("""ReadItem(["Cat|1"], Cat35224|Cat^|1)""");
+        AssertSql("""ReadItem(["Cat|1"], FancyDiscriminatorEntity|Cat^|1)""");
     }
 
     public override async Task Key_with_special_characters_2()
     {
         await base.Key_with_special_characters_2();
 
-        AssertSql("""ReadItem(["Cat2||"], Cat35224|Cat2^|^|)""");
+        AssertSql("""ReadItem(["Cat2||"], FancyDiscriminatorEntity|Cat2^|^|)""");
     }
 
     public override async Task Key_with_special_characters_3()
     {
         await base.Key_with_special_characters_3();
 
-        AssertSql("""ReadItem(["Cat|3|$|5"], Cat35224|Cat^|3^|$^|5)""");
+        AssertSql("""ReadItem(["Cat|3|$|5"], FancyDiscriminatorEntity|Cat^|3^|$^|5)""");
     }
 
     public override async Task Key_with_special_characters_4()
     {
         await base.Key_with_special_characters_4();
 
-        AssertSql("""ReadItem(["|Cat|"], Cat35224|^|Cat^|)""");
+        AssertSql("""ReadItem(["|Cat|"], FancyDiscriminatorEntity|^|Cat^|)""");
     }
 
     public override async Task Predicate_with_hierarchical_partition_key()

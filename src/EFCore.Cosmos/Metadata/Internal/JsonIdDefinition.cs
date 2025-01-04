@@ -89,7 +89,7 @@ public class JsonIdDefinition : IJsonIdDefinition
 
         if (_discriminatorProperty != null)
         {
-            AppendValue(_discriminatorProperty!, _discriminatorValue!, false);
+            AppendValue(_discriminatorProperty!, _discriminatorValue!, singleValue: false);
         }
 
         var i = 0;
@@ -160,17 +160,15 @@ public class JsonIdDefinition : IJsonIdDefinition
         var startingIndex = builder.Length;
         builder = builder.Append(stringValue);
 
-        if (!singleValue)
-        {
-            // We need this to avoid collisions with the value separator, but only when the key has multiple values.
-            builder = builder.Replace("|", "^|", startingIndex, builder.Length - startingIndex);
-        }
-
-        return builder
-            // These are invalid characters, see https://docs.microsoft.com/dotnet/api/microsoft.azure.documents.resource.id
-            .Replace("/", "^2F", startingIndex, builder.Length - startingIndex)
-            .Replace("\\", "^5C", startingIndex, builder.Length - startingIndex)
-            .Replace("?", "^3F", startingIndex, builder.Length - startingIndex)
-            .Replace("#", "^23", startingIndex, builder.Length - startingIndex);
+        return singleValue
+            ? builder
+            : builder
+                // We need this to avoid collisions with the value separator, but only when the key has multiple values.
+                .Replace("|", "^|", startingIndex, builder.Length - startingIndex)
+                // These are invalid characters, see https://docs.microsoft.com/dotnet/api/microsoft.azure.documents.resource.id
+                .Replace("/", "^2F", startingIndex, builder.Length - startingIndex)
+                .Replace("\\", "^5C", startingIndex, builder.Length - startingIndex)
+                .Replace("?", "^3F", startingIndex, builder.Length - startingIndex)
+                .Replace("#", "^23", startingIndex, builder.Length - startingIndex);
     }
 }
