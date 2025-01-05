@@ -87,7 +87,7 @@ WHERE "b"."IsVisible" = 'Y'
             """
 SELECT "b"."BlogId", "b"."Discriminator", "b"."IndexerVisible", "b"."IsVisible", "b"."Url", "b"."RssUrl"
 FROM "Blog" AS "b"
-WHERE "b"."IsVisible" <> 'Y'
+WHERE "b"."IsVisible" = 'N'
 """);
     }
 
