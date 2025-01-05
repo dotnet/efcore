@@ -5,13 +5,11 @@ using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class SqliteApiConsistencyTest : ApiConsistencyTestBase<SqliteApiConsistencyTest.SqliteApiConsistencyFixture>
-{
-    public SqliteApiConsistencyTest(SqliteApiConsistencyFixture fixture)
-        : base(fixture)
-    {
-    }
+#nullable disable
 
+public class SqliteApiConsistencyTest(SqliteApiConsistencyTest.SqliteApiConsistencyFixture fixture)
+    : ApiConsistencyTestBase<SqliteApiConsistencyTest.SqliteApiConsistencyFixture>(fixture)
+{
     protected override void AddServices(ServiceCollection serviceCollection)
         => serviceCollection.AddEntityFrameworkSqlite();
 
@@ -20,31 +18,53 @@ public class SqliteApiConsistencyTest : ApiConsistencyTestBase<SqliteApiConsiste
 
     public class SqliteApiConsistencyFixture : ApiConsistencyFixtureBase
     {
-        public override HashSet<Type> FluentApiTypes { get; } = new()
-        {
+        public override HashSet<Type> FluentApiTypes { get; } =
+        [
             typeof(SqliteServiceCollectionExtensions),
             typeof(SqliteDbContextOptionsBuilderExtensions),
             typeof(SqliteDbContextOptionsBuilder),
-            typeof(SqlitePropertyBuilderExtensions)
-        };
+            typeof(SqlitePropertyBuilderExtensions),
+            typeof(SqliteEntityTypeBuilderExtensions),
+            typeof(SqliteTableBuilderExtensions)
+        ];
 
         public override
-            List<(Type Type,
-                Type ReadonlyExtensions,
+            Dictionary<Type,
+                (Type ReadonlyExtensions,
                 Type MutableExtensions,
                 Type ConventionExtensions,
                 Type ConventionBuilderExtensions,
-                Type RuntimeExtensions)> MetadataExtensionTypes { get; }
+                Type RuntimeExtensions)> MetadataExtensionTypes
+        {
+            get;
+        }
             = new()
             {
-                (
-                    typeof(IReadOnlyProperty),
-                    typeof(SqlitePropertyExtensions),
-                    typeof(SqlitePropertyExtensions),
-                    typeof(SqlitePropertyExtensions),
-                    typeof(SqlitePropertyBuilderExtensions),
-                    null
-                )
+                {
+                    typeof(IReadOnlyProperty), (
+                        typeof(SqlitePropertyExtensions),
+                        typeof(SqlitePropertyExtensions),
+                        typeof(SqlitePropertyExtensions),
+                        typeof(SqlitePropertyBuilderExtensions),
+                        null
+                    )
+                },
+                {
+                    typeof(IReadOnlyEntityType), (
+                        typeof(SqliteEntityTypeExtensions),
+                        typeof(SqliteEntityTypeExtensions),
+                        typeof(SqliteEntityTypeExtensions),
+                        typeof(SqliteEntityTypeBuilderExtensions),
+                        null
+                    )
+                }
             };
+
+        protected override void Initialize()
+        {
+            MirrorTypes.Add(typeof(SqlitePropertyBuilderExtensions), typeof(SqliteComplexTypePropertyBuilderExtensions));
+
+            base.Initialize();
+        }
     }
 }

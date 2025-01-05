@@ -11,8 +11,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 /// </summary>
 public class CosmosMethodCallTranslatorProvider : IMethodCallTranslatorProvider
 {
-    private readonly List<IMethodCallTranslator> _plugins = new();
-    private readonly List<IMethodCallTranslator> _translators = new();
+    private readonly List<IMethodCallTranslator> _plugins = [];
+    private readonly List<IMethodCallTranslator> _translators = [];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -22,24 +22,26 @@ public class CosmosMethodCallTranslatorProvider : IMethodCallTranslatorProvider
     /// </summary>
     public CosmosMethodCallTranslatorProvider(
         ISqlExpressionFactory sqlExpressionFactory,
+        ITypeMappingSource typeMappingSource,
         IEnumerable<IMethodCallTranslatorPlugin> plugins)
     {
         _plugins.AddRange(plugins.SelectMany(p => p.Translators));
 
         _translators.AddRange(
-            new IMethodCallTranslator[]
-            {
-                new CosmosEqualsTranslator(sqlExpressionFactory),
-                new CosmosStringMethodTranslator(sqlExpressionFactory),
-                new CosmosContainsTranslator(sqlExpressionFactory),
-                new CosmosRandomTranslator(sqlExpressionFactory),
-                new CosmosMathTranslator(sqlExpressionFactory),
-                new CosmosRegexTranslator(sqlExpressionFactory)
-                //new LikeTranslator(sqlExpressionFactory),
-                //new EnumHasFlagTranslator(sqlExpressionFactory),
-                //new GetValueOrDefaultTranslator(sqlExpressionFactory),
-                //new ComparisonTranslator(sqlExpressionFactory),
-            });
+        [
+            new CosmosDateTimeMethodTranslator(sqlExpressionFactory),
+            new CosmosEqualsTranslator(sqlExpressionFactory),
+            new CosmosMathTranslator(sqlExpressionFactory),
+            new CosmosRandomTranslator(sqlExpressionFactory),
+            new CosmosRegexTranslator(sqlExpressionFactory),
+            new CosmosStringMethodTranslator(sqlExpressionFactory),
+            new CosmosTypeCheckingTranslator(sqlExpressionFactory),
+            new CosmosVectorSearchTranslator(sqlExpressionFactory, typeMappingSource)
+            //new LikeTranslator(sqlExpressionFactory),
+            //new EnumHasFlagTranslator(sqlExpressionFactory),
+            //new GetValueOrDefaultTranslator(sqlExpressionFactory),
+            //new ComparisonTranslator(sqlExpressionFactory),
+        ]);
     }
 
     /// <summary>

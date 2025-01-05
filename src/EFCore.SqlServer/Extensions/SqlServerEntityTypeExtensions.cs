@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore;
 /// </summary>
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
 ///     for more information and examples.
 /// </remarks>
 public static class SqlServerEntityTypeExtensions
@@ -343,6 +343,19 @@ public static class SqlServerEntityTypeExtensions
     /// <returns>The configuration source for the memory-optimized setting.</returns>
     public static ConfigurationSource? GetUseSqlOutputClauseConfigurationSource(this IConventionEntityType entityType)
         => entityType.FindAnnotation(SqlServerAnnotationNames.UseSqlOutputClause)?.GetConfigurationSource();
+
+    /// <summary>
+    ///     Gets the configuration source for whether to use the SQL OUTPUT clause when saving changes to the table.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <param name="storeObject">The identifier of the table-like store object.</param>
+    /// <returns>The configuration source for the memory-optimized setting.</returns>
+    public static ConfigurationSource? GetUseSqlOutputClauseConfigurationSource(
+        this IConventionEntityType entityType,
+        in StoreObjectIdentifier storeObject)
+        => StoreObjectIdentifier.Create(entityType, storeObject.StoreObjectType) == storeObject
+            ? entityType.GetUseSqlOutputClauseConfigurationSource()
+            : (entityType.FindMappingFragment(storeObject)?.GetUseSqlOutputClauseConfigurationSource());
 
     /// <summary>
     ///     Returns a value indicating whether to use the SQL OUTPUT clause when saving changes to the specified table.

@@ -6,7 +6,7 @@ using System.Text;
 namespace Microsoft.EntityFrameworkCore.Metadata;
 
 /// <summary>
-///     Represents entity type mapping to a table-like object.
+///     Represents type base mapping to a table-like object.
 /// </summary>
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
@@ -14,9 +14,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 public interface ITableMappingBase : IAnnotatable
 {
     /// <summary>
-    ///     Gets the mapped entity type.
+    ///     Gets the mapped type base.
     /// </summary>
-    IEntityType EntityType { get; }
+    ITypeBase TypeBase { get; }
 
     /// <summary>
     ///     Gets the target table-like object.
@@ -30,21 +30,21 @@ public interface ITableMappingBase : IAnnotatable
 
     /// <summary>
     ///     Gets the value indicating whether this is the mapping for the principal entity type
-    ///     if the table-like object is shared. <see langword="null" /> is the table-like object is not shared.
+    ///     if the table-like object is shared. <see langword="null" /> if the table-like object is not shared.
     /// </summary>
     bool? IsSharedTablePrincipal { get; }
 
     /// <summary>
     ///     Gets the value indicating whether this is the mapping for the principal table-like object
-    ///     if the entity type is split. <see langword="null" /> is the entity type is not split.
+    ///     if the entity type is split. <see langword="null" /> if the entity type is not split.
     /// </summary>
     bool? IsSplitEntityTypePrincipal { get; }
 
     /// <summary>
     ///     Gets the value indicating whether the mapped table-like object includes rows for the derived entity types.
-    ///     Set to <see langword="false" /> for inherited mappings.
+    ///     Set to <see langword="false" /> for inherited mappings. <see langword="null" /> if the entity type has no derived types.
     /// </summary>
-    bool IncludesDerivedTypes { get; }
+    bool? IncludesDerivedTypes { get; }
 
     /// <summary>
     ///     <para>
@@ -58,7 +58,7 @@ public interface ITableMappingBase : IAnnotatable
     /// <param name="options">Options for generating the string.</param>
     /// <param name="indent">The number of indent spaces to use before each new line.</param>
     /// <returns>A human-readable representation.</returns>
-    virtual string ToDebugString(MetadataDebugStringOptions options = MetadataDebugStringOptions.ShortDefault, int indent = 0)
+    string ToDebugString(MetadataDebugStringOptions options = MetadataDebugStringOptions.ShortDefault, int indent = 0)
     {
         var builder = new StringBuilder();
         var indentString = new string(' ', indent);
@@ -74,24 +74,27 @@ public interface ITableMappingBase : IAnnotatable
             }
 
             builder
-                .Append(EntityType.Name)
+                .Append(TypeBase.Name)
                 .Append(" - ")
                 .Append(Table.Name);
 
-            builder.Append(" ");
-            if (!IncludesDerivedTypes)
+            if (IncludesDerivedTypes != null)
             {
-                builder.Append("!");
-            }
+                builder.Append(' ');
+                if (!IncludesDerivedTypes.Value)
+                {
+                    builder.Append('!');
+                }
 
-            builder.Append("IncludesDerivedTypes");
+                builder.Append("IncludesDerivedTypes");
+            }
 
             if (IsSharedTablePrincipal != null)
             {
-                builder.Append(" ");
+                builder.Append(' ');
                 if (!IsSharedTablePrincipal.Value)
                 {
-                    builder.Append("!");
+                    builder.Append('!');
                 }
 
                 builder.Append("IsSharedTablePrincipal");
@@ -99,10 +102,10 @@ public interface ITableMappingBase : IAnnotatable
 
             if (IsSplitEntityTypePrincipal != null)
             {
-                builder.Append(" ");
+                builder.Append(' ');
                 if (!IsSplitEntityTypePrincipal.Value)
                 {
-                    builder.Append("!");
+                    builder.Append('!');
                 }
 
                 builder.Append("IsSplitEntityTypePrincipal");

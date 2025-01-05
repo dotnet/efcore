@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 
 // ReSharper disable UnusedMember.Local
 // ReSharper disable UnusedAutoPropertyAccessor.Local
@@ -200,7 +201,7 @@ public class ChangeDetectorTest
 
         if (nullValue)
         {
-            baxter.Demands = new[] { 1, 767, 3, 4 };
+            baxter.Demands = [1, 767, 3, 4];
         }
         else
         {
@@ -220,7 +221,7 @@ public class ChangeDetectorTest
     {
         using var context = useTypeMapping ? new BaxterWithMappingContext() : new BaxterContext();
         var baxter = context.Attach(
-            new Baxter { Id = Guid.NewGuid(), Demands = new[] { 1, 2, 3, 4 } }).Entity;
+            new Baxter { Id = Guid.NewGuid(), Demands = [1, 2, 3, 4] }).Entity;
 
         baxter.Demands[2] = 33;
 
@@ -310,8 +311,18 @@ public class ChangeDetectorTest
         {
         }
 
-        public override CoreTypeMapping Clone(ValueConverter converter)
-            => new ConcreteTypeMapping(Parameters.WithComposedConverter(converter));
+        public override CoreTypeMapping WithComposedConverter(
+            ValueConverter converter,
+            ValueComparer comparer = null,
+            ValueComparer keyComparer = null,
+            CoreTypeMapping elementMapping = null,
+            JsonValueReaderWriter jsonValueReaderWriter = null)
+            => new ConcreteTypeMapping(
+                Parameters.WithComposedConverter(
+                    converter, comparer, keyComparer, elementMapping, jsonValueReaderWriter));
+
+        protected override CoreTypeMapping Clone(CoreTypeMappingParameters parameters)
+            => new ConcreteTypeMapping(parameters);
     }
 
     private class BaxterContext : DbContext
@@ -1252,7 +1263,6 @@ public class ChangeDetectorTest
     {
         var contextServices = CreateContextServices(BuildNotifyingModel());
 
-        var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
         var stateManager = contextServices.GetRequiredService<IStateManager>();
 
         var category = new NotifyingCategory { Id = -1, PrincipalId = 77 };
@@ -1678,7 +1688,6 @@ public class ChangeDetectorTest
     {
         var contextServices = CreateContextServices(BuildNotifyingModel());
 
-        var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
         var stateManager = contextServices.GetRequiredService<IStateManager>();
 
         var product1 = new NotifyingProduct { Id = Guid.NewGuid(), DependentId = 77 };
@@ -2105,13 +2114,8 @@ public class ChangeDetectorTest
                 .AddScoped<INavigationFixer>(p => p.GetRequiredService<TestRelationshipListener>()),
             model ?? BuildModel());
 
-    private class TestAttacher : EntityGraphAttacher
+    private class TestAttacher(IEntityEntryGraphIterator graphIterator) : EntityGraphAttacher(graphIterator)
     {
-        public TestAttacher(IEntityEntryGraphIterator graphIterator)
-            : base(graphIterator)
-        {
-        }
-
         public Tuple<InternalEntityEntry, EntityState> Attached { get; set; }
 
         public override void AttachGraph(
@@ -2126,15 +2130,10 @@ public class ChangeDetectorTest
         }
     }
 
-    private class TestRelationshipListener : NavigationFixer
+    private class TestRelationshipListener(IEntityGraphAttacher attacher) : NavigationFixer(
+        attacher, new EntityMaterializerSource(
+            new EntityMaterializerSourceDependencies(Enumerable.Empty<ISingletonInterceptor>())))
     {
-        public TestRelationshipListener(IEntityGraphAttacher attacher)
-            : base(
-                attacher, new EntityMaterializerSource(
-                    new EntityMaterializerSourceDependencies(Enumerable.Empty<ISingletonInterceptor>())))
-        {
-        }
-
         public Tuple<InternalEntityEntry, IProperty, IEnumerable<IKey>, IEnumerable<IForeignKey>, object, object> KeyChange
         {
             get;

@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
-using Microsoft.EntityFrameworkCore.Sqlite.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Infrastructure.Internal;
 
@@ -116,9 +115,9 @@ public class SqliteModelValidator : RelationalModelValidator
         {
             throw new InvalidOperationException(
                 SqliteStrings.DuplicateColumnNameSridMismatch(
-                    duplicateProperty.DeclaringEntityType.DisplayName(),
+                    duplicateProperty.DeclaringType.DisplayName(),
                     duplicateProperty.Name,
-                    property.DeclaringEntityType.DisplayName(),
+                    property.DeclaringType.DisplayName(),
                     property.Name,
                     columnName,
                     storeObject.DisplayName()));

@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Internal;
+using static Microsoft.EntityFrameworkCore.Query.QueryHelpers;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
@@ -45,6 +46,8 @@ public abstract class QueryableMethodTranslatingExpressionVisitor : ExpressionVi
     /// </summary>
     protected virtual QueryableMethodTranslatingExpressionVisitorDependencies Dependencies { get; }
 
+    private Expression? _untranslatedExpression;
+
     /// <summary>
     ///     Detailed information about errors encountered during translation.
     /// </summary>
@@ -56,7 +59,29 @@ public abstract class QueryableMethodTranslatingExpressionVisitor : ExpressionVi
     /// <param name="expression">An expression to translate.</param>
     /// <returns>A SQL translation of the given expression.</returns>
     public virtual Expression Translate(Expression expression)
-        => Visit(expression);
+    {
+        var translated = Visit(expression);
+
+        // Note that we only throw if a specific node is recognized as untranslatable; we need to otherwise not throw in order to allow
+        // for client evaluation.
+        if (translated == QueryCompilationContext.NotTranslatedExpression && _untranslatedExpression is not null)
+        {
+            if (_untranslatedExpression is QueryRootExpression)
+            {
+                throw new InvalidOperationException(
+                    TranslationErrorDetails is null
+                        ? CoreStrings.QueryUnhandledQueryRootExpression(_untranslatedExpression.GetType().ShortDisplayName())
+                        : CoreStrings.TranslationFailedWithDetails(_untranslatedExpression, TranslationErrorDetails));
+            }
+
+            throw new InvalidOperationException(
+                TranslationErrorDetails is null
+                    ? CoreStrings.TranslationFailed(_untranslatedExpression.Print())
+                    : CoreStrings.TranslationFailedWithDetails(_untranslatedExpression.Print(), TranslationErrorDetails));
+        }
+
+        return translated;
+    }
 
     /// <summary>
     ///     Adds detailed information about errors encountered during translation.
@@ -82,38 +107,64 @@ public abstract class QueryableMethodTranslatingExpressionVisitor : ExpressionVi
     /// <inheritdoc />
     protected override Expression VisitExtension(Expression extensionExpression)
     {
-        if (extensionExpression is QueryRootExpression queryRootExpression)
+        switch (extensionExpression)
         {
-            // Query roots must be processed.
-            if (extensionExpression.GetType() == typeof(EntityQueryRootExpression)
-                && extensionExpression is EntityQueryRootExpression entityQueryRootExpression)
-            {
-                // This requires exact type match on query root to avoid processing derived query roots.
-                return CreateShapedQueryExpression(entityQueryRootExpression.EntityType);
-            }
+            case InlineQueryRootExpression inlineQueryRootExpression:
+                return TranslateInlineQueryRoot(inlineQueryRootExpression) ?? base.VisitExtension(extensionExpression);
 
-            throw new InvalidOperationException(
-                TranslationErrorDetails is null
-                    ? CoreStrings.QueryUnhandledQueryRootExpression(queryRootExpression.GetType().ShortDisplayName())
-                    : CoreStrings.TranslationFailedWithDetails(queryRootExpression, TranslationErrorDetails));
+            case ParameterQueryRootExpression parameterQueryRootExpression:
+                return TranslateParameterQueryRoot(parameterQueryRootExpression) ?? base.VisitExtension(extensionExpression);
+
+            case QueryRootExpression queryRootExpression:
+                // This requires exact type match on query root to avoid processing query roots derived from EntityQueryRootExpression, e.g.
+                // SQL Server TemporalQueryRootExpression.
+                if (queryRootExpression.GetType() == typeof(EntityQueryRootExpression))
+                {
+                    var shapedQuery = CreateShapedQueryExpression(((EntityQueryRootExpression)extensionExpression).EntityType);
+                    if (shapedQuery is not null)
+                    {
+                        return shapedQuery;
+                    }
+                }
+
+                _untranslatedExpression = queryRootExpression;
+                return QueryCompilationContext.NotTranslatedExpression;
+
+            default:
+                return base.VisitExtension(extensionExpression);
         }
-
-        return base.VisitExtension(extensionExpression);
     }
 
     /// <inheritdoc />
     protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
     {
-        ShapedQueryExpression CheckTranslated(ShapedQueryExpression? translated)
-            => translated
-                ?? throw new InvalidOperationException(
-                    TranslationErrorDetails == null
-                        ? CoreStrings.TranslationFailed(methodCallExpression.Print())
-                        : CoreStrings.TranslationFailedWithDetails(
-                            methodCallExpression.Print(),
-                            TranslationErrorDetails));
-
         var method = methodCallExpression.Method;
+
+        if (method.DeclaringType == typeof(EntityFrameworkQueryableExtensions))
+        {
+            var source = Visit(methodCallExpression.Arguments[0]);
+            if (source is ShapedQueryExpression shapedQueryExpression)
+            {
+                var genericMethod = method.IsGenericMethod ? method.GetGenericMethodDefinition() : null;
+                switch (method.Name)
+                {
+                    case nameof(EntityFrameworkQueryableExtensions.ExecuteDelete)
+                        when genericMethod == EntityFrameworkQueryableExtensions.ExecuteDeleteMethodInfo:
+                        return TranslateExecuteDelete(shapedQueryExpression)
+                            ?? throw new InvalidOperationException(
+                                CoreStrings.NonQueryTranslationFailedWithDetails(
+                                    methodCallExpression.Print(), TranslationErrorDetails));
+
+                    case nameof(EntityFrameworkQueryableExtensions.ExecuteUpdate)
+                        when genericMethod == EntityFrameworkQueryableExtensions.ExecuteUpdateMethodInfo:
+                        return TranslateExecuteUpdate(shapedQueryExpression, methodCallExpression.Arguments[1].UnwrapLambdaFromQuote())
+                            ?? throw new InvalidOperationException(
+                                CoreStrings.NonQueryTranslationFailedWithDetails(
+                                    methodCallExpression.Print(), TranslationErrorDetails));
+                }
+            }
+        }
+
         if (method.DeclaringType == typeof(Queryable)
             || method.DeclaringType == typeof(QueryableExtensions))
         {
@@ -485,20 +536,48 @@ public abstract class QueryableMethodTranslatingExpressionVisitor : ExpressionVi
 
                         LambdaExpression GetLambdaExpressionFromArgument(int argumentIndex)
                             => methodCallExpression.Arguments[argumentIndex].UnwrapLambdaFromQuote();
+
+                        Expression CheckTranslated(ShapedQueryExpression? translated)
+                        {
+                            if (translated is not null)
+                            {
+                                return translated;
+                            }
+
+                            _untranslatedExpression ??= methodCallExpression;
+
+                            return QueryCompilationContext.NotTranslatedExpression;
+                        }
                 }
             }
+            else if (source == QueryCompilationContext.NotTranslatedExpression)
+            {
+                return source;
+            }
+        }
+
+        // The method isn't a LINQ operator on Queryable/QueryableExtensions.
+
+        // Identify property access, e.g. primitive collection property (context.Blogs.Where(b => b.Tags.Contains(...)))
+        if (IsMemberAccess(methodCallExpression, QueryCompilationContext.Model, out var propertyAccessSource, out var propertyName)
+            && TranslateMemberAccess(propertyAccessSource, propertyName) is ShapedQueryExpression translation)
+        {
+            return translation;
         }
 
         return _subquery
             ? QueryCompilationContext.NotTranslatedExpression
-            : throw new InvalidOperationException(CoreStrings.TranslationFailed(methodCallExpression.Print()));
+            : TranslationErrorDetails is null
+                ? throw new InvalidOperationException(CoreStrings.TranslationFailed(methodCallExpression.Print()))
+                : throw new InvalidOperationException(
+                    CoreStrings.TranslationFailedWithDetails(methodCallExpression.Print(), TranslationErrorDetails));
     }
 
     private sealed class EntityShaperNullableMarkingExpressionVisitor : ExpressionVisitor
     {
         protected override Expression VisitExtension(Expression extensionExpression)
-            => extensionExpression is EntityShaperExpression entityShaper
-                ? entityShaper.MakeNullable()
+            => extensionExpression is StructuralTypeShaperExpression shaper
+                ? shaper.MakeNullable()
                 : base.VisitExtension(extensionExpression);
     }
 
@@ -538,7 +617,7 @@ public abstract class QueryableMethodTranslatingExpressionVisitor : ExpressionVi
     /// </summary>
     /// <param name="entityType">The entity type.</param>
     /// <returns>A shaped query expression for the given entity type.</returns>
-    protected abstract ShapedQueryExpression CreateShapedQueryExpression(IEntityType entityType);
+    protected abstract ShapedQueryExpression? CreateShapedQueryExpression(IEntityType entityType);
 
     /// <summary>
     ///     Translates <see cref="Queryable.All{TSource}(IQueryable{TSource}, Expression{Func{TSource,bool}})" /> method over the given source.
@@ -554,9 +633,7 @@ public abstract class QueryableMethodTranslatingExpressionVisitor : ExpressionVi
     /// <param name="source">The shaped query on which the operator is applied.</param>
     /// <param name="predicate">The predicate supplied in the call.</param>
     /// <returns>The shaped query after translation.</returns>
-    protected abstract ShapedQueryExpression? TranslateAny(
-        ShapedQueryExpression source,
-        LambdaExpression? predicate);
+    protected abstract ShapedQueryExpression? TranslateAny(ShapedQueryExpression source, LambdaExpression? predicate);
 
     /// <summary>
     ///     Translates <see cref="Queryable.Average(IQueryable{decimal})" /> method and other overloads over the given source.
@@ -565,10 +642,7 @@ public abstract class QueryableMethodTranslatingExpressionVisitor : ExpressionVi
     /// <param name="selector">The selector supplied in the call.</param>
     /// <param name="resultType">The result type after the operation.</param>
     /// <returns>The shaped query after translation.</returns>
-    protected abstract ShapedQueryExpression? TranslateAverage(
-        ShapedQueryExpression source,
-        LambdaExpression? selector,
-        Type resultType);
+    protected abstract ShapedQueryExpression? TranslateAverage(ShapedQueryExpression source, LambdaExpression? selector, Type resultType);
 
     /// <summary>
     ///     Translates <see cref="Queryable.Cast{TResult}(IQueryable)" /> method over the given source.
@@ -584,9 +658,7 @@ public abstract class QueryableMethodTranslatingExpressionVisitor : ExpressionVi
     /// <param name="source1">The shaped query on which the operator is applied.</param>
     /// <param name="source2">The other source to perform concat.</param>
     /// <returns>The shaped query after translation.</returns>
-    protected abstract ShapedQueryExpression? TranslateConcat(
-        ShapedQueryExpression source1,
-        ShapedQueryExpression source2);
+    protected abstract ShapedQueryExpression? TranslateConcat(ShapedQueryExpression source1, ShapedQueryExpression source2);
 
     /// <summary>
     ///     Translates <see cref="Queryable.Contains{TSource}(IQueryable{TSource}, TSource)" /> method over the given source.
@@ -602,9 +674,7 @@ public abstract class QueryableMethodTranslatingExpressionVisitor : ExpressionVi
     /// <param name="source">The shaped query on which the operator is applied.</param>
     /// <param name="predicate">The predicate supplied in the call.</param>
     /// <returns>The shaped query after translation.</returns>
-    protected abstract ShapedQueryExpression? TranslateCount(
-        ShapedQueryExpression source,
-        LambdaExpression? predicate);
+    protected abstract ShapedQueryExpression? TranslateCount(ShapedQueryExpression source, LambdaExpression? predicate);
 
     /// <summary>
     ///     Translates <see cref="Queryable.DefaultIfEmpty{TSource}(IQueryable{TSource})" /> method and other overloads over the given source.
@@ -612,9 +682,7 @@ public abstract class QueryableMethodTranslatingExpressionVisitor : ExpressionVi
     /// <param name="source">The shaped query on which the operator is applied.</param>
     /// <param name="defaultValue">The default value to use.</param>
     /// <returns>The shaped query after translation.</returns>
-    protected abstract ShapedQueryExpression? TranslateDefaultIfEmpty(
-        ShapedQueryExpression source,
-        Expression? defaultValue);
+    protected abstract ShapedQueryExpression? TranslateDefaultIfEmpty(ShapedQueryExpression source, Expression? defaultValue);
 
     /// <summary>
     ///     Translates <see cref="Queryable.Distinct{TSource}(IQueryable{TSource})" /> method over the given source.
@@ -642,9 +710,7 @@ public abstract class QueryableMethodTranslatingExpressionVisitor : ExpressionVi
     /// <param name="source1">The shaped query on which the operator is applied.</param>
     /// <param name="source2">The other source to perform except with.</param>
     /// <returns>The shaped query after translation.</returns>
-    protected abstract ShapedQueryExpression? TranslateExcept(
-        ShapedQueryExpression source1,
-        ShapedQueryExpression source2);
+    protected abstract ShapedQueryExpression? TranslateExcept(ShapedQueryExpression source1, ShapedQueryExpression source2);
 
     /// <summary>
     ///     Translates <see cref="Queryable.First{TSource}(IQueryable{TSource})" /> method or
@@ -701,9 +767,7 @@ public abstract class QueryableMethodTranslatingExpressionVisitor : ExpressionVi
     /// <param name="source1">The shaped query on which the operator is applied.</param>
     /// <param name="source2">The other source to perform intersect with.</param>
     /// <returns>The shaped query after translation.</returns>
-    protected abstract ShapedQueryExpression? TranslateIntersect(
-        ShapedQueryExpression source1,
-        ShapedQueryExpression source2);
+    protected abstract ShapedQueryExpression? TranslateIntersect(ShapedQueryExpression source1, ShapedQueryExpression source2);
 
     /// <summary>
     ///     Translates
@@ -765,9 +829,7 @@ public abstract class QueryableMethodTranslatingExpressionVisitor : ExpressionVi
     /// <param name="source">The shaped query on which the operator is applied.</param>
     /// <param name="predicate">The predicate supplied in the call.</param>
     /// <returns>The shaped query after translation.</returns>
-    protected abstract ShapedQueryExpression? TranslateLongCount(
-        ShapedQueryExpression source,
-        LambdaExpression? predicate);
+    protected abstract ShapedQueryExpression? TranslateLongCount(ShapedQueryExpression source, LambdaExpression? predicate);
 
     /// <summary>
     ///     Translates <see cref="Queryable.Max{TSource}(IQueryable{TSource})" /> method and other overloads over the given source.
@@ -776,10 +838,7 @@ public abstract class QueryableMethodTranslatingExpressionVisitor : ExpressionVi
     /// <param name="selector">The selector supplied in the call.</param>
     /// <param name="resultType">The result type after the operation.</param>
     /// <returns>The shaped query after translation.</returns>
-    protected abstract ShapedQueryExpression? TranslateMax(
-        ShapedQueryExpression source,
-        LambdaExpression? selector,
-        Type resultType);
+    protected abstract ShapedQueryExpression? TranslateMax(ShapedQueryExpression source, LambdaExpression? selector, Type resultType);
 
     /// <summary>
     ///     Translates <see cref="Queryable.Min{TSource}(IQueryable{TSource})" /> method and other overloads over the given source.
@@ -788,10 +847,7 @@ public abstract class QueryableMethodTranslatingExpressionVisitor : ExpressionVi
     /// <param name="selector">The selector supplied in the call.</param>
     /// <param name="resultType">The result type after the operation.</param>
     /// <returns>The shaped query after translation.</returns>
-    protected abstract ShapedQueryExpression? TranslateMin(
-        ShapedQueryExpression source,
-        LambdaExpression? selector,
-        Type resultType);
+    protected abstract ShapedQueryExpression? TranslateMin(ShapedQueryExpression source, LambdaExpression? selector, Type resultType);
 
     /// <summary>
     ///     Translates <see cref="Queryable.OfType{TResult}(IQueryable)" /> method over the given source.
@@ -810,10 +866,7 @@ public abstract class QueryableMethodTranslatingExpressionVisitor : ExpressionVi
     /// <param name="keySelector">The key selector supplied in the call.</param>
     /// <param name="ascending">A value indicating whether the ordering is ascending or not.</param>
     /// <returns>The shaped query after translation.</returns>
-    protected abstract ShapedQueryExpression? TranslateOrderBy(
-        ShapedQueryExpression source,
-        LambdaExpression keySelector,
-        bool ascending);
+    protected abstract ShapedQueryExpression? TranslateOrderBy(ShapedQueryExpression source, LambdaExpression keySelector, bool ascending);
 
     /// <summary>
     ///     Translates <see cref="Queryable.Reverse{TSource}(IQueryable{TSource})" /> method over the given source.
@@ -823,8 +876,8 @@ public abstract class QueryableMethodTranslatingExpressionVisitor : ExpressionVi
     protected abstract ShapedQueryExpression? TranslateReverse(ShapedQueryExpression source);
 
     /// <summary>
-    ///     Translates <see cref="Queryable.Select{TSource, TResult}(IQueryable{TSource}, Expression{Func{TSource, TResult}})" /> method over the
-    ///     given source.
+    ///     Translates <see cref="Queryable.Select{TSource, TResult}(IQueryable{TSource}, Expression{Func{TSource, TResult}})" /> method
+    ///     over the given source.
     /// </summary>
     /// <param name="source">The shaped query on which the operator is applied.</param>
     /// <param name="selector">The selector supplied in the call.</param>
@@ -855,9 +908,7 @@ public abstract class QueryableMethodTranslatingExpressionVisitor : ExpressionVi
     /// <param name="source">The shaped query on which the operator is applied.</param>
     /// <param name="selector">The selector supplied in the call.</param>
     /// <returns>The shaped query after translation.</returns>
-    protected abstract ShapedQueryExpression? TranslateSelectMany(
-        ShapedQueryExpression source,
-        LambdaExpression selector);
+    protected abstract ShapedQueryExpression? TranslateSelectMany(ShapedQueryExpression source, LambdaExpression selector);
 
     /// <summary>
     ///     Translates <see cref="Queryable.Single{TSource}(IQueryable{TSource})" /> method or
@@ -881,9 +932,7 @@ public abstract class QueryableMethodTranslatingExpressionVisitor : ExpressionVi
     /// <param name="source">The shaped query on which the operator is applied.</param>
     /// <param name="count">The count supplied in the call.</param>
     /// <returns>The shaped query after translation.</returns>
-    protected abstract ShapedQueryExpression? TranslateSkip(
-        ShapedQueryExpression source,
-        Expression count);
+    protected abstract ShapedQueryExpression? TranslateSkip(ShapedQueryExpression source, Expression count);
 
     /// <summary>
     ///     Translates <see cref="Queryable.SkipWhile{TSource}(IQueryable{TSource}, Expression{Func{TSource, bool}})" /> method over the given
@@ -892,9 +941,7 @@ public abstract class QueryableMethodTranslatingExpressionVisitor : ExpressionVi
     /// <param name="source">The shaped query on which the operator is applied.</param>
     /// <param name="predicate">The predicate supplied in the call.</param>
     /// <returns>The shaped query after translation.</returns>
-    protected abstract ShapedQueryExpression? TranslateSkipWhile(
-        ShapedQueryExpression source,
-        LambdaExpression predicate);
+    protected abstract ShapedQueryExpression? TranslateSkipWhile(ShapedQueryExpression source, LambdaExpression predicate);
 
     /// <summary>
     ///     Translates <see cref="Queryable.Sum(IQueryable{decimal})" /> method and other overloads over the given source.
@@ -903,10 +950,7 @@ public abstract class QueryableMethodTranslatingExpressionVisitor : ExpressionVi
     /// <param name="selector">The selector supplied in the call.</param>
     /// <param name="resultType">The result type after the operation.</param>
     /// <returns>The shaped query after translation.</returns>
-    protected abstract ShapedQueryExpression? TranslateSum(
-        ShapedQueryExpression source,
-        LambdaExpression? selector,
-        Type resultType);
+    protected abstract ShapedQueryExpression? TranslateSum(ShapedQueryExpression source, LambdaExpression? selector, Type resultType);
 
     /// <summary>
     ///     Translates <see cref="Queryable.Take{TSource}(IQueryable{TSource}, int)" /> method over the given source.
@@ -923,9 +967,7 @@ public abstract class QueryableMethodTranslatingExpressionVisitor : ExpressionVi
     /// <param name="source">The shaped query on which the operator is applied.</param>
     /// <param name="predicate">The predicate supplied in the call.</param>
     /// <returns>The shaped query after translation.</returns>
-    protected abstract ShapedQueryExpression? TranslateTakeWhile(
-        ShapedQueryExpression source,
-        LambdaExpression predicate);
+    protected abstract ShapedQueryExpression? TranslateTakeWhile(ShapedQueryExpression source, LambdaExpression predicate);
 
     /// <summary>
     ///     Translates <see cref="Queryable.ThenBy{TSource, TKey}(IOrderedQueryable{TSource}, Expression{Func{TSource, TKey}})" /> or
@@ -936,10 +978,7 @@ public abstract class QueryableMethodTranslatingExpressionVisitor : ExpressionVi
     /// <param name="keySelector">The key selector supplied in the call.</param>
     /// <param name="ascending">A value indicating whether the ordering is ascending or not.</param>
     /// <returns>The shaped query after translation.</returns>
-    protected abstract ShapedQueryExpression? TranslateThenBy(
-        ShapedQueryExpression source,
-        LambdaExpression keySelector,
-        bool ascending);
+    protected abstract ShapedQueryExpression? TranslateThenBy(ShapedQueryExpression source, LambdaExpression keySelector, bool ascending);
 
     /// <summary>
     ///     Translates <see cref="Queryable.Union{TSource}(IQueryable{TSource}, IEnumerable{TSource})" /> method over the given source.
@@ -947,9 +986,7 @@ public abstract class QueryableMethodTranslatingExpressionVisitor : ExpressionVi
     /// <param name="source1">The shaped query on which the operator is applied.</param>
     /// <param name="source2">The other source to perform union with.</param>
     /// <returns>The shaped query after translation.</returns>
-    protected abstract ShapedQueryExpression? TranslateUnion(
-        ShapedQueryExpression source1,
-        ShapedQueryExpression source2);
+    protected abstract ShapedQueryExpression? TranslateUnion(ShapedQueryExpression source1, ShapedQueryExpression source2);
 
     /// <summary>
     ///     Translates <see cref="Queryable.Where{TSource}(IQueryable{TSource}, Expression{Func{TSource, bool}})" /> method over the given source.
@@ -957,7 +994,72 @@ public abstract class QueryableMethodTranslatingExpressionVisitor : ExpressionVi
     /// <param name="source">The shaped query on which the operator is applied.</param>
     /// <param name="predicate">The predicate supplied in the call.</param>
     /// <returns>The shaped query after translation.</returns>
-    protected abstract ShapedQueryExpression? TranslateWhere(
-        ShapedQueryExpression source,
-        LambdaExpression predicate);
+    protected abstract ShapedQueryExpression? TranslateWhere(ShapedQueryExpression source, LambdaExpression predicate);
+
+    #region Queryable collection support
+
+    /// <summary>
+    ///     Translates a member access. Used when a property on an entity type represents a collection on which queryable LINQ operators
+    ///     may be composed.
+    /// </summary>
+    /// <param name="source">The shaped query on which the property access is applied.</param>
+    /// <param name="member">The member being accessed.</param>
+    /// <returns>The shaped query after translation.</returns>
+    protected virtual ShapedQueryExpression? TranslateMemberAccess(Expression source, MemberIdentity member)
+        => null;
+
+    /// <summary>
+    ///     Translates an <see cref="InlineQueryRootExpression" />, which represents a queryable collection expressed inline within the
+    ///     query.
+    /// </summary>
+    /// <param name="inlineQueryRootExpression">The inline query root expression to be translated.</param>
+    /// <returns>The shaped query after translation.</returns>
+    protected virtual ShapedQueryExpression? TranslateInlineQueryRoot(InlineQueryRootExpression inlineQueryRootExpression)
+        => null;
+
+    /// <summary>
+    ///     Translates a <see cref="ParameterQueryRootExpression" />, which represents a queryable collection referenced as a parameter
+    ///     within the query.
+    /// </summary>
+    /// <param name="parameterQueryRootExpression">The parameter query root expression to be translated.</param>
+    /// <returns>The shaped query after translation.</returns>
+    protected virtual ShapedQueryExpression? TranslateParameterQueryRoot(ParameterQueryRootExpression parameterQueryRootExpression)
+        => null;
+
+    #endregion Queryable collection support
+
+    #region ExecuteUpdate/ExecuteDelete
+
+    /// <summary>
+    ///     Translates <see cref="EntityFrameworkQueryableExtensions.ExecuteDelete{TSource}(IQueryable{TSource})" /> method
+    ///     over the given source.
+    /// </summary>
+    /// <param name="source">The shaped query on which the operator is applied.</param>
+    /// <returns>The non query after translation.</returns>
+    protected virtual Expression? TranslateExecuteDelete(ShapedQueryExpression source)
+        => throw new InvalidOperationException(
+            CoreStrings.ExecuteQueriesNotSupported(
+                nameof(EntityFrameworkQueryableExtensions.ExecuteDelete), nameof(EntityFrameworkQueryableExtensions.ExecuteDeleteAsync)));
+
+    /// <summary>
+    ///     Translates
+    ///     <see
+    ///         cref="EntityFrameworkQueryableExtensions.ExecuteUpdate{TSource}(IQueryable{TSource}, Expression{Func{SetPropertyCalls{TSource}, SetPropertyCalls{TSource}}})" />
+    ///     method
+    ///     over the given source.
+    /// </summary>
+    /// <param name="source">The shaped query on which the operator is applied.</param>
+    /// <param name="setPropertyCalls">
+    ///     The lambda expression containing
+    ///     <see
+    ///         cref="SetPropertyCalls{TSource}.SetProperty{TProperty}(Func{TSource, TProperty}, Func{TSource, TProperty})" />
+    ///     statements.
+    /// </param>
+    /// <returns>The non query after translation.</returns>
+    protected virtual Expression? TranslateExecuteUpdate(ShapedQueryExpression source, LambdaExpression setPropertyCalls)
+        => throw new InvalidOperationException(
+            CoreStrings.ExecuteQueriesNotSupported(
+                nameof(EntityFrameworkQueryableExtensions.ExecuteUpdate), nameof(EntityFrameworkQueryableExtensions.ExecuteUpdateAsync)));
+
+    #endregion ExecuteUpdate/ExecuteDelete
 }

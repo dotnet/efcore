@@ -36,7 +36,7 @@ public class RelationalPropertyOverrides :
         StoreObject = storeObject;
         _configurationSource = configurationSource;
         _builder = new InternalRelationalPropertyOverridesBuilder(
-            this, ((IConventionModel)property.DeclaringEntityType.Model).Builder);
+            this, ((IConventionModel)property.DeclaringType.Model).Builder);
     }
 
     /// <summary>
@@ -73,7 +73,10 @@ public class RelationalPropertyOverrides :
     public virtual InternalRelationalPropertyOverridesBuilder Builder
     {
         [DebuggerStepThrough]
-        get => _builder ?? throw new InvalidOperationException(CoreStrings.ObjectRemovedFromModel);
+        get => _builder
+            ?? throw new InvalidOperationException(
+                CoreStrings.ObjectRemovedFromModel(
+                    $"{Property.Name} - {StoreObject.DisplayName()}"));
     }
 
     /// <summary>

@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
@@ -29,9 +28,7 @@ public class EntityReferenceMap
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public EntityReferenceMap(bool hasSubMap)
-    {
-        _hasSubMap = hasSubMap;
-    }
+        => _hasSubMap = hasSubMap;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -385,8 +382,7 @@ public class EntityReferenceMap
     {
         // Perf sensitive
 
-        if (_addedReferenceMap != null
-            && _addedReferenceMap.Count > 0)
+        if (_addedReferenceMap is { Count: > 0 })
         {
             foreach (var entry in _addedReferenceMap.Values)
             {
@@ -397,8 +393,7 @@ public class EntityReferenceMap
             }
         }
 
-        if (_modifiedReferenceMap != null
-            && _modifiedReferenceMap.Count > 0)
+        if (_modifiedReferenceMap is { Count: > 0 })
         {
             foreach (var entry in _modifiedReferenceMap.Values)
             {
@@ -409,8 +404,7 @@ public class EntityReferenceMap
             }
         }
 
-        if (_unchangedReferenceMap != null
-            && _unchangedReferenceMap.Count > 0)
+        if (_unchangedReferenceMap is { Count: > 0 })
         {
             foreach (var entry in _unchangedReferenceMap.Values)
             {
@@ -421,8 +415,7 @@ public class EntityReferenceMap
             }
         }
 
-        if (_sharedTypeReferenceMap != null
-            && _sharedTypeReferenceMap.Count > 0)
+        if (_sharedTypeReferenceMap is { Count: > 0 })
         {
             foreach (var subMap in _sharedTypeReferenceMap.Values)
             {

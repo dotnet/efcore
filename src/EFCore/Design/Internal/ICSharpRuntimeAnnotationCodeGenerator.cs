@@ -30,6 +30,20 @@ public interface ICSharpRuntimeAnnotationCodeGenerator
     /// <summary>
     ///     Generates code to create the given annotations.
     /// </summary>
+    /// <param name="complexProperty">The complex property to which the annotations are applied.</param>
+    /// <param name="parameters">Additional parameters used during code generation.</param>
+    void Generate(IComplexProperty complexProperty, CSharpRuntimeAnnotationCodeGeneratorParameters parameters);
+
+    /// <summary>
+    ///     Generates code to create the given annotations.
+    /// </summary>
+    /// <param name="complexType">The complex type to which the annotations are applied.</param>
+    /// <param name="parameters">Additional parameters used during code generation.</param>
+    void Generate(IComplexType complexType, CSharpRuntimeAnnotationCodeGeneratorParameters parameters);
+
+    /// <summary>
+    ///     Generates code to create the given annotations.
+    /// </summary>
     /// <param name="property">The property to which the annotations are applied.</param>
     /// <param name="parameters">Additional parameters used during code generation.</param>
     void Generate(IProperty property, CSharpRuntimeAnnotationCodeGeneratorParameters parameters);
@@ -89,4 +103,45 @@ public interface ICSharpRuntimeAnnotationCodeGenerator
     /// <param name="typeConfiguration">The scalar type configuration to which the annotations are applied.</param>
     /// <param name="parameters">Additional parameters used during code generation.</param>
     void Generate(ITypeMappingConfiguration typeConfiguration, CSharpRuntimeAnnotationCodeGeneratorParameters parameters);
+
+    /// <summary>
+    ///     Generates code to create the given property type mapping.
+    /// </summary>
+    /// <param name="typeMapping">The type mapping to create.</param>
+    /// <param name="property">The property to which this type mapping will be applied.</param>
+    /// <param name="parameters">Additional parameters used during code generation.</param>
+    bool Create(
+        CoreTypeMapping typeMapping,
+        IProperty property,
+        CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
+        => Create(typeMapping, parameters);
+
+    /// <summary>
+    ///     Generates code to create the given property type mapping.
+    /// </summary>
+    /// <param name="typeMapping">The type mapping to create.</param>
+    /// <param name="parameters">Additional parameters used during code generation.</param>
+    /// <param name="valueComparer">The value comparer that should be used instead of the one in the type mapping.</param>
+    /// <param name="keyValueComparer">The key value comparer that should be used instead of the one in the type mapping.</param>
+    /// <param name="providerValueComparer">The provider value comparer that should be used instead of the one in the type mapping.</param>
+    bool Create(
+        CoreTypeMapping typeMapping,
+        CSharpRuntimeAnnotationCodeGeneratorParameters parameters,
+        ValueComparer? valueComparer = null,
+        ValueComparer? keyValueComparer = null,
+        ValueComparer? providerValueComparer = null);
+
+    /// <summary>
+    ///     Generates code to create the given value comparer.
+    /// </summary>
+    /// <param name="comparer">The value comparer to create.</param>
+    /// <param name="parameters">Additional parameters used during code generation.</param>
+    void Create(ValueComparer comparer, CSharpRuntimeAnnotationCodeGeneratorParameters parameters);
+
+    /// <summary>
+    ///     Generates code to create the given value converter.
+    /// </summary>
+    /// <param name="converter">The value converter to create.</param>
+    /// <param name="parameters">Additional parameters used during code generation.</param>
+    void Create(ValueConverter converter, CSharpRuntimeAnnotationCodeGeneratorParameters parameters);
 }

@@ -1,7 +1,11 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.SqlServer.Internal;
+
 namespace Microsoft.EntityFrameworkCore.Query;
+
+#nullable disable
 
 [SqlServerCondition(SqlServerCondition.SupportsTemporalTablesCascadeDelete)]
 public class TemporalOwnedQuerySqlServerTest : OwnedQueryRelationalTestBase<
@@ -9,12 +13,7 @@ public class TemporalOwnedQuerySqlServerTest : OwnedQueryRelationalTestBase<
 {
     public TemporalOwnedQuerySqlServerTest(TemporalOwnedQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
         : base(fixture)
-    {
-        //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
-    }
-
-    protected override bool CanExecuteQueryString
-        => true;
+        => Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
 
     protected override Expression RewriteServerQueryExpression(Expression serverQueryExpression)
     {
@@ -37,26 +36,89 @@ public class TemporalOwnedQuerySqlServerTest : OwnedQueryRelationalTestBase<
         return rewriter.Visit(serverQueryExpression);
     }
 
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Navigation_on_owned_entity_mapped_to_same_table_works_with_all_temporal_methods(bool async)
+    {
+        var context = CreateContext();
+
+        var queryAsOf = context.Set<OwnedPerson>()
+            .TemporalAsOf(new DateTime(2010, 1, 1));
+
+        var resultAsOf = async
+            ? await queryAsOf.ToListAsync()
+            : queryAsOf.ToList();
+
+        var queryAll = context.Set<OwnedPerson>()
+            .TemporalAll()
+            .Select(x => x.PersonAddress);
+
+        var resultAll = async
+            ? await queryAll.ToListAsync()
+            : queryAll.ToList();
+
+        var queryBetween = context.Set<OwnedPerson>()
+            .TemporalBetween(new DateTime(1990, 1, 1), new DateTime(2200, 1, 1))
+            .Select(x => x.PersonAddress);
+
+        var resultBetween = async
+            ? await queryBetween.ToListAsync()
+            : queryBetween.ToList();
+
+        AssertSql(
+            """
+SELECT [o].[Id], [o].[Discriminator], [o].[Name], [o].[PeriodEnd], [o].[PeriodStart], [s].[ClientId], [s].[Id], [s].[OrderDate], [s].[PeriodEnd], [s].[PeriodStart], [s].[OrderClientId], [s].[OrderId], [s].[Id0], [s].[Detail], [s].[PeriodEnd0], [s].[PeriodStart0], [o].[PersonAddress_AddressLine], [o].[PeriodEnd], [o].[PeriodStart], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafBAddress_LeafBType], [o].[LeafBAddress_PlaceType], [o].[LeafBAddress_Country_Name], [o].[LeafBAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
+FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
+LEFT JOIN (
+    SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate], [o0].[PeriodEnd], [o0].[PeriodStart], [o1].[OrderClientId], [o1].[OrderId], [o1].[Id] AS [Id0], [o1].[Detail], [o1].[PeriodEnd] AS [PeriodEnd0], [o1].[PeriodStart] AS [PeriodStart0]
+    FROM [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o0]
+    LEFT JOIN [OrderDetail] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
+) AS [s] ON [o].[Id] = [s].[ClientId]
+ORDER BY [o].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId]
+""",
+            //
+            """
+SELECT [o].[Id], [o].[PersonAddress_AddressLine], [o].[PeriodEnd], [o].[PeriodStart], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId]
+FROM [OwnedPerson] FOR SYSTEM_TIME ALL AS [o]
+""",
+            //
+            """
+SELECT [o].[Id], [o].[PersonAddress_AddressLine], [o].[PeriodEnd], [o].[PeriodStart], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId]
+FROM [OwnedPerson] FOR SYSTEM_TIME BETWEEN '1990-01-01T00:00:00.0000000' AND '2200-01-01T00:00:00.0000000' AS [o]
+""");
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Navigation_on_owned_entity_mapped_to_different_table_fails_for_non_asof(bool async)
+    {
+        var context = CreateContext();
+        var message = (await Assert.ThrowsAsync<InvalidOperationException>(
+            () => context.Set<Star>().TemporalAll().Select(x => x.Planets.ToList()).ToListAsync())).Message;
+
+        Assert.Equal(SqlServerStrings.TemporalNavigationExpansionOnlySupportedForAsOf("AsOf"), message);
+    }
+
     public override async Task Query_with_owned_entity_equality_operator(bool async)
     {
         await base.Query_with_owned_entity_equality_operator(async);
 
         AssertSql(
-"""
-SELECT [o].[Id], [o].[Discriminator], [o].[Name], [o].[PeriodEnd], [o].[PeriodStart], [t].[Id], [t0].[ClientId], [t0].[Id], [t0].[OrderDate], [t0].[PeriodEnd], [t0].[PeriodStart], [t0].[OrderClientId], [t0].[OrderId], [t0].[Id0], [t0].[Detail], [t0].[PeriodEnd0], [t0].[PeriodStart0], [o].[PersonAddress_AddressLine], [o].[PeriodEnd], [o].[PeriodStart], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
+            """
+SELECT [o].[Id], [o].[Discriminator], [o].[Name], [o].[PeriodEnd], [o].[PeriodStart], [o1].[Id], [s].[ClientId], [s].[Id], [s].[OrderDate], [s].[PeriodEnd], [s].[PeriodStart], [s].[OrderClientId], [s].[OrderId], [s].[Id0], [s].[Detail], [s].[PeriodEnd0], [s].[PeriodStart0], [o].[PersonAddress_AddressLine], [o].[PeriodEnd], [o].[PeriodStart], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
 FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
 CROSS JOIN (
     SELECT [o0].[Id]
     FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o0]
     WHERE [o0].[Discriminator] = N'LeafB'
-) AS [t]
+) AS [o1]
 LEFT JOIN (
-    SELECT [o1].[ClientId], [o1].[Id], [o1].[OrderDate], [o1].[PeriodEnd], [o1].[PeriodStart], [o2].[OrderClientId], [o2].[OrderId], [o2].[Id] AS [Id0], [o2].[Detail], [o2].[PeriodEnd] AS [PeriodEnd0], [o2].[PeriodStart] AS [PeriodStart0]
-    FROM [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o1]
-    LEFT JOIN [OrderDetail] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o2] ON [o1].[ClientId] = [o2].[OrderClientId] AND [o1].[Id] = [o2].[OrderId]
-) AS [t0] ON [o].[Id] = [t0].[ClientId]
+    SELECT [o2].[ClientId], [o2].[Id], [o2].[OrderDate], [o2].[PeriodEnd], [o2].[PeriodStart], [o3].[OrderClientId], [o3].[OrderId], [o3].[Id] AS [Id0], [o3].[Detail], [o3].[PeriodEnd] AS [PeriodEnd0], [o3].[PeriodStart] AS [PeriodStart0]
+    FROM [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o2]
+    LEFT JOIN [OrderDetail] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o3] ON [o2].[ClientId] = [o3].[OrderClientId] AND [o2].[Id] = [o3].[OrderId]
+) AS [s] ON [o].[Id] = [s].[ClientId]
 WHERE 0 = 1
-ORDER BY [o].[Id], [t].[Id], [t0].[ClientId], [t0].[Id], [t0].[OrderClientId], [t0].[OrderId]
+ORDER BY [o].[Id], [o1].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId]
 """);
     }
 
@@ -65,15 +127,15 @@ ORDER BY [o].[Id], [t].[Id], [t0].[ClientId], [t0].[Id], [t0].[OrderClientId], [
         await base.Query_for_base_type_loads_all_owned_navs(async);
 
         AssertSql(
-"""
-SELECT [o].[Id], [o].[Discriminator], [o].[Name], [o].[PeriodEnd], [o].[PeriodStart], [t].[ClientId], [t].[Id], [t].[OrderDate], [t].[PeriodEnd], [t].[PeriodStart], [t].[OrderClientId], [t].[OrderId], [t].[Id0], [t].[Detail], [t].[PeriodEnd0], [t].[PeriodStart0], [o].[PersonAddress_AddressLine], [o].[PeriodEnd], [o].[PeriodStart], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafBAddress_LeafBType], [o].[LeafBAddress_PlaceType], [o].[LeafBAddress_Country_Name], [o].[LeafBAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
+            """
+SELECT [o].[Id], [o].[Discriminator], [o].[Name], [o].[PeriodEnd], [o].[PeriodStart], [s].[ClientId], [s].[Id], [s].[OrderDate], [s].[PeriodEnd], [s].[PeriodStart], [s].[OrderClientId], [s].[OrderId], [s].[Id0], [s].[Detail], [s].[PeriodEnd0], [s].[PeriodStart0], [o].[PersonAddress_AddressLine], [o].[PeriodEnd], [o].[PeriodStart], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafBAddress_LeafBType], [o].[LeafBAddress_PlaceType], [o].[LeafBAddress_Country_Name], [o].[LeafBAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
 FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
 LEFT JOIN (
     SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate], [o0].[PeriodEnd], [o0].[PeriodStart], [o1].[OrderClientId], [o1].[OrderId], [o1].[Id] AS [Id0], [o1].[Detail], [o1].[PeriodEnd] AS [PeriodEnd0], [o1].[PeriodStart] AS [PeriodStart0]
     FROM [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o0]
     LEFT JOIN [OrderDetail] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
-) AS [t] ON [o].[Id] = [t].[ClientId]
-ORDER BY [o].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId]
+) AS [s] ON [o].[Id] = [s].[ClientId]
+ORDER BY [o].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId]
 """);
     }
 
@@ -82,7 +144,7 @@ ORDER BY [o].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId]
         await base.No_ignored_include_warning_when_implicit_load(async);
 
         AssertSql(
-"""
+            """
 SELECT COUNT(*)
 FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
 """);
@@ -93,16 +155,16 @@ FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
         await base.Query_for_branch_type_loads_all_owned_navs(async);
 
         AssertSql(
-"""
-SELECT [o].[Id], [o].[Discriminator], [o].[Name], [o].[PeriodEnd], [o].[PeriodStart], [t].[ClientId], [t].[Id], [t].[OrderDate], [t].[PeriodEnd], [t].[PeriodStart], [t].[OrderClientId], [t].[OrderId], [t].[Id0], [t].[Detail], [t].[PeriodEnd0], [t].[PeriodStart0], [o].[PersonAddress_AddressLine], [o].[PeriodEnd], [o].[PeriodStart], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
+            """
+SELECT [o].[Id], [o].[Discriminator], [o].[Name], [o].[PeriodEnd], [o].[PeriodStart], [s].[ClientId], [s].[Id], [s].[OrderDate], [s].[PeriodEnd], [s].[PeriodStart], [s].[OrderClientId], [s].[OrderId], [s].[Id0], [s].[Detail], [s].[PeriodEnd0], [s].[PeriodStart0], [o].[PersonAddress_AddressLine], [o].[PeriodEnd], [o].[PeriodStart], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
 FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
 LEFT JOIN (
     SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate], [o0].[PeriodEnd], [o0].[PeriodStart], [o1].[OrderClientId], [o1].[OrderId], [o1].[Id] AS [Id0], [o1].[Detail], [o1].[PeriodEnd] AS [PeriodEnd0], [o1].[PeriodStart] AS [PeriodStart0]
     FROM [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o0]
     LEFT JOIN [OrderDetail] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
-) AS [t] ON [o].[Id] = [t].[ClientId]
+) AS [s] ON [o].[Id] = [s].[ClientId]
 WHERE [o].[Discriminator] IN (N'Branch', N'LeafA')
-ORDER BY [o].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId]
+ORDER BY [o].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId]
 """);
     }
 
@@ -111,16 +173,16 @@ ORDER BY [o].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId]
         await base.Query_for_branch_type_loads_all_owned_navs_tracking(async);
 
         AssertSql(
-"""
-SELECT [o].[Id], [o].[Discriminator], [o].[Name], [o].[PeriodEnd], [o].[PeriodStart], [t].[ClientId], [t].[Id], [t].[OrderDate], [t].[PeriodEnd], [t].[PeriodStart], [t].[OrderClientId], [t].[OrderId], [t].[Id0], [t].[Detail], [t].[PeriodEnd0], [t].[PeriodStart0], [o].[PersonAddress_AddressLine], [o].[PeriodEnd], [o].[PeriodStart], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
+            """
+SELECT [o].[Id], [o].[Discriminator], [o].[Name], [o].[PeriodEnd], [o].[PeriodStart], [s].[ClientId], [s].[Id], [s].[OrderDate], [s].[PeriodEnd], [s].[PeriodStart], [s].[OrderClientId], [s].[OrderId], [s].[Id0], [s].[Detail], [s].[PeriodEnd0], [s].[PeriodStart0], [o].[PersonAddress_AddressLine], [o].[PeriodEnd], [o].[PeriodStart], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
 FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
 LEFT JOIN (
     SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate], [o0].[PeriodEnd], [o0].[PeriodStart], [o1].[OrderClientId], [o1].[OrderId], [o1].[Id] AS [Id0], [o1].[Detail], [o1].[PeriodEnd] AS [PeriodEnd0], [o1].[PeriodStart] AS [PeriodStart0]
     FROM [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o0]
     LEFT JOIN [OrderDetail] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
-) AS [t] ON [o].[Id] = [t].[ClientId]
+) AS [s] ON [o].[Id] = [s].[ClientId]
 WHERE [o].[Discriminator] IN (N'Branch', N'LeafA')
-ORDER BY [o].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId]
+ORDER BY [o].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId]
 """);
     }
 
@@ -129,16 +191,16 @@ ORDER BY [o].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId]
         await base.Query_for_leaf_type_loads_all_owned_navs(async);
 
         AssertSql(
-"""
-SELECT [o].[Id], [o].[Discriminator], [o].[Name], [o].[PeriodEnd], [o].[PeriodStart], [t].[ClientId], [t].[Id], [t].[OrderDate], [t].[PeriodEnd], [t].[PeriodStart], [t].[OrderClientId], [t].[OrderId], [t].[Id0], [t].[Detail], [t].[PeriodEnd0], [t].[PeriodStart0], [o].[PersonAddress_AddressLine], [o].[PeriodEnd], [o].[PeriodStart], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
+            """
+SELECT [o].[Id], [o].[Discriminator], [o].[Name], [o].[PeriodEnd], [o].[PeriodStart], [s].[ClientId], [s].[Id], [s].[OrderDate], [s].[PeriodEnd], [s].[PeriodStart], [s].[OrderClientId], [s].[OrderId], [s].[Id0], [s].[Detail], [s].[PeriodEnd0], [s].[PeriodStart0], [o].[PersonAddress_AddressLine], [o].[PeriodEnd], [o].[PeriodStart], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
 FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
 LEFT JOIN (
     SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate], [o0].[PeriodEnd], [o0].[PeriodStart], [o1].[OrderClientId], [o1].[OrderId], [o1].[Id] AS [Id0], [o1].[Detail], [o1].[PeriodEnd] AS [PeriodEnd0], [o1].[PeriodStart] AS [PeriodStart0]
     FROM [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o0]
     LEFT JOIN [OrderDetail] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
-) AS [t] ON [o].[Id] = [t].[ClientId]
+) AS [s] ON [o].[Id] = [s].[ClientId]
 WHERE [o].[Discriminator] = N'LeafA'
-ORDER BY [o].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId]
+ORDER BY [o].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId]
 """);
     }
 
@@ -147,24 +209,24 @@ ORDER BY [o].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId]
         await base.Query_when_subquery(async);
 
         AssertSql(
-"""
-@__p_0='5'
+            """
+@p='5'
 
-SELECT [t0].[Id], [t0].[Discriminator], [t0].[Name], [t0].[PeriodEnd], [t0].[PeriodStart], [t1].[ClientId], [t1].[Id], [t1].[OrderDate], [t1].[PeriodEnd], [t1].[PeriodStart], [t1].[OrderClientId], [t1].[OrderId], [t1].[Id0], [t1].[Detail], [t1].[PeriodEnd0], [t1].[PeriodStart0], [t0].[PersonAddress_AddressLine], [t0].[PeriodEnd0], [t0].[PeriodStart0], [t0].[PersonAddress_PlaceType], [t0].[PersonAddress_ZipCode], [t0].[PersonAddress_Country_Name], [t0].[PersonAddress_Country_PlanetId], [t0].[BranchAddress_BranchName], [t0].[BranchAddress_PlaceType], [t0].[BranchAddress_Country_Name], [t0].[BranchAddress_Country_PlanetId], [t0].[LeafBAddress_LeafBType], [t0].[LeafBAddress_PlaceType], [t0].[LeafBAddress_Country_Name], [t0].[LeafBAddress_Country_PlanetId], [t0].[LeafAAddress_LeafType], [t0].[LeafAAddress_PlaceType], [t0].[LeafAAddress_Country_Name], [t0].[LeafAAddress_Country_PlanetId]
+SELECT [o3].[Id], [o3].[Discriminator], [o3].[Name], [o3].[PeriodEnd], [o3].[PeriodStart], [s].[ClientId], [s].[Id], [s].[OrderDate], [s].[PeriodEnd], [s].[PeriodStart], [s].[OrderClientId], [s].[OrderId], [s].[Id0], [s].[Detail], [s].[PeriodEnd0], [s].[PeriodStart0], [o3].[PersonAddress_AddressLine], [o3].[PeriodEnd0], [o3].[PeriodStart0], [o3].[PersonAddress_PlaceType], [o3].[PersonAddress_ZipCode], [o3].[PersonAddress_Country_Name], [o3].[PersonAddress_Country_PlanetId], [o3].[BranchAddress_BranchName], [o3].[BranchAddress_PlaceType], [o3].[BranchAddress_Country_Name], [o3].[BranchAddress_Country_PlanetId], [o3].[LeafBAddress_LeafBType], [o3].[LeafBAddress_PlaceType], [o3].[LeafBAddress_Country_Name], [o3].[LeafBAddress_Country_PlanetId], [o3].[LeafAAddress_LeafType], [o3].[LeafAAddress_PlaceType], [o3].[LeafAAddress_Country_Name], [o3].[LeafAAddress_Country_PlanetId]
 FROM (
-    SELECT TOP(@__p_0) [t].[Id], [t].[Discriminator], [t].[Name], [t].[PeriodEnd], [t].[PeriodStart], [t].[PersonAddress_AddressLine], [t].[PeriodEnd0], [t].[PeriodStart0], [t].[PersonAddress_PlaceType], [t].[PersonAddress_ZipCode], [t].[PersonAddress_Country_Name], [t].[PersonAddress_Country_PlanetId], [t].[BranchAddress_BranchName], [t].[BranchAddress_PlaceType], [t].[BranchAddress_Country_Name], [t].[BranchAddress_Country_PlanetId], [t].[LeafBAddress_LeafBType], [t].[LeafBAddress_PlaceType], [t].[LeafBAddress_Country_Name], [t].[LeafBAddress_Country_PlanetId], [t].[LeafAAddress_LeafType], [t].[LeafAAddress_PlaceType], [t].[LeafAAddress_Country_Name], [t].[LeafAAddress_Country_PlanetId]
+    SELECT TOP(@p) [o0].[Id], [o0].[Discriminator], [o0].[Name], [o0].[PeriodEnd], [o0].[PeriodStart], [o0].[PersonAddress_AddressLine], [o0].[PeriodEnd0], [o0].[PeriodStart0], [o0].[PersonAddress_PlaceType], [o0].[PersonAddress_ZipCode], [o0].[PersonAddress_Country_Name], [o0].[PersonAddress_Country_PlanetId], [o0].[BranchAddress_BranchName], [o0].[BranchAddress_PlaceType], [o0].[BranchAddress_Country_Name], [o0].[BranchAddress_Country_PlanetId], [o0].[LeafBAddress_LeafBType], [o0].[LeafBAddress_PlaceType], [o0].[LeafBAddress_Country_Name], [o0].[LeafBAddress_Country_PlanetId], [o0].[LeafAAddress_LeafType], [o0].[LeafAAddress_PlaceType], [o0].[LeafAAddress_Country_Name], [o0].[LeafAAddress_Country_PlanetId]
     FROM (
         SELECT DISTINCT [o].[Id], [o].[Discriminator], [o].[Name], [o].[PeriodEnd], [o].[PeriodStart], [o].[PersonAddress_AddressLine], [o].[PeriodEnd] AS [PeriodEnd0], [o].[PeriodStart] AS [PeriodStart0], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafBAddress_LeafBType], [o].[LeafBAddress_PlaceType], [o].[LeafBAddress_Country_Name], [o].[LeafBAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
         FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
-    ) AS [t]
-    ORDER BY [t].[Id]
-) AS [t0]
+    ) AS [o0]
+    ORDER BY [o0].[Id]
+) AS [o3]
 LEFT JOIN (
-    SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate], [o0].[PeriodEnd], [o0].[PeriodStart], [o1].[OrderClientId], [o1].[OrderId], [o1].[Id] AS [Id0], [o1].[Detail], [o1].[PeriodEnd] AS [PeriodEnd0], [o1].[PeriodStart] AS [PeriodStart0]
-    FROM [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o0]
-    LEFT JOIN [OrderDetail] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
-) AS [t1] ON [t0].[Id] = [t1].[ClientId]
-ORDER BY [t0].[Id], [t1].[ClientId], [t1].[Id], [t1].[OrderClientId], [t1].[OrderId]
+    SELECT [o1].[ClientId], [o1].[Id], [o1].[OrderDate], [o1].[PeriodEnd], [o1].[PeriodStart], [o2].[OrderClientId], [o2].[OrderId], [o2].[Id] AS [Id0], [o2].[Detail], [o2].[PeriodEnd] AS [PeriodEnd0], [o2].[PeriodStart] AS [PeriodStart0]
+    FROM [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o1]
+    LEFT JOIN [OrderDetail] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o2] ON [o1].[ClientId] = [o2].[OrderClientId] AND [o1].[Id] = [o2].[OrderId]
+) AS [s] ON [o3].[Id] = [s].[ClientId]
+ORDER BY [o3].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId]
 """);
     }
 
@@ -173,7 +235,7 @@ ORDER BY [t0].[Id], [t1].[ClientId], [t1].[Id], [t1].[OrderClientId], [t1].[Orde
         await base.Navigation_rewrite_on_owned_reference_projecting_scalar(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[PersonAddress_Country_Name]
 FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
 WHERE [o].[PersonAddress_Country_Name] = N'USA'
@@ -185,16 +247,16 @@ WHERE [o].[PersonAddress_Country_Name] = N'USA'
         await base.Navigation_rewrite_on_owned_reference_projecting_entity(async);
 
         AssertSql(
-"""
-SELECT [o].[Id], [o].[Discriminator], [o].[Name], [o].[PeriodEnd], [o].[PeriodStart], [t].[ClientId], [t].[Id], [t].[OrderDate], [t].[PeriodEnd], [t].[PeriodStart], [t].[OrderClientId], [t].[OrderId], [t].[Id0], [t].[Detail], [t].[PeriodEnd0], [t].[PeriodStart0], [o].[PersonAddress_AddressLine], [o].[PeriodEnd], [o].[PeriodStart], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafBAddress_LeafBType], [o].[LeafBAddress_PlaceType], [o].[LeafBAddress_Country_Name], [o].[LeafBAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
+            """
+SELECT [o].[Id], [o].[Discriminator], [o].[Name], [o].[PeriodEnd], [o].[PeriodStart], [s].[ClientId], [s].[Id], [s].[OrderDate], [s].[PeriodEnd], [s].[PeriodStart], [s].[OrderClientId], [s].[OrderId], [s].[Id0], [s].[Detail], [s].[PeriodEnd0], [s].[PeriodStart0], [o].[PersonAddress_AddressLine], [o].[PeriodEnd], [o].[PeriodStart], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafBAddress_LeafBType], [o].[LeafBAddress_PlaceType], [o].[LeafBAddress_Country_Name], [o].[LeafBAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
 FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
 LEFT JOIN (
     SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate], [o0].[PeriodEnd], [o0].[PeriodStart], [o1].[OrderClientId], [o1].[OrderId], [o1].[Id] AS [Id0], [o1].[Detail], [o1].[PeriodEnd] AS [PeriodEnd0], [o1].[PeriodStart] AS [PeriodStart0]
     FROM [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o0]
     LEFT JOIN [OrderDetail] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
-) AS [t] ON [o].[Id] = [t].[ClientId]
+) AS [s] ON [o].[Id] = [s].[ClientId]
 WHERE [o].[PersonAddress_Country_Name] = N'USA'
-ORDER BY [o].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId]
+ORDER BY [o].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId]
 """);
     }
 
@@ -203,19 +265,19 @@ ORDER BY [o].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId]
         await base.Navigation_rewrite_on_owned_collection(async);
 
         AssertSql(
-"""
-SELECT [o].[Id], [t].[ClientId], [t].[Id], [t].[OrderDate], [t].[PeriodEnd], [t].[PeriodStart], [t].[OrderClientId], [t].[OrderId], [t].[Id0], [t].[Detail], [t].[PeriodEnd0], [t].[PeriodStart0]
+            """
+SELECT [o].[Id], [s].[ClientId], [s].[Id], [s].[OrderDate], [s].[PeriodEnd], [s].[PeriodStart], [s].[OrderClientId], [s].[OrderId], [s].[Id0], [s].[Detail], [s].[PeriodEnd0], [s].[PeriodStart0]
 FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
 LEFT JOIN (
     SELECT [o1].[ClientId], [o1].[Id], [o1].[OrderDate], [o1].[PeriodEnd], [o1].[PeriodStart], [o2].[OrderClientId], [o2].[OrderId], [o2].[Id] AS [Id0], [o2].[Detail], [o2].[PeriodEnd] AS [PeriodEnd0], [o2].[PeriodStart] AS [PeriodStart0]
     FROM [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o1]
     LEFT JOIN [OrderDetail] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o2] ON [o1].[ClientId] = [o2].[OrderClientId] AND [o1].[Id] = [o2].[OrderId]
-) AS [t] ON [o].[Id] = [t].[ClientId]
-WHERE (
-    SELECT COUNT(*)
+) AS [s] ON [o].[Id] = [s].[ClientId]
+WHERE EXISTS (
+    SELECT 1
     FROM [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o0]
-    WHERE [o].[Id] = [o0].[ClientId]) > 0
-ORDER BY [o].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId]
+    WHERE [o].[Id] = [o0].[ClientId])
+ORDER BY [o].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId]
 """);
     }
 
@@ -224,12 +286,9 @@ ORDER BY [o].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId]
         await base.Navigation_rewrite_on_owned_collection_with_composition(async);
 
         AssertSql(
-"""
+            """
 SELECT COALESCE((
-    SELECT TOP(1) CASE
-        WHEN [o0].[Id] <> 42 THEN CAST(1 AS bit)
-        ELSE CAST(0 AS bit)
-    END
+    SELECT TOP(1) CAST([o0].[Id] ^ 42 AS bit)
     FROM [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o0]
     WHERE [o].[Id] = [o0].[ClientId]
     ORDER BY [o0].[Id]), CAST(0 AS bit))
@@ -243,7 +302,7 @@ ORDER BY [o].[Id]
         await base.Navigation_rewrite_on_owned_collection_with_composition_complex(async);
 
         AssertSql(
-"""
+            """
 SELECT (
     SELECT TOP(1) [o1].[PersonAddress_Country_Name]
     FROM [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o0]
@@ -259,7 +318,7 @@ FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
         await base.SelectMany_on_owned_collection(async);
 
         AssertSql(
-"""
+            """
 SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate], [o0].[PeriodEnd], [o0].[PeriodStart], [o].[Id], [o1].[OrderClientId], [o1].[OrderId], [o1].[Id], [o1].[Detail], [o1].[PeriodEnd], [o1].[PeriodStart]
 FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
 INNER JOIN [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o0] ON [o].[Id] = [o0].[ClientId]
@@ -273,7 +332,7 @@ ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id], [o1].[OrderClientId], [o1].[Order
         await base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity(async);
 
         AssertSql(
-"""
+            """
 SELECT [p].[Id], [p].[Name], [p].[PeriodEnd], [p].[PeriodStart], [p].[StarId]
 FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
 LEFT JOIN [Planet] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [p] ON [o].[PersonAddress_Country_PlanetId] = [p].[Id]
@@ -285,17 +344,17 @@ LEFT JOIN [Planet] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [p] ON
         await base.Filter_owned_entity_chained_with_regular_entity_followed_by_projecting_owned_collection(async);
 
         AssertSql(
-"""
-SELECT [o].[Id], [p].[Id], [t].[ClientId], [t].[Id], [t].[OrderDate], [t].[PeriodEnd], [t].[PeriodStart], [t].[OrderClientId], [t].[OrderId], [t].[Id0], [t].[Detail], [t].[PeriodEnd0], [t].[PeriodStart0]
+            """
+SELECT [o].[Id], [p].[Id], [s].[ClientId], [s].[Id], [s].[OrderDate], [s].[PeriodEnd], [s].[PeriodStart], [s].[OrderClientId], [s].[OrderId], [s].[Id0], [s].[Detail], [s].[PeriodEnd0], [s].[PeriodStart0]
 FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
 LEFT JOIN [Planet] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [p] ON [o].[PersonAddress_Country_PlanetId] = [p].[Id]
 LEFT JOIN (
     SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate], [o0].[PeriodEnd], [o0].[PeriodStart], [o1].[OrderClientId], [o1].[OrderId], [o1].[Id] AS [Id0], [o1].[Detail], [o1].[PeriodEnd] AS [PeriodEnd0], [o1].[PeriodStart] AS [PeriodStart0]
     FROM [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o0]
     LEFT JOIN [OrderDetail] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
-) AS [t] ON [o].[Id] = [t].[ClientId]
+) AS [s] ON [o].[Id] = [s].[ClientId]
 WHERE [p].[Id] <> 42 OR [p].[Id] IS NULL
-ORDER BY [o].[Id], [p].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId]
+ORDER BY [o].[Id], [p].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId]
 """);
     }
 
@@ -304,16 +363,16 @@ ORDER BY [o].[Id], [p].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].
         await base.Project_multiple_owned_navigations(async);
 
         AssertSql(
-"""
-SELECT [o].[Id], [p].[Id], [t].[ClientId], [t].[Id], [t].[OrderDate], [t].[PeriodEnd], [t].[PeriodStart], [t].[OrderClientId], [t].[OrderId], [t].[Id0], [t].[Detail], [t].[PeriodEnd0], [t].[PeriodStart0], [o].[PersonAddress_AddressLine], [o].[PeriodEnd], [o].[PeriodStart], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [p].[Name], [p].[PeriodEnd], [p].[PeriodStart], [p].[StarId]
+            """
+SELECT [o].[Id], [p].[Id], [s].[ClientId], [s].[Id], [s].[OrderDate], [s].[PeriodEnd], [s].[PeriodStart], [s].[OrderClientId], [s].[OrderId], [s].[Id0], [s].[Detail], [s].[PeriodEnd0], [s].[PeriodStart0], [o].[PersonAddress_AddressLine], [o].[PeriodEnd], [o].[PeriodStart], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [p].[Name], [p].[PeriodEnd], [p].[PeriodStart], [p].[StarId]
 FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
 LEFT JOIN [Planet] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [p] ON [o].[PersonAddress_Country_PlanetId] = [p].[Id]
 LEFT JOIN (
     SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate], [o0].[PeriodEnd], [o0].[PeriodStart], [o1].[OrderClientId], [o1].[OrderId], [o1].[Id] AS [Id0], [o1].[Detail], [o1].[PeriodEnd] AS [PeriodEnd0], [o1].[PeriodStart] AS [PeriodStart0]
     FROM [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o0]
     LEFT JOIN [OrderDetail] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
-) AS [t] ON [o].[Id] = [t].[ClientId]
-ORDER BY [o].[Id], [p].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId]
+) AS [s] ON [o].[Id] = [s].[ClientId]
+ORDER BY [o].[Id], [p].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId]
 """);
     }
 
@@ -322,7 +381,7 @@ ORDER BY [o].[Id], [p].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].
         await base.Project_multiple_owned_navigations_with_expansion_on_owned_collections(async);
 
         AssertSql(
-"""
+            """
 SELECT (
     SELECT COUNT(*)
     FROM [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o0]
@@ -341,17 +400,17 @@ ORDER BY [o].[Id]
         await base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_filter(async);
 
         AssertSql(
-"""
-SELECT [o].[Id], [o].[Discriminator], [o].[Name], [o].[PeriodEnd], [o].[PeriodStart], [p].[Id], [t].[ClientId], [t].[Id], [t].[OrderDate], [t].[PeriodEnd], [t].[PeriodStart], [t].[OrderClientId], [t].[OrderId], [t].[Id0], [t].[Detail], [t].[PeriodEnd0], [t].[PeriodStart0], [o].[PersonAddress_AddressLine], [o].[PeriodEnd], [o].[PeriodStart], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafBAddress_LeafBType], [o].[LeafBAddress_PlaceType], [o].[LeafBAddress_Country_Name], [o].[LeafBAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
+            """
+SELECT [o].[Id], [o].[Discriminator], [o].[Name], [o].[PeriodEnd], [o].[PeriodStart], [p].[Id], [s].[ClientId], [s].[Id], [s].[OrderDate], [s].[PeriodEnd], [s].[PeriodStart], [s].[OrderClientId], [s].[OrderId], [s].[Id0], [s].[Detail], [s].[PeriodEnd0], [s].[PeriodStart0], [o].[PersonAddress_AddressLine], [o].[PeriodEnd], [o].[PeriodStart], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafBAddress_LeafBType], [o].[LeafBAddress_PlaceType], [o].[LeafBAddress_Country_Name], [o].[LeafBAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
 FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
 LEFT JOIN [Planet] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [p] ON [o].[PersonAddress_Country_PlanetId] = [p].[Id]
 LEFT JOIN (
     SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate], [o0].[PeriodEnd], [o0].[PeriodStart], [o1].[OrderClientId], [o1].[OrderId], [o1].[Id] AS [Id0], [o1].[Detail], [o1].[PeriodEnd] AS [PeriodEnd0], [o1].[PeriodStart] AS [PeriodStart0]
     FROM [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o0]
     LEFT JOIN [OrderDetail] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
-) AS [t] ON [o].[Id] = [t].[ClientId]
+) AS [s] ON [o].[Id] = [s].[ClientId]
 WHERE [p].[Id] <> 7 OR [p].[Id] IS NULL
-ORDER BY [o].[Id], [p].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId]
+ORDER BY [o].[Id], [p].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId]
 """);
     }
 
@@ -360,7 +419,7 @@ ORDER BY [o].[Id], [p].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].
         await base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_property(async);
 
         AssertSql(
-"""
+            """
 SELECT [p].[Id]
 FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
 LEFT JOIN [Planet] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [p] ON [o].[PersonAddress_Country_PlanetId] = [p].[Id]
@@ -372,7 +431,7 @@ LEFT JOIN [Planet] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [p] ON
         await base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_collection(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[Id], [p].[Id], [m].[Id], [m].[Diameter], [m].[PeriodEnd], [m].[PeriodStart], [m].[PlanetId]
 FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
 LEFT JOIN [Planet] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [p] ON [o].[PersonAddress_Country_PlanetId] = [p].[Id]
@@ -386,7 +445,7 @@ ORDER BY [o].[Id], [p].[Id]
         await base.SelectMany_on_owned_reference_followed_by_regular_entity_and_collection(async);
 
         AssertSql(
-"""
+            """
 SELECT [m].[Id], [m].[Diameter], [m].[PeriodEnd], [m].[PeriodStart], [m].[PlanetId]
 FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
 LEFT JOIN [Planet] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [p] ON [o].[PersonAddress_Country_PlanetId] = [p].[Id]
@@ -399,7 +458,7 @@ INNER JOIN [Moon] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [m] ON 
         await base.SelectMany_on_owned_reference_with_entity_in_between_ending_in_owned_collection(async);
 
         AssertSql(
-"""
+            """
 SELECT [e].[Id], [e].[Name], [e].[PeriodEnd], [e].[PeriodStart], [e].[StarId]
 FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
 LEFT JOIN [Planet] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [p] ON [o].[PersonAddress_Country_PlanetId] = [p].[Id]
@@ -413,7 +472,7 @@ INNER JOIN [Element] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e] 
         await base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference(async);
 
         AssertSql(
-"""
+            """
 SELECT [s].[Id], [s].[Name], [s].[PeriodEnd], [s].[PeriodStart], [o].[Id], [p].[Id], [e].[Id], [e].[Name], [e].[PeriodEnd], [e].[PeriodStart], [e].[StarId]
 FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
 LEFT JOIN [Planet] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [p] ON [o].[PersonAddress_Country_PlanetId] = [p].[Id]
@@ -429,7 +488,7 @@ ORDER BY [o].[Id], [p].[Id], [s].[Id]
         await base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference_and_scalar(async);
 
         AssertSql(
-"""
+            """
 SELECT [s].[Name]
 FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
 LEFT JOIN [Planet] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [p] ON [o].[PersonAddress_Country_PlanetId] = [p].[Id]
@@ -444,7 +503,7 @@ LEFT JOIN [Star] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [s] ON [
             async);
 
         AssertSql(
-"""
+            """
 SELECT [s].[Id], [s].[Name], [s].[PeriodEnd], [s].[PeriodStart], [o].[Id], [p].[Id], [e].[Id], [e].[Name], [e].[PeriodEnd], [e].[PeriodStart], [e].[StarId]
 FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
 LEFT JOIN [Planet] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [p] ON [o].[PersonAddress_Country_PlanetId] = [p].[Id]
@@ -460,16 +519,16 @@ ORDER BY [o].[Id], [p].[Id], [s].[Id]
         await base.Query_with_OfType_eagerly_loads_correct_owned_navigations(async);
 
         AssertSql(
-"""
-SELECT [o].[Id], [o].[Discriminator], [o].[Name], [o].[PeriodEnd], [o].[PeriodStart], [t].[ClientId], [t].[Id], [t].[OrderDate], [t].[PeriodEnd], [t].[PeriodStart], [t].[OrderClientId], [t].[OrderId], [t].[Id0], [t].[Detail], [t].[PeriodEnd0], [t].[PeriodStart0], [o].[PersonAddress_AddressLine], [o].[PeriodEnd], [o].[PeriodStart], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
+            """
+SELECT [o].[Id], [o].[Discriminator], [o].[Name], [o].[PeriodEnd], [o].[PeriodStart], [s].[ClientId], [s].[Id], [s].[OrderDate], [s].[PeriodEnd], [s].[PeriodStart], [s].[OrderClientId], [s].[OrderId], [s].[Id0], [s].[Detail], [s].[PeriodEnd0], [s].[PeriodStart0], [o].[PersonAddress_AddressLine], [o].[PeriodEnd], [o].[PeriodStart], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
 FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
 LEFT JOIN (
     SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate], [o0].[PeriodEnd], [o0].[PeriodStart], [o1].[OrderClientId], [o1].[OrderId], [o1].[Id] AS [Id0], [o1].[Detail], [o1].[PeriodEnd] AS [PeriodEnd0], [o1].[PeriodStart] AS [PeriodStart0]
     FROM [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o0]
     LEFT JOIN [OrderDetail] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
-) AS [t] ON [o].[Id] = [t].[ClientId]
+) AS [s] ON [o].[Id] = [s].[ClientId]
 WHERE [o].[Discriminator] = N'LeafA'
-ORDER BY [o].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId]
+ORDER BY [o].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId]
 """);
     }
 
@@ -478,16 +537,16 @@ ORDER BY [o].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId]
         await base.Unmapped_property_projection_loads_owned_navigations(async);
 
         AssertSql(
-"""
-SELECT [o].[Id], [o].[Discriminator], [o].[Name], [o].[PeriodEnd], [o].[PeriodStart], [t].[ClientId], [t].[Id], [t].[OrderDate], [t].[PeriodEnd], [t].[PeriodStart], [t].[OrderClientId], [t].[OrderId], [t].[Id0], [t].[Detail], [t].[PeriodEnd0], [t].[PeriodStart0], [o].[PersonAddress_AddressLine], [o].[PeriodEnd], [o].[PeriodStart], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafBAddress_LeafBType], [o].[LeafBAddress_PlaceType], [o].[LeafBAddress_Country_Name], [o].[LeafBAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
+            """
+SELECT [o].[Id], [o].[Discriminator], [o].[Name], [o].[PeriodEnd], [o].[PeriodStart], [s].[ClientId], [s].[Id], [s].[OrderDate], [s].[PeriodEnd], [s].[PeriodStart], [s].[OrderClientId], [s].[OrderId], [s].[Id0], [s].[Detail], [s].[PeriodEnd0], [s].[PeriodStart0], [o].[PersonAddress_AddressLine], [o].[PeriodEnd], [o].[PeriodStart], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafBAddress_LeafBType], [o].[LeafBAddress_PlaceType], [o].[LeafBAddress_Country_Name], [o].[LeafBAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
 FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
 LEFT JOIN (
     SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate], [o0].[PeriodEnd], [o0].[PeriodStart], [o1].[OrderClientId], [o1].[OrderId], [o1].[Id] AS [Id0], [o1].[Detail], [o1].[PeriodEnd] AS [PeriodEnd0], [o1].[PeriodStart] AS [PeriodStart0]
     FROM [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o0]
     LEFT JOIN [OrderDetail] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
-) AS [t] ON [o].[Id] = [t].[ClientId]
+) AS [s] ON [o].[Id] = [s].[ClientId]
 WHERE [o].[Id] = 1
-ORDER BY [o].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId]
+ORDER BY [o].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId]
 """);
     }
 
@@ -496,22 +555,22 @@ ORDER BY [o].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId]
         await base.Client_method_skip_loads_owned_navigations(async);
 
         AssertSql(
-"""
-@__p_0='1'
+            """
+@p='1'
 
-SELECT [t].[Id], [t].[Discriminator], [t].[Name], [t].[PeriodEnd], [t].[PeriodStart], [t0].[ClientId], [t0].[Id], [t0].[OrderDate], [t0].[PeriodEnd], [t0].[PeriodStart], [t0].[OrderClientId], [t0].[OrderId], [t0].[Id0], [t0].[Detail], [t0].[PeriodEnd0], [t0].[PeriodStart0], [t].[PersonAddress_AddressLine], [t].[PeriodEnd0], [t].[PeriodStart0], [t].[PersonAddress_PlaceType], [t].[PersonAddress_ZipCode], [t].[PersonAddress_Country_Name], [t].[PersonAddress_Country_PlanetId], [t].[BranchAddress_BranchName], [t].[BranchAddress_PlaceType], [t].[BranchAddress_Country_Name], [t].[BranchAddress_Country_PlanetId], [t].[LeafBAddress_LeafBType], [t].[LeafBAddress_PlaceType], [t].[LeafBAddress_Country_Name], [t].[LeafBAddress_Country_PlanetId], [t].[LeafAAddress_LeafType], [t].[LeafAAddress_PlaceType], [t].[LeafAAddress_Country_Name], [t].[LeafAAddress_Country_PlanetId]
+SELECT [o2].[Id], [o2].[Discriminator], [o2].[Name], [o2].[PeriodEnd], [o2].[PeriodStart], [s].[ClientId], [s].[Id], [s].[OrderDate], [s].[PeriodEnd], [s].[PeriodStart], [s].[OrderClientId], [s].[OrderId], [s].[Id0], [s].[Detail], [s].[PeriodEnd0], [s].[PeriodStart0], [o2].[PersonAddress_AddressLine], [o2].[PeriodEnd0], [o2].[PeriodStart0], [o2].[PersonAddress_PlaceType], [o2].[PersonAddress_ZipCode], [o2].[PersonAddress_Country_Name], [o2].[PersonAddress_Country_PlanetId], [o2].[BranchAddress_BranchName], [o2].[BranchAddress_PlaceType], [o2].[BranchAddress_Country_Name], [o2].[BranchAddress_Country_PlanetId], [o2].[LeafBAddress_LeafBType], [o2].[LeafBAddress_PlaceType], [o2].[LeafBAddress_Country_Name], [o2].[LeafBAddress_Country_PlanetId], [o2].[LeafAAddress_LeafType], [o2].[LeafAAddress_PlaceType], [o2].[LeafAAddress_Country_Name], [o2].[LeafAAddress_Country_PlanetId]
 FROM (
     SELECT [o].[Id], [o].[Discriminator], [o].[Name], [o].[PeriodEnd], [o].[PeriodStart], [o].[PersonAddress_AddressLine], [o].[PeriodEnd] AS [PeriodEnd0], [o].[PeriodStart] AS [PeriodStart0], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafBAddress_LeafBType], [o].[LeafBAddress_PlaceType], [o].[LeafBAddress_Country_Name], [o].[LeafBAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
     FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
     ORDER BY [o].[Id]
-    OFFSET @__p_0 ROWS
-) AS [t]
+    OFFSET @p ROWS
+) AS [o2]
 LEFT JOIN (
     SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate], [o0].[PeriodEnd], [o0].[PeriodStart], [o1].[OrderClientId], [o1].[OrderId], [o1].[Id] AS [Id0], [o1].[Detail], [o1].[PeriodEnd] AS [PeriodEnd0], [o1].[PeriodStart] AS [PeriodStart0]
     FROM [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o0]
     LEFT JOIN [OrderDetail] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
-) AS [t0] ON [t].[Id] = [t0].[ClientId]
-ORDER BY [t].[Id], [t0].[ClientId], [t0].[Id], [t0].[OrderClientId], [t0].[OrderId]
+) AS [s] ON [o2].[Id] = [s].[ClientId]
+ORDER BY [o2].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId]
 """);
     }
 
@@ -520,21 +579,21 @@ ORDER BY [t].[Id], [t0].[ClientId], [t0].[Id], [t0].[OrderClientId], [t0].[Order
         await base.Client_method_take_loads_owned_navigations(async);
 
         AssertSql(
-"""
-@__p_0='2'
+            """
+@p='2'
 
-SELECT [t].[Id], [t].[Discriminator], [t].[Name], [t].[PeriodEnd], [t].[PeriodStart], [t0].[ClientId], [t0].[Id], [t0].[OrderDate], [t0].[PeriodEnd], [t0].[PeriodStart], [t0].[OrderClientId], [t0].[OrderId], [t0].[Id0], [t0].[Detail], [t0].[PeriodEnd0], [t0].[PeriodStart0], [t].[PersonAddress_AddressLine], [t].[PeriodEnd0], [t].[PeriodStart0], [t].[PersonAddress_PlaceType], [t].[PersonAddress_ZipCode], [t].[PersonAddress_Country_Name], [t].[PersonAddress_Country_PlanetId], [t].[BranchAddress_BranchName], [t].[BranchAddress_PlaceType], [t].[BranchAddress_Country_Name], [t].[BranchAddress_Country_PlanetId], [t].[LeafBAddress_LeafBType], [t].[LeafBAddress_PlaceType], [t].[LeafBAddress_Country_Name], [t].[LeafBAddress_Country_PlanetId], [t].[LeafAAddress_LeafType], [t].[LeafAAddress_PlaceType], [t].[LeafAAddress_Country_Name], [t].[LeafAAddress_Country_PlanetId]
+SELECT [o2].[Id], [o2].[Discriminator], [o2].[Name], [o2].[PeriodEnd], [o2].[PeriodStart], [s].[ClientId], [s].[Id], [s].[OrderDate], [s].[PeriodEnd], [s].[PeriodStart], [s].[OrderClientId], [s].[OrderId], [s].[Id0], [s].[Detail], [s].[PeriodEnd0], [s].[PeriodStart0], [o2].[PersonAddress_AddressLine], [o2].[PeriodEnd0], [o2].[PeriodStart0], [o2].[PersonAddress_PlaceType], [o2].[PersonAddress_ZipCode], [o2].[PersonAddress_Country_Name], [o2].[PersonAddress_Country_PlanetId], [o2].[BranchAddress_BranchName], [o2].[BranchAddress_PlaceType], [o2].[BranchAddress_Country_Name], [o2].[BranchAddress_Country_PlanetId], [o2].[LeafBAddress_LeafBType], [o2].[LeafBAddress_PlaceType], [o2].[LeafBAddress_Country_Name], [o2].[LeafBAddress_Country_PlanetId], [o2].[LeafAAddress_LeafType], [o2].[LeafAAddress_PlaceType], [o2].[LeafAAddress_Country_Name], [o2].[LeafAAddress_Country_PlanetId]
 FROM (
-    SELECT TOP(@__p_0) [o].[Id], [o].[Discriminator], [o].[Name], [o].[PeriodEnd], [o].[PeriodStart], [o].[PersonAddress_AddressLine], [o].[PeriodEnd] AS [PeriodEnd0], [o].[PeriodStart] AS [PeriodStart0], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafBAddress_LeafBType], [o].[LeafBAddress_PlaceType], [o].[LeafBAddress_Country_Name], [o].[LeafBAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
+    SELECT TOP(@p) [o].[Id], [o].[Discriminator], [o].[Name], [o].[PeriodEnd], [o].[PeriodStart], [o].[PersonAddress_AddressLine], [o].[PeriodEnd] AS [PeriodEnd0], [o].[PeriodStart] AS [PeriodStart0], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafBAddress_LeafBType], [o].[LeafBAddress_PlaceType], [o].[LeafBAddress_Country_Name], [o].[LeafBAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
     FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
     ORDER BY [o].[Id]
-) AS [t]
+) AS [o2]
 LEFT JOIN (
     SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate], [o0].[PeriodEnd], [o0].[PeriodStart], [o1].[OrderClientId], [o1].[OrderId], [o1].[Id] AS [Id0], [o1].[Detail], [o1].[PeriodEnd] AS [PeriodEnd0], [o1].[PeriodStart] AS [PeriodStart0]
     FROM [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o0]
     LEFT JOIN [OrderDetail] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
-) AS [t0] ON [t].[Id] = [t0].[ClientId]
-ORDER BY [t].[Id], [t0].[ClientId], [t0].[Id], [t0].[OrderClientId], [t0].[OrderId]
+) AS [s] ON [o2].[Id] = [s].[ClientId]
+ORDER BY [o2].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId]
 """);
     }
 
@@ -543,23 +602,23 @@ ORDER BY [t].[Id], [t0].[ClientId], [t0].[Id], [t0].[OrderClientId], [t0].[Order
         await base.Client_method_skip_take_loads_owned_navigations(async);
 
         AssertSql(
-"""
-@__p_0='1'
-@__p_1='2'
+            """
+@p='1'
+@p0='2'
 
-SELECT [t].[Id], [t].[Discriminator], [t].[Name], [t].[PeriodEnd], [t].[PeriodStart], [t0].[ClientId], [t0].[Id], [t0].[OrderDate], [t0].[PeriodEnd], [t0].[PeriodStart], [t0].[OrderClientId], [t0].[OrderId], [t0].[Id0], [t0].[Detail], [t0].[PeriodEnd0], [t0].[PeriodStart0], [t].[PersonAddress_AddressLine], [t].[PeriodEnd0], [t].[PeriodStart0], [t].[PersonAddress_PlaceType], [t].[PersonAddress_ZipCode], [t].[PersonAddress_Country_Name], [t].[PersonAddress_Country_PlanetId], [t].[BranchAddress_BranchName], [t].[BranchAddress_PlaceType], [t].[BranchAddress_Country_Name], [t].[BranchAddress_Country_PlanetId], [t].[LeafBAddress_LeafBType], [t].[LeafBAddress_PlaceType], [t].[LeafBAddress_Country_Name], [t].[LeafBAddress_Country_PlanetId], [t].[LeafAAddress_LeafType], [t].[LeafAAddress_PlaceType], [t].[LeafAAddress_Country_Name], [t].[LeafAAddress_Country_PlanetId]
+SELECT [o2].[Id], [o2].[Discriminator], [o2].[Name], [o2].[PeriodEnd], [o2].[PeriodStart], [s].[ClientId], [s].[Id], [s].[OrderDate], [s].[PeriodEnd], [s].[PeriodStart], [s].[OrderClientId], [s].[OrderId], [s].[Id0], [s].[Detail], [s].[PeriodEnd0], [s].[PeriodStart0], [o2].[PersonAddress_AddressLine], [o2].[PeriodEnd0], [o2].[PeriodStart0], [o2].[PersonAddress_PlaceType], [o2].[PersonAddress_ZipCode], [o2].[PersonAddress_Country_Name], [o2].[PersonAddress_Country_PlanetId], [o2].[BranchAddress_BranchName], [o2].[BranchAddress_PlaceType], [o2].[BranchAddress_Country_Name], [o2].[BranchAddress_Country_PlanetId], [o2].[LeafBAddress_LeafBType], [o2].[LeafBAddress_PlaceType], [o2].[LeafBAddress_Country_Name], [o2].[LeafBAddress_Country_PlanetId], [o2].[LeafAAddress_LeafType], [o2].[LeafAAddress_PlaceType], [o2].[LeafAAddress_Country_Name], [o2].[LeafAAddress_Country_PlanetId]
 FROM (
     SELECT [o].[Id], [o].[Discriminator], [o].[Name], [o].[PeriodEnd], [o].[PeriodStart], [o].[PersonAddress_AddressLine], [o].[PeriodEnd] AS [PeriodEnd0], [o].[PeriodStart] AS [PeriodStart0], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafBAddress_LeafBType], [o].[LeafBAddress_PlaceType], [o].[LeafBAddress_Country_Name], [o].[LeafBAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
     FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
     ORDER BY [o].[Id]
-    OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
-) AS [t]
+    OFFSET @p ROWS FETCH NEXT @p0 ROWS ONLY
+) AS [o2]
 LEFT JOIN (
     SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate], [o0].[PeriodEnd], [o0].[PeriodStart], [o1].[OrderClientId], [o1].[OrderId], [o1].[Id] AS [Id0], [o1].[Detail], [o1].[PeriodEnd] AS [PeriodEnd0], [o1].[PeriodStart] AS [PeriodStart0]
     FROM [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o0]
     LEFT JOIN [OrderDetail] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
-) AS [t0] ON [t].[Id] = [t0].[ClientId]
-ORDER BY [t].[Id], [t0].[ClientId], [t0].[Id], [t0].[OrderClientId], [t0].[OrderId]
+) AS [s] ON [o2].[Id] = [s].[ClientId]
+ORDER BY [o2].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId]
 """);
     }
 
@@ -568,22 +627,22 @@ ORDER BY [t].[Id], [t0].[ClientId], [t0].[Id], [t0].[OrderClientId], [t0].[Order
         await base.Client_method_skip_loads_owned_navigations_variation_2(async);
 
         AssertSql(
-"""
-@__p_0='1'
+            """
+@p='1'
 
-SELECT [t].[Id], [t].[Discriminator], [t].[Name], [t].[PeriodEnd], [t].[PeriodStart], [t0].[ClientId], [t0].[Id], [t0].[OrderDate], [t0].[PeriodEnd], [t0].[PeriodStart], [t0].[OrderClientId], [t0].[OrderId], [t0].[Id0], [t0].[Detail], [t0].[PeriodEnd0], [t0].[PeriodStart0], [t].[PersonAddress_AddressLine], [t].[PeriodEnd0], [t].[PeriodStart0], [t].[PersonAddress_PlaceType], [t].[PersonAddress_ZipCode], [t].[PersonAddress_Country_Name], [t].[PersonAddress_Country_PlanetId], [t].[BranchAddress_BranchName], [t].[BranchAddress_PlaceType], [t].[BranchAddress_Country_Name], [t].[BranchAddress_Country_PlanetId], [t].[LeafBAddress_LeafBType], [t].[LeafBAddress_PlaceType], [t].[LeafBAddress_Country_Name], [t].[LeafBAddress_Country_PlanetId], [t].[LeafAAddress_LeafType], [t].[LeafAAddress_PlaceType], [t].[LeafAAddress_Country_Name], [t].[LeafAAddress_Country_PlanetId]
+SELECT [o2].[Id], [o2].[Discriminator], [o2].[Name], [o2].[PeriodEnd], [o2].[PeriodStart], [s].[ClientId], [s].[Id], [s].[OrderDate], [s].[PeriodEnd], [s].[PeriodStart], [s].[OrderClientId], [s].[OrderId], [s].[Id0], [s].[Detail], [s].[PeriodEnd0], [s].[PeriodStart0], [o2].[PersonAddress_AddressLine], [o2].[PeriodEnd0], [o2].[PeriodStart0], [o2].[PersonAddress_PlaceType], [o2].[PersonAddress_ZipCode], [o2].[PersonAddress_Country_Name], [o2].[PersonAddress_Country_PlanetId], [o2].[BranchAddress_BranchName], [o2].[BranchAddress_PlaceType], [o2].[BranchAddress_Country_Name], [o2].[BranchAddress_Country_PlanetId], [o2].[LeafBAddress_LeafBType], [o2].[LeafBAddress_PlaceType], [o2].[LeafBAddress_Country_Name], [o2].[LeafBAddress_Country_PlanetId], [o2].[LeafAAddress_LeafType], [o2].[LeafAAddress_PlaceType], [o2].[LeafAAddress_Country_Name], [o2].[LeafAAddress_Country_PlanetId]
 FROM (
     SELECT [o].[Id], [o].[Discriminator], [o].[Name], [o].[PeriodEnd], [o].[PeriodStart], [o].[PersonAddress_AddressLine], [o].[PeriodEnd] AS [PeriodEnd0], [o].[PeriodStart] AS [PeriodStart0], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafBAddress_LeafBType], [o].[LeafBAddress_PlaceType], [o].[LeafBAddress_Country_Name], [o].[LeafBAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
     FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
     ORDER BY [o].[Id]
-    OFFSET @__p_0 ROWS
-) AS [t]
+    OFFSET @p ROWS
+) AS [o2]
 LEFT JOIN (
     SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate], [o0].[PeriodEnd], [o0].[PeriodStart], [o1].[OrderClientId], [o1].[OrderId], [o1].[Id] AS [Id0], [o1].[Detail], [o1].[PeriodEnd] AS [PeriodEnd0], [o1].[PeriodStart] AS [PeriodStart0]
     FROM [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o0]
     LEFT JOIN [OrderDetail] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
-) AS [t0] ON [t].[Id] = [t0].[ClientId]
-ORDER BY [t].[Id], [t0].[ClientId], [t0].[Id], [t0].[OrderClientId], [t0].[OrderId]
+) AS [s] ON [o2].[Id] = [s].[ClientId]
+ORDER BY [o2].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId]
 """);
     }
 
@@ -592,21 +651,21 @@ ORDER BY [t].[Id], [t0].[ClientId], [t0].[Id], [t0].[OrderClientId], [t0].[Order
         await base.Client_method_take_loads_owned_navigations_variation_2(async);
 
         AssertSql(
-"""
-@__p_0='2'
+            """
+@p='2'
 
-SELECT [t].[Id], [t].[Discriminator], [t].[Name], [t].[PeriodEnd], [t].[PeriodStart], [t0].[ClientId], [t0].[Id], [t0].[OrderDate], [t0].[PeriodEnd], [t0].[PeriodStart], [t0].[OrderClientId], [t0].[OrderId], [t0].[Id0], [t0].[Detail], [t0].[PeriodEnd0], [t0].[PeriodStart0], [t].[PersonAddress_AddressLine], [t].[PeriodEnd0], [t].[PeriodStart0], [t].[PersonAddress_PlaceType], [t].[PersonAddress_ZipCode], [t].[PersonAddress_Country_Name], [t].[PersonAddress_Country_PlanetId], [t].[BranchAddress_BranchName], [t].[BranchAddress_PlaceType], [t].[BranchAddress_Country_Name], [t].[BranchAddress_Country_PlanetId], [t].[LeafBAddress_LeafBType], [t].[LeafBAddress_PlaceType], [t].[LeafBAddress_Country_Name], [t].[LeafBAddress_Country_PlanetId], [t].[LeafAAddress_LeafType], [t].[LeafAAddress_PlaceType], [t].[LeafAAddress_Country_Name], [t].[LeafAAddress_Country_PlanetId]
+SELECT [o2].[Id], [o2].[Discriminator], [o2].[Name], [o2].[PeriodEnd], [o2].[PeriodStart], [s].[ClientId], [s].[Id], [s].[OrderDate], [s].[PeriodEnd], [s].[PeriodStart], [s].[OrderClientId], [s].[OrderId], [s].[Id0], [s].[Detail], [s].[PeriodEnd0], [s].[PeriodStart0], [o2].[PersonAddress_AddressLine], [o2].[PeriodEnd0], [o2].[PeriodStart0], [o2].[PersonAddress_PlaceType], [o2].[PersonAddress_ZipCode], [o2].[PersonAddress_Country_Name], [o2].[PersonAddress_Country_PlanetId], [o2].[BranchAddress_BranchName], [o2].[BranchAddress_PlaceType], [o2].[BranchAddress_Country_Name], [o2].[BranchAddress_Country_PlanetId], [o2].[LeafBAddress_LeafBType], [o2].[LeafBAddress_PlaceType], [o2].[LeafBAddress_Country_Name], [o2].[LeafBAddress_Country_PlanetId], [o2].[LeafAAddress_LeafType], [o2].[LeafAAddress_PlaceType], [o2].[LeafAAddress_Country_Name], [o2].[LeafAAddress_Country_PlanetId]
 FROM (
-    SELECT TOP(@__p_0) [o].[Id], [o].[Discriminator], [o].[Name], [o].[PeriodEnd], [o].[PeriodStart], [o].[PersonAddress_AddressLine], [o].[PeriodEnd] AS [PeriodEnd0], [o].[PeriodStart] AS [PeriodStart0], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafBAddress_LeafBType], [o].[LeafBAddress_PlaceType], [o].[LeafBAddress_Country_Name], [o].[LeafBAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
+    SELECT TOP(@p) [o].[Id], [o].[Discriminator], [o].[Name], [o].[PeriodEnd], [o].[PeriodStart], [o].[PersonAddress_AddressLine], [o].[PeriodEnd] AS [PeriodEnd0], [o].[PeriodStart] AS [PeriodStart0], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafBAddress_LeafBType], [o].[LeafBAddress_PlaceType], [o].[LeafBAddress_Country_Name], [o].[LeafBAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
     FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
     ORDER BY [o].[Id]
-) AS [t]
+) AS [o2]
 LEFT JOIN (
     SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate], [o0].[PeriodEnd], [o0].[PeriodStart], [o1].[OrderClientId], [o1].[OrderId], [o1].[Id] AS [Id0], [o1].[Detail], [o1].[PeriodEnd] AS [PeriodEnd0], [o1].[PeriodStart] AS [PeriodStart0]
     FROM [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o0]
     LEFT JOIN [OrderDetail] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
-) AS [t0] ON [t].[Id] = [t0].[ClientId]
-ORDER BY [t].[Id], [t0].[ClientId], [t0].[Id], [t0].[OrderClientId], [t0].[OrderId]
+) AS [s] ON [o2].[Id] = [s].[ClientId]
+ORDER BY [o2].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId]
 """);
     }
 
@@ -615,23 +674,23 @@ ORDER BY [t].[Id], [t0].[ClientId], [t0].[Id], [t0].[OrderClientId], [t0].[Order
         await base.Client_method_skip_take_loads_owned_navigations_variation_2(async);
 
         AssertSql(
-"""
-@__p_0='1'
-@__p_1='2'
+            """
+@p='1'
+@p0='2'
 
-SELECT [t].[Id], [t].[Discriminator], [t].[Name], [t].[PeriodEnd], [t].[PeriodStart], [t0].[ClientId], [t0].[Id], [t0].[OrderDate], [t0].[PeriodEnd], [t0].[PeriodStart], [t0].[OrderClientId], [t0].[OrderId], [t0].[Id0], [t0].[Detail], [t0].[PeriodEnd0], [t0].[PeriodStart0], [t].[PersonAddress_AddressLine], [t].[PeriodEnd0], [t].[PeriodStart0], [t].[PersonAddress_PlaceType], [t].[PersonAddress_ZipCode], [t].[PersonAddress_Country_Name], [t].[PersonAddress_Country_PlanetId], [t].[BranchAddress_BranchName], [t].[BranchAddress_PlaceType], [t].[BranchAddress_Country_Name], [t].[BranchAddress_Country_PlanetId], [t].[LeafBAddress_LeafBType], [t].[LeafBAddress_PlaceType], [t].[LeafBAddress_Country_Name], [t].[LeafBAddress_Country_PlanetId], [t].[LeafAAddress_LeafType], [t].[LeafAAddress_PlaceType], [t].[LeafAAddress_Country_Name], [t].[LeafAAddress_Country_PlanetId]
+SELECT [o2].[Id], [o2].[Discriminator], [o2].[Name], [o2].[PeriodEnd], [o2].[PeriodStart], [s].[ClientId], [s].[Id], [s].[OrderDate], [s].[PeriodEnd], [s].[PeriodStart], [s].[OrderClientId], [s].[OrderId], [s].[Id0], [s].[Detail], [s].[PeriodEnd0], [s].[PeriodStart0], [o2].[PersonAddress_AddressLine], [o2].[PeriodEnd0], [o2].[PeriodStart0], [o2].[PersonAddress_PlaceType], [o2].[PersonAddress_ZipCode], [o2].[PersonAddress_Country_Name], [o2].[PersonAddress_Country_PlanetId], [o2].[BranchAddress_BranchName], [o2].[BranchAddress_PlaceType], [o2].[BranchAddress_Country_Name], [o2].[BranchAddress_Country_PlanetId], [o2].[LeafBAddress_LeafBType], [o2].[LeafBAddress_PlaceType], [o2].[LeafBAddress_Country_Name], [o2].[LeafBAddress_Country_PlanetId], [o2].[LeafAAddress_LeafType], [o2].[LeafAAddress_PlaceType], [o2].[LeafAAddress_Country_Name], [o2].[LeafAAddress_Country_PlanetId]
 FROM (
     SELECT [o].[Id], [o].[Discriminator], [o].[Name], [o].[PeriodEnd], [o].[PeriodStart], [o].[PersonAddress_AddressLine], [o].[PeriodEnd] AS [PeriodEnd0], [o].[PeriodStart] AS [PeriodStart0], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafBAddress_LeafBType], [o].[LeafBAddress_PlaceType], [o].[LeafBAddress_Country_Name], [o].[LeafBAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
     FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
     ORDER BY [o].[Id]
-    OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
-) AS [t]
+    OFFSET @p ROWS FETCH NEXT @p0 ROWS ONLY
+) AS [o2]
 LEFT JOIN (
     SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate], [o0].[PeriodEnd], [o0].[PeriodStart], [o1].[OrderClientId], [o1].[OrderId], [o1].[Id] AS [Id0], [o1].[Detail], [o1].[PeriodEnd] AS [PeriodEnd0], [o1].[PeriodStart] AS [PeriodStart0]
     FROM [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o0]
     LEFT JOIN [OrderDetail] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
-) AS [t0] ON [t].[Id] = [t0].[ClientId]
-ORDER BY [t].[Id], [t0].[ClientId], [t0].[Id], [t0].[OrderClientId], [t0].[OrderId]
+) AS [s] ON [o2].[Id] = [s].[ClientId]
+ORDER BY [o2].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId]
 """);
     }
 
@@ -640,7 +699,7 @@ ORDER BY [t].[Id], [t0].[ClientId], [t0].[Id], [t0].[OrderClientId], [t0].[Order
         await base.Where_owned_collection_navigation_ToList_Count(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[Id], [o0].[ClientId], [o0].[Id], [o2].[OrderClientId], [o2].[OrderId], [o2].[Id], [o2].[Detail], [o2].[PeriodEnd], [o2].[PeriodStart]
 FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
 INNER JOIN [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o0] ON [o].[Id] = [o0].[ClientId]
@@ -658,7 +717,7 @@ ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id], [o2].[OrderClientId], [o2].[Order
         await base.Where_collection_navigation_ToArray_Count(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[Id], [o0].[ClientId], [o0].[Id], [o2].[OrderClientId], [o2].[OrderId], [o2].[Id], [o2].[Detail], [o2].[PeriodEnd], [o2].[PeriodStart]
 FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
 INNER JOIN [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o0] ON [o].[Id] = [o0].[ClientId]
@@ -676,7 +735,7 @@ ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id], [o2].[OrderClientId], [o2].[Order
         await base.Where_collection_navigation_AsEnumerable_Count(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[Id], [o0].[ClientId], [o0].[Id], [o2].[OrderClientId], [o2].[OrderId], [o2].[Id], [o2].[Detail], [o2].[PeriodEnd], [o2].[PeriodStart]
 FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
 INNER JOIN [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o0] ON [o].[Id] = [o0].[ClientId]
@@ -694,7 +753,7 @@ ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id], [o2].[OrderClientId], [o2].[Order
         await base.Where_collection_navigation_ToList_Count_member(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[Id], [o0].[ClientId], [o0].[Id], [o2].[OrderClientId], [o2].[OrderId], [o2].[Id], [o2].[Detail], [o2].[PeriodEnd], [o2].[PeriodStart]
 FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
 INNER JOIN [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o0] ON [o].[Id] = [o0].[ClientId]
@@ -712,7 +771,7 @@ ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id], [o2].[OrderClientId], [o2].[Order
         await base.Where_collection_navigation_ToArray_Length_member(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[Id], [o0].[ClientId], [o0].[Id], [o2].[OrderClientId], [o2].[OrderId], [o2].[Id], [o2].[Detail], [o2].[PeriodEnd], [o2].[PeriodStart]
 FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
 INNER JOIN [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o0] ON [o].[Id] = [o0].[ClientId]
@@ -730,16 +789,16 @@ ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id], [o2].[OrderClientId], [o2].[Order
         await base.Can_query_on_indexer_properties(async);
 
         AssertSql(
-"""
-SELECT [o].[Id], [o].[Discriminator], [o].[Name], [o].[PeriodEnd], [o].[PeriodStart], [t].[ClientId], [t].[Id], [t].[OrderDate], [t].[PeriodEnd], [t].[PeriodStart], [t].[OrderClientId], [t].[OrderId], [t].[Id0], [t].[Detail], [t].[PeriodEnd0], [t].[PeriodStart0], [o].[PersonAddress_AddressLine], [o].[PeriodEnd], [o].[PeriodStart], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafBAddress_LeafBType], [o].[LeafBAddress_PlaceType], [o].[LeafBAddress_Country_Name], [o].[LeafBAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
+            """
+SELECT [o].[Id], [o].[Discriminator], [o].[Name], [o].[PeriodEnd], [o].[PeriodStart], [s].[ClientId], [s].[Id], [s].[OrderDate], [s].[PeriodEnd], [s].[PeriodStart], [s].[OrderClientId], [s].[OrderId], [s].[Id0], [s].[Detail], [s].[PeriodEnd0], [s].[PeriodStart0], [o].[PersonAddress_AddressLine], [o].[PeriodEnd], [o].[PeriodStart], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafBAddress_LeafBType], [o].[LeafBAddress_PlaceType], [o].[LeafBAddress_Country_Name], [o].[LeafBAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
 FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
 LEFT JOIN (
     SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate], [o0].[PeriodEnd], [o0].[PeriodStart], [o1].[OrderClientId], [o1].[OrderId], [o1].[Id] AS [Id0], [o1].[Detail], [o1].[PeriodEnd] AS [PeriodEnd0], [o1].[PeriodStart] AS [PeriodStart0]
     FROM [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o0]
     LEFT JOIN [OrderDetail] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
-) AS [t] ON [o].[Id] = [t].[ClientId]
+) AS [s] ON [o].[Id] = [s].[ClientId]
 WHERE [o].[Name] = N'Mona Cy'
-ORDER BY [o].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId]
+ORDER BY [o].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId]
 """);
     }
 
@@ -748,7 +807,7 @@ ORDER BY [o].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId]
         await base.Can_query_on_owned_indexer_properties(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[Name]
 FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
 WHERE [o].[PersonAddress_ZipCode] = 38654
@@ -760,7 +819,7 @@ WHERE [o].[PersonAddress_ZipCode] = 38654
         await base.Can_query_on_indexer_property_when_property_name_from_closure(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[Name]
 FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
 WHERE [o].[Name] = N'Mona Cy'
@@ -772,7 +831,7 @@ WHERE [o].[Name] = N'Mona Cy'
         await base.Can_project_indexer_properties(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[Name]
 FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
 """);
@@ -783,7 +842,7 @@ FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
         await base.Can_project_owned_indexer_properties(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[PersonAddress_AddressLine]
 FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
 """);
@@ -794,7 +853,7 @@ FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
         await base.Can_project_indexer_properties_converted(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[Name]
 FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
 """);
@@ -805,7 +864,7 @@ FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
         await base.Can_project_owned_indexer_properties_converted(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[PersonAddress_AddressLine]
 FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
 """);
@@ -816,15 +875,15 @@ FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
         await base.Can_OrderBy_indexer_properties(async);
 
         AssertSql(
-"""
-SELECT [o].[Id], [o].[Discriminator], [o].[Name], [o].[PeriodEnd], [o].[PeriodStart], [t].[ClientId], [t].[Id], [t].[OrderDate], [t].[PeriodEnd], [t].[PeriodStart], [t].[OrderClientId], [t].[OrderId], [t].[Id0], [t].[Detail], [t].[PeriodEnd0], [t].[PeriodStart0], [o].[PersonAddress_AddressLine], [o].[PeriodEnd], [o].[PeriodStart], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafBAddress_LeafBType], [o].[LeafBAddress_PlaceType], [o].[LeafBAddress_Country_Name], [o].[LeafBAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
+            """
+SELECT [o].[Id], [o].[Discriminator], [o].[Name], [o].[PeriodEnd], [o].[PeriodStart], [s].[ClientId], [s].[Id], [s].[OrderDate], [s].[PeriodEnd], [s].[PeriodStart], [s].[OrderClientId], [s].[OrderId], [s].[Id0], [s].[Detail], [s].[PeriodEnd0], [s].[PeriodStart0], [o].[PersonAddress_AddressLine], [o].[PeriodEnd], [o].[PeriodStart], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafBAddress_LeafBType], [o].[LeafBAddress_PlaceType], [o].[LeafBAddress_Country_Name], [o].[LeafBAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
 FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
 LEFT JOIN (
     SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate], [o0].[PeriodEnd], [o0].[PeriodStart], [o1].[OrderClientId], [o1].[OrderId], [o1].[Id] AS [Id0], [o1].[Detail], [o1].[PeriodEnd] AS [PeriodEnd0], [o1].[PeriodStart] AS [PeriodStart0]
     FROM [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o0]
     LEFT JOIN [OrderDetail] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
-) AS [t] ON [o].[Id] = [t].[ClientId]
-ORDER BY [o].[Name], [o].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId]
+) AS [s] ON [o].[Id] = [s].[ClientId]
+ORDER BY [o].[Name], [o].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId]
 """);
     }
 
@@ -833,7 +892,7 @@ ORDER BY [o].[Name], [o].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t
         await base.Can_OrderBy_indexer_properties_converted(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[Name]
 FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
 ORDER BY [o].[Name], [o].[Id]
@@ -845,19 +904,19 @@ ORDER BY [o].[Name], [o].[Id]
         await base.Can_OrderBy_owned_indexer_properties(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[Name]
 FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
 ORDER BY [o].[PersonAddress_ZipCode], [o].[Id]
 """);
     }
 
-    public override async Task Can_OrderBy_owened_indexer_properties_converted(bool async)
+    public override async Task Can_OrderBy_owned_indexer_properties_converted(bool async)
     {
-        await base.Can_OrderBy_owened_indexer_properties_converted(async);
+        await base.Can_OrderBy_owned_indexer_properties_converted(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[Name]
 FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
 ORDER BY [o].[PersonAddress_ZipCode], [o].[Id]
@@ -869,7 +928,7 @@ ORDER BY [o].[PersonAddress_ZipCode], [o].[Id]
         await base.Can_group_by_indexer_property(isAsync);
 
         AssertSql(
-"""
+            """
 SELECT COUNT(*)
 FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
 GROUP BY [o].[Name]
@@ -881,7 +940,7 @@ GROUP BY [o].[Name]
         await base.Can_group_by_converted_indexer_property(isAsync);
 
         AssertSql(
-"""
+            """
 SELECT COUNT(*)
 FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
 GROUP BY [o].[Name]
@@ -893,7 +952,7 @@ GROUP BY [o].[Name]
         await base.Can_group_by_owned_indexer_property(isAsync);
 
         AssertSql(
-"""
+            """
 SELECT COUNT(*)
 FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
 GROUP BY [o].[PersonAddress_ZipCode]
@@ -905,7 +964,7 @@ GROUP BY [o].[PersonAddress_ZipCode]
         await base.Can_group_by_converted_owned_indexer_property(isAsync);
 
         AssertSql(
-"""
+            """
 SELECT COUNT(*)
 FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
 GROUP BY [o].[PersonAddress_ZipCode]
@@ -917,7 +976,7 @@ GROUP BY [o].[PersonAddress_ZipCode]
         await base.Can_join_on_indexer_property_on_query(isAsync);
 
         AssertSql(
-"""
+            """
 SELECT [o].[Id], [o0].[PersonAddress_Country_Name] AS [Name]
 FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
 INNER JOIN [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o0] ON [o].[PersonAddress_ZipCode] = [o0].[PersonAddress_ZipCode]
@@ -929,7 +988,7 @@ INNER JOIN [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS 
         await base.Projecting_indexer_property_ignores_include(isAsync);
 
         AssertSql(
-"""
+            """
 SELECT [o].[PersonAddress_ZipCode] AS [Nation]
 FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
 """);
@@ -940,7 +999,7 @@ FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
         await base.Projecting_indexer_property_ignores_include_converted(isAsync);
 
         AssertSql(
-"""
+            """
 SELECT [o].[PersonAddress_ZipCode] AS [Nation]
 FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
 """);
@@ -951,7 +1010,7 @@ FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
         await base.Indexer_property_is_pushdown_into_subquery(isAsync);
 
         AssertSql(
-"""
+            """
 SELECT [o].[Name]
 FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
 WHERE (
@@ -966,7 +1025,7 @@ WHERE (
         await base.Can_query_indexer_property_on_owned_collection(isAsync);
 
         AssertSql(
-"""
+            """
 SELECT [o].[Name]
 FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
 WHERE (
@@ -981,25 +1040,25 @@ WHERE (
         await base.Query_for_base_type_loads_all_owned_navs_split(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[Id], [o].[Discriminator], [o].[Name], [o].[PeriodEnd], [o].[PeriodStart], [o].[PersonAddress_AddressLine], [o].[PeriodEnd], [o].[PeriodStart], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafBAddress_LeafBType], [o].[LeafBAddress_PlaceType], [o].[LeafBAddress_Country_Name], [o].[LeafBAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
 FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
 ORDER BY [o].[Id]
 """,
             //
-"""
-SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate], [o0].[PeriodEnd], [o0].[PeriodStart], [o].[Id]
+            """
+SELECT [o1].[ClientId], [o1].[Id], [o1].[OrderDate], [o1].[PeriodEnd], [o1].[PeriodStart], [o].[Id]
 FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
-INNER JOIN [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o0] ON [o].[Id] = [o0].[ClientId]
-ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id]
+INNER JOIN [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o1] ON [o].[Id] = [o1].[ClientId]
+ORDER BY [o].[Id], [o1].[ClientId], [o1].[Id]
 """,
             //
-"""
-SELECT [o1].[OrderClientId], [o1].[OrderId], [o1].[Id], [o1].[Detail], [o1].[PeriodEnd], [o1].[PeriodStart], [o].[Id], [o0].[ClientId], [o0].[Id]
+            """
+SELECT [o3].[OrderClientId], [o3].[OrderId], [o3].[Id], [o3].[Detail], [o3].[PeriodEnd], [o3].[PeriodStart], [o].[Id], [o1].[ClientId], [o1].[Id]
 FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
-INNER JOIN [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o0] ON [o].[Id] = [o0].[ClientId]
-INNER JOIN [OrderDetail] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
-ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id]
+INNER JOIN [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o1] ON [o].[Id] = [o1].[ClientId]
+INNER JOIN [OrderDetail] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o3] ON [o1].[ClientId] = [o3].[OrderClientId] AND [o1].[Id] = [o3].[OrderId]
+ORDER BY [o].[Id], [o1].[ClientId], [o1].[Id]
 """);
     }
 
@@ -1008,28 +1067,28 @@ ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id]
         await base.Query_for_branch_type_loads_all_owned_navs_split(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[Id], [o].[Discriminator], [o].[Name], [o].[PeriodEnd], [o].[PeriodStart], [o].[PersonAddress_AddressLine], [o].[PeriodEnd], [o].[PeriodStart], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
 FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
 WHERE [o].[Discriminator] IN (N'Branch', N'LeafA')
 ORDER BY [o].[Id]
 """,
             //
-"""
-SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate], [o0].[PeriodEnd], [o0].[PeriodStart], [o].[Id]
+            """
+SELECT [o1].[ClientId], [o1].[Id], [o1].[OrderDate], [o1].[PeriodEnd], [o1].[PeriodStart], [o].[Id]
 FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
-INNER JOIN [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o0] ON [o].[Id] = [o0].[ClientId]
+INNER JOIN [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o1] ON [o].[Id] = [o1].[ClientId]
 WHERE [o].[Discriminator] IN (N'Branch', N'LeafA')
-ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id]
+ORDER BY [o].[Id], [o1].[ClientId], [o1].[Id]
 """,
             //
-"""
-SELECT [o1].[OrderClientId], [o1].[OrderId], [o1].[Id], [o1].[Detail], [o1].[PeriodEnd], [o1].[PeriodStart], [o].[Id], [o0].[ClientId], [o0].[Id]
+            """
+SELECT [o3].[OrderClientId], [o3].[OrderId], [o3].[Id], [o3].[Detail], [o3].[PeriodEnd], [o3].[PeriodStart], [o].[Id], [o1].[ClientId], [o1].[Id]
 FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
-INNER JOIN [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o0] ON [o].[Id] = [o0].[ClientId]
-INNER JOIN [OrderDetail] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
+INNER JOIN [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o1] ON [o].[Id] = [o1].[ClientId]
+INNER JOIN [OrderDetail] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o3] ON [o1].[ClientId] = [o3].[OrderClientId] AND [o1].[Id] = [o3].[OrderId]
 WHERE [o].[Discriminator] IN (N'Branch', N'LeafA')
-ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id]
+ORDER BY [o].[Id], [o1].[ClientId], [o1].[Id]
 """);
     }
 
@@ -1038,48 +1097,48 @@ ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id]
         await base.Query_when_subquery_split(async);
 
         AssertSql(
-"""
-@__p_0='5'
+            """
+@p='5'
 
-SELECT TOP(@__p_0) [t].[Id], [t].[Discriminator], [t].[Name], [t].[PeriodEnd], [t].[PeriodStart], [t].[PersonAddress_AddressLine], [t].[PeriodEnd0], [t].[PeriodStart0], [t].[PersonAddress_PlaceType], [t].[PersonAddress_ZipCode], [t].[PersonAddress_Country_Name], [t].[PersonAddress_Country_PlanetId], [t].[BranchAddress_BranchName], [t].[BranchAddress_PlaceType], [t].[BranchAddress_Country_Name], [t].[BranchAddress_Country_PlanetId], [t].[LeafBAddress_LeafBType], [t].[LeafBAddress_PlaceType], [t].[LeafBAddress_Country_Name], [t].[LeafBAddress_Country_PlanetId], [t].[LeafAAddress_LeafType], [t].[LeafAAddress_PlaceType], [t].[LeafAAddress_Country_Name], [t].[LeafAAddress_Country_PlanetId]
+SELECT TOP(@p) [o0].[Id], [o0].[Discriminator], [o0].[Name], [o0].[PeriodEnd], [o0].[PeriodStart], [o0].[PersonAddress_AddressLine], [o0].[PeriodEnd0], [o0].[PeriodStart0], [o0].[PersonAddress_PlaceType], [o0].[PersonAddress_ZipCode], [o0].[PersonAddress_Country_Name], [o0].[PersonAddress_Country_PlanetId], [o0].[BranchAddress_BranchName], [o0].[BranchAddress_PlaceType], [o0].[BranchAddress_Country_Name], [o0].[BranchAddress_Country_PlanetId], [o0].[LeafBAddress_LeafBType], [o0].[LeafBAddress_PlaceType], [o0].[LeafBAddress_Country_Name], [o0].[LeafBAddress_Country_PlanetId], [o0].[LeafAAddress_LeafType], [o0].[LeafAAddress_PlaceType], [o0].[LeafAAddress_Country_Name], [o0].[LeafAAddress_Country_PlanetId]
 FROM (
     SELECT DISTINCT [o].[Id], [o].[Discriminator], [o].[Name], [o].[PeriodEnd], [o].[PeriodStart], [o].[PersonAddress_AddressLine], [o].[PeriodEnd] AS [PeriodEnd0], [o].[PeriodStart] AS [PeriodStart0], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafBAddress_LeafBType], [o].[LeafBAddress_PlaceType], [o].[LeafBAddress_Country_Name], [o].[LeafBAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
     FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
-) AS [t]
-ORDER BY [t].[Id]
+) AS [o0]
+ORDER BY [o0].[Id]
 """,
             //
-"""
-@__p_0='5'
+            """
+@p='5'
 
-SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate], [o0].[PeriodEnd], [o0].[PeriodStart], [t0].[Id]
+SELECT [o2].[ClientId], [o2].[Id], [o2].[OrderDate], [o2].[PeriodEnd], [o2].[PeriodStart], [o5].[Id]
 FROM (
-    SELECT TOP(@__p_0) [t].[Id]
+    SELECT TOP(@p) [o0].[Id]
     FROM (
         SELECT DISTINCT [o].[Id], [o].[Discriminator], [o].[Name], [o].[PeriodEnd], [o].[PeriodStart], [o].[PersonAddress_AddressLine], [o].[PeriodEnd] AS [PeriodEnd0], [o].[PeriodStart] AS [PeriodStart0], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafBAddress_LeafBType], [o].[LeafBAddress_PlaceType], [o].[LeafBAddress_Country_Name], [o].[LeafBAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
         FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
-    ) AS [t]
-    ORDER BY [t].[Id]
-) AS [t0]
-INNER JOIN [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o0] ON [t0].[Id] = [o0].[ClientId]
-ORDER BY [t0].[Id], [o0].[ClientId], [o0].[Id]
+    ) AS [o0]
+    ORDER BY [o0].[Id]
+) AS [o5]
+INNER JOIN [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o2] ON [o5].[Id] = [o2].[ClientId]
+ORDER BY [o5].[Id], [o2].[ClientId], [o2].[Id]
 """,
             //
-"""
-@__p_0='5'
+            """
+@p='5'
 
-SELECT [o1].[OrderClientId], [o1].[OrderId], [o1].[Id], [o1].[Detail], [o1].[PeriodEnd], [o1].[PeriodStart], [t0].[Id], [o0].[ClientId], [o0].[Id]
+SELECT [o4].[OrderClientId], [o4].[OrderId], [o4].[Id], [o4].[Detail], [o4].[PeriodEnd], [o4].[PeriodStart], [o5].[Id], [o2].[ClientId], [o2].[Id]
 FROM (
-    SELECT TOP(@__p_0) [t].[Id]
+    SELECT TOP(@p) [o0].[Id]
     FROM (
         SELECT DISTINCT [o].[Id], [o].[Discriminator], [o].[Name], [o].[PeriodEnd], [o].[PeriodStart], [o].[PersonAddress_AddressLine], [o].[PeriodEnd] AS [PeriodEnd0], [o].[PeriodStart] AS [PeriodStart0], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafBAddress_LeafBType], [o].[LeafBAddress_PlaceType], [o].[LeafBAddress_Country_Name], [o].[LeafBAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
         FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
-    ) AS [t]
-    ORDER BY [t].[Id]
-) AS [t0]
-INNER JOIN [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o0] ON [t0].[Id] = [o0].[ClientId]
-INNER JOIN [OrderDetail] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
-ORDER BY [t0].[Id], [o0].[ClientId], [o0].[Id]
+    ) AS [o0]
+    ORDER BY [o0].[Id]
+) AS [o5]
+INNER JOIN [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o2] ON [o5].[Id] = [o2].[ClientId]
+INNER JOIN [OrderDetail] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o4] ON [o2].[ClientId] = [o4].[OrderClientId] AND [o2].[Id] = [o4].[OrderId]
+ORDER BY [o5].[Id], [o2].[ClientId], [o2].[Id]
 """);
     }
 
@@ -1088,28 +1147,28 @@ ORDER BY [t0].[Id], [o0].[ClientId], [o0].[Id]
         await base.Project_multiple_owned_navigations_split(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[Id], [p].[Id], [o].[PersonAddress_AddressLine], [o].[PeriodEnd], [o].[PeriodStart], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [p].[Name], [p].[PeriodEnd], [p].[PeriodStart], [p].[StarId]
 FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
 LEFT JOIN [Planet] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [p] ON [o].[PersonAddress_Country_PlanetId] = [p].[Id]
 ORDER BY [o].[Id], [p].[Id]
 """,
             //
-"""
-SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate], [o0].[PeriodEnd], [o0].[PeriodStart], [o].[Id], [p].[Id]
+            """
+SELECT [o1].[ClientId], [o1].[Id], [o1].[OrderDate], [o1].[PeriodEnd], [o1].[PeriodStart], [o].[Id], [p].[Id]
 FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
 LEFT JOIN [Planet] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [p] ON [o].[PersonAddress_Country_PlanetId] = [p].[Id]
-INNER JOIN [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o0] ON [o].[Id] = [o0].[ClientId]
-ORDER BY [o].[Id], [p].[Id], [o0].[ClientId], [o0].[Id]
+INNER JOIN [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o1] ON [o].[Id] = [o1].[ClientId]
+ORDER BY [o].[Id], [p].[Id], [o1].[ClientId], [o1].[Id]
 """,
             //
-"""
-SELECT [o1].[OrderClientId], [o1].[OrderId], [o1].[Id], [o1].[Detail], [o1].[PeriodEnd], [o1].[PeriodStart], [o].[Id], [p].[Id], [o0].[ClientId], [o0].[Id]
+            """
+SELECT [o3].[OrderClientId], [o3].[OrderId], [o3].[Id], [o3].[Detail], [o3].[PeriodEnd], [o3].[PeriodStart], [o].[Id], [p].[Id], [o1].[ClientId], [o1].[Id]
 FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
 LEFT JOIN [Planet] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [p] ON [o].[PersonAddress_Country_PlanetId] = [p].[Id]
-INNER JOIN [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o0] ON [o].[Id] = [o0].[ClientId]
-INNER JOIN [OrderDetail] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
-ORDER BY [o].[Id], [p].[Id], [o0].[ClientId], [o0].[Id]
+INNER JOIN [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o1] ON [o].[Id] = [o1].[ClientId]
+INNER JOIN [OrderDetail] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o3] ON [o1].[ClientId] = [o3].[OrderClientId] AND [o1].[Id] = [o3].[OrderId]
+ORDER BY [o].[Id], [p].[Id], [o1].[ClientId], [o1].[Id]
 """);
     }
 
@@ -1118,14 +1177,14 @@ ORDER BY [o].[Id], [p].[Id], [o0].[ClientId], [o0].[Id]
         await base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_collection_split(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[Id], [p].[Id]
 FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
 LEFT JOIN [Planet] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [p] ON [o].[PersonAddress_Country_PlanetId] = [p].[Id]
 ORDER BY [o].[Id], [p].[Id]
 """,
             //
-"""
+            """
 SELECT [m].[Id], [m].[Diameter], [m].[PeriodEnd], [m].[PeriodStart], [m].[PlanetId], [o].[Id], [p].[Id]
 FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
 LEFT JOIN [Planet] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [p] ON [o].[PersonAddress_Country_PlanetId] = [p].[Id]
@@ -1139,28 +1198,28 @@ ORDER BY [o].[Id], [p].[Id]
         await base.Query_with_OfType_eagerly_loads_correct_owned_navigations_split(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[Id], [o].[Discriminator], [o].[Name], [o].[PeriodEnd], [o].[PeriodStart], [o].[PersonAddress_AddressLine], [o].[PeriodEnd], [o].[PeriodStart], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
 FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
 WHERE [o].[Discriminator] = N'LeafA'
 ORDER BY [o].[Id]
 """,
             //
-"""
-SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate], [o0].[PeriodEnd], [o0].[PeriodStart], [o].[Id]
+            """
+SELECT [o1].[ClientId], [o1].[Id], [o1].[OrderDate], [o1].[PeriodEnd], [o1].[PeriodStart], [o].[Id]
 FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
-INNER JOIN [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o0] ON [o].[Id] = [o0].[ClientId]
+INNER JOIN [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o1] ON [o].[Id] = [o1].[ClientId]
 WHERE [o].[Discriminator] = N'LeafA'
-ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id]
+ORDER BY [o].[Id], [o1].[ClientId], [o1].[Id]
 """,
             //
-"""
-SELECT [o1].[OrderClientId], [o1].[OrderId], [o1].[Id], [o1].[Detail], [o1].[PeriodEnd], [o1].[PeriodStart], [o].[Id], [o0].[ClientId], [o0].[Id]
+            """
+SELECT [o3].[OrderClientId], [o3].[OrderId], [o3].[Id], [o3].[Detail], [o3].[PeriodEnd], [o3].[PeriodStart], [o].[Id], [o1].[ClientId], [o1].[Id]
 FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
-INNER JOIN [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o0] ON [o].[Id] = [o0].[ClientId]
-INNER JOIN [OrderDetail] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
+INNER JOIN [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o1] ON [o].[Id] = [o1].[ClientId]
+INNER JOIN [OrderDetail] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o3] ON [o1].[ClientId] = [o3].[OrderClientId] AND [o1].[Id] = [o3].[OrderId]
 WHERE [o].[Discriminator] = N'LeafA'
-ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id]
+ORDER BY [o].[Id], [o1].[ClientId], [o1].[Id]
 """);
     }
 
@@ -1169,28 +1228,28 @@ ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id]
         await base.Unmapped_property_projection_loads_owned_navigations_split(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[Id], [o].[Discriminator], [o].[Name], [o].[PeriodEnd], [o].[PeriodStart], [o].[PersonAddress_AddressLine], [o].[PeriodEnd], [o].[PeriodStart], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafBAddress_LeafBType], [o].[LeafBAddress_PlaceType], [o].[LeafBAddress_Country_Name], [o].[LeafBAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
 FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
 WHERE [o].[Id] = 1
 ORDER BY [o].[Id]
 """,
             //
-"""
-SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate], [o0].[PeriodEnd], [o0].[PeriodStart], [o].[Id]
+            """
+SELECT [o1].[ClientId], [o1].[Id], [o1].[OrderDate], [o1].[PeriodEnd], [o1].[PeriodStart], [o].[Id]
 FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
-INNER JOIN [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o0] ON [o].[Id] = [o0].[ClientId]
+INNER JOIN [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o1] ON [o].[Id] = [o1].[ClientId]
 WHERE [o].[Id] = 1
-ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id]
+ORDER BY [o].[Id], [o1].[ClientId], [o1].[Id]
 """,
             //
-"""
-SELECT [o1].[OrderClientId], [o1].[OrderId], [o1].[Id], [o1].[Detail], [o1].[PeriodEnd], [o1].[PeriodStart], [o].[Id], [o0].[ClientId], [o0].[Id]
+            """
+SELECT [o3].[OrderClientId], [o3].[OrderId], [o3].[Id], [o3].[Detail], [o3].[PeriodEnd], [o3].[PeriodStart], [o].[Id], [o1].[ClientId], [o1].[Id]
 FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
-INNER JOIN [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o0] ON [o].[Id] = [o0].[ClientId]
-INNER JOIN [OrderDetail] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
+INNER JOIN [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o1] ON [o].[Id] = [o1].[ClientId]
+INNER JOIN [OrderDetail] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o3] ON [o1].[ClientId] = [o3].[OrderClientId] AND [o1].[Id] = [o3].[OrderId]
 WHERE [o].[Id] = 1
-ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id]
+ORDER BY [o].[Id], [o1].[ClientId], [o1].[Id]
 """);
     }
 
@@ -1199,28 +1258,28 @@ ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id]
         await base.Can_query_on_indexer_properties_split(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[Id], [o].[Discriminator], [o].[Name], [o].[PeriodEnd], [o].[PeriodStart], [o].[PersonAddress_AddressLine], [o].[PeriodEnd], [o].[PeriodStart], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafBAddress_LeafBType], [o].[LeafBAddress_PlaceType], [o].[LeafBAddress_Country_Name], [o].[LeafBAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
 FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
 WHERE [o].[Name] = N'Mona Cy'
 ORDER BY [o].[Id]
 """,
             //
-"""
-SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate], [o0].[PeriodEnd], [o0].[PeriodStart], [o].[Id]
+            """
+SELECT [o1].[ClientId], [o1].[Id], [o1].[OrderDate], [o1].[PeriodEnd], [o1].[PeriodStart], [o].[Id]
 FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
-INNER JOIN [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o0] ON [o].[Id] = [o0].[ClientId]
+INNER JOIN [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o1] ON [o].[Id] = [o1].[ClientId]
 WHERE [o].[Name] = N'Mona Cy'
-ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id]
+ORDER BY [o].[Id], [o1].[ClientId], [o1].[Id]
 """,
             //
-"""
-SELECT [o1].[OrderClientId], [o1].[OrderId], [o1].[Id], [o1].[Detail], [o1].[PeriodEnd], [o1].[PeriodStart], [o].[Id], [o0].[ClientId], [o0].[Id]
+            """
+SELECT [o3].[OrderClientId], [o3].[OrderId], [o3].[Id], [o3].[Detail], [o3].[PeriodEnd], [o3].[PeriodStart], [o].[Id], [o1].[ClientId], [o1].[Id]
 FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
-INNER JOIN [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o0] ON [o].[Id] = [o0].[ClientId]
-INNER JOIN [OrderDetail] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
+INNER JOIN [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o1] ON [o].[Id] = [o1].[ClientId]
+INNER JOIN [OrderDetail] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o3] ON [o1].[ClientId] = [o3].[OrderClientId] AND [o1].[Id] = [o3].[OrderId]
 WHERE [o].[Name] = N'Mona Cy'
-ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id]
+ORDER BY [o].[Id], [o1].[ClientId], [o1].[Id]
 """);
     }
 
@@ -1229,37 +1288,37 @@ ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id]
         await base.GroupBy_with_multiple_aggregates_on_owned_navigation_properties(async);
 
         AssertSql(
-"""
+            """
 SELECT (
     SELECT AVG(CAST([s].[Id] AS float))
     FROM (
-        SELECT [o0].[Id], [o0].[Discriminator], [o0].[Name], [o0].[PeriodEnd], [o0].[PeriodStart], 1 AS [Key], [o0].[PersonAddress_AddressLine], [o0].[PeriodEnd] AS [PeriodEnd0], [o0].[PeriodStart] AS [PeriodStart0], [o0].[PersonAddress_PlaceType], [o0].[PersonAddress_ZipCode], [o0].[PersonAddress_Country_Name], [o0].[PersonAddress_Country_PlanetId]
-        FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o0]
-    ) AS [t0]
-    LEFT JOIN [Planet] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [p] ON [t0].[PersonAddress_Country_PlanetId] = [p].[Id]
+        SELECT 1 AS [Key], [o2].[PersonAddress_Country_PlanetId]
+        FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o2]
+    ) AS [o1]
+    LEFT JOIN [Planet] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [p] ON [o1].[PersonAddress_Country_PlanetId] = [p].[Id]
     LEFT JOIN [Star] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [s] ON [p].[StarId] = [s].[Id]
-    WHERE [t].[Key] = [t0].[Key]) AS [p1], (
+    WHERE [o0].[Key] = [o1].[Key]) AS [p1], (
     SELECT COALESCE(SUM([s0].[Id]), 0)
     FROM (
-        SELECT [o1].[Id], [o1].[Discriminator], [o1].[Name], [o1].[PeriodEnd], [o1].[PeriodStart], 1 AS [Key], [o1].[PersonAddress_AddressLine], [o1].[PeriodEnd] AS [PeriodEnd0], [o1].[PeriodStart] AS [PeriodStart0], [o1].[PersonAddress_PlaceType], [o1].[PersonAddress_ZipCode], [o1].[PersonAddress_Country_Name], [o1].[PersonAddress_Country_PlanetId]
-        FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o1]
-    ) AS [t1]
-    LEFT JOIN [Planet] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [p0] ON [t1].[PersonAddress_Country_PlanetId] = [p0].[Id]
+        SELECT 1 AS [Key], [o4].[PersonAddress_Country_PlanetId]
+        FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o4]
+    ) AS [o3]
+    LEFT JOIN [Planet] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [p0] ON [o3].[PersonAddress_Country_PlanetId] = [p0].[Id]
     LEFT JOIN [Star] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [s0] ON [p0].[StarId] = [s0].[Id]
-    WHERE [t].[Key] = [t1].[Key]) AS [p2], (
+    WHERE [o0].[Key] = [o3].[Key]) AS [p2], (
     SELECT MAX(CAST(LEN([s1].[Name]) AS int))
     FROM (
-        SELECT [o2].[Id], [o2].[Discriminator], [o2].[Name], [o2].[PeriodEnd], [o2].[PeriodStart], 1 AS [Key], [o2].[PersonAddress_AddressLine], [o2].[PeriodEnd] AS [PeriodEnd0], [o2].[PeriodStart] AS [PeriodStart0], [o2].[PersonAddress_PlaceType], [o2].[PersonAddress_ZipCode], [o2].[PersonAddress_Country_Name], [o2].[PersonAddress_Country_PlanetId]
-        FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o2]
-    ) AS [t2]
-    LEFT JOIN [Planet] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [p1] ON [t2].[PersonAddress_Country_PlanetId] = [p1].[Id]
+        SELECT 1 AS [Key], [o6].[PersonAddress_Country_PlanetId]
+        FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o6]
+    ) AS [o5]
+    LEFT JOIN [Planet] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [p1] ON [o5].[PersonAddress_Country_PlanetId] = [p1].[Id]
     LEFT JOIN [Star] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [s1] ON [p1].[StarId] = [s1].[Id]
-    WHERE [t].[Key] = [t2].[Key]) AS [p3]
+    WHERE [o0].[Key] = [o5].[Key]) AS [p3]
 FROM (
     SELECT 1 AS [Key]
     FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
-) AS [t]
-GROUP BY [t].[Key]
+) AS [o0]
+GROUP BY [o0].[Key]
 """);
     }
 
@@ -1268,15 +1327,15 @@ GROUP BY [t].[Key]
         await base.Ordering_by_identifying_projection(async);
 
         AssertSql(
-"""
-SELECT [o].[Id], [o].[Discriminator], [o].[Name], [o].[PeriodEnd], [o].[PeriodStart], [t].[ClientId], [t].[Id], [t].[OrderDate], [t].[PeriodEnd], [t].[PeriodStart], [t].[OrderClientId], [t].[OrderId], [t].[Id0], [t].[Detail], [t].[PeriodEnd0], [t].[PeriodStart0], [o].[PersonAddress_AddressLine], [o].[PeriodEnd], [o].[PeriodStart], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafBAddress_LeafBType], [o].[LeafBAddress_PlaceType], [o].[LeafBAddress_Country_Name], [o].[LeafBAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
+            """
+SELECT [o].[Id], [o].[Discriminator], [o].[Name], [o].[PeriodEnd], [o].[PeriodStart], [s].[ClientId], [s].[Id], [s].[OrderDate], [s].[PeriodEnd], [s].[PeriodStart], [s].[OrderClientId], [s].[OrderId], [s].[Id0], [s].[Detail], [s].[PeriodEnd0], [s].[PeriodStart0], [o].[PersonAddress_AddressLine], [o].[PeriodEnd], [o].[PeriodStart], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafBAddress_LeafBType], [o].[LeafBAddress_PlaceType], [o].[LeafBAddress_Country_Name], [o].[LeafBAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
 FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
 LEFT JOIN (
     SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate], [o0].[PeriodEnd], [o0].[PeriodStart], [o1].[OrderClientId], [o1].[OrderId], [o1].[Id] AS [Id0], [o1].[Detail], [o1].[PeriodEnd] AS [PeriodEnd0], [o1].[PeriodStart] AS [PeriodStart0]
     FROM [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o0]
     LEFT JOIN [OrderDetail] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
-) AS [t] ON [o].[Id] = [t].[ClientId]
-ORDER BY [o].[PersonAddress_PlaceType], [o].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId]
+) AS [s] ON [o].[Id] = [s].[ClientId]
+ORDER BY [o].[PersonAddress_PlaceType], [o].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId]
 """);
     }
 
@@ -1285,8 +1344,8 @@ ORDER BY [o].[PersonAddress_PlaceType], [o].[Id], [t].[ClientId], [t].[Id], [t].
         await base.Using_from_sql_on_owner_generates_join_with_table_for_owned_shared_dependents(async);
 
         AssertSql(
-"""
-SELECT [m].[Id], [m].[Discriminator], [m].[Name], [m].[PeriodEnd], [m].[PeriodStart], [o].[Id], [o0].[Id], [o1].[Id], [o2].[Id], [t].[ClientId], [t].[Id], [t].[OrderDate], [t].[PeriodEnd], [t].[PeriodStart], [t].[OrderClientId], [t].[OrderId], [t].[Id0], [t].[Detail], [t].[PeriodEnd0], [t].[PeriodStart0], [o].[PersonAddress_AddressLine], [o].[PeriodEnd], [o].[PeriodStart], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o0].[BranchAddress_BranchName], [o0].[PeriodEnd], [o0].[PeriodStart], [o0].[BranchAddress_PlaceType], [o0].[BranchAddress_Country_Name], [o0].[BranchAddress_Country_PlanetId], [o1].[LeafBAddress_LeafBType], [o1].[PeriodEnd], [o1].[PeriodStart], [o1].[LeafBAddress_PlaceType], [o1].[LeafBAddress_Country_Name], [o1].[LeafBAddress_Country_PlanetId], [o2].[LeafAAddress_LeafType], [o2].[PeriodEnd], [o2].[PeriodStart], [o2].[LeafAAddress_PlaceType], [o2].[LeafAAddress_Country_Name], [o2].[LeafAAddress_Country_PlanetId]
+            """
+SELECT [m].[Id], [m].[Discriminator], [m].[Name], [m].[PeriodEnd], [m].[PeriodStart], [o].[Id], [o0].[Id], [o1].[Id], [o2].[Id], [s].[ClientId], [s].[Id], [s].[OrderDate], [s].[PeriodEnd], [s].[PeriodStart], [s].[OrderClientId], [s].[OrderId], [s].[Id0], [s].[Detail], [s].[PeriodEnd0], [s].[PeriodStart0], [o].[PersonAddress_AddressLine], [o].[PeriodEnd], [o].[PeriodStart], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o0].[BranchAddress_BranchName], [o0].[PeriodEnd], [o0].[PeriodStart], [o0].[BranchAddress_PlaceType], [o0].[BranchAddress_Country_Name], [o0].[BranchAddress_Country_PlanetId], [o1].[LeafBAddress_LeafBType], [o1].[PeriodEnd], [o1].[PeriodStart], [o1].[LeafBAddress_PlaceType], [o1].[LeafBAddress_Country_Name], [o1].[LeafBAddress_Country_PlanetId], [o2].[LeafAAddress_LeafType], [o2].[PeriodEnd], [o2].[PeriodStart], [o2].[LeafAAddress_PlaceType], [o2].[LeafAAddress_Country_Name], [o2].[LeafAAddress_Country_PlanetId]
 FROM (
     SELECT * FROM "OwnedPerson"
 ) AS [m]
@@ -1298,8 +1357,8 @@ LEFT JOIN (
     SELECT [o3].[ClientId], [o3].[Id], [o3].[OrderDate], [o3].[PeriodEnd], [o3].[PeriodStart], [o4].[OrderClientId], [o4].[OrderId], [o4].[Id] AS [Id0], [o4].[Detail], [o4].[PeriodEnd] AS [PeriodEnd0], [o4].[PeriodStart] AS [PeriodStart0]
     FROM [Order] AS [o3]
     LEFT JOIN [OrderDetail] AS [o4] ON [o3].[ClientId] = [o4].[OrderClientId] AND [o3].[Id] = [o4].[OrderId]
-) AS [t] ON [m].[Id] = [t].[ClientId]
-ORDER BY [m].[Id], [o].[Id], [o0].[Id], [o1].[Id], [o2].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId]
+) AS [s] ON [m].[Id] = [s].[ClientId]
+ORDER BY [m].[Id], [o].[Id], [o0].[Id], [o1].[Id], [o2].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId]
 """);
     }
 
@@ -1309,7 +1368,7 @@ ORDER BY [m].[Id], [o].[Id], [o0].[Id], [o1].[Id], [o2].[Id], [t].[ClientId], [t
         await base.Projecting_collection_correlated_with_keyless_entity_after_navigation_works_using_parent_identifiers(async);
 
         AssertSql(
-"""
+            """
 SELECT [b].[Throned_Value], [f].[Id], [b].[Id], [p].[Id], [p].[Name], [p].[PeriodEnd], [p].[PeriodStart], [p].[StarId]
 FROM [Fink] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [f]
 LEFT JOIN [Barton] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [b] ON [f].[BartonId] = [b].[Id]
@@ -1323,16 +1382,16 @@ ORDER BY [f].[Id], [b].[Id]
         await base.Filter_on_indexer_using_closure(async);
 
         AssertSql(
-"""
-SELECT [o].[Id], [o].[Discriminator], [o].[Name], [o].[PeriodEnd], [o].[PeriodStart], [t].[ClientId], [t].[Id], [t].[OrderDate], [t].[PeriodEnd], [t].[PeriodStart], [t].[OrderClientId], [t].[OrderId], [t].[Id0], [t].[Detail], [t].[PeriodEnd0], [t].[PeriodStart0], [o].[PersonAddress_AddressLine], [o].[PeriodEnd], [o].[PeriodStart], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafBAddress_LeafBType], [o].[LeafBAddress_PlaceType], [o].[LeafBAddress_Country_Name], [o].[LeafBAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
+            """
+SELECT [o].[Id], [o].[Discriminator], [o].[Name], [o].[PeriodEnd], [o].[PeriodStart], [s].[ClientId], [s].[Id], [s].[OrderDate], [s].[PeriodEnd], [s].[PeriodStart], [s].[OrderClientId], [s].[OrderId], [s].[Id0], [s].[Detail], [s].[PeriodEnd0], [s].[PeriodStart0], [o].[PersonAddress_AddressLine], [o].[PeriodEnd], [o].[PeriodStart], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafBAddress_LeafBType], [o].[LeafBAddress_PlaceType], [o].[LeafBAddress_Country_Name], [o].[LeafBAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
 FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
 LEFT JOIN (
     SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate], [o0].[PeriodEnd], [o0].[PeriodStart], [o1].[OrderClientId], [o1].[OrderId], [o1].[Id] AS [Id0], [o1].[Detail], [o1].[PeriodEnd] AS [PeriodEnd0], [o1].[PeriodStart] AS [PeriodStart0]
     FROM [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o0]
     LEFT JOIN [OrderDetail] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
-) AS [t] ON [o].[Id] = [t].[ClientId]
+) AS [s] ON [o].[Id] = [s].[ClientId]
 WHERE [o].[PersonAddress_ZipCode] = 38654
-ORDER BY [o].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId]
+ORDER BY [o].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId]
 """);
     }
 
@@ -1341,7 +1400,7 @@ ORDER BY [o].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId]
         await base.Query_loads_reference_nav_automatically_in_projection(async);
 
         AssertSql(
-"""
+            """
 SELECT TOP(2) [b].[Id], [b].[PeriodEnd], [b].[PeriodStart], [b].[Simple], [b].[Throned_Property], [b].[Throned_Value]
 FROM [Fink] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [f]
 LEFT JOIN [Barton] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [b] ON [f].[BartonId] = [b].[Id]
@@ -1353,7 +1412,7 @@ LEFT JOIN [Barton] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [b] ON
         await base.Simple_query_entity_with_owned_collection(async);
 
         AssertSql(
-"""
+            """
 SELECT [s].[Id], [s].[Name], [s].[PeriodEnd], [s].[PeriodStart], [e].[Id], [e].[Name], [e].[PeriodEnd], [e].[PeriodStart], [e].[StarId]
 FROM [Star] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [s]
 LEFT JOIN [Element] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e] ON [s].[Id] = [e].[StarId]
@@ -1366,21 +1425,21 @@ ORDER BY [s].[Id]
         await base.Left_join_on_entity_with_owned_navigations(async);
 
         AssertSql(
-"""
-SELECT [p].[Id], [p].[Name], [p].[PeriodEnd], [p].[PeriodStart], [p].[StarId], [o].[Id], [o].[Discriminator], [o].[Name], [o].[PeriodEnd], [o].[PeriodStart], [t].[ClientId], [t].[Id], [t].[OrderDate], [t].[PeriodEnd], [t].[PeriodStart], [t].[OrderClientId], [t].[OrderId], [t].[Id0], [t].[Detail], [t].[PeriodEnd0], [t].[PeriodStart0], [o].[PersonAddress_AddressLine], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafBAddress_LeafBType], [o].[LeafBAddress_PlaceType], [o].[LeafBAddress_Country_Name], [o].[LeafBAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId], [t0].[ClientId], [t0].[Id], [t0].[OrderDate], [t0].[PeriodEnd], [t0].[PeriodStart], [t0].[OrderClientId], [t0].[OrderId], [t0].[Id0], [t0].[Detail], [t0].[PeriodEnd0], [t0].[PeriodStart0]
+            """
+SELECT [p].[Id], [p].[Name], [p].[PeriodEnd], [p].[PeriodStart], [p].[StarId], [o].[Id], [o].[Discriminator], [o].[Name], [o].[PeriodEnd], [o].[PeriodStart], [s].[ClientId], [s].[Id], [s].[OrderDate], [s].[PeriodEnd], [s].[PeriodStart], [s].[OrderClientId], [s].[OrderId], [s].[Id0], [s].[Detail], [s].[PeriodEnd0], [s].[PeriodStart0], [o].[PersonAddress_AddressLine], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafBAddress_LeafBType], [o].[LeafBAddress_PlaceType], [o].[LeafBAddress_Country_Name], [o].[LeafBAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId], [s0].[ClientId], [s0].[Id], [s0].[OrderDate], [s0].[PeriodEnd], [s0].[PeriodStart], [s0].[OrderClientId], [s0].[OrderId], [s0].[Id0], [s0].[Detail], [s0].[PeriodEnd0], [s0].[PeriodStart0]
 FROM [Planet] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [p]
 LEFT JOIN [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o] ON [p].[Id] = [o].[Id]
 LEFT JOIN (
     SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate], [o0].[PeriodEnd], [o0].[PeriodStart], [o1].[OrderClientId], [o1].[OrderId], [o1].[Id] AS [Id0], [o1].[Detail], [o1].[PeriodEnd] AS [PeriodEnd0], [o1].[PeriodStart] AS [PeriodStart0]
     FROM [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o0]
     LEFT JOIN [OrderDetail] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
-) AS [t] ON [o].[Id] = [t].[ClientId]
+) AS [s] ON [o].[Id] = [s].[ClientId]
 LEFT JOIN (
     SELECT [o2].[ClientId], [o2].[Id], [o2].[OrderDate], [o2].[PeriodEnd], [o2].[PeriodStart], [o3].[OrderClientId], [o3].[OrderId], [o3].[Id] AS [Id0], [o3].[Detail], [o3].[PeriodEnd] AS [PeriodEnd0], [o3].[PeriodStart] AS [PeriodStart0]
     FROM [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o2]
     LEFT JOIN [OrderDetail] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o3] ON [o2].[ClientId] = [o3].[OrderClientId] AND [o2].[Id] = [o3].[OrderId]
-) AS [t0] ON [o].[Id] = [t0].[ClientId]
-ORDER BY [p].[Id], [o].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId], [t].[Id0], [t0].[ClientId], [t0].[Id], [t0].[OrderClientId], [t0].[OrderId]
+) AS [s0] ON [o].[Id] = [s0].[ClientId]
+ORDER BY [p].[Id], [o].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId], [s].[Id0], [s0].[ClientId], [s0].[Id], [s0].[OrderClientId], [s0].[OrderId]
 """);
     }
 
@@ -1389,20 +1448,20 @@ ORDER BY [p].[Id], [o].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].
         await base.Left_join_on_entity_with_owned_navigations_complex(async);
 
         AssertSql(
-"""
-SELECT [p].[Id], [p].[Name], [p].[PeriodEnd], [p].[PeriodStart], [p].[StarId], [t].[Id], [t].[Name], [t].[PeriodEnd], [t].[PeriodStart], [t].[StarId], [t].[Id0], [t].[Discriminator], [t].[Name0], [t].[PeriodEnd0], [t].[PeriodStart0], [t0].[ClientId], [t0].[Id], [t0].[OrderDate], [t0].[PeriodEnd], [t0].[PeriodStart], [t0].[OrderClientId], [t0].[OrderId], [t0].[Id0], [t0].[Detail], [t0].[PeriodEnd0], [t0].[PeriodStart0], [t].[PersonAddress_AddressLine], [t].[PersonAddress_PlaceType], [t].[PersonAddress_ZipCode], [t].[PersonAddress_Country_Name], [t].[PersonAddress_Country_PlanetId], [t].[BranchAddress_BranchName], [t].[BranchAddress_PlaceType], [t].[BranchAddress_Country_Name], [t].[BranchAddress_Country_PlanetId], [t].[LeafBAddress_LeafBType], [t].[LeafBAddress_PlaceType], [t].[LeafBAddress_Country_Name], [t].[LeafBAddress_Country_PlanetId], [t].[LeafAAddress_LeafType], [t].[LeafAAddress_PlaceType], [t].[LeafAAddress_Country_Name], [t].[LeafAAddress_Country_PlanetId]
+            """
+SELECT [p].[Id], [p].[Name], [p].[PeriodEnd], [p].[PeriodStart], [p].[StarId], [s].[Id], [s].[Name], [s].[PeriodEnd], [s].[PeriodStart], [s].[StarId], [s].[Id0], [s].[Discriminator], [s].[Name0], [s].[PeriodEnd0], [s].[PeriodStart0], [s0].[ClientId], [s0].[Id], [s0].[OrderDate], [s0].[PeriodEnd], [s0].[PeriodStart], [s0].[OrderClientId], [s0].[OrderId], [s0].[Id0], [s0].[Detail], [s0].[PeriodEnd0], [s0].[PeriodStart0], [s].[PersonAddress_AddressLine], [s].[PersonAddress_PlaceType], [s].[PersonAddress_ZipCode], [s].[PersonAddress_Country_Name], [s].[PersonAddress_Country_PlanetId], [s].[BranchAddress_BranchName], [s].[BranchAddress_PlaceType], [s].[BranchAddress_Country_Name], [s].[BranchAddress_Country_PlanetId], [s].[LeafBAddress_LeafBType], [s].[LeafBAddress_PlaceType], [s].[LeafBAddress_Country_Name], [s].[LeafBAddress_Country_PlanetId], [s].[LeafAAddress_LeafType], [s].[LeafAAddress_PlaceType], [s].[LeafAAddress_Country_Name], [s].[LeafAAddress_Country_PlanetId]
 FROM [Planet] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [p]
 LEFT JOIN (
     SELECT DISTINCT [p0].[Id], [p0].[Name], [p0].[PeriodEnd], [p0].[PeriodStart], [p0].[StarId], [o].[Id] AS [Id0], [o].[Discriminator], [o].[Name] AS [Name0], [o].[PeriodEnd] AS [PeriodEnd0], [o].[PeriodStart] AS [PeriodStart0], [o].[PersonAddress_AddressLine], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafBAddress_LeafBType], [o].[LeafBAddress_PlaceType], [o].[LeafBAddress_Country_Name], [o].[LeafBAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
     FROM [Planet] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [p0]
     LEFT JOIN [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o] ON [p0].[Id] = [o].[Id]
-) AS [t] ON [p].[Id] = [t].[Id0]
+) AS [s] ON [p].[Id] = [s].[Id0]
 LEFT JOIN (
     SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate], [o0].[PeriodEnd], [o0].[PeriodStart], [o1].[OrderClientId], [o1].[OrderId], [o1].[Id] AS [Id0], [o1].[Detail], [o1].[PeriodEnd] AS [PeriodEnd0], [o1].[PeriodStart] AS [PeriodStart0]
     FROM [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o0]
     LEFT JOIN [OrderDetail] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
-) AS [t0] ON [t].[Id0] = [t0].[ClientId]
-ORDER BY [p].[Id], [t].[Id], [t].[Id0], [t0].[ClientId], [t0].[Id], [t0].[OrderClientId], [t0].[OrderId]
+) AS [s0] ON [s].[Id0] = [s0].[ClientId]
+ORDER BY [p].[Id], [s].[Id], [s].[Id0], [s0].[ClientId], [s0].[Id], [s0].[OrderClientId], [s0].[OrderId]
 """);
     }
 
@@ -1411,7 +1470,7 @@ ORDER BY [p].[Id], [t].[Id], [t].[Id0], [t0].[ClientId], [t0].[Id], [t0].[OrderC
         await base.GroupBy_aggregate_on_owned_navigation_in_aggregate_selector(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[Id] AS [Key], (
     SELECT COALESCE(SUM([o0].[PersonAddress_Country_PlanetId]), 0)
     FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o0]
@@ -1904,13 +1963,13 @@ GROUP BY [o].[Id]
             modelBuilder.Entity<HeliumBalloon>().OwnsOne(e => e.Gas);
         }
 
-        protected override void Seed(PoolableDbContext context)
+        protected override async Task SeedAsync(PoolableDbContext context)
         {
-            base.Seed(context);
+            await base.SeedAsync(context);
 
             ChangesDate = new DateTime(2010, 1, 1);
 
-            var ownedPeople = context.Set<OwnedPerson>().AsTracking().ToList();
+            var ownedPeople = await context.Set<OwnedPerson>().AsTracking().ToListAsync();
             foreach (var ownedPerson in ownedPeople)
             {
                 ownedPerson["Name"] = "Modified" + ownedPerson["Name"];
@@ -1926,7 +1985,7 @@ GROUP BY [o].[Id]
                 }
             }
 
-            var stars = context.Set<Star>().AsTracking().ToList();
+            var stars = await context.Set<Star>().AsTracking().ToListAsync();
             foreach (var star in stars)
             {
                 star.Name = "Modified" + star.Name;
@@ -1939,22 +1998,22 @@ GROUP BY [o].[Id]
                 }
             }
 
-            var planets = context.Set<Planet>().AsTracking().ToList();
+            var planets = await context.Set<Planet>().AsTracking().ToListAsync();
             foreach (var planet in planets)
             {
                 planet.Name = "Modified" + planet.Name;
             }
 
-            var moons = context.Set<Moon>().AsTracking().ToList();
+            var moons = await context.Set<Moon>().AsTracking().ToListAsync();
             foreach (var moon in moons)
             {
                 moon.Diameter += 1000;
             }
 
-            var finks = context.Set<Fink>().AsTracking().ToList();
+            var finks = await context.Set<Fink>().AsTracking().ToListAsync();
             context.Set<Fink>().RemoveRange(finks);
 
-            var bartons = context.Set<Barton>().Include(x => x.Throned).AsTracking().ToList();
+            var bartons = await context.Set<Barton>().Include(x => x.Throned).AsTracking().ToListAsync();
             foreach (var barton in bartons)
             {
                 barton.Simple = "Modified" + barton.Simple;
@@ -1964,7 +2023,7 @@ GROUP BY [o].[Id]
                 }
             }
 
-            context.SaveChanges();
+            await context.SaveChangesAsync();
 
             var tableNames = new List<string>
             {
@@ -1981,14 +2040,17 @@ GROUP BY [o].[Id]
 
             foreach (var tableName in tableNames)
             {
-                context.Database.ExecuteSqlRaw($"ALTER TABLE [{tableName}] SET (SYSTEM_VERSIONING = OFF)");
-                context.Database.ExecuteSqlRaw($"ALTER TABLE [{tableName}] DROP PERIOD FOR SYSTEM_TIME");
+                await context.Database.ExecuteSqlRawAsync($"ALTER TABLE [{tableName}] SET (SYSTEM_VERSIONING = OFF)");
+                await context.Database.ExecuteSqlRawAsync($"ALTER TABLE [{tableName}] DROP PERIOD FOR SYSTEM_TIME");
 
-                context.Database.ExecuteSqlRaw($"UPDATE [{tableName + "History"}] SET PeriodStart = '2000-01-01T01:00:00.0000000Z'");
-                context.Database.ExecuteSqlRaw($"UPDATE [{tableName + "History"}] SET PeriodEnd = '2020-07-01T07:00:00.0000000Z'");
+                await context.Database.ExecuteSqlRawAsync(
+                    $"UPDATE [{tableName + "History"}] SET PeriodStart = '2000-01-01T01:00:00.0000000Z'");
+                await context.Database.ExecuteSqlRawAsync(
+                    $"UPDATE [{tableName + "History"}] SET PeriodEnd = '2020-07-01T07:00:00.0000000Z'");
 
-                context.Database.ExecuteSqlRaw($"ALTER TABLE [{tableName}] ADD PERIOD FOR SYSTEM_TIME ([PeriodStart], [PeriodEnd])");
-                context.Database.ExecuteSqlRaw(
+                await context.Database.ExecuteSqlRawAsync(
+                    $"ALTER TABLE [{tableName}] ADD PERIOD FOR SYSTEM_TIME ([PeriodStart], [PeriodEnd])");
+                await context.Database.ExecuteSqlRawAsync(
                     $"ALTER TABLE [{tableName}] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [dbo].[{tableName + "History"}]))");
             }
         }

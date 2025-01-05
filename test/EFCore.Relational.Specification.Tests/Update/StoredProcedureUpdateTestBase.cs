@@ -5,6 +5,8 @@ using System.Text.RegularExpressions;
 
 namespace Microsoft.EntityFrameworkCore.Update;
 
+#nullable disable
+
 public abstract class StoredProcedureUpdateTestBase : NonSharedModelTestBase
 {
     protected override string StoreName
@@ -604,18 +606,18 @@ public abstract class StoredProcedureUpdateTestBase : NonSharedModelTestBase
     {
         var contextFactory = await InitializeAsync<DbContext>(
             modelBuilder => modelBuilder.Entity<Entity>(
-                    b =>
-                    {
-                        ConfigureStoreGeneratedConcurrencyToken(b, "ConcurrencyToken");
+                b =>
+                {
+                    ConfigureStoreGeneratedConcurrencyToken(b, "ConcurrencyToken");
 
-                        b.UpdateUsingStoredProcedure(
-                            nameof(Entity) + "_Update",
-                            spb => spb
-                                .HasOriginalValueParameter(w => w.Id)
-                                .HasOriginalValueParameter("ConcurrencyToken", pb => pb.IsInputOutput())
-                                .HasParameter(w => w.Name)
-                                .HasRowsAffectedParameter());
-                    }),
+                    b.UpdateUsingStoredProcedure(
+                        nameof(Entity) + "_Update",
+                        spb => spb
+                            .HasOriginalValueParameter(w => w.Id)
+                            .HasOriginalValueParameter("ConcurrencyToken", pb => pb.IsInputOutput())
+                            .HasParameter(w => w.Name)
+                            .HasRowsAffectedParameter());
+                }),
             seed: ctx => CreateStoredProcedures(ctx, createSprocSql));
 
         await using var context1 = contextFactory.CreateContext();
@@ -783,16 +785,16 @@ public abstract class StoredProcedureUpdateTestBase : NonSharedModelTestBase
     {
         var contextFactory = await InitializeAsync<DbContext>(
             modelBuilder => modelBuilder.Entity<Entity>(
-                    b =>
-                    {
-                        b.Property(w => w.Name).IsRequired().ValueGeneratedOnAdd();
+                b =>
+                {
+                    b.Property(w => w.Name).IsRequired().ValueGeneratedOnAdd();
 
-                        b.InsertUsingStoredProcedure(
-                            nameof(Entity) + "_Insert",
-                            spb => spb
-                                .HasParameter(w => w.Id, pb => pb.IsOutput())
-                                .HasParameter(w => w.Name, pb => pb.IsInputOutput()));
-                    }),
+                    b.InsertUsingStoredProcedure(
+                        nameof(Entity) + "_Insert",
+                        spb => spb
+                            .HasParameter(w => w.Id, pb => pb.IsOutput())
+                            .HasParameter(w => w.Name, pb => pb.IsInputOutput()));
+                }),
             seed: ctx => CreateStoredProcedures(ctx, createSprocSql));
 
         await using var context = contextFactory.CreateContext();
@@ -1128,13 +1130,13 @@ public abstract class StoredProcedureUpdateTestBase : NonSharedModelTestBase
     protected virtual void ClearLog()
         => TestSqlLoggerFactory.Clear();
 
-    protected virtual void CreateStoredProcedures(DbContext context, string createSprocSql)
+    protected virtual async Task CreateStoredProcedures(DbContext context, string createSprocSql)
     {
         foreach (var batch in
                  new Regex("^GO", RegexOptions.IgnoreCase | RegexOptions.Multiline, TimeSpan.FromMilliseconds(1000.0))
                      .Split(createSprocSql).Where(b => !string.IsNullOrEmpty(b)))
         {
-            context.Database.ExecuteSqlRaw(batch);
+            await context.Database.ExecuteSqlRawAsync(batch);
         }
     }
 }

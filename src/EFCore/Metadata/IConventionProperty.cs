@@ -2,11 +2,12 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace Microsoft.EntityFrameworkCore.Metadata;
 
 /// <summary>
-///     Represents a scalar property of an entity type.
+///     Represents a scalar property of a structural type.
 /// </summary>
 /// <remarks>
 ///     <para>
@@ -26,9 +27,11 @@ public interface IConventionProperty : IReadOnlyProperty, IConventionPropertyBas
     new IConventionPropertyBuilder Builder { get; }
 
     /// <summary>
-    ///     Gets the type that this property belongs to.
+    ///     Gets the entity type that this property belongs to.
     /// </summary>
-    new IConventionEntityType DeclaringEntityType { get; }
+    [Obsolete("Use DeclaringType and cast to IConventionEntityType or IConventionComplexType")]
+    new IConventionEntityType DeclaringEntityType
+        => (IConventionEntityType)DeclaringType;
 
     /// <summary>
     ///     Returns the configuration source for <see cref="IReadOnlyPropertyBase.ClrType" />.
@@ -96,25 +99,11 @@ public interface IConventionProperty : IReadOnlyProperty, IConventionPropertyBas
     ConfigurationSource? GetIsConcurrencyTokenConfigurationSource();
 
     /// <summary>
-    ///     Sets the sentinel value that indicates that this property is not set.
-    /// </summary>
-    /// <param name="sentinel">The sentinel value.</param>
-    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
-    /// <returns>The configured value.</returns>
-    object? SetSentinel(object? sentinel, bool fromDataAnnotation = false);
-
-    /// <summary>
-    ///     Returns the configuration source for <see cref="IReadOnlyProperty.IsConcurrencyToken" />.
-    /// </summary>
-    /// <returns>The configuration source for <see cref="IReadOnlyProperty.IsConcurrencyToken" />.</returns>
-    ConfigurationSource? GetSentinelConfigurationSource();
-
-    /// <summary>
     ///     Returns a value indicating whether the property was created implicitly and isn't based on the CLR model.
     /// </summary>
     /// <returns>A value indicating whether the property was created implicitly and isn't based on the CLR model.</returns>
     bool IsImplicitlyCreated()
-        => (IsShadowProperty() || (DeclaringEntityType.IsPropertyBag && IsIndexerProperty()))
+        => (IsShadowProperty() || (DeclaringType.IsPropertyBag && IsIndexerProperty()))
             && GetConfigurationSource() == ConfigurationSource.Convention;
 
     /// <summary>
@@ -131,7 +120,7 @@ public interface IConventionProperty : IReadOnlyProperty, IConventionPropertyBas
     /// </summary>
     /// <returns>The list of all associated principal properties including the given property.</returns>
     new IReadOnlyList<IConventionProperty> GetPrincipals()
-        => ((IReadOnlyProperty)this).GetPrincipals().Cast<IConventionProperty>().ToList();
+        => GetPrincipals<IConventionProperty>();
 
     /// <summary>
     ///     Gets all foreign keys that use this property (including composite foreign keys in which this property
@@ -303,6 +292,20 @@ public interface IConventionProperty : IReadOnlyProperty, IConventionPropertyBas
     ConfigurationSource? GetAfterSaveBehaviorConfigurationSource();
 
     /// <summary>
+    ///     Sets the sentinel value that indicates that this property is not set.
+    /// </summary>
+    /// <param name="sentinel">The sentinel value.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The configured value.</returns>
+    object? SetSentinel(object? sentinel, bool fromDataAnnotation = false);
+
+    /// <summary>
+    ///     Returns the configuration source for <see cref="IReadOnlyPropertyBase.Sentinel" />.
+    /// </summary>
+    /// <returns>The configuration source for <see cref="IReadOnlyPropertyBase.Sentinel" />.</returns>
+    ConfigurationSource? GetSentinelConfigurationSource();
+
+    /// <summary>
     ///     Sets the factory to use for generating values for this property, or <see langword="null" /> to clear any previously set factory.
     /// </summary>
     /// <remarks>
@@ -315,8 +318,8 @@ public interface IConventionProperty : IReadOnlyProperty, IConventionPropertyBas
     /// </param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>The configured value.</returns>
-    Func<IProperty, IEntityType, ValueGenerator>? SetValueGeneratorFactory(
-        Func<IProperty, IEntityType, ValueGenerator>? valueGeneratorFactory,
+    Func<IProperty, ITypeBase, ValueGenerator>? SetValueGeneratorFactory(
+        Func<IProperty, ITypeBase, ValueGenerator>? valueGeneratorFactory,
         bool fromDataAnnotation = false);
 
     /// <summary>
@@ -333,7 +336,8 @@ public interface IConventionProperty : IReadOnlyProperty, IConventionPropertyBas
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>The configured value.</returns>
     Type? SetValueGeneratorFactory(
-        [DynamicallyAccessedMembers(ValueGeneratorFactory.DynamicallyAccessedMemberTypes)] Type? valueGeneratorFactory,
+        [DynamicallyAccessedMembers(ValueGeneratorFactory.DynamicallyAccessedMemberTypes)]
+        Type? valueGeneratorFactory,
         bool fromDataAnnotation = false);
 
     /// <summary>
@@ -359,7 +363,8 @@ public interface IConventionProperty : IReadOnlyProperty, IConventionPropertyBas
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>The configured value.</returns>
     Type? SetValueConverter(
-        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type? converterType,
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
+        Type? converterType,
         bool fromDataAnnotation = false);
 
     /// <summary>
@@ -400,7 +405,8 @@ public interface IConventionProperty : IReadOnlyProperty, IConventionPropertyBas
     /// <returns>The configured value.</returns>
     [return: DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
     Type? SetValueComparer(
-        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type? comparerType,
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
+        Type? comparerType,
         bool fromDataAnnotation = false);
 
     /// <summary>
@@ -427,7 +433,8 @@ public interface IConventionProperty : IReadOnlyProperty, IConventionPropertyBas
     /// <returns>The configured value.</returns>
     [return: DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
     Type? SetProviderValueComparer(
-        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type? comparerType,
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
+        Type? comparerType,
         bool fromDataAnnotation = false);
 
     /// <summary>
@@ -435,4 +442,45 @@ public interface IConventionProperty : IReadOnlyProperty, IConventionPropertyBas
     /// </summary>
     /// <returns>The configuration source for <see cref="IReadOnlyProperty.GetProviderValueComparer" />.</returns>
     ConfigurationSource? GetProviderValueComparerConfigurationSource();
+
+    /// <summary>
+    ///     Sets the type of <see cref="JsonValueReaderWriter{TValue}" /> to use for this property.
+    /// </summary>
+    /// <param name="readerWriterType">
+    ///     A type that inherits from <see cref="JsonValueReaderWriter{TValue}" />, or <see langword="null" /> to use the reader/writer
+    ///     from the type mapping.
+    /// </param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The configured value.</returns>
+    Type? SetJsonValueReaderWriterType(Type? readerWriterType, bool fromDataAnnotation = false);
+
+    /// <summary>
+    ///     Returns the configuration source for <see cref="IReadOnlyProperty.GetJsonValueReaderWriter" />.
+    /// </summary>
+    /// <returns>The configuration source for <see cref="IReadOnlyProperty.GetJsonValueReaderWriter" />.</returns>
+    ConfigurationSource? GetJsonValueReaderWriterTypeConfigurationSource();
+
+    /// <summary>
+    ///     Gets the configuration for elements of the primitive collection represented by this property.
+    /// </summary>
+    /// <returns>The configuration for the elements.</returns>
+    new IConventionElementType? GetElementType();
+
+    /// <summary>
+    ///     Sets the configuration for elements of the primitive collection represented by this property.
+    /// </summary>
+    /// <param name="elementType">If <see langword="true" />, then the type mapping has an element type, otherwise it is removed.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The configuration for the elements.</returns>
+    IConventionElementType? SetElementType(Type? elementType, bool fromDataAnnotation = false);
+
+    /// <summary>
+    ///     Returns the configuration source for <see cref="IReadOnlyProperty.GetElementType" />.
+    /// </summary>
+    /// <returns>The configuration source for <see cref="IReadOnlyProperty.GetElementType" />.</returns>
+    ConfigurationSource? GetElementTypeConfigurationSource();
+
+    /// <inheritdoc />
+    IReadOnlyElementType? IReadOnlyProperty.GetElementType()
+        => GetElementType();
 }

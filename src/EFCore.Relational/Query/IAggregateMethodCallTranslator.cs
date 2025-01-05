@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 /// <summary>
 ///     <para>
-///         A SQL translator for LINQ <see cref="MethodCallExpression" /> expression represending an aggregate function.
+///         A SQL translator for LINQ <see cref="MethodCallExpression" /> expression representing an aggregate function.
 ///     </para>
 ///     <para>
 ///         This interface is typically used by database providers (and other extensions). It is generally

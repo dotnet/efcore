@@ -505,9 +505,7 @@ public class NavigationFixer : INavigationFixer
                 }
 
                 if (newValue == null
-                    && foreignKey.IsRequired
-                    && (foreignKey.DeleteBehavior == DeleteBehavior.Cascade
-                        || foreignKey.DeleteBehavior == DeleteBehavior.ClientCascade))
+                    && foreignKey is { IsRequired: true, DeleteBehavior: DeleteBehavior.Cascade or DeleteBehavior.ClientCascade })
                 {
                     entry.HandleNullForeignKey(property);
                 }
@@ -529,6 +527,7 @@ public class NavigationFixer : INavigationFixer
                         {
                             continue;
                         }
+
                         SetForeignKeyProperties(dependentEntry, entry, foreignKey, setModified: true, fromQuery: false);
                     }
 
@@ -610,8 +609,7 @@ public class NavigationFixer : INavigationFixer
             {
                 InitialFixup(entry, null, fromQuery);
             }
-            else if ((oldState == EntityState.Deleted
-                         || oldState == EntityState.Added)
+            else if (oldState is EntityState.Deleted or EntityState.Added
                      && entry.EntityState == EntityState.Detached)
             {
                 DeleteFixup(entry);
@@ -993,8 +991,7 @@ public class NavigationFixer : INavigationFixer
     }
 
     private static bool IsAmbiguous(InternalEntityEntry dependentEntry)
-        => (dependentEntry.EntityState == EntityState.Detached
-                || dependentEntry.EntityState == EntityState.Deleted)
+        => dependentEntry.EntityState is EntityState.Detached or EntityState.Deleted
             && (dependentEntry.SharedIdentityEntry != null
                 || dependentEntry.EntityType.HasSharedClrType
                 && dependentEntry.StateManager.TryGetEntry(dependentEntry.Entity, throwOnNonUniqueness: false) != dependentEntry);
@@ -1094,16 +1091,19 @@ public class NavigationFixer : INavigationFixer
         else if (!_inAttachGraph)
         {
             var joinEntityType = arguments.SkipNavigation.JoinEntityType;
-            var joinEntity = _entityMaterializerSource.GetEmptyMaterializer(joinEntityType)
+            var joinEntity = joinEntityType.GetOrCreateEmptyMaterializer(_entityMaterializerSource)
                 (new MaterializationContext(ValueBuffer.Empty, arguments.Entry.Context));
 
             joinEntry = arguments.Entry.StateManager.GetOrCreateEntry(joinEntity, joinEntityType);
 
             SetForeignKeyProperties(
                 joinEntry, arguments.Entry, arguments.SkipNavigation.ForeignKey, arguments.SetModified, arguments.FromQuery);
+            SetNavigation(joinEntry, arguments.SkipNavigation.ForeignKey.DependentToPrincipal, arguments.Entry, arguments.FromQuery);
             SetForeignKeyProperties(
                 joinEntry, arguments.OtherEntry, arguments.SkipNavigation.Inverse.ForeignKey, arguments.SetModified,
                 arguments.FromQuery);
+            SetNavigation(
+                joinEntry, arguments.SkipNavigation.Inverse.ForeignKey.DependentToPrincipal, arguments.OtherEntry, arguments.FromQuery);
 
             joinEntry.SetEntityState(
                 arguments.SetModified
@@ -1356,8 +1356,7 @@ public class NavigationFixer : INavigationFixer
         InternalEntityEntry principalEntry)
     {
         if (dependentEntry.EntityState == EntityState.Deleted
-            && (principalEntry.EntityState == EntityState.Unchanged
-                || principalEntry.EntityState == EntityState.Modified))
+            && principalEntry.EntityState is EntityState.Unchanged or EntityState.Modified)
         {
             dependentEntry.SetEntityState(EntityState.Modified);
         }
@@ -1416,39 +1415,28 @@ public class NavigationFixer : INavigationFixer
 
         if (foreignKey.IsRequired
             && hasOnlyKeyProperties
-            && dependentEntry.EntityState != EntityState.Detached
-            && dependentEntry.EntityState != EntityState.Deleted)
+            && dependentEntry.EntityState != EntityState.Detached)
         {
-            if (foreignKey.DeleteBehavior == DeleteBehavior.Cascade
-                || foreignKey.DeleteBehavior == DeleteBehavior.ClientCascade
-                || foreignKey.IsOwnership)
+            try
             {
-                try
+                _inFixup = true;
+                switch (dependentEntry.EntityState)
                 {
-                    _inFixup = true;
-                    switch (dependentEntry.EntityState)
-                    {
-                        case EntityState.Added:
-                            dependentEntry.SetEntityState(EntityState.Detached);
-                            DeleteFixup(dependentEntry);
-                            break;
-                        case EntityState.Unchanged:
-                        case EntityState.Modified:
-                            dependentEntry.SetEntityState(
-                                dependentEntry.SharedIdentityEntry != null ? EntityState.Detached : EntityState.Deleted);
-                            DeleteFixup(dependentEntry);
-                            break;
-                    }
-                }
-                finally
-                {
-                    _inFixup = false;
+                    case EntityState.Added:
+                        dependentEntry.SetEntityState(EntityState.Detached);
+                        DeleteFixup(dependentEntry);
+                        break;
+                    case EntityState.Unchanged:
+                    case EntityState.Modified:
+                        dependentEntry.SetEntityState(
+                            dependentEntry.SharedIdentityEntry != null ? EntityState.Detached : EntityState.Deleted);
+                        DeleteFixup(dependentEntry);
+                        break;
                 }
             }
-            else
+            finally
             {
-                throw new InvalidOperationException(
-                    CoreStrings.KeyReadOnly(dependentProperties.First().Name, dependentEntry.EntityType.DisplayName()));
+                _inFixup = false;
             }
         }
     }

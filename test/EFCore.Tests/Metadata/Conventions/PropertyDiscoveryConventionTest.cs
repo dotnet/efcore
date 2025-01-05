@@ -34,12 +34,11 @@ public class PropertyDiscoveryConventionTest
         }
     }
 
-    private class DerivedWithoutPrivates : BaseWithPrivates
-    {
-    }
+    private class DerivedWithoutPrivates : BaseWithPrivates;
 
     private class WithPrivatesContext : DbContext
     {
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<DerivedWithoutPrivates> Entities { get; set; }
 
         protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -56,9 +55,9 @@ public class PropertyDiscoveryConventionTest
 
         Assert.Single(model.GetEntityTypes());
 
-        var entityType = model.FindEntityType(typeof(DerivedWithoutPrivates));
+        var entityType = (IRuntimeEntityType)model.FindEntityType(typeof(DerivedWithoutPrivates));
 
-        Assert.Equal(3, entityType.PropertyCount());
+        Assert.Equal(3, entityType.PropertyCount);
 
         var idProperty = entityType.FindProperty(nameof(BaseWithPrivates.Id));
         Assert.NotNull(idProperty.PropertyInfo);

@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public class ConvertToProviderTypesSqliteTest : ConvertToProviderTypesTestBase<
     ConvertToProviderTypesSqliteTest.ConvertToProviderTypesSqliteFixture>
 {
@@ -10,10 +12,10 @@ public class ConvertToProviderTypesSqliteTest : ConvertToProviderTypesTestBase<
         : base(fixture)
     {
         fixture.TestSqlLoggerFactory.Clear();
-        //fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+        fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    public class ConvertToProviderTypesSqliteFixture : ConvertToProviderTypesFixtureBase
+    public class ConvertToProviderTypesSqliteFixture : ConvertToProviderTypesFixtureBase, ITestSqlLoggerFactory
     {
         public override bool StrictEquality
             => false;

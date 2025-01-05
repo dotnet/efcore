@@ -66,8 +66,8 @@ public interface ITable : ITableBase
     /// <summary>
     ///     Gets the comment for this table.
     /// </summary>
-    public virtual string? Comment
-        => EntityTypeMappings.Select(e => e.EntityType.GetComment()).FirstOrDefault(c => c != null);
+    public string? Comment
+        => EntityTypeMappings.Select(e => (e.TypeBase as IEntityType)?.GetComment()).FirstOrDefault(c => c != null);
 
     /// <summary>
     ///     Gets the column with a given name. Returns <see langword="null" /> if no column with the given name is defined.
@@ -95,6 +95,7 @@ public interface ITable : ITableBase
     {
         var builder = new StringBuilder();
         var indentString = new string(' ', indent);
+        var designTime = EntityTypeMappings.FirstOrDefault()?.TypeBase is not RuntimeEntityType;
 
         try
         {
@@ -111,8 +112,8 @@ public interface ITable : ITableBase
 
             builder.Append(Name);
 
-            if (EntityTypeMappings.Any()
-                && EntityTypeMappings.First().EntityType is not RuntimeEntityType
+            if (designTime
+                && EntityTypeMappings.Any()
                 && IsExcludedFromMigrations)
             {
                 builder.Append(" ExcludedFromMigrations");
@@ -132,7 +133,9 @@ public interface ITable : ITableBase
                 builder.Append(PrimaryKey.ToDebugString(options, indent + 2));
             }
 
-            if ((options & MetadataDebugStringOptions.SingleLine) == 0 && Comment != null)
+            if ((options & MetadataDebugStringOptions.SingleLine) == 0
+                && designTime
+                && Comment != null)
             {
                 builder
                     .AppendLine()
@@ -194,13 +197,16 @@ public interface ITable : ITableBase
                     }
                 }
 
-                var checkConstraints = CheckConstraints.ToList();
-                if (checkConstraints.Count != 0)
+                if (designTime)
                 {
-                    builder.AppendLine().Append(indentString).Append("  Check constraints: ");
-                    foreach (var checkConstraint in checkConstraints)
+                    var checkConstraints = CheckConstraints.ToList();
+                    if (checkConstraints.Count != 0)
                     {
-                        builder.AppendLine().Append(checkConstraint.ToDebugString(options, indent + 4));
+                        builder.AppendLine().Append(indentString).Append("  Check constraints: ");
+                        foreach (var checkConstraint in checkConstraints)
+                        {
+                            builder.AppendLine().Append(checkConstraint.ToDebugString(options, indent + 4));
+                        }
                     }
                 }
 

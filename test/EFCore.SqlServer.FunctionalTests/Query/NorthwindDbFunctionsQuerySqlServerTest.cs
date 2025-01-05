@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class NorthwindDbFunctionsQuerySqlServerTest : NorthwindDbFunctionsQueryRelationalTestBase<
     NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
 {
@@ -16,7 +18,7 @@ public class NorthwindDbFunctionsQuerySqlServerTest : NorthwindDbFunctionsQueryR
         : base(fixture)
     {
         Fixture.TestSqlLoggerFactory.Clear();
-        //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+        Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
     [ConditionalFact]
@@ -28,7 +30,7 @@ public class NorthwindDbFunctionsQuerySqlServerTest : NorthwindDbFunctionsQueryR
         await base.Like_literal(async);
 
         AssertSql(
-"""
+            """
 SELECT COUNT(*)
 FROM [Customers] AS [c]
 WHERE [c].[ContactName] LIKE N'%M%'
@@ -40,7 +42,7 @@ WHERE [c].[ContactName] LIKE N'%M%'
         await base.Like_identity(async);
 
         AssertSql(
-"""
+            """
 SELECT COUNT(*)
 FROM [Customers] AS [c]
 WHERE [c].[ContactName] LIKE [c].[ContactName]
@@ -52,7 +54,7 @@ WHERE [c].[ContactName] LIKE [c].[ContactName]
         await base.Like_literal_with_escape(async);
 
         AssertSql(
-"""
+            """
 SELECT COUNT(*)
 FROM [Customers] AS [c]
 WHERE [c].[ContactName] LIKE N'!%' ESCAPE N'!'
@@ -64,7 +66,7 @@ WHERE [c].[ContactName] LIKE N'!%' ESCAPE N'!'
         await base.Like_all_literals(async);
 
         AssertSql(
-"""
+            """
 SELECT COUNT(*)
 FROM [Customers] AS [c]
 WHERE N'FOO' LIKE N'%O%'
@@ -76,7 +78,7 @@ WHERE N'FOO' LIKE N'%O%'
         await base.Like_all_literals_with_escape(async);
 
         AssertSql(
-"""
+            """
 SELECT COUNT(*)
 FROM [Customers] AS [c]
 WHERE N'%' LIKE N'!%' ESCAPE N'!'
@@ -88,7 +90,7 @@ WHERE N'%' LIKE N'!%' ESCAPE N'!'
         await base.Collate_case_insensitive(async);
 
         AssertSql(
-"""
+            """
 SELECT COUNT(*)
 FROM [Customers] AS [c]
 WHERE [c].[ContactName] COLLATE Latin1_General_CI_AI = N'maria anders'
@@ -100,7 +102,7 @@ WHERE [c].[ContactName] COLLATE Latin1_General_CI_AI = N'maria anders'
         await base.Collate_case_sensitive(async);
 
         AssertSql(
-"""
+            """
 SELECT COUNT(*)
 FROM [Customers] AS [c]
 WHERE [c].[ContactName] COLLATE Latin1_General_CS_AS = N'maria anders'
@@ -112,11 +114,49 @@ WHERE [c].[ContactName] COLLATE Latin1_General_CS_AS = N'maria anders'
         await base.Collate_case_sensitive_constant(async);
 
         AssertSql(
-"""
+            """
 SELECT COUNT(*)
 FROM [Customers] AS [c]
 WHERE [c].[ContactName] = N'maria anders' COLLATE Latin1_General_CS_AS
 """);
+    }
+
+    public override async Task Collate_is_null(bool async)
+    {
+        await base.Collate_is_null(async);
+
+        AssertSql(
+            """
+SELECT COUNT(*)
+FROM [Customers] AS [c]
+WHERE [c].[Region] IS NULL
+""");
+    }
+
+    public override Task Least(bool async)
+        => AssertTranslationFailed(() => base.Least(async));
+
+    public override Task Greatest(bool async)
+        => AssertTranslationFailed(() => base.Greatest(async));
+
+    public override Task Least_with_nullable_value_type(bool async)
+        => AssertTranslationFailed(() => base.Least_with_nullable_value_type(async));
+
+    public override Task Greatest_with_nullable_value_type(bool async)
+        => AssertTranslationFailed(() => base.Greatest_with_nullable_value_type(async));
+
+    public override async Task Least_with_parameter_array_is_not_supported(bool async)
+    {
+        await base.Least_with_parameter_array_is_not_supported(async);
+
+        AssertSql();
+    }
+
+    public override async Task Greatest_with_parameter_array_is_not_supported(bool async)
+    {
+        await base.Greatest_with_parameter_array_is_not_supported(async);
+
+        AssertSql();
     }
 
     protected override string CaseInsensitiveCollation
@@ -137,7 +177,7 @@ WHERE [c].[ContactName] = N'maria anders' COLLATE Latin1_General_CS_AS
         Assert.Equal(1u, result.First().EmployeeID);
 
         AssertSql(
-"""
+            """
 SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
 WHERE FREETEXT([e].[Title], N'Representative')
@@ -163,7 +203,7 @@ WHERE FREETEXT([e].[Title], N'Representative')
         Assert.Equal(9, result);
 
         AssertSql(
-"""
+            """
 SELECT COUNT(*)
 FROM [Employees] AS [e]
 WHERE FREETEXT([e].[Title], N'Representative Sales')
@@ -180,7 +220,7 @@ WHERE FREETEXT([e].[Title], N'Representative Sales')
         Assert.Equal(2u, result.EmployeeID);
 
         AssertSql(
-"""
+            """
 SELECT TOP(2) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
 WHERE FREETEXT([e].[Title], N'President', LANGUAGE 1033)
@@ -198,7 +238,7 @@ WHERE FREETEXT([e].[Title], N'President', LANGUAGE 1033)
         Assert.Equal(2u, result.EmployeeID);
 
         AssertSql(
-"""
+            """
 SELECT TOP(2) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
 WHERE FREETEXT([e].[Title], N'President', LANGUAGE 1033)
@@ -217,7 +257,7 @@ WHERE FREETEXT([e].[Title], N'President', LANGUAGE 1033)
         Assert.Equal(1u, result.First().EmployeeID);
 
         AssertSql(
-"""
+            """
 SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
 WHERE FREETEXT([e].[Title], N'Representative President', LANGUAGE 1033)
@@ -238,7 +278,7 @@ WHERE FREETEXT([e].[Title], N'Representative President', LANGUAGE 1033)
         Assert.Equal(5u, result.EmployeeID);
 
         AssertSql(
-"""
+            """
 SELECT TOP(1) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
 WHERE FREETEXT([e].[City], N'London') AND FREETEXT([e].[Title], N'Manager', LANGUAGE 1033)
@@ -270,7 +310,7 @@ WHERE FREETEXT([e].[City], N'London') AND FREETEXT([e].[Title], N'Manager', LANG
         Assert.Equal(8u, result.EmployeeID);
 
         AssertSql(
-"""
+            """
 SELECT TOP(1) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
 LEFT JOIN [Employees] AS [e0] ON [e].[ReportsTo] = [e0].[EmployeeID]
@@ -294,7 +334,7 @@ ORDER BY [e].[EmployeeID] DESC
         Assert.Equal(8u, result.EmployeeID);
 
         AssertSql(
-"""
+            """
 SELECT TOP(1) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
 LEFT JOIN [Employees] AS [e0] ON [e].[ReportsTo] = [e0].[EmployeeID]
@@ -394,7 +434,7 @@ WHERE FREETEXT([e0].[Title], N'President', LANGUAGE 1033) AND FREETEXT([e].[Titl
         Assert.Equal(1u, result.First().EmployeeID);
 
         AssertSql(
-"""
+            """
 SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
 WHERE CONTAINS([e].[Title], N'Representative')
@@ -411,7 +451,7 @@ WHERE CONTAINS([e].[Title], N'Representative')
         Assert.Equal(2u, result.EmployeeID);
 
         AssertSql(
-"""
+            """
 SELECT TOP(2) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
 WHERE CONTAINS([e].[Title], N'President', LANGUAGE 1033)
@@ -429,7 +469,7 @@ WHERE CONTAINS([e].[Title], N'President', LANGUAGE 1033)
         Assert.Equal(2u, result.EmployeeID);
 
         AssertSql(
-"""
+            """
 SELECT TOP(2) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
 WHERE CONTAINS([e].[Title], N'President', LANGUAGE 1033)
@@ -449,7 +489,7 @@ WHERE CONTAINS([e].[Title], N'President', LANGUAGE 1033)
         Assert.Equal(2u, result.First().EmployeeID);
 
         AssertSql(
-"""
+            """
 SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
 WHERE CONTAINS([e].[Title], N'Vice OR Inside')
@@ -467,7 +507,7 @@ WHERE CONTAINS([e].[Title], N'Vice OR Inside')
         Assert.Equal(5u, result.EmployeeID);
 
         AssertSql(
-"""
+            """
 SELECT TOP(2) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
 WHERE CONTAINS([e].[Title], N'"Mana*"', LANGUAGE 1033)
@@ -485,7 +525,7 @@ WHERE CONTAINS([e].[Title], N'"Mana*"', LANGUAGE 1033)
         Assert.Equal(2u, result.EmployeeID);
 
         AssertSql(
-"""
+            """
 SELECT TOP(2) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
 WHERE CONTAINS([e].[Title], N'NEAR((Sales, President), 1)', LANGUAGE 1033)
@@ -507,11 +547,29 @@ WHERE CONTAINS([e].[Title], N'NEAR((Sales, President), 1)', LANGUAGE 1033)
         Assert.Equal(8u, result.EmployeeID);
 
         AssertSql(
-"""
+            """
 SELECT TOP(1) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
 LEFT JOIN [Employees] AS [e0] ON [e].[ReportsTo] = [e0].[EmployeeID]
 WHERE CONTAINS([e0].[Title], N'President') AND CONTAINS([e].[Title], N'"Ins*"')
+""");
+    }
+
+    [ConditionalFact]
+    public async Task PatIndex_literal()
+    {
+        using var context = CreateContext();
+        var result = await context.Employees
+            .Where(c => EF.Functions.PatIndex("%Nancy%", c.FirstName) == 1)
+            .ToListAsync();
+
+        Assert.Equal(1u, result.First().EmployeeID);
+
+        AssertSql(
+            """
+SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+WHERE PATINDEX(N'%Nancy%', [e].[FirstName]) = CAST(1 AS bigint)
 """);
     }
 
@@ -527,7 +585,7 @@ WHERE CONTAINS([e0].[Title], N'President') AND CONTAINS([e].[Title], N'"Ins*"')
             c => c.OrderDate.Value.Year - DateTime.Now.Year == 0);
 
         AssertSql(
-"""
+            """
 SELECT COUNT(*)
 FROM [Orders] AS [o]
 WHERE DATEDIFF(year, [o].[OrderDate], GETDATE()) = 0
@@ -547,7 +605,7 @@ WHERE DATEDIFF(year, [o].[OrderDate], GETDATE()) = 0
             c => c.OrderDate.Value.Year * 12 + c.OrderDate.Value.Month - (now.Year * 12 + now.Month) == 0);
 
         AssertSql(
-"""
+            """
 SELECT COUNT(*)
 FROM [Orders] AS [o]
 WHERE DATEDIFF(month, [o].[OrderDate], GETDATE()) = 0
@@ -566,7 +624,7 @@ WHERE DATEDIFF(month, [o].[OrderDate], GETDATE()) = 0
             c => false);
 
         AssertSql(
-"""
+            """
 SELECT COUNT(*)
 FROM [Orders] AS [o]
 WHERE DATEDIFF(day, [o].[OrderDate], GETDATE()) = 0
@@ -585,7 +643,7 @@ WHERE DATEDIFF(day, [o].[OrderDate], GETDATE()) = 0
             c => false);
 
         AssertSql(
-"""
+            """
 SELECT COUNT(*)
 FROM [Orders] AS [o]
 WHERE DATEDIFF(hour, [o].[OrderDate], GETDATE()) = 0
@@ -604,7 +662,7 @@ WHERE DATEDIFF(hour, [o].[OrderDate], GETDATE()) = 0
             c => false);
 
         AssertSql(
-"""
+            """
 SELECT COUNT(*)
 FROM [Orders] AS [o]
 WHERE DATEDIFF(minute, [o].[OrderDate], GETDATE()) = 0
@@ -623,7 +681,7 @@ WHERE DATEDIFF(minute, [o].[OrderDate], GETDATE()) = 0
             c => false);
 
         AssertSql(
-"""
+            """
 SELECT COUNT(*)
 FROM [Orders] AS [o]
 WHERE DATEDIFF(second, [o].[OrderDate], GETDATE()) = 0
@@ -642,7 +700,7 @@ WHERE DATEDIFF(second, [o].[OrderDate], GETDATE()) = 0
             c => false);
 
         AssertSql(
-"""
+            """
 SELECT COUNT(*)
 FROM [Orders] AS [o]
 WHERE DATEDIFF(millisecond, GETDATE(), DATEADD(day, CAST(1.0E0 AS int), GETDATE())) = 0
@@ -661,7 +719,7 @@ WHERE DATEDIFF(millisecond, GETDATE(), DATEADD(day, CAST(1.0E0 AS int), GETDATE(
             c => false);
 
         AssertSql(
-"""
+            """
 SELECT COUNT(*)
 FROM [Orders] AS [o]
 WHERE DATEDIFF(microsecond, GETDATE(), DATEADD(second, CAST(1.0E0 AS int), GETDATE())) = 0
@@ -680,7 +738,7 @@ WHERE DATEDIFF(microsecond, GETDATE(), DATEADD(second, CAST(1.0E0 AS int), GETDA
             c => false);
 
         AssertSql(
-"""
+            """
 SELECT COUNT(*)
 FROM [Orders] AS [o]
 WHERE DATEDIFF(nanosecond, GETDATE(), DATEADD(second, CAST(1.0E0 AS int), GETDATE())) = 0
@@ -701,7 +759,7 @@ WHERE DATEDIFF(nanosecond, GETDATE(), DATEADD(second, CAST(1.0E0 AS int), GETDAT
         Assert.Equal(16, count);
 
         AssertSql(
-"""
+            """
 SELECT COUNT(*)
 FROM [Orders] AS [o]
 WHERE DATEDIFF(week, [o].[OrderDate], '1998-05-06T00:00:00.000') = 5
@@ -722,7 +780,7 @@ WHERE DATEDIFF(week, [o].[OrderDate], '1998-05-06T00:00:00.000') = 5
         Assert.Equal(16, count);
 
         AssertSql(
-"""
+            """
 SELECT COUNT(*)
 FROM [Orders] AS [o]
 WHERE DATEDIFF(week, CAST([o].[OrderDate] AS datetimeoffset), '1998-05-06T00:00:00.0000000+00:00') = 5
@@ -743,7 +801,7 @@ WHERE DATEDIFF(week, CAST([o].[OrderDate] AS datetimeoffset), '1998-05-06T00:00:
         Assert.Equal(0, count);
 
         AssertSql(
-"""
+            """
 SELECT COUNT(*)
 FROM [Orders] AS [o]
 WHERE DATEDIFF(week, NULL, [o].[OrderDate]) = 5
@@ -760,7 +818,7 @@ WHERE DATEDIFF(week, NULL, [o].[OrderDate]) = 5
             ss => ss.Set<Order>().Select(c => false));
 
         AssertSql(
-"""
+            """
 SELECT CAST(ISDATE([o].[CustomerID]) AS bit)
 FROM [Orders] AS [o]
 WHERE CAST(ISDATE([o].[CustomerID]) AS bit) = CAST(0 AS bit)
@@ -779,10 +837,10 @@ WHERE CAST(ISDATE([o].[CustomerID]) AS bit) = CAST(0 AS bit)
             ss => ss.Set<Order>().Select(o => true));
 
         AssertSql(
-"""
-SELECT CAST(ISDATE(CONVERT(varchar(100), [o].[OrderDate])) AS bit)
+            """
+SELECT CAST(ISDATE(COALESCE(CONVERT(varchar(100), [o].[OrderDate]), '')) AS bit)
 FROM [Orders] AS [o]
-WHERE CAST(ISDATE(CONVERT(varchar(100), [o].[OrderDate])) AS bit) = CAST(1 AS bit)
+WHERE CAST(ISDATE(COALESCE(CONVERT(varchar(100), [o].[OrderDate]), '')) AS bit) = CAST(1 AS bit)
 """);
     }
 
@@ -798,10 +856,10 @@ WHERE CAST(ISDATE(CONVERT(varchar(100), [o].[OrderDate])) AS bit) = CAST(1 AS bi
             c => false);
 
         AssertSql(
-"""
+            """
 SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE CAST(ISDATE(COALESCE([o].[CustomerID], N'') + CAST([o].[OrderID] AS nchar(5))) AS bit) = CAST(1 AS bit)
+WHERE CAST(ISDATE(COALESCE([o].[CustomerID], N'') + CAST([o].[OrderID] AS nvarchar(max))) AS bit) = CAST(1 AS bit)
 """);
     }
 
@@ -827,13 +885,10 @@ WHERE CAST(ISDATE(COALESCE([o].[CustomerID], N'') + CAST([o].[OrderID] AS nchar(
             ss => ss.Set<Order>().Select(c => false));
 
         AssertSql(
-"""
-SELECT CASE
-    WHEN ISNUMERIC(CONVERT(varchar(100), [o].[OrderDate])) = 1 THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END
+            """
+SELECT ~CAST(ISNUMERIC(COALESCE(CONVERT(varchar(100), [o].[OrderDate]), '')) ^ 1 AS bit)
 FROM [Orders] AS [o]
-WHERE ISNUMERIC(CONVERT(varchar(100), [o].[OrderDate])) <> 1
+WHERE ISNUMERIC(COALESCE(CONVERT(varchar(100), [o].[OrderDate]), '')) <> 1
 """);
     }
 
@@ -849,11 +904,8 @@ WHERE ISNUMERIC(CONVERT(varchar(100), [o].[OrderDate])) <> 1
             ss => ss.Set<OrderDetail>().Select(o => true));
 
         AssertSql(
-"""
-SELECT CASE
-    WHEN ISNUMERIC(CONVERT(varchar(100), [o].[UnitPrice])) = 1 THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END
+            """
+SELECT ~CAST(ISNUMERIC(CONVERT(varchar(100), [o].[UnitPrice])) ^ 1 AS bit)
 FROM [Order Details] AS [o]
 WHERE ISNUMERIC(CONVERT(varchar(100), [o].[UnitPrice])) = 1
 """);
@@ -871,10 +923,10 @@ WHERE ISNUMERIC(CONVERT(varchar(100), [o].[UnitPrice])) = 1
             c => false);
 
         AssertSql(
-"""
+            """
 SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE ISNUMERIC(COALESCE([o].[CustomerID], N'') + CAST([o].[OrderID] AS nchar(5))) = 1
+WHERE ISNUMERIC(COALESCE([o].[CustomerID], N'') + CAST([o].[OrderID] AS nvarchar(max))) = 1
 """);
     }
 
@@ -900,7 +952,7 @@ WHERE ISNUMERIC(COALESCE([o].[CustomerID], N'') + CAST([o].[OrderID] AS nchar(5)
             c => c.OrderDate > new DateTime(DateTime.Now.Year, 12, 31, 23, 59, 59, 999));
 
         AssertSql(
-"""
+            """
 SELECT COUNT(*)
 FROM [Orders] AS [o]
 WHERE [o].[OrderDate] > DATETIMEFROMPARTS(DATEPART(year, GETDATE()), 12, 31, 23, 59, 59, 999)
@@ -919,7 +971,7 @@ WHERE [o].[OrderDate] > DATETIMEFROMPARTS(DATEPART(year, GETDATE()), 12, 31, 23,
             c => new DateTime(2018, 12, 29, 23, 20, 40) > new DateTime(DateTime.Now.Year, 12, 31, 23, 59, 59, 999));
 
         AssertSql(
-"""
+            """
 SELECT COUNT(*)
 FROM [Orders] AS [o]
 WHERE '2018-12-29T23:20:40.000' > DATETIMEFROMPARTS(DATEPART(year, GETDATE()), 12, 31, 23, 59, 59, 999)
@@ -945,18 +997,18 @@ WHERE '2018-12-29T23:20:40.000' > DATETIMEFROMPARTS(DATEPART(year, GETDATE()), 1
                     dateTime.Millisecond));
 
         AssertSql(
-"""
-@__dateTime_0='1919-12-12T10:20:15.0000000' (DbType = DateTime)
-@__dateTime_Month_2='12'
-@__dateTime_Day_3='12'
-@__dateTime_Hour_4='10'
-@__dateTime_Minute_5='20'
-@__dateTime_Second_6='15'
-@__dateTime_Millisecond_7='0'
+            """
+@dateTime='1919-12-12T10:20:15.0000000' (DbType = DateTime)
+@dateTime_Month='12'
+@dateTime_Day='12'
+@dateTime_Hour='10'
+@dateTime_Minute='20'
+@dateTime_Second='15'
+@dateTime_Millisecond='0'
 
 SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE @__dateTime_0 > DATETIMEFROMPARTS(DATEPART(year, GETDATE()), @__dateTime_Month_2, @__dateTime_Day_3, @__dateTime_Hour_4, @__dateTime_Minute_5, @__dateTime_Second_6, @__dateTime_Millisecond_7)
+WHERE @dateTime > DATETIMEFROMPARTS(DATEPART(year, GETDATE()), @dateTime_Month, @dateTime_Day, @dateTime_Hour, @dateTime_Minute, @dateTime_Second, @dateTime_Millisecond)
 """);
     }
 
@@ -972,7 +1024,7 @@ WHERE @__dateTime_0 > DATETIMEFROMPARTS(DATEPART(year, GETDATE()), @__dateTime_M
             c => c.OrderDate > new DateTime(DateTime.Now.Year, 12, 31));
 
         AssertSql(
-"""
+            """
 SELECT COUNT(*)
 FROM [Orders] AS [o]
 WHERE [o].[OrderDate] > DATEFROMPARTS(DATEPART(year, GETDATE()), 12, 31)
@@ -991,7 +1043,7 @@ WHERE [o].[OrderDate] > DATEFROMPARTS(DATEPART(year, GETDATE()), 12, 31)
             c => new DateTime(2018, 12, 29) > new DateTime(DateTime.Now.Year, 12, 31));
 
         AssertSql(
-"""
+            """
 SELECT COUNT(*)
 FROM [Orders] AS [o]
 WHERE '2018-12-29' > DATEFROMPARTS(DATEPART(year, GETDATE()), 12, 31)
@@ -1011,14 +1063,14 @@ WHERE '2018-12-29' > DATEFROMPARTS(DATEPART(year, GETDATE()), 12, 31)
             c => date > new DateTime(DateTime.Now.Year, date.Month, date.Day));
 
         AssertSql(
-"""
-@__date_0='1919-12-12T00:00:00.0000000' (DbType = Date)
-@__date_Month_2='12'
-@__date_Day_3='12'
+            """
+@date='1919-12-12T00:00:00.0000000' (DbType = Date)
+@date_Month='12'
+@date_Day='12'
 
 SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE @__date_0 > DATEFROMPARTS(DATEPART(year, GETDATE()), @__date_Month_2, @__date_Day_3)
+WHERE @date > DATEFROMPARTS(DATEPART(year, GETDATE()), @date_Month, @date_Day)
 """);
     }
 
@@ -1033,7 +1085,7 @@ WHERE @__date_0 > DATEFROMPARTS(DATEPART(year, GETDATE()), @__date_Month_2, @__d
             Assert.Equal(0, count);
 
             AssertSql(
-"""
+                """
 SELECT COUNT(*)
 FROM [Orders] AS [o]
 WHERE [o].[OrderDate] > DATETIME2FROMPARTS(DATEPART(year, GETDATE()), 12, 31, 23, 59, 59, 999, 3)
@@ -1054,7 +1106,7 @@ WHERE [o].[OrderDate] > DATETIME2FROMPARTS(DATEPART(year, GETDATE()), 12, 31, 23
             Assert.Equal(0, count);
 
             AssertSql(
-"""
+                """
 SELECT COUNT(*)
 FROM [Orders] AS [o]
 WHERE '2018-12-29T23:20:40.0000000' > DATETIME2FROMPARTS(DATEPART(year, GETDATE()), 12, 31, 23, 59, 59, 9999999, 7)
@@ -1079,18 +1131,18 @@ WHERE '2018-12-29T23:20:40.0000000' > DATETIME2FROMPARTS(DATEPART(year, GETDATE(
             Assert.Equal(0, count);
 
             AssertSql(
-"""
-@__dateTime_0='1919-12-12T10:20:15.0000000'
-@__dateTime_Month_2='12'
-@__dateTime_Day_3='12'
-@__dateTime_Hour_4='10'
-@__dateTime_Minute_5='20'
-@__dateTime_Second_6='15'
-@__fractions_7='9999999'
+                """
+@dateTime='1919-12-12T10:20:15.0000000'
+@dateTime_Month='12'
+@dateTime_Day='12'
+@dateTime_Hour='10'
+@dateTime_Minute='20'
+@dateTime_Second='15'
+@fractions='9999999'
 
 SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE @__dateTime_0 > DATETIME2FROMPARTS(DATEPART(year, GETDATE()), @__dateTime_Month_2, @__dateTime_Day_3, @__dateTime_Hour_4, @__dateTime_Minute_5, @__dateTime_Second_6, @__fractions_7, 7)
+WHERE @dateTime > DATETIME2FROMPARTS(DATEPART(year, GETDATE()), @dateTime_Month, @dateTime_Day, @dateTime_Hour, @dateTime_Minute, @dateTime_Second, @fractions, 7)
 """);
         }
     }
@@ -1106,7 +1158,7 @@ WHERE @__dateTime_0 > DATETIME2FROMPARTS(DATEPART(year, GETDATE()), @__dateTime_
             Assert.Equal(0, count);
 
             AssertSql(
-"""
+                """
 SELECT COUNT(*)
 FROM [Orders] AS [o]
 WHERE CAST([o].[OrderDate] AS datetimeoffset) > DATETIMEOFFSETFROMPARTS(DATEPART(year, GETDATE()), 12, 31, 23, 59, 59, 5, 12, 30, 1)
@@ -1127,7 +1179,7 @@ WHERE CAST([o].[OrderDate] AS datetimeoffset) > DATETIMEOFFSETFROMPARTS(DATEPART
             Assert.Equal(0, count);
 
             AssertSql(
-"""
+                """
 SELECT COUNT(*)
 FROM [Orders] AS [o]
 WHERE '2018-12-29T23:20:40.0000000+01:00' > DATETIMEOFFSETFROMPARTS(DATEPART(year, GETDATE()), 12, 31, 23, 59, 59, 50, 1, 0, 7)
@@ -1154,20 +1206,20 @@ WHERE '2018-12-29T23:20:40.0000000+01:00' > DATETIMEOFFSETFROMPARTS(DATEPART(yea
             Assert.Equal(0, count);
 
             AssertSql(
-"""
-@__dateTimeOffset_0='1919-12-12T10:20:15.0000000+01:30'
-@__dateTimeOffset_Month_2='12'
-@__dateTimeOffset_Day_3='12'
-@__dateTimeOffset_Hour_4='10'
-@__dateTimeOffset_Minute_5='20'
-@__dateTimeOffset_Second_6='15'
-@__fractions_7='5'
-@__hourOffset_8='1'
-@__minuteOffset_9='30'
+                """
+@dateTimeOffset='1919-12-12T10:20:15.0000000+01:30'
+@dateTimeOffset_Month='12'
+@dateTimeOffset_Day='12'
+@dateTimeOffset_Hour='10'
+@dateTimeOffset_Minute='20'
+@dateTimeOffset_Second='15'
+@fractions='5'
+@hourOffset='1'
+@minuteOffset='30'
 
 SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE @__dateTimeOffset_0 > DATETIMEOFFSETFROMPARTS(DATEPART(year, GETDATE()), @__dateTimeOffset_Month_2, @__dateTimeOffset_Day_3, @__dateTimeOffset_Hour_4, @__dateTimeOffset_Minute_5, @__dateTimeOffset_Second_6, @__fractions_7, @__hourOffset_8, @__minuteOffset_9, 7)
+WHERE @dateTimeOffset > DATETIMEOFFSETFROMPARTS(DATEPART(year, GETDATE()), @dateTimeOffset_Month, @dateTimeOffset_Day, @dateTimeOffset_Hour, @dateTimeOffset_Minute, @dateTimeOffset_Second, @fractions, @hourOffset, @minuteOffset, 7)
 """);
         }
     }
@@ -1184,7 +1236,7 @@ WHERE @__dateTimeOffset_0 > DATETIMEOFFSETFROMPARTS(DATEPART(year, GETDATE()), @
             c => c.OrderDate > new DateTime(DateTime.Now.Year, 12, 31, 12, 59, 0));
 
         AssertSql(
-"""
+            """
 SELECT COUNT(*)
 FROM [Orders] AS [o]
 WHERE [o].[OrderDate] > SMALLDATETIMEFROMPARTS(DATEPART(year, GETDATE()), 12, 31, 12, 59)
@@ -1203,7 +1255,7 @@ WHERE [o].[OrderDate] > SMALLDATETIMEFROMPARTS(DATEPART(year, GETDATE()), 12, 31
             c => new DateTime(2018, 12, 29, 23, 20, 0) > new DateTime(DateTime.Now.Year, 12, 31, 12, 59, 0));
 
         AssertSql(
-"""
+            """
 SELECT COUNT(*)
 FROM [Orders] AS [o]
 WHERE '2018-12-29T23:20:00' > SMALLDATETIMEFROMPARTS(DATEPART(year, GETDATE()), 12, 31, 12, 59)
@@ -1224,16 +1276,16 @@ WHERE '2018-12-29T23:20:00' > SMALLDATETIMEFROMPARTS(DATEPART(year, GETDATE()), 
             c => dateTime > new DateTime(DateTime.Now.Year, dateTime.Month, dateTime.Day, dateTime.Hour, dateTime.Minute, 0));
 
         AssertSql(
-"""
-@__dateTime_0='1919-12-12T23:20:00.0000000' (DbType = DateTime)
-@__dateTime_Month_2='12'
-@__dateTime_Day_3='12'
-@__dateTime_Hour_4='23'
-@__dateTime_Minute_5='20'
+            """
+@dateTime='1919-12-12T23:20:00.0000000' (DbType = DateTime)
+@dateTime_Month='12'
+@dateTime_Day='12'
+@dateTime_Hour='23'
+@dateTime_Minute='20'
 
 SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE @__dateTime_0 > SMALLDATETIMEFROMPARTS(DATEPART(year, GETDATE()), @__dateTime_Month_2, @__dateTime_Day_3, @__dateTime_Hour_4, @__dateTime_Minute_5)
+WHERE @dateTime > SMALLDATETIMEFROMPARTS(DATEPART(year, GETDATE()), @dateTime_Month, @dateTime_Day, @dateTime_Hour, @dateTime_Minute)
 """);
     }
 
@@ -1249,7 +1301,7 @@ WHERE @__dateTime_0 > SMALLDATETIMEFROMPARTS(DATEPART(year, GETDATE()), @__dateT
             c => new TimeSpan(23, 59, 0) > new TimeSpan(0, 23, 59, 59, c.OrderID % 60));
 
         AssertSql(
-"""
+            """
 SELECT COUNT(*)
 FROM [Orders] AS [o]
 WHERE '23:59:00' > TIMEFROMPARTS(23, 59, 59, [o].[OrderID] % 60, 3)
@@ -1267,7 +1319,7 @@ WHERE '23:59:00' > TIMEFROMPARTS(23, 59, 59, [o].[OrderID] % 60, 3)
             ss => ss.Set<Order>().Select(o => new TimeSpan(0, 23, 59, 59, o.OrderID % 60)));
 
         AssertSql(
-"""
+            """
 SELECT TIMEFROMPARTS(23, 59, 59, [o].[OrderID] % 60, 3)
 FROM [Orders] AS [o]
 """);
@@ -1285,7 +1337,7 @@ FROM [Orders] AS [o]
             c => c.OrderID % 10 == 8);
 
         AssertSql(
-"""
+            """
 SELECT COUNT(*)
 FROM [Orders] AS [o]
 WHERE [o].[OrderID] % 10 = DATALENGTH([o].[OrderDate])
@@ -1303,7 +1355,7 @@ WHERE [o].[OrderID] % 10 = DATALENGTH([o].[OrderDate])
             Assert.Equal(0, count);
 
             AssertSql(
-"""
+                """
 SELECT COUNT(*)
 FROM [Orders] AS [o]
 WHERE 100 < DATALENGTH([o].[OrderDate])
@@ -1314,21 +1366,21 @@ WHERE 100 < DATALENGTH([o].[OrderDate])
     [ConditionalFact]
     public virtual void DataLength_compare_with_local_variable()
     {
-        int? lenght = 100;
+        int? length = 100;
         using (var context = CreateContext())
         {
             var count = context.Orders
-                .Count(c => lenght < EF.Functions.DataLength(c.OrderDate));
+                .Count(c => length < EF.Functions.DataLength(c.OrderDate));
 
             Assert.Equal(0, count);
 
             AssertSql(
-"""
-@__lenght_0='100' (Nullable = true)
+                """
+@length='100' (Nullable = true)
 
 SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE @__lenght_0 < DATALENGTH([o].[OrderDate])
+WHERE @length < DATALENGTH([o].[OrderDate])
 """);
         }
     }
@@ -1344,36 +1396,12 @@ WHERE @__lenght_0 < DATALENGTH([o].[OrderDate])
             Assert.Equal(0, count);
 
             AssertSql(
-"""
+                """
 SELECT COUNT(*)
 FROM [Orders] AS [o]
 WHERE CAST(DATALENGTH(N'foo') AS int) = 3
 """);
         }
-    }
-
-    public override async Task Random_return_less_than_1(bool async)
-    {
-        await base.Random_return_less_than_1(async);
-
-        AssertSql(
-"""
-SELECT COUNT(*)
-FROM [Orders] AS [o]
-WHERE RAND() < 1.0E0
-""");
-    }
-
-    public override async Task Random_return_greater_than_0(bool async)
-    {
-        await base.Random_return_greater_than_0(async);
-
-        AssertSql(
-"""
-SELECT COUNT(*)
-FROM [Orders] AS [o]
-WHERE RAND() >= 0.0E0
-""");
     }
 
     private void AssertSql(params string[] expected)

@@ -52,9 +52,7 @@ public class ModelBuilder : IInfrastructure<IConventionModelBuilder>
     /// <param name="modelDependencies">The dependencies object for the model.</param>
     public ModelBuilder(ConventionSet conventions, ModelDependencies modelDependencies)
         : this(conventions, modelDependencies, null)
-    {
-        Check.NotNull(modelDependencies, nameof(modelDependencies));
-    }
+        => Check.NotNull(modelDependencies, nameof(modelDependencies));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -85,9 +83,7 @@ public class ModelBuilder : IInfrastructure<IConventionModelBuilder>
     ///     <see href="https://aka.ms/efcore-docs-conventions">EF Core model-building conventions</see> for more information and examples.
     /// </remarks>
     public ModelBuilder()
-    {
-        _builder = new Model().Builder;
-    }
+        => _builder = new Model().Builder;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -97,9 +93,7 @@ public class ModelBuilder : IInfrastructure<IConventionModelBuilder>
     /// </summary>
     [EntityFrameworkInternal]
     public ModelBuilder(IMutableModel model)
-    {
-        _builder = ((Model)model).Builder;
-    }
+        => _builder = ((Model)model).Builder;
 
     /// <summary>
     ///     The model being configured.
@@ -512,16 +506,19 @@ public class ModelBuilder : IInfrastructure<IConventionModelBuilder>
         var applyEntityConfigurationMethod = typeof(ModelBuilder)
             .GetMethods()
             .Single(
-                e => e.Name == nameof(ApplyConfiguration)
-                    && e.ContainsGenericParameters
+                e => e is { Name: nameof(ApplyConfiguration), ContainsGenericParameters: true }
                     && e.GetParameters().SingleOrDefault()?.ParameterType.GetGenericTypeDefinition()
                     == typeof(IEntityTypeConfiguration<>));
 
-        foreach (var type in assembly.GetConstructibleTypes().OrderBy(t => t.FullName))
+        var logger = Builder.Metadata.ScopedModelDependencies?.Logger;
+        var foundOne = false;
+        foreach (var type in assembly.GetConstructibleTypes(logger).OrderBy(t => t.FullName))
         {
             // Only accept types that contain a parameterless constructor, are not abstract and satisfy a predicate if it was used.
-            if (type.GetConstructor(Type.EmptyTypes) == null
-                || (!predicate?.Invoke(type) ?? false))
+            var hasConstructor
+                = type.GetConstructor(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, Type.EmptyTypes) != null;
+
+            if (hasConstructor && predicate != null && !predicate(type))
             {
                 continue;
             }
@@ -535,10 +532,23 @@ public class ModelBuilder : IInfrastructure<IConventionModelBuilder>
 
                 if (@interface.GetGenericTypeDefinition() == typeof(IEntityTypeConfiguration<>))
                 {
-                    var target = applyEntityConfigurationMethod.MakeGenericMethod(@interface.GenericTypeArguments[0]);
-                    target.Invoke(this, new[] { Activator.CreateInstance(type) });
+                    if (hasConstructor)
+                    {
+                        var target = applyEntityConfigurationMethod.MakeGenericMethod(@interface.GenericTypeArguments[0]);
+                        target.Invoke(this, [Activator.CreateInstance(type, nonPublic: true)]);
+                        foundOne = true;
+                    }
+                    else
+                    {
+                        logger?.SkippedEntityTypeConfigurationWarning(type);
+                    }
                 }
             }
+        }
+
+        if (!foundOne)
+        {
+            logger?.NoEntityTypeConfigurationsWarning(assembly);
         }
 
         return this;
@@ -622,8 +632,20 @@ public class ModelBuilder : IInfrastructure<IConventionModelBuilder>
     }
 
     /// <summary>
-    ///     Forces post-processing on the model such that it is ready for use by the runtime. This post
-    ///     processing happens automatically when using <see cref="DbContext.OnModelCreating" />; this method allows it to be run
+    ///     Sets the name to use for discriminator properties embedded in JSON documents. The default is "$type".
+    /// </summary>
+    /// <param name="name">The property name, or <see langword="null" /> to clear the name set.</param>
+    /// <returns>The same <see cref="ModelBuilder" /> instance so that additional configuration calls can be chained.</returns>
+    public virtual ModelBuilder HasEmbeddedDiscriminatorName(string name)
+    {
+        Builder.HasEmbeddedDiscriminatorName(name, ConfigurationSource.Explicit);
+
+        return this;
+    }
+
+    /// <summary>
+    ///     Forces post-processing on the model such that it is ready for use by the runtime. This post-processing
+    ///     happens automatically when using <see cref="DbContext.OnModelCreating" />; this method allows it to be run
     ///     explicitly in cases where the automatic execution is not possible.
     /// </summary>
     /// <returns>The finalized model.</returns>

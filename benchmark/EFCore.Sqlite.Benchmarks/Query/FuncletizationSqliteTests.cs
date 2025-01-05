@@ -3,13 +3,10 @@
 
 using Microsoft.EntityFrameworkCore.Benchmarks.Models.Orders;
 
-namespace Microsoft.EntityFrameworkCore.Benchmarks.Query
+namespace Microsoft.EntityFrameworkCore.Benchmarks.Query;
+
+public class FuncletizationSqliteTests : FuncletizationTests
 {
-    public class FuncletizationSqliteTests : FuncletizationTests
-    {
-        protected override OrdersFixtureBase CreateFixture()
-        {
-            return new OrdersSqliteFixture("Perf_Query_Funcletization");
-        }
-    }
+    protected override OrdersFixtureBase CreateFixture()
+        => new OrdersSqliteFixture("Perf_Query_Funcletization");
 }

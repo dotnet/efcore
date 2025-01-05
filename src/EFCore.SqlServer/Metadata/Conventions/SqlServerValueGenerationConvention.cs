@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 /// </summary>
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see>, and
-///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
 ///     for more information and examples.
 /// </remarks>
 public class SqlServerValueGenerationConvention : RelationalValueGenerationConvention
@@ -97,11 +97,11 @@ public class SqlServerValueGenerationConvention : RelationalValueGenerationConve
     protected override ValueGenerated? GetValueGenerated(IConventionProperty property)
     {
         // TODO: move to relational?
-        if (property.DeclaringEntityType.IsMappedToJson()
-            && !property.DeclaringEntityType.FindOwnership()!.IsUnique
+        if (property.DeclaringType.IsMappedToJson()
 #pragma warning disable EF1001 // Internal EF Core API usage.
-            && property.IsOrdinalKeyProperty())
+            && property.IsOrdinalKeyProperty()
 #pragma warning restore EF1001 // Internal EF Core API usage.
+            && (property.DeclaringType as IReadOnlyEntityType)?.FindOwnership()!.IsUnique == false)
         {
             return ValueGenerated.OnAdd;
         }
@@ -141,8 +141,9 @@ public class SqlServerValueGenerationConvention : RelationalValueGenerationConve
 
     private static ValueGenerated? GetTemporalValueGenerated(IReadOnlyProperty property)
     {
-        var entityType = property.DeclaringEntityType;
-        return entityType.IsTemporal()
+        var entityType = property.DeclaringType as IReadOnlyEntityType;
+        return entityType != null
+            && entityType.IsTemporal()
             && (entityType.GetPeriodStartPropertyName() == property.Name
                 || entityType.GetPeriodEndPropertyName() == property.Name)
                 ? ValueGenerated.OnAddOrUpdate

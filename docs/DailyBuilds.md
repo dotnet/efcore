@@ -8,7 +8,7 @@ Create a file called "NuGet.config" with the following contents and put it next 
 <?xml version="1.0" encoding="utf-8"?>
 <configuration>
     <packageSources>
-        <add key="dotnet8" value="https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet8/nuget/v3/index.json" />
+        <add key="dotnet10" value="https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet10/nuget/v3/index.json" />
         <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />
     </packageSources>
 </configuration>
@@ -36,7 +36,7 @@ For EF8 daily builds, `NuGet.config` should contain:
 <?xml version="1.0" encoding="utf-8"?>
 <configuration>
     <packageSources>
-        <add key="dotnet8" value="https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet8/nuget/v3/index.json" />
+        <add key="dotnet10" value="https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet10/nuget/v3/index.json" />
         <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />
     </packageSources>
 </configuration>
@@ -47,7 +47,7 @@ For EF8 daily builds, `NuGet.config` should contain:
 `dotnet ef` is the [the EF command-line tool](https://learn.microsoft.com/ef/core/cli/dotnet), used to perform various design-time tasks such as creating and applying migrations. Stable versions of `dotnet ef` usually work fine with daily build versions of EF; but in some situations you must also update to daily builds of the CLI tool. To use a daily build version of `dotnet ef`, do the following:
 
 ```sh
-dotnet tool install -g dotnet-ef --version 8.0.0-* --add-source https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet8/nuget/v3/index.json
+dotnet tool install -g dotnet-ef --version 10.0.0-* --add-source https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet10/nuget/v3/index.json
 ```
 
 ### EF reverse engineering templates
@@ -55,7 +55,7 @@ dotnet tool install -g dotnet-ef --version 8.0.0-* --add-source https://pkgs.dev
 EF features code templates for [reverse engineering (or "scaffolding") existing databases](https://learn.microsoft.com/ef/core/managing-schemas/scaffolding/templates); installing daily versions of these templates typically isn't necessary, but you may want to do so to experiment with new features or test bug fixes in the templates:
 
 ```sh
-dotnet new install Microsoft.EntityFrameworkCore.Templates::8.0.0-* --add-source https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet8/nuget/v3/index.json
+dotnet new install Microsoft.EntityFrameworkCore.Templates::10.0.0-* --add-source https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet10/nuget/v3/index.json
 ```
 
 ## Package versions to use
@@ -66,10 +66,10 @@ The easiest way to use daily builds is with wildcards in project references. For
 
 ```xml
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.0-*" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.0-*" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.0-*" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite" Version="8.0.0-*" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.0-*" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.0-*" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.0-*" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite" Version="10.0.0-*" />
   </ItemGroup>
 ```
 
@@ -79,21 +79,19 @@ Using wildcards will cause NuGet to pull the latest daily build whenever package
 
 You can use your IDE to choose the latest version. For example, in Visual Studio:
 
-![image](https://user-images.githubusercontent.com/1430078/92644977-01108780-f299-11ea-897e-bb8e9705ada7.png)
+![Pick the daily build to use inside your IDE.](https://github.com/dotnet/efcore/assets/1430078/925aebff-fc88-4812-8cab-a3c4c29e8b94)
 
 Alternately, your IDE might provide auto-completion directly in the .csproj file:
 
-![image](https://user-images.githubusercontent.com/1430078/92645046-1d142900-f299-11ea-9e40-c2b1fe1f61c1.png)
+![Use auto-completion in the csproj file, if supported by your IDE.](https://user-images.githubusercontent.com/1430078/92645046-1d142900-f299-11ea-9e40-c2b1fe1f61c1.png)
 
 ## What about Visual Studio and the SDK?
 
-EF8 currently targets .NET 6. This means that:
+EF8 targets .NET 8. This means that:
 
-* Your application must target .NET 6 or later; .NET Framework, .NET Core 3.1, and .NET 5 are no longer supported targets.
-* The daily builds should work with any IDE that supports .NET 6.
-* The daily builds require that the .NET 6 SDK is installed.
-
-However, it's likely that EF8 will be changed to target .NET 8 before it's released.
+* Your application must target .NET 8 or later; .NET Framework and .NET 6 and earlier are no longer supported targets.
+* The daily builds should work with any IDE that supports .NET 8.
+* The daily builds require that the .NET 8 SDK is installed.
 
 ## Troubleshooting
 
@@ -114,7 +112,7 @@ In addition, packages may be missing if the standard `nuget.org` package source 
         <clear />
     </disabledPackageSources>
     <packageSources>
-        <add key="dotnet8" value="https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet8/nuget/v3/index.json" />
+        <add key="dotnet10" value="https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet10/nuget/v3/index.json" />
         <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />
     </packageSources>
 </configuration>
@@ -130,7 +128,7 @@ A good way to ensure you're dealing with a completely clean NuGet configuration 
     </disabledPackageSources>
     <packageSources>
         <clear />
-        <add key="dotnet8" value="https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet8/nuget/v3/index.json" />
+        <add key="dotnet10" value="https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet10/nuget/v3/index.json" />
         <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />
     </packageSources>
 </configuration>

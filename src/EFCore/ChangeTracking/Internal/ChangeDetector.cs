@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
@@ -176,7 +175,7 @@ public class ChangeDetector : IChangeDetector
         try
         {
             _inCascadeDelete = true;
-            DetectChanges(entry, new HashSet<InternalEntityEntry> { entry });
+            DetectChanges(entry, [entry]);
         }
         finally
         {
@@ -227,7 +226,7 @@ public class ChangeDetector : IChangeDetector
 
         OnDetectingEntityChanges(entry);
 
-        foreach (var property in entityType.GetProperties())
+        foreach (var property in entityType.GetFlattenedProperties())
         {
             if (property.GetOriginalValueIndex() >= 0
                 && !entry.IsModified(property)

@@ -51,26 +51,14 @@ public class CosmosDbContextOptionsExtensionsTests
     }
 
     [ConditionalFact]
-    public void Throws_with_multiple_providers_new_when_no_provider()
-    {
-        var options = new DbContextOptionsBuilder()
-            .UseCosmos("serviceEndPoint", "authKeyOrResourceToken", "databaseName")
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
-
-        var context = new DbContext(options);
-
-        Assert.Equal(
-            CoreStrings.MultipleProvidersConfigured("'Microsoft.EntityFrameworkCore.Cosmos', 'Microsoft.EntityFrameworkCore.InMemory'"),
-            Assert.Throws<InvalidOperationException>(() => context.Model).Message);
-    }
-
-    [ConditionalFact]
     public void Can_create_options_with_valid_values()
     {
         Test(o => o.Region(Regions.EastAsia), o => Assert.Equal(Regions.EastAsia, o.Region));
         // The region will be validated by the Cosmos SDK, because the region list is not constant
         Test(o => o.Region("FakeRegion"), o => Assert.Equal("FakeRegion", o.Region));
+        Test(
+            o => o.PreferredRegions(new[] { Regions.AustraliaCentral, Regions.EastAsia }),
+            o => Assert.Equal(new[] { Regions.AustraliaCentral, Regions.EastAsia }, o.PreferredRegions));
         Test(o => o.ConnectionMode(ConnectionMode.Direct), o => Assert.Equal(ConnectionMode.Direct, o.ConnectionMode));
         Test(o => o.GatewayModeMaxConnectionLimit(3), o => Assert.Equal(3, o.GatewayModeMaxConnectionLimit));
         Test(o => o.MaxRequestsPerTcpConnection(3), o => Assert.Equal(3, o.MaxRequestsPerTcpConnection));
@@ -98,6 +86,92 @@ public class CosmosDbContextOptionsExtensionsTests
     }
 
     [ConditionalFact]
+    public void Endpoint_and_key_overrides_connection_string()
+    {
+        var options = new DbContextOptionsBuilder()
+            .UseCosmos(
+                "authKeyOrResourceToken@serviceEndPoint",
+                "databaseName2")
+            .UseCosmos(
+                "serviceEndPoint",
+                "authKeyOrResourceToken",
+                "databaseName");
+
+        var extension = options.Options.FindExtension<CosmosOptionsExtension>();
+
+        Assert.Equal("serviceEndPoint", extension.AccountEndpoint);
+        Assert.Equal("authKeyOrResourceToken", extension.AccountKey);
+        Assert.Null(extension.ConnectionString);
+        Assert.Equal("databaseName", extension.DatabaseName);
+    }
+
+    [ConditionalFact]
+    public void Connection_string_overrides_endpoint_and_key()
+    {
+        var options = new DbContextOptionsBuilder()
+            .UseCosmos(
+                "serviceEndPoint",
+                "authKeyOrResourceToken",
+                "databaseName2")
+            .UseCosmos(
+                "authKeyOrResourceToken@serviceEndPoint",
+                "databaseName");
+
+        var extension = options.Options.FindExtension<CosmosOptionsExtension>();
+
+        Assert.Null(extension.AccountEndpoint);
+        Assert.Null(extension.AccountKey);
+        Assert.Equal("authKeyOrResourceToken@serviceEndPoint", extension.ConnectionString);
+        Assert.Equal("databaseName", extension.DatabaseName);
+    }
+
+    [ConditionalFact]
+    public async Task Endpoint_and_token_overrides_connection_string()
+    {
+        await using var testDatabase = CosmosTestStore.Create("NonExisting");
+
+        var options = new DbContextOptionsBuilder()
+            .UseCosmos(
+                "authKeyOrResourceToken@serviceEndPoint",
+                "databaseName2")
+            .UseCosmos(
+                "serviceEndPoint",
+                testDatabase.TokenCredential,
+                "databaseName");
+
+        var extension = options.Options.FindExtension<CosmosOptionsExtension>();
+
+        Assert.Equal("serviceEndPoint", extension.AccountEndpoint);
+        Assert.Null(extension.AccountKey);
+        Assert.Same(testDatabase.TokenCredential, extension.TokenCredential);
+        Assert.Null(extension.ConnectionString);
+        Assert.Equal("databaseName", extension.DatabaseName);
+    }
+
+    [ConditionalFact]
+    public async Task Connection_string_overrides_endpoint_and_token()
+    {
+        await using var testDatabase = CosmosTestStore.Create("NonExisting");
+
+        var options = new DbContextOptionsBuilder()
+            .UseCosmos(
+                "serviceEndPoint",
+                testDatabase.TokenCredential,
+                "databaseName2")
+            .UseCosmos(
+                "authKeyOrResourceToken@serviceEndPoint",
+                "databaseName");
+
+        var extension = options.Options.FindExtension<CosmosOptionsExtension>();
+
+        Assert.Null(extension.AccountEndpoint);
+        Assert.Null(extension.AccountKey);
+        Assert.Null(extension.TokenCredential);
+        Assert.Equal("authKeyOrResourceToken@serviceEndPoint", extension.ConnectionString);
+        Assert.Equal("databaseName", extension.DatabaseName);
+    }
+
+    [ConditionalFact]
     public void Throws_for_invalid_values()
         => Throws<ArgumentOutOfRangeException>(o => o.ConnectionMode((ConnectionMode)958410610));
 
@@ -106,9 +180,6 @@ public class CosmosDbContextOptionsExtensionsTests
         Action<CosmosOptionsExtension> extensionAssert)
     {
         var options = new DbContextOptionsBuilder().UseCosmos(
-            "serviceEndPoint",
-            "authKeyOrResourceToken",
-            "databaseName",
             cosmosOptionsAction);
 
         var extension = options
@@ -117,9 +188,6 @@ public class CosmosDbContextOptionsExtensionsTests
         extensionAssert(extension);
 
         var clone = new DbContextOptionsBuilder().UseCosmos(
-                "serviceEndPoint",
-                "authKeyOrResourceToken",
-                "databaseName",
                 cosmosOptionsAction)
             .Options.FindExtension<CosmosOptionsExtension>();
 

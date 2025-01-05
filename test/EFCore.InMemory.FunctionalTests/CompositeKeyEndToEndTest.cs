@@ -169,17 +169,17 @@ public class CompositeKeyEndToEndTest
         }
     }
 
-    private class BronieContext : PoolableDbContext
+    private class BronieContext(IServiceProvider serviceProvider) : PoolableDbContext
     {
-        private readonly IServiceProvider _serviceProvider;
+        private readonly IServiceProvider _serviceProvider = serviceProvider;
 
-        public BronieContext(IServiceProvider serviceProvider)
-        {
-            _serviceProvider = serviceProvider;
-        }
-
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<Pegasus> Pegasuses { get; set; }
+
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<Unicorn> Unicorns { get; set; }
+
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<EarthPony> EarthPonies { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

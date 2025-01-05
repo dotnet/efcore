@@ -24,9 +24,7 @@ public class ConstructorBindingConvention : IModelFinalizingConvention
     /// </summary>
     /// <param name="dependencies">Parameter object containing dependencies for this convention.</param>
     public ConstructorBindingConvention(ProviderConventionSetBuilderDependencies dependencies)
-    {
-        Dependencies = dependencies;
-    }
+        => Dependencies = dependencies;
 
     /// <summary>
     ///     Dependencies for this service.
@@ -49,6 +47,28 @@ public class ConstructorBindingConvention : IModelFinalizingConvention
                 entityType.Builder.HasConstructorBinding(constructorBinding, ConfigurationSource.Convention);
                 entityType.Builder.HasServiceOnlyConstructorBinding(serviceOnlyBinding, ConfigurationSource.Convention);
             }
+
+            foreach (var complexProperty in entityType.GetDeclaredComplexProperties())
+            {
+                Process(complexProperty.ComplexType);
+            }
+        }
+    }
+
+    private void Process(ComplexType complexType)
+    {
+        if (!complexType.ClrType.IsAbstract
+            && ConfigurationSource.Convention.Overrides(complexType.GetConstructorBindingConfigurationSource()))
+        {
+            Dependencies.ConstructorBindingFactory.GetBindings(
+                complexType, out var constructorBinding, out var serviceOnlyBinding);
+            complexType.Builder.HasConstructorBinding(constructorBinding, ConfigurationSource.Convention);
+            complexType.Builder.HasServiceOnlyConstructorBinding(serviceOnlyBinding, ConfigurationSource.Convention);
+        }
+
+        foreach (var complexProperty in complexType.GetDeclaredComplexProperties())
+        {
+            Process(complexProperty.ComplexType);
         }
     }
 }

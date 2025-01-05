@@ -3,7 +3,8 @@
 
 using System.Collections;
 using System.Data;
-using System.Text.Json.Nodes;
+using System.Text;
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -30,7 +31,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
     private readonly bool _sensitiveLoggingEnabled;
     private readonly bool _detailedErrorsEnabled;
     private readonly IComparer<IUpdateEntry>? _comparer;
-    private readonly List<IUpdateEntry> _entries = new();
+    private readonly List<IUpdateEntry> _entries = [];
     private List<IColumnModification>? _columnModifications;
     private bool _mainEntryAdded;
     private EntityState _entityState;
@@ -110,7 +111,8 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
     [EntityFrameworkInternal]
     public virtual void AssertColumnsNotInitialized()
     {
-        if (_columnModifications != null)
+        if (_columnModifications != null
+            && !Debugger.IsAttached)
         {
             throw new Exception("_columnModifications have been initialized prematurely");
         }
@@ -219,7 +221,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
     {
         var modification = CreateColumnModification(columnModificationParameters);
 
-        _columnModifications ??= new List<IColumnModification>();
+        _columnModifications ??= [];
 
         _columnModifications.Add(modification);
 
@@ -236,7 +238,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
 
     private sealed class JsonPartialUpdateInfo
     {
-        public List<JsonPartialUpdatePathEntry> Path { get; } = new();
+        public List<JsonPartialUpdatePathEntry> Path { get; } = [];
         public IProperty? Property { get; set; }
         public object? PropertyValue { get; set; }
     }
@@ -248,18 +250,23 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
         var state = EntityState;
         var adding = state == EntityState.Added;
         var updating = state == EntityState.Modified;
+        var deleting = state == EntityState.Deleted;
         var columnModifications = new List<IColumnModification>();
         Dictionary<string, ColumnValuePropagator>? sharedTableColumnMap = null;
         var jsonEntry = false;
 
         if (_entries.Count > 1
-            || (_entries.Count == 1 && _entries[0].SharedIdentityEntry != null))
+            || _entries is [var singleEntry]
+            && (singleEntry.SharedIdentityEntry is not null
+                || singleEntry.EntityType.GetComplexProperties().Any()
+                || singleEntry.EntityType.GetNavigations().Any(e => e.IsCollection && e.TargetEntityType.IsMappedToJson())))
         {
             Check.DebugAssert(StoreStoredProcedure is null, "Multiple entries/shared identity not supported with stored procedures");
 
             sharedTableColumnMap = new Dictionary<string, ColumnValuePropagator>();
 
-            if (_comparer != null)
+            if (_comparer != null
+                && _entries.Count > 1)
             {
                 _entries.Sort(_comparer);
             }
@@ -279,108 +286,28 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                         : tableMapping;
                     if (sharedTableMapping != null)
                     {
-                        InitializeSharedColumns(entry.SharedIdentityEntry, sharedTableMapping, updating, sharedTableColumnMap);
+                        HandleSharedColumns(
+                            entry.SharedIdentityEntry.EntityType, entry.SharedIdentityEntry, sharedTableMapping, deleting,
+                            sharedTableColumnMap);
                     }
                 }
 
-                InitializeSharedColumns(entry, tableMapping, updating, sharedTableColumnMap);
+                HandleSharedColumns(entry.EntityType, entry, tableMapping, deleting, sharedTableColumnMap);
 
-                if (!jsonEntry && entry.EntityType.IsMappedToJson())
+                if (!jsonEntry)
                 {
-                    jsonEntry = true;
+                    if (entry.EntityType.IsMappedToJson()
+                        || entry.EntityType.GetNavigations().Any(e => e.IsCollection && e.TargetEntityType.IsMappedToJson()))
+                    {
+                        jsonEntry = true;
+                    }
                 }
             }
         }
 
         if (jsonEntry)
         {
-            var jsonColumnsUpdateMap = new Dictionary<IColumn, JsonPartialUpdateInfo>();
-            var processedEntries = new List<IUpdateEntry>();
-            foreach (var entry in _entries.Where(e => e.EntityType.IsMappedToJson()))
-            {
-                var jsonColumn = GetTableMapping(entry.EntityType)!.Table.FindColumn(entry.EntityType.GetContainerColumnName()!)!;
-                var jsonPartialUpdateInfo = FindJsonPartialUpdateInfo(entry, processedEntries);
-
-                if (jsonPartialUpdateInfo == null)
-                {
-                    continue;
-                }
-
-                if (jsonColumnsUpdateMap.TryGetValue(jsonColumn, out var currentJsonPartialUpdateInfo))
-                {
-                    jsonPartialUpdateInfo = FindCommonJsonPartialUpdateInfo(
-                        currentJsonPartialUpdateInfo,
-                        jsonPartialUpdateInfo);
-                }
-
-                jsonColumnsUpdateMap[jsonColumn] = jsonPartialUpdateInfo;
-            }
-
-            foreach (var (jsonColumn, updateInfo) in jsonColumnsUpdateMap)
-            {
-                var finalUpdatePathElement = updateInfo.Path.Last();
-                var navigation = finalUpdatePathElement.Navigation;
-                var jsonColumnTypeMapping = jsonColumn.StoreTypeMapping;
-                var navigationValue = finalUpdatePathElement.ParentEntry.GetCurrentValue(navigation);
-
-                var json = default(JsonNode?);
-                var jsonPathString = string.Join(
-                    ".", updateInfo.Path.Select(x => x.PropertyName + (x.Ordinal != null ? "[" + x.Ordinal + "]" : "")));
-
-                object? singlePropertyValue = default;
-                if (updateInfo.Property != null)
-                {
-                    singlePropertyValue = GenerateValueForSinglePropertyUpdate(updateInfo.Property, updateInfo.PropertyValue);
-                    jsonPathString = jsonPathString + "." + updateInfo.Property.GetJsonPropertyName();
-                }
-                else
-                {
-                    if (finalUpdatePathElement.Ordinal != null && navigationValue != null)
-                    {
-                        var i = 0;
-                        foreach (var navigationValueElement in (IEnumerable)navigationValue)
-                        {
-                            if (i == finalUpdatePathElement.Ordinal)
-                            {
-                                json = CreateJson(
-                                    navigationValueElement,
-                                    finalUpdatePathElement.ParentEntry,
-                                    navigation.TargetEntityType,
-                                    ordinal: null,
-                                    isCollection: false);
-
-                                break;
-                            }
-
-                            i++;
-                        }
-                    }
-                    else
-                    {
-                        json = CreateJson(
-                            navigationValue,
-                            finalUpdatePathElement.ParentEntry,
-                            navigation.TargetEntityType,
-                            ordinal: null,
-                            isCollection: navigation.IsCollection);
-                    }
-                }
-
-                var columnModificationParameters = new ColumnModificationParameters(
-                    jsonColumn.Name,
-                    value: updateInfo.Property != null ? singlePropertyValue : json?.ToJsonString(),
-                    property: updateInfo.Property,
-                    columnType: jsonColumnTypeMapping.StoreType,
-                    jsonColumnTypeMapping,
-                    jsonPath: jsonPathString,
-                    read: false,
-                    write: true,
-                    key: false,
-                    condition: false,
-                    _sensitiveLoggingEnabled) { GenerateParameterName = _generateParameterName, };
-
-                columnModifications.Add(new ColumnModification(columnModificationParameters));
-            }
+            HandleJson(columnModifications);
         }
 
         foreach (var entry in _entries.Where(x => !x.EntityType.IsMappedToJson()))
@@ -402,10 +329,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                     && tableMapping.Table.IsOptional(entry.EntityType)
                     && tableMapping.Table.GetRowInternalForeignKeys(entry.EntityType).Any();
 
-                foreach (var columnMapping in tableMapping.ColumnMappings)
-                {
-                    HandleColumnModification(columnMapping);
-                }
+                HandleNonJson(entry.EntityType, tableMapping);
             }
             else // Stored procedure mapping case
             {
@@ -453,7 +377,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                 {
                     if (parameter.FindParameterMapping(entry.EntityType) is { } parameterMapping)
                     {
-                        HandleColumnModification(parameterMapping);
+                        HandleColumn(parameterMapping);
                         continue;
                     }
 
@@ -478,7 +402,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                 {
                     if (resultColumn.FindColumnMapping(entry.EntityType) is { } resultColumnMapping)
                     {
-                        HandleColumnModification(resultColumnMapping);
+                        HandleColumn(resultColumnMapping);
                         continue;
                     }
 
@@ -512,7 +436,24 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                 }
             }
 
-            void HandleColumnModification(IColumnMappingBase columnMapping)
+            void HandleNonJson(ITypeBase structuralType, ITableMapping tableMapping)
+            {
+                foreach (var columnMapping in tableMapping.ColumnMappings)
+                {
+                    HandleColumn(columnMapping);
+                }
+
+                foreach (var complexProperty in structuralType.GetComplexProperties())
+                {
+                    var complexTableMapping = GetTableMapping(complexProperty.ComplexType);
+                    if (complexTableMapping != null)
+                    {
+                        HandleNonJson(complexProperty.ComplexType, complexTableMapping);
+                    }
+                }
+            }
+
+            void HandleColumn(IColumnMappingBase columnMapping)
             {
                 var property = columnMapping.Property;
                 var column = columnMapping.Column;
@@ -528,7 +469,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                 // Store-generated properties generally need to be read back (unless we're deleting).
                 // One exception is if the property is mapped to a non-output parameter.
                 var readValue = state != EntityState.Deleted
-                    && entry.IsStoreGenerated(property)
+                    && ColumnModification.IsStoreGenerated(entry, property)
                     && (storedProcedureParameter is null || storedProcedureParameter.Direction.HasFlag(ParameterDirection.Output));
 
                 ColumnValuePropagator? columnPropagator = null;
@@ -539,17 +480,24 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                 {
                     if (adding)
                     {
-                        writeValue = property.GetBeforeSaveBehavior() == PropertySaveBehavior.Save;
+                        writeValue = property.GetBeforeSaveBehavior() == PropertySaveBehavior.Save
+                            || entry.HasStoreGeneratedValue(property);
+
+                        columnPropagator?.TryPropagate(columnMapping, entry);
                     }
-                    else if (((updating && property.GetAfterSaveBehavior() == PropertySaveBehavior.Save)
+                    else if (storedProcedureParameter is not { ForOriginalValue: true }
+                             && !deleting
+                             && ((updating && property.GetAfterSaveBehavior() == PropertySaveBehavior.Save)
                                  || (!isKey && nonMainEntry)
-                                 || entry.SharedIdentityEntry != null)
-                             && storedProcedureParameter is not { ForOriginalValue: true })
+                                 || entry.SharedIdentityEntry != null))
                     {
                         // Note that for stored procedures we always need to send all parameters, regardless of whether the property
                         // actually changed.
                         writeValue = columnPropagator?.TryPropagate(columnMapping, entry)
-                            ?? (entry.EntityState == EntityState.Added || entry.IsModified(property) || StoreStoredProcedure is not null);
+                            ?? (entry.EntityState == EntityState.Added
+                                || entry.EntityState == EntityState.Deleted
+                                || ColumnModification.IsModified(entry, property)
+                                || StoreStoredProcedure is not null);
                     }
                 }
 
@@ -596,6 +544,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                 }
                 else if (optionalDependentWithAllNull
                          && state == EntityState.Modified
+                         && property.DeclaringType == entry.EntityType
                          && entry.GetCurrentValue(property) is not null)
                 {
                     optionalDependentWithAllNull = false;
@@ -604,6 +553,26 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
         }
 
         return columnModifications;
+
+        void HandleSharedColumns(
+            ITypeBase structuralType,
+            IUpdateEntry entry,
+            ITableMapping tableMapping,
+            bool deleting,
+            Dictionary<string, ColumnValuePropagator> sharedTableColumnMap)
+        {
+            InitializeSharedColumns(entry, tableMapping, deleting, sharedTableColumnMap);
+
+            foreach (var complexProperty in structuralType.GetComplexProperties())
+            {
+                var complexTableMapping = GetTableMapping(complexProperty.ComplexType);
+                if (complexTableMapping != null)
+                {
+                    HandleSharedColumns(
+                        complexProperty.ComplexType, entry, complexTableMapping, deleting, sharedTableColumnMap);
+                }
+            }
+        }
 
         static JsonPartialUpdateInfo? FindJsonPartialUpdateInfo(IUpdateEntry entry, List<IUpdateEntry> processedEntries)
         {
@@ -644,11 +613,11 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                 result.Path.Insert(0, pathEntry);
             }
 
-            var modifiedMembers = entry.ToEntityEntry().Properties.Where(m => m.IsModified).ToList();
+            var modifiedMembers = entry.EntityType.GetFlattenedProperties().Where(entry.IsModified).ToList();
             if (modifiedMembers.Count == 1)
             {
-                result.Property = modifiedMembers.Single().Metadata;
-                result.PropertyValue = entry.GetCurrentProviderValue(result.Property);
+                result.Property = modifiedMembers[0];
+                result.PropertyValue = entry.GetCurrentValue(result.Property);
             }
             else
             {
@@ -697,54 +666,225 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
 
             return result;
         }
+
+        void HandleJson(List<IColumnModification> columnModifications)
+        {
+            var jsonColumnsUpdateMap = new Dictionary<IColumn, JsonPartialUpdateInfo>();
+            var processedEntries = new List<IUpdateEntry>();
+            foreach (var entry in _entries.Where(e => e.EntityType.IsMappedToJson()))
+            {
+                var jsonColumn = GetTableMapping(entry.EntityType)!.Table.FindColumn(entry.EntityType.GetContainerColumnName()!)!;
+                var jsonPartialUpdateInfo = FindJsonPartialUpdateInfo(entry, processedEntries);
+
+                if (jsonPartialUpdateInfo == null)
+                {
+                    continue;
+                }
+
+                if (jsonColumnsUpdateMap.TryGetValue(jsonColumn, out var currentJsonPartialUpdateInfo))
+                {
+                    jsonPartialUpdateInfo = FindCommonJsonPartialUpdateInfo(
+                        currentJsonPartialUpdateInfo,
+                        jsonPartialUpdateInfo);
+                }
+
+                jsonColumnsUpdateMap[jsonColumn] = jsonPartialUpdateInfo;
+            }
+
+            foreach (var entry in _entries.Where(e => !e.EntityType.IsMappedToJson()))
+            {
+                foreach (var jsonCollectionNavigation in entry.EntityType.GetNavigations()
+                             .Where(
+                                 n => n.IsCollection
+                                     && n.TargetEntityType.IsMappedToJson()
+                                     && (entry.GetCurrentValue(n) as IEnumerable)?.Any() == false))
+                {
+                    var jsonCollectionEntityType = jsonCollectionNavigation.TargetEntityType;
+                    var jsonCollectionColumn =
+                        GetTableMapping(jsonCollectionEntityType)!.Table.FindColumn(
+                            jsonCollectionEntityType.GetContainerColumnName()!)!;
+
+                    if (!jsonColumnsUpdateMap.ContainsKey(jsonCollectionColumn))
+                    {
+                        var jsonPartialUpdateInfo = new JsonPartialUpdateInfo();
+                        jsonPartialUpdateInfo.Path.Insert(0, new JsonPartialUpdatePathEntry("$", null, entry, jsonCollectionNavigation));
+                        jsonPartialUpdateInfo.PropertyValue = entry.GetCurrentValue(jsonCollectionNavigation);
+                        jsonColumnsUpdateMap[jsonCollectionColumn] = jsonPartialUpdateInfo;
+                    }
+                }
+            }
+
+            foreach (var (jsonColumn, updateInfo) in jsonColumnsUpdateMap)
+            {
+                var finalUpdatePathElement = updateInfo.Path.Last();
+                var navigation = finalUpdatePathElement.Navigation;
+                var jsonColumnTypeMapping = jsonColumn.StoreTypeMapping;
+                var navigationValue = finalUpdatePathElement.ParentEntry.GetCurrentValue(navigation);
+                var jsonPathString = string.Join(
+                    ".", updateInfo.Path.Select(x => x.PropertyName + (x.Ordinal != null ? "[" + x.Ordinal + "]" : "")));
+                if (updateInfo.Property is IProperty property)
+                {
+                    var columnModificationParameters = new ColumnModificationParameters(
+                        jsonColumn.Name,
+                        value: updateInfo.PropertyValue,
+                        property: property,
+                        columnType: jsonColumnTypeMapping.StoreType,
+                        jsonColumnTypeMapping,
+                        jsonPath: jsonPathString + "." + updateInfo.Property.GetJsonPropertyName(),
+                        read: false,
+                        write: true,
+                        key: false,
+                        condition: false,
+                        _sensitiveLoggingEnabled) { GenerateParameterName = _generateParameterName };
+
+                    ProcessSinglePropertyJsonUpdate(ref columnModificationParameters);
+
+                    columnModifications.Add(new ColumnModification(columnModificationParameters));
+                }
+                else
+                {
+                    var stream = new MemoryStream();
+                    var writer = new Utf8JsonWriter(stream, new JsonWriterOptions { Indented = false });
+                    if (finalUpdatePathElement.Ordinal != null && navigationValue != null)
+                    {
+                        var i = 0;
+                        foreach (var navigationValueElement in (IEnumerable)navigationValue)
+                        {
+                            if (i == finalUpdatePathElement.Ordinal)
+                            {
+                                WriteJson(
+                                    writer,
+                                    navigationValueElement,
+                                    finalUpdatePathElement.ParentEntry,
+                                    navigation.TargetEntityType,
+                                    ordinal: null,
+                                    isCollection: false,
+                                    isTopLevel: true);
+
+                                break;
+                            }
+
+                            i++;
+                        }
+                    }
+                    else
+                    {
+                        WriteJson(
+                            writer,
+                            navigationValue,
+                            finalUpdatePathElement.ParentEntry,
+                            navigation.TargetEntityType,
+                            ordinal: null,
+                            isCollection: navigation.IsCollection,
+                            isTopLevel: true);
+                    }
+
+                    writer.Flush();
+
+                    var value = writer.BytesCommitted > 0
+                        ? Encoding.UTF8.GetString(stream.ToArray())
+                        : null;
+
+                    columnModifications.Add(
+                        new ColumnModification(
+                            new ColumnModificationParameters(
+                                jsonColumn.Name,
+                                value: value,
+                                property: updateInfo.Property,
+                                columnType: jsonColumnTypeMapping.StoreType,
+                                jsonColumnTypeMapping,
+                                jsonPath: jsonPathString,
+                                read: false,
+                                write: true,
+                                key: false,
+                                condition: false,
+                                _sensitiveLoggingEnabled) { GenerateParameterName = _generateParameterName }));
+                }
+            }
+        }
     }
 
     /// <summary>
-    ///     Generates value to use for update in case a single property is being updated.
+    ///     Performs processing specifically needed for column modifications that correspond to single-property JSON updates.
     /// </summary>
-    /// <param name="property">Property to be updated.</param>
-    /// <param name="propertyValue">Value object that the property will be updated to.</param>
-    /// <returns>Value that the property will be updated to.</returns>
-    [EntityFrameworkInternal]
-    protected virtual object? GenerateValueForSinglePropertyUpdate(IProperty property, object? propertyValue)
+    /// <remarks>
+    ///     By default, strings, numeric types and bool and sent as a regular relational parameter, since database functions responsible for
+    ///     patching JSON documents support this. Other types get converted to JSON via the normal means and sent as a string parameter.
+    /// </remarks>
+    protected virtual void ProcessSinglePropertyJsonUpdate(ref ColumnModificationParameters parameters)
     {
-        var propertyProviderClrType = (property.GetTypeMapping().Converter?.ProviderClrType ?? property.ClrType).UnwrapNullableType();
+        var property = parameters.Property!;
+        var mapping = property.GetRelationalTypeMapping();
+        var propertyProviderClrType = (mapping.Converter?.ProviderClrType ?? property.ClrType).UnwrapNullableType();
+        var value = parameters.Value;
 
-        return (propertyProviderClrType == typeof(DateTime)
-            || propertyProviderClrType == typeof(DateTimeOffset)
-            || propertyProviderClrType == typeof(TimeSpan)
-            || propertyProviderClrType == typeof(Guid))
-            ? JsonValue.Create(propertyValue)?.ToJsonString().Replace("\"", "")
-            : propertyValue;
+        // On most databases, the function which patches a JSON document (e.g. SQL Server JSON_MODIFY) accepts relational string, numeric
+        // and bool types directly, without serializing it to a JSON string. So by default, for those cases simply return the value as-is,
+        // with the property's type mapping which will take care of sending the parameter with the relational value.
+        // Note that we haven't yet applied a value converter if one is configured, in order to allow for it to get applied later with
+        // the regular parameter flow.
+        if (value == null
+            || propertyProviderClrType == typeof(string)
+            || propertyProviderClrType == typeof(bool)
+            || propertyProviderClrType.IsNumeric())
+        {
+            parameters = parameters with { Value = value, TypeMapping = mapping };
+        }
+        else
+        {
+            var jsonValueReaderWriter = mapping.JsonValueReaderWriter;
+            value = jsonValueReaderWriter?.ToJsonString(value)[1..^1] // The JSON string contains enclosing quotes, remove these.
+                ?? (mapping.Converter == null ? value : mapping.Converter.ConvertToProvider(value));
+
+            parameters = parameters with { Value = value };
+        }
     }
 
-    private JsonNode? CreateJson(object? navigationValue, IUpdateEntry parentEntry, IEntityType entityType, int? ordinal, bool isCollection)
+    private void WriteJson(
+        Utf8JsonWriter writer,
+        object? navigationValue,
+        IUpdateEntry parentEntry,
+        IEntityType entityType,
+        int? ordinal,
+        bool isCollection,
+        bool isTopLevel)
     {
         if (navigationValue == null)
         {
-            return isCollection ? new JsonArray() : null;
+            if (!isTopLevel)
+            {
+                writer.WriteNullValue();
+            }
+
+            return;
         }
 
         if (isCollection)
         {
             var i = 1;
-            var jsonNodes = new List<JsonNode?>();
+            writer.WriteStartArray();
             foreach (var collectionElement in (IEnumerable)navigationValue)
             {
-                // TODO: should we ever expect null entities inside a collection?
-                var collectionElementJson = CreateJson(collectionElement, parentEntry, entityType, i++, isCollection: false);
-                jsonNodes.Add(collectionElementJson);
+                WriteJson(
+                    writer,
+                    collectionElement,
+                    parentEntry,
+                    entityType,
+                    i++,
+                    isCollection: false,
+                    isTopLevel: false);
             }
 
-            return new JsonArray(jsonNodes.ToArray());
+            writer.WriteEndArray();
+            return;
         }
 
 #pragma warning disable EF1001 // Internal EF Core API usage.
         var entry = (IUpdateEntry)((InternalEntityEntry)parentEntry).StateManager.TryGetEntry(navigationValue, entityType)!;
 #pragma warning restore EF1001 // Internal EF Core API usage.
 
-        var jsonNode = new JsonObject();
-        foreach (var property in entityType.GetProperties())
+        writer.WriteStartObject();
+        foreach (var property in entityType.GetFlattenedProperties())
         {
             if (property.IsKey())
             {
@@ -758,8 +898,19 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
 
             // jsonPropertyName can only be null for key properties
             var jsonPropertyName = property.GetJsonPropertyName()!;
-            var value = entry.GetCurrentProviderValue(property);
-            jsonNode[jsonPropertyName] = JsonValue.Create(value);
+            var value = entry.GetCurrentValue(property);
+            writer.WritePropertyName(jsonPropertyName);
+
+            if (value is not null)
+            {
+                var jsonValueReaderWriter = property.GetJsonValueReaderWriter() ?? property.GetTypeMapping().JsonValueReaderWriter;
+                Check.DebugAssert(jsonValueReaderWriter is not null, "Missing JsonValueReaderWriter on JSON property");
+                jsonValueReaderWriter.ToJson(writer, value);
+            }
+            else
+            {
+                writer.WriteNullValue();
+            }
         }
 
         foreach (var navigation in entityType.GetNavigations())
@@ -772,22 +923,24 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
 
             var jsonPropertyName = navigation.TargetEntityType.GetJsonPropertyName()!;
             var ownedNavigationValue = entry.GetCurrentValue(navigation)!;
-            var navigationJson = CreateJson(
+
+            writer.WritePropertyName(jsonPropertyName);
+            WriteJson(
+                writer,
                 ownedNavigationValue,
                 entry,
                 navigation.TargetEntityType,
                 ordinal: null,
-                isCollection: navigation.IsCollection);
-
-            jsonNode[jsonPropertyName] = navigationJson;
+                isCollection: navigation.IsCollection,
+                isTopLevel: false);
         }
 
-        return jsonNode;
+        writer.WriteEndObject();
     }
 
-    private ITableMapping? GetTableMapping(IEntityType entityType)
+    private ITableMapping? GetTableMapping(ITypeBase structuralType)
     {
-        foreach (var mapping in entityType.GetTableMappings())
+        foreach (var mapping in structuralType.GetTableMappings())
         {
             var table = mapping.Table;
             if (table.Name == TableName
@@ -825,12 +978,18 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
     private static void InitializeSharedColumns(
         IUpdateEntry entry,
         ITableMapping tableMapping,
-        bool updating,
+        bool deleting,
         Dictionary<string, ColumnValuePropagator> columnMap)
     {
         foreach (var columnMapping in tableMapping.ColumnMappings)
         {
-            if (columnMapping.Property.DeclaringEntityType.IsMappedToJson())
+            if (columnMapping.Property.DeclaringType.IsMappedToJson())
+            {
+                continue;
+            }
+
+            if (columnMapping.Column.PropertyMappings.Select(p => p.Property).Distinct().Count() == 1
+                && entry.SharedIdentityEntry == null)
             {
                 continue;
             }
@@ -842,7 +1001,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                 columnMap.Add(columnName, columnPropagator);
             }
 
-            if (updating)
+            if (!deleting)
             {
                 columnPropagator.RecordValue(columnMapping, entry);
             }
@@ -953,6 +1112,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
         private bool _write;
         private object? _originalValue;
         private object? _currentValue;
+        private bool _originalValueInitialized;
 
         public IColumnModification? ColumnModification { get; set; }
 
@@ -963,20 +1123,31 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
             {
                 case EntityState.Modified:
                     if (!_write
-                        && entry.IsModified(property))
+                        && Update.ColumnModification.IsModified(entry, property))
                     {
                         _write = true;
-                        _currentValue = entry.GetCurrentProviderValue(property);
+                        _currentValue = Update.ColumnModification.GetCurrentProviderValue(entry, property);
+                        _originalValue = Update.ColumnModification.GetOriginalProviderValue(entry, property);
+                        _originalValueInitialized = true;
                     }
 
                     break;
                 case EntityState.Added:
-                    _currentValue = entry.GetCurrentProviderValue(property);
-                    _write = !mapping.Column.ProviderValueComparer.Equals(_originalValue, _currentValue);
+                    if (_currentValue == null
+                        || !property.GetValueComparer().Equals(
+                            Update.ColumnModification.GetCurrentValue(entry, property),
+                            property.Sentinel))
+                    {
+                        _currentValue = Update.ColumnModification.GetCurrentProviderValue(entry, property);
+                    }
+
+                    _write = !_originalValueInitialized
+                        || !mapping.Column.ProviderValueComparer.Equals(_originalValue, _currentValue);
 
                     break;
                 case EntityState.Deleted:
-                    _originalValue = entry.GetOriginalProviderValue(property);
+                    _originalValue = Update.ColumnModification.GetOriginalProviderValue(entry, property);
+                    _originalValueInitialized = true;
                     if (!_write
                         && !property.IsPrimaryKey())
                     {
@@ -993,12 +1164,20 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
             var property = mapping.Property;
             if (_write
                 && (entry.EntityState == EntityState.Unchanged
-                    || (entry.EntityState == EntityState.Modified && !entry.IsModified(property))
+                    || (entry.EntityState == EntityState.Modified && !Update.ColumnModification.IsModified(entry, property))
                     || (entry.EntityState == EntityState.Added
-                        && mapping.Column.ProviderValueComparer.Equals(_originalValue, entry.GetCurrentProviderValue(property)))))
+                        && ((!_originalValueInitialized
+                                && property.GetValueComparer().Equals(
+                                    Update.ColumnModification.GetCurrentValue(entry, property),
+                                    property.Sentinel))
+                            || (_originalValueInitialized
+                                && mapping.Column.ProviderValueComparer.Equals(
+                                    Update.ColumnModification.GetCurrentProviderValue(entry, property),
+                                    _originalValue))))))
             {
-                if (property.GetAfterSaveBehavior() == PropertySaveBehavior.Save
-                    || entry.EntityState == EntityState.Added)
+                if ((property.GetAfterSaveBehavior() == PropertySaveBehavior.Save
+                        || entry.EntityState == EntityState.Added)
+                    && property.ValueGenerated != ValueGenerated.Never)
                 {
                     var value = _currentValue;
                     var converter = property.GetTypeMapping().Converter;
@@ -1007,7 +1186,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                         value = converter.ConvertFromProvider(value);
                     }
 
-                    entry.SetStoreGeneratedValue(property, value);
+                    Update.ColumnModification.SetStoreGeneratedValue(entry, property, value);
                 }
 
                 return false;

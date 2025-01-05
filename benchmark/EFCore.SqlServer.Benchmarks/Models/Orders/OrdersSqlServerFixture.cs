@@ -3,20 +3,12 @@
 
 using System;
 
-namespace Microsoft.EntityFrameworkCore.Benchmarks.Models.Orders
+namespace Microsoft.EntityFrameworkCore.Benchmarks.Models.Orders;
+
+public class OrdersSqlServerFixture(string databaseName) : OrdersFixtureBase
 {
-    public class OrdersSqlServerFixture : OrdersFixtureBase
-    {
-        private readonly string _connectionString;
+    private readonly string _connectionString = SqlServerBenchmarkEnvironment.CreateConnectionString(databaseName);
 
-        public OrdersSqlServerFixture(string databaseName)
-        {
-            _connectionString = SqlServerBenchmarkEnvironment.CreateConnectionString(databaseName);
-        }
-
-        public override OrdersContextBase CreateContext(IServiceProvider serviceProvider = null, bool disableBatching = false)
-        {
-            return new OrdersSqlServerContext(_connectionString, serviceProvider, disableBatching);
-        }
-    }
+    public override OrdersContextBase CreateContext(IServiceProvider serviceProvider = null, bool disableBatching = false)
+        => new OrdersSqlServerContext(_connectionString, serviceProvider, disableBatching);
 }

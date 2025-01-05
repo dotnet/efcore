@@ -1,12 +1,13 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.SpatialModel;
 using NetTopologySuite.Geometries;
 
 namespace Microsoft.EntityFrameworkCore.Query;
+
+#nullable disable
 
 public class SpatialQuerySqlServerGeometryFixture : SpatialQuerySqlServerFixture
 {
@@ -33,20 +34,14 @@ public class SpatialQuerySqlServerGeometryFixture : SpatialQuerySqlServerFixture
         => base.AddServices(serviceCollection)
             .AddSingleton<IRelationalTypeMappingSource, ReplacementTypeMappingSource>();
 
-    protected class ReplacementTypeMappingSource : SqlServerTypeMappingSource
+    protected class ReplacementTypeMappingSource(
+        TypeMappingSourceDependencies dependencies,
+        RelationalTypeMappingSourceDependencies relationalDependencies) : SqlServerTypeMappingSource(dependencies, relationalDependencies)
     {
-        public ReplacementTypeMappingSource(
-            TypeMappingSourceDependencies dependencies,
-            RelationalTypeMappingSourceDependencies relationalDependencies,
-            ISqlServerSingletonOptions sqlServerSingletonOptions)
-            : base(dependencies, relationalDependencies, sqlServerSingletonOptions)
-        {
-        }
-
         protected override RelationalTypeMapping FindMapping(in RelationalTypeMappingInfo mappingInfo)
             => mappingInfo.ClrType == typeof(GeoPoint)
                 ? ((RelationalTypeMapping)base.FindMapping(typeof(Point))
-                    .Clone(new GeoPointConverter())).Clone("geometry", null)
+                    .WithComposedConverter(new GeoPointConverter())).WithStoreTypeAndSize("geometry", null)
                 : base.FindMapping(mappingInfo);
     }
 }

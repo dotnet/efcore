@@ -179,19 +179,17 @@ public class KeyPropagatorTest
     [InlineData(true, true)]
     public async Task Identifying_foreign_key_value_is_propagated_if_principal_key_is_generated(bool generateTemporary, bool async)
     {
-        var model = BuildModel(generateTemporary);
-
         var principal = new Product();
         var dependent = new ProductDetail { Product = principal };
 
-        var contextServices = CreateContextServices(model);
-        model = contextServices.GetService<IModel>();
+        var contextServices = CreateContextServices(BuildModel(generateTemporary));
         var stateManager = contextServices.GetRequiredService<IStateManager>();
         var principalEntry = stateManager.GetOrCreateEntry(principal);
         principalEntry.SetEntityState(EntityState.Added);
         var dependentEntry = stateManager.GetOrCreateEntry(dependent);
-        var principalProperty = model.FindEntityType(typeof(Product))!.FindProperty(nameof(Product.Id))!;
-        var dependentProperty = model.FindEntityType(typeof(ProductDetail))!.FindProperty(nameof(ProductDetail.Id))!;
+        var runtimeModel = contextServices.GetRequiredService<IModel>();
+        var principalProperty = runtimeModel.FindEntityType(typeof(Product))!.FindProperty(nameof(Product.Id))!;
+        var dependentProperty = runtimeModel.FindEntityType(typeof(ProductDetail))!.FindProperty(nameof(ProductDetail.Id))!;
         var keyPropagator = contextServices.GetRequiredService<IKeyPropagator>();
 
         _ = async

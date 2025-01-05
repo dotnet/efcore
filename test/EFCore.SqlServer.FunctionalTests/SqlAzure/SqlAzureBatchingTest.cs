@@ -5,15 +5,12 @@ using Microsoft.EntityFrameworkCore.SqlAzure.Model;
 
 namespace Microsoft.EntityFrameworkCore.SqlAzure;
 
-[SqlServerCondition(SqlServerCondition.IsSqlAzure)]
-public class SqlAzureBatchingTest : IClassFixture<BatchingSqlAzureFixture>
-{
-    public SqlAzureBatchingTest(BatchingSqlAzureFixture fixture, ITestOutputHelper output)
-    {
-        Fixture = fixture;
-    }
+#nullable disable
 
-    public BatchingSqlAzureFixture Fixture { get; }
+[SqlServerCondition(SqlServerCondition.IsAzureSql)]
+public class SqlAzureBatchingTest(BatchingSqlAzureFixture fixture) : IClassFixture<BatchingSqlAzureFixture>
+{
+    public BatchingSqlAzureFixture Fixture { get; } = fixture;
 
     [ConditionalTheory]
     [InlineData(1)]

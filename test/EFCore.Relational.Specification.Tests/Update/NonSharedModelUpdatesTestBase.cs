@@ -2,9 +2,8 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 // ReSharper disable MethodHasAsyncOverload
-namespace Microsoft.EntityFrameworkCore.Update;
 
-#nullable enable
+namespace Microsoft.EntityFrameworkCore.Update;
 
 public abstract class NonSharedModelUpdatesTestBase : NonSharedModelTestBase
 {
@@ -40,31 +39,14 @@ public abstract class NonSharedModelUpdatesTestBase : NonSharedModelTestBase
             async context =>
             {
                 context.Add(
-                    new Book
-                    {
-                        Author = new Author
-                        {
-                            Name = "Alice",
-                            AuthorsClub = new AuthorsClub
-                            {
-                                Name = "AC South"
-                            }
-                        }
-                    });
+                    new Book { Author = new Author { Name = "Alice", AuthorsClub = new AuthorsClub { Name = "AC South" } } });
 
                 await context.SaveChangesAsync();
             },
             async context =>
             {
-                AuthorsClub authorsClubNorth = new()
-                {
-                    Name = "AC North"
-                };
-                Author authorOfTheYear2023 = new()
-                {
-                    Name = "Author of the year 2023",
-                    AuthorsClub = authorsClubNorth
-                };
+                AuthorsClub authorsClubNorth = new() { Name = "AC North" };
+                Author authorOfTheYear2023 = new() { Name = "Author of the year 2023", AuthorsClub = authorsClubNorth };
                 context.Add(authorsClubNorth);
                 context.Add(authorOfTheYear2023);
 
@@ -144,15 +126,6 @@ public abstract class NonSharedModelUpdatesTestBase : NonSharedModelTestBase
         public int Id { get; set; }
         public string? Name { get; set; }
     }
-
-    protected virtual void ExecuteWithStrategyInTransaction(
-        ContextFactory<DbContext> contextFactory,
-        Action<DbContext> testOperation,
-        Action<DbContext>? nestedTestOperation1 = null,
-        Action<DbContext>? nestedTestOperation2 = null,
-        Action<DbContext>? nestedTestOperation3 = null)
-        => TestHelpers.ExecuteWithStrategyInTransaction(
-            contextFactory.CreateContext, UseTransaction, testOperation, nestedTestOperation1, nestedTestOperation2, nestedTestOperation3);
 
     protected virtual Task ExecuteWithStrategyInTransactionAsync(
         ContextFactory<DbContext> contextFactory,

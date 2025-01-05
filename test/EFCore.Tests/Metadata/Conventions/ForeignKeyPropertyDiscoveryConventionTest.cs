@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
@@ -1138,7 +1139,7 @@ public class ForeignKeyPropertyDiscoveryConventionTest
     {
         var convention = CreateForeignKeyPropertyDiscoveryConvention();
         var context = new ConventionContext<IConventionPropertyBuilder>(
-            propertyBuilder.Metadata.DeclaringEntityType.Model.ConventionDispatcher);
+            propertyBuilder.Metadata.DeclaringType.Model.ConventionDispatcher);
         convention.ProcessPropertyAdded(propertyBuilder, context);
         if (context.ShouldStopProcessing())
         {
@@ -1219,9 +1220,7 @@ public class ForeignKeyPropertyDiscoveryConventionTest
         public PrincipalEntity SelfRef { get; set; }
     }
 
-    private class DerivedPrincipalEntity : PrincipalEntity
-    {
-    }
+    private class DerivedPrincipalEntity : PrincipalEntity;
 
     private class DependentEntity
     {

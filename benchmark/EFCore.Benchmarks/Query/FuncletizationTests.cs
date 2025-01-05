@@ -9,71 +9,71 @@ using Xunit;
 
 // ReSharper disable ReturnValueOfPureMethodIsNotUsed
 
-namespace Microsoft.EntityFrameworkCore.Benchmarks.Query
+namespace Microsoft.EntityFrameworkCore.Benchmarks.Query;
+
+[DisplayName(nameof(FuncletizationTests))]
+public abstract class FuncletizationTests
 {
-    [DisplayName(nameof(FuncletizationTests))]
-    public abstract class FuncletizationTests
+    private OrdersContextBase _context;
+
+    protected virtual int FuncletizationIterationCount
+        => 100;
+
+    protected abstract OrdersFixtureBase CreateFixture();
+
+    [GlobalSetup]
+    public virtual void InitializeContext()
     {
-        private OrdersContextBase _context;
+        var fixture = CreateFixture();
+        fixture.Initialize(100, 0, 0, 0);
 
-        protected virtual int FuncletizationIterationCount => 100;
-        protected abstract OrdersFixtureBase CreateFixture();
+        _context = fixture.CreateContext();
 
-        [GlobalSetup]
-        public virtual void InitializeContext()
+        Assert.Equal(100, _context.Products.Count());
+    }
+
+    [GlobalCleanup]
+    public virtual void CleanupContext()
+        => _context.Dispose();
+
+    [Benchmark]
+    public virtual void NewQueryInstance()
+    {
+        var val = 11;
+        for (var i = 0; i < FuncletizationIterationCount; i++)
         {
-            var fixture = CreateFixture();
-            fixture.Initialize(100, 0, 0, 0);
-
-            _context = fixture.CreateContext();
-
-            Assert.Equal(100, _context.Products.Count());
+            _context.Products.Where(p => p.ProductId < val).ToList();
         }
+    }
 
-        [GlobalCleanup]
-        public virtual void CleanupContext()
+    [Benchmark]
+    public virtual void SameQueryInstance()
+    {
+        var val = 11;
+        var query = _context.Products.Where(p => p.ProductId < val);
+
+        for (var i = 0; i < FuncletizationIterationCount; i++)
         {
-            _context.Dispose();
+            // ReSharper disable once PossibleMultipleEnumeration
+            query.ToList();
         }
+    }
 
-        [Benchmark]
-        public virtual void NewQueryInstance()
+    [Benchmark]
+    public virtual void ValueFromObject()
+    {
+        var valueHolder = new ValueHolder();
+        for (var i = 0; i < FuncletizationIterationCount; i++)
         {
-            var val = 11;
-            for (var i = 0; i < FuncletizationIterationCount; i++)
-            {
-                _context.Products.Where(p => p.ProductId < val).ToList();
-            }
+            _context.Products.Where(p => p.ProductId < valueHolder.SecondLevelProperty).ToList();
         }
+    }
 
-        [Benchmark]
-        public virtual void SameQueryInstance()
-        {
-            var val = 11;
-            var query = _context.Products.Where(p => p.ProductId < val);
+    protected class ValueHolder
+    {
+        public int FirstLevelProperty { get; } = 11;
 
-            for (var i = 0; i < FuncletizationIterationCount; i++)
-            {
-                // ReSharper disable once PossibleMultipleEnumeration
-                query.ToList();
-            }
-        }
-
-        [Benchmark]
-        public virtual void ValueFromObject()
-        {
-            var valueHolder = new ValueHolder();
-            for (var i = 0; i < FuncletizationIterationCount; i++)
-            {
-                _context.Products.Where(p => p.ProductId < valueHolder.SecondLevelProperty).ToList();
-            }
-        }
-
-        protected class ValueHolder
-        {
-            public int FirstLevelProperty { get; } = 11;
-
-            public int SecondLevelProperty => FirstLevelProperty;
-        }
+        public int SecondLevelProperty
+            => FirstLevelProperty;
     }
 }

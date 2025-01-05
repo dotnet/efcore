@@ -6,36 +6,12 @@ namespace Microsoft.EntityFrameworkCore.Query;
 /// <summary>
 ///     Parameter object for <see cref="IEntityMaterializerSource" />.
 /// </summary>
-public readonly record struct EntityMaterializerSourceParameters
-{
-    /// <summary>
-    ///     Creates a new <see cref="EntityMaterializerSourceParameters" />.
-    /// </summary>
-    /// <param name="entityType">The entity type being materialized.</param>
-    /// <param name="entityInstanceName">The name of the instance being materialized.</param>
-    /// <param name="queryTrackingBehavior">The query tracking behavior, or <see langword="null" /> if this materialization is not from a query.</param>
-    public EntityMaterializerSourceParameters(
-        IEntityType entityType,
-        string entityInstanceName,
-        QueryTrackingBehavior? queryTrackingBehavior)
-    {
-        EntityType = entityType;
-        EntityInstanceName = entityInstanceName;
-        QueryTrackingBehavior = queryTrackingBehavior;
-    }
-
-    /// <summary>
-    ///     The entity type being materialized.
-    /// </summary>
-    public IEntityType EntityType { get; }
-
-    /// <summary>
-    ///     The name of the instance being materialized.
-    /// </summary>
-    public string EntityInstanceName { get; }
-
-    /// <summary>
-    ///     The query tracking behavior, or <see langword="null" /> if this materialization is not from a query.
-    /// </summary>
-    public QueryTrackingBehavior? QueryTrackingBehavior { get; }
-}
+/// <param name="StructuralType">The entity or complex type being materialized.</param>
+/// <param name="InstanceName">The name of the instance being materialized.</param>
+/// <param name="QueryTrackingBehavior">
+///     The query tracking behavior, or <see langword="null" /> if this materialization is not from a query.
+/// </param>
+public readonly record struct EntityMaterializerSourceParameters(
+    ITypeBase StructuralType,
+    string InstanceName,
+    QueryTrackingBehavior? QueryTrackingBehavior);

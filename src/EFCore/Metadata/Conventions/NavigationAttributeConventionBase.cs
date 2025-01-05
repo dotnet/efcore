@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
@@ -21,44 +22,12 @@ public abstract class NavigationAttributeConventionBase<TAttribute>
     /// </summary>
     /// <param name="dependencies">Parameter object containing dependencies for this convention.</param>
     protected NavigationAttributeConventionBase(ProviderConventionSetBuilderDependencies dependencies)
-    {
-        Dependencies = dependencies;
-    }
+        => Dependencies = dependencies;
 
     /// <summary>
     ///     Dependencies for this service.
     /// </summary>
     protected virtual ProviderConventionSetBuilderDependencies Dependencies { get; }
-
-    /// <summary>
-    ///     Called after an entity type is added to the model.
-    /// </summary>
-    /// <param name="entityTypeBuilder">The builder for the entity type.</param>
-    /// <param name="context">Additional information associated with convention execution.</param>
-    public virtual void ProcessEntityTypeAdded(
-        IConventionEntityTypeBuilder entityTypeBuilder,
-        IConventionContext<IConventionEntityTypeBuilder> context)
-    {
-        var navigations = GetNavigationsWithAttribute(entityTypeBuilder.Metadata);
-        if (navigations == null)
-        {
-            return;
-        }
-
-        foreach (var navigationTuple in navigations)
-        {
-            var (navigationPropertyInfo, targetClrType) = navigationTuple;
-            var attributes = navigationPropertyInfo.GetCustomAttributes<TAttribute>(inherit: true);
-            foreach (var attribute in attributes)
-            {
-                ProcessEntityTypeAdded(entityTypeBuilder, navigationPropertyInfo, targetClrType, attribute, context);
-                if (((ConventionContext<IConventionEntityTypeBuilder>)context).ShouldStopProcessing())
-                {
-                    return;
-                }
-            }
-        }
-    }
 
     /// <summary>
     ///     Called after an entity type is ignored.
@@ -67,7 +36,7 @@ public abstract class NavigationAttributeConventionBase<TAttribute>
     /// <param name="name">The name of the ignored entity type.</param>
     /// <param name="type">The ignored entity type.</param>
     /// <param name="context">Additional information associated with convention execution.</param>
-    public virtual void ProcessEntityTypeIgnored(
+    public virtual void ProcessTypeIgnored(
         IConventionModelBuilder modelBuilder,
         string name,
         Type? type,
@@ -103,8 +72,38 @@ public abstract class NavigationAttributeConventionBase<TAttribute>
             var attributes = navigationPropertyInfo.GetCustomAttributes<TAttribute>(inherit: true);
             foreach (var attribute in attributes)
             {
-                ProcessEntityTypeIgnored(modelBuilder, type, navigationPropertyInfo, targetClrType, attribute, context);
+                ProcessTypeIgnored(modelBuilder, type, navigationPropertyInfo, targetClrType, attribute, context);
                 if (((ConventionContext<string>)context).ShouldStopProcessing())
+                {
+                    return;
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    ///     Called after an entity type is added to the model.
+    /// </summary>
+    /// <param name="entityTypeBuilder">The builder for the entity type.</param>
+    /// <param name="context">Additional information associated with convention execution.</param>
+    public virtual void ProcessEntityTypeAdded(
+        IConventionEntityTypeBuilder entityTypeBuilder,
+        IConventionContext<IConventionEntityTypeBuilder> context)
+    {
+        var navigations = GetNavigationsWithAttribute(entityTypeBuilder.Metadata);
+        if (navigations == null)
+        {
+            return;
+        }
+
+        foreach (var navigationTuple in navigations)
+        {
+            var (navigationPropertyInfo, targetClrType) = navigationTuple;
+            var attributes = navigationPropertyInfo.GetCustomAttributes<TAttribute>(inherit: true);
+            foreach (var attribute in attributes)
+            {
+                ProcessEntityTypeAdded(entityTypeBuilder, navigationPropertyInfo, targetClrType, attribute, context);
+                if (((ConventionContext<IConventionEntityTypeBuilder>)context).ShouldStopProcessing())
                 {
                     return;
                 }
@@ -310,7 +309,8 @@ public abstract class NavigationAttributeConventionBase<TAttribute>
 
     private Type? FindCandidateNavigationWithAttributePropertyType(PropertyInfo propertyInfo, IConventionModel model)
     {
-        var targetClrType = Dependencies.MemberClassifier.FindCandidateNavigationPropertyType(propertyInfo, model, out _);
+        var targetClrType =
+            Dependencies.MemberClassifier.FindCandidateNavigationPropertyType(propertyInfo, model, useAttributes: true, out _);
         return targetClrType != null
             && Attribute.IsDefined(propertyInfo, typeof(TAttribute), inherit: true)
                 ? targetClrType
@@ -318,7 +318,7 @@ public abstract class NavigationAttributeConventionBase<TAttribute>
     }
 
     private Type? FindCandidateNavigationWithAttributePropertyType(PropertyInfo propertyInfo, IConventionEntityType entityType)
-        => Dependencies.MemberClassifier.GetNavigationCandidates(entityType)
+        => Dependencies.MemberClassifier.GetNavigationCandidates(entityType, useAttributes: true)
                 .TryGetValue(propertyInfo, out var target)
             && Attribute.IsDefined(propertyInfo, typeof(TAttribute), inherit: true)
                 ? target.Type
@@ -364,6 +364,24 @@ public abstract class NavigationAttributeConventionBase<TAttribute>
     }
 
     /// <summary>
+    ///     Called for every navigation property that has an attribute after an entity type is ignored.
+    /// </summary>
+    /// <param name="modelBuilder">The builder for the model.</param>
+    /// <param name="type">The ignored entity type.</param>
+    /// <param name="navigationMemberInfo">The navigation member info.</param>
+    /// <param name="targetClrType">The CLR type of the target entity type.</param>
+    /// <param name="attribute">The attribute.</param>
+    /// <param name="context">Additional information associated with convention execution.</param>
+    public virtual void ProcessTypeIgnored(
+        IConventionModelBuilder modelBuilder,
+        Type type,
+        MemberInfo navigationMemberInfo,
+        Type targetClrType,
+        TAttribute attribute,
+        IConventionContext<string> context)
+        => throw new NotSupportedException();
+
+    /// <summary>
     ///     Called for every navigation property that has an attribute after an entity type is added to the model.
     /// </summary>
     /// <param name="entityTypeBuilder">The builder for the entity type.</param>
@@ -377,24 +395,6 @@ public abstract class NavigationAttributeConventionBase<TAttribute>
         Type targetClrType,
         TAttribute attribute,
         IConventionContext<IConventionEntityTypeBuilder> context)
-        => throw new NotSupportedException();
-
-    /// <summary>
-    ///     Called for every navigation property that has an attribute after an entity type is ignored.
-    /// </summary>
-    /// <param name="modelBuilder">The builder for the model.</param>
-    /// <param name="type">The ignored entity type.</param>
-    /// <param name="navigationMemberInfo">The navigation member info.</param>
-    /// <param name="targetClrType">The CLR type of the target entity type.</param>
-    /// <param name="attribute">The attribute.</param>
-    /// <param name="context">Additional information associated with convention execution.</param>
-    public virtual void ProcessEntityTypeIgnored(
-        IConventionModelBuilder modelBuilder,
-        Type type,
-        MemberInfo navigationMemberInfo,
-        Type targetClrType,
-        TAttribute attribute,
-        IConventionContext<string> context)
         => throw new NotSupportedException();
 
     /// <summary>

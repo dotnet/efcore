@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>$(DefaultNetCoreTargetFramework)</TargetFramework>
     <RootNamespace>Microsoft.EntityFrameworkCore.Tools</RootNamespace>
     <ImplicitUsings>true</ImplicitUsings>
   </PropertyGroup>
@@ -30,9 +30,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="..\EFCore.Relational.Specification.Tests\TestUtilities\BuildFileResult.cs" />
-    <Compile Include="..\EFCore.Relational.Specification.Tests\TestUtilities\BuildReference.cs" />
-    <Compile Include="..\EFCore.Relational.Specification.Tests\TestUtilities\BuildSource.cs" />
+    <Compile Include="..\EFCore.Specification.Tests\TestUtilities\BuildFileResult.cs" />
+    <Compile Include="..\EFCore.Specification.Tests\TestUtilities\BuildReference.cs" />
+    <Compile Include="..\EFCore.Specification.Tests\TestUtilities\BuildSource.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -43,8 +43,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="$(MicrosoftCodeAnalysisVersion)" />
-    <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="$(MicrosoftExtensionsDependencyModelVersion)" />
+    <PackageReference Include="Microsoft.Extensions.DependencyModel" />
   </ItemGroup>
 
 </Project>

@@ -1,20 +1,16 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public abstract class NorthwindEFPropertyIncludeQueryTestBase<TFixture> : NorthwindIncludeQueryTestBase<TFixture>
+#nullable disable
+
+public abstract class NorthwindEFPropertyIncludeQueryTestBase<TFixture>(TFixture fixture) : NorthwindIncludeQueryTestBase<TFixture>(fixture)
     where TFixture : NorthwindQueryFixtureBase<NoopModelCustomizer>, new()
 {
     private static readonly IncludeRewritingExpressionVisitor _includeRewritingExpressionVisitor = new();
-
-    protected NorthwindEFPropertyIncludeQueryTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -205,26 +201,15 @@ public abstract class NorthwindEFPropertyIncludeQueryTestBase<TFixture> : Northw
         }
 
         private static string GetPath(Expression expression)
-        {
-            switch (expression)
+            => expression switch
             {
-                case MemberExpression memberExpression:
-                    if (memberExpression.Expression is ParameterExpression)
-                    {
-                        return memberExpression.Member.Name;
-                    }
-
-                    return $"{GetPath(memberExpression.Expression)}.{memberExpression.Member.Name}";
-
-                case UnaryExpression unaryExpression
-                    when unaryExpression.NodeType == ExpressionType.Convert
-                    || unaryExpression.NodeType == ExpressionType.Convert
-                    || unaryExpression.NodeType == ExpressionType.TypeAs:
-                    return GetPath(unaryExpression.Operand);
-
-                default:
-                    return null;
-            }
-        }
+                MemberExpression { Expression: ParameterExpression } memberExpression
+                    => memberExpression.Member.Name,
+                MemberExpression memberExpression
+                    => $"{GetPath(memberExpression.Expression)}.{memberExpression.Member.Name}",
+                UnaryExpression { NodeType: ExpressionType.Convert or ExpressionType.Convert or ExpressionType.TypeAs } unaryExpression
+                    => GetPath(unaryExpression.Operand),
+                _ => null
+            };
     }
 }

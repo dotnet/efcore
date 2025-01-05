@@ -7,15 +7,12 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public abstract class QueryNoClientEvalTestBase<TFixture> : IClassFixture<TFixture>
+#nullable disable
+
+public abstract class QueryNoClientEvalTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : NorthwindQueryRelationalFixture<NoopModelCustomizer>, new()
 {
-    protected QueryNoClientEvalTestBase(TFixture fixture)
-    {
-        Fixture = fixture;
-    }
-
-    protected TFixture Fixture { get; }
+    protected TFixture Fixture { get; } = fixture;
 
     [ConditionalFact]
     public virtual void Throws_when_where()
@@ -113,9 +110,9 @@ public abstract class QueryNoClientEvalTestBase<TFixture> : IClassFixture<TFixtu
     {
         using var context = CreateContext();
         (from e1 in context.Employees
-                   join i in new uint[] { 1, 2, 3 } on e1.EmployeeID equals i into g
-                   select e1)
-                .ToList();
+         join i in new uint[] { 1, 2, 3 } on e1.EmployeeID equals i into g
+         select e1)
+            .ToList();
     }
 
     [ConditionalFact(Skip = "Issue#18923")]

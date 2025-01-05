@@ -23,7 +23,7 @@ public class SqlServerModificationCommandBatch : AffectedCountModificationComman
     /// </summary>
     private const int MaxParameterCount = 2100 - 2;
 
-    private readonly List<IReadOnlyModificationCommand> _pendingBulkInsertCommands = new();
+    private readonly List<IReadOnlyModificationCommand> _pendingBulkInsertCommands = [];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -156,7 +156,7 @@ public class SqlServerModificationCommandBatch : AffectedCountModificationComman
     {
         // TryAddCommand above already applied any pending commands if the new command is incompatible with them.
         // So if the new command is an insert, just append it to pending, otherwise do the regular add logic.
-        if (modificationCommand.EntityState == EntityState.Added && modificationCommand.StoreStoredProcedure is null)
+        if (modificationCommand is { EntityState: EntityState.Added, StoreStoredProcedure: null })
         {
             _pendingBulkInsertCommands.Add(modificationCommand);
             AddParameters(modificationCommand);

@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -22,6 +23,7 @@ public static class SqliteNetTopologySuiteServiceCollectionExtensions
     /// </summary>
     /// <param name="serviceCollection">The <see cref="IServiceCollection" /> to add services to.</param>
     /// <returns>The same service collection so that multiple calls can be chained.</returns>
+    [RequiresDynamicCode("NTS types are not supported with NativeAOT")]
     public static IServiceCollection AddEntityFrameworkSqliteNetTopologySuite(
         this IServiceCollection serviceCollection)
     {

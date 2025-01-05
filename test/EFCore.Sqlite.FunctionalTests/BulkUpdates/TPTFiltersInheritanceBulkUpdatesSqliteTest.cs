@@ -1,17 +1,17 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.Data.Sqlite;
+
 namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
-public class TPTFiltersInheritanceBulkUpdatesSqliteTest : TPTFiltersInheritanceBulkUpdatesTestBase<
-    TPTFiltersInheritanceBulkUpdatesSqliteFixture>
-{
-    public TPTFiltersInheritanceBulkUpdatesSqliteTest(TPTFiltersInheritanceBulkUpdatesSqliteFixture fixture)
-        : base(fixture)
-    {
-        ClearLog();
-    }
+#nullable disable
 
+public class TPTFiltersInheritanceBulkUpdatesSqliteTest(
+    TPTFiltersInheritanceBulkUpdatesSqliteFixture fixture,
+    ITestOutputHelper testOutputHelper)
+    : TPTFiltersInheritanceBulkUpdatesTestBase<TPTFiltersInheritanceBulkUpdatesSqliteFixture>(fixture, testOutputHelper)
+{
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
@@ -35,14 +35,11 @@ public class TPTFiltersInheritanceBulkUpdatesSqliteTest : TPTFiltersInheritanceB
         await base.Delete_where_using_hierarchy(async);
 
         AssertSql(
-"""
+            """
 DELETE FROM "Countries" AS "c"
 WHERE (
     SELECT COUNT(*)
     FROM "Animals" AS "a"
-    LEFT JOIN "Birds" AS "b" ON "a"."Id" = "b"."Id"
-    LEFT JOIN "Eagle" AS "e" ON "a"."Id" = "e"."Id"
-    LEFT JOIN "Kiwi" AS "k" ON "a"."Id" = "k"."Id"
     WHERE "a"."CountryId" = 1 AND "c"."Id" = "a"."CountryId" AND "a"."CountryId" > 0) > 0
 """);
     }
@@ -52,13 +49,11 @@ WHERE (
         await base.Delete_where_using_hierarchy_derived(async);
 
         AssertSql(
-"""
+            """
 DELETE FROM "Countries" AS "c"
 WHERE (
     SELECT COUNT(*)
     FROM "Animals" AS "a"
-    LEFT JOIN "Birds" AS "b" ON "a"."Id" = "b"."Id"
-    LEFT JOIN "Eagle" AS "e" ON "a"."Id" = "e"."Id"
     LEFT JOIN "Kiwi" AS "k" ON "a"."Id" = "k"."Id"
     WHERE "a"."CountryId" = 1 AND "c"."Id" = "a"."CountryId" AND "k"."Id" IS NOT NULL AND "a"."CountryId" > 0) > 0
 """);
@@ -99,12 +94,26 @@ WHERE (
         AssertSql();
     }
 
-    public override async Task Update_where_hierarchy(bool async)
+    public override async Task Update_base_type(bool async)
     {
-        await base.Update_where_hierarchy(async);
+        await base.Update_base_type(async);
 
-        AssertExecuteUpdateSql();
+        AssertExecuteUpdateSql(
+            """
+UPDATE "Animals" AS "a0"
+SET "Name" = 'Animal'
+FROM (
+    SELECT "a"."Id"
+    FROM "Animals" AS "a"
+    WHERE "a"."CountryId" = 1 AND "a"."Name" = 'Great spotted kiwi'
+) AS "s"
+WHERE "a0"."Id" = "s"."Id"
+""");
     }
+
+    // #31402
+    public override Task Update_base_type_with_OfType(bool async)
+        => Assert.ThrowsAsync<SqliteException>(() => base.Update_base_property_on_derived_type(async));
 
     public override async Task Update_where_hierarchy_subquery(bool async)
     {
@@ -113,11 +122,22 @@ WHERE (
         AssertExecuteUpdateSql();
     }
 
-    public override async Task Update_where_hierarchy_derived(bool async)
-    {
-        await base.Update_where_hierarchy_derived(async);
+    // #31402
+    public override Task Update_base_property_on_derived_type(bool async)
+        => Assert.ThrowsAsync<SqliteException>(() => base.Update_base_property_on_derived_type(async));
 
-        AssertExecuteUpdateSql();
+    public override async Task Update_derived_property_on_derived_type(bool async)
+    {
+        await base.Update_derived_property_on_derived_type(async);
+
+        AssertExecuteUpdateSql(
+            """
+UPDATE "Kiwi" AS "k"
+SET "FoundOn" = 0
+FROM "Animals" AS "a"
+INNER JOIN "Birds" AS "b" ON "a"."Id" = "b"."Id"
+WHERE "a"."Id" = "k"."Id" AND "a"."CountryId" = 1
+""");
     }
 
     public override async Task Update_where_using_hierarchy(bool async)
@@ -125,17 +145,21 @@ WHERE (
         await base.Update_where_using_hierarchy(async);
 
         AssertExecuteUpdateSql(
-"""
+            """
 UPDATE "Countries" AS "c"
 SET "Name" = 'Monovia'
 WHERE (
     SELECT COUNT(*)
     FROM "Animals" AS "a"
-    LEFT JOIN "Birds" AS "b" ON "a"."Id" = "b"."Id"
-    LEFT JOIN "Eagle" AS "e" ON "a"."Id" = "e"."Id"
-    LEFT JOIN "Kiwi" AS "k" ON "a"."Id" = "k"."Id"
     WHERE "a"."CountryId" = 1 AND "c"."Id" = "a"."CountryId" AND "a"."CountryId" > 0) > 0
 """);
+    }
+
+    public override async Task Update_base_and_derived_types(bool async)
+    {
+        await base.Update_base_and_derived_types(async);
+
+        AssertExecuteUpdateSql();
     }
 
     public override async Task Update_where_using_hierarchy_derived(bool async)
@@ -143,14 +167,12 @@ WHERE (
         await base.Update_where_using_hierarchy_derived(async);
 
         AssertExecuteUpdateSql(
-"""
+            """
 UPDATE "Countries" AS "c"
 SET "Name" = 'Monovia'
 WHERE (
     SELECT COUNT(*)
     FROM "Animals" AS "a"
-    LEFT JOIN "Birds" AS "b" ON "a"."Id" = "b"."Id"
-    LEFT JOIN "Eagle" AS "e" ON "a"."Id" = "e"."Id"
     LEFT JOIN "Kiwi" AS "k" ON "a"."Id" = "k"."Id"
     WHERE "a"."CountryId" = 1 AND "c"."Id" = "a"."CountryId" AND "k"."Id" IS NOT NULL AND "a"."CountryId" > 0) > 0
 """);

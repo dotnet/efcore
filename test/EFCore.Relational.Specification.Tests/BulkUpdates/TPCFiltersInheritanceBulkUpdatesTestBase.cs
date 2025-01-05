@@ -3,14 +3,12 @@
 
 namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
-public abstract class TPCFiltersInheritanceBulkUpdatesTestBase<TFixture> : FiltersInheritanceBulkUpdatesTestBase<TFixture>
+#nullable disable
+
+public abstract class TPCFiltersInheritanceBulkUpdatesTestBase<TFixture>(TFixture fixture, ITestOutputHelper testOutputHelper)
+    : FiltersInheritanceBulkUpdatesRelationalTestBase<TFixture>(fixture, testOutputHelper)
     where TFixture : TPCInheritanceBulkUpdatesFixture, new()
 {
-    protected TPCFiltersInheritanceBulkUpdatesTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-
     // Keyless entities are mapped as TPH only
     public override Task Delete_where_keyless_entity_mapped_to_sql_query(bool async)
         => Task.CompletedTask;
@@ -34,8 +32,13 @@ public abstract class TPCFiltersInheritanceBulkUpdatesTestBase<TFixture> : Filte
     public override Task Update_where_keyless_entity_mapped_to_sql_query(bool async)
         => Task.CompletedTask;
 
-    public override Task Update_where_hierarchy(bool async)
+    public override Task Update_base_type(bool async)
         => AssertTranslationFailed(
             RelationalStrings.ExecuteOperationOnTPC("ExecuteUpdate", "Animal"),
-            () => base.Update_where_hierarchy(async));
+            () => base.Update_base_type(async));
+
+    public override Task Update_base_type_with_OfType(bool async)
+        => AssertTranslationFailed(
+            RelationalStrings.ExecuteOperationOnTPC("ExecuteUpdate", "Animal"),
+            () => base.Update_base_type_with_OfType(async));
 }

@@ -3,27 +3,17 @@
 
 using System;
 
-namespace Microsoft.EntityFrameworkCore.Benchmarks.Models.Orders
+namespace Microsoft.EntityFrameworkCore.Benchmarks.Models.Orders;
+
+public class OrdersSqliteContext(string connectionString, IServiceProvider serviceProvider = null, bool disableBatching = false) : OrdersContextBase(serviceProvider)
 {
-    public class OrdersSqliteContext : OrdersContextBase
-    {
-        private readonly string _connectionString;
-        private readonly bool _disableBatching;
+    private readonly string _connectionString = connectionString;
+    private readonly bool _disableBatching = disableBatching;
 
-        public OrdersSqliteContext(string connectionString, IServiceProvider serviceProvider = null, bool disableBatching = false)
-            : base(serviceProvider)
-        {
-            _connectionString = connectionString;
-            _disableBatching = disableBatching;
-        }
-
-        protected override void ConfigureProvider(DbContextOptionsBuilder optionsBuilder)
-        {
-            optionsBuilder.UseSqlite(
-                _connectionString, b =>
-                {
-                    if (_disableBatching) { b.MaxBatchSize(1); }
-                });
-        }
-    }
+    protected override void ConfigureProvider(DbContextOptionsBuilder optionsBuilder)
+        => optionsBuilder.UseSqlite(
+            _connectionString, b =>
+            {
+                if (_disableBatching) { b.MaxBatchSize(1); }
+            });
 }

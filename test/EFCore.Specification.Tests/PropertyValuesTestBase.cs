@@ -8,15 +8,10 @@ using System.Globalization;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore;
 
-public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
+public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : PropertyValuesTestBase<TFixture>.PropertyValuesFixtureBase, new()
 {
-    protected PropertyValuesTestBase(TFixture fixture)
-    {
-        Fixture = fixture;
-    }
-
-    protected TFixture Fixture { get; }
+    protected TFixture Fixture { get; } = fixture;
 
     [ConditionalFact]
     public virtual Task Scalar_current_values_can_be_accessed_as_a_property_dictionary()
@@ -28,11 +23,11 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
 
     [ConditionalFact]
     public virtual Task Scalar_store_values_can_be_accessed_as_a_property_dictionary()
-        => TestPropertyValuesScalars(e => Task.FromResult(e.GetDatabaseValues()), expectOriginalValues: true);
+        => TestPropertyValuesScalars(e => Task.FromResult(e.GetDatabaseValues()!), expectOriginalValues: true);
 
     [ConditionalFact]
     public virtual Task Scalar_store_values_can_be_accessed_asynchronously_as_a_property_dictionary()
-        => TestPropertyValuesScalars(e => e.GetDatabaseValuesAsync(), expectOriginalValues: true);
+        => TestPropertyValuesScalars(e => e.GetDatabaseValuesAsync()!, expectOriginalValues: true);
 
     private async Task TestPropertyValuesScalars(
         Func<EntityEntry<Building>, Task<PropertyValues>> getPropertyValues,
@@ -78,11 +73,11 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
 
     [ConditionalFact]
     public virtual Task Scalar_store_values_can_be_accessed_as_a_property_dictionary_using_IProperty()
-        => TestPropertyValuesScalarsIProperty(e => Task.FromResult(e.GetDatabaseValues()), expectOriginalValues: true);
+        => TestPropertyValuesScalarsIProperty(e => Task.FromResult(e.GetDatabaseValues()!), expectOriginalValues: true);
 
     [ConditionalFact]
     public virtual Task Scalar_store_values_can_be_accessed_asynchronously_as_a_property_dictionary_using_IProperty()
-        => TestPropertyValuesScalarsIProperty(e => e.GetDatabaseValuesAsync(), expectOriginalValues: true);
+        => TestPropertyValuesScalarsIProperty(e => e.GetDatabaseValuesAsync()!, expectOriginalValues: true);
 
     private async Task TestPropertyValuesScalarsIProperty(
         Func<EntityEntry<Building>, Task<PropertyValues>> getPropertyValues,
@@ -129,11 +124,11 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
 
     [ConditionalFact]
     public virtual Task Scalar_store_values_of_a_derived_object_can_be_accessed_as_a_property_dictionary()
-        => TestPropertyValuesDerivedScalars(e => Task.FromResult(e.GetDatabaseValues()), expectOriginalValues: true);
+        => TestPropertyValuesDerivedScalars(e => Task.FromResult(e.GetDatabaseValues()!), expectOriginalValues: true);
 
     [ConditionalFact]
     public virtual Task Scalar_store_values_of_a_derived_object_can_be_accessed_asynchronously_as_a_property_dictionary()
-        => TestPropertyValuesDerivedScalars(e => e.GetDatabaseValuesAsync(), expectOriginalValues: true);
+        => TestPropertyValuesDerivedScalars(e => e.GetDatabaseValuesAsync()!, expectOriginalValues: true);
 
     private async Task TestPropertyValuesDerivedScalars(
         Func<EntityEntry<CurrentEmployee>, Task<PropertyValues>> getPropertyValues,
@@ -182,11 +177,11 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
 
     [ConditionalFact]
     public virtual Task Scalar_store_values_can_be_accessed_as_a_non_generic_property_dictionary()
-        => TestNonGenericPropertyValuesScalars(e => Task.FromResult(e.GetDatabaseValues()), expectOriginalValues: true);
+        => TestNonGenericPropertyValuesScalars(e => Task.FromResult(e.GetDatabaseValues()!), expectOriginalValues: true);
 
     [ConditionalFact]
     public virtual Task Scalar_store_values_can_be_accessed_asynchronously_as_a_non_generic_property_dictionary()
-        => TestNonGenericPropertyValuesScalars(e => e.GetDatabaseValuesAsync(), expectOriginalValues: true);
+        => TestNonGenericPropertyValuesScalars(e => e.GetDatabaseValuesAsync()!, expectOriginalValues: true);
 
     private async Task TestNonGenericPropertyValuesScalars(
         Func<EntityEntry, Task<PropertyValues>> getPropertyValues,
@@ -238,11 +233,11 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
 
     [ConditionalFact]
     public virtual Task Scalar_store_values_can_be_accessed_as_a_non_generic_property_dictionary_using_IProperty()
-        => TestNonGenericPropertyValuesScalarsIProperty(e => Task.FromResult(e.GetDatabaseValues()), expectOriginalValues: true);
+        => TestNonGenericPropertyValuesScalarsIProperty(e => Task.FromResult(e.GetDatabaseValues()!), expectOriginalValues: true);
 
     [ConditionalFact]
     public virtual Task Scalar_store_values_can_be_accessed_asynchronously_as_a_non_generic_property_dictionary_using_IProperty()
-        => TestNonGenericPropertyValuesScalarsIProperty(e => e.GetDatabaseValuesAsync(), expectOriginalValues: true);
+        => TestNonGenericPropertyValuesScalarsIProperty(e => e.GetDatabaseValuesAsync()!, expectOriginalValues: true);
 
     private async Task TestNonGenericPropertyValuesScalarsIProperty(
         Func<EntityEntry, Task<PropertyValues>> getPropertyValues,
@@ -291,11 +286,11 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
 
     [ConditionalFact]
     public virtual Task Scalar_store_values_of_a_derived_object_can_be_accessed_as_a_non_generic_property_dictionary()
-        => TestNonGenericPropertyValuesDerivedScalars(e => Task.FromResult(e.GetDatabaseValues()), expectOriginalValues: true);
+        => TestNonGenericPropertyValuesDerivedScalars(e => Task.FromResult(e.GetDatabaseValues()!), expectOriginalValues: true);
 
     [ConditionalFact]
     public virtual Task Scalar_store_values_of_a_derived_object_can_be_accessed_asynchronously_as_a_non_generic_property_dictionary()
-        => TestNonGenericPropertyValuesDerivedScalars(e => e.GetDatabaseValuesAsync(), expectOriginalValues: true);
+        => TestNonGenericPropertyValuesDerivedScalars(e => e.GetDatabaseValuesAsync()!, expectOriginalValues: true);
 
     private async Task TestNonGenericPropertyValuesDerivedScalars(
         Func<EntityEntry, Task<PropertyValues>> getPropertyValues,
@@ -332,11 +327,11 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
 
     [ConditionalFact]
     public virtual void Scalar_current_values_can_be_set_using_a_property_dictionary()
-        => TestSetPropertyValuesScalars(e => e.CurrentValues, (e, n) => e.Property(n).CurrentValue);
+        => TestSetPropertyValuesScalars(e => e.CurrentValues, (e, n) => e.Property(n).CurrentValue!);
 
     [ConditionalFact]
     public virtual void Scalar_original_values_can_be_set_using_a_property_dictionary()
-        => TestSetPropertyValuesScalars(e => e.OriginalValues, (e, n) => e.Property(n).OriginalValue);
+        => TestSetPropertyValuesScalars(e => e.OriginalValues, (e, n) => e.Property(n).OriginalValue!);
 
     private void TestSetPropertyValuesScalars(
         Func<EntityEntry<Building>, PropertyValues> getPropertyValues,
@@ -365,11 +360,11 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
 
     [ConditionalFact]
     public virtual void Scalar_current_values_can_be_set_using_a_property_dictionary_with_IProperty()
-        => TestSetPropertyValuesScalarsIProperty(e => e.CurrentValues, (e, n) => e.Property(n).CurrentValue);
+        => TestSetPropertyValuesScalarsIProperty(e => e.CurrentValues, (e, n) => e.Property(n).CurrentValue!);
 
     [ConditionalFact]
     public virtual void Scalar_original_values_can_be_set_using_a_property_dictionary_with_IProperty()
-        => TestSetPropertyValuesScalarsIProperty(e => e.OriginalValues, (e, n) => e.Property(n).OriginalValue);
+        => TestSetPropertyValuesScalarsIProperty(e => e.OriginalValues, (e, n) => e.Property(n).OriginalValue!);
 
     private void TestSetPropertyValuesScalarsIProperty(
         Func<EntityEntry<Building>, PropertyValues> getPropertyValues,
@@ -398,11 +393,11 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
 
     [ConditionalFact]
     public virtual void Scalar_current_values_can_be_set_using_a_non_generic_property_dictionary()
-        => TestSetNonGenericPropertyValuesScalars(e => e.CurrentValues, (e, n) => e.Property(n).CurrentValue);
+        => TestSetNonGenericPropertyValuesScalars(e => e.CurrentValues, (e, n) => e.Property(n).CurrentValue!);
 
     [ConditionalFact]
     public virtual void Scalar_original_values_can_be_set_using_a_non_generic_property_dictionary()
-        => TestSetNonGenericPropertyValuesScalars(e => e.OriginalValues, (e, n) => e.Property(n).OriginalValue);
+        => TestSetNonGenericPropertyValuesScalars(e => e.OriginalValues, (e, n) => e.Property(n).OriginalValue!);
 
     private void TestSetNonGenericPropertyValuesScalars(
         Func<EntityEntry, PropertyValues> getPropertyValues,
@@ -430,6 +425,96 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
     }
 
     [ConditionalFact]
+    public virtual Task Complex_current_values_can_be_accessed_as_a_property_dictionary_using_IProperty()
+        => TestPropertyValuesComplexIProperty(e => Task.FromResult(e.CurrentValues), expectOriginalValues: false);
+
+    [ConditionalFact]
+    public virtual Task Complex_original_values_can_be_accessed_as_a_property_dictionary_using_IProperty()
+        => TestPropertyValuesComplexIProperty(e => Task.FromResult(e.OriginalValues), expectOriginalValues: true);
+
+    [ConditionalFact]
+    public virtual Task Complex_store_values_can_be_accessed_as_a_property_dictionary_using_IProperty()
+        => TestPropertyValuesComplexIProperty(e => Task.FromResult(e.GetDatabaseValues()!), expectOriginalValues: true);
+
+    [ConditionalFact]
+    public virtual Task Complex_store_values_can_be_accessed_asynchronously_as_a_property_dictionary_using_IProperty()
+        => TestPropertyValuesComplexIProperty(e => e.GetDatabaseValuesAsync()!, expectOriginalValues: true);
+
+    private async Task TestPropertyValuesComplexIProperty(
+        Func<EntityEntry<Building>, Task<PropertyValues>> getPropertyValues,
+        bool expectOriginalValues)
+    {
+        using var context = CreateContext();
+        var building = context.Set<Building>().Single(b => b.Name == "Building One");
+        var original = Building.Create(building.BuildingId, building.Name!, building.Value);
+        var changed = Building.Create(building.BuildingId, building.Name!, building.Value, 1);
+
+        building.Culture = changed.Culture;
+        building.Milk.Rating = changed.Milk.Rating;
+        building.Milk.License = changed.Milk.License;
+        building.Milk.Manufacturer = changed.Milk.Manufacturer;
+
+        var entry = context.Entry(building);
+        var values = await getPropertyValues(entry);
+
+        var cultureEntry = entry.ComplexProperty(e => e.Culture);
+        var cultureManufacturerEntry = cultureEntry.ComplexProperty(e => e.Manufacturer);
+        var cultureLicenseEntry = cultureEntry.ComplexProperty(e => e.License);
+        var cultureManTogEntry = cultureManufacturerEntry.ComplexProperty(e => e.Tog);
+        var cultureManTagEntry = cultureManufacturerEntry.ComplexProperty(e => e.Tag);
+        var cultureLicTogEntry = cultureLicenseEntry.ComplexProperty(e => e.Tog);
+        var cultureLicTagEntry = cultureLicenseEntry.ComplexProperty(e => e.Tag);
+
+        var milkEntry = entry.ComplexProperty(e => e.Milk);
+        var milkManufacturerEntry = milkEntry.ComplexProperty(e => e.Manufacturer);
+        var milkLicenseEntry = milkEntry.ComplexProperty(e => e.License);
+        var milkManTogEntry = milkManufacturerEntry.ComplexProperty(e => e.Tog);
+        var milkManTagEntry = milkManufacturerEntry.ComplexProperty(e => e.Tag);
+        var milkLicTogEntry = milkLicenseEntry.ComplexProperty(e => e.Tog);
+        var milkLicTagEntry = milkLicenseEntry.ComplexProperty(e => e.Tag);
+
+        var expected = expectOriginalValues ? original : changed;
+        Assert.Equal(expected.Culture.Rating, values[cultureEntry.Property(e => e.Rating).Metadata]);
+        Assert.Equal(expected.Culture.Species, values[cultureEntry.Property(e => e.Species).Metadata]);
+        Assert.Equal(expected.Culture.Subspecies, values[cultureEntry.Property(e => e.Subspecies).Metadata]);
+        Assert.Equal(expected.Culture.Validation, values[cultureEntry.Property(e => e.Validation).Metadata]);
+        Assert.Equal(expected.Culture.Manufacturer.Name, values[cultureManufacturerEntry.Property(e => e.Name).Metadata]);
+        Assert.Equal(expected.Culture.Manufacturer.Rating, values[cultureManufacturerEntry.Property(e => e.Rating).Metadata]);
+        Assert.Equal(expected.Culture.Manufacturer.Tog.Text, values[cultureManTogEntry.Property(e => e.Text).Metadata]);
+        Assert.Equal(expected.Culture.Manufacturer.Tag.Text, values[cultureManTagEntry.Property(e => e.Text).Metadata]);
+        Assert.Equal(expected.Culture.License.Title, values[cultureLicenseEntry.Property(e => e.Title).Metadata]);
+        Assert.Equal(expected.Culture.License.Charge, values[cultureLicenseEntry.Property(e => e.Charge).Metadata]);
+        Assert.Equal(expected.Culture.License.Tog.Text, values[cultureLicTogEntry.Property(e => e.Text).Metadata]);
+        Assert.Equal(expected.Culture.License.Tag.Text, values[cultureLicTagEntry.Property(e => e.Text).Metadata]);
+        Assert.Equal(expected.Milk.Rating, values[milkEntry.Property(e => e.Rating).Metadata]);
+        Assert.Equal(expected.Milk.Manufacturer.Name, values[milkManufacturerEntry.Property(e => e.Name).Metadata]);
+        Assert.Equal(expected.Milk.Manufacturer.Rating, values[milkManufacturerEntry.Property(e => e.Rating).Metadata]);
+        Assert.Equal(expected.Milk.Manufacturer.Tog.Text, values[milkManTogEntry.Property(e => e.Text).Metadata]);
+        Assert.Equal(expected.Milk.Manufacturer.Tag.Text, values[milkManTagEntry.Property(e => e.Text).Metadata]);
+        Assert.Equal(expected.Milk.License.Title, values[milkLicenseEntry.Property(e => e.Title).Metadata]);
+        Assert.Equal(expected.Milk.License.Charge, values[milkLicenseEntry.Property(e => e.Charge).Metadata]);
+        Assert.Equal(expected.Milk.License.Tog.Text, values[milkLicTogEntry.Property(e => e.Text).Metadata]);
+        Assert.Equal(expected.Milk.License.Tag.Text, values[milkLicTagEntry.Property(e => e.Text).Metadata]);
+
+        if (expectOriginalValues)
+        {
+            Assert.Equal(original.Milk.Species, values[milkEntry.Property(e => e.Species).Metadata]);
+            Assert.Equal(original.Milk.Subspecies, values[milkEntry.Property(e => e.Subspecies).Metadata]);
+            Assert.Equal(original.Milk.Validation, values[milkEntry.Property(e => e.Validation).Metadata]);
+        }
+        else
+        {
+            Assert.Equal(building.Milk.Species, values[milkEntry.Property(e => e.Species).Metadata]);
+            Assert.Equal(building.Milk.Subspecies, values[milkEntry.Property(e => e.Subspecies).Metadata]);
+            Assert.Equal(building.Milk.Validation, values[milkEntry.Property(e => e.Validation).Metadata]);
+        }
+
+        Assert.True(building.CreatedCalled);
+        Assert.True(building.InitializingCalled);
+        Assert.True(building.InitializedCalled);
+    }
+
+    [ConditionalFact]
     public virtual Task Current_values_can_be_copied_into_an_object()
         => TestPropertyValuesClone(e => Task.FromResult(e.CurrentValues), expectOriginalValues: false);
 
@@ -439,11 +524,11 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
 
     [ConditionalFact]
     public virtual Task Store_values_can_be_copied_into_an_object()
-        => TestPropertyValuesClone(e => Task.FromResult(e.GetDatabaseValues()), expectOriginalValues: true);
+        => TestPropertyValuesClone(e => Task.FromResult(e.GetDatabaseValues()!), expectOriginalValues: true);
 
     [ConditionalFact]
     public virtual Task Store_values_can_be_copied_into_an_object_asynchronously()
-        => TestPropertyValuesClone(e => e.GetDatabaseValuesAsync(), expectOriginalValues: true);
+        => TestPropertyValuesClone(e => e.GetDatabaseValuesAsync()!, expectOriginalValues: true);
 
     private async Task TestPropertyValuesClone(
         Func<EntityEntry<Building>, Task<PropertyValues>> getPropertyValues,
@@ -485,11 +570,11 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
 
     [ConditionalFact]
     public virtual Task Store_values_for_derived_object_can_be_copied_into_an_object()
-        => TestPropertyValuesDerivedClone(e => Task.FromResult(e.GetDatabaseValues()), expectOriginalValues: true);
+        => TestPropertyValuesDerivedClone(e => Task.FromResult(e.GetDatabaseValues()!), expectOriginalValues: true);
 
     [ConditionalFact]
     public virtual Task Store_values_for_derived_object_can_be_copied_into_an_object_asynchronously()
-        => TestPropertyValuesDerivedClone(e => e.GetDatabaseValuesAsync(), expectOriginalValues: true);
+        => TestPropertyValuesDerivedClone(e => e.GetDatabaseValuesAsync()!, expectOriginalValues: true);
 
     private async Task TestPropertyValuesDerivedClone(
         Func<EntityEntry<CurrentEmployee>, Task<PropertyValues>> getPropertyValues,
@@ -534,11 +619,11 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
 
     [ConditionalFact]
     public virtual Task Store_values_for_join_entity_can_be_copied_into_an_object()
-        => TestPropertyValuesJoinEntityClone(e => Task.FromResult(e.GetDatabaseValues()), expectOriginalValues: true);
+        => TestPropertyValuesJoinEntityClone(e => Task.FromResult(e.GetDatabaseValues()!), expectOriginalValues: true);
 
     [ConditionalFact]
     public virtual Task Store_values_for_join_entity_can_be_copied_into_an_object_asynchronously()
-        => TestPropertyValuesJoinEntityClone(e => e.GetDatabaseValuesAsync(), expectOriginalValues: true);
+        => TestPropertyValuesJoinEntityClone(e => e.GetDatabaseValuesAsync()!, expectOriginalValues: true);
 
     private async Task TestPropertyValuesJoinEntityClone(
         Func<EntityEntry<Dictionary<string, object>>, Task<PropertyValues>> getPropertyValues,
@@ -582,11 +667,11 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
 
     [ConditionalFact]
     public virtual Task Store_values_can_be_copied_non_generic_property_dictionary_into_an_object()
-        => TestNonGenericPropertyValuesClone(e => Task.FromResult(e.GetDatabaseValues()), expectOriginalValues: true);
+        => TestNonGenericPropertyValuesClone(e => Task.FromResult(e.GetDatabaseValues()!), expectOriginalValues: true);
 
     [ConditionalFact]
     public virtual Task Store_values_can_be_copied_asynchronously_non_generic_property_dictionary_into_an_object()
-        => TestNonGenericPropertyValuesClone(e => e.GetDatabaseValuesAsync(), expectOriginalValues: true);
+        => TestNonGenericPropertyValuesClone(e => e.GetDatabaseValuesAsync()!, expectOriginalValues: true);
 
     private async Task TestNonGenericPropertyValuesClone(
         Func<EntityEntry, Task<PropertyValues>> getPropertyValues,
@@ -628,11 +713,11 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
 
     [ConditionalFact]
     public virtual Task Store_values_can_be_copied_into_a_cloned_dictionary()
-        => TestPropertyValuesCloneToValues(e => Task.FromResult(e.GetDatabaseValues()), expectOriginalValues: true);
+        => TestPropertyValuesCloneToValues(e => Task.FromResult(e.GetDatabaseValues()!), expectOriginalValues: true);
 
     [ConditionalFact]
     public virtual Task Store_values_can_be_copied_into_a_cloned_dictionary_asynchronously()
-        => TestPropertyValuesCloneToValues(e => e.GetDatabaseValuesAsync(), expectOriginalValues: true);
+        => TestPropertyValuesCloneToValues(e => e.GetDatabaseValuesAsync()!, expectOriginalValues: true);
 
     private async Task TestPropertyValuesCloneToValues(
         Func<EntityEntry<Building>, Task<PropertyValues>> getPropertyValues,
@@ -770,7 +855,7 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
         var buildingValues = entry.CurrentValues;
         var clonedBuildingValues = buildingValues.Clone();
 
-        var property = context.Model.FindEntityType(typeof(Whiteboard)).FindProperty(nameof(Whiteboard.AssetTag));
+        var property = context.Model.FindEntityType(typeof(Whiteboard))!.FindProperty(nameof(Whiteboard.AssetTag))!;
 
         Assert.Equal(
             CoreStrings.PropertyDoesNotBelong("AssetTag", nameof(Whiteboard), nameof(Building)),
@@ -854,8 +939,8 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
         var values = entry.CurrentValues;
         var clonedValues = values.Clone();
 
-        var shadowProperty = context.Model.FindEntityType(typeof(PastEmployee)).FindProperty("Shadow4");
-        var termProperty = context.Model.FindEntityType(typeof(PastEmployee)).FindProperty(nameof(PastEmployee.TerminationDate));
+        var shadowProperty = context.Model.FindEntityType(typeof(PastEmployee))!.FindProperty("Shadow4")!;
+        var termProperty = context.Model.FindEntityType(typeof(PastEmployee))!.FindProperty(nameof(PastEmployee.TerminationDate))!;
 
         Assert.Equal(
             CoreStrings.PropertyDoesNotBelong("Shadow4", nameof(PastEmployee), nameof(CurrentEmployee)),
@@ -908,11 +993,11 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
 
     [ConditionalFact]
     public virtual Task Store_values_can_be_copied_into_a_non_generic_cloned_dictionary()
-        => TestNonGenericPropertyValuesCloneToValues(e => Task.FromResult(e.GetDatabaseValues()), expectOriginalValues: true);
+        => TestNonGenericPropertyValuesCloneToValues(e => Task.FromResult(e.GetDatabaseValues()!), expectOriginalValues: true);
 
     [ConditionalFact]
     public virtual Task Store_values_can_be_copied_asynchronously_into_a_non_generic_cloned_dictionary()
-        => TestNonGenericPropertyValuesCloneToValues(e => e.GetDatabaseValuesAsync(), expectOriginalValues: true);
+        => TestNonGenericPropertyValuesCloneToValues(e => e.GetDatabaseValuesAsync()!, expectOriginalValues: true);
 
     private async Task TestNonGenericPropertyValuesCloneToValues(
         Func<EntityEntry, Task<PropertyValues>> getPropertyValues,
@@ -990,11 +1075,11 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
     [ConditionalFact]
     public virtual Task Store_values_can_be_read_and_set_for_an_object_in_the_Deleted_state()
         => TestPropertyValuesPositiveForState(
-            e => Task.FromResult(e.GetDatabaseValues()), EntityState.Deleted, expectOriginalValues: true);
+            e => Task.FromResult(e.GetDatabaseValues()!), EntityState.Deleted, expectOriginalValues: true);
 
     [ConditionalFact]
     public virtual Task Store_values_can_be_read_and_set_for_an_object_in_the_Deleted_state_asynchronously()
-        => TestPropertyValuesPositiveForState(e => e.GetDatabaseValuesAsync(), EntityState.Deleted, expectOriginalValues: true);
+        => TestPropertyValuesPositiveForState(e => e.GetDatabaseValuesAsync()!, EntityState.Deleted, expectOriginalValues: true);
 
     [ConditionalFact]
     public virtual Task Current_values_can_be_read_and_set_for_an_object_in_the_Unchanged_state()
@@ -1009,11 +1094,11 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
     [ConditionalFact]
     public virtual Task Store_values_can_be_read_and_set_for_an_object_in_the_Unchanged_state()
         => TestPropertyValuesPositiveForState(
-            e => Task.FromResult(e.GetDatabaseValues()), EntityState.Unchanged, expectOriginalValues: true);
+            e => Task.FromResult(e.GetDatabaseValues()!), EntityState.Unchanged, expectOriginalValues: true);
 
     [ConditionalFact]
     public virtual Task Store_values_can_be_read_and_set_for_an_object_in_the_Unchanged_state_asynchronously()
-        => TestPropertyValuesPositiveForState(e => e.GetDatabaseValuesAsync(), EntityState.Unchanged, expectOriginalValues: true);
+        => TestPropertyValuesPositiveForState(e => e.GetDatabaseValuesAsync()!, EntityState.Unchanged, expectOriginalValues: true);
 
     [ConditionalFact]
     public virtual Task Current_values_can_be_read_and_set_for_an_object_in_the_Modified_state()
@@ -1028,11 +1113,11 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
     [ConditionalFact]
     public virtual Task Store_values_can_be_read_and_set_for_an_object_in_the_Modified_state()
         => TestPropertyValuesPositiveForState(
-            e => Task.FromResult(e.GetDatabaseValues()), EntityState.Modified, expectOriginalValues: true);
+            e => Task.FromResult(e.GetDatabaseValues()!), EntityState.Modified, expectOriginalValues: true);
 
     [ConditionalFact]
     public virtual Task Store_values_can_be_read_and_set_for_an_object_in_the_Modified_state_asynchronously()
-        => TestPropertyValuesPositiveForState(e => e.GetDatabaseValuesAsync(), EntityState.Modified, expectOriginalValues: true);
+        => TestPropertyValuesPositiveForState(e => e.GetDatabaseValuesAsync()!, EntityState.Modified, expectOriginalValues: true);
 
     [ConditionalFact]
     public virtual Task Current_values_can_be_read_and_set_for_an_object_in_the_Added_state()
@@ -1047,11 +1132,11 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
     [ConditionalFact]
     public virtual Task Store_values_can_be_read_or_set_for_an_object_in_the_Added_state()
         => TestPropertyValuesPositiveForState(
-            e => Task.FromResult(e.GetDatabaseValues()), EntityState.Detached, expectOriginalValues: true);
+            e => Task.FromResult(e.GetDatabaseValues()!), EntityState.Detached, expectOriginalValues: true);
 
     [ConditionalFact]
     public virtual Task Store_values_can_be_read_or_set_for_an_object_in_the_Added_state_asynchronously()
-        => TestPropertyValuesPositiveForState(e => e.GetDatabaseValuesAsync(), EntityState.Detached, expectOriginalValues: true);
+        => TestPropertyValuesPositiveForState(e => e.GetDatabaseValuesAsync()!, EntityState.Detached, expectOriginalValues: true);
 
     [ConditionalFact]
     public virtual Task Current_values_can_be_read_or_set_for_a_Detached_object()
@@ -1066,11 +1151,11 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
     [ConditionalFact]
     public virtual Task Store_values_can_be_read_or_set_for_a_Detached_object()
         => TestPropertyValuesPositiveForState(
-            e => Task.FromResult(e.GetDatabaseValues()), EntityState.Detached, expectOriginalValues: true);
+            e => Task.FromResult(e.GetDatabaseValues()!), EntityState.Detached, expectOriginalValues: true);
 
     [ConditionalFact]
     public virtual Task Store_values_can_be_read_or_set_for_a_Detached_object_asynchronously()
-        => TestPropertyValuesPositiveForState(e => e.GetDatabaseValuesAsync(), EntityState.Detached, expectOriginalValues: true);
+        => TestPropertyValuesPositiveForState(e => e.GetDatabaseValuesAsync()!, EntityState.Detached, expectOriginalValues: true);
 
     private async Task TestPropertyValuesPositiveForState(
         Func<EntityEntry<Building>, Task<PropertyValues>> getPropertyValues,
@@ -1192,13 +1277,60 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
         Assert.Contains(office, building.Offices);
     }
 
+    [ConditionalTheory]
+    [InlineData(EntityState.Unchanged, true)]
+    [InlineData(EntityState.Unchanged, false)]
+    [InlineData(EntityState.Modified, true)]
+    [InlineData(EntityState.Modified, false)]
+    [InlineData(EntityState.Added, true)]
+    [InlineData(EntityState.Added, false)]
+    [InlineData(EntityState.Deleted, true)]
+    [InlineData(EntityState.Deleted, false)]
+    [InlineData(EntityState.Detached, true)]
+    [InlineData(EntityState.Detached, false)]
+    public virtual async Task Values_can_be_reloaded_from_database_for_entity_in_any_state_with_inheritance(EntityState state, bool async)
+    {
+        using var context = CreateContext();
+        var supplier = context.Set<Supplier33307>().Single();
+        var customer = context.Set<Customer33307>().Single();
+
+        supplier.Name = "X";
+        supplier.Foo = "Z";
+        customer.Name = "Y";
+        customer.Bar = 77;
+        customer.Address.Street = "New Road";
+        supplier.Address.Street = "New Lane";
+
+        context.Entry(supplier).State = state;
+        context.Entry(customer).State = state;
+
+        if (async)
+        {
+            await context.Entry(supplier).ReloadAsync();
+            await context.Entry(customer).ReloadAsync();
+        }
+        else
+        {
+            context.Entry(supplier).Reload();
+            context.Entry(customer).Reload();
+        }
+
+        Assert.Equal("Bar", customer.Name);
+        Assert.Equal(11, customer.Bar);
+        Assert.Equal("Two", customer.Address.Street);
+
+        Assert.Equal("Foo", supplier.Name);
+        Assert.Equal("F", supplier.Foo);
+        Assert.Equal("One", supplier.Address.Street);
+    }
+
     [ConditionalFact]
     public virtual void Current_values_can_be_set_from_an_object_using_generic_dictionary()
-        => TestGenericObjectSetValues(e => e.CurrentValues, (e, n) => e.Property(n).CurrentValue);
+        => TestGenericObjectSetValues(e => e.CurrentValues, (e, n) => e.Property(n).CurrentValue!);
 
     [ConditionalFact]
     public virtual void Original_values_can_be_set_from_an_object_using_generic_dictionary()
-        => TestGenericObjectSetValues(e => e.OriginalValues, (e, n) => e.Property(n).OriginalValue);
+        => TestGenericObjectSetValues(e => e.OriginalValues, (e, n) => e.Property(n).OriginalValue!);
 
     private void TestGenericObjectSetValues(
         Func<EntityEntry<Building>, PropertyValues> getPropertyValues,
@@ -1245,11 +1377,11 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
 
     [ConditionalFact]
     public virtual void Current_values_can_be_set_from_an_object_using_non_generic_dictionary()
-        => TestNonGenericObjectSetValues(e => e.CurrentValues, (e, n) => e.Property(n).CurrentValue);
+        => TestNonGenericObjectSetValues(e => e.CurrentValues, (e, n) => e.Property(n).CurrentValue!);
 
     [ConditionalFact]
     public virtual void Original_values_can_be_set_from_an_object_using_non_generic_dictionary()
-        => TestNonGenericObjectSetValues(e => e.OriginalValues, (e, n) => e.Property(n).OriginalValue);
+        => TestNonGenericObjectSetValues(e => e.OriginalValues, (e, n) => e.Property(n).OriginalValue!);
 
     private void TestNonGenericObjectSetValues(
         Func<EntityEntry, PropertyValues> getPropertyValues,
@@ -1278,11 +1410,11 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
 
     [ConditionalFact]
     public virtual void Current_values_can_be_set_from_DTO_object_using_non_generic_dictionary()
-        => TestNonGenericDtoSetValues(e => e.CurrentValues, (e, n) => e.Property(n).CurrentValue);
+        => TestNonGenericDtoSetValues(e => e.CurrentValues, (e, n) => e.Property(n).CurrentValue!);
 
     [ConditionalFact]
     public virtual void Original_values_can_be_set_from_DTO_object_using_non_generic_dictionary()
-        => TestNonGenericDtoSetValues(e => e.OriginalValues, (e, n) => e.Property(n).OriginalValue);
+        => TestNonGenericDtoSetValues(e => e.OriginalValues, (e, n) => e.Property(n).OriginalValue!);
 
     private void TestNonGenericDtoSetValues(
         Func<EntityEntry, PropertyValues> getPropertyValues,
@@ -1314,11 +1446,11 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
 
     [ConditionalFact]
     public virtual void Current_values_can_be_set_from_DTO_object_missing_key_using_non_generic_dictionary()
-        => TestNonGenericDtoNoKeySetValues(e => e.CurrentValues, (e, n) => e.Property(n).CurrentValue);
+        => TestNonGenericDtoNoKeySetValues(e => e.CurrentValues, (e, n) => e.Property(n).CurrentValue!);
 
     [ConditionalFact]
     public virtual void Original_values_can_be_set_from_DTO_object_missing_key_using_non_generic_dictionary()
-        => TestNonGenericDtoNoKeySetValues(e => e.OriginalValues, (e, n) => e.Property(n).OriginalValue);
+        => TestNonGenericDtoNoKeySetValues(e => e.OriginalValues, (e, n) => e.Property(n).OriginalValue!);
 
     private void TestNonGenericDtoNoKeySetValues(
         Func<EntityEntry, PropertyValues> getPropertyValues,
@@ -1348,11 +1480,11 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
 
     [ConditionalFact]
     public virtual void Current_values_can_be_set_from_dictionary()
-        => TestDictionarySetValues(e => e.CurrentValues, (e, n) => e.Property(n).CurrentValue);
+        => TestDictionarySetValues(e => e.CurrentValues, (e, n) => e.Property(n).CurrentValue!);
 
     [ConditionalFact]
     public virtual void Original_values_can_be_set_from_dictionary()
-        => TestDictionarySetValues(e => e.OriginalValues, (e, n) => e.Property(n).OriginalValue);
+        => TestDictionarySetValues(e => e.OriginalValues, (e, n) => e.Property(n).OriginalValue!);
 
     private void TestDictionarySetValues(
         Func<EntityEntry, PropertyValues> getPropertyValues,
@@ -1386,11 +1518,11 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
 
     [ConditionalFact]
     public virtual void Current_values_can_be_set_from_dictionary_typed_int()
-        => TestDictionarySetValuesTypedInt(e => e.CurrentValues, (e, n) => e.Property(n).CurrentValue);
+        => TestDictionarySetValuesTypedInt(e => e.CurrentValues, (e, n) => e.Property(n).CurrentValue!);
 
     [ConditionalFact]
     public virtual void Original_values_can_be_set_from_dictionary_typed_int()
-        => TestDictionarySetValuesTypedInt(e => e.OriginalValues, (e, n) => e.Property(n).OriginalValue);
+        => TestDictionarySetValuesTypedInt(e => e.OriginalValues, (e, n) => e.Property(n).OriginalValue!);
 
     private void TestDictionarySetValuesTypedInt(
         Func<EntityEntry, PropertyValues> getPropertyValues,
@@ -1423,11 +1555,11 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
 
     [ConditionalFact]
     public virtual void Current_values_can_be_set_from_dictionary_typed_string()
-        => TestDictionarySetValuesTypedString(e => e.CurrentValues, (e, n) => e.Property(n).CurrentValue);
+        => TestDictionarySetValuesTypedString(e => e.CurrentValues, (e, n) => e.Property(n).CurrentValue!);
 
     [ConditionalFact]
     public virtual void Original_values_can_be_set_from_dictionary_typed_string()
-        => TestDictionarySetValuesTypedString(e => e.OriginalValues, (e, n) => e.Property(n).OriginalValue);
+        => TestDictionarySetValuesTypedString(e => e.OriginalValues, (e, n) => e.Property(n).OriginalValue!);
 
     private void TestDictionarySetValuesTypedString(
         Func<EntityEntry, PropertyValues> getPropertyValues,
@@ -1463,11 +1595,11 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
 
     [ConditionalFact]
     public virtual void Current_values_can_be_set_from_dictionary_some_missing()
-        => TestPartialDictionarySetValues(e => e.CurrentValues, (e, n) => e.Property(n).CurrentValue);
+        => TestPartialDictionarySetValues(e => e.CurrentValues, (e, n) => e.Property(n).CurrentValue!);
 
     [ConditionalFact]
     public virtual void Original_values_can_be_set_from_dictionary_some_missing()
-        => TestPartialDictionarySetValues(e => e.OriginalValues, (e, n) => e.Property(n).OriginalValue);
+        => TestPartialDictionarySetValues(e => e.OriginalValues, (e, n) => e.Property(n).OriginalValue!);
 
     private void TestPartialDictionarySetValues(
         Func<EntityEntry, PropertyValues> getPropertyValues,
@@ -1499,11 +1631,11 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
 
     [ConditionalFact]
     public virtual void Current_values_can_be_set_from_one_generic_dictionary_to_another_generic_dictionary()
-        => TestGenericValuesSetValues(e => e.CurrentValues, (e, n) => e.Property(n).CurrentValue);
+        => TestGenericValuesSetValues(e => e.CurrentValues, (e, n) => e.Property(n).CurrentValue!);
 
     [ConditionalFact]
     public virtual void Original_values_can_be_set_from_one_generic_dictionary_to_another_generic_dictionary()
-        => TestGenericValuesSetValues(e => e.OriginalValues, (e, n) => e.Property(n).OriginalValue);
+        => TestGenericValuesSetValues(e => e.OriginalValues, (e, n) => e.Property(n).OriginalValue!);
 
     private void TestGenericValuesSetValues(
         Func<EntityEntry<Building>, PropertyValues> getPropertyValues,
@@ -1535,11 +1667,11 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
 
     [ConditionalFact]
     public virtual void Current_values_can_be_set_from_one_non_generic_dictionary_to_another_generic_dictionary()
-        => TestNonGenericValuesSetValues(e => e.CurrentValues, (e, n) => e.Property(n).CurrentValue);
+        => TestNonGenericValuesSetValues(e => e.CurrentValues, (e, n) => e.Property(n).CurrentValue!);
 
     [ConditionalFact]
     public virtual void Original_values_can_be_set_from_one_non_generic_dictionary_to_another_generic_dictionary()
-        => TestNonGenericValuesSetValues(e => e.OriginalValues, (e, n) => e.Property(n).OriginalValue);
+        => TestNonGenericValuesSetValues(e => e.OriginalValues, (e, n) => e.Property(n).OriginalValue!);
 
     private void TestNonGenericValuesSetValues(
         Func<EntityEntry, PropertyValues> getPropertyValues,
@@ -1606,7 +1738,7 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
 
         if (deleteOrphansTiming == CascadeTiming.Immediate)
         {
-            if (context.GetService<IDbContextOptions>().FindExtension<CoreOptionsExtension>().IsSensitiveDataLoggingEnabled)
+            if (context.GetService<IDbContextOptions>().FindExtension<CoreOptionsExtension>()!.IsSensitiveDataLoggingEnabled)
             {
                 Assert.Equal(
                     CoreStrings.PropertyConceptualNullSensitive(
@@ -1650,7 +1782,7 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
 
         if (deleteOrphansTiming == CascadeTiming.Immediate)
         {
-            if (context.GetService<IDbContextOptions>().FindExtension<CoreOptionsExtension>().IsSensitiveDataLoggingEnabled)
+            if (context.GetService<IDbContextOptions>().FindExtension<CoreOptionsExtension>()!.IsSensitiveDataLoggingEnabled)
             {
                 Assert.Equal(
                     CoreStrings.PropertyConceptualNullSensitive("Shadow1", nameof(Building), "{Shadow1: 11}"),
@@ -1821,11 +1953,11 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
 
     [ConditionalFact]
     public virtual Task Properties_for_store_values_returns_properties()
-        => TestProperties(e => Task.FromResult(e.GetDatabaseValues()));
+        => TestProperties(e => Task.FromResult(e.GetDatabaseValues()!));
 
     [ConditionalFact]
     public virtual Task Properties_for_store_values_returns_properties_asynchronously()
-        => TestProperties(e => e.GetDatabaseValuesAsync());
+        => TestProperties(e => e.GetDatabaseValuesAsync()!);
 
     [ConditionalFact]
     public virtual Task Properties_for_cloned_dictionary_returns_properties()
@@ -1836,27 +1968,67 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
         using var context = CreateContext();
         var building = context.Set<Building>().Single(b => b.Name == "Building One");
         var buildingValues = await getPropertyValues(context.Entry(building));
+        var properties = buildingValues.Properties.Select(p => (p.DeclaringType.DisplayName(), p.Name)).ToList();
 
-        Assert.Equal(
-            new List<string>
-            {
-                "BuildingId",
-                "Name",
-                "PrincipalMailRoomId",
-                "Shadow1",
-                "Shadow2",
-                "Value"
-            },
-            buildingValues.Properties.Select(p => p.Name).ToList());
+        if (context.Model.FindEntityType(typeof(Building))!.GetComplexProperties().Any())
+        {
+            Assert.Equal(
+                [
+                    ("Building", "BuildingId"),
+                    ("Building", "Name"),
+                    ("Building", "PrincipalMailRoomId"),
+                    ("Building", "Shadow1"),
+                    ("Building", "Shadow2"),
+                    ("Building", "Value"),
+                    ("Building.Culture#Culture", "Rating"),
+                    ("Building.Culture#Culture", "Species"),
+                    ("Building.Culture#Culture", "Subspecies"),
+                    ("Building.Culture#Culture", "Validation"),
+                    ("Building.Culture#Culture.License#License", "Charge"),
+                    ("Building.Culture#Culture.License#License", "Title"),
+                    ("Building.Culture#Culture.License#License.Tag#Tag", "Text"),
+                    ("Building.Culture#Culture.License#License.Tog#Tog", "Text"),
+                    ("Building.Culture#Culture.Manufacturer#Manufacturer", "Name"),
+                    ("Building.Culture#Culture.Manufacturer#Manufacturer", "Rating"),
+                    ("Building.Culture#Culture.Manufacturer#Manufacturer.Tag#Tag", "Text"),
+                    ("Building.Culture#Culture.Manufacturer#Manufacturer.Tog#Tog", "Text"),
+                    ("Building.Milk#Milk", "Rating"),
+                    ("Building.Milk#Milk", "Species"),
+                    ("Building.Milk#Milk", "Subspecies"),
+                    ("Building.Milk#Milk", "Validation"),
+                    ("Building.Milk#Milk.License#License", "Charge"),
+                    ("Building.Milk#Milk.License#License", "Title"),
+                    ("Building.Milk#Milk.License#License.Tag#Tag", "Text"),
+                    ("Building.Milk#Milk.License#License.Tog#Tog", "Text"),
+                    ("Building.Milk#Milk.Manufacturer#Manufacturer", "Name"),
+                    ("Building.Milk#Milk.Manufacturer#Manufacturer", "Rating"),
+                    ("Building.Milk#Milk.Manufacturer#Manufacturer.Tag#Tag", "Text"),
+                    ("Building.Milk#Milk.Manufacturer#Manufacturer.Tog#Tog", "Text"),
+                ],
+                properties);
+        }
+        else
+        {
+            Assert.Equal(
+                [
+                    ("Building", "BuildingId"),
+                    ("Building", "Name"),
+                    ("Building", "PrincipalMailRoomId"),
+                    ("Building", "Shadow1"),
+                    ("Building", "Shadow2"),
+                    ("Building", "Value"),
+                ],
+                properties);
+        }
     }
 
     [ConditionalFact]
     public virtual Task GetDatabaseValues_for_entity_not_in_the_store_returns_null()
-        => GetDatabaseValues_for_entity_not_in_the_store_returns_null_implementation(e => Task.FromResult(e.GetDatabaseValues()));
+        => GetDatabaseValues_for_entity_not_in_the_store_returns_null_implementation(e => Task.FromResult(e.GetDatabaseValues()!));
 
     [ConditionalFact]
     public virtual Task GetDatabaseValuesAsync_for_entity_not_in_the_store_returns_null()
-        => GetDatabaseValues_for_entity_not_in_the_store_returns_null_implementation(e => e.GetDatabaseValuesAsync());
+        => GetDatabaseValues_for_entity_not_in_the_store_returns_null_implementation(e => e.GetDatabaseValuesAsync()!);
 
     private async Task GetDatabaseValues_for_entity_not_in_the_store_returns_null_implementation(
         Func<EntityEntry, Task<PropertyValues>> getPropertyValues)
@@ -1875,11 +2047,11 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
     [ConditionalFact]
     public virtual Task NonGeneric_GetDatabaseValues_for_entity_not_in_the_store_returns_null()
         => NonGeneric_GetDatabaseValues_for_entity_not_in_the_store_returns_null_implementation(
-            e => Task.FromResult(e.GetDatabaseValues()));
+            e => Task.FromResult(e.GetDatabaseValues()!));
 
     [ConditionalFact]
     public virtual Task NonGeneric_GetDatabaseValuesAsync_for_entity_not_in_the_store_returns_null()
-        => NonGeneric_GetDatabaseValues_for_entity_not_in_the_store_returns_null_implementation(e => e.GetDatabaseValuesAsync());
+        => NonGeneric_GetDatabaseValues_for_entity_not_in_the_store_returns_null_implementation(e => e.GetDatabaseValuesAsync()!);
 
     private async Task NonGeneric_GetDatabaseValues_for_entity_not_in_the_store_returns_null_implementation(
         Func<EntityEntry, Task<PropertyValues>> getPropertyValues)
@@ -1902,11 +2074,11 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
     [ConditionalFact]
     public virtual Task GetDatabaseValues_for_derived_entity_not_in_the_store_returns_null()
         => GetDatabaseValues_for_derived_entity_not_in_the_store_returns_null_implementation(
-            e => Task.FromResult(e.GetDatabaseValues()));
+            e => Task.FromResult(e.GetDatabaseValues()!));
 
     [ConditionalFact]
     public virtual Task GetDatabaseValuesAsync_for_derived_entity_not_in_the_store_returns_null()
-        => GetDatabaseValues_for_derived_entity_not_in_the_store_returns_null_implementation(e => e.GetDatabaseValuesAsync());
+        => GetDatabaseValues_for_derived_entity_not_in_the_store_returns_null_implementation(e => e.GetDatabaseValuesAsync()!);
 
     private async Task GetDatabaseValues_for_derived_entity_not_in_the_store_returns_null_implementation(
         Func<EntityEntry, Task<PropertyValues>> getPropertyValues)
@@ -1928,12 +2100,12 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
     [ConditionalFact]
     public virtual Task NonGeneric_GetDatabaseValues_for_derived_entity_not_in_the_store_returns_null()
         => NonGeneric_GetDatabaseValues_for_derived_entity_not_in_the_store_returns_null_implementation(
-            e => Task.FromResult(e.GetDatabaseValues()));
+            e => Task.FromResult(e.GetDatabaseValues()!));
 
     [ConditionalFact]
     public virtual Task NonGeneric_GetDatabaseValuesAsync_for_derived_entity_not_in_the_store_returns_null()
         => NonGeneric_GetDatabaseValues_for_derived_entity_not_in_the_store_returns_null_implementation(
-            e => e.GetDatabaseValuesAsync());
+            e => e.GetDatabaseValuesAsync()!);
 
     private async Task NonGeneric_GetDatabaseValues_for_derived_entity_not_in_the_store_returns_null_implementation(
         Func<EntityEntry, Task<PropertyValues>> getPropertyValues)
@@ -1955,11 +2127,11 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
     [ConditionalFact]
     public virtual Task GetDatabaseValues_for_the_wrong_type_in_the_store_returns_null()
         => GetDatabaseValues_for_the_wrong_type_in_the_store_returns_null_implementation(
-            e => Task.FromResult(e.GetDatabaseValues()));
+            e => Task.FromResult(e.GetDatabaseValues()!));
 
     [ConditionalFact]
     public virtual Task GetDatabaseValuesAsync_for_the_wrong_type_in_the_store_returns_null()
-        => GetDatabaseValues_for_the_wrong_type_in_the_store_returns_null_implementation(e => e.GetDatabaseValuesAsync());
+        => GetDatabaseValues_for_the_wrong_type_in_the_store_returns_null_implementation(e => e.GetDatabaseValuesAsync()!);
 
     private async Task GetDatabaseValues_for_the_wrong_type_in_the_store_returns_null_implementation(
         Func<EntityEntry, Task<PropertyValues>> getPropertyValues)
@@ -1969,7 +2141,7 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
             .OfType<PastEmployee>()
             .AsNoTracking()
             .OrderBy(e => e.EmployeeId)
-            .FirstOrDefault()
+            .FirstOrDefault()!
             .EmployeeId;
 
         var employee = (CurrentEmployee)context.Entry(
@@ -1988,11 +2160,11 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
     [ConditionalFact]
     public virtual Task NonGeneric_GetDatabaseValues_for_the_wrong_type_in_the_store_throws()
         => NonGeneric_GetDatabaseValues_for_the_wrong_type_in_the_store_throws_implementation(
-            e => Task.FromResult(e.GetDatabaseValues()));
+            e => Task.FromResult(e.GetDatabaseValues()!));
 
     [ConditionalFact]
     public virtual Task NonGeneric_GetDatabaseValuesAsync_for_the_wrong_type_in_the_store_throws()
-        => NonGeneric_GetDatabaseValues_for_the_wrong_type_in_the_store_throws_implementation(e => e.GetDatabaseValuesAsync());
+        => NonGeneric_GetDatabaseValues_for_the_wrong_type_in_the_store_throws_implementation(e => e.GetDatabaseValuesAsync()!);
 
     private async Task NonGeneric_GetDatabaseValues_for_the_wrong_type_in_the_store_throws_implementation(
         Func<EntityEntry, Task<PropertyValues>> getPropertyValues)
@@ -2002,7 +2174,7 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
             .OfType<PastEmployee>()
             .AsNoTracking()
             .OrderBy(e => e.EmployeeId)
-            .FirstOrDefault()
+            .FirstOrDefault()!
             .EmployeeId;
 
         var employee = (CurrentEmployee)context.Entry(
@@ -2021,11 +2193,11 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
     [ConditionalFact]
     public Task Store_values_really_are_store_values_not_current_or_original_values()
         => Store_values_really_are_store_values_not_current_or_original_values_implementation(
-            e => Task.FromResult(e.GetDatabaseValues()));
+            e => Task.FromResult(e.GetDatabaseValues()!));
 
     [ConditionalFact]
     public Task Store_values_really_are_store_values_not_current_or_original_values_async()
-        => Store_values_really_are_store_values_not_current_or_original_values_implementation(e => e.GetDatabaseValuesAsync());
+        => Store_values_really_are_store_values_not_current_or_original_values_implementation(e => e.GetDatabaseValuesAsync()!);
 
     private async Task Store_values_really_are_store_values_not_current_or_original_values_implementation(
         Func<EntityEntry, Task<PropertyValues>> getPropertyValues)
@@ -2047,7 +2219,7 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
         using var context = CreateContext();
         var building = context.Set<Building>().Single(b => b.Name == "Building One");
 
-        var storeValues = context.Entry(building).GetDatabaseValues();
+        var storeValues = context.Entry(building).GetDatabaseValues()!;
         storeValues["Name"] = "Bag End";
 
         var currentValues = (Building)context.Entry(building).CurrentValues.ToObject();
@@ -2085,8 +2257,8 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
     protected class VirtualTeam : PropertyValuesBase
     {
         public int Id { get; set; }
-        public string TeamName { get; set; }
-        public ICollection<CurrentEmployee> Employees { get; set; }
+        public string? TeamName { get; set; }
+        public ICollection<CurrentEmployee>? Employees { get; set; }
     }
 
     protected class Building : PropertyValuesBase
@@ -2095,24 +2267,64 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
         {
         }
 
-        public static Building Create(Guid buildingId, string name, decimal value)
+        public static Building Create(Guid buildingId, string name, decimal value, int? tag = null)
             => new()
             {
                 BuildingId = buildingId,
-                Name = name,
-                Value = value
+                Name = name + tag,
+                Value = value + (tag ?? 0),
+                Culture = new Culture
+                {
+                    License = new License
+                    {
+                        Charge = 1.0m + (tag ?? 0),
+                        Tag = new Tag { Text = "Ta1" + tag },
+                        Title = "Ti1" + tag,
+                        Tog = new Tog { Text = "To1" + tag }
+                    },
+                    Manufacturer = new Manufacturer
+                    {
+                        Name = "M1" + tag,
+                        Rating = 7 + (tag ?? 0),
+                        Tag = new Tag { Text = "Ta2" + tag },
+                        Tog = new Tog { Text = "To2" + tag }
+                    },
+                    Rating = 8 + (tag ?? 0),
+                    Species = "S1" + tag,
+                    Validation = false
+                },
+                Milk = new Milk
+                {
+                    License = new License
+                    {
+                        Charge = 1.0m + (tag ?? 0),
+                        Tag = new Tag { Text = "Ta1" + tag },
+                        Title = "Ti1" + tag,
+                        Tog = new Tog { Text = "To1" + tag }
+                    },
+                    Manufacturer = new Manufacturer
+                    {
+                        Name = "M1" + tag,
+                        Rating = 7 + (tag ?? 0),
+                        Tag = new Tag { Text = "Ta2" + tag },
+                        Tog = new Tog { Text = "To2" + tag }
+                    },
+                    Rating = 8 + (tag ?? 0),
+                    Species = "S1" + tag,
+                    Validation = false
+                }
             };
 
         public Guid BuildingId { get; set; }
-        public string Name { get; set; }
+        public string? Name { get; set; }
         public decimal Value { get; set; }
         public virtual ICollection<Office> Offices { get; } = new List<Office>();
         public virtual IList<MailRoom> MailRooms { get; } = new List<MailRoom>();
 
         public int? PrincipalMailRoomId { get; set; }
-        public MailRoom PrincipalMailRoom { get; set; }
+        public MailRoom? PrincipalMailRoom { get; set; }
 
-        public string NotInModel { get; set; }
+        public string? NotInModel { get; set; }
 
         private string _noGetter = "NoGetter";
 
@@ -2126,17 +2338,91 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
 
         public string NoSetter
             => "NoSetter";
+
+        public Culture Culture { get; set; }
+        public required Milk Milk { get; set; }
+    }
+
+    [ComplexType]
+    public class Address33307
+    {
+        public required string Street { get; set; }
+        public double? Altitude { get; set; }
+        public int? Number { get; set; }
+    }
+
+    public abstract class Contact33307
+    {
+        public int Id { get; set; }
+        public required string Name { get; set; }
+        public required Address33307 Address { get; set; }
+    }
+
+    public class Supplier33307 : Contact33307
+    {
+        public string? Foo { get; set; }
+    }
+
+    public class Customer33307 : Contact33307
+    {
+        public int Bar { get; set; }
+    }
+
+    protected struct Culture
+    {
+        public string Species { get; set; }
+        public string? Subspecies { get; set; }
+        public int Rating { get; set; }
+        public bool? Validation { get; set; }
+        public Manufacturer Manufacturer { get; set; }
+        public License License { get; set; }
+    }
+
+    protected class Milk
+    {
+        public string Species { get; set; } = null!;
+        public string? Subspecies { get; set; }
+        public int Rating { get; set; }
+        public bool? Validation { get; set; }
+        public Manufacturer Manufacturer { get; set; } = null!;
+        public License License { get; set; }
+    }
+
+    protected class Manufacturer
+    {
+        public string? Name { get; set; }
+        public int Rating { get; set; }
+        public Tag Tag { get; set; } = null!;
+        public Tog Tog { get; set; }
+    }
+
+    protected struct License
+    {
+        public string Title { get; set; }
+        public decimal Charge { get; set; }
+        public Tag Tag { get; set; }
+        public Tog Tog { get; set; }
+    }
+
+    protected class Tag
+    {
+        public string? Text { get; set; }
+    }
+
+    protected struct Tog
+    {
+        public string? Text { get; set; }
     }
 
     protected class BuildingDto
     {
         public Guid BuildingId { get; set; }
-        public string Name { get; set; }
+        public string? Name { get; set; }
         public decimal Value { get; set; }
 
         public int? PrincipalMailRoomId { get; set; }
 
-        public string NotInModel { get; set; }
+        public string? NotInModel { get; set; }
 
         private string _noGetter = "NoGetter";
 
@@ -2156,9 +2442,9 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
 
     protected class BuildingDtoNoKey
     {
-        public string Name { get; set; }
+        public string? Name { get; set; }
         public decimal Value { get; set; }
-        public string Shadow2 { get; set; }
+        public string? Shadow2 { get; set; }
     }
 
     protected class MailRoom : PropertyValuesBase
@@ -2166,63 +2452,61 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
 #pragma warning disable IDE1006 // Naming Styles
         public int id { get; set; }
 #pragma warning restore IDE1006 // Naming Styles
-        public Building Building { get; set; }
+        public Building? Building { get; set; }
         public Guid BuildingId { get; set; }
     }
 
     protected class Office : UnMappedOfficeBase
     {
         public Guid BuildingId { get; set; }
-        public Building Building { get; set; }
+        public Building? Building { get; set; }
         public IList<Whiteboard> WhiteBoards { get; } = new List<Whiteboard>();
     }
 
     protected abstract class UnMappedOfficeBase : PropertyValuesBase
     {
-        public string Number { get; set; }
-        public string Description { get; set; }
+        public string? Number { get; set; }
+        public string? Description { get; set; }
     }
 
     protected class BuildingDetail : PropertyValuesBase
     {
         public Guid BuildingId { get; set; }
-        public Building Building { get; set; }
-        public string Details { get; set; }
+        public Building? Building { get; set; }
+        public string? Details { get; set; }
     }
 
     protected class WorkOrder : PropertyValuesBase
     {
         public int WorkOrderId { get; set; }
         public int EmployeeId { get; set; }
-        public Employee Employee { get; set; }
-        public string Details { get; set; }
+        public Employee? Employee { get; set; }
+        public string? Details { get; set; }
     }
 
     protected class Whiteboard : PropertyValuesBase
     {
 #pragma warning disable IDE1006 // Naming Styles
-        public byte[] iD { get; set; }
+        public byte[]? iD { get; set; }
 #pragma warning restore IDE1006 // Naming Styles
-        public string AssetTag { get; set; }
-        public Office Office { get; set; }
+        public string? AssetTag { get; set; }
+        public Office? Office { get; set; }
     }
 
     protected class UnMappedPersonBase : PropertyValuesBase
     {
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
+        public string? FirstName { get; set; }
+        public string? LastName { get; set; }
     }
 
-    protected class UnMappedOffice : Office
-    {
-    }
+    protected class UnMappedOffice : Office;
 
     protected class CurrentEmployee : Employee
     {
-        public CurrentEmployee Manager { get; set; }
+        public CurrentEmployee? Manager { get; set; }
         public decimal LeaveBalance { get; set; }
-        public Office Office { get; set; }
-        public ICollection<VirtualTeam> VirtualTeams { get; set; }
+        public Office? Office { get; set; }
+        public ICollection<VirtualTeam>? VirtualTeams { get; set; }
     }
 
     protected class PastEmployee : Employee
@@ -2303,10 +2587,48 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
                     b.Ignore(e => e.NotInModel);
                     b.Property<int>("Shadow1");
                     b.Property<string>("Shadow2");
+
+                    b.ComplexProperty(
+                        e => e.Culture, b =>
+                        {
+                            b.ComplexProperty(
+                                e => e.License, b =>
+                                {
+                                    b.ComplexProperty(e => e.Tag);
+                                    b.ComplexProperty(e => e.Tog);
+                                });
+                            b.ComplexProperty(
+                                e => e.Manufacturer, b =>
+                                {
+                                    b.ComplexProperty(e => e.Tag);
+                                    b.ComplexProperty(e => e.Tog);
+                                });
+                        });
+
+                    b.ComplexProperty(
+                        e => e.Milk, b =>
+                        {
+                            b.ComplexProperty(
+                                e => e.License, b =>
+                                {
+                                    b.ComplexProperty(e => e.Tag);
+                                    b.ComplexProperty(e => e.Tog);
+                                });
+                            b.ComplexProperty(
+                                e => e.Manufacturer, b =>
+                                {
+                                    b.ComplexProperty(e => e.Tag);
+                                    b.ComplexProperty(e => e.Tog);
+                                });
+                        });
                 });
+
+            modelBuilder.Entity<Contact33307>();
+            modelBuilder.Entity<Supplier33307>();
+            modelBuilder.Entity<Customer33307>();
         }
 
-        protected override void Seed(PoolableDbContext context)
+        protected override Task SeedAsync(PoolableDbContext context)
         {
             var buildings = new List<Building>
             {
@@ -2396,19 +2718,19 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
                 new()
                 {
                     AssetTag = "WB1973",
-                    iD = new byte[] { 1, 9, 7, 3 },
+                    iD = [1, 9, 7, 3],
                     Office = offices[0]
                 },
                 new()
                 {
                     AssetTag = "WB1977",
-                    iD = new byte[] { 1, 9, 7, 7 },
+                    iD = [1, 9, 7, 7],
                     Office = offices[0]
                 },
                 new()
                 {
                     AssetTag = "WB1970",
-                    iD = new byte[] { 1, 9, 7, 0 },
+                    iD = [1, 9, 7, 0],
                     Office = offices[2]
                 }
             };
@@ -2427,7 +2749,33 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
                 Assert.True((bool)joinEntry.Entity["InitializedCalled"]);
             }
 
-            context.SaveChanges();
+            context.Add(
+                new Supplier33307
+                {
+                    Name = "Foo",
+                    Address = new Address33307
+                    {
+                        Street = "One",
+                        Altitude = Math.PI,
+                        Number = 42,
+                    },
+                    Foo = "F"
+                });
+
+            context.Add(
+                new Customer33307
+                {
+                    Name = "Bar",
+                    Address = new Address33307
+                    {
+                        Street = "Two",
+                        Altitude = Math.E,
+                        Number = 42,
+                    },
+                    Bar = 11
+                });
+
+            return context.SaveChangesAsync();
         }
     }
 
@@ -2444,9 +2792,9 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
             {
                 joinEntity["CreatedCalled"] = true;
             }
-            else
+            else if (entity is PropertyValuesBase propertyValuesBase)
             {
-                ((PropertyValuesBase)entity).CreatedCalled = true;
+                propertyValuesBase.CreatedCalled = true;
             }
 
             return entity;
@@ -2461,9 +2809,9 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
             {
                 joinEntity["InitializingCalled"] = true;
             }
-            else
+            else if (entity is PropertyValuesBase propertyValuesBase)
             {
-                ((PropertyValuesBase)entity).InitializingCalled = true;
+                propertyValuesBase.InitializingCalled = true;
             }
 
             return result;
@@ -2475,9 +2823,9 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
             {
                 joinEntity["InitializedCalled"] = true;
             }
-            else
+            else if (entity is PropertyValuesBase propertyValuesBase)
             {
-                ((PropertyValuesBase)entity).InitializedCalled = true;
+                propertyValuesBase.InitializedCalled = true;
             }
 
             return entity;

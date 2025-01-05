@@ -28,9 +28,7 @@ public class TestSqlLoggerFactory : ListLoggerFactory
 
     public TestSqlLoggerFactory(Func<string, bool> shouldLogCategory)
         : base(c => shouldLogCategory(c) || c == DbLoggerCategory.Database.Command.Name)
-    {
-        Logger = new TestSqlLogger(shouldLogCategory(DbLoggerCategory.Database.Command.Name));
-    }
+        => Logger = new TestSqlLogger(shouldLogCategory(DbLoggerCategory.Database.Command.Name));
 
     public IReadOnlyList<string> SqlStatements
         => ((TestSqlLogger)Logger).SqlStatements;
@@ -40,6 +38,12 @@ public class TestSqlLoggerFactory : ListLoggerFactory
 
     public string Sql
         => string.Join(_eol + _eol, SqlStatements);
+
+    public void OutputSql()
+    {
+        Logger.TestOutputHelper?.WriteLine("SQL sent to the database:");
+        Logger.TestOutputHelper?.WriteLine(Sql);
+    }
 
     public void AssertBaseline(string[] expected, bool assertOrder = true, bool forUpdate = false)
     {
@@ -75,7 +79,7 @@ public class TestSqlLoggerFactory : ListLoggerFactory
         catch
         {
             var methodCallLine = Environment.StackTrace.Split(
-                new[] { _eol },
+                [_eol],
                 StringSplitOptions.RemoveEmptyEntries)[3][6..];
 
             var indexMethodEnding = methodCallLine.IndexOf(')') + 1;
@@ -120,33 +124,6 @@ public class TestSqlLoggerFactory : ListLoggerFactory
 
             var contents = testInfo + newBaseLine + FileNewLine + "--------------------" + FileNewLine;
 
-            var indexSimpleMethodEnding = methodCallLine.IndexOf('(');
-            var indexSimpleMethodStarting = methodCallLine.LastIndexOf('.', indexSimpleMethodEnding) + 1;
-            var methodName = methodCallLine.Substring(indexSimpleMethodStarting, indexSimpleMethodEnding - indexSimpleMethodStarting);
-
-            var manipulatedSql = string.IsNullOrEmpty(sql)
-                ? ""
-                : @$"
-{sql}";
-
-            var overrideString = testName.Contains("Boolean async")
-                ? @$"        public override async Task {methodName}(bool async)
-        {{
-            await base.{methodName}(async);
-
-            Assert{(forUpdate ? "ExecuteUpdate" : "")}Sql({manipulatedSql});
-        }}
-
-"
-                : @$"        public override void {methodName}()
-        {{
-            base.{methodName}();
-
-            Assert{(forUpdate ? "ExecuteUpdate" : "")}Sql({manipulatedSql});
-        }}
-
-";
-
             lock (_queryBaselineFileLock)
             {
                 File.AppendAllText(logFile, contents);
@@ -160,7 +137,7 @@ public class TestSqlLoggerFactory : ListLoggerFactory
             var fileInfo = _queryBaselineRewritingFileInfos.GetOrAdd(fileName, _ => new QueryBaselineRewritingFileInfo());
             lock (fileInfo.Lock)
             {
-                // First, adjust our lineNumber to take into account any baseline rewriting that already occured in this file
+                // First, adjust our lineNumber to take into account any baseline rewriting that already occurred in this file
                 var origLineNumber = lineNumber;
                 foreach (var displacement in fileInfo.LineDisplacements)
                 {
@@ -182,7 +159,9 @@ public class TestSqlLoggerFactory : ListLoggerFactory
                     using (var stream = File.OpenRead(fileName))
                     using (var bufferedStream = new BufferedStream(stream))
                     {
-                        syntaxTree = CSharpSyntaxTree.ParseText(SourceText.From(bufferedStream));
+                        syntaxTree = CSharpSyntaxTree.ParseText(
+                            SourceText.From(bufferedStream),
+                            new CSharpParseOptions(preprocessorSymbols: ["DEBUG"]));
                     }
 
                     // Read through the source file, copying contents to a temp file (with the baseline change)
@@ -193,7 +172,7 @@ public class TestSqlLoggerFactory : ListLoggerFactory
                     {
                         // Detect whether a byte-order mark (BOM) exists, to write out the same
                         var buffer = new byte[3];
-                        inputStream.Read(buffer, 0, 3);
+                        inputStream.ReadExactly(buffer, 0, 3);
                         inputStream.Position = 0;
 
                         var hasUtf8ByteOrderMark = (buffer[0] == 0xEF && buffer[1] == 0xBB && buffer[2] == 0xBF);
@@ -281,7 +260,7 @@ public class TestSqlLoggerFactory : ListLoggerFactory
                         indentBuilder.Append("    ");
                         var indent = indentBuilder.ToString();
                         var newBaseLine = $@"Assert{(forUpdate ? "ExecuteUpdate" : "")}Sql(
-{string.Join("," + Environment.NewLine + indent + "//" + Environment.NewLine, SqlStatements.Skip(offset).Take(count).Select(sql => "\"\"\"" + Environment.NewLine + sql + Environment.NewLine + "\"\"\""))})";
+{string.Join("," + Environment.NewLine + indent + "//" + Environment.NewLine, SqlStatements.Skip(offset).Take(count).Select(sql => indent + "\"\"\"" + Environment.NewLine + sql + Environment.NewLine + "\"\"\""))})";
                         var numNewlinesInRewritten = newBaseLine.Count(c => c is '\n' or '\r');
 
                         writer.Write(newBaseLine);
@@ -301,29 +280,23 @@ public class TestSqlLoggerFactory : ListLoggerFactory
                             writer.Write(tempBuf, 0, c);
                         }
                     }
+
+                    File.Move(fileName + ".tmp", fileName, overwrite: true);
                 }
-                catch
+                finally
                 {
                     File.Delete(fileName + ".tmp");
-                    throw;
                 }
-
-                File.Move(fileName + ".tmp", fileName, overwrite: true);
             }
         }
     }
 
-    protected class TestSqlLogger : ListLogger
+    protected class TestSqlLogger(bool shouldLogCommands) : ListLogger
     {
-        private readonly bool _shouldLogCommands;
+        private readonly bool _shouldLogCommands = shouldLogCommands;
 
-        public TestSqlLogger(bool shouldLogCommands)
-        {
-            _shouldLogCommands = shouldLogCommands;
-        }
-
-        public List<string> SqlStatements { get; } = new();
-        public List<string> Parameters { get; } = new();
+        public List<string> SqlStatements { get; } = [];
+        public List<string> Parameters { get; } = [];
 
         private readonly StringBuilder _stringBuilder = new();
 
@@ -338,9 +311,9 @@ public class TestSqlLoggerFactory : ListLoggerFactory
         protected override void UnsafeLog<TState>(
             LogLevel logLevel,
             EventId eventId,
-            string message,
+            string? message,
             TState state,
-            Exception exception)
+            Exception? exception)
         {
             if ((eventId.Id == RelationalEventId.CommandExecuted.Id
                     || eventId.Id == RelationalEventId.CommandError.Id
@@ -355,7 +328,7 @@ public class TestSqlLoggerFactory : ListLoggerFactory
                     && message != null
                     && eventId.Id != RelationalEventId.CommandExecuting.Id)
                 {
-                    var structure = (IReadOnlyList<KeyValuePair<string, object>>)state;
+                    var structure = (IReadOnlyList<KeyValuePair<string, object>>)state!;
 
                     var parameters = structure.Where(i => i.Key == "parameters").Select(i => (string)i.Value).First();
                     var commandText = structure.Where(i => i.Key == "commandText").Select(i => (string)i.Value).First();

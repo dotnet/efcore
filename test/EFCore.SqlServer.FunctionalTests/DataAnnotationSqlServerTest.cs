@@ -7,14 +7,15 @@ using Microsoft.EntityFrameworkCore.SqlServer.Diagnostics.Internal;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public class DataAnnotationSqlServerTest : DataAnnotationRelationalTestBase<DataAnnotationSqlServerTest.DataAnnotationSqlServerFixture>
 {
-    // ReSharper disable once UnusedParameter.Local
     public DataAnnotationSqlServerTest(DataAnnotationSqlServerFixture fixture, ITestOutputHelper testOutputHelper)
         : base(fixture)
     {
         fixture.TestSqlLoggerFactory.Clear();
-        //fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+        fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
     protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
@@ -202,24 +203,24 @@ public class DataAnnotationSqlServerTest : DataAnnotationRelationalTestBase<Data
         return model;
     }
 
-    public override void ConcurrencyCheckAttribute_throws_if_value_in_database_changed()
+    public override async Task ConcurrencyCheckAttribute_throws_if_value_in_database_changed()
     {
-        base.ConcurrencyCheckAttribute_throws_if_value_in_database_changed();
+        await base.ConcurrencyCheckAttribute_throws_if_value_in_database_changed();
 
         AssertSql(
-"""
+            """
 SELECT TOP(1) [s].[Unique_No], [s].[MaxLengthProperty], [s].[Name], [s].[RowVersion], [s].[AdditionalDetails_Name], [s].[AdditionalDetails_Value], [s].[Details_Name], [s].[Details_Value]
 FROM [Sample] AS [s]
 WHERE [s].[Unique_No] = 1
 """,
             //
-"""
+            """
 SELECT TOP(1) [s].[Unique_No], [s].[MaxLengthProperty], [s].[Name], [s].[RowVersion], [s].[AdditionalDetails_Name], [s].[AdditionalDetails_Value], [s].[Details_Name], [s].[Details_Value]
 FROM [Sample] AS [s]
 WHERE [s].[Unique_No] = 1
 """,
             //
-"""
+            """
 @p2='1'
 @p0='ModifiedData' (Nullable = false) (Size = 4000)
 @p1='00000000-0000-0000-0003-000000000001'
@@ -232,7 +233,7 @@ OUTPUT 1
 WHERE [Unique_No] = @p2 AND [RowVersion] = @p3;
 """,
             //
-"""
+            """
 @p2='1'
 @p0='ChangedData' (Nullable = false) (Size = 4000)
 @p1='00000000-0000-0000-0002-000000000001'
@@ -246,12 +247,12 @@ WHERE [Unique_No] = @p2 AND [RowVersion] = @p3;
 """);
     }
 
-    public override void DatabaseGeneratedAttribute_autogenerates_values_when_set_to_identity()
+    public override async Task DatabaseGeneratedAttribute_autogenerates_values_when_set_to_identity()
     {
-        base.DatabaseGeneratedAttribute_autogenerates_values_when_set_to_identity();
+        await base.DatabaseGeneratedAttribute_autogenerates_values_when_set_to_identity();
 
         AssertSql(
-"""
+            """
 @p0=NULL (Size = 10)
 @p1='Third' (Nullable = false) (Size = 4000)
 @p2='00000000-0000-0000-0000-000000000003'
@@ -268,12 +269,12 @@ VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6);
 """);
     }
 
-    public override void MaxLengthAttribute_throws_while_inserting_value_longer_than_max_length()
+    public override async Task MaxLengthAttribute_throws_while_inserting_value_longer_than_max_length()
     {
-        base.MaxLengthAttribute_throws_while_inserting_value_longer_than_max_length();
+        await base.MaxLengthAttribute_throws_while_inserting_value_longer_than_max_length();
 
         AssertSql(
-"""
+            """
 @p0='Short' (Size = 10)
 @p1='ValidString' (Nullable = false) (Size = 4000)
 @p2='00000000-0000-0000-0000-000000000001'
@@ -289,7 +290,7 @@ OUTPUT INSERTED.[Unique_No]
 VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6);
 """,
             //
-"""
+            """
 @p0='VeryVeryVeryVeryVeryVeryLongString' (Size = 4000)
 @p1='ValidString' (Nullable = false) (Size = 4000)
 @p2='00000000-0000-0000-0000-000000000002'
@@ -306,12 +307,12 @@ VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6);
 """);
     }
 
-    public override void StringLengthAttribute_throws_while_inserting_value_longer_than_max_length()
+    public override async Task StringLengthAttribute_throws_while_inserting_value_longer_than_max_length()
     {
-        base.StringLengthAttribute_throws_while_inserting_value_longer_than_max_length();
+        await base.StringLengthAttribute_throws_while_inserting_value_longer_than_max_length();
 
         AssertSql(
-"""
+            """
 @p0='ValidString' (Size = 16)
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -321,7 +322,7 @@ OUTPUT INSERTED.[Id], INSERTED.[Timestamp]
 VALUES (@p0);
 """,
             //
-"""
+            """
 @p0='ValidButLongString' (Size = 4000)
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -331,13 +332,6 @@ OUTPUT INSERTED.[Id], INSERTED.[Timestamp]
 VALUES (@p0);
 """);
     }
-
-    public override void TimestampAttribute_throws_if_value_in_database_changed()
-        => base.TimestampAttribute_throws_if_value_in_database_changed();
-
-    // Not validating SQL because not significantly different from other tests and
-    // row version value is not stable.
-    private static readonly string _eol = Environment.NewLine;
 
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);

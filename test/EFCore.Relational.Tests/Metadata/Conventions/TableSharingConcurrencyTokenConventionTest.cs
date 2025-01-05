@@ -152,6 +152,58 @@ public class TableSharingConcurrencyTokenConventionTest
         Assert.Equal(ValueGenerated.OnAddOrUpdate, concurrencyProperty.ValueGenerated);
     }
 
+    [ConditionalFact]
+    public virtual void Missing_concurrency_token_property_is_created_on_the_sharing_type_with_complex_property()
+    {
+        var modelBuilder = GetModelBuilder();
+        modelBuilder.Entity<Person>().HasKey(a => a.Id);
+        modelBuilder.Entity<Person>().ToTable(nameof(Animal));
+        modelBuilder.Entity<Animal>(
+            ab =>
+            {
+                ab.HasKey(a => a.Id);
+                ab.HasOne(a => a.FavoritePerson).WithOne().HasForeignKey<Person>(p => p.Id);
+                ab.ComplexProperty(a => a.Dwelling)
+                    .Property<byte[]>("Version").IsRowVersion().HasColumnName("Version");
+            });
+
+        var model = modelBuilder.Model;
+        model.FinalizeModel();
+
+        var personEntityType = model.FindEntityType(typeof(Person));
+        var concurrencyProperty = personEntityType.FindProperty("_TableSharingConcurrencyTokenConvention_Version");
+        Assert.True(concurrencyProperty.IsConcurrencyToken);
+        Assert.True(concurrencyProperty.IsShadowProperty());
+        Assert.Equal("Version", concurrencyProperty.GetColumnName());
+        Assert.Equal(ValueGenerated.OnAddOrUpdate, concurrencyProperty.ValueGenerated);
+
+        var animalEntityType = model.FindEntityType(typeof(Animal));
+        Assert.All(animalEntityType.GetProperties(), p => Assert.NotEqual(typeof(byte[]), p.ClrType));
+    }
+
+    [ConditionalFact]
+    public virtual void Concurrency_token_property_is_not_created_on_the_sharing_when_on_complex_property()
+    {
+        var modelBuilder = GetModelBuilder();
+        modelBuilder.Entity<Person>().HasKey(a => a.Id);
+        modelBuilder.Entity<Person>().ToTable(nameof(Animal));
+        modelBuilder.Entity<Person>().Property<byte[]>("Version").IsRowVersion().HasColumnName("Version");
+        modelBuilder.Entity<Animal>(
+            ab =>
+            {
+                ab.HasKey(a => a.Id);
+                ab.HasOne(a => a.FavoritePerson).WithOne().HasForeignKey<Person>(p => p.Id);
+                ab.ComplexProperty(a => a.Dwelling)
+                    .Property<byte[]>("Version").IsRowVersion().HasColumnName("Version");
+            });
+
+        var model = modelBuilder.Model;
+        model.FinalizeModel();
+
+        var animalEntityType = model.FindEntityType(typeof(Animal));
+        Assert.All(animalEntityType.GetProperties(), p => Assert.NotEqual(typeof(byte[]), p.ClrType));
+    }
+
     protected class Animal
     {
         public int Id { get; set; }

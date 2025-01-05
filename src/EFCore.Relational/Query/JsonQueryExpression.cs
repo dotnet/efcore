@@ -16,8 +16,6 @@ namespace Microsoft.EntityFrameworkCore.Query;
 /// </summary>
 public class JsonQueryExpression : Expression, IPrintableExpression
 {
-    private readonly IReadOnlyDictionary<IProperty, ColumnExpression> _keyPropertyMap;
-
     /// <summary>
     ///     Creates a new instance of the <see cref="JsonQueryExpression" /> class.
     /// </summary>
@@ -36,7 +34,7 @@ public class JsonQueryExpression : Expression, IPrintableExpression
             entityType,
             jsonColumn,
             keyPropertyMap,
-            path: Array.Empty<PathSegment>(),
+            path: [],
             type,
             collection,
             jsonColumn.IsNullable)
@@ -57,7 +55,7 @@ public class JsonQueryExpression : Expression, IPrintableExpression
         EntityType = entityType;
         JsonColumn = jsonColumn;
         IsCollection = collection;
-        _keyPropertyMap = keyPropertyMap;
+        KeyPropertyMap = keyPropertyMap;
         Type = type;
         Path = path;
         IsNullable = nullable;
@@ -69,7 +67,7 @@ public class JsonQueryExpression : Expression, IPrintableExpression
     public virtual IEntityType EntityType { get; }
 
     /// <summary>
-    ///     The column containg JSON value.
+    ///     The column containing JSON value.
     /// </summary>
     public virtual ColumnExpression JsonColumn { get; }
 
@@ -88,6 +86,15 @@ public class JsonQueryExpression : Expression, IPrintableExpression
     /// </summary>
     public virtual bool IsNullable { get; }
 
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public virtual IReadOnlyDictionary<IProperty, ColumnExpression> KeyPropertyMap { get; }
+
     /// <inheritdoc />
     public override ExpressionType NodeType
         => ExpressionType.Extension;
@@ -100,14 +107,14 @@ public class JsonQueryExpression : Expression, IPrintableExpression
     /// </summary>
     public virtual SqlExpression BindProperty(IProperty property)
     {
-        if (!EntityType.IsAssignableFrom(property.DeclaringEntityType)
-            && !property.DeclaringEntityType.IsAssignableFrom(EntityType))
+        if (!EntityType.IsAssignableFrom(property.DeclaringType)
+            && !property.DeclaringType.IsAssignableFrom(EntityType))
         {
             throw new InvalidOperationException(
                 RelationalStrings.UnableToBindMemberToEntityProjection("property", property.Name, EntityType.DisplayName()));
         }
 
-        if (_keyPropertyMap.TryGetValue(property, out var match))
+        if (KeyPropertyMap.TryGetValue(property, out var match))
         {
             return match;
         }
@@ -145,11 +152,11 @@ public class JsonQueryExpression : Expression, IPrintableExpression
         newPath.Add(new PathSegment(targetEntityType.GetJsonPropertyName()!));
 
         var newKeyPropertyMap = new Dictionary<IProperty, ColumnExpression>();
-        var targetPrimaryKeyProperties = targetEntityType.FindPrimaryKey()!.Properties.Take(_keyPropertyMap.Count);
-        var sourcePrimaryKeyProperties = EntityType.FindPrimaryKey()!.Properties.Take(_keyPropertyMap.Count);
+        var targetPrimaryKeyProperties = targetEntityType.FindPrimaryKey()!.Properties.Take(KeyPropertyMap.Count);
+        var sourcePrimaryKeyProperties = EntityType.FindPrimaryKey()!.Properties.Take(KeyPropertyMap.Count);
         foreach (var (target, source) in targetPrimaryKeyProperties.Zip(sourcePrimaryKeyProperties, (t, s) => (t, s)))
         {
-            newKeyPropertyMap[target] = _keyPropertyMap[source];
+            newKeyPropertyMap[target] = KeyPropertyMap[source];
         }
 
         return new JsonQueryExpression(
@@ -178,7 +185,7 @@ public class JsonQueryExpression : Expression, IPrintableExpression
         return new JsonQueryExpression(
             EntityType,
             JsonColumn,
-            _keyPropertyMap,
+            KeyPropertyMap,
             newPath,
             EntityType.ClrType,
             collection: false,
@@ -194,7 +201,7 @@ public class JsonQueryExpression : Expression, IPrintableExpression
     public virtual JsonQueryExpression MakeNullable()
     {
         var keyPropertyMap = new Dictionary<IProperty, ColumnExpression>();
-        foreach (var (property, columnExpression) in _keyPropertyMap)
+        foreach (var (property, columnExpression) in KeyPropertyMap)
         {
             keyPropertyMap[property] = columnExpression.MakeNullable();
         }
@@ -212,9 +219,10 @@ public class JsonQueryExpression : Expression, IPrintableExpression
     /// <inheritdoc />
     public virtual void Print(ExpressionPrinter expressionPrinter)
     {
-        expressionPrinter.Append("JsonQueryExpression(");
         expressionPrinter.Visit(JsonColumn);
-        expressionPrinter.Append($""", "{string.Join(".", Path.Select(e => e.ToString()))}")""");
+        expressionPrinter
+            .Append(" Q-> ")
+            .Append(string.Join(".", Path.Select(e => e.ToString())));
     }
 
     /// <inheritdoc />
@@ -222,7 +230,7 @@ public class JsonQueryExpression : Expression, IPrintableExpression
     {
         var jsonColumn = (ColumnExpression)visitor.Visit(JsonColumn);
         var newKeyPropertyMap = new Dictionary<IProperty, ColumnExpression>();
-        foreach (var (property, column) in _keyPropertyMap)
+        foreach (var (property, column) in KeyPropertyMap)
         {
             newKeyPropertyMap[property] = (ColumnExpression)visitor.Visit(column);
         }
@@ -241,8 +249,8 @@ public class JsonQueryExpression : Expression, IPrintableExpression
         ColumnExpression jsonColumn,
         IReadOnlyDictionary<IProperty, ColumnExpression> keyPropertyMap)
         => jsonColumn != JsonColumn
-            || keyPropertyMap.Count != _keyPropertyMap.Count
-            || keyPropertyMap.Zip(_keyPropertyMap, (n, o) => n.Value != o.Value).Any(x => x)
+            || keyPropertyMap.Count != KeyPropertyMap.Count
+            || keyPropertyMap.Zip(KeyPropertyMap, (n, o) => n.Value != o.Value).Any(x => x)
                 ? new JsonQueryExpression(EntityType, jsonColumn, keyPropertyMap, Path, Type, IsCollection, IsNullable)
                 : this;
 
@@ -259,16 +267,16 @@ public class JsonQueryExpression : Expression, IPrintableExpression
             && IsCollection.Equals(jsonQueryExpression.IsCollection)
             && IsNullable == jsonQueryExpression.IsNullable
             && Path.SequenceEqual(jsonQueryExpression.Path)
-            && KeyPropertyMapEquals(jsonQueryExpression._keyPropertyMap);
+            && KeyPropertyMapEquals(jsonQueryExpression.KeyPropertyMap);
 
     private bool KeyPropertyMapEquals(IReadOnlyDictionary<IProperty, ColumnExpression> other)
     {
-        if (_keyPropertyMap.Count != other.Count)
+        if (KeyPropertyMap.Count != other.Count)
         {
             return false;
         }
 
-        foreach (var (key, value) in _keyPropertyMap)
+        foreach (var (key, value) in KeyPropertyMap)
         {
             if (!other.TryGetValue(key, out var column) || !value.Equals(column))
             {

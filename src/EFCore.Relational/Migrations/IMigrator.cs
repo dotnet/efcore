@@ -26,29 +26,31 @@ public interface IMigrator
     ///     Migrates the database to either a specified target migration or up to the latest
     ///     migration that exists in the <see cref="IMigrationsAssembly" />.
     /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information and examples.
-    /// </remarks>
     /// <param name="targetMigration">
     ///     The target migration to migrate the database to, or <see langword="null" /> to migrate to the latest.
     /// </param>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information and examples.
+    /// </remarks>
     [RequiresUnreferencedCode("Migration generation currently isn't compatible with trimming")]
+    [RequiresDynamicCode("Migrations operations are not supported with NativeAOT")]
     void Migrate(string? targetMigration = null);
 
     /// <summary>
     ///     Migrates the database to either a specified target migration or up to the latest
     ///     migration that exists in the <see cref="IMigrationsAssembly" />.
     /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information and examples.
-    /// </remarks>
     /// <param name="targetMigration">
     ///     The target migration to migrate the database to, or <see langword="null" /> to migrate to the latest.
     /// </param>
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation</returns>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information and examples.
+    /// </remarks>
     /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
     [RequiresUnreferencedCode("Migration generation currently isn't compatible with trimming")]
+    [RequiresDynamicCode("Migrations operations are not supported with NativeAOT")]
     Task MigrateAsync(
         string? targetMigration = null,
         CancellationToken cancellationToken = default);
@@ -71,8 +73,21 @@ public interface IMigrator
     /// </param>
     /// <returns>The generated script.</returns>
     [RequiresUnreferencedCode("Migration generation currently isn't compatible with trimming")]
+    [RequiresDynamicCode("Migrations operations are not supported with NativeAOT")]
     string GenerateScript(
         string? fromMigration = null,
         string? toMigration = null,
         MigrationsSqlGenerationOptions options = MigrationsSqlGenerationOptions.Default);
+
+    /// <summary>
+    ///     Returns <see langword="true" /> if the model has pending changes to be applied.
+    /// </summary>
+    /// <returns>
+    ///     <see langword="true" /> if the database model has pending changes
+    ///     and a new migration has to be added.
+    /// </returns>
+    [RequiresDynamicCode(
+        "Migrations operations are not supported with NativeAOT"
+        + " Use a migration bundle or an alternate way of executing migration operations.")]
+    bool HasPendingModelChanges();
 }

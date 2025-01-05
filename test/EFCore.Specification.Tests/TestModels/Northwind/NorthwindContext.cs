@@ -5,13 +5,10 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
-public class NorthwindContext : PoolableDbContext
-{
-    public NorthwindContext(DbContextOptions options)
-        : base(options)
-    {
-    }
+#nullable disable
 
+public class NorthwindContext(DbContextOptions options) : PoolableDbContext(options)
+{
     public virtual DbSet<Customer> Customers { get; set; }
     public virtual DbSet<Employee> Employees { get; set; }
     public virtual DbSet<Order> Orders { get; set; }
@@ -78,11 +75,7 @@ public class NorthwindContext : PoolableDbContext
             });
 
         modelBuilder.Entity<OrderDetail>(
-            e =>
-            {
-                e.HasKey(
-                    od => new { od.OrderID, od.ProductID });
-            });
+            e => e.HasKey(od => new { od.OrderID, od.ProductID }));
 
         modelBuilder.Entity<CustomerQuery>().HasNoKey();
         modelBuilder.Entity<OrderQuery>().HasNoKey();

@@ -128,13 +128,13 @@ public class EntityTypeAttributeConventionTest
     {
         var context = new ConventionContext<IConventionEntityTypeBuilder>(entityTypeBuilder.Metadata.Model.ConventionDispatcher);
 
-        new NotMappedEntityTypeAttributeConvention(CreateDependencies())
+        new NotMappedTypeAttributeConvention(CreateDependencies())
             .ProcessEntityTypeAdded(entityTypeBuilder, context);
 
-        new OwnedEntityTypeAttributeConvention(CreateDependencies())
+        new OwnedAttributeConvention(CreateDependencies())
             .ProcessEntityTypeAdded(entityTypeBuilder, context);
 
-        new KeylessEntityTypeAttributeConvention(CreateDependencies())
+        new KeylessAttributeConvention(CreateDependencies())
             .ProcessEntityTypeAdded(entityTypeBuilder, context);
     }
 
@@ -166,7 +166,7 @@ public class EntityTypeAttributeConventionTest
     private class Address
     {
         public int Id { get; set; }
-        public Customer Customer { get; set; }
+        public Customer Customer { get; }
     }
 
     [Keyless]

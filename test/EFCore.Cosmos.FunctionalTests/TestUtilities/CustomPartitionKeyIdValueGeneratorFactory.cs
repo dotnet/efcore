@@ -3,8 +3,10 @@
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
+#nullable disable
+
 internal class CustomPartitionKeyIdValueGeneratorFactory : ValueGeneratorFactory
 {
-    public override ValueGenerator Create(IProperty property, IEntityType entityType)
+    public override ValueGenerator Create(IProperty property, ITypeBase typeBase)
         => new CustomPartitionKeyIdGenerator<string>();
 }

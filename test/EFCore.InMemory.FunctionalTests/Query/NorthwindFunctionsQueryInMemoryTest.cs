@@ -3,18 +3,9 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class NorthwindFunctionsQueryInMemoryTest : NorthwindFunctionsQueryTestBase<NorthwindQueryInMemoryFixture<NoopModelCustomizer>>
+public class NorthwindFunctionsQueryInMemoryTest(NorthwindQueryInMemoryFixture<NoopModelCustomizer> fixture)
+    : NorthwindFunctionsQueryTestBase<NorthwindQueryInMemoryFixture<NoopModelCustomizer>>(fixture)
 {
-    public NorthwindFunctionsQueryInMemoryTest(
-        NorthwindQueryInMemoryFixture<NoopModelCustomizer> fixture,
-#pragma warning disable IDE0060 // Remove unused parameter
-        ITestOutputHelper testOutputHelper)
-#pragma warning restore IDE0060 // Remove unused parameter
-        : base(fixture)
-    {
-        //TestLoggerFactory.TestOutputHelper = testOutputHelper;
-    }
-
     public override Task Byte_Parse_Non_Numeric_Bad_Format(bool async)
         => Assert.ThrowsAsync<FormatException>(
             () => base.Byte_Parse_Non_Numeric_Bad_Format(async));

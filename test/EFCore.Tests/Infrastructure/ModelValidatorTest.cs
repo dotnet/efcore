@@ -1,9 +1,12 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel;
 
 // ReSharper disable UnusedMember.Local
 // ReSharper disable InconsistentNaming
@@ -11,6 +14,60 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure;
 
 public partial class ModelValidatorTest : ModelValidatorTestBase
 {
+    [ConditionalFact] // Issue #33913
+    public virtual void Detects_well_known_concrete_collections_mapped_as_entity_type()
+    {
+        Detects_well_known_concrete_collections_mapped_as_entity_type<List<Customer>>();
+        Detects_well_known_concrete_collections_mapped_as_entity_type<HashSet<Customer>>();
+        Detects_well_known_concrete_collections_mapped_as_entity_type<Collection<Customer>>();
+        Detects_well_known_concrete_collections_mapped_as_entity_type<ObservableCollection<Customer>>();
+    }
+
+    public virtual void Detects_well_known_concrete_collections_mapped_as_entity_type<T>()
+        where T : class
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<T>().HasNoKey();
+
+        VerifyError(
+            CoreStrings.WarningAsErrorTemplate(
+                CoreEventId.AccidentalEntityType.ToString(),
+                CoreResources.LogAccidentalEntityType(new TestLogger<TestLoggingDefinitions>())
+                    .GenerateMessage(typeof(T).ShortDisplayName()),
+                "CoreEventId.AccidentalEntityType"),
+            modelBuilder);
+
+        LoggerFactory.Clear();
+    }
+
+    [ConditionalFact] // Issue #33913
+    public virtual void Detects_well_known_concrete_collections_mapped_as_owned_entity_type()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<MyEntity<List<JsonbField>>>().OwnsMany(x => x.JsonbFields, r => r.ToJson());
+
+        VerifyError(
+            CoreStrings.WarningAsErrorTemplate(
+                CoreEventId.AccidentalEntityType.ToString(),
+                CoreResources.LogAccidentalEntityType(new TestLogger<TestLoggingDefinitions>()).GenerateMessage("List<JsonbField>"),
+                "CoreEventId.AccidentalEntityType"),
+            modelBuilder);
+    }
+
+    private class MyEntity<T>
+    {
+        public int Id { get; set; }
+        public List<T> JsonbFields { get; set; }
+    }
+
+    private class JsonbField
+    {
+        public required string Key { get; set; }
+        public required string Value { get; set; }
+    }
+
     [ConditionalFact]
     public virtual void Detects_key_property_which_cannot_be_compared()
     {
@@ -69,13 +126,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
             modelBuilder);
     }
 
-    public class CustomValueComparer<T> : ValueComparer<T> // Doesn't implement IComparer
-    {
-        public CustomValueComparer()
-            : base(false)
-        {
-        }
-    }
+    public class CustomValueComparer<T>() : ValueComparer<T>(false); // Doesn't implement IComparer
 
     [ConditionalFact]
     public virtual void Detects_unique_index_property_which_cannot_be_compared()
@@ -122,9 +173,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         public NotComparable Foo { get; set; }
     }
 
-    protected struct NotComparable
-    {
-    }
+    protected struct NotComparable;
 
     [ConditionalFact]
     public virtual void Detects_custom_converter_for_collection_type_without_comparer()
@@ -173,13 +222,144 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
 
         Validate(modelBuilder);
 
-        Assert.Empty(LoggerFactory.Log.Where(l => l.Level == LogLevel.Warning));
+        Assert.DoesNotContain(LoggerFactory.Log, l => l.Level == LogLevel.Warning);
     }
 
     protected class WithCollectionConversion
     {
         public int Id { get; set; }
         public string[] SomeStrings { get; set; }
+    }
+
+    [ConditionalFact]
+    public virtual void Throws_when_mapping_concrete_sealed_type_that_does_not_implement_IList()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<WithStringCollection>(
+            eb =>
+            {
+                eb.Property(e => e.Id);
+                eb.PrimitiveCollection(e => e.SomeString);
+            });
+
+        VerifyError(CoreStrings.BadListType("string", "IList<char>"), modelBuilder, sensitiveDataLoggingEnabled: false);
+    }
+
+    protected class WithStringCollection
+    {
+        public int Id { get; set; }
+        public string SomeString { get; set; }
+    }
+
+    [ConditionalFact]
+    public virtual void Does_not_throw_when_mapping_an_IReadOnlyCollection()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<WithReadOnlyCollection>(
+            eb =>
+            {
+                eb.Property(e => e.Id);
+                eb.PrimitiveCollection(e => e.Tags);
+            });
+
+        Validate(modelBuilder);
+    }
+
+    protected class WithReadOnlyCollection
+    {
+        public int Id { get; set; }
+        public IReadOnlyCollection<int> Tags { get; set; }
+    }
+
+    [ConditionalFact]
+    public virtual void Does_not_throw_when_mapping_an_IReadOnlyList()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<WithReadOnlyList>(
+            eb =>
+            {
+                eb.Property(e => e.Id);
+                eb.PrimitiveCollection(e => e.Tags);
+            });
+
+        Validate(modelBuilder);
+    }
+
+    protected class WithReadOnlyList
+    {
+        public int Id { get; set; }
+        public IReadOnlyList<char> Tags { get; set; }
+    }
+
+    [ConditionalFact]
+    public virtual void Does_not_throw_for_non_generic_collection()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<WithNonGenericCollection>(
+            eb =>
+            {
+                eb.Property(e => e.Id);
+                eb.PrimitiveCollection(e => e.Tags);
+            });
+
+        Validate(modelBuilder);
+    }
+
+    protected class MyCollection : IList<int>
+    {
+        private readonly List<int> _list = [];
+
+        public IEnumerator<int> GetEnumerator()
+            => _list.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator()
+            => GetEnumerator();
+
+        public void Add(int item)
+            => _list.Add(item);
+
+        public void Clear()
+            => _list.Clear();
+
+        public bool Contains(int item)
+            => _list.Contains(item);
+
+        public void CopyTo(int[] array, int arrayIndex)
+            => _list.CopyTo(array, arrayIndex);
+
+        public bool Remove(int item)
+            => _list.Remove(item);
+
+        public int Count
+            => _list.Count;
+
+        public bool IsReadOnly
+            => ((ICollection<int>)_list).IsReadOnly;
+
+        public int IndexOf(int item)
+            => _list.IndexOf(item);
+
+        public void Insert(int index, int item)
+            => _list.Insert(index, item);
+
+        public void RemoveAt(int index)
+            => _list.RemoveAt(index);
+
+        public int this[int index]
+        {
+            get => _list[index];
+            set => _list[index] = value;
+        }
+    }
+
+    protected class WithNonGenericCollection
+    {
+        public int Id { get; set; }
+        public MyCollection Tags { get; set; }
     }
 
     [ConditionalFact]
@@ -202,7 +382,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
 
         Validate(modelBuilder);
 
-        Assert.Empty(LoggerFactory.Log.Where(l => l.Level == LogLevel.Warning));
+        Assert.DoesNotContain(LoggerFactory.Log, l => l.Level == LogLevel.Warning);
     }
 
     protected class WithStringAndBinaryKey
@@ -274,6 +454,21 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         VerifyWarning(
             CoreResources.LogShadowPropertyCreated(new TestLogger<TestLoggingDefinitions>())
                 .GenerateMessage("A", "Key"), modelBuilder, LogLevel.Debug);
+    }
+
+    [ConditionalFact] // Issue #33484
+    public virtual void Does_not_log_for_shadow_property_when_creating_indexer_property()
+    {
+        var modelBuilder = CreateConventionlessModelBuilder();
+        var model = (IConventionModel)modelBuilder.Model;
+
+        var entityType = model.AddEntityType("Bag", typeof(Dictionary<string, object>))!;
+        entityType.SetIsKeyless(true);
+        entityType.AddIndexerProperty("Foo", typeof(int));
+
+        VerifyLogDoesNotContain(
+            CoreResources.LogShadowPropertyCreated(new TestLogger<TestLoggingDefinitions>())
+                .GenerateMessage("Bag (Dictionary<string, object>)", "Foo"), modelBuilder);
     }
 
     [ConditionalFact]
@@ -481,28 +676,94 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         modelBuilder.Entity<A>().HasOne<C>().WithOne().HasForeignKey<C>(a => a.Id).HasPrincipalKey<A>(b => b.Id).IsRequired();
         modelBuilder.Entity<C>().HasOne<B>().WithOne().HasForeignKey<B>(a => a.Id).HasPrincipalKey<C>(b => b.Id).IsRequired();
 
-        VerifyError(
-            CoreStrings.IdentifyingRelationshipCycle("A -> B -> C"),
-            modelBuilder);
+        VerifyError(CoreStrings.IdentifyingRelationshipCycle("A -> B -> C"), modelBuilder);
     }
 
     [ConditionalFact]
-    public virtual void Detects_relationship_cycle_for_property_configuration()
+    public virtual void Passes_on_relationship_cycle_for_property_configuration()
     {
         var modelBuilder = base.CreateConventionModelBuilder();
 
         modelBuilder.Entity<C>().HasBaseType((string)null);
-        modelBuilder.Entity<A>().HasOne<B>().WithOne().HasForeignKey<A>(a => a.Id).HasPrincipalKey<B>(b => b.Id).IsRequired();
-        modelBuilder.Entity<A>().HasOne<C>().WithOne().HasForeignKey<C>(a => a.Id).HasPrincipalKey<A>(b => b.Id).IsRequired();
-        modelBuilder.Entity<C>().HasOne<B>().WithOne().HasForeignKey<B>(a => a.Id).HasPrincipalKey<C>(b => b.Id).IsRequired();
         modelBuilder.Entity<D>().HasBaseType((string)null);
-        modelBuilder.Entity<D>().HasOne<B>().WithOne().HasForeignKey<D>(a => a.Id).HasPrincipalKey<B>(b => b.Id).IsRequired();
+        modelBuilder.Entity<A>().HasOne<B>().WithOne().HasForeignKey<A>(a => a.Id).HasPrincipalKey<B>(b => b.Id).IsRequired();
+        modelBuilder.Entity<A>().HasOne<C>().WithOne().HasForeignKey<C>(c => c.Id).HasPrincipalKey<A>(a => a.Id).IsRequired();
+        modelBuilder.Entity<C>().HasOne<B>().WithOne().HasForeignKey<B>(b => b.Id).HasPrincipalKey<C>(c => c.Id).IsRequired();
+        modelBuilder.Entity<D>().HasOne<B>().WithOne().HasForeignKey<D>(d => d.Id).HasPrincipalKey<B>(b => b.Id).IsRequired();
 
         var dId = modelBuilder.Model.FindEntityType(typeof(D)).FindProperty(nameof(D.Id));
 
-        Assert.Equal(CoreStrings.RelationshipCycle(nameof(D), nameof(D.Id), "ValueConverter"),
+        Assert.Null(dId.GetValueConverter());
+        Assert.Null(dId.GetProviderClrType());
+    }
+
+    [ConditionalFact]
+    public virtual void Passes_on_multiple_relationship_cycles_for_property_configuration()
+    {
+        var modelBuilder = base.CreateConventionModelBuilder();
+
+        modelBuilder.Entity<C>().HasBaseType((string)null);
+        modelBuilder.Entity<D>().HasBaseType((string)null);
+        modelBuilder.Entity<A>().HasOne<B>().WithOne().HasForeignKey<A>(a => a.Id).HasPrincipalKey<B>(b => b.Id).IsRequired();
+        modelBuilder.Entity<A>().HasOne<C>().WithOne().HasForeignKey<C>(c => c.Id).HasPrincipalKey<A>(a => a.Id).IsRequired();
+        modelBuilder.Entity<C>().HasOne<B>().WithOne().HasForeignKey<B>(b => b.Id).HasPrincipalKey<C>(c => c.Id).IsRequired();
+        modelBuilder.Entity<C>().HasOne<D>().WithOne().HasForeignKey<D>(d => d.Id).HasPrincipalKey<C>(c => c.Id).IsRequired();
+        modelBuilder.Entity<D>().HasOne<E>().WithOne().HasForeignKey<E>(e => e.Id).HasPrincipalKey<D>(d => d.Id).IsRequired();
+        modelBuilder.Entity<C>().HasOne<E>().WithOne().HasForeignKey<C>(c => c.Id).HasPrincipalKey<E>(e => e.Id).IsRequired();
+
+        var aId = modelBuilder.Model.FindEntityType(typeof(A)).FindProperty(nameof(A.Id));
+
+        Assert.Null(aId.GetValueConverter());
+        Assert.Null(aId.GetProviderClrType());
+    }
+
+    [ConditionalFact]
+    public virtual void Detects_conflicting_converter_and_provider_type_with_relationship_cycle()
+    {
+        var modelBuilder = base.CreateConventionModelBuilder();
+
+        modelBuilder.Entity<C>().HasBaseType((string)null);
+        modelBuilder.Entity<D>().HasBaseType((string)null);
+        modelBuilder.Entity<A>().Property(b => b.Id).HasConversion<string>();
+        modelBuilder.Entity<B>().Property(b => b.Id).HasConversion<CastingConverter<int, int>>();
+
+        modelBuilder.Entity<B>().HasOne<C>().WithOne().HasForeignKey<B>(b => b.Id).HasPrincipalKey<C>(c => c.Id).IsRequired();
+        modelBuilder.Entity<B>().HasOne<C>().WithOne().HasForeignKey<C>(c => c.Id).HasPrincipalKey<B>(b => b.Id).IsRequired();
+        modelBuilder.Entity<A>().HasOne<D>().WithOne().HasForeignKey<D>(d => d.Id).HasPrincipalKey<A>(a => a.Id).IsRequired();
+        modelBuilder.Entity<D>().HasOne<C>().WithOne().HasForeignKey<D>(d => d.Id).HasPrincipalKey<C>(c => c.Id).IsRequired();
+
+        var dId = modelBuilder.Model.FindEntityType(typeof(D)).FindProperty(nameof(D.Id));
+
+        Assert.Equal(
+            CoreStrings.ConflictingRelationshipConversions("D", "Id", "string", "CastingConverter<int, int>"),
             Assert.Throws<InvalidOperationException>(dId.GetValueConverter).Message);
-        Assert.Equal(CoreStrings.RelationshipCycle(nameof(D), nameof(D.Id), "ProviderClrType"),
+        Assert.Equal(
+            CoreStrings.ConflictingRelationshipConversions("D", "Id", "string", "CastingConverter<int, int>"),
+            Assert.Throws<InvalidOperationException>(dId.GetProviderClrType).Message);
+    }
+
+    [ConditionalFact]
+    public virtual void Detects_conflicting_provider_types_with_relationship_cycle()
+    {
+        var modelBuilder = base.CreateConventionModelBuilder();
+
+        modelBuilder.Entity<C>().HasBaseType((string)null);
+        modelBuilder.Entity<D>().HasBaseType((string)null);
+        modelBuilder.Entity<C>().Property(c => c.Id).HasConversion<long>();
+        modelBuilder.Entity<A>().Property(a => a.Id).HasConversion<string>();
+
+        modelBuilder.Entity<B>().HasOne<C>().WithOne().HasForeignKey<B>(b => b.Id).HasPrincipalKey<C>(c => c.Id).IsRequired();
+        modelBuilder.Entity<B>().HasOne<C>().WithOne().HasForeignKey<C>(c => c.Id).HasPrincipalKey<B>(b => b.Id).IsRequired();
+        modelBuilder.Entity<A>().HasOne<D>().WithOne().HasForeignKey<D>(d => d.Id).HasPrincipalKey<A>(a => a.Id).IsRequired();
+        modelBuilder.Entity<D>().HasOne<C>().WithOne().HasForeignKey<D>(d => d.Id).HasPrincipalKey<C>(c => c.Id).IsRequired();
+
+        var dId = modelBuilder.Model.FindEntityType(typeof(D)).FindProperty(nameof(D.Id));
+
+        Assert.Equal(
+            CoreStrings.ConflictingRelationshipConversions("D", "Id", "string", "long"),
+            Assert.Throws<InvalidOperationException>(dId.GetValueConverter).Message);
+        Assert.Equal(
+            CoreStrings.ConflictingRelationshipConversions("D", "Id", "string", "long"),
             Assert.Throws<InvalidOperationException>(dId.GetProviderClrType).Message);
     }
 
@@ -871,6 +1132,51 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
 
         VerifyError(
             CoreStrings.SkipNavigationNonCollection(nameof(OrderDetails.Customer), nameof(OrderDetails)),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Detects_collection_complex_properties()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Ignore(typeof(Order));
+
+        var model = modelBuilder.Model;
+        var customerEntity = model.AddEntityType(typeof(Customer));
+        customerEntity.AddComplexProperty(nameof(Customer.Orders), collection: true);
+
+        VerifyError(
+            CoreStrings.ComplexPropertyCollection(nameof(Customer), nameof(Customer.Orders)),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Detects_shadow_complex_properties()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Ignore(typeof(Order));
+
+        var model = modelBuilder.Model;
+        var customerEntity = model.AddEntityType(typeof(Customer));
+        customerEntity.AddComplexProperty("CustomerDetails", typeof(SponsorDetails), typeof(SponsorDetails));
+
+        VerifyError(
+            CoreStrings.ComplexPropertyShadow(nameof(Customer), "CustomerDetails"),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Detects_indexer_complex_properties()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        var model = modelBuilder.Model;
+        var customerEntity = model.AddEntityType("Customer");
+        customerEntity.AddComplexProperty(
+            "CustomerDetails", typeof(SponsorDetails), customerEntity.FindIndexerPropertyInfo()!, typeof(SponsorDetails));
+
+        VerifyError(
+            CoreStrings.ComplexPropertyIndexer("Customer (Dictionary<string, object>)", "CustomerDetails"),
             modelBuilder);
     }
 
@@ -1446,6 +1752,58 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
             sensitiveDataLoggingEnabled);
     }
 
+    [ConditionalTheory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public virtual void Detects_complex_properties_in_seeds(bool sensitiveDataLoggingEnabled)
+    {
+        var modelBuilder = CreateConventionModelBuilder(sensitiveDataLoggingEnabled: sensitiveDataLoggingEnabled);
+        modelBuilder.Entity<SampleEntity>(
+            e =>
+            {
+                e.HasData(
+                    new SampleEntity { Id = 1, ReferencedEntity = new ReferencedEntity { Id = 2 } });
+                e.ComplexProperty(s => s.ReferencedEntity).IsRequired();
+            });
+
+        VerifyError(
+            sensitiveDataLoggingEnabled
+                ? CoreStrings.SeedDatumComplexPropertySensitive(
+                    nameof(SampleEntity),
+                    $"{nameof(SampleEntity.Id)}:1",
+                    nameof(SampleEntity.ReferencedEntity))
+                : CoreStrings.SeedDatumComplexProperty(
+                    nameof(SampleEntity),
+                    nameof(SampleEntity.ReferencedEntity)),
+            modelBuilder,
+            sensitiveDataLoggingEnabled);
+    }
+
+    [ConditionalFact]
+    public virtual void Throws_on_two_properties_sharing_a_field()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Customer>().Property(c => c.PartitionId).HasField("_name");
+
+        VerifyError(
+            CoreStrings.ConflictingFieldProperty(
+                nameof(Customer), nameof(Customer.PartitionId), "_name", nameof(Customer), nameof(Customer.Name)),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Throws_on_property_using_a_field_mapped_as_another_property()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Customer>().Property(c => c.PartitionId).HasField("OtherName");
+        modelBuilder.Entity<Customer>().Property(c => c.OtherName);
+
+        VerifyError(
+            CoreStrings.ConflictingFieldProperty(
+                nameof(Customer), nameof(Customer.PartitionId), nameof(Customer.OtherName), nameof(Customer), nameof(Customer.OtherName)),
+            modelBuilder);
+    }
+
     [ConditionalFact]
     public virtual void Detects_missing_discriminator_property()
     {
@@ -1523,6 +1881,15 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         entityGeneric.RemoveDiscriminatorValue();
 
         VerifyError(CoreStrings.NoDiscriminatorValue(entityGeneric.DisplayName()), modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Detects_missing_non_hierarchy_discriminator_value()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<A>().HasDiscriminator<byte>("ClassType");
+
+        VerifyError(CoreStrings.NoDiscriminatorValue(typeof(A).Name), modelBuilder);
     }
 
     [ConditionalFact]

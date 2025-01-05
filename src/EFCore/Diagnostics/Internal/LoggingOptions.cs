@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections.Concurrent;
+
 namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 
 /// <summary>
@@ -11,6 +13,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 /// </summary>
 public class LoggingOptions : ILoggingOptions
 {
+    private readonly ConcurrentDictionary<Type, bool> _warnedForStringEnums = new();
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -98,4 +102,16 @@ public class LoggingOptions : ILoggingOptions
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual WarningsConfiguration WarningsConfiguration { get; private set; } = null!;
+
+    /// <inheritdoc />
+    public virtual bool ShouldWarnForStringEnumValueInJson(Type enumType)
+    {
+        if (_warnedForStringEnums.ContainsKey(enumType))
+        {
+            return false;
+        }
+
+        _warnedForStringEnums[enumType] = true;
+        return true;
+    }
 }

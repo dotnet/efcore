@@ -23,9 +23,7 @@ public class StoredProcedureResultColumnMapping : ColumnMappingBase, IStoredProc
         StoreStoredProcedureResultColumn storeResultColumn,
         StoredProcedureMapping storedProcedureMapping)
         : base(property, storeResultColumn, storedProcedureMapping)
-    {
-        ResultColumn = resultColumn;
-    }
+        => ResultColumn = resultColumn;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -68,7 +66,6 @@ public class StoredProcedureResultColumnMapping : ColumnMappingBase, IStoredProc
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
     public virtual DebugView DebugView
         => new(
             () => ((IStoredProcedureResultColumnMapping)this).ToDebugString(),

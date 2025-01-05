@@ -91,7 +91,7 @@ public class SqlServerAnnotationProvider : RelationalAnnotationProvider
             yield break;
         }
 
-        var entityType = table.EntityTypeMappings.First().EntityType;
+        var entityType = (IEntityType)table.EntityTypeMappings.First().TypeBase;
 
         // Model validation ensures that these facets are the same on all mapped entity types
         if (entityType.IsMemoryOptimized())
@@ -99,7 +99,7 @@ public class SqlServerAnnotationProvider : RelationalAnnotationProvider
             yield return new Annotation(SqlServerAnnotationNames.MemoryOptimized, true);
         }
 
-        if (entityType.IsTemporal() && designTime)
+        if (entityType.IsTemporal())
         {
             yield return new Annotation(SqlServerAnnotationNames.IsTemporal, true);
             yield return new Annotation(SqlServerAnnotationNames.TemporalHistoryTableName, entityType.GetHistoryTableName());
@@ -158,6 +158,11 @@ public class SqlServerAnnotationProvider : RelationalAnnotationProvider
         {
             yield return new Annotation(SqlServerAnnotationNames.Clustered, isClustered);
         }
+
+        if (key.GetFillFactor() is int fillFactor)
+        {
+            yield return new Annotation(SqlServerAnnotationNames.FillFactor, fillFactor);
+        }
     }
 
     /// <summary>
@@ -203,6 +208,16 @@ public class SqlServerAnnotationProvider : RelationalAnnotationProvider
         {
             yield return new Annotation(SqlServerAnnotationNames.FillFactor, fillFactor);
         }
+
+        if (modelIndex.GetSortInTempDb(table) is bool sortInTempDb)
+        {
+            yield return new Annotation(SqlServerAnnotationNames.SortInTempDb, sortInTempDb);
+        }
+
+        if (modelIndex.GetDataCompression(table) is DataCompressionType dataCompressionType)
+        {
+            yield return new Annotation(SqlServerAnnotationNames.DataCompression, dataCompressionType);
+        }
     }
 
     /// <summary>
@@ -242,8 +257,8 @@ public class SqlServerAnnotationProvider : RelationalAnnotationProvider
             yield return new Annotation(SqlServerAnnotationNames.Sparse, isSparse);
         }
 
-        var entityType = column.Table.EntityTypeMappings.First().EntityType;
-        if (entityType.IsTemporal() && designTime)
+        var entityType = (IEntityType)column.Table.EntityTypeMappings.First().TypeBase;
+        if (entityType.IsTemporal())
         {
             var periodStartPropertyName = entityType.GetPeriodStartPropertyName();
             var periodEndPropertyName = entityType.GetPeriodEndPropertyName();
@@ -265,12 +280,14 @@ public class SqlServerAnnotationProvider : RelationalAnnotationProvider
                 ? periodEndProperty.GetColumnName(storeObjectIdentifier)
                 : periodEndPropertyName;
 
-            // TODO: issue #27459 - we want to avoid having those annotations on every column
-            yield return new Annotation(SqlServerAnnotationNames.IsTemporal, true);
-            yield return new Annotation(SqlServerAnnotationNames.TemporalHistoryTableName, entityType.GetHistoryTableName());
-            yield return new Annotation(SqlServerAnnotationNames.TemporalHistoryTableSchema, entityType.GetHistoryTableSchema());
-            yield return new Annotation(SqlServerAnnotationNames.TemporalPeriodStartColumnName, periodStartColumnName);
-            yield return new Annotation(SqlServerAnnotationNames.TemporalPeriodEndColumnName, periodEndColumnName);
+            if (column.Name == periodStartColumnName)
+            {
+                yield return new Annotation(SqlServerAnnotationNames.TemporalIsPeriodStartColumn, true);
+            }
+            else if (column.Name == periodEndColumnName)
+            {
+                yield return new Annotation(SqlServerAnnotationNames.TemporalIsPeriodEndColumn, true);
+            }
         }
     }
 }

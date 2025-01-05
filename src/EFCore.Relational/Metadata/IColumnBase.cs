@@ -65,7 +65,7 @@ public interface IColumnBase : IAnnotatable
         for (var i = 0; i < PropertyMappings.Count; i++)
         {
             var mapping = PropertyMappings[i];
-            if (mapping.Property.DeclaringEntityType.IsAssignableFrom(entityType))
+            if (mapping.Property.DeclaringType.IsAssignableFrom(entityType))
             {
                 return mapping;
             }

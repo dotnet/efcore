@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
-using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Update.Internal;
 using Microsoft.EntityFrameworkCore.Update.Internal;
@@ -20,8 +19,7 @@ public class SqlServerModificationCommandBatchFactoryTest
 
         var typeMapper = new SqlServerTypeMappingSource(
             TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
-            new SqlServerSingletonOptions());
+            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
 
         var logger = new FakeRelationalCommandDiagnosticsLogger();
 
@@ -57,8 +55,7 @@ public class SqlServerModificationCommandBatchFactoryTest
 
         var typeMapper = new SqlServerTypeMappingSource(
             TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
-            new SqlServerSingletonOptions());
+            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
 
         var logger = new FakeRelationalCommandDiagnosticsLogger();
 
@@ -86,9 +83,7 @@ public class SqlServerModificationCommandBatchFactoryTest
         Assert.True(batch.TryAddCommand(CreateModificationCommand("T1", null, false)));
     }
 
-    private class FakeDbContext : DbContext
-    {
-    }
+    private class FakeDbContext : DbContext;
 
     private static INonTrackedModificationCommand CreateModificationCommand(
         string name,

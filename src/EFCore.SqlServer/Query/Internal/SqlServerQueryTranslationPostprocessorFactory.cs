@@ -43,7 +43,5 @@ public class SqlServerQueryTranslationPostprocessorFactory : IQueryTranslationPo
     /// </summary>
     public virtual QueryTranslationPostprocessor Create(QueryCompilationContext queryCompilationContext)
         => new SqlServerQueryTranslationPostprocessor(
-            Dependencies,
-            RelationalDependencies,
-            queryCompilationContext);
+            Dependencies, RelationalDependencies, (SqlServerQueryCompilationContext)queryCompilationContext);
 }

@@ -1,10 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>$(DefaultNetCoreTargetFramework)</TargetFramework>
     <AssemblyName>Microsoft.EntityFrameworkCore.AspNet.Sqlite.FunctionalTests</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
     <ImplicitUsings>true</ImplicitUsings>
+    <DefineConstants Condition="$([MSBuild]::IsOSPlatform('OSX'))">$(DefineConstants);EXCLUDE_ON_MAC</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
@@ -48,6 +49,8 @@
   <ItemGroup>
     <ProjectReference Include="..\EFCore.Sqlite.FunctionalTests\EFCore.Sqlite.FunctionalTests.csproj" />
     <ProjectReference Include="..\EFCore.AspNet.Specification.Tests\EFCore.AspNet.Specification.Tests.csproj" />
+    <!-- Suppress NuGet audit warnings for IdentityServer4, see https://github.com/dotnet/efcore/issues/34485 -->
+    <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-ff4q-64jc-gx98;https://github.com/advisories/GHSA-55p7-v223-x366" />
   </ItemGroup>
 
 </Project>

@@ -6,15 +6,13 @@ using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore;
 
-[SqlServerCondition(SqlServerCondition.IsNotSqlAzure)]
-public class EverythingIsStringsSqlServerTest : BuiltInDataTypesTestBase<
-    EverythingIsStringsSqlServerTest.EverythingIsStringsSqlServerFixture>
-{
-    public EverythingIsStringsSqlServerTest(EverythingIsStringsSqlServerFixture fixture)
-        : base(fixture)
-    {
-    }
+#nullable disable
 
+[SqlServerCondition(SqlServerCondition.IsNotAzureSql)]
+public class EverythingIsStringsSqlServerTest(EverythingIsStringsSqlServerTest.EverythingIsStringsSqlServerFixture fixture)
+    : BuiltInDataTypesTestBase<
+        EverythingIsStringsSqlServerTest.EverythingIsStringsSqlServerFixture>(fixture)
+{
     [ConditionalFact]
     public virtual void Columns_have_expected_data_types()
     {
@@ -28,7 +26,7 @@ public class EverythingIsStringsSqlServerTest : BuiltInDataTypesTestBase<
             nameof(AnimalIdentification));
 
         const string expected =
-"""
+            """
 BinaryForeignKeyDataType.BinaryKeyDataTypeId ---> [nullable nvarchar] [MaxLength = 450]
 BinaryForeignKeyDataType.Id ---> [nvarchar] [MaxLength = 64]
 BinaryKeyDataType.Ex ---> [nullable nvarchar] [MaxLength = -1]
@@ -176,25 +174,21 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
         Assert.Equal(expected, actual, ignoreLineEndingDifferences: true);
     }
 
-    public override void Can_read_back_mapped_enum_from_collection_first_or_default()
-    {
+    public override Task Can_read_back_mapped_enum_from_collection_first_or_default()
         // The query needs to generate TOP(1)
-    }
+        => Task.CompletedTask;
 
-    public override void Can_read_back_bool_mapped_as_int_through_navigation()
-    {
+    public override Task Can_read_back_bool_mapped_as_int_through_navigation()
         // Column is mapped as int rather than string
-    }
+        => Task.CompletedTask;
 
-    public override void Can_compare_enum_to_constant()
-    {
+    public override Task Can_compare_enum_to_constant()
         // Column is mapped as int rather than string
-    }
+        => Task.CompletedTask;
 
-    public override void Can_compare_enum_to_parameter()
-    {
+    public override Task Can_compare_enum_to_parameter()
         // Column is mapped as int rather than string
-    }
+        => Task.CompletedTask;
 
     public class EverythingIsStringsSqlServerFixture : BuiltInDataTypesFixtureBase
     {
@@ -267,8 +261,7 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
             TypeMappingSourceDependencies dependencies,
             RelationalTypeMappingSourceDependencies relationalDependencies)
             : base(dependencies, relationalDependencies)
-        {
-            _storeTypeMappings
+            => _storeTypeMappings
                 = new Dictionary<string, RelationalTypeMapping>(StringComparer.OrdinalIgnoreCase)
                 {
                     { "char varying", _variableLengthAnsiString },
@@ -284,10 +277,9 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
                     { "text", _variableLengthAnsiString },
                     { "varchar", _variableLengthAnsiString }
                 };
-        }
 
         protected override RelationalTypeMapping FindMapping(in RelationalTypeMappingInfo mappingInfo)
-            => FindRawMapping(mappingInfo)?.Clone(mappingInfo);
+            => FindRawMapping(mappingInfo)?.WithTypeMappingInfo(mappingInfo);
 
         private RelationalTypeMapping FindRawMapping(RelationalTypeMappingInfo mappingInfo)
         {

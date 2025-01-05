@@ -64,7 +64,7 @@ public class TypeMappingConfigurationBuilder
     ///     Maximum length can only be set on array properties (including <see cref="string" /> properties).
     /// </summary>
     /// <param name="maxLength">
-    /// The maximum length of data allowed in the property. A value of <c>-1</c> indicates that the property has no maximum length.
+    ///     The maximum length of data allowed in the property. A value of <c>-1</c> indicates that the property has no maximum length.
     /// </param>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public virtual TypeMappingConfigurationBuilder HasMaxLength(int maxLength)

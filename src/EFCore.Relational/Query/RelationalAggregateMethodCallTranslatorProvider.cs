@@ -9,9 +9,8 @@ namespace Microsoft.EntityFrameworkCore.Query;
 /// <inheritdoc />
 public class RelationalAggregateMethodCallTranslatorProvider : IAggregateMethodCallTranslatorProvider
 {
-    private readonly List<IAggregateMethodCallTranslator> _plugins = new();
-    private readonly List<IAggregateMethodCallTranslator> _translators = new();
-    private readonly ISqlExpressionFactory _sqlExpressionFactory;
+    private readonly List<IAggregateMethodCallTranslator> _plugins = [];
+    private readonly List<IAggregateMethodCallTranslator> _translators = [];
 
     /// <summary>
     ///     Creates a new instance of the <see cref="RelationalAggregateMethodCallTranslatorProvider" /> class.
@@ -23,10 +22,10 @@ public class RelationalAggregateMethodCallTranslatorProvider : IAggregateMethodC
 
         _plugins.AddRange(dependencies.Plugins.SelectMany(p => p.Translators));
 
-        _sqlExpressionFactory = dependencies.SqlExpressionFactory;
+        var sqlExpressionFactory = dependencies.SqlExpressionFactory;
 
         _translators.AddRange(
-            new IAggregateMethodCallTranslator[] { new QueryableAggregateMethodTranslator(_sqlExpressionFactory) });
+            new IAggregateMethodCallTranslator[] { new QueryableAggregateMethodTranslator(sqlExpressionFactory) });
     }
 
     /// <summary>

@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyFieldsModel;
 
+#nullable disable
+
 public class EntityCompositeKey
 {
     public int Key1;

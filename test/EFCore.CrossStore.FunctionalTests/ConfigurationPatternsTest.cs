@@ -8,14 +8,8 @@ using Microsoft.EntityFrameworkCore.TestModels;
 namespace Microsoft.EntityFrameworkCore;
 
 [SqlServerConfiguredCondition]
-public class ConfigurationPatternsTest : IClassFixture<CrossStoreFixture>, IDisposable
+public class ConfigurationPatternsTest(CrossStoreFixture fixture) : IClassFixture<CrossStoreFixture>, IAsyncLifetime
 {
-    public ConfigurationPatternsTest(CrossStoreFixture fixture)
-    {
-        Fixture = fixture;
-        ExistingTestStore = Fixture.CreateTestStore(SqlServerTestStoreFactory.Instance, StoreName, Seed);
-    }
-
     [ConditionalFact]
     public void Can_register_multiple_context_types()
     {
@@ -52,15 +46,9 @@ public class ConfigurationPatternsTest : IClassFixture<CrossStoreFixture>, IDisp
         }
     }
 
-    private class MultipleContext1 : CrossStoreContext
+    private class MultipleContext1(DbContextOptions<MultipleContext1> options) : CrossStoreContext(options)
     {
-        private readonly DbContextOptions<MultipleContext1> _options;
-
-        public MultipleContext1(DbContextOptions<MultipleContext1> options)
-            : base(options)
-        {
-            _options = options;
-        }
+        private readonly DbContextOptions<MultipleContext1> _options = options;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -72,15 +60,9 @@ public class ConfigurationPatternsTest : IClassFixture<CrossStoreFixture>, IDisp
         }
     }
 
-    private class MultipleContext2 : CrossStoreContext
+    private class MultipleContext2(DbContextOptions<MultipleContext2> options) : CrossStoreContext(options)
     {
-        private readonly DbContextOptions<MultipleContext2> _options;
-
-        public MultipleContext2(DbContextOptions<MultipleContext2> options)
-            : base(options)
-        {
-            _options = options;
-        }
+        private readonly DbContextOptions<MultipleContext2> _options = options;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -190,41 +172,25 @@ public class ConfigurationPatternsTest : IClassFixture<CrossStoreFixture>, IDisp
     }
 
     // ReSharper disable once ClassNeverInstantiated.Local
-    private class SomeService
+    private class SomeService(MultipleProvidersContext context)
     {
-        public SomeService(MultipleProvidersContext context)
-        {
-            Context = context;
-        }
-
-        public MultipleProvidersContext Context { get; }
+        public MultipleProvidersContext Context { get; } = context;
     }
 
-    private CrossStoreFixture Fixture { get; }
-    private TestStore ExistingTestStore { get; }
+    private CrossStoreFixture Fixture { get; } = fixture;
+    private TestStore ExistingTestStore { get; set; }
     private static readonly string StoreName = "CrossStoreConfigurationPatternsTest";
 
-    private void Seed(CrossStoreContext context)
+    private Task SeedAsync(CrossStoreContext context)
     {
         context.SimpleEntities.Add(new SimpleEntity { StringProperty = "Entity 1" });
 
-        context.SaveChanges();
+        return context.SaveChangesAsync();
     }
 
-#pragma warning disable xUnit1013 // Public method should be marked as test
-    public void Dispose()
-        => ExistingTestStore.Dispose();
-#pragma warning restore xUnit1013 // Public method should be marked as test
-
     [SqlServerConfiguredCondition]
-    public class NestedContextDifferentStores : IClassFixture<CrossStoreFixture>, IDisposable
+    public class NestedContextDifferentStores(CrossStoreFixture fixture) : IClassFixture<CrossStoreFixture>, IAsyncLifetime
     {
-        public NestedContextDifferentStores(CrossStoreFixture fixture)
-        {
-            Fixture = fixture;
-            ExistingTestStore = Fixture.CreateTestStore(SqlServerTestStoreFactory.Instance, StoreName, Seed);
-        }
-
         [ConditionalFact]
         public async Task Can_use_one_context_nested_inside_another_of_a_different_type()
         {
@@ -265,21 +231,16 @@ public class ConfigurationPatternsTest : IClassFixture<CrossStoreFixture>, IDisp
             Assert.NotSame(blog0, blog0Prime);
         }
 
-        private CrossStoreFixture Fixture { get; }
-        private TestStore ExistingTestStore { get; }
+        private CrossStoreFixture Fixture { get; } = fixture;
+        private TestStore ExistingTestStore { get; set; }
         private static readonly string StoreName = "CrossStoreNestedContextTest";
 
-        private void Seed(CrossStoreContext context)
+        private Task SeedAsync(CrossStoreContext context)
         {
             context.SimpleEntities.Add(new SimpleEntity { StringProperty = "Entity 1" });
 
-            context.SaveChanges();
+            return context.SaveChangesAsync();
         }
-
-#pragma warning disable xUnit1013 // Public method should be marked as test
-        public void Dispose()
-            => ExistingTestStore.Dispose();
-#pragma warning restore xUnit1013 // Public method should be marked as test
 
         private class BlogContext : DbContext
         {
@@ -290,10 +251,9 @@ public class ConfigurationPatternsTest : IClassFixture<CrossStoreFixture>, IDisp
             }
 
             public BlogContext(IServiceProvider serviceProvider)
-            {
-                _serviceProvider = serviceProvider;
-            }
+                => _serviceProvider = serviceProvider;
 
+            // ReSharper disable once UnusedAutoPropertyAccessor.Local
             public DbSet<Blog> Blogs { get; set; }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -317,14 +277,24 @@ public class ConfigurationPatternsTest : IClassFixture<CrossStoreFixture>, IDisp
             }
 
             public ExternalProviderContext(IServiceProvider serviceProvider)
-            {
-                _serviceProvider = serviceProvider;
-            }
+                => _serviceProvider = serviceProvider;
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder
                     .UseSqlServer(SqlServerTestStore.CreateConnectionString(StoreName), b => b.ApplyConfiguration())
                     .UseInternalServiceProvider(_serviceProvider);
         }
+
+        public async Task InitializeAsync()
+            => ExistingTestStore = await Fixture.CreateTestStoreAsync(SqlServerTestStoreFactory.Instance, StoreName, SeedAsync);
+
+        public async Task DisposeAsync()
+            => await ExistingTestStore.DisposeAsync();
     }
+
+    public async Task InitializeAsync()
+        => ExistingTestStore = await Fixture.CreateTestStoreAsync(SqlServerTestStoreFactory.Instance, StoreName, SeedAsync);
+
+    public async Task DisposeAsync()
+        => await ExistingTestStore.DisposeAsync();
 }

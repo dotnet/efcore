@@ -5,7 +5,9 @@ using Microsoft.EntityFrameworkCore.TestModels.InheritanceModel;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public abstract class TPCInheritanceQueryFixture : InheritanceQueryFixtureBase
+#nullable disable
+
+public abstract class TPCInheritanceQueryFixture : InheritanceQueryFixtureBase, ITestSqlLoggerFactory
 {
     protected override string StoreName
         => "TPCInheritanceTest";
@@ -13,7 +15,7 @@ public abstract class TPCInheritanceQueryFixture : InheritanceQueryFixtureBase
     public TestSqlLoggerFactory TestSqlLoggerFactory
         => (TestSqlLoggerFactory)ListLoggerFactory;
 
-    protected override bool HasDiscriminator
+    public override bool HasDiscriminator
         => false;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)

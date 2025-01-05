@@ -27,8 +27,9 @@ public static class ScaffoldingModelExtensions
             var primaryKey = entityType.FindPrimaryKey();
             var properties = entityType.GetProperties().ToList();
             var foreignKeys = entityType.GetForeignKeys().ToList();
-            if (primaryKey != null
-                && primaryKey.Properties.Count > 1
+            var referencingForeignKeys = entityType.GetReferencingForeignKeys().ToList();
+            if (primaryKey is { Properties.Count: > 1 }
+                && referencingForeignKeys.Count == 0
                 && foreignKeys.Count == 2
                 && primaryKey.Properties.Count == properties.Count
                 && foreignKeys[0].Properties.Count + foreignKeys[1].Properties.Count == properties.Count
@@ -397,7 +398,8 @@ public static class ScaffoldingModelExtensions
         var toTableArguments = new List<object?>();
 
         if (explicitSchema
-            || tableName != null && (tableName != entityType.GetDbSetName()
+            || tableName != null
+            && (tableName != entityType.GetDbSetName()
                 || (entityType.IsSimpleManyToManyJoinEntityType() && tableName != entityType.ShortName())))
         {
             toTableHandledByConventions = false;
@@ -817,6 +819,23 @@ public static class ScaffoldingModelExtensions
         bool isHandledByDataAnnotations = false)
     {
         FluentApiCodeFragment? root = null;
+
+        if (annotatable is IProperty property
+            && annotations.TryGetValue(RelationalAnnotationNames.DefaultValueSql, out _)
+            && annotations.TryGetValue(RelationalAnnotationNames.DefaultValue, out var parsedAnnotation))
+        {
+            if (Equals(property.ClrType.GetDefaultValue(), parsedAnnotation.Value))
+            {
+                // Default value is CLR default for property, so exclude it from scaffolded model
+                annotations.Remove(RelationalAnnotationNames.DefaultValueSql);
+                annotations.Remove(RelationalAnnotationNames.DefaultValue);
+            }
+            else
+            {
+                // SQL was parsed, so use parsed value and exclude raw value
+                annotations.Remove(RelationalAnnotationNames.DefaultValueSql);
+            }
+        }
 
         foreach (var methodCall in annotationCodeGenerator.GenerateFluentApiCalls(annotatable, annotations))
         {

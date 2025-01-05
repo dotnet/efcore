@@ -96,13 +96,16 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
     if (!Options.SuppressConnectionStringWarning)
     {
 
-            this.Write(@"#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
+            this.Write(@"#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
 ");
 
     }
 
+    var useProviderCall = providerCode.GenerateUseProvider(Options.ConnectionString);
+    usings.AddRange(useProviderCall.GetRequiredUsings());
+
             this.Write("        => optionsBuilder");
-            this.Write(this.ToStringHelper.ToStringWithCulture(code.Fragment(providerCode.GenerateUseProvider(Options.ConnectionString), indent: 3)));
+            this.Write(this.ToStringHelper.ToStringWithCulture(code.Fragment(useProviderCall, indent: 3)));
             this.Write(";\r\n\r\n");
 
     }
@@ -617,7 +620,7 @@ if ((NamespaceHintValueAcquired == false))
         /// <summary>
         /// The string builder that generation-time code is using to assemble generated output
         /// </summary>
-        protected System.Text.StringBuilder GenerationEnvironment
+        public System.Text.StringBuilder GenerationEnvironment
         {
             get
             {

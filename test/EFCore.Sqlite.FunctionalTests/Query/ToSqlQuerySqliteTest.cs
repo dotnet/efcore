@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class ToSqlQuerySqliteTest : ToSqlQueryTestBase
 {
     protected override ITestStoreFactory TestStoreFactory
@@ -17,7 +19,7 @@ public class ToSqlQuerySqliteTest : ToSqlQueryTestBase
         await base.Entity_type_with_navigation_mapped_to_SqlQuery(async);
 
         AssertSql(
-"""
+            """
 SELECT "a"."Id", "a"."Name", "a"."PostStatAuthorId", "m"."Count" AS "PostCount"
 FROM "Authors" AS "a"
 LEFT JOIN (

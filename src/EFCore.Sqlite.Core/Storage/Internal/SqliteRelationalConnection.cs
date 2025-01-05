@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Globalization;
 using System.Text.RegularExpressions;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.Sqlite.Infrastructure.Internal;
@@ -112,25 +111,9 @@ public class SqliteRelationalConnection : RelationalConnection, ISqliteRelationa
                 },
                 isDeterministic: true);
 
-            sqliteConnection.CreateFunction<object, object, object?>(
+            sqliteConnection.CreateFunction(
                 "ef_mod",
-                (dividend, divisor) =>
-                {
-                    if (dividend == null
-                        || divisor == null)
-                    {
-                        return null;
-                    }
-
-                    if (dividend is string s)
-                    {
-                        return decimal.Parse(s, CultureInfo.InvariantCulture)
-                            % Convert.ToDecimal(divisor, CultureInfo.InvariantCulture);
-                    }
-
-                    return Convert.ToDouble(dividend, CultureInfo.InvariantCulture)
-                        % Convert.ToDouble(divisor, CultureInfo.InvariantCulture);
-                },
+                (decimal? dividend, decimal? divisor) => divisor == 0m ? null : dividend % divisor,
                 isDeterministic: true);
 
             sqliteConnection.CreateFunction(
@@ -140,7 +123,7 @@ public class SqliteRelationalConnection : RelationalConnection, ISqliteRelationa
 
             sqliteConnection.CreateFunction(
                 name: "ef_divide",
-                (decimal? dividend, decimal? divisor) => dividend / divisor,
+                (decimal? dividend, decimal? divisor) => divisor == 0m ? null : dividend / divisor,
                 isDeterministic: true);
 
             sqliteConnection.CreateFunction(
@@ -158,6 +141,27 @@ public class SqliteRelationalConnection : RelationalConnection, ISqliteRelationa
             sqliteConnection.CreateFunction(
                 name: "ef_negate",
                 (decimal? m) => -m,
+                isDeterministic: true);
+
+            sqliteConnection.CreateAggregate(
+                "ef_avg",
+                seed: (0m, 0ul),
+                ((decimal sum, ulong count) acc, decimal? value) => value is null
+                    ? acc
+                    : (acc.sum + value.Value, acc.count + 1),
+                ((decimal sum, ulong count) acc) => acc.count == 0
+                    ? default(decimal?)
+                    : acc.sum / acc.count,
+                isDeterministic: true);
+
+            sqliteConnection.CreateAggregate(
+                "ef_sum",
+                seed: null,
+                (decimal? sum, decimal? value) => value is null
+                    ? sum
+                    : sum is null
+                        ? value
+                        : sum.Value + value.Value,
                 isDeterministic: true);
         }
         else

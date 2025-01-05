@@ -4,6 +4,7 @@
 using System.Data;
 using System.Globalization;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 
@@ -18,7 +19,7 @@ public class SqlServerTimeSpanTypeMapping : TimeSpanTypeMapping
     // Note: this array will be accessed using the precision as an index
     // so the order of the entries in this array is important
     private readonly string[] _timeFormats =
-    {
+    [
         @"'{0:hh\:mm\:ss}'",
         @"'{0:hh\:mm\:ss\.F}'",
         @"'{0:hh\:mm\:ss\.FF}'",
@@ -27,7 +28,15 @@ public class SqlServerTimeSpanTypeMapping : TimeSpanTypeMapping
         @"'{0:hh\:mm\:ss\.FFFFF}'",
         @"'{0:hh\:mm\:ss\.FFFFFF}'",
         @"'{0:hh\:mm\:ss\.FFFFFFF}'"
-    };
+    ];
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static new SqlServerTimeSpanTypeMapping Default { get; } = new("time");
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -41,7 +50,7 @@ public class SqlServerTimeSpanTypeMapping : TimeSpanTypeMapping
         StoreTypePostfix storeTypePostfix = StoreTypePostfix.Precision)
         : base(
             new RelationalTypeMappingParameters(
-                new CoreTypeMappingParameters(typeof(TimeSpan)),
+                new CoreTypeMappingParameters(typeof(TimeSpan), jsonValueReaderWriter: JsonTimeSpanReaderWriter.Instance),
                 storeType,
                 storeTypePostfix,
                 dbType))

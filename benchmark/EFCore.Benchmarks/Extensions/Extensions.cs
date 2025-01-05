@@ -3,16 +3,13 @@
 
 using System.Linq;
 
-namespace Microsoft.EntityFrameworkCore.Benchmarks
+namespace Microsoft.EntityFrameworkCore.Benchmarks;
+
+public static class Extensions
 {
-    public static class Extensions
-    {
-        public static IQueryable<TEntity> ApplyTracking<TEntity>(this IQueryable<TEntity> query, bool tracking)
-            where TEntity : class
-        {
-            return tracking
-                ? query
-                : query.AsNoTracking();
-        }
-    }
+    public static IQueryable<TEntity> ApplyTracking<TEntity>(this IQueryable<TEntity> query, bool tracking)
+        where TEntity : class
+        => tracking
+            ? query
+            : query.AsNoTracking();
 }

@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Data;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace Microsoft.EntityFrameworkCore.Storage;
 
@@ -21,6 +22,14 @@ namespace Microsoft.EntityFrameworkCore.Storage;
 public class GuidTypeMapping : RelationalTypeMapping
 {
     /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static GuidTypeMapping Default { get; } = new("guid");
+
+    /// <summary>
     ///     Initializes a new instance of the <see cref="GuidTypeMapping" /> class.
     /// </summary>
     /// <param name="storeType">The name of the database type.</param>
@@ -28,7 +37,7 @@ public class GuidTypeMapping : RelationalTypeMapping
     public GuidTypeMapping(
         string storeType,
         DbType? dbType = System.Data.DbType.Guid)
-        : base(storeType, typeof(Guid), dbType)
+        : base(storeType, typeof(Guid), dbType, jsonValueReaderWriter: JsonGuidReaderWriter.Instance)
     {
     }
 

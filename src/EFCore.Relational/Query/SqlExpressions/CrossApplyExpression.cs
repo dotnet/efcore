@@ -14,6 +14,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 /// </summary>
 public class CrossApplyExpression : JoinExpressionBase
 {
+    private static ConstructorInfo? _quotingConstructor;
+
     /// <summary>
     ///     Creates a new instance of the <see cref="CrossApplyExpression" /> class.
     /// </summary>
@@ -23,8 +25,8 @@ public class CrossApplyExpression : JoinExpressionBase
     {
     }
 
-    private CrossApplyExpression(TableExpressionBase table, IEnumerable<IAnnotation>? annotations)
-        : base(table, annotations)
+    private CrossApplyExpression(TableExpressionBase table, IReadOnlyDictionary<string, IAnnotation>? annotations)
+        : base(table, prunable: false, annotations)
     {
     }
 
@@ -38,14 +40,23 @@ public class CrossApplyExpression : JoinExpressionBase
     /// </summary>
     /// <param name="table">The <see cref="JoinExpressionBase.Table" /> property of the result.</param>
     /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
-    public virtual CrossApplyExpression Update(TableExpressionBase table)
+    public override CrossApplyExpression Update(TableExpressionBase table)
         => table != Table
-            ? new CrossApplyExpression(table, GetAnnotations())
+            ? new CrossApplyExpression(table, Annotations)
             : this;
 
     /// <inheritdoc />
-    protected override TableExpressionBase CreateWithAnnotations(IEnumerable<IAnnotation> annotations)
-        => new CrossApplyExpression(Table, GetAnnotations());
+    protected override CrossApplyExpression WithAnnotations(IReadOnlyDictionary<string, IAnnotation> annotations)
+        => new(Table, annotations);
+
+    /// <inheritdoc />
+    public override Expression Quote()
+        => New(
+            _quotingConstructor ??=
+                typeof(CrossApplyExpression).GetConstructor(
+                    [typeof(TableExpressionBase), typeof(IReadOnlyDictionary<string, IAnnotation>)])!,
+            Table.Quote(),
+            RelationalExpressionQuotingUtilities.QuoteAnnotations(Annotations));
 
     /// <inheritdoc />
     protected override void Print(ExpressionPrinter expressionPrinter)

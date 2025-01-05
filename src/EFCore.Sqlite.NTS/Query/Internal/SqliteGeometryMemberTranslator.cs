@@ -47,9 +47,7 @@ public class SqliteGeometryMemberTranslator : IMemberTranslator
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public SqliteGeometryMemberTranslator(ISqlExpressionFactory sqlExpressionFactory)
-    {
-        _sqlExpressionFactory = sqlExpressionFactory;
-    }
+        => _sqlExpressionFactory = sqlExpressionFactory;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -77,7 +75,7 @@ public class SqliteGeometryMemberTranslator : IMemberTranslator
                                     functionName,
                                     new[] { instance },
                                     nullable: false,
-                                    argumentsPropagateNullability: new[] { false },
+                                    argumentsPropagateNullability: Statics.FalseArrays[1],
                                     returnType))
                         },
                         null)
@@ -85,7 +83,7 @@ public class SqliteGeometryMemberTranslator : IMemberTranslator
                         functionName,
                         new[] { instance },
                         nullable: true,
-                        argumentsPropagateNullability: new[] { true },
+                        argumentsPropagateNullability: Statics.TrueArrays[1],
                         returnType);
             }
 
@@ -94,18 +92,18 @@ public class SqliteGeometryMemberTranslator : IMemberTranslator
                 return _sqlExpressionFactory.Case(
                     _sqlExpressionFactory.Function(
                         "rtrim",
-                        new SqlExpression[]
+                        new[]
                         {
                             _sqlExpressionFactory.Function(
                                 "GeometryType",
                                 new[] { instance },
                                 nullable: true,
-                                argumentsPropagateNullability: new[] { true },
+                                argumentsPropagateNullability: Statics.TrueArrays[1],
                                 returnType),
                             _sqlExpressionFactory.Constant(" ZM")
                         },
                         nullable: true,
-                        argumentsPropagateNullability: new[] { true },
+                        argumentsPropagateNullability: Statics.TrueArrays[2],
                         returnType),
                     new[]
                     {
@@ -128,18 +126,18 @@ public class SqliteGeometryMemberTranslator : IMemberTranslator
                 return _sqlExpressionFactory.Case(
                     _sqlExpressionFactory.Function(
                         "rtrim",
-                        new SqlExpression[]
+                        new[]
                         {
                             _sqlExpressionFactory.Function(
                                 "GeometryType",
                                 new[] { instance },
                                 nullable: true,
-                                argumentsPropagateNullability: new[] { true },
+                                argumentsPropagateNullability: Statics.TrueArrays[1],
                                 typeof(string)),
                             _sqlExpressionFactory.Constant(" ZM")
                         },
                         nullable: true,
-                        argumentsPropagateNullability: new[] { true },
+                        argumentsPropagateNullability: Statics.TrueArrays[2],
                         typeof(string)),
                     new[]
                     {

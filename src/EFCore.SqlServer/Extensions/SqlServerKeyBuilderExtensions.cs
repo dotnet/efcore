@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore;
 /// </summary>
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
 ///     for more information and examples.
 /// </remarks>
 public static class SqlServerKeyBuilderExtensions
@@ -21,7 +21,7 @@ public static class SqlServerKeyBuilderExtensions
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples.
     /// </remarks>
     /// <param name="keyBuilder">The builder for the key being configured.</param>
@@ -39,7 +39,7 @@ public static class SqlServerKeyBuilderExtensions
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples.
     /// </remarks>
     /// <param name="keyBuilder">The builder for the key being configured.</param>
@@ -55,7 +55,7 @@ public static class SqlServerKeyBuilderExtensions
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples.
     /// </remarks>
     /// <param name="keyBuilder">The builder for the key being configured.</param>
@@ -84,7 +84,7 @@ public static class SqlServerKeyBuilderExtensions
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples.
     /// </remarks>
     /// <param name="keyBuilder">The builder for the key being configured.</param>
@@ -96,4 +96,86 @@ public static class SqlServerKeyBuilderExtensions
         bool? clustered,
         bool fromDataAnnotation = false)
         => keyBuilder.CanSetAnnotation(SqlServerAnnotationNames.Clustered, clustered, fromDataAnnotation);
+
+    /// <summary>
+    ///     Configures whether the key is created with fill factor option when targeting SQL Server.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
+    ///     for more information and examples.
+    /// </remarks>
+    /// <param name="keyBuilder">The builder for the key being configured.</param>
+    /// <param name="fillFactor">A value indicating whether the key is created with fill factor option.</param>
+    /// <returns>A builder to further configure the key.</returns>
+    public static KeyBuilder HasFillFactor(this KeyBuilder keyBuilder, int fillFactor)
+    {
+        keyBuilder.Metadata.SetFillFactor(fillFactor);
+
+        return keyBuilder;
+    }
+
+    /// <summary>
+    ///     Configures whether the key is created with fill factor option when targeting SQL Server.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
+    ///     for more information and examples.
+    /// </remarks>
+    /// <param name="keyBuilder">The builder for the key being configured.</param>
+    /// <param name="fillFactor">A value indicating whether the key is created with fill factor option.</param>
+    /// <returns>A builder to further configure the key.</returns>
+    public static KeyBuilder<TEntity> HasFillFactor<TEntity>(
+        this KeyBuilder<TEntity> keyBuilder,
+        int fillFactor)
+        => (KeyBuilder<TEntity>)HasFillFactor((KeyBuilder)keyBuilder, fillFactor);
+
+    /// <summary>
+    ///     Configures whether the key is created with fill factor option when targeting SQL Server.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
+    ///     for more information and examples.
+    /// </remarks>
+    /// <param name="keyBuilder">The builder for the key being configured.</param>
+    /// <param name="fillFactor">A value indicating whether the key is created with fill factor option.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>
+    ///     The same builder instance if the configuration was applied,
+    ///     <see langword="null" /> otherwise.
+    /// </returns>
+    public static IConventionKeyBuilder? HasFillFactor(
+        this IConventionKeyBuilder keyBuilder,
+        int? fillFactor,
+        bool fromDataAnnotation = false)
+    {
+        if (keyBuilder.CanSetFillFactor(fillFactor, fromDataAnnotation))
+        {
+            keyBuilder.Metadata.SetFillFactor(fillFactor, fromDataAnnotation);
+
+            return keyBuilder;
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    ///     Returns a value indicating whether the key can be configured with fill factor option when targeting SQL Server.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
+    ///     for more information and examples.
+    /// </remarks>
+    /// <param name="keyBuilder">The builder for the key being configured.</param>
+    /// <param name="fillFactor">A value indicating whether the key is created with fill factor option.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns><see langword="true" /> if the key can be configured with fill factor option when targeting SQL Server.</returns>
+    public static bool CanSetFillFactor(
+        this IConventionKeyBuilder keyBuilder,
+        int? fillFactor,
+        bool fromDataAnnotation = false)
+        => keyBuilder.CanSetAnnotation(SqlServerAnnotationNames.FillFactor, fillFactor, fromDataAnnotation);
 }

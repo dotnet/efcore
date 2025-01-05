@@ -9,6 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.
 /// </remarks>
+[Obsolete("Use ITypeIgnoredConvention instead")]
 public interface IEntityTypeIgnoredConvention : IConvention
 {
     /// <summary>

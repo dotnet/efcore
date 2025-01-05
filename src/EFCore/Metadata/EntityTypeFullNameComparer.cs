@@ -6,7 +6,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 /// <summary>
 ///     <para>
 ///         An implementation of <see cref="IComparer{T}" /> and <see cref="IEqualityComparer{T}" /> to compare
-///         <see cref="IReadOnlyEntityType" /> instances by name including the defining entity type when present.
+///         <see cref="IReadOnlyEntityType" /> instances by the full unique name.
 ///     </para>
 ///     <para>
 ///         This type is typically used by database providers (and other extensions). It is generally

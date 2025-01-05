@@ -12,10 +12,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 ///         not used in application code.
 ///     </para>
 /// </summary>
-#if DEBUG
-[DebuggerDisplay("{new Microsoft.EntityFrameworkCore.Query.ExpressionPrinter().PrintExpression(this), nq}")]
-#endif
-public abstract class SqlExpression : Expression, IPrintableExpression
+[DebuggerDisplay("{Microsoft.EntityFrameworkCore.Query.ExpressionPrinter.Print(this), nq}")]
+public abstract class SqlExpression : Expression, IRelationalQuotableExpression, IPrintableExpression
 {
     /// <summary>
     ///     Creates a new instance of the <see cref="SqlExpression" /> class.
@@ -45,6 +43,9 @@ public abstract class SqlExpression : Expression, IPrintableExpression
     /// <inheritdoc />
     public sealed override ExpressionType NodeType
         => ExpressionType.Extension;
+
+    /// <inheritdoc />
+    public abstract Expression Quote();
 
     /// <summary>
     ///     Creates a printable string representation of the given expression using <see cref="ExpressionPrinter" />.

@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations;
 /// </remarks>
 public class MigrationCommandListBuilder
 {
-    private readonly List<MigrationCommand> _commands = new();
+    private readonly List<MigrationCommand> _commands = [];
 
     private IRelationalCommandBuilder _commandBuilder;
 
@@ -93,6 +93,18 @@ public class MigrationCommandListBuilder
     /// <param name="value">The string to append.</param>
     /// <returns>This builder so that additional calls can be chained.</returns>
     public virtual MigrationCommandListBuilder AppendLine(string value)
+    {
+        _commandBuilder.AppendLine(value);
+
+        return this;
+    }
+
+    /// <summary>
+    ///     Appends the given string to the command being built, and then starts a new line.
+    /// </summary>
+    /// <param name="value">The string to append.</param>
+    /// <returns>This builder so that additional calls can be chained.</returns>
+    public virtual MigrationCommandListBuilder AppendLine(FormattableString value)
     {
         _commandBuilder.AppendLine(value);
 

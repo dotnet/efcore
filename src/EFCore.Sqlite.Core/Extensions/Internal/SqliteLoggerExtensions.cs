@@ -413,4 +413,68 @@ public static class SqliteLoggerExtensions
             p.Key.DeclaringEntityType.DisplayName(),
             p.Key.Properties.Format());
     }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static void InferringTypes(
+        this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+        string? tableName)
+    {
+        var definition = SqliteResources.LogInferringTypes(diagnostics);
+
+        if (diagnostics.ShouldLog(definition))
+        {
+            definition.Log(diagnostics, tableName);
+        }
+
+        // No DiagnosticsSource events because these are purely design-time messages
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static void OutOfRangeWarning(
+        this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+        string? columnName,
+        string? tableName,
+        string? type)
+    {
+        var definition = SqliteResources.LogOutOfRangeWarning(diagnostics);
+
+        if (diagnostics.ShouldLog(definition))
+        {
+            definition.Log(diagnostics, columnName, tableName, type);
+        }
+
+        // No DiagnosticsSource events because these are purely design-time messages
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static void FormatWarning(
+        this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+        string? columnName,
+        string? tableName,
+        string? type)
+    {
+        var definition = SqliteResources.LogFormatWarning(diagnostics);
+
+        if (diagnostics.ShouldLog(definition))
+        {
+            definition.Log(diagnostics, columnName, tableName, type);
+        }
+
+        // No DiagnosticsSource events because these are purely design-time messages
+    }
 }

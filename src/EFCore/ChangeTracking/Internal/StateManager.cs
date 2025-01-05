@@ -17,7 +17,7 @@ public class StateManager : IStateManager
 {
     private readonly EntityReferenceMap _entityReferenceMap = new(hasSubMap: true);
 
-    private IDictionary<object, IList<Tuple<INavigationBase, InternalEntityEntry>>>? _referencedUntrackedEntities;
+    private Dictionary<object, IList<Tuple<INavigationBase, InternalEntityEntry>>>? _referencedUntrackedEntities;
     private IIdentityMap? _identityMap0;
     private IIdentityMap? _identityMap1;
     private Dictionary<IKey, IIdentityMap>? _identityMaps;
@@ -274,28 +274,7 @@ public class StateManager : IStateManager
     /// </summary>
     public virtual InternalEntityEntry CreateEntry(IDictionary<string, object?> values, IEntityType entityType)
     {
-        var i = 0;
-        var valuesArray = new object?[entityType.PropertyCount()];
-        var shadowPropertyValuesArray = new object?[entityType.ShadowPropertyCount()];
-        foreach (var property in entityType.GetProperties())
-        {
-            valuesArray[i++] = values.TryGetValue(property.Name, out var value)
-                ? value
-                : property.Sentinel;
-
-            if (property.IsShadowProperty())
-            {
-                shadowPropertyValuesArray[property.GetShadowIndex()] = values.TryGetValue(property.Name, out var shadowValue)
-                    ? shadowValue
-                    : property.Sentinel;
-            }
-        }
-
-        var valueBuffer = new ValueBuffer(valuesArray);
-        var entity = EntityMaterializerSource.GetMaterializer(entityType)(new MaterializationContext(valueBuffer, Context));
-
-        var shadowPropertyValueBuffer = new ValueBuffer(shadowPropertyValuesArray);
-        var entry = new InternalEntityEntry(this, entityType, entity, shadowPropertyValueBuffer);
+        var entry = new InternalEntityEntry(this, entityType, values, EntityMaterializerSource);
 
         UpdateReferenceMaps(entry, EntityState.Detached, null);
 
@@ -330,7 +309,7 @@ public class StateManager : IStateManager
     public virtual InternalEntityEntry StartTrackingFromQuery(
         IEntityType baseEntityType,
         object entity,
-        in ValueBuffer valueBuffer)
+        in ISnapshot snapshot)
     {
         var existingEntry = TryGetEntry(entity);
         if (existingEntry != null)
@@ -344,9 +323,9 @@ public class StateManager : IStateManager
                 ? baseEntityType
                 : _model.FindRuntimeEntityType(clrType)!;
 
-        var newEntry = valueBuffer.IsEmpty
+        var newEntry = snapshot.IsEmpty
             ? new InternalEntityEntry(this, entityType, entity)
-            : new InternalEntityEntry(this, entityType, entity, valueBuffer);
+            : new InternalEntityEntry(this, entityType, entity, snapshot);
 
         foreach (var key in baseEntityType.GetKeys())
         {
@@ -694,7 +673,12 @@ public class StateManager : IStateManager
                     {
                         disposable.Dispose();
                     }
-                    else if (!(service is IInjectableService detachable)
+                    else if (resetting
+                             && service is ILazyLoader lazyLoader)
+                    {
+                        lazyLoader.Dispose();
+                    }
+                    else if (service is not IInjectableService detachable
                              || detachable.Detaching(Context, entry.Entity))
                     {
                         entry[serviceProperty] = null;
@@ -828,10 +812,8 @@ public class StateManager : IStateManager
         InternalEntityEntry referencedFromEntry)
     {
         if (_referencedUntrackedEntities != null
-            && _referencedUntrackedEntities.TryGetValue(referencedEntity, out var danglers))
+            && _referencedUntrackedEntities.Remove(referencedEntity, out var danglers))
         {
-            _referencedUntrackedEntities.Remove(referencedEntity);
-
             if (!_referencedUntrackedEntities.TryGetValue(newReferencedEntity, out var newDanglers))
             {
                 newDanglers = new List<Tuple<INavigationBase, InternalEntityEntry>>();
@@ -1223,8 +1205,7 @@ public class StateManager : IStateManager
                     && (dependent.EntityState == EntityState.Added
                         || KeysEqual(entry, fk, dependent)))
                 {
-                    if ((fk.DeleteBehavior == DeleteBehavior.Cascade
-                            || fk.DeleteBehavior == DeleteBehavior.ClientCascade)
+                    if (fk.DeleteBehavior is DeleteBehavior.Cascade or DeleteBehavior.ClientCascade
                         && doCascadeDelete)
                     {
                         var cascadeState = principalIsDetached
@@ -1295,18 +1276,11 @@ public class StateManager : IStateManager
     /// </summary>
     protected virtual int SaveChanges(IList<IUpdateEntry> entriesToSave)
     {
-        _concurrencyDetector?.EnterCriticalSection();
+        using var _ = _concurrencyDetector?.EnterCriticalSection();
 
-        try
-        {
-            EntityFrameworkEventSource.Log.SavingChanges();
+        EntityFrameworkMetricsData.ReportSavingChanges();
 
-            return _database.SaveChanges(entriesToSave);
-        }
-        finally
-        {
-            _concurrencyDetector?.ExitCriticalSection();
-        }
+        return _database.SaveChanges(entriesToSave);
     }
 
     /// <summary>
@@ -1319,19 +1293,12 @@ public class StateManager : IStateManager
         IList<IUpdateEntry> entriesToSave,
         CancellationToken cancellationToken = default)
     {
-        _concurrencyDetector?.EnterCriticalSection();
+        using var _ = _concurrencyDetector?.EnterCriticalSection();
 
-        try
-        {
-            EntityFrameworkEventSource.Log.SavingChanges();
+        EntityFrameworkMetricsData.ReportSavingChanges();
 
-            return await _database.SaveChangesAsync(entriesToSave, cancellationToken)
-                .ConfigureAwait(false);
-        }
-        finally
-        {
-            _concurrencyDetector?.ExitCriticalSection();
-        }
+        return await _database.SaveChangesAsync(entriesToSave, cancellationToken)
+            .ConfigureAwait(false);
     }
 
     /// <summary>

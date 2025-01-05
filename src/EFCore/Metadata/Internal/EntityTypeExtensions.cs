@@ -1,10 +1,9 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
-
 // ReSharper disable ArgumentsStyleOther
 // ReSharper disable ArgumentsStyleNamedExpression
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 /// <summary>
@@ -15,24 +14,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 /// </summary>
 public static class EntityTypeExtensions
 {
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public static string DisplayName(this TypeBase entityType)
-        => ((IReadOnlyTypeBase)entityType).DisplayName();
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public static string ShortName(this TypeBase entityType)
-        => ((IReadOnlyTypeBase)entityType).ShortName();
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -135,38 +116,7 @@ public static class EntityTypeExtensions
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public static bool IsInOwnershipPath(this IReadOnlyEntityType entityType, IReadOnlyEntityType targetType)
-    {
-        if (entityType == targetType)
-        {
-            return true;
-        }
-
-        var owner = entityType;
-        while (true)
-        {
-            var ownership = owner.FindOwnership();
-            if (ownership == null)
-            {
-                return false;
-            }
-
-            owner = ownership.PrincipalEntityType;
-            if (owner.IsAssignableFrom(targetType))
-            {
-                return true;
-            }
-        }
-    }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    [DebuggerStepThrough]
-    public static string GetOwnedName(this IReadOnlyTypeBase type, string simpleName, string ownershipNavigation)
-        => type.Name + "." + ownershipNavigation + "#" + simpleName;
+        => entityType.IsInOwnershipPath(targetType);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -178,72 +128,8 @@ public static class EntityTypeExtensions
     {
         var changeTrackingStrategy = entityType.GetChangeTrackingStrategy();
 
-        return changeTrackingStrategy == ChangeTrackingStrategy.Snapshot
-            || changeTrackingStrategy == ChangeTrackingStrategy.ChangedNotifications;
+        return changeTrackingStrategy is ChangeTrackingStrategy.Snapshot or ChangeTrackingStrategy.ChangedNotifications;
     }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public static int StoreGeneratedCount(this IEntityType entityType)
-        => GetCounts(entityType).StoreGeneratedCount;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public static int RelationshipPropertyCount(this IEntityType entityType)
-        => GetCounts(entityType).RelationshipCount;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public static int OriginalValueCount(this IEntityType entityType)
-        => GetCounts(entityType).OriginalValueCount;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public static int ShadowPropertyCount(this IEntityType entityType)
-        => GetCounts(entityType).ShadowCount;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public static int NavigationCount(this IEntityType entityType)
-        => GetCounts(entityType).NavigationCount;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public static int PropertyCount(this IEntityType entityType)
-        => GetCounts(entityType).PropertyCount;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public static PropertyCounts GetCounts(this IEntityType entityType)
-        => ((IRuntimeEntityType)entityType).Counts;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -253,18 +139,20 @@ public static class EntityTypeExtensions
     /// </summary>
     public static PropertyCounts CalculateCounts(this IRuntimeEntityType entityType)
     {
-        var index = 0;
+        var propertyIndex = 0;
         var navigationIndex = 0;
+        var complexPropertyIndex = 0;
         var originalValueIndex = 0;
         var shadowIndex = 0;
         var relationshipIndex = 0;
         var storeGenerationIndex = 0;
 
-        var baseCounts = entityType.BaseType?.GetCounts();
+        var baseCounts = entityType.BaseType?.Counts;
         if (baseCounts != null)
         {
-            index = baseCounts.PropertyCount;
+            propertyIndex = baseCounts.PropertyCount;
             navigationIndex = baseCounts.NavigationCount;
+            complexPropertyIndex = baseCounts.ComplexPropertyCount;
             originalValueIndex = baseCounts.OriginalValueCount;
             shadowIndex = baseCounts.ShadowCount;
             relationshipIndex = baseCounts.RelationshipCount;
@@ -274,7 +162,7 @@ public static class EntityTypeExtensions
         foreach (var property in entityType.GetDeclaredProperties())
         {
             var indexes = new PropertyIndexes(
-                index: index++,
+                index: propertyIndex++,
                 originalValueIndex: property.RequiresOriginalValue() ? originalValueIndex++ : -1,
                 shadowIndex: property.IsShadowProperty() ? shadowIndex++ : -1,
                 relationshipIndex: property.IsKey() || property.IsForeignKey() ? relationshipIndex++ : -1,
@@ -282,6 +170,8 @@ public static class EntityTypeExtensions
 
             ((IRuntimePropertyBase)property).PropertyIndexes = indexes;
         }
+
+        CountComplexProperties(entityType.GetDeclaredComplexProperties());
 
         var isNotifying = entityType.GetChangeTrackingStrategy() != ChangeTrackingStrategy.Snapshot;
 
@@ -311,22 +201,44 @@ public static class EntityTypeExtensions
         }
 
         return new PropertyCounts(
-            index,
+            propertyIndex,
             navigationIndex,
+            complexPropertyIndex,
             originalValueIndex,
             shadowIndex,
             relationshipIndex,
             storeGenerationIndex);
-    }
 
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public static Func<ISnapshot> GetEmptyShadowValuesFactory(this IEntityType entityType)
-        => ((IRuntimeEntityType)entityType).EmptyShadowValuesFactory;
+        void CountComplexProperties(IEnumerable<IComplexProperty> complexProperties)
+        {
+            foreach (var complexProperty in complexProperties)
+            {
+                var indexes = new PropertyIndexes(
+                    index: complexPropertyIndex++,
+                    originalValueIndex: -1,
+                    shadowIndex: complexProperty.IsShadowProperty() ? shadowIndex++ : -1,
+                    relationshipIndex: -1,
+                    storeGenerationIndex: -1);
+
+                ((IRuntimePropertyBase)complexProperty).PropertyIndexes = indexes;
+
+                var complexType = complexProperty.ComplexType;
+                foreach (var property in complexType.GetProperties())
+                {
+                    var complexIndexes = new PropertyIndexes(
+                        index: propertyIndex++,
+                        originalValueIndex: property.RequiresOriginalValue() ? originalValueIndex++ : -1,
+                        shadowIndex: property.IsShadowProperty() ? shadowIndex++ : -1,
+                        relationshipIndex: property.IsKey() || property.IsForeignKey() ? relationshipIndex++ : -1,
+                        storeGenerationIndex: property.MayBeStoreGenerated() ? storeGenerationIndex++ : -1);
+
+                    ((IRuntimePropertyBase)property).PropertyIndexes = complexIndexes;
+                }
+
+                CountComplexProperties(complexType.GetComplexProperties());
+            }
+        }
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -391,26 +303,16 @@ public static class EntityTypeExtensions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public static IEnumerable<IPropertyBase> GetPropertiesAndNavigations(
-        this IEntityType entityType)
-        => entityType.GetProperties().Concat<IPropertyBase>(entityType.GetNavigations());
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public static IProperty CheckPropertyBelongsToType(
+    public static IProperty CheckContains(
         this IEntityType entityType,
         IProperty property)
     {
         Check.NotNull(property, nameof(property));
 
-        if (!property.DeclaringEntityType.IsAssignableFrom(entityType))
+        if (!property.DeclaringType.ContainingEntityType.IsAssignableFrom(entityType))
         {
             throw new InvalidOperationException(
-                CoreStrings.PropertyDoesNotBelong(property.Name, property.DeclaringEntityType.DisplayName(), entityType.DisplayName()));
+                CoreStrings.PropertyDoesNotBelong(property.Name, property.DeclaringType.DisplayName(), entityType.DisplayName()));
         }
 
         return property;

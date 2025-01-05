@@ -5,13 +5,12 @@ using System.Collections.Concurrent;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
 
-#pragma warning disable 1574, CS0419 // Ambiguous reference in cref attribute
 namespace Microsoft.EntityFrameworkCore.Storage;
 
 /// <summary>
 ///     <para>
 ///         The base class for relational type mapping source. Relational providers
-///         should derive from this class and override <see cref="RelationalTypeMappingSource.FindMapping" />
+///         should derive from this class and override <see cref="FindMapping(in RelationalTypeMappingInfo)" />
 ///     </para>
 ///     <para>
 ///         This type is typically used by database providers (and other extensions). It is generally
@@ -31,8 +30,8 @@ namespace Microsoft.EntityFrameworkCore.Storage;
 /// </remarks>
 public abstract class RelationalTypeMappingSource : TypeMappingSourceBase, IRelationalTypeMappingSource
 {
-    private readonly ConcurrentDictionary<(RelationalTypeMappingInfo, Type?, ValueConverter?), RelationalTypeMapping?> _explicitMappings
-        = new();
+    private readonly ConcurrentDictionary<(RelationalTypeMappingInfo, Type?, ValueConverter?, CoreTypeMapping?), RelationalTypeMapping?>
+        _explicitMappings = new();
 
     /// <summary>
     ///     Initializes a new instance of this class.
@@ -43,9 +42,7 @@ public abstract class RelationalTypeMappingSource : TypeMappingSourceBase, IRela
         TypeMappingSourceDependencies dependencies,
         RelationalTypeMappingSourceDependencies relationalDependencies)
         : base(dependencies)
-    {
-        RelationalDependencies = relationalDependencies;
-    }
+        => RelationalDependencies = relationalDependencies;
 
     /// <summary>
     ///     Overridden by relational database providers to find a type mapping for the given info.
@@ -77,7 +74,7 @@ public abstract class RelationalTypeMappingSource : TypeMappingSourceBase, IRela
     protected virtual RelationalTypeMappingSourceDependencies RelationalDependencies { get; }
 
     /// <summary>
-    ///     Call <see cref="RelationalTypeMappingSource.FindMapping" /> instead
+    ///     Call <see cref="FindMapping(in RelationalTypeMappingInfo)" /> instead
     /// </summary>
     /// <param name="mappingInfo">The mapping info to use to create the mapping.</param>
     /// <returns>The type mapping, or <see langword="null" /> if none could be found.</returns>
@@ -86,11 +83,12 @@ public abstract class RelationalTypeMappingSource : TypeMappingSourceBase, IRela
             RelationalStrings.NoneRelationalTypeMappingOnARelationalTypeMappingSource);
 
     private RelationalTypeMapping? FindMappingWithConversion(
-        in RelationalTypeMappingInfo mappingInfo,
+        RelationalTypeMappingInfo mappingInfo,
         IReadOnlyList<IProperty>? principals)
     {
         Type? providerClrType = null;
         ValueConverter? customConverter = null;
+        CoreTypeMapping? elementMapping = null;
         if (principals != null)
         {
             for (var i = 0; i < principals.Count; i++)
@@ -113,6 +111,16 @@ public abstract class RelationalTypeMappingSource : TypeMappingSourceBase, IRela
                         customConverter = converter;
                     }
                 }
+
+                if (elementMapping == null)
+                {
+                    var element = principal.GetElementType();
+                    if (element != null)
+                    {
+                        elementMapping = FindMapping(element);
+                        mappingInfo = mappingInfo with { ElementTypeMapping = (RelationalTypeMapping?)elementMapping };
+                    }
+                }
             }
         }
 
@@ -128,62 +136,111 @@ public abstract class RelationalTypeMappingSource : TypeMappingSourceBase, IRela
         Type? providerClrType,
         ValueConverter? customConverter)
         => _explicitMappings.GetOrAdd(
-            (mappingInfo, providerClrType, customConverter),
-            k =>
+            (mappingInfo, providerClrType, customConverter, mappingInfo.ElementTypeMapping),
+            static (k, self) =>
             {
-                var (info, providerType, converter) = k;
-                var mapping = providerType == null
-                    || providerType == info.ClrType
-                        ? FindMapping(info)
-                        : null;
+                var (mappingInfo, providerClrType, customConverter, elementMapping) = k;
 
-                if (mapping == null)
+                var sourceType = mappingInfo.ClrType;
+                RelationalTypeMapping? mapping = null;
+
+                if (providerClrType == null
+                    || providerClrType == mappingInfo.ClrType)
                 {
-                    var sourceType = info.ClrType;
+                    mapping = self.FindMapping(mappingInfo);
+                }
 
-                    if (sourceType != null)
+                if (mapping == null
+                    && sourceType != null)
+                {
+                    if (elementMapping == null)
                     {
-                        foreach (var converterInfo in Dependencies
-                                     .ValueConverterSelector
-                                     .Select(sourceType, providerType))
+                        mapping = WithConverter();
+                    }
+
+                    mapping ??= self.FindCollectionMapping(mappingInfo, sourceType, providerClrType, elementMapping)
+                        ?? WithConverter();
+                }
+
+                RelationalTypeMapping? WithConverter()
+                {
+                    foreach (var converterInfo in self.Dependencies
+                                 .ValueConverterSelector
+                                 .Select(sourceType, providerClrType))
+                    {
+                        var mappingInfoUsed = mappingInfo.WithConverter(converterInfo);
+                        mapping = self.FindMapping(mappingInfoUsed);
+
+                        if (mapping == null
+                            && providerClrType != null)
                         {
-                            var mappingInfoUsed = info.WithConverter(converterInfo);
-                            mapping = FindMapping(mappingInfoUsed);
-
-                            if (mapping == null
-                                && providerType != null)
+                            foreach (var secondConverterInfo in self.Dependencies
+                                         .ValueConverterSelector
+                                         .Select(providerClrType))
                             {
-                                foreach (var secondConverterInfo in Dependencies
-                                             .ValueConverterSelector
-                                             .Select(providerType))
-                                {
-                                    mapping = FindMapping(mappingInfoUsed.WithConverter(secondConverterInfo));
+                                mapping = self.FindMapping(mappingInfoUsed.WithConverter(secondConverterInfo));
 
-                                    if (mapping != null)
-                                    {
-                                        mapping = (RelationalTypeMapping)mapping.Clone(secondConverterInfo.Create());
-                                        break;
-                                    }
+                                if (mapping != null)
+                                {
+                                    mapping = (RelationalTypeMapping)mapping.WithComposedConverter(
+                                        secondConverterInfo.Create(),
+                                        jsonValueReaderWriter: mappingInfoUsed.JsonValueReaderWriter);
+                                    break;
                                 }
                             }
+                        }
 
-                            if (mapping != null)
-                            {
-                                mapping = (RelationalTypeMapping)mapping.Clone(converterInfo.Create());
-                                break;
-                            }
+                        if (mapping != null)
+                        {
+                            mapping = (RelationalTypeMapping)mapping.WithComposedConverter(
+                                converterInfo.Create(),
+                                jsonValueReaderWriter: mappingInfo.JsonValueReaderWriter);
+                            break;
                         }
                     }
+
+                    return mapping;
                 }
 
                 if (mapping != null
-                    && converter != null)
+                    && customConverter != null)
                 {
-                    mapping = (RelationalTypeMapping)mapping.Clone(converter);
+                    mapping = (RelationalTypeMapping)mapping.WithComposedConverter(
+                        customConverter,
+                        jsonValueReaderWriter: mappingInfo.JsonValueReaderWriter);
                 }
 
                 return mapping;
-            });
+            },
+            this);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    protected virtual RelationalTypeMapping? FindCollectionMapping(
+        RelationalTypeMappingInfo info,
+        Type modelType,
+        Type? providerType,
+        CoreTypeMapping? elementMapping)
+        => TryFindJsonCollectionMapping(
+            info.CoreTypeMappingInfo, modelType, providerType, ref elementMapping, out var comparer, out var collectionReaderWriter)
+            ? (RelationalTypeMapping)FindMapping(
+                    info.WithConverter(
+                        // Note that the converter info is only used temporarily here and never creates an instance.
+                        new ValueConverterInfo(modelType, typeof(string), _ => null!)))!
+                .WithComposedConverter(
+                    (ValueConverter)Activator.CreateInstance(
+                        typeof(CollectionToJsonStringConverter<>).MakeGenericType(
+                            modelType.TryGetElementType(typeof(IEnumerable<>))!), collectionReaderWriter!)!,
+                    comparer,
+                    comparer,
+                    elementMapping,
+                    collectionReaderWriter)
+            : null;
 
     /// <summary>
     ///     Finds the type mapping for a given <see cref="IProperty" />.
@@ -227,13 +284,42 @@ public abstract class RelationalTypeMappingSource : TypeMappingSourceBase, IRela
     }
 
     /// <summary>
+    ///     Finds the type mapping for the given <see cref="IElementType" />.
+    /// </summary>
+    /// <remarks>
+    ///     Note: providers should typically not need to override this method.
+    /// </remarks>
+    /// <param name="elementType">The collection element.</param>
+    /// <returns>The type mapping, or <see langword="null" /> if none was found.</returns>
+    public override CoreTypeMapping? FindMapping(IElementType elementType)
+    {
+        var storeTypeName = (string?)elementType[RelationalAnnotationNames.StoreType];
+        var isFixedLength = elementType.IsFixedLength();
+        bool? unicode = null;
+        int? size = null;
+        int? precision = null;
+        int? scale = null;
+        var storeTypeNameBase = ParseStoreTypeName(storeTypeName, ref unicode, ref size, ref precision, ref scale);
+        var providerClrType = elementType.GetProviderClrType();
+        var customConverter = elementType.GetValueConverter();
+
+        var resolvedMapping = FindMappingWithConversion(
+            new RelationalTypeMappingInfo(elementType, storeTypeName, storeTypeNameBase, unicode, isFixedLength, size, precision, scale),
+            providerClrType, customConverter);
+
+        ValidateMapping(resolvedMapping, null);
+
+        return resolvedMapping;
+    }
+
+    /// <summary>
     ///     Finds the type mapping for a given <see cref="Type" />.
     /// </summary>
     /// <remarks>
     ///     <para>
     ///         Note: Only call this method if there is no <see cref="IProperty" />
     ///         or <see cref="IModel" /> available, otherwise call <see cref="FindMapping(IProperty)" />
-    ///         or <see cref="FindMapping(Type, IModel)" />
+    ///         or <see cref="FindMapping(Type, IModel, CoreTypeMapping?)" />
     ///     </para>
     ///     <para>
     ///         Note: providers should typically not need to override this method.
@@ -253,70 +339,41 @@ public abstract class RelationalTypeMappingSource : TypeMappingSourceBase, IRela
     /// </remarks>
     /// <param name="type">The CLR type.</param>
     /// <param name="model">The model.</param>
+    /// <param name="elementMapping">The element mapping to use, if known.</param>
     /// <returns>The type mapping, or <see langword="null" /> if none was found.</returns>
-    public override RelationalTypeMapping? FindMapping(Type type, IModel model)
+    public override RelationalTypeMapping? FindMapping(Type type, IModel model, CoreTypeMapping? elementMapping = null)
     {
         type = type.UnwrapNullableType();
         var typeConfiguration = model.FindTypeMappingConfiguration(type);
-        RelationalTypeMappingInfo mappingInfo;
-        Type? providerClrType = null;
-        ValueConverter? customConverter = null;
-        if (typeConfiguration == null)
+        if (typeConfiguration != null)
         {
-            mappingInfo = new RelationalTypeMappingInfo(type);
-        }
-        else
-        {
-            providerClrType = typeConfiguration.GetProviderClrType()?.UnwrapNullableType();
-            customConverter = typeConfiguration.GetValueConverter();
-
-            var isUnicode = typeConfiguration.IsUnicode();
-            var scale = typeConfiguration.GetScale();
-            var precision = typeConfiguration.GetPrecision();
-            var size = typeConfiguration.GetMaxLength();
-
+            bool? unicode = null;
+            int? scale = null;
+            int? precision = null;
+            int? size = null;
+            string? storeTypeNameBase = null;
             var storeTypeName = (string?)typeConfiguration[RelationalAnnotationNames.ColumnType];
-            string? storeTypeBaseName = null;
             if (storeTypeName != null)
             {
-                storeTypeBaseName = ParseStoreTypeName(storeTypeName, ref isUnicode, ref size, ref precision, ref scale);
+                storeTypeNameBase = ParseStoreTypeName(storeTypeName, ref unicode, ref size, ref precision, ref scale);
             }
 
-            var isFixedLength = (bool?)typeConfiguration[RelationalAnnotationNames.IsFixedLength];
-            mappingInfo = new RelationalTypeMappingInfo(
-                customConverter?.ProviderClrType ?? type,
-                storeTypeName,
-                storeTypeBaseName,
-                keyOrIndex: false,
-                unicode: isUnicode,
-                size: size,
-                rowVersion: false,
-                fixedLength: isFixedLength,
-                precision: precision,
-                scale: scale);
+            var mappingInfo = new RelationalTypeMappingInfo(
+                type, typeConfiguration, (RelationalTypeMapping?)elementMapping,
+                storeTypeName, storeTypeNameBase, unicode, size, precision, scale);
+            var providerClrType = typeConfiguration.GetProviderClrType()?.UnwrapNullableType();
+            return FindMappingWithConversion(mappingInfo, providerClrType, customConverter: typeConfiguration.GetValueConverter());
         }
 
-        return FindMappingWithConversion(mappingInfo, providerClrType, customConverter);
+        return FindMappingWithConversion(
+            new RelationalTypeMappingInfo(type, (RelationalTypeMapping?)elementMapping),
+            providerClrType: null,
+            customConverter: null);
     }
 
-    /// <summary>
-    ///     Finds the type mapping for a given <see cref="MemberInfo" /> representing
-    ///     a field or a property of a CLR type.
-    /// </summary>
-    /// <remarks>
-    ///     <para>
-    ///         Note: Only call this method if there is no <see cref="IProperty" /> available, otherwise
-    ///         call <see cref="FindMapping(IProperty)" />
-    ///     </para>
-    ///     <para>
-    ///         Note: providers should typically not need to override this method.
-    ///     </para>
-    /// </remarks>
-    /// <param name="member">The field or property.</param>
-    /// <returns>The type mapping, or <see langword="null" /> if none was found.</returns>
+    /// <inheritdoc />
     public override RelationalTypeMapping? FindMapping(MemberInfo member)
     {
-        // TODO: Remove this, see #11124
         if (member.GetCustomAttribute<ColumnAttribute>(true) is ColumnAttribute attribute)
         {
             var storeTypeName = attribute.TypeName;
@@ -328,10 +385,30 @@ public abstract class RelationalTypeMappingSource : TypeMappingSourceBase, IRela
                 attribute.TypeName, ref unicode, ref size, ref precision, ref scale);
 
             return FindMappingWithConversion(
-                new RelationalTypeMappingInfo(member, storeTypeName, storeTypeNameBase, unicode, size, precision, scale), null);
+                new RelationalTypeMappingInfo(member, null, storeTypeName, storeTypeNameBase, unicode, size, precision, scale), null);
         }
 
-        return FindMappingWithConversion(new RelationalTypeMappingInfo(member), null);
+        return FindMappingWithConversion(new RelationalTypeMappingInfo(member), null, null);
+    }
+
+    /// <inheritdoc />
+    public override RelationalTypeMapping? FindMapping(MemberInfo member, IModel model, bool useAttributes)
+    {
+        if (useAttributes
+            && member.GetCustomAttribute<ColumnAttribute>(true) is ColumnAttribute attribute)
+        {
+            var storeTypeName = attribute.TypeName;
+            bool? unicode = null;
+            int? size = null;
+            int? precision = null;
+            int? scale = null;
+            var storeTypeNameBase = ParseStoreTypeName(storeTypeName, ref unicode, ref size, ref precision, ref scale);
+
+            return FindMappingWithConversion(
+                new RelationalTypeMappingInfo(member, null, storeTypeName, storeTypeNameBase, unicode, size, precision, scale), null);
+        }
+
+        return FindMappingWithConversion(new RelationalTypeMappingInfo(member), null, null);
     }
 
     /// <summary>
@@ -402,7 +479,7 @@ public abstract class RelationalTypeMappingSource : TypeMappingSourceBase, IRela
 
         return FindMappingWithConversion(
             new RelationalTypeMappingInfo(
-                type, storeTypeName, storeTypeBaseName, keyOrIndex, unicode, size, rowVersion, fixedLength, precision, scale), null);
+                type, null, storeTypeName, storeTypeBaseName, keyOrIndex, unicode, size, rowVersion, fixedLength, precision, scale), null);
     }
 
     /// <inheritdoc />
@@ -424,7 +501,7 @@ public abstract class RelationalTypeMappingSource : TypeMappingSourceBase, IRela
     /// <param name="precision">The precision parsed from the type name, or <see langword="null" /> if none was specified.</param>
     /// <param name="scale">The scale parsed from the type name, or <see langword="null" /> if none was specified.</param>
     /// <returns>The provider-specific relational type name, with any facets removed.</returns>
-    [return: NotNullIfNotNull("storeTypeName")]
+    [return: NotNullIfNotNull(nameof(storeTypeName))]
     protected virtual string? ParseStoreTypeName(
         string? storeTypeName,
         ref bool? unicode,

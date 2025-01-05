@@ -5,6 +5,8 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
+#nullable disable
+
 public class Order
 {
     private int? _orderId;
@@ -17,6 +19,7 @@ public class Order
 
     [MaxLength(5)]
     public string CustomerID { get; set; }
+
     public uint? EmployeeID { get; set; }
     public DateTime? OrderDate { get; set; }
     public DateTime? RequiredDate { get; set; }

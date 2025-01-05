@@ -1,7 +1,6 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 // ReSharper disable InconsistentNaming
@@ -11,17 +10,14 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public abstract class NorthwindIncludeNoTrackingQueryTestBase<TFixture> : NorthwindIncludeQueryTestBase<TFixture>
+#nullable disable
+
+public abstract class NorthwindIncludeNoTrackingQueryTestBase<TFixture>(TFixture fixture) : NorthwindIncludeQueryTestBase<TFixture>(fixture)
     where TFixture : NorthwindQueryFixtureBase<NoopModelCustomizer>, new()
 {
     private static readonly MethodInfo _asNoTrackingMethodInfo
         = typeof(EntityFrameworkQueryableExtensions)
             .GetTypeInfo().GetDeclaredMethod(nameof(EntityFrameworkQueryableExtensions.AsNoTracking));
-
-    protected NorthwindIncludeNoTrackingQueryTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
 
     // Include with cycles are not allowed in no tracking query.
     public override async Task Include_multi_level_reference_and_collection_predicate(bool async)

@@ -3,6 +3,8 @@
 
 // ReSharper disable InconsistentNaming
 
+using Microsoft.EntityFrameworkCore.Storage.Json;
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 public class ClrPropertyGetterFactoryTest
@@ -12,15 +14,21 @@ public class ClrPropertyGetterFactoryTest
     {
         var property = new FakeProperty();
 
-        Assert.Same(property, new ClrPropertyGetterFactory().Create(property));
+        Assert.Same(property, ClrPropertyGetterFactory.Instance.Create(property));
     }
 
     private class FakeProperty : Annotatable, IProperty, IClrPropertyGetter
     {
-        public object GetClrValue(object entity)
+        public object GetClrValueUsingContainingEntity(object entity)
             => throw new NotImplementedException();
 
-        public bool HasSentinelValue(object entity)
+        public bool HasSentinelUsingContainingEntity(object entity)
+            => throw new NotImplementedException();
+
+        public object GetClrValue(object structuralObject)
+            => throw new NotImplementedException();
+
+        public bool HasSentinel(object structuralObject)
             => throw new NotImplementedException();
 
         public IEnumerable<IForeignKey> GetContainingForeignKeys()
@@ -59,7 +67,7 @@ public class ClrPropertyGetterFactoryTest
         public PropertySaveBehavior GetAfterSaveBehavior()
             => throw new NotImplementedException();
 
-        public Func<IProperty, IEntityType, ValueGenerator> GetValueGeneratorFactory()
+        public Func<IProperty, ITypeBase, ValueGenerator> GetValueGeneratorFactory()
             => throw new NotImplementedException();
 
         public ValueConverter GetValueConverter()
@@ -75,6 +83,17 @@ public class ClrPropertyGetterFactoryTest
             => throw new NotImplementedException();
 
         public ValueComparer GetProviderValueComparer()
+            => throw new NotImplementedException();
+
+        public JsonValueReaderWriter GetJsonValueReaderWriter()
+            => throw new NotImplementedException();
+
+        IReadOnlyElementType IReadOnlyProperty.GetElementType()
+            => GetElementType();
+
+        public bool IsPrimitiveCollection { get; }
+
+        public IElementType GetElementType()
             => throw new NotImplementedException();
 
         public bool IsForeignKey()
@@ -104,7 +123,6 @@ public class ClrPropertyGetterFactoryTest
         public string Name { get; }
         public ITypeBase DeclaringType { get; }
         public Type ClrType { get; }
-        public IEntityType DeclaringEntityType { get; }
         public bool IsNullable { get; }
         public ValueGenerated ValueGenerated { get; }
         public bool IsConcurrencyToken { get; }
@@ -129,14 +147,14 @@ public class ClrPropertyGetterFactoryTest
         var idProperty = model.FindEntityType(typeof(Customer)).FindProperty(nameof(Customer.Id));
 
         Assert.Equal(
-            7, new ClrPropertyGetterFactory().Create(idProperty).GetClrValue(
+            7, ClrPropertyGetterFactory.Instance.Create(idProperty).GetClrValueUsingContainingEntity(
                 new Customer { Id = 7 }));
     }
 
     [ConditionalFact]
     public void Delegate_getter_is_returned_for_property_info()
         => Assert.Equal(
-            7, new ClrPropertyGetterFactory().Create(typeof(Customer).GetAnyProperty("Id")).GetClrValue(
+            7, ClrPropertyGetterFactory.Instance.Create(typeof(Customer).GetAnyProperty("Id")).GetClrValueUsingContainingEntity(
                 new Customer { Id = 7 }));
 
     [ConditionalFact]
@@ -149,7 +167,7 @@ public class ClrPropertyGetterFactoryTest
 
         Assert.Equal(
             new Fuel(1.0),
-            new ClrPropertyGetterFactory().Create((IPropertyBase)fuelProperty).GetClrValue(
+            ClrPropertyGetterFactory.Instance.Create((IPropertyBase)fuelProperty).GetClrValueUsingContainingEntity(
                 new Customer { Id = 7, Fuel = new Fuel(1.0) }));
     }
 
@@ -157,7 +175,7 @@ public class ClrPropertyGetterFactoryTest
     public void Delegate_getter_is_returned_for_struct_property_info()
         => Assert.Equal(
             new Fuel(1.0),
-            new ClrPropertyGetterFactory().Create(typeof(Customer).GetAnyProperty("Fuel")).GetClrValue(
+            ClrPropertyGetterFactory.Instance.Create(typeof(Customer).GetAnyProperty("Fuel")).GetClrValueUsingContainingEntity(
                 new Customer { Id = 7, Fuel = new Fuel(1.0) }));
 
     [ConditionalFact]
@@ -170,8 +188,38 @@ public class ClrPropertyGetterFactoryTest
         modelBuilder.FinalizeModel();
 
         Assert.Equal(
-            "ValueA", new ClrPropertyGetterFactory().Create((IPropertyBase)propertyA).GetClrValue(new IndexedClass { Id = 7 }));
-        Assert.Equal(123, new ClrPropertyGetterFactory().Create((IPropertyBase)propertyB).GetClrValue(new IndexedClass { Id = 7 }));
+            "ValueA",
+            ClrPropertyGetterFactory.Instance.Create((IPropertyBase)propertyA)
+                .GetClrValueUsingContainingEntity(new IndexedClass { Id = 7 }));
+        Assert.Equal(
+            123,
+            ClrPropertyGetterFactory.Instance.Create((IPropertyBase)propertyB)
+                .GetClrValueUsingContainingEntity(new IndexedClass { Id = 7 }));
+    }
+
+    [ConditionalFact]
+    public void Delegate_getter_is_returned_for_IProperty_complex_property()
+    {
+        var modelBuilder = CreateModelBuilder();
+        modelBuilder.Entity<Customer>(
+            b =>
+            {
+                b.Property(e => e.Id);
+                b.ComplexProperty(e => e.Fuel).Property(e => e.Volume);
+            });
+
+        var model = modelBuilder.FinalizeModel();
+
+        var volumeProperty = model.FindEntityType(typeof(Customer))!
+            .FindComplexProperty(nameof(Customer.Fuel))!
+            .ComplexType.FindProperty(nameof(Fuel.Volume))!;
+
+        Assert.Equal(
+            10.0, ClrPropertyGetterFactory.Instance.Create(volumeProperty).GetClrValueUsingContainingEntity(
+                new Customer { Id = 7, Fuel = new Fuel(10.0) }));
+
+        Assert.Equal(
+            10.0, ClrPropertyGetterFactory.Instance.Create(volumeProperty).GetClrValue(new Fuel(10.0)));
     }
 
     private static TestHelpers.TestModelBuilder CreateModelBuilder()
@@ -183,14 +231,9 @@ public class ClrPropertyGetterFactoryTest
         internal Fuel Fuel { get; set; }
     }
 
-    private struct Fuel
+    private struct Fuel(double volume)
     {
-        public Fuel(double volume)
-        {
-            Volume = volume;
-        }
-
-        public double Volume { get; }
+        public double Volume { get; } = volume;
     }
 
     private class IndexedClass

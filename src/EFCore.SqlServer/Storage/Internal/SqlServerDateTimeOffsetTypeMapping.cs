@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Data;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 
@@ -16,7 +17,7 @@ public class SqlServerDateTimeOffsetTypeMapping : DateTimeOffsetTypeMapping
     // Note: this array will be accessed using the precision as an index
     // so the order of the entries in this array is important
     private readonly string[] _dateTimeOffsetFormats =
-    {
+    [
         "'{0:yyyy-MM-ddTHH:mm:sszzz}'",
         "'{0:yyyy-MM-ddTHH:mm:ss.fzzz}'",
         "'{0:yyyy-MM-ddTHH:mm:ss.ffzzz}'",
@@ -25,7 +26,15 @@ public class SqlServerDateTimeOffsetTypeMapping : DateTimeOffsetTypeMapping
         "'{0:yyyy-MM-ddTHH:mm:ss.fffffzzz}'",
         "'{0:yyyy-MM-ddTHH:mm:ss.ffffffzzz}'",
         "'{0:yyyy-MM-ddTHH:mm:ss.fffffffzzz}'"
-    };
+    ];
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static new SqlServerDateTimeOffsetTypeMapping Default { get; } = new("datetimeoffset");
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -39,7 +48,7 @@ public class SqlServerDateTimeOffsetTypeMapping : DateTimeOffsetTypeMapping
         StoreTypePostfix storeTypePostfix = StoreTypePostfix.Precision)
         : base(
             new RelationalTypeMappingParameters(
-                new CoreTypeMappingParameters(typeof(DateTimeOffset)),
+                new CoreTypeMappingParameters(typeof(DateTimeOffset), jsonValueReaderWriter: JsonDateTimeOffsetReaderWriter.Instance),
                 storeType,
                 storeTypePostfix,
                 dbType))
@@ -78,8 +87,7 @@ public class SqlServerDateTimeOffsetTypeMapping : DateTimeOffsetTypeMapping
             if (Precision.HasValue)
             {
                 var precision = Precision.Value;
-                if (precision <= 7
-                    && precision >= 0)
+                if (precision is <= 7 and >= 0)
                 {
                     return _dateTimeOffsetFormats[precision];
                 }

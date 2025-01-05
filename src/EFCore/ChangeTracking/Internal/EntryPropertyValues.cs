@@ -49,7 +49,7 @@ public abstract class EntryPropertyValues : PropertyValues
         {
             foreach (var property in Properties.Where(p => !p.IsShadowProperty()))
             {
-                SetValueInternal(property, property.GetGetter().GetClrValue(obj));
+                SetValueInternal(property, property.GetGetter().GetClrValueUsingContainingEntity(obj));
             }
         }
         else
@@ -94,7 +94,7 @@ public abstract class EntryPropertyValues : PropertyValues
 
         foreach (var property in Properties)
         {
-            SetValueInternal(property, propertyValues[property.Name]);
+            SetValueInternal(property, propertyValues[property]);
         }
     }
 
@@ -107,7 +107,7 @@ public abstract class EntryPropertyValues : PropertyValues
     public override IReadOnlyList<IProperty> Properties
     {
         [DebuggerStepThrough]
-        get => _properties ??= EntityType.GetProperties().ToList();
+        get => _properties ??= EntityType.GetFlattenedProperties().ToList();
     }
 
     /// <summary>
@@ -130,8 +130,8 @@ public abstract class EntryPropertyValues : PropertyValues
     /// </summary>
     public override object? this[IProperty property]
     {
-        get => GetValueInternal(EntityType.CheckPropertyBelongsToType(property));
-        set => SetValueInternal(EntityType.CheckPropertyBelongsToType(property), value);
+        get => GetValueInternal(EntityType.CheckContains(property));
+        set => SetValueInternal(EntityType.CheckContains(property), value);
     }
 
     /// <summary>

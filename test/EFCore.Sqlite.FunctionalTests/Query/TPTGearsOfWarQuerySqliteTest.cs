@@ -6,47 +6,16 @@ using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class TPTGearsOfWarQuerySqliteTest : TPTGearsOfWarQueryRelationalTestBase<TPTGearsOfWarQuerySqliteFixture>
 {
     public TPTGearsOfWarQuerySqliteTest(TPTGearsOfWarQuerySqliteFixture fixture, ITestOutputHelper testOutputHelper)
         : base(fixture)
     {
         Fixture.TestSqlLoggerFactory.Clear();
-        //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+        Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
-
-    public override Task Where_datetimeoffset_date_component(bool async)
-        => AssertTranslationFailed(() => base.Where_datetimeoffset_date_component(async));
-
-    public override Task Where_datetimeoffset_day_component(bool async)
-        => AssertTranslationFailed(() => base.Where_datetimeoffset_date_component(async));
-
-    public override Task Where_datetimeoffset_dayofyear_component(bool async)
-        => AssertTranslationFailed(() => base.Where_datetimeoffset_dayofyear_component(async));
-
-    public override Task Where_datetimeoffset_hour_component(bool async)
-        => AssertTranslationFailed(() => base.Where_datetimeoffset_hour_component(async));
-
-    public override Task Where_datetimeoffset_millisecond_component(bool async)
-        => AssertTranslationFailed(() => base.Where_datetimeoffset_millisecond_component(async));
-
-    public override Task Where_datetimeoffset_minute_component(bool async)
-        => AssertTranslationFailed(() => base.Where_datetimeoffset_minute_component(async));
-
-    public override Task Where_datetimeoffset_month_component(bool async)
-        => AssertTranslationFailed(() => base.Where_datetimeoffset_month_component(async));
-
-    public override Task Where_datetimeoffset_now(bool async)
-        => AssertTranslationFailed(() => base.Where_datetimeoffset_now(async));
-
-    public override Task Where_datetimeoffset_second_component(bool async)
-        => AssertTranslationFailed(() => base.Where_datetimeoffset_second_component(async));
-
-    public override Task Where_datetimeoffset_utcnow(bool async)
-        => AssertTranslationFailed(() => base.Where_datetimeoffset_utcnow(async));
-
-    public override Task Where_datetimeoffset_year_component(bool async)
-        => AssertTranslationFailed(() => base.Where_datetimeoffset_year_component(async));
 
     public override Task DateTimeOffset_Contains_Less_than_Greater_than(bool async)
         => AssertTranslationFailed(() => base.DateTimeOffset_Contains_Less_than_Greater_than(async));
@@ -213,151 +182,11 @@ public class TPTGearsOfWarQuerySqliteTest : TPTGearsOfWarQueryRelationalTestBase
         await base.Select_datetimeoffset_comparison_in_projection(async);
 
         AssertSql(
-"""
+            """
 SELECT "m"."Timeline"
 FROM "Missions" AS "m"
 """);
     }
-
-    public override async Task Byte_array_contains_literal(bool async)
-    {
-        await base.Byte_array_contains_literal(async);
-
-        AssertSql(
-"""
-SELECT "s"."Id", "s"."Banner", "s"."Banner5", "s"."InternalNumber", "s"."Name"
-FROM "Squads" AS "s"
-WHERE instr("s"."Banner", X'01') > 0
-""");
-    }
-
-    public override async Task Byte_array_contains_parameter(bool async)
-    {
-        await base.Byte_array_contains_parameter(async);
-
-        AssertSql(
-"""
-@__someByte_0='1'
-
-SELECT "s"."Id", "s"."Banner", "s"."Banner5", "s"."InternalNumber", "s"."Name"
-FROM "Squads" AS "s"
-WHERE instr("s"."Banner", char(@__someByte_0)) > 0
-""");
-    }
-
-    public override async Task Byte_array_filter_by_length_literal(bool async)
-    {
-        await base.Byte_array_filter_by_length_literal(async);
-
-        AssertSql(
-"""
-SELECT "s"."Id", "s"."Banner", "s"."Banner5", "s"."InternalNumber", "s"."Name"
-FROM "Squads" AS "s"
-WHERE length("s"."Banner") = 1
-""");
-    }
-
-    public override async Task Byte_array_filter_by_length_parameter(bool async)
-    {
-        await base.Byte_array_filter_by_length_parameter(async);
-
-        AssertSql(
-"""
-@__p_0='1'
-
-SELECT "s"."Id", "s"."Banner", "s"."Banner5", "s"."InternalNumber", "s"."Name"
-FROM "Squads" AS "s"
-WHERE length("s"."Banner") = @__p_0
-""");
-    }
-
-    public override void Byte_array_filter_by_length_parameter_compiled()
-    {
-        base.Byte_array_filter_by_length_parameter_compiled();
-
-        AssertSql(
-"""
-@__byteArrayParam='0x2A80' (Size = 2)
-
-SELECT COUNT(*)
-FROM "Squads" AS "s"
-WHERE length("s"."Banner") = length(@__byteArrayParam)
-""");
-    }
-
-    public override async Task Byte_array_filter_by_SequenceEqual(bool async)
-    {
-        await base.Byte_array_filter_by_SequenceEqual(async);
-
-        AssertSql(
-"""
-@__byteArrayParam_0='0x0405060708' (Size = 5)
-
-SELECT "s"."Id", "s"."Banner", "s"."Banner5", "s"."InternalNumber", "s"."Name"
-FROM "Squads" AS "s"
-WHERE "s"."Banner5" = @__byteArrayParam_0
-""");
-    }
-
-    public override Task Where_TimeSpan_Hours(bool async)
-        // TimeSpan. Issue #18844.
-        => AssertTranslationFailed(() => base.Where_TimeSpan_Hours(async));
-
-    public override Task Where_TimeSpan_Minutes(bool async)
-        // TimeSpan. Issue #18844.
-        => AssertTranslationFailed(() => base.Where_TimeSpan_Minutes(async));
-
-    public override Task Where_TimeSpan_Seconds(bool async)
-        // TimeSpan. Issue #18844.
-        => AssertTranslationFailed(() => base.Where_TimeSpan_Seconds(async));
-
-    public override Task Where_TimeSpan_Milliseconds(bool async)
-        // TimeSpan. Issue #18844.
-        => AssertTranslationFailed(() => base.Where_TimeSpan_Milliseconds(async));
-
-    public override Task First_on_byte_array(bool async)
-        // Array access. Issue #16428.
-        => AssertTranslationFailed(() => base.First_on_byte_array(async));
-
-    public override Task Array_access_on_byte_array(bool async)
-        // Array access. Issue #16428.
-        => AssertTranslationFailed(() => base.Array_access_on_byte_array(async));
-
-    public override Task Where_TimeOnly_Hour(bool async)
-        // TimeSpan. Issue #18844.
-        => AssertTranslationFailed(() => base.Where_TimeOnly_Hour(async));
-
-    public override Task Where_TimeOnly_Minute(bool async)
-        // TimeSpan. Issue #18844.
-        => AssertTranslationFailed(() => base.Where_TimeOnly_Minute(async));
-
-    public override Task Where_TimeOnly_Second(bool async)
-        // TimeSpan. Issue #18844.
-        => AssertTranslationFailed(() => base.Where_TimeOnly_Second(async));
-
-    public override Task Where_TimeOnly_Millisecond(bool async)
-        // TimeSpan. Issue #18844.
-        => AssertTranslationFailed(() => base.Where_TimeOnly_Millisecond(async));
-
-    public override Task Where_TimeOnly_AddHours(bool async)
-        // TimeSpan. Issue #18844.
-        => AssertTranslationFailed(() => base.Where_TimeOnly_AddHours(async));
-
-    public override Task Where_TimeOnly_AddMinutes(bool async)
-        // TimeSpan. Issue #18844.
-        => AssertTranslationFailed(() => base.Where_TimeOnly_AddMinutes(async));
-
-    public override Task Where_TimeOnly_Add_TimeSpan(bool async)
-        // TimeSpan. Issue #18844.
-        => AssertTranslationFailed(() => base.Where_TimeOnly_Add_TimeSpan(async));
-
-    public override Task Where_TimeOnly_IsBetween(bool async)
-        // TimeSpan. Issue #18844.
-        => AssertTranslationFailed(() => base.Where_TimeOnly_IsBetween(async));
-
-    public override Task Where_TimeOnly_subtract_TimeOnly(bool async)
-        // TimeSpan. Issue #18844.
-        => AssertTranslationFailed(() => base.Where_TimeOnly_subtract_TimeOnly(async));
 
     public override async Task Where_subquery_with_ElementAt_using_column_as_index(bool async)
     {
@@ -367,24 +196,17 @@ WHERE "s"."Banner5" = @__byteArrayParam_0
         Assert.Equal("SQLite Error 1: 'no such column: s.Id'.", message);
 
         AssertSql(
-"""
+            """
 SELECT "s"."Id", "s"."Banner", "s"."Banner5", "s"."InternalNumber", "s"."Name"
 FROM "Squads" AS "s"
 WHERE (
     SELECT "g"."Nickname"
     FROM "Gears" AS "g"
-    LEFT JOIN "Officers" AS "o" ON "g"."Nickname" = "o"."Nickname" AND "g"."SquadId" = "o"."SquadId"
     WHERE "s"."Id" = "g"."SquadId"
     ORDER BY "g"."Nickname"
     LIMIT 1 OFFSET "s"."Id") = 'Cole Train'
 """);
     }
-
-    public override Task DateTimeOffset_to_unix_time_milliseconds(bool async)
-        => AssertTranslationFailed(() => base.DateTimeOffset_to_unix_time_milliseconds(async));
-
-    public override Task DateTimeOffset_to_unix_time_seconds(bool async)
-        => AssertTranslationFailed(() => base.DateTimeOffset_to_unix_time_seconds(async));
 
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);

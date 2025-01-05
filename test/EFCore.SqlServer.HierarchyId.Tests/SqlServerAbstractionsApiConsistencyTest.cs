@@ -6,13 +6,10 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class SqlServerAbstractionsApiConsistencyTest : ApiConsistencyTestBase<SqlServerAbstractionsApiConsistencyTest.SqlServerAbstractionsApiConsistencyFixture>
+public class SqlServerAbstractionsApiConsistencyTest(
+    SqlServerAbstractionsApiConsistencyTest.SqlServerAbstractionsApiConsistencyFixture fixture) : ApiConsistencyTestBase<
+    SqlServerAbstractionsApiConsistencyTest.SqlServerAbstractionsApiConsistencyFixture>(fixture)
 {
-    public SqlServerAbstractionsApiConsistencyTest(SqlServerAbstractionsApiConsistencyFixture fixture)
-        : base(fixture)
-    {
-    }
-
     protected override void AddServices(ServiceCollection serviceCollection)
     {
     }
@@ -20,7 +17,5 @@ public class SqlServerAbstractionsApiConsistencyTest : ApiConsistencyTestBase<Sq
     protected override Assembly TargetAssembly
         => typeof(HierarchyId).Assembly;
 
-    public class SqlServerAbstractionsApiConsistencyFixture : ApiConsistencyFixtureBase
-    {
-    }
+    public class SqlServerAbstractionsApiConsistencyFixture : ApiConsistencyFixtureBase;
 }

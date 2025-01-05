@@ -1,0 +1,7 @@
+<Project>
+  <PropertyGroup>
+    <TrimmingTestProjectsDir>$([MSBuild]::NormalizeDirectory('$(ArtifactsBinDir)'))</TrimmingTestProjectsDir>
+    <ProjectTemplate>$(MSBuildThisFileDirectory)project.csproj.template</ProjectTemplate>	
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+</Project>

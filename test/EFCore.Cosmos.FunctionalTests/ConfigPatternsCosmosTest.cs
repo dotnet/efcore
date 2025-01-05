@@ -4,23 +4,22 @@
 using Microsoft.Azure.Cosmos;
 
 // ReSharper disable UnusedAutoPropertyAccessor.Local
-namespace Microsoft.EntityFrameworkCore.Cosmos;
+namespace Microsoft.EntityFrameworkCore;
 
-public class ConfigPatternsCosmosTest : IClassFixture<ConfigPatternsCosmosTest.CosmosFixture>
+#nullable disable
+
+[CosmosCondition(CosmosCondition.DoesNotUseTokenCredential)]
+public class ConfigPatternsCosmosTest(ConfigPatternsCosmosTest.CosmosFixture fixture)
+    : IClassFixture<ConfigPatternsCosmosTest.CosmosFixture>
 {
     private const string DatabaseName = "ConfigPatternsCosmos";
 
-    protected CosmosFixture Fixture { get; }
-
-    public ConfigPatternsCosmosTest(CosmosFixture fixture)
-    {
-        Fixture = fixture;
-    }
+    protected CosmosFixture Fixture { get; } = fixture;
 
     [ConditionalFact]
     public async Task Cosmos_client_instance_is_shared_between_contexts()
     {
-        await using var testDatabase = CosmosTestStore.CreateInitialized(DatabaseName);
+        await using var testDatabase = await CosmosTestStore.CreateInitializedAsync(DatabaseName);
         var options = CreateOptions(testDatabase);
 
         CosmosClient client;
@@ -37,7 +36,7 @@ public class ConfigPatternsCosmosTest : IClassFixture<ConfigPatternsCosmosTest.C
             Assert.Same(client, context.Database.GetCosmosClient());
         }
 
-        await using var testDatabase2 = CosmosTestStore.CreateInitialized(DatabaseName, o => o.Region(Regions.AustraliaCentral));
+        await using var testDatabase2 = await CosmosTestStore.CreateInitializedAsync(DatabaseName, o => o.Region(Regions.AustraliaCentral));
         options = CreateOptions(testDatabase2);
 
         using (var context = new CustomerContext(options))
@@ -51,13 +50,13 @@ public class ConfigPatternsCosmosTest : IClassFixture<ConfigPatternsCosmosTest.C
     {
         var regionName = Regions.AustraliaCentral;
 
-        await using var testDatabase = CosmosTestStore.CreateInitialized(DatabaseName, o => o.Region(regionName));
+        await using var testDatabase = await CosmosTestStore.CreateInitializedAsync(DatabaseName, o => o.Region(regionName));
         var options = CreateOptions(testDatabase);
 
         var customer = new Customer { Id = 42, Name = "Theon" };
 
         using var context = new CustomerContext(options);
-        context.Database.EnsureCreated();
+        await context.Database.EnsureCreatedAsync();
 
         await context.AddAsync(customer);
 
@@ -70,13 +69,13 @@ public class ConfigPatternsCosmosTest : IClassFixture<ConfigPatternsCosmosTest.C
         var exception = await Assert.ThrowsAsync<ArgumentException>(
             async () =>
             {
-                await using var testDatabase = CosmosTestStore.CreateInitialized(DatabaseName, o => o.Region("FakeRegion"));
+                await using var testDatabase = await CosmosTestStore.CreateInitializedAsync(DatabaseName, o => o.Region("FakeRegion"));
                 var options = CreateOptions(testDatabase);
 
                 var customer = new Customer { Id = 42, Name = "Theon" };
 
                 using var context = new CustomerContext(options);
-                context.Database.EnsureCreated();
+                await context.Database.EnsureCreatedAsync();
 
                 await context.AddAsync(customer);
 
@@ -93,13 +92,13 @@ public class ConfigPatternsCosmosTest : IClassFixture<ConfigPatternsCosmosTest.C
     {
         var connectionMode = ConnectionMode.Direct;
 
-        await using var testDatabase = CosmosTestStore.CreateInitialized(DatabaseName, o => o.ConnectionMode(connectionMode));
+        await using var testDatabase = await CosmosTestStore.CreateInitializedAsync(DatabaseName, o => o.ConnectionMode(connectionMode));
         var options = CreateOptions(testDatabase);
 
         var customer = new Customer { Id = 42, Name = "Theon" };
 
         using var context = new CustomerContext(options);
-        context.Database.EnsureCreated();
+        await context.Database.EnsureCreatedAsync();
 
         await context.AddAsync(customer);
 
@@ -112,14 +111,14 @@ public class ConfigPatternsCosmosTest : IClassFixture<ConfigPatternsCosmosTest.C
         var exception = await Assert.ThrowsAsync<ArgumentOutOfRangeException>(
             async () =>
             {
-                await using var testDatabase = CosmosTestStore.CreateInitialized(
+                await using var testDatabase = await CosmosTestStore.CreateInitializedAsync(
                     DatabaseName, o => o.ConnectionMode((ConnectionMode)123456));
                 var options = CreateOptions(testDatabase);
 
                 var customer = new Customer { Id = 42, Name = "Theon" };
 
                 using var context = new CustomerContext(options);
-                context.Database.EnsureCreated();
+                await context.Database.EnsureCreatedAsync();
 
                 await context.AddAsync(customer);
 
@@ -130,6 +129,7 @@ public class ConfigPatternsCosmosTest : IClassFixture<ConfigPatternsCosmosTest.C
     private DbContextOptions CreateOptions(CosmosTestStore testDatabase, Action<DbContextOptionsBuilder> configure = null)
     {
         var builder = Fixture.AddOptions(testDatabase.AddProviderOptions(new DbContextOptionsBuilder()))
+            .ConfigureWarnings(w => w.Ignore(CoreEventId.ManyServiceProvidersCreatedWarning))
             .EnableDetailedErrors();
         configure?.Invoke(builder);
         return builder.Options;
@@ -141,19 +141,17 @@ public class ConfigPatternsCosmosTest : IClassFixture<ConfigPatternsCosmosTest.C
         public string Name { get; set; }
     }
 
-    private class CustomerContext : DbContext
+    private class CustomerContext(DbContextOptions dbContextOptions) : DbContext(dbContextOptions)
     {
-        public CustomerContext(DbContextOptions dbContextOptions)
-            : base(dbContextOptions)
-        {
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Customer>();
     }
 
     public class CosmosFixture : ServiceProviderFixtureBase
     {
+        public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+            => base.AddOptions(builder).ConfigureWarnings(w => w.Ignore(CosmosEventId.NoPartitionKeyDefined));
+
         protected override ITestStoreFactory TestStoreFactory
             => CosmosTestStoreFactory.Instance;
     }

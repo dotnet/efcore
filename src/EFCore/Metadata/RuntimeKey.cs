@@ -13,11 +13,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
 /// </remarks>
-public class RuntimeKey : AnnotatableBase, IRuntimeKey
+public class RuntimeKey : RuntimeAnnotatableBase, IRuntimeKey
 {
     // Warning: Never access these fields directly as access needs to be thread-safe
     private Func<bool, IIdentityMap>? _identityMapFactory;
-    private object? _principalKeyValueFactory;
+    private IPrincipalKeyValueFactory? _principalKeyValueFactory;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -27,9 +27,7 @@ public class RuntimeKey : AnnotatableBase, IRuntimeKey
     /// </summary>
     [EntityFrameworkInternal]
     public RuntimeKey(IReadOnlyList<RuntimeProperty> properties)
-    {
-        Properties = properties;
-    }
+        => Properties = properties;
 
     /// <summary>
     ///     Gets the properties that make up the key.
@@ -44,7 +42,7 @@ public class RuntimeKey : AnnotatableBase, IRuntimeKey
     public virtual RuntimeEntityType DeclaringEntityType
     {
         [DebuggerStepThrough]
-        get => Properties[0].DeclaringEntityType;
+        get => (RuntimeEntityType)Properties[0].DeclaringType;
     }
 
     /// <summary>
@@ -55,6 +53,26 @@ public class RuntimeKey : AnnotatableBase, IRuntimeKey
     /// </summary>
     [EntityFrameworkInternal]
     public virtual ISet<RuntimeForeignKey>? ReferencingForeignKeys { get; set; }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public virtual void SetPrincipalKeyValueFactory<TKey>(IPrincipalKeyValueFactory<TKey> factory)
+        => _principalKeyValueFactory = factory;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public virtual void SetIdentityMapFactory(Func<bool, IIdentityMap> factory)
+        => _identityMapFactory = factory;
 
     /// <summary>
     ///     Returns a string that represents the current object.
@@ -108,48 +126,18 @@ public class RuntimeKey : AnnotatableBase, IRuntimeKey
     IEnumerable<IReadOnlyForeignKey> IReadOnlyKey.GetReferencingForeignKeys()
         => ReferencingForeignKeys ?? Enumerable.Empty<IReadOnlyForeignKey>();
 
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual Func<bool, IIdentityMap> IdentityMapFactory
-        => NonCapturingLazyInitializer.EnsureInitialized(
-            ref _identityMapFactory, this, static key =>
-            {
-                key.EnsureReadOnly();
-                return new IdentityMapFactoryFactory().Create(key);
-            });
-
     /// <inheritdoc />
     IPrincipalKeyValueFactory<TKey> IKey.GetPrincipalKeyValueFactory<TKey>()
         => (IPrincipalKeyValueFactory<TKey>)NonCapturingLazyInitializer.EnsureInitialized(
-            ref _principalKeyValueFactory, this, static key => key.CreatePrincipalKeyValueFactory<TKey>());
+            ref _principalKeyValueFactory, this, static key => KeyValueFactoryFactory.Create(key));
 
     /// <inheritdoc />
     IPrincipalKeyValueFactory IKey.GetPrincipalKeyValueFactory()
-        => (IPrincipalKeyValueFactory)NonCapturingLazyInitializer.EnsureInitialized(
-            ref _principalKeyValueFactory, (IKey)this, static key => _createPrincipalKeyValueFactoryMethod
-                .MakeGenericMethod(key.GetKeyType())
-                .Invoke(key, new object[0])!);
-
-    private static readonly MethodInfo _createPrincipalKeyValueFactoryMethod = typeof(Key).GetTypeInfo()
-        .GetDeclaredMethod(nameof(CreatePrincipalKeyValueFactory))!;
-
-    private IPrincipalKeyValueFactory<TKey> CreatePrincipalKeyValueFactory<TKey>()
-        where TKey : notnull
-    {
-        EnsureReadOnly();
-        return new KeyValueFactoryFactory().Create<TKey>(this);
-    }
+        => NonCapturingLazyInitializer.EnsureInitialized(
+            ref _principalKeyValueFactory, (IKey)this, static key => KeyValueFactoryFactory.Create(key));
 
     /// <inheritdoc />
     Func<bool, IIdentityMap> IRuntimeKey.GetIdentityMapFactory()
         => NonCapturingLazyInitializer.EnsureInitialized(
-            ref _identityMapFactory, this, static key =>
-            {
-                key.EnsureReadOnly();
-                return new IdentityMapFactoryFactory().Create(key);
-            });
+            ref _identityMapFactory, this, static key => IdentityMapFactoryFactory.Create(key));
 }

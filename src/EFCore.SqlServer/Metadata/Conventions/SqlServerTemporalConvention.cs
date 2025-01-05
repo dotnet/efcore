@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 /// </summary>
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see>, and
-///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
 ///     for more information and examples.
 /// </remarks>
 public class SqlServerTemporalConvention : IEntityTypeAnnotationChangedConvention,
@@ -70,8 +70,7 @@ public class SqlServerTemporalConvention : IEntityTypeAnnotationChangedConventio
                     if (skipLevelNavigation.DeclaringEntityType.IsTemporal()
                         && skipLevelNavigation.Inverse is IConventionSkipNavigation inverse
                         && inverse.DeclaringEntityType.IsTemporal()
-                        && skipLevelNavigation.JoinEntityType is IConventionEntityType joinEntityType
-                        && joinEntityType.HasSharedClrType
+                        && skipLevelNavigation.JoinEntityType is { HasSharedClrType: true } joinEntityType
                         && !joinEntityType.IsTemporal()
                         && joinEntityType.GetConfigurationSource() == ConfigurationSource.Convention)
                     {
@@ -86,8 +85,7 @@ public class SqlServerTemporalConvention : IEntityTypeAnnotationChangedConventio
             }
         }
 
-        if (name == SqlServerAnnotationNames.TemporalPeriodStartPropertyName
-            || name == SqlServerAnnotationNames.TemporalPeriodEndPropertyName)
+        if (name is SqlServerAnnotationNames.TemporalPeriodStartPropertyName or SqlServerAnnotationNames.TemporalPeriodEndPropertyName)
         {
             if (oldAnnotation?.Value is string oldPeriodPropertyName)
             {
@@ -128,8 +126,7 @@ public class SqlServerTemporalConvention : IEntityTypeAnnotationChangedConventio
         IConventionForeignKey? oldForeignKey,
         IConventionContext<IConventionForeignKey> context)
     {
-        if (skipNavigationBuilder.Metadata.JoinEntityType is IConventionEntityType joinEntityType
-            && joinEntityType.HasSharedClrType
+        if (skipNavigationBuilder.Metadata.JoinEntityType is { HasSharedClrType: true } joinEntityType
             && !joinEntityType.IsTemporal()
             && joinEntityType.GetConfigurationSource() == ConfigurationSource.Convention
             && skipNavigationBuilder.Metadata.DeclaringEntityType.IsTemporal()

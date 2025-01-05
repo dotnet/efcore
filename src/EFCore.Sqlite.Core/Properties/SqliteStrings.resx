@@ -133,7 +133,7 @@
     <value>Cannot use table '{table}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and entity type '{entityTypeWithSqlReturningClause}' is configured to use the SQL RETURNING clause, but entity type '{entityTypeWithoutSqlReturningClause}' is not.</value>
   </data>
   <data name="InvalidMigrationOperation" xml:space="preserve">
-    <value>SQLite does not support this migration operation ('{operation}'). See http://go.microsoft.com/fwlink/?LinkId=723262 for more information and examples.</value>
+    <value>SQLite does not support this migration operation ('{operation}'). See https://go.microsoft.com/fwlink/?LinkId=723262 for more information and examples.</value>
   </data>
   <data name="LogCompositeKeyWithValueGeneration" xml:space="preserve">
     <value>The entity type '{entityType}' has composite key '{key}' which is configured to use generated values. SQLite does not support generated values on composite keys.</value>
@@ -142,6 +142,10 @@
   <data name="LogForeignKeyScaffoldErrorPrincipalTableNotFound" xml:space="preserve">
     <value>Skipping foreign key with identity '{id}' on table '{tableName}' since principal table '{principalTableName}' was not found in the model. This usually happens when the principal table was not included in the selection set.</value>
     <comment>Warning SqliteEventId.ForeignKeyReferencesMissingTableWarning string? string? string?</comment>
+  </data>
+  <data name="LogFormatWarning" xml:space="preserve">
+    <value>The column '{columnName}' on table '{tableName}' should map to a property of type '{type}', but its values are in an incompatible format. Using a different type.</value>
+    <comment>Warning SqliteEventId.FormatWarning string? string? string?</comment>
   </data>
   <data name="LogFoundColumn" xml:space="preserve">
     <value>Found column on table '{tableName}' with name: '{columnName}', data type: {dataType}, not nullable: {notNullable}, default value: {defaultValue}.</value>
@@ -167,9 +171,17 @@
     <value>Found unique constraint on table '{tableName}' with name: {uniqueConstraintName}.</value>
     <comment>Debug SqliteEventId.UniqueConstraintFound string? string?</comment>
   </data>
+  <data name="LogInferringTypes" xml:space="preserve">
+    <value>Querying table '{tableName}' to determine an appropriate CLR type for each column.</value>
+    <comment>Debug SqliteEventId.InferringTypes string?</comment>
+  </data>
   <data name="LogMissingTable" xml:space="preserve">
     <value>Unable to find a table in the database matching the selected table '{table}'.</value>
     <comment>Warning SqliteEventId.MissingTableWarning string?</comment>
+  </data>
+  <data name="LogOutOfRangeWarning" xml:space="preserve">
+    <value>The column '{columnName}' on table '{tableName}' should map to a property of type '{type}', but its values are out of range. Using a different type.</value>
+    <comment>Warning SqliteEventId.OutOfRangeWarning string? string? string?</comment>
   </data>
   <data name="LogPrincipalColumnNotFound" xml:space="preserve">
     <value>Skipping foreign key with identity '{id}' on table '{tableName}', since the principal column '{principalColumnName}' on the foreign key's principal table, '{principalTableName}', was not found in the model.</value>
@@ -196,15 +208,18 @@
     <comment>Warning SqliteEventId.SchemasNotSupportedWarning</comment>
   </data>
   <data name="MigrationScriptGenerationNotSupported" xml:space="preserve">
-    <value>Generating idempotent scripts for migrations is not currently supported for SQLite. See http://go.microsoft.com/fwlink/?LinkId=723262 for more information and examples.</value>
+    <value>Generating idempotent scripts for migrations is not currently supported for SQLite. See https://go.microsoft.com/fwlink/?LinkId=723262 for more information and examples.</value>
   </data>
   <data name="OrderByNotSupported" xml:space="preserve">
     <value>SQLite does not support expressions of type '{type}' in ORDER BY clauses. Convert the values to a supported type, or use LINQ to Objects to order the results on the client side.</value>
   </data>
+  <data name="QueryingIntoJsonCollectionsNotSupported" xml:space="preserve">
+    <value>SQLite version {sqliteVersion} is being used, but version 3.38.0 or higher is required for querying into JSON collections.</value>
+  </data>
   <data name="SequencesNotSupported" xml:space="preserve">
-    <value>SQLite does not support sequences. See http://go.microsoft.com/fwlink/?LinkId=723262 for more information and examples.</value>
+    <value>SQLite does not support sequences. See https://go.microsoft.com/fwlink/?LinkId=723262 for more information and examples.</value>
   </data>
   <data name="StoredProceduresNotSupported" xml:space="preserve">
-    <value>SQLite does not support stored procedures, but one has been configured on entity type '{entityType}'. See http://go.microsoft.com/fwlink/?LinkId=723262 for more information and examples.</value>
+    <value>SQLite does not support stored procedures, but one has been configured on entity type '{entityType}'. See https://go.microsoft.com/fwlink/?LinkId=723262 for more information and examples.</value>
   </data>
 </root>

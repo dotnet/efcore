@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
@@ -67,6 +68,11 @@ public class RuntimeDbFunctionParameter : AnnotatableBase, IRuntimeDbFunctionPar
         get => NonCapturingLazyInitializer.EnsureInitialized(
             ref _typeMapping, this, static parameter =>
             {
+                if (!RuntimeFeature.IsDynamicCodeSupported)
+                {
+                    throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel);
+                }
+
                 var relationalTypeMappingSource =
                     (IRelationalTypeMappingSource)((IModel)parameter.Function.Model).GetModelDependencies().TypeMappingSource;
                 return relationalTypeMappingSource.FindMapping(parameter._storeType)!;
@@ -112,12 +118,21 @@ public class RuntimeDbFunctionParameter : AnnotatableBase, IRuntimeDbFunctionPar
     IStoreFunctionParameter IDbFunctionParameter.StoreFunctionParameter
     {
         [DebuggerStepThrough]
-        get => _storeFunctionParameter!;
+        get
+        {
+            Function.Model.EnsureRelationalModel();
+            return _storeFunctionParameter!;
+        }
     }
 
     IStoreFunctionParameter IRuntimeDbFunctionParameter.StoreFunctionParameter
     {
-        get => _storeFunctionParameter!;
+        get
+        {
+            Function.Model.EnsureRelationalModel();
+            return _storeFunctionParameter!;
+        }
+
         set => _storeFunctionParameter = value;
     }
 

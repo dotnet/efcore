@@ -35,13 +35,33 @@ public class DateTimeOffsetToBinaryConverter : ValueConverter<DateTimeOffset, lo
     /// </param>
     public DateTimeOffsetToBinaryConverter(ConverterMappingHints? mappingHints)
         : base(
-            v => ((v.Ticks / 1000) << 11) | ((long)v.Offset.TotalMinutes & 0x7FF),
-            v => new DateTimeOffset(
-                new DateTime((v >> 11) * 1000),
-                new TimeSpan(0, (int)((v << 53) >> 53), 0)),
+            v => ToLong(v),
+            v => ToDateTimeOffset(v),
             mappingHints)
     {
     }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public static DateTimeOffset ToDateTimeOffset(long v)
+        => new(
+            new DateTime((v >> 11) * 1000),
+            new TimeSpan(0, (int)((v << 53) >> 53), 0));
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public static long ToLong(DateTimeOffset v)
+        => ((v.Ticks / 1000) << 11) | ((long)v.Offset.TotalMinutes & 0x7FF);
 
     /// <summary>
     ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.

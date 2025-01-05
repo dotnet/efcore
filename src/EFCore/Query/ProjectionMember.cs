@@ -16,7 +16,6 @@ namespace Microsoft.EntityFrameworkCore.Query;
 ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
 ///     and <see href="https://aka.ms/efcore-docs-how-query-works">How EF Core queries work</see> for more information and examples.
 /// </remarks>
-[DebuggerDisplay("{ToString(), nq}")]
 public sealed class ProjectionMember
 {
     private readonly IList<MemberInfo> _memberChain;
@@ -25,14 +24,10 @@ public sealed class ProjectionMember
     ///     Creates a new instance of the <see cref="ProjectionMember" /> class with empty MemberInfo chain.
     /// </summary>
     public ProjectionMember()
-    {
-        _memberChain = new List<MemberInfo>();
-    }
+        => _memberChain = new List<MemberInfo>();
 
     private ProjectionMember(IList<MemberInfo> memberChain)
-    {
-        _memberChain = memberChain;
-    }
+        => _memberChain = memberChain;
 
     /// <summary>
     ///     Append given MemberInfo to existing chain at the end.
@@ -86,9 +81,7 @@ public sealed class ProjectionMember
     /// <inheritdoc />
     [DebuggerStepThrough]
     public override bool Equals(object? obj)
-        => obj != null
-            && (obj is ProjectionMember projectionMember
-                && Equals(projectionMember));
+        => obj is ProjectionMember projectionMember && Equals(projectionMember);
 
     private bool Equals(ProjectionMember other)
     {

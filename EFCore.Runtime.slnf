@@ -1,6 +1,6 @@
 {
   "solution": {
-    "path": "All.sln",
+    "path": "EFCore.sln",
     "projects": [
       "src\\EFCore.Abstractions\\EFCore.Abstractions.csproj",
       "src\\EFCore.Analyzers\\EFCore.Analyzers.csproj",
@@ -9,6 +9,8 @@
       "src\\EFCore.InMemory\\EFCore.InMemory.csproj",
       "src\\EFCore.Proxies\\EFCore.Proxies.csproj",
       "src\\EFCore.Relational\\EFCore.Relational.csproj",
+      "src\\EFCore.SqlServer.Abstractions\\EFCore.SqlServer.Abstractions.csproj",
+      "src\\EFCore.SqlServer.HierarchyId\\EFCore.SqlServer.HierarchyId.csproj",
       "src\\EFCore.SqlServer.NTS\\EFCore.SqlServer.NTS.csproj",
       "src\\EFCore.SqlServer\\EFCore.SqlServer.csproj",
       "src\\EFCore.Sqlite.Core\\EFCore.Sqlite.Core.csproj",
@@ -33,6 +35,7 @@
       "test\\EFCore.Relational.Tests\\EFCore.Relational.Tests.csproj",
       "test\\EFCore.Specification.Tests\\EFCore.Specification.Tests.csproj",
       "test\\EFCore.SqlServer.FunctionalTests\\EFCore.SqlServer.FunctionalTests.csproj",
+      "test\\EFCore.SqlServer.HierarchyId.Tests\\EFCore.SqlServer.HierarchyId.Tests.csproj",
       "test\\EFCore.SqlServer.Tests\\EFCore.SqlServer.Tests.csproj",
       "test\\EFCore.Sqlite.FunctionalTests\\EFCore.Sqlite.FunctionalTests.csproj",
       "test\\EFCore.Sqlite.Tests\\EFCore.Sqlite.Tests.csproj",

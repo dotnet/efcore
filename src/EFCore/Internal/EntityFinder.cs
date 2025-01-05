@@ -94,7 +94,7 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
             throw new ArgumentException(
                 CoreStrings.WrongGenericPropertyType(
                     _primaryKey.Properties[0].Name,
-                    _primaryKey.Properties[0].DeclaringEntityType.DisplayName(),
+                    _primaryKey.Properties[0].DeclaringType.DisplayName(),
                     _primaryKeyType.ShortDisplayName(),
                     typeof(TKey).ShortDisplayName()));
         }
@@ -715,7 +715,7 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
         for (var i = 0; i < values.Length; i++)
         {
             var property = properties[i];
-            if (property.IsShadowProperty() && (detached || entry.IsUnknown(property)))
+            if (property.IsShadowProperty() && (detached || (entry.EntityState != EntityState.Added && entry.IsUnknown(property))))
             {
                 throw new InvalidOperationException(
                     CoreStrings.CannotLoadDetachedShadow(navigation.Name, entry.EntityType.DisplayName()));
@@ -815,7 +815,7 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
 
         return (IQueryable)(collectionNavigation ? SelectManyMethod : SelectMethod)
             .MakeGenericMethod(ownerEntityType.ClrType, entityType.ClrType)
-            .Invoke(null, new object[] { queryRoot, navigationName })!;
+            .Invoke(null, [queryRoot, navigationName])!;
     }
 
     private static readonly MethodInfo SelectMethod
@@ -855,15 +855,32 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
         var entityParameter = Expression.Parameter(typeof(object), "e");
 
         var projections = new List<Expression>();
-        foreach (var property in entityType.GetProperties())
+        foreach (var property in entityType.GetFlattenedProperties())
         {
+            var path = new List<IPropertyBase> { property };
+            while (path[^1].DeclaringType is IComplexType complexType)
+            {
+                path.Add(complexType.ComplexProperty);
+            }
+
+            Expression instanceExpression = entityParameter;
+            for (var i = path.Count - 1; i >= 0; i--)
+            {
+                instanceExpression = Expression.Call(
+                    EF.PropertyMethod.MakeGenericMethod(path[i].ClrType),
+                    instanceExpression,
+                    Expression.Constant(path[i].Name, typeof(string)));
+
+                if (i != 0 && instanceExpression.Type.IsValueType)
+                {
+                    instanceExpression = Expression.Convert(instanceExpression, typeof(object));
+                }
+            }
+
             projections.Add(
                 Expression.Convert(
                     Expression.Convert(
-                        Expression.Call(
-                            EF.PropertyMethod.MakeGenericMethod(property.ClrType),
-                            entityParameter,
-                            Expression.Constant(property.Name, typeof(string))),
+                        instanceExpression,
                         property.ClrType),
                     typeof(object)));
         }

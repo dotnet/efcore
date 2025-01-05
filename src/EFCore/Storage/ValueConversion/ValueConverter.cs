@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -223,6 +225,11 @@ public abstract class ValueConverter
                     secondConverter.ProviderClrType.ShortDisplayName()));
         }
 
+        if (!RuntimeFeature.IsDynamicCodeSupported)
+        {
+            throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel);
+        }
+
         var firstConverter
             = ProviderClrType.IsNullableType()
             && !secondConverter.ModelClrType.IsNullableType()
@@ -245,4 +252,10 @@ public abstract class ValueConverter
                 ? firstConverter.MappingHints
                 : secondConverter.MappingHints.With(firstConverter.MappingHints))!;
     }
+
+    /// <summary>
+    ///     The expression representing construction of this object.
+    /// </summary>
+    [Experimental(EFDiagnostics.PrecompiledQueryExperimental)]
+    public abstract Expression ConstructorExpression { get; }
 }

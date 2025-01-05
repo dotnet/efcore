@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore;
 
-public class SqliteTypeMappingSourceTest : RelationalTypeMapperTestBase
+public class SqliteTypeMappingSourceTest : RelationalTypeMappingSourceTestBase
 {
     [ConditionalTheory]
     [InlineData("INTEGER", typeof(byte), DbType.Byte)]
@@ -117,7 +117,7 @@ public class SqliteTypeMappingSourceTest : RelationalTypeMapperTestBase
     {
         foreach (var type in new[] { storeType, storeType.ToLower(), storeType.Substring(0, 1) + storeType.Substring(1).ToLower() })
         {
-            var mapping = CreateRelationalTypeMappingSource().FindMapping(type)!;
+            var mapping = CreateRelationalTypeMappingSource(CreateModel()).FindMapping(type)!;
             Assert.Equal(storeType.ToLower(), mapping.StoreType.ToLower());
             Assert.Equal(Nullable.GetUnderlyingType(clrType) ?? clrType, mapping.ClrType);
             Assert.Equal(dbType, mapping.DbType);
@@ -289,27 +289,29 @@ public class SqliteTypeMappingSourceTest : RelationalTypeMapperTestBase
     [ConditionalFact]
     public void Does_default_mappings_for_values()
     {
-        Assert.Equal("TEXT", CreateRelationalTypeMappingSource().GetMappingForValue("Cheese").StoreType);
-        Assert.Equal("BLOB", CreateRelationalTypeMappingSource().GetMappingForValue(new byte[1]).StoreType);
-        Assert.Equal("TEXT", CreateRelationalTypeMappingSource().GetMappingForValue(new DateTime()).StoreType);
-        Assert.Equal("INTEGER", CreateRelationalTypeMappingSource().GetMappingForValue(1).StoreType);
-        Assert.Equal("INTEGER", CreateRelationalTypeMappingSource().GetMappingForValue(1L).StoreType);
-        Assert.Equal("INTEGER", CreateRelationalTypeMappingSource().GetMappingForValue((byte)1).StoreType);
-        Assert.Equal("INTEGER", CreateRelationalTypeMappingSource().GetMappingForValue((short)1).StoreType);
-        Assert.Equal("INTEGER", CreateRelationalTypeMappingSource().GetMappingForValue((uint)1).StoreType);
-        Assert.Equal("INTEGER", CreateRelationalTypeMappingSource().GetMappingForValue((ulong)1).StoreType);
-        Assert.Equal("INTEGER", CreateRelationalTypeMappingSource().GetMappingForValue((sbyte)1).StoreType);
-        Assert.Equal("INTEGER", CreateRelationalTypeMappingSource().GetMappingForValue((ushort)1).StoreType);
-        Assert.Equal("TEXT", CreateRelationalTypeMappingSource().GetMappingForValue(1.0m).StoreType);
-        Assert.Equal("REAL", CreateRelationalTypeMappingSource().GetMappingForValue(1.0).StoreType);
-        Assert.Equal("REAL", CreateRelationalTypeMappingSource().GetMappingForValue(1.0f).StoreType);
+        var model = CreateModel();
+        Assert.Equal("TEXT", CreateRelationalTypeMappingSource(model).GetMappingForValue("Cheese").StoreType);
+        Assert.Equal("BLOB", CreateRelationalTypeMappingSource(model).GetMappingForValue(new byte[1]).StoreType);
+        Assert.Equal("TEXT", CreateRelationalTypeMappingSource(model).GetMappingForValue(new DateTime()).StoreType);
+        Assert.Equal("INTEGER", CreateRelationalTypeMappingSource(model).GetMappingForValue(1).StoreType);
+        Assert.Equal("INTEGER", CreateRelationalTypeMappingSource(model).GetMappingForValue(1L).StoreType);
+        Assert.Equal("INTEGER", CreateRelationalTypeMappingSource(model).GetMappingForValue((byte)1).StoreType);
+        Assert.Equal("INTEGER", CreateRelationalTypeMappingSource(model).GetMappingForValue((short)1).StoreType);
+        Assert.Equal("INTEGER", CreateRelationalTypeMappingSource(model).GetMappingForValue((uint)1).StoreType);
+        Assert.Equal("INTEGER", CreateRelationalTypeMappingSource(model).GetMappingForValue((ulong)1).StoreType);
+        Assert.Equal("INTEGER", CreateRelationalTypeMappingSource(model).GetMappingForValue((sbyte)1).StoreType);
+        Assert.Equal("INTEGER", CreateRelationalTypeMappingSource(model).GetMappingForValue((ushort)1).StoreType);
+        Assert.Equal("TEXT", CreateRelationalTypeMappingSource(model).GetMappingForValue(1.0m).StoreType);
+        Assert.Equal("REAL", CreateRelationalTypeMappingSource(model).GetMappingForValue(1.0).StoreType);
+        Assert.Equal("REAL", CreateRelationalTypeMappingSource(model).GetMappingForValue(1.0f).StoreType);
     }
 
     [ConditionalFact]
     public void Does_default_mappings_for_null_values()
     {
-        Assert.Equal("NULL", CreateRelationalTypeMappingSource().GetMappingForValue(null).StoreType);
-        Assert.Equal("NULL", CreateRelationalTypeMappingSource().GetMappingForValue(DBNull.Value).StoreType);
+        var model = CreateModel();
+        Assert.Equal("NULL", CreateRelationalTypeMappingSource(model).GetMappingForValue(null).StoreType);
+        Assert.Equal("NULL", CreateRelationalTypeMappingSource(model).GetMappingForValue(DBNull.Value).StoreType);
     }
 
     [ConditionalFact]
@@ -317,13 +319,15 @@ public class SqliteTypeMappingSourceTest : RelationalTypeMapperTestBase
     {
         var property = ((IMutableModel)new Model()).AddEntityType("Entity1")
             .AddProperty("Strange", typeof(object));
-        var ex = Assert.Throws<InvalidOperationException>(() => CreateRelationalTypeMappingSource().GetMapping((IProperty)property));
+        var ex = Assert.Throws<InvalidOperationException>(
+            () => CreateRelationalTypeMappingSource(CreateModel()).GetMapping((IProperty)property));
         Assert.Equal(
             RelationalStrings.UnsupportedPropertyType("Entity1 (Dictionary<string, object>)", "Strange", "object"), ex.Message);
 
         Assert.Equal(
             RelationalStrings.UnsupportedType("object"),
-            Assert.Throws<InvalidOperationException>(() => CreateRelationalTypeMappingSource().GetMapping(typeof(object))).Message);
+            Assert.Throws<InvalidOperationException>(() => CreateRelationalTypeMappingSource(CreateModel()).GetMapping(typeof(object)))
+                .Message);
     }
 
     [ConditionalFact]
@@ -345,43 +349,33 @@ public class SqliteTypeMappingSourceTest : RelationalTypeMapperTestBase
             => new StringTypeMapping("datetime2", null);
     }
 
-    protected override IRelationalTypeMappingSource CreateRelationalTypeMappingSource()
-        => new SqliteTypeMappingSource(
+    protected override IRelationalTypeMappingSource CreateRelationalTypeMappingSource(IModel model)
+    {
+        var typeMappingSource = new SqliteTypeMappingSource(
             TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
             TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
 
-    private enum LongEnum : long
-    {
+        model.ModelDependencies = new RuntimeModelDependencies(typeMappingSource, null!, null!);
+
+        return typeMappingSource;
     }
 
-    private enum IntEnum
-    {
-    }
+    private enum LongEnum : long;
 
-    private enum ShortEnum : short
-    {
-    }
+    private enum IntEnum;
 
-    private enum ByteEnum : byte
-    {
-    }
+    private enum ShortEnum : short;
 
-    protected enum ULongEnum : ulong
-    {
-    }
+    private enum ByteEnum : byte;
 
-    protected enum UIntEnum : uint
-    {
-    }
+    protected enum ULongEnum : ulong;
 
-    protected enum UShortEnum : ushort
-    {
-    }
+    protected enum UIntEnum : uint;
 
-    protected enum SByteEnum : sbyte
-    {
-    }
+    protected enum UShortEnum : ushort;
 
-    protected override ModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder> configureConventions = null)
+    protected enum SByteEnum : sbyte;
+
+    protected override ModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder>? configureConventions = null)
         => SqliteTestHelpers.Instance.CreateConventionBuilder(configureConventions: configureConventions);
 }

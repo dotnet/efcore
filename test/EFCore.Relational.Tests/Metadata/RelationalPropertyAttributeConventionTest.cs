@@ -125,7 +125,7 @@ public class RelationalPropertyAttributeConventionTest
     private void RunConvention(InternalPropertyBuilder propertyBuilder)
     {
         var context = new ConventionContext<IConventionPropertyBuilder>(
-            propertyBuilder.Metadata.DeclaringEntityType.Model.ConventionDispatcher);
+            propertyBuilder.Metadata.DeclaringType.Model.ConventionDispatcher);
 
         new RelationalColumnAttributeConvention(CreateDependencies(), CreateRelationalDependencies())
             .ProcessPropertyAdded(propertyBuilder, context);

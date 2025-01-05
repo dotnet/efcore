@@ -83,9 +83,12 @@ public class DiscriminatorTest
 
     private class Context4285 : DbContext
     {
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<BaseProduct> Products { get; set; }
         public DbSet<SubProduct> SubProducts { get; set; }
         public DbSet<SubProduct2> SubProducts2 { get; set; }
+
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<BaseIntProduct> IntProducts { get; set; }
         public DbSet<SubIntProduct> SubIntProducts { get; set; }
         public DbSet<SubIntProduct2> SubIntProducts2 { get; set; }

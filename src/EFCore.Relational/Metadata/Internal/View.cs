@@ -24,7 +24,7 @@ public class View : TableBase, IView
 
     /// <inheritdoc />
     public virtual string? ViewDefinitionSql
-        => (string?)EntityTypeMappings.Select(m => m.EntityType[RelationalAnnotationNames.ViewDefinitionSql])
+        => (string?)EntityTypeMappings.Select(m => m.TypeBase[RelationalAnnotationNames.ViewDefinitionSql])
             .FirstOrDefault(d => d != null);
 
     /// <inheritdoc />

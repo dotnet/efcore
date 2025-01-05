@@ -3,6 +3,7 @@
 
 using System.ComponentModel.DataAnnotations.Schema;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
@@ -24,6 +25,8 @@ public class ForeignKeyAttributeConvention :
     IForeignKeyAddedConvention,
     INavigationAddedConvention,
     ISkipNavigationForeignKeyChangedConvention,
+    IPropertyAddedConvention,
+    IComplexPropertyAddedConvention,
     IModelFinalizingConvention
 {
     /// <summary>
@@ -31,9 +34,7 @@ public class ForeignKeyAttributeConvention :
     /// </summary>
     /// <param name="dependencies">Parameter object containing dependencies for this convention.</param>
     public ForeignKeyAttributeConvention(ProviderConventionSetBuilderDependencies dependencies)
-    {
-        Dependencies = dependencies;
-    }
+        => Dependencies = dependencies;
 
     /// <summary>
     ///     Dependencies for this service.
@@ -50,7 +51,7 @@ public class ForeignKeyAttributeConvention :
         var foreignKeyNavigations = new List<PropertyInfo>();
         var unconfiguredNavigations = new List<PropertyInfo>();
         var inverses = new List<string>();
-        foreach (var candidatePair in Dependencies.MemberClassifier.GetNavigationCandidates(entityType))
+        foreach (var candidatePair in Dependencies.MemberClassifier.GetNavigationCandidates(entityType, useAttributes: true))
         {
             var (targetType, shouldBeOwned) = candidatePair.Value;
             if (targetType != entityType.ClrType)
@@ -71,7 +72,7 @@ public class ForeignKeyAttributeConvention :
                 continue;
             }
 
-            if (GetAttribute<ForeignKeyAttribute>(navigation) == null)
+            if (!Attribute.IsDefined(navigation, typeof(ForeignKeyAttribute), inherit: true))
             {
                 if (FindForeignKeyAttributeOnProperty(entityType, navigation) == null)
                 {
@@ -384,15 +385,7 @@ public class ForeignKeyAttributeConvention :
 
     private static TAttribute? GetAttribute<TAttribute>(MemberInfo? memberInfo)
         where TAttribute : Attribute
-    {
-        if (memberInfo == null
-            || !Attribute.IsDefined(memberInfo, typeof(TAttribute), inherit: true))
-        {
-            return null;
-        }
-
-        return memberInfo.GetCustomAttribute<TAttribute>(inherit: true);
-    }
+        => memberInfo == null ? null : memberInfo.GetCustomAttribute<TAttribute>(inherit: true);
 
     [ContractAnnotation("navigation:null => null")]
     private MemberInfo? FindForeignKeyAttributeOnProperty(IConventionEntityType entityType, MemberInfo? navigation)
@@ -448,7 +441,7 @@ public class ForeignKeyAttributeConvention :
     }
 
     private bool IsNavigationCandidate(PropertyInfo propertyInfo, IConventionEntityType entityType)
-        => Dependencies.MemberClassifier.GetNavigationCandidates(entityType).TryGetValue(propertyInfo, out _);
+        => Dependencies.MemberClassifier.GetNavigationCandidates(entityType, useAttributes: true).TryGetValue(propertyInfo, out _);
 
     private static IReadOnlyList<string>? FindCandidateDependentPropertiesThroughNavigation(
         IConventionForeignKeyBuilder relationshipBuilder,
@@ -505,8 +498,7 @@ public class ForeignKeyAttributeConvention :
         IConventionForeignKey? oldForeignKey,
         IConventionContext<IConventionForeignKey> context)
     {
-        if (foreignKey != null
-            && foreignKey.IsInModel)
+        if (foreignKey is { IsInModel: true })
         {
             var fkPropertiesToSet = FindCandidateDependentPropertiesThroughNavigation(skipNavigationBuilder.Metadata);
             if (fkPropertiesToSet != null)
@@ -534,6 +526,39 @@ public class ForeignKeyAttributeConvention :
         }
 
         return properties;
+    }
+
+    /// <inheritdoc />
+    public virtual void ProcessPropertyAdded(
+        IConventionPropertyBuilder propertyBuilder,
+        IConventionContext<IConventionPropertyBuilder> context)
+    {
+        var property = propertyBuilder.Metadata;
+        var member = property.GetIdentifyingMemberInfo();
+        if (member != null
+            && Attribute.IsDefined(member, typeof(ForeignKeyAttribute), inherit: true)
+            && property.DeclaringType is IConventionComplexType)
+        {
+            throw new InvalidOperationException(
+                CoreStrings.AttributeNotOnEntityTypeProperty(
+                    "ForeignKey", property.DeclaringType.DisplayName(), property.Name));
+        }
+    }
+
+    /// <inheritdoc />
+    public virtual void ProcessComplexPropertyAdded(
+        IConventionComplexPropertyBuilder propertyBuilder,
+        IConventionContext<IConventionComplexPropertyBuilder> context)
+    {
+        var property = propertyBuilder.Metadata;
+        var member = property.GetIdentifyingMemberInfo();
+        if (member != null
+            && Attribute.IsDefined(member, typeof(ForeignKeyAttribute), inherit: true))
+        {
+            throw new InvalidOperationException(
+                CoreStrings.AttributeNotOnEntityTypeProperty(
+                    "ForeignKey", property.DeclaringType.DisplayName(), property.Name));
+        }
     }
 
     /// <inheritdoc />

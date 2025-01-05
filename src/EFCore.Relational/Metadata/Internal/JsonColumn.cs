@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Text.Json;
-using Microsoft.EntityFrameworkCore.Update.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 
@@ -20,11 +19,13 @@ public class JsonColumn : Column, IColumn
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public JsonColumn(string name, string type, Table table,
+    public JsonColumn(
+        string name,
+        string type,
+        Table table,
         RelationalTypeMapping? storeTypeMapping = null,
-        ValueComparer? providerValueComparer = null,
-        ColumnAccessors? accessors = null)
-        : base(name, type, table, storeTypeMapping, providerValueComparer, accessors)
+        ValueComparer? providerValueComparer = null)
+        : base(name, type, table, storeTypeMapping, providerValueComparer)
     {
     }
 

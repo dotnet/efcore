@@ -22,7 +22,7 @@ public static class DbContextTransactionExtensions
     /// <returns>The underlying <see cref="DbTransaction" />.</returns>
     public static DbTransaction GetDbTransaction(this IDbContextTransaction dbContextTransaction)
     {
-        if (!(dbContextTransaction is IInfrastructure<DbTransaction> accessor))
+        if (dbContextTransaction is not IInfrastructure<DbTransaction> accessor)
         {
             throw new InvalidOperationException(RelationalStrings.RelationalNotInUse);
         }

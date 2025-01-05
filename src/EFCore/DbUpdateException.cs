@@ -66,11 +66,9 @@ public class DbUpdateException : Exception
         Exception? innerException,
         IReadOnlyList<IUpdateEntry> entries)
         : base(message, innerException)
-    {
-        _entries = entries
+        => _entries = entries
             .Where(e => e.EntityState != EntityState.Unchanged)
             .Select(e => e.ToEntityEntry()).ToList();
-    }
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="DbUpdateException" /> class.
@@ -95,15 +93,14 @@ public class DbUpdateException : Exception
         Exception? innerException,
         IReadOnlyList<EntityEntry> entries)
         : base(message, innerException)
-    {
-        _entries = entries;
-    }
+        => _entries = entries;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="DbUpdateException" /> class from a serialized form.
     /// </summary>
     /// <param name="info">The serialization info.</param>
     /// <param name="context">The streaming context being used.</param>
+    [Obsolete("This API supports obsolete formatter-based serialization. It should not be called or extended by application code.")]
     public DbUpdateException(SerializationInfo info, StreamingContext context)
         : base(info, context)
     {

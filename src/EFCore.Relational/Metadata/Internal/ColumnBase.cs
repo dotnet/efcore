@@ -22,7 +22,10 @@ public class ColumnBase<TColumnMappingBase> : Annotatable, IColumnBase
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public ColumnBase(string name, string type, TableBase table,
+    public ColumnBase(
+        string name,
+        string type,
+        TableBase table,
         RelationalTypeMapping? storeTypeMapping = null,
         ValueComparer? providerValueComparer = null)
     {
@@ -121,7 +124,7 @@ public class ColumnBase<TColumnMappingBase> : Annotatable, IColumnBase
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected virtual List<TColumnMappingBase> PropertyMappings { get; }
-        = new();
+        = [];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -131,16 +134,24 @@ public class ColumnBase<TColumnMappingBase> : Annotatable, IColumnBase
     /// </summary>
     public virtual bool AddPropertyMapping(TColumnMappingBase columnMapping)
     {
-        if (PropertyMappings.IndexOf(columnMapping, ColumnMappingBaseComparer.Instance) != -1)
-        {
-            return false;
-        }
+        Check.DebugAssert(
+            PropertyMappings.IndexOf(columnMapping, ColumnMappingBaseComparer.Instance) == -1,
+            $"Duplicate mapping for column {Name}");
 
         PropertyMappings.Add(columnMapping);
         PropertyMappings.Sort(ColumnMappingBaseComparer.Instance);
 
         return true;
     }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual void RemovePropertyMapping(TColumnMappingBase columnMapping)
+        => PropertyMappings.RemoveAt(PropertyMappings.IndexOf(columnMapping, ColumnMappingBaseComparer.Instance));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

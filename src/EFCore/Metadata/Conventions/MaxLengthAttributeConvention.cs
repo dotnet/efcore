@@ -2,6 +2,8 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
@@ -11,7 +13,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.
 /// </remarks>
-public class MaxLengthAttributeConvention : PropertyAttributeConventionBase<MaxLengthAttribute>
+public class MaxLengthAttributeConvention : PropertyAttributeConventionBase<MaxLengthAttribute>,
+    IComplexPropertyAddedConvention
 {
     /// <summary>
     ///     Creates a new instance of <see cref="MaxLengthAttributeConvention" />.
@@ -38,6 +41,30 @@ public class MaxLengthAttributeConvention : PropertyAttributeConventionBase<MaxL
         if (attribute.Length > 0)
         {
             propertyBuilder.HasMaxLength(attribute.Length, fromDataAnnotation: true);
+        }
+    }
+
+    /// <summary>
+    ///     Called after a complex property is added to a type with an attribute on the associated CLR property or field.
+    /// </summary>
+    /// <param name="propertyBuilder">The builder for the property.</param>
+    /// <param name="attribute">The attribute.</param>
+    /// <param name="clrMember">The member that has the attribute.</param>
+    /// <param name="context">Additional information associated with convention execution.</param>
+    protected override void ProcessPropertyAdded(
+        IConventionComplexPropertyBuilder propertyBuilder,
+        MaxLengthAttribute attribute,
+        MemberInfo clrMember,
+        IConventionContext context)
+    {
+        var property = propertyBuilder.Metadata;
+        var member = property.GetIdentifyingMemberInfo();
+        if (member != null
+            && Attribute.IsDefined(member, typeof(ForeignKeyAttribute), inherit: true))
+        {
+            throw new InvalidOperationException(
+                CoreStrings.AttributeNotOnEntityTypeProperty(
+                    "MaxLength", property.DeclaringType.DisplayName(), property.Name));
         }
     }
 }

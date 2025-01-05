@@ -1,10 +1,9 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-#nullable enable
-
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 
+// ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 /// <summary>
@@ -21,8 +20,7 @@ public class CosmosRuntimeModelConvention : RuntimeModelConvention
     ///     Creates a new instance of <see cref="CosmosRuntimeModelConvention" />.
     /// </summary>
     /// <param name="dependencies">Parameter object containing dependencies for this convention.</param>
-    public CosmosRuntimeModelConvention(
-        ProviderConventionSetBuilderDependencies dependencies)
+    public CosmosRuntimeModelConvention(ProviderConventionSetBuilderDependencies dependencies)
         : base(dependencies)
     {
     }

@@ -47,6 +47,11 @@ public partial class ConventionDispatcher
             return leafCount;
         }
 
+        public abstract string? OnTypeIgnored(
+            IConventionModelBuilder modelBuilder,
+            string name,
+            Type? type);
+
         public abstract IConventionEntityTypeBuilder? OnEntityTypeAdded(IConventionEntityTypeBuilder entityTypeBuilder);
 
         public abstract IConventionAnnotation? OnEntityTypeAnnotationChanged(
@@ -60,14 +65,13 @@ public partial class ConventionDispatcher
             IConventionEntityType? newBaseType,
             IConventionEntityType? previousBaseType);
 
-        public abstract string? OnEntityTypeIgnored(
-            IConventionModelBuilder modelBuilder,
-            string name,
-            Type? type);
-
         public abstract string? OnEntityTypeMemberIgnored(
             IConventionEntityTypeBuilder entityTypeBuilder,
             string name);
+
+        public abstract string? OnDiscriminatorPropertySet(
+            IConventionEntityTypeBuilder entityTypeBuilder,
+            string? name);
 
         public abstract IConventionKey? OnEntityTypePrimaryKeyChanged(
             IConventionEntityTypeBuilder entityTypeBuilder,
@@ -77,6 +81,37 @@ public partial class ConventionDispatcher
         public abstract IConventionEntityType? OnEntityTypeRemoved(
             IConventionModelBuilder modelBuilder,
             IConventionEntityType entityType);
+
+        public abstract string? OnComplexTypeMemberIgnored(
+            IConventionComplexTypeBuilder propertyBuilder,
+            string name);
+
+        public abstract IConventionAnnotation? OnComplexTypeAnnotationChanged(
+            IConventionComplexTypeBuilder propertyBuilder,
+            string name,
+            IConventionAnnotation? annotation,
+            IConventionAnnotation? oldAnnotation);
+
+        public abstract IConventionComplexPropertyBuilder? OnComplexPropertyAdded(
+            IConventionComplexPropertyBuilder propertyBuilder);
+
+        public abstract IConventionComplexProperty? OnComplexPropertyRemoved(
+            IConventionTypeBaseBuilder typeBaseBuilder,
+            IConventionComplexProperty property);
+
+        public abstract FieldInfo? OnComplexPropertyFieldChanged(
+            IConventionComplexPropertyBuilder propertyBuilder,
+            FieldInfo? newFieldInfo,
+            FieldInfo? oldFieldInfo);
+
+        public abstract bool? OnComplexPropertyNullabilityChanged(
+            IConventionComplexPropertyBuilder propertyBuilder);
+
+        public abstract IConventionAnnotation? OnComplexPropertyAnnotationChanged(
+            IConventionComplexPropertyBuilder propertyBuilder,
+            string name,
+            IConventionAnnotation? annotation,
+            IConventionAnnotation? oldAnnotation);
 
         public abstract IConventionForeignKeyBuilder? OnForeignKeyAdded(IConventionForeignKeyBuilder relationshipBuilder);
 
@@ -147,6 +182,11 @@ public partial class ConventionDispatcher
             IConventionAnnotation? annotation,
             IConventionAnnotation? oldAnnotation);
 
+        public abstract string? OnModelEmbeddedDiscriminatorNameChanged(
+            IConventionModelBuilder modelBuilder,
+            string? oldName,
+            string? newName);
+
         public abstract IConventionNavigationBuilder? OnNavigationAdded(IConventionNavigationBuilder navigationBuilder);
 
         public abstract string? OnNavigationRemoved(
@@ -185,7 +225,8 @@ public partial class ConventionDispatcher
             IConventionEntityTypeBuilder entityTypeBuilder,
             IConventionSkipNavigation navigation);
 
-        public abstract IConventionPropertyBuilder? OnPropertyAdded(IConventionPropertyBuilder propertyBuilder);
+        public abstract IConventionPropertyBuilder? OnPropertyAdded(
+            IConventionPropertyBuilder propertyBuilder);
 
         public abstract IConventionAnnotation? OnPropertyAnnotationChanged(
             IConventionPropertyBuilder propertyBuilder,
@@ -198,14 +239,29 @@ public partial class ConventionDispatcher
             FieldInfo? newFieldInfo,
             FieldInfo? oldFieldInfo);
 
-        public abstract bool? OnPropertyNullabilityChanged(IConventionPropertyBuilder propertyBuilder);
+        public abstract bool? OnPropertyNullabilityChanged(
+            IConventionPropertyBuilder propertyBuilder);
 
         public abstract IConventionProperty? OnPropertyRemoved(
-            IConventionEntityTypeBuilder entityTypeBuilder,
+            IConventionTypeBaseBuilder typeBaseBuilder,
             IConventionProperty property);
+
+        public abstract IElementType? OnPropertyElementTypeChanged(
+            IConventionPropertyBuilder propertyBuilder,
+            IElementType? newElementType,
+            IElementType? oldElementType);
 
         public abstract IConventionTriggerBuilder? OnTriggerAdded(IConventionTriggerBuilder triggerBuilder);
 
         public abstract IConventionTrigger? OnTriggerRemoved(IConventionEntityTypeBuilder entityTypeBuilder, IConventionTrigger trigger);
+
+        public abstract IConventionAnnotation? OnElementTypeAnnotationChanged(
+            IConventionElementTypeBuilder builder,
+            string name,
+            IConventionAnnotation? annotation,
+            IConventionAnnotation? oldAnnotation);
+
+        public abstract bool? OnElementTypeNullabilityChanged(
+            IConventionElementTypeBuilder builder);
     }
 }

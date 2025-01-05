@@ -3,8 +3,6 @@
 
 // ReSharper disable InconsistentNaming
 
-using Microsoft.EntityFrameworkCore.SqlServer.Internal;
-
 namespace Microsoft.EntityFrameworkCore.Metadata;
 
 public class SqlServerBuilderExtensionsTest
@@ -127,6 +125,36 @@ public class SqlServerBuilderExtensionsTest
         var key = modelBuilder.Model.FindEntityType(typeof(Customer)).FindPrimaryKey();
 
         Assert.True(key.IsClustered().Value);
+    }
+
+    [ConditionalFact]
+    public void Can_set_key_with_fillfactor()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder
+            .Entity<Customer>()
+            .HasKey(e => e.Id)
+            .HasFillFactor(90);
+
+        var key = modelBuilder.Model.FindEntityType(typeof(Customer)).FindPrimaryKey();
+
+        Assert.Equal(90, key.GetFillFactor());
+    }
+
+    [ConditionalFact]
+    public void Can_set_key_with_fillfactor_non_generic()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder
+            .Entity(typeof(Customer))
+            .HasKey("Id")
+            .HasFillFactor(90);
+
+        var key = modelBuilder.Model.FindEntityType(typeof(Customer)).FindPrimaryKey();
+
+        Assert.Equal(90, key.GetFillFactor());
     }
 
     [ConditionalFact]
@@ -1066,6 +1094,23 @@ public class SqlServerBuilderExtensionsTest
     [ConditionalTheory]
     [InlineData(0)]
     [InlineData(101)]
+    public void Throws_if_attempt_to_set_key_fillfactor_with_argument_out_of_range(int fillFactor)
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        Assert.Throws<ArgumentOutOfRangeException>(
+            () =>
+            {
+                modelBuilder
+                    .Entity(typeof(Customer))
+                    .HasKey("Id")
+                    .HasFillFactor(fillFactor);
+            });
+    }
+
+    [ConditionalTheory]
+    [InlineData(0)]
+    [InlineData(101)]
     public void Throws_if_attempt_to_set_fillfactor_with_argument_out_of_range(int fillFactor)
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1078,6 +1123,72 @@ public class SqlServerBuilderExtensionsTest
                     .HasIndex("Name")
                     .HasFillFactor(fillFactor);
             });
+    }
+
+    [ConditionalFact]
+    public void Can_set_index_with_sortintempdb()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder
+            .Entity<Customer>()
+            .HasIndex(e => e.Name)
+            .SortInTempDb();
+
+        var index = modelBuilder.Model.FindEntityType(typeof(Customer)).GetIndexes().Single();
+
+        Assert.True(index.GetSortInTempDb());
+    }
+
+    [ConditionalFact]
+    public void Can_set_index_with_sortintempdb_non_generic()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder
+            .Entity(typeof(Customer))
+            .HasIndex("Name")
+            .SortInTempDb();
+
+        var index = modelBuilder.Model.FindEntityType(typeof(Customer)).GetIndexes().Single();
+
+        Assert.True(index.GetSortInTempDb());
+    }
+
+    [ConditionalTheory]
+    [InlineData(DataCompressionType.None)]
+    [InlineData(DataCompressionType.Row)]
+    [InlineData(DataCompressionType.Page)]
+    public void Can_set_index_with_datacompression(DataCompressionType dataCompression)
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder
+            .Entity<Customer>()
+            .HasIndex(e => e.Name)
+            .UseDataCompression(dataCompression);
+
+        var index = modelBuilder.Model.FindEntityType(typeof(Customer)).GetIndexes().Single();
+
+        Assert.Equal(dataCompression, index.GetDataCompression());
+    }
+
+    [ConditionalTheory]
+    [InlineData(DataCompressionType.None)]
+    [InlineData(DataCompressionType.Row)]
+    [InlineData(DataCompressionType.Page)]
+    public void Can_set_index_with_datacompression_non_generic(DataCompressionType dataCompression)
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder
+            .Entity(typeof(Customer))
+            .HasIndex("Name")
+            .UseDataCompression(dataCompression);
+
+        var index = modelBuilder.Model.FindEntityType(typeof(Customer)).GetIndexes().Single();
+
+        Assert.Equal(dataCompression, index.GetDataCompression());
     }
 
     #region UseSqlOutputClause

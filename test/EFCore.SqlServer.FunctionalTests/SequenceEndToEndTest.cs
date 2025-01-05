@@ -5,7 +5,9 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class SequenceEndToEndTest : IDisposable
+#nullable disable
+
+public class SequenceEndToEndTest : IAsyncLifetime
 {
     [ConditionalFact]
     public void Can_use_sequence_end_to_end()
@@ -267,17 +269,12 @@ public class SequenceEndToEndTest : IDisposable
         context.SaveChanges();
     }
 
-    private class BronieContext : DbContext
+    private class BronieContext(IServiceProvider serviceProvider, string databaseName) : DbContext
     {
-        private readonly IServiceProvider _serviceProvider;
-        private readonly string _databaseName;
+        private readonly IServiceProvider _serviceProvider = serviceProvider;
+        private readonly string _databaseName = databaseName;
 
-        public BronieContext(IServiceProvider serviceProvider, string databaseName)
-        {
-            _serviceProvider = serviceProvider;
-            _databaseName = databaseName;
-        }
-
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<Pegasus> Pegasuses { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -370,19 +367,13 @@ public class SequenceEndToEndTest : IDisposable
         context.SaveChanges();
     }
 
-    private class NullableBronieContext : DbContext
+    private class NullableBronieContext(IServiceProvider serviceProvider, string databaseName, bool useSequence) : DbContext
     {
-        private readonly IServiceProvider _serviceProvider;
-        private readonly string _databaseName;
-        private readonly bool _useSequence;
+        private readonly IServiceProvider _serviceProvider = serviceProvider;
+        private readonly string _databaseName = databaseName;
+        private readonly bool _useSequence = useSequence;
 
-        public NullableBronieContext(IServiceProvider serviceProvider, string databaseName, bool useSequence)
-        {
-            _serviceProvider = serviceProvider;
-            _databaseName = databaseName;
-            _useSequence = useSequence;
-        }
-
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<Unicon> Unicons { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -412,13 +403,11 @@ public class SequenceEndToEndTest : IDisposable
         public string Name { get; set; }
     }
 
-    public SequenceEndToEndTest()
-    {
-        TestStore = SqlServerTestStore.CreateInitialized("SequenceEndToEndTest");
-    }
+    protected SqlServerTestStore TestStore { get; private set; }
 
-    protected SqlServerTestStore TestStore { get; }
+    public async Task InitializeAsync()
+        => TestStore = await SqlServerTestStore.CreateInitializedAsync("SequenceEndToEndTest");
 
-    public void Dispose()
-        => TestStore.Dispose();
+    public async Task DisposeAsync()
+        => await TestStore.DisposeAsync();
 }

@@ -6,18 +6,13 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace Microsoft.EntityFrameworkCore;
 
-public abstract class AspNetIdentityCustomTypesDefaultTestBase<TFixture>
+public abstract class AspNetIdentityCustomTypesDefaultTestBase<TFixture>(TFixture fixture)
     : AspNetIdentityTestBase<TFixture, CustomTypesIdentityContext, CustomUserString, CustomRoleString, string, CustomUserClaimString,
-        CustomUserRoleString, CustomUserLoginString, CustomRoleClaimString, CustomUserTokenString>
+        CustomUserRoleString, CustomUserLoginString, CustomRoleClaimString, CustomUserTokenString>(fixture)
     where TFixture : AspNetIdentityTestBase<TFixture, CustomTypesIdentityContext, CustomUserString, CustomRoleString, string,
         CustomUserClaimString, CustomUserRoleString, CustomUserLoginString, CustomRoleClaimString, CustomUserTokenString>.
     AspNetIdentityFixtureBase
 {
-    protected AspNetIdentityCustomTypesDefaultTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-
     [ConditionalFact]
     public async Task Can_lazy_load_User_navigations()
     {
@@ -158,8 +153,8 @@ public abstract class AspNetIdentityCustomTypesDefaultTestBase<TFixture>
             });
 
     protected override List<EntityTypeMapping> ExpectedMappings
-        => new()
-        {
+        =>
+        [
             new EntityTypeMapping
             {
                 Name = "Microsoft.EntityFrameworkCore.CustomRoleClaimString",
@@ -170,16 +165,16 @@ public abstract class AspNetIdentityCustomTypesDefaultTestBase<TFixture>
                     "Property: CustomRoleClaimString.Id (int) Required PK AfterSave:Throw ValueGenerated.OnAdd",
                     "Property: CustomRoleClaimString.ClaimType (string)",
                     "Property: CustomRoleClaimString.ClaimValue (string)",
-                    "Property: CustomRoleClaimString.RoleId (string) Required FK Index",
+                    $"Property: CustomRoleClaimString.RoleId (string) Required FK{(HasForeignKeyIndexes ? " Index" : "")}",
                 },
-                Indexes = { "{'RoleId'} ", },
+                Indexes = HasForeignKeyIndexes ? ["{'RoleId'} "] : [],
                 FKs =
                 {
                     "ForeignKey: CustomRoleClaimString {'RoleId'} -> CustomRoleString {'Id'} Required Cascade ToDependent: RoleClaims ToPrincipal: Role",
                 },
                 Navigations =
                 {
-                    "Navigation: CustomRoleClaimString.Role (CustomRoleString) ToPrincipal CustomRoleString Inverse: RoleClaims PropertyAccessMode.Field",
+                    "Navigation: CustomRoleClaimString.Role (CustomRoleString) Required ToPrincipal CustomRoleString Inverse: RoleClaims PropertyAccessMode.Field",
                 },
             },
             new EntityTypeMapping
@@ -215,16 +210,16 @@ public abstract class AspNetIdentityCustomTypesDefaultTestBase<TFixture>
                     "Property: CustomUserClaimString.Id (int) Required PK AfterSave:Throw ValueGenerated.OnAdd",
                     "Property: CustomUserClaimString.ClaimType (string)",
                     "Property: CustomUserClaimString.ClaimValue (string)",
-                    "Property: CustomUserClaimString.UserId (string) Required FK Index",
+                    $"Property: CustomUserClaimString.UserId (string) Required FK{(HasForeignKeyIndexes ? " Index" : "")}",
                 },
-                Indexes = { "{'UserId'} ", },
+                Indexes = HasForeignKeyIndexes ? ["{'UserId'} "] : [],
                 FKs =
                 {
                     "ForeignKey: CustomUserClaimString {'UserId'} -> CustomUserString {'Id'} Required Cascade ToDependent: Claims ToPrincipal: User",
                 },
                 Navigations =
                 {
-                    "Navigation: CustomUserClaimString.User (CustomUserString) ToPrincipal CustomUserString Inverse: Claims PropertyAccessMode.Field",
+                    "Navigation: CustomUserClaimString.User (CustomUserString) Required ToPrincipal CustomUserString Inverse: Claims PropertyAccessMode.Field",
                 },
             },
             new EntityTypeMapping
@@ -237,16 +232,16 @@ public abstract class AspNetIdentityCustomTypesDefaultTestBase<TFixture>
                     "Property: CustomUserLoginString.LoginProvider (string) Required PK AfterSave:Throw",
                     "Property: CustomUserLoginString.ProviderKey (string) Required PK AfterSave:Throw",
                     "Property: CustomUserLoginString.ProviderDisplayName (string)",
-                    "Property: CustomUserLoginString.UserId (string) Required FK Index",
+                    $"Property: CustomUserLoginString.UserId (string) Required FK{(HasForeignKeyIndexes ? " Index" : "")}",
                 },
-                Indexes = { "{'UserId'} ", },
+                Indexes = HasForeignKeyIndexes ? ["{'UserId'} "] : [],
                 FKs =
                 {
                     "ForeignKey: CustomUserLoginString {'UserId'} -> CustomUserString {'Id'} Required Cascade ToDependent: Logins ToPrincipal: User",
                 },
                 Navigations =
                 {
-                    "Navigation: CustomUserLoginString.User (CustomUserString) ToPrincipal CustomUserString Inverse: Logins PropertyAccessMode.Field",
+                    "Navigation: CustomUserLoginString.User (CustomUserString) Required ToPrincipal CustomUserString Inverse: Logins PropertyAccessMode.Field",
                 },
             },
             new EntityTypeMapping
@@ -257,9 +252,9 @@ public abstract class AspNetIdentityCustomTypesDefaultTestBase<TFixture>
                 Properties =
                 {
                     "Property: CustomUserRoleString.UserId (string) Required PK FK AfterSave:Throw",
-                    "Property: CustomUserRoleString.RoleId (string) Required PK FK Index AfterSave:Throw",
+                    $"Property: CustomUserRoleString.RoleId (string) Required PK FK{(HasForeignKeyIndexes ? " Index" : "")} AfterSave:Throw",
                 },
-                Indexes = { "{'RoleId'} ", },
+                Indexes = HasForeignKeyIndexes ? ["{'RoleId'} "] : [],
                 FKs =
                 {
                     "ForeignKey: CustomUserRoleString {'RoleId'} -> CustomRoleString {'Id'} Required Cascade ToDependent: UserRoles ToPrincipal: Role",
@@ -267,8 +262,8 @@ public abstract class AspNetIdentityCustomTypesDefaultTestBase<TFixture>
                 },
                 Navigations =
                 {
-                    "Navigation: CustomUserRoleString.Role (CustomRoleString) ToPrincipal CustomRoleString Inverse: UserRoles PropertyAccessMode.Field",
-                    "Navigation: CustomUserRoleString.User (CustomUserString) ToPrincipal CustomUserString Inverse: UserRoles PropertyAccessMode.Field",
+                    "Navigation: CustomUserRoleString.Role (CustomRoleString) Required ToPrincipal CustomRoleString Inverse: UserRoles PropertyAccessMode.Field",
+                    "Navigation: CustomUserRoleString.User (CustomUserString) Required ToPrincipal CustomUserString Inverse: UserRoles PropertyAccessMode.Field",
                 }
             },
             new EntityTypeMapping
@@ -329,21 +324,17 @@ public abstract class AspNetIdentityCustomTypesDefaultTestBase<TFixture>
                 },
                 Navigations =
                 {
-                    "Navigation: CustomUserTokenString.User (CustomUserString) ToPrincipal CustomUserString Inverse: Tokens PropertyAccessMode.Field",
+                    "Navigation: CustomUserTokenString.User (CustomUserString) Required ToPrincipal CustomUserString Inverse: Tokens PropertyAccessMode.Field",
                 },
-            },
-        };
+            }
+        ];
 }
 
-public class CustomTypesIdentityContext : IdentityDbContext<CustomUserString, CustomRoleString, string, CustomUserClaimString,
-    CustomUserRoleString,
-    CustomUserLoginString, CustomRoleClaimString, CustomUserTokenString>
+public class CustomTypesIdentityContext(DbContextOptions options)
+    : IdentityDbContext<CustomUserString, CustomRoleString, string, CustomUserClaimString,
+        CustomUserRoleString,
+        CustomUserLoginString, CustomRoleClaimString, CustomUserTokenString>(options)
 {
-    public CustomTypesIdentityContext(DbContextOptions options)
-        : base(options)
-    {
-    }
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -357,12 +348,11 @@ public class CustomTypesIdentityContext : IdentityDbContext<CustomUserString, Cu
                     .WithMany(e => e.Users)
                     .UsingEntity<CustomUserRoleString>(
                         j => j.HasOne(e => e.Role).WithMany(e => e.UserRoles).HasForeignKey(e => e.RoleId),
-                        j => j.HasOne(e => e.User).WithMany(e => e.UserRoles).HasForeignKey(e => e.RoleId));
+                        j => j.HasOne(e => e.User).WithMany(e => e.UserRoles).HasForeignKey(e => e.UserId));
 
                 b.HasMany(e => e.Claims).WithOne(e => e.User).HasForeignKey(uc => uc.UserId).IsRequired();
                 b.HasMany(e => e.Logins).WithOne(e => e.User).HasForeignKey(ul => ul.UserId).IsRequired();
                 b.HasMany(e => e.Tokens).WithOne(e => e.User).HasForeignKey(ut => ut.UserId).IsRequired();
-                b.HasMany(e => e.UserRoles).WithOne(e => e.User).HasForeignKey(ur => ur.UserId).IsRequired();
                 b.ToTable("MyUsers");
                 b.Property(u => u.UserName).HasMaxLength(128);
                 b.Property(u => u.NormalizedUserName).HasMaxLength(128);
@@ -415,9 +405,7 @@ public class CustomTypesIdentityContext : IdentityDbContext<CustomUserString, Cu
 public class CustomUserString : IdentityUser<string>
 {
     public CustomUserString()
-    {
-        Id = Guid.NewGuid().ToString();
-    }
+        => Id = Guid.NewGuid().ToString();
 
     public string CustomTag { get; set; }
 
@@ -432,9 +420,7 @@ public class CustomUserString : IdentityUser<string>
 public class CustomRoleString : IdentityRole<string>
 {
     public CustomRoleString()
-    {
-        Id = Guid.NewGuid().ToString();
-    }
+        => Id = Guid.NewGuid().ToString();
 
     public virtual ICollection<CustomUserString> Users { get; set; }
 

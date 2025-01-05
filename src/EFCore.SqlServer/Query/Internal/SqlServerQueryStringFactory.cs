@@ -27,9 +27,7 @@ public class SqlServerQueryStringFactory : IRelationalQueryStringFactory
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public SqlServerQueryStringFactory(IRelationalTypeMappingSource typeMapper)
-    {
-        _typeMapper = typeMapper;
-    }
+        => _typeMapper = typeMapper;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -139,8 +137,7 @@ internal static class TypeNameBuilder
 
     private static StringBuilder AppendPrecisionAndScale(this StringBuilder builder, DbParameter parameter)
     {
-        if (parameter.Precision > 0
-            && parameter.Scale > 0)
+        if (parameter is { Precision: > 0, Scale: > 0 })
         {
             return builder
                 .Append('(')

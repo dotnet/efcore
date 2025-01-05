@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information and examples.
 /// </remarks>
 public class EnumToNumberConverter<TEnum, TNumber> : ValueConverter<TEnum, TNumber>
-    where TEnum : struct
+    where TEnum : struct, Enum
     where TNumber : struct
 {
     // ReSharper disable once StaticMemberInGenericType
@@ -85,7 +85,7 @@ public class EnumToNumberConverter<TEnum, TNumber> : ValueConverter<TEnum, TNumb
             Expression.Convert(
                 typeof(TNumber) == typeof(decimal)
                     ? Expression.Convert(param, typeof(long))
-                    : (Expression)param,
+                    : param,
                 typeof(TNumber)), param);
     }
 
@@ -96,7 +96,7 @@ public class EnumToNumberConverter<TEnum, TNumber> : ValueConverter<TEnum, TNumb
             Expression.Convert(
                 typeof(TNumber) == typeof(decimal)
                     ? Expression.Convert(param, typeof(long))
-                    : (Expression)param,
+                    : param,
                 typeof(TEnum)), param);
     }
 }

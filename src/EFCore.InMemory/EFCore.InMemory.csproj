@@ -2,13 +2,14 @@
 
   <PropertyGroup>
     <Description>In-memory database provider for Entity Framework Core (to be used for testing purposes).</Description>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>$(DefaultNetCoreTargetFramework)</TargetFramework>
     <MinClientVersion>3.6</MinClientVersion>
     <AssemblyName>Microsoft.EntityFrameworkCore.InMemory</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore.InMemory</RootNamespace>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <PackageTags>$(PackageTags);In-Memory</PackageTags>
     <ImplicitUsings>true</ImplicitUsings>
+    <NoWarn>$(NoWarn);EF9101</NoWarn> <!-- Metrics is experimental -->
   </PropertyGroup>
 
   <ItemGroup>
@@ -39,8 +40,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\EFCore\EFCore.csproj" PrivateAssets="contentfiles;build" />
-    <ProjectReference Condition="'$(BuildingByReSharper)' != 'true'" Include="..\EFCore.Analyzers\EFCore.Analyzers.csproj" ReferenceOutputAssembly="False" OutputItemType="Analyzer" />
+    <ProjectReference Include="..\EFCore\EFCore.csproj" />
+    <ProjectReference Include="..\EFCore.Analyzers\EFCore.Analyzers.csproj" ReferenceOutputAssembly="False" OutputItemType="Analyzer" />
   </ItemGroup>
 
   <ItemGroup>

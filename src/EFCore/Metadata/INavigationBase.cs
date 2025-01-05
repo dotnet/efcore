@@ -62,7 +62,7 @@ public interface INavigationBase : IReadOnlyNavigationBase, IPropertyBase
 
         foreach (var serviceProperty in serviceProperties)
         {
-            ((ILazyLoader?)serviceProperty.GetGetter().GetClrValue(entity))?.SetLoaded(entity, Name);
+            ((ILazyLoader?)serviceProperty.GetGetter().GetClrValueUsingContainingEntity(entity))?.SetLoaded(entity, Name);
         }
     }
 }

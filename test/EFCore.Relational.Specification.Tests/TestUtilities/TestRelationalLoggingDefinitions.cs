@@ -3,6 +3,4 @@
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
-public class TestRelationalLoggingDefinitions : RelationalLoggingDefinitions
-{
-}
+public class TestRelationalLoggingDefinitions : RelationalLoggingDefinitions;

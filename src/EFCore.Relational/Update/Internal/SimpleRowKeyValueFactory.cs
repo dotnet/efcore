@@ -117,7 +117,7 @@ public class SimpleRowKeyValueFactory<TKey> : IRowKeyValueFactory<TKey>
             EqualityComparer);
 
     object[] IRowKeyValueFactory.CreateKeyValue(IReadOnlyModificationCommand command, bool fromOriginalValues)
-        => new object[] { CreateKeyValue(command, fromOriginalValues)! };
+        => [CreateKeyValue(command, fromOriginalValues)!];
 
     private sealed class NoNullsStructuralEqualityComparer : IEqualityComparer<TKey>
     {
@@ -150,7 +150,6 @@ public class SimpleRowKeyValueFactory<TKey> : IRowKeyValueFactory<TKey>
                         Expression.Convert(newEqualsParam1, comparer.Type),
                         Expression.Convert(newEqualsParam2, comparer.Type)),
                     newEqualsParam1, newEqualsParam2);
-
 
                 var newHashCodeParam = Expression.Parameter(type, "v");
                 getHashCode = Expression.Lambda(

@@ -40,20 +40,16 @@ public class GuidValueGeneratorEndToEndTest
         }
     }
 
-    private class BronieContext : DbContext
+    private class BronieContext(IServiceProvider serviceProvider) : DbContext
     {
-        private readonly IServiceProvider _serviceProvider;
-
-        public BronieContext(IServiceProvider serviceProvider)
-        {
-            _serviceProvider = serviceProvider;
-        }
+        private readonly IServiceProvider _serviceProvider = serviceProvider;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
                 .UseInMemoryDatabase(nameof(BronieContext))
                 .UseInternalServiceProvider(_serviceProvider);
 
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<Pegasus> Pegasuses { get; set; }
     }
 

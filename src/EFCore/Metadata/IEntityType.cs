@@ -20,11 +20,6 @@ public interface IEntityType : IReadOnlyEntityType, ITypeBase
     new IEntityType? BaseType { get; }
 
     /// <summary>
-    ///     Gets the <see cref="InstantiationBinding" /> for the preferred constructor.
-    /// </summary>
-    InstantiationBinding? ConstructorBinding { get; }
-
-    /// <summary>
     ///     Gets the <see cref="InstantiationBinding" /> for the preferred constructor when creating instances with only service
     ///     properties initialized.
     /// </summary>
@@ -74,27 +69,27 @@ public interface IEntityType : IReadOnlyEntityType, ITypeBase
         => ((IReadOnlyEntityType)this).GetAllBaseTypesInclusiveAscending().Cast<IEntityType>();
 
     /// <summary>
-    ///     Gets all types in the model that derive from a given entity type.
+    ///     Gets all types in the model that derive from this entity type.
     /// </summary>
     /// <returns>The derived types.</returns>
     new IEnumerable<IEntityType> GetDerivedTypes()
         => ((IReadOnlyEntityType)this).GetDerivedTypes().Cast<IEntityType>();
 
     /// <summary>
-    ///     Returns all derived types of the given <see cref="IEntityType" />, including the type itself.
+    ///     Returns all derived types of this entity type, including the type itself.
     /// </summary>
     /// <returns>Derived types.</returns>
     new IEnumerable<IEntityType> GetDerivedTypesInclusive()
         => ((IReadOnlyEntityType)this).GetDerivedTypesInclusive().Cast<IEntityType>();
 
     /// <summary>
-    ///     Gets all types in the model that directly derive from a given entity type.
+    ///     Gets all types in the model that directly derive from this entity type.
     /// </summary>
     /// <returns>The derived types.</returns>
     new IEnumerable<IEntityType> GetDirectlyDerivedTypes();
 
     /// <summary>
-    ///     Returns all the derived types of the given <see cref="IEntityType" />, including the type itself,
+    ///     Returns all the derived types of this entity type, including the type itself,
     ///     which are not <see langword="abstract" />.
     /// </summary>
     /// <returns>Non-abstract, derived types.</returns>
@@ -154,7 +149,7 @@ public interface IEntityType : IReadOnlyEntityType, ITypeBase
     /// <remarks>
     ///     This method does not return keys declared on base types.
     ///     It is useful when iterating over all entity types to avoid processing the same key more than once.
-    ///     Use <see cref="IConventionEntityType.GetKeys" /> to also return keys declared on base types.
+    ///     Use <see cref="GetKeys" /> to also return keys declared on base types.
     /// </remarks>
     /// <returns>Declared keys.</returns>
     new IEnumerable<IKey> GetDeclaredKeys();
@@ -316,6 +311,14 @@ public interface IEntityType : IReadOnlyEntityType, ITypeBase
         => ((IReadOnlyEntityType)this).GetDerivedNavigations().Cast<INavigation>();
 
     /// <summary>
+    ///     Gets all navigation properties declared on the base types and types derived from this entity type.
+    /// </summary>
+    /// <returns>Navigation properties.</returns>
+    IEnumerable<INavigation> GetNavigationsInHierarchy()
+        => GetAllBaseTypes().Concat(GetDerivedTypesInclusive())
+            .SelectMany(t => t.GetDeclaredNavigations());
+
+    /// <summary>
     ///     Gets all navigation properties on the given entity type.
     /// </summary>
     /// <returns>All navigation properties on the given entity type.</returns>
@@ -423,6 +426,10 @@ public interface IEntityType : IReadOnlyEntityType, ITypeBase
     /// <returns>The indexes defined on this entity type.</returns>
     new IEnumerable<IIndex> GetIndexes();
 
+    // The following methods are needed for binary compatibility
+
+    #region DO NOT DELETE
+
     /// <summary>
     ///     Gets a property on the given entity type. Returns <see langword="null" /> if no property is found.
     /// </summary>
@@ -511,11 +518,29 @@ public interface IEntityType : IReadOnlyEntityType, ITypeBase
     /// <returns>The properties defined on this entity type.</returns>
     new IEnumerable<IProperty> GetProperties();
 
+    #endregion
+
     /// <summary>
     ///     Returns the properties contained in foreign keys.
     /// </summary>
     /// <returns>The properties contained in foreign keys.</returns>
     IEnumerable<IProperty> GetForeignKeyProperties();
+
+    /// <summary>
+    ///     Gets all properties declared on the base types and types derived from this entity type.
+    /// </summary>
+    /// <returns>The properties.</returns>
+    IEnumerable<IProperty> ITypeBase.GetPropertiesInHierarchy()
+        => GetAllBaseTypes().Concat(GetDerivedTypesInclusive())
+            .SelectMany(t => t.GetDeclaredProperties());
+
+    /// <summary>
+    ///     Gets all properties declared on the base types and types derived from this entity type, including those on complex types.
+    /// </summary>
+    /// <returns>The properties.</returns>
+    IEnumerable<IProperty> ITypeBase.GetFlattenedPropertiesInHierarchy()
+        => GetAllBaseTypes().Concat(GetDerivedTypesInclusive())
+            .SelectMany(t => t.GetFlattenedDeclaredProperties());
 
     /// <summary>
     ///     Returns the properties that need a value to be generated when the entity entry transitions to the

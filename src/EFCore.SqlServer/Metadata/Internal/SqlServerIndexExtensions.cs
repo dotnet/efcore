@@ -100,6 +100,40 @@ public static class SqlServerIndexExtensions
             return false;
         }
 
+        if (index.GetSortInTempDb() != duplicateIndex.GetSortInTempDb())
+        {
+            if (shouldThrow)
+            {
+                throw new InvalidOperationException(
+                    SqlServerStrings.DuplicateIndexSortInTempDbMismatch(
+                        index.DisplayName(),
+                        index.DeclaringEntityType.DisplayName(),
+                        duplicateIndex.DisplayName(),
+                        duplicateIndex.DeclaringEntityType.DisplayName(),
+                        index.DeclaringEntityType.GetSchemaQualifiedTableName(),
+                        index.GetDatabaseName(storeObject)));
+            }
+
+            return false;
+        }
+
+        if (index.GetDataCompression() != duplicateIndex.GetDataCompression())
+        {
+            if (shouldThrow)
+            {
+                throw new InvalidOperationException(
+                    SqlServerStrings.DuplicateIndexDataCompressionMismatch(
+                        index.DisplayName(),
+                        index.DeclaringEntityType.DisplayName(),
+                        duplicateIndex.DisplayName(),
+                        duplicateIndex.DeclaringEntityType.DisplayName(),
+                        index.DeclaringEntityType.GetSchemaQualifiedTableName(),
+                        index.GetDatabaseName(storeObject)));
+            }
+
+            return false;
+        }
+
         return true;
 
         static bool SameColumnNames(IReadOnlyIndex index, IReadOnlyIndex duplicateIndex, StoreObjectIdentifier storeObject)

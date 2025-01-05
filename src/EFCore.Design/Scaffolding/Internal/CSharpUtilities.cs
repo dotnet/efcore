@@ -14,8 +14,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 /// </summary>
 public class CSharpUtilities : ICSharpUtilities
 {
-    private static readonly HashSet<string> CSharpKeywords = new()
-    {
+    private static readonly HashSet<string> CSharpKeywords =
+    [
         "abstract",
         "as",
         "base",
@@ -93,7 +93,7 @@ public class CSharpUtilities : ICSharpUtilities
         "void",
         "volatile",
         "while"
-    };
+    ];
 
     private static readonly Regex InvalidCharsRegex
         = new(
@@ -143,6 +143,11 @@ public class CSharpUtilities : ICSharpUtilities
             proposedIdentifier = "_";
         }
 
+        if (singularizePluralizer != null)
+        {
+            proposedIdentifier = singularizePluralizer(proposedIdentifier);
+        }
+
         var firstChar = proposedIdentifier[0];
         if (!char.IsLetter(firstChar)
             && firstChar != '_'
@@ -153,11 +158,6 @@ public class CSharpUtilities : ICSharpUtilities
         else if (IsCSharpKeyword(proposedIdentifier))
         {
             proposedIdentifier = "_" + proposedIdentifier;
-        }
-
-        if (singularizePluralizer != null)
-        {
-            proposedIdentifier = singularizePluralizer(proposedIdentifier);
         }
 
         return uniquifier(proposedIdentifier, existingIdentifiers);
@@ -223,9 +223,7 @@ public class CSharpUtilities : ICSharpUtilities
     {
         if (ch < 'a')
         {
-            return ch >= 'A'
-                && (ch <= 'Z'
-                    || ch == '_');
+            return ch is >= 'A' and (<= 'Z' or '_');
         }
 
         if (ch <= 'z')
@@ -241,10 +239,8 @@ public class CSharpUtilities : ICSharpUtilities
         if (ch < 'a')
         {
             return ch < 'A'
-                ? ch >= '0'
-                && ch <= '9'
-                : ch <= 'Z'
-                || ch == '_';
+                ? ch is >= '0' and <= '9'
+                : ch is <= 'Z' or '_';
         }
 
         if (ch <= 'z')

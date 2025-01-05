@@ -2,12 +2,13 @@
 
   <PropertyGroup>
     <Description>Shared design-time components for Entity Framework Core tools.</Description>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>$(DefaultNetCoreTargetFramework)</TargetFramework>
     <AssemblyName>Microsoft.EntityFrameworkCore.Design</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <DevelopmentDependency>True</DevelopmentDependency>
+    <DevelopmentDependency>true</DevelopmentDependency>
     <ImplicitUsings>true</ImplicitUsings>
+    <NoWarn>$(NoWarn);EF9100</NoWarn> <!-- Precompiled query is experimental -->
   </PropertyGroup>
 
   <ItemGroup>
@@ -47,10 +48,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="build\**\*">
-      <Pack>True</Pack>
-      <PackagePath>build</PackagePath>
-    </None>
+    <None Include="build\**\*" PackagePath="build\" Pack="true" />
   </ItemGroup>
 
   <ItemGroup>
@@ -58,10 +56,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Humanizer.Core" Version="2.14.1" />
-    <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="$(MicrosoftExtensionsDependencyModelVersion)" />
-    <PackageReference Include="Microsoft.Extensions.HostFactoryResolver.Sources" PrivateAssets="All" Version="$(MicrosoftExtensionsHostFactoryResolverSourcesVersion)" />
-    <PackageReference Include="Mono.TextTemplating" Version="2.2.1" />
+    <PackageReference Include="Humanizer.Core" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.MSBuild" />
+    <PackageReference Include="Microsoft.Build.Locator" />
+    <PackageReference Include="Microsoft.Extensions.DependencyModel" />
+    <PackageReference Include="Microsoft.Extensions.HostFactoryResolver.Sources" PrivateAssets="All" />
+    <PackageReference Include="Mono.TextTemplating" />
   </ItemGroup>
 
   <ItemGroup>

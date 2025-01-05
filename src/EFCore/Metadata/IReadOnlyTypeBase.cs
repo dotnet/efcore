@@ -6,7 +6,7 @@ using System.Diagnostics.CodeAnalysis;
 namespace Microsoft.EntityFrameworkCore.Metadata;
 
 /// <summary>
-///     Represents a type in the model.
+///     Represents a structural type in the model.
 /// </summary>
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
@@ -17,6 +17,12 @@ public interface IReadOnlyTypeBase : IReadOnlyAnnotatable
     ///     Gets the model that this type belongs to.
     /// </summary>
     IReadOnlyModel Model { get; }
+
+    /// <summary>
+    ///     Gets this entity type or the one on which the complex property chain is declared.
+    /// </summary>
+    IReadOnlyEntityType ContainingEntityType
+        => (IReadOnlyEntityType)this;
 
     /// <summary>
     ///     Gets the name of this type.
@@ -35,19 +41,19 @@ public interface IReadOnlyTypeBase : IReadOnlyAnnotatable
     Type ClrType { get; }
 
     /// <summary>
-    ///     Gets a value indicating whether this entity type is mapped to a <see cref="Type" /> that
-    ///     other entity types are also mapped to.
+    ///     Gets a value indicating whether this structural type is mapped to a <see cref="Type" /> that
+    ///     other structural types are also mapped to.
     /// </summary>
     bool HasSharedClrType { get; }
 
     /// <summary>
-    ///     Gets a value indicating whether this entity type has an indexer which is able to contain arbitrary properties
+    ///     Gets a value indicating whether this structural type has an indexer which is able to contain arbitrary properties
     ///     and a method that can be used to determine whether a given indexer property contains a value.
     /// </summary>
     bool IsPropertyBag { get; }
 
     /// <summary>
-    ///     Gets a value indicating whether this entity type represents an abstract type.
+    ///     Gets a value indicating whether this structural type represents an abstract type.
     /// </summary>
     /// <returns><see langword="true" /> if the type is abstract, <see langword="false" /> otherwise.</returns>
     [DebuggerStepThrough]
@@ -55,7 +61,7 @@ public interface IReadOnlyTypeBase : IReadOnlyAnnotatable
         => ClrType.IsAbstract;
 
     /// <summary>
-    ///     Gets the friendly display name for the given <see cref="IReadOnlyTypeBase" />.
+    ///     Gets the friendly display name for this structural type.
     /// </summary>
     /// <returns>The display name.</returns>
     [DebuggerStepThrough]
@@ -150,6 +156,210 @@ public interface IReadOnlyTypeBase : IReadOnlyAnnotatable
     }
 
     /// <summary>
+    ///     Determines if this type derives from (or is the same as) a given type.
+    /// </summary>
+    /// <param name="derivedType">The type to check whether it derives from this type.</param>
+    /// <returns>
+    ///     <see langword="true" /> if <paramref name="derivedType" /> derives from (or is the same as) this type,
+    ///     otherwise <see langword="false" />.
+    /// </returns>
+    bool IsAssignableFrom(IReadOnlyTypeBase derivedType)
+        => this == derivedType;
+
+    /// <summary>
+    ///     Determines if this type derives from (but is not the same as) a given type.
+    /// </summary>
+    /// <param name="baseType">The type to check if it is a base type of this type.</param>
+    /// <returns>
+    ///     <see langword="true" /> if this type derives from (but is not the same as) <paramref name="baseType" />,
+    ///     otherwise <see langword="false" />.
+    /// </returns>
+    bool IsStrictlyDerivedFrom(IReadOnlyTypeBase baseType)
+        => this != Check.NotNull(baseType, nameof(baseType)) && baseType.IsAssignableFrom(this);
+
+    /// <summary>
+    ///     Gets the property with the given name. Returns <see langword="null" /> if no property with the given name is defined.
+    /// </summary>
+    /// <remarks>
+    ///     This API only finds scalar properties and does not find navigation, complex or service properties.
+    /// </remarks>
+    /// <param name="name">The name of the property.</param>
+    /// <returns>The property, or <see langword="null" /> if none is found.</returns>
+    IReadOnlyProperty? FindProperty(string name);
+
+    /// <summary>
+    ///     Gets a property with the given member info. Returns <see langword="null" /> if no property is found.
+    /// </summary>
+    /// <remarks>
+    ///     This API only finds scalar properties and does not find navigation, complex or service properties.
+    /// </remarks>
+    /// <param name="memberInfo">The member on the class.</param>
+    /// <returns>The property, or <see langword="null" /> if none is found.</returns>
+    IReadOnlyProperty? FindProperty(MemberInfo memberInfo)
+        => (Check.NotNull(memberInfo, nameof(memberInfo)) as PropertyInfo)?.IsIndexerProperty() == true
+            ? null
+            : FindProperty(memberInfo.GetSimpleMemberName());
+
+    /// <summary>
+    ///     Finds matching properties on the given type. Returns <see langword="null" /> if any property is not found.
+    /// </summary>
+    /// <remarks>
+    ///     This API only finds scalar properties and does not find navigation, complex or service properties.
+    /// </remarks>
+    /// <param name="propertyNames">The property names.</param>
+    /// <returns>The properties, or <see langword="null" /> if any property is not found.</returns>
+    IReadOnlyList<IReadOnlyProperty>? FindProperties(IReadOnlyList<string> propertyNames);
+
+    /// <summary>
+    ///     Finds a property declared on the type with the given name.
+    ///     Does not return properties defined on a base type.
+    /// </summary>
+    /// <param name="name">The property name.</param>
+    /// <returns>The property, or <see langword="null" /> if none is found.</returns>
+    IReadOnlyProperty? FindDeclaredProperty(string name);
+
+    /// <summary>
+    ///     Gets a property with the given name.
+    /// </summary>
+    /// <remarks>
+    ///     This API only finds scalar properties and does not find navigation, complex or service properties.
+    /// </remarks>
+    /// <param name="name">The property name.</param>
+    /// <returns>The property.</returns>
+    IReadOnlyProperty GetProperty(string name)
+    {
+        Check.NotEmpty(name, nameof(name));
+
+        var property = FindProperty(name);
+        return property == null
+            ? throw new InvalidOperationException(CoreStrings.PropertyNotFound(name, DisplayName()))
+            : property;
+    }
+
+    /// <summary>
+    ///     Gets all scalar properties declared on this type.
+    /// </summary>
+    /// <remarks>
+    ///     This method does not return properties declared on base types.
+    ///     It is useful when iterating over all types to avoid processing the same property more than once.
+    ///     Use <see cref="GetProperties" /> to also return properties declared on base types.
+    /// </remarks>
+    /// <returns>Declared scalar properties.</returns>
+    IEnumerable<IReadOnlyProperty> GetDeclaredProperties();
+
+    /// <summary>
+    ///     Gets all scalar properties declared on the types derived from this type.
+    /// </summary>
+    /// <remarks>
+    ///     This method does not return properties declared on the given type itself.
+    ///     Use <see cref="GetProperties" /> to return properties declared on this
+    ///     and base types.
+    /// </remarks>
+    /// <returns>Derived scalar properties.</returns>
+    IEnumerable<IReadOnlyProperty> GetDerivedProperties();
+
+    /// <summary>
+    ///     Gets all scalar properties defined on this type.
+    /// </summary>
+    /// <remarks>
+    ///     This API only returns scalar properties and does not return navigation, complex or service properties.
+    /// </remarks>
+    /// <returns>The properties defined on this type.</returns>
+    IEnumerable<IReadOnlyProperty> GetProperties();
+
+    /// <summary>
+    ///     Gets the complex property with the given name. Returns <see langword="null" /> if no property with the given name is defined.
+    /// </summary>
+    /// <remarks>
+    ///     This API only finds complex properties and does not find navigation, scalar or service properties.
+    /// </remarks>
+    /// <param name="name">The name of the property.</param>
+    /// <returns>The property, or <see langword="null" /> if none is found.</returns>
+    IReadOnlyComplexProperty? FindComplexProperty(string name);
+
+    /// <summary>
+    ///     Gets a complex property with the given member info. Returns <see langword="null" /> if no property is found.
+    /// </summary>
+    /// <remarks>
+    ///     This API only finds complex properties and does not find navigation, scalar or service properties.
+    /// </remarks>
+    /// <param name="memberInfo">The member on the class.</param>
+    /// <returns>The property, or <see langword="null" /> if none is found.</returns>
+    IReadOnlyComplexProperty? FindComplexProperty(MemberInfo memberInfo)
+        => (Check.NotNull(memberInfo, nameof(memberInfo)) as PropertyInfo)?.IsIndexerProperty() == true
+            ? null
+            : FindComplexProperty(memberInfo.GetSimpleMemberName());
+
+    /// <summary>
+    ///     Finds a property declared on the type with the given name.
+    ///     Does not return properties defined on a base type.
+    /// </summary>
+    /// <param name="name">The property name.</param>
+    /// <returns>The property, or <see langword="null" /> if none is found.</returns>
+    IReadOnlyComplexProperty? FindDeclaredComplexProperty(string name);
+
+    /// <summary>
+    ///     Gets the complex properties defined on this type and base types.
+    /// </summary>
+    /// <remarks>
+    ///     This API only returns complex properties and does not find navigation, scalar or service properties.
+    /// </remarks>
+    /// <returns>The complex properties defined on this type.</returns>
+    IEnumerable<IReadOnlyComplexProperty> GetComplexProperties();
+
+    /// <summary>
+    ///     Gets the complex properties declared on this type.
+    /// </summary>
+    /// <returns>Declared complex properties.</returns>
+    IEnumerable<IReadOnlyComplexProperty> GetDeclaredComplexProperties();
+
+    /// <summary>
+    ///     Gets the complex properties declared on the types derived from this type.
+    /// </summary>
+    /// <remarks>
+    ///     This method does not return complex properties declared on the given type itself.
+    ///     Use <see cref="GetComplexProperties" /> to return complex properties declared on this
+    ///     and base typed types.
+    /// </remarks>
+    /// <returns>Derived complex properties.</returns>
+    IEnumerable<IReadOnlyComplexProperty> GetDerivedComplexProperties();
+
+    /// <summary>
+    ///     Gets the members defined on this type and base types.
+    /// </summary>
+    /// <returns>Type members.</returns>
+    IEnumerable<IReadOnlyPropertyBase> GetMembers();
+
+    /// <summary>
+    ///     Gets the members declared on this type.
+    /// </summary>
+    /// <returns>Declared members.</returns>
+    IEnumerable<IReadOnlyPropertyBase> GetDeclaredMembers();
+
+    /// <summary>
+    ///     Gets the member with the given name. Returns <see langword="null" /> if no member with the given name is defined.
+    /// </summary>
+    /// <remarks>
+    ///     This API only finds scalar properties and does not find navigation, complex or service properties.
+    /// </remarks>
+    /// <param name="name">The name of the property.</param>
+    /// <returns>The property, or <see langword="null" /> if none is found.</returns>
+    IReadOnlyPropertyBase? FindMember(string name);
+
+    /// <summary>
+    ///     Gets the members with the given name on this type, base types or derived types.
+    /// </summary>
+    /// <returns>Type members.</returns>
+    IEnumerable<IReadOnlyPropertyBase> FindMembersInHierarchy(string name);
+
+    /// <summary>
+    ///     Gets the change tracking strategy being used for this type. This strategy indicates how the
+    ///     context detects changes to properties for an instance of the type.
+    /// </summary>
+    /// <returns>The change tracking strategy.</returns>
+    ChangeTrackingStrategy GetChangeTrackingStrategy();
+
+    /// <summary>
     ///     Gets the <see cref="PropertyAccessMode" /> being used for properties and navigations of this type.
     /// </summary>
     /// <remarks>
@@ -158,16 +368,6 @@ public interface IReadOnlyTypeBase : IReadOnlyAnnotatable
     /// </remarks>
     /// <returns>The access mode being used.</returns>
     PropertyAccessMode GetPropertyAccessMode();
-
-    /// <summary>
-    ///     Gets the <see cref="PropertyAccessMode" /> being used for navigations of this type.
-    /// </summary>
-    /// <remarks>
-    ///     Note that individual navigations can override this access mode. The value returned here will
-    ///     be used for any navigation for which no override has been specified.
-    /// </remarks>
-    /// <returns>The access mode being used.</returns>
-    PropertyAccessMode GetNavigationAccessMode();
 
     /// <summary>
     ///     Returns the <see cref="PropertyInfo" /> for the indexer on the associated CLR type if one exists.

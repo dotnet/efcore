@@ -5,17 +5,21 @@ using Microsoft.EntityFrameworkCore.TestModels.Operators;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase
 {
     private static readonly MethodInfo LikeMethodInfo
         = typeof(DbFunctionsExtensions).GetRuntimeMethod(
-            nameof(DbFunctionsExtensions.Like), new[] { typeof(DbFunctions), typeof(string), typeof(string) });
+            nameof(DbFunctionsExtensions.Like), [typeof(DbFunctions), typeof(string), typeof(string)]);
 
     private static readonly MethodInfo StringConcatMethodInfo
         = typeof(string).GetRuntimeMethod(
-            nameof(string.Concat), new[] { typeof(string), typeof(string) });
+            nameof(string.Concat), [typeof(string), typeof(string)]);
 
-    protected readonly List<((Type Left, Type Right) InputTypes, Type ResultType, Func<Expression, Expression, Expression> OperatorCreator)> Binaries;
+    protected readonly List<((Type Left, Type Right) InputTypes, Type ResultType, Func<Expression, Expression, Expression> OperatorCreator)>
+        Binaries;
+
     protected readonly List<(Type InputType, Type ResultType, Func<Expression, Expression> OperatorCreator)> Unaries;
     protected readonly Dictionary<Type, Type> PropertyTypeToEntityMap;
 
@@ -23,11 +27,10 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase
 
     protected ExpectedQueryRewritingVisitor ExpectedQueryRewriter { get; init; }
 
-    protected OperatorsProceduralQueryTestBase(ITestOutputHelper testOutputHelper)
+    protected OperatorsProceduralQueryTestBase()
     {
-        //TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
-        Binaries = new()
-        {
+        Binaries =
+        [
             ((typeof(string), typeof(string)), typeof(bool), Expression.Equal),
             ((typeof(string), typeof(string)), typeof(bool), Expression.NotEqual),
             ((typeof(string), typeof(string)), typeof(string), (x, y) => Expression.Add(x, y, StringConcatMethodInfo)),
@@ -37,7 +40,6 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase
                 Expression.Constant(EF.Functions),
                 x,
                 y)),
-
             ((typeof(int), typeof(int)), typeof(int), Expression.Multiply),
             ((typeof(int), typeof(int)), typeof(int), Expression.Divide),
             ((typeof(int), typeof(int)), typeof(int), Expression.Modulo),
@@ -75,11 +77,11 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase
             ((typeof(bool), typeof(bool)), typeof(bool), Expression.AndAlso),
             ((typeof(bool), typeof(bool)), typeof(bool), Expression.OrElse),
             ((typeof(bool), typeof(bool)), typeof(bool), Expression.And),
-            ((typeof(bool), typeof(bool)), typeof(bool), Expression.Or),
-        };
+            ((typeof(bool), typeof(bool)), typeof(bool), Expression.Or)
+        ];
 
-        Unaries = new()
-        {
+        Unaries =
+        [
             (typeof(string), typeof(bool), x => Expression.Equal(x, Expression.Constant(null, typeof(string)))),
             (typeof(string), typeof(bool), x => Expression.NotEqual(x, Expression.Constant(null, typeof(string)))),
             (typeof(string), typeof(bool), x => Expression.Call(
@@ -94,25 +96,20 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase
                 Expression.Constant(EF.Functions),
                 x,
                 Expression.Constant("%B"))),
-
             (typeof(int), typeof(int), Expression.Not),
             (typeof(int), typeof(int), Expression.Negate),
             (typeof(int), typeof(long), x => Expression.Convert(x, typeof(long))),
-
             (typeof(int?), typeof(bool), x => Expression.Equal(x, Expression.Constant(null, typeof(int?)))),
             (typeof(int?), typeof(bool), x => Expression.NotEqual(x, Expression.Constant(null, typeof(int?)))),
-
             (typeof(long), typeof(long), Expression.Not),
             (typeof(long), typeof(long), Expression.Negate),
             (typeof(long), typeof(int), x => Expression.Convert(x, typeof(int))),
-
             (typeof(bool), typeof(bool), Expression.Not),
-
             (typeof(bool?), typeof(bool), x => Expression.Equal(x, Expression.Constant(null, typeof(bool?)))),
-            (typeof(bool?), typeof(bool), x => Expression.NotEqual(x, Expression.Constant(null, typeof(bool?)))),
-        };
+            (typeof(bool?), typeof(bool), x => Expression.NotEqual(x, Expression.Constant(null, typeof(bool?))))
+        ];
 
-        PropertyTypeToEntityMap = new()
+        PropertyTypeToEntityMap = new Dictionary<Type, Type>
         {
             { typeof(string), typeof(OperatorEntityString) },
             { typeof(int), typeof(OperatorEntityInt) },
@@ -121,6 +118,7 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase
             { typeof(bool), typeof(OperatorEntityBool) },
             { typeof(bool?), typeof(OperatorEntityNullableBool) },
             { typeof(DateTimeOffset), typeof(OperatorEntityDateTimeOffset) },
+            { typeof(DateTimeOffset?), typeof(OperatorEntityNullableDateTimeOffset) },
         };
 
         ExpectedData = OperatorsData.Instance;
@@ -130,7 +128,7 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase
     protected override string StoreName
         => "OperatorsProceduralTest";
 
-    protected virtual void Seed(OperatorsContext ctx)
+    protected virtual async Task SeedAsync(OperatorsContext ctx)
     {
         ctx.Set<OperatorEntityString>().AddRange(ExpectedData.OperatorEntitiesString);
         ctx.Set<OperatorEntityInt>().AddRange(ExpectedData.OperatorEntitiesInt);
@@ -139,15 +137,16 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase
         ctx.Set<OperatorEntityBool>().AddRange(ExpectedData.OperatorEntitiesBool);
         ctx.Set<OperatorEntityNullableBool>().AddRange(ExpectedData.OperatorEntitiesNullableBool);
         ctx.Set<OperatorEntityDateTimeOffset>().AddRange(ExpectedData.OperatorEntitiesDateTimeOffset);
+        ctx.Set<OperatorEntityNullableDateTimeOffset>().AddRange(ExpectedData.OperatorEntitiesNullableDateTimeOffset);
 
-        ctx.SaveChanges();
+        await ctx.SaveChangesAsync();
     }
 
     //[ConditionalFact]
     public virtual async Task Procedural_predicate_test_six_sources_three_pairs()
     {
         var maxDepth = 7;
-        var contextFactory = await InitializeAsync<OperatorsContext>(seed: Seed);
+        var contextFactory = await InitializeAsync<OperatorsContext>(seed: ctx => SeedAsync(ctx));
         using var context = contextFactory.CreateContext();
         var actualSetSource = new ActualSetSource(context);
 
@@ -168,10 +167,11 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase
 
             // dummy input expression and whether is has already been used
             // (we want to prioritize ones that haven't been used yet, so that generated expressions are more interesting)
-            var rootEntityExpressions = types.Select((x, i) => new RootEntityExpressionInfo(
-                Expression.Property(
-                    Expression.Parameter(PropertyTypeToEntityMap[x], "e" + i),
-                    "Value"))).ToArray();
+            var rootEntityExpressions = types.Select(
+                (x, i) => new RootEntityExpressionInfo(
+                    Expression.Property(
+                        Expression.Parameter(PropertyTypeToEntityMap[x], "e" + i),
+                        "Value"))).ToArray();
 
             var testExpression = GenerateTestExpression(
                 random,
@@ -193,7 +193,7 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase
     public virtual async Task Procedural_projection_test_six_sources_two_trios()
     {
         var maxDepth = 7;
-        var contextFactory = await InitializeAsync<OperatorsContext>(seed: Seed);
+        var contextFactory = await InitializeAsync<OperatorsContext>(seed: ctx => SeedAsync(ctx));
         using var context = contextFactory.CreateContext();
         var actualSetSource = new ActualSetSource(context);
 
@@ -215,10 +215,11 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase
 
             // dummy input expression and whether is has already been used
             // (we want to prioritize ones that haven't been used yet, so that generated expressions are more interesting)
-            var rootEntityExpressions = types.Select((x, i) => new RootEntityExpressionInfo(
-                Expression.Property(
-                    Expression.Parameter(PropertyTypeToEntityMap[x], "e" + i),
-                    "Value"))).ToArray();
+            var rootEntityExpressions = types.Select(
+                (x, i) => new RootEntityExpressionInfo(
+                    Expression.Property(
+                        Expression.Parameter(PropertyTypeToEntityMap[x], "e" + i),
+                        "Value"))).ToArray();
 
             var testExpression = GenerateTestExpression(
                 random,
@@ -246,7 +247,8 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase
         Type startingResultType)
     {
         var distinctTypes = types.Distinct().ToList();
-        var possibleLeafBinaries = Binaries.Where(x => distinctTypes.Contains(x.InputTypes.Left) && distinctTypes.Contains(x.InputTypes.Right)).ToList();
+        var possibleLeafBinaries =
+            Binaries.Where(x => distinctTypes.Contains(x.InputTypes.Left) && distinctTypes.Contains(x.InputTypes.Right)).ToList();
         var possibleLeafUnaries = Unaries.Where(x => distinctTypes.Contains(x.InputType)).ToList();
 
         // we assume one level of nesting is enough to get to all possible operations
@@ -258,7 +260,8 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase
             .Distinct()
             .ToList();
 
-        var possibleBinaries = Binaries.Where(x => distinctTypesWithNesting.Contains(x.InputTypes.Left) && distinctTypesWithNesting.Contains(x.InputTypes.Right)).ToList();
+        var possibleBinaries = Binaries.Where(
+            x => distinctTypesWithNesting.Contains(x.InputTypes.Left) && distinctTypesWithNesting.Contains(x.InputTypes.Right)).ToList();
         var possibleUnaries = Unaries.Where(x => distinctTypesWithNesting.Contains(x.InputType)).ToList();
 
         var currentDepth = 0;
@@ -297,7 +300,7 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase
             var possibleBinariesForResultType = possibleBinaries.Where(x => x.ResultType == currentResultType).ToList();
             var possibleUnariesForResultType = possibleUnaries.Where(x => x.ResultType == currentResultType).ToList();
 
-            // if we can't go any deeper (no matching operations) then simply return source 
+            // if we can't go any deeper (no matching operations) then simply return source
             if (possibleBinariesForResultType.Count == 0 && possibleUnariesForResultType.Count == 0)
             {
                 return AddRootPropertyAccess(random, currentResultType, rootPropertyExpressions);
@@ -474,12 +477,7 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase
 
         genericMethod.Invoke(
             this,
-            new object[]
-            {
-                seed,
-                actualSetSource,
-                resultRewriter
-            });
+            [seed, actualSetSource, resultRewriter]);
     }
 
     private void TestProjectionQueryWithOneSource<TEntity1, TResult>(
@@ -665,36 +663,22 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase
             });
     }
 
-    private class ResultExpressionProjectionRewriter : ExpressionVisitor
+    private class ResultExpressionProjectionRewriter(Expression resultExpression, Expression[] roots) : ExpressionVisitor
     {
-        private readonly Expression[] _roots;
-        private readonly Expression _resultExpression;
-
-        public ResultExpressionProjectionRewriter(Expression resultExpression, Expression[] roots)
-        {
-            _resultExpression = resultExpression;
-            _roots = roots;
-        }
+        private readonly Expression[] _roots = roots;
+        private readonly Expression _resultExpression = resultExpression;
 
         protected override Expression VisitNew(NewExpression newExpression)
         {
-            if (newExpression.Constructor is ConstructorInfo ctorInfo
-                && ctorInfo.DeclaringType is Type { IsGenericType: true } declaringType)
+            if (newExpression.Constructor is { DeclaringType: { IsGenericType: true } declaringType })
             {
                 if (declaringType.GetGenericTypeDefinition() == typeof(OperatorDto1<,>))
                 {
                     var replaced = new ReplacingExpressionVisitor(
                         _roots,
-                        new[]
-                        {
-                            Expression.Property(newExpression.Arguments[0], "Value"),
-                        }).Visit(_resultExpression);
+                        new[] { Expression.Property(newExpression.Arguments[0], "Value"), }).Visit(_resultExpression);
 
-                    var newArgs = new List<Expression>
-                    {
-                        newExpression.Arguments[0],
-                        replaced
-                    };
+                    var newArgs = new List<Expression> { newExpression.Arguments[0], replaced };
 
                     return newExpression.Update(newArgs);
                 }
@@ -824,107 +808,85 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase
         }
     }
 
-    public class OperatorDto1<TEntity1, TResult>
+    public class OperatorDto1<TEntity1, TResult>(TEntity1 entity1, TResult result)
         where TEntity1 : OperatorEntityBase
     {
-        public OperatorDto1(TEntity1 entity1, TResult result)
-        {
-            Entity1 = entity1;
-            Result = result;
-        }
+        public TEntity1 Entity1 { get; set; } = entity1;
 
-        public TEntity1 Entity1 { get; set; }
-
-        public TResult Result { get; set; }
+        public TResult Result { get; set; } = result;
     }
 
-    public class OperatorDto2<TEntity1, TEntity2, TResult>
+    public class OperatorDto2<TEntity1, TEntity2, TResult>(TEntity1 entity1, TEntity2 entity2, TResult result)
         where TEntity1 : OperatorEntityBase
         where TEntity2 : OperatorEntityBase
     {
-        public OperatorDto2(TEntity1 entity1, TEntity2 entity2, TResult result)
-        {
-            Entity1 = entity1;
-            Entity2 = entity2;
-            Result = result;
-        }
+        public TEntity1 Entity1 { get; set; } = entity1;
+        public TEntity2 Entity2 { get; set; } = entity2;
 
-        public TEntity1 Entity1 { get; set; }
-        public TEntity2 Entity2 { get; set; }
-
-        public TResult Result { get; set; }
+        public TResult Result { get; set; } = result;
     }
 
-    public class OperatorDto3<TEntity1, TEntity2, TEntity3, TResult>
+    public class OperatorDto3<TEntity1, TEntity2, TEntity3, TResult>(TEntity1 entity1, TEntity2 entity2, TEntity3 entity3, TResult result)
         where TEntity1 : OperatorEntityBase
         where TEntity2 : OperatorEntityBase
         where TEntity3 : OperatorEntityBase
     {
-        public OperatorDto3(TEntity1 entity1, TEntity2 entity2, TEntity3 entity3, TResult result)
-        {
-            Entity1 = entity1;
-            Entity2 = entity2;
-            Entity3 = entity3;
-            Result = result;
-        }
+        public TEntity1 Entity1 { get; set; } = entity1;
+        public TEntity2 Entity2 { get; set; } = entity2;
+        public TEntity3 Entity3 { get; set; } = entity3;
 
-        public TEntity1 Entity1 { get; set; }
-        public TEntity2 Entity2 { get; set; }
-        public TEntity3 Entity3 { get; set; }
-
-        public TResult Result { get; set; }
+        public TResult Result { get; set; } = result;
     }
 
-    public class OperatorDto4<TEntity1, TEntity2, TEntity3, TEntity4, TResult>
+    public class OperatorDto4<TEntity1, TEntity2, TEntity3, TEntity4, TResult>(
+        TEntity1 entity1,
+        TEntity2 entity2,
+        TEntity3 entity3,
+        TEntity4 entity4,
+        TResult result)
         where TEntity1 : OperatorEntityBase
         where TEntity2 : OperatorEntityBase
         where TEntity3 : OperatorEntityBase
         where TEntity4 : OperatorEntityBase
     {
-        public OperatorDto4(TEntity1 entity1, TEntity2 entity2, TEntity3 entity3, TEntity4 entity4, TResult result)
-        {
-            Entity1 = entity1;
-            Entity2 = entity2;
-            Entity3 = entity3;
-            Entity4 = entity4;
-            Result = result;
-        }
+        public TEntity1 Entity1 { get; set; } = entity1;
+        public TEntity2 Entity2 { get; set; } = entity2;
+        public TEntity3 Entity3 { get; set; } = entity3;
+        public TEntity4 Entity4 { get; set; } = entity4;
 
-        public TEntity1 Entity1 { get; set; }
-        public TEntity2 Entity2 { get; set; }
-        public TEntity3 Entity3 { get; set; }
-        public TEntity4 Entity4 { get; set; }
-
-        public TResult Result { get; set; }
+        public TResult Result { get; set; } = result;
     }
 
-    public class OperatorDto5<TEntity1, TEntity2, TEntity3, TEntity4, TEntity5, TResult>
+    public class OperatorDto5<TEntity1, TEntity2, TEntity3, TEntity4, TEntity5, TResult>(
+        TEntity1 entity1,
+        TEntity2 entity2,
+        TEntity3 entity3,
+        TEntity4 entity4,
+        TEntity5 entity5,
+        TResult result)
         where TEntity1 : OperatorEntityBase
         where TEntity2 : OperatorEntityBase
         where TEntity3 : OperatorEntityBase
         where TEntity4 : OperatorEntityBase
         where TEntity5 : OperatorEntityBase
     {
-        public OperatorDto5(TEntity1 entity1, TEntity2 entity2, TEntity3 entity3, TEntity4 entity4, TEntity5 entity5, TResult result)
-        {
-            Entity1 = entity1;
-            Entity2 = entity2;
-            Entity3 = entity3;
-            Entity4 = entity4;
-            Entity5 = entity5;
-            Result = result;
-        }
+        public TEntity1 Entity1 { get; set; } = entity1;
+        public TEntity2 Entity2 { get; set; } = entity2;
+        public TEntity3 Entity3 { get; set; } = entity3;
+        public TEntity4 Entity4 { get; set; } = entity4;
+        public TEntity5 Entity5 { get; set; } = entity5;
 
-        public TEntity1 Entity1 { get; set; }
-        public TEntity2 Entity2 { get; set; }
-        public TEntity3 Entity3 { get; set; }
-        public TEntity4 Entity4 { get; set; }
-        public TEntity5 Entity5 { get; set; }
-
-        public TResult Result { get; set; }
+        public TResult Result { get; set; } = result;
     }
 
-    public class OperatorDto6<TEntity1, TEntity2, TEntity3, TEntity4, TEntity5, TEntity6, TResult>
+    public class OperatorDto6<TEntity1, TEntity2, TEntity3, TEntity4, TEntity5, TEntity6, TResult>(
+        TEntity1 entity1,
+        TEntity2 entity2,
+        TEntity3 entity3,
+        TEntity4 entity4,
+        TEntity5 entity5,
+        TEntity6 entity6,
+        TResult result)
         where TEntity1 : OperatorEntityBase
         where TEntity2 : OperatorEntityBase
         where TEntity3 : OperatorEntityBase
@@ -932,25 +894,14 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase
         where TEntity5 : OperatorEntityBase
         where TEntity6 : OperatorEntityBase
     {
-        public OperatorDto6(TEntity1 entity1, TEntity2 entity2, TEntity3 entity3, TEntity4 entity4, TEntity5 entity5, TEntity6 entity6, TResult result)
-        {
-            Entity1 = entity1;
-            Entity2 = entity2;
-            Entity3 = entity3;
-            Entity4 = entity4;
-            Entity5 = entity5;
-            Entity6 = entity6;
-            Result = result;
-        }
+        public TEntity1 Entity1 { get; set; } = entity1;
+        public TEntity2 Entity2 { get; set; } = entity2;
+        public TEntity3 Entity3 { get; set; } = entity3;
+        public TEntity4 Entity4 { get; set; } = entity4;
+        public TEntity5 Entity5 { get; set; } = entity5;
+        public TEntity6 Entity6 { get; set; } = entity6;
 
-        public TEntity1 Entity1 { get; set; }
-        public TEntity2 Entity2 { get; set; }
-        public TEntity3 Entity3 { get; set; }
-        public TEntity4 Entity4 { get; set; }
-        public TEntity5 Entity5 { get; set; }
-        public TEntity6 Entity6 { get; set; }
-
-        public TResult Result { get; set; }
+        public TResult Result { get; set; } = result;
     }
 
     #endregion
@@ -993,12 +944,7 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase
 
         genericMethod.Invoke(
             this,
-            new object[]
-            {
-                seed,
-                actualSetSource,
-                resultRewriter
-            });
+            [seed, actualSetSource, resultRewriter]);
     }
 
     private void TestPredicateQueryWithOneSource<TEntity1>(
@@ -1188,39 +1134,48 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase
         => true;
 
     private static bool DummyTrue<TEntity1, TEntity2>(
-        TEntity1 e1, TEntity2 e2)
+        TEntity1 e1,
+        TEntity2 e2)
         => true;
 
     private static bool DummyTrue<TEntity1, TEntity2, TEntity3>(
-        TEntity1 e1, TEntity2 e2, TEntity3 e3)
+        TEntity1 e1,
+        TEntity2 e2,
+        TEntity3 e3)
         => true;
 
     private static bool DummyTrue<TEntity1, TEntity2, TEntity3, TEntity4>(
-        TEntity1 e1, TEntity2 e2, TEntity3 e3, TEntity4 e4)
+        TEntity1 e1,
+        TEntity2 e2,
+        TEntity3 e3,
+        TEntity4 e4)
         => true;
 
     private static bool DummyTrue<TEntity1, TEntity2, TEntity3, TEntity4, TEntity5>(
-        TEntity1 e1, TEntity2 e2, TEntity3 e3, TEntity4 e4, TEntity5 e5)
+        TEntity1 e1,
+        TEntity2 e2,
+        TEntity3 e3,
+        TEntity4 e4,
+        TEntity5 e5)
         => true;
 
     private static bool DummyTrue<TEntity1, TEntity2, TEntity3, TEntity4, TEntity5, TEntity6>(
-        TEntity1 e1, TEntity2 e2, TEntity3 e3, TEntity4 e4, TEntity5 e5, TEntity6 e6)
+        TEntity1 e1,
+        TEntity2 e2,
+        TEntity3 e3,
+        TEntity4 e4,
+        TEntity5 e5,
+        TEntity6 e6)
         => true;
 
-    private class ResultExpressionPredicateRewriter : ExpressionVisitor
+    private class ResultExpressionPredicateRewriter(Expression resultExpression, Expression[] roots) : ExpressionVisitor
     {
         private static readonly MethodInfo _likeMethodInfo
             = typeof(DbFunctionsExtensions).GetRuntimeMethod(
-                nameof(DbFunctionsExtensions.Like), new[] { typeof(DbFunctions), typeof(string), typeof(string) });
+                nameof(DbFunctionsExtensions.Like), [typeof(DbFunctions), typeof(string), typeof(string)]);
 
-        private readonly Expression[] _roots;
-        private readonly Expression _resultExpression;
-
-        public ResultExpressionPredicateRewriter(Expression resultExpression, Expression[] roots)
-        {
-            _resultExpression = resultExpression;
-            _roots = roots;
-        }
+        private readonly Expression[] _roots = roots;
+        private readonly Expression _resultExpression = resultExpression;
 
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
@@ -1321,27 +1276,16 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase
 
     #region common infra
 
-    private class RootEntityExpressionInfo
+    private class RootEntityExpressionInfo(Expression expression)
     {
-        public RootEntityExpressionInfo(Expression expression)
-        {
-            Expression = expression;
-            Used = false;
-        }
-
-        public Expression Expression { get; }
+        public Expression Expression { get; } = expression;
 
         public bool Used { get; set; }
     }
 
-    private class ActualSetSource : ISetSource
+    private class ActualSetSource(DbContext context) : ISetSource
     {
-        private readonly DbContext _context;
-
-        public ActualSetSource(DbContext context)
-        {
-            _context = context;
-        }
+        private readonly DbContext _context = context;
 
         public IQueryable<TEntity> Set<TEntity>()
             where TEntity : class
@@ -1352,12 +1296,11 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase
     {
         private static readonly MethodInfo _startsWithMethodInfo
             = typeof(string).GetRuntimeMethod(
-                nameof(string.StartsWith), new[] { typeof(string) })!;
+                nameof(string.StartsWith), [typeof(string)])!;
 
         private static readonly MethodInfo _endsWithMethodInfo
             = typeof(string).GetRuntimeMethod(
-                nameof(string.EndsWith), new[] { typeof(string) })!;
-
+                nameof(string.EndsWith), [typeof(string)])!;
 
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {

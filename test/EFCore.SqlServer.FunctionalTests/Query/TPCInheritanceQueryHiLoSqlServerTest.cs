@@ -3,11 +3,7 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class TPCInheritanceQueryHiLoSqlServerTest : TPCInheritanceQuerySqlServerTestBase<TPCInheritanceQueryHiLoSqlServerFixture>
-{
-    public TPCInheritanceQueryHiLoSqlServerTest(TPCInheritanceQueryHiLoSqlServerFixture fixture)
-        : base(fixture)
-    {
-        Fixture.TestSqlLoggerFactory.Clear();
-    }
-}
+#nullable disable
+
+public class TPCInheritanceQueryHiLoSqlServerTest(TPCInheritanceQueryHiLoSqlServerFixture fixture, ITestOutputHelper testOutputHelper)
+    : TPCInheritanceQuerySqlServerTestBase<TPCInheritanceQueryHiLoSqlServerFixture>(fixture, testOutputHelper);

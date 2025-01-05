@@ -3,13 +3,10 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel;
 
-public class F1Context : PoolableDbContext
-{
-    public F1Context(DbContextOptions options)
-        : base(options)
-    {
-    }
+#nullable disable
 
+public class F1Context(DbContextOptions options) : PoolableDbContext(options)
+{
     public DbSet<Team> Teams { get; set; }
     public DbSet<Driver> Drivers { get; set; }
     public DbSet<Sponsor> Sponsors { get; set; }
@@ -18,17 +15,9 @@ public class F1Context : PoolableDbContext
     public DbSet<Fan> Fans { get; set; }
     public DbSet<FanTpt> FanTpts { get; set; }
     public DbSet<FanTpc> FanTpcs { get; set; }
-
     public DbSet<Circuit> Circuits { get; set; }
 
-    public static void Seed(F1Context context)
-    {
-        AddEntities(context);
-
-        context.SaveChanges();
-    }
-
-    private static void AddEntities(F1Context context)
+    public static void AddSeedData(F1Context context)
     {
         foreach (var engineSupplier in new List<EngineSupplier>
                  {
@@ -871,12 +860,42 @@ public class F1Context : PoolableDbContext
         teams.Single(t => t.Id == Team.Ferrari).Sponsors.Add(shell);
 
         context.AddRange(
-            new SuperFan { Id = 1, Name = "Alice", Swag = new() { Stuff = "SuperStuff" }},
-            new MegaFan { Id = 2, Name = "Toast", Swag = new() { Stuff = "MegaStuff" } },
-            new SuperFanTpt { Id = 1, Name = "Alice", Swag = new() { Stuff = "SuperStuff" }},
-            new MegaFanTpt { Id = 2, Name = "Toast", Swag = new() { Stuff = "MegaStuff" } },
-            new SuperFanTpc { Id = 1, Name = "Alice", Swag = new() { Stuff = "SuperStuff" }},
-            new MegaFanTpc { Id = 2, Name = "Toast", Swag = new() { Stuff = "MegaStuff" } },
+            new SuperFan
+            {
+                Id = 1,
+                Name = "Alice",
+                Swag = new SwagBag { Stuff = "SuperStuff" }
+            },
+            new MegaFan
+            {
+                Id = 2,
+                Name = "Toast",
+                Swag = new SwagBag { Stuff = "MegaStuff" }
+            },
+            new SuperFanTpt
+            {
+                Id = 1,
+                Name = "Alice",
+                Swag = new SwagBag { Stuff = "SuperStuff" }
+            },
+            new MegaFanTpt
+            {
+                Id = 2,
+                Name = "Toast",
+                Swag = new SwagBag { Stuff = "MegaStuff" }
+            },
+            new SuperFanTpc
+            {
+                Id = 1,
+                Name = "Alice",
+                Swag = new SwagBag { Stuff = "SuperStuff" }
+            },
+            new MegaFanTpc
+            {
+                Id = 2,
+                Name = "Toast",
+                Swag = new SwagBag { Stuff = "MegaStuff" }
+            },
             new StreetCircuit { Id = 1, Name = "Monaco" },
             new City { Id = 1, Name = "Monaco" },
             new OvalCircuit { Id = 2, Name = "Indy" },

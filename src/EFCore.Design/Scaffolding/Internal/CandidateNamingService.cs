@@ -118,7 +118,6 @@ public class CandidateNamingService : ICandidateNamingService
         return StripId(name);
     }
 
-
     private static string StripId(string commonPrefix)
     {
         if (commonPrefix.Length < 3

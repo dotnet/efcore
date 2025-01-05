@@ -45,4 +45,22 @@ public class InternalTriggerBuilder : AnnotatableBuilder<Trigger, IConventionMod
         [DebuggerStepThrough]
         get => Metadata;
     }
+
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    IConventionTriggerBuilder? IConventionTriggerBuilder.HasAnnotation(string name, object? value, bool fromDataAnnotation)
+        => (IConventionTriggerBuilder?)base.HasAnnotation(
+            name, value, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    IConventionTriggerBuilder? IConventionTriggerBuilder.HasNonNullAnnotation(string name, object? value, bool fromDataAnnotation)
+        => (IConventionTriggerBuilder?)base.HasNonNullAnnotation(
+            name, value, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    IConventionTriggerBuilder? IConventionTriggerBuilder.HasNoAnnotation(string name, bool fromDataAnnotation)
+        => (IConventionTriggerBuilder?)base.HasNoAnnotation(
+            name, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 }

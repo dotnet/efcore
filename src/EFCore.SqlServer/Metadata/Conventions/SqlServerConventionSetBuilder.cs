@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 ///     </para>
 ///     <para>
 ///         See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see>, and
-///         <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+///         <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
 ///         for more information and examples.
 ///     </para>
 /// </remarks>
@@ -37,9 +37,7 @@ public class SqlServerConventionSetBuilder : RelationalConventionSetBuilder
         RelationalConventionSetBuilderDependencies relationalDependencies,
         ISqlGenerationHelper sqlGenerationHelper)
         : base(dependencies, relationalDependencies)
-    {
-        _sqlGenerationHelper = sqlGenerationHelper;
-    }
+        => _sqlGenerationHelper = sqlGenerationHelper;
 
     /// <summary>
     ///     Builds and returns the convention set for the current database provider.

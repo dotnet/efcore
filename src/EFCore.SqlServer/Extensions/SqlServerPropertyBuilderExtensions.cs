@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore;
 /// </summary>
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
 ///     for more information and examples.
 /// </remarks>
 public static class SqlServerPropertyBuilderExtensions
@@ -22,7 +22,7 @@ public static class SqlServerPropertyBuilderExtensions
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples.
     /// </remarks>
     /// <param name="propertyBuilder">The builder for the property being configured.</param>
@@ -41,7 +41,7 @@ public static class SqlServerPropertyBuilderExtensions
 
         name ??= SqlServerModelExtensions.DefaultHiLoSequenceName;
 
-        var model = property.DeclaringEntityType.Model;
+        var model = property.DeclaringType.Model;
 
         if (model.FindSequence(name, schema) == null)
         {
@@ -63,7 +63,7 @@ public static class SqlServerPropertyBuilderExtensions
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples.
     /// </remarks>
     /// <typeparam name="TProperty">The type of the property being configured.</typeparam>
@@ -83,7 +83,7 @@ public static class SqlServerPropertyBuilderExtensions
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples.
     /// </remarks>
     /// <param name="propertyBuilder">The builder for the property being configured.</param>
@@ -107,7 +107,7 @@ public static class SqlServerPropertyBuilderExtensions
 
         return name == null
             ? null
-            : propertyBuilder.Metadata.DeclaringEntityType.Model.Builder.HasSequence(name, schema, fromDataAnnotation);
+            : propertyBuilder.Metadata.DeclaringType.Model.Builder.HasSequence(name, schema, fromDataAnnotation);
     }
 
     /// <summary>
@@ -115,7 +115,7 @@ public static class SqlServerPropertyBuilderExtensions
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples.
     /// </remarks>
     /// <param name="propertyBuilder">The builder for the property being configured.</param>
@@ -142,7 +142,7 @@ public static class SqlServerPropertyBuilderExtensions
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples.
     /// </remarks>
     /// <param name="propertyBuilder">The builder for the property being configured.</param>
@@ -176,7 +176,7 @@ public static class SqlServerPropertyBuilderExtensions
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples.
     /// </remarks>
     /// <typeparam name="TProperty">The type of the property being configured.</typeparam>
@@ -196,7 +196,7 @@ public static class SqlServerPropertyBuilderExtensions
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples.
     /// </remarks>
     /// <param name="propertyBuilder">The builder for the property being configured.</param>
@@ -220,7 +220,7 @@ public static class SqlServerPropertyBuilderExtensions
 
         return name == null
             ? null
-            : propertyBuilder.Metadata.DeclaringEntityType.Model.Builder.HasSequence(name, schema, fromDataAnnotation);
+            : propertyBuilder.Metadata.DeclaringType.Model.Builder.HasSequence(name, schema, fromDataAnnotation);
     }
 
     /// <summary>
@@ -228,7 +228,7 @@ public static class SqlServerPropertyBuilderExtensions
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples.
     /// </remarks>
     /// <param name="propertyBuilder">The builder for the property being configured.</param>
@@ -255,7 +255,7 @@ public static class SqlServerPropertyBuilderExtensions
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples.
     /// </remarks>
     /// <param name="propertyBuilder">The builder for the property being configured.</param>
@@ -285,7 +285,7 @@ public static class SqlServerPropertyBuilderExtensions
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples.
     /// </remarks>
     /// <param name="propertyBuilder">The builder for the property being configured.</param>
@@ -304,7 +304,7 @@ public static class SqlServerPropertyBuilderExtensions
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples.
     /// </remarks>
     /// <param name="columnBuilder">The builder for the column being configured.</param>
@@ -330,7 +330,7 @@ public static class SqlServerPropertyBuilderExtensions
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples.
     /// </remarks>
     /// <typeparam name="TProperty">The type of the property being configured.</typeparam>
@@ -350,7 +350,7 @@ public static class SqlServerPropertyBuilderExtensions
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples.
     /// </remarks>
     /// <typeparam name="TProperty">The type of the property being configured.</typeparam>
@@ -370,7 +370,7 @@ public static class SqlServerPropertyBuilderExtensions
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples.
     /// </remarks>
     /// <typeparam name="TProperty">The type of the property being configured.</typeparam>
@@ -389,7 +389,7 @@ public static class SqlServerPropertyBuilderExtensions
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples.
     /// </remarks>
     /// <param name="propertyBuilder">The builder for the property being configured.</param>
@@ -418,7 +418,7 @@ public static class SqlServerPropertyBuilderExtensions
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples.
     /// </remarks>
     /// <param name="propertyBuilder">The builder for the property being configured.</param>
@@ -449,7 +449,7 @@ public static class SqlServerPropertyBuilderExtensions
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples.
     /// </remarks>
     /// <param name="propertyBuilder">The builder for the property being configured.</param>
@@ -468,7 +468,7 @@ public static class SqlServerPropertyBuilderExtensions
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples.
     /// </remarks>
     /// <param name="propertyBuilder">The builder for the property being configured.</param>
@@ -493,7 +493,7 @@ public static class SqlServerPropertyBuilderExtensions
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples.
     /// </remarks>
     /// <param name="propertyBuilder">The builder for the property being configured.</param>
@@ -522,7 +522,7 @@ public static class SqlServerPropertyBuilderExtensions
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples.
     /// </remarks>
     /// <param name="propertyBuilder">The builder for the property being configured.</param>
@@ -553,7 +553,7 @@ public static class SqlServerPropertyBuilderExtensions
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples.
     /// </remarks>
     /// <param name="propertyBuilder">The builder for the property being configured.</param>
@@ -572,7 +572,7 @@ public static class SqlServerPropertyBuilderExtensions
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples.
     /// </remarks>
     /// <param name="propertyBuilder">The builder for the property being configured.</param>
@@ -597,7 +597,7 @@ public static class SqlServerPropertyBuilderExtensions
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples.
     /// </remarks>
     /// <param name="propertyBuilder">The builder for the property being configured.</param>
@@ -647,7 +647,7 @@ public static class SqlServerPropertyBuilderExtensions
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples.
     /// </remarks>
     /// <param name="propertyBuilder">The builder for the property being configured.</param>
@@ -684,7 +684,7 @@ public static class SqlServerPropertyBuilderExtensions
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples.
     /// </remarks>
     /// <param name="propertyBuilder">The builder for the property being configured.</param>
@@ -695,17 +695,15 @@ public static class SqlServerPropertyBuilderExtensions
         this IConventionPropertyBuilder propertyBuilder,
         SqlServerValueGenerationStrategy? valueGenerationStrategy,
         bool fromDataAnnotation = false)
-        => (valueGenerationStrategy == null
-                || SqlServerPropertyExtensions.IsCompatibleWithValueGeneration(propertyBuilder.Metadata))
-            && propertyBuilder.CanSetAnnotation(
-                SqlServerAnnotationNames.ValueGenerationStrategy, valueGenerationStrategy, fromDataAnnotation);
+        => propertyBuilder.CanSetAnnotation(
+            SqlServerAnnotationNames.ValueGenerationStrategy, valueGenerationStrategy, fromDataAnnotation);
 
     /// <summary>
     ///     Returns a value indicating whether the given value can be set as the value generation strategy for a particular table.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples.
     /// </remarks>
     /// <param name="propertyBuilder">The builder for the property being configured.</param>
@@ -718,21 +716,19 @@ public static class SqlServerPropertyBuilderExtensions
         SqlServerValueGenerationStrategy? valueGenerationStrategy,
         in StoreObjectIdentifier storeObject,
         bool fromDataAnnotation = false)
-        => (valueGenerationStrategy == null
-                || SqlServerPropertyExtensions.IsCompatibleWithValueGeneration(propertyBuilder.Metadata))
-            && (propertyBuilder.Metadata.FindOverrides(storeObject)?.Builder
-                    .CanSetAnnotation(
-                        SqlServerAnnotationNames.ValueGenerationStrategy,
-                        valueGenerationStrategy,
-                        fromDataAnnotation)
-                ?? true);
+        => propertyBuilder.Metadata.FindOverrides(storeObject)?.Builder
+                .CanSetAnnotation(
+                    SqlServerAnnotationNames.ValueGenerationStrategy,
+                    valueGenerationStrategy,
+                    fromDataAnnotation)
+            ?? true;
 
     /// <summary>
     ///     Configures whether the property's column is created as sparse when targeting SQL Server.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples. Also see
     ///     <see href="https://docs.microsoft.com/sql/relational-databases/tables/use-sparse-columns">Sparse columns</see> for
     ///     general information on SQL Server sparse columns.
@@ -752,7 +748,7 @@ public static class SqlServerPropertyBuilderExtensions
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples. Also see
     ///     <see href="https://docs.microsoft.com/sql/relational-databases/tables/use-sparse-columns">Sparse columns</see> for
     ///     general information on SQL Server sparse columns.
@@ -770,7 +766,7 @@ public static class SqlServerPropertyBuilderExtensions
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples. Also see
     ///     <see href="https://docs.microsoft.com/sql/relational-databases/tables/use-sparse-columns">Sparse columns</see> for
     ///     general information on SQL Server sparse columns.
@@ -799,7 +795,7 @@ public static class SqlServerPropertyBuilderExtensions
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples. Also see
     ///     <see href="https://docs.microsoft.com/sql/relational-databases/tables/use-sparse-columns">Sparse columns</see> for
     ///     general information on SQL Server sparse columns.

@@ -18,16 +18,16 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
 public class SqliteNetTopologySuiteAggregateMethodTranslator : IAggregateMethodCallTranslator
 {
     private static readonly MethodInfo GeometryCombineMethod
-        = typeof(GeometryCombiner).GetRuntimeMethod(nameof(GeometryCombiner.Combine), new[] { typeof(IEnumerable<Geometry>) })!;
+        = typeof(GeometryCombiner).GetRuntimeMethod(nameof(GeometryCombiner.Combine), [typeof(IEnumerable<Geometry>)])!;
 
     private static readonly MethodInfo ConvexHullMethod
-        = typeof(ConvexHull).GetRuntimeMethod(nameof(ConvexHull.Create), new[] { typeof(IEnumerable<Geometry>) })!;
+        = typeof(ConvexHull).GetRuntimeMethod(nameof(ConvexHull.Create), [typeof(IEnumerable<Geometry>)])!;
 
     private static readonly MethodInfo UnionMethod
-        = typeof(UnaryUnionOp).GetRuntimeMethod(nameof(UnaryUnionOp.Union), new[] { typeof(IEnumerable<Geometry>) })!;
+        = typeof(UnaryUnionOp).GetRuntimeMethod(nameof(UnaryUnionOp.Union), [typeof(IEnumerable<Geometry>)])!;
 
     private static readonly MethodInfo EnvelopeCombineMethod
-        = typeof(EnvelopeCombiner).GetRuntimeMethod(nameof(EnvelopeCombiner.CombineAsGeometry), new[] { typeof(IEnumerable<Geometry>) })!;
+        = typeof(EnvelopeCombiner).GetRuntimeMethod(nameof(EnvelopeCombiner.CombineAsGeometry), [typeof(IEnumerable<Geometry>)])!;
 
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
@@ -38,9 +38,7 @@ public class SqliteNetTopologySuiteAggregateMethodTranslator : IAggregateMethodC
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public SqliteNetTopologySuiteAggregateMethodTranslator(ISqlExpressionFactory sqlExpressionFactory)
-    {
-        _sqlExpressionFactory = sqlExpressionFactory;
-    }
+        => _sqlExpressionFactory = sqlExpressionFactory;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -72,11 +70,11 @@ public class SqliteNetTopologySuiteAggregateMethodTranslator : IAggregateMethodC
                         "Collect",
                         new[] { sqlExpression },
                         nullable: true,
-                        argumentsPropagateNullability: new[] { false },
+                        argumentsPropagateNullability: Statics.FalseArrays[1],
                         typeof(Geometry))
                 },
                 nullable: true,
-                argumentsPropagateNullability: new[] { true },
+                argumentsPropagateNullability: Statics.TrueArrays[1],
                 typeof(Geometry));
         }
 
@@ -99,7 +97,7 @@ public class SqliteNetTopologySuiteAggregateMethodTranslator : IAggregateMethodC
             functionName,
             new[] { sqlExpression },
             nullable: true,
-            argumentsPropagateNullability: new[] { false },
+            argumentsPropagateNullability: Statics.FalseArrays[1],
             typeof(Geometry));
 
         void CombineAggregateTerms()

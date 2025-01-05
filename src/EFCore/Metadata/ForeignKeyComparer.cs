@@ -50,8 +50,8 @@ public sealed class ForeignKeyComparer : IEqualityComparer<IReadOnlyForeignKey>,
             return result;
         }
 
-        result = EntityTypeFullNameComparer.Instance.Compare(x?.PrincipalEntityType, y?.PrincipalEntityType);
-        return result != 0 ? result : EntityTypeFullNameComparer.Instance.Compare(x?.DeclaringEntityType, y?.DeclaringEntityType);
+        result = TypeBaseNameComparer.Instance.Compare(x?.PrincipalEntityType, y?.PrincipalEntityType);
+        return result != 0 ? result : TypeBaseNameComparer.Instance.Compare(x?.DeclaringEntityType, y?.DeclaringEntityType);
     }
 
     /// <summary>
@@ -73,8 +73,8 @@ public sealed class ForeignKeyComparer : IEqualityComparer<IReadOnlyForeignKey>,
         var hashCode = new HashCode();
         hashCode.Add(obj.PrincipalKey.Properties, PropertyListComparer.Instance);
         hashCode.Add(obj.Properties, PropertyListComparer.Instance);
-        hashCode.Add(obj.PrincipalEntityType, EntityTypeFullNameComparer.Instance);
-        hashCode.Add(obj.DeclaringEntityType, EntityTypeFullNameComparer.Instance);
+        hashCode.Add(obj.PrincipalEntityType, TypeBaseNameComparer.Instance);
+        hashCode.Add(obj.DeclaringEntityType, TypeBaseNameComparer.Instance);
         return hashCode.ToHashCode();
     }
 }

@@ -28,23 +28,14 @@ public class RelationalValueGenerationConvention :
         ProviderConventionSetBuilderDependencies dependencies,
         RelationalConventionSetBuilderDependencies relationalDependencies)
         : base(dependencies)
-    {
-        RelationalDependencies = relationalDependencies;
-    }
+        => RelationalDependencies = relationalDependencies;
 
     /// <summary>
     ///     Relational provider-specific dependencies for this service.
     /// </summary>
     protected virtual RelationalConventionSetBuilderDependencies RelationalDependencies { get; }
 
-    /// <summary>
-    ///     Called after an annotation is changed on a property.
-    /// </summary>
-    /// <param name="propertyBuilder">The builder for the property.</param>
-    /// <param name="name">The annotation name.</param>
-    /// <param name="annotation">The new annotation.</param>
-    /// <param name="oldAnnotation">The old annotation.</param>
-    /// <param name="context">Additional information associated with convention execution.</param>
+    /// <inheritdoc />
     public virtual void ProcessPropertyAnnotationChanged(
         IConventionPropertyBuilder propertyBuilder,
         string name,
@@ -56,6 +47,18 @@ public class RelationalValueGenerationConvention :
         switch (name)
         {
             case RelationalAnnotationNames.DefaultValue:
+#pragma warning disable EF1001 // Internal EF Core API usage.
+                if ((((IProperty)property).TryGetMemberInfo(forMaterialization: false, forSet: false, out var member, out _)
+                        ? member!.GetMemberType()
+                        : property.ClrType)
+#pragma warning restore EF1001 // Internal EF Core API usage.
+                    == typeof(bool)
+                    && Equals(true, property.GetDefaultValue()))
+                {
+                    propertyBuilder.HasSentinel(annotation != null ? true : null);
+                }
+
+                goto case RelationalAnnotationNames.DefaultValueSql;
             case RelationalAnnotationNames.DefaultValueSql:
             case RelationalAnnotationNames.ComputedColumnSql:
                 propertyBuilder.ValueGenerated(GetValueGenerated(property));
@@ -181,13 +184,13 @@ public class RelationalValueGenerationConvention :
     protected override ValueGenerated? GetValueGenerated(IConventionProperty property)
     {
         var table = property.GetMappedStoreObjects(StoreObjectType.Table).FirstOrDefault();
-        return !MappingStrategyAllowsValueGeneration(property, property.DeclaringEntityType.GetMappingStrategy())
+        return !MappingStrategyAllowsValueGeneration(property, property.DeclaringType.GetMappingStrategy())
             ? null
             : table.Name != null
                 ? GetValueGenerated(property, table)
-                : property.DeclaringEntityType.IsMappedToJson()
-                    && !property.DeclaringEntityType.FindOwnership()!.IsUnique
-                    && property.IsOrdinalKeyProperty()
+                : property.DeclaringType.IsMappedToJson()
+                && property.IsOrdinalKeyProperty()
+                && (property.DeclaringType as IReadOnlyEntityType)?.FindOwnership()!.IsUnique == false
                     ? ValueGenerated.OnAddOrUpdate
                     : property.GetMappedStoreObjects(StoreObjectType.InsertStoredProcedure).Any()
                         ? GetValueGenerated((IReadOnlyProperty)property)

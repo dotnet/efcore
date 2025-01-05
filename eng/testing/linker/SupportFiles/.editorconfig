@@ -1,0 +1,11 @@
+root = true
+
+[*.cs]
+
+dotnet_analyzer_diagnostic.severity = silent
+dotnet_diagnostic.severity = silent 
+dotnet_code_quality.severity = silent
+dotnet_analyzer_diagnostic.category-AOT.severity = error
+dotnet_analyzer_diagnostic.category-Trimming.severity = error
+dotnet_diagnostic.SA0001.severity = none
+dotnet_diagnostic.SA1516.severity = none

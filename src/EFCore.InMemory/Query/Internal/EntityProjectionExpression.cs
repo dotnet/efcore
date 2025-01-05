@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal;
 public class EntityProjectionExpression : Expression, IPrintableExpression
 {
     private readonly IReadOnlyDictionary<IProperty, MethodCallExpression> _readExpressionMap;
-    private readonly Dictionary<INavigation, EntityShaperExpression> _navigationExpressionsCache = new();
+    private readonly Dictionary<INavigation, StructuralTypeShaperExpression> _navigationExpressionsCache = new();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -74,8 +74,8 @@ public class EntityProjectionExpression : Expression, IPrintableExpression
         var readExpressionMap = new Dictionary<IProperty, MethodCallExpression>();
         foreach (var (property, methodCallExpression) in _readExpressionMap)
         {
-            if (derivedType.IsAssignableFrom(property.DeclaringEntityType)
-                || property.DeclaringEntityType.IsAssignableFrom(derivedType))
+            if (derivedType.IsAssignableFrom(property.DeclaringType)
+                || property.DeclaringType.IsAssignableFrom(derivedType))
             {
                 readExpressionMap[property] = methodCallExpression;
             }
@@ -92,8 +92,16 @@ public class EntityProjectionExpression : Expression, IPrintableExpression
     /// </summary>
     public virtual MethodCallExpression BindProperty(IProperty property)
     {
-        if (!EntityType.IsAssignableFrom(property.DeclaringEntityType)
-            && !property.DeclaringEntityType.IsAssignableFrom(EntityType))
+        if (property.DeclaringType is not IEntityType entityType)
+        {
+            if (EntityType != property.DeclaringType)
+            {
+                throw new InvalidOperationException(
+                    InMemoryStrings.UnableToBindMemberToEntityProjection("property", property.Name, EntityType.DisplayName()));
+            }
+        }
+        else if (!EntityType.IsAssignableFrom(entityType)
+                 && !entityType.IsAssignableFrom(EntityType))
         {
             throw new InvalidOperationException(
                 InMemoryStrings.UnableToBindMemberToEntityProjection("property", property.Name, EntityType.DisplayName()));
@@ -108,7 +116,7 @@ public class EntityProjectionExpression : Expression, IPrintableExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual void AddNavigationBinding(INavigation navigation, EntityShaperExpression entityShaper)
+    public virtual void AddNavigationBinding(INavigation navigation, StructuralTypeShaperExpression shaper)
     {
         if (!EntityType.IsAssignableFrom(navigation.DeclaringEntityType)
             && !navigation.DeclaringEntityType.IsAssignableFrom(EntityType))
@@ -117,7 +125,7 @@ public class EntityProjectionExpression : Expression, IPrintableExpression
                 InMemoryStrings.UnableToBindMemberToEntityProjection("navigation", navigation.Name, EntityType.DisplayName()));
         }
 
-        _navigationExpressionsCache[navigation] = entityShaper;
+        _navigationExpressionsCache[navigation] = shaper;
     }
 
     /// <summary>
@@ -126,7 +134,7 @@ public class EntityProjectionExpression : Expression, IPrintableExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual EntityShaperExpression? BindNavigation(INavigation navigation)
+    public virtual StructuralTypeShaperExpression? BindNavigation(INavigation navigation)
     {
         if (!EntityType.IsAssignableFrom(navigation.DeclaringEntityType)
             && !navigation.DeclaringEntityType.IsAssignableFrom(EntityType))
@@ -135,9 +143,7 @@ public class EntityProjectionExpression : Expression, IPrintableExpression
                 InMemoryStrings.UnableToBindMemberToEntityProjection("navigation", navigation.Name, EntityType.DisplayName()));
         }
 
-        return _navigationExpressionsCache.TryGetValue(navigation, out var expression)
-            ? expression
-            : null;
+        return _navigationExpressionsCache.GetValueOrDefault(navigation);
     }
 
     /// <summary>
@@ -152,8 +158,8 @@ public class EntityProjectionExpression : Expression, IPrintableExpression
         var entityProjectionExpression = new EntityProjectionExpression(EntityType, readExpressionMap);
         foreach (var (navigation, entityShaperExpression) in _navigationExpressionsCache)
         {
-            entityProjectionExpression._navigationExpressionsCache[navigation] = new EntityShaperExpression(
-                entityShaperExpression.EntityType,
+            entityProjectionExpression._navigationExpressionsCache[navigation] = new StructuralTypeShaperExpression(
+                entityShaperExpression.StructuralType,
                 ((EntityProjectionExpression)entityShaperExpression.ValueBufferExpression).Clone(),
                 entityShaperExpression.IsNullable);
         }

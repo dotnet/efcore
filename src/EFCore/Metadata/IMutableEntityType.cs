@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata;
@@ -18,11 +17,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 /// </remarks>
 public interface IMutableEntityType : IReadOnlyEntityType, IMutableTypeBase
 {
-    /// <summary>
-    ///     Gets the model this entity belongs to.
-    /// </summary>
-    new IMutableModel Model { get; }
-
     /// <summary>
     ///     Gets or sets the base type of this entity type. Returns <see langword="null" /> if this is not a derived type in an inheritance
     ///     hierarchy.
@@ -42,13 +36,6 @@ public interface IMutableEntityType : IReadOnlyEntityType, IMutableTypeBase
     ///     If set to <see langword="true" /> it will only be usable for queries.
     /// </summary>
     bool IsKeyless { get; set; }
-
-    /// <summary>
-    ///     Sets the change tracking strategy to use for this entity type. This strategy indicates how the
-    ///     context detects changes to properties for an instance of the entity type.
-    /// </summary>
-    /// <param name="changeTrackingStrategy">The strategy to use.</param>
-    void SetChangeTrackingStrategy(ChangeTrackingStrategy? changeTrackingStrategy);
 
     /// <summary>
     ///     Sets the LINQ expression filter automatically applied to queries for this entity type.
@@ -90,7 +77,7 @@ public interface IMutableEntityType : IReadOnlyEntityType, IMutableTypeBase
         => RemoveAnnotation(CoreAnnotationNames.DiscriminatorValue);
 
     /// <summary>
-    ///     Gets all types in the model from which a given entity type derives, starting with the root.
+    ///     Gets all types in the model from which this entity type derives, starting with the root.
     /// </summary>
     /// <returns>
     ///     The base types.
@@ -99,7 +86,7 @@ public interface IMutableEntityType : IReadOnlyEntityType, IMutableTypeBase
         => GetAllBaseTypesAscending().Reverse();
 
     /// <summary>
-    ///     Gets all types in the model from which a given entity type derives, starting with the closest one.
+    ///     Gets all types in the model from which this entity type derives, starting with the closest one.
     /// </summary>
     /// <returns>
     ///     The base types.
@@ -115,14 +102,14 @@ public interface IMutableEntityType : IReadOnlyEntityType, IMutableTypeBase
         => ((IReadOnlyEntityType)this).GetAllBaseTypesInclusive().Cast<IMutableEntityType>();
 
     /// <summary>
-    ///     Returns all base types of the given entity type, including the type itself, bottom to top.
+    ///     Returns all base types of this entity type, including the type itself, bottom to top.
     /// </summary>
     /// <returns>Base types.</returns>
     new IEnumerable<IMutableEntityType> GetAllBaseTypesInclusiveAscending()
         => ((IReadOnlyEntityType)this).GetAllBaseTypesInclusiveAscending().Cast<IMutableEntityType>();
 
     /// <summary>
-    ///     Gets all types in the model that derive from a given entity type.
+    ///     Gets all types in the model that derive from this entity type.
     /// </summary>
     /// <returns>The derived types.</returns>
     new IEnumerable<IMutableEntityType> GetDerivedTypes()
@@ -136,7 +123,7 @@ public interface IMutableEntityType : IReadOnlyEntityType, IMutableTypeBase
         => ((IReadOnlyEntityType)this).GetDerivedTypesInclusive().Cast<IMutableEntityType>();
 
     /// <summary>
-    ///     Gets all types in the model that directly derive from a given entity type.
+    ///     Gets all types in the model that directly derive from this entity type.
     /// </summary>
     /// <returns>The derived types.</returns>
     new IEnumerable<IMutableEntityType> GetDirectlyDerivedTypes()
@@ -505,6 +492,40 @@ public interface IMutableEntityType : IReadOnlyEntityType, IMutableTypeBase
         MemberInfo? memberInfo,
         IMutableEntityType targetEntityType,
         bool collection,
+        bool onDependent)
+        => AddSkipNavigation(
+            name,
+            navigationType: null,
+            memberInfo,
+            targetEntityType,
+            collection,
+            onDependent);
+
+    /// <summary>
+    ///     Adds a new skip navigation property to this entity type.
+    /// </summary>
+    /// <param name="name">The name of the skip navigation property to add.</param>
+    /// <param name="navigationType">The navigation type.</param>
+    /// <param name="memberInfo">
+    ///     <para>
+    ///         The corresponding CLR type member or <see langword="null" /> for a shadow navigation.
+    ///     </para>
+    ///     <para>
+    ///         An indexer with a <see cref="string" /> parameter and <see cref="object" /> return type can be used.
+    ///     </para>
+    /// </param>
+    /// <param name="targetEntityType">The entity type that the skip navigation property will hold an instance(s) of.</param>
+    /// <param name="collection">Whether the navigation property is a collection property.</param>
+    /// <param name="onDependent">
+    ///     Whether the navigation property is defined on the dependent side of the underlying foreign key.
+    /// </param>
+    /// <returns>The newly created skip navigation property.</returns>
+    IMutableSkipNavigation AddSkipNavigation(
+        string name,
+        Type? navigationType,
+        MemberInfo? memberInfo,
+        IMutableEntityType targetEntityType,
+        bool collection,
         bool onDependent);
 
     /// <summary>
@@ -665,178 +686,10 @@ public interface IMutableEntityType : IReadOnlyEntityType, IMutableTypeBase
     IMutableIndex? RemoveIndex(IReadOnlyIndex index);
 
     /// <summary>
-    ///     Adds a property to this entity type.
-    /// </summary>
-    /// <param name="name">The name of the property to add.</param>
-    /// <param name="propertyType">The type of value the property will hold.</param>
-    /// <param name="memberInfo">
-    ///     <para>
-    ///         The corresponding CLR type member or <see langword="null" /> for a shadow property.
-    ///     </para>
-    ///     <para>
-    ///         An indexer with a <see cref="string" /> parameter and <see cref="object" /> return type can be used.
-    ///     </para>
-    /// </param>
-    /// <returns>The newly created property.</returns>
-    IMutableProperty AddProperty(
-        string name,
-        [DynamicallyAccessedMembers(IProperty.DynamicallyAccessedMemberTypes)] Type propertyType,
-        MemberInfo? memberInfo);
-
-    /// <summary>
-    ///     Gets a property on the given entity type. Returns <see langword="null" /> if no property is found.
-    /// </summary>
-    /// <remarks>
-    ///     This API only finds scalar properties and does not find navigation properties. Use
-    ///     <see cref="FindNavigation(MemberInfo)" /> to find a navigation property.
-    /// </remarks>
-    /// <param name="memberInfo">The property on the entity class.</param>
-    /// <returns>The property, or <see langword="null" /> if none is found.</returns>
-    new IMutableProperty? FindProperty(MemberInfo memberInfo)
-        => (IMutableProperty?)((IReadOnlyEntityType)this).FindProperty(memberInfo);
-
-    /// <summary>
-    ///     Gets the property with a given name. Returns <see langword="null" /> if no property with the given name is defined.
-    /// </summary>
-    /// <remarks>
-    ///     This API only finds scalar properties and does not find navigation properties. Use
-    ///     <see cref="FindNavigation(string)" /> to find
-    ///     a navigation property.
-    /// </remarks>
-    /// <param name="name">The name of the property.</param>
-    /// <returns>The property, or <see langword="null" /> if none is found.</returns>
-    new IMutableProperty? FindProperty(string name);
-
-    /// <summary>
-    ///     Finds matching properties on the given entity type. Returns <see langword="null" /> if any property is not found.
-    /// </summary>
-    /// <remarks>
-    ///     This API only finds scalar properties and does not find navigation or service properties.
-    /// </remarks>
-    /// <param name="propertyNames">The property names.</param>
-    /// <returns>The properties, or <see langword="null" /> if any property is not found.</returns>
-    new IReadOnlyList<IMutableProperty>? FindProperties(IReadOnlyList<string> propertyNames)
-        => (IReadOnlyList<IMutableProperty>?)((IReadOnlyEntityType)this).FindProperties(propertyNames);
-
-    /// <summary>
-    ///     Finds a property declared on the type with the given name.
-    ///     Does not return properties defined on a base type.
-    /// </summary>
-    /// <param name="name">The property name.</param>
-    /// <returns>The property, or <see langword="null" /> if none is found.</returns>
-    new IMutableProperty? FindDeclaredProperty(string name)
-        => (IMutableProperty?)((IReadOnlyEntityType)this).FindDeclaredProperty(name);
-
-    /// <summary>
-    ///     Gets a property with the given name.
-    /// </summary>
-    /// <remarks>
-    ///     This API only finds scalar properties and does not find navigation properties. Use
-    ///     <see cref="FindNavigation(string)" /> to find a navigation property.
-    /// </remarks>
-    /// <param name="name">The property name.</param>
-    /// <returns>The property.</returns>
-    new IMutableProperty GetProperty(string name)
-        => (IMutableProperty)((IReadOnlyEntityType)this).GetProperty(name);
-
-    /// <summary>
-    ///     Adds a property to this entity type.
-    /// </summary>
-    /// <param name="memberInfo">The corresponding member on the entity class.</param>
-    /// <returns>The newly created property.</returns>
-    [RequiresUnreferencedCode("Currently used only in tests")]
-    IMutableProperty AddProperty(MemberInfo memberInfo)
-        => AddProperty(memberInfo.GetSimpleMemberName(), memberInfo.GetMemberType(), memberInfo);
-
-    /// <summary>
-    ///     Adds a property to this entity type.
-    /// </summary>
-    /// <param name="name">The name of the property to add.</param>
-    /// <returns>The newly created property.</returns>
-    IMutableProperty AddProperty(string name);
-
-    /// <summary>
-    ///     Adds a property to this entity type.
-    /// </summary>
-    /// <param name="name">The name of the property to add.</param>
-    /// <param name="propertyType">The type of value the property will hold.</param>
-    /// <returns>The newly created property.</returns>
-    IMutableProperty AddProperty(string name, [DynamicallyAccessedMembers(IProperty.DynamicallyAccessedMemberTypes)] Type propertyType);
-
-    /// <summary>
-    ///     Adds a property backed up by an indexer to this entity type.
-    /// </summary>
-    /// <param name="name">The name of the property to add.</param>
-    /// <param name="propertyType">The type of value the property will hold.</param>
-    /// <returns>The newly created property.</returns>
-    IMutableProperty AddIndexerProperty(
-        string name,
-        [DynamicallyAccessedMembers(IProperty.DynamicallyAccessedMemberTypes)] Type propertyType)
-    {
-        var indexerPropertyInfo = FindIndexerPropertyInfo();
-        if (indexerPropertyInfo == null)
-        {
-            throw new InvalidOperationException(
-                CoreStrings.NonIndexerEntityType(name, DisplayName(), typeof(string).ShortDisplayName()));
-        }
-
-        return AddProperty(name, propertyType, indexerPropertyInfo);
-    }
-
-    /// <summary>
-    ///     Gets all non-navigation properties declared on this entity type.
-    /// </summary>
-    /// <remarks>
-    ///     This method does not return properties declared on base types.
-    ///     It is useful when iterating over all entity types to avoid processing the same property more than once.
-    ///     Use <see cref="GetProperties" /> to also return properties declared on base types.
-    /// </remarks>
-    /// <returns>Declared non-navigation properties.</returns>
-    new IEnumerable<IMutableProperty> GetDeclaredProperties()
-        => ((IReadOnlyEntityType)this).GetDeclaredProperties().Cast<IMutableProperty>();
-
-    /// <summary>
-    ///     Gets all non-navigation properties declared on the types derived from this entity type.
-    /// </summary>
-    /// <remarks>
-    ///     This method does not return properties declared on the given entity type itself.
-    ///     Use <see cref="GetProperties" /> to return properties declared on this
-    ///     and base entity typed types.
-    /// </remarks>
-    /// <returns>Derived non-navigation properties.</returns>
-    new IEnumerable<IMutableProperty> GetDerivedProperties()
-        => ((IReadOnlyEntityType)this).GetDerivedProperties().Cast<IMutableProperty>();
-
-    /// <summary>
-    ///     Gets the properties defined on this entity type.
-    /// </summary>
-    /// <remarks>
-    ///     This API only returns scalar properties and does not return navigation properties. Use
-    ///     <see cref="GetNavigations()" /> to get navigation
-    ///     properties.
-    /// </remarks>
-    /// <returns>The properties defined on this entity type.</returns>
-    new IEnumerable<IMutableProperty> GetProperties();
-
-    /// <summary>
-    ///     Removes a property from this entity type.
-    /// </summary>
-    /// <param name="name">The name of the property to remove.</param>
-    /// <returns>The removed property, or <see langword="null" /> if the property was not found.</returns>
-    IMutableProperty? RemoveProperty(string name);
-
-    /// <summary>
-    ///     Removes a property from this entity type.
-    /// </summary>
-    /// <param name="property">The property to remove.</param>
-    /// <returns>The removed property, or <see langword="null" /> if the property was not found.</returns>
-    IMutableProperty? RemoveProperty(IReadOnlyProperty property);
-
-    /// <summary>
     ///     Adds a service property to this entity type.
     /// </summary>
     /// <param name="memberInfo">The <see cref="PropertyInfo" /> or <see cref="FieldInfo" /> of the property to add.</param>
-    /// <param name="serviceType">The type of the service, or <see langword="null"/> to use the type of the member.</param>
+    /// <param name="serviceType">The type of the service, or <see langword="null" /> to use the type of the member.</param>
     /// <returns>The newly created service property.</returns>
     IMutableServiceProperty AddServiceProperty(MemberInfo memberInfo, Type? serviceType = null);
 
@@ -926,4 +779,15 @@ public interface IMutableEntityType : IReadOnlyEntityType, IMutableTypeBase
     ///     The removed trigger or <see langword="null" /> if no trigger with the given name was found.
     /// </returns>
     IMutableTrigger? RemoveTrigger(string name);
+
+    /// <summary>
+    ///     Sets the <see cref="PropertyAccessMode" /> to use for navigations of this entity type.
+    /// </summary>
+    /// <remarks>
+    ///     Note that individual navigations can override this access mode. The value set here will
+    ///     be used for any navigation for which no override has been specified.
+    /// </remarks>
+    /// <param name="propertyAccessMode">The <see cref="PropertyAccessMode" />, or <see langword="null" /> to clear the mode set.</param>
+    void SetNavigationAccessMode(PropertyAccessMode? propertyAccessMode)
+        => SetOrRemoveAnnotation(CoreAnnotationNames.NavigationAccessMode, propertyAccessMode);
 }

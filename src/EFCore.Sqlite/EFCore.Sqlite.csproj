@@ -1,10 +1,10 @@
-﻿<Project>
+<Project>
 
   <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
 
   <PropertyGroup>
     <Description>SQLite database provider for Entity Framework Core.</Description>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>$(DefaultNetCoreTargetFramework)</TargetFramework>
     <MinClientVersion>3.6</MinClientVersion>
     <PackageId>Microsoft.EntityFrameworkCore.Sqlite</PackageId>
     <PackageTags>$(PackageTags);SQLite</PackageTags>
@@ -43,11 +43,11 @@
 
   <ItemGroup>
     <ProjectReference Include="..\EFCore.Sqlite.Core\EFCore.Sqlite.Core.csproj" PrivateAssets="contentfiles;build" />
-    <ProjectReference Condition="'$(BuildingByReSharper)' != 'true'" Include="..\EFCore.Analyzers\EFCore.Analyzers.csproj" ReferenceOutputAssembly="False" OutputItemType="Analyzer" />
+    <ProjectReference Include="..\EFCore.Analyzers\EFCore.Analyzers.csproj" ReferenceOutputAssembly="False" OutputItemType="Analyzer" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="2.1.4" />
+    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" />
   </ItemGroup>
 
   <ItemGroup>

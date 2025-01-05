@@ -26,9 +26,7 @@ public class ProxyBindingInterceptor : IInstantiationBindingInterceptor
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public ProxyBindingInterceptor(IProxyFactory proxyFactory)
-    {
-        _proxyFactory = proxyFactory;
-    }
+        => _proxyFactory = proxyFactory;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -38,7 +36,11 @@ public class ProxyBindingInterceptor : IInstantiationBindingInterceptor
     /// </summary>
     public virtual InstantiationBinding ModifyBinding(InstantiationBindingInterceptionData interceptionData, InstantiationBinding binding)
     {
-        var entityType = interceptionData.EntityType;
+        if (interceptionData.TypeBase is not IEntityType entityType)
+        {
+            return binding;
+        }
+
         var proxyType = _proxyFactory.CreateProxyType(entityType);
 
         if ((bool?)entityType.Model[ProxyAnnotationNames.LazyLoading] == true)

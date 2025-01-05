@@ -23,9 +23,7 @@ public class StoredProcedureParameterMapping : ColumnMappingBase, IStoredProcedu
         StoreStoredProcedureParameter storeParameter,
         StoredProcedureMapping storedProcedureMapping)
         : base(property, storeParameter, storedProcedureMapping)
-    {
-        Parameter = parameter;
-    }
+        => Parameter = parameter;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -68,7 +66,6 @@ public class StoredProcedureParameterMapping : ColumnMappingBase, IStoredProcedu
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
     public virtual DebugView DebugView
         => new(
             () => ((IStoredProcedureParameterMapping)this).ToDebugString(),

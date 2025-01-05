@@ -16,16 +16,14 @@ public readonly struct InstantiationBindingInterceptionData
     /// <summary>
     ///     Constructs the parameter object.
     /// </summary>
-    /// <param name="entityType">The entity type for which the binding is being used.</param>
+    /// <param name="typeBase">The entity type for which the binding is being used.</param>
     [EntityFrameworkInternal]
     [UsedImplicitly]
-    public InstantiationBindingInterceptionData(IEntityType entityType)
-    {
-        EntityType = entityType;
-    }
+    public InstantiationBindingInterceptionData(ITypeBase typeBase)
+        => TypeBase = typeBase;
 
     /// <summary>
     ///     The entity type for which the binding is being used.
     /// </summary>
-    public IEntityType EntityType { get; }
+    public ITypeBase TypeBase { get; }
 }

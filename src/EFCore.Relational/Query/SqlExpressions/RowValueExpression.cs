@@ -1,9 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Data;
-using System.Runtime.CompilerServices;
-
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 /// <summary>
@@ -17,8 +14,10 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 /// </summary>
 public class RowValueExpression : SqlExpression
 {
+    private static ConstructorInfo? _quotingConstructor;
+
     /// <summary>
-    /// The values of this row.
+    ///     The values of this row.
     /// </summary>
     public virtual IReadOnlyList<SqlExpression> Values { get; }
 
@@ -27,7 +26,7 @@ public class RowValueExpression : SqlExpression
     /// </summary>
     /// <param name="values">The values of this row.</param>
     public RowValueExpression(IReadOnlyList<SqlExpression> values)
-        : base(typeof(ValueTuple<object>), RowValueTypeMapping.Instance)
+        : base(typeof(ValueTuple<object>), RowValueTypeMapping.Default)
     {
         Check.NotEmpty(values, nameof(values));
 
@@ -36,32 +35,10 @@ public class RowValueExpression : SqlExpression
 
     /// <inheritdoc />
     protected override Expression VisitChildren(ExpressionVisitor visitor)
-    {
-        Check.NotNull(visitor, nameof(visitor));
-
-        SqlExpression[]? newValues = null;
-
-        for (var i = 0; i < Values.Count; i++)
-        {
-            var value = Values[i];
-            var visited = (SqlExpression)visitor.Visit(value);
-            if (visited != value && newValues is null)
-            {
-                newValues = new SqlExpression[Values.Count];
-                for (var j = 0; j < i; j++)
-                {
-                    newValues[j] = Values[j];
-                }
-            }
-
-            if (newValues is not null)
-            {
-                newValues[i] = visited;
-            }
-        }
-
-        return newValues is null ? this : new RowValueExpression(newValues);
-    }
+        => visitor.VisitAndConvert(Values) is var newValues
+            && ReferenceEquals(newValues, Values)
+                ? this
+                : new RowValueExpression(newValues);
 
     /// <summary>
     ///     Creates a new expression that is like this one, but using the supplied children. If all of the children are the same, it will
@@ -71,6 +48,12 @@ public class RowValueExpression : SqlExpression
         => values.Count == Values.Count && values.Zip(Values, (x, y) => (x, y)).All(tup => tup.x == tup.y)
             ? this
             : new RowValueExpression(values);
+
+    /// <inheritdoc />
+    public override Expression Quote()
+        => New(
+            _quotingConstructor ??= typeof(RowValueExpression).GetConstructor([typeof(IReadOnlyList<SqlExpression>)])!,
+            NewArrayInit(typeof(SqlExpression), Values.Select(v => v.Quote())));
 
     /// <inheritdoc />
     protected override void Print(ExpressionPrinter expressionPrinter)
@@ -133,7 +116,7 @@ public class RowValueExpression : SqlExpression
 
     private sealed class RowValueTypeMapping : RelationalTypeMapping
     {
-        public static RowValueTypeMapping Instance = new(typeof(ValueTuple<object>));
+        public static RowValueTypeMapping Default { get; } = new(typeof(ValueTuple<object>));
 
         private RowValueTypeMapping(Type clrType)
             : base("", clrType)

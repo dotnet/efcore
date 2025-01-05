@@ -3,16 +3,13 @@
 
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
+using static Microsoft.EntityFrameworkCore.Query.RelationalShapedQueryCompilingExpressionVisitor;
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class RelationalApiConsistencyTest : ApiConsistencyTestBase<RelationalApiConsistencyTest.RelationalApiConsistencyFixture>
+public class RelationalApiConsistencyTest(RelationalApiConsistencyTest.RelationalApiConsistencyFixture fixture)
+    : ApiConsistencyTestBase<RelationalApiConsistencyTest.RelationalApiConsistencyFixture>(fixture)
 {
-    public RelationalApiConsistencyTest(RelationalApiConsistencyFixture fixture)
-        : base(fixture)
-    {
-    }
-
     protected override void AddServices(ServiceCollection serviceCollection)
         => new EntityFrameworkRelationalServicesBuilder(serviceCollection).TryAddCoreServices();
 
@@ -104,8 +101,8 @@ public class RelationalApiConsistencyTest : ApiConsistencyTestBase<RelationalApi
                 }
             };
 
-        public virtual HashSet<Type> RelationalMetadataTypes { get; } = new()
-        {
+        public virtual HashSet<Type> RelationalMetadataTypes { get; } =
+        [
             typeof(IRelationalModel),
             typeof(ITableBase),
             typeof(ITable),
@@ -133,16 +130,21 @@ public class RelationalApiConsistencyTest : ApiConsistencyTestBase<RelationalApi
             typeof(IUniqueConstraint),
             typeof(ITrigger),
             typeof(IRelationalPropertyOverrides)
-        };
+        ];
 
-        public override HashSet<Type> FluentApiTypes { get; } = new()
-        {
+        public override HashSet<Type> FluentApiTypes { get; } =
+        [
             typeof(RelationalForeignKeyBuilderExtensions),
             typeof(RelationalPropertyBuilderExtensions),
             typeof(RelationalModelBuilderExtensions),
             typeof(RelationalIndexBuilderExtensions),
             typeof(RelationalKeyBuilderExtensions),
             typeof(RelationalEntityTypeBuilderExtensions),
+            typeof(RelationalOwnedNavigationBuilderExtensions),
+            typeof(RelationalComplexTypeExtensions),
+            typeof(RelationalComplexTypePropertyBuilderExtensions),
+            typeof(RelationalPrimitiveCollectionBuilderExtensions),
+            typeof(RelationalComplexTypePrimitiveCollectionBuilderExtensions),
             typeof(DbFunctionBuilder),
             typeof(DbFunctionParameterBuilder),
             typeof(TableBuilder),
@@ -182,148 +184,351 @@ public class RelationalApiConsistencyTest : ApiConsistencyTestBase<RelationalApi
             typeof(ColumnsBuilder),
             typeof(CreateTableBuilder<>),
             typeof(OperationBuilder<>)
-        };
+        ];
 
-        public override
-            List<(Type Type,
-                Type ReadonlyExtensions,
-                Type MutableExtensions,
-                Type ConventionExtensions,
-                Type ConventionBuilderExtensions,
-                Type RuntimeExtensions)> MetadataExtensionTypes { get; }
-            = new()
+        public override Dictionary<Type, (Type ReadonlyExtensions,
+            Type MutableExtensions,
+            Type ConventionExtensions,
+            Type ConventionBuilderExtensions,
+            Type RuntimeExtensions)> MetadataExtensionTypes { get; } = new()
+        {
             {
-                (
-                    typeof(IReadOnlyModel),
+                typeof(IReadOnlyModel), (
                     typeof(RelationalModelExtensions),
                     typeof(RelationalModelExtensions),
                     typeof(RelationalModelExtensions),
                     typeof(RelationalModelBuilderExtensions),
                     null
-                ),
-                (
-                    typeof(IReadOnlyEntityType),
+                )
+            },
+            {
+                typeof(IReadOnlyEntityType), (
                     typeof(RelationalEntityTypeExtensions),
                     typeof(RelationalEntityTypeExtensions),
                     typeof(RelationalEntityTypeExtensions),
                     typeof(RelationalEntityTypeBuilderExtensions),
                     null
-                ),
-                (
-                    typeof(IReadOnlyKey),
+                )
+            },
+            {
+                typeof(IReadOnlyComplexType), (
+                    typeof(RelationalComplexTypeExtensions),
+                    typeof(RelationalComplexTypeExtensions),
+                    typeof(RelationalComplexTypeExtensions),
+                    null,
+                    null
+                )
+            },
+            {
+                typeof(IReadOnlyTypeBase), (
+                    null,
+                    null,
+                    null,
+                    null,
+                    null
+                )
+            },
+            {
+                typeof(IReadOnlyKey), (
                     typeof(RelationalKeyExtensions),
                     typeof(RelationalKeyExtensions),
                     typeof(RelationalKeyExtensions),
                     typeof(RelationalKeyBuilderExtensions),
                     null
-                ),
-                (
-                    typeof(IReadOnlyForeignKey),
+                )
+            },
+            {
+                typeof(IReadOnlyForeignKey), (
                     typeof(RelationalForeignKeyExtensions),
                     typeof(RelationalForeignKeyExtensions),
                     typeof(RelationalForeignKeyExtensions),
                     typeof(RelationalForeignKeyBuilderExtensions),
                     null
-                ),
-                (
-                    typeof(IReadOnlyProperty),
+                )
+            },
+            {
+                typeof(IReadOnlyComplexProperty), (
+                    null,
+                    null,
+                    null,
+                    null,
+                    null
+                )
+            },
+            {
+                typeof(IReadOnlyProperty), (
                     typeof(RelationalPropertyExtensions),
                     typeof(RelationalPropertyExtensions),
                     typeof(RelationalPropertyExtensions),
                     typeof(RelationalPropertyBuilderExtensions),
                     null
-                ),
-                (
-                    typeof(IReadOnlyIndex),
+                )
+            },
+            {
+                typeof(IReadOnlyIndex), (
                     typeof(RelationalIndexExtensions),
                     typeof(RelationalIndexExtensions),
                     typeof(RelationalIndexExtensions),
                     typeof(RelationalIndexBuilderExtensions),
                     null
                 )
-            };
+            },
+            {
+                typeof(IReadOnlyTrigger), (
+                    typeof(RelationalTriggerExtensions),
+                    typeof(RelationalTriggerExtensions),
+                    typeof(RelationalTriggerExtensions),
+                    typeof(RelationalTriggerBuilderExtensions),
+                    null
+                )
+            },
+            {
+                typeof(IReadOnlyDbFunction), (
+                    typeof(RelationalDbFunctionsExtensions),
+                    typeof(RelationalDbFunctionsExtensions),
+                    typeof(RelationalDbFunctionsExtensions),
+                    null,
+                    null
+                )
+            },
+            {
+                typeof(IReadOnlyElementType), (
+                    typeof(RelationalElementTypeExtensions),
+                    null,
+                    null,
+                    typeof(RelationalEntityTypeBuilderExtensions),
+                    null
+                )
+            }
+        };
 
         public override HashSet<MethodInfo> NonVirtualMethods { get; }
-            = new()
-            {
+            =
+            [
                 typeof(RelationalCompiledQueryCacheKeyGenerator)
                     .GetRuntimeMethods()
                     .Single(
                         m => m.Name == "GenerateCacheKeyCore"
                             && m.DeclaringType == typeof(RelationalCompiledQueryCacheKeyGenerator))
-            };
+            ];
 
-        public override HashSet<MethodInfo> UnmatchedMetadataMethods { get; } = new()
-        {
+        public override HashSet<MethodInfo> UnmatchedMetadataMethods { get; } =
+        [
             typeof(RelationalEntityTypeBuilderExtensions).GetMethod(
                 nameof(RelationalEntityTypeBuilderExtensions.ExcludeTableFromMigrations)),
             typeof(RelationalIndexBuilderExtensions).GetMethod(
                 nameof(RelationalIndexBuilderExtensions.HasName),
-                new[] { typeof(IndexBuilder), typeof(string) }),
+                [typeof(IndexBuilder), typeof(string)]),
             typeof(RelationalPropertyExtensions).GetMethod(
                 nameof(RelationalPropertyExtensions.FindOverrides),
-                new[] { typeof(IReadOnlyProperty), typeof(StoreObjectIdentifier).MakeByRefType() }),
+                [typeof(IReadOnlyProperty), typeof(StoreObjectIdentifier).MakeByRefType()]),
             typeof(RelationalPropertyExtensions).GetMethod(
                 nameof(RelationalPropertyExtensions.GetOverrides),
-                new[] { typeof(IReadOnlyProperty) }),
+                [typeof(IReadOnlyProperty)]),
             GetMethod(
                 typeof(StoredProcedureBuilder<>),
                 nameof(StoredProcedureBuilder<object>.HasParameter),
                 genericParameterCount: 2,
-                (typeTypes, methodTypes) => new[]
-                {
+                (typeTypes, methodTypes) =>
+                [
                     typeof(Expression<>).MakeGenericType(typeof(Func<,>).MakeGenericType(methodTypes[0], methodTypes[1]))
-                }),
+                ]),
             GetMethod(
                 typeof(StoredProcedureBuilder<>),
                 nameof(StoredProcedureBuilder<object>.HasParameter),
                 genericParameterCount: 2,
-                (typeTypes, methodTypes) => new[]
-                {
+                (typeTypes, methodTypes) =>
+                [
                     typeof(Expression<>).MakeGenericType(typeof(Func<,>).MakeGenericType(methodTypes[0], methodTypes[1])),
                     typeof(Action<StoredProcedureParameterBuilder>)
-                }),
+                ]),
             GetMethod(
                 typeof(StoredProcedureBuilder<>),
                 nameof(StoredProcedureBuilder<object>.HasOriginalValueParameter),
                 genericParameterCount: 2,
-                (typeTypes, methodTypes) => new[]
-                {
+                (typeTypes, methodTypes) =>
+                [
                     typeof(Expression<>).MakeGenericType(typeof(Func<,>).MakeGenericType(methodTypes[0], methodTypes[1]))
-                }),
+                ]),
             GetMethod(
                 typeof(StoredProcedureBuilder<>),
                 nameof(StoredProcedureBuilder<object>.HasOriginalValueParameter),
                 genericParameterCount: 2,
-                (typeTypes, methodTypes) => new[]
-                {
+                (typeTypes, methodTypes) =>
+                [
                     typeof(Expression<>).MakeGenericType(typeof(Func<,>).MakeGenericType(methodTypes[0], methodTypes[1])),
                     typeof(Action<StoredProcedureParameterBuilder>)
-                }),
+                ]),
             GetMethod(
                 typeof(StoredProcedureBuilder<>),
                 nameof(StoredProcedureBuilder<object>.HasResultColumn),
                 genericParameterCount: 2,
-                (typeTypes, methodTypes) => new[]
-                {
+                (typeTypes, methodTypes) =>
+                [
                     typeof(Expression<>).MakeGenericType(typeof(Func<,>).MakeGenericType(methodTypes[0], methodTypes[1]))
-                }),
+                ]),
             GetMethod(
                 typeof(StoredProcedureBuilder<>),
                 nameof(StoredProcedureBuilder<object>.HasResultColumn),
                 genericParameterCount: 2,
-                (typeTypes, methodTypes) => new[]
-                {
+                (typeTypes, methodTypes) =>
+                [
                     typeof(Expression<>).MakeGenericType(typeof(Func<,>).MakeGenericType(methodTypes[0], methodTypes[1])),
                     typeof(Action<StoredProcedureResultColumnBuilder>)
-                }),
+                ]),
             typeof(IConventionStoredProcedure).GetMethod(
                 nameof(IConventionStoredProcedure.SetIsRowsAffectedReturned),
-                new[] { typeof(bool), typeof(bool) })
+                [typeof(bool), typeof(bool)])
+        ];
+
+        public override Dictionary<Type, HashSet<MethodInfo>> UnmatchedMirrorMethods { get; } = new()
+        {
+            {
+                typeof(PrimitiveCollectionBuilder), [
+                    typeof(PropertyBuilder).GetMethod(nameof(PropertyBuilder.HasPrecision), [typeof(int)]),
+                    typeof(PropertyBuilder).GetMethod(nameof(PropertyBuilder.HasPrecision), [typeof(int), typeof(int)]),
+                    typeof(PropertyBuilder).GetMethod(
+                        nameof(PropertyBuilder.HasValueGenerator), [typeof(Func<IProperty, ITypeBase, ValueGenerator>)]),
+                    typeof(PropertyBuilder).GetMethod(nameof(PropertyBuilder.IsRowVersion), Type.EmptyTypes),
+                    GetMethod(
+                        typeof(PropertyBuilder), nameof(PropertyBuilder.HasConversion), genericParameterCount: 1,
+                        (_, _) => Type.EmptyTypes),
+                    GetMethod(
+                        typeof(PropertyBuilder), nameof(PropertyBuilder.HasConversion), genericParameterCount: 2,
+                        (_, _) => Type.EmptyTypes),
+                    GetMethod(
+                        typeof(PropertyBuilder), nameof(PropertyBuilder.HasConversion), genericParameterCount: 3,
+                        (_, _) => Type.EmptyTypes),
+                    GetMethod(
+                        typeof(PropertyBuilder), nameof(PropertyBuilder.HasConversion), genericParameterCount: 1,
+                        (_, _) => [typeof(ValueComparer)]),
+                    GetMethod(
+                        typeof(PropertyBuilder), nameof(PropertyBuilder.HasConversion), genericParameterCount: 1,
+                        (_, _) => [typeof(ValueComparer), typeof(ValueComparer)]),
+                    typeof(PropertyBuilder).GetMethod(nameof(PropertyBuilder.HasConversion), [typeof(Type)]),
+                    typeof(PropertyBuilder).GetMethod(nameof(PropertyBuilder.HasConversion), [typeof(ValueComparer)]),
+                    typeof(PropertyBuilder).GetMethod(nameof(PropertyBuilder.HasConversion), [typeof(ValueConverter)]),
+                    typeof(PropertyBuilder).GetMethod(
+                        nameof(PropertyBuilder.HasConversion), [typeof(ValueComparer), typeof(ValueComparer)]),
+                    typeof(PropertyBuilder).GetMethod(nameof(PropertyBuilder.HasConversion), [typeof(Type), typeof(ValueComparer)]),
+                    typeof(PropertyBuilder).GetMethod(
+                        nameof(PropertyBuilder.HasConversion), [typeof(Type), typeof(ValueComparer), typeof(ValueComparer)]),
+                    typeof(PropertyBuilder).GetMethod(
+                        nameof(PropertyBuilder.HasConversion), [typeof(ValueConverter), typeof(ValueComparer)]),
+                    typeof(PropertyBuilder).GetMethod(
+                        nameof(PropertyBuilder.HasConversion),
+                        [typeof(ValueConverter), typeof(ValueComparer), typeof(ValueComparer)]),
+                    typeof(PropertyBuilder).GetMethod(nameof(PropertyBuilder.HasConversion), [typeof(Type), typeof(Type)]),
+                    typeof(PropertyBuilder).GetMethod(
+                        nameof(PropertyBuilder.HasConversion), [typeof(Type), typeof(Type), typeof(Type)])
+                ]
+            },
+            {
+                typeof(PrimitiveCollectionBuilder<>), [
+                    typeof(PropertyBuilder<>).GetMethod(nameof(PropertyBuilder<object>.HasPrecision), [typeof(int)]),
+                    typeof(PropertyBuilder<>).GetMethod(nameof(PropertyBuilder<object>.HasPrecision), [typeof(int), typeof(int)]),
+                    typeof(PropertyBuilder<>).GetMethod(
+                        nameof(PropertyBuilder<object>.HasValueGenerator), [typeof(Func<IProperty, ITypeBase, ValueGenerator>)]),
+                    typeof(PropertyBuilder<>).GetMethod(nameof(PropertyBuilder<object>.IsRowVersion), Type.EmptyTypes),
+                    GetMethod(
+                        typeof(PropertyBuilder<>), nameof(PropertyBuilder<object>.HasConversion), genericParameterCount: 1,
+                        (_, _) => Type.EmptyTypes),
+                    GetMethod(
+                        typeof(PropertyBuilder<>), nameof(PropertyBuilder<object>.HasConversion), genericParameterCount: 2,
+                        (_, _) => Type.EmptyTypes),
+                    GetMethod(
+                        typeof(PropertyBuilder<>), nameof(PropertyBuilder<object>.HasConversion), genericParameterCount: 3,
+                        (_, _) => Type.EmptyTypes),
+                    GetMethod(
+                        typeof(PropertyBuilder<>), nameof(PropertyBuilder<object>.HasConversion), genericParameterCount: 1,
+                        (_, _) => [typeof(ValueComparer)]),
+                    GetMethod(
+                        typeof(PropertyBuilder<>), nameof(PropertyBuilder<object>.HasConversion), genericParameterCount: 1,
+                        (_, _) => [typeof(ValueComparer), typeof(ValueComparer)]),
+                    typeof(PropertyBuilder<>).GetMethod(nameof(PropertyBuilder<object>.HasConversion), [typeof(Type)]),
+                    typeof(PropertyBuilder<>).GetMethod(nameof(PropertyBuilder<object>.HasConversion), [typeof(ValueComparer)]),
+                    typeof(PropertyBuilder<>).GetMethod(nameof(PropertyBuilder<object>.HasConversion), [typeof(ValueConverter)]),
+                    typeof(PropertyBuilder<>).GetMethod(
+                        nameof(PropertyBuilder<object>.HasConversion), [typeof(ValueComparer), typeof(ValueComparer)]),
+                    typeof(PropertyBuilder<>).GetMethod(
+                        nameof(PropertyBuilder<object>.HasConversion), [typeof(Type), typeof(ValueComparer)]),
+                    typeof(PropertyBuilder<>).GetMethod(
+                        nameof(PropertyBuilder<object>.HasConversion),
+                        [typeof(Type), typeof(ValueComparer), typeof(ValueComparer)]),
+                    typeof(PropertyBuilder<>).GetMethod(
+                        nameof(PropertyBuilder<object>.HasConversion), [typeof(ValueConverter), typeof(ValueComparer)]),
+                    typeof(PropertyBuilder<>).GetMethod(
+                        nameof(PropertyBuilder<object>.HasConversion),
+                        [typeof(ValueConverter), typeof(ValueComparer), typeof(ValueComparer)]),
+                    typeof(PropertyBuilder<>).GetMethod(
+                        nameof(PropertyBuilder<object>.HasConversion), [typeof(Type), typeof(Type)]),
+                    typeof(PropertyBuilder<>).GetMethod(
+                        nameof(PropertyBuilder<object>.HasConversion), [typeof(Type), typeof(Type), typeof(Type)]),
+                    GetMethod(
+                        typeof(PropertyBuilder<>), nameof(PropertyBuilder<object>.HasConversion), genericParameterCount: 1,
+                        (typeGenerics, methodGenerics) => (typeGenerics.Length < 1 || methodGenerics.Length < 1)
+                            ? [typeof(Random)]
+                            :
+                            [
+                                typeof(Expression<>).MakeGenericType(
+                                    typeof(Func<,>).MakeGenericType(typeGenerics[0], methodGenerics[0])),
+                                typeof(Expression<>).MakeGenericType(
+                                    typeof(Func<,>).MakeGenericType(methodGenerics[0], typeGenerics[0]))
+                            ]),
+                    GetMethod(
+                        typeof(PropertyBuilder<>), nameof(PropertyBuilder<object>.HasConversion), genericParameterCount: 1,
+                        (typeGenerics, methodGenerics) => (typeGenerics.Length < 1 || methodGenerics.Length < 1)
+                            ? [typeof(Random)]
+                            :
+                            [
+                                typeof(Expression<>).MakeGenericType(
+                                    typeof(Func<,>).MakeGenericType(typeGenerics[0], methodGenerics[0])),
+                                typeof(Expression<>).MakeGenericType(
+                                    typeof(Func<,>).MakeGenericType(methodGenerics[0], typeGenerics[0])),
+                                typeof(ValueComparer)
+                            ]),
+                    GetMethod(
+                        typeof(PropertyBuilder<>), nameof(PropertyBuilder<object>.HasConversion), genericParameterCount: 1,
+                        (typeGenerics, methodGenerics) => (typeGenerics.Length < 1 || methodGenerics.Length < 1)
+                            ? [typeof(Random)]
+                            :
+                            [
+                                typeof(Expression<>).MakeGenericType(
+                                    typeof(Func<,>).MakeGenericType(typeGenerics[0], methodGenerics[0])),
+                                typeof(Expression<>).MakeGenericType(
+                                    typeof(Func<,>).MakeGenericType(methodGenerics[0], typeGenerics[0])),
+                                typeof(ValueComparer),
+                                typeof(ValueComparer)
+                            ]),
+                    GetMethod(
+                        typeof(PropertyBuilder<>), nameof(PropertyBuilder<object>.HasConversion), genericParameterCount: 1,
+                        (typeGenerics, methodGenerics) => (typeGenerics.Length < 1 || methodGenerics.Length < 1)
+                            ? [typeof(Random)]
+                            : [typeof(ValueConverter<,>).MakeGenericType(typeGenerics[0], methodGenerics[0])]),
+                    GetMethod(
+                        typeof(PropertyBuilder<>), nameof(PropertyBuilder<object>.HasConversion), genericParameterCount: 1,
+                        (typeGenerics, methodGenerics) => (typeGenerics.Length < 1 || methodGenerics.Length < 1)
+                            ? [typeof(Random)]
+                            :
+                            [
+                                typeof(ValueConverter<,>).MakeGenericType(typeGenerics[0], methodGenerics[0]), typeof(ValueComparer)
+                            ]),
+                    GetMethod(
+                        typeof(PropertyBuilder<>), nameof(PropertyBuilder<object>.HasConversion), genericParameterCount: 1,
+                        (typeGenerics, methodGenerics) => (typeGenerics.Length < 1 || methodGenerics.Length < 1)
+                            ? [typeof(Random)]
+                            :
+                            [
+                                typeof(ValueConverter<,>).MakeGenericType(typeGenerics[0], methodGenerics[0]),
+                                typeof(ValueComparer),
+                                typeof(ValueComparer)
+                            ])
+                ]
+            }
         };
 
-        public override HashSet<MethodInfo> AsyncMethodExceptions { get; } = new()
-        {
+        public override HashSet<MethodInfo> AsyncMethodExceptions { get; } =
+        [
             typeof(RelationalDatabaseFacadeExtensions).GetMethod(nameof(RelationalDatabaseFacadeExtensions.CloseConnectionAsync)),
             typeof(IRelationalConnection).GetMethod(nameof(IRelationalConnection.CloseAsync)),
             typeof(RelationalConnection).GetMethod(nameof(RelationalConnection.CloseAsync)),
@@ -349,16 +554,49 @@ public class RelationalApiConsistencyTest : ApiConsistencyTestBase<RelationalApi
             typeof(RelationalConnectionDiagnosticsLogger).GetMethod(
                 nameof(IRelationalConnectionDiagnosticsLogger.ConnectionDisposingAsync)),
             typeof(RelationalConnectionDiagnosticsLogger).GetMethod(
-                nameof(IRelationalConnectionDiagnosticsLogger.ConnectionDisposedAsync))
-        };
+                nameof(IRelationalConnectionDiagnosticsLogger.ConnectionDisposedAsync)),
 
-        public override HashSet<MethodInfo> MetadataMethodExceptions { get; } = new()
-        {
+            // internal methods made public for AOT
+            typeof(ShaperProcessingExpressionVisitor).GetMethod(
+                nameof(ShaperProcessingExpressionVisitor.PopulateSplitIncludeCollectionAsync)),
+            typeof(ShaperProcessingExpressionVisitor).GetMethod(nameof(ShaperProcessingExpressionVisitor.PopulateSplitCollectionAsync)),
+            typeof(ShaperProcessingExpressionVisitor).GetMethod(nameof(ShaperProcessingExpressionVisitor.TaskAwaiter)),
+            typeof(RelationalShapedQueryCompilingExpressionVisitor).GetMethod(nameof(NonQueryResultAsync)),
+        ];
+
+        public override HashSet<MethodInfo> MetadataMethodExceptions { get; } =
+        [
             typeof(IMutableStoredProcedure).GetMethod(nameof(IMutableStoredProcedure.AddParameter)),
             typeof(IMutableStoredProcedure).GetMethod(nameof(IMutableStoredProcedure.AddResultColumn))
-        };
+        ];
 
-        public List<IReadOnlyList<MethodInfo>> RelationalMetadataMethods { get; } = new();
+        public override HashSet<MethodInfo> VirtualMethodExceptions { get; } =
+        [
+            // non-sealed record
+#pragma warning disable EF9100 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
+            typeof(RelationalMaterializerLiftableConstantContext).GetMethod("get_RelationalDependencies"),
+            typeof(RelationalMaterializerLiftableConstantContext).GetMethod("set_RelationalDependencies"),
+            typeof(RelationalMaterializerLiftableConstantContext).GetMethod("get_CommandBuilderDependencies"),
+            typeof(RelationalMaterializerLiftableConstantContext).GetMethod("set_CommandBuilderDependencies"),
+            typeof(RelationalMaterializerLiftableConstantContext).GetMethod(
+                "Deconstruct", [typeof(ShapedQueryCompilingExpressionVisitorDependencies).MakeByRefType()]),
+            typeof(RelationalMaterializerLiftableConstantContext).GetMethod(
+                "Deconstruct",
+                [
+                    typeof(ShapedQueryCompilingExpressionVisitorDependencies).MakeByRefType(),
+                    typeof(RelationalShapedQueryCompilingExpressionVisitorDependencies).MakeByRefType()
+                ]),
+            typeof(RelationalMaterializerLiftableConstantContext).GetMethod(
+                "Deconstruct",
+                [
+                    typeof(ShapedQueryCompilingExpressionVisitorDependencies).MakeByRefType(),
+                    typeof(RelationalShapedQueryCompilingExpressionVisitorDependencies).MakeByRefType(),
+                    typeof(RelationalCommandBuilderDependencies).MakeByRefType()
+                ]),
+#pragma warning restore EF9100 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
+        ];
+
+        public List<IReadOnlyList<MethodInfo>> RelationalMetadataMethods { get; } = [];
 
         protected override void Initialize()
         {
@@ -403,6 +641,14 @@ public class RelationalApiConsistencyTest : ApiConsistencyTestBase<RelationalApi
             MirrorTypes.Add(typeof(TableValuedFunctionBuilder<>), typeof(OwnedNavigationTableValuedFunctionBuilder<,>));
             MirrorTypes.Add(typeof(StoredProcedureBuilder), typeof(OwnedNavigationStoredProcedureBuilder));
             MirrorTypes.Add(typeof(StoredProcedureBuilder<>), typeof(OwnedNavigationStoredProcedureBuilder<,>));
+            MirrorTypes.Add(typeof(RelationalComplexTypePropertyBuilderExtensions), typeof(RelationalPropertyBuilderExtensions));
+            MirrorTypes.Add(typeof(PropertyBuilder), typeof(PrimitiveCollectionBuilder));
+            MirrorTypes.Add(typeof(PropertyBuilder<>), typeof(PrimitiveCollectionBuilder<>));
+            MirrorTypes.Add(typeof(PrimitiveCollectionBuilder), typeof(ComplexTypePrimitiveCollectionBuilder));
+            MirrorTypes.Add(typeof(PrimitiveCollectionBuilder<>), typeof(ComplexTypePrimitiveCollectionBuilder<>));
+            MirrorTypes.Add(typeof(RelationalPrimitiveCollectionBuilderExtensions), typeof(RelationalPropertyBuilderExtensions));
+            MirrorTypes.Add(
+                typeof(RelationalComplexTypePrimitiveCollectionBuilderExtensions), typeof(RelationalComplexTypePropertyBuilderExtensions));
 
             base.Initialize();
         }

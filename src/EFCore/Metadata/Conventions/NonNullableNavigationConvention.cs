@@ -1,7 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
@@ -67,7 +67,14 @@ public class NonNullableNavigationConvention :
 
         if (navigation.IsOnDependent)
         {
-            foreignKey.Builder.IsRequired(true);
+            if (foreignKey.Properties.All(
+                    p =>
+                        !p.IsNullable
+                        || (p.IsShadowProperty()
+                            && ConfigurationSource.Convention.Overrides(p.GetIsNullableConfigurationSource()))))
+            {
+                foreignKey.Builder.IsRequired(true);
+            }
         }
         else
         {
@@ -77,5 +84,6 @@ public class NonNullableNavigationConvention :
 
     private bool IsNonNullable(IConventionModelBuilder modelBuilder, IConventionNavigation navigation)
         => navigation.DeclaringEntityType.GetRuntimeProperties().Find(navigation.Name) is PropertyInfo propertyInfo
-            && IsNonNullableReferenceType(modelBuilder, propertyInfo);
+            && TryGetNullabilityInfo(modelBuilder, propertyInfo, out var nullabilityInfo)
+            && nullabilityInfo.ReadState == NullabilityState.NotNull;
 }

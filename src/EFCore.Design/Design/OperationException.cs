@@ -38,10 +38,11 @@ public class OperationException : Exception
     }
 
     /// <summary>
-    ///     Initializes a new instance of the <see cref="DbUpdateException" /> class from a serialized form.
+    ///     Initializes a new instance of the <see cref="OperationException" /> class from a serialized form.
     /// </summary>
     /// <param name="info">The serialization info.</param>
     /// <param name="context">The streaming context being used.</param>
+    [Obsolete("This API supports obsolete formatter-based serialization. It should not be called or extended by application code.")]
     public OperationException(SerializationInfo info, StreamingContext context)
         : base(info, context)
     {

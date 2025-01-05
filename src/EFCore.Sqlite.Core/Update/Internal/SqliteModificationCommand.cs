@@ -39,22 +39,37 @@ public class SqliteModificationCommand : ModificationCommand
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override object? GenerateValueForSinglePropertyUpdate(IProperty property, object? propertyValue)
+    protected override void ProcessSinglePropertyJsonUpdate(ref ColumnModificationParameters parameters)
     {
+        var property = parameters.Property!;
+
         var propertyProviderClrType = (property.GetTypeMapping().Converter?.ProviderClrType ?? property.ClrType).UnwrapNullableType();
 
-        if (propertyProviderClrType == typeof(bool) && propertyValue is bool boolPropertyValue)
+        // SQLite has no bool type, so if we simply sent the bool as-is, we'd get 1/0 in the JSON document.
+        // To get an actual unquoted true/false value, we pass "true"/"false" string through the json() minifier, which does this.
+        // See https://sqlite.org/forum/info/91d09974c3754ea6.
+        // Here we convert the .NET bool to a "true"/"false" string, and SqliteUpdateSqlGenerator will add the enclosing json().
+        if (propertyProviderClrType == typeof(bool))
         {
-            // Sqlite converts true/false into native 0/1 when using json_extract
-            // so we convert those values to strings so that they stay as true/false
-            // which is what we want to store in json object in the end
-            return boolPropertyValue
-                ? "true"
-                : "false";
+            var value = property.GetTypeMapping().Converter is ValueConverter converter
+                ? converter.ConvertToProvider(parameters.Value)
+                : parameters.Value;
+
+            parameters = parameters with
+            {
+                Value = value switch
+                {
+                    true => "true",
+                    false => "false",
+                    _ => throw new UnreachableException()
+                }
+            };
+
+            return;
         }
 
 #pragma warning disable EF1001 // Internal EF Core API usage.
-        return base.GenerateValueForSinglePropertyUpdate(property, propertyValue);
+        base.ProcessSinglePropertyJsonUpdate(ref parameters);
 #pragma warning restore EF1001 // Internal EF Core API usage.
     }
 }

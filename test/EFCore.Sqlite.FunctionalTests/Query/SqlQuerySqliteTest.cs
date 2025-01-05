@@ -5,13 +5,13 @@ using Microsoft.Data.Sqlite;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class SqlQuerySqliteTest : SqlQueryTestBase<NorthwindQuerySqliteFixture<NoopModelCustomizer>>
 {
     public SqlQuerySqliteTest(NorthwindQuerySqliteFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)
         : base(fixture)
-    {
-        //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
-    }
+        => Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
 
     public override async Task SqlQueryRaw_queryable_composed(bool async)
     {
@@ -23,7 +23,7 @@ SELECT "m"."Address", "m"."City", "m"."CompanyName", "m"."ContactName", "m"."Con
 FROM (
     SELECT * FROM "Customers"
 ) AS "m"
-WHERE 'z' = '' OR instr("m"."ContactName", 'z') > 0
+WHERE instr("m"."ContactName", 'z') > 0
 """);
     }
 
@@ -32,14 +32,17 @@ WHERE 'z' = '' OR instr("m"."ContactName", 'z') > 0
         var queryString = await base.SqlQueryRaw_queryable_with_parameters_and_closure(async);
 
         Assert.Equal(
-            @".param set p0 'London'
-.param set @__contactTitle_1 'Sales Representative'
+            """
+.param set p0 'London'
+.param set @contactTitle 'Sales Representative'
 
-SELECT ""m"".""Address"", ""m"".""City"", ""m"".""CompanyName"", ""m"".""ContactName"", ""m"".""ContactTitle"", ""m"".""Country"", ""m"".""CustomerID"", ""m"".""Fax"", ""m"".""Phone"", ""m"".""Region"", ""m"".""PostalCode""
+SELECT "m"."Address", "m"."City", "m"."CompanyName", "m"."ContactName", "m"."ContactTitle", "m"."Country", "m"."CustomerID", "m"."Fax", "m"."Phone", "m"."Region", "m"."PostalCode"
 FROM (
-    SELECT * FROM ""Customers"" WHERE ""City"" = @p0
-) AS ""m""
-WHERE ""m"".""ContactTitle"" = @__contactTitle_1", queryString, ignoreLineEndingDifferences: true);
+    SELECT * FROM "Customers" WHERE "City" = @p0
+) AS "m"
+WHERE "m"."ContactTitle" = @contactTitle
+""",
+            queryString, ignoreLineEndingDifferences: true);
 
         return queryString;
     }
@@ -73,7 +76,35 @@ FROM (
     )
     SELECT * FROM "Customers2"
 ) AS "m"
-WHERE 'z' = '' OR instr("m"."ContactName", 'z') > 0
+WHERE instr("m"."ContactName", 'z') > 0
+""");
+    }
+
+    public override async Task SqlQueryRaw_then_String_Length(bool async)
+    {
+        await base.SqlQueryRaw_then_String_Length(async);
+
+        AssertSql(
+            """
+SELECT "s"."Value"
+FROM (
+    SELECT 'x' AS "Value" FROM "Customers"
+) AS "s"
+WHERE length("s"."Value") = 0
+""");
+    }
+
+    public override async Task SqlQueryRaw_then_String_ToUpper_String_Length(bool async)
+    {
+        await base.SqlQueryRaw_then_String_ToUpper_String_Length(async);
+
+        AssertSql(
+            """
+SELECT "s"."Value"
+FROM (
+    SELECT 'x' AS "Value" FROM "Customers"
+) AS "s"
+WHERE length(upper("s"."Value")) = 0
 """);
     }
 

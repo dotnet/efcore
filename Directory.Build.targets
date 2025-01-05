@@ -1,5 +1,16 @@
 <Project>
+  <PropertyGroup>
+    <!-- Disable IsAotCompatible on non-DefaultNetCoreTargetFrameworks even if explicitly enabled or else we'll get NETSDK1210 errors -->
+    <IsAotCompatible Condition="'$(TargetFramework)' != '$(DefaultNetCoreTargetFramework)'"></IsAotCompatible>
+    <PackageReadmeFile Condition="'$(PackageReadmeFile)' == '' and Exists('PACKAGE.md')">PACKAGE.md</PackageReadmeFile>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(PackageReadmeFile)' != ''">
+    <None Include="$(PackageReadmeFile)" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
   <Import Project="Sdk.targets" Sdk="Microsoft.DotNet.Arcade.Sdk" />
+  <Import Project="eng\testing\linker\trimmingTests.targets" Condition="'$(IsPublishedAppTestProject)' == 'true'" />
 
   <Target Name="GetCustomAssemblyAttributes"
           BeforeTargets="GetAssemblyAttributes"

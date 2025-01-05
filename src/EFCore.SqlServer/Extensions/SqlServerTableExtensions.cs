@@ -19,13 +19,13 @@ public static class SqlServerTableExtensions
     /// <returns><see langword="true" /> if the SQL OUTPUT clause is used to save changes to the table.</returns>
     public static bool IsSqlOutputClauseUsed(this ITable table)
     {
-        if (table.FindRuntimeAnnotation(SqlServerAnnotationNames.UseSqlOutputClause) is { Value: bool isSqlOutputClauseUsed } )
+        if (table.FindRuntimeAnnotation(SqlServerAnnotationNames.UseSqlOutputClause) is { Value: bool isSqlOutputClauseUsed })
         {
             return isSqlOutputClauseUsed;
         }
 
         isSqlOutputClauseUsed = table.EntityTypeMappings.All(
-            e => e.EntityType.IsSqlOutputClauseUsed(StoreObjectIdentifier.Table(table.Name, table.Schema)));
+            e => ((IEntityType)e.TypeBase).IsSqlOutputClauseUsed(StoreObjectIdentifier.Table(table.Name, table.Schema)));
 
         table.SetRuntimeAnnotation(SqlServerAnnotationNames.UseSqlOutputClause, isSqlOutputClauseUsed);
 

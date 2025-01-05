@@ -19,13 +19,11 @@ public class NorthwindODataQueryTestFixture : NorthwindQuerySqlServerFixture<Noo
         => "ODataNorthwind";
 
     public NorthwindODataQueryTestFixture()
-    {
-        (BaseAddress, ClientFactory, _selfHostServer)
+        => (BaseAddress, ClientFactory, _selfHostServer)
             = ODataQueryTestFixtureInitializer.Initialize<NorthwindODataContext>(
                 StoreName,
                 GetEdmModel(),
-                new List<IODataControllerActionConvention> { new OrderDetailsControllerActionConvention() });
-    }
+                [new OrderDetailsControllerActionConvention()]);
 
     private static IEdmModel GetEdmModel()
     {
@@ -82,7 +80,7 @@ public class OrderDetailsControllerActionConvention : IODataControllerActionConv
             {
                 var keys = new Dictionary<string, string> { { "OrderID", "{keyOrderId}" }, { "ProductID", "{keyProductId}" } };
 
-                var keyTemplate = new KeySegmentTemplate(keys, entitySet.EntityType(), entitySet);
+                var keyTemplate = new KeySegmentTemplate(keys, entitySet.EntityType, entitySet);
 
                 var path = new ODataPathTemplate(route, keyTemplate);
                 context.Action.AddSelector("get", context.Prefix, context.Model, path, context.Options.RouteOptions);

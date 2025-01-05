@@ -6,20 +6,11 @@ using Microsoft.EntityFrameworkCore.TestModels;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore;
 
-public abstract class EndToEndTest : IDisposable
+public abstract class EndToEndTest(CrossStoreFixture fixture) : IAsyncLifetime
 {
-    protected EndToEndTest(CrossStoreFixture fixture)
-    {
-        Fixture = fixture;
-        TestStore = Fixture.CreateTestStore(TestStoreFactory, "CrossStoreTest");
-    }
-
-    protected CrossStoreFixture Fixture { get; }
+    protected CrossStoreFixture Fixture { get; } = fixture;
     protected abstract ITestStoreFactory TestStoreFactory { get; }
-    protected TestStore TestStore { get; }
-
-    public void Dispose()
-        => TestStore.Dispose();
+    protected TestStore TestStore { get; private set; }
 
     [ConditionalFact]
     public virtual void Can_save_changes_and_query()
@@ -69,38 +60,29 @@ public abstract class EndToEndTest : IDisposable
 
     protected CrossStoreContext CreateContext()
         => Fixture.CreateContext(TestStore);
+
+    public async Task InitializeAsync()
+        => TestStore = await Fixture.CreateTestStoreAsync(TestStoreFactory, "CrossStoreTest");
+
+    public async Task DisposeAsync()
+        => await TestStore.DisposeAsync();
 }
 
-public class InMemoryEndToEndTest : EndToEndTest, IClassFixture<CrossStoreFixture>
+public class InMemoryEndToEndTest(CrossStoreFixture fixture) : EndToEndTest(fixture), IClassFixture<CrossStoreFixture>
 {
-    public InMemoryEndToEndTest(CrossStoreFixture fixture)
-        : base(fixture)
-    {
-    }
-
     protected override ITestStoreFactory TestStoreFactory
         => InMemoryTestStoreFactory.Instance;
 }
 
 [SqlServerConfiguredCondition]
-public class SqlServerEndToEndTest : EndToEndTest, IClassFixture<CrossStoreFixture>
+public class SqlServerEndToEndTest(CrossStoreFixture fixture) : EndToEndTest(fixture), IClassFixture<CrossStoreFixture>
 {
-    public SqlServerEndToEndTest(CrossStoreFixture fixture)
-        : base(fixture)
-    {
-    }
-
     protected override ITestStoreFactory TestStoreFactory
         => SqlServerTestStoreFactory.Instance;
 }
 
-public class SqliteEndToEndTest : EndToEndTest, IClassFixture<CrossStoreFixture>
+public class SqliteEndToEndTest(CrossStoreFixture fixture) : EndToEndTest(fixture), IClassFixture<CrossStoreFixture>
 {
-    public SqliteEndToEndTest(CrossStoreFixture fixture)
-        : base(fixture)
-    {
-    }
-
     protected override ITestStoreFactory TestStoreFactory
         => SqliteTestStoreFactory.Instance;
 }

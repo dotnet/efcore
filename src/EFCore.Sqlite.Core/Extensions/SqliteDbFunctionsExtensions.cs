@@ -44,6 +44,36 @@ public static class SqliteDbFunctionsExtensions
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Hex)));
 
     /// <summary>
+    ///     Maps to the SQLite <c>unhex</c> function which returns a BLOB representing decoding of the hexadecimal string.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-sqlite">Accessing SQLite databases with EF Core</see> for more information and examples.
+    /// </remarks>
+    /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
+    /// <param name="value">The hexadecimal string.</param>
+    /// <returns>Decoded hexadecimal string as binary value or <see langword="null" /> if <paramref name="value" /> is not an hexadecimal string.</returns>
+    public static byte[]? Unhex(this DbFunctions _, string value)
+        => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Unhex)));
+
+    /// <summary>
+    ///     Maps to the SQLite <c>unhex</c> function which returns a BLOB representing decoding of the hexadecimal string.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-sqlite">Accessing SQLite databases with EF Core</see> for more information and examples.
+    /// </remarks>
+    /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
+    /// <param name="value">The hexadecimal string.</param>
+    /// <param name="ignoreChars">Characters that are ignored in <paramref name="value" />.</param>
+    /// <returns>
+    ///     Decoded hexadecimal string as binary value or <see langword="null" /> if ignoring the characters from
+    ///     <paramref name="ignoreChars" /> in <paramref name="value" /> does not result in an hexadecimal string.
+    /// </returns>
+    public static byte[]? Unhex(this DbFunctions _, string value, string ignoreChars)
+        => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Unhex)));
+
+    /// <summary>
     ///     Maps to the SQLite <c>substr</c> function which returns a subarray of the specified value. The subarray starts
     ///     at <paramref name="startIndex" /> and continues to the end of the value.
     /// </summary>

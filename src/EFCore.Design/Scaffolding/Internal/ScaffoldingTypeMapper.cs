@@ -20,9 +20,7 @@ public class ScaffoldingTypeMapper : IScaffoldingTypeMapper
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public ScaffoldingTypeMapper(IRelationalTypeMappingSource typeMappingSource)
-    {
-        _typeMappingSource = typeMappingSource;
-    }
+        => _typeMappingSource = typeMappingSource;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -33,9 +31,12 @@ public class ScaffoldingTypeMapper : IScaffoldingTypeMapper
     public virtual TypeScaffoldingInfo? FindMapping(
         string storeType,
         bool keyOrIndex,
-        bool rowVersion)
+        bool rowVersion,
+        Type? clrType = null)
     {
-        var mapping = _typeMappingSource.FindMapping(storeType);
+        var mapping = clrType is null
+            ? _typeMappingSource.FindMapping(storeType)
+            : _typeMappingSource.FindMapping(clrType, storeType);
         if (mapping == null)
         {
             return null;

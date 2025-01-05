@@ -3,22 +3,18 @@
 
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel;
 using Newtonsoft.Json;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace Microsoft.EntityFrameworkCore;
 
-public abstract class SerializationTestBase<TFixture> : IClassFixture<TFixture>
+#nullable disable
+
+public abstract class SerializationTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : F1FixtureBase<byte[]>, new()
 {
-    protected SerializationTestBase(TFixture fixture)
-    {
-        Fixture = fixture;
-    }
-
-    protected TFixture Fixture { get; }
+    protected TFixture Fixture { get; } = fixture;
 
     [ConditionalTheory]
     [InlineData(false, false, false)]

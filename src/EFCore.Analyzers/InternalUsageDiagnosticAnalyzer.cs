@@ -12,13 +12,11 @@ namespace Microsoft.EntityFrameworkCore;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class InternalUsageDiagnosticAnalyzer : DiagnosticAnalyzer
 {
-    public const string Id = "EF1001";
     private static readonly int EFLen = "EntityFrameworkCore".Length;
 
     private static readonly DiagnosticDescriptor Descriptor
-        // HACK: Work around dotnet/roslyn-analyzers#5890 by not using target-typed new
-        = new DiagnosticDescriptor(
-            Id,
+        = new(
+            EFDiagnostics.InternalUsage,
             title: AnalyzerStrings.InternalUsageTitle,
             messageFormat: AnalyzerStrings.InternalUsageMessageFormat,
             category: "Usage",
@@ -106,7 +104,8 @@ public sealed class InternalUsageDiagnosticAnalyzer : DiagnosticAnalyzer
 
         if (HasInternalAttribute(symbol))
         {
-            ReportDiagnostic(context, symbol.Name == WellKnownMemberNames.InstanceConstructorName ? containingType : $"{containingType}.{symbol.Name}");
+            ReportDiagnostic(
+                context, symbol.Name == WellKnownMemberNames.InstanceConstructorName ? containingType : $"{containingType}.{symbol.Name}");
             return;
         }
 
@@ -194,8 +193,7 @@ public sealed class InternalUsageDiagnosticAnalyzer : DiagnosticAnalyzer
             {
                 var location = declaringSyntax.GetSyntax() switch
                 {
-                    CSharpSyntax.ClassDeclarationSyntax s when s.BaseList?.Types.Count > 0
-                        => s.BaseList.Types[0].GetLocation(),
+                    CSharpSyntax.ClassDeclarationSyntax { BaseList.Types.Count: > 0 } s => s.BaseList.Types[0].GetLocation(),
                     { } otherSyntax => otherSyntax.GetLocation()
                 };
 
@@ -246,7 +244,8 @@ public sealed class InternalUsageDiagnosticAnalyzer : DiagnosticAnalyzer
             {
                 var location = declaringSyntax.GetSyntax() switch
                 {
-                    CSharpSyntax.ParameterSyntax s when s.Type != null => s.Type.GetLocation(),
+                    CSharpSyntax.ParameterSyntax { Type: not null } s => s.Type.GetLocation(),
+
                     { } otherSyntax => otherSyntax.GetLocation()
                 };
 
@@ -283,9 +282,10 @@ public sealed class InternalUsageDiagnosticAnalyzer : DiagnosticAnalyzer
     private static SyntaxNode NarrowDownSyntax(SyntaxNode syntax)
         => syntax switch
         {
-            CSharpSyntax.InvocationExpressionSyntax s
-                when s.Expression is CSharpSyntax.MemberAccessExpressionSyntax memberAccessSyntax
-                => memberAccessSyntax.Name,
+            CSharpSyntax.InvocationExpressionSyntax
+            {
+                Expression: CSharpSyntax.MemberAccessExpressionSyntax memberAccessSyntax
+            } => memberAccessSyntax.Name,
             CSharpSyntax.MemberAccessExpressionSyntax s => s.Name,
             CSharpSyntax.ObjectCreationExpressionSyntax s => s.Type,
             CSharpSyntax.PropertyDeclarationSyntax s => s.Type,

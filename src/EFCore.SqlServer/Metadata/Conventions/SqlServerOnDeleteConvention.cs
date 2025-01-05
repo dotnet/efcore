@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 /// </summary>
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see>, and
-///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
 ///     for more information and examples.
 /// </remarks>
 public class SqlServerOnDeleteConvention : CascadeDeleteConvention,
@@ -27,9 +27,7 @@ public class SqlServerOnDeleteConvention : CascadeDeleteConvention,
         ProviderConventionSetBuilderDependencies dependencies,
         RelationalConventionSetBuilderDependencies relationalDependencies)
         : base(dependencies)
-    {
-        RelationalDependencies = relationalDependencies;
-    }
+        => RelationalDependencies = relationalDependencies;
 
     /// <summary>
     ///     Relational provider-specific dependencies for this service.
@@ -68,7 +66,8 @@ public class SqlServerOnDeleteConvention : CascadeDeleteConvention,
                 s => s.Inverse != null
                     && IsMappedToSameTable(s.DeclaringEntityType, s.TargetEntityType));
 
-        if (skipNavigation != null)
+        if (skipNavigation != null
+            && skipNavigation.ForeignKey != null)
         {
             var isFirstSkipNavigation = IsFirstSkipNavigation(skipNavigation);
             if (!isFirstSkipNavigation)
@@ -125,8 +124,7 @@ public class SqlServerOnDeleteConvention : CascadeDeleteConvention,
         IConventionAnnotation? oldAnnotation,
         IConventionContext<IConventionAnnotation> context)
     {
-        if (name == RelationalAnnotationNames.TableName
-            || name == RelationalAnnotationNames.Schema)
+        if (name is RelationalAnnotationNames.TableName or RelationalAnnotationNames.Schema)
         {
             ProcessSkipNavigations(entityTypeBuilder.Metadata.GetDeclaredSkipNavigations());
 

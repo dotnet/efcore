@@ -33,11 +33,14 @@ public class InMemoryTypeMappingSource : TypeMappingSource
         var clrType = mappingInfo.ClrType;
         Check.DebugAssert(clrType != null, "ClrType is null");
 
+        var jsonValueReaderWriter = Dependencies.JsonValueReaderWriterSource.FindReaderWriter(clrType);
+
         if (clrType.IsValueType
             || clrType == typeof(string)
-            || clrType == typeof(byte[]))
+            || (clrType == typeof(byte[]) && mappingInfo.ElementTypeMapping == null))
         {
-            return new InMemoryTypeMapping(clrType);
+            return new InMemoryTypeMapping(
+                clrType, jsonValueReaderWriter: jsonValueReaderWriter);
         }
 
         if (clrType.FullName == "NetTopologySuite.Geometries.Geometry"
@@ -48,7 +51,8 @@ public class InMemoryTypeMappingSource : TypeMappingSource
             return new InMemoryTypeMapping(
                 clrType,
                 comparer,
-                comparer);
+                comparer,
+                jsonValueReaderWriter);
         }
 
         return base.FindMapping(mappingInfo);

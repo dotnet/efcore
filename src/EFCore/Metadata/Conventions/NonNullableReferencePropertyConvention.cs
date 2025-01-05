@@ -13,7 +13,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 /// </remarks>
 public class NonNullableReferencePropertyConvention : NonNullableConventionBase,
     IPropertyAddedConvention,
-    IPropertyFieldChangedConvention
+    IPropertyFieldChangedConvention,
+    IPropertyElementTypeChangedConvention,
+    IComplexPropertyAddedConvention,
+    IComplexPropertyFieldChangedConvention
 {
     /// <summary>
     ///     Creates a new instance of <see cref="NonNullableReferencePropertyConvention" />.
@@ -27,33 +30,82 @@ public class NonNullableReferencePropertyConvention : NonNullableConventionBase,
     private void Process(IConventionPropertyBuilder propertyBuilder)
     {
         if (propertyBuilder.Metadata.GetIdentifyingMemberInfo() is MemberInfo memberInfo
-            && IsNonNullableReferenceType(propertyBuilder.ModelBuilder, memberInfo))
+            && TryGetNullabilityInfo(propertyBuilder.ModelBuilder, memberInfo, out var nullabilityInfo))
+        {
+            if (nullabilityInfo.ReadState == NullabilityState.NotNull)
+            {
+                propertyBuilder.IsRequired(true);
+            }
+
+            // If there's an element type, this is a primitive collection; check and apply the element's nullability as well.
+            if (propertyBuilder.Metadata.GetElementType() is IConventionElementType elementType
+                && nullabilityInfo is
+                    { ElementType.ReadState: NullabilityState.NotNull } or
+                    { GenericTypeArguments: [{ ReadState: NullabilityState.NotNull }] })
+            {
+                elementType.SetIsNullable(false);
+            }
+        }
+    }
+
+    private void Process(IConventionComplexPropertyBuilder propertyBuilder)
+    {
+        if (propertyBuilder.Metadata.GetIdentifyingMemberInfo() is MemberInfo memberInfo
+            && TryGetNullabilityInfo(propertyBuilder.ModelBuilder, memberInfo, out var nullabilityInfo)
+            && nullabilityInfo.ReadState == NullabilityState.NotNull)
         {
             propertyBuilder.IsRequired(true);
         }
     }
 
-    /// <summary>
-    ///     Called after a property is added to the entity type.
-    /// </summary>
-    /// <param name="propertyBuilder">The builder for the property.</param>
-    /// <param name="context">Additional information associated with convention execution.</param>
+    /// <inheritdoc />
     public virtual void ProcessPropertyAdded(
         IConventionPropertyBuilder propertyBuilder,
         IConventionContext<IConventionPropertyBuilder> context)
         => Process(propertyBuilder);
 
-    /// <summary>
-    ///     Called after the backing field for a property is changed.
-    /// </summary>
-    /// <param name="propertyBuilder">The builder for the property.</param>
-    /// <param name="newFieldInfo">The new field.</param>
-    /// <param name="oldFieldInfo">The old field.</param>
-    /// <param name="context">Additional information associated with convention execution.</param>
+    /// <inheritdoc />
     public virtual void ProcessPropertyFieldChanged(
         IConventionPropertyBuilder propertyBuilder,
         FieldInfo? newFieldInfo,
         FieldInfo? oldFieldInfo,
         IConventionContext<FieldInfo> context)
+    {
+        if (propertyBuilder.Metadata.PropertyInfo == null)
+        {
+            Process(propertyBuilder);
+        }
+    }
+
+    /// <inheritdoc />
+    public virtual void ProcessPropertyElementTypeChanged(
+        IConventionPropertyBuilder propertyBuilder,
+        IElementType? newElementType,
+        IElementType? oldElementType,
+        IConventionContext<IElementType> context)
+    {
+        if (newElementType != null)
+        {
+            Process(propertyBuilder);
+        }
+    }
+
+    /// <inheritdoc />
+    public virtual void ProcessComplexPropertyAdded(
+        IConventionComplexPropertyBuilder propertyBuilder,
+        IConventionContext<IConventionComplexPropertyBuilder> context)
         => Process(propertyBuilder);
+
+    /// <inheritdoc />
+    public virtual void ProcessComplexPropertyFieldChanged(
+        IConventionComplexPropertyBuilder propertyBuilder,
+        FieldInfo? newFieldInfo,
+        FieldInfo? oldFieldInfo,
+        IConventionContext<FieldInfo> context)
+    {
+        if (propertyBuilder.Metadata.PropertyInfo == null)
+        {
+            Process(propertyBuilder);
+        }
+    }
 }

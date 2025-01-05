@@ -9,91 +9,48 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 
 public partial class CosmosShapedQueryCompilingExpressionVisitor
 {
-    private sealed class InExpressionValuesExpandingExpressionVisitor : ExpressionVisitor
+    private sealed class InExpressionValuesExpandingExpressionVisitor(
+        ISqlExpressionFactory sqlExpressionFactory,
+        IReadOnlyDictionary<string, object> parametersValues)
+        : ExpressionVisitor
     {
-        private readonly ISqlExpressionFactory _sqlExpressionFactory;
-        private readonly IReadOnlyDictionary<string, object> _parametersValues;
-
-        public InExpressionValuesExpandingExpressionVisitor(
-            ISqlExpressionFactory sqlExpressionFactory,
-            IReadOnlyDictionary<string, object> parametersValues)
-        {
-            _sqlExpressionFactory = sqlExpressionFactory;
-            _parametersValues = parametersValues;
-        }
-
-        public override Expression Visit(Expression expression)
+        protected override Expression VisitExtension(Expression expression)
         {
             if (expression is InExpression inExpression)
             {
-                var inValues = new List<object>();
-                var hasNullValue = false;
-                CoreTypeMapping typeMapping = null;
+                IReadOnlyList<SqlExpression> values;
 
-                switch (inExpression.Values)
+                switch (inExpression)
                 {
-                    case SqlConstantExpression sqlConstant:
-                    {
-                        typeMapping = sqlConstant.TypeMapping;
-                        var values = (IEnumerable)sqlConstant.Value;
-                        foreach (var value in values)
-                        {
-                            if (value == null)
-                            {
-                                hasNullValue = true;
-                                continue;
-                            }
-
-                            inValues.Add(value);
-                        }
-                    }
+                    case { Values: IReadOnlyList<SqlExpression> values2 }:
+                        values = values2;
                         break;
 
-                    case SqlParameterExpression sqlParameter:
+                    // TODO: IN with subquery (return immediately, nothing to do here)
+
+                    case { ValuesParameter: SqlParameterExpression valuesParameter }:
                     {
-                        typeMapping = sqlParameter.TypeMapping;
-                        var values = (IEnumerable)_parametersValues[sqlParameter.Name];
-                        foreach (var value in values)
+                        var typeMapping = valuesParameter.TypeMapping;
+                        var mutableValues = new List<SqlExpression>();
+                        foreach (var value in (IEnumerable)parametersValues[valuesParameter.Name])
                         {
-                            if (value == null)
-                            {
-                                hasNullValue = true;
-                                continue;
-                            }
-
-                            inValues.Add(value);
+                            mutableValues.Add(sqlExpressionFactory.Constant(value, value?.GetType() ?? typeof(object), typeMapping));
                         }
-                    }
+
+                        values = mutableValues;
                         break;
+                    }
+
+                    default:
+                        throw new UnreachableException();
                 }
 
-                var updatedInExpression = inValues.Count > 0
-                    ? _sqlExpressionFactory.In(
-                        (SqlExpression)Visit(inExpression.Item),
-                        _sqlExpressionFactory.Constant(inValues, typeMapping),
-                        inExpression.IsNegated)
-                    : null;
-
-                var nullCheckExpression = hasNullValue
-                    ? _sqlExpressionFactory.IsNull(inExpression.Item)
-                    : null;
-
-                if (updatedInExpression != null
-                    && nullCheckExpression != null)
-                {
-                    return _sqlExpressionFactory.OrElse(updatedInExpression, nullCheckExpression);
-                }
-
-                if (updatedInExpression == null
-                    && nullCheckExpression == null)
-                {
-                    return _sqlExpressionFactory.Equal(_sqlExpressionFactory.Constant(true), _sqlExpressionFactory.Constant(false));
-                }
-
-                return (SqlExpression)updatedInExpression ?? nullCheckExpression;
+                return values.Count == 0
+                    ? sqlExpressionFactory.ApplyDefaultTypeMapping(sqlExpressionFactory.Constant(false))
+                    : sqlExpressionFactory.In((SqlExpression)Visit(inExpression.Item), values);
             }
 
-            return base.Visit(expression);
+            return base.VisitExtension(expression);
         }
     }
 }

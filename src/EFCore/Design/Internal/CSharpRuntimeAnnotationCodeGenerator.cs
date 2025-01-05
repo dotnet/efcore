@@ -2,27 +2,25 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace Microsoft.EntityFrameworkCore.Design.Internal;
 
 /// <summary>
 ///     Base class to be used by database providers when implementing an <see cref="ICSharpRuntimeAnnotationCodeGenerator" />
 /// </summary>
-public class CSharpRuntimeAnnotationCodeGenerator : ICSharpRuntimeAnnotationCodeGenerator
+/// <remarks>
+///     Initializes a new instance of this class.
+/// </remarks>
+/// <param name="dependencies">Parameter object containing dependencies for this service.</param>
+public class CSharpRuntimeAnnotationCodeGenerator(CSharpRuntimeAnnotationCodeGeneratorDependencies dependencies)
+    : ICSharpRuntimeAnnotationCodeGenerator
 {
-    /// <summary>
-    ///     Initializes a new instance of this class.
-    /// </summary>
-    /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
-    public CSharpRuntimeAnnotationCodeGenerator(CSharpRuntimeAnnotationCodeGeneratorDependencies dependencies)
-    {
-        Dependencies = dependencies;
-    }
-
     /// <summary>
     ///     Dependencies for this service.
     /// </summary>
-    protected virtual CSharpRuntimeAnnotationCodeGeneratorDependencies Dependencies { get; }
+    protected virtual CSharpRuntimeAnnotationCodeGeneratorDependencies Dependencies { get; } = dependencies;
 
     /// <inheritdoc />
     public virtual void Generate(IModel model, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
@@ -51,6 +49,44 @@ public class CSharpRuntimeAnnotationCodeGenerator : ICSharpRuntimeAnnotationCode
 
     /// <inheritdoc />
     public virtual void Generate(IEntityType entityType, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
+    {
+        var annotations = parameters.Annotations;
+        if (!parameters.IsRuntime)
+        {
+            foreach (var (key, _) in annotations)
+            {
+                if (CoreAnnotationNames.AllNames.Contains(key)
+                    && key != CoreAnnotationNames.DiscriminatorMappingComplete)
+                {
+                    annotations.Remove(key);
+                }
+            }
+        }
+
+        GenerateSimpleAnnotations(parameters);
+    }
+
+    /// <inheritdoc />
+    public virtual void Generate(IComplexProperty complexProperty, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
+    {
+        var annotations = parameters.Annotations;
+        if (!parameters.IsRuntime)
+        {
+            foreach (var (key, _) in annotations)
+            {
+                if (CoreAnnotationNames.AllNames.Contains(key)
+                    && key != CoreAnnotationNames.DiscriminatorMappingComplete)
+                {
+                    annotations.Remove(key);
+                }
+            }
+        }
+
+        GenerateSimpleAnnotations(parameters);
+    }
+
+    /// <inheritdoc />
+    public virtual void Generate(IComplexType complexType, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
     {
         var annotations = parameters.Annotations;
         if (!parameters.IsRuntime)
@@ -278,14 +314,13 @@ public class CSharpRuntimeAnnotationCodeGenerator : ICSharpRuntimeAnnotationCode
     /// </summary>
     /// <param name="type">A type.</param>
     /// <param name="namespaces">The set of namespaces to add to.</param>
-    protected virtual void AddNamespace(Type type, ISet<string> namespaces)
+    public static void AddNamespace(Type type, ISet<string> namespaces)
     {
         if (type.IsNested)
         {
             AddNamespace(type.DeclaringType!, namespaces);
         }
-
-        if (type.Namespace != null)
+        else if (!string.IsNullOrEmpty(type.Namespace))
         {
             namespaces.Add(type.Namespace);
         }
@@ -298,10 +333,338 @@ public class CSharpRuntimeAnnotationCodeGenerator : ICSharpRuntimeAnnotationCode
             }
         }
 
-        var sequenceType = type.TryGetSequenceType();
-        if (sequenceType != null)
+        if (type.IsArray)
         {
-            AddNamespace(sequenceType, namespaces);
+            AddNamespace(type.GetSequenceType(), namespaces);
         }
+    }
+
+    /// <inheritdoc />
+    public void Create(ValueConverter converter, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
+        => Create(converter, parameters, Dependencies.CSharpHelper);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static void Create(
+        ValueConverter converter,
+        CSharpRuntimeAnnotationCodeGeneratorParameters parameters,
+        ICSharpHelper codeHelper)
+    {
+        var mainBuilder = parameters.MainBuilder;
+        var constructor = converter.GetType().GetDeclaredConstructor([typeof(JsonValueReaderWriter)]);
+        var jsonReaderWriterProperty = converter.GetType().GetProperty(nameof(CollectionToJsonStringConverter<object>.JsonReaderWriter));
+        if (constructor == null
+            || jsonReaderWriterProperty == null)
+        {
+            AddNamespace(typeof(ValueConverter<,>), parameters.Namespaces);
+            AddNamespace(converter.ModelClrType, parameters.Namespaces);
+            AddNamespace(converter.ProviderClrType, parameters.Namespaces);
+
+            var unsafeAccessors = new HashSet<string>();
+
+            mainBuilder
+                .Append("new ValueConverter<")
+                .Append(codeHelper.Reference(converter.ModelClrType))
+                .Append(", ")
+                .Append(codeHelper.Reference(converter.ProviderClrType))
+                .AppendLine(">(")
+                .IncrementIndent()
+                .AppendLines(
+                    codeHelper.Expression(converter.ConvertToProviderExpression, parameters.Namespaces, unsafeAccessors),
+                    skipFinalNewline: true)
+                .AppendLine(",")
+                .AppendLines(
+                    codeHelper.Expression(converter.ConvertFromProviderExpression, parameters.Namespaces, unsafeAccessors),
+                    skipFinalNewline: true);
+
+            Check.DebugAssert(
+                unsafeAccessors.Count == 0, "Generated unsafe accessors not handled: " + string.Join(Environment.NewLine, unsafeAccessors));
+
+            if (converter.ConvertsNulls)
+            {
+                mainBuilder
+                    .AppendLine(",")
+                    .Append("convertsNulls: true");
+            }
+
+            mainBuilder
+                .Append(")")
+                .DecrementIndent();
+        }
+        else
+        {
+            AddNamespace(converter.GetType(), parameters.Namespaces);
+
+            mainBuilder
+                .Append("new ")
+                .Append(codeHelper.Reference(converter.GetType()))
+                .Append("(");
+
+            CreateJsonValueReaderWriter((JsonValueReaderWriter)jsonReaderWriterProperty.GetValue(converter)!, parameters, codeHelper);
+
+            mainBuilder
+                .Append(")");
+        }
+    }
+
+    /// <inheritdoc />
+    public void Create(ValueComparer comparer, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
+        => Create(comparer, parameters, Dependencies.CSharpHelper);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static void Create(
+        ValueComparer comparer,
+        CSharpRuntimeAnnotationCodeGeneratorParameters parameters,
+        ICSharpHelper codeHelper)
+    {
+        var mainBuilder = parameters.MainBuilder;
+
+        var comparerType = comparer.GetType();
+        var constructor = comparerType.GetDeclaredConstructor([typeof(ValueComparer)]);
+        if (constructor == null
+            || comparer is not IInfrastructure<ValueComparer> { Instance: ValueComparer underlyingValueComparer })
+        {
+            AddNamespace(typeof(ValueComparer<>), parameters.Namespaces);
+            AddNamespace(comparer.Type, parameters.Namespaces);
+
+            var unsafeAccessors = new HashSet<string>();
+
+            mainBuilder
+                .Append("new ValueComparer<")
+                .Append(codeHelper.Reference(comparer.Type))
+                .AppendLine(">(")
+                .IncrementIndent()
+                .AppendLines(
+                    codeHelper.Expression(comparer.EqualsExpression, parameters.Namespaces, unsafeAccessors),
+                    skipFinalNewline: true)
+                .AppendLine(",")
+                .AppendLines(
+                    codeHelper.Expression(comparer.HashCodeExpression, parameters.Namespaces, unsafeAccessors),
+                    skipFinalNewline: true)
+                .AppendLine(",")
+                .AppendLines(
+                    codeHelper.Expression(comparer.SnapshotExpression, parameters.Namespaces, unsafeAccessors),
+                    skipFinalNewline: true)
+                .Append(")")
+                .DecrementIndent();
+
+            Check.DebugAssert(
+                unsafeAccessors.Count == 0, "Generated unsafe accessors not handled: " + string.Join(Environment.NewLine, unsafeAccessors));
+        }
+        else
+        {
+            AddNamespace(comparerType, parameters.Namespaces);
+
+            mainBuilder
+                .Append("new ")
+                .Append(codeHelper.Reference(comparerType))
+                .Append("(");
+
+            Create(underlyingValueComparer, parameters, codeHelper);
+
+            mainBuilder
+                .Append(")");
+        }
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static void CreateJsonValueReaderWriter(
+        JsonValueReaderWriter jsonValueReaderWriter,
+        CSharpRuntimeAnnotationCodeGeneratorParameters parameters,
+        ICSharpHelper codeHelper)
+    {
+        var mainBuilder = parameters.MainBuilder;
+        var jsonValueReaderWriterType = jsonValueReaderWriter.GetType();
+
+        if (jsonValueReaderWriter is IJsonConvertedValueReaderWriter jsonConvertedValueReaderWriter)
+        {
+            AddNamespace(jsonValueReaderWriterType, parameters.Namespaces);
+
+            mainBuilder
+                .Append("new ")
+                .Append(codeHelper.Reference(jsonValueReaderWriterType))
+                .AppendLine("(")
+                .IncrementIndent();
+            CreateJsonValueReaderWriter(jsonConvertedValueReaderWriter.InnerReaderWriter, parameters, codeHelper);
+            mainBuilder.AppendLine(",");
+            Create(jsonConvertedValueReaderWriter.Converter, parameters, codeHelper);
+            mainBuilder
+                .Append(")")
+                .DecrementIndent();
+            return;
+        }
+
+        if (jsonValueReaderWriter is ICompositeJsonValueReaderWriter compositeJsonValueReaderWriter)
+        {
+            AddNamespace(jsonValueReaderWriterType, parameters.Namespaces);
+
+            mainBuilder
+                .Append("new ")
+                .Append(codeHelper.Reference(jsonValueReaderWriterType))
+                .AppendLine("(")
+                .IncrementIndent();
+            CreateJsonValueReaderWriter(compositeJsonValueReaderWriter.InnerReaderWriter, parameters, codeHelper);
+            mainBuilder
+                .Append(")")
+                .DecrementIndent();
+            return;
+        }
+
+        CreateJsonValueReaderWriter(jsonValueReaderWriterType, parameters, codeHelper);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static void CreateJsonValueReaderWriter(
+        Type jsonValueReaderWriterType,
+        CSharpRuntimeAnnotationCodeGeneratorParameters parameters,
+        ICSharpHelper codeHelper)
+    {
+        var mainBuilder = parameters.MainBuilder;
+        AddNamespace(jsonValueReaderWriterType, parameters.Namespaces);
+
+        var instanceProperty = jsonValueReaderWriterType.GetProperty("Instance");
+        if (instanceProperty != null
+            && instanceProperty.IsStatic()
+            && instanceProperty.GetMethod?.IsPublic == true
+            && jsonValueReaderWriterType.IsAssignableFrom(instanceProperty.PropertyType)
+            && jsonValueReaderWriterType.IsPublic)
+        {
+            mainBuilder
+                .Append(codeHelper.Reference(jsonValueReaderWriterType))
+                .Append(".Instance");
+        }
+        else
+        {
+            mainBuilder
+                .Append("new ")
+                .Append(codeHelper.Reference(jsonValueReaderWriterType))
+                .Append("()");
+        }
+    }
+
+    /// <inheritdoc />
+    public virtual bool Create(
+        CoreTypeMapping typeMapping,
+        CSharpRuntimeAnnotationCodeGeneratorParameters parameters,
+        ValueComparer? valueComparer = null,
+        ValueComparer? keyValueComparer = null,
+        ValueComparer? providerValueComparer = null)
+    {
+        var mainBuilder = parameters.MainBuilder;
+        var code = Dependencies.CSharpHelper;
+        var defaultInstance = CreateDefaultTypeMapping(typeMapping, parameters);
+        if (defaultInstance == null)
+        {
+            return true;
+        }
+
+        mainBuilder
+            .AppendLine(".Clone(")
+            .IncrementIndent();
+
+        mainBuilder
+            .Append("comparer: ");
+        Create(valueComparer ?? typeMapping.Comparer, parameters, code);
+
+        mainBuilder.AppendLine(",")
+            .Append("keyComparer: ");
+        Create(keyValueComparer ?? typeMapping.KeyComparer, parameters, code);
+
+        mainBuilder.AppendLine(",")
+            .Append("providerValueComparer: ");
+        Create(providerValueComparer ?? typeMapping.ProviderValueComparer, parameters, code);
+
+        if (typeMapping.Converter != null
+            && typeMapping.Converter != defaultInstance.Converter)
+        {
+            mainBuilder.AppendLine(",")
+                .Append("converter: ");
+
+            Create(typeMapping.Converter, parameters, code);
+        }
+
+        var typeDifferent = typeMapping.Converter == null
+            && typeMapping.ClrType != defaultInstance.ClrType;
+        if (typeDifferent)
+        {
+            mainBuilder.AppendLine(",")
+                .Append($"clrType: {code.Literal(typeMapping.ClrType)}");
+        }
+
+        if (typeMapping.JsonValueReaderWriter != null
+            && typeMapping.JsonValueReaderWriter != defaultInstance.JsonValueReaderWriter)
+        {
+            mainBuilder.AppendLine(",")
+                .Append("jsonValueReaderWriter: ");
+
+            CreateJsonValueReaderWriter(typeMapping.JsonValueReaderWriter, parameters, code);
+        }
+
+        if (typeMapping.ElementTypeMapping != null
+            && typeMapping.ElementTypeMapping != defaultInstance.ElementTypeMapping)
+        {
+            mainBuilder.AppendLine(",")
+                .Append("elementMapping: ");
+
+            Create(typeMapping.ElementTypeMapping, parameters);
+        }
+
+        mainBuilder
+            .Append(")")
+            .DecrementIndent();
+
+        return true;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected virtual CoreTypeMapping? CreateDefaultTypeMapping(
+        CoreTypeMapping typeMapping,
+        CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
+    {
+        var typeMappingType = typeMapping.GetType();
+        var mainBuilder = parameters.MainBuilder;
+        var code = Dependencies.CSharpHelper;
+        var defaultProperty = typeMappingType.GetProperty("Default");
+        if (defaultProperty == null
+            || !defaultProperty.IsStatic()
+            || (defaultProperty.GetMethod?.IsPublic) != true
+            || !typeMappingType.IsAssignableFrom(defaultProperty.PropertyType)
+            || !typeMappingType.IsPublic)
+        {
+            throw new InvalidOperationException(
+                CoreStrings.CompiledModelIncompatibleTypeMapping(typeMappingType.ShortDisplayName()));
+        }
+
+        AddNamespace(typeMappingType, parameters.Namespaces);
+        mainBuilder
+            .Append(code.Reference(typeMappingType))
+            .Append(".Default");
+
+        var defaultInstance = (CoreTypeMapping)defaultProperty.GetValue(null)!;
+        return typeMapping == defaultInstance ? null : defaultInstance;
     }
 }

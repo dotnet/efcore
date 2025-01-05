@@ -65,15 +65,21 @@ public interface IStoredProcedureMapping : ITableMappingBase
             builder.Append("StoredProcedureMapping: ");
         }
 
-        builder.Append(EntityType.DisplayName()).Append(" - ");
+        builder.Append(TypeBase.DisplayName()).Append(" - ");
 
         builder.Append(StoreStoredProcedure.Name);
 
         builder.Append(" Type:").Append(StoredProcedureIdentifier.StoreObjectType);
 
-        if (IncludesDerivedTypes)
+        if (IncludesDerivedTypes != null)
         {
-            builder.Append(" IncludesDerivedTypes");
+            builder.Append(' ');
+            if (!IncludesDerivedTypes.Value)
+            {
+                builder.Append('!');
+            }
+
+            builder.Append("IncludesDerivedTypes");
         }
 
         if (!singleLine && (options & MetadataDebugStringOptions.IncludeAnnotations) != 0)

@@ -18,7 +18,7 @@ public class DependencyInjectionMethodParameterBinding : DependencyInjectionPara
 {
     private static readonly MethodInfo GetServiceMethod
         = typeof(InfrastructureExtensions).GetRuntimeMethod(
-            nameof(InfrastructureExtensions.GetService), new[] { typeof(IInfrastructure<IServiceProvider>) })!;
+            nameof(InfrastructureExtensions.GetService), [typeof(IInfrastructure<IServiceProvider>)])!;
 
     private static readonly MethodInfo GetServiceFromPropertyMethod
         = typeof(DependencyInjectionMethodParameterBinding).GetTypeInfo().GetDeclaredMethod(nameof(GetServiceFromProperty))!;
@@ -85,7 +85,10 @@ public class DependencyInjectionMethodParameterBinding : DependencyInjectionPara
         => materializationContext.Context.GetDependencies().StateManager.GetOrCreateEntry(entity)[property];
 
     private static object CreateService(
-        MaterializationContext materializationContext, Type serviceType, IEntityType entityType, object entity)
+        MaterializationContext materializationContext,
+        Type serviceType,
+        IEntityType entityType,
+        object entity)
     {
         var service = materializationContext.Context.GetService(serviceType);
 

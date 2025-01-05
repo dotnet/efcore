@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore;
 /// </summary>
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
 ///     for more information and examples.
 /// </remarks>
 public static class SqlServerIndexBuilderExtensions
@@ -21,7 +21,7 @@ public static class SqlServerIndexBuilderExtensions
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples.
     /// </remarks>
     /// <param name="indexBuilder">The builder for the index being configured.</param>
@@ -39,7 +39,7 @@ public static class SqlServerIndexBuilderExtensions
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples.
     /// </remarks>
     /// <param name="indexBuilder">The builder for the index being configured.</param>
@@ -55,7 +55,7 @@ public static class SqlServerIndexBuilderExtensions
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples.
     /// </remarks>
     /// <param name="indexBuilder">The builder for the index being configured.</param>
@@ -84,7 +84,7 @@ public static class SqlServerIndexBuilderExtensions
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples.
     /// </remarks>
     /// <param name="indexBuilder">The builder for the index being configured.</param>
@@ -102,7 +102,7 @@ public static class SqlServerIndexBuilderExtensions
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples.
     /// </remarks>
     /// <param name="indexBuilder">The builder for the index being configured.</param>
@@ -122,7 +122,7 @@ public static class SqlServerIndexBuilderExtensions
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples.
     /// </remarks>
     /// <param name="indexBuilder">The builder for the index being configured.</param>
@@ -144,7 +144,7 @@ public static class SqlServerIndexBuilderExtensions
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples.
     /// </remarks>
     /// <param name="indexBuilder">The builder for the index being configured.</param>
@@ -177,7 +177,7 @@ public static class SqlServerIndexBuilderExtensions
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples.
     /// </remarks>
     /// <param name="indexBuilder">The builder for the index being configured.</param>
@@ -207,7 +207,7 @@ public static class SqlServerIndexBuilderExtensions
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples.
     /// </remarks>
     /// <param name="indexBuilder">The builder for the index being configured.</param>
@@ -229,7 +229,7 @@ public static class SqlServerIndexBuilderExtensions
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples.
     /// </remarks>
     /// <param name="indexBuilder">The builder for the index being configured.</param>
@@ -247,7 +247,7 @@ public static class SqlServerIndexBuilderExtensions
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples.
     /// </remarks>
     /// <param name="indexBuilder">The builder for the index being configured.</param>
@@ -263,7 +263,7 @@ public static class SqlServerIndexBuilderExtensions
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples.
     /// </remarks>
     /// <param name="indexBuilder">The builder for the index being configured.</param>
@@ -293,7 +293,7 @@ public static class SqlServerIndexBuilderExtensions
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples.
     /// </remarks>
     /// <param name="indexBuilder">The builder for the index being configured.</param>
@@ -315,7 +315,7 @@ public static class SqlServerIndexBuilderExtensions
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples.
     /// </remarks>
     /// <param name="indexBuilder">The builder for the index being configured.</param>
@@ -333,7 +333,7 @@ public static class SqlServerIndexBuilderExtensions
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples.
     /// </remarks>
     /// <param name="indexBuilder">The builder for the index being configured.</param>
@@ -349,7 +349,7 @@ public static class SqlServerIndexBuilderExtensions
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples.
     /// </remarks>
     /// <param name="indexBuilder">The builder for the index being configured.</param>
@@ -379,7 +379,7 @@ public static class SqlServerIndexBuilderExtensions
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples.
     /// </remarks>
     /// <param name="indexBuilder">The builder for the index being configured.</param>
@@ -391,4 +391,176 @@ public static class SqlServerIndexBuilderExtensions
         int? fillFactor,
         bool fromDataAnnotation = false)
         => indexBuilder.CanSetAnnotation(SqlServerAnnotationNames.FillFactor, fillFactor, fromDataAnnotation);
+
+    /// <summary>
+    ///     Configures whether the index is created with sort in tempdb option when targeting SQL Server.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
+    ///     for more information and examples.
+    /// </remarks>
+    /// <param name="indexBuilder">The builder for the index being configured.</param>
+    /// <param name="sortInTempDb">A value indicating whether the index is created with sort in tempdb option.</param>
+    /// <returns>A builder to further configure the index.</returns>
+    public static IndexBuilder SortInTempDb(this IndexBuilder indexBuilder, bool sortInTempDb = true)
+    {
+        indexBuilder.Metadata.SetSortInTempDb(sortInTempDb);
+
+        return indexBuilder;
+    }
+
+    /// <summary>
+    ///     Configures whether the index is created with sort in tempdb option when targeting SQL Server.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
+    ///     for more information and examples.
+    /// </remarks>
+    /// <param name="indexBuilder">The builder for the index being configured.</param>
+    /// <param name="sortInTempDb">A value indicating whether the index is created with sort in tempdb option.</param>
+    /// <returns>A builder to further configure the index.</returns>
+    public static IndexBuilder<TEntity> SortInTempDb<TEntity>(
+        this IndexBuilder<TEntity> indexBuilder,
+        bool sortInTempDb = true)
+        => (IndexBuilder<TEntity>)SortInTempDb((IndexBuilder)indexBuilder, sortInTempDb);
+
+    /// <summary>
+    ///     Configures whether the index is created with sort in tempdb option when targeting SQL Server.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
+    ///     for more information and examples.
+    /// </remarks>
+    /// <param name="indexBuilder">The builder for the index being configured.</param>
+    /// <param name="sortInTempDb">A value indicating whether the index is created with sort in tempdb option.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>
+    ///     The same builder instance if the configuration was applied,
+    ///     <see langword="null" /> otherwise.
+    /// </returns>
+    public static IConventionIndexBuilder? SortInTempDb(
+        this IConventionIndexBuilder indexBuilder,
+        bool? sortInTempDb,
+        bool fromDataAnnotation = false)
+    {
+        if (indexBuilder.CanSetSortInTempDb(sortInTempDb, fromDataAnnotation))
+        {
+            indexBuilder.Metadata.SetSortInTempDb(sortInTempDb, fromDataAnnotation);
+
+            return indexBuilder;
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    ///     Returns a value indicating whether the index can be configured with sort in tempdb option when targeting SQL Server.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
+    ///     for more information and examples.
+    /// </remarks>
+    /// <param name="indexBuilder">The builder for the index being configured.</param>
+    /// <param name="sortInTempDb">A value indicating whether the index is created with sort in tempdb option.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>
+    ///     The same builder instance if the configuration was applied,
+    ///     <see langword="null" /> otherwise.
+    /// </returns>
+    /// <returns><see langword="true" /> if the index can be configured with sort in tempdb option when targeting SQL Server.</returns>
+    public static bool CanSetSortInTempDb(
+        this IConventionIndexBuilder indexBuilder,
+        bool? sortInTempDb,
+        bool fromDataAnnotation = false)
+        => indexBuilder.CanSetAnnotation(SqlServerAnnotationNames.SortInTempDb, sortInTempDb, fromDataAnnotation);
+
+    /// <summary>
+    ///     Configures whether the index is created with data compression option when targeting SQL Server.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
+    ///     for more information and examples.
+    /// </remarks>
+    /// <param name="indexBuilder">The builder for the index being configured.</param>
+    /// <param name="dataCompressionType">A value indicating the data compression option to be used.</param>
+    /// <returns>A builder to further configure the index.</returns>
+    public static IndexBuilder UseDataCompression(this IndexBuilder indexBuilder, DataCompressionType dataCompressionType)
+    {
+        indexBuilder.Metadata.SetDataCompression(dataCompressionType);
+
+        return indexBuilder;
+    }
+
+    /// <summary>
+    ///     Configures whether the index is created with data compression option when targeting SQL Server.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
+    ///     for more information and examples.
+    /// </remarks>
+    /// <param name="indexBuilder">The builder for the index being configured.</param>
+    /// <param name="dataCompressionType">A value indicating the data compression option to be used.</param>
+    /// <returns>A builder to further configure the index.</returns>
+    public static IndexBuilder<TEntity> UseDataCompression<TEntity>(
+        this IndexBuilder<TEntity> indexBuilder,
+        DataCompressionType dataCompressionType)
+        => (IndexBuilder<TEntity>)UseDataCompression((IndexBuilder)indexBuilder, dataCompressionType);
+
+    /// <summary>
+    ///     Configures whether the index is created with data compression option when targeting SQL Server.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
+    ///     for more information and examples.
+    /// </remarks>
+    /// <param name="indexBuilder">The builder for the index being configured.</param>
+    /// <param name="dataCompressionType">A value indicating the data compression option to be used.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>
+    ///     The same builder instance if the configuration was applied,
+    ///     <see langword="null" /> otherwise.
+    /// </returns>
+    public static IConventionIndexBuilder? UseDataCompression(
+        this IConventionIndexBuilder indexBuilder,
+        DataCompressionType? dataCompressionType,
+        bool fromDataAnnotation = false)
+    {
+        if (indexBuilder.CanSetDataCompression(dataCompressionType, fromDataAnnotation))
+        {
+            indexBuilder.Metadata.SetDataCompression(dataCompressionType, fromDataAnnotation);
+
+            return indexBuilder;
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    ///     Returns a value indicating whether the index can be configured with data compression option when targeting SQL Server.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
+    ///     for more information and examples.
+    /// </remarks>
+    /// <param name="indexBuilder">The builder for the index being configured.</param>
+    /// <param name="dataCompressionType">A value indicating the data compression option to be used.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>
+    ///     The same builder instance if the configuration was applied,
+    ///     <see langword="null" /> otherwise.
+    /// </returns>
+    /// <returns><see langword="true" /> if the index can be configured with data compression option when targeting SQL Server.</returns>
+    public static bool CanSetDataCompression(
+        this IConventionIndexBuilder indexBuilder,
+        DataCompressionType? dataCompressionType,
+        bool fromDataAnnotation = false)
+        => indexBuilder.CanSetAnnotation(SqlServerAnnotationNames.DataCompression, dataCompressionType, fromDataAnnotation);
 }

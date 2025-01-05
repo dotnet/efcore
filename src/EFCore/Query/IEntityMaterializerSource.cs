@@ -57,11 +57,13 @@ public interface IEntityMaterializerSource
     /// <param name="parameters">Parameters for the entity being materialized.</param>
     /// <param name="materializationExpression">The materialization expression to build on.</param>
     /// <returns>An expression to read the value.</returns>
+#pragma warning disable CS0618
     Expression CreateMaterializeExpression(
         EntityMaterializerSourceParameters parameters,
         Expression materializationExpression)
-#pragma warning disable CS0618
-        => CreateMaterializeExpression(parameters.EntityType, parameters.EntityInstanceName, materializationExpression);
+        => parameters.StructuralType is IEntityType entityType
+            ? CreateMaterializeExpression(entityType, parameters.InstanceName, materializationExpression)
+            : throw new NotImplementedException(CoreStrings.ComplexTypesNotSupported(GetType().Name));
 #pragma warning restore CS0618
 
     /// <summary>

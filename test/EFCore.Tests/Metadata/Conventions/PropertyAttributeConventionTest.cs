@@ -3,6 +3,7 @@
 
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
@@ -713,7 +714,7 @@ public class PropertyAttributeConventionTest
     {
         var dependencies = CreateDependencies();
         var context = new ConventionContext<IConventionPropertyBuilder>(
-            ((Model)propertyBuilder.Metadata.DeclaringEntityType.Model).ConventionDispatcher);
+            ((Model)propertyBuilder.Metadata.DeclaringType.Model).ConventionDispatcher);
 
         new BackingFieldConvention(dependencies)
             .ProcessPropertyAdded(propertyBuilder, context);
@@ -904,9 +905,7 @@ public class PropertyAttributeConventionTest
         public int Number { get; set; }
     }
 
-    private class CompositeKeyDerivedEntity : BaseEntity
-    {
-    }
+    private class CompositeKeyDerivedEntity : BaseEntity;
 
     [PrimaryKey(nameof(Name))]
     private class BaseEntity2

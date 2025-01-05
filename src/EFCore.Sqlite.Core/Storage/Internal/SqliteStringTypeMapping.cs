@@ -3,6 +3,7 @@
 
 using System.Data;
 using System.Text;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
 
@@ -15,6 +16,14 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
 public class SqliteStringTypeMapping : StringTypeMapping
 {
     /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static new SqliteStringTypeMapping Default { get; } = new(SqliteTypeMappingSource.TextTypeName);
+
+    /// <summary>
     ///     Initializes a new instance of the <see cref="SqliteStringTypeMapping" /> class.
     /// </summary>
     /// <param name="storeType">The name of the database type.</param>
@@ -26,7 +35,11 @@ public class SqliteStringTypeMapping : StringTypeMapping
         DbType? dbType = null,
         bool unicode = false,
         int? size = null)
-        : base(storeType, dbType, unicode, size)
+        : base(
+            new RelationalTypeMappingParameters(
+                new CoreTypeMappingParameters(
+                    typeof(string), jsonValueReaderWriter: JsonStringReaderWriter.Instance), storeType, StoreTypePostfix.None, dbType,
+                unicode, size))
     {
     }
 
@@ -46,16 +59,6 @@ public class SqliteStringTypeMapping : StringTypeMapping
     /// <returns>The newly created mapping.</returns>
     protected override RelationalTypeMapping Clone(RelationalTypeMappingParameters parameters)
         => new SqliteStringTypeMapping(parameters);
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual RelationalTypeMapping CloneWithElementTypeMapping(RelationalTypeMapping elementTypeMapping)
-        => new SqliteStringTypeMapping(
-            Parameters.WithCoreParameters(Parameters.CoreParameters.WithElementTypeMapping(elementTypeMapping)));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

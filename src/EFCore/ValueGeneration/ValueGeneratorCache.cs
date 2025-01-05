@@ -32,37 +32,31 @@ public class ValueGeneratorCache : IValueGeneratorCache
     /// </summary>
     /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
     public ValueGeneratorCache(ValueGeneratorCacheDependencies dependencies)
-    {
-        Dependencies = dependencies;
-    }
+        => Dependencies = dependencies;
 
     /// <summary>
     ///     Dependencies for this service.
     /// </summary>
     protected virtual ValueGeneratorCacheDependencies Dependencies { get; }
 
-    private readonly ConcurrentDictionary<CacheKey, ValueGenerator> _cache = new();
+    private readonly ConcurrentDictionary<CacheKey, ValueGenerator?> _cache = new();
 
-    private readonly struct CacheKey : IEquatable<CacheKey>
+    private readonly struct CacheKey(IProperty property, ITypeBase typeBase) : IEquatable<CacheKey>
     {
-        public CacheKey(IProperty property, IEntityType entityType)
-        {
-            Property = property;
-            EntityType = entityType;
-        }
-
-        public IProperty Property { get; }
-
-        public IEntityType EntityType { get; }
+        private readonly Guid _modelId = typeBase.Model.ModelId;
+        private readonly string? _property = property.Name;
+        private readonly string? _typeBase = typeBase.Name;
 
         public bool Equals(CacheKey other)
-            => Property.Equals(other.Property) && EntityType.Equals(other.EntityType);
+            => (_property!.Equals(other._property, StringComparison.Ordinal)
+                && _typeBase!.Equals(other._typeBase, StringComparison.Ordinal)
+                && _modelId.Equals(other._modelId));
 
         public override bool Equals(object? obj)
             => obj is CacheKey cacheKey && Equals(cacheKey);
 
         public override int GetHashCode()
-            => HashCode.Combine(Property, EntityType);
+            => HashCode.Combine(_property!, _typeBase!, _modelId);
     }
 
     /// <summary>
@@ -70,15 +64,16 @@ public class ValueGeneratorCache : IValueGeneratorCache
     ///     the cache.
     /// </summary>
     /// <param name="property">The property to get the value generator for.</param>
-    /// <param name="entityType">
+    /// <param name="typeBase">
     ///     The entity type that the value generator will be used for. When called on inherited properties on derived entity types,
     ///     this entity type may be different from the declared entity type on <paramref name="property" />
     /// </param>
     /// <param name="factory">Factory to create a new value generator if one is not present in the cache.</param>
     /// <returns>The existing or newly created value generator.</returns>
-    public virtual ValueGenerator GetOrAdd(
+    public virtual ValueGenerator? GetOrAdd(
         IProperty property,
-        IEntityType entityType,
-        Func<IProperty, IEntityType, ValueGenerator> factory)
-        => _cache.GetOrAdd(new CacheKey(property, entityType), static (ck, f) => f(ck.Property, ck.EntityType), factory);
+        ITypeBase typeBase,
+        Func<IProperty, ITypeBase, ValueGenerator?> factory)
+        => _cache.GetOrAdd(
+            new CacheKey(property, typeBase), static (ck, p) => p.factory(p.property, p.typeBase), (factory, typeBase, property));
 }

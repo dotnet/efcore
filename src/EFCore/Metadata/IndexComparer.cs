@@ -39,7 +39,7 @@ public sealed class IndexComparer : IEqualityComparer<IReadOnlyIndex>, IComparer
     public int Compare(IReadOnlyIndex? x, IReadOnlyIndex? y)
     {
         var result = PropertyListComparer.Instance.Compare(x?.Properties, y?.Properties);
-        return result != 0 ? result : EntityTypeFullNameComparer.Instance.Compare(x?.DeclaringEntityType, y?.DeclaringEntityType);
+        return result != 0 ? result : TypeBaseNameComparer.Instance.Compare(x?.DeclaringEntityType, y?.DeclaringEntityType);
     }
 
     /// <summary>
@@ -60,7 +60,7 @@ public sealed class IndexComparer : IEqualityComparer<IReadOnlyIndex>, IComparer
     {
         var hashCode = new HashCode();
         hashCode.Add(obj.Properties, PropertyListComparer.Instance);
-        hashCode.Add(obj.DeclaringEntityType, EntityTypeFullNameComparer.Instance);
+        hashCode.Add(obj.DeclaringEntityType, TypeBaseNameComparer.Instance);
         return hashCode.ToHashCode();
     }
 }

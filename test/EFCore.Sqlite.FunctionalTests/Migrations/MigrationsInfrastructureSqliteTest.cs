@@ -1,236 +1,260 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+#nullable disable
+
 using Identity30.Data;
 using Microsoft.EntityFrameworkCore.TestModels.AspNetIdentity;
 using ModelSnapshot22;
 
 namespace Microsoft.EntityFrameworkCore.Migrations
 {
-    public class MigrationsInfrastructureSqliteTest
-        : MigrationsInfrastructureTestBase<MigrationsInfrastructureSqliteTest.MigrationsInfrastructureSqliteFixture>
+    public class MigrationsInfrastructureSqliteTest(MigrationsInfrastructureSqliteTest.MigrationsInfrastructureSqliteFixture fixture)
+        : MigrationsInfrastructureTestBase<MigrationsInfrastructureSqliteTest.MigrationsInfrastructureSqliteFixture>(fixture)
     {
-        public MigrationsInfrastructureSqliteTest(MigrationsInfrastructureSqliteFixture fixture)
-            : base(fixture)
+        public override async Task Can_generate_migration_from_initial_database_to_initial()
         {
-        }
-
-        public override void Can_generate_migration_from_initial_database_to_initial()
-        {
-            base.Can_generate_migration_from_initial_database_to_initial();
+            await base.Can_generate_migration_from_initial_database_to_initial();
 
             Assert.Equal(
-                @"CREATE TABLE IF NOT EXISTS ""__EFMigrationsHistory"" (
-    ""MigrationId"" TEXT NOT NULL CONSTRAINT ""PK___EFMigrationsHistory"" PRIMARY KEY,
-    ""ProductVersion"" TEXT NOT NULL
+                """
+CREATE TABLE IF NOT EXISTS "__EFMigrationsHistory" (
+    "MigrationId" TEXT NOT NULL CONSTRAINT "PK___EFMigrationsHistory" PRIMARY KEY,
+    "ProductVersion" TEXT NOT NULL
 );
 
-",
+
+""",
                 Sql,
                 ignoreLineEndingDifferences: true);
         }
 
-        public override void Can_generate_no_migration_script()
+        public override async Task Can_generate_no_migration_script()
         {
-            base.Can_generate_no_migration_script();
+            await base.Can_generate_no_migration_script();
 
             Assert.Equal(
-                @"CREATE TABLE IF NOT EXISTS ""__EFMigrationsHistory"" (
-    ""MigrationId"" TEXT NOT NULL CONSTRAINT ""PK___EFMigrationsHistory"" PRIMARY KEY,
-    ""ProductVersion"" TEXT NOT NULL
+                """
+CREATE TABLE IF NOT EXISTS "__EFMigrationsHistory" (
+    "MigrationId" TEXT NOT NULL CONSTRAINT "PK___EFMigrationsHistory" PRIMARY KEY,
+    "ProductVersion" TEXT NOT NULL
 );
 
-",
+
+""",
                 Sql,
                 ignoreLineEndingDifferences: true);
         }
 
-        public override void Can_generate_up_scripts()
+        public override async Task Can_generate_up_and_down_scripts()
         {
-            base.Can_generate_up_scripts();
+            await base.Can_generate_up_and_down_scripts();
 
             Assert.Equal(
-                @"CREATE TABLE IF NOT EXISTS ""__EFMigrationsHistory"" (
-    ""MigrationId"" TEXT NOT NULL CONSTRAINT ""PK___EFMigrationsHistory"" PRIMARY KEY,
-    ""ProductVersion"" TEXT NOT NULL
+                """
+CREATE TABLE IF NOT EXISTS "__EFMigrationsHistory" (
+    "MigrationId" TEXT NOT NULL CONSTRAINT "PK___EFMigrationsHistory" PRIMARY KEY,
+    "ProductVersion" TEXT NOT NULL
 );
 
 BEGIN TRANSACTION;
-
-CREATE TABLE ""Table1"" (
-    ""Id"" INTEGER NOT NULL CONSTRAINT ""PK_Table1"" PRIMARY KEY,
-    ""Foo"" INTEGER NOT NULL
+CREATE TABLE "Table1" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_Table1" PRIMARY KEY,
+    "Foo" INTEGER NOT NULL,
+    "Description" TEXT NOT NULL
 );
 
-INSERT INTO ""__EFMigrationsHistory"" (""MigrationId"", ""ProductVersion"")
+INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
 VALUES ('00000000000001_Migration1', '7.0.0-test');
 
-COMMIT;
+ALTER TABLE "Table1" RENAME COLUMN "Foo" TO "Bar";
 
-BEGIN TRANSACTION;
-
-ALTER TABLE ""Table1"" RENAME COLUMN ""Foo"" TO ""Bar"";
-
-INSERT INTO ""__EFMigrationsHistory"" (""MigrationId"", ""ProductVersion"")
+INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
 VALUES ('00000000000002_Migration2', '7.0.0-test');
 
+INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
+VALUES ('00000000000003_Migration3', '7.0.0-test');
+
+INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
+VALUES ('00000000000004_Migration4', '7.0.0-test');
+
+INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
+VALUES ('00000000000005_Migration5', '7.0.0-test');
+
+INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
+VALUES ('00000000000006_Migration6', '7.0.0-test');
+
+INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
+VALUES ('00000000000007_Migration7', '7.0.0-test');
+
 COMMIT;
 
 BEGIN TRANSACTION;
+DELETE FROM "__EFMigrationsHistory"
+WHERE "MigrationId" = '00000000000007_Migration7';
 
-INSERT INTO ""__EFMigrationsHistory"" (""MigrationId"", ""ProductVersion"")
-VALUES ('00000000000003_Migration3', '7.0.0-test');
+DELETE FROM "__EFMigrationsHistory"
+WHERE "MigrationId" = '00000000000006_Migration6';
+
+DELETE FROM "__EFMigrationsHistory"
+WHERE "MigrationId" = '00000000000005_Migration5';
+
+DELETE FROM "__EFMigrationsHistory"
+WHERE "MigrationId" = '00000000000004_Migration4';
+
+DELETE FROM "__EFMigrationsHistory"
+WHERE "MigrationId" = '00000000000003_Migration3';
+
+ALTER TABLE "Table1" RENAME COLUMN "Bar" TO "Foo";
+
+DELETE FROM "__EFMigrationsHistory"
+WHERE "MigrationId" = '00000000000002_Migration2';
+
+DROP TABLE "Table1";
+
+DELETE FROM "__EFMigrationsHistory"
+WHERE "MigrationId" = '00000000000001_Migration1';
 
 COMMIT;
 
-",
+
+""",
                 Sql,
                 ignoreLineEndingDifferences: true);
         }
 
-        public override void Can_generate_up_scripts_noTransactions()
+        public override async Task Can_generate_up_and_down_scripts_noTransactions()
         {
-            base.Can_generate_up_scripts_noTransactions();
+            await base.Can_generate_up_and_down_scripts_noTransactions();
 
             Assert.Equal(
-                @"CREATE TABLE IF NOT EXISTS ""__EFMigrationsHistory"" (
-    ""MigrationId"" TEXT NOT NULL CONSTRAINT ""PK___EFMigrationsHistory"" PRIMARY KEY,
-    ""ProductVersion"" TEXT NOT NULL
+                """
+CREATE TABLE IF NOT EXISTS "__EFMigrationsHistory" (
+    "MigrationId" TEXT NOT NULL CONSTRAINT "PK___EFMigrationsHistory" PRIMARY KEY,
+    "ProductVersion" TEXT NOT NULL
 );
 
-CREATE TABLE ""Table1"" (
-    ""Id"" INTEGER NOT NULL CONSTRAINT ""PK_Table1"" PRIMARY KEY,
-    ""Foo"" INTEGER NOT NULL
+CREATE TABLE "Table1" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_Table1" PRIMARY KEY,
+    "Foo" INTEGER NOT NULL,
+    "Description" TEXT NOT NULL
 );
 
-INSERT INTO ""__EFMigrationsHistory"" (""MigrationId"", ""ProductVersion"")
+INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
 VALUES ('00000000000001_Migration1', '7.0.0-test');
 
-ALTER TABLE ""Table1"" RENAME COLUMN ""Foo"" TO ""Bar"";
+ALTER TABLE "Table1" RENAME COLUMN "Foo" TO "Bar";
 
-INSERT INTO ""__EFMigrationsHistory"" (""MigrationId"", ""ProductVersion"")
+INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
 VALUES ('00000000000002_Migration2', '7.0.0-test');
 
-INSERT INTO ""__EFMigrationsHistory"" (""MigrationId"", ""ProductVersion"")
+INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
 VALUES ('00000000000003_Migration3', '7.0.0-test');
 
-",
+INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
+VALUES ('00000000000004_Migration4', '7.0.0-test');
+
+INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
+VALUES ('00000000000005_Migration5', '7.0.0-test');
+
+INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
+VALUES ('00000000000006_Migration6', '7.0.0-test');
+
+INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
+VALUES ('00000000000007_Migration7', '7.0.0-test');
+
+DELETE FROM "__EFMigrationsHistory"
+WHERE "MigrationId" = '00000000000007_Migration7';
+
+DELETE FROM "__EFMigrationsHistory"
+WHERE "MigrationId" = '00000000000006_Migration6';
+
+DELETE FROM "__EFMigrationsHistory"
+WHERE "MigrationId" = '00000000000005_Migration5';
+
+DELETE FROM "__EFMigrationsHistory"
+WHERE "MigrationId" = '00000000000004_Migration4';
+
+DELETE FROM "__EFMigrationsHistory"
+WHERE "MigrationId" = '00000000000003_Migration3';
+
+ALTER TABLE "Table1" RENAME COLUMN "Bar" TO "Foo";
+
+DELETE FROM "__EFMigrationsHistory"
+WHERE "MigrationId" = '00000000000002_Migration2';
+
+DROP TABLE "Table1";
+
+DELETE FROM "__EFMigrationsHistory"
+WHERE "MigrationId" = '00000000000001_Migration1';
+
+
+""",
                 Sql,
                 ignoreLineEndingDifferences: true);
         }
 
-        public override void Can_generate_one_up_script()
+        public override async Task Can_generate_one_up_and_down_script()
         {
-            base.Can_generate_one_up_script();
+            await base.Can_generate_one_up_and_down_script();
 
             Assert.Equal(
-                @"BEGIN TRANSACTION;
+                """
+BEGIN TRANSACTION;
+ALTER TABLE "Table1" RENAME COLUMN "Foo" TO "Bar";
 
-ALTER TABLE ""Table1"" RENAME COLUMN ""Foo"" TO ""Bar"";
-
-INSERT INTO ""__EFMigrationsHistory"" (""MigrationId"", ""ProductVersion"")
+INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
 VALUES ('00000000000002_Migration2', '7.0.0-test');
-
-COMMIT;
-
-",
-                Sql,
-                ignoreLineEndingDifferences: true);
-        }
-
-        public override void Can_generate_up_script_using_names()
-        {
-            base.Can_generate_up_script_using_names();
-
-            Assert.Equal(
-                @"BEGIN TRANSACTION;
-
-ALTER TABLE ""Table1"" RENAME COLUMN ""Foo"" TO ""Bar"";
-
-INSERT INTO ""__EFMigrationsHistory"" (""MigrationId"", ""ProductVersion"")
-VALUES ('00000000000002_Migration2', '7.0.0-test');
-
-COMMIT;
-
-",
-                Sql,
-                ignoreLineEndingDifferences: true);
-        }
-
-        public override void Can_generate_idempotent_up_scripts()
-            => Assert.Throws<NotSupportedException>(() => base.Can_generate_idempotent_up_scripts());
-
-        public override void Can_generate_idempotent_up_scripts_noTransactions()
-            => Assert.Throws<NotSupportedException>(() => base.Can_generate_idempotent_up_scripts_noTransactions());
-
-        public override void Can_generate_down_scripts()
-        {
-            base.Can_generate_down_scripts();
-
-            Assert.Equal(
-                @"BEGIN TRANSACTION;
-
-ALTER TABLE ""Table1"" RENAME COLUMN ""Bar"" TO ""Foo"";
-
-DELETE FROM ""__EFMigrationsHistory""
-WHERE ""MigrationId"" = '00000000000002_Migration2';
 
 COMMIT;
 
 BEGIN TRANSACTION;
+ALTER TABLE "Table1" RENAME COLUMN "Bar" TO "Foo";
 
-DROP TABLE ""Table1"";
-
-DELETE FROM ""__EFMigrationsHistory""
-WHERE ""MigrationId"" = '00000000000001_Migration1';
+DELETE FROM "__EFMigrationsHistory"
+WHERE "MigrationId" = '00000000000002_Migration2';
 
 COMMIT;
 
-",
+
+""",
                 Sql,
                 ignoreLineEndingDifferences: true);
         }
 
-        public override void Can_generate_one_down_script()
+        public override async Task Can_generate_up_and_down_script_using_names()
         {
-            base.Can_generate_one_down_script();
+            await base.Can_generate_up_and_down_script_using_names();
 
             Assert.Equal(
-                @"BEGIN TRANSACTION;
+                """
+BEGIN TRANSACTION;
+ALTER TABLE "Table1" RENAME COLUMN "Foo" TO "Bar";
 
-ALTER TABLE ""Table1"" RENAME COLUMN ""Bar"" TO ""Foo"";
-
-DELETE FROM ""__EFMigrationsHistory""
-WHERE ""MigrationId"" = '00000000000002_Migration2';
+INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
+VALUES ('00000000000002_Migration2', '7.0.0-test');
 
 COMMIT;
 
-",
+BEGIN TRANSACTION;
+ALTER TABLE "Table1" RENAME COLUMN "Bar" TO "Foo";
+
+DELETE FROM "__EFMigrationsHistory"
+WHERE "MigrationId" = '00000000000002_Migration2';
+
+COMMIT;
+
+
+""",
                 Sql,
                 ignoreLineEndingDifferences: true);
         }
 
-        public override void Can_generate_down_script_using_names()
-        {
-            base.Can_generate_down_script_using_names();
+        public override Task Can_generate_idempotent_up_and_down_scripts()
+            => Assert.ThrowsAsync<NotSupportedException>(() => base.Can_generate_idempotent_up_and_down_scripts());
 
-            Assert.Equal(
-                @"BEGIN TRANSACTION;
-
-ALTER TABLE ""Table1"" RENAME COLUMN ""Bar"" TO ""Foo"";
-
-DELETE FROM ""__EFMigrationsHistory""
-WHERE ""MigrationId"" = '00000000000002_Migration2';
-
-COMMIT;
-
-",
-                Sql,
-                ignoreLineEndingDifferences: true);
-        }
-
-        public override void Can_generate_idempotent_down_scripts()
-            => Assert.Throws<NotSupportedException>(() => base.Can_generate_idempotent_down_scripts());
+        public override Task Can_generate_idempotent_up_and_down_scripts_noTransactions()
+            => Assert.ThrowsAsync<NotSupportedException>(() => base.Can_generate_idempotent_up_and_down_scripts_noTransactions());
 
         public override void Can_get_active_provider()
         {
@@ -1042,6 +1066,17 @@ COMMIT;
         {
             using var context = new ApplicationDbContext();
             DiffSnapshot(new AspNetIdentity30ModelSnapshot(), context);
+        }
+
+        protected override Task ExecuteSqlAsync(string value)
+        {
+            var testStore = ((SqliteTestStore)Fixture.TestStore);
+            if (testStore.ConnectionState != System.Data.ConnectionState.Open)
+            {
+                testStore.OpenConnection();
+            }
+            testStore.ExecuteNonQuery(value);
+            return Task.CompletedTask;
         }
 
         public class MigrationsInfrastructureSqliteFixture : MigrationsInfrastructureFixtureBase

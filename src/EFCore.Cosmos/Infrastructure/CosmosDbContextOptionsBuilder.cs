@@ -34,9 +34,7 @@ public class CosmosDbContextOptionsBuilder : ICosmosDbContextOptionsBuilderInfra
     /// </remarks>
     /// <param name="optionsBuilder">The options builder.</param>
     public CosmosDbContextOptionsBuilder(DbContextOptionsBuilder optionsBuilder)
-    {
-        _optionsBuilder = optionsBuilder;
-    }
+        => _optionsBuilder = optionsBuilder;
 
     /// <inheritdoc />
     DbContextOptionsBuilder ICosmosDbContextOptionsBuilderInfrastructure.OptionsBuilder
@@ -66,6 +64,17 @@ public class CosmosDbContextOptionsBuilder : ICosmosDbContextOptionsBuilderInfra
         => WithOption(e => e.WithRegion(Check.NotNull(region, nameof(region))));
 
     /// <summary>
+    ///     Configures the context to use the provided preferred regions for geo-replicated database accounts.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
+    /// </remarks>
+    /// <param name="regions">A list of Azure Cosmos DB region names.</param>
+    public virtual CosmosDbContextOptionsBuilder PreferredRegions(IReadOnlyList<string> regions)
+        => WithOption(e => e.WithPreferredRegions(Check.NotNull(regions, nameof(regions))));
+
+    /// <summary>
     ///     Limits the operations to the provided endpoint.
     /// </summary>
     /// <remarks>
@@ -82,7 +91,7 @@ public class CosmosDbContextOptionsBuilder : ICosmosDbContextOptionsBuilderInfra
     /// <remarks>
     ///     <para>
     ///         Use
-    ///         <see href="https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/operators/lambda-expressions">
+    ///         <see href="https://docs.microsoft.com/dotnet/csharp/language-reference/operators/lambda-expressions">
     ///             static lambda expressions
     ///         </see>
     ///         to avoid creating multiple instances.

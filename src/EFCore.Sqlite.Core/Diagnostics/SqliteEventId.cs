@@ -47,7 +47,10 @@ public static class SqliteEventId
         PrimaryKeyFound,
         SchemasNotSupportedWarning,
         TableFound,
-        UniqueConstraintFound
+        UniqueConstraintFound,
+        InferringTypes,
+        OutOfRangeWarning,
+        FormatWarning
     }
 
     private static readonly string ValidationPrefix = DbLoggerCategory.Model.Validation.Name + ".";
@@ -213,4 +216,28 @@ public static class SqliteEventId
     ///     This event is in the <see cref="DbLoggerCategory.Scaffolding" /> category.
     /// </remarks>
     public static readonly EventId UniqueConstraintFound = MakeScaffoldingId(Id.UniqueConstraintFound);
+
+    /// <summary>
+    ///     Inferring CLR types.
+    /// </summary>
+    /// <remarks>
+    ///     This event is in the <see cref="DbLoggerCategory.Scaffolding" /> category.
+    /// </remarks>
+    public static readonly EventId InferringTypes = MakeScaffoldingId(Id.InferringTypes);
+
+    /// <summary>
+    ///     Values are out of range for the type.
+    /// </summary>
+    /// <remarks>
+    ///     This event is in the <see cref="DbLoggerCategory.Scaffolding" /> category.
+    /// </remarks>
+    public static readonly EventId OutOfRangeWarning = MakeScaffoldingId(Id.OutOfRangeWarning);
+
+    /// <summary>
+    ///     Values are in an invalid format for the type.
+    /// </summary>
+    /// <remarks>
+    ///     This event is in the <see cref="DbLoggerCategory.Scaffolding" /> category.
+    /// </remarks>
+    public static readonly EventId FormatWarning = MakeScaffoldingId(Id.FormatWarning);
 }

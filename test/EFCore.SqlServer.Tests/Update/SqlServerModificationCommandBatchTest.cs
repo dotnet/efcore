@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
-using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Update.Internal;
 using Microsoft.EntityFrameworkCore.Update.Internal;
@@ -126,9 +125,7 @@ public class SqlServerModificationCommandBatchTest
             };
     }
 
-    private class FakeDbContext : DbContext
-    {
-    }
+    private class FakeDbContext : DbContext;
 
     private static TestSqlServerModificationCommandBatch CreateBatch(int maxBatchSize = 42)
     {
@@ -156,8 +153,7 @@ public class SqlServerModificationCommandBatchTest
     private static SqlServerTypeMappingSource CreateTypeMappingSource()
         => new(
             TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
-            new SqlServerSingletonOptions());
+            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
 
     private static INonTrackedModificationCommand CreateModificationCommand(
         string name,
@@ -166,13 +162,9 @@ public class SqlServerModificationCommandBatchTest
         => new ModificationCommandFactory().CreateNonTrackedModificationCommand(
             new NonTrackedModificationCommandParameters(name, schema, sensitiveLoggingEnabled));
 
-    private class TestSqlServerModificationCommandBatch : SqlServerModificationCommandBatch
+    private class TestSqlServerModificationCommandBatch(ModificationCommandBatchFactoryDependencies dependencies, int maxBatchSize)
+        : SqlServerModificationCommandBatch(dependencies, maxBatchSize)
     {
-        public TestSqlServerModificationCommandBatch(ModificationCommandBatchFactoryDependencies dependencies, int maxBatchSize)
-            : base(dependencies, maxBatchSize)
-        {
-        }
-
         public new Dictionary<string, object> ParameterValues
             => base.ParameterValues;
 

@@ -2960,6 +2960,27 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
             });
 
     [ConditionalFact]
+    public void No_alter_column_default_when_references_not_equal()
+        => Execute(
+            source => source.Entity(
+                "Snake",
+                x =>
+                {
+                    x.Property<int>("Id");
+                    x.Property<byte[]>("Bytes")
+                        .HasDefaultValue(new byte[] { 0 });
+                }),
+            target => target.Entity(
+                "Snake",
+                x =>
+                {
+                    x.Property<int>("Id");
+                    x.Property<byte[]>("Bytes")
+                        .HasDefaultValue(new byte[] { 0 });
+                }),
+            Assert.Empty);
+
+    [ConditionalFact]
     public void Alter_column_default_expression()
         => Execute(
             source => source.Entity(
@@ -4167,7 +4188,7 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                     x.ToTable("Donkey", "dbo");
                     x.Property<int>("Id");
                     x.Property<int>("Value");
-                    x.HasIndex(new[] { "Value" }, "IX_dbo.Donkey_Value");
+                    x.HasIndex(["Value"], "IX_dbo.Donkey_Value");
                 }),
             operations =>
             {
@@ -4201,7 +4222,7 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                     x.Property<int>("Id");
                     x.Property<int>("Value");
                     x.Property<int>("MuleValue");
-                    x.HasIndex(new[] { "MuleValue" }, "IX_Muel_Value");
+                    x.HasIndex(["MuleValue"], "IX_Muel_Value");
                 }),
             operations =>
             {
@@ -5031,7 +5052,7 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                     x.Property<int>("Id");
                     x.HasKey("Id").HasName("PK_Gnat");
                     x.Property<string>("Name");
-                    x.HasIndex(new[] { "Name" }, "IX_Gnat_Name");
+                    x.HasIndex(["Name"], "IX_Gnat_Name");
                 }),
             operations =>
             {
@@ -8264,6 +8285,62 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 }));
 
     [ConditionalFact]
+    public void Change_TPT_to_TPC_with_excluded_base()
+        => Execute(
+            common =>
+            {
+                common.Entity(
+                    "Order",
+                    x =>
+                    {
+                        x.ToTable("Order", t => t.ExcludeFromMigrations());
+                        x.Property<int>("Id");
+                        x.Property<string>("Address");
+                    });
+                common.Entity(
+                    "DetailedOrder",
+                    x =>
+                    {
+                        x.ToTable("DetailedOrder");
+                        x.HasBaseType("Order");
+                        x.Property<string>("Description").HasColumnName("Description");
+                    });
+            },
+            _ => { },
+            target =>
+            {
+                target.Entity("Order").UseTpcMappingStrategy();
+            },
+            upOperations =>
+            {
+                Assert.Equal(2, upOperations.Count);
+
+                var dropForeignKeyOperation = Assert.IsType<DropForeignKeyOperation>(upOperations[0]);
+                Assert.Null(dropForeignKeyOperation.Schema);
+                Assert.Equal("DetailedOrder", dropForeignKeyOperation.Table);
+                Assert.Equal("FK_DetailedOrder_Order_Id", dropForeignKeyOperation.Name);
+
+                var addColumnOperation = Assert.IsType<AddColumnOperation>(upOperations[1]);
+                Assert.Null(addColumnOperation.Schema);
+                Assert.Equal("DetailedOrder", addColumnOperation.Table);
+                Assert.Equal("Address", addColumnOperation.Name);
+            },
+            downOperations =>
+            {
+                Assert.Equal(2, downOperations.Count);
+
+                var dropColumnOperation = Assert.IsType<DropColumnOperation>(downOperations[0]);
+                Assert.Null(dropColumnOperation.Schema);
+                Assert.Equal("DetailedOrder", dropColumnOperation.Table);
+                Assert.Equal("Address", dropColumnOperation.Name);
+
+                var addForeignKeyOperation = Assert.IsType<AddForeignKeyOperation>(downOperations[1]);
+                Assert.Null(addForeignKeyOperation.Schema);
+                Assert.Equal("DetailedOrder", addForeignKeyOperation.Table);
+                Assert.Equal("FK_DetailedOrder_Order_Id", addForeignKeyOperation.Name);
+            });
+
+    [ConditionalFact]
     public void Add_foreign_key_on_base_type()
         => Execute(
             modelBuilder =>
@@ -8569,7 +8646,7 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                         x.Property<string>("Name");
                         x.Property<int>("Discriminator");
 
-                        x.HasDiscriminator<int>("Discriminator")
+                        x.HasDiscriminator()
                             .HasValue(1)
                             .HasValue<Eagle>(2);
 
@@ -8668,13 +8745,9 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
         public string Name { get; set; }
     }
 
-    private class Eagle : Animal
-    {
-    }
+    private class Eagle : Animal;
 
-    private class Shark : Animal
-    {
-    }
+    private class Shark : Animal;
 
     [ConditionalFact]
     public void Add_column_to_renamed_table()
@@ -9691,6 +9764,62 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 }));
 
     [ConditionalFact]
+    public void Owned_collection_with_explicit_id()
+        => Execute(
+            modelBuilder =>
+            {
+            },
+            source =>
+            {
+                source.Entity("Microsoft.EntityFrameworkCore.Migrations.Internal.Account", b =>
+                {
+                    b.Property<string>("Id");
+                    b.HasKey("Id");
+                    b.ToTable("account");
+                });
+
+                source.Entity("Microsoft.EntityFrameworkCore.Migrations.Internal.Account", b =>
+                {
+                    b.OwnsMany("Microsoft.EntityFrameworkCore.Migrations.Internal.AccountHolder", "AccountHolders", b1 =>
+                    {
+                        b1.Property<string>("Id");
+                        b1.Property<string>("account_id");
+                        b1.HasKey("Id");
+                        b1.HasIndex("account_id");
+                        b1.ToTable("account_holder");
+                        b1.WithOwner().HasForeignKey("account_id");
+                    });
+                });
+            },
+            target =>
+            {
+                target.Entity<Account>(builder =>
+                {
+                    builder.ToTable("account");
+                    builder.HasKey("Id");
+                    builder.OwnsMany(a => a.AccountHolders, navigationBuilder =>
+                    {
+                        navigationBuilder.ToTable("account_holder");
+                        navigationBuilder.Property<string>("Id");
+                        navigationBuilder.HasKey("Id");
+                        navigationBuilder.Property<string>("account_id");
+                        navigationBuilder.WithOwner().HasForeignKey("account_id");
+                    });
+                });
+            },
+            Assert.Empty);
+
+    public class Account
+    {
+        public string Id { get; set; }
+        public IEnumerable<AccountHolder> AccountHolders { get; set; } = [];
+    }
+
+    public class AccountHolder
+    {
+    }
+
+    [ConditionalFact]
     public void SeedData_with_guid_AK_and_multiple_owned_types()
         => Execute(
             target =>
@@ -9727,29 +9856,18 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
             Assert.Empty,
             Assert.Empty);
 
-    protected class SomeEntity
+    protected class SomeEntity(long id, Guid guid)
     {
-        public SomeEntity(long id, Guid guid)
-        {
-            Id = id;
-            Guid = guid;
-        }
-
         public virtual SomeOwnedEntity OwnedEntity { get; } = new();
 
-        public Guid Guid { get; protected set; }
+        public Guid Guid { get; protected set; } = guid;
 
-        public long Id { get; protected set; }
+        public long Id { get; protected set; } = id;
     }
 
     protected class ApplicationUser
     {
-        private readonly SomeOwnedEntity _ownedEntity;
-
-        public ApplicationUser()
-        {
-            _ownedEntity = null!;
-        }
+        private readonly SomeOwnedEntity _ownedEntity = null!;
 
         public virtual long Id { get; set; }
 
@@ -9759,9 +9877,7 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
         public Guid Guid { get; set; }
     }
 
-    protected class SomeOwnedEntity
-    {
-    }
+    protected class SomeOwnedEntity;
 
     [ConditionalFact]
     public void SeedData_and_PK_rename()
@@ -9995,13 +10111,8 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
             upOps => Assert.Empty(upOps),
             downOps => Assert.Empty(downOps));
 
-    private class RightmostValueComparer : ValueComparer<byte[]>
+    private class RightmostValueComparer() : ValueComparer<byte[]>(false)
     {
-        public RightmostValueComparer()
-            : base(false)
-        {
-        }
-
         public override bool Equals(byte[] left, byte[] right)
             => object.Equals(left[^1], right[^1]);
     }
@@ -10198,9 +10309,9 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 {
                     x.Property<byte[]>("Value1")
                         .IsRequired()
-                        .HasConversion(e => new DateTime(), e => new byte[0]);
+                        .HasConversion(e => new DateTime(), e => Array.Empty<byte>());
                     x.HasData(
-                        new { Id = 42, Value1 = new byte[0] });
+                        new { Id = 42, Value1 = Array.Empty<byte>() });
                 }),
             Assert.Empty,
             Assert.Empty);
@@ -10229,9 +10340,9 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                         .IsRequired()
                         .ValueGeneratedOnAddOrUpdate()
                         .IsConcurrencyToken()
-                        .HasConversion(e => new DateTime(), e => new byte[0]);
+                        .HasConversion(e => new DateTime(), e => Array.Empty<byte>());
                     x.HasData(
-                        new { Id = 42, Value1 = new byte[0] });
+                        new { Id = 42, Value1 = Array.Empty<byte>() });
                 }),
             Assert.Empty,
             Assert.Empty);
@@ -11087,9 +11198,7 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
         }
 
         public Order(int secretId)
-        {
-            _secretId = secretId;
-        }
+            => _secretId = secretId;
 
         public int Id { get; set; }
 
@@ -11479,6 +11588,67 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
             Assert.Empty);
 
     [ConditionalFact]
+    public void Change_default_schema_with_owned_entities()
+        => Execute(
+            common =>
+            {
+                common.Entity(
+                    "Order", b =>
+                    {
+                        b.Property<int>("Id")
+                            .ValueGeneratedOnAdd();
+
+                        b.HasKey("Id");
+
+                        b.ToTable("Order", "OrderSchema");
+
+                        b.OwnsOne(
+                            "OrderInfo", "OrderInfo", b1 =>
+                            {
+                                b1.Property<int>("OrderId")
+                                    .ValueGeneratedOnAdd();
+
+                                b1.HasKey("OrderId");
+
+                                b1.HasOne("Order", "Order")
+                                    .WithOne("OrderInfo")
+                                    .HasForeignKey("OrderInfo", "OrderId")
+                                    .OnDelete(DeleteBehavior.Cascade);
+                            });
+                    });
+            },
+            source =>
+            {
+                source.HasDefaultSchema(null);
+
+                source.Entity(
+                    "Order", b =>
+                    {
+                        b.OwnsOne(
+                            "OrderInfo", "OrderInfo", b1 =>
+                            {
+                                b1.ToTable("Order", "MySchema");
+                            });
+                    });
+            },
+            target =>
+            {
+                target.HasDefaultSchema("MySchema");
+
+                target.Entity(
+                    "Order", b =>
+                    {
+                        b.OwnsOne(
+                            "OrderInfo", "OrderInfo", b1 =>
+                            {
+                                b1.ToTable("Order", (string)null);
+                            });
+                    });
+            },
+            Assert.Empty,
+            Assert.Empty);
+
+    [ConditionalFact]
     public void Move_properties_to_owned_type()
         => Execute(
             source => source.Ignore<Address>().Entity<OldOrder>(),
@@ -11735,7 +11905,7 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
             operations =>
             {
                 var dependentTableCreation
-                    = (CreateTableOperation)operations.Single(o => o is CreateTableOperation ct && ct.Name == "Dependent");
+                    = (CreateTableOperation)operations.Single(o => o is CreateTableOperation { Name: "Dependent" });
 
                 Assert.Collection(
                     dependentTableCreation.Columns,
@@ -11779,9 +11949,7 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
         }
 
         private Blog(Action<object, string> lazyLoader)
-        {
-            _loader = lazyLoader;
-        }
+            => _loader = lazyLoader;
 
         public int BlogId { get; set; }
         public string Url { get; set; }
@@ -11803,9 +11971,7 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
         }
 
         private Post(ILazyLoader loader)
-        {
-            _loader = loader;
-        }
+            => _loader = loader;
 
         public int PostId { get; set; }
         public string Title { get; set; }

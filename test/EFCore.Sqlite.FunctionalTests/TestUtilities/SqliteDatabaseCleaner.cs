@@ -2,10 +2,8 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Data;
-using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using Microsoft.EntityFrameworkCore.Sqlite.Design.Internal;
-using Microsoft.EntityFrameworkCore.Sqlite.Diagnostics.Internal;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
@@ -13,19 +11,9 @@ public class SqliteDatabaseCleaner : RelationalDatabaseCleaner
 {
     protected override IDatabaseModelFactory CreateDatabaseModelFactory(ILoggerFactory loggerFactory)
     {
-        // NOTE: You may need to update AddEntityFrameworkDesignTimeServices() too
-        var services = new ServiceCollection()
-            .AddSingleton<TypeMappingSourceDependencies>()
-            .AddSingleton<RelationalTypeMappingSourceDependencies>()
-            .AddSingleton<ValueConverterSelectorDependencies>()
-            .AddSingleton<DiagnosticSource>(new DiagnosticListener(DbLoggerCategory.Name))
-            .AddSingleton<ILoggingOptions, LoggingOptions>()
-            .AddSingleton<IDbContextLogger, NullDbContextLogger>()
-            .AddSingleton<LoggingDefinitions, SqliteLoggingDefinitions>()
-            .AddSingleton(typeof(IDiagnosticsLogger<>), typeof(DiagnosticsLogger<>))
-            .AddSingleton<IValueConverterSelector, ValueConverterSelector>()
-            .AddSingleton<IInterceptors, Interceptors>()
-            .AddLogging();
+        var services = new ServiceCollection();
+        services.AddEntityFrameworkSqlite();
+
         new SqliteDesignTimeServices().ConfigureDesignTimeServices(services);
 
         return services
@@ -59,7 +47,7 @@ public class SqliteDatabaseCleaner : RelationalDatabaseCleaner
         var command = connection.CreateCommand();
         command.CommandText = "SELECT COUNT(*) FROM sqlite_master WHERE name = 'geometry_columns' AND type = 'table';";
 
-        var hasGeometryColumns = (long)command.ExecuteScalar() != 0L;
+        var hasGeometryColumns = (long)command.ExecuteScalar()! != 0L;
         if (hasGeometryColumns)
         {
             // NB: SUM forces DiscardGeometryColumn to evaluate for each row

@@ -4,7 +4,6 @@
 using System.Collections;
 using System.ComponentModel;
 using Castle.DynamicProxy;
-using Microsoft.EntityFrameworkCore.Internal;
 using IInterceptor = Castle.DynamicProxy.IInterceptor;
 
 namespace Microsoft.EntityFrameworkCore.Proxies.Internal;
@@ -32,9 +31,7 @@ public class PropertyChangedInterceptor : PropertyChangeInterceptorBase, IInterc
         IEntityType entityType,
         bool checkEquality)
         : base(entityType)
-    {
-        _checkEquality = checkEquality;
-    }
+        => _checkEquality = checkEquality;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -95,7 +92,7 @@ public class PropertyChangedInterceptor : PropertyChangeInterceptorBase, IInterc
 
         if (_checkEquality)
         {
-            var oldValue = property.GetGetter().GetClrValue(invocation.Proxy);
+            var oldValue = property.GetGetter().GetClrValueUsingContainingEntity(invocation.Proxy);
 
             invocation.Proceed();
 

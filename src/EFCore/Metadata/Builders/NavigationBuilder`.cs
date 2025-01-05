@@ -83,7 +83,7 @@ public class NavigationBuilder<TSource, TTarget> : NavigationBuilder
 
     /// <summary>
     ///     Configures whether this navigation should be enabled for lazy-loading. Note that a property can only be lazy-loaded
-    ///     if a lazy-loading mechanism such as lazy-loading proxies or <see cref="ILazyLoader"/> injection has been configured.
+    ///     if a lazy-loading mechanism such as lazy-loading proxies or <see cref="ILazyLoader" /> injection has been configured.
     /// </summary>
     /// <remarks>
     ///     <para>

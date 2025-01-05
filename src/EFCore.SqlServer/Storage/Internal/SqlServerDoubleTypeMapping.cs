@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Data;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 
@@ -13,8 +14,16 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 /// </summary>
 public class SqlServerDoubleTypeMapping : DoubleTypeMapping
 {
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static new SqlServerDoubleTypeMapping Default { get; } = new("float");
+
     private static readonly MethodInfo GetFloatMethod
-        = typeof(DbDataReader).GetRuntimeMethod(nameof(DbDataReader.GetFloat), new[] { typeof(int) })!;
+        = typeof(DbDataReader).GetRuntimeMethod(nameof(DbDataReader.GetFloat), [typeof(int)])!;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -28,7 +37,7 @@ public class SqlServerDoubleTypeMapping : DoubleTypeMapping
         StoreTypePostfix storeTypePostfix = StoreTypePostfix.Precision)
         : base(
             new RelationalTypeMappingParameters(
-                new CoreTypeMappingParameters(typeof(double)),
+                new CoreTypeMappingParameters(typeof(double), jsonValueReaderWriter: JsonDoubleReaderWriter.Instance),
                 storeType,
                 storeTypePostfix,
                 dbType))

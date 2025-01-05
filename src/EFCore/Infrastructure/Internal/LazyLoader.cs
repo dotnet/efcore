@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -19,8 +20,8 @@ public class LazyLoader : ILazyLoader, IInjectableService
     private bool _disposed;
     private bool _detached;
     private IDictionary<string, bool>? _loadedStates;
-    private List<(object Entity, string NavigationName)>? _isLoading;
-    private IEntityType? _entityType;
+    private readonly ConcurrentDictionary<(object Entity, string NavigationName), bool> _isLoading = new(NavEntryEqualityComparer.Instance);
+    private HashSet<string>? _nonLazyNavigations;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -42,10 +43,12 @@ public class LazyLoader : ILazyLoader, IInjectableService
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual void Injected(DbContext context, object entity, ParameterBindingInfo bindingInfo)
+    public virtual void Injected(DbContext context, object entity, QueryTrackingBehavior? queryTrackingBehavior, ITypeBase structuralType)
     {
-        _queryTrackingBehavior = bindingInfo.QueryTrackingBehavior;
-        _entityType = bindingInfo.EntityType;
+        _queryTrackingBehavior = queryTrackingBehavior;
+        _nonLazyNavigations ??= InitNavigationsMetadata(
+            structuralType as IEntityType
+            ?? throw new NotImplementedException("Navigations on complex types are not supported"));
     }
 
     /// <summary>
@@ -104,11 +107,10 @@ public class LazyLoader : ILazyLoader, IInjectableService
         Check.NotEmpty(navigationName, nameof(navigationName));
 
         var navEntry = (entity, navigationName);
-        if (!IsLoading(navEntry))
+        if (_isLoading.TryAdd(navEntry, true))
         {
             try
             {
-                _isLoading!.Add(navEntry);
                 // ShouldLoad is called after _isLoading.Add because it could attempt to load the property. See #13138.
                 if (ShouldLoad(entity, navigationName, out var entry))
                 {
@@ -128,7 +130,7 @@ public class LazyLoader : ILazyLoader, IInjectableService
             }
             finally
             {
-                DoneLoading(navEntry);
+                _isLoading.TryRemove(navEntry, out _);
             }
         }
     }
@@ -148,11 +150,10 @@ public class LazyLoader : ILazyLoader, IInjectableService
         Check.NotEmpty(navigationName, nameof(navigationName));
 
         var navEntry = (entity, navigationName);
-        if (!IsLoading(navEntry))
+        if (_isLoading.TryAdd(navEntry, true))
         {
             try
             {
-                _isLoading!.Add(navEntry);
                 // ShouldLoad is called after _isLoading.Add because it could attempt to load the property. See #13138.
                 if (ShouldLoad(entity, navigationName, out var entry))
                 {
@@ -173,32 +174,16 @@ public class LazyLoader : ILazyLoader, IInjectableService
             }
             finally
             {
-                DoneLoading(navEntry);
+                _isLoading.TryRemove(navEntry, out _);
             }
         }
     }
 
-    private bool IsLoading((object Entity, string NavigationName) navEntry)
-        => (_isLoading ??= new List<(object Entity, string NavigationName)>())
-            .Contains(navEntry, EntityNavigationEqualityComparer.Instance);
-
-    private void DoneLoading((object Entity, string NavigationName) navEntry)
+    private sealed class NavEntryEqualityComparer : IEqualityComparer<(object Entity, string NavigationName)>
     {
-        for (var i = 0; i < _isLoading!.Count; i++)
-        {
-            if (EntityNavigationEqualityComparer.Instance.Equals(navEntry, _isLoading[i]))
-            {
-                _isLoading.RemoveAt(i);
-                break;
-            }
-        }
-    }
+        public static readonly NavEntryEqualityComparer Instance = new();
 
-    private sealed class EntityNavigationEqualityComparer : IEqualityComparer<(object Entity, string NavigationName)>
-    {
-        public static readonly EntityNavigationEqualityComparer Instance = new();
-
-        private EntityNavigationEqualityComparer()
+        private NavEntryEqualityComparer()
         {
         }
 
@@ -207,17 +192,15 @@ public class LazyLoader : ILazyLoader, IInjectableService
                 && string.Equals(x.NavigationName, y.NavigationName, StringComparison.Ordinal);
 
         public int GetHashCode((object Entity, string NavigationName) obj)
-            => HashCode.Combine(obj.Entity.GetHashCode(), obj.GetHashCode());
+            => HashCode.Combine(RuntimeHelpers.GetHashCode(obj.Entity), obj.NavigationName.GetHashCode());
     }
 
     private bool ShouldLoad(object entity, string navigationName, [NotNullWhen(true)] out NavigationEntry? navigationEntry)
     {
         if (!_detached && !IsLoaded(entity, navigationName))
         {
-            var navigation = _entityType?.FindNavigation(navigationName)
-                ?? (INavigationBase?)_entityType?.FindSkipNavigation(navigationName);
-
-            if (navigation?.LazyLoadingEnabled != false)
+            if (_nonLazyNavigations == null
+                || !_nonLazyNavigations.Contains(navigationName))
             {
                 if (_disposed)
                 {
@@ -275,7 +258,15 @@ public class LazyLoader : ILazyLoader, IInjectableService
     {
         _disposed = false;
         _detached = false;
-        _entityType = entityType;
         Context = context;
+        _nonLazyNavigations ??= InitNavigationsMetadata(entityType);
     }
+
+    private HashSet<string> InitNavigationsMetadata(IEntityType entityType)
+        => entityType!.GetNavigations()
+            .Cast<INavigationBase>()
+            .Concat(entityType.GetSkipNavigations())
+            .Where(n => !n.LazyLoadingEnabled)
+            .Select(t => t.Name)
+            .ToHashSet();
 }

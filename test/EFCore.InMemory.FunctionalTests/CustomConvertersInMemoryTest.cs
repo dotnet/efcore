@@ -2,25 +2,18 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.InMemory.Internal;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class CustomConvertersInMemoryTest : CustomConvertersTestBase<CustomConvertersInMemoryTest.CustomConvertersInMemoryFixture>
+public class CustomConvertersInMemoryTest(CustomConvertersInMemoryTest.CustomConvertersInMemoryFixture fixture)
+    : CustomConvertersTestBase<CustomConvertersInMemoryTest.CustomConvertersInMemoryFixture>(fixture)
 {
-    public CustomConvertersInMemoryTest(CustomConvertersInMemoryFixture fixture)
-        : base(fixture)
-    {
-    }
-
-    public override void Optional_datetime_reading_null_from_database()
-    {
-    }
+    public override Task Optional_datetime_reading_null_from_database()
+        => Task.CompletedTask;
 
     // Disabled: In-memory database is case-sensitive
-    public override void Can_insert_and_read_back_with_case_insensitive_string_key()
-    {
-    }
+    public override Task Can_insert_and_read_back_with_case_insensitive_string_key()
+        => Task.CompletedTask;
 
     [ConditionalFact(Skip = "Issue#17050")]
     public override void Value_conversion_with_property_named_value()
@@ -40,11 +33,9 @@ public class CustomConvertersInMemoryTest : CustomConvertersTestBase<CustomConve
         => base.Collection_enum_as_string_Contains();
 
     public override void GroupBy_converted_enum()
-    {
-        Assert.Contains(
+        => Assert.Contains(
             CoreStrings.TranslationFailedWithDetails("", InMemoryStrings.NonComposedGroupByNotSupported)[21..],
             Assert.Throws<InvalidOperationException>(() => base.GroupBy_converted_enum()).Message);
-    }
 
     public class CustomConvertersInMemoryFixture : CustomConvertersFixtureBase
     {

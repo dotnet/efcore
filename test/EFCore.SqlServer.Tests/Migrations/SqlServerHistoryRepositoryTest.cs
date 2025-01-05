@@ -8,26 +8,20 @@ namespace Microsoft.EntityFrameworkCore.Migrations;
 
 public class SqlServerHistoryRepositoryTest
 {
-    private static string EOL
-        => Environment.NewLine;
-
     [ConditionalFact]
     public void GetCreateScript_works()
     {
         var sql = CreateHistoryRepository().GetCreateScript();
 
         Assert.Equal(
-            "CREATE TABLE [__EFMigrationsHistory] ("
-            + EOL
-            + "    [MigrationId] nvarchar(150) NOT NULL,"
-            + EOL
-            + "    [ProductVersion] nvarchar(32) NOT NULL,"
-            + EOL
-            + "    CONSTRAINT [PK___EFMigrationsHistory] PRIMARY KEY ([MigrationId])"
-            + EOL
-            + ");"
-            + EOL,
-            sql);
+            """
+CREATE TABLE [__EFMigrationsHistory] (
+    [MigrationId] nvarchar(150) NOT NULL,
+    [ProductVersion] nvarchar(32) NOT NULL,
+    CONSTRAINT [PK___EFMigrationsHistory] PRIMARY KEY ([MigrationId])
+);
+
+""", sql, ignoreLineEndingDifferences: true);
     }
 
     [ConditionalFact]
@@ -36,19 +30,15 @@ public class SqlServerHistoryRepositoryTest
         var sql = CreateHistoryRepository("my").GetCreateScript();
 
         Assert.Equal(
-            "IF SCHEMA_ID(N'my') IS NULL EXEC(N'CREATE SCHEMA [my];');"
-            + EOL
-            + "CREATE TABLE [my].[__EFMigrationsHistory] ("
-            + EOL
-            + "    [MigrationId] nvarchar(150) NOT NULL,"
-            + EOL
-            + "    [ProductVersion] nvarchar(32) NOT NULL,"
-            + EOL
-            + "    CONSTRAINT [PK___EFMigrationsHistory] PRIMARY KEY ([MigrationId])"
-            + EOL
-            + ");"
-            + EOL,
-            sql);
+            """
+IF SCHEMA_ID(N'my') IS NULL EXEC(N'CREATE SCHEMA [my];');
+CREATE TABLE [my].[__EFMigrationsHistory] (
+    [MigrationId] nvarchar(150) NOT NULL,
+    [ProductVersion] nvarchar(32) NOT NULL,
+    CONSTRAINT [PK___EFMigrationsHistory] PRIMARY KEY ([MigrationId])
+);
+
+""", sql, ignoreLineEndingDifferences: true);
     }
 
     [ConditionalFact]
@@ -57,23 +47,17 @@ public class SqlServerHistoryRepositoryTest
         var sql = CreateHistoryRepository().GetCreateIfNotExistsScript();
 
         Assert.Equal(
-            "IF OBJECT_ID(N'[__EFMigrationsHistory]') IS NULL"
-            + EOL
-            + "BEGIN"
-            + EOL
-            + "    CREATE TABLE [__EFMigrationsHistory] ("
-            + EOL
-            + "        [MigrationId] nvarchar(150) NOT NULL,"
-            + EOL
-            + "        [ProductVersion] nvarchar(32) NOT NULL,"
-            + EOL
-            + "        CONSTRAINT [PK___EFMigrationsHistory] PRIMARY KEY ([MigrationId])"
-            + EOL
-            + "    );"
-            + EOL
-            + "END;"
-            + EOL,
-            sql);
+            """
+IF OBJECT_ID(N'[__EFMigrationsHistory]') IS NULL
+BEGIN
+    CREATE TABLE [__EFMigrationsHistory] (
+        [MigrationId] nvarchar(150) NOT NULL,
+        [ProductVersion] nvarchar(32) NOT NULL,
+        CONSTRAINT [PK___EFMigrationsHistory] PRIMARY KEY ([MigrationId])
+    );
+END;
+
+""", sql, ignoreLineEndingDifferences: true);
     }
 
     [ConditionalFact]
@@ -82,25 +66,18 @@ public class SqlServerHistoryRepositoryTest
         var sql = CreateHistoryRepository("my").GetCreateIfNotExistsScript();
 
         Assert.Equal(
-            "IF OBJECT_ID(N'[my].[__EFMigrationsHistory]') IS NULL"
-            + EOL
-            + "BEGIN"
-            + EOL
-            + "    IF SCHEMA_ID(N'my') IS NULL EXEC(N'CREATE SCHEMA [my];');"
-            + EOL
-            + "    CREATE TABLE [my].[__EFMigrationsHistory] ("
-            + EOL
-            + "        [MigrationId] nvarchar(150) NOT NULL,"
-            + EOL
-            + "        [ProductVersion] nvarchar(32) NOT NULL,"
-            + EOL
-            + "        CONSTRAINT [PK___EFMigrationsHistory] PRIMARY KEY ([MigrationId])"
-            + EOL
-            + "    );"
-            + EOL
-            + "END;"
-            + EOL,
-            sql);
+            """
+IF OBJECT_ID(N'[my].[__EFMigrationsHistory]') IS NULL
+BEGIN
+    IF SCHEMA_ID(N'my') IS NULL EXEC(N'CREATE SCHEMA [my];');
+    CREATE TABLE [my].[__EFMigrationsHistory] (
+        [MigrationId] nvarchar(150) NOT NULL,
+        [ProductVersion] nvarchar(32) NOT NULL,
+        CONSTRAINT [PK___EFMigrationsHistory] PRIMARY KEY ([MigrationId])
+    );
+END;
+
+""", sql, ignoreLineEndingDifferences: true);
     }
 
     [ConditionalFact]
@@ -109,8 +86,11 @@ public class SqlServerHistoryRepositoryTest
         var sql = CreateHistoryRepository().GetDeleteScript("Migration1");
 
         Assert.Equal(
-            "DELETE FROM [__EFMigrationsHistory]" + EOL + "WHERE [MigrationId] = N'Migration1';" + EOL,
-            sql);
+            """
+DELETE FROM [__EFMigrationsHistory]
+WHERE [MigrationId] = N'Migration1';
+
+""", sql, ignoreLineEndingDifferences: true);
     }
 
     [ConditionalFact]
@@ -120,8 +100,11 @@ public class SqlServerHistoryRepositoryTest
             new HistoryRow("Migration1", "7.0.0"));
 
         Assert.Equal(
-            "INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])" + EOL + "VALUES (N'Migration1', N'7.0.0');" + EOL,
-            sql);
+            """
+INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+VALUES (N'Migration1', N'7.0.0');
+
+""", sql, ignoreLineEndingDifferences: true);
     }
 
     [ConditionalFact]
@@ -130,8 +113,13 @@ public class SqlServerHistoryRepositoryTest
         var sql = CreateHistoryRepository().GetBeginIfNotExistsScript("Migration1");
 
         Assert.Equal(
-            "IF NOT EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [MigrationId] = N'Migration1')" + EOL + "BEGIN",
-            sql);
+            """
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'Migration1'
+)
+BEGIN
+""", sql, ignoreLineEndingDifferences: true);
     }
 
     [ConditionalFact]
@@ -140,8 +128,13 @@ public class SqlServerHistoryRepositoryTest
         var sql = CreateHistoryRepository().GetBeginIfExistsScript("Migration1");
 
         Assert.Equal(
-            "IF EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [MigrationId] = N'Migration1')" + EOL + "BEGIN",
-            sql);
+            """
+IF EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'Migration1'
+)
+BEGIN
+""", sql, ignoreLineEndingDifferences: true);
     }
 
     [ConditionalFact]
@@ -149,7 +142,11 @@ public class SqlServerHistoryRepositoryTest
     {
         var sql = CreateHistoryRepository().GetEndIfScript();
 
-        Assert.Equal("END;" + EOL, sql);
+        Assert.Equal(
+            """
+END;
+
+""", sql, ignoreLineEndingDifferences: true);
     }
 
     private static IHistoryRepository CreateHistoryRepository(string schema = null)
@@ -162,13 +159,8 @@ public class SqlServerHistoryRepositoryTest
                     .Options)
             .GetService<IHistoryRepository>();
 
-    private class TestDbContext : DbContext
+    private class TestDbContext(DbContextOptions options) : DbContext(options)
     {
-        public TestDbContext(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         public DbSet<Blog> Blogs { get; set; }
 
         [DbFunction("TableFunction")]

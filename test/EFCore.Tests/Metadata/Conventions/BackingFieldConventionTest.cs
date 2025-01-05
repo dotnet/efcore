@@ -264,13 +264,13 @@ public class BackingFieldConventionTest
         => new BackingFieldConvention(CreateDependencies())
             .ProcessPropertyAdded(
                 ((Property)property).Builder,
-                new ConventionContext<IConventionPropertyBuilder>(((Model)property.DeclaringEntityType.Model).ConventionDispatcher));
+                new ConventionContext<IConventionPropertyBuilder>(((Model)property.DeclaringType.Model).ConventionDispatcher));
 
     private void Validate(IMutableProperty property)
         => new BackingFieldConvention(CreateDependencies())
             .ProcessModelFinalizing(
-                ((Property)property).DeclaringEntityType.Model.Builder,
-                new ConventionContext<IConventionModelBuilder>(((Model)property.DeclaringEntityType.Model).ConventionDispatcher));
+                ((Property)property).DeclaringType.Model.Builder,
+                new ConventionContext<IConventionModelBuilder>(((Model)property.DeclaringType.Model).ConventionDispatcher));
 
     private ProviderConventionSetBuilderDependencies CreateDependencies()
         => InMemoryTestHelpers.Instance.CreateContextServices().GetRequiredService<ProviderConventionSetBuilderDependencies>();

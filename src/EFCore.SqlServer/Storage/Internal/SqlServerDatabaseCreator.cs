@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.ComponentModel;
 using System.Transactions;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
@@ -13,26 +14,19 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class SqlServerDatabaseCreator : RelationalDatabaseCreator
+/// <remarks>
+///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+///     any release. You should only use it directly in your code with extreme caution and knowing that
+///     doing so can result in application failures when updating to a new Entity Framework Core release.
+/// </remarks>
+public class SqlServerDatabaseCreator(
+    RelationalDatabaseCreatorDependencies dependencies,
+    ISqlServerConnection connection,
+    IRawSqlCommandBuilder rawSqlCommandBuilder) : RelationalDatabaseCreator(dependencies)
 {
-    private readonly ISqlServerConnection _connection;
-    private readonly IRawSqlCommandBuilder _rawSqlCommandBuilder;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public SqlServerDatabaseCreator(
-        RelationalDatabaseCreatorDependencies dependencies,
-        ISqlServerConnection connection,
-        IRawSqlCommandBuilder rawSqlCommandBuilder)
-        : base(dependencies)
-    {
-        _connection = connection;
-        _rawSqlCommandBuilder = rawSqlCommandBuilder;
-    }
+    private readonly ISqlServerConnection _connection = connection;
+    private readonly IRawSqlCommandBuilder _rawSqlCommandBuilder = rawSqlCommandBuilder;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -61,7 +55,7 @@ public class SqlServerDatabaseCreator : RelationalDatabaseCreator
         using (var masterConnection = _connection.CreateMasterConnection())
         {
             Dependencies.MigrationCommandExecutor
-                .ExecuteNonQuery(CreateCreateOperations(), masterConnection);
+                .ExecuteNonQuery(CreateCreateOperations(), masterConnection, new MigrationExecutionState(), commitTransaction: true);
 
             ClearPool();
         }
@@ -81,7 +75,7 @@ public class SqlServerDatabaseCreator : RelationalDatabaseCreator
         await using (masterConnection.ConfigureAwait(false))
         {
             await Dependencies.MigrationCommandExecutor
-                .ExecuteNonQueryAsync(CreateCreateOperations(), masterConnection, cancellationToken)
+                .ExecuteNonQueryAsync(CreateCreateOperations(), masterConnection, new MigrationExecutionState(), commitTransaction: true, cancellationToken: cancellationToken)
                 .ConfigureAwait(false);
 
             ClearPool();
@@ -142,12 +136,11 @@ IF EXISTS
      FROM [sys].[objects] o
      WHERE [o].[type] = 'U'
      AND [o].[is_ms_shipped] = 0
-     AND NOT EXISTS (SELECT *
-         FROM [sys].[extended_properties] AS [ep]
-         WHERE [ep].[major_id] = [o].[object_id]
-             AND [ep].[minor_id] = 0
-             AND [ep].[class] = 1
-             AND [ep].[name] = N'microsoft_database_tools_support'
+     AND [o].[object_id] NOT IN (SELECT [ep].[major_id]
+        FROM [sys].[extended_properties] AS [ep]
+        WHERE [ep].[minor_id] = 0
+            AND [ep].[class] = 1
+            AND [ep].[name] = N'microsoft_database_tools_support'
     )
 )
 SELECT 1 ELSE SELECT 0");
@@ -156,8 +149,7 @@ SELECT 1 ELSE SELECT 0");
     {
         var builder = new SqlConnectionStringBuilder(_connection.DbConnection.ConnectionString);
         return Dependencies.MigrationsSqlGenerator.Generate(
-            new[]
-            {
+            [
                 new SqlServerCreateDatabaseOperation
                 {
                     Name = builder.InitialCatalog,
@@ -165,7 +157,7 @@ SELECT 1 ELSE SELECT 0");
                     Collation = Dependencies.CurrentContext.Context.GetService<IDesignTimeModel>()
                         .Model.GetRelationalModel().Collation
                 }
-            });
+            ]);
     }
 
     /// <summary>
@@ -297,7 +289,7 @@ SELECT 1 ELSE SELECT 0");
     // Unable to attach database file is thrown when file does not exist (See Issue #2810)
     // Unable to open the physical file is thrown when file does not exist (See Issue #2810)
     private static bool IsDoesNotExist(SqlException exception)
-        => exception.Number == 4060 || exception.Number == 1832 || exception.Number == 5120;
+        => exception.Number is 4060 or 1832 or 5120;
 
     // See Issue #985
     private bool RetryOnExistsFailure(SqlException exception)
@@ -322,12 +314,8 @@ SELECT 1 ELSE SELECT 0");
         //   Microsoft.Data.SqlClient.SqlException: Unable to open the physical file xxxxxxx.
         // And (Number 18456)
         //   Microsoft.Data.SqlClient.SqlException: Login failed for user 'xxxxxxx'.
-        if (exception.Number == 233
-            || exception.Number == -2
-            || exception.Number == 4060
-            || exception.Number == 1832
-            || exception.Number == 5120
-            || exception.Number == 18456)
+        if ((exception.Number is 203 && exception.InnerException is Win32Exception)
+            || (exception.Number is 233 or -2 or 4060 or 1832 or 5120 or 18456))
         {
             ClearPool();
             return true;
@@ -348,7 +336,7 @@ SELECT 1 ELSE SELECT 0");
 
         using var masterConnection = _connection.CreateMasterConnection();
         Dependencies.MigrationCommandExecutor
-            .ExecuteNonQuery(CreateDropCommands(), masterConnection);
+            .ExecuteNonQuery(CreateDropCommands(), masterConnection, new MigrationExecutionState(), commitTransaction: true);
     }
 
     /// <summary>
@@ -364,7 +352,7 @@ SELECT 1 ELSE SELECT 0");
         var masterConnection = _connection.CreateMasterConnection();
         await using var _ = masterConnection.ConfigureAwait(false);
         await Dependencies.MigrationCommandExecutor
-            .ExecuteNonQueryAsync(CreateDropCommands(), masterConnection, cancellationToken)
+            .ExecuteNonQueryAsync(CreateDropCommands(), masterConnection, new MigrationExecutionState(), commitTransaction: true, cancellationToken: cancellationToken)
             .ConfigureAwait(false);
     }
 

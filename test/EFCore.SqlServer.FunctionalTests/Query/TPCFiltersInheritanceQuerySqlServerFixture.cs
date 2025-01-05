@@ -3,8 +3,10 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class TPCFiltersInheritanceQuerySqlServerFixture : TPCInheritanceQuerySqlServerFixture
 {
-    protected override bool EnableFilters
+    public override bool EnableFilters
         => true;
 }

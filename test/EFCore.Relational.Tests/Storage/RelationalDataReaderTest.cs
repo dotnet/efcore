@@ -1,14 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
-using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
-using Xunit;
 
 // ReSharper disable MethodHasAsyncOverload
 
@@ -73,7 +67,7 @@ public class RelationalDataReaderTest
                     TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()),
                 new ExceptionDetector()),
             commandText,
-            parameters ?? Array.Empty<IRelationalParameter>());
+            parameters ?? []);
 
-    public static IEnumerable<object[]> IsAsyncData = new[] { new object[] { false }, new object[] { true } };
+    public static IEnumerable<object[]> IsAsyncData = new object[][] { [false], [true] };
 }

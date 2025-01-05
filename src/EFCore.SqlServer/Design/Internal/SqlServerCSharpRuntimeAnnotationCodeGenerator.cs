@@ -84,11 +84,8 @@ public class SqlServerCSharpRuntimeAnnotationCodeGenerator : RelationalCSharpRun
             var annotations = parameters.Annotations;
             annotations.Remove(SqlServerAnnotationNames.Identity);
             annotations.Remove(SqlServerAnnotationNames.Sparse);
-            annotations.Remove(SqlServerAnnotationNames.IsTemporal);
-            annotations.Remove(SqlServerAnnotationNames.TemporalHistoryTableName);
-            annotations.Remove(SqlServerAnnotationNames.TemporalHistoryTableSchema);
-            annotations.Remove(SqlServerAnnotationNames.TemporalPeriodStartColumnName);
-            annotations.Remove(SqlServerAnnotationNames.TemporalPeriodEndColumnName);
+            annotations.Remove(SqlServerAnnotationNames.TemporalIsPeriodStartColumn);
+            annotations.Remove(SqlServerAnnotationNames.TemporalIsPeriodEndColumn);
         }
 
         base.Generate(column, parameters);
@@ -104,6 +101,8 @@ public class SqlServerCSharpRuntimeAnnotationCodeGenerator : RelationalCSharpRun
             annotations.Remove(SqlServerAnnotationNames.CreatedOnline);
             annotations.Remove(SqlServerAnnotationNames.Include);
             annotations.Remove(SqlServerAnnotationNames.FillFactor);
+            annotations.Remove(SqlServerAnnotationNames.SortInTempDb);
+            annotations.Remove(SqlServerAnnotationNames.DataCompression);
         }
 
         base.Generate(index, parameters);
@@ -119,6 +118,8 @@ public class SqlServerCSharpRuntimeAnnotationCodeGenerator : RelationalCSharpRun
             annotations.Remove(SqlServerAnnotationNames.CreatedOnline);
             annotations.Remove(SqlServerAnnotationNames.Include);
             annotations.Remove(SqlServerAnnotationNames.FillFactor);
+            annotations.Remove(SqlServerAnnotationNames.SortInTempDb);
+            annotations.Remove(SqlServerAnnotationNames.DataCompression);
         }
 
         base.Generate(index, parameters);
@@ -131,6 +132,7 @@ public class SqlServerCSharpRuntimeAnnotationCodeGenerator : RelationalCSharpRun
         {
             var annotations = parameters.Annotations;
             annotations.Remove(SqlServerAnnotationNames.Clustered);
+            annotations.Remove(SqlServerAnnotationNames.FillFactor);
         }
 
         base.Generate(key, parameters);
@@ -143,6 +145,7 @@ public class SqlServerCSharpRuntimeAnnotationCodeGenerator : RelationalCSharpRun
         {
             var annotations = parameters.Annotations;
             annotations.Remove(SqlServerAnnotationNames.Clustered);
+            annotations.Remove(SqlServerAnnotationNames.FillFactor);
         }
 
         base.Generate(uniqueConstraint, parameters);

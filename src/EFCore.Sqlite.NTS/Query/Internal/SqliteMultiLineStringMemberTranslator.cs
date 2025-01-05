@@ -26,9 +26,7 @@ public class SqliteMultiLineStringMemberTranslator : IMemberTranslator
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public SqliteMultiLineStringMemberTranslator(ISqlExpressionFactory sqlExpressionFactory)
-    {
-        _sqlExpressionFactory = sqlExpressionFactory;
-    }
+        => _sqlExpressionFactory = sqlExpressionFactory;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -54,7 +52,7 @@ public class SqliteMultiLineStringMemberTranslator : IMemberTranslator
                             "IsClosed",
                             new[] { instance },
                             nullable: false,
-                            argumentsPropagateNullability: new[] { false },
+                            argumentsPropagateNullability: Statics.FalseArrays[1],
                             returnType))
                 },
                 null);

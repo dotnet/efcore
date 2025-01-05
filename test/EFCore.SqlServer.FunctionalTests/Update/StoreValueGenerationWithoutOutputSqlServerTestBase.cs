@@ -5,14 +5,12 @@ using Microsoft.EntityFrameworkCore.TestModels.StoreValueGenerationModel;
 
 namespace Microsoft.EntityFrameworkCore.Update;
 
-public abstract class StoreValueGenerationWithoutOutputSqlServerTestBase<TFixture> : StoreValueGenerationTestBase<TFixture>
+#nullable disable
+
+public abstract class StoreValueGenerationWithoutOutputSqlServerTestBase<TFixture>(TFixture fixture)
+    : StoreValueGenerationTestBase<TFixture>(fixture)
     where TFixture : StoreValueGenerationWithoutOutputSqlServerFixture
 {
-    protected StoreValueGenerationWithoutOutputSqlServerTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Three_Add_use_batched_inserts(bool async)
@@ -85,7 +83,7 @@ public abstract class StoreValueGenerationWithoutOutputSqlServerTestBase<TFixtur
         }
 
         AssertSql(
-"""
+            """
 @p0='0'
 @p1='0'
 @p2='0'

@@ -1,7 +1,6 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 // ReSharper disable FormatStringProblem
@@ -10,17 +9,15 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 // ReSharper disable AccessToDisposedClosure
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public abstract class NorthwindSplitIncludeNoTrackingQueryTestBase<TFixture> : NorthwindIncludeNoTrackingQueryTestBase<TFixture>
+#nullable disable
+
+public abstract class NorthwindSplitIncludeNoTrackingQueryTestBase<TFixture>(TFixture fixture)
+    : NorthwindIncludeNoTrackingQueryTestBase<TFixture>(fixture)
     where TFixture : NorthwindQueryFixtureBase<NoopModelCustomizer>, new()
 {
     private static readonly MethodInfo _asSplitIncludeMethodInfo
         = typeof(RelationalQueryableExtensions)
             .GetTypeInfo().GetDeclaredMethod(nameof(RelationalQueryableExtensions.AsSplitQuery));
-
-    protected NorthwindSplitIncludeNoTrackingQueryTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
 
     public override async Task Include_closes_reader(bool async)
     {

@@ -22,15 +22,22 @@ public class RelationalQueryRootProcessor : QueryRootProcessor
         RelationalQueryTranslationPreprocessorDependencies relationalDependencies,
         QueryCompilationContext queryCompilationContext)
         : base(dependencies, queryCompilationContext)
-    {
-        _model = queryCompilationContext.Model;
-    }
+        => _model = queryCompilationContext.Model;
 
     /// <summary>
-    ///     Indicates that a <see cref="ConstantExpression" /> can be converted to a <see cref="InlineQueryRootExpression" />;
-    ///     this will later be translated to a SQL <see cref="ValuesExpression" />.
+    ///     Indicates that a <see cref="Expression" /> can be converted to a <see cref="InlineQueryRootExpression" />;
+    ///     the latter will end up in <see cref="RelationalQueryableMethodTranslatingExpressionVisitor.TranslateInlineQueryRoot" /> for
+    ///     translation to a SQL <see cref="ValuesExpression" />.
     /// </summary>
-    protected override bool ShouldConvertToInlineQueryRoot(ConstantExpression constantExpression)
+    protected override bool ShouldConvertToInlineQueryRoot(Expression expression)
+        => true;
+
+    /// <summary>
+    ///     Indicates that a <see cref="QueryParameterExpression" /> can be converted to a <see cref="ParameterQueryRootExpression" />;
+    ///     the latter will end up in <see cref="RelationalQueryableMethodTranslatingExpressionVisitor.TranslatePrimitiveCollection" /> for
+    ///     translation to a provider-specific SQL expansion mechanism, e.g. <c>OPENJSON</c> on SQL Server.
+    /// </summary>
+    protected override bool ShouldConvertToParameterQueryRoot(QueryParameterExpression queryParameterExpression)
         => true;
 
     /// <inheritdoc />
@@ -41,7 +48,7 @@ public class RelationalQueryRootProcessor : QueryRootProcessor
         {
             // See issue #19970
             return new TableValuedFunctionQueryRootExpression(
-                storeFunction.EntityTypeMappings.Single().EntityType,
+                (IEntityType)storeFunction.EntityTypeMappings.Single().TypeBase,
                 storeFunction,
                 methodCallExpression.Arguments);
         }

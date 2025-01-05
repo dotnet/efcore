@@ -157,7 +157,7 @@ public class DbSetTest
 
         Assert.StartsWith(
             CoreStrings.ContextDisposed,
-            Assert.Throws<ObjectDisposedException>(() => view.CopyTo(Array.Empty<Category>(), 0)).Message);
+            Assert.Throws<ObjectDisposedException>(() => view.CopyTo([], 0)).Message);
 
         Assert.StartsWith(
             CoreStrings.ContextDisposed,
@@ -221,8 +221,8 @@ public class DbSetTest
         Func<DbSet<Product>, Product, EntityEntry<Product>> productAdder,
         EntityState expectedState)
         => TrackEntitiesTest(
-            (c, e) => new ValueTask<EntityEntry<Category>>(categoryAdder(c, e)),
-            (c, e) => new ValueTask<EntityEntry<Product>>(productAdder(c, e)),
+            (c, e) => ValueTask.FromResult(categoryAdder(c, e)),
+            (c, e) => ValueTask.FromResult(productAdder(c, e)),
             expectedState);
 
     private static async Task TrackEntitiesTest(
@@ -345,8 +345,8 @@ public class DbSetTest
             Price = 4.99m
         };
 
-        await categoryAdder(context, new[] { category1, category2 });
-        await productAdder(context, new[] { product1, product2 });
+        await categoryAdder(context, [category1, category2]);
+        await productAdder(context, [product1, product2]);
 
         Assert.Same(category1, context.Entry(category1).Entity);
         Assert.Same(category2, context.Entry(category2).Entity);

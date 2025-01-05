@@ -5,16 +5,13 @@ using Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public abstract class ComplexNavigationsCollectionsQueryTestBase<TFixture> : QueryTestBase<TFixture>
+#nullable disable
+
+public abstract class ComplexNavigationsCollectionsQueryTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)
     where TFixture : ComplexNavigationsQueryFixtureBase, new()
 {
     protected ComplexNavigationsContext CreateContext()
         => Fixture.CreateContext();
-
-    protected ComplexNavigationsCollectionsQueryTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
 
     protected override Expression RewriteExpectedQueryExpression(Expression expectedQueryExpression)
         => new ExpectedQueryRewritingVisitor(Fixture.GetShadowPropertyMappings()).Visit(expectedQueryExpression);
@@ -1978,10 +1975,10 @@ public abstract class ComplexNavigationsCollectionsQueryTestBase<TFixture> : Que
         => AssertQuery(
             async,
             ss => ss.Set<Level1>()
-                .Include(l1 => l1.OneToMany_Optional1.OrderByDescending(x => x.Name).Skip(2).Take(4))
+                .Include(l1 => l1.OneToMany_Optional1.OrderByDescending(x => x.Name).Skip(1).Take(4))
                 .ThenInclude(l2 => l2.OneToOne_Optional_FK2)
                 .OrderByDescending(l1 => l1.Id)
-                .Skip(10)
+                .Skip(1)
                 .Take(5),
             assertOrder: true,
             elementAsserter: (e, a) => AssertInclude(
@@ -2444,7 +2441,8 @@ public abstract class ComplexNavigationsCollectionsQueryTestBase<TFixture> : Que
             async,
             ss => ss.Set<Level1>().Include(l1 => l1.OneToMany_Optional1).GroupBy(l1 => l1.Name),
             elementSorter: e => e.Key,
-            elementAsserter: (e, a) => AssertGrouping(e, a,
+            elementAsserter: (e, a) => AssertGrouping(
+                e, a,
                 elementAsserter: (ee, aa) => AssertInclude(ee, aa, new ExpectedInclude<Level1>(i => i.OneToMany_Optional1))));
 
     [ConditionalTheory]
@@ -2454,8 +2452,10 @@ public abstract class ComplexNavigationsCollectionsQueryTestBase<TFixture> : Que
             async,
             ss => ss.Set<Level1>().Include(l1 => l1.OneToMany_Optional1).ThenInclude(l2 => l2.OneToMany_Optional2).GroupBy(l1 => l1.Name),
             elementSorter: e => e.Key,
-            elementAsserter: (e, a) => AssertGrouping(e, a,
-                elementAsserter: (ee, aa) => AssertInclude(ee, aa,
+            elementAsserter: (e, a) => AssertGrouping(
+                e, a,
+                elementAsserter: (ee, aa) => AssertInclude(
+                    ee, aa,
                     new ExpectedInclude<Level1>(i => i.OneToMany_Optional1),
                     new ExpectedInclude<Level2>(l2 => l2.OneToMany_Optional2, "OneToManyOptional1"))));
 
@@ -2466,8 +2466,10 @@ public abstract class ComplexNavigationsCollectionsQueryTestBase<TFixture> : Que
             async,
             ss => ss.Set<Level1>().Include(l1 => l1.OneToMany_Optional1).ThenInclude(l2 => l2.OneToOne_Optional_FK2).GroupBy(l1 => l1.Name),
             elementSorter: e => e.Key,
-            elementAsserter: (e, a) => AssertGrouping(e, a,
-                elementAsserter: (ee, aa) => AssertInclude(ee, aa,
+            elementAsserter: (e, a) => AssertGrouping(
+                e, a,
+                elementAsserter: (ee, aa) => AssertInclude(
+                    ee, aa,
                     new ExpectedInclude<Level1>(i => i.OneToMany_Optional1),
                     new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_FK2, "OneToManyOptional1"))));
 
@@ -2478,8 +2480,10 @@ public abstract class ComplexNavigationsCollectionsQueryTestBase<TFixture> : Que
             async,
             ss => ss.Set<Level1>().Include(l1 => l1.OneToMany_Optional1).Include(l1 => l1.OneToMany_Required1).GroupBy(l1 => l1.Name),
             elementSorter: e => e.Key,
-            elementAsserter: (e, a) => AssertGrouping(e, a,
-                elementAsserter: (ee, aa) => AssertInclude(ee, aa,
+            elementAsserter: (e, a) => AssertGrouping(
+                e, a,
+                elementAsserter: (ee, aa) => AssertInclude(
+                    ee, aa,
                     new ExpectedInclude<Level1>(i => i.OneToMany_Optional1),
                     new ExpectedInclude<Level1>(l2 => l2.OneToMany_Required1))));
 
@@ -2490,8 +2494,10 @@ public abstract class ComplexNavigationsCollectionsQueryTestBase<TFixture> : Que
             async,
             ss => ss.Set<Level1>().Include(l1 => l1.OneToMany_Optional1).Include(l1 => l1.OneToOne_Optional_FK1).GroupBy(l1 => l1.Name),
             elementSorter: e => e.Key,
-            elementAsserter: (e, a) => AssertGrouping(e, a,
-                elementAsserter: (ee, aa) => AssertInclude(ee, aa,
+            elementAsserter: (e, a) => AssertGrouping(
+                e, a,
+                elementAsserter: (ee, aa) => AssertInclude(
+                    ee, aa,
                     new ExpectedInclude<Level1>(i => i.OneToMany_Optional1),
                     new ExpectedInclude<Level1>(l2 => l2.OneToOne_Optional_FK1))));
 
@@ -2502,8 +2508,10 @@ public abstract class ComplexNavigationsCollectionsQueryTestBase<TFixture> : Que
             async,
             ss => ss.Set<Level1>().Include(l1 => l1.OneToOne_Optional_FK1).GroupBy(l1 => l1.Name),
             elementSorter: e => e.Key,
-            elementAsserter: (e, a) => AssertGrouping(e, a,
-                elementAsserter: (ee, aa) => AssertInclude(ee, aa,
+            elementAsserter: (e, a) => AssertGrouping(
+                e, a,
+                elementAsserter: (ee, aa) => AssertInclude(
+                    ee, aa,
                     new ExpectedInclude<Level1>(l2 => l2.OneToOne_Optional_FK1))));
 
     [ConditionalTheory]
@@ -2513,8 +2521,34 @@ public abstract class ComplexNavigationsCollectionsQueryTestBase<TFixture> : Que
             async,
             ss => ss.Set<Level1>().Include(l1 => l1.OneToOne_Optional_FK1).Include(l1 => l1.OneToOne_Required_FK1).GroupBy(l1 => l1.Name),
             elementSorter: e => e.Key,
-            elementAsserter: (e, a) => AssertGrouping(e, a,
-                elementAsserter: (ee, aa) => AssertInclude(ee, aa,
+            elementAsserter: (e, a) => AssertGrouping(
+                e, a,
+                elementAsserter: (ee, aa) => AssertInclude(
+                    ee, aa,
                     new ExpectedInclude<Level1>(l2 => l2.OneToOne_Optional_FK1),
                     new ExpectedInclude<Level1>(l2 => l2.OneToOne_Required_FK1))));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Project_collection_and_nested_conditional(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Level1>().OrderBy(x => x.Id).Select(
+                x => new
+                {
+                    Collection = x.OneToMany_Optional1.OrderBy(xx => xx.Id).Select(xx => xx.Name).ToList(),
+                    Condition = x.Id == 1
+                        ? "01"
+                        : x.Id == 2
+                            ? "02"
+                            : x.Id == 3
+                                ? "03"
+                                : null
+                }).Where(x => x.Condition == "02"),
+            assertOrder: true,
+            elementAsserter: (e, a) =>
+            {
+                AssertCollection(e.Collection, a.Collection, ordered: true);
+                AssertEqual(e.Condition, a.Condition);
+            });
 }

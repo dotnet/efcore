@@ -10,19 +10,16 @@ namespace Microsoft.EntityFrameworkCore.Storage;
 
 public class SqliteTypeMappingTest : RelationalTypeMappingTest
 {
-    private class YouNoTinyContext : DbContext
+    private class YouNoTinyContext(SqliteConnection connection) : DbContext
     {
-        private readonly SqliteConnection _connection;
-
-        public YouNoTinyContext(SqliteConnection connection)
-        {
-            _connection = connection;
-        }
+        private readonly SqliteConnection _connection = connection;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder.UseSqlite(_connection);
 
-        public DbSet<NoTiny> NoTinnies { get; set; }
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
+        // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Local
+        public DbSet<NoTiny> NoTinnies { get; set; } = null!;
     }
 
     private enum TinyState : byte
@@ -101,8 +98,7 @@ public class SqliteTypeMappingTest : RelationalTypeMappingTest
     private static IRelationalTypeMappingSource CreateTypeMapper()
         => TestServiceFactory.Instance.Create<SqliteTypeMappingSource>();
 
-    public static RelationalTypeMapping GetMapping(
-        Type type)
+    public static RelationalTypeMapping? GetMapping(Type type)
         => CreateTypeMapper().FindMapping(type);
 
     public override void DateTimeOffset_literal_generated_correctly()

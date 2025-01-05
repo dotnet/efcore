@@ -21,9 +21,7 @@ public class Table : TableBase, ITable
     /// </summary>
     public Table(string name, string? schema, RelationalModel model)
         : base(name, schema, model)
-    {
-        Columns = new SortedDictionary<string, IColumnBase>(new ColumnNameComparer(this));
-    }
+        => Columns = new SortedDictionary<string, IColumnBase>(new ColumnNameComparer(this));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -109,9 +107,7 @@ public class Table : TableBase, ITable
     public virtual UniqueConstraint? FindUniqueConstraint(string name)
         => PrimaryKey != null && PrimaryKey.Name == name
             ? PrimaryKey
-            : UniqueConstraints.TryGetValue(name, out var constraint)
-                ? constraint
-                : null;
+            : UniqueConstraints.GetValueOrDefault(name);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -142,7 +138,8 @@ public class Table : TableBase, ITable
 
     /// <inheritdoc />
     public virtual bool IsExcludedFromMigrations
-        => EntityTypeMappings.First().EntityType.IsTableExcludedFromMigrations(StoreObjectIdentifier.Table(Name, Schema));
+        => ((IEntityType)EntityTypeMappings.First().TypeBase)
+            .IsTableExcludedFromMigrations(StoreObjectIdentifier.Table(Name, Schema));
 
     /// <inheritdoc />
     public override IColumnBase? FindColumn(IProperty property)
@@ -220,7 +217,7 @@ public class Table : TableBase, ITable
     IEnumerable<ICheckConstraint> ITable.CheckConstraints
     {
         [DebuggerStepThrough]
-        get => EntityTypeMappings.First().EntityType is RuntimeEntityType
+        get => EntityTypeMappings.First().TypeBase is RuntimeEntityType
             ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
             : CheckConstraints.Values;
     }

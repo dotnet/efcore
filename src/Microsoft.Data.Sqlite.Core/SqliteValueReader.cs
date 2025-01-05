@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
-using System.Diagnostics;
 using System.Globalization;
 using System.Text;
 using Microsoft.Data.Sqlite.Properties;
@@ -395,7 +394,7 @@ namespace Microsoft.Data.Sqlite
         protected virtual byte[]? GetBlob(int ordinal)
             => IsDBNull(ordinal)
                 ? GetNull<byte[]>(ordinal)
-                : GetBlobCore(ordinal) ?? Array.Empty<byte>();
+                : GetBlobCore(ordinal) ?? [];
 
         protected abstract byte[] GetBlobCore(int ordinal);
 

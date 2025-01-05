@@ -185,14 +185,9 @@ public class ProxiesOptionsExtension : IDbContextOptionsExtension
     public virtual void ApplyServices(IServiceCollection services)
         => services.AddEntityFrameworkProxies();
 
-    private sealed class ExtensionInfo : DbContextOptionsExtensionInfo
+    private sealed class ExtensionInfo(IDbContextOptionsExtension extension) : DbContextOptionsExtensionInfo(extension)
     {
         private string? _logFragment;
-
-        public ExtensionInfo(IDbContextOptionsExtension extension)
-            : base(extension)
-        {
-        }
 
         private new ProxiesOptionsExtension Extension
             => (ProxiesOptionsExtension)base.Extension;
@@ -201,7 +196,7 @@ public class ProxiesOptionsExtension : IDbContextOptionsExtension
             => false;
 
         public override string LogFragment
-            => _logFragment ??= Extension.UseLazyLoadingProxies && Extension.UseChangeTrackingProxies
+            => _logFragment ??= Extension is { UseLazyLoadingProxies: true, UseChangeTrackingProxies: true }
                 ? "using lazy loading and change tracking proxies "
                 : Extension.UseLazyLoadingProxies
                     ? "using lazy loading proxies "

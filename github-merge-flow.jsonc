@@ -1,0 +1,25 @@
+// IMPORTANT: This file is read by the merge flow from main branch only. 
+{
+    "merge-flow-configurations": {
+        // Automate opening PRs to merge release/8.0 branch into release/8.0-staging
+        "release/8.0":{
+            "MergeToBranch": "release/8.0-staging",
+            "ExtraSwitches": "-QuietComments"
+        },
+        // Automate opening PRs to merge release/8.0 to release/9.0
+        "release/8.0":{
+            "MergeToBranch": "release/9.0",
+            "ExtraSwitches": "-QuietComments"
+        },
+        // Automate opening PRs to merge release/9.0 branch into release/9.0-staging
+        "release/9.0":{
+            "MergeToBranch": "release/9.0-staging",
+            "ExtraSwitches": "-QuietComments"
+        },
+        // Automate opening PRs to merge release/9.0 to main
+        "release/9.0":{
+            "MergeToBranch": "main",
+            "ExtraSwitches": "-QuietComments"
+        }
+    }
+}

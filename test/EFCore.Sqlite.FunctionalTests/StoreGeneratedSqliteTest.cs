@@ -3,26 +3,23 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class StoreGeneratedSqliteTest : StoreGeneratedTestBase<StoreGeneratedSqliteTest.StoreGeneratedSqliteFixture>
-{
-    public StoreGeneratedSqliteTest(StoreGeneratedSqliteFixture fixture)
-        : base(fixture)
-    {
-    }
+#nullable disable
 
-    public override void Fields_used_correctly_for_store_generated_values()
-    {
+public class StoreGeneratedSqliteTest(StoreGeneratedSqliteTest.StoreGeneratedSqliteFixture fixture)
+    : StoreGeneratedTestBase<StoreGeneratedSqliteTest.StoreGeneratedSqliteFixture>(fixture)
+{
+    public override Task Fields_used_correctly_for_store_generated_values()
         // Computed columns not supported
-    }
+        => Task.CompletedTask;
 
     [ConditionalFact]
-    public void Identity_key_works_when_not_aliasing_rowid()
-        => ExecuteWithStrategyInTransaction(
-            context =>
+    public Task Identity_key_works_when_not_aliasing_rowid()
+        => ExecuteWithStrategyInTransactionAsync(
+            async context =>
             {
                 var entry = context.Add(new Zach());
 
-                context.SaveChanges();
+                await context.SaveChangesAsync();
                 var id = entry.Entity.Id;
 
                 Assert.Equal(16, id?.Length ?? 0);
@@ -101,6 +98,15 @@ public class StoreGeneratedSqliteTest : StoreGeneratedTestBase<StoreGeneratedSql
                     b.Property(e => e.OnUpdateUseBeforeThrowAfter).HasDefaultValue("Rabbit");
                     b.Property(e => e.OnUpdateIgnoreBeforeThrowAfter).HasDefaultValue("Rabbit");
                     b.Property(e => e.OnUpdateThrowBeforeThrowAfter).HasDefaultValue("Rabbit");
+                });
+
+            modelBuilder.Entity<WithNoBackingFields>(
+                b =>
+                {
+                    b.Property(e => e.TrueDefault).HasDefaultValue(true);
+                    b.Property(e => e.NonZeroDefault).HasDefaultValue(-1);
+                    b.Property(e => e.FalseDefault).HasDefaultValue(false);
+                    b.Property(e => e.ZeroDefault).HasDefaultValue(0);
                 });
 
             modelBuilder.Entity<WithNullableBackingFields>(

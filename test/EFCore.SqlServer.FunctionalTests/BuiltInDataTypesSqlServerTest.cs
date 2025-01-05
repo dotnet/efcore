@@ -13,7 +13,9 @@ using Microsoft.Data.SqlClient;
 // ReSharper disable PossibleInvalidOperationException
 namespace Microsoft.EntityFrameworkCore;
 
-[SqlServerCondition(SqlServerCondition.IsNotSqlAzure | SqlServerCondition.SupportsUtf8)]
+#nullable disable
+
+[SqlServerCondition(SqlServerCondition.IsNotAzureSql | SqlServerCondition.SupportsUtf8)]
 public class BuiltInDataTypesSqlServerTest : BuiltInDataTypesTestBase<BuiltInDataTypesSqlServerTest.BuiltInDataTypesSqlServerFixture>
 {
     private static readonly string _eol = Environment.NewLine;
@@ -22,7 +24,7 @@ public class BuiltInDataTypesSqlServerTest : BuiltInDataTypesTestBase<BuiltInDat
         : base(fixture)
     {
         Fixture.TestSqlLoggerFactory.Clear();
-        //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+        Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
     [ConditionalFact]
@@ -30,37 +32,38 @@ public class BuiltInDataTypesSqlServerTest : BuiltInDataTypesTestBase<BuiltInDat
     {
         using var context = CreateContext();
 
-        context.Add(new BuiltInDataTypes
-        {
-            Id = 54,
-            PartitionId = 1,
-            TestInt16 = -1234,
-            TestInt32 = -123456789,
-            TestInt64 = -1234567890123456789L,
-            TestDouble = -1.23456789,
-            TestDecimal = -1234567890.01M,
-            TestDateTime = Fixture.DefaultDateTime,
-            TestDateTimeOffset = new DateTimeOffset(new DateTime(), TimeSpan.FromHours(-8.0)),
-            TestTimeSpan = new TimeSpan(0, 10, 9, 8, 7),
-            TestDateOnly = new DateOnly(2020, 3, 1),
-            TestTimeOnly = new TimeOnly(12, 30, 45, 123),
-            TestSingle = -1.234F,
-            TestBoolean = true,
-            TestByte = 255,
-            TestUnsignedInt16 = 1234,
-            TestUnsignedInt32 = 1234565789U,
-            TestUnsignedInt64 = 1234567890123456789UL,
-            TestCharacter = 'a',
-            TestSignedByte = -128,
-            Enum64 = Enum64.SomeValue,
-            Enum32 = Enum32.SomeValue,
-            Enum16 = Enum16.SomeValue,
-            Enum8 = Enum8.SomeValue,
-            EnumU64 = EnumU64.SomeValue,
-            EnumU32 = EnumU32.SomeValue,
-            EnumU16 = EnumU16.SomeValue,
-            EnumS8 = EnumS8.SomeValue
-        });
+        context.Add(
+            new BuiltInDataTypes
+            {
+                Id = 54,
+                PartitionId = 1,
+                TestInt16 = -1234,
+                TestInt32 = -123456789,
+                TestInt64 = -1234567890123456789L,
+                TestDouble = -1.23456789,
+                TestDecimal = -1234567890.01M,
+                TestDateTime = Fixture.DefaultDateTime,
+                TestDateTimeOffset = new DateTimeOffset(new DateTime(), TimeSpan.FromHours(-8.0)),
+                TestTimeSpan = new TimeSpan(0, 10, 9, 8, 7),
+                TestDateOnly = new DateOnly(2020, 3, 1),
+                TestTimeOnly = new TimeOnly(12, 30, 45, 123),
+                TestSingle = -1.234F,
+                TestBoolean = true,
+                TestByte = 255,
+                TestUnsignedInt16 = 1234,
+                TestUnsignedInt32 = 1234565789U,
+                TestUnsignedInt64 = 1234567890123456789UL,
+                TestCharacter = 'a',
+                TestSignedByte = -128,
+                Enum64 = Enum64.SomeValue,
+                Enum32 = Enum32.SomeValue,
+                Enum16 = Enum16.SomeValue,
+                Enum8 = Enum8.SomeValue,
+                EnumU64 = EnumU64.SomeValue,
+                EnumU32 = EnumU32.SomeValue,
+                EnumU16 = EnumU16.SomeValue,
+                EnumS8 = EnumS8.SomeValue
+            });
 
         context.SaveChanges();
         var set = context.Set<BuiltInDataTypes>();
@@ -174,15 +177,16 @@ public class BuiltInDataTypesSqlServerTest : BuiltInDataTypesTestBase<BuiltInDat
             longBinary[i] = (byte)i;
         }
 
-        context.Add(new MaxLengthDataTypes
-        {
-            Id = 54,
-            String3 = shortString,
-            ByteArray5 = shortBinary,
-            String9000 = longString,
-            StringUnbounded = longString,
-            ByteArray9000 = longBinary
-        });
+        context.Add(
+            new MaxLengthDataTypes
+            {
+                Id = 54,
+                String3 = shortString,
+                ByteArray5 = shortBinary,
+                String9000 = longString,
+                StringUnbounded = longString,
+                ByteArray9000 = longBinary
+            });
 
         context.SaveChanges();
         var set = context.Set<MaxLengthDataTypes>();
@@ -204,15 +208,16 @@ public class BuiltInDataTypesSqlServerTest : BuiltInDataTypesTestBase<BuiltInDat
             ? new string('Ϩ', Fixture.LongStringLength)
             : new string('s', Fixture.LongStringLength);
 
-        context.Add(new UnicodeDataTypes
-        {
-            Id = 54,
-            StringDefault = shortString,
-            StringAnsi = shortString,
-            StringAnsi3 = shortString,
-            StringAnsi9000 = longString,
-            StringUnicode = shortString
-        });
+        context.Add(
+            new UnicodeDataTypes
+            {
+                Id = 54,
+                StringDefault = shortString,
+                StringAnsi = shortString,
+                StringAnsi3 = shortString,
+                StringAnsi9000 = longString,
+                StringUnicode = shortString
+            });
 
         context.SaveChanges();
         var set = context.Set<UnicodeDataTypes>();
@@ -652,7 +657,7 @@ public class BuiltInDataTypesSqlServerTest : BuiltInDataTypesTestBase<BuiltInDat
         Assert.Empty(results);
 
         AssertSql(
-"""
+            """
 SELECT [m].[Int]
 FROM [MappedNullableDataTypes] AS [m]
 WHERE [m].[TimeSpanAsTime] = '00:01:02'
@@ -673,12 +678,12 @@ WHERE [m].[TimeSpanAsTime] = '00:01:02'
 
         Assert.Empty(results);
         AssertSql(
-"""
-@__timeSpan_0='02:01:00' (Nullable = true)
+            """
+@timeSpan='02:01:00' (Nullable = true)
 
 SELECT [m].[Int]
 FROM [MappedNullableDataTypes] AS [m]
-WHERE [m].[TimeSpanAsTime] = @__timeSpan_0
+WHERE [m].[TimeSpanAsTime] = @timeSpan
 """);
     }
 
@@ -704,7 +709,7 @@ WHERE [m].[TimeSpanAsTime] = @__timeSpan_0
 
             Assert.Equal(-1, Assert.Single(results));
             AssertSql(
-"""
+                """
 SELECT CAST(CHARINDEX('a', [m].[StringAsVarcharMax]) AS int) - 1
 FROM [MappedNullableDataTypes] AS [m]
 WHERE [m].[Int] = 81
@@ -726,12 +731,12 @@ WHERE [m].[Int] = 81
 
         Assert.Empty(results);
         AssertSql(
-"""
-@__timeSpan_1='02:01:00' (Nullable = true)
+            """
+@timeSpan='02:01:00' (Nullable = true)
 
 SELECT [m].[Int]
 FROM [MappedNullableDataTypes] AS [m]
-WHERE DATEDIFF(hour, [m].[TimeSpanAsTime], @__timeSpan_1) = 0
+WHERE DATEDIFF(hour, [m].[TimeSpanAsTime], @timeSpan) = 0
 """);
     }
 
@@ -749,12 +754,12 @@ WHERE DATEDIFF(hour, [m].[TimeSpanAsTime], @__timeSpan_1) = 0
 
         Assert.Empty(results);
         AssertSql(
-"""
-@__timeSpan_1='02:01:00' (Nullable = true)
+            """
+@timeSpan='02:01:00' (Nullable = true)
 
 SELECT [m].[Int]
 FROM [MappedNullableDataTypes] AS [m]
-WHERE DATEDIFF(minute, [m].[TimeSpanAsTime], @__timeSpan_1) = 0
+WHERE DATEDIFF(minute, [m].[TimeSpanAsTime], @timeSpan) = 0
 """);
     }
 
@@ -772,12 +777,12 @@ WHERE DATEDIFF(minute, [m].[TimeSpanAsTime], @__timeSpan_1) = 0
 
         Assert.Empty(results);
         AssertSql(
-"""
-@__timeSpan_1='02:01:00' (Nullable = true)
+            """
+@timeSpan='02:01:00' (Nullable = true)
 
 SELECT [m].[Int]
 FROM [MappedNullableDataTypes] AS [m]
-WHERE DATEDIFF(second, [m].[TimeSpanAsTime], @__timeSpan_1) = 0
+WHERE DATEDIFF(second, [m].[TimeSpanAsTime], @timeSpan) = 0
 """);
     }
 
@@ -795,12 +800,12 @@ WHERE DATEDIFF(second, [m].[TimeSpanAsTime], @__timeSpan_1) = 0
 
         Assert.Empty(results);
         AssertSql(
-"""
-@__timeSpan_1='02:01:00' (Nullable = true)
+            """
+@timeSpan='02:01:00' (Nullable = true)
 
 SELECT [m].[Int]
 FROM [MappedNullableDataTypes] AS [m]
-WHERE DATEDIFF(millisecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0
+WHERE DATEDIFF(millisecond, [m].[TimeSpanAsTime], @timeSpan) = 0
 """);
     }
 
@@ -818,12 +823,12 @@ WHERE DATEDIFF(millisecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0
 
         Assert.Empty(results);
         AssertSql(
-"""
-@__timeSpan_1='02:01:00' (Nullable = true)
+            """
+@timeSpan='02:01:00' (Nullable = true)
 
 SELECT [m].[Int]
 FROM [MappedNullableDataTypes] AS [m]
-WHERE DATEDIFF(microsecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0
+WHERE DATEDIFF(microsecond, [m].[TimeSpanAsTime], @timeSpan) = 0
 """);
     }
 
@@ -841,12 +846,12 @@ WHERE DATEDIFF(microsecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0
 
         Assert.Empty(results);
         AssertSql(
-"""
-@__timeSpan_1='02:01:00' (Nullable = true)
+            """
+@timeSpan='02:01:00' (Nullable = true)
 
 SELECT [m].[Int]
 FROM [MappedNullableDataTypes] AS [m]
-WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0
+WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @timeSpan) = 0
 """);
     }
 
@@ -888,9 +893,9 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0
                     StringAsNationalCharacterVaryingMax = "anyone!",
                     StringAsText = "Gumball Rules!",
                     StringAsNtext = "Gumball Rules OK!",
-                    BytesAsVarbinaryMax = new byte[] { 89, 90, 91, 92 },
-                    BytesAsBinaryVaryingMax = new byte[] { 93, 94, 95, 96 },
-                    BytesAsImage = new byte[] { 97, 98, 99, 100 },
+                    BytesAsVarbinaryMax = [89, 90, 91, 92],
+                    BytesAsBinaryVaryingMax = [93, 94, 95, 96],
+                    BytesAsImage = [97, 98, 99, 100],
                     Decimal = 101.7m,
                     DecimalAsDec = 102.8m,
                     DecimalAsNumeric = 103.9m,
@@ -1296,7 +1301,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0
 
         var parameters = DumpParameters();
         Assert.Equal(
-$"""
+            $"""
 @p0='77'
 @p1='True'
 @p2='80' (Size = 1)
@@ -1467,9 +1472,9 @@ $"""
             StringAsCharacterVaryingMaxUtf8 = "this...",
             StringAsText = "Gumball Rules!",
             StringAsNtext = "Gumball Rules OK!",
-            BytesAsVarbinaryMax = new byte[] { 89, 90, 91, 92 },
-            BytesAsBinaryVaryingMax = new byte[] { 93, 94, 95, 96 },
-            BytesAsImage = new byte[] { 97, 98, 99, 100 },
+            BytesAsVarbinaryMax = [89, 90, 91, 92],
+            BytesAsBinaryVaryingMax = [93, 94, 95, 96],
+            BytesAsImage = [97, 98, 99, 100],
             Decimal = 101m,
             DecimalAsDec = 102m,
             DecimalAsNumeric = 103m,
@@ -1506,7 +1511,7 @@ $"""
 
         var parameters = DumpParameters();
         Assert.Equal(
-$"""
+            $"""
 @p0='77'
 @p1='True'
 @p2='80' (Size = 1)
@@ -1640,8 +1645,8 @@ $"""
             StringAsNvarcharMax = string.Concat(Enumerable.Repeat("D", 4001)),
             StringAsText = "Gumball Rules!",
             StringAsNtext = "Gumball Rules OK!",
-            BytesAsVarbinaryMax = new byte[] { 89, 90, 91, 92 },
-            BytesAsImage = new byte[] { 97, 98, 99, 100 },
+            BytesAsVarbinaryMax = [89, 90, 91, 92],
+            BytesAsImage = [97, 98, 99, 100],
             Decimal = 101m,
             DecimalAsDec = 102m,
             DecimalAsNumeric = 103m,
@@ -1673,7 +1678,7 @@ $"""
 
         var parameters = DumpParameters();
         Assert.Equal(
-"""
+            """
 @p0='77'
 @p1='True' (Nullable = true)
 @p2='80' (Nullable = true) (Size = 1)
@@ -1837,9 +1842,9 @@ $"""
             StringAsCharacterVaryingMaxUtf8 = "this...",
             StringAsText = "Gumball Rules!",
             StringAsNtext = "Gumball Rules OK!",
-            BytesAsVarbinaryMax = new byte[] { 89, 90, 91, 92 },
-            BytesAsBinaryVaryingMax = new byte[] { 93, 94, 95, 96 },
-            BytesAsImage = new byte[] { 97, 98, 99, 100 },
+            BytesAsVarbinaryMax = [89, 90, 91, 92],
+            BytesAsBinaryVaryingMax = [93, 94, 95, 96],
+            BytesAsImage = [97, 98, 99, 100],
             Decimal = 101m,
             DecimalAsDec = 102m,
             DecimalAsNumeric = 103m,
@@ -1875,7 +1880,7 @@ $"""
 
         var parameters = DumpParameters();
         Assert.Equal(
-"""
+            """
 @p0='78'
 @p1=NULL (DbType = Boolean)
 @p2=NULL (DbType = Byte)
@@ -2095,9 +2100,9 @@ $"""
             StringAsVarchar3Utf8 = "the",
             StringAsCharVarying3Utf8 = "tex",
             StringAsCharacterVarying3Utf8 = "men",
-            BytesAsBinary3 = new byte[] { 10, 11, 12 },
-            BytesAsVarbinary3 = new byte[] { 11, 12, 13 },
-            BytesAsBinaryVarying3 = new byte[] { 12, 13, 14 },
+            BytesAsBinary3 = [10, 11, 12],
+            BytesAsVarbinary3 = [11, 12, 13],
+            BytesAsBinaryVarying3 = [12, 13, 14],
             CharAsVarchar3 = 'A',
             CharAsAsCharVarying3 = 'B',
             CharAsCharacterVarying3 = 'C',
@@ -2270,9 +2275,9 @@ $"""
             StringAsVarchar3Utf8 = "the",
             StringAsCharVarying3Utf8 = "tex",
             StringAsCharacterVarying3Utf8 = "men",
-            BytesAsBinary3 = new byte[] { 10, 11, 12 },
-            BytesAsVarbinary3 = new byte[] { 11, 12, 13 },
-            BytesAsBinaryVarying3 = new byte[] { 12, 13, 14 },
+            BytesAsBinary3 = [10, 11, 12],
+            BytesAsVarbinary3 = [11, 12, 13],
+            BytesAsBinaryVarying3 = [12, 13, 14],
             CharAsVarchar3 = 'A',
             CharAsAsCharVarying3 = 'B',
             CharAsCharacterVarying3 = 'C',
@@ -2293,7 +2298,7 @@ $"""
 
         var parameters = DumpParameters();
         Assert.Equal(
-"""
+            """
 @p0='77'
 @p1='2017-01-02T12:11:12.3210000' (Scale = 3)
 @p2='2016-01-02T11:11:12.7650000+00:00' (Scale = 3)
@@ -2362,7 +2367,7 @@ $"""
 
         var parameters = DumpParameters();
         Assert.Equal(
-"""
+            """
 @p0='77'
 @p1='2017-01-02T12:11:12.3210000' (Scale = 3)
 @p2='2016-01-02T11:11:12.7650000+00:00' (Scale = 3)
@@ -2555,7 +2560,7 @@ $"""
 
         var parameters = DumpParameters();
         Assert.Equal(
-"""
+            """
 @p0='True'
 @p1='80' (Size = 1)
 @p2='0x5D5E5F60' (Nullable = false) (Size = 8000)
@@ -2722,9 +2727,9 @@ $"""
             StringAsCharacterVaryingMaxUtf8 = "this...",
             StringAsText = "Gumball Rules!",
             StringAsNtext = "Gumball Rules OK!",
-            BytesAsVarbinaryMax = new byte[] { 89, 90, 91, 92 },
-            BytesAsBinaryVaryingMax = new byte[] { 93, 94, 95, 96 },
-            BytesAsImage = new byte[] { 97, 98, 99, 100 },
+            BytesAsVarbinaryMax = [89, 90, 91, 92],
+            BytesAsBinaryVaryingMax = [93, 94, 95, 96],
+            BytesAsImage = [97, 98, 99, 100],
             Decimal = 101m,
             DecimalAsDec = 102m,
             DecimalAsNumeric = 103m,
@@ -2760,7 +2765,7 @@ $"""
 
         var parameters = DumpParameters();
         Assert.Equal(
-"""
+            """
 @p0='True' (Nullable = true)
 @p1='80' (Nullable = true) (Size = 1)
 @p2='0x61626364' (Size = 8000)
@@ -2819,7 +2824,6 @@ $"""
 @p55='18446744073709551615' (Nullable = true) (Precision = 20)
 @p56='-1' (Nullable = true)
 """,
-
             parameters,
             ignoreLineEndingDifferences: true);
 
@@ -2925,9 +2929,9 @@ $"""
             StringAsCharacterVaryingMaxUtf8 = "this...",
             StringAsText = "Gumball Rules!",
             StringAsNtext = "Gumball Rules OK!",
-            BytesAsVarbinaryMax = new byte[] { 89, 90, 91, 92 },
-            BytesAsVaryingMax = new byte[] { 93, 94, 95, 96 },
-            BytesAsImage = new byte[] { 97, 98, 99, 100 },
+            BytesAsVarbinaryMax = [89, 90, 91, 92],
+            BytesAsVaryingMax = [93, 94, 95, 96],
+            BytesAsImage = [97, 98, 99, 100],
             Decimal = 101m,
             DecimalAsDec = 102m,
             DecimalAsNumeric = 103m,
@@ -2963,7 +2967,7 @@ $"""
 
         var parameters = DumpParameters();
         Assert.Equal(
-"""
+            """
 @p0=NULL (DbType = Boolean)
 @p1=NULL (DbType = Byte)
 @p2=NULL (Size = 8000) (DbType = Binary)
@@ -3186,9 +3190,9 @@ $"""
             StringAsVarchar3Utf8 = "the",
             StringAsCharVarying3Utf8 = "tex",
             StringAsCharacterVarying3Utf8 = "men",
-            BytesAsBinary3 = new byte[] { 10, 11, 12 },
-            BytesAsVarbinary3 = new byte[] { 11, 12, 13 },
-            BytesAsBinaryVarying3 = new byte[] { 12, 13, 14 },
+            BytesAsBinary3 = [10, 11, 12],
+            BytesAsVarbinary3 = [11, 12, 13],
+            BytesAsBinaryVarying3 = [12, 13, 14],
             CharAsVarchar3 = 'A',
             CharAsAsCharVarying3 = 'B',
             CharAsCharacterVarying3 = 'C',
@@ -3284,7 +3288,7 @@ $"""
 
         var parameters = DumpParameters();
         Assert.Equal(
-"""
+            """
 @p0='2017-01-02T12:11:12.1230000' (Scale = 3)
 @p1='2016-01-02T11:11:12.5670000+00:00' (Scale = 3)
 @p2='102' (Precision = 3)
@@ -3684,7 +3688,7 @@ $"""
             nameof(ObjectBackedDataTypes), nameof(NullableBackedDataTypes), nameof(NonNullableBackedDataTypes));
 
         const string expected =
-"""
+            """
 Animal.Id ---> [int] [Precision = 10 Scale = 0]
 AnimalDetails.AnimalId ---> [nullable int] [Precision = 10 Scale = 0]
 AnimalDetails.BoolField ---> [int] [Precision = 10 Scale = 0]
@@ -4262,13 +4266,13 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
         }
     }
 
-    public override void Object_to_string_conversion()
+    public override async Task Object_to_string_conversion()
     {
-        base.Object_to_string_conversion();
+        await base.Object_to_string_conversion();
 
         AssertSql(
-"""
-SELECT CONVERT(varchar(4), [b].[TestSignedByte]) AS [Sbyte], CONVERT(varchar(3), [b].[TestByte]) AS [Byte], CONVERT(varchar(6), [b].[TestInt16]) AS [Short], CONVERT(varchar(5), [b].[TestUnsignedInt16]) AS [Ushort], CONVERT(varchar(11), [b].[TestInt32]) AS [Int], CONVERT(varchar(10), [b].[TestUnsignedInt32]) AS [Uint], CONVERT(varchar(20), [b].[TestInt64]) AS [Long], CONVERT(varchar(20), [b].[TestUnsignedInt64]) AS [Ulong], CONVERT(varchar(100), [b].[TestSingle]) AS [Float], CONVERT(varchar(100), [b].[TestDouble]) AS [Double], CONVERT(varchar(100), [b].[TestDecimal]) AS [Decimal], CONVERT(varchar(1), [b].[TestCharacter]) AS [Char], CONVERT(varchar(100), [b].[TestDateTime]) AS [DateTime], CONVERT(varchar(100), [b].[TestDateTimeOffset]) AS [DateTimeOffset], CONVERT(varchar(100), [b].[TestTimeSpan]) AS [TimeSpan]
+            """
+SELECT CONVERT(varchar(4), [b].[TestSignedByte]) AS [Sbyte], CONVERT(varchar(3), [b].[TestByte]) AS [Byte], CONVERT(varchar(6), [b].[TestInt16]) AS [Short], CONVERT(varchar(5), [b].[TestUnsignedInt16]) AS [Ushort], CONVERT(varchar(11), [b].[TestInt32]) AS [Int], CONVERT(varchar(10), [b].[TestUnsignedInt32]) AS [Uint], CONVERT(varchar(20), [b].[TestInt64]) AS [Long], CONVERT(varchar(20), [b].[TestUnsignedInt64]) AS [Ulong], CONVERT(varchar(100), [b].[TestSingle]) AS [Float], CONVERT(varchar(100), [b].[TestDouble]) AS [Double], CONVERT(varchar(100), [b].[TestDecimal]) AS [Decimal], CONVERT(varchar(1), [b].[TestCharacter]) AS [Char], CONVERT(varchar(100), [b].[TestDateTime]) AS [DateTime], CONVERT(varchar(100), [b].[TestDateTimeOffset]) AS [DateTimeOffset], CONVERT(varchar(100), [b].[TestTimeSpan]) AS [TimeSpan], CONVERT(varchar(100), [b].[TestDateOnly]) AS [DateOnly], CONVERT(varchar(100), [b].[TestTimeOnly]) AS [TimeOnly]
 FROM [BuiltInDataTypes] AS [b]
 WHERE [b].[Id] = 13
 """);
@@ -4277,7 +4281,7 @@ WHERE [b].[Id] = 13
     public static string QueryForColumnTypes(DbContext context, params string[] tablesToIgnore)
     {
         const string query =
-"""
+            """
 SELECT
     TABLE_NAME,
     COLUMN_NAME,

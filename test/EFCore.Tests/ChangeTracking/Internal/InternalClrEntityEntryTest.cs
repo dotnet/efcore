@@ -125,7 +125,7 @@ public class InternalClrEntityEntryTest : InternalEntityEntryTestBase<
         entry.AcceptChanges();
 
         Assert.Equal(
-            entityState == EntityState.Deleted || entityState == EntityState.Detached
+            entityState is EntityState.Deleted or EntityState.Detached
                 ? EntityState.Detached
                 : EntityState.Unchanged,
             entry.EntityState);
@@ -138,7 +138,7 @@ public class InternalClrEntityEntryTest : InternalEntityEntryTestBase<
         {
             Assert.Equal("Pickle", entry[valueProperty]);
             Assert.Equal(
-                entityState == EntityState.Detached || entityState == EntityState.Deleted ? "Cheese" : "Pickle",
+                entityState is EntityState.Detached or EntityState.Deleted ? "Cheese" : "Pickle",
                 entry.GetOriginalValue(valueProperty));
         }
     }

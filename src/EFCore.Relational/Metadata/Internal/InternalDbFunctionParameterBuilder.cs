@@ -129,6 +129,30 @@ public class InternalDbFunctionParameterBuilder : AnnotatableBuilder<DbFunctionP
 
     /// <inheritdoc />
     [DebuggerStepThrough]
+    IConventionDbFunctionParameterBuilder? IConventionDbFunctionParameterBuilder.HasAnnotation(
+        string name,
+        object? value,
+        bool fromDataAnnotation)
+        => (IConventionDbFunctionParameterBuilder?)base.HasAnnotation(
+            name, value, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    IConventionDbFunctionParameterBuilder? IConventionDbFunctionParameterBuilder.HasNonNullAnnotation(
+        string name,
+        object? value,
+        bool fromDataAnnotation)
+        => (IConventionDbFunctionParameterBuilder?)base.HasNonNullAnnotation(
+            name, value, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    IConventionDbFunctionParameterBuilder? IConventionDbFunctionParameterBuilder.HasNoAnnotation(string name, bool fromDataAnnotation)
+        => (IConventionDbFunctionParameterBuilder?)base.HasNoAnnotation(
+            name, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <inheritdoc />
+    [DebuggerStepThrough]
     IConventionDbFunctionParameterBuilder? IConventionDbFunctionParameterBuilder.HasStoreType(
         string? storeType,
         bool fromDataAnnotation)

@@ -11,7 +11,8 @@ public class InternalUsageDiagnosticAnalyzerTests
 {
     [ConditionalFact]
     public Task Invocation_on_type_in_internal_namespace()
-        => VerifySingleInternalUsageAsync("""
+        => VerifySingleInternalUsageAsync(
+            """
 using System;
 using Microsoft.EntityFrameworkCore.Internal;
 
@@ -26,7 +27,8 @@ class C
 
     [ConditionalFact]
     public Task Instantiation_on_type_in_internal_namespace()
-        => VerifySingleInternalUsageAsync("""
+        => VerifySingleInternalUsageAsync(
+            """
 class C
 {
     void M()
@@ -46,13 +48,14 @@ class MyClass : {|#0:Microsoft.EntityFrameworkCore.Storage.Internal.RawRelationa
 }
 """;
 
-        await VerifyCS.VerifyAnalyzerAsync(source,
-            VerifyCS.Diagnostic(InternalUsageDiagnosticAnalyzer.Id)
+        await VerifyCS.VerifyAnalyzerAsync(
+            source,
+            VerifyCS.Diagnostic(EFDiagnostics.InternalUsage)
                 .WithLocation(0)
                 .WithSeverity(DiagnosticSeverity.Warning)
                 .WithMessageFormat(AnalyzerStrings.InternalUsageMessageFormat)
                 .WithArguments("Microsoft.EntityFrameworkCore.Storage.Internal.RawRelationalParameter"),
-            VerifyCS.Diagnostic(InternalUsageDiagnosticAnalyzer.Id)
+            VerifyCS.Diagnostic(EFDiagnostics.InternalUsage)
                 .WithLocation(1)
                 .WithSeverity(DiagnosticSeverity.Warning)
                 .WithMessageFormat(AnalyzerStrings.InternalUsageMessageFormat)
@@ -61,11 +64,12 @@ class MyClass : {|#0:Microsoft.EntityFrameworkCore.Storage.Internal.RawRelationa
 
     [ConditionalFact]
     public Task Implemented_interface()
-        => VerifySingleInternalUsageAsync("""
+        => VerifySingleInternalUsageAsync(
+            """
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Internal;
-            
+
 class {|#0:MyClass|} : IDbSetSource
 {
     public object Create(DbContext context, Type type) => null;
@@ -75,7 +79,8 @@ class {|#0:MyClass|} : IDbSetSource
 
     [ConditionalFact]
     public Task Access_property_with_internal_attribute()
-        => VerifySingleInternalUsageAsync("""
+        => VerifySingleInternalUsageAsync(
+            """
 class C
 {
     void M()
@@ -87,7 +92,8 @@ class C
 
     [ConditionalFact]
     public Task Instantiation_with_ctor_with_internal_attribute()
-        => VerifySingleInternalUsageAsync("""
+        => VerifySingleInternalUsageAsync(
+            """
 class C
 {
     void M()
@@ -99,7 +105,8 @@ class C
 
     [ConditionalFact]
     public Task Local_variable_declaration()
-        => VerifySingleInternalUsageAsync("""
+        => VerifySingleInternalUsageAsync(
+            """
 class C
 {
     void M()
@@ -111,13 +118,14 @@ class C
 
     [ConditionalFact]
     public Task Generic_type_parameter_in_method_call()
-        => VerifySingleInternalUsageAsync("""
+        => VerifySingleInternalUsageAsync(
+            """
 class C
 {
     void M()
     {
         void SomeGenericMethod<T>() {}
-            
+
         {|#0:SomeGenericMethod<Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager>()|};
     }
 }
@@ -125,7 +133,8 @@ class C
 
     [ConditionalFact]
     public Task Typeof()
-        => VerifySingleInternalUsageAsync("""
+        => VerifySingleInternalUsageAsync(
+            """
 class C
 {
     void M()
@@ -137,7 +146,8 @@ class C
 
     [ConditionalFact]
     public Task Field_declaration()
-        => VerifySingleInternalUsageAsync("""
+        => VerifySingleInternalUsageAsync(
+            """
 class MyClass
 {
     private readonly {|#0:Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager|} _stateManager;
@@ -146,7 +156,8 @@ class MyClass
 
     [ConditionalFact]
     public Task Property_declaration()
-        => VerifySingleInternalUsageAsync("""
+        => VerifySingleInternalUsageAsync(
+            """
 class MyClass
 {
     private {|#0:Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager|} StateManager { get; set; }
@@ -155,7 +166,8 @@ class MyClass
 
     [ConditionalFact]
     public Task Method_declaration_return_type()
-        => VerifySingleInternalUsageAsync("""
+        => VerifySingleInternalUsageAsync(
+            """
 class MyClass
 {
     private {|#0:Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager|} Foo() => null;
@@ -164,7 +176,8 @@ class MyClass
 
     [ConditionalFact]
     public Task Method_declaration_parameter()
-        => VerifySingleInternalUsageAsync("""
+        => VerifySingleInternalUsageAsync(
+            """
 class MyClass
 {
     private void Foo({|#0:Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager|} stateManager) {}
@@ -173,7 +186,8 @@ class MyClass
 
     [ConditionalFact]
     public Task No_warning_on_non_internal()
-        => VerifyCS.VerifyAnalyzerAsync("""
+        => VerifyCS.VerifyAnalyzerAsync(
+            """
 class C
 {
     void M()
@@ -186,7 +200,8 @@ class C
 
     [ConditionalFact]
     public Task No_warning_in_same_assembly()
-        => VerifyCS.VerifyAnalyzerAsync("""
+        => VerifyCS.VerifyAnalyzerAsync(
+            """
 namespace My.EntityFrameworkCore.Internal
 {
     class MyClass
@@ -207,8 +222,9 @@ namespace Bar
 """);
 
     private Task VerifySingleInternalUsageAsync(string source, string internalApi)
-        => VerifyCS.VerifyAnalyzerAsync(source,
-            VerifyCS.Diagnostic(InternalUsageDiagnosticAnalyzer.Id)
+        => VerifyCS.VerifyAnalyzerAsync(
+            source,
+            VerifyCS.Diagnostic(EFDiagnostics.InternalUsage)
                 .WithLocation(0)
                 .WithSeverity(DiagnosticSeverity.Warning)
                 .WithMessageFormat(AnalyzerStrings.InternalUsageMessageFormat)

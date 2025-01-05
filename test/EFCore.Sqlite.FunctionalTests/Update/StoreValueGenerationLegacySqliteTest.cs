@@ -3,17 +3,16 @@
 
 namespace Microsoft.EntityFrameworkCore.Update;
 
-#nullable enable
-
 public class StoreValueGenerationWithoutReturningSqliteTest : StoreValueGenerationTestBase
     <StoreValueGenerationWithoutReturningSqliteTest.StoreValueGenerationWithoutReturningSqliteFixture>
 {
     public StoreValueGenerationWithoutReturningSqliteTest(
-        StoreValueGenerationWithoutReturningSqliteFixture fixture, ITestOutputHelper testOutputHelper)
+        StoreValueGenerationWithoutReturningSqliteFixture fixture,
+        ITestOutputHelper testOutputHelper)
         : base(fixture)
     {
         fixture.TestSqlLoggerFactory.Clear();
-        // fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+        fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
     // We don't currently batch in Sqlite (the perf impact is likely to be minimal, no networking)
@@ -40,7 +39,7 @@ public class StoreValueGenerationWithoutReturningSqliteTest : StoreValueGenerati
         await base.Add_with_generated_values(async);
 
         AssertSql(
-"""
+            """
 @p0='1000'
 
 INSERT INTO "WithSomeDatabaseGenerated" ("Data2")
@@ -56,7 +55,7 @@ WHERE changes() = 1 AND "rowid" = last_insert_rowid();
         await base.Add_with_no_generated_values(async);
 
         AssertSql(
-"""
+            """
 @p0='100'
 @p1='1000'
 @p2='1000'
@@ -72,7 +71,7 @@ SELECT changes();
         await base.Add_with_all_generated_values(async);
 
         AssertSql(
-"""
+            """
 INSERT INTO "WithAllDatabaseGenerated"
 DEFAULT VALUES;
 SELECT "Id", "Data1", "Data2"
@@ -86,7 +85,7 @@ WHERE changes() = 1 AND "rowid" = last_insert_rowid();
         await base.Modify_with_generated_values(async);
 
         AssertSql(
-"""
+            """
 @p1='1'
 @p0='1000'
 
@@ -103,7 +102,7 @@ WHERE changes() = 1 AND "Id" = @p1;
         await base.Modify_with_no_generated_values(async);
 
         AssertSql(
-"""
+            """
 @p2='1'
 @p0='1000'
 @p1='1000'
@@ -119,7 +118,7 @@ SELECT changes();
         await base.Delete(async);
 
         AssertSql(
-"""
+            """
 @p0='1'
 
 DELETE FROM "WithSomeDatabaseGenerated"
@@ -137,7 +136,7 @@ SELECT changes();
         await base.Add_Add_with_same_entity_type_and_generated_values(async);
 
         AssertSql(
-"""
+            """
 @p0='1000'
 
 INSERT INTO "WithSomeDatabaseGenerated" ("Data2")
@@ -147,7 +146,7 @@ FROM "WithSomeDatabaseGenerated"
 WHERE changes() = 1 AND "rowid" = last_insert_rowid();
 """,
             //
-"""
+            """
 @p0='1001'
 
 INSERT INTO "WithSomeDatabaseGenerated" ("Data2")
@@ -163,7 +162,7 @@ WHERE changes() = 1 AND "rowid" = last_insert_rowid();
         await base.Add_Add_with_same_entity_type_and_no_generated_values(async);
 
         AssertSql(
-"""
+            """
 @p0='100'
 @p1='1000'
 @p2='1000'
@@ -173,7 +172,7 @@ VALUES (@p0, @p1, @p2);
 SELECT changes();
 """,
             //
-"""
+            """
 @p0='101'
 @p1='1001'
 @p2='1001'
@@ -189,7 +188,7 @@ SELECT changes();
         await base.Add_Add_with_same_entity_type_and_all_generated_values(async);
 
         AssertSql(
-"""
+            """
 INSERT INTO "WithAllDatabaseGenerated"
 DEFAULT VALUES;
 SELECT "Id", "Data1", "Data2"
@@ -197,7 +196,7 @@ FROM "WithAllDatabaseGenerated"
 WHERE changes() = 1 AND "rowid" = last_insert_rowid();
 """,
             //
-"""
+            """
 INSERT INTO "WithAllDatabaseGenerated"
 DEFAULT VALUES;
 SELECT "Id", "Data1", "Data2"
@@ -211,7 +210,7 @@ WHERE changes() = 1 AND "rowid" = last_insert_rowid();
         await base.Modify_Modify_with_same_entity_type_and_generated_values(async);
 
         AssertSql(
-"""
+            """
 @p1='1'
 @p0='1000'
 
@@ -222,7 +221,7 @@ FROM "WithSomeDatabaseGenerated"
 WHERE changes() = 1 AND "Id" = @p1;
 """,
             //
-"""
+            """
 @p1='2'
 @p0='1001'
 
@@ -239,7 +238,7 @@ WHERE changes() = 1 AND "Id" = @p1;
         await base.Modify_Modify_with_same_entity_type_and_no_generated_values(async);
 
         AssertSql(
-"""
+            """
 @p2='1'
 @p0='1000'
 @p1='1000'
@@ -249,7 +248,7 @@ WHERE "Id" = @p2;
 SELECT changes();
 """,
             //
-"""
+            """
 @p2='2'
 @p0='1001'
 @p1='1001'
@@ -265,7 +264,7 @@ SELECT changes();
         await base.Delete_Delete_with_same_entity_type(async);
 
         AssertSql(
-"""
+            """
 @p0='1'
 
 DELETE FROM "WithSomeDatabaseGenerated"
@@ -273,7 +272,7 @@ WHERE "Id" = @p0;
 SELECT changes();
 """,
             //
-"""
+            """
 @p0='2'
 
 DELETE FROM "WithSomeDatabaseGenerated"
@@ -291,7 +290,7 @@ SELECT changes();
         await base.Add_Add_with_different_entity_types_and_generated_values(async);
 
         AssertSql(
-"""
+            """
 @p0='1000'
 
 INSERT INTO "WithSomeDatabaseGenerated" ("Data2")
@@ -301,7 +300,7 @@ FROM "WithSomeDatabaseGenerated"
 WHERE changes() = 1 AND "rowid" = last_insert_rowid();
 """,
             //
-"""
+            """
 @p0='1001'
 
 INSERT INTO "WithSomeDatabaseGenerated2" ("Data2")
@@ -317,7 +316,7 @@ WHERE changes() = 1 AND "rowid" = last_insert_rowid();
         await base.Add_Add_with_different_entity_types_and_no_generated_values(async);
 
         AssertSql(
-"""
+            """
 @p0='100'
 @p1='1000'
 @p2='1000'
@@ -327,7 +326,7 @@ VALUES (@p0, @p1, @p2);
 SELECT changes();
 """,
             //
-"""
+            """
 @p0='101'
 @p1='1001'
 @p2='1001'
@@ -343,7 +342,7 @@ SELECT changes();
         await base.Add_Add_with_different_entity_types_and_all_generated_values(async);
 
         AssertSql(
-"""
+            """
 INSERT INTO "WithAllDatabaseGenerated"
 DEFAULT VALUES;
 SELECT "Id", "Data1", "Data2"
@@ -351,7 +350,7 @@ FROM "WithAllDatabaseGenerated"
 WHERE changes() = 1 AND "rowid" = last_insert_rowid();
 """,
             //
-"""
+            """
 INSERT INTO "WithAllDatabaseGenerated2"
 DEFAULT VALUES;
 SELECT "Id", "Data1", "Data2"
@@ -365,7 +364,7 @@ WHERE changes() = 1 AND "rowid" = last_insert_rowid();
         await base.Modify_Modify_with_different_entity_types_and_generated_values(async);
 
         AssertSql(
-"""
+            """
 @p1='1'
 @p0='1000'
 
@@ -376,7 +375,7 @@ FROM "WithSomeDatabaseGenerated"
 WHERE changes() = 1 AND "Id" = @p1;
 """,
             //
-"""
+            """
 @p1='2'
 @p0='1001'
 
@@ -393,7 +392,7 @@ WHERE changes() = 1 AND "Id" = @p1;
         await base.Modify_Modify_with_different_entity_types_and_no_generated_values(async);
 
         AssertSql(
-"""
+            """
 @p2='1'
 @p0='1000'
 @p1='1000'
@@ -403,7 +402,7 @@ WHERE "Id" = @p2;
 SELECT changes();
 """,
             //
-"""
+            """
 @p2='2'
 @p0='1001'
 @p1='1001'
@@ -419,7 +418,7 @@ SELECT changes();
         await base.Delete_Delete_with_different_entity_types(async);
 
         AssertSql(
-"""
+            """
 @p0='1'
 
 DELETE FROM "WithSomeDatabaseGenerated"
@@ -427,7 +426,7 @@ WHERE "Id" = @p0;
 SELECT changes();
 """,
             //
-"""
+            """
 @p0='2'
 
 DELETE FROM "WithSomeDatabaseGenerated2"

@@ -55,13 +55,19 @@ public interface ISqlQueryMapping : ITableMappingBase
             builder.Append("SqlQueryMapping: ");
         }
 
-        builder.Append(EntityType.Name).Append(" - ");
+        builder.Append(TypeBase.Name).Append(" - ");
 
         builder.Append(Table.Name);
 
-        if (IncludesDerivedTypes)
+        if (IncludesDerivedTypes != null)
         {
-            builder.Append(" IncludesDerivedTypes");
+            builder.Append(' ');
+            if (!IncludesDerivedTypes.Value)
+            {
+                builder.Append('!');
+            }
+
+            builder.Append("IncludesDerivedTypes");
         }
 
         if (!singleLine && (options & MetadataDebugStringOptions.IncludeAnnotations) != 0)

@@ -55,9 +55,7 @@ public class ForeignKeyPropertyDiscoveryConvention :
     /// </summary>
     /// <param name="dependencies">Parameter object containing dependencies for this convention.</param>
     public ForeignKeyPropertyDiscoveryConvention(ProviderConventionSetBuilderDependencies dependencies)
-    {
-        Dependencies = dependencies;
-    }
+        => Dependencies = dependencies;
 
     /// <summary>
     ///     Dependencies for this service.
@@ -83,13 +81,16 @@ public class ForeignKeyPropertyDiscoveryConvention :
         IConventionContext context)
     {
         var shouldBeRequired = true;
-        foreach (var property in relationshipBuilder.Metadata.Properties)
+        if (!relationshipBuilder.Metadata.IsOwnership)
         {
-            if (property.IsNullable)
+            foreach (var property in relationshipBuilder.Metadata.Properties)
             {
-                shouldBeRequired = false;
-                relationshipBuilder.IsRequired(false);
-                break;
+                if (property.IsNullable)
+                {
+                    shouldBeRequired = false;
+                    relationshipBuilder = relationshipBuilder.IsRequired(false) ?? relationshipBuilder;
+                    break;
+                }
             }
         }
 
@@ -134,6 +135,7 @@ public class ForeignKeyPropertyDiscoveryConvention :
                         || !foreignKey.Properties.SequenceEqual(foreignKeyProperties)))))
         {
             var batch = context.DelayConventions();
+            var newProperties = new List<IConventionProperty?>();
             using var foreignKeyReference = batch.Track(foreignKey);
             foreach (var fkProperty in foreignKey.Properties)
             {
@@ -142,18 +144,26 @@ public class ForeignKeyPropertyDiscoveryConvention :
                     && fkProperty.ClrType.IsNullableType() == foreignKey.IsRequired
                     && fkProperty.GetContainingForeignKeys().All(otherFk => otherFk.IsRequired == foreignKey.IsRequired))
                 {
-                    var newType = fkProperty.ClrType.MakeNullable(!foreignKey.IsRequired);
+                    var newType = fkProperty.ClrType.MakeNullable(!foreignKey.IsRequired && !fkProperty.IsKey());
                     if (fkProperty.ClrType != newType)
                     {
-                        fkProperty.DeclaringEntityType.Builder.Property(
-                            newType,
-                            fkProperty.Name,
-                            fkProperty.GetConfigurationSource() == ConfigurationSource.DataAnnotation);
+                        newProperties.Add(
+                            fkProperty.DeclaringType.Builder.Property(
+                                newType,
+                                fkProperty.Name,
+                                fkProperty.GetConfigurationSource() == ConfigurationSource.DataAnnotation)?.Metadata);
                     }
                 }
             }
 
             batch.Dispose();
+
+            // If the new properties didn't end up being used we need to remove them
+            foreach (var newProperty in newProperties)
+            {
+                newProperty?.DeclaringType.Builder.RemoveUnusedImplicitProperties([newProperty]);
+            }
+
             return foreignKeyReference.Object is null || !foreignKeyReference.Object.IsInModel
                 ? null
                 : foreignKeyReference.Object.Builder;
@@ -173,9 +183,8 @@ public class ForeignKeyPropertyDiscoveryConvention :
             invertible = false;
         }
         else if (ConfigurationSource.Convention.Overrides(foreignKey.GetPrincipalEndConfigurationSource())
-                 && (foreignKey.PrincipalEntityType.FindOwnership() != null
-                     && foreignKey.PrincipalToDependent != null
-                     && foreignKey.DependentToPrincipal == null))
+                 && foreignKey.PrincipalEntityType.FindOwnership() != null
+                 && foreignKey is { PrincipalToDependent: not null, DependentToPrincipal: null })
         {
             var invertedRelationshipBuilder = relationshipBuilder.HasEntityTypes(
                 foreignKey.DeclaringEntityType, foreignKey.PrincipalEntityType);
@@ -571,13 +580,12 @@ public class ForeignKeyPropertyDiscoveryConvention :
     private void Process(IConventionPropertyBuilder propertyBuilder, IConventionContext context)
     {
         var property = propertyBuilder.Metadata;
-        if (property.IsImplicitlyCreated()
-            && ConfigurationSource.Convention.Overrides(property.GetConfigurationSource()))
+        if ((property.IsImplicitlyCreated()
+                && ConfigurationSource.Convention.Overrides(property.GetConfigurationSource()))
+            || propertyBuilder.Metadata.DeclaringType is not IConventionEntityType entityType)
         {
             return;
         }
-
-        var entityType = propertyBuilder.Metadata.DeclaringEntityType;
 
         Process(entityType, context);
     }
@@ -761,8 +769,7 @@ public class ForeignKeyPropertyDiscoveryConvention :
             .SelectMany(t => t.GetDeclaredForeignKeys()).ToList();
         foreach (var foreignKey in foreignKeys)
         {
-            if ((foreignKey.IsUnique
-                    && foreignKey.DeclaringEntityType.BaseType == null)
+            if (foreignKey is { IsUnique: true, DeclaringEntityType.BaseType: null }
                 || !foreignKey.IsInModel)
             {
                 continue;
@@ -785,7 +792,7 @@ public class ForeignKeyPropertyDiscoveryConvention :
         IConventionKey? previousPrimaryKey,
         IConventionContext<IConventionKey> context)
     {
-        if (newPrimaryKey != null && !newPrimaryKey.IsInModel)
+        if (newPrimaryKey is { IsInModel: false })
         {
             return;
         }

@@ -2,13 +2,14 @@
 
   <PropertyGroup>
     <Description>Microsoft SQL Server database provider for Entity Framework Core.</Description>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>$(DefaultNetCoreTargetFramework)</TargetFramework>
     <MinClientVersion>3.6</MinClientVersion>
     <AssemblyName>Microsoft.EntityFrameworkCore.SqlServer</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore.SqlServer</RootNamespace>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <PackageTags>$(PackageTags);SQL Server</PackageTags>
     <ImplicitUsings>true</ImplicitUsings>
+    <NoWarn>$(NoWarn);EF9100</NoWarn> <!-- Precompiled query is experimental -->
   </PropertyGroup>
 
   <ItemGroup>
@@ -44,11 +45,11 @@
 
   <ItemGroup>
     <ProjectReference Include="..\EFCore.Relational\EFCore.Relational.csproj" PrivateAssets="contentfiles;build" />
-    <ProjectReference Condition="'$(BuildingByReSharper)' != 'true'" Include="..\EFCore.Analyzers\EFCore.Analyzers.csproj" ReferenceOutputAssembly="False" OutputItemType="Analyzer" />
+    <ProjectReference Include="..\EFCore.Analyzers\EFCore.Analyzers.csproj" ReferenceOutputAssembly="False" OutputItemType="Analyzer" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Data.SqlClient" Version="5.1.1" />
+    <PackageReference Include="Microsoft.Data.SqlClient" />
   </ItemGroup>
 
   <ItemGroup>

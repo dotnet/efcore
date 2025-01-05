@@ -1008,7 +1008,7 @@ public class RelationalCommandDiagnosticsLogger
             }
         }
 
-        return new ValueTask<DbDataReader>(methodResult);
+        return ValueTask.FromResult(methodResult);
     }
 
     /// <summary>
@@ -1072,7 +1072,7 @@ public class RelationalCommandDiagnosticsLogger
             }
         }
 
-        return new ValueTask<object?>(methodResult);
+        return ValueTask.FromResult(methodResult);
     }
 
     /// <summary>
@@ -1136,7 +1136,7 @@ public class RelationalCommandDiagnosticsLogger
             }
         }
 
-        return new ValueTask<int>(methodResult);
+        return ValueTask.FromResult(methodResult);
     }
 
     private CommandExecutedEventData BroadcastCommandExecuted(

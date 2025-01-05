@@ -10,14 +10,9 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 // ReSharper disable StringStartsWithIsCultureSpecific
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public abstract class NorthwindQueryFiltersQueryTestBase<TFixture> : FilteredQueryTestBase<TFixture>
+public abstract class NorthwindQueryFiltersQueryTestBase<TFixture>(TFixture fixture) : FilteredQueryTestBase<TFixture>(fixture)
     where TFixture : NorthwindQueryFixtureBase<NorthwindQueryFiltersCustomizer>, new()
 {
-    protected NorthwindQueryFiltersQueryTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Count_query(bool async)
@@ -33,8 +28,7 @@ public abstract class NorthwindQueryFiltersQueryTestBase<TFixture> : FilteredQue
     {
         return AssertFilteredQuery(
             async,
-            ss => ss.Set<Customer>(),
-            entryCount: 7);
+            ss => ss.Set<Customer>());
     }
 
     [ConditionalTheory]
@@ -142,8 +136,7 @@ public abstract class NorthwindQueryFiltersQueryTestBase<TFixture> : FilteredQue
         return AssertFilteredQuery(
             async,
             ss => ss.Set<Customer>().Include(c => c.Orders),
-            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Customer>(x => x.Orders)),
-            entryCount: 87);
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Customer>(x => x.Orders)));
     }
 
     [ConditionalTheory]
@@ -153,8 +146,7 @@ public abstract class NorthwindQueryFiltersQueryTestBase<TFixture> : FilteredQue
         return AssertQuery(
             async,
             ss => ss.Set<Customer>().Include(c => c.Orders).IgnoreQueryFilters(),
-            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Customer>(x => x.Orders)),
-            entryCount: 921);
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Customer>(x => x.Orders)));
     }
 
     [ConditionalTheory]
@@ -163,8 +155,7 @@ public abstract class NorthwindQueryFiltersQueryTestBase<TFixture> : FilteredQue
     {
         return AssertFilteredQuery(
             async,
-            ss => ss.Set<Order>().Include(o => o.Customer),
-            entryCount: 87);
+            ss => ss.Set<Order>().Include(o => o.Customer));
     }
 
     [ConditionalTheory]
@@ -174,8 +165,7 @@ public abstract class NorthwindQueryFiltersQueryTestBase<TFixture> : FilteredQue
         return AssertFilteredQuery(
             async,
             ss => ss.Set<Order>().Include(o => o.Customer),
-            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Order>(x => x.Customer)),
-            entryCount: 87);
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Order>(x => x.Customer)));
     }
 
     [ConditionalTheory]
@@ -184,8 +174,7 @@ public abstract class NorthwindQueryFiltersQueryTestBase<TFixture> : FilteredQue
     {
         return AssertFilteredQuery(
             async,
-            ss => ss.Set<OrderDetail>().Select(od => od.Order),
-            entryCount: 5);
+            ss => ss.Set<OrderDetail>().Select(od => od.Order));
     }
 
     [ConditionalTheory]
@@ -211,8 +200,7 @@ public abstract class NorthwindQueryFiltersQueryTestBase<TFixture> : FilteredQue
                   from o in c.Orders
                   from od in o.OrderDetails
                   where od.Discount < 10
-                  select c,
-            entryCount: 3);
+                  select c);
     }
 
     [ConditionalFact]
@@ -235,8 +223,7 @@ public abstract class NorthwindQueryFiltersQueryTestBase<TFixture> : FilteredQue
     {
         return AssertFilteredQuery(
             async,
-            ss => ss.Set<Order>(),
-            entryCount: 80);
+            ss => ss.Set<Order>());
     }
 
     private string RemoveNewLines(string message)

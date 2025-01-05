@@ -5,6 +5,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class NorthwindQueryFiltersQuerySqlServerTest : NorthwindQueryFiltersQueryTestBase<
     NorthwindQuerySqlServerFixture<NorthwindQueryFiltersCustomizer>>
 {
@@ -14,7 +16,7 @@ public class NorthwindQueryFiltersQuerySqlServerTest : NorthwindQueryFiltersQuer
         : base(fixture)
     {
         fixture.TestSqlLoggerFactory.Clear();
-        //fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+        fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
     [ConditionalFact]
@@ -26,13 +28,12 @@ public class NorthwindQueryFiltersQuerySqlServerTest : NorthwindQueryFiltersQuer
         await base.Count_query(async);
 
         AssertSql(
-"""
-@__ef_filter__TenantPrefix_0='B' (Size = 4000)
-@__ef_filter__TenantPrefix_0_1='B' (Size = 40)
+            """
+@ef_filter__TenantPrefix_startswith='B%' (Size = 40)
 
 SELECT COUNT(*)
 FROM [Customers] AS [c]
-WHERE @__ef_filter__TenantPrefix_0 = N'' OR LEFT([c].[CompanyName], LEN(@__ef_filter__TenantPrefix_0_1)) = @__ef_filter__TenantPrefix_0_1
+WHERE [c].[CompanyName] LIKE @ef_filter__TenantPrefix_startswith ESCAPE N'\'
 """);
     }
 
@@ -41,13 +42,12 @@ WHERE @__ef_filter__TenantPrefix_0 = N'' OR LEFT([c].[CompanyName], LEN(@__ef_fi
         await base.Materialized_query(async);
 
         AssertSql(
-"""
-@__ef_filter__TenantPrefix_0='B' (Size = 4000)
-@__ef_filter__TenantPrefix_0_1='B' (Size = 40)
+            """
+@ef_filter__TenantPrefix_startswith='B%' (Size = 40)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE @__ef_filter__TenantPrefix_0 = N'' OR LEFT([c].[CompanyName], LEN(@__ef_filter__TenantPrefix_0_1)) = @__ef_filter__TenantPrefix_0_1
+WHERE [c].[CompanyName] LIKE @ef_filter__TenantPrefix_startswith ESCAPE N'\'
 """);
     }
 
@@ -56,14 +56,13 @@ WHERE @__ef_filter__TenantPrefix_0 = N'' OR LEFT([c].[CompanyName], LEN(@__ef_fi
         await base.Find(async);
 
         AssertSql(
-"""
-@__ef_filter__TenantPrefix_0='B' (Size = 4000)
-@__ef_filter__TenantPrefix_0_1='B' (Size = 40)
-@__p_0='ALFKI' (Size = 5) (DbType = StringFixedLength)
+            """
+@ef_filter__TenantPrefix_startswith='B%' (Size = 40)
+@p='ALFKI' (Size = 5) (DbType = StringFixedLength)
 
 SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE (@__ef_filter__TenantPrefix_0 = N'' OR LEFT([c].[CompanyName], LEN(@__ef_filter__TenantPrefix_0_1)) = @__ef_filter__TenantPrefix_0_1) AND [c].[CustomerID] = @__p_0
+WHERE [c].[CompanyName] LIKE @ef_filter__TenantPrefix_startswith ESCAPE N'\' AND [c].[CustomerID] = @p
 """);
     }
 
@@ -72,13 +71,12 @@ WHERE (@__ef_filter__TenantPrefix_0 = N'' OR LEFT([c].[CompanyName], LEN(@__ef_f
         await base.Materialized_query_parameter(async);
 
         AssertSql(
-"""
-@__ef_filter__TenantPrefix_0='F' (Size = 4000)
-@__ef_filter__TenantPrefix_0_1='F' (Size = 40)
+            """
+@ef_filter__TenantPrefix_startswith='F%' (Size = 40)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE @__ef_filter__TenantPrefix_0 = N'' OR LEFT([c].[CompanyName], LEN(@__ef_filter__TenantPrefix_0_1)) = @__ef_filter__TenantPrefix_0_1
+WHERE [c].[CompanyName] LIKE @ef_filter__TenantPrefix_startswith ESCAPE N'\'
 """);
     }
 
@@ -87,22 +85,20 @@ WHERE @__ef_filter__TenantPrefix_0 = N'' OR LEFT([c].[CompanyName], LEN(@__ef_fi
         await base.Materialized_query_parameter_new_context(async);
 
         AssertSql(
-"""
-@__ef_filter__TenantPrefix_0='B' (Size = 4000)
-@__ef_filter__TenantPrefix_0_1='B' (Size = 40)
+            """
+@ef_filter__TenantPrefix_startswith='B%' (Size = 40)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE @__ef_filter__TenantPrefix_0 = N'' OR LEFT([c].[CompanyName], LEN(@__ef_filter__TenantPrefix_0_1)) = @__ef_filter__TenantPrefix_0_1
+WHERE [c].[CompanyName] LIKE @ef_filter__TenantPrefix_startswith ESCAPE N'\'
 """,
             //
-"""
-@__ef_filter__TenantPrefix_0='T' (Size = 4000)
-@__ef_filter__TenantPrefix_0_1='T' (Size = 40)
+            """
+@ef_filter__TenantPrefix_startswith='T%' (Size = 40)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE @__ef_filter__TenantPrefix_0 = N'' OR LEFT([c].[CompanyName], LEN(@__ef_filter__TenantPrefix_0_1)) = @__ef_filter__TenantPrefix_0_1
+WHERE [c].[CompanyName] LIKE @ef_filter__TenantPrefix_startswith ESCAPE N'\'
 """);
     }
 
@@ -111,13 +107,12 @@ WHERE @__ef_filter__TenantPrefix_0 = N'' OR LEFT([c].[CompanyName], LEN(@__ef_fi
         await base.Projection_query_parameter(async);
 
         AssertSql(
-"""
-@__ef_filter__TenantPrefix_0='F' (Size = 4000)
-@__ef_filter__TenantPrefix_0_1='F' (Size = 40)
+            """
+@ef_filter__TenantPrefix_startswith='F%' (Size = 40)
 
 SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
-WHERE @__ef_filter__TenantPrefix_0 = N'' OR LEFT([c].[CompanyName], LEN(@__ef_filter__TenantPrefix_0_1)) = @__ef_filter__TenantPrefix_0_1
+WHERE [c].[CompanyName] LIKE @ef_filter__TenantPrefix_startswith ESCAPE N'\'
 """);
     }
 
@@ -126,13 +121,12 @@ WHERE @__ef_filter__TenantPrefix_0 = N'' OR LEFT([c].[CompanyName], LEN(@__ef_fi
         await base.Projection_query(async);
 
         AssertSql(
-"""
-@__ef_filter__TenantPrefix_0='B' (Size = 4000)
-@__ef_filter__TenantPrefix_0_1='B' (Size = 40)
+            """
+@ef_filter__TenantPrefix_startswith='B%' (Size = 40)
 
 SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
-WHERE @__ef_filter__TenantPrefix_0 = N'' OR LEFT([c].[CompanyName], LEN(@__ef_filter__TenantPrefix_0_1)) = @__ef_filter__TenantPrefix_0_1
+WHERE [c].[CompanyName] LIKE @ef_filter__TenantPrefix_startswith ESCAPE N'\'
 """);
     }
 
@@ -141,24 +135,23 @@ WHERE @__ef_filter__TenantPrefix_0 = N'' OR LEFT([c].[CompanyName], LEN(@__ef_fi
         await base.Include_query(async);
 
         AssertSql(
-"""
-@__ef_filter__TenantPrefix_0='B' (Size = 4000)
-@__ef_filter__TenantPrefix_0_1='B' (Size = 40)
+            """
+@ef_filter__TenantPrefix_startswith='B%' (Size = 40)
 
-SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate], [t0].[CustomerID0]
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [s].[OrderID], [s].[CustomerID], [s].[EmployeeID], [s].[OrderDate], [s].[CustomerID0]
 FROM [Customers] AS [c]
 LEFT JOIN (
-    SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [t].[CustomerID] AS [CustomerID0]
+    SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [c1].[CustomerID] AS [CustomerID0]
     FROM [Orders] AS [o]
     LEFT JOIN (
         SELECT [c0].[CustomerID], [c0].[CompanyName]
         FROM [Customers] AS [c0]
-        WHERE @__ef_filter__TenantPrefix_0 = N'' OR LEFT([c0].[CompanyName], LEN(@__ef_filter__TenantPrefix_0_1)) = @__ef_filter__TenantPrefix_0_1
-    ) AS [t] ON [o].[CustomerID] = [t].[CustomerID]
-    WHERE [t].[CustomerID] IS NOT NULL AND [t].[CompanyName] IS NOT NULL
-) AS [t0] ON [c].[CustomerID] = [t0].[CustomerID]
-WHERE @__ef_filter__TenantPrefix_0 = N'' OR LEFT([c].[CompanyName], LEN(@__ef_filter__TenantPrefix_0_1)) = @__ef_filter__TenantPrefix_0_1
-ORDER BY [c].[CustomerID], [t0].[OrderID]
+        WHERE [c0].[CompanyName] LIKE @ef_filter__TenantPrefix_startswith ESCAPE N'\'
+    ) AS [c1] ON [o].[CustomerID] = [c1].[CustomerID]
+    WHERE [c1].[CustomerID] IS NOT NULL AND [c1].[CompanyName] IS NOT NULL
+) AS [s] ON [c].[CustomerID] = [s].[CustomerID]
+WHERE [c].[CompanyName] LIKE @ef_filter__TenantPrefix_startswith ESCAPE N'\'
+ORDER BY [c].[CustomerID], [s].[OrderID]
 """);
     }
 
@@ -167,7 +160,7 @@ ORDER BY [c].[CustomerID], [t0].[OrderID]
         await base.Include_query_opt_out(async);
 
         AssertSql(
-"""
+            """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Customers] AS [c]
 LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
@@ -180,18 +173,17 @@ ORDER BY [c].[CustomerID]
         await base.Included_many_to_one_query(async);
 
         AssertSql(
-"""
-@__ef_filter__TenantPrefix_0='B' (Size = 4000)
-@__ef_filter__TenantPrefix_0_1='B' (Size = 40)
+            """
+@ef_filter__TenantPrefix_startswith='B%' (Size = 40)
 
-SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region]
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
 FROM [Orders] AS [o]
 LEFT JOIN (
     SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
     FROM [Customers] AS [c]
-    WHERE @__ef_filter__TenantPrefix_0 = N'' OR LEFT([c].[CompanyName], LEN(@__ef_filter__TenantPrefix_0_1)) = @__ef_filter__TenantPrefix_0_1
-) AS [t] ON [o].[CustomerID] = [t].[CustomerID]
-WHERE [t].[CustomerID] IS NOT NULL AND [t].[CompanyName] IS NOT NULL
+    WHERE [c].[CompanyName] LIKE @ef_filter__TenantPrefix_startswith ESCAPE N'\'
+) AS [c0] ON [o].[CustomerID] = [c0].[CustomerID]
+WHERE [c0].[CustomerID] IS NOT NULL AND [c0].[CompanyName] IS NOT NULL
 """);
     }
 
@@ -200,12 +192,11 @@ WHERE [t].[CustomerID] IS NOT NULL AND [t].[CompanyName] IS NOT NULL
         await base.Project_reference_that_itself_has_query_filter_with_another_reference(async);
 
         AssertSql(
-"""
-@__ef_filter__TenantPrefix_1='B' (Size = 4000)
-@__ef_filter__TenantPrefix_1_1='B' (Size = 40)
-@__ef_filter___quantity_0='50'
+            """
+@ef_filter__TenantPrefix_startswith='B%' (Size = 40)
+@ef_filter___quantity='50'
 
-SELECT [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate]
+SELECT [s].[OrderID], [s].[CustomerID], [s].[EmployeeID], [s].[OrderDate]
 FROM [Order Details] AS [o]
 INNER JOIN (
     SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
@@ -213,11 +204,11 @@ INNER JOIN (
     LEFT JOIN (
         SELECT [c].[CustomerID], [c].[CompanyName]
         FROM [Customers] AS [c]
-        WHERE @__ef_filter__TenantPrefix_1 = N'' OR LEFT([c].[CompanyName], LEN(@__ef_filter__TenantPrefix_1_1)) = @__ef_filter__TenantPrefix_1_1
-    ) AS [t] ON [o0].[CustomerID] = [t].[CustomerID]
-    WHERE [t].[CustomerID] IS NOT NULL AND [t].[CompanyName] IS NOT NULL
-) AS [t0] ON [o].[OrderID] = [t0].[OrderID]
-WHERE [o].[Quantity] > @__ef_filter___quantity_0
+        WHERE [c].[CompanyName] LIKE @ef_filter__TenantPrefix_startswith ESCAPE N'\'
+    ) AS [c0] ON [o0].[CustomerID] = [c0].[CustomerID]
+    WHERE [c0].[CustomerID] IS NOT NULL AND [c0].[CompanyName] IS NOT NULL
+) AS [s] ON [o].[OrderID] = [s].[OrderID]
+WHERE [o].[Quantity] > @ef_filter___quantity
 """);
     }
 
@@ -226,10 +217,9 @@ WHERE [o].[Quantity] > @__ef_filter___quantity_0
         await base.Navs_query(async);
 
         AssertSql(
-"""
-@__ef_filter__TenantPrefix_0='B' (Size = 4000)
-@__ef_filter__TenantPrefix_0_1='B' (Size = 40)
-@__ef_filter___quantity_1='50'
+            """
+@ef_filter__TenantPrefix_startswith='B%' (Size = 40)
+@ef_filter___quantity='50'
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
@@ -239,10 +229,10 @@ INNER JOIN (
     LEFT JOIN (
         SELECT [c0].[CustomerID], [c0].[CompanyName]
         FROM [Customers] AS [c0]
-        WHERE @__ef_filter__TenantPrefix_0 = N'' OR LEFT([c0].[CompanyName], LEN(@__ef_filter__TenantPrefix_0_1)) = @__ef_filter__TenantPrefix_0_1
-    ) AS [t] ON [o].[CustomerID] = [t].[CustomerID]
-    WHERE [t].[CustomerID] IS NOT NULL AND [t].[CompanyName] IS NOT NULL
-) AS [t0] ON [c].[CustomerID] = [t0].[CustomerID]
+        WHERE [c0].[CompanyName] LIKE @ef_filter__TenantPrefix_startswith ESCAPE N'\'
+    ) AS [c1] ON [o].[CustomerID] = [c1].[CustomerID]
+    WHERE [c1].[CustomerID] IS NOT NULL AND [c1].[CompanyName] IS NOT NULL
+) AS [s] ON [c].[CustomerID] = [s].[CustomerID]
 INNER JOIN (
     SELECT [o0].[OrderID], [o0].[Discount]
     FROM [Order Details] AS [o0]
@@ -250,15 +240,15 @@ INNER JOIN (
         SELECT [o1].[OrderID]
         FROM [Orders] AS [o1]
         LEFT JOIN (
-            SELECT [c1].[CustomerID], [c1].[CompanyName]
-            FROM [Customers] AS [c1]
-            WHERE @__ef_filter__TenantPrefix_0 = N'' OR LEFT([c1].[CompanyName], LEN(@__ef_filter__TenantPrefix_0_1)) = @__ef_filter__TenantPrefix_0_1
-        ) AS [t3] ON [o1].[CustomerID] = [t3].[CustomerID]
-        WHERE [t3].[CustomerID] IS NOT NULL AND [t3].[CompanyName] IS NOT NULL
-    ) AS [t2] ON [o0].[OrderID] = [t2].[OrderID]
-    WHERE [o0].[Quantity] > @__ef_filter___quantity_1
-) AS [t1] ON [t0].[OrderID] = [t1].[OrderID]
-WHERE (@__ef_filter__TenantPrefix_0 = N'' OR LEFT([c].[CompanyName], LEN(@__ef_filter__TenantPrefix_0_1)) = @__ef_filter__TenantPrefix_0_1) AND [t1].[Discount] < CAST(10 AS real)
+            SELECT [c2].[CustomerID], [c2].[CompanyName]
+            FROM [Customers] AS [c2]
+            WHERE [c2].[CompanyName] LIKE @ef_filter__TenantPrefix_startswith ESCAPE N'\'
+        ) AS [c3] ON [o1].[CustomerID] = [c3].[CustomerID]
+        WHERE [c3].[CustomerID] IS NOT NULL AND [c3].[CompanyName] IS NOT NULL
+    ) AS [s0] ON [o0].[OrderID] = [s0].[OrderID]
+    WHERE [o0].[Quantity] > @ef_filter___quantity
+) AS [s1] ON [s].[OrderID] = [s1].[OrderID]
+WHERE [c].[CompanyName] LIKE @ef_filter__TenantPrefix_startswith ESCAPE N'\' AND [s1].[Discount] < CAST(10 AS real)
 """);
     }
 
@@ -273,15 +263,14 @@ WHERE (@__ef_filter__TenantPrefix_0 = N'' OR LEFT([c].[CompanyName], LEN(@__ef_f
         }
 
         AssertSql(
-"""
-@__ef_filter__TenantPrefix_0='B' (Size = 4000)
-@__ef_filter__TenantPrefix_0_1='B' (Size = 40)
+            """
+@ef_filter__TenantPrefix_startswith='B%' (Size = 40)
 
 SELECT [m].[CustomerID], [m].[Address], [m].[City], [m].[CompanyName], [m].[ContactName], [m].[ContactTitle], [m].[Country], [m].[Fax], [m].[Phone], [m].[PostalCode], [m].[Region]
 FROM (
     select * from Customers
 ) AS [m]
-WHERE @__ef_filter__TenantPrefix_0 = N'' OR LEFT([m].[CompanyName], LEN(@__ef_filter__TenantPrefix_0_1)) = @__ef_filter__TenantPrefix_0_1
+WHERE [m].[CompanyName] LIKE @ef_filter__TenantPrefix_startswith ESCAPE N'\'
 """);
     }
 
@@ -296,9 +285,8 @@ WHERE @__ef_filter__TenantPrefix_0 = N'' OR LEFT([m].[CompanyName], LEN(@__ef_fi
         }
 
         AssertSql(
-"""
-@__ef_filter__TenantPrefix_0='B' (Size = 4000)
-@__ef_filter__TenantPrefix_0_1='B' (Size = 40)
+            """
+@ef_filter__TenantPrefix_startswith='B%' (Size = 40)
 
 SELECT [m].[OrderID], [m].[CustomerID], [m].[EmployeeID], [m].[OrderDate]
 FROM (
@@ -307,9 +295,9 @@ FROM (
 LEFT JOIN (
     SELECT [c].[CustomerID], [c].[CompanyName]
     FROM [Customers] AS [c]
-    WHERE @__ef_filter__TenantPrefix_0 = N'' OR LEFT([c].[CompanyName], LEN(@__ef_filter__TenantPrefix_0_1)) = @__ef_filter__TenantPrefix_0_1
-) AS [t] ON [m].[CustomerID] = [t].[CustomerID]
-WHERE [t].[CustomerID] IS NOT NULL AND [t].[CompanyName] IS NOT NULL
+    WHERE [c].[CompanyName] LIKE @ef_filter__TenantPrefix_startswith ESCAPE N'\'
+) AS [c0] ON [m].[CustomerID] = [c0].[CustomerID]
+WHERE [c0].[CustomerID] IS NOT NULL AND [c0].[CompanyName] IS NOT NULL
 """);
     }
 
@@ -318,24 +306,22 @@ WHERE [t].[CustomerID] IS NOT NULL AND [t].[CompanyName] IS NOT NULL
         base.Compiled_query();
 
         AssertSql(
-"""
-@__ef_filter__TenantPrefix_0='B' (Size = 4000)
-@__ef_filter__TenantPrefix_0_1='B' (Size = 40)
-@__customerID='BERGS' (Size = 5) (DbType = StringFixedLength)
+            """
+@ef_filter__TenantPrefix_startswith='B%' (Size = 40)
+@customerID='BERGS' (Size = 5) (DbType = StringFixedLength)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE (@__ef_filter__TenantPrefix_0 = N'' OR LEFT([c].[CompanyName], LEN(@__ef_filter__TenantPrefix_0_1)) = @__ef_filter__TenantPrefix_0_1) AND [c].[CustomerID] = @__customerID
+WHERE [c].[CompanyName] LIKE @ef_filter__TenantPrefix_startswith ESCAPE N'\' AND [c].[CustomerID] = @customerID
 """,
             //
-"""
-@__ef_filter__TenantPrefix_0='B' (Size = 4000)
-@__ef_filter__TenantPrefix_0_1='B' (Size = 40)
-@__customerID='BLAUS' (Size = 5) (DbType = StringFixedLength)
+            """
+@ef_filter__TenantPrefix_startswith='B%' (Size = 40)
+@customerID='BLAUS' (Size = 5) (DbType = StringFixedLength)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE (@__ef_filter__TenantPrefix_0 = N'' OR LEFT([c].[CompanyName], LEN(@__ef_filter__TenantPrefix_0_1)) = @__ef_filter__TenantPrefix_0_1) AND [c].[CustomerID] = @__customerID
+WHERE [c].[CompanyName] LIKE @ef_filter__TenantPrefix_startswith ESCAPE N'\' AND [c].[CustomerID] = @customerID
 """);
     }
 
@@ -344,18 +330,17 @@ WHERE (@__ef_filter__TenantPrefix_0 = N'' OR LEFT([c].[CompanyName], LEN(@__ef_f
         await base.Entity_Equality(async);
 
         AssertSql(
-"""
-@__ef_filter__TenantPrefix_0='B' (Size = 4000)
-@__ef_filter__TenantPrefix_0_1='B' (Size = 40)
+            """
+@ef_filter__TenantPrefix_startswith='B%' (Size = 40)
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 LEFT JOIN (
     SELECT [c].[CustomerID], [c].[CompanyName]
     FROM [Customers] AS [c]
-    WHERE @__ef_filter__TenantPrefix_0 = N'' OR LEFT([c].[CompanyName], LEN(@__ef_filter__TenantPrefix_0_1)) = @__ef_filter__TenantPrefix_0_1
-) AS [t] ON [o].[CustomerID] = [t].[CustomerID]
-WHERE [t].[CustomerID] IS NOT NULL AND [t].[CompanyName] IS NOT NULL
+    WHERE [c].[CompanyName] LIKE @ef_filter__TenantPrefix_startswith ESCAPE N'\'
+) AS [c0] ON [o].[CustomerID] = [c0].[CustomerID]
+WHERE [c0].[CustomerID] IS NOT NULL AND [c0].[CompanyName] IS NOT NULL
 """);
     }
 
@@ -371,18 +356,17 @@ WHERE [t].[CustomerID] IS NOT NULL AND [t].[CompanyName] IS NOT NULL
         await base.Included_many_to_one_query2(async);
 
         AssertSql(
-"""
-@__ef_filter__TenantPrefix_0='B' (Size = 4000)
-@__ef_filter__TenantPrefix_0_1='B' (Size = 40)
+            """
+@ef_filter__TenantPrefix_startswith='B%' (Size = 40)
 
-SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region]
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
 FROM [Orders] AS [o]
 LEFT JOIN (
     SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
     FROM [Customers] AS [c]
-    WHERE @__ef_filter__TenantPrefix_0 = N'' OR LEFT([c].[CompanyName], LEN(@__ef_filter__TenantPrefix_0_1)) = @__ef_filter__TenantPrefix_0_1
-) AS [t] ON [o].[CustomerID] = [t].[CustomerID]
-WHERE [t].[CustomerID] IS NOT NULL AND [t].[CompanyName] IS NOT NULL
+    WHERE [c].[CompanyName] LIKE @ef_filter__TenantPrefix_startswith ESCAPE N'\'
+) AS [c0] ON [o].[CustomerID] = [c0].[CustomerID]
+WHERE [c0].[CustomerID] IS NOT NULL AND [c0].[CompanyName] IS NOT NULL
 """);
     }
 

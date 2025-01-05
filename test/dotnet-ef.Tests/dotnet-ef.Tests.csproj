@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>$(DefaultNetCoreTargetFramework)</TargetFramework>
     <RootNamespace>Microsoft.EntityFrameworkCore.Tools</RootNamespace>
     <ImplicitUsings>true</ImplicitUsings>
   </PropertyGroup>

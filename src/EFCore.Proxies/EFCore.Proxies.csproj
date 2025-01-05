@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <Description>Lazy loading proxies for Entity Framework Core.</Description>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>$(DefaultNetCoreTargetFramework)</TargetFramework>
     <MinClientVersion>3.6</MinClientVersion>
     <AssemblyName>Microsoft.EntityFrameworkCore.Proxies</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
@@ -39,12 +39,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Castle.Core" Version="5.1.1" />
+    <PackageReference Include="Castle.Core" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\EFCore\EFCore.csproj" PrivateAssets="contentfiles;build" />
-    <ProjectReference Condition="'$(BuildingByReSharper)' != 'true'" Include="..\EFCore.Analyzers\EFCore.Analyzers.csproj" ReferenceOutputAssembly="False" OutputItemType="Analyzer" />
+    <ProjectReference Include="..\EFCore\EFCore.csproj" />
+    <ProjectReference Include="..\EFCore.Analyzers\EFCore.Analyzers.csproj" ReferenceOutputAssembly="False" OutputItemType="Analyzer" />
   </ItemGroup>
 
   <ItemGroup>

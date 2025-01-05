@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <AssemblyName>Microsoft.Data.Sqlite</AssemblyName>
@@ -15,12 +15,13 @@ Microsoft.Data.Sqlite.SqliteException
 Microsoft.Data.Sqlite.SqliteFactory
 Microsoft.Data.Sqlite.SqliteParameter
 Microsoft.Data.Sqlite.SqliteTransaction</Description>
-    <TargetFrameworks>netstandard2.0;net6.0</TargetFrameworks>
+    <TargetFrameworks>$(DefaultNetCoreTargetFramework);netstandard2.0;net6.0</TargetFrameworks>
     <MinClientVersion>3.6</MinClientVersion>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <CodeAnalysisRuleSet>Microsoft.Data.Sqlite.Core.ruleset</CodeAnalysisRuleSet>
     <PackageTags>SQLite;Data;ADO.NET</PackageTags>
     <PackageProjectUrl>https://docs.microsoft.com/dotnet/standard/data/sqlite/</PackageProjectUrl>
+    <IsAotCompatible>true</IsAotCompatible>
   </PropertyGroup>
 
   <ItemGroup>
@@ -39,7 +40,7 @@ Microsoft.Data.Sqlite.SqliteTransaction</Description>
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="SQLitePCLRaw.core" Version="2.1.4" />
+    <PackageReference Include="SQLitePCLRaw.core" />
   </ItemGroup>
 
   <ItemGroup>

@@ -34,7 +34,7 @@ public class FactoryMethodBinding : InstantiationBinding
     }
 
     /// <summary>
-    ///     Creates a new <see cref="FactoryMethodBinding" /> instance for a static factory method.
+    ///     Creates a new <see cref="FactoryMethodBinding" /> instance for a non-static factory method.
     /// </summary>
     /// <param name="factoryInstance">The object on which the factory method should be called.</param>
     /// <param name="factoryMethod">The factory method to bind to.</param>

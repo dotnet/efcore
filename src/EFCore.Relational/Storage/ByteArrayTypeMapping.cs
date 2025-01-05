@@ -4,6 +4,7 @@
 using System.Data;
 using System.Globalization;
 using System.Text;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace Microsoft.EntityFrameworkCore.Storage;
 
@@ -23,6 +24,14 @@ namespace Microsoft.EntityFrameworkCore.Storage;
 public class ByteArrayTypeMapping : RelationalTypeMapping
 {
     /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static ByteArrayTypeMapping Default { get; } = new("binary");
+
+    /// <summary>
     ///     Initializes a new instance of the <see cref="ByteArrayTypeMapping" /> class.
     /// </summary>
     /// <param name="storeType">The name of the database type.</param>
@@ -35,7 +44,8 @@ public class ByteArrayTypeMapping : RelationalTypeMapping
         : base(
             new RelationalTypeMappingParameters(
                 new CoreTypeMappingParameters(
-                    typeof(byte[])), storeType, StoreTypePostfix.None, dbType, unicode: false, size))
+                    typeof(byte[]), jsonValueReaderWriter: JsonByteArrayReaderWriter.Instance), storeType, StoreTypePostfix.None, dbType,
+                unicode: false, size))
     {
     }
 

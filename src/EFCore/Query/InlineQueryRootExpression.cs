@@ -26,9 +26,7 @@ public class InlineQueryRootExpression : QueryRootExpression
     /// <param name="elementType">The element type this query root represents.</param>
     public InlineQueryRootExpression(IAsyncQueryProvider asyncQueryProvider, IReadOnlyList<Expression> values, Type elementType)
         : base(asyncQueryProvider, elementType)
-    {
-        Values = values;
-    }
+        => Values = values;
 
     /// <summary>
     ///     Creates a new instance of the <see cref="InlineQueryRootExpression" /> class.
@@ -37,41 +35,29 @@ public class InlineQueryRootExpression : QueryRootExpression
     /// <param name="elementType">The element type this query root represents.</param>
     public InlineQueryRootExpression(IReadOnlyList<Expression> values, Type elementType)
         : base(elementType)
-    {
-        Values = values;
-    }
+        => Values = values;
 
     /// <inheritdoc />
     public override Expression DetachQueryProvider()
         => new InlineQueryRootExpression(Values, ElementType);
 
+    /// <summary>
+    ///     Creates a new expression that is like this one, but using the supplied children. If all of the children are the same, it will
+    ///     return this expression.
+    /// </summary>
+    /// <param name="values">The <see cref="Values" /> property of the result.</param>
+    /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
+    public virtual InlineQueryRootExpression Update(IReadOnlyList<Expression> values)
+        => ReferenceEquals(values, Values) || values.SequenceEqual(Values)
+            ? this
+            : new InlineQueryRootExpression(values, ElementType);
+
     /// <inheritdoc />
     protected override Expression VisitChildren(ExpressionVisitor visitor)
-    {
-        Expression[]? newValues = null;
-
-        for (var i = 0; i < Values.Count; i++)
-        {
-            var value = Values[i];
-            var newValue = visitor.Visit(value);
-
-            if (newValue != value && newValues is null)
-            {
-                newValues = new Expression[Values.Count];
-                for (var j = 0; j < i; j++)
-                {
-                    newValues[j] = Values[j];
-                }
-            }
-
-            if (newValues is not null)
-            {
-                newValues[i] = newValue;
-            }
-        }
-
-        return newValues is null ? this : new InlineQueryRootExpression(newValues, Type);
-    }
+        => visitor.Visit(Values) is var visitedValues
+            && ReferenceEquals(visitedValues, Values)
+                ? this
+                : Update(visitedValues);
 
     /// <inheritdoc />
     protected override void Print(ExpressionPrinter expressionPrinter)

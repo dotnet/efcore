@@ -121,7 +121,7 @@ public static class PropertyBaseExtensions
         var setterProperty = propertyInfo?.FindSetterProperty();
         var getterProperty = propertyInfo?.FindGetterProperty();
 
-        var isCollectionNav = (propertyBase as IReadOnlyNavigation)?.IsCollection == true;
+        var isCollectionNav = (propertyBase as IReadOnlyNavigationBase)?.IsCollection == true;
         var hasField = fieldInfo != null;
         var hasSetter = setterProperty != null;
         var hasGetter = getterProperty != null;
@@ -248,9 +248,9 @@ public static class PropertyBaseExtensions
                 }
             }
 
-            if (mode == PropertyAccessMode.PreferProperty
-                || mode == PropertyAccessMode.FieldDuringConstruction
-                || mode == PropertyAccessMode.PreferFieldDuringConstruction)
+            if (mode is PropertyAccessMode.PreferProperty
+                or PropertyAccessMode.FieldDuringConstruction
+                or PropertyAccessMode.PreferFieldDuringConstruction)
             {
                 if (hasSetter)
                 {
@@ -317,9 +317,9 @@ public static class PropertyBaseExtensions
             }
         }
 
-        if (mode == PropertyAccessMode.PreferProperty
-            || mode == PropertyAccessMode.FieldDuringConstruction
-            || mode == PropertyAccessMode.PreferFieldDuringConstruction)
+        if (mode is PropertyAccessMode.PreferProperty
+            or PropertyAccessMode.FieldDuringConstruction
+            or PropertyAccessMode.PreferFieldDuringConstruction)
         {
             if (hasGetter)
             {

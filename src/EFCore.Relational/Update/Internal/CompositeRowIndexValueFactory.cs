@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics.CodeAnalysis;
-
 namespace Microsoft.EntityFrameworkCore.Update.Internal;
 
 /// <summary>
@@ -73,7 +71,8 @@ public class CompositeRowIndexValueFactory : CompositeRowValueFactory, IRowIndex
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual (object? Value, bool HasNullValue) CreateEquatableIndexValue(
-        IReadOnlyModificationCommand command, bool fromOriginalValues = false)
+        IReadOnlyModificationCommand command,
+        bool fromOriginalValues = false)
         => TryCreateIndexValue(command, fromOriginalValues, out var keyValue, out var hasNullValue)
             ? (new EquatableKeyValue<object?[]>(_index, keyValue, EqualityComparer), hasNullValue)
             : (null, true);
@@ -85,8 +84,9 @@ public class CompositeRowIndexValueFactory : CompositeRowValueFactory, IRowIndex
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual (object?[]? Value, bool HasNullValue) CreateIndexValue(
-        IReadOnlyModificationCommand command, bool fromOriginalValues = false)
-        => TryCreateIndexValue(command, fromOriginalValues, out var keyValue, out bool hasNullValue)
+        IReadOnlyModificationCommand command,
+        bool fromOriginalValues = false)
+        => TryCreateIndexValue(command, fromOriginalValues, out var keyValue, out var hasNullValue)
             ? (keyValue, hasNullValue)
             : (null, true);
 }

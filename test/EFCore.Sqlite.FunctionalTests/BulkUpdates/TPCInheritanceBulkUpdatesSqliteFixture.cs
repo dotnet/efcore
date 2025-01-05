@@ -3,11 +3,13 @@
 
 namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
+#nullable disable
+
 public class TPCInheritanceBulkUpdatesSqliteFixture : TPCInheritanceBulkUpdatesFixture
 {
     protected override ITestStoreFactory TestStoreFactory
         => SqliteTestStoreFactory.Instance;
 
-    protected override bool UseGeneratedKeys
+    public override bool UseGeneratedKeys
         => false;
 }

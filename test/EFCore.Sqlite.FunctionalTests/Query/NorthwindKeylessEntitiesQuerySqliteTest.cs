@@ -5,6 +5,8 @@ using Microsoft.Data.Sqlite;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class NorthwindKeylessEntitiesQuerySqliteTest : NorthwindKeylessEntitiesQueryRelationalTestBase<
     NorthwindQuerySqliteFixture<NoopModelCustomizer>>
 {
@@ -14,7 +16,7 @@ public class NorthwindKeylessEntitiesQuerySqliteTest : NorthwindKeylessEntitiesQ
         : base(fixture)
     {
         Fixture.TestSqlLoggerFactory.Clear();
-        //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+        Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
     public override Task KeylessEntity_with_nav_defining_query(bool async)

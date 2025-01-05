@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 /// </summary>
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see>, and
-///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
 ///     for more information and examples.
 /// </remarks>
 public class SqlServerValueGenerationStrategyConvention : IModelInitializedConvention, IModelFinalizingConvention
@@ -111,7 +111,7 @@ public class SqlServerValueGenerationStrategyConvention : IModelInitializedConve
                 && !property.TryGetDefaultValue(storeObject, out _)
                 && property.GetDefaultValueSql(storeObject) == null
                 && property.GetComputedColumnSql(storeObject) == null
-                && property.DeclaringEntityType.Model.GetValueGenerationStrategy() == SqlServerValueGenerationStrategy.IdentityColumn)
+                && property.DeclaringType.Model.GetValueGenerationStrategy() == SqlServerValueGenerationStrategy.IdentityColumn)
             {
                 var providerClrType = (property.GetValueConverter()
                         ?? (property.FindRelationalTypeMapping(storeObject)

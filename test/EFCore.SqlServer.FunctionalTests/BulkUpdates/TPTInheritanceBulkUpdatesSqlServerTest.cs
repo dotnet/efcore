@@ -3,13 +3,13 @@
 
 namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
+#nullable disable
+
 public class TPTInheritanceBulkUpdatesSqlServerTest : TPTInheritanceBulkUpdatesTestBase<TPTInheritanceBulkUpdatesSqlServerFixture>
 {
-    public TPTInheritanceBulkUpdatesSqlServerTest(TPTInheritanceBulkUpdatesSqlServerFixture fixture)
-        : base(fixture)
-    {
-        ClearLog();
-    }
+    public TPTInheritanceBulkUpdatesSqlServerTest(TPTInheritanceBulkUpdatesSqlServerFixture fixture, ITestOutputHelper testOutputHelper)
+        : base(fixture, testOutputHelper)
+        => ClearLog();
 
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()
@@ -78,11 +78,31 @@ public class TPTInheritanceBulkUpdatesSqlServerTest : TPTInheritanceBulkUpdatesT
         AssertSql();
     }
 
-    public override async Task Update_where_hierarchy(bool async)
+    public override async Task Update_base_type(bool async)
     {
-        await base.Update_where_hierarchy(async);
+        await base.Update_base_type(async);
 
-        AssertExecuteUpdateSql();
+        AssertExecuteUpdateSql(
+            """
+UPDATE [a]
+SET [a].[Name] = N'Animal'
+FROM [Animals] AS [a]
+WHERE [a].[Name] = N'Great spotted kiwi'
+""");
+    }
+
+    public override async Task Update_base_type_with_OfType(bool async)
+    {
+        await base.Update_base_type_with_OfType(async);
+
+        AssertExecuteUpdateSql(
+            """
+UPDATE [a]
+SET [a].[Name] = N'NewBird'
+FROM [Animals] AS [a]
+LEFT JOIN [Kiwi] AS [k] ON [a].[Id] = [k].[Id]
+WHERE [k].[Id] IS NOT NULL
+""");
     }
 
     public override async Task Update_where_hierarchy_subquery(bool async)
@@ -92,9 +112,37 @@ public class TPTInheritanceBulkUpdatesSqlServerTest : TPTInheritanceBulkUpdatesT
         AssertExecuteUpdateSql();
     }
 
-    public override async Task Update_where_hierarchy_derived(bool async)
+    public override async Task Update_base_property_on_derived_type(bool async)
     {
-        await base.Update_where_hierarchy_derived(async);
+        await base.Update_base_property_on_derived_type(async);
+
+        AssertExecuteUpdateSql(
+            """
+UPDATE [a]
+SET [a].[Name] = N'SomeOtherKiwi'
+FROM [Animals] AS [a]
+INNER JOIN [Birds] AS [b] ON [a].[Id] = [b].[Id]
+INNER JOIN [Kiwi] AS [k] ON [a].[Id] = [k].[Id]
+""");
+    }
+
+    public override async Task Update_derived_property_on_derived_type(bool async)
+    {
+        await base.Update_derived_property_on_derived_type(async);
+
+        AssertExecuteUpdateSql(
+            """
+UPDATE [k]
+SET [k].[FoundOn] = CAST(0 AS tinyint)
+FROM [Animals] AS [a]
+INNER JOIN [Birds] AS [b] ON [a].[Id] = [b].[Id]
+INNER JOIN [Kiwi] AS [k] ON [a].[Id] = [k].[Id]
+""");
+    }
+
+    public override async Task Update_base_and_derived_types(bool async)
+    {
+        await base.Update_base_and_derived_types(async);
 
         AssertExecuteUpdateSql();
     }
@@ -104,16 +152,13 @@ public class TPTInheritanceBulkUpdatesSqlServerTest : TPTInheritanceBulkUpdatesT
         await base.Update_where_using_hierarchy(async);
 
         AssertExecuteUpdateSql(
-"""
+            """
 UPDATE [c]
 SET [c].[Name] = N'Monovia'
 FROM [Countries] AS [c]
 WHERE (
     SELECT COUNT(*)
     FROM [Animals] AS [a]
-    LEFT JOIN [Birds] AS [b] ON [a].[Id] = [b].[Id]
-    LEFT JOIN [Eagle] AS [e] ON [a].[Id] = [e].[Id]
-    LEFT JOIN [Kiwi] AS [k] ON [a].[Id] = [k].[Id]
     WHERE [c].[Id] = [a].[CountryId] AND [a].[CountryId] > 0) > 0
 """);
     }
@@ -123,15 +168,13 @@ WHERE (
         await base.Update_where_using_hierarchy_derived(async);
 
         AssertExecuteUpdateSql(
-"""
+            """
 UPDATE [c]
 SET [c].[Name] = N'Monovia'
 FROM [Countries] AS [c]
 WHERE (
     SELECT COUNT(*)
     FROM [Animals] AS [a]
-    LEFT JOIN [Birds] AS [b] ON [a].[Id] = [b].[Id]
-    LEFT JOIN [Eagle] AS [e] ON [a].[Id] = [e].[Id]
     LEFT JOIN [Kiwi] AS [k] ON [a].[Id] = [k].[Id]
     WHERE [c].[Id] = [a].[CountryId] AND [k].[Id] IS NOT NULL AND [a].[CountryId] > 0) > 0
 """);
@@ -148,14 +191,26 @@ WHERE (
     {
         await base.Update_with_interface_in_property_expression(async);
 
-        AssertExecuteUpdateSql();
+        AssertExecuteUpdateSql(
+            """
+UPDATE [c]
+SET [c].[SugarGrams] = 0
+FROM [Drinks] AS [d]
+INNER JOIN [Coke] AS [c] ON [d].[Id] = [c].[Id]
+""");
     }
 
     public override async Task Update_with_interface_in_EF_Property_in_property_expression(bool async)
     {
         await base.Update_with_interface_in_EF_Property_in_property_expression(async);
 
-        AssertExecuteUpdateSql();
+        AssertExecuteUpdateSql(
+            """
+UPDATE [c]
+SET [c].[SugarGrams] = 0
+FROM [Drinks] AS [d]
+INNER JOIN [Coke] AS [c] ON [d].[Id] = [c].[Id]
+""");
     }
 
     protected override void ClearLog()

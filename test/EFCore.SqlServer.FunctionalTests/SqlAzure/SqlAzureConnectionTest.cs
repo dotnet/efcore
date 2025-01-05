@@ -8,13 +8,13 @@ using Microsoft.EntityFrameworkCore.SqlAzure.Model;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.SqlAzure;
 
-[SqlServerCondition(SqlServerCondition.IsSqlAzure)]
-public class SqlAzureConnectionTest : IClassFixture<SqlAzureFixture>
-{
-    public SqlAzureConnectionTest(SqlAzureFixture fixture)
-    {
-    }
+#nullable disable
 
+[SqlServerCondition(SqlServerCondition.IsAzureSql)]
+#pragma warning disable CS9113 // Parameter is unread.
+public class SqlAzureConnectionTest(SqlAzureFixture fixture) : IClassFixture<SqlAzureFixture>
+#pragma warning restore CS9113 // Parameter is unread.
+{
     [ConditionalTheory]
     [InlineData(true)]
     [InlineData(false)]

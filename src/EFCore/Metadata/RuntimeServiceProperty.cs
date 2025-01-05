@@ -3,7 +3,6 @@
 
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata;
 
@@ -43,7 +42,11 @@ public class RuntimeServiceProperty : RuntimePropertyBase, IServiceProperty
     /// <summary>
     ///     Gets the type that this property-like object belongs to.
     /// </summary>
-    public override RuntimeEntityType DeclaringEntityType { get; }
+    public virtual RuntimeEntityType DeclaringEntityType { get; }
+
+    /// <inheritdoc />
+    public override RuntimeTypeBase DeclaringType
+        => DeclaringEntityType;
 
     /// <summary>
     ///     Gets the type of value that this property-like object holds.

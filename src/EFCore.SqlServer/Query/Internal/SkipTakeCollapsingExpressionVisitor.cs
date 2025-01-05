@@ -59,32 +59,33 @@ public class SkipTakeCollapsingExpressionVisitor : ExpressionVisitor
     /// </summary>
     protected override Expression VisitExtension(Expression extensionExpression)
     {
-        if (extensionExpression is SelectExpression selectExpression)
+        if (extensionExpression is SelectExpression { Offset: not null, Limit: not null } selectExpression)
         {
-            if (IsZero(selectExpression.Limit)
-                && IsZero(selectExpression.Offset))
+            // SQL Server doesn't support 0 in the FETCH NEXT x ROWS ONLY clause. We use this clause when translating LINQ Take(), but
+            // only if there's also a Skip(), otherwise we translate to SQL TOP(x), which does allow 0.
+            // Check for this case, and replace with a false predicate (since no rows should be returned).
+            if (IsZero(selectExpression.Limit))
             {
                 return selectExpression.Update(
-                    selectExpression.Projection,
                     selectExpression.Tables,
                     selectExpression.GroupBy.Count > 0 ? selectExpression.Predicate : _sqlExpressionFactory.Constant(false),
                     selectExpression.GroupBy,
                     selectExpression.GroupBy.Count > 0 ? _sqlExpressionFactory.Constant(false) : null,
+                    selectExpression.Projection,
                     new List<OrderingExpression>(0),
-                    limit: null,
-                    offset: null);
+                    offset: null,
+                    limit: null);
             }
 
             bool IsZero(SqlExpression? sqlExpression)
             {
                 switch (sqlExpression)
                 {
-                    case SqlConstantExpression constant
-                        when constant.Value is int intValue:
+                    case SqlConstantExpression { Value: int intValue }:
                         return intValue == 0;
                     case SqlParameterExpression parameter:
                         _canCache = false;
-                        return _parameterValues[parameter.Name] is int value && value == 0;
+                        return _parameterValues[parameter.Name] is 0;
 
                     default:
                         return false;

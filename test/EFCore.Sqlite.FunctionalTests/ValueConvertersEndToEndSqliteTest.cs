@@ -1,18 +1,11 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore;
 
-public class ValueConvertersEndToEndSqliteTest
-    : ValueConvertersEndToEndTestBase<ValueConvertersEndToEndSqliteTest.ValueConvertersEndToEndSqliteFixture>
+public class ValueConvertersEndToEndSqliteTest(ValueConvertersEndToEndSqliteTest.ValueConvertersEndToEndSqliteFixture fixture)
+    : ValueConvertersEndToEndTestBase<ValueConvertersEndToEndSqliteTest.ValueConvertersEndToEndSqliteFixture>(fixture)
 {
-    public ValueConvertersEndToEndSqliteTest(ValueConvertersEndToEndSqliteFixture fixture)
-        : base(fixture)
-    {
-    }
-
     [ConditionalTheory]
     [InlineData(nameof(ConvertingEntity.BoolAsChar), "TEXT", false)]
     [InlineData(nameof(ConvertingEntity.BoolAsNullableChar), "TEXT", false)]
@@ -177,5 +170,3 @@ public class ValueConvertersEndToEndSqliteTest
         }
     }
 }
-
-#nullable restore

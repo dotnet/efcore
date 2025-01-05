@@ -94,7 +94,7 @@ public class ReferenceEntry<TEntity, TProperty> : ReferenceEntry
     }
 
     /// <summary>
-    ///     Returns the query that would be used by <see cref="NavigationEntry.Load" /> to load the entity referenced by
+    ///     Returns the query that would be used by <see cref="NavigationEntry.Load()" /> to load the entity referenced by
     ///     this navigation property.
     /// </summary>
     /// <remarks>

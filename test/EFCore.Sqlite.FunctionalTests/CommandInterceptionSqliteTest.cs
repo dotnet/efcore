@@ -3,17 +3,15 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public abstract class CommandInterceptionSqliteTestBase : CommandInterceptionTestBase
-{
-    protected CommandInterceptionSqliteTestBase(InterceptionSqliteFixtureBase fixture)
-        : base(fixture)
-    {
-    }
+#nullable disable
 
+public abstract class CommandInterceptionSqliteTestBase(CommandInterceptionSqliteTestBase.InterceptionSqliteFixtureBase fixture)
+    : CommandInterceptionTestBase(fixture)
+{
     public override async Task<string> Intercept_query_passively(bool async, bool inject)
     {
         AssertSql(
-"""
+            """
 SELECT "s"."Id", "s"."Type" FROM "Singularity" AS "s"
 """,
             await base.Intercept_query_passively(async, inject));
@@ -24,7 +22,7 @@ SELECT "s"."Id", "s"."Type" FROM "Singularity" AS "s"
     protected override async Task<string> QueryMutationTest<TInterceptor>(bool async, bool inject)
     {
         AssertSql(
-"""
+            """
 SELECT "s"."Id", "s"."Type" FROM "Brane" AS "s"
 """,
             await base.QueryMutationTest<TInterceptor>(async, inject));
@@ -35,7 +33,7 @@ SELECT "s"."Id", "s"."Type" FROM "Brane" AS "s"
     public override async Task<string> Intercept_query_to_replace_execution(bool async, bool inject)
     {
         AssertSql(
-"""
+            """
 SELECT "s"."Id", "s"."Type" FROM "Singularity" AS "s"
 """,
             await base.Intercept_query_to_replace_execution(async, inject));
@@ -57,14 +55,9 @@ SELECT "s"."Id", "s"."Type" FROM "Singularity" AS "s"
             => base.InjectInterceptors(serviceCollection.AddEntityFrameworkSqlite(), injectedInterceptors);
     }
 
-    public class CommandInterceptionSqliteTest
-        : CommandInterceptionSqliteTestBase, IClassFixture<CommandInterceptionSqliteTest.InterceptionSqliteFixture>
+    public class CommandInterceptionSqliteTest(CommandInterceptionSqliteTest.InterceptionSqliteFixture fixture)
+        : CommandInterceptionSqliteTestBase(fixture), IClassFixture<CommandInterceptionSqliteTest.InterceptionSqliteFixture>
     {
-        public CommandInterceptionSqliteTest(InterceptionSqliteFixture fixture)
-            : base(fixture)
-        {
-        }
-
         public class InterceptionSqliteFixture : InterceptionSqliteFixtureBase
         {
             protected override bool ShouldSubscribeToDiagnosticListener
@@ -72,14 +65,10 @@ SELECT "s"."Id", "s"."Type" FROM "Singularity" AS "s"
         }
     }
 
-    public class CommandInterceptionWithDiagnosticsSqliteTest
-        : CommandInterceptionSqliteTestBase, IClassFixture<CommandInterceptionWithDiagnosticsSqliteTest.InterceptionSqliteFixture>
+    public class CommandInterceptionWithDiagnosticsSqliteTest(
+        CommandInterceptionWithDiagnosticsSqliteTest.InterceptionSqliteFixture fixture)
+        : CommandInterceptionSqliteTestBase(fixture), IClassFixture<CommandInterceptionWithDiagnosticsSqliteTest.InterceptionSqliteFixture>
     {
-        public CommandInterceptionWithDiagnosticsSqliteTest(InterceptionSqliteFixture fixture)
-            : base(fixture)
-        {
-        }
-
         public class InterceptionSqliteFixture : InterceptionSqliteFixtureBase
         {
             protected override bool ShouldSubscribeToDiagnosticListener

@@ -3,16 +3,14 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class IncompleteMappingInheritanceQuerySqliteTest : InheritanceRelationalQueryTestBase<
-    IncompleteMappingInheritanceQuerySqliteFixture>
-{
-    public IncompleteMappingInheritanceQuerySqliteTest(IncompleteMappingInheritanceQuerySqliteFixture fixture)
-        : base(fixture)
-    {
-    }
+#nullable disable
 
-    public override void Can_insert_update_delete()
-    {
+public class IncompleteMappingInheritanceQuerySqliteTest(
+    IncompleteMappingInheritanceQuerySqliteFixture fixture,
+    ITestOutputHelper testOutputHelper)
+    : TPHInheritanceQueryTestBase<IncompleteMappingInheritanceQuerySqliteFixture>(fixture, testOutputHelper)
+{
+    public override Task Can_insert_update_delete()
         // Test from InheritanceSqliteTest causes transaction failure. We only need to test it once.
-    }
+        => Task.CompletedTask;
 }

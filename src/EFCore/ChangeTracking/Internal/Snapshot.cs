@@ -39,6 +39,15 @@ public sealed class Snapshot : ISnapshot
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    public static readonly FieldInfo EmptyField
+        = typeof(Snapshot).GetField(nameof(Empty), BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly)!;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public object? this[int index]
     {
         get => throw new IndexOutOfRangeException();
@@ -60,23 +69,10 @@ public sealed class Snapshot : ISnapshot
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public static Delegate[] CreateReaders<TSnapshot>()
-    {
-        var genericArguments = typeof(TSnapshot).GenericTypeArguments;
-        var delegates = new Delegate[genericArguments.Length];
-
-        for (var i = 0; i < genericArguments.Length; ++i)
-        {
-            var snapshotParameter = Expression.Parameter(typeof(TSnapshot), "snapshot");
-
-            delegates[i] = Expression.Lambda(
-                    typeof(Func<,>).MakeGenericType(typeof(TSnapshot), genericArguments[i]),
-                    Expression.Field(snapshotParameter, "_value" + i), snapshotParameter)
-                .Compile();
-        }
-
-        return delegates;
-    }
+    public static readonly MethodInfo GetValueMethod
+        = typeof(ISnapshot).GetMethod(
+            nameof(GetValue), 1, BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly,
+            null, CallingConventions.Any, [typeof(int)], null)!;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -85,6 +81,7 @@ public sealed class Snapshot : ISnapshot
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [return: DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)]
+    [RequiresDynamicCode("Creates types using MakeGenericType.")]
     public static Type CreateSnapshotType(Type[] types)
         => types.Length switch
         {
@@ -120,6 +117,10 @@ public sealed class Snapshot : ISnapshot
             30 => typeof(Snapshot<,,,,,,,,,,,,,,,,,,,,,,,,,,,,,>).MakeGenericType(types),
             _ => throw new IndexOutOfRangeException()
         };
+
+    /// <inheritdoc />
+    bool ISnapshot.IsEmpty
+        => true;
 }
 
 /// <summary>
@@ -129,13 +130,102 @@ public sealed class Snapshot : ISnapshot
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
 public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22,
-        T23, T24, T25, T26, T27, T28, T29>
+    T23, T24, T25, T26, T27, T28, T29>
     : ISnapshot
 {
-    private static readonly Delegate[] ValueReaders
-        = Snapshot
-            .CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21,
-                T22, T23, T24, T25, T26, T27, T28, T29>>();
+    private static readonly Delegate[] ValueReaders =
+    [
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27, T28, T29> e) => e._value0,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27, T28, T29> e) => e._value1,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27, T28, T29> e) => e._value2,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27, T28, T29> e) => e._value3,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27, T28, T29> e) => e._value4,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27, T28, T29> e) => e._value5,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27, T28, T29> e) => e._value6,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27, T28, T29> e) => e._value7,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27, T28, T29> e) => e._value8,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27, T28, T29> e) => e._value9,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27, T28, T29> e) => e._value10,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27, T28, T29> e) => e._value11,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27, T28, T29> e) => e._value12,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27, T28, T29> e) => e._value13,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27, T28, T29> e) => e._value14,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27, T28, T29> e) => e._value15,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27, T28, T29> e) => e._value16,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27, T28, T29> e) => e._value17,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27, T28, T29> e) => e._value18,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27, T28, T29> e) => e._value19,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27, T28, T29> e) => e._value20,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27, T28, T29> e) => e._value21,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27, T28, T29> e) => e._value22,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27, T28, T29> e) => e._value23,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27, T28, T29> e) => e._value24,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27, T28, T29> e) => e._value25,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27, T28, T29> e) => e._value26,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27, T28, T29> e) => e._value27,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27, T28, T29> e) => e._value28,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27, T28, T29> e) => e._value29
+    ];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -398,13 +488,99 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
 public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22,
-        T23, T24, T25, T26, T27, T28>
+    T23, T24, T25, T26, T27, T28>
     : ISnapshot
 {
-    private static readonly Delegate[] ValueReaders
-        = Snapshot
-            .CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21,
-                T22, T23, T24, T25, T26, T27, T28>>();
+    private static readonly Delegate[] ValueReaders =
+    [
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27, T28> e) => e._value0,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27, T28> e) => e._value1,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27, T28> e) => e._value2,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27, T28> e) => e._value3,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27, T28> e) => e._value4,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27, T28> e) => e._value5,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27, T28> e) => e._value6,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27, T28> e) => e._value7,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27, T28> e) => e._value8,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27, T28> e) => e._value9,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27, T28> e) => e._value10,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27, T28> e) => e._value11,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27, T28> e) => e._value12,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27, T28> e) => e._value13,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27, T28> e) => e._value14,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27, T28> e) => e._value15,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27, T28> e) => e._value16,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27, T28> e) => e._value17,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27, T28> e) => e._value18,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27, T28> e) => e._value19,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27, T28> e) => e._value20,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27, T28> e) => e._value21,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27, T28> e) => e._value22,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27, T28> e) => e._value23,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27, T28> e) => e._value24,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27, T28> e) => e._value25,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27, T28> e) => e._value26,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27, T28> e) => e._value27,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27, T28> e) => e._value28
+    ];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -660,13 +836,96 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
 public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22,
-        T23, T24, T25, T26, T27>
+    T23, T24, T25, T26, T27>
     : ISnapshot
 {
-    private static readonly Delegate[] ValueReaders
-        = Snapshot
-            .CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21,
-                T22, T23, T24, T25, T26, T27>>();
+    private static readonly Delegate[] ValueReaders =
+    [
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27> e) => e._value0,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27> e) => e._value1,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27> e) => e._value2,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27> e) => e._value3,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27> e) => e._value4,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27> e) => e._value5,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27> e) => e._value6,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27> e) => e._value7,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27> e) => e._value8,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27> e) => e._value9,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27> e) => e._value10,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27> e) => e._value11,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27> e) => e._value12,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27> e) => e._value13,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27> e) => e._value14,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27> e) => e._value15,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27> e) => e._value16,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27> e) => e._value17,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27> e) => e._value18,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27> e) => e._value19,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27> e) => e._value20,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27> e) => e._value21,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27> e) => e._value22,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27> e) => e._value23,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27> e) => e._value24,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27> e) => e._value25,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27> e) => e._value26,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26, T27> e) => e._value27
+    ];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -915,13 +1174,93 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
 public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22,
-        T23, T24, T25, T26>
+    T23, T24, T25, T26>
     : ISnapshot
 {
-    private static readonly Delegate[] ValueReaders
-        = Snapshot
-            .CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21,
-                T22, T23, T24, T25, T26>>();
+    private static readonly Delegate[] ValueReaders =
+    [
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26> e) => e._value0,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26> e) => e._value1,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26> e) => e._value2,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26> e) => e._value3,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26> e) => e._value4,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26> e) => e._value5,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26> e) => e._value6,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26> e) => e._value7,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26> e) => e._value8,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26> e) => e._value9,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26> e) => e._value10,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26> e) => e._value11,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26> e) => e._value12,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26> e) => e._value13,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26> e) => e._value14,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26> e) => e._value15,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26> e) => e._value16,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26> e) => e._value17,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26> e) => e._value18,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26> e) => e._value19,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26> e) => e._value20,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26> e) => e._value21,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26> e) => e._value22,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26> e) => e._value23,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26> e) => e._value24,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26> e) => e._value25,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25, T26> e) => e._value26
+    ];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1163,13 +1502,90 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
 public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22,
-        T23, T24, T25>
+    T23, T24, T25>
     : ISnapshot
 {
-    private static readonly Delegate[] ValueReaders
-        = Snapshot
-            .CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21,
-                T22, T23, T24, T25>>();
+    private static readonly Delegate[] ValueReaders =
+    [
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25> e) => e._value0,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25> e) => e._value1,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25> e) => e._value2,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25> e) => e._value3,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25> e) => e._value4,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25> e) => e._value5,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25> e) => e._value6,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25> e) => e._value7,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25> e) => e._value8,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25> e) => e._value9,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25> e) => e._value10,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25> e) => e._value11,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25> e) => e._value12,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25> e) => e._value13,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25> e) => e._value14,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25> e) => e._value15,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25> e) => e._value16,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25> e) => e._value17,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25> e) => e._value18,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25> e) => e._value19,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25> e) => e._value20,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25> e) => e._value21,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25> e) => e._value22,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25> e) => e._value23,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25> e) => e._value24,
+        (
+            Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24,
+                T25> e) => e._value25
+    ];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1404,13 +1820,62 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
 public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22,
-        T23, T24>
+    T23, T24>
     : ISnapshot
 {
-    private static readonly Delegate[] ValueReaders
-        = Snapshot
-            .CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21,
-                T22, T23, T24>>();
+    private static readonly Delegate[] ValueReaders =
+    [
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24> e)
+            => e._value0,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24> e)
+            => e._value1,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24> e)
+            => e._value2,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24> e)
+            => e._value3,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24> e)
+            => e._value4,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24> e)
+            => e._value5,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24> e)
+            => e._value6,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24> e)
+            => e._value7,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24> e)
+            => e._value8,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24> e)
+            => e._value9,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24> e)
+            => e._value10,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24> e)
+            => e._value11,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24> e)
+            => e._value12,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24> e)
+            => e._value13,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24> e)
+            => e._value14,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24> e)
+            => e._value15,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24> e)
+            => e._value16,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24> e)
+            => e._value17,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24> e)
+            => e._value18,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24> e)
+            => e._value19,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24> e)
+            => e._value20,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24> e)
+            => e._value21,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24> e)
+            => e._value22,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24> e)
+            => e._value23,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24> e)
+            => e._value24
+    ];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1638,13 +2103,60 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
 public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22,
-        T23>
+    T23>
     : ISnapshot
 {
-    private static readonly Delegate[] ValueReaders
-        = Snapshot
-            .CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21,
-                T22, T23>>();
+    private static readonly Delegate[] ValueReaders =
+    [
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23> e)
+            => e._value0,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23> e)
+            => e._value1,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23> e)
+            => e._value2,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23> e)
+            => e._value3,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23> e)
+            => e._value4,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23> e)
+            => e._value5,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23> e)
+            => e._value6,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23> e)
+            => e._value7,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23> e)
+            => e._value8,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23> e)
+            => e._value9,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23> e)
+            => e._value10,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23> e)
+            => e._value11,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23> e)
+            => e._value12,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23> e)
+            => e._value13,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23> e)
+            => e._value14,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23> e)
+            => e._value15,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23> e)
+            => e._value16,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23> e)
+            => e._value17,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23> e)
+            => e._value18,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23> e)
+            => e._value19,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23> e)
+            => e._value20,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23> e)
+            => e._value21,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23> e)
+            => e._value22,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23> e)
+            => e._value23
+    ];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1867,10 +2379,55 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T
 public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22>
     : ISnapshot
 {
-    private static readonly Delegate[] ValueReaders
-        = Snapshot
-            .CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21,
-                T22>>();
+    private static readonly Delegate[] ValueReaders =
+    [
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22> e)
+            => e._value0,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22> e)
+            => e._value1,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22> e)
+            => e._value2,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22> e)
+            => e._value3,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22> e)
+            => e._value4,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22> e)
+            => e._value5,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22> e)
+            => e._value6,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22> e)
+            => e._value7,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22> e)
+            => e._value8,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22> e)
+            => e._value9,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22> e)
+            => e._value10,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22> e)
+            => e._value11,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22> e)
+            => e._value12,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22> e)
+            => e._value13,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22> e)
+            => e._value14,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22> e)
+            => e._value15,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22> e)
+            => e._value16,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22> e)
+            => e._value17,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22> e)
+            => e._value18,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22> e)
+            => e._value19,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22> e)
+            => e._value20,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22> e)
+            => e._value21,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22> e)
+            => e._value22
+    ];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2086,10 +2643,31 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T
 public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21>
     : ISnapshot
 {
-    private static readonly Delegate[] ValueReaders
-        = Snapshot
-            .CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21>
-            >();
+    private static readonly Delegate[] ValueReaders =
+    [
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21> e) => e._value0,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21> e) => e._value1,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21> e) => e._value2,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21> e) => e._value3,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21> e) => e._value4,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21> e) => e._value5,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21> e) => e._value6,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21> e) => e._value7,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21> e) => e._value8,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21> e) => e._value9,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21> e) => e._value10,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21> e) => e._value11,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21> e) => e._value12,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21> e) => e._value13,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21> e) => e._value14,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21> e) => e._value15,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21> e) => e._value16,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21> e) => e._value17,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21> e) => e._value18,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21> e) => e._value19,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21> e) => e._value20,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21> e) => e._value21
+    ];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2298,9 +2876,30 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T
 public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20>
     : ISnapshot
 {
-    private static readonly Delegate[] ValueReaders
-        = Snapshot
-            .CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20>>();
+    private static readonly Delegate[] ValueReaders =
+    [
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20> e) => e._value0,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20> e) => e._value1,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20> e) => e._value2,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20> e) => e._value3,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20> e) => e._value4,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20> e) => e._value5,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20> e) => e._value6,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20> e) => e._value7,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20> e) => e._value8,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20> e) => e._value9,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20> e) => e._value10,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20> e) => e._value11,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20> e) => e._value12,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20> e) => e._value13,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20> e) => e._value14,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20> e) => e._value15,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20> e) => e._value16,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20> e) => e._value17,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20> e) => e._value18,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20> e) => e._value19,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20> e) => e._value20
+    ];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2502,8 +3101,29 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T
 public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19>
     : ISnapshot
 {
-    private static readonly Delegate[] ValueReaders
-        = Snapshot.CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19>>();
+    private static readonly Delegate[] ValueReaders =
+    [
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19> e) => e._value0,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19> e) => e._value1,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19> e) => e._value2,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19> e) => e._value3,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19> e) => e._value4,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19> e) => e._value5,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19> e) => e._value6,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19> e) => e._value7,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19> e) => e._value8,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19> e) => e._value9,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19> e) => e._value10,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19> e) => e._value11,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19> e) => e._value12,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19> e) => e._value13,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19> e) => e._value14,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19> e) => e._value15,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19> e) => e._value16,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19> e) => e._value17,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19> e) => e._value18,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19> e) => e._value19
+    ];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2698,8 +3318,28 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T
 public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18>
     : ISnapshot
 {
-    private static readonly Delegate[] ValueReaders
-        = Snapshot.CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18>>();
+    private static readonly Delegate[] ValueReaders =
+    [
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18> e) => e._value0,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18> e) => e._value1,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18> e) => e._value2,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18> e) => e._value3,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18> e) => e._value4,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18> e) => e._value5,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18> e) => e._value6,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18> e) => e._value7,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18> e) => e._value8,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18> e) => e._value9,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18> e) => e._value10,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18> e) => e._value11,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18> e) => e._value12,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18> e) => e._value13,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18> e) => e._value14,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18> e) => e._value15,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18> e) => e._value16,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18> e) => e._value17,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18> e) => e._value18
+    ];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2887,8 +3527,27 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T
 public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17>
     : ISnapshot
 {
-    private static readonly Delegate[] ValueReaders
-        = Snapshot.CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17>>();
+    private static readonly Delegate[] ValueReaders =
+    [
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17> e) => e._value0,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17> e) => e._value1,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17> e) => e._value2,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17> e) => e._value3,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17> e) => e._value4,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17> e) => e._value5,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17> e) => e._value6,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17> e) => e._value7,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17> e) => e._value8,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17> e) => e._value9,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17> e) => e._value10,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17> e) => e._value11,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17> e) => e._value12,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17> e) => e._value13,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17> e) => e._value14,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17> e) => e._value15,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17> e) => e._value16,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17> e) => e._value17
+    ];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -3069,8 +3728,26 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T
 public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16>
     : ISnapshot
 {
-    private static readonly Delegate[] ValueReaders
-        = Snapshot.CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16>>();
+    private static readonly Delegate[] ValueReaders =
+    [
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16> e) => e._value0,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16> e) => e._value1,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16> e) => e._value2,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16> e) => e._value3,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16> e) => e._value4,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16> e) => e._value5,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16> e) => e._value6,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16> e) => e._value7,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16> e) => e._value8,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16> e) => e._value9,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16> e) => e._value10,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16> e) => e._value11,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16> e) => e._value12,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16> e) => e._value13,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16> e) => e._value14,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16> e) => e._value15,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16> e) => e._value16
+    ];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -3243,8 +3920,25 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T
 public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>
     : ISnapshot
 {
-    private static readonly Delegate[] ValueReaders
-        = Snapshot.CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>>();
+    private static readonly Delegate[] ValueReaders =
+    [
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15> e) => e._value0,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15> e) => e._value1,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15> e) => e._value2,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15> e) => e._value3,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15> e) => e._value4,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15> e) => e._value5,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15> e) => e._value6,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15> e) => e._value7,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15> e) => e._value8,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15> e) => e._value9,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15> e) => e._value10,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15> e) => e._value11,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15> e) => e._value12,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15> e) => e._value13,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15> e) => e._value14,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15> e) => e._value15
+    ];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -3410,8 +4104,24 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T
 public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>
     : ISnapshot
 {
-    private static readonly Delegate[] ValueReaders
-        = Snapshot.CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>>();
+    private static readonly Delegate[] ValueReaders =
+    [
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14> e) => e._value0,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14> e) => e._value1,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14> e) => e._value2,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14> e) => e._value3,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14> e) => e._value4,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14> e) => e._value5,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14> e) => e._value6,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14> e) => e._value7,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14> e) => e._value8,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14> e) => e._value9,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14> e) => e._value10,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14> e) => e._value11,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14> e) => e._value12,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14> e) => e._value13,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14> e) => e._value14
+    ];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -3570,8 +4280,23 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T
 public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>
     : ISnapshot
 {
-    private static readonly Delegate[] ValueReaders
-        = Snapshot.CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>>();
+    private static readonly Delegate[] ValueReaders =
+    [
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13> e) => e._value0,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13> e) => e._value1,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13> e) => e._value2,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13> e) => e._value3,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13> e) => e._value4,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13> e) => e._value5,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13> e) => e._value6,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13> e) => e._value7,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13> e) => e._value8,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13> e) => e._value9,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13> e) => e._value10,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13> e) => e._value11,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13> e) => e._value12,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13> e) => e._value13
+    ];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -3723,8 +4448,22 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T
 public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>
     : ISnapshot
 {
-    private static readonly Delegate[] ValueReaders
-        = Snapshot.CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>>();
+    private static readonly Delegate[] ValueReaders =
+    [
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12> e) => e._value0,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12> e) => e._value1,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12> e) => e._value2,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12> e) => e._value3,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12> e) => e._value4,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12> e) => e._value5,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12> e) => e._value6,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12> e) => e._value7,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12> e) => e._value8,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12> e) => e._value9,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12> e) => e._value10,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12> e) => e._value11,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12> e) => e._value12
+    ];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -3869,8 +4608,21 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T
 public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>
     : ISnapshot
 {
-    private static readonly Delegate[] ValueReaders
-        = Snapshot.CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>>();
+    private static readonly Delegate[] ValueReaders =
+    [
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11> e) => e._value0,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11> e) => e._value1,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11> e) => e._value2,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11> e) => e._value3,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11> e) => e._value4,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11> e) => e._value5,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11> e) => e._value6,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11> e) => e._value7,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11> e) => e._value8,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11> e) => e._value9,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11> e) => e._value10,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11> e) => e._value11
+    ];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -4008,8 +4760,20 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>
 public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>
     : ISnapshot
 {
-    private static readonly Delegate[] ValueReaders
-        = Snapshot.CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>>();
+    private static readonly Delegate[] ValueReaders =
+    [
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> e) => e._value0,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> e) => e._value1,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> e) => e._value2,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> e) => e._value3,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> e) => e._value4,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> e) => e._value5,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> e) => e._value6,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> e) => e._value7,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> e) => e._value8,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> e) => e._value9,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> e) => e._value10
+    ];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -4140,8 +4904,19 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>
 public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>
     : ISnapshot
 {
-    private static readonly Delegate[] ValueReaders
-        = Snapshot.CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>>();
+    private static readonly Delegate[] ValueReaders =
+    [
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> e) => e._value0,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> e) => e._value1,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> e) => e._value2,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> e) => e._value3,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> e) => e._value4,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> e) => e._value5,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> e) => e._value6,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> e) => e._value7,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> e) => e._value8,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> e) => e._value9
+    ];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -4265,8 +5040,18 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>
 public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8>
     : ISnapshot
 {
-    private static readonly Delegate[] ValueReaders
-        = Snapshot.CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8>>();
+    private static readonly Delegate[] ValueReaders =
+    [
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8> e) => e._value0,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8> e) => e._value1,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8> e) => e._value2,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8> e) => e._value3,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8> e) => e._value4,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8> e) => e._value5,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8> e) => e._value6,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8> e) => e._value7,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8> e) => e._value8
+    ];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -4383,8 +5168,17 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8>
 public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7>
     : ISnapshot
 {
-    private static readonly Delegate[] ValueReaders
-        = Snapshot.CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7>>();
+    private static readonly Delegate[] ValueReaders =
+    [
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7> e) => e._value0,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7> e) => e._value1,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7> e) => e._value2,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7> e) => e._value3,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7> e) => e._value4,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7> e) => e._value5,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7> e) => e._value6,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6, T7> e) => e._value7
+    ];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -4494,8 +5288,16 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7>
 public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6>
     : ISnapshot
 {
-    private static readonly Delegate[] ValueReaders
-        = Snapshot.CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6>>();
+    private static readonly Delegate[] ValueReaders =
+    [
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6> e) => e._value0,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6> e) => e._value1,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6> e) => e._value2,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6> e) => e._value3,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6> e) => e._value4,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6> e) => e._value5,
+        (Snapshot<T0, T1, T2, T3, T4, T5, T6> e) => e._value6
+    ];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -4598,8 +5400,15 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6>
 public sealed class Snapshot<T0, T1, T2, T3, T4, T5>
     : ISnapshot
 {
-    private static readonly Delegate[] ValueReaders
-        = Snapshot.CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5>>();
+    private static readonly Delegate[] ValueReaders =
+    [
+        (Snapshot<T0, T1, T2, T3, T4, T5> e) => e._value0,
+        (Snapshot<T0, T1, T2, T3, T4, T5> e) => e._value1,
+        (Snapshot<T0, T1, T2, T3, T4, T5> e) => e._value2,
+        (Snapshot<T0, T1, T2, T3, T4, T5> e) => e._value3,
+        (Snapshot<T0, T1, T2, T3, T4, T5> e) => e._value4,
+        (Snapshot<T0, T1, T2, T3, T4, T5> e) => e._value5
+    ];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -4695,8 +5504,14 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5>
 public sealed class Snapshot<T0, T1, T2, T3, T4>
     : ISnapshot
 {
-    private static readonly Delegate[] ValueReaders
-        = Snapshot.CreateReaders<Snapshot<T0, T1, T2, T3, T4>>();
+    private static readonly Delegate[] ValueReaders =
+    [
+        (Snapshot<T0, T1, T2, T3, T4> e) => e._value0,
+        (Snapshot<T0, T1, T2, T3, T4> e) => e._value1,
+        (Snapshot<T0, T1, T2, T3, T4> e) => e._value2,
+        (Snapshot<T0, T1, T2, T3, T4> e) => e._value3,
+        (Snapshot<T0, T1, T2, T3, T4> e) => e._value4
+    ];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -4785,8 +5600,13 @@ public sealed class Snapshot<T0, T1, T2, T3, T4>
 public sealed class Snapshot<T0, T1, T2, T3>
     : ISnapshot
 {
-    private static readonly Delegate[] ValueReaders
-        = Snapshot.CreateReaders<Snapshot<T0, T1, T2, T3>>();
+    private static readonly Delegate[] ValueReaders =
+    [
+        (Snapshot<T0, T1, T2, T3> e) => e._value0,
+        (Snapshot<T0, T1, T2, T3> e) => e._value1,
+        (Snapshot<T0, T1, T2, T3> e) => e._value2,
+        (Snapshot<T0, T1, T2, T3> e) => e._value3
+    ];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -4868,8 +5688,10 @@ public sealed class Snapshot<T0, T1, T2, T3>
 public sealed class Snapshot<T0, T1, T2>
     : ISnapshot
 {
-    private static readonly Delegate[] ValueReaders
-        = Snapshot.CreateReaders<Snapshot<T0, T1, T2>>();
+    private static readonly Delegate[] ValueReaders =
+    [
+        (Snapshot<T0, T1, T2> e) => e._value0, (Snapshot<T0, T1, T2> e) => e._value1, (Snapshot<T0, T1, T2> e) => e._value2
+    ];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -4944,8 +5766,7 @@ public sealed class Snapshot<T0, T1, T2>
 public sealed class Snapshot<T0, T1>
     : ISnapshot
 {
-    private static readonly Delegate[] ValueReaders
-        = Snapshot.CreateReaders<Snapshot<T0, T1>>();
+    private static readonly Delegate[] ValueReaders = [(Snapshot<T0, T1> e) => e._value0, (Snapshot<T0, T1> e) => e._value1];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -5013,8 +5834,7 @@ public sealed class Snapshot<T0, T1>
 public sealed class Snapshot<T0>
     : ISnapshot
 {
-    private static readonly Delegate[] ValueReaders
-        = Snapshot.CreateReaders<Snapshot<T0>>();
+    private static readonly Delegate[] ValueReaders = [(Snapshot<T0> e) => e._value0];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -5024,9 +5844,7 @@ public sealed class Snapshot<T0>
     /// </summary>
     public Snapshot(
         T0 value0)
-    {
-        _value0 = value0;
-    }
+        => _value0 = value0;
 
     private T0 _value0;
 

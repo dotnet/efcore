@@ -2,12 +2,15 @@
 
   <PropertyGroup>
     <Description>Shared Entity Framework Core components for relational database providers.</Description>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>$(DefaultNetCoreTargetFramework)</TargetFramework>
     <MinClientVersion>3.6</MinClientVersion>
     <AssemblyName>Microsoft.EntityFrameworkCore.Relational</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <ImplicitUsings>true</ImplicitUsings>
+    <NoWarn>$(NoWarn);EF9100</NoWarn> <!-- Precomiled query is experimental -->
+    <NoWarn>$(NoWarn);EF9002</NoWarn> <!-- Experimental provider-facing feature -->
+    <NoWarn>$(NoWarn);EF9101</NoWarn> <!-- Metrics is experimental -->
   </PropertyGroup>
 
   <ItemGroup>
@@ -42,12 +45,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\EFCore\EFCore.csproj" PrivateAssets="contentfiles;build" />
-    <ProjectReference Condition="'$(BuildingByReSharper)' != 'true'" Include="..\EFCore.Analyzers\EFCore.Analyzers.csproj" ReferenceOutputAssembly="False" OutputItemType="Analyzer" />
+    <ProjectReference Include="..\EFCore\EFCore.csproj" />
+    <ProjectReference Include="..\EFCore.Analyzers\EFCore.Analyzers.csproj" ReferenceOutputAssembly="False" OutputItemType="Analyzer" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="$(MicrosoftExtensionsConfigurationAbstractionsVersion)" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" />
   </ItemGroup>
 
   <ItemGroup>

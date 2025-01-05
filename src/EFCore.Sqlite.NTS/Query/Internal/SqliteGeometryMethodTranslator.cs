@@ -18,36 +18,36 @@ public class SqliteGeometryMethodTranslator : IMethodCallTranslator
     {
         { typeof(Geometry).GetRuntimeMethod(nameof(Geometry.AsBinary), Type.EmptyTypes)!, "AsBinary" },
         { typeof(Geometry).GetRuntimeMethod(nameof(Geometry.AsText), Type.EmptyTypes)!, "AsText" },
-        { typeof(Geometry).GetRuntimeMethod(nameof(Geometry.Buffer), new[] { typeof(double) })!, "Buffer" },
-        { typeof(Geometry).GetRuntimeMethod(nameof(Geometry.Buffer), new[] { typeof(double), typeof(int) })!, "Buffer" },
-        { typeof(Geometry).GetRuntimeMethod(nameof(Geometry.Contains), new[] { typeof(Geometry) })!, "Contains" },
+        { typeof(Geometry).GetRuntimeMethod(nameof(Geometry.Buffer), [typeof(double)])!, "Buffer" },
+        { typeof(Geometry).GetRuntimeMethod(nameof(Geometry.Buffer), [typeof(double), typeof(int)])!, "Buffer" },
+        { typeof(Geometry).GetRuntimeMethod(nameof(Geometry.Contains), [typeof(Geometry)])!, "Contains" },
         { typeof(Geometry).GetRuntimeMethod(nameof(Geometry.ConvexHull), Type.EmptyTypes)!, "ConvexHull" },
-        { typeof(Geometry).GetRuntimeMethod(nameof(Geometry.Crosses), new[] { typeof(Geometry) })!, "Crosses" },
-        { typeof(Geometry).GetRuntimeMethod(nameof(Geometry.CoveredBy), new[] { typeof(Geometry) })!, "CoveredBy" },
-        { typeof(Geometry).GetRuntimeMethod(nameof(Geometry.Covers), new[] { typeof(Geometry) })!, "Covers" },
-        { typeof(Geometry).GetRuntimeMethod(nameof(Geometry.Difference), new[] { typeof(Geometry) })!, "Difference" },
-        { typeof(Geometry).GetRuntimeMethod(nameof(Geometry.Disjoint), new[] { typeof(Geometry) })!, "Disjoint" },
-        { typeof(Geometry).GetRuntimeMethod(nameof(Geometry.Distance), new[] { typeof(Geometry) })!, "Distance" },
-        { typeof(Geometry).GetRuntimeMethod(nameof(Geometry.EqualsTopologically), new[] { typeof(Geometry) })!, "Equals" },
-        { typeof(Geometry).GetRuntimeMethod(nameof(Geometry.Intersection), new[] { typeof(Geometry) })!, "Intersection" },
-        { typeof(Geometry).GetRuntimeMethod(nameof(Geometry.Intersects), new[] { typeof(Geometry) })!, "Intersects" },
-        { typeof(Geometry).GetRuntimeMethod(nameof(Geometry.Overlaps), new[] { typeof(Geometry) })!, "Overlaps" },
-        { typeof(Geometry).GetRuntimeMethod(nameof(Geometry.Relate), new[] { typeof(Geometry), typeof(string) })!, "Relate" },
+        { typeof(Geometry).GetRuntimeMethod(nameof(Geometry.Crosses), [typeof(Geometry)])!, "Crosses" },
+        { typeof(Geometry).GetRuntimeMethod(nameof(Geometry.CoveredBy), [typeof(Geometry)])!, "CoveredBy" },
+        { typeof(Geometry).GetRuntimeMethod(nameof(Geometry.Covers), [typeof(Geometry)])!, "Covers" },
+        { typeof(Geometry).GetRuntimeMethod(nameof(Geometry.Difference), [typeof(Geometry)])!, "Difference" },
+        { typeof(Geometry).GetRuntimeMethod(nameof(Geometry.Disjoint), [typeof(Geometry)])!, "Disjoint" },
+        { typeof(Geometry).GetRuntimeMethod(nameof(Geometry.Distance), [typeof(Geometry)])!, "Distance" },
+        { typeof(Geometry).GetRuntimeMethod(nameof(Geometry.EqualsTopologically), [typeof(Geometry)])!, "Equals" },
+        { typeof(Geometry).GetRuntimeMethod(nameof(Geometry.Intersection), [typeof(Geometry)])!, "Intersection" },
+        { typeof(Geometry).GetRuntimeMethod(nameof(Geometry.Intersects), [typeof(Geometry)])!, "Intersects" },
+        { typeof(Geometry).GetRuntimeMethod(nameof(Geometry.Overlaps), [typeof(Geometry)])!, "Overlaps" },
+        { typeof(Geometry).GetRuntimeMethod(nameof(Geometry.Relate), [typeof(Geometry), typeof(string)])!, "Relate" },
         { typeof(Geometry).GetRuntimeMethod(nameof(Geometry.Reverse), Type.EmptyTypes)!, "ST_Reverse" },
-        { typeof(Geometry).GetRuntimeMethod(nameof(Geometry.SymmetricDifference), new[] { typeof(Geometry) })!, "SymDifference" },
+        { typeof(Geometry).GetRuntimeMethod(nameof(Geometry.SymmetricDifference), [typeof(Geometry)])!, "SymDifference" },
         { typeof(Geometry).GetRuntimeMethod(nameof(Geometry.ToBinary), Type.EmptyTypes)!, "AsBinary" },
         { typeof(Geometry).GetRuntimeMethod(nameof(Geometry.ToText), Type.EmptyTypes)!, "AsText" },
-        { typeof(Geometry).GetRuntimeMethod(nameof(Geometry.Touches), new[] { typeof(Geometry) })!, "Touches" },
+        { typeof(Geometry).GetRuntimeMethod(nameof(Geometry.Touches), [typeof(Geometry)])!, "Touches" },
         { typeof(Geometry).GetRuntimeMethod(nameof(Geometry.Union), Type.EmptyTypes)!, "UnaryUnion" },
-        { typeof(Geometry).GetRuntimeMethod(nameof(Geometry.Union), new[] { typeof(Geometry) })!, "GUnion" },
-        { typeof(Geometry).GetRuntimeMethod(nameof(Geometry.Within), new[] { typeof(Geometry) })!, "Within" }
+        { typeof(Geometry).GetRuntimeMethod(nameof(Geometry.Union), [typeof(Geometry)])!, "GUnion" },
+        { typeof(Geometry).GetRuntimeMethod(nameof(Geometry.Within), [typeof(Geometry)])!, "Within" }
     };
 
     private static readonly MethodInfo GetGeometryN = typeof(Geometry).GetRuntimeMethod(
-        nameof(Geometry.GetGeometryN), new[] { typeof(int) })!;
+        nameof(Geometry.GetGeometryN), [typeof(int)])!;
 
     private static readonly MethodInfo IsWithinDistance = typeof(Geometry).GetRuntimeMethod(
-        nameof(Geometry.IsWithinDistance), new[] { typeof(Geometry), typeof(double) })!;
+        nameof(Geometry.IsWithinDistance), [typeof(Geometry), typeof(double)])!;
 
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
@@ -58,9 +58,7 @@ public class SqliteGeometryMethodTranslator : IMethodCallTranslator
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public SqliteGeometryMethodTranslator(ISqlExpressionFactory sqlExpressionFactory)
-    {
-        _sqlExpressionFactory = sqlExpressionFactory;
-    }
+        => _sqlExpressionFactory = sqlExpressionFactory;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -125,7 +123,7 @@ public class SqliteGeometryMethodTranslator : IMethodCallTranslator
                             _sqlExpressionFactory.Constant(1))
                     },
                     nullable: true,
-                    argumentsPropagateNullability: new[] { true, true },
+                    argumentsPropagateNullability: Statics.TrueArrays[2],
                     method.ReturnType);
             }
 
@@ -136,7 +134,7 @@ public class SqliteGeometryMethodTranslator : IMethodCallTranslator
                         "Distance",
                         new[] { instance, arguments[0] },
                         nullable: true,
-                        argumentsPropagateNullability: new[] { true, true },
+                        argumentsPropagateNullability: Statics.TrueArrays[2],
                         typeof(double)),
                     arguments[1]);
             }

@@ -16,6 +16,7 @@ public class SkipNavigation : PropertyBase, IMutableSkipNavigation, IConventionS
     private ConfigurationSource? _foreignKeyConfigurationSource;
     private ConfigurationSource? _inverseConfigurationSource;
     private InternalSkipNavigationBuilder? _builder;
+    private readonly Type _type;
 
     // Warning: Never access these fields directly as access needs to be thread-safe
     private IClrCollectionAccessor? _collectionAccessor;
@@ -30,6 +31,7 @@ public class SkipNavigation : PropertyBase, IMutableSkipNavigation, IConventionS
     /// </summary>
     public SkipNavigation(
         string name,
+        Type? navigationType,
         PropertyInfo? propertyInfo,
         FieldInfo? fieldInfo,
         EntityType declaringEntityType,
@@ -43,6 +45,11 @@ public class SkipNavigation : PropertyBase, IMutableSkipNavigation, IConventionS
         TargetEntityType = targetEntityType;
         IsCollection = collection;
         IsOnDependent = onDependent;
+        _type = navigationType
+            ?? this.GetIdentifyingMemberInfo()?.GetMemberType()
+            ?? (IsCollection
+                ? typeof(IEnumerable<>).MakeGenericType(TargetEntityType.ClrType)
+                : TargetEntityType.ClrType);
         _builder = new InternalSkipNavigationBuilder(this, targetEntityType.Model.Builder);
     }
 
@@ -67,10 +74,7 @@ public class SkipNavigation : PropertyBase, IMutableSkipNavigation, IConventionS
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public override Type ClrType
-        => this.GetIdentifyingMemberInfo()?.GetMemberType()
-            ?? (IsCollection
-                ? typeof(IEnumerable<>).MakeGenericType(TargetEntityType.ClrType)
-                : TargetEntityType.ClrType);
+        => _type;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -81,7 +85,7 @@ public class SkipNavigation : PropertyBase, IMutableSkipNavigation, IConventionS
     public virtual InternalSkipNavigationBuilder Builder
     {
         [DebuggerStepThrough]
-        get => _builder ?? throw new InvalidOperationException(CoreStrings.ObjectRemovedFromModel);
+        get => _builder ?? throw new InvalidOperationException(CoreStrings.ObjectRemovedFromModel(Name));
     }
 
     /// <summary>
@@ -320,7 +324,7 @@ public class SkipNavigation : PropertyBase, IMutableSkipNavigation, IConventionS
     /// </summary>
     public override PropertyAccessMode GetPropertyAccessMode()
         => (PropertyAccessMode)(this[CoreAnnotationNames.PropertyAccessMode]
-            ?? ((IReadOnlyTypeBase)DeclaringType).GetNavigationAccessMode());
+            ?? DeclaringEntityType.GetNavigationAccessMode());
 
     /// <summary>
     ///     Gets the sentinel value that indicates that this property is not set.
@@ -356,7 +360,7 @@ public class SkipNavigation : PropertyBase, IMutableSkipNavigation, IConventionS
             static navigation =>
             {
                 navigation.EnsureReadOnly();
-                return new ClrCollectionAccessorFactory().Create(navigation);
+                return ClrCollectionAccessorFactory.Instance.Create(navigation);
             });
 
     /// <summary>
@@ -370,7 +374,7 @@ public class SkipNavigation : PropertyBase, IMutableSkipNavigation, IConventionS
             ref _manyToManyLoader, this, static navigation =>
             {
                 navigation.EnsureReadOnly();
-                return new ManyToManyLoaderFactory().Create(navigation);
+                return ManyToManyLoaderFactory.Instance.Create(navigation);
             });
 
     /// <summary>

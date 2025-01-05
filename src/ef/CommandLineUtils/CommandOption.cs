@@ -12,7 +12,7 @@ internal class CommandOption
     {
         Template = template;
         OptionType = optionType;
-        Values = new List<string?>();
+        Values = [];
 
         foreach (var part in Template.Split(new[] { ' ', '|' }, StringSplitOptions.RemoveEmptyEntries))
         {
@@ -130,5 +130,5 @@ internal class CommandOption
         => HasValue() ? Values[0] : null;
 
     private static bool IsEnglishLetter(char c)
-        => (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
+        => c is >= 'a' and <= 'z' or >= 'A' and <= 'Z';
 }

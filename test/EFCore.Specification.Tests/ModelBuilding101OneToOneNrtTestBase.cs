@@ -1,7 +1,5 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
-
-#nullable enable
 
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -788,7 +786,8 @@ public abstract partial class ModelBuilding101TestBase
             protected override void OnModelCreating(ModelBuilder modelBuilder)
                 => modelBuilder.Entity<BlogHeader>()
                     .HasOne(e => e.Blog)
-                    .WithOne();        }
+                    .WithOne();
+        }
     }
 
     [ConditionalFact]
@@ -1273,7 +1272,7 @@ public abstract partial class ModelBuilding101TestBase
 
     [ConditionalFact]
     public virtual void OneToOneRequiredWithAlternateKeyNrtTest()
-        => Assert.Throws<EqualException>(() => Model101Test()); // Issue #30346
+        => Model101Test();
 
     protected class OneToOneRequiredWithAlternateKeyNrt
     {
@@ -1638,7 +1637,8 @@ public abstract partial class ModelBuilding101TestBase
                 => modelBuilder.Entity<Blog>()
                     .HasOne(e => e.Header)
                     .WithOne(e => e.Blog)
-                    .HasPrincipalKey<Blog>(e => e.AlternateId);        }
+                    .HasPrincipalKey<Blog>(e => e.AlternateId);
+        }
     }
 
     [ConditionalFact]

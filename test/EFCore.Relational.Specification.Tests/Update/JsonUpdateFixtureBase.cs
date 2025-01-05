@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore.TestModels.JsonQuery;
 
 namespace Microsoft.EntityFrameworkCore.Update;
 
+#nullable disable
+
 public abstract class JsonUpdateFixtureBase : SharedStoreFixtureBase<JsonQueryContext>
 {
     protected override string StoreName
@@ -192,10 +194,17 @@ public abstract class JsonUpdateFixtureBase : SharedStoreFixtureBase<JsonQueryCo
                         x => x == true ? "Y" : "N"));
             });
 
+        modelBuilder.Entity<JsonEntityBasicForReference>(
+            b =>
+            {
+                b.Property(x => x.Id);
+                b.Property(x => x.Name);
+            });
+
         base.OnModelCreating(modelBuilder, context);
     }
 
-    protected override void Seed(JsonQueryContext context)
+    protected override Task SeedAsync(JsonQueryContext context)
     {
         var jsonEntitiesBasic = JsonQueryData.CreateJsonEntitiesBasic();
         var jsonEntitiesInheritance = JsonQueryData.CreateJsonEntitiesInheritance();
@@ -206,6 +215,7 @@ public abstract class JsonUpdateFixtureBase : SharedStoreFixtureBase<JsonQueryCo
         context.JsonEntitiesInheritance.AddRange(jsonEntitiesInheritance);
         context.JsonEntitiesAllTypes.AddRange(jsonEntitiesAllTypes);
         context.JsonEntitiesConverters.AddRange(jsonEntitiesConverters);
-        context.SaveChanges();
+
+        return context.SaveChangesAsync();
     }
 }

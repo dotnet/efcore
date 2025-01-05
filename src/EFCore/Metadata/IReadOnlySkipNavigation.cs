@@ -27,15 +27,6 @@ public interface IReadOnlySkipNavigation : IReadOnlyNavigationBase
     new IReadOnlySkipNavigation Inverse { get; }
 
     /// <summary>
-    ///     Gets the inverse navigation.
-    /// </summary>
-    IReadOnlyNavigationBase IReadOnlyNavigationBase.Inverse
-    {
-        [DebuggerStepThrough]
-        get => Inverse;
-    }
-
-    /// <summary>
     ///     Gets the foreign key to the join type.
     /// </summary>
     IReadOnlyForeignKey? ForeignKey { get; }
@@ -129,5 +120,14 @@ public interface IReadOnlySkipNavigation : IReadOnlyNavigationBase
         }
 
         return builder.ToString();
+    }
+
+    /// <summary>
+    ///     Gets the inverse navigation.
+    /// </summary>
+    IReadOnlyNavigationBase IReadOnlyNavigationBase.Inverse
+    {
+        [DebuggerStepThrough]
+        get => Inverse;
     }
 }

@@ -3,10 +3,10 @@
 
 // ReSharper disable once CheckNamespace
 
-namespace Microsoft.EntityFrameworkCore.Benchmarks
+namespace Microsoft.EntityFrameworkCore.Benchmarks;
+
+public class Program
 {
-    public class Program
-    {
-        private static void Main(string[] args) => EFCoreBenchmarkRunner.Run(args, typeof(Program).Assembly);
-    }
+    private static void Main(string[] args)
+        => EFCoreBenchmarkRunner.Run(args, typeof(Program).Assembly);
 }

@@ -3,6 +3,7 @@
 
 using System.Data;
 using System.Globalization;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace Microsoft.EntityFrameworkCore.Storage;
 
@@ -22,6 +23,14 @@ namespace Microsoft.EntityFrameworkCore.Storage;
 public class DoubleTypeMapping : RelationalTypeMapping
 {
     /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static DoubleTypeMapping Default { get; } = new("double");
+
+    /// <summary>
     ///     Initializes a new instance of the <see cref="DoubleTypeMapping" /> class.
     /// </summary>
     /// <param name="storeType">The name of the database type.</param>
@@ -29,7 +38,7 @@ public class DoubleTypeMapping : RelationalTypeMapping
     public DoubleTypeMapping(
         string storeType,
         DbType? dbType = System.Data.DbType.Double)
-        : base(storeType, typeof(double), dbType)
+        : base(storeType, typeof(double), dbType, jsonValueReaderWriter: JsonDoubleReaderWriter.Instance)
     {
     }
 

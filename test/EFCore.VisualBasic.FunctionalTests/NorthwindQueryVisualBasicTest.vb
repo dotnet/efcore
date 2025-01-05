@@ -7,9 +7,9 @@ Imports Microsoft.EntityFrameworkCore.TestUtilities
 Imports Xunit
 
 Partial Public Class NorthwindQueryVisualBasicTest
-    Inherits QueryTestBase(Of NorthwindQuerySqlServerFixture(Of NoopModelCustomizer))
+    Inherits QueryTestBase(Of NorthwindVBQuerySqlServerFixture(Of NoopModelCustomizer))
 
-    Public Sub New(fixture As NorthwindQuerySqlServerFixture(Of NoopModelCustomizer))
+    Public Sub New(fixture As NorthwindVBQuerySqlServerFixture(Of NoopModelCustomizer))
         MyBase.New(fixture)
 
         fixture.TestSqlLoggerFactory.Clear()
@@ -20,8 +20,7 @@ Partial Public Class NorthwindQueryVisualBasicTest
     Public Async Sub CompareString_Equals_Binary(async As Boolean)
         Await AssertQuery(
             async,
-            Function(ss) ss.Set(Of Customer).Where(Function(c) c.CustomerID = "ALFKI"),
-            entryCount:=1)
+            Function(ss) ss.Set(Of Customer).Where(Function(c) c.CustomerID = "ALFKI"))
 
         AssertSql(
             "SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -34,8 +33,7 @@ WHERE [c].[CustomerID] = N'ALFKI'")
     Public Async Sub CompareString_LessThanOrEqual_Binary(async As Boolean)
         Await AssertQuery(
             async,
-            Function(ss) ss.Set(Of Customer).Where(Function(c) c.CustomerID <= "ALFKI"),
-            entryCount:=1)
+            Function(ss) ss.Set(Of Customer).Where(Function(c) c.CustomerID <= "ALFKI"))
 
         AssertSql(
             "SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -48,8 +46,7 @@ WHERE [c].[CustomerID] <= N'ALFKI'")
     Public Async Sub AddChecked(async As Boolean)
         Await AssertQuery(
             async,
-            Function(ss) ss.Set(Of Product).Where(Function(p) p.UnitsInStock + 1 = 102),
-            entryCount:=1)
+            Function(ss) ss.Set(Of Product).Where(Function(p) p.UnitsInStock + 1 = 102))
 
         AssertSql(
             "SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
@@ -62,8 +59,7 @@ WHERE [p].[UnitsInStock] + CAST(1 AS smallint) = CAST(102 AS smallint)")
     Public Async Sub SubtractChecked(async As Boolean)
         Await AssertQuery(
             async,
-            Function(ss) ss.Set(Of Product).Where(Function(p) p.UnitsInStock - 1 = 100),
-            entryCount:=1)
+            Function(ss) ss.Set(Of Product).Where(Function(p) p.UnitsInStock - 1 = 100))
 
         AssertSql(
             "SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
@@ -76,8 +72,7 @@ WHERE [p].[UnitsInStock] - CAST(1 AS smallint) = CAST(100 AS smallint)")
     Public Async Sub MultiplyChecked(async As Boolean)
         Await AssertQuery(
             async,
-            Function(ss) ss.Set(Of Product).Where(Function(p) p.UnitsInStock * 1 = 101),
-            entryCount:=1)
+            Function(ss) ss.Set(Of Product).Where(Function(p) p.UnitsInStock * 1 = 101))
 
         AssertSql(
             "SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
@@ -85,9 +80,25 @@ FROM [Products] AS [p]
 WHERE [p].[UnitsInStock] * CAST(1 AS smallint) = CAST(101 AS smallint)")
     End Sub
 
-    Protected Overrides Function CreateQueryAsserter(fixture As NorthwindQuerySqlServerFixture(Of NoopModelCustomizer)) As QueryAsserter
+    <ConditionalTheory>
+    <MemberData(NameOf(IsAsyncData))>
+    Public Async Sub Parameter_name_gets_sanitized(async As Boolean)
+        Dim units = 101
+        Await AssertQuery(
+            async,
+            Function(ss) ss.Set(Of Product).Where(Function(p) p.UnitsInStock = units))
+
+        AssertSql(
+            "@units='101'
+
+SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
+FROM [Products] AS [p]
+WHERE [p].[UnitsInStock] = @units")
+    End Sub
+
+    Protected Overrides Function CreateQueryAsserter(fixture As NorthwindVBQuerySqlServerFixture(Of NoopModelCustomizer)) As QueryAsserter
         Return New RelationalQueryAsserter(
-            fixture, AddressOf RewriteExpectedQueryExpression, AddressOf RewriteServerQueryExpression, canExecuteQueryString:=True)
+            fixture, AddressOf RewriteExpectedQueryExpression, AddressOf RewriteServerQueryExpression)
     End Function
 
     Private Sub AssertSql(ParamArray expected As String())

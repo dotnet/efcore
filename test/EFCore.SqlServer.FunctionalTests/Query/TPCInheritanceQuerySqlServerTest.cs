@@ -5,11 +5,7 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class TPCInheritanceQuerySqlServerTest : TPCInheritanceQuerySqlServerTestBase<TPCInheritanceQuerySqlServerFixture>
-{
-    public TPCInheritanceQuerySqlServerTest(TPCInheritanceQuerySqlServerFixture fixture)
-        : base(fixture)
-    {
-        Fixture.TestSqlLoggerFactory.Clear();
-    }
-}
+#nullable disable
+
+public class TPCInheritanceQuerySqlServerTest(TPCInheritanceQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
+    : TPCInheritanceQuerySqlServerTestBase<TPCInheritanceQuerySqlServerFixture>(fixture, testOutputHelper);

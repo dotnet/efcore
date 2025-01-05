@@ -5,14 +5,14 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
+#nullable disable
+
 public class Product
 {
     private int? _productId;
 
     public Product()
-    {
-        OrderDetails = new List<OrderDetail>();
-    }
+        => OrderDetails = [];
 
     public int ProductID
     {
@@ -23,11 +23,13 @@ public class Product
     [MaxLength(40)]
     [Required]
     public string ProductName { get; set; }
+
     public int? SupplierID { get; set; }
     public int? CategoryID { get; set; }
 
     [MaxLength(20)]
     public string QuantityPerUnit { get; set; }
+
     public decimal? UnitPrice { get; set; }
     public ushort UnitsInStock { get; set; }
     public ushort? UnitsOnOrder { get; set; }

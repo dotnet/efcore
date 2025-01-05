@@ -59,7 +59,7 @@ public interface IFunctionMapping : ITableMappingBase
             builder.Append("FunctionMapping: ");
         }
 
-        builder.Append(EntityType.DisplayName()).Append(" - ");
+        builder.Append(TypeBase.DisplayName()).Append(" - ");
 
         builder.Append(StoreFunction.Name);
 
@@ -68,9 +68,15 @@ public interface IFunctionMapping : ITableMappingBase
             builder.Append(" DefaultMapping");
         }
 
-        if (IncludesDerivedTypes)
+        if (IncludesDerivedTypes != null)
         {
-            builder.Append(" IncludesDerivedTypes");
+            builder.Append(' ');
+            if (!IncludesDerivedTypes.Value)
+            {
+                builder.Append('!');
+            }
+
+            builder.Append("IncludesDerivedTypes");
         }
 
         if (!singleLine && (options & MetadataDebugStringOptions.IncludeAnnotations) != 0)

@@ -14,8 +14,8 @@ namespace Microsoft.Data.Sqlite
 #pragma warning disable IDE0052 // Remove unread private members
         private readonly Timer _pruneTimer;
 #pragma warning restore IDE0052 // Remove unread private members
-        private readonly List<SqliteConnectionPoolGroup> _idlePoolGroups = new();
-        private readonly List<SqliteConnectionPool> _poolsToRelease = new();
+        private readonly List<SqliteConnectionPoolGroup> _idlePoolGroups = [];
+        private readonly List<SqliteConnectionPool> _poolsToRelease = [];
         private readonly ReaderWriterLockSlim _lock = new();
 
         private Dictionary<string, SqliteConnectionPoolGroup> _poolGroups = new();
@@ -31,8 +31,7 @@ namespace Microsoft.Data.Sqlite
         public SqliteConnectionInternal GetConnection(SqliteConnection outerConnection)
         {
             var poolGroup = outerConnection.PoolGroup;
-            if (poolGroup.IsDisabled
-                && !poolGroup.IsNonPooled)
+            if (poolGroup is { IsDisabled: true, IsNonPooled: false })
             {
                 poolGroup = GetPoolGroup(poolGroup.ConnectionString);
                 outerConnection.PoolGroup = poolGroup;

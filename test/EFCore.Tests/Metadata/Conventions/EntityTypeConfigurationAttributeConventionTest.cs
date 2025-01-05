@@ -52,9 +52,7 @@ public class EntityTypeConfigurationAttributeConventionTest
     private static IMutableModel CreateModel()
         => new Model();
 
-    private class UserConfiguration
-    {
-    }
+    private class UserConfiguration;
 
     [EntityTypeConfiguration(typeof(UserConfiguration))]
     private class User
@@ -83,7 +81,6 @@ public class EntityTypeConfigurationAttributeConventionTest
 
         public string Name { get; set; }
     }
-
 
     [EntityTypeConfigurationAttribute<CustomerGenericConfiguration, CustomerGeneric>]
     private class CustomerGeneric

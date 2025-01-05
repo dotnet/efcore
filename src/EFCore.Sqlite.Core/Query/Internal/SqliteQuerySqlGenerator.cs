@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
-using Microsoft.EntityFrameworkCore.Sqlite.Query.SqlExpressions.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
 
@@ -32,12 +31,25 @@ public class SqliteQuerySqlGenerator : QuerySqlGenerator
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override Expression VisitExtension(Expression extensionExpression)
-        => extensionExpression switch
+    {
+        switch (extensionExpression)
         {
-            GlobExpression globExpression => VisitGlob(globExpression),
-            RegexpExpression regexpExpression => VisitRegexp(regexpExpression),
-            _ => base.VisitExtension(extensionExpression)
-        };
+            case GlobExpression globExpression:
+                GenerateGlob(globExpression);
+                return extensionExpression;
+
+            case RegexpExpression regexpExpression:
+                GenerateRegexp(regexpExpression);
+                return extensionExpression;
+
+            case JsonEachExpression jsonEachExpression:
+                GenerateJsonEach(jsonEachExpression);
+                return extensionExpression;
+
+            default:
+                return base.VisitExtension(extensionExpression);
+        }
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -67,7 +79,7 @@ public class SqliteQuerySqlGenerator : QuerySqlGenerator
 
             Visit(
                 selectExpression.Limit
-                ?? new SqlConstantExpression(Expression.Constant(-1), selectExpression.Offset!.TypeMapping));
+                ?? new SqlConstantExpression(-1, selectExpression.Offset!.TypeMapping));
 
             if (selectExpression.Offset != null)
             {
@@ -88,34 +100,100 @@ public class SqliteQuerySqlGenerator : QuerySqlGenerator
         // Sqlite doesn't support parentheses around set operation operands
         => Visit(operand);
 
-    private Expression VisitGlob(GlobExpression globExpression)
+    private void GenerateGlob(GlobExpression globExpression, bool negated = false)
     {
         Visit(globExpression.Match);
 
-        if (globExpression.IsNegated)
+        if (negated)
         {
             Sql.Append(" NOT");
         }
 
         Sql.Append(" GLOB ");
         Visit(globExpression.Pattern);
-
-        return globExpression;
     }
 
-    private Expression VisitRegexp(RegexpExpression regexpExpression)
+    private void GenerateRegexp(RegexpExpression regexpExpression, bool negated = false)
     {
         Visit(regexpExpression.Match);
 
-        if (regexpExpression.IsNegated)
+        if (negated)
         {
             Sql.Append(" NOT");
         }
 
         Sql.Append(" REGEXP ");
         Visit(regexpExpression.Pattern);
+    }
 
-        return regexpExpression;
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected virtual void GenerateJsonEach(JsonEachExpression jsonEachExpression)
+    {
+        // json_each docs: https://www.sqlite.org/json1.html#jeach
+
+        // json_each is a regular table-valued function; however, since it accepts an (optional) JSONPATH argument - which we represent
+        // as IReadOnlyList<PathSegment>, and that can only be rendered as a string here in the QuerySqlGenerator, we have a special
+        // expression type for it.
+        Sql.Append("json_each(");
+
+        Visit(jsonEachExpression.JsonExpression);
+
+        var path = jsonEachExpression.Path;
+
+        if (path is not null)
+        {
+            Sql.Append(", ");
+
+            // Note the difference with the JSONPATH rendering in VisitJsonScalar below, where we take advantage of SQLite's ->> operator
+            // (we can't do that here).
+            Sql.Append("'$");
+
+            var inJsonpathString = true;
+
+            for (var i = 0; i < path.Count; i++)
+            {
+                switch (path[i])
+                {
+                    case { PropertyName: string propertyName }:
+                        Sql.Append(".").Append(propertyName);
+                        break;
+
+                    case { ArrayIndex: SqlExpression arrayIndex }:
+                        Sql.Append("[");
+
+                        if (arrayIndex is SqlConstantExpression)
+                        {
+                            Visit(arrayIndex);
+                        }
+                        else
+                        {
+                            Sql.Append("' || ");
+                            Visit(arrayIndex);
+                            Sql.Append(" || '");
+                        }
+
+                        Sql.Append("]");
+                        break;
+
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            }
+
+            if (inJsonpathString)
+            {
+                Sql.Append("'");
+            }
+        }
+
+        Sql.Append(")");
+
+        Sql.Append(AliasSeparator).Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(jsonEachExpression.Alias));
     }
 
     /// <summary>
@@ -126,15 +204,14 @@ public class SqliteQuerySqlGenerator : QuerySqlGenerator
     /// </summary>
     protected override Expression VisitJsonScalar(JsonScalarExpression jsonScalarExpression)
     {
+        Visit(jsonScalarExpression.Json);
+
         // TODO: Stop producing empty JsonScalarExpressions, #30768
         var path = jsonScalarExpression.Path;
         if (path.Count == 0)
         {
-            Visit(jsonScalarExpression.Json);
             return jsonScalarExpression;
         }
-
-        Visit(jsonScalarExpression.Json);
 
         var inJsonpathString = false;
 
@@ -148,7 +225,7 @@ public class SqliteQuerySqlGenerator : QuerySqlGenerator
                 case { PropertyName: string propertyName }:
                     if (inJsonpathString)
                     {
-                        Sql.Append(".").Append(propertyName);
+                        Sql.Append(".").Append(Dependencies.SqlGenerationHelper.DelimitJsonPathElement(propertyName));
                         continue;
                     }
 
@@ -157,11 +234,11 @@ public class SqliteQuerySqlGenerator : QuerySqlGenerator
                     // No need to start a $. JSONPATH string if we're the last segment or the next segment isn't a constant
                     if (isLast || path[i + 1] is { ArrayIndex: not null and not SqlConstantExpression })
                     {
-                        Sql.Append("'").Append(propertyName).Append("'");
+                        Sql.Append("'").Append(Dependencies.SqlGenerationHelper.DelimitJsonPathElement(propertyName)).Append("'");
                         continue;
                     }
 
-                    Sql.Append("'$.").Append(propertyName);
+                    Sql.Append("'$.").Append(Dependencies.SqlGenerationHelper.DelimitJsonPathElement(propertyName));
                     inJsonpathString = true;
                     continue;
 
@@ -223,6 +300,58 @@ public class SqliteQuerySqlGenerator : QuerySqlGenerator
         }
 
         return jsonScalarExpression;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override Expression VisitSqlUnary(SqlUnaryExpression sqlUnaryExpression)
+    {
+        switch (sqlUnaryExpression.OperatorType)
+        {
+            case ExpressionType.Convert:
+                if (sqlUnaryExpression.Operand.Type == typeof(char)
+                    && sqlUnaryExpression.Type.IsInteger())
+                {
+                    Sql.Append("unicode(");
+                    Visit(sqlUnaryExpression.Operand);
+                    Sql.Append(")");
+
+                    return sqlUnaryExpression;
+                }
+
+                if (sqlUnaryExpression.Operand.Type.IsInteger()
+                    && sqlUnaryExpression.Type == typeof(char))
+                {
+                    Sql.Append("char(");
+                    Visit(sqlUnaryExpression.Operand);
+                    Sql.Append(")");
+
+                    return sqlUnaryExpression;
+                }
+
+                goto default;
+
+            case ExpressionType.Not when sqlUnaryExpression.Type == typeof(bool):
+                switch (sqlUnaryExpression.Operand)
+                {
+                    case GlobExpression globExpression:
+                        GenerateGlob(globExpression, negated: true);
+                        return sqlUnaryExpression;
+
+                    case RegexpExpression regexpExpression:
+                        GenerateRegexp(regexpExpression, negated: true);
+                        return sqlUnaryExpression;
+                }
+
+                goto default;
+
+            default:
+                return base.VisitSqlUnary(sqlUnaryExpression);
+        }
     }
 
     /// <summary>

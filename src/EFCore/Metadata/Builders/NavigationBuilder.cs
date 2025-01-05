@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -145,7 +146,7 @@ public class NavigationBuilder : IInfrastructure<IConventionSkipNavigationBuilde
 
     /// <summary>
     ///     Configures whether this navigation should be enabled for lazy-loading. Note that a property can only be lazy-loaded
-    ///     if a lazy-loading mechanism such as lazy-loading proxies or <see cref="ILazyLoader"/> injection has been configured.
+    ///     if a lazy-loading mechanism such as lazy-loading proxies or <see cref="ILazyLoader" /> injection has been configured.
     /// </summary>
     /// <remarks>
     ///     <para>

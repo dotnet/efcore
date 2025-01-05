@@ -22,12 +22,12 @@ namespace Microsoft.EntityFrameworkCore.Query;
 /// </remarks>
 public class ExpressionPrinter : ExpressionVisitor
 {
-    private static readonly List<string> SimpleMethods = new()
-    {
+    private static readonly List<string> SimpleMethods =
+    [
         "get_Item",
         "TryReadValue",
         "ReferenceEquals"
-    };
+    ];
 
     private readonly IndentedStringBuilder _stringBuilder;
     private readonly Dictionary<ParameterExpression, string?> _parametersInScope;
@@ -53,7 +53,9 @@ public class ExpressionPrinter : ExpressionVisitor
         { ExpressionType.Modulo, " % " },
         { ExpressionType.And, " & " },
         { ExpressionType.Or, " | " },
-        { ExpressionType.ExclusiveOr, " ^ " }
+        { ExpressionType.ExclusiveOr, " ^ " },
+        { ExpressionType.LeftShift, " << " },
+        { ExpressionType.RightShift, " >> " }
     };
 
     /// <summary>
@@ -63,8 +65,8 @@ public class ExpressionPrinter : ExpressionVisitor
     {
         _stringBuilder = new IndentedStringBuilder();
         _parametersInScope = new Dictionary<ParameterExpression, string?>();
-        _namelessParameters = new List<ParameterExpression>();
-        _encounteredParameters = new List<ParameterExpression>();
+        _namelessParameters = [];
+        _encounteredParameters = [];
     }
 
     private int? CharacterLimit { get; set; }
@@ -85,7 +87,7 @@ public class ExpressionPrinter : ExpressionVisitor
     /// </summary>
     /// <param name="value">The string to append.</param>
     /// <returns>This printer so additional calls can be chained.</returns>
-    public virtual ExpressionVisitor AppendLine(string value)
+    public virtual ExpressionPrinter AppendLine(string value)
     {
         _stringBuilder.AppendLine(value);
         return this;
@@ -166,16 +168,22 @@ public class ExpressionPrinter : ExpressionVisitor
 
         Visit(expression);
 
-        var queryPlan = PostProcess(_stringBuilder.ToString());
+        return ToString();
+    }
 
-        if (characterLimit is > 0)
+    /// <inheritdoc />
+    public override string ToString()
+    {
+        var printed = PostProcess(_stringBuilder.ToString());
+
+        if (CharacterLimit is > 0)
         {
-            queryPlan = queryPlan.Length > characterLimit
-                ? queryPlan[..characterLimit.Value] + "..."
-                : queryPlan;
+            printed = printed.Length > CharacterLimit
+                ? printed[..CharacterLimit.Value] + "..."
+                : printed;
         }
 
-        return queryPlan;
+        return printed;
     }
 
     /// <summary>
@@ -213,7 +221,7 @@ public class ExpressionPrinter : ExpressionVisitor
     }
 
     /// <inheritdoc />
-    [return: NotNullIfNotNull("expression")]
+    [return: NotNullIfNotNull(nameof(expression))]
     public override Expression? Visit(Expression? expression)
     {
         if (expression == null)
@@ -332,6 +340,10 @@ public class ExpressionPrinter : ExpressionVisitor
                 VisitInvocation((InvocationExpression)expression);
                 break;
 
+            case ExpressionType.Loop:
+                VisitLoop((LoopExpression)expression);
+                break;
+
             case ExpressionType.Extension:
                 VisitExtension(expression);
                 break;
@@ -401,7 +413,11 @@ public class ExpressionPrinter : ExpressionVisitor
             foreach (var expression in expressions)
             {
                 Visit(expression);
-                AppendLine(";");
+
+                if (expression is not BlockExpression and not LoopExpression and not SwitchExpression)
+                {
+                    AppendLine(";");
+                }
             }
 
             if (blockExpression.Expressions.Count > 0)
@@ -411,8 +427,15 @@ public class ExpressionPrinter : ExpressionVisitor
                     Append("return ");
                 }
 
-                Visit(blockExpression.Result);
-                AppendLine(";");
+                if (blockExpression.Result is not DefaultExpression)
+                {
+                    Visit(blockExpression.Result);
+
+                    if (blockExpression.Result is not (BlockExpression or LoopExpression or SwitchExpression))
+                    {
+                        AppendLine(";");
+                    }
+                }
             }
         }
 
@@ -440,21 +463,26 @@ public class ExpressionPrinter : ExpressionVisitor
     /// <inheritdoc />
     protected override Expression VisitConstant(ConstantExpression constantExpression)
     {
-        if (constantExpression.Value is IPrintableExpression printable)
+        switch (constantExpression.Value)
         {
-            printable.Print(this);
-        }
-        else
-        {
-            PrintValue(constantExpression.Value);
+            case IPrintableExpression printable:
+                printable.Print(this);
+                break;
+
+            case IQueryable queryable:
+                Visit(queryable.Expression);
+                break;
+
+            default:
+                PrintValue(constantExpression.Value);
+                break;
         }
 
         return constantExpression;
 
         void PrintValue(object? value)
         {
-            if (value is IEnumerable enumerable
-                && !(value is string))
+            if (value is IEnumerable enumerable and not string)
             {
                 _stringBuilder.Append(value.GetType().ShortDisplayName() + " { ");
 
@@ -495,13 +523,24 @@ public class ExpressionPrinter : ExpressionVisitor
     /// <inheritdoc />
     protected override Expression VisitGoto(GotoExpression gotoExpression)
     {
-        AppendLine("return (" + gotoExpression.Target.Type.ShortDisplayName() + ")" + gotoExpression.Target + " {");
-        using (_stringBuilder.Indent())
+        Append("Goto(" + gotoExpression.Kind.ToString().ToLower() + " ");
+
+        if (gotoExpression.Kind == GotoExpressionKind.Break)
         {
-            Visit(gotoExpression.Value);
+            Append(gotoExpression.Target.Name!);
+        }
+        else
+        {
+            AppendLine("(" + gotoExpression.Target.Type.ShortDisplayName() + ")" + gotoExpression.Target + " {");
+            using (_stringBuilder.Indent())
+            {
+                Visit(gotoExpression.Value);
+            }
+
+            _stringBuilder.Append("}");
         }
 
-        _stringBuilder.Append("}");
+        AppendLine(")");
 
         return gotoExpression;
     }
@@ -526,10 +565,7 @@ public class ExpressionPrinter : ExpressionVisitor
         {
             var parameterName = parameter.Name;
 
-            if (!_parametersInScope.ContainsKey(parameter))
-            {
-                _parametersInScope.Add(parameter, parameterName);
-            }
+            _parametersInScope.TryAdd(parameter, parameterName);
 
             Visit(parameter);
 
@@ -683,7 +719,7 @@ public class ExpressionPrinter : ExpressionVisitor
                     ? extensionMethod
                         ? method.GetParameters().Skip(1).Select(p => p.Name).ToList()
                         : method.GetParameters().Select(p => p.Name).ToList()
-                    : new List<string?>();
+                    : [];
 
             IDisposable? indent = null;
 
@@ -1041,6 +1077,22 @@ public class ExpressionPrinter : ExpressionVisitor
         _stringBuilder.Append(")");
 
         return invocationExpression;
+    }
+
+    /// <inheritdoc />
+    protected override Expression VisitLoop(LoopExpression loopExpression)
+    {
+        _stringBuilder.AppendLine($"Loop(Break: {loopExpression.BreakLabel?.Name} Continue: {loopExpression.ContinueLabel?.Name})");
+        _stringBuilder.AppendLine("{");
+
+        using (_stringBuilder.Indent())
+        {
+            Visit(loopExpression.Body);
+        }
+
+        _stringBuilder.AppendLine("}");
+
+        return loopExpression;
     }
 
     /// <inheritdoc />

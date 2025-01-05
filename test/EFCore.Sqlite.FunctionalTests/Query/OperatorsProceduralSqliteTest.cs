@@ -3,13 +3,10 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class OperatorsProceduralSqliteTest : OperatorsProceduralQueryTestBase
 {
-    public OperatorsProceduralSqliteTest(ITestOutputHelper testOutputHelper)
-        : base(testOutputHelper)
-    {
-    }
-
     protected override ITestStoreFactory TestStoreFactory
         => SqliteTestStoreFactory.Instance;
 }

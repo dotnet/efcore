@@ -3,19 +3,13 @@
 
 #nullable enable
 
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 
 // ReSharper disable once CheckNamespace
 namespace System;
 
-[DebuggerStepThrough]
 internal static class SharedTypeExtensions
 {
     private static readonly Dictionary<Type, string> BuiltInTypeNames = new()
@@ -48,8 +42,17 @@ internal static class SharedTypeExtensions
         => !type.IsValueType || type.IsNullableValueType();
 
     public static bool IsValidEntityType(this Type type)
-        => type.IsClass
-            && !type.IsArray;
+        => type is { IsClass: true, IsArray: false }
+            && type != typeof(string);
+
+    public static bool IsValidComplexType(this Type type)
+        => !type.IsArray
+            && !type.IsInterface
+            && !IsScalarType(type);
+
+    public static bool IsScalarType(this Type type)
+        => type == typeof(string)
+            || CommonTypeDictionary.ContainsKey(type);
 
     public static bool IsPropertyBagType([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.Interfaces)] this Type type)
     {
@@ -122,8 +125,7 @@ internal static class SharedTypeExtensions
     }
 
     public static bool IsInstantiable(this Type type)
-        => !type.IsAbstract
-            && !type.IsInterface
+        => type is { IsAbstract: false, IsInterface: false }
             && (!type.IsGenericType || !type.IsGenericTypeDefinition);
 
     public static Type UnwrapEnumType(this Type type)
@@ -256,8 +258,7 @@ internal static class SharedTypeExtensions
                 typesToProcess.Enqueue(type.GetGenericTypeDefinition());
             }
 
-            if (!type.IsGenericTypeDefinition
-                && !type.IsInterface)
+            if (type is { IsGenericTypeDefinition: false, IsInterface: false })
             {
                 if (type.BaseType != null)
                 {
@@ -309,7 +310,7 @@ internal static class SharedTypeExtensions
         this Type type,
         Type[]? types)
     {
-        types ??= Array.Empty<Type>();
+        types ??= [];
 
         return type.GetTypeInfo().DeclaredConstructors
             .SingleOrDefault(
@@ -370,6 +371,27 @@ internal static class SharedTypeExtensions
         string name)
         => type.GetMembersInHierarchy().Where(m => m.Name == name);
 
+    public static MethodInfo GetGenericMethod(
+        [DynamicallyAccessedMembers(
+            DynamicallyAccessedMemberTypes.PublicMethods
+            | DynamicallyAccessedMemberTypes.NonPublicMethods)]
+        this Type type,
+        string name,
+        int genericParameterCount,
+        BindingFlags bindingFlags,
+        Func<Type[], Type[], Type[]> parameterGenerator,
+        bool? @override = null)
+        => type.GetMethods(bindingFlags)
+            .Single(
+                mi => mi.Name == name
+                    && ((genericParameterCount == 0 && !mi.IsGenericMethod)
+                        || (mi.IsGenericMethod && mi.GetGenericArguments().Length == genericParameterCount))
+                    && mi.GetParameters().Select(e => e.ParameterType).SequenceEqual(
+                        parameterGenerator(
+                            type.IsGenericType ? type.GetGenericArguments() : Array.Empty<Type>(),
+                            mi.IsGenericMethod ? mi.GetGenericArguments() : Array.Empty<Type>()))
+                    && (!@override.HasValue || (@override.Value == (mi.GetBaseDefinition().DeclaringType != mi.DeclaringType))));
+
     private static readonly Dictionary<Type, object> CommonTypeDictionary = new()
     {
 #pragma warning disable IDE0034 // Simplify 'default' expression - default causes default(object)
@@ -394,7 +416,8 @@ internal static class SharedTypeExtensions
     };
 
     public static object? GetDefaultValue(
-        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] this Type type)
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
+        this Type type)
     {
         if (!type.IsValueType)
         {
@@ -410,13 +433,14 @@ internal static class SharedTypeExtensions
     }
 
     [RequiresUnreferencedCode("Gets all types from the given assembly - unsafe for trimming")]
-    public static IEnumerable<TypeInfo> GetConstructibleTypes(this Assembly assembly)
-        => assembly.GetLoadableDefinedTypes().Where(
-            t => !t.IsAbstract
-                && !t.IsGenericTypeDefinition);
+    public static IEnumerable<TypeInfo> GetConstructibleTypes(
+        this Assembly assembly, IDiagnosticsLogger<DbLoggerCategory.Model>? logger = null)
+        => assembly.GetLoadableDefinedTypes(logger).Where(
+            t => t is { IsAbstract: false, IsGenericTypeDefinition: false });
 
     [RequiresUnreferencedCode("Gets all types from the given assembly - unsafe for trimming")]
-    public static IEnumerable<TypeInfo> GetLoadableDefinedTypes(this Assembly assembly)
+    public static IEnumerable<TypeInfo> GetLoadableDefinedTypes(
+        this Assembly assembly, IDiagnosticsLogger<DbLoggerCategory.Model>? logger = null)
     {
         try
         {
@@ -424,6 +448,8 @@ internal static class SharedTypeExtensions
         }
         catch (ReflectionTypeLoadException ex)
         {
+            logger?.TypeLoadingErrorWarning(assembly, ex);
+
             return ex.Types.Where(t => t != null).Select(IntrospectionExtensions.GetTypeInfo!);
         }
     }
@@ -477,6 +503,10 @@ internal static class SharedTypeExtensions
                 builder.Append(fullName ? type.FullName : type.Name);
             }
         }
+        else if (compilable)
+        {
+            builder.Append(type.Name);
+        }
     }
 
     private static void ProcessArrayType(StringBuilder builder, Type type, bool fullName, bool compilable)
@@ -514,13 +544,13 @@ internal static class SharedTypeExtensions
             return;
         }
 
-        var offset = type.IsNested ? type.DeclaringType!.GetGenericArguments().Length : 0;
+        var offset = type.DeclaringType != null ? type.DeclaringType.GetGenericArguments().Length : 0;
 
         if (compilable)
         {
-            if (type.IsNested)
+            if (type.DeclaringType != null)
             {
-                ProcessType(builder, type.DeclaringType!, fullName, compilable);
+                ProcessGenericType(builder, type.DeclaringType, genericArguments, offset, fullName, compilable);
                 builder.Append('.');
             }
             else if (fullName)
@@ -533,9 +563,9 @@ internal static class SharedTypeExtensions
         {
             if (fullName)
             {
-                if (type.IsNested)
+                if (type.DeclaringType != null)
                 {
-                    ProcessGenericType(builder, type.DeclaringType!, genericArguments, offset, fullName, compilable);
+                    ProcessGenericType(builder, type.DeclaringType, genericArguments, offset, fullName, compilable);
                     builder.Append('+');
                 }
                 else
@@ -591,7 +621,21 @@ internal static class SharedTypeExtensions
             yield break;
         }
 
-        yield return type.Namespace!;
+        if (type.IsConstructedGenericType
+            && type.GetGenericTypeDefinition() == typeof(Nullable<>))
+        {
+            foreach (var ns in type.UnwrapNullableType().GetNamespaces())
+            {
+                yield return ns;
+            }
+        }
+        else
+        {
+            if (type.Namespace is not null)
+            {
+                yield return type.Namespace;
+            }
+        }
 
         if (type.IsGenericType)
         {
@@ -606,12 +650,5 @@ internal static class SharedTypeExtensions
     }
 
     public static ConstantExpression GetDefaultValueConstant(this Type type)
-        => (ConstantExpression)GenerateDefaultValueConstantMethod
-            .MakeGenericMethod(type).Invoke(null, Array.Empty<object>())!;
-
-    private static readonly MethodInfo GenerateDefaultValueConstantMethod =
-        typeof(SharedTypeExtensions).GetTypeInfo().GetDeclaredMethod(nameof(GenerateDefaultValueConstant))!;
-
-    private static ConstantExpression GenerateDefaultValueConstant<TDefault>()
-        => Expression.Constant(default(TDefault), typeof(TDefault));
+        => Expression.Constant(type.IsValueType ? RuntimeHelpers.GetUninitializedObject(type) : null, type);
 }

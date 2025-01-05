@@ -3,6 +3,7 @@
 
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 
+// ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 /// <summary>
@@ -67,19 +68,20 @@ public class CosmosValueGenerationConvention :
     /// <returns>The store value generation strategy to set for the given property.</returns>
     protected override ValueGenerated? GetValueGenerated(IConventionProperty property)
     {
-        var entityType = property.DeclaringEntityType;
+        var entityType = property.DeclaringType as IConventionEntityType;
         var propertyType = property.ClrType.UnwrapNullableType();
-        if (propertyType == typeof(int))
+        if (propertyType == typeof(int)
+            && entityType != null)
         {
             var ownership = entityType.FindOwnership();
-            if (ownership != null
-                && !ownership.IsUnique
+            if (ownership is { IsUnique: false }
                 && !entityType.IsDocumentRoot())
             {
                 var pk = property.FindContainingPrimaryKey();
                 if (pk != null
                     && !property.IsForeignKey()
                     && pk.Properties.Count == ownership.Properties.Count + 1
+                    && property.IsShadowProperty()
                     && ownership.Properties.All(fkProperty => pk.Properties.Contains(fkProperty)))
                 {
                     return ValueGenerated.OnAddOrUpdate;

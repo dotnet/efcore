@@ -1,17 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
-  <!-- 
-    Microsoft ResX Schema 
-    
+  <!--
+    Microsoft ResX Schema
+
     Version 2.0
-    
-    The primary goals of this format is to allow a simple XML format 
-    that is mostly human readable. The generation and parsing of the 
-    various data types are done through the TypeConverter classes 
+
+    The primary goals of this format is to allow a simple XML format
+    that is mostly human readable. The generation and parsing of the
+    various data types are done through the TypeConverter classes
     associated with the data types.
-    
+
     Example:
-    
+
     ... ado.net/XML headers & schema ...
     <resheader name="resmimetype">text/microsoft-resx</resheader>
     <resheader name="version">2.0</resheader>
@@ -26,36 +26,36 @@
         <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
         <comment>This is a comment</comment>
     </data>
-                
-    There are any number of "resheader" rows that contain simple 
+
+    There are any number of "resheader" rows that contain simple
     name/value pairs.
-    
-    Each data row contains a name, and value. The row also contains a 
-    type or mimetype. Type corresponds to a .NET class that support 
-    text/value conversion through the TypeConverter architecture. 
-    Classes that don't support this are serialized and stored with the 
+
+    Each data row contains a name, and value. The row also contains a
+    type or mimetype. Type corresponds to a .NET class that support
+    text/value conversion through the TypeConverter architecture.
+    Classes that don't support this are serialized and stored with the
     mimetype set.
-    
-    The mimetype is used for serialized objects, and tells the 
-    ResXResourceReader how to depersist the object. This is currently not 
+
+    The mimetype is used for serialized objects, and tells the
+    ResXResourceReader how to depersist the object. This is currently not
     extensible. For a given mimetype the value must be set accordingly:
-    
-    Note - application/x-microsoft.net.object.binary.base64 is the format 
-    that the ResXResourceWriter will generate, however the reader can 
+
+    Note - application/x-microsoft.net.object.binary.base64 is the format
+    that the ResXResourceWriter will generate, however the reader can
     read any of the formats listed below.
-    
+
     mimetype: application/x-microsoft.net.object.binary.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
             : and then encoded with base64 encoding.
-    
+
     mimetype: application/x-microsoft.net.object.soap.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
             : and then encoded with base64 encoding.
 
     mimetype: application/x-microsoft.net.object.bytearray.base64
-    value   : The object must be serialized into a byte array 
+    value   : The object must be serialized into a byte array
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
@@ -120,29 +120,62 @@
   <data name="AnalyticalTTLMismatch" xml:space="preserve">
     <value>The time to live for analytical store was configured to '{ttl1}' on '{entityType1}', but on '{entityType2}' it was configured to '{ttl2}'. All entity types mapped to the same container '{container}' must be configured with the same time to live for analytical store.</value>
   </data>
+  <data name="BadDictionaryType" xml:space="preserve">
+    <value>The type '{givenType}' cannot be mapped as a dictionary because it does not implement '{dictionaryType}'.</value>
+  </data>
+  <data name="BadVectorDataType" xml:space="preserve">
+    <value>The type '{clrType}' is being used as a vector, but the vector data type cannot be inferred. Only 'ReadOnlyMemory&lt;byte&gt;, ReadOnlyMemory&lt;sbyte&gt;, ReadOnlyMemory&lt;float&gt;, byte[], sbyte[], and float[] are supported.</value>
+  </data>
   <data name="CanConnectNotSupported" xml:space="preserve">
     <value>The Cosmos database does not support 'CanConnect' or 'CanConnectAsync'.</value>
   </data>
-  <data name="ConnectionStringConflictingConfiguration" xml:space="preserve">
-    <value>Both the connection string and CredentialToken, account key or account endpoint were specified. Specify only one set of connection details.</value>
+  <data name="ComplexProjectionInSubqueryNotSupported" xml:space="preserve">
+    <value>Complex projections in subqueries are currently unsupported.</value>
+  </data>
+  <data name="CompositeVectorIndex" xml:space="preserve">
+    <value>A vector index on '{entityType}' is defined over properties `{properties}`. A vector index can only target a single property.</value>
+  </data>
+  <data name="ConnectionInfoMissing" xml:space="preserve">
+    <value>None of connection string, CredentialToken, account key or account endpoint were specified. Specify a set of connection details.</value>
   </data>
   <data name="ContainerContainingPropertyConflict" xml:space="preserve">
     <value>The entity type '{entityType}' is mapped to the container '{container}' but it is also configured as being contained in property '{property}'.</value>
   </data>
+  <data name="ContainerNotOnRoot" xml:space="preserve">
+    <value>An Azure Cosmos DB container name is defined on entity type '{entityType}', which inherits from '{baseEntityType}'. Container names must be defined on the root entity type of a hierarchy.</value>
+  </data>
   <data name="CosmosNotInUse" xml:space="preserve">
     <value>Cosmos-specific methods can only be used when the context is using the Cosmos provider.</value>
+  </data>
+  <data name="CrossDocumentJoinNotSupported" xml:space="preserve">
+    <value>Joins across documents aren't supported in Cosmos; consider modeling your data differently so that related data is in the same document. Alternatively, perform two separate queries to query the two documents.</value>
   </data>
   <data name="DefaultTTLMismatch" xml:space="preserve">
     <value>The default time to live was configured to '{ttl1}' on '{entityType1}', but on '{entityType2}' it was configured to '{ttl2}'. All entity types mapped to the same container '{container}' must be configured with the same default time to live.</value>
   </data>
+  <data name="DiscriminatorInKeyOnNonRoot" xml:space="preserve">
+    <value>'HasDiscriminatorInJsonId' or 'HasRootDiscriminatorInJsonId' was called on a non-root entity type '{entityType}'. Discriminator configuration for the JSON 'id' property can only be made on the document root.</value>
+  </data>
   <data name="DuplicateDiscriminatorValue" xml:space="preserve">
     <value>The discriminator value for '{entityType1}' is '{discriminatorValue}' which is the same for '{entityType2}'. Every concrete entity type mapped to the container '{container}' must have a unique discriminator value.</value>
+  </data>
+  <data name="ElementWithValueConverter" xml:space="preserve">
+    <value>The property '{propertyType} {structuralType}.{property}' has element type '{elementType}', which requires a value converter. Elements types requiring value converters are not currently supported with the Azure Cosmos DB database provider.</value>
   </data>
   <data name="ETagNonStringStoreType" xml:space="preserve">
     <value>The type of the etag property '{property}' on '{entityType}' is '{propertyType}'. All etag properties must be strings or have a string value converter.</value>
   </data>
+  <data name="ExceptNotSupported" xml:space="preserve">
+    <value>The 'Except()' LINQ operator isn't supported by Cosmos.</value>
+  </data>
+  <data name="HasShadowIdOnNonRoot" xml:space="preserve">
+    <value>'HasShadowId' was called on a non-root entity type '{entityType}'. JSON 'id' configuration can only be made on the document root.</value>
+  </data>
   <data name="IdNonStringStoreType" xml:space="preserve">
     <value>The type of the '{idProperty}' property on '{entityType}' is '{propertyType}'. All 'id' properties must be strings or have a string value converter.</value>
+  </data>
+  <data name="IndexesExist" xml:space="preserve">
+    <value>The entity type '{entityType}' has an index defined over properties '{properties}'. The Azure Cosmos DB provider for EF Core currently does not support index definitions.</value>
   </data>
   <data name="InvalidDerivedTypeInEntityProjection" xml:space="preserve">
     <value>The specified entity type '{derivedType}' is not derived from '{entityType}'.</value>
@@ -153,8 +186,14 @@
   <data name="InvalidResourceId" xml:space="preserve">
     <value>Unable to generate a valid 'id' value to execute a 'ReadItem' query. This usually happens when the value provided for one of the properties is 'null' or an empty string. Please supply a value that's not 'null' or an empty string.</value>
   </data>
+  <data name="IsDiscriminatorMappingCompleteMismatch" xml:space="preserve">
+    <value>The IsDiscriminatorMappingComplete setting was configured to '{isDiscriminatorMappingComplete1}' on '{entityType1}', but on '{entityType2}' it was configured to '{isDiscriminatorMappingComplete2}'. All entity types mapped to the same container '{container}' must be configured with the same IsDiscriminatorMappingComplete value.</value>
+  </data>
   <data name="JsonPropertyCollision" xml:space="preserve">
     <value>Both properties '{property1}' and '{property2}' on entity type '{entityType}' are mapped to '{storeName}'. Map one of the properties to a different JSON property.</value>
+  </data>
+  <data name="LimitOffsetNotSupportedInSubqueries" xml:space="preserve">
+    <value>The query requires use of LIMIT and OFFSET in a subquery, which is unsupported by Cosmos.</value>
   </data>
   <data name="LogExecutedCreateItem" xml:space="preserve">
     <value>Executed CreateItem ({elapsed} ms, {charge} RU) ActivityId='{activityId}', Container='{container}', Id='{id}', Partition='{partitionKey}'</value>
@@ -184,8 +223,23 @@
     <value>Executing SQL query for container '{containerId}' in partition '{partitionKey}' [Parameters=[{parameters}]]{newLine}{commandText}</value>
     <comment>Information CosmosEventId.ExecutingSqlQuery string string? string string string</comment>
   </data>
+  <data name="LogNoPartitionKeyDefined" xml:space="preserve">
+    <value>No partition key has been configured for entity type '{entityType}'. It is highly recommended that an appropriate partition key be defined. See https://aka.ms/efdocs-cosmos-partition-keys for more information.</value>
+    <comment>Warning CosmosEventId.NoPartitionKeyDefined string</comment>
+  </data>
+  <data name="LogPrimaryKeyValueNotSet" xml:space="preserve">
+    <value>The key property '{entityType}.{property}' is not configured to generate values and has the CLR default or sentinel value while saving a new entity to the database. The Azure Cosmos DB database provider for EF Core does not generate key values by default. This means key values must be explicitly set before saving new entities. See https://aka.ms/ef-cosmos-keys for more information.</value>
+    <comment>Warning CosmosEventId.PrimaryKeyValueNotSet string string</comment>
+  </data>
+  <data name="LogSyncNotSupported" xml:space="preserve">
+    <value>Azure Cosmos DB does not support synchronous I/O. Make sure to use and correctly await only async methods when using Entity Framework Core to access Azure Cosmos DB. See https://aka.ms/ef-cosmos-nosync for more information.</value>
+    <comment>Error CosmosEventId.SyncNotSupported</comment>
+  </data>
   <data name="MissingOrderingInSelectExpression" xml:space="preserve">
     <value>'Reverse' could not be translated to the server because there is no ordering on the server side.</value>
+  </data>
+  <data name="MultipleRootEntityTypesReferencedInQuery" xml:space="preserve">
+    <value>Root entity type '{entityType1}' is referenced by the query, but '{entityType2}' is already being referenced. A query can only reference a single root entity type.</value>
   </data>
   <data name="NavigationPropertyIsNotAnEmbeddedEntity" xml:space="preserve">
     <value>Navigation '{entityType}.{navigationName}' doesn't point to an embedded entity.</value>
@@ -196,11 +250,11 @@
   <data name="NoDiscriminatorValue" xml:space="preserve">
     <value>The entity type '{entityType}' is sharing the container '{container}' with other types, but does not have a discriminator value configured. Configure a unique discriminator value for this entity type.</value>
   </data>
-  <data name="NoIdKey" xml:space="preserve">
-    <value>The entity type '{entityType}' does not have a key declared on the '{idProperty}' property. Add a key to '{entityType}' that contains '{idProperty}'.</value>
-  </data>
   <data name="NoIdProperty" xml:space="preserve">
     <value>The entity type '{entityType}' does not have a property mapped to the 'id' property in the database. Add a property mapped to 'id'.</value>
+  </data>
+  <data name="NonCorrelatedSubqueriesNotSupported" xml:space="preserve">
+    <value>Cosmos subqueries must be correlated, referencing values from the outer query.</value>
   </data>
   <data name="NonEmbeddedIncludeNotSupported" xml:space="preserve">
     <value>Including navigation '{navigation}' is not supported as the navigation is not embedded in same resource.</value>
@@ -209,19 +263,25 @@
     <value>The entity type '{entityType}' has property '{property}' configured as a concurrency token, but only a property mapped to '_etag' is supported as a concurrency token. Consider using 'PropertyBuilder.IsETagConcurrency'.</value>
   </data>
   <data name="NoPartitionKey" xml:space="preserve">
-    <value>The entity type '{entityType}' does not have a partition key set, but is mapped to the container '{container}' shared by entity types with partition keys. Configure a compatible partition key on '{entityType}'.</value>
-  </data>
-  <data name="NoPartitionKeyKey" xml:space="preserve">
-    <value>The entity type '{entityType}' does not have a key declared on '{partitionKey}' and '{idProperty}' properties. Add a key to '{entityType}' that contains '{partitionKey}' and '{idProperty}'.</value>
+    <value>The partition key properties for entity type '{entityType1}' are '{props1}', while the partition key properties for entity type '{entityType2}' are '{props2}', and both entity types are mapped to the container '{containerName}'. All entity types mapped to the same container must have compatible partition keys defined.</value>
   </data>
   <data name="NoReadItemQueryString" xml:space="preserve">
     <value>There is no string-based representation of this query as it's executed using 'ReadItemQueryAsync({resourceId}, {partitionKey})'.</value>
+  </data>
+  <data name="NoSubqueryPushdown" xml:space="preserve">
+    <value>Azure Cosmos DB does not have an appropriate subquery for this translation.</value>
   </data>
   <data name="NullTypeMappingInSqlTree" xml:space="preserve">
     <value>The expression '{sqlExpression}' in the SQL tree does not have a type mapping assigned.</value>
   </data>
   <data name="OffsetRequiresLimit" xml:space="preserve">
     <value>Cosmos SQL does not allow Offset without Limit. Consider specifying a 'Take' operation on the query.</value>
+  </data>
+  <data name="SingleFirstOrDefaultNotSupportedOnNonNullableQueries" xml:space="preserve">
+    <value>SingleOrDefault and FirstOrDefault cannot be used Cosmos SQL does not allow Offset without Limit. Consider specifying a 'Take' operation on the query.</value>
+  </data>
+  <data name="OneOfTwoValuesMustBeSet" xml:space="preserve">
+    <value>Exactly one of '{param1}' or '{param2}' must be set.</value>
   </data>
   <data name="OrphanedNestedDocument" xml:space="preserve">
     <value>The entity of type '{entityType}' is mapped as a part of the document mapped to '{missingEntityType}', but there is no tracked entity of this type with the corresponding key value. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the key values.</value>
@@ -232,17 +292,23 @@
   <data name="OwnedTypeDifferentContainer" xml:space="preserve">
     <value>The entity type '{entityType}' is owned by the entity type '{owner}', but is mapped to the container '{container}'. Owned types mapped to a container directly are not supported, remove this configuration to allow the owned type to be embedded in the same document as the owner.</value>
   </data>
-  <data name="PartitionKeyMismatch" xml:space="preserve">
-    <value>The partition key specified in the 'WithPartitionKey' call '{partitionKey1}' and the partition key specified in the 'Where' predicate '{partitionKey2}' must be identical to return any results. Remove one of them.</value>
+  <data name="PartitionKeyBadStoreType" xml:space="preserve">
+    <value>The type of the partition key property '{property}' on '{entityType}' is '{propertyType}'. All partition key property types must be numeric, Boolean, or string, or converted to one of these types.</value>
+  </data>
+  <data name="PartitionKeyBadValue" xml:space="preserve">
+    <value>The partition key value is of type '{valueType}' which is not valid for Cosmos partition keys. All partition key properties values must be numeric, Boolean, or string, or converted to one of these types.</value>
+  </data>
+  <data name="PartitionKeyBadValueType" xml:space="preserve">
+    <value>The partition key value supplied for '{propertyType}' property '{entityType}.{property}' is of type '{valueType}'. Partition key values must be of a type assignable to the property.</value>
+  </data>
+  <data name="PartitionKeyNotOnRoot" xml:space="preserve">
+    <value>A partition key is defined on entity type '{entityType}', which inherits from '{baseEntityType}'. Partition keys must be defined on the root entity type of a hierarchy.</value>
   </data>
   <data name="PartitionKeyMissing" xml:space="preserve">
     <value>Unable to execute a 'ReadItem' query since the partition key value is missing. Consider using the 'WithPartitionKey' method on the query to specify partition key to use.</value>
   </data>
   <data name="PartitionKeyMissingProperty" xml:space="preserve">
     <value>The partition key for entity type '{entityType}' is set to '{property}', but there is no property with that name.</value>
-  </data>
-  <data name="PartitionKeyNonStringStoreType" xml:space="preserve">
-    <value>The type of the partition key property '{property}' on '{entityType}' is '{propertyType}'. All partition key properties need to be strings or have a string value converter.</value>
   </data>
   <data name="PartitionKeyStoreNameMismatch" xml:space="preserve">
     <value>The partition key property '{property1}' on '{entityType1}' is mapped as '{storeName1}', but the partition key property '{property2}' on '{entityType2}' is mapped as '{storeName2}'. All partition key properties need to be mapped to the same store property for entity types mapped to the same container.</value>
@@ -259,6 +325,9 @@
   <data name="ThroughputTypeMismatch" xml:space="preserve">
     <value>The provisioned throughput was configured as manual on '{manualEntityType}', but on '{autoscaleEntityType}' it was configured as autoscale. All entity types mapped to the same container '{container}' must be configured with the same provisioned throughput type.</value>
   </data>
+  <data name="ToPageAsyncAtTopLevelOnly" xml:space="preserve">
+    <value>'ToPageAsync' can only be used as the terminating operator of the top-level query.</value>
+  </data>
   <data name="TransactionsNotSupported" xml:space="preserve">
     <value>The Cosmos database provider does not support transactions.</value>
   </data>
@@ -272,9 +341,24 @@
     <value>Conflicts were detected for item with id '{itemId}'.</value>
   </data>
   <data name="UpdateStoreException" xml:space="preserve">
-    <value>An error occurred while saving the the item with id '{itemId}'. See the inner exception for details.</value>
+    <value>An error occurred while saving the item with id '{itemId}'. See the inner exception for details.</value>
+  </data>
+  <data name="VectorIndexOnNonVector" xml:space="preserve">
+    <value>A vector index is defined for `{entityType}.{property}`, but this property has not been configured as a vector. Use 'IsVector()' in 'OnModelCreating' to configure the property as a vector.</value>
+  </data>
+  <data name="VectorSearchRequiresVector" xml:space="preserve">
+    <value>The 'VectorDistance' function can only be used with a property mapped as a vector. Use 'IsVector()' in 'OnModelCreating' to configure the property as a vector.</value>
   </data>
   <data name="VisitChildrenMustBeOverridden" xml:space="preserve">
     <value>'VisitChildren' must be overridden in the class deriving from 'SqlExpression'.</value>
+  </data>
+  <data name="WithPartitionKeyAlreadyCalled" xml:space="preserve">
+    <value>'WithPartitionKey' can only be called once in a query. See https://aka.ms/efdocs-cosmos-partition-keys for more information.</value>
+  </data>
+  <data name="WithPartitionKeyBadNode" xml:space="preserve">
+    <value>'WithPartitionKey' can only be called on a entity query root. See https://aka.ms/efdocs-cosmos-partition-keys for more information.</value>
+  </data>
+  <data name="WithPartitionKeyNotConstantOrParameter" xml:space="preserve">
+    <value>'WithPartitionKey' only accepts simple constant or parameter arguments. See https://aka.ms/efdocs-cosmos-partition-keys for more information.</value>
   </data>
 </root>

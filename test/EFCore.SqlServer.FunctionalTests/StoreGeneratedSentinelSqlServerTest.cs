@@ -1,18 +1,12 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore;
 
-public class StoreGeneratedSentinelSqlServerTest : StoreGeneratedSqlServerTestBase<
-    StoreGeneratedSentinelSqlServerTest.StoreGeneratedSentinelSqlServerFixture>
+public class StoreGeneratedSentinelSqlServerTest(StoreGeneratedSentinelSqlServerTest.StoreGeneratedSentinelSqlServerFixture fixture)
+    : StoreGeneratedSqlServerTestBase<
+        StoreGeneratedSentinelSqlServerTest.StoreGeneratedSentinelSqlServerFixture>(fixture)
 {
-    public StoreGeneratedSentinelSqlServerTest(StoreGeneratedSentinelSqlServerFixture fixture)
-        : base(fixture)
-    {
-    }
-
     public class StoreGeneratedSentinelSqlServerFixture : StoreGeneratedSqlServerFixtureBase
     {
         public override Guid GuidSentinel { get; } = new("91B22A0D-99F4-4AD4-930F-6590AFD30FDD");
@@ -173,6 +167,16 @@ public class StoreGeneratedSentinelSqlServerTest : StoreGeneratedSqlServerTestBa
                     b.Property(e => e.Id).HasSentinel(NullableIntSentinel);
                     b.Property(e => e.NullableAsNonNullable).HasSentinel(NullableIntSentinel);
                     b.Property(e => e.NonNullableAsNullable).HasSentinel(IntSentinel);
+                });
+
+            modelBuilder.Entity<WithNoBackingFields>(
+                b =>
+                {
+                    b.Property(e => e.Id).HasSentinel(IntSentinel);
+                    b.Property(e => e.TrueDefault).HasSentinel(BoolSentinel);
+                    b.Property(e => e.NonZeroDefault).HasSentinel(IntSentinel);
+                    b.Property(e => e.FalseDefault).HasSentinel(BoolSentinel);
+                    b.Property(e => e.ZeroDefault).HasSentinel(IntSentinel);
                 });
 
             modelBuilder.Entity<WithNullableBackingFields>(

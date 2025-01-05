@@ -3,14 +3,11 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public abstract class Ef6GroupByTestBase<TFixture> : QueryTestBase<TFixture>
+#nullable disable
+
+public abstract class Ef6GroupByTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)
     where TFixture : Ef6GroupByTestBase<TFixture>.Ef6GroupByFixtureBase, new()
 {
-    protected Ef6GroupByTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task GroupBy_is_optimized_when_projecting_group_key(bool async)
@@ -77,7 +74,7 @@ public abstract class Ef6GroupByTestBase<TFixture> : QueryTestBase<TFixture>
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task GroupBy_is_optimized_when_filerting_and_projecting_anonymous_type_with_group_key_and_function_aggregate(
+    public virtual Task GroupBy_is_optimized_when_filtering_and_projecting_anonymous_type_with_group_key_and_function_aggregate(
         bool async)
         => AssertQuery(
             async,
@@ -119,8 +116,7 @@ public abstract class Ef6GroupByTestBase<TFixture> : QueryTestBase<TFixture>
                 Assert.Equal(e.Alias, a.Alias);
                 Assert.Equal(e.FirstName, a.FirstName);
                 Assert.Equal(e.LastName, a.LastName);
-            },
-            entryCount: 10);
+            });
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -183,9 +179,9 @@ public abstract class Ef6GroupByTestBase<TFixture> : QueryTestBase<TFixture>
         => AssertQueryScalar(
             async,
             ss => from o in ss.Set<ArubaOwner>()
-                    group o by o
-                    into g
-                    select g.Count());
+                  group o by o
+                  into g
+                  select g.Count());
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -193,9 +189,9 @@ public abstract class Ef6GroupByTestBase<TFixture> : QueryTestBase<TFixture>
         => AssertQuery(
             async,
             ss => from o in ss.Set<ArubaOwner>()
-                    group o by o
-                    into g
-                    select new { g.Key.Id, Count = g.Count() });
+                  group o by o
+                  into g
+                  select new { g.Key.Id, Count = g.Count() });
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -203,14 +199,14 @@ public abstract class Ef6GroupByTestBase<TFixture> : QueryTestBase<TFixture>
         => AssertQuery(
             async,
             ss => from o in ss.Set<ArubaOwner>()
-                    group o by o
-                    into g
-                    select new
-                    {
-                        g.Key.Id,
-                        g.Key.Alias,
-                        Count = g.Count()
-                    });
+                  group o by o
+                  into g
+                  select new
+                  {
+                      g.Key.Id,
+                      g.Key.Alias,
+                      Count = g.Count()
+                  });
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -218,14 +214,14 @@ public abstract class Ef6GroupByTestBase<TFixture> : QueryTestBase<TFixture>
         => AssertQuery(
             async,
             ss => from o in ss.Set<ArubaOwner>()
-                    group o by o
-                    into g
-                    select new
-                    {
-                        g.Key.Id,
-                        Sum = g.Sum(x => x.Id),
-                        Count = g.Count()
-                    });
+                  group o by o
+                  into g
+                  select new
+                  {
+                      g.Key.Id,
+                      Sum = g.Sum(x => x.Id),
+                      Count = g.Count()
+                  });
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -419,8 +415,7 @@ public abstract class Ef6GroupByTestBase<TFixture> : QueryTestBase<TFixture>
             {
                 AssertEqual(e.Customer, a.Customer);
                 AssertCollection(e.Products, a.Products);
-            },
-            entryCount: 11);
+            });
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -442,8 +437,7 @@ public abstract class Ef6GroupByTestBase<TFixture> : QueryTestBase<TFixture>
                 Assert.Equal(l.Customer.Id, r.Customer.Id);
                 Assert.Equal(l.Customer.Region, r.Customer.Region);
                 Assert.Equal(l.Customer.CompanyName, r.Customer.CompanyName);
-            },
-            entryCount: 4);
+            });
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -463,8 +457,7 @@ public abstract class Ef6GroupByTestBase<TFixture> : QueryTestBase<TFixture>
             {
                 Assert.Equal(l.OrderId, r.OrderId);
                 AssertEqual(l.Customer, r.Customer);
-            },
-            entryCount: 11);
+            });
 
     [ConditionalTheory] // From #12088
     [MemberData(nameof(IsAsyncData))]
@@ -477,8 +470,7 @@ public abstract class Ef6GroupByTestBase<TFixture> : QueryTestBase<TFixture>
                 .Select(
                     g => g.OrderBy(e => e.FirstName)
                         .ThenBy(e => e.LastName)
-                        .FirstOrDefault()),
-            entryCount: 9);
+                        .FirstOrDefault()));
 
     [ConditionalTheory] // From #16648
     [MemberData(nameof(IsAsyncData))]
@@ -675,8 +667,7 @@ public abstract class Ef6GroupByTestBase<TFixture> : QueryTestBase<TFixture>
                     AssertEqual(lTake[i], rTake[i]);
                 }
             },
-            assertOrder: false,
-            entryCount: 8);
+            assertOrder: false);
 
     [ConditionalTheory] // From #13805
     [MemberData(nameof(IsAsyncData))]
@@ -698,8 +689,7 @@ public abstract class Ef6GroupByTestBase<TFixture> : QueryTestBase<TFixture>
                 {
                     AssertEqual(l.People[i], r.People[i]);
                 }
-            },
-            entryCount: 36);
+            });
 
     [ConditionalTheory] // From #12088
     [MemberData(nameof(IsAsyncData))]
@@ -719,8 +709,7 @@ public abstract class Ef6GroupByTestBase<TFixture> : QueryTestBase<TFixture>
                 {
                     AssertEqual(l.Items[i], r.Items[i]);
                 }
-            },
-            entryCount: 12);
+            });
 
     [ConditionalTheory] // From #12088
     [MemberData(nameof(IsAsyncData))]
@@ -739,8 +728,7 @@ public abstract class Ef6GroupByTestBase<TFixture> : QueryTestBase<TFixture>
             async,
             ss => ss.Set<Person>()
                 .GroupBy(bp => bp.Feet)
-                .Select(g => g.OrderByDescending(bp => bp.Id).FirstOrDefault()),
-            entryCount: 12);
+                .Select(g => g.OrderByDescending(bp => bp.Id).FirstOrDefault()));
 
     [ConditionalTheory] // From #12573
     [MemberData(nameof(IsAsyncData))]
@@ -804,18 +792,23 @@ public abstract class Ef6GroupByTestBase<TFixture> : QueryTestBase<TFixture>
                 });
         }
 
-        protected override void Seed(ArubaContext context)
-            => new ArubaData(context);
+        protected override Task SeedAsync(ArubaContext context)
+        {
+            var data = new ArubaData();
+            context.AddRange(data.ArubaOwners);
+            context.AddRange(data.NumbersForLinq);
+            context.AddRange(data.ProductsForLinq);
+            context.AddRange(data.CustomersForLinq);
+            context.AddRange(data.OrdersForLinq);
+            context.AddRange(data.People);
+            context.AddRange(data.Feet);
+            context.AddRange(data.Shoes);
+
+            return context.SaveChangesAsync();
+        }
 
         public virtual ISetSource GetExpectedData()
-        {
-            if (_expectedData == null)
-            {
-                _expectedData = new ArubaData();
-            }
-
-            return _expectedData;
-        }
+            => _expectedData ??= new ArubaData();
 
         public IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object, object>>
         {
@@ -912,13 +905,7 @@ public abstract class Ef6GroupByTestBase<TFixture> : QueryTestBase<TFixture>
         }.ToDictionary(e => e.Key, e => (object)e.Value);
     }
 
-    public class ArubaContext : PoolableDbContext
-    {
-        public ArubaContext(DbContextOptions options)
-            : base(options)
-        {
-        }
-    }
+    public class ArubaContext(DbContextOptions options) : PoolableDbContext(options);
 
     public class ArubaOwner
     {
@@ -928,17 +915,11 @@ public abstract class Ef6GroupByTestBase<TFixture> : QueryTestBase<TFixture>
         public string Alias { get; set; }
     }
 
-    public class NumberForLinq
+    public class NumberForLinq(int value, string name)
     {
-        public NumberForLinq(int value, string name)
-        {
-            Value = value;
-            Name = name;
-        }
-
         public int Id { get; set; }
-        public int Value { get; set; }
-        public string Name { get; set; }
+        public int Value { get; set; } = value;
+        public string Name { get; set; } = name;
     }
 
     public class ProductForLinq
@@ -950,9 +931,7 @@ public abstract class Ef6GroupByTestBase<TFixture> : QueryTestBase<TFixture>
         public int UnitsInStock { get; set; }
     }
 
-    public class FeaturedProductForLinq : ProductForLinq
-    {
-    }
+    public class FeaturedProductForLinq : ProductForLinq;
 
     public class CustomerForLinq
     {
@@ -1007,7 +986,7 @@ public abstract class Ef6GroupByTestBase<TFixture> : QueryTestBase<TFixture>
         public IReadOnlyList<Feet> Feet { get; }
         public IReadOnlyList<Shoes> Shoes { get; }
 
-        public ArubaData(ArubaContext context = null)
+        public ArubaData()
         {
             ArubaOwners = CreateArubaOwners();
             NumbersForLinq = CreateNumbersForLinq();
@@ -1017,19 +996,6 @@ public abstract class Ef6GroupByTestBase<TFixture> : QueryTestBase<TFixture>
             People = CreatePeople();
             Feet = CreateFeet(People);
             Shoes = CreateShoes(People);
-
-            if (context != null)
-            {
-                context.AddRange(ArubaOwners);
-                context.AddRange(NumbersForLinq);
-                context.AddRange(ProductsForLinq);
-                context.AddRange(CustomersForLinq);
-                context.AddRange(OrdersForLinq);
-                context.AddRange(People);
-                context.AddRange(Feet);
-                context.AddRange(Shoes);
-                context.SaveChanges();
-            }
         }
 
         public IQueryable<TEntity> Set<TEntity>()

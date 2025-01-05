@@ -5,18 +5,12 @@ using Microsoft.EntityFrameworkCore.TestModels.Operators;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class OperatorsQuerySqlServerTest : OperatorsQueryTestBase
 {
-    public OperatorsQuerySqlServerTest(ITestOutputHelper testOutputHelper)
-        : base(testOutputHelper)
-    {
-    }
-
     protected override ITestStoreFactory TestStoreFactory
         => SqlServerTestStoreFactory.Instance;
-
-    protected TestSqlLoggerFactory TestSqlLoggerFactory
-        => (TestSqlLoggerFactory)ListLoggerFactory;
 
     protected void AssertSql(params string[] expected)
         => TestSqlLoggerFactory.AssertBaseline(expected);
@@ -25,21 +19,46 @@ public class OperatorsQuerySqlServerTest : OperatorsQueryTestBase
     {
         await base.Bitwise_and_on_expression_with_like_and_null_check_being_compared_to_false();
 
-        AssertSql("");
+        AssertSql(
+            """
+SELECT [o].[Value] AS [Value1], [o0].[Value] AS [Value2], [o1].[Value] AS [Value3]
+FROM [OperatorEntityString] AS [o]
+CROSS JOIN [OperatorEntityString] AS [o0]
+CROSS JOIN [OperatorEntityBool] AS [o1]
+WHERE (([o0].[Value] LIKE N'B' AND [o0].[Value] IS NOT NULL) OR [o1].[Value] = CAST(1 AS bit)) AND [o].[Value] IS NOT NULL
+ORDER BY [o].[Id], [o0].[Id], [o1].[Id]
+""");
     }
 
     public override async Task Complex_predicate_with_bitwise_and_modulo_and_negation()
     {
         await base.Complex_predicate_with_bitwise_and_modulo_and_negation();
 
-        AssertSql("");
+        AssertSql(
+            """
+SELECT [o].[Value] AS [Value0], [o0].[Value] AS [Value1], [o1].[Value] AS [Value2], [o2].[Value] AS [Value3]
+FROM [OperatorEntityLong] AS [o]
+CROSS JOIN [OperatorEntityLong] AS [o0]
+CROSS JOIN [OperatorEntityLong] AS [o1]
+CROSS JOIN [OperatorEntityLong] AS [o2]
+WHERE ([o0].[Value] % CAST(2 AS bigint)) / [o].[Value] & ((([o2].[Value] | [o1].[Value]) - [o].[Value]) - [o1].[Value] * [o1].[Value]) >= (([o0].[Value] / ~[o2].[Value]) % CAST(2 AS bigint)) % (~[o].[Value] + CAST(1 AS bigint))
+ORDER BY [o].[Id], [o0].[Id], [o1].[Id], [o2].[Id]
+""");
     }
 
     public override async Task Complex_predicate_with_bitwise_and_arithmetic_operations()
     {
         await base.Complex_predicate_with_bitwise_and_arithmetic_operations();
 
-        AssertSql("");
+        AssertSql(
+            """
+SELECT [o].[Value] AS [Value0], [o0].[Value] AS [Value1], [o1].[Value] AS [Value2]
+FROM [OperatorEntityInt] AS [o]
+CROSS JOIN [OperatorEntityInt] AS [o0]
+CROSS JOIN [OperatorEntityBool] AS [o1]
+WHERE ([o0].[Value] & ([o].[Value] + [o].[Value]) & [o].[Value]) / 1 > [o0].[Value] & 10 AND [o1].[Value] = CAST(1 AS bit)
+ORDER BY [o].[Id], [o0].[Id], [o1].[Id]
+""");
     }
 
     public override async Task Or_on_two_nested_binaries_and_another_simple_comparison()
@@ -47,20 +66,14 @@ public class OperatorsQuerySqlServerTest : OperatorsQueryTestBase
         await base.Or_on_two_nested_binaries_and_another_simple_comparison();
 
         AssertSql(
-"""
+            """
 SELECT [o].[Id] AS [Id1], [o0].[Id] AS [Id2], [o1].[Id] AS [Id3], [o2].[Id] AS [Id4], [o3].[Id] AS [Id5]
 FROM [OperatorEntityString] AS [o]
 CROSS JOIN [OperatorEntityString] AS [o0]
 CROSS JOIN [OperatorEntityString] AS [o1]
 CROSS JOIN [OperatorEntityString] AS [o2]
 CROSS JOIN [OperatorEntityInt] AS [o3]
-WHERE CASE
-    WHEN [o].[Value] = N'A' AND [o].[Value] IS NOT NULL AND [o0].[Value] = N'A' AND [o0].[Value] IS NOT NULL THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END | CASE
-    WHEN [o1].[Value] = N'B' AND [o1].[Value] IS NOT NULL AND [o2].[Value] = N'B' AND [o2].[Value] IS NOT NULL THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END = CAST(1 AS bit) AND [o3].[Value] = 2
+WHERE (([o].[Value] = N'A' AND [o0].[Value] = N'A') OR ([o1].[Value] = N'B' AND [o2].[Value] = N'B')) AND [o3].[Value] = 2
 ORDER BY [o].[Id], [o0].[Id], [o1].[Id], [o2].[Id], [o3].[Id]
 """);
     }
@@ -70,7 +83,7 @@ ORDER BY [o].[Id], [o0].[Id], [o1].[Id], [o2].[Id], [o3].[Id]
         await base.Projection_with_not_and_negation_on_integer();
 
         AssertSql(
-"""
+            """
 SELECT ~(-(-([o1].[Value] + [o].[Value] + CAST(2 AS bigint)))) % (-([o0].[Value] + [o0].[Value]) - [o].[Value])
 FROM [OperatorEntityLong] AS [o]
 CROSS JOIN [OperatorEntityLong] AS [o0]
@@ -84,7 +97,7 @@ ORDER BY [o].[Id], [o0].[Id], [o1].[Id]
         await base.Negate_on_column(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[Id]
 FROM [OperatorEntityInt] AS [o]
 WHERE [o].[Id] = -[o].[Value]
@@ -96,7 +109,7 @@ WHERE [o].[Id] = -[o].[Value]
         await base.Double_negate_on_column();
 
         AssertSql(
-"""
+            """
 SELECT [o].[Id]
 FROM [OperatorEntityInt] AS [o]
 WHERE -(-[o].[Value]) = [o].[Value]
@@ -108,7 +121,7 @@ WHERE -(-[o].[Value]) = [o].[Value]
         await base.Negate_on_binary_expression(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[Id] AS [Id1], [o0].[Id] AS [Id2]
 FROM [OperatorEntityInt] AS [o]
 CROSS JOIN [OperatorEntityInt] AS [o0]
@@ -121,15 +134,28 @@ WHERE -[o].[Value] = -([o].[Id] + [o0].[Value])
         await base.Negate_on_like_expression(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[Id]
 FROM [OperatorEntityString] AS [o]
-WHERE [o].[Value] IS NOT NULL AND NOT ([o].[Value] LIKE N'A%')
+WHERE [o].[Value] NOT LIKE N'A%' OR [o].[Value] IS NULL
+""");
+    }
+
+    public override async Task Concat_and_json_scalar(bool async)
+    {
+        await base.Concat_and_json_scalar(async);
+
+        AssertSql(
+            """
+SELECT TOP(2) [o].[Id], [o].[Owned]
+FROM [Owner] AS [o]
+WHERE N'Foo' + JSON_VALUE([o].[Owned], '$.SomeProperty') = N'FooBar'
 """);
     }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    [SqlServerCondition(SqlServerCondition.SupportsSqlClr)]
     public virtual async Task Where_AtTimeZone_datetimeoffset_constant(bool async)
     {
         var contextFactory = await InitializeAsync<OperatorsContext>(seed: Seed);
@@ -150,7 +176,7 @@ WHERE [o].[Value] IS NOT NULL AND NOT ([o].[Value] LIKE N'A%')
         }
 
         AssertSql(
-"""
+            """
 SELECT [o].[Id]
 FROM [OperatorEntityDateTimeOffset] AS [o]
 WHERE [o].[Value] AT TIME ZONE 'UTC' = '2000-01-01T18:00:00.0000000+00:00'
@@ -159,6 +185,7 @@ WHERE [o].[Value] AT TIME ZONE 'UTC' = '2000-01-01T18:00:00.0000000+00:00'
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    [SqlServerCondition(SqlServerCondition.SupportsSqlClr)]
     public virtual async Task Where_AtTimeZone_datetimeoffset_parameter(bool async)
     {
         var contextFactory = await InitializeAsync<OperatorsContext>(seed: Seed);
@@ -182,18 +209,19 @@ WHERE [o].[Value] AT TIME ZONE 'UTC' = '2000-01-01T18:00:00.0000000+00:00'
         }
 
         AssertSql(
-"""
-@__timeZone_1='UTC' (Size = 8000) (DbType = AnsiString)
-@__dateTime_2='2000-01-01T18:00:00.0000000+00:00'
+            """
+@timeZone='UTC' (Size = 8000) (DbType = AnsiString)
+@dateTime='2000-01-01T18:00:00.0000000+00:00'
 
 SELECT [o].[Id]
 FROM [OperatorEntityDateTimeOffset] AS [o]
-WHERE [o].[Value] AT TIME ZONE @__timeZone_1 = @__dateTime_2
+WHERE [o].[Value] AT TIME ZONE @timeZone = @dateTime
 """);
     }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    [SqlServerCondition(SqlServerCondition.SupportsSqlClr)]
     public virtual async Task Where_AtTimeZone_datetimeoffset_column(bool async)
     {
         var contextFactory = await InitializeAsync<OperatorsContext>(seed: Seed);
@@ -217,11 +245,43 @@ WHERE [o].[Value] AT TIME ZONE @__timeZone_1 = @__dateTime_2
         }
 
         AssertSql(
-"""
+            """
 SELECT [o].[Id] AS [Id1], [o0].[Id] AS [Id2]
 FROM [OperatorEntityDateTimeOffset] AS [o]
 CROSS JOIN [OperatorEntityDateTimeOffset] AS [o0]
 WHERE [o].[Value] AT TIME ZONE 'UTC' = [o0].[Value]
+""");
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    [SqlServerCondition(SqlServerCondition.SupportsSqlClr)]
+    public virtual async Task Where_AtTimeZone_is_null(bool async)
+    {
+        var contextFactory = await InitializeAsync<OperatorsContext>(seed: Seed);
+        using var context = contextFactory.CreateContext();
+
+        var expected = (from e in ExpectedData.OperatorEntitiesNullableDateTimeOffset
+                        where e.Value == null
+                        select e.Id).ToList();
+
+        var actual = (from e in context.Set<OperatorEntityNullableDateTimeOffset>()
+#pragma warning disable CS8073 // The result of the expression is always the same since a value of this type is never equal to 'null'
+                      where EF.Functions.AtTimeZone(e.Value.Value, "UTC") == null
+#pragma warning restore CS8073 // The result of the expression is always the same since a value of this type is never equal to 'null'
+                      select e.Id).ToList();
+
+        Assert.Equal(expected.Count, actual.Count);
+        for (var i = 0; i < expected.Count; i++)
+        {
+            Assert.Equal(expected[i], actual[i]);
+        }
+
+        AssertSql(
+            """
+SELECT [o].[Id]
+FROM [OperatorEntityNullableDateTimeOffset] AS [o]
+WHERE [o].[Value] IS NULL
 """);
     }
 }

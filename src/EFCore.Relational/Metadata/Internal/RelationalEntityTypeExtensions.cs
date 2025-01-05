@@ -28,38 +28,46 @@ public static class RelationalEntityTypeExtensions
     public static IEnumerable<IForeignKey> FindDeclaredReferencingRowInternalForeignKeys(
         this IEntityType entityType,
         StoreObjectIdentifier storeObject)
+        => entityType.IsMappedToJson()
+            ? Enumerable.Empty<IForeignKey>()
+            : entityType.GetDeclaredReferencingForeignKeys().Where(fk => fk.IsRowInternal(storeObject));
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static bool IsMainFragment(
+        this IReadOnlyTypeBase type,
+        StoreObjectIdentifier storeObject)
     {
-        if (entityType.IsMappedToJson())
+        var storeObjectType = storeObject.StoreObjectType;
+        var declaredStoreObject = StoreObjectIdentifier.Create(type, storeObjectType);
+        if (declaredStoreObject != null)
         {
-            yield break;
+            return storeObject == declaredStoreObject;
         }
 
-        foreach (var foreignKey in entityType.GetDeclaredReferencingForeignKeys())
+        if (storeObjectType is StoreObjectType.Function or StoreObjectType.SqlQuery)
         {
-            var dependentPrimaryKey = foreignKey.DeclaringEntityType.FindPrimaryKey();
-            if (dependentPrimaryKey == null)
-            {
-                yield break;
-            }
-
-            if (!foreignKey.PrincipalKey.IsPrimaryKey()
-                || foreignKey.PrincipalEntityType.IsAssignableFrom(foreignKey.DeclaringEntityType)
-                || !foreignKey.Properties.SequenceEqual(dependentPrimaryKey.Properties)
-                || !IsMapped(foreignKey, storeObject))
-            {
-                continue;
-            }
-
-            yield return foreignKey;
+            return false;
         }
 
-        static bool IsMapped(IReadOnlyForeignKey foreignKey, StoreObjectIdentifier storeObject)
-            => (StoreObjectIdentifier.Create(foreignKey.DeclaringEntityType, storeObject.StoreObjectType) == storeObject
-                    || foreignKey.DeclaringEntityType.GetMappingFragments(storeObject.StoreObjectType)
-                        .Any(f => f.StoreObject == storeObject))
-                && (StoreObjectIdentifier.Create(foreignKey.PrincipalEntityType, storeObject.StoreObjectType) == storeObject
-                    || foreignKey.PrincipalEntityType.GetMappingFragments(storeObject.StoreObjectType)
-                        .Any(f => f.StoreObject == storeObject));
+        if (type is not IReadOnlyEntityType entityType)
+        {
+            return false;
+        }
+
+        foreach (var derivedType in entityType.GetDirectlyDerivedTypes())
+        {
+            if (IsMainFragment(derivedType, storeObject))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /// <summary>
@@ -68,11 +76,15 @@ public static class RelationalEntityTypeExtensions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public static IEnumerable<ITableMappingBase> GetViewOrTableMappings(this IEntityType entityType)
-        => (IEnumerable<ITableMappingBase>?)(entityType.FindRuntimeAnnotationValue(
-                    RelationalAnnotationNames.ViewMappings)
-                ?? entityType.FindRuntimeAnnotationValue(RelationalAnnotationNames.TableMappings))
-            ?? Enumerable.Empty<ITableMappingBase>();
+    public static ConfigurationSource? GetStoreObjectConfigurationSource(this IConventionEntityType entityType, StoreObjectType type)
+        => type switch
+        {
+            StoreObjectType.Table => entityType.FindAnnotation(RelationalAnnotationNames.TableName)?.GetConfigurationSource(),
+            StoreObjectType.View => entityType.FindAnnotation(RelationalAnnotationNames.ViewName)?.GetConfigurationSource(),
+            StoreObjectType.SqlQuery => entityType.FindAnnotation(RelationalAnnotationNames.SqlQuery)?.GetConfigurationSource(),
+            StoreObjectType.Function => entityType.FindAnnotation(RelationalAnnotationNames.FunctionName)?.GetConfigurationSource(),
+            _ => StoredProcedure.GetStoredProcedureConfigurationSource(entityType, type),
+        };
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -100,7 +112,7 @@ public static class RelationalEntityTypeExtensions
 
             var propertyMappings = column.PropertyMappings;
             if (propertyMappings.Count() > 1
-                && propertyMappings.Any(pm => principalEntityTypes.Contains(pm.TableMapping.EntityType)))
+                && propertyMappings.Any(pm => principalEntityTypes.Contains(pm.TableMapping.TypeBase)))
             {
                 continue;
             }

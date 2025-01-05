@@ -32,6 +32,3 @@ public class EntityTypeConfigurationAttribute : Attribute
     [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | DynamicallyAccessedMemberTypes.Interfaces)]
     public Type EntityTypeConfigurationType { get; }
 }
-
-
-

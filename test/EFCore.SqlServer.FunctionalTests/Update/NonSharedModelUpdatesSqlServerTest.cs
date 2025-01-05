@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Update;
 
+#nullable disable
+
 public class NonSharedModelUpdatesSqlServerTest : NonSharedModelUpdatesTestBase
 {
     public override async Task Principal_and_dependent_roundtrips_with_cycle_breaking(bool async)
@@ -10,7 +12,7 @@ public class NonSharedModelUpdatesSqlServerTest : NonSharedModelUpdatesTestBase
         await base.Principal_and_dependent_roundtrips_with_cycle_breaking(async);
 
         AssertSql(
-"""
+            """
 @p0='AC South' (Size = 4000)
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -19,8 +21,8 @@ INSERT INTO [AuthorsClub] ([Name])
 OUTPUT INSERTED.[Id]
 VALUES (@p0);
 """,
-        //
-"""
+            //
+            """
 @p1='1'
 @p2='Alice' (Size = 4000)
 
@@ -30,8 +32,8 @@ INSERT INTO [Author] ([AuthorsClubId], [Name])
 OUTPUT INSERTED.[Id]
 VALUES (@p1, @p2);
 """,
-        //
-"""
+            //
+            """
 @p3='1'
 @p4=NULL (Size = 4000)
 
@@ -41,14 +43,14 @@ INSERT INTO [Book] ([AuthorId], [Title])
 OUTPUT INSERTED.[Id]
 VALUES (@p3, @p4);
 """,
-        //
-"""
+            //
+            """
 SELECT TOP(2) [b].[Id], [b].[AuthorId], [b].[Title], [a].[Id], [a].[AuthorsClubId], [a].[Name]
 FROM [Book] AS [b]
 INNER JOIN [Author] AS [a] ON [b].[AuthorId] = [a].[Id]
 """,
-        //
-"""
+            //
+            """
 @p0='AC North' (Size = 4000)
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -57,8 +59,8 @@ INSERT INTO [AuthorsClub] ([Name])
 OUTPUT INSERTED.[Id]
 VALUES (@p0);
 """,
-        //
-"""
+            //
+            """
 @p1='2'
 @p2='Author of the year 2023' (Size = 4000)
 
@@ -68,8 +70,8 @@ INSERT INTO [Author] ([AuthorsClubId], [Name])
 OUTPUT INSERTED.[Id]
 VALUES (@p1, @p2);
 """,
-        //
-"""
+            //
+            """
 @p4='1'
 @p3='2'
 @p5='1'
@@ -93,10 +95,11 @@ WHERE [Id] = @p5;
                 mb.Entity<User>().ToTable("Users");
                 mb.Entity<DailyDigest>().ToTable("DailyDigests");
             },
-            createTestStore: () => SqlServerTestStore.GetOrCreateWithScriptPath(
-                "Issue29502",
-                Path.Combine("Update", "Issue29502.sql"),
-                shared: false));
+            createTestStore: () => Task.FromResult<TestStore>(
+                SqlServerTestStore.GetOrCreateWithScriptPath(
+                    "Issue29502",
+                    Path.Combine("Update", "Issue29502.sql"),
+                    shared: false)));
 
         await ExecuteWithStrategyInTransactionAsync(
             contextFactory,
@@ -162,7 +165,7 @@ WHERE [Id] = @p5;
             });
 
         AssertSql(
-"""
+            """
 @p0='Blog2' (Size = 450)
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -171,8 +174,8 @@ INSERT INTO [Blog] ([Name])
 OUTPUT INSERTED.[Id]
 VALUES (@p0);
 """,
-        //
-"""
+            //
+            """
 @p0='Blog1' (Size = 450)
 @p1='Blog2' (Size = 450)
 @p2='Blog3' (Size = 450)
@@ -190,9 +193,9 @@ OUTPUT INSERTED.[Id], i._Position;
 """);
     }
 
-
     private void AssertSql(params string[] expected)
         => TestSqlLoggerFactory.AssertBaseline(expected);
 
-    protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
+    protected override ITestStoreFactory TestStoreFactory
+        => SqlServerTestStoreFactory.Instance;
 }

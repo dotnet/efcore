@@ -43,10 +43,11 @@ public class BoolToTwoValuesConverter<TProvider> : ValueConverter<bool, TProvide
     {
         var param = Expression.Parameter(typeof(bool), "v");
         return Expression.Lambda<Func<bool, TProvider>>(
-            Expression.Condition(
-                param,
-                Expression.Constant(trueValue, typeof(TProvider)),
-                Expression.Constant(falseValue, typeof(TProvider))),
+            Expression.Convert(
+                Expression.Condition(
+                    param,
+                    Expression.Constant(trueValue, typeof(TProvider)),
+                    Expression.Constant(falseValue, typeof(TProvider))), typeof(TProvider)),
             param);
     }
 

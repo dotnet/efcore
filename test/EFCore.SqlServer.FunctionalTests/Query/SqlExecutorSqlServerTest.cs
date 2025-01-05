@@ -5,14 +5,15 @@ using Microsoft.Data.SqlClient;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class SqlExecutorSqlServerTest : SqlExecutorTestBase<NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
+#nullable disable
+
+public class SqlExecutorSqlServerTest : SqlExecutorTestBase<NorthwindQuerySqlServerFixture<SqlExecutorModelCustomizer>>
 {
-    // ReSharper disable once UnusedParameter.Local
-    public SqlExecutorSqlServerTest(NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)
+    public SqlExecutorSqlServerTest(NorthwindQuerySqlServerFixture<SqlExecutorModelCustomizer> fixture, ITestOutputHelper testOutputHelper)
         : base(fixture)
     {
         Fixture.TestSqlLoggerFactory.Clear();
-        //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+        Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
     public override async Task Executes_stored_procedure(bool async)
@@ -27,7 +28,7 @@ public class SqlExecutorSqlServerTest : SqlExecutorTestBase<NorthwindQuerySqlSer
         await base.Executes_stored_procedure_with_parameter(async);
 
         AssertSql(
-"""
+            """
 @CustomerID='ALFKI' (Nullable = false) (Size = 5)
 
 [dbo].[CustOrderHist] @CustomerID
@@ -39,7 +40,7 @@ public class SqlExecutorSqlServerTest : SqlExecutorTestBase<NorthwindQuerySqlSer
         await base.Executes_stored_procedure_with_generated_parameter(async);
 
         AssertSql(
-"""
+            """
 @p0='ALFKI' (Size = 4000)
 
 [dbo].[CustOrderHist] @CustomerID = @p0
@@ -51,7 +52,7 @@ public class SqlExecutorSqlServerTest : SqlExecutorTestBase<NorthwindQuerySqlSer
         await base.Query_with_parameters(async);
 
         AssertSql(
-"""
+            """
 @p0='London' (Size = 4000)
 @p1='Sales Representative' (Size = 4000)
 
@@ -64,7 +65,7 @@ SELECT COUNT(*) FROM "Customers" WHERE "City" = @p0 AND "ContactTitle" = @p1
         await base.Query_with_dbParameter_with_name(async);
 
         AssertSql(
-"""
+            """
 @city='London' (Nullable = false) (Size = 6)
 
 SELECT COUNT(*) FROM "Customers" WHERE "City" = @city
@@ -76,7 +77,7 @@ SELECT COUNT(*) FROM "Customers" WHERE "City" = @city
         await base.Query_with_positional_dbParameter_with_name(async);
 
         AssertSql(
-"""
+            """
 @city='London' (Nullable = false) (Size = 6)
 
 SELECT COUNT(*) FROM "Customers" WHERE "City" = @city
@@ -88,7 +89,7 @@ SELECT COUNT(*) FROM "Customers" WHERE "City" = @city
         await base.Query_with_positional_dbParameter_without_name(async);
 
         AssertSql(
-"""
+            """
 @p0='London' (Nullable = false) (Size = 6)
 
 SELECT COUNT(*) FROM "Customers" WHERE "City" = @p0
@@ -100,14 +101,14 @@ SELECT COUNT(*) FROM "Customers" WHERE "City" = @p0
         await base.Query_with_dbParameters_mixed(async);
 
         AssertSql(
-"""
+            """
 @p0='London' (Size = 4000)
 @contactTitle='Sales Representative' (Nullable = false) (Size = 20)
 
 SELECT COUNT(*) FROM "Customers" WHERE "City" = @p0 AND "ContactTitle" = @contactTitle
 """,
             //
-"""
+            """
 @city='London' (Nullable = false) (Size = 6)
 @p0='Sales Representative' (Size = 4000)
 
@@ -120,7 +121,7 @@ SELECT COUNT(*) FROM "Customers" WHERE "City" = @city AND "ContactTitle" = @p0
         await base.Query_with_parameters_interpolated(async);
 
         AssertSql(
-"""
+            """
 @p0='London' (Size = 4000)
 @p1='Sales Representative' (Size = 4000)
 
@@ -133,7 +134,7 @@ SELECT COUNT(*) FROM "Customers" WHERE "City" = @p0 AND "ContactTitle" = @p1
         await base.Query_with_DbParameters_interpolated(async);
 
         AssertSql(
-"""
+            """
 city='London' (Nullable = false) (Size = 6)
 contactTitle='Sales Representative' (Nullable = false) (Size = 20)
 

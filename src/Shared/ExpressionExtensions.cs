@@ -4,6 +4,7 @@
 #nullable enable
 
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.EntityFrameworkCore.Query;
 
 // ReSharper disable once CheckNamespace
 namespace System.Linq.Expressions;
@@ -12,15 +13,14 @@ namespace System.Linq.Expressions;
 internal static class ExpressionExtensions
 {
     public static bool IsNullConstantExpression(this Expression expression)
-        => RemoveConvert(expression) is ConstantExpression constantExpression
-            && constantExpression.Value == null;
+        => RemoveConvert(expression) is ConstantExpression { Value: null };
 
     public static LambdaExpression UnwrapLambdaFromQuote(this Expression expression)
         => (LambdaExpression)(expression is UnaryExpression unary && expression.NodeType == ExpressionType.Quote
             ? unary.Operand
             : expression);
 
-    [return: NotNullIfNotNull("expression")]
+    [return: NotNullIfNotNull(nameof(expression))]
     public static Expression? UnwrapTypeConversion(this Expression? expression, out Type? convertedType)
     {
         convertedType = null;
@@ -41,19 +41,35 @@ internal static class ExpressionExtensions
     }
 
     private static Expression RemoveConvert(Expression expression)
-    {
-        if (expression is UnaryExpression unaryExpression
-            && (expression.NodeType == ExpressionType.Convert
-                || expression.NodeType == ExpressionType.ConvertChecked))
-        {
-            return RemoveConvert(unaryExpression.Operand);
-        }
-
-        return expression;
-    }
+        => expression is UnaryExpression { NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked } unaryExpression
+            ? RemoveConvert(unaryExpression.Operand)
+            : expression;
 
     public static T GetConstantValue<T>(this Expression expression)
-        => expression is ConstantExpression constantExpression
-            ? (T)constantExpression.Value!
-            : throw new InvalidOperationException();
+        => RemoveConvert(expression) switch
+        {
+            ConstantExpression constantExpression => (T)constantExpression.Value!,
+#pragma warning disable EF9100 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
+            LiftableConstantExpression liftableConstantExpression => (T)liftableConstantExpression.OriginalExpression.Value!,
+#pragma warning restore EF9100 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
+            _ => throw new InvalidOperationException()
+        };
+
+    public static bool TryGetNonNullConstantValue<T>(this Expression expression, [NotNullWhen(true)][MaybeNullWhen(false)]out T value)
+    {
+        switch (expression)
+        {
+            case ConstantExpression constant when constant.Value is T typedValue:
+                value = typedValue;
+                return true;
+#pragma warning disable EF9100 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
+            case LiftableConstantExpression liftableConstant when liftableConstant.OriginalExpression.Value is T typedValue:
+#pragma warning restore EF9100 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
+                value = typedValue;
+                return true;
+            default:
+                value = default;
+                return false;
+        }
+    }
 }

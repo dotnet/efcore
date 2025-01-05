@@ -19,7 +19,8 @@ public static partial class EF
     internal static readonly MethodInfo PropertyMethod
         = typeof(EF).GetTypeInfo().GetDeclaredMethod(nameof(Property))!;
 
-    [UnconditionalSuppressMessage("ReflectionAnalysis", "IL2060",
+    [UnconditionalSuppressMessage(
+        "ReflectionAnalysis", "IL2060",
         Justification = "EF.Property has no DynamicallyAccessedMembers annotations and is safe to construct.")]
     internal static MethodInfo MakePropertyMethod(Type type)
         => PropertyMethod.MakeGenericMethod(type);
@@ -41,7 +42,7 @@ public static partial class EF
     public static bool IsDesignTime { get; set; }
 
     /// <summary>
-    ///     References a given property or navigation on an entity instance. This is useful for shadow state properties, for
+    ///     References a given property or navigation on an entity or complex type instance. This is useful for shadow state properties, for
     ///     which no CLR property exists. Currently this method can only be used in LINQ queries and can not be used to
     ///     access the value assigned to a property in other scenarios.
     /// </summary>
@@ -54,13 +55,36 @@ public static partial class EF
     ///     </para>
     /// </remarks>
     /// <typeparam name="TProperty">The type of the property being referenced.</typeparam>
-    /// <param name="entity">The entity to access the property on.</param>
+    /// <param name="instance">The entity or complex type to access the property on.</param>
     /// <param name="propertyName">The name of the property.</param>
     /// <returns>The value assigned to the property.</returns>
     public static TProperty Property<TProperty>(
-        object entity,
+        object instance,
         [NotParameterized] string propertyName)
         => throw new InvalidOperationException(CoreStrings.PropertyMethodInvoked);
+
+    /// <summary>
+    ///     Within the context of an EF LINQ query, forces its argument to be inserted into the query as a constant expression. This can be
+    ///     used to e.g. integrate a value as a constant inside an EF query, instead of as a parameter, for query performance reasons.
+    /// </summary>
+    /// <remarks>Note that this is a static method accessed through the top-level <see cref="EF" /> static type.</remarks>
+    /// <typeparam name="T">The type of the expression to be integrated as a constant into the query.</typeparam>
+    /// <param name="argument">The expression to be integrated as a constant into the query.</param>
+    /// <returns>The same value for further use in the query.</returns>
+    public static T Constant<T>(T argument)
+        => throw new InvalidOperationException(CoreStrings.EFConstantInvoked);
+
+    /// <summary>
+    ///     Within the context of an EF LINQ query, forces its argument to be inserted into the query as a parameter expression. This can be
+    ///     used to e.g. make sure a constant value is parameterized instead of integrated as a constant into the query, which can be useful
+    ///     in dynamic query construction scenarios.
+    /// </summary>
+    /// <remarks>Note that this is a static method accessed through the top-level <see cref="EF" /> static type.</remarks>
+    /// <typeparam name="T">The type of the expression to be integrated as a parameter into the query.</typeparam>
+    /// <param name="argument">The expression to be integrated as a parameter into the query.</param>
+    /// <returns>The same value for further use in the query.</returns>
+    public static T Parameter<T>(T argument)
+        => throw new InvalidOperationException(CoreStrings.EFParameterInvoked);
 
     /// <summary>
     ///     Provides CLR methods that get translated to database functions when used in LINQ to Entities queries.

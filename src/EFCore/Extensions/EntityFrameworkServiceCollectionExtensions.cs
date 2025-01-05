@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -460,13 +461,6 @@ public static class EntityFrameworkServiceCollectionExtensions
     ///         For applications that don't use dependency injection, consider creating <see cref="DbContext" />
     ///         instances directly with its constructor. The <see cref="DbContext.OnConfiguring" /> method can then be
     ///         overridden to configure a connection string and other options.
-    ///     </para>
-    ///     <para>
-    ///         Entity Framework Core does not support multiple parallel operations being run on the same <see cref="DbContext" />
-    ///         instance. This includes both parallel execution of async queries and any explicit concurrent use from multiple threads.
-    ///         Therefore, always await async calls immediately, or use separate DbContext instances for operations that execute
-    ///         in parallel. See <see href="https://aka.ms/efcore-docs-threading">Avoiding DbContext threading issues</see> for more information
-    ///         and examples.
     ///     </para>
     ///     <para>
     ///         Entity Framework Core does not support multiple parallel operations being run on the same <see cref="DbContext" />
@@ -1034,6 +1028,86 @@ public static class EntityFrameworkServiceCollectionExtensions
         return serviceCollection;
     }
 
+    /// <summary>
+    ///     Configures the given context type in the <see cref="IServiceCollection" />.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         <see cref="AddDbContext{TContext}(IServiceCollection,Action{DbContextOptionsBuilder},ServiceLifetime,ServiceLifetime)" />,
+    ///         <see cref="AddDbContextPool{TContext}(IServiceCollection,Action{DbContextOptionsBuilder},int)" />,
+    ///         <see cref="AddDbContextFactory{TContext, TFactory}(IServiceCollection,Action{DbContextOptionsBuilder}?,ServiceLifetime)" /> or
+    ///         <see cref="AddPooledDbContextFactory{TContext}(IServiceCollection,Action{DbContextOptionsBuilder},int)" />
+    ///         must also be called for the specified configuration to take effect.
+    ///         Calling this method after any of the above will ovewrite conflicting configuration.
+    ///         For non-pooled contexts <see cref="DbContext.OnConfiguring" /> configuration will be applied
+    ///         in addition to configuration performed here.
+    ///     </para>
+    ///     <para>
+    ///         This method can be invoked multiple times and the configuration will be applied in the given order.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-di">Using DbContext with dependency injection</see> for more information and examples.
+    ///     </para>
+    /// </remarks>
+    /// <typeparam name="TContext">The type of context to be registered.</typeparam>
+    /// <param name="serviceCollection">The <see cref="IServiceCollection" /> to add services to.</param>
+    /// <param name="optionsAction">An action to configure the <see cref="DbContextOptions" /> for the context.</param>
+    /// <param name="optionsLifetime">
+    ///     The lifetime with which the <see cref="DbContextOptions" /> service will be registered in the container.
+    /// </param>
+    /// <returns>The same service collection so that multiple calls can be chained.</returns>
+    public static IServiceCollection ConfigureDbContext
+        <[DynamicallyAccessedMembers(DbContext.DynamicallyAccessedMemberTypes)] TContext>(
+            this IServiceCollection serviceCollection,
+            Action<DbContextOptionsBuilder> optionsAction,
+            ServiceLifetime optionsLifetime = ServiceLifetime.Singleton)
+        where TContext : DbContext
+        => ConfigureDbContext<TContext>(serviceCollection, (_, b) => optionsAction(b), optionsLifetime);
+
+    /// <summary>
+    ///     Configures the given context type in the <see cref="IServiceCollection" />.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         <see cref="AddDbContext{TContext}(IServiceCollection,Action{DbContextOptionsBuilder},ServiceLifetime,ServiceLifetime)" />,
+    ///         <see cref="AddDbContextPool{TContext}(IServiceCollection,Action{DbContextOptionsBuilder},int)" />,
+    ///         <see cref="AddDbContextFactory{TContext, TFactory}(IServiceCollection,Action{DbContextOptionsBuilder}?,ServiceLifetime)" /> or
+    ///         <see cref="AddPooledDbContextFactory{TContext}(IServiceCollection,Action{DbContextOptionsBuilder},int)" />
+    ///         must also be called for the specified configuration to take effect.
+    ///         Calling this method after any of the above will ovewrite conflicting configuration.
+    ///         For non-pooled contexts <see cref="DbContext.OnConfiguring" /> configuration will be applied
+    ///         in addition to configuration performed here.
+    ///     </para>
+    ///     <para>
+    ///         This method can be invoked multiple times and the configuration will be applied in the given order.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-di">Using DbContext with dependency injection</see> for more information and examples.
+    ///     </para>
+    /// </remarks>
+    /// <typeparam name="TContext">The type of context to be registered.</typeparam>
+    /// <param name="serviceCollection">The <see cref="IServiceCollection" /> to add services to.</param>
+    /// <param name="optionsAction">An action to configure the <see cref="DbContextOptions" /> for the context.</param>
+    /// <param name="optionsLifetime">
+    ///     The lifetime with which the <see cref="DbContextOptions" /> service will be registered in the container.
+    /// </param>
+    /// <returns>The same service collection so that multiple calls can be chained.</returns>
+    public static IServiceCollection ConfigureDbContext
+        <[DynamicallyAccessedMembers(DbContext.DynamicallyAccessedMemberTypes)] TContext>(
+            this IServiceCollection serviceCollection,
+            Action<IServiceProvider, DbContextOptionsBuilder> optionsAction,
+            ServiceLifetime optionsLifetime = ServiceLifetime.Singleton)
+        where TContext : DbContext
+    {
+        serviceCollection.Add(
+            new ServiceDescriptor(
+                typeof(IDbContextOptionsConfiguration<TContext>),
+                p => new DbContextOptionsConfiguration<TContext>(optionsAction),
+                optionsLifetime));
+
+        return serviceCollection;
+    }
+
     private static void AddCoreServices<TContextImplementation>(
         IServiceCollection serviceCollection,
         Action<IServiceProvider, DbContextOptionsBuilder>? optionsAction,
@@ -1042,10 +1116,15 @@ public static class EntityFrameworkServiceCollectionExtensions
     {
         serviceCollection.TryAddSingleton<ServiceProviderAccessor>();
 
+        if (optionsAction != null)
+        {
+            serviceCollection.ConfigureDbContext<TContextImplementation>(optionsAction, optionsLifetime);
+        }
+
         serviceCollection.TryAdd(
             new ServiceDescriptor(
                 typeof(DbContextOptions<TContextImplementation>),
-                p => CreateDbContextOptions<TContextImplementation>(p, optionsAction),
+                CreateDbContextOptions<TContextImplementation>,
                 optionsLifetime));
 
         serviceCollection.Add(
@@ -1056,8 +1135,7 @@ public static class EntityFrameworkServiceCollectionExtensions
     }
 
     private static DbContextOptions<TContext> CreateDbContextOptions<TContext>(
-        IServiceProvider applicationServiceProvider,
-        Action<IServiceProvider, DbContextOptionsBuilder>? optionsAction)
+        IServiceProvider applicationServiceProvider)
         where TContext : DbContext
     {
         var builder = new DbContextOptionsBuilder<TContext>(
@@ -1065,7 +1143,10 @@ public static class EntityFrameworkServiceCollectionExtensions
 
         builder.UseApplicationServiceProvider(applicationServiceProvider);
 
-        optionsAction?.Invoke(applicationServiceProvider, builder);
+        foreach (var configuration in applicationServiceProvider.GetServices<IDbContextOptionsConfiguration<TContext>>())
+        {
+            configuration.Configure(applicationServiceProvider, builder);
+        }
 
         return builder.Options;
     }

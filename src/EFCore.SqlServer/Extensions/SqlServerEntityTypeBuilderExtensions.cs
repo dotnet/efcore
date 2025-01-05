@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore;
 /// </summary>
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
 ///     for more information and examples.
 /// </remarks>
 public static class SqlServerEntityTypeBuilderExtensions
@@ -139,6 +139,111 @@ public static class SqlServerEntityTypeBuilderExtensions
         bool? memoryOptimized,
         bool fromDataAnnotation = false)
         => entityTypeBuilder.CanSetAnnotation(SqlServerAnnotationNames.MemoryOptimized, memoryOptimized, fromDataAnnotation);
+
+    /// <summary>
+    ///     Sets a value indicating whether to use the SQL OUTPUT clause when saving changes to the table.
+    ///     The OUTPUT clause is incompatible with certain SQL Server features, such as tables with triggers.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
+    /// </remarks>
+    /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
+    /// <param name="useSqlOutputClause">The value to set.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>
+    ///     The same builder instance if the configuration was applied,
+    ///     <see langword="null" /> otherwise.
+    /// </returns>
+    public static IConventionEntityTypeBuilder? UseSqlOutputClause(
+        this IConventionEntityTypeBuilder entityTypeBuilder,
+        bool? useSqlOutputClause,
+        bool fromDataAnnotation = false)
+    {
+        if (!entityTypeBuilder.CanUseSqlOutputClause(useSqlOutputClause, fromDataAnnotation))
+        {
+            return null;
+        }
+
+        entityTypeBuilder.Metadata.UseSqlOutputClause(useSqlOutputClause, fromDataAnnotation);
+        return entityTypeBuilder;
+    }
+
+    /// <summary>
+    ///     Sets a value indicating whether to use the SQL OUTPUT clause when saving changes to the table.
+    ///     The OUTPUT clause is incompatible with certain SQL Server features, such as tables with triggers.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
+    /// </remarks>
+    /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
+    /// <param name="useSqlOutputClause">The value to set.</param>
+    /// <param name="storeObject">The identifier of the table-like store object.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>
+    ///     The same builder instance if the configuration was applied,
+    ///     <see langword="null" /> otherwise.
+    /// </returns>
+    public static IConventionEntityTypeBuilder? UseSqlOutputClause(
+        this IConventionEntityTypeBuilder entityTypeBuilder,
+        bool? useSqlOutputClause,
+        in StoreObjectIdentifier storeObject,
+        bool fromDataAnnotation = false)
+    {
+        if (!entityTypeBuilder.CanUseSqlOutputClause(useSqlOutputClause, storeObject, fromDataAnnotation))
+        {
+            return null;
+        }
+
+        entityTypeBuilder.Metadata.UseSqlOutputClause(useSqlOutputClause, storeObject, fromDataAnnotation);
+        return entityTypeBuilder;
+    }
+
+    /// <summary>
+    ///     Returns a value indicating whether this entity type can be configured to use the SQL OUTPUT clause
+    ///     using the specified configuration source.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
+    /// </remarks>
+    /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
+    /// <param name="useSqlOutputClause">The value to set.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns><see langword="true" /> if the configuration can be applied.</returns>
+    public static bool CanUseSqlOutputClause(
+        this IConventionEntityTypeBuilder entityTypeBuilder,
+        bool? useSqlOutputClause,
+        bool fromDataAnnotation = false)
+        => entityTypeBuilder.CanSetAnnotation(
+            SqlServerAnnotationNames.UseSqlOutputClause,
+            useSqlOutputClause,
+            fromDataAnnotation);
+
+    /// <summary>
+    ///     Returns a value indicating whether this entity type can be configured to use the SQL OUTPUT clause
+    ///     using the specified configuration source.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
+    /// </remarks>
+    /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
+    /// <param name="useSqlOutputClause">The value to set.</param>
+    /// <param name="storeObject">The identifier of the table-like store object.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns><see langword="true" /> if the configuration can be applied.</returns>
+    public static bool CanUseSqlOutputClause(
+        this IConventionEntityTypeBuilder entityTypeBuilder,
+        bool? useSqlOutputClause,
+        in StoreObjectIdentifier storeObject,
+        bool fromDataAnnotation = false)
+        => StoreObjectIdentifier.Create(entityTypeBuilder.Metadata, storeObject.StoreObjectType) == storeObject
+            ? entityTypeBuilder.CanSetAnnotation(
+                SqlServerAnnotationNames.UseSqlOutputClause,
+                useSqlOutputClause,
+                fromDataAnnotation)
+            : entityTypeBuilder.Metadata.GetOrCreateMappingFragment(storeObject, fromDataAnnotation).Builder.CanSetAnnotation(
+                SqlServerAnnotationNames.UseSqlOutputClause,
+                useSqlOutputClause,
+                fromDataAnnotation);
 
     /// <summary>
     ///     Configures the table as temporal.

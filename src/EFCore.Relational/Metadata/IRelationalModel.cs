@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Text;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata;
 
@@ -64,6 +65,13 @@ public interface IRelationalModel : IAnnotatable
     /// <param name="schema">The schema of the table.</param>
     /// <returns>The table with a given name or <see langword="null" /> if no table with the given name is defined.</returns>
     ITable? FindTable(string name, string? schema);
+
+    /// <summary>
+    ///     Gets the default table with the given name. Returns <see langword="null" /> if no table with the given name is defined.
+    /// </summary>
+    /// <param name="name">The name of the table.</param>
+    /// <returns>The default table with a given name or <see langword="null" /> if no table with the given name is defined.</returns>
+    TableBase? FindDefaultTable(string name);
 
     /// <summary>
     ///     Gets the view with the given name. Returns <see langword="null" /> if no view with the given name is defined.
@@ -130,7 +138,7 @@ public interface IRelationalModel : IAnnotatable
         {
             builder.Append(indentString).Append("RelationalModel: ");
 
-            if ((Model is Internal.Model) && Collation != null)
+            if ((Model is Model) && Collation != null)
             {
                 builder.AppendLine().Append(indentString).Append("Collation: ").Append(Collation);
             }

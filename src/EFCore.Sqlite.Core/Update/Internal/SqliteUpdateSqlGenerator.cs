@@ -25,11 +25,9 @@ public class SqliteUpdateSqlGenerator : UpdateAndSelectSqlGenerator
     /// </summary>
     public SqliteUpdateSqlGenerator(UpdateSqlGeneratorDependencies dependencies)
         : base(dependencies)
-    {
-        // Support for the RETURNING clause on INSERT/UPDATE/DELETE was added in Sqlite 3.35.
-        // Detect which version we're using, and fall back to the older INSERT/UPDATE+SELECT behavior on legacy versions.
-        _isReturningClauseSupported = new Version(new SqliteConnection().ServerVersion) >= new Version(3, 35);
-    }
+    // Support for the RETURNING clause on INSERT/UPDATE/DELETE was added in Sqlite 3.35.
+    // Detect which version we're using, and fall back to the older INSERT/UPDATE+SELECT behavior on legacy versions.
+        => _isReturningClauseSupported = new Version(new SqliteConnection().ServerVersion) >= new Version(3, 35);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -143,7 +141,6 @@ public class SqliteUpdateSqlGenerator : UpdateAndSelectSqlGenerator
     public override string GenerateNextSequenceValueOperation(string name, string? schema)
         => throw new NotSupportedException(SqliteStrings.SequencesNotSupported);
 
-
     /// <inheritdoc />
     protected override void AppendUpdateColumnValue(
         ISqlGenerationHelper updateSqlGeneratorHelper,
@@ -160,27 +157,23 @@ public class SqliteUpdateSqlGenerator : UpdateAndSelectSqlGenerator
             stringBuilder.Append(columnModification.JsonPath);
             stringBuilder.Append("', ");
 
-            if (columnModification.Property != null)
+            if (columnModification.Property is { IsPrimitiveCollection: false })
             {
                 var providerClrType = (columnModification.Property.GetTypeMapping().Converter?.ProviderClrType
                     ?? columnModification.Property.ClrType).UnwrapNullableType();
 
-                // special handling for bool
-                // json_extract converts true/false into native 0/1 values,
-                // but we want to store the values as true/false in JSON
-                // in order to do that we modify the parameter value to "true"/"false"
-                // and wrap json() function around it to avoid conversion to 0/1
-                //
-                // for decimal, sqlite generates string parameter for decimal values
-                // but don't want to store the values as strings, we use json to "unwrap" it
-                if (providerClrType == typeof(bool) || providerClrType == typeof(decimal))
+                // SQLite has no bool type, so if we simply sent the bool as-is, we'd get 1/0 in the JSON document.
+                // To get an actual unquoted true/false value, we pass "true"/"false" string through the json() minifier, which does this.
+                // See https://sqlite.org/forum/info/91d09974c3754ea6.
+                // SqliteModificationCommand converted the .NET bool to a "true"/"false" string, here we add the enclosing json().
+                if (providerClrType == typeof(bool))
                 {
                     stringBuilder.Append("json(");
                 }
 
                 base.AppendUpdateColumnValue(updateSqlGeneratorHelper, columnModification, stringBuilder, name, schema);
 
-                if (providerClrType == typeof(bool) || providerClrType == typeof(decimal))
+                if (providerClrType == typeof(bool))
                 {
                     stringBuilder.Append(")");
                 }

@@ -1,11 +1,23 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>$(DefaultNetCoreTargetFramework)</TargetFramework>
     <AssemblyName>Microsoft.EntityFrameworkCore.Cosmos.FunctionalTests</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
     <ImplicitUsings>true</ImplicitUsings>
+    <PreserveCompilationContext>true</PreserveCompilationContext>
+    <!-- Avoid referencing EFCore.Relational -->
+    <DisableTransitiveProjectReferences>true</DisableTransitiveProjectReferences>
+    <NoWarn>$(NoWarn);EF9102</NoWarn> <!-- Paging is experimental -->
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Scaffolding\Baselines\**\*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Scaffolding\Baselines\**\*" />
+  </ItemGroup>
 
   <ItemGroup>
     <Using Include="System.Diagnostics" />
@@ -36,7 +48,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="config.json">
+    <None Update="cosmosConfig.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Northwind.json">
@@ -49,14 +61,25 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Remove="Internal\**" />
+    <EmbeddedResource Remove="Internal\**" />
+    <None Remove="Internal\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\EFCore\EFCore.csproj" />
+    <ProjectReference Include="..\..\src\EFCore.Abstractions\EFCore.Abstractions.csproj" />
     <ProjectReference Include="..\..\src\EFCore.Cosmos\EFCore.Cosmos.csproj" />
+    <ProjectReference Include="..\..\src\EFCore.Design\EFCore.Design.csproj" />
+    <ProjectReference Include="..\..\src\EFCore.Proxies\EFCore.Proxies.csproj" />
     <ProjectReference Include="..\EFCore.Specification.Tests\EFCore.Specification.Tests.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="$(MicrosoftExtensionsConfigurationEnvironmentVariablesVersion)" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="$(MicrosoftExtensionsConfigurationJsonVersion)" />
-    <PackageReference Include="Azure.Identity" Version="1.6.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" />
+    <PackageReference Include="Azure.Identity" />
+    <PackageReference Include="Azure.ResourceManager.CosmosDB" />
   </ItemGroup>
 
 </Project>

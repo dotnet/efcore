@@ -3,44 +3,31 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class OptimisticConcurrencyULongSqliteTest : OptimisticConcurrencySqliteTestBase<F1ULongSqliteFixture, ulong?>
-{
-    public OptimisticConcurrencyULongSqliteTest(F1ULongSqliteFixture fixture)
-        : base(fixture)
-    {
-    }
-}
+#nullable disable
 
-public class OptimisticConcurrencySqliteTest : OptimisticConcurrencySqliteTestBase<F1SqliteFixture, byte[]>
-{
-    public OptimisticConcurrencySqliteTest(F1SqliteFixture fixture)
-        : base(fixture)
-    {
-    }
-}
+public class OptimisticConcurrencyULongSqliteTest(F1ULongSqliteFixture fixture)
+    : OptimisticConcurrencySqliteTestBase<F1ULongSqliteFixture, ulong?>(fixture);
 
-public abstract class OptimisticConcurrencySqliteTestBase<TFixture, TRowVersion>
-    : OptimisticConcurrencyRelationalTestBase<TFixture, TRowVersion>
+public class OptimisticConcurrencySqliteTest(F1SqliteFixture fixture)
+    : OptimisticConcurrencySqliteTestBase<F1SqliteFixture, byte[]>(fixture);
+
+public abstract class OptimisticConcurrencySqliteTestBase<TFixture, TRowVersion>(TFixture fixture)
+    : OptimisticConcurrencyRelationalTestBase<TFixture, TRowVersion>(fixture)
     where TFixture : F1RelationalFixture<TRowVersion>, new()
 {
-    protected OptimisticConcurrencySqliteTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-
     public override void Property_entry_original_value_is_set()
     {
         base.Property_entry_original_value_is_set();
 
         AssertSql(
-"""
+            """
 SELECT "e"."Id", "e"."EngineSupplierId", "e"."Name", "e"."StorageLocation_Latitude", "e"."StorageLocation_Longitude"
 FROM "Engines" AS "e"
 ORDER BY "e"."Id"
 LIMIT 1
 """,
             //
-"""
+            """
 @p1='1'
 @p2='Mercedes' (Size = 8)
 @p0='FO 108X' (Size = 7)

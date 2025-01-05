@@ -50,7 +50,7 @@ public class CreateTableBuilder<TColumns> : OperationBuilder<CreateTableOperatio
             name,
             column,
             principalTable,
-            principalColumn == null ? null : new[] { principalColumn },
+            principalColumn == null ? null : [principalColumn],
             principalSchema,
             onUpdate,
             onDelete);
@@ -178,7 +178,7 @@ public class CreateTableBuilder<TColumns> : OperationBuilder<CreateTableOperatio
     /// <param name="name">The annotation name.</param>
     /// <param name="value">The annotation value.</param>
     /// <returns>The same builder so that multiple calls can be chained.</returns>
-    public new virtual CreateTableBuilder<TColumns> Annotation(string name, object value)
+    public new virtual CreateTableBuilder<TColumns> Annotation(string name, object? value)
         => (CreateTableBuilder<TColumns>)base.Annotation(name, value);
 
     private string[] Map(LambdaExpression columns)

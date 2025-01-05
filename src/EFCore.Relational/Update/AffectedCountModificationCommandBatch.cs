@@ -278,7 +278,6 @@ public abstract class AffectedCountModificationCommandBatch : ReaderModification
 
         try
         {
-
             var commandIndex = startCommandIndex;
             var rowsAffected = 0;
             do

@@ -3,19 +3,9 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class NorthwindAggregateOperatorsQueryInMemoryTest : NorthwindAggregateOperatorsQueryTestBase<
-    NorthwindQueryInMemoryFixture<NoopModelCustomizer>>
+public class NorthwindAggregateOperatorsQueryInMemoryTest(NorthwindQueryInMemoryFixture<NoopModelCustomizer> fixture)
+    : NorthwindAggregateOperatorsQueryTestBase<NorthwindQueryInMemoryFixture<NoopModelCustomizer>>(fixture)
 {
-    public NorthwindAggregateOperatorsQueryInMemoryTest(
-        NorthwindQueryInMemoryFixture<NoopModelCustomizer> fixture,
-#pragma warning disable IDE0060 // Remove unused parameter
-        ITestOutputHelper testOutputHelper)
-#pragma warning restore IDE0060 // Remove unused parameter
-        : base(fixture)
-    {
-        //TestLoggerFactory.TestOutputHelper = testOutputHelper;
-    }
-
     // InMemory can throw server side exception
     public override async Task Average_no_data_subquery(bool async)
         => Assert.Equal(
@@ -41,7 +31,25 @@ public class NorthwindAggregateOperatorsQueryInMemoryTest : NorthwindAggregateOp
             (await Assert.ThrowsAsync<InvalidOperationException>(
                 () => base.Average_on_nav_subquery_in_projection(async))).Message);
 
+    public override async Task Sum_over_scalar_returning_subquery(bool async)
+        => Assert.Equal(
+            "Nullable object must have a value.",
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Sum_over_scalar_returning_subquery(async))).Message);
+
     public override Task Collection_Last_member_access_in_projection_translated(bool async)
         => Assert.ThrowsAsync<InvalidOperationException>(
             () => base.Collection_Last_member_access_in_projection_translated(async));
+
+    // Issue #31776
+    public override async Task Contains_with_local_enumerable_inline(bool async)
+        => await Assert.ThrowsAsync<InvalidOperationException>(
+            async () =>
+                await base.Contains_with_local_enumerable_inline(async));
+
+    // Issue #31776
+    public override async Task Contains_with_local_enumerable_inline_closure_mix(bool async)
+        => await Assert.ThrowsAsync<InvalidOperationException>(
+            async () =>
+                await base.Contains_with_local_enumerable_inline_closure_mix(async));
 }

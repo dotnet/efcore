@@ -20,9 +20,7 @@ public class PropertyConfiguration : AnnotatableBase, ITypeMappingConfiguration
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public PropertyConfiguration(Type clrType)
-    {
-        ClrType = clrType;
-    }
+        => ClrType = clrType;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -125,15 +123,6 @@ public class PropertyConfiguration : AnnotatableBase, ITypeMappingConfiguration
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual int? GetSentinel()
-        => (int?)this[CoreAnnotationNames.Sentinel];
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
     public virtual void SetSentinel(object? sentinel)
         => this[CoreAnnotationNames.Sentinel] = sentinel;
 
@@ -172,7 +161,7 @@ public class PropertyConfiguration : AnnotatableBase, ITypeMappingConfiguration
     /// </summary>
     public virtual void SetPrecision(int? precision)
     {
-        if (precision != null && precision < 0)
+        if (precision is < 0)
         {
             throw new ArgumentOutOfRangeException(nameof(precision));
         }

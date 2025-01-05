@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -192,6 +193,68 @@ public class OwnedNavigationBuilder : IInfrastructure<IConventionEntityTypeBuild
                 Check.NotEmpty(propertyName, nameof(propertyName)), ConfigurationSource.Explicit)!.Metadata);
 
     /// <summary>
+    ///     Returns an object that can be used to configure a property of the owned type where that property represents
+    ///     a collection of primitive values, such as strings or integers.
+    ///     If no property with the given name exists, then a new property will be added.
+    /// </summary>
+    /// <remarks>
+    ///     When adding a new property with this overload the property name must match the
+    ///     name of a CLR property or field on the entity type. This overload cannot be used to
+    ///     add a new shadow state property.
+    /// </remarks>
+    /// <param name="propertyName">The name of the property to be configured.</param>
+    /// <returns>An object that can be used to configure the property.</returns>
+    public virtual PrimitiveCollectionBuilder PrimitiveCollection(string propertyName)
+        => UpdateBuilder(
+            () => new PrimitiveCollectionBuilder(
+                DependentEntityType.Builder.PrimitiveCollection(
+                    Check.NotEmpty(propertyName, nameof(propertyName)),
+                    ConfigurationSource.Explicit)!.Metadata));
+
+    /// <summary>
+    ///     Returns an object that can be used to configure a property of the owned type where that property represents
+    ///     a collection of primitive values, such as strings or integers.
+    ///     If no property with the given name exists, then a new property will be added.
+    /// </summary>
+    /// <remarks>
+    ///     When adding a new property, if a property with the same name exists in the entity class
+    ///     then it will be added to the model. If no property exists in the entity class, then
+    ///     a new shadow state property will be added. A shadow state property is one that does not have a
+    ///     corresponding property in the entity class. The current value for the property is stored in
+    ///     the <see cref="ChangeTracker" /> rather than being stored in instances of the entity class.
+    /// </remarks>
+    /// <typeparam name="TProperty">The type of the property to be configured.</typeparam>
+    /// <param name="propertyName">The name of the property to be configured.</param>
+    /// <returns>An object that can be used to configure the property.</returns>
+    public virtual PrimitiveCollectionBuilder<TProperty> PrimitiveCollection<TProperty>(string propertyName)
+        => UpdateBuilder(
+            () => new PrimitiveCollectionBuilder<TProperty>(
+                DependentEntityType.Builder.PrimitiveCollection(
+                    typeof(TProperty),
+                    Check.NotEmpty(propertyName, nameof(propertyName)), ConfigurationSource.Explicit)!.Metadata));
+
+    /// <summary>
+    ///     Returns an object that can be used to configure a property of the owned type where that property represents
+    ///     a collection of primitive values, such as strings or integers.
+    ///     If no property with the given name exists, then a new property will be added.
+    /// </summary>
+    /// <remarks>
+    ///     When adding a new property, if a property with the same name exists in the entity class
+    ///     then it will be added to the model. If no property exists in the entity class, then
+    ///     a new shadow state property will be added. A shadow state property is one that does not have a
+    ///     corresponding property in the entity class. The current value for the property is stored in
+    ///     the <see cref="ChangeTracker" /> rather than being stored in instances of the entity class.
+    /// </remarks>
+    /// <param name="propertyType">The type of the property to be configured.</param>
+    /// <param name="propertyName">The name of the property to be configured.</param>
+    /// <returns>An object that can be used to configure the property.</returns>
+    public virtual PrimitiveCollectionBuilder PrimitiveCollection(Type propertyType, string propertyName)
+        => new(
+            DependentEntityType.Builder.PrimitiveCollection(
+                Check.NotNull(propertyType, nameof(propertyType)), Check.NotEmpty(propertyName, nameof(propertyName)),
+                ConfigurationSource.Explicit)!.Metadata);
+
+    /// <summary>
     ///     Returns an object that can be used to configure a property of the entity type.
     ///     If no property with the given name exists, then a new property will be added.
     /// </summary>
@@ -228,7 +291,7 @@ public class OwnedNavigationBuilder : IInfrastructure<IConventionEntityTypeBuild
     {
         Check.NotNull(propertyType, nameof(propertyType));
 
-        return new(
+        return new PropertyBuilder(
             DependentEntityType.Builder.IndexerProperty(
                 propertyType,
                 Check.NotEmpty(propertyName, nameof(propertyName)), ConfigurationSource.Explicit)!.Metadata);
@@ -270,6 +333,23 @@ public class OwnedNavigationBuilder : IInfrastructure<IConventionEntityTypeBuild
         => new(
             DependentEntityType.Builder.HasIndex(
                 Check.NotEmpty(propertyNames, nameof(propertyNames)), ConfigurationSource.Explicit)!.Metadata);
+
+    /// <summary>
+    ///     Configures an index on the specified properties and with the given name.
+    ///     If there is an existing index on the given list of properties and with
+    ///     the given name, then the existing index will be returned for configuration.
+    /// </summary>
+    /// <param name="propertyNames">The names of the properties that make up the index.</param>
+    /// <param name="name">The name to assign to the index.</param>
+    /// <returns>An object that can be used to configure the index.</returns>
+    public virtual IndexBuilder HasIndex(
+        string[] propertyNames,
+        string name)
+        => new(
+            DependentEntityType.Builder.HasIndex(
+                Check.NotEmpty(propertyNames, nameof(propertyNames)),
+                Check.NotEmpty(name, nameof(name)),
+                ConfigurationSource.Explicit)!.Metadata);
 
     /// <summary>
     ///     Configures the relationship to the owner.
@@ -799,14 +879,13 @@ public class OwnedNavigationBuilder : IInfrastructure<IConventionEntityTypeBuild
         Check.NullButNotEmpty(navigationName, nameof(navigationName));
 
         var relatedEntityType = FindRelatedEntityType(relatedTypeName, navigationName);
+        var foreignKey = HasOneBuilder(MemberIdentity.Create(navigationName), relatedEntityType);
 
         return new ReferenceNavigationBuilder(
             DependentEntityType,
             relatedEntityType,
             navigationName,
-            DependentEntityType.Builder.HasRelationship(
-                relatedEntityType, navigationName, ConfigurationSource.Explicit,
-                targetIsPrincipal: DependentEntityType == relatedEntityType ? true : null)!.Metadata);
+            foreignKey);
     }
 
     /// <summary>
@@ -874,14 +953,41 @@ public class OwnedNavigationBuilder : IInfrastructure<IConventionEntityTypeBuild
         Check.NullButNotEmpty(navigationName, nameof(navigationName));
 
         var relatedEntityType = FindRelatedEntityType(relatedType, navigationName);
+        var foreignKey = HasOneBuilder(MemberIdentity.Create(navigationName), relatedEntityType);
 
         return new ReferenceNavigationBuilder(
             DependentEntityType,
             relatedEntityType,
             navigationName,
-            DependentEntityType.Builder.HasRelationship(
-                relatedEntityType, navigationName, ConfigurationSource.Explicit,
-                targetIsPrincipal: DependentEntityType == relatedEntityType ? true : null)!.Metadata);
+            foreignKey);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    protected virtual ForeignKey HasOneBuilder(
+        MemberIdentity navigationId,
+        EntityType relatedEntityType)
+    {
+        ForeignKey foreignKey;
+        if (navigationId.MemberInfo != null)
+        {
+            foreignKey = DependentEntityType.Builder.HasRelationship(
+                relatedEntityType, navigationId.MemberInfo, ConfigurationSource.Explicit,
+                targetIsPrincipal: DependentEntityType == relatedEntityType ? true : null)!.Metadata;
+        }
+        else
+        {
+            foreignKey = DependentEntityType.Builder.HasRelationship(
+                relatedEntityType, navigationId.Name, ConfigurationSource.Explicit,
+                targetIsPrincipal: DependentEntityType == relatedEntityType ? true : null)!.Metadata;
+        }
+
+        return foreignKey;
     }
 
     /// <summary>

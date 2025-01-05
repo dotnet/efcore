@@ -77,6 +77,11 @@ public static class RelationalEventId
         MigrationsNotFound,
         MigrationAttributeMissingWarning,
         ColumnOrderIgnoredWarning,
+        PendingModelChangesWarning,
+        NonTransactionalMigrationOperationWarning,
+        AcquiringMigrationLock,
+        MigrationsUserTransactionWarning,
+        ModelSnapshotNotFound,
 
         // Query events
         QueryClientEvaluationWarning = CoreEventId.RelationalBaseId + 500,
@@ -103,6 +108,7 @@ public static class RelationalEventId
         TpcStoreGeneratedIdentityWarning,
         KeyPropertiesNotMappedToTable,
         StoredProcedureConcurrencyTokenNotMapped,
+        TriggerOnNonRootTphEntity,
 
         // Update events
         BatchReadyForExecution = CoreEventId.RelationalBaseId + 700,
@@ -720,6 +726,72 @@ public static class RelationalEventId
     /// </remarks>
     public static readonly EventId ColumnOrderIgnoredWarning = MakeMigrationsId(Id.ColumnOrderIgnoredWarning);
 
+    /// <summary>
+    ///     The model contains changes compared to the last migration.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This event is in the <see cref="DbLoggerCategory.Migrations" /> category.
+    ///     </para>
+    ///     <para>
+    ///         This event uses the <see cref="DbContextTypeEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+    ///     </para>
+    /// </remarks>
+    public static readonly EventId PendingModelChangesWarning = MakeMigrationsId(Id.PendingModelChangesWarning);
+
+    /// <summary>
+    ///     A migration contains a non-transactional operation.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This event is in the <see cref="DbLoggerCategory.Migrations" /> category.
+    ///     </para>
+    ///     <para>
+    ///         This event uses the <see cref="MigrationCommandEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+    ///     </para>
+    /// </remarks>
+    public static readonly EventId NonTransactionalMigrationOperationWarning =
+        MakeMigrationsId(Id.NonTransactionalMigrationOperationWarning);
+
+    /// <summary>
+    ///     A migration lock is being acquired.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This event is in the <see cref="DbLoggerCategory.Migrations" /> category.
+    ///     </para>
+    ///     <para>
+    ///         This event uses the <see cref="EventData" /> payload when used with a <see cref="DiagnosticSource" />.
+    ///     </para>
+    /// </remarks>
+    public static readonly EventId AcquiringMigrationLock = MakeMigrationsId(Id.AcquiringMigrationLock);
+
+    /// <summary>
+    ///     A migration lock is being acquired.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This event is in the <see cref="DbLoggerCategory.Migrations" /> category.
+    ///     </para>
+    ///     <para>
+    ///         This event uses the <see cref="EventData" /> payload when used with a <see cref="DiagnosticSource" />.
+    ///     </para>
+    /// </remarks>
+    public static readonly EventId MigrationsUserTransactionWarning = MakeMigrationsId(Id.MigrationsUserTransactionWarning);
+
+    /// <summary>
+    ///     Model snapshot was not found.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This event is in the <see cref="DbLoggerCategory.Migrations" /> category.
+    ///     </para>
+    ///     <para>
+    ///         This event uses the <see cref="MigrationAssemblyEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+    ///     </para>
+    /// </remarks>
+    public static readonly EventId ModelSnapshotNotFound = MakeMigrationsId(Id.ModelSnapshotNotFound);
+
     private static readonly string _queryPrefix = DbLoggerCategory.Query.Name + ".";
 
     private static EventId MakeQueryId(Id id)
@@ -888,6 +960,20 @@ public static class RelationalEventId
         MakeValidationId(Id.StoredProcedureConcurrencyTokenNotMapped);
 
     /// <summary>
+    ///     Can't configure a trigger on the non-root entity type in a TPH hierarchy.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This event is in the <see cref="DbLoggerCategory.Model.Validation" /> category.
+    ///     </para>
+    ///     <para>
+    ///         This event uses the <see cref="EntityTypeEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+    ///     </para>
+    /// </remarks>
+    public static readonly EventId TriggerOnNonRootTphEntity =
+        MakeValidationId(Id.TriggerOnNonRootTphEntity);
+
+    /// <summary>
     ///     A foreign key specifies properties which don't map to the related tables.
     /// </summary>
     /// <remarks>
@@ -990,7 +1076,7 @@ public static class RelationalEventId
     public static readonly EventId BatchSmallerThanMinBatchSize = MakeUpdateId(Id.BatchSmallerThanMinBatchSize);
 
     /// <summary>
-    ///     An error occurred while the batch executor was rolling back the transaction to a savepoint, after an exception occured.
+    ///     An error occurred while the batch executor was rolling back the transaction to a savepoint, after an exception occurred.
     /// </summary>
     /// <remarks>
     ///     This event is in the <see cref="DbLoggerCategory.Update" /> category.

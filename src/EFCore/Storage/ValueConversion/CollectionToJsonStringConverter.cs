@@ -1,19 +1,21 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Text.Json;
+using Microsoft.EntityFrameworkCore.Storage.Json;
+using static System.Linq.Expressions.Expression;
 
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 /// <summary>
 ///     A value converter that converts a .NET primitive collection into a JSON string.
 /// </summary>
-// TODO: This currently just calls JsonSerialize.Serialize/Deserialize. It should go through the element type mapping's APIs for
-// serializing/deserializing JSON instead, when those APIs are introduced.
-// TODO: Nulls? Mapping hints? Customizable JsonSerializerOptions?
-public class CollectionToJsonStringConverter : ValueConverter
+public class CollectionToJsonStringConverter<TElement> : ValueConverter<IEnumerable<TElement>, string>
 {
-    private readonly CoreTypeMapping _elementTypeMapping;
+    private static readonly MethodInfo ToJsonStringMethod
+        = typeof(JsonValueReaderWriter).GetMethod(nameof(JsonValueReaderWriter.ToJsonString), [typeof(object)])!;
+
+    private static readonly MethodInfo FromJsonStringMethod
+        = typeof(JsonValueReaderWriter).GetMethod(nameof(JsonValueReaderWriter.FromJsonString), [typeof(string), typeof(object)])!;
 
     /// <summary>
     ///     Creates a new instance of this converter.
@@ -21,44 +23,42 @@ public class CollectionToJsonStringConverter : ValueConverter
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information and examples.
     /// </remarks>
-    public CollectionToJsonStringConverter(Type modelClrType, CoreTypeMapping elementTypeMapping)
+    /// <param name="collectionJsonReaderWriter">The reader/writer to use.</param>
+    public CollectionToJsonStringConverter(JsonValueReaderWriter collectionJsonReaderWriter)
         : base(
-            (Expression<Func<object, string>>)(x => JsonSerializer.Serialize(x, (JsonSerializerOptions?)null)),
-            (Expression<Func<string, object>>)(s => JsonSerializer.Deserialize(s, modelClrType, (JsonSerializerOptions?)null)!)) // TODO: Nullability
-    {
-        ModelClrType = modelClrType;
-        _elementTypeMapping = elementTypeMapping;
+            ToJsonString(collectionJsonReaderWriter),
+            FromJsonString(collectionJsonReaderWriter))
+        => JsonReaderWriter = collectionJsonReaderWriter;
 
-        // TODO: Value converters on the element type mapping should be supported
-        // TODO: Full sanitization/nullability
-        ConvertToProvider = x => x is null ? "[]" : JsonSerializer.Serialize(x);
-        ConvertFromProvider = o
-            => o is string s
-                ? JsonSerializer.Deserialize(s, modelClrType)!
-                : throw new ArgumentException(); // TODO
+    private static Expression<Func<IEnumerable<TElement>, string>> ToJsonString(JsonValueReaderWriter collectionJsonReaderWriter)
+    {
+        var prm = Parameter(typeof(IEnumerable<TElement>), "v");
+
+        return Lambda<Func<IEnumerable<TElement>, string>>(
+            Call(
+                collectionJsonReaderWriter.ConstructorExpression,
+                ToJsonStringMethod,
+                prm),
+            prm);
     }
 
-    /// <inheritdoc />
-    public override Func<object?, object?> ConvertToProvider { get; }
+    private static Expression<Func<string, IEnumerable<TElement>>> FromJsonString(JsonValueReaderWriter collectionJsonReaderWriter)
+    {
+        var prm = Parameter(typeof(string), "v");
 
-    /// <inheritdoc />
-    public override Func<object?, object?> ConvertFromProvider { get; }
+        return Lambda<Func<string, IEnumerable<TElement>>>(
+            Convert(
+                Call(
+                    collectionJsonReaderWriter.ConstructorExpression,
+                    FromJsonStringMethod,
+                    prm,
+                    Constant(null, typeof(object))),
+                typeof(IEnumerable<TElement>)),
+            prm);
+    }
 
-    /// <inheritdoc />
-    public override Type ModelClrType { get; }
-
-    /// <inheritdoc />
-    public override Type ProviderClrType
-        => typeof(string);
-
-    /// <inheritdoc />
-    public override bool Equals(object? obj)
-        => ReferenceEquals(this, obj) || (obj is CollectionToJsonStringConverter other && Equals(other));
-
-    private bool Equals(CollectionToJsonStringConverter other)
-        => ModelClrType == other.ModelClrType && _elementTypeMapping.Equals(other._elementTypeMapping);
-
-    /// <inheritdoc />
-    public override int GetHashCode()
-        => ModelClrType.GetHashCode();
+    /// <summary>
+    ///     The reader/writer to use.
+    /// </summary>
+    public virtual JsonValueReaderWriter JsonReaderWriter { get; }
 }

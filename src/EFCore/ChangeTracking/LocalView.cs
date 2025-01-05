@@ -54,7 +54,9 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
     IListSource
     where TEntity : class
 {
+#pragma warning disable EF1001
     private ObservableBackedBindingList<TEntity>? _bindingList;
+#pragma warning restore EF1001
     private ObservableCollection<TEntity>? _observable;
     private readonly DbContext _context;
     private readonly IEntityType _entityType;
@@ -104,7 +106,7 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
     private void LocalViewCollectionChanged(object? _, NotifyCollectionChangedEventArgs args)
     {
         Check.DebugAssert(
-            args.Action == NotifyCollectionChangedAction.Add || args.Action == NotifyCollectionChangedAction.Remove,
+            args.Action is NotifyCollectionChangedAction.Add or NotifyCollectionChangedAction.Remove,
             "action is not Add or Remove");
 
         if (_triggeringLocalViewChange)
@@ -150,8 +152,7 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
             }
             else
             {
-                if (args.Action == NotifyCollectionChangedAction.Remove
-                    || args.Action == NotifyCollectionChangedAction.Replace)
+                if (args.Action is NotifyCollectionChangedAction.Remove or NotifyCollectionChangedAction.Replace)
                 {
                     foreach (TEntity entity in args.OldItems!)
                     {
@@ -159,8 +160,7 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
                     }
                 }
 
-                if (args.Action == NotifyCollectionChangedAction.Add
-                    || args.Action == NotifyCollectionChangedAction.Replace)
+                if (args.Action is NotifyCollectionChangedAction.Add or NotifyCollectionChangedAction.Replace)
                 {
                     foreach (TEntity entity in args.NewItems!)
                     {
@@ -213,8 +213,7 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
         // was wanted in this case.
 
         var entry = _context.GetDependencies().StateManager.GetOrCreateEntry(item, _entityType);
-        if (entry.EntityState == EntityState.Deleted
-            || entry.EntityState == EntityState.Detached)
+        if (entry.EntityState is EntityState.Deleted or EntityState.Detached)
         {
             try
             {
@@ -318,8 +317,7 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
     public virtual bool Remove(TEntity item)
     {
         var entry = _context.GetDependencies().StateManager.TryGetEntry(item);
-        if (entry != null
-            && entry.EntityState != EntityState.Deleted)
+        if (entry is { EntityState: not EntityState.Deleted and not EntityState.Detached })
         {
             try
             {
@@ -475,10 +473,12 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
     ///     examples.
     /// </remarks>
     /// <returns>The binding list.</returns>
+#pragma warning disable EF1001
     [RequiresUnreferencedCode(
         "BindingList raises ListChanged events with PropertyDescriptors. PropertyDescriptors require unreferenced code.")]
     public virtual BindingList<TEntity> ToBindingList()
         => _bindingList ??= new ObservableBackedBindingList<TEntity>(ToObservableCollection());
+#pragma warning restore EF1001
 
     /// <summary>
     ///     This method is called by data binding frameworks when attempting to data bind
@@ -826,7 +826,7 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
     ///         See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information and examples.
     ///     </para>
     /// </remarks>
-    /// <param name="properties">The the properties to match.</param>
+    /// <param name="properties">The properties to match.</param>
     /// <param name="propertyValues">The values of the properties to match.</param>
     /// <returns>An entry for each entity being tracked.</returns>
     public virtual IEnumerable<EntityEntry<TEntity>> GetEntries(IEnumerable<IProperty> properties, IEnumerable<object?> propertyValues)
@@ -848,7 +848,7 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
             throw new ArgumentException(
                 CoreStrings.WrongGenericPropertyType(
                     property.Name,
-                    property.DeclaringEntityType.DisplayName(),
+                    property.DeclaringType.DisplayName(),
                     property.ClrType.ShortDisplayName(),
                     typeof(TProperty).ShortDisplayName()));
         }

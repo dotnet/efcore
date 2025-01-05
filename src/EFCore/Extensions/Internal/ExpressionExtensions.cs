@@ -20,7 +20,7 @@ public static class ExpressionExtensions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public static Expression MakeHasSentinelValue(
+    public static Expression MakeHasSentinel(
         this Expression currentValueExpression,
         IReadOnlyPropertyBase? propertyBase)
     {
@@ -38,9 +38,9 @@ public static class ExpressionExtensions
                     Expression.Constant(null, currentValueExpression.Type))
                 : isNullableValueType
                     ? Expression.Not(
-                        Expression.Call(
+                        Expression.MakeMemberAccess(
                             currentValueExpression,
-                            currentValueExpression.Type.GetMethod("get_HasValue")!))
+                            currentValueExpression.Type.GetProperty("HasValue")!))
                     : Expression.Constant(false);
         }
 
@@ -62,9 +62,9 @@ public static class ExpressionExtensions
                         Expression.ReferenceEqual(
                             currentValueExpression,
                             Expression.Constant(null, currentValueExpression.Type)))
-                    : Expression.Call(
+                    : Expression.MakeMemberAccess(
                         currentValueExpression,
-                        currentValueExpression.Type.GetMethod("get_HasValue")!),
+                        currentValueExpression.Type.GetProperty("HasValue")!),
                 equalsExpression);
         }
 
@@ -171,8 +171,7 @@ public static class ExpressionExtensions
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public static bool IsLogicalOperation(this Expression expression)
-        => expression.NodeType == ExpressionType.AndAlso
-            || expression.NodeType == ExpressionType.OrElse;
+        => expression.NodeType is ExpressionType.AndAlso or ExpressionType.OrElse;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -198,18 +197,11 @@ public static class ExpressionExtensions
             && (sqlUnaryExpression.Type == typeof(bool)
                 || sqlUnaryExpression.Type == typeof(bool?));
 
-    [return: NotNullIfNotNull("expression")]
+    [return: NotNullIfNotNull(nameof(expression))]
     private static Expression? RemoveConvert(Expression? expression)
-    {
-        if (expression is UnaryExpression unaryExpression
-            && (expression.NodeType == ExpressionType.Convert
-                || expression.NodeType == ExpressionType.ConvertChecked))
-        {
-            return RemoveConvert(unaryExpression.Operand);
-        }
-
-        return expression;
-    }
+        => expression is UnaryExpression { NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked } unaryExpression
+            ? RemoveConvert(unaryExpression.Operand)
+            : expression;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -246,20 +238,20 @@ public static class ExpressionExtensions
                             EF.MakePropertyMethod(typeof(object)),
                             entityParameterExpression,
                             Expression.Constant(property.Name, typeof(string))),
-                        Expression.Call(
+                        Expression.MakeIndex(
                             keyValuesConstantExpression,
-                            ValueBuffer.GetValueMethod,
-                            Expression.Constant(i)))
+                            ValueBuffer.Indexer,
+                            new[] { Expression.Constant(i) }))
                     : Expression.Equal(
                         Expression.Call(
                             EF.MakePropertyMethod(property.ClrType),
                             entityParameterExpression,
                             Expression.Constant(property.Name, typeof(string))),
                         Expression.Convert(
-                            Expression.Call(
+                            Expression.MakeIndex(
                                 keyValuesConstantExpression,
-                                ValueBuffer.GetValueMethod,
-                                Expression.Constant(i)),
+                                ValueBuffer.Indexer,
+                                new[] { Expression.Constant(i) }),
                             property.ClrType));
     }
 }

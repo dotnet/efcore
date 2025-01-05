@@ -9,9 +9,12 @@ updates:
     schedule:
       interval: weekly
     allow:
+      - dependency-name: Azure.Identity
       - dependency-name: Castle.Core
+      - dependency-name: Grpc.AspNetCore
       - dependency-name: Humanizer.Core
       - dependency-name: IdentityServer4.EntityFramework
+      - dependency-name: Microsoft.AspNetCore.Identity.EntityFrameworkCore
       - dependency-name: Microsoft.AspNetCore.OData
       - dependency-name: Microsoft.Azure.Cosmos
       - dependency-name: Microsoft.CSharp

@@ -126,7 +126,7 @@ public class DiscriminatorConventionTest
     {
         var entityTypeBuilder = CreateInternalEntityTypeBuilder<Entity>();
 
-        new EntityTypeBuilder(entityTypeBuilder.Metadata).HasDiscriminator("T", typeof(string));
+        new EntityTypeBuilder(entityTypeBuilder.Metadata).HasDiscriminator("T", typeof(int));
 
         var baseTypeBuilder = entityTypeBuilder.ModelBuilder.Entity(typeof(EntityBase), ConfigurationSource.Convention);
         entityTypeBuilder.HasBaseType(baseTypeBuilder.Metadata, ConfigurationSource.Convention);
@@ -160,9 +160,7 @@ public class DiscriminatorConventionTest
     private ProviderConventionSetBuilderDependencies CreateDependencies()
         => InMemoryTestHelpers.Instance.CreateContextServices().GetRequiredService<ProviderConventionSetBuilderDependencies>();
 
-    private class EntityBase
-    {
-    }
+    private class EntityBase;
 
     private class Entity : EntityBase
     {
@@ -171,9 +169,7 @@ public class DiscriminatorConventionTest
         public string Name { get; set; }
     }
 
-    private class DerivedEntity : Entity
-    {
-    }
+    private class DerivedEntity : Entity;
 
     private static InternalEntityTypeBuilder CreateInternalEntityTypeBuilder<T>()
     {

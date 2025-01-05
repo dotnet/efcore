@@ -4,6 +4,8 @@
 using System.Collections.Concurrent;
 using System.Data;
 using System.Globalization;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace Microsoft.EntityFrameworkCore.Storage;
 
@@ -131,12 +133,15 @@ public abstract class RelationalTypeMapping : CoreTypeMapping
         ///     mapping info.
         /// </summary>
         /// <param name="mappingInfo">The mapping info containing the facets to use.</param>
+        /// <param name="storeTypePostfix">The new postfix, or <see langword="null" /> to leave unchanged.</param>
         /// <returns>The new parameter object.</returns>
-        public RelationalTypeMappingParameters WithTypeMappingInfo(in RelationalTypeMappingInfo mappingInfo)
+        public RelationalTypeMappingParameters WithTypeMappingInfo(
+            in RelationalTypeMappingInfo mappingInfo,
+            StoreTypePostfix? storeTypePostfix = null)
             => new(
                 CoreParameters,
                 mappingInfo.StoreTypeName ?? StoreType,
-                StoreTypePostfix,
+                storeTypePostfix ?? StoreTypePostfix,
                 mappingInfo.DbType ?? DbType,
                 mappingInfo.IsUnicode ?? Unicode,
                 mappingInfo.Size ?? Size,
@@ -150,7 +155,7 @@ public abstract class RelationalTypeMapping : CoreTypeMapping
         /// </summary>
         /// <param name="storeType">The new store type name.</param>
         /// <param name="size">The new size.</param>
-        /// <param name="storeTypePostfix">The new postfix, or null to leave unchanged.</param>
+        /// <param name="storeTypePostfix">The new postfix, or <see langword="null" /> to leave unchanged.</param>
         /// <returns>The new parameter object.</returns>
         public RelationalTypeMappingParameters WithStoreTypeAndSize(
             string storeType,
@@ -226,10 +231,19 @@ public abstract class RelationalTypeMapping : CoreTypeMapping
         ///     converter composed with any existing converter and set on the new parameter object.
         /// </summary>
         /// <param name="converter">The converter.</param>
+        /// <param name="comparer">The comparer.</param>
+        /// <param name="keyComparer">The key comparer.</param>
+        /// <param name="elementMapping">The element mapping, or <see langword="null" /> for non-collection mappings.</param>
+        /// <param name="jsonValueReaderWriter">The JSON reader/writer, or <see langword="null" /> to leave unchanged.</param>
         /// <returns>The new parameter object.</returns>
-        public RelationalTypeMappingParameters WithComposedConverter(ValueConverter? converter)
+        public RelationalTypeMappingParameters WithComposedConverter(
+            ValueConverter? converter,
+            ValueComparer? comparer,
+            ValueComparer? keyComparer,
+            CoreTypeMapping? elementMapping,
+            JsonValueReaderWriter? jsonValueReaderWriter)
             => new(
-                CoreParameters.WithComposedConverter(converter),
+                CoreParameters.WithComposedConverter(converter, comparer, keyComparer, elementMapping, jsonValueReaderWriter),
                 StoreType,
                 StoreTypePostfix,
                 DbType,
@@ -260,23 +274,12 @@ public abstract class RelationalTypeMapping : CoreTypeMapping
     };
 
     private static MethodInfo GetDataReaderMethod(string name)
-        => typeof(DbDataReader).GetRuntimeMethod(name, new[] { typeof(int) })!;
+        => typeof(DbDataReader).GetRuntimeMethod(name, [typeof(int)])!;
 
     /// <summary>
     ///     Gets the mapping to be used when the only piece of information is that there is a null value.
     /// </summary>
-    public static readonly RelationalTypeMapping NullMapping = new NullTypeMapping("NULL");
-
-    private sealed class NullTypeMapping : RelationalTypeMapping
-    {
-        public NullTypeMapping(string storeType)
-            : base(storeType, typeof(object))
-        {
-        }
-
-        protected override RelationalTypeMapping Clone(RelationalTypeMappingParameters parameters)
-            => this;
-    }
+    public static readonly RelationalTypeMapping NullMapping = NullTypeMapping.Default;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="RelationalTypeMapping" /> class.
@@ -316,6 +319,7 @@ public abstract class RelationalTypeMapping : CoreTypeMapping
     /// <param name="fixedLength">A value indicating whether the type has fixed length data or not.</param>
     /// <param name="precision">The precision of data the property is configured to store, or null if no precision is configured.</param>
     /// <param name="scale">The scale of data the property is configured to store, or null if no scale is configured.</param>
+    /// <param name="jsonValueReaderWriter">Handles reading and writing JSON values for instances of the mapped type.</param>
     protected RelationalTypeMapping(
         string storeType,
         Type clrType,
@@ -324,10 +328,12 @@ public abstract class RelationalTypeMapping : CoreTypeMapping
         int? size = null,
         bool fixedLength = false,
         int? precision = null,
-        int? scale = null)
+        int? scale = null,
+        JsonValueReaderWriter? jsonValueReaderWriter = null)
         : this(
             new RelationalTypeMappingParameters(
-                new CoreTypeMappingParameters(clrType), storeType, StoreTypePostfix.None, dbType, unicode, size, fixedLength, precision,
+                new CoreTypeMappingParameters(clrType, jsonValueReaderWriter: jsonValueReaderWriter), storeType, StoreTypePostfix.None,
+                dbType, unicode, size, fixedLength, precision,
                 scale))
     {
     }
@@ -395,6 +401,10 @@ public abstract class RelationalTypeMapping : CoreTypeMapping
     protected virtual string SqlLiteralFormatString
         => "{0}";
 
+    /// <inheritdoc />
+    protected override CoreTypeMapping Clone(CoreTypeMappingParameters parameters)
+        => Clone(Parameters.WithCoreParameters(parameters));
+
     /// <summary>
     ///     Creates a copy of this mapping.
     /// </summary>
@@ -408,7 +418,7 @@ public abstract class RelationalTypeMapping : CoreTypeMapping
     /// <param name="storeType">The name of the database type.</param>
     /// <param name="size">The size of data the property is configured to store, or null if no size is configured.</param>
     /// <returns>The newly created mapping.</returns>
-    public virtual RelationalTypeMapping Clone(string storeType, int? size)
+    public virtual RelationalTypeMapping WithStoreTypeAndSize(string storeType, int? size)
         => Clone(Parameters.WithStoreTypeAndSize(storeType, size));
 
     /// <summary>
@@ -417,25 +427,79 @@ public abstract class RelationalTypeMapping : CoreTypeMapping
     /// <param name="precision">The precision of data the property is configured to store, or null if no size is configured.</param>
     /// <param name="scale">The scale of data the property is configured to store, or null if no size is configured.</param>
     /// <returns>The newly created mapping.</returns>
-    public virtual RelationalTypeMapping Clone(int? precision, int? scale)
+    public virtual RelationalTypeMapping WithPrecisionAndScale(int? precision, int? scale)
         => Clone(Parameters.WithPrecisionAndScale(precision, scale));
 
-    /// <summary>
-    ///     Returns a new copy of this type mapping with the given <see cref="ValueConverter" />
-    ///     added.
-    /// </summary>
-    /// <param name="converter">The converter to use.</param>
-    /// <returns>A new type mapping</returns>
-    public override CoreTypeMapping Clone(ValueConverter? converter)
-        => Clone(Parameters.WithComposedConverter(converter));
+    /// <inheritdoc />
+    public override CoreTypeMapping WithComposedConverter(
+        ValueConverter? converter,
+        ValueComparer? comparer = null,
+        ValueComparer? keyComparer = null,
+        CoreTypeMapping? elementMapping = null,
+        JsonValueReaderWriter? jsonValueReaderWriter = null)
+        => Clone(Parameters.WithComposedConverter(converter, comparer, keyComparer, elementMapping, jsonValueReaderWriter));
 
     /// <summary>
     ///     Clones the type mapping to update facets from the mapping info, if needed.
     /// </summary>
     /// <param name="mappingInfo">The mapping info containing the facets to use.</param>
     /// <returns>The cloned mapping, or the original mapping if no clone was needed.</returns>
-    public virtual RelationalTypeMapping Clone(in RelationalTypeMappingInfo mappingInfo)
+    public virtual RelationalTypeMapping WithTypeMappingInfo(
+        in RelationalTypeMappingInfo mappingInfo)
         => Clone(Parameters.WithTypeMappingInfo(mappingInfo));
+
+    /// <summary>
+    ///     Clones the type mapping to update any parameter if needed.
+    /// </summary>
+    /// <param name="mappingInfo">The mapping info containing the facets to use.</param>
+    /// <param name="storeTypePostfix">The new postfix, or <see langword="null" /> to leave unchanged.</param>
+    /// <param name="clrType">The .NET type used in the EF model, or <see langword="null" /> to leave unchanged.</param>
+    /// <param name="converter">The value converter, or <see langword="null" /> to leave unchanged.</param>
+    /// <param name="comparer">The value comparer, or <see langword="null" /> to leave unchanged.</param>
+    /// <param name="keyComparer">The key value comparer, or <see langword="null" /> to leave unchanged.</param>
+    /// <param name="providerValueComparer">The provider value comparer, or <see langword="null" /> to leave unchanged.</param>
+    /// <param name="elementMapping">The element mapping, or <see langword="null" /> to leave unchanged.</param>
+    /// <param name="jsonValueReaderWriter">The JSON reader/writer, or <see langword="null" /> to leave unchanged.</param>
+    /// <returns>The cloned mapping, or the original mapping if no clone was needed.</returns>
+    public virtual RelationalTypeMapping Clone(
+        in RelationalTypeMappingInfo? mappingInfo = null,
+        Type? clrType = null,
+        ValueConverter? converter = null,
+        ValueComparer? comparer = null,
+        ValueComparer? keyComparer = null,
+        ValueComparer? providerValueComparer = null,
+        CoreTypeMapping? elementMapping = null,
+        JsonValueReaderWriter? jsonValueReaderWriter = null,
+        StoreTypePostfix? storeTypePostfix = null)
+    {
+        var parameters = Parameters;
+        if (mappingInfo != null)
+        {
+            parameters = parameters.WithTypeMappingInfo(mappingInfo.Value, storeTypePostfix);
+        }
+
+        if (clrType != null
+            || converter != null
+            || comparer != null
+            || keyComparer != null
+            || providerValueComparer != null
+            || elementMapping != null
+            || jsonValueReaderWriter != null)
+        {
+            parameters = parameters.WithCoreParameters(
+                new CoreTypeMappingParameters(
+                    clrType ?? Parameters.CoreParameters.ClrType,
+                    converter ?? Parameters.CoreParameters.Converter,
+                    comparer ?? Parameters.CoreParameters.Comparer,
+                    keyComparer ?? Parameters.CoreParameters.KeyComparer,
+                    providerValueComparer ?? Parameters.CoreParameters.ProviderValueComparer,
+                    Parameters.CoreParameters.ValueGeneratorFactory,
+                    elementMapping ?? Parameters.CoreParameters.ElementTypeMapping,
+                    jsonValueReaderWriter ?? Parameters.CoreParameters.JsonValueReaderWriter));
+        }
+
+        return Clone(parameters);
+    }
 
     /// <summary>
     ///     Processes the store type name to add appropriate postfix/prefix text as needed.
@@ -456,8 +520,7 @@ public abstract class RelationalTypeMapping : CoreTypeMapping
         {
             storeType = storeTypeNameBase + "(" + (size < 0 ? "max" : size.ToString()) + ")";
         }
-        else if (parameters.StoreTypePostfix == StoreTypePostfix.PrecisionAndScale
-                 || parameters.StoreTypePostfix == StoreTypePostfix.Precision)
+        else if (parameters.StoreTypePostfix is StoreTypePostfix.PrecisionAndScale or StoreTypePostfix.Precision)
         {
             var precision = parameters.Precision;
             if (precision != null)

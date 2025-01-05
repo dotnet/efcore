@@ -3,7 +3,6 @@
 
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
-using Microsoft.EntityFrameworkCore.Sqlite.Query.SqlExpressions.Internal;
 using ExpressionExtensions = Microsoft.EntityFrameworkCore.Query.ExpressionExtensions;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
@@ -34,7 +33,7 @@ public class SqliteSqlExpressionFactory : SqlExpressionFactory
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual SqlFunctionExpression Strftime(
+    public virtual SqlExpression Strftime(
         Type returnType,
         string format,
         SqlExpression timestring,
@@ -44,14 +43,11 @@ public class SqliteSqlExpressionFactory : SqlExpressionFactory
         modifiers ??= Enumerable.Empty<SqlExpression>();
 
         // If the inner call is another strftime then shortcut a double call
-        if (timestring is SqlFunctionExpression rtrimFunction
-            && rtrimFunction.Name == "rtrim"
+        if (timestring is SqlFunctionExpression { Name: "rtrim" } rtrimFunction
             && rtrimFunction.Arguments!.Count == 2
-            && rtrimFunction.Arguments[0] is SqlFunctionExpression rtrimFunction2
-            && rtrimFunction2.Name == "rtrim"
+            && rtrimFunction.Arguments[0] is SqlFunctionExpression { Name: "rtrim" } rtrimFunction2
             && rtrimFunction2.Arguments!.Count == 2
-            && rtrimFunction2.Arguments[0] is SqlFunctionExpression strftimeFunction
-            && strftimeFunction.Name == "strftime"
+            && rtrimFunction2.Arguments[0] is SqlFunctionExpression { Name: "strftime" } strftimeFunction
             && strftimeFunction.Arguments!.Count > 1)
         {
             // Use its timestring parameter directly in place of ours
@@ -61,8 +57,7 @@ public class SqliteSqlExpressionFactory : SqlExpressionFactory
             modifiers = strftimeFunction.Arguments.Skip(2).Concat(modifiers);
         }
 
-        if (timestring is SqlFunctionExpression dateFunction
-            && dateFunction.Name == "date")
+        if (timestring is SqlFunctionExpression { Name: "date" } dateFunction)
         {
             timestring = dateFunction.Arguments![0];
             modifiers = dateFunction.Arguments.Skip(1).Concat(modifiers);
@@ -85,7 +80,7 @@ public class SqliteSqlExpressionFactory : SqlExpressionFactory
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual SqlFunctionExpression Date(
+    public virtual SqlExpression Date(
         Type returnType,
         SqlExpression timestring,
         IEnumerable<SqlExpression>? modifiers = null,
@@ -93,8 +88,7 @@ public class SqliteSqlExpressionFactory : SqlExpressionFactory
     {
         modifiers ??= Enumerable.Empty<SqlExpression>();
 
-        if (timestring is SqlFunctionExpression dateFunction
-            && dateFunction.Name == "date")
+        if (timestring is SqlFunctionExpression { Name: "date" } dateFunction)
         {
             timestring = dateFunction.Arguments![0];
             modifiers = dateFunction.Arguments.Skip(1).Concat(modifiers);
@@ -117,7 +111,7 @@ public class SqliteSqlExpressionFactory : SqlExpressionFactory
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual GlobExpression Glob(SqlExpression match, SqlExpression pattern, bool negated = false)
+    public virtual GlobExpression Glob(SqlExpression match, SqlExpression pattern)
     {
         var inferredTypeMapping = ExpressionExtensions.InferTypeMapping(match, pattern)
             ?? Dependencies.TypeMappingSource.FindMapping(match.Type, Dependencies.Model);
@@ -125,7 +119,7 @@ public class SqliteSqlExpressionFactory : SqlExpressionFactory
         match = ApplyTypeMapping(match, inferredTypeMapping);
         pattern = ApplyTypeMapping(pattern, inferredTypeMapping);
 
-        return new GlobExpression(match, pattern, negated, _boolTypeMapping);
+        return new GlobExpression(match, pattern, _boolTypeMapping);
     }
 
     /// <summary>
@@ -134,7 +128,7 @@ public class SqliteSqlExpressionFactory : SqlExpressionFactory
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual RegexpExpression Regexp(SqlExpression match, SqlExpression pattern, bool negated = false)
+    public virtual RegexpExpression Regexp(SqlExpression match, SqlExpression pattern)
     {
         var inferredTypeMapping = ExpressionExtensions.InferTypeMapping(match, pattern)
             ?? Dependencies.TypeMappingSource.FindMapping(match.Type, Dependencies.Model);
@@ -142,7 +136,7 @@ public class SqliteSqlExpressionFactory : SqlExpressionFactory
         match = ApplyTypeMapping(match, inferredTypeMapping);
         pattern = ApplyTypeMapping(pattern, inferredTypeMapping);
 
-        return new RegexpExpression(match, pattern, negated, _boolTypeMapping);
+        return new RegexpExpression(match, pattern, _boolTypeMapping);
     }
 
     /// <summary>
@@ -151,9 +145,9 @@ public class SqliteSqlExpressionFactory : SqlExpressionFactory
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [return: NotNullIfNotNull("sqlExpression")]
+    [return: NotNullIfNotNull(nameof(sqlExpression))]
     public override SqlExpression? ApplyTypeMapping(SqlExpression? sqlExpression, RelationalTypeMapping? typeMapping)
-        => sqlExpression == null || sqlExpression.TypeMapping != null
+        => sqlExpression is not { TypeMapping: null }
             ? sqlExpression
             : sqlExpression switch
             {
@@ -171,7 +165,7 @@ public class SqliteSqlExpressionFactory : SqlExpressionFactory
         var pattern = ApplyTypeMapping(globExpression.Pattern, inferredTypeMapping);
 
         return match != globExpression.Match || pattern != globExpression.Pattern || globExpression.TypeMapping != _boolTypeMapping
-            ? new GlobExpression(match, pattern, globExpression.IsNegated, _boolTypeMapping)
+            ? new GlobExpression(match, pattern, _boolTypeMapping)
             : globExpression;
     }
 
@@ -184,7 +178,7 @@ public class SqliteSqlExpressionFactory : SqlExpressionFactory
         var pattern = ApplyTypeMapping(regexpExpression.Pattern, inferredTypeMapping);
 
         return match != regexpExpression.Match || pattern != regexpExpression.Pattern || regexpExpression.TypeMapping != _boolTypeMapping
-            ? new RegexpExpression(match, pattern, regexpExpression.IsNegated, _boolTypeMapping)
+            ? new RegexpExpression(match, pattern, _boolTypeMapping)
             : regexpExpression;
     }
 }
