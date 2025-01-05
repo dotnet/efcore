@@ -3,6 +3,7 @@
 
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
+// ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 
 /// <summary>
@@ -13,17 +14,17 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 /// </summary>
 public class SqlServerParseTranslator : IMethodCallTranslator
 {
-    private static readonly Type[] SupportedClrTypes = new Type[]
-    {
+    private static readonly Type[] SupportedClrTypes =
+    [
         typeof(bool), // bit
         typeof(byte), // tinyint
-        typeof(decimal), // decimal(18, 2)
+        typeof(decimal), // decimal
         typeof(double), // float
         typeof(float), // float
         typeof(short), // smallint
         typeof(int), // int
         typeof(long) // bigint
-    };
+    ];
 
     private static readonly IEnumerable<MethodInfo> SupportedMethods
         = SupportedClrTypes
