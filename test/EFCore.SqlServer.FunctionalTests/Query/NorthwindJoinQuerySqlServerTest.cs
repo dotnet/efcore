@@ -992,6 +992,22 @@ INNER JOIN [Orders] AS [o1] ON [c].[CustomerID] = [o1].[CustomerID]
 """);
     }
 
+    public override async Task GroupJoin_on_true_equal_true(bool async)
+    {
+        await base.GroupJoin_on_true_equal_true(async);
+
+        AssertSql(
+            """
+SELECT [c].[CustomerID], [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
+FROM [Customers] AS [c]
+OUTER APPLY (
+    SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    FROM [Orders] AS [o]
+) AS [o0]
+ORDER BY [c].[CustomerID]
+""");
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
