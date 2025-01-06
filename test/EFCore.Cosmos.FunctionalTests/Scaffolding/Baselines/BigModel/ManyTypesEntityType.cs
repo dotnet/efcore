@@ -256,10 +256,10 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             boolNestedCollection.TypeMapping = CosmosTypeMapping.Default.Clone(
-                comparer: new ListOfReferenceTypesComparer<bool[][], bool[]>(new ListOfValueTypesComparer<bool[], bool>(new ValueComparer<bool>(
+                comparer: new ListOfReferenceTypesComparer<bool[][], bool[]>(new ConvertingValueComparer<bool[], IEnumerable<bool>>(new ListOfValueTypesComparer<bool[], bool>(new ValueComparer<bool>(
                     bool (bool v1, bool v2) => v1 == v2,
                     int (bool v) => ((object)v).GetHashCode(),
-                    bool (bool v) => v))),
+                    bool (bool v) => v)))),
                 keyComparer: new ValueComparer<bool[][]>(
                     bool (bool[][] v1, bool[][] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
                     int (bool[][] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
@@ -786,10 +786,10 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             charNestedCollection.TypeMapping = CosmosTypeMapping.Default.Clone(
-                comparer: new ListOfReferenceTypesComparer<char[][], char[]>(new ListOfValueTypesComparer<char[], char>(new ValueComparer<char>(
+                comparer: new ListOfReferenceTypesComparer<char[][], char[]>(new ConvertingValueComparer<char[], IEnumerable<char>>(new ListOfValueTypesComparer<char[], char>(new ValueComparer<char>(
                     bool (char v1, char v2) => v1 == v2,
                     int (char v) => ((int)(v)),
-                    char (char v) => v))),
+                    char (char v) => v)))),
                 keyComparer: new ValueComparer<char[][]>(
                     bool (char[][] v1, char[][] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
                     int (char[][] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
@@ -3232,10 +3232,10 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             int32NestedCollection.TypeMapping = CosmosTypeMapping.Default.Clone(
-                comparer: new ListOfReferenceTypesComparer<int[][], int[]>(new ListOfValueTypesComparer<int[], int>(new ValueComparer<int>(
+                comparer: new ListOfReferenceTypesComparer<int[][], int[]>(new ConvertingValueComparer<int[], IEnumerable<int>>(new ListOfValueTypesComparer<int[], int>(new ValueComparer<int>(
                     bool (int v1, int v2) => v1 == v2,
                     int (int v) => v,
-                    int (int v) => v))),
+                    int (int v) => v)))),
                 keyComparer: new ValueComparer<int[][]>(
                     bool (int[][] v1, int[][] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
                     int (int[][] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
@@ -3466,10 +3466,10 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             int64NestedCollection.TypeMapping = CosmosTypeMapping.Default.Clone(
-                comparer: new ListOfReferenceTypesComparer<IList<long[]>[], IList<long[]>>(new ListOfReferenceTypesComparer<List<long[]>, long[]>(new ListOfValueTypesComparer<long[], long>(new ValueComparer<long>(
+                comparer: new ListOfReferenceTypesComparer<IList<long[]>[], IList<long[]>>(new ConvertingValueComparer<IList<long[]>, object>(new ListOfReferenceTypesComparer<List<long[]>, long[]>(new ConvertingValueComparer<long[], IEnumerable<long>>(new ListOfValueTypesComparer<long[], long>(new ValueComparer<long>(
                     bool (long v1, long v2) => v1 == v2,
                     int (long v) => ((object)v).GetHashCode(),
-                    long (long v) => v)))),
+                    long (long v) => v)))))),
                 keyComparer: new ValueComparer<IList<long[]>[]>(
                     bool (IList<long[]>[] v1, IList<long[]>[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
                     int (IList<long[]>[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
@@ -3484,10 +3484,10 @@ namespace TestNamespace
                         new JsonCollectionOfStructsReaderWriter<long[], long>(
                             JsonInt64ReaderWriter.Instance))),
                 elementMapping: CosmosTypeMapping.Default.Clone(
-                    comparer: new ListOfReferenceTypesComparer<List<long[]>, long[]>(new ListOfValueTypesComparer<long[], long>(new ValueComparer<long>(
+                    comparer: new ListOfReferenceTypesComparer<List<long[]>, long[]>(new ConvertingValueComparer<long[], IEnumerable<long>>(new ListOfValueTypesComparer<long[], long>(new ValueComparer<long>(
                         bool (long v1, long v2) => v1 == v2,
                         int (long v) => ((object)v).GetHashCode(),
-                        long (long v) => v))),
+                        long (long v) => v)))),
                     keyComparer: new ValueComparer<IList<long[]>>(
                         bool (IList<long[]> v1, IList<long[]> v2) => object.Equals(v1, v2),
                         int (IList<long[]> v) => ((object)v).GetHashCode(),
@@ -3660,10 +3660,10 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             int8NestedCollection.TypeMapping = CosmosTypeMapping.Default.Clone(
-                comparer: new ListOfReferenceTypesComparer<sbyte[][][], sbyte[][]>(new ListOfReferenceTypesComparer<sbyte[][], sbyte[]>(new ListOfValueTypesComparer<sbyte[], sbyte>(new ValueComparer<sbyte>(
+                comparer: new ListOfReferenceTypesComparer<sbyte[][][], sbyte[][]>(new ConvertingValueComparer<sbyte[][], object>(new ListOfReferenceTypesComparer<sbyte[][], sbyte[]>(new ConvertingValueComparer<sbyte[], IEnumerable<sbyte>>(new ListOfValueTypesComparer<sbyte[], sbyte>(new ValueComparer<sbyte>(
                     bool (sbyte v1, sbyte v2) => v1 == v2,
                     int (sbyte v) => ((int)(v)),
-                    sbyte (sbyte v) => v)))),
+                    sbyte (sbyte v) => v)))))),
                 keyComparer: new ValueComparer<sbyte[][][]>(
                     bool (sbyte[][][] v1, sbyte[][][] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
                     int (sbyte[][][] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
@@ -3678,10 +3678,10 @@ namespace TestNamespace
                         new JsonCollectionOfStructsReaderWriter<sbyte[], sbyte>(
                             JsonSByteReaderWriter.Instance))),
                 elementMapping: CosmosTypeMapping.Default.Clone(
-                    comparer: new ListOfReferenceTypesComparer<sbyte[][], sbyte[]>(new ListOfValueTypesComparer<sbyte[], sbyte>(new ValueComparer<sbyte>(
+                    comparer: new ListOfReferenceTypesComparer<sbyte[][], sbyte[]>(new ConvertingValueComparer<sbyte[], IEnumerable<sbyte>>(new ListOfValueTypesComparer<sbyte[], sbyte>(new ValueComparer<sbyte>(
                         bool (sbyte v1, sbyte v2) => v1 == v2,
                         int (sbyte v) => ((int)(v)),
-                        sbyte (sbyte v) => v))),
+                        sbyte (sbyte v) => v)))),
                     keyComparer: new ValueComparer<sbyte[][]>(
                         bool (sbyte[][] v1, sbyte[][] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
                         int (sbyte[][] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
@@ -5681,10 +5681,10 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableInt32NestedCollection.TypeMapping = CosmosTypeMapping.Default.Clone(
-                comparer: new ListOfReferenceTypesComparer<int?[][], int?[]>(new ListOfNullableValueTypesComparer<int?[], int>(new NullableValueComparer<int>(new ValueComparer<int>(
+                comparer: new ListOfReferenceTypesComparer<int?[][], int?[]>(new ConvertingValueComparer<int?[], IEnumerable<int?>>(new ListOfNullableValueTypesComparer<int?[], int>(new NullableValueComparer<int>(new ValueComparer<int>(
                     bool (int v1, int v2) => v1 == v2,
                     int (int v) => v,
-                    int (int v) => v)))),
+                    int (int v) => v))))),
                 keyComparer: new ValueComparer<int?[][]>(
                     bool (int? [][] v1, int? [][] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
                     int (int? [][] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
@@ -5859,10 +5859,10 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableInt64NestedCollection.TypeMapping = CosmosTypeMapping.Default.Clone(
-                comparer: new ListOfReferenceTypesComparer<List<long?[][]>, long?[][]>(new ListOfReferenceTypesComparer<long?[][], long?[]>(new ListOfNullableValueTypesComparer<long?[], long>(new NullableValueComparer<long>(new ValueComparer<long>(
+                comparer: new ListOfReferenceTypesComparer<List<long?[][]>, long?[][]>(new ConvertingValueComparer<long?[][], object>(new ListOfReferenceTypesComparer<long?[][], long?[]>(new ConvertingValueComparer<long?[], IEnumerable<long?>>(new ListOfNullableValueTypesComparer<long?[], long>(new NullableValueComparer<long>(new ValueComparer<long>(
                     bool (long v1, long v2) => v1 == v2,
                     int (long v) => ((object)v).GetHashCode(),
-                    long (long v) => v))))),
+                    long (long v) => v))))))),
                 keyComparer: new ValueComparer<List<long?[][]>>(
                     bool (List<long? [][]> v1, List<long? [][]> v2) => object.Equals(v1, v2),
                     int (List<long? [][]> v) => ((object)v).GetHashCode(),
@@ -5877,10 +5877,10 @@ namespace TestNamespace
                         new JsonCollectionOfNullableStructsReaderWriter<long?[], long>(
                             JsonInt64ReaderWriter.Instance))),
                 elementMapping: CosmosTypeMapping.Default.Clone(
-                    comparer: new ListOfReferenceTypesComparer<long?[][], long?[]>(new ListOfNullableValueTypesComparer<long?[], long>(new NullableValueComparer<long>(new ValueComparer<long>(
+                    comparer: new ListOfReferenceTypesComparer<long?[][], long?[]>(new ConvertingValueComparer<long?[], IEnumerable<long?>>(new ListOfNullableValueTypesComparer<long?[], long>(new NullableValueComparer<long>(new ValueComparer<long>(
                         bool (long v1, long v2) => v1 == v2,
                         int (long v) => ((object)v).GetHashCode(),
-                        long (long v) => v)))),
+                        long (long v) => v))))),
                     keyComparer: new ValueComparer<long?[][]>(
                         bool (long? [][] v1, long? [][] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
                         int (long? [][] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
@@ -6205,10 +6205,10 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableStringNestedCollection.TypeMapping = CosmosTypeMapping.Default.Clone(
-                comparer: new ListOfReferenceTypesComparer<string[][], string[]>(new ListOfReferenceTypesComparer<string[], string>(new ValueComparer<string>(
+                comparer: new ListOfReferenceTypesComparer<string[][], string[]>(new ConvertingValueComparer<string[], object>(new ListOfReferenceTypesComparer<string[], string>(new ValueComparer<string>(
                     bool (string v1, string v2) => v1 == v2,
                     int (string v) => ((object)v).GetHashCode(),
-                    string (string v) => v))),
+                    string (string v) => v)))),
                 keyComparer: new ValueComparer<string[][]>(
                     bool (string[][] v1, string[][] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
                     int (string[][] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
@@ -7077,10 +7077,10 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             stringNestedCollection.TypeMapping = CosmosTypeMapping.Default.Clone(
-                comparer: new ListOfReferenceTypesComparer<string[][], string[]>(new ListOfReferenceTypesComparer<string[], string>(new ValueComparer<string>(
+                comparer: new ListOfReferenceTypesComparer<string[][], string[]>(new ConvertingValueComparer<string[], object>(new ListOfReferenceTypesComparer<string[], string>(new ValueComparer<string>(
                     bool (string v1, string v2) => v1 == v2,
                     int (string v) => ((object)v).GetHashCode(),
-                    string (string v) => v))),
+                    string (string v) => v)))),
                 keyComparer: new ValueComparer<string[][]>(
                     bool (string[][] v1, string[][] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
                     int (string[][] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),

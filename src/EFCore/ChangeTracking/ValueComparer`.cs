@@ -372,8 +372,4 @@ public class ValueComparer
     private readonly ConstructorInfo _constructorInfo
         = typeof(ValueComparer<T>).GetConstructor(
             [typeof(Expression<Func<T?, T?, bool>>), typeof(Expression<Func<T, int>>), typeof(Expression<Func<T, T>>)])!;
-
-    /// <inheritdoc />
-    public override Expression ConstructorExpression
-        => New(_constructorInfo, EqualsExpression, HashCodeExpression, SnapshotExpression);
 }
