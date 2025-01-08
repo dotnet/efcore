@@ -252,7 +252,7 @@ fi
 
 [ -z "${DOTNET_HOME:-}" ] && DOTNET_HOME="$HOME/.dotnet"
 [ -z "$channel" ] && channel='master'
-[ -z "$tools_source" ] && tools_source='https://aspnetcore.blob.core.windows.net/buildtools'
+[ -z "$tools_source" ] && tools_source='https://dotnetbuilds.blob.core.windows.net/buildtools'
 
 get_korebuild
 set_korebuildsettings "$tools_source" "$DOTNET_HOME" "$repo_path" "$config_file" "$ci"
