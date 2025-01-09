@@ -29,12 +29,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking;
 /// <typeparam name="T">The type.</typeparam>
 // PublicMethods is required to preserve e.g. GetHashCode
 public class ValueComparer
-<[DynamicallyAccessedMembers(
+    <[DynamicallyAccessedMembers(
         DynamicallyAccessedMemberTypes.PublicMethods
         | DynamicallyAccessedMemberTypes.NonPublicMethods
         | DynamicallyAccessedMemberTypes.PublicProperties)]
-    T>
-    : ValueComparer, IEqualityComparer<T>
+    T> : ValueComparer, IEqualityComparer<T>
 {
     private Func<T?, T?, bool>? _equals;
     private Func<T, int>? _hashCode;

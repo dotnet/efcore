@@ -279,7 +279,12 @@ public abstract class ValueComparer : IEqualityComparer, IEqualityComparer<objec
     /// </param>
     /// <typeparam name="T">The type.</typeparam>
     /// <returns>The <see cref="ValueComparer{T}" />.</returns>
-    public static ValueComparer CreateDefault<T>(bool favorStructuralComparisons)
+    public static ValueComparer CreateDefault
+        <[DynamicallyAccessedMembers(
+            DynamicallyAccessedMemberTypes.PublicMethods
+            | DynamicallyAccessedMemberTypes.NonPublicMethods
+            | DynamicallyAccessedMemberTypes.PublicProperties)]
+        T>(bool favorStructuralComparisons)
     {
         var nonNullableType = typeof(T).UnwrapNullableType();
 
@@ -313,7 +318,12 @@ public abstract class ValueComparer : IEqualityComparer, IEqualityComparer<objec
     }
 
     // PublicMethods is required to preserve e.g. GetHashCode
-    internal class DefaultValueComparer<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicMethods)] T> : ValueComparer<T>
+    internal class DefaultValueComparer
+        <[DynamicallyAccessedMembers(
+            DynamicallyAccessedMemberTypes.PublicMethods
+            | DynamicallyAccessedMemberTypes.NonPublicMethods
+            | DynamicallyAccessedMemberTypes.PublicProperties)]
+        T> : ValueComparer<T>
     {
         public DefaultValueComparer(bool favorStructuralComparisons)
             : base(favorStructuralComparisons)
