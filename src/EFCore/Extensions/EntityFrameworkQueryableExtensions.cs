@@ -19,6 +19,12 @@ namespace Microsoft.EntityFrameworkCore;
         "MakeGenericMethod is used in this class to create MethodCallExpression nodes, but only if the method in question is called "
         + "from user code - so it's never trimmed. After https://github.com/dotnet/linker/issues/2482 is fixed, the suppression will no "
         + "longer be necessary.")]
+[UnconditionalSuppressMessage(
+    "AOT",
+    "IL3050:Calling members annotated with 'RequiresDynamicCodeAttribute' may break functionality when AOT compiling.",
+    Justification =
+        "MakeGenericMethod is used in this class to create MethodCallExpression nodes, but only if the method in question is called "
+        + "from user code - so it's never trimmed.")]
 public static class EntityFrameworkQueryableExtensions
 {
     /// <summary>
