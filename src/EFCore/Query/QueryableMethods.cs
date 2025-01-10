@@ -204,6 +204,13 @@ public static class QueryableMethods
     public static MethodInfo LastOrDefaultWithPredicate { get; }
 
     /// <summary>
+    ///     The <see cref="MethodInfo" /> for
+    ///     <see
+    ///         cref="Queryable.LeftJoin{TOuter,TInner,TKey,TResult}(IQueryable{TOuter},IEnumerable{TInner},Expression{Func{TOuter,TKey}},Expression{Func{TInner,TKey}},Expression{Func{TOuter,TInner,TResult}})" />
+    /// </summary>
+    public static MethodInfo LeftJoin { get; }
+
+    /// <summary>
     ///     The <see cref="MethodInfo" /> for <see cref="Queryable.LongCount{TSource}(IQueryable{TSource})" />
     /// </summary>
     public static MethodInfo LongCountWithoutPredicate { get; }
@@ -630,6 +637,17 @@ public static class QueryableMethods
             [
                 typeof(IQueryable<>).MakeGenericType(types[0]),
                 typeof(Expression<>).MakeGenericType(typeof(Func<,>).MakeGenericType(types[0], typeof(bool)))
+            ]);
+
+        LeftJoin = GetMethod(
+            nameof(Queryable.LeftJoin), 4,
+            types =>
+            [
+                typeof(IQueryable<>).MakeGenericType(types[0]),
+                typeof(IEnumerable<>).MakeGenericType(types[1]),
+                typeof(Expression<>).MakeGenericType(typeof(Func<,>).MakeGenericType(types[0], types[2])),
+                typeof(Expression<>).MakeGenericType(typeof(Func<,>).MakeGenericType(types[1], types[2])),
+                typeof(Expression<>).MakeGenericType(typeof(Func<,,>).MakeGenericType(types[0], types[1], types[3]))
             ]);
 
         LongCountWithoutPredicate = GetMethod(

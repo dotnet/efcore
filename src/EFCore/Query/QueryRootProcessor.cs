@@ -31,7 +31,6 @@ public class QueryRootProcessor : ExpressionVisitor
         var method = methodCallExpression.Method;
         if (method.DeclaringType != typeof(Queryable)
             && method.DeclaringType != typeof(Enumerable)
-            && method.DeclaringType != typeof(QueryableExtensions)
             && method.DeclaringType != typeof(EntityFrameworkQueryableExtensions))
         {
             return base.VisitMethodCall(methodCallExpression);

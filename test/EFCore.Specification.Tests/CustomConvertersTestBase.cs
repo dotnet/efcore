@@ -435,23 +435,25 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
     {
         using var context = CreateContext();
         var blogId = 1;
-        var query = await (from b in context.Set<Blog>()
-                           join p in context.Set<Post>()
-                               on new
-                               {
-                                   BlogId = (int?)b.BlogId,
-                                   b.IsVisible,
-                                   AnotherId = b.BlogId
-                               }
-                               equals new
-                               {
-                                   p.BlogId,
-                                   IsVisible = true,
-                                   AnotherId = blogId
-                               } into g
-                           from p in g.DefaultIfEmpty()
-                           where b.IsVisible
-                           select b.Url).ToListAsync();
+        var query = await context.Set<Blog>()
+            .LeftJoin(
+                context.Set<Post>(),
+                b => new
+                {
+                    BlogId = (int?)b.BlogId,
+                    b.IsVisible,
+                    AnotherId = b.BlogId
+                },
+                p => new
+                {
+                    p.BlogId,
+                    IsVisible = true,
+                    AnotherId = blogId
+                },
+                (b, p) => b)
+            .Where(b => b.IsVisible)
+            .Select(b => b.Url)
+            .ToListAsync();
 
         var result = Assert.Single(query);
         Assert.Equal("http://blog.com", result);

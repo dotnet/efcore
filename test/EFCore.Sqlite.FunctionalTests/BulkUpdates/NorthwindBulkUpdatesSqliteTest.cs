@@ -529,9 +529,33 @@ WHERE EXISTS (
 """);
     }
 
-    public override async Task Delete_with_left_join(bool async)
+    public override async Task Delete_with_LeftJoin(bool async)
     {
-        await base.Delete_with_left_join(async);
+        await base.Delete_with_LeftJoin(async);
+
+        AssertSql(
+            """
+@p0='100'
+@p='0'
+
+DELETE FROM "Order Details" AS "o"
+WHERE EXISTS (
+    SELECT 1
+    FROM "Order Details" AS "o0"
+    LEFT JOIN (
+        SELECT "o2"."OrderID"
+        FROM "Orders" AS "o2"
+        WHERE "o2"."OrderID" < 10300
+        ORDER BY "o2"."OrderID"
+        LIMIT @p0 OFFSET @p
+    ) AS "o1" ON "o0"."OrderID" = "o1"."OrderID"
+    WHERE "o0"."OrderID" < 10276 AND "o0"."OrderID" = "o"."OrderID" AND "o0"."ProductID" = "o"."ProductID")
+""");
+    }
+
+    public override async Task Delete_with_LeftJoin_via_flattened_GroupJoin(bool async)
+    {
+        await base.Delete_with_LeftJoin_via_flattened_GroupJoin(async);
 
         AssertSql(
             """
@@ -1255,9 +1279,33 @@ WHERE "c"."CustomerID" = "o0"."CustomerID" AND "c"."CustomerID" LIKE 'F%'
 """);
     }
 
-    public override async Task Update_with_left_join_set_constant(bool async)
+    public override async Task Update_with_LeftJoin(bool async)
     {
-        await base.Update_with_left_join_set_constant(async);
+        await base.Update_with_LeftJoin(async);
+
+        AssertExecuteUpdateSql(
+            """
+@p='Updated' (Size = 7)
+
+UPDATE "Customers" AS "c0"
+SET "ContactName" = @p
+FROM (
+    SELECT "c"."CustomerID"
+    FROM "Customers" AS "c"
+    LEFT JOIN (
+        SELECT "o"."CustomerID"
+        FROM "Orders" AS "o"
+        WHERE "o"."OrderID" < 10300
+    ) AS "o0" ON "c"."CustomerID" = "o0"."CustomerID"
+    WHERE "c"."CustomerID" LIKE 'F%'
+) AS "s"
+WHERE "c0"."CustomerID" = "s"."CustomerID"
+""");
+    }
+
+    public override async Task Update_with_LeftJoin_via_flattened_GroupJoin(bool async)
+    {
+        await base.Update_with_LeftJoin_via_flattened_GroupJoin(async);
 
         AssertExecuteUpdateSql(
             """
