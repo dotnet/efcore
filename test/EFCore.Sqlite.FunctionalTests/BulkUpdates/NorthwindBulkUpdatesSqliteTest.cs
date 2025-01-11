@@ -590,10 +590,12 @@ WHERE EXISTS (
 
         AssertExecuteUpdateSql(
             """
+@p='Updated' (Size = 7)
+
 -- MyUpdate
 
 UPDATE "Customers" AS "c"
-SET "ContactName" = 'Updated'
+SET "ContactName" = @p
 WHERE "c"."CustomerID" LIKE 'F%'
 """);
     }
@@ -601,6 +603,20 @@ WHERE "c"."CustomerID" LIKE 'F%'
     public override async Task Update_Where_set_constant(bool async)
     {
         await base.Update_Where_set_constant(async);
+
+        AssertExecuteUpdateSql(
+            """
+@p='Updated' (Size = 7)
+
+UPDATE "Customers" AS "c"
+SET "ContactName" = @p
+WHERE "c"."CustomerID" LIKE 'F%'
+""");
+    }
+
+    public override async Task Update_Where_set_constant_via_lambda(bool async)
+    {
+        await base.Update_Where_set_constant_via_lambda(async);
 
         AssertExecuteUpdateSql(
             """
@@ -616,10 +632,11 @@ WHERE "c"."CustomerID" LIKE 'F%'
 
         AssertExecuteUpdateSql(
             """
+@p='Updated' (Size = 7)
 @customer='ALFKI' (Size = 5)
 
 UPDATE "Customers" AS "c"
-SET "ContactName" = 'Updated'
+SET "ContactName" = @p
 WHERE "c"."CustomerID" = @customer
 """,
             //
@@ -638,8 +655,10 @@ WHERE 0
 """,
             //
             """
+@p='Updated' (Size = 7)
+
 UPDATE "Customers" AS "c"
-SET "ContactName" = 'Updated'
+SET "ContactName" = @p
 WHERE 0
 """);
     }
@@ -650,10 +669,10 @@ WHERE 0
 
         AssertExecuteUpdateSql(
             """
-@value='Abc' (Size = 3)
+@p='Abc' (Size = 3)
 
 UPDATE "Customers" AS "c"
-SET "ContactName" = @value
+SET "ContactName" = @p
 WHERE "c"."CustomerID" LIKE 'F%'
 """);
     }
@@ -678,8 +697,10 @@ WHERE "c"."CustomerID" LIKE 'F%'
 
         AssertExecuteUpdateSql(
             """
+@p='Abc' (Size = 3)
+
 UPDATE "Customers" AS "c"
-SET "ContactName" = 'Abc'
+SET "ContactName" = @p
 WHERE "c"."CustomerID" LIKE 'F%'
 """);
     }
@@ -690,10 +711,10 @@ WHERE "c"."CustomerID" LIKE 'F%'
 
         AssertExecuteUpdateSql(
             """
-@container_Containee_Property='Abc' (Size = 3)
+@p='Abc' (Size = 3)
 
 UPDATE "Customers" AS "c"
-SET "ContactName" = @container_Containee_Property
+SET "ContactName" = @p
 WHERE "c"."CustomerID" LIKE 'F%'
 """);
     }
@@ -704,10 +725,11 @@ WHERE "c"."CustomerID" LIKE 'F%'
 
         AssertExecuteUpdateSql(
             """
+@p0='Updated' (Size = 7)
 @p='4'
 
 UPDATE "Customers" AS "c0"
-SET "ContactName" = 'Updated'
+SET "ContactName" = @p0
 FROM (
     SELECT "c"."CustomerID"
     FROM "Customers" AS "c"
@@ -724,10 +746,11 @@ WHERE "c0"."CustomerID" = "c1"."CustomerID"
 
         AssertExecuteUpdateSql(
             """
+@p0='Updated' (Size = 7)
 @p='4'
 
 UPDATE "Customers" AS "c0"
-SET "ContactName" = 'Updated'
+SET "ContactName" = @p0
 FROM (
     SELECT "c"."CustomerID"
     FROM "Customers" AS "c"
@@ -744,11 +767,12 @@ WHERE "c0"."CustomerID" = "c1"."CustomerID"
 
         AssertExecuteUpdateSql(
             """
+@p1='Updated' (Size = 7)
 @p0='4'
 @p='2'
 
 UPDATE "Customers" AS "c0"
-SET "ContactName" = 'Updated'
+SET "ContactName" = @p1
 FROM (
     SELECT "c"."CustomerID"
     FROM "Customers" AS "c"
@@ -765,8 +789,10 @@ WHERE "c0"."CustomerID" = "c1"."CustomerID"
 
         AssertExecuteUpdateSql(
             """
+@p='Updated' (Size = 7)
+
 UPDATE "Customers" AS "c0"
-SET "ContactName" = 'Updated'
+SET "ContactName" = @p
 FROM (
     SELECT "c"."CustomerID"
     FROM "Customers" AS "c"
@@ -782,10 +808,11 @@ WHERE "c0"."CustomerID" = "c1"."CustomerID"
 
         AssertExecuteUpdateSql(
             """
+@p0='Updated' (Size = 7)
 @p='4'
 
 UPDATE "Customers" AS "c0"
-SET "ContactName" = 'Updated'
+SET "ContactName" = @p0
 FROM (
     SELECT "c"."CustomerID"
     FROM "Customers" AS "c"
@@ -803,10 +830,11 @@ WHERE "c0"."CustomerID" = "c1"."CustomerID"
 
         AssertExecuteUpdateSql(
             """
+@p0='Updated' (Size = 7)
 @p='4'
 
 UPDATE "Customers" AS "c0"
-SET "ContactName" = 'Updated'
+SET "ContactName" = @p0
 FROM (
     SELECT "c"."CustomerID"
     FROM "Customers" AS "c"
@@ -824,11 +852,12 @@ WHERE "c0"."CustomerID" = "c1"."CustomerID"
 
         AssertExecuteUpdateSql(
             """
+@p1='Updated' (Size = 7)
 @p0='4'
 @p='2'
 
 UPDATE "Customers" AS "c0"
-SET "ContactName" = 'Updated'
+SET "ContactName" = @p1
 FROM (
     SELECT "c"."CustomerID"
     FROM "Customers" AS "c"
@@ -846,11 +875,12 @@ WHERE "c0"."CustomerID" = "c1"."CustomerID"
 
         AssertExecuteUpdateSql(
             """
+@p3='Updated' (Size = 7)
 @p0='6'
 @p='2'
 
 UPDATE "Customers" AS "c1"
-SET "ContactName" = 'Updated'
+SET "ContactName" = @p3
 FROM (
     SELECT "c0"."CustomerID"
     FROM (
@@ -873,8 +903,10 @@ WHERE "c1"."CustomerID" = "c2"."CustomerID"
 
         AssertExecuteUpdateSql(
             """
+@p='Updated' (Size = 7)
+
 UPDATE "Customers" AS "c"
-SET "ContactName" = 'Updated'
+SET "ContactName" = @p
 WHERE "c"."CustomerID" = (
     SELECT "o"."CustomerID"
     FROM "Orders" AS "o"
@@ -890,8 +922,10 @@ WHERE "c"."CustomerID" = (
 
         AssertExecuteUpdateSql(
             """
+@p='Updated' (Size = 7)
+
 UPDATE "Customers" AS "c"
-SET "ContactName" = 'Updated'
+SET "ContactName" = @p
 WHERE "c"."CustomerID" = (
     SELECT (
         SELECT "o0"."CustomerID"
@@ -918,8 +952,10 @@ WHERE "c"."CustomerID" = (
 
         AssertExecuteUpdateSql(
             """
+@p='Updated' (Size = 7)
+
 UPDATE "Customers" AS "c"
-SET "ContactName" = 'Updated'
+SET "ContactName" = @p
 WHERE "c"."CustomerID" IN (
     SELECT (
         SELECT "c0"."CustomerID"
@@ -940,8 +976,10 @@ WHERE "c"."CustomerID" IN (
 
         AssertExecuteUpdateSql(
             """
+@p='Updated' (Size = 7)
+
 UPDATE "Customers" AS "c0"
-SET "ContactName" = 'Updated'
+SET "ContactName" = @p
 FROM (
     SELECT DISTINCT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
     FROM "Customers" AS "c"
@@ -975,8 +1013,10 @@ WHERE "o0"."OrderID" = "s"."OrderID"
 
         AssertExecuteUpdateSql(
             """
+@p='1'
+
 UPDATE "Order Details" AS "o"
-SET "Quantity" = CAST(1 AS INTEGER)
+SET "Quantity" = CAST(@p AS INTEGER)
 FROM "Orders" AS "o0"
 LEFT JOIN "Customers" AS "c" ON "o0"."CustomerID" = "c"."CustomerID"
 WHERE "o"."OrderID" = "o0"."OrderID" AND "c"."City" = 'Seattle'
@@ -1040,8 +1080,10 @@ WHERE "c"."CustomerID" LIKE 'F%'
 
         AssertExecuteUpdateSql(
             """
+@p='Updated' (Size = 7)
+
 UPDATE "Customers" AS "c"
-SET "ContactName" = 'Updated'
+SET "ContactName" = @p
 WHERE "c"."CustomerID" LIKE 'F%'
 """);
     }
@@ -1065,13 +1107,6 @@ WHERE "c"."CustomerID" LIKE 'F%'
         AssertExecuteUpdateSql();
     }
 
-    public override async Task Update_with_invalid_lambda_throws(bool async)
-    {
-        await base.Update_with_invalid_lambda_throws(async);
-
-        AssertExecuteUpdateSql();
-    }
-
     public override async Task Update_Where_multiple_set(bool async)
     {
         await base.Update_Where_multiple_set(async);
@@ -1079,10 +1114,11 @@ WHERE "c"."CustomerID" LIKE 'F%'
         AssertExecuteUpdateSql(
             """
 @value='Abc' (Size = 3)
+@p='Seattle' (Size = 7)
 
 UPDATE "Customers" AS "c"
-SET "City" = 'Seattle',
-    "ContactName" = @value
+SET "ContactName" = @value,
+    "City" = @p
 WHERE "c"."CustomerID" LIKE 'F%'
 """);
     }
@@ -1114,8 +1150,10 @@ WHERE "c"."CustomerID" LIKE 'F%'
 
         AssertExecuteUpdateSql(
             """
+@p='Updated' (Size = 7)
+
 UPDATE "Customers" AS "c1"
-SET "ContactName" = 'Updated'
+SET "ContactName" = @p
 FROM (
     SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
     FROM "Customers" AS "c"
@@ -1135,8 +1173,10 @@ WHERE "c1"."CustomerID" = "u"."CustomerID"
 
         AssertExecuteUpdateSql(
             """
+@p='Updated' (Size = 7)
+
 UPDATE "Customers" AS "c1"
-SET "ContactName" = 'Updated'
+SET "ContactName" = @p
 FROM (
     SELECT "c"."CustomerID"
     FROM "Customers" AS "c"
@@ -1156,8 +1196,10 @@ WHERE "c1"."CustomerID" = "u"."CustomerID"
 
         AssertExecuteUpdateSql(
             """
+@p='Updated' (Size = 7)
+
 UPDATE "Customers" AS "c1"
-SET "ContactName" = 'Updated'
+SET "ContactName" = @p
 FROM (
     SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
     FROM "Customers" AS "c"
@@ -1177,8 +1219,10 @@ WHERE "c1"."CustomerID" = "e"."CustomerID"
 
         AssertExecuteUpdateSql(
             """
+@p='Updated' (Size = 7)
+
 UPDATE "Customers" AS "c1"
-SET "ContactName" = 'Updated'
+SET "ContactName" = @p
 FROM (
     SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
     FROM "Customers" AS "c"
@@ -1198,8 +1242,10 @@ WHERE "c1"."CustomerID" = "i"."CustomerID"
 
         AssertExecuteUpdateSql(
             """
+@p='Updated' (Size = 7)
+
 UPDATE "Customers" AS "c"
-SET "ContactName" = 'Updated'
+SET "ContactName" = @p
 FROM (
     SELECT "o"."CustomerID"
     FROM "Orders" AS "o"
@@ -1215,8 +1261,10 @@ WHERE "c"."CustomerID" = "o0"."CustomerID" AND "c"."CustomerID" LIKE 'F%'
 
         AssertExecuteUpdateSql(
             """
+@p='Updated' (Size = 7)
+
 UPDATE "Customers" AS "c0"
-SET "ContactName" = 'Updated'
+SET "ContactName" = @p
 FROM (
     SELECT "c"."CustomerID"
     FROM "Customers" AS "c"
@@ -1237,8 +1285,10 @@ WHERE "c0"."CustomerID" = "s"."CustomerID"
 
         AssertExecuteUpdateSql(
             """
+@p='Updated' (Size = 7)
+
 UPDATE "Customers" AS "c"
-SET "ContactName" = 'Updated'
+SET "ContactName" = @p
 FROM (
     SELECT 1
     FROM "Orders" AS "o"

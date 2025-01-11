@@ -35,7 +35,7 @@ public class BulkUpdatesAsserter(IBulkUpdatesFixtureBase queryFixture, Func<Expr
         bool async,
         Func<ISetSource, IQueryable<TResult>> query,
         Expression<Func<TResult, TEntity>> entitySelector,
-        Expression<Func<SetPropertyCalls<TResult>, SetPropertyCalls<TResult>>> setPropertyCalls,
+        Func<SetPropertyCalls<TResult>, SetPropertyCalls<TResult>> setPropertyCalls,
         int rowsAffectedCount,
         Action<IReadOnlyList<TEntity>, IReadOnlyList<TEntity>> asserter)
         where TResult : class

@@ -48,16 +48,6 @@ public abstract class NorthwindBulkUpdatesTestBase<TFixture>(TFixture fixture) :
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Update_with_invalid_lambda_throws(bool async)
-        => AssertUpdate(
-            async,
-            ss => ss.Set<OrderDetail>().Where(od => od.OrderID < 10250),
-            e => e,
-            s => s.Maybe(e => e),
-            rowsAffectedCount: 0);
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
     public virtual Task Update_with_invalid_lambda_in_set_property_throws(bool async)
         => AssertUpdate(
             async,
@@ -397,6 +387,17 @@ public abstract class NorthwindBulkUpdatesTestBase<TFixture>(TFixture fixture) :
             ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F")),
             e => e,
             s => s.SetProperty(c => c.ContactName, "Updated"),
+            rowsAffectedCount: 8,
+            (b, a) => Assert.All(a, c => Assert.Equal("Updated", c.ContactName)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Update_Where_set_constant_via_lambda(bool async)
+        => AssertUpdate(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F")),
+            e => e,
+            s => s.SetProperty(c => c.ContactName, _ => "Updated"),
             rowsAffectedCount: 8,
             (b, a) => Assert.All(a, c => Assert.Equal("Updated", c.ContactName)));
 

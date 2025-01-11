@@ -136,8 +136,10 @@ WHERE [a].[Id] IN (
 
         AssertExecuteUpdateSql(
             """
+@p='Animal' (Size = 4000)
+
 UPDATE [a]
-SET [a].[Name] = N'Animal'
+SET [a].[Name] = @p
 FROM [Animals] AS [a]
 WHERE [a].[Name] = N'Great spotted kiwi'
 """);
@@ -149,8 +151,10 @@ WHERE [a].[Name] = N'Great spotted kiwi'
 
         AssertExecuteUpdateSql(
             """
+@p='NewBird' (Size = 4000)
+
 UPDATE [a]
-SET [a].[Name] = N'NewBird'
+SET [a].[Name] = @p
 FROM [Animals] AS [a]
 WHERE [a].[Discriminator] = N'Kiwi'
 """);
@@ -169,8 +173,10 @@ WHERE [a].[Discriminator] = N'Kiwi'
 
         AssertExecuteUpdateSql(
             """
+@p='SomeOtherKiwi' (Size = 4000)
+
 UPDATE [a]
-SET [a].[Name] = N'SomeOtherKiwi'
+SET [a].[Name] = @p
 FROM [Animals] AS [a]
 WHERE [a].[Discriminator] = N'Kiwi'
 """);
@@ -182,8 +188,10 @@ WHERE [a].[Discriminator] = N'Kiwi'
 
         AssertExecuteUpdateSql(
             """
+@p='0' (Size = 1)
+
 UPDATE [a]
-SET [a].[FoundOn] = CAST(0 AS tinyint)
+SET [a].[FoundOn] = @p
 FROM [Animals] AS [a]
 WHERE [a].[Discriminator] = N'Kiwi'
 """);
@@ -195,8 +203,10 @@ WHERE [a].[Discriminator] = N'Kiwi'
 
         AssertExecuteUpdateSql(
             """
+@p='Monovia' (Size = 4000)
+
 UPDATE [c]
-SET [c].[Name] = N'Monovia'
+SET [c].[Name] = @p
 FROM [Countries] AS [c]
 WHERE (
     SELECT COUNT(*)
@@ -211,9 +221,12 @@ WHERE (
 
         AssertExecuteUpdateSql(
             """
+@p='Kiwi' (Size = 4000)
+@p0='0' (Size = 1)
+
 UPDATE [a]
-SET [a].[FoundOn] = CAST(0 AS tinyint),
-    [a].[Name] = N'Kiwi'
+SET [a].[Name] = @p,
+    [a].[FoundOn] = @p0
 FROM [Animals] AS [a]
 WHERE [a].[Discriminator] = N'Kiwi'
 """);
@@ -225,8 +238,10 @@ WHERE [a].[Discriminator] = N'Kiwi'
 
         AssertExecuteUpdateSql(
             """
+@p='Monovia' (Size = 4000)
+
 UPDATE [c]
-SET [c].[Name] = N'Monovia'
+SET [c].[Name] = @p
 FROM [Countries] AS [c]
 WHERE (
     SELECT COUNT(*)
@@ -248,8 +263,10 @@ WHERE (
 
         AssertExecuteUpdateSql(
             """
+@p='0'
+
 UPDATE [d]
-SET [d].[SugarGrams] = 0
+SET [d].[SugarGrams] = @p
 FROM [Drinks] AS [d]
 WHERE [d].[Discriminator] = 1
 """);
@@ -261,8 +278,10 @@ WHERE [d].[Discriminator] = 1
 
         AssertExecuteUpdateSql(
             """
+@p='0'
+
 UPDATE [d]
-SET [d].[SugarGrams] = 0
+SET [d].[SugarGrams] = @p
 FROM [Drinks] AS [d]
 WHERE [d].[Discriminator] = 1
 """);

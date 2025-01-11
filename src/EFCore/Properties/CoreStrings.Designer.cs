@@ -1155,7 +1155,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, property, expectedType, actualType);
 
         /// <summary>
-        ///     The methods '{methodName}' and '{asyncMethodName}' are not supported by the current database provider. Please contact the publisher of the database provider for more information. 
+        ///     The methods '{methodName}' and '{asyncMethodName}' are not supported by the current database provider. Please contact the publisher of the database provider for more information.
         /// </summary>
         public static string ExecuteQueriesNotSupported(object? methodName, object? asyncMethodName)
             => string.Format(
@@ -2242,6 +2242,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 service);
 
         /// <summary>
+        ///     An 'ExecuteUpdate' call must specify at least one 'SetProperty' invocation, to indicate the properties to be updated.
+        /// </summary>
+        public static string NoSetPropertyInvocation
+            => GetString("NoSetPropertyInvocation");
+
+        /// <summary>
         ///     The property '{1_entityType}.{0_property}' does not have a setter. Either make the property writable or use a different '{propertyAccessMode}'.
         /// </summary>
         public static string NoSetter(object? property, object? entityType, object? propertyAccessMode)
@@ -2948,12 +2954,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         public static string SetOperationWithDifferentIncludesInOperands
             => GetString("SetOperationWithDifferentIncludesInOperands");
-
-        /// <summary>
-        ///     The SetProperty&lt;TProperty&gt; method can only be used within 'ExecuteUpdate' method.
-        /// </summary>
-        public static string SetPropertyMethodInvoked
-            => GetString("SetPropertyMethodInvoked");
 
         /// <summary>
         ///     The shared-type entity type '{entityType}' cannot have a base type.
