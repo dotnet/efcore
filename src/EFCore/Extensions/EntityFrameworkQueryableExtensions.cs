@@ -3337,12 +3337,18 @@ public static class EntityFrameworkQueryableExtensions
     /// <returns>The total number of rows updated in the database.</returns>
     public static int ExecuteUpdate<TSource>(
         this IQueryable<TSource> source,
-        Func<SetPropertyCalls<TSource>, SetPropertyCalls<TSource>> setPropertyCalls)
-        => source.Provider.Execute<int>(
+        Action<UpdateSettersBuilder<TSource>> setPropertyCalls)
+    {
+        var setterBuilder = new UpdateSettersBuilder<TSource>();
+        setPropertyCalls(setterBuilder);
+        var setters = setterBuilder.BuildSettersExpression();
+
+        return source.Provider.Execute<int>(
             Expression.Call(
                 ExecuteUpdateMethodInfo.MakeGenericMethod(typeof(TSource)),
                 source.Expression,
-                setPropertyCalls(new SetPropertyCalls<TSource>()).BuildSettersExpression()));
+                setters));
+    }
 
     /// <summary>
     ///     Asynchronously updates database rows for the entity instances which match the LINQ query from the database.
@@ -3366,16 +3372,22 @@ public static class EntityFrameworkQueryableExtensions
     [DynamicDependency("ExecuteUpdate``1(System.Linq.IQueryable{``1},System.Collections.Generic.IReadOnlyList{ITuple})", typeof(EntityFrameworkQueryableExtensions))]
     public static Task<int> ExecuteUpdateAsync<TSource>(
         this IQueryable<TSource> source,
-        Func<SetPropertyCalls<TSource>, SetPropertyCalls<TSource>> setPropertyCalls,
+        Action<UpdateSettersBuilder<TSource>> setPropertyCalls,
         CancellationToken cancellationToken = default)
-        => source.Provider is IAsyncQueryProvider provider
+    {
+        var setterBuilder = new UpdateSettersBuilder<TSource>();
+        setPropertyCalls(setterBuilder);
+        var setters = setterBuilder.BuildSettersExpression();
+
+        return source.Provider is IAsyncQueryProvider provider
             ? provider.ExecuteAsync<Task<int>>(
                 Expression.Call(
                     ExecuteUpdateMethodInfo.MakeGenericMethod(typeof(TSource)),
                     source.Expression,
-                    setPropertyCalls(new SetPropertyCalls<TSource>()).BuildSettersExpression()),
+                    setters),
                 cancellationToken)
             : throw new InvalidOperationException(CoreStrings.IQueryableProviderNotAsync);
+    }
 
     private static int ExecuteUpdate<TSource>(this IQueryable<TSource> source, [NotParameterized] IReadOnlyList<ITuple> setters)
         => throw new UnreachableException("Can't call this overload directly");

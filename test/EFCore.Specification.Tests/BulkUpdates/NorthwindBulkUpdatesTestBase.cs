@@ -43,7 +43,7 @@ public abstract class NorthwindBulkUpdatesTestBase<TFixture>(TFixture fixture) :
             async,
             ss => ss.Set<OrderDetail>().Where(od => od.OrderID < 10250),
             e => e,
-            s => s,
+            _ => { },
             rowsAffectedCount: 0);
 
     [ConditionalTheory]

@@ -1163,7 +1163,7 @@ namespace System.Runtime.CompilerServices
     // builder; returns the resulting NewArrayExpression representing all the setters.
     private static NewArrayExpression ProcessExecuteUpdate(MethodCallExpression executeUpdateCall)
     {
-        var setPropertyCalls = Activator.CreateInstance<SetPropertyCalls>();
+        var setPropertyCalls = Activator.CreateInstance<UpdateSettersBuilder>();
         var settersLambda = (LambdaExpression)executeUpdateCall.Arguments[1];
         var settersParameter = settersLambda.Parameters.Single();
         var expression = settersLambda.Body;
@@ -1175,7 +1175,7 @@ namespace System.Runtime.CompilerServices
                     Method:
                     {
                         IsGenericMethod: true,
-                        Name: nameof(SetPropertyCalls<int>.SetProperty),
+                        Name: nameof(UpdateSettersBuilder<int>.SetProperty),
                         DeclaringType.IsGenericType: true,
                     },
                     Arguments:
@@ -1184,7 +1184,7 @@ namespace System.Runtime.CompilerServices
                         Expression valueSelector
                     ]
                 } methodCallExpression
-                && methodCallExpression.Method.DeclaringType.GetGenericTypeDefinition() == typeof(SetPropertyCalls<>))
+                && methodCallExpression.Method.DeclaringType.GetGenericTypeDefinition() == typeof(UpdateSettersBuilder<>))
             {
                 if (valueSelector is UnaryExpression
                     {
