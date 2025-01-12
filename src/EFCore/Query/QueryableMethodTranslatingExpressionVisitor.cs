@@ -181,7 +181,7 @@ public abstract class QueryableMethodTranslatingExpressionVisitor : ExpressionVi
                             var valueSelector = @new.Arguments[1];
 
                             // When the value selector is a bare value type (no lambda), a cast-to-object Convert node needs to be added
-                            // for proper typing (see SetPropertyCalls); remove it here.
+                            // for proper typing (see UpdateSettersBuilder); remove it here.
                             if (valueSelector is UnaryExpression { NodeType: ExpressionType.Convert, Operand: var unwrappedValueSelector }
                                 && valueSelector.Type == typeof(object))
                             {
