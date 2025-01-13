@@ -277,6 +277,13 @@ public static class QueryableMethods
 
     /// <summary>
     ///     The <see cref="MethodInfo" /> for
+    ///     <see
+    ///         cref="Queryable.RightJoin{TOuter,TInner,TKey,TResult}(IQueryable{TOuter},IEnumerable{TInner},Expression{Func{TOuter,TKey}},Expression{Func{TInner,TKey}},Expression{Func{TOuter,TInner,TResult}})" />
+    /// </summary>
+    public static MethodInfo RightJoin { get; }
+
+    /// <summary>
+    ///     The <see cref="MethodInfo" /> for
     ///     <see cref="Queryable.Select{TSource,TResult}(IQueryable{TSource},Expression{Func{TSource,TResult}})" />
     /// </summary>
     public static MethodInfo Select { get; }
@@ -715,6 +722,17 @@ public static class QueryableMethods
             ]);
 
         Reverse = GetMethod(nameof(Queryable.Reverse), 1, types => [typeof(IQueryable<>).MakeGenericType(types[0])]);
+
+        RightJoin = GetMethod(
+            nameof(Queryable.RightJoin), 4,
+            types =>
+            [
+                typeof(IQueryable<>).MakeGenericType(types[0]),
+                typeof(IEnumerable<>).MakeGenericType(types[1]),
+                typeof(Expression<>).MakeGenericType(typeof(Func<,>).MakeGenericType(types[0], types[2])),
+                typeof(Expression<>).MakeGenericType(typeof(Func<,>).MakeGenericType(types[1], types[2])),
+                typeof(Expression<>).MakeGenericType(typeof(Func<,,>).MakeGenericType(types[0], types[1], types[3]))
+            ]);
 
         Select = GetMethod(
             nameof(Queryable.Select), 2,

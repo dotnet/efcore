@@ -1006,6 +1006,21 @@ ORDER BY "t"."Id", "g"."Nickname", "g"."SquadId"
 """);
     }
 
+    public override async Task Correlated_collections_on_RightJoin_with_predicate(bool async)
+    {
+        await base.Correlated_collections_on_RightJoin_with_predicate(async);
+
+        AssertSql(
+            """
+SELECT "g"."Nickname", "g"."SquadId", "t"."Id", "w"."Name", "w"."Id"
+FROM "Gears" AS "g"
+RIGHT JOIN "Tags" AS "t" ON "g"."Nickname" = "t"."GearNickName"
+LEFT JOIN "Weapons" AS "w" ON "g"."FullName" = "w"."OwnerFullName"
+WHERE NOT ("g"."HasSoulPatch")
+ORDER BY "g"."Nickname", "g"."SquadId", "t"."Id"
+""");
+    }
+
     public override async Task Property_access_on_derived_entity_using_cast(bool async)
     {
         await base.Property_access_on_derived_entity_using_cast(async);

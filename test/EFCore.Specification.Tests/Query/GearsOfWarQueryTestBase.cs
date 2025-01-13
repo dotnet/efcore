@@ -3422,6 +3422,34 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task Correlated_collections_on_RightJoin_with_predicate(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Gear>()
+                .RightJoin(
+                    ss.Set<CogTag>(),
+                    g => g.Nickname,
+                    t => t.GearNickName,
+                    (g, c) => new { g, c })
+                .Where(t => !t.g.HasSoulPatch)
+                .Select(t => new { t.g.Nickname, WeaponNames = t.g.Weapons.Select(w => w.Name).ToList() }),
+            ss => ss.Set<Gear>()
+                .RightJoin(
+                    ss.Set<CogTag>(),
+                    g => g.Nickname,
+                    t => t.GearNickName,
+                    (g, c) => new { g, c })
+                .Where(t => t.g != null && !t.g.HasSoulPatch)
+                .Select(t => new { t.g.Nickname, WeaponNames = t.g.Weapons.Select(w => w.Name).ToList() }),
+            elementSorter: e => e.Nickname,
+            elementAsserter: (e, a) =>
+            {
+                Assert.Equal(e.Nickname, a.Nickname);
+                AssertCollection(e.WeaponNames, a.WeaponNames);
+            });
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task Correlated_collections_on_left_join_with_null_value(bool async)
         => AssertQuery(
             async,
