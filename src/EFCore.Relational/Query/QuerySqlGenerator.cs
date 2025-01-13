@@ -1251,6 +1251,20 @@ public class QuerySqlGenerator : SqlExpressionVisitor
     }
 
     /// <summary>
+    ///     Generates SQL for a right join.
+    /// </summary>
+    /// <param name="rightJoinExpression">The <see cref="RightJoinExpression" /> for which to generate SQL.</param>
+    protected override Expression VisitRightJoin(RightJoinExpression rightJoinExpression)
+    {
+        _relationalCommandBuilder.Append("RIGHT JOIN ");
+        Visit(rightJoinExpression.Table);
+        _relationalCommandBuilder.Append(" ON ");
+        Visit(rightJoinExpression.JoinPredicate);
+
+        return rightJoinExpression;
+    }
+
+    /// <summary>
     ///     Generates SQL for a scalar subquery.
     /// </summary>
     /// <param name="scalarSubqueryExpression">The <see cref="ScalarSubqueryExpression" /> for which to generate SQL.</param>

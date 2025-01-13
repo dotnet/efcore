@@ -581,15 +581,27 @@ FROM [JsonEntitiesSingleOwned] AS [j]
 """);
     }
 
-    public override async Task Left_join_json_entities(bool async)
+    public override async Task LeftJoin_json_entities(bool async)
     {
-        await base.Left_join_json_entities(async);
+        await base.LeftJoin_json_entities(async);
 
         AssertSql(
             """
 SELECT [j].[Id], [j].[Name], [j].[OwnedCollection], [j0].[Id], [j0].[EntityBasicId], [j0].[Name], [j0].[OwnedCollectionRoot], [j0].[OwnedReferenceRoot]
 FROM [JsonEntitiesSingleOwned] AS [j]
 LEFT JOIN [JsonEntitiesBasic] AS [j0] ON [j].[Id] = [j0].[Id]
+""");
+    }
+
+    public override async Task RightJoin_json_entities(bool async)
+    {
+        await base.RightJoin_json_entities(async);
+
+        AssertSql(
+            """
+SELECT [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot], [j0].[Id], [j0].[Name], [j0].[OwnedCollection]
+FROM [JsonEntitiesBasic] AS [j]
+RIGHT JOIN [JsonEntitiesSingleOwned] AS [j0] ON [j].[Id] = [j0].[Id]
 """);
     }
 

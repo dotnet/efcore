@@ -576,14 +576,30 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Left_join_json_entities(bool async)
+    public virtual Task LeftJoin_json_entities(bool async)
         => AssertQuery(
             async,
-            ss => from e1 in ss.Set<JsonEntitySingleOwned>()
-                  join e2 in ss.Set<JsonEntityBasic>() on e1.Id equals e2.Id into g
-                  from e2 in g.DefaultIfEmpty()
-                  select new { e1, e2 },
+            ss => ss.Set<JsonEntitySingleOwned>()
+                .LeftJoin(ss.Set<JsonEntityBasic>(), e1 => e1.Id, e2 => e2.Id, (e1, e2) => new { e1, e2 }),
             elementSorter: e => (e.e1.Id, e.e2?.Id),
+            elementAsserter: (e, a) =>
+            {
+                AssertEqual(e.e1, a.e1);
+                AssertEqual(e.e2, a.e2);
+            });
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task RightJoin_json_entities(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<JsonEntityBasic>()
+                .RightJoin(
+                    ss.Set<JsonEntitySingleOwned>(),
+                    e1 => e1.Id,
+                    e2 => e2.Id,
+                    (e1, e2) => new { e1, e2 }),
+            elementSorter: e => (e.e1?.Id, e.e2.Id),
             elementAsserter: (e, a) =>
             {
                 AssertEqual(e.e1, a.e1);

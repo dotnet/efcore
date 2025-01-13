@@ -2773,6 +2773,7 @@ public sealed partial class SelectExpression : TableExpressionBase
     {
         InnerJoin,
         LeftJoin,
+        RightJoin,
         CrossJoin,
         CrossApply,
         OuterApply
@@ -2792,10 +2793,19 @@ public sealed partial class SelectExpression : TableExpressionBase
         var innerMemberInfo = transparentIdentifierType.GetTypeInfo().GetDeclaredField("Inner")!;
         var outerClientEval = _clientProjections.Count > 0;
         var innerClientEval = innerSelect._clientProjections.Count > 0;
+        var outerNullable = joinType is JoinType.RightJoin;
         var innerNullable = joinType is JoinType.LeftJoin or JoinType.OuterApply;
 
         if (outerClientEval)
         {
+            if (outerNullable)
+            {
+                for (var i = 0; i < _clientProjections.Count; i++)
+                {
+                    _clientProjections[i] = MakeNullable(_clientProjections[i], true);
+                }
+            }
+
             // Outer projection are already populated
             if (innerClientEval)
             {
@@ -2828,7 +2838,7 @@ public sealed partial class SelectExpression : TableExpressionBase
             if (innerClientEval)
             {
                 // Since inner projections are populated, we need to populate outer also
-                var mapping = ConvertProjectionMappingToClientProjections(_projectionMapping);
+                var mapping = ConvertProjectionMappingToClientProjections(_projectionMapping, outerNullable);
                 outerShaper = new ProjectionMemberToIndexConvertingExpressionVisitor(this, mapping).Visit(outerShaper);
 
                 var indexMap = new int[innerSelect._clientProjections.Count];
@@ -2855,7 +2865,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                 {
                     var remappedProjectionMember = projectionMember.Prepend(outerMemberInfo);
                     mapping[projectionMember] = remappedProjectionMember;
-                    projectionMapping[remappedProjectionMember] = expression;
+                    projectionMapping[remappedProjectionMember] = MakeNullable(expression, outerNullable);
                 }
 
                 outerShaper = new ProjectionMemberRemappingExpressionVisitor(this, mapping).Visit(outerShaper);
@@ -2865,15 +2875,18 @@ public sealed partial class SelectExpression : TableExpressionBase
                 {
                     var remappedProjectionMember = projectionMember.Prepend(innerMemberInfo);
                     mapping[projectionMember] = remappedProjectionMember;
-                    var projectionToAdd = expression;
-                    projectionToAdd = MakeNullable(projectionToAdd, innerNullable);
-                    projectionMapping[remappedProjectionMember] = projectionToAdd;
+                    projectionMapping[remappedProjectionMember] = MakeNullable(expression, innerNullable);
                 }
 
                 innerShaper = new ProjectionMemberRemappingExpressionVisitor(this, mapping).Visit(innerShaper);
                 _projectionMapping = projectionMapping;
                 innerSelect._projectionMapping.Clear();
             }
+        }
+
+        if (outerNullable)
+        {
+            outerShaper = new EntityShaperNullableMarkingExpressionVisitor().Visit(outerShaper);
         }
 
         if (innerNullable)
@@ -2883,7 +2896,7 @@ public sealed partial class SelectExpression : TableExpressionBase
 
         return New(
             transparentIdentifierType.GetTypeInfo().DeclaredConstructors.Single(),
-            new[] { outerShaper, innerShaper }, outerMemberInfo, innerMemberInfo);
+            [outerShaper, innerShaper], outerMemberInfo, innerMemberInfo);
     }
 
     private void AddJoin(
@@ -3025,16 +3038,24 @@ public sealed partial class SelectExpression : TableExpressionBase
             innerPushdownOccurred = true;
         }
 
-        if (_identifier.Count > 0
-            && innerSelect._identifier.Count > 0)
+        if (_identifier.Count > 0 && innerSelect._identifier.Count > 0)
         {
-            if (joinType is JoinType.LeftJoin or JoinType.OuterApply)
+            switch (joinType)
             {
-                _identifier.AddRange(innerSelect._identifier.Select(e => (e.Column.MakeNullable(), e.Comparer)));
-            }
-            else
-            {
-                _identifier.AddRange(innerSelect._identifier);
+                case JoinType.LeftJoin or JoinType.OuterApply:
+                    _identifier.AddRange(innerSelect._identifier.Select(e => (e.Column.MakeNullable(), e.Comparer)));
+                    break;
+
+                case JoinType.RightJoin:
+                    var nullableOuterIdentifier = _identifier.Select(e => (e.Column.MakeNullable(), e.Comparer)).ToList();
+                    _identifier.Clear();
+                    _identifier.AddRange(nullableOuterIdentifier);
+                    _identifier.AddRange(innerSelect._identifier);
+                    break;
+
+                default:
+                    _identifier.AddRange(innerSelect._identifier);
+                    break;
             }
         }
         else
@@ -3050,6 +3071,7 @@ public sealed partial class SelectExpression : TableExpressionBase
         {
             JoinType.InnerJoin => new InnerJoinExpression(innerTable, joinPredicate!),
             JoinType.LeftJoin => new LeftJoinExpression(innerTable, joinPredicate!),
+            JoinType.RightJoin => new RightJoinExpression(innerTable, joinPredicate!),
             JoinType.CrossJoin => new CrossJoinExpression(innerTable),
             JoinType.CrossApply => new CrossApplyExpression(innerTable),
             JoinType.OuterApply => (TableExpressionBase)new OuterApplyExpression(innerTable),
@@ -3433,6 +3455,20 @@ public sealed partial class SelectExpression : TableExpressionBase
         Expression outerShaper)
         => AddJoin(
             JoinType.LeftJoin, (SelectExpression)innerSource.QueryExpression, outerShaper, innerSource.ShaperExpression, joinPredicate);
+
+    /// <summary>
+    ///     Adds the query expression of the given <see cref="ShapedQueryExpression" /> to table sources using RIGHT JOIN and combine shapers.
+    /// </summary>
+    /// <param name="innerSource">A <see cref="ShapedQueryExpression" /> to join with.</param>
+    /// <param name="joinPredicate">A predicate to use for the join.</param>
+    /// <param name="outerShaper">An expression for outer shaper.</param>
+    /// <returns>An expression which shapes the result of this join.</returns>
+    public Expression AddRightJoin(
+        ShapedQueryExpression innerSource,
+        SqlExpression joinPredicate,
+        Expression outerShaper)
+        => AddJoin(
+            JoinType.RightJoin, (SelectExpression)innerSource.QueryExpression, outerShaper, innerSource.ShaperExpression, joinPredicate);
 
     /// <summary>
     ///     Adds the query expression of the given <see cref="ShapedQueryExpression" /> to table sources using CROSS JOIN and combine shapers.

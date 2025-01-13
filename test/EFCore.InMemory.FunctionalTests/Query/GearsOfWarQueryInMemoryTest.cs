@@ -143,4 +143,8 @@ public class GearsOfWarQueryInMemoryTest(GearsOfWarQueryInMemoryFixture fixture)
 
     public override Task Join_include_conditional(bool async)
         => Task.CompletedTask;
+
+    // Right join not supported in InMemory
+    public override Task Correlated_collections_on_RightJoin_with_predicate(bool async)
+        => AssertTranslationFailed(() => base.Correlated_collections_on_RightJoin_with_predicate(async));
 }

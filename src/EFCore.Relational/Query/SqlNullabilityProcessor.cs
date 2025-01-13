@@ -105,22 +105,12 @@ public class SqlNullabilityProcessor : ExpressionVisitor
             case SelectExpression select:
                 return Visit(select);
 
-            case InnerJoinExpression innerJoinExpression:
+            case PredicateJoinExpressionBase join:
             {
-                var newTable = VisitAndConvert(innerJoinExpression.Table, nameof(VisitExtension));
-                var newJoinPredicate = ProcessJoinPredicate(innerJoinExpression.JoinPredicate);
+                var newTable = VisitAndConvert(join.Table, nameof(VisitExtension));
+                var newJoinPredicate = ProcessJoinPredicate(join.JoinPredicate);
 
-                return IsTrue(newJoinPredicate)
-                    ? new CrossJoinExpression(newTable)
-                    : innerJoinExpression.Update(newTable, newJoinPredicate);
-            }
-
-            case LeftJoinExpression leftJoinExpression:
-            {
-                var newTable = VisitAndConvert(leftJoinExpression.Table, nameof(VisitExtension));
-                var newJoinPredicate = ProcessJoinPredicate(leftJoinExpression.JoinPredicate);
-
-                return leftJoinExpression.Update(newTable, newJoinPredicate);
+                return join.Update(newTable, newJoinPredicate);
             }
 
             case ValuesExpression { ValuesParameter: SqlParameterExpression valuesParameter } valuesExpression:
