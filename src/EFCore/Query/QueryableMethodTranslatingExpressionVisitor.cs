@@ -181,7 +181,7 @@ public abstract class QueryableMethodTranslatingExpressionVisitor : ExpressionVi
                             var valueSelector = @new.Arguments[1];
 
                             // When the value selector is a bare value type (no lambda), a cast-to-object Convert node needs to be added
-                            // for proper typing (see SetPropertyCalls); remove it here.
+                            // for proper typing (see UpdateSettersBuilder); remove it here.
                             if (valueSelector is UnaryExpression { NodeType: ExpressionType.Convert, Operand: var unwrappedValueSelector }
                                 && valueSelector.Type == typeof(object))
                             {
@@ -1078,7 +1078,7 @@ public abstract class QueryableMethodTranslatingExpressionVisitor : ExpressionVi
     /// <summary>
     ///     Translates
     ///     <see
-    ///         cref="EntityFrameworkQueryableExtensions.ExecuteUpdate{TSource}(IQueryable{TSource}, Func{SetPropertyCalls{TSource}, SetPropertyCalls{TSource}})" />
+    ///         cref="EntityFrameworkQueryableExtensions.ExecuteUpdate{TSource}(IQueryable{TSource}, Action{UpdateSettersBuilder{TSource}})" />
     ///     method
     ///     over the given source.
     /// </summary>
@@ -1086,7 +1086,7 @@ public abstract class QueryableMethodTranslatingExpressionVisitor : ExpressionVi
     /// <param name="setters">
     ///     The setters for this
     ///     <see
-    ///         cref="EntityFrameworkQueryableExtensions.ExecuteUpdate{TSource}(IQueryable{TSource}, Func{SetPropertyCalls{TSource}, SetPropertyCalls{TSource}})" />
+    ///         cref="EntityFrameworkQueryableExtensions.ExecuteUpdate{TSource}(IQueryable{TSource}, Action{UpdateSettersBuilder{TSource}})" />
     ///     call.
     /// </param>
     /// <returns>The non query after translation.</returns>
@@ -1097,7 +1097,7 @@ public abstract class QueryableMethodTranslatingExpressionVisitor : ExpressionVi
 
     /// <summary>
     ///     Represents a single setter in an
-    ///     <see cref="EntityFrameworkQueryableExtensions.ExecuteUpdate{TSource}(IQueryable{TSource}, Func{SetPropertyCalls{TSource}, SetPropertyCalls{TSource}})" />
+    ///     <see cref="EntityFrameworkQueryableExtensions.ExecuteUpdate{TSource}(IQueryable{TSource}, Action{UpdateSettersBuilder{TSource}})" />
     ///     call, i.e. a pair of property and value selectors.
     /// </summary>
     public sealed record ExecuteUpdateSetter(LambdaExpression PropertySelector, Expression ValueExpression);

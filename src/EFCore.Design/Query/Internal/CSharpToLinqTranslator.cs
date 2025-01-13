@@ -124,6 +124,37 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
         => base.Visit(node);
 
     /// <summary>
+    ///     This method gets called when the expression context provides an expected CLR type. For example, in <c>Foo(x)</c>, x gets visited
+    ///     with an expected type based on <c>Foo</c>'s parameter; this may determine how x gets translated, require a LINQ Convert node, or
+    ///     similar. In contrast, in <c>var y = x</c>, there is no context providing an expected type, and the type of <c>x</c> simply
+    ///     bubbles out.
+    /// </summary>
+    [return: NotNullIfNotNull("node")]
+    private Expression? Visit(SyntaxNode? node, Type? expectedType)
+    {
+        if (expectedType is null)
+        {
+            return Visit(node);
+        }
+
+        var result = node switch
+        {
+            ArgumentSyntax s => VisitArgument(s, expectedType),
+
+            // For lambdas, we generate a different node based on the expected type (e.g. an Action<T> rather than a Func<T, T2>, even if
+            // the lambda body does return a T2).
+            SimpleLambdaExpressionSyntax s => VisitLambdaExpression(s, expectedType),
+            ParenthesizedLambdaExpressionSyntax s => VisitLambdaExpression(s, expectedType),
+
+            _ => Visit(node),
+        };
+
+        // TODO: Insert necessary Convert nodes etc. when the expected and actual types differ
+
+        return result;
+    }
+
+    /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
@@ -180,13 +211,16 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public override Expression VisitArgument(ArgumentSyntax argument)
+        => VisitArgument(argument, expectedType: null);
+
+    private Expression VisitArgument(ArgumentSyntax argument, Type? expectedType)
     {
         if (!argument.RefKindKeyword.IsKind(SyntaxKind.None))
         {
             throw new InvalidOperationException($"Argument with ref/out: {argument}");
         }
 
-        return Visit(argument.Expression);
+        return Visit(argument.Expression, expectedType);
     }
 
     /// <summary>
@@ -682,7 +716,7 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
             // Positional argument
             if (argument.NameColon is null)
             {
-                destArguments[paramIndex] = Visit(argument);
+                destArguments[paramIndex] = Visit(argument, parameter.ParameterType);
                 continue;
             }
 
@@ -1009,7 +1043,7 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
     public override Expression DefaultVisit(SyntaxNode node)
         => throw new NotSupportedException($"Unsupported syntax node of type '{node.GetType()}': {node}");
 
-    private Expression VisitLambdaExpression(AnonymousFunctionExpressionSyntax lambda)
+    private Expression VisitLambdaExpression(AnonymousFunctionExpressionSyntax lambda, Type? expectedType = null)
     {
         if (lambda.ExpressionBody is null)
         {
@@ -1055,7 +1089,28 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
         try
         {
             var body = Visit(lambda.ExpressionBody);
-            return Lambda(body, translatedParameters);
+
+            return expectedType switch
+            {
+                // If there's no contextual expected type, we allow the lambda's type to be inferred from its parameters and the body's
+                // return type.
+                null => Lambda(body, translatedParameters),
+
+                // This is for the case where the expected type is Action<T>, but the lambda body does return something, which needs to get
+                // ignored; for example, the ExecuteUpdateAsync setter parameter is Action<UpdateSettersBuilder>, but the function is
+                // invoked with ExecuteUpdateAsync(s => s.SetProperty(...)), and SetProperty() returns UpdateSettersBuilder for further
+                // chaining. In this case, the body's return type is an UpdateSettersBuilder, meaning that the type of the constructed
+                // lambda here would be Func<UpdateSettersBuilder, UpdateSettersBuilder>, and not Action<UpdateSettersBuilder> as
+                // ExecuteUpdateAsync's signature requires.
+                // Identify this case, and explicitly type the returned lambda as an Action when necessary.
+                _ when expectedType.IsGenericType && expectedType.IsAssignableTo(typeof(MulticastDelegate))
+                    => Lambda(expectedType, body, translatedParameters),
+
+                _ when expectedType.IsGenericType && expectedType.GetGenericTypeDefinition() == typeof(Expression<>)
+                    => Lambda(expectedType.GetGenericArguments()[0], body, translatedParameters),
+
+                _ => throw new UnreachableException()
+            };
         }
         finally
         {

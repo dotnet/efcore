@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
 ///     and <see href="https://aka.ms/efcore-docs-how-query-works">How EF Core queries work</see> for more information and examples.
 /// </remarks>
-public class SetPropertyCalls
+public class UpdateSettersBuilder
 {
     private readonly List<NewExpression> _setters = new();
 
@@ -42,7 +42,7 @@ public class SetPropertyCalls
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    public virtual SetPropertyCalls SetProperty(LambdaExpression propertyExpression, LambdaExpression valueExpression)
+    public virtual UpdateSettersBuilder SetProperty(LambdaExpression propertyExpression, LambdaExpression valueExpression)
     {
         _setters.Add(
             Expression.New(
@@ -60,7 +60,7 @@ public class SetPropertyCalls
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    public virtual SetPropertyCalls SetProperty(LambdaExpression propertyExpression, Expression valueExpression)
+    public virtual UpdateSettersBuilder SetProperty(LambdaExpression propertyExpression, Expression valueExpression)
     {
         if (valueExpression.Type.IsValueType)
         {

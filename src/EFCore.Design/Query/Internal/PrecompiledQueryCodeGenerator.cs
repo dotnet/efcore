@@ -743,7 +743,7 @@ namespace System.Runtime.CompilerServices
 
                         ExpressionTreeFuncletizer.PathNode? evaluatableRootPaths;
 
-                        // ExecuteUpdate requires really special handling: the function accepts a Func<SetPropertyCalls...> argument, but
+                        // ExecuteUpdate requires really special handling: the function accepts a Func<UpdateSettersBuilder...> argument, but
                         // we need to run funcletization on the setter lambdas added via that Func<>.
                         if (operatorMethodCall.Method is
                             {
@@ -753,7 +753,7 @@ namespace System.Runtime.CompilerServices
                             }
                             && operatorMethodCall.Method.DeclaringType == typeof(EntityFrameworkQueryableExtensions))
                         {
-                            // First, statically convert the Func<SetPropertyCalls...> to a NewArrayExpression which represents all the
+                            // First, statically convert the Action<UpdateSettersBuilder> to a NewArrayExpression which represents all the
                             // setters; since that's an expression, we can run the funcletizer on it.
                             var settersExpression = ProcessExecuteUpdate(operatorMethodCall);
                             evaluatableRootPaths = _funcletizer.CalculatePathsToEvaluatableRoots(settersExpression);
@@ -767,8 +767,11 @@ namespace System.Runtime.CompilerServices
                             // If there were captured variables, generate code to evaluate and build the same NewArrayExpression at runtime,
                             // and then fall through to the normal logic, generating variable extractors against that NewArrayExpression
                             // (local var) instead of against the method argument.
-                            code.AppendLine(
-                                $"var setters = {parameterName}(new SetPropertyCalls<{sourceElementTypeName}>()).BuildSettersExpression();");
+                            code.AppendLine($"""
+                                             var setterBuilder = new UpdateSettersBuilder<{sourceElementTypeName}>();
+                                             {parameterName}(setterBuilder);
+                                             var setters = setterBuilder.BuildSettersExpression();
+                                             """);
                             parameterName = "setters";
                             parameterType = typeof(NewArrayExpression);
                         }
@@ -1114,7 +1117,7 @@ namespace System.Runtime.CompilerServices
                 => RewriteToSync(
                     typeof(EntityFrameworkQueryableExtensions).GetMethod(nameof(EntityFrameworkQueryableExtensions.ExecuteDelete))),
 
-            // ExecuteUpdate is special; it accepts a non-expression-tree argument (Func<SetPropertyCalls, SetPropertyCalls>),
+            // ExecuteUpdate is special; it accepts a non-expression-tree argument (Action<UpdateSettersBuilder>),
             // evaluates it immediately, and injects a different MethodCall node into the expression tree with the resulting setter
             // expressions.
             // When statically analyzing ExecuteUpdate, we have to manually perform the same thing.
@@ -1159,11 +1162,11 @@ namespace System.Runtime.CompilerServices
         }
     }
 
-    // Accepts an expression tree representing a series of SetProperty() calls, parses them and passes them through the SetPropertyCalls
-    // builder; returns the resulting NewArrayExpression representing all the setters.
+    // Accepts an expression tree representing a series of SetProperty() calls, parses them and passes them through the
+    // UpdateSettersBuilder; returns the resulting NewArrayExpression representing all the setters.
     private static NewArrayExpression ProcessExecuteUpdate(MethodCallExpression executeUpdateCall)
     {
-        var setPropertyCalls = Activator.CreateInstance<SetPropertyCalls>();
+        var settersBuilder = new UpdateSettersBuilder();
         var settersLambda = (LambdaExpression)executeUpdateCall.Arguments[1];
         var settersParameter = settersLambda.Parameters.Single();
         var expression = settersLambda.Body;
@@ -1175,7 +1178,7 @@ namespace System.Runtime.CompilerServices
                     Method:
                     {
                         IsGenericMethod: true,
-                        Name: nameof(SetPropertyCalls<int>.SetProperty),
+                        Name: nameof(UpdateSettersBuilder<int>.SetProperty),
                         DeclaringType.IsGenericType: true,
                     },
                     Arguments:
@@ -1184,7 +1187,7 @@ namespace System.Runtime.CompilerServices
                         Expression valueSelector
                     ]
                 } methodCallExpression
-                && methodCallExpression.Method.DeclaringType.GetGenericTypeDefinition() == typeof(SetPropertyCalls<>))
+                && methodCallExpression.Method.DeclaringType.GetGenericTypeDefinition() == typeof(UpdateSettersBuilder<>))
             {
                 if (valueSelector is UnaryExpression
                     {
@@ -1192,11 +1195,11 @@ namespace System.Runtime.CompilerServices
                         Operand: LambdaExpression unwrappedValueSelector
                     })
                 {
-                    setPropertyCalls.SetProperty(propertySelector, unwrappedValueSelector);
+                    settersBuilder.SetProperty(propertySelector, unwrappedValueSelector);
                 }
                 else
                 {
-                    setPropertyCalls.SetProperty(propertySelector, valueSelector);
+                    settersBuilder.SetProperty(propertySelector, valueSelector);
                 }
 
                 expression = methodCallExpression.Object;
@@ -1206,7 +1209,7 @@ namespace System.Runtime.CompilerServices
             throw new InvalidOperationException(RelationalStrings.InvalidArgumentToExecuteUpdate);
         }
 
-        return setPropertyCalls.BuildSettersExpression();
+        return settersBuilder.BuildSettersExpression();
     }
 
     /// <summary>

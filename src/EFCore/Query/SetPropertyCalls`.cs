@@ -4,7 +4,7 @@
 namespace Microsoft.EntityFrameworkCore.Query;
 
 /// <inheritdoc />
-public sealed class SetPropertyCalls<TSource> : SetPropertyCalls
+public sealed class UpdateSettersBuilder<TSource> : UpdateSettersBuilder
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -13,7 +13,7 @@ public sealed class SetPropertyCalls<TSource> : SetPropertyCalls
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    public SetPropertyCalls()
+    public UpdateSettersBuilder()
     {
     }
 
@@ -25,10 +25,10 @@ public sealed class SetPropertyCalls<TSource> : SetPropertyCalls
     /// <param name="valueExpression">A value expression.</param>
     /// <returns>
     ///     The same instance so that multiple calls to
-    ///     <see cref="SetPropertyCalls{TSource}.SetProperty{TProperty}(Expression{Func{TSource, TProperty}}, Expression{Func{TSource, TProperty}})" />
+    ///     <see cref="UpdateSettersBuilder{TSource}.SetProperty{TProperty}(Expression{Func{TSource, TProperty}}, Expression{Func{TSource, TProperty}})" />
     ///     can be chained.
     /// </returns>
-    public SetPropertyCalls<TSource> SetProperty<TProperty>(
+    public UpdateSettersBuilder<TSource> SetProperty<TProperty>(
         Expression<Func<TSource, TProperty>> propertyExpression,
         Expression<Func<TSource, TProperty>> valueExpression)
     {
@@ -44,9 +44,9 @@ public sealed class SetPropertyCalls<TSource> : SetPropertyCalls
     /// <param name="valueExpression">A value expression.</param>
     /// <returns>
     ///     The same instance so that multiple calls to
-    ///     <see cref="SetPropertyCalls{TSource}.SetProperty{TProperty}(Expression{Func{TSource, TProperty}}, TProperty)" /> can be chained.
+    ///     <see cref="UpdateSettersBuilder{TSource}.SetProperty{TProperty}(Expression{Func{TSource, TProperty}}, TProperty)" /> can be chained.
     /// </returns>
-    public SetPropertyCalls<TSource> SetProperty<TProperty>(
+    public UpdateSettersBuilder<TSource> SetProperty<TProperty>(
         Expression<Func<TSource, TProperty>> propertyExpression,
         TProperty valueExpression)
     {
