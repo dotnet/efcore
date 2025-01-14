@@ -49,7 +49,6 @@ public sealed class PropertyListComparer : IComparer<IReadOnlyList<IReadOnlyProp
         }
 
         var result = x.Count - y.Count;
-
         if (result != 0)
         {
             return result;

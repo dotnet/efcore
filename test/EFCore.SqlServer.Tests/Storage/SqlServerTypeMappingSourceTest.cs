@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore;
 
-public class SqlServerTypeMappingSourceTest : RelationalTypeMapperTestBase
+public class SqlServerTypeMappingSourceTest : RelationalTypeMappingSourceTestBase
 {
     [ConditionalTheory]
     [InlineData(typeof(int), "int", DbType.Int32)]
@@ -1792,21 +1792,13 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMapperTestBase
         return typeMappingSource;
     }
 
-    private enum LongEnum : long
-    {
-    }
+    private enum LongEnum : long;
 
-    private enum IntEnum
-    {
-    }
+    private enum IntEnum;
 
-    private enum ShortEnum : short
-    {
-    }
+    private enum ShortEnum : short;
 
-    private enum ByteEnum : byte
-    {
-    }
+    private enum ByteEnum : byte;
 
     protected override ModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder> configureConventions = null)
         => SqlServerTestHelpers.Instance.CreateConventionBuilder(configureConventions: configureConventions);

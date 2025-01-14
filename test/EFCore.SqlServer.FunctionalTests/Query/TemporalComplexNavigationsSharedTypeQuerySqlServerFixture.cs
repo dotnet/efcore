@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class TemporalComplexNavigationsSharedTypeQuerySqlServerFixture : ComplexNavigationsSharedTypeQuerySqlServerFixture
 {
     protected override string StoreName
@@ -64,50 +66,50 @@ public class TemporalComplexNavigationsSharedTypeQuerySqlServerFixture : Complex
                 }));
     }
 
-    protected override void Seed(ComplexNavigationsContext context)
+    protected override async Task SeedAsync(ComplexNavigationsContext context)
     {
-        base.Seed(context);
+        await base.SeedAsync(context);
 
         ChangesDate = new DateTime(2010, 1, 1);
 
         // clean up intermittent history since in the Seed method we do fixup in multiple stages
         var tableName = nameof(Level1);
 
-        context.Database.ExecuteSqlRaw($"ALTER TABLE [{tableName}] SET (SYSTEM_VERSIONING = OFF)");
-        context.Database.ExecuteSqlRaw($"DELETE FROM [{tableName + "History"}]");
-        context.Database.ExecuteSqlRaw(
+        await context.Database.ExecuteSqlRawAsync($"ALTER TABLE [{tableName}] SET (SYSTEM_VERSIONING = OFF)");
+        await context.Database.ExecuteSqlRawAsync($"DELETE FROM [{tableName + "History"}]");
+        await context.Database.ExecuteSqlRawAsync(
             $"ALTER TABLE [{tableName}] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [dbo].[{tableName + "History"}]))");
 
         foreach (var entityOne in context.ChangeTracker.Entries().Where(e => e.Entity is Level1).Select(e => e.Entity))
         {
-            ((Level1)entityOne).Name = ((Level1)entityOne).Name + "Modified";
+            ((Level1)entityOne).Name += "Modified";
         }
 
         foreach (var entityOne in context.ChangeTracker.Entries().Where(e => e.Entity is Level2).Select(e => e.Entity))
         {
-            ((Level2)entityOne).Name = ((Level2)entityOne).Name + "Modified";
+            ((Level2)entityOne).Name += "Modified";
         }
 
         foreach (var entityOne in context.ChangeTracker.Entries().Where(e => e.Entity is Level3).Select(e => e.Entity))
         {
-            ((Level3)entityOne).Name = ((Level3)entityOne).Name + "Modified";
+            ((Level3)entityOne).Name += "Modified";
         }
 
         foreach (var entityOne in context.ChangeTracker.Entries().Where(e => e.Entity is Level4).Select(e => e.Entity))
         {
-            ((Level4)entityOne).Name = ((Level4)entityOne).Name + "Modified";
+            ((Level4)entityOne).Name += "Modified";
         }
 
         context.SaveChanges();
 
-        context.Database.ExecuteSqlRaw($"ALTER TABLE [{tableName}] SET (SYSTEM_VERSIONING = OFF)");
-        context.Database.ExecuteSqlRaw($"ALTER TABLE [{tableName}] DROP PERIOD FOR SYSTEM_TIME");
+        await context.Database.ExecuteSqlRawAsync($"ALTER TABLE [{tableName}] SET (SYSTEM_VERSIONING = OFF)");
+        await context.Database.ExecuteSqlRawAsync($"ALTER TABLE [{tableName}] DROP PERIOD FOR SYSTEM_TIME");
 
-        context.Database.ExecuteSqlRaw($"UPDATE [{tableName + "History"}] SET PeriodStart = '2000-01-01T01:00:00.0000000Z'");
-        context.Database.ExecuteSqlRaw($"UPDATE [{tableName + "History"}] SET PeriodEnd = '2020-07-01T07:00:00.0000000Z'");
+        await context.Database.ExecuteSqlRawAsync($"UPDATE [{tableName + "History"}] SET PeriodStart = '2000-01-01T01:00:00.0000000Z'");
+        await context.Database.ExecuteSqlRawAsync($"UPDATE [{tableName + "History"}] SET PeriodEnd = '2020-07-01T07:00:00.0000000Z'");
 
-        context.Database.ExecuteSqlRaw($"ALTER TABLE [{tableName}] ADD PERIOD FOR SYSTEM_TIME ([PeriodStart], [PeriodEnd])");
-        context.Database.ExecuteSqlRaw(
+        await context.Database.ExecuteSqlRawAsync($"ALTER TABLE [{tableName}] ADD PERIOD FOR SYSTEM_TIME ([PeriodStart], [PeriodEnd])");
+        await context.Database.ExecuteSqlRawAsync(
             $"ALTER TABLE [{tableName}] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [dbo].[{tableName + "History"}]))");
     }
 }

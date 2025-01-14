@@ -1,17 +1,16 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Internal;
-
 // ReSharper disable VirtualMemberCallInConstructor
+
 namespace Microsoft.EntityFrameworkCore;
 
-public abstract class SharedStoreFixtureBase<TContext> : FixtureBase, IDisposable, IAsyncLifetime
+public abstract class SharedStoreFixtureBase<TContext> : FixtureBase, IAsyncLifetime
     where TContext : DbContext
 {
     protected virtual Type ContextType { get; } = typeof(TContext);
 
-    private IServiceProvider _serviceProvider;
+    private IServiceProvider? _serviceProvider;
 
     public IServiceProvider ServiceProvider
         => _serviceProvider
@@ -21,7 +20,7 @@ public abstract class SharedStoreFixtureBase<TContext> : FixtureBase, IDisposabl
     protected abstract string StoreName { get; }
     protected abstract ITestStoreFactory TestStoreFactory { get; }
 
-    private TestStore _testStore;
+    private TestStore? _testStore;
 
     public TestStore TestStore
         => _testStore
@@ -31,45 +30,50 @@ public abstract class SharedStoreFixtureBase<TContext> : FixtureBase, IDisposabl
     protected virtual bool UsePooling
         => true;
 
-    private IDbContextPool _contextPool;
+    private object? _contextFactory;
 
-    private IDbContextPool ContextPool
-        => _contextPool ??= (IDbContextPool)ServiceProvider
-            .GetRequiredService(typeof(IDbContextPool<>).MakeGenericType(ContextType));
+    private object ContextFactory
+        => _contextFactory ??= ServiceProvider
+            .GetRequiredService(typeof(IDbContextFactory<>).MakeGenericType(ContextType));
 
-    private ListLoggerFactory _listLoggerFactory;
+    private ListLoggerFactory? _listLoggerFactory;
 
     public ListLoggerFactory ListLoggerFactory
         => _listLoggerFactory ??= (ListLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
 
-    public virtual Task InitializeAsync()
+    private MethodInfo? _createDbContext;
+
+    public virtual async Task InitializeAsync()
     {
         _testStore = TestStoreFactory.GetOrCreate(StoreName);
 
         var services = AddServices(TestStoreFactory.AddProviderServices(new ServiceCollection()));
-        if (UsePooling)
-        {
-            services = services.AddDbContextPool(ContextType, (s, b) => ConfigureOptions(s, b));
-        }
-        else
-        {
-            services = services.AddDbContext(
+        services = UsePooling
+            ? services.AddPooledDbContextFactory(ContextType, (s, b) => ConfigureOptions(s, b))
+            : services.AddDbContext(
                 ContextType,
                 (s, b) => ConfigureOptions(s, b),
                 ServiceLifetime.Transient,
                 ServiceLifetime.Singleton);
+
+        if (UsePooling)
+        {
+            _createDbContext
+                = typeof(IDbContextFactory<>).MakeGenericType(ContextType)
+                    .GetTypeInfo().GetDeclaredMethods(nameof(IDbContextFactory<TContext>.CreateDbContext))
+                    .Single(
+                        mi => mi.GetParameters().Length == 0
+                            && mi.GetGenericArguments().Length == 0);
         }
 
         _serviceProvider = services.BuildServiceProvider(validateScopes: true);
 
-        TestStore.Initialize(ServiceProvider, CreateContext, c => Seed((TContext)c), c => Clean(c));
-
-        return Task.CompletedTask;
+        await TestStore.InitializeAsync(ServiceProvider, CreateContext, c => SeedAsync((TContext)c), CleanAsync);
     }
 
     public virtual TContext CreateContext()
         => UsePooling
-            ? (TContext)new DbContextLease(ContextPool, standalone: true).Context
+            ? (TContext)_createDbContext!.Invoke(ContextFactory, null)!
             : (TContext)ServiceProvider.GetRequiredService(ContextType);
 
     public DbContextOptions CreateOptions()
@@ -86,14 +90,6 @@ public abstract class SharedStoreFixtureBase<TContext> : FixtureBase, IDisposabl
     protected virtual bool ShouldLogCategory(string logCategory)
         => false;
 
-    public virtual void Reseed()
-    {
-        using var context = CreateContext();
-        TestStore.Clean(context);
-        Clean(context);
-        Seed(context);
-    }
-
     public virtual async Task ReseedAsync()
     {
         using var context = CreateContext();
@@ -102,15 +98,8 @@ public abstract class SharedStoreFixtureBase<TContext> : FixtureBase, IDisposabl
         await SeedAsync(context);
     }
 
-    protected virtual void Seed(TContext context)
-    {
-    }
-
     protected virtual Task SeedAsync(TContext context)
-    {
-        Seed(context);
-        return Task.CompletedTask;
-    }
+        => Task.CompletedTask;
 
     protected virtual void Clean(DbContext context)
     {
@@ -120,11 +109,6 @@ public abstract class SharedStoreFixtureBase<TContext> : FixtureBase, IDisposabl
     {
         Clean(context);
         return Task.CompletedTask;
-    }
-
-    // Called after DisposeAsync
-    public virtual void Dispose()
-    {
     }
 
     public virtual Task DisposeAsync()

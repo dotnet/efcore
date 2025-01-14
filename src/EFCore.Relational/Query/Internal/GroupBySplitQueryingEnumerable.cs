@@ -12,15 +12,59 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
+public static class GroupBySplitQueryingEnumerable
+{
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static GroupBySplitQueryingEnumerable<TKey, TElement> Create<TKey, TElement>(
+        RelationalQueryContext relationalQueryContext,
+        RelationalCommandResolver relationalCommandResolver,
+        IReadOnlyList<ReaderColumn?>? readerColumns,
+        Func<QueryContext, DbDataReader, TKey> keySelector,
+        Func<QueryContext, DbDataReader, object[]> keyIdentifier,
+        IReadOnlyList<Func<object, object, bool>> keyIdentifierValueComparers,
+        Func<QueryContext, DbDataReader, ResultContext, SplitQueryResultCoordinator, TElement> elementSelector,
+        Action<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator>? relatedDataLoaders,
+        Func<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator, Task>? relatedDataLoadersAsync,
+        Type contextType,
+        bool standAloneStateManager,
+        bool detailedErrorsEnabled,
+        bool threadSafetyChecksEnabled)
+        => new(
+            relationalQueryContext,
+            relationalCommandResolver,
+            readerColumns,
+            keySelector,
+            keyIdentifier,
+            keyIdentifierValueComparers,
+            elementSelector,
+            relatedDataLoaders,
+            relatedDataLoadersAsync,
+            contextType,
+            standAloneStateManager,
+            detailedErrorsEnabled,
+            threadSafetyChecksEnabled);
+}
+
+/// <summary>
+///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+///     any release. You should only use it directly in your code with extreme caution and knowing that
+///     doing so can result in application failures when updating to a new Entity Framework Core release.
+/// </summary>
 public class GroupBySplitQueryingEnumerable<TKey, TElement>
     : IEnumerable<IGrouping<TKey, TElement>>, IAsyncEnumerable<IGrouping<TKey, TElement>>, IRelationalQueryingEnumerable
 {
     private readonly RelationalQueryContext _relationalQueryContext;
-    private readonly RelationalCommandCache _relationalCommandCache;
+    private readonly RelationalCommandResolver _relationalCommandResolver;
     private readonly IReadOnlyList<ReaderColumn?>? _readerColumns;
     private readonly Func<QueryContext, DbDataReader, TKey> _keySelector;
     private readonly Func<QueryContext, DbDataReader, object[]> _keyIdentifier;
-    private readonly IReadOnlyList<ValueComparer> _keyIdentifierValueComparers;
+    private readonly IReadOnlyList<Func<object, object, bool>> _keyIdentifierValueComparers;
     private readonly Func<QueryContext, DbDataReader, ResultContext, SplitQueryResultCoordinator, TElement> _elementSelector;
     private readonly Action<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator>? _relatedDataLoaders;
     private readonly Func<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator, Task>? _relatedDataLoadersAsync;
@@ -38,11 +82,11 @@ public class GroupBySplitQueryingEnumerable<TKey, TElement>
     /// </summary>
     public GroupBySplitQueryingEnumerable(
         RelationalQueryContext relationalQueryContext,
-        RelationalCommandCache relationalCommandCache,
+        RelationalCommandResolver relationalCommandResolver,
         IReadOnlyList<ReaderColumn?>? readerColumns,
         Func<QueryContext, DbDataReader, TKey> keySelector,
         Func<QueryContext, DbDataReader, object[]> keyIdentifier,
-        IReadOnlyList<ValueComparer> keyIdentifierValueComparers,
+        IReadOnlyList<Func<object, object, bool>> keyIdentifierValueComparers,
         Func<QueryContext, DbDataReader, ResultContext, SplitQueryResultCoordinator, TElement> elementSelector,
         Action<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator>? relatedDataLoaders,
         Func<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator, Task>? relatedDataLoadersAsync,
@@ -52,7 +96,7 @@ public class GroupBySplitQueryingEnumerable<TKey, TElement>
         bool threadSafetyChecksEnabled)
     {
         _relationalQueryContext = relationalQueryContext;
-        _relationalCommandCache = relationalCommandCache;
+        _relationalCommandResolver = relationalCommandResolver;
         _readerColumns = readerColumns;
         _keySelector = keySelector;
         _keyIdentifier = keyIdentifier;
@@ -105,8 +149,7 @@ public class GroupBySplitQueryingEnumerable<TKey, TElement>
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual DbCommand CreateDbCommand()
-        => _relationalCommandCache
-            .GetRelationalCommandTemplate(_relationalQueryContext.ParameterValues)
+        => _relationalCommandResolver(_relationalQueryContext.ParameterValues)
             .CreateDbCommand(
                 new RelationalCommandParameterObject(
                     _relationalQueryContext.Connection,
@@ -129,20 +172,14 @@ public class GroupBySplitQueryingEnumerable<TKey, TElement>
         return _relationalQueryContext.RelationalQueryStringFactory.Create(dbCommand);
     }
 
-    private sealed class InternalGrouping : IGrouping<TKey, TElement>
+    private sealed class InternalGrouping(TKey key) : IGrouping<TKey, TElement>
     {
-        private readonly List<TElement> _elements;
-
-        public InternalGrouping(TKey key)
-        {
-            Key = key;
-            _elements = new List<TElement>();
-        }
+        private readonly List<TElement> _elements = [];
 
         internal void Add(TElement element)
             => _elements.Add(element);
 
-        public TKey Key { get; }
+        public TKey Key { get; } = key;
 
         public IEnumerator<TElement> GetEnumerator()
             => _elements.GetEnumerator();
@@ -151,12 +188,12 @@ public class GroupBySplitQueryingEnumerable<TKey, TElement>
             => GetEnumerator();
     }
 
-    private static bool CompareIdentifiers(IReadOnlyList<ValueComparer> valueComparers, object[] left, object[] right)
+    private static bool CompareIdentifiers(IReadOnlyList<Func<object, object, bool>> valueComparers, object[] left, object[] right)
     {
         // Ignoring size check on all for perf as they should be same unless bug in code.
         for (var i = 0; i < left.Length; i++)
         {
-            if (!valueComparers[i].Equals(left[i], right[i]))
+            if (!valueComparers[i](left[i], right[i]))
             {
                 return false;
             }
@@ -168,11 +205,11 @@ public class GroupBySplitQueryingEnumerable<TKey, TElement>
     private sealed class Enumerator : IEnumerator<IGrouping<TKey, TElement>>
     {
         private readonly RelationalQueryContext _relationalQueryContext;
-        private readonly RelationalCommandCache _relationalCommandCache;
+        private readonly RelationalCommandResolver _relationalCommandResolver;
         private readonly IReadOnlyList<ReaderColumn?>? _readerColumns;
         private readonly Func<QueryContext, DbDataReader, TKey> _keySelector;
         private readonly Func<QueryContext, DbDataReader, object[]> _keyIdentifier;
-        private readonly IReadOnlyList<ValueComparer> _keyIdentifierValueComparers;
+        private readonly IReadOnlyList<Func<object, object, bool>> _keyIdentifierValueComparers;
         private readonly Func<QueryContext, DbDataReader, ResultContext, SplitQueryResultCoordinator, TElement> _elementSelector;
         private readonly Action<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator>? _relatedDataLoaders;
         private readonly Type _contextType;
@@ -190,7 +227,7 @@ public class GroupBySplitQueryingEnumerable<TKey, TElement>
         public Enumerator(GroupBySplitQueryingEnumerable<TKey, TElement> queryingEnumerable)
         {
             _relationalQueryContext = queryingEnumerable._relationalQueryContext;
-            _relationalCommandCache = queryingEnumerable._relationalCommandCache;
+            _relationalCommandResolver = queryingEnumerable._relationalCommandResolver;
             _readerColumns = queryingEnumerable._readerColumns;
             _keySelector = queryingEnumerable._keySelector;
             _keyIdentifier = queryingEnumerable._keyIdentifier;
@@ -218,71 +255,64 @@ public class GroupBySplitQueryingEnumerable<TKey, TElement>
         {
             try
             {
-                _concurrencyDetector?.EnterCriticalSection();
+                using var _ = _concurrencyDetector?.EnterCriticalSection();
 
-                try
+                if (_dataReader == null)
                 {
-                    if (_dataReader == null)
-                    {
-                        _relationalQueryContext.ExecutionStrategy.Execute(
-                            this, static (_, enumerator) => InitializeReader(enumerator), null);
-                    }
+                    _relationalQueryContext.ExecutionStrategy.Execute(
+                        this, static (_, enumerator) => InitializeReader(enumerator), null);
+                }
 
-                    var hasNext = _resultCoordinator!.HasNext ?? _dataReader!.Read();
+                var hasNext = _resultCoordinator!.HasNext ?? _dataReader!.Read();
 
-                    if (hasNext)
+                if (hasNext)
+                {
+                    var key = _keySelector(_relationalQueryContext, _dbDataReader!);
+                    var keyIdentifier = _keyIdentifier(_relationalQueryContext, _dbDataReader!);
+                    var group = new InternalGrouping(key);
+                    do
                     {
-                        var key = _keySelector(_relationalQueryContext, _dbDataReader!);
-                        var keyIdentifier = _keyIdentifier(_relationalQueryContext, _dbDataReader!);
-                        var group = new InternalGrouping(key);
-                        do
+                        _resultCoordinator.HasNext = null;
+                        _resultCoordinator!.ResultContext.Values = null;
+                        var element = _elementSelector(
+                            _relationalQueryContext, _dbDataReader!, _resultCoordinator.ResultContext, _resultCoordinator);
+                        if (_relatedDataLoaders != null)
                         {
-                            _resultCoordinator.HasNext = null;
-                            _resultCoordinator!.ResultContext.Values = null;
-                            var element = _elementSelector(
+                            _relatedDataLoaders.Invoke(
+                                _relationalQueryContext, _relationalQueryContext.ExecutionStrategy, _resultCoordinator);
+                            element = _elementSelector(
                                 _relationalQueryContext, _dbDataReader!, _resultCoordinator.ResultContext, _resultCoordinator);
-                            if (_relatedDataLoaders != null)
-                            {
-                                _relatedDataLoaders.Invoke(
-                                    _relationalQueryContext, _relationalQueryContext.ExecutionStrategy, _resultCoordinator);
-                                element = _elementSelector(
-                                    _relationalQueryContext, _dbDataReader!, _resultCoordinator.ResultContext, _resultCoordinator);
-                            }
+                        }
 
-                            group.Add(element);
+                        group.Add(element);
 
-                            if (_resultCoordinator!.HasNext ?? _dbDataReader!.Read())
+                        if (_resultCoordinator!.HasNext ?? _dbDataReader!.Read())
+                        {
+                            // Check if grouping key changed
+                            if (!CompareIdentifiers(
+                                    _keyIdentifierValueComparers, keyIdentifier,
+                                    _keyIdentifier(_relationalQueryContext, _dbDataReader!)))
                             {
-                                // Check if grouping key changed
-                                if (!CompareIdentifiers(
-                                        _keyIdentifierValueComparers, keyIdentifier,
-                                        _keyIdentifier(_relationalQueryContext, _dbDataReader!)))
-                                {
-                                    _resultCoordinator.HasNext = true;
-                                    Current = group;
-                                    break;
-                                }
-                            }
-                            else
-                            {
-                                // End of enumeration
+                                _resultCoordinator.HasNext = true;
                                 Current = group;
                                 break;
                             }
                         }
-                        while (true);
+                        else
+                        {
+                            // End of enumeration
+                            Current = group;
+                            break;
+                        }
                     }
-                    else
-                    {
-                        Current = default!;
-                    }
-
-                    return hasNext;
+                    while (true);
                 }
-                finally
+                else
                 {
-                    _concurrencyDetector?.ExitCriticalSection();
+                    Current = default!;
                 }
+
+                return hasNext;
             }
             catch (Exception exception)
             {
@@ -301,10 +331,10 @@ public class GroupBySplitQueryingEnumerable<TKey, TElement>
 
         private static bool InitializeReader(Enumerator enumerator)
         {
-            EntityFrameworkEventSource.Log.QueryExecuting();
+            EntityFrameworkMetricsData.ReportQueryExecuting();
 
             var relationalCommand = enumerator._relationalCommand =
-                enumerator._relationalCommandCache.RentAndPopulateRelationalCommand(enumerator._relationalQueryContext);
+                enumerator._relationalCommandResolver.RentAndPopulateRelationalCommand(enumerator._relationalQueryContext);
 
             var dataReader = enumerator._dataReader = relationalCommand.ExecuteReader(
                 new RelationalCommandParameterObject(
@@ -342,11 +372,11 @@ public class GroupBySplitQueryingEnumerable<TKey, TElement>
     private sealed class AsyncEnumerator : IAsyncEnumerator<IGrouping<TKey, TElement>>
     {
         private readonly RelationalQueryContext _relationalQueryContext;
-        private readonly RelationalCommandCache _relationalCommandCache;
+        private readonly RelationalCommandResolver _relationalCommandResolver;
         private readonly IReadOnlyList<ReaderColumn?>? _readerColumns;
         private readonly Func<QueryContext, DbDataReader, TKey> _keySelector;
         private readonly Func<QueryContext, DbDataReader, object[]> _keyIdentifier;
-        private readonly IReadOnlyList<ValueComparer> _keyIdentifierValueComparers;
+        private readonly IReadOnlyList<Func<object, object, bool>> _keyIdentifierValueComparers;
         private readonly Func<QueryContext, DbDataReader, ResultContext, SplitQueryResultCoordinator, TElement> _elementSelector;
         private readonly Func<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator, Task>? _relatedDataLoaders;
         private readonly Type _contextType;
@@ -365,7 +395,7 @@ public class GroupBySplitQueryingEnumerable<TKey, TElement>
         public AsyncEnumerator(GroupBySplitQueryingEnumerable<TKey, TElement> queryingEnumerable)
         {
             _relationalQueryContext = queryingEnumerable._relationalQueryContext;
-            _relationalCommandCache = queryingEnumerable._relationalCommandCache;
+            _relationalCommandResolver = queryingEnumerable._relationalCommandResolver;
             _readerColumns = queryingEnumerable._readerColumns;
             _keySelector = queryingEnumerable._keySelector;
             _keyIdentifier = queryingEnumerable._keyIdentifier;
@@ -391,76 +421,69 @@ public class GroupBySplitQueryingEnumerable<TKey, TElement>
         {
             try
             {
-                _concurrencyDetector?.EnterCriticalSection();
+                using var _ = _concurrencyDetector?.EnterCriticalSection();
 
-                try
+                if (_dataReader == null)
                 {
-                    if (_dataReader == null)
-                    {
-                        await _relationalQueryContext.ExecutionStrategy.ExecuteAsync(
-                                this,
-                                static (_, enumerator, cancellationToken) => InitializeReaderAsync(enumerator, cancellationToken),
-                                null,
-                                _cancellationToken)
-                            .ConfigureAwait(false);
-                    }
+                    await _relationalQueryContext.ExecutionStrategy.ExecuteAsync(
+                            this,
+                            static (_, enumerator, cancellationToken) => InitializeReaderAsync(enumerator, cancellationToken),
+                            null,
+                            _cancellationToken)
+                        .ConfigureAwait(false);
+                }
 
-                    var hasNext = _resultCoordinator!.HasNext ?? await _dataReader!.ReadAsync(_cancellationToken).ConfigureAwait(false);
+                var hasNext = _resultCoordinator!.HasNext ?? await _dataReader!.ReadAsync(_cancellationToken).ConfigureAwait(false);
 
-                    if (hasNext)
+                if (hasNext)
+                {
+                    var key = _keySelector(_relationalQueryContext, _dbDataReader!);
+                    var keyIdentifier = _keyIdentifier(_relationalQueryContext, _dbDataReader!);
+                    var group = new InternalGrouping(key);
+                    do
                     {
-                        var key = _keySelector(_relationalQueryContext, _dbDataReader!);
-                        var keyIdentifier = _keyIdentifier(_relationalQueryContext, _dbDataReader!);
-                        var group = new InternalGrouping(key);
-                        do
+                        _resultCoordinator.HasNext = null;
+                        _resultCoordinator!.ResultContext.Values = null;
+                        var element = _elementSelector(
+                            _relationalQueryContext, _dbDataReader!, _resultCoordinator.ResultContext, _resultCoordinator);
+                        if (_relatedDataLoaders != null)
                         {
-                            _resultCoordinator.HasNext = null;
-                            _resultCoordinator!.ResultContext.Values = null;
-                            var element = _elementSelector(
+                            await _relatedDataLoaders(
+                                    _relationalQueryContext, _relationalQueryContext.ExecutionStrategy, _resultCoordinator)
+                                .ConfigureAwait(false);
+                            element = _elementSelector(
                                 _relationalQueryContext, _dbDataReader!, _resultCoordinator.ResultContext, _resultCoordinator);
-                            if (_relatedDataLoaders != null)
-                            {
-                                await _relatedDataLoaders(
-                                        _relationalQueryContext, _relationalQueryContext.ExecutionStrategy, _resultCoordinator)
-                                    .ConfigureAwait(false);
-                                element = _elementSelector(
-                                    _relationalQueryContext, _dbDataReader!, _resultCoordinator.ResultContext, _resultCoordinator);
-                            }
+                        }
 
-                            group.Add(element);
+                        group.Add(element);
 
-                            if (_resultCoordinator!.HasNext ?? await _dataReader!.ReadAsync(_cancellationToken).ConfigureAwait(false))
+                        if (_resultCoordinator!.HasNext ?? await _dataReader!.ReadAsync(_cancellationToken).ConfigureAwait(false))
+                        {
+                            // Check if grouping key changed
+                            if (!CompareIdentifiers(
+                                    _keyIdentifierValueComparers, keyIdentifier,
+                                    _keyIdentifier(_relationalQueryContext, _dbDataReader!)))
                             {
-                                // Check if grouping key changed
-                                if (!CompareIdentifiers(
-                                        _keyIdentifierValueComparers, keyIdentifier,
-                                        _keyIdentifier(_relationalQueryContext, _dbDataReader!)))
-                                {
-                                    _resultCoordinator.HasNext = true;
-                                    Current = group;
-                                    break;
-                                }
-                            }
-                            else
-                            {
-                                // End of enumeration
+                                _resultCoordinator.HasNext = true;
                                 Current = group;
                                 break;
                             }
                         }
-                        while (true);
+                        else
+                        {
+                            // End of enumeration
+                            Current = group;
+                            break;
+                        }
                     }
-                    else
-                    {
-                        Current = default!;
-                    }
-
-                    return hasNext;
+                    while (true);
                 }
-                finally
+                else
                 {
-                    _concurrencyDetector?.ExitCriticalSection();
+                    Current = default!;
                 }
+
+                return hasNext;
             }
             catch (Exception exception)
             {
@@ -479,10 +502,10 @@ public class GroupBySplitQueryingEnumerable<TKey, TElement>
 
         private static async Task<bool> InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
         {
-            EntityFrameworkEventSource.Log.QueryExecuting();
+            EntityFrameworkMetricsData.ReportQueryExecuting();
 
             var relationalCommand = enumerator._relationalCommand =
-                enumerator._relationalCommandCache.RentAndPopulateRelationalCommand(enumerator._relationalQueryContext);
+                enumerator._relationalCommandResolver.RentAndPopulateRelationalCommand(enumerator._relationalQueryContext);
 
             var dataReader = enumerator._dataReader = await relationalCommand.ExecuteReaderAsync(
                     new RelationalCommandParameterObject(
