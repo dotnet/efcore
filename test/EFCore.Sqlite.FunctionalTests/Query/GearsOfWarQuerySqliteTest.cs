@@ -2874,7 +2874,7 @@ FROM "LocustLeaders" AS "l"
 INNER JOIN "Factions" AS "f" ON "l"."Name" = "f"."CommanderName"
 WHERE CASE
     WHEN "f"."Name" = 'Locust' THEN 1
-END = 0 OR CASE
+END <> 1 OR CASE
     WHEN "f"."Name" = 'Locust' THEN 1
 END IS NULL
 """);
@@ -5481,7 +5481,7 @@ LEFT JOIN (
     FROM "Factions" AS "f"
     WHERE "f"."Name" = 'Swarm'
 ) AS "f0" ON "l"."Name" = "f0"."CommanderName"
-WHERE "f0"."Eradicated" = 0 OR "f0"."Eradicated" IS NULL
+WHERE "f0"."Eradicated" <> 1 OR "f0"."Eradicated" IS NULL
 """);
     }
 
@@ -5549,7 +5549,7 @@ INNER JOIN (
     FROM "Factions" AS "f"
     WHERE "f"."Name" = 'Swarm'
 ) AS "f0" ON "l"."Name" = "f0"."CommanderName"
-WHERE "f0"."Eradicated" = 0 OR "f0"."Eradicated" IS NULL
+WHERE "f0"."Eradicated" <> 1 OR "f0"."Eradicated" IS NULL
 """);
     }
 
