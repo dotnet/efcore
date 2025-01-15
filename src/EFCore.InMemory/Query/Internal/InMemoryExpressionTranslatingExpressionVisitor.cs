@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal;
 /// </summary>
 public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
 {
-    private const string RuntimeParameterPrefix = QueryCompilationContext.QueryParameterPrefix + "entity_equality_";
+    private const string RuntimeParameterPrefix = "entity_equality_";
 
     private static readonly List<MethodInfo> SingleResultMethodInfos =
     [
@@ -479,24 +479,25 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override Expression VisitExtension(Expression extensionExpression)
-    {
-        switch (extensionExpression)
+        => extensionExpression switch
         {
-            case EntityProjectionExpression:
-            case StructuralTypeReferenceExpression:
-                return extensionExpression;
+            EntityProjectionExpression or StructuralTypeReferenceExpression
+                => extensionExpression,
 
-            case StructuralTypeShaperExpression shaper:
-                return new StructuralTypeReferenceExpression(shaper);
+            QueryParameterExpression queryParameter
+                => Expression.Call(
+                    GetParameterValueMethodInfo.MakeGenericMethod(queryParameter.Type),
+                    QueryCompilationContext.QueryContextParameter,
+                    Expression.Constant(queryParameter.Name)),
 
-            case ProjectionBindingExpression projectionBindingExpression:
-                return ((InMemoryQueryExpression)projectionBindingExpression.QueryExpression)
-                    .GetProjection(projectionBindingExpression);
+            StructuralTypeShaperExpression shaper
+                => new StructuralTypeReferenceExpression(shaper),
 
-            default:
-                return QueryCompilationContext.NotTranslatedExpression;
-        }
-    }
+            ProjectionBindingExpression projectionBindingExpression
+                => ((InMemoryQueryExpression)projectionBindingExpression.QueryExpression).GetProjection(projectionBindingExpression),
+
+            _ => QueryCompilationContext.NotTranslatedExpression
+        };
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -988,17 +989,7 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override Expression VisitParameter(ParameterExpression parameterExpression)
-    {
-        if (parameterExpression.Name?.StartsWith(QueryCompilationContext.QueryParameterPrefix, StringComparison.Ordinal) == true)
-        {
-            return Expression.Call(
-                GetParameterValueMethodInfo.MakeGenericMethod(parameterExpression.Type),
-                QueryCompilationContext.QueryContextParameter,
-                Expression.Constant(parameterExpression.Name));
-        }
-
-        throw new InvalidOperationException(CoreStrings.TranslationFailed(parameterExpression.Print()));
-    }
+        => throw new InvalidOperationException(CoreStrings.TranslationFailed(parameterExpression.Print()));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1307,9 +1298,7 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
                     QueryCompilationContext.QueryContextParameter
                 );
 
-                var newParameterName =
-                    $"{RuntimeParameterPrefix}"
-                    + $"{parameterName[QueryCompilationContext.QueryParameterPrefix.Length..]}_{property.Name}";
+                var newParameterName = $"{RuntimeParameterPrefix}{parameterName}_{property.Name}";
 
                 rewrittenSource = _queryCompilationContext.RegisterRuntimeParameter(newParameterName, lambda);
                 break;
@@ -1451,9 +1440,7 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
                         Expression.Constant(property, typeof(IProperty))),
                     QueryCompilationContext.QueryContextParameter);
 
-                var newParameterName =
-                    $"{RuntimeParameterPrefix}"
-                    + $"{parameterName[QueryCompilationContext.QueryParameterPrefix.Length..]}_{property.Name}";
+                var newParameterName = $"{RuntimeParameterPrefix}{parameterName}_{property.Name}";
 
                 return _queryCompilationContext.RegisterRuntimeParameter(newParameterName, lambda);
 

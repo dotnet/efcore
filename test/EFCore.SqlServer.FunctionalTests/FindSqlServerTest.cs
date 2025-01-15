@@ -39,13 +39,13 @@ public abstract class FindSqlServerTest : FindTestBase<FindSqlServerTest.FindSql
 
         AssertSql(
             """
-@__p_0='77'
+@p='77'
 
 SELECT [i3].[Id], [i3].[Foo], [s].[IntKeyId], [s].[Id], [s].[Prop], [s].[NestedOwned_Prop], [s].[Owned1IntKeyId], [s].[Owned1Id], [s].[Id0], [s].[Prop0], [i3].[OwnedReference_Prop], [i3].[OwnedReference_NestedOwned_Prop], [i2].[Owned1IntKeyId], [i2].[Id], [i2].[Prop]
 FROM (
     SELECT TOP(1) [i].[Id], [i].[Foo], [i].[OwnedReference_Prop], [i].[OwnedReference_NestedOwned_Prop]
     FROM [IntKey] AS [i]
-    WHERE [i].[Id] = @__p_0
+    WHERE [i].[Id] = @p
 ) AS [i3]
 LEFT JOIN (
     SELECT [i0].[IntKeyId], [i0].[Id], [i0].[Prop], [i0].[NestedOwned_Prop], [i1].[Owned1IntKeyId], [i1].[Owned1Id], [i1].[Id] AS [Id0], [i1].[Prop] AS [Prop0]
@@ -65,13 +65,13 @@ ORDER BY [i3].[Id], [s].[IntKeyId], [s].[Id], [s].[Owned1IntKeyId], [s].[Owned1I
 
         AssertSql(
             """
-@__p_0='99'
+@p='99'
 
 SELECT [i3].[Id], [i3].[Foo], [s].[IntKeyId], [s].[Id], [s].[Prop], [s].[NestedOwned_Prop], [s].[Owned1IntKeyId], [s].[Owned1Id], [s].[Id0], [s].[Prop0], [i3].[OwnedReference_Prop], [i3].[OwnedReference_NestedOwned_Prop], [i2].[Owned1IntKeyId], [i2].[Id], [i2].[Prop]
 FROM (
     SELECT TOP(1) [i].[Id], [i].[Foo], [i].[OwnedReference_Prop], [i].[OwnedReference_NestedOwned_Prop]
     FROM [IntKey] AS [i]
-    WHERE [i].[Id] = @__p_0
+    WHERE [i].[Id] = @p
 ) AS [i3]
 LEFT JOIN (
     SELECT [i0].[IntKeyId], [i0].[Id], [i0].[Prop], [i0].[NestedOwned_Prop], [i1].[Owned1IntKeyId], [i1].[Owned1Id], [i1].[Id] AS [Id0], [i1].[Prop] AS [Prop0]
@@ -98,11 +98,11 @@ ORDER BY [i3].[Id], [s].[IntKeyId], [s].[Id], [s].[Owned1IntKeyId], [s].[Owned1I
 
         AssertSql(
             """
-@__p_0='77' (Nullable = true)
+@p='77' (Nullable = true)
 
 SELECT TOP(1) [n].[Id], [n].[Foo]
 FROM [NullableIntKey] AS [n]
-WHERE [n].[Id] = @__p_0
+WHERE [n].[Id] = @p
 """);
     }
 
@@ -112,11 +112,11 @@ WHERE [n].[Id] = @__p_0
 
         AssertSql(
             """
-@__p_0='99' (Nullable = true)
+@p='99' (Nullable = true)
 
 SELECT TOP(1) [n].[Id], [n].[Foo]
 FROM [NullableIntKey] AS [n]
-WHERE [n].[Id] = @__p_0
+WHERE [n].[Id] = @p
 """);
     }
 
@@ -133,11 +133,11 @@ WHERE [n].[Id] = @__p_0
 
         AssertSql(
             """
-@__p_0='Cat' (Size = 450)
+@p='Cat' (Size = 450)
 
 SELECT TOP(1) [s].[Id], [s].[Foo]
 FROM [StringKey] AS [s]
-WHERE [s].[Id] = @__p_0
+WHERE [s].[Id] = @p
 """);
     }
 
@@ -147,11 +147,11 @@ WHERE [s].[Id] = @__p_0
 
         AssertSql(
             """
-@__p_0='Fox' (Size = 450)
+@p='Fox' (Size = 450)
 
 SELECT TOP(1) [s].[Id], [s].[Foo]
 FROM [StringKey] AS [s]
-WHERE [s].[Id] = @__p_0
+WHERE [s].[Id] = @p
 """);
     }
 
@@ -168,12 +168,12 @@ WHERE [s].[Id] = @__p_0
 
         AssertSql(
             """
-@__p_0='77'
-@__p_1='Dog' (Size = 450)
+@p='77'
+@p0='Dog' (Size = 450)
 
 SELECT TOP(1) [c].[Id1], [c].[Id2], [c].[Foo]
 FROM [CompositeKey] AS [c]
-WHERE [c].[Id1] = @__p_0 AND [c].[Id2] = @__p_1
+WHERE [c].[Id1] = @p AND [c].[Id2] = @p0
 """);
     }
 
@@ -183,12 +183,12 @@ WHERE [c].[Id1] = @__p_0 AND [c].[Id2] = @__p_1
 
         AssertSql(
             """
-@__p_0='77'
-@__p_1='Fox' (Size = 450)
+@p='77'
+@p0='Fox' (Size = 450)
 
 SELECT TOP(1) [c].[Id1], [c].[Id2], [c].[Foo]
 FROM [CompositeKey] AS [c]
-WHERE [c].[Id1] = @__p_0 AND [c].[Id2] = @__p_1
+WHERE [c].[Id1] = @p AND [c].[Id2] = @p0
 """);
     }
 
@@ -205,11 +205,11 @@ WHERE [c].[Id1] = @__p_0 AND [c].[Id2] = @__p_1
 
         AssertSql(
             """
-@__p_0='77'
+@p='77'
 
 SELECT TOP(1) [b].[Id], [b].[Discriminator], [b].[Foo], [b].[Boo]
 FROM [BaseType] AS [b]
-WHERE [b].[Id] = @__p_0
+WHERE [b].[Id] = @p
 """);
     }
 
@@ -219,11 +219,11 @@ WHERE [b].[Id] = @__p_0
 
         AssertSql(
             """
-@__p_0='99'
+@p='99'
 
 SELECT TOP(1) [b].[Id], [b].[Discriminator], [b].[Foo], [b].[Boo]
 FROM [BaseType] AS [b]
-WHERE [b].[Id] = @__p_0
+WHERE [b].[Id] = @p
 """);
     }
 
@@ -240,11 +240,11 @@ WHERE [b].[Id] = @__p_0
 
         AssertSql(
             """
-@__p_0='78'
+@p='78'
 
 SELECT TOP(1) [b].[Id], [b].[Discriminator], [b].[Foo], [b].[Boo]
 FROM [BaseType] AS [b]
-WHERE [b].[Discriminator] = N'DerivedType' AND [b].[Id] = @__p_0
+WHERE [b].[Discriminator] = N'DerivedType' AND [b].[Id] = @p
 """);
     }
 
@@ -254,11 +254,11 @@ WHERE [b].[Discriminator] = N'DerivedType' AND [b].[Id] = @__p_0
 
         AssertSql(
             """
-@__p_0='99'
+@p='99'
 
 SELECT TOP(1) [b].[Id], [b].[Discriminator], [b].[Foo], [b].[Boo]
 FROM [BaseType] AS [b]
-WHERE [b].[Discriminator] = N'DerivedType' AND [b].[Id] = @__p_0
+WHERE [b].[Discriminator] = N'DerivedType' AND [b].[Id] = @p
 """);
     }
 
@@ -268,11 +268,11 @@ WHERE [b].[Discriminator] = N'DerivedType' AND [b].[Id] = @__p_0
 
         AssertSql(
             """
-@__p_0='88'
+@p='88'
 
 SELECT TOP(1) [b].[Id], [b].[Discriminator], [b].[Foo], [b].[Boo]
 FROM [BaseType] AS [b]
-WHERE [b].[Discriminator] = N'DerivedType' AND [b].[Id] = @__p_0
+WHERE [b].[Discriminator] = N'DerivedType' AND [b].[Id] = @p
 """);
     }
 
@@ -282,11 +282,11 @@ WHERE [b].[Discriminator] = N'DerivedType' AND [b].[Id] = @__p_0
 
         AssertSql(
             """
-@__p_0='77'
+@p='77'
 
 SELECT TOP(1) [b].[Id], [b].[Discriminator], [b].[Foo], [b].[Boo]
 FROM [BaseType] AS [b]
-WHERE [b].[Discriminator] = N'DerivedType' AND [b].[Id] = @__p_0
+WHERE [b].[Discriminator] = N'DerivedType' AND [b].[Id] = @p
 """);
     }
 
@@ -303,11 +303,11 @@ WHERE [b].[Discriminator] = N'DerivedType' AND [b].[Id] = @__p_0
 
         AssertSql(
             """
-@__p_0='78'
+@p='78'
 
 SELECT TOP(1) [b].[Id], [b].[Discriminator], [b].[Foo], [b].[Boo]
 FROM [BaseType] AS [b]
-WHERE [b].[Id] = @__p_0
+WHERE [b].[Id] = @p
 """);
     }
 
@@ -324,11 +324,11 @@ WHERE [b].[Id] = @__p_0
 
         AssertSql(
             """
-@__p_0='77'
+@p='77'
 
 SELECT TOP(1) [s].[Id], [s].[Foo]
 FROM [ShadowKey] AS [s]
-WHERE [s].[Id] = @__p_0
+WHERE [s].[Id] = @p
 """);
     }
 
@@ -338,11 +338,11 @@ WHERE [s].[Id] = @__p_0
 
         AssertSql(
             """
-@__p_0='99'
+@p='99'
 
 SELECT TOP(1) [s].[Id], [s].[Foo]
 FROM [ShadowKey] AS [s]
-WHERE [s].[Id] = @__p_0
+WHERE [s].[Id] = @p
 """);
     }
 

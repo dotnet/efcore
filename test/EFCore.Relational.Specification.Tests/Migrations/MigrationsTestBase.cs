@@ -3298,7 +3298,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
         // Get the migration operations between the two models and test
         var operations = modelDiffer.GetDifferences(sourceModel.GetRelationalModel(), targetModel.GetRelationalModel());
 
-        return Test(sourceModel, targetModel, operations, asserter, migrationsSqlGenerationOptions);
+        return Test(preSnapshotSourceModel, targetModel, operations, asserter, migrationsSqlGenerationOptions);
     }
 
     protected virtual Task Test(
@@ -3335,7 +3335,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
             modelSnapshotNamespace: null, typeof(DbContext), "MigrationsTestSnapshot", preSnapshotSourceModel);
         var sourceModel = BuildModelFromSnapshotSource(sourceModelSnapshot);
 
-        return Test(sourceModel, targetModel: null, operations, asserter, migrationsSqlGenerationOptions);
+        return Test(preSnapshotSourceModel, targetModel: null, operations, asserter, migrationsSqlGenerationOptions);
     }
 
     protected virtual async Task Test(

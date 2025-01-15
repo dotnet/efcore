@@ -409,7 +409,7 @@ public abstract class AdHocAdvancedMappingsQueryTestBase : NonSharedModelTestBas
 
             Assert.Equal(
                 CoreStrings.TranslationFailed(
-                    @"DbSet<MockEntity>()    .Cast<IDummyEntity>()    .Where(e => e.Id == __id_0)"),
+                    @"DbSet<MockEntity>()    .Cast<IDummyEntity>()    .Where(e => e.Id == @id)"),
                 message.Replace("\r", "").Replace("\n", ""));
         }
     }

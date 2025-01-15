@@ -45,7 +45,7 @@ public class SqlConstantExpression : SqlExpression
     /// <param name="typeMapping">The <see cref="RelationalTypeMapping" /> associated with the expression.</param>
     [Obsolete("Call the constructor accepting a value (and possibly a Type) instead")]
     public SqlConstantExpression(ConstantExpression constantExpression, RelationalTypeMapping? typeMapping)
-        : base(constantExpression.Type.UnwrapNullableType(), typeMapping)
+        : this(constantExpression.Value, constantExpression.Type, typeMapping)
     {
     }
 

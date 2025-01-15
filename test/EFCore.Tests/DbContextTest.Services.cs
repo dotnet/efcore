@@ -295,7 +295,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [ConditionalTheory(Skip = "https://github.com/dotnet/runtime/issues/89109")]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public void Resolve_scoped_application_service(bool autoResolve)
@@ -396,6 +396,7 @@ namespace Microsoft.EntityFrameworkCore
                     (p, b) =>
                     {
                         b = b.UseInMemoryDatabase(nameof(ServiceResolutionContext))
+                            .EnableServiceProviderCaching(false)
                             .ReplaceService<IDbSetFinder, TestSingletonService>()
                             .ReplaceService<IEntityGraphAttacher, TestScopedService>()
                             .ReplaceService<ILazyLoader, TestTransientService>();
@@ -3205,7 +3206,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Equal(3, replacedServices.Count);
 
                 Assert.Equal(2, replacedServices.Count(t => t is CustomParameterBindingFactory2));
-                Assert.Single(replacedServices.Where(t => t is CustomParameterBindingFactory));
+                Assert.Single(replacedServices, t => t is CustomParameterBindingFactory);
             }
         }
 
@@ -3852,7 +3853,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Equal(3, replacedServices.Count);
 
                 Assert.Equal(2, replacedServices.Count(t => t is CustomParameterBindingFactory));
-                Assert.Single(replacedServices.Where(t => t is CustomParameterBindingFactory2));
+                Assert.Single(replacedServices, t => t is CustomParameterBindingFactory2);
             }
         }
 
@@ -3894,7 +3895,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Equal(3, replacedServices.Count);
 
                 Assert.DoesNotContain(replacedServices, t => t is CustomParameterBindingFactory);
-                Assert.Single(replacedServices.Where(t => t is CustomParameterBindingFactory2));
+                Assert.Single(replacedServices, t => t is CustomParameterBindingFactory2);
             }
         }
 

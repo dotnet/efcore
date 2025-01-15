@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public abstract class MonsterFixupTestBase<TFixture> : IClassFixture<TFixture>, IDisposable
+public abstract class MonsterFixupTestBase<TFixture> : IClassFixture<TFixture>, IAsyncLifetime
     where TFixture : MonsterFixupTestBase<TFixture>.MonsterFixupFixtureBase, new()
 {
     protected MonsterFixupTestBase(TFixture fixture)
@@ -1405,8 +1405,11 @@ public abstract class MonsterFixupTestBase<TFixture> : IClassFixture<TFixture>, 
     protected MonsterContext CreateContext()
         => Fixture.CreateContext(Options);
 
-    public virtual void Dispose()
-        => TestStore.Dispose();
+    public Task InitializeAsync()
+        => Task.CompletedTask;
+
+    public virtual async Task DisposeAsync()
+        => await TestStore.DisposeAsync();
 
     public abstract class MonsterFixupFixtureBase : ServiceProviderFixtureBase
     {

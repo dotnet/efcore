@@ -16,6 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 ///     General tests for precompiled queries.
 ///     See also <see cref="PrecompiledSqlPregenerationQueryRelationalTestBase" /> for tests specifically related to SQL pregeneration.
 /// </summary>
+[Collection("PrecompiledQuery")]
 public class PrecompiledQueryRelationalTestBase
 {
     public PrecompiledQueryRelationalTestBase(PrecompiledQueryRelationalFixture fixture, ITestOutputHelper testOutputHelper)
@@ -726,7 +727,7 @@ Assert.Equal(1, await context.Blogs.CountAsync());
 """);
 
     [ConditionalFact]
-    public virtual Task Terminating_ExecuteUpdate()
+    public virtual Task Terminating_ExecuteUpdate_with_lambda()
         => Test(
             """
 await context.Database.BeginTransactionAsync();
@@ -738,7 +739,19 @@ Assert.Equal(1, await context.Blogs.CountAsync(b => b.Id == 9 && b.Name == "Blog
 """);
 
     [ConditionalFact]
-    public virtual Task Terminating_ExecuteUpdateAsync()
+    public virtual Task Terminating_ExecuteUpdate_without_lambda()
+        => Test(
+            """
+await context.Database.BeginTransactionAsync();
+
+var newValue = "NewValue";
+var rowsAffected = context.Blogs.Where(b => b.Id > 8).ExecuteUpdate(setters => setters.SetProperty(b => b.Name, newValue));
+Assert.Equal(1, rowsAffected);
+Assert.Equal(1, await context.Blogs.CountAsync(b => b.Id == 9 && b.Name == "NewValue"));
+""");
+
+    [ConditionalFact]
+    public virtual Task Terminating_ExecuteUpdateAsync_with_lambda()
         => Test(
             """
 await context.Database.BeginTransactionAsync();
@@ -747,6 +760,18 @@ var suffix = "Suffix";
 var rowsAffected = await context.Blogs.Where(b => b.Id > 8).ExecuteUpdateAsync(setters => setters.SetProperty(b => b.Name, b => b.Name + suffix));
 Assert.Equal(1, rowsAffected);
 Assert.Equal(1, await context.Blogs.CountAsync(b => b.Id == 9 && b.Name == "Blog2Suffix"));
+""");
+
+    [ConditionalFact]
+    public virtual Task Terminating_ExecuteUpdateAsync_without_lambda()
+        => Test(
+            """
+await context.Database.BeginTransactionAsync();
+
+var newValue = "NewValue";
+var rowsAffected = await context.Blogs.Where(b => b.Id > 8).ExecuteUpdateAsync(setters => setters.SetProperty(b => b.Name, newValue));
+Assert.Equal(1, rowsAffected);
+Assert.Equal(1, await context.Blogs.CountAsync(b => b.Id == 9 && b.Name == "NewValue"));
 """);
 
     #endregion Reducing terminating operators
@@ -1101,7 +1126,7 @@ var blogs = await context.Blogs.Select(b => b.Id == 3 ? yes : no).ToListAsync();
     public virtual Task Two_captured_variables_in_different_lambdas()
         => Test(
             """
-var starts = "blog";
+var starts = "Blog";
 var ends = "2";
 var blog = await context.Blogs.Where(b => b.Name.StartsWith(starts)).Where(b => b.Name.EndsWith(ends)).SingleAsync();
 Assert.Equal(9, blog.Id);

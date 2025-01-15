@@ -447,7 +447,7 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture>(TFixtur
         => AssertMin(
             async,
             ss => ss.Set<Customer>().OrderBy(c => c.CustomerID).Take(3),
-            selector: c => c.Orders.Min(o => 5 + o.OrderDetails.Min(od => od.ProductID)));
+            selector: c => c.Orders.Min(o => 5 + Enumerable.Min(o.OrderDetails, od => od.ProductID)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -494,7 +494,7 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture>(TFixtur
         => AssertMax(
             async,
             ss => ss.Set<Customer>().OrderBy(c => c.CustomerID).Take(3),
-            selector: c => c.Orders.Max(o => 5 + o.OrderDetails.Max(od => od.ProductID)));
+            selector: c => c.Orders.Max(o => 5 + Enumerable.Max(o.OrderDetails, od => od.ProductID)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]

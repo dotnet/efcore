@@ -69,6 +69,7 @@ public class EFTest
         protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
                 .UseInMemoryDatabase(nameof(SwitchContext))
+                .EnableServiceProviderCaching(false)
                 .ReplaceService<IModelCacheKeyFactory, DegenerateCacheKeyFactory>();
     }
 

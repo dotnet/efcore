@@ -33,7 +33,7 @@ public abstract class BulkUpdatesTestBase<TFixture> : IClassFixture<TFixture>
         bool async,
         Func<ISetSource, IQueryable<TResult>> query,
         Expression<Func<TResult, TEntity>> entitySelector,
-        Expression<Func<SetPropertyCalls<TResult>, SetPropertyCalls<TResult>>> setPropertyCalls,
+        Action<UpdateSettersBuilder<TResult>> setPropertyCalls,
         int rowsAffectedCount,
         Action<IReadOnlyList<TEntity>, IReadOnlyList<TEntity>> asserter = null)
         where TResult : class

@@ -111,6 +111,6 @@ public abstract class SharedStoreFixtureBase<TContext> : FixtureBase, IAsyncLife
         return Task.CompletedTask;
     }
 
-    public virtual Task DisposeAsync()
-        => TestStore.DisposeAsync();
+    public virtual async Task DisposeAsync()
+        => await TestStore.DisposeAsync();
 }
