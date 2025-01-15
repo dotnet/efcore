@@ -319,9 +319,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
     protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
     {
         var method = methodCallExpression.Method;
-        if (method.DeclaringType == typeof(Queryable)
-            || method.DeclaringType == typeof(QueryableExtensions)
-            || method.DeclaringType == typeof(EntityFrameworkQueryableExtensions))
+        if (method.DeclaringType == typeof(Queryable) || method.DeclaringType == typeof(EntityFrameworkQueryableExtensions))
         {
             var genericMethod = method.IsGenericMethod ? method.GetGenericMethodDefinition() : null;
             // First argument is source
@@ -474,8 +472,8 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                         goto default;
                     }
 
-                    case nameof(QueryableExtensions.LeftJoin)
-                        when genericMethod == QueryableExtensions.LeftJoinMethodInfo:
+                    case nameof(Queryable.LeftJoin)
+                        when genericMethod == QueryableMethods.LeftJoin:
                     {
                         var secondArgument = Visit(methodCallExpression.Arguments[1]);
                         secondArgument = UnwrapCollectionMaterialization(secondArgument);
@@ -1312,7 +1310,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
             innerSource.CurrentParameter);
 
         var source = Expression.Call(
-            QueryableExtensions.LeftJoinMethodInfo.MakeGenericMethod(
+            QueryableMethods.LeftJoin.MakeGenericMethod(
                 outerSource.SourceElementType, innerSource.SourceElementType, outerKeySelector.ReturnType,
                 newResultSelector.ReturnType),
             outerSource.Source,

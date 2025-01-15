@@ -1,11 +1,11 @@
 {
   "sdk": {
-    "version": "10.0.100-alpha.1.24573.1",
+    "version": "10.0.100-alpha.1.25059.31",
     "allowPrerelease": true,
     "rollForward": "latestMajor"
   },
   "tools": {
-    "dotnet": "10.0.100-alpha.1.24573.1",
+    "dotnet": "10.0.100-alpha.1.25059.31",
     "runtimes": {
       "dotnet": [
         "$(MicrosoftNETCoreAppRuntimewinx64Version)"

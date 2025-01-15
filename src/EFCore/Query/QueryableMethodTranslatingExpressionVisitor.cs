@@ -199,8 +199,7 @@ public abstract class QueryableMethodTranslatingExpressionVisitor : ExpressionVi
             }
         }
 
-        if (method.DeclaringType == typeof(Queryable)
-            || method.DeclaringType == typeof(QueryableExtensions))
+        if (method.DeclaringType == typeof(Queryable))
         {
             var source = Visit(methodCallExpression.Arguments[0]);
             if (source is ShapedQueryExpression shapedQueryExpression)
@@ -394,8 +393,8 @@ public abstract class QueryableMethodTranslatingExpressionVisitor : ExpressionVi
                         break;
                     }
 
-                    case nameof(QueryableExtensions.LeftJoin)
-                        when genericMethod == QueryableExtensions.LeftJoinMethodInfo:
+                    case nameof(Queryable.LeftJoin)
+                        when genericMethod == QueryableMethods.LeftJoin:
                     {
                         if (Visit(methodCallExpression.Arguments[1]) is ShapedQueryExpression innerShapedQueryExpression)
                         {

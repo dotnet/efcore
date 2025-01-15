@@ -1986,9 +1986,9 @@ GROUP BY [t1].[AnotherEntity11818_Name], [t3].[MaumarEntity11818_Name]
 """);
     }
 
-    public override async Task Left_join_with_missing_key_values_on_both_sides(bool async)
+    public override async Task LeftJoin_with_missing_key_values_on_both_sides(bool async)
     {
-        await base.Left_join_with_missing_key_values_on_both_sides(async);
+        await base.LeftJoin_with_missing_key_values_on_both_sides(async);
 
         AssertSql(
             """

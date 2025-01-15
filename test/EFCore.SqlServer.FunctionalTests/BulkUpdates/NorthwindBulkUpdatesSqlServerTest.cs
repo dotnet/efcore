@@ -526,9 +526,31 @@ INNER JOIN (
 """);
     }
 
-    public override async Task Delete_with_left_join(bool async)
+    public override async Task Delete_with_LeftJoin(bool async)
     {
-        await base.Delete_with_left_join(async);
+        await base.Delete_with_LeftJoin(async);
+
+        AssertSql(
+            """
+@p='0'
+@p0='100'
+
+DELETE FROM [o]
+FROM [Order Details] AS [o]
+LEFT JOIN (
+    SELECT [o0].[OrderID]
+    FROM [Orders] AS [o0]
+    WHERE [o0].[OrderID] < 10300
+    ORDER BY [o0].[OrderID]
+    OFFSET @p ROWS FETCH NEXT @p0 ROWS ONLY
+) AS [o1] ON [o].[OrderID] = [o1].[OrderID]
+WHERE [o].[OrderID] < 10276
+""");
+    }
+
+    public override async Task Delete_with_LeftJoin_via_flattened_GroupJoin(bool async)
+    {
+        await base.Delete_with_LeftJoin_via_flattened_GroupJoin(async);
 
         AssertSql(
             """
@@ -1285,9 +1307,29 @@ WHERE [c].[CustomerID] LIKE N'F%'
 """);
     }
 
-    public override async Task Update_with_left_join_set_constant(bool async)
+    public override async Task Update_with_LeftJoin(bool async)
     {
-        await base.Update_with_left_join_set_constant(async);
+        await base.Update_with_LeftJoin(async);
+
+        AssertExecuteUpdateSql(
+            """
+@p='Updated' (Size = 30)
+
+UPDATE [c]
+SET [c].[ContactName] = @p
+FROM [Customers] AS [c]
+LEFT JOIN (
+    SELECT [o].[CustomerID]
+    FROM [Orders] AS [o]
+    WHERE [o].[OrderID] < 10300
+) AS [o0] ON [c].[CustomerID] = [o0].[CustomerID]
+WHERE [c].[CustomerID] LIKE N'F%'
+""");
+    }
+
+    public override async Task Update_with_LeftJoin_via_flattened_GroupJoin(bool async)
+    {
+        await base.Update_with_LeftJoin_via_flattened_GroupJoin(async);
 
         AssertExecuteUpdateSql(
             """
