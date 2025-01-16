@@ -3,7 +3,6 @@
 
 using System.Transactions;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Internal;
 
