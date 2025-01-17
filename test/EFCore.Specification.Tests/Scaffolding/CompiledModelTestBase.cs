@@ -920,11 +920,11 @@ namespace TestNamespace
         public IPAddress?[] NullableIPAddressArray { get; set; } = null!;
         public PhysicalAddress?[] NullablePhysicalAddressArray { get; set; } = null!;
 
-        private List<bool> _boolReadOnlyCollection = [];
-        private List<byte> _uInt8ReadOnlyCollection = [];
-        private List<int> _int32ReadOnlyCollection = [];
-        private List<string> _stringReadOnlyCollection = [];
-        private List<IPAddress> _ipAddressReadOnlyCollection = [];
+        private readonly List<bool> _boolReadOnlyCollection = [];
+        private readonly List<byte> _uInt8ReadOnlyCollection = [];
+        private readonly List<int> _int32ReadOnlyCollection = [];
+        private readonly List<string> _stringReadOnlyCollection = [];
+        private readonly List<IPAddress> _ipAddressReadOnlyCollection = [];
 
         public IReadOnlyCollection<bool> BoolReadOnlyCollection
             => _boolReadOnlyCollection.ToList();
