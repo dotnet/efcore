@@ -19,7 +19,6 @@ internal class RootCommand : CommandBase
     private CommandOption? _framework;
     private CommandOption? _configuration;
     private CommandOption? _runtime;
-    private CommandOption? _msbuildprojectextensionspath;
     private CommandOption? _noBuild;
     private CommandOption? _help;
     private IList<string>? _args;
@@ -38,7 +37,6 @@ internal class RootCommand : CommandBase
         _framework = options.Framework;
         _configuration = options.Configuration;
         _runtime = options.Runtime;
-        _msbuildprojectextensionspath = options.MSBuildProjectExtensionsPath;
         _noBuild = options.NoBuild;
 
         command.VersionOption("--version", GetVersion);
@@ -68,10 +66,9 @@ internal class RootCommand : CommandBase
         Reporter.WriteVerbose(Resources.UsingProject(projectFile));
         Reporter.WriteVerbose(Resources.UsingStartupProject(startupProjectFile));
 
-        var project = Project.FromFile(projectFile, _msbuildprojectextensionspath!.Value());
+        var project = Project.FromFile(projectFile);
         var startupProject = Project.FromFile(
             startupProjectFile,
-            _msbuildprojectextensionspath.Value(),
             _framework!.Value(),
             _configuration!.Value(),
             _runtime!.Value());
