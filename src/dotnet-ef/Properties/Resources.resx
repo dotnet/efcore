@@ -322,7 +322,7 @@
     <value>The project to use. Defaults to the current working directory.</value>
   </data>
   <data name="ProjectExtensionsDescription" xml:space="preserve">
-    <value>The MSBuild project extensions path. Defaults to "obj".</value>
+    <value>Obsolete</value>
   </data>
   <data name="ProviderDescription" xml:space="preserve">
     <value>The provider to use. (E.g. Microsoft.EntityFrameworkCore.SqlServer)</value>

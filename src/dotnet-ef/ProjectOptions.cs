@@ -24,6 +24,7 @@ internal class ProjectOptions
         Framework = command.Option("--framework <FRAMEWORK>", Resources.FrameworkDescription);
         Configuration = command.Option("--configuration <CONFIGURATION>", Resources.ConfigurationDescription);
         Runtime = command.Option("--runtime <RUNTIME_IDENTIFIER>", Resources.RuntimeDescription);
+        command.Option("--msbuildprojectextensionspath <PATH>", Resources.ProjectExtensionsDescription);
         NoBuild = command.Option("--no-build", Resources.NoBuildDescription);
     }
 }

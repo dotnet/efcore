@@ -324,7 +324,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("NamespaceDescription");
 
         /// <summary>
-        ///     Additionally generate all the code required for NativeAOT compilation and precompiled queries (experimental)
+        ///     Additionally generate all the code required for NativeAOT compilation and precompiled queries (experimental).
         /// </summary>
         public static string NativeAotDescription
             => GetString("NativeAotDescription");
@@ -438,7 +438,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("ProjectDescription");
 
         /// <summary>
-        ///     The MSBuild project extensions path. Defaults to "obj".
+        ///     Obsolete
         /// </summary>
         public static string ProjectExtensionsDescription
             => GetString("ProjectExtensionsDescription");
