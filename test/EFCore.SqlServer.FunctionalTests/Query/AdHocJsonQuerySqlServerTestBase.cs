@@ -97,6 +97,41 @@ INSERT INTO [Reviews] ([Rounds], [Id])
 VALUES(N'[{"RoundNumber":11,"SubRounds":[{"SubRoundNumber":111},{"SubRoundNumber":112}]}]', 1)
 """);
 
+    protected override async Task Seed34960(Context34960 ctx)
+    {
+        await base.Seed34960(ctx);
+
+        // JSON nulls
+        await ctx.Database.ExecuteSqlAsync(
+            $$"""
+INSERT INTO [Entities] ([Collection], [Reference], [Id])
+VALUES(
+N'null',
+N'null',
+4)
+""");
+
+        // JSON object where collection should be
+        await ctx.Database.ExecuteSqlAsync(
+            $$"""
+INSERT INTO [Junk] ([Collection], [Reference], [Id])
+VALUES(
+N'{ "DoB":"2000-01-01T00:00:00","Text":"junk" }',
+NULL,
+1)
+""");
+
+        // JSON array where entity should be
+        await ctx.Database.ExecuteSqlAsync(
+            $$"""
+INSERT INTO [Junk] ([Collection], [Reference], [Id])
+VALUES(
+NULL,
+N'[{ "DoB":"2000-01-01T00:00:00","Text":"junk" }]',
+2)
+""");
+    }
+
     protected override Task SeedArrayOfPrimitives(DbContext ctx)
     {
         var entity1 = new MyEntityArrayOfPrimitives

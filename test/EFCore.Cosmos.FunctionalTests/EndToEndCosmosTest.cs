@@ -1508,11 +1508,11 @@ ReadItem([1.0,"One",true], 42)
             AssertSql(
                 context,
                 """
-@__p_0='42'
+@p='42'
 
 SELECT VALUE c
 FROM root c
-WHERE (c["id"] = @__p_0)
+WHERE (c["id"] = @p)
 OFFSET 0 LIMIT 1
 """);
         }

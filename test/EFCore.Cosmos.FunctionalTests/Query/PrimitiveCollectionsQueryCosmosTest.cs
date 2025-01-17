@@ -188,12 +188,12 @@ WHERE c["Id"] IN (2, 999, 1000)
 
                 AssertSql(
                     """
-@__i_0='2'
-@__j_1='999'
+@i='2'
+@j='999'
 
 SELECT VALUE c
 FROM root c
-WHERE c["Id"] IN (@__i_0, @__j_1)
+WHERE c["Id"] IN (@i, @j)
 """);
             });
 
@@ -205,11 +205,11 @@ WHERE c["Id"] IN (@__i_0, @__j_1)
 
                 AssertSql(
                     """
-@__j_0='999'
+@j='999'
 
 SELECT VALUE c
 FROM root c
-WHERE c["Id"] IN (2, @__j_0)
+WHERE c["Id"] IN (2, @j)
 """);
             });
 
@@ -221,11 +221,11 @@ WHERE c["Id"] IN (2, @__j_0)
 
                 AssertSql(
                     """
-@__i_0='11'
+@i='11'
 
 SELECT VALUE c
 FROM root c
-WHERE c["Int"] IN (999, @__i_0, c["Id"], (c["Id"] + c["Int"]))
+WHERE c["Int"] IN (999, @i, c["Id"], (c["Id"] + c["Int"]))
 """);
             });
 
@@ -237,11 +237,11 @@ WHERE c["Int"] IN (999, @__i_0, c["Id"], (c["Id"] + c["Int"]))
 
                 AssertSql(
                     """
-@__i_0='11'
+@i='11'
 
 SELECT VALUE c
 FROM root c
-WHERE c["Int"] IN (999, @__i_0, c["Id"], (c["Id"] + c["Int"]))
+WHERE c["Int"] IN (999, @i, c["Id"], (c["Id"] + c["Int"]))
 """);
             });
 
@@ -345,13 +345,13 @@ WHERE ((
 
                 AssertSql(
                     """
-@__i_0='25'
+@i='25'
 
 SELECT VALUE c
 FROM root c
 WHERE ((
     SELECT VALUE MIN(a)
-    FROM a IN (SELECT VALUE [30, c["Int"], @__i_0])) = 25)
+    FROM a IN (SELECT VALUE [30, c["Int"], @i])) = 25)
 """);
             });
 
@@ -363,13 +363,13 @@ WHERE ((
 
                 AssertSql(
                     """
-@__i_0='25'
+@i='25'
 
 SELECT VALUE c
 FROM root c
 WHERE ((
     SELECT VALUE MIN(a)
-    FROM a IN (SELECT VALUE [30, c["Int"], @__i_0])) = 25)
+    FROM a IN (SELECT VALUE [30, c["Int"], @i])) = 25)
 """);
             });
 
@@ -381,13 +381,13 @@ WHERE ((
 
                 AssertSql(
                     """
-@__i_0='35'
+@i='35'
 
 SELECT VALUE c
 FROM root c
 WHERE ((
     SELECT VALUE MAX(a)
-    FROM a IN (SELECT VALUE [30, c["Int"], @__i_0])) = 35)
+    FROM a IN (SELECT VALUE [30, c["Int"], @i])) = 35)
 """);
             });
 
@@ -399,13 +399,13 @@ WHERE ((
 
                 AssertSql(
                     """
-@__i_0='35'
+@i='35'
 
 SELECT VALUE c
 FROM root c
 WHERE ((
     SELECT VALUE MAX(a)
-    FROM a IN (SELECT VALUE [30, c["Int"], @__i_0])) = 35)
+    FROM a IN (SELECT VALUE [30, c["Int"], @i])) = 35)
 """);
             });
 
@@ -417,13 +417,13 @@ WHERE ((
 
                 AssertSql(
                     """
-@__i_0='25'
+@i='25'
 
 SELECT VALUE c
 FROM root c
 WHERE ((
     SELECT VALUE MIN(a)
-    FROM a IN (SELECT VALUE [30, c["Int"], @__i_0])) = 25)
+    FROM a IN (SELECT VALUE [30, c["Int"], @i])) = 25)
 """);
             });
 
@@ -435,13 +435,13 @@ WHERE ((
 
                 AssertSql(
                     """
-@__i_0='35'
+@i='35'
 
 SELECT VALUE c
 FROM root c
 WHERE ((
     SELECT VALUE MAX(a)
-    FROM a IN (SELECT VALUE [30, c["Int"], @__i_0])) = 35)
+    FROM a IN (SELECT VALUE [30, c["Int"], @i])) = 35)
 """);
             });
 
@@ -457,13 +457,13 @@ WHERE ((
 
             AssertSql(
                 """
-@__i_0=null
+@i=null
 
 SELECT VALUE c
 FROM root c
 WHERE ((
     SELECT VALUE MIN(a)
-    FROM a IN (SELECT VALUE [30, c["NullableInt"], @__i_0])) = 30)
+    FROM a IN (SELECT VALUE [30, c["NullableInt"], @i])) = 30)
 """);
         }
     }
@@ -476,13 +476,13 @@ WHERE ((
 
                 AssertSql(
                     """
-@__i_0=null
+@i=null
 
 SELECT VALUE c
 FROM root c
 WHERE ((
     SELECT VALUE MAX(a)
-    FROM a IN (SELECT VALUE [30, c["NullableInt"], @__i_0])) = 30)
+    FROM a IN (SELECT VALUE [30, c["NullableInt"], @i])) = 30)
 """);
             });
 
@@ -506,13 +506,13 @@ ReadItem(None, 2)
 
                 AssertSql(
                     """
-@__i_0='2'
+@i='2'
 
 SELECT VALUE c
 FROM root c
 WHERE ((
     SELECT VALUE COUNT(1)
-    FROM a IN (SELECT VALUE [@__i_0])
+    FROM a IN (SELECT VALUE [@i])
     WHERE (a > c["Id"])) = 1)
 """);
             });
@@ -525,11 +525,11 @@ WHERE ((
 
                 AssertSql(
                     """
-@__p_0='[2,999,1000]'
+@p='[2,999,1000]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__p_0, c["Id"])
+WHERE ARRAY_CONTAINS(@p, c["Id"])
 """);
             });
 
@@ -541,13 +541,13 @@ WHERE ARRAY_CONTAINS(@__p_0, c["Id"])
 
                 AssertSql(
                     """
-@__p_0='[2,999,1000]'
+@p='[2,999,1000]'
 
 SELECT VALUE c
 FROM root c
 WHERE ((
     SELECT VALUE COUNT(1)
-    FROM p IN (SELECT VALUE @__p_0)
+    FROM p IN (SELECT VALUE @p)
     WHERE (p > c["Id"])) = 2)
 """);
             });
@@ -560,13 +560,13 @@ WHERE ((
 
                 AssertSql(
                     """
-@__ids_0='[2,999]'
+@ids='[2,999]'
 
 SELECT VALUE c
 FROM root c
 WHERE ((
     SELECT VALUE COUNT(1)
-    FROM i IN (SELECT VALUE @__ids_0)
+    FROM i IN (SELECT VALUE @ids)
     WHERE (i > c["Id"])) = 1)
 """);
             });
@@ -579,19 +579,19 @@ WHERE ((
 
                 AssertSql(
                     """
-@__ints_0='[10,999]'
+@ints='[10,999]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__ints_0, c["Int"])
+WHERE ARRAY_CONTAINS(@ints, c["Int"])
 """,
                     //
                     """
-@__ints_0='[10,999]'
+@ints='[10,999]'
 
 SELECT VALUE c
 FROM root c
-WHERE NOT(ARRAY_CONTAINS(@__ints_0, c["Int"]))
+WHERE NOT(ARRAY_CONTAINS(@ints, c["Int"]))
 """);
             });
 
@@ -603,19 +603,43 @@ WHERE NOT(ARRAY_CONTAINS(@__ints_0, c["Int"]))
 
                 AssertSql(
                     """
-@__ints_0='[10,999]'
+@ints='[10,999]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__ints_0, c["Int"])
+WHERE ARRAY_CONTAINS(@ints, c["Int"])
 """,
                     //
                     """
-@__ints_0='[10,999]'
+@ints='[10,999]'
 
 SELECT VALUE c
 FROM root c
-WHERE NOT(ARRAY_CONTAINS(@__ints_0, c["Int"]))
+WHERE NOT(ARRAY_CONTAINS(@ints, c["Int"]))
+""");
+            });
+
+    public override Task Parameter_collection_ImmutableArray_of_ints_Contains_int(bool async)
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async a =>
+            {
+                await base.Parameter_collection_ImmutableArray_of_ints_Contains_int(a);
+
+                AssertSql(
+                    """
+@ints='[10,999]'
+
+SELECT VALUE c
+FROM root c
+WHERE ARRAY_CONTAINS(@ints, c["Int"])
+""",
+                    //
+                    """
+@ints='[10,999]'
+
+SELECT VALUE c
+FROM root c
+WHERE NOT(ARRAY_CONTAINS(@ints, c["Int"]))
 """);
             });
 
@@ -627,19 +651,19 @@ WHERE NOT(ARRAY_CONTAINS(@__ints_0, c["Int"]))
 
                 AssertSql(
                     """
-@__ints_0='[10,999]'
+@ints='[10,999]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__ints_0, c["NullableInt"])
+WHERE ARRAY_CONTAINS(@ints, c["NullableInt"])
 """,
                     //
                     """
-@__ints_0='[10,999]'
+@ints='[10,999]'
 
 SELECT VALUE c
 FROM root c
-WHERE NOT(ARRAY_CONTAINS(@__ints_0, c["NullableInt"]))
+WHERE NOT(ARRAY_CONTAINS(@ints, c["NullableInt"]))
 """);
             });
 
@@ -651,19 +675,19 @@ WHERE NOT(ARRAY_CONTAINS(@__ints_0, c["NullableInt"]))
 
                 AssertSql(
                     """
-@__nullableInts_0='[10,999]'
+@nullableInts='[10,999]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__nullableInts_0, c["Int"])
+WHERE ARRAY_CONTAINS(@nullableInts, c["Int"])
 """,
                     //
                     """
-@__nullableInts_0='[10,999]'
+@nullableInts='[10,999]'
 
 SELECT VALUE c
 FROM root c
-WHERE NOT(ARRAY_CONTAINS(@__nullableInts_0, c["Int"]))
+WHERE NOT(ARRAY_CONTAINS(@nullableInts, c["Int"]))
 """);
             });
 
@@ -675,19 +699,19 @@ WHERE NOT(ARRAY_CONTAINS(@__nullableInts_0, c["Int"]))
 
                 AssertSql(
                     """
-@__nullableInts_0='[null,999]'
+@nullableInts='[null,999]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__nullableInts_0, c["NullableInt"])
+WHERE ARRAY_CONTAINS(@nullableInts, c["NullableInt"])
 """,
                     //
                     """
-@__nullableInts_0='[null,999]'
+@nullableInts='[null,999]'
 
 SELECT VALUE c
 FROM root c
-WHERE NOT(ARRAY_CONTAINS(@__nullableInts_0, c["NullableInt"]))
+WHERE NOT(ARRAY_CONTAINS(@nullableInts, c["NullableInt"]))
 """);
             });
 
@@ -699,19 +723,19 @@ WHERE NOT(ARRAY_CONTAINS(@__nullableInts_0, c["NullableInt"]))
 
                 AssertSql(
                     """
-@__strings_0='["10","999"]'
+@strings='["10","999"]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__strings_0, c["String"])
+WHERE ARRAY_CONTAINS(@strings, c["String"])
 """,
                     //
                     """
-@__strings_0='["10","999"]'
+@strings='["10","999"]'
 
 SELECT VALUE c
 FROM root c
-WHERE NOT(ARRAY_CONTAINS(@__strings_0, c["String"]))
+WHERE NOT(ARRAY_CONTAINS(@strings, c["String"]))
 """);
             });
 
@@ -723,19 +747,19 @@ WHERE NOT(ARRAY_CONTAINS(@__strings_0, c["String"]))
 
                 AssertSql(
                     """
-@__strings_0='["10","999"]'
+@strings='["10","999"]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__strings_0, c["NullableString"])
+WHERE ARRAY_CONTAINS(@strings, c["NullableString"])
 """,
                     //
                     """
-@__strings_0='["10","999"]'
+@strings='["10","999"]'
 
 SELECT VALUE c
 FROM root c
-WHERE NOT(ARRAY_CONTAINS(@__strings_0, c["NullableString"]))
+WHERE NOT(ARRAY_CONTAINS(@strings, c["NullableString"]))
 """);
             });
 
@@ -747,19 +771,19 @@ WHERE NOT(ARRAY_CONTAINS(@__strings_0, c["NullableString"]))
 
                 AssertSql(
                     """
-@__strings_0='["10",null]'
+@strings='["10",null]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__strings_0, c["String"])
+WHERE ARRAY_CONTAINS(@strings, c["String"])
 """,
                     //
                     """
-@__strings_0='["10",null]'
+@strings='["10",null]'
 
 SELECT VALUE c
 FROM root c
-WHERE NOT(ARRAY_CONTAINS(@__strings_0, c["String"]))
+WHERE NOT(ARRAY_CONTAINS(@strings, c["String"]))
 """);
             });
 
@@ -771,19 +795,19 @@ WHERE NOT(ARRAY_CONTAINS(@__strings_0, c["String"]))
 
                 AssertSql(
                     """
-@__strings_0='["999",null]'
+@strings='["999",null]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__strings_0, c["NullableString"])
+WHERE ARRAY_CONTAINS(@strings, c["NullableString"])
 """,
                     //
                     """
-@__strings_0='["999",null]'
+@strings='["999",null]'
 
 SELECT VALUE c
 FROM root c
-WHERE NOT(ARRAY_CONTAINS(@__strings_0, c["NullableString"]))
+WHERE NOT(ARRAY_CONTAINS(@strings, c["NullableString"]))
 """);
             });
 
@@ -795,11 +819,11 @@ WHERE NOT(ARRAY_CONTAINS(@__strings_0, c["NullableString"]))
 
                 AssertSql(
                     """
-@__dateTimes_0='["2020-01-10T12:30:00Z","9999-01-01T00:00:00Z"]'
+@dateTimes='["2020-01-10T12:30:00Z","9999-01-01T00:00:00Z"]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__dateTimes_0, c["DateTime"])
+WHERE ARRAY_CONTAINS(@dateTimes, c["DateTime"])
 """);
             });
 
@@ -811,11 +835,11 @@ WHERE ARRAY_CONTAINS(@__dateTimes_0, c["DateTime"])
 
                 AssertSql(
                     """
-@__bools_0='[true]'
+@bools='[true]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__bools_0, c["Bool"])
+WHERE ARRAY_CONTAINS(@bools, c["Bool"])
 """);
             });
 
@@ -827,11 +851,11 @@ WHERE ARRAY_CONTAINS(@__bools_0, c["Bool"])
 
                 AssertSql(
                     """
-@__enums_0='[0,3]'
+@enums='[0,3]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__enums_0, c["Enum"])
+WHERE ARRAY_CONTAINS(@enums, c["Enum"])
 """);
             });
 
@@ -843,11 +867,11 @@ WHERE ARRAY_CONTAINS(@__enums_0, c["Enum"])
 
                 AssertSql(
                     """
-@__ints_0=null
+@ints=null
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__ints_0, c["Int"])
+WHERE ARRAY_CONTAINS(@ints, c["Int"])
 """);
             });
 
@@ -1176,11 +1200,11 @@ WHERE ([1, c["Int"], 3][c["Int"]] = 1)
 
             AssertSql(
                 """
-@__ints_0='[0,2,3]'
+@ints='[0,2,3]'
 
 SELECT VALUE c
 FROM root c
-WHERE (@__ints_0[c["Int"]] = c["Int"])
+WHERE (@ints[c["Int"]] = c["Int"])
 """);
         }
     }
@@ -1197,11 +1221,11 @@ WHERE (@__ints_0[c["Int"]] = c["Int"])
 
             AssertSql(
                 """
-@__ints_0='[1,2,3]'
+@ints='[1,2,3]'
 
 SELECT VALUE c
 FROM root c
-WHERE (@__ints_0[c["Int"]] = 1)
+WHERE (@ints[c["Int"]] = 1)
 """);
         }
     }
@@ -1529,11 +1553,11 @@ ORDER BY c["Id"]
 
                 AssertSql(
                     """
-@__ints_0='[11,111]'
+@ints='[11,111]'
 
 SELECT VALUE c
 FROM root c
-WHERE (ARRAY_LENGTH(ARRAY_CONCAT(@__ints_0, c["Ints"])) = 2)
+WHERE (ARRAY_LENGTH(ARRAY_CONCAT(@ints, c["Ints"])) = 2)
 """);
             });
 
@@ -1550,9 +1574,9 @@ WHERE (ARRAY_LENGTH(ARRAY_CONCAT(@__ints_0, c["Ints"])) = 2)
 
             AssertSql(
                 """
-@__values_0='["one","two"]'
+@values='["one","two"]'
 
-SELECT VALUE ((c["Id"] != 0) ? @__values_0[(c["Int"] % 2)] : "foo")
+SELECT VALUE ((c["Id"] != 0) ? @values[(c["Int"] % 2)] : "foo")
 FROM root c
 """);
         }
@@ -1566,11 +1590,11 @@ FROM root c
 
                 AssertSql(
                     """
-@__ints_0='[11,111]'
+@ints='[11,111]'
 
 SELECT VALUE c
 FROM root c
-WHERE (ARRAY_LENGTH(SetUnion(c["Ints"], @__ints_0)) = 2)
+WHERE (ARRAY_LENGTH(SetUnion(c["Ints"], @ints)) = 2)
 """);
             });
 
@@ -1622,11 +1646,11 @@ WHERE (ARRAY_LENGTH(SetUnion(ARRAY(
 
                 AssertSql(
                     """
-@__ints_0='[1,10]'
+@ints='[1,10]'
 
 SELECT VALUE c
 FROM root c
-WHERE (c["Ints"] = @__ints_0)
+WHERE (c["Ints"] = @ints)
 """);
             });
 
@@ -1638,11 +1662,11 @@ WHERE (c["Ints"] = @__ints_0)
 
                 AssertSql(
                     """
-@__ints_0='[1,10]'
+@ints='[1,10]'
 
 SELECT VALUE c
 FROM root c
-WHERE (ARRAY_CONCAT(c["Ints"], @__ints_0) = [1,11,111,1,10])
+WHERE (ARRAY_CONCAT(c["Ints"], @ints) = [1,11,111,1,10])
 """);
             });
 
@@ -1668,12 +1692,12 @@ WHERE (c["Ints"] = [1,10])
 
                 AssertSql(
                     """
-@__i_0='1'
-@__j_1='10'
+@i='1'
+@j='10'
 
 SELECT VALUE c
 FROM root c
-WHERE (c["Ints"] = [@__i_0, @__j_1])
+WHERE (c["Ints"] = [@i, @j])
 """);
             });
 
@@ -1714,11 +1738,11 @@ WHERE (ARRAY(
 
                 AssertSql(
                     """
-@__Skip_0='[111]'
+@Skip='[111]'
 
 SELECT VALUE c
 FROM root c
-WHERE (ARRAY_LENGTH(SetUnion(@__Skip_0, c["Ints"])) = 3)
+WHERE (ARRAY_LENGTH(SetUnion(@Skip, c["Ints"])) = 3)
 """);
             });
 
@@ -2034,12 +2058,12 @@ FROM root c
 
                 AssertSql(
                     """
-@__strings_1='["one","two","three"]'
-@__ints_0='[1,2,3]'
+@strings='["one","two","three"]'
+@ints='[1,2,3]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__strings_1, (ARRAY_CONTAINS(@__ints_0, c["Int"]) ? "one" : "two"))
+WHERE ARRAY_CONTAINS(@strings, (ARRAY_CONTAINS(@ints, c["Int"]) ? "one" : "two"))
 """);
             });
 
@@ -2051,12 +2075,12 @@ WHERE ARRAY_CONTAINS(@__strings_1, (ARRAY_CONTAINS(@__ints_0, c["Int"]) ? "one" 
 
                 AssertSql(
                     """
-@__strings_1='["one","two","three"]'
-@__ints_0='[1,2,3]'
+@strings='["one","two","three"]'
+@ints='[1,2,3]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__strings_1, (ARRAY_CONTAINS(@__ints_0, c["Int"]) ? "one" : "two"))
+WHERE ARRAY_CONTAINS(@strings, (ARRAY_CONTAINS(@ints, c["Int"]) ? "one" : "two"))
 """);
             });
 
@@ -2101,6 +2125,82 @@ WHERE ((c["Ints"][2] ?? 999) = 999)
             });
 
     #endregion Cosmos-specific tests
+
+    public override async Task Parameter_collection_of_structs_Contains_struct(bool async)
+    {
+        // Always throws for sync before getting to the exception to test.
+        if (async)
+        {
+            // Requires collections of converted elements
+            await Assert.ThrowsAsync<InvalidOperationException>(() => base.Parameter_collection_of_structs_Contains_struct(async));
+
+            AssertSql();
+        }
+    }
+
+    public override async Task Parameter_collection_of_structs_Contains_nullable_struct(bool async)
+    {
+        // Always throws for sync before getting to the exception to test.
+        if (async)
+        {
+            // Requires collections of converted elements
+            await Assert.ThrowsAsync<InvalidOperationException>(() => base.Parameter_collection_of_structs_Contains_nullable_struct(async));
+
+            AssertSql();
+        }
+    }
+
+    public override async Task Parameter_collection_of_structs_Contains_nullable_struct_with_nullable_comparer(bool async)
+    {
+        // Always throws for sync before getting to the exception to test.
+        if (async)
+        {
+            // Requires collections of converted elements
+            await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Parameter_collection_of_structs_Contains_nullable_struct_with_nullable_comparer(async));
+
+            AssertSql();
+        }
+    }
+
+    public override async Task Parameter_collection_of_nullable_structs_Contains_struct(bool async)
+    {
+        // Always throws for sync before getting to the exception to test.
+        if (async)
+        {
+            // Requires collections of converted elements
+            await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Parameter_collection_of_nullable_structs_Contains_struct(async));
+
+            AssertSql();
+        }
+    }
+
+    public override async Task Parameter_collection_of_nullable_structs_Contains_nullable_struct(bool async)
+    {
+        // Always throws for sync before getting to the exception to test.
+        if (async)
+        {
+            // Requires collections of converted elements
+            await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Parameter_collection_of_nullable_structs_Contains_nullable_struct(async));
+
+            AssertSql();
+        }
+    }
+
+    public override async Task Parameter_collection_of_nullable_structs_Contains_nullable_struct_with_nullable_comparer(bool async)
+    {
+        // Always throws for sync before getting to the exception to test.
+        if (async)
+        {
+            // Requires collections of converted elements
+            await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Parameter_collection_of_nullable_structs_Contains_nullable_struct_with_nullable_comparer(async));
+
+            AssertSql();
+        }
+    }
 
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()

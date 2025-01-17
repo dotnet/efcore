@@ -239,6 +239,78 @@ public abstract class DataBindingTestBase<TFixture>(TFixture fixture) : IClassFi
 
     [ConditionalTheory]
     [InlineData(false)]
+    [InlineData(true)] // Issue #35243
+    public virtual void Remove_detached_entity_from_LocalView(bool toObservableCollection)
+    {
+        using var context = CreateF1Context();
+        var localView = context.Drivers.Local;
+        var local = toObservableCollection
+            ? (ICollection<Driver>)localView.ToObservableCollection()
+            : localView;
+
+        Assert.Equal(0, local.Count);
+
+        var driver1 = new Driver
+        {
+            Id = -1,
+            Name = "Larry David",
+            TeamId = Team.Ferrari,
+            CarNumber = 13
+        };
+
+        var driver2 = new Driver
+        {
+            Id = -2,
+            Name = "Jerry Seinfeld",
+            TeamId = Team.Mercedes,
+            CarNumber = 14
+        };
+
+        var driver3 = new Driver
+        {
+            Id = -3,
+            Name = "George Costanza",
+            TeamId = Team.McLaren,
+            CarNumber = 15
+        };
+
+        local.Add(driver1);
+        local.Add(driver2);
+
+        Assert.Equal(2, local.Count);
+        Assert.Equal(2, local.ToList().Count);
+
+        Assert.True(local.Contains(driver1));
+        Assert.Contains(driver1, localView);
+        Assert.True(local.Contains(driver2));
+        Assert.Contains(driver2, localView);
+        Assert.False(local.Contains(driver3));
+        Assert.DoesNotContain(driver3, localView);
+
+        context.Entry(driver3);
+
+        Assert.True(local.Contains(driver1));
+        Assert.Contains(driver1, localView);
+        Assert.True(local.Contains(driver2));
+        Assert.Contains(driver2, localView);
+        Assert.False(local.Contains(driver3));
+        Assert.DoesNotContain(driver3, localView);
+
+        local.Remove(driver3);
+
+        Assert.Equal(2, local.Count);
+        Assert.Equal(2, local.ToList().Count);
+
+        Assert.True(local.Contains(driver1));
+        Assert.Contains(driver1, localView);
+        Assert.True(local.Contains(driver2));
+        Assert.Contains(driver2, localView);
+        Assert.False(local.Contains(driver3));
+        Assert.DoesNotContain(driver3, localView);
+    }
+
+    [ConditionalTheory]
+    [InlineData(false)]
     [InlineData(true)]
     public virtual void Entities_with_state_changed_to_detached_are_removed_from_local_view(
         bool toObservableCollection)

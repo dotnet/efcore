@@ -14,7 +14,6 @@ namespace Microsoft.EntityFrameworkCore.Query;
 /// <inheritdoc />
 public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQueryCompilingExpressionVisitor
 {
-    private readonly IReadOnlySet<string> _parametersToConstantize;
     private readonly Type _contextType;
     private readonly ISet<string> _tags;
     private readonly bool _threadSafetyChecksEnabled;
@@ -53,11 +52,9 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
     {
         RelationalDependencies = relationalDependencies;
 
-        _parametersToConstantize = (IReadOnlySet<string>)QueryCompilationContext.ParametersToConstantize;
-
         _relationalParameterBasedSqlProcessor =
             relationalDependencies.RelationalParameterBasedSqlProcessorFactory.Create(
-                new RelationalParameterBasedSqlProcessorParameters(_useRelationalNulls, _parametersToConstantize));
+                new RelationalParameterBasedSqlProcessorParameters(_useRelationalNulls));
         _querySqlGeneratorFactory = relationalDependencies.QuerySqlGeneratorFactory;
 
         _contextType = queryCompilationContext.ContextType;
@@ -500,8 +497,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
             RelationalDependencies.QuerySqlGeneratorFactory,
             RelationalDependencies.RelationalParameterBasedSqlProcessorFactory,
             queryExpression,
-            _useRelationalNulls,
-            _parametersToConstantize);
+            _useRelationalNulls);
 
         var commandLiftableConstant = RelationalDependencies.RelationalLiftableConstantFactory.CreateLiftableConstant(
             relationalCommandCache,
@@ -734,10 +730,6 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
                 typeof(RelationalShapedQueryCompilingExpressionVisitorDependencies).GetProperty(
                     nameof(RelationalShapedQueryCompilingExpressionVisitorDependencies.RelationalParameterBasedSqlProcessorFactory))!;
 
-            var newHashSetExpression = New(
-                _hashSetConstructor,
-                NewArrayInit(typeof(string), _parametersToConstantize.Select(Constant)),
-                MakeMemberAccess(null, _stringComparerOrdinalProperty));
             var contextParameter = Parameter(typeof(RelationalMaterializerLiftableConstantContext), "c");
             return
                 Lambda<Func<RelationalMaterializerLiftableConstantContext, object>>(
@@ -753,8 +745,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
                             MakeMemberAccess(contextParameter, _relationalDependenciesProperty),
                             _relationalDependenciesRelationalParameterBasedSqlProcessorFactoryProperty),
                         Constant(queryExpression),
-                        Constant(_useRelationalNulls),
-                        newHashSetExpression),
+                        Constant(_useRelationalNulls)),
                     contextParameter);
         }
     }

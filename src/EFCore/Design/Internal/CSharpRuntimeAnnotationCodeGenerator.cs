@@ -429,8 +429,14 @@ public class CSharpRuntimeAnnotationCodeGenerator(CSharpRuntimeAnnotationCodeGen
         var mainBuilder = parameters.MainBuilder;
 
         var comparerType = comparer.GetType();
-        var constructor = comparerType.GetDeclaredConstructor([typeof(ValueComparer)]);
-        if (constructor == null
+        var containsNestedComparerCtor = comparerType.GetTypeInfo().DeclaredConstructors
+            .Where(x => !x.IsStatic)
+            .Select(x => x.GetParameters())
+            .Where(ps => ps.Length == 1)
+            .Select(ps => ps[0].ParameterType)
+            .Any(t => t == typeof(ValueComparer) || (t.IsGenericType && t.GetGenericTypeDefinition() == typeof(ValueComparer<>)));
+
+        if (!containsNestedComparerCtor
             || comparer is not IInfrastructure<ValueComparer> { Instance: ValueComparer underlyingValueComparer })
         {
             AddNamespace(typeof(ValueComparer<>), parameters.Namespaces);

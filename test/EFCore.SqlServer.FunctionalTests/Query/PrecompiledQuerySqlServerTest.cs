@@ -12,7 +12,7 @@ public class PrecompiledQuerySqlServerTest(
         IClassFixture<PrecompiledQuerySqlServerTest.PrecompiledQuerySqlServerFixture>
 {
     protected override bool AlwaysPrintGeneratedSources
-        => true;
+        => false;
 
     #region Expression types
 
@@ -22,11 +22,11 @@ public class PrecompiledQuerySqlServerTest(
 
         AssertSql(
             """
-@__id_0='3'
+@id='3'
 
 SELECT [b].[Id], [b].[Name], [b].[Json]
 FROM [Blogs] AS [b]
-WHERE [b].[Id] > @__id_0
+WHERE [b].[Id] > @id
 """);
     }
 
@@ -50,10 +50,10 @@ FROM [Blogs] AS [b]
 
         AssertSql(
             """
-@__yes_0='yes' (Size = 4000)
+@yes='yes' (Size = 4000)
 
 SELECT CASE
-    WHEN [b].[Id] = 2 THEN @__yes_0
+    WHEN [b].[Id] = 2 THEN @yes
     ELSE N'no'
 END
 FROM [Blogs] AS [b]
@@ -130,11 +130,11 @@ WHERE [b].[Name] IS NOT NULL AND LEFT([b].[Name], LEN([b].[Name])) = [b].[Name]
 
         AssertSql(
             """
-@__pattern_0_startswith='foo%' (Size = 4000)
+@pattern_startswith='foo%' (Size = 4000)
 
 SELECT [b].[Id], [b].[Name], [b].[Json]
 FROM [Blogs] AS [b]
-WHERE [b].[Name] LIKE @__pattern_0_startswith ESCAPE N'\'
+WHERE [b].[Name] LIKE @pattern_startswith ESCAPE N'\'
 """);
     }
 
@@ -208,9 +208,9 @@ FROM [Blogs] AS [b]
 
         AssertSql(
             """
-@__id_0='8'
+@id='8'
 
-SELECT @__id_0 AS [Id], [b].[Name]
+SELECT @id AS [Id], [b].[Name]
 FROM [Blogs] AS [b]
 """);
     }
@@ -243,9 +243,9 @@ FROM [Blogs] AS [b]
 
         AssertSql(
             """
-@__i_0='8'
+@i='8'
 
-SELECT [b].[Id], [b].[Id] + @__i_0
+SELECT [b].[Id], [b].[Id] + @i
 FROM [Blogs] AS [b]
 """);
     }
@@ -640,10 +640,10 @@ FROM [Blogs] AS [b]
 
         AssertSql(
             """
-@__p_0='8'
+@p='8'
 
 SELECT CASE
-    WHEN @__p_0 IN (
+    WHEN @p IN (
         SELECT [b].[Id]
         FROM [Blogs] AS [b]
     ) THEN CAST(1 AS bit)
@@ -652,10 +652,10 @@ END
 """,
             //
             """
-@__p_0='7'
+@p='7'
 
 SELECT CASE
-    WHEN @__p_0 IN (
+    WHEN @p IN (
         SELECT [b].[Id]
         FROM [Blogs] AS [b]
     ) THEN CAST(1 AS bit)
@@ -670,10 +670,10 @@ END
 
         AssertSql(
             """
-@__p_0='8'
+@p='8'
 
 SELECT CASE
-    WHEN @__p_0 IN (
+    WHEN @p IN (
         SELECT [b].[Id]
         FROM [Blogs] AS [b]
     ) THEN CAST(1 AS bit)
@@ -682,10 +682,10 @@ END
 """,
             //
             """
-@__p_0='7'
+@p='7'
 
 SELECT CASE
-    WHEN @__p_0 IN (
+    WHEN @p IN (
         SELECT [b].[Id]
         FROM [Blogs] AS [b]
     ) THEN CAST(1 AS bit)
@@ -734,21 +734,21 @@ WHERE [b].[Id] > 8
 
         AssertSql(
             """
-@__p_0='1'
+@p='1'
 
 SELECT [b].[Id], [b].[Name], [b].[Json]
 FROM [Blogs] AS [b]
 ORDER BY [b].[Id]
-OFFSET @__p_0 ROWS FETCH NEXT 1 ROWS ONLY
+OFFSET @p ROWS FETCH NEXT 1 ROWS ONLY
 """,
             //
             """
-@__p_0='3'
+@p='3'
 
 SELECT [b].[Id], [b].[Name], [b].[Json]
 FROM [Blogs] AS [b]
 ORDER BY [b].[Id]
-OFFSET @__p_0 ROWS FETCH NEXT 1 ROWS ONLY
+OFFSET @p ROWS FETCH NEXT 1 ROWS ONLY
 """);
     }
 
@@ -758,21 +758,21 @@ OFFSET @__p_0 ROWS FETCH NEXT 1 ROWS ONLY
 
         AssertSql(
             """
-@__p_0='1'
+@p='1'
 
 SELECT [b].[Id], [b].[Name], [b].[Json]
 FROM [Blogs] AS [b]
 ORDER BY [b].[Id]
-OFFSET @__p_0 ROWS FETCH NEXT 1 ROWS ONLY
+OFFSET @p ROWS FETCH NEXT 1 ROWS ONLY
 """,
             //
             """
-@__p_0='3'
+@p='3'
 
 SELECT [b].[Id], [b].[Name], [b].[Json]
 FROM [Blogs] AS [b]
 ORDER BY [b].[Id]
-OFFSET @__p_0 ROWS FETCH NEXT 1 ROWS ONLY
+OFFSET @p ROWS FETCH NEXT 1 ROWS ONLY
 """);
     }
 
@@ -782,21 +782,21 @@ OFFSET @__p_0 ROWS FETCH NEXT 1 ROWS ONLY
 
         AssertSql(
             """
-@__p_0='1'
+@p='1'
 
 SELECT [b].[Id], [b].[Name], [b].[Json]
 FROM [Blogs] AS [b]
 ORDER BY [b].[Id]
-OFFSET @__p_0 ROWS FETCH NEXT 1 ROWS ONLY
+OFFSET @p ROWS FETCH NEXT 1 ROWS ONLY
 """,
             //
             """
-@__p_0='3'
+@p='3'
 
 SELECT [b].[Id], [b].[Name], [b].[Json]
 FROM [Blogs] AS [b]
 ORDER BY [b].[Id]
-OFFSET @__p_0 ROWS FETCH NEXT 1 ROWS ONLY
+OFFSET @p ROWS FETCH NEXT 1 ROWS ONLY
 """);
     }
 
@@ -806,21 +806,21 @@ OFFSET @__p_0 ROWS FETCH NEXT 1 ROWS ONLY
 
         AssertSql(
             """
-@__p_0='1'
+@p='1'
 
 SELECT [b].[Id], [b].[Name], [b].[Json]
 FROM [Blogs] AS [b]
 ORDER BY [b].[Id]
-OFFSET @__p_0 ROWS FETCH NEXT 1 ROWS ONLY
+OFFSET @p ROWS FETCH NEXT 1 ROWS ONLY
 """,
             //
             """
-@__p_0='3'
+@p='3'
 
 SELECT [b].[Id], [b].[Name], [b].[Json]
 FROM [Blogs] AS [b]
 ORDER BY [b].[Id]
-OFFSET @__p_0 ROWS FETCH NEXT 1 ROWS ONLY
+OFFSET @p ROWS FETCH NEXT 1 ROWS ONLY
 """);
     }
 
@@ -1372,16 +1372,16 @@ FROM [Blogs] AS [b]
 """);
     }
 
-    public override async Task Terminating_ExecuteUpdate()
+    public override async Task Terminating_ExecuteUpdate_with_lambda()
     {
-        await base.Terminating_ExecuteUpdate();
+        await base.Terminating_ExecuteUpdate_with_lambda();
 
         AssertSql(
             """
-@__suffix_0='Suffix' (Size = 4000)
+@suffix='Suffix' (Size = 4000)
 
 UPDATE [b]
-SET [b].[Name] = COALESCE([b].[Name], N'') + @__suffix_0
+SET [b].[Name] = COALESCE([b].[Name], N'') + @suffix
 FROM [Blogs] AS [b]
 WHERE [b].[Id] > 8
 """,
@@ -1393,16 +1393,37 @@ WHERE [b].[Id] = 9 AND [b].[Name] = N'Blog2Suffix'
 """);
     }
 
-    public override async Task Terminating_ExecuteUpdateAsync()
+    public override async Task Terminating_ExecuteUpdate_without_lambda()
     {
-        await base.Terminating_ExecuteUpdateAsync();
+        await base.Terminating_ExecuteUpdate_without_lambda();
 
         AssertSql(
             """
-@__suffix_0='Suffix' (Size = 4000)
+@newValue='NewValue' (Size = 4000)
 
 UPDATE [b]
-SET [b].[Name] = COALESCE([b].[Name], N'') + @__suffix_0
+SET [b].[Name] = @newValue
+FROM [Blogs] AS [b]
+WHERE [b].[Id] > 8
+""",
+            //
+            """
+SELECT COUNT(*)
+FROM [Blogs] AS [b]
+WHERE [b].[Id] = 9 AND [b].[Name] = N'NewValue'
+""");
+    }
+
+    public override async Task Terminating_ExecuteUpdateAsync_with_lambda()
+    {
+        await base.Terminating_ExecuteUpdateAsync_with_lambda();
+
+        AssertSql(
+            """
+@suffix='Suffix' (Size = 4000)
+
+UPDATE [b]
+SET [b].[Name] = COALESCE([b].[Name], N'') + @suffix
 FROM [Blogs] AS [b]
 WHERE [b].[Id] > 8
 """,
@@ -1411,6 +1432,27 @@ WHERE [b].[Id] > 8
 SELECT COUNT(*)
 FROM [Blogs] AS [b]
 WHERE [b].[Id] = 9 AND [b].[Name] = N'Blog2Suffix'
+""");
+    }
+
+    public override async Task Terminating_ExecuteUpdateAsync_without_lambda()
+    {
+        await base.Terminating_ExecuteUpdateAsync_without_lambda();
+
+        AssertSql(
+            """
+@newValue='NewValue' (Size = 4000)
+
+UPDATE [b]
+SET [b].[Name] = @newValue
+FROM [Blogs] AS [b]
+WHERE [b].[Id] > 8
+""",
+            //
+            """
+SELECT COUNT(*)
+FROM [Blogs] AS [b]
+WHERE [b].[Id] = 9 AND [b].[Name] = N'NewValue'
 """);
     }
 
@@ -1599,13 +1641,13 @@ WHERE (
 
         AssertSql(
             """
-@__ids_0='[1,2,3]' (Size = 4000)
+@ids='[1,2,3]' (Size = 4000)
 
 SELECT [b].[Id], [b].[Name], [b].[Json]
 FROM [Blogs] AS [b]
 WHERE [b].[Id] IN (
     SELECT [i].[value]
-    FROM OPENJSON(@__ids_0) WITH ([value] int '$') AS [i]
+    FROM OPENJSON(@ids) WITH ([value] int '$') AS [i]
 )
 """);
     }
@@ -1895,12 +1937,12 @@ ORDER BY [b].[Name]
 
         AssertSql(
             """
-@__p_0='1'
+@p='1'
 
 SELECT [b].[Id], [b].[Name], [b].[Json]
 FROM [Blogs] AS [b]
 ORDER BY [b].[Name]
-OFFSET @__p_0 ROWS
+OFFSET @p ROWS
 """);
     }
 
@@ -1910,9 +1952,9 @@ OFFSET @__p_0 ROWS
 
         AssertSql(
             """
-@__p_0='1'
+@p='1'
 
-SELECT TOP(@__p_0) [b].[Id], [b].[Name], [b].[Json]
+SELECT TOP(@p) [b].[Id], [b].[Name], [b].[Json]
 FROM [Blogs] AS [b]
 ORDER BY [b].[Name]
 """);
@@ -1935,12 +1977,12 @@ FROM [Blogs] AS [b]
 
         AssertSql(
             """
-@__yes_0='yes' (Size = 4000)
-@__no_1='no' (Size = 4000)
+@yes='yes' (Size = 4000)
+@no='no' (Size = 4000)
 
 SELECT CASE
-    WHEN [b].[Id] = 3 THEN @__yes_0
-    ELSE @__no_1
+    WHEN [b].[Id] = 3 THEN @yes
+    ELSE @no
 END
 FROM [Blogs] AS [b]
 """);
@@ -1952,12 +1994,12 @@ FROM [Blogs] AS [b]
 
         AssertSql(
             """
-@__starts_0_startswith='Blog%' (Size = 4000)
-@__ends_1_endswith='%2' (Size = 4000)
+@starts_startswith='Blog%' (Size = 4000)
+@ends_endswith='%2' (Size = 4000)
 
 SELECT TOP(2) [b].[Id], [b].[Name], [b].[Json]
 FROM [Blogs] AS [b]
-WHERE [b].[Name] LIKE @__starts_0_startswith ESCAPE N'\' AND [b].[Name] LIKE @__ends_1_endswith ESCAPE N'\'
+WHERE [b].[Name] LIKE @starts_startswith ESCAPE N'\' AND [b].[Name] LIKE @ends_endswith ESCAPE N'\'
 """);
     }
 
@@ -1967,12 +2009,12 @@ WHERE [b].[Name] LIKE @__starts_0_startswith ESCAPE N'\' AND [b].[Name] LIKE @__
 
         AssertSql(
             """
-@__foo_0_startswith='X%' (Size = 4000)
-@__foo_0_endswith='%X' (Size = 4000)
+@foo_startswith='X%' (Size = 4000)
+@foo_endswith='%X' (Size = 4000)
 
 SELECT [b].[Id], [b].[Name], [b].[Json]
 FROM [Blogs] AS [b]
-WHERE [b].[Name] LIKE @__foo_0_startswith ESCAPE N'\' AND [b].[Name] LIKE @__foo_0_endswith ESCAPE N'\'
+WHERE [b].[Name] LIKE @foo_startswith ESCAPE N'\' AND [b].[Name] LIKE @foo_endswith ESCAPE N'\'
 """);
     }
 
@@ -1982,12 +2024,12 @@ WHERE [b].[Name] LIKE @__foo_0_startswith ESCAPE N'\' AND [b].[Name] LIKE @__foo
 
         AssertSql(
             """
-@__foo_0_startswith='X%' (Size = 4000)
-@__foo_0_endswith='%X' (Size = 4000)
+@foo_startswith='X%' (Size = 4000)
+@foo_endswith='%X' (Size = 4000)
 
 SELECT [b].[Id], [b].[Name], [b].[Json]
 FROM [Blogs] AS [b]
-WHERE [b].[Name] LIKE @__foo_0_startswith ESCAPE N'\' AND [b].[Name] LIKE @__foo_0_endswith ESCAPE N'\'
+WHERE [b].[Name] LIKE @foo_startswith ESCAPE N'\' AND [b].[Name] LIKE @foo_endswith ESCAPE N'\'
 """);
     }
 
@@ -2042,20 +2084,20 @@ ORDER BY [b].[Name]
 
         AssertSql(
             """
-@__id1_0='8'
-@__id2_1='9'
+@id1='8'
+@id2='9'
 
 SELECT [b].[Id], [b].[Name], [b].[Json]
 FROM [Blogs] AS [b]
-WHERE [b].[Id] = @__id1_0 OR [b].[Id] = @__id2_1
+WHERE [b].[Id] = @id1 OR [b].[Id] = @id2
 """,
             //
             """
-@__id1_0='8'
+@id1='8'
 
 SELECT TOP(2) [b].[Id], [b].[Name], [b].[Json]
 FROM [Blogs] AS [b]
-WHERE [b].[Id] = @__id1_0
+WHERE [b].[Id] = @id1
 """);
     }
 

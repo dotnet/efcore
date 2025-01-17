@@ -679,11 +679,11 @@ WHERE [m].[TimeSpanAsTime] = '00:01:02'
         Assert.Empty(results);
         AssertSql(
             """
-@__timeSpan_0='02:01:00' (Nullable = true)
+@timeSpan='02:01:00' (Nullable = true)
 
 SELECT [m].[Int]
 FROM [MappedNullableDataTypes] AS [m]
-WHERE [m].[TimeSpanAsTime] = @__timeSpan_0
+WHERE [m].[TimeSpanAsTime] = @timeSpan
 """);
     }
 
@@ -732,11 +732,11 @@ WHERE [m].[Int] = 81
         Assert.Empty(results);
         AssertSql(
             """
-@__timeSpan_1='02:01:00' (Nullable = true)
+@timeSpan='02:01:00' (Nullable = true)
 
 SELECT [m].[Int]
 FROM [MappedNullableDataTypes] AS [m]
-WHERE DATEDIFF(hour, [m].[TimeSpanAsTime], @__timeSpan_1) = 0
+WHERE DATEDIFF(hour, [m].[TimeSpanAsTime], @timeSpan) = 0
 """);
     }
 
@@ -755,11 +755,11 @@ WHERE DATEDIFF(hour, [m].[TimeSpanAsTime], @__timeSpan_1) = 0
         Assert.Empty(results);
         AssertSql(
             """
-@__timeSpan_1='02:01:00' (Nullable = true)
+@timeSpan='02:01:00' (Nullable = true)
 
 SELECT [m].[Int]
 FROM [MappedNullableDataTypes] AS [m]
-WHERE DATEDIFF(minute, [m].[TimeSpanAsTime], @__timeSpan_1) = 0
+WHERE DATEDIFF(minute, [m].[TimeSpanAsTime], @timeSpan) = 0
 """);
     }
 
@@ -778,11 +778,11 @@ WHERE DATEDIFF(minute, [m].[TimeSpanAsTime], @__timeSpan_1) = 0
         Assert.Empty(results);
         AssertSql(
             """
-@__timeSpan_1='02:01:00' (Nullable = true)
+@timeSpan='02:01:00' (Nullable = true)
 
 SELECT [m].[Int]
 FROM [MappedNullableDataTypes] AS [m]
-WHERE DATEDIFF(second, [m].[TimeSpanAsTime], @__timeSpan_1) = 0
+WHERE DATEDIFF(second, [m].[TimeSpanAsTime], @timeSpan) = 0
 """);
     }
 
@@ -801,11 +801,11 @@ WHERE DATEDIFF(second, [m].[TimeSpanAsTime], @__timeSpan_1) = 0
         Assert.Empty(results);
         AssertSql(
             """
-@__timeSpan_1='02:01:00' (Nullable = true)
+@timeSpan='02:01:00' (Nullable = true)
 
 SELECT [m].[Int]
 FROM [MappedNullableDataTypes] AS [m]
-WHERE DATEDIFF(millisecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0
+WHERE DATEDIFF(millisecond, [m].[TimeSpanAsTime], @timeSpan) = 0
 """);
     }
 
@@ -824,11 +824,11 @@ WHERE DATEDIFF(millisecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0
         Assert.Empty(results);
         AssertSql(
             """
-@__timeSpan_1='02:01:00' (Nullable = true)
+@timeSpan='02:01:00' (Nullable = true)
 
 SELECT [m].[Int]
 FROM [MappedNullableDataTypes] AS [m]
-WHERE DATEDIFF(microsecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0
+WHERE DATEDIFF(microsecond, [m].[TimeSpanAsTime], @timeSpan) = 0
 """);
     }
 
@@ -847,11 +847,11 @@ WHERE DATEDIFF(microsecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0
         Assert.Empty(results);
         AssertSql(
             """
-@__timeSpan_1='02:01:00' (Nullable = true)
+@timeSpan='02:01:00' (Nullable = true)
 
 SELECT [m].[Int]
 FROM [MappedNullableDataTypes] AS [m]
-WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0
+WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @timeSpan) = 0
 """);
     }
 

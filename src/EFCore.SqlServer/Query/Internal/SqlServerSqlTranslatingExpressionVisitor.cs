@@ -312,7 +312,7 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
 
                         // Azure Synapse does not support ESCAPE clause in LIKE
                         // fallback to translation like with column/expression
-                        string s when _sqlServerSingletonOptions.EngineType == SqlServerEngineType.AzureSynapse
+                        string when _sqlServerSingletonOptions.EngineType is SqlServerEngineType.AzureSynapse
                             => TranslateWithoutLike(patternIsNonEmptyConstantString: true),
 
                         string s => _sqlExpressionFactory.Like(
@@ -334,11 +334,10 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
                     return true;
                 }
 
+                // Azure Synapse does not support ESCAPE clause in LIKE
+                // fall through to translation like with column/expression
                 case SqlParameterExpression patternParameter
-                    when patternParameter.Name.StartsWith(QueryCompilationContext.QueryParameterPrefix, StringComparison.Ordinal)
-                        // Azure Synapse does not support ESCAPE clause in LIKE
-                        // fall through to translation like with column/expression
-                        && _sqlServerSingletonOptions.EngineType != SqlServerEngineType.AzureSynapse:
+                    when _sqlServerSingletonOptions.EngineType is not SqlServerEngineType.AzureSynapse:
                 {
                     // The pattern is a parameter, register a runtime parameter that will contain the rewritten LIKE pattern, where
                     // all special characters have been escaped.

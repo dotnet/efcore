@@ -1,0 +1,16 @@
+name: 💡 Feature request
+description: Suggest an idea for this project.
+labels: ["type-enhancement", "customer-reported"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem are you trying to solve?
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: Describe the solution you'd like
+    validations:
+      required: false

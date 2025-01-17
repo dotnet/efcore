@@ -787,11 +787,11 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedCollectionRoot"][0]["Name"] !
 
                 AssertSql(
                     """
-@__prm_0='1'
+@prm='1'
 
 SELECT VALUE c["Id"]
 FROM root c
-WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedCollectionRoot"][@__prm_0]["Name"] != "Foo"))
+WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedCollectionRoot"][@prm]["Name"] != "Foo"))
 """);
             });
 

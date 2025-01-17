@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
@@ -12,10 +13,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.
 /// </remarks>
-public abstract class NonNullableConventionBase : IModelFinalizingConvention
+public abstract class NonNullableConventionBase
 {
-    private const string StateAnnotationName = "NonNullableConventionState";
-
     /// <summary>
     ///     Creates a new instance of <see cref="NonNullableConventionBase" />.
     /// </summary>
@@ -50,8 +49,8 @@ public abstract class NonNullableConventionBase : IModelFinalizingConvention
         }
 
         var annotation =
-            modelBuilder.Metadata.FindAnnotation(StateAnnotationName)
-            ?? modelBuilder.Metadata.AddAnnotation(StateAnnotationName, new NullabilityInfoContext());
+            modelBuilder.Metadata.FindAnnotation(CoreAnnotationNames.NonNullableConventionState)
+            ?? modelBuilder.Metadata.AddAnnotation(CoreAnnotationNames.NonNullableConventionState, new NullabilityInfoContext());
 
         var nullabilityInfoContext = (NullabilityInfoContext)annotation.Value!;
 
@@ -64,10 +63,4 @@ public abstract class NonNullableConventionBase : IModelFinalizingConvention
 
         return nullabilityInfo is not null;
     }
-
-    /// <inheritdoc />
-    public virtual void ProcessModelFinalizing(
-        IConventionModelBuilder modelBuilder,
-        IConventionContext<IConventionModelBuilder> context)
-        => modelBuilder.Metadata.RemoveAnnotation(StateAnnotationName);
 }

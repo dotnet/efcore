@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
@@ -856,15 +856,39 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                             QueryCompilationContext.QueryContextParameter,
                             _dataReaderParameter);
 
+                        var parentIdentifierLambdaCompiled = _parentVisitor.Dependencies.LiftableConstantFactory.CreateLiftableConstant(
+                            parentIdentifierLambda.Compile(),
+                            Lambda<Func<MaterializerLiftableConstantContext, object>>(
+                                parentIdentifierLambda,
+                                Parameter(typeof(MaterializerLiftableConstantContext), "_")),
+                            "parentIdentifierLambda",
+                            typeof(Func<QueryContext, DbDataReader, object[]>));
+
                         var outerIdentifierLambda = Lambda(
                             Visit(relationalCollectionShaperExpression.OuterIdentifier),
                             QueryCompilationContext.QueryContextParameter,
                             _dataReaderParameter);
 
+                        var outerIdentifierLambdaCompiled = _parentVisitor.Dependencies.LiftableConstantFactory.CreateLiftableConstant(
+                            outerIdentifierLambda.Compile(),
+                            Lambda<Func<MaterializerLiftableConstantContext, object>>(
+                                outerIdentifierLambda,
+                                Parameter(typeof(MaterializerLiftableConstantContext), "_")),
+                            "outerIdentifierLambda",
+                            typeof(Func<QueryContext, DbDataReader, object[]>));
+
                         var selfIdentifierLambda = Lambda(
                             Visit(relationalCollectionShaperExpression.SelfIdentifier),
                             QueryCompilationContext.QueryContextParameter,
                             _dataReaderParameter);
+
+                        var selfIdentifierLambdaCompiled = _parentVisitor.Dependencies.LiftableConstantFactory.CreateLiftableConstant(
+                            selfIdentifierLambda.Compile(),
+                            Lambda<Func<MaterializerLiftableConstantContext, object>>(
+                                selfIdentifierLambda,
+                                Parameter(typeof(MaterializerLiftableConstantContext), "_")),
+                            "selfIdentifierLambda",
+                            typeof(Func<QueryContext, DbDataReader, object[]>));
 
                         _inline = false;
 
@@ -876,8 +900,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                                 _dataReaderParameter,
                                 _resultCoordinatorParameter,
                                 entity,
-                                parentIdentifierLambda,
-                                outerIdentifierLambda,
+                                parentIdentifierLambdaCompiled,
+                                outerIdentifierLambdaCompiled,
                                 _parentVisitor.Dependencies.LiftableConstantFactory.CreateLiftableConstant(
                                     navigation,
                                     LiftableConstantExpressionHelpers.BuildNavigationAccessLambda(navigation),
@@ -905,9 +929,9 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                                 QueryCompilationContext.QueryContextParameter,
                                 _dataReaderParameter,
                                 _resultCoordinatorParameter,
-                                parentIdentifierLambda,
-                                outerIdentifierLambda,
-                                selfIdentifierLambda,
+                                parentIdentifierLambdaCompiled,
+                                outerIdentifierLambdaCompiled,
+                                selfIdentifierLambdaCompiled,
                                 _parentVisitor.Dependencies.LiftableConstantFactory.CreateLiftableConstant(
                                     relationalCollectionShaperExpression.ParentIdentifierValueComparers
                                         .Select(x => (Func<object, object, bool>)x.Equals).ToArray(),
@@ -980,6 +1004,14 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                             QueryCompilationContext.QueryContextParameter,
                             _dataReaderParameter);
 
+                        var parentIdentifierLambdaCompiled = _parentVisitor.Dependencies.LiftableConstantFactory.CreateLiftableConstant(
+                            parentIdentifierLambda.Compile(),
+                            Lambda<Func<MaterializerLiftableConstantContext, object>>(
+                                parentIdentifierLambda,
+                                Parameter(typeof(MaterializerLiftableConstantContext), "_")),
+                            "parentIdentifierLambda",
+                            typeof(Func<QueryContext, DbDataReader, object[]>));
+
                         _inline = false;
 
                         innerProcessor._inline = true;
@@ -988,6 +1020,14 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                             innerProcessor.Visit(relationalSplitCollectionShaperExpression.ChildIdentifier),
                             QueryCompilationContext.QueryContextParameter,
                             innerProcessor._dataReaderParameter);
+
+                        var childIdentifierLambdaCompiled = _parentVisitor.Dependencies.LiftableConstantFactory.CreateLiftableConstant(
+                            childIdentifierLambda.Compile(),
+                            Lambda<Func<MaterializerLiftableConstantContext, object>>(
+                                childIdentifierLambda,
+                                Parameter(typeof(MaterializerLiftableConstantContext), "_")),
+                            "childIdentifierLambda",
+                            typeof(Func<QueryContext, DbDataReader, object[]>));
 
                         innerProcessor._inline = false;
 
@@ -999,7 +1039,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                                 _dataReaderParameter,
                                 _resultCoordinatorParameter,
                                 entity,
-                                parentIdentifierLambda,
+                                parentIdentifierLambdaCompiled,
                                 _parentVisitor.Dependencies.LiftableConstantFactory.CreateLiftableConstant(
                                     navigation,
                                     LiftableConstantExpressionHelpers.BuildNavigationAccessLambda(navigation),
@@ -1029,7 +1069,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                                 CreateReaderColumnsExpression(readerColumns, _parentVisitor.Dependencies.LiftableConstantFactory),
                                 Constant(_detailedErrorsEnabled),
                                 _resultCoordinatorParameter,
-                                childIdentifierLambda,
+                                childIdentifierLambdaCompiled,
                                 _parentVisitor.Dependencies.LiftableConstantFactory.CreateLiftableConstant(
                                     relationalSplitCollectionShaperExpression.IdentifierValueComparers
                                         .Select(x => (Func<object, object, bool>)x.Equals).ToArray(),
@@ -1148,15 +1188,39 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                             QueryCompilationContext.QueryContextParameter,
                             _dataReaderParameter);
 
+                        var parentIdentifierLambdaCompiled = _parentVisitor.Dependencies.LiftableConstantFactory.CreateLiftableConstant(
+                            parentIdentifierLambda.Compile(),
+                            Lambda<Func<MaterializerLiftableConstantContext, object>>(
+                                parentIdentifierLambda,
+                                Parameter(typeof(MaterializerLiftableConstantContext), "_")),
+                            "parentIdentifierLambda",
+                            typeof(Func<QueryContext, DbDataReader, object[]>));
+
                         var outerIdentifierLambda = Lambda(
                             Visit(relationalCollectionShaperExpression.OuterIdentifier),
                             QueryCompilationContext.QueryContextParameter,
                             _dataReaderParameter);
 
+                        var outerIdentifierLambdaCompiled = _parentVisitor.Dependencies.LiftableConstantFactory.CreateLiftableConstant(
+                            outerIdentifierLambda.Compile(),
+                            Lambda<Func<MaterializerLiftableConstantContext, object>>(
+                                outerIdentifierLambda,
+                                Parameter(typeof(MaterializerLiftableConstantContext), "_")),
+                            "outerIdentifierLambda",
+                            typeof(Func<QueryContext, DbDataReader, object[]>));
+
                         var selfIdentifierLambda = Lambda(
                             Visit(relationalCollectionShaperExpression.SelfIdentifier),
                             QueryCompilationContext.QueryContextParameter,
                             _dataReaderParameter);
+
+                        var selfIdentifierLambdaCompiled = _parentVisitor.Dependencies.LiftableConstantFactory.CreateLiftableConstant(
+                            selfIdentifierLambda.Compile(),
+                            Lambda<Func<MaterializerLiftableConstantContext, object>>(
+                                selfIdentifierLambda,
+                                Parameter(typeof(MaterializerLiftableConstantContext), "_")),
+                            "selfIdentifierLambda",
+                            typeof(Func<QueryContext, DbDataReader, object[]>));
 
                         _inline = false;
 
@@ -1171,8 +1235,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                                     QueryCompilationContext.QueryContextParameter,
                                     _dataReaderParameter,
                                     _resultCoordinatorParameter,
-                                    parentIdentifierLambda,
-                                    outerIdentifierLambda,
+                                    parentIdentifierLambdaCompiled,
+                                    outerIdentifierLambdaCompiled,
                                     _parentVisitor.Dependencies.LiftableConstantFactory.CreateLiftableConstant(
                                         collectionAccessor,
                                         LiftableConstantExpressionHelpers.BuildClrCollectionAccessorLambda(navigation),
@@ -1193,9 +1257,9 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                                 QueryCompilationContext.QueryContextParameter,
                                 _dataReaderParameter,
                                 _resultCoordinatorParameter,
-                                parentIdentifierLambda,
-                                outerIdentifierLambda,
-                                selfIdentifierLambda,
+                                parentIdentifierLambdaCompiled,
+                                outerIdentifierLambdaCompiled,
+                                selfIdentifierLambdaCompiled,
                                 _parentVisitor.Dependencies.LiftableConstantFactory.CreateLiftableConstant(
                                     relationalCollectionShaperExpression.ParentIdentifierValueComparers
                                         .Select(x => (Func<object, object, bool>)x.Equals).ToArray(),
@@ -1265,6 +1329,14 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                             QueryCompilationContext.QueryContextParameter,
                             _dataReaderParameter);
 
+                        var parentIdentifierLambdaCompiled = _parentVisitor.Dependencies.LiftableConstantFactory.CreateLiftableConstant(
+                            parentIdentifierLambda.Compile(),
+                            Lambda<Func<MaterializerLiftableConstantContext, object>>(
+                                parentIdentifierLambda,
+                                Parameter(typeof(MaterializerLiftableConstantContext), "_")),
+                            "parentIdentifierLambda",
+                            typeof(Func<QueryContext, DbDataReader, object[]>));
+
                         _inline = false;
 
                         innerProcessor._inline = true;
@@ -1273,6 +1345,14 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                             innerProcessor.Visit(relationalSplitCollectionShaperExpression.ChildIdentifier),
                             QueryCompilationContext.QueryContextParameter,
                             innerProcessor._dataReaderParameter);
+
+                        var childIdentifierLambdaCompiled = _parentVisitor.Dependencies.LiftableConstantFactory.CreateLiftableConstant(
+                            childIdentifierLambda.Compile(),
+                            Lambda<Func<MaterializerLiftableConstantContext, object>>(
+                                childIdentifierLambda,
+                                Parameter(typeof(MaterializerLiftableConstantContext), "_")),
+                            "childIdentifierLambda",
+                            typeof(Func<QueryContext, DbDataReader, object[]>));
 
                         innerProcessor._inline = false;
 
@@ -1288,7 +1368,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                                     QueryCompilationContext.QueryContextParameter,
                                     _dataReaderParameter,
                                     _resultCoordinatorParameter,
-                                    parentIdentifierLambda,
+                                    parentIdentifierLambdaCompiled,
                                     _parentVisitor.Dependencies.LiftableConstantFactory.CreateLiftableConstant(
                                         collectionAccessor,
                                         LiftableConstantExpressionHelpers.BuildClrCollectionAccessorLambda(navigation),
@@ -1313,7 +1393,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                                 CreateReaderColumnsExpression(readerColumns, _parentVisitor.Dependencies.LiftableConstantFactory),
                                 Constant(_detailedErrorsEnabled),
                                 _resultCoordinatorParameter,
-                                childIdentifierLambda,
+                                childIdentifierLambdaCompiled,
                                 _parentVisitor.Dependencies.LiftableConstantFactory.CreateLiftableConstant(
                                     relationalSplitCollectionShaperExpression.IdentifierValueComparers
                                         .Select(x => (Func<object, object, bool>)x.Equals).ToArray(),
@@ -1475,12 +1555,14 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             foreach (var ownedNavigation in entityType.GetNavigations().Where(
                          n => n.TargetEntityType.IsMappedToJson() && n.ForeignKey.IsOwnership && n == n.ForeignKey.PrincipalToDependent))
             {
+                Debug.Assert(!ownedNavigation.IsOnDependent, "JSON navigations should always be from principal do dependent");
+
                 // we need to build entity shapers and fixup separately
                 // we don't know the order in which data comes, so we need to read through everything
                 // before we can do fixup safely
                 var innerShaper = CreateJsonShapers(
                     ownedNavigation.TargetEntityType,
-                    nullable || !ownedNavigation.ForeignKey.IsRequired,
+                    nullable || !ownedNavigation.ForeignKey.IsRequiredDependent,
                     jsonReaderDataShaperLambdaParameter,
                     keyValuesShaperLambdaParameter,
                     parentEntityExpression: null,

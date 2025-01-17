@@ -43,17 +43,7 @@ public abstract class NorthwindBulkUpdatesTestBase<TFixture>(TFixture fixture) :
             async,
             ss => ss.Set<OrderDetail>().Where(od => od.OrderID < 10250),
             e => e,
-            s => s,
-            rowsAffectedCount: 0);
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Update_with_invalid_lambda_throws(bool async)
-        => AssertUpdate(
-            async,
-            ss => ss.Set<OrderDetail>().Where(od => od.OrderID < 10250),
-            e => e,
-            s => s.Maybe(e => e),
+            _ => { },
             rowsAffectedCount: 0);
 
     [ConditionalTheory]
@@ -338,7 +328,20 @@ public abstract class NorthwindBulkUpdatesTestBase<TFixture>(TFixture fixture) :
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Delete_with_left_join(bool async)
+    public virtual Task Delete_with_LeftJoin(bool async)
+        => AssertDelete(
+            async,
+            ss => ss.Set<OrderDetail>().Where(e => e.OrderID < 10276)
+                .LeftJoin(
+                    ss.Set<Order>().Where(o => o.OrderID < 10300).OrderBy(e => e.OrderID).Skip(0).Take(100),
+                    od => od.OrderID,
+                    o => o.OrderID,
+                    (od, o) => od),
+            rowsAffectedCount: 74);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Delete_with_LeftJoin_via_flattened_GroupJoin(bool async)
         => AssertDelete(
             async,
             ss => from od in ss.Set<OrderDetail>().Where(e => e.OrderID < 10276)
@@ -397,6 +400,17 @@ public abstract class NorthwindBulkUpdatesTestBase<TFixture>(TFixture fixture) :
             ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F")),
             e => e,
             s => s.SetProperty(c => c.ContactName, "Updated"),
+            rowsAffectedCount: 8,
+            (b, a) => Assert.All(a, c => Assert.Equal("Updated", c.ContactName)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Update_Where_set_constant_via_lambda(bool async)
+        => AssertUpdate(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F")),
+            e => e,
+            s => s.SetProperty(c => c.ContactName, _ => "Updated"),
             rowsAffectedCount: 8,
             (b, a) => Assert.All(a, c => Assert.Equal("Updated", c.ContactName)));
 
@@ -819,7 +833,24 @@ public abstract class NorthwindBulkUpdatesTestBase<TFixture>(TFixture fixture) :
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Update_with_left_join_set_constant(bool async)
+    public virtual Task Update_with_LeftJoin(bool async)
+        => AssertUpdate(
+            async,
+            ss => ss
+                .Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
+                .LeftJoin(
+                    ss.Set<Order>().Where(o => o.OrderID < 10300),
+                    c => c.CustomerID,
+                    o => o.CustomerID,
+                    (c, o) => new { c, o }),
+            e => e.c,
+            s => s.SetProperty(c => c.c.ContactName, "Updated"),
+            rowsAffectedCount: 8,
+            (b, a) => Assert.All(a, c => Assert.Equal("Updated", c.ContactName)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Update_with_LeftJoin_via_flattened_GroupJoin(bool async)
         => AssertUpdate(
             async,
             ss => from c in ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
