@@ -2214,9 +2214,9 @@ WHERE ((c["$type"] = "Order") AND (c["OrderDate"] != null))
 
                 AssertSql(
                     """
-@__millisecondsPerDay_0='86400000'
+@millisecondsPerDay='86400000'
 
-SELECT VALUE DateTimeAdd("ms", (DateTimePart("ms", c["OrderDate"]) % @__millisecondsPerDay_0), DateTimeAdd("dd", (DateTimePart("ms", c["OrderDate"]) / @__millisecondsPerDay_0), c["OrderDate"]))
+SELECT VALUE DateTimeAdd("ms", (DateTimePart("ms", c["OrderDate"]) % @millisecondsPerDay), DateTimeAdd("dd", (DateTimePart("ms", c["OrderDate"]) / @millisecondsPerDay), c["OrderDate"]))
 FROM root c
 WHERE ((c["$type"] = "Order") AND (c["OrderDate"] != null))
 """);
@@ -4241,9 +4241,9 @@ WHERE ((c["$type"] = "OrderDetail") AND ((c["OrderID"] = null) OR (c["ProductID"
 
                 AssertSql(
                     """
-@__parameter_0='-'
+@parameter='-'
 
-SELECT VALUE (@__parameter_0 || ToString(c["OrderID"]))
+SELECT VALUE (@parameter || ToString(c["OrderID"]))
 FROM root c
 WHERE (c["$type"] = "Order")
 """);

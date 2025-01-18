@@ -2058,21 +2058,19 @@ SELECT VALUE EXISTS (
         AssertSql();
     }
 
-    public override async Task Average_with_non_matching_types_in_projection_doesnt_produce_second_explicit_cast(bool async)
-    {
-        if (async)
-        {
-            // Average truncates. Issue #26378.
-            await Assert.ThrowsAsync<EqualException>(() => base.Average_with_non_matching_types_in_projection_doesnt_produce_second_explicit_cast(async));
+    public override Task Average_with_non_matching_types_in_projection_doesnt_produce_second_explicit_cast(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Average_with_non_matching_types_in_projection_doesnt_produce_second_explicit_cast(a);
 
-            AssertSql(
-                """
+                AssertSql(
+                    """
 SELECT VALUE AVG(c["OrderID"])
 FROM root c
 WHERE ((c["$type"] = "Order") AND STARTSWITH(c["CustomerID"], "A"))
 """);
-        }
-    }
+            });
 
     public override Task Max_with_non_matching_types_in_projection_introduces_explicit_cast(bool async)
         => Fixture.NoSyncTest(
