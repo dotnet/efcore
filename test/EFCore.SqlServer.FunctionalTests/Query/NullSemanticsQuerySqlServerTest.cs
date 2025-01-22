@@ -2094,7 +2094,7 @@ WHERE [e].[NullableStringB] IS NOT NULL AND ([e].[NullableStringA] <> N'Foo' OR 
             """
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE COALESCE([e].[NullableBoolA], CAST(1 AS bit)) = CAST(1 AS bit)
+WHERE ISNULL([e].[NullableBoolA], CAST(1 AS bit)) = CAST(1 AS bit)
 """);
     }
 
@@ -2118,7 +2118,7 @@ WHERE [e].[BoolA] = CAST(1 AS bit) OR [e].[BoolB] = CAST(1 AS bit)
             """
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE COALESCE([e].[NullableBoolA], CASE
+WHERE ISNULL([e].[NullableBoolA], CASE
     WHEN [e].[BoolA] = CAST(1 AS bit) OR [e].[BoolB] = CAST(1 AS bit) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END) = CAST(1 AS bit)
@@ -2157,7 +2157,7 @@ WHERE [e].[NullableStringA] IS NOT NULL
             """
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE COALESCE([e].[NullableStringA], [e].[NullableStringB]) = [e].[NullableStringC] OR ([e].[NullableStringA] IS NULL AND [e].[NullableStringB] IS NULL AND [e].[NullableStringC] IS NULL)
+WHERE ISNULL([e].[NullableStringA], [e].[NullableStringB]) = [e].[NullableStringC] OR ([e].[NullableStringA] IS NULL AND [e].[NullableStringB] IS NULL AND [e].[NullableStringC] IS NULL)
 """);
     }
 
@@ -2169,7 +2169,7 @@ WHERE COALESCE([e].[NullableStringA], [e].[NullableStringB]) = [e].[NullableStri
             """
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE (COALESCE([e].[NullableStringA], [e].[NullableStringB]) <> [e].[NullableStringC] OR ([e].[NullableStringA] IS NULL AND [e].[NullableStringB] IS NULL) OR [e].[NullableStringC] IS NULL) AND ([e].[NullableStringA] IS NOT NULL OR [e].[NullableStringB] IS NOT NULL OR [e].[NullableStringC] IS NOT NULL)
+WHERE (ISNULL([e].[NullableStringA], [e].[NullableStringB]) <> [e].[NullableStringC] OR ([e].[NullableStringA] IS NULL AND [e].[NullableStringB] IS NULL) OR [e].[NullableStringC] IS NULL) AND ([e].[NullableStringA] IS NOT NULL OR [e].[NullableStringB] IS NOT NULL OR [e].[NullableStringC] IS NOT NULL)
 """);
     }
 
@@ -2181,7 +2181,7 @@ WHERE (COALESCE([e].[NullableStringA], [e].[NullableStringB]) <> [e].[NullableSt
             """
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE COALESCE([e].[NullableStringA], [e].[NullableStringB]) = COALESCE([e].[NullableStringC], [e].[StringA])
+WHERE ISNULL([e].[NullableStringA], [e].[NullableStringB]) = ISNULL([e].[NullableStringC], [e].[StringA])
 """);
     }
 
@@ -2193,7 +2193,7 @@ WHERE COALESCE([e].[NullableStringA], [e].[NullableStringB]) = COALESCE([e].[Nul
             """
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE (COALESCE([e].[NullableIntA], [e].[NullableIntB]) <> COALESCE([e].[NullableIntC], [e].[NullableIntB]) OR ([e].[NullableIntA] IS NULL AND [e].[NullableIntB] IS NULL) OR ([e].[NullableIntC] IS NULL AND [e].[NullableIntB] IS NULL)) AND ([e].[NullableIntA] IS NOT NULL OR [e].[NullableIntB] IS NOT NULL OR [e].[NullableIntC] IS NOT NULL OR [e].[NullableIntB] IS NOT NULL)
+WHERE (ISNULL([e].[NullableIntA], [e].[NullableIntB]) <> ISNULL([e].[NullableIntC], [e].[NullableIntB]) OR ([e].[NullableIntA] IS NULL AND [e].[NullableIntB] IS NULL) OR ([e].[NullableIntC] IS NULL AND [e].[NullableIntB] IS NULL)) AND ([e].[NullableIntA] IS NOT NULL OR [e].[NullableIntB] IS NOT NULL OR [e].[NullableIntC] IS NOT NULL OR [e].[NullableIntB] IS NOT NULL)
 """);
     }
 
@@ -2644,7 +2644,7 @@ WHERE [m].[StringA] = [m].[StringB]
 
         AssertSql(
             """
-SELECT [e].[Id], COALESCE([e].[NullableBoolA], CAST(0 AS bit)) AS [Coalesce]
+SELECT [e].[Id], ISNULL([e].[NullableBoolA], CAST(0 AS bit)) AS [Coalesce]
 FROM [Entities1] AS [e]
 """);
     }
@@ -2655,12 +2655,12 @@ FROM [Entities1] AS [e]
 
         AssertSql(
             """
-SELECT [e].[Id], COALESCE([e].[NullableBoolA], [e].[NullableBoolB], CAST(0 AS bit)) AS [Coalesce]
+SELECT [e].[Id], ISNULL(ISNULL([e].[NullableBoolA], [e].[NullableBoolB]), CAST(0 AS bit)) AS [Coalesce]
 FROM [Entities1] AS [e]
 """,
             //
             """
-SELECT [e].[Id], COALESCE([e].[NullableBoolA], [e].[NullableBoolB], CAST(0 AS bit)) AS [Coalesce]
+SELECT [e].[Id], ISNULL(ISNULL([e].[NullableBoolA], [e].[NullableBoolB]), CAST(0 AS bit)) AS [Coalesce]
 FROM [Entities1] AS [e]
 """);
     }
@@ -2767,25 +2767,25 @@ WHERE (REPLACE([e].[NullableStringA], [e].[NullableStringB], [e].[NullableString
             """
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE [e].[NullableBoolA] = COALESCE([e].[NullableBoolB], [e].[BoolC])
+WHERE [e].[NullableBoolA] = ISNULL([e].[NullableBoolB], [e].[BoolC])
 """,
             //
             """
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE [e].[NullableBoolA] = COALESCE([e].[NullableBoolB], [e].[NullableBoolC]) OR ([e].[NullableBoolA] IS NULL AND [e].[NullableBoolB] IS NULL AND [e].[NullableBoolC] IS NULL)
+WHERE [e].[NullableBoolA] = ISNULL([e].[NullableBoolB], [e].[NullableBoolC]) OR ([e].[NullableBoolA] IS NULL AND [e].[NullableBoolB] IS NULL AND [e].[NullableBoolC] IS NULL)
 """,
             //
             """
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE COALESCE([e].[NullableBoolB], [e].[BoolC]) <> [e].[NullableBoolA] OR [e].[NullableBoolA] IS NULL
+WHERE ISNULL([e].[NullableBoolB], [e].[BoolC]) <> [e].[NullableBoolA] OR [e].[NullableBoolA] IS NULL
 """,
             //
             """
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE (COALESCE([e].[NullableBoolB], [e].[NullableBoolC]) <> [e].[NullableBoolA] OR ([e].[NullableBoolB] IS NULL AND [e].[NullableBoolC] IS NULL) OR [e].[NullableBoolA] IS NULL) AND ([e].[NullableBoolB] IS NOT NULL OR [e].[NullableBoolC] IS NOT NULL OR [e].[NullableBoolA] IS NOT NULL)
+WHERE (ISNULL([e].[NullableBoolB], [e].[NullableBoolC]) <> [e].[NullableBoolA] OR ([e].[NullableBoolB] IS NULL AND [e].[NullableBoolC] IS NULL) OR [e].[NullableBoolA] IS NULL) AND ([e].[NullableBoolB] IS NOT NULL OR [e].[NullableBoolC] IS NOT NULL OR [e].[NullableBoolA] IS NOT NULL)
 """);
     }
 
@@ -2863,7 +2863,7 @@ FROM [Entities1] AS [e]
 INNER JOIN [Entities2] AS [e0] ON ([e].[NullableStringA] = [e0].[NullableStringB] OR ([e].[NullableStringA] IS NULL AND [e0].[NullableStringB] IS NULL)) AND CASE
     WHEN ([e].[NullableStringB] <> [e].[NullableStringC] OR [e].[NullableStringB] IS NULL OR [e].[NullableStringC] IS NULL) AND ([e].[NullableStringB] IS NOT NULL OR [e].[NullableStringC] IS NOT NULL) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
-END = COALESCE([e0].[NullableBoolA], [e0].[BoolC])
+END = ISNULL([e0].[NullableBoolA], [e0].[BoolC])
 """);
     }
 
@@ -3551,7 +3551,7 @@ WHERE [e].[NullableIntA] IS NOT NULL OR [e].[NullableIntB] IS NOT NULL
             """
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE COALESCE([e].[NullableIntA], 0) <> 0
+WHERE ISNULL([e].[NullableIntA], 0) <> 0
 """);
     }
 
@@ -4418,7 +4418,7 @@ END = CAST(1 AS bit)
         AssertSql(
             """
 SELECT [e].[NullableIntA] AS [Key], CASE
-    WHEN COALESCE(SUM([e].[IntA]), 0) <> [e].[NullableIntA] OR [e].[NullableIntA] IS NULL THEN CAST(1 AS bit)
+    WHEN ISNULL(SUM([e].[IntA]), 0) <> [e].[NullableIntA] OR [e].[NullableIntA] IS NULL THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END AS [Sum]
 FROM [Entities1] AS [e]
@@ -4434,7 +4434,7 @@ GROUP BY [e].[NullableIntA]
             """
 SELECT [e].[Id], [e].[BoolA], [e].[BoolB], [e].[BoolC], [e].[IntA], [e].[IntB], [e].[IntC], [e].[NullableBoolA], [e].[NullableBoolB], [e].[NullableBoolC], [e].[NullableIntA], [e].[NullableIntB], [e].[NullableIntC], [e].[NullableStringA], [e].[NullableStringB], [e].[NullableStringC], [e].[StringA], [e].[StringB], [e].[StringC]
 FROM [Entities1] AS [e]
-WHERE COALESCE([e].[NullableIntA], [e].[NullableIntB], [e].[IntC]) <> [e].[NullableIntC] OR [e].[NullableIntC] IS NULL
+WHERE ISNULL(ISNULL([e].[NullableIntA], [e].[NullableIntB]), [e].[IntC]) <> [e].[NullableIntC] OR [e].[NullableIntC] IS NULL
 """);
     }
 
@@ -4473,7 +4473,7 @@ FROM [Entities1] AS [e]
 
         AssertSql(
             """
-SELECT COALESCE([e].[NullableIntA], [e].[NullableIntB], [e0].[NullableIntC], [e0].[NullableIntB], [e].[NullableIntC], [e0].[NullableIntA])
+SELECT ISNULL(ISNULL(ISNULL(ISNULL(ISNULL([e].[NullableIntA], [e].[NullableIntB]), [e0].[NullableIntC]), [e0].[NullableIntB]), [e].[NullableIntC]), [e0].[NullableIntA])
 FROM [Entities1] AS [e]
 INNER JOIN [Entities2] AS [e0] ON [e].[Id] = [e0].[Id]
 """);

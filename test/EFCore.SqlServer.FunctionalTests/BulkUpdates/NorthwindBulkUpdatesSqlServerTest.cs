@@ -1088,7 +1088,7 @@ WHERE [c].[CustomerID] LIKE N'F%'
         AssertExecuteUpdateSql(
             """
 UPDATE [c]
-SET [c].[ContactName] = COALESCE([c].[ContactName], N'') + N'Abc'
+SET [c].[ContactName] = ISNULL([c].[ContactName], N'') + N'Abc'
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'F%'
 """);
@@ -1103,7 +1103,7 @@ WHERE [c].[CustomerID] LIKE N'F%'
 @value='Abc' (Size = 4000)
 
 UPDATE [c]
-SET [c].[ContactName] = COALESCE([c].[ContactName], N'') + @value
+SET [c].[ContactName] = ISNULL([c].[ContactName], N'') + @value
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'F%'
 """);
@@ -1116,7 +1116,7 @@ WHERE [c].[CustomerID] LIKE N'F%'
         AssertExecuteUpdateSql(
             """
 UPDATE [c]
-SET [c].[ContactName] = COALESCE([c].[ContactName], N'') + [c].[CustomerID]
+SET [c].[ContactName] = ISNULL([c].[ContactName], N'') + [c].[CustomerID]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'F%'
 """);
@@ -1518,7 +1518,7 @@ INNER JOIN (
         AssertExecuteUpdateSql(
             """
 UPDATE [c]
-SET [c].[City] = COALESCE(CONVERT(varchar(11), DATEPART(year, (
+SET [c].[City] = ISNULL(CONVERT(varchar(11), DATEPART(year, (
     SELECT TOP(1) [o].[OrderDate]
     FROM [Orders] AS [o]
     WHERE [c].[CustomerID] = [o].[CustomerID]
@@ -1553,7 +1553,7 @@ WHERE [c].[CustomerID] LIKE N'F%'
         AssertExecuteUpdateSql(
             """
 UPDATE [c]
-SET [c].[City] = COALESCE(CONVERT(varchar(11), DATEPART(year, (
+SET [c].[City] = ISNULL(CONVERT(varchar(11), DATEPART(year, (
     SELECT TOP(1) [o].[OrderDate]
     FROM [Orders] AS [o]
     WHERE [c].[CustomerID] = [o].[CustomerID]

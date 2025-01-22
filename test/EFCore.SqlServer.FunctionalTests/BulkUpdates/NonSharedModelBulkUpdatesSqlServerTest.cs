@@ -98,7 +98,7 @@ FROM [Owner] AS [o]
         AssertSql(
             """
 UPDATE [o]
-SET [o].[Title] = COALESCE([o].[Title], N'') + N'_Suffix'
+SET [o].[Title] = ISNULL([o].[Title], N'') + N'_Suffix'
 FROM [Owner] AS [o]
 """);
     }
@@ -125,8 +125,8 @@ INNER JOIN [Owner] AS [o0] ON [o].[Id] = [o0].[Id]
         AssertSql(
             """
 UPDATE [o]
-SET [o].[Title] = COALESCE(CONVERT(varchar(11), [o].[OwnedReference_Number]), ''),
-    [o].[OwnedReference_Number] = CAST(LEN([o].[Title]) AS int)
+SET [o].[OwnedReference_Number] = CAST(LEN([o].[Title]) AS int),
+    [o].[Title] = ISNULL(CONVERT(varchar(11), [o].[OwnedReference_Number]), '')
 FROM [Owner] AS [o]
 """);
     }
@@ -190,7 +190,7 @@ WHERE [b].[Title] LIKE N'Arthur%'
             """
 UPDATE [o]
 SET [o].[Total] = (
-    SELECT COALESCE(SUM([o0].[Amount]), 0)
+    SELECT ISNULL(SUM([o0].[Amount]), 0)
     FROM [OrderProduct] AS [o0]
     WHERE [o].[Id] = [o0].[OrderId])
 FROM [Orders] AS [o]
