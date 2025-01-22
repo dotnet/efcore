@@ -1,86 +1,102 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-namespace Microsoft.EntityFrameworkCore.Query.Translations.Operators;
+namespace Microsoft.EntityFrameworkCore.Query.Translations;
 
-public class ComparisonOperatorTranslationsSqlServerTest : ComparisonOperatorTranslationsTestBase<BasicTypesQuerySqlServerFixture>
+public class ByteArrayTranslationsSqlServerTest : ByteArrayTranslationsTestBase<BasicTypesQuerySqlServerFixture>
 {
-    public ComparisonOperatorTranslationsSqlServerTest(BasicTypesQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
+    public ByteArrayTranslationsSqlServerTest(BasicTypesQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
         : base(fixture)
     {
         Fixture.TestSqlLoggerFactory.Clear();
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    public override async Task Equal(bool async)
+    public override async Task Length(bool async)
     {
-        await base.Equal(async);
+        await base.Length(async);
 
         AssertSql(
             """
 SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
 FROM [BasicTypesEntities] AS [b]
-WHERE [b].[Int] = 8
+WHERE CAST(DATALENGTH([b].[ByteArray]) AS int) = 4
 """);
     }
 
-    public override async Task NotEqual(bool async)
+    public override async Task Index(bool async)
     {
-        await base.NotEqual(async);
+        await base.Index(async);
 
         AssertSql(
             """
 SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
 FROM [BasicTypesEntities] AS [b]
-WHERE [b].[Int] <> 8
+WHERE CAST(DATALENGTH([b].[ByteArray]) AS int) >= 3 AND CAST(SUBSTRING([b].[ByteArray], 2 + 1, 1) AS tinyint) = CAST(190 AS tinyint)
 """);
     }
 
-    public override async Task GreaterThan(bool async)
+    public override async Task First(bool async)
     {
-        await base.GreaterThan(async);
+        await base.First(async);
 
         AssertSql(
             """
 SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
 FROM [BasicTypesEntities] AS [b]
-WHERE [b].[Int] > 8
+WHERE CAST(DATALENGTH([b].[ByteArray]) AS int) >= 1 AND CAST(SUBSTRING([b].[ByteArray], 1, 1) AS tinyint) = CAST(222 AS tinyint)
 """);
     }
 
-    public override async Task GreaterThanOrEqual(bool async)
+    public override async Task Contains_with_constant(bool async)
     {
-        await base.GreaterThanOrEqual(async);
+        await base.Contains_with_constant(async);
 
         AssertSql(
             """
 SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
 FROM [BasicTypesEntities] AS [b]
-WHERE [b].[Int] >= 8
+WHERE CHARINDEX(0x01, [b].[ByteArray]) > 0
 """);
     }
 
-    public override async Task LessThan(bool async)
+    public override async Task Contains_with_parameter(bool async)
     {
-        await base.LessThan(async);
+        await base.Contains_with_parameter(async);
 
         AssertSql(
             """
+@someByte='1' (Size = 1)
+
 SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
 FROM [BasicTypesEntities] AS [b]
-WHERE [b].[Int] < 8
+WHERE CHARINDEX(CAST(@someByte AS varbinary(max)), [b].[ByteArray]) > 0
 """);
     }
 
-    public override async Task LessThanOrEqual(bool async)
+    public override async Task Contains_with_column(bool async)
     {
-        await base.LessThanOrEqual(async);
+        await base.Contains_with_column(async);
 
         AssertSql(
             """
 SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
 FROM [BasicTypesEntities] AS [b]
-WHERE [b].[Int] <= 8
+WHERE CHARINDEX(CAST([b].[Byte] AS varbinary(max)), [b].[ByteArray]) > 0
+""");
+    }
+
+    public override async Task SequenceEqual(bool async)
+    {
+        await base.SequenceEqual(async);
+
+        AssertSql(
+            """
+@byteArrayParam='0xDEADBEEF' (Size = 8000)
+
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE [b].[ByteArray] = @byteArrayParam
 """);
     }
 
