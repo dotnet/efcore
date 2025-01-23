@@ -71,7 +71,7 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
     private readonly Stack<ImmutableDictionary<string, ParameterExpression>> _parameterStack
         = new(new[] { ImmutableDictionary<string, ParameterExpression>.Empty });
 
-    private readonly Dictionary<ISymbol, MemberExpression?> _capturedVariables = new(SymbolEqualityComparer.Default);
+    private readonly Dictionary<ISymbol, MemberExpression?> _dataFlowsIn = new(SymbolEqualityComparer.Default);
 
     /// <summary>
     ///     Translates a Roslyn syntax tree into a LINQ expression tree.
@@ -100,11 +100,11 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
 
         _semanticModel = semanticModel;
 
-        // Perform data flow analysis to detect all captured data (closure parameters)
-        _capturedVariables.Clear();
-        foreach (var captured in _semanticModel.AnalyzeDataFlow(node).Captured)
+        // Perform data flow analysis to detect all variables flowing into the query (e.g. captured variables)
+        _dataFlowsIn.Clear();
+        foreach (var flowsIn in _semanticModel.AnalyzeDataFlow(node).DataFlowsIn)
         {
-            _capturedVariables[captured] = null;
+            _dataFlowsIn[flowsIn] = null;
         }
 
         var result = Visit(node);
@@ -445,13 +445,13 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
             return Constant(_userDbContext);
         }
 
-        // The Translate entry point into the translator uses Roslyn's data flow analysis to locate all captured variables, and populates
-        // the _capturedVariable dictionary with them (with null values).
-        if (symbol is ILocalSymbol localSymbol && _capturedVariables.TryGetValue(localSymbol, out var memberExpression))
+        // The Translate entry point into the translator uses Roslyn's data flow analysis to locate all local variables flowing in
+        // (e.g. captured variables), and populates the _dataFlowsIn dictionary with them (with null values).
+        if (symbol is ILocalSymbol localSymbol && _dataFlowsIn.TryGetValue(localSymbol, out var memberExpression))
         {
-            // The first time we see a captured variable, we create MemberExpression for it and cache it in _capturedVariables.
+            // The first time we see a flowing-in variable, we create MemberExpression for it and cache it in _dataFlowsIn.
             return memberExpression
-                ?? (_capturedVariables[localSymbol] =
+                ?? (_dataFlowsIn[localSymbol] =
                     Field(
                         Constant(new FakeClosureFrameClass()),
                         new FakeFieldInfo(
