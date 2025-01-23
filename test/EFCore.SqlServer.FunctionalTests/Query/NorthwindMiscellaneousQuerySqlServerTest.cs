@@ -2864,7 +2864,7 @@ FROM (
 
         AssertSql(
             """
-SELECT COALESCE([c].[Region], N'no region specified')
+SELECT ISNULL(CAST([c].[Region] AS nvarchar(max)), N'no region specified')
 FROM [Customers] AS [c]
 """);
     }
@@ -2875,7 +2875,7 @@ FROM [Customers] AS [c]
 
         AssertSql(
             """
-SELECT COALESCE([e].[ReportsTo], 2.25)
+SELECT ISNULL(CAST([e].[ReportsTo] AS float), 2.25E0)
 FROM [Employees] AS [e]
 """);
     }
