@@ -172,21 +172,53 @@ WHERE (c["City"] = @city)
 """);
             });
 
-    public override async Task Where_method_call_nullable_type_closure_via_query_cache(bool async)
-    {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Where_method_call_nullable_type_closure_via_query_cache(async));
+    public override Task Where_method_call_nullable_type_closure_via_query_cache(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Where_method_call_nullable_type_closure_via_query_cache(a);
 
-        AssertSql();
-    }
+                AssertSql(
+                    """
+@p='2'
 
-    public override async Task Where_method_call_nullable_type_reverse_closure_via_query_cache(bool async)
-    {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Where_method_call_nullable_type_reverse_closure_via_query_cache(async));
+SELECT VALUE c
+FROM root c
+WHERE (c["ReportsTo"] = @p)
+""",
+                    //
+                    """
+@p='5'
 
-        AssertSql();
-    }
+SELECT VALUE c
+FROM root c
+WHERE (c["ReportsTo"] = @p)
+""");
+            });
+
+    public override Task Where_method_call_nullable_type_reverse_closure_via_query_cache(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Where_method_call_nullable_type_reverse_closure_via_query_cache(a);
+
+                AssertSql(
+                    """
+@p='1'
+
+SELECT VALUE c
+FROM root c
+WHERE (c["EmployeeID"] > @p)
+""",
+                    //
+                    """
+@p='5'
+
+SELECT VALUE c
+FROM root c
+WHERE (c["EmployeeID"] > @p)
+""");
+            });
 
     public override Task Where_method_call_closure_via_query_cache(bool async)
         => Fixture.NoSyncTest(
@@ -404,21 +436,69 @@ WHERE (c["City"] = @InstanceFieldValue)
 """);
             });
 
-    public override async Task Where_simple_closure_via_query_cache_nullable_type(bool async)
-    {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Where_simple_closure_via_query_cache_nullable_type(async));
+    public override Task Where_simple_closure_via_query_cache_nullable_type(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Where_simple_closure_via_query_cache_nullable_type(a);
 
-        AssertSql();
-    }
+                AssertSql(
+                    """
+@p='2'
 
-    public override async Task Where_simple_closure_via_query_cache_nullable_type_reverse(bool async)
-    {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Where_simple_closure_via_query_cache_nullable_type_reverse(async));
+SELECT VALUE c
+FROM root c
+WHERE (c["ReportsTo"] = @p)
+""",
+                    //
+                    """
+@p='5'
 
-        AssertSql();
-    }
+SELECT VALUE c
+FROM root c
+WHERE (c["ReportsTo"] = @p)
+""",
+                    //
+                    """
+@p=null
+
+SELECT VALUE c
+FROM root c
+WHERE (c["ReportsTo"] = @p)
+""");
+            });
+
+    public override Task Where_simple_closure_via_query_cache_nullable_type_reverse(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Where_simple_closure_via_query_cache_nullable_type_reverse(a);
+
+                AssertSql(
+                    """
+@p=null
+
+SELECT VALUE c
+FROM root c
+WHERE (c["ReportsTo"] = @p)
+""",
+                    //
+                    """
+@p='5'
+
+SELECT VALUE c
+FROM root c
+WHERE (c["ReportsTo"] = @p)
+""",
+                    //
+                    """
+@p='2'
+
+SELECT VALUE c
+FROM root c
+WHERE (c["ReportsTo"] = @p)
+""");
+            });
 
     [ConditionalTheory(Skip = "Always uses sync code.")]
     public override Task Where_subquery_closure_via_query_cache(bool async)
@@ -1493,13 +1573,21 @@ WHERE ((c["$type"] = "Order") AND @p)
 """);
             });
 
-    public override async Task Decimal_cast_to_double_works(bool async)
-    {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Decimal_cast_to_double_works(async));
+    public override Task Decimal_cast_to_double_works(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Decimal_cast_to_double_works(a);
 
-        AssertSql();
-    }
+                AssertSql(
+                    """
+@i='10'
+
+SELECT VALUE c["id"]
+FROM root c
+WHERE (((ToString(@i) || c["id"]) || ToString(@i)) = "10ALFKI10")
+""");
+            });
 
     public override Task Where_is_conditional(bool async)
         => Fixture.NoSyncTest(
@@ -1509,9 +1597,12 @@ WHERE ((c["$type"] = "Order") AND @p)
 
                 AssertSql(
                     """
+@p='11'
+@p0='12'
+
 SELECT VALUE c
 FROM root c
-WHERE ((c["$type"] = "Product") AND (true ? false : true))
+WHERE (((c["id"] || ToString(@p)) || (c["id"] || ToString(@p0))) = "ALFKI11ALFKI12")
 """);
             });
 
@@ -1523,21 +1614,38 @@ WHERE ((c["$type"] = "Product") AND (true ? false : true))
         AssertSql();
     }
 
-    public override async Task Using_same_parameter_twice_in_query_generates_one_sql_parameter(bool async)
-    {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Using_same_parameter_twice_in_query_generates_one_sql_parameter(async));
+    public override Task Using_same_parameter_twice_in_query_generates_one_sql_parameter(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Using_same_parameter_twice_in_query_generates_one_sql_parameter(a);
 
-        AssertSql();
-    }
+                AssertSql(
+                    """
+@i='10'
 
-    public override async Task Two_parameters_with_same_name_get_uniquified(bool async)
-    {
-        // Concat with conversion, issue #34963.
-        await AssertTranslationFailed(() => base.Using_same_parameter_twice_in_query_generates_one_sql_parameter(async));
+SELECT VALUE c["id"]
+FROM root c
+WHERE (((ToString(@i) || c["id"]) || ToString(@i)) = "10ALFKI10")
+""");
+            });
 
-        AssertSql();
-    }
+    public override Task Two_parameters_with_same_name_get_uniquified(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Two_parameters_with_same_name_get_uniquified(a);
+
+                AssertSql(
+                    """
+@p='11'
+@p0='12'
+
+SELECT VALUE c
+FROM root c
+WHERE (((c["id"] || ToString(@p)) || (c["id"] || ToString(@p0))) = "ALFKI11ALFKI12")
+""");
+            });
 
     public override async Task Where_Queryable_ToList_Count(bool async)
     {
