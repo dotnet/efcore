@@ -230,7 +230,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
         {
             var modelBuilder = CreateModelBuilder();
 
-            modelBuilder.Entity<Customer>().AlwaysHasShadowId();
+            modelBuilder.Entity<Customer>().HasShadowId();
             modelBuilder.Entity<Customer>().HasKey(CosmosJsonIdConvention.DefaultIdPropertyName);
 
             modelBuilder.Entity<Customer>()
@@ -255,6 +255,29 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             Assert.Equal(
                 new[] { CosmosJsonIdConvention.DefaultIdPropertyName },
                 entity.FindPrimaryKey()!.Properties.Select(p => p.Name));
+        }
+
+        [ConditionalFact]
+        public virtual void Id_property_created_if_key_not_mapped_to_id()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<Customer>()
+                .Property(c => c.Name)
+                .ToJsonProperty("Name");
+            modelBuilder.Entity<Customer>()
+                .Ignore(b => b.Details)
+                .Ignore(b => b.Orders)
+                .HasKey(c => c.Name);
+
+            var model = modelBuilder.FinalizeModel();
+
+            var entity = model.FindEntityType(typeof(Customer))!;
+
+            Assert.Equal(CosmosJsonIdConvention.IdPropertyJsonName,
+                entity.FindProperty(CosmosJsonIdConvention.DefaultIdPropertyName)!.GetJsonPropertyName());
+
+            Assert.Equal(1, entity.GetKeys().Count());
         }
 
         [ConditionalFact]
@@ -311,7 +334,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
         {
             var modelBuilder = CreateModelBuilder();
 
-            modelBuilder.Entity<Customer>().AlwaysHasShadowId();
+            modelBuilder.Entity<Customer>().HasShadowId();
             modelBuilder.Entity<Customer>().HasKey(CosmosJsonIdConvention.DefaultIdPropertyName);
 
             modelBuilder.Entity<Customer>()
@@ -335,7 +358,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
         {
             var modelBuilder = CreateModelBuilder();
 
-            modelBuilder.Entity<Customer>().AlwaysHasShadowId();
+            modelBuilder.Entity<Customer>().HasShadowId();
             modelBuilder.Entity<Customer>().HasKey(nameof(Customer.AlternateKey), CosmosJsonIdConvention.DefaultIdPropertyName);
 
             modelBuilder.Entity<Customer>()
@@ -359,7 +382,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
         {
             var modelBuilder = CreateModelBuilder();
 
-            modelBuilder.Entity<Customer>().AlwaysHasShadowId();
+            modelBuilder.Entity<Customer>().HasShadowId();
 
             modelBuilder.Entity<Customer>().HasKey(
                 nameof(Customer.AlternateKey),
@@ -404,7 +427,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
         {
             var modelBuilder = CreateModelBuilder();
 
-            modelBuilder.Entity<Customer>().AlwaysHasShadowId();
+            modelBuilder.Entity<Customer>().HasShadowId();
 
             modelBuilder.Entity<Customer>().HasKey(
                 nameof(Customer.Title),
@@ -449,7 +472,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
         {
             var modelBuilder = CreateModelBuilder();
 
-            modelBuilder.Entity<Customer>().AlwaysHasShadowId();
+            modelBuilder.Entity<Customer>().HasShadowId();
 
             modelBuilder.Entity<Customer>().HasKey(
                 nameof(Customer.Title),
