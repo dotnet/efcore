@@ -210,6 +210,9 @@
   <data name="DbContextType" xml:space="preserve">
     <value>Type: {type}</value>
   </data>
+  <data name="DesignAssemblyDescription" xml:space="preserve">
+    <value>The location of the referenced Microsoft.EntityFrameworkCore.Design assembly.</value>
+  </data>
   <data name="DesignNotFound" xml:space="preserve">
     <value>Your startup project '{startupProject}' doesn't reference Microsoft.EntityFrameworkCore.Design. This package is required for the Entity Framework Core Tools to work. Ensure your startup project is correct, install the package, and try again.</value>
   </data>
