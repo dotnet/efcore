@@ -268,7 +268,10 @@ INNER JOIN (
     FROM (
         SELECT [l1].[Id], [l1].[Level2_Optional_Id], [l1].[Level2_Required_Id], [l1].[Name], [l1].[OneToMany_Optional_Inverse3Id], [l1].[OneToMany_Optional_Self_Inverse3Id], [l1].[OneToMany_Required_Inverse3Id], [l1].[OneToMany_Required_Self_Inverse3Id], [l1].[OneToOne_Optional_PK_Inverse3Id], [l1].[OneToOne_Optional_Self3Id], ROW_NUMBER() OVER(PARTITION BY [l1].[OneToMany_Optional_Inverse3Id] ORDER BY [l1].[Name]) AS [row]
         FROM [LevelThree] AS [l1]
-        WHERE [l1].[Name] <> N'Foo' OR [l1].[Name] IS NULL
+        WHERE CASE
+            WHEN [l1].[Name] = N'Foo' THEN CAST(0 AS bit)
+            ELSE CAST(1 AS bit)
+        END = CAST(1 AS bit)
     ) AS [l2]
     WHERE 1 < [l2].[row] AND [l2].[row] <= 4
 ) AS [l3] ON [l0].[Id] = [l3].[OneToMany_Optional_Inverse3Id]
@@ -297,7 +300,10 @@ INNER JOIN (
     FROM (
         SELECT [l1].[Id], [l1].[Level2_Optional_Id], [l1].[Level2_Required_Id], [l1].[Name], [l1].[OneToMany_Optional_Inverse3Id], [l1].[OneToMany_Optional_Self_Inverse3Id], [l1].[OneToMany_Required_Inverse3Id], [l1].[OneToMany_Required_Self_Inverse3Id], [l1].[OneToOne_Optional_PK_Inverse3Id], [l1].[OneToOne_Optional_Self3Id], ROW_NUMBER() OVER(PARTITION BY [l1].[OneToMany_Optional_Inverse3Id] ORDER BY [l1].[Name]) AS [row]
         FROM [LevelThree] AS [l1]
-        WHERE [l1].[Name] <> N'Foo' OR [l1].[Name] IS NULL
+        WHERE CASE
+            WHEN [l1].[Name] = N'Foo' THEN CAST(0 AS bit)
+            ELSE CAST(1 AS bit)
+        END = CAST(1 AS bit)
     ) AS [l2]
     WHERE 1 < [l2].[row] AND [l2].[row] <= 4
 ) AS [l3] ON [l0].[Id] = [l3].[OneToMany_Optional_Inverse3Id]
@@ -324,7 +330,10 @@ INNER JOIN (
     FROM (
         SELECT [l0].[Id], [l0].[Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Optional_Self_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToMany_Required_Self_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id], [l0].[OneToOne_Optional_Self2Id], ROW_NUMBER() OVER(PARTITION BY [l0].[OneToMany_Optional_Inverse2Id] ORDER BY [l0].[Name]) AS [row]
         FROM [LevelTwo] AS [l0]
-        WHERE [l0].[Name] <> N'Foo' OR [l0].[Name] IS NULL
+        WHERE CASE
+            WHEN [l0].[Name] = N'Foo' THEN CAST(0 AS bit)
+            ELSE CAST(1 AS bit)
+        END = CAST(1 AS bit)
     ) AS [l2]
     WHERE [l2].[row] <= 3
 ) AS [l3] ON [l].[Id] = [l3].[OneToMany_Optional_Inverse2Id]
@@ -339,7 +348,10 @@ INNER JOIN (
     FROM (
         SELECT [l1].[Id], [l1].[Date], [l1].[Level1_Optional_Id], [l1].[Level1_Required_Id], [l1].[Name], [l1].[OneToMany_Optional_Inverse2Id], [l1].[OneToMany_Optional_Self_Inverse2Id], [l1].[OneToMany_Required_Inverse2Id], [l1].[OneToMany_Required_Self_Inverse2Id], [l1].[OneToOne_Optional_PK_Inverse2Id], [l1].[OneToOne_Optional_Self2Id], ROW_NUMBER() OVER(PARTITION BY [l1].[OneToMany_Required_Inverse2Id] ORDER BY [l1].[Name] DESC) AS [row]
         FROM [LevelTwo] AS [l1]
-        WHERE [l1].[Name] <> N'Bar' OR [l1].[Name] IS NULL
+        WHERE CASE
+            WHEN [l1].[Name] = N'Bar' THEN CAST(0 AS bit)
+            ELSE CAST(1 AS bit)
+        END = CAST(1 AS bit)
     ) AS [l4]
     WHERE 1 < [l4].[row]
 ) AS [l5] ON [l].[Id] = [l5].[OneToMany_Required_Inverse2Id]
@@ -366,7 +378,10 @@ INNER JOIN (
     FROM (
         SELECT [l0].[Id], [l0].[Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Optional_Self_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToMany_Required_Self_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id], [l0].[OneToOne_Optional_Self2Id], ROW_NUMBER() OVER(PARTITION BY [l0].[OneToMany_Optional_Inverse2Id] ORDER BY [l0].[Name]) AS [row]
         FROM [LevelTwo] AS [l0]
-        WHERE [l0].[Name] <> N'Foo' OR [l0].[Name] IS NULL
+        WHERE CASE
+            WHEN [l0].[Name] = N'Foo' THEN CAST(0 AS bit)
+            ELSE CAST(1 AS bit)
+        END = CAST(1 AS bit)
     ) AS [l2]
     WHERE [l2].[row] <= 3
 ) AS [l3] ON [l].[Id] = [l3].[OneToMany_Optional_Inverse2Id]
@@ -381,7 +396,10 @@ INNER JOIN (
     FROM (
         SELECT [l0].[Id], [l0].[Name], [l0].[OneToMany_Optional_Inverse2Id], ROW_NUMBER() OVER(PARTITION BY [l0].[OneToMany_Optional_Inverse2Id] ORDER BY [l0].[Name]) AS [row]
         FROM [LevelTwo] AS [l0]
-        WHERE [l0].[Name] <> N'Foo' OR [l0].[Name] IS NULL
+        WHERE CASE
+            WHEN [l0].[Name] = N'Foo' THEN CAST(0 AS bit)
+            ELSE CAST(1 AS bit)
+        END = CAST(1 AS bit)
     ) AS [l2]
     WHERE [l2].[row] <= 3
 ) AS [l3] ON [l].[Id] = [l3].[OneToMany_Optional_Inverse2Id]
@@ -390,7 +408,10 @@ INNER JOIN (
     FROM (
         SELECT [l1].[Id], [l1].[Level2_Optional_Id], [l1].[Level2_Required_Id], [l1].[Name], [l1].[OneToMany_Optional_Inverse3Id], [l1].[OneToMany_Optional_Self_Inverse3Id], [l1].[OneToMany_Required_Inverse3Id], [l1].[OneToMany_Required_Self_Inverse3Id], [l1].[OneToOne_Optional_PK_Inverse3Id], [l1].[OneToOne_Optional_Self3Id], ROW_NUMBER() OVER(PARTITION BY [l1].[OneToMany_Required_Inverse3Id] ORDER BY [l1].[Name] DESC) AS [row]
         FROM [LevelThree] AS [l1]
-        WHERE [l1].[Name] <> N'Bar' OR [l1].[Name] IS NULL
+        WHERE CASE
+            WHEN [l1].[Name] = N'Bar' THEN CAST(0 AS bit)
+            ELSE CAST(1 AS bit)
+        END = CAST(1 AS bit)
     ) AS [l4]
     WHERE 1 < [l4].[row]
 ) AS [l5] ON [l3].[Id] = [l5].[OneToMany_Required_Inverse3Id]
@@ -417,7 +438,10 @@ INNER JOIN (
     FROM (
         SELECT [l0].[Id], [l0].[Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Optional_Self_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToMany_Required_Self_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id], [l0].[OneToOne_Optional_Self2Id], ROW_NUMBER() OVER(PARTITION BY [l0].[OneToMany_Optional_Inverse2Id] ORDER BY [l0].[Id] DESC) AS [row]
         FROM [LevelTwo] AS [l0]
-        WHERE [l0].[Name] <> N'Foo' OR [l0].[Name] IS NULL
+        WHERE CASE
+            WHEN [l0].[Name] = N'Foo' THEN CAST(0 AS bit)
+            ELSE CAST(1 AS bit)
+        END = CAST(1 AS bit)
     ) AS [l1]
     WHERE [l1].[row] <= 2
 ) AS [l2] ON [l].[Id] = [l2].[OneToMany_Optional_Inverse2Id]
@@ -444,7 +468,10 @@ CROSS APPLY (
     FROM (
         SELECT TOP(2) [l0].[Id], [l0].[Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Optional_Self_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToMany_Required_Self_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id], [l0].[OneToOne_Optional_Self2Id]
         FROM [LevelTwo] AS [l0]
-        WHERE [l].[Id] = [l0].[OneToMany_Optional_Inverse2Id] AND ([l0].[Name] <> N'Foo' OR [l0].[Name] IS NULL)
+        WHERE [l].[Id] = [l0].[OneToMany_Optional_Inverse2Id] AND CASE
+            WHEN [l0].[Name] = N'Foo' THEN CAST(0 AS bit)
+            ELSE CAST(1 AS bit)
+        END = CAST(1 AS bit)
         ORDER BY [l0].[Id]
     ) AS [l2]
     LEFT JOIN [LevelThree] AS [l1] ON [l2].[Id] = [l1].[Level2_Required_Id]
@@ -460,7 +487,10 @@ CROSS APPLY (
     FROM (
         SELECT TOP(2) [l0].[Id]
         FROM [LevelTwo] AS [l0]
-        WHERE [l].[Id] = [l0].[OneToMany_Optional_Inverse2Id] AND ([l0].[Name] <> N'Foo' OR [l0].[Name] IS NULL)
+        WHERE [l].[Id] = [l0].[OneToMany_Optional_Inverse2Id] AND CASE
+            WHEN [l0].[Name] = N'Foo' THEN CAST(0 AS bit)
+            ELSE CAST(1 AS bit)
+        END = CAST(1 AS bit)
         ORDER BY [l0].[Id]
     ) AS [l2]
     LEFT JOIN [LevelThree] AS [l1] ON [l2].[Id] = [l1].[Level2_Required_Id]
@@ -491,7 +521,10 @@ CROSS APPLY (
     FROM (
         SELECT TOP(2) [l0].[Id], [l0].[Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Optional_Self_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToMany_Required_Self_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id], [l0].[OneToOne_Optional_Self2Id]
         FROM [LevelTwo] AS [l0]
-        WHERE [l].[Id] = [l0].[OneToMany_Optional_Inverse2Id] AND ([l0].[Name] <> N'Foo' OR [l0].[Name] IS NULL)
+        WHERE [l].[Id] = [l0].[OneToMany_Optional_Inverse2Id] AND CASE
+            WHEN [l0].[Name] = N'Foo' THEN CAST(0 AS bit)
+            ELSE CAST(1 AS bit)
+        END = CAST(1 AS bit)
         ORDER BY [l0].[Id]
     ) AS [l2]
     LEFT JOIN [LevelThree] AS [l1] ON [l2].[Id] = [l1].[Level2_Required_Id]
@@ -507,7 +540,10 @@ CROSS APPLY (
     FROM (
         SELECT TOP(2) [l0].[Id]
         FROM [LevelTwo] AS [l0]
-        WHERE [l].[Id] = [l0].[OneToMany_Optional_Inverse2Id] AND ([l0].[Name] <> N'Foo' OR [l0].[Name] IS NULL)
+        WHERE [l].[Id] = [l0].[OneToMany_Optional_Inverse2Id] AND CASE
+            WHEN [l0].[Name] = N'Foo' THEN CAST(0 AS bit)
+            ELSE CAST(1 AS bit)
+        END = CAST(1 AS bit)
         ORDER BY [l0].[Id]
     ) AS [l2]
     LEFT JOIN [LevelThree] AS [l1] ON [l2].[Id] = [l1].[Level2_Required_Id]
@@ -536,7 +572,10 @@ INNER JOIN (
     FROM (
         SELECT [l0].[Id], [l0].[Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Optional_Self_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToMany_Required_Self_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id], [l0].[OneToOne_Optional_Self2Id], ROW_NUMBER() OVER(PARTITION BY [l0].[OneToMany_Optional_Inverse2Id] ORDER BY [l0].[Id]) AS [row]
         FROM [LevelTwo] AS [l0]
-        WHERE [l0].[Name] <> N'Foo' OR [l0].[Name] IS NULL
+        WHERE CASE
+            WHEN [l0].[Name] = N'Foo' THEN CAST(0 AS bit)
+            ELSE CAST(1 AS bit)
+        END = CAST(1 AS bit)
     ) AS [l1]
     WHERE [l1].[row] <= 3
 ) AS [l2] ON [l].[Id] = [l2].[OneToMany_Optional_Inverse2Id]
@@ -563,7 +602,10 @@ INNER JOIN (
     FROM (
         SELECT [l0].[Id], [l0].[Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Optional_Self_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToMany_Required_Self_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id], [l0].[OneToOne_Optional_Self2Id], ROW_NUMBER() OVER(PARTITION BY [l0].[OneToMany_Optional_Inverse2Id] ORDER BY [l0].[Id]) AS [row]
         FROM [LevelTwo] AS [l0]
-        WHERE [l0].[Name] <> N'Foo' OR [l0].[Name] IS NULL
+        WHERE CASE
+            WHEN [l0].[Name] = N'Foo' THEN CAST(0 AS bit)
+            ELSE CAST(1 AS bit)
+        END = CAST(1 AS bit)
     ) AS [l1]
     WHERE [l1].[row] <= 3
 ) AS [l2] ON [l].[Id] = [l2].[OneToMany_Optional_Inverse2Id]
@@ -590,7 +632,10 @@ CROSS APPLY (
     FROM (
         SELECT TOP(1) [l0].[Id], [l0].[Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Optional_Self_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToMany_Required_Self_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id], [l0].[OneToOne_Optional_Self2Id]
         FROM [LevelTwo] AS [l0]
-        WHERE [l].[Id] = [l0].[OneToMany_Optional_Inverse2Id] AND ([l0].[Name] <> N'Foo' OR [l0].[Name] IS NULL)
+        WHERE [l].[Id] = [l0].[OneToMany_Optional_Inverse2Id] AND CASE
+            WHEN [l0].[Name] = N'Foo' THEN CAST(0 AS bit)
+            ELSE CAST(1 AS bit)
+        END = CAST(1 AS bit)
         ORDER BY [l0].[Id]
     ) AS [l2]
     LEFT JOIN [LevelThree] AS [l1] ON [l2].[Id] = [l1].[OneToOne_Optional_PK_Inverse3Id]
@@ -606,7 +651,10 @@ CROSS APPLY (
     FROM (
         SELECT TOP(1) [l0].[Id]
         FROM [LevelTwo] AS [l0]
-        WHERE [l].[Id] = [l0].[OneToMany_Optional_Inverse2Id] AND ([l0].[Name] <> N'Foo' OR [l0].[Name] IS NULL)
+        WHERE [l].[Id] = [l0].[OneToMany_Optional_Inverse2Id] AND CASE
+            WHEN [l0].[Name] = N'Foo' THEN CAST(0 AS bit)
+            ELSE CAST(1 AS bit)
+        END = CAST(1 AS bit)
         ORDER BY [l0].[Id]
     ) AS [l2]
     LEFT JOIN [LevelThree] AS [l1] ON [l2].[Id] = [l1].[OneToOne_Optional_PK_Inverse3Id]
@@ -647,7 +695,10 @@ INNER JOIN (
     FROM (
         SELECT [l1].[Id], [l1].[Level2_Optional_Id], [l1].[Level2_Required_Id], [l1].[Name], [l1].[OneToMany_Optional_Inverse3Id], [l1].[OneToMany_Optional_Self_Inverse3Id], [l1].[OneToMany_Required_Inverse3Id], [l1].[OneToMany_Required_Self_Inverse3Id], [l1].[OneToOne_Optional_PK_Inverse3Id], [l1].[OneToOne_Optional_Self3Id], ROW_NUMBER() OVER(PARTITION BY [l1].[OneToMany_Optional_Inverse3Id] ORDER BY [l1].[Id]) AS [row]
         FROM [LevelThree] AS [l1]
-        WHERE [l1].[Name] <> N'Foo' OR [l1].[Name] IS NULL
+        WHERE CASE
+            WHEN [l1].[Name] = N'Foo' THEN CAST(0 AS bit)
+            ELSE CAST(1 AS bit)
+        END = CAST(1 AS bit)
     ) AS [l4]
     WHERE [l4].[row] <= 1
 ) AS [l5] ON [l0].[Id] = [l5].[OneToMany_Optional_Inverse3Id]
@@ -663,7 +714,10 @@ INNER JOIN (
     FROM (
         SELECT [l1].[Id], [l1].[OneToMany_Optional_Inverse3Id], ROW_NUMBER() OVER(PARTITION BY [l1].[OneToMany_Optional_Inverse3Id] ORDER BY [l1].[Id]) AS [row]
         FROM [LevelThree] AS [l1]
-        WHERE [l1].[Name] <> N'Foo' OR [l1].[Name] IS NULL
+        WHERE CASE
+            WHEN [l1].[Name] = N'Foo' THEN CAST(0 AS bit)
+            ELSE CAST(1 AS bit)
+        END = CAST(1 AS bit)
     ) AS [l4]
     WHERE [l4].[row] <= 1
 ) AS [l5] ON [l0].[Id] = [l5].[OneToMany_Optional_Inverse3Id]
@@ -680,7 +734,10 @@ INNER JOIN (
     FROM (
         SELECT [l1].[Id], [l1].[OneToMany_Optional_Inverse3Id], ROW_NUMBER() OVER(PARTITION BY [l1].[OneToMany_Optional_Inverse3Id] ORDER BY [l1].[Id]) AS [row]
         FROM [LevelThree] AS [l1]
-        WHERE [l1].[Name] <> N'Foo' OR [l1].[Name] IS NULL
+        WHERE CASE
+            WHEN [l1].[Name] = N'Foo' THEN CAST(0 AS bit)
+            ELSE CAST(1 AS bit)
+        END = CAST(1 AS bit)
     ) AS [l4]
     WHERE [l4].[row] <= 1
 ) AS [l5] ON [l0].[Id] = [l5].[OneToMany_Optional_Inverse3Id]
@@ -716,7 +773,10 @@ INNER JOIN (
     FROM (
         SELECT [l1].[Id], [l1].[Level2_Optional_Id], [l1].[Level2_Required_Id], [l1].[Name], [l1].[OneToMany_Optional_Inverse3Id], [l1].[OneToMany_Optional_Self_Inverse3Id], [l1].[OneToMany_Required_Inverse3Id], [l1].[OneToMany_Required_Self_Inverse3Id], [l1].[OneToOne_Optional_PK_Inverse3Id], [l1].[OneToOne_Optional_Self3Id], ROW_NUMBER() OVER(PARTITION BY [l1].[OneToMany_Optional_Inverse3Id] ORDER BY [l1].[Id]) AS [row]
         FROM [LevelThree] AS [l1]
-        WHERE [l1].[Name] <> N'Foo' OR [l1].[Name] IS NULL
+        WHERE CASE
+            WHEN [l1].[Name] = N'Foo' THEN CAST(0 AS bit)
+            ELSE CAST(1 AS bit)
+        END = CAST(1 AS bit)
     ) AS [l4]
     WHERE [l4].[row] <= 1
 ) AS [l5] ON [l0].[Id] = [l5].[OneToMany_Optional_Inverse3Id]
@@ -732,7 +792,10 @@ INNER JOIN (
     FROM (
         SELECT [l1].[Id], [l1].[OneToMany_Optional_Inverse3Id], ROW_NUMBER() OVER(PARTITION BY [l1].[OneToMany_Optional_Inverse3Id] ORDER BY [l1].[Id]) AS [row]
         FROM [LevelThree] AS [l1]
-        WHERE [l1].[Name] <> N'Foo' OR [l1].[Name] IS NULL
+        WHERE CASE
+            WHEN [l1].[Name] = N'Foo' THEN CAST(0 AS bit)
+            ELSE CAST(1 AS bit)
+        END = CAST(1 AS bit)
     ) AS [l4]
     WHERE [l4].[row] <= 1
 ) AS [l5] ON [l0].[Id] = [l5].[OneToMany_Optional_Inverse3Id]
@@ -749,7 +812,10 @@ INNER JOIN (
     FROM (
         SELECT [l1].[Id], [l1].[OneToMany_Optional_Inverse3Id], ROW_NUMBER() OVER(PARTITION BY [l1].[OneToMany_Optional_Inverse3Id] ORDER BY [l1].[Id]) AS [row]
         FROM [LevelThree] AS [l1]
-        WHERE [l1].[Name] <> N'Foo' OR [l1].[Name] IS NULL
+        WHERE CASE
+            WHEN [l1].[Name] = N'Foo' THEN CAST(0 AS bit)
+            ELSE CAST(1 AS bit)
+        END = CAST(1 AS bit)
     ) AS [l4]
     WHERE [l4].[row] <= 1
 ) AS [l5] ON [l0].[Id] = [l5].[OneToMany_Optional_Inverse3Id]
@@ -779,7 +845,10 @@ INNER JOIN (
     FROM (
         SELECT [l0].[Id], [l0].[Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Optional_Self_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToMany_Required_Self_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id], [l0].[OneToOne_Optional_Self2Id], ROW_NUMBER() OVER(PARTITION BY [l0].[OneToMany_Optional_Inverse2Id] ORDER BY [l0].[Id]) AS [row]
         FROM [LevelTwo] AS [l0]
-        WHERE [l0].[Name] <> @prm OR [l0].[Name] IS NULL
+        WHERE CASE
+            WHEN [l0].[Name] = @prm THEN CAST(0 AS bit)
+            ELSE CAST(1 AS bit)
+        END = CAST(1 AS bit)
     ) AS [l1]
     WHERE [l1].[row] <= 3
 ) AS [l2] ON [l].[Id] = [l2].[OneToMany_Optional_Inverse2Id]
@@ -943,7 +1012,10 @@ LEFT JOIN [LevelThree] AS [l11] ON [l2].[OneToMany_Optional_Inverse4Id] = [l11].
 LEFT JOIN [LevelThree] AS [l12] ON [s].[Id2] = [l12].[Level2_Optional_Id]
 LEFT JOIN [LevelTwo] AS [l13] ON [s0].[Level2_Optional_Id0] = [l13].[Id]
 LEFT JOIN [LevelThree] AS [l14] ON [l13].[Id] = [l14].[Level2_Required_Id]
-WHERE [l11].[Name] <> N'Foo' OR [l11].[Name] IS NULL
+WHERE CASE
+    WHEN [l11].[Name] = N'Foo' THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
 ORDER BY [l12].[Id], [l].[Id], [l0].[Id], [l1].[Id], [l2].[Id], [s].[Id], [s].[Id0], [s].[Id1], [s].[Id2], [s0].[Id], [s0].[Id0], [s0].[Id1], [s0].[Id2], [l11].[Id], [l13].[Id], [l14].[Id]
 """,
             //
@@ -976,7 +1048,10 @@ INNER JOIN (
     FROM [LevelTwo] AS [l17]
     WHERE [l17].[Id] <> 42
 ) AS [l18] ON [s].[Id2] = [l18].[OneToMany_Optional_Self_Inverse2Id]
-WHERE [l11].[Name] <> N'Foo' OR [l11].[Name] IS NULL
+WHERE CASE
+    WHEN [l11].[Name] = N'Foo' THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
 ORDER BY [l12].[Id], [l].[Id], [l0].[Id], [l1].[Id], [l2].[Id], [s].[Id], [s].[Id0], [s].[Id1], [s].[Id2], [s0].[Id], [s0].[Id0], [s0].[Id1], [s0].[Id2], [l11].[Id], [l13].[Id], [l14].[Id]
 """);
     }
@@ -1109,7 +1184,10 @@ FROM [LevelOne] AS [l]
 INNER JOIN (
     SELECT [l2].[Id], [l2].[Date], [l2].[Level1_Optional_Id], [l2].[Level1_Required_Id], [l2].[Name], [l2].[OneToMany_Optional_Inverse2Id], [l2].[OneToMany_Optional_Self_Inverse2Id], [l2].[OneToMany_Required_Inverse2Id], [l2].[OneToMany_Required_Self_Inverse2Id], [l2].[OneToOne_Optional_PK_Inverse2Id], [l2].[OneToOne_Optional_Self2Id]
     FROM [LevelTwo] AS [l2]
-    WHERE [l2].[Name] <> N'Foo' OR [l2].[Name] IS NULL
+    WHERE CASE
+        WHEN [l2].[Name] = N'Foo' THEN CAST(0 AS bit)
+        ELSE CAST(1 AS bit)
+    END = CAST(1 AS bit)
 ) AS [l3] ON [l].[Id] = [l3].[OneToMany_Optional_Inverse2Id]
 WHERE [l].[Id] < 3
 ORDER BY [l].[Id]
@@ -1478,7 +1556,10 @@ FROM [LevelOne] AS [l]
 OUTER APPLY (
     SELECT TOP(1) 1 AS [c], [l0].[Id]
     FROM [LevelTwo] AS [l0]
-    WHERE [l0].[Name] <> N'Foo' OR [l0].[Name] IS NULL
+    WHERE CASE
+        WHEN [l0].[Name] = N'Foo' THEN CAST(0 AS bit)
+        ELSE CAST(1 AS bit)
+    END = CAST(1 AS bit)
 ) AS [l1]
 ORDER BY [l].[Id], [l1].[Id]
 """,
@@ -1489,7 +1570,10 @@ FROM [LevelOne] AS [l]
 OUTER APPLY (
     SELECT TOP(1) [l21].[Id]
     FROM [LevelTwo] AS [l21]
-    WHERE [l21].[Name] <> N'Foo' OR [l21].[Name] IS NULL
+    WHERE CASE
+        WHEN [l21].[Name] = N'Foo' THEN CAST(0 AS bit)
+        ELSE CAST(1 AS bit)
+    END = CAST(1 AS bit)
 ) AS [l28]
 CROSS APPLY (
     SELECT [l26].[Name]
@@ -1516,7 +1600,10 @@ LEFT JOIN (
     FROM (
         SELECT 1 AS [c], [l0].[Id], [l0].[OneToMany_Optional_Inverse2Id], ROW_NUMBER() OVER(PARTITION BY [l0].[OneToMany_Optional_Inverse2Id] ORDER BY [l0].[Id]) AS [row]
         FROM [LevelTwo] AS [l0]
-        WHERE [l0].[Name] <> N'Foo' OR [l0].[Name] IS NULL
+        WHERE CASE
+            WHEN [l0].[Name] = N'Foo' THEN CAST(0 AS bit)
+            ELSE CAST(1 AS bit)
+        END = CAST(1 AS bit)
     ) AS [l1]
     WHERE [l1].[row] <= 1
 ) AS [l2] ON [l].[Id] = [l2].[OneToMany_Optional_Inverse2Id]
@@ -1531,7 +1618,10 @@ LEFT JOIN (
     FROM (
         SELECT [l14].[Id], [l14].[OneToMany_Optional_Inverse2Id], ROW_NUMBER() OVER(PARTITION BY [l14].[OneToMany_Optional_Inverse2Id] ORDER BY [l14].[Id]) AS [row]
         FROM [LevelTwo] AS [l14]
-        WHERE [l14].[Name] <> N'Foo' OR [l14].[Name] IS NULL
+        WHERE CASE
+            WHEN [l14].[Name] = N'Foo' THEN CAST(0 AS bit)
+            ELSE CAST(1 AS bit)
+        END = CAST(1 AS bit)
     ) AS [l21]
     WHERE [l21].[row] <= 1
 ) AS [l22] ON [l].[Id] = [l22].[OneToMany_Optional_Inverse2Id]
@@ -1576,7 +1666,10 @@ LEFT JOIN [LevelThree] AS [l11] ON [l2].[OneToMany_Optional_Inverse4Id] = [l11].
 LEFT JOIN [LevelThree] AS [l12] ON [s].[Id2] = [l12].[Level2_Optional_Id]
 LEFT JOIN [LevelTwo] AS [l13] ON [s0].[Level2_Optional_Id0] = [l13].[Id]
 LEFT JOIN [LevelThree] AS [l14] ON [l13].[Id] = [l14].[Level2_Required_Id]
-WHERE [l11].[Name] <> N'Foo' OR [l11].[Name] IS NULL
+WHERE CASE
+    WHEN [l11].[Name] = N'Foo' THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
 ORDER BY [l12].[Id], [l].[Id], [l0].[Id], [l1].[Id], [l2].[Id], [s].[Id], [s].[Id0], [s].[Id1], [s].[Id2], [s0].[Id], [s0].[Id0], [s0].[Id1], [s0].[Id2], [l11].[Id], [l13].[Id], [l14].[Id]
 """,
             //
@@ -1609,7 +1702,10 @@ INNER JOIN (
     FROM [LevelTwo] AS [l17]
     WHERE [l17].[Id] <> 42
 ) AS [l18] ON [s].[Id2] = [l18].[OneToMany_Optional_Self_Inverse2Id]
-WHERE [l11].[Name] <> N'Foo' OR [l11].[Name] IS NULL
+WHERE CASE
+    WHEN [l11].[Name] = N'Foo' THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
 ORDER BY [l12].[Id], [l].[Id], [l0].[Id], [l1].[Id], [l2].[Id], [s].[Id], [s].[Id0], [s].[Id1], [s].[Id2], [s0].[Id], [s0].[Id0], [s0].[Id1], [s0].[Id2], [l11].[Id], [l13].[Id], [l14].[Id]
 """);
     }
@@ -1960,7 +2056,10 @@ ORDER BY [l].[Id], [l0].[Id]
 SELECT [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id], [l].[OneToMany_Required_Self_Inverse1Id], [l].[OneToOne_Optional_Self1Id], [l0].[Id], [l0].[Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Optional_Self_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToMany_Required_Self_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id], [l0].[OneToOne_Optional_Self2Id]
 FROM [LevelOne] AS [l]
 LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Optional_Id]
-WHERE [l0].[Name] <> N'L2 09' OR [l0].[Name] IS NULL
+WHERE CASE
+    WHEN [l0].[Name] = N'L2 09' THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
 ORDER BY [l].[Id], [l0].[Id]
 """,
             //
@@ -1973,7 +2072,10 @@ INNER JOIN (
     FROM [LevelThree] AS [l1]
     LEFT JOIN [LevelFour] AS [l2] ON [l1].[Id] = [l2].[Level3_Required_Id]
 ) AS [s] ON [l0].[Id] = [s].[OneToMany_Required_Inverse3Id]
-WHERE [l0].[Name] <> N'L2 09' OR [l0].[Name] IS NULL
+WHERE CASE
+    WHEN [l0].[Name] = N'L2 09' THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
 ORDER BY [l].[Id], [l0].[Id]
 """);
     }
@@ -2139,7 +2241,10 @@ LEFT JOIN [LevelThree] AS [l1] ON [l0].[Id] = [l1].[OneToOne_Optional_PK_Inverse
 LEFT JOIN [LevelThree] AS [l2] ON [l0].[Id] = [l2].[Level2_Optional_Id]
 LEFT JOIN [LevelTwo] AS [l3] ON [l].[Id] = [l3].[Level1_Optional_Id]
 LEFT JOIN [LevelThree] AS [l4] ON [l3].[Id] = [l4].[Level2_Optional_Id]
-WHERE [l1].[Name] <> N'Foo' OR [l1].[Name] IS NULL
+WHERE CASE
+    WHEN [l1].[Name] = N'Foo' THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
 ORDER BY [l].[Id], [l0].[Id], [l1].[Id], [l2].[Id], [l3].[Id], [l4].[Id]
 """,
             //
@@ -2152,7 +2257,10 @@ LEFT JOIN [LevelThree] AS [l2] ON [l0].[Id] = [l2].[Level2_Optional_Id]
 LEFT JOIN [LevelTwo] AS [l3] ON [l].[Id] = [l3].[Level1_Optional_Id]
 LEFT JOIN [LevelThree] AS [l4] ON [l3].[Id] = [l4].[Level2_Optional_Id]
 INNER JOIN [LevelThree] AS [l5] ON [l0].[Id] = [l5].[OneToMany_Optional_Inverse3Id]
-WHERE [l1].[Name] <> N'Foo' OR [l1].[Name] IS NULL
+WHERE CASE
+    WHEN [l1].[Name] = N'Foo' THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
 ORDER BY [l].[Id], [l0].[Id], [l1].[Id], [l2].[Id], [l3].[Id], [l4].[Id]
 """);
     }
@@ -2711,7 +2819,10 @@ FROM (
     SELECT [l].[Name]
     FROM [LevelOne] AS [l]
     GROUP BY [l].[Name]
-    HAVING [l].[Name] <> N'Foo' OR [l].[Name] IS NULL
+    HAVING CASE
+        WHEN [l].[Name] = N'Foo' THEN CAST(0 AS bit)
+        ELSE CAST(1 AS bit)
+    END = CAST(1 AS bit)
 ) AS [l1]
 LEFT JOIN (
     SELECT [l2].[Id], [l2].[Date], [l2].[Name], [l2].[OneToMany_Optional_Self_Inverse1Id], [l2].[OneToMany_Required_Self_Inverse1Id], [l2].[OneToOne_Optional_Self1Id]
@@ -2730,7 +2841,10 @@ FROM (
     SELECT [l].[Name]
     FROM [LevelOne] AS [l]
     GROUP BY [l].[Name]
-    HAVING [l].[Name] <> N'Foo' OR [l].[Name] IS NULL
+    HAVING CASE
+        WHEN [l].[Name] = N'Foo' THEN CAST(0 AS bit)
+        ELSE CAST(1 AS bit)
+    END = CAST(1 AS bit)
 ) AS [l7]
 LEFT JOIN (
     SELECT [l8].[Id], [l8].[Name]
@@ -3138,7 +3252,10 @@ WHERE (
     SELECT COUNT(*)
     FROM [LevelTwo] AS [l0]
     LEFT JOIN [LevelThree] AS [l1] ON [l0].[Id] = [l1].[OneToOne_Optional_PK_Inverse3Id]
-    WHERE [l].[Id] = [l0].[OneToMany_Optional_Inverse2Id] AND ([l1].[Name] <> N'Foo' OR [l1].[Name] IS NULL)) > 0
+    WHERE [l].[Id] = [l0].[OneToMany_Optional_Inverse2Id] AND CASE
+        WHEN [l1].[Name] = N'Foo' THEN CAST(0 AS bit)
+        ELSE CAST(1 AS bit)
+    END = CAST(1 AS bit)) > 0
 ORDER BY [l].[Id]
 """,
             //
@@ -3155,7 +3272,10 @@ WHERE (
     SELECT COUNT(*)
     FROM [LevelTwo] AS [l0]
     LEFT JOIN [LevelThree] AS [l1] ON [l0].[Id] = [l1].[OneToOne_Optional_PK_Inverse3Id]
-    WHERE [l].[Id] = [l0].[OneToMany_Optional_Inverse2Id] AND ([l1].[Name] <> N'Foo' OR [l1].[Name] IS NULL)) > 0
+    WHERE [l].[Id] = [l0].[OneToMany_Optional_Inverse2Id] AND CASE
+        WHEN [l1].[Name] = N'Foo' THEN CAST(0 AS bit)
+        ELSE CAST(1 AS bit)
+    END = CAST(1 AS bit)) > 0
 ORDER BY [l].[Id]
 """);
     }
@@ -4154,7 +4274,10 @@ WHERE (
     SELECT COUNT(*)
     FROM [LevelTwo] AS [l0]
     LEFT JOIN [LevelThree] AS [l1] ON [l0].[Id] = [l1].[OneToOne_Optional_PK_Inverse3Id]
-    WHERE [l].[Id] = [l0].[OneToMany_Optional_Inverse2Id] AND ([l1].[Name] <> N'Foo' OR [l1].[Name] IS NULL)) > 0
+    WHERE [l].[Id] = [l0].[OneToMany_Optional_Inverse2Id] AND CASE
+        WHEN [l1].[Name] = N'Foo' THEN CAST(0 AS bit)
+        ELSE CAST(1 AS bit)
+    END = CAST(1 AS bit)) > 0
 ORDER BY [l].[Id]
 """,
             //
@@ -4171,7 +4294,10 @@ WHERE (
     SELECT COUNT(*)
     FROM [LevelTwo] AS [l0]
     LEFT JOIN [LevelThree] AS [l1] ON [l0].[Id] = [l1].[OneToOne_Optional_PK_Inverse3Id]
-    WHERE [l].[Id] = [l0].[OneToMany_Optional_Inverse2Id] AND ([l1].[Name] <> N'Foo' OR [l1].[Name] IS NULL)) > 0
+    WHERE [l].[Id] = [l0].[OneToMany_Optional_Inverse2Id] AND CASE
+        WHEN [l1].[Name] = N'Foo' THEN CAST(0 AS bit)
+        ELSE CAST(1 AS bit)
+    END = CAST(1 AS bit)) > 0
 ORDER BY [l].[Id]
 """);
     }
@@ -4265,7 +4391,10 @@ INNER JOIN (
     FROM (
         SELECT [l1].[Id], [l1].[Level2_Optional_Id], [l1].[Level2_Required_Id], [l1].[Name], [l1].[OneToMany_Optional_Inverse3Id], [l1].[OneToMany_Optional_Self_Inverse3Id], [l1].[OneToMany_Required_Inverse3Id], [l1].[OneToMany_Required_Self_Inverse3Id], [l1].[OneToOne_Optional_PK_Inverse3Id], [l1].[OneToOne_Optional_Self3Id], ROW_NUMBER() OVER(PARTITION BY [l1].[OneToMany_Optional_Inverse3Id] ORDER BY [l1].[Name]) AS [row]
         FROM [LevelThree] AS [l1]
-        WHERE [l1].[Name] <> N'Foo' OR [l1].[Name] IS NULL
+        WHERE CASE
+            WHEN [l1].[Name] = N'Foo' THEN CAST(0 AS bit)
+            ELSE CAST(1 AS bit)
+        END = CAST(1 AS bit)
     ) AS [l2]
     WHERE 1 < [l2].[row] AND [l2].[row] <= 4
 ) AS [l3] ON [l0].[Id] = [l3].[OneToMany_Optional_Inverse3Id]
