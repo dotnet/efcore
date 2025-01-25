@@ -4,6 +4,7 @@
 using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal;
@@ -20,7 +21,8 @@ public class LazyLoader : ILazyLoader, IInjectableService
     private bool _disposed;
     private bool _detached;
     private IDictionary<string, bool>? _loadedStates;
-    private readonly ConcurrentDictionary<(object Entity, string NavigationName), bool> _isLoading = new(NavEntryEqualityComparer.Instance);
+    private readonly Lock _isLoadingLock = new Lock();
+    private readonly ConcurrentDictionary<(object Entity, string NavigationName), TaskCompletionSource> _isLoading = new(NavEntryEqualityComparer.Instance);
     private HashSet<string>? _nonLazyNavigations;
 
     /// <summary>
@@ -107,31 +109,48 @@ public class LazyLoader : ILazyLoader, IInjectableService
         Check.NotEmpty(navigationName, nameof(navigationName));
 
         var navEntry = (entity, navigationName);
-        if (_isLoading.TryAdd(navEntry, true))
+
+        var willWait = true;
+        TaskCompletionSource taskCompletionSource;
+
+        lock (_isLoadingLock)
         {
-            try
+            taskCompletionSource = _isLoading.GetOrAdd(navEntry, x =>
             {
-                // ShouldLoad is called after _isLoading.Add because it could attempt to load the property. See #13138.
-                if (ShouldLoad(entity, navigationName, out var entry))
+                willWait = false;
+                return new TaskCompletionSource();
+            });
+        }
+
+        if (willWait)
+        {
+            taskCompletionSource.Task.Wait();
+            return;
+        }
+
+        try
+        {
+            // ShouldLoad is called after _isLoading.Add because it could attempt to load the property. See #13138.
+            if (ShouldLoad(entity, navigationName, out var entry))
+            {
+                try
                 {
-                    try
-                    {
-                        entry.Load(
-                            _queryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution
-                                ? LoadOptions.ForceIdentityResolution
-                                : LoadOptions.None);
-                    }
-                    catch
-                    {
-                        entry.IsLoaded = false;
-                        throw;
-                    }
+                    entry.Load(
+                        _queryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution
+                            ? LoadOptions.ForceIdentityResolution
+                            : LoadOptions.None);
+                }
+                catch
+                {
+                    entry.IsLoaded = false;
+                    throw;
                 }
             }
-            finally
-            {
-                _isLoading.TryRemove(navEntry, out _);
-            }
+        }
+        finally
+        {
+            taskCompletionSource.SetResult();
+            _isLoading.TryRemove(navEntry, out _);
         }
     }
 
@@ -150,32 +169,49 @@ public class LazyLoader : ILazyLoader, IInjectableService
         Check.NotEmpty(navigationName, nameof(navigationName));
 
         var navEntry = (entity, navigationName);
-        if (_isLoading.TryAdd(navEntry, true))
+
+        var willWait = true;
+        TaskCompletionSource taskCompletionSource;
+
+        lock (_isLoadingLock)
         {
-            try
+            taskCompletionSource = _isLoading.GetOrAdd(navEntry, x =>
             {
-                // ShouldLoad is called after _isLoading.Add because it could attempt to load the property. See #13138.
-                if (ShouldLoad(entity, navigationName, out var entry))
+                willWait = false;
+                return new TaskCompletionSource();
+            });
+        }
+
+        if (willWait)
+        {
+            await taskCompletionSource.Task.WaitAsync(cancellationToken).ConfigureAwait(false);
+            return;
+        }
+
+        try
+        {
+            // ShouldLoad is called after _isLoading.Add because it could attempt to load the property. See #13138.
+            if (ShouldLoad(entity, navigationName, out var entry))
+            {
+                try
                 {
-                    try
-                    {
-                        await entry.LoadAsync(
-                            _queryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution
-                                ? LoadOptions.ForceIdentityResolution
-                                : LoadOptions.None,
-                            cancellationToken).ConfigureAwait(false);
-                    }
-                    catch
-                    {
-                        entry.IsLoaded = false;
-                        throw;
-                    }
+                    await entry.LoadAsync(
+                        _queryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution
+                            ? LoadOptions.ForceIdentityResolution
+                            : LoadOptions.None,
+                        cancellationToken).ConfigureAwait(false);
+                }
+                catch
+                {
+                    entry.IsLoaded = false;
+                    throw;
                 }
             }
-            finally
-            {
-                _isLoading.TryRemove(navEntry, out _);
-            }
+        }
+        finally
+        {
+            taskCompletionSource.SetResult();
+            _isLoading.TryRemove(navEntry, out _);
         }
     }
 
