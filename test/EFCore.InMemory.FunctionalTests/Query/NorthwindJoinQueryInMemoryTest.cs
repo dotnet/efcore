@@ -24,6 +24,10 @@ public class NorthwindJoinQueryInMemoryTest(NorthwindQueryInMemoryFixture<NoopMo
         // Joins between sources with client eval. Issue #21200.
         => Assert.ThrowsAsync<NotImplementedException>(() => base.SelectMany_with_client_eval_with_constructor(async));
 
+    // Right join not supported in InMemory
+    public override Task RightJoin(bool async)
+        => AssertTranslationFailed(() => base.RightJoin(async));
+
     public override async Task Join_local_collection_int_closure_is_cached_correctly(bool async)
     {
         var ids = new uint[] { 1, 2 };

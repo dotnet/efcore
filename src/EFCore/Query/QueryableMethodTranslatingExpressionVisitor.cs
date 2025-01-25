@@ -407,6 +407,20 @@ public abstract class QueryableMethodTranslatingExpressionVisitor : ExpressionVi
                         break;
                     }
 
+                    case nameof(Queryable.RightJoin)
+                        when genericMethod == QueryableMethods.RightJoin:
+                    {
+                        if (Visit(methodCallExpression.Arguments[1]) is ShapedQueryExpression innerShapedQueryExpression)
+                        {
+                            return CheckTranslated(
+                                TranslateRightJoin(
+                                    shapedQueryExpression, innerShapedQueryExpression, GetLambdaExpressionFromArgument(2),
+                                    GetLambdaExpressionFromArgument(3), GetLambdaExpressionFromArgument(4)));
+                        }
+
+                        break;
+                    }
+
                     case nameof(Queryable.Last)
                         when genericMethod == QueryableMethods.LastWithoutPredicate:
                         shapedQueryExpression = shapedQueryExpression.UpdateResultCardinality(ResultCardinality.Single);
@@ -835,6 +849,26 @@ public abstract class QueryableMethodTranslatingExpressionVisitor : ExpressionVi
     /// <param name="resultSelector">The result selector supplied in the call.</param>
     /// <returns>The shaped query after translation.</returns>
     protected abstract ShapedQueryExpression? TranslateLeftJoin(
+        ShapedQueryExpression outer,
+        ShapedQueryExpression inner,
+        LambdaExpression outerKeySelector,
+        LambdaExpression innerKeySelector,
+        LambdaExpression resultSelector);
+
+    /// <summary>
+    ///     Translates LeftJoin over the given source.
+    /// </summary>
+    /// <remarks>
+    ///     Certain patterns of GroupJoin-DefaultIfEmpty-SelectMany represents a left join in database. We identify such pattern
+    ///     in advance and convert it to join like syntax.
+    /// </remarks>
+    /// <param name="outer">The shaped query on which the operator is applied.</param>
+    /// <param name="inner">The inner shaped query to perform join with.</param>
+    /// <param name="outerKeySelector">The key selector for the outer source.</param>
+    /// <param name="innerKeySelector">The key selector for the inner source.</param>
+    /// <param name="resultSelector">The result selector supplied in the call.</param>
+    /// <returns>The shaped query after translation.</returns>
+    protected abstract ShapedQueryExpression? TranslateRightJoin(
         ShapedQueryExpression outer,
         ShapedQueryExpression inner,
         LambdaExpression outerKeySelector,

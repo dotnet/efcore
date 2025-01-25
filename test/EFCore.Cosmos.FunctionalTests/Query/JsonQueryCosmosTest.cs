@@ -2275,10 +2275,15 @@ WHERE (c["Discriminator"] = "Basic")
             () => base.Json_with_projection_of_multiple_json_references_and_entity_collection(async),
             CosmosStrings.LimitOffsetNotSupportedInSubqueries);
 
-    public override Task Left_join_json_entities(bool async)
+    public override Task LeftJoin_json_entities(bool async)
         => AssertTranslationFailedWithDetails(
-            () => base.Left_join_json_entities(async),
+            () => base.LeftJoin_json_entities(async),
             CosmosStrings.MultipleRootEntityTypesReferencedInQuery(nameof(JsonEntityBasic), nameof(JsonEntitySingleOwned)));
+
+    public override Task RightJoin_json_entities(bool async)
+        => AssertTranslationFailedWithDetails(
+            () => base.RightJoin_json_entities(async),
+            CosmosStrings.MultipleRootEntityTypesReferencedInQuery(nameof(JsonEntitySingleOwned), nameof(JsonEntityBasic)));
 
     public override Task Left_join_json_entities_complex_projection(bool async)
         => AssertTranslationFailedWithDetails(
