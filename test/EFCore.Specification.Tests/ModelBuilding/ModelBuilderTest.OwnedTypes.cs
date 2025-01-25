@@ -1893,15 +1893,26 @@ public abstract partial class ModelBuilderTest
         }
 
         [ConditionalFact]
-        public virtual void Inheritance_where_base_has_multiple_owned_types_works()
+        public virtual void Can_have_multiple_owned_types_on_base()
         {
             var modelBuilder = CreateModelBuilder();
-            modelBuilder.Entity<BaseOwner>();
+            modelBuilder.Entity<BaseOwner>().OwnsOne(o => o.OwnedWithRef1);
             modelBuilder.Entity<DerivedOwner>();
 
             var model = modelBuilder.FinalizeModel();
 
-            Assert.Equal(4, model.GetEntityTypes().Count());
+            Assert.Equal(6, model.GetEntityTypes().Count());
+            var owner = model.FindEntityType(typeof(BaseOwner));
+
+            var ownership1 = owner.FindNavigation(nameof(BaseOwner.Owned1)).ForeignKey;
+            var owned1 = ownership1.DeclaringEntityType;
+            Assert.True(ownership1.IsOwnership);
+            Assert.Same(owner, ownership1.PrincipalEntityType);
+
+            var ownership3 = owner.FindNavigation(nameof(BaseOwner.OwnedWithRef1)).ForeignKey;
+            var owned3 = ownership3.DeclaringEntityType;
+            Assert.True(ownership3.IsOwnership);
+            Assert.Same(owner, ownership3.DependentToPrincipal.TargetEntityType);
         }
 
         [ConditionalFact]

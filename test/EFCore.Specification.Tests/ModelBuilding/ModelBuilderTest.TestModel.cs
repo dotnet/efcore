@@ -852,22 +852,26 @@ public abstract partial class ModelBuilderTest
     protected class BaseOwner
     {
         public int Id { get; set; }
-        public required OwnedTypeInheritance1 Owned1 { get; set; }
-        public required OwnedTypeInheritance2 Owned2 { get; set; }
+        public OwnedTypeInheritance Owned1 { get; set; } = null!;
+        public OwnedTypeInheritance Owned2 { get; set; } = null!;
+        public OwnedTypeInheritanceWithReference OwnedWithRef1 { get; set; } = null!;
+        public OwnedTypeInheritanceWithReference OwnedWithRef2 { get; set; } = null!;
     }
 
     protected class DerivedOwner : BaseOwner;
 
     [Owned]
-    protected class OwnedTypeInheritance1
+    protected class OwnedTypeInheritance
     {
         public string? Value { get; set; }
     }
 
     [Owned]
-    protected class OwnedTypeInheritance2
+    protected class OwnedTypeInheritanceWithReference
     {
         public string? Value { get; set; }
+        public int OwnerId { get; set; }
+        public BaseOwner? Owner { get; set; }
     }
 
     protected interface IReplaceable
