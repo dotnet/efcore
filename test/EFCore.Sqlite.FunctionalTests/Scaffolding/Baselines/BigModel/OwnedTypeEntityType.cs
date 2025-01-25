@@ -263,6 +263,8 @@ namespace TestNamespace
                         new ValueConverter<IPAddress, string>(
                             string (IPAddress v) => ((object)v).ToString(),
                             IPAddress (string v) => IPAddress.Parse(v)))));
+            var refTypeArrayElementType = refTypeArray.SetElementType(typeof(IPAddress));
+            refTypeArrayElementType.TypeMapping = refTypeArray.TypeMapping.ElementTypeMapping;
 
             var refTypeEnumerable = runtimeEntityType.AddProperty(
                 "RefTypeEnumerable",
@@ -310,6 +312,8 @@ namespace TestNamespace
                 jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<List<string>, string>(
                     JsonStringReaderWriter.Instance),
                 elementMapping: SqliteStringTypeMapping.Default);
+            var refTypeEnumerableElementType = refTypeEnumerable.SetElementType(typeof(string));
+            refTypeEnumerableElementType.TypeMapping = refTypeEnumerable.TypeMapping.ElementTypeMapping;
 
             var refTypeIList = runtimeEntityType.AddProperty(
                 "RefTypeIList",
@@ -357,6 +361,8 @@ namespace TestNamespace
                 jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<List<string>, string>(
                     JsonStringReaderWriter.Instance),
                 elementMapping: SqliteStringTypeMapping.Default);
+            var refTypeIListElementType = refTypeIList.SetElementType(typeof(string));
+            refTypeIListElementType.TypeMapping = refTypeIList.TypeMapping.ElementTypeMapping;
 
             var refTypeList = runtimeEntityType.AddProperty(
                 "RefTypeList",
@@ -434,6 +440,8 @@ namespace TestNamespace
                         new ValueConverter<IPAddress, string>(
                             string (IPAddress v) => ((object)v).ToString(),
                             IPAddress (string v) => IPAddress.Parse(v)))));
+            var refTypeListElementType = refTypeList.SetElementType(typeof(IPAddress));
+            refTypeListElementType.TypeMapping = refTypeList.TypeMapping.ElementTypeMapping;
 
             var valueTypeArray = runtimeEntityType.AddProperty(
                 "ValueTypeArray",
@@ -481,6 +489,8 @@ namespace TestNamespace
                 jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<DateTime[], DateTime>(
                     SqliteJsonDateTimeReaderWriter.Instance),
                 elementMapping: SqliteDateTimeTypeMapping.Default);
+            var valueTypeArrayElementType = valueTypeArray.SetElementType(typeof(DateTime));
+            valueTypeArrayElementType.TypeMapping = valueTypeArray.TypeMapping.ElementTypeMapping;
 
             var valueTypeEnumerable = runtimeEntityType.AddProperty(
                 "ValueTypeEnumerable",
@@ -542,6 +552,8 @@ namespace TestNamespace
                         byte (byte v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
                         storeTypeName: "INTEGER")));
+            var valueTypeEnumerableElementType = valueTypeEnumerable.SetElementType(typeof(byte));
+            valueTypeEnumerableElementType.TypeMapping = valueTypeEnumerable.TypeMapping.ElementTypeMapping;
 
             var valueTypeIList = runtimeEntityType.AddProperty(
                 "ValueTypeIList",
@@ -603,6 +615,8 @@ namespace TestNamespace
                         byte (byte v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
                         storeTypeName: "INTEGER")));
+            var valueTypeIListElementType = valueTypeIList.SetElementType(typeof(byte));
+            valueTypeIListElementType.TypeMapping = valueTypeIList.TypeMapping.ElementTypeMapping;
 
             var valueTypeList = runtimeEntityType.AddProperty(
                 "ValueTypeList",
@@ -664,6 +678,8 @@ namespace TestNamespace
                         short (short v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
                         storeTypeName: "INTEGER")));
+            var valueTypeListElementType = valueTypeList.SetElementType(typeof(short));
+            valueTypeListElementType.TypeMapping = valueTypeList.TypeMapping.ElementTypeMapping;
 
             var context = runtimeEntityType.AddServiceProperty(
                 "Context",

@@ -194,6 +194,8 @@ namespace TestNamespace
                         bool (bool v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
                         storeTypeName: "INTEGER")));
+            var boolArrayElementType = boolArray.SetElementType(typeof(bool));
+            boolArrayElementType.TypeMapping = boolArray.TypeMapping.ElementTypeMapping;
 
             var boolReadOnlyCollection = runtimeEntityType.AddProperty(
                 "BoolReadOnlyCollection",
@@ -253,6 +255,8 @@ namespace TestNamespace
                         bool (bool v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
                         storeTypeName: "INTEGER")));
+            var boolReadOnlyCollectionElementType = boolReadOnlyCollection.SetElementType(typeof(bool));
+            boolReadOnlyCollectionElementType.TypeMapping = boolReadOnlyCollection.TypeMapping.ElementTypeMapping;
 
             var boolToStringConverterProperty = runtimeEntityType.AddProperty(
                 "BoolToStringConverterProperty",
@@ -504,6 +508,8 @@ namespace TestNamespace
                         bool (byte[] v1, byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
                         int (byte[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
                         byte[] (byte[] source) => source.ToArray())));
+            var bytesArrayElementType = bytesArray.SetElementType(typeof(byte[]));
+            bytesArrayElementType.TypeMapping = bytesArray.TypeMapping.ElementTypeMapping;
 
             var bytesToStringConverterProperty = runtimeEntityType.AddProperty(
                 "BytesToStringConverterProperty",
@@ -706,6 +712,8 @@ namespace TestNamespace
                         char (char v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
                         storeTypeName: "TEXT")));
+            var charArrayElementType = charArray.SetElementType(typeof(char));
+            charArrayElementType.TypeMapping = charArray.TypeMapping.ElementTypeMapping;
 
             var charToStringConverterProperty = runtimeEntityType.AddProperty(
                 "CharToStringConverterProperty",
@@ -832,6 +840,8 @@ namespace TestNamespace
                 jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<DateOnly[], DateOnly>(
                     JsonDateOnlyReaderWriter.Instance),
                 elementMapping: SqliteDateOnlyTypeMapping.Default);
+            var dateOnlyArrayElementType = dateOnlyArray.SetElementType(typeof(DateOnly));
+            dateOnlyArrayElementType.TypeMapping = dateOnlyArray.TypeMapping.ElementTypeMapping;
 
             var dateOnlyToStringConverterProperty = runtimeEntityType.AddProperty(
                 "DateOnlyToStringConverterProperty",
@@ -958,6 +968,8 @@ namespace TestNamespace
                 jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<DateTime[], DateTime>(
                     SqliteJsonDateTimeReaderWriter.Instance),
                 elementMapping: SqliteDateTimeTypeMapping.Default);
+            var dateTimeArrayElementType = dateTimeArray.SetElementType(typeof(DateTime));
+            dateTimeArrayElementType.TypeMapping = dateTimeArray.TypeMapping.ElementTypeMapping;
 
             var dateTimeOffsetToBinaryConverterProperty = runtimeEntityType.AddProperty(
                 "DateTimeOffsetToBinaryConverterProperty",
@@ -1321,6 +1333,8 @@ namespace TestNamespace
                 jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<decimal[], decimal>(
                     SqliteJsonDecimalReaderWriter.Instance),
                 elementMapping: SqliteDecimalTypeMapping.Default);
+            var decimalArrayElementType = decimalArray.SetElementType(typeof(decimal));
+            decimalArrayElementType.TypeMapping = decimalArray.TypeMapping.ElementTypeMapping;
 
             var decimalNumberToBytesConverterProperty = runtimeEntityType.AddProperty(
                 "DecimalNumberToBytesConverterProperty",
@@ -1527,6 +1541,8 @@ namespace TestNamespace
                         double (double v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
                         storeTypeName: "REAL")));
+            var doubleArrayElementType = doubleArray.SetElementType(typeof(double));
+            doubleArrayElementType.TypeMapping = doubleArray.TypeMapping.ElementTypeMapping;
 
             var doubleNumberToBytesConverterProperty = runtimeEntityType.AddProperty(
                 "DoubleNumberToBytesConverterProperty",
@@ -1757,6 +1773,8 @@ namespace TestNamespace
                         new ValueConverter<CompiledModelTestBase.Enum16, short>(
                             short (CompiledModelTestBase.Enum16 value) => ((short)(value)),
                             CompiledModelTestBase.Enum16 (short value) => ((CompiledModelTestBase.Enum16)(value))))));
+            var enum16ArrayElementType = enum16Array.SetElementType(typeof(CompiledModelTestBase.Enum16));
+            enum16ArrayElementType.TypeMapping = enum16Array.TypeMapping.ElementTypeMapping;
 
             var enum16AsString = runtimeEntityType.AddProperty(
                 "Enum16AsString",
@@ -1880,6 +1898,9 @@ namespace TestNamespace
                         new ValueConverter<CompiledModelTestBase.Enum16, string>(
                             string (CompiledModelTestBase.Enum16 v) => ((object)v).ToString(),
                             CompiledModelTestBase.Enum16 (string v) => StringEnumConverter<CompiledModelTestBase.Enum16, string, CompiledModelTestBase.Enum16>.ConvertToEnum(v)))));
+            var enum16AsStringArrayElementType = enum16AsStringArray.SetElementType(typeof(CompiledModelTestBase.Enum16),
+                providerClrType: typeof(string));
+            enum16AsStringArrayElementType.TypeMapping = enum16AsStringArray.TypeMapping.ElementTypeMapping;
 
             var enum16AsStringCollection = runtimeEntityType.AddProperty(
                 "Enum16AsStringCollection",
@@ -1953,6 +1974,9 @@ namespace TestNamespace
                         new ValueConverter<CompiledModelTestBase.Enum16, string>(
                             string (CompiledModelTestBase.Enum16 v) => ((object)v).ToString(),
                             CompiledModelTestBase.Enum16 (string v) => StringEnumConverter<CompiledModelTestBase.Enum16, string, CompiledModelTestBase.Enum16>.ConvertToEnum(v)))));
+            var enum16AsStringCollectionElementType = enum16AsStringCollection.SetElementType(typeof(CompiledModelTestBase.Enum16),
+                providerClrType: typeof(string));
+            enum16AsStringCollectionElementType.TypeMapping = enum16AsStringCollection.TypeMapping.ElementTypeMapping;
 
             var enum16Collection = runtimeEntityType.AddProperty(
                 "Enum16Collection",
@@ -2028,6 +2052,8 @@ namespace TestNamespace
                         new ValueConverter<CompiledModelTestBase.Enum16, short>(
                             short (CompiledModelTestBase.Enum16 value) => ((short)(value)),
                             CompiledModelTestBase.Enum16 (short value) => ((CompiledModelTestBase.Enum16)(value))))));
+            var enum16CollectionElementType = enum16Collection.SetElementType(typeof(CompiledModelTestBase.Enum16));
+            enum16CollectionElementType.TypeMapping = enum16Collection.TypeMapping.ElementTypeMapping;
 
             var enum32 = runtimeEntityType.AddProperty(
                 "Enum32",
@@ -2154,6 +2180,8 @@ namespace TestNamespace
                         new ValueConverter<CompiledModelTestBase.Enum32, int>(
                             int (CompiledModelTestBase.Enum32 value) => ((int)(value)),
                             CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)(value))))));
+            var enum32ArrayElementType = enum32Array.SetElementType(typeof(CompiledModelTestBase.Enum32));
+            enum32ArrayElementType.TypeMapping = enum32Array.TypeMapping.ElementTypeMapping;
 
             var enum32AsString = runtimeEntityType.AddProperty(
                 "Enum32AsString",
@@ -2277,6 +2305,9 @@ namespace TestNamespace
                         new ValueConverter<CompiledModelTestBase.Enum32, string>(
                             string (CompiledModelTestBase.Enum32 v) => ((object)v).ToString(),
                             CompiledModelTestBase.Enum32 (string v) => StringEnumConverter<CompiledModelTestBase.Enum32, string, CompiledModelTestBase.Enum32>.ConvertToEnum(v)))));
+            var enum32AsStringArrayElementType = enum32AsStringArray.SetElementType(typeof(CompiledModelTestBase.Enum32),
+                providerClrType: typeof(string));
+            enum32AsStringArrayElementType.TypeMapping = enum32AsStringArray.TypeMapping.ElementTypeMapping;
 
             var enum32AsStringCollection = runtimeEntityType.AddProperty(
                 "Enum32AsStringCollection",
@@ -2350,6 +2381,9 @@ namespace TestNamespace
                         new ValueConverter<CompiledModelTestBase.Enum32, string>(
                             string (CompiledModelTestBase.Enum32 v) => ((object)v).ToString(),
                             CompiledModelTestBase.Enum32 (string v) => StringEnumConverter<CompiledModelTestBase.Enum32, string, CompiledModelTestBase.Enum32>.ConvertToEnum(v)))));
+            var enum32AsStringCollectionElementType = enum32AsStringCollection.SetElementType(typeof(CompiledModelTestBase.Enum32),
+                providerClrType: typeof(string));
+            enum32AsStringCollectionElementType.TypeMapping = enum32AsStringCollection.TypeMapping.ElementTypeMapping;
 
             var enum32Collection = runtimeEntityType.AddProperty(
                 "Enum32Collection",
@@ -2425,6 +2459,8 @@ namespace TestNamespace
                         new ValueConverter<CompiledModelTestBase.Enum32, int>(
                             int (CompiledModelTestBase.Enum32 value) => ((int)(value)),
                             CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)(value))))));
+            var enum32CollectionElementType = enum32Collection.SetElementType(typeof(CompiledModelTestBase.Enum32));
+            enum32CollectionElementType.TypeMapping = enum32Collection.TypeMapping.ElementTypeMapping;
 
             var enum64 = runtimeEntityType.AddProperty(
                 "Enum64",
@@ -2551,6 +2587,8 @@ namespace TestNamespace
                         new ValueConverter<CompiledModelTestBase.Enum64, long>(
                             long (CompiledModelTestBase.Enum64 value) => ((long)(value)),
                             CompiledModelTestBase.Enum64 (long value) => ((CompiledModelTestBase.Enum64)(value))))));
+            var enum64ArrayElementType = enum64Array.SetElementType(typeof(CompiledModelTestBase.Enum64));
+            enum64ArrayElementType.TypeMapping = enum64Array.TypeMapping.ElementTypeMapping;
 
             var enum64AsString = runtimeEntityType.AddProperty(
                 "Enum64AsString",
@@ -2674,6 +2712,9 @@ namespace TestNamespace
                         new ValueConverter<CompiledModelTestBase.Enum64, string>(
                             string (CompiledModelTestBase.Enum64 v) => ((object)v).ToString(),
                             CompiledModelTestBase.Enum64 (string v) => StringEnumConverter<CompiledModelTestBase.Enum64, string, CompiledModelTestBase.Enum64>.ConvertToEnum(v)))));
+            var enum64AsStringArrayElementType = enum64AsStringArray.SetElementType(typeof(CompiledModelTestBase.Enum64),
+                providerClrType: typeof(string));
+            enum64AsStringArrayElementType.TypeMapping = enum64AsStringArray.TypeMapping.ElementTypeMapping;
 
             var enum64AsStringCollection = runtimeEntityType.AddProperty(
                 "Enum64AsStringCollection",
@@ -2747,6 +2788,9 @@ namespace TestNamespace
                         new ValueConverter<CompiledModelTestBase.Enum64, string>(
                             string (CompiledModelTestBase.Enum64 v) => ((object)v).ToString(),
                             CompiledModelTestBase.Enum64 (string v) => StringEnumConverter<CompiledModelTestBase.Enum64, string, CompiledModelTestBase.Enum64>.ConvertToEnum(v)))));
+            var enum64AsStringCollectionElementType = enum64AsStringCollection.SetElementType(typeof(CompiledModelTestBase.Enum64),
+                providerClrType: typeof(string));
+            enum64AsStringCollectionElementType.TypeMapping = enum64AsStringCollection.TypeMapping.ElementTypeMapping;
 
             var enum64Collection = runtimeEntityType.AddProperty(
                 "Enum64Collection",
@@ -2822,6 +2866,8 @@ namespace TestNamespace
                         new ValueConverter<CompiledModelTestBase.Enum64, long>(
                             long (CompiledModelTestBase.Enum64 value) => ((long)(value)),
                             CompiledModelTestBase.Enum64 (long value) => ((CompiledModelTestBase.Enum64)(value))))));
+            var enum64CollectionElementType = enum64Collection.SetElementType(typeof(CompiledModelTestBase.Enum64));
+            enum64CollectionElementType.TypeMapping = enum64Collection.TypeMapping.ElementTypeMapping;
 
             var enum8 = runtimeEntityType.AddProperty(
                 "Enum8",
@@ -2948,6 +2994,8 @@ namespace TestNamespace
                         new ValueConverter<CompiledModelTestBase.Enum8, sbyte>(
                             sbyte (CompiledModelTestBase.Enum8 value) => ((sbyte)(value)),
                             CompiledModelTestBase.Enum8 (sbyte value) => ((CompiledModelTestBase.Enum8)(value))))));
+            var enum8ArrayElementType = enum8Array.SetElementType(typeof(CompiledModelTestBase.Enum8));
+            enum8ArrayElementType.TypeMapping = enum8Array.TypeMapping.ElementTypeMapping;
 
             var enum8AsString = runtimeEntityType.AddProperty(
                 "Enum8AsString",
@@ -3071,6 +3119,9 @@ namespace TestNamespace
                         new ValueConverter<CompiledModelTestBase.Enum8, string>(
                             string (CompiledModelTestBase.Enum8 v) => ((object)v).ToString(),
                             CompiledModelTestBase.Enum8 (string v) => StringEnumConverter<CompiledModelTestBase.Enum8, string, CompiledModelTestBase.Enum8>.ConvertToEnum(v)))));
+            var enum8AsStringArrayElementType = enum8AsStringArray.SetElementType(typeof(CompiledModelTestBase.Enum8),
+                providerClrType: typeof(string));
+            enum8AsStringArrayElementType.TypeMapping = enum8AsStringArray.TypeMapping.ElementTypeMapping;
 
             var enum8AsStringCollection = runtimeEntityType.AddProperty(
                 "Enum8AsStringCollection",
@@ -3144,6 +3195,9 @@ namespace TestNamespace
                         new ValueConverter<CompiledModelTestBase.Enum8, string>(
                             string (CompiledModelTestBase.Enum8 v) => ((object)v).ToString(),
                             CompiledModelTestBase.Enum8 (string v) => StringEnumConverter<CompiledModelTestBase.Enum8, string, CompiledModelTestBase.Enum8>.ConvertToEnum(v)))));
+            var enum8AsStringCollectionElementType = enum8AsStringCollection.SetElementType(typeof(CompiledModelTestBase.Enum8),
+                providerClrType: typeof(string));
+            enum8AsStringCollectionElementType.TypeMapping = enum8AsStringCollection.TypeMapping.ElementTypeMapping;
 
             var enum8Collection = runtimeEntityType.AddProperty(
                 "Enum8Collection",
@@ -3219,6 +3273,8 @@ namespace TestNamespace
                         new ValueConverter<CompiledModelTestBase.Enum8, sbyte>(
                             sbyte (CompiledModelTestBase.Enum8 value) => ((sbyte)(value)),
                             CompiledModelTestBase.Enum8 (sbyte value) => ((CompiledModelTestBase.Enum8)(value))))));
+            var enum8CollectionElementType = enum8Collection.SetElementType(typeof(CompiledModelTestBase.Enum8));
+            enum8CollectionElementType.TypeMapping = enum8Collection.TypeMapping.ElementTypeMapping;
 
             var enumToNumberConverterProperty = runtimeEntityType.AddProperty(
                 "EnumToNumberConverterProperty",
@@ -3447,6 +3503,8 @@ namespace TestNamespace
                         new ValueConverter<CompiledModelTestBase.EnumU16, ushort>(
                             ushort (CompiledModelTestBase.EnumU16 value) => ((ushort)(value)),
                             CompiledModelTestBase.EnumU16 (ushort value) => ((CompiledModelTestBase.EnumU16)(value))))));
+            var enumU16ArrayElementType = enumU16Array.SetElementType(typeof(CompiledModelTestBase.EnumU16));
+            enumU16ArrayElementType.TypeMapping = enumU16Array.TypeMapping.ElementTypeMapping;
 
             var enumU16AsString = runtimeEntityType.AddProperty(
                 "EnumU16AsString",
@@ -3570,6 +3628,9 @@ namespace TestNamespace
                         new ValueConverter<CompiledModelTestBase.EnumU16, string>(
                             string (CompiledModelTestBase.EnumU16 v) => ((object)v).ToString(),
                             CompiledModelTestBase.EnumU16 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU16, string, CompiledModelTestBase.EnumU16>.ConvertToEnum(v)))));
+            var enumU16AsStringArrayElementType = enumU16AsStringArray.SetElementType(typeof(CompiledModelTestBase.EnumU16),
+                providerClrType: typeof(string));
+            enumU16AsStringArrayElementType.TypeMapping = enumU16AsStringArray.TypeMapping.ElementTypeMapping;
 
             var enumU16AsStringCollection = runtimeEntityType.AddProperty(
                 "EnumU16AsStringCollection",
@@ -3643,6 +3704,9 @@ namespace TestNamespace
                         new ValueConverter<CompiledModelTestBase.EnumU16, string>(
                             string (CompiledModelTestBase.EnumU16 v) => ((object)v).ToString(),
                             CompiledModelTestBase.EnumU16 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU16, string, CompiledModelTestBase.EnumU16>.ConvertToEnum(v)))));
+            var enumU16AsStringCollectionElementType = enumU16AsStringCollection.SetElementType(typeof(CompiledModelTestBase.EnumU16),
+                providerClrType: typeof(string));
+            enumU16AsStringCollectionElementType.TypeMapping = enumU16AsStringCollection.TypeMapping.ElementTypeMapping;
 
             var enumU16Collection = runtimeEntityType.AddProperty(
                 "EnumU16Collection",
@@ -3718,6 +3782,8 @@ namespace TestNamespace
                         new ValueConverter<CompiledModelTestBase.EnumU16, ushort>(
                             ushort (CompiledModelTestBase.EnumU16 value) => ((ushort)(value)),
                             CompiledModelTestBase.EnumU16 (ushort value) => ((CompiledModelTestBase.EnumU16)(value))))));
+            var enumU16CollectionElementType = enumU16Collection.SetElementType(typeof(CompiledModelTestBase.EnumU16));
+            enumU16CollectionElementType.TypeMapping = enumU16Collection.TypeMapping.ElementTypeMapping;
 
             var enumU32 = runtimeEntityType.AddProperty(
                 "EnumU32",
@@ -3844,6 +3910,8 @@ namespace TestNamespace
                         new ValueConverter<CompiledModelTestBase.EnumU32, uint>(
                             uint (CompiledModelTestBase.EnumU32 value) => ((uint)(value)),
                             CompiledModelTestBase.EnumU32 (uint value) => ((CompiledModelTestBase.EnumU32)(value))))));
+            var enumU32ArrayElementType = enumU32Array.SetElementType(typeof(CompiledModelTestBase.EnumU32));
+            enumU32ArrayElementType.TypeMapping = enumU32Array.TypeMapping.ElementTypeMapping;
 
             var enumU32AsString = runtimeEntityType.AddProperty(
                 "EnumU32AsString",
@@ -3967,6 +4035,9 @@ namespace TestNamespace
                         new ValueConverter<CompiledModelTestBase.EnumU32, string>(
                             string (CompiledModelTestBase.EnumU32 v) => ((object)v).ToString(),
                             CompiledModelTestBase.EnumU32 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU32, string, CompiledModelTestBase.EnumU32>.ConvertToEnum(v)))));
+            var enumU32AsStringArrayElementType = enumU32AsStringArray.SetElementType(typeof(CompiledModelTestBase.EnumU32),
+                providerClrType: typeof(string));
+            enumU32AsStringArrayElementType.TypeMapping = enumU32AsStringArray.TypeMapping.ElementTypeMapping;
 
             var enumU32AsStringCollection = runtimeEntityType.AddProperty(
                 "EnumU32AsStringCollection",
@@ -4040,6 +4111,9 @@ namespace TestNamespace
                         new ValueConverter<CompiledModelTestBase.EnumU32, string>(
                             string (CompiledModelTestBase.EnumU32 v) => ((object)v).ToString(),
                             CompiledModelTestBase.EnumU32 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU32, string, CompiledModelTestBase.EnumU32>.ConvertToEnum(v)))));
+            var enumU32AsStringCollectionElementType = enumU32AsStringCollection.SetElementType(typeof(CompiledModelTestBase.EnumU32),
+                providerClrType: typeof(string));
+            enumU32AsStringCollectionElementType.TypeMapping = enumU32AsStringCollection.TypeMapping.ElementTypeMapping;
 
             var enumU32Collection = runtimeEntityType.AddProperty(
                 "EnumU32Collection",
@@ -4115,6 +4189,8 @@ namespace TestNamespace
                         new ValueConverter<CompiledModelTestBase.EnumU32, uint>(
                             uint (CompiledModelTestBase.EnumU32 value) => ((uint)(value)),
                             CompiledModelTestBase.EnumU32 (uint value) => ((CompiledModelTestBase.EnumU32)(value))))));
+            var enumU32CollectionElementType = enumU32Collection.SetElementType(typeof(CompiledModelTestBase.EnumU32));
+            enumU32CollectionElementType.TypeMapping = enumU32Collection.TypeMapping.ElementTypeMapping;
 
             var enumU64 = runtimeEntityType.AddProperty(
                 "EnumU64",
@@ -4237,6 +4313,8 @@ namespace TestNamespace
                         new ValueConverter<CompiledModelTestBase.EnumU64, ulong>(
                             ulong (CompiledModelTestBase.EnumU64 value) => ((ulong)(value)),
                             CompiledModelTestBase.EnumU64 (ulong value) => ((CompiledModelTestBase.EnumU64)(value))))));
+            var enumU64ArrayElementType = enumU64Array.SetElementType(typeof(CompiledModelTestBase.EnumU64));
+            enumU64ArrayElementType.TypeMapping = enumU64Array.TypeMapping.ElementTypeMapping;
 
             var enumU64AsString = runtimeEntityType.AddProperty(
                 "EnumU64AsString",
@@ -4360,6 +4438,9 @@ namespace TestNamespace
                         new ValueConverter<CompiledModelTestBase.EnumU64, string>(
                             string (CompiledModelTestBase.EnumU64 v) => ((object)v).ToString(),
                             CompiledModelTestBase.EnumU64 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU64, string, CompiledModelTestBase.EnumU64>.ConvertToEnum(v)))));
+            var enumU64AsStringArrayElementType = enumU64AsStringArray.SetElementType(typeof(CompiledModelTestBase.EnumU64),
+                providerClrType: typeof(string));
+            enumU64AsStringArrayElementType.TypeMapping = enumU64AsStringArray.TypeMapping.ElementTypeMapping;
 
             var enumU64AsStringCollection = runtimeEntityType.AddProperty(
                 "EnumU64AsStringCollection",
@@ -4433,6 +4514,9 @@ namespace TestNamespace
                         new ValueConverter<CompiledModelTestBase.EnumU64, string>(
                             string (CompiledModelTestBase.EnumU64 v) => ((object)v).ToString(),
                             CompiledModelTestBase.EnumU64 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU64, string, CompiledModelTestBase.EnumU64>.ConvertToEnum(v)))));
+            var enumU64AsStringCollectionElementType = enumU64AsStringCollection.SetElementType(typeof(CompiledModelTestBase.EnumU64),
+                providerClrType: typeof(string));
+            enumU64AsStringCollectionElementType.TypeMapping = enumU64AsStringCollection.TypeMapping.ElementTypeMapping;
 
             var enumU64Collection = runtimeEntityType.AddProperty(
                 "EnumU64Collection",
@@ -4506,6 +4590,8 @@ namespace TestNamespace
                         new ValueConverter<CompiledModelTestBase.EnumU64, ulong>(
                             ulong (CompiledModelTestBase.EnumU64 value) => ((ulong)(value)),
                             CompiledModelTestBase.EnumU64 (ulong value) => ((CompiledModelTestBase.EnumU64)(value))))));
+            var enumU64CollectionElementType = enumU64Collection.SetElementType(typeof(CompiledModelTestBase.EnumU64));
+            enumU64CollectionElementType.TypeMapping = enumU64Collection.TypeMapping.ElementTypeMapping;
 
             var enumU8 = runtimeEntityType.AddProperty(
                 "EnumU8",
@@ -4632,6 +4718,8 @@ namespace TestNamespace
                         new ValueConverter<CompiledModelTestBase.EnumU8, byte>(
                             byte (CompiledModelTestBase.EnumU8 value) => ((byte)(value)),
                             CompiledModelTestBase.EnumU8 (byte value) => ((CompiledModelTestBase.EnumU8)(value))))));
+            var enumU8ArrayElementType = enumU8Array.SetElementType(typeof(CompiledModelTestBase.EnumU8));
+            enumU8ArrayElementType.TypeMapping = enumU8Array.TypeMapping.ElementTypeMapping;
 
             var enumU8AsString = runtimeEntityType.AddProperty(
                 "EnumU8AsString",
@@ -4755,6 +4843,9 @@ namespace TestNamespace
                         new ValueConverter<CompiledModelTestBase.EnumU8, string>(
                             string (CompiledModelTestBase.EnumU8 v) => ((object)v).ToString(),
                             CompiledModelTestBase.EnumU8 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU8, string, CompiledModelTestBase.EnumU8>.ConvertToEnum(v)))));
+            var enumU8AsStringArrayElementType = enumU8AsStringArray.SetElementType(typeof(CompiledModelTestBase.EnumU8),
+                providerClrType: typeof(string));
+            enumU8AsStringArrayElementType.TypeMapping = enumU8AsStringArray.TypeMapping.ElementTypeMapping;
 
             var enumU8AsStringCollection = runtimeEntityType.AddProperty(
                 "EnumU8AsStringCollection",
@@ -4828,6 +4919,9 @@ namespace TestNamespace
                         new ValueConverter<CompiledModelTestBase.EnumU8, string>(
                             string (CompiledModelTestBase.EnumU8 v) => ((object)v).ToString(),
                             CompiledModelTestBase.EnumU8 (string v) => StringEnumConverter<CompiledModelTestBase.EnumU8, string, CompiledModelTestBase.EnumU8>.ConvertToEnum(v)))));
+            var enumU8AsStringCollectionElementType = enumU8AsStringCollection.SetElementType(typeof(CompiledModelTestBase.EnumU8),
+                providerClrType: typeof(string));
+            enumU8AsStringCollectionElementType.TypeMapping = enumU8AsStringCollection.TypeMapping.ElementTypeMapping;
 
             var enumU8Collection = runtimeEntityType.AddProperty(
                 "EnumU8Collection",
@@ -4903,6 +4997,8 @@ namespace TestNamespace
                         new ValueConverter<CompiledModelTestBase.EnumU8, byte>(
                             byte (CompiledModelTestBase.EnumU8 value) => ((byte)(value)),
                             CompiledModelTestBase.EnumU8 (byte value) => ((CompiledModelTestBase.EnumU8)(value))))));
+            var enumU8CollectionElementType = enumU8Collection.SetElementType(typeof(CompiledModelTestBase.EnumU8));
+            enumU8CollectionElementType.TypeMapping = enumU8Collection.TypeMapping.ElementTypeMapping;
 
             var @float = runtimeEntityType.AddProperty(
                 "Float",
@@ -5005,6 +5101,8 @@ namespace TestNamespace
                         float (float v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
                         storeTypeName: "REAL")));
+            var floatArrayElementType = floatArray.SetElementType(typeof(float));
+            floatArrayElementType.TypeMapping = floatArray.TypeMapping.ElementTypeMapping;
 
             var guid = runtimeEntityType.AddProperty(
                 "Guid",
@@ -5079,6 +5177,8 @@ namespace TestNamespace
                 jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<Guid[], Guid>(
                     SqliteJsonGuidReaderWriter.Instance),
                 elementMapping: SqliteGuidTypeMapping.Default);
+            var guidArrayElementType = guidArray.SetElementType(typeof(Guid));
+            guidArrayElementType.TypeMapping = guidArray.TypeMapping.ElementTypeMapping;
 
             var guidToBytesConverterProperty = runtimeEntityType.AddProperty(
                 "GuidToBytesConverterProperty",
@@ -5308,6 +5408,8 @@ namespace TestNamespace
                         new ValueConverter<IPAddress, string>(
                             string (IPAddress v) => ((object)v).ToString(),
                             IPAddress (string v) => IPAddress.Parse(v)))));
+            var iPAddressArrayElementType = iPAddressArray.SetElementType(typeof(IPAddress));
+            iPAddressArrayElementType.TypeMapping = iPAddressArray.TypeMapping.ElementTypeMapping;
 
             var iPAddressReadOnlyCollection = runtimeEntityType.AddProperty(
                 "IPAddressReadOnlyCollection",
@@ -5383,6 +5485,9 @@ namespace TestNamespace
                         new ValueConverter<IPAddress, string>(
                             string (IPAddress v) => ((object)v).ToString(),
                             IPAddress (string v) => IPAddress.Parse(v)))));
+            var iPAddressReadOnlyCollectionElementType = iPAddressReadOnlyCollection.SetElementType(typeof(IPAddress),
+                providerClrType: typeof(string));
+            iPAddressReadOnlyCollectionElementType.TypeMapping = iPAddressReadOnlyCollection.TypeMapping.ElementTypeMapping;
 
             var iPAddressToBytesConverterProperty = runtimeEntityType.AddProperty(
                 "IPAddressToBytesConverterProperty",
@@ -5587,6 +5692,8 @@ namespace TestNamespace
                         short (short v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
                         storeTypeName: "INTEGER")));
+            var int16ArrayElementType = int16Array.SetElementType(typeof(short));
+            int16ArrayElementType.TypeMapping = int16Array.TypeMapping.ElementTypeMapping;
 
             var int32 = runtimeEntityType.AddProperty(
                 "Int32",
@@ -5689,6 +5796,8 @@ namespace TestNamespace
                         int (int v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
                         storeTypeName: "INTEGER")));
+            var int32ArrayElementType = int32Array.SetElementType(typeof(int));
+            int32ArrayElementType.TypeMapping = int32Array.TypeMapping.ElementTypeMapping;
 
             var int32ReadOnlyCollection = runtimeEntityType.AddProperty(
                 "Int32ReadOnlyCollection",
@@ -5748,6 +5857,8 @@ namespace TestNamespace
                         int (int v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
                         storeTypeName: "INTEGER")));
+            var int32ReadOnlyCollectionElementType = int32ReadOnlyCollection.SetElementType(typeof(int));
+            int32ReadOnlyCollectionElementType.TypeMapping = int32ReadOnlyCollection.TypeMapping.ElementTypeMapping;
 
             var int64 = runtimeEntityType.AddProperty(
                 "Int64",
@@ -5850,6 +5961,8 @@ namespace TestNamespace
                         long (long v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
                         storeTypeName: "INTEGER")));
+            var int64ArrayElementType = int64Array.SetElementType(typeof(long));
+            int64ArrayElementType.TypeMapping = int64Array.TypeMapping.ElementTypeMapping;
 
             var int8 = runtimeEntityType.AddProperty(
                 "Int8",
@@ -5952,6 +6065,8 @@ namespace TestNamespace
                         sbyte (sbyte v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
                         storeTypeName: "INTEGER")));
+            var int8ArrayElementType = int8Array.SetElementType(typeof(sbyte));
+            int8ArrayElementType.TypeMapping = int8Array.TypeMapping.ElementTypeMapping;
 
             var intNumberToBytesConverterProperty = runtimeEntityType.AddProperty(
                 "IntNumberToBytesConverterProperty",
@@ -6212,6 +6327,10 @@ namespace TestNamespace
                         bool (bool v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
                         storeTypeName: "INTEGER")));
+            var nullableBoolArrayElementType = nullableBoolArray.SetElementType(typeof(bool?),
+                nullable: true);
+            nullableBoolArrayElementType.TypeMapping = nullableBoolArray.TypeMapping.ElementTypeMapping;
+            nullableBoolArrayElementType.SetComparer(new NullableValueComparer<bool>(nullableBoolArrayElementType.TypeMapping.Comparer));
 
             var nullableBytes = runtimeEntityType.AddProperty(
                 "NullableBytes",
@@ -6310,6 +6429,9 @@ namespace TestNamespace
                         bool (byte[] v1, byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
                         int (byte[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
                         byte[] (byte[] source) => source.ToArray())));
+            var nullableBytesArrayElementType = nullableBytesArray.SetElementType(typeof(byte[]),
+                nullable: true);
+            nullableBytesArrayElementType.TypeMapping = nullableBytesArray.TypeMapping.ElementTypeMapping;
 
             var nullableChar = runtimeEntityType.AddProperty(
                 "NullableChar",
@@ -6414,6 +6536,10 @@ namespace TestNamespace
                         char (char v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
                         storeTypeName: "TEXT")));
+            var nullableCharArrayElementType = nullableCharArray.SetElementType(typeof(char?),
+                nullable: true);
+            nullableCharArrayElementType.TypeMapping = nullableCharArray.TypeMapping.ElementTypeMapping;
+            nullableCharArrayElementType.SetComparer(new NullableValueComparer<char>(nullableCharArrayElementType.TypeMapping.Comparer));
 
             var nullableDateOnly = runtimeEntityType.AddProperty(
                 "NullableDateOnly",
@@ -6490,6 +6616,10 @@ namespace TestNamespace
                 jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<DateOnly?[], DateOnly>(
                     JsonDateOnlyReaderWriter.Instance),
                 elementMapping: SqliteDateOnlyTypeMapping.Default);
+            var nullableDateOnlyArrayElementType = nullableDateOnlyArray.SetElementType(typeof(DateOnly?),
+                nullable: true);
+            nullableDateOnlyArrayElementType.TypeMapping = nullableDateOnlyArray.TypeMapping.ElementTypeMapping;
+            nullableDateOnlyArrayElementType.SetComparer(new NullableValueComparer<DateOnly>(nullableDateOnlyArrayElementType.TypeMapping.Comparer));
 
             var nullableDateTime = runtimeEntityType.AddProperty(
                 "NullableDateTime",
@@ -6566,6 +6696,10 @@ namespace TestNamespace
                 jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<DateTime?[], DateTime>(
                     SqliteJsonDateTimeReaderWriter.Instance),
                 elementMapping: SqliteDateTimeTypeMapping.Default);
+            var nullableDateTimeArrayElementType = nullableDateTimeArray.SetElementType(typeof(DateTime?),
+                nullable: true);
+            nullableDateTimeArrayElementType.TypeMapping = nullableDateTimeArray.TypeMapping.ElementTypeMapping;
+            nullableDateTimeArrayElementType.SetComparer(new NullableValueComparer<DateTime>(nullableDateTimeArrayElementType.TypeMapping.Comparer));
 
             var nullableDecimal = runtimeEntityType.AddProperty(
                 "NullableDecimal",
@@ -6642,6 +6776,10 @@ namespace TestNamespace
                 jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<decimal?[], decimal>(
                     SqliteJsonDecimalReaderWriter.Instance),
                 elementMapping: SqliteDecimalTypeMapping.Default);
+            var nullableDecimalArrayElementType = nullableDecimalArray.SetElementType(typeof(decimal?),
+                nullable: true);
+            nullableDecimalArrayElementType.TypeMapping = nullableDecimalArray.TypeMapping.ElementTypeMapping;
+            nullableDecimalArrayElementType.SetComparer(new NullableValueComparer<decimal>(nullableDecimalArrayElementType.TypeMapping.Comparer));
 
             var nullableDouble = runtimeEntityType.AddProperty(
                 "NullableDouble",
@@ -6746,6 +6884,10 @@ namespace TestNamespace
                         double (double v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
                         storeTypeName: "REAL")));
+            var nullableDoubleArrayElementType = nullableDoubleArray.SetElementType(typeof(double?),
+                nullable: true);
+            nullableDoubleArrayElementType.TypeMapping = nullableDoubleArray.TypeMapping.ElementTypeMapping;
+            nullableDoubleArrayElementType.SetComparer(new NullableValueComparer<double>(nullableDoubleArrayElementType.TypeMapping.Comparer));
 
             var nullableEnum16 = runtimeEntityType.AddProperty(
                 "NullableEnum16",
@@ -6874,6 +7016,10 @@ namespace TestNamespace
                         new ValueConverter<CompiledModelTestBase.Enum16, short>(
                             short (CompiledModelTestBase.Enum16 value) => ((short)(value)),
                             CompiledModelTestBase.Enum16 (short value) => ((CompiledModelTestBase.Enum16)(value))))));
+            var nullableEnum16ArrayElementType = nullableEnum16Array.SetElementType(typeof(CompiledModelTestBase.Enum16?),
+                nullable: true);
+            nullableEnum16ArrayElementType.TypeMapping = nullableEnum16Array.TypeMapping.ElementTypeMapping;
+            nullableEnum16ArrayElementType.SetComparer(new NullableValueComparer<CompiledModelTestBase.Enum16>(nullableEnum16ArrayElementType.TypeMapping.Comparer));
 
             var nullableEnum16AsString = runtimeEntityType.AddProperty(
                 "NullableEnum16AsString",
@@ -7002,6 +7148,10 @@ namespace TestNamespace
                         new ValueConverter<CompiledModelTestBase.Enum16, short>(
                             short (CompiledModelTestBase.Enum16 value) => ((short)(value)),
                             CompiledModelTestBase.Enum16 (short value) => ((CompiledModelTestBase.Enum16)(value))))));
+            var nullableEnum16AsStringArrayElementType = nullableEnum16AsStringArray.SetElementType(typeof(CompiledModelTestBase.Enum16?),
+                nullable: true);
+            nullableEnum16AsStringArrayElementType.TypeMapping = nullableEnum16AsStringArray.TypeMapping.ElementTypeMapping;
+            nullableEnum16AsStringArrayElementType.SetComparer(new NullableValueComparer<CompiledModelTestBase.Enum16>(nullableEnum16AsStringArrayElementType.TypeMapping.Comparer));
 
             var nullableEnum16AsStringCollection = runtimeEntityType.AddProperty(
                 "NullableEnum16AsStringCollection",
@@ -7077,6 +7227,10 @@ namespace TestNamespace
                         new ValueConverter<CompiledModelTestBase.Enum16, short>(
                             short (CompiledModelTestBase.Enum16 value) => ((short)(value)),
                             CompiledModelTestBase.Enum16 (short value) => ((CompiledModelTestBase.Enum16)(value))))));
+            var nullableEnum16AsStringCollectionElementType = nullableEnum16AsStringCollection.SetElementType(typeof(CompiledModelTestBase.Enum16?),
+                nullable: true);
+            nullableEnum16AsStringCollectionElementType.TypeMapping = nullableEnum16AsStringCollection.TypeMapping.ElementTypeMapping;
+            nullableEnum16AsStringCollectionElementType.SetComparer(new NullableValueComparer<CompiledModelTestBase.Enum16>(nullableEnum16AsStringCollectionElementType.TypeMapping.Comparer));
 
             var nullableEnum16Collection = runtimeEntityType.AddProperty(
                 "NullableEnum16Collection",
@@ -7152,6 +7306,10 @@ namespace TestNamespace
                         new ValueConverter<CompiledModelTestBase.Enum16, short>(
                             short (CompiledModelTestBase.Enum16 value) => ((short)(value)),
                             CompiledModelTestBase.Enum16 (short value) => ((CompiledModelTestBase.Enum16)(value))))));
+            var nullableEnum16CollectionElementType = nullableEnum16Collection.SetElementType(typeof(CompiledModelTestBase.Enum16?),
+                nullable: true);
+            nullableEnum16CollectionElementType.TypeMapping = nullableEnum16Collection.TypeMapping.ElementTypeMapping;
+            nullableEnum16CollectionElementType.SetComparer(new NullableValueComparer<CompiledModelTestBase.Enum16>(nullableEnum16CollectionElementType.TypeMapping.Comparer));
 
             var nullableEnum32 = runtimeEntityType.AddProperty(
                 "NullableEnum32",
@@ -7280,6 +7438,10 @@ namespace TestNamespace
                         new ValueConverter<CompiledModelTestBase.Enum32, int>(
                             int (CompiledModelTestBase.Enum32 value) => ((int)(value)),
                             CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)(value))))));
+            var nullableEnum32ArrayElementType = nullableEnum32Array.SetElementType(typeof(CompiledModelTestBase.Enum32?),
+                nullable: true);
+            nullableEnum32ArrayElementType.TypeMapping = nullableEnum32Array.TypeMapping.ElementTypeMapping;
+            nullableEnum32ArrayElementType.SetComparer(new NullableValueComparer<CompiledModelTestBase.Enum32>(nullableEnum32ArrayElementType.TypeMapping.Comparer));
 
             var nullableEnum32AsString = runtimeEntityType.AddProperty(
                 "NullableEnum32AsString",
@@ -7408,6 +7570,10 @@ namespace TestNamespace
                         new ValueConverter<CompiledModelTestBase.Enum32, int>(
                             int (CompiledModelTestBase.Enum32 value) => ((int)(value)),
                             CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)(value))))));
+            var nullableEnum32AsStringArrayElementType = nullableEnum32AsStringArray.SetElementType(typeof(CompiledModelTestBase.Enum32?),
+                nullable: true);
+            nullableEnum32AsStringArrayElementType.TypeMapping = nullableEnum32AsStringArray.TypeMapping.ElementTypeMapping;
+            nullableEnum32AsStringArrayElementType.SetComparer(new NullableValueComparer<CompiledModelTestBase.Enum32>(nullableEnum32AsStringArrayElementType.TypeMapping.Comparer));
 
             var nullableEnum32AsStringCollection = runtimeEntityType.AddProperty(
                 "NullableEnum32AsStringCollection",
@@ -7483,6 +7649,10 @@ namespace TestNamespace
                         new ValueConverter<CompiledModelTestBase.Enum32, int>(
                             int (CompiledModelTestBase.Enum32 value) => ((int)(value)),
                             CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)(value))))));
+            var nullableEnum32AsStringCollectionElementType = nullableEnum32AsStringCollection.SetElementType(typeof(CompiledModelTestBase.Enum32?),
+                nullable: true);
+            nullableEnum32AsStringCollectionElementType.TypeMapping = nullableEnum32AsStringCollection.TypeMapping.ElementTypeMapping;
+            nullableEnum32AsStringCollectionElementType.SetComparer(new NullableValueComparer<CompiledModelTestBase.Enum32>(nullableEnum32AsStringCollectionElementType.TypeMapping.Comparer));
 
             var nullableEnum32Collection = runtimeEntityType.AddProperty(
                 "NullableEnum32Collection",
@@ -7558,6 +7728,10 @@ namespace TestNamespace
                         new ValueConverter<CompiledModelTestBase.Enum32, int>(
                             int (CompiledModelTestBase.Enum32 value) => ((int)(value)),
                             CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)(value))))));
+            var nullableEnum32CollectionElementType = nullableEnum32Collection.SetElementType(typeof(CompiledModelTestBase.Enum32?),
+                nullable: true);
+            nullableEnum32CollectionElementType.TypeMapping = nullableEnum32Collection.TypeMapping.ElementTypeMapping;
+            nullableEnum32CollectionElementType.SetComparer(new NullableValueComparer<CompiledModelTestBase.Enum32>(nullableEnum32CollectionElementType.TypeMapping.Comparer));
 
             var nullableEnum64 = runtimeEntityType.AddProperty(
                 "NullableEnum64",
@@ -7686,6 +7860,10 @@ namespace TestNamespace
                         new ValueConverter<CompiledModelTestBase.Enum64, long>(
                             long (CompiledModelTestBase.Enum64 value) => ((long)(value)),
                             CompiledModelTestBase.Enum64 (long value) => ((CompiledModelTestBase.Enum64)(value))))));
+            var nullableEnum64ArrayElementType = nullableEnum64Array.SetElementType(typeof(CompiledModelTestBase.Enum64?),
+                nullable: true);
+            nullableEnum64ArrayElementType.TypeMapping = nullableEnum64Array.TypeMapping.ElementTypeMapping;
+            nullableEnum64ArrayElementType.SetComparer(new NullableValueComparer<CompiledModelTestBase.Enum64>(nullableEnum64ArrayElementType.TypeMapping.Comparer));
 
             var nullableEnum64AsString = runtimeEntityType.AddProperty(
                 "NullableEnum64AsString",
@@ -7814,6 +7992,10 @@ namespace TestNamespace
                         new ValueConverter<CompiledModelTestBase.Enum64, long>(
                             long (CompiledModelTestBase.Enum64 value) => ((long)(value)),
                             CompiledModelTestBase.Enum64 (long value) => ((CompiledModelTestBase.Enum64)(value))))));
+            var nullableEnum64AsStringArrayElementType = nullableEnum64AsStringArray.SetElementType(typeof(CompiledModelTestBase.Enum64?),
+                nullable: true);
+            nullableEnum64AsStringArrayElementType.TypeMapping = nullableEnum64AsStringArray.TypeMapping.ElementTypeMapping;
+            nullableEnum64AsStringArrayElementType.SetComparer(new NullableValueComparer<CompiledModelTestBase.Enum64>(nullableEnum64AsStringArrayElementType.TypeMapping.Comparer));
 
             var nullableEnum64AsStringCollection = runtimeEntityType.AddProperty(
                 "NullableEnum64AsStringCollection",
@@ -7889,6 +8071,10 @@ namespace TestNamespace
                         new ValueConverter<CompiledModelTestBase.Enum64, long>(
                             long (CompiledModelTestBase.Enum64 value) => ((long)(value)),
                             CompiledModelTestBase.Enum64 (long value) => ((CompiledModelTestBase.Enum64)(value))))));
+            var nullableEnum64AsStringCollectionElementType = nullableEnum64AsStringCollection.SetElementType(typeof(CompiledModelTestBase.Enum64?),
+                nullable: true);
+            nullableEnum64AsStringCollectionElementType.TypeMapping = nullableEnum64AsStringCollection.TypeMapping.ElementTypeMapping;
+            nullableEnum64AsStringCollectionElementType.SetComparer(new NullableValueComparer<CompiledModelTestBase.Enum64>(nullableEnum64AsStringCollectionElementType.TypeMapping.Comparer));
 
             var nullableEnum64Collection = runtimeEntityType.AddProperty(
                 "NullableEnum64Collection",
@@ -7964,6 +8150,10 @@ namespace TestNamespace
                         new ValueConverter<CompiledModelTestBase.Enum64, long>(
                             long (CompiledModelTestBase.Enum64 value) => ((long)(value)),
                             CompiledModelTestBase.Enum64 (long value) => ((CompiledModelTestBase.Enum64)(value))))));
+            var nullableEnum64CollectionElementType = nullableEnum64Collection.SetElementType(typeof(CompiledModelTestBase.Enum64?),
+                nullable: true);
+            nullableEnum64CollectionElementType.TypeMapping = nullableEnum64Collection.TypeMapping.ElementTypeMapping;
+            nullableEnum64CollectionElementType.SetComparer(new NullableValueComparer<CompiledModelTestBase.Enum64>(nullableEnum64CollectionElementType.TypeMapping.Comparer));
 
             var nullableEnum8 = runtimeEntityType.AddProperty(
                 "NullableEnum8",
@@ -8092,6 +8282,10 @@ namespace TestNamespace
                         new ValueConverter<CompiledModelTestBase.Enum8, sbyte>(
                             sbyte (CompiledModelTestBase.Enum8 value) => ((sbyte)(value)),
                             CompiledModelTestBase.Enum8 (sbyte value) => ((CompiledModelTestBase.Enum8)(value))))));
+            var nullableEnum8ArrayElementType = nullableEnum8Array.SetElementType(typeof(CompiledModelTestBase.Enum8?),
+                nullable: true);
+            nullableEnum8ArrayElementType.TypeMapping = nullableEnum8Array.TypeMapping.ElementTypeMapping;
+            nullableEnum8ArrayElementType.SetComparer(new NullableValueComparer<CompiledModelTestBase.Enum8>(nullableEnum8ArrayElementType.TypeMapping.Comparer));
 
             var nullableEnum8AsString = runtimeEntityType.AddProperty(
                 "NullableEnum8AsString",
@@ -8220,6 +8414,10 @@ namespace TestNamespace
                         new ValueConverter<CompiledModelTestBase.Enum8, sbyte>(
                             sbyte (CompiledModelTestBase.Enum8 value) => ((sbyte)(value)),
                             CompiledModelTestBase.Enum8 (sbyte value) => ((CompiledModelTestBase.Enum8)(value))))));
+            var nullableEnum8AsStringArrayElementType = nullableEnum8AsStringArray.SetElementType(typeof(CompiledModelTestBase.Enum8?),
+                nullable: true);
+            nullableEnum8AsStringArrayElementType.TypeMapping = nullableEnum8AsStringArray.TypeMapping.ElementTypeMapping;
+            nullableEnum8AsStringArrayElementType.SetComparer(new NullableValueComparer<CompiledModelTestBase.Enum8>(nullableEnum8AsStringArrayElementType.TypeMapping.Comparer));
 
             var nullableEnum8AsStringCollection = runtimeEntityType.AddProperty(
                 "NullableEnum8AsStringCollection",
@@ -8295,6 +8493,10 @@ namespace TestNamespace
                         new ValueConverter<CompiledModelTestBase.Enum8, sbyte>(
                             sbyte (CompiledModelTestBase.Enum8 value) => ((sbyte)(value)),
                             CompiledModelTestBase.Enum8 (sbyte value) => ((CompiledModelTestBase.Enum8)(value))))));
+            var nullableEnum8AsStringCollectionElementType = nullableEnum8AsStringCollection.SetElementType(typeof(CompiledModelTestBase.Enum8?),
+                nullable: true);
+            nullableEnum8AsStringCollectionElementType.TypeMapping = nullableEnum8AsStringCollection.TypeMapping.ElementTypeMapping;
+            nullableEnum8AsStringCollectionElementType.SetComparer(new NullableValueComparer<CompiledModelTestBase.Enum8>(nullableEnum8AsStringCollectionElementType.TypeMapping.Comparer));
 
             var nullableEnum8Collection = runtimeEntityType.AddProperty(
                 "NullableEnum8Collection",
@@ -8370,6 +8572,10 @@ namespace TestNamespace
                         new ValueConverter<CompiledModelTestBase.Enum8, sbyte>(
                             sbyte (CompiledModelTestBase.Enum8 value) => ((sbyte)(value)),
                             CompiledModelTestBase.Enum8 (sbyte value) => ((CompiledModelTestBase.Enum8)(value))))));
+            var nullableEnum8CollectionElementType = nullableEnum8Collection.SetElementType(typeof(CompiledModelTestBase.Enum8?),
+                nullable: true);
+            nullableEnum8CollectionElementType.TypeMapping = nullableEnum8Collection.TypeMapping.ElementTypeMapping;
+            nullableEnum8CollectionElementType.SetComparer(new NullableValueComparer<CompiledModelTestBase.Enum8>(nullableEnum8CollectionElementType.TypeMapping.Comparer));
 
             var nullableEnumU16 = runtimeEntityType.AddProperty(
                 "NullableEnumU16",
@@ -8498,6 +8704,10 @@ namespace TestNamespace
                         new ValueConverter<CompiledModelTestBase.EnumU16, ushort>(
                             ushort (CompiledModelTestBase.EnumU16 value) => ((ushort)(value)),
                             CompiledModelTestBase.EnumU16 (ushort value) => ((CompiledModelTestBase.EnumU16)(value))))));
+            var nullableEnumU16ArrayElementType = nullableEnumU16Array.SetElementType(typeof(CompiledModelTestBase.EnumU16?),
+                nullable: true);
+            nullableEnumU16ArrayElementType.TypeMapping = nullableEnumU16Array.TypeMapping.ElementTypeMapping;
+            nullableEnumU16ArrayElementType.SetComparer(new NullableValueComparer<CompiledModelTestBase.EnumU16>(nullableEnumU16ArrayElementType.TypeMapping.Comparer));
 
             var nullableEnumU16AsString = runtimeEntityType.AddProperty(
                 "NullableEnumU16AsString",
@@ -8626,6 +8836,10 @@ namespace TestNamespace
                         new ValueConverter<CompiledModelTestBase.EnumU16, ushort>(
                             ushort (CompiledModelTestBase.EnumU16 value) => ((ushort)(value)),
                             CompiledModelTestBase.EnumU16 (ushort value) => ((CompiledModelTestBase.EnumU16)(value))))));
+            var nullableEnumU16AsStringArrayElementType = nullableEnumU16AsStringArray.SetElementType(typeof(CompiledModelTestBase.EnumU16?),
+                nullable: true);
+            nullableEnumU16AsStringArrayElementType.TypeMapping = nullableEnumU16AsStringArray.TypeMapping.ElementTypeMapping;
+            nullableEnumU16AsStringArrayElementType.SetComparer(new NullableValueComparer<CompiledModelTestBase.EnumU16>(nullableEnumU16AsStringArrayElementType.TypeMapping.Comparer));
 
             var nullableEnumU16AsStringCollection = runtimeEntityType.AddProperty(
                 "NullableEnumU16AsStringCollection",
@@ -8701,6 +8915,10 @@ namespace TestNamespace
                         new ValueConverter<CompiledModelTestBase.EnumU16, ushort>(
                             ushort (CompiledModelTestBase.EnumU16 value) => ((ushort)(value)),
                             CompiledModelTestBase.EnumU16 (ushort value) => ((CompiledModelTestBase.EnumU16)(value))))));
+            var nullableEnumU16AsStringCollectionElementType = nullableEnumU16AsStringCollection.SetElementType(typeof(CompiledModelTestBase.EnumU16?),
+                nullable: true);
+            nullableEnumU16AsStringCollectionElementType.TypeMapping = nullableEnumU16AsStringCollection.TypeMapping.ElementTypeMapping;
+            nullableEnumU16AsStringCollectionElementType.SetComparer(new NullableValueComparer<CompiledModelTestBase.EnumU16>(nullableEnumU16AsStringCollectionElementType.TypeMapping.Comparer));
 
             var nullableEnumU16Collection = runtimeEntityType.AddProperty(
                 "NullableEnumU16Collection",
@@ -8776,6 +8994,10 @@ namespace TestNamespace
                         new ValueConverter<CompiledModelTestBase.EnumU16, ushort>(
                             ushort (CompiledModelTestBase.EnumU16 value) => ((ushort)(value)),
                             CompiledModelTestBase.EnumU16 (ushort value) => ((CompiledModelTestBase.EnumU16)(value))))));
+            var nullableEnumU16CollectionElementType = nullableEnumU16Collection.SetElementType(typeof(CompiledModelTestBase.EnumU16?),
+                nullable: true);
+            nullableEnumU16CollectionElementType.TypeMapping = nullableEnumU16Collection.TypeMapping.ElementTypeMapping;
+            nullableEnumU16CollectionElementType.SetComparer(new NullableValueComparer<CompiledModelTestBase.EnumU16>(nullableEnumU16CollectionElementType.TypeMapping.Comparer));
 
             var nullableEnumU32 = runtimeEntityType.AddProperty(
                 "NullableEnumU32",
@@ -8904,6 +9126,10 @@ namespace TestNamespace
                         new ValueConverter<CompiledModelTestBase.EnumU32, uint>(
                             uint (CompiledModelTestBase.EnumU32 value) => ((uint)(value)),
                             CompiledModelTestBase.EnumU32 (uint value) => ((CompiledModelTestBase.EnumU32)(value))))));
+            var nullableEnumU32ArrayElementType = nullableEnumU32Array.SetElementType(typeof(CompiledModelTestBase.EnumU32?),
+                nullable: true);
+            nullableEnumU32ArrayElementType.TypeMapping = nullableEnumU32Array.TypeMapping.ElementTypeMapping;
+            nullableEnumU32ArrayElementType.SetComparer(new NullableValueComparer<CompiledModelTestBase.EnumU32>(nullableEnumU32ArrayElementType.TypeMapping.Comparer));
 
             var nullableEnumU32AsString = runtimeEntityType.AddProperty(
                 "NullableEnumU32AsString",
@@ -9032,6 +9258,10 @@ namespace TestNamespace
                         new ValueConverter<CompiledModelTestBase.EnumU32, uint>(
                             uint (CompiledModelTestBase.EnumU32 value) => ((uint)(value)),
                             CompiledModelTestBase.EnumU32 (uint value) => ((CompiledModelTestBase.EnumU32)(value))))));
+            var nullableEnumU32AsStringArrayElementType = nullableEnumU32AsStringArray.SetElementType(typeof(CompiledModelTestBase.EnumU32?),
+                nullable: true);
+            nullableEnumU32AsStringArrayElementType.TypeMapping = nullableEnumU32AsStringArray.TypeMapping.ElementTypeMapping;
+            nullableEnumU32AsStringArrayElementType.SetComparer(new NullableValueComparer<CompiledModelTestBase.EnumU32>(nullableEnumU32AsStringArrayElementType.TypeMapping.Comparer));
 
             var nullableEnumU32AsStringCollection = runtimeEntityType.AddProperty(
                 "NullableEnumU32AsStringCollection",
@@ -9107,6 +9337,10 @@ namespace TestNamespace
                         new ValueConverter<CompiledModelTestBase.EnumU32, uint>(
                             uint (CompiledModelTestBase.EnumU32 value) => ((uint)(value)),
                             CompiledModelTestBase.EnumU32 (uint value) => ((CompiledModelTestBase.EnumU32)(value))))));
+            var nullableEnumU32AsStringCollectionElementType = nullableEnumU32AsStringCollection.SetElementType(typeof(CompiledModelTestBase.EnumU32?),
+                nullable: true);
+            nullableEnumU32AsStringCollectionElementType.TypeMapping = nullableEnumU32AsStringCollection.TypeMapping.ElementTypeMapping;
+            nullableEnumU32AsStringCollectionElementType.SetComparer(new NullableValueComparer<CompiledModelTestBase.EnumU32>(nullableEnumU32AsStringCollectionElementType.TypeMapping.Comparer));
 
             var nullableEnumU32Collection = runtimeEntityType.AddProperty(
                 "NullableEnumU32Collection",
@@ -9182,6 +9416,10 @@ namespace TestNamespace
                         new ValueConverter<CompiledModelTestBase.EnumU32, uint>(
                             uint (CompiledModelTestBase.EnumU32 value) => ((uint)(value)),
                             CompiledModelTestBase.EnumU32 (uint value) => ((CompiledModelTestBase.EnumU32)(value))))));
+            var nullableEnumU32CollectionElementType = nullableEnumU32Collection.SetElementType(typeof(CompiledModelTestBase.EnumU32?),
+                nullable: true);
+            nullableEnumU32CollectionElementType.TypeMapping = nullableEnumU32Collection.TypeMapping.ElementTypeMapping;
+            nullableEnumU32CollectionElementType.SetComparer(new NullableValueComparer<CompiledModelTestBase.EnumU32>(nullableEnumU32CollectionElementType.TypeMapping.Comparer));
 
             var nullableEnumU64 = runtimeEntityType.AddProperty(
                 "NullableEnumU64",
@@ -9306,6 +9544,10 @@ namespace TestNamespace
                         new ValueConverter<CompiledModelTestBase.EnumU64, ulong>(
                             ulong (CompiledModelTestBase.EnumU64 value) => ((ulong)(value)),
                             CompiledModelTestBase.EnumU64 (ulong value) => ((CompiledModelTestBase.EnumU64)(value))))));
+            var nullableEnumU64ArrayElementType = nullableEnumU64Array.SetElementType(typeof(CompiledModelTestBase.EnumU64?),
+                nullable: true);
+            nullableEnumU64ArrayElementType.TypeMapping = nullableEnumU64Array.TypeMapping.ElementTypeMapping;
+            nullableEnumU64ArrayElementType.SetComparer(new NullableValueComparer<CompiledModelTestBase.EnumU64>(nullableEnumU64ArrayElementType.TypeMapping.Comparer));
 
             var nullableEnumU64AsString = runtimeEntityType.AddProperty(
                 "NullableEnumU64AsString",
@@ -9430,6 +9672,10 @@ namespace TestNamespace
                         new ValueConverter<CompiledModelTestBase.EnumU64, ulong>(
                             ulong (CompiledModelTestBase.EnumU64 value) => ((ulong)(value)),
                             CompiledModelTestBase.EnumU64 (ulong value) => ((CompiledModelTestBase.EnumU64)(value))))));
+            var nullableEnumU64AsStringArrayElementType = nullableEnumU64AsStringArray.SetElementType(typeof(CompiledModelTestBase.EnumU64?),
+                nullable: true);
+            nullableEnumU64AsStringArrayElementType.TypeMapping = nullableEnumU64AsStringArray.TypeMapping.ElementTypeMapping;
+            nullableEnumU64AsStringArrayElementType.SetComparer(new NullableValueComparer<CompiledModelTestBase.EnumU64>(nullableEnumU64AsStringArrayElementType.TypeMapping.Comparer));
 
             var nullableEnumU64AsStringCollection = runtimeEntityType.AddProperty(
                 "NullableEnumU64AsStringCollection",
@@ -9503,6 +9749,10 @@ namespace TestNamespace
                         new ValueConverter<CompiledModelTestBase.EnumU64, ulong>(
                             ulong (CompiledModelTestBase.EnumU64 value) => ((ulong)(value)),
                             CompiledModelTestBase.EnumU64 (ulong value) => ((CompiledModelTestBase.EnumU64)(value))))));
+            var nullableEnumU64AsStringCollectionElementType = nullableEnumU64AsStringCollection.SetElementType(typeof(CompiledModelTestBase.EnumU64?),
+                nullable: true);
+            nullableEnumU64AsStringCollectionElementType.TypeMapping = nullableEnumU64AsStringCollection.TypeMapping.ElementTypeMapping;
+            nullableEnumU64AsStringCollectionElementType.SetComparer(new NullableValueComparer<CompiledModelTestBase.EnumU64>(nullableEnumU64AsStringCollectionElementType.TypeMapping.Comparer));
 
             var nullableEnumU64Collection = runtimeEntityType.AddProperty(
                 "NullableEnumU64Collection",
@@ -9576,6 +9826,10 @@ namespace TestNamespace
                         new ValueConverter<CompiledModelTestBase.EnumU64, ulong>(
                             ulong (CompiledModelTestBase.EnumU64 value) => ((ulong)(value)),
                             CompiledModelTestBase.EnumU64 (ulong value) => ((CompiledModelTestBase.EnumU64)(value))))));
+            var nullableEnumU64CollectionElementType = nullableEnumU64Collection.SetElementType(typeof(CompiledModelTestBase.EnumU64?),
+                nullable: true);
+            nullableEnumU64CollectionElementType.TypeMapping = nullableEnumU64Collection.TypeMapping.ElementTypeMapping;
+            nullableEnumU64CollectionElementType.SetComparer(new NullableValueComparer<CompiledModelTestBase.EnumU64>(nullableEnumU64CollectionElementType.TypeMapping.Comparer));
 
             var nullableEnumU8 = runtimeEntityType.AddProperty(
                 "NullableEnumU8",
@@ -9704,6 +9958,10 @@ namespace TestNamespace
                         new ValueConverter<CompiledModelTestBase.EnumU8, byte>(
                             byte (CompiledModelTestBase.EnumU8 value) => ((byte)(value)),
                             CompiledModelTestBase.EnumU8 (byte value) => ((CompiledModelTestBase.EnumU8)(value))))));
+            var nullableEnumU8ArrayElementType = nullableEnumU8Array.SetElementType(typeof(CompiledModelTestBase.EnumU8?),
+                nullable: true);
+            nullableEnumU8ArrayElementType.TypeMapping = nullableEnumU8Array.TypeMapping.ElementTypeMapping;
+            nullableEnumU8ArrayElementType.SetComparer(new NullableValueComparer<CompiledModelTestBase.EnumU8>(nullableEnumU8ArrayElementType.TypeMapping.Comparer));
 
             var nullableEnumU8AsString = runtimeEntityType.AddProperty(
                 "NullableEnumU8AsString",
@@ -9832,6 +10090,10 @@ namespace TestNamespace
                         new ValueConverter<CompiledModelTestBase.EnumU8, byte>(
                             byte (CompiledModelTestBase.EnumU8 value) => ((byte)(value)),
                             CompiledModelTestBase.EnumU8 (byte value) => ((CompiledModelTestBase.EnumU8)(value))))));
+            var nullableEnumU8AsStringArrayElementType = nullableEnumU8AsStringArray.SetElementType(typeof(CompiledModelTestBase.EnumU8?),
+                nullable: true);
+            nullableEnumU8AsStringArrayElementType.TypeMapping = nullableEnumU8AsStringArray.TypeMapping.ElementTypeMapping;
+            nullableEnumU8AsStringArrayElementType.SetComparer(new NullableValueComparer<CompiledModelTestBase.EnumU8>(nullableEnumU8AsStringArrayElementType.TypeMapping.Comparer));
 
             var nullableEnumU8AsStringCollection = runtimeEntityType.AddProperty(
                 "NullableEnumU8AsStringCollection",
@@ -9907,6 +10169,10 @@ namespace TestNamespace
                         new ValueConverter<CompiledModelTestBase.EnumU8, byte>(
                             byte (CompiledModelTestBase.EnumU8 value) => ((byte)(value)),
                             CompiledModelTestBase.EnumU8 (byte value) => ((CompiledModelTestBase.EnumU8)(value))))));
+            var nullableEnumU8AsStringCollectionElementType = nullableEnumU8AsStringCollection.SetElementType(typeof(CompiledModelTestBase.EnumU8?),
+                nullable: true);
+            nullableEnumU8AsStringCollectionElementType.TypeMapping = nullableEnumU8AsStringCollection.TypeMapping.ElementTypeMapping;
+            nullableEnumU8AsStringCollectionElementType.SetComparer(new NullableValueComparer<CompiledModelTestBase.EnumU8>(nullableEnumU8AsStringCollectionElementType.TypeMapping.Comparer));
 
             var nullableEnumU8Collection = runtimeEntityType.AddProperty(
                 "NullableEnumU8Collection",
@@ -9982,6 +10248,10 @@ namespace TestNamespace
                         new ValueConverter<CompiledModelTestBase.EnumU8, byte>(
                             byte (CompiledModelTestBase.EnumU8 value) => ((byte)(value)),
                             CompiledModelTestBase.EnumU8 (byte value) => ((CompiledModelTestBase.EnumU8)(value))))));
+            var nullableEnumU8CollectionElementType = nullableEnumU8Collection.SetElementType(typeof(CompiledModelTestBase.EnumU8?),
+                nullable: true);
+            nullableEnumU8CollectionElementType.TypeMapping = nullableEnumU8Collection.TypeMapping.ElementTypeMapping;
+            nullableEnumU8CollectionElementType.SetComparer(new NullableValueComparer<CompiledModelTestBase.EnumU8>(nullableEnumU8CollectionElementType.TypeMapping.Comparer));
 
             var nullableFloat = runtimeEntityType.AddProperty(
                 "NullableFloat",
@@ -10086,6 +10356,10 @@ namespace TestNamespace
                         float (float v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
                         storeTypeName: "REAL")));
+            var nullableFloatArrayElementType = nullableFloatArray.SetElementType(typeof(float?),
+                nullable: true);
+            nullableFloatArrayElementType.TypeMapping = nullableFloatArray.TypeMapping.ElementTypeMapping;
+            nullableFloatArrayElementType.SetComparer(new NullableValueComparer<float>(nullableFloatArrayElementType.TypeMapping.Comparer));
 
             var nullableGuid = runtimeEntityType.AddProperty(
                 "NullableGuid",
@@ -10162,6 +10436,10 @@ namespace TestNamespace
                 jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<Guid?[], Guid>(
                     SqliteJsonGuidReaderWriter.Instance),
                 elementMapping: SqliteGuidTypeMapping.Default);
+            var nullableGuidArrayElementType = nullableGuidArray.SetElementType(typeof(Guid?),
+                nullable: true);
+            nullableGuidArrayElementType.TypeMapping = nullableGuidArray.TypeMapping.ElementTypeMapping;
+            nullableGuidArrayElementType.SetComparer(new NullableValueComparer<Guid>(nullableGuidArrayElementType.TypeMapping.Comparer));
 
             var nullableIPAddress = runtimeEntityType.AddProperty(
                 "NullableIPAddress",
@@ -10288,6 +10566,9 @@ namespace TestNamespace
                         new ValueConverter<IPAddress, string>(
                             string (IPAddress v) => ((object)v).ToString(),
                             IPAddress (string v) => IPAddress.Parse(v)))));
+            var nullableIPAddressArrayElementType = nullableIPAddressArray.SetElementType(typeof(IPAddress),
+                nullable: true);
+            nullableIPAddressArrayElementType.TypeMapping = nullableIPAddressArray.TypeMapping.ElementTypeMapping;
 
             var nullableInt16 = runtimeEntityType.AddProperty(
                 "NullableInt16",
@@ -10392,6 +10673,10 @@ namespace TestNamespace
                         short (short v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
                         storeTypeName: "INTEGER")));
+            var nullableInt16ArrayElementType = nullableInt16Array.SetElementType(typeof(short?),
+                nullable: true);
+            nullableInt16ArrayElementType.TypeMapping = nullableInt16Array.TypeMapping.ElementTypeMapping;
+            nullableInt16ArrayElementType.SetComparer(new NullableValueComparer<short>(nullableInt16ArrayElementType.TypeMapping.Comparer));
 
             var nullableInt32 = runtimeEntityType.AddProperty(
                 "NullableInt32",
@@ -10496,6 +10781,10 @@ namespace TestNamespace
                         int (int v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
                         storeTypeName: "INTEGER")));
+            var nullableInt32ArrayElementType = nullableInt32Array.SetElementType(typeof(int?),
+                nullable: true);
+            nullableInt32ArrayElementType.TypeMapping = nullableInt32Array.TypeMapping.ElementTypeMapping;
+            nullableInt32ArrayElementType.SetComparer(new NullableValueComparer<int>(nullableInt32ArrayElementType.TypeMapping.Comparer));
 
             var nullableInt64 = runtimeEntityType.AddProperty(
                 "NullableInt64",
@@ -10600,6 +10889,10 @@ namespace TestNamespace
                         long (long v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
                         storeTypeName: "INTEGER")));
+            var nullableInt64ArrayElementType = nullableInt64Array.SetElementType(typeof(long?),
+                nullable: true);
+            nullableInt64ArrayElementType.TypeMapping = nullableInt64Array.TypeMapping.ElementTypeMapping;
+            nullableInt64ArrayElementType.SetComparer(new NullableValueComparer<long>(nullableInt64ArrayElementType.TypeMapping.Comparer));
 
             var nullableInt8 = runtimeEntityType.AddProperty(
                 "NullableInt8",
@@ -10704,6 +10997,10 @@ namespace TestNamespace
                         sbyte (sbyte v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
                         storeTypeName: "INTEGER")));
+            var nullableInt8ArrayElementType = nullableInt8Array.SetElementType(typeof(sbyte?),
+                nullable: true);
+            nullableInt8ArrayElementType.TypeMapping = nullableInt8Array.TypeMapping.ElementTypeMapping;
+            nullableInt8ArrayElementType.SetComparer(new NullableValueComparer<sbyte>(nullableInt8ArrayElementType.TypeMapping.Comparer));
 
             var nullablePhysicalAddress = runtimeEntityType.AddProperty(
                 "NullablePhysicalAddress",
@@ -10830,6 +11127,9 @@ namespace TestNamespace
                         new ValueConverter<PhysicalAddress, string>(
                             string (PhysicalAddress v) => ((object)v).ToString(),
                             PhysicalAddress (string v) => PhysicalAddress.Parse(v)))));
+            var nullablePhysicalAddressArrayElementType = nullablePhysicalAddressArray.SetElementType(typeof(PhysicalAddress),
+                nullable: true);
+            nullablePhysicalAddressArrayElementType.TypeMapping = nullablePhysicalAddressArray.TypeMapping.ElementTypeMapping;
 
             var nullableString = runtimeEntityType.AddProperty(
                 "NullableString",
@@ -10904,6 +11204,9 @@ namespace TestNamespace
                 jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<string[], string>(
                     JsonStringReaderWriter.Instance),
                 elementMapping: SqliteStringTypeMapping.Default);
+            var nullableStringArrayElementType = nullableStringArray.SetElementType(typeof(string),
+                nullable: true);
+            nullableStringArrayElementType.TypeMapping = nullableStringArray.TypeMapping.ElementTypeMapping;
 
             var nullableTimeOnly = runtimeEntityType.AddProperty(
                 "NullableTimeOnly",
@@ -10980,6 +11283,10 @@ namespace TestNamespace
                 jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<TimeOnly?[], TimeOnly>(
                     JsonTimeOnlyReaderWriter.Instance),
                 elementMapping: SqliteTimeOnlyTypeMapping.Default);
+            var nullableTimeOnlyArrayElementType = nullableTimeOnlyArray.SetElementType(typeof(TimeOnly?),
+                nullable: true);
+            nullableTimeOnlyArrayElementType.TypeMapping = nullableTimeOnlyArray.TypeMapping.ElementTypeMapping;
+            nullableTimeOnlyArrayElementType.SetComparer(new NullableValueComparer<TimeOnly>(nullableTimeOnlyArrayElementType.TypeMapping.Comparer));
 
             var nullableTimeSpan = runtimeEntityType.AddProperty(
                 "NullableTimeSpan",
@@ -11084,6 +11391,10 @@ namespace TestNamespace
                         TimeSpan (TimeSpan v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
                         storeTypeName: "TEXT")));
+            var nullableTimeSpanArrayElementType = nullableTimeSpanArray.SetElementType(typeof(TimeSpan?),
+                nullable: true);
+            nullableTimeSpanArrayElementType.TypeMapping = nullableTimeSpanArray.TypeMapping.ElementTypeMapping;
+            nullableTimeSpanArrayElementType.SetComparer(new NullableValueComparer<TimeSpan>(nullableTimeSpanArrayElementType.TypeMapping.Comparer));
 
             var nullableUInt16 = runtimeEntityType.AddProperty(
                 "NullableUInt16",
@@ -11188,6 +11499,10 @@ namespace TestNamespace
                         ushort (ushort v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
                         storeTypeName: "INTEGER")));
+            var nullableUInt16ArrayElementType = nullableUInt16Array.SetElementType(typeof(ushort?),
+                nullable: true);
+            nullableUInt16ArrayElementType.TypeMapping = nullableUInt16Array.TypeMapping.ElementTypeMapping;
+            nullableUInt16ArrayElementType.SetComparer(new NullableValueComparer<ushort>(nullableUInt16ArrayElementType.TypeMapping.Comparer));
 
             var nullableUInt32 = runtimeEntityType.AddProperty(
                 "NullableUInt32",
@@ -11292,6 +11607,10 @@ namespace TestNamespace
                         uint (uint v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
                         storeTypeName: "INTEGER")));
+            var nullableUInt32ArrayElementType = nullableUInt32Array.SetElementType(typeof(uint?),
+                nullable: true);
+            nullableUInt32ArrayElementType.TypeMapping = nullableUInt32Array.TypeMapping.ElementTypeMapping;
+            nullableUInt32ArrayElementType.SetComparer(new NullableValueComparer<uint>(nullableUInt32ArrayElementType.TypeMapping.Comparer));
 
             var nullableUInt64 = runtimeEntityType.AddProperty(
                 "NullableUInt64",
@@ -11368,6 +11687,10 @@ namespace TestNamespace
                 jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<ulong?[], ulong>(
                     JsonUInt64ReaderWriter.Instance),
                 elementMapping: SqliteULongTypeMapping.Default);
+            var nullableUInt64ArrayElementType = nullableUInt64Array.SetElementType(typeof(ulong?),
+                nullable: true);
+            nullableUInt64ArrayElementType.TypeMapping = nullableUInt64Array.TypeMapping.ElementTypeMapping;
+            nullableUInt64ArrayElementType.SetComparer(new NullableValueComparer<ulong>(nullableUInt64ArrayElementType.TypeMapping.Comparer));
 
             var nullableUInt8 = runtimeEntityType.AddProperty(
                 "NullableUInt8",
@@ -11472,6 +11795,10 @@ namespace TestNamespace
                         byte (byte v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
                         storeTypeName: "INTEGER")));
+            var nullableUInt8ArrayElementType = nullableUInt8Array.SetElementType(typeof(byte?),
+                nullable: true);
+            nullableUInt8ArrayElementType.TypeMapping = nullableUInt8Array.TypeMapping.ElementTypeMapping;
+            nullableUInt8ArrayElementType.SetComparer(new NullableValueComparer<byte>(nullableUInt8ArrayElementType.TypeMapping.Comparer));
 
             var nullableUri = runtimeEntityType.AddProperty(
                 "NullableUri",
@@ -11594,6 +11921,9 @@ namespace TestNamespace
                         new ValueConverter<Uri, string>(
                             string (Uri v) => ((object)v).ToString(),
                             Uri (string v) => new Uri(v, UriKind.RelativeOrAbsolute)))));
+            var nullableUriArrayElementType = nullableUriArray.SetElementType(typeof(Uri),
+                nullable: true);
+            nullableUriArrayElementType.TypeMapping = nullableUriArray.TypeMapping.ElementTypeMapping;
 
             var physicalAddress = runtimeEntityType.AddProperty(
                 "PhysicalAddress",
@@ -11719,6 +12049,8 @@ namespace TestNamespace
                         new ValueConverter<PhysicalAddress, string>(
                             string (PhysicalAddress v) => ((object)v).ToString(),
                             PhysicalAddress (string v) => PhysicalAddress.Parse(v)))));
+            var physicalAddressArrayElementType = physicalAddressArray.SetElementType(typeof(PhysicalAddress));
+            physicalAddressArrayElementType.TypeMapping = physicalAddressArray.TypeMapping.ElementTypeMapping;
 
             var physicalAddressToBytesConverterProperty = runtimeEntityType.AddProperty(
                 "PhysicalAddressToBytesConverterProperty",
@@ -11894,6 +12226,8 @@ namespace TestNamespace
                 jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<string[], string>(
                     JsonStringReaderWriter.Instance),
                 elementMapping: SqliteStringTypeMapping.Default);
+            var stringArrayElementType = stringArray.SetElementType(typeof(string));
+            stringArrayElementType.TypeMapping = stringArray.TypeMapping.ElementTypeMapping;
 
             var stringReadOnlyCollection = runtimeEntityType.AddProperty(
                 "StringReadOnlyCollection",
@@ -11939,6 +12273,8 @@ namespace TestNamespace
                 jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<List<string>, string>(
                     JsonStringReaderWriter.Instance),
                 elementMapping: SqliteStringTypeMapping.Default);
+            var stringReadOnlyCollectionElementType = stringReadOnlyCollection.SetElementType(typeof(string));
+            stringReadOnlyCollectionElementType.TypeMapping = stringReadOnlyCollection.TypeMapping.ElementTypeMapping;
 
             var stringToBoolConverterProperty = runtimeEntityType.AddProperty(
                 "StringToBoolConverterProperty",
@@ -12704,6 +13040,8 @@ namespace TestNamespace
                 jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<TimeOnly[], TimeOnly>(
                     JsonTimeOnlyReaderWriter.Instance),
                 elementMapping: SqliteTimeOnlyTypeMapping.Default);
+            var timeOnlyArrayElementType = timeOnlyArray.SetElementType(typeof(TimeOnly));
+            timeOnlyArrayElementType.TypeMapping = timeOnlyArray.TypeMapping.ElementTypeMapping;
 
             var timeOnlyToStringConverterProperty = runtimeEntityType.AddProperty(
                 "TimeOnlyToStringConverterProperty",
@@ -12910,6 +13248,8 @@ namespace TestNamespace
                         TimeSpan (TimeSpan v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
                         storeTypeName: "TEXT")));
+            var timeSpanArrayElementType = timeSpanArray.SetElementType(typeof(TimeSpan));
+            timeSpanArrayElementType.TypeMapping = timeSpanArray.TypeMapping.ElementTypeMapping;
 
             var timeSpanToStringConverterProperty = runtimeEntityType.AddProperty(
                 "TimeSpanToStringConverterProperty",
@@ -13116,6 +13456,8 @@ namespace TestNamespace
                         ushort (ushort v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
                         storeTypeName: "INTEGER")));
+            var uInt16ArrayElementType = uInt16Array.SetElementType(typeof(ushort));
+            uInt16ArrayElementType.TypeMapping = uInt16Array.TypeMapping.ElementTypeMapping;
 
             var uInt32 = runtimeEntityType.AddProperty(
                 "UInt32",
@@ -13218,6 +13560,8 @@ namespace TestNamespace
                         uint (uint v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
                         storeTypeName: "INTEGER")));
+            var uInt32ArrayElementType = uInt32Array.SetElementType(typeof(uint));
+            uInt32ArrayElementType.TypeMapping = uInt32Array.TypeMapping.ElementTypeMapping;
 
             var uInt64 = runtimeEntityType.AddProperty(
                 "UInt64",
@@ -13292,6 +13636,8 @@ namespace TestNamespace
                 jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<ulong[], ulong>(
                     JsonUInt64ReaderWriter.Instance),
                 elementMapping: SqliteULongTypeMapping.Default);
+            var uInt64ArrayElementType = uInt64Array.SetElementType(typeof(ulong));
+            uInt64ArrayElementType.TypeMapping = uInt64Array.TypeMapping.ElementTypeMapping;
 
             var uInt8 = runtimeEntityType.AddProperty(
                 "UInt8",
@@ -13434,6 +13780,8 @@ namespace TestNamespace
                         byte (byte v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
                         storeTypeName: "INTEGER")));
+            var uInt8ReadOnlyCollectionElementType = uInt8ReadOnlyCollection.SetElementType(typeof(byte));
+            uInt8ReadOnlyCollectionElementType.TypeMapping = uInt8ReadOnlyCollection.TypeMapping.ElementTypeMapping;
 
             var uri = runtimeEntityType.AddProperty(
                 "Uri",
@@ -13555,6 +13903,8 @@ namespace TestNamespace
                         new ValueConverter<Uri, string>(
                             string (Uri v) => ((object)v).ToString(),
                             Uri (string v) => new Uri(v, UriKind.RelativeOrAbsolute)))));
+            var uriArrayElementType = uriArray.SetElementType(typeof(Uri));
+            uriArrayElementType.TypeMapping = uriArray.TypeMapping.ElementTypeMapping;
 
             var uriToStringConverterProperty = runtimeEntityType.AddProperty(
                 "UriToStringConverterProperty",
