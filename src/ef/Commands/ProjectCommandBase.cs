@@ -20,7 +20,6 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
         private CommandOption? _rootNamespace;
         private CommandOption? _language;
         private CommandOption? _nullable;
-        private string? _efcoreVersion;
         private CommandOption? _designAssembly;
 
         protected CommandOption? Assembly { get; private set; }
@@ -31,61 +30,6 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
         protected CommandOption? Framework { get; private set; }
         protected CommandOption? Configuration { get; private set; }
 
-#if !NET472
-        private AssemblyLoadContext? _assemblyLoadContext;
-        protected AssemblyLoadContext AssemblyLoadContext
-        {
-            get
-            {
-                if (_assemblyLoadContext != null)
-                {
-                    return _assemblyLoadContext;
-                }
-
-                if (_designAssembly!.Value() != null)
-                {
-                    AssemblyLoadContext.Default.Resolving += (context, name) =>
-                    {
-                        var assemblyPath = Path.GetDirectoryName(_designAssembly!.Value())!;
-                        assemblyPath = Path.Combine(assemblyPath, name.Name + ".dll");
-                        return File.Exists(assemblyPath) ? context.LoadFromAssemblyPath(assemblyPath) : null;
-                    };
-                    _assemblyLoadContext = AssemblyLoadContext.Default;
-                }
-
-                return AssemblyLoadContext.Default;
-            }
-        }
-#endif
-
-        protected string? EFCoreVersion
-        {
-            get
-            {
-                if (_efcoreVersion != null)
-                {
-                    return _efcoreVersion;
-                }
-
-                Assembly? assembly = null;
-#if !NET472
-                assembly = AssemblyLoadContext.LoadFromAssemblyName(new AssemblyName("Microsoft.EntityFrameworkCore.Design"));
-#else
-                if (_designAssembly!.Value() != null)
-                {
-                    var assemblyPath = Path.GetDirectoryName(_designAssembly!.Value());
-                    assemblyPath = Path.Combine(assemblyPath, "Microsoft.EntityFrameworkCore.Design.dll");
-                    assembly = System.Reflection.Assembly.LoadFrom(assemblyPath);
-                } else
-                {
-                    assembly = System.Reflection.Assembly.Load("Microsoft.EntityFrameworkCore.Design");
-                }
-#endif
-                _efcoreVersion = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()
-                        ?.InformationalVersion;
-                return _efcoreVersion;
-            }
-        }
 
         public override void Configure(CommandLineApplication command)
         {
@@ -143,6 +87,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
                     return new AppDomainOperationExecutor(
                         Assembly!.Value()!,
                         StartupAssembly!.Value(),
+                        _designAssembly!.Value(),
                         Project!.Value(),
                         _projectDir!.Value(),
                         _dataDir!.Value(),
@@ -180,6 +125,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
                 return new ReflectionOperationExecutor(
                     Assembly!.Value()!,
                     StartupAssembly!.Value(),
+                    _designAssembly!.Value(),
                     Project!.Value(),
                     _projectDir!.Value(),
                     _dataDir!.Value(),
