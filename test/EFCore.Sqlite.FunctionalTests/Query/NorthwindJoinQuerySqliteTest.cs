@@ -57,4 +57,10 @@ public class NorthwindJoinQuerySqliteTest : NorthwindJoinQueryRelationalTestBase
             SqliteStrings.ApplyNotSupported,
             (await Assert.ThrowsAsync<InvalidOperationException>(
                 () => base.Take_in_collection_projection_with_FirstOrDefault_on_top_level(async))).Message);
+
+    public override async Task GroupJoin_on_true_equal_true(bool async)
+        => Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.GroupJoin_on_true_equal_true(async))).Message);
 }

@@ -4568,6 +4568,42 @@ FROM [Entities1] AS [e]
 """);
     }
 
+    public async override Task Compare_constant_true_to_nullable_column_negated(bool async)
+    {
+        await base.Compare_constant_true_to_nullable_column_negated(async);
+
+        AssertSql(
+            """
+SELECT [e].[Id]
+FROM [Entities1] AS [e]
+WHERE CAST(1 AS bit) <> [e].[NullableBoolA] OR [e].[NullableBoolA] IS NULL
+""");
+    }
+
+    public override async Task Compare_constant_true_to_non_nullable_column_negated(bool async)
+    {
+        await base.Compare_constant_true_to_non_nullable_column_negated(async);
+
+        AssertSql(
+"""
+SELECT [e].[Id]
+FROM [Entities1] AS [e]
+WHERE [e].[BoolA] = CAST(0 AS bit)
+""");
+    }
+
+    public override async Task Compare_constant_true_to_expression_which_evaluates_to_null(bool async)
+    {
+        await base.Compare_constant_true_to_expression_which_evaluates_to_null(async);
+
+        AssertSql(
+"""
+SELECT [e].[Id]
+FROM [Entities1] AS [e]
+WHERE [e].[NullableBoolA] IS NOT NULL
+""");
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
