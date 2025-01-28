@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections.Concurrent;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -65,6 +66,70 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         }
 
         Task.WaitAll(tests.Select(Task.Run).ToArray());
+    }
+
+    [ConditionalTheory] // Issue #35528
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual void Lazy_loading_is_thread_safe(bool noTracking)
+    {
+        using var context = CreateContext(lazyLoadingEnabled: true);
+
+        //Creating another context to avoid caches
+        using var context2 = CreateContext(lazyLoadingEnabled: true);
+
+        IQueryable<Parent> query = context.Set<Parent>();
+        IQueryable<Parent> query2 = context2.Set<Parent>();
+
+        if (noTracking)
+        {
+            query = query.AsNoTracking();
+            query2 = query2.AsNoTracking();
+        }
+
+        var parent = query.Single();
+
+        var children = parent.Children!.Select(x => x.Id).OrderBy(x => x).ToList();
+        var singlePkToPk = parent.SinglePkToPk!.Id;
+        var single = parent.Single!.Id;
+        var childrenAk = parent.ChildrenAk!.Select(x => x.Id).OrderBy(x => x).ToList();
+        var singleAk = parent.SingleAk!.Id;
+        var childrenShadowFk = parent.ChildrenShadowFk!.Select(x => x.Id).OrderBy(x => x).ToList();
+        var singleShadowFk = parent.SingleShadowFk!.Id;
+        var childrenCompositeKey = parent.ChildrenCompositeKey!.Select(x => x.Id).OrderBy(x => x).ToList();
+        var singleCompositeKey = parent.SingleCompositeKey!.Id;
+        var withRecursiveProperty = parent.WithRecursiveProperty!.Id;
+        var manyChildren = parent.ManyChildren!.Select(x => x.Id).OrderBy(x => x).ToList();
+
+        var parent2 = query2.Single();
+
+        var parallelOptions = new ParallelOptions
+        {
+            MaxDegreeOfParallelism = Environment.ProcessorCount * 500
+        };
+
+        try
+        {
+            Parallel.For(0, 50000, parallelOptions, i =>
+            {
+                Assert.Equal(children, parent2.Children!.Select(x => x.Id).OrderBy(x => x).ToList());
+                Assert.Equal(singlePkToPk, parent2.SinglePkToPk!.Id);
+                Assert.Equal(single, parent2.Single!.Id);
+                Assert.Equal(childrenAk, parent2.ChildrenAk!.Select(x => x.Id).OrderBy(x => x).ToList());
+                Assert.Equal(singleAk, parent2.SingleAk!.Id);
+                Assert.Equal(childrenShadowFk, parent2.ChildrenShadowFk!.Select(x => x.Id).OrderBy(x => x).ToList());
+                Assert.Equal(singleShadowFk, parent2.SingleShadowFk!.Id);
+                Assert.Equal(childrenCompositeKey, parent2.ChildrenCompositeKey!.Select(x => x.Id).OrderBy(x => x).ToList());
+                Assert.Equal(singleCompositeKey, parent2.SingleCompositeKey!.Id);
+                Assert.Equal(withRecursiveProperty, parent2.WithRecursiveProperty!.Id);
+                Assert.Equal(manyChildren, parent2.ManyChildren!.Select(x => x.Id).OrderBy(x => x).ToList());
+            });
+        }
+        catch (Exception ex)
+        {
+            Assert.Fail($"Lazy loading is not thread safe exception: {ex.Message}");
+            throw;
+        }
     }
 
     [ConditionalFact]

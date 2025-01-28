@@ -4,6 +4,7 @@
 using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Internal;
 
@@ -22,7 +23,7 @@ public class LazyLoader : ILazyLoader, IInjectableService
     private bool _detached;
     private IDictionary<string, bool>? _loadedStates;
     private readonly Lock _isLoadingLock = new Lock();
-    private readonly ConcurrentDictionary<(object Entity, string NavigationName), TaskCompletionSource> _isLoading = new(NavEntryEqualityComparer.Instance);
+    private readonly Dictionary<(object Entity, string NavigationName), (TaskCompletionSource TaskCompletionSource, int ThreadId)> _isLoading = new(NavEntryEqualityComparer.Instance);
     private HashSet<string>? _nonLazyNavigations;
 
     /// <summary>
@@ -110,21 +111,26 @@ public class LazyLoader : ILazyLoader, IInjectableService
 
         var navEntry = (entity, navigationName);
 
-        var willWait = true;
-        TaskCompletionSource taskCompletionSource;
+        bool exists;
+        (TaskCompletionSource TaskCompletionSource, int ThreadId) isLoadingValue;
+        var currentThreadId = Environment.CurrentManagedThreadId;
 
         lock (_isLoadingLock)
         {
-            taskCompletionSource = _isLoading.GetOrAdd(navEntry, x =>
+            ref var refIsLoadingValue = ref CollectionsMarshal.GetValueRefOrAddDefault(_isLoading, navEntry, out exists);
+            if (!exists)
             {
-                willWait = false;
-                return new TaskCompletionSource();
-            });
+                refIsLoadingValue = (new TaskCompletionSource(), currentThreadId);
+            }
+            isLoadingValue = refIsLoadingValue!;
         }
 
-        if (willWait)
+        if (exists)
         {
-            taskCompletionSource.Task.Wait();
+            if (isLoadingValue.ThreadId != currentThreadId)
+            {
+                isLoadingValue.TaskCompletionSource.Task.Wait();
+            }
             return;
         }
 
@@ -149,8 +155,11 @@ public class LazyLoader : ILazyLoader, IInjectableService
         }
         finally
         {
-            taskCompletionSource.SetResult();
-            _isLoading.TryRemove(navEntry, out _);
+            isLoadingValue.TaskCompletionSource.TrySetResult();
+            lock (_isLoadingLock)
+            {
+                _isLoading.Remove(navEntry);
+            }
         }
     }
 
@@ -170,21 +179,26 @@ public class LazyLoader : ILazyLoader, IInjectableService
 
         var navEntry = (entity, navigationName);
 
-        var willWait = true;
-        TaskCompletionSource taskCompletionSource;
+        bool exists;
+        (TaskCompletionSource TaskCompletionSource, int ThreadId) isLoadingValue;
+        var currentThreadId = Environment.CurrentManagedThreadId;
 
         lock (_isLoadingLock)
         {
-            taskCompletionSource = _isLoading.GetOrAdd(navEntry, x =>
+            ref var refIsLoadingValue = ref CollectionsMarshal.GetValueRefOrAddDefault(_isLoading, navEntry, out exists);
+            if (!exists)
             {
-                willWait = false;
-                return new TaskCompletionSource();
-            });
+                refIsLoadingValue = (new TaskCompletionSource(), currentThreadId);
+            }
+            isLoadingValue = refIsLoadingValue!;
         }
 
-        if (willWait)
+        if (exists)
         {
-            await taskCompletionSource.Task.WaitAsync(cancellationToken).ConfigureAwait(false);
+            if(isLoadingValue.ThreadId != currentThreadId)
+            {
+                await isLoadingValue.TaskCompletionSource.Task.WaitAsync(cancellationToken).ConfigureAwait(false);
+            }
             return;
         }
 
@@ -196,10 +210,10 @@ public class LazyLoader : ILazyLoader, IInjectableService
                 try
                 {
                     await entry.LoadAsync(
-                        _queryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution
-                            ? LoadOptions.ForceIdentityResolution
-                            : LoadOptions.None,
-                        cancellationToken).ConfigureAwait(false);
+                               _queryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution
+                                   ? LoadOptions.ForceIdentityResolution
+                                   : LoadOptions.None,
+                               cancellationToken).ConfigureAwait(false);
                 }
                 catch
                 {
@@ -210,8 +224,11 @@ public class LazyLoader : ILazyLoader, IInjectableService
         }
         finally
         {
-            taskCompletionSource.SetResult();
-            _isLoading.TryRemove(navEntry, out _);
+            isLoadingValue.TaskCompletionSource.TrySetResult();
+            lock (_isLoadingLock)
+            {
+                _isLoading.Remove(navEntry);
+            }
         }
     }
 
