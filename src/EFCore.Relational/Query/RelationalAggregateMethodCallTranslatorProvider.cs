@@ -9,8 +9,8 @@ namespace Microsoft.EntityFrameworkCore.Query;
 /// <inheritdoc />
 public class RelationalAggregateMethodCallTranslatorProvider : IAggregateMethodCallTranslatorProvider
 {
-    private readonly List<IAggregateMethodCallTranslator> _plugins = new();
-    private readonly List<IAggregateMethodCallTranslator> _translators = new();
+    private readonly List<IAggregateMethodCallTranslator> _plugins = [];
+    private readonly List<IAggregateMethodCallTranslator> _translators = [];
 
     /// <summary>
     ///     Creates a new instance of the <see cref="RelationalAggregateMethodCallTranslatorProvider" /> class.
