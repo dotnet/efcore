@@ -770,11 +770,17 @@ SELECT [p0].[LastName], [f].[Size], (
     LEFT JOIN [Feet] AS [f0] ON [p1].[Id] = [f0].[Id]
     LEFT JOIN [Person] AS [p2] ON [f0].[Id] = [p2].[Id]
     LEFT JOIN [Feet] AS [f1] ON [p1].[Id] = [f1].[Id]
-    WHERE [f0].[Size] = @size AND [p1].[MiddleInitial] IS NOT NULL AND ([f0].[Id] <> 1 OR [f0].[Id] IS NULL) AND ([f].[Size] = [f0].[Size] OR ([f].[Size] IS NULL AND [f0].[Size] IS NULL)) AND ([p0].[LastName] = [p2].[LastName] OR ([p0].[LastName] IS NULL AND [p2].[LastName] IS NULL))) AS [Min]
+    WHERE [f0].[Size] = @size AND [p1].[MiddleInitial] IS NOT NULL AND CASE
+        WHEN [f0].[Id] = 1 THEN CAST(0 AS bit)
+        ELSE CAST(1 AS bit)
+    END = CAST(1 AS bit) AND ([f].[Size] = [f0].[Size] OR ([f].[Size] IS NULL AND [f0].[Size] IS NULL)) AND ([p0].[LastName] = [p2].[LastName] OR ([p0].[LastName] IS NULL AND [p2].[LastName] IS NULL))) AS [Min]
 FROM [Person] AS [p]
 LEFT JOIN [Feet] AS [f] ON [p].[Id] = [f].[Id]
 LEFT JOIN [Person] AS [p0] ON [f].[Id] = [p0].[Id]
-WHERE [f].[Size] = @size AND [p].[MiddleInitial] IS NOT NULL AND ([f].[Id] <> 1 OR [f].[Id] IS NULL)
+WHERE [f].[Size] = @size AND [p].[MiddleInitial] IS NOT NULL AND CASE
+    WHEN [f].[Id] = 1 THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
 GROUP BY [f].[Size], [p0].[LastName]
 """);
     }

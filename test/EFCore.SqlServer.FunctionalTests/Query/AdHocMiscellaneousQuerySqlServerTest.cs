@@ -2251,7 +2251,10 @@ SELECT [o].[CustomerId], (
     FROM [Order] AS [o0]
     WHERE [o0].[CustomerId] = [o].[CustomerId]) AS [CustomerMinHourlyRate], MIN([o].[HourlyRate]) AS [HourlyRate], COUNT(*) AS [Count]
 FROM [Order] AS [o]
-WHERE [o].[Number] <> N'A1' OR [o].[Number] IS NULL
+WHERE CASE
+    WHEN [o].[Number] = N'A1' THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
 GROUP BY [o].[CustomerId], [o].[Number]
 """);
     }
