@@ -1454,7 +1454,7 @@ FROM [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g]
 LEFT JOIN (
     SELECT [w].[Id], [w].[OwnerFullName]
     FROM [Weapons] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [w]
-    WHERE [w].[IsAutomatic] <> @isAutomatic
+    WHERE [w].[IsAutomatic] = ~@isAutomatic
 ) AS [w0] ON [g].[FullName] = [w0].[OwnerFullName]
 """);
     }
@@ -1992,7 +1992,7 @@ WHERE [g].[HasSoulPatch] = CAST(1 AS bit)
 
 SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[PeriodEnd], [g].[PeriodStart], [g].[Rank]
 FROM [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g]
-WHERE [g].[HasSoulPatch] <> @prm
+WHERE [g].[HasSoulPatch] = ~@prm
 """,
             //
             """
@@ -2000,7 +2000,7 @@ WHERE [g].[HasSoulPatch] <> @prm
 
 SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[PeriodEnd], [g].[PeriodStart], [g].[Rank]
 FROM [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g]
-WHERE [g].[HasSoulPatch] <> @prm
+WHERE [g].[HasSoulPatch] = ~@prm
 """);
     }
 
