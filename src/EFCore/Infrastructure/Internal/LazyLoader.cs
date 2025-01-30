@@ -23,7 +23,7 @@ public class LazyLoader : ILazyLoader, IInjectableService
     private bool _detached;
     private IDictionary<string, bool>? _loadedStates;
     private readonly Lock _isLoadingLock = new Lock();
-    private readonly Dictionary<(object Entity, string NavigationName), (TaskCompletionSource TaskCompletionSource, int ThreadId)> _isLoading = new(NavEntryEqualityComparer.Instance);
+    private readonly Dictionary<(object Entity, string NavigationName), (TaskCompletionSource TaskCompletionSource, AsyncLocal<int> Depth)> _isLoading = new(NavEntryEqualityComparer.Instance);
     private HashSet<string>? _nonLazyNavigations;
 
     /// <summary>
@@ -112,22 +112,22 @@ public class LazyLoader : ILazyLoader, IInjectableService
         var navEntry = (entity, navigationName);
 
         bool exists;
-        (TaskCompletionSource TaskCompletionSource, int ThreadId) isLoadingValue;
-        var currentThreadId = Environment.CurrentManagedThreadId;
+        (TaskCompletionSource TaskCompletionSource, AsyncLocal<int> Depth) isLoadingValue;
 
         lock (_isLoadingLock)
         {
             ref var refIsLoadingValue = ref CollectionsMarshal.GetValueRefOrAddDefault(_isLoading, navEntry, out exists);
             if (!exists)
             {
-                refIsLoadingValue = (new TaskCompletionSource(), currentThreadId);
+                refIsLoadingValue = (new(), new());
             }
             isLoadingValue = refIsLoadingValue!;
+            isLoadingValue.Depth.Value++;
         }
 
         if (exists)
         {
-            if (isLoadingValue.ThreadId != currentThreadId)
+            if (isLoadingValue.Depth.Value == 1)
             {
                 isLoadingValue.TaskCompletionSource.Task.Wait();
             }
@@ -180,21 +180,25 @@ public class LazyLoader : ILazyLoader, IInjectableService
         var navEntry = (entity, navigationName);
 
         bool exists;
-        (TaskCompletionSource TaskCompletionSource, int ThreadId) isLoadingValue;
+        (TaskCompletionSource TaskCompletionSource, AsyncLocal<int> Depth) isLoadingValue;
 
         lock (_isLoadingLock)
         {
             ref var refIsLoadingValue = ref CollectionsMarshal.GetValueRefOrAddDefault(_isLoading, navEntry, out exists);
             if (!exists)
             {
-                refIsLoadingValue = (new TaskCompletionSource(), Environment.CurrentManagedThreadId);
+                refIsLoadingValue = (new(), new());
             }
             isLoadingValue = refIsLoadingValue!;
+            isLoadingValue.Depth.Value++;
         }
 
         if (exists)
         {
-            await isLoadingValue.TaskCompletionSource.Task.WaitAsync(cancellationToken).ConfigureAwait(false);
+            if (isLoadingValue.Depth.Value == 1)
+            {
+                await isLoadingValue.TaskCompletionSource.Task.WaitAsync(cancellationToken).ConfigureAwait(false);
+            }
             return;
         }
 

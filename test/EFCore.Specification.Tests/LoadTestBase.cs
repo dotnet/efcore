@@ -5042,11 +5042,6 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
     [InlineData(true, true)]
     public virtual async Task Lazy_loading_is_thread_safe(bool noTracking, bool async)
     {
-        if (!LazyLoadingEnabled)
-        {
-            return;
-        }
-
         using var context = CreateContext(lazyLoadingEnabled: true);
 
         //Creating another context to avoid caches
