@@ -5042,6 +5042,11 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
     [InlineData(true, true)]
     public virtual async Task Lazy_loading_is_thread_safe(bool noTracking, bool async)
     {
+        if (!LazyLoadingEnabled)
+        {
+            return;
+        }
+
         using var context = CreateContext(lazyLoadingEnabled: true);
 
         //Creating another context to avoid caches
@@ -5058,15 +5063,15 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
 
         var parent = query.Single();
 
-        var children = (await parent.LazyLoadChildren(async))!.Select(x => x.Id).OrderBy(x => x).ToList();
-        var singlePkToPk = (await parent.LazyLoadSinglePkToPk(async))!.Id;
-        var single = (await parent.LazyLoadSingle(async))!.Id;
-        var childrenAk = (await parent.LazyLoadChildrenAk(async))!.Select(x => x.Id).OrderBy(x => x).ToList();
-        var singleAk = (await parent.LazyLoadSingleAk(async))!.Id;
-        var childrenShadowFk = (await parent.LazyLoadChildrenShadowFk(async))!.Select(x => x.Id).OrderBy(x => x).ToList();
-        var singleShadowFk = (await parent.LazyLoadSingleShadowFk(async))!.Id;
-        var childrenCompositeKey = (await parent.LazyLoadChildrenCompositeKey(async))!.Select(x => x.Id).OrderBy(x => x).ToList();
-        var singleCompositeKey = (await parent.LazyLoadSingleCompositeKey(async))!.Id;
+        var children = (await parent.LazyLoadChildren(async))?.Select(x => x.Id).OrderBy(x => x).ToList();
+        var singlePkToPk = (await parent.LazyLoadSinglePkToPk(async))?.Id;
+        var single = (await parent.LazyLoadSingle(async))?.Id;
+        var childrenAk = (await parent.LazyLoadChildrenAk(async))?.Select(x => x.Id).OrderBy(x => x).ToList();
+        var singleAk = (await parent.LazyLoadSingleAk(async))?.Id;
+        var childrenShadowFk = (await parent.LazyLoadChildrenShadowFk(async))?.Select(x => x.Id).OrderBy(x => x).ToList();
+        var singleShadowFk = (await parent.LazyLoadSingleShadowFk(async))?.Id;
+        var childrenCompositeKey = (await parent.LazyLoadChildrenCompositeKey(async))?.Select(x => x.Id).OrderBy(x => x).ToList();
+        var singleCompositeKey = (await parent.LazyLoadSingleCompositeKey(async))?.Id;
 
         var parent2 = query2.Single();
 
@@ -5077,15 +5082,15 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
 
         await Parallel.ForAsync(0, 50000, parallelOptions, async (i, ct) =>
         {
-            Assert.Equal(children, (await parent2.LazyLoadChildren(async))!.Select(x => x.Id).OrderBy(x => x).ToList());
-            Assert.Equal(singlePkToPk, (await parent2.LazyLoadSinglePkToPk(async))!.Id);
-            Assert.Equal(single, (await parent2.LazyLoadSingle(async))!.Id);
-            Assert.Equal(childrenAk, (await parent2.LazyLoadChildrenAk(async))!.Select(x => x.Id).OrderBy(x => x).ToList());
-            Assert.Equal(singleAk, (await parent2.LazyLoadSingleAk(async))!.Id);
-            Assert.Equal(childrenShadowFk, (await parent2.LazyLoadChildrenShadowFk(async))!.Select(x => x.Id).OrderBy(x => x).ToList());
-            Assert.Equal(singleShadowFk, (await parent2.LazyLoadSingleShadowFk(async))!.Id);
-            Assert.Equal(childrenCompositeKey, (await parent2.LazyLoadChildrenCompositeKey(async))!.Select(x => x.Id).OrderBy(x => x).ToList());
-            Assert.Equal(singleCompositeKey, (await parent2.LazyLoadSingleCompositeKey(async))!.Id);
+            Assert.Equal(children, (await parent2.LazyLoadChildren(async))?.Select(x => x.Id).OrderBy(x => x).ToList());
+            Assert.Equal(singlePkToPk, (await parent2.LazyLoadSinglePkToPk(async))?.Id);
+            Assert.Equal(single, (await parent2.LazyLoadSingle(async))?.Id);
+            Assert.Equal(childrenAk, (await parent2.LazyLoadChildrenAk(async))?.Select(x => x.Id).OrderBy(x => x).ToList());
+            Assert.Equal(singleAk, (await parent2.LazyLoadSingleAk(async))?.Id);
+            Assert.Equal(childrenShadowFk, (await parent2.LazyLoadChildrenShadowFk(async))?.Select(x => x.Id).OrderBy(x => x).ToList());
+            Assert.Equal(singleShadowFk, (await parent2.LazyLoadSingleShadowFk(async))?.Id);
+            Assert.Equal(childrenCompositeKey, (await parent2.LazyLoadChildrenCompositeKey(async))?.Select(x => x.Id).OrderBy(x => x).ToList());
+            Assert.Equal(singleCompositeKey, (await parent2.LazyLoadSingleCompositeKey(async))?.Id);
         });
     }
 

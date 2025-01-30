@@ -181,24 +181,20 @@ public class LazyLoader : ILazyLoader, IInjectableService
 
         bool exists;
         (TaskCompletionSource TaskCompletionSource, int ThreadId) isLoadingValue;
-        var currentThreadId = Environment.CurrentManagedThreadId;
 
         lock (_isLoadingLock)
         {
             ref var refIsLoadingValue = ref CollectionsMarshal.GetValueRefOrAddDefault(_isLoading, navEntry, out exists);
             if (!exists)
             {
-                refIsLoadingValue = (new TaskCompletionSource(), currentThreadId);
+                refIsLoadingValue = (new TaskCompletionSource(), Environment.CurrentManagedThreadId);
             }
             isLoadingValue = refIsLoadingValue!;
         }
 
         if (exists)
         {
-            if(isLoadingValue.ThreadId != currentThreadId)
-            {
-                await isLoadingValue.TaskCompletionSource.Task.WaitAsync(cancellationToken).ConfigureAwait(false);
-            }
+            await isLoadingValue.TaskCompletionSource.Task.WaitAsync(cancellationToken).ConfigureAwait(false);
             return;
         }
 
