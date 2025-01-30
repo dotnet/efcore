@@ -307,6 +307,19 @@ public abstract class NorthwindJoinQueryTestBase<TFixture>(TFixture fixture) : Q
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task RightJoin(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>()
+                .RightJoin(
+                    ss.Set<Order>(),
+                    c => c.CustomerID,
+                    o => o.CustomerID,
+                    (c, o) => new { c, o }),
+            e => (e.c.CustomerID, e.o?.OrderID));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task GroupJoin_customers_employees_shadow(bool async)
         => AssertQuery(
             async,

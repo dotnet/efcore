@@ -466,7 +466,8 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                                 innerSource,
                                 methodCallExpression.Arguments[2].UnwrapLambdaFromQuote(),
                                 methodCallExpression.Arguments[3].UnwrapLambdaFromQuote(),
-                                methodCallExpression.Arguments[4].UnwrapLambdaFromQuote());
+                                methodCallExpression.Arguments[4].UnwrapLambdaFromQuote(),
+                                QueryableMethods.Join);
                         }
 
                         goto default;
@@ -479,12 +480,32 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                         secondArgument = UnwrapCollectionMaterialization(secondArgument);
                         if (secondArgument is NavigationExpansionExpression innerSource)
                         {
-                            return ProcessLeftJoin(
+                            return ProcessJoin(
                                 source,
                                 innerSource,
                                 methodCallExpression.Arguments[2].UnwrapLambdaFromQuote(),
                                 methodCallExpression.Arguments[3].UnwrapLambdaFromQuote(),
-                                methodCallExpression.Arguments[4].UnwrapLambdaFromQuote());
+                                methodCallExpression.Arguments[4].UnwrapLambdaFromQuote(),
+                                QueryableMethods.LeftJoin);
+                        }
+
+                        goto default;
+                    }
+
+                    case nameof(Queryable.RightJoin)
+                        when genericMethod == QueryableMethods.RightJoin:
+                    {
+                        var secondArgument = Visit(methodCallExpression.Arguments[1]);
+                        secondArgument = UnwrapCollectionMaterialization(secondArgument);
+                        if (secondArgument is NavigationExpansionExpression innerSource)
+                        {
+                            return ProcessJoin(
+                                source,
+                                innerSource,
+                                methodCallExpression.Arguments[2].UnwrapLambdaFromQuote(),
+                                methodCallExpression.Arguments[3].UnwrapLambdaFromQuote(),
+                                methodCallExpression.Arguments[4].UnwrapLambdaFromQuote(),
+                                QueryableMethods.RightJoin);
                         }
 
                         goto default;
@@ -1236,8 +1257,13 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         NavigationExpansionExpression innerSource,
         LambdaExpression outerKeySelector,
         LambdaExpression innerKeySelector,
-        LambdaExpression resultSelector)
+        LambdaExpression resultSelector,
+        MethodInfo joinMethod)
     {
+        Check.DebugAssert(
+            joinMethod == QueryableMethods.Join || joinMethod == QueryableMethods.LeftJoin || joinMethod == QueryableMethods.RightJoin,
+            "Join method required");
+
         if (innerSource.PendingOrderings.Any())
         {
             ApplyPendingOrderings(innerSource);
@@ -1254,14 +1280,14 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         var newResultSelector = Expression.Lambda(
             Expression.New(
                 transparentIdentifierType.GetConstructors().Single(),
-                new[] { outerSource.CurrentParameter, innerSource.CurrentParameter },
+                [outerSource.CurrentParameter, innerSource.CurrentParameter],
                 transparentIdentifierOuterMemberInfo,
                 transparentIdentifierInnerMemberInfo),
             outerSource.CurrentParameter,
             innerSource.CurrentParameter);
 
         var source = Expression.Call(
-            QueryableMethods.Join.MakeGenericMethod(
+            joinMethod.MakeGenericMethod(
                 outerSource.SourceElementType, innerSource.SourceElementType, outerKeySelector.ReturnType,
                 newResultSelector.ReturnType),
             outerSource.Source,
@@ -1270,62 +1296,22 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
             Expression.Quote(innerKeySelector),
             Expression.Quote(newResultSelector));
 
-        var currentTree = new NavigationTreeNode(outerSource.CurrentTree, innerSource.CurrentTree);
-        var pendingSelector = new ReplacingExpressionVisitor(
-                new Expression[] { resultSelector.Parameters[0], resultSelector.Parameters[1] },
-                new[] { outerSource.PendingSelector, innerSource.PendingSelector })
-            .Visit(resultSelector.Body);
-        var parameterName = GetParameterName("ti");
-
-        return new NavigationExpansionExpression(source, currentTree, pendingSelector, parameterName);
-    }
-
-    private NavigationExpansionExpression ProcessLeftJoin(
-        NavigationExpansionExpression outerSource,
-        NavigationExpansionExpression innerSource,
-        LambdaExpression outerKeySelector,
-        LambdaExpression innerKeySelector,
-        LambdaExpression resultSelector)
-    {
-        if (innerSource.PendingOrderings.Any())
+        var outerPendingSelector = outerSource.PendingSelector;
+        if (joinMethod == QueryableMethods.RightJoin)
         {
-            ApplyPendingOrderings(innerSource);
+            outerPendingSelector = _entityReferenceOptionalMarkingExpressionVisitor.Visit(outerPendingSelector);
         }
-
-        (outerKeySelector, innerKeySelector) = ProcessJoinConditions(outerSource, innerSource, outerKeySelector, innerKeySelector);
-
-        var transparentIdentifierType = TransparentIdentifierFactory.Create(
-            outerSource.SourceElementType, innerSource.SourceElementType);
-
-        var transparentIdentifierOuterMemberInfo = transparentIdentifierType.GetTypeInfo().GetDeclaredField("Outer")!;
-        var transparentIdentifierInnerMemberInfo = transparentIdentifierType.GetTypeInfo().GetDeclaredField("Inner")!;
-
-        var newResultSelector = Expression.Lambda(
-            Expression.New(
-                transparentIdentifierType.GetConstructors().Single(),
-                new[] { outerSource.CurrentParameter, innerSource.CurrentParameter },
-                transparentIdentifierOuterMemberInfo,
-                transparentIdentifierInnerMemberInfo),
-            outerSource.CurrentParameter,
-            innerSource.CurrentParameter);
-
-        var source = Expression.Call(
-            QueryableMethods.LeftJoin.MakeGenericMethod(
-                outerSource.SourceElementType, innerSource.SourceElementType, outerKeySelector.ReturnType,
-                newResultSelector.ReturnType),
-            outerSource.Source,
-            innerSource.Source,
-            Expression.Quote(outerKeySelector),
-            Expression.Quote(innerKeySelector),
-            Expression.Quote(newResultSelector));
 
         var innerPendingSelector = innerSource.PendingSelector;
-        innerPendingSelector = _entityReferenceOptionalMarkingExpressionVisitor.Visit(innerPendingSelector);
+        if (joinMethod == QueryableMethods.LeftJoin)
+        {
+            innerPendingSelector = _entityReferenceOptionalMarkingExpressionVisitor.Visit(innerPendingSelector);
+        }
 
         var currentTree = new NavigationTreeNode(outerSource.CurrentTree, innerSource.CurrentTree);
         var pendingSelector = new ReplacingExpressionVisitor(
-                new Expression[] { resultSelector.Parameters[0], resultSelector.Parameters[1] },
-                new[] { outerSource.PendingSelector, innerPendingSelector })
+                [resultSelector.Parameters[0], resultSelector.Parameters[1]],
+                [outerPendingSelector, innerPendingSelector])
             .Visit(resultSelector.Body);
         var parameterName = GetParameterName("ti");
 

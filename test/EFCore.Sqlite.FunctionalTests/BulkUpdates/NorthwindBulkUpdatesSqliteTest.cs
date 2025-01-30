@@ -608,6 +608,30 @@ WHERE EXISTS (
             SqliteStrings.ApplyNotSupported,
             (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Delete_with_outer_apply(async))).Message);
 
+    public override async Task Delete_with_RightJoin(bool async)
+    {
+        await base.Delete_with_RightJoin(async);
+
+        AssertSql(
+            """
+@p0='100'
+@p='0'
+
+DELETE FROM "Order Details" AS "o"
+WHERE EXISTS (
+    SELECT 1
+    FROM "Order Details" AS "o0"
+    RIGHT JOIN (
+        SELECT "o2"."OrderID"
+        FROM "Orders" AS "o2"
+        WHERE "o2"."OrderID" < 10300
+        ORDER BY "o2"."OrderID"
+        LIMIT @p0 OFFSET @p
+    ) AS "o1" ON "o0"."OrderID" = "o1"."OrderID"
+    WHERE "o0"."OrderID" < 10276 AND "o0"."OrderID" = "o"."OrderID" AND "o0"."ProductID" = "o"."ProductID")
+""");
+    }
+
     public override async Task Update_Where_set_constant_TagWith(bool async)
     {
         await base.Update_Where_set_constant_TagWith(async);
@@ -1324,6 +1348,30 @@ FROM (
     WHERE "c"."CustomerID" LIKE 'F%'
 ) AS "s"
 WHERE "c0"."CustomerID" = "s"."CustomerID"
+""");
+    }
+
+    public override async Task Update_with_RightJoin(bool async)
+    {
+        await base.Update_with_RightJoin(async);
+
+        AssertExecuteUpdateSql(
+            """
+@p='2020-01-01T00:00:00.0000000Z' (Nullable = true) (DbType = DateTime)
+
+UPDATE "Orders" AS "o0"
+SET "OrderDate" = @p
+FROM (
+    SELECT "o"."OrderID"
+    FROM "Orders" AS "o"
+    RIGHT JOIN (
+        SELECT "c"."CustomerID"
+        FROM "Customers" AS "c"
+        WHERE "c"."CustomerID" LIKE 'F%'
+    ) AS "c0" ON "o"."CustomerID" = "c0"."CustomerID"
+    WHERE "o"."OrderID" < 10300
+) AS "s"
+WHERE "o0"."OrderID" = "s"."OrderID"
 """);
     }
 

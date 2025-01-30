@@ -627,6 +627,28 @@ WHERE [o].[OrderID] < 10276
 """);
     }
 
+    public override async Task Delete_with_RightJoin(bool async)
+    {
+        await base.Delete_with_RightJoin(async);
+
+        AssertSql(
+            """
+@p='0'
+@p0='100'
+
+DELETE FROM [o]
+FROM [Order Details] AS [o]
+RIGHT JOIN (
+    SELECT [o0].[OrderID]
+    FROM [Orders] AS [o0]
+    WHERE [o0].[OrderID] < 10300
+    ORDER BY [o0].[OrderID]
+    OFFSET @p ROWS FETCH NEXT @p0 ROWS ONLY
+) AS [o1] ON [o].[OrderID] = [o1].[OrderID]
+WHERE [o].[OrderID] < 10276
+""");
+    }
+
     public override async Task Update_Where_set_constant_TagWith(bool async)
     {
         await base.Update_Where_set_constant_TagWith(async);
@@ -1344,6 +1366,26 @@ LEFT JOIN (
     WHERE [o].[OrderID] < 10300
 ) AS [o0] ON [c].[CustomerID] = [o0].[CustomerID]
 WHERE [c].[CustomerID] LIKE N'F%'
+""");
+    }
+
+    public override async Task Update_with_RightJoin(bool async)
+    {
+        await base.Update_with_RightJoin(async);
+
+        AssertExecuteUpdateSql(
+            """
+@p='2020-01-01T00:00:00.0000000Z' (Nullable = true) (DbType = DateTime)
+
+UPDATE [o]
+SET [o].[OrderDate] = @p
+FROM [Orders] AS [o]
+RIGHT JOIN (
+    SELECT [c].[CustomerID]
+    FROM [Customers] AS [c]
+    WHERE [c].[CustomerID] LIKE N'F%'
+) AS [c0] ON [o].[CustomerID] = [c0].[CustomerID]
+WHERE [o].[OrderID] < 10300
 """);
     }
 
