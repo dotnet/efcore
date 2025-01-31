@@ -989,8 +989,18 @@ public class CSharpHelper : ICSharpHelper
         return name == null
             ? type.IsDefined(typeof(FlagsAttribute), false)
                 ? GetCompositeEnumValue(type, value, fullName)
-                : $"({Reference(type)}){UnknownLiteral(Convert.ChangeType(value, Enum.GetUnderlyingType(type)))}"
+                : GetUnnamedEnumValue(type, value)
             : GetSimpleEnumValue(type, name, fullName);
+    }
+
+    private string GetUnnamedEnumValue(Type type, Enum value)
+    {
+        var underlyingLiteral = UnknownLiteral(Convert.ChangeType(value, Enum.GetUnderlyingType(type)));
+
+        // A negative value must be enclosed in parentheses, otherwise e.g. (MyEnum)-1 fails to compile (CS0075).
+        return underlyingLiteral.StartsWith('-')
+            ? $"({Reference(type)})({underlyingLiteral})"
+            : $"({Reference(type)}){underlyingLiteral}";
     }
 
     /// <summary>
@@ -1026,7 +1036,7 @@ public class CSharpHelper : ICSharpHelper
                     previous == null
                         ? GetSimpleEnumValue(type, Enum.GetName(type, current)!, fullName)
                         : previous + " | " + GetSimpleEnumValue(type, Enum.GetName(type, current)!, fullName))
-            ?? $"({Reference(type)}){UnknownLiteral(Convert.ChangeType(flags, Enum.GetUnderlyingType(type)))}";
+            ?? GetUnnamedEnumValue(type, flags);
     }
 
     internal static IReadOnlyCollection<Enum> GetFlags(Enum flags)

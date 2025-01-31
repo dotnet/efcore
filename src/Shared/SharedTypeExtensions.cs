@@ -625,7 +625,7 @@ internal static class SharedTypeExtensions
         }
         else
         {
-            if (type.Namespace is not null)
+            if (!string.IsNullOrEmpty(type.Namespace))
             {
                 yield return type.Namespace;
             }

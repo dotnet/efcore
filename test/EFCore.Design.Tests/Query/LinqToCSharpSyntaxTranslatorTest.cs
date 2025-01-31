@@ -553,6 +553,31 @@ int () =>
     }
 
     [Fact]
+    public void Lambda_parameter_name_is_uniquified_against_constant_replacement()
+    {
+        var source = Parameter(typeof(int), "source");
+
+        AssertExpression(
+            Lambda<Func<int, int>>(Add(source, Constant(42)), source),
+            "int (int source0) => source0 + source",
+            new Dictionary<object, string> { { 42, "source" } });
+    }
+
+    [Fact]
+    public void Nested_lambda_parameters_are_uniquified_against_outer_scope_and_constant_replacement()
+    {
+        var outer = Parameter(typeof(int), "source");
+        var inner = Parameter(typeof(int), "source");
+
+        AssertExpression(
+            Lambda<Func<int, Func<int, int>>>(
+                Lambda<Func<int, int>>(Add(Add(outer, inner), Constant(42)), inner),
+                outer),
+            "Func<int, int> (int source0) => int (int source1) => source0 + source1 + source",
+            new Dictionary<object, string> { { 42, "source" } });
+    }
+
+    [Fact]
     public void Invocation_with_literal_argument()
         => AssertExpression(
             AndAlso(

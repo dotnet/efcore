@@ -272,6 +272,13 @@ public class CSharpHelperTest
         Assert.Equal(DesignStrings.UnknownLiteral(typeof(object)), ex.Message);
     }
 
+    [Theory]
+    [InlineData((SomeEnum)(-1), "(CSharpHelperTest.SomeEnum)(-1)")]
+    [InlineData((SomeEnum)2, "(CSharpHelperTest.SomeEnum)2")]
+    [InlineData((SomeSByteEnum)(-1), "(CSharpHelperTest.SomeSByteEnum)(sbyte)-1")]
+    public void Literal_works_when_enum_value_is_unnamed(object value, string expected)
+        => Assert.Equal(expected, new CSharpHelper(TypeMappingSource).UnknownLiteral(value));
+
     [Theory, InlineData(typeof(int), "int"), InlineData(typeof(int?), "int?"), InlineData(typeof(int[]), "int[]"),
      InlineData(typeof(int[,]), "int[,]"), InlineData(typeof(int[][]), "int[][]"), InlineData(typeof(Generic<int>), "Generic<int>"),
      InlineData(typeof(Nested), "CSharpHelperTest.Nested"), InlineData(typeof(Generic<Generic<int>>), "Generic<Generic<int>>"),
@@ -290,6 +297,11 @@ public class CSharpHelperTest
     internal class NestedGeneric<T>;
 
     private enum SomeEnum
+    {
+        Default
+    }
+
+    private enum SomeSByteEnum : sbyte
     {
         Default
     }

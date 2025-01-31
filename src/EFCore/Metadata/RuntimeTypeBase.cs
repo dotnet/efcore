@@ -20,7 +20,8 @@ public abstract class RuntimeTypeBase : RuntimeAnnotatableBase, IRuntimeTypeBase
     private RuntimeModel _model;
     private readonly RuntimeTypeBase? _baseType;
     private SortedSet<RuntimeTypeBase>? _directlyDerivedTypes;
-    private readonly object? _discriminatorValue;
+    private object? _discriminatorValue;
+    private object? _discriminatorValueFromProviderValue;
     private readonly Utilities.OrderedDictionary<string, RuntimeProperty> _properties;
     private Utilities.OrderedDictionary<string, RuntimeComplexProperty>? _complexProperties;
     private readonly PropertyInfo? _indexerPropertyInfo;
@@ -106,6 +107,16 @@ public abstract class RuntimeTypeBase : RuntimeAnnotatableBase, IRuntimeTypeBase
     /// </summary>
     public virtual RuntimeTypeBase? BaseType
         => _baseType;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public virtual void SetDiscriminatorValueFromProviderValue(object? value)
+        => _discriminatorValueFromProviderValue = value;
 
     /// <summary>
     ///     Gets all types in the model that directly derive from this type.
@@ -917,7 +928,21 @@ public abstract class RuntimeTypeBase : RuntimeAnnotatableBase, IRuntimeTypeBase
     /// <inheritdoc />
     [DebuggerStepThrough]
     object? IReadOnlyTypeBase.GetDiscriminatorValue()
-        => _discriminatorValue;
+    {
+        var providerValue = _discriminatorValueFromProviderValue;
+        if (providerValue != null)
+        {
+            var converter = ((ITypeBase)this).FindDiscriminatorProperty()?.GetTypeMapping().Converter;
+            Interlocked.CompareExchange(
+                ref _discriminatorValue,
+                converter == null ? providerValue : converter.ConvertFromProvider(providerValue),
+                null);
+
+            _discriminatorValueFromProviderValue = null;
+        }
+
+        return _discriminatorValue;
+    }
 
     /// <inheritdoc />
     [DebuggerStepThrough]

@@ -140,7 +140,33 @@ public class LinqToCSharpSyntaxTranslator(SyntaxGenerator syntaxGenerator) : Exp
         _context = statementContext ? ExpressionContext.Statement : ExpressionContext.Expression;
         _onLastLambdaLine = true;
 
-        Visit(node);
+        // The constant replacements (e.g. variables declared in the enclosing generated method for properties,
+        // navigations, etc.) are in scope for the whole translation, so register their names in the root stack frame.
+        // This keeps the in-scope variable tracking accurate, ensuring generated variables and lambda parameters don't
+        // clash with them (their references are emitted by name inside the translated lambda bodies).
+        var rootFrame = _stack.Peek();
+        if (constantReplacements != null)
+        {
+            foreach (var name in constantReplacements.Values)
+            {
+                rootFrame.VariableNames.Add(name);
+            }
+        }
+
+        try
+        {
+            Visit(node);
+        }
+        finally
+        {
+            if (constantReplacements != null)
+            {
+                foreach (var name in constantReplacements.Values)
+                {
+                    rootFrame.VariableNames.Remove(name);
+                }
+            }
+        }
 
         if (_liftedState.Statements.Count > 0
             && _context == ExpressionContext.Expression)
@@ -1491,6 +1517,12 @@ public class LinqToCSharpSyntaxTranslator(SyntaxGenerator syntaxGenerator) : Exp
         foreach (var parameter in lambda.Parameters)
         {
             var name = parameter.Name ?? "unnamed" + (++localUnnamedParameterCounter);
+
+            if (_constantReplacements?.Values.Contains(name) == true)
+            {
+                name = UniquifyVariableName(name);
+            }
+
             stackFrame.Variables[parameter] = name;
             stackFrame.VariableNames.Add(name);
         }
@@ -2751,7 +2783,6 @@ public class LinqToCSharpSyntaxTranslator(SyntaxGenerator syntaxGenerator) : Exp
         name ??= "unnamed";
 
         var parameterNames = _stack.Peek().VariableNames;
-
         if (parameterNames.Contains(name) || _liftedState.VariableNames.Contains(name))
         {
             var baseName = name;

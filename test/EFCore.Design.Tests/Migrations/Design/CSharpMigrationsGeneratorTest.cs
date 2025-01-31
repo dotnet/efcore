@@ -332,6 +332,27 @@ partial class MyMigration
     }
 
     [Fact]
+    public void No_empty_using_for_global_namespace_column_type()
+    {
+        var generator = CreateMigrationsCodeGenerator();
+
+        var migration = generator.GenerateMigration(
+            "MyNamespace",
+            "MyMigration",
+            [
+                new InsertDataOperation
+                {
+                    Table = "MyTable",
+                    Columns = ["Id", "MyColumn"],
+                    Values = new object[,] { { 1, GlobalNamespaceColumnType.Other } }
+                }
+            ],
+            []);
+
+        Assert.DoesNotContain("using ;", migration);
+    }
+
+    [Fact]
     public void Namespaces_imported_for_update_data_Values()
     {
         var generator = CreateMigrationsCodeGenerator();
