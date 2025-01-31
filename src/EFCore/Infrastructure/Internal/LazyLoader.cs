@@ -127,6 +127,7 @@ public class LazyLoader : ILazyLoader, IInjectableService
 
         if (exists)
         {
+            // Only waits for the outermost call on the call stack. See  #35528.
             if (isLoadingValue.Depth.Value == 1)
             {
                 isLoadingValue.TaskCompletionSource.Task.Wait();
@@ -195,6 +196,7 @@ public class LazyLoader : ILazyLoader, IInjectableService
 
         if (exists)
         {
+            // Only waits for the outermost call on the call stack. See  #35528.
             if (isLoadingValue.Depth.Value == 1)
             {
                 await isLoadingValue.TaskCompletionSource.Task.WaitAsync(cancellationToken).ConfigureAwait(false);
