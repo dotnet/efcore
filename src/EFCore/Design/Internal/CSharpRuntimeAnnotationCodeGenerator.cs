@@ -141,6 +141,24 @@ public class CSharpRuntimeAnnotationCodeGenerator(CSharpRuntimeAnnotationCodeGen
     }
 
     /// <inheritdoc />
+    public virtual void Generate(IElementType elementType, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
+    {
+        if (!parameters.IsRuntime)
+        {
+            var annotations = parameters.Annotations;
+            foreach (var (key, _) in annotations)
+            {
+                if (CoreAnnotationNames.AllNames.Contains(key))
+                {
+                    annotations.Remove(key);
+                }
+            }
+        }
+
+        GenerateSimpleAnnotations(parameters);
+    }
+
+    /// <inheritdoc />
     public virtual void Generate(IKey key, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
     {
         if (!parameters.IsRuntime)

@@ -16,22 +16,7 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
         => Test(
             modelBuilder => BuildBigModel(modelBuilder, jsonColumns: true),
             model => AssertBigModel(model, jsonColumns: true),
-            async c =>
-            {
-                c.Set<PrincipalDerived<DependentBase<byte?>>>().Add(
-                    new PrincipalDerived<DependentBase<byte?>>
-                    {
-                        Id = 1,
-                        AlternateId = new Guid(),
-                        Dependent = new DependentDerived<byte?>(1, "one"),
-                        Owned = new OwnedType(c)
-                    });
-
-                await c.SaveChangesAsync();
-
-                var dependent = c.Set<PrincipalDerived<DependentBase<byte?>>>().Include(p => p.Dependent).Single().Dependent!;
-                Assert.Equal("one", ((DependentDerived<byte?>)dependent).GetData());
-            },
+            context => UseBigModel(context, jsonColumns: true),
             options: new CompiledModelCodeGenerationOptions { UseNullableReferenceTypes = true, ForNativeAot = true });
 
     protected override void BuildBigModel(ModelBuilder modelBuilder, bool jsonColumns)
@@ -162,6 +147,10 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
         var manyTypesType = model.FindEntityType(typeof(ManyTypes))!;
         Assert.Equal("ManyTypes", manyTypesType.GetTableName());
         Assert.Null(manyTypesType.GetSchema());
+
+        var ipAddressCollection = manyTypesType.FindProperty(nameof(ManyTypes.IPAddressReadOnlyCollection))!;
+        var ipAddressElementType = ipAddressCollection.GetElementType();
+        Assert.NotNull(ipAddressCollection.GetColumnType());
 
         var principalBase = model.FindEntityType(typeof(PrincipalBase))!;
         Assert.Equal("PrincipalBase", principalBase.GetTableName());

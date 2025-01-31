@@ -244,6 +244,9 @@ namespace TestNamespace
                     clrType: typeof(Dictionary<string, int>),
                     jsonValueReaderWriter: new CosmosTypeMappingSource.PlaceholderJsonStringKeyedDictionaryReaderWriter<int>(
                         JsonInt32ReaderWriter.Instance)));
+            var listElementType = list.SetElementType(typeof(Dictionary<string, int>),
+                nullable: true);
+            listElementType.TypeMapping = list.TypeMapping.ElementTypeMapping;
 
             var map = runtimeEntityType.AddProperty(
                 "Map",
