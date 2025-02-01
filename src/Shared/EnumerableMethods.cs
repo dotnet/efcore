@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Microsoft.EntityFrameworkCore;
 
@@ -248,6 +249,7 @@ internal static class EnumerableMethods
     public static MethodInfo GetMinWithSelector(Type type)
         => MinWithSelectorMethods.GetValueOrDefault(type, MinWithSelector);
 
+    [UnconditionalSuppressMessage("AOT", "IL3050:Calling members annotated with 'RequiresDynamicCodeAttribute' may break functionality when AOT compiling.", Justification = "Types used here in 'MakeGenericType' are types like 'TSource', not specific types.")]
     static EnumerableMethods()
     {
         var queryableMethodGroups = typeof(Enumerable)
