@@ -4984,6 +4984,14 @@ WHERE (c["id"] = "ALFKI")
         }
     }
 
+    public override async Task Late_subquery_pushdown(bool async)
+    {
+        // Uncorrelated subquery, not supported by Cosmos
+        await AssertTranslationFailed(() => base.Late_subquery_pushdown(async));
+
+        AssertSql();
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

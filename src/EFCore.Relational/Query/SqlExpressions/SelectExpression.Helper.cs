@@ -379,7 +379,7 @@ public sealed partial class SelectExpression
         }
     }
 
-    private sealed class TpcTableExpressionRemovingExpressionVisitor : ExpressionVisitor
+    private sealed class TpcTableExpressionRemovingExpressionVisitor(SqlAliasManager sqlAliasManager) : ExpressionVisitor
     {
         protected override Expression VisitExtension(Expression expression)
         {
@@ -485,7 +485,7 @@ public sealed partial class SelectExpression
                                 CreateColumnExpression(projection, tpcTablesExpression.Alias), projection.Alias));
                     }
 
-                    result = CreateImmutable(alias: null!, tables: [unionExpression], projections);
+                    result = CreateImmutable(alias: null!, tables: [unionExpression], projections, sqlAliasManager);
                 }
 
                 if (identitySelect)

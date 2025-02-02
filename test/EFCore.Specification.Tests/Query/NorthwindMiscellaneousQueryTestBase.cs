@@ -5708,4 +5708,19 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture>(TFixture fix
             async,
             ss => ss.Set<Order>().OrderBy(o => (object)i).Select(o => o));
     }
+
+    [ConditionalTheory] // #35507
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Late_subquery_pushdown(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .Select(o => o.CustomerID)
+                .Where(
+                    a => ss
+                        .Set<Order>()
+                        .Select(o => o.CustomerID)
+                        .Order()
+                        .Take(100)
+                        .Contains(a)));
 }
