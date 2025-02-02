@@ -45,7 +45,7 @@ public class EFTest
         Assert.Equal(
             CoreStrings.CompiledQueryDifferentModel("c => c.Foos"),
             (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => query(context2).ToListAsync())).Message);
+                () => query(context2).ToListAsync().AsTask())).Message);
 
         _ = await query(context1).ToListAsync();
     }

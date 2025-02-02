@@ -1442,29 +1442,32 @@ WHERE ARRAY_CONTAINS(@ids, c["EmployeeID"])
 """);
             });
 
-    public override Task Contains_with_local_nullable_uint_array_closure(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Contains_with_local_nullable_uint_array_closure(a);
-
-                AssertSql(
-                    """
-@ids='[0,1]'
-
-SELECT VALUE c
-FROM root c
-WHERE ARRAY_CONTAINS(@ids, c["EmployeeID"])
-""",
-                    //
-                    """
-@ids='[0]'
-
-SELECT VALUE c
-FROM root c
-WHERE ARRAY_CONTAINS(@ids, c["EmployeeID"])
-""");
-            });
+// TODO: The base implementations no longer compile since https://github.com/dotnet/runtime/pull/110197 (Contains overload added with
+// optional parameter, not supported in expression trees). #35547 is tracking on the EF side.
+//
+//     public override Task Contains_with_local_nullable_uint_array_closure(bool async)
+//         => Fixture.NoSyncTest(
+//             async, async a =>
+//             {
+//                 await base.Contains_with_local_nullable_uint_array_closure(a);
+//
+//                 AssertSql(
+//                     """
+// @ids='[0,1]'
+//
+// SELECT VALUE c
+// FROM root c
+// WHERE ARRAY_CONTAINS(@ids, c["EmployeeID"])
+// """,
+//                     //
+//                     """
+// @ids='[0]'
+//
+// SELECT VALUE c
+// FROM root c
+// WHERE ARRAY_CONTAINS(@ids, c["EmployeeID"])
+// """);
+//             });
 
     public override Task Contains_with_local_array_inline(bool async)
         => Fixture.NoSyncTest(
@@ -2004,21 +2007,25 @@ SELECT VALUE EXISTS (
         }
     }
 
-    public override async Task Contains_with_local_tuple_array_closure(bool async)
-    {
-        // Contains over subquery. Issue #17246.
-        await AssertTranslationFailed(() => base.Contains_with_local_tuple_array_closure(async));
-
-        AssertSql();
-    }
-
-    public override async Task Contains_with_local_anonymous_type_array_closure(bool async)
-    {
-        // Contains over subquery. Issue #17246.
-        await AssertTranslationFailed(() => base.Contains_with_local_anonymous_type_array_closure(async));
-
-        AssertSql();
-    }
+    // TODO: The base implementations no longer compile since https://github.com/dotnet/runtime/pull/110197 (Contains overload added with
+    // optional parameter, not supported in expression trees). #35547 is tracking on the EF side.
+    //
+    //
+    // public override async Task Contains_with_local_tuple_array_closure(bool async)
+    // {
+    //     // Contains over subquery. Issue #17246.
+    //     await AssertTranslationFailed(() => base.Contains_with_local_tuple_array_closure(async));
+    //
+    //     AssertSql();
+    // }
+    //
+    // public override async Task Contains_with_local_anonymous_type_array_closure(bool async)
+    // {
+    //     // Contains over subquery. Issue #17246.
+    //     await AssertTranslationFailed(() => base.Contains_with_local_anonymous_type_array_closure(async));
+    //
+    //     AssertSql();
+    // }
 
     public override async Task OfType_Select(bool async)
     {

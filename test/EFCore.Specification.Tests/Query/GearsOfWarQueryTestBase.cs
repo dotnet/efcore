@@ -5998,17 +5998,20 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
                 .Take(1)
                 .Select(g => g.Rank & MilitaryRank.Private));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Enum_array_contains(bool async)
-    {
-        var types = new[] { (AmmunitionType?)null, AmmunitionType.Cartridge };
-
-        return AssertQuery(
-            async,
-            ss => ss.Set<Weapon>()
-                .Where(w => w.SynergyWith != null && types.Contains(w.SynergyWith.AmmunitionType)));
-    }
+    // TODO: The following no longer compiles since https://github.com/dotnet/runtime/pull/110197 (Contains overload added with optional
+    // parameter, not supported in expression trees). #35547 is tracking on the EF side.
+    //
+    // [ConditionalTheory]
+    // [MemberData(nameof(IsAsyncData))]
+    // public virtual Task Enum_array_contains(bool async)
+    // {
+    //     var types = new[] { (AmmunitionType?)null, AmmunitionType.Cartridge };
+    //
+    //     return AssertQuery(
+    //         async,
+    //         ss => ss.Set<Weapon>()
+    //             .Where(w => w.SynergyWith != null && types.Contains(w.SynergyWith.AmmunitionType)));
+    // }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
