@@ -48,6 +48,41 @@ public class SqlServerDateTimeMemberTranslator(
             nameof(DateTime.Millisecond) => DatePart("millisecond"),
             nameof(DateTime.Microsecond) => sqlExpressionFactory.Modulo(DatePart("microsecond"), sqlExpressionFactory.Constant(1000)),
             nameof(DateTime.Nanosecond) => sqlExpressionFactory.Modulo(DatePart("nanosecond"), sqlExpressionFactory.Constant(1000)),
+            //Use datediff to get the minute difference of 0001-01-01 00:00:00.0, then multiply it by the scale of each minute,
+            //and then get the scale of seconds, milliseconds, microseconds, and nanoseconds respectively, and finally add them together.
+            //The nanoseconds obtained by DATEPART include milliseconds and microseconds.
+            nameof(DateTime.Ticks)
+                => sqlExpressionFactory.Add(
+                    sqlExpressionFactory.Multiply(
+                        sqlExpressionFactory.Function(
+                            "DATEDIFF",
+                            arguments: new[]
+                            {
+                                sqlExpressionFactory.Fragment("minute"),
+                                sqlExpressionFactory.Constant("0001-01-01T00:00:00.0"),
+                                instance!
+                            },
+                            nullable: true,
+                            argumentsPropagateNullability: new[] { false, false, true },
+                            typeof(long)),
+                        sqlExpressionFactory.Constant(600000000)),
+                    sqlExpressionFactory.Add(
+                        sqlExpressionFactory.Multiply(
+                            sqlExpressionFactory.Function(
+                                "DATEPART",
+                                arguments: new[] { sqlExpressionFactory.Fragment("second"), instance! },
+                                nullable: true,
+                                argumentsPropagateNullability: Statics.FalseTrue,
+                                typeof(int)),
+                            sqlExpressionFactory.Constant(10000000)),
+                        sqlExpressionFactory.Divide(
+                            sqlExpressionFactory.Function(
+                                "DATEPART",
+                                arguments: new[] { sqlExpressionFactory.Fragment("nanosecond"), instance! },
+                                nullable: true,
+                                argumentsPropagateNullability: Statics.FalseTrue,
+                                typeof(int)),
+                            sqlExpressionFactory.Constant(100)))),
 
             nameof(DateTime.Date)
                 => sqlExpressionFactory.Function(
