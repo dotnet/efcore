@@ -7258,6 +7258,25 @@ FROM [Orders] AS [o]
 """);
     }
 
+    public override async Task Late_subquery_pushdown(bool async)
+    {
+        await base.Late_subquery_pushdown(async);
+
+        AssertSql(
+            """
+SELECT [o].[CustomerID]
+FROM [Orders] AS [o]
+WHERE EXISTS (
+    SELECT 1
+    FROM (
+        SELECT TOP(100) [o0].[CustomerID]
+        FROM [Orders] AS [o0]
+        ORDER BY [o0].[CustomerID]
+    ) AS [o1]
+    WHERE [o1].[CustomerID] = [o].[CustomerID] OR ([o1].[CustomerID] IS NULL AND [o].[CustomerID] IS NULL))
+""");
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

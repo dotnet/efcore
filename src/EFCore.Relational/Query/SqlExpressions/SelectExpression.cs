@@ -73,7 +73,7 @@ public sealed partial class SelectExpression : TableExpressionBase
         SqlExpression? limit,
         ISet<string> tags,
         IReadOnlyDictionary<string, IAnnotation>? annotations,
-        SqlAliasManager? sqlAliasManager,
+        SqlAliasManager sqlAliasManager,
         bool isMutable)
         : base(alias, annotations)
     {
@@ -91,7 +91,7 @@ public sealed partial class SelectExpression : TableExpressionBase
         Tags = tags;
         IsMutable = isMutable;
 
-        _sqlAliasManager = sqlAliasManager!;
+        _sqlAliasManager = sqlAliasManager;
     }
 
     /// <summary>
@@ -112,11 +112,12 @@ public sealed partial class SelectExpression : TableExpressionBase
         IReadOnlyList<OrderingExpression> orderings,
         SqlExpression? offset,
         SqlExpression? limit,
+        SqlAliasManager sqlAliasManager,
         IReadOnlySet<string>? tags = null,
         IReadOnlyDictionary<string, IAnnotation>? annotations = null)
         : this(
             alias, tables.ToList(), predicate, groupBy.ToList(), having, projections.ToList(), distinct, orderings.ToList(),
-            offset, limit, tags?.ToHashSet() ?? [], annotations, sqlAliasManager: null, isMutable: false)
+            offset, limit, tags?.ToHashSet() ?? [], annotations, sqlAliasManager, isMutable: false)
     {
     }
 
@@ -177,11 +178,15 @@ public sealed partial class SelectExpression : TableExpressionBase
     // Immutable selects no longer need to create tables, so no need for an alias manager (note that in the long term, SelectExpression
     // should have an alias manager at all, so this is temporary).
     [EntityFrameworkInternal]
-    public static SelectExpression CreateImmutable(string alias, List<TableExpressionBase> tables, List<ProjectionExpression> projection)
+    public static SelectExpression CreateImmutable(
+        string alias,
+        List<TableExpressionBase> tables,
+        List<ProjectionExpression> projection,
+        SqlAliasManager sqlAliasManager)
         => new(
             alias, tables, predicate: null, groupBy: [], having: null, projections: projection, distinct: false, orderings: [],
             offset: null, limit: null,
-            tags: new HashSet<string>(), sqlAliasManager: null, annotations: new Dictionary<string, IAnnotation>(),
+            tags: new HashSet<string>(), sqlAliasManager: sqlAliasManager, annotations: new Dictionary<string, IAnnotation>(),
             isMutable: false);
 
     /// <summary>
@@ -2353,7 +2358,8 @@ public sealed partial class SelectExpression : TableExpressionBase
         var dummySelectExpression = CreateImmutable(
             _sqlAliasManager.GenerateTableAlias("empty"),
             tables: [],
-            [new ProjectionExpression(nullSqlExpression, "empty")]);
+            [new ProjectionExpression(nullSqlExpression, "empty")],
+            _sqlAliasManager);
 
         if (Orderings.Any()
             || Limit != null
@@ -3938,7 +3944,7 @@ public sealed partial class SelectExpression : TableExpressionBase
     // TODO: Look into TPC handling and possibly clean this up, #32873
     [EntityFrameworkInternal]
     public SelectExpression RemoveTpcTableExpression()
-        => (SelectExpression)new TpcTableExpressionRemovingExpressionVisitor().Visit(this);
+        => (SelectExpression)new TpcTableExpressionRemovingExpressionVisitor(_sqlAliasManager).Visit(this);
 
     private Dictionary<ProjectionMember, int> ConvertProjectionMappingToClientProjections(
         Dictionary<ProjectionMember, Expression> projectionMapping,
@@ -4207,7 +4213,7 @@ public sealed partial class SelectExpression : TableExpressionBase
             {
                 var newSelectExpression = new SelectExpression(
                     Alias, newTables, predicate, newGroupBy, havingExpression, newProjections, IsDistinct, newOrderings, offset,
-                    limit, (IReadOnlySet<string>)Tags, Annotations)
+                    limit, _sqlAliasManager, (IReadOnlySet<string>)Tags, Annotations)
                 {
                     _clientProjections = _clientProjections, _projectionMapping = _projectionMapping
                 };
@@ -4323,7 +4329,7 @@ public sealed partial class SelectExpression : TableExpressionBase
 
         var newSelectExpression = new SelectExpression(
             Alias, tables, predicate, groupBy, having, projections, IsDistinct, orderings, offset, limit,
-            (IReadOnlySet<string>)Tags, Annotations)
+            _sqlAliasManager, (IReadOnlySet<string>)Tags, Annotations)
         {
             _projectionMapping = projectionMapping, _clientProjections = _clientProjections.ToList()
         };
@@ -4366,6 +4372,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                 typeof(IReadOnlyList<OrderingExpression>), // orderings
                 typeof(SqlExpression), // offset
                 typeof(SqlExpression), // limit
+                typeof(SqlAliasManager), // SqlAliasManager
                 typeof(IReadOnlySet<string>), // tags
                 typeof(IReadOnlyDictionary<string, IAnnotation>) // annotations
             ])!,
@@ -4381,6 +4388,11 @@ public sealed partial class SelectExpression : TableExpressionBase
             NewArrayInit(typeof(OrderingExpression), initializers: Orderings.Select(o => o.Quote())),
             RelationalExpressionQuotingUtilities.QuoteOrNull(Offset),
             RelationalExpressionQuotingUtilities.QuoteOrNull(Limit),
+            // TODO: SqlAliasManager is a required (non-nullable) parameter, but we'd need a complex liftable constant to make this work.
+            // The correct solution here is for SelectExpression to not need SqlAliasManager at all - actual query code that requires it
+            // should not live in SelectExpression, which should be a bare expression (#31049). In the meantime, setting null here means
+            // that precompiled queries which e.g. need to perform a pushdown in the 2nd part of the query pipeline fail (see #35507).
+            Constant(null, typeof(SqlAliasManager)),
             RelationalExpressionQuotingUtilities.QuoteTags(Tags),
             RelationalExpressionQuotingUtilities.QuoteAnnotations(Annotations));
 
