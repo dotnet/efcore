@@ -506,7 +506,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
             TestHelpers.ModelAsserter.AssertEqual(principalBaseFk.PrincipalKey.Properties, dependentFk.Properties);
         }
 
-        [ConditionalFact(Skip = "Primitive collections not supported completely")]
+        //[ConditionalFact(Skip = "Primitive collections not supported completely")]
         public override Task BigModel()
             => base.BigModel();
 

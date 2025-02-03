@@ -857,14 +857,7 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
             ss => from c1 in ss.Set<Planet>()
                   join c2 in ss.Set<OwnedPerson>() on c1.Id equals c2.Id into grouping
                   from c2 in grouping.DefaultIfEmpty()
-                  select new
-                  {
-                      c1,
-                      c2.Id,
-                      c2,
-                      c2.Orders,
-                      c2.PersonAddress
-                  },
+                  select new { c1, c2.Id, c2, c2.Orders, c2.PersonAddress },
             elementSorter: e => (e.c1.Id, e.c2.Id),
             elementAsserter: (e, a) =>
             {

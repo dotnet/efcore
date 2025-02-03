@@ -383,6 +383,19 @@ public abstract class NorthwindBulkUpdatesTestBase<TFixture>(TFixture fixture) :
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task Delete_with_RightJoin(bool async)
+        => AssertDelete(
+            async,
+            ss => ss.Set<OrderDetail>().Where(e => e.OrderID < 10276)
+                .RightJoin(
+                    ss.Set<Order>().Where(o => o.OrderID < 10300).OrderBy(e => e.OrderID).Skip(0).Take(100),
+                    od => od.OrderID,
+                    o => o.OrderID,
+                    (od, o) => od),
+            rowsAffectedCount: 74);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task Update_Where_set_constant_TagWith(bool async)
         => AssertUpdate(
             async,
@@ -862,6 +875,22 @@ public abstract class NorthwindBulkUpdatesTestBase<TFixture>(TFixture fixture) :
             s => s.SetProperty(c => c.c.ContactName, "Updated"),
             rowsAffectedCount: 8,
             (b, a) => Assert.All(a, c => Assert.Equal("Updated", c.ContactName)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Update_with_RightJoin(bool async)
+        => AssertUpdate(
+            async,
+            ss => ss.Set<Order>().Where(o => o.OrderID < 10300)
+                .RightJoin(
+                    ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F")),
+                    o => o.CustomerID,
+                    c => c.CustomerID,
+                    (o, c) => new { Order = o, Customers = c }),
+            e => e.Order,
+            s => s.SetProperty(t => t.Order.OrderDate, new DateTime(2020, 1, 1, 0, 0, 0, DateTimeKind.Utc)),
+            rowsAffectedCount: 2,
+            (b, a) => Assert.All(a, o => Assert.Equal(new DateTime(2020, 1, 1, 0, 0, 0, DateTimeKind.Utc), o.OrderDate)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]

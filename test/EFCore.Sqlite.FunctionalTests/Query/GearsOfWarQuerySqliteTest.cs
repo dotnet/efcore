@@ -1006,6 +1006,21 @@ ORDER BY "t"."Id", "g"."Nickname", "g"."SquadId"
 """);
     }
 
+    public override async Task Correlated_collections_on_RightJoin_with_predicate(bool async)
+    {
+        await base.Correlated_collections_on_RightJoin_with_predicate(async);
+
+        AssertSql(
+            """
+SELECT "g"."Nickname", "g"."SquadId", "t"."Id", "w"."Name", "w"."Id"
+FROM "Gears" AS "g"
+RIGHT JOIN "Tags" AS "t" ON "g"."Nickname" = "t"."GearNickName"
+LEFT JOIN "Weapons" AS "w" ON "g"."FullName" = "w"."OwnerFullName"
+WHERE NOT ("g"."HasSoulPatch")
+ORDER BY "g"."Nickname", "g"."SquadId", "t"."Id"
+""");
+    }
+
     public override async Task Property_access_on_derived_entity_using_cast(bool async)
     {
         await base.Property_access_on_derived_entity_using_cast(async);
@@ -2435,23 +2450,26 @@ WHERE "w"."Id" = 0
 """);
     }
 
-    public override async Task Enum_array_contains(bool async)
-    {
-        await base.Enum_array_contains(async);
-
-        AssertSql(
-            """
-@types_without_nulls='[1]' (Size = 3)
-
-SELECT "w"."Id", "w"."AmmunitionType", "w"."IsAutomatic", "w"."Name", "w"."OwnerFullName", "w"."SynergyWithId"
-FROM "Weapons" AS "w"
-LEFT JOIN "Weapons" AS "w0" ON "w"."SynergyWithId" = "w0"."Id"
-WHERE "w0"."Id" IS NOT NULL AND ("w0"."AmmunitionType" IN (
-    SELECT "t"."value"
-    FROM json_each(@types_without_nulls) AS "t"
-) OR "w0"."AmmunitionType" IS NULL)
-""");
-    }
+// TODO: The base implementations no longer compile since https://github.com/dotnet/runtime/pull/110197 (Contains overload added with
+// optional parameter, not supported in expression trees). #35547 is tracking on the EF side.
+//
+//     public override async Task Enum_array_contains(bool async)
+//     {
+//         await base.Enum_array_contains(async);
+//
+//         AssertSql(
+//             """
+// @types_without_nulls='[1]' (Size = 3)
+//
+// SELECT "w"."Id", "w"."AmmunitionType", "w"."IsAutomatic", "w"."Name", "w"."OwnerFullName", "w"."SynergyWithId"
+// FROM "Weapons" AS "w"
+// LEFT JOIN "Weapons" AS "w0" ON "w"."SynergyWithId" = "w0"."Id"
+// WHERE "w0"."Id" IS NOT NULL AND ("w0"."AmmunitionType" IN (
+//     SELECT "t"."value"
+//     FROM json_each(@types_without_nulls) AS "t"
+// ) OR "w0"."AmmunitionType" IS NULL)
+// """);
+//     }
 
     public override async Task Include_multiple_one_to_one_optional_and_one_to_one_required(bool async)
     {
