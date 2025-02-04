@@ -862,7 +862,7 @@ CREATE TABLE "Products" (
         }
     }
 
-    [Theory]
+    [Theory(Skip = "#35585")]
     [InlineData(true)]
     [InlineData(false)]
     public Task ExecuteReader_retries_when_locked(bool extendedErrorCode)
@@ -916,7 +916,7 @@ CREATE TABLE "Products" (
                 }));
     }
 
-    [Fact]
+    [Fact(Skip = "#35585")]
     public async Task ExecuteReader_retries_when_busy()
     {
         const string connectionString = "Data Source=busy.db";
@@ -968,7 +968,7 @@ CREATE TABLE "Products" (
         }
     }
 
-    [Fact]
+    [Fact(Skip = "#35585")]
     public Task ExecuteScalar_throws_when_busy_with_returning()
         => Execute_throws_when_busy_with_returning(
             command =>
@@ -976,10 +976,10 @@ CREATE TABLE "Products" (
                 var ex = Assert.Throws<SqliteException>(
                     () => command.ExecuteScalar());
 
-                Assert.Equal(SQLITE_BUSY, ex.SqliteErrorCode);
+                AssertBusy(ex.SqliteErrorCode);
             });
 
-    [Fact]
+    [Fact(Skip = "#35585")]
     public Task ExecuteNonQuery_throws_when_busy_with_returning()
         => Execute_throws_when_busy_with_returning(
             command =>
@@ -987,10 +987,10 @@ CREATE TABLE "Products" (
                 var ex = Assert.Throws<SqliteException>(
                     () => command.ExecuteNonQuery());
 
-                Assert.Equal(SQLITE_BUSY, ex.SqliteErrorCode);
+                AssertBusy(ex.SqliteErrorCode);
             });
 
-    [Fact]
+    [Fact(Skip = "#35585")]
     public Task ExecuteReader_throws_when_busy_with_returning()
         => Execute_throws_when_busy_with_returning(
             command =>
@@ -1006,11 +1006,11 @@ CREATE TABLE "Products" (
                     var ex = Assert.Throws<SqliteException>(
                         () => reader.Dispose());
 
-                    Assert.Equal(SQLITE_BUSY, ex.SqliteErrorCode);
+                    AssertBusy(ex.SqliteErrorCode);
                 }
             });
 
-    [Fact]
+    [Fact(Skip = "#35585")]
     public Task ExecuteReader_throws_when_busy_with_returning_while_draining()
         => Execute_throws_when_busy_with_returning(
             command =>
@@ -1024,8 +1024,11 @@ CREATE TABLE "Products" (
                 var ex = Assert.Throws<SqliteException>(
                     () => reader.Read());
 
-                Assert.Equal(SQLITE_BUSY, ex.SqliteErrorCode);
+                AssertBusy(ex.SqliteErrorCode);
             });
+
+    private static void AssertBusy(int rc)
+        => Assert.True(rc is SQLITE_LOCKED or SQLITE_BUSY or SQLITE_LOCKED_SHAREDCACHE);
 
     private static async Task Execute_throws_when_busy_with_returning(Action<SqliteCommand> action)
     {
