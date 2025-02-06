@@ -44,7 +44,8 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
     {
         var user = new Pub32310
         {
-            Name = "FBI", Visits = new Visits32310 { LocationTag = "tag", DaysVisited = [new DateOnly(2023, 1, 1)] }
+            Name = "FBI",
+            Visits = new Visits32310 { LocationTag = "tag", DaysVisited = [new DateOnly(2023, 1, 1)] }
         };
 
         context.Add(user);
@@ -1423,7 +1424,6 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
             var result = async
                 ? await query.ToListAsync()
                 : query.ToList();
-
             Assert.Equal(2, result.Count);
         }
     }
@@ -1467,9 +1467,9 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
 
     #endregion
 
-    protected TestSqlLoggerFactory TestSqlLoggerFactory
-        => (TestSqlLoggerFactory)ListLoggerFactory;
+    //protected TestSqlLoggerFactory TestSqlLoggerFactory
+    //    => (TestSqlLoggerFactory)ListLoggerFactory;
 
-    protected virtual string JsonColumnType
-        => null;
+    //protected virtual string JsonColumnType
+    //    => null;
 }
