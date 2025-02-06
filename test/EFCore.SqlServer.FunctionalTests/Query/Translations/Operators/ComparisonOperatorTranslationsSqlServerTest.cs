@@ -3,9 +3,9 @@
 
 namespace Microsoft.EntityFrameworkCore.Query.Translations.Operators;
 
-public class ComparisonOperatorTranslationsSqliteTest : ComparisonOperatorTranslationsTestBase<BasicTypesQuerySqlServerFixture>
+public class ComparisonOperatorTranslationsSqlServerTest : ComparisonOperatorTranslationsTestBase<BasicTypesQuerySqlServerFixture>
 {
-    public ComparisonOperatorTranslationsSqliteTest(BasicTypesQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
+    public ComparisonOperatorTranslationsSqlServerTest(BasicTypesQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
         : base(fixture)
     {
         Fixture.TestSqlLoggerFactory.Clear();

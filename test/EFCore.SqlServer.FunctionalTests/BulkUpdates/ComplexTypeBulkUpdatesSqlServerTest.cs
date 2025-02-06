@@ -35,8 +35,10 @@ WHERE [c].[Name] = N'Monty Elias'
 
         AssertExecuteUpdateSql(
             """
+@p='12345'
+
 UPDATE [c]
-SET [c].[ShippingAddress_ZipCode] = 12345
+SET [c].[ShippingAddress_ZipCode] = @p
 FROM [Customer] AS [c]
 WHERE [c].[ShippingAddress_ZipCode] = 7728
 """);
@@ -48,8 +50,10 @@ WHERE [c].[ShippingAddress_ZipCode] = 7728
 
         AssertExecuteUpdateSql(
             """
+@p='United States Modified' (Size = 4000)
+
 UPDATE [c]
-SET [c].[ShippingAddress_Country_FullName] = N'United States Modified'
+SET [c].[ShippingAddress_Country_FullName] = @p
 FROM [Customer] AS [c]
 WHERE [c].[ShippingAddress_Country_Code] = N'US'
 """);
@@ -61,10 +65,12 @@ WHERE [c].[ShippingAddress_Country_Code] = N'US'
 
         AssertExecuteUpdateSql(
             """
+@p='54321'
+
 UPDATE [c]
-SET [c].[BillingAddress_ZipCode] = 54321,
+SET [c].[Name] = [c].[Name] + N'Modified',
     [c].[ShippingAddress_ZipCode] = [c].[BillingAddress_ZipCode],
-    [c].[Name] = [c].[Name] + N'Modified'
+    [c].[BillingAddress_ZipCode] = @p
 FROM [Customer] AS [c]
 WHERE [c].[ShippingAddress_ZipCode] = 7728
 """);
@@ -76,8 +82,10 @@ WHERE [c].[ShippingAddress_ZipCode] = 7728
 
         AssertExecuteUpdateSql(
             """
+@p='12345'
+
 UPDATE [c]
-SET [c].[ShippingAddress_ZipCode] = 12345
+SET [c].[ShippingAddress_ZipCode] = @p
 FROM [Customer] AS [c]
 """);
     }
@@ -88,9 +96,11 @@ FROM [Customer] AS [c]
 
         AssertExecuteUpdateSql(
             """
+@p='54321'
+
 UPDATE [c]
-SET [c].[BillingAddress_ZipCode] = 54321,
-    [c].[ShippingAddress_ZipCode] = [c].[BillingAddress_ZipCode]
+SET [c].[ShippingAddress_ZipCode] = [c].[BillingAddress_ZipCode],
+    [c].[BillingAddress_ZipCode] = @p
 FROM [Customer] AS [c]
 """);
     }
@@ -108,20 +118,20 @@ FROM [Customer] AS [c]
 
         AssertExecuteUpdateSql(
             """
-@complex_type_newAddress_AddressLine1='New AddressLine1' (Size = 4000)
-@complex_type_newAddress_AddressLine2='New AddressLine2' (Size = 4000)
-@complex_type_newAddress_Tags='["new_tag1","new_tag2"]' (Size = 4000)
-@complex_type_newAddress_ZipCode='99999' (Nullable = true)
-@complex_type_newAddress_Code='FR' (Size = 4000)
-@complex_type_newAddress_FullName='France' (Size = 4000)
+@complex_type_p_AddressLine1='New AddressLine1' (Size = 4000)
+@complex_type_p_AddressLine2='New AddressLine2' (Size = 4000)
+@complex_type_p_Tags='["new_tag1","new_tag2"]' (Size = 4000)
+@complex_type_p_ZipCode='99999' (Nullable = true)
+@complex_type_p_Code='FR' (Size = 4000)
+@complex_type_p_FullName='France' (Size = 4000)
 
 UPDATE [c]
-SET [c].[ShippingAddress_AddressLine1] = @complex_type_newAddress_AddressLine1,
-    [c].[ShippingAddress_AddressLine2] = @complex_type_newAddress_AddressLine2,
-    [c].[ShippingAddress_Tags] = @complex_type_newAddress_Tags,
-    [c].[ShippingAddress_ZipCode] = @complex_type_newAddress_ZipCode,
-    [c].[ShippingAddress_Country_Code] = @complex_type_newAddress_Code,
-    [c].[ShippingAddress_Country_FullName] = @complex_type_newAddress_FullName
+SET [c].[ShippingAddress_AddressLine1] = @complex_type_p_AddressLine1,
+    [c].[ShippingAddress_AddressLine2] = @complex_type_p_AddressLine2,
+    [c].[ShippingAddress_Tags] = @complex_type_p_Tags,
+    [c].[ShippingAddress_ZipCode] = @complex_type_p_ZipCode,
+    [c].[ShippingAddress_Country_Code] = @complex_type_p_Code,
+    [c].[ShippingAddress_Country_FullName] = @complex_type_p_FullName
 FROM [Customer] AS [c]
 """);
     }
@@ -132,12 +142,12 @@ FROM [Customer] AS [c]
 
         AssertExecuteUpdateSql(
             """
-@complex_type_newCountry_Code='FR' (Size = 4000)
-@complex_type_newCountry_FullName='France' (Size = 4000)
+@complex_type_p_Code='FR' (Size = 4000)
+@complex_type_p_FullName='France' (Size = 4000)
 
 UPDATE [c]
-SET [c].[ShippingAddress_Country_Code] = @complex_type_newCountry_Code,
-    [c].[ShippingAddress_Country_FullName] = @complex_type_newCountry_FullName
+SET [c].[ShippingAddress_Country_Code] = @complex_type_p_Code,
+    [c].[ShippingAddress_Country_FullName] = @complex_type_p_FullName
 FROM [Customer] AS [c]
 """);
     }
@@ -165,13 +175,20 @@ FROM [Customer] AS [c]
 
         AssertExecuteUpdateSql(
             """
+@complex_type_p_AddressLine1='New AddressLine1' (Size = 4000)
+@complex_type_p_AddressLine2='New AddressLine2' (Size = 4000)
+@complex_type_p_Tags='["new_tag1","new_tag2"]' (Size = 4000)
+@complex_type_p_ZipCode='99999' (Nullable = true)
+@complex_type_p_Code='FR' (Size = 4000)
+@complex_type_p_FullName='France' (Size = 4000)
+
 UPDATE [c]
-SET [c].[ShippingAddress_AddressLine1] = N'New AddressLine1',
-    [c].[ShippingAddress_AddressLine2] = N'New AddressLine2',
-    [c].[ShippingAddress_Tags] = N'["new_tag1","new_tag2"]',
-    [c].[ShippingAddress_ZipCode] = 99999,
-    [c].[ShippingAddress_Country_Code] = N'FR',
-    [c].[ShippingAddress_Country_FullName] = N'France'
+SET [c].[ShippingAddress_AddressLine1] = @complex_type_p_AddressLine1,
+    [c].[ShippingAddress_AddressLine2] = @complex_type_p_AddressLine2,
+    [c].[ShippingAddress_Tags] = @complex_type_p_Tags,
+    [c].[ShippingAddress_ZipCode] = @complex_type_p_ZipCode,
+    [c].[ShippingAddress_Country_Code] = @complex_type_p_Code,
+    [c].[ShippingAddress_Country_FullName] = @complex_type_p_FullName
 FROM [Customer] AS [c]
 """);
     }
@@ -224,8 +241,10 @@ INNER JOIN (
 
         AssertExecuteUpdateSql(
             """
+@p='["new_tag1","new_tag2"]' (Size = 4000)
+
 UPDATE [c]
-SET [c].[ShippingAddress_Tags] = N'["new_tag1","new_tag2"]'
+SET [c].[ShippingAddress_Tags] = @p
 FROM [Customer] AS [c]
 """);
     }

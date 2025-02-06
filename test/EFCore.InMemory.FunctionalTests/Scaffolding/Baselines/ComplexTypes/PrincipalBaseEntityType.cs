@@ -401,6 +401,8 @@ namespace TestNamespace
                         new ValueConverter<IPAddress, string>(
                             string (IPAddress v) => ((object)v).ToString(),
                             IPAddress (string v) => IPAddress.Parse(v)))));
+            var refTypeArrayElementType = refTypeArray.SetElementType(typeof(IPAddress));
+            refTypeArrayElementType.TypeMapping = refTypeArray.TypeMapping.ElementTypeMapping;
 
             var refTypeEnumerable = runtimeEntityType.AddProperty(
                 "RefTypeEnumerable",
@@ -461,6 +463,8 @@ namespace TestNamespace
                         string (string v) => v),
                     clrType: typeof(string),
                     jsonValueReaderWriter: JsonStringReaderWriter.Instance));
+            var refTypeEnumerableElementType = refTypeEnumerable.SetElementType(typeof(string));
+            refTypeEnumerableElementType.TypeMapping = refTypeEnumerable.TypeMapping.ElementTypeMapping;
 
             var refTypeIList = runtimeEntityType.AddProperty(
                 "RefTypeIList",
@@ -521,6 +525,8 @@ namespace TestNamespace
                         string (string v) => v),
                     clrType: typeof(string),
                     jsonValueReaderWriter: JsonStringReaderWriter.Instance));
+            var refTypeIListElementType = refTypeIList.SetElementType(typeof(string));
+            refTypeIListElementType.TypeMapping = refTypeIList.TypeMapping.ElementTypeMapping;
 
             var refTypeList = runtimeEntityType.AddProperty(
                 "RefTypeList",
@@ -595,6 +601,8 @@ namespace TestNamespace
                         new ValueConverter<IPAddress, string>(
                             string (IPAddress v) => ((object)v).ToString(),
                             IPAddress (string v) => IPAddress.Parse(v)))));
+            var refTypeListElementType = refTypeList.SetElementType(typeof(IPAddress));
+            refTypeListElementType.TypeMapping = refTypeList.TypeMapping.ElementTypeMapping;
 
             var valueTypeArray = runtimeEntityType.AddProperty(
                 "ValueTypeArray",
@@ -655,6 +663,8 @@ namespace TestNamespace
                         DateTime (DateTime v) => v),
                     clrType: typeof(DateTime),
                     jsonValueReaderWriter: JsonDateTimeReaderWriter.Instance));
+            var valueTypeArrayElementType = valueTypeArray.SetElementType(typeof(DateTime));
+            valueTypeArrayElementType.TypeMapping = valueTypeArray.TypeMapping.ElementTypeMapping;
 
             var valueTypeEnumerable = runtimeEntityType.AddProperty(
                 "ValueTypeEnumerable",
@@ -715,6 +725,8 @@ namespace TestNamespace
                         byte (byte v) => v),
                     clrType: typeof(byte),
                     jsonValueReaderWriter: JsonByteReaderWriter.Instance));
+            var valueTypeEnumerableElementType = valueTypeEnumerable.SetElementType(typeof(byte));
+            valueTypeEnumerableElementType.TypeMapping = valueTypeEnumerable.TypeMapping.ElementTypeMapping;
 
             var valueTypeIList = runtimeEntityType.AddProperty(
                 "ValueTypeIList",
@@ -775,6 +787,8 @@ namespace TestNamespace
                         byte (byte v) => v),
                     clrType: typeof(byte),
                     jsonValueReaderWriter: JsonByteReaderWriter.Instance));
+            var valueTypeIListElementType = valueTypeIList.SetElementType(typeof(byte));
+            valueTypeIListElementType.TypeMapping = valueTypeIList.TypeMapping.ElementTypeMapping;
 
             var valueTypeList = runtimeEntityType.AddProperty(
                 "ValueTypeList",
@@ -835,6 +849,8 @@ namespace TestNamespace
                         short (short v) => v),
                     clrType: typeof(short),
                     jsonValueReaderWriter: JsonInt16ReaderWriter.Instance));
+            var valueTypeListElementType = valueTypeList.SetElementType(typeof(short));
+            valueTypeListElementType.TypeMapping = valueTypeList.TypeMapping.ElementTypeMapping;
 
             OwnedComplexProperty.Create(runtimeEntityType);
             var key = runtimeEntityType.AddKey(
@@ -1071,6 +1087,8 @@ namespace TestNamespace
                             new ValueConverter<IPAddress, string>(
                                 string (IPAddress v) => ((object)v).ToString(),
                                 IPAddress (string v) => IPAddress.Parse(v)))));
+                var refTypeArrayElementType = refTypeArray.SetElementType(typeof(IPAddress));
+                refTypeArrayElementType.TypeMapping = refTypeArray.TypeMapping.ElementTypeMapping;
 
                 var refTypeEnumerable = complexType.AddProperty(
                     "RefTypeEnumerable",
@@ -1139,6 +1157,8 @@ namespace TestNamespace
                             string (string v) => v),
                         clrType: typeof(string),
                         jsonValueReaderWriter: JsonStringReaderWriter.Instance));
+                var refTypeEnumerableElementType = refTypeEnumerable.SetElementType(typeof(string));
+                refTypeEnumerableElementType.TypeMapping = refTypeEnumerable.TypeMapping.ElementTypeMapping;
 
                 var refTypeIList = complexType.AddProperty(
                     "RefTypeIList",
@@ -1207,6 +1227,8 @@ namespace TestNamespace
                             string (string v) => v),
                         clrType: typeof(string),
                         jsonValueReaderWriter: JsonStringReaderWriter.Instance));
+                var refTypeIListElementType = refTypeIList.SetElementType(typeof(string));
+                refTypeIListElementType.TypeMapping = refTypeIList.TypeMapping.ElementTypeMapping;
 
                 var refTypeList = complexType.AddProperty(
                     "RefTypeList",
@@ -1289,6 +1311,8 @@ namespace TestNamespace
                             new ValueConverter<IPAddress, string>(
                                 string (IPAddress v) => ((object)v).ToString(),
                                 IPAddress (string v) => IPAddress.Parse(v)))));
+                var refTypeListElementType = refTypeList.SetElementType(typeof(IPAddress));
+                refTypeListElementType.TypeMapping = refTypeList.TypeMapping.ElementTypeMapping;
 
                 var valueTypeArray = complexType.AddProperty(
                     "ValueTypeArray",
@@ -1357,6 +1381,8 @@ namespace TestNamespace
                             DateTime (DateTime v) => v),
                         clrType: typeof(DateTime),
                         jsonValueReaderWriter: JsonDateTimeReaderWriter.Instance));
+                var valueTypeArrayElementType = valueTypeArray.SetElementType(typeof(DateTime));
+                valueTypeArrayElementType.TypeMapping = valueTypeArray.TypeMapping.ElementTypeMapping;
 
                 var valueTypeEnumerable = complexType.AddProperty(
                     "ValueTypeEnumerable",
@@ -1425,6 +1451,8 @@ namespace TestNamespace
                             byte (byte v) => v),
                         clrType: typeof(byte),
                         jsonValueReaderWriter: JsonByteReaderWriter.Instance));
+                var valueTypeEnumerableElementType = valueTypeEnumerable.SetElementType(typeof(byte));
+                valueTypeEnumerableElementType.TypeMapping = valueTypeEnumerable.TypeMapping.ElementTypeMapping;
 
                 var valueTypeIList = complexType.AddProperty(
                     "ValueTypeIList",
@@ -1493,6 +1521,8 @@ namespace TestNamespace
                             byte (byte v) => v),
                         clrType: typeof(byte),
                         jsonValueReaderWriter: JsonByteReaderWriter.Instance));
+                var valueTypeIListElementType = valueTypeIList.SetElementType(typeof(byte));
+                valueTypeIListElementType.TypeMapping = valueTypeIList.TypeMapping.ElementTypeMapping;
 
                 var valueTypeList = complexType.AddProperty(
                     "ValueTypeList",
@@ -1561,6 +1591,8 @@ namespace TestNamespace
                             short (short v) => v),
                         clrType: typeof(short),
                         jsonValueReaderWriter: JsonInt16ReaderWriter.Instance));
+                var valueTypeListElementType = valueTypeList.SetElementType(typeof(short));
+                valueTypeListElementType.TypeMapping = valueTypeList.TypeMapping.ElementTypeMapping;
 
                 PrincipalComplexProperty.Create(complexType);
                 complexType.AddAnnotation("go", "brr");
@@ -2014,6 +2046,8 @@ namespace TestNamespace
                                 new ValueConverter<IPAddress, string>(
                                     string (IPAddress v) => ((object)v).ToString(),
                                     IPAddress (string v) => IPAddress.Parse(v)))));
+                    var refTypeArrayElementType = refTypeArray.SetElementType(typeof(IPAddress));
+                    refTypeArrayElementType.TypeMapping = refTypeArray.TypeMapping.ElementTypeMapping;
 
                     var refTypeEnumerable = complexType.AddProperty(
                         "RefTypeEnumerable",
@@ -2084,6 +2118,8 @@ namespace TestNamespace
                                 string (string v) => v),
                             clrType: typeof(string),
                             jsonValueReaderWriter: JsonStringReaderWriter.Instance));
+                    var refTypeEnumerableElementType = refTypeEnumerable.SetElementType(typeof(string));
+                    refTypeEnumerableElementType.TypeMapping = refTypeEnumerable.TypeMapping.ElementTypeMapping;
 
                     var refTypeIList = complexType.AddProperty(
                         "RefTypeIList",
@@ -2154,6 +2190,8 @@ namespace TestNamespace
                                 string (string v) => v),
                             clrType: typeof(string),
                             jsonValueReaderWriter: JsonStringReaderWriter.Instance));
+                    var refTypeIListElementType = refTypeIList.SetElementType(typeof(string));
+                    refTypeIListElementType.TypeMapping = refTypeIList.TypeMapping.ElementTypeMapping;
 
                     var refTypeList = complexType.AddProperty(
                         "RefTypeList",
@@ -2238,6 +2276,8 @@ namespace TestNamespace
                                 new ValueConverter<IPAddress, string>(
                                     string (IPAddress v) => ((object)v).ToString(),
                                     IPAddress (string v) => IPAddress.Parse(v)))));
+                    var refTypeListElementType = refTypeList.SetElementType(typeof(IPAddress));
+                    refTypeListElementType.TypeMapping = refTypeList.TypeMapping.ElementTypeMapping;
 
                     var valueTypeArray = complexType.AddProperty(
                         "ValueTypeArray",
@@ -2308,6 +2348,8 @@ namespace TestNamespace
                                 DateTime (DateTime v) => v),
                             clrType: typeof(DateTime),
                             jsonValueReaderWriter: JsonDateTimeReaderWriter.Instance));
+                    var valueTypeArrayElementType = valueTypeArray.SetElementType(typeof(DateTime));
+                    valueTypeArrayElementType.TypeMapping = valueTypeArray.TypeMapping.ElementTypeMapping;
 
                     var valueTypeEnumerable = complexType.AddProperty(
                         "ValueTypeEnumerable",
@@ -2378,6 +2420,8 @@ namespace TestNamespace
                                 byte (byte v) => v),
                             clrType: typeof(byte),
                             jsonValueReaderWriter: JsonByteReaderWriter.Instance));
+                    var valueTypeEnumerableElementType = valueTypeEnumerable.SetElementType(typeof(byte));
+                    valueTypeEnumerableElementType.TypeMapping = valueTypeEnumerable.TypeMapping.ElementTypeMapping;
 
                     var valueTypeIList = complexType.AddProperty(
                         "ValueTypeIList",
@@ -2448,6 +2492,8 @@ namespace TestNamespace
                                 byte (byte v) => v),
                             clrType: typeof(byte),
                             jsonValueReaderWriter: JsonByteReaderWriter.Instance));
+                    var valueTypeIListElementType = valueTypeIList.SetElementType(typeof(byte));
+                    valueTypeIListElementType.TypeMapping = valueTypeIList.TypeMapping.ElementTypeMapping;
 
                     var valueTypeList = complexType.AddProperty(
                         "ValueTypeList",
@@ -2518,6 +2564,8 @@ namespace TestNamespace
                                 short (short v) => v),
                             clrType: typeof(short),
                             jsonValueReaderWriter: JsonInt16ReaderWriter.Instance));
+                    var valueTypeListElementType = valueTypeList.SetElementType(typeof(short));
+                    valueTypeListElementType.TypeMapping = valueTypeList.TypeMapping.ElementTypeMapping;
 
                     return complexProperty;
                 }

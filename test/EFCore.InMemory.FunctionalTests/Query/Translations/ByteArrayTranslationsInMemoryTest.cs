@@ -3,5 +3,5 @@
 
 namespace Microsoft.EntityFrameworkCore.Query.Translations;
 
-public class TemporalTranslationsInMemoryTest(BasicTypesQueryInMemoryFixture fixture)
-    : TemporalTranslationsTestBase<BasicTypesQueryInMemoryFixture>(fixture);
+public class ByteArrayTranslationsInMemoryTest(BasicTypesQueryInMemoryFixture fixture)
+    : ByteArrayTranslationsTestBase<BasicTypesQueryInMemoryFixture>(fixture);

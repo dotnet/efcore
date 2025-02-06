@@ -626,7 +626,7 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
                     genericArguments[^1] = resultSelector.ReturnType;
 
                     return Expression.Call(
-                        (defaultIfEmpty ? QueryableExtensions.LeftJoinMethodInfo : QueryableMethods.Join).MakeGenericMethod(
+                        (defaultIfEmpty ? QueryableMethods.LeftJoin : QueryableMethods.Join).MakeGenericMethod(
                             genericArguments),
                         outer, inner, outerKeySelector, innerKeySelector, resultSelector);
                 }
@@ -726,7 +726,7 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
                     genericArguments[^1] = resultSelector.ReturnType;
 
                     return Expression.Call(
-                        (defaultIfEmpty ? QueryableExtensions.LeftJoinMethodInfo : QueryableMethods.Join).MakeGenericMethod(
+                        (defaultIfEmpty ? QueryableMethods.LeftJoin : QueryableMethods.Join).MakeGenericMethod(
                             genericArguments),
                         outer, inner, outerKeySelector, innerKeySelector, resultSelector);
                 }

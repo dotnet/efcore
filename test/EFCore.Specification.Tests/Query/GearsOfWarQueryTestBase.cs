@@ -3422,6 +3422,34 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task Correlated_collections_on_RightJoin_with_predicate(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Gear>()
+                .RightJoin(
+                    ss.Set<CogTag>(),
+                    g => g.Nickname,
+                    t => t.GearNickName,
+                    (g, c) => new { g, c })
+                .Where(t => !t.g.HasSoulPatch)
+                .Select(t => new { t.g.Nickname, WeaponNames = t.g.Weapons.Select(w => w.Name).ToList() }),
+            ss => ss.Set<Gear>()
+                .RightJoin(
+                    ss.Set<CogTag>(),
+                    g => g.Nickname,
+                    t => t.GearNickName,
+                    (g, c) => new { g, c })
+                .Where(t => t.g != null && !t.g.HasSoulPatch)
+                .Select(t => new { t.g.Nickname, WeaponNames = t.g.Weapons.Select(w => w.Name).ToList() }),
+            elementSorter: e => e.Nickname,
+            elementAsserter: (e, a) =>
+            {
+                Assert.Equal(e.Nickname, a.Nickname);
+                AssertCollection(e.WeaponNames, a.WeaponNames);
+            });
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task Correlated_collections_on_left_join_with_null_value(bool async)
         => AssertQuery(
             async,
@@ -5970,17 +5998,20 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
                 .Take(1)
                 .Select(g => g.Rank & MilitaryRank.Private));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Enum_array_contains(bool async)
-    {
-        var types = new[] { (AmmunitionType?)null, AmmunitionType.Cartridge };
-
-        return AssertQuery(
-            async,
-            ss => ss.Set<Weapon>()
-                .Where(w => w.SynergyWith != null && types.Contains(w.SynergyWith.AmmunitionType)));
-    }
+    // TODO: The following no longer compiles since https://github.com/dotnet/runtime/pull/110197 (Contains overload added with optional
+    // parameter, not supported in expression trees). #35547 is tracking on the EF side.
+    //
+    // [ConditionalTheory]
+    // [MemberData(nameof(IsAsyncData))]
+    // public virtual Task Enum_array_contains(bool async)
+    // {
+    //     var types = new[] { (AmmunitionType?)null, AmmunitionType.Cartridge };
+    //
+    //     return AssertQuery(
+    //         async,
+    //         ss => ss.Set<Weapon>()
+    //             .Where(w => w.SynergyWith != null && types.Contains(w.SynergyWith.AmmunitionType)));
+    // }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]

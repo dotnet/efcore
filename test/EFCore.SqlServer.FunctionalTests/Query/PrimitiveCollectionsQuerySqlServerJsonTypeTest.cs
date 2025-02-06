@@ -107,29 +107,32 @@ WHERE [p].[Int] IN (10, 999)
 """);
     }
 
-    public override async Task Inline_collection_of_nullable_ints_Contains(bool async)
-    {
-        await base.Inline_collection_of_nullable_ints_Contains(async);
-
-        AssertSql(
-            """
-SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[String], [p].[Strings]
-FROM [PrimitiveCollectionsEntity] AS [p]
-WHERE [p].[NullableInt] IN (10, 999)
-""");
-    }
-
-    public override async Task Inline_collection_of_nullable_ints_Contains_null(bool async)
-    {
-        await base.Inline_collection_of_nullable_ints_Contains_null(async);
-
-        AssertSql(
-            """
-SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[String], [p].[Strings]
-FROM [PrimitiveCollectionsEntity] AS [p]
-WHERE [p].[NullableInt] IS NULL OR [p].[NullableInt] = 999
-""");
-    }
+// TODO: The base implementations no longer compile since https://github.com/dotnet/runtime/pull/110197 (Contains overload added with
+// optional parameter, not supported in expression trees). #35547 is tracking on the EF side.
+//
+//     public override async Task Inline_collection_of_nullable_ints_Contains(bool async)
+//     {
+//         await base.Inline_collection_of_nullable_ints_Contains(async);
+//
+//         AssertSql(
+//             """
+// SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[String], [p].[Strings]
+// FROM [PrimitiveCollectionsEntity] AS [p]
+// WHERE [p].[NullableInt] IN (10, 999)
+// """);
+//     }
+//
+//     public override async Task Inline_collection_of_nullable_ints_Contains_null(bool async)
+//     {
+//         await base.Inline_collection_of_nullable_ints_Contains_null(async);
+//
+//         AssertSql(
+//             """
+// SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[String], [p].[Strings]
+// FROM [PrimitiveCollectionsEntity] AS [p]
+// WHERE [p].[NullableInt] IS NULL OR [p].[NullableInt] = 999
+// """);
+//     }
 
     public override async Task Inline_collection_Count_with_zero_values(bool async)
     {
@@ -597,61 +600,64 @@ WHERE [p].[NullableInt] NOT IN (
 """);
     }
 
-    public override async Task Parameter_collection_of_nullable_ints_Contains_int(bool async)
-    {
-        await base.Parameter_collection_of_nullable_ints_Contains_int(async);
-
-        AssertSql(
-            """
-@nullableInts='[10,999]' (Size = 4000)
-
-SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[String], [p].[Strings]
-FROM [PrimitiveCollectionsEntity] AS [p]
-WHERE [p].[Int] IN (
-    SELECT [n].[value]
-    FROM OPENJSON(@nullableInts) WITH ([value] int '$') AS [n]
-)
-""",
-            //
-            """
-@nullableInts='[10,999]' (Size = 4000)
-
-SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[String], [p].[Strings]
-FROM [PrimitiveCollectionsEntity] AS [p]
-WHERE [p].[Int] NOT IN (
-    SELECT [n].[value]
-    FROM OPENJSON(@nullableInts) WITH ([value] int '$') AS [n]
-)
-""");
-    }
-
-    public override async Task Parameter_collection_of_nullable_ints_Contains_nullable_int(bool async)
-    {
-        await base.Parameter_collection_of_nullable_ints_Contains_nullable_int(async);
-
-        AssertSql(
-            """
-@nullableInts_without_nulls='[999]' (Size = 4000)
-
-SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[String], [p].[Strings]
-FROM [PrimitiveCollectionsEntity] AS [p]
-WHERE [p].[NullableInt] IN (
-    SELECT [n].[value]
-    FROM OPENJSON(@nullableInts_without_nulls) AS [n]
-) OR [p].[NullableInt] IS NULL
-""",
-            //
-            """
-@nullableInts_without_nulls='[999]' (Size = 4000)
-
-SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[String], [p].[Strings]
-FROM [PrimitiveCollectionsEntity] AS [p]
-WHERE [p].[NullableInt] NOT IN (
-    SELECT [n].[value]
-    FROM OPENJSON(@nullableInts_without_nulls) AS [n]
-) AND [p].[NullableInt] IS NOT NULL
-""");
-    }
+// TODO: The base implementations no longer compile since https://github.com/dotnet/runtime/pull/110197 (Contains overload added with
+// optional parameter, not supported in expression trees). #35547 is tracking on the EF side.
+//
+//     public override async Task Parameter_collection_of_nullable_ints_Contains_int(bool async)
+//     {
+//         await base.Parameter_collection_of_nullable_ints_Contains_int(async);
+//
+//         AssertSql(
+//             """
+// @nullableInts='[10,999]' (Size = 4000)
+//
+// SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[String], [p].[Strings]
+// FROM [PrimitiveCollectionsEntity] AS [p]
+// WHERE [p].[Int] IN (
+//     SELECT [n].[value]
+//     FROM OPENJSON(@nullableInts) WITH ([value] int '$') AS [n]
+// )
+// """,
+//             //
+//             """
+// @nullableInts='[10,999]' (Size = 4000)
+//
+// SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[String], [p].[Strings]
+// FROM [PrimitiveCollectionsEntity] AS [p]
+// WHERE [p].[Int] NOT IN (
+//     SELECT [n].[value]
+//     FROM OPENJSON(@nullableInts) WITH ([value] int '$') AS [n]
+// )
+// """);
+//     }
+//
+//     public override async Task Parameter_collection_of_nullable_ints_Contains_nullable_int(bool async)
+//     {
+//         await base.Parameter_collection_of_nullable_ints_Contains_nullable_int(async);
+//
+//         AssertSql(
+//             """
+// @nullableInts_without_nulls='[999]' (Size = 4000)
+//
+// SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[String], [p].[Strings]
+// FROM [PrimitiveCollectionsEntity] AS [p]
+// WHERE [p].[NullableInt] IN (
+//     SELECT [n].[value]
+//     FROM OPENJSON(@nullableInts_without_nulls) AS [n]
+// ) OR [p].[NullableInt] IS NULL
+// """,
+//             //
+//             """
+// @nullableInts_without_nulls='[999]' (Size = 4000)
+//
+// SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[String], [p].[Strings]
+// FROM [PrimitiveCollectionsEntity] AS [p]
+// WHERE [p].[NullableInt] NOT IN (
+//     SELECT [n].[value]
+//     FROM OPENJSON(@nullableInts_without_nulls) AS [n]
+// ) AND [p].[NullableInt] IS NOT NULL
+// """);
+//     }
 
     public override async Task Parameter_collection_of_strings_Contains_string(bool async)
     {
@@ -799,22 +805,25 @@ WHERE [p].[Bool] IN (
 """);
     }
 
-    public override async Task Parameter_collection_of_enums_Contains(bool async)
-    {
-        await base.Parameter_collection_of_enums_Contains(async);
-
-        AssertSql(
-            """
-@enums='[0,3]' (Size = 4000)
-
-SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[String], [p].[Strings]
-FROM [PrimitiveCollectionsEntity] AS [p]
-WHERE [p].[Enum] IN (
-    SELECT [e].[value]
-    FROM OPENJSON(@enums) WITH ([value] int '$') AS [e]
-)
-""");
-    }
+// TODO: The base implementations no longer compile since https://github.com/dotnet/runtime/pull/110197 (Contains overload added with
+// optional parameter, not supported in expression trees). #35547 is tracking on the EF side.
+//
+//     public override async Task Parameter_collection_of_enums_Contains(bool async)
+//     {
+//         await base.Parameter_collection_of_enums_Contains(async);
+//
+//         AssertSql(
+//             """
+// @enums='[0,3]' (Size = 4000)
+//
+// SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[String], [p].[Strings]
+// FROM [PrimitiveCollectionsEntity] AS [p]
+// WHERE [p].[Enum] IN (
+//     SELECT [e].[value]
+//     FROM OPENJSON(@enums) WITH ([value] int '$') AS [e]
+// )
+// """);
+//     }
 
     public override async Task Parameter_collection_null_Contains(bool async)
     {
@@ -846,35 +855,38 @@ WHERE 10 IN (
 """);
     }
 
-    public override async Task Column_collection_of_nullable_ints_Contains(bool async)
-    {
-        await base.Column_collection_of_nullable_ints_Contains(async);
-
-        AssertSql(
-            """
-SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[String], [p].[Strings]
-FROM [PrimitiveCollectionsEntity] AS [p]
-WHERE 10 IN (
-    SELECT [n].[value]
-    FROM OPENJSON(CAST([p].[NullableInts] AS nvarchar(max))) WITH ([value] int '$') AS [n]
-)
-""");
-    }
-
-    public override async Task Column_collection_of_nullable_ints_Contains_null(bool async)
-    {
-        await base.Column_collection_of_nullable_ints_Contains_null(async);
-
-        AssertSql(
-            """
-SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[String], [p].[Strings]
-FROM [PrimitiveCollectionsEntity] AS [p]
-WHERE EXISTS (
-    SELECT 1
-    FROM OPENJSON(CAST([p].[NullableInts] AS nvarchar(max))) WITH ([value] int '$') AS [n]
-    WHERE [n].[value] IS NULL)
-""");
-    }
+// TODO: The base implementations no longer compile since https://github.com/dotnet/runtime/pull/110197 (Contains overload added with
+// optional parameter, not supported in expression trees). #35547 is tracking on the EF side.
+//
+//     public override async Task Column_collection_of_nullable_ints_Contains(bool async)
+//     {
+//         await base.Column_collection_of_nullable_ints_Contains(async);
+//
+//         AssertSql(
+//             """
+// SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[String], [p].[Strings]
+// FROM [PrimitiveCollectionsEntity] AS [p]
+// WHERE 10 IN (
+//     SELECT [n].[value]
+//     FROM OPENJSON(CAST([p].[NullableInts] AS nvarchar(max))) WITH ([value] int '$') AS [n]
+// )
+// """);
+//     }
+//
+//     public override async Task Column_collection_of_nullable_ints_Contains_null(bool async)
+//     {
+//         await base.Column_collection_of_nullable_ints_Contains_null(async);
+//
+//         AssertSql(
+//             """
+// SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[String], [p].[Strings]
+// FROM [PrimitiveCollectionsEntity] AS [p]
+// WHERE EXISTS (
+//     SELECT 1
+//     FROM OPENJSON(CAST([p].[NullableInts] AS nvarchar(max))) WITH ([value] int '$') AS [n]
+//     WHERE [n].[value] IS NULL)
+// """);
+//     }
 
     public override async Task Column_collection_of_strings_contains_null(bool async)
     {

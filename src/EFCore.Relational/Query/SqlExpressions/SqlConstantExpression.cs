@@ -127,5 +127,5 @@ public class SqlConstantExpression : SqlExpression
 
     /// <inheritdoc />
     public override int GetHashCode()
-        => HashCode.Combine(base.GetHashCode(), Value);
+        => HashCode.Combine(base.GetHashCode(), Value is IList list ? list.Count : Value);
 }

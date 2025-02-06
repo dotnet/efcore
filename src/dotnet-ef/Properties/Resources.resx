@@ -196,13 +196,13 @@
     <value>The target framework. Defaults to the first one in the project.</value>
   </data>
   <data name="GetMetadataFailed" xml:space="preserve">
-    <value>Unable to retrieve project metadata. Ensure it's an SDK-style project. If you're using a custom BaseIntermediateOutputPath or MSBuildProjectExtensionsPath values, Use the --msbuildprojectextensionspath option.</value>
+    <value>Unable to retrieve project metadata. Ensure it's an SDK-style project.</value>
   </data>
   <data name="IdempotentDescription" xml:space="preserve">
     <value>Generate a script that can be used on a database at any migration.</value>
   </data>
   <data name="JsonDescription" xml:space="preserve">
-    <value>Show JSON output. Use with --prefix-output to parse programatically.</value>
+    <value>Show JSON output. Use with --prefix-output to parse programmatically.</value>
   </data>
   <data name="MigrationDescription" xml:space="preserve">
     <value>The target migration. If '0', all migrations will be reverted. Defaults to the last migration.</value>
@@ -322,7 +322,7 @@
     <value>The project to use. Defaults to the current working directory.</value>
   </data>
   <data name="ProjectExtensionsDescription" xml:space="preserve">
-    <value>The MSBuild project extensions path. Defaults to "obj".</value>
+    <value>Obsolete</value>
   </data>
   <data name="ProviderDescription" xml:space="preserve">
     <value>The provider to use. (E.g. Microsoft.EntityFrameworkCore.SqlServer)</value>

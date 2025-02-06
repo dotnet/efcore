@@ -15,19 +15,22 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
             async,
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => new[] { 10, 999 }.Contains(c.Int)));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Inline_collection_of_nullable_ints_Contains(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => new int?[] { 10, 999 }.Contains(c.NullableInt)));
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Inline_collection_of_nullable_ints_Contains_null(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => new int?[] { null, 999 }.Contains(c.NullableInt)));
+    // TODO: The following no longer compile since https://github.com/dotnet/runtime/pull/110197 (Contains overload added with optional
+    // parameter, not supported in expression trees). #35547 is tracking on the EF side.
+    //
+    // [ConditionalTheory]
+    // [MemberData(nameof(IsAsyncData))]
+    // public virtual Task Inline_collection_of_nullable_ints_Contains(bool async)
+    //     => AssertQuery(
+    //         async,
+    //         ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => new int?[] { 10, 999 }.Contains(c.NullableInt)));
+    //
+    // [ConditionalTheory]
+    // [MemberData(nameof(IsAsyncData))]
+    // public virtual Task Inline_collection_of_nullable_ints_Contains_null(bool async)
+    //     => AssertQuery(
+    //         async,
+    //         ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => new int?[] { null, 999 }.Contains(c.NullableInt)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -395,33 +398,36 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.NullableInt == null || !ints.Contains(c.NullableInt!.Value)));
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Parameter_collection_of_nullable_ints_Contains_int(bool async)
-    {
-        var nullableInts = new int?[] { 10, 999 };
-
-        await AssertQuery(
-            async,
-            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => nullableInts.Contains(c.Int)));
-        await AssertQuery(
-            async,
-            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => !nullableInts.Contains(c.Int)));
-    }
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Parameter_collection_of_nullable_ints_Contains_nullable_int(bool async)
-    {
-        var nullableInts = new int?[] { null, 999 };
-
-        await AssertQuery(
-            async,
-            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => nullableInts.Contains(c.NullableInt)));
-        await AssertQuery(
-            async,
-            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => !nullableInts.Contains(c.NullableInt)));
-    }
+    // TODO: The following no longer compile since https://github.com/dotnet/runtime/pull/110197 (Contains overload added with optional
+    // parameter, not supported in expression trees). #35547 is tracking on the EF side.
+    //
+    // [ConditionalTheory]
+    // [MemberData(nameof(IsAsyncData))]
+    // public virtual async Task Parameter_collection_of_nullable_ints_Contains_int(bool async)
+    // {
+    //     var nullableInts = new int?[] { 10, 999 };
+    //
+    //     await AssertQuery(
+    //         async,
+    //         ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => nullableInts.Contains(c.Int)));
+    //     await AssertQuery(
+    //         async,
+    //         ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => !nullableInts.Contains(c.Int)));
+    // }
+    //
+    // [ConditionalTheory]
+    // [MemberData(nameof(IsAsyncData))]
+    // public virtual async Task Parameter_collection_of_nullable_ints_Contains_nullable_int(bool async)
+    // {
+    //     var nullableInts = new int?[] { null, 999 };
+    //
+    //     await AssertQuery(
+    //         async,
+    //         ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => nullableInts.Contains(c.NullableInt)));
+    //     await AssertQuery(
+    //         async,
+    //         ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => !nullableInts.Contains(c.NullableInt)));
+    // }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -614,16 +620,19 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => bools.Contains(c.Bool)));
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Parameter_collection_of_enums_Contains(bool async)
-    {
-        var enums = new[] { MyEnum.Value1, MyEnum.Value4 };
-
-        return AssertQuery(
-            async,
-            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => enums.Contains(c.Enum)));
-    }
+    // TODO: The following no longer compiles since https://github.com/dotnet/runtime/pull/110197 (Contains overload added with optional
+    // parameter, not supported in expression trees). #35547 is tracking on the EF side.
+    //
+    // [ConditionalTheory]
+    // [MemberData(nameof(IsAsyncData))]
+    // public virtual Task Parameter_collection_of_enums_Contains(bool async)
+    // {
+    //     var enums = new[] { MyEnum.Value1, MyEnum.Value4 };
+    //
+    //     return AssertQuery(
+    //         async,
+    //         ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => enums.Contains(c.Enum)));
+    // }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -681,19 +690,22 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
             async,
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.Ints.Contains(10)));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Column_collection_of_nullable_ints_Contains(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.NullableInts.Contains(10)));
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Column_collection_of_nullable_ints_Contains_null(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.NullableInts.Contains(null)));
+    // TODO: The following no longer compile since https://github.com/dotnet/runtime/pull/110197 (Contains overload added with optional
+    // parameter, not supported in expression trees). #35547 is tracking on the EF side.
+    //
+    // [ConditionalTheory]
+    // [MemberData(nameof(IsAsyncData))]
+    // public virtual Task Column_collection_of_nullable_ints_Contains(bool async)
+    //     => AssertQuery(
+    //         async,
+    //         ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.NullableInts.Contains(10)));
+    //
+    // [ConditionalTheory]
+    // [MemberData(nameof(IsAsyncData))]
+    // public virtual Task Column_collection_of_nullable_ints_Contains_null(bool async)
+    //     => AssertQuery(
+    //         async,
+    //         ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.NullableInts.Contains(null)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]

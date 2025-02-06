@@ -235,6 +235,30 @@ WHERE [o].[CustomerID] LIKE N'F%'
 """);
     }
 
+    public override async Task LeftJoin(bool async)
+    {
+        await base.LeftJoin(async);
+
+        AssertSql(
+            """
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Customers] AS [c]
+LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
+""");
+    }
+
+    public override async Task RightJoin(bool async)
+    {
+        await base.RightJoin(async);
+
+        AssertSql(
+            """
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Customers] AS [c]
+RIGHT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
+""");
+    }
+
     public override async Task GroupJoin_simple(bool async)
     {
         await base.GroupJoin_simple(async);

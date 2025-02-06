@@ -912,7 +912,7 @@ public static class EntityFrameworkServiceCollectionExtensions
         serviceCollection.TryAdd(
             new ServiceDescriptor(
                 typeof(TContext),
-                typeof(TContext),
+                sp => sp.GetRequiredService<IDbContextFactory<TContext>>().CreateDbContext(),
                 lifetime == ServiceLifetime.Transient
                     ? ServiceLifetime.Transient
                     : ServiceLifetime.Scoped));
@@ -1024,6 +1024,7 @@ public static class EntityFrameworkServiceCollectionExtensions
         serviceCollection.TryAddSingleton<IDbContextPool<TContext>, DbContextPool<TContext>>();
         serviceCollection.TryAddSingleton<IDbContextFactory<TContext>>(
             sp => new PooledDbContextFactory<TContext>(sp.GetRequiredService<IDbContextPool<TContext>>()));
+        serviceCollection.TryAddScoped<TContext>(sp => sp.GetRequiredService<IDbContextFactory<TContext>>().CreateDbContext());
 
         return serviceCollection;
     }

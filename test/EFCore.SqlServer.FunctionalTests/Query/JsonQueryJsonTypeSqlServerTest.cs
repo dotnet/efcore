@@ -595,20 +595,20 @@ FROM [JsonEntitiesSingleOwned] AS [j]
 """);
     }
 
-    public override async Task Left_join_json_entities(bool async)
+    public override async Task LeftJoin_json_entities(bool async)
     {
         // TODO:SQLJSON Returns empty (invalid) JSON (See BadJson.cs)
         if (async)
         {
             Assert.Equal(
                 "Unable to cast object of type 'System.DBNull' to type 'System.String'.",
-                (await Assert.ThrowsAsync<InvalidCastException>(() => base.Left_join_json_entities(true))).Message);
+                (await Assert.ThrowsAsync<InvalidCastException>(() => base.LeftJoin_json_entities(true))).Message);
         }
         else
         {
             Assert.Equal(
                 RelationalStrings.JsonEmptyString,
-                (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Left_join_json_entities(false)))
+                (await Assert.ThrowsAsync<InvalidOperationException>(() => base.LeftJoin_json_entities(false)))
                 .Message);
         }
 
@@ -617,6 +617,31 @@ FROM [JsonEntitiesSingleOwned] AS [j]
 SELECT [j].[Id], [j].[Name], [j].[OwnedCollection], [j0].[Id], [j0].[EntityBasicId], [j0].[Name], [j0].[OwnedCollectionRoot], [j0].[OwnedReferenceRoot]
 FROM [JsonEntitiesSingleOwned] AS [j]
 LEFT JOIN [JsonEntitiesBasic] AS [j0] ON [j].[Id] = [j0].[Id]
+""");
+    }
+
+    public override async Task RightJoin_json_entities(bool async)
+    {
+        // TODO:SQLJSON Returns empty (invalid) JSON (See BadJson.cs)
+        if (async)
+        {
+            Assert.Equal(
+                "Unable to cast object of type 'System.DBNull' to type 'System.String'.",
+                (await Assert.ThrowsAsync<InvalidCastException>(() => base.LeftJoin_json_entities(true))).Message);
+        }
+        else
+        {
+            Assert.Equal(
+                RelationalStrings.JsonEmptyString,
+                (await Assert.ThrowsAsync<InvalidOperationException>(() => base.LeftJoin_json_entities(false)))
+                .Message);
+        }
+
+        AssertSql(
+            """
+SELECT [j].[Id], [j].[Name], [j].[OwnedCollection], [j0].[Id], [j0].[EntityBasicId], [j0].[Name], [j0].[OwnedCollectionRoot], [j0].[OwnedReferenceRoot]
+FROM [JsonEntitiesSingleOwned] AS [j]
+RIGHT JOIN [JsonEntitiesBasic] AS [j0] ON [j].[Id] = [j0].[Id]
 """);
     }
 
