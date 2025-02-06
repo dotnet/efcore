@@ -2512,4 +2512,32 @@ public abstract class NorthwindSelectQueryTestBase<TFixture>(TFixture fixture) :
                     }).Take(5),
             assertOrder: true,
             elementAsserter: (e, a) => AssertCollection(e.OrderIds, a.OrderIds, elementSorter: ee => ee));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Nested_SelectMany_with_DefaultIfEmpty(bool async) => AssertQuery(
+        async,
+        ss => ss.Set<Customer>().SelectMany(
+            ownerCustomer => ss.Set<Customer>()
+                .Where(neighbor => ownerCustomer.City == neighbor.City)
+                .Select(x => new { x.City, x.Address }).SelectMany(
+                    customer => ss.Set<Customer>()
+                        .Where(branch => branch.Address == customer.Address)
+                        .DefaultIfEmpty()))
+                .Select(x => new { x.City, x.Address }));
+
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Nested_SelectMany_with_anonymous_type_and_DefaultIfEmpty(bool async) => AssertQuery(
+        async,
+        ss => ss.Set<Customer>().SelectMany(
+            ownerCustomer => ss.Set<Customer>()
+                .Where(neighbor => ownerCustomer.City == neighbor.City)
+                .Select(x => new { x.City, x.Address }).SelectMany(
+                    customer => ss.Set<Customer>()
+                        .Where(branch => branch.Address == customer.Address)
+                        .DefaultIfEmpty(), (left, right) => new { left, right }),
+                    (left, right) => new { left, right })
+                .Select(x => new { x.left.City, x.left.Address }));
 }

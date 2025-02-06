@@ -153,6 +153,35 @@ FROM "Orders" AS "o"
 """);
     }
 
+    
+    public override async Task Nested_SelectMany_with_DefaultIfEmpty(bool async)
+    {
+        await base.Nested_SelectMany_with_DefaultIfEmpty(async);
+
+        AssertSql(
+            @"SELECT ""s"".""City"", ""s"".""Address""
+FROM ""Customers"" AS ""c""
+INNER JOIN (
+    SELECT ""c1"".""Address"", ""c1"".""City"", ""c0"".""City"" AS ""City0""
+    FROM ""Customers"" AS ""c0""
+    LEFT JOIN ""Customers"" AS ""c1"" ON ""c0"".""Address"" = ""c1"".""Address""
+) AS ""s"" ON ""c"".""City"" = ""s"".""City0""");
+    }
+
+    public override async Task Nested_SelectMany_with_anonymous_type_and_DefaultIfEmpty(bool async)
+    {
+        await base.Nested_SelectMany_with_anonymous_type_and_DefaultIfEmpty(async);
+
+         AssertSql(
+            @"SELECT ""c"".""City"", ""c"".""Address""
+FROM ""Customers"" AS ""c""
+INNER JOIN (
+    SELECT ""c0"".""City""
+    FROM ""Customers"" AS ""c0""
+    LEFT JOIN ""Customers"" AS ""c1"" ON ""c0"".""Address"" = ""c1"".""Address""
+) AS ""s"" ON ""c"".""City"" = ""s"".""City""");
+    }
+
     public override async Task
         SelectMany_with_collection_being_correlated_subquery_which_references_non_mapped_properties_from_inner_and_outer_entity(
             bool async)
