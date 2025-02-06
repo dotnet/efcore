@@ -180,13 +180,13 @@ public class QueryOptimizingExpressionVisitor : ExpressionVisitor
                 if ((methodInfo == EnumerableMethods.AnyWithPredicate || methodInfo == QueryableMethods.AnyWithPredicate) && !negated)
                 {
                     var containsMethod = containsMethodDefinition.MakeGenericMethod(methodCallExpression.Method.GetGenericArguments()[0]);
-                    return Expression.Call(null, containsMethod, methodCallExpression.Arguments[0], itemExpression);
+                    return Visit(Expression.Call(null, containsMethod, methodCallExpression.Arguments[0], itemExpression));
                 }
 
                 if ((methodInfo == EnumerableMethods.All || methodInfo == QueryableMethods.All) && negated)
                 {
                     var containsMethod = containsMethodDefinition.MakeGenericMethod(methodCallExpression.Method.GetGenericArguments()[0]);
-                    return Expression.Not(Expression.Call(null, containsMethod, methodCallExpression.Arguments[0], itemExpression));
+                    return Visit(Expression.Not(Expression.Call(null, containsMethod, methodCallExpression.Arguments[0], itemExpression)));
                 }
             }
         }
@@ -277,15 +277,6 @@ public class QueryOptimizingExpressionVisitor : ExpressionVisitor
 
         return newArrayExpression.Update(expressions);
     }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    protected override Expression VisitUnary(UnaryExpression unaryExpression)
-        => unaryExpression.Update(Visit(unaryExpression.Operand));
 
     private static Expression MatchExpressionType(Expression expression, Type typeToMatch)
         => expression.Type != typeToMatch
