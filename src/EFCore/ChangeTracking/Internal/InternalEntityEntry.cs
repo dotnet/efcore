@@ -1677,7 +1677,8 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
             foreach (var complexProperty in entityType.GetFlattenedComplexProperties())
             {
                 if (!complexProperty.IsNullable
-                    && this[complexProperty] == null)
+                    && this[complexProperty] == null
+                    && complexProperty.ComplexType.GetProperties().Any(p => !p.IsNullable))
                 {
                     throw new InvalidOperationException(
                         CoreStrings.NullRequiredComplexProperty(

@@ -5,6 +5,7 @@ using System.Collections.ObjectModel;
 using System.Dynamic;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.ModelBuilding;
@@ -1637,18 +1638,22 @@ public abstract partial class ModelBuilderTest
         }
 
         [ConditionalFact]
-        public virtual void Throws_for_optional_complex_property()
+        public virtual void Complex_properties_can_be_configured_as_optional()
         {
             var modelBuilder = CreateModelBuilder();
 
             modelBuilder
+                .Ignore<Product>()
+                .Ignore<CustomerDetails>()
+                .Ignore<Order>()
+                .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
                 .ComplexProperty(e => e.Customer).IsRequired(false);
 
-            Assert.Equal(
-                CoreStrings.ComplexPropertyOptional(
-                    nameof(ComplexProperties), nameof(ComplexProperties.Customer)),
-                Assert.Throws<InvalidOperationException>(modelBuilder.FinalizeModel).Message);
+            var model = modelBuilder.FinalizeModel();
+
+            var complexProperty = model.FindEntityType(typeof(ComplexProperties)).GetComplexProperties().Single();
+            Assert.True(complexProperty.IsNullable);
         }
 
         [ConditionalFact]
