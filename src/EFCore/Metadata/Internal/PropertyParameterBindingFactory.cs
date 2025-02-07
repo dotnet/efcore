@@ -71,14 +71,14 @@ public class PropertyParameterBindingFactory : IPropertyParameterBindingFactory
     {
         var pascalized = char.ToUpperInvariant(parameterName[0]) + parameterName[1..];
 
-        return new List<string>
-        {
+        return
+        [
             parameterName,
             pascalized,
             "_" + parameterName,
             "_" + pascalized,
             "m_" + parameterName,
             "m_" + pascalized
-        };
+        ];
     }
 }

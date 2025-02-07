@@ -3,13 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class SpatialInMemoryTest : SpatialTestBase<SpatialInMemoryFixture>
+public class SpatialInMemoryTest(SpatialInMemoryFixture fixture) : SpatialTestBase<SpatialInMemoryFixture>(fixture)
 {
-    public SpatialInMemoryTest(SpatialInMemoryFixture fixture)
-        : base(fixture)
-    {
-    }
-
     protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
     {
     }
