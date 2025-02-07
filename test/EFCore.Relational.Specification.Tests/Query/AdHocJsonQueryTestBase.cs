@@ -1467,6 +1467,296 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
 
     #endregion
 
+    #region BadJsonProperties
+
+    [ConditionalFact]
+    public virtual async Task Bad_json_properties_duplicated_navigations_tracking()
+    {
+        var contextFactory = await InitializeAsync<ContextBadJsonProperties>(
+            onModelCreating: BuildModelBadJsonProperties,
+            onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
+            seed: SeedBadJsonProperties);
+
+        using (var context = contextFactory.CreateContext())
+        {
+            var baseline = await context.Entities.SingleAsync(x => x.Scenario == "baseline");
+            var dupNavs = await context.Entities.SingleAsync(x => x.Scenario == "duplicated navigations");
+
+            // for tracking, first one wins
+            Assert.Equal(baseline.RequiredReference.NestedOptional.Text, dupNavs.RequiredReference.NestedOptional.Text);
+            Assert.Equal(baseline.RequiredReference.NestedRequired.Text, dupNavs.RequiredReference.NestedRequired.Text);
+            Assert.Equal(baseline.RequiredReference.NestedCollection[0].Text, dupNavs.RequiredReference.NestedCollection[0].Text);
+            Assert.Equal(baseline.RequiredReference.NestedCollection[1].Text, dupNavs.RequiredReference.NestedCollection[1].Text);
+
+            Assert.Equal(baseline.OptionalReference.NestedOptional.Text, dupNavs.OptionalReference.NestedOptional.Text);
+            Assert.Equal(baseline.OptionalReference.NestedRequired.Text, dupNavs.OptionalReference.NestedRequired.Text);
+            Assert.Equal(baseline.OptionalReference.NestedCollection[0].Text, dupNavs.OptionalReference.NestedCollection[0].Text);
+            Assert.Equal(baseline.OptionalReference.NestedCollection[1].Text, dupNavs.OptionalReference.NestedCollection[1].Text);
+
+            Assert.Equal(baseline.Collection[0].NestedOptional.Text, dupNavs.Collection[0].NestedOptional.Text);
+            Assert.Equal(baseline.Collection[0].NestedRequired.Text, dupNavs.Collection[0].NestedRequired.Text);
+            Assert.Equal(baseline.Collection[0].NestedCollection[0].Text, dupNavs.Collection[0].NestedCollection[0].Text);
+            Assert.Equal(baseline.Collection[0].NestedCollection[1].Text, dupNavs.Collection[0].NestedCollection[1].Text);
+
+            Assert.Equal(baseline.Collection[1].NestedOptional.Text, dupNavs.Collection[1].NestedOptional.Text);
+            Assert.Equal(baseline.Collection[1].NestedRequired.Text, dupNavs.Collection[1].NestedRequired.Text);
+            Assert.Equal(baseline.Collection[1].NestedCollection[0].Text, dupNavs.Collection[1].NestedCollection[0].Text);
+            Assert.Equal(baseline.Collection[1].NestedCollection[1].Text, dupNavs.Collection[1].NestedCollection[1].Text);
+        }
+    }
+
+    [ConditionalFact]
+    public virtual async Task Bad_json_properties_duplicated_navigations_no_tracking()
+    {
+        var contextFactory = await InitializeAsync<ContextBadJsonProperties>(
+            onModelCreating: BuildModelBadJsonProperties,
+            onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
+            seed: SeedBadJsonProperties);
+
+        using (var context = contextFactory.CreateContext())
+        {
+            var query = context.Entities.AsNoTracking();
+
+            var baseline = query.Single(x => x.Scenario == "baseline");
+            var dupNavs = query.Single(x => x.Scenario == "duplicated navigations");
+
+            // for no tracking, last one wins
+            Assert.Equal(baseline.RequiredReference.NestedOptional.Text + " dupnav", dupNavs.RequiredReference.NestedOptional.Text);
+            Assert.Equal(baseline.RequiredReference.NestedRequired.Text + " dupnav", dupNavs.RequiredReference.NestedRequired.Text);
+            Assert.Equal(baseline.RequiredReference.NestedCollection[0].Text + " dupnav", dupNavs.RequiredReference.NestedCollection[0].Text);
+            Assert.Equal(baseline.RequiredReference.NestedCollection[1].Text + " dupnav", dupNavs.RequiredReference.NestedCollection[1].Text);
+
+            Assert.Equal(baseline.OptionalReference.NestedOptional.Text + " dupnav", dupNavs.OptionalReference.NestedOptional.Text);
+            Assert.Equal(baseline.OptionalReference.NestedRequired.Text + " dupnav", dupNavs.OptionalReference.NestedRequired.Text);
+            Assert.Equal(baseline.OptionalReference.NestedCollection[0].Text + " dupnav", dupNavs.OptionalReference.NestedCollection[0].Text);
+            Assert.Equal(baseline.OptionalReference.NestedCollection[1].Text + " dupnav", dupNavs.OptionalReference.NestedCollection[1].Text);
+
+            Assert.Equal(baseline.Collection[0].NestedOptional.Text + " dupnav", dupNavs.Collection[0].NestedOptional.Text);
+            Assert.Equal(baseline.Collection[0].NestedRequired.Text + " dupnav", dupNavs.Collection[0].NestedRequired.Text);
+            Assert.Equal(baseline.Collection[0].NestedCollection[0].Text + " dupnav", dupNavs.Collection[0].NestedCollection[0].Text);
+            Assert.Equal(baseline.Collection[0].NestedCollection[1].Text + " dupnav", dupNavs.Collection[0].NestedCollection[1].Text);
+
+            Assert.Equal(baseline.Collection[1].NestedOptional.Text + " dupnav", dupNavs.Collection[1].NestedOptional.Text);
+            Assert.Equal(baseline.Collection[1].NestedRequired.Text + " dupnav", dupNavs.Collection[1].NestedRequired.Text);
+            Assert.Equal(baseline.Collection[1].NestedCollection[0].Text + " dupnav", dupNavs.Collection[1].NestedCollection[0].Text);
+            Assert.Equal(baseline.Collection[1].NestedCollection[1].Text + " dupnav", dupNavs.Collection[1].NestedCollection[1].Text);
+        }
+    }
+
+    [ConditionalTheory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public virtual async Task Bad_json_properties_duplicated_scalars(bool noTracking)
+    {
+        var contextFactory = await InitializeAsync<ContextBadJsonProperties>(
+            onModelCreating: BuildModelBadJsonProperties,
+            onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
+            seed: SeedBadJsonProperties);
+
+        using (var context = contextFactory.CreateContext())
+        {
+            var query = noTracking ? context.Entities.AsNoTracking() : context.Entities;
+
+            var baseline = await query.SingleAsync(x => x.Scenario == "baseline");
+            var dupProps = await query.SingleAsync(x => x.Scenario == "duplicated scalars");
+
+            Assert.Equal(baseline.RequiredReference.NestedOptional.Text + " dupprop", dupProps.RequiredReference.NestedOptional.Text);
+            Assert.Equal(baseline.RequiredReference.NestedRequired.Text + " dupprop", dupProps.RequiredReference.NestedRequired.Text);
+            Assert.Equal(baseline.RequiredReference.NestedCollection[0].Text + " dupprop", dupProps.RequiredReference.NestedCollection[0].Text);
+            Assert.Equal(baseline.RequiredReference.NestedCollection[1].Text + " dupprop", dupProps.RequiredReference.NestedCollection[1].Text);
+
+            Assert.Equal(baseline.OptionalReference.NestedOptional.Text + " dupprop", dupProps.OptionalReference.NestedOptional.Text);
+            Assert.Equal(baseline.OptionalReference.NestedRequired.Text + " dupprop", dupProps.OptionalReference.NestedRequired.Text);
+            Assert.Equal(baseline.OptionalReference.NestedCollection[0].Text + " dupprop", dupProps.OptionalReference.NestedCollection[0].Text);
+            Assert.Equal(baseline.OptionalReference.NestedCollection[1].Text + " dupprop", dupProps.OptionalReference.NestedCollection[1].Text);
+
+            Assert.Equal(baseline.Collection[0].NestedOptional.Text + " dupprop", dupProps.Collection[0].NestedOptional.Text);
+            Assert.Equal(baseline.Collection[0].NestedRequired.Text + " dupprop", dupProps.Collection[0].NestedRequired.Text);
+            Assert.Equal(baseline.Collection[0].NestedCollection[0].Text + " dupprop", dupProps.Collection[0].NestedCollection[0].Text);
+            Assert.Equal(baseline.Collection[0].NestedCollection[1].Text + " dupprop", dupProps.Collection[0].NestedCollection[1].Text);
+
+            Assert.Equal(baseline.Collection[1].NestedOptional.Text + " dupprop", dupProps.Collection[1].NestedOptional.Text);
+            Assert.Equal(baseline.Collection[1].NestedRequired.Text + " dupprop", dupProps.Collection[1].NestedRequired.Text);
+            Assert.Equal(baseline.Collection[1].NestedCollection[0].Text + " dupprop", dupProps.Collection[1].NestedCollection[0].Text);
+            Assert.Equal(baseline.Collection[1].NestedCollection[1].Text + " dupprop", dupProps.Collection[1].NestedCollection[1].Text);
+        }
+    }
+
+    [ConditionalTheory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public virtual async Task Bad_json_properties_empty_navigations(bool noTracking)
+    {
+        var contextFactory = await InitializeAsync<ContextBadJsonProperties>(
+            onModelCreating: BuildModelBadJsonProperties,
+            onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
+            seed: SeedBadJsonProperties);
+
+        using (var context = contextFactory.CreateContext())
+        {
+            var query = noTracking ? context.Entities.AsNoTracking() : context.Entities;
+            var emptyNavs = await query.SingleAsync(x => x.Scenario == "empty navigation property names");
+
+            Assert.Null(emptyNavs.RequiredReference.NestedOptional);
+            Assert.Null(emptyNavs.RequiredReference.NestedRequired);
+            Assert.Null(emptyNavs.RequiredReference.NestedCollection);
+
+            Assert.Null(emptyNavs.OptionalReference.NestedOptional);
+            Assert.Null(emptyNavs.OptionalReference.NestedRequired);
+            Assert.Null(emptyNavs.OptionalReference.NestedCollection);
+
+            Assert.Null(emptyNavs.Collection[0].NestedOptional);
+            Assert.Null(emptyNavs.Collection[0].NestedRequired);
+            Assert.Null(emptyNavs.Collection[0].NestedCollection);
+
+            Assert.Null(emptyNavs.Collection[1].NestedOptional);
+            Assert.Null(emptyNavs.Collection[1].NestedRequired);
+            Assert.Null(emptyNavs.Collection[1].NestedCollection);
+        }
+    }
+
+    [ConditionalTheory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public virtual async Task Bad_json_properties_empty_scalars(bool noTracking)
+    {
+        var contextFactory = await InitializeAsync<ContextBadJsonProperties>(
+            onModelCreating: BuildModelBadJsonProperties,
+            onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
+            seed: SeedBadJsonProperties);
+
+        using (var context = contextFactory.CreateContext())
+        {
+            var query = noTracking ? context.Entities.AsNoTracking() : context.Entities;
+            var emptyNavs = await query.SingleAsync(x => x.Scenario == "empty scalar property names");
+
+            Assert.Null(emptyNavs.RequiredReference.NestedOptional.Text);
+            Assert.Null(emptyNavs.RequiredReference.NestedRequired.Text);
+            Assert.Null(emptyNavs.RequiredReference.NestedCollection[0].Text);
+            Assert.Null(emptyNavs.RequiredReference.NestedCollection[1].Text);
+
+            Assert.Null(emptyNavs.OptionalReference.NestedOptional.Text);
+            Assert.Null(emptyNavs.OptionalReference.NestedRequired.Text);
+            Assert.Null(emptyNavs.OptionalReference.NestedCollection[0].Text);
+            Assert.Null(emptyNavs.OptionalReference.NestedCollection[1].Text);
+
+            Assert.Null(emptyNavs.Collection[0].NestedOptional.Text);
+            Assert.Null(emptyNavs.Collection[0].NestedRequired.Text);
+            Assert.Null(emptyNavs.Collection[0].NestedCollection[0].Text);
+            Assert.Null(emptyNavs.Collection[0].NestedCollection[1].Text);
+
+            Assert.Null(emptyNavs.Collection[1].NestedOptional.Text);
+            Assert.Null(emptyNavs.Collection[1].NestedRequired.Text);
+            Assert.Null(emptyNavs.Collection[1].NestedCollection[0].Text);
+            Assert.Null(emptyNavs.Collection[1].NestedCollection[1].Text);
+        }
+    }
+
+    [ConditionalTheory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public virtual async Task Bad_json_properties_null_navigations(bool noTracking)
+    {
+        var contextFactory = await InitializeAsync<ContextBadJsonProperties>(
+            onModelCreating: BuildModelBadJsonProperties,
+            onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
+            seed: SeedBadJsonProperties);
+
+        using (var context = contextFactory.CreateContext())
+        {
+            var query = noTracking ? context.Entities.AsNoTracking() : context.Entities;
+
+            await Assert.ThrowsAnyAsync<JsonException>(
+                () => query.SingleAsync(x => x.Scenario == "null navigation property names"));
+        }
+    }
+
+    [ConditionalTheory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public virtual async Task Bad_json_properties_null_scalars(bool noTracking)
+    {
+        var contextFactory = await InitializeAsync<ContextBadJsonProperties>(
+            onModelCreating: BuildModelBadJsonProperties,
+            onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
+            seed: SeedBadJsonProperties);
+
+        using (var context = contextFactory.CreateContext())
+        {
+            var query = noTracking ? context.Entities.AsNoTracking() : context.Entities;
+
+            var message = (await Assert.ThrowsAnyAsync<JsonException>(
+                () => query.SingleAsync(x => x.Scenario == "null scalar property names"))).Message;
+
+            Assert.StartsWith("'n' is an invalid start of a property name. Expected a '\"'.", message);
+        }
+    }
+
+    protected class ContextBadJsonProperties(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<Entity> Entities { get; set; }
+
+        public class Entity
+        {
+            public int Id { get; set; }
+            public string Scenario { get; set; }
+            public JsonRoot OptionalReference { get; set; }
+            public JsonRoot RequiredReference { get; set; }
+            public List<JsonRoot> Collection { get; set; }
+        }
+
+        public class JsonRoot
+        {
+            public JsonBranch NestedRequired { get; set; }
+            public JsonBranch NestedOptional { get; set; }
+            public List<JsonBranch> NestedCollection { get; set; }
+        }
+
+        public class JsonBranch
+        {
+            public string Text { get; set; }
+        }
+    }
+
+    protected abstract Task SeedBadJsonProperties(ContextBadJsonProperties ctx);
+
+    protected virtual void BuildModelBadJsonProperties(ModelBuilder modelBuilder)
+        => modelBuilder.Entity<ContextBadJsonProperties.Entity>(
+            b =>
+            {
+                b.ToTable("Entities");
+                b.Property(x => x.Id).ValueGeneratedNever();
+
+                b.OwnsOne(
+                    x => x.RequiredReference, b =>
+                    {
+                        b.ToJson().HasColumnType(JsonColumnType);
+                        b.OwnsOne(x => x.NestedOptional);
+                        b.OwnsOne(x => x.NestedRequired);
+                        b.OwnsMany(x => x.NestedCollection);
+                    });
+
+                b.OwnsOne(
+                    x => x.OptionalReference, b =>
+                    {
+                        b.ToJson().HasColumnType(JsonColumnType);
+                        b.OwnsOne(x => x.NestedOptional);
+                        b.OwnsOne(x => x.NestedRequired);
+                        b.OwnsMany(x => x.NestedCollection);
+                    });
+
+                b.OwnsMany(
+                    x => x.Collection, b =>
+                    {
+                        b.ToJson().HasColumnType(JsonColumnType);
+                        b.OwnsOne(x => x.NestedOptional);
+                        b.OwnsOne(x => x.NestedRequired);
+                        b.OwnsMany(x => x.NestedCollection);
+                    });
+            });
+
+    #endregion
+
     protected TestSqlLoggerFactory TestSqlLoggerFactory
         => (TestSqlLoggerFactory)ListLoggerFactory;
 
