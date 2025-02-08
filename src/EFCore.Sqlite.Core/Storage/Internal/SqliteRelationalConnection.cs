@@ -179,6 +179,10 @@ public class SqliteRelationalConnection : RelationalConnection, ISqliteRelationa
                         ? value
                         : sum.Value + value.Value,
                 isDeterministic: true);
+
+            sqliteConnection.CreateCollation(
+                "EF_DECIMAL",
+                (x, y) => decimal.Compare(decimal.Parse(x), decimal.Parse(y)));
         }
         else
         {
