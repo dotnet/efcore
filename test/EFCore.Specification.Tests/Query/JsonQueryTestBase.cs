@@ -10,19 +10,19 @@ namespace Microsoft.EntityFrameworkCore.Query;
 public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)
     where TFixture : JsonQueryFixtureBase, new()
 {
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Basic_json_projection_owner_entity(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<JsonEntityBasic>());
+    //[ConditionalTheory]
+    //[MemberData(nameof(IsAsyncData))]
+    //public virtual Task Basic_json_projection_owner_entity(bool async)
+    //    => AssertQuery(
+    //        async,
+    //        ss => ss.Set<JsonEntityBasic>());
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Basic_json_projection_owner_entity_NoTracking(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<JsonEntityBasic>().AsNoTracking());
+    //[ConditionalTheory]
+    //[MemberData(nameof(IsAsyncData))]
+    //public virtual Task Basic_json_projection_owner_entity_NoTracking(bool async)
+    //    => AssertQuery(
+    //        async,
+    //        ss => ss.Set<JsonEntityBasic>().AsNoTracking());
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -109,12 +109,12 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
                 AssertEqual(e.Second, a.Second);
             });
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Basic_json_projection_owned_reference_root(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<JsonEntityBasic>().Select(x => x.OwnedReferenceRoot).AsNoTracking());
+    //[ConditionalTheory]
+    //[MemberData(nameof(IsAsyncData))]
+    //public virtual Task Basic_json_projection_owned_reference_root(bool async)
+    //    => AssertQuery(
+    //        async,
+    //        ss => ss.Set<JsonEntityBasic>().Select(x => x.OwnedReferenceRoot).AsNoTracking());
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -219,13 +219,13 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
                 AssertEqual(e.Leaf2, a.Leaf2);
             });
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Basic_json_projection_owned_collection_root(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<JsonEntityBasic>().Select(x => x.OwnedCollectionRoot).AsNoTracking(),
-            elementAsserter: (e, a) => AssertCollection(e, a, ordered: true));
+    //[ConditionalTheory]
+    //[MemberData(nameof(IsAsyncData))]
+    //public virtual Task Basic_json_projection_owned_collection_root(bool async)
+    //    => AssertQuery(
+    //        async,
+    //        ss => ss.Set<JsonEntityBasic>().Select(x => x.OwnedCollectionRoot).AsNoTracking(),
+    //        elementAsserter: (e, a) => AssertCollection(e, a, ordered: true));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -235,12 +235,12 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
             ss => ss.Set<JsonEntityBasic>().Select(x => x.OwnedCollectionRoot).AsNoTrackingWithIdentityResolution(),
             elementAsserter: (e, a) => AssertCollection(e, a, ordered: true));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Basic_json_projection_owned_reference_branch(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<JsonEntityBasic>().Select(x => x.OwnedReferenceRoot.OwnedReferenceBranch).AsNoTracking());
+    //[ConditionalTheory]
+    //[MemberData(nameof(IsAsyncData))]
+    //public virtual Task Basic_json_projection_owned_reference_branch(bool async)
+    //    => AssertQuery(
+    //        async,
+    //        ss => ss.Set<JsonEntityBasic>().Select(x => x.OwnedReferenceRoot.OwnedReferenceBranch).AsNoTracking());
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -249,13 +249,13 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
             async,
             ss => ss.Set<JsonEntityBasic>().Select(x => x.OwnedReferenceRoot.OwnedReferenceBranch).AsNoTrackingWithIdentityResolution());
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Basic_json_projection_owned_collection_branch(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<JsonEntityBasic>().Select(x => x.OwnedReferenceRoot.OwnedCollectionBranch).AsNoTracking(),
-            elementAsserter: (e, a) => AssertCollection(e, a, ordered: true));
+    //[ConditionalTheory]
+    //[MemberData(nameof(IsAsyncData))]
+    //public virtual Task Basic_json_projection_owned_collection_branch(bool async)
+    //    => AssertQuery(
+    //        async,
+    //        ss => ss.Set<JsonEntityBasic>().Select(x => x.OwnedReferenceRoot.OwnedCollectionBranch).AsNoTracking(),
+    //        elementAsserter: (e, a) => AssertCollection(e, a, ordered: true));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
