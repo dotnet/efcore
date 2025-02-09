@@ -25,7 +25,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <AdditionalDotNetPackageFeed Include="https://dotnetbuilds.blob.core.windows.net/internal"
+    <AdditionalDotNetPackageFeed Include="https://ci.dot.net/internal"
                                  Condition="'$(SYSTEM_TEAMPROJECT)' == 'internal'">
       <SasToken>$([System.Environment]::GetEnvironmentVariable('DotNetBuildsInternalReadSasToken'))</SasToken>
     </AdditionalDotNetPackageFeed>
