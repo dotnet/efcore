@@ -671,7 +671,10 @@ FROM [Employees] AS [e]
 WHERE (
     SELECT TOP(1) [e0].[EmployeeID]
     FROM [Employees] AS [e0]
-    WHERE [e0].[EmployeeID] <> [e].[ReportsTo] OR [e].[ReportsTo] IS NULL
+    WHERE CASE
+        WHEN [e0].[EmployeeID] = [e].[ReportsTo] THEN CAST(0 AS bit)
+        ELSE CAST(1 AS bit)
+    END = CAST(1 AS bit)
     ORDER BY [e0].[EmployeeID]) = 1
 """);
     }
@@ -687,7 +690,10 @@ FROM [Employees] AS [e]
 WHERE (
     SELECT TOP(1) [e0].[EmployeeID]
     FROM [Employees] AS [e0]
-    WHERE [e0].[EmployeeID] <> [e].[ReportsTo] OR [e].[ReportsTo] IS NULL) = 0
+    WHERE CASE
+        WHEN [e0].[EmployeeID] = [e].[ReportsTo] THEN CAST(0 AS bit)
+        ELSE CAST(1 AS bit)
+    END = CAST(1 AS bit)) = 0
 """);
     }
 
@@ -702,7 +708,10 @@ FROM [Employees] AS [e]
 WHERE (
     SELECT TOP(1) [e0].[EmployeeID]
     FROM [Employees] AS [e0]
-    WHERE [e0].[EmployeeID] <> [e].[ReportsTo] OR [e].[ReportsTo] IS NULL) = 0
+    WHERE CASE
+        WHEN [e0].[EmployeeID] = [e].[ReportsTo] THEN CAST(0 AS bit)
+        ELSE CAST(1 AS bit)
+    END = CAST(1 AS bit)) = 0
 """);
     }
 
@@ -717,7 +726,10 @@ FROM [Employees] AS [e]
 WHERE (
     SELECT TOP(1) [e0].[EmployeeID]
     FROM [Employees] AS [e0]
-    WHERE [e0].[EmployeeID] <> [e].[ReportsTo] OR [e].[ReportsTo] IS NULL) = 0
+    WHERE CASE
+        WHEN [e0].[EmployeeID] = [e].[ReportsTo] THEN CAST(0 AS bit)
+        ELSE CAST(1 AS bit)
+    END = CAST(1 AS bit)) = 0
 """);
     }
 
@@ -1521,7 +1533,10 @@ WHERE NOT EXISTS (
             """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ([c].[City] <> N'London' OR [c].[City] IS NULL) AND NOT EXISTS (
+WHERE CASE
+    WHEN [c].[City] = N'London' THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit) AND NOT EXISTS (
     SELECT 1
     FROM [Orders] AS [o]
     WHERE [o].[CustomerID] LIKE N'ABC%')
@@ -1539,7 +1554,10 @@ FROM [Customers] AS [c]
 WHERE NOT EXISTS (
     SELECT 1
     FROM [Orders] AS [o]
-    WHERE [o].[CustomerID] LIKE N'ABC%') AND ([c].[City] <> N'London' OR [c].[City] IS NULL)
+    WHERE [o].[CustomerID] LIKE N'ABC%') AND CASE
+    WHEN [c].[City] = N'London' THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
 """);
     }
 
@@ -1566,7 +1584,10 @@ WHERE EXISTS (
             """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ([c].[City] <> N'London' OR [c].[City] IS NULL) AND EXISTS (
+WHERE CASE
+    WHEN [c].[City] = N'London' THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit) AND EXISTS (
     SELECT 1
     FROM [Orders] AS [o]
     WHERE [o].[CustomerID] LIKE N'A%')
@@ -1584,7 +1605,10 @@ FROM [Customers] AS [c]
 WHERE EXISTS (
     SELECT 1
     FROM [Orders] AS [o]
-    WHERE [o].[CustomerID] LIKE N'A%') AND ([c].[City] <> N'London' OR [c].[City] IS NULL)
+    WHERE [o].[CustomerID] LIKE N'A%') AND CASE
+    WHEN [c].[City] = N'London' THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
 """);
     }
 
@@ -1614,7 +1638,10 @@ FROM [Customers] AS [c]
 WHERE EXISTS (
     SELECT 1
     FROM [Orders] AS [o]
-    WHERE [c].[CustomerID] = [o].[CustomerID] AND ([o].[EmployeeID] <> 1 OR [o].[EmployeeID] IS NULL))
+    WHERE [c].[CustomerID] = [o].[CustomerID] AND CASE
+        WHEN [o].[EmployeeID] = 1 THEN CAST(0 AS bit)
+        ELSE CAST(1 AS bit)
+    END = CAST(1 AS bit))
 """);
     }
 
@@ -2537,25 +2564,19 @@ END, [c].[CustomerID]
             """
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE [o].[OrderID] <= 10250 AND ((
-    SELECT TOP(1) [c].[City]
-    FROM [Customers] AS [c]
-    ORDER BY CASE
-        WHEN EXISTS (
-            SELECT 1
-            FROM [Customers] AS [c0]
-            WHERE [c0].[CustomerID] = N'ALFKI') THEN CAST(1 AS bit)
-        ELSE CAST(0 AS bit)
-    END) <> N'Nowhere' OR (
-    SELECT TOP(1) [c].[City]
-    FROM [Customers] AS [c]
-    ORDER BY CASE
-        WHEN EXISTS (
-            SELECT 1
-            FROM [Customers] AS [c0]
-            WHERE [c0].[CustomerID] = N'ALFKI') THEN CAST(1 AS bit)
-        ELSE CAST(0 AS bit)
-    END) IS NULL)
+WHERE [o].[OrderID] <= 10250 AND CASE
+    WHEN (
+        SELECT TOP(1) [c].[City]
+        FROM [Customers] AS [c]
+        ORDER BY CASE
+            WHEN EXISTS (
+                SELECT 1
+                FROM [Customers] AS [c0]
+                WHERE [c0].[CustomerID] = N'ALFKI') THEN CAST(1 AS bit)
+            ELSE CAST(0 AS bit)
+        END) = N'Nowhere' THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
 """);
     }
 
@@ -4929,15 +4950,14 @@ SELECT [c].[CustomerID], (
     WHERE [c].[CustomerID] = [o0].[CustomerID]
     ORDER BY [o0].[OrderDate]) AS [A]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] LIKE N'A%' AND ((
-    SELECT TOP(1) [o].[OrderID]
-    FROM [Orders] AS [o]
-    WHERE [c].[CustomerID] = [o].[CustomerID]
-    ORDER BY [o].[OrderDate]) <> 0 OR (
-    SELECT TOP(1) [o].[OrderID]
-    FROM [Orders] AS [o]
-    WHERE [c].[CustomerID] = [o].[CustomerID]
-    ORDER BY [o].[OrderDate]) IS NULL)
+WHERE [c].[CustomerID] LIKE N'A%' AND CASE
+    WHEN (
+        SELECT TOP(1) [o].[OrderID]
+        FROM [Orders] AS [o]
+        WHERE [c].[CustomerID] = [o].[CustomerID]
+        ORDER BY [o].[OrderDate]) = 0 THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
 """);
     }
 
@@ -7173,10 +7193,17 @@ WHERE (
     {
         await base.Where_nanosecond_and_microsecond_component(async);
 
-        AssertSql("""
+        AssertSql(
+            """
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE (DATEPART(nanosecond, [o].[OrderDate]) % 1000 <> 0 OR [o].[OrderDate] IS NULL) AND (DATEPART(microsecond, [o].[OrderDate]) % 1000 <> 0 OR [o].[OrderDate] IS NULL)
+WHERE CASE
+    WHEN DATEPART(nanosecond, [o].[OrderDate]) % 1000 = 0 THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit) AND CASE
+    WHEN DATEPART(microsecond, [o].[OrderDate]) % 1000 = 0 THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
 """);
     }
 

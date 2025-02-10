@@ -89,7 +89,10 @@ SELECT [c].[Id], [c].[OptionalCustomerId], [c].[RequiredCustomerId], [c0].[Id], 
 FROM [CustomerGroup] AS [c]
 LEFT JOIN [Customer] AS [c0] ON [c].[OptionalCustomerId] = [c0].[Id]
 INNER JOIN [Customer] AS [c1] ON [c].[RequiredCustomerId] = [c1].[Id]
-WHERE [c0].[ShippingAddress_ZipCode] <> 7728 OR [c0].[ShippingAddress_ZipCode] IS NULL
+WHERE CASE
+    WHEN [c0].[ShippingAddress_ZipCode] = 7728 THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
 """);
     }
 
@@ -458,7 +461,10 @@ SELECT [v].[Id], [v].[OptionalCustomerId], [v].[RequiredCustomerId], [v0].[Id], 
 FROM [ValuedCustomerGroup] AS [v]
 LEFT JOIN [ValuedCustomer] AS [v0] ON [v].[OptionalCustomerId] = [v0].[Id]
 INNER JOIN [ValuedCustomer] AS [v1] ON [v].[RequiredCustomerId] = [v1].[Id]
-WHERE [v0].[ShippingAddress_ZipCode] <> 7728 OR [v0].[ShippingAddress_ZipCode] IS NULL
+WHERE CASE
+    WHEN [v0].[ShippingAddress_ZipCode] = 7728 THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
 """);
     }
 

@@ -214,7 +214,10 @@ SELECT [e].[Id], [e].[Name]
 FROM [EntitiesWithQueryFilterSelfReference] AS [e]
 WHERE EXISTS (
     SELECT 1
-    FROM [EntitiesWithQueryFilterSelfReference] AS [e0]) AND ([e].[Name] <> N'Foo' OR [e].[Name] IS NULL)
+    FROM [EntitiesWithQueryFilterSelfReference] AS [e0]) AND CASE
+    WHEN [e].[Name] = N'Foo' THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
 """,
             //
             """
@@ -225,7 +228,10 @@ WHERE EXISTS (
     FROM [EntitiesWithQueryFilterSelfReference] AS [e0]
     WHERE EXISTS (
         SELECT 1
-        FROM [EntitiesWithQueryFilterSelfReference] AS [e1])) AND ([e].[Name] <> N'Foo' OR [e].[Name] IS NULL)
+        FROM [EntitiesWithQueryFilterSelfReference] AS [e1])) AND CASE
+    WHEN [e].[Name] = N'Foo' THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
 """);
     }
 
@@ -239,7 +245,10 @@ WHERE EXISTS (
 
 SELECT [e].[Id], [e].[Name], [e].[TenantId]
 FROM [Entities] AS [e]
-WHERE ([e].[Name] <> N'Foo' OR [e].[Name] IS NULL) AND [e].[TenantId] = @ef_filter__p
+WHERE CASE
+    WHEN [e].[Name] = N'Foo' THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit) AND [e].[TenantId] = @ef_filter__p
 """,
             //
             """
@@ -247,7 +256,10 @@ WHERE ([e].[Name] <> N'Foo' OR [e].[Name] IS NULL) AND [e].[TenantId] = @ef_filt
 
 SELECT [e].[Id], [e].[Name], [e].[TenantId]
 FROM [Entities] AS [e]
-WHERE ([e].[Name] <> N'Foo' OR [e].[Name] IS NULL) AND [e].[TenantId] = @ef_filter__p
+WHERE CASE
+    WHEN [e].[Name] = N'Foo' THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit) AND [e].[TenantId] = @ef_filter__p
 """);
     }
 
