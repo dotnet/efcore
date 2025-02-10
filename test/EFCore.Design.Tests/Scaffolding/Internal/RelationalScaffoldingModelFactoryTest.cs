@@ -2297,8 +2297,8 @@ public class RelationalScaffoldingModelFactoryTest
             databaseModel,
             new ModelReverseEngineerOptions { UseDatabaseNames = useDatabaseNames, NoPluralize = noPluralize });
 
-        var user = Assert.Single(model.GetEntityTypes().Where(e => e.GetTableName() == userTableName));
-        var id = Assert.Single(user.GetProperties().Where(p => p.GetColumnName() == "id"));
+        var user = Assert.Single(model.GetEntityTypes(), e => e.GetTableName() == userTableName);
+        var id = Assert.Single(user.GetProperties(), p => p.GetColumnName() == "id");
         var foreignKey = Assert.Single(user.GetReferencingForeignKeys());
         if (useDatabaseNames && noPluralize)
         {

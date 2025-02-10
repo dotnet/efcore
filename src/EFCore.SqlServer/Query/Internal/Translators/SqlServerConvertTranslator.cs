@@ -41,14 +41,7 @@ public class SqlServerConvertTranslator : IMethodCallTranslator
         typeof(object)
     ];
 
-    private static readonly MethodInfo[] SupportedMethods
-        = TypeMapping.Keys
-            .SelectMany(
-                t => typeof(Convert).GetTypeInfo().GetDeclaredMethods(t)
-                    .Where(
-                        m => m.GetParameters().Length == 1
-                            && SupportedTypes.Contains(m.GetParameters().First().ParameterType)))
-            .ToArray();
+    private static readonly MethodInfo[] SupportedMethods;
 
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
@@ -60,6 +53,22 @@ public class SqlServerConvertTranslator : IMethodCallTranslator
     /// </summary>
     public SqlServerConvertTranslator(ISqlExpressionFactory sqlExpressionFactory)
         => _sqlExpressionFactory = sqlExpressionFactory;
+
+    static SqlServerConvertTranslator()
+    {
+        var convertInfo = typeof(Convert).GetTypeInfo();
+        SupportedMethods = TypeMapping.Keys
+            .SelectMany(
+                name => convertInfo.GetDeclaredMethods(name)
+                    .Where(
+                        method =>
+                        {
+                            var parameters = method.GetParameters();
+                            return parameters.Length == 1
+                                && SupportedTypes.Contains(parameters[0].ParameterType);
+                        }))
+            .ToArray();
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -75,9 +84,9 @@ public class SqlServerConvertTranslator : IMethodCallTranslator
         => SupportedMethods.Contains(method)
             ? _sqlExpressionFactory.Function(
                 "CONVERT",
-                new[] { _sqlExpressionFactory.Fragment(TypeMapping[method.Name]), arguments[0] },
+                [_sqlExpressionFactory.Fragment(TypeMapping[method.Name]), arguments[0]],
                 nullable: true,
-                argumentsPropagateNullability: new[] { false, true },
+                argumentsPropagateNullability: Statics.FalseTrue,
                 method.ReturnType)
             : null;
 }

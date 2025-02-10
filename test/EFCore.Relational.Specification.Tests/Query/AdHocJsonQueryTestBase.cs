@@ -1,6 +1,8 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Text.Json;
+
 namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
@@ -374,6 +376,401 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
     public class SubRound
     {
         public int SubRoundNumber { get; set; }
+    }
+
+    #endregion
+
+    #region 34293
+
+    [ConditionalFact]
+    public virtual async Task Project_entity_with_optional_json_entity_owned_by_required_json()
+    {
+        var contextFactory = await InitializeAsync<Context34293>(
+            onModelCreating: OnModelCreating34293,
+            seed: ctx => ctx.Seed());
+
+        using var context = contextFactory.CreateContext();
+        var entityProjection = await context.Set<Context34293.Entity>().ToListAsync();
+
+        Assert.Equal(3, entityProjection.Count);
+    }
+
+    [ConditionalFact]
+    public virtual async Task Project_required_json_entity()
+    {
+        var contextFactory = await InitializeAsync<Context34293>(
+            onModelCreating: OnModelCreating34293,
+            seed: ctx => ctx.Seed());
+
+        using var context = contextFactory.CreateContext();
+
+        var rootProjection = await context.Set<Context34293.Entity>().AsNoTracking().Where(x => x.Id != 3).Select(x => x.Json).ToListAsync();
+        Assert.Equal(2, rootProjection.Count);
+
+        var branchProjection = await context.Set<Context34293.Entity>().AsNoTracking().Where(x => x.Id != 3).Select(x => x.Json.Required).ToListAsync();
+        Assert.Equal(2, rootProjection.Count);
+
+        var badRootProjectionMessage = (await Assert.ThrowsAsync<InvalidOperationException>(
+            () => context.Set<Context34293.Entity>().AsNoTracking().Where(x => x.Id == 3).Select(x => x.Json).ToListAsync())).Message;
+        Assert.Equal(RelationalStrings.JsonRequiredEntityWithNullJson(nameof(Context34293.JsonBranch)), badRootProjectionMessage);
+
+        var badBranchProjectionMessage = (await Assert.ThrowsAsync<InvalidOperationException>(
+            () => context.Set<Context34293.Entity>().AsNoTracking().Where(x => x.Id == 3).Select(x => x.Json.Required).ToListAsync())).Message;
+        Assert.Equal(RelationalStrings.JsonRequiredEntityWithNullJson(nameof(Context34293.JsonBranch)), badBranchProjectionMessage);
+    }
+
+    [ConditionalFact]
+    public virtual async Task Project_optional_json_entity_owned_by_required_json_entity()
+    {
+        var contextFactory = await InitializeAsync<Context34293>(
+            onModelCreating: OnModelCreating34293,
+            seed: ctx => ctx.Seed());
+
+        using var context = contextFactory.CreateContext();
+        var leafProjection = await context.Set<Context34293.Entity>().AsNoTracking().Select(x => x.Json.Required.Optional).ToListAsync();
+        Assert.Equal(3, leafProjection.Count);
+    }
+
+    protected class Context34293(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<Entity> Entities { get; set; }
+
+        public class Entity
+        {
+            public int Id { get; set; }
+            public JsonRoot Json { get; set; }
+        }
+
+        public class JsonRoot
+        {
+            public DateTime Date { get; set; }
+
+            public JsonBranch Required { get; set; }
+        }
+
+        public class JsonBranch
+        {
+            public int Number { get; set; }
+            public JsonLeaf Optional { get; set; }
+        }
+
+        public class JsonLeaf
+        {
+            public string Name { get; set; }
+        }
+
+        public async Task Seed()
+        {
+            // everything - ok
+            var e1 = new Entity
+            {
+                Id = 1,
+                Json = new JsonRoot
+                {
+                    Date = new DateTime(2001, 1, 1),
+                    Required = new JsonBranch
+                    {
+                        Number = 1,
+                        Optional = new JsonLeaf { Name = "optional 1" }
+                    }
+                }
+            };
+
+            // null leaf - ok (optional nav)
+            var e2 = new Entity
+            {
+                Id = 2,
+                Json = new JsonRoot
+                {
+                    Date = new DateTime(2002, 2, 2),
+                    Required = new JsonBranch
+                    {
+                        Number = 2,
+                        Optional = null
+                    }
+                }
+            };
+
+            // null branch - invalid (required nav)
+            var e3 = new Entity
+            {
+                Id = 3,
+                Json = new JsonRoot
+                {
+                    Date = new DateTime(2003, 3, 3),
+                    Required = null,
+                }
+            };
+
+            Entities.AddRange(e1, e2, e3);
+            await SaveChangesAsync();
+        }
+    }
+
+    protected virtual void OnModelCreating34293(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Context34293.Entity>(
+            b =>
+            {
+                b.Property(x => x.Id).ValueGeneratedNever();
+                b.OwnsOne(
+                    x => x.Json, b =>
+                    {
+                        b.ToJson().HasColumnType(JsonColumnType);
+                        b.OwnsOne(x => x.Required, bb =>
+                        {
+                            bb.OwnsOne(x => x.Optional);
+                            bb.Navigation(x => x.Optional).IsRequired(false);
+                        });
+                        b.Navigation(x => x.Required).IsRequired(true);
+                    });
+                b.Navigation(x => x.Json).IsRequired(true);
+            });
+    }
+
+    #endregion
+
+    #region 34960
+
+    [ConditionalFact]
+    public virtual async Task Project_entity_with_json_null_values()
+    {
+        var contextFactory = await InitializeAsync<Context34960>(seed: Seed34960, onModelCreating: OnModelCreating34960);
+
+        using var context = contextFactory.CreateContext();
+        var query = await context.Entities.ToListAsync();
+    }
+
+    [ConditionalFact]
+    public virtual async Task Try_project_collection_but_JSON_is_entity()
+    {
+        var contextFactory = await InitializeAsync<Context34960>(seed: Seed34960, onModelCreating: OnModelCreating34960);
+        using var context = contextFactory.CreateContext();
+
+        Assert.Equal(
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => context.Junk.AsNoTracking().Where(x => x.Id == 1).Select(x => x.Collection).FirstOrDefaultAsync())).Message,
+            CoreStrings.JsonReaderInvalidTokenType(nameof(JsonTokenType.StartObject)));
+    }
+
+    [ConditionalFact]
+    public virtual async Task Try_project_reference_but_JSON_is_collection()
+    {
+        var contextFactory = await InitializeAsync<Context34960>(seed: Seed34960, onModelCreating: OnModelCreating34960);
+        using var context = contextFactory.CreateContext();
+
+        Assert.Equal(
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => context.Junk.AsNoTracking().Where(x => x.Id == 2).Select(x => x.Reference).FirstOrDefaultAsync())).Message,
+            CoreStrings.JsonReaderInvalidTokenType(nameof(JsonTokenType.StartArray)));
+    }
+
+    protected class Context34960(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<Entity> Entities { get; set; }
+        public DbSet<JunkEntity> Junk { get; set; }
+
+        public class Entity
+        {
+            public int Id { get; set; }
+            public JsonEntity Reference { get; set; }
+            public List<JsonEntity> Collection { get; set; }
+        }
+
+        public class JsonEntity
+        {
+            public string Name { get; set; }
+            public double Number { get; set; }
+
+            public JsonEntityNested NestedReference { get; set; }
+            public List<JsonEntityNested> NestedCollection { get; set; }
+        }
+
+        public class JsonEntityNested
+        {
+            public DateTime DoB { get; set; }
+            public string Text { get; set; }
+        }
+
+        public class JunkEntity
+        {
+            public int Id { get; set; }
+            public JsonEntity Reference { get; set; }
+            public List<JsonEntity> Collection { get; set; }
+        }
+    }
+
+    protected virtual void OnModelCreating34960(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Context34960.Entity>(
+            b =>
+            {
+                b.ToTable("Entities");
+                b.Property(x => x.Id).ValueGeneratedNever();
+
+                b.OwnsOne(
+                    x => x.Reference, b =>
+                    {
+                        b.ToJson().HasColumnType(JsonColumnType);
+                        b.OwnsOne(x => x.NestedReference);
+                        b.OwnsMany(x => x.NestedCollection);
+                    });
+
+                b.OwnsMany(
+                    x => x.Collection, b =>
+                    {
+                        b.ToJson().HasColumnType(JsonColumnType);
+                        b.OwnsOne(x => x.NestedReference);
+                        b.OwnsMany(x => x.NestedCollection);
+                    });
+            });
+
+        modelBuilder.Entity<Context34960.JunkEntity>(
+            b =>
+            {
+                b.ToTable("Junk");
+                b.Property(x => x.Id).ValueGeneratedNever();
+
+                b.OwnsOne(
+                    x => x.Reference, b =>
+                    {
+                        b.ToJson().HasColumnType(JsonColumnType);
+                        b.Ignore(x => x.NestedReference);
+                        b.Ignore(x => x.NestedCollection);
+                    });
+
+                b.OwnsMany(
+                    x => x.Collection, b =>
+                    {
+                        b.ToJson().HasColumnType(JsonColumnType);
+                        b.Ignore(x => x.NestedReference);
+                        b.Ignore(x => x.NestedCollection);
+                    });
+            });
+    }
+
+    protected virtual async Task Seed34960(Context34960 ctx)
+    {
+        // everything
+        var e1 = new Context34960.Entity
+        {
+            Id = 1,
+            Reference = new Context34960.JsonEntity
+            {
+                Name = "ref1",
+                Number = 1.5f,
+                NestedReference = new Context34960.JsonEntityNested
+                {
+                    DoB = new DateTime(2000, 1, 1),
+                    Text = "nested ref 1"
+                },
+                NestedCollection =
+                [
+                    new Context34960.JsonEntityNested
+                    {
+                        DoB = new DateTime(2001, 1, 1),
+                        Text = "nested col 1 1"
+                    },
+                    new Context34960.JsonEntityNested
+                    {
+                        DoB = new DateTime(2001, 2, 2),
+                        Text = "nested col 1 2"
+                    },
+                ],
+            },
+
+            Collection =
+            [
+                new Context34960.JsonEntity
+                {
+                    Name = "col 1 1",
+                    Number = 2.5f,
+                    NestedReference = new Context34960.JsonEntityNested
+                    {
+                        DoB = new DateTime(2010, 1, 1),
+                        Text = "nested col 1 1 ref 1"
+                    },
+                    NestedCollection =
+                    [
+                        new Context34960.JsonEntityNested
+                        {
+                            DoB = new DateTime(2011, 1, 1),
+                            Text = "nested col 1 1 col 1 1"
+                        },
+                        new Context34960.JsonEntityNested
+                        {
+                            DoB = new DateTime(2011, 2, 2),
+                            Text = "nested col 1 1 col 1 2"
+                        },
+                    ],
+                },
+                new Context34960.JsonEntity
+                {
+                    Name = "col 1 2",
+                    Number = 2.5f,
+                    NestedReference = new Context34960.JsonEntityNested
+                    {
+                        DoB = new DateTime(2020, 1, 1),
+                        Text = "nested col 1 2 ref 1"
+                    },
+                    NestedCollection =
+                    [
+                        new Context34960.JsonEntityNested
+                        {
+                            DoB = new DateTime(2021, 1, 1),
+                            Text = "nested col 1 2 col 1 1"
+                        },
+                        new Context34960.JsonEntityNested
+                        {
+                            DoB = new DateTime(2021, 2, 2),
+                            Text = "nested col 1 2 col 1 2"
+                        },
+                    ],
+                },
+            ],
+        };
+
+        // relational nulls
+        var e2 = new Context34960.Entity
+        {
+            Id = 2,
+            Reference = null,
+            Collection = null
+        };
+
+        // nested relational nulls
+        var e3 = new Context34960.Entity
+        {
+            Id = 3,
+            Reference = new Context34960.JsonEntity
+            {
+                Name = "ref3",
+                Number = 3.5f,
+                NestedReference = null,
+                NestedCollection = null
+            },
+
+            Collection =
+            [
+                new Context34960.JsonEntity
+                {
+                    Name = "col 3 1",
+                    Number = 32.5f,
+                    NestedReference = null,
+                    NestedCollection = null,
+                },
+                new Context34960.JsonEntity
+                {
+                    Name = "col 3 2",
+                    Number = 33.5f,
+                    NestedReference = null,
+                    NestedCollection = null,
+                },
+            ],
+        };
+
+        ctx.Entities.AddRange(e1, e2, e3);
+        await ctx.SaveChangesAsync();
     }
 
     #endregion
@@ -1065,6 +1462,296 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
                     {
                         nb.ToJson().HasColumnType(JsonColumnType);
                         nb.OwnsMany(x => x.Collection);
+                    });
+            });
+
+    #endregion
+
+    #region BadJsonProperties
+
+    [ConditionalFact]
+    public virtual async Task Bad_json_properties_duplicated_navigations_tracking()
+    {
+        var contextFactory = await InitializeAsync<ContextBadJsonProperties>(
+            onModelCreating: BuildModelBadJsonProperties,
+            onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
+            seed: SeedBadJsonProperties);
+
+        using (var context = contextFactory.CreateContext())
+        {
+            var baseline = await context.Entities.SingleAsync(x => x.Scenario == "baseline");
+            var dupNavs = await context.Entities.SingleAsync(x => x.Scenario == "duplicated navigations");
+
+            // for tracking, first one wins
+            Assert.Equal(baseline.RequiredReference.NestedOptional.Text, dupNavs.RequiredReference.NestedOptional.Text);
+            Assert.Equal(baseline.RequiredReference.NestedRequired.Text, dupNavs.RequiredReference.NestedRequired.Text);
+            Assert.Equal(baseline.RequiredReference.NestedCollection[0].Text, dupNavs.RequiredReference.NestedCollection[0].Text);
+            Assert.Equal(baseline.RequiredReference.NestedCollection[1].Text, dupNavs.RequiredReference.NestedCollection[1].Text);
+
+            Assert.Equal(baseline.OptionalReference.NestedOptional.Text, dupNavs.OptionalReference.NestedOptional.Text);
+            Assert.Equal(baseline.OptionalReference.NestedRequired.Text, dupNavs.OptionalReference.NestedRequired.Text);
+            Assert.Equal(baseline.OptionalReference.NestedCollection[0].Text, dupNavs.OptionalReference.NestedCollection[0].Text);
+            Assert.Equal(baseline.OptionalReference.NestedCollection[1].Text, dupNavs.OptionalReference.NestedCollection[1].Text);
+
+            Assert.Equal(baseline.Collection[0].NestedOptional.Text, dupNavs.Collection[0].NestedOptional.Text);
+            Assert.Equal(baseline.Collection[0].NestedRequired.Text, dupNavs.Collection[0].NestedRequired.Text);
+            Assert.Equal(baseline.Collection[0].NestedCollection[0].Text, dupNavs.Collection[0].NestedCollection[0].Text);
+            Assert.Equal(baseline.Collection[0].NestedCollection[1].Text, dupNavs.Collection[0].NestedCollection[1].Text);
+
+            Assert.Equal(baseline.Collection[1].NestedOptional.Text, dupNavs.Collection[1].NestedOptional.Text);
+            Assert.Equal(baseline.Collection[1].NestedRequired.Text, dupNavs.Collection[1].NestedRequired.Text);
+            Assert.Equal(baseline.Collection[1].NestedCollection[0].Text, dupNavs.Collection[1].NestedCollection[0].Text);
+            Assert.Equal(baseline.Collection[1].NestedCollection[1].Text, dupNavs.Collection[1].NestedCollection[1].Text);
+        }
+    }
+
+    [ConditionalFact]
+    public virtual async Task Bad_json_properties_duplicated_navigations_no_tracking()
+    {
+        var contextFactory = await InitializeAsync<ContextBadJsonProperties>(
+            onModelCreating: BuildModelBadJsonProperties,
+            onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
+            seed: SeedBadJsonProperties);
+
+        using (var context = contextFactory.CreateContext())
+        {
+            var query = context.Entities.AsNoTracking();
+
+            var baseline = query.Single(x => x.Scenario == "baseline");
+            var dupNavs = query.Single(x => x.Scenario == "duplicated navigations");
+
+            // for no tracking, last one wins
+            Assert.Equal(baseline.RequiredReference.NestedOptional.Text + " dupnav", dupNavs.RequiredReference.NestedOptional.Text);
+            Assert.Equal(baseline.RequiredReference.NestedRequired.Text + " dupnav", dupNavs.RequiredReference.NestedRequired.Text);
+            Assert.Equal(baseline.RequiredReference.NestedCollection[0].Text + " dupnav", dupNavs.RequiredReference.NestedCollection[0].Text);
+            Assert.Equal(baseline.RequiredReference.NestedCollection[1].Text + " dupnav", dupNavs.RequiredReference.NestedCollection[1].Text);
+
+            Assert.Equal(baseline.OptionalReference.NestedOptional.Text + " dupnav", dupNavs.OptionalReference.NestedOptional.Text);
+            Assert.Equal(baseline.OptionalReference.NestedRequired.Text + " dupnav", dupNavs.OptionalReference.NestedRequired.Text);
+            Assert.Equal(baseline.OptionalReference.NestedCollection[0].Text + " dupnav", dupNavs.OptionalReference.NestedCollection[0].Text);
+            Assert.Equal(baseline.OptionalReference.NestedCollection[1].Text + " dupnav", dupNavs.OptionalReference.NestedCollection[1].Text);
+
+            Assert.Equal(baseline.Collection[0].NestedOptional.Text + " dupnav", dupNavs.Collection[0].NestedOptional.Text);
+            Assert.Equal(baseline.Collection[0].NestedRequired.Text + " dupnav", dupNavs.Collection[0].NestedRequired.Text);
+            Assert.Equal(baseline.Collection[0].NestedCollection[0].Text + " dupnav", dupNavs.Collection[0].NestedCollection[0].Text);
+            Assert.Equal(baseline.Collection[0].NestedCollection[1].Text + " dupnav", dupNavs.Collection[0].NestedCollection[1].Text);
+
+            Assert.Equal(baseline.Collection[1].NestedOptional.Text + " dupnav", dupNavs.Collection[1].NestedOptional.Text);
+            Assert.Equal(baseline.Collection[1].NestedRequired.Text + " dupnav", dupNavs.Collection[1].NestedRequired.Text);
+            Assert.Equal(baseline.Collection[1].NestedCollection[0].Text + " dupnav", dupNavs.Collection[1].NestedCollection[0].Text);
+            Assert.Equal(baseline.Collection[1].NestedCollection[1].Text + " dupnav", dupNavs.Collection[1].NestedCollection[1].Text);
+        }
+    }
+
+    [ConditionalTheory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public virtual async Task Bad_json_properties_duplicated_scalars(bool noTracking)
+    {
+        var contextFactory = await InitializeAsync<ContextBadJsonProperties>(
+            onModelCreating: BuildModelBadJsonProperties,
+            onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
+            seed: SeedBadJsonProperties);
+
+        using (var context = contextFactory.CreateContext())
+        {
+            var query = noTracking ? context.Entities.AsNoTracking() : context.Entities;
+
+            var baseline = await query.SingleAsync(x => x.Scenario == "baseline");
+            var dupProps = await query.SingleAsync(x => x.Scenario == "duplicated scalars");
+
+            Assert.Equal(baseline.RequiredReference.NestedOptional.Text + " dupprop", dupProps.RequiredReference.NestedOptional.Text);
+            Assert.Equal(baseline.RequiredReference.NestedRequired.Text + " dupprop", dupProps.RequiredReference.NestedRequired.Text);
+            Assert.Equal(baseline.RequiredReference.NestedCollection[0].Text + " dupprop", dupProps.RequiredReference.NestedCollection[0].Text);
+            Assert.Equal(baseline.RequiredReference.NestedCollection[1].Text + " dupprop", dupProps.RequiredReference.NestedCollection[1].Text);
+
+            Assert.Equal(baseline.OptionalReference.NestedOptional.Text + " dupprop", dupProps.OptionalReference.NestedOptional.Text);
+            Assert.Equal(baseline.OptionalReference.NestedRequired.Text + " dupprop", dupProps.OptionalReference.NestedRequired.Text);
+            Assert.Equal(baseline.OptionalReference.NestedCollection[0].Text + " dupprop", dupProps.OptionalReference.NestedCollection[0].Text);
+            Assert.Equal(baseline.OptionalReference.NestedCollection[1].Text + " dupprop", dupProps.OptionalReference.NestedCollection[1].Text);
+
+            Assert.Equal(baseline.Collection[0].NestedOptional.Text + " dupprop", dupProps.Collection[0].NestedOptional.Text);
+            Assert.Equal(baseline.Collection[0].NestedRequired.Text + " dupprop", dupProps.Collection[0].NestedRequired.Text);
+            Assert.Equal(baseline.Collection[0].NestedCollection[0].Text + " dupprop", dupProps.Collection[0].NestedCollection[0].Text);
+            Assert.Equal(baseline.Collection[0].NestedCollection[1].Text + " dupprop", dupProps.Collection[0].NestedCollection[1].Text);
+
+            Assert.Equal(baseline.Collection[1].NestedOptional.Text + " dupprop", dupProps.Collection[1].NestedOptional.Text);
+            Assert.Equal(baseline.Collection[1].NestedRequired.Text + " dupprop", dupProps.Collection[1].NestedRequired.Text);
+            Assert.Equal(baseline.Collection[1].NestedCollection[0].Text + " dupprop", dupProps.Collection[1].NestedCollection[0].Text);
+            Assert.Equal(baseline.Collection[1].NestedCollection[1].Text + " dupprop", dupProps.Collection[1].NestedCollection[1].Text);
+        }
+    }
+
+    [ConditionalTheory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public virtual async Task Bad_json_properties_empty_navigations(bool noTracking)
+    {
+        var contextFactory = await InitializeAsync<ContextBadJsonProperties>(
+            onModelCreating: BuildModelBadJsonProperties,
+            onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
+            seed: SeedBadJsonProperties);
+
+        using (var context = contextFactory.CreateContext())
+        {
+            var query = noTracking ? context.Entities.AsNoTracking() : context.Entities;
+            var emptyNavs = await query.SingleAsync(x => x.Scenario == "empty navigation property names");
+
+            Assert.Null(emptyNavs.RequiredReference.NestedOptional);
+            Assert.Null(emptyNavs.RequiredReference.NestedRequired);
+            Assert.Null(emptyNavs.RequiredReference.NestedCollection);
+
+            Assert.Null(emptyNavs.OptionalReference.NestedOptional);
+            Assert.Null(emptyNavs.OptionalReference.NestedRequired);
+            Assert.Null(emptyNavs.OptionalReference.NestedCollection);
+
+            Assert.Null(emptyNavs.Collection[0].NestedOptional);
+            Assert.Null(emptyNavs.Collection[0].NestedRequired);
+            Assert.Null(emptyNavs.Collection[0].NestedCollection);
+
+            Assert.Null(emptyNavs.Collection[1].NestedOptional);
+            Assert.Null(emptyNavs.Collection[1].NestedRequired);
+            Assert.Null(emptyNavs.Collection[1].NestedCollection);
+        }
+    }
+
+    [ConditionalTheory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public virtual async Task Bad_json_properties_empty_scalars(bool noTracking)
+    {
+        var contextFactory = await InitializeAsync<ContextBadJsonProperties>(
+            onModelCreating: BuildModelBadJsonProperties,
+            onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
+            seed: SeedBadJsonProperties);
+
+        using (var context = contextFactory.CreateContext())
+        {
+            var query = noTracking ? context.Entities.AsNoTracking() : context.Entities;
+            var emptyNavs = await query.SingleAsync(x => x.Scenario == "empty scalar property names");
+
+            Assert.Null(emptyNavs.RequiredReference.NestedOptional.Text);
+            Assert.Null(emptyNavs.RequiredReference.NestedRequired.Text);
+            Assert.Null(emptyNavs.RequiredReference.NestedCollection[0].Text);
+            Assert.Null(emptyNavs.RequiredReference.NestedCollection[1].Text);
+
+            Assert.Null(emptyNavs.OptionalReference.NestedOptional.Text);
+            Assert.Null(emptyNavs.OptionalReference.NestedRequired.Text);
+            Assert.Null(emptyNavs.OptionalReference.NestedCollection[0].Text);
+            Assert.Null(emptyNavs.OptionalReference.NestedCollection[1].Text);
+
+            Assert.Null(emptyNavs.Collection[0].NestedOptional.Text);
+            Assert.Null(emptyNavs.Collection[0].NestedRequired.Text);
+            Assert.Null(emptyNavs.Collection[0].NestedCollection[0].Text);
+            Assert.Null(emptyNavs.Collection[0].NestedCollection[1].Text);
+
+            Assert.Null(emptyNavs.Collection[1].NestedOptional.Text);
+            Assert.Null(emptyNavs.Collection[1].NestedRequired.Text);
+            Assert.Null(emptyNavs.Collection[1].NestedCollection[0].Text);
+            Assert.Null(emptyNavs.Collection[1].NestedCollection[1].Text);
+        }
+    }
+
+    [ConditionalTheory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public virtual async Task Bad_json_properties_null_navigations(bool noTracking)
+    {
+        var contextFactory = await InitializeAsync<ContextBadJsonProperties>(
+            onModelCreating: BuildModelBadJsonProperties,
+            onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
+            seed: SeedBadJsonProperties);
+
+        using (var context = contextFactory.CreateContext())
+        {
+            var query = noTracking ? context.Entities.AsNoTracking() : context.Entities;
+
+            await Assert.ThrowsAnyAsync<JsonException>(
+                () => query.SingleAsync(x => x.Scenario == "null navigation property names"));
+        }
+    }
+
+    [ConditionalTheory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public virtual async Task Bad_json_properties_null_scalars(bool noTracking)
+    {
+        var contextFactory = await InitializeAsync<ContextBadJsonProperties>(
+            onModelCreating: BuildModelBadJsonProperties,
+            onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
+            seed: SeedBadJsonProperties);
+
+        using (var context = contextFactory.CreateContext())
+        {
+            var query = noTracking ? context.Entities.AsNoTracking() : context.Entities;
+
+            var message = (await Assert.ThrowsAnyAsync<JsonException>(
+                () => query.SingleAsync(x => x.Scenario == "null scalar property names"))).Message;
+
+            Assert.StartsWith("'n' is an invalid start of a property name. Expected a '\"'.", message);
+        }
+    }
+
+    protected class ContextBadJsonProperties(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<Entity> Entities { get; set; }
+
+        public class Entity
+        {
+            public int Id { get; set; }
+            public string Scenario { get; set; }
+            public JsonRoot OptionalReference { get; set; }
+            public JsonRoot RequiredReference { get; set; }
+            public List<JsonRoot> Collection { get; set; }
+        }
+
+        public class JsonRoot
+        {
+            public JsonBranch NestedRequired { get; set; }
+            public JsonBranch NestedOptional { get; set; }
+            public List<JsonBranch> NestedCollection { get; set; }
+        }
+
+        public class JsonBranch
+        {
+            public string Text { get; set; }
+        }
+    }
+
+    protected abstract Task SeedBadJsonProperties(ContextBadJsonProperties ctx);
+
+    protected virtual void BuildModelBadJsonProperties(ModelBuilder modelBuilder)
+        => modelBuilder.Entity<ContextBadJsonProperties.Entity>(
+            b =>
+            {
+                b.ToTable("Entities");
+                b.Property(x => x.Id).ValueGeneratedNever();
+
+                b.OwnsOne(
+                    x => x.RequiredReference, b =>
+                    {
+                        b.ToJson().HasColumnType(JsonColumnType);
+                        b.OwnsOne(x => x.NestedOptional);
+                        b.OwnsOne(x => x.NestedRequired);
+                        b.OwnsMany(x => x.NestedCollection);
+                    });
+
+                b.OwnsOne(
+                    x => x.OptionalReference, b =>
+                    {
+                        b.ToJson().HasColumnType(JsonColumnType);
+                        b.OwnsOne(x => x.NestedOptional);
+                        b.OwnsOne(x => x.NestedRequired);
+                        b.OwnsMany(x => x.NestedCollection);
+                    });
+
+                b.OwnsMany(
+                    x => x.Collection, b =>
+                    {
+                        b.ToJson().HasColumnType(JsonColumnType);
+                        b.OwnsOne(x => x.NestedOptional);
+                        b.OwnsOne(x => x.NestedRequired);
+                        b.OwnsMany(x => x.NestedCollection);
                     });
             });
 

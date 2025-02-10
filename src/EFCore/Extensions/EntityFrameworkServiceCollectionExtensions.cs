@@ -470,13 +470,6 @@ public static class EntityFrameworkServiceCollectionExtensions
     ///         and examples.
     ///     </para>
     ///     <para>
-    ///         Entity Framework Core does not support multiple parallel operations being run on the same <see cref="DbContext" />
-    ///         instance. This includes both parallel execution of async queries and any explicit concurrent use from multiple threads.
-    ///         Therefore, always await async calls immediately, or use separate DbContext instances for operations that execute
-    ///         in parallel. See <see href="https://aka.ms/efcore-docs-threading">Avoiding DbContext threading issues</see> for more information
-    ///         and examples.
-    ///     </para>
-    ///     <para>
     ///         See <see href="https://aka.ms/efcore-docs-di">Using DbContext with dependency injection</see> for more information and examples.
     ///     </para>
     ///     <para>
@@ -919,7 +912,7 @@ public static class EntityFrameworkServiceCollectionExtensions
         serviceCollection.TryAdd(
             new ServiceDescriptor(
                 typeof(TContext),
-                typeof(TContext),
+                sp => sp.GetRequiredService<IDbContextFactory<TContext>>().CreateDbContext(),
                 lifetime == ServiceLifetime.Transient
                     ? ServiceLifetime.Transient
                     : ServiceLifetime.Scoped));
@@ -1031,6 +1024,7 @@ public static class EntityFrameworkServiceCollectionExtensions
         serviceCollection.TryAddSingleton<IDbContextPool<TContext>, DbContextPool<TContext>>();
         serviceCollection.TryAddSingleton<IDbContextFactory<TContext>>(
             sp => new PooledDbContextFactory<TContext>(sp.GetRequiredService<IDbContextPool<TContext>>()));
+        serviceCollection.TryAddScoped<TContext>(sp => sp.GetRequiredService<IDbContextFactory<TContext>>().CreateDbContext());
 
         return serviceCollection;
     }

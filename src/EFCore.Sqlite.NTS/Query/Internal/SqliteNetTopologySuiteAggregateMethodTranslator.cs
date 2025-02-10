@@ -70,11 +70,11 @@ public class SqliteNetTopologySuiteAggregateMethodTranslator : IAggregateMethodC
                         "Collect",
                         new[] { sqlExpression },
                         nullable: true,
-                        argumentsPropagateNullability: new[] { false },
+                        argumentsPropagateNullability: Statics.FalseArrays[1],
                         typeof(Geometry))
                 },
                 nullable: true,
-                argumentsPropagateNullability: new[] { true },
+                argumentsPropagateNullability: Statics.TrueArrays[1],
                 typeof(Geometry));
         }
 
@@ -97,7 +97,7 @@ public class SqliteNetTopologySuiteAggregateMethodTranslator : IAggregateMethodC
             functionName,
             new[] { sqlExpression },
             nullable: true,
-            argumentsPropagateNullability: new[] { false },
+            argumentsPropagateNullability: Statics.FalseArrays[1],
             typeof(Geometry));
 
         void CombineAggregateTerms()

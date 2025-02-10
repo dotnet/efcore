@@ -6,8 +6,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities;
 [Flags]
 public enum SqlServerCondition
 {
-    IsSqlAzure = 1 << 0,
-    IsNotSqlAzure = 1 << 1,
+    IsAzureSql = 1 << 0,
+    IsNotAzureSql = 1 << 1,
     SupportsMemoryOptimized = 1 << 2,
     SupportsAttach = 1 << 3,
     SupportsHiddenColumns = 1 << 4,

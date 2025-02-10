@@ -111,14 +111,14 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
                     case ConstantExpression:
                         return expression;
 
+                    case QueryParameterExpression queryParameterExpression:
+                        return Expression.Call(
+                            GetParameterValueMethodInfo.MakeGenericMethod(queryParameterExpression.Type),
+                            QueryCompilationContext.QueryContextParameter,
+                            Expression.Constant(queryParameterExpression.Name));
+
                     case ParameterExpression parameterExpression:
-                        return parameterExpression.Name?.StartsWith(QueryCompilationContext.QueryParameterPrefix, StringComparison.Ordinal)
-                            == true
-                                ? Expression.Call(
-                                    GetParameterValueMethodInfo.MakeGenericMethod(parameterExpression.Type),
-                                    QueryCompilationContext.QueryContextParameter,
-                                    Expression.Constant(parameterExpression.Name))
-                                : throw new InvalidOperationException(CoreStrings.TranslationFailed(parameterExpression.Print()));
+                        throw new InvalidOperationException(CoreStrings.TranslationFailed(parameterExpression.Print()));
 
                     case ProjectionBindingExpression projectionBindingExpression:
                         return _selectExpression.GetProjection(projectionBindingExpression) switch

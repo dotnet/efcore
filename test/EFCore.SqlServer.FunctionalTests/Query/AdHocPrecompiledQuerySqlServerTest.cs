@@ -29,11 +29,11 @@ WHERE CAST(JSON_VALUE([j].[IntList], '$[' + CAST([j].[Id] AS nvarchar(max)) + ']
 
         AssertSql(
             """
-@__id_0='1'
+@id='1'
 
 SELECT [j].[Id], [j].[IntList], [j].[JsonThing]
 FROM [JsonEntities] AS [j]
-WHERE CAST(JSON_VALUE([j].[IntList], '$[' + CAST(@__id_0 AS nvarchar(max)) + ']') AS int) = 2
+WHERE CAST(JSON_VALUE([j].[IntList], '$[' + CAST(@id AS nvarchar(max)) + ']') AS int) = 2
 """);
     }
 

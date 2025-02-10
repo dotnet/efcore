@@ -11,7 +11,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking;
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-value-comparers">EF Core value comparers</see> for more information and examples.
 /// </remarks>
-public class GeometryValueComparer<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicMethods)] TGeometry>
+public class GeometryValueComparer
+    <[DynamicallyAccessedMembers(
+        DynamicallyAccessedMemberTypes.PublicMethods
+        | DynamicallyAccessedMemberTypes.PublicProperties)]
+    TGeometry>
     : ValueComparer<TGeometry>
 {
     /// <summary>

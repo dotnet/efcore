@@ -54,7 +54,9 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
     IListSource
     where TEntity : class
 {
+#pragma warning disable EF1001
     private ObservableBackedBindingList<TEntity>? _bindingList;
+#pragma warning restore EF1001
     private ObservableCollection<TEntity>? _observable;
     private readonly DbContext _context;
     private readonly IEntityType _entityType;
@@ -315,8 +317,7 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
     public virtual bool Remove(TEntity item)
     {
         var entry = _context.GetDependencies().StateManager.TryGetEntry(item);
-        if (entry != null
-            && entry.EntityState != EntityState.Deleted)
+        if (entry is { EntityState: not EntityState.Deleted and not EntityState.Detached })
         {
             try
             {
@@ -472,10 +473,12 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
     ///     examples.
     /// </remarks>
     /// <returns>The binding list.</returns>
+#pragma warning disable EF1001
     [RequiresUnreferencedCode(
         "BindingList raises ListChanged events with PropertyDescriptors. PropertyDescriptors require unreferenced code.")]
     public virtual BindingList<TEntity> ToBindingList()
         => _bindingList ??= new ObservableBackedBindingList<TEntity>(ToObservableCollection());
+#pragma warning restore EF1001
 
     /// <summary>
     ///     This method is called by data binding frameworks when attempting to data bind

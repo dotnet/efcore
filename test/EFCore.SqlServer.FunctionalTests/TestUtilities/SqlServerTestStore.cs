@@ -86,7 +86,7 @@ public class SqlServerTestStore : RelationalTestStore
 
     protected override async Task InitializeAsync(Func<DbContext> createContext, Func<DbContext, Task>? seed, Func<DbContext, Task>? clean)
     {
-        if (await CreateDatabase(clean))
+        if (await CreateDatabaseAsync(clean))
         {
             if (_scriptPath != null)
             {
@@ -116,42 +116,38 @@ public class SqlServerTestStore : RelationalTestStore
                 : builder.UseSqlServer(Connection, b => b.ApplyConfiguration()))
             .ConfigureWarnings(b => b.Ignore(SqlServerEventId.SavepointsDisabledBecauseOfMARS));
 
-    private async Task<bool> CreateDatabase(Func<DbContext, Task>? clean)
+    private async Task<bool> CreateDatabaseAsync(Func<DbContext, Task>? clean)
     {
-        using (var master = new SqlConnection(CreateConnectionString("master", fileName: null, multipleActiveResultSets: false)))
+        await using var master = new SqlConnection(CreateConnectionString("master", fileName: null, multipleActiveResultSets: false));
+
+        if (ExecuteScalar<int>(master, $"SELECT COUNT(*) FROM sys.databases WHERE name = N'{Name}'") > 0)
         {
-            if (ExecuteScalar<int>(master, $"SELECT COUNT(*) FROM sys.databases WHERE name = N'{Name}'") > 0)
+            // Only reseed scripted databases during CI runs
+            if (_scriptPath != null && !TestEnvironment.IsCI)
             {
-                // Only reseed scripted databases during CI runs
-                if (_scriptPath != null && !TestEnvironment.IsCI)
-                {
-                    return false;
-                }
-
-                if (_fileName == null)
-                {
-                    using var context = new DbContext(
-                        AddProviderOptions(
-                                new DbContextOptionsBuilder()
-                                    .EnableServiceProviderCaching(false))
-                            .Options);
-                    await CleanAsync(context);
-
-                    if (clean != null)
-                    {
-                        await clean(context);
-                    }
-
-                    return true;
-                }
-
-                // Delete the database to ensure it's recreated with the correct file path
-                DeleteDatabase();
+                return false;
             }
 
-            ExecuteNonQuery(master, GetCreateDatabaseStatement(Name, _fileName));
-            WaitForExists((SqlConnection)Connection);
+            if (_fileName == null)
+            {
+                await using var context = new DbContext(
+                    AddProviderOptions(new DbContextOptionsBuilder().EnableServiceProviderCaching(false)).Options);
+                await CleanAsync(context);
+
+                if (clean != null)
+                {
+                    await clean(context);
+                }
+
+                return true;
+            }
+
+            // Delete the database to ensure it's recreated with the correct file path
+            await DeleteDatabaseAsync();
         }
+
+        await ExecuteNonQueryAsync(master, GetCreateDatabaseStatement(Name, _fileName));
+        await WaitForExistsAsync((SqlConnection)Connection);
 
         return true;
     }
@@ -175,10 +171,10 @@ public class SqlServerTestStore : RelationalTestStore
                 return 0;
             }, "");
 
-    private static void WaitForExists(SqlConnection connection)
-        => new TestSqlServerRetryingExecutionStrategy().Execute(connection, WaitForExistsImplementation);
+    private static Task WaitForExistsAsync(SqlConnection connection)
+        => new TestSqlServerRetryingExecutionStrategy().ExecuteAsync(connection, WaitForExistsImplementation);
 
-    private static void WaitForExistsImplementation(SqlConnection connection)
+    private static async Task WaitForExistsImplementation(SqlConnection connection)
     {
         var retryCount = 0;
         while (true)
@@ -187,13 +183,13 @@ public class SqlServerTestStore : RelationalTestStore
             {
                 if (connection.State != ConnectionState.Closed)
                 {
-                    connection.Close();
+                    await connection.CloseAsync();
                 }
 
                 SqlConnection.ClearPool(connection);
 
-                connection.Open();
-                connection.Close();
+                await connection.OpenAsync();
+                await connection.CloseAsync();
                 return;
             }
             catch (SqlException e)
@@ -204,7 +200,7 @@ public class SqlServerTestStore : RelationalTestStore
                     throw;
                 }
 
-                Thread.Sleep(100);
+                await Task.Delay(100);
             }
         }
     }
@@ -235,16 +231,19 @@ public class SqlServerTestStore : RelationalTestStore
         return result;
     }
 
-    public void DeleteDatabase()
+    public async Task DeleteDatabaseAsync()
     {
-        using var master = new SqlConnection(CreateConnectionString("master"));
-        ExecuteNonQuery(
+        await using var master = new SqlConnection(CreateConnectionString("master"));
+
+        await ExecuteNonQueryAsync(
             master, string.Format(
-                @"IF EXISTS (SELECT * FROM sys.databases WHERE name = N'{0}')
-                                          BEGIN
-                                              ALTER DATABASE [{0}] SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
-                                              DROP DATABASE [{0}];
-                                          END", Name));
+                """
+IF EXISTS (SELECT * FROM sys.databases WHERE name = N'{0}')
+BEGIN
+    ALTER DATABASE [{0}] SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+    DROP DATABASE [{0}];
+END
+""", Name));
 
         SqlConnection.ClearAllPools();
     }
@@ -442,14 +441,14 @@ public class SqlServerTestStore : RelationalTestStore
         return command;
     }
 
-    public override void Dispose()
+    public override async ValueTask DisposeAsync()
     {
-        base.Dispose();
+        await base.DisposeAsync();
 
         if (_fileName != null // Clean up the database using a local file, as it might get deleted later
             || (TestEnvironment.IsSqlAzure && !Shared))
         {
-            DeleteDatabase();
+            await DeleteDatabaseAsync();
         }
     }
 

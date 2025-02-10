@@ -38,9 +38,9 @@ public class VectorSearchCosmosTest : IClassFixture<VectorSearchCosmosTest.Vecto
 
         AssertSql(
             """
-@__inputVector_1='[2,-1,4,3,5,-2,5,-7,3,1]'
+@inputVector='[2,-1,4,3,5,-2,5,-7,3,1]'
 
-SELECT VALUE VectorDistance(c["SBytes"], @__inputVector_1, false, {'distanceFunction':'dotproduct', 'dataType':'int8'})
+SELECT VALUE VectorDistance(c["SBytes"], @inputVector, false, {'distanceFunction':'dotproduct', 'dataType':'int8'})
 FROM root c
 """);
     }
@@ -61,9 +61,9 @@ FROM root c
 
         AssertSql(
             """
-@__inputVector_1='[2,1,4,3,5,2,5,7,3,1]'
+@inputVector='[2,1,4,3,5,2,5,7,3,1]'
 
-SELECT VALUE VectorDistance(c["Bytes"], @__inputVector_1, false, {'distanceFunction':'cosine', 'dataType':'uint8'})
+SELECT VALUE VectorDistance(c["Bytes"], @inputVector, false, {'distanceFunction':'cosine', 'dataType':'uint8'})
 FROM root c
 """);
     }
@@ -85,9 +85,9 @@ FROM root c
 
         AssertSql(
             """
-@__inputVector_1='[0.33,-0.52,0.45,-0.67,0.89,-0.34,0.86,-0.78,0.86,-0.78]'
+@inputVector='[0.33,-0.52,0.45,-0.67,0.89,-0.34,0.86,-0.78,0.86,-0.78]'
 
-SELECT VALUE VectorDistance(c["Singles"], @__inputVector_1, false, {'distanceFunction':'dotproduct', 'dataType':'float32'})
+SELECT VALUE VectorDistance(c["Singles"], @inputVector, false, {'distanceFunction':'dotproduct', 'dataType':'float32'})
 FROM root c
 """);
     }
@@ -108,9 +108,9 @@ FROM root c
 
         AssertSql(
             """
-@__p_1='[2,1,4,3,5,2,5,7,3,1]'
+@p='[2,1,4,3,5,2,5,7,3,1]'
 
-SELECT VALUE VectorDistance(c["BytesArray"], @__p_1, false, {'distanceFunction':'cosine', 'dataType':'uint8'})
+SELECT VALUE VectorDistance(c["BytesArray"], @p, false, {'distanceFunction':'cosine', 'dataType':'uint8'})
 FROM root c
 """);
     }
@@ -132,9 +132,9 @@ FROM root c
 
         AssertSql(
             """
-@__p_1='[0.33,-0.52,0.45,-0.67,0.89,-0.34,0.86,-0.78,0.86,-0.78]'
+@p='[0.33,-0.52,0.45,-0.67,0.89,-0.34,0.86,-0.78,0.86,-0.78]'
 
-SELECT VALUE VectorDistance(c["SinglesArray"], @__p_1, false, {'distanceFunction':'dotproduct', 'dataType':'float32'})
+SELECT VALUE VectorDistance(c["SinglesArray"], @p, false, {'distanceFunction':'dotproduct', 'dataType':'float32'})
 FROM root c
 """);
     }
@@ -154,11 +154,11 @@ FROM root c
 
         AssertSql(
             """
-@__p_1='[2,1,4,6,5,2,5,7,3,1]'
+@p='[2,1,4,6,5,2,5,7,3,1]'
 
 SELECT VALUE c
 FROM root c
-ORDER BY VectorDistance(c["SBytes"], @__p_1, false, {'distanceFunction':'dotproduct', 'dataType':'int8'})
+ORDER BY VectorDistance(c["SBytes"], @p, false, {'distanceFunction':'dotproduct', 'dataType':'int8'})
 """);
     }
 
@@ -176,11 +176,11 @@ ORDER BY VectorDistance(c["SBytes"], @__p_1, false, {'distanceFunction':'dotprod
         Assert.Equal(3, booksFromStore.Count);
         AssertSql(
             """
-@__p_1='[2,1,4,6,5,2,5,7,3,1]'
+@p='[2,1,4,6,5,2,5,7,3,1]'
 
 SELECT VALUE c
 FROM root c
-ORDER BY VectorDistance(c["Bytes"], @__p_1, false, {'distanceFunction':'cosine', 'dataType':'uint8'})
+ORDER BY VectorDistance(c["Bytes"], @p, false, {'distanceFunction':'cosine', 'dataType':'uint8'})
 """);
     }
 
@@ -198,11 +198,11 @@ ORDER BY VectorDistance(c["Bytes"], @__p_1, false, {'distanceFunction':'cosine',
         Assert.Equal(3, booksFromStore.Count);
         AssertSql(
             """
-@__p_1='[0.33,-0.52,0.45,-0.67,0.89,-0.34,0.86,-0.78]'
+@p='[0.33,-0.52,0.45,-0.67,0.89,-0.34,0.86,-0.78]'
 
 SELECT VALUE c
 FROM root c
-ORDER BY VectorDistance(c["Singles"], @__p_1, false, {'distanceFunction':'cosine', 'dataType':'float32'})
+ORDER BY VectorDistance(c["Singles"], @p, false, {'distanceFunction':'cosine', 'dataType':'float32'})
 """);
     }
 
@@ -220,11 +220,11 @@ ORDER BY VectorDistance(c["Singles"], @__p_1, false, {'distanceFunction':'cosine
         Assert.Equal(3, booksFromStore.Count);
         AssertSql(
             """
-@__p_1='[2,1,4,6,5,2,5,7,3,1]'
+@p='[2,1,4,6,5,2,5,7,3,1]'
 
 SELECT VALUE c
 FROM root c
-ORDER BY VectorDistance(c["BytesArray"], @__p_1, false, {'distanceFunction':'cosine', 'dataType':'uint8'})
+ORDER BY VectorDistance(c["BytesArray"], @p, false, {'distanceFunction':'cosine', 'dataType':'uint8'})
 """);
     }
 
@@ -242,11 +242,11 @@ ORDER BY VectorDistance(c["BytesArray"], @__p_1, false, {'distanceFunction':'cos
         Assert.Equal(3, booksFromStore.Count);
         AssertSql(
             """
-@__p_1='[0.33,-0.52,0.45,-0.67,0.89,-0.34,0.86,-0.78]'
+@p='[0.33,-0.52,0.45,-0.67,0.89,-0.34,0.86,-0.78]'
 
 SELECT VALUE c
 FROM root c
-ORDER BY VectorDistance(c["SinglesArray"], @__p_1, false, {'distanceFunction':'cosine', 'dataType':'float32'})
+ORDER BY VectorDistance(c["SinglesArray"], @p, false, {'distanceFunction':'cosine', 'dataType':'float32'})
 """);
     }
 

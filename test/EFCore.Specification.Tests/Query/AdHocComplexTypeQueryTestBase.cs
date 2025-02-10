@@ -76,6 +76,50 @@ public abstract class AdHocComplexTypeQueryTestBase : NonSharedModelTestBase
 
     #endregion 33449
 
+    #region 34749
+
+    [ConditionalFact]
+    public virtual async Task Projecting_complex_property_does_not_auto_include_owned_types()
+    {
+        var contextFactory = await InitializeAsync<Context34749>();
+
+        await using var context = contextFactory.CreateContext();
+
+        _ = await context.Set<Context34749.EntityType>().Select(x => x.Complex).ToListAsync();
+    }
+
+    private class Context34749(DbContextOptions options) : DbContext(options)
+    {
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<EntityType>(b =>
+            {
+                b.ComplexProperty(x => x.Complex);
+                b.OwnsOne(x => x.OwnedReference);
+            });
+
+        public class EntityType
+        {
+            public int Id { get; set; }
+            public string? Name { get; set; }
+            public OwnedType OwnedReference { get; set; } = null!;
+            public ComplexType Complex { get; set; } = null!;
+        }
+
+        public class ComplexType
+        {
+            public int Number { get; set; }
+            public string? Name { get; set; }
+        }
+
+        public class OwnedType
+        {
+            public string? Foo { get; set; }
+            public int Bar { get; set; }
+        }
+    }
+
+    #endregion
+
     protected override string StoreName
         => "AdHocComplexTypeQueryTest";
 }

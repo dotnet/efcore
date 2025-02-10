@@ -156,7 +156,7 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
                 "DATALENGTH",
                 new[] { sqlExpression },
                 nullable: true,
-                argumentsPropagateNullability: new[] { true },
+                argumentsPropagateNullability: Statics.TrueArrays[1],
                 isBinaryMaxDataType ? typeof(long) : typeof(int));
 
             return isBinaryMaxDataType
@@ -312,7 +312,7 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
 
                         // Azure Synapse does not support ESCAPE clause in LIKE
                         // fallback to translation like with column/expression
-                        string s when _sqlServerSingletonOptions.EngineType == SqlServerEngineType.AzureSynapse
+                        string when _sqlServerSingletonOptions.EngineType is SqlServerEngineType.AzureSynapse
                             => TranslateWithoutLike(patternIsNonEmptyConstantString: true),
 
                         string s => _sqlExpressionFactory.Like(
@@ -334,11 +334,10 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
                     return true;
                 }
 
+                // Azure Synapse does not support ESCAPE clause in LIKE
+                // fall through to translation like with column/expression
                 case SqlParameterExpression patternParameter
-                    when patternParameter.Name.StartsWith(QueryCompilationContext.QueryParameterPrefix, StringComparison.Ordinal)
-                        // Azure Synapse does not support ESCAPE clause in LIKE
-                        // fall through to translation like with column/expression
-                        && _sqlServerSingletonOptions.EngineType != SqlServerEngineType.AzureSynapse:
+                    when _sqlServerSingletonOptions.EngineType is not SqlServerEngineType.AzureSynapse:
                 {
                     // The pattern is a parameter, register a runtime parameter that will contain the rewritten LIKE pattern, where
                     // all special characters have been escaped.
@@ -393,11 +392,11 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
                                                     "LEN",
                                                     new[] { translatedPattern },
                                                     nullable: true,
-                                                    argumentsPropagateNullability: new[] { true },
+                                                    argumentsPropagateNullability: Statics.TrueArrays[1],
                                                     typeof(int))
                                         },
                                         nullable: true,
-                                        argumentsPropagateNullability: new[] { true, true },
+                                        argumentsPropagateNullability: Statics.TrueArrays[2],
                                         typeof(string),
                                         stringTypeMapping),
                                     translatedPattern))),
@@ -430,7 +429,7 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
                             "CHARINDEX",
                             new[] { translatedPattern, translatedInstance },
                             nullable: true,
-                            argumentsPropagateNullability: new[] { true, true },
+                            argumentsPropagateNullability: Statics.TrueArrays[2],
                             typeof(int)),
                         _sqlExpressionFactory.Constant(0));
             }
@@ -627,7 +626,7 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
                             Dependencies.SqlExpressionFactory.Constant(1)
                         },
                         nullable: true,
-                        argumentsPropagateNullability: new[] { true, true, true },
+                        argumentsPropagateNullability: Statics.TrueArrays[3],
                         typeof(byte[])),
                     resultType)
                 : QueryCompilationContext.NotTranslatedExpression;

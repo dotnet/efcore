@@ -212,10 +212,10 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             list.TypeMapping = CosmosTypeMapping.Default.Clone(
-                comparer: new ListOfReferenceTypesComparer<List<Dictionary<string, int>>, Dictionary<string, int>>(new StringDictionaryComparer<Dictionary<string, int>, int>(new ValueComparer<int>(
+                comparer: new ListOfReferenceTypesComparer<List<Dictionary<string, int>>, Dictionary<string, int>>(new ConvertingValueComparer<Dictionary<string, int>, object>(new StringDictionaryComparer<Dictionary<string, int>, int>(new ValueComparer<int>(
                     bool (int v1, int v2) => v1 == v2,
                     int (int v) => v,
-                    int (int v) => v))),
+                    int (int v) => v)))),
                 keyComparer: new ValueComparer<List<Dictionary<string, int>>>(
                     bool (List<Dictionary<string, int>> v1, List<Dictionary<string, int>> v2) => object.Equals(v1, v2),
                     int (List<Dictionary<string, int>> v) => ((object)v).GetHashCode(),
@@ -244,6 +244,9 @@ namespace TestNamespace
                     clrType: typeof(Dictionary<string, int>),
                     jsonValueReaderWriter: new CosmosTypeMappingSource.PlaceholderJsonStringKeyedDictionaryReaderWriter<int>(
                         JsonInt32ReaderWriter.Instance)));
+            var listElementType = list.SetElementType(typeof(Dictionary<string, int>),
+                nullable: true);
+            listElementType.TypeMapping = list.TypeMapping.ElementTypeMapping;
 
             var map = runtimeEntityType.AddProperty(
                 "Map",
@@ -262,10 +265,10 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             map.TypeMapping = CosmosTypeMapping.Default.Clone(
-                comparer: new StringDictionaryComparer<Dictionary<string, string[]>, string[]>(new ListOfReferenceTypesComparer<string[], string>(new ValueComparer<string>(
+                comparer: new StringDictionaryComparer<Dictionary<string, string[]>, string[]>(new ConvertingValueComparer<string[], object>(new ListOfReferenceTypesComparer<string[], string>(new ValueComparer<string>(
                     bool (string v1, string v2) => v1 == v2,
                     int (string v) => ((object)v).GetHashCode(),
-                    string (string v) => v))),
+                    string (string v) => v)))),
                 keyComparer: new ValueComparer<Dictionary<string, string[]>>(
                     bool (Dictionary<string, string[]> v1, Dictionary<string, string[]> v2) => object.Equals(v1, v2),
                     int (Dictionary<string, string[]> v) => ((object)v).GetHashCode(),

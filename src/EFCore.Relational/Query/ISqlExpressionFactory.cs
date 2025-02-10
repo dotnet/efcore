@@ -435,6 +435,8 @@ public interface ISqlExpressionFactory
     ///     Creates a new <see cref="SqlExpression" /> which represents a SQL token.
     /// </summary>
     /// <param name="sql">A string token to print in SQL tree.</param>
+    /// <param name="type">The <see cref="Type" /> of the expression. Defaults to <see langword="void" />. </param>
+    /// <param name="typeMapping">The <see cref="RelationalTypeMapping" /> associated with the expression.</param>
     /// <returns>An expression representing a SQL token.</returns>
-    SqlExpression Fragment(string sql);
+    SqlExpression Fragment(string sql, Type? type = null, RelationalTypeMapping? typeMapping = null);
 }

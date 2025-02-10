@@ -1299,17 +1299,24 @@ public class RelationshipDiscoveryConvention :
             if (ambiguityRemoved)
             {
                 DiscoverRelationships(entityType.Builder, context);
+
+                if (!navigationBuilder.Metadata.IsInModel)
+                {
+                    context.StopProcessing();
+                    return;
+                }
             }
 
             if (targetAmbiguityRemoved)
             {
                 DiscoverRelationships(targetEntityType.Builder, context);
-            }
-        }
 
-        if (!navigationBuilder.Metadata.IsInModel)
-        {
-            context.StopProcessing();
+                if (!navigationBuilder.Metadata.IsInModel)
+                {
+                    context.StopProcessing();
+                    return;
+                }
+            }
         }
     }
 
