@@ -1052,7 +1052,7 @@ END
             """
 SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
 FROM [Products] AS [p]
-WHERE [p].[Discontinued] <> CASE
+WHERE [p].[Discontinued] = ~CASE
     WHEN [p].[ProductID] > 50 THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END
@@ -1086,7 +1086,7 @@ FROM [Products] AS [p]
 WHERE CASE
     WHEN [p].[ProductID] > 50 THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
-END <> @prm
+END = ~@prm
 """);
     }
 

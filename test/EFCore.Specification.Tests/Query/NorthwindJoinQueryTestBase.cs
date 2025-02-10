@@ -726,6 +726,24 @@ public abstract class NorthwindJoinQueryTestBase<TFixture>(TFixture fixture) : Q
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupJoin_on_true_equal_true(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().GroupJoin(
+                ss.Set<Order>(),
+                x => true,
+                x => true,
+                (c, g) => new { c, g })
+            .Select(x => new { x.c.CustomerID, Orders = x.g }),
+            elementSorter: e => e.CustomerID,
+            elementAsserter: (e, a) =>
+            {
+                Assert.Equal(e.CustomerID, a.CustomerID);
+                AssertCollection(e.Orders, a.Orders, elementSorter: ee => ee.OrderID);
+            });
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task Inner_join_with_tautology_predicate_converts_to_cross_join(bool async)
         => AssertQuery(
             async,
