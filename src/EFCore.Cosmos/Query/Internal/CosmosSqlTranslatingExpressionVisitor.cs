@@ -91,6 +91,12 @@ public class CosmosSqlTranslatingExpressionVisitor(
 
         if (result is SqlExpression translation)
         {
+            if (translation is SqlUnaryExpression { OperatorType: ExpressionType.Convert } sqlUnaryExpression
+                && sqlUnaryExpression.Type == typeof(object))
+            {
+                translation = sqlUnaryExpression.Operand;
+            }
+
             if (applyDefaultTypeMapping)
             {
                 translation = sqlExpressionFactory.ApplyDefaultTypeMapping(translation);

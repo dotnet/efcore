@@ -1581,11 +1581,9 @@ WHERE ((c["$type"] = "Order") AND @p)
 
                 AssertSql(
                     """
-@i='10'
-
-SELECT VALUE c["id"]
+SELECT VALUE c
 FROM root c
-WHERE (((ToString(@i) || c["id"]) || ToString(@i)) = "10ALFKI10")
+WHERE ((c["$type"] = "Product") AND (c["UnitPrice"] > 100.0))
 """);
             });
 
@@ -1597,12 +1595,9 @@ WHERE (((ToString(@i) || c["id"]) || ToString(@i)) = "10ALFKI10")
 
                 AssertSql(
                     """
-@p='11'
-@p0='12'
-
 SELECT VALUE c
 FROM root c
-WHERE (((c["id"] || ToString(@p)) || (c["id"] || ToString(@p0))) = "ALFKI11ALFKI12")
+WHERE ((c["$type"] = "Product") AND (true ? false : true))
 """);
             });
 
