@@ -783,7 +783,7 @@ WHERE [s].[Level2_Name] IS NOT NULL OR [s0].[Count] > 0
 
         AssertSql(
             """
-SELECT [s].[Id], [s].[Name], [s].[Date], [s].[InnerId] AS [Id], [s].[Level2_Name0] AS [Name], [s].[OneToOne_Required_PK_Date] AS [Date], [s].[Level1_Optional_Id], [s].[Level1_Required_Id], COALESCE(SUM(CAST(LEN([s].[Name]) AS int)), 0) AS [Aggregate]
+SELECT [s].[Id], [s].[Name], [s].[Date], [s].[InnerId] AS [Id], [s].[Level2_Name0] AS [Name], [s].[OneToOne_Required_PK_Date] AS [Date], [s].[Level1_Optional_Id], [s].[Level1_Required_Id], ISNULL(SUM(CAST(LEN([s].[Name]) AS int)), 0) AS [Aggregate]
 FROM (
     SELECT [l].[Id], [l].[Date], [l].[Name], [l1].[OneToOne_Required_PK_Date], [l1].[Level1_Optional_Id], [l1].[Level1_Required_Id], [l3].[Level2_Name] AS [Level2_Name0], CASE
         WHEN [l1].[OneToOne_Required_PK_Date] IS NOT NULL AND [l1].[Level1_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [l1].[Id]
