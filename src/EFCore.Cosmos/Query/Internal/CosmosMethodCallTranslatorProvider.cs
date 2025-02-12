@@ -36,11 +36,11 @@ public class CosmosMethodCallTranslatorProvider : IMethodCallTranslatorProvider
             new CosmosRegexTranslator(sqlExpressionFactory),
             new CosmosStringMethodTranslator(sqlExpressionFactory),
             new CosmosTypeCheckingTranslator(sqlExpressionFactory),
-            new CosmosVectorSearchTranslator(sqlExpressionFactory, typeMappingSource)
+            new CosmosVectorSearchTranslator(sqlExpressionFactory, typeMappingSource),
             //new LikeTranslator(sqlExpressionFactory),
-            //new EnumHasFlagTranslator(sqlExpressionFactory),
+            new CosmosEnumMethodTranslator(sqlExpressionFactory),
             //new GetValueOrDefaultTranslator(sqlExpressionFactory),
-            //new ComparisonTranslator(sqlExpressionFactory),
+            new CosmosComparisonTranslator(sqlExpressionFactory),
         ]);
     }
 
