@@ -210,6 +210,9 @@
   <data name="DbContextType" xml:space="preserve">
     <value>Type: {type}</value>
   </data>
+  <data name="DesignAssemblyDescription" xml:space="preserve">
+    <value>The location of the referenced Microsoft.EntityFrameworkCore.Design assembly.</value>
+  </data>
   <data name="DesignNotFound" xml:space="preserve">
     <value>Your startup project '{startupProject}' doesn't reference Microsoft.EntityFrameworkCore.Design. This package is required for the Entity Framework Core Tools to work. Ensure your startup project is correct, install the package, and try again.</value>
   </data>
@@ -298,7 +301,7 @@
     <value>The namespace to use. Matches the directory by default.</value>
   </data>
   <data name="NativeAotDescription" xml:space="preserve">
-    <value>Additionally generate all the code required for NativeAOT compilation and precompiled queries (experimental).</value>
+    <value>Generate additional code in the compiled model required for NativeAOT compilation and precompiled queries (experimental).</value>
   </data>
   <data name="NativeAotWarning" xml:space="preserve">
     <value>NativeAOT support is experimental and can change in the future.</value>
