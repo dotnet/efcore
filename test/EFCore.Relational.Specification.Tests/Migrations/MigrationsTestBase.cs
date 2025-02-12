@@ -976,8 +976,8 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
             builder =>
             {
                 builder.Entity("Base").Property<int>("Id");
-                builder.Entity("Derived1").HasBaseType("Base").Property<string>("Foo");
-                builder.Entity("Derived2").HasBaseType("Base").Property<string>("Foo");
+                builder.Entity("Derived1").HasBaseType("Base").Property<string>("Foo").HasColumnName("Foo");
+                builder.Entity("Derived2").HasBaseType("Base").Property<string>("Foo").HasColumnName("Foo");
             },
             builder => { },
             builder => builder.Entity("Base").Property<string>("Foo"),

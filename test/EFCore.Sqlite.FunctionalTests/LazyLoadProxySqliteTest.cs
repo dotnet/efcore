@@ -6,7 +6,7 @@ namespace Microsoft.EntityFrameworkCore;
 #nullable disable
 
 public class LazyLoadProxySqliteTest(LazyLoadProxySqliteTest.LoadSqliteFixture fixture)
-    : LazyLoadProxyTestBase<LazyLoadProxySqliteTest.LoadSqliteFixture>(fixture)
+    : LazyLoadProxyRelationalTestBase<LazyLoadProxySqliteTest.LoadSqliteFixture>(fixture)
 {
     [ConditionalFact]
     public void IsLoaded_is_not_set_if_loading_principal_collection_fails()
@@ -1582,7 +1582,7 @@ public class LazyLoadProxySqliteTest(LazyLoadProxySqliteTest.LoadSqliteFixture f
 ]
 """;
 
-    public class LoadSqliteFixture : LoadFixtureBase
+    public class LoadSqliteFixture : LoadRelationalFixtureBase
     {
         public ThrowingInterceptor Interceptor { get; } = new();
 

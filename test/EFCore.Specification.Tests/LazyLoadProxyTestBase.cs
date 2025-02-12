@@ -4365,7 +4365,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
     }
 
     [ConditionalFact]
-    public virtual void Lazy_loading_shares_service__property_on_derived_types()
+    public virtual void Lazy_loading_shares_service_property_on_derived_types()
     {
         using var context = CreateContext(lazyLoadingEnabled: true);
         var parson = context.Set<Parson>().Single();
