@@ -236,7 +236,8 @@ public class SharedTableConvention : IModelFinalizingConvention
             }
 
             var identifyingMemberInfo = property.PropertyInfo ?? (MemberInfo?)property.FieldInfo;
-            if ((identifyingMemberInfo != null
+            if ((!(type is IConventionComplexType)
+                    && identifyingMemberInfo != null
                     && identifyingMemberInfo.IsSameAs(otherProperty.PropertyInfo ?? (MemberInfo?)otherProperty.FieldInfo))
                 || (property.IsPrimaryKey() && otherProperty.IsPrimaryKey())
                 || (property.IsConcurrencyToken && otherProperty.IsConcurrencyToken)
@@ -286,7 +287,7 @@ public class SharedTableConvention : IModelFinalizingConvention
             }
         }
 
-        foreach (var complexProperty in type.GetDeclaredComplexProperties())
+        foreach (var complexProperty in type.GetComplexProperties())
         {
             UniquifyColumnNames(complexProperty.ComplexType, columns, storeObject, maxLength);
         }
