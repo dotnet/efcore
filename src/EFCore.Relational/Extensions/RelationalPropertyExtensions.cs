@@ -4,6 +4,7 @@
 using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Text;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 // ReSharper disable once CheckNamespace
@@ -17,17 +18,11 @@ namespace Microsoft.EntityFrameworkCore;
 /// </remarks>
 public static class RelationalPropertyExtensions
 {
-    private static readonly bool UseOldBehavior32763 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue32763", out var enabled32763) && enabled32763;
-
-    private static readonly bool UseOldBehavior33004 =
-            AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue33004", out var enabled33004) && enabled33004;
-
     private static readonly MethodInfo GetFieldValueMethod =
-        typeof(DbDataReader).GetRuntimeMethod(nameof(DbDataReader.GetFieldValue), new[] { typeof(int) })!;
+        typeof(DbDataReader).GetRuntimeMethod(nameof(DbDataReader.GetFieldValue), [typeof(int)])!;
 
     private static readonly MethodInfo IsDbNullMethod =
-        typeof(DbDataReader).GetRuntimeMethod(nameof(DbDataReader.IsDBNull), new[] { typeof(int) })!;
+        typeof(DbDataReader).GetRuntimeMethod(nameof(DbDataReader.IsDBNull), [typeof(int)])!;
 
     private static readonly MethodInfo ThrowReadValueExceptionMethod
         = typeof(RelationalPropertyExtensions).GetTypeInfo().GetDeclaredMethod(nameof(ThrowReadValueException))!;
@@ -190,8 +185,7 @@ public static class RelationalPropertyExtensions
             var principalEntityType = foreignKey.PrincipalEntityType;
             if (principalEntityType is { HasSharedClrType: false, ClrType.IsConstructedGenericType: true }
                 && foreignKey.DependentToPrincipal == null
-                && (UseOldBehavior32763
-                    || principalEntityType.GetTableName() != foreignKey.DeclaringEntityType.GetTableName()
+                && (principalEntityType.GetTableName() != foreignKey.DeclaringEntityType.GetTableName()
                     || principalEntityType.GetSchema() != foreignKey.DeclaringEntityType.GetSchema()))
             {
                 var principalProperty = property.FindFirstPrincipal()!;
@@ -524,9 +518,12 @@ public static class RelationalPropertyExtensions
     /// <param name="property">The property.</param>
     /// <returns>The default columns to which the property would be mapped.</returns>
     public static IEnumerable<IColumnMappingBase> GetDefaultColumnMappings(this IProperty property)
-        => (IEnumerable<IColumnMappingBase>?)property.FindRuntimeAnnotationValue(
+    {
+        property.DeclaringType.Model.EnsureRelationalModel();
+        return (IEnumerable<IColumnMappingBase>?)property.FindRuntimeAnnotationValue(
                 RelationalAnnotationNames.DefaultColumnMappings)
             ?? Enumerable.Empty<IColumnMappingBase>();
+    }
 
     /// <summary>
     ///     Returns the table columns to which the property is mapped.
@@ -534,9 +531,12 @@ public static class RelationalPropertyExtensions
     /// <param name="property">The property.</param>
     /// <returns>The table columns to which the property is mapped.</returns>
     public static IEnumerable<IColumnMapping> GetTableColumnMappings(this IProperty property)
-        => (IEnumerable<IColumnMapping>?)property.FindRuntimeAnnotationValue(
+    {
+        property.DeclaringType.Model.EnsureRelationalModel();
+        return (IEnumerable<IColumnMapping>?)property.FindRuntimeAnnotationValue(
                 RelationalAnnotationNames.TableColumnMappings)
             ?? Enumerable.Empty<IColumnMapping>();
+    }
 
     /// <summary>
     ///     Returns the view columns to which the property is mapped.
@@ -544,9 +544,12 @@ public static class RelationalPropertyExtensions
     /// <param name="property">The property.</param>
     /// <returns>The view columns to which the property is mapped.</returns>
     public static IEnumerable<IViewColumnMapping> GetViewColumnMappings(this IProperty property)
-        => (IEnumerable<IViewColumnMapping>?)property.FindRuntimeAnnotationValue(
+    {
+        property.DeclaringType.Model.EnsureRelationalModel();
+        return (IEnumerable<IViewColumnMapping>?)property.FindRuntimeAnnotationValue(
                 RelationalAnnotationNames.ViewColumnMappings)
             ?? Enumerable.Empty<IViewColumnMapping>();
+    }
 
     /// <summary>
     ///     Returns the SQL query columns to which the property is mapped.
@@ -554,9 +557,12 @@ public static class RelationalPropertyExtensions
     /// <param name="property">The property.</param>
     /// <returns>The SQL query columns to which the property is mapped.</returns>
     public static IEnumerable<ISqlQueryColumnMapping> GetSqlQueryColumnMappings(this IProperty property)
-        => (IEnumerable<ISqlQueryColumnMapping>?)property.FindRuntimeAnnotationValue(
+    {
+        property.DeclaringType.Model.EnsureRelationalModel();
+        return (IEnumerable<ISqlQueryColumnMapping>?)property.FindRuntimeAnnotationValue(
                 RelationalAnnotationNames.SqlQueryColumnMappings)
             ?? Enumerable.Empty<ISqlQueryColumnMapping>();
+    }
 
     /// <summary>
     ///     Returns the function columns to which the property is mapped.
@@ -564,9 +570,12 @@ public static class RelationalPropertyExtensions
     /// <param name="property">The property.</param>
     /// <returns>The function columns to which the property is mapped.</returns>
     public static IEnumerable<IFunctionColumnMapping> GetFunctionColumnMappings(this IProperty property)
-        => (IEnumerable<IFunctionColumnMapping>?)property.FindRuntimeAnnotationValue(
+    {
+        property.DeclaringType.Model.EnsureRelationalModel();
+        return (IEnumerable<IFunctionColumnMapping>?)property.FindRuntimeAnnotationValue(
                 RelationalAnnotationNames.FunctionColumnMappings)
             ?? Enumerable.Empty<IFunctionColumnMapping>();
+    }
 
     /// <summary>
     ///     Returns the insert stored procedure result columns to which the property is mapped.
@@ -574,9 +583,12 @@ public static class RelationalPropertyExtensions
     /// <param name="property">The property.</param>
     /// <returns>The insert stored procedure result columns to which the property is mapped.</returns>
     public static IEnumerable<IStoredProcedureResultColumnMapping> GetInsertStoredProcedureResultColumnMappings(this IProperty property)
-        => (IEnumerable<IStoredProcedureResultColumnMapping>?)property.FindRuntimeAnnotationValue(
+    {
+        property.DeclaringType.Model.EnsureRelationalModel();
+        return (IEnumerable<IStoredProcedureResultColumnMapping>?)property.FindRuntimeAnnotationValue(
                 RelationalAnnotationNames.InsertStoredProcedureResultColumnMappings)
             ?? Enumerable.Empty<IStoredProcedureResultColumnMapping>();
+    }
 
     /// <summary>
     ///     Returns the insert stored procedure parameters to which the property is mapped.
@@ -584,9 +596,12 @@ public static class RelationalPropertyExtensions
     /// <param name="property">The property.</param>
     /// <returns>The insert stored procedure parameters to which the property is mapped.</returns>
     public static IEnumerable<IStoredProcedureParameterMapping> GetInsertStoredProcedureParameterMappings(this IProperty property)
-        => (IEnumerable<IStoredProcedureParameterMapping>?)property.FindRuntimeAnnotationValue(
+    {
+        property.DeclaringType.Model.EnsureRelationalModel();
+        return (IEnumerable<IStoredProcedureParameterMapping>?)property.FindRuntimeAnnotationValue(
                 RelationalAnnotationNames.InsertStoredProcedureParameterMappings)
             ?? Enumerable.Empty<IStoredProcedureParameterMapping>();
+    }
 
     /// <summary>
     ///     Returns the delete stored procedure parameters to which the property is mapped.
@@ -594,9 +609,12 @@ public static class RelationalPropertyExtensions
     /// <param name="property">The property.</param>
     /// <returns>The delete stored procedure parameters to which the property is mapped.</returns>
     public static IEnumerable<IStoredProcedureParameterMapping> GetDeleteStoredProcedureParameterMappings(this IProperty property)
-        => (IEnumerable<IStoredProcedureParameterMapping>?)property.FindRuntimeAnnotationValue(
+    {
+        property.DeclaringType.Model.EnsureRelationalModel();
+        return (IEnumerable<IStoredProcedureParameterMapping>?)property.FindRuntimeAnnotationValue(
                 RelationalAnnotationNames.DeleteStoredProcedureParameterMappings)
             ?? Enumerable.Empty<IStoredProcedureParameterMapping>();
+    }
 
     /// <summary>
     ///     Returns the update stored procedure result columns to which the property is mapped.
@@ -604,9 +622,12 @@ public static class RelationalPropertyExtensions
     /// <param name="property">The property.</param>
     /// <returns>The update stored procedure result columns to which the property is mapped.</returns>
     public static IEnumerable<IStoredProcedureResultColumnMapping> GetUpdateStoredProcedureResultColumnMappings(this IProperty property)
-        => (IEnumerable<IStoredProcedureResultColumnMapping>?)property.FindRuntimeAnnotationValue(
+    {
+        property.DeclaringType.Model.EnsureRelationalModel();
+        return (IEnumerable<IStoredProcedureResultColumnMapping>?)property.FindRuntimeAnnotationValue(
                 RelationalAnnotationNames.UpdateStoredProcedureResultColumnMappings)
             ?? Enumerable.Empty<IStoredProcedureResultColumnMapping>();
+    }
 
     /// <summary>
     ///     Returns the update stored procedure parameters to which the property is mapped.
@@ -614,9 +635,12 @@ public static class RelationalPropertyExtensions
     /// <param name="property">The property.</param>
     /// <returns>The update stored procedure parameters to which the property is mapped.</returns>
     public static IEnumerable<IStoredProcedureParameterMapping> GetUpdateStoredProcedureParameterMappings(this IProperty property)
-        => (IEnumerable<IStoredProcedureParameterMapping>?)property.FindRuntimeAnnotationValue(
+    {
+        property.DeclaringType.Model.EnsureRelationalModel();
+        return (IEnumerable<IStoredProcedureParameterMapping>?)property.FindRuntimeAnnotationValue(
                 RelationalAnnotationNames.UpdateStoredProcedureParameterMappings)
             ?? Enumerable.Empty<IStoredProcedureParameterMapping>();
+    }
 
     /// <summary>
     ///     Returns the column corresponding to this property if it's mapped to the given table-like store object.
@@ -998,11 +1022,11 @@ public static class RelationalPropertyExtensions
             {
                 return Convert.ChangeType(value, property.ClrType, CultureInfo.InvariantCulture);
             }
-            catch (Exception)
+            catch
             {
                 throw new InvalidOperationException(
                     RelationalStrings.IncorrectDefaultValueType(
-                        value, valueType, property.Name, property.ClrType, property.DeclaringType.DisplayName()));
+                        value, valueType.ShortDisplayName(), property.Name, property.ClrType, property.DeclaringType.DisplayName()));
             }
         }
 
@@ -1194,12 +1218,8 @@ public static class RelationalPropertyExtensions
             return sharedTableRootProperty.IsColumnNullable(storeObject);
         }
 
-        var declaringEntityType = UseOldBehavior33004
-            ? property.DeclaringType
-            : property.DeclaringType.ContainingEntityType;
-
         return property.IsNullable
-            || (declaringEntityType is IReadOnlyEntityType entityType
+            || (property.DeclaringType.ContainingEntityType is IReadOnlyEntityType entityType
                 && ((entityType.BaseType != null
                         && entityType.GetMappingStrategy() == RelationalAnnotationNames.TphMappingStrategy)
                     || IsOptionalSharingDependent(entityType, storeObject, 0)));

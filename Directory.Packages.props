@@ -1,0 +1,64 @@
+<Project>
+  <!-- Workaround https://github.com/dependabot/dependabot-core/issues/8490 -->
+  <!-- This file gets imported for out-of-tree test runs also where eng/Versions.props isn't
+       available -->
+  <Import Project="eng/Versions.props" Condition="'$(VersionPrefix)' == '' and Exists('eng/Versions.props')" />
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
+    <CentralPackageVersionOverrideEnabled>true</CentralPackageVersionOverrideEnabled>
+    <!-- Do not warn for missing source mappings -->
+    <NoWarn>$(NoWarn);NU1507</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- core dependencies-->
+    <PackageVersion Include="System.Text.Json" Version="$(SystemTextJsonVersion)" />
+
+    <!-- runtime dependencies-->
+    <PackageVersion Include="Microsoft.Extensions.Caching.Memory" Version="$(MicrosoftExtensionsCachingMemoryVersion)" />
+    <PackageVersion Include="Microsoft.Extensions.Logging" Version="$(MicrosoftExtensionsLoggingVersion)" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyModel" Version="$(MicrosoftExtensionsDependencyModelVersion)" />
+    <PackageVersion Include="Microsoft.Extensions.HostFactoryResolver.Sources" Version="$(MicrosoftExtensionsHostFactoryResolverSourcesVersion)" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.Abstractions" Version="$(MicrosoftExtensionsConfigurationAbstractionsVersion)" />
+
+    <!-- Roslyn dependencies-->
+    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="$(MicrosoftCodeAnalysisVersion)" />
+    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="$(MicrosoftCodeAnalysisVersion)" />
+    <PackageVersion Include="Microsoft.CodeAnalysis.Workspaces.MSBuild" Version="$(MicrosoftCodeAnalysisVersion)" />
+
+    <!-- analyzer dependencies-->
+    <GlobalPackageReference Include="StyleCop.Analyzers" Version="1.1.118" />
+    <PackageVersion Include="DotNetAnalyzers.DocumentationAnalyzers" Version="1.0.0-beta.59" />
+
+    <!-- build dependencies-->
+    <PackageVersion Include="Microsoft.Build.Locator" Version="1.7.8" />
+    <PackageVersion Include="Microsoft.Build.Utilities.Core" Version="$(MicrosoftBuildUtilitiesCoreVersion)" />
+    <PackageVersion Include="Microsoft.DotNet.Build.Tasks.Templating" Version="$(MicrosoftDotNetBuildTasksTemplatingVersion)" />
+
+    <!-- Azure SDK for .NET dependencies -->
+    <PackageVersion Include="Microsoft.Azure.Cosmos" Version="3.45.2" />
+
+    <!-- SQL Server dependencies -->
+    <PackageVersion Include="Microsoft.Data.SqlClient" Version="5.1.6" />
+    <PackageVersion Include="Microsoft.SqlServer.Types" Version="160.1000.6" />
+
+    <!-- external dependencies -->
+    <PackageVersion Include="Castle.Core" Version="5.1.1" />
+    <PackageVersion Include="Humanizer.Core" Version="2.14.1" />
+    <PackageVersion Include="Mono.TextTemplating" Version="3.0.0" />
+    <PackageVersion Include="NetTopologySuite" Version="2.5.0" />
+    <PackageVersion Include="NetTopologySuite.IO.SpatiaLite" Version="2.0.0" />
+    <PackageVersion Include="NetTopologySuite.IO.SqlServerBytes" Version="2.1.0" />
+    <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageVersion Include="mod_spatialite" Version="4.3.0.1" />
+    <PackageVersion Include="SQLitePCLRaw.core" Version="$(SQLitePCLRawVersion)" />
+    <PackageVersion Include="SQLitePCLRaw.bundle_sqlite3" Version="$(SQLitePCLRawVersion)" />
+    <PackageVersion Include="SQLitePCLRaw.bundle_e_sqlite3" Version="$(SQLitePCLRawVersion)" />
+
+    <!-- Pinned versions for Component Governance/NuGetAudit - Remove when root dependencies are updated -->
+    <!--Workaround for Microsoft.CodeAnalysis.Workspaces.MSBuild 4.8.0, see https://github.com/dotnet/efcore/issues/34637-->
+    <PackageVersion Include="Microsoft.Build.Framework" Version="$(MicrosoftBuildFrameworkVersion)" />
+    <!--Workaround for Microsoft.Data.SqlClient v5.1.6 and Microsoft.CodeAnalysis.Analyzer.Testing v1.1.2-->
+    <PackageVersion Include="System.Formats.Asn1" Version="$(SystemFormatsAsn1Version)" />
+  </ItemGroup>
+</Project>

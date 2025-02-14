@@ -25,9 +25,7 @@ public class StoreStoredProcedureResultColumn
         StoreStoredProcedure storedProcedure,
         RelationalTypeMapping? storeTypeMapping = null)
         : base(name, type, storedProcedure, storeTypeMapping)
-    {
-        Position = position;
-    }
+        => Position = position;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

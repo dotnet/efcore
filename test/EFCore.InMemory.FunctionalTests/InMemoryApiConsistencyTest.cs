@@ -5,13 +5,9 @@ using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class InMemoryApiConsistencyTest : ApiConsistencyTestBase<InMemoryApiConsistencyTest.InMemoryApiConsistencyFixture>
+public class InMemoryApiConsistencyTest(InMemoryApiConsistencyTest.InMemoryApiConsistencyFixture fixture)
+    : ApiConsistencyTestBase<InMemoryApiConsistencyTest.InMemoryApiConsistencyFixture>(fixture)
 {
-    public InMemoryApiConsistencyTest(InMemoryApiConsistencyFixture fixture)
-        : base(fixture)
-    {
-    }
-
     protected override void AddServices(ServiceCollection serviceCollection)
         => serviceCollection.AddEntityFrameworkInMemoryDatabase();
 
@@ -20,11 +16,11 @@ public class InMemoryApiConsistencyTest : ApiConsistencyTestBase<InMemoryApiCons
 
     public class InMemoryApiConsistencyFixture : ApiConsistencyFixtureBase
     {
-        public override HashSet<Type> FluentApiTypes { get; } = new()
-        {
+        public override HashSet<Type> FluentApiTypes { get; } =
+        [
             typeof(InMemoryServiceCollectionExtensions),
             typeof(InMemoryDbContextOptionsExtensions),
             typeof(InMemoryDbContextOptionsBuilder)
-        };
+        ];
     }
 }

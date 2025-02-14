@@ -38,7 +38,7 @@ public class DatabaseOperations
         _rootNamespace = rootNamespace;
         _language = language;
         _nullable = nullable;
-        _args = args ?? Array.Empty<string>();
+        _args = args ?? [];
 
         _servicesBuilder = new DesignTimeServicesBuilder(assembly, startupAssembly, reporter, _args);
     }
