@@ -276,7 +276,9 @@ public static class CosmosEntityTypeExtensions
     /// <param name="entityType">The entity type to get the etag property name for.</param>
     /// <returns>The name of the etag property.</returns>
     public static string? GetETagPropertyName(this IReadOnlyEntityType entityType)
-        => entityType[CosmosAnnotationNames.ETagName] as string;
+        => entityType[CosmosAnnotationNames.ETagName] as string
+            ?? entityType.BaseType?.GetETagPropertyName()
+            ?? null;
 
     /// <summary>
     ///     Sets the name of the property that is used to store the ETag key.

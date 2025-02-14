@@ -189,8 +189,10 @@ ORDER BY [v].[Name]
 
         AssertSql(
             """
+@p='1'
+
 UPDATE [v]
-SET [v].[SeatingCapacity] = 1
+SET [v].[SeatingCapacity] = @p
 FROM [Vehicles] AS [v]
 """,
             //

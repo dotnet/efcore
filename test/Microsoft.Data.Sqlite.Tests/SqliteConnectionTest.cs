@@ -365,6 +365,23 @@ public class SqliteConnectionTest
     }
 
     [Fact]
+    public void Open_works_when_vfs()
+    {
+        var vfs = Environment.OSVersion.Platform == PlatformID.Win32NT
+            ? "win32-longpath"
+            : "unix-dotfile";
+        using var connection = new SqliteConnection($"Data Source=:memory:;Vfs={vfs}");
+        connection.Open();
+    }
+
+    [Fact]
+    public void Open_throws_when_vfs_invalid()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:;Vfs=invalidvfs");
+        Assert.Throws<SqliteException>(connection.Open);
+    }
+
+    [Fact]
     public void BackupDatabase_works()
     {
         using var connection1 = new SqliteConnection("Data Source=:memory:");

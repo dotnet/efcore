@@ -47,7 +47,6 @@ namespace TestNamespace
                 typeof(CompiledModelTestBase.ManyTypesId),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("Id", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<Id>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                valueGenerated: ValueGenerated.OnAdd,
                 afterSaveBehavior: PropertySaveBehavior.Throw,
                 valueConverter: new CompiledModelTestBase.ManyTypesIdConverter());
             id.SetGetter(
@@ -60,7 +59,7 @@ namespace TestNamespace
             id.SetMaterializationSetter(
                 (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.ManyTypesId value) => ManyTypesUnsafeAccessors.Id(entity) = value);
             id.SetAccessors(
-                CompiledModelTestBase.ManyTypesId (InternalEntityEntry entry) => (entry.FlaggedAsStoreGenerated(0) ? entry.ReadStoreGeneratedValue<CompiledModelTestBase.ManyTypesId>(0) : (entry.FlaggedAsTemporary(0) && ManyTypesUnsafeAccessors.Id(((CompiledModelTestBase.ManyTypes)(entry.Entity))).Equals(default(CompiledModelTestBase.ManyTypesId)) ? entry.ReadTemporaryValue<CompiledModelTestBase.ManyTypesId>(0) : ManyTypesUnsafeAccessors.Id(((CompiledModelTestBase.ManyTypes)(entry.Entity))))),
+                CompiledModelTestBase.ManyTypesId (InternalEntityEntry entry) => ManyTypesUnsafeAccessors.Id(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 CompiledModelTestBase.ManyTypesId (InternalEntityEntry entry) => ManyTypesUnsafeAccessors.Id(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 CompiledModelTestBase.ManyTypesId (InternalEntityEntry entry) => entry.ReadOriginalValue<CompiledModelTestBase.ManyTypesId>(id, 0),
                 CompiledModelTestBase.ManyTypesId (InternalEntityEntry entry) => entry.ReadRelationshipSnapshotValue<CompiledModelTestBase.ManyTypesId>(id, 0),
@@ -70,7 +69,7 @@ namespace TestNamespace
                 originalValueIndex: 0,
                 shadowIndex: -1,
                 relationshipIndex: 0,
-                storeGenerationIndex: 0);
+                storeGenerationIndex: -1);
             id.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.ManyTypesId>(
                     bool (CompiledModelTestBase.ManyTypesId v1, CompiledModelTestBase.ManyTypesId v2) => v1.Equals(v2),
@@ -228,6 +227,8 @@ namespace TestNamespace
                         bool (bool v) => v),
                     clrType: typeof(bool),
                     jsonValueReaderWriter: JsonBoolReaderWriter.Instance));
+            var boolArrayElementType = boolArray.SetElementType(typeof(bool));
+            boolArrayElementType.TypeMapping = boolArray.TypeMapping.ElementTypeMapping;
 
             var boolNestedCollection = runtimeEntityType.AddProperty(
                 "BoolNestedCollection",
@@ -256,10 +257,10 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             boolNestedCollection.TypeMapping = CosmosTypeMapping.Default.Clone(
-                comparer: new ListOfReferenceTypesComparer<bool[][], bool[]>(new ListOfValueTypesComparer<bool[], bool>(new ValueComparer<bool>(
+                comparer: new ListOfReferenceTypesComparer<bool[][], bool[]>(new ConvertingValueComparer<bool[], IEnumerable<bool>>(new ListOfValueTypesComparer<bool[], bool>(new ValueComparer<bool>(
                     bool (bool v1, bool v2) => v1 == v2,
                     int (bool v) => ((object)v).GetHashCode(),
-                    bool (bool v) => v))),
+                    bool (bool v) => v)))),
                 keyComparer: new ValueComparer<bool[][]>(
                     bool (bool[][] v1, bool[][] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
                     int (bool[][] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
@@ -303,6 +304,8 @@ namespace TestNamespace
                             bool (bool v) => v),
                         clrType: typeof(bool),
                         jsonValueReaderWriter: JsonBoolReaderWriter.Instance)));
+            var boolNestedCollectionElementType = boolNestedCollection.SetElementType(typeof(bool[]));
+            boolNestedCollectionElementType.TypeMapping = boolNestedCollection.TypeMapping.ElementTypeMapping;
 
             var boolReadOnlyCollection = runtimeEntityType.AddProperty(
                 "BoolReadOnlyCollection",
@@ -361,6 +364,8 @@ namespace TestNamespace
                         bool (bool v) => v),
                     clrType: typeof(bool),
                     jsonValueReaderWriter: JsonBoolReaderWriter.Instance));
+            var boolReadOnlyCollectionElementType = boolReadOnlyCollection.SetElementType(typeof(bool));
+            boolReadOnlyCollectionElementType.TypeMapping = boolReadOnlyCollection.TypeMapping.ElementTypeMapping;
 
             var boolToStringConverterProperty = runtimeEntityType.AddProperty(
                 "BoolToStringConverterProperty",
@@ -758,6 +763,8 @@ namespace TestNamespace
                         char (char v) => v),
                     clrType: typeof(char),
                     jsonValueReaderWriter: JsonCharReaderWriter.Instance));
+            var charArrayElementType = charArray.SetElementType(typeof(char));
+            charArrayElementType.TypeMapping = charArray.TypeMapping.ElementTypeMapping;
 
             var charNestedCollection = runtimeEntityType.AddProperty(
                 "CharNestedCollection",
@@ -786,10 +793,10 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             charNestedCollection.TypeMapping = CosmosTypeMapping.Default.Clone(
-                comparer: new ListOfReferenceTypesComparer<char[][], char[]>(new ListOfValueTypesComparer<char[], char>(new ValueComparer<char>(
+                comparer: new ListOfReferenceTypesComparer<char[][], char[]>(new ConvertingValueComparer<char[], IEnumerable<char>>(new ListOfValueTypesComparer<char[], char>(new ValueComparer<char>(
                     bool (char v1, char v2) => v1 == v2,
                     int (char v) => ((int)(v)),
-                    char (char v) => v))),
+                    char (char v) => v)))),
                 keyComparer: new ValueComparer<char[][]>(
                     bool (char[][] v1, char[][] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
                     int (char[][] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
@@ -833,6 +840,8 @@ namespace TestNamespace
                             char (char v) => v),
                         clrType: typeof(char),
                         jsonValueReaderWriter: JsonCharReaderWriter.Instance)));
+            var charNestedCollectionElementType = charNestedCollection.SetElementType(typeof(char[]));
+            charNestedCollectionElementType.TypeMapping = charNestedCollection.TypeMapping.ElementTypeMapping;
 
             var charToStringConverterProperty = runtimeEntityType.AddProperty(
                 "CharToStringConverterProperty",
@@ -1413,6 +1422,8 @@ namespace TestNamespace
                         decimal (decimal v) => v),
                     clrType: typeof(decimal),
                     jsonValueReaderWriter: JsonDecimalReaderWriter.Instance));
+            var decimalArrayElementType = decimalArray.SetElementType(typeof(decimal));
+            decimalArrayElementType.TypeMapping = decimalArray.TypeMapping.ElementTypeMapping;
 
             var decimalNumberToBytesConverterProperty = runtimeEntityType.AddProperty(
                 "DecimalNumberToBytesConverterProperty",
@@ -1614,6 +1625,8 @@ namespace TestNamespace
                         double (double v) => v),
                     clrType: typeof(double),
                     jsonValueReaderWriter: JsonDoubleReaderWriter.Instance));
+            var doubleArrayElementType = doubleArray.SetElementType(typeof(double));
+            doubleArrayElementType.TypeMapping = doubleArray.TypeMapping.ElementTypeMapping;
 
             var doubleNumberToBytesConverterProperty = runtimeEntityType.AddProperty(
                 "DoubleNumberToBytesConverterProperty",
@@ -2707,6 +2720,8 @@ namespace TestNamespace
                         float (float v) => v),
                     clrType: typeof(float),
                     jsonValueReaderWriter: JsonFloatReaderWriter.Instance));
+            var floatArrayElementType = floatArray.SetElementType(typeof(float));
+            floatArrayElementType.TypeMapping = floatArray.TypeMapping.ElementTypeMapping;
 
             var guid = runtimeEntityType.AddProperty(
                 "Guid",
@@ -3103,6 +3118,8 @@ namespace TestNamespace
                         short (short v) => v),
                     clrType: typeof(short),
                     jsonValueReaderWriter: JsonInt16ReaderWriter.Instance));
+            var int16ArrayElementType = int16Array.SetElementType(typeof(short));
+            int16ArrayElementType.TypeMapping = int16Array.TypeMapping.ElementTypeMapping;
 
             var int32 = runtimeEntityType.AddProperty(
                 "Int32",
@@ -3204,6 +3221,8 @@ namespace TestNamespace
                         int (int v) => v),
                     clrType: typeof(int),
                     jsonValueReaderWriter: JsonInt32ReaderWriter.Instance));
+            var int32ArrayElementType = int32Array.SetElementType(typeof(int));
+            int32ArrayElementType.TypeMapping = int32Array.TypeMapping.ElementTypeMapping;
 
             var int32NestedCollection = runtimeEntityType.AddProperty(
                 "Int32NestedCollection",
@@ -3232,10 +3251,10 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             int32NestedCollection.TypeMapping = CosmosTypeMapping.Default.Clone(
-                comparer: new ListOfReferenceTypesComparer<int[][], int[]>(new ListOfValueTypesComparer<int[], int>(new ValueComparer<int>(
+                comparer: new ListOfReferenceTypesComparer<int[][], int[]>(new ConvertingValueComparer<int[], IEnumerable<int>>(new ListOfValueTypesComparer<int[], int>(new ValueComparer<int>(
                     bool (int v1, int v2) => v1 == v2,
                     int (int v) => v,
-                    int (int v) => v))),
+                    int (int v) => v)))),
                 keyComparer: new ValueComparer<int[][]>(
                     bool (int[][] v1, int[][] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
                     int (int[][] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
@@ -3279,6 +3298,8 @@ namespace TestNamespace
                             int (int v) => v),
                         clrType: typeof(int),
                         jsonValueReaderWriter: JsonInt32ReaderWriter.Instance)));
+            var int32NestedCollectionElementType = int32NestedCollection.SetElementType(typeof(int[]));
+            int32NestedCollectionElementType.TypeMapping = int32NestedCollection.TypeMapping.ElementTypeMapping;
 
             var int32ReadOnlyCollection = runtimeEntityType.AddProperty(
                 "Int32ReadOnlyCollection",
@@ -3337,6 +3358,8 @@ namespace TestNamespace
                         int (int v) => v),
                     clrType: typeof(int),
                     jsonValueReaderWriter: JsonInt32ReaderWriter.Instance));
+            var int32ReadOnlyCollectionElementType = int32ReadOnlyCollection.SetElementType(typeof(int));
+            int32ReadOnlyCollectionElementType.TypeMapping = int32ReadOnlyCollection.TypeMapping.ElementTypeMapping;
 
             var int64 = runtimeEntityType.AddProperty(
                 "Int64",
@@ -3438,6 +3461,8 @@ namespace TestNamespace
                         long (long v) => v),
                     clrType: typeof(long),
                     jsonValueReaderWriter: JsonInt64ReaderWriter.Instance));
+            var int64ArrayElementType = int64Array.SetElementType(typeof(long));
+            int64ArrayElementType.TypeMapping = int64Array.TypeMapping.ElementTypeMapping;
 
             var int64NestedCollection = runtimeEntityType.AddProperty(
                 "Int64NestedCollection",
@@ -3466,10 +3491,10 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             int64NestedCollection.TypeMapping = CosmosTypeMapping.Default.Clone(
-                comparer: new ListOfReferenceTypesComparer<IList<long[]>[], IList<long[]>>(new ListOfReferenceTypesComparer<List<long[]>, long[]>(new ListOfValueTypesComparer<long[], long>(new ValueComparer<long>(
+                comparer: new ListOfReferenceTypesComparer<IList<long[]>[], IList<long[]>>(new ConvertingValueComparer<IList<long[]>, object>(new ListOfReferenceTypesComparer<List<long[]>, long[]>(new ConvertingValueComparer<long[], IEnumerable<long>>(new ListOfValueTypesComparer<long[], long>(new ValueComparer<long>(
                     bool (long v1, long v2) => v1 == v2,
                     int (long v) => ((object)v).GetHashCode(),
-                    long (long v) => v)))),
+                    long (long v) => v)))))),
                 keyComparer: new ValueComparer<IList<long[]>[]>(
                     bool (IList<long[]>[] v1, IList<long[]>[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
                     int (IList<long[]>[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
@@ -3484,10 +3509,10 @@ namespace TestNamespace
                         new JsonCollectionOfStructsReaderWriter<long[], long>(
                             JsonInt64ReaderWriter.Instance))),
                 elementMapping: CosmosTypeMapping.Default.Clone(
-                    comparer: new ListOfReferenceTypesComparer<List<long[]>, long[]>(new ListOfValueTypesComparer<long[], long>(new ValueComparer<long>(
+                    comparer: new ListOfReferenceTypesComparer<List<long[]>, long[]>(new ConvertingValueComparer<long[], IEnumerable<long>>(new ListOfValueTypesComparer<long[], long>(new ValueComparer<long>(
                         bool (long v1, long v2) => v1 == v2,
                         int (long v) => ((object)v).GetHashCode(),
-                        long (long v) => v))),
+                        long (long v) => v)))),
                     keyComparer: new ValueComparer<IList<long[]>>(
                         bool (IList<long[]> v1, IList<long[]> v2) => object.Equals(v1, v2),
                         int (IList<long[]> v) => ((object)v).GetHashCode(),
@@ -3531,6 +3556,8 @@ namespace TestNamespace
                                 long (long v) => v),
                             clrType: typeof(long),
                             jsonValueReaderWriter: JsonInt64ReaderWriter.Instance))));
+            var int64NestedCollectionElementType = int64NestedCollection.SetElementType(typeof(IList<long[]>));
+            int64NestedCollectionElementType.TypeMapping = int64NestedCollection.TypeMapping.ElementTypeMapping;
 
             var int8 = runtimeEntityType.AddProperty(
                 "Int8",
@@ -3632,6 +3659,8 @@ namespace TestNamespace
                         sbyte (sbyte v) => v),
                     clrType: typeof(sbyte),
                     jsonValueReaderWriter: JsonSByteReaderWriter.Instance));
+            var int8ArrayElementType = int8Array.SetElementType(typeof(sbyte));
+            int8ArrayElementType.TypeMapping = int8Array.TypeMapping.ElementTypeMapping;
 
             var int8NestedCollection = runtimeEntityType.AddProperty(
                 "Int8NestedCollection",
@@ -3660,10 +3689,10 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             int8NestedCollection.TypeMapping = CosmosTypeMapping.Default.Clone(
-                comparer: new ListOfReferenceTypesComparer<sbyte[][][], sbyte[][]>(new ListOfReferenceTypesComparer<sbyte[][], sbyte[]>(new ListOfValueTypesComparer<sbyte[], sbyte>(new ValueComparer<sbyte>(
+                comparer: new ListOfReferenceTypesComparer<sbyte[][][], sbyte[][]>(new ConvertingValueComparer<sbyte[][], object>(new ListOfReferenceTypesComparer<sbyte[][], sbyte[]>(new ConvertingValueComparer<sbyte[], IEnumerable<sbyte>>(new ListOfValueTypesComparer<sbyte[], sbyte>(new ValueComparer<sbyte>(
                     bool (sbyte v1, sbyte v2) => v1 == v2,
                     int (sbyte v) => ((int)(v)),
-                    sbyte (sbyte v) => v)))),
+                    sbyte (sbyte v) => v)))))),
                 keyComparer: new ValueComparer<sbyte[][][]>(
                     bool (sbyte[][][] v1, sbyte[][][] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
                     int (sbyte[][][] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
@@ -3678,10 +3707,10 @@ namespace TestNamespace
                         new JsonCollectionOfStructsReaderWriter<sbyte[], sbyte>(
                             JsonSByteReaderWriter.Instance))),
                 elementMapping: CosmosTypeMapping.Default.Clone(
-                    comparer: new ListOfReferenceTypesComparer<sbyte[][], sbyte[]>(new ListOfValueTypesComparer<sbyte[], sbyte>(new ValueComparer<sbyte>(
+                    comparer: new ListOfReferenceTypesComparer<sbyte[][], sbyte[]>(new ConvertingValueComparer<sbyte[], IEnumerable<sbyte>>(new ListOfValueTypesComparer<sbyte[], sbyte>(new ValueComparer<sbyte>(
                         bool (sbyte v1, sbyte v2) => v1 == v2,
                         int (sbyte v) => ((int)(v)),
-                        sbyte (sbyte v) => v))),
+                        sbyte (sbyte v) => v)))),
                     keyComparer: new ValueComparer<sbyte[][]>(
                         bool (sbyte[][] v1, sbyte[][] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
                         int (sbyte[][] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
@@ -3725,6 +3754,8 @@ namespace TestNamespace
                                 sbyte (sbyte v) => v),
                             clrType: typeof(sbyte),
                             jsonValueReaderWriter: JsonSByteReaderWriter.Instance))));
+            var int8NestedCollectionElementType = int8NestedCollection.SetElementType(typeof(sbyte[][]));
+            int8NestedCollectionElementType.TypeMapping = int8NestedCollection.TypeMapping.ElementTypeMapping;
 
             var intNumberToBytesConverterProperty = runtimeEntityType.AddProperty(
                 "IntNumberToBytesConverterProperty",
@@ -3980,6 +4011,10 @@ namespace TestNamespace
                         bool (bool v) => v),
                     clrType: typeof(bool),
                     jsonValueReaderWriter: JsonBoolReaderWriter.Instance));
+            var nullableBoolArrayElementType = nullableBoolArray.SetElementType(typeof(bool?),
+                nullable: true);
+            nullableBoolArrayElementType.TypeMapping = nullableBoolArray.TypeMapping.ElementTypeMapping;
+            nullableBoolArrayElementType.SetComparer(new NullableValueComparer<bool>(nullableBoolArrayElementType.TypeMapping.Comparer));
 
             var nullableBytes = runtimeEntityType.AddProperty(
                 "NullableBytes",
@@ -4132,6 +4167,10 @@ namespace TestNamespace
                         char (char v) => v),
                     clrType: typeof(char),
                     jsonValueReaderWriter: JsonCharReaderWriter.Instance));
+            var nullableCharArrayElementType = nullableCharArray.SetElementType(typeof(char?),
+                nullable: true);
+            nullableCharArrayElementType.TypeMapping = nullableCharArray.TypeMapping.ElementTypeMapping;
+            nullableCharArrayElementType.SetComparer(new NullableValueComparer<char>(nullableCharArrayElementType.TypeMapping.Comparer));
 
             var nullableDateOnly = runtimeEntityType.AddProperty(
                 "NullableDateOnly",
@@ -4325,6 +4364,10 @@ namespace TestNamespace
                         decimal (decimal v) => v),
                     clrType: typeof(decimal),
                     jsonValueReaderWriter: JsonDecimalReaderWriter.Instance));
+            var nullableDecimalArrayElementType = nullableDecimalArray.SetElementType(typeof(decimal?),
+                nullable: true);
+            nullableDecimalArrayElementType.TypeMapping = nullableDecimalArray.TypeMapping.ElementTypeMapping;
+            nullableDecimalArrayElementType.SetComparer(new NullableValueComparer<decimal>(nullableDecimalArrayElementType.TypeMapping.Comparer));
 
             var nullableDouble = runtimeEntityType.AddProperty(
                 "NullableDouble",
@@ -4428,6 +4471,10 @@ namespace TestNamespace
                         double (double v) => v),
                     clrType: typeof(double),
                     jsonValueReaderWriter: JsonDoubleReaderWriter.Instance));
+            var nullableDoubleArrayElementType = nullableDoubleArray.SetElementType(typeof(double?),
+                nullable: true);
+            nullableDoubleArrayElementType.TypeMapping = nullableDoubleArray.TypeMapping.ElementTypeMapping;
+            nullableDoubleArrayElementType.SetComparer(new NullableValueComparer<double>(nullableDoubleArrayElementType.TypeMapping.Comparer));
 
             var nullableEnum16 = runtimeEntityType.AddProperty(
                 "NullableEnum16",
@@ -5347,6 +5394,10 @@ namespace TestNamespace
                         float (float v) => v),
                     clrType: typeof(float),
                     jsonValueReaderWriter: JsonFloatReaderWriter.Instance));
+            var nullableFloatArrayElementType = nullableFloatArray.SetElementType(typeof(float?),
+                nullable: true);
+            nullableFloatArrayElementType.TypeMapping = nullableFloatArray.TypeMapping.ElementTypeMapping;
+            nullableFloatArrayElementType.SetComparer(new NullableValueComparer<float>(nullableFloatArrayElementType.TypeMapping.Comparer));
 
             var nullableGuid = runtimeEntityType.AddProperty(
                 "NullableGuid",
@@ -5550,6 +5601,10 @@ namespace TestNamespace
                         short (short v) => v),
                     clrType: typeof(short),
                     jsonValueReaderWriter: JsonInt16ReaderWriter.Instance));
+            var nullableInt16ArrayElementType = nullableInt16Array.SetElementType(typeof(short?),
+                nullable: true);
+            nullableInt16ArrayElementType.TypeMapping = nullableInt16Array.TypeMapping.ElementTypeMapping;
+            nullableInt16ArrayElementType.SetComparer(new NullableValueComparer<short>(nullableInt16ArrayElementType.TypeMapping.Comparer));
 
             var nullableInt32 = runtimeEntityType.AddProperty(
                 "NullableInt32",
@@ -5653,6 +5708,10 @@ namespace TestNamespace
                         int (int v) => v),
                     clrType: typeof(int),
                     jsonValueReaderWriter: JsonInt32ReaderWriter.Instance));
+            var nullableInt32ArrayElementType = nullableInt32Array.SetElementType(typeof(int?),
+                nullable: true);
+            nullableInt32ArrayElementType.TypeMapping = nullableInt32Array.TypeMapping.ElementTypeMapping;
+            nullableInt32ArrayElementType.SetComparer(new NullableValueComparer<int>(nullableInt32ArrayElementType.TypeMapping.Comparer));
 
             var nullableInt32NestedCollection = runtimeEntityType.AddProperty(
                 "NullableInt32NestedCollection",
@@ -5681,10 +5740,10 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableInt32NestedCollection.TypeMapping = CosmosTypeMapping.Default.Clone(
-                comparer: new ListOfReferenceTypesComparer<int?[][], int?[]>(new ListOfNullableValueTypesComparer<int?[], int>(new NullableValueComparer<int>(new ValueComparer<int>(
+                comparer: new ListOfReferenceTypesComparer<int?[][], int?[]>(new ConvertingValueComparer<int?[], IEnumerable<int?>>(new ListOfNullableValueTypesComparer<int?[], int>(new NullableValueComparer<int>(new ValueComparer<int>(
                     bool (int v1, int v2) => v1 == v2,
                     int (int v) => v,
-                    int (int v) => v)))),
+                    int (int v) => v))))),
                 keyComparer: new ValueComparer<int?[][]>(
                     bool (int? [][] v1, int? [][] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
                     int (int? [][] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
@@ -5728,6 +5787,8 @@ namespace TestNamespace
                             int (int v) => v),
                         clrType: typeof(int),
                         jsonValueReaderWriter: JsonInt32ReaderWriter.Instance)));
+            var nullableInt32NestedCollectionElementType = nullableInt32NestedCollection.SetElementType(typeof(int?[]));
+            nullableInt32NestedCollectionElementType.TypeMapping = nullableInt32NestedCollection.TypeMapping.ElementTypeMapping;
 
             var nullableInt64 = runtimeEntityType.AddProperty(
                 "NullableInt64",
@@ -5831,6 +5892,10 @@ namespace TestNamespace
                         long (long v) => v),
                     clrType: typeof(long),
                     jsonValueReaderWriter: JsonInt64ReaderWriter.Instance));
+            var nullableInt64ArrayElementType = nullableInt64Array.SetElementType(typeof(long?),
+                nullable: true);
+            nullableInt64ArrayElementType.TypeMapping = nullableInt64Array.TypeMapping.ElementTypeMapping;
+            nullableInt64ArrayElementType.SetComparer(new NullableValueComparer<long>(nullableInt64ArrayElementType.TypeMapping.Comparer));
 
             var nullableInt64NestedCollection = runtimeEntityType.AddProperty(
                 "NullableInt64NestedCollection",
@@ -5859,10 +5924,10 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableInt64NestedCollection.TypeMapping = CosmosTypeMapping.Default.Clone(
-                comparer: new ListOfReferenceTypesComparer<List<long?[][]>, long?[][]>(new ListOfReferenceTypesComparer<long?[][], long?[]>(new ListOfNullableValueTypesComparer<long?[], long>(new NullableValueComparer<long>(new ValueComparer<long>(
+                comparer: new ListOfReferenceTypesComparer<List<long?[][]>, long?[][]>(new ConvertingValueComparer<long?[][], object>(new ListOfReferenceTypesComparer<long?[][], long?[]>(new ConvertingValueComparer<long?[], IEnumerable<long?>>(new ListOfNullableValueTypesComparer<long?[], long>(new NullableValueComparer<long>(new ValueComparer<long>(
                     bool (long v1, long v2) => v1 == v2,
                     int (long v) => ((object)v).GetHashCode(),
-                    long (long v) => v))))),
+                    long (long v) => v))))))),
                 keyComparer: new ValueComparer<List<long?[][]>>(
                     bool (List<long? [][]> v1, List<long? [][]> v2) => object.Equals(v1, v2),
                     int (List<long? [][]> v) => ((object)v).GetHashCode(),
@@ -5877,10 +5942,10 @@ namespace TestNamespace
                         new JsonCollectionOfNullableStructsReaderWriter<long?[], long>(
                             JsonInt64ReaderWriter.Instance))),
                 elementMapping: CosmosTypeMapping.Default.Clone(
-                    comparer: new ListOfReferenceTypesComparer<long?[][], long?[]>(new ListOfNullableValueTypesComparer<long?[], long>(new NullableValueComparer<long>(new ValueComparer<long>(
+                    comparer: new ListOfReferenceTypesComparer<long?[][], long?[]>(new ConvertingValueComparer<long?[], IEnumerable<long?>>(new ListOfNullableValueTypesComparer<long?[], long>(new NullableValueComparer<long>(new ValueComparer<long>(
                         bool (long v1, long v2) => v1 == v2,
                         int (long v) => ((object)v).GetHashCode(),
-                        long (long v) => v)))),
+                        long (long v) => v))))),
                     keyComparer: new ValueComparer<long?[][]>(
                         bool (long? [][] v1, long? [][] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
                         int (long? [][] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
@@ -5924,6 +5989,8 @@ namespace TestNamespace
                                 long (long v) => v),
                             clrType: typeof(long),
                             jsonValueReaderWriter: JsonInt64ReaderWriter.Instance))));
+            var nullableInt64NestedCollectionElementType = nullableInt64NestedCollection.SetElementType(typeof(long?[][]));
+            nullableInt64NestedCollectionElementType.TypeMapping = nullableInt64NestedCollection.TypeMapping.ElementTypeMapping;
 
             var nullableInt8 = runtimeEntityType.AddProperty(
                 "NullableInt8",
@@ -6027,6 +6094,10 @@ namespace TestNamespace
                         sbyte (sbyte v) => v),
                     clrType: typeof(sbyte),
                     jsonValueReaderWriter: JsonSByteReaderWriter.Instance));
+            var nullableInt8ArrayElementType = nullableInt8Array.SetElementType(typeof(sbyte?),
+                nullable: true);
+            nullableInt8ArrayElementType.TypeMapping = nullableInt8Array.TypeMapping.ElementTypeMapping;
+            nullableInt8ArrayElementType.SetComparer(new NullableValueComparer<sbyte>(nullableInt8ArrayElementType.TypeMapping.Comparer));
 
             var nullablePhysicalAddress = runtimeEntityType.AddProperty(
                 "NullablePhysicalAddress",
@@ -6177,6 +6248,9 @@ namespace TestNamespace
                         string (string v) => v),
                     clrType: typeof(string),
                     jsonValueReaderWriter: JsonStringReaderWriter.Instance));
+            var nullableStringArrayElementType = nullableStringArray.SetElementType(typeof(string),
+                nullable: true);
+            nullableStringArrayElementType.TypeMapping = nullableStringArray.TypeMapping.ElementTypeMapping;
 
             var nullableStringNestedCollection = runtimeEntityType.AddProperty(
                 "NullableStringNestedCollection",
@@ -6205,10 +6279,10 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableStringNestedCollection.TypeMapping = CosmosTypeMapping.Default.Clone(
-                comparer: new ListOfReferenceTypesComparer<string[][], string[]>(new ListOfReferenceTypesComparer<string[], string>(new ValueComparer<string>(
+                comparer: new ListOfReferenceTypesComparer<string[][], string[]>(new ConvertingValueComparer<string[], object>(new ListOfReferenceTypesComparer<string[], string>(new ValueComparer<string>(
                     bool (string v1, string v2) => v1 == v2,
                     int (string v) => ((object)v).GetHashCode(),
-                    string (string v) => v))),
+                    string (string v) => v)))),
                 keyComparer: new ValueComparer<string[][]>(
                     bool (string[][] v1, string[][] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
                     int (string[][] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
@@ -6252,6 +6326,8 @@ namespace TestNamespace
                             string (string v) => v),
                         clrType: typeof(string),
                         jsonValueReaderWriter: JsonStringReaderWriter.Instance)));
+            var nullableStringNestedCollectionElementType = nullableStringNestedCollection.SetElementType(typeof(string[]));
+            nullableStringNestedCollectionElementType.TypeMapping = nullableStringNestedCollection.TypeMapping.ElementTypeMapping;
 
             var nullableTimeOnly = runtimeEntityType.AddProperty(
                 "NullableTimeOnly",
@@ -6445,6 +6521,10 @@ namespace TestNamespace
                         ushort (ushort v) => v),
                     clrType: typeof(ushort),
                     jsonValueReaderWriter: JsonUInt16ReaderWriter.Instance));
+            var nullableUInt16ArrayElementType = nullableUInt16Array.SetElementType(typeof(ushort?),
+                nullable: true);
+            nullableUInt16ArrayElementType.TypeMapping = nullableUInt16Array.TypeMapping.ElementTypeMapping;
+            nullableUInt16ArrayElementType.SetComparer(new NullableValueComparer<ushort>(nullableUInt16ArrayElementType.TypeMapping.Comparer));
 
             var nullableUInt32 = runtimeEntityType.AddProperty(
                 "NullableUInt32",
@@ -6548,6 +6628,10 @@ namespace TestNamespace
                         uint (uint v) => v),
                     clrType: typeof(uint),
                     jsonValueReaderWriter: JsonUInt32ReaderWriter.Instance));
+            var nullableUInt32ArrayElementType = nullableUInt32Array.SetElementType(typeof(uint?),
+                nullable: true);
+            nullableUInt32ArrayElementType.TypeMapping = nullableUInt32Array.TypeMapping.ElementTypeMapping;
+            nullableUInt32ArrayElementType.SetComparer(new NullableValueComparer<uint>(nullableUInt32ArrayElementType.TypeMapping.Comparer));
 
             var nullableUInt64 = runtimeEntityType.AddProperty(
                 "NullableUInt64",
@@ -6651,6 +6735,10 @@ namespace TestNamespace
                         ulong (ulong v) => v),
                     clrType: typeof(ulong),
                     jsonValueReaderWriter: JsonUInt64ReaderWriter.Instance));
+            var nullableUInt64ArrayElementType = nullableUInt64Array.SetElementType(typeof(ulong?),
+                nullable: true);
+            nullableUInt64ArrayElementType.TypeMapping = nullableUInt64Array.TypeMapping.ElementTypeMapping;
+            nullableUInt64ArrayElementType.SetComparer(new NullableValueComparer<ulong>(nullableUInt64ArrayElementType.TypeMapping.Comparer));
 
             var nullableUInt8 = runtimeEntityType.AddProperty(
                 "NullableUInt8",
@@ -6754,6 +6842,10 @@ namespace TestNamespace
                         byte (byte v) => v),
                     clrType: typeof(byte),
                     jsonValueReaderWriter: JsonByteReaderWriter.Instance));
+            var nullableUInt8ArrayElementType = nullableUInt8Array.SetElementType(typeof(byte?),
+                nullable: true);
+            nullableUInt8ArrayElementType.TypeMapping = nullableUInt8Array.TypeMapping.ElementTypeMapping;
+            nullableUInt8ArrayElementType.SetComparer(new NullableValueComparer<byte>(nullableUInt8ArrayElementType.TypeMapping.Comparer));
 
             var nullableUri = runtimeEntityType.AddProperty(
                 "NullableUri",
@@ -7049,6 +7141,8 @@ namespace TestNamespace
                         string (string v) => v),
                     clrType: typeof(string),
                     jsonValueReaderWriter: JsonStringReaderWriter.Instance));
+            var stringArrayElementType = stringArray.SetElementType(typeof(string));
+            stringArrayElementType.TypeMapping = stringArray.TypeMapping.ElementTypeMapping;
 
             var stringNestedCollection = runtimeEntityType.AddProperty(
                 "StringNestedCollection",
@@ -7077,10 +7171,10 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             stringNestedCollection.TypeMapping = CosmosTypeMapping.Default.Clone(
-                comparer: new ListOfReferenceTypesComparer<string[][], string[]>(new ListOfReferenceTypesComparer<string[], string>(new ValueComparer<string>(
+                comparer: new ListOfReferenceTypesComparer<string[][], string[]>(new ConvertingValueComparer<string[], object>(new ListOfReferenceTypesComparer<string[], string>(new ValueComparer<string>(
                     bool (string v1, string v2) => v1 == v2,
                     int (string v) => ((object)v).GetHashCode(),
-                    string (string v) => v))),
+                    string (string v) => v)))),
                 keyComparer: new ValueComparer<string[][]>(
                     bool (string[][] v1, string[][] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
                     int (string[][] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
@@ -7124,6 +7218,8 @@ namespace TestNamespace
                             string (string v) => v),
                         clrType: typeof(string),
                         jsonValueReaderWriter: JsonStringReaderWriter.Instance)));
+            var stringNestedCollectionElementType = stringNestedCollection.SetElementType(typeof(string[]));
+            stringNestedCollectionElementType.TypeMapping = stringNestedCollection.TypeMapping.ElementTypeMapping;
 
             var stringReadOnlyCollection = runtimeEntityType.AddProperty(
                 "StringReadOnlyCollection",
@@ -7182,6 +7278,8 @@ namespace TestNamespace
                         string (string v) => v),
                     clrType: typeof(string),
                     jsonValueReaderWriter: JsonStringReaderWriter.Instance));
+            var stringReadOnlyCollectionElementType = stringReadOnlyCollection.SetElementType(typeof(string));
+            stringReadOnlyCollectionElementType.TypeMapping = stringReadOnlyCollection.TypeMapping.ElementTypeMapping;
 
             var stringToBoolConverterProperty = runtimeEntityType.AddProperty(
                 "StringToBoolConverterProperty",
@@ -8248,6 +8346,8 @@ namespace TestNamespace
                         ushort (ushort v) => v),
                     clrType: typeof(ushort),
                     jsonValueReaderWriter: JsonUInt16ReaderWriter.Instance));
+            var uInt16ArrayElementType = uInt16Array.SetElementType(typeof(ushort));
+            uInt16ArrayElementType.TypeMapping = uInt16Array.TypeMapping.ElementTypeMapping;
 
             var uInt32 = runtimeEntityType.AddProperty(
                 "UInt32",
@@ -8349,6 +8449,8 @@ namespace TestNamespace
                         uint (uint v) => v),
                     clrType: typeof(uint),
                     jsonValueReaderWriter: JsonUInt32ReaderWriter.Instance));
+            var uInt32ArrayElementType = uInt32Array.SetElementType(typeof(uint));
+            uInt32ArrayElementType.TypeMapping = uInt32Array.TypeMapping.ElementTypeMapping;
 
             var uInt64 = runtimeEntityType.AddProperty(
                 "UInt64",
@@ -8450,6 +8552,8 @@ namespace TestNamespace
                         ulong (ulong v) => v),
                     clrType: typeof(ulong),
                     jsonValueReaderWriter: JsonUInt64ReaderWriter.Instance));
+            var uInt64ArrayElementType = uInt64Array.SetElementType(typeof(ulong));
+            uInt64ArrayElementType.TypeMapping = uInt64Array.TypeMapping.ElementTypeMapping;
 
             var uInt8 = runtimeEntityType.AddProperty(
                 "UInt8",
@@ -8599,6 +8703,8 @@ namespace TestNamespace
                         byte (byte v) => v),
                     clrType: typeof(byte),
                     jsonValueReaderWriter: JsonByteReaderWriter.Instance));
+            var uInt8ReadOnlyCollectionElementType = uInt8ReadOnlyCollection.SetElementType(typeof(byte));
+            uInt8ReadOnlyCollectionElementType.TypeMapping = uInt8ReadOnlyCollection.TypeMapping.ElementTypeMapping;
 
             var uri = runtimeEntityType.AddProperty(
                 "Uri",
@@ -8739,7 +8845,7 @@ namespace TestNamespace
                 beforeSaveBehavior: PropertySaveBehavior.Ignore,
                 afterSaveBehavior: PropertySaveBehavior.Ignore);
             __jObject.SetAccessors(
-                JObject (InternalEntityEntry entry) => (entry.FlaggedAsStoreGenerated(169) ? entry.ReadStoreGeneratedValue<JObject>(1) : (entry.FlaggedAsTemporary(169) && entry.ReadShadowValue<JObject>(2) == null ? entry.ReadTemporaryValue<JObject>(1) : entry.ReadShadowValue<JObject>(2))),
+                JObject (InternalEntityEntry entry) => (entry.FlaggedAsStoreGenerated(169) ? entry.ReadStoreGeneratedValue<JObject>(0) : (entry.FlaggedAsTemporary(169) && entry.ReadShadowValue<JObject>(2) == null ? entry.ReadTemporaryValue<JObject>(0) : entry.ReadShadowValue<JObject>(2))),
                 JObject (InternalEntityEntry entry) => entry.ReadShadowValue<JObject>(2),
                 JObject (InternalEntityEntry entry) => entry.ReadOriginalValue<JObject>(__jObject, 169),
                 JObject (InternalEntityEntry entry) => entry.GetCurrentValue<JObject>(__jObject),
@@ -8749,7 +8855,7 @@ namespace TestNamespace
                 originalValueIndex: 169,
                 shadowIndex: 2,
                 relationshipIndex: -1,
-                storeGenerationIndex: 1);
+                storeGenerationIndex: 0);
             __jObject.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ValueComparer<JObject>(
                     bool (JObject v1, JObject v2) => object.Equals(v1, v2),
@@ -8965,9 +9071,9 @@ namespace TestNamespace
                     return ((ISnapshot)(new MultiSnapshot(new ISnapshot[] { liftedArg, liftedArg0, liftedArg1, liftedArg2, liftedArg3, ((ISnapshot)(new Snapshot<string, TimeOnly, TimeOnly, TimeOnly, TimeSpan, TimeSpan, TimeSpan, ushort, ushort[], uint, uint[], ulong, ulong[], byte, byte[], IReadOnlyCollection<byte>, Uri, Uri, string, JObject>((source.GetCurrentValue<string>(stringToUriConverterProperty) == null ? null : ((ValueComparer<string>)(((IProperty)stringToUriConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(stringToUriConverterProperty))), ((ValueComparer<TimeOnly>)(((IProperty)timeOnly).GetValueComparer())).Snapshot(source.GetCurrentValue<TimeOnly>(timeOnly)), ((ValueComparer<TimeOnly>)(((IProperty)timeOnlyToStringConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<TimeOnly>(timeOnlyToStringConverterProperty)), ((ValueComparer<TimeOnly>)(((IProperty)timeOnlyToTicksConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<TimeOnly>(timeOnlyToTicksConverterProperty)), ((ValueComparer<TimeSpan>)(((IProperty)timeSpan).GetValueComparer())).Snapshot(source.GetCurrentValue<TimeSpan>(timeSpan)), ((ValueComparer<TimeSpan>)(((IProperty)timeSpanToStringConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<TimeSpan>(timeSpanToStringConverterProperty)), ((ValueComparer<TimeSpan>)(((IProperty)timeSpanToTicksConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<TimeSpan>(timeSpanToTicksConverterProperty)), ((ValueComparer<ushort>)(((IProperty)uInt16).GetValueComparer())).Snapshot(source.GetCurrentValue<ushort>(uInt16)), (((IEnumerable<ushort>)(source.GetCurrentValue<ushort[]>(uInt16Array))) == null ? null : ((ushort[])(((ValueComparer<IEnumerable<ushort>>)(((IProperty)uInt16Array).GetValueComparer())).Snapshot(((IEnumerable<ushort>)(source.GetCurrentValue<ushort[]>(uInt16Array))))))), ((ValueComparer<uint>)(((IProperty)uInt32).GetValueComparer())).Snapshot(source.GetCurrentValue<uint>(uInt32)), (((IEnumerable<uint>)(source.GetCurrentValue<uint[]>(uInt32Array))) == null ? null : ((uint[])(((ValueComparer<IEnumerable<uint>>)(((IProperty)uInt32Array).GetValueComparer())).Snapshot(((IEnumerable<uint>)(source.GetCurrentValue<uint[]>(uInt32Array))))))), ((ValueComparer<ulong>)(((IProperty)uInt64).GetValueComparer())).Snapshot(source.GetCurrentValue<ulong>(uInt64)), (((IEnumerable<ulong>)(source.GetCurrentValue<ulong[]>(uInt64Array))) == null ? null : ((ulong[])(((ValueComparer<IEnumerable<ulong>>)(((IProperty)uInt64Array).GetValueComparer())).Snapshot(((IEnumerable<ulong>)(source.GetCurrentValue<ulong[]>(uInt64Array))))))), ((ValueComparer<byte>)(((IProperty)uInt8).GetValueComparer())).Snapshot(source.GetCurrentValue<byte>(uInt8)), (source.GetCurrentValue<byte[]>(uInt8Array) == null ? null : ((ValueComparer<byte[]>)(((IProperty)uInt8Array).GetValueComparer())).Snapshot(source.GetCurrentValue<byte[]>(uInt8Array))), (((IEnumerable<byte>)(source.GetCurrentValue<IReadOnlyCollection<byte>>(uInt8ReadOnlyCollection))) == null ? null : ((IReadOnlyCollection<byte>)(((ValueComparer<IEnumerable<byte>>)(((IProperty)uInt8ReadOnlyCollection).GetValueComparer())).Snapshot(((IEnumerable<byte>)(source.GetCurrentValue<IReadOnlyCollection<byte>>(uInt8ReadOnlyCollection))))))), (source.GetCurrentValue<Uri>(uri) == null ? null : ((ValueComparer<Uri>)(((IProperty)uri).GetValueComparer())).Snapshot(source.GetCurrentValue<Uri>(uri))), (source.GetCurrentValue<Uri>(uriToStringConverterProperty) == null ? null : ((ValueComparer<Uri>)(((IProperty)uriToStringConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<Uri>(uriToStringConverterProperty))), (source.GetCurrentValue<string>(__id) == null ? null : ((ValueComparer<string>)(((IProperty)__id).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(__id))), (source.GetCurrentValue<JObject>(__jObject) == null ? null : ((ValueComparer<JObject>)(((IProperty)__jObject).GetValueComparer())).Snapshot(source.GetCurrentValue<JObject>(__jObject)))))) })));
                 });
             runtimeEntityType.SetStoreGeneratedValuesFactory(
-                ISnapshot () => ((ISnapshot)(new Snapshot<CompiledModelTestBase.ManyTypesId, JObject>(((ValueComparer<CompiledModelTestBase.ManyTypesId>)(((IProperty)id).GetValueComparer())).Snapshot(default(CompiledModelTestBase.ManyTypesId)), (default(JObject) == null ? null : ((ValueComparer<JObject>)(((IProperty)__jObject).GetValueComparer())).Snapshot(default(JObject)))))));
+                ISnapshot () => ((ISnapshot)(new Snapshot<JObject>((default(JObject) == null ? null : ((ValueComparer<JObject>)(((IProperty)__jObject).GetValueComparer())).Snapshot(default(JObject)))))));
             runtimeEntityType.SetTemporaryValuesFactory(
-                ISnapshot (InternalEntityEntry source) => ((ISnapshot)(new Snapshot<CompiledModelTestBase.ManyTypesId, JObject>(default(CompiledModelTestBase.ManyTypesId), default(JObject)))));
+                ISnapshot (InternalEntityEntry source) => ((ISnapshot)(new Snapshot<JObject>(default(JObject)))));
             runtimeEntityType.SetShadowValuesFactory(
                 ISnapshot (IDictionary<string, object> source) => ((ISnapshot)(new Snapshot<string, string, JObject>((source.ContainsKey("$type") ? ((string)(source["$type"])) : null), (source.ContainsKey("__id") ? ((string)(source["__id"])) : null), (source.ContainsKey("__jObject") ? ((JObject)(source["__jObject"])) : null)))));
             runtimeEntityType.SetEmptyShadowValuesFactory(
@@ -8985,7 +9091,7 @@ namespace TestNamespace
                 originalValueCount: 170,
                 shadowCount: 3,
                 relationshipCount: 1,
-                storeGeneratedCount: 2);
+                storeGeneratedCount: 1);
 
             Customize(runtimeEntityType);
         }

@@ -19,8 +19,8 @@ public class QuerySqlGenerator : SqlExpressionVisitor
 {
     private readonly IRelationalCommandBuilderFactory _relationalCommandBuilderFactory;
     private readonly ISqlGenerationHelper _sqlGenerationHelper;
+    private readonly HashSet<string> _parameterNames = new();
     private IRelationalCommandBuilder _relationalCommandBuilder;
-    private Dictionary<string, int>? _repeatedParameterCounts;
 
     /// <summary>
     ///     Creates a new instance of the <see cref="QuerySqlGenerator" /> class.
@@ -466,15 +466,15 @@ public class QuerySqlGenerator : SqlExpressionVisitor
                 substitutions = new string[constantValues.Length];
                 for (var i = 0; i < constantValues.Length; i++)
                 {
-                    var value = constantValues[i];
-                    if (value is RawRelationalParameter rawRelationalParameter)
+                    switch (constantValues[i])
                     {
-                        substitutions[i] = _sqlGenerationHelper.GenerateParameterNamePlaceholder(rawRelationalParameter.InvariantName);
-                        _relationalCommandBuilder.AddParameter(rawRelationalParameter);
-                    }
-                    else if (value is SqlConstantExpression sqlConstantExpression)
-                    {
-                        substitutions[i] = sqlConstantExpression.TypeMapping!.GenerateSqlLiteral(sqlConstantExpression.Value);
+                        case RawRelationalParameter rawRelationalParameter:
+                            substitutions[i] = _sqlGenerationHelper.GenerateParameterNamePlaceholder(rawRelationalParameter.InvariantName);
+                            _relationalCommandBuilder.AddParameter(rawRelationalParameter);
+                            break;
+                        case SqlConstantExpression sqlConstantExpression:
+                            substitutions[i] = sqlConstantExpression.TypeMapping!.GenerateSqlLiteral(sqlConstantExpression.Value);
+                            break;
                     }
                 }
 
@@ -639,61 +639,23 @@ public class QuerySqlGenerator : SqlExpressionVisitor
     /// <param name="sqlParameterExpression">The <see cref="SqlParameterExpression" /> for which to generate SQL.</param>
     protected override Expression VisitSqlParameter(SqlParameterExpression sqlParameterExpression)
     {
-        var invariantName = sqlParameterExpression.Name;
-        var parameterName = sqlParameterExpression.Name;
-        var typeMapping = sqlParameterExpression.TypeMapping!;
+        var name = sqlParameterExpression.Name;
 
-        // Try to see if a parameter already exists - if so, just integrate the same placeholder into the SQL instead of sending the same
-        // data twice.
-        // Note that if the type mapping differs, we do send the same data twice (e.g. the same string may be sent once as Unicode, once as
-        // non-Unicode).
-        // TODO: Note that we perform Equals comparison on the value converter. We should be able to do reference comparison, but for
-        // that we need to ensure that there's only ever one type mapping instance (i.e. no type mappings are ever instantiated out of the
-        // type mapping source). See #30677.
-        var parameter = _relationalCommandBuilder.Parameters.FirstOrDefault(
-            p =>
-                p.InvariantName == parameterName
-                && p is TypeMappedRelationalParameter { RelationalTypeMapping: var existingTypeMapping }
-                && string.Equals(existingTypeMapping.StoreType, typeMapping.StoreType, StringComparison.OrdinalIgnoreCase)
-                && (existingTypeMapping.Converter is null && typeMapping.Converter is null
-                    || existingTypeMapping.Converter is not null && existingTypeMapping.Converter.Equals(typeMapping.Converter)));
-
-        if (parameter is null)
+        // Only add the parameter to the command the first time we see its (non-invariant) name, even though we may need to add its
+        // placeholder multiple times.
+        if (!_parameterNames.Contains(name))
         {
-            parameterName = GetUniqueParameterName(parameterName);
-
             _relationalCommandBuilder.AddParameter(
-                invariantName,
-                _sqlGenerationHelper.GenerateParameterName(parameterName),
+                sqlParameterExpression.InvariantName,
+                _sqlGenerationHelper.GenerateParameterName(name),
                 sqlParameterExpression.TypeMapping!,
                 sqlParameterExpression.IsNullable);
-        }
-        else
-        {
-            parameterName = ((TypeMappedRelationalParameter)parameter).Name;
+            _parameterNames.Add(name);
         }
 
-        _relationalCommandBuilder
-            .Append(_sqlGenerationHelper.GenerateParameterNamePlaceholder(parameterName));
+        _relationalCommandBuilder.Append(_sqlGenerationHelper.GenerateParameterNamePlaceholder(name));
 
         return sqlParameterExpression;
-
-        string GetUniqueParameterName(string currentName)
-        {
-            _repeatedParameterCounts ??= new Dictionary<string, int>();
-
-            if (!_repeatedParameterCounts.TryGetValue(currentName, out var currentCount))
-            {
-                _repeatedParameterCounts[currentName] = 0;
-
-                return currentName;
-            }
-
-            currentCount++;
-            _repeatedParameterCounts[currentName] = currentCount;
-
-            return currentName + "_" + currentCount;
-        }
     }
 
     /// <summary>
@@ -1286,6 +1248,20 @@ public class QuerySqlGenerator : SqlExpressionVisitor
         Visit(leftJoinExpression.JoinPredicate);
 
         return leftJoinExpression;
+    }
+
+    /// <summary>
+    ///     Generates SQL for a right join.
+    /// </summary>
+    /// <param name="rightJoinExpression">The <see cref="RightJoinExpression" /> for which to generate SQL.</param>
+    protected override Expression VisitRightJoin(RightJoinExpression rightJoinExpression)
+    {
+        _relationalCommandBuilder.Append("RIGHT JOIN ");
+        Visit(rightJoinExpression.Table);
+        _relationalCommandBuilder.Append(" ON ");
+        Visit(rightJoinExpression.JoinPredicate);
+
+        return rightJoinExpression;
     }
 
     /// <summary>

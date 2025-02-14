@@ -45,7 +45,7 @@ public class SqlConstantExpression : SqlExpression
     /// <param name="typeMapping">The <see cref="RelationalTypeMapping" /> associated with the expression.</param>
     [Obsolete("Call the constructor accepting a value (and possibly a Type) instead")]
     public SqlConstantExpression(ConstantExpression constantExpression, RelationalTypeMapping? typeMapping)
-        : base(constantExpression.Type.UnwrapNullableType(), typeMapping)
+        : this(constantExpression.Value, constantExpression.Type, typeMapping)
     {
     }
 
@@ -127,5 +127,5 @@ public class SqlConstantExpression : SqlExpression
 
     /// <inheritdoc />
     public override int GetHashCode()
-        => HashCode.Combine(base.GetHashCode(), Value);
+        => HashCode.Combine(base.GetHashCode(), Value is IList list ? list.Count : Value);
 }

@@ -117,7 +117,7 @@ public class SqliteStringMethodTranslator : IMethodCallTranslator
                             _sqlExpressionFactory.ApplyTypeMapping(argument, stringTypeMapping)
                         },
                         nullable: true,
-                        argumentsPropagateNullability: new[] { true, true },
+                        argumentsPropagateNullability: Statics.TrueArrays[2],
                         method.ReturnType),
                     _sqlExpressionFactory.Constant(1));
             }
@@ -137,7 +137,7 @@ public class SqliteStringMethodTranslator : IMethodCallTranslator
                         _sqlExpressionFactory.ApplyTypeMapping(secondArgument, stringTypeMapping)
                     },
                     nullable: true,
-                    argumentsPropagateNullability: new[] { true, true, true },
+                    argumentsPropagateNullability: Statics.TrueArrays[3],
                     method.ReturnType,
                     stringTypeMapping);
             }
@@ -149,7 +149,7 @@ public class SqliteStringMethodTranslator : IMethodCallTranslator
                     ToLowerMethodInfo.Equals(method) ? "lower" : "upper",
                     new[] { instance },
                     nullable: true,
-                    argumentsPropagateNullability: new[] { true },
+                    argumentsPropagateNullability: Statics.TrueArrays[1],
                     method.ReturnType,
                     instance.TypeMapping);
             }
@@ -160,7 +160,7 @@ public class SqliteStringMethodTranslator : IMethodCallTranslator
                     "substr",
                     new[] { instance, _sqlExpressionFactory.Add(arguments[0], _sqlExpressionFactory.Constant(1)) },
                     nullable: true,
-                    argumentsPropagateNullability: new[] { true, true },
+                    argumentsPropagateNullability: Statics.TrueArrays[2],
                     method.ReturnType,
                     instance.TypeMapping);
             }
@@ -171,7 +171,7 @@ public class SqliteStringMethodTranslator : IMethodCallTranslator
                     "substr",
                     new[] { instance, _sqlExpressionFactory.Add(arguments[0], _sqlExpressionFactory.Constant(1)), arguments[1] },
                     nullable: true,
-                    argumentsPropagateNullability: new[] { true, true, true },
+                    argumentsPropagateNullability: Statics.TrueArrays[3],
                     method.ReturnType,
                     instance.TypeMapping);
             }
@@ -211,7 +211,7 @@ public class SqliteStringMethodTranslator : IMethodCallTranslator
                             "instr",
                             new[] { instance, pattern },
                             nullable: true,
-                            argumentsPropagateNullability: new[] { true, true },
+                            argumentsPropagateNullability: Statics.TrueArrays[2],
                             typeof(int)),
                         _sqlExpressionFactory.Constant(0));
             }
@@ -241,7 +241,7 @@ public class SqliteStringMethodTranslator : IMethodCallTranslator
                 "substr",
                 new[] { argument, _sqlExpressionFactory.Constant(1), _sqlExpressionFactory.Constant(1) },
                 nullable: true,
-                argumentsPropagateNullability: new[] { true, true, true },
+                argumentsPropagateNullability: Statics.TrueArrays[3],
                 method.ReturnType);
         }
 
@@ -257,12 +257,12 @@ public class SqliteStringMethodTranslator : IMethodCallTranslator
                         "length",
                         new[] { argument },
                         nullable: true,
-                        argumentsPropagateNullability: new[] { true },
+                        argumentsPropagateNullability: Statics.TrueArrays[1],
                         typeof(int)),
                     _sqlExpressionFactory.Constant(1)
                 },
                 nullable: true,
-                argumentsPropagateNullability: new[] { true, true, true },
+                argumentsPropagateNullability: Statics.TrueArrays[3],
                 method.ReturnType);
         }
 

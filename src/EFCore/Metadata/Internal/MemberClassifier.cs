@@ -49,12 +49,12 @@ public class MemberClassifier : IMemberClassifier
             ? CoreAnnotationNames.InverseNavigations
             : CoreAnnotationNames.InverseNavigationsNoAttribute;
         if (entityType.FindAnnotation(candidatesAnnotationName)?.Value
-            is OrderedDictionary<PropertyInfo, (Type Type, bool? ShouldBeOwned)> navigationCandidates)
+            is Utilities.OrderedDictionary<PropertyInfo, (Type Type, bool? ShouldBeOwned)> navigationCandidates)
         {
             return navigationCandidates;
         }
 
-        navigationCandidates = new OrderedDictionary<PropertyInfo, (Type Type, bool? ShouldBeOwned)>();
+        navigationCandidates = new Utilities.OrderedDictionary<PropertyInfo, (Type Type, bool? ShouldBeOwned)>();
 
         var model = entityType.Model;
         if (model.FindAnnotation(inverseAnnotationName)?.Value

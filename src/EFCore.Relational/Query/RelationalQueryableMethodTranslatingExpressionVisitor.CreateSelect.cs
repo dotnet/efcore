@@ -215,7 +215,8 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                                     discriminatorColumnName));
                             discriminatorValues.Add(concreteEntityType.ShortName());
 
-                            subSelectExpressions.Add(SelectExpression.CreateImmutable(alias: null!, [tableExpression], projections));
+                            subSelectExpressions.Add(
+                                SelectExpression.CreateImmutable(alias: null!, [tableExpression], projections, _sqlAliasManager));
                         }
 
                         var tpcTableAlias = _sqlAliasManager.GenerateTableAlias("union");

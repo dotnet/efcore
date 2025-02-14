@@ -24,437 +24,6 @@ public class NorthwindWhereQueryCosmosTest : NorthwindWhereQueryTestBase<Northwi
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Where_add(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await AssertQuery(
-                    a,
-                    ss => ss.Set<Order>().Where(o => o.OrderID + 10 == 10258));
-
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-WHERE ((c["$type"] = "Order") AND ((c["OrderID"] + 10) = 10258))
-""");
-            });
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Where_subtract(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await AssertQuery(
-                    a,
-                    ss => ss.Set<Order>().Where(o => o.OrderID - 10 == 10238));
-
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-WHERE ((c["$type"] = "Order") AND ((c["OrderID"] - 10) = 10238))
-""");
-            });
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Where_multiply(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await AssertQuery(
-                    a,
-                    ss => ss.Set<Order>().Where(o => o.OrderID * 1 == 10248));
-
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-WHERE ((c["$type"] = "Order") AND ((c["OrderID"] * 1) = 10248))
-""");
-            });
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Where_divide(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await AssertQuery(
-                    a,
-                    ss => ss.Set<Order>().Where(o => o.OrderID / 1 == 10248));
-
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-WHERE ((c["$type"] = "Order") AND ((c["OrderID"] / 1) = 10248))
-""");
-            });
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Where_modulo(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await AssertQuery(
-                    a,
-                    ss => ss.Set<Order>().Where(o => o.OrderID % 10248 == 0));
-
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-WHERE ((c["$type"] = "Order") AND ((c["OrderID"] % 10248) = 0))
-""");
-            });
-
-    public override async Task Where_bitwise_or(bool async)
-    {
-        // Always throws for sync.
-        if (async)
-        {
-            await Fixture.NoSyncTest(
-                async, async a =>
-                {
-                    // Bitwise operators on booleans. Issue #13168.
-                    await Assert.ThrowsAsync<EqualException>(() => base.Where_bitwise_or(async));
-
-                    AssertSql(
-                        """
-SELECT VALUE c
-FROM root c
-WHERE ((c["id"] = "ALFKI") | (c["id"] = "ANATR"))
-""");
-                });
-        }
-    }
-
-    public override Task Where_bitwise_and(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Where_bitwise_and(a);
-
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-WHERE ((c["id"] = "ALFKI") & (c["id"] = "ANATR"))
-""");
-            });
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public override Task Where_bitwise_xor(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Where_bitwise_xor(a);
-
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-WHERE ((c["id"] = "ALFKI") != true)
-""");
-            });
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Where_bitwise_leftshift(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await AssertQuery(
-                    a,
-                    ss => ss.Set<Order>().Where(o => (o.OrderID << 1) == 20496));
-
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-WHERE ((c["$type"] = "Order") AND ((c["OrderID"] << 1) = 20496))
-""");
-            });
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Where_bitwise_rightshift(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await AssertQuery(
-                    a,
-                    ss => ss.Set<Order>().Where(o => (o.OrderID >> 1) == 5124));
-
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-WHERE ((c["$type"] = "Order") AND ((c["OrderID"] >> 1) = 5124))
-""");
-            });
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Where_logical_and(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await AssertQuery(
-                    a,
-                    ss => ss.Set<Customer>().Where(c => c.City == "Seattle" && c.ContactTitle == "Owner"));
-
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-WHERE ((c["City"] = "Seattle") AND (c["ContactTitle"] = "Owner"))
-""");
-            });
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Where_logical_or(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await AssertQuery(
-                    a,
-                    ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI" || c.CustomerID == "ANATR"));
-
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-WHERE ((c["id"] = "ALFKI") OR (c["id"] = "ANATR"))
-""");
-            });
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Where_logical_not(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await AssertQuery(
-                    a,
-                    ss => ss.Set<Customer>().Where(c => !(c.City != "Seattle")));
-
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-WHERE NOT((c["City"] != "Seattle"))
-""");
-            });
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Where_equality(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await AssertQuery(
-                    a,
-                    ss => ss.Set<Employee>().Where(e => e.ReportsTo == 2));
-
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-WHERE (c["ReportsTo"] = 2)
-""");
-            });
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Where_inequality(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await AssertQuery(
-                    a,
-                    ss => ss.Set<Employee>().Where(e => e.ReportsTo != 2));
-
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-WHERE (c["ReportsTo"] != 2)
-""");
-            });
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Where_greaterthan(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await AssertQuery(
-                    a,
-                    ss => ss.Set<Employee>().Where(e => e.ReportsTo > 2));
-
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-WHERE (c["ReportsTo"] > 2)
-""");
-            });
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Where_greaterthanorequal(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await AssertQuery(
-                    a,
-                    ss => ss.Set<Employee>().Where(e => e.ReportsTo >= 2));
-
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-WHERE (c["ReportsTo"] >= 2)
-""");
-            });
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Where_lessthan(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await AssertQuery(
-                    a,
-                    ss => ss.Set<Employee>().Where(e => e.ReportsTo < 3));
-
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-WHERE (c["ReportsTo"] < 3)
-""");
-            });
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Where_lessthanorequal(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await AssertQuery(
-                    a,
-                    ss => ss.Set<Employee>().Where(e => e.ReportsTo <= 2));
-
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-WHERE (c["ReportsTo"] <= 2)
-""");
-            });
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Where_string_concat(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await AssertQuery(
-                    a,
-                    ss => ss.Set<Customer>().Where(c => c.CustomerID + "END" == "ALFKIEND"));
-
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-WHERE ((c["id"] || "END") = "ALFKIEND")
-""");
-            });
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Where_unary_minus(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await AssertQuery(
-                    a,
-                    ss => ss.Set<Order>().Where(o => -o.OrderID == -10248));
-
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-WHERE ((c["$type"] = "Order") AND (-(c["OrderID"]) = -10248))
-""");
-            });
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Where_bitwise_not(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await AssertQuery(
-                    a,
-                    ss => ss.Set<Order>().Where(o => ~o.OrderID == -10249));
-
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-WHERE ((c["$type"] = "Order") AND (~(c["OrderID"]) = -10249))
-""");
-            });
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Where_ternary(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await AssertQuery(
-                    a,
-#pragma warning disable IDE0029 // Use coalesce expression
-                    ss => ss.Set<Customer>().Where(c => (c.Region != null ? c.Region : "SP") == "BC"));
-#pragma warning restore IDE0029 // Use coalesce expression
-
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-WHERE (((c["Region"] != null) ? c["Region"] : "SP") = "BC")
-""");
-            });
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Where_coalesce(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await AssertQuery(
-                    a,
-                    ss => ss.Set<Customer>().Where(c => (c.Region ?? "SP") == "BC"));
-
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-WHERE (((c["Region"] != null) ? c["Region"] : "SP") = "BC")
-""");
-            });
-
     public override Task Where_simple(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -488,11 +57,11 @@ WHERE (c["City"] = "London")
 
                 AssertSql(
                     """
-@__city_0='London'
+@city='London'
 
 SELECT VALUE c
 FROM root c
-WHERE (c["City"] = @__city_0)
+WHERE (c["City"] = @city)
 """);
             });
 
@@ -507,11 +76,11 @@ WHERE (c["City"] = @__city_0)
 
                 AssertSql(
                     """
-@__p_0='London'
+@p='London'
 
 SELECT VALUE c
 FROM root c
-WHERE (c["City"] = @__p_0)
+WHERE (c["City"] = @p)
 """);
             });
 
@@ -523,11 +92,11 @@ WHERE (c["City"] = @__p_0)
 
                 AssertSql(
                     """
-@__get_Item_0='London'
+@get_Item='London'
 
 SELECT VALUE c
 FROM root c
-WHERE (c["City"] = @__get_Item_0)
+WHERE (c["City"] = @get_Item)
 """);
             });
 
@@ -539,11 +108,11 @@ WHERE (c["City"] = @__get_Item_0)
 
                 AssertSql(
                     """
-@__predicateTuple_Item2_0='London'
+@predicateTuple_Item2='London'
 
 SELECT VALUE c
 FROM root c
-WHERE (c["City"] = @__predicateTuple_Item2_0)
+WHERE (c["City"] = @predicateTuple_Item2)
 """);
             });
 
@@ -555,11 +124,11 @@ WHERE (c["City"] = @__predicateTuple_Item2_0)
 
                 AssertSql(
                     """
-@__predicateTuple_Item2_0='London'
+@predicateTuple_Item2='London'
 
 SELECT VALUE c
 FROM root c
-WHERE (c["City"] = @__predicateTuple_Item2_0)
+WHERE (c["City"] = @predicateTuple_Item2)
 """);
             });
 
@@ -571,11 +140,11 @@ WHERE (c["City"] = @__predicateTuple_Item2_0)
 
                 AssertSql(
                     """
-@__predicate_0='true'
+@predicate='true'
 
 SELECT VALUE c
 FROM root c
-WHERE @__predicate_0
+WHERE @predicate
 """);
             });
 
@@ -587,19 +156,19 @@ WHERE @__predicate_0
 
                 AssertSql(
                     """
-@__city_0='London'
+@city='London'
 
 SELECT VALUE c
 FROM root c
-WHERE (c["City"] = @__city_0)
+WHERE (c["City"] = @city)
 """,
                     //
                     """
-@__city_0='Seattle'
+@city='Seattle'
 
 SELECT VALUE c
 FROM root c
-WHERE (c["City"] = @__city_0)
+WHERE (c["City"] = @city)
 """);
             });
 
@@ -627,19 +196,19 @@ WHERE (c["City"] = @__city_0)
 
                 AssertSql(
                     """
-@__GetCity_0='London'
+@GetCity='London'
 
 SELECT VALUE c
 FROM root c
-WHERE (c["City"] = @__GetCity_0)
+WHERE (c["City"] = @GetCity)
 """,
                     //
                     """
-@__GetCity_0='Seattle'
+@GetCity='Seattle'
 
 SELECT VALUE c
 FROM root c
-WHERE (c["City"] = @__GetCity_0)
+WHERE (c["City"] = @GetCity)
 """);
             });
 
@@ -651,19 +220,19 @@ WHERE (c["City"] = @__GetCity_0)
 
                 AssertSql(
                     """
-@__city_InstanceFieldValue_0='London'
+@city_InstanceFieldValue='London'
 
 SELECT VALUE c
 FROM root c
-WHERE (c["City"] = @__city_InstanceFieldValue_0)
+WHERE (c["City"] = @city_InstanceFieldValue)
 """,
                     //
                     """
-@__city_InstanceFieldValue_0='Seattle'
+@city_InstanceFieldValue='Seattle'
 
 SELECT VALUE c
 FROM root c
-WHERE (c["City"] = @__city_InstanceFieldValue_0)
+WHERE (c["City"] = @city_InstanceFieldValue)
 """);
             });
 
@@ -675,19 +244,19 @@ WHERE (c["City"] = @__city_InstanceFieldValue_0)
 
                 AssertSql(
                     """
-@__city_InstancePropertyValue_0='London'
+@city_InstancePropertyValue='London'
 
 SELECT VALUE c
 FROM root c
-WHERE (c["City"] = @__city_InstancePropertyValue_0)
+WHERE (c["City"] = @city_InstancePropertyValue)
 """,
                     //
                     """
-@__city_InstancePropertyValue_0='Seattle'
+@city_InstancePropertyValue='Seattle'
 
 SELECT VALUE c
 FROM root c
-WHERE (c["City"] = @__city_InstancePropertyValue_0)
+WHERE (c["City"] = @city_InstancePropertyValue)
 """);
             });
 
@@ -699,19 +268,19 @@ WHERE (c["City"] = @__city_InstancePropertyValue_0)
 
                 AssertSql(
                     """
-@__StaticFieldValue_0='London'
+@StaticFieldValue='London'
 
 SELECT VALUE c
 FROM root c
-WHERE (c["City"] = @__StaticFieldValue_0)
+WHERE (c["City"] = @StaticFieldValue)
 """,
                     //
                     """
-@__StaticFieldValue_0='Seattle'
+@StaticFieldValue='Seattle'
 
 SELECT VALUE c
 FROM root c
-WHERE (c["City"] = @__StaticFieldValue_0)
+WHERE (c["City"] = @StaticFieldValue)
 """);
             });
 
@@ -723,19 +292,19 @@ WHERE (c["City"] = @__StaticFieldValue_0)
 
                 AssertSql(
                     """
-@__StaticPropertyValue_0='London'
+@StaticPropertyValue='London'
 
 SELECT VALUE c
 FROM root c
-WHERE (c["City"] = @__StaticPropertyValue_0)
+WHERE (c["City"] = @StaticPropertyValue)
 """,
                     //
                     """
-@__StaticPropertyValue_0='Seattle'
+@StaticPropertyValue='Seattle'
 
 SELECT VALUE c
 FROM root c
-WHERE (c["City"] = @__StaticPropertyValue_0)
+WHERE (c["City"] = @StaticPropertyValue)
 """);
             });
 
@@ -747,19 +316,19 @@ WHERE (c["City"] = @__StaticPropertyValue_0)
 
                 AssertSql(
                     """
-@__city_Nested_InstanceFieldValue_0='London'
+@city_Nested_InstanceFieldValue='London'
 
 SELECT VALUE c
 FROM root c
-WHERE (c["City"] = @__city_Nested_InstanceFieldValue_0)
+WHERE (c["City"] = @city_Nested_InstanceFieldValue)
 """,
                     //
                     """
-@__city_Nested_InstanceFieldValue_0='Seattle'
+@city_Nested_InstanceFieldValue='Seattle'
 
 SELECT VALUE c
 FROM root c
-WHERE (c["City"] = @__city_Nested_InstanceFieldValue_0)
+WHERE (c["City"] = @city_Nested_InstanceFieldValue)
 """);
             });
 
@@ -771,19 +340,19 @@ WHERE (c["City"] = @__city_Nested_InstanceFieldValue_0)
 
                 AssertSql(
                     """
-@__city_Nested_InstancePropertyValue_0='London'
+@city_Nested_InstancePropertyValue='London'
 
 SELECT VALUE c
 FROM root c
-WHERE (c["City"] = @__city_Nested_InstancePropertyValue_0)
+WHERE (c["City"] = @city_Nested_InstancePropertyValue)
 """,
                     //
                     """
-@__city_Nested_InstancePropertyValue_0='Seattle'
+@city_Nested_InstancePropertyValue='Seattle'
 
 SELECT VALUE c
 FROM root c
-WHERE (c["City"] = @__city_Nested_InstancePropertyValue_0)
+WHERE (c["City"] = @city_Nested_InstancePropertyValue)
 """);
             });
 
@@ -795,19 +364,19 @@ WHERE (c["City"] = @__city_Nested_InstancePropertyValue_0)
 
                 AssertSql(
                     """
-@__InstanceFieldValue_0='London'
+@InstanceFieldValue='London'
 
 SELECT VALUE c
 FROM root c
-WHERE (c["City"] = @__InstanceFieldValue_0)
+WHERE (c["City"] = @InstanceFieldValue)
 """,
                     //
                     """
-@__InstanceFieldValue_0='Seattle'
+@InstanceFieldValue='Seattle'
 
 SELECT VALUE c
 FROM root c
-WHERE (c["City"] = @__InstanceFieldValue_0)
+WHERE (c["City"] = @InstanceFieldValue)
 """);
             });
 
@@ -819,19 +388,19 @@ WHERE (c["City"] = @__InstanceFieldValue_0)
 
                 AssertSql(
                     """
-@__InstanceFieldValue_0='London'
+@InstanceFieldValue='London'
 
 SELECT VALUE c
 FROM root c
-WHERE (c["City"] = @__InstanceFieldValue_0)
+WHERE (c["City"] = @InstanceFieldValue)
 """,
                     //
                     """
-@__InstanceFieldValue_0='Seattle'
+@InstanceFieldValue='Seattle'
 
 SELECT VALUE c
 FROM root c
-WHERE (c["City"] = @__InstanceFieldValue_0)
+WHERE (c["City"] = @InstanceFieldValue)
 """);
             });
 
@@ -946,34 +515,6 @@ WHERE (c["Title"] = "Sales Representative")
         AssertSql();
     }
 
-    public override Task Where_equals_method_string(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Where_equals_method_string(a);
-
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-WHERE (c["City"] = "London")
-""");
-            });
-
-    public override Task Where_equals_method_string_with_ignore_case(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Where_equals_method_string_with_ignore_case(a);
-
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-WHERE STRINGEQUALS(c["City"], "London", true)
-""");
-            });
-
     public override Task Where_equals_method_int(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1054,19 +595,19 @@ WHERE false
 
                 AssertSql(
                     """
-@__intPrm_0='2'
+@intPrm='2'
 
 SELECT VALUE c
 FROM root c
-WHERE (c["ReportsTo"] = @__intPrm_0)
+WHERE (c["ReportsTo"] = @intPrm)
 """,
                     //
                     """
-@__intPrm_0='2'
+@intPrm='2'
 
 SELECT VALUE c
 FROM root c
-WHERE (@__intPrm_0 = c["ReportsTo"])
+WHERE (@intPrm = c["ReportsTo"])
 """);
             });
 
@@ -1078,19 +619,19 @@ WHERE (@__intPrm_0 = c["ReportsTo"])
 
                 AssertSql(
                     """
-@__nullableIntPrm_0='2'
+@nullableIntPrm='2'
 
 SELECT VALUE c
 FROM root c
-WHERE (@__nullableIntPrm_0 = c["ReportsTo"])
+WHERE (@nullableIntPrm = c["ReportsTo"])
 """,
                     //
                     """
-@__nullableIntPrm_0='2'
+@nullableIntPrm='2'
 
 SELECT VALUE c
 FROM root c
-WHERE (c["ReportsTo"] = @__nullableIntPrm_0)
+WHERE (c["ReportsTo"] = @nullableIntPrm)
 """);
             });
 
@@ -1102,19 +643,19 @@ WHERE (c["ReportsTo"] = @__nullableIntPrm_0)
 
                 AssertSql(
                     """
-@__nullableIntPrm_0=null
+@nullableIntPrm=null
 
 SELECT VALUE c
 FROM root c
-WHERE (@__nullableIntPrm_0 = c["ReportsTo"])
+WHERE (@nullableIntPrm = c["ReportsTo"])
 """,
                     //
                     """
-@__nullableIntPrm_0=null
+@nullableIntPrm=null
 
 SELECT VALUE c
 FROM root c
-WHERE (c["ReportsTo"] = @__nullableIntPrm_0)
+WHERE (c["ReportsTo"] = @nullableIntPrm)
 """);
             });
 
@@ -1145,254 +686,6 @@ FROM root c
 WHERE (c["ReportsTo"] = null)
 """);
             });
-
-    public override Task Where_string_length(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Where_string_length(a);
-
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-WHERE (LENGTH(c["City"]) = 6)
-""");
-            });
-
-    public override Task Where_string_indexof(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Where_string_indexof(a);
-
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-WHERE (INDEX_OF(c["City"], "Sea") != -1)
-""");
-            });
-
-    public override Task Where_string_replace(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Where_string_replace(a);
-
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-WHERE (REPLACE(c["City"], "Sea", "Rea") = "Reattle")
-""");
-            });
-
-    public override Task Where_string_substring(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Where_string_substring(a);
-
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-WHERE (SUBSTRING(c["City"], 1, 2) = "ea")
-""");
-            });
-
-    public override async Task Where_datetime_now(bool async)
-    {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Where_datetime_now(async));
-
-        AssertSql();
-    }
-
-    public override Task Where_datetime_utcnow(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Where_datetime_utcnow(a);
-
-                AssertSql(
-                    """
-@__myDatetime_0='2015-04-10T00:00:00'
-
-SELECT VALUE c
-FROM root c
-WHERE (GetCurrentDateTime() != @__myDatetime_0)
-""");
-            });
-
-    public override Task Where_datetimeoffset_utcnow(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Where_datetimeoffset_utcnow(a);
-
-                AssertSql(
-                    """
-@__myDatetimeOffset_0='2015-04-10T00:00:00-08:00'
-
-SELECT VALUE c
-FROM root c
-WHERE (GetCurrentDateTime() != @__myDatetimeOffset_0)
-""");
-            });
-
-    public override async Task Where_datetime_today(bool async)
-    {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Where_datetime_today(async));
-
-        AssertSql();
-    }
-
-    public override async Task Where_datetime_date_component(bool async)
-    {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Where_datetime_date_component(async));
-
-        AssertSql();
-    }
-
-    public override Task Where_date_add_year_constant_component(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Where_date_add_year_constant_component(a);
-
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-WHERE ((c["$type"] = "Order") AND (DateTimePart("yyyy", DateTimeAdd("yyyy", -1, c["OrderDate"])) = 1997))
-""");
-            });
-
-    public override Task Where_datetime_year_component(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Where_datetime_year_component(a);
-
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-WHERE ((c["$type"] = "Order") AND (DateTimePart("yyyy", c["OrderDate"]) = 1998))
-""");
-            });
-
-    public override Task Where_datetime_month_component(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Where_datetime_month_component(a);
-
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-WHERE ((c["$type"] = "Order") AND (DateTimePart("mm", c["OrderDate"]) = 4))
-""");
-            });
-
-    public override async Task Where_datetime_dayOfYear_component(bool async)
-    {
-        // DateTime.DayOfYear not supported by Cosmos
-        await AssertTranslationFailed(() => base.Where_datetime_dayOfYear_component(async));
-
-        AssertSql();
-    }
-
-    public override Task Where_datetime_day_component(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Where_datetime_day_component(a);
-
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-WHERE ((c["$type"] = "Order") AND (DateTimePart("dd", c["OrderDate"]) = 4))
-""");
-            });
-
-    public override Task Where_datetime_hour_component(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Where_datetime_hour_component(a);
-
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-WHERE ((c["$type"] = "Order") AND (DateTimePart("hh", c["OrderDate"]) = 0))
-""");
-            });
-
-    public override Task Where_datetime_minute_component(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Where_datetime_minute_component(a);
-
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-WHERE ((c["$type"] = "Order") AND (DateTimePart("mi", c["OrderDate"]) = 0))
-""");
-            });
-
-    public override Task Where_datetime_second_component(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Where_datetime_second_component(a);
-
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-WHERE ((c["$type"] = "Order") AND (DateTimePart("ss", c["OrderDate"]) = 0))
-""");
-            });
-
-    public override Task Where_datetime_millisecond_component(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Where_datetime_millisecond_component(a);
-
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-WHERE ((c["$type"] = "Order") AND (DateTimePart("ms", c["OrderDate"]) = 0))
-""");
-            });
-
-    public override async Task Where_datetimeoffset_now_component(bool async)
-    {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Where_datetimeoffset_now_component(async));
-
-        AssertSql();
-    }
-
-    public override async Task Where_datetimeoffset_utcnow_component(bool async)
-    {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Where_datetimeoffset_utcnow_component(async));
-
-        AssertSql();
-    }
 
     public override Task Where_simple_reversed(bool async)
         => Fixture.NoSyncTest(
@@ -1725,11 +1018,11 @@ WHERE ((c["$type"] = "Product") AND (NOT(c["Discontinued"]) = (c["ProductID"] > 
 
                 AssertSql(
                     """
-@__prm_0='true'
+@prm='true'
 
 SELECT VALUE c
 FROM root c
-WHERE ((c["$type"] = "Product") AND @__prm_0)
+WHERE ((c["$type"] = "Product") AND @prm)
 """);
             });
 
@@ -1741,11 +1034,11 @@ WHERE ((c["$type"] = "Product") AND @__prm_0)
 
                 AssertSql(
                     """
-@__prm_0='true'
+@prm='true'
 
 SELECT VALUE c
 FROM root c
-WHERE ((c["$type"] = "Product") AND ((c["ProductID"] > 50) != @__prm_0))
+WHERE ((c["$type"] = "Product") AND ((c["ProductID"] > 50) != @prm))
 """);
             });
 
@@ -1757,11 +1050,11 @@ WHERE ((c["$type"] = "Product") AND ((c["ProductID"] > 50) != @__prm_0))
 
                 AssertSql(
                     """
-@__prm_0='true'
+@prm='true'
 
 SELECT VALUE c
 FROM root c
-WHERE ((c["$type"] = "Product") AND (c["Discontinued"] = ((c["ProductID"] > 50) != @__prm_0)))
+WHERE ((c["$type"] = "Product") AND (c["Discontinued"] = ((c["ProductID"] > 50) != @prm)))
 """);
             });
 
@@ -1922,90 +1215,6 @@ WHERE (c["Fax"] = null)
                 AssertSql("ReadItem(None, ALFKI)");
             });
 
-    public override async Task Where_concat_string_int_comparison1(bool async)
-    {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Where_concat_string_int_comparison1(async));
-
-        AssertSql();
-    }
-
-    public override async Task Where_concat_string_int_comparison2(bool async)
-    {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Where_concat_string_int_comparison2(async));
-
-        AssertSql();
-    }
-
-    public override async Task Where_concat_string_int_comparison3(bool async)
-    {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Where_concat_string_int_comparison3(async));
-
-        AssertSql();
-    }
-
-    public override async Task Where_concat_string_int_comparison4(bool async)
-    {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Where_concat_string_int_comparison4(async));
-
-        AssertSql(
-        );
-    }
-
-    public override Task Where_string_concat_method_comparison(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Where_string_concat_method_comparison(a);
-
-                AssertSql(
-                    """
-@__i_0='A'
-
-SELECT VALUE c["id"]
-FROM root c
-WHERE ((@__i_0 || c["id"]) = "AAROUT")
-""");
-            });
-
-    public override Task Where_string_concat_method_comparison_2(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Where_string_concat_method_comparison_2(a);
-
-                AssertSql(
-                    """
-@__i_0='A'
-@__j_1='B'
-
-SELECT VALUE c["id"]
-FROM root c
-WHERE ((@__i_0 || (@__j_1 || c["id"])) = "ABANATR")
-""");
-            });
-
-    public override Task Where_string_concat_method_comparison_3(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Where_string_concat_method_comparison_3(a);
-
-                AssertSql(
-                    """
-@__i_0='A'
-@__j_1='B'
-@__k_2='C'
-
-SELECT VALUE c["id"]
-FROM root c
-WHERE ((@__i_0 || (@__j_1 || (@__k_2 || c["id"]))) = "ABCANTON")
-""");
-            });
-
     public override Task Where_ternary_boolean_condition_true(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -2042,11 +1251,11 @@ WHERE ((c["$type"] = "Product") AND (c["UnitsInStock"] < 20))
 
                 AssertSql(
                     """
-@__productId_0='15'
+@productId='15'
 
 SELECT VALUE c
 FROM root c
-WHERE ((c["$type"] = "Product") AND ((c["ProductID"] < @__productId_0) AND (c["UnitsInStock"] >= 20)))
+WHERE ((c["$type"] = "Product") AND ((c["ProductID"] < @productId) AND (c["UnitsInStock"] >= 20)))
 """);
             });
 
@@ -2268,20 +1477,6 @@ WHERE (((c["$type"] = "Order") AND (c["CustomerID"] = "QUICK")) AND (c["OrderDat
         AssertSql();
     }
 
-    public override Task Time_of_day_datetime(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Time_of_day_datetime(a);
-
-                AssertSql(
-                    """
-SELECT VALUE c["OrderDate"]
-FROM root c
-WHERE (c["$type"] = "Order")
-""");
-            });
-
     public override Task TypeBinary_short_circuit(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -2290,11 +1485,11 @@ WHERE (c["$type"] = "Order")
 
                 AssertSql(
                     """
-@__p_0='false'
+@p='false'
 
 SELECT VALUE c
 FROM root c
-WHERE ((c["$type"] = "Order") AND @__p_0)
+WHERE ((c["$type"] = "Order") AND @p)
 """);
             });
 
@@ -2328,25 +1523,17 @@ WHERE ((c["$type"] = "Product") AND (true ? false : true))
         AssertSql();
     }
 
-    public override async Task Like_with_non_string_column_using_ToString(bool async)
-    {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Like_with_non_string_column_using_ToString(async));
-
-        AssertSql();
-    }
-
-    public override async Task Like_with_non_string_column_using_double_cast(bool async)
-    {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Like_with_non_string_column_using_double_cast(async));
-
-        AssertSql();
-    }
-
     public override async Task Using_same_parameter_twice_in_query_generates_one_sql_parameter(bool async)
     {
         // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Using_same_parameter_twice_in_query_generates_one_sql_parameter(async));
+
+        AssertSql();
+    }
+
+    public override async Task Two_parameters_with_same_name_get_uniquified(bool async)
+    {
+        // Concat with conversion, issue #34963.
         await AssertTranslationFailed(() => base.Using_same_parameter_twice_in_query_generates_one_sql_parameter(async));
 
         AssertSql();
@@ -2440,13 +1627,16 @@ WHERE ((c["$type"] = "Product") AND (true ? false : true))
         AssertSql();
     }
 
-    public override async Task Where_collection_navigation_ToArray_Contains(bool async)
-    {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Where_collection_navigation_ToArray_Contains(async));
-
-        AssertSql();
-    }
+    // TODO: The base implementations no longer compile since https://github.com/dotnet/runtime/pull/110197 (Contains overload added with
+    // optional parameter, not supported in expression trees). #35547 is tracking on the EF side.
+    //
+    // public override async Task Where_collection_navigation_ToArray_Contains(bool async)
+    // {
+    //     // Cosmos client evaluation. Issue #17246.
+    //     await AssertTranslationFailed(() => base.Where_collection_navigation_ToArray_Contains(async));
+    //
+    //     AssertSql();
+    // }
 
     public override async Task Where_collection_navigation_AsEnumerable_Count(bool async)
     {
@@ -2496,29 +1686,32 @@ WHERE ((c["$type"] = "Product") AND (true ? false : true))
 
                 AssertSql(
                     """
-@__orderIds_0='[10248,10249]'
+@orderIds='[10248,10249]'
 
 SELECT VALUE c
 FROM root c
-WHERE ((c["$type"] = "Order") AND ARRAY_CONTAINS(@__orderIds_0, c["OrderID"]))
+WHERE ((c["$type"] = "Order") AND ARRAY_CONTAINS(@orderIds, c["OrderID"]))
 """);
             });
 
-    public override Task Where_array_of_object_contains_over_value_type(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Where_array_of_object_contains_over_value_type(a);
-
-                AssertSql(
-                    """
-@__orderIds_0='[10248,10249]'
-
-SELECT VALUE c
-FROM root c
-WHERE ((c["$type"] = "Order") AND ARRAY_CONTAINS(@__orderIds_0, c["OrderID"]))
-""");
-            });
+// TODO: The base implementations no longer compile since https://github.com/dotnet/runtime/pull/110197 (Contains overload added with
+// optional parameter, not supported in expression trees). #35547 is tracking on the EF side.
+//
+//     public override Task Where_array_of_object_contains_over_value_type(bool async)
+//         => Fixture.NoSyncTest(
+//             async, async a =>
+//             {
+//                 await base.Where_array_of_object_contains_over_value_type(a);
+//
+//                 AssertSql(
+//                     """
+// @orderIds='[10248,10249]'
+//
+// SELECT VALUE c
+// FROM root c
+// WHERE ((c["$type"] = "Order") AND ARRAY_CONTAINS(@orderIds, c["OrderID"]))
+// """);
+//             });
 
     public override Task Filter_with_EF_Property_using_closure_for_property_name(bool async)
         => Fixture.NoSyncTest(
@@ -2674,11 +1867,11 @@ WHERE ((c["$type"] = "Order") AND ARRAY_CONTAINS(@__orderIds_0, c["OrderID"]))
 
                 AssertSql(
                     """
-@__customerIds_0='["ALFKI","FISSA","WHITC"]'
+@customerIds='["ALFKI","FISSA","WHITC"]'
 
 SELECT VALUE c
 FROM root c
-WHERE (ARRAY_CONTAINS(@__customerIds_0, c["id"]) AND (c["City"] = "Seattle"))
+WHERE (ARRAY_CONTAINS(@customerIds, c["id"]) AND (c["City"] = "Seattle"))
 """);
             });
 
@@ -2690,28 +1883,13 @@ WHERE (ARRAY_CONTAINS(@__customerIds_0, c["id"]) AND (c["City"] = "Seattle"))
 
                 AssertSql(
                     """
-@__customerIds_0='["ALFKI","FISSA"]'
+@customerIds='["ALFKI","FISSA"]'
 
 SELECT VALUE c
 FROM root c
-WHERE (ARRAY_CONTAINS(@__customerIds_0, c["id"]) OR (c["City"] = "Seattle"))
+WHERE (ARRAY_CONTAINS(@customerIds, c["id"]) OR (c["City"] = "Seattle"))
 """);
             });
-
-    public override async Task Where_Like_and_comparison(bool async)
-    {
-        await AssertTranslationFailed(() => base.Where_Like_and_comparison(async));
-
-        AssertSql();
-    }
-
-    public override async Task Where_Like_or_comparison(bool async)
-    {
-        await AssertTranslationFailed(() => base.Where_Like_or_comparison(async));
-
-        AssertSql(
-        );
-    }
 
     public override Task GetType_on_non_hierarchy1(bool async)
         => Fixture.NoSyncTest(
@@ -2858,11 +2036,11 @@ WHERE (c["City"] = "London")
                 await base.Generic_Ilist_contains_translates_to_server(a);
                 AssertSql(
                     """
-@__cities_0='["Seattle"]'
+@cities='["Seattle"]'
 
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(@__cities_0, c["City"])
+WHERE ARRAY_CONTAINS(@cities, c["City"])
 """);
             });
 
@@ -2956,13 +2134,13 @@ WHERE (c["id"] NOT IN ("ALFKI", "ANATR") AND c["id"] NOT IN ("ALFKI", "ANTON"))
 
                 AssertSql(
                     """
-@__prm1_0='ALFKI'
-@__prm2_1='ANATR'
-@__prm3_2='ANTON'
+@prm1='ALFKI'
+@prm2='ANATR'
+@prm3='ANTON'
 
 SELECT VALUE c
 FROM root c
-WHERE (((c["id"] != @__prm1_0) AND (c["id"] != @__prm2_1)) AND (c["id"] != @__prm3_2))
+WHERE (((c["id"] != @prm1) AND (c["id"] != @prm2)) AND (c["id"] != @prm3))
 """);
             });
 
@@ -2974,12 +2152,12 @@ WHERE (((c["id"] != @__prm1_0) AND (c["id"] != @__prm2_1)) AND (c["id"] != @__pr
 
                 AssertSql(
                     """
-@__prm1_0='ALFKI'
-@__prm2_1='ANATR'
+@prm1='ALFKI'
+@prm2='ANATR'
 
 SELECT VALUE c
 FROM root c
-WHERE (c["id"] IN (@__prm1_0, @__prm2_1) OR (c["id"] = "ANTON"))
+WHERE (c["id"] IN (@prm1, @prm2) OR (c["id"] = "ANTON"))
 """);
             });
 
@@ -2991,11 +2169,11 @@ WHERE (c["id"] IN (@__prm1_0, @__prm2_1) OR (c["id"] = "ANTON"))
 
                 AssertSql(
                     """
-@__prm_0=null
+@prm=null
 
 SELECT VALUE c
 FROM root c
-WHERE ((((c["Region"] = "WA") OR (c["Region"] = "OR")) OR (c["Region"] = @__prm_0)) OR (c["Region"] = "BC"))
+WHERE ((((c["Region"] = "WA") OR (c["Region"] = "OR")) OR (c["Region"] = @prm)) OR (c["Region"] = "BC"))
 """);
             });
 
@@ -3007,11 +2185,11 @@ WHERE ((((c["Region"] = "WA") OR (c["Region"] = "OR")) OR (c["Region"] = @__prm_
 
                 AssertSql(
                     """
-@__array_0='["ALFKI","ANATR"]'
+@array='["ALFKI","ANATR"]'
 
 SELECT VALUE c
 FROM root c
-WHERE (ARRAY_CONTAINS(@__array_0, c["id"]) OR (c["id"] = "ANTON"))
+WHERE (ARRAY_CONTAINS(@array, c["id"]) OR (c["id"] = "ANTON"))
 """);
             });
 
@@ -3023,13 +2201,13 @@ WHERE (ARRAY_CONTAINS(@__array_0, c["id"]) OR (c["id"] = "ANTON"))
 
                 AssertSql(
                     """
-@__prm1_0='ANTON'
-@__array_1='["ALFKI","ANATR"]'
-@__prm2_2='ALFKI'
+@prm1='ANTON'
+@array='["ALFKI","ANATR"]'
+@prm2='ALFKI'
 
 SELECT VALUE c
 FROM root c
-WHERE (((c["id"] = @__prm1_0) OR ARRAY_CONTAINS(@__array_1, c["id"])) OR (c["id"] = @__prm2_2))
+WHERE (((c["id"] = @prm1) OR ARRAY_CONTAINS(@array, c["id"])) OR (c["id"] = @prm2))
 """);
             });
 
@@ -3124,35 +2302,19 @@ WHERE (c["Title"] = "Sales Representative")
                 await base.Where_poco_closure(a);
                 AssertSql(
                     """
-@__entity_equality_customer_0_CustomerID='ALFKI'
+@entity_equality_customer_CustomerID='ALFKI'
 
 SELECT VALUE c["id"]
 FROM root c
-WHERE (c["id"] = @__entity_equality_customer_0_CustomerID)
+WHERE (c["id"] = @entity_equality_customer_CustomerID)
 """,
                     //
                     """
-@__entity_equality_customer_0_CustomerID='ANATR'
+@entity_equality_customer_CustomerID='ANATR'
 
 SELECT VALUE c["id"]
 FROM root c
-WHERE (c["id"] = @__entity_equality_customer_0_CustomerID)
-""");
-            });
-
-    public override Task Where_concat_string_string_comparison(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Where_concat_string_string_comparison(a);
-
-                AssertSql(
-                    """
-@__i_0='A'
-
-SELECT VALUE c["id"]
-FROM root c
-WHERE ((@__i_0 || c["id"]) = "AALFKI")
+WHERE (c["id"] = @entity_equality_customer_CustomerID)
 """);
             });
 
@@ -3213,11 +2375,11 @@ WHERE ((@__i_0 || c["id"]) = "AALFKI")
 
                 AssertSql(
                     """
-@__id_0='ALF'
+@id='ALF'
 
 SELECT VALUE c
 FROM root c
-WHERE (c["id"] = (@__id_0 || "KI"))
+WHERE (c["id"] = (@id || "KI"))
 """);
             });
 
@@ -3242,27 +2404,27 @@ WHERE ((c["$type"] = "Order") AND (c["CustomerID"] = "1337"))
 """,
                     //
                     """
-@__prm_Value_0='1337'
+@prm_Value='1337'
 
 SELECT VALUE c
 FROM root c
-WHERE ((c["$type"] = "Order") AND (c["CustomerID"] = @__prm_Value_0))
+WHERE ((c["$type"] = "Order") AND (c["CustomerID"] = @prm_Value))
 """,
                     //
                     """
-@__ToString_0='1337'
+@ToString='1337'
 
 SELECT VALUE c
 FROM root c
-WHERE ((c["$type"] = "Order") AND (c["CustomerID"] = @__ToString_0))
+WHERE ((c["$type"] = "Order") AND (c["CustomerID"] = @ToString))
 """,
                     //
                     """
-@__p_0='1337'
+@p='1337'
 
 SELECT VALUE c
 FROM root c
-WHERE ((c["$type"] = "Order") AND (c["CustomerID"] = @__p_0))
+WHERE ((c["$type"] = "Order") AND (c["CustomerID"] = @p))
 """,
                     //
                     """
@@ -3280,11 +2442,11 @@ WHERE ((c["$type"] = "Order") AND (c["CustomerID"] = "1337"))
 
                 AssertSql(
                     """
-@__id_0='10252'
+@id='10252'
 
 SELECT VALUE c["OrderID"]
 FROM root c
-WHERE ((c["$type"] = "Order") AND (c["OrderID"] = @__id_0))
+WHERE ((c["$type"] = "Order") AND (c["OrderID"] = @id))
 """,
                     //
                     """

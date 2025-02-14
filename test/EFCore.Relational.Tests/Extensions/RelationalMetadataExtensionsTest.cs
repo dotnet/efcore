@@ -164,6 +164,10 @@ public class RelationalMetadataExtensionsTest
 
         entityType.SetViewSchema(null);
 
+        Assert.Equal("dbo", entityType.GetViewSchema());
+
+        modelBuilder.HasDefaultSchema(null);
+
         Assert.Null(entityType.GetViewSchema());
     }
 

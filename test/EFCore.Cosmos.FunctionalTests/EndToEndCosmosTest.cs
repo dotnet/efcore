@@ -48,7 +48,7 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
             var logEntry = ListLoggerFactory.Log.Single(e => e.Id == CosmosEventId.ExecutedReadNext);
             Assert.Equal(LogLevel.Information, logEntry.Level);
             Assert.Contains("ReadNext", logEntry.Message);
-            Assert.Single(ListLoggerFactory.Log.Where(l => l.Id == CosmosEventId.SyncNotSupported));
+            Assert.Single(ListLoggerFactory.Log, l => l.Id == CosmosEventId.SyncNotSupported);
             ListLoggerFactory.Clear();
 
             Assert.Equal(42, customerFromStore.Id);
@@ -62,7 +62,7 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
             Assert.Equal(LogLevel.Information, logEntry.Level);
             Assert.Contains("ReplaceItem", logEntry.Message);
 
-            Assert.Single(ListLoggerFactory.Log.Where(l => l.Id == CosmosEventId.SyncNotSupported));
+            Assert.Single(ListLoggerFactory.Log, l => l.Id == CosmosEventId.SyncNotSupported);
         }
 
         using (var context = contextFactory.CreateContext())
@@ -73,7 +73,7 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
             var logEntry = ListLoggerFactory.Log.Single(e => e.Id == CosmosEventId.ExecutedReadItem);
             Assert.Equal(LogLevel.Information, logEntry.Level);
             Assert.Contains("ReadItem", logEntry.Message);
-            Assert.Single(ListLoggerFactory.Log.Where(l => l.Id == CosmosEventId.SyncNotSupported));
+            Assert.Single(ListLoggerFactory.Log, l => l.Id == CosmosEventId.SyncNotSupported);
             ListLoggerFactory.Clear();
 
             Assert.Equal(42, customerFromStore.Id);
@@ -87,7 +87,7 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
             Assert.Equal(LogLevel.Information, logEntry.Level);
             Assert.Contains("DeleteItem", logEntry.Message);
 
-            Assert.Single(ListLoggerFactory.Log.Where(l => l.Id == CosmosEventId.SyncNotSupported));
+            Assert.Single(ListLoggerFactory.Log, l => l.Id == CosmosEventId.SyncNotSupported);
         }
 
         using (var context = contextFactory.CreateContext())
@@ -95,7 +95,7 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
             ListLoggerFactory.Clear();
             Assert.Empty(context.Set<Customer>().ToList());
 
-            Assert.Single(ListLoggerFactory.Log.Where(l => l.Id == CosmosEventId.SyncNotSupported));
+            Assert.Single(ListLoggerFactory.Log, l => l.Id == CosmosEventId.SyncNotSupported);
         }
     }
 
@@ -1508,11 +1508,11 @@ ReadItem([1.0,"One",true], 42)
             AssertSql(
                 context,
                 """
-@__p_0='42'
+@p='42'
 
 SELECT VALUE c
 FROM root c
-WHERE (c["id"] = @__p_0)
+WHERE (c["id"] = @p)
 OFFSET 0 LIMIT 1
 """);
         }
