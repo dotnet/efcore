@@ -16,8 +16,12 @@ public class SqlUnaryExpression : SqlExpression
 {
     private static readonly ISet<ExpressionType> AllowedOperators = new HashSet<ExpressionType>
     {
+        ExpressionType.Equal,
+        ExpressionType.NotEqual,
+        ExpressionType.Convert,
         ExpressionType.Not,
         ExpressionType.Negate,
+        ExpressionType.OnesComplement,
         ExpressionType.UnaryPlus
     };
 
