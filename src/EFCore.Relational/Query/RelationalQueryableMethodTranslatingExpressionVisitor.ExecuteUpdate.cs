@@ -10,28 +10,25 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 public partial class RelationalQueryableMethodTranslatingExpressionVisitor
 {
-    private const string ExecuteUpdateRuntimeParameterPrefix = QueryCompilationContext.QueryParameterPrefix + "complex_type_";
+    private const string ExecuteUpdateRuntimeParameterPrefix = "complex_type_";
 
     private static readonly MethodInfo ParameterValueExtractorMethod =
         typeof(RelationalSqlTranslatingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(ParameterValueExtractor))!;
 
     /// <inheritdoc />
-    protected override UpdateExpression? TranslateExecuteUpdate(ShapedQueryExpression source, LambdaExpression setPropertyCalls)
+    protected override UpdateExpression? TranslateExecuteUpdate(ShapedQueryExpression source, IReadOnlyList<ExecuteUpdateSetter> setters)
     {
+        if (setters.Count == 0)
+        {
+            throw new UnreachableException("Empty setters list");
+        }
+
         // Our source may have IncludeExpressions because of owned entities or auto-include; unwrap these, as they're meaningless for
         // ExecuteUpdate's lambdas. Note that we don't currently support updates across tables.
         source = source.UpdateShaperExpression(new IncludePruner().Visit(source.ShaperExpression));
 
-        var setters = new List<(LambdaExpression PropertySelector, Expression ValueExpression)>();
-        PopulateSetPropertyCalls(setPropertyCalls.Body, setters, setPropertyCalls.Parameters[0]);
         if (TranslationErrorDetails != null)
         {
-            return null;
-        }
-
-        if (setters.Count == 0)
-        {
-            AddTranslationErrorDetails(RelationalStrings.NoSetPropertyInvocation);
             return null;
         }
 
@@ -67,42 +64,9 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
 
         return PushdownWithPkInnerJoinPredicate();
 
-        void PopulateSetPropertyCalls(
-            Expression expression,
-            List<(LambdaExpression, Expression)> list,
-            ParameterExpression parameter)
-        {
-            switch (expression)
-            {
-                case ParameterExpression p
-                    when parameter == p:
-                    break;
-
-                case MethodCallExpression
-                    {
-                        Method:
-                        {
-                            IsGenericMethod: true,
-                            Name: nameof(SetPropertyCalls<int>.SetProperty),
-                            DeclaringType.IsGenericType: true
-                        }
-                    } methodCallExpression
-                    when methodCallExpression.Method.DeclaringType.GetGenericTypeDefinition() == typeof(SetPropertyCalls<>):
-                    list.Add(((LambdaExpression)methodCallExpression.Arguments[0], methodCallExpression.Arguments[1]));
-
-                    PopulateSetPropertyCalls(methodCallExpression.Object!, list, parameter);
-
-                    break;
-
-                default:
-                    AddTranslationErrorDetails(RelationalStrings.InvalidArgumentToExecuteUpdate);
-                    break;
-            }
-        }
-
         bool TranslateSetters(
             ShapedQueryExpression source,
-            List<(LambdaExpression PropertySelector, Expression ValueExpression)> setters,
+            IReadOnlyList<ExecuteUpdateSetter> setters,
             [NotNullWhen(true)] out List<ColumnValueSetter>? translatedSetters,
             [NotNullWhen(true)] out TableExpressionBase? targetTable)
         {
@@ -305,9 +269,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                                     : property.GetGetter().GetClrValue(constantExpression.Value),
                                 property.ClrType.MakeNullable());
 
-                        case SqlParameterExpression parameterExpression
-                            when parameterExpression.Name.StartsWith(
-                                QueryCompilationContext.QueryParameterPrefix, StringComparison.Ordinal):
+                        case SqlParameterExpression parameterExpression:
                         {
                             var lambda = Expression.Lambda(
                                 Expression.Call(
@@ -319,8 +281,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                                 QueryCompilationContext.QueryContextParameter);
 
                             var newParameterName =
-                                $"{ExecuteUpdateRuntimeParameterPrefix}"
-                                + $"{parameterExpression.Name[QueryCompilationContext.QueryParameterPrefix.Length..]}_{property.Name}";
+                                $"{ExecuteUpdateRuntimeParameterPrefix}{parameterExpression.Name}_{property.Name}";
 
                             return _queryCompilationContext.RegisterRuntimeParameter(newParameterName, lambda);
                         }
@@ -337,8 +298,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                                 QueryCompilationContext.QueryContextParameter);
 
                             var newParameterName =
-                                $"{ExecuteUpdateRuntimeParameterPrefix}"
-                                + $"{chainExpression.ParameterExpression.Name![QueryCompilationContext.QueryParameterPrefix.Length..]}_{property.Name}";
+                                $"{ExecuteUpdateRuntimeParameterPrefix}{chainExpression.ParameterExpression.Name}_{property.Name}";
 
                             return _queryCompilationContext.RegisterRuntimeParameter(newParameterName, lambda);
                         }
@@ -368,7 +328,6 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                             complexProperty.ClrType.MakeNullable()),
 
                         SqlParameterExpression parameter
-                            when parameter.Name.StartsWith(QueryCompilationContext.QueryParameterPrefix, StringComparison.Ordinal)
                             => new ParameterBasedComplexPropertyChainExpression(parameter, complexProperty),
 
                         StructuralTypeShaperExpression
@@ -469,7 +428,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
             var inner = source;
             var outerParameter = Expression.Parameter(entityType.ClrType);
             var outerKeySelector = Expression.Lambda(outerParameter.CreateKeyValuesExpression(pk.Properties), outerParameter);
-            var firstPropertyLambdaExpression = setters[0].Item1;
+            var firstPropertyLambdaExpression = setters[0].PropertySelector;
             var entitySource = GetEntitySource(RelationalDependencies.Model, firstPropertyLambdaExpression.Body);
             var innerKeySelector = Expression.Lambda(
                 entitySource.CreateKeyValuesExpression(pk.Properties), firstPropertyLambdaExpression.Parameters);
@@ -486,6 +445,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
 
             var propertyReplacement = AccessField(transparentIdentifierType, transparentIdentifierParameter, "Outer");
             var valueReplacement = AccessField(transparentIdentifierType, transparentIdentifierParameter, "Inner");
+            var rewrittenSetters = new ExecuteUpdateSetter[setters.Count];
             for (var i = 0; i < setters.Count; i++)
             {
                 var (propertyExpression, valueExpression) = setters[i];
@@ -504,14 +464,14 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                         transparentIdentifierParameter)
                     : valueExpression;
 
-                setters[i] = (propertyExpression, valueExpression);
+                rewrittenSetters[i] = new(propertyExpression, valueExpression);
             }
 
             tableExpression = (TableExpression)outerSelectExpression.Tables[0];
 
             // Re-translate the property selectors to get column expressions pointing to the new outer select expression (the original one
             // has been pushed down into a subquery).
-            if (!TranslateSetters(outer, setters, out var translatedSetters, out _))
+            if (!TranslateSetters(outer, rewrittenSetters, out var translatedSetters, out _))
             {
                 return null;
             }

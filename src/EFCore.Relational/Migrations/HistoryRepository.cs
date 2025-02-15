@@ -219,8 +219,7 @@ public abstract class HistoryRepository : IHistoryRepository
     private IReadOnlyList<MigrationCommand> GetCreateIfNotExistsCommands()
         => Dependencies.MigrationsSqlGenerator.Generate([new SqlOperation
         {
-            Sql = GetCreateIfNotExistsScript(),
-            SuppressTransaction = true
+            Sql = GetCreateIfNotExistsScript()
         }]);
 
     /// <summary>

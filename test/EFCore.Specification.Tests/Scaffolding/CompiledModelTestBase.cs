@@ -88,7 +88,7 @@ namespace TestNamespace
         => Test(
             modelBuilder => BuildBigModel(modelBuilder, jsonColumns: false),
             model => AssertBigModel(model, jsonColumns: false),
-            UseBigModel,
+            context => UseBigModel(context, jsonColumns: false),
             options: new CompiledModelCodeGenerationOptions { UseNullableReferenceTypes = true, ForNativeAot = forNativeAot },
             testName: testName);
 
@@ -221,6 +221,15 @@ namespace TestNamespace
                 b.PrimitiveCollection(e => e.EnumU32AsStringArray).ElementType(b => b.HasConversion<string>());
                 b.PrimitiveCollection(e => e.EnumU64AsStringArray).ElementType(b => b.HasConversion<string>());
 
+                b.Property(e => e.BoolReadOnlyCollection);
+                b.Property(e => e.UInt8ReadOnlyCollection).HasField("_uInt8ReadOnlyCollection");
+                b.Property(e => e.Int32ReadOnlyCollection);
+                b.Property(e => e.StringReadOnlyCollection).HasField("_stringReadOnlyCollection");
+
+                b.PrimitiveCollection(e => e.IPAddressReadOnlyCollection)
+                    .ElementType(b => b.HasConversion<string>())
+                    .HasField("_ipAddressReadOnlyCollection");
+
                 b.Property(e => e.BoolToStringConverterProperty).HasConversion(new BoolToStringConverter("A", "B"));
                 b.Property(e => e.BoolToTwoValuesConverterProperty).HasConversion(new BoolToTwoValuesConverter<byte>(0, 1));
                 b.Property(e => e.BoolToZeroOneConverterProperty).HasConversion<BoolToZeroOneConverter<short>>();
@@ -280,6 +289,27 @@ namespace TestNamespace
         Assert.IsType<ConstructorBinding>(manyTypesType.ConstructorBinding);
         Assert.Null(manyTypesType.FindIndexerPropertyInfo());
         Assert.Equal(ChangeTrackingStrategy.Snapshot, manyTypesType.GetChangeTrackingStrategy());
+
+        var ipAddressCollection = manyTypesType.FindProperty(nameof(ManyTypes.IPAddressReadOnlyCollection));
+        if (ipAddressCollection != null)
+        {
+            Assert.True(ipAddressCollection.IsPrimitiveCollection);
+            var ipAddressElementType = ipAddressCollection.GetElementType()!;
+            Assert.Equal(typeof(IPAddress), ipAddressElementType.ClrType);
+            Assert.Same(ipAddressCollection, ipAddressElementType.CollectionProperty);
+            Assert.Equal(typeof(string), ipAddressElementType.GetProviderClrType());
+            Assert.Null(ipAddressElementType.GetMaxLength());
+            Assert.Null(ipAddressElementType.GetPrecision());
+            Assert.Null(ipAddressElementType.GetScale());
+            Assert.Null(ipAddressElementType.IsUnicode());
+            Assert.Equal(ipAddressCollection.GetTypeMapping().ElementTypeMapping?.GetType(), ipAddressElementType.GetTypeMapping().GetType());
+            Assert.NotNull(ipAddressElementType.GetTypeMapping().Comparer);
+            Assert.NotNull(ipAddressElementType.GetTypeMapping().Converter);
+            Assert.NotNull(ipAddressElementType.GetTypeMapping().JsonValueReaderWriter);
+            Assert.NotNull(ipAddressElementType.GetValueComparer());
+            Assert.Null(ipAddressElementType.GetValueConverter());
+            Assert.Null(ipAddressElementType.GetJsonValueReaderWriter());
+        }
 
         Assert.Null(model.FindEntityType(typeof(AbstractBase)));
         var principalBase = model.FindEntityType(typeof(PrincipalBase))!;
@@ -548,17 +578,16 @@ namespace TestNamespace
             principalDerived.GetDeclaredReferencingForeignKeys());
     }
 
-    protected virtual async Task UseBigModel(DbContext context)
+    protected virtual async Task UseBigModel(DbContext context, bool jsonColumns)
     {
         var principalDerived = new PrincipalDerived<DependentBase<byte?>>
         {
             AlternateId = new Guid(),
-            Dependent = new DependentBase<byte?>(1),
+            Dependent = new DependentDerived<byte?>(1, "one"),
             Owned = new OwnedType(context)
         };
 
-        var principalBase = context.Model.FindEntityType(typeof(PrincipalBase))!;
-        var principalId = principalBase.FindProperty(nameof(PrincipalBase.Id))!;
+        var principalId = context.Model.FindEntityType(typeof(PrincipalBase))!.FindProperty(nameof(PrincipalBase.Id))!;
         if (principalId.ValueGenerated == ValueGenerated.Never)
         {
             principalDerived.Id = 10;
@@ -566,7 +595,568 @@ namespace TestNamespace
 
         context.Add(principalDerived);
 
+        var types = new ManyTypes()
+        {
+            Bool = true,
+            UInt8 = 1,
+            Int16 = 2,
+            Int32 = 3,
+            Int64 = 4,
+            UInt16 = 5,
+            UInt32 = 6,
+            UInt64 = 7,
+            Char = 'a',
+            Float = 8.0f,
+            Double = 9.0,
+            Decimal = 10.0m,
+            String = "11",
+            Guid = Guid.NewGuid(),
+            DateTime = new DateTime(2023, 10, 10, 10, 10, 10),
+            DateOnly = new DateOnly(2023, 10, 10),
+            TimeOnly = new TimeOnly(10, 10),
+            TimeSpan = new TimeSpan(1),
+            Bytes = [1, 2, 3],
+            Uri = new Uri("https://www.example.com"),
+            PhysicalAddress = PhysicalAddress.Parse("00-00-00-00-00-01"),
+            IPAddress = IPAddress.Parse("127.0.0.1"),
+
+            NullableBool = true,
+            NullableUInt8 = 1,
+            NullableInt16 = 2,
+            NullableInt32 = 3,
+            NullableInt64 = 4,
+            NullableUInt16 = 5,
+            NullableUInt32 = 6,
+            NullableUInt64 = 7,
+            NullableChar = 'a',
+            NullableFloat = 8.0f,
+            NullableDouble = 9.0,
+            NullableDecimal = 10.0m,
+            NullableString = "11",
+            NullableGuid = Guid.NewGuid(),
+            NullableDateTime = new DateTime(2023, 10, 10, 10, 10, 10),
+            NullableDateOnly = new DateOnly(2023, 10, 10),
+            NullableTimeOnly = new TimeOnly(10, 10),
+            NullableTimeSpan = new TimeSpan(1),
+            NullableBytes = [1, 2, 3],
+            NullableUri = new Uri("https://www.example.com"),
+
+            BoolArray = [true],
+            Int8Array = [1],
+            Int16Array = [2],
+            Int32Array = [3],
+            Int64Array = [4],
+            UInt8Array = [1],
+            UInt16Array = [5],
+            UInt32Array = [6],
+            UInt64Array = [7],
+            CharArray = ['a'],
+            FloatArray = [8.0f],
+            DoubleArray = [9.0],
+            DecimalArray = [10.0m],
+            StringArray = ["11"],
+            GuidArray = [Guid.NewGuid()],
+            DateTimeArray = [new DateTime(2023, 10, 10, 10, 10, 10)],
+            DateOnlyArray = [new DateOnly(2023, 10, 10)],
+            TimeOnlyArray = [new TimeOnly(10, 10)],
+            TimeSpanArray = [new TimeSpan(1)],
+            BytesArray = [[1, 2, 3]],
+            UriArray = [new Uri("https://www.example.com")],
+            IPAddressArray = [IPAddress.Parse("127.0.0.1")],
+            PhysicalAddressArray = [PhysicalAddress.Parse("00-00-00-00-00-01")],
+
+            NullableBoolArray = [true],
+            NullableInt8Array = [1],
+            NullableInt16Array = [2],
+            NullableInt32Array = [3],
+            NullableInt64Array = [4],
+            NullableUInt8Array = [1],
+            NullableUInt16Array = [5],
+            NullableUInt32Array = [6],
+            NullableUInt64Array = [7],
+            NullableCharArray = ['a'],
+            NullableFloatArray = [8.0f],
+            NullableDoubleArray = [9.0],
+            NullableDecimalArray = [10.0m],
+            NullableStringArray = ["11"],
+            NullableGuidArray = [Guid.NewGuid()],
+            NullableDateTimeArray = [new DateTime(2023, 10, 10, 10, 10, 10)],
+            NullableDateOnlyArray = [new DateOnly(2023, 10, 10)],
+            NullableTimeOnlyArray = [new TimeOnly(10, 10)],
+            NullableTimeSpanArray = [new TimeSpan(1)],
+            NullableBytesArray = [[1, 2, 3]],
+            NullableUriArray = [new Uri("https://www.example.com")],
+            NullableIPAddressArray = [IPAddress.Parse("127.0.0.1")],
+            NullablePhysicalAddressArray = [PhysicalAddress.Parse("00-00-00-00-00-01")],
+
+            BoolReadOnlyCollection = [true],
+            UInt8ReadOnlyCollection = [1],
+            Int32ReadOnlyCollection = [2],
+            StringReadOnlyCollection = ["3"],
+            IPAddressReadOnlyCollection = [IPAddress.Parse("127.0.0.1")],
+
+            Enum8 = Enum8.One,
+            Enum16 = Enum16.One,
+            Enum32 = Enum32.One,
+            Enum64 = Enum64.One,
+            EnumU8 = EnumU8.One,
+            EnumU16 = EnumU16.One,
+            EnumU32 = EnumU32.One,
+            EnumU64 = EnumU64.One,
+
+            Enum8AsString = Enum8.One,
+            Enum16AsString = Enum16.One,
+            Enum32AsString = Enum32.One,
+            Enum64AsString = Enum64.One,
+            EnumU8AsString = EnumU8.One,
+            EnumU16AsString = EnumU16.One,
+            EnumU32AsString = EnumU32.One,
+            EnumU64AsString = EnumU64.One,
+
+            Enum8Collection = [Enum8.One],
+            Enum16Collection = [Enum16.One],
+            Enum32Collection = [Enum32.One],
+            Enum64Collection = [Enum64.One],
+            EnumU8Collection = [EnumU8.One],
+            EnumU16Collection = [EnumU16.One],
+            EnumU32Collection = [EnumU32.One],
+            EnumU64Collection = [EnumU64.One],
+
+            Enum8AsStringCollection = [Enum8.One],
+            Enum16AsStringCollection = [Enum16.One],
+            Enum32AsStringCollection = [Enum32.One],
+            Enum64AsStringCollection = [Enum64.One],
+            EnumU8AsStringCollection = [EnumU8.One],
+            EnumU16AsStringCollection = [EnumU16.One],
+            EnumU32AsStringCollection = [EnumU32.One],
+            EnumU64AsStringCollection = [EnumU64.One],
+
+            NullableEnum8Collection = [Enum8.One],
+            NullableEnum16Collection = [Enum16.One],
+            NullableEnum32Collection = [Enum32.One],
+            NullableEnum64Collection = [Enum64.One],
+            NullableEnumU8Collection = [EnumU8.One],
+            NullableEnumU16Collection = [EnumU16.One],
+            NullableEnumU32Collection = [EnumU32.One],
+            NullableEnumU64Collection = [EnumU64.One],
+
+            NullableEnum8AsStringCollection = [Enum8.One],
+            NullableEnum16AsStringCollection = [Enum16.One],
+            NullableEnum32AsStringCollection = [Enum32.One],
+            NullableEnum64AsStringCollection = [Enum64.One],
+            NullableEnumU8AsStringCollection = [EnumU8.One],
+            NullableEnumU16AsStringCollection = [EnumU16.One],
+            NullableEnumU32AsStringCollection = [EnumU32.One],
+            NullableEnumU64AsStringCollection = [EnumU64.One],
+
+            Enum8Array = [Enum8.One],
+            Enum16Array = [Enum16.One],
+            Enum32Array = [Enum32.One],
+            Enum64Array = [Enum64.One],
+            EnumU8Array = [EnumU8.One],
+            EnumU16Array = [EnumU16.One],
+            EnumU32Array = [EnumU32.One],
+            EnumU64Array = [EnumU64.One],
+
+            Enum8AsStringArray = [Enum8.One],
+            Enum16AsStringArray = [Enum16.One],
+            Enum32AsStringArray = [Enum32.One],
+            Enum64AsStringArray = [Enum64.One],
+            EnumU8AsStringArray = [EnumU8.One],
+            EnumU16AsStringArray = [EnumU16.One],
+            EnumU32AsStringArray = [EnumU32.One],
+            EnumU64AsStringArray = [EnumU64.One],
+
+            NullableEnum8Array = [Enum8.One],
+            NullableEnum16Array = [Enum16.One],
+            NullableEnum32Array = [Enum32.One],
+            NullableEnum64Array = [Enum64.One],
+            NullableEnumU8Array = [EnumU8.One],
+            NullableEnumU16Array = [EnumU16.One],
+            NullableEnumU32Array = [EnumU32.One],
+            NullableEnumU64Array = [EnumU64.One],
+
+            NullableEnum8AsStringArray = [Enum8.One],
+            NullableEnum16AsStringArray = [Enum16.One],
+            NullableEnum32AsStringArray = [Enum32.One],
+            NullableEnum64AsStringArray = [Enum64.One],
+            NullableEnumU8AsStringArray = [EnumU8.One],
+            NullableEnumU16AsStringArray = [EnumU16.One],
+            NullableEnumU32AsStringArray = [EnumU32.One],
+            NullableEnumU64AsStringArray = [EnumU64.One],
+
+            BoolNestedCollection = [[true]],
+            UInt8NestedCollection = [[9]],
+            Int8NestedCollection = [[[9]]],
+            Int32NestedCollection = [[9]],
+            Int64NestedCollection = [[[9L]]],
+            CharNestedCollection = [['a']],
+            StringNestedCollection = [["11"]],
+            GuidNestedCollection = [[[Guid.NewGuid()]]],
+            BytesNestedCollection = [[[1, 2, 3]]],
+            NullableUInt8NestedCollection = [[9]],
+            NullableInt32NestedCollection = [[9]],
+            NullableInt64NestedCollection = [[[9L]]],
+            NullableStringNestedCollection = [["11"]],
+            NullableGuidNestedCollection = [[Guid.NewGuid()]],
+            NullableBytesNestedCollection = [[[1, 2, 3]]],
+            NullablePhysicalAddressNestedCollection = [[[PhysicalAddress.Parse("00-00-00-00-00-01")]]],
+
+            Enum8NestedCollection = [[Enum8.One]],
+            Enum32NestedCollection = [[[Enum32.One]]],
+            EnumU64NestedCollection = [[EnumU64.One]],
+            NullableEnum8NestedCollection = [[Enum8.One]],
+            NullableEnum32NestedCollection = [[[Enum32.One]]],
+            NullableEnumU64NestedCollection = [[EnumU64.One]],
+
+            BoolToStringConverterProperty = true,
+            BoolToTwoValuesConverterProperty = true,
+            BoolToZeroOneConverterProperty = true,
+            BytesToStringConverterProperty = [1, 2, 3],
+            CastingConverterProperty = 1,
+            CharToStringConverterProperty = 'a',
+            DateOnlyToStringConverterProperty = new DateOnly(2023, 10, 10),
+            DateTimeOffsetToBinaryConverterProperty = new DateTimeOffset(2023, 10, 10, 10, 10, 10, TimeSpan.Zero),
+            DateTimeOffsetToBytesConverterProperty = new DateTimeOffset(2023, 10, 10, 10, 10, 10, TimeSpan.Zero),
+            DateTimeOffsetToStringConverterProperty = new DateTimeOffset(2023, 10, 10, 10, 10, 10, TimeSpan.Zero),
+            DateTimeToBinaryConverterProperty = new DateTime(2023, 10, 10, 10, 10, 10),
+            DateTimeToStringConverterProperty = new DateTime(2023, 10, 10, 10, 10, 10),
+            EnumToNumberConverterProperty = Enum32.One,
+            EnumToStringConverterProperty = Enum32.One,
+            GuidToBytesConverterProperty = Guid.NewGuid(),
+            GuidToStringConverterProperty = Guid.NewGuid(),
+            IPAddressToBytesConverterProperty = IPAddress.Parse("127.0.0.1"),
+            IPAddressToStringConverterProperty = IPAddress.Parse("127.0.0.1"),
+            IntNumberToBytesConverterProperty = 1,
+            DecimalNumberToBytesConverterProperty = 1.0m,
+            DoubleNumberToBytesConverterProperty = 1.0,
+            IntNumberToStringConverterProperty = 1,
+            DecimalNumberToStringConverterProperty = 1.0m,
+            DoubleNumberToStringConverterProperty = 1.0,
+            PhysicalAddressToBytesConverterProperty = PhysicalAddress.Parse("00-00-00-00-00-01"),
+            PhysicalAddressToStringConverterProperty = PhysicalAddress.Parse("00-00-00-00-00-01"),
+            StringToBoolConverterProperty = "true",
+            StringToBytesConverterProperty = "1",
+            StringToCharConverterProperty = "a",
+            StringToDateOnlyConverterProperty = new DateOnly(2023, 10, 10).ToString(@"yyyy\-MM\-dd"),
+            StringToDateTimeConverterProperty = new DateTime(2023, 10, 10, 10, 10, 10).ToString(@"yyyy\-MM\-dd HH\:mm\:ss.FFFFFFF"),
+            StringToDateTimeOffsetConverterProperty = new DateTimeOffset(2023, 10, 10, 10, 10, 10, TimeSpan.FromHours(1))
+                .ToString(@"yyyy\-MM\-dd HH\:mm\:ss.FFFFFFFzzz"),
+            StringToEnumConverterProperty = "One",
+            StringToGuidConverterProperty = Guid.NewGuid().ToString(),
+            StringToIntNumberConverterProperty = "1",
+            StringToDecimalNumberConverterProperty = "1.0",
+            StringToDoubleNumberConverterProperty = "1.0",
+            StringToTimeOnlyConverterProperty = new TimeOnly(10, 10).ToString("o"),
+            StringToTimeSpanConverterProperty = new TimeSpan(1).ToString("c"),
+            StringToUriConverterProperty = "https://www.example.com/",
+            TimeOnlyToStringConverterProperty = new TimeOnly(10, 10),
+            TimeOnlyToTicksConverterProperty = new TimeOnly(10, 10),
+            TimeSpanToStringConverterProperty = new TimeSpan(1),
+            TimeSpanToTicksConverterProperty = new TimeSpan(1),
+            UriToStringConverterProperty = new Uri("https://www.example.com/"),
+            NullIntToNullStringConverterProperty = null
+        };
+
+        var manyTypesId = context.Model.FindEntityType(typeof(ManyTypes))!.FindProperty(nameof(ManyTypes.Id))!;
+        if (manyTypesId.ValueGenerated == ValueGenerated.Never)
+        {
+            types.Id = new ManyTypesId(17);
+        }
+
+        context.Add(types);
+
         await context.SaveChangesAsync();
+
+        var dependent = context.Set<PrincipalDerived<DependentBase<byte?>>>().Include(p => p.Dependent).Single().Dependent!;
+        Assert.Equal("one", ((DependentDerived<byte?>)dependent).GetData());
+
+        var typesFromStore = context.Set<ManyTypes>().OrderBy(m => m.Id).First();
+        AssertEqual(types, typesFromStore, jsonColumns);
+    }
+
+    protected virtual void AssertEqual(ManyTypes types, ManyTypes otherTypes, bool jsonColumns)
+    {
+        Assert.Equal(types.Id.Id, otherTypes.Id.Id);
+        Assert.Equal(types.Bool, otherTypes.Bool);
+        Assert.Equal(types.UInt8, otherTypes.UInt8);
+        Assert.Equal(types.UInt16, otherTypes.UInt16);
+        Assert.Equal(types.UInt32, otherTypes.UInt32);
+        Assert.Equal(types.UInt64, otherTypes.UInt64);
+        Assert.Equal(types.Int8, otherTypes.Int8);
+        Assert.Equal(types.Int16, otherTypes.Int16);
+        Assert.Equal(types.Int32, otherTypes.Int32);
+        Assert.Equal(types.Int64, otherTypes.Int64);
+        Assert.Equal(types.Char, otherTypes.Char);
+        Assert.Equal(types.Decimal, otherTypes.Decimal);
+        Assert.Equal(types.Double, otherTypes.Double);
+        Assert.Equal(types.Float, otherTypes.Float);
+        Assert.Equal(types.Guid, otherTypes.Guid);
+        Assert.Equal(types.DateTime, otherTypes.DateTime);
+        Assert.Equal(types.DateOnly, otherTypes.DateOnly);
+        Assert.Equal(types.TimeOnly, otherTypes.TimeOnly);
+        Assert.Equal(types.TimeSpan, otherTypes.TimeSpan);
+        Assert.Equal(types.String, otherTypes.String);
+        Assert.Equal(types.Bytes, otherTypes.Bytes);
+        Assert.Equal(types.Uri, otherTypes.Uri);
+        Assert.Equal(types.IPAddress, otherTypes.IPAddress);
+        Assert.Equal(types.PhysicalAddress, otherTypes.PhysicalAddress);
+
+        Assert.Equal(types.NullableBool, otherTypes.NullableBool);
+        Assert.Equal(types.NullableUInt8, otherTypes.NullableUInt8);
+        Assert.Equal(types.NullableUInt16, otherTypes.NullableUInt16);
+        Assert.Equal(types.NullableUInt32, otherTypes.NullableUInt32);
+        Assert.Equal(types.NullableUInt64, otherTypes.NullableUInt64);
+        Assert.Equal(types.NullableInt8, otherTypes.NullableInt8);
+        Assert.Equal(types.NullableInt16, otherTypes.NullableInt16);
+        Assert.Equal(types.NullableInt32, otherTypes.NullableInt32);
+        Assert.Equal(types.NullableInt64, otherTypes.NullableInt64);
+        Assert.Equal(types.NullableChar, otherTypes.NullableChar);
+        Assert.Equal(types.NullableDecimal, otherTypes.NullableDecimal);
+        Assert.Equal(types.NullableDouble, otherTypes.NullableDouble);
+        Assert.Equal(types.NullableFloat, otherTypes.NullableFloat);
+        Assert.Equal(types.NullableGuid, otherTypes.NullableGuid);
+        Assert.Equal(types.NullableDateTime, otherTypes.NullableDateTime);
+        Assert.Equal(types.NullableDateOnly, otherTypes.NullableDateOnly);
+        Assert.Equal(types.NullableTimeOnly, otherTypes.NullableTimeOnly);
+        Assert.Equal(types.NullableTimeSpan, otherTypes.NullableTimeSpan);
+        Assert.Equal(types.NullableString, otherTypes.NullableString);
+        Assert.Equal(types.NullableBytes, otherTypes.NullableBytes);
+        Assert.Equal(types.NullableUri, otherTypes.NullableUri);
+        Assert.Equal(types.NullableIPAddress, otherTypes.NullableIPAddress);
+        Assert.Equal(types.NullablePhysicalAddress, otherTypes.NullablePhysicalAddress);
+
+        Assert.Equal(types.BoolArray, otherTypes.BoolArray);
+        Assert.Equal(types.UInt8Array, otherTypes.UInt8Array);
+        Assert.Equal(types.UInt16Array, otherTypes.UInt16Array);
+        Assert.Equal(types.UInt32Array, otherTypes.UInt32Array);
+        Assert.Equal(types.UInt64Array, otherTypes.UInt64Array);
+        Assert.Equal(types.Int8Array, otherTypes.Int8Array);
+        Assert.Equal(types.Int16Array, otherTypes.Int16Array);
+        Assert.Equal(types.Int32Array, otherTypes.Int32Array);
+        Assert.Equal(types.Int64Array, otherTypes.Int64Array);
+        Assert.Equal(types.CharArray, otherTypes.CharArray);
+        Assert.Equal(types.DecimalArray, otherTypes.DecimalArray);
+        Assert.Equal(types.DoubleArray, otherTypes.DoubleArray);
+        Assert.Equal(types.FloatArray, otherTypes.FloatArray);
+        Assert.Equal(types.GuidArray, otherTypes.GuidArray);
+        Assert.Equal(types.DateTimeArray, otherTypes.DateTimeArray);
+        Assert.Equal(types.DateOnlyArray, otherTypes.DateOnlyArray);
+        Assert.Equal(types.TimeOnlyArray, otherTypes.TimeOnlyArray);
+        Assert.Equal(types.TimeSpanArray, otherTypes.TimeSpanArray);
+        Assert.Equal(types.StringArray, otherTypes.StringArray);
+        Assert.Equal(types.BytesArray, otherTypes.BytesArray);
+        Assert.Equal(types.UriArray, otherTypes.UriArray);
+        Assert.Equal(types.IPAddressArray, otherTypes.IPAddressArray);
+        Assert.Equal(types.PhysicalAddressArray, otherTypes.PhysicalAddressArray);
+
+        Assert.Equal(types.NullableBoolArray, otherTypes.NullableBoolArray);
+        Assert.Equal(types.NullableUInt8Array, otherTypes.NullableUInt8Array);
+        Assert.Equal(types.NullableUInt16Array, otherTypes.NullableUInt16Array);
+        Assert.Equal(types.NullableUInt32Array, otherTypes.NullableUInt32Array);
+        Assert.Equal(types.NullableUInt64Array, otherTypes.NullableUInt64Array);
+        Assert.Equal(types.NullableInt8Array, otherTypes.NullableInt8Array);
+        Assert.Equal(types.NullableInt16Array, otherTypes.NullableInt16Array);
+        Assert.Equal(types.NullableInt32Array, otherTypes.NullableInt32Array);
+        Assert.Equal(types.NullableInt64Array, otherTypes.NullableInt64Array);
+        Assert.Equal(types.NullableCharArray, otherTypes.NullableCharArray);
+        Assert.Equal(types.NullableDecimalArray, otherTypes.NullableDecimalArray);
+        Assert.Equal(types.NullableDoubleArray, otherTypes.NullableDoubleArray);
+        Assert.Equal(types.NullableFloatArray, otherTypes.NullableFloatArray);
+        Assert.Equal(types.NullableGuidArray, otherTypes.NullableGuidArray);
+        Assert.Equal(types.NullableDateTimeArray, otherTypes.NullableDateTimeArray);
+        Assert.Equal(types.NullableDateOnlyArray, otherTypes.NullableDateOnlyArray);
+        Assert.Equal(types.NullableTimeOnlyArray, otherTypes.NullableTimeOnlyArray);
+        Assert.Equal(types.NullableTimeSpanArray, otherTypes.NullableTimeSpanArray);
+        Assert.Equal(types.NullableStringArray, otherTypes.NullableStringArray);
+        Assert.Equal(types.NullableBytesArray, otherTypes.NullableBytesArray);
+        Assert.Equal(types.NullableUriArray, otherTypes.NullableUriArray);
+        Assert.Equal(types.NullableIPAddressArray, otherTypes.NullableIPAddressArray);
+        Assert.Equal(types.NullablePhysicalAddressArray, otherTypes.NullablePhysicalAddressArray);
+
+        Assert.Equal(types.BoolReadOnlyCollection, otherTypes.BoolReadOnlyCollection);
+        Assert.Equal(types.UInt8ReadOnlyCollection, otherTypes.UInt8ReadOnlyCollection);
+        Assert.Equal(types.Int32ReadOnlyCollection, otherTypes.Int32ReadOnlyCollection);
+        Assert.Equal(types.StringReadOnlyCollection, otherTypes.StringReadOnlyCollection);
+        Assert.Equal(types.IPAddressReadOnlyCollection, otherTypes.IPAddressReadOnlyCollection);
+
+        Assert.Equal(types.Enum8, otherTypes.Enum8);
+        Assert.Equal(types.Enum16, otherTypes.Enum16);
+        Assert.Equal(types.Enum32, otherTypes.Enum32);
+        Assert.Equal(types.Enum64, otherTypes.Enum64);
+        Assert.Equal(types.EnumU8, otherTypes.EnumU8);
+        Assert.Equal(types.EnumU16, otherTypes.EnumU16);
+        Assert.Equal(types.EnumU32, otherTypes.EnumU32);
+        Assert.Equal(types.EnumU64, otherTypes.EnumU64);
+
+        Assert.Equal(types.Enum8AsString, otherTypes.Enum8AsString);
+        Assert.Equal(types.Enum16AsString, otherTypes.Enum16AsString);
+        Assert.Equal(types.Enum32AsString, otherTypes.Enum32AsString);
+        Assert.Equal(types.Enum64AsString, otherTypes.Enum64AsString);
+        Assert.Equal(types.EnumU8AsString, otherTypes.EnumU8AsString);
+        Assert.Equal(types.EnumU16AsString, otherTypes.EnumU16AsString);
+        Assert.Equal(types.EnumU32AsString, otherTypes.EnumU32AsString);
+        Assert.Equal(types.EnumU64AsString, otherTypes.EnumU64AsString);
+
+        Assert.Equal(types.NullableEnum8, otherTypes.NullableEnum8);
+        Assert.Equal(types.NullableEnum16, otherTypes.NullableEnum16);
+        Assert.Equal(types.NullableEnum32, otherTypes.NullableEnum32);
+        Assert.Equal(types.NullableEnum64, otherTypes.NullableEnum64);
+        Assert.Equal(types.NullableEnumU8, otherTypes.NullableEnumU8);
+        Assert.Equal(types.NullableEnumU16, otherTypes.NullableEnumU16);
+        Assert.Equal(types.NullableEnumU32, otherTypes.NullableEnumU32);
+        Assert.Equal(types.NullableEnumU64, otherTypes.NullableEnumU64);
+
+        Assert.Equal(types.NullableEnum8AsString, otherTypes.NullableEnum8AsString);
+        Assert.Equal(types.NullableEnum16AsString, otherTypes.NullableEnum16AsString);
+        Assert.Equal(types.NullableEnum32AsString, otherTypes.NullableEnum32AsString);
+        Assert.Equal(types.NullableEnum64AsString, otherTypes.NullableEnum64AsString);
+        Assert.Equal(types.NullableEnumU8AsString, otherTypes.NullableEnumU8AsString);
+        Assert.Equal(types.NullableEnumU16AsString, otherTypes.NullableEnumU16AsString);
+        Assert.Equal(types.NullableEnumU32AsString, otherTypes.NullableEnumU32AsString);
+        Assert.Equal(types.NullableEnumU64AsString, otherTypes.NullableEnumU64AsString);
+
+        Assert.Equal(types.Enum8Collection, otherTypes.Enum8Collection);
+        Assert.Equal(types.Enum16Collection, otherTypes.Enum16Collection);
+        Assert.Equal(types.Enum32Collection, otherTypes.Enum32Collection);
+        Assert.Equal(types.Enum64Collection, otherTypes.Enum64Collection);
+        Assert.Equal(types.EnumU8Collection, otherTypes.EnumU8Collection);
+        Assert.Equal(types.EnumU16Collection, otherTypes.EnumU16Collection);
+        Assert.Equal(types.EnumU32Collection, otherTypes.EnumU32Collection);
+        Assert.Equal(types.EnumU64Collection, otherTypes.EnumU64Collection);
+
+        Assert.Equal(types.Enum8AsStringCollection, otherTypes.Enum8AsStringCollection);
+        Assert.Equal(types.Enum16AsStringCollection, otherTypes.Enum16AsStringCollection);
+        Assert.Equal(types.Enum32AsStringCollection, otherTypes.Enum32AsStringCollection);
+        Assert.Equal(types.Enum64AsStringCollection, otherTypes.Enum64AsStringCollection);
+        Assert.Equal(types.EnumU8AsStringCollection, otherTypes.EnumU8AsStringCollection);
+        Assert.Equal(types.EnumU16AsStringCollection, otherTypes.EnumU16AsStringCollection);
+        Assert.Equal(types.EnumU32AsStringCollection, otherTypes.EnumU32AsStringCollection);
+        Assert.Equal(types.EnumU64AsStringCollection, otherTypes.EnumU64AsStringCollection);
+
+        Assert.Equal(types.NullableEnum8Collection, otherTypes.NullableEnum8Collection);
+        Assert.Equal(types.NullableEnum16Collection, otherTypes.NullableEnum16Collection);
+        Assert.Equal(types.NullableEnum32Collection, otherTypes.NullableEnum32Collection);
+        Assert.Equal(types.NullableEnum64Collection, otherTypes.NullableEnum64Collection);
+        Assert.Equal(types.NullableEnumU8Collection, otherTypes.NullableEnumU8Collection);
+        Assert.Equal(types.NullableEnumU16Collection, otherTypes.NullableEnumU16Collection);
+        Assert.Equal(types.NullableEnumU32Collection, otherTypes.NullableEnumU32Collection);
+        Assert.Equal(types.NullableEnumU64Collection, otherTypes.NullableEnumU64Collection);
+
+        Assert.Equal(types.NullableEnum8AsStringCollection, otherTypes.NullableEnum8AsStringCollection);
+        Assert.Equal(types.NullableEnum16AsStringCollection, otherTypes.NullableEnum16AsStringCollection);
+        Assert.Equal(types.NullableEnum32AsStringCollection, otherTypes.NullableEnum32AsStringCollection);
+        Assert.Equal(types.NullableEnum64AsStringCollection, otherTypes.NullableEnum64AsStringCollection);
+        Assert.Equal(types.NullableEnumU8AsStringCollection, otherTypes.NullableEnumU8AsStringCollection);
+        Assert.Equal(types.NullableEnumU16AsStringCollection, otherTypes.NullableEnumU16AsStringCollection);
+        Assert.Equal(types.NullableEnumU32AsStringCollection, otherTypes.NullableEnumU32AsStringCollection);
+        Assert.Equal(types.NullableEnumU64AsStringCollection, otherTypes.NullableEnumU64AsStringCollection);
+
+        Assert.Equal(types.Enum8Array, otherTypes.Enum8Array);
+        Assert.Equal(types.Enum16Array, otherTypes.Enum16Array);
+        Assert.Equal(types.Enum32Array, otherTypes.Enum32Array);
+        Assert.Equal(types.Enum64Array, otherTypes.Enum64Array);
+        Assert.Equal(types.EnumU8Array, otherTypes.EnumU8Array);
+        Assert.Equal(types.EnumU16Array, otherTypes.EnumU16Array);
+        Assert.Equal(types.EnumU32Array, otherTypes.EnumU32Array);
+        Assert.Equal(types.EnumU64Array, otherTypes.EnumU64Array);
+
+        Assert.Equal(types.Enum8AsStringArray, otherTypes.Enum8AsStringArray);
+        Assert.Equal(types.Enum16AsStringArray, otherTypes.Enum16AsStringArray);
+        Assert.Equal(types.Enum32AsStringArray, otherTypes.Enum32AsStringArray);
+        Assert.Equal(types.Enum64AsStringArray, otherTypes.Enum64AsStringArray);
+        Assert.Equal(types.EnumU8AsStringArray, otherTypes.EnumU8AsStringArray);
+        Assert.Equal(types.EnumU16AsStringArray, otherTypes.EnumU16AsStringArray);
+        Assert.Equal(types.EnumU32AsStringArray, otherTypes.EnumU32AsStringArray);
+        Assert.Equal(types.EnumU64AsStringArray, otherTypes.EnumU64AsStringArray);
+
+        Assert.Equal(types.NullableEnum8Array, otherTypes.NullableEnum8Array);
+        Assert.Equal(types.NullableEnum16Array, otherTypes.NullableEnum16Array);
+        Assert.Equal(types.NullableEnum32Array, otherTypes.NullableEnum32Array);
+        Assert.Equal(types.NullableEnum64Array, otherTypes.NullableEnum64Array);
+        Assert.Equal(types.NullableEnumU8Array, otherTypes.NullableEnumU8Array);
+        Assert.Equal(types.NullableEnumU16Array, otherTypes.NullableEnumU16Array);
+        Assert.Equal(types.NullableEnumU32Array, otherTypes.NullableEnumU32Array);
+        Assert.Equal(types.NullableEnumU64Array, otherTypes.NullableEnumU64Array);
+
+        Assert.Equal(types.NullableEnum8AsStringArray, otherTypes.NullableEnum8AsStringArray);
+        Assert.Equal(types.NullableEnum16AsStringArray, otherTypes.NullableEnum16AsStringArray);
+        Assert.Equal(types.NullableEnum32AsStringArray, otherTypes.NullableEnum32AsStringArray);
+        Assert.Equal(types.NullableEnum64AsStringArray, otherTypes.NullableEnum64AsStringArray);
+        Assert.Equal(types.NullableEnumU8AsStringArray, otherTypes.NullableEnumU8AsStringArray);
+        Assert.Equal(types.NullableEnumU16AsStringArray, otherTypes.NullableEnumU16AsStringArray);
+        Assert.Equal(types.NullableEnumU32AsStringArray, otherTypes.NullableEnumU32AsStringArray);
+        Assert.Equal(types.NullableEnumU64AsStringArray, otherTypes.NullableEnumU64AsStringArray);
+
+        Assert.Equal(types.BoolNestedCollection, otherTypes.BoolNestedCollection);
+        Assert.Equal(types.UInt8NestedCollection, otherTypes.UInt8NestedCollection);
+        Assert.Equal(types.Int8NestedCollection, otherTypes.Int8NestedCollection);
+        Assert.Equal(types.Int32NestedCollection, otherTypes.Int32NestedCollection);
+        Assert.Equal(types.Int64NestedCollection, otherTypes.Int64NestedCollection);
+        Assert.Equal(types.CharNestedCollection, otherTypes.CharNestedCollection);
+        Assert.Equal(types.GuidNestedCollection, otherTypes.GuidNestedCollection);
+        Assert.Equal(types.StringNestedCollection, otherTypes.StringNestedCollection);
+        Assert.Equal(types.BytesNestedCollection, otherTypes.BytesNestedCollection);
+
+        Assert.Equal(types.NullableUInt8NestedCollection, otherTypes.NullableUInt8NestedCollection);
+        Assert.Equal(types.NullableInt32NestedCollection, otherTypes.NullableInt32NestedCollection);
+        Assert.Equal(types.NullableInt64NestedCollection, otherTypes.NullableInt64NestedCollection);
+        Assert.Equal(types.NullableGuidNestedCollection, otherTypes.NullableGuidNestedCollection);
+        Assert.Equal(types.NullableStringNestedCollection, otherTypes.NullableStringNestedCollection);
+        Assert.Equal(types.NullableBytesNestedCollection, otherTypes.NullableBytesNestedCollection);
+        Assert.Equal(types.NullablePhysicalAddressNestedCollection, otherTypes.NullablePhysicalAddressNestedCollection);
+
+        Assert.Equal(types.Enum8NestedCollection, otherTypes.Enum8NestedCollection);
+        Assert.Equal(types.Enum32NestedCollection, otherTypes.Enum32NestedCollection);
+        Assert.Equal(types.EnumU64NestedCollection, otherTypes.EnumU64NestedCollection);
+        Assert.Equal(types.NullableEnum8NestedCollection, otherTypes.NullableEnum8NestedCollection);
+        Assert.Equal(types.NullableEnum32NestedCollection, otherTypes.NullableEnum32NestedCollection);
+        Assert.Equal(types.NullableEnumU64NestedCollection, otherTypes.NullableEnumU64NestedCollection);
+
+        Assert.Equal(types.BoolToStringConverterProperty, otherTypes.BoolToStringConverterProperty);
+        Assert.Equal(types.BoolToTwoValuesConverterProperty, otherTypes.BoolToTwoValuesConverterProperty);
+        Assert.Equal(types.BoolToZeroOneConverterProperty, otherTypes.BoolToZeroOneConverterProperty);
+        Assert.Equal(types.BytesToStringConverterProperty, otherTypes.BytesToStringConverterProperty);
+        Assert.Equal(types.CastingConverterProperty, otherTypes.CastingConverterProperty);
+        Assert.Equal(types.CharToStringConverterProperty, otherTypes.CharToStringConverterProperty);
+        Assert.Equal(types.DateOnlyToStringConverterProperty, otherTypes.DateOnlyToStringConverterProperty);
+        Assert.Equal(types.DateTimeOffsetToBinaryConverterProperty, otherTypes.DateTimeOffsetToBinaryConverterProperty);
+        Assert.Equal(types.DateTimeOffsetToBytesConverterProperty, otherTypes.DateTimeOffsetToBytesConverterProperty);
+        Assert.Equal(types.DateTimeOffsetToStringConverterProperty, otherTypes.DateTimeOffsetToStringConverterProperty);
+        Assert.Equal(types.DateTimeToBinaryConverterProperty, otherTypes.DateTimeToBinaryConverterProperty);
+        Assert.Equal(types.DateTimeToStringConverterProperty, otherTypes.DateTimeToStringConverterProperty);
+        Assert.Equal(types.EnumToNumberConverterProperty, otherTypes.EnumToNumberConverterProperty);
+        Assert.Equal(types.EnumToStringConverterProperty, otherTypes.EnumToStringConverterProperty);
+        Assert.Equal(types.GuidToBytesConverterProperty, otherTypes.GuidToBytesConverterProperty);
+        Assert.Equal(types.GuidToStringConverterProperty, otherTypes.GuidToStringConverterProperty);
+        Assert.Equal(types.IPAddressToBytesConverterProperty, otherTypes.IPAddressToBytesConverterProperty);
+        Assert.Equal(types.IPAddressToStringConverterProperty, otherTypes.IPAddressToStringConverterProperty);
+        Assert.Equal(types.IntNumberToBytesConverterProperty, otherTypes.IntNumberToBytesConverterProperty);
+        Assert.Equal(types.DecimalNumberToBytesConverterProperty, otherTypes.DecimalNumberToBytesConverterProperty);
+        Assert.Equal(types.DoubleNumberToBytesConverterProperty, otherTypes.DoubleNumberToBytesConverterProperty);
+        Assert.Equal(types.IntNumberToStringConverterProperty, otherTypes.IntNumberToStringConverterProperty);
+        Assert.Equal(types.DecimalNumberToStringConverterProperty, otherTypes.DecimalNumberToStringConverterProperty);
+        Assert.Equal(types.DoubleNumberToStringConverterProperty, otherTypes.DoubleNumberToStringConverterProperty);
+        Assert.Equal(types.PhysicalAddressToBytesConverterProperty, otherTypes.PhysicalAddressToBytesConverterProperty);
+        Assert.Equal(types.PhysicalAddressToStringConverterProperty, otherTypes.PhysicalAddressToStringConverterProperty);
+        Assert.Equal(types.StringToBoolConverterProperty, otherTypes.StringToBoolConverterProperty);
+        Assert.Equal(types.StringToBytesConverterProperty, otherTypes.StringToBytesConverterProperty);
+        Assert.Equal(types.StringToCharConverterProperty, otherTypes.StringToCharConverterProperty);
+        Assert.Equal(types.StringToDateOnlyConverterProperty, otherTypes.StringToDateOnlyConverterProperty);
+        Assert.Equal(types.StringToDateTimeConverterProperty, otherTypes.StringToDateTimeConverterProperty);
+        Assert.Equal(types.StringToDateTimeOffsetConverterProperty, otherTypes.StringToDateTimeOffsetConverterProperty);
+        Assert.Equal(types.StringToEnumConverterProperty, otherTypes.StringToEnumConverterProperty);
+        Assert.Equal(types.StringToIntNumberConverterProperty, otherTypes.StringToIntNumberConverterProperty);
+        Assert.Equal(types.StringToDecimalNumberConverterProperty, otherTypes.StringToDecimalNumberConverterProperty);
+        Assert.Equal(types.StringToDoubleNumberConverterProperty, otherTypes.StringToDoubleNumberConverterProperty);
+        Assert.Equal(types.StringToTimeOnlyConverterProperty, otherTypes.StringToTimeOnlyConverterProperty);
+        Assert.Equal(types.StringToTimeSpanConverterProperty, otherTypes.StringToTimeSpanConverterProperty);
+        Assert.Equal(types.StringToUriConverterProperty, otherTypes.StringToUriConverterProperty);
+        Assert.Equal(types.TimeOnlyToStringConverterProperty, otherTypes.TimeOnlyToStringConverterProperty);
+        Assert.Equal(types.TimeOnlyToTicksConverterProperty, otherTypes.TimeOnlyToTicksConverterProperty);
+        Assert.Equal(types.TimeSpanToStringConverterProperty, otherTypes.TimeSpanToStringConverterProperty);
+        Assert.Equal(types.UriToStringConverterProperty, otherTypes.UriToStringConverterProperty);
+        Assert.Equal(types.NullIntToNullStringConverterProperty, otherTypes.NullIntToNullStringConverterProperty);
     }
 
     [ConditionalFact]
@@ -910,6 +1500,42 @@ namespace TestNamespace
         public Uri?[] NullableUriArray { get; set; } = null!;
         public IPAddress?[] NullableIPAddressArray { get; set; } = null!;
         public PhysicalAddress?[] NullablePhysicalAddressArray { get; set; } = null!;
+
+        private List<bool> _boolReadOnlyCollection = [];
+        private List<byte> _uInt8ReadOnlyCollection = [];
+        private List<int> _int32ReadOnlyCollection = [];
+        private List<string> _stringReadOnlyCollection = [];
+        private List<IPAddress> _ipAddressReadOnlyCollection = [];
+
+        public IReadOnlyCollection<bool> BoolReadOnlyCollection
+        {
+            get => _boolReadOnlyCollection.ToList();
+            set => _boolReadOnlyCollection = value.ToList();
+        }
+
+        public IReadOnlyCollection<byte> UInt8ReadOnlyCollection
+        {
+            get => _uInt8ReadOnlyCollection.ToList();
+            set => _uInt8ReadOnlyCollection = value.ToList();
+        }
+
+        public IReadOnlyCollection<int> Int32ReadOnlyCollection
+        {
+            get => _int32ReadOnlyCollection.ToList();
+            set => _int32ReadOnlyCollection = value.ToList();
+        }
+
+        public IReadOnlyCollection<string> StringReadOnlyCollection
+        {
+            get => _stringReadOnlyCollection.ToList();
+            set => _stringReadOnlyCollection = value.ToList();
+        }
+
+        public IReadOnlyCollection<IPAddress> IPAddressReadOnlyCollection
+        {
+            get => _ipAddressReadOnlyCollection.ToList();
+            set => _ipAddressReadOnlyCollection = value.ToList();
+        }
 
         public Enum8 Enum8 { get; set; }
         public Enum16 Enum16 { get; set; }

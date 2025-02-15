@@ -533,15 +533,15 @@ ORDER BY [l].[Id], [s].[Id], [s].[Name0]
 
         AssertSql(
             """
-@__p_0='1'
-@__p_1='5'
+@p='1'
+@p0='5'
 
 SELECT [l3].[Id], [l3].[Date], [l3].[Name], [l3].[OneToMany_Optional_Self_Inverse1Id], [l3].[OneToMany_Required_Self_Inverse1Id], [l3].[OneToOne_Optional_Self1Id], [l3].[PeriodEnd], [l3].[PeriodStart], [s].[Id], [s].[Date], [s].[Level1_Optional_Id], [s].[Level1_Required_Id], [s].[Name], [s].[OneToMany_Optional_Inverse2Id], [s].[OneToMany_Optional_Self_Inverse2Id], [s].[OneToMany_Required_Inverse2Id], [s].[OneToMany_Required_Self_Inverse2Id], [s].[OneToOne_Optional_PK_Inverse2Id], [s].[OneToOne_Optional_Self2Id], [s].[PeriodEnd], [s].[PeriodStart], [s].[Id0], [s].[Level2_Optional_Id], [s].[Level2_Required_Id], [s].[Name0], [s].[OneToMany_Optional_Inverse3Id], [s].[OneToMany_Optional_Self_Inverse3Id], [s].[OneToMany_Required_Inverse3Id], [s].[OneToMany_Required_Self_Inverse3Id], [s].[OneToOne_Optional_PK_Inverse3Id], [s].[OneToOne_Optional_Self3Id], [s].[PeriodEnd0], [s].[PeriodStart0]
 FROM (
     SELECT [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id], [l].[OneToMany_Required_Self_Inverse1Id], [l].[OneToOne_Optional_Self1Id], [l].[PeriodEnd], [l].[PeriodStart]
     FROM [LevelOne] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l]
     ORDER BY [l].[Id] DESC
-    OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
+    OFFSET @p ROWS FETCH NEXT @p0 ROWS ONLY
 ) AS [l3]
 OUTER APPLY (
     SELECT [l2].[Id], [l2].[Date], [l2].[Level1_Optional_Id], [l2].[Level1_Required_Id], [l2].[Name], [l2].[OneToMany_Optional_Inverse2Id], [l2].[OneToMany_Optional_Self_Inverse2Id], [l2].[OneToMany_Required_Inverse2Id], [l2].[OneToMany_Required_Self_Inverse2Id], [l2].[OneToOne_Optional_PK_Inverse2Id], [l2].[OneToOne_Optional_Self2Id], [l2].[PeriodEnd], [l2].[PeriodStart], [l1].[Id] AS [Id0], [l1].[Level2_Optional_Id], [l1].[Level2_Required_Id], [l1].[Name] AS [Name0], [l1].[OneToMany_Optional_Inverse3Id], [l1].[OneToMany_Optional_Self_Inverse3Id], [l1].[OneToMany_Required_Inverse3Id], [l1].[OneToMany_Required_Self_Inverse3Id], [l1].[OneToOne_Optional_PK_Inverse3Id], [l1].[OneToOne_Optional_Self3Id], [l1].[PeriodEnd] AS [PeriodEnd0], [l1].[PeriodStart] AS [PeriodStart0]
@@ -604,15 +604,15 @@ ORDER BY [l].[Id], [l0].[Id], [l1].[Id], [s].[Id]
 
         AssertSql(
             """
-@__p_0='0'
-@__p_1='10'
+@p='0'
+@p0='10'
 
 SELECT [l1].[Id], [l1].[Date], [l1].[Name], [l1].[OneToMany_Optional_Self_Inverse1Id], [l1].[OneToMany_Required_Self_Inverse1Id], [l1].[OneToOne_Optional_Self1Id], [l1].[PeriodEnd], [l1].[PeriodStart], [l0].[Id], [l0].[Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Optional_Self_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToMany_Required_Self_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id], [l0].[OneToOne_Optional_Self2Id], [l0].[PeriodEnd], [l0].[PeriodStart], [l2].[Id], [l3].[Id], [l3].[Level2_Optional_Id], [l3].[Level2_Required_Id], [l3].[Name], [l3].[OneToMany_Optional_Inverse3Id], [l3].[OneToMany_Optional_Self_Inverse3Id], [l3].[OneToMany_Required_Inverse3Id], [l3].[OneToMany_Required_Self_Inverse3Id], [l3].[OneToOne_Optional_PK_Inverse3Id], [l3].[OneToOne_Optional_Self3Id], [l3].[PeriodEnd], [l3].[PeriodStart], [l2].[Date], [l2].[Level1_Optional_Id], [l2].[Level1_Required_Id], [l2].[Name], [l2].[OneToMany_Optional_Inverse2Id], [l2].[OneToMany_Optional_Self_Inverse2Id], [l2].[OneToMany_Required_Inverse2Id], [l2].[OneToMany_Required_Self_Inverse2Id], [l2].[OneToOne_Optional_PK_Inverse2Id], [l2].[OneToOne_Optional_Self2Id], [l2].[PeriodEnd], [l2].[PeriodStart], [l4].[Id], [l4].[Level2_Optional_Id], [l4].[Level2_Required_Id], [l4].[Name], [l4].[OneToMany_Optional_Inverse3Id], [l4].[OneToMany_Optional_Self_Inverse3Id], [l4].[OneToMany_Required_Inverse3Id], [l4].[OneToMany_Required_Self_Inverse3Id], [l4].[OneToOne_Optional_PK_Inverse3Id], [l4].[OneToOne_Optional_Self3Id], [l4].[PeriodEnd], [l4].[PeriodStart]
 FROM (
     SELECT [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id], [l].[OneToMany_Required_Self_Inverse1Id], [l].[OneToOne_Optional_Self1Id], [l].[PeriodEnd], [l].[PeriodStart]
     FROM [LevelOne] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l]
     ORDER BY [l].[Name]
-    OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
+    OFFSET @p ROWS FETCH NEXT @p0 ROWS ONLY
 ) AS [l1]
 LEFT JOIN [LevelTwo] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l0] ON [l1].[Id] = [l0].[Level1_Optional_Id]
 LEFT JOIN [LevelTwo] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l2] ON [l1].[Id] = [l2].[Level1_Required_Id]
@@ -856,7 +856,7 @@ ORDER BY [l].[Id], [s].[Id], [s].[Id0], [s].[Id1], [s].[Id2]
 
         AssertSql(
             """
-@__prm_0='Foo' (Size = 4000)
+@prm='Foo' (Size = 4000)
 
 SELECT [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id], [l].[OneToMany_Required_Self_Inverse1Id], [l].[OneToOne_Optional_Self1Id], [l].[PeriodEnd], [l].[PeriodStart], [l2].[Id], [l2].[Date], [l2].[Level1_Optional_Id], [l2].[Level1_Required_Id], [l2].[Name], [l2].[OneToMany_Optional_Inverse2Id], [l2].[OneToMany_Optional_Self_Inverse2Id], [l2].[OneToMany_Required_Inverse2Id], [l2].[OneToMany_Required_Self_Inverse2Id], [l2].[OneToOne_Optional_PK_Inverse2Id], [l2].[OneToOne_Optional_Self2Id], [l2].[PeriodEnd], [l2].[PeriodStart]
 FROM [LevelOne] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l]
@@ -865,7 +865,7 @@ LEFT JOIN (
     FROM (
         SELECT [l0].[Id], [l0].[Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Optional_Self_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToMany_Required_Self_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id], [l0].[OneToOne_Optional_Self2Id], [l0].[PeriodEnd], [l0].[PeriodStart], ROW_NUMBER() OVER(PARTITION BY [l0].[OneToMany_Optional_Inverse2Id] ORDER BY [l0].[Id]) AS [row]
         FROM [LevelTwo] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l0]
-        WHERE [l0].[Name] <> @__prm_0 OR [l0].[Name] IS NULL
+        WHERE [l0].[Name] <> @prm OR [l0].[Name] IS NULL
     ) AS [l1]
     WHERE [l1].[row] <= 3
 ) AS [l2] ON [l].[Id] = [l2].[OneToMany_Optional_Inverse2Id]
@@ -1054,11 +1054,11 @@ ORDER BY [l].[Id], [l0].[Id]
 
         AssertSql(
             """
-@__p_0='1'
+@p='1'
 
 SELECT [l3].[Id], [l3].[Name], [s].[Id], [s].[Name], [s].[Level1Id], [s].[Level2Id], [s].[Id0], [s].[Date], [s].[Name0], [s].[OneToMany_Optional_Self_Inverse1Id], [s].[OneToMany_Required_Self_Inverse1Id], [s].[OneToOne_Optional_Self1Id], [s].[PeriodEnd], [s].[PeriodStart]
 FROM (
-    SELECT TOP(@__p_0) [l].[Id], [l].[Name]
+    SELECT TOP(@p) [l].[Id], [l].[Name]
     FROM [LevelOne] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l]
     ORDER BY [l].[Id]
 ) AS [l3]
@@ -1082,15 +1082,15 @@ ORDER BY [l3].[Id], [s].[Id]
 
         AssertSql(
             """
-@__p_0='0'
-@__p_1='10'
+@p='0'
+@p0='10'
 
 SELECT [l1].[Id], [l1].[Date], [l1].[Name], [l1].[OneToMany_Optional_Self_Inverse1Id], [l1].[OneToMany_Required_Self_Inverse1Id], [l1].[OneToOne_Optional_Self1Id], [l1].[PeriodEnd], [l1].[PeriodStart], [l0].[Id], [l0].[Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Optional_Self_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToMany_Required_Self_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id], [l0].[OneToOne_Optional_Self2Id], [l0].[PeriodEnd], [l0].[PeriodStart], [l2].[Id], [l2].[Level2_Optional_Id], [l2].[Level2_Required_Id], [l2].[Name], [l2].[OneToMany_Optional_Inverse3Id], [l2].[OneToMany_Optional_Self_Inverse3Id], [l2].[OneToMany_Required_Inverse3Id], [l2].[OneToMany_Required_Self_Inverse3Id], [l2].[OneToOne_Optional_PK_Inverse3Id], [l2].[OneToOne_Optional_Self3Id], [l2].[PeriodEnd], [l2].[PeriodStart], [l3].[Id], [l3].[Level2_Optional_Id], [l3].[Level2_Required_Id], [l3].[Name], [l3].[OneToMany_Optional_Inverse3Id], [l3].[OneToMany_Optional_Self_Inverse3Id], [l3].[OneToMany_Required_Inverse3Id], [l3].[OneToMany_Required_Self_Inverse3Id], [l3].[OneToOne_Optional_PK_Inverse3Id], [l3].[OneToOne_Optional_Self3Id], [l3].[PeriodEnd], [l3].[PeriodStart]
 FROM (
     SELECT [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id], [l].[OneToMany_Required_Self_Inverse1Id], [l].[OneToOne_Optional_Self1Id], [l].[PeriodEnd], [l].[PeriodStart]
     FROM [LevelOne] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l]
     ORDER BY [l].[Name]
-    OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
+    OFFSET @p ROWS FETCH NEXT @p0 ROWS ONLY
 ) AS [l1]
 LEFT JOIN [LevelTwo] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l0] ON [l1].[Id] = [l0].[Level1_Required_Id]
 LEFT JOIN [LevelThree] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l2] ON [l0].[Id] = [l2].[OneToMany_Optional_Inverse3Id]
@@ -1358,15 +1358,15 @@ ORDER BY [l].[Id], [l0].[Id], [l1].[Id]
 
         AssertSql(
             """
-@__p_0='0'
-@__p_1='10'
+@p='0'
+@p0='10'
 
 SELECT [l1].[Id], [l1].[Date], [l1].[Name], [l1].[OneToMany_Optional_Self_Inverse1Id], [l1].[OneToMany_Required_Self_Inverse1Id], [l1].[OneToOne_Optional_Self1Id], [l1].[PeriodEnd], [l1].[PeriodStart], [l0].[Id], [l0].[Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Optional_Self_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToMany_Required_Self_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id], [l0].[OneToOne_Optional_Self2Id], [l0].[PeriodEnd], [l0].[PeriodStart], [l2].[Id], [l2].[Level2_Optional_Id], [l2].[Level2_Required_Id], [l2].[Name], [l2].[OneToMany_Optional_Inverse3Id], [l2].[OneToMany_Optional_Self_Inverse3Id], [l2].[OneToMany_Required_Inverse3Id], [l2].[OneToMany_Required_Self_Inverse3Id], [l2].[OneToOne_Optional_PK_Inverse3Id], [l2].[OneToOne_Optional_Self3Id], [l2].[PeriodEnd], [l2].[PeriodStart], [l3].[Id], [l3].[Level3_Optional_Id], [l3].[Level3_Required_Id], [l3].[Name], [l3].[OneToMany_Optional_Inverse4Id], [l3].[OneToMany_Optional_Self_Inverse4Id], [l3].[OneToMany_Required_Inverse4Id], [l3].[OneToMany_Required_Self_Inverse4Id], [l3].[OneToOne_Optional_PK_Inverse4Id], [l3].[OneToOne_Optional_Self4Id], [l3].[PeriodEnd], [l3].[PeriodStart]
 FROM (
     SELECT [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id], [l].[OneToMany_Required_Self_Inverse1Id], [l].[OneToOne_Optional_Self1Id], [l].[PeriodEnd], [l].[PeriodStart]
     FROM [LevelOne] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l]
     ORDER BY [l].[Name]
-    OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
+    OFFSET @p ROWS FETCH NEXT @p0 ROWS ONLY
 ) AS [l1]
 LEFT JOIN [LevelTwo] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l0] ON [l1].[Id] = [l0].[Level1_Optional_Id]
 LEFT JOIN [LevelThree] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l2] ON [l0].[Id] = [l2].[Level2_Required_Id]
@@ -1555,11 +1555,11 @@ ORDER BY [l].[Id], [s].[Id]
 
         AssertSql(
             """
-@__p_0='5'
+@p='5'
 
 SELECT [l3].[Id], [l3].[Date], [l3].[Name], [l3].[OneToMany_Optional_Self_Inverse1Id], [l3].[OneToMany_Required_Self_Inverse1Id], [l3].[OneToOne_Optional_Self1Id], [l3].[PeriodEnd], [l3].[PeriodStart], [s].[Id], [s].[Date], [s].[Level1_Optional_Id], [s].[Level1_Required_Id], [s].[Name], [s].[OneToMany_Optional_Inverse2Id], [s].[OneToMany_Optional_Self_Inverse2Id], [s].[OneToMany_Required_Inverse2Id], [s].[OneToMany_Required_Self_Inverse2Id], [s].[OneToOne_Optional_PK_Inverse2Id], [s].[OneToOne_Optional_Self2Id], [s].[PeriodEnd], [s].[PeriodStart], [s].[Id0], [s].[Level2_Optional_Id], [s].[Level2_Required_Id], [s].[Name0], [s].[OneToMany_Optional_Inverse3Id], [s].[OneToMany_Optional_Self_Inverse3Id], [s].[OneToMany_Required_Inverse3Id], [s].[OneToMany_Required_Self_Inverse3Id], [s].[OneToOne_Optional_PK_Inverse3Id], [s].[OneToOne_Optional_Self3Id], [s].[PeriodEnd0], [s].[PeriodStart0]
 FROM (
-    SELECT TOP(@__p_0) [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id], [l].[OneToMany_Required_Self_Inverse1Id], [l].[OneToOne_Optional_Self1Id], [l].[PeriodEnd], [l].[PeriodStart]
+    SELECT TOP(@p) [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id], [l].[OneToMany_Required_Self_Inverse1Id], [l].[OneToOne_Optional_Self1Id], [l].[PeriodEnd], [l].[PeriodStart]
     FROM [LevelOne] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l]
     ORDER BY [l].[Id]
 ) AS [l3]
@@ -1712,11 +1712,11 @@ ORDER BY [l].[Id], [l0].[Id], [l1].[Id], [l2].[Id]
 
         AssertSql(
             """
-@__p_0='25'
+@p='25'
 
 SELECT [l2].[Id], [l4].[Id], [l1].[Id], [l4].[c]
 FROM (
-    SELECT TOP(@__p_0) [l].[Id]
+    SELECT TOP(@p) [l].[Id]
     FROM [LevelOne] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l]
 ) AS [l2]
 LEFT JOIN (
@@ -1948,7 +1948,7 @@ FROM [LevelOne] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l]
 """,
             //
             """
-@__p_0='True'
+@p='True'
 
 SELECT [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id], [l].[OneToMany_Required_Self_Inverse1Id], [l].[OneToOne_Optional_Self1Id], [l].[PeriodEnd], [l].[PeriodStart], [l2].[Id], [l2].[Date], [l2].[Level1_Optional_Id], [l2].[Level1_Required_Id], [l2].[Name], [l2].[OneToMany_Optional_Inverse2Id], [l2].[OneToMany_Optional_Self_Inverse2Id], [l2].[OneToMany_Required_Inverse2Id], [l2].[OneToMany_Required_Self_Inverse2Id], [l2].[OneToOne_Optional_PK_Inverse2Id], [l2].[OneToOne_Optional_Self2Id], [l2].[PeriodEnd], [l2].[PeriodStart]
 FROM [LevelOne] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l]
@@ -1957,7 +1957,7 @@ LEFT JOIN (
     FROM (
         SELECT [l0].[Id], [l0].[Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Optional_Self_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToMany_Required_Self_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id], [l0].[OneToOne_Optional_Self2Id], [l0].[PeriodEnd], [l0].[PeriodStart], ROW_NUMBER() OVER(PARTITION BY [l0].[OneToMany_Optional_Inverse2Id] ORDER BY [l0].[Id]) AS [row]
         FROM [LevelTwo] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l0]
-        WHERE @__p_0 = CAST(1 AS bit)
+        WHERE @p = CAST(1 AS bit)
     ) AS [l1]
     WHERE [l1].[row] <= 3
 ) AS [l2] ON [l].[Id] = [l2].[OneToMany_Optional_Inverse2Id]
@@ -1972,11 +1972,11 @@ ORDER BY [l].[Id], [l2].[OneToMany_Optional_Inverse2Id], [l2].[Id]
 
         AssertSql(
             """
-@__p_0='30'
+@p='30'
 
 SELECT [l3].[Id], [l3].[Date], [l3].[Name], [l3].[OneToMany_Optional_Self_Inverse1Id], [l3].[OneToMany_Required_Self_Inverse1Id], [l3].[OneToOne_Optional_Self1Id], [l3].[PeriodEnd], [l3].[PeriodStart], [s].[Id], [s].[Date], [s].[Level1_Optional_Id], [s].[Level1_Required_Id], [s].[Name], [s].[OneToMany_Optional_Inverse2Id], [s].[OneToMany_Optional_Self_Inverse2Id], [s].[OneToMany_Required_Inverse2Id], [s].[OneToMany_Required_Self_Inverse2Id], [s].[OneToOne_Optional_PK_Inverse2Id], [s].[OneToOne_Optional_Self2Id], [s].[PeriodEnd], [s].[PeriodStart], [s].[Id0], [s].[Level2_Optional_Id], [s].[Level2_Required_Id], [s].[Name0], [s].[OneToMany_Optional_Inverse3Id], [s].[OneToMany_Optional_Self_Inverse3Id], [s].[OneToMany_Required_Inverse3Id], [s].[OneToMany_Required_Self_Inverse3Id], [s].[OneToOne_Optional_PK_Inverse3Id], [s].[OneToOne_Optional_Self3Id], [s].[PeriodEnd0], [s].[PeriodStart0]
 FROM (
-    SELECT TOP(@__p_0) [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id], [l].[OneToMany_Required_Self_Inverse1Id], [l].[OneToOne_Optional_Self1Id], [l].[PeriodEnd], [l].[PeriodStart]
+    SELECT TOP(@p) [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id], [l].[OneToMany_Required_Self_Inverse1Id], [l].[OneToOne_Optional_Self1Id], [l].[PeriodEnd], [l].[PeriodStart]
     FROM [LevelOne] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l]
     ORDER BY [l].[Id]
 ) AS [l3]
@@ -2303,7 +2303,7 @@ ORDER BY [l].[Id], [s].[Date], [s].[Date0], [s].[Name]
 
         AssertSql(
             """
-@__validIds_0='["L1 01","L1 02"]' (Size = 4000)
+@validIds='["L1 01","L1 02"]' (Size = 4000)
 
 SELECT [l1].[Date], [l2].[Id]
 FROM (
@@ -2311,7 +2311,7 @@ FROM (
     FROM [LevelOne] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l]
     WHERE [l].[Name] IN (
         SELECT [v].[value]
-        FROM OPENJSON(@__validIds_0) WITH ([value] nvarchar(max) '$') AS [v]
+        FROM OPENJSON(@validIds) WITH ([value] nvarchar(max) '$') AS [v]
     )
     GROUP BY [l].[Date]
 ) AS [l1]
@@ -2320,7 +2320,7 @@ LEFT JOIN (
     FROM [LevelOne] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l0]
     WHERE [l0].[Name] IN (
         SELECT [v0].[value]
-        FROM OPENJSON(@__validIds_0) WITH ([value] nvarchar(max) '$') AS [v0]
+        FROM OPENJSON(@validIds) WITH ([value] nvarchar(max) '$') AS [v0]
     )
 ) AS [l2] ON [l1].[Date] = [l2].[Date]
 ORDER BY [l1].[Date]
@@ -2414,14 +2414,14 @@ ORDER BY [l].[Id], [l0].[Id], [l1].[Id]
 
         AssertSql(
             """
-@__p_0='1'
+@p='1'
 
 SELECT [l3].[Id], [l3].[Name], [s].[Id], [s].[Name], [s].[Level1Id], [s].[Level2Id], [s].[Id0], [s].[Date], [s].[Name0], [s].[OneToMany_Optional_Self_Inverse1Id], [s].[OneToMany_Required_Self_Inverse1Id], [s].[OneToOne_Optional_Self1Id], [s].[PeriodEnd], [s].[PeriodStart]
 FROM (
     SELECT [l].[Id], [l].[Name]
     FROM [LevelOne] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l]
     ORDER BY [l].[Id]
-    OFFSET @__p_0 ROWS FETCH NEXT @__p_0 ROWS ONLY
+    OFFSET @p ROWS FETCH NEXT @p ROWS ONLY
 ) AS [l3]
 OUTER APPLY (
     SELECT [l2].[Id], [l2].[Name], [l2].[OneToMany_Required_Inverse2Id] AS [Level1Id], [l2].[Level1_Required_Id] AS [Level2Id], [l1].[Id] AS [Id0], [l1].[Date], [l1].[Name] AS [Name0], [l1].[OneToMany_Optional_Self_Inverse1Id], [l1].[OneToMany_Required_Self_Inverse1Id], [l1].[OneToOne_Optional_Self1Id], [l1].[PeriodEnd], [l1].[PeriodStart]
@@ -2620,7 +2620,7 @@ ORDER BY ABS([l].[Level1_Required_Id]) + 7, [l].[Name], [l].[Id]
 
         AssertSql(
             """
-@__validIds_0='["L1 01","L1 02"]' (Size = 4000)
+@validIds='["L1 01","L1 02"]' (Size = 4000)
 
 SELECT CASE
     WHEN [l0].[Id] IS NULL THEN 0
@@ -2631,7 +2631,7 @@ LEFT JOIN [LevelTwo] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l0]
 LEFT JOIN [LevelThree] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l1] ON [l0].[Id] = [l1].[OneToMany_Required_Inverse3Id]
 WHERE [l].[Name] IN (
     SELECT [v].[value]
-    FROM OPENJSON(@__validIds_0) WITH ([value] nvarchar(max) '$') AS [v]
+    FROM OPENJSON(@validIds) WITH ([value] nvarchar(max) '$') AS [v]
 )
 ORDER BY [l].[Id], [l0].[Id]
 """);

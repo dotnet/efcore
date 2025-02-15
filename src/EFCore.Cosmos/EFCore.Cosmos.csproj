@@ -49,6 +49,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Azure.Cosmos" />
+    <PackageReference Include="Newtonsoft.JSON" />
   </ItemGroup>
 
   <ItemGroup>

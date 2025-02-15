@@ -29,12 +29,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking;
 /// <typeparam name="T">The type.</typeparam>
 // PublicMethods is required to preserve e.g. GetHashCode
 public class ValueComparer
-<[DynamicallyAccessedMembers(
+    <[DynamicallyAccessedMembers(
         DynamicallyAccessedMemberTypes.PublicMethods
-        | DynamicallyAccessedMemberTypes.NonPublicMethods
         | DynamicallyAccessedMemberTypes.PublicProperties)]
-    T>
-    : ValueComparer, IEqualityComparer<T>
+    T> : ValueComparer, IEqualityComparer<T>
 {
     private Func<T?, T?, bool>? _equals;
     private Func<T, int>? _hashCode;
@@ -263,16 +261,18 @@ public class ValueComparer
                 var left = Parameter(typeof(object), "left");
                 var right = Parameter(typeof(object), "right");
 
+                var remappedEquals = ReplacingExpressionVisitor.Replace(
+                    EqualsExpression.Parameters.ToList(),
+                    [Convert(left, typeof(T)), Convert(right, typeof(T))],
+                    EqualsExpression.Body);
+
                 _objectEqualsExpression = Lambda<Func<object?, object?, bool>>(
                     Condition(
                         Equal(left, Constant(null)),
                         Equal(right, Constant(null)),
                         AndAlso(
                             NotEqual(right, Constant(null)),
-                            Invoke(
-                                EqualsExpression,
-                                Convert(left, typeof(T)),
-                                Convert(right, typeof(T))))),
+                            remappedEquals)),
                     left,
                     right);
             }
@@ -370,8 +370,4 @@ public class ValueComparer
     private readonly ConstructorInfo _constructorInfo
         = typeof(ValueComparer<T>).GetConstructor(
             [typeof(Expression<Func<T?, T?, bool>>), typeof(Expression<Func<T, int>>), typeof(Expression<Func<T, T>>)])!;
-
-    /// <inheritdoc />
-    public override Expression ConstructorExpression
-        => New(_constructorInfo, EqualsExpression, HashCodeExpression, SnapshotExpression);
 }

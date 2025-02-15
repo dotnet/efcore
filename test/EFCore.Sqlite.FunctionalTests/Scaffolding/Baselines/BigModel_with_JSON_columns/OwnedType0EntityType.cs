@@ -273,6 +273,8 @@ namespace TestNamespace
                         new ValueConverter<IPAddress, string>(
                             string (IPAddress v) => ((object)v).ToString(),
                             IPAddress (string v) => IPAddress.Parse(v)))));
+            var refTypeArrayElementType = refTypeArray.SetElementType(typeof(IPAddress));
+            refTypeArrayElementType.TypeMapping = refTypeArray.TypeMapping.ElementTypeMapping;
 
             var refTypeEnumerable = runtimeEntityType.AddProperty(
                 "RefTypeEnumerable",
@@ -319,6 +321,8 @@ namespace TestNamespace
                 jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<List<string>, string>(
                     JsonStringReaderWriter.Instance),
                 elementMapping: SqliteStringTypeMapping.Default);
+            var refTypeEnumerableElementType = refTypeEnumerable.SetElementType(typeof(string));
+            refTypeEnumerableElementType.TypeMapping = refTypeEnumerable.TypeMapping.ElementTypeMapping;
 
             var refTypeIList = runtimeEntityType.AddProperty(
                 "RefTypeIList",
@@ -365,6 +369,8 @@ namespace TestNamespace
                 jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<List<string>, string>(
                     JsonStringReaderWriter.Instance),
                 elementMapping: SqliteStringTypeMapping.Default);
+            var refTypeIListElementType = refTypeIList.SetElementType(typeof(string));
+            refTypeIListElementType.TypeMapping = refTypeIList.TypeMapping.ElementTypeMapping;
 
             var refTypeList = runtimeEntityType.AddProperty(
                 "RefTypeList",
@@ -441,6 +447,8 @@ namespace TestNamespace
                         new ValueConverter<IPAddress, string>(
                             string (IPAddress v) => ((object)v).ToString(),
                             IPAddress (string v) => IPAddress.Parse(v)))));
+            var refTypeListElementType = refTypeList.SetElementType(typeof(IPAddress));
+            refTypeListElementType.TypeMapping = refTypeList.TypeMapping.ElementTypeMapping;
 
             var valueTypeArray = runtimeEntityType.AddProperty(
                 "ValueTypeArray",
@@ -487,6 +495,8 @@ namespace TestNamespace
                 jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<DateTime[], DateTime>(
                     SqliteJsonDateTimeReaderWriter.Instance),
                 elementMapping: SqliteDateTimeTypeMapping.Default);
+            var valueTypeArrayElementType = valueTypeArray.SetElementType(typeof(DateTime));
+            valueTypeArrayElementType.TypeMapping = valueTypeArray.TypeMapping.ElementTypeMapping;
 
             var valueTypeEnumerable = runtimeEntityType.AddProperty(
                 "ValueTypeEnumerable",
@@ -547,6 +557,8 @@ namespace TestNamespace
                         byte (byte v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
                         storeTypeName: "INTEGER")));
+            var valueTypeEnumerableElementType = valueTypeEnumerable.SetElementType(typeof(byte));
+            valueTypeEnumerableElementType.TypeMapping = valueTypeEnumerable.TypeMapping.ElementTypeMapping;
 
             var valueTypeIList = runtimeEntityType.AddProperty(
                 "ValueTypeIList",
@@ -607,6 +619,8 @@ namespace TestNamespace
                         byte (byte v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
                         storeTypeName: "INTEGER")));
+            var valueTypeIListElementType = valueTypeIList.SetElementType(typeof(byte));
+            valueTypeIListElementType.TypeMapping = valueTypeIList.TypeMapping.ElementTypeMapping;
 
             var valueTypeList = runtimeEntityType.AddProperty(
                 "ValueTypeList",
@@ -667,6 +681,8 @@ namespace TestNamespace
                         short (short v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
                         storeTypeName: "INTEGER")));
+            var valueTypeListElementType = valueTypeList.SetElementType(typeof(short));
+            valueTypeListElementType.TypeMapping = valueTypeList.TypeMapping.ElementTypeMapping;
 
             var context = runtimeEntityType.AddServiceProperty(
                 "Context",
@@ -753,7 +769,7 @@ namespace TestNamespace
             runtimeEntityType.SetOriginalValuesFactory(
                 ISnapshot (InternalEntityEntry source) =>
                 {
-                    var entity7 = ((CompiledModelTestBase.OwnedType)(source.Entity));
+                    var entity8 = ((CompiledModelTestBase.OwnedType)(source.Entity));
                     return ((ISnapshot)(new Snapshot<long, Guid, int, string, int, IPAddress[], IEnumerable<string>, IList<string>, List<IPAddress>, DateTime[], IEnumerable<byte>, IList<byte>, List<short>>(((ValueComparer<long>)(((IProperty)principalDerivedId).GetValueComparer())).Snapshot(source.GetCurrentValue<long>(principalDerivedId)), ((ValueComparer<Guid>)(((IProperty)principalDerivedAlternateId).GetValueComparer())).Snapshot(source.GetCurrentValue<Guid>(principalDerivedAlternateId)), ((ValueComparer<int>)(((IProperty)__synthesizedOrdinal).GetValueComparer())).Snapshot(source.GetCurrentValue<int>(__synthesizedOrdinal)), (source.GetCurrentValue<string>(details) == null ? null : ((ValueComparer<string>)(((IProperty)details).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(details))), ((ValueComparer<int>)(((IProperty)number).GetValueComparer())).Snapshot(source.GetCurrentValue<int>(number)), (((object)(source.GetCurrentValue<IPAddress[]>(refTypeArray))) == null ? null : ((IPAddress[])(((ValueComparer<object>)(((IProperty)refTypeArray).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<IPAddress[]>(refTypeArray))))))), (((object)(source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable))) == null ? null : ((IEnumerable<string>)(((ValueComparer<object>)(((IProperty)refTypeEnumerable).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable))))))), (((object)(source.GetCurrentValue<IList<string>>(refTypeIList))) == null ? null : ((IList<string>)(((ValueComparer<object>)(((IProperty)refTypeIList).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<IList<string>>(refTypeIList))))))), (((object)(source.GetCurrentValue<List<IPAddress>>(refTypeList))) == null ? null : ((List<IPAddress>)(((ValueComparer<object>)(((IProperty)refTypeList).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<List<IPAddress>>(refTypeList))))))), (((IEnumerable<DateTime>)(source.GetCurrentValue<DateTime[]>(valueTypeArray))) == null ? null : ((DateTime[])(((ValueComparer<IEnumerable<DateTime>>)(((IProperty)valueTypeArray).GetValueComparer())).Snapshot(((IEnumerable<DateTime>)(source.GetCurrentValue<DateTime[]>(valueTypeArray))))))), (source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable) == null ? null : ((ValueComparer<IEnumerable<byte>>)(((IProperty)valueTypeEnumerable).GetValueComparer())).Snapshot(source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable))), (((IEnumerable<byte>)(source.GetCurrentValue<IList<byte>>(valueTypeIList))) == null ? null : ((IList<byte>)(((ValueComparer<IEnumerable<byte>>)(((IProperty)valueTypeIList).GetValueComparer())).Snapshot(((IEnumerable<byte>)(source.GetCurrentValue<IList<byte>>(valueTypeIList))))))), (((IEnumerable<short>)(source.GetCurrentValue<List<short>>(valueTypeList))) == null ? null : ((List<short>)(((ValueComparer<IEnumerable<short>>)(((IProperty)valueTypeList).GetValueComparer())).Snapshot(((IEnumerable<short>)(source.GetCurrentValue<List<short>>(valueTypeList))))))))));
                 });
             runtimeEntityType.SetStoreGeneratedValuesFactory(
@@ -767,7 +783,7 @@ namespace TestNamespace
             runtimeEntityType.SetRelationshipSnapshotFactory(
                 ISnapshot (InternalEntityEntry source) =>
                 {
-                    var entity7 = ((CompiledModelTestBase.OwnedType)(source.Entity));
+                    var entity8 = ((CompiledModelTestBase.OwnedType)(source.Entity));
                     return ((ISnapshot)(new Snapshot<long, Guid, int>(((ValueComparer<long>)(((IProperty)principalDerivedId).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<long>(principalDerivedId)), ((ValueComparer<Guid>)(((IProperty)principalDerivedAlternateId).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<Guid>(principalDerivedAlternateId)), ((ValueComparer<int>)(((IProperty)__synthesizedOrdinal).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<int>(__synthesizedOrdinal)))));
                 });
             runtimeEntityType.Counts = new PropertyCounts(

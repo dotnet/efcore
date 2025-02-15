@@ -203,11 +203,11 @@ WHERE (c["EmployeeID"] = 1)
 
             AssertSql(
                 """
-@__boolean_0='false'
+@boolean='false'
 
-SELECT VALUE @__boolean_0
+SELECT VALUE @boolean
 FROM root c
-ORDER BY @__boolean_0
+ORDER BY @boolean
 """);
         }
     }
@@ -359,9 +359,9 @@ FROM root c
                 await base.Select_local(a);
                 AssertSql(
                     """
-@__x_0='10'
+@x='10'
 
-SELECT VALUE @__x_0
+SELECT VALUE @x
 FROM root c
 """);
             });
@@ -374,11 +374,11 @@ FROM root c
 
                 AssertSql(
                     """
-@__p_0='9'
+@p='9'
 
 SELECT VALUE c["EmployeeID"]
 FROM root c
-OFFSET 0 LIMIT @__p_0
+OFFSET 0 LIMIT @p
 """);
             });
 
@@ -1096,6 +1096,22 @@ WHERE STARTSWITH(c["id"], "A")
         AssertSql();
     }
 
+    public override async Task SelectMany_with_multiple_Take(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.SelectMany_with_multiple_Take(async));
+
+        AssertSql();
+    }
+
+    public override async Task Select_with_multiple_Take(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Select_with_multiple_Take(async));
+
+        AssertSql();
+    }
+
     public override async Task FirstOrDefault_over_empty_collection_of_value_type_returns_correct_results(bool async)
     {
         // Cosmos client evaluation. Issue #17246.
@@ -1402,12 +1418,12 @@ ORDER BY c["id"]
                 await base.Projection_take_projection_doesnt_project_intermittent_column(a);
                 AssertSql(
                     """
-@__p_0='10'
+@p='10'
 
 SELECT VALUE ((c["id"] || " ") || c["City"])
 FROM root c
 ORDER BY c["id"]
-OFFSET 0 LIMIT @__p_0
+OFFSET 0 LIMIT @p
 """);
             });
 

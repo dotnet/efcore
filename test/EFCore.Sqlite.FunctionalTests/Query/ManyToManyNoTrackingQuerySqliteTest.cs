@@ -12,12 +12,6 @@ public class ManyToManyNoTrackingQuerySqliteTest(ManyToManyQuerySqliteFixture fi
 {
     // Sqlite does not support Apply operations
 
-    public override async Task Skip_navigation_order_by_single_or_default(bool async)
-        => Assert.Equal(
-            SqliteStrings.ApplyNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Skip_navigation_order_by_single_or_default(async))).Message);
-
     public override async Task Filtered_include_skip_navigation_order_by_skip_take_then_include_skip_navigation_where(bool async)
         => Assert.Equal(
             SqliteStrings.ApplyNotSupported,

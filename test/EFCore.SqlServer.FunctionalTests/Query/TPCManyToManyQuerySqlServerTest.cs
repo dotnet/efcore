@@ -90,11 +90,11 @@ WHERE EXISTS (
             """
 SELECT [e].[Id], [e].[Name]
 FROM [EntityOnes] AS [e]
-WHERE (
-    SELECT COUNT(*)
+WHERE EXISTS (
+    SELECT 1
     FROM [JoinOneSelfPayload] AS [j]
     INNER JOIN [EntityOnes] AS [e0] ON [j].[LeftId] = [e0].[Id]
-    WHERE [e].[Id] = [j].[RightId]) > 0
+    WHERE [e].[Id] = [j].[RightId])
 """);
     }
 
@@ -328,17 +328,15 @@ LEFT JOIN (
             """
 SELECT [s0].[Id], [s0].[Name]
 FROM [EntityOnes] AS [e]
-OUTER APPLY (
-    SELECT TOP(1) [s].[Id], [s].[Name]
+LEFT JOIN (
+    SELECT [s].[Id], [s].[Name], [s].[LeftId]
     FROM (
-        SELECT TOP(1) [e0].[Id], [e0].[Name]
+        SELECT [e0].[Id], [e0].[Name], [j].[LeftId], ROW_NUMBER() OVER(PARTITION BY [j].[LeftId] ORDER BY [e0].[Id]) AS [row]
         FROM [JoinOneSelfPayload] AS [j]
         INNER JOIN [EntityOnes] AS [e0] ON [j].[RightId] = [e0].[Id]
-        WHERE [e].[Id] = [j].[LeftId]
-        ORDER BY [e0].[Id]
     ) AS [s]
-    ORDER BY [s].[Id]
-) AS [s0]
+    WHERE [s].[row] <= 1
+) AS [s0] ON [e].[Id] = [s0].[LeftId]
 """);
     }
 
@@ -2009,7 +2007,7 @@ LEFT JOIN (
 
         AssertSql(
             """
-@__entity_equality_two_0_Id='1' (Nullable = true)
+@entity_equality_two_Id='1' (Nullable = true)
 
 SELECT [e].[Id], [e].[Name]
 FROM [EntityOnes] AS [e]
@@ -2017,7 +2015,7 @@ WHERE EXISTS (
     SELECT 1
     FROM [JoinOneToTwo] AS [j]
     INNER JOIN [EntityTwos] AS [e0] ON [j].[TwoId] = [e0].[Id]
-    WHERE [e].[Id] = [j].[OneId] AND [e0].[Id] = @__entity_equality_two_0_Id)
+    WHERE [e].[Id] = [j].[OneId] AND [e0].[Id] = @entity_equality_two_Id)
 """);
     }
 
@@ -2179,11 +2177,11 @@ WHERE EXISTS (
             """
 SELECT [u].[Id], [u].[Name]
 FROM [UnidirectionalEntityOnes] AS [u]
-WHERE (
-    SELECT COUNT(*)
+WHERE EXISTS (
+    SELECT 1
     FROM [UnidirectionalJoinOneSelfPayload] AS [u0]
     INNER JOIN [UnidirectionalEntityOnes] AS [u1] ON [u0].[LeftId] = [u1].[Id]
-    WHERE [u].[Id] = [u0].[RightId]) > 0
+    WHERE [u].[Id] = [u0].[RightId])
 """);
     }
 
@@ -2751,7 +2749,7 @@ LEFT JOIN (
 
         AssertSql(
             """
-@__entity_equality_two_0_Id='1' (Nullable = true)
+@entity_equality_two_Id='1' (Nullable = true)
 
 SELECT [u].[Id], [u].[Name]
 FROM [UnidirectionalEntityOnes] AS [u]
@@ -2759,7 +2757,7 @@ WHERE EXISTS (
     SELECT 1
     FROM [UnidirectionalJoinOneToTwo] AS [u0]
     INNER JOIN [UnidirectionalEntityTwos] AS [u1] ON [u0].[TwoId] = [u1].[Id]
-    WHERE [u].[Id] = [u0].[OneId] AND [u1].[Id] = @__entity_equality_two_0_Id)
+    WHERE [u].[Id] = [u0].[OneId] AND [u1].[Id] = @entity_equality_two_Id)
 """);
     }
 

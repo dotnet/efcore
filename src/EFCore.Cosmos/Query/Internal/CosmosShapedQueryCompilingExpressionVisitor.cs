@@ -3,8 +3,6 @@
 
 #nullable disable
 
-using Microsoft.EntityFrameworkCore.Cosmos.Internal;
-using Microsoft.EntityFrameworkCore.Cosmos.Query.Internal.Expressions;
 using Microsoft.EntityFrameworkCore.Internal;
 using Newtonsoft.Json.Linq;
 using static System.Linq.Expressions.Expression;

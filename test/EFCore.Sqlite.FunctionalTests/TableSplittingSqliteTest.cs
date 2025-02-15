@@ -15,8 +15,10 @@ public class TableSplittingSqliteTest(ITestOutputHelper testOutputHelper) : Tabl
 
         AssertSql(
             """
+@p='1'
+
 UPDATE "Vehicles" AS "v"
-SET "SeatingCapacity" = 1
+SET "SeatingCapacity" = @p
 """,
             //
             """

@@ -122,16 +122,14 @@ public class MigrationCommandExecutorTest
                 Assert.Equal(
                     RelationalStrings.TransactionSuppressedMigrationInUserTransaction,
                     (await Assert.ThrowsAsync<NotSupportedException>(
-                        async ()
-                            => await migrationCommandExecutor.ExecuteNonQueryAsync(commandList, fakeConnection))).Message);
+                        async () => await migrationCommandExecutor.ExecuteNonQueryAsync(commandList, fakeConnection))).Message);
             }
             else
             {
                 Assert.Equal(
                     RelationalStrings.TransactionSuppressedMigrationInUserTransaction,
                     Assert.Throws<NotSupportedException>(
-                        ()
-                            => migrationCommandExecutor.ExecuteNonQuery(commandList, fakeConnection)).Message);
+                        () => migrationCommandExecutor.ExecuteNonQuery(commandList, fakeConnection)).Message);
             }
 
             tx.Rollback();

@@ -3,6 +3,8 @@
 
 // ReSharper disable InconsistentNaming
 
+using System.Net;
+using System.Net.NetworkInformation;
 using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.Cosmos.ValueGeneration.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -119,7 +121,7 @@ public class CompiledModelCosmosTest : CompiledModelTestBase
                 Assert.Null(list.FieldInfo);
                 Assert.True(list.IsNullable);
                 Assert.False(list.IsConcurrencyToken);
-                Assert.False(list.IsPrimitiveCollection);
+                Assert.True(list.IsPrimitiveCollection);
                 Assert.Equal(ValueGenerated.Never, list.ValueGenerated);
                 Assert.Equal(PropertySaveBehavior.Save, list.GetAfterSaveBehavior());
                 Assert.Equal(PropertySaveBehavior.Save, list.GetBeforeSaveBehavior());
@@ -232,9 +234,11 @@ public class CompiledModelCosmosTest : CompiledModelTestBase
                     });
             });
 
+
         modelBuilder.Entity<ManyTypes>(
             b =>
             {
+                b.Property(e => e.Id).HasConversion<ManyTypesIdConverter>().ValueGeneratedNever();
                 // Cosmos provider cannot map collections of elements with converters. See Issue #34026.
                 b.Ignore(e => e.GuidArray);
                 b.Ignore(e => e.DateTimeArray);
@@ -331,7 +335,305 @@ public class CompiledModelCosmosTest : CompiledModelTestBase
                 b.Ignore(e => e.NullableGuidNestedCollection);
                 b.Ignore(e => e.UInt8NestedCollection);
                 b.Ignore(e => e.NullableUInt8NestedCollection);
+                b.Ignore(e => e.IPAddressReadOnlyCollection);
             });
+    }
+
+    protected override async Task UseBigModel(DbContext context, bool jsonColumns)
+    {
+        var principalDerived = new PrincipalDerived<DependentBase<byte?>>
+        {
+            AlternateId = new Guid(),
+            Dependent = new DependentDerived<byte?>(1, "one"),
+            Owned = new OwnedType(context)
+        };
+
+        var principalId = context.Model.FindEntityType(typeof(PrincipalBase))!.FindProperty(nameof(PrincipalBase.Id))!;
+        if (principalId.ValueGenerated == ValueGenerated.Never)
+        {
+            principalDerived.Id = 10;
+        }
+
+        context.Add(principalDerived);
+
+        var types = new ManyTypes()
+        {
+            Bool = true,
+            UInt8 = 1,
+            Int16 = 2,
+            Int32 = 3,
+            Int64 = 4,
+            UInt16 = 5,
+            UInt32 = 6,
+            UInt64 = 7,
+            Char = 'a',
+            Float = 8.0f,
+            Double = 9.0,
+            Decimal = 10.0m,
+            String = "11",
+            Guid = Guid.NewGuid(),
+            DateTime = new DateTime(2023, 10, 10, 10, 10, 10),
+            DateOnly = new DateOnly(2023, 10, 10),
+            TimeOnly = new TimeOnly(10, 10),
+            TimeSpan = new TimeSpan(1),
+            Bytes = [1, 2, 3],
+            Uri = new Uri("https://www.example.com"),
+            PhysicalAddress = PhysicalAddress.Parse("00-00-00-00-00-01"),
+            IPAddress = IPAddress.Parse("127.0.0.1"),
+
+            NullableBool = true,
+            NullableUInt8 = 1,
+            NullableInt16 = 2,
+            NullableInt32 = 3,
+            NullableInt64 = 4,
+            NullableUInt16 = 5,
+            NullableUInt32 = 6,
+            NullableUInt64 = 7,
+            NullableChar = 'a',
+            NullableFloat = 8.0f,
+            NullableDouble = 9.0,
+            NullableDecimal = 10.0m,
+            NullableString = "11",
+            NullableGuid = Guid.NewGuid(),
+            NullableDateTime = new DateTime(2023, 10, 10, 10, 10, 10),
+            NullableDateOnly = new DateOnly(2023, 10, 10),
+            NullableTimeOnly = new TimeOnly(10, 10),
+            NullableTimeSpan = new TimeSpan(1),
+            NullableBytes = [1, 2, 3],
+            NullableUri = new Uri("https://www.example.com"),
+
+            BoolArray = [true],
+            Int8Array = [1],
+            Int16Array = [2],
+            Int32Array = [3],
+            Int64Array = [4],
+            UInt8Array = [1],
+            UInt16Array = [5],
+            UInt32Array = [6],
+            UInt64Array = [7],
+            CharArray = ['a'],
+            FloatArray = [8.0f],
+            DoubleArray = [9.0],
+            DecimalArray = [10.0m],
+            StringArray = ["11"],
+            GuidArray = [Guid.NewGuid()],
+            DateTimeArray = [new DateTime(2023, 10, 10, 10, 10, 10)],
+            DateOnlyArray = [new DateOnly(2023, 10, 10)],
+            TimeOnlyArray = [new TimeOnly(10, 10)],
+            TimeSpanArray = [new TimeSpan(1)],
+            BytesArray = [[1, 2, 3]],
+            UriArray = [new Uri("https://www.example.com")],
+            IPAddressArray = [IPAddress.Parse("127.0.0.1")],
+            PhysicalAddressArray = [PhysicalAddress.Parse("00-00-00-00-00-01")],
+
+            NullableBoolArray = [true],
+            NullableInt8Array = [1],
+            NullableInt16Array = [2],
+            NullableInt32Array = [3],
+            NullableInt64Array = [4],
+            NullableUInt8Array = [1],
+            NullableUInt16Array = [5],
+            NullableUInt32Array = [6],
+            NullableUInt64Array = [7],
+            NullableCharArray = ['a'],
+            NullableFloatArray = [8.0f],
+            NullableDoubleArray = [9.0],
+            NullableDecimalArray = [10.0m],
+            NullableStringArray = ["11"],
+            NullableGuidArray = [Guid.NewGuid()],
+            NullableDateTimeArray = [new DateTime(2023, 10, 10, 10, 10, 10)],
+            NullableDateOnlyArray = [new DateOnly(2023, 10, 10)],
+            NullableTimeOnlyArray = [new TimeOnly(10, 10)],
+            NullableTimeSpanArray = [new TimeSpan(1)],
+            NullableBytesArray = [[1, 2, 3]],
+            NullableUriArray = [new Uri("https://www.example.com")],
+            NullableIPAddressArray = [IPAddress.Parse("127.0.0.1")],
+            NullablePhysicalAddressArray = [PhysicalAddress.Parse("00-00-00-00-00-01")],
+
+            BoolReadOnlyCollection = [true],
+            UInt8ReadOnlyCollection = [1],
+            Int32ReadOnlyCollection = [2],
+            StringReadOnlyCollection = ["3"],
+            IPAddressReadOnlyCollection = [IPAddress.Parse("127.0.0.1")],
+
+            Enum8 = Enum8.One,
+            Enum16 = Enum16.One,
+            Enum32 = Enum32.One,
+            Enum64 = Enum64.One,
+            EnumU8 = EnumU8.One,
+            EnumU16 = EnumU16.One,
+            EnumU32 = EnumU32.One,
+            EnumU64 = EnumU64.One,
+
+            Enum8AsString = Enum8.One,
+            Enum16AsString = Enum16.One,
+            Enum32AsString = Enum32.One,
+            Enum64AsString = Enum64.One,
+            EnumU8AsString = EnumU8.One,
+            EnumU16AsString = EnumU16.One,
+            EnumU32AsString = EnumU32.One,
+            EnumU64AsString = EnumU64.One,
+
+            Enum8Collection = [Enum8.One],
+            Enum16Collection = [Enum16.One],
+            Enum32Collection = [Enum32.One],
+            Enum64Collection = [Enum64.One],
+            EnumU8Collection = [EnumU8.One],
+            EnumU16Collection = [EnumU16.One],
+            EnumU32Collection = [EnumU32.One],
+            EnumU64Collection = [EnumU64.One],
+
+            Enum8AsStringCollection = [Enum8.One],
+            Enum16AsStringCollection = [Enum16.One],
+            Enum32AsStringCollection = [Enum32.One],
+            Enum64AsStringCollection = [Enum64.One],
+            EnumU8AsStringCollection = [EnumU8.One],
+            EnumU16AsStringCollection = [EnumU16.One],
+            EnumU32AsStringCollection = [EnumU32.One],
+            EnumU64AsStringCollection = [EnumU64.One],
+
+            NullableEnum8Collection = [Enum8.One],
+            NullableEnum16Collection = [Enum16.One],
+            NullableEnum32Collection = [Enum32.One],
+            NullableEnum64Collection = [Enum64.One],
+            NullableEnumU8Collection = [EnumU8.One],
+            NullableEnumU16Collection = [EnumU16.One],
+            NullableEnumU32Collection = [EnumU32.One],
+            NullableEnumU64Collection = [EnumU64.One],
+
+            NullableEnum8AsStringCollection = [Enum8.One],
+            NullableEnum16AsStringCollection = [Enum16.One],
+            NullableEnum32AsStringCollection = [Enum32.One],
+            NullableEnum64AsStringCollection = [Enum64.One],
+            NullableEnumU8AsStringCollection = [EnumU8.One],
+            NullableEnumU16AsStringCollection = [EnumU16.One],
+            NullableEnumU32AsStringCollection = [EnumU32.One],
+            NullableEnumU64AsStringCollection = [EnumU64.One],
+
+            Enum8Array = [Enum8.One],
+            Enum16Array = [Enum16.One],
+            Enum32Array = [Enum32.One],
+            Enum64Array = [Enum64.One],
+            EnumU8Array = [EnumU8.One],
+            EnumU16Array = [EnumU16.One],
+            EnumU32Array = [EnumU32.One],
+            EnumU64Array = [EnumU64.One],
+
+            Enum8AsStringArray = [Enum8.One],
+            Enum16AsStringArray = [Enum16.One],
+            Enum32AsStringArray = [Enum32.One],
+            Enum64AsStringArray = [Enum64.One],
+            EnumU8AsStringArray = [EnumU8.One],
+            EnumU16AsStringArray = [EnumU16.One],
+            EnumU32AsStringArray = [EnumU32.One],
+            EnumU64AsStringArray = [EnumU64.One],
+
+            NullableEnum8Array = [Enum8.One],
+            NullableEnum16Array = [Enum16.One],
+            NullableEnum32Array = [Enum32.One],
+            NullableEnum64Array = [Enum64.One],
+            NullableEnumU8Array = [EnumU8.One],
+            NullableEnumU16Array = [EnumU16.One],
+            NullableEnumU32Array = [EnumU32.One],
+            NullableEnumU64Array = [EnumU64.One],
+
+            NullableEnum8AsStringArray = [Enum8.One],
+            NullableEnum16AsStringArray = [Enum16.One],
+            NullableEnum32AsStringArray = [Enum32.One],
+            NullableEnum64AsStringArray = [Enum64.One],
+            NullableEnumU8AsStringArray = [EnumU8.One],
+            NullableEnumU16AsStringArray = [EnumU16.One],
+            NullableEnumU32AsStringArray = [EnumU32.One],
+            NullableEnumU64AsStringArray = [EnumU64.One],
+
+            BoolNestedCollection = [[true]],
+            UInt8NestedCollection = [[9]],
+            Int8NestedCollection = [[[9]]],
+            Int32NestedCollection = [[9]],
+            Int64NestedCollection = [[[9L]]],
+            CharNestedCollection = [['a']],
+            StringNestedCollection = [["11"]],
+            GuidNestedCollection = [[[Guid.NewGuid()]]],
+            BytesNestedCollection = [[[1, 2, 3]]],
+            NullableUInt8NestedCollection = [[9]],
+            NullableInt32NestedCollection = [[9]],
+            NullableInt64NestedCollection = [[[9L]]],
+            NullableStringNestedCollection = [["11"]],
+            NullableGuidNestedCollection = [[Guid.NewGuid()]],
+            NullableBytesNestedCollection = [[[1, 2, 3]]],
+            NullablePhysicalAddressNestedCollection = [[[PhysicalAddress.Parse("00-00-00-00-00-01")]]],
+
+            Enum8NestedCollection = [[Enum8.One]],
+            Enum32NestedCollection = [[[Enum32.One]]],
+            EnumU64NestedCollection = [[EnumU64.One]],
+            NullableEnum8NestedCollection = [[Enum8.One]],
+            NullableEnum32NestedCollection = [[[Enum32.One]]],
+            NullableEnumU64NestedCollection = [[EnumU64.One]],
+
+            BoolToStringConverterProperty = true,
+            BoolToTwoValuesConverterProperty = true,
+            BoolToZeroOneConverterProperty = true,
+            BytesToStringConverterProperty = [1, 2, 3],
+            CastingConverterProperty = 1,
+            CharToStringConverterProperty = 'a',
+            DateOnlyToStringConverterProperty = new DateOnly(2023, 10, 10),
+            DateTimeOffsetToBinaryConverterProperty = new DateTimeOffset(2023, 10, 10, 10, 10, 10, TimeSpan.Zero),
+            DateTimeOffsetToBytesConverterProperty = new DateTimeOffset(2023, 10, 10, 10, 10, 10, TimeSpan.Zero),
+            DateTimeOffsetToStringConverterProperty = new DateTimeOffset(2023, 10, 10, 10, 10, 10, TimeSpan.Zero),
+            DateTimeToBinaryConverterProperty = new DateTime(2023, 10, 10, 10, 10, 10),
+            DateTimeToStringConverterProperty = new DateTime(2023, 10, 10, 10, 10, 10),
+            EnumToNumberConverterProperty = Enum32.One,
+            EnumToStringConverterProperty = Enum32.One,
+            GuidToBytesConverterProperty = Guid.NewGuid(),
+            GuidToStringConverterProperty = Guid.NewGuid(),
+            IPAddressToBytesConverterProperty = IPAddress.Parse("127.0.0.1"),
+            IPAddressToStringConverterProperty = IPAddress.Parse("127.0.0.1"),
+            IntNumberToBytesConverterProperty = 1,
+            DecimalNumberToBytesConverterProperty = 1.0m,
+            DoubleNumberToBytesConverterProperty = 1.0,
+            IntNumberToStringConverterProperty = 1,
+            DecimalNumberToStringConverterProperty = 1.0m,
+            DoubleNumberToStringConverterProperty = 1.0,
+            PhysicalAddressToBytesConverterProperty = PhysicalAddress.Parse("00-00-00-00-00-01"),
+            PhysicalAddressToStringConverterProperty = PhysicalAddress.Parse("00-00-00-00-00-01"),
+            StringToBoolConverterProperty = "true",
+            StringToBytesConverterProperty = "1",
+            StringToCharConverterProperty = "a",
+            StringToDateOnlyConverterProperty = new DateOnly(2023, 10, 10).ToString(@"yyyy\-MM\-dd"),
+            StringToDateTimeConverterProperty = new DateTime(2023, 10, 10, 10, 10, 10).ToString(@"yyyy\-MM\-dd HH\:mm\:ss.FFFFFFF"),
+            StringToDateTimeOffsetConverterProperty = new DateTimeOffset(2023, 10, 10, 10, 10, 10, TimeSpan.FromHours(1))
+                .ToString(@"yyyy\-MM\-dd HH\:mm\:ss.FFFFFFFzzz"),
+            StringToEnumConverterProperty = "One",
+            StringToGuidConverterProperty = Guid.NewGuid().ToString(),
+            StringToIntNumberConverterProperty = "1",
+            StringToDecimalNumberConverterProperty = "1.0",
+            StringToDoubleNumberConverterProperty = "1.0",
+            StringToTimeOnlyConverterProperty = new TimeOnly(10, 10).ToString("o"),
+            StringToTimeSpanConverterProperty = new TimeSpan(1).ToString("c"),
+            StringToUriConverterProperty = "https://www.example.com/",
+            TimeOnlyToStringConverterProperty = new TimeOnly(10, 10),
+            TimeOnlyToTicksConverterProperty = new TimeOnly(10, 10),
+            TimeSpanToStringConverterProperty = new TimeSpan(1),
+            TimeSpanToTicksConverterProperty = new TimeSpan(1),
+            UriToStringConverterProperty = new Uri("https://www.example.com/"),
+            NullIntToNullStringConverterProperty = null
+        };
+
+        var manyTypesId = context.Model.FindEntityType(typeof(ManyTypes))!.FindProperty(nameof(ManyTypes.Id))!;
+        if (manyTypesId.ValueGenerated == ValueGenerated.Never)
+        {
+            types.Id = new ManyTypesId(17);
+        }
+
+        context.Add(types);
+
+        await context.SaveChangesAsync();
+
+        var principalDerivedFromStore = await context.Set<PrincipalDerived<DependentBase<byte?>>>().IgnoreAutoIncludes().SingleAsync();
+        Assert.Equal(principalDerived.AlternateId, principalDerivedFromStore.AlternateId);
+
+        var typesFromStore = await context.Set<ManyTypes>().OrderBy(m => m.Id).FirstAsync();
+        AssertEqual(types, typesFromStore, jsonColumns);
     }
 
     protected override void BuildComplexTypesModel(ModelBuilder modelBuilder)

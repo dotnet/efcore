@@ -597,11 +597,11 @@ LEFT JOIN (
 
         AssertSql(
             """
-@__id_0='6c1ae3e5-30b9-4c77-8d98-f02075974a0a'
+@id='6c1ae3e5-30b9-4c77-8d98-f02075974a0a'
 
 SELECT TOP(1) [l].[Id]
 FROM [Location25680] AS [l]
-WHERE [l].[Id] = @__id_0
+WHERE [l].[Id] = @id
 ORDER BY [l].[Id]
 """);
     }
@@ -612,9 +612,9 @@ ORDER BY [l].[Id]
 
         AssertSql(
             """
-@__p_0='10'
+@p='10'
 
-SELECT TOP(@__p_0) [c].[Id], [c].[Name], [c0].[CompanyId], [c0].[AdditionalCustomerData], [c0].[Id], [s].[CompanyId], [s].[AdditionalSupplierData], [s].[Id]
+SELECT TOP(@p) [c].[Id], [c].[Name], [c0].[CompanyId], [c0].[AdditionalCustomerData], [c0].[Id], [s].[CompanyId], [s].[AdditionalSupplierData], [s].[Id]
 FROM [Companies] AS [c]
 LEFT JOIN [CustomerData] AS [c0] ON [c].[Id] = [c0].[CompanyId]
 LEFT JOIN [SupplierData] AS [s] ON [c].[Id] = [s].[CompanyId]
@@ -629,9 +629,9 @@ ORDER BY [c].[Id]
 
         AssertSql(
             """
-@__p_0='10'
+@p='10'
 
-SELECT TOP(@__p_0) [o].[Id], [o].[Name], [i].[OwnerId], [i].[Id], [i].[Name], [i0].[IntermediateOwnedEntityOwnerId], [i0].[AdditionalCustomerData], [i0].[Id], [i1].[IntermediateOwnedEntityOwnerId], [i1].[AdditionalSupplierData], [i1].[Id]
+SELECT TOP(@p) [o].[Id], [o].[Name], [i].[OwnerId], [i].[Id], [i].[Name], [i0].[IntermediateOwnedEntityOwnerId], [i0].[AdditionalCustomerData], [i0].[Id], [i1].[IntermediateOwnedEntityOwnerId], [i1].[AdditionalSupplierData], [i1].[Id]
 FROM [Owners] AS [o]
 LEFT JOIN [IntermediateOwnedEntity] AS [i] ON [o].[Id] = [i].[OwnerId]
 LEFT JOIN [IM_CustomerData] AS [i0] ON [i].[OwnerId] = [i0].[IntermediateOwnedEntityOwnerId]

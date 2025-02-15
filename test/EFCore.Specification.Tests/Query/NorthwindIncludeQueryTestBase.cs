@@ -301,6 +301,18 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture>(TFixture fixture) 
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task Include_collection_with_right_join_clause_with_filter(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>()
+                .Include(o => o.Orders)
+                .RightJoin(ss.Set<Order>(), c => c.CustomerID, o => o.CustomerID, (c, o) => new { c, o })
+                .Where(t => t.c.CustomerID.StartsWith("F"))
+                .Select(t => t.c),
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Customer>(c => c.Orders)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task Include_collection_with_cross_join_clause_with_filter(bool async)
         => AssertQuery(
             async,

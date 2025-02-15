@@ -3161,17 +3161,9 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
                         && targetEntityType.Name == existingTargetType.ClrType.DisplayName())))
             {
                 relationship = existingNavigation.ForeignKey.Builder;
-                if (existingNavigation.ForeignKey.IsOwnership)
-                {
-                    relationship = relationship.IsOwnership(true, configurationSource)
-                        ?.HasNavigations(inverse, navigation, configurationSource);
-
-                    relationship?.Metadata.UpdateConfigurationSource(configurationSource);
-                    return relationship;
-                }
-
                 Check.DebugAssert(
-                    !existingTargetType.IsOwned()
+                    existingNavigation.ForeignKey.IsOwnership
+                    || !existingTargetType.IsOwned()
                     || existingNavigation.DeclaringEntityType.IsInOwnershipPath(existingTargetType)
                     || (existingTargetType.IsInOwnershipPath(existingNavigation.DeclaringEntityType)
                         && existingTargetType.FindOwnership()!.PrincipalEntityType != existingNavigation.DeclaringEntityType),
@@ -3179,7 +3171,8 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
                     + "Owned types should only have ownership or ownee navigations point at it");
 
                 relationship = relationship.IsOwnership(true, configurationSource)
-                    ?.HasNavigations(inverse, navigation, configurationSource);
+                    ?.HasNavigations(inverse, navigation, configurationSource)
+                    ?.IsRequired(true, configurationSource);
 
                 relationship?.Metadata.UpdateConfigurationSource(configurationSource);
                 return relationship;

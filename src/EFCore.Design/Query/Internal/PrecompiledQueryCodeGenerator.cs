@@ -734,18 +734,55 @@ namespace System.Runtime.CompilerServices
 
                     for (var i = 1; i < parameters.Length; i++)
                     {
-                        var parameter = parameters[i];
+                        var (parameterName, parameterType) = (parameters[i].Name!, parameters[i].ParameterType);
 
-                        if (parameter.ParameterType == typeof(CancellationToken))
+                        if (parameterType == typeof(CancellationToken))
                         {
                             continue;
                         }
 
-                        if (_funcletizer.CalculatePathsToEvaluatableRoots(operatorMethodCall, i) is not ExpressionTreeFuncletizer.PathNode
-                            evaluatableRootPaths)
+                        ExpressionTreeFuncletizer.PathNode? evaluatableRootPaths;
+
+                        // ExecuteUpdate requires really special handling: the function accepts a Func<UpdateSettersBuilder...> argument, but
+                        // we need to run funcletization on the setter lambdas added via that Func<>.
+                        if (operatorMethodCall.Method is
+                            {
+                                Name: nameof(EntityFrameworkQueryableExtensions.ExecuteUpdate)
+                                or nameof(EntityFrameworkQueryableExtensions.ExecuteUpdateAsync),
+                                IsGenericMethod: true
+                            }
+                            && operatorMethodCall.Method.DeclaringType == typeof(EntityFrameworkQueryableExtensions))
                         {
-                            // There are no captured variables in this lambda argument - skip the argument
-                            continue;
+                            // First, statically convert the Action<UpdateSettersBuilder> to a NewArrayExpression which represents all the
+                            // setters; since that's an expression, we can run the funcletizer on it.
+                            var settersExpression = ProcessExecuteUpdate(operatorMethodCall);
+                            evaluatableRootPaths = _funcletizer.CalculatePathsToEvaluatableRoots(settersExpression);
+
+                            if (evaluatableRootPaths is null)
+                            {
+                                // There are no captured variables in this lambda argument - skip the argument
+                                continue;
+                            }
+
+                            // If there were captured variables, generate code to evaluate and build the same NewArrayExpression at runtime,
+                            // and then fall through to the normal logic, generating variable extractors against that NewArrayExpression
+                            // (local var) instead of against the method argument.
+                            code.AppendLine($"""
+                                             var setterBuilder = new UpdateSettersBuilder<{sourceElementTypeName}>();
+                                             {parameterName}(setterBuilder);
+                                             var setters = setterBuilder.BuildSettersExpression();
+                                             """);
+                            parameterName = "setters";
+                            parameterType = typeof(NewArrayExpression);
+                        }
+                        else
+                        {
+                            evaluatableRootPaths = _funcletizer.CalculatePathsToEvaluatableRoots(operatorMethodCall, i);
+                            if (evaluatableRootPaths is null)
+                            {
+                                // There are no captured variables in this lambda argument - skip the argument
+                                continue;
+                            }
                         }
 
                         // We have a lambda argument with captured variables. Use the information returned by the funcletizer to generate code
@@ -756,11 +793,11 @@ namespace System.Runtime.CompilerServices
                             declaredQueryContextVariable = true;
                         }
 
-                        if (!parameter.ParameterType.IsSubclassOf(typeof(Expression)))
+                        if (!parameterType.IsSubclassOf(typeof(Expression)))
                         {
                             // Special case: this is a non-lambda argument (Skip/Take/FromSql).
                             // Simply add the argument directly as a parameter
-                            code.AppendLine($"""queryContext.AddParameter("{evaluatableRootPaths.ParameterName}", {parameter.Name});""");
+                            code.AppendLine($"""queryContext.AddParameter("{evaluatableRootPaths.ParameterName}", {parameterName});""");
                             continue;
                         }
 
@@ -769,7 +806,7 @@ namespace System.Runtime.CompilerServices
                         // Lambda argument. Recurse through evaluatable path trees.
                         foreach (var child in evaluatableRootPaths.Children!)
                         {
-                            GenerateCapturedVariableExtractors(parameter.Name!, parameter.ParameterType, child);
+                            GenerateCapturedVariableExtractors(parameterName, parameterType, child);
 
                             void GenerateCapturedVariableExtractors(
                                 string currentIdentifier,
@@ -786,12 +823,13 @@ namespace System.Runtime.CompilerServices
 
                                 var variableName = capturedVariablesPathTree.ExpressionType.Name;
                                 variableName = char.ToLower(variableName[0]) + variableName[1..^"Expression".Length] + ++variableCounter;
-                                code.AppendLine(
-                                    $"var {variableName} = ({capturedVariablesPathTree.ExpressionType.Name}){roslynPathSegment};");
 
                                 if (capturedVariablesPathTree.Children?.Count > 0)
                                 {
                                     // This is an intermediate node which has captured variables in the children. Continue recursing down.
+                                    code.AppendLine(
+                                        $"var {variableName} = ({capturedVariablesPathTree.ExpressionType.Name}){roslynPathSegment};");
+
                                     foreach (var child in capturedVariablesPathTree.Children)
                                     {
                                         GenerateCapturedVariableExtractors(variableName, capturedVariablesPathTree.ExpressionType, child);
@@ -816,7 +854,7 @@ namespace System.Runtime.CompilerServices
                                 {
                                     code
                                         .Append('"').Append(capturedVariablesPathTree.ParameterName!).AppendLine("\",")
-                                        .AppendLine($"Expression.Lambda<Func<object?>>(Expression.Convert({variableName}, typeof(object)))")
+                                        .AppendLine($"Expression.Lambda<Func<object?>>(Expression.Convert({roslynPathSegment}, typeof(object)))")
                                         .AppendLine(".Compile(preferInterpretation: true)")
                                         .AppendLine(".Invoke());");
                                 }
@@ -1073,15 +1111,23 @@ namespace System.Runtime.CompilerServices
                     QueryableMethods.GetSumWithSelector(
                         method.GetParameters()[1].ParameterType.GenericTypeArguments[0].GenericTypeArguments[1])),
 
-            // ExecuteDelete/Update behave just like other scalar-returning operators
+            // ExecuteDelete behaves just like other scalar-returning operators
             nameof(EntityFrameworkQueryableExtensions.ExecuteDeleteAsync) when method.DeclaringType
                 == typeof(EntityFrameworkQueryableExtensions)
                 => RewriteToSync(
                     typeof(EntityFrameworkQueryableExtensions).GetMethod(nameof(EntityFrameworkQueryableExtensions.ExecuteDelete))),
-            nameof(EntityFrameworkQueryableExtensions.ExecuteUpdateAsync) when method.DeclaringType
-                == typeof(EntityFrameworkQueryableExtensions)
-                => RewriteToSync(
-                    typeof(EntityFrameworkQueryableExtensions).GetMethod(nameof(EntityFrameworkQueryableExtensions.ExecuteUpdate))),
+
+            // ExecuteUpdate is special; it accepts a non-expression-tree argument (Action<UpdateSettersBuilder>),
+            // evaluates it immediately, and injects a different MethodCall node into the expression tree with the resulting setter
+            // expressions.
+            // When statically analyzing ExecuteUpdate, we have to manually perform the same thing.
+            nameof(EntityFrameworkQueryableExtensions.ExecuteUpdate) or nameof(EntityFrameworkQueryableExtensions.ExecuteUpdateAsync)
+                when method.DeclaringType == typeof(EntityFrameworkQueryableExtensions)
+                => Expression.Call(
+                    EntityFrameworkQueryableExtensions.ExecuteUpdateMethodInfo.MakeGenericMethod(
+                        terminatingOperator.Arguments[0].Type.GetSequenceType()),
+                    penultimateOperator,
+                    ProcessExecuteUpdate(terminatingOperator)),
 
             // In the regular case (sync terminating operator which needs to stay in the query tree), simply compose the terminating
             // operator over the penultimate and return that.
@@ -1114,6 +1160,56 @@ namespace System.Runtime.CompilerServices
 
             return Expression.Call(terminatingOperator.Object, syncMethod, syncArguments);
         }
+    }
+
+    // Accepts an expression tree representing a series of SetProperty() calls, parses them and passes them through the
+    // UpdateSettersBuilder; returns the resulting NewArrayExpression representing all the setters.
+    private static NewArrayExpression ProcessExecuteUpdate(MethodCallExpression executeUpdateCall)
+    {
+        var settersBuilder = new UpdateSettersBuilder();
+        var settersLambda = (LambdaExpression)executeUpdateCall.Arguments[1];
+        var settersParameter = settersLambda.Parameters.Single();
+        var expression = settersLambda.Body;
+
+        while (expression != settersParameter)
+        {
+            if (expression is MethodCallExpression
+                {
+                    Method:
+                    {
+                        IsGenericMethod: true,
+                        Name: nameof(UpdateSettersBuilder<int>.SetProperty),
+                        DeclaringType.IsGenericType: true,
+                    },
+                    Arguments:
+                    [
+                        UnaryExpression { NodeType: ExpressionType.Quote, Operand: LambdaExpression propertySelector },
+                        Expression valueSelector
+                    ]
+                } methodCallExpression
+                && methodCallExpression.Method.DeclaringType.GetGenericTypeDefinition() == typeof(UpdateSettersBuilder<>))
+            {
+                if (valueSelector is UnaryExpression
+                    {
+                        NodeType: ExpressionType.Quote,
+                        Operand: LambdaExpression unwrappedValueSelector
+                    })
+                {
+                    settersBuilder.SetProperty(propertySelector, unwrappedValueSelector);
+                }
+                else
+                {
+                    settersBuilder.SetProperty(propertySelector, valueSelector);
+                }
+
+                expression = methodCallExpression.Object;
+                continue;
+            }
+
+            throw new InvalidOperationException(RelationalStrings.InvalidArgumentToExecuteUpdate);
+        }
+
+        return settersBuilder.BuildSettersExpression();
     }
 
     /// <summary>

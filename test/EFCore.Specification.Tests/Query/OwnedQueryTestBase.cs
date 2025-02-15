@@ -857,14 +857,7 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
             ss => from c1 in ss.Set<Planet>()
                   join c2 in ss.Set<OwnedPerson>() on c1.Id equals c2.Id into grouping
                   from c2 in grouping.DefaultIfEmpty()
-                  select new
-                  {
-                      c1,
-                      c2.Id,
-                      c2,
-                      c2.Orders,
-                      c2.PersonAddress
-                  },
+                  select new { c1, c2.Id, c2, c2.Orders, c2.PersonAddress },
             elementSorter: e => (e.c1.Id, e.c2.Id),
             elementAsserter: (e, a) =>
             {
@@ -987,7 +980,7 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
             async,
             ss => ss.Set<OwnedPerson>().Where(p => ((DateTime)p.Orders.FirstOrDefault(o => o.Id > -20)["OrderDate"]).Year == 2018),
             ss => ss.Set<OwnedPerson>().Where(
-                p => p.Orders.FirstOrDefault(o => o.Id > -20) != null
+                p => Enumerable.FirstOrDefault(p.Orders, o => o.Id > -20) != null
                     && ((DateTime)p.Orders.FirstOrDefault(o => o.Id > -20)["OrderDate"]).Year == 2018));
 
     [ConditionalTheory]

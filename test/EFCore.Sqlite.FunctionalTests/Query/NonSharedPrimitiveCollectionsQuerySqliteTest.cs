@@ -369,13 +369,13 @@ WHERE "t"."Id" IN (2, 999)
 
         AssertSql(
             """
-@__ids_0='[2,999]' (Size = 7)
+@ids='[2,999]' (Size = 7)
 
 SELECT "t"."Id"
 FROM "TestEntity" AS "t"
 WHERE (
     SELECT COUNT(*)
-    FROM json_each(@__ids_0) AS "i"
+    FROM json_each(@ids) AS "i"
     WHERE "i"."value" > "t"."Id") = 1
 """);
     }
@@ -386,13 +386,13 @@ WHERE (
 
         AssertSql(
             """
-@__ints_0='[2,999]' (Size = 7)
+@ints='[2,999]' (Size = 7)
 
 SELECT "t"."Id"
 FROM "TestEntity" AS "t"
 WHERE "t"."Id" IN (
     SELECT "i"."value"
-    FROM json_each(@__ints_0) AS "i"
+    FROM json_each(@ints) AS "i"
 )
 """);
     }
@@ -403,13 +403,13 @@ WHERE "t"."Id" IN (
 
         AssertSql(
             """
-@__ids_0='[2,999]' (Size = 7)
+@ids='[2,999]' (Size = 7)
 
 SELECT "t"."Id"
 FROM "TestEntity" AS "t"
 WHERE (
     SELECT COUNT(*)
-    FROM json_each(@__ids_0) AS "i"
+    FROM json_each(@ids) AS "i"
     WHERE "i"."value" > "t"."Id") = 1
 """);
     }
@@ -420,13 +420,13 @@ WHERE (
 
         AssertSql(
             """
-@__ints_0='[2,999]' (Size = 7)
+@ints='[2,999]' (Size = 7)
 
 SELECT "t"."Id"
 FROM "TestEntity" AS "t"
 WHERE "t"."Id" IN (
     SELECT "i"."value"
-    FROM json_each(@__ints_0) AS "i"
+    FROM json_each(@ints) AS "i"
 )
 """);
     }

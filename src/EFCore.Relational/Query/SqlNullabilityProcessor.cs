@@ -35,7 +35,6 @@ public class SqlNullabilityProcessor : ExpressionVisitor
     {
         Dependencies = dependencies;
         UseRelationalNulls = parameters.UseRelationalNulls;
-        ParametersToConstantize = parameters.ParametersToConstantize;
 
         _sqlExpressionFactory = dependencies.SqlExpressionFactory;
         _nonNullableColumns = [];
@@ -52,11 +51,6 @@ public class SqlNullabilityProcessor : ExpressionVisitor
     ///     A bool value indicating whether relational null semantics are in use.
     /// </summary>
     protected virtual bool UseRelationalNulls { get; }
-
-    /// <summary>
-    ///     A collection of parameter names to constantize.
-    /// </summary>
-    protected virtual IReadOnlySet<string> ParametersToConstantize { get; }
 
     /// <summary>
     ///     Dictionary of current parameter values in use.
@@ -111,22 +105,12 @@ public class SqlNullabilityProcessor : ExpressionVisitor
             case SelectExpression select:
                 return Visit(select);
 
-            case InnerJoinExpression innerJoinExpression:
+            case PredicateJoinExpressionBase join:
             {
-                var newTable = VisitAndConvert(innerJoinExpression.Table, nameof(VisitExtension));
-                var newJoinPredicate = ProcessJoinPredicate(innerJoinExpression.JoinPredicate);
+                var newTable = VisitAndConvert(join.Table, nameof(VisitExtension));
+                var newJoinPredicate = ProcessJoinPredicate(join.JoinPredicate);
 
-                return IsTrue(newJoinPredicate)
-                    ? new CrossJoinExpression(newTable)
-                    : innerJoinExpression.Update(newTable, newJoinPredicate);
-            }
-
-            case LeftJoinExpression leftJoinExpression:
-            {
-                var newTable = VisitAndConvert(leftJoinExpression.Table, nameof(VisitExtension));
-                var newJoinPredicate = ProcessJoinPredicate(leftJoinExpression.JoinPredicate);
-
-                return leftJoinExpression.Update(newTable, newJoinPredicate);
+                return join.Update(newTable, newJoinPredicate);
             }
 
             case ValuesExpression { ValuesParameter: SqlParameterExpression valuesParameter } valuesExpression:
@@ -1130,7 +1114,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
             // we assume that NullSemantics rewrite is only needed (on the current level)
             // if the optimization didn't make any changes.
             // Reason is that optimization can/will change the nullability of the resulting expression
-            // and that inforation is not tracked/stored anywhere
+            // and that information is not tracked/stored anywhere
             // so we can no longer rely on nullabilities that we computed earlier (leftNullable, rightNullable)
             // when performing null semantics rewrite.
             // It should be fine because current optimizations *radically* change the expression
@@ -1322,7 +1306,12 @@ public class SqlNullabilityProcessor : ExpressionVisitor
         bool allowOptimizedExpansion,
         out bool nullable)
     {
-        var parameterValue = ParameterValues[sqlParameterExpression.Name];
+        if (!ParameterValues.TryGetValue(sqlParameterExpression.Name, out var parameterValue))
+        {
+            throw new UnreachableException(
+                $"Encountered SqlParameter with name '{sqlParameterExpression.Name}', but such a parameter does not exist.");
+        }
+
         nullable = parameterValue == null;
 
         if (nullable)
@@ -1333,9 +1322,10 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                 sqlParameterExpression.TypeMapping);
         }
 
-        if (ParametersToConstantize.Contains(sqlParameterExpression.Name))
+        if (sqlParameterExpression.ShouldBeConstantized)
         {
             DoNotCache();
+
             return _sqlExpressionFactory.Constant(
                 parameterValue,
                 sqlParameterExpression.Type,

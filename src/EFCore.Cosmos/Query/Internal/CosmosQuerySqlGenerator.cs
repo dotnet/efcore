@@ -383,8 +383,8 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Sql
 
         switch (fromSqlExpression.Arguments)
         {
-            case ParameterExpression { Name: not null } parameterExpression
-                when _parameterValues.TryGetValue(parameterExpression.Name, out var parameterValue)
+            case QueryParameterExpression queryParameter
+                when _parameterValues.TryGetValue(queryParameter.Name, out var parameterValue)
                 && parameterValue is object[] parameterValues:
             {
                 substitutions = new string[parameterValues.Length];
