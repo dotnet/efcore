@@ -32,6 +32,13 @@
     <SystemFormatsAsn1Version>10.0.0-preview.2.25102.2</SystemFormatsAsn1Version>
     <SystemRuntimeCachingVersion>10.0.0-preview.2.25102.2</SystemRuntimeCachingVersion>
   </PropertyGroup>
+  <!-- The maintenance-packages dependency versions need to be conditionally selected: https://github.com/dotnet/sdk/issues/45155 -->
+  <PropertyGroup Label="Dependencies from dotnet/maintenance-packages (build-source-only)" Condition="'$(DotNetBuildSourceOnly)' == 'true'">
+    <SystemRuntimeCompilerServicesUnsafeVersion>6.1.1</SystemRuntimeCompilerServicesUnsafeVersion>
+  </PropertyGroup>
+  <PropertyGroup Label="Dependencies from dotnet/maintenance-packages (not build-source-only)" Condition="'$(DotNetBuildSourceOnly)' != 'true'">
+    <SystemRuntimeCompilerServicesUnsafeVersion>6.0.0</SystemRuntimeCompilerServicesUnsafeVersion>
+  </PropertyGroup>
   <PropertyGroup Label="Dependencies from dotnet/arcade">
     <MicrosoftDotNetBuildTasksTemplatingVersion>10.0.0-beta.25067.3</MicrosoftDotNetBuildTasksTemplatingVersion>
   </PropertyGroup>
