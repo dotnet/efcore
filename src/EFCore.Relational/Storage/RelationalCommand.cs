@@ -33,14 +33,17 @@ public class RelationalCommand : IRelationalCommand
     /// </summary>
     /// <param name="dependencies">Service dependencies.</param>
     /// <param name="commandText">The text of the command to be executed.</param>
+    /// <param name="logCommandText">Text to be logged for the command.</param>
     /// <param name="parameters">Parameters for the command.</param>
     public RelationalCommand(
         RelationalCommandBuilderDependencies dependencies,
         string commandText,
+        string logCommandText,
         IReadOnlyList<IRelationalParameter> parameters)
     {
         Dependencies = dependencies;
         CommandText = commandText;
+        LogCommandText = logCommandText;
         Parameters = parameters;
     }
 
@@ -53,6 +56,11 @@ public class RelationalCommand : IRelationalCommand
     ///     Gets the command text to be executed.
     /// </summary>
     public virtual string CommandText { get; private set; }
+
+    /// <summary>
+    ///     Gets the command text to be logged.
+    /// </summary>
+    public virtual string LogCommandText { get; private set; }
 
     /// <summary>
     ///     Gets the parameters for the command.
@@ -874,6 +882,7 @@ public class RelationalCommand : IRelationalCommand
     public virtual void PopulateFrom(IRelationalCommandTemplate commandTemplate)
     {
         CommandText = commandTemplate.CommandText;
+        LogCommandText = commandTemplate.LogCommandText;
         Parameters = commandTemplate.Parameters;
     }
 }

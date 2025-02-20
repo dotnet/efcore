@@ -628,7 +628,7 @@ public class QuerySqlGenerator : SqlExpressionVisitor
     protected override Expression VisitSqlConstant(SqlConstantExpression sqlConstantExpression)
     {
         _relationalCommandBuilder
-            .Append(sqlConstantExpression.TypeMapping!.GenerateSqlLiteral(sqlConstantExpression.Value));
+            .Append(sqlConstantExpression.TypeMapping!.GenerateSqlLiteral(sqlConstantExpression.Value), "?");
 
         return sqlConstantExpression;
     }

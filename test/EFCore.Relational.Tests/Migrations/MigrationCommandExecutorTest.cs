@@ -396,6 +396,7 @@ public class MigrationCommandExecutorTest
 
     private IRelationalCommand CreateRelationalCommand(
         string commandText = "Command Text",
+        string logCommandText = "Log Command Text",
         IReadOnlyList<IRelationalParameter> parameters = null)
         => new RelationalCommand(
             new RelationalCommandBuilderDependencies(
@@ -404,5 +405,6 @@ public class MigrationCommandExecutorTest
                     TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()),
                 new ExceptionDetector()),
             commandText,
+            logCommandText,
             parameters ?? []);
 }
