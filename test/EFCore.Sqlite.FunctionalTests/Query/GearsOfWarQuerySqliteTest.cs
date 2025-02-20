@@ -5454,6 +5454,20 @@ LIMIT @p
 """);
     }
 
+    public override async Task Coalesce_with_non_root_evaluatable_Convert(bool async)
+    {
+        await base.Coalesce_with_non_root_evaluatable_Convert(async);
+
+        AssertSql(
+            """
+@rank='1' (Nullable = true)
+
+SELECT "g"."Nickname", "g"."SquadId", "g"."AssignedCityName", "g"."CityOfBirthName", "g"."Discriminator", "g"."FullName", "g"."HasSoulPatch", "g"."LeaderNickname", "g"."LeaderSquadId", "g"."Rank"
+FROM "Gears" AS "g"
+WHERE @rank = "g"."Rank"
+""");
+    }
+
     public override async Task Correlated_collections_with_Take(bool async)
     {
         await base.Correlated_collections_with_Take(async);

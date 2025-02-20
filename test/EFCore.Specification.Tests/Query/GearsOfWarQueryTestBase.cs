@@ -6013,6 +6013,23 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
     //             .Where(w => w.SynergyWith != null && types.Contains(w.SynergyWith.AmmunitionType)));
     // }
 
+    [ConditionalTheory] // #35656
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Coalesce_with_non_root_evaluatable_Convert(bool async)
+    {
+        MilitaryRank? rank = MilitaryRank.Private;
+
+        // The coalesce is simplified away in the funcletizer (since rank is non-null), but a Convert node is added
+        // to convert from MilitaryRank? (the type of rank) to the type of the coalesce expression (non-nullable
+        // MilitaryRank).
+        // This resulting Convert node isn't evaluatable as root (enum convert), and so the NotEvaluatableAsRootHandler
+        // is invoked.
+        return AssertQuery(
+            async,
+            // ReSharper disable once ConstantNullCoalescingCondition
+            ss => ss.Set<Gear>().Where(g => (rank ?? g.Rank) == g.Rank));
+    }
+
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Client_eval_followed_by_aggregate_operation(bool async)
