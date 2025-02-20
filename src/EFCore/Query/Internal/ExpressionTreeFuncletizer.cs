@@ -2179,8 +2179,8 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
         }
     }
 
-    private static Expression ConvertIfNeeded(Expression expression, Type type)
-        => expression.Type == type ? expression : Convert(expression, type);
+    private Expression ConvertIfNeeded(Expression expression, Type type)
+        => expression.Type == type ? expression : Visit(Convert(expression, type));
 
     private bool IsGenerallyEvaluatable(Expression expression)
         => _evaluatableExpressionFilter.IsEvaluatableExpression(expression, _model)
