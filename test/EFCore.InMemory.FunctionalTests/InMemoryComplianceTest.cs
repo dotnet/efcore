@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.BulkUpdates;
+using Microsoft.EntityFrameworkCore.Query.Relationships.InProjection;
 
 namespace Microsoft.EntityFrameworkCore;
 
@@ -25,6 +26,17 @@ public class InMemoryComplianceTest : ComplianceTestBase
         typeof(NonSharedModelBulkUpdatesTestBase),
         typeof(NorthwindBulkUpdatesTestBase<>),
         typeof(JsonQueryTestBase<>),
+
+        // TODO: implement later once things are baked
+        typeof(ComplexRelationshipsInProjectionNoTrackingQueryTestBase<>),
+        typeof(ComplexRelationshipsInProjectionQueryTestBase<>),
+        typeof(EntityRelationshipsInProjectionNoTrackingQueryTestBase<>),
+        typeof(EntityRelationshipsInProjectionQueryTestBase<>),
+        typeof(JsonRelationshipsInProjectionNoTrackingQueryTestBase<>),
+        typeof(JsonRelationshipsInProjectionQueryTestBase<>),
+        typeof(OwnedRelationshipsInProjectionNoTrackingQueryTestBase<>),
+        typeof(OwnedRelationshipsInProjectionQueryTestBase<>),
+        typeof(RelationshipsInProjectionQueryTestBase<>),
     };
 
     protected override Assembly TargetAssembly { get; } = typeof(InMemoryComplianceTest).Assembly;
