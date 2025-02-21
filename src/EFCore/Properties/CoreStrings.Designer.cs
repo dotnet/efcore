@@ -553,7 +553,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 type, property);
 
         /// <summary>
-        ///     Configuring the complex property '{type}.{property}' as optional is not supported, call 'IsRequired()'. See https://github.com/dotnet/efcore/issues/31376 for more information.
+        ///     Configuring the collection complex property '{type}.{property}' as optional is invalid.
         /// </summary>
         public static string ComplexPropertyOptional(object? type, object? property)
             => string.Format(
@@ -1003,7 +1003,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("EFConstantInvoked");
 
         /// <summary>
-        ///     'EF.Constant()' isn't supported your by provider.
+        ///     'EF.Constant()' isn't supported by your provider.
         /// </summary>
         public static string EFConstantNotSupported
             => GetString("EFConstantNotSupported");
@@ -1155,7 +1155,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, property, expectedType, actualType);
 
         /// <summary>
-        ///     The methods '{methodName}' and '{asyncMethodName}' are not supported by the current database provider. Please contact the publisher of the database provider for more information.
+        ///     The methods '{methodName}' and '{asyncMethodName}' are not supported by the current database provider. Please contact the publisher of the database provider for more information. 
         /// </summary>
         public static string ExecuteQueriesNotSupported(object? methodName, object? asyncMethodName)
             => string.Format(

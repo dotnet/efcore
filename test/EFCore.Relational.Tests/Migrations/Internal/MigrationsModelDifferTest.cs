@@ -1942,7 +1942,7 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                             {
                                 x.ToTable("Firefly");
                                 x.Property<int>("Id");
-                                x.Property<string>("Name");
+                                x.Property<string>("Name").HasColumnName("Name");
                                 x.HasData(
                                     new { Id = 42, Name = "1" });
                             });
@@ -1953,7 +1953,7 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                             {
                                 x.ToTable("Firefly");
                                 x.Property<int>("Id");
-                                x.Property<string>("Name");
+                                x.Property<string>("Name").HasColumnName("Name");
                                 x.HasOne("Firefly", null).WithOne().HasForeignKey("FireflyDetails", "Id");
                                 x.HasData(
                                     new { Id = 42, Name = "2" });
@@ -7763,7 +7763,7 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                     {
                         x.ToTable("Dogs");
                         x.Property<int>("Id");
-                        x.Property<int?>("PreyId");
+                        x.Property<int?>("PreyId").HasColumnName("PreyId");
                     });
             },
             target =>

@@ -480,9 +480,12 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
             CoreStrings.RuntimeModelMissingData,
             Assert.Throws<InvalidOperationException>(() => detailsProperty.GetColumnOrder()).Message);
 
-        var principalTable = StoreObjectIdentifier.Create(complexType, StoreObjectType.Table)!.Value;
+        var principalTableId = StoreObjectIdentifier.Create(complexType, StoreObjectType.Table)!.Value;
 
-        Assert.Equal("Deets", detailsProperty.GetColumnName(principalTable));
+        Assert.Equal("Deets", detailsProperty.GetColumnName(principalTableId));
+
+        var principalTable = principalBase.GetTableMappings().Single().Table;
+        Assert.False(principalTable.IsOptional(complexType));
 
         var dbFunction = model.FindDbFunction("PrincipalBaseTvf")!;
         Assert.False(dbFunction.IsNullable);
