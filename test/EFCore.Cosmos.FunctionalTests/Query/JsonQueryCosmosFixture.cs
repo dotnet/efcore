@@ -20,12 +20,6 @@ public class JsonQueryCosmosFixture : JsonQueryFixtureBase
             builder.ConfigureWarnings(
                 w => w.Ignore(CosmosEventId.NoPartitionKeyDefined)));
 
-    public Task NoSyncTest(bool async, Func<bool, Task> testCode)
-        => CosmosTestHelpers.Instance.NoSyncTest(async, testCode);
-
-    public void NoSyncTest(Action testCode)
-        => CosmosTestHelpers.Instance.NoSyncTest(testCode);
-
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {
         base.OnModelCreating(modelBuilder, context);

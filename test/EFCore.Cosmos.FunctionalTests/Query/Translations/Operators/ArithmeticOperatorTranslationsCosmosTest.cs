@@ -12,75 +12,65 @@ public class ArithmeticOperatorTranslationsCosmosTest : ArithmeticOperatorTransl
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    public override  Task Add(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Add(a);
+    public override async Task Add(bool async)
+    {
+        await base.Add(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE ((c["Int"] + 2) = 10)
 """);
-            });
+    }
 
-    public override Task Subtract(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Subtract(a);
+    public override async Task Subtract(bool async)
+    {
+        await base.Subtract(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE ((c["Int"] - 3) = 5)
 """);
-            });
+    }
 
-    public override Task Multiply(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Multiply(a);
+    public override async Task Multiply(bool async)
+    {
+        await base.Multiply(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE ((c["Int"] * 2) = 16)
 """);
-            });
+    }
 
-    public override Task Modulo(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Modulo(a);
+    public override async Task Modulo(bool async)
+    {
+        await base.Modulo(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE ((c["Int"] % 3) = 2)
 """);
-            });
+    }
 
-    public override Task Minus(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Minus(a);
+    public override async Task Minus(bool async)
+    {
+        await base.Minus(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (-(c["Int"]) = -8)
 """);
-            });
+    }
 
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()

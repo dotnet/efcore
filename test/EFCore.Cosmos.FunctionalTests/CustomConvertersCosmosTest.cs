@@ -134,9 +134,6 @@ WHERE (c["$type"] IN ("Blog", "RssBlog") AND NOT((c["IndexerVisible"] = "Aye")))
     public override void Infer_type_mapping_from_in_subquery_to_item()
         => Assert.Throws<InvalidOperationException>(() => base.Infer_type_mapping_from_in_subquery_to_item());
 
-    public override Task Can_query_custom_type_not_mapped_by_default_equality(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(async, a => base.Can_query_custom_type_not_mapped_by_default_equality(a));
-
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

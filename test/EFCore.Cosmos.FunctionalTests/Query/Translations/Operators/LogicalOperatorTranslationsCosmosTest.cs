@@ -12,89 +12,77 @@ public class LogicalOperatorTranslationsCosmosTest : LogicalOperatorTranslations
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    public override Task And(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.And(a);
+    public override async Task And(bool async)
+    {
+        await base.And(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE ((c["Int"] = 8) AND (c["String"] = "Seattle"))
 """);
-            });
+    }
 
-    public override Task And_with_bool_property(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.And_with_bool_property(a);
+    public override async Task And_with_bool_property(bool async)
+    {
+        await base.And_with_bool_property(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (c["Bool"] AND (c["String"] = "Seattle"))
 """);
-            });
+    }
 
-    public override Task Or(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Or(a);
+    public override async Task Or(bool async)
+    {
+        await base.Or(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE ((c["Int"] = 999) OR (c["String"] = "Seattle"))
 """);
-            });
+    }
 
-    public override Task Or_with_bool_property(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Or_with_bool_property(a);
+    public override async Task Or_with_bool_property(bool async)
+    {
+        await base.Or_with_bool_property(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (c["Bool"] OR (c["String"] = "Seattle"))
 """);
-            });
+    }
 
-    public override Task Not(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Not(a);
+    public override async Task Not(bool async)
+    {
+        await base.Not(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE NOT((c["Int"] = 999))
 """);
-            });
+    }
 
-    public override Task Not_with_bool_property(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Not_with_bool_property(a);
+    public override async Task Not_with_bool_property(bool async)
+    {
+        await base.Not_with_bool_property(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE NOT(c["Bool"])
 """);
-            });
+    }
 
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()

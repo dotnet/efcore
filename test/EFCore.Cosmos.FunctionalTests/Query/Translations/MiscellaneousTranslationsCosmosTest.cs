@@ -13,19 +13,17 @@ public class MiscellaneousTranslationsCosmosTest : MiscellaneousTranslationsTest
 
     #region Random
 
-    public override Task Random_on_EF_Functions(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Random_on_EF_Functions(a);
+    public override async Task Random_on_EF_Functions(bool async)
+    {
+        await base.Random_on_EF_Functions(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE COUNT(1)
 FROM root c
 WHERE ((RAND() >= 0.0) AND (RAND() < 1.0))
 """);
-            });
+    }
 
     public override async Task Random_Shared_Next_with_no_args(bool async)
     {

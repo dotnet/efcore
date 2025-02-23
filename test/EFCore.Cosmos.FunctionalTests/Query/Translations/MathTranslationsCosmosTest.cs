@@ -14,159 +14,137 @@ public class MathTranslationsCosmosTest : MathTranslationsTestBase<BasicTypesQue
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    public override Task Abs_decimal(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Abs_decimal(a);
+    public override async Task Abs_decimal(bool async)
+    {
+        await base.Abs_decimal(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (ABS(c["Decimal"]) = 9.5)
 """);
-            });
+    }
 
-    public override Task Abs_int(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Abs_int(a);
+    public override async Task Abs_int(bool async)
+    {
+        await base.Abs_int(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (ABS(c["Int"]) = 9)
 """);
-            });
+    }
 
-    public override Task Abs_double(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Abs_double(a);
+    public override async Task Abs_double(bool async)
+    {
+        await base.Abs_double(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (ABS(c["Double"]) = 9.5)
 """);
-            });
+    }
 
-    public override Task Abs_float(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Abs_float(a);
+    public override async Task Abs_float(bool async)
+    {
+        await base.Abs_float(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (ABS(c["Float"]) = 9.5)
 """);
-            });
+    }
 
-    public override Task Ceiling(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Ceiling_float(a);
+    public override async Task Ceiling(bool async)
+    {
+        await base.Ceiling_float(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (CEILING(c["Float"]) = 9.0)
 """);
-            });
+    }
 
-    public override Task Ceiling_float(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Ceiling_float(a);
+    public override async Task Ceiling_float(bool async)
+    {
+        await base.Ceiling_float(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (CEILING(c["Float"]) = 9.0)
 """);
-            });
+    }
 
-    public override Task Floor_decimal(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Floor_decimal(a);
+    public override async Task Floor_decimal(bool async)
+    {
+        await base.Floor_decimal(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (FLOOR(c["Decimal"]) = 8.0)
 """);
-            });
+    }
 
-    public override Task Floor_double(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Floor_double(a);
+    public override async Task Floor_double(bool async)
+    {
+        await base.Floor_double(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (FLOOR(c["Double"]) = 8.0)
 """);
-            });
+    }
 
-    public override Task Floor_float(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Floor_float(a);
+    public override async Task Floor_float(bool async)
+    {
+        await base.Floor_float(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (FLOOR(c["Float"]) = 8.0)
 """);
-            });
+    }
 
-    public override Task Exp(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Exp(a);
+    public override async Task Exp(bool async)
+    {
+        await base.Exp(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (EXP(c["Double"]) > 1.0)
 """);
-            });
+    }
 
-    public override Task Exp_float(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Exp_float(a);
+    public override async Task Exp_float(bool async)
+    {
+        await base.Exp_float(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (EXP(c["Float"]) > 1.0)
 """);
-            });
+    }
 
     public override async Task Power(bool async)
     {
@@ -176,76 +154,68 @@ WHERE (EXP(c["Float"]) > 1.0)
         AssertSql();
     }
 
-    public override Task Power_float(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Power_float(a);
+    public override async Task Power_float(bool async)
+    {
+        await base.Power_float(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE ((POWER(c["Float"], 2.0) > 73.0) AND (POWER(c["Float"], 2.0) < 74.0))
 """);
-            });
+    }
 
-    public override Task Round_decimal(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Round_decimal(a);
+    public override async Task Round_decimal(bool async)
+    {
+        await base.Round_decimal(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (ROUND(c["Decimal"]) = 9.0)
 """,
-                    //
-                    """
+            //
+            """
 SELECT VALUE ROUND(c["Decimal"])
 FROM root c
 """);
-            });
+    }
 
-    public override Task Round_double(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Round_double(a);
+    public override async Task Round_double(bool async)
+    {
+        await base.Round_double(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (ROUND(c["Double"]) = 9.0)
 """,
-                    //
-                    """
+            //
+            """
 SELECT VALUE ROUND(c["Double"])
 FROM root c
 """);
-            });
+    }
 
-    public override Task Round_float(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Round_float(a);
+    public override async Task Round_float(bool async)
+    {
+        await base.Round_float(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (ROUND(c["Float"]) = 9.0)
 """,
-                    //
-                    """
+            //
+            """
 SELECT VALUE ROUND(c["Float"])
 FROM root c
 """);
-            });
+    }
 
     public override async Task Round_with_digits_decimal(bool async)
     {
@@ -271,209 +241,167 @@ FROM root c
         AssertSql();
     }
 
-    public override Task Truncate_decimal(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Truncate_decimal(a);
+    public override async Task Truncate_decimal(bool async)
+    {
+        await base.Truncate_decimal(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (TRUNC(c["Decimal"]) = 8.0)
 """,
-                    //
-                    """
+            //
+            """
 SELECT VALUE TRUNC(c["Decimal"])
 FROM root c
 """);
-            });
+    }
 
-    public override Task Truncate_double(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Truncate_double(a);
+    public override async Task Truncate_double(bool async)
+    {
+        await base.Truncate_double(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (TRUNC(c["Double"]) = 8.0)
 """,
-                    //
-                    """
+            //
+            """
 SELECT VALUE TRUNC(c["Double"])
 FROM root c
 """);
-            });
+    }
 
-    public override Task Truncate_float(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Truncate_float(a);
+    public override async Task Truncate_float(bool async)
+    {
+        await base.Truncate_float(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (TRUNC(c["Float"]) = 8.0)
 """,
-                    //
-                    """
+            //
+            """
 SELECT VALUE TRUNC(c["Float"])
 FROM root c
 """);
-            });
+    }
 
     public override async Task Truncate_project_and_order_by_it_twice(bool async)
     {
-        // Always throws for sync.
-        if (async)
-        {
-            await Fixture.NoSyncTest(
-                async, async a =>
-                {
-                    // Unsupported ORDER BY clause. ORDER BY item expression could not be mapped to a document path.
-                    await Assert.ThrowsAsync<CosmosException>(() => base.Truncate_project_and_order_by_it_twice(a));
+        // Unsupported ORDER BY clause. ORDER BY item expression could not be mapped to a document path.
+        await Assert.ThrowsAsync<CosmosException>(() => base.Truncate_project_and_order_by_it_twice(async));
 
-                    AssertSql(
-                        """
+        AssertSql(
+            """
 SELECT VALUE TRUNC(c["Double"])
 FROM root c
 ORDER BY TRUNC(c["Double"])
 """);
-                });
-        }
     }
 
     public override async Task Truncate_project_and_order_by_it_twice2(bool async)
     {
-        // Always throws for sync.
-        if (async)
-        {
-            await Fixture.NoSyncTest(
-                async, async a =>
-                {
-                    // Unsupported ORDER BY clause. ORDER BY item expression could not be mapped to a document path.
-                    await Assert.ThrowsAsync<CosmosException>(() => base.Truncate_project_and_order_by_it_twice2(a));
+        // Unsupported ORDER BY clause. ORDER BY item expression could not be mapped to a document path.
+        await Assert.ThrowsAsync<CosmosException>(() => base.Truncate_project_and_order_by_it_twice2(async));
 
-                    AssertSql(
-                        """
+        AssertSql(
+            """
 SELECT VALUE TRUNC(c["Double"])
 FROM root c
 ORDER BY TRUNC(c["Double"]) DESC
 """);
-                });
-        }
     }
 
     public override async Task Truncate_project_and_order_by_it_twice3(bool async)
     {
-        // Always throws for sync.
-        if (async)
-        {
-            await Fixture.NoSyncTest(
-                async, async a =>
-                {
-                    // Unsupported ORDER BY clause. ORDER BY item expression could not be mapped to a document path.
-                    await Assert.ThrowsAsync<CosmosException>(() => base.Truncate_project_and_order_by_it_twice3(a));
+        // Unsupported ORDER BY clause. ORDER BY item expression could not be mapped to a document path.
+        await Assert.ThrowsAsync<CosmosException>(() => base.Truncate_project_and_order_by_it_twice3(async));
 
-                    AssertSql(
-                        """
+        AssertSql(
+            """
 SELECT VALUE TRUNC(c["Double"])
 FROM root c
 ORDER BY TRUNC(c["Double"]) DESC
 """);
-                });
-        }
     }
 
-    public override Task Log(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Log(a);
+    public override async Task Log(bool async)
+    {
+        await base.Log(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE ((c["Double"] > 0.0) AND (LOG(c["Double"]) != 0.0))
 """);
-            });
+    }
 
-    public override Task Log_float(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Log_float(a);
+    public override async Task Log_float(bool async)
+    {
+        await base.Log_float(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE ((c["Float"] > 0.0) AND (LOG(c["Float"]) != 0.0))
 """);
-            });
+    }
 
-    public override Task Log_with_newBase(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Log_with_newBase(a);
+    public override async Task Log_with_newBase(bool async)
+    {
+        await base.Log_with_newBase(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE ((c["Double"] > 0.0) AND (LOG(c["Double"], 7.0) != 0.0))
 """);
-            });
+    }
 
-    public override Task Log_with_newBase_float(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Log_with_newBase_float(a);
+    public override async Task Log_with_newBase_float(bool async)
+    {
+        await base.Log_with_newBase_float(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE ((c["Float"] > 0.0) AND (LOG(c["Float"], 7.0) != 0.0))
 """);
-            });
+    }
 
-    public override Task Log10(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Log10(a);
+    public override async Task Log10(bool async)
+    {
+        await base.Log10(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE ((c["Double"] > 0.0) AND (LOG10(c["Double"]) != 0.0))
 """);
-            });
+    }
 
-    public override Task Log10_float(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Log10_float(a);
+    public override async Task Log10_float(bool async)
+    {
+        await base.Log10_float(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE ((c["Float"] > 0.0) AND (LOG10(c["Float"]) != 0.0))
 """);
-            });
+    }
 
     public override async Task Log2(bool async)
     {
@@ -483,62 +411,53 @@ WHERE ((c["Float"] > 0.0) AND (LOG10(c["Float"]) != 0.0))
         AssertSql();
     }
 
-    public override Task Sqrt(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Sqrt(a);
+    public override async Task Sqrt(bool async)
+    {
+        await base.Sqrt(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE ((c["Double"] > 0.0) AND (SQRT(c["Double"]) > 0.0))
 """);
-            });
+    }
 
-    public override Task Sqrt_float(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Sqrt_float(a);
+    public override async Task Sqrt_float(bool async)
+    {
+        await base.Sqrt_float(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE ((c["Float"] > 0.0) AND (SQRT(c["Float"]) > 0.0))
 """);
-            });
+    }
 
+    public override async Task Sign(bool async)
+    {
+        await base.Sign(async);
 
-    public override Task Sign(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Sign(a);
-
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (SIGN(c["Double"]) > 0)
 """);
-            });
+    }
 
-    public override Task Sign_float(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Sign_float(a);
+    public override async Task Sign_float(bool async)
+    {
+        await base.Sign_float(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (SIGN(c["Float"]) > 0)
 """);
-            });
+    }
 
     public override async Task Max(bool async)
     {
@@ -588,91 +507,79 @@ WHERE (SIGN(c["Float"]) > 0)
         AssertSql();
     }
 
-    public override Task Degrees(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Degrees(a);
+    public override async Task Degrees(bool async)
+    {
+        await base.Degrees(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (DEGREES(c["Double"]) > 0.0)
 """);
-            });
+    }
 
-    public override Task Degrees_float(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Degrees_float(a);
+    public override async Task Degrees_float(bool async)
+    {
+        await base.Degrees_float(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (DEGREES(c["Float"]) > 0.0)
 """);
-            });
+    }
 
-    public override Task Radians(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Radians(a);
+    public override async Task Radians(bool async)
+    {
+        await base.Radians(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (RADIANS(c["Double"]) > 0.0)
 """);
-            });
+    }
 
-    public override Task Radians_float(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Radians_float(a);
+    public override async Task Radians_float(bool async)
+    {
+        await base.Radians_float(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (RADIANS(c["Float"]) > 0.0)
 """);
-            });
+    }
 
     #region Trigonometry
 
-    public override Task Acos(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Acos(a);
+    public override async Task Acos(bool async)
+    {
+        await base.Acos(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (((c["Double"] >= -1.0) AND (c["Double"] <= 1.0)) AND (ACOS(c["Double"]) > 1.0))
 """);
-            });
+    }
 
-    public override Task Acos_float(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Acos_float(a);
+    public override async Task Acos_float(bool async)
+    {
+        await base.Acos_float(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (((c["Float"] >= -1.0) AND (c["Float"] <= 1.0)) AND (ACOS(c["Float"]) > 0.0))
 """);
-            });
+    }
 
     public override async Task Acosh(bool async)
     {
@@ -682,33 +589,29 @@ WHERE (((c["Float"] >= -1.0) AND (c["Float"] <= 1.0)) AND (ACOS(c["Float"]) > 0.
         AssertSql();
     }
 
-    public override Task Asin(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Asin(a);
+    public override async Task Asin(bool async)
+    {
+        await base.Asin(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (((c["Double"] >= -1.0) AND (c["Double"] <= 1.0)) AND (ASIN(c["Double"]) > -1.7976931348623157E+308))
 """);
-            });
+    }
 
-    public override Task Asin_float(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Asin_float(a);
+    public override async Task Asin_float(bool async)
+    {
+        await base.Asin_float(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (((c["Float"] >= -1.0) AND (c["Float"] <= 1.0)) AND (ASIN(c["Float"]) > -1.7976931348623157E+308))
 """);
-            });
+    }
 
     public override async Task Asinh(bool async)
     {
@@ -718,33 +621,29 @@ WHERE (((c["Float"] >= -1.0) AND (c["Float"] <= 1.0)) AND (ASIN(c["Float"]) > -1
         AssertSql();
     }
 
-    public override Task Atan(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Atan(a);
+    public override async Task Atan(bool async)
+    {
+        await base.Atan(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (ATAN(c["Double"]) > 0.0)
 """);
-            });
+    }
 
-    public override Task Atan_float(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Atan_float(a);
+    public override async Task Atan_float(bool async)
+    {
+        await base.Atan_float(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (ATAN(c["Float"]) > 0.0)
 """);
-            });
+    }
 
     public override async Task Atanh(bool async)
     {
@@ -754,47 +653,41 @@ WHERE (ATAN(c["Float"]) > 0.0)
         AssertSql();
     }
 
-    public override Task Atan2(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Atan2(a);
+    public override async Task Atan2(bool async)
+    {
+        await base.Atan2(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (ATN2(c["Double"], 1.0) > 0.0)
 """);
-            });
+    }
 
-    public override Task Cos(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Cos(a);
+    public override async Task Cos(bool async)
+    {
+        await base.Cos(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (COS(c["Double"]) > 0.0)
 """);
-            });
+    }
 
-    public override Task Cos_float(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Cos_float(a);
+    public override async Task Cos_float(bool async)
+    {
+        await base.Cos_float(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (COS(c["Float"]) > 0.0)
 """);
-            });
+    }
 
     public override async Task Cosh(bool async)
     {
@@ -804,33 +697,29 @@ WHERE (COS(c["Float"]) > 0.0)
         AssertSql();
     }
 
-    public override Task Sin(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Sin(a);
+    public override async Task Sin(bool async)
+    {
+        await base.Sin(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (SIN(c["Double"]) > 0.0)
 """);
-            });
+    }
 
-    public override Task Sin_float(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Sin_float(a);
+    public override async Task Sin_float(bool async)
+    {
+        await base.Sin_float(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (SIN(c["Float"]) > 0.0)
 """);
-            });
+    }
 
     public override async Task Sinh(bool async)
     {
@@ -840,33 +729,29 @@ WHERE (SIN(c["Float"]) > 0.0)
         AssertSql();
     }
 
-    public override Task Tan(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Tan(a);
+    public override async Task Tan(bool async)
+    {
+        await base.Tan(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (TAN(c["Double"]) > 0.0)
 """);
-            });
+    }
 
-    public override Task Tan_float(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Tan_float(a);
+    public override async Task Tan_float(bool async)
+    {
+        await base.Tan_float(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (TAN(c["Float"]) > 0.0)
 """);
-            });
+    }
 
     public override async Task Tanh(bool async)
     {
@@ -876,19 +761,17 @@ WHERE (TAN(c["Float"]) > 0.0)
         AssertSql();
     }
 
-    public override Task Atan2_float(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Atan2_float(a);
+    public override async Task Atan2_float(bool async)
+    {
+        await base.Atan2_float(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (ATN2(c["Float"], 1.0) > 0.0)
 """);
-            });
+    }
 
     #endregion Trigonometry
 

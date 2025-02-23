@@ -32,7 +32,4 @@ public class BasicTypesQueryCosmosFixture : BasicTypesQueryFixtureBase
                 builder.HasPartitionKey(n => n.Id);
             });
     }
-
-    public Task NoSyncTest(bool async, Func<bool, Task> testCode)
-        => CosmosTestHelpers.Instance.NoSyncTest(async, testCode);
 }

@@ -1,6 +1,9 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Internal;
+
 namespace Microsoft.EntityFrameworkCore.Storage;
 
 #nullable disable
@@ -11,7 +14,7 @@ public class CosmosDatabaseCreatorTest
     public static IEnumerable<object[]> IsAsyncData = [[false], [true]];
 
     [ConditionalFact]
-    public async Task EnsureCreated_returns_true_when_database_does_not_exist()
+    public async Task EnsureCreatedAsync_returns_true_when_database_does_not_exist()
     {
         await using var testDatabase = CosmosTestStore.Create("NonExisting");
         try
@@ -28,7 +31,7 @@ public class CosmosDatabaseCreatorTest
     }
 
     [ConditionalFact]
-    public async Task EnsureCreated_returns_true_when_database_exists_but_collections_do_not()
+    public async Task EnsureCreatedAsync_returns_true_when_database_exists_but_collections_do_not()
     {
         await using var testDatabase = CosmosTestStore.Create("EnsureCreatedTest");
         try
@@ -44,47 +47,58 @@ public class CosmosDatabaseCreatorTest
         }
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public Task EnsureCreated_returns_false_when_database_and_collections_exist(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await using var testDatabase = CosmosTestStore.Create("EnsureCreatedReady");
-                await testDatabase.InitializeAsync(
-                    testDatabase.ServiceProvider, testStore => new BloggingContext((CosmosTestStore)testStore));
+    [ConditionalFact]
+    public async Task EnsureCreatedAsync_returns_false_when_database_and_collections_exist()
+    {
+        await using var testDatabase = CosmosTestStore.Create("EnsureCreatedReady");
+        await testDatabase.InitializeAsync(
+            testDatabase.ServiceProvider, testStore => new BloggingContext((CosmosTestStore)testStore));
 
-                using var context = new BloggingContext(testDatabase);
-                var creator = context.GetService<IDatabaseCreator>();
+        using var context = new BloggingContext(testDatabase);
+        var creator = context.GetService<IDatabaseCreator>();
 
-                Assert.False(a ? await creator.EnsureCreatedAsync() : creator.EnsureCreated());
-            });
+        Assert.False(await creator.EnsureCreatedAsync());
+    }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public Task EnsureDeleted_returns_true_when_database_exists(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await using var testDatabase = await CosmosTestStore.CreateInitializedAsync("EnsureDeleteBlogging");
-                using var context = new BloggingContext(testDatabase);
-                var creator = context.GetService<IDatabaseCreator>();
+    [ConditionalFact]
+    public async Task EnsureDeletedAsync_returns_true_when_database_exists()
+    {
+        await using var testDatabase = await CosmosTestStore.CreateInitializedAsync("EnsureDeleteBlogging");
+        using var context = new BloggingContext(testDatabase);
+        var creator = context.GetService<IDatabaseCreator>();
 
-                Assert.True(a ? await creator.EnsureDeletedAsync() : creator.EnsureDeleted());
-            });
+        Assert.True(await creator.EnsureDeletedAsync());
+    }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public Task EnsureDeleted_returns_false_when_database_does_not_exist(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await using var testDatabase = CosmosTestStore.Create("EnsureDeleteBlogging");
-                using var context = new BloggingContext(testDatabase);
-                var creator = context.GetService<IDatabaseCreator>();
+    [ConditionalFact]
+    public async Task EnsureDeletedAsync_returns_false_when_database_does_not_exist()
+    {
+        await using var testDatabase = CosmosTestStore.Create("EnsureDeleteBlogging");
+        using var context = new BloggingContext(testDatabase);
+        var creator = context.GetService<IDatabaseCreator>();
 
-                Assert.False(a ? await creator.EnsureDeletedAsync() : creator.EnsureDeleted());
-            });
+        Assert.False(await creator.EnsureDeletedAsync());
+    }
+
+    [ConditionalFact]
+    public async Task EnsureDeleted_sync_is_not_supported()
+    {
+        await using var testDatabase = CosmosTestStore.Create("EnsureDeleteBlogging");
+        using var context = new BloggingContext(testDatabase);
+        var creator = context.GetService<IDatabaseCreator>();
+
+        CosmosTestHelpers.Instance.AssertSyncNotSupported(() => creator.EnsureDeleted());
+    }
+
+    [ConditionalFact]
+    public async Task EnsureCreated_sync_is_not_supported()
+    {
+        await using var testDatabase = CosmosTestStore.Create("EnsureDeleteBlogging");
+        using var context = new BloggingContext(testDatabase);
+        var creator = context.GetService<IDatabaseCreator>();
+
+        CosmosTestHelpers.Instance.AssertSyncNotSupported(() => creator.EnsureCreated());
+    }
 
     [ConditionalFact]
     public async Task EnsureCreated_throws_for_missing_seed()

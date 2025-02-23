@@ -45,53 +45,16 @@ public class OptimisticConcurrencyCosmosTest(F1CosmosFixture<byte[]> fixture)
 
     // Uses lazy-loader, which is always sync
     public override Task Two_concurrency_issues_in_one_to_one_related_entities_can_be_handled_by_dealing_with_dependent_first()
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            false,
-            _ => base.Two_concurrency_issues_in_one_to_one_related_entities_can_be_handled_by_dealing_with_dependent_first());
+        => CosmosTestHelpers.Instance.AssertSyncNotSupported(
+            () => base.Two_concurrency_issues_in_one_to_one_related_entities_can_be_handled_by_dealing_with_dependent_first());
 
     // Uses lazy-loader, which is always sync
     public override Task Two_concurrency_issues_in_one_to_many_related_entities_can_be_handled_by_dealing_with_dependent_first()
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            false,
-            _ => base.Two_concurrency_issues_in_one_to_many_related_entities_can_be_handled_by_dealing_with_dependent_first());
+        => CosmosTestHelpers.Instance.AssertSyncNotSupported(
+            () => base.Two_concurrency_issues_in_one_to_many_related_entities_can_be_handled_by_dealing_with_dependent_first());
 
     protected override IDbContextTransaction BeginTransaction(DatabaseFacade facade)
         => new FakeDbContextTransaction();
-
-    public override Task Calling_Reload_on_an_Added_entity_that_is_not_in_database_is_no_op(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(async, base.Calling_Reload_on_an_Added_entity_that_is_not_in_database_is_no_op);
-
-    public override Task Calling_Reload_on_an_Unchanged_entity_that_is_not_in_database_detaches_it(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, base.Calling_Reload_on_an_Unchanged_entity_that_is_not_in_database_detaches_it);
-
-    public override Task Calling_Reload_on_a_Modified_entity_that_is_not_in_database_detaches_it(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, base.Calling_Reload_on_a_Modified_entity_that_is_not_in_database_detaches_it);
-
-    public override Task Calling_Reload_on_a_Deleted_entity_that_is_not_in_database_detaches_it(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, base.Calling_Reload_on_a_Deleted_entity_that_is_not_in_database_detaches_it);
-
-    public override Task Calling_Reload_on_a_Detached_entity_that_is_not_in_database_detaches_it(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, base.Calling_Reload_on_a_Detached_entity_that_is_not_in_database_detaches_it);
-
-    public override Task Calling_Reload_on_an_Unchanged_entity_makes_the_entity_unchanged(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(async, base.Calling_Reload_on_an_Unchanged_entity_makes_the_entity_unchanged);
-
-    public override Task Calling_Reload_on_a_Modified_entity_makes_the_entity_unchanged(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(async, base.Calling_Reload_on_a_Modified_entity_makes_the_entity_unchanged);
-
-    public override Task Calling_Reload_on_a_Deleted_entity_makes_the_entity_unchanged(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(async, base.Calling_Reload_on_a_Deleted_entity_makes_the_entity_unchanged);
-
-    public override Task Calling_Reload_on_an_Added_entity_that_was_saved_elsewhere_makes_the_entity_unchanged(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, base.Calling_Reload_on_an_Added_entity_that_was_saved_elsewhere_makes_the_entity_unchanged);
-
-    public override Task Calling_Reload_on_a_Detached_entity_makes_the_entity_unchanged(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(async, base.Calling_Reload_on_a_Detached_entity_makes_the_entity_unchanged);
 
     private class FakeDbContextTransaction : IDbContextTransaction
     {

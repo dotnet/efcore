@@ -3,6 +3,7 @@
 
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
+using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
@@ -11,7 +12,7 @@ public sealed class SqlServerConditionAttribute(SqlServerCondition conditions) :
 {
     public SqlServerCondition Conditions { get; set; } = conditions;
 
-    public ValueTask<bool> IsMetAsync()
+    public ValueTask<bool> IsMetAsync(XunitTestCase testCase)
     {
         var isMet = true;
 

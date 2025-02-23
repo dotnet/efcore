@@ -45,23 +45,15 @@ public class TimeOnlyTranslationsCosmosTest : TimeOnlyTranslationsTestBase<Basic
 
     public override async Task Subtract(bool async)
     {
-        // Always throws for sync.
-        if (async)
-        {
-            await Fixture.NoSyncTest(
-                async, async a =>
-                {
-                    // See #35311
-                    await Assert.ThrowsAsync<EqualException>(() => base.Subtract(a));
+        // See #35311
+        await Assert.ThrowsAsync<EqualException>(() => base.Subtract(async));
 
-                    AssertSql(
-                        """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE ((c["TimeOnly"] - "03:00:00") = "12:30:10")
 """);
-                });
-        }
     }
 
     public override Task FromDateTime_compared_to_property(bool async)

@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
+using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
@@ -10,7 +11,7 @@ public sealed class CosmosConditionAttribute(CosmosCondition conditions) : Attri
 {
     public CosmosCondition Conditions { get; set; } = conditions;
 
-    public ValueTask<bool> IsMetAsync()
+    public ValueTask<bool> IsMetAsync(XunitTestCase testCase)
     {
         var isMet = true;
 

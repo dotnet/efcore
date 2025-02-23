@@ -23,48 +23,40 @@ public class NorthwindKeylessEntitiesQueryCosmosTest : NorthwindKeylessEntitiesQ
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
-    public override Task KeylessEntity_simple(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.KeylessEntity_simple(a);
+    public override async Task KeylessEntity_simple(bool async)
+    {
+        await base.KeylessEntity_simple(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 """);
-            });
+    }
 
-    public override Task KeylessEntity_where_simple(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.KeylessEntity_where_simple(a);
-                AssertSql(
-                    """
+    public override async Task KeylessEntity_where_simple(bool async)
+    {
+        await base.KeylessEntity_where_simple(async);
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (c["City"] = "London")
 """);
-            });
+    }
 
     public override async Task KeylessEntity_by_database_view(bool async)
     {
-        // Always throws for sync.
-        if (async)
-        {
-            // Views are not supported.
-            await Assert.ThrowsAsync<EqualException>(
-                () => base.KeylessEntity_by_database_view(async));
+        // Views are not supported.
+        await Assert.ThrowsAsync<EqualException>(
+            () => base.KeylessEntity_by_database_view(async));
 
-            AssertSql(
-                """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (c["$type"] = "ProductView")
 """);
-        }
     }
 
     public override async Task Entity_mapped_to_view_on_right_side_of_join(bool async)
@@ -76,20 +68,16 @@ WHERE (c["$type"] = "ProductView")
 
     public override async Task KeylessEntity_with_nav_defining_query(bool async)
     {
-        // Always throws for sync.
-        if (async)
-        {
-            // Defining queries are not supported.
-            await Assert.ThrowsAsync<EqualException>(
-                () => base.KeylessEntity_with_nav_defining_query(async));
+        // Defining queries are not supported.
+        await Assert.ThrowsAsync<EqualException>(
+            () => base.KeylessEntity_with_nav_defining_query(async));
 
-            AssertSql(
-                """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (c["OrderCount"] > 0)
 """);
-        }
     }
 
     public override async Task KeylessEntity_with_mixed_tracking(bool async)
@@ -108,19 +96,17 @@ WHERE (c["OrderCount"] > 0)
         AssertSql();
     }
 
-    public override Task KeylessEntity_with_defining_query(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.KeylessEntity_with_defining_query(a);
+    public override async Task KeylessEntity_with_defining_query(bool async)
+    {
+        await base.KeylessEntity_with_defining_query(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE ((c["$type"] = "Order") AND (c["CustomerID"] = "ALFKI"))
 """);
-            });
+    }
 
     public override async Task KeylessEntity_with_defining_query_and_correlated_collection(bool async)
     {
@@ -170,30 +156,26 @@ WHERE ((c["$type"] = "Order") AND (c["CustomerID"] = "ALFKI"))
         AssertSql();
     }
 
-    public override Task Auto_initialized_view_set(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Auto_initialized_view_set(a);
-                AssertSql(
-                    """
+    public override async Task Auto_initialized_view_set(bool async)
+    {
+        await base.Auto_initialized_view_set(async);
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 """);
-            });
+    }
 
-    public override Task Count_over_keyless_entity(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Count_over_keyless_entity(a);
+    public override async Task Count_over_keyless_entity(bool async)
+    {
+        await base.Count_over_keyless_entity(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE COUNT(1)
 FROM root c
 """);
-            });
+    }
 
     public override Task Count_over_keyless_entity_with_pushdown(bool async)
         // Cosmos client evaluation. Issue #17246.

@@ -24,19 +24,17 @@ public class NorthwindFunctionsQueryCosmosTest : NorthwindFunctionsQueryTestBase
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
-    public override Task Client_evaluation_of_uncorrelated_method_call(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Client_evaluation_of_uncorrelated_method_call(a);
+    public override async Task Client_evaluation_of_uncorrelated_method_call(bool async)
+    {
+        await base.Client_evaluation_of_uncorrelated_method_call(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (((c["$type"] = "OrderDetail") AND (c["UnitPrice"] < 7.0)) AND (10 < c["ProductID"]))
 """);
-            });
+    }
 
     public override async Task Order_by_length_twice(bool async)
     {
@@ -84,35 +82,31 @@ ORDER BY LENGTH(c["id"]), c["id"]
         AssertSql();
     }
 
-    public override Task Static_equals_nullable_datetime_compared_to_non_nullable(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Static_equals_nullable_datetime_compared_to_non_nullable(a);
+    public override async Task Static_equals_nullable_datetime_compared_to_non_nullable(bool async)
+    {
+        await base.Static_equals_nullable_datetime_compared_to_non_nullable(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 @arg='1996-07-04T00:00:00'
 
 SELECT VALUE c
 FROM root c
 WHERE ((c["$type"] = "Order") AND (c["OrderDate"] = @arg))
 """);
-            });
+    }
 
-    public override Task Static_equals_int_compared_to_long(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Static_equals_int_compared_to_long(a);
+    public override async Task Static_equals_int_compared_to_long(bool async)
+    {
+        await base.Static_equals_int_compared_to_long(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE ((c["$type"] = "Order") AND false)
 """);
-            });
+    }
 
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);

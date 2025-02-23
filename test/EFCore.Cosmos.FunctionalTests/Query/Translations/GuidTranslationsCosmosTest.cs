@@ -11,48 +11,42 @@ public class GuidTranslationsCosmosTest : GuidTranslationsTestBase<BasicTypesQue
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    public override Task New_with_constant(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.New_with_constant(a);
+    public override async Task New_with_constant(bool async)
+    {
+        await base.New_with_constant(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (c["Guid"] = "df36f493-463f-4123-83f9-6b135deeb7ba")
 """);
-            });
+    }
 
-    public override Task New_with_parameter(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.New_with_parameter(a);
+    public override async Task New_with_parameter(bool async)
+    {
+        await base.New_with_parameter(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 @p=?
 
 SELECT VALUE c
 FROM root c
 WHERE (c["Guid"] = @p)
 """);
-            });
+    }
 
-    public override Task ToString_projection(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.ToString_projection(a);
+    public override async Task ToString_projection(bool async)
+    {
+        await base.ToString_projection(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c["Guid"]
 FROM root c
 """);
-            });
+    }
 
     public override async Task NewGuid(bool async)
     {

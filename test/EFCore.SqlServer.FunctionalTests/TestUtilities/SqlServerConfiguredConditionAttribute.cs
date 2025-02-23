@@ -3,13 +3,14 @@
 
 using System.Runtime.InteropServices;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
+using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
 [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class | AttributeTargets.Assembly)]
 public sealed class SqlServerConfiguredConditionAttribute : Attribute, ITestCondition
 {
-    public ValueTask<bool> IsMetAsync()
+    public ValueTask<bool> IsMetAsync(XunitTestCase testCase)
         => new(TestEnvironment.IsConfigured && (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) || !TestEnvironment.IsLocalDb));
 
     public string SkipReason

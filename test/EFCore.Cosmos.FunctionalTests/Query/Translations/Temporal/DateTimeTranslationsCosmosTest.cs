@@ -19,21 +19,19 @@ public class DateTimeTranslationsCosmosTest : DateTimeTranslationsTestBase<Basic
         AssertSql();
     }
 
-    public override Task UtcNow(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.UtcNow(a);
+    public override async Task UtcNow(bool async)
+    {
+        await base.UtcNow(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 @myDatetime=?
 
 SELECT VALUE c
 FROM root c
 WHERE (GetCurrentDateTime() != @myDatetime)
 """);
-            });
+    }
 
     public override async Task Today(bool async)
     {
@@ -51,47 +49,41 @@ WHERE (GetCurrentDateTime() != @myDatetime)
         AssertSql();
     }
 
-    public override Task AddYear(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.AddYear(a);
+    public override async Task AddYear(bool async)
+    {
+        await base.AddYear(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (DateTimePart("yyyy", DateTimeAdd("yyyy", 1, c["DateTime"])) = 1999)
 """);
-            });
+    }
 
-    public override Task Year(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Year(a);
+    public override async Task Year(bool async)
+    {
+        await base.Year(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (DateTimePart("yyyy", c["DateTime"]) = 1998)
 """);
-            });
+    }
 
-    public override Task Month(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Month(a);
+    public override async Task Month(bool async)
+    {
+        await base.Month(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (DateTimePart("mm", c["DateTime"]) = 5)
 """);
-            });
+    }
 
     public override async Task DayOfYear(bool async)
     {
@@ -101,75 +93,65 @@ WHERE (DateTimePart("mm", c["DateTime"]) = 5)
         AssertSql();
     }
 
-    public override Task Day(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Day(a);
+    public override async Task Day(bool async)
+    {
+        await base.Day(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (DateTimePart("dd", c["DateTime"]) = 4)
 """);
-            });
+    }
 
-    public override Task Hour(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Hour(a);
+    public override async Task Hour(bool async)
+    {
+        await base.Hour(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (DateTimePart("hh", c["DateTime"]) = 15)
 """);
-            });
+    }
 
-    public override Task Minute(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Minute(a);
+    public override async Task Minute(bool async)
+    {
+        await base.Minute(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (DateTimePart("mi", c["DateTime"]) = 30)
 """);
-            });
+    }
 
-    public override Task Second(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Second(a);
+    public override async Task Second(bool async)
+    {
+        await base.Second(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (DateTimePart("ss", c["DateTime"]) = 10)
 """);
-            });
+    }
 
-    public override Task Millisecond(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Millisecond(a);
+    public override async Task Millisecond(bool async)
+    {
+        await base.Millisecond(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (DateTimePart("ms", c["DateTime"]) = 123)
 """);
-            });
+    }
 
     public override async Task TimeOfDay(bool async)
     {
@@ -187,65 +169,57 @@ WHERE (DateTimePart("ms", c["DateTime"]) = 123)
         AssertSql();
     }
 
-    public override Task Parse_with_constant(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Parse_with_constant(a);
+    public override async Task Parse_with_constant(bool async)
+    {
+        await base.Parse_with_constant(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (c["DateTime"] = "1998-05-04T15:30:10")
 """);
-            });
+    }
 
-    public override Task Parse_with_parameter(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Parse_with_parameter(a);
+    public override async Task Parse_with_parameter(bool async)
+    {
+        await base.Parse_with_parameter(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 @Parse=?
 
 SELECT VALUE c
 FROM root c
 WHERE (c["DateTime"] = @Parse)
 """);
-            });
+    }
 
-    public override Task New_with_constant(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.New_with_constant(a);
+    public override async Task New_with_constant(bool async)
+    {
+        await base.New_with_constant(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (c["DateTime"] = "1998-05-04T15:30:10")
 """);
-            });
+    }
 
-    public override Task New_with_parameters(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.New_with_parameters(a);
+    public override async Task New_with_parameters(bool async)
+    {
+        await base.New_with_parameters(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 @p=?
 
 SELECT VALUE c
 FROM root c
 WHERE (c["DateTime"] = @p)
 """);
-            });
+    }
 
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()
