@@ -850,9 +850,10 @@ CREATE TABLE MyTable (
     Id int,
     A decimal DEFAULT '-1.1111',
     B decimal DEFAULT ('0.0'),
-    C decimal DEFAULT ('0'));
+    C decimal DEFAULT ('0')),
+    D decimal DEFAULT ('10.0'));
 
-INSERT INTO MyTable VALUES (1, '1.1', '1.2', '1.3');",
+INSERT INTO MyTable VALUES (1, '1.1', '1.2', '1.3', '1.4');",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
             dbModel =>
@@ -870,8 +871,60 @@ INSERT INTO MyTable VALUES (1, '1.1', '1.2', '1.3');",
                 column = columns.Single(c => c.Name == "C");
                 Assert.Equal("'0'", column.DefaultValueSql);
                 Assert.Equal((decimal)0, column.DefaultValue);
+
+                column = columns.Single(c => c.Name == "D");
+                Assert.Equal("'10'", column.DefaultValueSql);
+                Assert.Equal((decimal)10, column.DefaultValue);
             },
             "DROP TABLE MyTable;");
+
+    [ConditionalFact]
+    public void Simple_decimal_literals_are_parsed_for_HasDefaultValue_with_Danish_locale()
+    {
+        try
+        {
+            var culture = CultureInfo.CurrentCulture;
+            CultureInfo.CurrentCulture = new CultureInfo("da-DK");
+
+            Test(
+              @"
+CREATE TABLE MyTable (
+    Id int,
+    A decimal DEFAULT '-1.1111',
+    B decimal DEFAULT ('0.0'),
+    C decimal DEFAULT ('0')),
+    D decimal DEFAULT ('10.0'));
+
+INSERT INTO MyTable VALUES (1, '1.1', '1.2', '1.3', '1.4');",
+            Enumerable.Empty<string>(),
+            Enumerable.Empty<string>(),
+            dbModel =>
+            {
+                var columns = dbModel.Tables.Single().Columns;
+
+                var column = columns.Single(c => c.Name == "A");
+                Assert.Equal("'-1.1111'", column.DefaultValueSql);
+                Assert.Equal((decimal)-1.1111, column.DefaultValue);
+
+                column = columns.Single(c => c.Name == "B");
+                Assert.Equal("'0.0'", column.DefaultValueSql);
+                Assert.Equal((decimal)0, column.DefaultValue);
+
+                column = columns.Single(c => c.Name == "C");
+                Assert.Equal("'0'", column.DefaultValueSql);
+                Assert.Equal((decimal)0, column.DefaultValue);
+
+                column = columns.Single(c => c.Name == "D");
+                Assert.Equal("'10'", column.DefaultValueSql);
+                Assert.Equal((decimal)10, column.DefaultValue);
+            },
+              "DROP TABLE MyTable;");
+        }
+        finally
+        {
+            CultureInfo.CurrentCulture = culture;
+        }
+    }
 
     [ConditionalFact]
     public void Simple_bool_literals_are_parsed_for_HasDefaultValue()

@@ -3973,6 +3973,60 @@ CREATE TABLE MyTable (
             "DROP TABLE MyTable;");
 
     [ConditionalFact]
+    public void Simple_decimal_literals_are_parsed_for_HasDefaultValue_with_Danish_locale()
+    {
+        try
+        {
+            var currentCulture = CultureInfo.CurrentCulture;
+            CultureInfo.CurrentCulture = new CultureInfo("da-DK");
+            Test(
+            @"
+CREATE TABLE MyTable (
+    Id int,
+    A decimal DEFAULT -1.1111,
+    B decimal DEFAULT (0.0),
+    C decimal DEFAULT (0),
+    D decimal DEFAULT ((CONVERT ( ""decimal"", ( (1.1234) ) ))),
+    E decimal DEFAULT ((10.0)),
+);",
+            Enumerable.Empty<string>(),
+            Enumerable.Empty<string>(),
+            (dbModel, scaffoldingFactory) =>
+            {
+                var columns = dbModel.Tables.Single().Columns;
+
+                var column = columns.Single(c => c.Name == "A");
+                Assert.Equal("((-1.1111))", column.DefaultValueSql);
+                Assert.Equal((decimal)-1.1111, column.DefaultValue);
+
+                column = columns.Single(c => c.Name == "B");
+                Assert.Equal("((0.0))", column.DefaultValueSql);
+                Assert.Equal((decimal)0, column.DefaultValue);
+
+                column = columns.Single(c => c.Name == "C");
+                Assert.Equal("((0))", column.DefaultValueSql);
+                Assert.Equal((decimal)0, column.DefaultValue);
+
+                column = columns.Single(c => c.Name == "D");
+                Assert.Equal("(CONVERT([decimal],(1.1234)))", column.DefaultValueSql);
+                Assert.Equal((decimal)1.1234, column.DefaultValue);
+
+                column = columns.Single(c => c.Name == "E");
+                Assert.Equal("((10.0))", column.DefaultValueSql);
+                Assert.Equal((decimal)10, column.DefaultValue);
+
+                var model = scaffoldingFactory.Create(dbModel, new ModelReverseEngineerOptions());
+                Assert.Equal(1, model.GetEntityTypes().Count());
+            },
+            "DROP TABLE MyTable;");
+        }
+        finally
+        {
+            CultureInfo.CurrentCulture = currentCulture;
+        }
+    }
+
+    [ConditionalFact]
     public void Simple_bool_literals_are_parsed_for_HasDefaultValue()
         => Test(
             @"

@@ -429,7 +429,7 @@ ORDER BY "cid"
             {
                 try
                 {
-                    column.DefaultValue = Convert.ChangeType(defaultValueSql, type);
+                    column.DefaultValue = Convert.ChangeType(defaultValueSql, type, CultureInfo.InvariantCulture);
                 }
                 catch
                 {
