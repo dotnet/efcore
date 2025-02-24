@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -231,42 +232,13 @@ public static class RelationalPropertyExtensions
         var currentStoreObject = storeObject;
         if (property.DeclaringType is IReadOnlyEntityType entityType)
         {
-            while (true)
-            {
-                var ownership = entityType.GetForeignKeys().SingleOrDefault(fk => fk.IsOwnership);
-                if (ownership == null)
-                {
-                    break;
-                }
-
-                var ownerType = ownership.PrincipalEntityType;
-                if (StoreObjectIdentifier.Create(ownerType, currentStoreObject.StoreObjectType) != currentStoreObject
-                    && ownerType.GetMappingFragments(storeObject.StoreObjectType)
-                        .All(f => f.StoreObject != currentStoreObject))
-                {
-                    break;
-                }
-
-                builder ??= new StringBuilder();
-
-                builder.Insert(0, "_");
-                builder.Insert(0, ownership.PrincipalToDependent!.Name);
-                entityType = ownerType;
-            }
+            builder = CreateOwnershipPrefix(entityType, storeObject, builder);
         }
         else if (StoreObjectIdentifier.Create(property.DeclaringType, currentStoreObject.StoreObjectType) == currentStoreObject
                  || property.DeclaringType.GetMappingFragments(storeObject.StoreObjectType)
                      .Any(f => f.StoreObject == currentStoreObject))
         {
-            var complexType = (IReadOnlyComplexType)property.DeclaringType;
-            builder ??= new StringBuilder();
-            while (complexType != null)
-            {
-                builder.Insert(0, "_");
-                builder.Insert(0, complexType.ComplexProperty.Name);
-
-                complexType = complexType.ComplexProperty.DeclaringType as IReadOnlyComplexType;
-            }
+            builder = CreateComplexPrefix((IReadOnlyComplexType)property.DeclaringType, storeObject, builder);
         }
 
         var baseName = storeObject.StoreObjectType == StoreObjectType.Table ? property.GetDefaultColumnName() : property.Name;
@@ -279,6 +251,64 @@ public static class RelationalPropertyExtensions
         baseName = builder.ToString();
 
         return Uniquifier.Truncate(baseName, property.DeclaringType.Model.GetMaxIdentifierLength());
+
+        [return: NotNullIfNotNull("builder")]
+        static StringBuilder? CreateOwnershipPrefix(IReadOnlyEntityType entityType, in StoreObjectIdentifier storeObject, StringBuilder? builder)
+        {
+            while (true)
+            {
+                var ownership = entityType.GetForeignKeys().SingleOrDefault(fk => fk.IsOwnership);
+                if (ownership == null)
+                {
+                    return builder;
+                }
+
+                var ownerType = ownership.PrincipalEntityType;
+                if (StoreObjectIdentifier.Create(ownerType, storeObject.StoreObjectType) != storeObject)
+                {
+                    var foundMappedFragment = false;
+                    foreach (var fragment in ownerType.GetMappingFragments(storeObject.StoreObjectType))
+                    {
+                        if (fragment.StoreObject == storeObject)
+                        {
+                            foundMappedFragment = true;
+                        }
+                    }
+
+                    if (!foundMappedFragment)
+                    {
+                        return builder;
+                    }
+                }
+
+                builder ??= new StringBuilder();
+
+                builder.Insert(0, "_");
+                builder.Insert(0, ownership.PrincipalToDependent!.Name);
+                entityType = ownerType;
+            }
+        }
+
+        static StringBuilder CreateComplexPrefix(IReadOnlyComplexType complexType, in StoreObjectIdentifier storeObject, StringBuilder? builder)
+        {
+            builder ??= new StringBuilder();
+            while (true)
+            {
+                builder.Insert(0, "_");
+                builder.Insert(0, complexType.ComplexProperty.Name);
+
+                switch (complexType.ComplexProperty.DeclaringType)
+                {
+                    case IReadOnlyComplexType declaringComplexType:
+                        complexType = declaringComplexType;
+                        break;
+                    case IReadOnlyEntityType declaringEntityType:
+                        return CreateOwnershipPrefix(declaringEntityType, storeObject, builder);
+                    default:
+                        return builder;
+                }
+            }
+        }
     }
 
     /// <summary>
@@ -1501,13 +1531,13 @@ public static class RelationalPropertyExtensions
             }
 
             IReadOnlyProperty? linkedProperty = null;
-            foreach (var p in entityType
+            foreach (var principalProperty in entityType
                          .FindRowInternalForeignKeys(storeObject)
-                         .SelectMany(fk => fk.PrincipalEntityType.GetProperties()))
+                         .SelectMany(static fk => fk.PrincipalEntityType.GetProperties()))
             {
-                if (p.GetColumnName(storeObject) == column)
+                if (principalProperty.GetColumnName(storeObject) == column)
                 {
-                    linkedProperty = p;
+                    linkedProperty = principalProperty;
                     break;
                 }
             }
