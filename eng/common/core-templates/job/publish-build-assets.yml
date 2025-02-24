@@ -76,11 +76,12 @@ jobs:
       fetchDepth: 3
       clean: true
       
-    - task: DownloadPipelineArtifact@2
-      displayName: Download Asset Manifests
+    - task: DownloadBuildArtifacts@0
+      displayName: Download artifact
       inputs:
         artifactName: AssetManifests
-        targetPath: '$(Build.StagingDirectory)/AssetManifests'
+        downloadPath: '$(Build.StagingDirectory)/Download'
+        checkDownloadedFiles: true
       condition: ${{ parameters.condition }}
       continueOnError: ${{ parameters.continueOnError }}
     
@@ -94,7 +95,7 @@ jobs:
         scriptLocation: scriptPath
         scriptPath: $(Build.SourcesDirectory)/eng/common/sdk-task.ps1
         arguments: -task PublishBuildAssets -restore -msbuildEngine dotnet
-          /p:ManifestsPath='$(Build.StagingDirectory)/AssetManifests'
+          /p:ManifestsPath='$(Build.StagingDirectory)/Download/AssetManifests'
           /p:MaestroApiEndpoint=https://maestro.dot.net
           /p:PublishUsingPipelines=${{ parameters.publishUsingPipelines }}
           /p:OfficialBuildId=$(Build.BuildNumber)
