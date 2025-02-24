@@ -3939,6 +3939,7 @@ CREATE TABLE MyTable (
     B decimal DEFAULT (0.0),
     C decimal DEFAULT (0),
     D decimal DEFAULT ((CONVERT ( ""decimal"", ( (1.1234) ) ))),
+    E decimal DEFAULT ((10.0)),
 );",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
@@ -3961,6 +3962,10 @@ CREATE TABLE MyTable (
                 column = columns.Single(c => c.Name == "D");
                 Assert.Equal("(CONVERT([decimal],(1.1234)))", column.DefaultValueSql);
                 Assert.Equal((decimal)1.1234, column.DefaultValue);
+
+                column = columns.Single(c => c.Name == "E");
+                Assert.Equal("((10.0))", column.DefaultValueSql);
+                Assert.Equal((decimal)10, column.DefaultValue);
 
                 var model = scaffoldingFactory.Create(dbModel, new ModelReverseEngineerOptions());
                 Assert.Equal(1, model.GetEntityTypes().Count());

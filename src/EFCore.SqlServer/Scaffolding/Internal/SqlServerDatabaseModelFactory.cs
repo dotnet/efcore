@@ -918,7 +918,7 @@ LEFT JOIN [sys].[default_constraints] AS [dc] ON [c].[object_id] = [dc].[parent_
         {
             try
             {
-                return Convert.ChangeType(defaultValueSql, type);
+                return Convert.ChangeType(defaultValueSql, type, CultureInfo.InvariantCulture);
             }
             catch
             {
