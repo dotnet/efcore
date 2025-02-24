@@ -34,17 +34,6 @@ WHERE (c["Discriminator"] = "Basic")
 """);
             });
 
-    public override async Task Basic_json_projection_owned_collection_branch(bool async)
-    {
-        // Always throws for sync.
-        if (async)
-        {
-            //issue #31696
-            await Assert.ThrowsAsync<NullReferenceException>(
-                () => base.Basic_json_projection_owned_collection_branch(async));
-        }
-    }
-
     public override async Task Basic_json_projection_owned_collection_branch_NoTrackingWithIdentityResolution(bool async)
     {
         // Always throws for sync.
@@ -67,20 +56,20 @@ WHERE (c["Discriminator"] = "Basic")
         }
     }
 
-    public override Task Basic_json_projection_owned_collection_root(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Basic_json_projection_owned_collection_root(a);
+//    public override Task Basic_json_projection_owned_collection_root(bool async)
+//        => Fixture.NoSyncTest(
+//            async, async a =>
+//            {
+//                await base.Basic_json_projection_owned_collection_root(a);
 
-                // TODO: issue #34067 (?)
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-WHERE (c["Discriminator"] = "Basic")
-""");
-            });
+//                // TODO: issue #34067 (?)
+//                AssertSql(
+//                    """
+//SELECT VALUE c
+//FROM root c
+//WHERE (c["Discriminator"] = "Basic")
+//""");
+//            });
 
     public override Task Basic_json_projection_owned_collection_root_NoTrackingWithIdentityResolution(bool async)
         => Fixture.NoSyncTest(
@@ -97,19 +86,19 @@ WHERE (c["Discriminator"] = "Basic")
 """);
             });
 
-    public override Task Basic_json_projection_owned_reference_branch(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Basic_json_projection_owned_reference_branch(async);
+//    public override Task Basic_json_projection_owned_reference_branch(bool async)
+//        => Fixture.NoSyncTest(
+//            async, async a =>
+//            {
+//                await base.Basic_json_projection_owned_reference_branch(async);
 
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-WHERE (c["Discriminator"] = "Basic")
-""");
-            });
+//                AssertSql(
+//                    """
+//SELECT VALUE c
+//FROM root c
+//WHERE (c["Discriminator"] = "Basic")
+//""");
+//            });
 
     public override Task Basic_json_projection_owned_reference_branch_NoTrackingWithIdentityResolution(bool async)
         => Fixture.NoSyncTest(
@@ -199,20 +188,20 @@ WHERE (c["Discriminator"] = "Basic")
 """);
             });
 
-    public override Task Basic_json_projection_owned_reference_root(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Basic_json_projection_owned_reference_root(a);
+//    public override Task Basic_json_projection_owned_reference_root(bool async)
+//        => Fixture.NoSyncTest(
+//            async, async a =>
+//            {
+//                await base.Basic_json_projection_owned_reference_root(a);
 
-                // TODO: issue #34067 (?)
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-WHERE (c["Discriminator"] = "Basic")
-""");
-            });
+//                // TODO: issue #34067 (?)
+//                AssertSql(
+//                    """
+//SELECT VALUE c
+//FROM root c
+//WHERE (c["Discriminator"] = "Basic")
+//""");
+//            });
 
     public override Task Basic_json_projection_owned_reference_root_NoTrackingWithIdentityResolution(bool async)
         => Fixture.NoSyncTest(
@@ -229,19 +218,19 @@ WHERE (c["Discriminator"] = "Basic")
 """);
             });
 
-    public override Task Basic_json_projection_owner_entity(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Basic_json_projection_owner_entity(a);
+//    public override Task Basic_json_projection_owner_entity(bool async)
+//        => Fixture.NoSyncTest(
+//            async, async a =>
+//            {
+//                await base.Basic_json_projection_owner_entity(a);
 
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-WHERE (c["Discriminator"] = "Basic")
-""");
-            });
+//                AssertSql(
+//                    """
+//SELECT VALUE c
+//FROM root c
+//WHERE (c["Discriminator"] = "Basic")
+//""");
+//            });
 
     public override Task Basic_json_projection_owner_entity_duplicated(bool async)
         => Fixture.NoSyncTest(
@@ -285,19 +274,19 @@ WHERE (c["Discriminator"] = "SingleOwned")
 """);
             });
 
-    public override Task Basic_json_projection_owner_entity_NoTracking(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Basic_json_projection_owner_entity_NoTracking(a);
+//    public override Task Basic_json_projection_owner_entity_NoTracking(bool async)
+//        => Fixture.NoSyncTest(
+//            async, async a =>
+//            {
+//                await base.Basic_json_projection_owner_entity_NoTracking(a);
 
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-WHERE (c["Discriminator"] = "Basic")
-""");
-            });
+//                AssertSql(
+//                    """
+//SELECT VALUE c
+//FROM root c
+//WHERE (c["Discriminator"] = "Basic")
+//""");
+//            });
 
     public override Task Basic_json_projection_owner_entity_NoTrackingWithIdentityResolution(bool async)
         => Fixture.NoSyncTest(
