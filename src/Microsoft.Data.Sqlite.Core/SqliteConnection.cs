@@ -687,7 +687,7 @@ namespace Microsoft.Data.Sqlite
 
             if (string.IsNullOrEmpty(searchDirs))
             {
-                return Array.Empty<string>();
+                return [];
             }
 
             return searchDirs!.Split([ Path.PathSeparator ], StringSplitOptions.RemoveEmptyEntries);
