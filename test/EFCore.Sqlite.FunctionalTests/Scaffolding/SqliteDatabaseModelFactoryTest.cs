@@ -874,7 +874,7 @@ INSERT INTO MyTable VALUES (1, '1.1', '1.2', '1.3', '1.4');",
                 Assert.Equal((decimal)0, column.DefaultValue);
 
                 column = columns.Single(c => c.Name == "D");
-                Assert.Equal("'10'", column.DefaultValueSql);
+                Assert.Equal("'10.0'", column.DefaultValueSql);
                 Assert.Equal((decimal)10, column.DefaultValue);
             },
             "DROP TABLE MyTable;");
@@ -917,7 +917,7 @@ INSERT INTO MyTable VALUES (1, '1.1', '1.2', '1.3', '1.4');",
                 Assert.Equal((decimal)0, column.DefaultValue);
 
                 column = columns.Single(c => c.Name == "D");
-                Assert.Equal("'10'", column.DefaultValueSql);
+                Assert.Equal("'10.0'", column.DefaultValueSql);
                 Assert.Equal((decimal)10, column.DefaultValue);
             },
               "DROP TABLE MyTable;");
