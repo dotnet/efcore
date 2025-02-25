@@ -851,7 +851,7 @@ CREATE TABLE MyTable (
     Id int,
     A decimal DEFAULT '-1.1111',
     B decimal DEFAULT ('0.0'),
-    C decimal DEFAULT ('0')),
+    C decimal DEFAULT ('0'),
     D decimal DEFAULT ('10.0'));
 
 INSERT INTO MyTable VALUES (1, '1.1', '1.2', '1.3', '1.4');",
@@ -894,7 +894,7 @@ CREATE TABLE MyTable (
     Id int,
     A decimal DEFAULT '-1.1111',
     B decimal DEFAULT ('0.0'),
-    C decimal DEFAULT ('0')),
+    C decimal DEFAULT ('0'),
     D decimal DEFAULT ('10.0'));
 
 INSERT INTO MyTable VALUES (1, '1.1', '1.2', '1.3', '1.4');",
