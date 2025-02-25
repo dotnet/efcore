@@ -3976,9 +3976,10 @@ CREATE TABLE MyTable (
     [ConditionalFact]
     public void Simple_decimal_literals_are_parsed_for_HasDefaultValue_with_Danish_locale()
     {
+        var currentCulture = CultureInfo.CurrentCulture;
+
         try
         {
-            var currentCulture = CultureInfo.CurrentCulture;
             CultureInfo.CurrentCulture = new CultureInfo("da-DK");
             Test(
             @"

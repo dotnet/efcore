@@ -882,9 +882,10 @@ INSERT INTO MyTable VALUES (1, '1.1', '1.2', '1.3', '1.4');",
     [ConditionalFact]
     public void Simple_decimal_literals_are_parsed_for_HasDefaultValue_with_Danish_locale()
     {
+        var culture = CultureInfo.CurrentCulture;
+
         try
         {
-            var culture = CultureInfo.CurrentCulture;
             CultureInfo.CurrentCulture = new CultureInfo("da-DK");
 
             Test(
