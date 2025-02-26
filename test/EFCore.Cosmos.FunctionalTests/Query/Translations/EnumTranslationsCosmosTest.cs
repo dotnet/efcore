@@ -262,15 +262,136 @@ OFFSET 0 LIMIT 1
 
     // #35317
     public override Task HasFlag(bool async)
-        => AssertTranslationFailed(() => base.HasFlag(async));
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.HasFlag(a);
+
+                AssertSql(
+                    """
+SELECT VALUE c
+FROM root c
+WHERE ((c["FlagsEnum"] & 8) = 8)
+""",
+                    //
+                    """
+SELECT VALUE c
+FROM root c
+WHERE ((c["FlagsEnum"] & 12) = 12)
+""",
+                    //
+                    """
+SELECT VALUE c
+FROM root c
+WHERE ((c["FlagsEnum"] & 8) = 8)
+""",
+                    //
+                    """
+SELECT VALUE c
+FROM root c
+WHERE ((c["FlagsEnum"] & 8) = 8)
+""",
+                    //
+                    """
+SELECT VALUE c
+FROM root c
+WHERE ((8 & c["FlagsEnum"]) = c["FlagsEnum"])
+""",
+                    //
+                    """
+SELECT VALUE
+{
+    "hasFlagTrue" : ((c["FlagsEnum"] & 8) = 8),
+    "hasFlagFalse" : ((c["FlagsEnum"] & 4) = 4)
+}
+FROM root c
+WHERE ((c["FlagsEnum"] & 8) = 8)
+OFFSET 0 LIMIT 1
+""");
+            });
 
     // #35317
     public override Task HasFlag_with_non_nullable_parameter(bool async)
-        => AssertTranslationFailed(() => base.HasFlag(async));
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.HasFlag_with_non_nullable_parameter(a);
+
+                AssertSql(
+                    """
+@flagsEnum=?
+
+SELECT VALUE c
+FROM root c
+WHERE ((c["FlagsEnum"] & @flagsEnum) = @flagsEnum)
+""");
+            });
 
     // #35317
     public override Task HasFlag_with_nullable_parameter(bool async)
-        => AssertTranslationFailed(() => base.HasFlag(async));
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.HasFlag_with_nullable_parameter(a);
+
+                AssertSql(
+                    """
+@flagsEnum=?
+
+SELECT VALUE c
+FROM root c
+WHERE ((c["FlagsEnum"] & @flagsEnum) = @flagsEnum)
+""");
+            });
+
+
+    public override Task ToString_enum_contains(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.ToString_enum_contains(a);
+
+                AssertSql(
+                    """
+
+""");
+            });
+
+    public override Task ToString_nullable_enum_contains(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.ToString_nullable_enum_contains(a);
+
+                AssertSql(
+                    """
+
+""");
+            });
+
+    public override Task ToString_enum_property_projection(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.ToString_enum_property_projection(a);
+
+                AssertSql(
+                    """
+
+""");
+            });
+
+    public override Task ToString_nullable_enum_property_projection(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.ToString_nullable_enum_property_projection(a);
+
+                AssertSql(
+                    """
+                    
+                    """);
+            });
 
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()
