@@ -330,7 +330,7 @@ WHERE [c].[City] = N'Seattle' AND ([c].[Phone] <> N'555 555 5555' OR [c].[Phone]
         AssertSql(
             """
 SELECT (
-    SELECT COALESCE(SUM(CAST([o0].[Quantity] AS int)), 0)
+    SELECT ISNULL(SUM(CAST([o0].[Quantity] AS int)), 0)
     FROM [Order Details] AS [o0]
     WHERE [o].[OrderID] = [o0].[OrderID]) + (
     SELECT COUNT(*)
