@@ -472,7 +472,7 @@ ORDER BY "cid"
                     column.DefaultValue = dateTimeOffset;
                 }
                 else if (type == typeof(decimal)
-                         && decimal.TryParse(defaultValueSql, out var decimalValue))
+                         && decimal.TryParse(defaultValueSql, CultureInfo.InvariantCulture, out var decimalValue))
                 {
                     column.DefaultValue = decimalValue;
                 }
