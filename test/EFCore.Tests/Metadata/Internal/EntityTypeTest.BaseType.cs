@@ -677,7 +677,7 @@ public partial class EntityTypeTest
         var specialCustomerType = model.AddEntityType(typeof(SpecialCustomer));
 
         Assert.Equal(new[] { "Orders" }, customerType.GetNavigations().Select(p => p.Name).ToArray());
-        Assert.Equal([], specialCustomerType.GetNavigations().Select(p => p.Name).ToArray());
+        Assert.Equal(new string[0], specialCustomerType.GetNavigations().Select(p => p.Name).ToArray());
 
         specialCustomerType.BaseType = customerType;
 
