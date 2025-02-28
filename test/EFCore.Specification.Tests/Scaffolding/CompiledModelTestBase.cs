@@ -1191,8 +1191,7 @@ namespace TestNamespace
                 eb.ComplexProperty(
                     e => e.Owned, eb =>
                     {
-                        eb.IsRequired()
-                            .HasField("_ownedField")
+                        eb.HasField("_ownedField")
                             .UsePropertyAccessMode(PropertyAccessMode.Field)
                             .HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)
                             .HasPropertyAnnotation("goo", "ber")
@@ -1210,7 +1209,6 @@ namespace TestNamespace
                         eb.ComplexProperty(
                             o => o.Principal, cb =>
                             {
-                                cb.IsRequired();
                                 cb.Property("FlagsEnum2");
                             });
                     });
@@ -1274,7 +1272,10 @@ namespace TestNamespace
         Assert.NotNull(detailsProperty.GetValueComparer());
         Assert.NotNull(detailsProperty.GetKeyValueComparer());
 
-        var nestedComplexType = complexType.FindComplexProperty(nameof(OwnedType.Principal))!.ComplexType;
+        var nestedComplexProperty = complexType.FindComplexProperty(nameof(OwnedType.Principal))!;
+        Assert.True(nestedComplexProperty.IsNullable);
+
+        var nestedComplexType = nestedComplexProperty.ComplexType;
 
         Assert.Equal(ExpectedComplexTypeProperties, nestedComplexType.GetProperties().Count());
 

@@ -1610,6 +1610,7 @@ namespace TestNamespace
                         typeof(CompiledModelTestBase.PrincipalBase),
                         propertyInfo: typeof(CompiledModelTestBase.OwnedType).GetProperty("Principal", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                         fieldInfo: typeof(CompiledModelTestBase.OwnedType).GetField("<Principal>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                        nullable: true,
                         propertyCount: 14);
 
                     var complexType = complexProperty.ComplexType;
