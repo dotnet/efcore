@@ -9,12 +9,20 @@ using System.IO;
 using System.Linq;
 using Microsoft.Data.Sqlite.Properties;
 using Xunit;
+using Xunit.Abstractions;
 using static SQLitePCL.raw;
 
 namespace Microsoft.Data.Sqlite;
 
 public class SqliteConnectionTest
 {
+    private readonly ITestOutputHelper _testOutputHelper;
+
+    public SqliteConnectionTest(ITestOutputHelper testOutputHelper)
+    {
+        _testOutputHelper = testOutputHelper;
+    }
+
     [Fact]
     public void Ctor_sets_connection_string()
     {
@@ -122,6 +130,7 @@ public class SqliteConnectionTest
         var connection = new SqliteConnection();
 
         var version = connection.ServerVersion;
+        _testOutputHelper.WriteLine(version);
 
         Assert.StartsWith("3.", version);
     }
