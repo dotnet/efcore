@@ -76,7 +76,7 @@ For Publish:
              Properties="Configuration=$(Configuration);Platform=$(Platform);_EFGenerationStage=$(_EFGenerationStage)" />
   </Target>
 
-  <Target Name="OptimizeDbContext">
+  <Target Name="OptimizeDbContext" DependsOnTargets="ResolvePackageAssets">
     <PropertyGroup>
       <EFRootNamespace Condition="'$(EFRootNamespace)'==''">$(RootNamespace)</EFRootNamespace>
       <EFRootNamespace Condition="'$(EFRootNamespace)'==''">$(AssemblyName)</EFRootNamespace>
@@ -90,9 +90,14 @@ For Publish:
       <EFNullable Condition="'$(EFNullable)'==''">false</EFNullable>
     </PropertyGroup>
 
+    <ItemGroup>
+      <DesignAssembly Include="@(RuntimeCopyLocalItems)" Condition="$([System.String]::Copy('%(FullPath)').EndsWith('Microsoft.EntityFrameworkCore.Design.dll'))" />
+    </ItemGroup>
+
     <OptimizeDbContext Assembly="$(_AssemblyFullName)"
                        StartupAssembly="$(EFStartupAssembly)"
                        ProjectAssetsFile="$(ProjectAssetsFile)"
+                       DesignAssembly="@(DesignAssembly->'%(FullPath)')"
                        RuntimeFrameworkVersion="$(RuntimeFrameworkVersion)"
                        TargetFrameworkMoniker="$(TargetFrameworkMoniker)"
                        DbContextType="$(DbContextType)"
