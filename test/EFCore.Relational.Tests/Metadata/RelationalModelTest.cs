@@ -302,7 +302,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     Assert.Equal(5, specialCustomerTable.EntityTypeMappings.Count());
                     Assert.All(specialCustomerTable.EntityTypeMappings, t => Assert.Null(t.IsSharedTablePrincipal));
 
-                    Assert.Equal(10, specialCustomerTable.Columns.Count());
+                    Assert.Equal(11, specialCustomerTable.Columns.Count());
 
                     Assert.True(specialtyColumn.IsNullable);
                 }
@@ -794,6 +794,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             var customerPk = specialCustomerType.FindPrimaryKey();
 
+            var complexType = abstractBaseType.GetComplexProperties().Single().ComplexType;
+
             if (mapping == Mapping.TPT)
             {
                 var baseTable = abstractBaseType.GetTableMappings().Single().Table;
@@ -801,6 +803,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 Assert.Equal(nameof(Customer), customerTable.Name);
                 Assert.Null(abstractCustomerType.GetTableName());
                 Assert.Equal(nameof(SpecialCustomer), specialCustomerType.GetTableName());
+
+                Assert.Same(baseTable, complexType.GetTableMappings().Single().Table);
+
                 Assert.Equal(3, specialCustomerType.GetTableMappings().Count());
                 Assert.Null(specialCustomerType.GetTableMappings().First().IsSplitEntityTypePrincipal);
                 Assert.True(specialCustomerType.GetTableMappings().First().IncludesDerivedTypes);
@@ -956,6 +961,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     Assert.Equal(baseTable.Name, abstractCustomerType.GetTableName());
                     Assert.Equal(baseTable.Name, specialCustomerType.GetTableName());
 
+                    Assert.Same(baseTable, complexType.GetTableMappings().Single().Table);
+
                     Assert.True(specialCustomerTypeMapping.IncludesDerivedTypes);
                     Assert.Same(customerTable, specialCustomerTable);
 
@@ -963,11 +970,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     Assert.True(specialCustomerTable.EntityTypeMappings.First().IsSharedTablePrincipal);
                     Assert.False(specialCustomerTable.EntityTypeMappings.Last().IsSharedTablePrincipal);
 
-                    Assert.Equal(12, specialCustomerTable.Columns.Count());
+                    Assert.Equal(13, specialCustomerTable.Columns.Count());
 
                     var addressColumn = specialCustomerTable.Columns.Single(
-                        c =>
-                            c.Name == nameof(SpecialCustomer.Details) + "_" + nameof(CustomerDetails.Address));
+                        c => c.Name == nameof(SpecialCustomer.Details) + "_" + nameof(CustomerDetails.Address));
 
                     Assert.True(specialtyColumn.IsNullable);
                     Assert.True(addressColumn.IsNullable);
@@ -1035,6 +1041,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     Assert.Null(abstractCustomerType.GetTableName());
                     Assert.Equal(nameof(SpecialCustomer), specialCustomerType.GetTableName());
 
+                    Assert.Equal(idProperty.GetTableColumnMappings().Select(m => m.TableMapping.Table).OrderBy(t => t.Name),
+                        complexType.GetTableMappings().Select(m => m.Table).OrderBy(t => t.Name));
+
                     Assert.False(specialCustomerTypeMapping.IncludesDerivedTypes);
                     Assert.NotSame(customerTable, specialCustomerTable);
 
@@ -1042,7 +1051,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     Assert.Empty(customerTable.ReferencingForeignKeyConstraints);
 
                     Assert.Null(customerTable.EntityTypeMappings.Single().IsSharedTablePrincipal);
-                    Assert.Equal(5, customerTable.Columns.Count());
+                    Assert.Equal(6, customerTable.Columns.Count());
 
                     Assert.Single(specialCustomerTable.EntityTypeMappings);
 
@@ -1055,8 +1064,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     Assert.Equal(2, extraSpecialCustomerTable.EntityTypeMappings.Count());
 
                     var addressColumn = extraSpecialCustomerTable.Columns.Single(
-                        c =>
-                            c.Name == nameof(SpecialCustomer.Details) + "_" + nameof(CustomerDetails.Address));
+                        c => c.Name == nameof(SpecialCustomer.Details) + "_" + nameof(CustomerDetails.Address));
                     Assert.False(addressColumn.IsNullable);
 
                     var abstractStringProperty = abstractStringColumn.PropertyMappings.Single().Property;
@@ -2053,6 +2061,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                         cb.UseTptMappingStrategy();
                     }
 
+                    cb.ComplexProperty(c => c.Tag).IsRequired();
+
                     // TODO: Don't map it on the base #19811
                     cb.Property<string>("SpecialtyAk");
                 });
@@ -2468,6 +2478,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             modelBuilder.Ignore<AbstractCustomer>();
             modelBuilder.Ignore<Customer>();
+            modelBuilder.Ignore<Tag>(); //#31248
 
             modelBuilder.Entity<SpecialCustomer>(
                 cb =>
@@ -2657,6 +2668,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             modelBuilder.Ignore<AbstractCustomer>();
             modelBuilder.Ignore<Customer>();
+            modelBuilder.Ignore<Tag>(); //#31248
 
             modelBuilder.Entity<SpecialCustomer>(
                 cb =>
@@ -2777,6 +2789,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             modelBuilder.Ignore<AbstractCustomer>();
             modelBuilder.Ignore<Customer>();
+            modelBuilder.Ignore<Tag>(); //#31248
 
             modelBuilder.Entity<SpecialCustomer>(
                 cb =>
@@ -2907,6 +2920,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public void Can_use_relational_model_with_keyless_TPH()
         {
             var modelBuilder = CreateConventionModelBuilder();
+            modelBuilder.Ignore<Tag>();
 
             modelBuilder.Entity<Customer>(
                 cb =>
@@ -3226,6 +3240,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         private abstract class AbstractBase
         {
             public int Id { get; set; }
+            public Tag Tag { get; set; }
+        }
+
+        public class Tag
+        {
+            public string Name { get; set; }
         }
 
         private class Customer : AbstractBase
