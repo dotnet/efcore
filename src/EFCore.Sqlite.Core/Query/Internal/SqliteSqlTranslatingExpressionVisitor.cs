@@ -19,11 +19,17 @@ public class SqliteSqlTranslatingExpressionVisitor : RelationalSqlTranslatingExp
     private readonly QueryCompilationContext _queryCompilationContext;
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
-    private static readonly MethodInfo StringStartsWithMethodInfo
+    private static readonly MethodInfo StringStartsWithMethodInfoString
         = typeof(string).GetRuntimeMethod(nameof(string.StartsWith), [typeof(string)])!;
 
-    private static readonly MethodInfo StringEndsWithMethodInfo
+    private static readonly MethodInfo StringStartsWithMethodInfoChar
+        = typeof(string).GetRuntimeMethod(nameof(string.StartsWith), [typeof(char)])!;
+
+    private static readonly MethodInfo StringEndsWithMethodInfoString
         = typeof(string).GetRuntimeMethod(nameof(string.EndsWith), [typeof(string)])!;
+
+    private static readonly MethodInfo StringEndsWithMethodInfoChar
+        = typeof(string).GetRuntimeMethod(nameof(string.EndsWith), [typeof(char)])!;
 
     private static readonly MethodInfo EscapeLikePatternParameterMethod =
         typeof(SqliteSqlTranslatingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(ConstructLikePatternParameter))!;
@@ -255,14 +261,14 @@ public class SqliteSqlTranslatingExpressionVisitor : RelationalSqlTranslatingExp
     {
         var method = methodCallExpression.Method;
 
-        if (method == StringStartsWithMethodInfo
+        if ((method == StringStartsWithMethodInfoString || method == StringStartsWithMethodInfoChar)
             && TryTranslateStartsEndsWith(
                 methodCallExpression.Object!, methodCallExpression.Arguments[0], startsWith: true, out var translation1))
         {
             return translation1;
         }
 
-        if (method == StringEndsWithMethodInfo
+        if ((method == StringEndsWithMethodInfoString || method == StringEndsWithMethodInfoChar)
             && TryTranslateStartsEndsWith(
                 methodCallExpression.Object!, methodCallExpression.Arguments[0], startsWith: false, out var translation2))
         {
@@ -315,6 +321,15 @@ public class SqliteSqlTranslatingExpressionVisitor : RelationalSqlTranslatingExp
                             : _sqlExpressionFactory.Like(
                                 translatedInstance,
                                 _sqlExpressionFactory.Constant(startsWith ? s + '%' : '%' + s)),
+
+                        char s => IsLikeWildChar(s)
+                            ? _sqlExpressionFactory.Like(
+                                translatedInstance,
+                                _sqlExpressionFactory.Constant(startsWith ? LikeEscapeString + s  + "%" : '%' + LikeEscapeString + s),
+                                _sqlExpressionFactory.Constant(LikeEscapeString))
+                            : _sqlExpressionFactory.Like(
+                                translatedInstance,
+                                _sqlExpressionFactory.Constant(startsWith ? s + "%" : "%" + s)),
 
                         _ => throw new UnreachableException()
                     };
@@ -442,6 +457,10 @@ public class SqliteSqlTranslatingExpressionVisitor : RelationalSqlTranslatingExp
             "" => "%",
 
             string s => startsWith ? EscapeLikePattern(s) + '%' : '%' + EscapeLikePattern(s),
+
+            char s when IsLikeWildChar(s )=> startsWith ? LikeEscapeString + s + '%' : '%' + LikeEscapeString + s,
+
+            char s => startsWith ? s + "%" : "%" + s,
 
             _ => throw new UnreachableException()
         };

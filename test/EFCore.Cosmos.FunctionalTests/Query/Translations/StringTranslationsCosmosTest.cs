@@ -171,6 +171,20 @@ WHERE (INDEX_OF(c["String"], "eattl") != -1)
 """);
             });
 
+    public override Task IndexOf_Char(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.IndexOf_Char(a);
+
+                AssertSql(
+                    """
+SELECT VALUE c
+FROM root c
+WHERE (INDEX_OF(c["String"], "e") != -1)
+""");
+            });
+
     public override Task IndexOf_with_empty_string(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -201,6 +215,22 @@ WHERE (INDEX_OF(c["String"], @pattern) = 1)
 """);
             });
 
+    public override Task IndexOf_with_one_parameter_arg_char(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.IndexOf_with_one_parameter_arg_char(a);
+
+                AssertSql(
+                    """
+@pattern=?
+
+SELECT VALUE c
+FROM root c
+WHERE (INDEX_OF(c["String"], @pattern) = 1)
+""");
+            });
+
     public override Task IndexOf_with_constant_starting_position(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -215,11 +245,41 @@ WHERE ((LENGTH(c["String"]) > 2) AND (INDEX_OF(c["String"], "e", 2) = 6))
 """);
             });
 
+    public override Task IndexOf_with_constant_starting_position_char(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.IndexOf_with_constant_starting_position_char(a);
+
+                AssertSql(
+                    """
+SELECT VALUE c
+FROM root c
+WHERE ((LENGTH(c["String"]) > 2) AND (INDEX_OF(c["String"], "e", 2) = 6))
+""");
+            });
+
     public override Task IndexOf_with_parameter_starting_position(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
             {
                 await base.IndexOf_with_parameter_starting_position(a);
+
+                AssertSql(
+                    """
+@start=?
+
+SELECT VALUE c
+FROM root c
+WHERE ((LENGTH(c["String"]) > 2) AND (INDEX_OF(c["String"], "e", @start) = 6))
+""");
+            });
+
+    public override Task IndexOf_with_parameter_starting_position_char(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.IndexOf_with_parameter_starting_position_char(a);
 
                 AssertSql(
                     """
@@ -252,6 +312,20 @@ WHERE ((LENGTH(c["String"]) > 2) AND (INDEX_OF(c["String"], "e", @start) = 6))
 SELECT VALUE c
 FROM root c
 WHERE (REPLACE(c["String"], "Sea", "Rea") = "Reattle")
+""");
+            });
+
+    public override Task Replace_Char(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Replace_Char(a);
+
+                AssertSql(
+                    """
+SELECT VALUE c
+FROM root c
+WHERE (REPLACE(c["String"], "S", "R") = "Reattle")
 """);
             });
 
@@ -443,11 +517,41 @@ WHERE STARTSWITH(c["String"], "Se")
 """);
             });
 
+    public override Task StartsWith_Literal_Char(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.StartsWith_Literal_Char(a);
+
+                AssertSql(
+                    """
+SELECT VALUE c
+FROM root c
+WHERE STARTSWITH(c["String"], "S")
+""");
+            });
+
     public override Task StartsWith_Parameter(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
             {
                 await base.StartsWith_Parameter(a);
+
+                AssertSql(
+                    """
+@pattern=?
+
+SELECT VALUE c
+FROM root c
+WHERE STARTSWITH(c["String"], @pattern)
+""");
+            });
+
+    public override Task StartsWith_Parameter_Char(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.StartsWith_Parameter_Char(a);
 
                 AssertSql(
                     """
@@ -528,11 +632,41 @@ WHERE ENDSWITH(c["String"], "le")
 """);
             });
 
+    public override Task EndsWith_Literal_Char(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.EndsWith_Literal_Char(a);
+
+                AssertSql(
+                    """
+SELECT VALUE c
+FROM root c
+WHERE ENDSWITH(c["String"], "e")
+""");
+            });
+
     public override Task EndsWith_Parameter(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
             {
                 await base.EndsWith_Parameter(a);
+
+                AssertSql(
+                    """
+@pattern=?
+
+SELECT VALUE c
+FROM root c
+WHERE ENDSWITH(c["String"], @pattern)
+""");
+            });
+
+    public override Task EndsWith_Parameter_Char(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.EndsWith_Parameter_Char(a);
 
                 AssertSql(
                     """
@@ -611,6 +745,20 @@ SELECT VALUE c
 FROM root c
 WHERE CONTAINS(c["String"], "eattl")
 """);
+            });
+
+    public override Task Contains_Literal_Char(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Contains_Literal_Char(a);
+
+                AssertSql(
+                    """
+    SELECT VALUE c
+    FROM root c
+    WHERE CONTAINS(c["String"], "e")
+    """);
             });
 
     public override Task Contains_Column(bool async)
