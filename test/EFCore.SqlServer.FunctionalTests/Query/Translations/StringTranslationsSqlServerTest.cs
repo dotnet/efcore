@@ -137,6 +137,18 @@ WHERE CAST(CHARINDEX(N'Eattl', [b].[String]) AS int) - 1 <> -1
 """);
     }
 
+    public override async Task IndexOf_Char(bool async)
+    {
+        await base.IndexOf_Char(async);
+
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE CAST(CHARINDEX('e', [b].[String]) AS int) - 1 <> -1
+""");
+    }
+
     public override async Task IndexOf_with_empty_string(bool async)
     {
         await base.IndexOf_with_empty_string(async);
@@ -166,6 +178,24 @@ END = 1
 
     }
 
+    public override async Task IndexOf_with_one_parameter_arg_char(bool async)
+    {
+        await base.IndexOf_with_one_parameter_arg_char(async);
+
+        AssertSql(
+            """
+@pattern='e' (Size = 1) (DbType = String)
+
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE CAST(CHARINDEX(@pattern, [b].[String]) AS int) - CASE
+    WHEN @pattern = N'' THEN 0
+    ELSE 1
+END = 1
+""");
+
+    }
+
     public override async Task IndexOf_with_constant_starting_position(bool async)
     {
         await base.IndexOf_with_constant_starting_position(async);
@@ -175,6 +205,18 @@ END = 1
 SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
 FROM [BasicTypesEntities] AS [b]
 WHERE CAST(LEN([b].[String]) AS int) > 2 AND CAST(CHARINDEX(N'e', [b].[String], 3) AS int) - 1 = 6
+""");
+    }
+
+    public override async Task IndexOf_with_constant_starting_position_char(bool async)
+    {
+        await base.IndexOf_with_constant_starting_position_char(async);
+
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE CAST(LEN([b].[String]) AS int) > 2 AND CAST(CHARINDEX('e', [b].[String], 3) AS int) - 1 = 6
 """);
     }
 
@@ -189,6 +231,20 @@ WHERE CAST(LEN([b].[String]) AS int) > 2 AND CAST(CHARINDEX(N'e', [b].[String], 
 SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
 FROM [BasicTypesEntities] AS [b]
 WHERE CAST(LEN([b].[String]) AS int) > 2 AND CAST(CHARINDEX(N'E', [b].[String], @start + 1) AS int) - 1 = 6
+""");
+    }
+
+    public override async Task IndexOf_with_parameter_starting_position_char(bool async)
+    {
+        await base.IndexOf_with_parameter_starting_position_char(async);
+
+        AssertSql(
+            """
+@start='2'
+
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE CAST(LEN([b].[String]) AS int) > 2 AND CAST(CHARINDEX('e', [b].[String], @start + 1) AS int) - 1 = 6
 """);
     }
 
@@ -232,6 +288,18 @@ END = 1
 SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
 FROM [BasicTypesEntities] AS [b]
 WHERE REPLACE([b].[String], N'sea', N'rea') = N'reattle'
+""");
+    }
+
+    public override async Task Replace_Char(bool async)
+    {
+        await base.Replace_Char(async);
+
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE REPLACE([b].[String], 'S', 'R') = N'Reattle'
 """);
     }
 
@@ -435,6 +503,18 @@ WHERE [b].[String] LIKE N'se%'
 """);
     }
 
+    public override async Task StartsWith_Literal_Char(bool async)
+    {
+        await base.StartsWith_Literal_Char(async);
+
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE [b].[String] LIKE N'S%'
+""");
+    }
+
     public override async Task StartsWith_Parameter(bool async)
     {
         await base.StartsWith_Parameter(async);
@@ -442,6 +522,20 @@ WHERE [b].[String] LIKE N'se%'
         AssertSql(
             """
 @pattern_startswith='se%' (Size = 4000)
+
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE [b].[String] LIKE @pattern_startswith ESCAPE N'\'
+""");
+    }
+
+    public override async Task StartsWith_Parameter_Char(bool async)
+    {
+        await base.StartsWith_Parameter_Char(async);
+
+        AssertSql(
+            """
+@pattern_startswith='S%' (Size = 4000)
 
 SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
 FROM [BasicTypesEntities] AS [b]
@@ -498,6 +592,18 @@ WHERE [b].[String] LIKE N'%Le'
 """);
     }
 
+    public override async Task EndsWith_Literal_Char(bool async)
+    {
+        await base.EndsWith_Literal_Char(async);
+
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE [b].[String] LIKE N'%e'
+""");
+    }
+
     public override async Task EndsWith_Parameter(bool async)
     {
         await base.EndsWith_Parameter(async);
@@ -505,6 +611,20 @@ WHERE [b].[String] LIKE N'%Le'
         AssertSql(
             """
 @pattern_endswith='%LE' (Size = 4000)
+
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE [b].[String] LIKE @pattern_endswith ESCAPE N'\'
+""");
+    }
+
+    public override async Task EndsWith_Parameter_Char(bool async)
+    {
+        await base.EndsWith_Parameter_Char(async);
+
+        AssertSql(
+            """
+@pattern_endswith='%e' (Size = 4000)
 
 SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
 FROM [BasicTypesEntities] AS [b]
@@ -565,6 +685,20 @@ WHERE [b].[String] = N'Seattle' AND RIGHT([b].[String], LEN([b].[String])) = [b]
 SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
 FROM [BasicTypesEntities] AS [b]
 WHERE [b].[String] LIKE N'%eattl%'
+""");
+    }
+
+    public override async Task Contains_Literal_Char(bool async)
+    {
+        await AssertQuery(
+            async,
+            ss => ss.Set<BasicTypesEntity>().Where(c => c.String.Contains('e')));
+
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE [b].[String] LIKE N'%e%'
 """);
     }
 
