@@ -7,11 +7,11 @@ public abstract class OwnedRelationshipsInProjectionNoTrackingQueryTestBase<TFix
     : OwnedRelationshipsInProjectionQueryTestBase<TFixture>(fixture)
         where TFixture : OwnedRelationshipsQueryFixtureBase, new()
 {
-    private readonly NoTrackingRewriter _noTrackingRewriter = new();
+    private readonly TrackingRewriter _trackingRewriter = new();
 
     protected override Expression RewriteServerQueryExpression(Expression serverQueryExpression)
     {
-        var rewritten = _noTrackingRewriter.Visit(serverQueryExpression);
+        var rewritten = _trackingRewriter.Visit(serverQueryExpression);
 
         return rewritten;
     }

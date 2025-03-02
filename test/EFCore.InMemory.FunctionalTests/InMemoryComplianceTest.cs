@@ -4,6 +4,8 @@
 using Microsoft.EntityFrameworkCore.BulkUpdates;
 using Microsoft.EntityFrameworkCore.Query.Relationships.Include;
 using Microsoft.EntityFrameworkCore.Query.Relationships.InProjection;
+using Microsoft.EntityFrameworkCore.Query.Relationships.References.Include;
+using Microsoft.EntityFrameworkCore.Query.Relationships.References.InProjection;
 
 namespace Microsoft.EntityFrameworkCore;
 
@@ -29,8 +31,6 @@ public class InMemoryComplianceTest : ComplianceTestBase
         typeof(JsonQueryTestBase<>),
 
         // TODO: implement later once things are baked
-        typeof(ComplexRelationshipsInProjectionNoTrackingQueryTestBase<>),
-        typeof(ComplexRelationshipsInProjectionQueryTestBase<>),
         typeof(EntityRelationshipsInProjectionNoTrackingQueryTestBase<>),
         typeof(EntityRelationshipsInProjectionQueryTestBase<>),
         typeof(JsonRelationshipsInProjectionNoTrackingQueryTestBase<>),
@@ -40,6 +40,18 @@ public class InMemoryComplianceTest : ComplianceTestBase
         typeof(RelationshipsInProjectionQueryTestBase<>),
         typeof(EntityRelationshipsIncludeQueryTestBase<>),
         typeof(RelationshipsIncludeQueryTestBase<>),
+
+        typeof(ComplexRelationshipsInProjectionNoTrackingQueryTestBase<>),
+        typeof(ComplexRelationshipsInProjectionQueryTestBase<>),
+        typeof(EntityReferenceRelationshipsInProjectionNoTrackingQueryTestBase<>),
+        typeof(EntityReferenceRelationshipsInProjectionQueryTestBase<>),
+        typeof(JsonReferenceRelationshipsInProjectionNoTrackingQueryTestBase<>),
+        typeof(JsonReferenceRelationshipsInProjectionQueryTestBase<>),
+        typeof(OwnedReferenceRelationshipsInProjectionNoTrackingQueryTestBase<>),
+        typeof(OwnedReferenceRelationshipsInProjectionQueryTestBase<>),
+        typeof(ReferenceRelationshipsInProjectionQueryTestBase<>),
+        typeof(EntityReferenceRelationshipsludeQueryTestBase<>),
+        typeof(ReferenceRelationshipsIncludeQueryTestBase<>),
     };
 
     protected override Assembly TargetAssembly { get; } = typeof(InMemoryComplianceTest).Assembly;

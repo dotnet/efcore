@@ -1,7 +1,7 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-namespace Microsoft.EntityFrameworkCore.Query.Relationships.InProjection;
+namespace Microsoft.EntityFrameworkCore.Query.Relationships.References.InProjection;
 
 public class ComplexRelationshipsInProjectionNoTrackingQuerySqliteTest
     : ComplexRelationshipsInProjectionNoTrackingQueryRelationalTestBase<ComplexRelationshipsQuerySqliteFixture>
@@ -12,7 +12,4 @@ public class ComplexRelationshipsInProjectionNoTrackingQuerySqliteTest
         Fixture.TestSqlLoggerFactory.Clear();
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
-
-    private void AssertSql(params string[] expected)
-        => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 }
