@@ -77,7 +77,7 @@ public abstract class ComplexRelationshipsQueryFixtureBase : RelationshipsQueryF
                 bb.Ignore(x => x.CollectionLeaf);
             });
 
-        // TODO: issue #31237 - complex collections
+        // collections are not supported for non-json compex types 
         modelBuilder.Entity<RelationshipsTrunkEntity>().Ignore(x => x.CollectionBranch);
     }
 

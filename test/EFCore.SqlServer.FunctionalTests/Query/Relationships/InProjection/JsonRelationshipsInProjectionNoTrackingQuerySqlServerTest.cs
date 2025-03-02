@@ -132,16 +132,6 @@ ORDER BY [r].[Id]
 """);
     }
 
-
-
-
-
-
-
-
-
-
-
     public override async Task Project_root_duplicated(bool async)
     {
         await base.Project_root_duplicated(async);
@@ -334,37 +324,6 @@ CROSS APPLY OPENJSON([r].[OptionalReferenceTrunk], '$.CollectionBranch') WITH (
 ) AS [c]
 """);
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);

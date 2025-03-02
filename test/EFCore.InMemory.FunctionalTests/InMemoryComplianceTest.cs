@@ -40,6 +40,7 @@ public class InMemoryComplianceTest : ComplianceTestBase
         typeof(RelationshipsInProjectionQueryTestBase<>),
         typeof(EntityRelationshipsIncludeQueryTestBase<>),
         typeof(RelationshipsIncludeQueryTestBase<>),
+        typeof(RelationshipsNoCollectionsInProjectionQueryTestBase<>),
     };
 
     protected override Assembly TargetAssembly { get; } = typeof(InMemoryComplianceTest).Assembly;
