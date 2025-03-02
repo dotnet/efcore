@@ -62,19 +62,6 @@ ORDER BY [r].[Id]
 """);
     }
 
-    public override async Task Project_trunk_collection(bool async)
-    {
-        await base.Project_trunk_collection(async);
-
-        AssertSql(
-            """
-SELECT [r].[Id], [t].[Id], [t].[CollectionRootId], [t].[Name], [t].[OptionalReferenceBranchId], [t].[RequiredReferenceBranchId], [t].[RequiredReferenceBranch_Name], [t].[RequiredReferenceBranch_RequiredReferenceLeaf_Name]
-FROM [RootEntities] AS [r]
-LEFT JOIN [TrunkEntities] AS [t] ON [r].[Id] = [t].[CollectionRootId]
-ORDER BY [r].[Id]
-""");
-    }
-
     public override async Task Project_branch_required_required(bool async)
     {
         await base.Project_branch_required_required(async);
@@ -95,13 +82,6 @@ ORDER BY [r].[Id]
         AssertSql();
     }
 
-    public override async Task Project_branch_required_collection(bool async)
-    {
-        await base.Project_branch_required_collection(async);
-
-        AssertSql();
-    }       
-
     public override async Task Project_branch_optional_required(bool async)
     {
         await base.Project_branch_optional_required(async);
@@ -112,13 +92,6 @@ ORDER BY [r].[Id]
     public override async Task Project_branch_optional_optional(bool async)
     {
         await base.Project_branch_optional_optional(async);
-
-        AssertSql();
-    }
-
-    public override async Task Project_branch_optional_collection(bool async)
-    {
-        await base.Project_branch_optional_collection(async);
 
         AssertSql();
     }
@@ -148,13 +121,6 @@ FROM [RootEntities] AS [r]
         AssertSql();
     }
 
-    public override async Task Project_multiple_branch_leaf(bool async)
-    {
-        await base.Project_multiple_branch_leaf(async);
-
-        AssertSql();
-    }
-
     public override async Task Project_leaf_trunk_root(bool async)
     {
         await base.Project_leaf_trunk_root(async);
@@ -177,48 +143,6 @@ INNER JOIN [TrunkEntities] AS [t] ON [r].[RequiredReferenceTrunkId] = [t].[Id]
     public override async Task Project_subquery_root_set_optional_trunk_FirstOrDefault_branch(bool async)
     {
         await base.Project_subquery_root_set_optional_trunk_FirstOrDefault_branch(async);
-
-        AssertSql();
-    }
-
-    public override async Task Project_subquery_root_set_trunk_FirstOrDefault_collection(bool async)
-    {
-        await base.Project_subquery_root_set_trunk_FirstOrDefault_collection(async);
-
-        AssertSql();
-    }
-
-    public override async Task Project_subquery_root_set_complex_projection_including_references_to_outer_FirstOrDefault(bool async)
-    {
-        await base.Project_subquery_root_set_complex_projection_including_references_to_outer_FirstOrDefault(async);
-
-        AssertSql();
-    }
-
-    public override async Task Project_subquery_root_set_complex_projection_FirstOrDefault_project_reference_to_outer(bool async)
-    {
-        await base.Project_subquery_root_set_complex_projection_FirstOrDefault_project_reference_to_outer(async);
-
-        AssertSql();
-    }
-
-    public override async Task SelectMany_trunk_collection(bool async)
-    {
-        await base.SelectMany_trunk_collection(async);
-
-        AssertSql();
-    }
-
-    public override async Task SelectMany_required_trunk_reference_branch_collection(bool async)
-    {
-        await base.SelectMany_required_trunk_reference_branch_collection(async);
-
-        AssertSql();
-    }
-
-    public override async Task SelectMany_optional_trunk_reference_branch_collection(bool async)
-    {
-        await base.SelectMany_optional_trunk_reference_branch_collection(async);
 
         AssertSql();
     }
