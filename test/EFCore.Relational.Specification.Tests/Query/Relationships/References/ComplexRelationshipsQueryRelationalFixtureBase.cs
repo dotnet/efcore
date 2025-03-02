@@ -3,7 +3,7 @@
 
 using Microsoft.EntityFrameworkCore.TestModels.RelationshipsModel;
 
-namespace Microsoft.EntityFrameworkCore.Query.Relationships;
+namespace Microsoft.EntityFrameworkCore.Query.Relationships.References;
 
 public abstract class ComplexRelationshipsQueryRelationalFixtureBase : ComplexRelationshipsQueryFixtureBase
 {
