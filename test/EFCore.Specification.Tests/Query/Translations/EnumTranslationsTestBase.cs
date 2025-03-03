@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore.TestModels.BasicTypesModel;
 
 namespace Microsoft.EntityFrameworkCore.Query.Translations;
 
+#nullable disable
+
 public abstract class EnumTranslationsTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)
     where TFixture : BasicTypesQueryFixtureBase, new()
 {
@@ -242,6 +244,34 @@ public abstract class EnumTranslationsTestBase<TFixture>(TFixture fixture) : Que
              async,
              ss => ss.Set<BasicTypesEntity>().Where(b => b.FlagsEnum.HasFlag(flagsEnum)));
      }
+
+     [ConditionalTheory]
+     [MemberData(nameof(IsAsyncData))]
+     public virtual Task ToString_enum_property_projection(bool async)
+         => AssertQuery(
+             async,
+             ss => ss.Set<BasicTypesEntity>().Select(g => g.Enum.ToString()));
+
+     [ConditionalTheory]
+     [MemberData(nameof(IsAsyncData))]
+     public virtual Task ToString_nullable_enum_property_projection(bool async)
+         => AssertQuery(
+             async,
+             ss => ss.Set<NullableBasicTypesEntity>().Select(w => w.Enum.ToString()));
+
+     [ConditionalTheory]
+     [MemberData(nameof(IsAsyncData))]
+     public virtual Task ToString_enum_contains(bool async)
+         => AssertQuery(
+             async,
+             ss => ss.Set<BasicTypesEntity>().Where(g => g.Enum.ToString().Contains("One")).Select(g => g.Enum));
+
+     [ConditionalTheory]
+     [MemberData(nameof(IsAsyncData))]
+     public virtual Task ToString_nullable_enum_contains(bool async)
+         => AssertQuery(
+             async,
+             ss => ss.Set<NullableBasicTypesEntity>().Where(w => w.Enum.ToString().Contains("One")).Select(g => g.Enum));
 
     protected BasicTypesContext CreateContext()
         => Fixture.CreateContext();
