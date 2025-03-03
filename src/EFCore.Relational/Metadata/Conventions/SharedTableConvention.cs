@@ -235,9 +235,18 @@ public class SharedTableConvention : IModelFinalizingConvention
                 continue;
             }
 
-            var identifyingMemberInfo = property.PropertyInfo ?? (MemberInfo?)property.FieldInfo;
-            if ((identifyingMemberInfo != null
-                    && identifyingMemberInfo.IsSameAs(otherProperty.PropertyInfo ?? (MemberInfo?)otherProperty.FieldInfo))
+            var declaringEntityType = property.DeclaringType as IConventionEntityType;
+#pragma warning disable EF1001 // Internal EF Core API usage.
+            var identifyingMemberInfo = property.GetIdentifyingMemberInfo();
+            var isInheritedSharedMember = identifyingMemberInfo != null
+                    && ((declaringEntityType != null && identifyingMemberInfo.DeclaringType != type.ClrType)
+                        || (declaringEntityType == null
+                            && otherProperty.DeclaringType is IConventionComplexType otherDeclaringComplexType
+                            && ((IConventionComplexType)property.DeclaringType).ComplexProperty.GetIdentifyingMemberInfo()
+                            .IsSameAs(otherDeclaringComplexType.ComplexProperty.GetIdentifyingMemberInfo())))
+                    && identifyingMemberInfo.IsSameAs(otherProperty.GetIdentifyingMemberInfo());
+#pragma warning restore EF1001 // Internal EF Core API usage.
+            if (isInheritedSharedMember
                 || (property.IsPrimaryKey() && otherProperty.IsPrimaryKey())
                 || (property.IsConcurrencyToken && otherProperty.IsConcurrencyToken)
                 || (!property.Builder.CanSetColumnName(null) && !otherProperty.Builder.CanSetColumnName(null)))
@@ -262,7 +271,7 @@ public class SharedTableConvention : IModelFinalizingConvention
             if (!usePrefix
                 || (!property.DeclaringType.IsStrictlyDerivedFrom(otherProperty.DeclaringType)
                     && !otherProperty.DeclaringType.IsStrictlyDerivedFrom(property.DeclaringType))
-                || (property.DeclaringType as IConventionEntityType)?.FindRowInternalForeignKeys(storeObject).Any() == true)
+                || declaringEntityType?.FindRowInternalForeignKeys(storeObject).Any() == true)
             {
                 var newColumnName = TryUniquify(property, columnName, columns, storeObject, usePrefix, maxLength);
                 if (newColumnName != null)

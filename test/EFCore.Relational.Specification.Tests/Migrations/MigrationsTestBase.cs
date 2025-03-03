@@ -976,8 +976,8 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
             builder =>
             {
                 builder.Entity("Base").Property<int>("Id");
-                builder.Entity("Derived1").HasBaseType("Base").Property<string>("Foo");
-                builder.Entity("Derived2").HasBaseType("Base").Property<string>("Foo");
+                builder.Entity("Derived1").HasBaseType("Base").Property<string>("Foo").HasColumnName("Foo");
+                builder.Entity("Derived2").HasBaseType("Base").Property<string>("Foo").HasColumnName("Foo");
             },
             builder => { },
             builder => builder.Entity("Base").Property<string>("Foo"),
@@ -2707,17 +2707,61 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                     c =>
                     {
                         Assert.Equal("MyComplex_Prop", c.Name);
-                        Assert.Equal(true, c.IsNullable);
+                        Assert.True(c.IsNullable);
                     },
                     c =>
                     {
                         Assert.Equal("MyComplex_MyNestedComplex_Bar", c.Name);
-                        Assert.Equal(true, c.IsNullable);
+                        Assert.True(c.IsNullable);
                     },
                     c =>
                     {
                         Assert.Equal("MyComplex_MyNestedComplex_Foo", c.Name);
-                        Assert.Equal(true, c.IsNullable);
+                        Assert.True(c.IsNullable);
+                    });
+            });
+
+    [ConditionalFact]
+    public virtual Task Create_table_with_optional_complex_type_with_required_properties()
+        => Test(
+            builder => { },
+            builder =>
+            {
+                builder.Entity(
+                    "Supplier", e =>
+                    {
+                        e.ToTable("Suppliers");
+                        e.Property<int>("Id").ValueGeneratedOnAdd();
+                        e.HasKey("Id");
+                        e.Property<int>("Number");
+                        e.ComplexProperty<MyComplex>(
+                            "MyComplex", ct =>
+                            {
+                                ct.ComplexProperty<MyNestedComplex>("MyNestedComplex");
+                            });
+                    });
+            },
+            model =>
+            {
+                var contactsTable = Assert.Single(model.Tables.Where(t => t.Name == "Suppliers"));
+                Assert.Collection(
+                    contactsTable.Columns,
+                    c => Assert.Equal("Id", c.Name),
+                    c => Assert.Equal("Number", c.Name),
+                    c =>
+                    {
+                        Assert.Equal("MyComplex_Prop", c.Name);
+                        Assert.True(c.IsNullable);
+                    },
+                    c =>
+                    {
+                        Assert.Equal("MyComplex_MyNestedComplex_Bar", c.Name);
+                        Assert.True(c.IsNullable);
+                    },
+                    c =>
+                    {
+                        Assert.Equal("MyComplex_MyNestedComplex_Foo", c.Name);
+                        Assert.True(c.IsNullable);
                     });
             });
 
@@ -2726,7 +2770,6 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
         [Required]
         public string Prop { get; set; }
 
-        [Required]
         public MyNestedComplex Nested { get; set; }
     }
 

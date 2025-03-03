@@ -474,7 +474,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                 && allNonSharedNonPkProperties.All(p => p.IsNullable))
             {
                 var atLeastOneNonNullValueInNullablePropertyCondition = allNonSharedNonPkProperties
-                    .Select(e => IsNotNull(e, projection))
+                    .Select(p => IsNotNull(p, projection))
                     .Aggregate(_sqlExpressionFactory.OrElse);
 
                 predicate = predicate == null
@@ -607,7 +607,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
         var table = entityType.GetViewOrTableMappings().SingleOrDefault()?.Table ?? entityType.GetDefaultMappings().Single().Table;
         var tableAlias = tableExpressionBase.Alias!;
 
-        // TODO: We'll need to make sure this is correct when we add support for JSON complex types.
+        // TODO: We'll need to make sure this is correct when we add support for JSON complex types, #31252
         var tableMap = new Dictionary<ITableBase, string> { [table] = tableAlias };
 
         var projection = new StructuralTypeProjectionExpression(

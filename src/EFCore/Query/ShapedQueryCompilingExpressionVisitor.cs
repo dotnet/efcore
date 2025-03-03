@@ -707,7 +707,7 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
                     new EntityMaterializerSourceParameters(
                         concreteTypeBase, "instance", queryTrackingBehavior), materializationContextVariable);
 
-            // TODO: Properly support shadow properties for complex types?
+            // TODO: Properly support shadow properties for complex types #35613
             if (_queryStateManager
                 && concreteTypeBase is IRuntimeEntityType { ShadowPropertyCount: > 0 } runtimeEntityType)
             {
