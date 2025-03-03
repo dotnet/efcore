@@ -23,9 +23,41 @@ public interface ITypeBase : IReadOnlyTypeBase, IAnnotatable
         => (IEntityType)this;
 
     /// <summary>
+    ///     Gets the base type of this type. Returns <see langword="null" /> if this is not a derived type in an inheritance
+    ///     hierarchy.
+    /// </summary>
+    new ITypeBase? BaseType { get; }
+
+    /// <summary>
     ///     Gets the <see cref="InstantiationBinding" /> for the preferred constructor.
     /// </summary>
     InstantiationBinding? ConstructorBinding { get; }
+
+    /// <summary>
+    ///     Gets all types in the model that derive from this type.
+    /// </summary>
+    /// <returns>The derived types.</returns>
+    new IEnumerable<ITypeBase> GetDerivedTypes()
+        => ((IReadOnlyTypeBase)this).GetDerivedTypes().Cast<ITypeBase>();
+
+    /// <summary>
+    ///     Returns all derived types of this type, including the type itself.
+    /// </summary>
+    /// <returns>Derived types.</returns>
+    new IEnumerable<ITypeBase> GetDerivedTypesInclusive()
+        => ((IReadOnlyTypeBase)this).GetDerivedTypesInclusive().Cast<ITypeBase>();
+
+    /// <summary>
+    ///     Gets all types in the model that directly derive from this type.
+    /// </summary>
+    /// <returns>The derived types.</returns>
+    new IEnumerable<ITypeBase> GetDirectlyDerivedTypes();
+
+    /// <summary>
+    ///     Returns the <see cref="IProperty" /> that will be used for storing a discriminator value.
+    /// </summary>
+    new IProperty? FindDiscriminatorProperty()
+        => (IProperty?)((IReadOnlyTypeBase)this).FindDiscriminatorProperty();
 
     /// <summary>
     ///     Gets a property on the given type. Returns <see langword="null" /> if no property is found.

@@ -503,6 +503,60 @@ public class InternalComplexTypeBuilder : InternalTypeBaseBuilder, IConventionCo
         => configurationSource.Overrides(Metadata.GetServiceOnlyConstructorBindingConfigurationSource())
             || Metadata.ServiceOnlyConstructorBinding == constructorBinding;
 
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual ComplexTypeDiscriminatorBuilder? HasDiscriminator(ConfigurationSource configurationSource)
+        => DiscriminatorBuilder(
+            GetOrCreateDiscriminatorProperty(type: null, name: null, memberInfo: null, configurationSource));
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual ComplexTypeDiscriminatorBuilder? HasDiscriminator(
+        string? name,
+        Type? type,
+        ConfigurationSource configurationSource)
+    {
+        Check.DebugAssert(name != null || type != null, $"Either {nameof(name)} or {nameof(type)} should be non-null");
+
+        return CanSetDiscriminator(name, type, configurationSource)
+            ? DiscriminatorBuilder(
+                GetOrCreateDiscriminatorProperty(type, name, memberInfo: null, configurationSource))
+            : null;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual ComplexTypeDiscriminatorBuilder? HasDiscriminator(MemberInfo memberInfo, ConfigurationSource configurationSource)
+        => CanSetDiscriminator(
+            Check.NotNull(memberInfo, nameof(memberInfo)).GetSimpleMemberName(), memberInfo.GetMemberType(), configurationSource)
+            ? DiscriminatorBuilder(
+                GetOrCreateDiscriminatorProperty(type: null, name: null, memberInfo, configurationSource))
+            : null;
+
+    private ComplexTypeDiscriminatorBuilder? DiscriminatorBuilder(InternalPropertyBuilder? discriminatorPropertyBuilder)
+        => discriminatorPropertyBuilder == null ? null : new ComplexTypeDiscriminatorBuilder(Metadata);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public new virtual InternalComplexTypeBuilder? HasNoDiscriminator(ConfigurationSource configurationSource)
+        => (InternalComplexTypeBuilder?)base.HasNoDiscriminator(configurationSource);
+
     IConventionComplexType IConventionComplexTypeBuilder.Metadata
     {
         [DebuggerStepThrough]
@@ -617,4 +671,72 @@ public class InternalComplexTypeBuilder : InternalTypeBaseBuilder, IConventionCo
         bool fromDataAnnotation)
         => (IConventionComplexTypeBuilder?)UsePropertyAccessMode(
             propertyAccessMode, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    IConventionComplexTypeDiscriminatorBuilder? IConventionComplexTypeBuilder.HasDiscriminator(bool fromDataAnnotation)
+        => HasDiscriminator(
+            fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    IConventionComplexTypeDiscriminatorBuilder? IConventionComplexTypeBuilder.HasDiscriminator(Type type, bool fromDataAnnotation)
+        => HasDiscriminator(
+            name: null, Check.NotNull(type, nameof(type)),
+            fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    IConventionComplexTypeDiscriminatorBuilder? IConventionComplexTypeBuilder.HasDiscriminator(string name, bool fromDataAnnotation)
+        => HasDiscriminator(
+            Check.NotEmpty(name, nameof(name)), type: null,
+            fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    IConventionComplexTypeDiscriminatorBuilder? IConventionComplexTypeBuilder.HasDiscriminator(string name, Type type, bool fromDataAnnotation)
+        => HasDiscriminator(
+            Check.NotEmpty(name, nameof(name)), Check.NotNull(type, nameof(type)),
+            fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    IConventionComplexTypeDiscriminatorBuilder? IConventionComplexTypeBuilder.HasDiscriminator(MemberInfo memberInfo, bool fromDataAnnotation)
+        => HasDiscriminator(
+            memberInfo, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    public IConventionComplexTypeBuilder? HasNoDiscriminator(bool fromDataAnnotation = false)
+        => HasNoDiscriminator(fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 }

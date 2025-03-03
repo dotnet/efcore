@@ -37,6 +37,8 @@ public class RuntimeComplexProperty : RuntimePropertyBase, IComplexProperty
         ChangeTrackingStrategy changeTrackingStrategy,
         PropertyInfo? indexerPropertyInfo,
         bool propertyBag,
+        string? discriminatorProperty,
+        object? discriminatorValue,
         int propertyCount,
         int complexPropertyCount)
         : base(name, propertyInfo, fieldInfo, propertyAccessMode)
@@ -47,6 +49,7 @@ public class RuntimeComplexProperty : RuntimePropertyBase, IComplexProperty
         _isCollection = collection;
         ComplexType = new RuntimeComplexType(
             targetTypeName, targetType, this, changeTrackingStrategy, indexerPropertyInfo, propertyBag,
+            discriminatorProperty, discriminatorValue,
             propertyCount: propertyCount,
             complexPropertyCount: complexPropertyCount);
     }

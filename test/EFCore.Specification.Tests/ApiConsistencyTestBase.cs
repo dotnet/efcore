@@ -33,6 +33,22 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
     protected virtual TFixture Fixture { get; } = fixture;
 
     [ConditionalFact]
+    public void Exceptions_are_valid()
+    {
+        Assert.DoesNotContain(null, Fixture.AsyncMethodExceptions);
+        Assert.DoesNotContain(null, Fixture.MetadataMethodExceptions);
+        Assert.DoesNotContain(null, Fixture.UnmatchedMetadataMethods);
+        Assert.DoesNotContain(null, Fixture.VirtualMethodExceptions);
+        Assert.DoesNotContain(null, Fixture.NotAnnotatedMethods);
+        Assert.DoesNotContain(null, Fixture.NonCancellableAsyncMethods);
+
+        foreach (var unmatched in Fixture.UnmatchedMirrorMethods)
+        {
+            Assert.DoesNotContain(null, unmatched.Value);
+        }
+    }
+
+    [ConditionalFact]
     public void Fluent_api_methods_should_not_return_void()
     {
         var voidMethods
@@ -940,7 +956,7 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
     {
         var errors =
             Fixture.MetadataMethods
-                .SelectMany(m => m.Convention.Select(ValidateConventionMethod))
+                .SelectMany(m => m.Convention.Select(mi => ValidateConventionMethod(mi, m.Convention[0].DeclaringType)))
                 .Where(e => e != null)
                 .ToList();
 
@@ -949,7 +965,7 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
             "\r\n-- Errors: --\r\n" + string.Join(Environment.NewLine, errors));
     }
 
-    private string ValidateConventionMethod(MethodInfo conventionMethod)
+    private string ValidateConventionMethod(MethodInfo conventionMethod, Type type)
     {
         var message = ValidateMethodName(conventionMethod);
         if (message != null)
@@ -1069,9 +1085,10 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
                where type.IsVisible
                    && !type.IsSealed
                    && !type.GetCustomAttributes<GeneratedCodeAttribute>().Any()
-               from method in type.GetMethods(AnyInstance)
+                   && type.GetMethod("<Clone>$") == null // Exclude records
+            from method in type.GetMethods(AnyInstance)
                where method.DeclaringType == type
-                   && !Fixture.NonVirtualMethods.Contains(method)
+                   && !Fixture.VirtualMethodExceptions.Contains(method)
                    && !Fixture.VirtualMethodExceptions.Contains(method)
                    && !method.IsVirtual
                    && !method.Name.StartsWith("add_", StringComparison.Ordinal)
@@ -1085,11 +1102,6 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
             nonVirtualMethods.Count > 0,
             "\r\n-- Missing virtual APIs --\r\n" + string.Join(Environment.NewLine, nonVirtualMethods));
     }
-
-    private static readonly HashSet<MethodInfo> _nonCancellableAsyncMethods = [];
-
-    protected virtual HashSet<MethodInfo> NonCancellableAsyncMethods
-        => _nonCancellableAsyncMethods;
 
     [ConditionalFact]
     public virtual void Async_methods_should_have_overload_with_cancellation_token_and_end_with_async_suffix()
@@ -1110,7 +1122,7 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
 
         var asyncMethodsWithoutToken
             = (from method in asyncMethods
-               where !NonCancellableAsyncMethods.Contains(method)
+               where !Fixture.NonCancellableAsyncMethods.Contains(method)
                    && method.GetParameters().All(pi => pi.ParameterType != typeof(CancellationToken))
                select method).ToList();
 
@@ -1275,23 +1287,13 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
 
         public virtual Dictionary<Type, Type> MirrorTypes { get; } = new();
 
-        public virtual HashSet<MethodInfo> NonVirtualMethods { get; } = [];
+        public virtual HashSet<MethodInfo> VirtualMethodExceptions { get; } = [];
         public virtual HashSet<MethodInfo> NotAnnotatedMethods { get; } = [];
         public virtual HashSet<MethodInfo> AsyncMethodExceptions { get; } = [];
         public virtual HashSet<MethodInfo> UnmatchedMetadataMethods { get; } = [];
         public virtual Dictionary<Type, HashSet<MethodInfo>> UnmatchedMirrorMethods { get; } = new();
         public virtual Dictionary<MethodInfo, string> MetadataMethodNameTransformers { get; } = new();
         public virtual HashSet<MethodInfo> MetadataMethodExceptions { get; } = [];
-
-        public virtual HashSet<MethodInfo> VirtualMethodExceptions { get; } =
-        [
-            // un-sealed record
-#pragma warning disable EF9100 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
-            typeof(MaterializerLiftableConstantContext).GetMethod("get_Dependencies"),
-            typeof(MaterializerLiftableConstantContext).GetMethod("set_Dependencies"),
-            typeof(MaterializerLiftableConstantContext).GetMethod("Deconstruct"),
-#pragma warning restore EF9100 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
-        ];
 
         public virtual HashSet<PropertyInfo> ComputedDependencyProperties { get; } =
         [
@@ -1418,6 +1420,7 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
 
         public Dictionary<Type, Type> MutableMetadataTypes { get; } = new();
         public Dictionary<Type, Type> ConventionMetadataTypes { get; } = new();
+        public virtual HashSet<MethodInfo> NonCancellableAsyncMethods { get; } = new();
 
         public virtual
             Dictionary<Type, (Type ReadonlyExtensions,
@@ -1482,20 +1485,16 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
         {
             foreach (var typeTuple in types)
             {
-                var readOnlyMethods = typeTuple.Key.GetMethods(PublicInstance)
-                    .Where(m => !IsObsolete(m)).ToArray();
-                var mutableMethods = typeTuple.Value.Mutable.GetMethods(PublicInstance)
-                    .Where(m => !IsObsolete(m)).ToArray();
-                var conventionMethods = typeTuple.Value.Convention.GetMethods(PublicInstance)
-                    .Where(m => !IsObsolete(m)).ToArray();
-                var conventionBuilderMethods = typeTuple.Value.ConventionBuilder?.GetMethods(PublicInstance)
-                        .Where(m => !IsObsolete(m)).ToArray()
-                    ?? [];
-                var runtimeMethods = typeTuple.Value.Runtime?.GetMethods(PublicInstance)
-                        .Where(m => !IsObsolete(m)).ToArray()
-                    ?? [];
+                var readOnlyMethods = GetMethods(typeTuple.Key).ToArray();
+                var mutableMethods = GetMethods(typeTuple.Value.Mutable).ToArray();
+                var conventionMethods = GetMethods(typeTuple.Value.Convention).ToArray();
+                var conventionBuilderMethods = GetMethods(typeTuple.Value.ConventionBuilder).ToArray();
+                var runtimeMethods = GetMethods(typeTuple.Value.Runtime).ToArray();
                 MetadataMethods.Add((readOnlyMethods, mutableMethods, conventionMethods, conventionBuilderMethods, runtimeMethods));
             }
+
+            static IEnumerable<MethodInfo> GetMethods(Type type)
+                => type == null ? [] : (IEnumerable<MethodInfo>)type.GetMethods(PublicInstance);
         }
 
         public bool IsObsolete(MethodInfo method)

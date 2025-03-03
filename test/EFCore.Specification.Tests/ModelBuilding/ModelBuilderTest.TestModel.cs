@@ -886,7 +886,7 @@ public abstract partial class ModelBuilderTest
 
     protected class ComplexProperties : ComplexPropertiesBase
     {
-        public required Customer Customer { get; set; }
+        public Customer? Customer { get; set; }
         public required DoubleProperty DoubleProperty { get; set; }
         public required IndexedClass IndexedClass { get; set; }
         public required Quarks Quarks { get; set; }

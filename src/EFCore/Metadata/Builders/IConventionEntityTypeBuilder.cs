@@ -990,46 +990,6 @@ public interface IConventionEntityTypeBuilder : IConventionTypeBaseBuilder
     IConventionEntityTypeBuilder? HasNoDiscriminator(bool fromDataAnnotation = false);
 
     /// <summary>
-    ///     Returns a value indicating whether the discriminator property can be configured.
-    /// </summary>
-    /// <param name="name">The name of the discriminator property.</param>
-    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
-    /// <returns><see langword="true" /> if the configuration can be applied.</returns>
-    bool CanSetDiscriminator(string name, bool fromDataAnnotation = false);
-
-    /// <summary>
-    ///     Returns a value indicating whether the discriminator property can be configured.
-    /// </summary>
-    /// <param name="type">The type of values stored in the discriminator property.</param>
-    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
-    /// <returns><see langword="true" /> if the configuration can be applied.</returns>
-    bool CanSetDiscriminator(Type type, bool fromDataAnnotation = false);
-
-    /// <summary>
-    ///     Returns a value indicating whether the discriminator property can be configured.
-    /// </summary>
-    /// <param name="type">The type of values stored in the discriminator property.</param>
-    /// <param name="name">The name of the discriminator property.</param>
-    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
-    /// <returns><see langword="true" /> if the configuration can be applied.</returns>
-    bool CanSetDiscriminator(string name, Type type, bool fromDataAnnotation = false);
-
-    /// <summary>
-    ///     Returns a value indicating whether the discriminator property can be configured.
-    /// </summary>
-    /// <param name="memberInfo">The property mapped to the discriminator property.</param>
-    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
-    /// <returns><see langword="true" /> if the configuration can be applied.</returns>
-    bool CanSetDiscriminator(MemberInfo memberInfo, bool fromDataAnnotation = false);
-
-    /// <summary>
-    ///     Returns a value indicating whether the discriminator property can be removed.
-    /// </summary>
-    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
-    /// <returns><see langword="true" /> if the discriminator property can be removed.</returns>
-    bool CanRemoveDiscriminator(bool fromDataAnnotation = false);
-
-    /// <summary>
     ///     Gets or creates a builder for the target of a potential navigation.
     /// </summary>
     /// <param name="targetClrType">The CLR type of the target.</param>

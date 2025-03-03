@@ -75,7 +75,7 @@ public class DiscriminatorConvention :
 
     /// <inheritdoc />
     public virtual void ProcessDiscriminatorPropertySet(
-        IConventionEntityTypeBuilder entityTypeBuilder,
+        IConventionTypeBaseBuilder structuralTypeBuilder,
         string? name,
         IConventionContext<string> context)
     {
@@ -84,10 +84,22 @@ public class DiscriminatorConvention :
             return;
         }
 
-        var discriminator = entityTypeBuilder.HasDiscriminator(name, typeof(string));
-        if (discriminator != null)
+        if (structuralTypeBuilder is IConventionEntityTypeBuilder entityTypeBuilder)
         {
-            SetDefaultDiscriminatorValues(entityTypeBuilder.Metadata.GetDerivedTypesInclusive(), discriminator);
+            var discriminator = entityTypeBuilder.HasDiscriminator(name, typeof(string));
+            if (discriminator != null)
+            {
+                SetDefaultDiscriminatorValues(entityTypeBuilder.Metadata.GetDerivedTypesInclusive(), discriminator);
+            }
+        }
+        else
+        {
+            var complexTypeBuilder = (IConventionComplexTypeBuilder)structuralTypeBuilder;
+            var discriminator = complexTypeBuilder.HasDiscriminator(name, typeof(string));
+            if (discriminator != null)
+            {
+                SetDefaultDiscriminatorValue(complexTypeBuilder.Metadata, discriminator);
+            }
         }
     }
 
@@ -120,5 +132,17 @@ public class DiscriminatorConvention :
         {
             discriminatorBuilder.HasValue(entityType, entityType.GetDefaultDiscriminatorValue());
         }
+    }
+
+    /// <summary>
+    ///     Configures the discriminator value for the given complex type.
+    /// </summary>
+    /// <param name="complexType">The complex type to configure.</param>
+    /// <param name="discriminatorBuilder">The discriminator builder.</param>
+    protected virtual void SetDefaultDiscriminatorValue(
+        IConventionComplexType complexType,
+        IConventionComplexTypeDiscriminatorBuilder discriminatorBuilder)
+    {
+        discriminatorBuilder.HasValue(complexType.GetDefaultDiscriminatorValue());
     }
 }

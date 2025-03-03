@@ -640,12 +640,16 @@ public class ModelValidator : IModelValidator
     /// <param name="rootEntityType">The entity type to validate.</param>
     protected virtual void ValidateDiscriminatorValues(IEntityType rootEntityType)
     {
-        var derivedTypes = rootEntityType.GetDerivedTypesInclusive().ToList();
+        var derivedTypes = rootEntityType.GetDerivedTypesInclusive();
         var discriminatorProperty = rootEntityType.FindDiscriminatorProperty();
         if (discriminatorProperty == null)
         {
-            if (derivedTypes.Count == 1)
+            if (!derivedTypes.Skip(1).Any())
             {
+                foreach (var complexProperty in rootEntityType.GetDeclaredComplexProperties())
+                {
+                    ValidateDiscriminatorValues(complexProperty.ComplexType);
+                }
                 return;
             }
 
@@ -654,6 +658,68 @@ public class ModelValidator : IModelValidator
         }
 
         var discriminatorValues = new Dictionary<object, IEntityType>(discriminatorProperty.GetKeyValueComparer());
+        foreach (var derivedType in derivedTypes)
+        {
+            foreach (var complexProperty in derivedType.GetDeclaredComplexProperties())
+            {
+                ValidateDiscriminatorValues(complexProperty.ComplexType);
+            }
+
+            if (!derivedType.ClrType.IsInstantiable())
+            {
+                continue;
+            }
+
+            var discriminatorValue = derivedType[CoreAnnotationNames.DiscriminatorValue];
+            if (discriminatorValue == null)
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.NoDiscriminatorValue(derivedType.DisplayName()));
+            }
+
+            if (!discriminatorProperty.ClrType.IsInstanceOfType(discriminatorValue))
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.DiscriminatorValueIncompatible(
+                        discriminatorValue, derivedType.DisplayName(), discriminatorProperty.ClrType.DisplayName()));
+            }
+
+            if (discriminatorValues.TryGetValue(discriminatorValue, out var duplicateEntityType))
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.DuplicateDiscriminatorValue(
+                        derivedType.DisplayName(), discriminatorValue, duplicateEntityType.DisplayName()));
+            }
+
+            discriminatorValues[discriminatorValue] = derivedType;
+        }
+    }
+
+    /// <summary>
+    ///     Validates the discriminator and values for the given complex type and nested ones.
+    /// </summary>
+    /// <param name="complexType">The entity type to validate.</param>
+    protected virtual void ValidateDiscriminatorValues(IComplexType complexType)
+    {
+        foreach (var complexProperty in complexType.GetComplexProperties())
+        {
+            ValidateDiscriminatorValues(complexProperty.ComplexType);
+        }
+
+        var derivedTypes = complexType.GetDerivedTypesInclusive();
+        var discriminatorProperty = complexType.FindDiscriminatorProperty();
+        if (discriminatorProperty == null)
+        {
+            if (!derivedTypes.Skip(1).Any())
+            {
+                return;
+            }
+
+            throw new InvalidOperationException(
+                CoreStrings.NoDiscriminatorProperty(complexType.DisplayName()));
+        }
+
+        var discriminatorValues = new Dictionary<object, IComplexType>(discriminatorProperty.GetKeyValueComparer());
 
         foreach (var derivedType in derivedTypes)
         {

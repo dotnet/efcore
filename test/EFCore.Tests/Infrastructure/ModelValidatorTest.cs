@@ -1920,6 +1920,28 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     }
 
     [ConditionalFact]
+    public virtual void Detects_missing_complex_type_discriminator_values()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<B>().ComplexProperty(b => b.A)
+            .HasDiscriminator<byte>("Type");
+
+        VerifyError(CoreStrings.NoDiscriminatorValue("B.A#A"), modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Detects_incompatible_complex_type_discriminator_value()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        var complexPropertyBuilder = modelBuilder.Entity<B>().ComplexProperty(b => b.A);
+        complexPropertyBuilder.HasDiscriminator<byte>("Type");
+
+        complexPropertyBuilder.Metadata.ComplexType.SetDiscriminatorValue("1");
+
+        VerifyError(CoreStrings.DiscriminatorValueIncompatible("1", "B.A#A", "byte"), modelBuilder);
+    }
+
+    [ConditionalFact]
     public virtual void Detects_duplicate_discriminator_values()
     {
         var modelBuilder = CreateConventionModelBuilder();
