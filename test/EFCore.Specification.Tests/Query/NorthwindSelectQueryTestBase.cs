@@ -1019,6 +1019,14 @@ public abstract class NorthwindSelectQueryTestBase<TFixture>(TFixture fixture) :
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task Project_single_element_from_collection_with_OrderBy_Take_OrderBy_and_FirstOrDefault(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Select(
+                c => c.Orders.OrderBy(o => o.OrderID).Take(1).OrderBy(o => o.OrderDate).FirstOrDefault()));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task Project_single_element_from_collection_with_OrderBy_Skip_and_FirstOrDefault(bool async)
         => AssertQuery(
             async,
