@@ -65,18 +65,6 @@ FROM [RootEntities] AS [r]
     public override Task Project_branch_collection_element_using_indexer_constant(bool async)
         => AssertCantTrackJson(() => base.Project_branch_collection_element_using_indexer_constant(async));
 
-
-
-
-
-
-
-
-
-
-
-
-
     public override Task Project_trunk_and_branch_duplicated(bool async)
         => AssertCantTrackJson(() => base.Project_trunk_and_branch_duplicated(async));
 
@@ -112,28 +100,6 @@ FROM [RootEntities] AS [r]
 
     public override Task SelectMany_optional_trunk_reference_branch_collection(bool async)
         => AssertCantTrackJson(() => base.SelectMany_optional_trunk_reference_branch_collection(async));
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     private async Task AssertCantTrackJson(Func<Task> test)
     {
