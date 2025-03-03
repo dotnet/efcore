@@ -97,6 +97,7 @@ public class RelationalCommand : IRelationalCommand
                 var interceptionResult = logger?.CommandNonQueryExecuting(
                         connection,
                         command,
+                        LogCommandText,
                         context,
                         commandId,
                         connection.ConnectionId,
@@ -111,6 +112,7 @@ public class RelationalCommand : IRelationalCommand
                 return logger?.CommandNonQueryExecuted(
                         connection,
                         command,
+                        LogCommandText,
                         context,
                         commandId,
                         connection.ConnectionId,
@@ -132,6 +134,7 @@ public class RelationalCommand : IRelationalCommand
                 logger?.CommandCanceled(
                     connection,
                     command,
+                    LogCommandText,
                     context,
                     DbCommandMethod.ExecuteNonQuery,
                     commandId,
@@ -145,6 +148,7 @@ public class RelationalCommand : IRelationalCommand
                 logger?.CommandError(
                     connection,
                     command,
+                    LogCommandText,
                     context,
                     DbCommandMethod.ExecuteNonQuery,
                     commandId,
@@ -201,6 +205,7 @@ public class RelationalCommand : IRelationalCommand
                     : await logger.CommandNonQueryExecutingAsync(
                             connection,
                             command,
+                            LogCommandText,
                             context,
                             commandId,
                             connection.ConnectionId,
@@ -218,6 +223,7 @@ public class RelationalCommand : IRelationalCommand
                     result = await logger.CommandNonQueryExecutedAsync(
                             connection,
                             command,
+                            LogCommandText,
                             context,
                             commandId,
                             connection.ConnectionId,
@@ -245,6 +251,7 @@ public class RelationalCommand : IRelationalCommand
                     await logger.CommandCanceledAsync(
                             connection,
                             command,
+                            LogCommandText,
                             context,
                             DbCommandMethod.ExecuteNonQuery,
                             commandId,
@@ -260,6 +267,7 @@ public class RelationalCommand : IRelationalCommand
                     await logger.CommandErrorAsync(
                             connection,
                             command,
+                            LogCommandText,
                             context,
                             DbCommandMethod.ExecuteNonQuery,
                             commandId,
@@ -311,6 +319,7 @@ public class RelationalCommand : IRelationalCommand
                 var interceptionResult = logger?.CommandScalarExecuting(
                         connection,
                         command,
+                        LogCommandText,
                         context,
                         commandId,
                         connection.ConnectionId,
@@ -325,6 +334,7 @@ public class RelationalCommand : IRelationalCommand
                 return logger?.CommandScalarExecuted(
                         connection,
                         command,
+                        LogCommandText,
                         context,
                         commandId,
                         connection.ConnectionId,
@@ -346,6 +356,7 @@ public class RelationalCommand : IRelationalCommand
                 logger?.CommandCanceled(
                     connection,
                     command,
+                    LogCommandText,
                     context,
                     DbCommandMethod.ExecuteScalar,
                     commandId,
@@ -359,6 +370,7 @@ public class RelationalCommand : IRelationalCommand
                 logger?.CommandError(
                     connection,
                     command,
+                    LogCommandText,
                     context,
                     DbCommandMethod.ExecuteScalar,
                     commandId,
@@ -415,6 +427,7 @@ public class RelationalCommand : IRelationalCommand
                     : await logger.CommandScalarExecutingAsync(
                             connection,
                             command,
+                            LogCommandText,
                             context,
                             commandId,
                             connection.ConnectionId,
@@ -432,6 +445,7 @@ public class RelationalCommand : IRelationalCommand
                     result = await logger.CommandScalarExecutedAsync(
                         connection,
                         command,
+                        LogCommandText,
                         context,
                         commandId,
                         connection.ConnectionId,
@@ -458,6 +472,7 @@ public class RelationalCommand : IRelationalCommand
                     await logger.CommandCanceledAsync(
                             connection,
                             command,
+                            LogCommandText,
                             context,
                             DbCommandMethod.ExecuteScalar,
                             commandId,
@@ -473,6 +488,7 @@ public class RelationalCommand : IRelationalCommand
                     await logger.CommandErrorAsync(
                             connection,
                             command,
+                            LogCommandText,
                             context,
                             DbCommandMethod.ExecuteScalar,
                             commandId,
@@ -529,6 +545,7 @@ public class RelationalCommand : IRelationalCommand
                 var interceptionResult = logger!.CommandReaderExecuting(
                     connection,
                     command,
+                    LogCommandText,
                     context,
                     commandId,
                     connection.ConnectionId,
@@ -542,6 +559,7 @@ public class RelationalCommand : IRelationalCommand
                 reader = logger.CommandReaderExecuted(
                     connection,
                     command,
+                    LogCommandText,
                     context,
                     commandId,
                     connection.ConnectionId,
@@ -562,6 +580,7 @@ public class RelationalCommand : IRelationalCommand
                 logger?.CommandCanceled(
                     connection,
                     command,
+                    LogCommandText,
                     context,
                     DbCommandMethod.ExecuteReader,
                     commandId,
@@ -575,6 +594,7 @@ public class RelationalCommand : IRelationalCommand
                 logger?.CommandError(
                     connection,
                     command,
+                    LogCommandText,
                     context,
                     DbCommandMethod.ExecuteReader,
                     commandId,
@@ -655,6 +675,7 @@ public class RelationalCommand : IRelationalCommand
                 var interceptionResult = await logger!.CommandReaderExecutingAsync(
                         connection,
                         command,
+                        LogCommandText,
                         context,
                         commandId,
                         connection.ConnectionId,
@@ -670,6 +691,7 @@ public class RelationalCommand : IRelationalCommand
                 reader = await logger.CommandReaderExecutedAsync(
                         connection,
                         command,
+                        LogCommandText,
                         context,
                         commandId,
                         connection.ConnectionId,
@@ -694,6 +716,7 @@ public class RelationalCommand : IRelationalCommand
                     await logger.CommandCanceledAsync(
                             connection,
                             command,
+                            LogCommandText,
                             context,
                             DbCommandMethod.ExecuteReader,
                             commandId,
@@ -709,6 +732,7 @@ public class RelationalCommand : IRelationalCommand
                     await logger.CommandErrorAsync(
                             connection,
                             command,
+                            LogCommandText,
                             context,
                             DbCommandMethod.ExecuteReader,
                             commandId,

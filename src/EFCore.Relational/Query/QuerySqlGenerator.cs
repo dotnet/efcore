@@ -627,8 +627,16 @@ public class QuerySqlGenerator : SqlExpressionVisitor
     /// <param name="sqlConstantExpression">The <see cref="SqlConstantExpression" /> for which to generate SQL.</param>
     protected override Expression VisitSqlConstant(SqlConstantExpression sqlConstantExpression)
     {
-        _relationalCommandBuilder
-            .Append(sqlConstantExpression.TypeMapping!.GenerateSqlLiteral(sqlConstantExpression.Value), "?");
+        if (sqlConstantExpression.OriginallyParameter)
+        {
+            _relationalCommandBuilder
+                .Append(sqlConstantExpression.TypeMapping!.GenerateSqlLiteral(sqlConstantExpression.Value), "?");
+        }
+        else
+        {
+            _relationalCommandBuilder
+                .Append(sqlConstantExpression.TypeMapping!.GenerateSqlLiteral(sqlConstantExpression.Value));
+        }
 
         return sqlConstantExpression;
     }

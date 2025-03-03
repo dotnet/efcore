@@ -56,8 +56,7 @@ public class QuerySqlGeneratorTest
                             TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()),
                         new ExceptionDetector())),
                 new RelationalSqlGenerationHelper(
-                    new RelationalSqlGenerationHelperDependencies()),
-                new LoggingOptions()));
+                    new RelationalSqlGenerationHelperDependencies())));
 
     private class DummyQuerySqlGenerator(QuerySqlGeneratorDependencies dependencies) : QuerySqlGenerator(dependencies)
     {
