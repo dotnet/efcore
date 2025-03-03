@@ -404,7 +404,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
                     new[]
                     {
                         // Since VALUES may not guarantee row ordering, we add an _ord value by which we'll order.
-                        _sqlExpressionFactory.Constant(i, intTypeMapping),
+                        _sqlExpressionFactory.Constant(i, typeMapping : intTypeMapping),
                         // If no type mapping was inferred (i.e. no column in the inline collection), it's left null, to allow it to get
                         // inferred later based on usage. Note that for the element in the VALUES expression, we'll also apply an explicit
                         // CONVERT to make sure the database gets the right type (see

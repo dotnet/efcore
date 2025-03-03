@@ -290,9 +290,9 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
                         args.First(),
                         new[]
                         {
-                            new SqlConstantExpression(abc[0], typeMapping: null),
-                            new SqlConstantExpression(abc[1], typeMapping: null),
-                            new SqlConstantExpression(abc[2], typeMapping: null)
+                            new SqlConstantExpression(abc[0], originallyParameter: false, typeMapping: null),
+                            new SqlConstantExpression(abc[1], originallyParameter: false, typeMapping: null),
+                            new SqlConstantExpression(abc[2], originallyParameter: false, typeMapping: null)
                         }, // args.First().TypeMapping)
                         typeMapping: null));
 
@@ -304,15 +304,15 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
                             args.First(),
                             new[]
                             {
-                                new SqlConstantExpression(abc[0], args.First().TypeMapping),
-                                new SqlConstantExpression(abc[1], args.First().TypeMapping),
-                                new SqlConstantExpression(abc[2], args.First().TypeMapping)
+                                new SqlConstantExpression(abc[0], originallyParameter: false, args.First().TypeMapping),
+                                new SqlConstantExpression(abc[1], originallyParameter: false, args.First().TypeMapping),
+                                new SqlConstantExpression(abc[2], originallyParameter: false, args.First().TypeMapping)
                             },
                             typeMapping: null),
                         new[]
                         {
-                            new SqlConstantExpression(trueFalse[0], typeMapping: null),
-                            new SqlConstantExpression(trueFalse[1], typeMapping: null)
+                            new SqlConstantExpression(trueFalse[0], originallyParameter: false, typeMapping: null),
+                            new SqlConstantExpression(trueFalse[1], originallyParameter: false, typeMapping: null)
                         },
                         typeMapping: null));
 

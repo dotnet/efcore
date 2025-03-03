@@ -298,7 +298,7 @@ public class SqliteStringMethodTranslator : IMethodCallTranslator
 
             if (charactersToTrim.Count > 0)
             {
-                sqlArguments.Add(_sqlExpressionFactory.Constant(new string(charactersToTrim.ToArray()), typeMapping));
+                sqlArguments.Add(_sqlExpressionFactory.Constant(new string(charactersToTrim.ToArray()), typeMapping: typeMapping));
             }
         }
 

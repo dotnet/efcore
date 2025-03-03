@@ -23,18 +23,23 @@ public class SqlConstantExpression : SqlExpression
     /// </summary>
     /// <param name="value">An <see cref="Object" /> to set the <see cref="Value" /> property equal to.</param>
     /// <param name="type">The <see cref="System.Type" /> of the expression.</param>
+    /// <param name="originallyParameter"><see langword="true" /> if the expression was originally a parameter; otherwise, <see langword="false" />.</param>
     /// <param name="typeMapping">The <see cref="RelationalTypeMapping" /> associated with the expression.</param>
-    public SqlConstantExpression(object? value, Type type, RelationalTypeMapping? typeMapping)
+    public SqlConstantExpression(object? value, Type type, bool originallyParameter, RelationalTypeMapping? typeMapping)
         : base(type.UnwrapNullableType(), typeMapping)
-        => Value = value;
+    {
+        Value = value;
+        OriginallyParameter = originallyParameter;
+    }
 
     /// <summary>
     ///     Creates a new instance of the <see cref="SqlConstantExpression" /> class.
     /// </summary>
     /// <param name="value">An <see cref="Object" /> to set the <see cref="Value" /> property equal to.</param>
+    /// <param name="originallyParameter"><see langword="true" /> if the expression was originally a parameter; otherwise, <see langword="false" />.</param>
     /// <param name="typeMapping">The <see cref="RelationalTypeMapping" /> associated with the expression.</param>
-    public SqlConstantExpression(object value, RelationalTypeMapping? typeMapping)
-        : this(value, value.GetType(), typeMapping)
+    public SqlConstantExpression(object value, bool originallyParameter, RelationalTypeMapping? typeMapping)
+        : this(value, value.GetType(), originallyParameter, typeMapping)
     {
     }
 
@@ -42,10 +47,11 @@ public class SqlConstantExpression : SqlExpression
     ///     Creates a new instance of the <see cref="SqlConstantExpression" /> class.
     /// </summary>
     /// <param name="constantExpression">A <see cref="ConstantExpression" />.</param>
+    /// <param name="originallyParameter"><see langword="true" /> if the expression was originally a parameter; otherwise, <see langword="false" />.</param>
     /// <param name="typeMapping">The <see cref="RelationalTypeMapping" /> associated with the expression.</param>
     [Obsolete("Call the constructor accepting a value (and possibly a Type) instead")]
-    public SqlConstantExpression(ConstantExpression constantExpression, RelationalTypeMapping? typeMapping)
-        : this(constantExpression.Value, constantExpression.Type, typeMapping)
+    public SqlConstantExpression(ConstantExpression constantExpression, bool originallyParameter, RelationalTypeMapping? typeMapping)
+        : this(constantExpression.Value, constantExpression.Type, originallyParameter, typeMapping)
     {
     }
 
@@ -55,12 +61,17 @@ public class SqlConstantExpression : SqlExpression
     public virtual object? Value { get; }
 
     /// <summary>
+    ///    Whether the expression was originally a parameter.
+    /// </summary>
+    public virtual bool OriginallyParameter { get; }
+
+    /// <summary>
     ///     Applies supplied type mapping to this expression.
     /// </summary>
     /// <param name="typeMapping">A relational type mapping to apply.</param>
     /// <returns>A new expression which has supplied type mapping.</returns>
     public virtual SqlExpression ApplyTypeMapping(RelationalTypeMapping? typeMapping)
-        => new SqlConstantExpression(Value, Type, typeMapping);
+        => new SqlConstantExpression(Value, Type, OriginallyParameter, typeMapping);
 
     /// <inheritdoc />
     protected override Expression VisitChildren(ExpressionVisitor visitor)

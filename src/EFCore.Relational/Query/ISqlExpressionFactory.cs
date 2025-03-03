@@ -418,18 +418,20 @@ public interface ISqlExpressionFactory
     ///     Creates a new <see cref="SqlExpression" /> which represents a constant in a SQL tree.
     /// </summary>
     /// <param name="value">A value.</param>
+    /// <param name="originallyParameter"><see langword="true" /> if the expression was originally a parameter; otherwise, <see langword="false" />.</param>
     /// <param name="typeMapping">The <see cref="RelationalTypeMapping" /> associated with the expression.</param>
     /// <returns>An expression representing a constant in a SQL tree.</returns>
-    SqlExpression Constant(object value, RelationalTypeMapping? typeMapping = null);
+    SqlExpression Constant(object value, bool originallyParameter = false, RelationalTypeMapping? typeMapping = null);
 
     /// <summary>
     ///     Creates a new <see cref="SqlExpression" /> which represents a constant in a SQL tree.
     /// </summary>
     /// <param name="value">A value.</param>
     /// <param name="type">The type for the constant. Useful when value is null.</param>
+    /// <param name="originallyParameter"><see langword="true" /> if the expression was originally a parameter; otherwise, <see langword="false" />.</param>
     /// <param name="typeMapping">The <see cref="RelationalTypeMapping" /> associated with the expression.</param>
     /// <returns>An expression representing a constant in a SQL tree.</returns>
-    SqlExpression Constant(object? value, Type type, RelationalTypeMapping? typeMapping = null);
+    SqlExpression Constant(object? value, Type type, bool originallyParameter = false, RelationalTypeMapping? typeMapping = null);
 
     /// <summary>
     ///     Creates a new <see cref="SqlExpression" /> which represents a SQL token.

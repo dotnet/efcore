@@ -46,10 +46,12 @@ public sealed record QuerySqlGeneratorDependencies
     [EntityFrameworkInternal]
     public QuerySqlGeneratorDependencies(
         IRelationalCommandBuilderFactory relationalCommandBuilderFactory,
-        ISqlGenerationHelper sqlGenerationHelper)
+        ISqlGenerationHelper sqlGenerationHelper,
+        ILoggingOptions loggingOptions)
     {
         RelationalCommandBuilderFactory = relationalCommandBuilderFactory;
         SqlGenerationHelper = sqlGenerationHelper;
+        LoggingOptions = loggingOptions;
     }
 
     /// <summary>
@@ -61,4 +63,9 @@ public sealed record QuerySqlGeneratorDependencies
     ///     SQL generation helpers.
     /// </summary>
     public ISqlGenerationHelper SqlGenerationHelper { get; init; }
+
+    /// <summary>
+    ///    The logging options.
+    /// </summary>
+    public ILoggingOptions LoggingOptions { get; init; }
 }

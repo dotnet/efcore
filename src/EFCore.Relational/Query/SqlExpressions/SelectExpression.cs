@@ -771,7 +771,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                     {
                         if (selectExpression.Limit is SqlConstantExpression { Value: 2 } limitConstantExpression)
                         {
-                            selectExpression.Limit = new SqlConstantExpression(1, limitConstantExpression.TypeMapping);
+                            selectExpression.Limit = new SqlConstantExpression(1, originallyParameter: false, typeMapping: limitConstantExpression.TypeMapping);
                         }
                     }
                 }
@@ -2353,7 +2353,7 @@ public sealed partial class SelectExpression : TableExpressionBase
     public void ApplyDefaultIfEmpty(ISqlExpressionFactory sqlExpressionFactory)
     {
         var nullSqlExpression = sqlExpressionFactory.ApplyDefaultTypeMapping(
-            new SqlConstantExpression(null, typeof(string), null));
+            new SqlConstantExpression(null, typeof(string), originallyParameter: false, typeMapping: null));
 
         var dummySelectExpression = CreateImmutable(
             _sqlAliasManager.GenerateTableAlias("empty"),
@@ -2968,7 +2968,8 @@ public sealed partial class SelectExpression : TableExpressionBase
                                         && limit is SqlConstantExpression limitConstant
                                             ? new SqlConstantExpression(
                                                 (int)offsetConstant.Value! + (int)limitConstant.Value!,
-                                                limit.TypeMapping)
+                                                originallyParameter: false,
+                                                typeMapping: limit.TypeMapping)
                                             : new SqlBinaryExpression(ExpressionType.Add, offset, limit, limit.Type, limit.TypeMapping);
                                 }
 

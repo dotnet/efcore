@@ -204,7 +204,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                                 var projection = declaringEntityType.IsAssignableFrom(concreteEntityType)
                                     ? CreateColumnExpression(property, table, tableAlias, declaringEntityType != entityType)
                                     : _sqlExpressionFactory.Constant(
-                                        null, property.ClrType.MakeNullable(), property.GetRelationalTypeMapping());
+                                        null, property.ClrType.MakeNullable(), typeMapping: property.GetRelationalTypeMapping());
                                 projections.Add(new ProjectionExpression(projection, propertyNames[j]));
                             }
 
