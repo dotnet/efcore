@@ -3,8 +3,10 @@
 
 using Microsoft.EntityFrameworkCore.TestModels.RelationshipsModel;
 
-namespace Microsoft.EntityFrameworkCore.Query.Relationships;
+namespace Microsoft.EntityFrameworkCore.Query.Relationships.References;
 
+// collections are not supported for non-json complex types
+// so only use this for reference test case
 public abstract class ComplexRelationshipsQueryFixtureBase : RelationshipsQueryFixtureBase
 {
     protected override string StoreName => "ComplexRelationshipsQueryTest";
@@ -39,11 +41,8 @@ public abstract class ComplexRelationshipsQueryFixtureBase : RelationshipsQueryF
             .OnDelete(DeleteBehavior.Restrict)
             .IsRequired(true);
 
-        modelBuilder.Entity<RelationshipsRootEntity>()
-            .HasMany(x => x.CollectionTrunk)
-            .WithOne(x => x.CollectionInverseRoot)
-            .HasForeignKey(x => x.CollectionRootId)
-            .OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<RelationshipsRootEntity>().Ignore(x => x.CollectionTrunk);
+        modelBuilder.Entity<RelationshipsTrunkEntity>().Ignore(x => x.CollectionInverseRoot);
 
         // TODO: issue #31376 - complex optional references
         modelBuilder.Entity<RelationshipsTrunkEntity>()
@@ -77,7 +76,7 @@ public abstract class ComplexRelationshipsQueryFixtureBase : RelationshipsQueryF
                 bb.Ignore(x => x.CollectionLeaf);
             });
 
-        // TODO: issue #31237 - complex collections
+        //  collections are not supported for non-json compex types 
         modelBuilder.Entity<RelationshipsTrunkEntity>().Ignore(x => x.CollectionBranch);
     }
 
