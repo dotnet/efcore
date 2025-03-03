@@ -238,6 +238,69 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         #endregion
+
+        #region 35025
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Select_base_with_ComplexTypes_in_TPC(bool async)
+        {
+            var contextFactory = await InitializeAsync<Context35025>();
+            using var context = contextFactory.CreateContext();
+
+            var query1 = context.Events;
+
+            var count = 0;
+            if (async)
+            {
+                count = (await query1.ToListAsync()).Count;
+            }
+            else
+            {
+                count = query1.ToList().Count;
+            }
+
+            Assert.Equal(0, count);
+        }
+
+        protected class Context35025(DbContextOptions options) : DbContext(options)
+        {
+            public DbSet<EventBase> Events { get; set; }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<EventBase>(builder =>
+                {
+                    builder.ComplexProperty(e => e.Knowledge).IsRequired();
+                    builder.UseTpcMappingStrategy();
+                });
+                modelBuilder.Entity<EventWithIdentification>();
+                modelBuilder.Entity<RealEvent>();
+            }
+
+            public abstract class EventBase
+            {
+                public int Id { get; set; }
+                public Period Knowledge { get; set; }
+            }
+
+            public class EventWithIdentification : EventBase
+            {
+                public long ExtraId { get; set; }
+            }
+
+            public class RealEvent : EventBase
+            {
+            }
+
+            public class Period
+            {
+                public DateTimeOffset From { get; set; }
+            }
+
+        }
+
+        #endregion
     }
 }
 
