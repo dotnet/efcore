@@ -264,7 +264,7 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
                 _sqlExpressionFactory.IsNull(argument),
                 _sqlExpressionFactory.Equal(
                     argument,
-                    _sqlExpressionFactory.Constant(string.Empty, argument.TypeMapping)));
+                    _sqlExpressionFactory.Constant(string.Empty, typeMapping: argument.TypeMapping)));
         }
 
         if (FirstOrDefaultMethodInfoWithoutArgs.Equals(method))
@@ -380,7 +380,7 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
                     new CaseWhenClause(
                         _sqlExpressionFactory.Equal(
                             searchExpression,
-                            _sqlExpressionFactory.Constant(string.Empty, stringTypeMapping)),
+                            _sqlExpressionFactory.Constant(string.Empty, typeMapping: stringTypeMapping)),
                         _sqlExpressionFactory.Constant(0))
                 },
                 _sqlExpressionFactory.Constant(1));
@@ -395,8 +395,8 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
         {
             charactersToTrim = charactersToTrimValue switch
             {
-                char singleChar => _sqlExpressionFactory.Constant(singleChar.ToString(), instance.TypeMapping),
-                char[] charArray => _sqlExpressionFactory.Constant(new string(charArray), instance.TypeMapping),
+                char singleChar => _sqlExpressionFactory.Constant(singleChar.ToString(), typeMapping: instance.TypeMapping),
+                char[] charArray => _sqlExpressionFactory.Constant(new string(charArray), typeMapping: instance.TypeMapping),
                 _ => throw new UnreachableException("Invalid parameter type for string.TrimStart/TrimEnd")
             };
         }

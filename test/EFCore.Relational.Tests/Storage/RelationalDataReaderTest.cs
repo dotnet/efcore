@@ -59,6 +59,7 @@ public class RelationalDataReaderTest
 
     private IRelationalCommand CreateRelationalCommand(
         string commandText = "Command Text",
+        string logCommandText = "Log Command Text",
         IReadOnlyList<IRelationalParameter> parameters = null)
         => new RelationalCommand(
             new RelationalCommandBuilderDependencies(
@@ -67,6 +68,7 @@ public class RelationalDataReaderTest
                     TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()),
                 new ExceptionDetector()),
             commandText,
+            logCommandText,
             parameters ?? []);
 
     public static IEnumerable<object[]> IsAsyncData = new object[][] { [false], [true] };

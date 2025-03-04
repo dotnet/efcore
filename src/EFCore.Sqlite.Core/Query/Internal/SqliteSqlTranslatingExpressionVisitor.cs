@@ -299,7 +299,7 @@ public class SqliteSqlTranslatingExpressionVisitor : RelationalSqlTranslatingExp
                     {
                         null => _sqlExpressionFactory.Like(
                             translatedInstance,
-                            _sqlExpressionFactory.Constant(null, typeof(string), stringTypeMapping)),
+                            _sqlExpressionFactory.Constant(null, typeof(string), typeMapping: stringTypeMapping)),
 
                         // In .NET, all strings start with/end with/contain the empty string, but SQL LIKE return false for empty patterns.
                         // Return % which always matches instead.

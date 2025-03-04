@@ -79,7 +79,7 @@ public class SqliteQuerySqlGenerator : QuerySqlGenerator
 
             Visit(
                 selectExpression.Limit
-                ?? new SqlConstantExpression(-1, selectExpression.Offset!.TypeMapping));
+                ?? new SqlConstantExpression(-1, originallyParameter: false, typeMapping: selectExpression.Offset!.TypeMapping));
 
             if (selectExpression.Offset != null)
             {
