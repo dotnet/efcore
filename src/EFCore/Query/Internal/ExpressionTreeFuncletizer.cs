@@ -109,6 +109,9 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
     private static readonly bool UseOldBehavior35111 =
         AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue35111", out var enabled35111) && enabled35111;
 
+    private static readonly bool UseOldBehavior35656 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue35656", out var enabled35656) && enabled35656;
+
     private static readonly MethodInfo ReadOnlyCollectionIndexerGetter = typeof(ReadOnlyCollection<Expression>).GetProperties()
         .Single(p => p.GetIndexParameters() is { Length: 1 } indexParameters && indexParameters[0].ParameterType == typeof(int)).GetMethod!;
 
@@ -2132,8 +2135,12 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
         }
     }
 
-    private static Expression ConvertIfNeeded(Expression expression, Type type)
-        => expression.Type == type ? expression : Convert(expression, type);
+    private Expression ConvertIfNeeded(Expression expression, Type type)
+        => expression.Type == type
+            ? expression
+            : UseOldBehavior35656
+                ? Convert(expression, type)
+                : Visit(Convert(expression, type));
 
     private bool IsGenerallyEvaluatable(Expression expression)
         => _evaluatableExpressionFilter.IsEvaluatableExpression(expression, _model)
