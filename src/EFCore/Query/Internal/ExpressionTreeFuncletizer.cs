@@ -112,6 +112,9 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
     private static readonly bool UseOldBehavior35656 =
         AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue35656", out var enabled35656) && enabled35656;
 
+    private static readonly bool UseOldBehavior35100 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue35100", out var enabled35100) && enabled35100;
+
     private static readonly MethodInfo ReadOnlyCollectionIndexerGetter = typeof(ReadOnlyCollection<Expression>).GetProperties()
         .Single(p => p.GetIndexParameters() is { Length: 1 } indexParameters && indexParameters[0].ParameterType == typeof(int)).GetMethod!;
 
@@ -971,6 +974,51 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                     _state = argumentState;
                     return Call(method, evaluatedArgument);
                 }
+            }
+        }
+
+        // .NET 10 made changes to overload resolution to prefer Span-based overloads when those exist ("first-class spans").
+        // Unfortunately, the LINQ interpreter does not support ref structs, so we rewrite e.g. MemoryExtensions.Contains to
+        // Enumerable.Contains here. See https://github.com/dotnet/runtime/issues/109757.
+        if (method.DeclaringType == typeof(MemoryExtensions) && !UseOldBehavior35100)
+        {
+            switch (method.Name)
+            {
+                case nameof(MemoryExtensions.Contains)
+                    when methodCall.Arguments is [var arg0, var arg1] && TryUnwrapSpanImplicitCast(arg0, out var unwrappedArg0):
+                {
+                    return Visit(
+                        Call(
+                            EnumerableMethods.Contains.MakeGenericMethod(methodCall.Method.GetGenericArguments()[0]),
+                            unwrappedArg0, arg1));
+                }
+
+                case nameof(MemoryExtensions.SequenceEqual)
+                    when methodCall.Arguments is [var arg0, var arg1]
+                    && TryUnwrapSpanImplicitCast(arg0, out var unwrappedArg0)
+                    && TryUnwrapSpanImplicitCast(arg1, out var unwrappedArg1):
+                    return Visit(
+                        Call(
+                            EnumerableMethods.SequenceEqual.MakeGenericMethod(methodCall.Method.GetGenericArguments()[0]),
+                            unwrappedArg0, unwrappedArg1));
+            }
+
+            static bool TryUnwrapSpanImplicitCast(Expression expression, [NotNullWhen(true)] out Expression? result)
+            {
+                if (expression is MethodCallExpression
+                    {
+                        Method: { Name: "op_Implicit", DeclaringType: { IsGenericType: true } implicitCastDeclaringType },
+                        Arguments: [var unwrapped]
+                    }
+                    && implicitCastDeclaringType.GetGenericTypeDefinition() is var genericTypeDefinition
+                    && (genericTypeDefinition == typeof(Span<>) || genericTypeDefinition == typeof(ReadOnlySpan<>)))
+                {
+                    result = unwrapped;
+                    return true;
+                }
+
+                result = null;
+                return false;
             }
         }
 
