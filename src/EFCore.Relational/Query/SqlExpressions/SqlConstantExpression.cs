@@ -81,12 +81,13 @@ public class SqlConstantExpression : SqlExpression
     public override Expression Quote()
         => New(
             _quotingConstructor ??= typeof(SqlConstantExpression)
-                .GetConstructor([typeof(object), typeof(Type), typeof(RelationalTypeMapping)])!,
+                .GetConstructor([typeof(object), typeof(Type), typeof(bool), typeof(RelationalTypeMapping)])!,
             Type.IsValueType
                 ? Convert(
                     Constant(Value, Type), typeof(object))
                 : Constant(Value, Type),
             Constant(Type),
+            Constant(OriginallyParameter),
             RelationalExpressionQuotingUtilities.QuoteTypeMapping(TypeMapping));
 
     /// <inheritdoc />
