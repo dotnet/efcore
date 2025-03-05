@@ -219,6 +219,7 @@ public class RelationalCommandDiagnosticsLogger
             CommandCreated,
             connection,
             command,
+            command.CommandText,
             context,
             executeMethod,
             commandId,
@@ -320,6 +321,7 @@ public class RelationalCommandDiagnosticsLogger
             CommandInitialized,
             connection,
             command,
+            command.CommandText,
             context,
             executeMethod,
             commandId,
@@ -372,7 +374,7 @@ public class RelationalCommandDiagnosticsLogger
 
             definition.Log(
                 this,
-                command.Parameters.FormatParameters(ShouldLogParameterValues(command)),
+                command.Parameters.FormatParameters(ShouldLogSensitiveData()),
                 command.CommandType,
                 command.CommandTimeout,
                 Environment.NewLine,
@@ -389,6 +391,7 @@ public class RelationalCommandDiagnosticsLogger
             var eventData = BroadcastCommandExecuting(
                 connection.DbConnection,
                 command,
+                logCommandText,
                 context,
                 DbCommandMethod.ExecuteReader,
                 commandId,
@@ -435,7 +438,7 @@ public class RelationalCommandDiagnosticsLogger
 
             definition.Log(
                 this,
-                command.Parameters.FormatParameters(ShouldLogParameterValues(command)),
+                command.Parameters.FormatParameters(ShouldLogSensitiveData()),
                 command.CommandType,
                 command.CommandTimeout,
                 Environment.NewLine,
@@ -452,6 +455,7 @@ public class RelationalCommandDiagnosticsLogger
             var eventData = BroadcastCommandExecuting(
                 connection.DbConnection,
                 command,
+                logCommandText,
                 context,
                 DbCommandMethod.ExecuteScalar,
                 commandId,
@@ -498,7 +502,7 @@ public class RelationalCommandDiagnosticsLogger
 
             definition.Log(
                 this,
-                command.Parameters.FormatParameters(ShouldLogParameterValues(command)),
+                command.Parameters.FormatParameters(ShouldLogSensitiveData()),
                 command.CommandType,
                 command.CommandTimeout,
                 Environment.NewLine,
@@ -515,6 +519,7 @@ public class RelationalCommandDiagnosticsLogger
             var eventData = BroadcastCommandExecuting(
                 connection.DbConnection,
                 command,
+                logCommandText,
                 context,
                 DbCommandMethod.ExecuteNonQuery,
                 commandId,
@@ -562,7 +567,7 @@ public class RelationalCommandDiagnosticsLogger
 
             definition.Log(
                 this,
-                command.Parameters.FormatParameters(ShouldLogParameterValues(command)),
+                command.Parameters.FormatParameters(ShouldLogSensitiveData()),
                 command.CommandType,
                 command.CommandTimeout,
                 Environment.NewLine,
@@ -579,6 +584,7 @@ public class RelationalCommandDiagnosticsLogger
             var eventData = BroadcastCommandExecuting(
                 connection.DbConnection,
                 command,
+                logCommandText,
                 context,
                 DbCommandMethod.ExecuteReader,
                 commandId,
@@ -626,7 +632,7 @@ public class RelationalCommandDiagnosticsLogger
 
             definition.Log(
                 this,
-                command.Parameters.FormatParameters(ShouldLogParameterValues(command)),
+                command.Parameters.FormatParameters(ShouldLogSensitiveData()),
                 command.CommandType,
                 command.CommandTimeout,
                 Environment.NewLine,
@@ -643,6 +649,7 @@ public class RelationalCommandDiagnosticsLogger
             var eventData = BroadcastCommandExecuting(
                 connection.DbConnection,
                 command,
+                logCommandText,
                 context,
                 DbCommandMethod.ExecuteScalar,
                 commandId,
@@ -690,7 +697,7 @@ public class RelationalCommandDiagnosticsLogger
 
             definition.Log(
                 this,
-                command.Parameters.FormatParameters(ShouldLogParameterValues(command)),
+                command.Parameters.FormatParameters(ShouldLogSensitiveData()),
                 command.CommandType,
                 command.CommandTimeout,
                 Environment.NewLine,
@@ -707,6 +714,7 @@ public class RelationalCommandDiagnosticsLogger
             var eventData = BroadcastCommandExecuting(
                 connection.DbConnection,
                 command,
+                logCommandText,
                 context,
                 DbCommandMethod.ExecuteNonQuery,
                 commandId,
@@ -730,6 +738,7 @@ public class RelationalCommandDiagnosticsLogger
     private CommandEventData BroadcastCommandExecuting(
         DbConnection connection,
         DbCommand command,
+        string logCommandText,
         DbContext? context,
         DbCommandMethod executeMethod,
         Guid commandId,
@@ -746,12 +755,13 @@ public class RelationalCommandDiagnosticsLogger
             CommandExecuting,
             connection,
             command,
+            logCommandText,
             context,
             executeMethod,
             commandId,
             connectionId,
             async,
-            ShouldLogParameterValues(command),
+            ShouldLogSensitiveData(),
             startTime,
             commandSource);
 
@@ -764,11 +774,13 @@ public class RelationalCommandDiagnosticsLogger
             var d = (EventDefinition<string, CommandType, int, string, string>)definition;
             var p = (CommandEventData)payload;
             return d.GenerateMessage(
-                p.Command.Parameters.FormatParameters(p.LogParameterValues),
+                p.Command.Parameters.FormatParameters(p.LogSensitiveValues),
                 p.Command.CommandType,
                 p.Command.CommandTimeout,
                 Environment.NewLine,
-                p.Command.CommandText.TrimEnd());
+                p.LogSensitiveValues
+                    ? p.Command.CommandText.TrimEnd()
+                    : p.LogCommandText.TrimEnd());
         }
     }
 
@@ -803,7 +815,7 @@ public class RelationalCommandDiagnosticsLogger
             definition.Log(
                 this,
                 string.Format(CultureInfo.InvariantCulture, "{0:N0}", duration.TotalMilliseconds),
-                command.Parameters.FormatParameters(ShouldLogParameterValues(command)),
+                command.Parameters.FormatParameters(ShouldLogSensitiveData()),
                 command.CommandType,
                 command.CommandTimeout,
                 Environment.NewLine,
@@ -820,6 +832,7 @@ public class RelationalCommandDiagnosticsLogger
             var eventData = BroadcastCommandExecuted(
                 connection.DbConnection,
                 command,
+                logCommandText,
                 context,
                 DbCommandMethod.ExecuteReader,
                 commandId,
@@ -869,7 +882,7 @@ public class RelationalCommandDiagnosticsLogger
             definition.Log(
                 this,
                 string.Format(CultureInfo.InvariantCulture, "{0:N0}", duration.TotalMilliseconds),
-                command.Parameters.FormatParameters(ShouldLogParameterValues(command)),
+                command.Parameters.FormatParameters(ShouldLogSensitiveData()),
                 command.CommandType,
                 command.CommandTimeout,
                 Environment.NewLine,
@@ -886,6 +899,7 @@ public class RelationalCommandDiagnosticsLogger
             var eventData = BroadcastCommandExecuted(
                 connection.DbConnection,
                 command,
+                logCommandText,
                 context,
                 DbCommandMethod.ExecuteScalar,
                 commandId,
@@ -935,7 +949,7 @@ public class RelationalCommandDiagnosticsLogger
             definition.Log(
                 this,
                 string.Format(CultureInfo.InvariantCulture, "{0:N0}", duration.TotalMilliseconds),
-                command.Parameters.FormatParameters(ShouldLogParameterValues(command)),
+                command.Parameters.FormatParameters(ShouldLogSensitiveData()),
                 command.CommandType,
                 command.CommandTimeout,
                 Environment.NewLine,
@@ -952,6 +966,7 @@ public class RelationalCommandDiagnosticsLogger
             var eventData = BroadcastCommandExecuted(
                 connection.DbConnection,
                 command,
+                logCommandText,
                 context,
                 DbCommandMethod.ExecuteNonQuery,
                 commandId,
@@ -1002,7 +1017,7 @@ public class RelationalCommandDiagnosticsLogger
             definition.Log(
                 this,
                 string.Format(CultureInfo.InvariantCulture, "{0:N0}", duration.TotalMilliseconds),
-                command.Parameters.FormatParameters(ShouldLogParameterValues(command)),
+                command.Parameters.FormatParameters(ShouldLogSensitiveData()),
                 command.CommandType,
                 command.CommandTimeout,
                 Environment.NewLine,
@@ -1019,6 +1034,7 @@ public class RelationalCommandDiagnosticsLogger
             var eventData = BroadcastCommandExecuted(
                 connection.DbConnection,
                 command,
+                logCommandText,
                 context,
                 DbCommandMethod.ExecuteReader,
                 commandId,
@@ -1069,7 +1085,7 @@ public class RelationalCommandDiagnosticsLogger
             definition.Log(
                 this,
                 string.Format(CultureInfo.InvariantCulture, "{0:N0}", duration.TotalMilliseconds),
-                command.Parameters.FormatParameters(ShouldLogParameterValues(command)),
+                command.Parameters.FormatParameters(ShouldLogSensitiveData()),
                 command.CommandType,
                 command.CommandTimeout,
                 Environment.NewLine,
@@ -1086,6 +1102,7 @@ public class RelationalCommandDiagnosticsLogger
             var eventData = BroadcastCommandExecuted(
                 connection.DbConnection,
                 command,
+                logCommandText,
                 context,
                 DbCommandMethod.ExecuteScalar,
                 commandId,
@@ -1136,7 +1153,7 @@ public class RelationalCommandDiagnosticsLogger
             definition.Log(
                 this,
                 string.Format(CultureInfo.InvariantCulture, "{0:N0}", duration.TotalMilliseconds),
-                command.Parameters.FormatParameters(ShouldLogParameterValues(command)),
+                command.Parameters.FormatParameters(ShouldLogSensitiveData()),
                 command.CommandType,
                 command.CommandTimeout,
                 Environment.NewLine,
@@ -1153,6 +1170,7 @@ public class RelationalCommandDiagnosticsLogger
             var eventData = BroadcastCommandExecuted(
                 connection.DbConnection,
                 command,
+                logCommandText,
                 context,
                 DbCommandMethod.ExecuteNonQuery,
                 commandId,
@@ -1178,6 +1196,7 @@ public class RelationalCommandDiagnosticsLogger
     private CommandExecutedEventData BroadcastCommandExecuted(
         DbConnection connection,
         DbCommand command,
+        string logCommandText,
         DbContext? context,
         DbCommandMethod executeMethod,
         Guid commandId,
@@ -1196,13 +1215,14 @@ public class RelationalCommandDiagnosticsLogger
             CommandExecuted,
             connection,
             command,
+            logCommandText,
             context,
             executeMethod,
             commandId,
             connectionId,
             methodResult,
             async,
-            ShouldLogParameterValues(command),
+            ShouldLogSensitiveData(),
             startTime,
             duration,
             commandSource);
@@ -1217,11 +1237,13 @@ public class RelationalCommandDiagnosticsLogger
             var p = (CommandExecutedEventData)payload;
             return d.GenerateMessage(
                 string.Format(CultureInfo.InvariantCulture, "{0:N0}", p.Duration.TotalMilliseconds),
-                p.Command.Parameters.FormatParameters(p.LogParameterValues),
+                p.Command.Parameters.FormatParameters(p.LogSensitiveValues),
                 p.Command.CommandType,
                 p.Command.CommandTimeout,
                 Environment.NewLine,
-                p.Command.CommandText.TrimEnd());
+                p.LogSensitiveValues
+                    ? p.Command.CommandText.TrimEnd()
+                    : p.LogCommandText.TrimEnd());
         }
     }
 
@@ -1258,6 +1280,7 @@ public class RelationalCommandDiagnosticsLogger
             var eventData = BroadcastCommandError(
                 connection.DbConnection,
                 command,
+                logCommandText,
                 context,
                 executeMethod,
                 commandId,
@@ -1286,7 +1309,7 @@ public class RelationalCommandDiagnosticsLogger
             definition.Log(
                 this,
                 string.Format(CultureInfo.InvariantCulture, "{0:N0}", duration.TotalMilliseconds),
-                command.Parameters.FormatParameters(ShouldLogParameterValues(command)),
+                command.Parameters.FormatParameters(ShouldLogSensitiveData()),
                 command.CommandType,
                 command.CommandTimeout,
                 Environment.NewLine,
@@ -1326,6 +1349,7 @@ public class RelationalCommandDiagnosticsLogger
             var eventData = BroadcastCommandError(
                 connection.DbConnection,
                 command,
+                logCommandText,
                 context,
                 executeMethod,
                 commandId,
@@ -1351,6 +1375,7 @@ public class RelationalCommandDiagnosticsLogger
     private CommandErrorEventData BroadcastCommandError(
         DbConnection connection,
         DbCommand command,
+        string logCommandText,
         DbContext? context,
         DbCommandMethod executeMethod,
         Guid commandId,
@@ -1369,13 +1394,14 @@ public class RelationalCommandDiagnosticsLogger
             CommandError,
             connection,
             command,
+            logCommandText,
             context,
             executeMethod,
             commandId,
             connectionId,
             exception,
             async,
-            ShouldLogParameterValues(command),
+            ShouldLogSensitiveData(),
             startTime,
             duration,
             commandSource);
@@ -1390,11 +1416,13 @@ public class RelationalCommandDiagnosticsLogger
             var p = (CommandErrorEventData)payload;
             return d.GenerateMessage(
                 string.Format(CultureInfo.InvariantCulture, "{0:N0}", p.Duration.TotalMilliseconds),
-                p.Command.Parameters.FormatParameters(p.LogParameterValues),
+                p.Command.Parameters.FormatParameters(p.LogSensitiveValues),
                 p.Command.CommandType,
                 p.Command.CommandTimeout,
                 Environment.NewLine,
-                p.Command.CommandText.TrimEnd());
+                p.LogSensitiveValues
+                    ? p.Command.CommandText.TrimEnd()
+                    : p.LogCommandText.TrimEnd());
         }
     }
 
@@ -1425,6 +1453,7 @@ public class RelationalCommandDiagnosticsLogger
             var eventData = BroadcastCommandCanceled(
                 connection.DbConnection,
                 command,
+                logCommandText,
                 context,
                 executeMethod,
                 commandId,
@@ -1465,6 +1494,7 @@ public class RelationalCommandDiagnosticsLogger
             var eventData = BroadcastCommandCanceled(
                 connection.DbConnection,
                 command,
+                logCommandText,
                 context,
                 executeMethod,
                 commandId,
@@ -1497,7 +1527,7 @@ public class RelationalCommandDiagnosticsLogger
             definition.Log(
                 this,
                 string.Format(CultureInfo.InvariantCulture, "{0:N0}", duration.TotalMilliseconds),
-                command.Parameters.FormatParameters(ShouldLogParameterValues(command)),
+                command.Parameters.FormatParameters(ShouldLogSensitiveData()),
                 command.CommandType,
                 command.CommandTimeout,
                 Environment.NewLine,
@@ -1510,6 +1540,7 @@ public class RelationalCommandDiagnosticsLogger
     private CommandEndEventData BroadcastCommandCanceled(
         DbConnection connection,
         DbCommand command,
+        string logCommandText,
         DbContext? context,
         DbCommandMethod executeMethod,
         Guid commandId,
@@ -1527,12 +1558,13 @@ public class RelationalCommandDiagnosticsLogger
             CommandCanceled,
             connection,
             command,
+            logCommandText,
             context,
             executeMethod,
             commandId,
             connectionId,
             async,
-            ShouldLogParameterValues(command),
+            ShouldLogSensitiveData(),
             startTime,
             duration,
             commandSource);
@@ -1547,11 +1579,13 @@ public class RelationalCommandDiagnosticsLogger
             var p = (CommandEndEventData)payload;
             return d.GenerateMessage(
                 string.Format(CultureInfo.InvariantCulture, "{0:N0}", p.Duration.TotalMilliseconds),
-                p.Command.Parameters.FormatParameters(p.LogParameterValues),
+                p.Command.Parameters.FormatParameters(p.LogSensitiveValues),
                 p.Command.CommandType,
                 p.Command.CommandTimeout,
                 Environment.NewLine,
-                p.Command.CommandText.TrimEnd());
+                p.LogSensitiveValues
+                    ? p.Command.CommandText.TrimEnd()
+                    : p.LogCommandText.TrimEnd());
         }
     }
 
@@ -1783,9 +1817,6 @@ public class RelationalCommandDiagnosticsLogger
     /// </summary>
     public virtual bool ShouldLogDataReaderDispose(DateTimeOffset now)
         => now > _suppressDataReaderDisposingExpiration;
-
-    private bool ShouldLogParameterValues(DbCommand command)
-        => command.Parameters.Count > 0 && ShouldLogSensitiveData();
 
     #endregion ShouldLog checks
 }
