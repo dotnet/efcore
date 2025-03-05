@@ -849,12 +849,13 @@ public class RelationalCommandTest
     private class ReaderThrowingRelationalCommand(
         RelationalCommandBuilderDependencies dependencies,
         string commandText,
-        IReadOnlyList<IRelationalParameter> parameters) : RelationalCommand(dependencies, commandText, parameters)
+        string logCommandText,
+        IReadOnlyList<IRelationalParameter> parameters) : RelationalCommand(dependencies, commandText, logCommandText, parameters)
     {
         protected override RelationalDataReader CreateRelationalDataReader()
             => new ThrowingRelationalReader();
 
-        public static IRelationalCommand Create(string commandText = "Command Text")
+        public static IRelationalCommand Create(string commandText = "Command Text", string logCommandText = "Log Command Text")
             => new ReaderThrowingRelationalCommand(
                 new RelationalCommandBuilderDependencies(
                     new TestRelationalTypeMappingSource(
@@ -862,6 +863,7 @@ public class RelationalCommandTest
                         TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()),
                     new ExceptionDetector()),
                 commandText,
+                logCommandText,
                 []);
 
         private class ThrowingRelationalReader : RelationalDataReader
@@ -993,6 +995,7 @@ public class RelationalCommandTest
 
         var relationalCommand = CreateRelationalCommand(
             commandText: "Logged Command",
+            logCommandText: "Logged Command",
             parameters: new[]
             {
                 new TypeMappedRelationalParameter(
@@ -1345,6 +1348,7 @@ public class RelationalCommandTest
 
     private IRelationalCommand CreateRelationalCommand(
         string commandText = "Command Text",
+        string logCommandText = "Log Command Text",
         IReadOnlyList<IRelationalParameter> parameters = null)
         => new RelationalCommand(
             new RelationalCommandBuilderDependencies(
@@ -1353,6 +1357,7 @@ public class RelationalCommandTest
                     TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()),
                 new ExceptionDetector()),
             commandText,
+            logCommandText,
             parameters ?? []);
 
     private Task<RelationalDataReader> ExecuteReader(

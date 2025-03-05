@@ -219,6 +219,7 @@ public class RelationalCommandDiagnosticsLogger
             CommandCreated,
             connection,
             command,
+            command.CommandText,
             context,
             executeMethod,
             commandId,
@@ -320,6 +321,7 @@ public class RelationalCommandDiagnosticsLogger
             CommandInitialized,
             connection,
             command,
+            command.CommandText,
             context,
             executeMethod,
             commandId,
@@ -355,6 +357,7 @@ public class RelationalCommandDiagnosticsLogger
     public virtual InterceptionResult<DbDataReader> CommandReaderExecuting(
         IRelationalConnection connection,
         DbCommand command,
+        string logCommandText,
         DbContext? context,
         Guid commandId,
         Guid connectionId,
@@ -371,11 +374,13 @@ public class RelationalCommandDiagnosticsLogger
 
             definition.Log(
                 this,
-                command.Parameters.FormatParameters(ShouldLogParameterValues(command)),
+                command.Parameters.FormatParameters(ShouldLogSensitiveData()),
                 command.CommandType,
                 command.CommandTimeout,
                 Environment.NewLine,
-                command.CommandText.TrimEnd());
+                ShouldLogSensitiveData()
+                    ? command.CommandText.TrimEnd()
+                    : logCommandText.TrimEnd());
         }
 
         if (NeedsEventData<IDbCommandInterceptor>(
@@ -386,6 +391,7 @@ public class RelationalCommandDiagnosticsLogger
             var eventData = BroadcastCommandExecuting(
                 connection.DbConnection,
                 command,
+                logCommandText,
                 context,
                 DbCommandMethod.ExecuteReader,
                 commandId,
@@ -415,6 +421,7 @@ public class RelationalCommandDiagnosticsLogger
     public virtual InterceptionResult<object> CommandScalarExecuting(
         IRelationalConnection connection,
         DbCommand command,
+        string logCommandText,
         DbContext? context,
         Guid commandId,
         Guid connectionId,
@@ -431,11 +438,13 @@ public class RelationalCommandDiagnosticsLogger
 
             definition.Log(
                 this,
-                command.Parameters.FormatParameters(ShouldLogParameterValues(command)),
+                command.Parameters.FormatParameters(ShouldLogSensitiveData()),
                 command.CommandType,
                 command.CommandTimeout,
                 Environment.NewLine,
-                command.CommandText.TrimEnd());
+                ShouldLogSensitiveData()
+                    ? command.CommandText.TrimEnd()
+                    : logCommandText.TrimEnd());
         }
 
         if (NeedsEventData<IDbCommandInterceptor>(
@@ -446,6 +455,7 @@ public class RelationalCommandDiagnosticsLogger
             var eventData = BroadcastCommandExecuting(
                 connection.DbConnection,
                 command,
+                logCommandText,
                 context,
                 DbCommandMethod.ExecuteScalar,
                 commandId,
@@ -475,6 +485,7 @@ public class RelationalCommandDiagnosticsLogger
     public virtual InterceptionResult<int> CommandNonQueryExecuting(
         IRelationalConnection connection,
         DbCommand command,
+        string logCommandText,
         DbContext? context,
         Guid commandId,
         Guid connectionId,
@@ -491,11 +502,13 @@ public class RelationalCommandDiagnosticsLogger
 
             definition.Log(
                 this,
-                command.Parameters.FormatParameters(ShouldLogParameterValues(command)),
+                command.Parameters.FormatParameters(ShouldLogSensitiveData()),
                 command.CommandType,
                 command.CommandTimeout,
                 Environment.NewLine,
-                command.CommandText.TrimEnd());
+                ShouldLogSensitiveData()
+                    ? command.CommandText.TrimEnd()
+                    : logCommandText.TrimEnd());
         }
 
         if (NeedsEventData<IDbCommandInterceptor>(
@@ -506,6 +519,7 @@ public class RelationalCommandDiagnosticsLogger
             var eventData = BroadcastCommandExecuting(
                 connection.DbConnection,
                 command,
+                logCommandText,
                 context,
                 DbCommandMethod.ExecuteNonQuery,
                 commandId,
@@ -535,6 +549,7 @@ public class RelationalCommandDiagnosticsLogger
     public virtual ValueTask<InterceptionResult<DbDataReader>> CommandReaderExecutingAsync(
         IRelationalConnection connection,
         DbCommand command,
+        string logCommandText,
         DbContext? context,
         Guid commandId,
         Guid connectionId,
@@ -552,11 +567,13 @@ public class RelationalCommandDiagnosticsLogger
 
             definition.Log(
                 this,
-                command.Parameters.FormatParameters(ShouldLogParameterValues(command)),
+                command.Parameters.FormatParameters(ShouldLogSensitiveData()),
                 command.CommandType,
                 command.CommandTimeout,
                 Environment.NewLine,
-                command.CommandText.TrimEnd());
+                ShouldLogSensitiveData()
+                    ? command.CommandText.TrimEnd()
+                    : logCommandText.TrimEnd());
         }
 
         if (NeedsEventData<IDbCommandInterceptor>(
@@ -567,6 +584,7 @@ public class RelationalCommandDiagnosticsLogger
             var eventData = BroadcastCommandExecuting(
                 connection.DbConnection,
                 command,
+                logCommandText,
                 context,
                 DbCommandMethod.ExecuteReader,
                 commandId,
@@ -596,6 +614,7 @@ public class RelationalCommandDiagnosticsLogger
     public virtual ValueTask<InterceptionResult<object>> CommandScalarExecutingAsync(
         IRelationalConnection connection,
         DbCommand command,
+        string logCommandText,
         DbContext? context,
         Guid commandId,
         Guid connectionId,
@@ -613,11 +632,13 @@ public class RelationalCommandDiagnosticsLogger
 
             definition.Log(
                 this,
-                command.Parameters.FormatParameters(ShouldLogParameterValues(command)),
+                command.Parameters.FormatParameters(ShouldLogSensitiveData()),
                 command.CommandType,
                 command.CommandTimeout,
                 Environment.NewLine,
-                command.CommandText.TrimEnd());
+                ShouldLogSensitiveData()
+                    ? command.CommandText.TrimEnd()
+                    : logCommandText.TrimEnd());
         }
 
         if (NeedsEventData<IDbCommandInterceptor>(
@@ -628,6 +649,7 @@ public class RelationalCommandDiagnosticsLogger
             var eventData = BroadcastCommandExecuting(
                 connection.DbConnection,
                 command,
+                logCommandText,
                 context,
                 DbCommandMethod.ExecuteScalar,
                 commandId,
@@ -657,6 +679,7 @@ public class RelationalCommandDiagnosticsLogger
     public virtual ValueTask<InterceptionResult<int>> CommandNonQueryExecutingAsync(
         IRelationalConnection connection,
         DbCommand command,
+        string logCommandText,
         DbContext? context,
         Guid commandId,
         Guid connectionId,
@@ -674,11 +697,13 @@ public class RelationalCommandDiagnosticsLogger
 
             definition.Log(
                 this,
-                command.Parameters.FormatParameters(ShouldLogParameterValues(command)),
+                command.Parameters.FormatParameters(ShouldLogSensitiveData()),
                 command.CommandType,
                 command.CommandTimeout,
                 Environment.NewLine,
-                command.CommandText.TrimEnd());
+                ShouldLogSensitiveData()
+                    ? command.CommandText.TrimEnd()
+                    : logCommandText.TrimEnd());
         }
 
         if (NeedsEventData<IDbCommandInterceptor>(
@@ -689,6 +714,7 @@ public class RelationalCommandDiagnosticsLogger
             var eventData = BroadcastCommandExecuting(
                 connection.DbConnection,
                 command,
+                logCommandText,
                 context,
                 DbCommandMethod.ExecuteNonQuery,
                 commandId,
@@ -712,6 +738,7 @@ public class RelationalCommandDiagnosticsLogger
     private CommandEventData BroadcastCommandExecuting(
         DbConnection connection,
         DbCommand command,
+        string logCommandText,
         DbContext? context,
         DbCommandMethod executeMethod,
         Guid commandId,
@@ -728,12 +755,13 @@ public class RelationalCommandDiagnosticsLogger
             CommandExecuting,
             connection,
             command,
+            logCommandText,
             context,
             executeMethod,
             commandId,
             connectionId,
             async,
-            ShouldLogParameterValues(command),
+            ShouldLogSensitiveData(),
             startTime,
             commandSource);
 
@@ -746,11 +774,13 @@ public class RelationalCommandDiagnosticsLogger
             var d = (EventDefinition<string, CommandType, int, string, string>)definition;
             var p = (CommandEventData)payload;
             return d.GenerateMessage(
-                p.Command.Parameters.FormatParameters(p.LogParameterValues),
+                p.Command.Parameters.FormatParameters(p.LogSensitiveValues),
                 p.Command.CommandType,
                 p.Command.CommandTimeout,
                 Environment.NewLine,
-                p.Command.CommandText.TrimEnd());
+                p.LogSensitiveValues
+                    ? p.Command.CommandText.TrimEnd()
+                    : p.LogCommandText.TrimEnd());
         }
     }
 
@@ -767,6 +797,7 @@ public class RelationalCommandDiagnosticsLogger
     public virtual DbDataReader CommandReaderExecuted(
         IRelationalConnection connection,
         DbCommand command,
+        string logCommandText,
         DbContext? context,
         Guid commandId,
         Guid connectionId,
@@ -784,11 +815,13 @@ public class RelationalCommandDiagnosticsLogger
             definition.Log(
                 this,
                 string.Format(CultureInfo.InvariantCulture, "{0:N0}", duration.TotalMilliseconds),
-                command.Parameters.FormatParameters(ShouldLogParameterValues(command)),
+                command.Parameters.FormatParameters(ShouldLogSensitiveData()),
                 command.CommandType,
                 command.CommandTimeout,
                 Environment.NewLine,
-                command.CommandText.TrimEnd());
+                ShouldLogSensitiveData()
+                    ? command.CommandText.TrimEnd()
+                    : logCommandText.TrimEnd());
         }
 
         if (NeedsEventData<IDbCommandInterceptor>(
@@ -799,6 +832,7 @@ public class RelationalCommandDiagnosticsLogger
             var eventData = BroadcastCommandExecuted(
                 connection.DbConnection,
                 command,
+                logCommandText,
                 context,
                 DbCommandMethod.ExecuteReader,
                 commandId,
@@ -830,6 +864,7 @@ public class RelationalCommandDiagnosticsLogger
     public virtual object? CommandScalarExecuted(
         IRelationalConnection connection,
         DbCommand command,
+        string logCommandText,
         DbContext? context,
         Guid commandId,
         Guid connectionId,
@@ -847,11 +882,13 @@ public class RelationalCommandDiagnosticsLogger
             definition.Log(
                 this,
                 string.Format(CultureInfo.InvariantCulture, "{0:N0}", duration.TotalMilliseconds),
-                command.Parameters.FormatParameters(ShouldLogParameterValues(command)),
+                command.Parameters.FormatParameters(ShouldLogSensitiveData()),
                 command.CommandType,
                 command.CommandTimeout,
                 Environment.NewLine,
-                command.CommandText.TrimEnd());
+                ShouldLogSensitiveData()
+                    ? command.CommandText.TrimEnd()
+                    : logCommandText.TrimEnd());
         }
 
         if (NeedsEventData<IDbCommandInterceptor>(
@@ -862,6 +899,7 @@ public class RelationalCommandDiagnosticsLogger
             var eventData = BroadcastCommandExecuted(
                 connection.DbConnection,
                 command,
+                logCommandText,
                 context,
                 DbCommandMethod.ExecuteScalar,
                 commandId,
@@ -893,6 +931,7 @@ public class RelationalCommandDiagnosticsLogger
     public virtual int CommandNonQueryExecuted(
         IRelationalConnection connection,
         DbCommand command,
+        string logCommandText,
         DbContext? context,
         Guid commandId,
         Guid connectionId,
@@ -910,11 +949,13 @@ public class RelationalCommandDiagnosticsLogger
             definition.Log(
                 this,
                 string.Format(CultureInfo.InvariantCulture, "{0:N0}", duration.TotalMilliseconds),
-                command.Parameters.FormatParameters(ShouldLogParameterValues(command)),
+                command.Parameters.FormatParameters(ShouldLogSensitiveData()),
                 command.CommandType,
                 command.CommandTimeout,
                 Environment.NewLine,
-                command.CommandText.TrimEnd());
+                ShouldLogSensitiveData()
+                    ? command.CommandText.TrimEnd()
+                    : logCommandText.TrimEnd());
         }
 
         if (NeedsEventData<IDbCommandInterceptor>(
@@ -925,6 +966,7 @@ public class RelationalCommandDiagnosticsLogger
             var eventData = BroadcastCommandExecuted(
                 connection.DbConnection,
                 command,
+                logCommandText,
                 context,
                 DbCommandMethod.ExecuteNonQuery,
                 commandId,
@@ -956,6 +998,7 @@ public class RelationalCommandDiagnosticsLogger
     public virtual ValueTask<DbDataReader> CommandReaderExecutedAsync(
         IRelationalConnection connection,
         DbCommand command,
+        string logCommandText,
         DbContext? context,
         Guid commandId,
         Guid connectionId,
@@ -974,11 +1017,13 @@ public class RelationalCommandDiagnosticsLogger
             definition.Log(
                 this,
                 string.Format(CultureInfo.InvariantCulture, "{0:N0}", duration.TotalMilliseconds),
-                command.Parameters.FormatParameters(ShouldLogParameterValues(command)),
+                command.Parameters.FormatParameters(ShouldLogSensitiveData()),
                 command.CommandType,
                 command.CommandTimeout,
                 Environment.NewLine,
-                command.CommandText.TrimEnd());
+                ShouldLogSensitiveData()
+                    ? command.CommandText.TrimEnd()
+                    : logCommandText.TrimEnd());
         }
 
         if (NeedsEventData<IDbCommandInterceptor>(
@@ -989,6 +1034,7 @@ public class RelationalCommandDiagnosticsLogger
             var eventData = BroadcastCommandExecuted(
                 connection.DbConnection,
                 command,
+                logCommandText,
                 context,
                 DbCommandMethod.ExecuteReader,
                 commandId,
@@ -1020,6 +1066,7 @@ public class RelationalCommandDiagnosticsLogger
     public virtual ValueTask<object?> CommandScalarExecutedAsync(
         IRelationalConnection connection,
         DbCommand command,
+        string logCommandText,
         DbContext? context,
         Guid commandId,
         Guid connectionId,
@@ -1038,11 +1085,13 @@ public class RelationalCommandDiagnosticsLogger
             definition.Log(
                 this,
                 string.Format(CultureInfo.InvariantCulture, "{0:N0}", duration.TotalMilliseconds),
-                command.Parameters.FormatParameters(ShouldLogParameterValues(command)),
+                command.Parameters.FormatParameters(ShouldLogSensitiveData()),
                 command.CommandType,
                 command.CommandTimeout,
                 Environment.NewLine,
-                command.CommandText.TrimEnd());
+                ShouldLogSensitiveData()
+                    ? command.CommandText.TrimEnd()
+                    : logCommandText.TrimEnd());
         }
 
         if (NeedsEventData<IDbCommandInterceptor>(
@@ -1053,6 +1102,7 @@ public class RelationalCommandDiagnosticsLogger
             var eventData = BroadcastCommandExecuted(
                 connection.DbConnection,
                 command,
+                logCommandText,
                 context,
                 DbCommandMethod.ExecuteScalar,
                 commandId,
@@ -1084,6 +1134,7 @@ public class RelationalCommandDiagnosticsLogger
     public virtual ValueTask<int> CommandNonQueryExecutedAsync(
         IRelationalConnection connection,
         DbCommand command,
+        string logCommandText,
         DbContext? context,
         Guid commandId,
         Guid connectionId,
@@ -1102,11 +1153,13 @@ public class RelationalCommandDiagnosticsLogger
             definition.Log(
                 this,
                 string.Format(CultureInfo.InvariantCulture, "{0:N0}", duration.TotalMilliseconds),
-                command.Parameters.FormatParameters(ShouldLogParameterValues(command)),
+                command.Parameters.FormatParameters(ShouldLogSensitiveData()),
                 command.CommandType,
                 command.CommandTimeout,
                 Environment.NewLine,
-                command.CommandText.TrimEnd());
+                ShouldLogSensitiveData()
+                    ? command.CommandText.TrimEnd()
+                    : logCommandText.TrimEnd());
         }
 
         if (NeedsEventData<IDbCommandInterceptor>(
@@ -1117,6 +1170,7 @@ public class RelationalCommandDiagnosticsLogger
             var eventData = BroadcastCommandExecuted(
                 connection.DbConnection,
                 command,
+                logCommandText,
                 context,
                 DbCommandMethod.ExecuteNonQuery,
                 commandId,
@@ -1142,6 +1196,7 @@ public class RelationalCommandDiagnosticsLogger
     private CommandExecutedEventData BroadcastCommandExecuted(
         DbConnection connection,
         DbCommand command,
+        string logCommandText,
         DbContext? context,
         DbCommandMethod executeMethod,
         Guid commandId,
@@ -1160,13 +1215,14 @@ public class RelationalCommandDiagnosticsLogger
             CommandExecuted,
             connection,
             command,
+            logCommandText,
             context,
             executeMethod,
             commandId,
             connectionId,
             methodResult,
             async,
-            ShouldLogParameterValues(command),
+            ShouldLogSensitiveData(),
             startTime,
             duration,
             commandSource);
@@ -1181,11 +1237,13 @@ public class RelationalCommandDiagnosticsLogger
             var p = (CommandExecutedEventData)payload;
             return d.GenerateMessage(
                 string.Format(CultureInfo.InvariantCulture, "{0:N0}", p.Duration.TotalMilliseconds),
-                p.Command.Parameters.FormatParameters(p.LogParameterValues),
+                p.Command.Parameters.FormatParameters(p.LogSensitiveValues),
                 p.Command.CommandType,
                 p.Command.CommandTimeout,
                 Environment.NewLine,
-                p.Command.CommandText.TrimEnd());
+                p.LogSensitiveValues
+                    ? p.Command.CommandText.TrimEnd()
+                    : p.LogCommandText.TrimEnd());
         }
     }
 
@@ -1202,6 +1260,7 @@ public class RelationalCommandDiagnosticsLogger
     public virtual void CommandError(
         IRelationalConnection connection,
         DbCommand command,
+        string logCommandText,
         DbContext? context,
         DbCommandMethod executeMethod,
         Guid commandId,
@@ -1213,7 +1272,7 @@ public class RelationalCommandDiagnosticsLogger
     {
         var definition = RelationalResources.LogCommandFailed(this);
 
-        LogCommandError(command, duration, definition);
+        LogCommandError(command, logCommandText, duration, definition);
 
         if (NeedsEventData<IDbCommandInterceptor>(
                 definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
@@ -1221,6 +1280,7 @@ public class RelationalCommandDiagnosticsLogger
             var eventData = BroadcastCommandError(
                 connection.DbConnection,
                 command,
+                logCommandText,
                 context,
                 executeMethod,
                 commandId,
@@ -1240,6 +1300,7 @@ public class RelationalCommandDiagnosticsLogger
 
     private void LogCommandError(
         DbCommand command,
+        string logCommandText,
         TimeSpan duration,
         EventDefinition<string, string, CommandType, int, string, string> definition)
     {
@@ -1248,11 +1309,13 @@ public class RelationalCommandDiagnosticsLogger
             definition.Log(
                 this,
                 string.Format(CultureInfo.InvariantCulture, "{0:N0}", duration.TotalMilliseconds),
-                command.Parameters.FormatParameters(ShouldLogParameterValues(command)),
+                command.Parameters.FormatParameters(ShouldLogSensitiveData()),
                 command.CommandType,
                 command.CommandTimeout,
                 Environment.NewLine,
-                command.CommandText.TrimEnd());
+                ShouldLogSensitiveData()
+                    ? command.CommandText.TrimEnd()
+                    : logCommandText.TrimEnd());
         }
     }
 
@@ -1265,6 +1328,7 @@ public class RelationalCommandDiagnosticsLogger
     public virtual Task CommandErrorAsync(
         IRelationalConnection connection,
         DbCommand command,
+        string logCommandText,
         DbContext? context,
         DbCommandMethod executeMethod,
         Guid commandId,
@@ -1277,7 +1341,7 @@ public class RelationalCommandDiagnosticsLogger
     {
         var definition = RelationalResources.LogCommandFailed(this);
 
-        LogCommandError(command, duration, definition);
+        LogCommandError(command, logCommandText, duration, definition);
 
         if (NeedsEventData<IDbCommandInterceptor>(
                 definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
@@ -1285,6 +1349,7 @@ public class RelationalCommandDiagnosticsLogger
             var eventData = BroadcastCommandError(
                 connection.DbConnection,
                 command,
+                logCommandText,
                 context,
                 executeMethod,
                 commandId,
@@ -1310,6 +1375,7 @@ public class RelationalCommandDiagnosticsLogger
     private CommandErrorEventData BroadcastCommandError(
         DbConnection connection,
         DbCommand command,
+        string logCommandText,
         DbContext? context,
         DbCommandMethod executeMethod,
         Guid commandId,
@@ -1328,13 +1394,14 @@ public class RelationalCommandDiagnosticsLogger
             CommandError,
             connection,
             command,
+            logCommandText,
             context,
             executeMethod,
             commandId,
             connectionId,
             exception,
             async,
-            ShouldLogParameterValues(command),
+            ShouldLogSensitiveData(),
             startTime,
             duration,
             commandSource);
@@ -1349,11 +1416,13 @@ public class RelationalCommandDiagnosticsLogger
             var p = (CommandErrorEventData)payload;
             return d.GenerateMessage(
                 string.Format(CultureInfo.InvariantCulture, "{0:N0}", p.Duration.TotalMilliseconds),
-                p.Command.Parameters.FormatParameters(p.LogParameterValues),
+                p.Command.Parameters.FormatParameters(p.LogSensitiveValues),
                 p.Command.CommandType,
                 p.Command.CommandTimeout,
                 Environment.NewLine,
-                p.Command.CommandText.TrimEnd());
+                p.LogSensitiveValues
+                    ? p.Command.CommandText.TrimEnd()
+                    : p.LogCommandText.TrimEnd());
         }
     }
 
@@ -1365,6 +1434,7 @@ public class RelationalCommandDiagnosticsLogger
     public virtual void CommandCanceled(
         IRelationalConnection connection,
         DbCommand command,
+        string logCommandText,
         DbContext? context,
         DbCommandMethod executeMethod,
         Guid commandId,
@@ -1375,7 +1445,7 @@ public class RelationalCommandDiagnosticsLogger
     {
         var definition = RelationalResources.LogCommandCanceled(this);
 
-        LogCommandCanceled(command, duration, definition);
+        LogCommandCanceled(command, logCommandText, duration, definition);
 
         if (NeedsEventData<IDbCommandInterceptor>(
                 definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
@@ -1383,6 +1453,7 @@ public class RelationalCommandDiagnosticsLogger
             var eventData = BroadcastCommandCanceled(
                 connection.DbConnection,
                 command,
+                logCommandText,
                 context,
                 executeMethod,
                 commandId,
@@ -1403,6 +1474,7 @@ public class RelationalCommandDiagnosticsLogger
     public virtual Task CommandCanceledAsync(
         IRelationalConnection connection,
         DbCommand command,
+        string logCommandText,
         DbContext? context,
         DbCommandMethod executeMethod,
         Guid commandId,
@@ -1414,7 +1486,7 @@ public class RelationalCommandDiagnosticsLogger
     {
         var definition = RelationalResources.LogCommandCanceled(this);
 
-        LogCommandCanceled(command, duration, definition);
+        LogCommandCanceled(command, logCommandText, duration, definition);
 
         if (NeedsEventData<IDbCommandInterceptor>(
                 definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
@@ -1422,6 +1494,7 @@ public class RelationalCommandDiagnosticsLogger
             var eventData = BroadcastCommandCanceled(
                 connection.DbConnection,
                 command,
+                logCommandText,
                 context,
                 executeMethod,
                 commandId,
@@ -1445,6 +1518,7 @@ public class RelationalCommandDiagnosticsLogger
 
     private void LogCommandCanceled(
         DbCommand command,
+        string logCommandText,
         TimeSpan duration,
         EventDefinition<string, string, CommandType, int, string, string> definition)
     {
@@ -1453,17 +1527,20 @@ public class RelationalCommandDiagnosticsLogger
             definition.Log(
                 this,
                 string.Format(CultureInfo.InvariantCulture, "{0:N0}", duration.TotalMilliseconds),
-                command.Parameters.FormatParameters(ShouldLogParameterValues(command)),
+                command.Parameters.FormatParameters(ShouldLogSensitiveData()),
                 command.CommandType,
                 command.CommandTimeout,
                 Environment.NewLine,
-                command.CommandText.TrimEnd());
+                ShouldLogSensitiveData()
+                    ? command.CommandText.TrimEnd()
+                    : logCommandText.TrimEnd());
         }
     }
 
     private CommandEndEventData BroadcastCommandCanceled(
         DbConnection connection,
         DbCommand command,
+        string logCommandText,
         DbContext? context,
         DbCommandMethod executeMethod,
         Guid commandId,
@@ -1481,12 +1558,13 @@ public class RelationalCommandDiagnosticsLogger
             CommandCanceled,
             connection,
             command,
+            logCommandText,
             context,
             executeMethod,
             commandId,
             connectionId,
             async,
-            ShouldLogParameterValues(command),
+            ShouldLogSensitiveData(),
             startTime,
             duration,
             commandSource);
@@ -1501,11 +1579,13 @@ public class RelationalCommandDiagnosticsLogger
             var p = (CommandEndEventData)payload;
             return d.GenerateMessage(
                 string.Format(CultureInfo.InvariantCulture, "{0:N0}", p.Duration.TotalMilliseconds),
-                p.Command.Parameters.FormatParameters(p.LogParameterValues),
+                p.Command.Parameters.FormatParameters(p.LogSensitiveValues),
                 p.Command.CommandType,
                 p.Command.CommandTimeout,
                 Environment.NewLine,
-                p.Command.CommandText.TrimEnd());
+                p.LogSensitiveValues
+                    ? p.Command.CommandText.TrimEnd()
+                    : p.LogCommandText.TrimEnd());
         }
     }
 
@@ -1737,9 +1817,6 @@ public class RelationalCommandDiagnosticsLogger
     /// </summary>
     public virtual bool ShouldLogDataReaderDispose(DateTimeOffset now)
         => now > _suppressDataReaderDisposingExpiration;
-
-    private bool ShouldLogParameterValues(DbCommand command)
-        => command.Parameters.Count > 0 && ShouldLogSensitiveData();
 
     #endregion ShouldLog checks
 }

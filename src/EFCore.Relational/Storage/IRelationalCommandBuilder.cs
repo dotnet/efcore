@@ -53,15 +53,17 @@ public interface IRelationalCommandBuilder
     ///     Appends an object to the command text.
     /// </summary>
     /// <param name="value">The object to be written.</param>
+    /// <param name="logValue">The object to be written to log.</param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
-    IRelationalCommandBuilder Append(string value);
+    IRelationalCommandBuilder Append(string value, string? logValue = null);
 
     /// <summary>
     ///     Appends an object to the command text.
     /// </summary>
     /// <param name="value">The object to be written.</param>
+    /// <param name="logValue">The object to be written to log.</param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
-    IRelationalCommandBuilder Append(FormattableString value);
+    IRelationalCommandBuilder Append(FormattableString value, FormattableString? logValue = null);
 
     /// <summary>
     ///     Appends a blank line to the command text.

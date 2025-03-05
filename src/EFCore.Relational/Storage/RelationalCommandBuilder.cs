@@ -10,6 +10,7 @@ public class RelationalCommandBuilder : IRelationalCommandBuilder
 {
     private readonly List<IRelationalParameter> _parameters = [];
     private readonly IndentedStringBuilder _commandTextBuilder = new();
+    private readonly IndentedStringBuilder _logCommandTextBuilder = new();
 
     /// <summary>
     ///     <para>
@@ -37,7 +38,7 @@ public class RelationalCommandBuilder : IRelationalCommandBuilder
 
     /// <inheritdoc />
     public virtual IRelationalCommand Build()
-        => new RelationalCommand(Dependencies, _commandTextBuilder.ToString(), Parameters);
+        => new RelationalCommand(Dependencies, _commandTextBuilder.ToString(), _logCommandTextBuilder.ToString(), Parameters);
 
     /// <summary>
     ///     Gets the command text.
@@ -66,17 +67,19 @@ public class RelationalCommandBuilder : IRelationalCommandBuilder
     }
 
     /// <inheritdoc />
-    public virtual IRelationalCommandBuilder Append(string value)
+    public virtual IRelationalCommandBuilder Append(string value, string? logValue = null)
     {
         _commandTextBuilder.Append(value);
+        _logCommandTextBuilder.Append(logValue ?? value);
 
         return this;
     }
 
     /// <inheritdoc />
-    public virtual IRelationalCommandBuilder Append(FormattableString value)
+    public virtual IRelationalCommandBuilder Append(FormattableString value, FormattableString? logValue = null)
     {
         _commandTextBuilder.Append(value);
+        _logCommandTextBuilder.Append(logValue ?? value);
 
         return this;
     }
@@ -85,6 +88,7 @@ public class RelationalCommandBuilder : IRelationalCommandBuilder
     public virtual IRelationalCommandBuilder AppendLine()
     {
         _commandTextBuilder.AppendLine();
+        _logCommandTextBuilder.AppendLine();
 
         return this;
     }
@@ -93,6 +97,7 @@ public class RelationalCommandBuilder : IRelationalCommandBuilder
     public virtual IRelationalCommandBuilder IncrementIndent()
     {
         _commandTextBuilder.IncrementIndent();
+        _logCommandTextBuilder.IncrementIndent();
 
         return this;
     }
@@ -101,6 +106,7 @@ public class RelationalCommandBuilder : IRelationalCommandBuilder
     public virtual IRelationalCommandBuilder DecrementIndent()
     {
         _commandTextBuilder.DecrementIndent();
+        _logCommandTextBuilder.DecrementIndent();
 
         return this;
     }
