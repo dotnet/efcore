@@ -995,6 +995,7 @@ public class RelationalCommandTest
 
         var relationalCommand = CreateRelationalCommand(
             commandText: "Logged Command",
+            logCommandText: "Logged Command",
             parameters: new[]
             {
                 new TypeMappedRelationalParameter(
