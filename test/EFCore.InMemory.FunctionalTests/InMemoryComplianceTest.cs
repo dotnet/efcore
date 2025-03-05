@@ -27,6 +27,7 @@ public class InMemoryComplianceTest : ComplianceTestBase
         typeof(NonSharedModelBulkUpdatesTestBase),
         typeof(NorthwindBulkUpdatesTestBase<>),
         typeof(JsonQueryTestBase<>),
+        typeof(AdHocJsonQueryTestBase),
 
         // TODO: implement later once things are baked
         typeof(ComplexRelationshipsInProjectionNoTrackingQueryTestBase<>),
