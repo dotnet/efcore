@@ -88,6 +88,7 @@ public class RelationalCommandBuilder : IRelationalCommandBuilder
     public virtual IRelationalCommandBuilder AppendLine()
     {
         _commandTextBuilder.AppendLine();
+        _logCommandTextBuilder.AppendLine();
 
         return this;
     }
@@ -96,6 +97,7 @@ public class RelationalCommandBuilder : IRelationalCommandBuilder
     public virtual IRelationalCommandBuilder IncrementIndent()
     {
         _commandTextBuilder.IncrementIndent();
+        _logCommandTextBuilder.IncrementIndent();
 
         return this;
     }
@@ -104,6 +106,7 @@ public class RelationalCommandBuilder : IRelationalCommandBuilder
     public virtual IRelationalCommandBuilder DecrementIndent()
     {
         _commandTextBuilder.DecrementIndent();
+        _logCommandTextBuilder.DecrementIndent();
 
         return this;
     }
