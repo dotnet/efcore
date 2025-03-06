@@ -13,7 +13,7 @@ public class StringToBytesConverterTest
         var converter = _stringToUtf8Converter.ConvertToProviderExpression.Compile();
 
         Assert.Equal(new byte[] { 83, 112, 196, 177, 110, 204, 136, 97, 108, 32, 84, 97, 112 }, converter("Spın̈al Tap"));
-        Assert.Equal([], converter(""));
+        Assert.Equal(new byte[0], converter(""));
     }
 
     [ConditionalFact]

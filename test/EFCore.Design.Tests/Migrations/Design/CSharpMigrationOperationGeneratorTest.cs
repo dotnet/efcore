@@ -2453,7 +2453,7 @@ mb.InsertData(
                 Assert.Single(o.Columns);
                 Assert.Equal(1, o.Values.GetLength(0));
                 Assert.Equal(1, o.Values.GetLength(1));
-                Assert.Equal([], (string[])o.Values[0, 0]);
+                Assert.Equal(new string[0], (string[])o.Values[0, 0]);
             });
 
     [ConditionalFact]
@@ -2478,7 +2478,7 @@ mb.InsertData(
                 Assert.Equal(1, o.Values.GetLength(0));
                 Assert.Equal(3, o.Values.GetLength(1));
                 Assert.Null(o.Values[0, 1]);
-                Assert.Equal([], (string[])o.Values[0, 2]);
+                Assert.Equal(new string[0], (string[])o.Values[0, 2]);
             });
 
     [ConditionalFact]
