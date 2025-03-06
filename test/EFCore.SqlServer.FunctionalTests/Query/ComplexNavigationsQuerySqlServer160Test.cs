@@ -67,12 +67,8 @@ WHERE [l].[Id] < 3
         AssertSql(
             """
 SELECT (
-    SELECT TOP(1) [l1].[Name]
-    FROM (
-        SELECT TOP(1) [l0].[Id], [l0].[Name]
-        FROM [LevelThree] AS [l0]
-    ) AS [l1]
-    ORDER BY [l1].[Id])
+    SELECT TOP(1) [l0].[Name]
+    FROM [LevelThree] AS [l0])
 FROM [LevelOne] AS [l]
 WHERE [l].[Id] < 3
 """);
