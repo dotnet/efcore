@@ -596,9 +596,9 @@ INNER JOIN (
         await base.GroupJoin_aggregate_anonymous_key_selectors(async);
 
         AssertSql(
-"""
+            """
 SELECT [c].[CustomerID], (
-    SELECT COALESCE(SUM(CAST(LEN([o].[CustomerID]) AS int)), 0)
+    SELECT ISNULL(SUM(CAST(LEN([o].[CustomerID]) AS int)), 0)
     FROM [Orders] AS [o]
     WHERE [c].[City] IS NOT NULL AND [c].[CustomerID] = [o].[CustomerID] AND [c].[City] = N'London') AS [Sum]
 FROM [Customers] AS [c]
@@ -610,9 +610,9 @@ FROM [Customers] AS [c]
         await base.GroupJoin_aggregate_anonymous_key_selectors2(async);
 
         AssertSql(
-"""
+            """
 SELECT [c].[CustomerID], (
-    SELECT COALESCE(SUM(CAST(LEN([o].[CustomerID]) AS int)), 0)
+    SELECT ISNULL(SUM(CAST(LEN([o].[CustomerID]) AS int)), 0)
     FROM [Orders] AS [o]
     WHERE [c].[CustomerID] = [o].[CustomerID] AND 1996 = DATEPART(year, [o].[OrderDate])) AS [Sum]
 FROM [Customers] AS [c]
@@ -624,9 +624,9 @@ FROM [Customers] AS [c]
         await base.GroupJoin_aggregate_anonymous_key_selectors_one_argument(async);
 
         AssertSql(
-"""
+            """
 SELECT [c].[CustomerID], (
-    SELECT COALESCE(SUM(CAST(LEN([o].[CustomerID]) AS int)), 0)
+    SELECT ISNULL(SUM(CAST(LEN([o].[CustomerID]) AS int)), 0)
     FROM [Orders] AS [o]
     WHERE [c].[CustomerID] = [o].[CustomerID]) AS [Sum]
 FROM [Customers] AS [c]
