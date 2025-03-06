@@ -31,6 +31,9 @@ public class ParameterExtractingExpressionVisitor : ExpressionVisitor
     private static readonly bool UseOldBehavior31552 =
         AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue31552", out var enabled31552) && enabled31552;
 
+    private static readonly bool UseOldBehavior35100 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue35100", out var enabled35100) && enabled35100;
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -181,9 +184,11 @@ public class ParameterExtractingExpressionVisitor : ExpressionVisitor
     /// </summary>
     protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
     {
+        var method = methodCallExpression.Method;
+
         if (!UseOldBehavior31552
-            && methodCallExpression.Method.DeclaringType == typeof(EF)
-            && methodCallExpression.Method.Name == nameof(EF.Constant))
+            && method.DeclaringType == typeof(EF)
+            && method.Name == nameof(EF.Constant))
         {
             // If this is a call to EF.Constant(), then examine its operand. If the operand isn't evaluatable (i.e. contains a reference
             // to a database table), throw immediately.
@@ -195,6 +200,52 @@ public class ParameterExtractingExpressionVisitor : ExpressionVisitor
             }
 
             return Evaluate(operand, generateParameter: false);
+        }
+
+        // .NET 10 made changes to overload resolution to prefer Span-based overloads when those exist ("first-class spans").
+        // Unfortunately, the LINQ interpreter does not support ref structs, so we rewrite e.g. MemoryExtensions.Contains to
+        // Enumerable.Contains here. See https://github.com/dotnet/runtime/issues/109757.
+        if (method.DeclaringType == typeof(MemoryExtensions) && !UseOldBehavior35100)
+        {
+            switch (method.Name)
+            {
+                case nameof(MemoryExtensions.Contains)
+                    when methodCallExpression.Arguments is [var arg0, var arg1] &&
+                         TryUnwrapSpanImplicitCast(arg0, out var unwrappedArg0):
+                {
+                    return Visit(
+                        Expression.Call(
+                            EnumerableMethods.Contains.MakeGenericMethod(method.GetGenericArguments()[0]),
+                            unwrappedArg0, arg1));
+                }
+
+                case nameof(MemoryExtensions.SequenceEqual)
+                    when methodCallExpression.Arguments is [var arg0, var arg1]
+                         && TryUnwrapSpanImplicitCast(arg0, out var unwrappedArg0)
+                         && TryUnwrapSpanImplicitCast(arg1, out var unwrappedArg1):
+                    return Visit(
+                        Expression.Call(
+                            EnumerableMethods.SequenceEqual.MakeGenericMethod(method.GetGenericArguments()[0]),
+                            unwrappedArg0, unwrappedArg1));
+            }
+
+            static bool TryUnwrapSpanImplicitCast(Expression expression, [NotNullWhen(true)] out Expression? result)
+            {
+                if (expression is MethodCallExpression
+                    {
+                        Method: { Name: "op_Implicit", DeclaringType: { IsGenericType: true } implicitCastDeclaringType },
+                        Arguments: [var unwrapped]
+                    }
+                    && implicitCastDeclaringType.GetGenericTypeDefinition() is var genericTypeDefinition
+                    && (genericTypeDefinition == typeof(Span<>) || genericTypeDefinition == typeof(ReadOnlySpan<>)))
+                {
+                    result = unwrapped;
+                    return true;
+                }
+
+                result = null;
+                return false;
+            }
         }
 
         return base.VisitMethodCall(methodCallExpression);
