@@ -1334,7 +1334,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
             case { Parameter: StructuralTypeShaperExpression shaper }:
                 var projection = (StructuralTypeProjectionExpression)Visit(shaper.ValueBufferExpression);
 
-                // TODO: Move all this logic into StructuralTypeProjectionExpression
+                // TODO: Move all this logic into StructuralTypeProjectionExpression, #31376
                 Check.DebugAssert(projection.IsNullable == shaper.IsNullable, "Nullability mismatch");
                 return new StructuralTypeReferenceExpression(projection.BindComplexProperty(complexProperty));
 
@@ -1906,7 +1906,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                 || IsNullSqlConstantExpression(right))
             {
                 // TODO: when we support optional complex types - or projecting required complex types via optional navigations - we'll
-                // be able to translate this.
+                // be able to translate this, #31376
                 throw new InvalidOperationException(RelationalStrings.CannotCompareComplexTypeToNull);
             }
 
@@ -1918,7 +1918,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
 
             // If a complex type is the result of a subquery, then comparing its columns would mean duplicating the subquery, which would
             // be potentially very inefficient.
-            // TODO: Enable this by extracting the subquery out to a common table expressions (WITH)
+            // TODO: Enable this by extracting the subquery out to a common table expressions (WITH), #31237
             if (leftReference is { Subquery: not null } || rightReference is { Subquery: not null })
             {
                 throw new InvalidOperationException(RelationalStrings.SubqueryOverComplexTypesNotSupported(complexType.DisplayName()));

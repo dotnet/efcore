@@ -1498,7 +1498,7 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
     private void GenerateAddMapping(
         ITableMappingBase tableMapping,
         string tableVariable,
-        string entityTypeVariable,
+        string structuralTypeVariable,
         string tableMappingsVariable,
         string tableMappingVariable,
         string mappingType,
@@ -1510,7 +1510,7 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
         var typeBase = tableMapping.TypeBase;
 
         mainBuilder
-            .Append($"var {tableMappingVariable} = new {mappingType}({entityTypeVariable}, ")
+            .Append($"var {tableMappingVariable} = new {mappingType}({structuralTypeVariable}, ")
             .Append($"{tableVariable}, {additionalParameter ?? ""}{code.Literal(tableMapping.IncludesDerivedTypes)}");
 
         if (tableMapping.IsSharedTablePrincipal.HasValue
@@ -1549,7 +1549,7 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
             foreach (var internalForeignKey in table.GetRowInternalForeignKeys(entityType))
             {
                 mainBuilder
-                    .Append(tableVariable).Append($".AddRowInternalForeignKey({entityTypeVariable}, ")
+                    .Append(tableVariable).Append($".AddRowInternalForeignKey({structuralTypeVariable}, ")
                     .AppendLine("RelationalModel.GetForeignKey(this,").IncrementIndent()
                     .AppendLine($"{code.Literal(internalForeignKey.DeclaringEntityType.Name)},")
                     .AppendLine($"{code.Literal(internalForeignKey.Properties.Select(p => p.Name).ToArray())},")

@@ -148,6 +148,9 @@
   <data name="CompiledModelFunctionTranslation" xml:space="preserve">
     <value>The function '{function}' has a custom translation. Compiled model can't be generated, because custom function translations are not supported.</value>
   </data>
+  <data name="ComplexPropertyOptionalTableSharing" xml:space="preserve">
+    <value>The optional complex property '{type}.{property}' is mapped using table sharing, but only contains optional properties. Add a required property or discriminator or map this complex property to a JSON column.</value>
+  </data>
   <data name="ComputedColumnSqlUnspecified" xml:space="preserve">
     <value>The computed column SQL has not been specified for the column '{table}.{column}'. Specify the SQL before using Entity Framework to create the database schema.</value>
   </data>
@@ -289,9 +292,6 @@
   <data name="DuplicateColumnNameMaxLengthMismatch" xml:space="preserve">
     <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but are configured with different maximum lengths ('{maxLength1}' and '{maxLength2}').</value>
   </data>
-  <data name="DuplicateColumnNameNullabilityMismatch" xml:space="preserve">
-    <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but are configured with different column nullability settings.</value>
-  </data>
   <data name="DuplicateColumnNameOrderMismatch" xml:space="preserve">
     <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but are configured to use different column orders ('{columnOrder1}' and '{columnOrder2}').</value>
   </data>
@@ -302,7 +302,7 @@
     <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but are configured to use differing provider types ('{type1}' and '{type2}').</value>
   </data>
   <data name="DuplicateColumnNameSameHierarchy" xml:space="preserve">
-    <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but the properties are contained within the same hierarchy. All properties on an entity type must be mapped to unique different columns.</value>
+    <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but the properties are contained within the same hierarchy. All properties on an entity type must be mapped to different columns.</value>
   </data>
   <data name="DuplicateColumnNameScaleMismatch" xml:space="preserve">
     <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but are configured with different scales ('{scale1}' and '{scale2}').</value>

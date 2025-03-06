@@ -80,18 +80,30 @@ namespace TestNamespace
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseTableBase.Columns.Add("Owned_Details", owned_DetailsColumnBase);
             var owned_NumberColumnBase = new ColumnBase<ColumnMappingBase>("Owned_Number", "int", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseTableBase);
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseTableBase.Columns.Add("Owned_Number", owned_NumberColumnBase);
-            var owned_Principal_AlternateIdColumnBase = new ColumnBase<ColumnMappingBase>("Owned_Principal_AlternateId", "uniqueidentifier", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseTableBase);
+            var owned_Principal_AlternateIdColumnBase = new ColumnBase<ColumnMappingBase>("Owned_Principal_AlternateId", "uniqueidentifier", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseTableBase)
+            {
+                IsNullable = true
+            };
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseTableBase.Columns.Add("Owned_Principal_AlternateId", owned_Principal_AlternateIdColumnBase);
-            var owned_Principal_Enum1ColumnBase = new ColumnBase<ColumnMappingBase>("Owned_Principal_Enum1", "int", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseTableBase);
+            var owned_Principal_Enum1ColumnBase = new ColumnBase<ColumnMappingBase>("Owned_Principal_Enum1", "int", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseTableBase)
+            {
+                IsNullable = true
+            };
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseTableBase.Columns.Add("Owned_Principal_Enum1", owned_Principal_Enum1ColumnBase);
             var owned_Principal_Enum2ColumnBase = new ColumnBase<ColumnMappingBase>("Owned_Principal_Enum2", "int", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseTableBase)
             {
                 IsNullable = true
             };
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseTableBase.Columns.Add("Owned_Principal_Enum2", owned_Principal_Enum2ColumnBase);
-            var owned_Principal_FlagsEnum1ColumnBase = new ColumnBase<ColumnMappingBase>("Owned_Principal_FlagsEnum1", "int", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseTableBase);
+            var owned_Principal_FlagsEnum1ColumnBase = new ColumnBase<ColumnMappingBase>("Owned_Principal_FlagsEnum1", "int", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseTableBase)
+            {
+                IsNullable = true
+            };
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseTableBase.Columns.Add("Owned_Principal_FlagsEnum1", owned_Principal_FlagsEnum1ColumnBase);
-            var owned_Principal_FlagsEnum2ColumnBase = new ColumnBase<ColumnMappingBase>("Owned_Principal_FlagsEnum2", "int", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseTableBase);
+            var owned_Principal_FlagsEnum2ColumnBase = new ColumnBase<ColumnMappingBase>("Owned_Principal_FlagsEnum2", "int", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseTableBase)
+            {
+                IsNullable = true
+            };
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseTableBase.Columns.Add("Owned_Principal_FlagsEnum2", owned_Principal_FlagsEnum2ColumnBase);
             var owned_Principal_IdColumnBase = new ColumnBase<ColumnMappingBase>("Owned_Principal_Id", "bigint", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseTableBase)
             {
@@ -276,10 +288,16 @@ namespace TestNamespace
             var owned_NumberColumn = new Column("Owned_Number", "int", principalBaseTable);
             principalBaseTable.Columns.Add("Owned_Number", owned_NumberColumn);
             owned_NumberColumn.Accessors = ColumnAccessorsFactory.CreateGeneric<int>(owned_NumberColumn);
-            var owned_Principal_AlternateIdColumn = new Column("Owned_Principal_AlternateId", "uniqueidentifier", principalBaseTable);
+            var owned_Principal_AlternateIdColumn = new Column("Owned_Principal_AlternateId", "uniqueidentifier", principalBaseTable)
+            {
+                IsNullable = true
+            };
             principalBaseTable.Columns.Add("Owned_Principal_AlternateId", owned_Principal_AlternateIdColumn);
             owned_Principal_AlternateIdColumn.Accessors = ColumnAccessorsFactory.CreateGeneric<Guid>(owned_Principal_AlternateIdColumn);
-            var owned_Principal_Enum1Column = new Column("Owned_Principal_Enum1", "int", principalBaseTable);
+            var owned_Principal_Enum1Column = new Column("Owned_Principal_Enum1", "int", principalBaseTable)
+            {
+                IsNullable = true
+            };
             principalBaseTable.Columns.Add("Owned_Principal_Enum1", owned_Principal_Enum1Column);
             owned_Principal_Enum1Column.Accessors = ColumnAccessorsFactory.CreateGeneric<int>(owned_Principal_Enum1Column);
             var owned_Principal_Enum2Column = new Column("Owned_Principal_Enum2", "int", principalBaseTable)
@@ -288,10 +306,16 @@ namespace TestNamespace
             };
             principalBaseTable.Columns.Add("Owned_Principal_Enum2", owned_Principal_Enum2Column);
             owned_Principal_Enum2Column.Accessors = ColumnAccessorsFactory.CreateGeneric<int>(owned_Principal_Enum2Column);
-            var owned_Principal_FlagsEnum1Column = new Column("Owned_Principal_FlagsEnum1", "int", principalBaseTable);
+            var owned_Principal_FlagsEnum1Column = new Column("Owned_Principal_FlagsEnum1", "int", principalBaseTable)
+            {
+                IsNullable = true
+            };
             principalBaseTable.Columns.Add("Owned_Principal_FlagsEnum1", owned_Principal_FlagsEnum1Column);
             owned_Principal_FlagsEnum1Column.Accessors = ColumnAccessorsFactory.CreateGeneric<int>(owned_Principal_FlagsEnum1Column);
-            var owned_Principal_FlagsEnum2Column = new Column("Owned_Principal_FlagsEnum2", "int", principalBaseTable);
+            var owned_Principal_FlagsEnum2Column = new Column("Owned_Principal_FlagsEnum2", "int", principalBaseTable)
+            {
+                IsNullable = true
+            };
             principalBaseTable.Columns.Add("Owned_Principal_FlagsEnum2", owned_Principal_FlagsEnum2Column);
             owned_Principal_FlagsEnum2Column.Accessors = ColumnAccessorsFactory.CreateGeneric<int>(owned_Principal_FlagsEnum2Column);
             var owned_Principal_IdColumn = new Column("Owned_Principal_Id", "bigint", principalBaseTable)
@@ -971,7 +995,7 @@ namespace TestNamespace
             var tableMappings1 = new List<TableMapping>();
             principalBase0.SetRuntimeAnnotation("Relational:TableMappings", tableMappings1);
             var principalBaseTableMapping1 = new TableMapping(principalBase0, principalBaseTable, true);
-            principalBaseTable.AddTypeMapping(principalBaseTableMapping1, false);
+            principalBaseTable.AddTypeMapping(principalBaseTableMapping1, true);
             tableMappings1.Add(principalBaseTableMapping1);
             RelationalModel.CreateColumnMapping(owned_Principal_AlternateIdColumn, principalBase0.FindProperty("AlternateId")!, principalBaseTableMapping1);
             RelationalModel.CreateColumnMapping(owned_Principal_Enum1Column, principalBase0.FindProperty("Enum1")!, principalBaseTableMapping1);
