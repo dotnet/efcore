@@ -23,7 +23,7 @@ public class BytesToStringConverterTest
         var converter = _bytesToStringConverter.ConvertFromProviderExpression.Compile();
 
         Assert.Equal(new byte[] { 83, 112, 196, 177, 110, 204, 136, 97, 108, 32, 84, 97, 112 }, converter("U3DEsW7MiGFsIFRhcA=="));
-        Assert.Equal([], converter(""));
+        Assert.Equal(new byte[0], converter(""));
     }
 
     [ConditionalFact]
