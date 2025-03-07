@@ -32,7 +32,7 @@ public class ComplexPropertyBuilder<[DynamicallyAccessedMembers(IEntityType.Dyna
     }
 
     /// <summary>
-    ///     Adds or updates an annotation on the entity type. If an annotation with the key specified in
+    ///     Adds or updates an annotation on the complex property. If an annotation with the key specified in
     ///     <paramref name="annotation" /> already exists its value will be updated.
     /// </summary>
     /// <param name="annotation">The key of the annotation to be added or updated.</param>
@@ -42,7 +42,7 @@ public class ComplexPropertyBuilder<[DynamicallyAccessedMembers(IEntityType.Dyna
         => (ComplexPropertyBuilder<TComplex>)base.HasPropertyAnnotation(annotation, value);
 
     /// <summary>
-    ///     Adds or updates an annotation on the entity type. If an annotation with the key specified in
+    ///     Adds or updates an annotation on the complex type. If an annotation with the key specified in
     ///     <paramref name="annotation" /> already exists its value will be updated.
     /// </summary>
     /// <param name="annotation">The key of the annotation to be added or updated.</param>
@@ -86,7 +86,7 @@ public class ComplexPropertyBuilder<[DynamicallyAccessedMembers(IEntityType.Dyna
         => (ComplexPropertyBuilder<TComplex>)base.HasField(fieldName);
 
     /// <summary>
-    ///     Returns an object that can be used to configure a property of the entity type.
+    ///     Returns an object that can be used to configure a property of the complex type.
     ///     If the specified property is not already part of the model, it will be added.
     /// </summary>
     /// <param name="propertyExpression">
@@ -101,7 +101,7 @@ public class ComplexPropertyBuilder<[DynamicallyAccessedMembers(IEntityType.Dyna
                 .Metadata);
 
     /// <summary>
-    ///     Returns an object that can be used to configure a primitive collection property of the entity type.
+    ///     Returns an object that can be used to configure a primitive collection property of the complex type.
     ///     If the specified property is not already part of the model, it will be added.
     /// </summary>
     /// <param name="propertyExpression">
@@ -332,8 +332,8 @@ public class ComplexPropertyBuilder<[DynamicallyAccessedMembers(IEntityType.Dyna
     }
 
     /// <summary>
-    ///     Excludes the given property from the entity type. This method is typically used to remove properties
-    ///     or navigations from the entity type that were added by convention.
+    ///     Excludes the given property from the complex type. This method is typically used to remove properties
+    ///     or navigations from the complex type that were added by convention.
     /// </summary>
     /// <param name="propertyExpression">
     ///     A lambda expression representing the property to be ignored
@@ -344,16 +344,16 @@ public class ComplexPropertyBuilder<[DynamicallyAccessedMembers(IEntityType.Dyna
             Check.NotNull(propertyExpression, nameof(propertyExpression)).GetMemberAccess().GetSimpleMemberName());
 
     /// <summary>
-    ///     Excludes the given property from the entity type. This method is typically used to remove properties
-    ///     or navigations from the entity type that were added by convention.
+    ///     Excludes the given property from the complex type. This method is typically used to remove properties
+    ///     or navigations from the complex type that were added by convention.
     /// </summary>
-    /// <param name="propertyName">The name of the property to be removed from the entity type.</param>
+    /// <param name="propertyName">The name of the property to be removed from the complex type.</param>
     public new virtual ComplexPropertyBuilder<TComplex> Ignore(string propertyName)
         => (ComplexPropertyBuilder<TComplex>)base.Ignore(propertyName);
 
     /// <summary>
-    ///     Configures the <see cref="ChangeTrackingStrategy" /> to be used for this entity type.
-    ///     This strategy indicates how the context detects changes to properties for an instance of the entity type.
+    ///     Configures the <see cref="ChangeTrackingStrategy" /> to be used for this complex type.
+    ///     This strategy indicates how the context detects changes to properties for an instance of the complex type.
     /// </summary>
     /// <param name="changeTrackingStrategy">The change tracking strategy to be used.</param>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
@@ -381,22 +381,47 @@ public class ComplexPropertyBuilder<[DynamicallyAccessedMembers(IEntityType.Dyna
         => (ComplexPropertyBuilder<TComplex>)base.UsePropertyAccessMode(propertyAccessMode);
 
     /// <summary>
-    ///     Sets the <see cref="PropertyAccessMode" /> to use for all properties of this entity type.
+    ///     Sets the <see cref="PropertyAccessMode" /> to use for all properties of this complex type.
     /// </summary>
     /// <remarks>
     ///     <para>
     ///         By default, the backing field, if one is found by convention or has been specified, is used when
     ///         new objects are constructed, typically when entities are queried from the database.
     ///         Properties are used for all other accesses.  Calling this method will change that behavior
-    ///         for all properties of this entity type as described in the <see cref="PropertyAccessMode" /> enum.
+    ///         for all properties of this complex type as described in the <see cref="PropertyAccessMode" /> enum.
     ///     </para>
     ///     <para>
-    ///         Calling this method overrides for all properties of this entity type any access mode that was
+    ///         Calling this method overrides for all properties of this complex type any access mode that was
     ///         set on the model.
     ///     </para>
     /// </remarks>
-    /// <param name="propertyAccessMode">The <see cref="PropertyAccessMode" /> to use for properties of this entity type.</param>
+    /// <param name="propertyAccessMode">The <see cref="PropertyAccessMode" /> to use for properties of this complex type.</param>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public new virtual ComplexPropertyBuilder<TComplex> UseDefaultPropertyAccessMode(PropertyAccessMode propertyAccessMode)
         => (ComplexPropertyBuilder<TComplex>)base.UseDefaultPropertyAccessMode(propertyAccessMode);
+
+    /// <summary>
+    ///     Configures the discriminator property used to identify the complex type in the store.
+    /// </summary>
+    /// <typeparam name="TDiscriminator">The type of values stored in the discriminator property.</typeparam>
+    /// <param name="propertyExpression">
+    ///     A lambda expression representing the property to be used as the discriminator (
+    ///     <c>blog => blog.Discriminator</c>).
+    /// </param>
+    /// <returns>A builder that allows the discriminator property to be configured.</returns>
+    public virtual ComplexTypeDiscriminatorBuilder<TDiscriminator> HasDiscriminator<TDiscriminator>(
+        Expression<Func<TComplex, TDiscriminator>> propertyExpression)
+    {
+        Check.NotNull(propertyExpression, nameof(propertyExpression));
+
+        return new ComplexTypeDiscriminatorBuilder<TDiscriminator>(
+            TypeBuilder.HasDiscriminator(propertyExpression.GetMemberAccess(), ConfigurationSource.Explicit)!);
+    }
+
+    /// <summary>
+    ///     Configures the entity type as having no discriminator property.
+    /// </summary>
+    /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
+    public new virtual ComplexPropertyBuilder<TComplex> HasNoDiscriminator()
+        => (ComplexPropertyBuilder<TComplex>)base.HasNoDiscriminator();
 }

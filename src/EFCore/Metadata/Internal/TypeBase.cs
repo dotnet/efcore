@@ -155,7 +155,7 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected virtual TypeBase? BaseType
+    public virtual TypeBase? BaseType
     {
         get => _baseType;
         set => _baseType = value;
@@ -167,8 +167,24 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected virtual SortedSet<TypeBase> DirectlyDerivedTypes
+    public virtual SortedSet<TypeBase> DirectlyDerivedTypes
         => _directlyDerivedTypes;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public abstract TypeBase? SetBaseType(TypeBase? newBaseType, ConfigurationSource configurationSource);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public abstract ConfigurationSource? GetBaseTypeConfigurationSource();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -190,7 +206,7 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     {
         if (DirectlyDerivedTypes.Count == 0)
         {
-            return Enumerable.Empty<T>();
+            return [];
         }
 
         var derivedTypes = new List<T>();
@@ -217,7 +233,7 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     [DebuggerStepThrough]
     public virtual IEnumerable<TypeBase> GetDerivedTypesInclusive()
         => DirectlyDerivedTypes.Count == 0
-            ? new[] { this }
+            ? [this]
             : new[] { this }.Concat(GetDerivedTypes());
 
     /// <summary>
@@ -253,6 +269,16 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
 
         return false;
     }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    public virtual TypeBase GetRootType()
+        => (TypeBase)((IReadOnlyTypeBase)this).GetRootType();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -343,6 +369,65 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
 
         return null;
     }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual Property? SetDiscriminatorProperty(Property? property, ConfigurationSource configurationSource)
+    {
+        if ((string?)this[CoreAnnotationNames.DiscriminatorProperty] == property?.Name)
+        {
+            return property;
+        }
+
+        CheckDiscriminatorProperty(property);
+
+        SetAnnotation(CoreAnnotationNames.DiscriminatorProperty, property?.Name, configurationSource);
+
+        return Model.ConventionDispatcher.OnDiscriminatorPropertySet(Builder, property?.Name) == property?.Name
+            ? property
+            : (Property?)((IReadOnlyEntityType)this).FindDiscriminatorProperty();
+    }
+
+    private void CheckDiscriminatorProperty(Property? property)
+    {
+        if (property != null)
+        {
+            if (BaseType != null)
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.DiscriminatorPropertyMustBeOnRoot(DisplayName()));
+            }
+
+            if (property.DeclaringType != this)
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.DiscriminatorPropertyNotFound(property.Name, DisplayName()));
+            }
+        }
+    }
+
+    /// <summary>
+    ///     Returns the name of the property that will be used for storing a discriminator value.
+    /// </summary>
+    /// <returns>The name of the property that will be used for storing a discriminator value.</returns>
+    public virtual string? GetDiscriminatorPropertyName()
+        => BaseType is null
+            ? (string?)this[CoreAnnotationNames.DiscriminatorProperty]
+            : ((IReadOnlyEntityType)this).GetRootType().GetDiscriminatorPropertyName();
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    public virtual ConfigurationSource? GetDiscriminatorPropertyConfigurationSource()
+        => FindAnnotation(CoreAnnotationNames.DiscriminatorProperty)?.GetConfigurationSource();
 
     #region Properties
 
@@ -1453,6 +1538,54 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    IReadOnlyTypeBase? IReadOnlyTypeBase.BaseType
+    {
+        [DebuggerStepThrough]
+        get => BaseType;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    IMutableTypeBase? IMutableTypeBase.BaseType
+    {
+        get => BaseType;
+        set => SetBaseType((TypeBase?)value, ConfigurationSource.Explicit);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    IConventionTypeBase? IConventionTypeBase.BaseType
+    {
+        [DebuggerStepThrough]
+        get => BaseType;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    ITypeBase? ITypeBase.BaseType
+    {
+        [DebuggerStepThrough]
+        get => BaseType;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     IConventionTypeBaseBuilder IConventionTypeBase.Builder
     {
         [DebuggerStepThrough]
@@ -1478,6 +1611,71 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     [DebuggerStepThrough]
     string? IConventionTypeBase.AddIgnored(string name, bool fromDataAnnotation)
         => AddIgnored(name, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    IConventionTypeBase? IConventionTypeBase.SetBaseType(IConventionTypeBase? structuralType, bool fromDataAnnotation)
+        => SetBaseType(
+            (TypeBase?)structuralType, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    IEnumerable<IReadOnlyTypeBase> IReadOnlyTypeBase.GetDerivedTypes()
+        => GetDerivedTypes<TypeBase>();
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    IEnumerable<IReadOnlyTypeBase> IReadOnlyTypeBase.GetDirectlyDerivedTypes()
+        => DirectlyDerivedTypes;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    IEnumerable<ITypeBase> ITypeBase.GetDirectlyDerivedTypes()
+        => DirectlyDerivedTypes;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    void IMutableTypeBase.SetDiscriminatorProperty(IReadOnlyProperty? property)
+        => SetDiscriminatorProperty((Property?)property, ConfigurationSource.Explicit);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    IConventionProperty? IConventionTypeBase.SetDiscriminatorProperty(
+        IReadOnlyProperty? property,
+        bool fromDataAnnotation)
+        => SetDiscriminatorProperty(
+            (Property?)property,
+            fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

@@ -336,6 +336,15 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    public override TypeBase? SetBaseType(TypeBase? newBaseType, ConfigurationSource configurationSource)
+        => SetBaseType((EntityType?)newBaseType, configurationSource);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public virtual EntityType? SetBaseType(EntityType? newBaseType, ConfigurationSource configurationSource)
     {
         EnsureMutable();
@@ -423,9 +432,15 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
-    public virtual ConfigurationSource? GetBaseTypeConfigurationSource()
+    public override ConfigurationSource? GetBaseTypeConfigurationSource()
         => _baseTypeConfigurationSource;
 
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     [DebuggerStepThrough]
     private void UpdateBaseTypeConfigurationSource(ConfigurationSource configurationSource)
         => _baseTypeConfigurationSource = configurationSource.Max(_baseTypeConfigurationSource);
@@ -475,8 +490,8 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
-    public virtual EntityType GetRootType()
-        => (EntityType)((IReadOnlyEntityType)this).GetRootType();
+    new public virtual EntityType GetRootType()
+        => (EntityType)((IReadOnlyTypeBase)this).GetRootType();
 
     /// <summary>
     ///     Runs the conventions when an annotation was set or removed.
@@ -2919,65 +2934,6 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual Property? SetDiscriminatorProperty(Property? property, ConfigurationSource configurationSource)
-    {
-        if ((string?)this[CoreAnnotationNames.DiscriminatorProperty] == property?.Name)
-        {
-            return property;
-        }
-
-        CheckDiscriminatorProperty(property);
-
-        SetAnnotation(CoreAnnotationNames.DiscriminatorProperty, property?.Name, configurationSource);
-
-        return Model.ConventionDispatcher.OnDiscriminatorPropertySet(Builder, property?.Name) == property?.Name
-            ? property
-            : (Property?)((IReadOnlyEntityType)this).FindDiscriminatorProperty();
-    }
-
-    private void CheckDiscriminatorProperty(Property? property)
-    {
-        if (property != null)
-        {
-            if (BaseType != null)
-            {
-                throw new InvalidOperationException(
-                    CoreStrings.DiscriminatorPropertyMustBeOnRoot(DisplayName()));
-            }
-
-            if (property.DeclaringType != this)
-            {
-                throw new InvalidOperationException(
-                    CoreStrings.DiscriminatorPropertyNotFound(property.Name, DisplayName()));
-            }
-        }
-    }
-
-    /// <summary>
-    ///     Returns the name of the property that will be used for storing a discriminator value.
-    /// </summary>
-    /// <returns>The name of the property that will be used for storing a discriminator value.</returns>
-    public virtual string? GetDiscriminatorPropertyName()
-        => BaseType is null
-            ? (string?)this[CoreAnnotationNames.DiscriminatorProperty]
-            : ((IReadOnlyEntityType)this).GetRootType().GetDiscriminatorPropertyName();
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    [DebuggerStepThrough]
-    public virtual ConfigurationSource? GetDiscriminatorPropertyConfigurationSource()
-        => FindAnnotation(CoreAnnotationNames.DiscriminatorProperty)?.GetConfigurationSource();
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
     public virtual bool IsImplicitlyCreatedJoinEntityType
         => GetConfigurationSource() == ConfigurationSource.Convention
             && ClrType == Model.DefaultPropertyBagType;
@@ -3224,30 +3180,6 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
         [DebuggerStepThrough]
         get => BaseType;
     }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    [DebuggerStepThrough]
-    void IMutableEntityType.SetDiscriminatorProperty(IReadOnlyProperty? property)
-        => SetDiscriminatorProperty((Property?)property, ConfigurationSource.Explicit);
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    [DebuggerStepThrough]
-    IConventionProperty? IConventionEntityType.SetDiscriminatorProperty(
-        IReadOnlyProperty? property,
-        bool fromDataAnnotation)
-        => SetDiscriminatorProperty(
-            (Property?)property,
-            fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

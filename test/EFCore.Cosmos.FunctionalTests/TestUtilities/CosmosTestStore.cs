@@ -676,6 +676,12 @@ public class CosmosTestStore : TestStore
         IReadOnlyEntityType IReadOnlyEntityType.BaseType
             => null!;
 
+        ITypeBase? ITypeBase.BaseType
+            => BaseType;
+
+        IReadOnlyTypeBase? IReadOnlyTypeBase.BaseType
+            => BaseType;
+
         IReadOnlyModel IReadOnlyTypeBase.Model
             => throw new NotImplementedException();
 
@@ -1005,5 +1011,14 @@ public class CosmosTestStore : TestStore
 
         IEnumerable<IReadOnlyPropertyBase> IReadOnlyTypeBase.FindMembersInHierarchy(string name)
             => throw new NotImplementedException();
+
+        IEnumerable<ITypeBase> ITypeBase.GetDirectlyDerivedTypes()
+            => GetDirectlyDerivedTypes();
+
+        IEnumerable<IReadOnlyTypeBase> IReadOnlyTypeBase.GetDerivedTypes()
+            => GetDerivedTypes();
+
+        IEnumerable<IReadOnlyTypeBase> IReadOnlyTypeBase.GetDirectlyDerivedTypes()
+            => GetDirectlyDerivedTypes();
     }
 }

@@ -44,37 +44,11 @@ public interface IMutableEntityType : IReadOnlyEntityType, IMutableTypeBase
     void SetQueryFilter(LambdaExpression? queryFilter);
 
     /// <summary>
-    ///     Returns the property that will be used for storing a discriminator value.
-    /// </summary>
-    /// <returns>The property that will be used for storing a discriminator value.</returns>
-    new IMutableProperty? FindDiscriminatorProperty()
-        => (IMutableProperty?)((IReadOnlyEntityType)this).FindDiscriminatorProperty();
-
-    /// <summary>
-    ///     Sets the <see cref="IReadOnlyProperty" /> that will be used for storing a discriminator value.
-    /// </summary>
-    /// <param name="property">The property to set.</param>
-    void SetDiscriminatorProperty(IReadOnlyProperty? property);
-
-    /// <summary>
     ///     Sets the value indicating whether the discriminator mapping is complete.
     /// </summary>
     /// <param name="complete">The value indicating whether the discriminator mapping is complete.</param>
     void SetDiscriminatorMappingComplete(bool? complete)
         => SetOrRemoveAnnotation(CoreAnnotationNames.DiscriminatorMappingComplete, complete);
-
-    /// <summary>
-    ///     Sets the discriminator value for this entity type.
-    /// </summary>
-    /// <param name="value">The value to set.</param>
-    void SetDiscriminatorValue(object? value)
-        => SetAnnotation(CoreAnnotationNames.DiscriminatorValue, value);
-
-    /// <summary>
-    ///     Removes the discriminator value for this entity type.
-    /// </summary>
-    void RemoveDiscriminatorValue()
-        => RemoveAnnotation(CoreAnnotationNames.DiscriminatorValue);
 
     /// <summary>
     ///     Gets all types in the model from which this entity type derives, starting with the root.
@@ -113,21 +87,21 @@ public interface IMutableEntityType : IReadOnlyEntityType, IMutableTypeBase
     /// </summary>
     /// <returns>The derived types.</returns>
     new IEnumerable<IMutableEntityType> GetDerivedTypes()
-        => ((IReadOnlyEntityType)this).GetDerivedTypes().Cast<IMutableEntityType>();
+        => ((IReadOnlyTypeBase)this).GetDerivedTypes().Cast<IMutableEntityType>();
 
     /// <summary>
     ///     Returns all derived types of this entity type, including the type itself.
     /// </summary>
     /// <returns>Derived types.</returns>
     new IEnumerable<IMutableEntityType> GetDerivedTypesInclusive()
-        => ((IReadOnlyEntityType)this).GetDerivedTypesInclusive().Cast<IMutableEntityType>();
+        => ((IReadOnlyTypeBase)this).GetDerivedTypesInclusive().Cast<IMutableEntityType>();
 
     /// <summary>
     ///     Gets all types in the model that directly derive from this entity type.
     /// </summary>
     /// <returns>The derived types.</returns>
     new IEnumerable<IMutableEntityType> GetDirectlyDerivedTypes()
-        => ((IReadOnlyEntityType)this).GetDirectlyDerivedTypes().Cast<IMutableEntityType>();
+        => ((IReadOnlyTypeBase)this).GetDirectlyDerivedTypes().Cast<IMutableEntityType>();
 
     /// <summary>
     ///     Gets the root base type for a given entity type.
