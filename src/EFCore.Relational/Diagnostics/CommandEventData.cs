@@ -33,7 +33,7 @@ public class CommandEventData : CommandCorrelatedEventData
         Func<EventDefinitionBase, EventData, string> messageGenerator,
         DbConnection connection,
         DbCommand command,
-        string logCommandText,
+        string? logCommandText,
         DbContext? context,
         DbCommandMethod executeMethod,
         Guid commandId,
@@ -67,7 +67,7 @@ public class CommandEventData : CommandCorrelatedEventData
     /// <summary>
     ///     The command text that can be logged in case <see cref="DbCommand.CommandText" /> contains sensitive information.
     /// </summary>
-    public virtual string LogCommandText { get; }
+    public virtual string? LogCommandText { get; }
 
     /// <summary>
     ///     Indicates whether or not the application allows logging of parameter values.

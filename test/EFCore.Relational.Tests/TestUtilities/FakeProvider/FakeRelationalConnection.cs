@@ -34,7 +34,8 @@ public class FakeRelationalConnection(IDbContextOptions options = null) : Relati
                 new TestRelationalTypeMappingSource(
                     TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
                     TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()),
-                new ExceptionDetector()))))
+                new ExceptionDetector(),
+                new LoggingOptions()))))
 {
     private DbConnection _connection;
 

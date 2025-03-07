@@ -54,7 +54,8 @@ public class QuerySqlGeneratorTest
                         new TestRelationalTypeMappingSource(
                             TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
                             TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()),
-                        new ExceptionDetector())),
+                        new ExceptionDetector(),
+                        new LoggingOptions())),
                 new RelationalSqlGenerationHelper(
                     new RelationalSqlGenerationHelperDependencies())));
 

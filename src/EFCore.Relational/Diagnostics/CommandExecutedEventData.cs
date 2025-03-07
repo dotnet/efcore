@@ -34,7 +34,7 @@ public class CommandExecutedEventData : CommandEndEventData
         Func<EventDefinitionBase, EventData, string> messageGenerator,
         DbConnection connection,
         DbCommand command,
-        string logCommandText,
+        string? logCommandText,
         DbContext? context,
         DbCommandMethod executeMethod,
         Guid commandId,

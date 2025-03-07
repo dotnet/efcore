@@ -10,7 +10,7 @@ public class RelationalCommandBuilder : IRelationalCommandBuilder
 {
     private readonly List<IRelationalParameter> _parameters = [];
     private readonly IndentedStringBuilder _commandTextBuilder = new();
-    private readonly IndentedStringBuilder _logCommandTextBuilder = new();
+    private readonly IndentedStringBuilder? _logCommandTextBuilder;
 
     /// <summary>
     ///     <para>
@@ -24,7 +24,14 @@ public class RelationalCommandBuilder : IRelationalCommandBuilder
     /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
     public RelationalCommandBuilder(
         RelationalCommandBuilderDependencies dependencies)
-        => Dependencies = dependencies;
+    {
+        Dependencies = dependencies;
+
+        if (!Dependencies.LoggingOptions.IsSensitiveDataLoggingEnabled)
+        {
+            _logCommandTextBuilder = new();
+        }
+    }
 
     /// <summary>
     ///     Relational provider-specific dependencies for this service.
@@ -38,7 +45,7 @@ public class RelationalCommandBuilder : IRelationalCommandBuilder
 
     /// <inheritdoc />
     public virtual IRelationalCommand Build()
-        => new RelationalCommand(Dependencies, _commandTextBuilder.ToString(), _logCommandTextBuilder.ToString(), Parameters);
+        => new RelationalCommand(Dependencies, _commandTextBuilder.ToString(), _logCommandTextBuilder?.ToString(), Parameters);
 
     /// <summary>
     ///     Gets the command text.
@@ -70,7 +77,7 @@ public class RelationalCommandBuilder : IRelationalCommandBuilder
     public virtual IRelationalCommandBuilder Append(string value, string? logValue = null)
     {
         _commandTextBuilder.Append(value);
-        _logCommandTextBuilder.Append(logValue ?? value);
+        _logCommandTextBuilder?.Append(logValue ?? value);
 
         return this;
     }
@@ -79,7 +86,7 @@ public class RelationalCommandBuilder : IRelationalCommandBuilder
     public virtual IRelationalCommandBuilder Append(FormattableString value, FormattableString? logValue = null)
     {
         _commandTextBuilder.Append(value);
-        _logCommandTextBuilder.Append(logValue ?? value);
+        _logCommandTextBuilder?.Append(logValue ?? value);
 
         return this;
     }
@@ -88,7 +95,7 @@ public class RelationalCommandBuilder : IRelationalCommandBuilder
     public virtual IRelationalCommandBuilder AppendLine()
     {
         _commandTextBuilder.AppendLine();
-        _logCommandTextBuilder.AppendLine();
+        _logCommandTextBuilder?.AppendLine();
 
         return this;
     }
@@ -97,7 +104,7 @@ public class RelationalCommandBuilder : IRelationalCommandBuilder
     public virtual IRelationalCommandBuilder IncrementIndent()
     {
         _commandTextBuilder.IncrementIndent();
-        _logCommandTextBuilder.IncrementIndent();
+        _logCommandTextBuilder?.IncrementIndent();
 
         return this;
     }
@@ -106,7 +113,7 @@ public class RelationalCommandBuilder : IRelationalCommandBuilder
     public virtual IRelationalCommandBuilder DecrementIndent()
     {
         _commandTextBuilder.DecrementIndent();
-        _logCommandTextBuilder.DecrementIndent();
+        _logCommandTextBuilder?.DecrementIndent();
 
         return this;
     }

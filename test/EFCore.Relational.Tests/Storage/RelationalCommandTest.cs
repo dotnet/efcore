@@ -861,7 +861,8 @@ public class RelationalCommandTest
                     new TestRelationalTypeMappingSource(
                         TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
                         TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()),
-                    new ExceptionDetector()),
+                    new ExceptionDetector(),
+                    new LoggingOptions()),
                 commandText,
                 logCommandText,
                 []);
@@ -1355,7 +1356,8 @@ public class RelationalCommandTest
                 new TestRelationalTypeMappingSource(
                     TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
                     TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()),
-                new ExceptionDetector()),
+                new ExceptionDetector(),
+                new LoggingOptions()),
             commandText,
             logCommandText,
             parameters ?? []);
