@@ -220,6 +220,9 @@ public class SqlServerSequenceValueGeneratorTest
             public string CommandText
                 => throw new NotImplementedException();
 
+            public string LogCommandText
+                => throw new NotImplementedException();
+
             public IReadOnlyList<IRelationalParameter> Parameters
                 => throw new NotImplementedException();
 

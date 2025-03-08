@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Data;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Storage;
@@ -21,7 +22,8 @@ public class RelationalParameterBuilderTest
         var parameterBuilder = new RelationalCommandBuilder(
             new RelationalCommandBuilderDependencies(
                 typeMapper,
-                new ExceptionDetector()));
+                new ExceptionDetector(),
+                new LoggingOptions()));
 
         parameterBuilder.AddParameter(
             "InvariantName",
@@ -58,7 +60,7 @@ public class RelationalParameterBuilderTest
         var property = model.GetEntityTypes().Single().FindProperty("MyProp");
 
         var parameterBuilder = new RelationalCommandBuilder(
-            new RelationalCommandBuilderDependencies(typeMapper, new ExceptionDetector()));
+            new RelationalCommandBuilderDependencies(typeMapper, new ExceptionDetector(), new LoggingOptions()));
 
         parameterBuilder.AddParameter(
             "InvariantName",
@@ -87,7 +89,8 @@ public class RelationalParameterBuilderTest
         var parameterBuilder = new RelationalCommandBuilder(
             new RelationalCommandBuilderDependencies(
                 typeMapper,
-                new ExceptionDetector()));
+                new ExceptionDetector(),
+                new LoggingOptions()));
 
         parameterBuilder.AddCompositeParameter(
             "CompositeInvariant",
@@ -124,7 +127,8 @@ public class RelationalParameterBuilderTest
         var parameterBuilder = new RelationalCommandBuilder(
             new RelationalCommandBuilderDependencies(
                 typeMapper,
-                new ExceptionDetector()));
+                new ExceptionDetector(),
+                new LoggingOptions()));
 
         parameterBuilder.AddCompositeParameter(
             "CompositeInvariant",
