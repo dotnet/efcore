@@ -84,7 +84,7 @@ using static Microsoft.EntityFrameworkCore.Query.PrecompiledQueryRelationalTestB
         // This turns on the interceptors feature for the designated namespace(s).
         var parseOptions = new CSharpParseOptions().WithFeatures(
         [
-            new KeyValuePair<string, string>("InterceptorsPreviewNamespaces", "Microsoft.EntityFrameworkCore.GeneratedInterceptors")
+            new KeyValuePair<string, string>("InterceptorsNamespaces", "Microsoft.EntityFrameworkCore.GeneratedInterceptors")
         ]);
 
         var syntaxTree = CSharpSyntaxTree.ParseText(source, parseOptions, path: "Test.cs");
