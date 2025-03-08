@@ -7,8 +7,4 @@ public abstract class EntityRelationshipsInProjectionNoTrackingQueryTestBase<TFi
     : EntityRelationshipsInProjectionQueryTestBase<TFixture>(fixture)
         where TFixture : EntityRelationshipsQueryFixtureBase, new()
 {
-    protected override Expression RewriteServerQueryExpression(Expression serverQueryExpression)
-    {
-        return base.RewriteServerQueryExpression(serverQueryExpression);
-    }
 }

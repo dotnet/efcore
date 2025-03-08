@@ -211,37 +211,6 @@ ORDER BY [r].[Id], [s0].[RelationshipsRootEntityId], [s0].[Id1], [s0].[Relations
     public override Task SelectMany_optional_trunk_reference_branch_collection(bool async)
         => AssertCantTrackOwned(() => base.SelectMany_optional_trunk_reference_branch_collection(async));
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     private async Task AssertCantTrackOwned(Func<Task> test)
     {
         var message = (await Assert.ThrowsAsync<InvalidOperationException>(test)).Message;

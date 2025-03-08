@@ -12,7 +12,4 @@ public class ComplexRelationshipsInProjectionNoTrackingQuerySqliteTest
         Fixture.TestSqlLoggerFactory.Clear();
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
-
-    private void AssertSql(params string[] expected)
-        => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 }

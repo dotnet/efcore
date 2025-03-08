@@ -161,20 +161,6 @@ ORDER BY [r].[Id], [t].[Id]
 """);
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     public override async Task Project_root_duplicated(bool async)
     {
         await base.Project_root_duplicated(async);
@@ -381,23 +367,6 @@ LEFT JOIN [TrunkEntities] AS [t] ON [r].[OptionalReferenceTrunkId] = [t].[Id]
 INNER JOIN [BranchEntities] AS [b] ON [t].[Id] = [b].[CollectionTrunkId]
 """);
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
