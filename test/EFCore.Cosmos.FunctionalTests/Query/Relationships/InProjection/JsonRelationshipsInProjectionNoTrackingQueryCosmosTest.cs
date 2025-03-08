@@ -5,7 +5,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Relationships.InProjection;
 
 public class JsonRelationshipsInProjectionNoTrackingQueryCosmosTest : JsonRelationshipsInProjectionQueryTestBase<JsonRelationshipsQueryCosmosFixture>
 {
-    private readonly NoTrackingRewriter _noTrackingRewriter = new();
+    private readonly TrackingRewriter _trackingRewriter = new();
 
     public JsonRelationshipsInProjectionNoTrackingQueryCosmosTest(JsonRelationshipsQueryCosmosFixture fixture, ITestOutputHelper testOutputHelper)
         : base(fixture)
@@ -16,85 +16,16 @@ public class JsonRelationshipsInProjectionNoTrackingQueryCosmosTest : JsonRelati
 
     protected override Expression RewriteServerQueryExpression(Expression serverQueryExpression)
     {
-        var rewritten = _noTrackingRewriter.Visit(serverQueryExpression);
+        var rewritten = _trackingRewriter.Visit(serverQueryExpression);
 
         return rewritten;
     }
-
-    public override Task Project_root(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Project_root(a);
-
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-""");
-            });
-
-    public override Task Project_trunk_optional(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Project_trunk_optional(a);
-
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-ORDER BY c["Id"]
-""");
-            });
-
-    public override Task Project_trunk_required(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Project_trunk_required(a);
-
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-ORDER BY c["Id"]
-""");
-            });
 
     public override Task Project_trunk_collection(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
             {
                 await base.Project_trunk_collection(a);
-
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-ORDER BY c["Id"]
-""");
-            });
-
-    public override Task Project_branch_required_required(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Project_branch_required_required(a);
-
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-ORDER BY c["Id"]
-""");
-            });
-
-    public override Task Project_branch_required_optional(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Project_branch_required_optional(a);
 
                 AssertSql(
                     """
@@ -120,34 +51,6 @@ ORDER BY c["Id"]
 """);
         }
     }
-
-    public override Task Project_branch_optional_required(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Project_branch_optional_required(a);
-
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-ORDER BY c["Id"]
-""");
-            });
-
-    public override Task Project_branch_optional_optional(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Project_branch_optional_optional(a);
-
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-ORDER BY c["Id"]
-""");
-            });
 
     public override async Task Project_branch_optional_collection(bool async)
     {
@@ -183,53 +86,6 @@ ORDER BY c["Id"]
         }
     }
 
-    public override Task Project_root_duplicated(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Project_root_duplicated(a);
-
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-""");
-            });
-
-    public override async Task Project_trunk_and_branch_duplicated(bool async)
-    {
-        if (async)
-        {
-            //issue #31696
-            await Assert.ThrowsAsync<NullReferenceException>(
-                () => base.Project_trunk_and_branch_duplicated(async));
-
-            AssertSql(
-                """
-SELECT VALUE c
-FROM root c
-ORDER BY c["Id"]
-""");
-        }
-    }
-
-    public override async Task Project_trunk_and_trunk_duplicated(bool async)
-    {
-        if (async)
-        {
-            //issue #31696
-            await Assert.ThrowsAsync<NullReferenceException>(
-                () => base.Project_trunk_and_trunk_duplicated(async));
-
-            AssertSql(
-                """
-SELECT VALUE c
-FROM root c
-ORDER BY c["Id"]
-""");
-        }
-    }
-
     public override async Task Project_multiple_branch_leaf(bool async)
     {
         if (async)
@@ -241,28 +97,6 @@ ORDER BY c["Id"]
             AssertSql();
         }
     }
-
-    public override Task Project_leaf_trunk_root(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Project_leaf_trunk_root(a);
-
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-""");
-            });
-
-
-    public override Task Project_subquery_root_set_required_trunk_FirstOrDefault_branch(bool async)
-        => AssertTranslationFailed(
-            () => base.Project_subquery_root_set_required_trunk_FirstOrDefault_branch(async));
-
-    public override Task Project_subquery_root_set_optional_trunk_FirstOrDefault_branch(bool async)
-        => AssertTranslationFailed(
-            () => base.Project_subquery_root_set_optional_trunk_FirstOrDefault_branch(async));
 
     public override Task Project_subquery_root_set_trunk_FirstOrDefault_collection(bool async)
         => AssertTranslationFailed(

@@ -14,72 +14,20 @@ public class OwnedRelationshipsInProjectionNoTrackingQuerySqliteTest
     }
 
     [ConditionalTheory(Skip = "issue 26708")]
-    public override Task Project_root(bool async)
-        => base.Project_root(async);
-
-    [ConditionalTheory(Skip = "issue 26708")]
-    public override Task Project_trunk_optional(bool async)
-        => base.Project_trunk_optional(async);
-
-    [ConditionalTheory(Skip = "issue 26708")]
-    public override Task Project_trunk_required(bool async)
-        => base.Project_trunk_required(async);
-
-    [ConditionalTheory(Skip = "issue 26708")]
     public override Task Project_trunk_collection(bool async)
         => base.Project_trunk_collection(async);
-
-    [ConditionalTheory(Skip = "issue 26708")]
-    public override Task Project_branch_required_required(bool async)
-        => base.Project_branch_required_required(async);
-
-    [ConditionalTheory(Skip = "issue 26708")]
-    public override Task Project_branch_required_optional(bool async)
-        => base.Project_branch_required_optional(async);
 
     [ConditionalTheory(Skip = "issue 26708")]
     public override Task Project_branch_required_collection(bool async)
         => base.Project_branch_required_collection(async);
 
     [ConditionalTheory(Skip = "issue 26708")]
-    public override Task Project_branch_optional_required(bool async)
-        => base.Project_branch_optional_required(async);
-
-    [ConditionalTheory(Skip = "issue 26708")]
-    public override Task Project_branch_optional_optional(bool async)
-        => base.Project_branch_optional_optional(async);
-
-    [ConditionalTheory(Skip = "issue 26708")]
     public override Task Project_branch_optional_collection(bool async)
         => base.Project_branch_optional_collection(async);
 
     [ConditionalTheory(Skip = "issue 26708")]
-    public override Task Project_root_duplicated(bool async)
-        => base.Project_root_duplicated(async);
-
-    [ConditionalTheory(Skip = "issue 26708")]
-    public override Task Project_trunk_and_branch_duplicated(bool async)
-        => base.Project_trunk_and_branch_duplicated(async);
-
-    [ConditionalTheory(Skip = "issue 26708")]
-    public override Task Project_trunk_and_trunk_duplicated(bool async)
-        => base.Project_trunk_and_trunk_duplicated(async);
-
-    [ConditionalTheory(Skip = "issue 26708")]
     public override Task Project_multiple_branch_leaf(bool async)
         => base.Project_multiple_branch_leaf(async);
-
-    [ConditionalTheory(Skip = "issue 26708")]
-    public override Task Project_leaf_trunk_root(bool async)
-        => base.Project_leaf_trunk_root(async);
-
-    [ConditionalTheory(Skip = "issue 26708")]
-    public override Task Project_subquery_root_set_required_trunk_FirstOrDefault_branch(bool async)
-        => base.Project_subquery_root_set_required_trunk_FirstOrDefault_branch(async);
-
-    [ConditionalTheory(Skip = "issue 26708")]
-    public override Task Project_subquery_root_set_optional_trunk_FirstOrDefault_branch(bool async)
-        => base.Project_subquery_root_set_optional_trunk_FirstOrDefault_branch(async);
 
     [ConditionalTheory(Skip = "issue 26708")]
     public override Task Project_subquery_root_set_trunk_FirstOrDefault_collection(bool async)
