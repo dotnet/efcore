@@ -11,6 +11,7 @@
     <ImplicitUsings>true</ImplicitUsings>
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
     <NoWarn>$(NoWarn);NU5128</NoWarn>
+    <NoWarn>$(NoWarn);RS1038</NoWarn> <!-- Compiler extensions should be implemented in assemblies with compiler-provided references, #35752 -->
   </PropertyGroup>
 
   <ItemGroup>
