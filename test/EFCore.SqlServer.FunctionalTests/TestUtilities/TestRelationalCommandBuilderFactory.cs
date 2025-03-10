@@ -48,14 +48,14 @@ public class TestRelationalCommandBuilderFactory(
                 Instance.ToString(),
                 Parameters);
 
-        public IRelationalCommandBuilder Append(string value, string? logValue = null)
+        public IRelationalCommandBuilder Append(string value, bool redact = false)
         {
             Instance.Append(value);
 
             return this;
         }
 
-        public IRelationalCommandBuilder Append(FormattableString value, FormattableString? logValue = null)
+        public IRelationalCommandBuilder Append(FormattableString value, bool redact = false)
         {
             Instance.Append(value);
 

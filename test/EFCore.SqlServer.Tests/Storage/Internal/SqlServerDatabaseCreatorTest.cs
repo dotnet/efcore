@@ -191,21 +191,19 @@ public class SqlServerDatabaseCreatorTest
         public IRelationalCommand Build()
             => new FakeRelationalCommand();
 
-#nullable enable
-        public IRelationalCommandBuilder Append(string value, string? logValue = null)
+        public IRelationalCommandBuilder Append(string value, bool redact = false)
         {
             Instance.Append(value);
 
             return this;
         }
 
-        public IRelationalCommandBuilder Append(FormattableString value, FormattableString? logValue = null)
+        public IRelationalCommandBuilder Append(FormattableString value, bool redact = false)
         {
             Instance.Append(value);
 
             return this;
         }
-#nullable restore
 
         public IRelationalCommandBuilder AppendLine()
         {

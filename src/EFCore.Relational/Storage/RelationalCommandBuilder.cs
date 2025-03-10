@@ -74,19 +74,19 @@ public class RelationalCommandBuilder : IRelationalCommandBuilder
     }
 
     /// <inheritdoc />
-    public virtual IRelationalCommandBuilder Append(string value, string? logValue = null)
+    public virtual IRelationalCommandBuilder Append(string value, bool redact = false)
     {
         _commandTextBuilder.Append(value);
-        _logCommandTextBuilder?.Append(logValue ?? value);
+        _logCommandTextBuilder?.Append(redact ? "?" : value);
 
         return this;
     }
 
     /// <inheritdoc />
-    public virtual IRelationalCommandBuilder Append(FormattableString value, FormattableString? logValue = null)
+    public virtual IRelationalCommandBuilder Append(FormattableString value, bool redact = false)
     {
         _commandTextBuilder.Append(value);
-        _logCommandTextBuilder?.Append(logValue ?? value);
+        _logCommandTextBuilder?.Append(redact ? $"?" : value);
 
         return this;
     }
