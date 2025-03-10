@@ -98,13 +98,13 @@ public class RuntimeModel : RuntimeAnnotatableBase, IRuntimeModel
     /// <param name="type">The CLR class that is used to represent instances of this type.</param>
     /// <param name="sharedClrType">Whether this entity type can share its ClrType with other entities.</param>
     /// <param name="baseType">The base type of this entity type.</param>
-    /// <param name="discriminatorProperty">The name of the property that will be used for storing a discriminator value.</param>
     /// <param name="changeTrackingStrategy">The change tracking strategy for this entity type.</param>
     /// <param name="indexerPropertyInfo">The <see cref="PropertyInfo" /> for the indexer on the associated CLR type if one exists.</param>
     /// <param name="propertyBag">
     ///     A value indicating whether this entity type has an indexer which is able to contain arbitrary properties
     ///     and a method that can be used to determine whether a given indexer property contains a value.
     /// </param>
+    /// <param name="discriminatorProperty">The name of the property that will be used for storing a discriminator value.</param>
     /// <param name="discriminatorValue">The discriminator value for this entity type.</param>
     /// <param name="derivedTypesCount">The expected number of directly derived entity types.</param>
     /// <param name="propertyCount">The expected number of declared properties for this entity type.</param>
@@ -123,10 +123,10 @@ public class RuntimeModel : RuntimeAnnotatableBase, IRuntimeModel
         [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type type,
         RuntimeEntityType? baseType = null,
         bool sharedClrType = false,
-        string? discriminatorProperty = null,
         ChangeTrackingStrategy changeTrackingStrategy = ChangeTrackingStrategy.Snapshot,
         PropertyInfo? indexerPropertyInfo = null,
         bool propertyBag = false,
+        string? discriminatorProperty = null,
         object? discriminatorValue = null,
         int derivedTypesCount = 0,
         int propertyCount = 0,
@@ -146,10 +146,10 @@ public class RuntimeModel : RuntimeAnnotatableBase, IRuntimeModel
             sharedClrType,
             this,
             baseType,
-            discriminatorProperty,
             changeTrackingStrategy,
             indexerPropertyInfo,
             propertyBag,
+            discriminatorProperty,
             discriminatorValue,
             derivedTypesCount: derivedTypesCount,
             propertyCount: propertyCount,

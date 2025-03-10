@@ -776,7 +776,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             Assert.Equal("bar2", complexProperty["foo2"]);
             Assert.Equal(typeof(Customer).Name, complexProperty.Name);
             Assert.Equal(
-                @"Customer (Customer) Required
+                @"Customer (Customer)
   ComplexType: ComplexProperties.Customer#Customer
     Properties: "
                 + @"

@@ -521,6 +521,16 @@ public abstract partial class ModelBuilderTest
         public override TestComplexPropertyBuilder<TComplex> UseDefaultPropertyAccessMode(PropertyAccessMode propertyAccessMode)
             => Wrap<TComplex>(PropertyBuilder.UseDefaultPropertyAccessMode(propertyAccessMode));
 
+        public override TestComplexTypeDiscriminatorBuilder<TDiscriminator> HasDiscriminator<TDiscriminator>(Expression<Func<TComplex, TDiscriminator>> propertyExpression)
+            => new NonGenericTestComplexTypeDiscriminatorBuilder<TDiscriminator>(PropertyBuilder.HasDiscriminator(
+                propertyExpression.GetMemberAccess().GetSimpleMemberName(), propertyExpression.GetMemberAccess().GetMemberType()));
+
+        public override TestComplexTypeDiscriminatorBuilder<TDiscriminator> HasDiscriminator<TDiscriminator>(string propertyName)
+            => new NonGenericTestComplexTypeDiscriminatorBuilder<TDiscriminator>(PropertyBuilder.HasDiscriminator(propertyName, typeof(TDiscriminator)));
+
+        public override TestComplexPropertyBuilder<TComplex> HasNoDiscriminator()
+            => Wrap<TComplex>(PropertyBuilder.HasNoDiscriminator());
+
         public ComplexPropertyBuilder Instance
             => PropertyBuilder;
     }
@@ -547,6 +557,18 @@ public abstract partial class ModelBuilderTest
 
         public override TestDiscriminatorBuilder<TDiscriminator> HasValue(string entityTypeName, TDiscriminator? value)
             => Wrap(DiscriminatorBuilder.HasValue(entityTypeName, value));
+    }
+
+    protected class NonGenericTestComplexTypeDiscriminatorBuilder<TDiscriminator>(ComplexTypeDiscriminatorBuilder discriminatorBuilder)
+        : TestComplexTypeDiscriminatorBuilder<TDiscriminator>
+    {
+        protected ComplexTypeDiscriminatorBuilder DiscriminatorBuilder { get; } = discriminatorBuilder;
+
+        protected virtual TestComplexTypeDiscriminatorBuilder<TDiscriminator> Wrap(ComplexTypeDiscriminatorBuilder discriminatorBuilder)
+            => new NonGenericTestComplexTypeDiscriminatorBuilder<TDiscriminator>(discriminatorBuilder);
+
+        public override TestComplexTypeDiscriminatorBuilder<TDiscriminator> HasValue(TDiscriminator value)
+            => Wrap(DiscriminatorBuilder.HasValue(value));
     }
 
     protected class NonGenericTestOwnedEntityTypeBuilder<TEntity>(OwnedEntityTypeBuilder ownedEntityTypeBuilder)

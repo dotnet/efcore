@@ -21,10 +21,10 @@ namespace Microsoft.EntityFrameworkCore.Query;
 public class StructuralTypeShaperExpression : Expression, IPrintableExpression
 {
     private static readonly MethodInfo CreateUnableToDiscriminateExceptionMethod
-        = typeof(StructuralTypeShaperExpression).GetTypeInfo().GetDeclaredMethod(nameof(CreateUnableToDiscriminateException))!;
+        = typeof(StructuralTypeShaperExpression).GetMethod(nameof(CreateUnableToDiscriminateException))!;
 
     private static readonly MethodInfo GetDiscriminatorValueMethod
-        = typeof(IReadOnlyEntityType).GetTypeInfo().GetDeclaredMethod(nameof(IReadOnlyEntityType.GetDiscriminatorValue))!;
+        = typeof(IReadOnlyTypeBase).GetMethod(nameof(IReadOnlyTypeBase.GetDiscriminatorValue))!;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -176,7 +176,7 @@ public class StructuralTypeShaperExpression : Expression, IPrintableExpression
                 expressions.Add(conditions);
             }
 
-            body = Block(new[] { discriminatorValueVariable }, expressions);
+            body = Block([discriminatorValueVariable], expressions);
         }
         else
         {

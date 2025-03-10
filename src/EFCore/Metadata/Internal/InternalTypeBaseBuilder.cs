@@ -13,7 +13,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public abstract class InternalTypeBaseBuilder : AnnotatableBuilder<TypeBase, InternalModelBuilder>,
+public abstract class InternalTypeBaseBuilder :
+    AnnotatableBuilder<TypeBase, InternalModelBuilder>,
     IConventionTypeBaseBuilder
 {
     /// <summary>
@@ -169,9 +170,9 @@ public abstract class InternalTypeBaseBuilder : AnnotatableBuilder<TypeBase, Int
         ConfigurationSource? configurationSource,
         bool skipTypeCheck = false)
     {
-        var entityType = Metadata;
+        var structuralType = Metadata;
         List<Property>? propertiesToDetach = null;
-        var existingProperty = entityType.FindProperty(propertyName);
+        var existingProperty = structuralType.FindProperty(propertyName);
         if (existingProperty != null)
         {
             if (existingProperty.DeclaringType != Metadata)
@@ -181,7 +182,7 @@ public abstract class InternalTypeBaseBuilder : AnnotatableBuilder<TypeBase, Int
                     Metadata.RemoveIgnored(propertyName);
                 }
 
-                entityType = (EntityType)existingProperty.DeclaringType;
+                structuralType = existingProperty.DeclaringType;
             }
 
             if (IsCompatible(memberInfo, existingProperty)
@@ -274,7 +275,7 @@ public abstract class InternalTypeBaseBuilder : AnnotatableBuilder<TypeBase, Int
                 RemoveMembersInHierarchy(propertyName, configurationSource.Value);
             }
 
-            builder = entityType.AddProperty(
+            builder = structuralType.AddProperty(
                 propertyName, propertyType, memberInfo, typeConfigurationSource, configurationSource.Value)!.Builder;
 
             detachedProperties?.Attach(this);
@@ -1022,7 +1023,7 @@ public abstract class InternalTypeBaseBuilder : AnnotatableBuilder<TypeBase, Int
                     Metadata.RemoveIgnored(propertyName);
                 }
 
-                typeBase = (EntityType)existingComplexProperty.DeclaringType;
+                typeBase = existingComplexProperty.DeclaringType;
             }
 
             var existingComplexType = existingComplexProperty.ComplexType;
@@ -1336,6 +1337,224 @@ public abstract class InternalTypeBaseBuilder : AnnotatableBuilder<TypeBase, Int
         => configurationSource.Overrides(((IConventionTypeBase)Metadata).GetPropertyAccessModeConfigurationSource())
             || ((IConventionTypeBase)Metadata).GetPropertyAccessMode() == propertyAccessMode;
 
+    private const string DefaultDiscriminatorName = "Discriminator";
+
+    private static readonly Type DefaultDiscriminatorType = typeof(string);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual InternalTypeBaseBuilder? HasNoDiscriminator(ConfigurationSource configurationSource)
+    {
+        if (Metadata[CoreAnnotationNames.DiscriminatorProperty] == null)
+        {
+            return this;
+        }
+
+        if (!configurationSource.Overrides(Metadata.GetDiscriminatorPropertyConfigurationSource()))
+        {
+            return null;
+        }
+
+        if (((IReadOnlyTypeBase)Metadata).FindDiscriminatorProperty()?.DeclaringType == Metadata)
+        {
+            RemoveUnusedDiscriminatorProperty(null, configurationSource);
+        }
+
+        Metadata.SetDiscriminatorProperty(null, configurationSource);
+
+        RemoveIncompatibleDiscriminatorValues(Metadata, null, configurationSource);
+
+        return this;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected virtual InternalPropertyBuilder? GetOrCreateDiscriminatorProperty(
+        Type? type, string? name, MemberInfo? memberInfo, ConfigurationSource configurationSource)
+    {
+        if (memberInfo != null)
+        {
+            type ??= memberInfo.GetMemberType();
+            name ??= memberInfo.Name;
+        }
+        else
+        {
+            var existingDiscriminatorProperty = ((IReadOnlyTypeBase)Metadata).FindDiscriminatorProperty();
+            if ((name == null || (existingDiscriminatorProperty?.Name) == name)
+                && (type == null || (existingDiscriminatorProperty?.ClrType) == type))
+            {
+                type ??= existingDiscriminatorProperty?.ClrType;
+                name ??= existingDiscriminatorProperty?.Name;
+            }
+
+            type ??= DefaultDiscriminatorType;
+            name ??= DefaultDiscriminatorName;
+        }
+
+        var rootType = Metadata.GetRootType();
+        var discriminatorPropertyBuilder = rootType.Builder.Property(
+            type,
+            name,
+            memberInfo,
+            typeConfigurationSource: type != null ? ConfigurationSource.Convention : null,
+            ConfigurationSource.Convention);
+
+        if (discriminatorPropertyBuilder == null)
+        {
+            if (configurationSource != ConfigurationSource.Convention)
+            {
+                rootType.Builder.RemoveProperty(rootType.FindProperty(name)!, configurationSource);
+                discriminatorPropertyBuilder = rootType.Builder.Property(
+                    type,
+                    name,
+                    memberInfo,
+                    typeConfigurationSource: type != null ? ConfigurationSource.Convention : null,
+                    ConfigurationSource.Convention);
+            }
+
+            if (discriminatorPropertyBuilder == null)
+            {
+                return null;
+            }
+        }
+
+        var discriminatorProperty = discriminatorPropertyBuilder.Metadata;
+        RemoveUnusedDiscriminatorProperty(discriminatorProperty, configurationSource);
+
+        rootType.SetDiscriminatorProperty(discriminatorProperty, configurationSource);
+
+        RemoveIncompatibleDiscriminatorValues(Metadata, discriminatorProperty, configurationSource);
+
+        discriminatorPropertyBuilder.AfterSave(PropertySaveBehavior.Throw, ConfigurationSource.Convention);
+        discriminatorPropertyBuilder.IsRequired(true, ConfigurationSource.Convention);
+        discriminatorPropertyBuilder.HasValueGeneratorFactory(
+            typeof(DiscriminatorValueGeneratorFactory), ConfigurationSource.Convention);
+
+        return discriminatorPropertyBuilder;
+    }
+
+    private void RemoveUnusedDiscriminatorProperty(Property? newDiscriminatorProperty, ConfigurationSource configurationSource)
+    {
+        var oldDiscriminatorProperty = ((IReadOnlyTypeBase)Metadata).FindDiscriminatorProperty() as Property;
+        if (oldDiscriminatorProperty?.IsInModel == true
+            && oldDiscriminatorProperty != newDiscriminatorProperty)
+        {
+            oldDiscriminatorProperty.DeclaringType.Builder.RemoveUnusedImplicitProperties([oldDiscriminatorProperty]);
+
+            if (oldDiscriminatorProperty.IsInModel)
+            {
+                // TODO: Remove this once layering is implemented, #15898
+                oldDiscriminatorProperty.Builder.AfterSave(null, ConfigurationSource.Convention);
+                oldDiscriminatorProperty.Builder.IsRequired(null, ConfigurationSource.Convention);
+                oldDiscriminatorProperty.Builder.HasValueGenerator((Type?)null, ConfigurationSource.Convention);
+            }
+        }
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual bool CanSetDiscriminator(string? name, Type? type, ConfigurationSource configurationSource)
+        => name == null && type == null
+            ? CanRemoveDiscriminator(configurationSource)
+            : CanSetDiscriminator(((IReadOnlyTypeBase)Metadata).FindDiscriminatorProperty(), name, type, configurationSource);
+
+    private bool CanSetDiscriminator(
+        IReadOnlyProperty? discriminatorProperty,
+        string? name,
+        Type? discriminatorType,
+        ConfigurationSource configurationSource)
+        => ((name == null && discriminatorType == null)
+                || ((name == null || discriminatorProperty?.Name == name)
+                    && (discriminatorType == null || discriminatorProperty?.ClrType == discriminatorType))
+                || configurationSource.Overrides(Metadata.GetRootType().GetDiscriminatorPropertyConfigurationSource()))
+            && (discriminatorProperty != null
+                || Metadata.GetRootType().Builder.CanAddDiscriminatorProperty(
+                    discriminatorType ?? DefaultDiscriminatorType,
+                    name ?? DefaultDiscriminatorName,
+                    typeConfigurationSource: discriminatorType != null
+                        ? configurationSource
+                        : null));
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual bool CanRemoveDiscriminator(ConfigurationSource configurationSource)
+        => CanSetAnnotation(CoreAnnotationNames.DiscriminatorProperty, null, configurationSource);
+
+    private bool CanAddDiscriminatorProperty(
+        Type propertyType,
+        string name,
+        ConfigurationSource? typeConfigurationSource)
+    {
+        var conflictingProperty = Metadata.FindPropertiesInHierarchy(name).FirstOrDefault();
+        if (conflictingProperty != null
+            && (conflictingProperty.IsShadowProperty() || conflictingProperty.IsIndexerProperty())
+            && conflictingProperty.ClrType != propertyType
+            && typeConfigurationSource != null
+            && !typeConfigurationSource.Overrides(conflictingProperty.GetTypeConfigurationSource()))
+        {
+            return false;
+        }
+
+        var memberInfo = Metadata.IsPropertyBag
+            ? null
+            : Metadata.ClrType.GetMembersInHierarchy(name).FirstOrDefault();
+
+        return memberInfo == null
+            || propertyType == memberInfo.GetMemberType()
+            || typeConfigurationSource == null;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected virtual void RemoveIncompatibleDiscriminatorValues(
+        TypeBase structuralType,
+        Property? newDiscriminatorProperty,
+        ConfigurationSource configurationSource)
+    {
+        if ((newDiscriminatorProperty != null || structuralType.BaseType != null)
+            && (newDiscriminatorProperty == null
+                || newDiscriminatorProperty.ClrType.IsInstanceOfType(((IReadOnlyTypeBase)structuralType).GetDiscriminatorValue())))
+        {
+            return;
+        }
+
+        if (configurationSource.Overrides(((IConventionTypeBase)structuralType).GetDiscriminatorValueConfigurationSource()))
+        {
+            ((IMutableTypeBase)structuralType).RemoveDiscriminatorValue();
+        }
+
+        if (structuralType.BaseType == null)
+        {
+            foreach (var derivedType in structuralType.GetDerivedTypes())
+            {
+                if (configurationSource.Overrides(((IConventionTypeBase)derivedType).GetDiscriminatorValueConfigurationSource()))
+                {
+                    ((IMutableTypeBase)derivedType).RemoveDiscriminatorValue();
+                }
+            }
+        }
+    }
+
     IConventionTypeBase IConventionTypeBaseBuilder.Metadata
     {
         [DebuggerStepThrough]
@@ -1374,6 +1593,16 @@ public abstract class InternalTypeBaseBuilder : AnnotatableBuilder<TypeBase, Int
     IConventionTypeBaseBuilder? IConventionTypeBaseBuilder.HasNoAnnotation(string name, bool fromDataAnnotation)
         => (IConventionTypeBaseBuilder?)base.HasNoAnnotation(
             name, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    bool IConventionTypeBaseBuilder.CanRemoveDiscriminator(bool fromDataAnnotation)
+        => CanRemoveDiscriminator(fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1768,4 +1997,52 @@ public abstract class InternalTypeBaseBuilder : AnnotatableBuilder<TypeBase, Int
     bool IConventionTypeBaseBuilder.CanSetPropertyAccessMode(PropertyAccessMode? propertyAccessMode, bool fromDataAnnotation)
         => CanSetPropertyAccessMode(
             propertyAccessMode, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    bool IConventionTypeBaseBuilder.CanSetDiscriminator(string name, bool fromDataAnnotation)
+        => CanSetDiscriminator(
+            name, type: null,
+            fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    bool IConventionTypeBaseBuilder.CanSetDiscriminator(Type type, bool fromDataAnnotation)
+        => CanSetDiscriminator(
+            name: null, type,
+            fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    bool IConventionTypeBaseBuilder.CanSetDiscriminator(string name, Type type, bool fromDataAnnotation)
+        => CanSetDiscriminator(
+            name, type,
+            fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    bool IConventionTypeBaseBuilder.CanSetDiscriminator(MemberInfo memberInfo, bool fromDataAnnotation)
+        => CanSetDiscriminator(
+            Check.NotNull(memberInfo, nameof(memberInfo)).GetSimpleMemberName(), memberInfo.GetMemberType(),
+            fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 }

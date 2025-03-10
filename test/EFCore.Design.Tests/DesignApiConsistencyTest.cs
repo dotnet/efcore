@@ -19,7 +19,7 @@ public class DesignApiConsistencyTest(DesignApiConsistencyTest.DesignApiConsiste
     {
         public override HashSet<Type> FluentApiTypes { get; } = [typeof(DesignTimeServiceCollectionExtensions)];
 
-        public override HashSet<MethodInfo> NonVirtualMethods { get; } =
+        public override HashSet<MethodInfo> VirtualMethodExceptions { get; } =
         [
             typeof(CSharpEntityTypeGeneratorBase.ToStringInstanceHelper)
                 .GetProperty(nameof(CSharpEntityTypeGeneratorBase.ToStringInstanceHelper.FormatProvider)).GetMethod,

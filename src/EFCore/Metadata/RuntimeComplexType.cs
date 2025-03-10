@@ -34,10 +34,13 @@ public class RuntimeComplexType : RuntimeTypeBase, IRuntimeComplexType
         ChangeTrackingStrategy changeTrackingStrategy,
         PropertyInfo? indexerPropertyInfo,
         bool propertyBag,
+        string? discriminatorProperty,
+        object? discriminatorValue,
         int propertyCount,
         int complexPropertyCount)
         : base(
-            name, type, complexProperty.DeclaringType.Model, null, changeTrackingStrategy, indexerPropertyInfo, propertyBag,
+            name, type, complexProperty.DeclaringType.Model, baseType: null, changeTrackingStrategy, indexerPropertyInfo, propertyBag,
+            discriminatorProperty, discriminatorValue,
             derivedTypesCount: 0,
             propertyCount: propertyCount,
             complexPropertyCount: complexPropertyCount)
@@ -50,6 +53,9 @@ public class RuntimeComplexType : RuntimeTypeBase, IRuntimeComplexType
             _ => throw new NotImplementedException()
         };
     }
+
+    private new RuntimeComplexType? BaseType
+        => (RuntimeComplexType?)base.BaseType;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -241,4 +247,39 @@ public class RuntimeComplexType : RuntimeTypeBase, IRuntimeComplexType
         [DebuggerStepThrough]
         get => ContainingEntityType;
     }
+
+    /// <inheritdoc />
+    IReadOnlyComplexType? IReadOnlyComplexType.BaseType
+    {
+        [DebuggerStepThrough]
+        get => BaseType;
+    }
+
+    /// <inheritdoc />
+    IComplexType? IComplexType.BaseType
+    {
+        [DebuggerStepThrough]
+        get => BaseType;
+    }
+
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    IEnumerable<IReadOnlyComplexType> IReadOnlyComplexType.GetDerivedTypes()
+        => GetDerivedTypes<RuntimeComplexType>();
+
+    /// <inheritdoc />
+    IEnumerable<IReadOnlyComplexType> IReadOnlyComplexType.GetDerivedTypesInclusive()
+        => !HasDirectlyDerivedTypes
+            ? [this]
+            : new[] { this }.Concat(GetDerivedTypes<RuntimeComplexType>());
+
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    IEnumerable<IReadOnlyComplexType> IReadOnlyComplexType.GetDirectlyDerivedTypes()
+        => DirectlyDerivedTypes.Cast<RuntimeComplexType>();
+
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    IEnumerable<IComplexType> IComplexType.GetDirectlyDerivedTypes()
+        => DirectlyDerivedTypes.Cast<RuntimeComplexType>();
 }

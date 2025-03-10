@@ -3,7 +3,7 @@
 
 namespace Microsoft.EntityFrameworkCore.Query.Relationships.Include;
 
-public class EntityRelationshipsIncludeQueryTestBase<TFixture>(TFixture fixture)
+public abstract class EntityRelationshipsIncludeQueryTestBase<TFixture>(TFixture fixture)
     : RelationshipsIncludeQueryTestBase<TFixture>(fixture)
         where TFixture : EntityRelationshipsQueryFixtureBase, new()
 {

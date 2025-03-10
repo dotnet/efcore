@@ -245,10 +245,10 @@ public class RuntimeModelConvention : IModelFinalizedConvention
             entityType.ClrType,
             entityType.BaseType == null ? null : model.FindEntityType(entityType.BaseType.Name)!,
             entityType.HasSharedClrType,
-            entityType.GetDiscriminatorPropertyName(),
             entityType.GetChangeTrackingStrategy(),
             entityType.FindIndexerPropertyInfo(),
             entityType.IsPropertyBag,
+            entityType.GetDiscriminatorPropertyName(),
             entityType.GetDiscriminatorValue(),
             derivedTypesCount: entityType.GetDirectlyDerivedTypes().Count(),
             propertyCount: entityType.GetDeclaredProperties().Count(),
@@ -510,23 +510,25 @@ public class RuntimeModelConvention : IModelFinalizedConvention
 
     private RuntimeComplexProperty Create(IComplexProperty complexProperty, RuntimeTypeBase runtimeStructuralType)
     {
+        var complexType = complexProperty.ComplexType;
         var runtimeComplexProperty = runtimeStructuralType.AddComplexProperty(
             complexProperty.Name,
             complexProperty.ClrType,
-            complexProperty.ComplexType.Name,
-            complexProperty.ComplexType.ClrType,
+            complexType.Name,
+            complexType.ClrType,
             complexProperty.PropertyInfo,
             complexProperty.FieldInfo,
             complexProperty.GetPropertyAccessMode(),
             complexProperty.IsNullable,
             complexProperty.IsCollection,
-            complexProperty.ComplexType.GetChangeTrackingStrategy(),
-            complexProperty.ComplexType.FindIndexerPropertyInfo(),
-            complexProperty.ComplexType.IsPropertyBag,
-            propertyCount: complexProperty.ComplexType.GetDeclaredProperties().Count(),
-            complexPropertyCount: complexProperty.ComplexType.GetDeclaredComplexProperties().Count());
+            complexType.GetChangeTrackingStrategy(),
+            complexType.FindIndexerPropertyInfo(),
+            complexType.IsPropertyBag,
+            complexType.GetDiscriminatorPropertyName(),
+            complexType.GetDiscriminatorValue(),
+            propertyCount: complexType.GetDeclaredProperties().Count(),
+            complexPropertyCount: complexType.GetDeclaredComplexProperties().Count());
 
-        var complexType = complexProperty.ComplexType;
         var runtimeComplexType = runtimeComplexProperty.ComplexType;
 
         foreach (var property in complexType.GetProperties())
