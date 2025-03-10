@@ -88,7 +88,8 @@ public class SqlServerConnectionTest
                     new TestRelationalTypeMappingSource(
                         TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
                         TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()),
-                    new SqlServerExceptionDetector())));
+                    new SqlServerExceptionDetector(),
+                    new LoggingOptions())));
     }
 
     private const string ConnectionString = "Fake Connection String";

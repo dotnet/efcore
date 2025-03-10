@@ -130,13 +130,14 @@ public class BadDataSqliteTest(BadDataSqliteTest.BadDataSqliteFixture fixture) :
             private readonly object[] _values = values;
 
             public override IRelationalCommand Build()
-                => new BadDataRelationalCommand(Dependencies, ToString(), Parameters, _values);
+                => new BadDataRelationalCommand(Dependencies, ToString(), ToString(), Parameters, _values);
 
             private class BadDataRelationalCommand(
                 RelationalCommandBuilderDependencies dependencies,
                 string commandText,
+                string logCommandText,
                 IReadOnlyList<IRelationalParameter> parameters,
-                object[] values) : RelationalCommand(dependencies, commandText, parameters)
+                object[] values) : RelationalCommand(dependencies, commandText, logCommandText, parameters)
             {
                 private object[] _values = values;
 

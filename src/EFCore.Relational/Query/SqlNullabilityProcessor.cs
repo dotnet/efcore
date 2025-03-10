@@ -129,7 +129,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                     processedValues.Add(
                         new RowValueExpression(
                         [
-                            _sqlExpressionFactory.Constant(value, value?.GetType() ?? typeof(object), typeMapping)
+                            _sqlExpressionFactory.Constant(value, value?.GetType() ?? typeof(object), isSensitive: true, typeMapping)
                         ]));
                 }
 
@@ -765,7 +765,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                         continue;
                     }
 
-                    processedValues.Add(_sqlExpressionFactory.Constant(value, value?.GetType() ?? typeof(object), typeMapping));
+                    processedValues.Add(_sqlExpressionFactory.Constant(value, value?.GetType() ?? typeof(object), isSensitive: true, typeMapping));
                 }
             }
             else

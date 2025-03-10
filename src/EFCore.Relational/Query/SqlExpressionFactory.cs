@@ -976,4 +976,12 @@ public class SqlExpressionFactory : ISqlExpressionFactory
     /// <inheritdoc />
     public virtual SqlExpression Constant(object? value, Type type, RelationalTypeMapping? typeMapping = null)
         => new SqlConstantExpression(value, type, typeMapping);
+
+    /// <inheritdoc />
+    public virtual SqlExpression Constant(object value, bool isSensitive, RelationalTypeMapping? typeMapping = null)
+        => new SqlConstantExpression(value, isSensitive, typeMapping);
+
+    /// <inheritdoc />
+    public virtual SqlExpression Constant(object? value, Type type, bool isSensitive, RelationalTypeMapping? typeMapping = null)
+        => new SqlConstantExpression(value, type, isSensitive, typeMapping);
 }
