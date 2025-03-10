@@ -13,8 +13,8 @@ public class SqlConstantExpressionTest
     {
         int[] x = [1, 2, 3];
 
-        var a = new SqlConstantExpression(new[] { x.ToList() }, originallyParameter: false, typeMapping: null);
-        var b = new SqlConstantExpression(new[] { x.ToList() }, originallyParameter: false, typeMapping: null);
+        var a = new SqlConstantExpression(new[] { x.ToList() }, null);
+        var b = new SqlConstantExpression(new[] { x.ToList() }, null);
 
         Assert.True(a.Equals(b));
     }
@@ -24,8 +24,8 @@ public class SqlConstantExpressionTest
     {
         int[] x = [1, 2, 3];
 
-        var a = new SqlConstantExpression(x.ToList(), originallyParameter: false, typeMapping: null);
-        var b = new SqlConstantExpression(x.ToList(), originallyParameter: false, typeMapping: null);
+        var a = new SqlConstantExpression(x.ToList(), null);
+        var b = new SqlConstantExpression(x.ToList(), null);
 
         Assert.True(a.Equals(b));
         Assert.Equal(a.GetHashCode(), b.GetHashCode());

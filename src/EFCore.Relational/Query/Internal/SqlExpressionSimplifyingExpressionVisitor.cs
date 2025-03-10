@@ -161,7 +161,7 @@ public class SqlExpressionSimplifyingExpressionVisitor : ExpressionVisitor
                 intValue switch
                 {
                     0 => _sqlExpressionFactory.GreaterThan(testLeft, testRight),
-                    1 => _sqlExpressionFactory.Constant(false, typeMapping: sqlBinaryExpression.TypeMapping),
+                    1 => _sqlExpressionFactory.Constant(false, sqlBinaryExpression.TypeMapping),
                     _ => _sqlExpressionFactory.GreaterThanOrEqual(testLeft, testRight)
                 }),
             // CompareTo(a, b) >= 0 -> a >= b
@@ -172,7 +172,7 @@ public class SqlExpressionSimplifyingExpressionVisitor : ExpressionVisitor
                 {
                     0 => _sqlExpressionFactory.GreaterThanOrEqual(testLeft, testRight),
                     1 => _sqlExpressionFactory.GreaterThan(testLeft, testRight),
-                    _ => _sqlExpressionFactory.Constant(true, typeMapping: sqlBinaryExpression.TypeMapping)
+                    _ => _sqlExpressionFactory.Constant(true, sqlBinaryExpression.TypeMapping)
                 }),
             // CompareTo(a, b) < 0 -> a < b
             // CompareTo(a, b) < 1 -> a <= b
@@ -182,14 +182,14 @@ public class SqlExpressionSimplifyingExpressionVisitor : ExpressionVisitor
                 {
                     0 => _sqlExpressionFactory.LessThan(testLeft, testRight),
                     1 => _sqlExpressionFactory.LessThanOrEqual(testLeft, testRight),
-                    _ => _sqlExpressionFactory.Constant(false, typeMapping: sqlBinaryExpression.TypeMapping)
+                    _ => _sqlExpressionFactory.Constant(false, sqlBinaryExpression.TypeMapping)
                 }),
 
             _ => (SqlExpression)Visit(
                 intValue switch
                 {
                     0 => _sqlExpressionFactory.LessThanOrEqual(testLeft, testRight),
-                    1 => _sqlExpressionFactory.Constant(true, typeMapping: sqlBinaryExpression.TypeMapping),
+                    1 => _sqlExpressionFactory.Constant(true, sqlBinaryExpression.TypeMapping),
                     _ => _sqlExpressionFactory.LessThan(testLeft, testRight)
                 })
         };

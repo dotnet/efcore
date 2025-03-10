@@ -640,7 +640,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
 
             // !(true) -> false
             // !(false) -> true
-            SqlConstantExpression { Value: bool boolValue } => Constant(!boolValue, operand.Type, typeMapping: operand.TypeMapping),
+            SqlConstantExpression { Value: bool boolValue } => Constant(!boolValue, operand.Type, operand.TypeMapping),
 
             // !(!a) -> a
             // ~(~a) -> a (bitwise negation)
@@ -797,7 +797,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
             typeMappedWhenClauses.RemoveAt(typeMappedWhenClauses.Count - 1);
         }
 
-        var nullResult = Constant(null, elseResult?.Type ?? whenClauses[0].Result.Type, typeMapping: resultTypeMapping);
+        var nullResult = Constant(null, elseResult?.Type ?? whenClauses[0].Result.Type, resultTypeMapping);
 
         // if there are no whenClauses left (e.g. their tests evaluated to false):
         // - if there is Else block, return it
@@ -970,10 +970,18 @@ public class SqlExpressionFactory : ISqlExpressionFactory
         => new SqlFragmentExpression(sql, type, typeMapping);
 
     /// <inheritdoc />
-    public virtual SqlExpression Constant(object value, bool originallyParameter = false, RelationalTypeMapping? typeMapping = null)
-        => new SqlConstantExpression(value, originallyParameter, typeMapping);
+    public virtual SqlExpression Constant(object value, RelationalTypeMapping? typeMapping = null)
+        => new SqlConstantExpression(value, typeMapping);
 
     /// <inheritdoc />
-    public virtual SqlExpression Constant(object? value, Type type, bool originallyParameter = false, RelationalTypeMapping? typeMapping = null)
-        => new SqlConstantExpression(value, type, originallyParameter, typeMapping);
+    public virtual SqlExpression Constant(object? value, Type type, RelationalTypeMapping? typeMapping = null)
+        => new SqlConstantExpression(value, type, typeMapping);
+
+    /// <inheritdoc />
+    public virtual SqlExpression Constant(object value, bool isSensitive, RelationalTypeMapping? typeMapping = null)
+        => new SqlConstantExpression(value, isSensitive, typeMapping);
+
+    /// <inheritdoc />
+    public virtual SqlExpression Constant(object? value, Type type, bool isSensitive, RelationalTypeMapping? typeMapping = null)
+        => new SqlConstantExpression(value, type, isSensitive, typeMapping);
 }

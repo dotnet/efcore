@@ -289,7 +289,7 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
                     {
                         null => _sqlExpressionFactory.Like(
                             translatedInstance,
-                            _sqlExpressionFactory.Constant(null, typeof(string), typeMapping: stringTypeMapping)),
+                            _sqlExpressionFactory.Constant(null, typeof(string), stringTypeMapping)),
 
                         // In .NET, all strings start with/end with/contain the empty string, but SQL LIKE return false for empty patterns.
                         // Return % which always matches instead.
@@ -418,7 +418,7 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
                                     CharIndexGreaterThanZero(),
                                     _sqlExpressionFactory.Like(
                                         translatedPattern,
-                                        _sqlExpressionFactory.Constant(string.Empty, typeMapping: stringTypeMapping))))),
+                                        _sqlExpressionFactory.Constant(string.Empty, stringTypeMapping))))),
 
                     _ => throw new UnreachableException()
                 };

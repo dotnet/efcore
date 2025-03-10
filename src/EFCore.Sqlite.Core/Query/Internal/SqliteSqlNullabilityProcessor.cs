@@ -101,7 +101,7 @@ public class SqliteSqlNullabilityProcessor : SqlNullabilityProcessor
             var sqlExpressionFactory = Dependencies.SqlExpressionFactory;
             return sqlExpressionFactory.Coalesce(
                 result,
-                sqlExpressionFactory.Constant(0, typeMapping: resultFunctionExpression.TypeMapping),
+                sqlExpressionFactory.Constant(0, resultFunctionExpression.TypeMapping),
                 resultFunctionExpression.TypeMapping);
         }
 

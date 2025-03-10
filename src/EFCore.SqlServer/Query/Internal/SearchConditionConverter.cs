@@ -109,7 +109,7 @@ public class SearchConditionConverter(ISqlExpressionFactory sqlExpressionFactory
                 {
                     return sqlExpressionFactory.MakeBinary(
                         ExpressionType.Equal,
-                        sqlExpressionFactory.Constant(!(bool)constant.Value!, typeMapping: constant.TypeMapping),
+                        sqlExpressionFactory.Constant(!(bool)constant.Value!, constant.TypeMapping),
                         sqlBinaryOperand.Right,
                         sqlBinaryOperand.TypeMapping)!;
                 }
@@ -117,7 +117,7 @@ public class SearchConditionConverter(ISqlExpressionFactory sqlExpressionFactory
                 return sqlExpressionFactory.MakeBinary(
                     ExpressionType.Equal,
                     sqlBinaryOperand.Left,
-                    sqlExpressionFactory.Constant(!(bool)constant.Value!, typeMapping: constant.TypeMapping),
+                    sqlExpressionFactory.Constant(!(bool)constant.Value!, constant.TypeMapping),
                     sqlBinaryOperand.TypeMapping)!;
             }
 

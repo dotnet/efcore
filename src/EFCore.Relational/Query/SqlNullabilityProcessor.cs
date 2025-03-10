@@ -129,7 +129,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                     processedValues.Add(
                         new RowValueExpression(
                         [
-                            _sqlExpressionFactory.Constant(value, value?.GetType() ?? typeof(object), originallyParameter: true, typeMapping: typeMapping)
+                            _sqlExpressionFactory.Constant(value, value?.GetType() ?? typeof(object), isSensitive: true, typeMapping)
                         ]));
                 }
 
@@ -397,7 +397,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
         // - if there is no Else block, return null
         if (whenClauses.Count == 0)
         {
-            return elseResult ?? _sqlExpressionFactory.Constant(null, caseExpression.Type, typeMapping: caseExpression.TypeMapping);
+            return elseResult ?? _sqlExpressionFactory.Constant(null, caseExpression.Type, caseExpression.TypeMapping);
         }
 
         return _sqlExpressionFactory.Case(operand, whenClauses, elseResult, caseExpression);
@@ -464,7 +464,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
         // if subquery has predicate which evaluates to false, we can simply return false
         // if the exists is negated we need to return true instead
         return IsFalse(subquery.Predicate)
-            ? _sqlExpressionFactory.Constant(false, typeMapping: existsExpression.TypeMapping)
+            ? _sqlExpressionFactory.Constant(false, existsExpression.TypeMapping)
             : existsExpression.Update(subquery);
     }
 
@@ -499,7 +499,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
             {
                 nullable = false;
 
-                return _sqlExpressionFactory.Constant(false, typeMapping: inExpression.TypeMapping);
+                return _sqlExpressionFactory.Constant(false, inExpression.TypeMapping);
             }
 
             var projectionExpression = Visit(subqueryProjection, allowOptimizedExpansion, out var projectionNullable);
@@ -535,7 +535,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                     // WHERE NULL IN (SELECT NonNullable FROM foo) -> false
                     if (IsNull(item))
                     {
-                        return _sqlExpressionFactory.Constant(false, typeMapping: inExpression.TypeMapping);
+                        return _sqlExpressionFactory.Constant(false, inExpression.TypeMapping);
                     }
 
                     // Otherwise, since the projection is non-nullable, NULL will only be returned if the item wasn't found. Use as-is
@@ -602,7 +602,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                         // the whole thing to true.
                         if (IsNull(item))
                         {
-                            return _sqlExpressionFactory.Constant(true, typeMapping: inExpression.TypeMapping);
+                            return _sqlExpressionFactory.Constant(true, inExpression.TypeMapping);
                         }
 
                         // Otherwise we now need to compensate for the removed nulls outside, by adding OR item IS NULL.
@@ -648,7 +648,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
 
             return inExpression.Values! switch
             {
-                [] => _sqlExpressionFactory.Constant(false, typeMapping: inExpression.TypeMapping),
+                [] => _sqlExpressionFactory.Constant(false, inExpression.TypeMapping),
                 [var v] => _sqlExpressionFactory.Equal(inExpression.Item, v),
                 [..] => inExpression
             };
@@ -670,7 +670,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
             // a IN () -> false
             // non_nullable IN (NULL) -> false
             case []:
-                return _sqlExpressionFactory.Constant(false, typeMapping: inExpression.TypeMapping);
+                return _sqlExpressionFactory.Constant(false, inExpression.TypeMapping);
 
             // a IN (1) -> a = 1
             // nullable IN (1, NULL) -> nullable IS NULL OR nullable = 1
@@ -765,7 +765,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                         continue;
                     }
 
-                    processedValues.Add(_sqlExpressionFactory.Constant(value, value?.GetType() ?? typeof(object), originallyParameter: true, typeMapping: typeMapping));
+                    processedValues.Add(_sqlExpressionFactory.Constant(value, value?.GetType() ?? typeof(object), isSensitive: true, typeMapping));
                 }
             }
             else
@@ -860,7 +860,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
 
         if (IsNull(match) || IsNull(pattern) || IsNull(escapeChar))
         {
-            return _sqlExpressionFactory.Constant(false, typeMapping: likeExpression.TypeMapping);
+            return _sqlExpressionFactory.Constant(false, likeExpression.TypeMapping);
         }
 
         // A constant match-all pattern (%) returns true for all cases, except where the match string is null:
@@ -870,7 +870,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
         {
             return matchNullable
                 ? _sqlExpressionFactory.IsNotNull(match)
-                : _sqlExpressionFactory.Constant(true, typeMapping: likeExpression.TypeMapping);
+                : _sqlExpressionFactory.Constant(true, likeExpression.TypeMapping);
         }
 
         if (!allowOptimizedExpansion)
@@ -1161,8 +1161,8 @@ public class SqlNullabilityProcessor : ExpressionVisitor
 
             nullable = false;
             return _sqlExpressionFactory.Case(
-                [new CaseWhenClause(result, _sqlExpressionFactory.Constant(true, typeMapping: result.TypeMapping))],
-                _sqlExpressionFactory.Constant(false, typeMapping: result.TypeMapping)
+                [new CaseWhenClause(result, _sqlExpressionFactory.Constant(true, result.TypeMapping))],
+                _sqlExpressionFactory.Constant(false, result.TypeMapping)
             );
         }
 
@@ -1179,8 +1179,8 @@ public class SqlNullabilityProcessor : ExpressionVisitor
 
         SqlExpression AddNullConcatenationProtection(SqlExpression argument, RelationalTypeMapping typeMapping)
             => argument is SqlConstantExpression or SqlParameterExpression
-                ? _sqlExpressionFactory.Constant(string.Empty, typeMapping: typeMapping)
-                : _sqlExpressionFactory.Coalesce(argument, _sqlExpressionFactory.Constant(string.Empty, typeMapping: typeMapping));
+                ? _sqlExpressionFactory.Constant(string.Empty, typeMapping)
+                : _sqlExpressionFactory.Coalesce(argument, _sqlExpressionFactory.Constant(string.Empty, typeMapping));
     }
 
     /// <summary>
@@ -1284,7 +1284,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
 
             return _sqlExpressionFactory.Coalesce(
                 sqlFunctionExpression,
-                _sqlExpressionFactory.Constant(0, typeMapping: sqlFunctionExpression.TypeMapping),
+                _sqlExpressionFactory.Constant(0, sqlFunctionExpression.TypeMapping),
                 sqlFunctionExpression.TypeMapping);
         }
 
@@ -1319,7 +1319,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
             return _sqlExpressionFactory.Constant(
                 null,
                 sqlParameterExpression.Type,
-                typeMapping: sqlParameterExpression.TypeMapping);
+                sqlParameterExpression.TypeMapping);
         }
 
         if (sqlParameterExpression.ShouldBeConstantized)
@@ -1329,7 +1329,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
             return _sqlExpressionFactory.Constant(
                 parameterValue,
                 sqlParameterExpression.Type,
-                typeMapping: sqlParameterExpression.TypeMapping);
+                sqlParameterExpression.TypeMapping);
         }
 
         return sqlParameterExpression;
@@ -1519,7 +1519,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
 
             return _sqlExpressionFactory.Constant(
                 sqlBinaryExpression.OperatorType == ExpressionType.Equal,
-                typeMapping: sqlBinaryExpression.TypeMapping);
+                sqlBinaryExpression.TypeMapping);
         }
 
         if (!leftNullable
@@ -1819,7 +1819,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
             // not_null_operand is not null -> true
             return _sqlExpressionFactory.Constant(
                 sqlUnaryExpression.OperatorType == ExpressionType.NotEqual,
-                typeMapping: sqlUnaryExpression.TypeMapping);
+                sqlUnaryExpression.TypeMapping);
         }
 
         switch (sqlUnaryExpression.Operand)
@@ -1831,7 +1831,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                 // not_null_value_constant is not null -> true
                 return _sqlExpressionFactory.Constant(
                     sqlConstantOperand.Value == null ^ sqlUnaryExpression.OperatorType == ExpressionType.NotEqual,
-                    typeMapping: sqlUnaryExpression.TypeMapping);
+                    sqlUnaryExpression.TypeMapping);
 
             case SqlParameterExpression sqlParameterOperand:
                 // null_value_parameter is null -> true
@@ -1840,7 +1840,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                 // not_null_value_parameter is not null -> true
                 return _sqlExpressionFactory.Constant(
                     ParameterValues[sqlParameterOperand.Name] == null ^ sqlUnaryExpression.OperatorType == ExpressionType.NotEqual,
-                    typeMapping: sqlUnaryExpression.TypeMapping);
+                    sqlUnaryExpression.TypeMapping);
 
             case ColumnExpression columnOperand
                 when !columnOperand.IsNullable || _nonNullableColumns.Contains(columnOperand):
@@ -1849,7 +1849,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                 // IsNotNull(non_nullable_column) -> true
                 return _sqlExpressionFactory.Constant(
                     sqlUnaryExpression.OperatorType == ExpressionType.NotEqual,
-                    typeMapping: sqlUnaryExpression.TypeMapping);
+                    sqlUnaryExpression.TypeMapping);
             }
 
             case CollateExpression collate:
@@ -1885,7 +1885,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                         // (a is not null) is not null -> true
                         return _sqlExpressionFactory.Constant(
                             sqlUnaryOperand.OperatorType == ExpressionType.NotEqual,
-                            typeMapping: sqlUnaryOperand.TypeMapping);
+                            sqlUnaryOperand.TypeMapping);
                 }
 
                 break;
@@ -1991,7 +1991,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                     // non_nullable_function() is not null -> true
                     return _sqlExpressionFactory.Constant(
                         sqlUnaryExpression.OperatorType == ExpressionType.NotEqual,
-                        typeMapping: sqlUnaryExpression.TypeMapping);
+                        sqlUnaryExpression.TypeMapping);
                 }
 
                 // see if we can derive function nullability from it's instance and/or arguments

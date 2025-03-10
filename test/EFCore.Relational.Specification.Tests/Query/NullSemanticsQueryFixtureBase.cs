@@ -137,8 +137,8 @@ public abstract class NullSemanticsQueryFixtureBase : SharedStoreFixtureBase<Nul
                 args => new CaseExpression(
                     operand: args[0],
                     [
-                        new CaseWhenClause(new SqlConstantExpression(true, originallyParameter: false, typeMapping: args[0].TypeMapping), args[1]),
-                        new CaseWhenClause(new SqlConstantExpression(false, originallyParameter: false, typeMapping: args[0].TypeMapping), args[2])
+                        new CaseWhenClause(new SqlConstantExpression(true, typeMapping: args[0].TypeMapping), args[1]),
+                        new CaseWhenClause(new SqlConstantExpression(false, typeMapping: args[0].TypeMapping), args[2])
                     ])));
     }
 

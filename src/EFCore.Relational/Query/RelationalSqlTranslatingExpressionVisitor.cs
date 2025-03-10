@@ -489,7 +489,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
 
     /// <inheritdoc />
     protected override Expression VisitConstant(ConstantExpression constantExpression)
-        => new SqlConstantExpression(constantExpression.Value, constantExpression.Type, originallyParameter: false, typeMapping: null);
+        => new SqlConstantExpression(constantExpression.Value, constantExpression.Type, typeMapping: null);
 
     /// <inheritdoc />
     protected override Expression VisitExtension(Expression extensionExpression)
@@ -1639,7 +1639,6 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                     .Compile(preferInterpretation: true)
                     .Invoke(),
                 expression.Type,
-                originallyParameter: false,
                 typeMapping: null);
             return true;
         }

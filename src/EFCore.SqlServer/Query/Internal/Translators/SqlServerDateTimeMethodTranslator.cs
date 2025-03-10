@@ -133,7 +133,7 @@ public class SqlServerDateTimeMethodTranslator(
                 arguments:
                 [
                     sqlExpressionFactory.Fragment(timePart),
-                    sqlExpressionFactory.Constant(DateTimeOffset.UnixEpoch, typeMapping: instance!.TypeMapping),
+                    sqlExpressionFactory.Constant(DateTimeOffset.UnixEpoch, instance!.TypeMapping),
                     instance
                 ],
                 nullable: true,

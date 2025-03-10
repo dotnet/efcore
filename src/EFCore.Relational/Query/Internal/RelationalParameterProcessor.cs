@@ -216,7 +216,7 @@ public class RelationalParameterProcessor : ExpressionVisitor
             return _sqlExpressionFactory.Constant(
                 existingConstantValue,
                 existingConstantValue?.GetType() ?? typeof(object),
-                typeMapping: _typeMappingSource.GetMappingForValue(existingConstantValue));
+                _typeMappingSource.GetMappingForValue(existingConstantValue));
         }
 
         void ProcessDbParameter(DbParameter dbParameter)

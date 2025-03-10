@@ -103,7 +103,7 @@ public class RelationalValueConverterCompensatingExpressionVisitor : ExpressionV
         {
             return _sqlExpressionFactory.Equal(
                 sqlExpression,
-                _sqlExpressionFactory.Constant(true, typeMapping: sqlExpression.TypeMapping));
+                _sqlExpressionFactory.Constant(true, sqlExpression.TypeMapping));
         }
 
         if (sqlExpression is SqlUnaryExpression sqlUnaryExpression)

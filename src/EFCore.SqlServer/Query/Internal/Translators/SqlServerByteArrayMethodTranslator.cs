@@ -47,7 +47,7 @@ public class SqlServerByteArrayMethodTranslator : IMethodCallTranslator
                 var sourceTypeMapping = source.TypeMapping;
 
                 var value = arguments[1] is SqlConstantExpression constantValue
-                    ? _sqlExpressionFactory.Constant(new[] { (byte)constantValue.Value! }, typeMapping: sourceTypeMapping)
+                    ? _sqlExpressionFactory.Constant(new[] { (byte)constantValue.Value! }, sourceTypeMapping)
                     : _sqlExpressionFactory.Convert(arguments[1], typeof(byte[]), sourceTypeMapping);
 
                 return _sqlExpressionFactory.GreaterThan(
