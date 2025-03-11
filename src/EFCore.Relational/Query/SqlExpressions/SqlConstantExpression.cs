@@ -44,23 +44,23 @@ public class SqlConstantExpression : SqlExpression
     /// </summary>
     /// <param name="value">An <see cref="Object" /> to set the <see cref="Value" /> property equal to.</param>
     /// <param name="type">The <see cref="System.Type" /> of the expression.</param>
-    /// <param name="isSensitive"><see langword="true" /> if the expression contains sensitive values; otherwise, <see langword="false" />.</param>
+    /// <param name="sensitive"><see langword="true" /> if the expression contains sensitive values; otherwise, <see langword="false" />.</param>
     /// <param name="typeMapping">The <see cref="RelationalTypeMapping" /> associated with the expression.</param>
-    public SqlConstantExpression(object? value, Type type, bool isSensitive, RelationalTypeMapping? typeMapping)
+    public SqlConstantExpression(object? value, Type type, bool sensitive, RelationalTypeMapping? typeMapping)
         : base(type.UnwrapNullableType(), typeMapping)
     {
         Value = value;
-        IsSensitive = isSensitive;
+        Sensitive = sensitive;
     }
 
     /// <summary>
     ///     Creates a new instance of the <see cref="SqlConstantExpression" /> class.
     /// </summary>
     /// <param name="value">An <see cref="Object" /> to set the <see cref="Value" /> property equal to.</param>
-    /// <param name="isSensitive"><see langword="true" /> if the expression contains sensitive values; otherwise, <see langword="false" />.</param>
+    /// <param name="sensitive"><see langword="true" /> if the expression contains sensitive values; otherwise, <see langword="false" />.</param>
     /// <param name="typeMapping">The <see cref="RelationalTypeMapping" /> associated with the expression.</param>
-    public SqlConstantExpression(object value, bool isSensitive, RelationalTypeMapping? typeMapping)
-        : this(value, value.GetType(), isSensitive, typeMapping)
+    public SqlConstantExpression(object value, bool sensitive, RelationalTypeMapping? typeMapping)
+        : this(value, value.GetType(), sensitive, typeMapping)
     {
     }
 
@@ -83,7 +83,7 @@ public class SqlConstantExpression : SqlExpression
     /// <summary>
     ///    Whether the expression contains sensitive values.
     /// </summary>
-    public virtual bool IsSensitive { get; }
+    public virtual bool Sensitive { get; }
 
     /// <summary>
     ///     Applies supplied type mapping to this expression.
@@ -91,7 +91,7 @@ public class SqlConstantExpression : SqlExpression
     /// <param name="typeMapping">A relational type mapping to apply.</param>
     /// <returns>A new expression which has supplied type mapping.</returns>
     public virtual SqlExpression ApplyTypeMapping(RelationalTypeMapping? typeMapping)
-        => new SqlConstantExpression(Value, Type, IsSensitive, typeMapping);
+        => new SqlConstantExpression(Value, Type, Sensitive, typeMapping);
 
     /// <inheritdoc />
     protected override Expression VisitChildren(ExpressionVisitor visitor)
@@ -107,7 +107,7 @@ public class SqlConstantExpression : SqlExpression
                     Constant(Value, Type), typeof(object))
                 : Constant(Value, Type),
             Constant(Type),
-            Constant(IsSensitive),
+            Constant(Sensitive),
             RelationalExpressionQuotingUtilities.QuoteTypeMapping(TypeMapping));
 
     /// <inheritdoc />
