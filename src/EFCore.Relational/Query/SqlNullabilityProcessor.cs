@@ -1329,6 +1329,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
             return _sqlExpressionFactory.Constant(
                 parameterValue,
                 sqlParameterExpression.Type,
+                isSensitive: true,
                 sqlParameterExpression.TypeMapping);
         }
 
