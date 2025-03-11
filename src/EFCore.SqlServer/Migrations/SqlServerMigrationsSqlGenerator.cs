@@ -2577,10 +2577,16 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                     var newRawSchema = renameTableOperation.NewSchema;
                     var newSchema = newRawSchema ?? model?.GetDefaultSchema();
 
+                    var temporalTableInformation = BuildTemporalInformationFromMigrationOperation(schema, renameTableOperation);
                     if (!temporalTableInformationMap.ContainsKey((tableName, rawSchema)))
                     {
-                        var temporalTableInformation = BuildTemporalInformationFromMigrationOperation(schema, renameTableOperation);
                         temporalTableInformationMap[(tableName, rawSchema)] = temporalTableInformation;
+                    }
+
+                    // we still need to check here - table with the new name could have existed before and have been deleted
+                    // we want to preserve the original temporal info of that deleted table
+                    if (!temporalTableInformationMap.ContainsKey((newTableName, newRawSchema)))
+                    {
                         temporalTableInformationMap[(newTableName, newRawSchema)] = temporalTableInformation;
                     }
 
@@ -2675,10 +2681,19 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
 
             var schema = rawSchema ?? model?.GetDefaultSchema();
 
-            // we are guaranteed to find entry here - we looped through all the operations earlier,
-            // info missing from operations we got from the model
-            // and in case of no/incomplete model we created dummy (non-temporal) entries
-            var temporalInformation = temporalTableInformationMap[(tableName, rawSchema)];
+            TemporalOperationInformation temporalInformation;
+            if (operation is CreateTableOperation)
+            {
+                // for create table we always generate new temporal information from the operation itself
+                // just in case there was a table with that name before that got deleted/renamed
+                // also, temporal state (disabled versioning etc.) should always reset when creating a table
+                temporalInformation = BuildTemporalInformationFromMigrationOperation(schema, operation);
+                temporalTableInformationMap[(tableName, rawSchema)] = temporalInformation;
+            }
+            else
+            {
+                temporalInformation = temporalTableInformationMap[(tableName, rawSchema)];
+            }
 
             switch (operation)
             {
