@@ -98,7 +98,7 @@ public class TestRelationalCommandBuilderFactory(
         public string CommandText
             => _realRelationalCommand.CommandText;
 
-        public string? LogCommandText
+        public string LogCommandText
             => _realRelationalCommand.LogCommandText;
 
         public IReadOnlyList<IRelationalParameter> Parameters

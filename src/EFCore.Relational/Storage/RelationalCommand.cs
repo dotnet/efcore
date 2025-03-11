@@ -38,7 +38,7 @@ public class RelationalCommand : IRelationalCommand
     public RelationalCommand(
         RelationalCommandBuilderDependencies dependencies,
         string commandText,
-        string? logCommandText,
+        string logCommandText,
         IReadOnlyList<IRelationalParameter> parameters)
     {
         Dependencies = dependencies;
@@ -60,7 +60,7 @@ public class RelationalCommand : IRelationalCommand
     /// <summary>
     ///     Gets the command text to be logged.
     /// </summary>
-    public virtual string? LogCommandText { get; private set; }
+    public virtual string LogCommandText { get; private set; }
 
     /// <summary>
     ///     Gets the parameters for the command.

@@ -10,7 +10,7 @@ public class RelationalCommandBuilder : IRelationalCommandBuilder
 {
     private readonly List<IRelationalParameter> _parameters = [];
     private readonly IndentedStringBuilder _commandTextBuilder = new();
-    private readonly IndentedStringBuilder? _logCommandTextBuilder;
+    private IndentedStringBuilder? _logCommandTextBuilder;
 
     /// <summary>
     ///     <para>
@@ -24,14 +24,7 @@ public class RelationalCommandBuilder : IRelationalCommandBuilder
     /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
     public RelationalCommandBuilder(
         RelationalCommandBuilderDependencies dependencies)
-    {
-        Dependencies = dependencies;
-
-        if (!Dependencies.LoggingOptions.IsSensitiveDataLoggingEnabled)
-        {
-            _logCommandTextBuilder = new();
-        }
-    }
+        => Dependencies = dependencies;
 
     /// <summary>
     ///     Relational provider-specific dependencies for this service.
@@ -45,7 +38,11 @@ public class RelationalCommandBuilder : IRelationalCommandBuilder
 
     /// <inheritdoc />
     public virtual IRelationalCommand Build()
-        => new RelationalCommand(Dependencies, _commandTextBuilder.ToString(), _logCommandTextBuilder?.ToString(), Parameters);
+    {
+        var commandText = _commandTextBuilder.ToString();
+        var logCommandText = _logCommandTextBuilder?.ToString() ?? commandText;
+        return new RelationalCommand(Dependencies, commandText, logCommandText, Parameters);
+    }
 
     /// <summary>
     ///     Gets the command text.
@@ -77,6 +74,8 @@ public class RelationalCommandBuilder : IRelationalCommandBuilder
     public virtual IRelationalCommandBuilder Append(string value, bool redact = false)
     {
         _commandTextBuilder.Append(value);
+
+        InitializeLogCommandTextBuilderIfNeeded(redact);
         _logCommandTextBuilder?.Append(redact ? "?" : value);
 
         return this;
@@ -86,6 +85,8 @@ public class RelationalCommandBuilder : IRelationalCommandBuilder
     public virtual IRelationalCommandBuilder Append(FormattableString value, bool redact = false)
     {
         _commandTextBuilder.Append(value);
+
+        InitializeLogCommandTextBuilderIfNeeded(redact);
         _logCommandTextBuilder?.Append(redact ? $"?" : value);
 
         return this;
@@ -121,4 +122,16 @@ public class RelationalCommandBuilder : IRelationalCommandBuilder
     /// <inheritdoc />
     public virtual int CommandTextLength
         => _commandTextBuilder.Length;
+
+    private void InitializeLogCommandTextBuilderIfNeeded(bool redact)
+    {
+        if (redact
+            && _logCommandTextBuilder is null
+            && !Dependencies.LoggingOptions.IsSensitiveDataLoggingEnabled)
+        {
+            _logCommandTextBuilder = new();
+            _logCommandTextBuilder.Append(_commandTextBuilder.ToString());
+            _logCommandTextBuilder.IndentCount = _commandTextBuilder.IndentCount;
+        }
+    }
 }

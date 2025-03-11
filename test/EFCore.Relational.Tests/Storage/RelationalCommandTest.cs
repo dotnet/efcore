@@ -996,7 +996,7 @@ public class RelationalCommandTest
 
         var relationalCommand = CreateRelationalCommand(
             commandText: "Logged Command",
-            logCommandText: "Logged Command",
+            logCommandText: "Logged Command2",
             parameters: new[]
             {
                 new TypeMappedRelationalParameter(
@@ -1025,7 +1025,7 @@ public class RelationalCommandTest
         foreach (var (_, _, message, _, _) in logFactory.Log.Skip(3))
         {
             Assert.EndsWith(
-                "[Parameters=[FirstParameter='?' (DbType = Int32)], CommandType='0', CommandTimeout='30']" + _eol + "Logged Command",
+                "[Parameters=[FirstParameter='?' (DbType = Int32)], CommandType='0', CommandTimeout='30']" + _eol + "Logged Command2",
                 message);
         }
     }
@@ -1055,6 +1055,7 @@ public class RelationalCommandTest
 
         var relationalCommand = CreateRelationalCommand(
             commandText: "Logged Command",
+            logCommandText: "Logged Command2",
             parameters: new[]
             {
                 new TypeMappedRelationalParameter(
@@ -1087,7 +1088,7 @@ public class RelationalCommandTest
         foreach (var (_, _, message, _, _) in logFactory.Log.Skip(4))
         {
             Assert.EndsWith(
-                "[Parameters=[FirstParameter='17'], CommandType='0', CommandTimeout='30']" + _eol + "Logged Command",
+                "[Parameters=[FirstParameter='17'], CommandType='0', CommandTimeout='30']" + _eol + "Logged Command2",
                 message);
         }
     }

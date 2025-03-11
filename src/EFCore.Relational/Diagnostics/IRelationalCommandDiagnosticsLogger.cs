@@ -93,7 +93,7 @@ public interface IRelationalCommandDiagnosticsLogger : IDiagnosticsLogger<DbLogg
     /// </summary>
     /// <param name="connection">The connection.</param>
     /// <param name="command">The database command object.</param>
-    /// <param name="logCommandText">The command text that can be logged in case <see cref="DbCommand.CommandText" /> contains sensitive information.</param>
+    /// <param name="logCommandText">The command text that can be logged.</param>
     /// <param name="context">The <see cref="DbContext" /> currently being used, to null if not known.</param>
     /// <param name="commandId">The correlation ID associated with the given <see cref="DbCommand" />.</param>
     /// <param name="connectionId">The correlation ID associated with the <see cref="DbConnection" /> being used.</param>
@@ -103,7 +103,7 @@ public interface IRelationalCommandDiagnosticsLogger : IDiagnosticsLogger<DbLogg
     InterceptionResult<DbDataReader> CommandReaderExecuting(
         IRelationalConnection connection,
         DbCommand command,
-        string? logCommandText,
+        string logCommandText,
         DbContext? context,
         Guid commandId,
         Guid connectionId,
@@ -115,7 +115,7 @@ public interface IRelationalCommandDiagnosticsLogger : IDiagnosticsLogger<DbLogg
     /// </summary>
     /// <param name="connection">The connection.</param>
     /// <param name="command">The database command object.</param>
-    /// <param name="logCommandText">The command text that can be logged in case <see cref="DbCommand.CommandText" /> contains sensitive information.</param>
+    /// <param name="logCommandText">The command text that can be logged.</param>
     /// <param name="context">The <see cref="DbContext" /> currently being used, to null if not known.</param>
     /// <param name="commandId">The correlation ID associated with the given <see cref="DbCommand" />.</param>
     /// <param name="connectionId">The correlation ID associated with the <see cref="DbConnection" /> being used.</param>
@@ -125,7 +125,7 @@ public interface IRelationalCommandDiagnosticsLogger : IDiagnosticsLogger<DbLogg
     InterceptionResult<object> CommandScalarExecuting(
         IRelationalConnection connection,
         DbCommand command,
-        string? logCommandText,
+        string logCommandText,
         DbContext? context,
         Guid commandId,
         Guid connectionId,
@@ -137,7 +137,7 @@ public interface IRelationalCommandDiagnosticsLogger : IDiagnosticsLogger<DbLogg
     /// </summary>
     /// <param name="connection">The connection.</param>
     /// <param name="command">The database command object.</param>
-    /// <param name="logCommandText">The command text that can be logged in case <see cref="DbCommand.CommandText" /> contains sensitive information.</param>
+    /// <param name="logCommandText">The command text that can be logged.</param>
     /// <param name="context">The <see cref="DbContext" /> currently being used, to null if not known.</param>
     /// <param name="commandId">The correlation ID associated with the given <see cref="DbCommand" />.</param>
     /// <param name="connectionId">The correlation ID associated with the <see cref="DbConnection" /> being used.</param>
@@ -147,7 +147,7 @@ public interface IRelationalCommandDiagnosticsLogger : IDiagnosticsLogger<DbLogg
     InterceptionResult<int> CommandNonQueryExecuting(
         IRelationalConnection connection,
         DbCommand command,
-        string? logCommandText,
+        string logCommandText,
         DbContext? context,
         Guid commandId,
         Guid connectionId,
@@ -159,7 +159,7 @@ public interface IRelationalCommandDiagnosticsLogger : IDiagnosticsLogger<DbLogg
     /// </summary>
     /// <param name="connection">The connection.</param>
     /// <param name="command">The database command object.</param>
-    /// <param name="logCommandText">The command text that can be logged in case <see cref="DbCommand.CommandText" /> contains sensitive information.</param>
+    /// <param name="logCommandText">The command text that can be logged.</param>
     /// <param name="context">The <see cref="DbContext" /> currently being used, to null if not known.</param>
     /// <param name="commandId">The correlation ID associated with the given <see cref="DbCommand" />.</param>
     /// <param name="connectionId">The correlation ID associated with the <see cref="DbConnection" /> being used.</param>
@@ -171,7 +171,7 @@ public interface IRelationalCommandDiagnosticsLogger : IDiagnosticsLogger<DbLogg
     ValueTask<InterceptionResult<DbDataReader>> CommandReaderExecutingAsync(
         IRelationalConnection connection,
         DbCommand command,
-        string? logCommandText,
+        string logCommandText,
         DbContext? context,
         Guid commandId,
         Guid connectionId,
@@ -184,7 +184,7 @@ public interface IRelationalCommandDiagnosticsLogger : IDiagnosticsLogger<DbLogg
     /// </summary>
     /// <param name="connection">The connection.</param>
     /// <param name="command">The database command object.</param>
-    /// <param name="logCommandText">The command text that can be logged in case <see cref="DbCommand.CommandText" /> contains sensitive information.</param>
+    /// <param name="logCommandText">The command text that can be logged.</param>
     /// <param name="context">The <see cref="DbContext" /> currently being used, to null if not known.</param>
     /// <param name="commandId">The correlation ID associated with the given <see cref="DbCommand" />.</param>
     /// <param name="connectionId">The correlation ID associated with the <see cref="DbConnection" /> being used.</param>
@@ -196,7 +196,7 @@ public interface IRelationalCommandDiagnosticsLogger : IDiagnosticsLogger<DbLogg
     ValueTask<InterceptionResult<object>> CommandScalarExecutingAsync(
         IRelationalConnection connection,
         DbCommand command,
-        string? logCommandText,
+        string logCommandText,
         DbContext? context,
         Guid commandId,
         Guid connectionId,
@@ -209,7 +209,7 @@ public interface IRelationalCommandDiagnosticsLogger : IDiagnosticsLogger<DbLogg
     /// </summary>
     /// <param name="connection">The connection.</param>
     /// <param name="command">The database command object.</param>
-    /// <param name="logCommandText">The command text that can be logged in case <see cref="DbCommand.CommandText" /> contains sensitive information.</param>
+    /// <param name="logCommandText">The command text that can be logged.</param>
     /// <param name="context">The <see cref="DbContext" /> currently being used, to null if not known.</param>
     /// <param name="commandId">The correlation ID associated with the given <see cref="DbCommand" />.</param>
     /// <param name="connectionId">The correlation ID associated with the <see cref="DbConnection" /> being used.</param>
@@ -221,7 +221,7 @@ public interface IRelationalCommandDiagnosticsLogger : IDiagnosticsLogger<DbLogg
     ValueTask<InterceptionResult<int>> CommandNonQueryExecutingAsync(
         IRelationalConnection connection,
         DbCommand command,
-        string? logCommandText,
+        string logCommandText,
         DbContext? context,
         Guid commandId,
         Guid connectionId,
@@ -234,7 +234,7 @@ public interface IRelationalCommandDiagnosticsLogger : IDiagnosticsLogger<DbLogg
     /// </summary>
     /// <param name="connection">The connection.</param>
     /// <param name="command">The database command object.</param>
-    /// <param name="logCommandText">The command text that can be logged in case <see cref="DbCommand.CommandText" /> contains sensitive information.</param>
+    /// <param name="logCommandText">The command text that can be logged.</param>
     /// <param name="context">The <see cref="DbContext" /> currently being used, to null if not known.</param>
     /// <param name="commandId">The correlation ID associated with the given <see cref="DbCommand" />.</param>
     /// <param name="connectionId">The correlation ID associated with the <see cref="DbConnection" /> being used.</param>
@@ -246,7 +246,7 @@ public interface IRelationalCommandDiagnosticsLogger : IDiagnosticsLogger<DbLogg
     DbDataReader CommandReaderExecuted(
         IRelationalConnection connection,
         DbCommand command,
-        string? logCommandText,
+        string logCommandText,
         DbContext? context,
         Guid commandId,
         Guid connectionId,
@@ -260,7 +260,7 @@ public interface IRelationalCommandDiagnosticsLogger : IDiagnosticsLogger<DbLogg
     /// </summary>
     /// <param name="connection">The connection.</param>
     /// <param name="command">The database command object.</param>
-    /// <param name="logCommandText">The command text that can be logged in case <see cref="DbCommand.CommandText" /> contains sensitive information.</param>
+    /// <param name="logCommandText">The command text that can be logged.</param>
     /// <param name="context">The <see cref="DbContext" /> currently being used, to null if not known.</param>
     /// <param name="commandId">The correlation ID associated with the given <see cref="DbCommand" />.</param>
     /// <param name="connectionId">The correlation ID associated with the <see cref="DbConnection" /> being used.</param>
@@ -272,7 +272,7 @@ public interface IRelationalCommandDiagnosticsLogger : IDiagnosticsLogger<DbLogg
     object? CommandScalarExecuted(
         IRelationalConnection connection,
         DbCommand command,
-        string? logCommandText,
+        string logCommandText,
         DbContext? context,
         Guid commandId,
         Guid connectionId,
@@ -286,7 +286,7 @@ public interface IRelationalCommandDiagnosticsLogger : IDiagnosticsLogger<DbLogg
     /// </summary>
     /// <param name="connection">The connection.</param>
     /// <param name="command">The database command object.</param>
-    /// <param name="logCommandText">The command text that can be logged in case <see cref="DbCommand.CommandText" /> contains sensitive information.</param>
+    /// <param name="logCommandText">The command text that can be logged.</param>
     /// <param name="context">The <see cref="DbContext" /> currently being used, to null if not known.</param>
     /// <param name="commandId">The correlation ID associated with the given <see cref="DbCommand" />.</param>
     /// <param name="connectionId">The correlation ID associated with the <see cref="DbConnection" /> being used.</param>
@@ -298,7 +298,7 @@ public interface IRelationalCommandDiagnosticsLogger : IDiagnosticsLogger<DbLogg
     int CommandNonQueryExecuted(
         IRelationalConnection connection,
         DbCommand command,
-        string? logCommandText,
+        string logCommandText,
         DbContext? context,
         Guid commandId,
         Guid connectionId,
@@ -312,7 +312,7 @@ public interface IRelationalCommandDiagnosticsLogger : IDiagnosticsLogger<DbLogg
     /// </summary>
     /// <param name="connection">The connection.</param>
     /// <param name="command">The database command object.</param>
-    /// <param name="logCommandText">The command text that can be logged in case <see cref="DbCommand.CommandText" /> contains sensitive information.</param>
+    /// <param name="logCommandText">The command text that can be logged.</param>
     /// <param name="context">The <see cref="DbContext" /> currently being used, to null if not known.</param>
     /// <param name="commandId">The correlation ID associated with the given <see cref="DbCommand" />.</param>
     /// <param name="connectionId">The correlation ID associated with the <see cref="DbConnection" /> being used.</param>
@@ -326,7 +326,7 @@ public interface IRelationalCommandDiagnosticsLogger : IDiagnosticsLogger<DbLogg
     ValueTask<DbDataReader> CommandReaderExecutedAsync(
         IRelationalConnection connection,
         DbCommand command,
-        string? logCommandText,
+        string logCommandText,
         DbContext? context,
         Guid commandId,
         Guid connectionId,
@@ -341,7 +341,7 @@ public interface IRelationalCommandDiagnosticsLogger : IDiagnosticsLogger<DbLogg
     /// </summary>
     /// <param name="connection">The connection.</param>
     /// <param name="command">The database command object.</param>
-    /// <param name="logCommandText">The command text that can be logged in case <see cref="DbCommand.CommandText" /> contains sensitive information.</param>
+    /// <param name="logCommandText">The command text that can be logged.</param>
     /// <param name="context">The <see cref="DbContext" /> currently being used, to null if not known.</param>
     /// <param name="commandId">The correlation ID associated with the given <see cref="DbCommand" />.</param>
     /// <param name="connectionId">The correlation ID associated with the <see cref="DbConnection" /> being used.</param>
@@ -355,7 +355,7 @@ public interface IRelationalCommandDiagnosticsLogger : IDiagnosticsLogger<DbLogg
     ValueTask<object?> CommandScalarExecutedAsync(
         IRelationalConnection connection,
         DbCommand command,
-        string? logCommandText,
+        string logCommandText,
         DbContext? context,
         Guid commandId,
         Guid connectionId,
@@ -370,7 +370,7 @@ public interface IRelationalCommandDiagnosticsLogger : IDiagnosticsLogger<DbLogg
     /// </summary>
     /// <param name="connection">The connection.</param>
     /// <param name="command">The database command object.</param>
-    /// <param name="logCommandText">The command text that can be logged in case <see cref="DbCommand.CommandText" /> contains sensitive information.</param>
+    /// <param name="logCommandText">The command text that can be logged.</param>
     /// <param name="context">The <see cref="DbContext" /> currently being used, to null if not known.</param>
     /// <param name="commandId">The correlation ID associated with the given <see cref="DbCommand" />.</param>
     /// <param name="connectionId">The correlation ID associated with the <see cref="DbConnection" /> being used.</param>
@@ -384,7 +384,7 @@ public interface IRelationalCommandDiagnosticsLogger : IDiagnosticsLogger<DbLogg
     ValueTask<int> CommandNonQueryExecutedAsync(
         IRelationalConnection connection,
         DbCommand command,
-        string? logCommandText,
+        string logCommandText,
         DbContext? context,
         Guid commandId,
         Guid connectionId,
@@ -399,7 +399,7 @@ public interface IRelationalCommandDiagnosticsLogger : IDiagnosticsLogger<DbLogg
     /// </summary>
     /// <param name="connection">The connection.</param>
     /// <param name="command">The database command object.</param>
-    /// <param name="logCommandText">The command text that can be logged in case <see cref="DbCommand.CommandText" /> contains sensitive information.</param>
+    /// <param name="logCommandText">The command text that can be logged.</param>
     /// <param name="context">The <see cref="DbContext" /> currently being used, to null if not known.</param>
     /// <param name="executeMethod">Represents the method that will be called to execute the command.</param>
     /// <param name="commandId">The correlation ID associated with the given <see cref="DbCommand" />.</param>
@@ -411,7 +411,7 @@ public interface IRelationalCommandDiagnosticsLogger : IDiagnosticsLogger<DbLogg
     void CommandError(
         IRelationalConnection connection,
         DbCommand command,
-        string? logCommandText,
+        string logCommandText,
         DbContext? context,
         DbCommandMethod executeMethod,
         Guid commandId,
@@ -426,7 +426,7 @@ public interface IRelationalCommandDiagnosticsLogger : IDiagnosticsLogger<DbLogg
     /// </summary>
     /// <param name="connection">The connection.</param>
     /// <param name="command">The database command object.</param>
-    /// <param name="logCommandText">The command text that can be logged in case <see cref="DbCommand.CommandText" /> contains sensitive information.</param>
+    /// <param name="logCommandText">The command text that can be logged.</param>
     /// <param name="context">The <see cref="DbContext" /> currently being used, to null if not known.</param>
     /// <param name="executeMethod">Represents the method that will be called to execute the command.</param>
     /// <param name="commandId">The correlation ID associated with the given <see cref="DbCommand" />.</param>
@@ -441,7 +441,7 @@ public interface IRelationalCommandDiagnosticsLogger : IDiagnosticsLogger<DbLogg
     Task CommandErrorAsync(
         IRelationalConnection connection,
         DbCommand command,
-        string? logCommandText,
+        string logCommandText,
         DbContext? context,
         DbCommandMethod executeMethod,
         Guid commandId,
@@ -457,7 +457,7 @@ public interface IRelationalCommandDiagnosticsLogger : IDiagnosticsLogger<DbLogg
     /// </summary>
     /// <param name="connection">The connection.</param>
     /// <param name="command">The database command object.</param>
-    /// <param name="logCommandText">The command text that can be logged in case <see cref="DbCommand.CommandText" /> contains sensitive information.</param>
+    /// <param name="logCommandText">The command text that can be logged.</param>
     /// <param name="context">The <see cref="DbContext" /> currently being used, to null if not known.</param>
     /// <param name="executeMethod">Represents the method that will be called to execute the command.</param>
     /// <param name="commandId">The correlation ID associated with the given <see cref="DbCommand" />.</param>
@@ -468,7 +468,7 @@ public interface IRelationalCommandDiagnosticsLogger : IDiagnosticsLogger<DbLogg
     void CommandCanceled(
         IRelationalConnection connection,
         DbCommand command,
-        string? logCommandText,
+        string logCommandText,
         DbContext? context,
         DbCommandMethod executeMethod,
         Guid commandId,
@@ -482,7 +482,7 @@ public interface IRelationalCommandDiagnosticsLogger : IDiagnosticsLogger<DbLogg
     /// </summary>
     /// <param name="connection">The connection.</param>
     /// <param name="command">The database command object.</param>
-    /// <param name="logCommandText">The command text that can be logged in case <see cref="DbCommand.CommandText" /> contains sensitive information.</param>
+    /// <param name="logCommandText">The command text that can be logged.</param>
     /// <param name="context">The <see cref="DbContext" /> currently being used, to null if not known.</param>
     /// <param name="executeMethod">Represents the method that will be called to execute the command.</param>
     /// <param name="commandId">The correlation ID associated with the given <see cref="DbCommand" />.</param>
@@ -496,7 +496,7 @@ public interface IRelationalCommandDiagnosticsLogger : IDiagnosticsLogger<DbLogg
     Task CommandCanceledAsync(
         IRelationalConnection connection,
         DbCommand command,
-        string? logCommandText,
+        string logCommandText,
         DbContext? context,
         DbCommandMethod executeMethod,
         Guid commandId,

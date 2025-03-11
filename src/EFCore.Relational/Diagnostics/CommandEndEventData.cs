@@ -19,7 +19,7 @@ public class CommandEndEventData : CommandEventData
     /// <param name="messageGenerator">A delegate that generates a log message for this event.</param>
     /// <param name="connection">The <see cref="DbConnection" /> being used.</param>
     /// <param name="command">The <see cref="DbCommand" />.</param>
-    /// <param name="logCommandText">The command text that can be logged in case <see cref="DbCommand.CommandText" /> contains sensitive information.</param>
+    /// <param name="logCommandText">The command text that can be logged.</param>
     /// <param name="context">The <see cref="DbContext" /> currently being used, to null if not known.</param>
     /// <param name="executeMethod">The <see cref="DbCommand" /> method.</param>
     /// <param name="commandId">A correlation ID that identifies the <see cref="DbCommand" /> instance being used.</param>
@@ -34,7 +34,7 @@ public class CommandEndEventData : CommandEventData
         Func<EventDefinitionBase, EventData, string> messageGenerator,
         DbConnection connection,
         DbCommand command,
-        string? logCommandText,
+        string logCommandText,
         DbContext? context,
         DbCommandMethod executeMethod,
         Guid commandId,
