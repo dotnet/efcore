@@ -57,27 +57,6 @@ public interface IConventionEntityType : IReadOnlyEntityType, IConventionTypeBas
     ConfigurationSource? GetQueryFilterConfigurationSource();
 
     /// <summary>
-    ///     Returns the property that will be used for storing a discriminator value.
-    /// </summary>
-    /// <returns>The property that will be used for storing a discriminator value.</returns>
-    new IConventionProperty? FindDiscriminatorProperty()
-        => (IConventionProperty?)((IReadOnlyEntityType)this).FindDiscriminatorProperty();
-
-    /// <summary>
-    ///     Sets the <see cref="IReadOnlyProperty" /> that will be used for storing a discriminator value.
-    /// </summary>
-    /// <param name="property">The property to set.</param>
-    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
-    /// <returns>The discriminator property.</returns>
-    IConventionProperty? SetDiscriminatorProperty(IReadOnlyProperty? property, bool fromDataAnnotation = false);
-
-    /// <summary>
-    ///     Gets the <see cref="ConfigurationSource" /> for the discriminator property.
-    /// </summary>
-    /// <returns>The <see cref="ConfigurationSource" /> or <see langword="null" /> if no discriminator property has been set.</returns>
-    ConfigurationSource? GetDiscriminatorPropertyConfigurationSource();
-
-    /// <summary>
     ///     Sets the value indicating whether the discriminator mapping is complete.
     /// </summary>
     /// <param name="complete">The value indicating whether the discriminator mapping is complete.</param>
@@ -94,43 +73,12 @@ public interface IConventionEntityType : IReadOnlyEntityType, IConventionTypeBas
         => FindAnnotation(CoreAnnotationNames.DiscriminatorMappingComplete)?.GetConfigurationSource();
 
     /// <summary>
-    ///     Sets the discriminator value for this entity type.
-    /// </summary>
-    /// <param name="value">The value to set.</param>
-    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
-    /// <returns>The configured value.</returns>
-    object? SetDiscriminatorValue(object? value, bool fromDataAnnotation = false)
-        => SetAnnotation(CoreAnnotationNames.DiscriminatorValue, value, fromDataAnnotation)
-            ?.Value;
-
-    /// <summary>
-    ///     Removes the discriminator value for this entity type.
-    /// </summary>
-    /// <returns>The removed discriminator value.</returns>
-    object? RemoveDiscriminatorValue()
-        => RemoveAnnotation(CoreAnnotationNames.DiscriminatorValue)?.Value;
-
-    /// <summary>
-    ///     Gets the <see cref="ConfigurationSource" /> for the discriminator value.
-    /// </summary>
-    /// <returns>The <see cref="ConfigurationSource" /> or <see langword="null" /> if no discriminator value has been set.</returns>
-    ConfigurationSource? GetDiscriminatorValueConfigurationSource()
-        => FindAnnotation(CoreAnnotationNames.DiscriminatorValue)
-            ?.GetConfigurationSource();
-
-    /// <summary>
     ///     Sets the base type of this entity type. Returns <see langword="null" /> if this is not a derived type in an inheritance hierarchy.
     /// </summary>
     /// <param name="entityType">The base entity type.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>The new base type.</returns>
     IConventionEntityType? SetBaseType(IConventionEntityType? entityType, bool fromDataAnnotation = false);
-
-    /// <summary>
-    ///     Returns the configuration source for the <see cref="BaseType" /> property.
-    /// </summary>
-    /// <returns>The configuration source for the <see cref="BaseType" /> property.</returns>
-    ConfigurationSource? GetBaseTypeConfigurationSource();
 
     /// <summary>
     ///     Gets all types in the model from which this entity type derives, starting with the root.

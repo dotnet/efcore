@@ -86,26 +86,28 @@ public class SqlServerTestStore : RelationalTestStore
 
     protected override async Task InitializeAsync(Func<DbContext> createContext, Func<DbContext, Task>? seed, Func<DbContext, Task>? clean)
     {
-        if (await CreateDatabaseAsync(clean))
+        if (!await CleanDatabaseAsync(clean))
         {
-            if (_scriptPath != null)
+            return;
+        }
+
+        if (_scriptPath != null)
+        {
+            ExecuteScript(await File.ReadAllTextAsync(_scriptPath));
+        }
+        else
+        {
+            using var context = createContext();
+            await context.Database.EnsureCreatedResilientlyAsync();
+
+            if (_initScript != null)
             {
-                ExecuteScript(await File.ReadAllTextAsync(_scriptPath));
+                ExecuteScript(_initScript);
             }
-            else
+
+            if (seed != null)
             {
-                using var context = createContext();
-                await context.Database.EnsureCreatedResilientlyAsync();
-
-                if (_initScript != null)
-                {
-                    ExecuteScript(_initScript);
-                }
-
-                if (seed != null)
-                {
-                    await seed(context);
-                }
+                await seed(context);
             }
         }
     }
@@ -116,7 +118,7 @@ public class SqlServerTestStore : RelationalTestStore
                 : builder.UseSqlServer(Connection, b => b.ApplyConfiguration()))
             .ConfigureWarnings(b => b.Ignore(SqlServerEventId.SavepointsDisabledBecauseOfMARS));
 
-    private async Task<bool> CreateDatabaseAsync(Func<DbContext, Task>? clean)
+    private async Task<bool> CleanDatabaseAsync(Func<DbContext, Task>? clean)
     {
         await using var master = new SqlConnection(CreateConnectionString("master", fileName: null, multipleActiveResultSets: false));
 

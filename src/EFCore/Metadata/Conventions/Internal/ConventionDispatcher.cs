@@ -136,9 +136,9 @@ public partial class ConventionDispatcher
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual string? OnDiscriminatorPropertySet(
-        IConventionEntityTypeBuilder entityTypeBuilder,
+        IConventionTypeBaseBuilder structuralTypeBuilder,
         string? name)
-        => _scope.OnDiscriminatorPropertySet(entityTypeBuilder, name);
+        => _scope.OnDiscriminatorPropertySet(structuralTypeBuilder, name);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

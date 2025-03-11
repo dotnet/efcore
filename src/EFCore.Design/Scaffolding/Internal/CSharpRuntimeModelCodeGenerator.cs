@@ -925,14 +925,6 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                 .Append(_code.Literal(entityType.HasSharedClrType));
         }
 
-        var discriminatorProperty = entityType.GetDiscriminatorPropertyName();
-        if (discriminatorProperty != null)
-        {
-            mainBuilder.AppendLine(",")
-                .Append("discriminatorProperty: ")
-                .Append(_code.Literal(discriminatorProperty));
-        }
-
         var changeTrackingStrategy = entityType.GetChangeTrackingStrategy();
         if (changeTrackingStrategy != ChangeTrackingStrategy.Snapshot)
         {
@@ -957,6 +949,14 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             mainBuilder.AppendLine(",")
                 .Append("propertyBag: ")
                 .Append(_code.Literal(true));
+        }
+
+        var discriminatorProperty = entityType.GetDiscriminatorPropertyName();
+        if (discriminatorProperty != null)
+        {
+            mainBuilder.AppendLine(",")
+                .Append("discriminatorProperty: ")
+                .Append(_code.Literal(discriminatorProperty));
         }
 
         var discriminatorValue = entityType.GetDiscriminatorValue();
@@ -2180,6 +2180,24 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                     mainBuilder.AppendLine(",")
                         .Append("propertyBag: ")
                         .Append(_code.Literal(true));
+                }
+
+                var discriminatorPropertyName = complexType.GetDiscriminatorPropertyName();
+                if (discriminatorPropertyName != null)
+                {
+                    mainBuilder.AppendLine(",")
+                        .Append("discriminatorProperty: ")
+                        .Append(_code.Literal(discriminatorPropertyName));
+                }
+
+                var discriminatorValue = complexType.GetDiscriminatorValue();
+                if (discriminatorValue != null)
+                {
+                    AddNamespace(discriminatorValue.GetType(), parameters.Namespaces);
+
+                    mainBuilder.AppendLine(",")
+                        .Append("discriminatorValue: ")
+                        .Append(_code.UnknownLiteral(discriminatorValue));
                 }
 
                 mainBuilder.AppendLine(",")

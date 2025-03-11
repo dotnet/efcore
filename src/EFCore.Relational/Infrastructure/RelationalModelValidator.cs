@@ -1957,6 +1957,11 @@ public class RelationalModelValidator : ModelValidator
                 var discriminatorValues = new Dictionary<string, IEntityType>();
                 foreach (var derivedType in derivedTypes)
                 {
+                    foreach (var complexProperty in derivedType.GetDeclaredComplexProperties())
+                    {
+                        ValidateDiscriminatorValues(complexProperty.ComplexType);
+                    }
+
                     var discriminatorValue = derivedType.GetDiscriminatorValue();
                     if (!derivedType.ClrType.IsInstantiable()
                         || discriminatorValue is null)
