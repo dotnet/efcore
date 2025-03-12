@@ -73,9 +73,8 @@ public class RelationalCommandBuilder : IRelationalCommandBuilder
     /// <inheritdoc />
     public virtual IRelationalCommandBuilder Append(string value, bool redact = false)
     {
-        _commandTextBuilder.Append(value);
-
         InitializeLogCommandTextBuilderIfNeeded(redact);
+        _commandTextBuilder.Append(value);
         _logCommandTextBuilder?.Append(redact ? "?" : value);
 
         return this;
@@ -84,9 +83,8 @@ public class RelationalCommandBuilder : IRelationalCommandBuilder
     /// <inheritdoc />
     public virtual IRelationalCommandBuilder Append(FormattableString value, bool redact = false)
     {
-        _commandTextBuilder.Append(value);
-
         InitializeLogCommandTextBuilderIfNeeded(redact);
+        _commandTextBuilder.Append(value);
         _logCommandTextBuilder?.Append(redact ? $"?" : value);
 
         return this;
