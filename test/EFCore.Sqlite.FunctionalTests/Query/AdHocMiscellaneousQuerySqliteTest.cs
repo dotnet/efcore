@@ -82,4 +82,58 @@ SELECT ef_avg("p"."NullableDecimalColumn")
 FROM "Prices" AS "p"
 """);
     }
+
+    public override async Task Check_inlined_constants_redacting(bool async, bool enableSensitiveDataLogging)
+    {
+        await base.Check_inlined_constants_redacting(async, enableSensitiveDataLogging);
+
+        if (!enableSensitiveDataLogging)
+        {
+            AssertSql(
+                """
+SELECT "t"."Id", "t"."Name"
+FROM "TestEntities" AS "t"
+WHERE "t"."Id" IN (?, ?, ?)
+""",
+                //
+                """
+SELECT "t"."Id", "t"."Name"
+FROM "TestEntities" AS "t"
+WHERE ? = "t"."Id"
+""",
+                //
+                """
+SELECT "t"."Id", "t"."Name"
+FROM "TestEntities" AS "t"
+WHERE EXISTS (
+    SELECT 1
+    FROM (SELECT ? AS "Value" UNION ALL VALUES (?), (?)) AS "i"
+    WHERE "i"."Value" = "t"."Id")
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
+SELECT "t"."Id", "t"."Name"
+FROM "TestEntities" AS "t"
+WHERE "t"."Id" IN (1, 2, 3)
+""",
+                //
+                """
+SELECT "t"."Id", "t"."Name"
+FROM "TestEntities" AS "t"
+WHERE 1 = "t"."Id"
+""",
+                //
+                """
+SELECT "t"."Id", "t"."Name"
+FROM "TestEntities" AS "t"
+WHERE EXISTS (
+    SELECT 1
+    FROM (SELECT 1 AS "Value" UNION ALL VALUES (2), (3)) AS "i"
+    WHERE "i"."Value" = "t"."Id")
+""");
+        }
+    }
 }

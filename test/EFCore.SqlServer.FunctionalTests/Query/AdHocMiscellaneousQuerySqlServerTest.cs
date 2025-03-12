@@ -2405,4 +2405,58 @@ WHERE CASE
 END = N'COUNTRY'
 """);
     }
+
+    public override async Task Check_inlined_constants_redacting(bool async, bool enableSensitiveDataLogging)
+    {
+        await base.Check_inlined_constants_redacting(async, enableSensitiveDataLogging);
+
+        if (!enableSensitiveDataLogging)
+        {
+            AssertSql(
+                """
+SELECT [t].[Id], [t].[Name]
+FROM [TestEntities] AS [t]
+WHERE [t].[Id] IN (?, ?, ?)
+""",
+                //
+                """
+SELECT [t].[Id], [t].[Name]
+FROM [TestEntities] AS [t]
+WHERE ? = [t].[Id]
+""",
+                //
+                """
+SELECT [t].[Id], [t].[Name]
+FROM [TestEntities] AS [t]
+WHERE EXISTS (
+    SELECT 1
+    FROM (VALUES (?), (?), (?)) AS [i]([Value])
+    WHERE [i].[Value] = [t].[Id])
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
+SELECT [t].[Id], [t].[Name]
+FROM [TestEntities] AS [t]
+WHERE [t].[Id] IN (1, 2, 3)
+""",
+                //
+                """
+SELECT [t].[Id], [t].[Name]
+FROM [TestEntities] AS [t]
+WHERE 1 = [t].[Id]
+""",
+                //
+                """
+SELECT [t].[Id], [t].[Name]
+FROM [TestEntities] AS [t]
+WHERE EXISTS (
+    SELECT 1
+    FROM (VALUES (1), (2), (3)) AS [i]([Value])
+    WHERE [i].[Value] = [t].[Id])
+""");
+        }
+    }
 }
