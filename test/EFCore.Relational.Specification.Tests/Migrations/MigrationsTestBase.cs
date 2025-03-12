@@ -3213,6 +3213,118 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                     Assert.Single(customersTable.PrimaryKey!.Columns));
             });
 
+    [ConditionalFact]
+    public virtual Task Multiop_drop_table_and_create_the_same_table_in_one_migration()
+        => TestComposite(
+            [
+                builder => builder.Entity(
+                    "Customer", e =>
+                    {
+                        e.Property<int>("Id").ValueGeneratedOnAdd();
+                        e.Property<string>("Name");
+                        e.HasKey("Id");
+                        e.ToTable("Customers");
+                    }),
+                builder => { },
+                builder => builder.Entity(
+                    "Customer", e =>
+                    {
+                        e.Property<int>("Id").ValueGeneratedOnAdd();
+                        e.Property<string>("Name");
+                        e.HasKey("Id");
+
+                        e.ToTable("Customers");
+                    })
+            ]);
+
+    [ConditionalFact]
+    public virtual Task Multiop_create_table_and_drop_it_in_one_migration()
+        => TestComposite(
+            [
+                builder => { },
+                builder => builder.Entity(
+                    "Customer", e =>
+                    {
+                        e.Property<int>("Id").ValueGeneratedOnAdd();
+                        e.Property<string>("Name");
+                        e.HasKey("Id");
+
+                        e.ToTable("Customers");
+                    }),
+                builder => { },
+            ]);
+
+    [ConditionalFact]
+    public virtual Task Multiop_rename_table_and_drop()
+        => TestComposite(
+            [
+                builder => builder.Entity(
+                    "Customer", e =>
+                    {
+                        e.Property<int>("Id").ValueGeneratedOnAdd();
+                        e.Property<string>("Name");
+                        e.HasKey("Id");
+
+                        e.ToTable("Customers");
+                    }),
+                builder => builder.Entity(
+                    "Customer", e =>
+                    {
+                        e.Property<int>("Id").ValueGeneratedOnAdd();
+                        e.Property<string>("Name");
+                        e.HasKey("Id");
+
+                        e.ToTable("NewCustomers");
+                    }),
+                builder => { },
+            ]);
+
+    [ConditionalFact]
+    public virtual Task Multiop_rename_table_and_create_new_table_with_the_old_name()
+        => TestComposite(
+            [
+                builder => builder.Entity(
+                    "Customer", e =>
+                    {
+                        e.Property<int>("Id").ValueGeneratedOnAdd();
+                        e.Property<string>("Name");
+                        e.HasKey("Id");
+
+                        e.ToTable("Customers");
+                    }),
+                builder => builder.Entity(
+                    "Customer", e =>
+                    {
+                        e.Property<int>("Id").ValueGeneratedOnAdd();
+                        e.Property<string>("Name");
+                        e.HasKey("Id");
+
+                        e.ToTable("NewCustomers");
+                    }),
+                builder =>
+                {
+                    builder.Entity(
+                        "Customer", e =>
+                        {
+                            e.Property<int>("Id").ValueGeneratedOnAdd();
+                            e.Property<string>("Name");
+                            e.HasKey("Id");
+
+                            e.ToTable("NewCustomers");
+                        });
+
+                    builder.Entity(
+                        "AnotherCustomer", e =>
+                        {
+                            e.Property<int>("Id").ValueGeneratedOnAdd();
+                            e.Property<string>("Name");
+                            e.HasKey("Id");
+
+                            e.ToTable("Customers");
+                        });
+                },
+            ]);
+
     protected class Person
     {
         public int Id { get; set; }
@@ -3261,6 +3373,43 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
         bool withConventions = true,
         MigrationsSqlGenerationOptions migrationsSqlGenerationOptions = MigrationsSqlGenerationOptions.Default)
         => Test(_ => { }, buildSourceAction, buildTargetAction, asserter, withConventions, migrationsSqlGenerationOptions);
+
+    protected virtual Task TestComposite(
+        List<Action<ModelBuilder>> buildActions,
+        bool withConventions = true,
+        MigrationsSqlGenerationOptions migrationsSqlGenerationOptions = MigrationsSqlGenerationOptions.Default)
+    {
+        if (buildActions.Count < 3)
+        {
+            throw new InvalidOperationException("You need at least 3 build actions for the composite case.");
+        }
+
+        var context = CreateContext();
+        var modelDiffer = context.GetService<IMigrationsModelDiffer>();
+        var modelRuntimeInitializer = context.GetService<IModelRuntimeInitializer>();
+
+        var models = new List<IModel>();
+        for (var i = 0; i < buildActions.Count; i++)
+        {
+            var modelBuilder = CreateModelBuilder(withConventions);
+            buildActions[i](modelBuilder);
+
+            var preSnapshotModel = modelRuntimeInitializer.Initialize(
+                (IModel)modelBuilder.Model, designTime: true, validationLogger: null);
+
+            models.Add(preSnapshotModel);
+        }
+
+        // build all migration operations going through each intermediate state of the model
+        var operations = new List<MigrationOperation>();
+        for (var i = 0; i < models.Count - 1; i++)
+        {
+            operations.AddRange(
+                modelDiffer.GetDifferences(models[i].GetRelationalModel(), models[i + 1].GetRelationalModel()));
+        }
+
+        return Test(models.First(), models.Last(), operations, null, migrationsSqlGenerationOptions);
+    }
 
     protected virtual Task Test(
         Action<ModelBuilder> buildCommonAction,
