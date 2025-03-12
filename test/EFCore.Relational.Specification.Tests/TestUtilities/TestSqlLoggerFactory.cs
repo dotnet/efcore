@@ -100,7 +100,7 @@ public class TestSqlLoggerFactory : ListLoggerFactory
             var testInfo = testName + " : " + lineNumber + FileNewLine;
             const string indent = FileNewLine + "                ";
 
-            //if (Environment.GetEnvironmentVariable("EF_TEST_REWRITE_BASELINES")?.ToUpper() is "1" or "TRUE")
+            if (Environment.GetEnvironmentVariable("EF_TEST_REWRITE_BASELINES")?.ToUpper() is "1" or "TRUE")
             {
                 RewriteSourceWithNewBaseline(fileName, lineNumber);
             }

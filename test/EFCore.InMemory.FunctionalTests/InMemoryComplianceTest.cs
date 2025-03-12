@@ -3,7 +3,7 @@
 
 using Microsoft.EntityFrameworkCore.BulkUpdates;
 using Microsoft.EntityFrameworkCore.Query.Relationships.Include;
-using Microsoft.EntityFrameworkCore.Query.Relationships.InProjection;
+using Microsoft.EntityFrameworkCore.Query.Relationships.Projection;
 
 namespace Microsoft.EntityFrameworkCore;
 
@@ -29,17 +29,24 @@ public class InMemoryComplianceTest : ComplianceTestBase
         typeof(JsonQueryTestBase<>),
 
         // TODO: implement later once things are baked
-        typeof(ComplexRelationshipsInProjectionNoTrackingQueryTestBase<>),
-        typeof(ComplexRelationshipsInProjectionQueryTestBase<>),
-        typeof(EntityRelationshipsInProjectionNoTrackingQueryTestBase<>),
-        typeof(EntityRelationshipsInProjectionQueryTestBase<>),
-        typeof(JsonRelationshipsInProjectionNoTrackingQueryTestBase<>),
-        typeof(JsonRelationshipsInProjectionQueryTestBase<>),
-        typeof(OwnedRelationshipsInProjectionNoTrackingQueryTestBase<>),
-        typeof(OwnedRelationshipsInProjectionQueryTestBase<>),
-        typeof(RelationshipsInProjectionQueryTestBase<>),
-        typeof(EntityRelationshipsIncludeQueryTestBase<>),
-        typeof(RelationshipsIncludeQueryTestBase<>),
+        typeof(NavigationNoTrackingProjectionTestBase<>),
+        typeof(NavigationProjectionTestBase<>),
+        typeof(OwnedJsonNoTrackingProjectionTestBase<>),
+        typeof(OwnedJsonProjectionTestBase<>),
+        typeof(OwnedNoTrackingProjectionTestBase<>),
+        typeof(OwnedProjectionTestBase<>),
+        typeof(ProjectionTestBase<>),
+        typeof(NavigationIncludeTestBase<>),
+
+        typeof(ComplexNoTrackingProjectionTestBase<>),
+        typeof(ComplexProjectionTestBase<>),
+        typeof(NavigationReferenceNoTrackingProjectionTestBase<>),
+        typeof(NavigationReferenceProjectionTestBase<>),
+        typeof(OwnedJsonReferenceNoTrackingProjectionTestBase<>),
+        typeof(OwnedJsonReferenceProjectionTestBase<>),
+        typeof(OwnedReferenceNoTrackingProjectionTestBase<>),
+        typeof(OwnedReferenceProjectionTestBase<>),
+        typeof(ReferenceProjectionTestBase<>),
     };
 
     protected override Assembly TargetAssembly { get; } = typeof(InMemoryComplianceTest).Assembly;

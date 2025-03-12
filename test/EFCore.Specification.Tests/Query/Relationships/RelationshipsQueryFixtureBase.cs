@@ -22,14 +22,6 @@ public abstract class RelationshipsQueryFixtureBase : SharedStoreFixtureBase<Rel
 
     public abstract IReadOnlyDictionary<Type, object> EntitySorters { get; }
 
-    //public IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object?, object?>>
-    //{
-    //    { typeof(RelationshipsRootEntity), e => ((RelationshipsRootEntity?)e)?.Id },
-    //    { typeof(RelationshipsTrunkEntity), e => ((RelationshipsTrunkEntity?)e)?.Id },
-    //    { typeof(RelationshipsBranchEntity), e => ((RelationshipsBranchEntity?)e)?.Id },
-    //    { typeof(RelationshipsLeafEntity), e => ((RelationshipsLeafEntity?)e)?.Id }
-    //}.ToDictionary(e => e.Key, e => (object)e.Value);
-
     public abstract IReadOnlyDictionary<Type, object> EntityAsserters { get; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
