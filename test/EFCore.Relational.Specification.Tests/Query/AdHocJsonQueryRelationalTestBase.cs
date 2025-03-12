@@ -7,14 +7,49 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
+public abstract class AdHocJsonQueryRelationalTestBase : AdHocJsonQueryTestBase
 {
-    protected override string StoreName
-        => "AdHocJsonQueryTest";
+    #region 21006
 
-    protected virtual void ConfigureWarnings(WarningsConfigurationBuilder builder)
+    public override async Task Project_missing_required_navigation(bool async)
     {
+        var message = (await Assert.ThrowsAsync<InvalidOperationException>(
+            () => base.Project_missing_required_navigation(async))).Message;
+
+        Assert.Equal(RelationalStrings.JsonRequiredEntityWithNullJson(typeof(Context21006.JsonEntityNested).Name), message);
     }
+
+    public override async Task Project_null_required_navigation(bool async)
+    {
+        var message = (await Assert.ThrowsAsync<InvalidOperationException>(
+            () => base.Project_null_required_navigation(async))).Message;
+
+        Assert.Equal(RelationalStrings.JsonRequiredEntityWithNullJson(typeof(Context21006.JsonEntityNested).Name), message);
+    }
+
+    public override async Task Project_top_level_entity_with_null_value_required_scalars(bool async)
+    {
+        var message = (await Assert.ThrowsAsync<InvalidOperationException>(
+            () => base.Project_top_level_entity_with_null_value_required_scalars(async))).Message;
+
+        Assert.Equal("Cannot get the value of a token type 'Null' as a number.", message);
+    }
+
+    protected override void OnModelCreating21006(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating21006(modelBuilder);
+
+        modelBuilder.Entity<Context21006.Entity>(
+            b =>
+            {
+                b.ToTable("Entities");
+                b.OwnsOne(x => x.OptionalReference).ToJson();
+                b.OwnsOne(x => x.RequiredReference).ToJson();
+                b.OwnsMany(x => x.Collection).ToJson();
+            });
+    }
+
+    #endregion
 
     #region 32310
 
@@ -44,7 +79,8 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
     {
         var user = new Pub32310
         {
-            Name = "FBI", Visits = new Visits32310 { LocationTag = "tag", DaysVisited = [new DateOnly(2023, 1, 1)] }
+            Name = "FBI",
+            Visits = new Visits32310 { LocationTag = "tag", DaysVisited = [new DateOnly(2023, 1, 1)] }
         };
 
         context.Add(user);
