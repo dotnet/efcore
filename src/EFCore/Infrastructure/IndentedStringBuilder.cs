@@ -27,14 +27,11 @@ public class IndentedStringBuilder
     private readonly StringBuilder _stringBuilder = new();
 
     /// <summary>
-    ///     Gets or sets the current indent level.
+    ///     Gets the current indent level.
     /// </summary>
     /// <value>The current indent level.</value>
     public virtual int IndentCount
-    {
-        get => _indent;
-        set => _indent = value;
-    }
+        => _indent;
 
     /// <summary>
     ///     The current length of the built string.
@@ -292,6 +289,19 @@ public class IndentedStringBuilder
     /// <returns>An object that restores the original indentation when disposed.</returns>
     public virtual IDisposable SuspendIndent()
         => new IndentSuspender(this);
+
+    /// <summary>
+    ///    Clones this <see cref="IndentedStringBuilder" />, copying the built string and current indent level.
+    /// </summary>
+    /// <returns>New instance of <see cref="IndentedStringBuilder" />.</returns>
+    public virtual IndentedStringBuilder Clone()
+    {
+        var result = new IndentedStringBuilder();
+        result._stringBuilder.Append(_stringBuilder);
+        result._indent = _indent;
+        result._indentPending = _indentPending;
+        return result;
+    }
 
     /// <summary>
     ///     Returns the built string.

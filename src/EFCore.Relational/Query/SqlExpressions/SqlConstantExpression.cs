@@ -50,7 +50,7 @@ public class SqlConstantExpression : SqlExpression
         : base(type.UnwrapNullableType(), typeMapping)
     {
         Value = value;
-        Sensitive = sensitive;
+        IsSensitive = sensitive;
     }
 
     /// <summary>
@@ -71,7 +71,7 @@ public class SqlConstantExpression : SqlExpression
     /// <param name="typeMapping">The <see cref="RelationalTypeMapping" /> associated with the expression.</param>
     [Obsolete("Call the constructor accepting a value (and possibly a Type) instead")]
     public SqlConstantExpression(ConstantExpression constantExpression, RelationalTypeMapping? typeMapping)
-        : this(constantExpression.Value, constantExpression.Type, false, typeMapping)
+        : this(constantExpression.Value, constantExpression.Type, sensitive: false, typeMapping)
     {
     }
 
@@ -83,7 +83,7 @@ public class SqlConstantExpression : SqlExpression
     /// <summary>
     ///    Whether the expression contains sensitive values.
     /// </summary>
-    public virtual bool Sensitive { get; }
+    public virtual bool IsSensitive { get; }
 
     /// <summary>
     ///     Applies supplied type mapping to this expression.
@@ -91,7 +91,7 @@ public class SqlConstantExpression : SqlExpression
     /// <param name="typeMapping">A relational type mapping to apply.</param>
     /// <returns>A new expression which has supplied type mapping.</returns>
     public virtual SqlExpression ApplyTypeMapping(RelationalTypeMapping? typeMapping)
-        => new SqlConstantExpression(Value, Type, Sensitive, typeMapping);
+        => new SqlConstantExpression(Value, Type, IsSensitive, typeMapping);
 
     /// <inheritdoc />
     protected override Expression VisitChildren(ExpressionVisitor visitor)
@@ -107,7 +107,7 @@ public class SqlConstantExpression : SqlExpression
                     Constant(Value, Type), typeof(object))
                 : Constant(Value, Type),
             Constant(Type),
-            Constant(Sensitive),
+            Constant(IsSensitive),
             RelationalExpressionQuotingUtilities.QuoteTypeMapping(TypeMapping));
 
     /// <inheritdoc />

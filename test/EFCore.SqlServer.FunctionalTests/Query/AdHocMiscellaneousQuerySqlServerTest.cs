@@ -19,6 +19,13 @@ public class AdHocMiscellaneousQuerySqlServerTest : AdHocMiscellaneousQueryRelat
     protected override ITestStoreFactory TestStoreFactory
         => SqlServerTestStoreFactory.Instance;
 
+    protected override DbContextOptionsBuilder SetTranslateParameterizedCollectionsToConstants(DbContextOptionsBuilder optionsBuilder)
+    {
+        new SqlServerDbContextOptionsBuilder(optionsBuilder).TranslateParameterizedCollectionsToConstants();
+
+        return optionsBuilder;
+    }
+
     protected override Task Seed2951(Context2951 context)
         => context.Database.ExecuteSqlRawAsync(
             """
@@ -2422,16 +2429,16 @@ WHERE [t].[Id] IN (?, ?, ?)
                 """
 SELECT [t].[Id], [t].[Name]
 FROM [TestEntities] AS [t]
-WHERE ? = [t].[Id]
+WHERE EXISTS (
+    SELECT 1
+    FROM (VALUES (?), (?), (?)) AS [i]([Value])
+    WHERE [i].[Value] = [t].[Id])
 """,
                 //
                 """
 SELECT [t].[Id], [t].[Name]
 FROM [TestEntities] AS [t]
-WHERE EXISTS (
-    SELECT 1
-    FROM (VALUES (?), (?), (?)) AS [i]([Value])
-    WHERE [i].[Value] = [t].[Id])
+WHERE ? = [t].[Id]
 """);
         }
         else
@@ -2446,16 +2453,16 @@ WHERE [t].[Id] IN (1, 2, 3)
                 """
 SELECT [t].[Id], [t].[Name]
 FROM [TestEntities] AS [t]
-WHERE 1 = [t].[Id]
-""",
-                //
-                """
-SELECT [t].[Id], [t].[Name]
-FROM [TestEntities] AS [t]
 WHERE EXISTS (
     SELECT 1
     FROM (VALUES (1), (2), (3)) AS [i]([Value])
     WHERE [i].[Value] = [t].[Id])
+""",
+            //
+            """
+SELECT [t].[Id], [t].[Name]
+FROM [TestEntities] AS [t]
+WHERE 1 = [t].[Id]
 """);
         }
     }

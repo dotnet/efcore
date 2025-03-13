@@ -241,19 +241,25 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #region Inlined redacting
 
+        protected abstract DbContextOptionsBuilder SetTranslateParameterizedCollectionsToConstants(DbContextOptionsBuilder optionsBuilder);
+
         [ConditionalTheory]
         [MemberData(nameof(InlinedRedactingData))]
         public virtual async Task Check_inlined_constants_redacting(bool async, bool enableSensitiveDataLogging)
         {
             var contextFactory = await InitializeAsync<InlinedRedactingContext>(
-                onConfiguring: o => o.EnableSensitiveDataLogging(enableSensitiveDataLogging));
+                onConfiguring: o =>
+                {
+                    SetTranslateParameterizedCollectionsToConstants(o);
+                    o.EnableSensitiveDataLogging(enableSensitiveDataLogging);
+                });
             using var context = contextFactory.CreateContext();
 
             var id = 1;
             var ids = new[] { id, 2, 3 };
-            var query1 = context.TestEntities.Where(x => EF.Constant(ids).Contains(x.Id));
-            var query2 = context.TestEntities.Where(x => EF.Constant(id) == x.Id);
-            var query3 = context.TestEntities.Where(x => EF.Constant(ids).Where(y => y == x.Id).Any());
+            var query1 = context.TestEntities.Where(x => ids.Contains(x.Id));
+            var query2 = context.TestEntities.Where(x => ids.Where(y => y == x.Id).Any());
+            var query3 = context.TestEntities.Where(x => EF.Constant(id) == x.Id);
 
             if (async)
             {
@@ -280,7 +286,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        public readonly static IEnumerable<object[]> InlinedRedactingData = [[true, true], [true, false], [false, true], [false, false]];
+        public static readonly IEnumerable<object[]> InlinedRedactingData = [[true, true], [true, false], [false, true], [false, false]];
 
         #endregion
     }

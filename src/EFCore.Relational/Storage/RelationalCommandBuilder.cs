@@ -127,9 +127,7 @@ public class RelationalCommandBuilder : IRelationalCommandBuilder
             && _logCommandTextBuilder is null
             && !Dependencies.LoggingOptions.IsSensitiveDataLoggingEnabled)
         {
-            _logCommandTextBuilder = new();
-            _logCommandTextBuilder.Append(_commandTextBuilder.ToString());
-            _logCommandTextBuilder.IndentCount = _commandTextBuilder.IndentCount;
+            _logCommandTextBuilder = _commandTextBuilder.Clone();
         }
     }
 }

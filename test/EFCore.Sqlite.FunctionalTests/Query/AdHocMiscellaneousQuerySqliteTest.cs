@@ -10,6 +10,13 @@ public class AdHocMiscellaneousQuerySqliteTest : AdHocMiscellaneousQueryRelation
     protected override ITestStoreFactory TestStoreFactory
         => SqliteTestStoreFactory.Instance;
 
+    protected override DbContextOptionsBuilder SetTranslateParameterizedCollectionsToConstants(DbContextOptionsBuilder optionsBuilder)
+    {
+        new SqliteDbContextOptionsBuilder(optionsBuilder).TranslateParameterizedCollectionsToConstants();
+
+        return optionsBuilder;
+    }
+
     protected override Task Seed2951(Context2951 context)
         => context.Database.ExecuteSqlRawAsync(
             """
@@ -99,16 +106,16 @@ WHERE "t"."Id" IN (?, ?, ?)
                 """
 SELECT "t"."Id", "t"."Name"
 FROM "TestEntities" AS "t"
-WHERE ? = "t"."Id"
+WHERE EXISTS (
+    SELECT 1
+    FROM (SELECT ? AS "Value" UNION ALL VALUES (?), (?)) AS "i"
+    WHERE "i"."Value" = "t"."Id")
 """,
                 //
                 """
 SELECT "t"."Id", "t"."Name"
 FROM "TestEntities" AS "t"
-WHERE EXISTS (
-    SELECT 1
-    FROM (SELECT ? AS "Value" UNION ALL VALUES (?), (?)) AS "i"
-    WHERE "i"."Value" = "t"."Id")
+WHERE ? = "t"."Id"
 """);
         }
         else
@@ -123,16 +130,16 @@ WHERE "t"."Id" IN (1, 2, 3)
                 """
 SELECT "t"."Id", "t"."Name"
 FROM "TestEntities" AS "t"
-WHERE 1 = "t"."Id"
+WHERE EXISTS (
+    SELECT 1
+    FROM (SELECT 1 AS "Value" UNION ALL VALUES (2), (3)) AS "i"
+    WHERE "i"."Value" = "t"."Id")
 """,
                 //
                 """
 SELECT "t"."Id", "t"."Name"
 FROM "TestEntities" AS "t"
-WHERE EXISTS (
-    SELECT 1
-    FROM (SELECT 1 AS "Value" UNION ALL VALUES (2), (3)) AS "i"
-    WHERE "i"."Value" = "t"."Id")
+WHERE 1 = "t"."Id"
 """);
         }
     }
