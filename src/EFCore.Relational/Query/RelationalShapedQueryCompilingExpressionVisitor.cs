@@ -678,6 +678,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
                                 [
                                     typeof(RelationalCommandBuilderDependencies),
                                     typeof(string),
+                                    typeof(string),
                                     typeof(IReadOnlyList<IRelationalParameter>)
                                 ])!,
                             Property(
@@ -685,6 +686,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
                                 _commandBuilderDependenciesProperty ??= typeof(RelationalMaterializerLiftableConstantContext)
                                     .GetProperty(nameof(RelationalMaterializerLiftableConstantContext.CommandBuilderDependencies))!),
                             Constant(relationalCommandTemplate.CommandText),
+                            Constant(relationalCommandTemplate.LogCommandText, typeof(string)),
                             NewArrayInit(
                                 typeof(IRelationalParameter),
                                 relationalCommandTemplate.Parameters.Cast<TypeMappedRelationalParameter>().Select(
