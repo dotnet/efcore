@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Storage;
 [CosmosCondition(CosmosCondition.DoesNotUseTokenCredential)]
 public class CosmosDatabaseCreatorTest
 {
-    public static IEnumerable<object[]> IsAsyncData = [[false], [true]];
+    public static readonly IEnumerable<object[]> IsAsyncData = [[false], [true]];
 
     [ConditionalFact]
     public async Task EnsureCreated_returns_true_when_database_does_not_exist()

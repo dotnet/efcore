@@ -363,7 +363,7 @@ public abstract class StoreValueGenerationTestBase<TFixture>(TFixture fixture) :
     protected StoreValueGenerationContext CreateContext()
         => Fixture.CreateContext();
 
-    public static IEnumerable<object[]> IsAsyncData = new object[][] { [false], [true] };
+    public static readonly IEnumerable<object[]> IsAsyncData = [[false], [true]];
 
     protected virtual void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
