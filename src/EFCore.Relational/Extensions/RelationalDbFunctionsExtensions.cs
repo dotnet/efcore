@@ -56,4 +56,32 @@ public static class RelationalDbFunctionsExtensions
         this DbFunctions _,
         [NotParameterized] params T[] values)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Greatest)));
+
+    /// <summary>
+    ///     Checks whether a specified JSON path exists within a JSON string.
+    ///     Typically corresponds to a database function or SQL expression.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This method is translated to a database-specific function or expression. 
+    ///         The support for this function depends on the database and provider being used. 
+    ///         Refer to your database provider's documentation for detailed support information.
+    ///     </para>
+    ///     <para>
+    ///         For more details, see <see href="https://learn.microsoft.com/en-us/ef/core/providers">EF Core database providers</see>.
+    ///     </para>
+    /// </remarks>
+    /// <param name="_">The <see cref="DbFunctions"/> instance.</param>
+    /// <param name="expression">The JSON string or column containing JSON text.</param>
+    /// <param name="path">The JSON path to check for existence.</param>
+    /// <typeparam name="T">The type of the JSON expression.</typeparam>
+    /// <returns>
+    ///     A nullable boolean value, <see langword="true"/> if the JSON path exists, <see langword="false"/> if not, and <see langword="null"/>
+    ///     when the JSON string is null.
+    /// </returns>
+    public static bool? JsonExists<T>(
+        this DbFunctions _,
+        T expression,
+        string path)
+        => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(JsonExists)));
 }
