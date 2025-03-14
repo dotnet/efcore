@@ -74,13 +74,13 @@ WHERE (ABS(c["Float"]) = 9.5)
         => Fixture.NoSyncTest(
             async, async a =>
             {
-                await base.Ceiling_float(a);
+                await base.Ceiling(a);
 
                 AssertSql(
                     """
 SELECT VALUE c
 FROM root c
-WHERE (CEILING(c["Float"]) = 9.0)
+WHERE (CEILING(c["Double"]) = 9.0)
 """);
             });
 
@@ -168,13 +168,19 @@ WHERE (EXP(c["Float"]) > 1.0)
 """);
             });
 
-    public override async Task Power(bool async)
-    {
-        // Convert node. Issue #25120.
-        await AssertTranslationFailed(() => base.Power(async));
+    public override Task Power(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Power(a);
 
-        AssertSql();
-    }
+                AssertSql(
+                    """
+SELECT VALUE c
+FROM root c
+WHERE (POWER(c["Int"], 2.0) = 64.0)
+""");
+            });
 
     public override Task Power_float(bool async)
         => Fixture.NoSyncTest(
