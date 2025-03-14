@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class ReloadTest : IClassFixture<ReloadTest.CosmosReloadTestFixture>
 {
-    public static IEnumerable<object[]> IsAsyncData = [[false], [true]];
+    public static readonly IEnumerable<object[]> IsAsyncData = [[false], [true]];
 
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);

@@ -1374,5 +1374,5 @@ public class RelationalCommandTest
     private Task<bool> Read(RelationalDataReader relationalReader, bool async)
         => async ? relationalReader.ReadAsync() : Task.FromResult(relationalReader.Read());
 
-    public static IEnumerable<object[]> IsAsyncData = new object[][] { [false], [true] };
+    public static readonly IEnumerable<object[]> IsAsyncData = [[false], [true]];
 }

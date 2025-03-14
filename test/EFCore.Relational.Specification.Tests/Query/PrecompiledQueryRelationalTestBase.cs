@@ -1326,5 +1326,5 @@ await using var context = new PrecompiledQueryContext(dbContextOptions);
         public Blog? Blog { get; set; }
     }
 
-    public static IEnumerable<object[]> IsAsyncData = new object[][] { [false], [true] };
+    public static readonly IEnumerable<object[]> IsAsyncData = [[false], [true]];
 }

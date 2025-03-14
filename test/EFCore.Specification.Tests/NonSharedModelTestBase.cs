@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 public abstract class NonSharedModelTestBase : IAsyncLifetime
 {
-    public static IEnumerable<object[]> IsAsyncData = [[false], [true]];
+    public static readonly IEnumerable<object[]> IsAsyncData = [[false], [true]];
 
     protected abstract string StoreName { get; }
     protected abstract ITestStoreFactory TestStoreFactory { get; }
