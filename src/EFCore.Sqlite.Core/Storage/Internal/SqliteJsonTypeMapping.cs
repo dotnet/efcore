@@ -39,7 +39,7 @@ public class SqliteJsonTypeMapping : JsonTypeMapping
     /// </summary>
     /// <param name="storeType">The name of the database type.</param>
     public SqliteJsonTypeMapping(string storeType)
-        : base(storeType, typeof(JsonElement), System.Data.DbType.String)
+        : base(storeType, typeof(JsonTypePlaceholder), System.Data.DbType.String)
     {
     }
 

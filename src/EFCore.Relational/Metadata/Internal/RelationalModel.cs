@@ -582,7 +582,7 @@ public class RelationalModel : Annotatable, IRelationalModel
         {
             Check.DebugAssert(tableBase.FindColumn(containerColumnName) == null, $"Table does not have column '{containerColumnName}'.");
 
-            var jsonColumnTypeMapping = relationalTypeMappingSource.FindMapping(typeof(JsonElement), storeTypeName: containerColumnType)!;
+            var jsonColumnTypeMapping = relationalTypeMappingSource.FindMapping(typeof(JsonTypePlaceholder), storeTypeName: containerColumnType)!;
             var jsonColumn = createColumn(containerColumnName, containerColumnType, tableBase, jsonColumnTypeMapping);
             tableBase.Columns.Add(containerColumnName, jsonColumn);
             jsonColumn.IsNullable = !ownership.IsRequiredDependent || !ownership.IsUnique;
