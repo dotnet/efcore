@@ -885,15 +885,648 @@ $$$$"""
 
     #endregion
 
-    protected override Task Seed33046(DbContext ctx) => throw new NotImplementedException();
+    #region 33046
 
+    protected override void OnModelCreating33046(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating33046(modelBuilder);
 
+        modelBuilder.Entity<Context33046.Review>().ToContainer("Reviews");
+    }
 
+    protected override async Task Seed33046(DbContext ctx)
+    {
+        var wrapper = (CosmosClientWrapper)ctx.GetService<ICosmosClientWrapper>();
+        var singletonWrapper = ctx.GetService<ISingletonCosmosClientWrapper>();
+        var entitiesContainer = singletonWrapper.Client.GetContainer(StoreName, containerId: "Reviews");
 
+        var json =
+$$$$"""
+{
+    "Id": 1,
+    "$type": "Review",
+    "id": "1",
+    "Rounds":
+    [
+        {
+            "RoundNumber":11,
+            "SubRounds":
+            [
+                {
+                    "SubRoundNumber":111
+                },
+                {
+                    "SubRoundNumber":112
+                }
+            ]
+        }
+    ]
+}
+""";
 
+        await AdHocCosmosTestHelpers.CreateCustomEntityHelperAsync(
+            entitiesContainer,
+            json,
+            CancellationToken.None);
+    }
 
+    #endregion
 
+    #region ArrayOfPrimitives
 
+    protected override void OnModelCreatingArrayOfPrimitives(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreatingArrayOfPrimitives(modelBuilder);
+    }
+
+    #endregion
+
+    #region JunkInJson
+
+    protected override void OnModelCreatingJunkInJson(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreatingJunkInJson(modelBuilder);
+
+        modelBuilder.Entity<ContextJunkInJson.MyEntity>().ToContainer("Entities");
+    }
+
+    protected override async Task SeedJunkInJson(DbContext ctx)
+    {
+        var wrapper = (CosmosClientWrapper)ctx.GetService<ICosmosClientWrapper>();
+        var singletonWrapper = ctx.GetService<ISingletonCosmosClientWrapper>();
+        var entitiesContainer = singletonWrapper.Client.GetContainer(StoreName, containerId: "Entities");
+
+        var json =
+$$$"""
+{
+    "Id": 1,
+    "$type": "MyEntity",
+    "id": "1",
+    "Collection":
+    [
+        {
+            "JunkReference": {
+                "Something":"SomeValue"
+            },
+            "Name":"c11",
+            "JunkProperty1":50,
+            "Number":11.5,
+            "JunkCollection1":[],
+            "JunkCollection2":
+            [
+                {
+                    "Foo":"junk value"
+                }
+            ],
+            "NestedCollection":
+            [
+                {
+                    "DoB":"2002-04-01T00:00:00",
+                    "DummyProp":"Dummy value"
+                },
+                {
+                    "DoB":"2002-04-02T00:00:00",
+                    "DummyReference":{
+                        "Foo":5
+                    }
+                }
+            ],
+            "NestedReference":{
+                "DoB":"2002-03-01T00:00:00"
+            }
+        },
+        {
+            "Name":"c12",
+            "Number":12.5,
+            "NestedCollection":
+            [
+                {
+                    "DoB":"2002-06-01T00:00:00"
+                },
+                {
+                    "DoB":"2002-06-02T00:00:00"
+                }
+            ],
+            "NestedDummy":59,
+            "NestedReference":{
+                "DoB":"2002-05-01T00:00:00"
+            }
+        }
+    ],
+    "CollectionWithCtor":
+    [
+        {
+            "MyBool":true,
+            "Name":"c11 ctor",
+            "JunkReference":{
+                "Something":"SomeValue",
+                "JunkCollection":
+                [
+                    {
+                        "Foo":"junk value"
+                    }
+                ]
+            },
+            "NestedCollection":
+            [
+                {
+                    "DoB":"2002-08-01T00:00:00"
+                },
+                {
+                    "DoB":"2002-08-02T00:00:00"
+                }
+            ],
+            "NestedReference":{
+                "DoB":"2002-07-01T00:00:00"
+            }
+        },
+        {
+            "MyBool":false,
+            "Name":"c12 ctor",
+            "NestedCollection":
+            [
+                {
+                    "DoB":"2002-10-01T00:00:00"
+                },
+                {
+                    "DoB":"2002-10-02T00:00:00"
+                }
+            ],
+            "JunkCollection":
+            [
+                {
+                    "Foo":"junk value"
+                }
+            ],
+            "NestedReference":{
+                "DoB":"2002-09-01T00:00:00"
+            }
+        }
+    ],
+    "Reference": {
+        "Name":"r1",
+        "JunkCollection":
+        [
+            {
+                "Foo":"junk value"
+            }
+        ],
+        "JunkReference":{
+            "Something":"SomeValue"
+        },
+        "Number":1.5,
+        "NestedCollection":
+        [
+            {
+                "DoB":"2000-02-01T00:00:00",
+                "JunkReference":{
+                    "Something":"SomeValue"
+                }
+            },
+            {
+                "DoB":"2000-02-02T00:00:00"
+            }
+        ],
+        "NestedReference":{
+            "DoB":"2000-01-01T00:00:00"
+        }
+    }
+    "ReferenceWithCtor":{
+        "MyBool":true,
+        "JunkCollection":
+        [
+            {
+                "Foo":"junk value"
+            }
+        ],
+        "Name":"r1 ctor",
+        "JunkReference":{
+            "Something":"SomeValue"
+        },
+        "NestedCollection":
+        [
+            {
+                "DoB":"2001-02-01T00:00:00"
+            },
+            {
+                "DoB":"2001-02-02T00:00:00"
+            }
+        ],
+        "NestedReference":{
+            "JunkCollection":
+            [
+                {
+                    "Foo":"junk value"
+                }
+            ],
+            "DoB":"2001-01-01T00:00:00"
+        }
+    }
+}
+""";
+
+        await AdHocCosmosTestHelpers.CreateCustomEntityHelperAsync(
+            entitiesContainer,
+            json,
+            CancellationToken.None);
+    }
+
+    #endregion
+
+    #region TrickyBuffering
+
+    protected override void OnModelCreatingTrickyBuffering(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreatingTrickyBuffering(modelBuilder);
+
+        modelBuilder.Entity<ContextTrickyBuffering.MyEntity>().ToContainer("Entities");
+    }
+
+    protected override async Task SeedTrickyBuffering(DbContext ctx)
+    {
+        var wrapper = (CosmosClientWrapper)ctx.GetService<ICosmosClientWrapper>();
+        var singletonWrapper = ctx.GetService<ISingletonCosmosClientWrapper>();
+        var entitiesContainer = singletonWrapper.Client.GetContainer(StoreName, containerId: "Entities");
+
+        var json =
+$$$"""
+{
+    "Id": 1,
+    "$type": "MyEntity",
+    "id": "1",
+    "Reference": {
+        "Name": "r1",
+        "Number": 7,
+        "JunkReference": {
+            "Something": "SomeValue"
+        },
+        "JunkCollection":
+        [
+            {
+                "Foo": "junk value"
+            }
+        ],
+        "NestedReference": {
+            "DoB": "2000-01-01T00:00:00"
+        },
+        "NestedCollection":
+        [
+            {
+                "DoB": "2000-02-01T00:00:00",
+                "JunkReference": {
+                    "Something": "SomeValue"
+                }
+            },
+            {
+                "DoB": "2000-02-02T00:00:00"
+            }
+        ]
+    }
+}
+""";
+
+        await AdHocCosmosTestHelpers.CreateCustomEntityHelperAsync(
+            entitiesContainer,
+            json,
+            CancellationToken.None);
+    }
+
+    #endregion
+
+    #region ShadowProperties
+
+    protected override void OnModelCreatingShadowProperties(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreatingShadowProperties(modelBuilder);
+
+        modelBuilder.Entity<ContextShadowProperties.MyEntity>(b =>
+            {
+                b.ToContainer("Entities");
+
+                //b.OwnsOne(x => x.Reference, b =>
+                //{
+                //    //      b.ToJson().HasColumnType(JsonColumnType);
+                //    b.Property<string>("ShadowString");
+                //});
+
+                b.OwnsOne(x => x.ReferenceWithCtor, b =>
+                {
+                    //    b.ToJson().HasColumnType(JsonColumnType);
+                    b.Property<int>("Shadow_Int").ToJsonProperty("ShadowInt");
+                });
+
+                //b.OwnsMany(
+                //    x => x.Collection, b =>
+                //    {
+                //        //  b.ToJson().HasColumnType(JsonColumnType);
+                //        b.Property<double>("ShadowDouble");
+                //    });
+
+                //b.OwnsMany(
+                //    x => x.CollectionWithCtor, b =>
+                //    {
+                //        //b.ToJson().HasColumnType(JsonColumnType);
+                //        b.Property<byte?>("ShadowNullableByte");
+                //    });
+            });
+    }
+
+    protected override async Task SeedShadowProperties(DbContext ctx)
+    {
+        var wrapper = (CosmosClientWrapper)ctx.GetService<ICosmosClientWrapper>();
+        var singletonWrapper = ctx.GetService<ISingletonCosmosClientWrapper>();
+        var entitiesContainer = singletonWrapper.Client.GetContainer(StoreName, containerId: "Entities");
+
+        var json =
+$$$"""
+{
+    "Id": 1,
+    "$type": "MyEntity",
+    "id": "1",
+    "Name": "e1",
+    "Collection":
+    [
+        {
+            "Name":"e1_c1","ShadowDouble":5.5
+        },
+        {
+            "ShadowDouble":20.5,"Name":"e1_c2"
+        }
+    ],
+    "CollectionWithCtor":
+    [
+        {
+            "Name":"e1_c1 ctor","ShadowNullableByte":6
+        },
+        {
+            "ShadowNullableByte":null,"Name":"e1_c2 ctor"
+        }
+    ],
+    "Reference": { "Name":"e1_r", "ShadowString":"Foo" }
+    "ReferenceWithCtor": { "ShadowInt":143,"Name":"e1_r ctor" }
+}
+""";
+
+        await AdHocCosmosTestHelpers.CreateCustomEntityHelperAsync(
+            entitiesContainer,
+            json,
+            CancellationToken.None);
+    }
+
+    #endregion
+
+    #region LazyLoadingProxies
+
+    protected override void OnModelCreatingLazyLoadingProxies(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreatingLazyLoadingProxies(modelBuilder);
+    }
+
+    #endregion
+
+    #region NotICollection
+
+    protected override void OnModelCreatingNotICollection(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreatingNotICollection(modelBuilder);
+
+        modelBuilder.Entity<ContextNotICollection.MyEntity>().ToContainer("Entities");
+    }
+
+    protected override async Task SeedNotICollection(DbContext ctx)
+    {
+        var wrapper = (CosmosClientWrapper)ctx.GetService<ICosmosClientWrapper>();
+        var singletonWrapper = ctx.GetService<ISingletonCosmosClientWrapper>();
+        var entitiesContainer = singletonWrapper.Client.GetContainer(StoreName, containerId: "Entities");
+
+        var json1 =
+$$$"""
+{
+    "Id": 1,
+    "$type": "MyEntity",
+    "id": "1",
+    "Json":
+    {
+        "Collection":
+        [
+            {
+                "Bar":11,"Foo":"c11"
+            },
+            {
+                "Bar":12,"Foo":"c12"
+            },
+            {
+                "Bar":13,"Foo":"c13"
+            }
+        ]
+    }
+}
+""";
+
+        await AdHocCosmosTestHelpers.CreateCustomEntityHelperAsync(
+            entitiesContainer,
+            json1,
+            CancellationToken.None);
+
+        var json2 =
+$$$"""
+{
+    "Id": 2,
+    "$type": "MyEntity",
+    "id": "2",
+    "Json": {
+        "Collection":
+        [
+            {
+                "Bar":21,"Foo":"c21"
+            },
+            {
+                "Bar":22,"Foo":"c22"
+            }
+        ]
+    }
+}
+""";
+
+        await AdHocCosmosTestHelpers.CreateCustomEntityHelperAsync(
+            entitiesContainer,
+            json2,
+            CancellationToken.None);
+    }
+
+    #endregion
+
+    #region BadJsonProperties
+
+    protected override void OnModelCreatingBadJsonProperties(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreatingBadJsonProperties(modelBuilder);
+
+        modelBuilder.Entity<ContextBadJsonProperties.Entity>().ToContainer("Entities");
+    }
+
+    protected override async Task SeedBadJsonProperties(ContextBadJsonProperties ctx)
+    {
+        var wrapper = (CosmosClientWrapper)ctx.GetService<ICosmosClientWrapper>();
+        var singletonWrapper = ctx.GetService<ISingletonCosmosClientWrapper>();
+        var entitiesContainer = singletonWrapper.Client.GetContainer(StoreName, containerId: "Entities");
+
+        var baseline =
+$$$"""
+{
+    "Id": 1,
+    "$type": "MyEntity",
+    "id": "1",
+    "Scenario": "baseline",
+    "OptionalReference": {"NestedOptional": { "Text":"or no" }, "NestedRequired": { "Text":"or nr" }, "NestedCollection": [ { "Text":"or nc 1" }, { "Text":"or nc 2" } ] },
+    "RequiredReference": {"NestedOptional": { "Text":"rr no" }, "NestedRequired": { "Text":"rr nr" }, "NestedCollection": [ { "Text":"rr nc 1" }, { "Text":"rr nc 2" } ] },
+    "Collection": 
+    [
+        {"NestedOptional": { "Text":"c 1 no" }, "NestedRequired": { "Text":"c 1 nr" }, "NestedCollection": [ { "Text":"c 1 nc 1" }, { "Text":"c 1 nc 2" } ] },
+        {"NestedOptional": { "Text":"c 2 no" }, "NestedRequired": { "Text":"c 2 nr" }, "NestedCollection": [ { "Text":"c 2 nc 1" }, { "Text":"c 2 nc 2" } ] }
+    ]
+}
+""";
+
+        await AdHocCosmosTestHelpers.CreateCustomEntityHelperAsync(
+            entitiesContainer,
+            baseline,
+            CancellationToken.None);
+
+        var duplicatedNavigations =
+$$$"""
+{
+    "Id": 2,
+    "$type": "MyEntity",
+    "id": "2",
+    "Scenario": "duplicated navigations",
+    "OptionalReference": {"NestedOptional": { "Text":"or no" }, "NestedOptional": { "Text":"or no dupnav" }, "NestedRequired": { "Text":"or nr" }, "NestedCollection": [ { "Text":"or nc 1" }, { "Text":"or nc 2" } ], "NestedCollection": [ { "Text":"or nc 1 dupnav" }, { "Text":"or nc 2 dupnav" } ], "NestedRequired": { "Text":"or nr dupnav" } },
+    "RequiredReference": {"NestedOptional": { "Text":"rr no" }, "NestedOptional": { "Text":"rr no dupnav" }, "NestedRequired": { "Text":"rr nr" }, "NestedCollection": [ { "Text":"rr nc 1" }, { "Text":"rr nc 2" } ], "NestedCollection": [ { "Text":"rr nc 1 dupnav" }, { "Text":"rr nc 2 dupnav" } ], "NestedRequired": { "Text":"rr nr dupnav" } },
+    "Collection": 
+    [
+        {"NestedOptional": { "Text":"c 1 no" }, "NestedOptional": { "Text":"c 1 no dupnav" }, "NestedRequired": { "Text":"c 1 nr" }, "NestedCollection": [ { "Text":"c 1 nc 1" }, { "Text":"c 1 nc 2" } ], "NestedCollection": [ { "Text":"c 1 nc 1 dupnav" }, { "Text":"c 1 nc 2 dupnav" } ], "NestedRequired": { "Text":"c 1 nr dupnav" } },
+        {"NestedOptional": { "Text":"c 2 no" }, "NestedOptional": { "Text":"c 2 no dupnav" }, "NestedRequired": { "Text":"c 2 nr" }, "NestedCollection": [ { "Text":"c 2 nc 1" }, { "Text":"c 2 nc 2" } ], "NestedCollection": [ { "Text":"c 2 nc 1 dupnav" }, { "Text":"c 2 nc 2 dupnav" } ], "NestedRequired": { "Text":"c 2 nr dupnav" } }
+    ]
+}
+""";
+
+        await AdHocCosmosTestHelpers.CreateCustomEntityHelperAsync(
+            entitiesContainer,
+            duplicatedNavigations,
+            CancellationToken.None);
+
+        var duplicatedScalars =
+$$$"""
+{
+    "Id": 3,
+    "$type": "MyEntity",
+    "id": "3",
+    "Scenario": "duplicated scalars",
+    "OptionalReference": {"NestedOptional": { "Text":"or no", "Text":"or no dupprop" }, "NestedRequired": { "Text":"or nr", "Text":"or nr dupprop" }, "NestedCollection": [ { "Text":"or nc 1", "Text":"or nc 1 dupprop" }, { "Text":"or nc 2", "Text":"or nc 2 dupprop" } ] },
+    "RequiredReference": {"NestedOptional": { "Text":"rr no", "Text":"rr no dupprop" }, "NestedRequired": { "Text":"rr nr", "Text":"rr nr dupprop" }, "NestedCollection": [ { "Text":"rr nc 1", "Text":"rr nc 1 dupprop" }, { "Text":"rr nc 2", "Text":"rr nc 2 dupprop" } ] },
+    "Collection": 
+    [
+        {"NestedOptional": { "Text":"c 1 no", "Text":"c 1 no dupprop" }, "NestedRequired": { "Text":"c 1 nr", "Text":"c 1 nr dupprop" }, "NestedCollection": [ { "Text":"c 1 nc 1", "Text":"c 1 nc 1 dupprop" }, { "Text":"c 1 nc 2", "Text":"c 1 nc 2 dupprop" } ] },
+        {"NestedOptional": { "Text":"c 2 no", "Text":"c 2 no dupprop" }, "NestedRequired": { "Text":"c 2 nr", "Text":"c 2 nr dupprop" }, "NestedCollection": [ { "Text":"c 2 nc 1", "Text":"c 2 nc 1 dupprop" }, { "Text":"c 2 nc 2", "Text":"c 2 nc 2 dupprop" } ] }
+    ]
+}
+""";
+
+        await AdHocCosmosTestHelpers.CreateCustomEntityHelperAsync(
+            entitiesContainer,
+            duplicatedScalars,
+            CancellationToken.None);
+
+        var emptyNavs =
+$$$"""
+{
+    "Id": 4,
+    "$type": "MyEntity",
+    "id": "4",
+    "Scenario": "empty navigation property names",
+    "OptionalReference": {"": { "Text":"or no" }, "": { "Text":"or nr" }, "": [ { "Text":"or nc 1" }, { "Text":"or nc 2" } ] },
+    "RequiredReference": {"": { "Text":"rr no" }, "": { "Text":"rr nr" }, "": [ { "Text":"rr nc 1" }, { "Text":"rr nc 2" } ] },
+    "Collection": 
+    [
+        {"": { "Text":"c 1 no" }, "": { "Text":"c 1 nr" }, "": [ { "Text":"c 1 nc 1" }, { "Text":"c 1 nc 2" } ] },
+        {"": { "Text":"c 2 no" }, "": { "Text":"c 2 nr" }, "": [ { "Text":"c 2 nc 1" }, { "Text":"c 2 nc 2" } ] }
+    ]
+}
+""";
+
+        await AdHocCosmosTestHelpers.CreateCustomEntityHelperAsync(
+            entitiesContainer,
+            emptyNavs,
+            CancellationToken.None);
+
+        var emptyScalars =
+$$$"""
+{
+    "Id": 5,
+    "$type": "MyEntity",
+    "id": "5",
+    "Scenario": "empty scalar property names",
+    "OptionalReference": {"NestedOptional": { "":"or no" }, "NestedRequired": { "":"or nr" }, "NestedCollection": [ { "":"or nc 1" }, { "":"or nc 2" } ] },
+    "RequiredReference": {"NestedOptional": { "":"rr no" }, "NestedRequired": { "":"rr nr" }, "NestedCollection": [ { "":"rr nc 1" }, { "":"rr nc 2" } ] },
+    "Collection": 
+    [
+        {"NestedOptional": { "":"c 1 no" }, "NestedRequired": { "":"c 1 nr" }, "NestedCollection": [ { "":"c 1 nc 1" }, { "":"c 1 nc 2" } ] },
+        {"NestedOptional": { "":"c 2 no" }, "NestedRequired": { "":"c 2 nr" }, "NestedCollection": [ { "":"c 2 nc 1" }, { "":"c 2 nc 2" } ] }
+    ]
+}
+""";
+
+        await AdHocCosmosTestHelpers.CreateCustomEntityHelperAsync(
+            entitiesContainer,
+            emptyScalars,
+            CancellationToken.None);
+
+        var nullNavs =
+$$$"""
+{
+    "Id": 10,
+    "$type": "MyEntity",
+    "id": "10",
+    "Scenario": "null navigation property names",
+    "OptionalReference": {null: { "Text":"or no" }, null: { "Text":"or nr" }, null: [ { "Text":"or nc 1" }, { "Text":"or nc 2" } ] },
+    "RequiredReference": {null: { "Text":"rr no" }, null: { "Text":"rr nr" }, null: [ { "Text":"rr nc 1" }, { "Text":"rr nc 2" } ] },
+    "Collection": 
+    [
+        {null: { "Text":"c 1 no" }, null: { "Text":"c 1 nr" }, null: [ { "Text":"c 1 nc 1" }, { "Text":"c 1 nc 2" } ] },
+        {null: { "Text":"c 2 no" }, null: { "Text":"c 2 nr" }, null: [ { "Text":"c 2 nc 1" }, { "Text":"c 2 nc 2" } ] }
+    ]
+}
+""";
+
+        await AdHocCosmosTestHelpers.CreateCustomEntityHelperAsync(
+            entitiesContainer,
+            nullNavs,
+            CancellationToken.None);
+
+        var nullScalars =
+$$$"""
+{
+    "Id": 11,
+    "$type": "MyEntity",
+    "id": "11",
+    "Scenario": "null scalar property names",
+    "OptionalReference": {"NestedOptional": { null:"or no", "Text":"or no nonnull" }, "NestedRequired": { null:"or nr", "Text":"or nr nonnull" }, "NestedCollection": [ { null:"or nc 1", "Text":"or nc 1 nonnull" }, { null:"or nc 2", "Text":"or nc 2 nonnull" } ] },
+    "RequiredReference": {"NestedOptional": { null:"rr no", "Text":"rr no nonnull" }, "NestedRequired": { null:"rr nr", "Text":"rr nr nonnull" }, "NestedCollection": [ { null:"rr nc 1", "Text":"rr nc 1 nonnull" }, { null:"rr nc 2", "Text":"rr nc 2 nonnull" } ] },
+    "Collection": 
+    [
+        {"NestedOptional": { null:"c 1 no", "Text":"c 1 no nonnull" }, "NestedRequired": { null:"c 1 nr", "Text":"c 1 nr nonnull" }, "NestedCollection": [ { null:"c 1 nc 1", "Text":"c 1 nc 1 nonnull" }, { null:"c 1 nc 2", "Text":"c 1 nc 2 nonnull" } ] },
+        {"NestedOptional": { null:"c 2 no", "Text":"c 2 no nonnull" }, "NestedRequired": { null:"c 2 nr", "Text":"c 2 nr nonnull" }, "NestedCollection": [ { null:"c 2 nc 1", "Text":"c 2 nc 1 nonnull" }, { null:"c 2 nc 2", "Text":"c 2 nc 2 nonnull" } ] }
+    ]
+}
+""";
+
+        await AdHocCosmosTestHelpers.CreateCustomEntityHelperAsync(
+            entitiesContainer,
+            nullScalars,
+            CancellationToken.None);
+    }
+
+    #endregion
 
     protected TestSqlLoggerFactory TestSqlLoggerFactory
         => (TestSqlLoggerFactory)ListLoggerFactory;

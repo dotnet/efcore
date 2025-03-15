@@ -290,52 +290,6 @@ N'[{ "DoB":"2000-01-01T00:00:00","Text":"junk" }]',
 """);
     }
 
-    protected override Task SeedArrayOfPrimitives(DbContext ctx)
-    {
-        var entity1 = new MyEntityArrayOfPrimitives
-        {
-            Id = 1,
-            Reference = new MyJsonEntityArrayOfPrimitives
-            {
-                IntArray = [1, 2, 3],
-                ListOfString =
-                [
-                    "Foo",
-                    "Bar",
-                    "Baz"
-                ]
-            },
-            Collection =
-            [
-                new MyJsonEntityArrayOfPrimitives { IntArray = [111, 112, 113], ListOfString = ["Foo11", "Bar11"] },
-                new MyJsonEntityArrayOfPrimitives { IntArray = [211, 212, 213], ListOfString = ["Foo12", "Bar12"] }
-            ]
-        };
-
-        var entity2 = new MyEntityArrayOfPrimitives
-        {
-            Id = 2,
-            Reference = new MyJsonEntityArrayOfPrimitives
-            {
-                IntArray = [10, 20, 30],
-                ListOfString =
-                [
-                    "A",
-                    "B",
-                    "C"
-                ]
-            },
-            Collection =
-            [
-                new MyJsonEntityArrayOfPrimitives { IntArray = [110, 120, 130], ListOfString = ["A1", "Z1"] },
-                new MyJsonEntityArrayOfPrimitives { IntArray = [210, 220, 230], ListOfString = ["A2", "Z2"] }
-            ]
-        };
-
-        ctx.AddRange(entity1, entity2);
-        return ctx.SaveChangesAsync();
-    }
-
     protected override Task SeedJunkInJson(DbContext ctx)
         => ctx.Database.ExecuteSqlAsync(
             $$$$"""
