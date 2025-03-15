@@ -7,6 +7,8 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 public class AdHocJsonQueryCosmosTest : AdHocJsonQueryTestBase
 {
+    #region 21006
+
     public override async Task Project_root_with_missing_scalars(bool async)
     {
         if (async)
@@ -638,6 +640,16 @@ $$"""
             nullRequiredNav,
             CancellationToken.None);
     }
+
+    #endregion
+
+    protected override Task Seed29219(DbContext ctx) => throw new NotImplementedException();
+
+    protected override Task Seed30028(DbContext ctx) => throw new NotImplementedException();
+
+    protected override Task Seed33046(DbContext ctx) => throw new NotImplementedException();
+
+
 
     protected TestSqlLoggerFactory TestSqlLoggerFactory
         => (TestSqlLoggerFactory)ListLoggerFactory;

@@ -53,365 +53,76 @@ public abstract class AdHocJsonQueryRelationalTestBase : AdHocJsonQueryTestBase
 
     #region 32310
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Contains_on_nested_collection_with_init_only_navigation(bool async)
+    protected override void OnModelCreating32310(ModelBuilder modelBuilder)
     {
-        var contextFactory = await InitializeAsync<DbContext>(
-            onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
-            onModelCreating: b => b.Entity<Pub32310>().OwnsOne(e => e.Visits).ToJson().HasColumnType(JsonColumnType),
-            seed: Seed32310);
+        base.OnModelCreating32310(modelBuilder);
 
-        await using var context = contextFactory.CreateContext();
-
-        var query = context.Set<Pub32310>()
-            .Where(u => u.Visits.DaysVisited.Contains(new DateOnly(2023, 1, 1)));
-
-        var result = async
-            ? await query.FirstOrDefaultAsync()!
-            : query.FirstOrDefault()!;
-
-        Assert.Equal("FBI", result.Name);
-        Assert.Equal(new DateOnly(2023, 1, 1), result.Visits.DaysVisited.Single());
-    }
-
-    protected virtual async Task Seed32310(DbContext context)
-    {
-        var user = new Pub32310
-        {
-            Name = "FBI",
-            Visits = new Visits32310 { LocationTag = "tag", DaysVisited = [new DateOnly(2023, 1, 1)] }
-        };
-
-        context.Add(user);
-        await context.SaveChangesAsync();
-    }
-
-    public class Pub32310
-    {
-        public int Id { get; set; }
-        public required string Name { get; set; }
-        public Visits32310 Visits { get; set; } = null!;
-    }
-
-    public class Visits32310
-    {
-        public string LocationTag { get; set; }
-        public required List<DateOnly> DaysVisited { get; init; }
+        modelBuilder.Entity<Context32310.Pub>().OwnsOne(e => e.Visits).ToJson().HasColumnType(JsonColumnType);
     }
 
     #endregion
 
     #region 29219
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Optional_json_properties_materialized_as_null_when_the_element_in_json_is_not_present(bool async)
+    protected override void OnModelCreating29219(ModelBuilder modelBuilder)
     {
-        var contextFactory = await InitializeAsync<DbContext>(
-            onModelCreating: BuildModel29219,
-            onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
-            seed: Seed29219);
+        base.OnModelCreating29219(modelBuilder);
 
-        using (var context = contextFactory.CreateContext())
-        {
-            var query = context.Set<MyEntity29219>().Where(x => x.Id == 3);
-
-            var result = async
-                ? await query.SingleAsync()
-                : query.Single();
-
-            Assert.Equal(3, result.Id);
-            Assert.Null(result.Reference.NullableScalar);
-            Assert.Null(result.Collection[0].NullableScalar);
-        }
-    }
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Can_project_nullable_json_property_when_the_element_in_json_is_not_present(bool async)
-    {
-        var contextFactory = await InitializeAsync<DbContext>(
-            onModelCreating: BuildModel29219,
-            onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
-            seed: Seed29219);
-
-        using (var context = contextFactory.CreateContext())
-        {
-            var query = context.Set<MyEntity29219>().OrderBy(x => x.Id).Select(x => x.Reference.NullableScalar);
-
-            var result = async
-                ? await query.ToListAsync()
-                : query.ToList();
-
-            Assert.Equal(3, result.Count);
-            Assert.Equal(11, result[0]);
-            Assert.Null(result[1]);
-            Assert.Null(result[2]);
-        }
-    }
-
-    protected void BuildModel29219(ModelBuilder modelBuilder)
-        => modelBuilder.Entity<MyEntity29219>(
+        modelBuilder.Entity<Context29219.MyEntity>(
             b =>
             {
                 b.ToTable("Entities");
-                b.Property(x => x.Id).ValueGeneratedNever();
                 b.OwnsOne(x => x.Reference).ToJson().HasColumnType(JsonColumnType);
                 b.OwnsMany(x => x.Collection).ToJson().HasColumnType(JsonColumnType);
             });
-
-    protected abstract Task Seed29219(DbContext ctx);
-
-    public class MyEntity29219
-    {
-        public int Id { get; set; }
-        public MyJsonEntity29219 Reference { get; set; }
-        public List<MyJsonEntity29219> Collection { get; set; }
-    }
-
-    public class MyJsonEntity29219
-    {
-        public int NonNullableScalar { get; set; }
-        public int? NullableScalar { get; set; }
     }
 
     #endregion
 
     #region 30028
 
-    protected abstract Task Seed30028(DbContext ctx);
+    protected override void OnModelCreating30028(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating30028(modelBuilder);
 
-    protected virtual void BuildModel30028(ModelBuilder modelBuilder)
-        => modelBuilder.Entity<MyEntity30028>(
-            b =>
+        modelBuilder.Entity<Context30028.MyEntity>(b =>
+        {
+            b.ToTable("Entities");
+            b.OwnsOne(x => x.Json, nb =>
             {
-                b.Property(x => x.Id).ValueGeneratedNever();
-                b.ToTable("Entities");
-                b.OwnsOne(
-                    x => x.Json, nb =>
-                    {
-                        nb.ToJson().HasColumnType(JsonColumnType);
-                        nb.OwnsMany(x => x.Collection, nnb => nnb.OwnsOne(x => x.Nested));
-                        nb.OwnsOne(x => x.OptionalReference, nnb => nnb.OwnsOne(x => x.Nested));
-                        nb.OwnsOne(x => x.RequiredReference, nnb => nnb.OwnsOne(x => x.Nested));
-                        nb.Navigation(x => x.RequiredReference).IsRequired();
-                    });
+                nb.ToJson().HasColumnType(JsonColumnType);
             });
-
-    public class MyEntity30028
-    {
-        public int Id { get; set; }
-        public MyJsonRootEntity30028 Json { get; set; }
-    }
-
-    public class MyJsonRootEntity30028
-    {
-        public string RootName { get; set; }
-        public MyJsonBranchEntity30028 RequiredReference { get; set; }
-        public MyJsonBranchEntity30028 OptionalReference { get; set; }
-        public List<MyJsonBranchEntity30028> Collection { get; set; }
-    }
-
-    public class MyJsonBranchEntity30028
-    {
-        public string BranchName { get; set; }
-        public MyJsonLeafEntity30028 Nested { get; set; }
-    }
-
-    public class MyJsonLeafEntity30028
-    {
-        public string LeafName { get; set; }
-    }
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Accessing_missing_navigation_works(bool async)
-    {
-        var contextFactory = await InitializeAsync<DbContext>(
-            onModelCreating: BuildModel30028,
-            onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
-            seed: Seed30028);
-
-        using (var context = contextFactory.CreateContext())
-        {
-            var result = context.Set<MyEntity30028>().OrderBy(x => x.Id).ToList();
-            Assert.Equal(4, result.Count);
-            Assert.NotNull(result[0].Json.Collection);
-            Assert.NotNull(result[0].Json.OptionalReference);
-            Assert.NotNull(result[0].Json.RequiredReference);
-
-            Assert.Null(result[1].Json.Collection);
-            Assert.NotNull(result[1].Json.OptionalReference);
-            Assert.NotNull(result[1].Json.RequiredReference);
-
-            Assert.NotNull(result[2].Json.Collection);
-            Assert.Null(result[2].Json.OptionalReference);
-            Assert.NotNull(result[2].Json.RequiredReference);
-
-            Assert.NotNull(result[3].Json.Collection);
-            Assert.NotNull(result[3].Json.OptionalReference);
-            Assert.Null(result[3].Json.RequiredReference);
-        }
-    }
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Missing_navigation_works_with_deduplication(bool async)
-    {
-        var contextFactory = await InitializeAsync<DbContext>(
-            onModelCreating: BuildModel30028,
-            onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
-            seed: Seed30028);
-
-        using (var context = contextFactory.CreateContext())
-        {
-            var queryable = context.Set<MyEntity30028>().OrderBy(x => x.Id).Select(
-                x => new
-                {
-                    x,
-                    x.Json,
-                    x.Json.OptionalReference,
-                    x.Json.RequiredReference,
-                    NestedOptional = x.Json.OptionalReference.Nested,
-                    NestedRequired = x.Json.RequiredReference.Nested,
-                    x.Json.Collection,
-                }).AsNoTracking();
-
-            var result = async ? await queryable.ToListAsync() : queryable.ToList();
-
-            Assert.Equal(4, result.Count);
-            Assert.NotNull(result[0].OptionalReference);
-            Assert.NotNull(result[0].RequiredReference);
-            Assert.NotNull(result[0].NestedOptional);
-            Assert.NotNull(result[0].NestedRequired);
-            Assert.NotNull(result[0].Collection);
-
-            Assert.NotNull(result[1].OptionalReference);
-            Assert.NotNull(result[1].RequiredReference);
-            Assert.NotNull(result[1].NestedOptional);
-            Assert.NotNull(result[1].NestedRequired);
-            Assert.Null(result[1].Collection);
-
-            Assert.Null(result[2].OptionalReference);
-            Assert.NotNull(result[2].RequiredReference);
-            Assert.Null(result[2].NestedOptional);
-            Assert.NotNull(result[2].NestedRequired);
-            Assert.NotNull(result[2].Collection);
-
-            Assert.NotNull(result[3].OptionalReference);
-            Assert.Null(result[3].RequiredReference);
-            Assert.NotNull(result[3].NestedOptional);
-            Assert.Null(result[3].NestedRequired);
-            Assert.NotNull(result[3].Collection);
-        }
+        });
     }
 
     #endregion
 
     #region 32939
 
-    [ConditionalFact]
-    public virtual async Task Project_json_with_no_properties()
+    protected override void OnModelCreating32939(ModelBuilder modelBuilder)
     {
-        var contextFactory = await InitializeAsync<DbContext>(
-            onModelCreating: BuildModel32939,
-            onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
-            seed: Seed32939);
+        base.OnModelCreating32939(modelBuilder);
 
-        using var context = contextFactory.CreateContext();
-        context.Set<Entity32939>().ToList();
-    }
-
-    protected Task Seed32939(DbContext ctx)
-    {
-        var entity = new Entity32939 { Empty = new JsonEmpty32939(), FieldOnly = new JsonFieldOnly32939() };
-
-        ctx.Add(entity);
-        return ctx.SaveChangesAsync();
-    }
-
-    protected virtual void BuildModel32939(ModelBuilder modelBuilder)
-    {
-        modelBuilder.Entity<Entity32939>().Property(x => x.Id).ValueGeneratedNever();
-        modelBuilder.Entity<Entity32939>().OwnsOne(x => x.Empty, b => b.ToJson().HasColumnType(JsonColumnType));
-        modelBuilder.Entity<Entity32939>().OwnsOne(x => x.FieldOnly, b => b.ToJson().HasColumnType(JsonColumnType));
-    }
-
-    public class Entity32939
-    {
-        public int Id { get; set; }
-        public JsonEmpty32939 Empty { get; set; }
-        public JsonFieldOnly32939 FieldOnly { get; set; }
-    }
-
-    public class JsonEmpty32939
-    {
-    }
-
-    public class JsonFieldOnly32939
-    {
-        public int Field;
+        modelBuilder.Entity<Context32939.Entity>().OwnsOne(x => x.Empty, b => b.ToJson().HasColumnType(JsonColumnType));
+        modelBuilder.Entity<Context32939.Entity>().OwnsOne(x => x.FieldOnly, b => b.ToJson().HasColumnType(JsonColumnType));
     }
 
     #endregion
 
     #region 33046
 
-    protected abstract Task Seed33046(DbContext ctx);
-
-    [ConditionalFact]
-    public virtual async Task Query_with_nested_json_collection_mapped_to_private_field_via_IReadOnlyList()
+    protected override void OnModelCreating33046(ModelBuilder modelBuilder)
     {
-        var contextFactory = await InitializeAsync<DbContext>(
-            onModelCreating: BuildModel33046,
-            onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
-            seed: Seed33046);
+        base.OnModelCreating33046(modelBuilder);
 
-        using var context = contextFactory.CreateContext();
-        var query = context.Set<Review>().ToList();
-        Assert.Equal(1, query.Count);
-    }
-
-    protected virtual void BuildModel33046(ModelBuilder modelBuilder)
-        => modelBuilder.Entity<Review>(
-            b =>
+        modelBuilder.Entity<Context33046.Review>(b =>
+        {
+            b.ToTable("Reviews");
+            b.OwnsMany(x => x.Rounds, ownedBuilder =>
             {
-                b.ToTable("Reviews");
-                b.Property(x => x.Id).ValueGeneratedNever();
-                b.OwnsMany(
-                    x => x.Rounds, ownedBuilder =>
-                    {
-                        ownedBuilder.ToJson().HasColumnType(JsonColumnType);
-                        ownedBuilder.OwnsMany(r => r.SubRounds);
-                    });
+                ownedBuilder.ToJson().HasColumnType(JsonColumnType);
             });
-
-    public class Review
-    {
-        public int Id { get; set; }
-
-#pragma warning disable IDE0044 // Add readonly modifier
-        private List<ReviewRound> _rounds = [];
-#pragma warning restore IDE0044 // Add readonly modifier
-        public IReadOnlyList<ReviewRound> Rounds
-            => _rounds.AsReadOnly();
-    }
-
-    public class ReviewRound
-    {
-        public int RoundNumber { get; set; }
-
-#pragma warning disable IDE0044 // Add readonly modifier
-        private readonly List<SubRound> _subRounds = [];
-#pragma warning restore IDE0044 // Add readonly modifier
-        public IReadOnlyList<SubRound> SubRounds
-            => _subRounds.AsReadOnly();
-    }
-
-    public class SubRound
-    {
-        public int SubRoundNumber { get; set; }
+        });
     }
 
     #endregion
@@ -544,8 +255,7 @@ public abstract class AdHocJsonQueryRelationalTestBase : AdHocJsonQueryTestBase
     }
 
     protected virtual void OnModelCreating34293(ModelBuilder modelBuilder)
-    {
-        modelBuilder.Entity<Context34293.Entity>(
+        => modelBuilder.Entity<Context34293.Entity>(
             b =>
             {
                 b.Property(x => x.Id).ValueGeneratedNever();
@@ -562,251 +272,44 @@ public abstract class AdHocJsonQueryRelationalTestBase : AdHocJsonQueryTestBase
                     });
                 b.Navigation(x => x.Json).IsRequired(true);
             });
-    }
 
     #endregion
 
     #region 34960
 
-    [ConditionalFact]
-    public virtual async Task Project_entity_with_json_null_values()
+    protected override void OnModelCreating34960(ModelBuilder modelBuilder)
     {
-        var contextFactory = await InitializeAsync<Context34960>(seed: Seed34960, onModelCreating: OnModelCreating34960);
+        base.OnModelCreating34960(modelBuilder);
 
-        using var context = contextFactory.CreateContext();
-        var query = await context.Entities.ToListAsync();
-    }
-
-    [ConditionalFact]
-    public virtual async Task Try_project_collection_but_JSON_is_entity()
-    {
-        var contextFactory = await InitializeAsync<Context34960>(seed: Seed34960, onModelCreating: OnModelCreating34960);
-        using var context = contextFactory.CreateContext();
-
-        Assert.Equal(
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => context.Junk.AsNoTracking().Where(x => x.Id == 1).Select(x => x.Collection).FirstOrDefaultAsync())).Message,
-            CoreStrings.JsonReaderInvalidTokenType(nameof(JsonTokenType.StartObject)));
-    }
-
-    [ConditionalFact]
-    public virtual async Task Try_project_reference_but_JSON_is_collection()
-    {
-        var contextFactory = await InitializeAsync<Context34960>(seed: Seed34960, onModelCreating: OnModelCreating34960);
-        using var context = contextFactory.CreateContext();
-
-        Assert.Equal(
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => context.Junk.AsNoTracking().Where(x => x.Id == 2).Select(x => x.Reference).FirstOrDefaultAsync())).Message,
-            CoreStrings.JsonReaderInvalidTokenType(nameof(JsonTokenType.StartArray)));
-    }
-
-    protected class Context34960(DbContextOptions options) : DbContext(options)
-    {
-        public DbSet<Entity> Entities { get; set; }
-        public DbSet<JunkEntity> Junk { get; set; }
-
-        public class Entity
+        modelBuilder.Entity<Context34960.Entity>(b =>
         {
-            public int Id { get; set; }
-            public JsonEntity Reference { get; set; }
-            public List<JsonEntity> Collection { get; set; }
-        }
+            b.ToTable("Entities");
 
-        public class JsonEntity
-        {
-            public string Name { get; set; }
-            public double Number { get; set; }
-
-            public JsonEntityNested NestedReference { get; set; }
-            public List<JsonEntityNested> NestedCollection { get; set; }
-        }
-
-        public class JsonEntityNested
-        {
-            public DateTime DoB { get; set; }
-            public string Text { get; set; }
-        }
-
-        public class JunkEntity
-        {
-            public int Id { get; set; }
-            public JsonEntity Reference { get; set; }
-            public List<JsonEntity> Collection { get; set; }
-        }
-    }
-
-    protected virtual void OnModelCreating34960(ModelBuilder modelBuilder)
-    {
-        modelBuilder.Entity<Context34960.Entity>(
-            b =>
+            b.OwnsOne(x => x.Reference, b =>
             {
-                b.ToTable("Entities");
-                b.Property(x => x.Id).ValueGeneratedNever();
-
-                b.OwnsOne(
-                    x => x.Reference, b =>
-                    {
-                        b.ToJson().HasColumnType(JsonColumnType);
-                        b.OwnsOne(x => x.NestedReference);
-                        b.OwnsMany(x => x.NestedCollection);
-                    });
-
-                b.OwnsMany(
-                    x => x.Collection, b =>
-                    {
-                        b.ToJson().HasColumnType(JsonColumnType);
-                        b.OwnsOne(x => x.NestedReference);
-                        b.OwnsMany(x => x.NestedCollection);
-                    });
+                b.ToJson().HasColumnType(JsonColumnType);
             });
 
-        modelBuilder.Entity<Context34960.JunkEntity>(
-            b =>
+            b.OwnsMany(x => x.Collection, b =>
             {
-                b.ToTable("Junk");
-                b.Property(x => x.Id).ValueGeneratedNever();
-
-                b.OwnsOne(
-                    x => x.Reference, b =>
-                    {
-                        b.ToJson().HasColumnType(JsonColumnType);
-                        b.Ignore(x => x.NestedReference);
-                        b.Ignore(x => x.NestedCollection);
-                    });
-
-                b.OwnsMany(
-                    x => x.Collection, b =>
-                    {
-                        b.ToJson().HasColumnType(JsonColumnType);
-                        b.Ignore(x => x.NestedReference);
-                        b.Ignore(x => x.NestedCollection);
-                    });
+                b.ToJson().HasColumnType(JsonColumnType);
             });
-    }
+        });
 
-    protected virtual async Task Seed34960(Context34960 ctx)
-    {
-        // everything
-        var e1 = new Context34960.Entity
+        modelBuilder.Entity<Context34960.JunkEntity>(b =>
         {
-            Id = 1,
-            Reference = new Context34960.JsonEntity
+            b.ToTable("Junk");
+
+            b.OwnsOne(x => x.Reference, b =>
             {
-                Name = "ref1",
-                Number = 1.5f,
-                NestedReference = new Context34960.JsonEntityNested
-                {
-                    DoB = new DateTime(2000, 1, 1),
-                    Text = "nested ref 1"
-                },
-                NestedCollection =
-                [
-                    new Context34960.JsonEntityNested
-                    {
-                        DoB = new DateTime(2001, 1, 1),
-                        Text = "nested col 1 1"
-                    },
-                    new Context34960.JsonEntityNested
-                    {
-                        DoB = new DateTime(2001, 2, 2),
-                        Text = "nested col 1 2"
-                    },
-                ],
-            },
+                b.ToJson().HasColumnType(JsonColumnType);
+            });
 
-            Collection =
-            [
-                new Context34960.JsonEntity
-                {
-                    Name = "col 1 1",
-                    Number = 2.5f,
-                    NestedReference = new Context34960.JsonEntityNested
-                    {
-                        DoB = new DateTime(2010, 1, 1),
-                        Text = "nested col 1 1 ref 1"
-                    },
-                    NestedCollection =
-                    [
-                        new Context34960.JsonEntityNested
-                        {
-                            DoB = new DateTime(2011, 1, 1),
-                            Text = "nested col 1 1 col 1 1"
-                        },
-                        new Context34960.JsonEntityNested
-                        {
-                            DoB = new DateTime(2011, 2, 2),
-                            Text = "nested col 1 1 col 1 2"
-                        },
-                    ],
-                },
-                new Context34960.JsonEntity
-                {
-                    Name = "col 1 2",
-                    Number = 2.5f,
-                    NestedReference = new Context34960.JsonEntityNested
-                    {
-                        DoB = new DateTime(2020, 1, 1),
-                        Text = "nested col 1 2 ref 1"
-                    },
-                    NestedCollection =
-                    [
-                        new Context34960.JsonEntityNested
-                        {
-                            DoB = new DateTime(2021, 1, 1),
-                            Text = "nested col 1 2 col 1 1"
-                        },
-                        new Context34960.JsonEntityNested
-                        {
-                            DoB = new DateTime(2021, 2, 2),
-                            Text = "nested col 1 2 col 1 2"
-                        },
-                    ],
-                },
-            ],
-        };
-
-        // relational nulls
-        var e2 = new Context34960.Entity
-        {
-            Id = 2,
-            Reference = null,
-            Collection = null
-        };
-
-        // nested relational nulls
-        var e3 = new Context34960.Entity
-        {
-            Id = 3,
-            Reference = new Context34960.JsonEntity
+            b.OwnsMany(x => x.Collection, b =>
             {
-                Name = "ref3",
-                Number = 3.5f,
-                NestedReference = null,
-                NestedCollection = null
-            },
-
-            Collection =
-            [
-                new Context34960.JsonEntity
-                {
-                    Name = "col 3 1",
-                    Number = 32.5f,
-                    NestedReference = null,
-                    NestedCollection = null,
-                },
-                new Context34960.JsonEntity
-                {
-                    Name = "col 3 2",
-                    Number = 33.5f,
-                    NestedReference = null,
-                    NestedCollection = null,
-                },
-            ],
-        };
-
-        ctx.Entities.AddRange(e1, e2, e3);
-        await ctx.SaveChangesAsync();
+                b.ToJson().HasColumnType(JsonColumnType);
+            });
+        });
     }
 
     #endregion
