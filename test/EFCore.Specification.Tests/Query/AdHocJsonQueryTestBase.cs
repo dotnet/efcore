@@ -475,51 +475,40 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
 
     #region 29219
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Optional_json_properties_materialized_as_null_when_the_element_in_json_is_not_present(bool async)
+    [ConditionalFact]
+    public virtual async Task Optional_json_properties_materialized_as_null_when_the_element_in_json_is_not_present()
     {
         var contextFactory = await InitializeAsync<Context29219>(
             onModelCreating: OnModelCreating29219,
             onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
             seed: Seed29219);
 
-        using (var context = contextFactory.CreateContext())
-        {
-            var query = context.Set<Context29219.MyEntity>().Where(x => x.Id == 3);
+        using var context = contextFactory.CreateContext();
+        var query = context.Set<Context29219.MyEntity>().Where(x => x.Id == 3);
+        var result = await query.SingleAsync();
 
-            var result = async
-                ? await query.SingleAsync()
-                : query.Single();
-
-            Assert.Equal(3, result.Id);
-            Assert.Null(result.Reference.NullableScalar);
-            Assert.Null(result.Collection[0].NullableScalar);
-        }
+        Assert.Equal(3, result.Id);
+        Assert.Null(result.Reference.NullableScalar);
+        Assert.Null(result.Collection[0].NullableScalar);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Can_project_nullable_json_property_when_the_element_in_json_is_not_present(bool async)
+    [ConditionalFact]
+    public virtual async Task Can_project_nullable_json_property_when_the_element_in_json_is_not_present()
     {
         var contextFactory = await InitializeAsync<Context29219>(
             onModelCreating: OnModelCreating29219,
             onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
             seed: Seed29219);
 
-        using (var context = contextFactory.CreateContext())
-        {
-            var query = context.Set<Context29219.MyEntity>().OrderBy(x => x.Id).Select(x => x.Reference.NullableScalar);
+        using var context = contextFactory.CreateContext();
 
-            var result = async
-                ? await query.ToListAsync()
-                : query.ToList();
+        var query = context.Set<Context29219.MyEntity>().OrderBy(x => x.Id).Select(x => x.Reference.NullableScalar);
+        var result = await query.ToListAsync();
 
-            Assert.Equal(3, result.Count);
-            Assert.Equal(11, result[0]);
-            Assert.Null(result[1]);
-            Assert.Null(result[2]);
-        }
+        Assert.Equal(3, result.Count);
+        Assert.Equal(11, result[0]);
+        Assert.Null(result[1]);
+        Assert.Null(result[2]);
     }
 
     protected virtual void OnModelCreating29219(ModelBuilder modelBuilder)
@@ -531,7 +520,30 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
                 b.OwnsMany(x => x.Collection);
             });
 
-    protected abstract Task Seed29219(DbContext ctx);
+    protected virtual async Task Seed29219(DbContext ctx)
+    {
+        var entity1 = new Context29219.MyEntity
+        {
+            Id = 1,
+            Reference = new Context29219.MyJsonEntity { NonNullableScalar = 10, NullableScalar = 11 },
+            Collection =
+            [
+                new Context29219.MyJsonEntity { NonNullableScalar = 100, NullableScalar = 101 },
+                new Context29219.MyJsonEntity { NonNullableScalar = 200, NullableScalar = 201 },
+                new Context29219.MyJsonEntity { NonNullableScalar = 300, NullableScalar = null }
+            ]
+        };
+
+        var entity2 = new Context29219.MyEntity
+        {
+            Id = 2,
+            Reference = new Context29219.MyJsonEntity { NonNullableScalar = 20, NullableScalar = null },
+            Collection = [new Context29219.MyJsonEntity { NonNullableScalar = 1001, NullableScalar = null }]
+        };
+
+        ctx.AddRange(entity1, entity2);
+        await ctx.SaveChangesAsync();
+    }
 
     protected class Context29219(DbContextOptions options) : DbContext(options)
     {
@@ -553,9 +565,8 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
 
     #region 30028
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Accessing_missing_navigation_works(bool async)
+    [ConditionalFact]
+    public virtual async Task Accessing_missing_navigation_works()
     {
         var contextFactory = await InitializeAsync<Context30028>(
             onModelCreating: OnModelCreating30028,
@@ -564,7 +575,7 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
 
         using (var context = contextFactory.CreateContext())
         {
-            var result = context.Set<Context30028.MyEntity>().OrderBy(x => x.Id).ToList();
+            var result = await context.Set<Context30028.MyEntity>().OrderBy(x => x.Id).ToListAsync();
             Assert.Equal(4, result.Count);
             Assert.NotNull(result[0].Json.Collection);
             Assert.NotNull(result[0].Json.OptionalReference);
@@ -694,7 +705,7 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
             seed: Seed32939);
 
         using var context = contextFactory.CreateContext();
-        context.Set<Context32939.Entity>().ToList();
+        await context.Set<Context32939.Entity>().ToListAsync();
     }
 
     protected virtual void OnModelCreating32939(ModelBuilder modelBuilder)
