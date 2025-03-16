@@ -45,7 +45,7 @@ public class SqlServerOwnedJsonTypeMapping : JsonTypeMapping
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public SqlServerOwnedJsonTypeMapping(string storeType)
-        : base(storeType, typeof(JsonElement), System.Data.DbType.String)
+        : base(storeType, typeof(JsonTypePlaceholder), System.Data.DbType.String)
     {
     }
 
