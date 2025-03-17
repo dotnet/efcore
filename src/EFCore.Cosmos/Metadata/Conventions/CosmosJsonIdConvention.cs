@@ -174,16 +174,10 @@ public class CosmosJsonIdConvention
         }
 
         // Don't chain, because each of these could return null if the property has been explicitly configured with some other value.
-        computedIdPropertyBuilder = computedIdPropertyBuilder.ToJsonProperty(IdPropertyJsonName)
-            ?? computedIdPropertyBuilder;
-
-        computedIdPropertyBuilder = computedIdPropertyBuilder.IsRequired(true)
-            ?? computedIdPropertyBuilder;
-
-        computedIdPropertyBuilder = computedIdPropertyBuilder.HasValueGeneratorFactory(typeof(IdValueGeneratorFactory))
-            ?? computedIdPropertyBuilder;
-
+        computedIdPropertyBuilder.ToJsonProperty(IdPropertyJsonName);
+        computedIdPropertyBuilder.HasValueGeneratorFactory(typeof(IdValueGeneratorFactory));
         computedIdPropertyBuilder.AfterSave(PropertySaveBehavior.Throw);
+        computedIdPropertyBuilder.IsRequired(true);
     }
 
     /// <inheritdoc />
@@ -327,8 +321,13 @@ public class CosmosJsonIdConvention
 
     /// <inheritdoc />
     public virtual void ProcessDiscriminatorPropertySet(
-        IConventionEntityTypeBuilder entityTypeBuilder,
+        IConventionTypeBaseBuilder structuralTypeBuilder,
         string? name,
         IConventionContext<string?> context)
-        => ProcessEntityType(entityTypeBuilder.Metadata, context);
+    {
+        if (structuralTypeBuilder is IConventionEntityTypeBuilder entityTypeBuilder)
+        {
+            ProcessEntityType(entityTypeBuilder.Metadata, context);
+        }
+    }
 }

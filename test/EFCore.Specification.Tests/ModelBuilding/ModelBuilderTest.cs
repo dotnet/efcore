@@ -376,6 +376,12 @@ public abstract partial class ModelBuilderTest
         public abstract TestComplexPropertyBuilder<TComplex> HasChangeTrackingStrategy(ChangeTrackingStrategy changeTrackingStrategy);
         public abstract TestComplexPropertyBuilder<TComplex> UsePropertyAccessMode(PropertyAccessMode propertyAccessMode);
         public abstract TestComplexPropertyBuilder<TComplex> UseDefaultPropertyAccessMode(PropertyAccessMode propertyAccessMode);
+
+        public abstract TestComplexTypeDiscriminatorBuilder<TDiscriminator> HasDiscriminator<TDiscriminator>(
+            Expression<Func<TComplex, TDiscriminator>> propertyExpression);
+
+        public abstract TestComplexTypeDiscriminatorBuilder<TDiscriminator> HasDiscriminator<TDiscriminator>(string propertyName);
+        public abstract TestComplexPropertyBuilder<TComplex> HasNoDiscriminator();
     }
 
     public abstract class TestDiscriminatorBuilder<TDiscriminator>
@@ -389,6 +395,11 @@ public abstract partial class ModelBuilderTest
         public abstract TestDiscriminatorBuilder<TDiscriminator> HasValue(Type entityType, TDiscriminator value);
 
         public abstract TestDiscriminatorBuilder<TDiscriminator> HasValue(string entityTypeName, TDiscriminator value);
+    }
+
+    public abstract class TestComplexTypeDiscriminatorBuilder<TDiscriminator>
+    {
+        public abstract TestComplexTypeDiscriminatorBuilder<TDiscriminator> HasValue(TDiscriminator value);
     }
 
     public abstract class TestOwnedEntityTypeBuilder<TEntity>

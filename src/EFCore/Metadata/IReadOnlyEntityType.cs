@@ -18,7 +18,7 @@ public interface IReadOnlyEntityType : IReadOnlyTypeBase
     ///     Gets the base type of this entity type. Returns <see langword="null" /> if this is not a
     ///     derived type in an inheritance hierarchy.
     /// </summary>
-    IReadOnlyEntityType? BaseType { get; }
+    new IReadOnlyEntityType? BaseType { get; }
 
     /// <summary>
     ///     Gets the data stored in the model for the given entity type.
@@ -36,49 +36,11 @@ public interface IReadOnlyEntityType : IReadOnlyTypeBase
     LambdaExpression? GetQueryFilter();
 
     /// <summary>
-    ///     Returns the property that will be used for storing a discriminator value.
-    /// </summary>
-    /// <returns>The property that will be used for storing a discriminator value.</returns>
-    IReadOnlyProperty? FindDiscriminatorProperty()
-    {
-        var propertyName = GetDiscriminatorPropertyName();
-        return propertyName == null ? null : FindProperty(propertyName);
-    }
-
-    /// <summary>
-    ///     Returns the name of the property that will be used for storing a discriminator value.
-    /// </summary>
-    /// <returns>The name of the property that will be used for storing a discriminator value.</returns>
-    string? GetDiscriminatorPropertyName();
-
-    /// <summary>
     ///     Returns the value indicating whether the discriminator mapping is complete for this entity type.
     /// </summary>
     bool GetIsDiscriminatorMappingComplete()
         => (bool?)this[CoreAnnotationNames.DiscriminatorMappingComplete]
             ?? true;
-
-    /// <summary>
-    ///     Returns the discriminator value for this entity type.
-    /// </summary>
-    /// <returns>The discriminator value for this entity type.</returns>
-    object? GetDiscriminatorValue()
-    {
-        var annotation = FindAnnotation(CoreAnnotationNames.DiscriminatorValue);
-        return annotation != null
-            ? annotation.Value
-            : !ClrType.IsInstantiable()
-            || (BaseType == null && GetDirectlyDerivedTypes().Count() == 0)
-                ? null
-                : (object?)GetDefaultDiscriminatorValue();
-    }
-
-    /// <summary>
-    ///     Returns the default discriminator value that would be used for this entity type.
-    /// </summary>
-    /// <returns>The default discriminator value for this entity type.</returns>
-    string GetDefaultDiscriminatorValue()
-        => !HasSharedClrType ? ClrType.ShortDisplayName() : ShortName();
 
     /// <summary>
     ///     Gets all types in the model from which this entity type derives, starting with the root.
@@ -123,20 +85,22 @@ public interface IReadOnlyEntityType : IReadOnlyTypeBase
     ///     Gets all types in the model that derive from this entity type.
     /// </summary>
     /// <returns>The derived types.</returns>
-    IEnumerable<IReadOnlyEntityType> GetDerivedTypes();
+    new IEnumerable<IReadOnlyEntityType> GetDerivedTypes()
+        => ((IReadOnlyTypeBase)this).GetDerivedTypes().Cast<IMutableEntityType>();
 
     /// <summary>
     ///     Returns all derived types of this entity type, including the type itself.
     /// </summary>
     /// <returns>Derived types.</returns>
-    IEnumerable<IReadOnlyEntityType> GetDerivedTypesInclusive()
-        => new[] { this }.Concat(GetDerivedTypes());
+    new IEnumerable<IReadOnlyEntityType> GetDerivedTypesInclusive()
+        => ((IReadOnlyTypeBase)this).GetDerivedTypesInclusive().Cast<IMutableEntityType>();
 
     /// <summary>
     ///     Gets all types in the model that directly derive from this entity type.
     /// </summary>
     /// <returns>The derived types.</returns>
-    IEnumerable<IReadOnlyEntityType> GetDirectlyDerivedTypes();
+    new IEnumerable<IReadOnlyEntityType> GetDirectlyDerivedTypes()
+        => ((IReadOnlyTypeBase)this).GetDirectlyDerivedTypes().Cast<IMutableEntityType>();
 
     /// <summary>
     ///     Returns all the derived types of this entity type, including the type itself,
@@ -152,7 +116,7 @@ public interface IReadOnlyEntityType : IReadOnlyTypeBase
     /// <returns>
     ///     The root base type. If the given entity type is not a derived type, then the same entity type is returned.
     /// </returns>
-    IReadOnlyEntityType GetRootType()
+    new IReadOnlyEntityType GetRootType()
         => BaseType?.GetRootType() ?? this;
 
     /// <summary>

@@ -25,7 +25,6 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
     private Utilities.OrderedDictionary<string, RuntimeIndex>? _namedIndexes;
     private readonly Utilities.OrderedDictionary<IReadOnlyList<IReadOnlyProperty>, RuntimeKey> _keys;
     private Utilities.OrderedDictionary<string, RuntimeTrigger>? _triggers;
-    private readonly object? _discriminatorValue;
     private readonly bool _hasSharedClrType;
     private RuntimeKey? _primaryKey;
     private InstantiationBinding? _constructorBinding;
@@ -58,10 +57,10 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
         bool sharedClrType,
         RuntimeModel model,
         RuntimeEntityType? baseType,
-        string? discriminatorProperty,
         ChangeTrackingStrategy changeTrackingStrategy,
         PropertyInfo? indexerPropertyInfo,
         bool propertyBag,
+        string? discriminatorProperty,
         object? discriminatorValue,
         int derivedTypesCount,
         int propertyCount,
@@ -76,14 +75,12 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
         int triggerCount)
         : base(
             name, type, model, baseType, changeTrackingStrategy, indexerPropertyInfo, propertyBag,
+            discriminatorProperty, discriminatorValue,
             derivedTypesCount: derivedTypesCount,
             propertyCount: propertyCount,
             complexPropertyCount: complexPropertyCount)
     {
         _hasSharedClrType = sharedClrType;
-
-        SetAnnotation(CoreAnnotationNames.DiscriminatorProperty, discriminatorProperty);
-        _discriminatorValue = discriminatorValue;
         _foreignKeys = new List<RuntimeForeignKey>(foreignKeyCount);
         _navigations = new Utilities.OrderedDictionary<string, RuntimeNavigation>(navigationCount, StringComparer.Ordinal);
         if (skipNavigationCount > 0)
@@ -327,7 +324,7 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
     private RuntimeForeignKey? FindDeclaredForeignKey(
         IReadOnlyList<IReadOnlyProperty> properties,
         IReadOnlyKey principalKey,
-        IReadOnlyEntityType principalEntityType)
+        IReadOnlyTypeBase principalEntityType)
     {
         if (_foreignKeys.Count == 0)
         {
@@ -950,23 +947,6 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
         => (LambdaExpression?)this[CoreAnnotationNames.QueryFilter];
 
     /// <inheritdoc />
-    [DebuggerStepThrough]
-    string? IReadOnlyEntityType.GetDiscriminatorPropertyName()
-    {
-        if (BaseType != null)
-        {
-            return ((IReadOnlyEntityType)this).GetRootType().GetDiscriminatorPropertyName();
-        }
-
-        return (string?)this[CoreAnnotationNames.DiscriminatorProperty];
-    }
-
-    /// <inheritdoc />
-    [DebuggerStepThrough]
-    object? IReadOnlyEntityType.GetDiscriminatorValue()
-        => _discriminatorValue;
-
-    /// <inheritdoc />
     bool IReadOnlyTypeBase.HasSharedClrType
     {
         [DebuggerStepThrough]
@@ -1009,7 +989,7 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
     /// <inheritdoc />
     IEnumerable<IReadOnlyEntityType> IReadOnlyEntityType.GetDerivedTypesInclusive()
         => !HasDirectlyDerivedTypes
-            ? new[] { this }
+            ? [this]
             : new[] { this }.Concat(GetDerivedTypes<RuntimeEntityType>());
 
     /// <inheritdoc />

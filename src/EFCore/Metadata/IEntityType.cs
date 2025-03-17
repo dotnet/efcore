@@ -26,12 +26,6 @@ public interface IEntityType : IReadOnlyEntityType, ITypeBase
     InstantiationBinding? ServiceOnlyConstructorBinding { get; }
 
     /// <summary>
-    ///     Returns the <see cref="IProperty" /> that will be used for storing a discriminator value.
-    /// </summary>
-    new IProperty? FindDiscriminatorProperty()
-        => (IProperty?)((IReadOnlyEntityType)this).FindDiscriminatorProperty();
-
-    /// <summary>
     ///     Gets the root base type for a given entity type.
     /// </summary>
     /// <returns>
@@ -73,14 +67,14 @@ public interface IEntityType : IReadOnlyEntityType, ITypeBase
     /// </summary>
     /// <returns>The derived types.</returns>
     new IEnumerable<IEntityType> GetDerivedTypes()
-        => ((IReadOnlyEntityType)this).GetDerivedTypes().Cast<IEntityType>();
+        => ((IReadOnlyTypeBase)this).GetDerivedTypes().Cast<IEntityType>();
 
     /// <summary>
     ///     Returns all derived types of this entity type, including the type itself.
     /// </summary>
     /// <returns>Derived types.</returns>
     new IEnumerable<IEntityType> GetDerivedTypesInclusive()
-        => ((IReadOnlyEntityType)this).GetDerivedTypesInclusive().Cast<IEntityType>();
+        => ((IReadOnlyTypeBase)this).GetDerivedTypesInclusive().Cast<IEntityType>();
 
     /// <summary>
     ///     Gets all types in the model that directly derive from this entity type.
