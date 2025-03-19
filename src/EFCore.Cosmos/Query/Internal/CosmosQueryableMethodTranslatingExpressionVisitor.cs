@@ -628,7 +628,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         // However, when querying on JSON arrays within documents, the order of elements is guaranteed, and Take without OrderBy is
         // fine. Since subqueries must be correlated (i.e. reference an array in the outer query), we use that to decide whether to
         // warn or not.
-        if (select.Orderings.Count == 0 && !_subquery)
+        if (select.Orderings.Count == 0 && !_subquery && select.RankOrdering == null)
         {
             _queryCompilationContext.Logger.RowLimitingOperationWithoutOrderByWarning();
         }
@@ -927,7 +927,19 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
 
         if (TranslateLambdaExpression(source, keySelector) is SqlExpression translation)
         {
-            ((SelectExpression)source.QueryExpression).ApplyOrdering(new OrderingExpression(translation, ascending));
+            if (translation is SqlFunctionExpression { IsScoringFunction: true })
+            {
+                if (!ascending)
+                {
+                    throw new InvalidOperationException("Ordering based on scoring function is not supported inside 'OrderByDescending' operation. Use 'OrderBy' instead.");
+                }
+
+                ((SelectExpression)source.QueryExpression).ApplyRankOrdering(new RankOrderingExpression(translation));
+            }
+            else
+            {
+                ((SelectExpression)source.QueryExpression).ApplyOrdering(new OrderingExpression(translation, ascending));
+            }
 
             return source;
         }
@@ -1159,7 +1171,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         // However, when querying on JSON arrays within documents, the order of elements is guaranteed, and Skip without OrderBy is
         // fine. Since subqueries must be correlated (i.e. reference an array in the outer query), we use that to decide whether to
         // warn or not.
-        if (select.Orderings.Count == 0 && !_subquery)
+        if (select.Orderings.Count == 0 && !_subquery && select.RankOrdering == null)
         {
             _queryCompilationContext.Logger.RowLimitingOperationWithoutOrderByWarning();
         }
@@ -1298,7 +1310,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         // However, when querying on JSON arrays within documents, the order of elements is guaranteed, and Take without OrderBy is
         // fine. Since subqueries must be correlated (i.e. reference an array in the outer query), we use that to decide whether to
         // warn or not.
-        if (select.Orderings.Count == 0 && !_subquery)
+        if (select.Orderings.Count == 0 && !_subquery && select.RankOrdering == null)
         {
             _queryCompilationContext.Logger.RowLimitingOperationWithoutOrderByWarning();
         }
@@ -1325,6 +1337,11 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     {
         if (TranslateLambdaExpression(source, keySelector) is SqlExpression translation)
         {
+            if (translation is SqlFunctionExpression {  IsScoringFunction: true })
+            {
+                throw new InvalidOperationException("Ordering using scoring function is mutually exclusive with other forms of ordering. Only one ordering using scoring function is allowed. Use 'EF.Functions.Rrf' function to combine multiple scoring functions.");
+            }
+
             ((SelectExpression)source.QueryExpression).AppendOrdering(new OrderingExpression(translation, ascending));
 
             return source;

@@ -125,6 +125,7 @@ public class CosmosDatabaseCreator : IDatabaseCreator
             ThroughputProperties? throughput = null;
             var indexes = new List<IIndex>();
             var vectors = new List<(IProperty Property, CosmosVectorType VectorType)>();
+            var fullTextProperties = new List<(IProperty Property, string Language)>();
 
             foreach (var entityType in mappedTypes)
             {
@@ -144,6 +145,12 @@ public class CosmosDatabaseCreator : IDatabaseCreator
                     {
                         vectors.Add((property, vectorTypeMapping.VectorType));
                     }
+
+                    var ftsLanguage = (string?)property.FindAnnotation(CosmosAnnotationNames.FullTextSearchLanguage)?.Value;
+                    if (ftsLanguage != null)
+                    {
+                        fullTextProperties.Add((property, ftsLanguage));
+                    }
                 }
             }
 
@@ -154,7 +161,8 @@ public class CosmosDatabaseCreator : IDatabaseCreator
                 defaultTtl,
                 throughput,
                 indexes,
-                vectors);
+                vectors,
+                fullTextProperties);
         }
     }
 

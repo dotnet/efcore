@@ -570,6 +570,24 @@ public class CosmosModelValidator : ModelValidator
                                 index.Properties[0].Name));
                     }
                 }
+                else if (index.FindAnnotation(CosmosAnnotationNames.FullTextIndex) != null)
+                {
+                    if (index.Properties.Count > 1)
+                    {
+                        throw new InvalidOperationException(
+                            CosmosStrings.CompositeFullTextIndex(
+                                entityType.DisplayName(),
+                                string.Join(",", index.Properties.Select(e => e.Name))));
+                    }
+
+                    if (index.Properties[0].FindAnnotation(CosmosAnnotationNames.FullTextSearchLanguage) == null)
+                    {
+                        throw new InvalidOperationException(
+                            CosmosStrings.FullTextIndexOnNonFullTextProperty(
+                                entityType.DisplayName(),
+                                index.Properties[0].Name));
+                    }
+                }
                 else
                 {
                     throw new InvalidOperationException(

@@ -441,6 +441,7 @@ public class CosmosTestStore : TestStore
             ThroughputProperties? throughput = null;
             var indexes = new List<IIndex>();
             var vectors = new List<(IProperty Property, CosmosVectorType VectorType)>();
+            var fullTextProperties = new List<(IProperty Property, string Language)>();
 
             foreach (var entityType in mappedTypes)
             {
@@ -460,6 +461,12 @@ public class CosmosTestStore : TestStore
                     {
                         vectors.Add((property, vectorTypeMapping.VectorType));
                     }
+
+                    var ftsLanguage = (string?)property.FindRuntimeAnnotationValue(CosmosAnnotationNames.FullTextSearchLanguage);
+                    if (ftsLanguage != null)
+                    {
+                        fullTextProperties.Add((property, ftsLanguage));
+                    }
                 }
             }
 #pragma warning restore EF9103
@@ -471,7 +478,8 @@ public class CosmosTestStore : TestStore
                 defaultTtl,
                 throughput,
                 indexes,
-                vectors);
+                vectors,
+                fullTextProperties);
         }
     }
 
@@ -499,7 +507,7 @@ public class CosmosTestStore : TestStore
                 }
             }
 
-            foreach(var container in containers)
+            foreach (var container in containers)
             {
                 await container.DeleteContainerAsync();
             }

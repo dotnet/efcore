@@ -53,6 +53,41 @@ public static class CosmosDbFunctionsExtensions
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(CoalesceUndefined)));
 
     /// <summary>
+    /// TODO
+    /// </summary>
+    [Experimental(EFDiagnostics.CosmosFullTextSearchExperimental)]
+    public static bool FullTextContains(this DbFunctions _, string property, string keyword)
+        => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(FullTextContains)));
+
+    /// <summary>
+    /// TODO
+    /// </summary>
+    [Experimental(EFDiagnostics.CosmosFullTextSearchExperimental)]
+    public static bool FullTextContainsAll(this DbFunctions _, string property, params string[] keywords)
+        => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(FullTextContainsAll)));
+
+    /// <summary>
+    /// TODO
+    /// </summary>
+    [Experimental(EFDiagnostics.CosmosFullTextSearchExperimental)]
+    public static bool FullTextContainsAny(this DbFunctions _, string property, params string[] keywords)
+        => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(FullTextContainsAny)));
+
+    /// <summary>
+    /// TODO
+    /// </summary>
+    [Experimental(EFDiagnostics.CosmosFullTextSearchExperimental)]
+    public static double FullTextScore(this DbFunctions _, string property, string[] keywords)
+        => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(FullTextScore)));
+
+    /// <summary>
+    /// TODO
+    /// </summary>
+    [Experimental(EFDiagnostics.CosmosFullTextSearchExperimental)]
+    public static double Rrf(this DbFunctions _, params double[] functions)
+        => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Rrf)));
+
+    /// <summary>
     ///     Returns the distance between two vectors, using the distance function and data type defined using
     ///     <see
     ///         cref="CosmosPropertyBuilderExtensions.IsVector(Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder,Microsoft.Azure.Cosmos.DistanceFunction,int)" />

@@ -344,6 +344,12 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Sql
             GenerateList(selectExpression.Orderings, e => Visit(e));
         }
 
+        if (selectExpression.RankOrdering != null)
+        {
+            _sqlBuilder.AppendLine().Append("ORDER BY RANK ");
+            Visit(selectExpression.RankOrdering);
+        }
+
         if (selectExpression.Offset != null
             || selectExpression.Limit != null)
         {
