@@ -8,6 +8,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Newtonsoft.Json;
@@ -238,6 +239,8 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         var partitionKeyPaths = parameters.PartitionKeyStoreNames.Select(e => "/" + e).ToList();
 
         var vectorIndexes = new Collection<VectorIndexPath>();
+        var fullTextIndexPaths = new Collection<FullTextIndexPath>();
+        var fullTextProperties = parametersTuple.Parameters.FullTextProperties.Select(x => x.Property).ToList();
         foreach (var index in parameters.Indexes)
         {
             var vectorIndexType = (VectorIndexType?)index.FindAnnotation(CosmosAnnotationNames.VectorIndexType)?.Value;
@@ -247,8 +250,43 @@ public class CosmosClientWrapper : ICosmosClientWrapper
                 Check.DebugAssert(index.Properties.Count == 1, "Vector index must have one property.");
 
                 vectorIndexes.Add(
-                    new VectorIndexPath { Path = "/" + index.Properties[0].GetJsonPropertyName(), Type = vectorIndexType.Value });
+                    new VectorIndexPath { Path = GetJsonPropertyPathFromRoot(index.Properties[0]), Type = vectorIndexType.Value });
             }
+
+            if (index.IsFullTextIndex() == true)
+            {
+                if (index.Properties.Count > 1)
+                {
+                    throw new InvalidOperationException(
+                        CosmosStrings.CompositeFullTextIndex(
+                            index.DeclaringEntityType.DisplayName(),
+                            string.Join(",", index.Properties.Select(e => e.Name))));
+                }
+
+                fullTextIndexPaths.Add(
+                    new FullTextIndexPath { Path = GetJsonPropertyPathFromRoot(index.Properties[0]) });
+            }
+        }
+
+        var fullTextPaths = new Collection<FullTextPath>();
+        foreach (var fullTextProperty in parameters.FullTextProperties)
+        {
+            if (fullTextProperty.Property.ClrType != typeof(string))
+            {
+                throw new InvalidOperationException(
+                    CosmosStrings.FullTextSearchConfiguredForUnsupportedPropertyType(
+                        fullTextProperty.Property.DeclaringType.DisplayName(),
+                        fullTextProperty.Property.Name,
+                        fullTextProperty.Property.ClrType.Name));
+            }
+
+            fullTextPaths.Add(
+                new FullTextPath
+                {
+                    Path = GetJsonPropertyPathFromRoot(fullTextProperty.Property),
+                    // TODO: remove the fallback once Cosmos SDK allows optional language (see #35939)
+                    Language = fullTextProperty.Language ?? parameters.DefaultFullTextLanguage ?? "en-US"
+                });
         }
 
         var embeddings = new Collection<Embedding>();
@@ -257,7 +295,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
             embeddings.Add(
                 new Embedding
                 {
-                    Path = "/" + tuple.Property.GetJsonPropertyName(),
+                    Path = GetJsonPropertyPathFromRoot(tuple.Property),
                     DataType = CosmosVectorType.CreateDefaultVectorDataType(tuple.Property.ClrType),
                     Dimensions = tuple.VectorType.Dimensions,
                     DistanceFunction = tuple.VectorType.DistanceFunction
@@ -271,14 +309,27 @@ public class CosmosClientWrapper : ICosmosClientWrapper
             AnalyticalStoreTimeToLiveInSeconds = parameters.AnalyticalStoreTimeToLiveInSeconds,
         };
 
-        if (embeddings.Any())
+        if (embeddings.Count != 0)
         {
             containerProperties.VectorEmbeddingPolicy = new VectorEmbeddingPolicy(embeddings);
         }
 
-        if (vectorIndexes.Any())
+        if (vectorIndexes.Count != 0 || fullTextIndexPaths.Count != 0)
         {
-            containerProperties.IndexingPolicy = new IndexingPolicy { VectorIndexes = vectorIndexes };
+            containerProperties.IndexingPolicy = new IndexingPolicy
+            {
+                VectorIndexes = vectorIndexes,
+                FullTextIndexes = fullTextIndexPaths
+            };
+        }
+
+        if (fullTextPaths.Count != 0)
+        {
+            containerProperties.FullTextPolicy = new FullTextPolicy
+            {
+                DefaultLanguage = parameters.DefaultFullTextLanguage,
+                FullTextPaths = fullTextPaths
+            };
         }
 
         var response = await wrapper.Client.GetDatabase(wrapper._databaseId).CreateContainerIfNotExistsAsync(
@@ -288,6 +339,26 @@ public class CosmosClientWrapper : ICosmosClientWrapper
             .ConfigureAwait(false);
 
         return response.StatusCode == HttpStatusCode.Created;
+    }
+
+    private static string GetJsonPropertyPathFromRoot(IReadOnlyProperty property)
+        => GetPathFromRoot((IReadOnlyEntityType)property.DeclaringType) + "/" + property.GetJsonPropertyName();
+
+    private static string GetPathFromRoot(IReadOnlyEntityType entityType)
+    {
+        if (entityType.IsOwned())
+        {
+            var ownership = entityType.FindOwnership()!;
+            var resultPath = GetPathFromRoot(ownership.PrincipalEntityType) + "/" + ownership.GetNavigation(pointsToPrincipal: false)!.TargetEntityType.GetContainingPropertyName();
+
+            return !ownership.IsUnique
+                ? throw new NotSupportedException(CosmosStrings.CreatingContainerWithFullTextOnCollectionNotSupported(resultPath))
+                : resultPath;
+        }
+        else
+        {
+            return "";
+        }
     }
 
     /// <summary>

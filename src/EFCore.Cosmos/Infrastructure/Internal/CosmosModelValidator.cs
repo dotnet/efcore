@@ -166,6 +166,7 @@ public class CosmosModelValidator : ModelValidator
         int? analyticalTtl = null;
         int? defaultTtl = null;
         ThroughputProperties? throughput = null;
+        string? defaultFullTextSearchLanguage = null;
         IEntityType? firstEntityType = null;
         bool? isDiscriminatorMappingComplete = null;
 
@@ -328,6 +329,27 @@ public class CosmosModelValidator : ModelValidator
 
                     throw new InvalidOperationException(
                         CosmosStrings.ThroughputTypeMismatch(manualType.DisplayName(), autoscaleType.DisplayName(), container));
+                }
+            }
+
+            var currentFullTextSearchDefaultLanguage = entityType.GetDefaultFullTextSearchLanguage();
+            if (currentFullTextSearchDefaultLanguage != null)
+            {
+                if (defaultFullTextSearchLanguage == null)
+                {
+                    defaultFullTextSearchLanguage = currentFullTextSearchDefaultLanguage;
+                }
+                else if (defaultFullTextSearchLanguage != currentFullTextSearchDefaultLanguage)
+                {
+                    var conflictingEntityType = mappedTypes.First(et => et.GetDefaultFullTextSearchLanguage() != null);
+
+                    throw new InvalidOperationException(
+                        CosmosStrings.FullTextSearchDefaultLanguageMismatch(
+                            defaultFullTextSearchLanguage,
+                            conflictingEntityType.DisplayName(),
+                            entityType.DisplayName(),
+                            currentFullTextSearchDefaultLanguage,
+                            container));
                 }
             }
         }
@@ -568,6 +590,18 @@ public class CosmosModelValidator : ModelValidator
                             CosmosStrings.VectorIndexOnNonVector(
                                 entityType.DisplayName(),
                                 index.Properties[0].Name));
+                    }
+                }
+                else if (index.IsFullTextIndex() == true)
+                {
+                    // composite vector validation is done during container creation
+                    if (index.Properties[0].GetIsFullTextSearchEnabled() != true)
+                    {
+                        throw new InvalidOperationException(
+                            CosmosStrings.FullTextIndexOnNonFullTextProperty(
+                                index.DeclaringEntityType.DisplayName(),
+                                index.Properties[0].Name,
+                                nameof(CosmosPropertyBuilderExtensions.EnableFullTextSearch)));
                     }
                 }
                 else
