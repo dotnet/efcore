@@ -128,4 +128,56 @@ public static class CosmosPropertyExtensions
     [Experimental(EFDiagnostics.CosmosVectorSearchExperimental)]
     public static ConfigurationSource? GetVectorTypeConfigurationSource(this IConventionProperty property)
         => property.FindAnnotation(CosmosAnnotationNames.VectorType)?.GetConfigurationSource();
+
+    /// <summary>
+    ///     Returns the full-text search language defined for this property.
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <returns>Returns the definition of the vector stored in this property.</returns>
+    [Experimental(EFDiagnostics.CosmosFullTextSearchExperimental)]
+    public static string? GetFullTextSearchLanguage(this IReadOnlyProperty property)
+    {
+        var annotation = property.FindAnnotation(CosmosAnnotationNames.FullTextSearchLanguage);
+
+        return annotation != null
+            ? (string?)annotation.Value ?? "en-US"
+            : null;
+    }
+
+    /// <summary>
+    ///     Sets the full-text search language defined for this property.
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <param name="language">The full-text search language for the property.</param>
+    [Experimental(EFDiagnostics.CosmosFullTextSearchExperimental)]
+    public static void SetFullTextSearchLanguage(this IMutableProperty property, string? language)
+        => property.SetAnnotation(CosmosAnnotationNames.FullTextSearchLanguage, language);
+
+    /// <summary>
+    ///     Sets the definition of the vector stored in this property.
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <param name="language">The full-text search language for the property.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The configured value.</returns>
+    [Experimental(EFDiagnostics.CosmosFullTextSearchExperimental)]
+    public static string? SetFullTextSearchLanguage(
+        this IConventionProperty property,
+        string? language,
+        bool fromDataAnnotation = false)
+        => (string?)property.SetAnnotation(
+            CosmosAnnotationNames.FullTextSearchLanguage,
+            language,
+            fromDataAnnotation)?.Value;
+
+    /// <summary>
+    ///     Gets the <see cref="ConfigurationSource" /> for the definition of the full-text search language for this property.
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <returns>
+    ///     The <see cref="ConfigurationSource" /> for the definition of full-text-search language for this property.
+    /// </returns>
+    [Experimental(EFDiagnostics.CosmosFullTextSearchExperimental)]
+    public static ConfigurationSource? GetFullTextSearchLanguageConfigurationSource(this IConventionProperty property)
+        => property.FindAnnotation(CosmosAnnotationNames.FullTextSearchLanguage)?.GetConfigurationSource();
 }

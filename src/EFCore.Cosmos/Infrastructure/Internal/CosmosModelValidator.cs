@@ -570,6 +570,10 @@ public class CosmosModelValidator : ModelValidator
                                 index.Properties[0].Name));
                     }
                 }
+                else if (index.IsFullTextIndex() == true)
+                {
+                    // allow these, validation happens during container creation
+                }
                 else
                 {
                     throw new InvalidOperationException(
