@@ -463,7 +463,7 @@ public interface IRelationalCommandDiagnosticsLogger : IDiagnosticsLogger<DbLogg
     /// <param name="commandId">The correlation ID associated with the given <see cref="DbCommand" />.</param>
     /// <param name="connectionId">The correlation ID associated with the <see cref="DbConnection" /> being used.</param>
     /// <param name="startTime">The time that execution began.</param>
-    /// <param name="duration">The amount of time that passed until the exception was raised.</param>
+    /// <param name="duration">The amount of time that passed until the command was canceled.</param>
     /// <param name="commandSource">Source of the command.</param>
     void CommandCanceled(
         IRelationalConnection connection,
@@ -488,7 +488,7 @@ public interface IRelationalCommandDiagnosticsLogger : IDiagnosticsLogger<DbLogg
     /// <param name="commandId">The correlation ID associated with the given <see cref="DbCommand" />.</param>
     /// <param name="connectionId">The correlation ID associated with the <see cref="DbConnection" /> being used.</param>
     /// <param name="startTime">The time that execution began.</param>
-    /// <param name="duration">The amount of time that passed until the exception was raised.</param>
+    /// <param name="duration">The amount of time that passed until the command was canceled.</param>
     /// <param name="commandSource">Source of the command.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>A <see cref="Task" /> representing the async operation.</returns>

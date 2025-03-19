@@ -716,6 +716,10 @@
     <value>An error occurred using the connection to database '{database}' on server '{server}'.</value>
     <comment>Debug RelationalEventId.ConnectionError string string</comment>
   </data>
+  <data name="LogConnectionCanceled" xml:space="preserve">
+    <value>A connection open was canceled to database '{database}' on server '{server}'.</value>
+    <comment>Debug RelationalEventId.ConnectionCanceled string string string</comment>
+  </data>
   <data name="LogCreatedTransactionSavepoint" xml:space="preserve">
     <value>Created transaction savepoint.</value>
     <comment>Debug RelationalEventId.CreatedTransactionSavepoint</comment>

@@ -2146,7 +2146,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 nodeType, expressionType);
 
         /// <summary>
-        ///     No relational type mapping can be found for property '{entity}.{property}' and the current provider doesn't specify a default store type for the properties of type '{clrType}'. 
+        ///     No relational type mapping can be found for property '{entity}.{property}' and the current provider doesn't specify a default store type for the properties of type '{clrType}'.
         /// </summary>
         public static string UnsupportedPropertyType(object? entity, object? property, object? clrType)
             => string.Format(
@@ -2966,6 +2966,31 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                             level,
                             RelationalEventId.ConnectionError,
                             _resourceManager.GetString("LogConnectionErrorAsDebug")!)));
+            }
+
+            return (EventDefinition<string, string>)definition;
+        }
+
+        /// <summary>
+        ///     A connection open was canceled to database '{database}' on server '{server}'.
+        /// </summary>
+        public static EventDefinition<string, string> LogConnectionCanceled(IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogConnectionCanceled;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogConnectionCanceled,
+                    logger,
+                    static logger => new EventDefinition<string, string>(
+                        logger.Options,
+                        RelationalEventId.ConnectionCanceled,
+                        LogLevel.Debug,
+                        "RelationalEventId.ConnectionCanceled",
+                        level => LoggerMessage.Define<string, string>(
+                            level,
+                            RelationalEventId.ConnectionCanceled,
+                            _resourceManager.GetString("LogConnectionCanceled")!)));
             }
 
             return (EventDefinition<string, string>)definition;
