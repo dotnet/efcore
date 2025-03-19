@@ -54,6 +54,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
             => GetString("CanConnectNotSupported");
 
         /// <summary>
+        ///     A full-text index on '{entityType}' is defined over multiple properties (`{properties}`). A full-text index can only target a single property.
+        /// </summary>
+        public static string CompositeFullTextIndex(object? entityType, object? properties)
+            => string.Format(
+                GetString("CompositeFullTextIndex", nameof(entityType), nameof(properties)),
+                entityType, properties);
+
+        /// <summary>
         ///     A vector index on '{entityType}' is defined over properties `{properties}`. A vector index can only target a single property.
         /// </summary>
         public static string CompositeVectorIndex(object? entityType, object? properties)
@@ -94,6 +102,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
         /// </summary>
         public static string CosmosNotInUse
             => GetString("CosmosNotInUse");
+
+        /// <summary>
+        ///     Creating a container with full-text search or vector properties inside a collection navigation is currently not supported using EF Core; path: '{path}'. Create the container using other means (e.g. Microsoft.Azure.Cosmos SDK).
+        /// </summary>
+        public static string CreatingContainerWithFullTextOnCollectionNotSupported(object? path)
+            => string.Format(
+                GetString("CreatingContainerWithFullTextOnCollectionNotSupported", nameof(path)),
+                path);
 
         /// <summary>
         ///     Joins across documents aren't supported in Cosmos; consider modeling your data differently so that related data is in the same document. Alternatively, perform two separate queries to query the two documents.
@@ -146,6 +162,30 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
         /// </summary>
         public static string ExceptNotSupported
             => GetString("ExceptNotSupported");
+
+        /// <summary>
+        ///     A full-text index is defined for `{entityType}.{property}`, but this property has not been configured for full-text search. Use '{isFullText}' method in 'OnModelCreating' to configure the property for full-text search.
+        /// </summary>
+        public static string FullTextIndexOnNonFullTextProperty(object? entityType, object? property, object? isFullText)
+            => string.Format(
+                GetString("FullTextIndexOnNonFullTextProperty", nameof(entityType), nameof(property), nameof(isFullText)),
+                entityType, property, isFullText);
+
+        /// <summary>
+        ///     A property '{entityType}.{property}' was configured for full-text search, but an associated full-text index was not defined. Define an index for the property and configure it as a full-text index using the '{isFullText}' method.
+        /// </summary>
+        public static string FullTextPropertyWithoutFullTextIndex(object? entityType, object? property, object? isFullText)
+            => string.Format(
+                GetString("FullTextPropertyWithoutFullTextIndex", nameof(entityType), nameof(property), nameof(isFullText)),
+                entityType, property, isFullText);
+
+        /// <summary>
+        ///     Property '{entityType}.{property}' was configured for full-text search, but has type '{clrType}'; only string properties can be configured for full-text search.
+        /// </summary>
+        public static string FullTextSearchConfiguredForUnsupportedPropertyType(object? entityType, object? property, object? clrType)
+            => string.Format(
+                GetString("FullTextSearchConfiguredForUnsupportedPropertyType", nameof(entityType), nameof(property), nameof(clrType)),
+                entityType, property, clrType);
 
         /// <summary>
         ///     'HasShadowId' was called on a non-root entity type '{entityType}'. JSON 'id' configuration can only be made on the document root.
@@ -326,6 +366,28 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
             => string.Format(
                 GetString("OneOfTwoValuesMustBeSet", nameof(param1), nameof(param2)),
                 param1, param2);
+
+        /// <summary>
+        ///     Ordering based on scoring function is not supported inside '{orderByDescending}'. Use '{orderBy}' instead.
+        /// </summary>
+        public static string OrderByDescendingScoringFunction(object? orderByDescending, object? orderBy)
+            => string.Format(
+                GetString("OrderByDescendingScoringFunction", nameof(orderByDescending), nameof(orderBy)),
+                orderByDescending, orderBy);
+
+        /// <summary>
+        ///     Only one ordering using scoring function is allowed. Use 'EF.Functions.{rrf}' method to combine multiple scoring functions.
+        /// </summary>
+        public static string OrderByMultipleScoringFunctionWithoutRrf(object? rrf)
+            => string.Format(
+                GetString("OrderByMultipleScoringFunctionWithoutRrf", nameof(rrf)),
+                rrf);
+
+        /// <summary>
+        ///     Ordering using a scoring function is mutually exclusive with other forms of ordering.
+        /// </summary>
+        public static string OrderByScoringFunctionMixedWithRegularOrderby
+            => GetString("OrderByScoringFunctionMixedWithRegularOrderby");
 
         /// <summary>
         ///     The entity of type '{entityType}' is mapped as a part of the document mapped to '{missingEntityType}', but there is no tracked entity of this type with the corresponding key value. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the key values.

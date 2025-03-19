@@ -3,6 +3,8 @@
 
 // ReSharper disable once CheckNamespace
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 
 /// <summary>
@@ -24,10 +26,28 @@ public class SqlFunctionExpression : SqlExpression
         IEnumerable<Expression> arguments,
         Type type,
         CoreTypeMapping? typeMapping)
+        : this(name, isScoringFunction: false, arguments, type, typeMapping)
+    {
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [Experimental(EFDiagnostics.CosmosFullTextSearchExperimental)]
+    public SqlFunctionExpression(
+        string name,
+        bool isScoringFunction,
+        IEnumerable<Expression> arguments,
+        Type type,
+        CoreTypeMapping? typeMapping)
         : base(type, typeMapping)
     {
         Name = name;
         Arguments = arguments.ToList();
+        IsScoringFunction = isScoringFunction;
     }
 
     /// <summary>
@@ -37,6 +57,15 @@ public class SqlFunctionExpression : SqlExpression
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual string Name { get; }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [Experimental(EFDiagnostics.CosmosFullTextSearchExperimental)]
+    public virtual bool IsScoringFunction { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

@@ -9,48 +9,99 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 
 public partial class CosmosShapedQueryCompilingExpressionVisitor
 {
-    private sealed class InExpressionValuesExpandingExpressionVisitor(
+    private sealed class ParameterInliner(
         ISqlExpressionFactory sqlExpressionFactory,
         IReadOnlyDictionary<string, object> parametersValues)
         : ExpressionVisitor
     {
         protected override Expression VisitExtension(Expression expression)
         {
-            if (expression is InExpression inExpression)
+            expression = base.VisitExtension(expression);
+
+            switch (expression)
             {
-                IReadOnlyList<SqlExpression> values;
-
-                switch (inExpression)
+                // Inlines array parameter of InExpression, transforming: 'item IN (@valuesArray)' to: 'item IN (value1, value2)'
+                case InExpression inExpression:
                 {
-                    case { Values: IReadOnlyList<SqlExpression> values2 }:
-                        values = values2;
-                        break;
+                    IReadOnlyList<SqlExpression> values;
 
-                    // TODO: IN with subquery (return immediately, nothing to do here)
-
-                    case { ValuesParameter: SqlParameterExpression valuesParameter }:
+                    switch (inExpression)
                     {
-                        var typeMapping = valuesParameter.TypeMapping;
-                        var mutableValues = new List<SqlExpression>();
-                        foreach (var value in (IEnumerable)parametersValues[valuesParameter.Name])
+                        case { Values: IReadOnlyList<SqlExpression> values2 }:
+                            values = values2;
+                            break;
+
+                        // TODO: IN with subquery (return immediately, nothing to do here)
+
+                        case { ValuesParameter: SqlParameterExpression valuesParameter }:
                         {
-                            mutableValues.Add(sqlExpressionFactory.Constant(value, value?.GetType() ?? typeof(object), typeMapping));
+                            var typeMapping = valuesParameter.TypeMapping;
+                            var mutableValues = new List<SqlExpression>();
+                            foreach (var value in (IEnumerable)parametersValues[valuesParameter.Name])
+                            {
+                                mutableValues.Add(sqlExpressionFactory.Constant(value, value?.GetType() ?? typeof(object), typeMapping));
+                            }
+
+                            values = mutableValues;
+                            break;
                         }
 
-                        values = mutableValues;
-                        break;
+                        default:
+                            throw new UnreachableException();
                     }
 
-                    default:
-                        throw new UnreachableException();
+                    return values.Count == 0
+                        ? sqlExpressionFactory.ApplyDefaultTypeMapping(sqlExpressionFactory.Constant(false))
+                        : sqlExpressionFactory.In((SqlExpression)Visit(inExpression.Item), values);
                 }
 
-                return values.Count == 0
-                    ? sqlExpressionFactory.ApplyDefaultTypeMapping(sqlExpressionFactory.Constant(false))
-                    : sqlExpressionFactory.In((SqlExpression)Visit(inExpression.Item), values);
-            }
+                // Converts Offset and Limit parameters to constants when ORDER BY RANK is detected in the SelectExpression (i.e. we order by scoring function)
+                // Cosmos only supports constants in Offset and Limit for this scenario currently (ORDER BY RANK limitation)
+                case SelectExpression { Orderings: [{ Expression: SqlFunctionExpression { IsScoringFunction: true } }], Limit: var limit, Offset: var offset } hybridSearch
+                    when limit is SqlParameterExpression || offset is SqlParameterExpression:
+                {
+                    if (hybridSearch.Limit is SqlParameterExpression limitPrm)
+                    {
+                        hybridSearch.ApplyLimit(
+                            sqlExpressionFactory.Constant(
+                                parametersValues[limitPrm.Name],
+                                limitPrm.TypeMapping));
+                    }
 
-            return base.VisitExtension(expression);
+                    if (hybridSearch.Offset is SqlParameterExpression offsetPrm)
+                    {
+                        hybridSearch.ApplyOffset(
+                            sqlExpressionFactory.Constant(
+                                parametersValues[offsetPrm.Name],
+                                offsetPrm.TypeMapping));
+                    }
+
+                    return base.VisitExtension(expression);
+                }
+
+                // Inlines array parameter of full-text functions, transforming FullTextContains(x, @keywordsArray) to FullTextContains(x, keyword1, keyword2)) 
+                case SqlFunctionExpression
+                {
+                    Name: "FullTextContainsAny" or "FullTextContainsAll",
+                    Arguments: [var property, SqlParameterExpression { TypeMapping: { ElementTypeMapping: var elementTypeMapping } } keywords]
+                } fullTextContainsAllAnyFunction:
+                {
+                    var keywordValues = new List<SqlExpression>();
+                    foreach (var value in (IEnumerable)parametersValues[keywords.Name])
+                    {
+                        keywordValues.Add(sqlExpressionFactory.Constant(value, typeof(string), elementTypeMapping));
+                    }
+
+                    return sqlExpressionFactory.Function(
+                        fullTextContainsAllAnyFunction.Name,
+                        [property, .. keywordValues],
+                        fullTextContainsAllAnyFunction.Type,
+                        fullTextContainsAllAnyFunction.TypeMapping);
+                }
+
+                default:
+                    return expression;
+            }
         }
     }
 }
