@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public class EndToEndCosmosTest : NonSharedModelTestBase
+public class EndToEndCosmosTest(NonSharedFixture fixture) : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
 {
     [ConditionalFact]
     public async Task Can_add_update_delete_end_to_end()

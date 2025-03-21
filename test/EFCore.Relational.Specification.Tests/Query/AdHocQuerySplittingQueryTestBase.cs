@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public abstract class AdHocQuerySplittingQueryTestBase : NonSharedModelTestBase
+public abstract class AdHocQuerySplittingQueryTestBase(NonSharedFixture fixture) : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
 {
     protected override string StoreName
         => "AdHocQuerySplittingQueryTests";

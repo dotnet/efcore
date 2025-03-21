@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public class AdHocMiscellaneousQueryCosmosTest : NonSharedModelTestBase
+public class AdHocMiscellaneousQueryCosmosTest(NonSharedFixture fixture) : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
 {
     #region 21006
 
@@ -45,7 +45,7 @@ public class AdHocMiscellaneousQueryCosmosTest : NonSharedModelTestBase
     {
         var wrapper = (CosmosClientWrapper)context.GetService<ICosmosClientWrapper>();
         var singletonWrapper = context.GetService<ISingletonCosmosClientWrapper>();
-        var entitiesContainer = singletonWrapper.Client.GetContainer(StoreName, containerId: "Entities");
+        var entitiesContainer = singletonWrapper.Client.GetContainer(context.Database.GetCosmosDatabaseId(), containerId: "Entities");
 
         var missingTopLevel =
 $$"""

@@ -8,9 +8,10 @@ using static Microsoft.EntityFrameworkCore.TestUtilities.PrecompiledQueryTestHel
 namespace Microsoft.EntityFrameworkCore.Query;
 
 [Collection("PrecompiledQuery")]
-public abstract class AdHocPrecompiledQueryRelationalTestBase : NonSharedModelTestBase
+public abstract class AdHocPrecompiledQueryRelationalTestBase: NonSharedModelTestBase, IClassFixture<NonSharedFixture>
 {
-    public AdHocPrecompiledQueryRelationalTestBase(ITestOutputHelper testOutputHelper)
+    public AdHocPrecompiledQueryRelationalTestBase(NonSharedFixture fixture, ITestOutputHelper testOutputHelper)
+        : base(fixture)
     {
         TestOutputHelper = testOutputHelper;
     }

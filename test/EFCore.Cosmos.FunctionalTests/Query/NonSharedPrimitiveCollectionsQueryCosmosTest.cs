@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class NonSharedPrimitiveCollectionsQueryCosmosTest : NonSharedPrimitiveCollectionsQueryTestBase
+public class NonSharedPrimitiveCollectionsQueryCosmosTest(NonSharedFixture fixture) : NonSharedPrimitiveCollectionsQueryTestBase(fixture)
 {
     #region Support for specific element types
 

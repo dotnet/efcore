@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public abstract class OwnedEntityQueryTestBase : NonSharedModelTestBase
+public abstract class OwnedEntityQueryTestBase(NonSharedFixture fixture) : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
 {
     protected override string StoreName
         => "OwnedEntityQueryTests";

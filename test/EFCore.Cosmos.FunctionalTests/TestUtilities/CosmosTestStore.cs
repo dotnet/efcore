@@ -271,19 +271,19 @@ public class CosmosTestStore : TestStore
 
         var model = context.GetService<IDesignTimeModel>().Model;
 
-        var modelThrouput = model.GetThroughput();
-        if (modelThrouput == null
+        var modelThroughput = model.GetThroughput();
+        if (modelThroughput == null
             && GetContainersToCreate(model).All(c => c.Throughput == null))
         {
-            modelThrouput = ThroughputProperties.CreateManualThroughput(400);
+            modelThroughput = ThroughputProperties.CreateManualThroughput(400);
         }
 
-        if (modelThrouput != null)
+        if (modelThroughput != null)
         {
             sqlDatabaseCreateUpdateContent.Options = new CosmosDBCreateUpdateConfig
             {
-                Throughput = modelThrouput.Throughput,
-                AutoscaleMaxThroughput = modelThrouput.AutoscaleMaxThroughput
+                Throughput = modelThroughput.Throughput,
+                AutoscaleMaxThroughput = modelThroughput.AutoscaleMaxThroughput
             };
         }
 

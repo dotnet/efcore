@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
+public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture) : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
 {
     protected override string StoreName
         => "AdHocMiscellaneousQueryTests";

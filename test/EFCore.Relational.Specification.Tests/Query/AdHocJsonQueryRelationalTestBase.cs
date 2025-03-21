@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public abstract class AdHocJsonQueryRelationalTestBase : AdHocJsonQueryTestBase
+public abstract class AdHocJsonQueryRelationalTestBase(NonSharedFixture fixture) : AdHocJsonQueryTestBase(fixture)
 {
     #region 21006
 

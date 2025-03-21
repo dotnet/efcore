@@ -15,7 +15,7 @@ using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding;
 
-public abstract class CompiledModelTestBase : NonSharedModelTestBase
+public abstract class CompiledModelTestBase(NonSharedFixture fixture) : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
 {
     [ConditionalFact]
     public virtual Task SimpleModel()

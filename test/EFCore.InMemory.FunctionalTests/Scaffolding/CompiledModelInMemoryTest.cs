@@ -17,7 +17,7 @@ public class GlobalNamespaceContext(DbContextOptions<GlobalNamespaceContext> opt
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding
 {
-    public class CompiledModelInMemoryTest : CompiledModelTestBase
+    public class CompiledModelInMemoryTest(NonSharedFixture fixture) : CompiledModelTestBase(fixture)
     {
         [ConditionalFact]
         public virtual Task Empty_model()

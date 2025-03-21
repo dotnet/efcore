@@ -17,7 +17,7 @@ using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace Microsoft.EntityFrameworkCore;
 
-public abstract class JsonTypesTestBase : NonSharedModelTestBase
+public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
 {
     [ConditionalTheory]
     [InlineData(sbyte.MinValue, """{"Prop":-128}""")]
