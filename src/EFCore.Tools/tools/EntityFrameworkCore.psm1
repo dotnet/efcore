@@ -1329,6 +1329,15 @@ function EF($project, $startupProject, $params, $applicationArgs, [switch] $skip
         $params += '--nullable'
     }
 
+    # NB: -join is here to support ConvertFrom-Json on PowerShell 3.0
+    $references = (dotnet build $startupProject.FullName /t:ResolvePackageAssets /getItem:RuntimeCopyLocalItems) -join "`n" | ConvertFrom-Json
+
+    $designReference = $references.Items.RuntimeCopyLocalItems | ? { $_.FullPath.EndsWith('Microsoft.EntityFrameworkCore.Design.dll') }
+    if ($designReference -ne $null)
+    {
+        $params += '--design-assembly', $designReference.FullPath
+    }
+
     $arguments = ToArguments $params
     if ($applicationArgs)
     {

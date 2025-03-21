@@ -16,8 +16,9 @@ internal abstract class OperationExecutorBase : IOperationExecutor
     private static readonly IDictionary EmptyArguments = new Dictionary<string, object>(0);
     public string AppBasePath { get; }
 
-    protected string AssemblyFileName { get; set; }
-    protected string StartupAssemblyFileName { get; set; }
+    protected string AssemblyFileName { get; }
+    protected string StartupAssemblyFileName { get; }
+    protected string? DesignAssemblyPath { get; }
     protected string ProjectDirectory { get; }
     protected string Project { get; }
     protected string RootNamespace { get; }
@@ -28,6 +29,7 @@ internal abstract class OperationExecutorBase : IOperationExecutor
     protected OperationExecutorBase(
         string assembly,
         string? startupAssembly,
+        string? designAssembly,
         string? project,
         string? projectDir,
         string? rootNamespace,
@@ -40,6 +42,7 @@ internal abstract class OperationExecutorBase : IOperationExecutor
         StartupAssemblyFileName = startupAssembly == null
             ? AssemblyFileName
             : Path.GetFileNameWithoutExtension(startupAssembly);
+        DesignAssemblyPath = designAssembly;
 
         AppBasePath = Path.GetFullPath(
             Path.Combine(Directory.GetCurrentDirectory(), Path.GetDirectoryName(startupAssembly ?? assembly)!));
@@ -60,6 +63,8 @@ internal abstract class OperationExecutorBase : IOperationExecutor
         reporter.WriteVerbose(Resources.UsingProjectDir(ProjectDirectory));
         reporter.WriteVerbose(Resources.RemainingArguments(string.Join(",", RemainingArguments.Select(s => "'" + s + "'"))));
     }
+
+    public abstract string? EFCoreVersion { get; }
 
     public virtual void Dispose()
     {
