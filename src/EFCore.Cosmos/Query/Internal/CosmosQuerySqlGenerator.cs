@@ -659,6 +659,48 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Sql
     }
 
     /// <summary>
+    ///     Generates SQL for a CASE clause CASE/WHEN construct.
+    /// </summary>
+    /// <param name="caseExpression">The <see cref="CaseExpression" /> for which to generate SQL.</param>
+    protected override Expression VisitCase(CaseExpression caseExpression)
+    {
+        //using (_sqlBuilder.Indent())
+        {
+            foreach (var whenClause in caseExpression.WhenClauses)
+            {
+                _sqlBuilder.Append("IIF(");
+
+                if (caseExpression.Operand != null)
+                {
+                    Visit(caseExpression.Operand);
+                    _sqlBuilder.Append(" = ");
+                }
+
+                Visit(whenClause.Test);
+
+                _sqlBuilder.Append(", ");
+
+                Visit(whenClause.Result);
+
+                _sqlBuilder.Append(", ");
+            }
+
+            if (caseExpression.ElseResult != null)
+            {
+                Visit(caseExpression.ElseResult);
+            }
+            else
+            {
+                _sqlBuilder.Append("null");
+            }
+
+            _sqlBuilder.Append(new string(')', caseExpression.WhenClauses.Count));
+        }
+
+        return caseExpression;
+    }
+
+    /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
