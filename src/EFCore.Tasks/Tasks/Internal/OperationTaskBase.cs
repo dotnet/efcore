@@ -193,8 +193,9 @@ public abstract class OperationTaskBase : ToolTask
             args.Add(runtimeFrameworkVersion);
         }
 
-#if !NET10_0
-#elif NET472
+#if NET472
+#elif NET10_0
+#else
 #error Target framework needs to be updated here
 #endif
         args.Add(

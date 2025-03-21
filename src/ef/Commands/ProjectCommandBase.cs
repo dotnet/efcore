@@ -5,10 +5,10 @@ using System.Reflection;
 using Microsoft.DotNet.Cli.CommandLine;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Tools.Properties;
-#if NET472
-using System.Configuration;
-#else
+#if NET
 using System.Runtime.Loader;
+#else
+using System.Configuration;
 #endif
 
 namespace Microsoft.EntityFrameworkCore.Tools.Commands
@@ -81,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
                         Reporter.WriteWarning,
                         Reporter.WriteInformation,
                         Reporter.WriteVerbose);
-#if NET472
+#if !NET
                 try
                 {
                     return new AppDomainOperationExecutor(

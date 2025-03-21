@@ -3,7 +3,7 @@
 
 using System.Collections;
 using System.Reflection;
-#if !NET472
+#if NET
 using System.Runtime.Loader;
 #endif
 using Microsoft.EntityFrameworkCore.Design;
@@ -21,7 +21,7 @@ internal class ReflectionOperationExecutor : OperationExecutorBase
     private const string ResultHandlerTypeName = "Microsoft.EntityFrameworkCore.Design.OperationResultHandler";
     private readonly Type _resultHandlerType;
     private string? _efcoreVersion;
-#if !NET472
+#if NET
     private AssemblyLoadContext? _assemblyLoadContext;
 #endif
 
@@ -55,7 +55,7 @@ internal class ReflectionOperationExecutor : OperationExecutorBase
 
         AppDomain.CurrentDomain.AssemblyResolve += ResolveAssembly;
 
-#if !NET472
+#if NET
         _commandsAssembly = AssemblyLoadContext.LoadFromAssemblyName(new AssemblyName(DesignAssemblyName));
 #else
         if (DesignAssemblyPath != null)
@@ -97,7 +97,7 @@ internal class ReflectionOperationExecutor : OperationExecutorBase
         _resultHandlerType = _commandsAssembly.GetType(ResultHandlerTypeName, throwOnError: true, ignoreCase: false)!;
     }
 
-#if !NET472
+#if NET
     protected AssemblyLoadContext AssemblyLoadContext
     {
         get
@@ -133,7 +133,7 @@ internal class ReflectionOperationExecutor : OperationExecutorBase
             }
 
             Assembly? assembly = null;
-#if !NET472
+#if NET
             assembly = AssemblyLoadContext.LoadFromAssemblyName(new AssemblyName(DesignAssemblyName));
 #else
             if (DesignAssemblyPath != null)
