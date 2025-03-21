@@ -28,7 +28,7 @@ public class NorthwindFunctionsQuerySqliteTest : NorthwindFunctionsQueryRelation
             """
 SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
 FROM "Order Details" AS "o"
-WHERE "o"."UnitPrice" < 7.0 AND 10 < "o"."ProductID"
+WHERE ef_compare("o"."UnitPrice", '7.0') < 0 AND 10 < "o"."ProductID"
 """);
     }
 
