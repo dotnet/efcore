@@ -478,43 +478,19 @@ public class CosmosTestStore : TestStore
         {
             var cosmosClient = context.Database.GetCosmosClient();
             var database = cosmosClient.GetDatabase(Name);
+            var containers = new List<Container>();
             var containerIterator = database.GetContainerQueryIterator<ContainerProperties>();
             while (containerIterator.HasMoreResults)
             {
                 foreach (var containerProperties in await containerIterator.ReadNextAsync().ConfigureAwait(false))
                 {
-                    var container = database.GetContainer(containerProperties.Id);
-                    var partitionKeys = containerProperties.PartitionKeyPaths.Select(p => p[1..]).ToList();
-                    var itemIterator = container.GetItemQueryIterator<JObject>(
-                        new QueryDefinition("SELECT * FROM c"));
-
-                    var items = new List<(string Id, PartitionKey PartitionKeyValue)>();
-                    while (itemIterator.HasMoreResults)
-                    {
-                        foreach (var item in await itemIterator.ReadNextAsync().ConfigureAwait(false))
-                        {
-                            var partitionKeyValue = PartitionKey.None;
-                            if (partitionKeys.Count >= 1
-                                && item[partitionKeys[0]] is not null)
-                            {
-                                var builder = new PartitionKeyBuilder();
-                                foreach (var partitionKey in partitionKeys)
-                                {
-                                    builder.Add((string?)item[partitionKey]);
-                                }
-
-                                partitionKeyValue = builder.Build();
-                            }
-
-                            items.Add((item["id"]!.ToString(), partitionKeyValue));
-                        }
-                    }
-
-                    foreach (var item in items)
-                    {
-                        await container.DeleteItemAsync<object>(item.Id, item.PartitionKeyValue).ConfigureAwait(false);
-                    }
+                    containers.Add(database.GetContainer(containerProperties.Id));
                 }
+            }
+
+            foreach(var container in containers)
+            {
+                await container.DeleteContainerAsync();
             }
         }
         else
@@ -542,7 +518,8 @@ public class CosmosTestStore : TestStore
         if (_initialized
             && _dataFilePath == null)
         {
-            if (_connectionAvailable == false)
+            if (_connectionAvailable == false
+                || TestEnvironment.IsEmulator)
             {
                 return;
             }

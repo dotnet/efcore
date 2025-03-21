@@ -40,7 +40,7 @@ INSERT ZeroKey VALUES (NULL)
     {
         var contextFactory = await InitializeAsync<Context5456>(
             seed: c => c.SeedAsync(),
-            createTestStore: async () => await SqlServerTestStore.CreateInitializedAsync(StoreName, multipleActiveResultSets: true));
+            createTestStore: () => SqlServerTestStore.Create(StoreName, multipleActiveResultSets: true));
 
         Parallel.For(
             0, 10, i =>
@@ -75,7 +75,7 @@ INSERT ZeroKey VALUES (NULL)
     {
         var contextFactory = await InitializeAsync<Context5456>(
             seed: c => c.SeedAsync(),
-            createTestStore: async () => await SqlServerTestStore.CreateInitializedAsync(StoreName, multipleActiveResultSets: true));
+            createTestStore: () => SqlServerTestStore.Create(StoreName, multipleActiveResultSets: true));
 
         await Parallel.ForAsync(
             0, 10, async (i, ct) =>

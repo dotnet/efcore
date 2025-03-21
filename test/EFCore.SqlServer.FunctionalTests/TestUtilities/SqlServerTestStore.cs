@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Data;
-using System.Text.RegularExpressions;
 using Microsoft.Data.SqlClient;
 
 #pragma warning disable IDE0022 // Use block body for methods
@@ -36,8 +35,11 @@ public class SqlServerTestStore : RelationalTestStore
         bool shared = true)
         => new(name, scriptPath: scriptPath, multipleActiveResultSets: multipleActiveResultSets, shared: shared);
 
-    public static SqlServerTestStore Create(string name, bool useFileName = false)
-        => new(name, useFileName, shared: false);
+    public static SqlServerTestStore Create(
+        string name,
+        bool useFileName = false,
+        bool? multipleActiveResultSets = null)
+        => new(name, useFileName, shared: false, multipleActiveResultSets: multipleActiveResultSets);
 
     public static async Task<SqlServerTestStore> CreateInitializedAsync(
         string name,

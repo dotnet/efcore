@@ -95,11 +95,10 @@ WHERE [Id] = @p5;
                 mb.Entity<User>().ToTable("Users");
                 mb.Entity<DailyDigest>().ToTable("DailyDigests");
             },
-            createTestStore: () => Task.FromResult<TestStore>(
-                SqlServerTestStore.GetOrCreateWithScriptPath(
+            createTestStore: () => SqlServerTestStore.GetOrCreateWithScriptPath(
                     "Issue29502",
                     Path.Combine("Update", "Issue29502.sql"),
-                    shared: false)));
+                    shared: false));
 
         await ExecuteWithStrategyInTransactionAsync(
             contextFactory,

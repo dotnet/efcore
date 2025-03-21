@@ -1973,7 +1973,7 @@ namespace TestNamespace
         [CallerMemberName] string testName = "")
         where TContext : DbContext
     {
-        var contextFactory = await CreateContextFactory<TContext>(
+        var contextFactory = CreateContextFactory<TContext>(
             modelBuilder =>
             {
                 var model = modelBuilder.Model;
@@ -2031,17 +2031,16 @@ namespace TestNamespace
 
         if (useContext != null)
         {
+            await TestStore.InitializeAsync(ServiceProvider, contextFactory.CreateContext);
             ListLoggerFactory.Clear();
-            var testStore = await TestStore.InitializeAsync(ServiceProvider, contextFactory.CreateContext);
-            await using var _ = testStore;
 
-            using var compiledModelContext = (await CreateContextFactory<TContext>(
+            using var compiledModelContext = CreateContextFactory<TContext>(
                     onConfiguring: options =>
                     {
                         onConfiguring?.Invoke(options);
                         options.UseModel(compiledModel);
                     },
-                    addServices: addServices))
+                    addServices: addServices)
                 .CreateContext();
             await useContext(compiledModelContext);
         }
