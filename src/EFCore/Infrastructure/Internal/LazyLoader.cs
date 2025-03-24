@@ -127,7 +127,7 @@ public class LazyLoader : ILazyLoader, IInjectableService
 
         if (exists)
         {
-            // If it's the same thread it comes from a recursive ShouldLoad call, and waiting for it makes a deadlock,  See  #35528.
+            // If it's the same thread it comes from a recursive ShouldLoad call, and waiting for it makes a deadlock,  See  #35528, #35832.
             if (threadId != isLoadingValue.ThreadId)
             {
                 isLoadingValue.TaskCompletionSource.Task.Wait();

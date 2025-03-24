@@ -5136,6 +5136,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
 
         static async Task AssertEqual<T>((T Data, Func<Task<T>> Expected) data, (T Data, Func<Task<T>> Expected) dataInvert)
         {
+            //Do the processing at the same time
             var dataTask = data.Expected();
             var dataInvertTask = dataInvert.Expected();
 
