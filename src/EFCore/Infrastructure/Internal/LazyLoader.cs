@@ -23,7 +23,8 @@ public class LazyLoader : ILazyLoader, IInjectableService
     private bool _detached;
     private IDictionary<string, bool>? _loadedStates;
     private readonly Lock _isLoadingLock = new Lock();
-    private readonly Dictionary<(object Entity, string NavigationName), (TaskCompletionSource TaskCompletionSource, int ThreadId)> _isLoading = new(NavEntryEqualityComparer.Instance);
+    private readonly Dictionary<(object Entity, string NavigationName), TaskCompletionSource> _isLoading = new(NavEntryEqualityComparer.Instance);
+    private static readonly AsyncLocal<int> s_isLoadingCallDepth = new();
     private HashSet<string>? _nonLazyNavigations;
 
     /// <summary>
@@ -112,25 +113,26 @@ public class LazyLoader : ILazyLoader, IInjectableService
         var navEntry = (entity, navigationName);
 
         bool exists;
-        (TaskCompletionSource TaskCompletionSource, int ThreadId) isLoadingValue;
-        var threadId = Environment.CurrentManagedThreadId;
+        TaskCompletionSource isLoadingValue;
 
         lock (_isLoadingLock)
         {
             ref var refIsLoadingValue = ref CollectionsMarshal.GetValueRefOrAddDefault(_isLoading, navEntry, out exists);
             if (!exists)
             {
-                refIsLoadingValue = (new(), threadId);
+                refIsLoadingValue = new();
             }
+            s_isLoadingCallDepth.Value++;
             isLoadingValue = refIsLoadingValue!;
         }
 
         if (exists)
         {
-            // If it's the same thread it comes from a recursive ShouldLoad call, and waiting for it makes a deadlock,  See  #35528, #35832.
-            if (threadId != isLoadingValue.ThreadId)
+            // Only waits for the outermost call on the call stack. See #35528.
+            // if s_isLoadingCallDepth.Value > 1 the call is recursive, waiting probably generates a deadlock See #35832.
+            if (s_isLoadingCallDepth.Value == 1)
             {
-                isLoadingValue.TaskCompletionSource.Task.Wait();
+                isLoadingValue.Task.Wait();
             }
             return;
         }
@@ -156,7 +158,7 @@ public class LazyLoader : ILazyLoader, IInjectableService
         }
         finally
         {
-            isLoadingValue.TaskCompletionSource.TrySetResult();
+            isLoadingValue.TrySetResult();
             lock (_isLoadingLock)
             {
                 _isLoading.Remove(navEntry);
@@ -181,21 +183,28 @@ public class LazyLoader : ILazyLoader, IInjectableService
         var navEntry = (entity, navigationName);
 
         bool exists;
-        (TaskCompletionSource TaskCompletionSource, int ThreadId) isLoadingValue;
+        TaskCompletionSource isLoadingValue;
 
         lock (_isLoadingLock)
         {
             ref var refIsLoadingValue = ref CollectionsMarshal.GetValueRefOrAddDefault(_isLoading, navEntry, out exists);
             if (!exists)
             {
-                refIsLoadingValue = (new(), 0);
+                refIsLoadingValue = new();
             }
+            s_isLoadingCallDepth.Value++;
             isLoadingValue = refIsLoadingValue!;
         }
 
         if (exists)
         {
-            await isLoadingValue.TaskCompletionSource.Task.WaitAsync(cancellationToken).ConfigureAwait(false);
+            // Only waits for the outermost call on the call stack. See #35528.
+            // if s_isLoadingCallDepth.Value > 1 the call is recursive, waiting probably generates a deadlock See #35832.
+            if (s_isLoadingCallDepth.Value == 1)
+            {
+                await isLoadingValue.Task.WaitAsync(cancellationToken).ConfigureAwait(false);
+            }
+
             return;
         }
 
@@ -221,7 +230,7 @@ public class LazyLoader : ILazyLoader, IInjectableService
         }
         finally
         {
-            isLoadingValue.TaskCompletionSource.TrySetResult();
+            isLoadingValue.TrySetResult();
             lock (_isLoadingLock)
             {
                 _isLoading.Remove(navEntry);
