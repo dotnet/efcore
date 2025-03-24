@@ -1497,6 +1497,20 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(e => strings.Contains(ints.Contains(e.Int) ? "one" : "two")));
     }
 
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Values_of_enum_casted_to_underlying_value_Contains(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(x => Enum.GetValues<MyEnum>().Cast<int>().Contains(x.Int)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Values_of_enum_casted_to_underlying_value_Count(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(x => Enum.GetValues<MyEnum>().Cast<int>().Count(y => y == x.Int) > 0));
+
     public abstract class PrimitiveCollectionsQueryFixtureBase : SharedStoreFixtureBase<PrimitiveCollectionsContext>, IQueryFixtureBase
     {
         private PrimitiveCollectionsData? _expectedData;

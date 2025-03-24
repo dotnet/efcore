@@ -103,7 +103,18 @@ public class QueryRootProcessor : ExpressionVisitor
                 var valueExpressions = new List<ConstantExpression>();
                 foreach (var value in values)
                 {
-                    valueExpressions.Add(Expression.Constant(value, elementClrType));
+                    var valueToAdd = value;
+
+                    if (value is not null)
+                    {
+                        var valueClrType = value.GetType();
+                        if (valueClrType != elementClrType.UnwrapNullableType() && valueClrType.IsEnum)
+                        {
+                            valueToAdd = Convert.ChangeType(value, elementClrType);
+                        }
+                    }
+
+                    valueExpressions.Add(Expression.Constant(valueToAdd, elementClrType));
                 }
 
                 if (ShouldConvertToInlineQueryRoot(Expression.NewArrayInit(elementClrType, valueExpressions)))
