@@ -129,7 +129,7 @@ public class LazyLoader : ILazyLoader, IInjectableService
         if (exists)
         {
             // Only waits for the outermost call on the call stack. See #35528.
-            // if s_isLoadingCallDepth.Value > 1 the call is recursive, waiting probably generates a deadlock See #35832.
+            // if _isLoadingCallDepth.Value > 1 the call is recursive, waiting probably generates a deadlock See #35832.
             if (_isLoadingCallDepth.Value == 1)
             {
                 isLoadingValue.Task.Wait();
@@ -200,7 +200,7 @@ public class LazyLoader : ILazyLoader, IInjectableService
         if (exists)
         {
             // Only waits for the outermost call on the call stack. See #35528.
-            // if s_isLoadingCallDepth.Value > 1 the call is recursive, waiting probably generates a deadlock See #35832.
+            // if _isLoadingCallDepth.Value > 1 the call is recursive, waiting probably generates a deadlock See #35832.
             if (_isLoadingCallDepth.Value == 1)
             {
                 await isLoadingValue.Task.WaitAsync(cancellationToken).ConfigureAwait(false);

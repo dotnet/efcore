@@ -9,6 +9,8 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <ImplicitUsings>true</ImplicitUsings>
     <IsAotCompatible>true</IsAotCompatible>
+    <AssemblyVersion>2025.3.25.0</AssemblyVersion>
+    <FileVersion>2025.3.25.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>

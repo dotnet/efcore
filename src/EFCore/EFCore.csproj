@@ -15,7 +15,9 @@ Microsoft.EntityFrameworkCore.DbSet
     <ImplicitUsings>true</ImplicitUsings>
     <NoWarn>$(NoWarn);EF9002</NoWarn> <!-- Provider experimental API -->
     <NoWarn>$(NoWarn);EF9100</NoWarn> <!-- Precompiled query is experimental -->
-    <NoWarn>$(NoWarn);EF9101</NoWarn> <!-- Metrics is experimental -->
+    <NoWarn>$(NoWarn);EF9101</NoWarn>
+    <AssemblyVersion>2025.3.25.0</AssemblyVersion>
+    <FileVersion>2025.3.25.0</FileVersion> <!-- Metrics is experimental -->
   </PropertyGroup>
 
   <ItemGroup>
