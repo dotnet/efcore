@@ -24,7 +24,7 @@ public class LazyLoader : ILazyLoader, IInjectableService
     private IDictionary<string, bool>? _loadedStates;
     private readonly Lock _isLoadingLock = new Lock();
     private readonly Dictionary<(object Entity, string NavigationName), TaskCompletionSource> _isLoading = new(NavEntryEqualityComparer.Instance);
-    private static readonly AsyncLocal<int> s_isLoadingCallDepth = new();
+    private static readonly AsyncLocal<int> _isLoadingCallDepth = new();
     private HashSet<string>? _nonLazyNavigations;
 
     /// <summary>
@@ -122,7 +122,7 @@ public class LazyLoader : ILazyLoader, IInjectableService
             {
                 refIsLoadingValue = new();
             }
-            s_isLoadingCallDepth.Value++;
+            _isLoadingCallDepth.Value++;
             isLoadingValue = refIsLoadingValue!;
         }
 
@@ -130,7 +130,7 @@ public class LazyLoader : ILazyLoader, IInjectableService
         {
             // Only waits for the outermost call on the call stack. See #35528.
             // if s_isLoadingCallDepth.Value > 1 the call is recursive, waiting probably generates a deadlock See #35832.
-            if (s_isLoadingCallDepth.Value == 1)
+            if (_isLoadingCallDepth.Value == 1)
             {
                 isLoadingValue.Task.Wait();
             }
@@ -159,6 +159,7 @@ public class LazyLoader : ILazyLoader, IInjectableService
         finally
         {
             isLoadingValue.TrySetResult();
+            _isLoadingCallDepth.Value--;
             lock (_isLoadingLock)
             {
                 _isLoading.Remove(navEntry);
@@ -192,7 +193,7 @@ public class LazyLoader : ILazyLoader, IInjectableService
             {
                 refIsLoadingValue = new();
             }
-            s_isLoadingCallDepth.Value++;
+            _isLoadingCallDepth.Value++;
             isLoadingValue = refIsLoadingValue!;
         }
 
@@ -200,7 +201,7 @@ public class LazyLoader : ILazyLoader, IInjectableService
         {
             // Only waits for the outermost call on the call stack. See #35528.
             // if s_isLoadingCallDepth.Value > 1 the call is recursive, waiting probably generates a deadlock See #35832.
-            if (s_isLoadingCallDepth.Value == 1)
+            if (_isLoadingCallDepth.Value == 1)
             {
                 await isLoadingValue.Task.WaitAsync(cancellationToken).ConfigureAwait(false);
             }
@@ -231,6 +232,7 @@ public class LazyLoader : ILazyLoader, IInjectableService
         finally
         {
             isLoadingValue.TrySetResult();
+            _isLoadingCallDepth.Value--;
             lock (_isLoadingLock)
             {
                 _isLoading.Remove(navEntry);
