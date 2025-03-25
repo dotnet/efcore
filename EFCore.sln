@@ -12,9 +12,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Directory.Build.targets = Directory.Build.targets
 		Directory.Packages.props = Directory.Packages.props
 		global.json = global.json
+		NuGet.config = NuGet.config
 		tools\Resources.tt = tools\Resources.tt
 		eng\Versions.props = eng\Versions.props
-		NuGet.config = NuGet.config
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{CE6B50B2-34AE-44C9-940A-4E48C3E1B3BC}"
@@ -145,6 +145,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.Tasks", "src\EFCore.Tasks\EFCore.Tasks.csproj", "{711EE8F3-F92D-4470-8B0B-25D8B13EF282}"
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "EFCore.FSharp.FunctionalTests", "test\EFCore.FSharp.FunctionalTests\EFCore.FSharp.FunctionalTests.fsproj", "{89180105-1D98-4844-9C24-3A5DA2C53329}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EFCore.SharePoint", "src\EFCore.SharePoint\EFCore.SharePoint.csproj", "{4222B0DD-2930-4CA2-ABF0-6BC66F1112AD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -380,6 +382,10 @@ Global
 		{89180105-1D98-4844-9C24-3A5DA2C53329}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{89180105-1D98-4844-9C24-3A5DA2C53329}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{89180105-1D98-4844-9C24-3A5DA2C53329}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4222B0DD-2930-4CA2-ABF0-6BC66F1112AD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4222B0DD-2930-4CA2-ABF0-6BC66F1112AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4222B0DD-2930-4CA2-ABF0-6BC66F1112AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4222B0DD-2930-4CA2-ABF0-6BC66F1112AD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -443,6 +449,7 @@ Global
 		{2AC6A8AC-5C0A-422A-B21A-CDC8D75F20A3} = {258D5057-81B9-40EC-A872-D21E27452749}
 		{711EE8F3-F92D-4470-8B0B-25D8B13EF282} = {CE6B50B2-34AE-44C9-940A-4E48C3E1B3BC}
 		{89180105-1D98-4844-9C24-3A5DA2C53329} = {258D5057-81B9-40EC-A872-D21E27452749}
+		{4222B0DD-2930-4CA2-ABF0-6BC66F1112AD} = {CE6B50B2-34AE-44C9-940A-4E48C3E1B3BC}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {285A5EB4-BCF4-40EB-B9E1-DF6DBCB5E705}
