@@ -121,7 +121,6 @@ public class LazyLoader : ILazyLoader, IInjectableService
             if (!exists)
             {
                 refIsLoadingValue = new();
-                _isLoadingCallDepth.Value = 0;
             }
             _isLoadingCallDepth.Value++;
             isLoadingValue = refIsLoadingValue!;
@@ -135,6 +134,7 @@ public class LazyLoader : ILazyLoader, IInjectableService
             {
                 isLoadingValue.Task.Wait();
             }
+            _isLoadingCallDepth.Value--;
             return;
         }
 
@@ -160,6 +160,7 @@ public class LazyLoader : ILazyLoader, IInjectableService
         finally
         {
             isLoadingValue.TrySetResult();
+            _isLoadingCallDepth.Value--;
             lock (_isLoadingLock)
             {
                 _isLoading.Remove(navEntry);
@@ -192,7 +193,6 @@ public class LazyLoader : ILazyLoader, IInjectableService
             if (!exists)
             {
                 refIsLoadingValue = new();
-                _isLoadingCallDepth.Value = 0;
             }
             _isLoadingCallDepth.Value++;
             isLoadingValue = refIsLoadingValue!;
@@ -206,7 +206,7 @@ public class LazyLoader : ILazyLoader, IInjectableService
             {
                 await isLoadingValue.Task.WaitAsync(cancellationToken).ConfigureAwait(false);
             }
-
+            _isLoadingCallDepth.Value--;
             return;
         }
 
@@ -233,6 +233,7 @@ public class LazyLoader : ILazyLoader, IInjectableService
         finally
         {
             isLoadingValue.TrySetResult();
+            _isLoadingCallDepth.Value--;
             lock (_isLoadingLock)
             {
                 _isLoading.Remove(navEntry);
