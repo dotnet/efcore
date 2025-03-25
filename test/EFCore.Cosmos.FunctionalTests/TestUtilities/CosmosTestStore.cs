@@ -84,6 +84,8 @@ public class CosmosTestStore : TestStore
     public TokenCredential TokenCredential { get; }
     public string ConnectionString { get; }
 
+    private static readonly SemaphoreSlim _connectionSemaphore = new(1, 1);
+
     protected override DbContext CreateDefaultContext()
         => new TestStoreContext(this);
 
@@ -96,7 +98,16 @@ public class CosmosTestStore : TestStore
     {
         if (_connectionAvailable == null)
         {
-            _connectionAvailable = await TryConnectAsync().ConfigureAwait(false);
+            await _connectionSemaphore.WaitAsync();
+
+            try
+            {
+                _connectionAvailable ??= await TryConnectAsync().ConfigureAwait(false);
+            }
+            finally
+            {
+                _connectionSemaphore.Release();
+            }
         }
 
         return _connectionAvailable.Value;
@@ -518,8 +529,7 @@ public class CosmosTestStore : TestStore
         if (_initialized
             && _dataFilePath == null)
         {
-            if (_connectionAvailable == false
-                || TestEnvironment.IsEmulator)
+            if (_connectionAvailable == false)
             {
                 return;
             }
