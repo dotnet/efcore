@@ -13,7 +13,7 @@ public abstract class BasicTypesQueryFixtureBase : SharedStoreFixtureBase<BasicT
         => "BasicTypesTest";
 
     public Func<DbContext> GetContextCreator()
-        => () => CreateContext();
+        => CreateContext;
 
     protected override Task SeedAsync(BasicTypesContext context)
     {

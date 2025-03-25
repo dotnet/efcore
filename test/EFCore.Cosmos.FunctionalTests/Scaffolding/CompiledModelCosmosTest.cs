@@ -12,7 +12,7 @@ using Newtonsoft.Json.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding;
 
-public class CompiledModelCosmosTest : CompiledModelTestBase
+public class CompiledModelCosmosTest(NonSharedFixture fixture) : CompiledModelTestBase(fixture)
 {
     [ConditionalFact]
     public virtual Task Basic_cosmos_model()

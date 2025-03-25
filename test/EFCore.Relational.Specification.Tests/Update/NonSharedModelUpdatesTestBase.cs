@@ -5,7 +5,7 @@
 
 namespace Microsoft.EntityFrameworkCore.Update;
 
-public abstract class NonSharedModelUpdatesTestBase : NonSharedModelTestBase
+public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture) : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
 {
     protected override string StoreName
         => "NonSharedModelUpdatesTestBase";

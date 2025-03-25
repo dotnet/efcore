@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public class RawSqlServerTest : NonSharedModelTestBase
+public class RawSqlServerTest(NonSharedFixture fixture) : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
 {
     // Issue #13346, #24623
     [ConditionalFact]

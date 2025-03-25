@@ -3,8 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class AdHocPrecompiledQuerySqlServerTest(ITestOutputHelper testOutputHelper)
-    : AdHocPrecompiledQueryRelationalTestBase(testOutputHelper)
+public class AdHocPrecompiledQuerySqlServerTest(NonSharedFixture fixture, ITestOutputHelper testOutputHelper)
+    : AdHocPrecompiledQueryRelationalTestBase(fixture, testOutputHelper)
 {
     protected override bool AlwaysPrintGeneratedSources
         => false;

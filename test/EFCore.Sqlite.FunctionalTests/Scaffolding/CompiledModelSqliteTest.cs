@@ -12,7 +12,7 @@ using NetTopologySuite.Geometries;
 namespace Microsoft.EntityFrameworkCore.Scaffolding;
 
 [SpatialiteRequired]
-public class CompiledModelSqliteTest : CompiledModelRelationalTestBase
+public class CompiledModelSqliteTest(NonSharedFixture fixture) : CompiledModelRelationalTestBase(fixture)
 {
     protected override void BuildBigModel(ModelBuilder modelBuilder, bool jsonColumns)
     {

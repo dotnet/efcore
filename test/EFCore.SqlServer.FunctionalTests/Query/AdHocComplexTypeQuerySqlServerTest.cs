@@ -3,7 +3,7 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class AdHocComplexTypeQuerySqlServerTest : AdHocComplexTypeQueryTestBase
+public class AdHocComplexTypeQuerySqlServerTest(NonSharedFixture fixture) : AdHocComplexTypeQueryTestBase(fixture)
 {
     public override async Task Complex_type_equals_parameter_with_nested_types_with_property_of_same_name()
     {

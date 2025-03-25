@@ -8,8 +8,14 @@ using static Microsoft.EntityFrameworkCore.TestUtilities.PrecompiledQueryTestHel
 namespace Microsoft.EntityFrameworkCore.Query;
 
 [Collection("PrecompiledQuery")]
-public abstract class AdHocPrecompiledQueryRelationalTestBase(ITestOutputHelper testOutputHelper) : NonSharedModelTestBase
+public abstract class AdHocPrecompiledQueryRelationalTestBase: NonSharedModelTestBase, IClassFixture<NonSharedFixture>
 {
+    public AdHocPrecompiledQueryRelationalTestBase(NonSharedFixture fixture, ITestOutputHelper testOutputHelper)
+        : base(fixture)
+    {
+        TestOutputHelper = testOutputHelper;
+    }
+
     [ConditionalFact]
     public virtual async Task Index_no_evaluatability()
     {
@@ -352,7 +358,7 @@ var books = await context.Books.ToListAsync();
         Action<List<PrecompiledQueryCodeGenerator.QueryPrecompilationError>>? precompilationErrorAsserter = null,
         [CallerMemberName] string callerName = "")
         => PrecompiledQueryTestHelpers.Test(
-            sourceCode, dbContextOptions, dbContextType, interceptorCodeAsserter, precompilationErrorAsserter, testOutputHelper,
+            sourceCode, dbContextOptions, dbContextType, interceptorCodeAsserter, precompilationErrorAsserter, TestOutputHelper!,
             AlwaysPrintGeneratedSources,
             callerName);
 
