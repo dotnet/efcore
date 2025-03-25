@@ -5059,14 +5059,31 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         var parent = query.Single();
 
         var children = (await parent.LazyLoadChildren(async))?.Select(x => x.Id).OrderBy(x => x).ToList();
+        var childrenInvert = (await parent.LazyLoadChildren(!async))?.Select(x => x.Id).OrderBy(x => x).ToList();
+
         var singlePkToPk = (await parent.LazyLoadSinglePkToPk(async))?.Id;
+        var singlePkToPkInvert = (await parent.LazyLoadSinglePkToPk(!async))?.Id;
+
         var single = (await parent.LazyLoadSingle(async))?.Id;
+        var singleInvert = (await parent.LazyLoadSingle(!async))?.Id;
+
         var childrenAk = (await parent.LazyLoadChildrenAk(async))?.Select(x => x.Id).OrderBy(x => x).ToList();
+        var childrenAkInvert = (await parent.LazyLoadChildrenAk(!async))?.Select(x => x.Id).OrderBy(x => x).ToList();
+
         var singleAk = (await parent.LazyLoadSingleAk(async))?.Id;
+        var singleAkInvert = (await parent.LazyLoadSingleAk(!async))?.Id;
+
         var childrenShadowFk = (await parent.LazyLoadChildrenShadowFk(async))?.Select(x => x.Id).OrderBy(x => x).ToList();
+        var childrenShadowFkInvert = (await parent.LazyLoadChildrenShadowFk(!async))?.Select(x => x.Id).OrderBy(x => x).ToList();
+
         var singleShadowFk = (await parent.LazyLoadSingleShadowFk(async))?.Id;
+        var singleShadowFkInvert = (await parent.LazyLoadSingleShadowFk(!async))?.Id;
+
         var childrenCompositeKey = (await parent.LazyLoadChildrenCompositeKey(async))?.Select(x => x.Id).OrderBy(x => x).ToList();
+        var childrenCompositeKeyInvert = (await parent.LazyLoadChildrenCompositeKey(!async))?.Select(x => x.Id).OrderBy(x => x).ToList();
+
         var singleCompositeKey = (await parent.LazyLoadSingleCompositeKey(async))?.Id;
+        var singleCompositeKeyInvert = (await parent.LazyLoadSingleCompositeKey(!async))?.Id;
 
         var parent2 = query2.Single();
 
@@ -5075,18 +5092,57 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
             MaxDegreeOfParallelism = Environment.ProcessorCount * 500
         };
 
-        await Parallel.ForAsync(0, 50000, parallelOptions, async (i, ct) =>
+        await Parallel.ForAsync(0, 10000, parallelOptions, async (i, ct) =>
         {
-            Assert.Equal(children, (await parent2.LazyLoadChildren(async))?.Select(x => x.Id).OrderBy(x => x).ToList());
-            Assert.Equal(singlePkToPk, (await parent2.LazyLoadSinglePkToPk(async))?.Id);
-            Assert.Equal(single, (await parent2.LazyLoadSingle(async))?.Id);
-            Assert.Equal(childrenAk, (await parent2.LazyLoadChildrenAk(async))?.Select(x => x.Id).OrderBy(x => x).ToList());
-            Assert.Equal(singleAk, (await parent2.LazyLoadSingleAk(async))?.Id);
-            Assert.Equal(childrenShadowFk, (await parent2.LazyLoadChildrenShadowFk(async))?.Select(x => x.Id).OrderBy(x => x).ToList());
-            Assert.Equal(singleShadowFk, (await parent2.LazyLoadSingleShadowFk(async))?.Id);
-            Assert.Equal(childrenCompositeKey, (await parent2.LazyLoadChildrenCompositeKey(async))?.Select(x => x.Id).OrderBy(x => x).ToList());
-            Assert.Equal(singleCompositeKey, (await parent2.LazyLoadSingleCompositeKey(async))?.Id);
+            await Task.WhenAll(
+                AssertEqual(
+                    (children, async () => (await parent2.LazyLoadChildren(async))?.Select(x => x.Id).OrderBy(x => x).ToList()),
+                    (childrenInvert, async () => (await parent2.LazyLoadChildren(!async))?.Select(x => x.Id).OrderBy(x => x).ToList())
+                ),
+                AssertEqual(
+                    (singlePkToPk, async () => (await parent2.LazyLoadSinglePkToPk(async))?.Id),
+                    (singlePkToPkInvert, async () => (await parent2.LazyLoadSinglePkToPk(!async))?.Id)
+                ),
+                AssertEqual(
+                    (single, async () => (await parent2.LazyLoadSingle(async))?.Id),
+                    (singleInvert, async () => (await parent2.LazyLoadSingle(!async))?.Id)
+                ),
+                AssertEqual(
+                    (childrenAk, async () => (await parent2.LazyLoadChildrenAk(async))?.Select(x => x.Id).OrderBy(x => x).ToList()),
+                    (childrenAkInvert, async () => (await parent2.LazyLoadChildrenAk(!async))?.Select(x => x.Id).OrderBy(x => x).ToList())
+                ),
+                AssertEqual(
+                    (singleAk, async () => (await parent2.LazyLoadSingleAk(async))?.Id),
+                    (singleAkInvert, async () => (await parent2.LazyLoadSingleAk(!async))?.Id)
+                ),
+                AssertEqual(
+                    (childrenShadowFk, async () => (await parent2.LazyLoadChildrenShadowFk(async))?.Select(x => x.Id).OrderBy(x => x).ToList()),
+                    (childrenShadowFkInvert, async () => (await parent2.LazyLoadChildrenShadowFk(!async))?.Select(x => x.Id).OrderBy(x => x).ToList())
+                ),
+                AssertEqual(
+                    (singleShadowFk, async () => (await parent2.LazyLoadSingleShadowFk(async))?.Id),
+                    (singleShadowFkInvert, async () => (await parent2.LazyLoadSingleShadowFk(!async))?.Id)
+                ),
+                AssertEqual(
+                    (childrenCompositeKey, async () => (await parent2.LazyLoadChildrenCompositeKey(async))?.Select(x => x.Id).OrderBy(x => x).ToList()),
+                    (childrenCompositeKeyInvert, async () => (await parent2.LazyLoadChildrenCompositeKey(!async))?.Select(x => x.Id).OrderBy(x => x).ToList())
+                ),
+                AssertEqual(
+                    (singleCompositeKey, async () => (await parent2.LazyLoadSingleCompositeKey(async))?.Id),
+                    (singleCompositeKeyInvert, async () => (await parent2.LazyLoadSingleCompositeKey(!async))?.Id)
+                )
+            );
         });
+
+        static async Task AssertEqual<T>((T Data, Func<Task<T>> Expected) data, (T Data, Func<Task<T>> Expected) dataInvert)
+        {
+            //Do the processing at the same time
+            var dataTask = data.Expected();
+            var dataInvertTask = dataInvert.Expected();
+
+            Assert.Equal(data.Data, await dataTask);
+            Assert.Equal(dataInvert.Data, await dataInvertTask);
+        }
     }
 
     private static void SetState(
