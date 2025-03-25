@@ -1,10 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Design.Internal;
-using Microsoft.EntityFrameworkCore.InMemory.Internal;
-
-namespace Microsoft.EntityFrameworkCore.InMemory.Design.Internal;
+namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 /// <summary>
 ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -12,8 +9,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Design.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-#pragma warning disable EF1001 // Internal EF Core API usage.
-public class InMemoryCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnotationCodeGenerator
+public static class InMemoryAnnotationNames
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -21,11 +17,7 @@ public class InMemoryCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnotat
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public InMemoryCSharpRuntimeAnnotationCodeGenerator(
-        CSharpRuntimeAnnotationCodeGeneratorDependencies dependencies)
-        : base(dependencies)
-    {
-    }
+    public const string Prefix = "InMemory:";
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -33,13 +25,5 @@ public class InMemoryCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnotat
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override void Generate(IEntityType entityType, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
-    {
-        if (entityType.GetInMemoryQuery() != null)
-        {
-            throw new InvalidOperationException(InMemoryStrings.CompiledModelDefiningQuery(entityType.DisplayName()));
-        }
-
-        base.Generate(entityType, parameters);
-    }
+    public const string DefiningQuery = Prefix + "DefiningQuery";
 }

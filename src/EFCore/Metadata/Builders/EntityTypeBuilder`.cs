@@ -426,21 +426,6 @@ public class EntityTypeBuilder<[DynamicallyAccessedMembers(IEntityType.Dynamical
         => (EntityTypeBuilder<TEntity>)base.HasQueryFilter(filter);
 
     /// <summary>
-    ///     Configures a query used to provide data for a keyless entity type.
-    /// </summary>
-    /// <param name="query">The query that will provide the underlying data for the keyless entity type.</param>
-    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
-    [Obsolete("Use InMemoryEntityTypeBuilderExtensions.ToInMemoryQuery")]
-    public virtual EntityTypeBuilder<TEntity> ToQuery(Expression<Func<IQueryable<TEntity>>> query)
-    {
-        Check.NotNull(query, nameof(query));
-
-        Builder.HasDefiningQuery(query, ConfigurationSource.Explicit);
-
-        return this;
-    }
-
-    /// <summary>
     ///     Configures an unnamed index on the specified properties.
     ///     If there is an existing index on the given list of properties,
     ///     then the existing index will be returned for configuration.

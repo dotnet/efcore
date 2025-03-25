@@ -264,31 +264,6 @@ WHERE [u].[Id] IS NOT NULL
 """);
     }
 
-    public override async Task GroupJoin_SelectMany_gets_flattened()
-    {
-        await base.GroupJoin_SelectMany_gets_flattened();
-
-        AssertSql(
-            """
-SELECT [c].[CustomerId], [c].[CustomerMembershipId]
-FROM [CustomerFilters] AS [c]
-WHERE (
-    SELECT COUNT(*)
-    FROM [Customers] AS [c0]
-    LEFT JOIN [CustomerMemberships] AS [c1] ON [c0].[Id] = [c1].[CustomerId]
-    WHERE [c1].[Id] IS NOT NULL AND [c0].[Id] = [c].[CustomerId]) > 0
-""",
-            //
-            """
-SELECT [c].[Id], [c].[Name], [c0].[Id] AS [CustomerMembershipId], CASE
-    WHEN [c0].[Id] IS NOT NULL THEN [c0].[Name]
-    ELSE N''
-END AS [CustomerMembershipName]
-FROM [Customers] AS [c]
-LEFT JOIN [CustomerMemberships] AS [c0] ON [c].[Id] = [c0].[CustomerId]
-""");
-    }
-
     public override async Task Group_by_multiple_aggregate_joining_different_tables(bool async)
     {
         await base.Group_by_multiple_aggregate_joining_different_tables(async);

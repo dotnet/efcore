@@ -879,26 +879,6 @@ public interface IConventionEntityTypeBuilder : IConventionTypeBaseBuilder
     bool CanSetQueryFilter(LambdaExpression? filter, bool fromDataAnnotation = false);
 
     /// <summary>
-    ///     Configures a query used to provide data for a keyless entity type.
-    /// </summary>
-    /// <param name="query">The query that will provide the underlying data for the keyless entity type.</param>
-    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
-    /// <returns>
-    ///     The same builder instance if the query was set, <see langword="null" /> otherwise.
-    /// </returns>
-    [Obsolete("Use InMemoryEntityTypeBuilderExtensions.ToInMemoryQuery")]
-    IConventionEntityTypeBuilder? HasDefiningQuery(LambdaExpression? query, bool fromDataAnnotation = false);
-
-    /// <summary>
-    ///     Returns a value indicating whether the given defining query can be set from the current configuration source.
-    /// </summary>
-    /// <param name="query">The query that will provide the underlying data for the keyless entity type.</param>
-    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
-    /// <returns><see langword="true" /> if the given defining query can be set.</returns>
-    [Obsolete("Use InMemoryEntityTypeBuilderExtensions.CanSetInMemoryQuery")]
-    bool CanSetDefiningQuery(LambdaExpression? query, bool fromDataAnnotation = false);
-
-    /// <summary>
     ///     Configures the <see cref="ChangeTrackingStrategy" /> to be used for this entity type.
     ///     This strategy indicates how the context detects changes to properties for an instance of the entity type.
     /// </summary>

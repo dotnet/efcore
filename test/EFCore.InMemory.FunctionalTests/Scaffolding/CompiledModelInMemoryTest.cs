@@ -8,6 +8,7 @@
 using System.Runtime.CompilerServices;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore.Design.Internal;
+using Microsoft.EntityFrameworkCore.InMemory.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -307,7 +308,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         [ConditionalFact]
         public virtual Task Throws_for_defining_query()
             => Test<DefiningQueryContext>(
-                expectedExceptionMessage: DesignStrings.CompiledModelDefiningQuery("object"));
+                expectedExceptionMessage: InMemoryStrings.CompiledModelDefiningQuery("object"));
 
         public class DefiningQueryContext(DbContextOptions<DefiningQueryContext> options) : DbContext(options)
         {
