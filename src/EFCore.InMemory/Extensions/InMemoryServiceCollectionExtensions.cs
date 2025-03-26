@@ -4,7 +4,6 @@
 using System.ComponentModel;
 using Microsoft.EntityFrameworkCore.InMemory.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.Infrastructure.Internal;
-using Microsoft.EntityFrameworkCore.InMemory.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.InMemory.Query.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.ValueGeneration.Internal;

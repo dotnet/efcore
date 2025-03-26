@@ -1328,38 +1328,6 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [Obsolete]
-    public virtual InternalEntityTypeBuilder? HasDefiningQuery(
-        LambdaExpression? query,
-        ConfigurationSource configurationSource)
-    {
-        if (CanSetDefiningQuery(query, configurationSource))
-        {
-            Metadata.SetDefiningQuery(query, configurationSource);
-
-            return this;
-        }
-
-        return null;
-    }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    [Obsolete]
-    public virtual bool CanSetDefiningQuery(LambdaExpression? query, ConfigurationSource configurationSource)
-        => configurationSource.Overrides(Metadata.GetDefiningQueryConfigurationSource())
-            || Metadata.GetDefiningQuery() == query;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
     public virtual InternalEntityTypeBuilder? HasBaseType(Type? baseEntityType, ConfigurationSource configurationSource)
     {
         if (baseEntityType == null)
@@ -5317,28 +5285,6 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
     [DebuggerStepThrough]
     bool IConventionEntityTypeBuilder.CanSetQueryFilter(LambdaExpression? filter, bool fromDataAnnotation)
         => CanSetQueryFilter(filter, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    [DebuggerStepThrough]
-    [Obsolete]
-    IConventionEntityTypeBuilder? IConventionEntityTypeBuilder.HasDefiningQuery(LambdaExpression? query, bool fromDataAnnotation)
-        => HasDefiningQuery(query, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    [DebuggerStepThrough]
-    [Obsolete]
-    bool IConventionEntityTypeBuilder.CanSetDefiningQuery(LambdaExpression? query, bool fromDataAnnotation)
-        => CanSetDefiningQuery(query, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

@@ -898,14 +898,6 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             throw new InvalidOperationException(DesignStrings.CompiledModelQueryFilter(entityType.ShortName()));
         }
 
-#pragma warning disable CS0618 // Type or member is obsolete
-        if (entityType.GetDefiningQuery() != null)
-        {
-            // TODO: Move to InMemoryCSharpRuntimeAnnotationCodeGenerator, see #21624
-            throw new InvalidOperationException(DesignStrings.CompiledModelDefiningQuery(entityType.ShortName()));
-        }
-#pragma warning restore CS0618 // Type or member is obsolete
-
         AddNamespace(entityType.ClrType, parameters.Namespaces);
 
         var mainBuilder = parameters.MainBuilder;

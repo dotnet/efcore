@@ -130,14 +130,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 factoryType);
 
         /// <summary>
-        ///     The entity type '{entityType}' has a defining query configured. Compiled model can't be generated, because defining queries are not supported.
-        /// </summary>
-        public static string CompiledModelDefiningQuery(object? entityType)
-            => string.Format(
-                GetString("CompiledModelDefiningQuery", nameof(entityType)),
-                entityType);
-
-        /// <summary>
         ///     Successfully generated a compiled model, it will be discovered automatically, but you can also call '{optionsCall}'. Run this command again when the model is modified.
         /// </summary>
         public static string CompiledModelGenerated(object? optionsCall)

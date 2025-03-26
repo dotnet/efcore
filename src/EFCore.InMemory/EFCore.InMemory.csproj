@@ -5,7 +5,7 @@
     <TargetFramework>$(DefaultNetCoreTargetFramework)</TargetFramework>
     <MinClientVersion>3.6</MinClientVersion>
     <AssemblyName>Microsoft.EntityFrameworkCore.InMemory</AssemblyName>
-    <RootNamespace>Microsoft.EntityFrameworkCore.InMemory</RootNamespace>
+    <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <PackageTags>$(PackageTags);In-Memory</PackageTags>
     <ImplicitUsings>true</ImplicitUsings>
