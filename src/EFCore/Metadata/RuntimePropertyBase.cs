@@ -109,17 +109,15 @@ public abstract class RuntimePropertyBase : RuntimeAnnotatableBase, IRuntimeProp
     /// </summary>
     [EntityFrameworkInternal]
     public virtual void SetAccessors<TProperty>(
-        Func<InternalEntityEntry, TProperty> currentValueGetter,
-        Func<InternalEntityEntry, TProperty> preStoreGeneratedCurrentValueGetter,
-        Func<InternalEntityEntry, TProperty>? originalValueGetter,
-        Func<InternalEntityEntry, TProperty> relationshipSnapshotGetter,
-        Func<ValueBuffer, object>? valueBufferGetter)
+        Func<IInternalEntry, TProperty> currentValueGetter,
+        Func<IInternalEntry, TProperty> preStoreGeneratedCurrentValueGetter,
+        Func<IInternalEntry, TProperty>? originalValueGetter,
+        Func<IInternalEntry, TProperty> relationshipSnapshotGetter)
         => _accessors = new PropertyAccessors(
             currentValueGetter,
             preStoreGeneratedCurrentValueGetter,
             originalValueGetter,
-            relationshipSnapshotGetter,
-            valueBufferGetter);
+            relationshipSnapshotGetter);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

@@ -9,7 +9,6 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Json;
 
 #pragma warning disable 219, 612, 618
@@ -48,11 +47,10 @@ namespace TestNamespace
             data.SetMaterializationSetter(
                 (CompiledModelTestBase.DependentDerived<byte?> entity, string value) => DependentDerivedUnsafeAccessors<byte?>.Data(entity) = value);
             data.SetAccessors(
-                string (InternalEntityEntry entry) => DependentDerivedUnsafeAccessors<byte?>.Data(((CompiledModelTestBase.DependentDerived<byte?>)(entry.Entity))),
-                string (InternalEntityEntry entry) => DependentDerivedUnsafeAccessors<byte?>.Data(((CompiledModelTestBase.DependentDerived<byte?>)(entry.Entity))),
-                string (InternalEntityEntry entry) => entry.ReadOriginalValue<string>(data, 4),
-                string (InternalEntityEntry entry) => entry.GetCurrentValue<string>(data),
-                object (ValueBuffer valueBuffer) => valueBuffer[4]);
+                string (IInternalEntry entry) => DependentDerivedUnsafeAccessors<byte?>.Data(((CompiledModelTestBase.DependentDerived<byte?>)(entry.Object))),
+                string (IInternalEntry entry) => DependentDerivedUnsafeAccessors<byte?>.Data(((CompiledModelTestBase.DependentDerived<byte?>)(entry.Object))),
+                string (IInternalEntry entry) => entry.ReadOriginalValue<string>(data, 4),
+                string (IInternalEntry entry) => entry.GetCurrentValue<string>(data));
             data.SetPropertyIndexes(
                 index: 4,
                 originalValueIndex: 4,
@@ -82,11 +80,10 @@ namespace TestNamespace
                 scale: 3,
                 sentinel: 0m);
             money.SetAccessors(
-                decimal (InternalEntityEntry entry) => entry.ReadShadowValue<decimal>(3),
-                decimal (InternalEntityEntry entry) => entry.ReadShadowValue<decimal>(3),
-                decimal (InternalEntityEntry entry) => entry.ReadOriginalValue<decimal>(money, 5),
-                decimal (InternalEntityEntry entry) => entry.GetCurrentValue<decimal>(money),
-                object (ValueBuffer valueBuffer) => valueBuffer[5]);
+                decimal (IInternalEntry entry) => entry.ReadShadowValue<decimal>(3),
+                decimal (IInternalEntry entry) => entry.ReadShadowValue<decimal>(3),
+                decimal (IInternalEntry entry) => entry.ReadOriginalValue<decimal>(money, 5),
+                decimal (IInternalEntry entry) => entry.GetCurrentValue<decimal>(money));
             money.SetPropertyIndexes(
                 index: 5,
                 originalValueIndex: 5,
@@ -122,23 +119,23 @@ namespace TestNamespace
             var money = runtimeEntityType.FindProperty("Money");
             var principal = runtimeEntityType.FindNavigation("Principal");
             runtimeEntityType.SetOriginalValuesFactory(
-                ISnapshot (InternalEntityEntry source) =>
+                ISnapshot (IInternalEntry source) =>
                 {
-                    var entity8 = ((CompiledModelTestBase.DependentDerived<byte?>)(source.Entity));
+                    var entity8 = ((CompiledModelTestBase.DependentDerived<byte?>)(source.Object));
                     return ((ISnapshot)(new Snapshot<long, Guid, CompiledModelTestBase.Enum1, byte?, string, decimal>(((ValueComparer<long>)(((IProperty)principalId).GetValueComparer())).Snapshot(source.GetCurrentValue<long>(principalId)), ((ValueComparer<Guid>)(((IProperty)principalAlternateId).GetValueComparer())).Snapshot(source.GetCurrentValue<Guid>(principalAlternateId)), ((ValueComparer<CompiledModelTestBase.Enum1>)(((IProperty)enumDiscriminator).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.Enum1>(enumDiscriminator)), (source.GetCurrentValue<byte?>(id) == null ? null : ((ValueComparer<byte?>)(((IProperty)id).GetValueComparer())).Snapshot(source.GetCurrentValue<byte?>(id))), (source.GetCurrentValue<string>(data) == null ? null : ((ValueComparer<string>)(((IProperty)data).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(data))), ((ValueComparer<decimal>)(((IProperty)money).GetValueComparer())).Snapshot(source.GetCurrentValue<decimal>(money)))));
                 });
             runtimeEntityType.SetStoreGeneratedValuesFactory(
                 ISnapshot () => ((ISnapshot)(new Snapshot<long, Guid>(((ValueComparer<long>)(((IProperty)principalId).GetValueComparer())).Snapshot(default(long)), ((ValueComparer<Guid>)(((IProperty)principalAlternateId).GetValueComparer())).Snapshot(default(Guid))))));
             runtimeEntityType.SetTemporaryValuesFactory(
-                ISnapshot (InternalEntityEntry source) => ((ISnapshot)(new Snapshot<long, Guid>(default(long), default(Guid)))));
+                ISnapshot (IInternalEntry source) => ((ISnapshot)(new Snapshot<long, Guid>(default(long), default(Guid)))));
             runtimeEntityType.SetShadowValuesFactory(
                 ISnapshot (IDictionary<string, object> source) => ((ISnapshot)(new Snapshot<long, Guid, CompiledModelTestBase.Enum1, decimal>((source.ContainsKey("PrincipalId") ? ((long)(source["PrincipalId"])) : 0L), (source.ContainsKey("PrincipalAlternateId") ? ((Guid)(source["PrincipalAlternateId"])) : new Guid("00000000-0000-0000-0000-000000000000")), (source.ContainsKey("EnumDiscriminator") ? ((CompiledModelTestBase.Enum1)(source["EnumDiscriminator"])) : CompiledModelTestBase.Enum1.Default), (source.ContainsKey("Money") ? ((decimal)(source["Money"])) : 0M)))));
             runtimeEntityType.SetEmptyShadowValuesFactory(
                 ISnapshot () => ((ISnapshot)(new Snapshot<long, Guid, CompiledModelTestBase.Enum1, decimal>(default(long), default(Guid), default(CompiledModelTestBase.Enum1), default(decimal)))));
             runtimeEntityType.SetRelationshipSnapshotFactory(
-                ISnapshot (InternalEntityEntry source) =>
+                ISnapshot (IInternalEntry source) =>
                 {
-                    var entity8 = ((CompiledModelTestBase.DependentDerived<byte?>)(source.Entity));
+                    var entity8 = ((CompiledModelTestBase.DependentDerived<byte?>)(source.Object));
                     return ((ISnapshot)(new Snapshot<long, Guid, object>(((ValueComparer<long>)(((IProperty)principalId).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<long>(principalId)), ((ValueComparer<Guid>)(((IProperty)principalAlternateId).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<Guid>(principalAlternateId)), DependentBaseUnsafeAccessors<byte?>.Principal(entity8))));
                 });
             runtimeEntityType.Counts = new PropertyCounts(
