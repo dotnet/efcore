@@ -10,7 +10,6 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
-using Microsoft.EntityFrameworkCore.Storage;
 
 #pragma warning disable 219, 612, 618
 #nullable disable
@@ -48,11 +47,10 @@ namespace TestNamespace
             id.SetMaterializationSetter(
                 (CompiledModelTestBase.DependentBase<byte?> entity, byte? value) => DependentBaseUnsafeAccessors<byte?>.Id(entity) = value);
             id.SetAccessors(
-                byte? (InternalEntityEntry entry) => DependentBaseUnsafeAccessors<byte?>.Id(((CompiledModelTestBase.DependentBase<byte?>)(entry.Entity))),
-                byte? (InternalEntityEntry entry) => DependentBaseUnsafeAccessors<byte?>.Id(((CompiledModelTestBase.DependentBase<byte?>)(entry.Entity))),
-                byte? (InternalEntityEntry entry) => entry.ReadOriginalValue<byte?>(id, 0),
-                byte? (InternalEntityEntry entry) => entry.ReadRelationshipSnapshotValue<byte?>(id, 0),
-                object (ValueBuffer valueBuffer) => valueBuffer[0]);
+                byte? (IInternalEntry entry) => DependentBaseUnsafeAccessors<byte?>.Id(((CompiledModelTestBase.DependentBase<byte?>)(entry.Object))),
+                byte? (IInternalEntry entry) => DependentBaseUnsafeAccessors<byte?>.Id(((CompiledModelTestBase.DependentBase<byte?>)(entry.Object))),
+                byte? (IInternalEntry entry) => entry.ReadOriginalValue<byte?>(id, 0),
+                byte? (IInternalEntry entry) => entry.ReadRelationshipSnapshotValue<byte?>(id, 0));
             id.SetPropertyIndexes(
                 index: 0,
                 originalValueIndex: 0,
@@ -82,11 +80,10 @@ namespace TestNamespace
                 typeof(long?),
                 nullable: true);
             principalId.SetAccessors(
-                long? (InternalEntityEntry entry) => (entry.FlaggedAsStoreGenerated(1) ? entry.ReadStoreGeneratedValue<long?>(0) : (entry.FlaggedAsTemporary(1) && !(entry.ReadShadowValue<long?>(0).HasValue) ? entry.ReadTemporaryValue<long?>(0) : entry.ReadShadowValue<long?>(0))),
-                long? (InternalEntityEntry entry) => entry.ReadShadowValue<long?>(0),
-                long? (InternalEntityEntry entry) => entry.ReadOriginalValue<long?>(principalId, 1),
-                long? (InternalEntityEntry entry) => entry.ReadRelationshipSnapshotValue<long?>(principalId, 1),
-                object (ValueBuffer valueBuffer) => valueBuffer[1]);
+                long? (IInternalEntry entry) => (entry.FlaggedAsStoreGenerated(1) ? entry.ReadStoreGeneratedValue<long?>(0) : (entry.FlaggedAsTemporary(1) && !(entry.ReadShadowValue<long?>(0).HasValue) ? entry.ReadTemporaryValue<long?>(0) : entry.ReadShadowValue<long?>(0))),
+                long? (IInternalEntry entry) => entry.ReadShadowValue<long?>(0),
+                long? (IInternalEntry entry) => entry.ReadOriginalValue<long?>(principalId, 1),
+                long? (IInternalEntry entry) => entry.ReadRelationshipSnapshotValue<long?>(principalId, 1));
             principalId.SetPropertyIndexes(
                 index: 1,
                 originalValueIndex: 1,
@@ -149,11 +146,10 @@ namespace TestNamespace
             principal.SetMaterializationSetter(
                 (CompiledModelTestBase.DependentBase<byte?> entity, CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<byte?>> value) => DependentBaseUnsafeAccessors<byte?>.Principal(entity) = value);
             principal.SetAccessors(
-                CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<byte?>> (InternalEntityEntry entry) => DependentBaseUnsafeAccessors<byte?>.Principal(((CompiledModelTestBase.DependentBase<byte?>)(entry.Entity))),
-                CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<byte?>> (InternalEntityEntry entry) => DependentBaseUnsafeAccessors<byte?>.Principal(((CompiledModelTestBase.DependentBase<byte?>)(entry.Entity))),
+                CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<byte?>> (IInternalEntry entry) => DependentBaseUnsafeAccessors<byte?>.Principal(((CompiledModelTestBase.DependentBase<byte?>)(entry.Object))),
+                CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<byte?>> (IInternalEntry entry) => DependentBaseUnsafeAccessors<byte?>.Principal(((CompiledModelTestBase.DependentBase<byte?>)(entry.Object))),
                 null,
-                CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<byte?>> (InternalEntityEntry entry) => entry.GetCurrentValue<CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<byte?>>>(principal),
-                null);
+                CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<byte?>> (IInternalEntry entry) => entry.GetCurrentValue<CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<byte?>>>(principal));
             principal.SetPropertyIndexes(
                 index: 0,
                 originalValueIndex: -1,
@@ -177,11 +173,10 @@ namespace TestNamespace
             dependent.SetMaterializationSetter(
                 (CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<byte?>> entity, CompiledModelTestBase.DependentBase<byte?> value) => PrincipalDerivedUnsafeAccessors<CompiledModelTestBase.DependentBase<byte?>>.Dependent(entity) = value);
             dependent.SetAccessors(
-                CompiledModelTestBase.DependentBase<byte?> (InternalEntityEntry entry) => PrincipalDerivedUnsafeAccessors<CompiledModelTestBase.DependentBase<byte?>>.Dependent(((CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<byte?>>)(entry.Entity))),
-                CompiledModelTestBase.DependentBase<byte?> (InternalEntityEntry entry) => PrincipalDerivedUnsafeAccessors<CompiledModelTestBase.DependentBase<byte?>>.Dependent(((CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<byte?>>)(entry.Entity))),
+                CompiledModelTestBase.DependentBase<byte?> (IInternalEntry entry) => PrincipalDerivedUnsafeAccessors<CompiledModelTestBase.DependentBase<byte?>>.Dependent(((CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<byte?>>)(entry.Object))),
+                CompiledModelTestBase.DependentBase<byte?> (IInternalEntry entry) => PrincipalDerivedUnsafeAccessors<CompiledModelTestBase.DependentBase<byte?>>.Dependent(((CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<byte?>>)(entry.Object))),
                 null,
-                CompiledModelTestBase.DependentBase<byte?> (InternalEntityEntry entry) => entry.GetCurrentValue<CompiledModelTestBase.DependentBase<byte?>>(dependent),
-                null);
+                CompiledModelTestBase.DependentBase<byte?> (IInternalEntry entry) => entry.GetCurrentValue<CompiledModelTestBase.DependentBase<byte?>>(dependent));
             dependent.SetPropertyIndexes(
                 index: 1,
                 originalValueIndex: -1,
@@ -200,23 +195,23 @@ namespace TestNamespace
             key.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<byte?>(key));
             var principal = runtimeEntityType.FindNavigation("Principal");
             runtimeEntityType.SetOriginalValuesFactory(
-                ISnapshot (InternalEntityEntry source) =>
+                ISnapshot (IInternalEntry source) =>
                 {
-                    var entity = ((CompiledModelTestBase.DependentBase<byte?>)(source.Entity));
+                    var entity = ((CompiledModelTestBase.DependentBase<byte?>)(source.Object));
                     return ((ISnapshot)(new Snapshot<byte?, long?>((source.GetCurrentValue<byte?>(id) == null ? null : ((ValueComparer<byte?>)(((IProperty)id).GetValueComparer())).Snapshot(source.GetCurrentValue<byte?>(id))), (source.GetCurrentValue<long?>(principalId) == null ? null : ((ValueComparer<long?>)(((IProperty)principalId).GetValueComparer())).Snapshot(source.GetCurrentValue<long?>(principalId))))));
                 });
             runtimeEntityType.SetStoreGeneratedValuesFactory(
                 ISnapshot () => ((ISnapshot)(new Snapshot<long?>((default(long? ) == null ? null : ((ValueComparer<long?>)(((IProperty)principalId).GetValueComparer())).Snapshot(default(long? )))))));
             runtimeEntityType.SetTemporaryValuesFactory(
-                ISnapshot (InternalEntityEntry source) => ((ISnapshot)(new Snapshot<long?>(default(long? )))));
+                ISnapshot (IInternalEntry source) => ((ISnapshot)(new Snapshot<long?>(default(long? )))));
             runtimeEntityType.SetShadowValuesFactory(
                 ISnapshot (IDictionary<string, object> source) => ((ISnapshot)(new Snapshot<long?>((source.ContainsKey("PrincipalId") ? ((long? )(source["PrincipalId"])) : null)))));
             runtimeEntityType.SetEmptyShadowValuesFactory(
                 ISnapshot () => ((ISnapshot)(new Snapshot<long?>(default(long? )))));
             runtimeEntityType.SetRelationshipSnapshotFactory(
-                ISnapshot (InternalEntityEntry source) =>
+                ISnapshot (IInternalEntry source) =>
                 {
-                    var entity = ((CompiledModelTestBase.DependentBase<byte?>)(source.Entity));
+                    var entity = ((CompiledModelTestBase.DependentBase<byte?>)(source.Object));
                     return ((ISnapshot)(new Snapshot<byte?, long?, object>((source.GetCurrentValue<byte?>(id) == null ? null : ((ValueComparer<byte?>)(((IProperty)id).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<byte?>(id))), (source.GetCurrentValue<long?>(principalId) == null ? null : ((ValueComparer<long?>)(((IProperty)principalId).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<long?>(principalId))), DependentBaseUnsafeAccessors<byte?>.Principal(entity))));
                 });
             runtimeEntityType.Counts = new PropertyCounts(

@@ -47,11 +47,10 @@ namespace TestNamespace
             id.SetMaterializationSetter(
                 (CompiledModelRelationalTestBase.SpatialTypes entity, int value) => AbstractBaseUnsafeAccessors.Id(entity) = value);
             id.SetAccessors(
-                int (InternalEntityEntry entry) => (entry.FlaggedAsStoreGenerated(0) ? entry.ReadStoreGeneratedValue<int>(0) : (entry.FlaggedAsTemporary(0) && AbstractBaseUnsafeAccessors.Id(((CompiledModelRelationalTestBase.SpatialTypes)(entry.Entity))) == 0 ? entry.ReadTemporaryValue<int>(0) : AbstractBaseUnsafeAccessors.Id(((CompiledModelRelationalTestBase.SpatialTypes)(entry.Entity))))),
-                int (InternalEntityEntry entry) => AbstractBaseUnsafeAccessors.Id(((CompiledModelRelationalTestBase.SpatialTypes)(entry.Entity))),
-                int (InternalEntityEntry entry) => entry.ReadOriginalValue<int>(id, 0),
-                int (InternalEntityEntry entry) => entry.ReadRelationshipSnapshotValue<int>(id, 0),
-                object (ValueBuffer valueBuffer) => valueBuffer[0]);
+                int (IInternalEntry entry) => (entry.FlaggedAsStoreGenerated(0) ? entry.ReadStoreGeneratedValue<int>(0) : (entry.FlaggedAsTemporary(0) && AbstractBaseUnsafeAccessors.Id(((CompiledModelRelationalTestBase.SpatialTypes)(entry.Object))) == 0 ? entry.ReadTemporaryValue<int>(0) : AbstractBaseUnsafeAccessors.Id(((CompiledModelRelationalTestBase.SpatialTypes)(entry.Object))))),
+                int (IInternalEntry entry) => AbstractBaseUnsafeAccessors.Id(((CompiledModelRelationalTestBase.SpatialTypes)(entry.Object))),
+                int (IInternalEntry entry) => entry.ReadOriginalValue<int>(id, 0),
+                int (IInternalEntry entry) => entry.ReadRelationshipSnapshotValue<int>(id, 0));
             id.SetPropertyIndexes(
                 index: 0,
                 originalValueIndex: 0,
@@ -83,11 +82,10 @@ namespace TestNamespace
                 valueComparer: new CompiledModelTestBase.CustomValueComparer<Point>(),
                 providerValueComparer: new CompiledModelTestBase.CustomValueComparer<Point>());
             point.SetAccessors(
-                Point (InternalEntityEntry entry) => (entry.FlaggedAsStoreGenerated(1) ? entry.ReadStoreGeneratedValue<Point>(1) : (entry.FlaggedAsTemporary(1) && entry.ReadShadowValue<Point>(0) == null ? entry.ReadTemporaryValue<Point>(1) : entry.ReadShadowValue<Point>(0))),
-                Point (InternalEntityEntry entry) => entry.ReadShadowValue<Point>(0),
-                Point (InternalEntityEntry entry) => entry.ReadOriginalValue<Point>(point, 1),
-                Point (InternalEntityEntry entry) => entry.GetCurrentValue<Point>(point),
-                object (ValueBuffer valueBuffer) => valueBuffer[1]);
+                Point (IInternalEntry entry) => (entry.FlaggedAsStoreGenerated(1) ? entry.ReadStoreGeneratedValue<Point>(1) : (entry.FlaggedAsTemporary(1) && entry.ReadShadowValue<Point>(0) == null ? entry.ReadTemporaryValue<Point>(1) : entry.ReadShadowValue<Point>(0))),
+                Point (IInternalEntry entry) => entry.ReadShadowValue<Point>(0),
+                Point (IInternalEntry entry) => entry.ReadOriginalValue<Point>(point, 1),
+                Point (IInternalEntry entry) => entry.GetCurrentValue<Point>(point));
             point.SetPropertyIndexes(
                 index: 1,
                 originalValueIndex: 1,
@@ -114,23 +112,23 @@ namespace TestNamespace
             key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.CreateSimpleNonNullableFactory<int>(key));
             key.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<int>(key));
             runtimeEntityType.SetOriginalValuesFactory(
-                ISnapshot (InternalEntityEntry source) =>
+                ISnapshot (IInternalEntry source) =>
                 {
-                    var entity = ((CompiledModelRelationalTestBase.SpatialTypes)(source.Entity));
+                    var entity = ((CompiledModelRelationalTestBase.SpatialTypes)(source.Object));
                     return ((ISnapshot)(new Snapshot<int, Point>(((ValueComparer<int>)(((IProperty)id).GetValueComparer())).Snapshot(source.GetCurrentValue<int>(id)), (source.GetCurrentValue<Point>(point) == null ? null : ((ValueComparer<Point>)(((IProperty)point).GetValueComparer())).Snapshot(source.GetCurrentValue<Point>(point))))));
                 });
             runtimeEntityType.SetStoreGeneratedValuesFactory(
                 ISnapshot () => ((ISnapshot)(new Snapshot<int, Point>(((ValueComparer<int>)(((IProperty)id).GetValueComparer())).Snapshot(default(int)), (default(Point) == null ? null : ((ValueComparer<Point>)(((IProperty)point).GetValueComparer())).Snapshot(default(Point)))))));
             runtimeEntityType.SetTemporaryValuesFactory(
-                ISnapshot (InternalEntityEntry source) => ((ISnapshot)(new Snapshot<int, Point>(default(int), default(Point)))));
+                ISnapshot (IInternalEntry source) => ((ISnapshot)(new Snapshot<int, Point>(default(int), default(Point)))));
             runtimeEntityType.SetShadowValuesFactory(
                 ISnapshot (IDictionary<string, object> source) => ((ISnapshot)(new Snapshot<Point>((source.ContainsKey("Point") ? ((Point)(source["Point"])) : null)))));
             runtimeEntityType.SetEmptyShadowValuesFactory(
                 ISnapshot () => ((ISnapshot)(new Snapshot<Point>(default(Point)))));
             runtimeEntityType.SetRelationshipSnapshotFactory(
-                ISnapshot (InternalEntityEntry source) =>
+                ISnapshot (IInternalEntry source) =>
                 {
-                    var entity = ((CompiledModelRelationalTestBase.SpatialTypes)(source.Entity));
+                    var entity = ((CompiledModelRelationalTestBase.SpatialTypes)(source.Object));
                     return ((ISnapshot)(new Snapshot<int>(((ValueComparer<int>)(((IProperty)id).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<int>(id)))));
                 });
             runtimeEntityType.Counts = new PropertyCounts(

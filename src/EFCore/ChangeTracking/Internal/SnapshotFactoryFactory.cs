@@ -176,7 +176,7 @@ public abstract class SnapshotFactoryFactory
                         Expression.Assign(
                             entityVariable,
                             Expression.Convert(
-                                Expression.Property(parameter!, nameof(InternalEntityEntry.Entity)),
+                                Expression.Property(parameter!, nameof(IInternalEntry.Object)),
                                 entityType!)),
                         constructorExpression
                     })

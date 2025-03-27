@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
+public class LinqToCSharpSyntaxTranslator(SyntaxGenerator syntaxGenerator) : ExpressionVisitor
 {
     private sealed record StackFrame(
         Dictionary<ParameterExpression, string> Variables,
@@ -38,7 +38,7 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
     private sealed record LiftedState
     {
         internal readonly List<StatementSyntax> Statements = [];
-        internal readonly Dictionary<ParameterExpression, string> Variables = new();
+        internal readonly Dictionary<ParameterExpression, string> Variables = [];
         internal readonly HashSet<string> VariableNames = [];
         internal readonly List<LocalDeclarationStatementSyntax> UnassignedVariableDeclarations = [];
 
@@ -65,24 +65,15 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
 
     private readonly HashSet<ParameterExpression> _capturedVariables = [];
     private ISet<string> _collectedNamespaces = null!;
-    private readonly Dictionary<MethodBase, MethodDeclarationSyntax> _methodUnsafeAccessors = new();
-    private readonly Dictionary<(FieldInfo Field, bool ForWrite), MethodDeclarationSyntax> _fieldUnsafeAccessors = new();
+    private readonly Dictionary<MethodBase, MethodDeclarationSyntax> _methodUnsafeAccessors = [];
+    private readonly Dictionary<(FieldInfo Field, bool ForWrite), MethodDeclarationSyntax> _fieldUnsafeAccessors = [];
 
     private static MethodInfo? _mathPowMethod;
 
     private readonly SideEffectDetectionSyntaxWalker _sideEffectDetector = new();
     private readonly ConstantDetectionSyntaxWalker _constantDetector = new();
-    private readonly SyntaxGenerator _g;
+    private readonly SyntaxGenerator _g = syntaxGenerator;
     private readonly StringBuilder _stringBuilder = new();
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public LinqToCSharpSyntaxTranslator(SyntaxGenerator syntaxGenerator)
-        => _g = syntaxGenerator;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -422,14 +413,9 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
 
             // If the RHS was lifted out and the assignment lowering succeeded, Translate above returns the lowered assignment variable;
             // this would mean that we return a useless identity assignment (i = i). Instead, just return it.
-            if (translatedRight == translatedLeft)
-            {
-                Result = translatedRight;
-            }
-            else
-            {
-                Result = AssignmentExpression(kind, translatedLeft, translatedRight);
-            }
+            Result = translatedRight == translatedLeft
+                ? translatedRight
+                : (SyntaxNode)AssignmentExpression(kind, translatedLeft, translatedRight);
 
             return assignment;
         }
@@ -1474,7 +1460,7 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
             SimpleNameSyntax nameSyntax = genericPartIndex <= 0
                 ? IdentifierName(type.Name)
                 : GenericName(
-                    Identifier(type.Name.Substring(0, genericPartIndex)),
+                    Identifier(type.Name[..genericPartIndex]),
                     TypeArgumentList(SeparatedList(genericArguments.Skip(offset).Take(length - offset))));
             if (type.DeclaringType == null)
             {
@@ -1637,7 +1623,7 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
                     { Expression: null } => Generate(member.Member.DeclaringType!),
 
                     // If the member is declared on an interface, add a cast up to it, to handle explicit interface implementation.
-                    _ when member.Member.DeclaringType is { IsInterface: true }
+                    _ when member.Member.DeclaringType is { IsInterface: true } && member.Expression.Type != member.Member.DeclaringType
                         => ParenthesizedExpression(
                             CastExpression(Generate(member.Member.DeclaringType), Translate<ExpressionSyntax>(member.Expression))),
 
@@ -2212,7 +2198,7 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
                     var result = translatedBody switch
                     {
                         BlockSyntax block => SingletonList<StatementSyntax>(block.WithStatements(block.Statements.Add(BreakStatement()))),
-                        StatementSyntax s => List(new[] { s, BreakStatement() }),
+                        StatementSyntax s => List([s, BreakStatement()]),
                         ExpressionSyntax e => List(new StatementSyntax[] { ExpressionStatement(e), BreakStatement() }),
 
                         _ => throw new ArgumentOutOfRangeException()
@@ -2379,14 +2365,14 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
         var translatedBody = Translate(tryNode.Body) switch
         {
             BlockSyntax b => (IEnumerable<SyntaxNode>)b.Statements,
-            var n => new[] { n }
+            var n => [n]
         };
 
         var translatedFinally = Translate(tryNode.Finally) switch
         {
             BlockSyntax b => (IEnumerable<SyntaxNode>)b.Statements,
             null => null,
-            var n => new[] { n }
+            var n => [n]
         };
 
         switch (_context)

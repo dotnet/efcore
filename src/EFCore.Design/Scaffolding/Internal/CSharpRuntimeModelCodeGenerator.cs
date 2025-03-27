@@ -1566,8 +1566,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                 out var currentValueGetter,
                 out var preStoreGeneratedCurrentValueGetter,
                 out var originalValueGetter,
-                out var relationshipSnapshotGetter,
-                out var valueBufferGetter);
+                out var relationshipSnapshotGetter);
 
             mainBuilder
                 .Append(variableName).AppendLine(".SetAccessors(")
@@ -1594,14 +1593,6 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                     _code.Expression(
                         relationshipSnapshotGetter, parameters.Namespaces, unsafeAccessors,
                         (IReadOnlyDictionary<object, string>)parameters.ScopeVariables, memberAccessReplacements), skipFinalNewline: true)
-                .AppendLine(",")
-                .AppendLines(
-                    valueBufferGetter == null
-                        ? "null"
-                        : _code.Expression(
-                            valueBufferGetter, parameters.Namespaces, unsafeAccessors,
-                            (IReadOnlyDictionary<object, string>)parameters.ScopeVariables, memberAccessReplacements),
-                    skipFinalNewline: true)
                 .AppendLine(");")
                 .DecrementIndent();
 

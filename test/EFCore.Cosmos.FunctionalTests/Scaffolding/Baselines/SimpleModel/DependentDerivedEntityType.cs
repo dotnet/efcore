@@ -10,7 +10,6 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Json;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Newtonsoft.Json.Linq;
@@ -51,11 +50,10 @@ namespace TestNamespace
             id.SetMaterializationSetter(
                 (CompiledModelTestBase.DependentDerived<int> entity, int value) => DependentBaseUnsafeAccessors<int>.Id(entity) = value);
             id.SetAccessors(
-                int (InternalEntityEntry entry) => DependentBaseUnsafeAccessors<int>.Id(((CompiledModelTestBase.DependentDerived<int>)(entry.Entity))),
-                int (InternalEntityEntry entry) => DependentBaseUnsafeAccessors<int>.Id(((CompiledModelTestBase.DependentDerived<int>)(entry.Entity))),
-                int (InternalEntityEntry entry) => entry.ReadOriginalValue<int>(id, 0),
-                int (InternalEntityEntry entry) => entry.ReadRelationshipSnapshotValue<int>(id, 0),
-                object (ValueBuffer valueBuffer) => valueBuffer[0]);
+                int (IInternalEntry entry) => DependentBaseUnsafeAccessors<int>.Id(((CompiledModelTestBase.DependentDerived<int>)(entry.Object))),
+                int (IInternalEntry entry) => DependentBaseUnsafeAccessors<int>.Id(((CompiledModelTestBase.DependentDerived<int>)(entry.Object))),
+                int (IInternalEntry entry) => entry.ReadOriginalValue<int>(id, 0),
+                int (IInternalEntry entry) => entry.ReadRelationshipSnapshotValue<int>(id, 0));
             id.SetPropertyIndexes(
                 index: 0,
                 originalValueIndex: 0,
@@ -85,11 +83,10 @@ namespace TestNamespace
                 afterSaveBehavior: PropertySaveBehavior.Throw,
                 valueGeneratorFactory: new DiscriminatorValueGeneratorFactory().Create);
             type.SetAccessors(
-                string (InternalEntityEntry entry) => entry.ReadShadowValue<string>(0),
-                string (InternalEntityEntry entry) => entry.ReadShadowValue<string>(0),
-                string (InternalEntityEntry entry) => entry.ReadOriginalValue<string>(type, 1),
-                string (InternalEntityEntry entry) => entry.GetCurrentValue<string>(type),
-                object (ValueBuffer valueBuffer) => valueBuffer[1]);
+                string (IInternalEntry entry) => entry.ReadShadowValue<string>(0),
+                string (IInternalEntry entry) => entry.ReadShadowValue<string>(0),
+                string (IInternalEntry entry) => entry.ReadOriginalValue<string>(type, 1),
+                string (IInternalEntry entry) => entry.GetCurrentValue<string>(type));
             type.SetPropertyIndexes(
                 index: 1,
                 originalValueIndex: 1,
@@ -128,11 +125,10 @@ namespace TestNamespace
             data.SetMaterializationSetter(
                 (CompiledModelTestBase.DependentDerived<int> entity, string value) => DependentDerivedUnsafeAccessors<int>.Data(entity) = value);
             data.SetAccessors(
-                string (InternalEntityEntry entry) => DependentDerivedUnsafeAccessors<int>.Data(((CompiledModelTestBase.DependentDerived<int>)(entry.Entity))),
-                string (InternalEntityEntry entry) => DependentDerivedUnsafeAccessors<int>.Data(((CompiledModelTestBase.DependentDerived<int>)(entry.Entity))),
-                string (InternalEntityEntry entry) => entry.ReadOriginalValue<string>(data, 2),
-                string (InternalEntityEntry entry) => entry.GetCurrentValue<string>(data),
-                object (ValueBuffer valueBuffer) => valueBuffer[2]);
+                string (IInternalEntry entry) => DependentDerivedUnsafeAccessors<int>.Data(((CompiledModelTestBase.DependentDerived<int>)(entry.Object))),
+                string (IInternalEntry entry) => DependentDerivedUnsafeAccessors<int>.Data(((CompiledModelTestBase.DependentDerived<int>)(entry.Object))),
+                string (IInternalEntry entry) => entry.ReadOriginalValue<string>(data, 2),
+                string (IInternalEntry entry) => entry.GetCurrentValue<string>(data));
             data.SetPropertyIndexes(
                 index: 2,
                 originalValueIndex: 2,
@@ -161,11 +157,10 @@ namespace TestNamespace
                 afterSaveBehavior: PropertySaveBehavior.Throw,
                 valueGeneratorFactory: new IdValueGeneratorFactory().Create);
             __id.SetAccessors(
-                string (InternalEntityEntry entry) => entry.ReadShadowValue<string>(1),
-                string (InternalEntityEntry entry) => entry.ReadShadowValue<string>(1),
-                string (InternalEntityEntry entry) => entry.ReadOriginalValue<string>(__id, 3),
-                string (InternalEntityEntry entry) => entry.GetCurrentValue<string>(__id),
-                object (ValueBuffer valueBuffer) => valueBuffer[3]);
+                string (IInternalEntry entry) => entry.ReadShadowValue<string>(1),
+                string (IInternalEntry entry) => entry.ReadShadowValue<string>(1),
+                string (IInternalEntry entry) => entry.ReadOriginalValue<string>(__id, 3),
+                string (IInternalEntry entry) => entry.GetCurrentValue<string>(__id));
             __id.SetPropertyIndexes(
                 index: 3,
                 originalValueIndex: 3,
@@ -197,11 +192,10 @@ namespace TestNamespace
                 beforeSaveBehavior: PropertySaveBehavior.Ignore,
                 afterSaveBehavior: PropertySaveBehavior.Ignore);
             __jObject.SetAccessors(
-                JObject (InternalEntityEntry entry) => (entry.FlaggedAsStoreGenerated(4) ? entry.ReadStoreGeneratedValue<JObject>(0) : (entry.FlaggedAsTemporary(4) && entry.ReadShadowValue<JObject>(2) == null ? entry.ReadTemporaryValue<JObject>(0) : entry.ReadShadowValue<JObject>(2))),
-                JObject (InternalEntityEntry entry) => entry.ReadShadowValue<JObject>(2),
-                JObject (InternalEntityEntry entry) => entry.ReadOriginalValue<JObject>(__jObject, 4),
-                JObject (InternalEntityEntry entry) => entry.GetCurrentValue<JObject>(__jObject),
-                object (ValueBuffer valueBuffer) => valueBuffer[4]);
+                JObject (IInternalEntry entry) => (entry.FlaggedAsStoreGenerated(4) ? entry.ReadStoreGeneratedValue<JObject>(0) : (entry.FlaggedAsTemporary(4) && entry.ReadShadowValue<JObject>(2) == null ? entry.ReadTemporaryValue<JObject>(0) : entry.ReadShadowValue<JObject>(2))),
+                JObject (IInternalEntry entry) => entry.ReadShadowValue<JObject>(2),
+                JObject (IInternalEntry entry) => entry.ReadOriginalValue<JObject>(__jObject, 4),
+                JObject (IInternalEntry entry) => entry.GetCurrentValue<JObject>(__jObject));
             __jObject.SetPropertyIndexes(
                 index: 4,
                 originalValueIndex: 4,
@@ -242,23 +236,23 @@ namespace TestNamespace
             key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.CreateSimpleNonNullableFactory<int>(key));
             key.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<int>(key));
             runtimeEntityType.SetOriginalValuesFactory(
-                ISnapshot (InternalEntityEntry source) =>
+                ISnapshot (IInternalEntry source) =>
                 {
-                    var entity = ((CompiledModelTestBase.DependentDerived<int>)(source.Entity));
+                    var entity = ((CompiledModelTestBase.DependentDerived<int>)(source.Object));
                     return ((ISnapshot)(new Snapshot<int, string, string, string, JObject>(((ValueComparer<int>)(((IProperty)id).GetValueComparer())).Snapshot(source.GetCurrentValue<int>(id)), (source.GetCurrentValue<string>(type) == null ? null : ((ValueComparer<string>)(((IProperty)type).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(type))), (source.GetCurrentValue<string>(data) == null ? null : ((ValueComparer<string>)(((IProperty)data).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(data))), (source.GetCurrentValue<string>(__id) == null ? null : ((ValueComparer<string>)(((IProperty)__id).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(__id))), (source.GetCurrentValue<JObject>(__jObject) == null ? null : ((ValueComparer<JObject>)(((IProperty)__jObject).GetValueComparer())).Snapshot(source.GetCurrentValue<JObject>(__jObject))))));
                 });
             runtimeEntityType.SetStoreGeneratedValuesFactory(
                 ISnapshot () => ((ISnapshot)(new Snapshot<JObject>((default(JObject) == null ? null : ((ValueComparer<JObject>)(((IProperty)__jObject).GetValueComparer())).Snapshot(default(JObject)))))));
             runtimeEntityType.SetTemporaryValuesFactory(
-                ISnapshot (InternalEntityEntry source) => ((ISnapshot)(new Snapshot<JObject>(default(JObject)))));
+                ISnapshot (IInternalEntry source) => ((ISnapshot)(new Snapshot<JObject>(default(JObject)))));
             runtimeEntityType.SetShadowValuesFactory(
                 ISnapshot (IDictionary<string, object> source) => ((ISnapshot)(new Snapshot<string, string, JObject>((source.ContainsKey("$type") ? ((string)(source["$type"])) : null), (source.ContainsKey("__id") ? ((string)(source["__id"])) : null), (source.ContainsKey("__jObject") ? ((JObject)(source["__jObject"])) : null)))));
             runtimeEntityType.SetEmptyShadowValuesFactory(
                 ISnapshot () => ((ISnapshot)(new Snapshot<string, string, JObject>(default(string), default(string), default(JObject)))));
             runtimeEntityType.SetRelationshipSnapshotFactory(
-                ISnapshot (InternalEntityEntry source) =>
+                ISnapshot (IInternalEntry source) =>
                 {
-                    var entity = ((CompiledModelTestBase.DependentDerived<int>)(source.Entity));
+                    var entity = ((CompiledModelTestBase.DependentDerived<int>)(source.Object));
                     return ((ISnapshot)(new Snapshot<int>(((ValueComparer<int>)(((IProperty)id).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<int>(id)))));
                 });
             runtimeEntityType.Counts = new PropertyCounts(

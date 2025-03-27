@@ -365,17 +365,17 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
             = typeof(MaterializationContext).GetConstructors().Single(ci => ci.GetParameters().Length == 2);
 
         private static readonly PropertyInfo DbContextMemberInfo
-            = typeof(QueryContext).GetTypeInfo().GetProperty(nameof(QueryContext.Context))!;
+            = typeof(QueryContext).GetProperty(nameof(QueryContext.Context))!;
 
         private static readonly PropertyInfo EntityMemberInfo
-            = typeof(InternalEntityEntry).GetTypeInfo().GetProperty(nameof(InternalEntityEntry.Entity))!;
+            = typeof(InternalEntityEntry).GetProperty(nameof(InternalEntityEntry.Entity))!;
 
         private static readonly PropertyInfo EntityTypeMemberInfo
-            = typeof(InternalEntityEntry).GetTypeInfo().GetProperty(nameof(InternalEntityEntry.EntityType))!;
+            = typeof(InternalEntityEntry).GetProperty(nameof(InternalEntityEntry.EntityType))!;
 
         private static readonly MethodInfo TryGetEntryMethodInfo
-            = typeof(QueryContext).GetTypeInfo().GetDeclaredMethods(nameof(QueryContext.TryGetEntry))
-                .Single(mi => mi.GetParameters().Length == 4);
+            = typeof(QueryContext).GetMethods()
+                .Single(mi => mi.GetParameters().Length == 4 && mi.Name == nameof(QueryContext.TryGetEntry));
 
         private static readonly MethodInfo StartTrackingMethodInfo
             = typeof(QueryContext).GetMethod(
@@ -383,7 +383,7 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
 
         private static readonly MethodInfo CreateNullKeyValueInNoTrackingQueryMethod
             = typeof(ShapedQueryCompilingExpressionVisitor)
-                .GetTypeInfo().GetDeclaredMethod(nameof(CreateNullKeyValueInNoTrackingQuery))!;
+                .GetMethod(nameof(CreateNullKeyValueInNoTrackingQuery))!;
 
         private static readonly MethodInfo EntityTypeFindPrimaryKeyMethod =
             typeof(IEntityType).GetMethod(nameof(IEntityType.FindPrimaryKey), [])!;
