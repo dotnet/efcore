@@ -3229,6 +3229,38 @@ ORDER BY c["OrderID"] DESC, c["ProductID"] DESC
         AssertSql();
     }
 
+    public override Task Coalesce_Correct_Multiple_Same_TypeMapping(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Coalesce_Correct_Multiple_Same_TypeMapping(async);
+
+                AssertSql();
+            });
+
+    public override Task Coalesce_Correct_TypeMapping_Double(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Coalesce_Correct_TypeMapping_Double(async);
+
+                AssertSql();
+            });
+
+    public override Task Coalesce_Correct_TypeMapping_String(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Coalesce_Correct_TypeMapping_String(async);
+
+                AssertSql(
+                    """
+SELECT VALUE ((c["Region"] != null) ? c["Region"] : "no region specified")
+FROM root c
+ORDER BY c["id"]
+""");
+            });
+
     public override async Task Null_Coalesce_Short_Circuit(bool async)
     {
         // Cosmos client evaluation. Issue #17246.
