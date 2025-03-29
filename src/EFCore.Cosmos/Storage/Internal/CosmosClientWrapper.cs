@@ -238,6 +238,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         var partitionKeyPaths = parameters.PartitionKeyStoreNames.Select(e => "/" + e).ToList();
 
         var vectorIndexes = new Collection<VectorIndexPath>();
+        var fullTextIndexes = new Collection<FullTextIndexPath>();
         foreach (var index in parameters.Indexes)
         {
             var vectorIndexType = (VectorIndexType?)index.FindAnnotation(CosmosAnnotationNames.VectorIndexType)?.Value;
@@ -249,6 +250,27 @@ public class CosmosClientWrapper : ICosmosClientWrapper
                 vectorIndexes.Add(
                     new VectorIndexPath { Path = "/" + index.Properties[0].GetJsonPropertyName(), Type = vectorIndexType.Value });
             }
+
+            var fullTextIndex = (bool?)index.FindAnnotation(CosmosAnnotationNames.FullTextIndex)?.Value;
+            if (fullTextIndex == true)
+            {
+                // Model validation will ensure there is only one property.
+                Check.DebugAssert(index.Properties.Count == 1, "Full-text index must have one property.");
+
+                fullTextIndexes.Add(
+                    new FullTextIndexPath { Path = "/" + index.Properties[0].GetJsonPropertyName() });
+            }
+        }
+
+        var fullTextPaths = new Collection<FullTextPath>();
+        foreach (var fullTextProperty in parameters.FullTextProperties)
+        {
+            fullTextPaths.Add(
+                new FullTextPath
+                {
+                    Path = "/" + fullTextProperty.Property.GetJsonPropertyName(),
+                    Language = fullTextProperty.Language
+                });
         }
 
         var embeddings = new Collection<Embedding>();
@@ -276,9 +298,26 @@ public class CosmosClientWrapper : ICosmosClientWrapper
             containerProperties.VectorEmbeddingPolicy = new VectorEmbeddingPolicy(embeddings);
         }
 
-        if (vectorIndexes.Any())
+        if (vectorIndexes.Any()/* || fullTextIndexes.Any()*/)
         {
-            containerProperties.IndexingPolicy = new IndexingPolicy { VectorIndexes = vectorIndexes };
+            containerProperties.IndexingPolicy = new IndexingPolicy
+            {
+                VectorIndexes = vectorIndexes,
+               // FullTextIndexes = fullTextIndexes
+            };
+        }
+
+        if (fullTextIndexes.Any())
+        {
+            containerProperties.IndexingPolicy = new IndexingPolicy
+            {
+                FullTextIndexes = fullTextIndexes
+            };
+        }
+
+        if (fullTextPaths.Any())
+        {
+            containerProperties.FullTextPolicy = new FullTextPolicy { DefaultLanguage = "en-US", FullTextPaths = fullTextPaths };
         }
 
         var response = await wrapper.Client.GetDatabase(wrapper._databaseId).CreateContainerIfNotExistsAsync(

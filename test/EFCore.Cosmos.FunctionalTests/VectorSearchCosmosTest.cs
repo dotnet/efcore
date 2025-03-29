@@ -251,6 +251,35 @@ ORDER BY VectorDistance(c["SinglesArray"], @p, false, {'distanceFunction':'cosin
     }
 
     [ConditionalFact]
+    public virtual async Task RRF_with_two_Vector_distance_functions_in_OrderBy()
+    {
+        await using var context = CreateContext();
+        var inputVector1 = new byte[] { 2, 1, 4, 6, 5, 2, 5, 7, 3, 1 };
+        var inputVector2 = new[] { 0.33f, -0.52f, 0.45f, -0.67f, 0.89f, -0.34f, 0.86f, -0.78f };
+
+#pragma warning disable EF9104 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
+        var booksFromStore = await context
+            .Set<Book>()
+            .OrderBy(e => EF.Functions.Rrf(
+                EF.Functions.VectorDistance(e.BytesArray, inputVector1),
+                EF.Functions.VectorDistance(e.SinglesArray, inputVector2)))
+            .ToListAsync();
+#pragma warning restore EF9104 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
+
+        Assert.Equal(3, booksFromStore.Count);
+
+        AssertSql(
+"""
+@p='[2,1,4,6,5,2,5,7,3,1]'
+@p0='[0.33,-0.52,0.45,-0.67,0.89,-0.34,0.86,-0.78]'
+
+SELECT VALUE c
+FROM root c
+ORDER BY RANK RRF(VectorDistance(c["BytesArray"], @p, false, {'distanceFunction':'cosine', 'dataType':'uint8'}), VectorDistance(c["SinglesArray"], @p0, false, {'distanceFunction':'cosine', 'dataType':'float32'}))
+""");
+    }
+
+    [ConditionalFact]
     public virtual async Task VectorDistance_throws_when_used_on_non_vector()
     {
         await using var context = CreateContext();

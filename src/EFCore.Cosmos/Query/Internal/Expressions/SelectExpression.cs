@@ -20,6 +20,7 @@ public sealed class SelectExpression : Expression, IPrintableExpression
     private readonly List<SourceExpression> _sources = [];
     private readonly List<ProjectionExpression> _projection = [];
     private readonly List<OrderingExpression> _orderings = [];
+    private RankOrderingExpression? _rankOrdering = null;
 
     private readonly List<(Expression ValueExpression, IProperty Property)> _partitionKeyValues = new();
 
@@ -134,6 +135,15 @@ public sealed class SelectExpression : Expression, IPrintableExpression
     /// </summary>
     public IReadOnlyList<OrderingExpression> Orderings
         => _orderings;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public RankOrderingExpression? RankOrdering
+        => _rankOrdering;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -382,7 +392,21 @@ public sealed class SelectExpression : Expression, IPrintableExpression
     public void ApplyOrdering(OrderingExpression orderingExpression)
     {
         _orderings.Clear();
+        _rankOrdering = null;
         _orderings.Add(orderingExpression);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public void ApplyRankOrdering(RankOrderingExpression rankOrderingExpression)
+    {
+        _orderings.Clear();
+
+        _rankOrdering = rankOrderingExpression;
     }
 
     /// <summary>
@@ -393,6 +417,12 @@ public sealed class SelectExpression : Expression, IPrintableExpression
     /// </summary>
     public void AppendOrdering(OrderingExpression orderingExpression)
     {
+        if (_rankOrdering != null)
+        {
+            // Cosmos throws bad exception: Syntax error, incorrect syntax near 'ORDER'.
+            throw new InvalidOperationException("Ordering using scoring function is mutually exclusive with other forms of ordering.");
+        }
+
         if (_orderings.FirstOrDefault(o => o.Expression.Equals(orderingExpression.Expression)) == null)
         {
             _orderings.Add(orderingExpression);
@@ -753,6 +783,12 @@ public sealed class SelectExpression : Expression, IPrintableExpression
         {
             expressionPrinter.AppendLine().Append("ORDER BY ");
             expressionPrinter.VisitCollection(Orderings);
+        }
+
+        if (RankOrdering != null)
+        {
+            expressionPrinter.AppendLine().Append("ORDER BY RANK ");
+            expressionPrinter.Visit(RankOrdering);
         }
 
         if (Offset != null)
