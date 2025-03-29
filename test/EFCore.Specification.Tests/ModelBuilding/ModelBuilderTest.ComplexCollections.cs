@@ -14,17 +14,17 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding;
 
 public abstract partial class ModelBuilderTest
 {
-    public abstract class ComplexTypeTestBase(ModelBuilderFixtureBase fixture) : ModelBuilderTestBase(fixture)
+    public abstract class ComplexCollectionTestBase(ModelBuilderFixtureBase fixture) : ModelBuilderTestBase(fixture)
     {
         [ConditionalFact]
         public virtual void Can_set_complex_property_annotation()
         {
             var modelBuilder = CreateModelBuilder();
 
-            var complexPropertyBuilder = modelBuilder
+            var complexCollectionBuilder = modelBuilder
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(e => e.Customer)
+                .ComplexCollection(e => e.Customers)
                 .HasTypeAnnotation("foo", "bar")
                 .HasPropertyAnnotation("foo2", "bar2")
                 .Ignore(c => c.Details)
@@ -32,20 +32,20 @@ public abstract partial class ModelBuilderTest
                 .Ignore(c => c.Orders);
 
             var model = modelBuilder.FinalizeModel();
-            var complexProperty = model.FindEntityType(typeof(ComplexProperties)).GetComplexProperties().Single();
+            var complexCollection = model.FindEntityType(typeof(ComplexProperties)).GetComplexProperties().Single();
 
-            Assert.Equal("bar", complexProperty.ComplexType["foo"]);
-            Assert.Equal("bar2", complexProperty["foo2"]);
-            Assert.Equal(typeof(Customer).Name, complexProperty.Name);
+            Assert.Equal("bar", complexCollection.ComplexType["foo"]);
+            Assert.Equal("bar2", complexCollection["foo2"]);
+            Assert.Equal(nameof(ComplexProperties.Customers), complexCollection.Name);
             Assert.Equal(
-                @"Customer (Customer)
-  ComplexType: ComplexProperties.Customer#Customer
+                @"Customers (List<Customer>) Required
+  ComplexType: ComplexProperties.Customers#Customer
     Properties: "
                 + @"
       AlternateKey (Guid) Required
       Id (int) Required
       Name (string)
-      Notes (List<string>) Element type: string Required", complexProperty.ToDebugString(), ignoreLineEndingDifferences: true);
+      Notes (List<string>) Element type: string Required", complexCollection.ToDebugString(), ignoreLineEndingDifferences: true);
         }
 
         [ConditionalFact]
@@ -57,14 +57,14 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Product>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(e => e.Customer)
+                .ComplexCollection(e => e.Customers)
                 .Ignore(c => c.Details)
                 .Ignore(c => c.Orders)
                 .Property(c => c.Name).HasAnnotation("foo", "bar");
 
             var model = modelBuilder.FinalizeModel();
-            var complexProperty = model.FindEntityType(typeof(ComplexProperties)).GetComplexProperties().Single();
-            var property = complexProperty.ComplexType.FindProperty(nameof(Customer.Name));
+            var complexCollection = model.FindEntityType(typeof(ComplexProperties)).GetComplexProperties().Single();
+            var property = complexCollection.ComplexType.FindProperty(nameof(Customer.Name));
 
             Assert.Equal("bar", property["foo"]);
         }
@@ -78,14 +78,14 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Product>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(e => e.Customer)
+                .ComplexCollection(e => e.Customers)
                 .Ignore(c => c.Details)
                 .Ignore(c => c.Orders)
                 .Property<string>(Customer.NameProperty.Name).HasAnnotation("foo", "bar");
 
             var model = modelBuilder.FinalizeModel();
-            var complexProperty = model.FindEntityType(typeof(ComplexProperties)).GetComplexProperties().Single();
-            var property = complexProperty.ComplexType.FindProperty(nameof(Customer.Name));
+            var complexCollection = model.FindEntityType(typeof(ComplexProperties)).GetComplexProperties().Single();
+            var property = complexCollection.ComplexType.FindProperty(nameof(Customer.Name));
 
             Assert.Equal("bar", property["foo"]);
         }
@@ -99,14 +99,14 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Product>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(e => e.Customer)
+                .ComplexCollection(e => e.Customers)
                 .Ignore(c => c.Details)
                 .Ignore(c => c.Orders)
                 .Property(c => c.Name);
 
             var model = modelBuilder.FinalizeModel();
-            var complexProperty = model.FindEntityType(typeof(ComplexProperties)).GetComplexProperties().Single();
-            var property = complexProperty.ComplexType.FindProperty(nameof(Customer.Name));
+            var complexCollection = model.FindEntityType(typeof(ComplexProperties)).GetComplexProperties().Single();
+            var property = complexCollection.ComplexType.FindProperty(nameof(Customer.Name));
 
             Assert.Equal("bar", property["foo"]);
         }
@@ -120,8 +120,8 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Order>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(
-                    e => e.Quarks,
+                .ComplexCollection(
+                    e => e.QuarksCollection,
                     b =>
                     {
                         b.Property(e => e.Up);
@@ -152,8 +152,8 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Order>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(
-                    e => e.Quarks,
+                .ComplexCollection(
+                    e => e.QuarksCollection,
                     b =>
                     {
                         b.Ignore(e => e.Up);
@@ -182,7 +182,7 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Product>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(e => e.Customer, b => b.Ignore(c => c.Details).Ignore(c => c.Orders));
+                .ComplexCollection(e => e.Customers, b => b.Ignore(c => c.Details).Ignore(c => c.Orders));
 
             var model = modelBuilder.FinalizeModel();
             var complexType = model.FindEntityType(typeof(ComplexProperties)).GetComplexProperties().Single().ComplexType;
@@ -194,12 +194,12 @@ public abstract partial class ModelBuilderTest
         {
             var modelBuilder = CreateModelBuilder();
 
-            var complexPropertyBuilder = modelBuilder
+            var complexCollectionBuilder = modelBuilder
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(e => e.Customer, b => b.Ignore(c => c.Details).Ignore(c => c.Orders));
-            complexPropertyBuilder.Property<string>("Shadow");
-            complexPropertyBuilder.Ignore("Shadow");
+                .ComplexCollection(e => e.Customers, b => b.Ignore(c => c.Details).Ignore(c => c.Orders));
+            complexCollectionBuilder.Property<string>("Shadow");
+            complexCollectionBuilder.Ignore("Shadow");
 
             var model = modelBuilder.FinalizeModel();
 
@@ -216,8 +216,8 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Product>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(
-                    e => e.Customer,
+                .ComplexCollection(
+                    e => e.Customers,
                     b =>
                     {
                         b.Ignore(c => c.Details);
@@ -241,8 +241,8 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Order>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(
-                    e => e.Quarks,
+                .ComplexCollection(
+                    e => e.QuarksCollection,
                     b =>
                     {
                         b.Property(e => e.Up).IsRequired();
@@ -273,8 +273,8 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Order>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(
-                    e => e.Quarks,
+                .ComplexCollection(
+                    e => e.QuarksCollection,
                     b =>
                     {
                         b.Property(e => e.Down).IsRequired(false);
@@ -299,20 +299,20 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Order>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(
-                    e => e.Quarks,
+                .ComplexCollection(
+                    e => e.QuarksCollection,
                     b =>
                     {
                         Assert.Equal(
-                            CoreStrings.CannotBeNullable("Up", "ComplexProperties.Quarks#Quarks", "int"),
+                            CoreStrings.CannotBeNullable("Up", "ComplexProperties.QuarksCollection#Quarks", "int"),
                             Assert.Throws<InvalidOperationException>(() => b.Property(e => e.Up).IsRequired(false)).Message);
 
                         Assert.Equal(
-                            CoreStrings.CannotBeNullable("Charm", "ComplexProperties.Quarks#Quarks", "int"),
+                            CoreStrings.CannotBeNullable("Charm", "ComplexProperties.QuarksCollection#Quarks", "int"),
                             Assert.Throws<InvalidOperationException>(() => b.Property<int>("Charm").IsRequired(false)).Message);
 
                         Assert.Equal(
-                            CoreStrings.CannotBeNullable("Top", "ComplexProperties.Quarks#Quarks", "int"),
+                            CoreStrings.CannotBeNullable("Top", "ComplexProperties.QuarksCollection#Quarks", "int"),
                             Assert.Throws<InvalidOperationException>(() => b.Property<int>("Top").IsRequired(false)).Message);
                     });
 
@@ -333,8 +333,8 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Order>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(
-                    e => e.Quarks,
+                .ComplexCollection(
+                    e => e.QuarksCollection,
                     b =>
                     {
                         b.Property<int>("Up");
@@ -367,9 +367,9 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Order>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .Ignore(e => e.QuarksCollection)
-                .ComplexProperty(
-                    e => e.Quarks,
+                .Ignore(e => e.Quarks)
+                .ComplexCollection(
+                    e => e.QuarksCollection,
                     b =>
                     {
                         b.Property(e => e.Up).IsConcurrencyToken();
@@ -412,40 +412,30 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Order>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(
-                    e => e.Quarks,
+                .Ignore(e => e.Quarks)
+                .Ignore(e => e.CollectionQuarks)
+                .ComplexCollection(
+                    e => e.QuarksCollection,
                     b =>
                     {
+                        b.UsePropertyAccessMode(PropertyAccessMode.FieldDuringConstruction);
+                        b.UseDefaultPropertyAccessMode(PropertyAccessMode.PreferFieldDuringConstruction);
                         b.Property(e => e.Up);
                         b.Property(e => e.Down).HasField("_forDown").UsePropertyAccessMode(PropertyAccessMode.Field);
                         b.Property<int>("Charm").UsePropertyAccessMode(PropertyAccessMode.Property);
                         b.Property<string>("Strange").UsePropertyAccessMode(PropertyAccessMode.FieldDuringConstruction);
-                    })
-                .ComplexProperty(
-                    e => e.CollectionQuarks,
-                    b =>
-                    {
-                        b.UsePropertyAccessMode(PropertyAccessMode.PreferFieldDuringConstruction);
-                        b.UseDefaultPropertyAccessMode(PropertyAccessMode.FieldDuringConstruction);
-                        b.PrimitiveCollection(e => e.Up).UsePropertyAccessMode(PropertyAccessMode.Property);
-                        b.PrimitiveCollection(e => e.Down).HasField("_forDown");
                     });
 
             var model = modelBuilder.FinalizeModel();
 
-            var quarksType = model.FindEntityType(typeof(ComplexProperties))!.GetComplexProperties()
-                .Single(p => p.Name == nameof(Quarks)).ComplexType;
+            var quarksProperty = model.FindEntityType(typeof(ComplexProperties))!.GetComplexProperties().Single(p => p.Name == nameof(ComplexProperties.QuarksCollection));
+            var quarksType = quarksProperty.ComplexType;
 
-            Assert.Equal(PropertyAccessMode.PreferField, quarksType.FindProperty("Up")!.GetPropertyAccessMode());
+            Assert.Equal(PropertyAccessMode.FieldDuringConstruction, quarksProperty.GetPropertyAccessMode());
+            Assert.Equal(PropertyAccessMode.PreferFieldDuringConstruction, quarksType.FindProperty("Up")!.GetPropertyAccessMode());
             Assert.Equal(PropertyAccessMode.Field, quarksType.FindProperty("Down")!.GetPropertyAccessMode());
             Assert.Equal(PropertyAccessMode.Property, quarksType.FindProperty("Charm")!.GetPropertyAccessMode());
             Assert.Equal(PropertyAccessMode.FieldDuringConstruction, quarksType.FindProperty("Strange")!.GetPropertyAccessMode());
-
-            quarksType = model.FindEntityType(typeof(ComplexProperties))!.GetComplexProperties()
-                .Single(p => p.Name == nameof(CollectionQuarks)).ComplexType;
-
-            Assert.Equal(PropertyAccessMode.Property, quarksType.FindProperty("Up")!.GetPropertyAccessMode());
-            Assert.Equal(PropertyAccessMode.FieldDuringConstruction, quarksType.FindProperty("Down")!.GetPropertyAccessMode());
         }
 
         [ConditionalFact]
@@ -457,28 +447,20 @@ public abstract partial class ModelBuilderTest
 
             modelBuilder
                 .Entity<ComplexProperties>()
-                .ComplexProperty(e => e.Customer, b => b.Ignore(c => c.Details).Ignore(c => c.Orders));
+                .ComplexCollection(e => e.Customers, b => b.Ignore(c => c.Details).Ignore(c => c.Orders));
 
             modelBuilder
                 .Entity<ComplexProperties>()
-                .Ignore(e => e.QuarksCollection)
-                .ComplexProperty(
-                    e => e.Quarks,
+                .Ignore(e => e.Quarks)
+                .Ignore(e => e.CollectionQuarks)
+                .ComplexCollection(
+                    e => e.QuarksCollection,
                     b =>
                     {
                         b.UsePropertyAccessMode(PropertyAccessMode.PreferFieldDuringConstruction);
                         b.UseDefaultPropertyAccessMode(PropertyAccessMode.FieldDuringConstruction);
                         b.Property(e => e.Up).UsePropertyAccessMode(PropertyAccessMode.Property);
                         b.Property(e => e.Down).HasField("_forDown");
-                    })
-                .ComplexProperty(
-                    e => e.CollectionQuarks,
-                    b =>
-                    {
-                        b.UsePropertyAccessMode(PropertyAccessMode.PreferFieldDuringConstruction);
-                        b.UseDefaultPropertyAccessMode(PropertyAccessMode.FieldDuringConstruction);
-                        b.PrimitiveCollection(e => e.Up).UsePropertyAccessMode(PropertyAccessMode.Property);
-                        b.PrimitiveCollection(e => e.Down).HasField("_forDown");
                     });
 
             var model = modelBuilder.FinalizeModel();
@@ -487,15 +469,8 @@ public abstract partial class ModelBuilderTest
             var entityType = model.FindEntityType(typeof(ComplexProperties))!;
             Assert.Equal(PropertyAccessMode.Field, model.GetPropertyAccessMode());
 
-            var quarksProperty = entityType.FindComplexProperty(nameof(ComplexProperties.Quarks))!;
+            var quarksProperty = entityType.FindComplexProperty(nameof(ComplexProperties.QuarksCollection))!;
             var quarksType = quarksProperty.ComplexType;
-            Assert.Equal(PropertyAccessMode.PreferFieldDuringConstruction, quarksProperty.GetPropertyAccessMode());
-            Assert.Equal(PropertyAccessMode.FieldDuringConstruction, quarksType.GetPropertyAccessMode());
-            Assert.Equal(PropertyAccessMode.FieldDuringConstruction, quarksType.FindProperty("Down")!.GetPropertyAccessMode());
-            Assert.Equal(PropertyAccessMode.Property, quarksType.FindProperty("Up")!.GetPropertyAccessMode());
-
-            quarksProperty = entityType.FindComplexProperty(nameof(ComplexProperties.CollectionQuarks))!;
-            quarksType = quarksProperty.ComplexType;
             Assert.Equal(PropertyAccessMode.PreferFieldDuringConstruction, quarksProperty.GetPropertyAccessMode());
             Assert.Equal(PropertyAccessMode.FieldDuringConstruction, quarksType.GetPropertyAccessMode());
             Assert.Equal(PropertyAccessMode.FieldDuringConstruction, quarksType.FindProperty("Down")!.GetPropertyAccessMode());
@@ -514,8 +489,8 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Order>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(
-                    e => e.Quarks,
+                .ComplexCollection(
+                    e => e.QuarksCollection,
                     b =>
                     {
                         b.Property(e => e.Up);
@@ -564,8 +539,8 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Order>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(
-                    e => e.Quarks,
+                .ComplexCollection(
+                    e => e.QuarksCollection,
                     b =>
                     {
                         b.Property(e => e.Up);
@@ -598,8 +573,8 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Order>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(
-                    e => e.Quarks,
+                .ComplexCollection(
+                    e => e.QuarksCollection,
                     b =>
                     {
                         b.Property(e => e.Up);
@@ -639,8 +614,8 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Order>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(
-                    e => e.Quarks,
+                .ComplexCollection(
+                    e => e.QuarksCollection,
                     b =>
                     {
                         b.Property(e => e.Up).HasConversion<int, CustomValueComparer<int>>();
@@ -689,8 +664,8 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Order>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(
-                    e => e.Quarks,
+                .ComplexCollection(
+                    e => e.QuarksCollection,
                     b =>
                     {
                         b.Property(e => e.Up);
@@ -734,8 +709,8 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Order>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(
-                    e => e.Quarks,
+                .ComplexCollection(
+                    e => e.QuarksCollection,
                     b =>
                     {
                         b.Property(e => e.Up);
@@ -774,77 +749,6 @@ public abstract partial class ModelBuilderTest
         }
 
         [ConditionalFact]
-        public virtual void IEnumerable_properties_with_value_converter_set_are_not_discovered_as_complex_properties()
-        {
-            var modelBuilder = CreateModelBuilder();
-
-            modelBuilder
-                .Ignore<Order>()
-                .Ignore<IndexedClass>()
-                .Entity<ComplexProperties>()
-                .ComplexProperty(
-                    e => e.DynamicProperty,
-                    b =>
-                    {
-                        b.Property(e => e.ExpandoObject).HasConversion(
-                            v => (string)((IDictionary<string, object>)v)["Value"], v => DeserializeExpandoObject(v));
-
-                        var comparer = new ValueComparer<ExpandoObject>(
-                            (v1, v2) => v1.SequenceEqual(v2),
-                            v => v.GetHashCode());
-
-                        b.Property(e => e.ExpandoObject).Metadata.SetValueComparer(comparer);
-                    });
-
-            var model = modelBuilder.FinalizeModel();
-
-            var complexType = model.FindEntityType(typeof(ComplexProperties)).GetComplexProperties().Single().ComplexType;
-
-            Assert.NotNull(complexType.FindProperty(nameof(DynamicProperty.ExpandoObject)).GetValueConverter());
-            Assert.NotNull(complexType.FindProperty(nameof(DynamicProperty.ExpandoObject)).GetValueComparer());
-        }
-
-        private static ExpandoObject DeserializeExpandoObject(string value)
-        {
-            dynamic obj = new ExpandoObject();
-            obj.Value = value;
-
-            return obj;
-        }
-
-        private class ExpandoObjectConverter() : ValueConverter<ExpandoObject, string>(
-            v => (string)((IDictionary<string, object>)v)["Value"], v => DeserializeExpandoObject(v));
-
-        private class ExpandoObjectComparer() : ValueComparer<ExpandoObject>((v1, v2) => v1.SequenceEqual(v2), v => v.GetHashCode());
-
-        [ConditionalFact]
-        public virtual void Properties_can_have_value_converter_configured_by_type()
-        {
-            var modelBuilder = CreateModelBuilder(
-                c =>
-                {
-                    c.Properties(typeof(IWrapped<>)).AreUnicode(false);
-                    c.Properties<WrappedStringBase>().HaveMaxLength(20);
-                    c.Properties<WrappedString>().HaveConversion(typeof(WrappedStringToStringConverter));
-                });
-
-            modelBuilder
-                .Ignore<Order>()
-                .Ignore<IndexedClass>()
-                .Entity<ComplexProperties>()
-                .ComplexProperty(e => e.WrappedStringEntity);
-
-            var model = modelBuilder.FinalizeModel();
-
-            var complexType = model.FindEntityType(typeof(ComplexProperties)).GetComplexProperties().Single().ComplexType;
-            var wrappedProperty = complexType.FindProperty(nameof(WrappedStringEntity.WrappedString));
-            Assert.False(wrappedProperty.IsUnicode());
-            Assert.Equal(20, wrappedProperty.GetMaxLength());
-            Assert.IsType<WrappedStringToStringConverter>(wrappedProperty.GetValueConverter());
-            Assert.IsType<ValueComparer<WrappedString>>(wrappedProperty.GetValueComparer());
-        }
-
-        [ConditionalFact]
         public virtual void Value_converter_configured_on_non_nullable_type_is_applied()
         {
             var modelBuilder = CreateModelBuilder(
@@ -857,8 +761,8 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Order>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(
-                    e => e.Quarks,
+                .ComplexCollection(
+                    e => e.QuarksCollection,
                     b =>
                     {
                         b.Property<int?>("Wierd");
@@ -891,8 +795,8 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Order>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(
-                    e => e.Quarks,
+                .ComplexCollection(
+                    e => e.QuarksCollection,
                     b =>
                     {
                         b.Property<int?>("Wierd");
@@ -912,8 +816,6 @@ public abstract partial class ModelBuilderTest
             Assert.IsType<CustomValueComparer<string>>(wierd.GetProviderValueComparer());
         }
 
-        private class WrappedStringToStringConverter()
-            : ValueConverter<WrappedString, string>(v => v.Value, v => new WrappedString { Value = v });
 
         [ConditionalFact]
         public virtual void Value_converter_type_is_checked()
@@ -924,12 +826,12 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Order>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(
-                    e => e.Quarks,
+                .ComplexCollection(
+                    e => e.QuarksCollection,
                     b =>
                     {
                         Assert.Equal(
-                            CoreStrings.ConverterPropertyMismatch("string", "ComplexProperties.Quarks#Quarks", "Up", "int"),
+                            CoreStrings.ConverterPropertyMismatch("string", "ComplexProperties.QuarksCollection#Quarks", "Up", "int"),
                             Assert.Throws<InvalidOperationException>(
                                 () => b.Property(e => e.Up).HasConversion(
                                     new StringToBytesConverter(Encoding.UTF8))).Message);
@@ -949,8 +851,8 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Order>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(
-                    e => e.Quarks,
+                .ComplexCollection(
+                    e => e.QuarksCollection,
                     b =>
                     {
                         b.Property<int>("Up").HasField("_forUp");
@@ -973,12 +875,12 @@ public abstract partial class ModelBuilderTest
 
             modelBuilder
                 .Entity<ComplexProperties>()
-                .ComplexProperty(
-                    e => e.Quarks,
+                .ComplexCollection(
+                    e => e.QuarksCollection,
                     b =>
                     {
                         Assert.Equal(
-                            CoreStrings.MissingBackingField("_notFound", nameof(Quarks.Down), "ComplexProperties.Quarks#Quarks"),
+                            CoreStrings.MissingBackingField("_notFound", nameof(Quarks.Down), "ComplexProperties.QuarksCollection#Quarks"),
                             Assert.Throws<InvalidOperationException>(() => b.Property(e => e.Down).HasField("_notFound")).Message);
                     });
         }
@@ -990,8 +892,8 @@ public abstract partial class ModelBuilderTest
 
             modelBuilder
                 .Entity<ComplexProperties>()
-                .ComplexProperty(
-                    e => e.Quarks,
+                .ComplexCollection(
+                    e => e.QuarksCollection,
                     b =>
                     {
                         Assert.Equal(
@@ -1006,10 +908,10 @@ public abstract partial class ModelBuilderTest
             var modelBuilder = CreateModelBuilder();
 
             Assert.Equal(
-                CoreStrings.ComplexPropertyWrongClrType(
-                    nameof(ComplexProperties.Customer), nameof(ComplexProperties), nameof(Customer), "IEnumerable<Customer>"),
+                CoreStrings.ComplexCollectionWrongClrType(
+                    nameof(ComplexProperties.Customer), nameof(ComplexProperties), nameof(Customer), "Customer"),
                 Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<ComplexProperties>()
-                    .ComplexProperty<IEnumerable<Customer>>(nameof(ComplexProperties.Customer))).Message);
+                    .ComplexCollection<ICollection<Customer>, Customer>(nameof(ComplexProperties.Customer))).Message);
         }
 
         [ConditionalFact]
@@ -1021,8 +923,8 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Order>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(
-                    e => e.Quarks,
+                .ComplexCollection(
+                    e => e.QuarksCollection,
                     b =>
                     {
                         b.Property(e => e.Up).ValueGeneratedOnAddOrUpdate();
@@ -1054,8 +956,8 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Order>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(
-                    e => e.Quarks,
+                .ComplexCollection(
+                    e => e.QuarksCollection,
                     b =>
                     {
                         b.Property(e => e.Up).IsRowVersion();
@@ -1085,8 +987,8 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Order>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(
-                    e => e.Quarks,
+                .ComplexCollection(
+                    e => e.QuarksCollection,
                     b =>
                     {
                         b.Property(e => e.Up).HasMaxLength(0);
@@ -1123,8 +1025,8 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Order>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(
-                    e => e.Quarks,
+                .ComplexCollection(
+                    e => e.QuarksCollection,
                     b =>
                     {
                         b.Property<int>("Charm");
@@ -1154,8 +1056,8 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Order>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(
-                    e => e.Quarks,
+                .ComplexCollection(
+                    e => e.QuarksCollection,
                     b =>
                     {
                         b.Property(e => e.Up).HasSentinel(1);
@@ -1192,8 +1094,8 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Order>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(
-                    e => e.Quarks,
+                .ComplexCollection(
+                    e => e.QuarksCollection,
                     b =>
                     {
                         b.Property<int>("Charm");
@@ -1228,8 +1130,8 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Order>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(
-                    e => e.Quarks,
+                .ComplexCollection(
+                    e => e.QuarksCollection,
                     b =>
                     {
                         b.Property<int>("Charm");
@@ -1259,8 +1161,8 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Order>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(
-                    e => e.Quarks,
+                .ComplexCollection(
+                    e => e.QuarksCollection,
                     b =>
                     {
                         b.Property(e => e.Up).HasPrecision(1, 0);
@@ -1304,8 +1206,8 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Order>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(
-                    e => e.Quarks,
+                .ComplexCollection(
+                    e => e.QuarksCollection,
                     b =>
                     {
                         b.Property<int>("Charm");
@@ -1342,8 +1244,8 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Order>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(
-                    e => e.Quarks,
+                .ComplexCollection(
+                    e => e.QuarksCollection,
                     b =>
                     {
                         b.Property(e => e.Up).HasValueGenerator<CustomValueGenerator>();
@@ -1387,8 +1289,8 @@ public abstract partial class ModelBuilderTest
 
             modelBuilder
                 .Entity<ComplexProperties>()
-                .ComplexProperty(
-                    e => e.Quarks,
+                .ComplexCollection(
+                    e => e.QuarksCollection,
                     b =>
                     {
                         Assert.Equal(
@@ -1405,8 +1307,8 @@ public abstract partial class ModelBuilderTest
 
             modelBuilder
                 .Entity<ComplexProperties>()
-                .ComplexProperty(
-                    e => e.Quarks,
+                .ComplexCollection(
+                    e => e.QuarksCollection,
                     b =>
                     {
                         b.Property(e => e.Up).HasValueGenerator<BadCustomValueGenerator1>();
@@ -1414,7 +1316,7 @@ public abstract partial class ModelBuilderTest
                     });
 
             var complexType = model.FindEntityType(typeof(ComplexProperties))
-                .FindComplexProperty(nameof(ComplexProperties.Quarks))!.ComplexType;
+                .FindComplexProperty(nameof(ComplexProperties.QuarksCollection))!.ComplexType;
 
             Assert.Equal(
                 CoreStrings.CannotCreateValueGenerator(nameof(BadCustomValueGenerator1), "HasValueGenerator"),
@@ -1449,8 +1351,8 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Order>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(
-                    e => e.Quarks,
+                .ComplexCollection(
+                    e => e.QuarksCollection,
                     b =>
                     {
                         b.Property(e => e.Up).IsUnicode();
@@ -1487,8 +1389,8 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Order>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(
-                    e => e.Quarks,
+                .ComplexCollection(
+                    e => e.QuarksCollection,
                     b =>
                     {
                         b.Property<int>("Charm");
@@ -1513,7 +1415,7 @@ public abstract partial class ModelBuilderTest
         public virtual void PropertyBuilder_methods_can_be_chained()
             => CreateModelBuilder()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(e => e.Quarks)
+                .ComplexCollection(e => e.QuarksCollection)
                 .Property(e => e.Up)
                 .IsRequired()
                 .HasAnnotation("A", "V")
@@ -1533,146 +1435,7 @@ public abstract partial class ModelBuilderTest
                 .IsRequired();
 
         [ConditionalFact]
-        public virtual void Can_call_Property_on_a_field()
-        {
-            var modelBuilder = CreateModelBuilder();
-
-            modelBuilder
-                .Ignore<Order>()
-                .Ignore<IndexedClass>()
-                .Entity<ComplexProperties>()
-                .ComplexProperty(e => e.EntityWithFields).Property(e => e.Id);
-
-            var model = modelBuilder.FinalizeModel();
-            var complexType = model.FindEntityType(typeof(ComplexProperties)).GetComplexProperties().Single().ComplexType;
-            Assert.Equal(6, complexType.GetProperties().Count());
-            var property = complexType.FindProperty(nameof(EntityWithFields.Id));
-            Assert.Null(property.PropertyInfo);
-            Assert.NotNull(property.FieldInfo);
-        }
-
-        [ConditionalFact]
-        public virtual void Can_ignore_a_field()
-        {
-            var modelBuilder = CreateModelBuilder(c => c.ComplexProperties<KeylessEntityWithFields>());
-
-            modelBuilder
-                .Ignore<Order>()
-                .Ignore<IndexedClass>()
-                .Entity<ComplexProperties>()
-                .ComplexProperty(
-                    e => e.EntityWithFields,
-                    b => b.Ignore(e => e.CompanyId));
-
-            var model = modelBuilder.FinalizeModel();
-            var complexProperty = model.FindEntityType(typeof(ComplexProperties)).GetComplexProperties().Single();
-            Assert.Equal(5, complexProperty.ComplexType.GetProperties().Count());
-            Assert.Single(complexProperty.ComplexType.GetComplexProperties());
-        }
-
-        [ConditionalFact]
-        public virtual void Complex_properties_not_discovered_by_convention()
-        {
-            var modelBuilder = CreateModelBuilder();
-
-            modelBuilder
-                .Ignore<Product>()
-                .Ignore<CustomerDetails>()
-                .Ignore<Order>()
-                .Entity<ComplexProperties>()
-                .ComplexProperty(e => e.Customer);
-
-            modelBuilder
-                .Entity<ValueComplexProperties>(
-                    b =>
-                    {
-                        b.Ignore(e => e.Tuple);
-                        b.Ignore(e => e.Tuples);
-                        b.ComplexProperty(e => e.Label, b => b.ComplexProperty(e => e.Customer));
-                        b.ComplexProperty(e => e.OldLabel, b => b.ComplexProperty(e => e.Customer));
-                    });
-
-            var model = modelBuilder.FinalizeModel();
-            AssertEqual(modelBuilder.Model, model);
-
-            var customerType = model.FindEntityType(typeof(ComplexProperties))!
-                .FindComplexProperty(nameof(ComplexProperties.Customer))!.ComplexType;
-            var indexedType = model.FindEntityType(typeof(ComplexProperties))!
-                .FindComplexProperty(nameof(ComplexProperties.IndexedClass))!.ComplexType;
-
-            var nestedProperty = indexedType.FindComplexProperty(nameof(IndexedClass.Nested))!;
-            Assert.False(nestedProperty.IsNullable);
-            Assert.Equal(typeof(NestedComplexType), nestedProperty.ClrType);
-            var nestedType = nestedProperty.ComplexType;
-            Assert.Equal(typeof(NestedComplexType), nestedType.ClrType);
-
-            var doubleNestedProperty = nestedType.FindComplexProperty(nameof(NestedComplexType.DoubleNested))!;
-            Assert.False(doubleNestedProperty.IsNullable);
-            Assert.Equal(typeof(DoubleNestedComplexType), doubleNestedProperty.ClrType);
-            var doubleNestedType = doubleNestedProperty.ComplexType;
-            Assert.Equal(typeof(DoubleNestedComplexType), doubleNestedType.ClrType);
-
-            var valueType = model.FindEntityType(typeof(ValueComplexProperties))!;
-            var labelProperty = valueType.FindComplexProperty(nameof(ValueComplexProperties.Label))!;
-            Assert.False(labelProperty.IsNullable);
-            Assert.Equal(typeof(ProductLabel), labelProperty.ClrType);
-            var labelType = labelProperty.ComplexType;
-            Assert.Equal(typeof(ProductLabel), labelType.ClrType);
-
-            var labelCustomerProperty = labelType.FindComplexProperty(nameof(ProductLabel.Customer))!;
-            Assert.False(labelCustomerProperty.IsNullable);
-            Assert.Equal(typeof(Customer), labelCustomerProperty.ClrType);
-
-            var oldLabelProperty = valueType.FindComplexProperty(nameof(ValueComplexProperties.OldLabel))!;
-            Assert.False(oldLabelProperty.IsNullable);
-            Assert.Equal(typeof(ProductLabel), oldLabelProperty.ClrType);
-            var oldLabelType = oldLabelProperty.ComplexType;
-            Assert.Equal(typeof(ProductLabel), oldLabelType.ClrType);
-
-            var oldLabelCustomerProperty = labelType.FindComplexProperty(nameof(ProductLabel.Customer))!;
-            Assert.False(oldLabelCustomerProperty.IsNullable);
-            Assert.Equal(typeof(Customer), oldLabelCustomerProperty.ClrType);
-        }
-
-        [ConditionalFact]
-        public virtual void Complex_properties_can_be_configured_by_type()
-        {
-            var modelBuilder = CreateModelBuilder(m => m.ComplexProperties<Customer>());
-
-            modelBuilder
-                .Ignore<Product>()
-                .Ignore<CustomerDetails>()
-                .Ignore<Order>()
-                .Ignore<IndexedClass>()
-                .Entity<ComplexProperties>();
-
-            var model = modelBuilder.FinalizeModel();
-
-            Assert.All(model.FindEntityType(typeof(ComplexProperties)).GetComplexProperties(),
-                p => Assert.Equal(typeof(Customer), p.ComplexType.ClrType));
-        }
-
-        [ConditionalFact]
-        public virtual void Complex_properties_can_be_configured_as_optional()
-        {
-            var modelBuilder = CreateModelBuilder();
-
-            modelBuilder
-                .Ignore<Product>()
-                .Ignore<CustomerDetails>()
-                .Ignore<Order>()
-                .Ignore<IndexedClass>()
-                .Entity<ComplexProperties>()
-                .ComplexProperty(e => e.Customer).IsRequired(false);
-
-            var model = modelBuilder.FinalizeModel();
-
-            var complexProperty = model.FindEntityType(typeof(ComplexProperties)).GetComplexProperties().Single();
-            Assert.True(complexProperty.IsNullable);
-        }
-
-        [ConditionalFact]
-        public virtual void Can_map_a_tuple()
+        public virtual void Can_map_a_tuple_collection()
         {
             var modelBuilder = CreateModelBuilder();
 
@@ -1680,18 +1443,18 @@ public abstract partial class ModelBuilderTest
                 .Entity<ValueComplexProperties>()
                 .Ignore(e => e.Label)
                 .Ignore(e => e.OldLabel)
-                .Ignore(e => e.Tuples)
-                .ComplexProperty(e => e.Tuple);
+                .Ignore(e => e.Tuple)
+                .ComplexCollection(e => e.Tuples);
 
             var model = modelBuilder.FinalizeModel();
 
             var valueType = model.FindEntityType(typeof(ValueComplexProperties))!;
-            var tupleProperty = valueType.FindComplexProperty(nameof(ValueComplexProperties.Tuple))!;
+            var tupleProperty = valueType.FindComplexProperty(nameof(ValueComplexProperties.Tuples))!;
             Assert.False(tupleProperty.IsNullable);
-            Assert.Equal(typeof((string, int)), tupleProperty.ClrType);
+            Assert.Equal(typeof(List<(string, int)>), tupleProperty.ClrType);
             var tupleType = tupleProperty.ComplexType;
             Assert.Equal(typeof((string, int)), tupleType.ClrType);
-            Assert.Equal("ValueComplexProperties.Tuple#ValueTuple<string, int>", tupleType.DisplayName());
+            Assert.Equal("ValueComplexProperties.Tuples#ValueTuple<string, int>", tupleType.DisplayName());
 
             Assert.Equal(2, tupleType.GetProperties().Count());
         }
@@ -1703,11 +1466,11 @@ public abstract partial class ModelBuilderTest
 
             modelBuilder
                 .Entity<ComplexProperties>()
-                .ComplexProperty(e => e.Customer);
+                .ComplexCollection(e => e.Customers);
 
             Assert.Equal(
                 CoreStrings.NavigationNotAddedComplexType(
-                    "ComplexProperties.Customer#Customer", nameof(Customer.Details), typeof(CustomerDetails).ShortDisplayName()),
+                    "ComplexProperties.Customers#Customer", nameof(Customer.Details), typeof(CustomerDetails).ShortDisplayName()),
                 Assert.Throws<InvalidOperationException>(modelBuilder.FinalizeModel).Message);
         }
 
@@ -1718,7 +1481,7 @@ public abstract partial class ModelBuilderTest
 
             modelBuilder
                 .Entity<ComplexProperties>()
-                .ComplexProperty(e => e.Customer)
+                .ComplexCollection(e => e.Customers)
                 .Ignore(c => c.Notes)
                 .Ignore(c => c.Name)
                 .Ignore(c => c.Title)
@@ -1727,468 +1490,16 @@ public abstract partial class ModelBuilderTest
 
             Assert.Equal(
                 CoreStrings.EmptyComplexType(
-                    "ComplexProperties.Customer#Customer"),
+                    "ComplexProperties.Customers#Customer"),
                 Assert.Throws<InvalidOperationException>(modelBuilder.FinalizeModel).Message);
-        }
-
-        [ConditionalFact]
-        public virtual void Can_set_primitive_collection_annotation_when_no_clr_property()
-        {
-            var modelBuilder = CreateModelBuilder();
-
-            modelBuilder
-                .Ignore<Product>()
-                .Ignore<IndexedClass>()
-                .Entity<ComplexProperties>()
-                .ComplexProperty(e => e.Customer)
-                .Ignore(c => c.Details)
-                .Ignore(c => c.Orders)
-                .PrimitiveCollection<int[]>("Ints").HasAnnotation("foo", "bar");
-
-            var model = modelBuilder.FinalizeModel();
-            var complexProperty = model.FindEntityType(typeof(ComplexProperties))!.GetComplexProperties().Single();
-            var property = complexProperty.ComplexType.FindProperty("Ints")!;
-
-            Assert.Equal("bar", property["foo"]);
-        }
-
-        [ConditionalFact]
-        public virtual void Primitive_collections_are_required_by_default_only_if_CLR_type_is_nullable()
-        {
-            var modelBuilder = CreateModelBuilder();
-
-            modelBuilder
-                .Ignore<Order>()
-                .Ignore<IndexedClass>()
-                .Entity<ComplexProperties>()
-                .ComplexProperty(
-                    e => e.CollectionQuarks,
-                    b =>
-                    {
-                        b.PrimitiveCollection(e => e.Up);
-                        b.PrimitiveCollection(e => e.Down);
-                        b.PrimitiveCollection<List<int>>("Charm");
-                        b.PrimitiveCollection<List<string>>("Strange");
-                    });
-
-            var model = modelBuilder.FinalizeModel();
-            var complexType = model.FindEntityType(typeof(ComplexProperties))!.GetComplexProperties().Single().ComplexType;
-
-            Assert.False(complexType.FindProperty("Up")!.IsNullable);
-            Assert.True(complexType.FindProperty("Down")!.IsNullable);
-            Assert.True(complexType.FindProperty("Charm")!.IsNullable); // Because we can't detect the non-nullable reference type
-            Assert.True(complexType.FindProperty("Strange")!.IsNullable);
-        }
-
-        [ConditionalFact]
-        public virtual void Can_ignore_shadow_primitive_collections_when_they_have_been_added_explicitly()
-        {
-            var modelBuilder = CreateModelBuilder();
-
-            var complexPropertyBuilder = modelBuilder
-                .Ignore<IndexedClass>()
-                .Entity<ComplexProperties>()
-                .ComplexProperty(e => e.Customer, b => b.Ignore(c => c.Details).Ignore(c => c.Orders));
-            complexPropertyBuilder.PrimitiveCollection<string[]>("Shadow");
-            complexPropertyBuilder.Ignore("Shadow");
-
-            var model = modelBuilder.FinalizeModel();
-
-            var complexType = model.FindEntityType(typeof(ComplexProperties))!.GetComplexProperties().Single().ComplexType;
-            Assert.Null(complexType.FindProperty("Shadow"));
-        }
-
-        [ConditionalFact]
-        public virtual void Can_add_shadow_primitive_collections_when_they_have_been_ignored()
-        {
-            var modelBuilder = CreateModelBuilder();
-
-            modelBuilder
-                .Ignore<Product>()
-                .Ignore<IndexedClass>()
-                .Entity<ComplexProperties>()
-                .ComplexProperty(
-                    e => e.Customer,
-                    b =>
-                    {
-                        b.Ignore(c => c.Details);
-                        b.Ignore(c => c.Orders);
-                        b.Ignore("Shadow");
-                        b.PrimitiveCollection<string[]>("Shadow");
-                    });
-
-            var model = modelBuilder.FinalizeModel();
-
-            var complexType = model.FindEntityType(typeof(ComplexProperties))!.GetComplexProperties().Single().ComplexType;
-            Assert.NotNull(complexType.FindProperty("Shadow"));
-        }
-
-        [ConditionalFact]
-        public virtual void Primitive_collections_can_be_made_required()
-        {
-            var modelBuilder = CreateModelBuilder();
-
-            modelBuilder
-                .Ignore<Order>()
-                .Ignore<IndexedClass>()
-                .Entity<ComplexProperties>()
-                .ComplexProperty(
-                    e => e.CollectionQuarks,
-                    b =>
-                    {
-                        b.PrimitiveCollection(e => e.Up).IsRequired();
-                        b.PrimitiveCollection(e => e.Down).IsRequired();
-                        b.PrimitiveCollection<List<int>>("Charm").IsRequired();
-                        b.PrimitiveCollection<List<string>>("Strange").IsRequired();
-                    });
-
-            var model = modelBuilder.FinalizeModel();
-            var complexType = model.FindEntityType(typeof(ComplexProperties))!.GetComplexProperties().Single().ComplexType;
-
-            Assert.False(complexType.FindProperty("Up")!.IsNullable);
-            Assert.False(complexType.FindProperty("Down")!.IsNullable);
-            Assert.False(complexType.FindProperty("Charm")!.IsNullable);
-            Assert.False(complexType.FindProperty("Strange")!.IsNullable);
-        }
-
-        [ConditionalFact]
-        public virtual void Primitive_collections_can_be_made_optional()
-        {
-            var modelBuilder = CreateModelBuilder();
-
-            modelBuilder
-                .Ignore<Order>()
-                .Ignore<IndexedClass>()
-                .Entity<ComplexProperties>()
-                .ComplexProperty(
-                    e => e.CollectionQuarks,
-                    b =>
-                    {
-                        b.PrimitiveCollection(e => e.Up).IsRequired(false);
-                        b.PrimitiveCollection(e => e.Down).IsRequired(false);
-                        b.PrimitiveCollection<List<int>>("Charm").IsRequired(false);
-                        b.PrimitiveCollection<List<string>>("Strange").IsRequired(false);
-                    });
-
-            var model = modelBuilder.FinalizeModel();
-            var complexType = model.FindEntityType(typeof(ComplexProperties))!.GetComplexProperties().Single().ComplexType;
-
-            Assert.True(complexType.FindProperty("Up")!.IsNullable);
-            Assert.True(complexType.FindProperty("Down")!.IsNullable);
-            Assert.True(complexType.FindProperty("Charm")!.IsNullable);
-            Assert.True(complexType.FindProperty("Strange")!.IsNullable);
-        }
-
-        [ConditionalFact]
-        public virtual void Primitive_collections_specified_by_string_are_shadow_properties_unless_already_known_to_be_CLR_properties()
-        {
-            var modelBuilder = CreateModelBuilder();
-
-            modelBuilder
-                .Ignore<Order>()
-                .Ignore<IndexedClass>()
-                .Entity<ComplexProperties>()
-                .ComplexProperty(
-                    e => e.CollectionQuarks,
-                    b =>
-                    {
-                        b.PrimitiveCollection<ObservableCollection<int>>("Up");
-                        b.PrimitiveCollection<ObservableCollection<string>>("Down");
-                        b.PrimitiveCollection<ObservableCollection<int>>("Charm");
-                        b.PrimitiveCollection<ObservableCollection<string>>("Strange");
-                    });
-
-            var model = modelBuilder.FinalizeModel();
-            var complexType = model.FindEntityType(typeof(ComplexProperties))!.GetComplexProperties().Single().ComplexType;
-
-            Assert.False(complexType.FindProperty("Up")!.IsShadowProperty());
-            Assert.False(complexType.FindProperty("Down")!.IsShadowProperty());
-            Assert.True(complexType.FindProperty("Charm")!.IsShadowProperty());
-            Assert.True(complexType.FindProperty("Strange")!.IsShadowProperty());
-
-            Assert.Equal(-1, complexType.FindProperty("Up")!.GetShadowIndex());
-            Assert.Equal(-1, complexType.FindProperty("Down")!.GetShadowIndex());
-            Assert.NotEqual(-1, complexType.FindProperty("Charm")!.GetShadowIndex());
-            Assert.NotEqual(-1, complexType.FindProperty("Strange")!.GetShadowIndex());
-        }
-
-        [ConditionalFact]
-        public virtual void Primitive_collections_can_be_made_concurrency_tokens()
-        {
-            var modelBuilder = CreateModelBuilder();
-
-            modelBuilder
-                .Ignore<Order>()
-                .Ignore<IndexedClass>()
-                .Entity<ComplexProperties>()
-                .ComplexProperty(
-                    e => e.CollectionQuarks,
-                    b =>
-                    {
-                        b.PrimitiveCollection(e => e.Up).IsConcurrencyToken();
-                        b.PrimitiveCollection(e => e.Down).IsConcurrencyToken(false);
-                        b.PrimitiveCollection<List<int>>("Charm").IsConcurrencyToken();
-                        b.PrimitiveCollection<List<string>>("Strange").IsConcurrencyToken(false);
-                        b.HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangingAndChangedNotifications);
-                    });
-
-            var model = modelBuilder.FinalizeModel();
-            var complexType = model.FindEntityType(typeof(ComplexProperties))!.GetComplexProperties()!.Single().ComplexType;
-
-            Assert.True(complexType.FindProperty("Up")!.IsConcurrencyToken);
-            Assert.False(complexType.FindProperty("Down")!.IsConcurrencyToken);
-            Assert.True(complexType.FindProperty("Charm")!.IsConcurrencyToken);
-            Assert.False(complexType.FindProperty("Strange")!.IsConcurrencyToken);
-
-            Assert.Equal(ChangeTrackingStrategy.ChangingAndChangedNotifications, complexType.GetChangeTrackingStrategy());
-        }
-
-        [ConditionalFact]
-        public virtual void Primitive_collections_can_have_field_set()
-        {
-            var modelBuilder = CreateModelBuilder();
-
-            modelBuilder
-                .Ignore<Order>()
-                .Ignore<IndexedClass>()
-                .Entity<ComplexProperties>()
-                .ComplexProperty(
-                    e => e.CollectionQuarks,
-                    b =>
-                    {
-                        b.PrimitiveCollection<ObservableCollection<int>>("Up").HasField("_forUp");
-                        b.PrimitiveCollection(e => e.Down).HasField("_forDown");
-                        b.PrimitiveCollection<ObservableCollection<string>>("_forWierd").HasField("_forWierd");
-                    });
-
-            var model = modelBuilder.FinalizeModel();
-            var complexType = model.FindEntityType(typeof(ComplexProperties))!.GetComplexProperties().Single().ComplexType;
-
-            Assert.Equal("_forUp", complexType.FindProperty("Up")!.GetFieldName());
-            Assert.Equal("_forDown", complexType.FindProperty("Down")!.GetFieldName());
-            Assert.Equal("_forWierd", complexType.FindProperty("_forWierd")!.GetFieldName());
-        }
-
-        [ConditionalFact]
-        public virtual void HasField_for_primitive_collection_throws_if_field_is_not_found()
-        {
-            var modelBuilder = CreateModelBuilder();
-
-            modelBuilder
-                .Entity<ComplexProperties>()
-                .ComplexProperty(
-                    e => e.CollectionQuarks,
-                    b =>
-                    {
-                        Assert.Equal(
-                            CoreStrings.MissingBackingField(
-                                "_notFound", nameof(CollectionQuarks.Down), "ComplexProperties.CollectionQuarks#CollectionQuarks"),
-                            Assert.Throws<InvalidOperationException>(() => b.Property(e => e.Down).HasField("_notFound")).Message);
-                    });
-        }
-
-        [ConditionalFact]
-        public virtual void HasField_for_primitive_collection_throws_if_field_is_wrong_type()
-        {
-            var modelBuilder = CreateModelBuilder();
-
-            modelBuilder
-                .Entity<ComplexProperties>()
-                .ComplexProperty(
-                    e => e.CollectionQuarks,
-                    b =>
-                    {
-                        Assert.Equal(
-                            CoreStrings.BadBackingFieldType(
-                                "_forUp", "ObservableCollection<int>", nameof(CollectionQuarks), nameof(CollectionQuarks.Down),
-                                "ObservableCollection<string>"),
-                            Assert.Throws<InvalidOperationException>(() => b.Property(e => e.Down).HasField("_forUp")).Message);
-                    });
-        }
-
-        [ConditionalFact]
-        public virtual void Primitive_collections_can_be_set_to_generate_values_on_Add()
-        {
-            var modelBuilder = CreateModelBuilder();
-
-            modelBuilder
-                .Ignore<Order>()
-                .Ignore<IndexedClass>()
-                .Entity<ComplexProperties>()
-                .ComplexProperty(
-                    e => e.CollectionQuarks,
-                    b =>
-                    {
-                        b.PrimitiveCollection(e => e.Up).ValueGeneratedOnAddOrUpdate();
-                        b.PrimitiveCollection(e => e.Down).ValueGeneratedNever();
-                        b.PrimitiveCollection<List<int>>("Charm").Metadata.ValueGenerated = ValueGenerated.OnUpdateSometimes;
-                        b.PrimitiveCollection<List<string>>("Strange").ValueGeneratedNever();
-                        b.PrimitiveCollection<List<int>>("Top").ValueGeneratedOnAddOrUpdate();
-                        b.PrimitiveCollection<List<string>>("Bottom").ValueGeneratedOnUpdate();
-                    });
-
-            var model = modelBuilder.FinalizeModel();
-
-            var complexType = model.FindEntityType(typeof(ComplexProperties))!.GetComplexProperties().Single().ComplexType;
-            Assert.Equal(ValueGenerated.OnAddOrUpdate, complexType.FindProperty("Up")!.ValueGenerated);
-            Assert.Equal(ValueGenerated.Never, complexType.FindProperty("Down")!.ValueGenerated);
-            Assert.Equal(ValueGenerated.OnUpdateSometimes, complexType.FindProperty("Charm")!.ValueGenerated);
-            Assert.Equal(ValueGenerated.Never, complexType.FindProperty("Strange")!.ValueGenerated);
-            Assert.Equal(ValueGenerated.OnAddOrUpdate, complexType.FindProperty("Top")!.ValueGenerated);
-            Assert.Equal(ValueGenerated.OnUpdate, complexType.FindProperty("Bottom")!.ValueGenerated);
-        }
-
-        [ConditionalFact]
-        public virtual void Can_set_max_length_for_primitive_collections()
-        {
-            var modelBuilder = CreateModelBuilder();
-
-            modelBuilder
-                .Ignore<Order>()
-                .Ignore<IndexedClass>()
-                .Entity<ComplexProperties>()
-                .ComplexProperty(
-                    e => e.CollectionQuarks,
-                    b =>
-                    {
-                        b.PrimitiveCollection(e => e.Up).HasMaxLength(0);
-                        b.PrimitiveCollection(e => e.Down).HasMaxLength(100);
-                        b.PrimitiveCollection<List<int>>("Charm").HasMaxLength(0);
-                        b.PrimitiveCollection<List<string>>("Strange").HasMaxLength(-1);
-                        b.PrimitiveCollection<int[]>("Top").HasMaxLength(0);
-                        b.PrimitiveCollection<string[]>("Bottom").HasMaxLength(100);
-                    });
-
-            var model = modelBuilder.FinalizeModel();
-            var complexType = model.FindEntityType(typeof(ComplexProperties))!.GetComplexProperties().Single().ComplexType;
-
-            Assert.Equal(0, complexType.FindProperty("Up")!.GetMaxLength());
-            Assert.Equal(100, complexType.FindProperty("Down")!.GetMaxLength());
-            Assert.Equal(0, complexType.FindProperty("Charm")!.GetMaxLength());
-            Assert.Equal(-1, complexType.FindProperty("Strange")!.GetMaxLength());
-            Assert.Equal(0, complexType.FindProperty("Top")!.GetMaxLength());
-            Assert.Equal(100, complexType.FindProperty("Bottom")!.GetMaxLength());
-        }
-
-        [ConditionalFact]
-        public virtual void Can_set_sentinel_for_primitive_collections()
-        {
-            var modelBuilder = CreateModelBuilder();
-
-            modelBuilder
-                .Ignore<Order>()
-                .Ignore<IndexedClass>()
-                .Entity<ComplexProperties>()
-                .ComplexProperty(
-                    e => e.CollectionQuarks,
-                    b =>
-                    {
-                        b.PrimitiveCollection(e => e.Up).HasSentinel(null);
-                        b.PrimitiveCollection(e => e.Down).HasSentinel([]);
-                        b.PrimitiveCollection<int[]>("Charm").HasSentinel([]);
-                        b.PrimitiveCollection<List<string>>("Strange").HasSentinel([]);
-                        b.PrimitiveCollection<int[]>("Top").HasSentinel([77]);
-                        b.PrimitiveCollection<List<string>>("Bottom").HasSentinel([""]);
-                    });
-
-            var model = modelBuilder.FinalizeModel();
-            var complexType = model.FindEntityType(typeof(ComplexProperties))!.GetComplexProperties().Single().ComplexType;
-
-            Assert.Equal(0, complexType.FindProperty(nameof(CollectionQuarks.Id))!.Sentinel);
-            Assert.Null(complexType.FindProperty("Up")!.Sentinel);
-            Assert.Equal(new ObservableCollection<string>(), complexType.FindProperty("Down")!.Sentinel);
-            Assert.Equal(Array.Empty<int>(), complexType.FindProperty("Charm")!.Sentinel);
-            Assert.Equal(new List<string>(), complexType.FindProperty("Strange")!.Sentinel);
-            Assert.Equal(new[] { 77 }, complexType.FindProperty("Top")!.Sentinel);
-            Assert.Equal(new List<string> { "" }, complexType.FindProperty("Bottom")!.Sentinel);
-        }
-
-        [ConditionalFact]
-        public virtual void Can_set_custom_value_generator_for_primitive_collections()
-        {
-            var modelBuilder = CreateModelBuilder();
-
-            modelBuilder
-                .Ignore<Order>()
-                .Ignore<IndexedClass>()
-                .Entity<ComplexProperties>()
-                .ComplexProperty(
-                    e => e.CollectionQuarks,
-                    b =>
-                    {
-                        b.PrimitiveCollection(e => e.Up).HasValueGenerator<CustomValueGenerator>();
-                        b.PrimitiveCollection(e => e.Down).HasValueGenerator(typeof(CustomValueGenerator));
-                        b.PrimitiveCollection<List<string>>("Strange").HasValueGenerator<CustomValueGenerator>();
-                        b.PrimitiveCollection<int[]>("Top").HasValueGeneratorFactory(typeof(CustomValueGeneratorFactory));
-                        b.PrimitiveCollection<List<string>>("Bottom").HasValueGeneratorFactory<CustomValueGeneratorFactory>();
-                    });
-
-            var model = modelBuilder.FinalizeModel();
-
-            var complexType = model.FindEntityType(typeof(ComplexProperties))!.GetComplexProperties().Single().ComplexType;
-
-            Assert.IsType<CustomValueGenerator>(complexType.FindProperty("Up")!.GetValueGeneratorFactory()!(null!, null!));
-            Assert.IsType<CustomValueGenerator>(complexType.FindProperty("Down")!.GetValueGeneratorFactory()!(null!, null!));
-            Assert.IsType<CustomValueGenerator>(complexType.FindProperty("Strange")!.GetValueGeneratorFactory()!(null!, null!));
-            Assert.IsType<CustomValueGenerator>(complexType.FindProperty("Top")!.GetValueGeneratorFactory()!(null!, null!));
-            Assert.IsType<CustomValueGenerator>(complexType.FindProperty("Bottom")!.GetValueGeneratorFactory()!(null!, null!));
-        }
-
-        [ConditionalFact]
-        public virtual void Throws_for_primitive_collection_with_bad_value_generator_type()
-        {
-            var modelBuilder = CreateModelBuilder();
-
-            modelBuilder
-                .Entity<ComplexProperties>()
-                .ComplexProperty(
-                    e => e.CollectionQuarks,
-                    b =>
-                    {
-                        Assert.Equal(
-                            CoreStrings.BadValueGeneratorType(nameof(Random), nameof(ValueGenerator)),
-                            Assert.Throws<ArgumentException>(() => b.Property(e => e.Down).HasValueGenerator(typeof(Random))).Message);
-                    });
-        }
-
-        [ConditionalFact]
-        public virtual void Can_set_unicode_for_primitive_collections()
-        {
-            var modelBuilder = CreateModelBuilder();
-
-            modelBuilder
-                .Ignore<Order>()
-                .Ignore<IndexedClass>()
-                .Entity<ComplexProperties>()
-                .ComplexProperty(
-                    e => e.CollectionQuarks,
-                    b =>
-                    {
-                        b.PrimitiveCollection(e => e.Up).IsUnicode();
-                        b.PrimitiveCollection(e => e.Down).IsUnicode(false);
-                        b.PrimitiveCollection<int[]>("Charm").IsUnicode();
-                        b.PrimitiveCollection<List<string>>("Strange").IsUnicode(false);
-                        b.PrimitiveCollection<int[]>("Top").IsUnicode();
-                        b.PrimitiveCollection<List<string>>("Bottom").IsUnicode(false);
-                    });
-
-            var model = modelBuilder.FinalizeModel();
-            var complexType = model.FindEntityType(typeof(ComplexProperties))!.GetComplexProperties().Single().ComplexType;
-
-            Assert.True(complexType.FindProperty("Up")!.IsUnicode());
-            Assert.False(complexType.FindProperty("Down")!.IsUnicode());
-            Assert.True(complexType.FindProperty("Charm")!.IsUnicode());
-            Assert.False(complexType.FindProperty("Strange")!.IsUnicode());
-            Assert.True(complexType.FindProperty("Top")!.IsUnicode());
-            Assert.False(complexType.FindProperty("Bottom")!.IsUnicode());
         }
 
         [ConditionalFact]
         public virtual void PrimitiveCollectionBuilder_methods_can_be_chained()
             => CreateModelBuilder()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(e => e.CollectionQuarks)
-                .PrimitiveCollection(e => e.Up)
+                .ComplexCollection(e => e.QuarksCollection)
+                .PrimitiveCollection<List<int>>("UpCollection")
                 .ElementType(
                     t => t
                         .HasAnnotation("B", "C")
@@ -2221,70 +1532,5 @@ public abstract partial class ModelBuilderTest
                 .HasValueGeneratorFactory<CustomValueGeneratorFactory>()
                 .HasValueGeneratorFactory(typeof(CustomValueGeneratorFactory))
                 .IsRequired();
-
-        [ConditionalFact]
-        public virtual void Can_call_PrimitiveCollection_on_a_field()
-        {
-            var modelBuilder = CreateModelBuilder();
-
-            modelBuilder
-                .Ignore<Order>()
-                .Ignore<IndexedClass>()
-                .Entity<ComplexProperties>()
-                .ComplexProperty(e => e.EntityWithFields).PrimitiveCollection(e => e.CollectionId);
-
-            var model = modelBuilder.FinalizeModel();
-            var complexType = model.FindEntityType(typeof(ComplexProperties))!.GetComplexProperties().Single().ComplexType;
-            Assert.Equal(6, complexType.GetProperties().Count());
-            var property = complexType.FindProperty(nameof(EntityWithFields.CollectionId))!;
-            Assert.Null(property.PropertyInfo);
-            Assert.NotNull(property.FieldInfo);
-        }
-
-        [ConditionalFact]
-        public virtual void Can_specify_discriminator_without_explicit_value()
-        {
-            var modelBuilder = CreateModelBuilder();
-
-            modelBuilder
-                .Ignore<Order>()
-                .Ignore<IndexedClass>()
-                .Entity<ComplexProperties>()
-                .ComplexProperty(
-                    e => e.Quarks,
-                    b => b.HasDiscriminator<string>("Discriminator"));
-
-            var model = modelBuilder.FinalizeModel();
-
-            var complexType = model.FindEntityType(typeof(ComplexProperties)).GetComplexProperties().Single().ComplexType;
-            Assert.Equal(nameof(Quarks), complexType.GetDiscriminatorValue());
-
-            var discriminator = complexType.FindDiscriminatorProperty()!;
-            Assert.False(discriminator.IsNullable);
-            Assert.Equal(PropertySaveBehavior.Throw, discriminator.GetAfterSaveBehavior());
-            Assert.NotNull(discriminator.GetValueGeneratorFactory());
-        }
-
-        [ConditionalFact]
-        public virtual void Can_specify_discriminator_value()
-        {
-            var modelBuilder = CreateModelBuilder();
-
-            modelBuilder
-                .Ignore<Order>()
-                .Ignore<IndexedClass>()
-                .Entity<ComplexProperties>()
-                .ComplexProperty(
-                    e => e.Quarks,
-                    b =>
-                    {
-                        b.HasDiscriminator<BasicEnum>("EnumType").HasValue(BasicEnum.Two);
-                    });
-
-            var model = modelBuilder.FinalizeModel();
-
-            var complexType = model.FindEntityType(typeof(ComplexProperties)).GetComplexProperties().Single().ComplexType;
-            Assert.Equal(BasicEnum.Two, complexType.GetDiscriminatorValue());
-        }
     }
 }

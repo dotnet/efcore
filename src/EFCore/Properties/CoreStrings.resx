@@ -306,9 +306,6 @@
   <data name="ComplexCollectionWrongClrType" xml:space="preserve">
     <value>The collection complex property '{property}' cannot be added to the type '{type}' because its CLR type '{clrType}' does not implement 'IEnumerable&lt;{targetType}&gt;'. Collection complex property must implement IEnumerable&lt;&gt; of the complex type.</value>
   </data>
-  <data name="ComplexPropertyCollection" xml:space="preserve">
-    <value>Adding the collection complex property '{type}.{property}' isn't supported. See https://github.com/dotnet/efcore/issues/31237 for more information.</value>
-  </data>
   <data name="ComplexPropertyIndexer" xml:space="preserve">
     <value>Adding the complex property '{type}.{property}' as an indexer property isn't supported. See https://github.com/dotnet/efcore/issues/31244 for more information.</value>
   </data>

@@ -709,7 +709,7 @@ public abstract partial class ModelBuilderTest
 
         public virtual required ICollection<DoctorViewModel> Medics { get; set; }
 
-        public Dictionary<string, string>? CustomValues { get; set; } = new();
+        public Dictionary<string, string>? CustomValues { get; set; } = [];
     }
 
     protected abstract class PersonBaseViewModel
@@ -887,10 +887,12 @@ public abstract partial class ModelBuilderTest
     protected class ComplexProperties : ComplexPropertiesBase
     {
         public Customer? Customer { get; set; }
+        public List<Customer> Customers { get; set; } = [];
         public required DoubleProperty DoubleProperty { get; set; }
         public required IndexedClass IndexedClass { get; set; }
         public required Quarks Quarks { get; set; }
         public CollectionQuarks CollectionQuarks { get; set; } = null!;
+        public required List<Quarks> QuarksCollection { get; set; } = [];
 
         [NotMapped]
         public required DynamicProperty DynamicProperty { get; set; }
@@ -908,6 +910,7 @@ public abstract partial class ModelBuilderTest
         public ProductLabel Label { get; set; }
         public ProductLabel OldLabel { get; set; }
         public (string, int) Tuple { get; set; }
+        public List<(string, int)> Tuples { get; set; } = [];
     }
 
     protected struct ProductLabel
@@ -1014,7 +1017,7 @@ public abstract partial class ModelBuilderTest
 
     protected class IndexedClassByDictionary
     {
-        private readonly Dictionary<string, object?> _indexerData = new();
+        private readonly Dictionary<string, object?> _indexerData = [];
 
         public int Id { get; set; }
 
