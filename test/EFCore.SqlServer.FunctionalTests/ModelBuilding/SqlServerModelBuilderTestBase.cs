@@ -305,6 +305,9 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
     public abstract class SqlServerComplexType(SqlServerModelBuilderFixture fixture)
         : RelationalComplexTypeTestBase(fixture), IClassFixture<SqlServerModelBuilderFixture>;
 
+    public abstract class SqlServerComplexCollection(SqlServerModelBuilderFixture fixture)
+        : RelationalComplexCollectionTestBase(fixture), IClassFixture<SqlServerModelBuilderFixture>;
+
     public abstract class SqlServerInheritance(SqlServerModelBuilderFixture fixture)
         : RelationalInheritanceTestBase(fixture), IClassFixture<SqlServerModelBuilderFixture>
     {

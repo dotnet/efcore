@@ -538,13 +538,11 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
                         memberInfo.Name, DisplayName(), memberInfo.DeclaringType?.ShortDisplayName()));
             }
         }
-        else if (IsPropertyBag)
-        {
-            memberInfo = FindIndexerPropertyInfo();
-        }
         else
         {
-            memberInfo = ClrType.GetMembersInHierarchy(name).FirstOrDefault();
+            memberInfo = IsPropertyBag
+                ? FindIndexerPropertyInfo()
+                : ClrType.GetMembersInHierarchy(name).FirstOrDefault();
         }
 
         if (memberInfo != null
@@ -973,28 +971,16 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
                         memberInfo.Name, DisplayName(), memberInfo.DeclaringType?.ShortDisplayName()));
             }
         }
-        else if (IsPropertyBag)
-        {
-            memberInfo = FindIndexerPropertyInfo();
-        }
         else
         {
-            memberInfo = ClrType.GetMembersInHierarchy(name).FirstOrDefault();
+            memberInfo = IsPropertyBag
+                ? FindIndexerPropertyInfo()
+                : ClrType.GetMembersInHierarchy(name).FirstOrDefault();
         }
 
-        if (memberInfo != null)
+        if (memberInfo != null
+            && memberInfo != FindIndexerPropertyInfo())
         {
-            if (propertyType != memberInfo.GetMemberType()
-                && memberInfo != FindIndexerPropertyInfo())
-            {
-                throw new InvalidOperationException(
-                    CoreStrings.PropertyWrongClrType(
-                        name,
-                        DisplayName(),
-                        memberInfo.GetMemberType().ShortDisplayName(),
-                        propertyType.ShortDisplayName()));
-            }
-
             ComplexProperty.IsCompatible(
                 name,
                 memberInfo,
