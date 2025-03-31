@@ -1,11 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
-  <PropertyGroup>
     <Description>Microsoft SharePoint database provider.</Description>
     <TargetFramework>$(DefaultNetCoreTargetFramework)</TargetFramework>
     <MinClientVersion>3.6</MinClientVersion>
@@ -17,5 +12,9 @@
     <NoWarn>$(NoWarn);EF9100</NoWarn>
     <!-- Precompiled query is experimental -->
   </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\EFCore.Relational\EFCore.Relational.csproj" />
+    <ProjectReference Include="..\EFCore\EFCore.csproj" />
+  </ItemGroup>
 
 </Project>
