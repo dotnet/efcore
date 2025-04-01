@@ -101,13 +101,15 @@ public class QueryRootProcessor : ExpressionVisitor
             // Convert that into a NewArrayExpression for use with InlineQueryRootExpression
             case ConstantExpression { Value: IEnumerable values }:
                 var valueExpressions = new List<ConstantExpression>();
+
+                Type? valueClrType = null;
                 foreach (var value in values)
                 {
                     var valueToAdd = value;
 
                     if (value is not null)
                     {
-                        var valueClrType = value.GetType();
+                        valueClrType ??= value.GetType();
                         // Enums are implicitly castable to/from the underlying type
                         // hence calling i.e. LINQ Cast<T> to underlying type
                         // does not have to do anything and return the enum array.
