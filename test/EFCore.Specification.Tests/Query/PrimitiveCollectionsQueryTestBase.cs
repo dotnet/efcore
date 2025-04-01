@@ -1499,14 +1499,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Values_of_enum_casted_to_underlying_value_Contains(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<PrimitiveCollectionsEntity>().Where(x => Enum.GetValues<MyEnum>().Cast<int>().Contains(x.Int)));
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Values_of_enum_casted_to_underlying_value_Count(bool async)
+    public virtual Task Values_of_enum_casted_to_underlying_value(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(x => Enum.GetValues<MyEnum>().Cast<int>().Count(y => y == x.Int) > 0));

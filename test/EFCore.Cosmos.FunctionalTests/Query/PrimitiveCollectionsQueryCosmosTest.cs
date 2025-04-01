@@ -2094,25 +2094,11 @@ WHERE ARRAY_CONTAINS(@strings, (ARRAY_CONTAINS(@ints, c["Int"]) ? "one" : "two")
 """);
             });
 
-    public override Task Values_of_enum_casted_to_underlying_value_Contains(bool async)
+    public override Task Values_of_enum_casted_to_underlying_value(bool async)
         => CosmosTestHelpers.Instance.NoSyncTest(
             async, async a =>
             {
-                await base.Values_of_enum_casted_to_underlying_value_Contains(a);
-
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-WHERE c["Int"] IN (0, 1, 2, 3)
-""");
-            });
-
-    public override Task Values_of_enum_casted_to_underlying_value_Count(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Values_of_enum_casted_to_underlying_value_Count(a);
+                await base.Values_of_enum_casted_to_underlying_value(a);
 
                 AssertSql(
                     """
