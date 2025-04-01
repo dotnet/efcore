@@ -108,6 +108,12 @@ public class QueryRootProcessor : ExpressionVisitor
                     if (value is not null)
                     {
                         var valueClrType = value.GetType();
+                        // Enums are implicitly castable to/from the underlying type
+                        // hence calling i.e. LINQ Cast<T> to underlying type
+                        // does not have to do anything and return the enum array.
+                        // But when expanding the constants, we need to change the type,
+                        // otherwise the type of value for the Expression.Constant
+                        // would not be the expected type and fail.
                         if (valueClrType != elementClrType.UnwrapNullableType() && valueClrType.IsEnum)
                         {
                             valueToAdd = Convert.ChangeType(value, elementClrType);
