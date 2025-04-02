@@ -2070,6 +2070,11 @@ CREATE TABLE "Contacts" (
     public override Task Move_sequence()
         => AssertNotSupportedAsync(base.Move_sequence, SqliteStrings.SequencesNotSupported);
 
+    public override Task Multiop_rename_table_and_drop()
+        => AssertNotSupportedAsync(
+            base.Multiop_rename_table_and_drop,
+            SqliteStrings.InvalidMigrationOperation(nameof(DropPrimaryKeyOperation)));
+
     [ConditionalFact]
     public override async Task Add_required_primitve_collection_to_existing_table()
     {
