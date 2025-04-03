@@ -25,6 +25,7 @@ public class InMemoryComplianceTest : ComplianceTestBase
         typeof(NonSharedModelBulkUpdatesTestBase),
         typeof(NorthwindBulkUpdatesTestBase<>),
         typeof(JsonQueryTestBase<>),
+        typeof(AdHocJsonQueryTestBase),
     };
 
     protected override Assembly TargetAssembly { get; } = typeof(InMemoryComplianceTest).Assembly;

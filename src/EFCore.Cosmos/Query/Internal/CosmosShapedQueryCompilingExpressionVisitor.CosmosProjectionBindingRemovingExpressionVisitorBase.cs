@@ -20,6 +20,9 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         bool trackQueryResults)
         : ExpressionVisitor
     {
+        private static readonly bool UseOldBehavior21006 =
+              AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue21006", out var enabled21006) && enabled21006;
+
         private static readonly MethodInfo GetItemMethodInfo
             = typeof(JObject).GetRuntimeProperties()
                 .Single(pi => pi.Name == "Item" && pi.GetIndexParameters()[0].ParameterType == typeof(string))
@@ -691,7 +694,11 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 && !property.IsShadowProperty())
             {
                 var readExpression = CreateGetValueExpression(
-                    jTokenExpression, storeName, type.MakeNullable(), property.GetTypeMapping());
+                    jTokenExpression,
+                    storeName,
+                    type.MakeNullable(),
+                    property.GetTypeMapping(),
+                    isNonNullableScalar: false);
 
                 var nonNullReadExpression = readExpression;
                 if (nonNullReadExpression.Type != type)
@@ -712,7 +719,14 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             }
 
             return Convert(
-                CreateGetValueExpression(jTokenExpression, storeName, type.MakeNullable(), property.GetTypeMapping()),
+                CreateGetValueExpression(
+                    jTokenExpression,
+                    storeName,
+                    type.MakeNullable(),
+                    property.GetTypeMapping(),
+                    // special case keys - we check them for null to see if the entity needs to be materialized, so we want to keep the null, rather than non-nullable default
+                    // returning defaults is supposed to help with evolving the schema - so this doesn't concern keys anyway (they shouldn't evolve)
+                    isNonNullableScalar: !property.IsNullable && !property.IsKey()),
                 type);
         }
 
@@ -720,7 +734,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             Expression jTokenExpression,
             string storeName,
             Type type,
-            CoreTypeMapping typeMapping = null)
+            CoreTypeMapping typeMapping = null,
+            bool isNonNullableScalar = false)
         {
             Check.DebugAssert(type.IsNullableType(), "Must read nullable type from JObject.");
 
@@ -763,6 +778,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                             Constant(CosmosClientWrapper.Serializer)),
                         converter.ConvertFromProviderExpression.Body);
 
+                var originalBodyType = body.Type;
                 if (body.Type != type)
                 {
                     body = Convert(body, type);
@@ -783,7 +799,11 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 }
                 else
                 {
-                    replaceExpression = Default(type);
+                    replaceExpression = isNonNullableScalar && !UseOldBehavior21006
+                        ? Expression.Convert(
+                            Default(originalBodyType),
+                            type)
+                        : Default(type);
                 }
 
                 body = Condition(
@@ -799,7 +819,11 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             }
             else
             {
-                valueExpression = ConvertJTokenToType(jTokenExpression, typeMapping?.ClrType.MakeNullable() ?? type);
+                valueExpression = ConvertJTokenToType(
+                    jTokenExpression,
+                    (isNonNullableScalar && !UseOldBehavior21006
+                        ? typeMapping?.ClrType
+                        : typeMapping?.ClrType.MakeNullable()) ?? type);
 
                 if (valueExpression.Type != type)
                 {
