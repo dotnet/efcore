@@ -134,8 +134,8 @@ public interface ITable : ITableBase
             }
 
             if ((options & MetadataDebugStringOptions.SingleLine) == 0
-                 && designTime
-                 && Comment != null)
+                && designTime
+                && Comment != null)
             {
                 builder
                     .AppendLine()

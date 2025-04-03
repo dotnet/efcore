@@ -5,14 +5,9 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class ValueConvertersEndToEndInMemoryTest
-    : ValueConvertersEndToEndTestBase<ValueConvertersEndToEndInMemoryTest.ValueConvertersEndToEndInMemoryFixture>
+public class ValueConvertersEndToEndInMemoryTest(ValueConvertersEndToEndInMemoryTest.ValueConvertersEndToEndInMemoryFixture fixture)
+    : ValueConvertersEndToEndTestBase<ValueConvertersEndToEndInMemoryTest.ValueConvertersEndToEndInMemoryFixture>(fixture)
 {
-    public ValueConvertersEndToEndInMemoryTest(ValueConvertersEndToEndInMemoryFixture fixture)
-        : base(fixture)
-    {
-    }
-
     [ConditionalTheory]
     [InlineData(false)]
     [InlineData(true)]
