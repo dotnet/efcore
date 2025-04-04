@@ -7,11 +7,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
 public sealed partial class InternalEntityEntry
 {
-    private readonly struct OriginalValues(InternalEntityEntry entry)
+    private readonly struct OriginalValues(IInternalEntry entry)
     {
-        private readonly ISnapshot _values = entry.EntityType.OriginalValuesFactory(entry);
+        private readonly ISnapshot _values = ((IRuntimeEntityType)entry.StructuralType.ContainingEntityType).OriginalValuesFactory((InternalEntityEntry)entry);
 
-        public object? GetValue(InternalEntityEntry entry, IProperty property)
+        public object? GetValue(IInternalEntry entry, IProperty property)
             => property.GetOriginalValueIndex() is var index && index == -1
                 ? throw new InvalidOperationException(
                     CoreStrings.OriginalValueNotTracked(property.Name, property.DeclaringType.DisplayName()))
@@ -19,7 +19,7 @@ public sealed partial class InternalEntityEntry
                     ? entry[property]
                     : _values[index];
 
-        public T GetValue<T>(InternalEntityEntry entry, IProperty property, int index)
+        public T GetValue<T>(IInternalEntry entry, IProperty property, int index)
             => index == -1
                 ? throw new InvalidOperationException(
                     CoreStrings.OriginalValueNotTracked(property.Name, property.DeclaringType.DisplayName()))
@@ -53,14 +53,14 @@ public sealed partial class InternalEntityEntry
             _values[index] = SnapshotValue(property, value);
         }
 
-        public void RejectChanges(InternalEntityEntry entry)
+        public void RejectChanges(IInternalEntry entry)
         {
             if (IsEmpty)
             {
                 return;
             }
 
-            foreach (var property in entry.EntityType.GetFlattenedProperties())
+            foreach (var property in entry.StructuralType.GetFlattenedProperties())
             {
                 var index = property.GetOriginalValueIndex();
                 if (index >= 0)
@@ -70,14 +70,14 @@ public sealed partial class InternalEntityEntry
             }
         }
 
-        public void AcceptChanges(InternalEntityEntry entry)
+        public void AcceptChanges(IInternalEntry entry)
         {
             if (IsEmpty)
             {
                 return;
             }
 
-            foreach (var property in entry.EntityType.GetFlattenedProperties())
+            foreach (var property in entry.StructuralType.GetFlattenedProperties())
             {
                 var index = property.GetOriginalValueIndex();
                 if (index >= 0)
