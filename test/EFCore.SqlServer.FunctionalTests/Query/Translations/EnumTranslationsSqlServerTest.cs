@@ -300,6 +300,72 @@ WHERE [b].[FlagsEnum] & @flagsEnum = @flagsEnum
 """);
     }
 
+    public override async Task ToString_enum_contains(bool async)
+    {
+        await base.ToString_enum_contains(async);
+
+        AssertSql(
+            """
+SELECT [b].[Enum]
+FROM [BasicTypesEntities] AS [b]
+WHERE CASE [b].[Enum]
+    WHEN 0 THEN N'One'
+    WHEN 1 THEN N'Two'
+    WHEN 2 THEN N'Three'
+    ELSE CAST([b].[Enum] AS nvarchar(max))
+END LIKE N'%One%'
+""");
+    }
+
+    public override async Task ToString_nullable_enum_contains(bool async)
+    {
+        await base.ToString_nullable_enum_contains(async);
+
+        AssertSql(
+            """
+SELECT [n].[Enum]
+FROM [NullableBasicTypesEntities] AS [n]
+WHERE CASE COALESCE([n].[Enum], 0)
+    WHEN 0 THEN N'One'
+    WHEN 1 THEN N'Two'
+    WHEN 2 THEN N'Three'
+    ELSE CAST(COALESCE([n].[Enum], 0) AS nvarchar(max))
+END LIKE N'%One%'
+""");
+    }
+
+    public override async Task ToString_enum_property_projection(bool async)
+    {
+        await base.ToString_enum_property_projection(async);
+
+        AssertSql(
+            """
+SELECT CASE [b].[Enum]
+    WHEN 0 THEN N'One'
+    WHEN 1 THEN N'Two'
+    WHEN 2 THEN N'Three'
+    ELSE CAST([b].[Enum] AS nvarchar(max))
+END
+FROM [BasicTypesEntities] AS [b]
+""");
+    }
+
+    public override async Task ToString_nullable_enum_property_projection(bool async)
+    {
+        await base.ToString_nullable_enum_property_projection(async);
+
+        AssertSql(
+            """
+SELECT CASE [n].[Enum]
+    WHEN 0 THEN N'One'
+    WHEN 1 THEN N'Two'
+    WHEN 2 THEN N'Three'
+    ELSE COALESCE(CAST([n].[Enum] AS nvarchar(max)), N'')
+END
+FROM [NullableBasicTypesEntities] AS [n]
+""");
+    }
+
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());

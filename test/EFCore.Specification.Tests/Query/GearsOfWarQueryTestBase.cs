@@ -83,34 +83,6 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task ToString_enum_property_projection(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<Gear>().Select(g => g.Rank.ToString()));
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task ToString_nullable_enum_property_projection(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<Weapon>().Select(w => w.AmmunitionType.ToString()));
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task ToString_enum_contains(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<Mission>().Where(g => g.Difficulty.ToString().Contains("Med")).Select(g => g.CodeName));
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task ToString_nullable_enum_contains(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<Weapon>().Where(w => w.AmmunitionType.ToString().Contains("Cart")).Select(g => g.Name));
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
     public virtual Task Include_multiple_one_to_one_and_one_to_many_self_reference(bool async)
         => Assert.ThrowsAsync<InvalidOperationException>(
             () => AssertQuery(async, ss => ss.Set<Weapon>().Include(w => w.Owner.Weapons)));

@@ -22,6 +22,7 @@ public abstract class SqlExpressionVisitor : ExpressionVisitor
         {
             ShapedQueryExpression shapedQueryExpression
                 => shapedQueryExpression.UpdateQueryExpression(Visit(shapedQueryExpression.QueryExpression)),
+            CaseExpression caseExpression => VisitCase(caseExpression),
             SelectExpression selectExpression => VisitSelect(selectExpression),
             ProjectionExpression projectionExpression => VisitProjection(projectionExpression),
             EntityProjectionExpression entityProjectionExpression => VisitEntityProjection(entityProjectionExpression),
@@ -52,6 +53,13 @@ public abstract class SqlExpressionVisitor : ExpressionVisitor
 
             _ => base.VisitExtension(extensionExpression)
         };
+
+    /// <summary>
+    ///     Visits the children of the case expression.
+    /// </summary>
+    /// <param name="caseExpression">The expression to visit.</param>
+    /// <returns>The modified expression, if it or any subexpression was modified; otherwise, returns the original expression.</returns>
+    protected abstract Expression VisitCase(CaseExpression caseExpression);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

@@ -282,4 +282,26 @@ public interface ISqlExpressionFactory
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     SqlExpression Constant(object? value, Type type, CoreTypeMapping? typeMapping = null);
+
+    /// <summary>
+    ///     Creates a new <see cref="CaseExpression" /> which represent a CASE statement in a SQL tree.
+    /// </summary>
+    /// <param name="operand">An expression to compare with <see cref="CaseWhenClause.Test" /> in <paramref name="whenClauses" />.</param>
+    /// <param name="whenClauses">A list of <see cref="CaseWhenClause" /> to compare or evaluate and get result from.</param>
+    /// <param name="elseResult">A value to return if no <paramref name="whenClauses" /> matches, if any.</param>
+    /// <param name="existingExpression">An optional expression that can be re-used if it matches the new expression.</param>
+    /// <returns>An expression representing a CASE statement in a SQL tree.</returns>
+    SqlExpression Case(
+        SqlExpression? operand,
+        IReadOnlyList<CaseWhenClause> whenClauses,
+        SqlExpression? elseResult,
+        SqlExpression? existingExpression = null);
+
+    /// <summary>
+    ///     Creates a new <see cref="CaseExpression" /> which represent a CASE statement in a SQL tree.
+    /// </summary>
+    /// <param name="whenClauses">A list of <see cref="CaseWhenClause" /> to evaluate condition and get result from.</param>
+    /// <param name="elseResult">A value to return if no <paramref name="whenClauses" /> matches, if any.</param>
+    /// <returns>An expression representing a CASE statement in a SQL tree.</returns>
+    SqlExpression Case(IReadOnlyList<CaseWhenClause> whenClauses, SqlExpression? elseResult);
 }
