@@ -70,12 +70,22 @@ public class SqliteQueryableAggregateMethodTranslator : IAggregateMethodCallTran
                     && source.Selector is SqlExpression maxSqlExpression:
                     var maxArgumentType = GetProviderType(maxSqlExpression);
                     if (maxArgumentType == typeof(DateTimeOffset)
-                        || maxArgumentType == typeof(decimal)
                         || maxArgumentType == typeof(TimeSpan)
                         || maxArgumentType == typeof(ulong))
                     {
                         throw new NotSupportedException(
                             SqliteStrings.AggregateOperationNotSupported(nameof(Queryable.Max), maxArgumentType.ShortDisplayName()));
+                    }
+                    else if (maxArgumentType == typeof(decimal))
+                    {
+                        maxSqlExpression = CombineTerms(source, maxSqlExpression);
+                        return _sqlExpressionFactory.Function(
+                            "ef_max",
+                            [maxSqlExpression],
+                            nullable: true,
+                            argumentsPropagateNullability: [false],
+                            maxSqlExpression.Type,
+                            maxSqlExpression.TypeMapping);
                     }
 
                     break;
@@ -86,12 +96,22 @@ public class SqliteQueryableAggregateMethodTranslator : IAggregateMethodCallTran
                     && source.Selector is SqlExpression minSqlExpression:
                     var minArgumentType = GetProviderType(minSqlExpression);
                     if (minArgumentType == typeof(DateTimeOffset)
-                        || minArgumentType == typeof(decimal)
                         || minArgumentType == typeof(TimeSpan)
                         || minArgumentType == typeof(ulong))
                     {
                         throw new NotSupportedException(
                             SqliteStrings.AggregateOperationNotSupported(nameof(Queryable.Min), minArgumentType.ShortDisplayName()));
+                    }
+                    else if (minArgumentType == typeof(decimal))
+                    {
+                        minSqlExpression = CombineTerms(source, minSqlExpression);
+                        return _sqlExpressionFactory.Function(
+                            "ef_min",
+                            [minSqlExpression],
+                            nullable: true,
+                            argumentsPropagateNullability: [false],
+                            minSqlExpression.Type,
+                            minSqlExpression.TypeMapping);
                     }
 
                     break;
