@@ -2039,6 +2039,28 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
         };
     }
 
+    private Expression LiftTryExpression(TryExpression tryExpression)
+    {
+        using var _ = ChangeContext(ExpressionContext.Statement);
+        var name = UniquifyVariableName("temp");
+        var variable = Expression.Parameter(tryExpression.Type, name);
+        var newBody = Expression.Assign(variable, tryExpression.Body);
+        var newTry = tryExpression.Update(newBody, tryExpression.Handlers, tryExpression.Finally, tryExpression.Fault);
+
+        _liftedState.Statements.Add(GenerateVarDeclaration(name, DefaultExpression(Generate(variable.Type))));
+
+        var re = Translate<TryStatementSyntax>(newTry);
+        _liftedState.Statements.Add(re);
+        _liftedState.VariableNames.Add(name);
+        _liftedState.Variables[variable] = name;
+
+        var currentStack = _stack.Peek();
+        currentStack.Variables[variable] = name;
+        currentStack.VariableNames.Add(name);
+
+        return variable;
+    }
+
     /// <inheritdoc />
     protected override Expression VisitNewArray(NewArrayExpression newArray)
     {
@@ -2414,8 +2436,9 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
 
             case ExpressionContext.Expression:
             case ExpressionContext.ExpressionLambda:
-                throw new NotImplementedException();
-
+                var liftedVariable = LiftTryExpression(tryNode);
+                Result = Translate(liftedVariable);
+                return tryNode;
             default:
                 throw new ArgumentOutOfRangeException();
         }
