@@ -908,7 +908,7 @@ ORDER BY [g].[ProductId]
         AssertSql(
             """
 SELECT [c].[LastName], (
-    SELECT COALESCE(SUM(CAST(LEN([c1].[FirstName]) AS int)), 0)
+    SELECT ISNULL(SUM(CAST(LEN([c1].[FirstName]) AS int)), 0)
     FROM [Orders] AS [o0]
     INNER JOIN [Customers] AS [c0] ON [o0].[CustomerId] = [c0].[Id]
     INNER JOIN [Customers] AS [c1] ON [o0].[CustomerId] = [c1].[Id]
@@ -933,7 +933,7 @@ GROUP BY [c].[LastName]
         AssertSql(
             """
 SELECT [c0].[LastName], (
-    SELECT COALESCE(SUM(CAST(LEN([c3].[FirstName]) AS int)), 0)
+    SELECT ISNULL(SUM(CAST(LEN([c3].[FirstName]) AS int)), 0)
     FROM [Orders] AS [o0]
     INNER JOIN [Customers] AS [c1] ON [o0].[CustomerId] = [c1].[Id]
     INNER JOIN [Customers] AS [c3] ON [o0].[CustomerId] = [c3].[Id]
