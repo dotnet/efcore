@@ -660,6 +660,28 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
         IEnumerable<Expression> arguments,
         Type returnType,
         CoreTypeMapping? typeMapping = null)
+        => BuildFunction(functionName, isScoringFunction: false, arguments, returnType, typeMapping);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [Experimental(EFDiagnostics.CosmosFullTextSearchExperimental)]
+    public virtual SqlExpression ScoringFunction(
+        string functionName,
+        IEnumerable<Expression> arguments,
+        Type returnType,
+        CoreTypeMapping? typeMapping = null)
+        => BuildFunction(functionName, isScoringFunction: true, arguments, returnType, typeMapping);
+
+    private SqlExpression BuildFunction(
+        string functionName,
+        bool isScoringFunction,
+        IEnumerable<Expression> arguments,
+        Type returnType,
+        CoreTypeMapping? typeMapping = null)
     {
         var typeMappedArguments = new List<Expression>();
 
@@ -670,6 +692,7 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
 
         return new SqlFunctionExpression(
             functionName,
+            isScoringFunction,
             typeMappedArguments,
             returnType,
             typeMapping);

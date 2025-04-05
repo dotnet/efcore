@@ -407,6 +407,9 @@ public class CosmosTestStore : TestStore
                 };
             }
 
+            // TODO: see issue #35854
+            // once Azure.ResourceManager.CosmosDB package supports vectors and FTS, those need to be added here
+            
             await database.Value.GetCosmosDBSqlContainers().CreateOrUpdateAsync(
                 WaitUntil.Completed, container.Id, content).ConfigureAwait(false);
         }
@@ -433,6 +436,7 @@ public class CosmosTestStore : TestStore
         }
 
 #pragma warning disable EF9103
+#pragma warning disable EF9104
         foreach (var (containerName, mappedTypes) in containers)
         {
             IReadOnlyList<string> partitionKeyStoreNames = Array.Empty<string>();
@@ -441,6 +445,7 @@ public class CosmosTestStore : TestStore
             ThroughputProperties? throughput = null;
             var indexes = new List<IIndex>();
             var vectors = new List<(IProperty Property, CosmosVectorType VectorType)>();
+            var fullTextProperties = new List<(IProperty Property, string Language)>();
 
             foreach (var entityType in mappedTypes)
             {
@@ -452,17 +457,9 @@ public class CosmosTestStore : TestStore
                 analyticalTtl ??= entityType.GetAnalyticalStoreTimeToLive();
                 defaultTtl ??= entityType.GetDefaultTimeToLive();
                 throughput ??= entityType.GetThroughput();
-                indexes.AddRange(entityType.GetIndexes());
 
-                foreach (var property in entityType.GetProperties())
-                {
-                    if (property.FindTypeMapping() is CosmosVectorTypeMapping vectorTypeMapping)
-                    {
-                        vectors.Add((property, vectorTypeMapping.VectorType));
-                    }
-                }
+                ProcessEntityType(entityType, indexes, vectors, fullTextProperties);
             }
-#pragma warning restore EF9103
 
             yield return new Cosmos.Storage.Internal.ContainerProperties(
                 containerName,
@@ -471,8 +468,41 @@ public class CosmosTestStore : TestStore
                 defaultTtl,
                 throughput,
                 indexes,
-                vectors);
+                vectors,
+                fullTextProperties);
         }
+
+        static void ProcessEntityType(
+            IEntityType entityType,
+            List<IIndex> indexes,
+            List<(IProperty Property, CosmosVectorType VectorType)> vectors,
+            List<(IProperty Property, string Language)> fullTextProperties)
+        {
+            indexes.AddRange(entityType.GetIndexes());
+
+            foreach (var property in entityType.GetProperties())
+            {
+                if (property.FindTypeMapping() is CosmosVectorTypeMapping vectorTypeMapping)
+                {
+                    vectors.Add((property, vectorTypeMapping.VectorType));
+                }
+
+                var ftsLanguage = property.GetFullTextSearchLanguage();
+                if (ftsLanguage != null)
+                {
+                    fullTextProperties.Add((property, ftsLanguage));
+                }
+            }
+
+            foreach (var ownedType in entityType.GetNavigations()
+                .Where(x => x.ForeignKey.IsOwnership && !x.IsOnDependent && !x.TargetEntityType.IsDocumentRoot())
+                .Select(x => x.TargetEntityType))
+            {
+                ProcessEntityType(ownedType, indexes, vectors, fullTextProperties);
+            }
+        }
+#pragma warning restore EF9103
+#pragma warning restore EF9104
     }
 
     private static IReadOnlyList<string> GetPartitionKeyStoreNames(IEntityType entityType)
@@ -499,7 +529,7 @@ public class CosmosTestStore : TestStore
                 }
             }
 
-            foreach(var container in containers)
+            foreach (var container in containers)
             {
                 await container.DeleteContainerAsync();
             }

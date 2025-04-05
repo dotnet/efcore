@@ -75,7 +75,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
         private CosmosSqlQuery GenerateQuery()
             => _querySqlGeneratorFactory.Create().GetSqlQuery(
-                (SelectExpression)new InExpressionValuesExpandingExpressionVisitor(
+                (SelectExpression)new ParameterInliner(
                         _sqlExpressionFactory,
                         _cosmosQueryContext.ParameterValues)
                     .Visit(_selectExpression),

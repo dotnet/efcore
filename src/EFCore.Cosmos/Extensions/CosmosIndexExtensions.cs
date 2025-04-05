@@ -14,7 +14,6 @@ namespace Microsoft.EntityFrameworkCore;
 ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
 ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
 /// </remarks>
-[Experimental(EFDiagnostics.CosmosVectorSearchExperimental)]
 public static class CosmosIndexExtensions
 {
     /// <summary>
@@ -23,6 +22,7 @@ public static class CosmosIndexExtensions
     /// </summary>
     /// <param name="index">The index.</param>
     /// <returns>The index type to use, or <see langword="null" /> if none is set.</returns>
+    [Experimental(EFDiagnostics.CosmosVectorSearchExperimental)]
     public static VectorIndexType? GetVectorIndexType(this IReadOnlyIndex index)
         => (index is RuntimeIndex)
             ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
@@ -34,6 +34,7 @@ public static class CosmosIndexExtensions
     /// </summary>
     /// <param name="index">The index.</param>
     /// <param name="indexType">The index type to use.</param>
+    [Experimental(EFDiagnostics.CosmosVectorSearchExperimental)]
     public static void SetVectorIndexType(this IMutableIndex index, VectorIndexType? indexType)
         => index.SetAnnotation(CosmosAnnotationNames.VectorIndexType, indexType);
 
@@ -45,6 +46,7 @@ public static class CosmosIndexExtensions
     /// <param name="index">The index.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>The configured value.</returns>
+    [Experimental(EFDiagnostics.CosmosVectorSearchExperimental)]
     public static string? SetVectorIndexType(
         this IConventionIndex index,
         VectorIndexType? indexType,
@@ -59,6 +61,56 @@ public static class CosmosIndexExtensions
     /// </summary>
     /// <param name="property">The property.</param>
     /// <returns>The <see cref="ConfigurationSource" /> for whether the index is clustered.</returns>
+    [Experimental(EFDiagnostics.CosmosVectorSearchExperimental)]
     public static ConfigurationSource? GetVectorIndexTypeConfigurationSource(this IConventionIndex property)
         => property.FindAnnotation(CosmosAnnotationNames.VectorIndexType)?.GetConfigurationSource();
+
+    /// <summary>
+    ///     Returns the value indicating whether the index is configured for full-text search.
+    ///     See <see href="https://learn.microsoft.com/azure/cosmos-db/gen-ai/full-text-search">Full-text search in Azure Cosmos DB for NoSQL</see> for more information.
+    /// </summary>
+    /// <param name="index">The index.</param>
+    /// <returns>The index type to use, or <see langword="null" /> if none is set.</returns>
+    [Experimental(EFDiagnostics.CosmosFullTextSearchExperimental)]
+    public static bool? IsFullTextIndex(this IReadOnlyIndex index)
+        => (index is RuntimeIndex)
+            ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
+            : (bool?)index[CosmosAnnotationNames.FullTextIndex];
+
+    /// <summary>
+    ///     Configures the index for full-text search.
+    ///     See <see href="https://learn.microsoft.com/azure/cosmos-db/gen-ai/full-text-search">Full-text search in Azure Cosmos DB for NoSQL</see> for more information.
+    /// </summary>
+    /// <param name="index">The index.</param>
+    /// <param name="value">The value indicating whether the index is configured for full-text search.</param>
+    [Experimental(EFDiagnostics.CosmosFullTextSearchExperimental)]
+    public static void SetIsFullTextIndex(this IMutableIndex index, bool? value)
+        => index.SetAnnotation(CosmosAnnotationNames.FullTextIndex, value);
+
+    /// <summary>
+    ///     Configures the index for full-text search.
+    ///     See <see href="https://learn.microsoft.com/azure/cosmos-db/gen-ai/full-text-search">Full-text search in Azure Cosmos DB for NoSQL</see> for more information.
+    /// </summary>
+    /// <param name="index">The index.</param>
+    /// <param name="value">The value indicating whether the index is configured for full-text search.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The configured value.</returns>
+    [Experimental(EFDiagnostics.CosmosFullTextSearchExperimental)]
+    public static string? SetIsFullTextIndex(
+        this IConventionIndex index,
+        bool? value,
+        bool fromDataAnnotation = false)
+        => (string?)index.SetAnnotation(
+            CosmosAnnotationNames.FullTextIndex,
+            value,
+            fromDataAnnotation)?.Value;
+
+    /// <summary>
+    ///     Returns the <see cref="ConfigurationSource" /> for whether the <see cref="IsFullTextIndex" />.
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <returns>The <see cref="ConfigurationSource" /> for whether the index is clustered.</returns>
+    [Experimental(EFDiagnostics.CosmosFullTextSearchExperimental)]
+    public static ConfigurationSource? GetIsFullTextIndexConfigurationSource(this IConventionIndex property)
+        => property.FindAnnotation(CosmosAnnotationNames.FullTextIndex)?.GetConfigurationSource();
 }
