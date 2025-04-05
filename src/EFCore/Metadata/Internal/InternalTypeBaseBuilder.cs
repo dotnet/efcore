@@ -1797,7 +1797,7 @@ public abstract class InternalTypeBaseBuilder :
             memberInfo: null,
             complexTypeName: null,
             complexType: complexType,
-            collection: null,
+            collection: false,
             configurationSource: fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
@@ -1817,7 +1817,41 @@ public abstract class InternalTypeBaseBuilder :
             memberInfo: memberInfo,
             complexTypeName: null,
             complexType: complexType,
-            collection: null,
+            collection: false,
+            configurationSource: fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    public IConventionComplexPropertyBuilder? ComplexCollection(Type propertyType, string propertyName, Type? complexType = null, bool fromDataAnnotation = false)
+        => ComplexProperty(
+            propertyType,
+            propertyName,
+            memberInfo: null,
+            complexTypeName: null,
+            complexType: complexType,
+            collection: true,
+            configurationSource: fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    public IConventionComplexPropertyBuilder? ComplexCollection(MemberInfo memberInfo, Type? complexType = null, bool fromDataAnnotation = false)
+        => ComplexProperty(
+            propertyType: memberInfo.GetMemberType(),
+            propertyName: memberInfo.Name,
+            memberInfo: memberInfo,
+            complexTypeName: null,
+            complexType: complexType,
+            collection: true,
             configurationSource: fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>

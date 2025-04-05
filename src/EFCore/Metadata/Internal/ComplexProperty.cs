@@ -227,33 +227,27 @@ public class ComplexProperty : PropertyBase, IMutableComplexProperty, IConventio
         if (shouldBeCollection
             && memberClrType?.IsAssignableFrom(targetType) != true)
         {
-            if (shouldThrow)
-            {
-                throw new InvalidOperationException(
+            return shouldThrow
+                ? throw new InvalidOperationException(
                     CoreStrings.ComplexCollectionWrongClrType(
                         propertyName,
                         sourceType.DisplayName(),
                         memberInfo.GetMemberType().ShortDisplayName(),
-                        targetType.ShortDisplayName()));
-            }
-
-            return false;
+                        targetType.ShortDisplayName()))
+                : false;
         }
 
         if (!shouldBeCollection
             && !memberInfo.GetMemberType().IsAssignableFrom(targetType))
         {
-            if (shouldThrow)
-            {
-                throw new InvalidOperationException(
+            return shouldThrow
+                ? throw new InvalidOperationException(
                     CoreStrings.ComplexPropertyWrongClrType(
                         propertyName,
                         sourceType.DisplayName(),
                         memberInfo.GetMemberType().ShortDisplayName(),
-                        targetType.ShortDisplayName()));
-            }
-
-            return false;
+                        targetType.ShortDisplayName()))
+                : false;
         }
 
         return true;

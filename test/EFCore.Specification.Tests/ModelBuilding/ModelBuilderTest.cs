@@ -173,27 +173,61 @@ public abstract partial class ModelBuilderTest
 
         public abstract TestPropertyBuilder<TProperty> IndexerProperty<TProperty>(string propertyName);
 
-        public abstract TestComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(string propertyName);
+        public abstract TestComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(string propertyName)
+            where TProperty : notnull;
 
         public abstract TestComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(
-            Expression<Func<TEntity, TProperty?>> propertyExpression);
+            Expression<Func<TEntity, TProperty?>> propertyExpression)
+            where TProperty : notnull;
 
         public abstract TestComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(
             Expression<Func<TEntity, TProperty?>> propertyExpression,
-            string complexTypeName);
+            string complexTypeName)
+            where TProperty : notnull;
 
         public abstract TestEntityTypeBuilder<TEntity> ComplexProperty<TProperty>(
             Expression<Func<TEntity, TProperty?>> propertyExpression,
-            Action<TestComplexPropertyBuilder<TProperty>> buildAction);
+            Action<TestComplexPropertyBuilder<TProperty>> buildAction)
+            where TProperty : notnull;
 
         public abstract TestEntityTypeBuilder<TEntity> ComplexProperty<TProperty>(
             Expression<Func<TEntity, TProperty?>> propertyExpression,
             string complexTypeName,
-            Action<TestComplexPropertyBuilder<TProperty>> buildAction);
+            Action<TestComplexPropertyBuilder<TProperty>> buildAction)
+            where TProperty : notnull;
 
         public abstract TestEntityTypeBuilder<TEntity> ComplexProperty<TProperty>(
             string propertyName,
-            Action<TestComplexPropertyBuilder<TProperty>> buildAction);
+            Action<TestComplexPropertyBuilder<TProperty>> buildAction)
+            where TProperty : notnull;
+
+        public abstract TestComplexCollectionBuilder<TProperty> ComplexCollection<TProperty>(string propertyName)
+            where TProperty : notnull;
+
+        public abstract TestComplexCollectionBuilder<TProperty> ComplexCollection<TProperty>(
+            Expression<Func<TEntity, IEnumerable<TProperty>?>> propertyExpression)
+            where TProperty : notnull;
+
+        public abstract TestComplexCollectionBuilder<TProperty> ComplexCollection<TProperty>(
+            Expression<Func<TEntity, IEnumerable<TProperty>?>> propertyExpression,
+            string complexTypeName)
+            where TProperty : notnull;
+
+        public abstract TestEntityTypeBuilder<TEntity> ComplexCollection<TProperty>(
+            Expression<Func<TEntity, IEnumerable<TProperty>?>> propertyExpression,
+            Action<TestComplexCollectionBuilder<TProperty>> buildAction)
+            where TProperty : notnull;
+
+        public abstract TestEntityTypeBuilder<TEntity> ComplexCollection<TProperty>(
+            Expression<Func<TEntity, IEnumerable<TProperty>?>> propertyExpression,
+            string complexTypeName,
+            Action<TestComplexCollectionBuilder<TProperty>> buildAction)
+            where TProperty : notnull;
+
+        public abstract TestEntityTypeBuilder<TEntity> ComplexCollection<TProperty>(
+            string propertyName,
+            Action<TestComplexCollectionBuilder<TProperty>> buildAction)
+            where TProperty : notnull;
 
         public abstract TestNavigationBuilder Navigation<TNavigation>(
             Expression<Func<TEntity, TNavigation?>> navigationExpression)
@@ -346,27 +380,61 @@ public abstract partial class ModelBuilderTest
 
         public abstract TestComplexTypePropertyBuilder<TProperty> IndexerProperty<TProperty>(string propertyName);
 
-        public abstract TestComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(string propertyName);
+        public abstract TestComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(string propertyName)
+            where TProperty : notnull;
 
         public abstract TestComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(
-            Expression<Func<TComplex, TProperty?>> propertyExpression);
+            Expression<Func<TComplex, TProperty?>> propertyExpression)
+            where TProperty : notnull;
 
         public abstract TestComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(
             Expression<Func<TComplex, TProperty?>> propertyExpression,
-            string complexTypeName);
+            string complexTypeName)
+            where TProperty : notnull;
 
         public abstract TestComplexPropertyBuilder<TComplex> ComplexProperty<TProperty>(
             Expression<Func<TComplex, TProperty?>> propertyExpression,
-            Action<TestComplexPropertyBuilder<TProperty>> buildAction);
+            Action<TestComplexPropertyBuilder<TProperty>> buildAction)
+            where TProperty : notnull;
 
         public abstract TestComplexPropertyBuilder<TComplex> ComplexProperty<TProperty>(
             Expression<Func<TComplex, TProperty?>> propertyExpression,
             string complexTypeName,
-            Action<TestComplexPropertyBuilder<TProperty>> buildAction);
+            Action<TestComplexPropertyBuilder<TProperty>> buildAction)
+            where TProperty : notnull;
 
         public abstract TestComplexPropertyBuilder<TComplex> ComplexProperty<TProperty>(
             string propertyName,
-            Action<TestComplexPropertyBuilder<TProperty>> buildAction);
+            Action<TestComplexPropertyBuilder<TProperty>> buildAction)
+            where TProperty : notnull;
+
+        public abstract TestComplexCollectionBuilder<TProperty> ComplexCollection<TProperty>(string propertyName)
+            where TProperty : notnull;
+
+        public abstract TestComplexCollectionBuilder<TProperty> ComplexCollection<TProperty>(
+            Expression<Func<TComplex, IEnumerable<TProperty>?>> propertyExpression)
+            where TProperty : notnull;
+
+        public abstract TestComplexCollectionBuilder<TProperty> ComplexCollection<TProperty>(
+            Expression<Func<TComplex, IEnumerable<TProperty>?>> propertyExpression,
+            string complexTypeName)
+            where TProperty : notnull;
+
+        public abstract TestComplexPropertyBuilder<TComplex> ComplexCollection<TProperty>(
+            Expression<Func<TComplex, IEnumerable<TProperty>?>> propertyExpression,
+            Action<TestComplexCollectionBuilder<TProperty>> buildAction)
+            where TProperty : notnull;
+
+        public abstract TestComplexPropertyBuilder<TComplex> ComplexCollection<TProperty>(
+            Expression<Func<TComplex, IEnumerable<TProperty>?>> propertyExpression,
+            string complexTypeName,
+            Action<TestComplexCollectionBuilder<TProperty>> buildAction)
+            where TProperty : notnull;
+
+        public abstract TestComplexPropertyBuilder<TComplex> ComplexCollection<TProperty>(
+            string propertyName,
+            Action<TestComplexCollectionBuilder<TProperty>> buildAction)
+            where TProperty : notnull;
 
         public abstract TestComplexPropertyBuilder<TComplex> Ignore(
             Expression<Func<TComplex, object?>> propertyExpression);
@@ -382,6 +450,89 @@ public abstract partial class ModelBuilderTest
 
         public abstract TestComplexTypeDiscriminatorBuilder<TDiscriminator> HasDiscriminator<TDiscriminator>(string propertyName);
         public abstract TestComplexPropertyBuilder<TComplex> HasNoDiscriminator();
+    }
+
+    public abstract class TestComplexCollectionBuilder<TComplex>
+    {
+        public abstract IMutableComplexProperty Metadata { get; }
+        public abstract TestComplexCollectionBuilder<TComplex> HasTypeAnnotation(string annotation, object? value);
+        public abstract TestComplexCollectionBuilder<TComplex> HasPropertyAnnotation(string annotation, object? value);
+
+        public abstract TestComplexTypePropertyBuilder<TProperty> Property<TProperty>(
+            Expression<Func<TComplex, TProperty>> propertyExpression);
+
+        public abstract TestComplexTypePropertyBuilder<TProperty> Property<TProperty>(string propertyName);
+
+        public abstract TestComplexTypePrimitiveCollectionBuilder<TProperty> PrimitiveCollection<TProperty>(
+            Expression<Func<TComplex, TProperty>> propertyExpression);
+
+        public abstract TestComplexTypePrimitiveCollectionBuilder<TProperty> PrimitiveCollection<TProperty>(string propertyName);
+
+        public abstract TestComplexTypePropertyBuilder<TProperty> IndexerProperty<TProperty>(string propertyName);
+
+        public abstract TestComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(string propertyName)
+            where TProperty : notnull;
+
+        public abstract TestComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(
+            Expression<Func<TComplex, TProperty?>> propertyExpression)
+            where TProperty : notnull;
+
+        public abstract TestComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(
+            Expression<Func<TComplex, TProperty?>> propertyExpression,
+            string complexTypeName)
+            where TProperty : notnull;
+
+        public abstract TestComplexCollectionBuilder<TComplex> ComplexProperty<TProperty>(
+            Expression<Func<TComplex, TProperty?>> propertyExpression,
+            Action<TestComplexPropertyBuilder<TProperty>> buildAction)
+            where TProperty : notnull;
+
+        public abstract TestComplexCollectionBuilder<TComplex> ComplexProperty<TProperty>(
+            Expression<Func<TComplex, TProperty?>> propertyExpression,
+            string complexTypeName,
+            Action<TestComplexPropertyBuilder<TProperty>> buildAction)
+            where TProperty : notnull;
+
+        public abstract TestComplexCollectionBuilder<TComplex> ComplexProperty<TProperty>(
+            string propertyName,
+            Action<TestComplexPropertyBuilder<TProperty>> buildAction)
+            where TProperty : notnull;
+
+        public abstract TestComplexCollectionBuilder<TProperty> ComplexCollection<TProperty>(string propertyName)
+            where TProperty : notnull;
+
+        public abstract TestComplexCollectionBuilder<TProperty> ComplexCollection<TProperty>(
+            Expression<Func<TComplex, IEnumerable<TProperty>?>> propertyExpression)
+            where TProperty : notnull;
+
+        public abstract TestComplexCollectionBuilder<TProperty> ComplexCollection<TProperty>(
+            Expression<Func<TComplex, IEnumerable<TProperty>?>> propertyExpression,
+            string complexTypeName)
+            where TProperty : notnull;
+
+        public abstract TestComplexCollectionBuilder<TComplex> ComplexCollection<TProperty>(
+            Expression<Func<TComplex, IEnumerable<TProperty>?>> propertyExpression,
+            Action<TestComplexCollectionBuilder<TProperty>> buildAction)
+            where TProperty : notnull;
+
+        public abstract TestComplexCollectionBuilder<TComplex> ComplexCollection<TProperty>(
+            Expression<Func<TComplex, IEnumerable<TProperty>?>> propertyExpression,
+            string complexTypeName,
+            Action<TestComplexCollectionBuilder<TProperty>> buildAction)
+            where TProperty : notnull;
+
+        public abstract TestComplexCollectionBuilder<TComplex> ComplexCollection<TProperty>(
+            string propertyName,
+            Action<TestComplexCollectionBuilder<TProperty>> buildAction)
+            where TProperty : notnull;
+
+        public abstract TestComplexCollectionBuilder<TComplex> Ignore(
+            Expression<Func<TComplex, object?>> propertyExpression);
+
+        public abstract TestComplexCollectionBuilder<TComplex> Ignore(string propertyName);
+        public abstract TestComplexCollectionBuilder<TComplex> HasChangeTrackingStrategy(ChangeTrackingStrategy changeTrackingStrategy);
+        public abstract TestComplexCollectionBuilder<TComplex> UsePropertyAccessMode(PropertyAccessMode propertyAccessMode);
+        public abstract TestComplexCollectionBuilder<TComplex> UseDefaultPropertyAccessMode(PropertyAccessMode propertyAccessMode);
     }
 
     public abstract class TestDiscriminatorBuilder<TDiscriminator>

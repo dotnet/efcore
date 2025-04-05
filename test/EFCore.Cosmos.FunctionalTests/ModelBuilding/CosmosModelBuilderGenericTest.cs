@@ -791,6 +791,53 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             => new GenericTestModelBuilder(Fixture, configure);
     }
 
+    public class CosmosGenericComplexCollection(CosmosModelBuilderFixture fixture)
+        : ComplexCollectionTestBase(fixture), IClassFixture<CosmosModelBuilderFixture>
+    {
+        public override void Properties_can_have_custom_type_value_converter_type_set()
+            => Properties_can_have_custom_type_value_converter_type_set<string>();
+
+        public override void Properties_can_have_non_generic_value_converter_set()
+            => Properties_can_have_non_generic_value_converter_set<string>();
+
+        public override void Properties_can_have_provider_type_set()
+            => Properties_can_have_provider_type_set<string>();
+
+        public override void Can_set_complex_property_annotation()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            var complexPropertyBuilder = modelBuilder
+                .Ignore<IndexedClass>()
+                .Entity<ComplexProperties>()
+                .ComplexProperty(e => e.Customer)
+                .HasTypeAnnotation("foo", "bar")
+                .HasPropertyAnnotation("foo2", "bar2")
+                .Ignore(c => c.Details)
+                .Ignore(c => c.Orders);
+
+            var model = modelBuilder.FinalizeModel();
+            var complexProperty = model.FindEntityType(typeof(ComplexProperties))!.GetComplexProperties().Single();
+
+            Assert.Equal("bar", complexProperty.ComplexType["foo"]);
+            Assert.Equal("bar2", complexProperty["foo2"]);
+            Assert.Equal(typeof(Customer).Name, complexProperty.Name);
+            Assert.Equal(
+                @"Customer (Customer)
+  ComplexType: ComplexProperties.Customer#Customer
+    Properties: "
+                + @"
+      AlternateKey (Guid) Required
+      Id (int) Required
+      Name (string)
+      Notes (List<string>) Element type: string Required
+      Title (string) Required", complexProperty.ToDebugString(), ignoreLineEndingDifferences: true);
+        }
+
+        protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder>? configure = null)
+            => new GenericTestModelBuilder(Fixture, configure);
+    }
+
     public class CosmosGenericInheritance(CosmosModelBuilderFixture fixture)
         : InheritanceTestBase(fixture), IClassFixture<CosmosModelBuilderFixture>
     {

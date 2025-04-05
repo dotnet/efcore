@@ -649,6 +649,10 @@ public class RelationalModelBuilderTest : ModelBuilderTest
         }
     }
 
+    public abstract class RelationalComplexCollectionTestBase(RelationalModelBuilderFixture fixture) : ComplexCollectionTestBase(fixture)
+    {
+    }
+
     public abstract class RelationalInheritanceTestBase(RelationalModelBuilderFixture fixture) : InheritanceTestBase(fixture)
     {
         [ConditionalFact]
