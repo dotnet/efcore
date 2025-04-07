@@ -14,6 +14,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 /// </summary>
 public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : SqlExpressionVisitor
 {
+    private static readonly bool UseOldBehavior35476 =
+          AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue35476", out var enabled35476) && enabled35476;
+
     private readonly IndentedStringBuilder _sqlBuilder = new();
     private IReadOnlyDictionary<string, object> _parameterValues = null!;
     private List<SqlParameter> _sqlParameters = null!;
@@ -340,6 +343,15 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Sql
         if (selectExpression.Orderings.Any())
         {
             _sqlBuilder.AppendLine().Append("ORDER BY ");
+
+            var orderByScoringFunction = selectExpression.Orderings is [{ Expression: SqlFunctionExpression { IsScoringFunction: true } }];
+            if (!UseOldBehavior35476 && orderByScoringFunction)
+            {
+                _sqlBuilder.Append("RANK ");
+            }
+
+            Check.DebugAssert(UseOldBehavior35476 || orderByScoringFunction || selectExpression.Orderings.All(x => x.Expression is not SqlFunctionExpression { IsScoringFunction: true }),
+                "Scoring function can only appear as first (and only) ordering, or not at all.");
 
             GenerateList(selectExpression.Orderings, e => Visit(e));
         }

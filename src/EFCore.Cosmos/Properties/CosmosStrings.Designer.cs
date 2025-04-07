@@ -328,6 +328,28 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 param1, param2);
 
         /// <summary>
+        ///     Ordering based on scoring function is not supported inside '{orderByDescending}'. Use '{orderBy}' instead.
+        /// </summary>
+        public static string OrderByDescendingScoringFunction(object? orderByDescending, object? orderBy)
+            => string.Format(
+                GetString("OrderByDescendingScoringFunction", nameof(orderByDescending), nameof(orderBy)),
+                orderByDescending, orderBy);
+
+        /// <summary>
+        ///     Only one ordering using scoring function is allowed. Use 'EF.Functions.{rrf}' method to combine multiple scoring functions.
+        /// </summary>
+        public static string OrderByMultipleScoringFunctionWithoutRrf(object? rrf)
+            => string.Format(
+                GetString("OrderByMultipleScoringFunctionWithoutRrf", nameof(rrf)),
+                rrf);
+
+        /// <summary>
+        ///     Ordering using a scoring function is mutually exclusive with other forms of ordering.
+        /// </summary>
+        public static string OrderByScoringFunctionMixedWithRegularOrderby
+            => GetString("OrderByScoringFunctionMixedWithRegularOrderby");
+
+        /// <summary>
         ///     The entity of type '{entityType}' is mapped as a part of the document mapped to '{missingEntityType}', but there is no tracked entity of this type with the corresponding key value. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the key values.
         /// </summary>
         public static string OrphanedNestedDocument(object? entityType, object? missingEntityType)
