@@ -722,6 +722,15 @@ WHERE ((c["$type"] = "Order") AND (c["CustomerID"] = "ALFKI"))
         AssertSql();
     }
 
+    public override async Task Project_single_element_from_collection_with_OrderBy_Take_OrderBy_and_FirstOrDefault(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(
+            () => base.Project_single_element_from_collection_with_OrderBy_Take_OrderBy_and_FirstOrDefault(async));
+
+        AssertSql();
+    }
+
     public override async Task Project_single_element_from_collection_with_OrderBy_Take_and_FirstOrDefault_with_parameter(bool async)
     {
         // Cosmos client evaluation. Issue #17246.
