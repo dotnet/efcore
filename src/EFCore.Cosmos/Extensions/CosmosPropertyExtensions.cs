@@ -140,7 +140,7 @@ public static class CosmosPropertyExtensions
         var annotation = property.FindAnnotation(CosmosAnnotationNames.FullTextSearchLanguage);
 
         return annotation != null
-            ? (string?)annotation.Value ?? "en-US"
+            ? (string?)annotation.Value ?? (property.DeclaringType as IReadOnlyEntityType)?.GetDefaultFullTextSearchLanguage() ?? "en-US"
             : null;
     }
 

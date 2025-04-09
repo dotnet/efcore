@@ -172,20 +172,20 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 entityType, property, isFullText);
 
         /// <summary>
-        ///     A property '{entityType}.{property}' was configured for full-text search, but an associated full-text index was not defined. Define an index for the property and configure it as a full-text index using the '{isFullText}' method.
-        /// </summary>
-        public static string FullTextPropertyWithoutFullTextIndex(object? entityType, object? property, object? isFullText)
-            => string.Format(
-                GetString("FullTextPropertyWithoutFullTextIndex", nameof(entityType), nameof(property), nameof(isFullText)),
-                entityType, property, isFullText);
-
-        /// <summary>
         ///     Property '{entityType}.{property}' was configured for full-text search, but has type '{clrType}'; only string properties can be configured for full-text search.
         /// </summary>
         public static string FullTextSearchConfiguredForUnsupportedPropertyType(object? entityType, object? property, object? clrType)
             => string.Format(
                 GetString("FullTextSearchConfiguredForUnsupportedPropertyType", nameof(entityType), nameof(property), nameof(clrType)),
                 entityType, property, clrType);
+
+        /// <summary>
+        ///     The default full-text search language was configured to '{defaultLanguage1}' on '{entityType1}', but on '{entityType2}' it was configured to '{defaultLanguage2}'. All entity types mapped to the same container '{container}' must be configured with the same default full-text search language.
+        /// </summary>
+        public static string FullTextSearchDefaultLanguageMismatch(object? defaultLanguage1, object? entityType1, object? entityType2, object? defaultLanguage2, object? container)
+            => string.Format(
+                GetString("FullTextSearchDefaultLanguageMismatch", nameof(defaultLanguage1), nameof(entityType1), nameof(entityType2), nameof(defaultLanguage2), nameof(container)),
+                defaultLanguage1, entityType1, entityType2, defaultLanguage2, container);
 
         /// <summary>
         ///     'HasShadowId' was called on a non-root entity type '{entityType}'. JSON 'id' configuration can only be made on the document root.

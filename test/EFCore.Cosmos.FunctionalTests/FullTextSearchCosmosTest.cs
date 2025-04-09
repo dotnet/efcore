@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 namespace Microsoft.EntityFrameworkCore;
 
 #pragma warning disable EF9104
+[CosmosCondition(CosmosCondition.DoesNotUseTokenCredential)]
 public class FullTextSearchCosmosTest : IClassFixture<FullTextSearchCosmosTest.FullTextSearchFixture>
 {
     public FullTextSearchCosmosTest(FullTextSearchFixture fixture, ITestOutputHelper testOutputHelper)
@@ -629,7 +630,7 @@ ORDER BY RANK FullTextScore(c["Owned"]["NestedCollection"][0]["AnotherDescriptio
     {
         await using var context = CreateContext();
         var result = await context.Set<FullTextSearchAnimals>()
-            .OrderBy(x => EF.Functions.FullTextScore(x.ModifiedDecription, new string[] { "beaver", "dolphin" }))
+            .OrderBy(x => EF.Functions.FullTextScore(x.ModifiedDescription, new string[] { "beaver", "dolphin" }))
             .ToListAsync();
 
         AssertSql(
@@ -657,6 +658,23 @@ ORDER BY RANK FullTextScore(c["Owned"]["CustomNestedReference"]["AnotherDescript
 """);
     }
 
+    [ConditionalFact]
+    public virtual async Task OrderByRank_with_FullTextScore_on_property_without_index()
+    {
+        await using var context = CreateContext();
+
+        var result = await context.Set<FullTextSearchAnimals>()
+            .OrderBy(x => EF.Functions.FullTextScore(x.DescriptionNoIndex, new string[] { "beaver", "dolphin" }))
+            .ToListAsync();
+
+        AssertSql(
+"""
+SELECT VALUE c
+FROM root c
+ORDER BY RANK FullTextScore(c["DescriptionNoIndex"], ["beaver","dolphin"])
+""");
+    }
+
     private class FullTextSearchAnimals
     {
         public int Id { get; set; }
@@ -667,7 +685,8 @@ ORDER BY RANK FullTextScore(c["Owned"]["CustomNestedReference"]["AnotherDescript
 
         public string Description { get; set; } = null!;
 
-        public string ModifiedDecription { get; set; } = null!;
+        public string ModifiedDescription { get; set; } = null!;
+        public string DescriptionNoIndex { get; set; } = null!;
 
         public FullTextSearchOwned Owned { get; set; } = null!;
     }
@@ -708,9 +727,11 @@ ORDER BY RANK FullTextScore(c["Owned"]["CustomNestedReference"]["AnotherDescript
                 b.Property(x => x.Description).IsFullTextProperty();
                 b.HasIndex(x => x.Description).IsFullTextIndex();
 
-                b.Property(x => x.ModifiedDecription).ToJsonProperty("CustomDecription");
-                b.Property(x => x.ModifiedDecription).IsFullTextProperty();
-                b.HasIndex(x => x.ModifiedDecription).IsFullTextIndex();
+                b.Property(x => x.ModifiedDescription).ToJsonProperty("CustomDecription");
+                b.Property(x => x.ModifiedDescription).IsFullTextProperty();
+                b.HasIndex(x => x.ModifiedDescription).IsFullTextIndex();
+
+                b.Property(x => x.DescriptionNoIndex).IsFullTextProperty();
 
                 b.OwnsOne(x => x.Owned, bb =>
                 {
@@ -744,6 +765,8 @@ ORDER BY RANK FullTextScore(c["Owned"]["CustomNestedReference"]["AnotherDescript
                 PartitionKey = "habitat",
                 Name = "List of several land animals",
                 Description = "bison, beaver, moose, fox, wolf, marten, horse, shrew, hare, duck, turtle, frog",
+                ModifiedDescription = "bison, beaver, moose, fox, wolf, marten, horse, shrew, hare, duck, turtle, frog",
+                DescriptionNoIndex = "bison, beaver, moose, fox, wolf, marten, horse, shrew, hare, duck, turtle, frog",
                 Owned = new FullTextSearchOwned
                 {
                     NestedReference = new FullTextSearchNested
@@ -771,6 +794,8 @@ ORDER BY RANK FullTextScore(c["Owned"]["CustomNestedReference"]["AnotherDescript
                 PartitionKey = "habitat",
                 Name = "List of several water animals",
                 Description = "beaver, otter, duck, dolphin, salmon, turtle, frog",
+                ModifiedDescription = "beaver, otter, duck, dolphin, salmon, turtle, frog",
+                DescriptionNoIndex = "beaver, otter, duck, dolphin, salmon, turtle, frog",
                 Owned = new FullTextSearchOwned
                 {
                     NestedReference = new FullTextSearchNested
@@ -798,6 +823,8 @@ ORDER BY RANK FullTextScore(c["Owned"]["CustomNestedReference"]["AnotherDescript
                 PartitionKey = "habitat",
                 Name = "List of several air animals",
                 Description = "duck, bat, eagle, butterfly, sparrow",
+                ModifiedDescription = "duck, bat, eagle, butterfly, sparrow",
+                DescriptionNoIndex = "duck, bat, eagle, butterfly, sparrow",
                 Owned = new FullTextSearchOwned
                 {
                     NestedReference = new FullTextSearchNested
@@ -825,6 +852,8 @@ ORDER BY RANK FullTextScore(c["Owned"]["CustomNestedReference"]["AnotherDescript
                 PartitionKey = "taxonomy",
                 Name = "List of several mammals",
                 Description = "bison, beaver, moose, fox, wolf, marten, horse, shrew, hare, bat",
+                ModifiedDescription = "bison, beaver, moose, fox, wolf, marten, horse, shrew, hare, bat",
+                DescriptionNoIndex = "bison, beaver, moose, fox, wolf, marten, horse, shrew, hare, bat",
                 Owned = new FullTextSearchOwned
                 {
                     NestedReference = new FullTextSearchNested
@@ -852,6 +881,8 @@ ORDER BY RANK FullTextScore(c["Owned"]["CustomNestedReference"]["AnotherDescript
                 PartitionKey = "taxonomy",
                 Name = "List of several avians",
                 Description = "duck, eagle, sparrow",
+                ModifiedDescription = "duck, eagle, sparrow",
+                DescriptionNoIndex = "duck, eagle, sparrow",
                 Owned = new FullTextSearchOwned
                 {
                     NestedReference = new FullTextSearchNested

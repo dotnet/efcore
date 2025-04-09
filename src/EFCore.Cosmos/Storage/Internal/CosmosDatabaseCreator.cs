@@ -126,6 +126,7 @@ public class CosmosDatabaseCreator : IDatabaseCreator
             ThroughputProperties? throughput = null;
             var indexes = new List<IIndex>();
             var vectors = new List<(IProperty Property, CosmosVectorType VectorType)>();
+            string? fullTextDefaultLanguage = null;
             var fullTextProperties = new List<(IProperty Property, string Language)>();
 
             foreach (var entityType in mappedTypes)
@@ -138,6 +139,7 @@ public class CosmosDatabaseCreator : IDatabaseCreator
                 analyticalTtl ??= entityType.GetAnalyticalStoreTimeToLive();
                 defaultTtl ??= entityType.GetDefaultTimeToLive();
                 throughput ??= entityType.GetThroughput();
+                fullTextDefaultLanguage ??= entityType.GetDefaultFullTextSearchLanguage();
 
                 ProcessEntityType(entityType, indexes, vectors, fullTextProperties);
             }
@@ -150,6 +152,7 @@ public class CosmosDatabaseCreator : IDatabaseCreator
                 throughput,
                 indexes,
                 vectors,
+                fullTextDefaultLanguage ?? "en-US",
                 fullTextProperties);
         }
 

@@ -277,19 +277,9 @@ public class CosmosClientWrapper : ICosmosClientWrapper
             }
         }
 
-        var fullTextIndexProperties = parameters.Indexes.Where(x => x.IsFullTextIndex() == true).Select(x => x.Properties[0]).ToList();
         var fullTextPaths = new Collection<FullTextPath>();
         foreach (var fullTextProperty in parameters.FullTextProperties)
         {
-            if (!fullTextIndexProperties.Contains(fullTextProperty.Property))
-            {
-                throw new InvalidOperationException(
-                    CosmosStrings.FullTextPropertyWithoutFullTextIndex(
-                        fullTextProperty.Property.DeclaringType.DisplayName(),
-                        fullTextProperty.Property.Name,
-                        nameof(CosmosIndexBuilderExtensions.IsFullTextIndex)));
-            }
-
             if (fullTextProperty.Property.ClrType != typeof(string))
             {
                 throw new InvalidOperationException(
@@ -343,8 +333,11 @@ public class CosmosClientWrapper : ICosmosClientWrapper
 
         if (fullTextPaths.Count != 0)
         {
-            // TODO: see issue #35851
-            containerProperties.FullTextPolicy = new FullTextPolicy { DefaultLanguage = "en-US", FullTextPaths = fullTextPaths };
+            containerProperties.FullTextPolicy = new FullTextPolicy
+            {
+                DefaultLanguage = parameters.DefaultFullTextLanguage,
+                FullTextPaths = fullTextPaths
+            };
         }
 
         var response = await wrapper.Client.GetDatabase(wrapper._databaseId).CreateContainerIfNotExistsAsync(

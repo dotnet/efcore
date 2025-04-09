@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 #pragma warning disable EF9103
 #pragma warning disable EF9104
-
+[CosmosCondition(CosmosCondition.DoesNotUseTokenCredential)]
 public class HybridSearchCosmosTest : IClassFixture<HybridSearchCosmosTest.HybridSearchFixture>
 {
     public HybridSearchCosmosTest(HybridSearchFixture fixture, ITestOutputHelper testOutputHelper)
