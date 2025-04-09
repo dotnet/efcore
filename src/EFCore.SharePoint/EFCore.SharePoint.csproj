@@ -16,5 +16,10 @@
     <ProjectReference Include="..\EFCore.Relational\EFCore.Relational.csproj" />
     <ProjectReference Include="..\EFCore\EFCore.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Metadata\Builders\" />
+    <Folder Include="Metadata\Conventions\" />
+    <Folder Include="Metadata\Internal\" />
+  </ItemGroup>
 
 </Project>

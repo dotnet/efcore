@@ -2,8 +2,8 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 
-namespace Microsoft.EntityFrameworkCore.Infrastructure;
+namespace Microsoft.EntityFrameworkCore.Metadata;
 
-internal class SharePointDbContextOptionsBuilder
+internal class SharePointValueGenerationStrategy
 {
 }
