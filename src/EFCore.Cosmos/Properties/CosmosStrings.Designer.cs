@@ -164,12 +164,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
             => GetString("ExceptNotSupported");
 
         /// <summary>
-        ///     A full-text index is defined for `{entityType}.{property}`, but this property has not been configured for full-text search. Use '{isFullText}' method in 'OnModelCreating' to configure the property for full-text search.
+        ///     A full-text index is defined for `{entityType}.{property}`, but full-text search was not enabled for this property. Use '{enableFullText}' method in 'OnModelCreating' to enable full-text search for this property.
         /// </summary>
-        public static string FullTextIndexOnNonFullTextProperty(object? entityType, object? property, object? isFullText)
+        public static string FullTextIndexOnNonFullTextProperty(object? entityType, object? property, object? enableFullText)
             => string.Format(
-                GetString("FullTextIndexOnNonFullTextProperty", nameof(entityType), nameof(property), nameof(isFullText)),
-                entityType, property, isFullText);
+                GetString("FullTextIndexOnNonFullTextProperty", nameof(entityType), nameof(property), nameof(enableFullText)),
+                entityType, property, enableFullText);
 
         /// <summary>
         ///     Property '{entityType}.{property}' was configured for full-text search, but has type '{clrType}'; only string properties can be configured for full-text search.

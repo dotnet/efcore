@@ -721,37 +721,37 @@ ORDER BY RANK FullTextScore(c["DescriptionNoIndex"], ["beaver","dolphin"])
                 b.ToContainer("FullTextSearchAnimals");
                 b.HasPartitionKey(x => x.PartitionKey);
                 b.Property(x => x.Name);
-                b.Property(x => x.Name).IsFullTextProperty();
+                b.Property(x => x.Name).EnableFullTextSearch();
                 b.HasIndex(x => x.Name).IsFullTextIndex();
 
-                b.Property(x => x.Description).IsFullTextProperty();
+                b.Property(x => x.Description).EnableFullTextSearch();
                 b.HasIndex(x => x.Description).IsFullTextIndex();
 
                 b.Property(x => x.ModifiedDescription).ToJsonProperty("CustomDecription");
-                b.Property(x => x.ModifiedDescription).IsFullTextProperty();
+                b.Property(x => x.ModifiedDescription).EnableFullTextSearch();
                 b.HasIndex(x => x.ModifiedDescription).IsFullTextIndex();
 
-                b.Property(x => x.DescriptionNoIndex).IsFullTextProperty();
+                b.Property(x => x.DescriptionNoIndex).EnableFullTextSearch();
 
                 b.OwnsOne(x => x.Owned, bb =>
                 {
                     bb.OwnsOne(x => x.NestedReference, bbb =>
                     {
-                        bbb.Property(x => x.AnotherDescription).IsFullTextProperty();
+                        bbb.Property(x => x.AnotherDescription).EnableFullTextSearch();
                         bbb.HasIndex(x => x.AnotherDescription).IsFullTextIndex();
                     });
 
                     bb.OwnsOne(x => x.ModifiedNestedReference, bbb =>
                     {
                         bbb.ToJsonProperty("CustomNestedReference");
-                        bbb.Property(x => x.AnotherDescription).IsFullTextProperty();
+                        bbb.Property(x => x.AnotherDescription).EnableFullTextSearch();
                         bbb.HasIndex(x => x.AnotherDescription).IsFullTextIndex();
                     });
 
                     // issue #35898
                     //bb.OwnsMany(x => x.NestedCollection, bbb =>
                     //{
-                    //    bbb.Property(x => x.AnotherDescription).IsFullText();
+                    //    bbb.Property(x => x.AnotherDescription).EnableFullTextSearch();
                     //    bbb.HasIndex(x => x.AnotherDescription).IsFullTextIndex();
                     //});
                 });

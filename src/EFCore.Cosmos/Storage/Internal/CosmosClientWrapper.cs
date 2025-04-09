@@ -263,15 +263,6 @@ public class CosmosClientWrapper : ICosmosClientWrapper
                             string.Join(",", index.Properties.Select(e => e.Name))));
                 }
 
-                if (!fullTextProperties.Contains(index.Properties[0]))
-                {
-                    throw new InvalidOperationException(
-                        CosmosStrings.FullTextIndexOnNonFullTextProperty(
-                            index.DeclaringEntityType.DisplayName(),
-                            index.Properties[0].Name,
-                            nameof(CosmosPropertyBuilderExtensions.IsFullTextProperty)));
-                }
-
                 fullTextIndexPaths.Add(
                     new FullTextIndexPath { Path = GetJsonPropertyPathFromRoot(index.Properties[0]) });
             }

@@ -446,7 +446,7 @@ public class CosmosTestStore : TestStore
             var indexes = new List<IIndex>();
             var vectors = new List<(IProperty Property, CosmosVectorType VectorType)>();
             string? fullTextDefaultLanguage = null;
-            var fullTextProperties = new List<(IProperty Property, string Language)>();
+            var fullTextProperties = new List<(IProperty Property, string? Language)>();
 
             foreach (var entityType in mappedTypes)
             {
@@ -479,7 +479,7 @@ public class CosmosTestStore : TestStore
             IEntityType entityType,
             List<IIndex> indexes,
             List<(IProperty Property, CosmosVectorType VectorType)> vectors,
-            List<(IProperty Property, string Language)> fullTextProperties)
+            List<(IProperty Property, string? Language)> fullTextProperties)
         {
             indexes.AddRange(entityType.GetIndexes());
 
@@ -490,10 +490,9 @@ public class CosmosTestStore : TestStore
                     vectors.Add((property, vectorTypeMapping.VectorType));
                 }
 
-                var ftsLanguage = property.GetFullTextSearchLanguage();
-                if (ftsLanguage != null)
+                if (property.GetIsFullTextSearchEnabled() == true)
                 {
-                    fullTextProperties.Add((property, ftsLanguage));
+                    fullTextProperties.Add((property, property.GetFullTextSearchLanguage()));
                 }
             }
 

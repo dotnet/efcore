@@ -126,8 +126,8 @@ public class CosmosDatabaseCreator : IDatabaseCreator
             ThroughputProperties? throughput = null;
             var indexes = new List<IIndex>();
             var vectors = new List<(IProperty Property, CosmosVectorType VectorType)>();
-            string? fullTextDefaultLanguage = null;
-            var fullTextProperties = new List<(IProperty Property, string Language)>();
+            string? defaultFullTextLanguage = null;
+            var fullTextProperties = new List<(IProperty Property, string? Language)>();
 
             foreach (var entityType in mappedTypes)
             {
@@ -139,7 +139,7 @@ public class CosmosDatabaseCreator : IDatabaseCreator
                 analyticalTtl ??= entityType.GetAnalyticalStoreTimeToLive();
                 defaultTtl ??= entityType.GetDefaultTimeToLive();
                 throughput ??= entityType.GetThroughput();
-                fullTextDefaultLanguage ??= entityType.GetDefaultFullTextSearchLanguage();
+                defaultFullTextLanguage ??= entityType.GetDefaultFullTextSearchLanguage();
 
                 ProcessEntityType(entityType, indexes, vectors, fullTextProperties);
             }
@@ -152,7 +152,7 @@ public class CosmosDatabaseCreator : IDatabaseCreator
                 throughput,
                 indexes,
                 vectors,
-                fullTextDefaultLanguage ?? "en-US",
+                defaultFullTextLanguage ?? "en-US",
                 fullTextProperties);
         }
 
@@ -160,7 +160,7 @@ public class CosmosDatabaseCreator : IDatabaseCreator
             IEntityType entityType,
             List<IIndex> indexes,
             List<(IProperty Property, CosmosVectorType VectorType)> vectors,
-            List<(IProperty Property, string Language)> fullTextProperties)
+            List<(IProperty Property, string? Language)> fullTextProperties)
         {
             indexes.AddRange(entityType.GetIndexes());
 
@@ -171,10 +171,9 @@ public class CosmosDatabaseCreator : IDatabaseCreator
                     vectors.Add((property, vectorTypeMapping.VectorType));
                 }
 
-                var ftsLanguage = property.GetFullTextSearchLanguage();
-                if (ftsLanguage != null)
+                if (property.GetIsFullTextSearchEnabled() == true)
                 {
-                    fullTextProperties.Add((property, ftsLanguage));
+                    fullTextProperties.Add((property, property.GetFullTextSearchLanguage()));
                 }
             }
 

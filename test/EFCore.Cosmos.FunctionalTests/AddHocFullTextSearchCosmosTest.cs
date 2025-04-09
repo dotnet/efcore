@@ -66,7 +66,7 @@ public class AddHocFullTextSearchCosmosTest(NonSharedFixture fixture) : NonShare
             CosmosStrings.FullTextIndexOnNonFullTextProperty(
                 nameof(ContextFullTextIndexWithoutProperty.Entity),
                 nameof(ContextFullTextIndexWithoutProperty.Entity.Name),
-                nameof(CosmosPropertyBuilderExtensions.IsFullTextProperty)),
+                nameof(CosmosPropertyBuilderExtensions.EnableFullTextSearch)),
             message);
     }
 
@@ -129,7 +129,7 @@ public class AddHocFullTextSearchCosmosTest(NonSharedFixture fixture) : NonShare
                 b.HasPartitionKey(x => x.PartitionKey);
                 b.OwnsMany(x => x.Collection, bb =>
                 {
-                    bb.Property(x => x.Name).IsFullTextProperty();
+                    bb.Property(x => x.Name).EnableFullTextSearch();
                     bb.HasIndex(x => x.Name).IsFullTextIndex();
                 });
             });
@@ -169,7 +169,7 @@ public class AddHocFullTextSearchCosmosTest(NonSharedFixture fixture) : NonShare
             {
                 b.ToContainer("Entities");
                 b.HasPartitionKey(x => x.PartitionKey);
-                b.Property(x => x.Number).IsFullTextProperty();
+                b.Property(x => x.Number).EnableFullTextSearch();
                 b.HasIndex(x => x.Number).IsFullTextIndex();
             });
     }
@@ -204,7 +204,7 @@ public class AddHocFullTextSearchCosmosTest(NonSharedFixture fixture) : NonShare
             {
                 b.ToContainer("Entities").HasDefaultFullTextLanguage("pl-PL");
                 b.HasPartitionKey(x => x.PartitionKey);
-                b.Property(x => x.Name).IsFullTextProperty();
+                b.Property(x => x.Name).EnableFullTextSearch();
                 b.HasIndex(x => x.Name).IsFullTextIndex();
             });
     }
@@ -255,7 +255,7 @@ public class AddHocFullTextSearchCosmosTest(NonSharedFixture fixture) : NonShare
             {
                 b.ToContainer("Entities").HasDefaultFullTextLanguage("pl-PL");
                 b.HasPartitionKey(x => x.PartitionKey);
-                b.Property(x => x.Name).IsFullTextProperty();
+                b.Property(x => x.Name).EnableFullTextSearch();
                 b.HasIndex(x => x.Name).IsFullTextIndex();
             });
 
@@ -263,7 +263,7 @@ public class AddHocFullTextSearchCosmosTest(NonSharedFixture fixture) : NonShare
             {
                 b.ToContainer("Entities").HasDefaultFullTextLanguage("en-US");
                 b.HasPartitionKey(x => x.PartitionKey);
-                b.Property(x => x.Name).IsFullTextProperty();
+                b.Property(x => x.Name).EnableFullTextSearch();
                 b.HasIndex(x => x.Name).IsFullTextIndex();
             });
         }
@@ -318,7 +318,7 @@ public class AddHocFullTextSearchCosmosTest(NonSharedFixture fixture) : NonShare
             {
                 b.ToContainer("Entities");
                 b.HasPartitionKey(x => x.PartitionKey);
-                b.Property(x => x.Name).IsFullTextProperty();
+                b.Property(x => x.Name).EnableFullTextSearch();
                 b.HasIndex(x => x.Name).IsFullTextIndex();
             });
 
@@ -326,7 +326,7 @@ public class AddHocFullTextSearchCosmosTest(NonSharedFixture fixture) : NonShare
             {
                 b.ToContainer("Entities").HasDefaultFullTextLanguage("pl-PL");
                 b.HasPartitionKey(x => x.PartitionKey);
-                b.Property(x => x.Name).IsFullTextProperty();
+                b.Property(x => x.Name).EnableFullTextSearch();
                 b.HasIndex(x => x.Name).IsFullTextIndex();
             });
 
@@ -334,7 +334,7 @@ public class AddHocFullTextSearchCosmosTest(NonSharedFixture fixture) : NonShare
             {
                 b.ToContainer("Entities");
                 b.HasPartitionKey(x => x.PartitionKey);
-                b.Property(x => x.Name).IsFullTextProperty();
+                b.Property(x => x.Name).EnableFullTextSearch();
                 b.HasIndex(x => x.Name).IsFullTextIndex();
             });
         }
@@ -370,7 +370,7 @@ public class AddHocFullTextSearchCosmosTest(NonSharedFixture fixture) : NonShare
         {
             b.ToContainer("Entities").HasDefaultFullTextLanguage("pl-PL");
             b.HasPartitionKey(x => x.PartitionKey);
-            b.Property(x => x.Name).IsFullTextProperty();
+            b.Property(x => x.Name).EnableFullTextSearch();
             b.HasIndex(x => x.Name).IsFullTextIndex();
         });
     }
@@ -405,9 +405,50 @@ public class AddHocFullTextSearchCosmosTest(NonSharedFixture fixture) : NonShare
         {
             b.ToContainer("Entities").HasDefaultFullTextLanguage("pl-PL");
             b.HasPartitionKey(x => x.PartitionKey);
-            b.Property(x => x.Name).IsFullTextProperty("de-DE");
+            b.Property(x => x.Name).EnableFullTextSearch("de-DE");
             b.HasIndex(x => x.Name).IsFullTextIndex();
         });
+    }
+
+    #endregion
+
+    #region EnableThenDisable
+
+    [ConditionalFact]
+    public async Task Enable_full_text_search_for_property_then_disable_it()
+    {
+        var message = (await Assert.ThrowsAsync<InvalidOperationException>(
+            () => InitializeAsync<ContextEnableThenDisable>())).Message;
+
+        Assert.Equal(
+            CosmosStrings.FullTextIndexOnNonFullTextProperty(
+                nameof(ContextFullTextIndexWithoutProperty.Entity),
+                nameof(ContextFullTextIndexWithoutProperty.Entity.Name),
+                nameof(CosmosPropertyBuilderExtensions.EnableFullTextSearch)),
+            message);
+    }
+
+    protected class ContextEnableThenDisable(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<Entity> Entities { get; set; } = null!;
+
+        public class Entity
+        {
+            public int Id { get; set; }
+            public string PartitionKey { get; set; } = null!;
+            public string Name { get; set; } = null!;
+            public int Number { get; set; }
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<Entity>(b =>
+            {
+                b.ToContainer("Entities");
+                b.HasPartitionKey(x => x.PartitionKey);
+                b.Property(x => x.Name).EnableFullTextSearch("de-DE");
+                b.Property(x => x.Name).DisableFullTextSearch();
+                b.HasIndex(x => x.Name).IsFullTextIndex();
+            });
     }
 
     #endregion

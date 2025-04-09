@@ -175,7 +175,7 @@
     <value>The 'Except()' LINQ operator isn't supported by Cosmos.</value>
   </data>
   <data name="FullTextIndexOnNonFullTextProperty" xml:space="preserve">
-    <value>A full-text index is defined for `{entityType}.{property}`, but this property has not been configured for full-text search. Use '{isFullText}' method in 'OnModelCreating' to configure the property for full-text search.</value>
+    <value>A full-text index is defined for `{entityType}.{property}`, but full-text search was not enabled for this property. Use '{enableFullText}' method in 'OnModelCreating' to enable full-text search for this property.</value>
   </data>
   <data name="FullTextSearchConfiguredForUnsupportedPropertyType" xml:space="preserve">
     <value>Property '{entityType}.{property}' was configured for full-text search, but has type '{clrType}'; only string properties can be configured for full-text search.</value>

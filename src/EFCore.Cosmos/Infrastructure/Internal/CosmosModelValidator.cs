@@ -594,7 +594,15 @@ public class CosmosModelValidator : ModelValidator
                 }
                 else if (index.IsFullTextIndex() == true)
                 {
-                    // allow these, validation happens during container creation
+                    // composite vector validation is done during container creation
+                    if (index.Properties[0].GetIsFullTextSearchEnabled() != true)
+                    {
+                        throw new InvalidOperationException(
+                            CosmosStrings.FullTextIndexOnNonFullTextProperty(
+                                index.DeclaringEntityType.DisplayName(),
+                                index.Properties[0].Name,
+                                nameof(CosmosPropertyBuilderExtensions.EnableFullTextSearch)));
+                    }
                 }
                 else
                 {
