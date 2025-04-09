@@ -2310,7 +2310,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, property);
 
         /// <summary>
-        ///     The complex type property '{type}.{property}' is configured as required (non-nullable) but has a null value when saving changes. Only non-null complex properties are supported by EF Core 8.
+        ///     The complex type property '{type}.{property}' is configured as required (non-nullable) but has a null value when saving changes.
         /// </summary>
         public static string NullRequiredComplexProperty(object? type, object? property)
             => string.Format(

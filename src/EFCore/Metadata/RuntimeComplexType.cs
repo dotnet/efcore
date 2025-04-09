@@ -263,6 +263,9 @@ public class RuntimeComplexType : RuntimeTypeBase, IRuntimeComplexType
     }
 
     /// <inheritdoc />
+    PropertyCounts? IRuntimeComplexType.Counts { get; set; }
+
+    /// <inheritdoc />
     [DebuggerStepThrough]
     IEnumerable<IReadOnlyComplexType> IReadOnlyComplexType.GetDerivedTypes()
         => GetDerivedTypes<RuntimeComplexType>();
