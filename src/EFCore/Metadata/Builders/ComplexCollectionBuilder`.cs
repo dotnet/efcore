@@ -54,7 +54,7 @@ public class ComplexCollectionBuilder<[DynamicallyAccessedMembers(IEntityType.Dy
         => (ComplexCollectionBuilder<TComplex>)base.HasTypeAnnotation(annotation, value);
 
     /// <summary>
-    ///     Returns an object that can be used to configure a property of the entity type.
+    ///     Returns an object that can be used to configure a property of the complex type.
     ///     If the specified property is not already part of the model, it will be added.
     /// </summary>
     /// <param name="propertyExpression">

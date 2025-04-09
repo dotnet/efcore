@@ -47,6 +47,8 @@ public class ApiConsistencyTest(ApiConsistencyTest.ApiConsistencyFixture fixture
             typeof(ComplexPropertyBuilder<>),
             typeof(ComplexTypePrimitiveCollectionBuilder),
             typeof(ComplexTypePrimitiveCollectionBuilder<>),
+            typeof(ComplexCollectionBuilder),
+            typeof(ComplexCollectionBuilder<>),
             typeof(IndexBuilder),
             typeof(IndexBuilder<>),
             typeof(TriggerBuilder),
@@ -129,6 +131,12 @@ public class ApiConsistencyTest(ApiConsistencyTest.ApiConsistencyFixture fixture
                 nameof(ComplexPropertyBuilder.ComplexProperty), 0, [typeof(Type), typeof(string)]),
             typeof(ComplexPropertyBuilder).GetMethod(
                 nameof(ComplexPropertyBuilder.ComplexProperty), 0, [typeof(Type), typeof(string), typeof(string)]),
+            typeof(ComplexCollectionBuilder).GetMethod(
+                nameof(ComplexCollectionBuilder.ComplexCollection), 0, [typeof(string)]),
+            typeof(ComplexCollectionBuilder).GetMethod(
+                nameof(ComplexCollectionBuilder.ComplexCollection), 0, [typeof(Type), typeof(string)]),
+            typeof(ComplexCollectionBuilder).GetMethod(
+                nameof(ComplexCollectionBuilder.ComplexCollection), 0, [typeof(Type), typeof(string), typeof(string)]),
             typeof(OwnedNavigationBuilder).GetMethod(
                 nameof(OwnedNavigationBuilder.OwnsOne), 0, [typeof(string), typeof(string)]),
             typeof(OwnedNavigationBuilder).GetMethod(

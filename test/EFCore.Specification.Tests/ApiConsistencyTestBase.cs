@@ -94,7 +94,10 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
                                 || !hidingMethod.GetParameters().Select(p => p.ParameterType)
                                     .SequenceEqual(
                                         method.GetParameters().Select(
-                                            p => GetEquivalentGenericType(p.ParameterType, hidingMethod.GetGenericArguments()))))
+                                            p => GetEquivalentGenericType(
+                                                p.ParameterType,
+                                                hidingMethod.GetGenericArguments(),
+                                                method.IsGenericMethod ? method.GetGenericArguments() : []))))
                             {
                                 continue;
                             }
@@ -133,7 +136,9 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
                             || !hidingMethod.GetParameters().Skip(1).Select(p => p.ParameterType)
                                 .SequenceEqual(
                                     method.GetParameters().Skip(1).Select(
-                                        p => GetEquivalentGenericType(p.ParameterType, hidingMethod.GetGenericArguments()))))
+                                        p => GetEquivalentGenericType(p.ParameterType,
+                                        hidingMethod.GetGenericArguments(),
+                                        method.IsGenericMethod ? method.GetGenericArguments() : []))))
                         {
                             continue;
                         }
@@ -164,24 +169,37 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
         return arguments.Length == 0 ? "" : $"`{arguments.Length}";
     }
 
-    protected Type GetEquivalentGenericType(Type parameterType, Type[] genericArguments)
+    protected Type GetEquivalentGenericType(Type parameterType, Type[] hidingGenericArguments, Type[] baseGenericArguments)
     {
         if (parameterType.IsGenericType
             && parameterType.GetGenericTypeDefinition() == typeof(Action<>))
         {
             var builder = parameterType.GetGenericArguments()[0];
-            if (Fixture.GenericFluentApiTypes.TryGetValue(builder, out var genericBuilder)
-                && genericBuilder.GetGenericArguments().Length == genericArguments.Length)
-            {
-                return typeof(Action<>).MakeGenericType(genericBuilder.MakeGenericType(genericArguments));
-            }
-
             if (builder.IsGenericType)
             {
+                var builderArguments = builder.GetGenericArguments();
                 var builderDefinition = builder.GetGenericTypeDefinition();
-                if (builderDefinition.GetGenericArguments().Length == genericArguments.Length)
+                if (builderArguments.Length == hidingGenericArguments.Length)
                 {
-                    return typeof(Action<>).MakeGenericType(builderDefinition.MakeGenericType(genericArguments));
+                    return typeof(Action<>).MakeGenericType(builderDefinition.MakeGenericType(hidingGenericArguments));
+                }
+                else if (builderArguments.Length == 1
+                    && baseGenericArguments.Length == hidingGenericArguments.Length)
+                {
+                    for (var i = 0; i < baseGenericArguments.Length; i++)
+                    {
+                        if (builderArguments[0] == baseGenericArguments[i])
+                        {
+                            return typeof(Action<>).MakeGenericType(builderDefinition.MakeGenericType(hidingGenericArguments[i]));
+                        }
+                    }
+                }
+            }
+            else if (Fixture.GenericFluentApiTypes.TryGetValue(builder, out var genericBuilder))
+            {
+                if (genericBuilder.GetGenericArguments().Length == hidingGenericArguments.Length)
+                {
+                    return typeof(Action<>).MakeGenericType(genericBuilder.MakeGenericType(hidingGenericArguments));
                 }
             }
         }
@@ -720,7 +738,9 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
                     : conventionType;
 
                 var parameters = method.GetParameters()
-                    .Select(p => GetEquivalentGenericType(p.ParameterType, builderType.GetGenericArguments())).ToArray();
+                    .Select(p => GetEquivalentGenericType(
+                        p.ParameterType, builderType.GetGenericArguments(),
+                        method.IsGenericMethod ? method.GetGenericArguments() : [])).ToArray();
                 var hidingMethod = builderType.GetMethod(
                     method.Name,
                     method.GetGenericArguments().Length,
@@ -767,7 +787,8 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
                     var expectedParameters = new[] { builderType }.Concat(
                             parameters
                                 .Skip(1)
-                                .Select(p => GetEquivalentGenericType(p.ParameterType, builderType.GetGenericArguments())))
+                                .Select(p => GetEquivalentGenericType(
+                                    p.ParameterType, builderType.GetGenericArguments(), method.IsGenericMethod ? method.GetGenericArguments() : [])))
                         .ToArray();
                     var hidingMethod = extensionType.GetMethod(
                         method.Name,
@@ -1218,7 +1239,8 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
             if (_targetMethod.DeclaringType.IsGenericType
                 && sourceParameterType
                 == _tests.GetEquivalentGenericType(
-                    sourceParameterType, _targetMethod.DeclaringType.GetGenericArguments()))
+                    sourceParameterType, _targetMethod.DeclaringType.GetGenericArguments(),
+                    sourceParameterType.IsGenericType ? sourceParameterType.GetGenericArguments() : []))
             {
                 return true;
             }
@@ -1269,6 +1291,7 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
             { typeof(DiscriminatorBuilder), typeof(DiscriminatorBuilder<>) },
             { typeof(EntityTypeBuilder), typeof(EntityTypeBuilder<>) },
             { typeof(ComplexPropertyBuilder), typeof(ComplexPropertyBuilder<>) },
+            { typeof(ComplexCollectionBuilder), typeof(ComplexCollectionBuilder<>) },
             { typeof(IndexBuilder), typeof(IndexBuilder<>) },
             { typeof(KeyBuilder), typeof(KeyBuilder<>) },
             { typeof(NavigationBuilder), typeof(NavigationBuilder<,>) },

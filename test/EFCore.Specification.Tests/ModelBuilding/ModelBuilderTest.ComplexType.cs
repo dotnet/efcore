@@ -24,6 +24,7 @@ public abstract partial class ModelBuilderTest
             var complexPropertyBuilder = modelBuilder
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
+                .Ignore(e => e.Customers)
                 .ComplexProperty(e => e.Customer)
                 .HasTypeAnnotation("foo", "bar")
                 .HasPropertyAnnotation("foo2", "bar2")
@@ -36,7 +37,7 @@ public abstract partial class ModelBuilderTest
 
             Assert.Equal("bar", complexProperty.ComplexType["foo"]);
             Assert.Equal("bar2", complexProperty["foo2"]);
-            Assert.Equal(typeof(Customer).Name, complexProperty.Name);
+            Assert.Equal(nameof(ComplexProperties.Customer), complexProperty.Name);
             Assert.Equal(
                 @"Customer (Customer)
   ComplexType: ComplexProperties.Customer#Customer
@@ -57,6 +58,7 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Product>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
+                .Ignore(e => e.Customers)
                 .ComplexProperty(e => e.Customer)
                 .Ignore(c => c.Details)
                 .Ignore(c => c.Orders)
@@ -78,6 +80,7 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Product>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
+                .Ignore(e => e.Customers)
                 .ComplexProperty(e => e.Customer)
                 .Ignore(c => c.Details)
                 .Ignore(c => c.Orders)
@@ -99,6 +102,7 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Product>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
+                .Ignore(e => e.Customers)
                 .ComplexProperty(e => e.Customer)
                 .Ignore(c => c.Details)
                 .Ignore(c => c.Orders)
@@ -182,6 +186,7 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Product>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
+                .Ignore(e => e.Customers)
                 .ComplexProperty(e => e.Customer, b => b.Ignore(c => c.Details).Ignore(c => c.Orders));
 
             var model = modelBuilder.FinalizeModel();
@@ -197,6 +202,7 @@ public abstract partial class ModelBuilderTest
             var complexPropertyBuilder = modelBuilder
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
+                .Ignore(e => e.Customers)
                 .ComplexProperty(e => e.Customer, b => b.Ignore(c => c.Details).Ignore(c => c.Orders));
             complexPropertyBuilder.Property<string>("Shadow");
             complexPropertyBuilder.Ignore("Shadow");
@@ -216,6 +222,7 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Product>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
+                .Ignore(e => e.Customers)
                 .ComplexProperty(
                     e => e.Customer,
                     b =>
@@ -455,9 +462,7 @@ public abstract partial class ModelBuilderTest
 
             modelBuilder.UsePropertyAccessMode(PropertyAccessMode.Field);
 
-            modelBuilder
-                .Entity<ComplexProperties>()
-                .ComplexProperty(e => e.Customer, b => b.Ignore(c => c.Details).Ignore(c => c.Orders));
+            modelBuilder.Ignore<Customer>();
 
             modelBuilder
                 .Entity<ComplexProperties>()
@@ -1740,6 +1745,7 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Product>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
+                .Ignore(e => e.Customers)
                 .ComplexProperty(e => e.Customer)
                 .Ignore(c => c.Details)
                 .Ignore(c => c.Orders)
@@ -1788,6 +1794,7 @@ public abstract partial class ModelBuilderTest
             var complexPropertyBuilder = modelBuilder
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
+                .Ignore(e => e.Customers)
                 .ComplexProperty(e => e.Customer, b => b.Ignore(c => c.Details).Ignore(c => c.Orders));
             complexPropertyBuilder.PrimitiveCollection<string[]>("Shadow");
             complexPropertyBuilder.Ignore("Shadow");
@@ -1807,6 +1814,7 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Product>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
+                .Ignore(e => e.Customers)
                 .ComplexProperty(
                     e => e.Customer,
                     b =>

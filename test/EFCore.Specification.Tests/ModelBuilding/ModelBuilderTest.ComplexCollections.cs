@@ -24,6 +24,7 @@ public abstract partial class ModelBuilderTest
             var complexCollectionBuilder = modelBuilder
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
+                .Ignore(e => e.Customer)
                 .ComplexCollection(e => e.Customers)
                 .HasTypeAnnotation("foo", "bar")
                 .HasPropertyAnnotation("foo2", "bar2")
@@ -57,6 +58,7 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Product>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
+                .Ignore(e => e.Customer)
                 .ComplexCollection(e => e.Customers)
                 .Ignore(c => c.Details)
                 .Ignore(c => c.Orders)
@@ -78,6 +80,7 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Product>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
+                .Ignore(e => e.Customer)
                 .ComplexCollection(e => e.Customers)
                 .Ignore(c => c.Details)
                 .Ignore(c => c.Orders)
@@ -99,6 +102,7 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Product>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
+                .Ignore(e => e.Customer)
                 .ComplexCollection(e => e.Customers)
                 .Ignore(c => c.Details)
                 .Ignore(c => c.Orders)
@@ -182,6 +186,7 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Product>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
+                .Ignore(e => e.Customer)
                 .ComplexCollection(e => e.Customers, b => b.Ignore(c => c.Details).Ignore(c => c.Orders));
 
             var model = modelBuilder.FinalizeModel();
@@ -197,6 +202,7 @@ public abstract partial class ModelBuilderTest
             var complexCollectionBuilder = modelBuilder
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
+                .Ignore(e => e.Customer)
                 .ComplexCollection(e => e.Customers, b => b.Ignore(c => c.Details).Ignore(c => c.Orders));
             complexCollectionBuilder.Property<string>("Shadow");
             complexCollectionBuilder.Ignore("Shadow");
@@ -216,6 +222,7 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Product>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
+                .Ignore(e => e.Customer)
                 .ComplexCollection(
                     e => e.Customers,
                     b =>
@@ -393,11 +400,11 @@ public abstract partial class ModelBuilderTest
             Assert.False(complexType.FindProperty("Bottom").IsConcurrencyToken);
 
             Assert.Equal(-1, complexType.FindProperty(Customer.IdProperty.Name).GetOriginalValueIndex());
-            Assert.Equal(6, complexType.FindProperty("Up").GetOriginalValueIndex());
+            Assert.Equal(2, complexType.FindProperty("Up").GetOriginalValueIndex());
             Assert.Equal(-1, complexType.FindProperty("Down").GetOriginalValueIndex());
-            Assert.Equal(4, complexType.FindProperty("Charm").GetOriginalValueIndex());
+            Assert.Equal(0, complexType.FindProperty("Charm").GetOriginalValueIndex());
             Assert.Equal(-1, complexType.FindProperty("Strange").GetOriginalValueIndex());
-            Assert.Equal(5, complexType.FindProperty("Top").GetOriginalValueIndex());
+            Assert.Equal(1, complexType.FindProperty("Top").GetOriginalValueIndex());
             Assert.Equal(-1, complexType.FindProperty("Bottom").GetOriginalValueIndex());
 
             Assert.Equal(ChangeTrackingStrategy.ChangingAndChangedNotifications, complexType.GetChangeTrackingStrategy());
@@ -447,6 +454,7 @@ public abstract partial class ModelBuilderTest
 
             modelBuilder
                 .Entity<ComplexProperties>()
+                .Ignore(e => e.Customer)
                 .ComplexCollection(e => e.Customers, b => b.Ignore(c => c.Details).Ignore(c => c.Orders));
 
             modelBuilder
