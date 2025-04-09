@@ -341,6 +341,15 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Sql
         {
             _sqlBuilder.AppendLine().Append("ORDER BY ");
 
+            var orderByScoringFunction = selectExpression.Orderings is [{ Expression: SqlFunctionExpression { IsScoringFunction: true } }];
+            if (orderByScoringFunction)
+            {
+                _sqlBuilder.Append("RANK ");
+            }
+
+            Check.DebugAssert(orderByScoringFunction || selectExpression.Orderings.All(x => x.Expression is not SqlFunctionExpression { IsScoringFunction: true }),
+                "Scoring function can only appear as first (and only) ordering, or not at all.");
+
             GenerateList(selectExpression.Orderings, e => Visit(e));
         }
 
@@ -811,8 +820,7 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Sql
     {
         Check.DebugAssert(
             inExpression.ValuesParameter is null,
-            "InExpression.ValuesParameter must have been expanded to constants before SQL generation (in "
-            + "InExpressionValuesExpandingExpressionVisitor)");
+            "InExpression.ValuesParameter must have been expanded to constants before SQL generation (in ParameterInliner)");
         Check.DebugAssert(inExpression.Values is not null, "Missing Values on InExpression");
 
         Visit(inExpression.Item);
