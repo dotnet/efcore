@@ -96,7 +96,7 @@ public class RuntimeNavigation : RuntimePropertyBase, IRuntimeNavigation
         where TCollection : class, IEnumerable<TElement>
         where TElement : class
     {
-        _collectionAccessor = new ClrICollectionAccessor<TEntity, TCollection, TElement>(
+        _collectionAccessor = new ClrCollectionAccessor<TEntity, TCollection, TElement>(
             Name,
             ((INavigation)this).IsShadowProperty(),
             getCollection,

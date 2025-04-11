@@ -50,25 +50,25 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
     [InlineData(EntityState.Deleted, false)]
     [InlineData(EntityState.Deleted, true)]
     public virtual Task Can_track_entity_with_complex_structs(EntityState state, bool async)
-        => TrackAndSaveTest(state, async, c => CreatePubWithStructs(c));
+        => TrackAndSaveTest(state, async, CreatePubWithStructs);
 
     [ConditionalTheory]
     [InlineData(false)]
     [InlineData(true)]
     public virtual void Can_mark_complex_readonly_struct_properties_modified(bool trackFromQuery)
-        => MarkModifiedTest(trackFromQuery, c => CreatePubWithStructs(c));
+        => MarkModifiedTest(trackFromQuery, CreatePubWithStructs);
 
     [ConditionalTheory]
     [InlineData(false)]
     [InlineData(true)]
     public virtual void Can_read_original_values_for_properties_of_structs(bool trackFromQuery)
-        => ReadOriginalValuesTest(trackFromQuery, c => CreatePubWithStructs(c));
+        => ReadOriginalValuesTest(trackFromQuery, CreatePubWithStructs);
 
     [ConditionalTheory]
     [InlineData(false)]
     [InlineData(true)]
     public virtual void Can_write_original_values_for_properties_of_structs(bool trackFromQuery)
-        => WriteOriginalValuesTest(trackFromQuery, c => CreatePubWithStructs(c));
+        => WriteOriginalValuesTest(trackFromQuery, CreatePubWithStructs);
 
     [ConditionalTheory]
     [InlineData(EntityState.Added, false)]
@@ -80,25 +80,25 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
     [InlineData(EntityState.Deleted, false)]
     [InlineData(EntityState.Deleted, true)]
     public virtual Task Can_track_entity_with_complex_readonly_structs(EntityState state, bool async)
-        => TrackAndSaveTest(state, async, c => CreatePubWithReadonlyStructs(c));
+        => TrackAndSaveTest(state, async, CreatePubWithReadonlyStructs);
 
     [ConditionalTheory]
     [InlineData(false)]
     [InlineData(true)]
     public virtual void Can_mark_complex_readonly_readonly_struct_properties_modified(bool trackFromQuery)
-        => MarkModifiedTest(trackFromQuery, c => CreatePubWithReadonlyStructs(c));
+        => MarkModifiedTest(trackFromQuery, CreatePubWithReadonlyStructs);
 
     [ConditionalTheory]
     [InlineData(false)]
     [InlineData(true)]
     public virtual void Can_read_original_values_for_properties_of_readonly_structs(bool trackFromQuery)
-        => ReadOriginalValuesTest(trackFromQuery, c => CreatePubWithReadonlyStructs(c));
+        => ReadOriginalValuesTest(trackFromQuery, CreatePubWithReadonlyStructs);
 
     [ConditionalTheory]
     [InlineData(false)]
     [InlineData(true)]
     public virtual void Can_write_original_values_for_properties_of_readonly_structs(bool trackFromQuery)
-        => WriteOriginalValuesTest(trackFromQuery, c => CreatePubWithReadonlyStructs(c));
+        => WriteOriginalValuesTest(trackFromQuery, CreatePubWithReadonlyStructs);
 
     [ConditionalTheory]
     [InlineData(EntityState.Added, false)]
@@ -110,25 +110,25 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
     [InlineData(EntityState.Deleted, false)]
     [InlineData(EntityState.Deleted, true)]
     public virtual Task Can_track_entity_with_complex_record_objects(EntityState state, bool async)
-        => TrackAndSaveTest(state, async, c => CreatePubWithRecords(c));
+        => TrackAndSaveTest(state, async, CreatePubWithRecords);
 
     [ConditionalTheory]
     [InlineData(false)]
     [InlineData(true)]
     public virtual void Can_mark_complex_record_type_properties_modified(bool trackFromQuery)
-        => MarkModifiedTest(trackFromQuery, c => CreatePubWithRecords(c));
+        => MarkModifiedTest(trackFromQuery, CreatePubWithRecords);
 
     [ConditionalTheory]
     [InlineData(false)]
     [InlineData(true)]
     public virtual void Can_read_original_values_for_properties_of_record_complex_types(bool trackFromQuery)
-        => ReadOriginalValuesTest(trackFromQuery, c => CreatePubWithRecords(c));
+        => ReadOriginalValuesTest(trackFromQuery, CreatePubWithRecords);
 
     [ConditionalTheory]
     [InlineData(false)]
     [InlineData(true)]
     public virtual void Can_write_original_values_for_properties_of_record_complex_types(bool trackFromQuery)
-        => WriteOriginalValuesTest(trackFromQuery, c => CreatePubWithRecords(c));
+        => WriteOriginalValuesTest(trackFromQuery, CreatePubWithRecords);
 
     [ConditionalTheory]
     [InlineData(EntityState.Added, false)]
@@ -140,25 +140,25 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
     [InlineData(EntityState.Deleted, false)]
     [InlineData(EntityState.Deleted, true)]
     public virtual Task Can_track_entity_with_complex_objects_with_fields(EntityState state, bool async)
-        => TrackAndSaveTest(state, async, c => CreateFieldPub(c));
+        => TrackAndSaveTest(state, async, CreateFieldPub);
 
     [ConditionalTheory]
     [InlineData(false)]
     [InlineData(true)]
     public virtual void Can_mark_complex_type_properties_modified_with_fields(bool trackFromQuery)
-        => MarkModifiedTest(trackFromQuery, c => CreateFieldPub(c));
+        => MarkModifiedTest(trackFromQuery, CreateFieldPub);
 
     [ConditionalTheory]
     [InlineData(false)]
     [InlineData(true)]
     public virtual void Can_read_original_values_for_properties_of_complex_types_with_fields(bool trackFromQuery)
-        => ReadOriginalValuesTest(trackFromQuery, c => CreateFieldPub(c));
+        => ReadOriginalValuesTest(trackFromQuery, CreateFieldPub);
 
     [ConditionalTheory]
     [InlineData(false)]
     [InlineData(true)]
     public virtual void Can_write_original_values_for_properties_of_complex_types_with_fields(bool trackFromQuery)
-        => WriteOriginalValuesTest(trackFromQuery, c => CreateFieldPub(c));
+        => WriteOriginalValuesTest(trackFromQuery, CreateFieldPub);
 
     [ConditionalTheory]
     [InlineData(EntityState.Added, false)]
@@ -170,27 +170,27 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
     [InlineData(EntityState.Deleted, false)]
     [InlineData(EntityState.Deleted, true)]
     public virtual Task Can_track_entity_with_complex_structs_with_fields(EntityState state, bool async)
-        => TrackAndSaveTest(state, async, c => CreateFieldPubWithStructs(c));
+        => TrackAndSaveTest(state, async, CreateFieldPubWithStructs);
 
     [ConditionalTheory]
     [InlineData(false)]
     [InlineData(true)]
     public virtual void Can_mark_complex_readonly_struct_properties_modified_with_fields(bool trackFromQuery)
-        => MarkModifiedTest(trackFromQuery, c => CreateFieldPubWithStructs(c));
+        => MarkModifiedTest(trackFromQuery, CreateFieldPubWithStructs);
 
     [ConditionalTheory]
     [InlineData(false)]
     [InlineData(true)]
     public virtual void Can_read_original_values_for_properties_of_structs_with_fields(bool trackFromQuery)
-        => ReadOriginalValuesTest(trackFromQuery, c => CreateFieldPubWithStructs(c));
+        => ReadOriginalValuesTest(trackFromQuery, CreateFieldPubWithStructs);
 
     [ConditionalTheory]
     [InlineData(false)]
     [InlineData(true)]
     public virtual void Can_write_original_values_for_properties_of_structs_with_fields(bool trackFromQuery)
-        => WriteOriginalValuesTest(trackFromQuery, c => CreateFieldPubWithStructs(c));
+        => WriteOriginalValuesTest(trackFromQuery, CreateFieldPubWithStructs);
 
-    [ConditionalTheory(Skip = "Constructor binding")]
+    [ConditionalTheory(Skip = "Constructor binding #31621")]
     [InlineData(EntityState.Added, false)]
     [InlineData(EntityState.Added, true)]
     [InlineData(EntityState.Unchanged, false)]
@@ -200,25 +200,25 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
     [InlineData(EntityState.Deleted, false)]
     [InlineData(EntityState.Deleted, true)]
     public virtual Task Can_track_entity_with_complex_readonly_structs_with_fields(EntityState state, bool async)
-        => TrackAndSaveTest(state, async, c => CreateFieldPubWithReadonlyStructs(c));
+        => TrackAndSaveTest(state, async, CreateFieldPubWithReadonlyStructs);
 
-    [ConditionalTheory(Skip = "Constructor binding")]
+    [ConditionalTheory(Skip = "Constructor binding #31621")]
     [InlineData(false)]
     [InlineData(true)]
     public virtual void Can_mark_complex_readonly_readonly_struct_properties_modified_with_fields(bool trackFromQuery)
-        => MarkModifiedTest(trackFromQuery, c => CreateFieldPubWithReadonlyStructs(c));
+        => MarkModifiedTest(trackFromQuery, CreateFieldPubWithReadonlyStructs);
 
-    [ConditionalTheory(Skip = "Constructor binding")]
+    [ConditionalTheory(Skip = "Constructor binding #31621")]
     [InlineData(false)]
     [InlineData(true)]
     public virtual void Can_read_original_values_for_properties_of_readonly_structs_with_fields(bool trackFromQuery)
-        => ReadOriginalValuesTest(trackFromQuery, c => CreateFieldPubWithReadonlyStructs(c));
+        => ReadOriginalValuesTest(trackFromQuery, CreateFieldPubWithReadonlyStructs);
 
-    [ConditionalTheory(Skip = "Constructor binding")]
+    [ConditionalTheory(Skip = "Constructor binding #31621")]
     [InlineData(false)]
     [InlineData(true)]
     public virtual void Can_write_original_values_for_properties_of_readonly_structs_with_fields(bool trackFromQuery)
-        => WriteOriginalValuesTest(trackFromQuery, c => CreateFieldPubWithReadonlyStructs(c));
+        => WriteOriginalValuesTest(trackFromQuery, CreateFieldPubWithReadonlyStructs);
 
     [ConditionalTheory]
     [InlineData(EntityState.Added, false)]
@@ -230,25 +230,266 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
     [InlineData(EntityState.Deleted, false)]
     [InlineData(EntityState.Deleted, true)]
     public virtual Task Can_track_entity_with_complex_record_objects_with_fields(EntityState state, bool async)
-        => TrackAndSaveTest(state, async, c => CreateFieldPubWithRecords(c));
+        => TrackAndSaveTest(state, async, CreateFieldPubWithRecords);
 
     [ConditionalTheory]
     [InlineData(false)]
     [InlineData(true)]
     public virtual void Can_mark_complex_record_type_properties_modified_with_fields(bool trackFromQuery)
-        => MarkModifiedTest(trackFromQuery, c => CreateFieldPubWithRecords(c));
+        => MarkModifiedTest(trackFromQuery, CreateFieldPubWithRecords);
 
     [ConditionalTheory]
     [InlineData(false)]
     [InlineData(true)]
     public virtual void Can_read_original_values_for_properties_of_record_complex_types_with_fields(bool trackFromQuery)
-        => ReadOriginalValuesTest(trackFromQuery, c => CreateFieldPubWithRecords(c));
+        => ReadOriginalValuesTest(trackFromQuery, CreateFieldPubWithRecords);
 
     [ConditionalTheory]
     [InlineData(false)]
     [InlineData(true)]
     public virtual void Can_write_original_values_for_properties_of_record_complex_types_with_fields(bool trackFromQuery)
-        => WriteOriginalValuesTest(trackFromQuery, c => CreateFieldPubWithRecords(c));
+        => WriteOriginalValuesTest(trackFromQuery, CreateFieldPubWithRecords);
+
+    [ConditionalTheory]
+    [InlineData(EntityState.Added, false)]
+    [InlineData(EntityState.Added, true)]
+    [InlineData(EntityState.Unchanged, false)]
+    [InlineData(EntityState.Unchanged, true)]
+    [InlineData(EntityState.Modified, false)]
+    [InlineData(EntityState.Modified, true)]
+    [InlineData(EntityState.Deleted, false)]
+    [InlineData(EntityState.Deleted, true)]
+    public virtual Task Can_track_entity_with_complex_type_collections(EntityState state, bool async)
+        => TrackAndSaveTest(state, async, CreatePubWithCollections);
+
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual void Can_mark_complex_type_collection_properties_modified(bool trackFromQuery)
+        => MarkModifiedTest(trackFromQuery, CreatePubWithCollections);
+
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual void Can_read_original_values_for_properties_of_complex_type_collections(bool trackFromQuery)
+        => ReadOriginalValuesTest(trackFromQuery, CreatePubWithCollections);
+
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual void Can_write_original_values_for_properties_of_complex_type_collections(bool trackFromQuery)
+        => WriteOriginalValuesTest(trackFromQuery, CreatePubWithCollections);
+
+    [ConditionalTheory]
+    [InlineData(EntityState.Added, false)]
+    [InlineData(EntityState.Added, true)]
+    [InlineData(EntityState.Unchanged, false)]
+    [InlineData(EntityState.Unchanged, true)]
+    [InlineData(EntityState.Modified, false)]
+    [InlineData(EntityState.Modified, true)]
+    [InlineData(EntityState.Deleted, false)]
+    [InlineData(EntityState.Deleted, true)]
+    public virtual Task Can_track_entity_with_complex_struct_collections(EntityState state, bool async)
+        => TrackAndSaveTest(state, async, CreatePubWithStructCollections);
+
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual void Can_mark_complex_struct_collection_properties_modified(bool trackFromQuery)
+        => MarkModifiedTest(trackFromQuery, CreatePubWithStructCollections);
+
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual void Can_read_original_values_for_properties_of_complex_struct_collections(bool trackFromQuery)
+        => ReadOriginalValuesTest(trackFromQuery, CreatePubWithStructCollections);
+
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual void Can_write_original_values_for_properties_of_complex_struct_collections(bool trackFromQuery)
+        => WriteOriginalValuesTest(trackFromQuery, CreatePubWithStructCollections);
+
+    [ConditionalTheory]
+    [InlineData(EntityState.Added, false)]
+    [InlineData(EntityState.Added, true)]
+    [InlineData(EntityState.Unchanged, false)]
+    [InlineData(EntityState.Unchanged, true)]
+    [InlineData(EntityState.Modified, false)]
+    [InlineData(EntityState.Modified, true)]
+    [InlineData(EntityState.Deleted, false)]
+    [InlineData(EntityState.Deleted, true)]
+    public virtual Task Can_track_entity_with_complex_readonly_struct_collections(EntityState state, bool async)
+        => TrackAndSaveTest(state, async, CreatePubWithReadonlyStructCollections);
+
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual void Can_mark_complex_readonly_struct_collection_properties_modified(bool trackFromQuery)
+        => MarkModifiedTest(trackFromQuery, CreatePubWithReadonlyStructCollections);
+
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual void Can_read_original_values_for_properties_of_readonly_struct_collections(bool trackFromQuery)
+        => ReadOriginalValuesTest(trackFromQuery, CreatePubWithReadonlyStructCollections);
+
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual void Can_write_original_values_for_properties_of_readonly_struct_collections(bool trackFromQuery)
+        => WriteOriginalValuesTest(trackFromQuery, CreatePubWithReadonlyStructCollections);
+
+    [ConditionalTheory]
+    [InlineData(EntityState.Added, false)]
+    [InlineData(EntityState.Added, true)]
+    [InlineData(EntityState.Unchanged, false)]
+    [InlineData(EntityState.Unchanged, true)]
+    [InlineData(EntityState.Modified, false)]
+    [InlineData(EntityState.Modified, true)]
+    [InlineData(EntityState.Deleted, false)]
+    [InlineData(EntityState.Deleted, true)]
+    public virtual Task Can_track_entity_with_complex_record_collections(EntityState state, bool async)
+        => TrackAndSaveTest(state, async, CreatePubWithRecordCollections);
+
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual void Can_mark_complex_record_collection_properties_modified(bool trackFromQuery)
+        => MarkModifiedTest(trackFromQuery, CreatePubWithRecordCollections);
+
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual void Can_read_original_values_for_properties_of_complex_record_collections(bool trackFromQuery)
+        => ReadOriginalValuesTest(trackFromQuery, CreatePubWithRecordCollections);
+
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual void Can_write_original_values_for_properties_of_complex_record_collections(bool trackFromQuery)
+        => WriteOriginalValuesTest(trackFromQuery, CreatePubWithRecordCollections);
+
+    [ConditionalTheory]
+    [InlineData(EntityState.Added, false)]
+    [InlineData(EntityState.Added, true)]
+    [InlineData(EntityState.Unchanged, false)]
+    [InlineData(EntityState.Unchanged, true)]
+    [InlineData(EntityState.Modified, false)]
+    [InlineData(EntityState.Modified, true)]
+    [InlineData(EntityState.Deleted, false)]
+    [InlineData(EntityState.Deleted, true)]
+    public virtual Task Can_track_entity_with_complex_field_collections(EntityState state, bool async)
+        => TrackAndSaveTest(state, async, CreateFieldCollectionPub);
+
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual void Can_mark_complex_field_collection_properties_modified(bool trackFromQuery)
+        => MarkModifiedTest(trackFromQuery, CreateFieldCollectionPub);
+
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual void Can_read_original_values_for_properties_of_complex_field_collections(bool trackFromQuery)
+        => ReadOriginalValuesTest(trackFromQuery, CreateFieldCollectionPub);
+
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual void Can_write_original_values_for_properties_of_complex_field_collections(bool trackFromQuery)
+        => WriteOriginalValuesTest(trackFromQuery, CreateFieldCollectionPub);
+
+    [ConditionalTheory]
+    [InlineData(EntityState.Added, false)]
+    [InlineData(EntityState.Added, true)]
+    [InlineData(EntityState.Unchanged, false)]
+    [InlineData(EntityState.Unchanged, true)]
+    [InlineData(EntityState.Modified, false)]
+    [InlineData(EntityState.Modified, true)]
+    [InlineData(EntityState.Deleted, false)]
+    [InlineData(EntityState.Deleted, true)]
+    public virtual Task Can_track_entity_with_complex_struct_collections_with_fields(EntityState state, bool async)
+        => TrackAndSaveTest(state, async, CreateFieldCollectionPubWithStructs);
+
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual void Can_mark_complex_struct_collections_with_fields_properties_modified(bool trackFromQuery)
+        => MarkModifiedTest(trackFromQuery, CreateFieldCollectionPubWithStructs);
+
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual void Can_read_original_values_for_properties_of_complex_struct_collections_with_fields(bool trackFromQuery)
+        => ReadOriginalValuesTest(trackFromQuery, CreateFieldCollectionPubWithStructs);
+
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual void Can_write_original_values_for_properties_of_complex_struct_collections_with_fields(bool trackFromQuery)
+        => WriteOriginalValuesTest(trackFromQuery, CreateFieldCollectionPubWithStructs);
+
+    [ConditionalTheory]
+    [InlineData(EntityState.Added, false)]
+    [InlineData(EntityState.Added, true)]
+    [InlineData(EntityState.Unchanged, false)]
+    [InlineData(EntityState.Unchanged, true)]
+    [InlineData(EntityState.Modified, false)]
+    [InlineData(EntityState.Modified, true)]
+    [InlineData(EntityState.Deleted, false)]
+    [InlineData(EntityState.Deleted, true)]
+    public virtual Task Can_track_entity_with_complex_record_collections_with_fields(EntityState state, bool async)
+        => TrackAndSaveTest(state, async, CreateFieldCollectionPubWithRecords);
+
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual void Can_mark_complex_record_collections_with_fields_properties_modified(bool trackFromQuery)
+        => MarkModifiedTest(trackFromQuery, CreateFieldCollectionPubWithRecords);
+
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual void Can_read_original_values_for_properties_of_complex_record_collections_with_fields(bool trackFromQuery)
+        => ReadOriginalValuesTest(trackFromQuery, CreateFieldCollectionPubWithRecords);
+
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual void Can_write_original_values_for_properties_of_complex_record_collections_with_fields(bool trackFromQuery)
+        => WriteOriginalValuesTest(trackFromQuery, CreateFieldCollectionPubWithRecords);
+
+    [ConditionalTheory(Skip = "Constructor binding #31621")]
+    [InlineData(EntityState.Added, false)]
+    [InlineData(EntityState.Added, true)]
+    [InlineData(EntityState.Unchanged, false)]
+    [InlineData(EntityState.Unchanged, true)]
+    [InlineData(EntityState.Modified, false)]
+    [InlineData(EntityState.Modified, true)]
+    [InlineData(EntityState.Deleted, false)]
+    [InlineData(EntityState.Deleted, true)]
+    public virtual Task Can_track_entity_with_complex_readonly_struct_collections_with_fields(EntityState state, bool async)
+        => TrackAndSaveTest(state, async, CreateFieldCollectionPubWithReadonlyStructs);
+
+    [ConditionalTheory(Skip = "Constructor binding #31621")]
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual void Can_mark_complex_readonly_struct_collections_with_fields_properties_modified(bool trackFromQuery)
+        => MarkModifiedTest(trackFromQuery, CreateFieldCollectionPubWithReadonlyStructs);
+
+    [ConditionalTheory(Skip = "Constructor binding #31621")]
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual void Can_read_original_values_for_properties_of_complex_readonly_struct_collections_with_fields(bool trackFromQuery)
+        => ReadOriginalValuesTest(trackFromQuery, CreateFieldCollectionPubWithReadonlyStructs);
+
+    [ConditionalTheory(Skip = "Constructor binding #31621")]
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual void Can_write_original_values_for_properties_of_complex_readonly_struct_collections_with_fields(bool trackFromQuery)
+        => WriteOriginalValuesTest(trackFromQuery, CreateFieldCollectionPubWithReadonlyStructs);
+
 
     private async Task TrackAndSaveTest<TEntity>(EntityState state, bool async, Func<DbContext, TEntity> createPub)
         where TEntity : class
@@ -907,6 +1148,790 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
         }
     }
 
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual void Can_detect_reordered_elements_in_complex_type_collections(bool trackFromQuery)
+    {
+        using var context = CreateContext();
+        var pub = CreatePubWithCollections(context);
+
+        var entry = trackFromQuery ? TrackFromQuery(context, pub) : context.Attach(pub);
+
+        Assert.Equal(EntityState.Unchanged, entry.State);
+
+        var activities = pub.Activities;
+        activities.Reverse();
+        pub.Activities = activities;
+
+        context.ChangeTracker.DetectChanges();
+
+        var collectionEntry = entry.ComplexProperty(e => e.Activities);
+
+        if (Fixture.UseProxies)
+        {
+            Assert.Equal(EntityState.Unchanged, entry.State);
+            collectionEntry.IsModified = true;
+        }
+
+        Assert.Equal(EntityState.Modified, entry.State);
+        Assert.True(collectionEntry.IsModified);
+    }
+
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual void Can_detect_added_elements_in_complex_type_collections(bool trackFromQuery)
+    {
+        using var context = CreateContext();
+        var pub = CreatePubWithCollections(context);
+
+        var entry = trackFromQuery ? TrackFromQuery(context, pub) : context.Attach(pub);
+
+        Assert.Equal(EntityState.Unchanged, entry.State);
+
+        // Add activity with nested teams
+        pub.Activities.Add(new ActivityWithCollection
+        {
+            Name = "New Activity",
+            Day = DayOfWeek.Saturday,
+            CoverCharge = 10.0m,
+            Description = "A new activity",
+            IsTeamBased = false,
+            Notes = ["New", "Notes"],
+            Teams =
+            [
+                new Team { Name = "New Champions", Members = ["A", "B", "C"] },
+                new Team { Name = "New Runners Up", Members = ["X", "Y", "Z"] }
+            ]
+        });
+
+        context.ChangeTracker.DetectChanges();
+
+        var activitiesEntry = entry.ComplexCollection(e => e.Activities);
+
+        if (Fixture.UseProxies)
+        {
+            Assert.Equal(EntityState.Unchanged, entry.State);
+            activitiesEntry.IsModified = true;
+        }
+
+        Assert.Equal(EntityState.Modified, entry.State);
+        Assert.True(activitiesEntry.IsModified);
+
+        // Verify the new activity and its nested teams
+        Assert.Equal(3, pub.Activities.Count);
+        var newActivity = pub.Activities.Last();
+        Assert.Equal("New Activity", newActivity.Name);
+        Assert.Equal(2, newActivity.Teams.Count);
+        Assert.Equal("New Champions", newActivity.Teams[0].Name);
+        Assert.Equal("New Runners Up", newActivity.Teams[1].Name);
+    }
+
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual void Can_detect_removed_elements_in_complex_type_collections(bool trackFromQuery)
+    {
+        using var context = CreateContext();
+        var pub = CreatePubWithCollections(context);
+
+        var entry = trackFromQuery ? TrackFromQuery(context, pub) : context.Attach(pub);
+
+        Assert.Equal(EntityState.Unchanged, entry.State);
+
+        pub.Activities.RemoveAt(0);
+
+        context.ChangeTracker.DetectChanges();
+
+        var collectionEntry = entry.ComplexProperty(e => e.Activities);
+
+        if (Fixture.UseProxies)
+        {
+            Assert.Equal(EntityState.Unchanged, entry.State);
+            collectionEntry.IsModified = true;
+        }
+
+        Assert.Equal(EntityState.Modified, entry.State);
+        Assert.True(collectionEntry.IsModified);
+    }
+
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual void Can_detect_replaced_elements_in_complex_type_collections(bool trackFromQuery)
+    {
+        using var context = CreateContext();
+        var pub = CreatePubWithCollections(context);
+
+        var entry = trackFromQuery ? TrackFromQuery(context, pub) : context.Attach(pub);
+
+        Assert.Equal(EntityState.Unchanged, entry.State);
+
+        // Replace activity with one that has different nested teams
+        pub.Activities[0] = new ActivityWithCollection
+        {
+            Name = "Replaced Activity",
+            Day = DayOfWeek.Saturday,
+            CoverCharge = 10.0m,
+            Description = "A replaced activity",
+            IsTeamBased = false,
+            Notes = ["Replaced", "Notes"],
+            Teams =
+            [
+                new Team { Name = "Replaced Champions", Members = ["A", "B", "C"] },
+                new Team { Name = "Replaced Runners Up", Members = ["X", "Y", "Z"] }
+            ]
+        };
+
+        context.ChangeTracker.DetectChanges();
+
+        var activitiesEntry = entry.ComplexCollection(e => e.Activities);
+
+        if (Fixture.UseProxies)
+        {
+            Assert.Equal(EntityState.Unchanged, entry.State);
+            activitiesEntry.IsModified = true;
+        }
+
+        Assert.Equal(EntityState.Modified, entry.State);
+        Assert.True(activitiesEntry.IsModified);
+
+        // Verify the replaced activity and its nested teams
+        Assert.Equal("Replaced Activity", pub.Activities[0].Name);
+        Assert.Equal(2, pub.Activities[0].Teams.Count);
+        Assert.Equal("Replaced Champions", pub.Activities[0].Teams[0].Name);
+        Assert.Equal("Replaced Runners Up", pub.Activities[0].Teams[1].Name);
+    }
+
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual void Can_detect_duplicates_in_complex_type_collections(bool trackFromQuery)
+    {
+        using var context = CreateContext();
+        var pub = CreatePubWithCollections(context);
+
+        // First, let's track the entity
+        var entry = trackFromQuery ? TrackFromQuery(context, pub) : context.Attach(pub);
+        Assert.Equal(EntityState.Unchanged, entry.State);
+
+        // Add a duplicate activity (with its own teams)
+        var duplicateActivity = new ActivityWithCollection
+        {
+            Name = pub.Activities[0].Name,
+            Day = pub.Activities[0].Day,
+            Description = pub.Activities[0].Description,
+            Notes = pub.Activities[0].Notes?.ToArray(),
+            CoverCharge = pub.Activities[0].CoverCharge,
+            IsTeamBased = pub.Activities[0].IsTeamBased,
+            Teams = new List<Team>()
+        };
+
+        // Add the same teams but with a slight modification to detect changes
+        foreach (var team in pub.Activities[0].Teams)
+        {
+            duplicateActivity.Teams.Add(new Team
+            {
+                Name = team.Name,
+                Members = new List<string>(team.Members)
+            });
+        }
+
+        pub.Activities.Add(duplicateActivity);
+
+        // Now modify the duplicate's team
+        duplicateActivity.Teams[0].Name = "Modified Team in Duplicate Activity";
+
+        context.ChangeTracker.DetectChanges();
+
+        var activitiesEntry = entry.ComplexCollection(e => e.Activities);
+
+        if (Fixture.UseProxies)
+        {
+            Assert.Equal(EntityState.Unchanged, entry.State);
+            activitiesEntry.IsModified = true;
+        }
+
+        Assert.Equal(EntityState.Modified, entry.State);
+        Assert.True(activitiesEntry.IsModified);
+
+        // Verify we have 3 activities (2 original + 1 duplicate)
+        Assert.Equal(3, pub.Activities.Count);
+        // Verify there are 2 activities with the same name but different teams
+        Assert.Equal(2, pub.Activities.Count(a => a.Name == pub.Activities[0].Name));
+        // Verify the modified team name in the duplicate
+        Assert.Contains(pub.Activities, a => a.Teams.Any(t => t.Name == "Modified Team in Duplicate Activity"));
+    }
+
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual void Can_handle_null_elements_in_complex_type_collections(bool trackFromQuery)
+    {
+        using var context = CreateContext();
+        var pub = CreatePubWithCollections(context);
+
+        // Add a null activity to test collections with null elements
+        pub.Activities.Add(null!);
+
+        var entry = trackFromQuery ? TrackFromQuery(context, pub) : context.Attach(pub);
+        Assert.Equal(EntityState.Unchanged, entry.State);
+
+        // Add another non-null activity with nested null Teams collection
+        pub.Activities.Add(new ActivityWithCollection
+        {
+            Name = "Activity with null Teams",
+            Day = DayOfWeek.Sunday,
+            CoverCharge = 0.0m,
+            Description = "Added after null",
+            IsTeamBased = false,
+            Notes = ["Note after null"],
+            Teams = null!
+        });
+
+        // Add another activity with empty but non-null Teams collection
+        pub.Activities.Add(new ActivityWithCollection
+        {
+            Name = "Activity with empty Teams",
+            Day = DayOfWeek.Sunday,
+            CoverCharge = 0.0m,
+            Description = "Added with empty teams",
+            IsTeamBased = false,
+            Notes = ["Empty teams note"],
+            Teams = []
+        });
+
+        context.ChangeTracker.DetectChanges();
+
+        var activitiesEntry = entry.ComplexCollection(e => e.Activities);
+
+        if (Fixture.UseProxies)
+        {
+            Assert.Equal(EntityState.Unchanged, entry.State);
+            activitiesEntry.IsModified = true;
+        }
+
+        Assert.Equal(EntityState.Modified, entry.State);
+        Assert.True(activitiesEntry.IsModified);
+
+        // Verify that our activities collection has a null element
+        Assert.Equal(5, pub.Activities.Count);
+        Assert.Contains(null, pub.Activities);
+
+        // Verify activity with null Teams
+        var activityWithNullTeams = pub.Activities.FirstOrDefault(a => a?.Name == "Activity with null Teams");
+        Assert.NotNull(activityWithNullTeams);
+        Assert.Null(activityWithNullTeams.Teams);
+
+        // Verify activity with empty Teams
+        var activityWithEmptyTeams = pub.Activities.FirstOrDefault(a => a?.Name == "Activity with empty Teams");
+        Assert.NotNull(activityWithEmptyTeams);
+        Assert.NotNull(activityWithEmptyTeams.Teams);
+        Assert.Empty(activityWithEmptyTeams.Teams);
+    }
+
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual void Can_detect_swapped_complex_objects_in_collections(bool trackFromQuery)
+    {
+        using var context = CreateContext();
+        var pub = CreatePubWithCollections(context);
+
+        var entry = trackFromQuery ? TrackFromQuery(context, pub) : context.Attach(pub);
+        Assert.Equal(EntityState.Unchanged, entry.State);
+
+        // Swap the first two Activities
+        if (pub.Activities.Count >= 2)
+        {
+            var temp = pub.Activities[0];
+            pub.Activities[0] = pub.Activities[1];
+            pub.Activities[1] = temp;
+        }
+
+        context.ChangeTracker.DetectChanges();
+
+        var activitiesEntry = entry.ComplexCollection(e => e.Activities);
+
+        if (Fixture.UseProxies)
+        {
+            Assert.Equal(EntityState.Unchanged, entry.State);
+            activitiesEntry.IsModified = true;
+        }
+
+        Assert.Equal(EntityState.Modified, entry.State);
+        Assert.True(activitiesEntry.IsModified);
+
+        // Now swap Teams within an Activity
+        if (pub.Activities[0].Teams.Count >= 2)
+        {
+            var temp = pub.Activities[0].Teams[0];
+            pub.Activities[0].Teams[0] = pub.Activities[0].Teams[1];
+            pub.Activities[0].Teams[1] = temp;
+
+            context.ChangeTracker.DetectChanges();
+
+            // Entity should still be modified
+            Assert.Equal(EntityState.Modified, entry.State);
+            Assert.True(activitiesEntry.IsModified);
+
+            // Verify the swap worked
+            Assert.Equal("ZZ", pub.Activities[0].Teams[0].Name);
+            Assert.Equal("Clueless", pub.Activities[0].Teams[1].Name);
+        }
+    }
+
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual void Can_detect_changes_to_struct_collection_elements(bool trackFromQuery)
+    {
+        using var context = CreateContext();
+        var pub = CreatePubWithStructCollections(context);
+
+        var entry = trackFromQuery ? TrackFromQuery(context, pub) : context.Attach(pub);
+        Assert.Equal(EntityState.Unchanged, entry.State);
+
+        // Modify a struct in the collection
+        var activity = pub.Activities[0];
+        activity.CoverCharge = 12.5m;
+        pub.Activities[0] = activity;
+
+        context.ChangeTracker.DetectChanges();
+
+        var activitiesEntry = entry.ComplexProperty(e => e.Activities);
+
+        if (Fixture.UseProxies)
+        {
+            Assert.Equal(EntityState.Unchanged, entry.State);
+            activitiesEntry.IsModified = true;
+        }
+
+        Assert.Equal(EntityState.Modified, entry.State);
+        Assert.True(activitiesEntry.IsModified);
+
+        // Verify that the struct was updated
+        Assert.Equal(12.5m, pub.Activities[0].CoverCharge);
+    }
+
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual void Can_detect_changes_to_readonly_struct_collection_elements(bool trackFromQuery)
+    {
+        using var context = CreateContext();
+        var pub = CreatePubWithReadonlyStructCollections(context);
+
+        var entry = trackFromQuery ? TrackFromQuery(context, pub) : context.Attach(pub);
+        Assert.Equal(EntityState.Unchanged, entry.State);
+
+        // Replace a readonly struct element in the collection and modify its nested Teams collection
+        var newTeams = new List<TeamReadonlyStruct>
+        {
+            pub.Activities[0].Teams[0],
+            new TeamReadonlyStruct
+            {
+                Name = "New Readonly Team",
+                Members = ["X", "Y", "Z"]
+            }
+        };
+
+        // Need to replace the entire struct since it's readonly
+        pub.Activities[0] = new ActivityReadonlyStructWithCollection
+        {
+            Name = pub.Activities[0].Name,
+            Day = pub.Activities[0].Day,
+            Description = pub.Activities[0].Description,
+            Notes = pub.Activities[0].Notes,
+            CoverCharge = 15.0m, // Changed value
+            IsTeamBased = pub.Activities[0].IsTeamBased,
+            Teams = newTeams
+        };
+
+        context.ChangeTracker.DetectChanges();
+
+        var activitiesEntry = entry.ComplexCollection(e => e.Activities);
+
+        if (Fixture.UseProxies)
+        {
+            Assert.Equal(EntityState.Unchanged, entry.State);
+            activitiesEntry.IsModified = true;
+        }
+
+        Assert.Equal(EntityState.Modified, entry.State);
+        Assert.True(activitiesEntry.IsModified);
+
+        // Verify that both the struct and its nested Teams collection were updated
+        Assert.Equal(15.0m, pub.Activities[0].CoverCharge);
+        Assert.Equal(2, pub.Activities[0].Teams.Count);
+        Assert.Equal("New Readonly Team", pub.Activities[0].Teams[1].Name);
+        Assert.Equal(new[] { "X", "Y", "Z" }, pub.Activities[0].Teams[1].Members);
+    }
+
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual void Can_detect_changes_to_record_collection_elements(bool trackFromQuery)
+    {
+        using var context = CreateContext();
+        var pub = CreatePubWithRecordCollections(context);
+
+        var entry = trackFromQuery ? TrackFromQuery(context, pub) : context.Attach(pub);
+        Assert.Equal(EntityState.Unchanged, entry.State);
+
+        // Replace a record in the collection with a modified record
+        pub.Activities[0] = pub.Activities[0] with { CoverCharge = 20.0m };
+
+        context.ChangeTracker.DetectChanges();
+
+        var activitiesEntry = entry.ComplexProperty(e => e.Activities);
+
+        if (Fixture.UseProxies)
+        {
+            Assert.Equal(EntityState.Unchanged, entry.State);
+            activitiesEntry.IsModified = true;
+        }
+
+        Assert.Equal(EntityState.Modified, entry.State);
+        Assert.True(activitiesEntry.IsModified);
+
+        // Verify that the record was updated
+        Assert.Equal(20.0m, pub.Activities[0].CoverCharge);
+    }
+
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual void Can_handle_collection_with_mixed_null_and_duplicate_elements(bool trackFromQuery)
+    {
+        using var context = CreateContext();
+        var pub = CreatePubWithCollections(context);
+
+        // Add a null element followed by a duplicate Activity with null Teams
+        pub.Activities.Add(null!);
+        pub.Activities.Add(new ActivityWithCollection
+        {
+            Name = pub.Activities[0].Name, // Same name as first activity
+            Day = pub.Activities[0].Day,
+            Description = pub.Activities[0].Description,
+            Notes = pub.Activities[0].Notes?.ToArray(),
+            CoverCharge = pub.Activities[0].CoverCharge,
+            IsTeamBased = pub.Activities[0].IsTeamBased,
+            Teams = null! // Null Teams collection
+        });
+
+        var entry = trackFromQuery ? TrackFromQuery(context, pub) : context.Attach(pub);
+        Assert.Equal(EntityState.Unchanged, entry.State);
+
+        // Modify a property in the duplicate to trigger change detection
+        pub.Activities[^1].CoverCharge = 99.99m;
+
+        context.ChangeTracker.DetectChanges();
+
+        var activitiesEntry = entry.ComplexCollection(e => e.Activities);
+
+        if (Fixture.UseProxies)
+        {
+            Assert.Equal(EntityState.Unchanged, entry.State);
+            activitiesEntry.IsModified = true;
+        }
+
+        Assert.Equal(EntityState.Modified, entry.State);
+        Assert.True(activitiesEntry.IsModified);
+
+        // Verify the collection structure
+        Assert.Equal(4, pub.Activities.Count); // 2 original + 1 null + 1 duplicate
+        Assert.Contains(null, pub.Activities);
+        Assert.Equal(2, pub.Activities.Count(a => a?.Name == pub.Activities[0].Name));
+
+        // Verify the modified duplicate
+        var duplicate = pub.Activities.LastOrDefault(a => a?.Name == pub.Activities[0].Name);
+        Assert.NotNull(duplicate);
+        Assert.Equal(99.99m, duplicate.CoverCharge);
+        Assert.Null(duplicate.Teams); // Teams collection should be null
+    }
+
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual void Can_detect_nested_collection_changes_in_complex_type_collections(bool trackFromQuery)
+    {
+        using var context = CreateContext();
+        var pub = CreatePubWithCollections(context);
+
+        var entry = trackFromQuery ? TrackFromQuery(context, pub) : context.Attach(pub);
+        Assert.Equal(EntityState.Unchanged, entry.State);
+
+        // Modify the nested Teams collection in the first Activity
+        pub.Activities[0].Teams.Add(new Team { Name = "New Team", Members = { "New1", "New2" } });
+
+        context.ChangeTracker.DetectChanges();
+
+        var activitiesEntry = entry.ComplexProperty(e => e.Activities);
+
+        if (Fixture.UseProxies)
+        {
+            Assert.Equal(EntityState.Unchanged, entry.State);
+            activitiesEntry.IsModified = true;
+        }
+
+        Assert.Equal(EntityState.Modified, entry.State);
+        Assert.True(activitiesEntry.IsModified);
+
+        // Verify that a new team was added to the first activity's teams
+        Assert.Equal(3, pub.Activities[0].Teams.Count);
+        Assert.Contains(pub.Activities[0].Teams, t => t.Name == "New Team");
+    }
+
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual void Can_detect_changes_to_nested_teams_members_in_complex_type_collections(bool trackFromQuery)
+    {
+        using var context = CreateContext();
+        var pub = CreatePubWithCollections(context);
+
+        var entry = trackFromQuery ? TrackFromQuery(context, pub) : context.Attach(pub);
+        Assert.Equal(EntityState.Unchanged, entry.State);
+
+        // Modify a member of a team in the first activity's teams collection
+        pub.Activities[0].Teams[0].Members.Add("New Member");
+
+        context.ChangeTracker.DetectChanges();
+
+        var activitiesEntry = entry.ComplexProperty(e => e.Activities);
+
+        if (Fixture.UseProxies)
+        {
+            Assert.Equal(EntityState.Unchanged, entry.State);
+            activitiesEntry.IsModified = true;
+        }
+
+        Assert.Equal(EntityState.Modified, entry.State);
+        Assert.True(activitiesEntry.IsModified);
+
+        // Verify that the member was added
+        Assert.Contains("New Member", pub.Activities[0].Teams[0].Members);
+    }
+
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual void Can_detect_changes_to_nested_struct_teams_in_complex_type_collections(bool trackFromQuery)
+    {
+        using var context = CreateContext();
+        var pub = CreatePubWithStructCollections(context);
+
+        var entry = trackFromQuery ? TrackFromQuery(context, pub) : context.Attach(pub);
+        Assert.Equal(EntityState.Unchanged, entry.State);
+
+        // Replace a team in the first activity's teams collection with a modified version
+        var teams = pub.Activities[0].Teams.ToList();
+        teams[0] = new TeamStruct
+        {
+            Name = teams[0].Name,
+            Members = new List<string>(teams[0].Members) { "Additional Member" }
+        };
+        pub.Activities[0].Teams = teams;
+
+        context.ChangeTracker.DetectChanges();
+
+        var activitiesEntry = entry.ComplexProperty(e => e.Activities);
+
+        if (Fixture.UseProxies)
+        {
+            Assert.Equal(EntityState.Unchanged, entry.State);
+            activitiesEntry.IsModified = true;
+        }
+
+        Assert.Equal(EntityState.Modified, entry.State);
+        Assert.True(activitiesEntry.IsModified);
+
+        // Verify that the member was added
+        Assert.Contains("Additional Member", pub.Activities[0].Teams[0].Members);
+    }
+
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual void Can_detect_changes_to_nested_readonly_struct_teams_in_complex_type_collections(bool trackFromQuery)
+    {
+        using var context = CreateContext();
+        var pub = CreatePubWithReadonlyStructCollections(context);
+
+        var entry = trackFromQuery ? TrackFromQuery(context, pub) : context.Attach(pub);
+        Assert.Equal(EntityState.Unchanged, entry.State);
+
+        // Replace the first activity with one that has a modified teams collection
+        var teams = pub.Activities[0].Teams.ToList();
+        teams[0] = new TeamReadonlyStruct
+        {
+            Name = teams[0].Name,
+            Members = new List<string>(teams[0].Members) { "Additional Member" }
+        };
+
+        pub.Activities[0] = new ActivityReadonlyStructWithCollection
+        {
+            Name = pub.Activities[0].Name,
+            Day = pub.Activities[0].Day,
+            Description = pub.Activities[0].Description,
+            Notes = pub.Activities[0].Notes,
+            CoverCharge = pub.Activities[0].CoverCharge,
+            IsTeamBased = pub.Activities[0].IsTeamBased,
+            Teams = teams
+        };
+
+        context.ChangeTracker.DetectChanges();
+
+        var activitiesEntry = entry.ComplexProperty(e => e.Activities);
+
+        if (Fixture.UseProxies)
+        {
+            Assert.Equal(EntityState.Unchanged, entry.State);
+            activitiesEntry.IsModified = true;
+        }
+
+        Assert.Equal(EntityState.Modified, entry.State);
+        Assert.True(activitiesEntry.IsModified);
+
+        // Verify that the member was added
+        Assert.Contains("Additional Member", pub.Activities[0].Teams[0].Members);
+    }
+
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual void Can_detect_changes_to_nested_record_teams_in_complex_type_collections(bool trackFromQuery)
+    {
+        using var context = CreateContext();
+        var pub = CreatePubWithRecordCollections(context);
+
+        var entry = trackFromQuery ? TrackFromQuery(context, pub) : context.Attach(pub);
+        Assert.Equal(EntityState.Unchanged, entry.State);
+
+        // Replace a team in the first activity with a modified version using 'with' syntax
+        var teams = pub.Activities[0].Teams.ToList();
+        teams[0] = teams[0] with { Members = new List<string>(teams[0].Members) { "Additional Member" } };
+
+        pub.Activities[0] = pub.Activities[0] with { Teams = teams };
+
+        context.ChangeTracker.DetectChanges();
+
+        var activitiesEntry = entry.ComplexProperty(e => e.Activities);
+
+        if (Fixture.UseProxies)
+        {
+            Assert.Equal(EntityState.Unchanged, entry.State);
+            activitiesEntry.IsModified = true;
+        }
+
+        Assert.Equal(EntityState.Modified, entry.State);
+        Assert.True(activitiesEntry.IsModified);
+
+        // Verify that the member was added
+        Assert.Contains("Additional Member", pub.Activities[0].Teams[0].Members);
+    }
+
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual void Can_handle_null_nested_teams_in_complex_type_collections(bool trackFromQuery)
+    {
+        using var context = CreateContext();
+        var pub = CreatePubWithCollections(context);
+
+        var entry = trackFromQuery ? TrackFromQuery(context, pub) : context.Attach(pub);
+        Assert.Equal(EntityState.Unchanged, entry.State);
+
+        // Add a new activity with null Teams collection
+        pub.Activities.Add(new ActivityWithCollection
+        {
+            Name = "Activity with null Teams",
+            Day = DayOfWeek.Thursday,
+            CoverCharge = 1.0m,
+            Description = "Testing null nested collections",
+            IsTeamBased = false,
+            Notes = ["Note"],
+            Teams = null!
+        });
+
+        context.ChangeTracker.DetectChanges();
+
+        var activitiesEntry = entry.ComplexProperty(e => e.Activities);
+
+        if (Fixture.UseProxies)
+        {
+            Assert.Equal(EntityState.Unchanged, entry.State);
+            activitiesEntry.IsModified = true;
+        }
+
+        Assert.Equal(EntityState.Modified, entry.State);
+        Assert.True(activitiesEntry.IsModified);
+
+        // Verify that the new activity was added
+        Assert.Equal(3, pub.Activities.Count);
+        Assert.Contains(pub.Activities, a => a.Name == "Activity with null Teams");
+    }
+
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual void Can_handle_empty_nested_teams_in_complex_type_collections(bool trackFromQuery)
+    {
+        using var context = CreateContext();
+        var pub = CreatePubWithCollections(context);
+
+        var entry = trackFromQuery ? TrackFromQuery(context, pub) : context.Attach(pub);
+        Assert.Equal(EntityState.Unchanged, entry.State);
+
+        // Add a new activity with empty Teams collection
+        pub.Activities.Add(new ActivityWithCollection
+        {
+            Name = "Activity with empty Teams",
+            Day = DayOfWeek.Thursday,
+            CoverCharge = 1.0m,
+            Description = "Testing empty nested collections",
+            IsTeamBased = false,
+            Notes = ["Note"],
+            Teams = []
+        });
+
+        context.ChangeTracker.DetectChanges();
+
+        var activitiesEntry = entry.ComplexProperty(e => e.Activities);
+
+        if (Fixture.UseProxies)
+        {
+            Assert.Equal(EntityState.Unchanged, entry.State);
+            activitiesEntry.IsModified = true;
+        }
+
+        Assert.Equal(EntityState.Modified, entry.State);
+        Assert.True(activitiesEntry.IsModified);
+
+        // Verify that the new activity was added with an empty teams collection
+        Assert.Equal(3, pub.Activities.Count);
+        var emptyTeamsActivity = pub.Activities.FirstOrDefault(a => a.Name == "Activity with empty Teams");
+        Assert.NotNull(emptyTeamsActivity);
+        Assert.Empty(emptyTeamsActivity.Teams);
+    }
+
+    [ConditionalFact]
+    public virtual void Throws_when_accessing_complex_entries_using_incorrect_cardinality()
+    {
+        using var context = CreateContext();
+        var pub = CreatePubWithCollections(context);
+
+        var entry = context.Attach(pub);
+
+        Assert.Equal(CoreStrings.ComplexReferenceIsCollection(entry.EntityType.DisplayName(), nameof(Pub.Activities), "ComplexProperty", "ComplexCollection"),
+            Assert.Throws<InvalidOperationException>(() => entry.ComplexProperty(e => e.Activities)).Message);
+
+        Assert.Equal(CoreStrings.ComplexCollectionIsReference(entry.EntityType.DisplayName(), nameof(Pub.Activities), "ComplexCollection", "ComplexProperty"),
+            Assert.Throws<InvalidOperationException>(() => entry.ComplexCollection(e => e.FeaturedTeam)).Message);
+    }
+
     protected void AssertPropertyValues(EntityEntry entry)
     {
         Assert.Equal("The FBI", entry.Property("Name").CurrentValue);
@@ -946,6 +1971,85 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
         var teamEntry = entry.ComplexProperty("FeaturedTeam");
         Assert.Equal("Not In This Lifetime", teamEntry.Property("Name").CurrentValue);
         Assert.Equal(new[] { "Slash", "Axl" }, teamEntry.Property("Members").CurrentValue);
+    }
+
+    protected void AssertCollectionPropertyValues(EntityEntry entry)
+    {
+        Assert.Equal("The FBI", entry.Property("Name").CurrentValue);
+
+        // Assert Activities collection
+        var activitiesEntry = entry.ComplexCollection("Activities");
+        Assert.NotNull(activitiesEntry);
+        Assert.NotEmpty(activitiesEntry);
+
+        // Check first activity in collection
+        var firstActivityEntry = activitiesEntry.First();
+        if (firstActivityEntry != null)
+        {
+            Assert.Equal("Pub Quiz", firstActivityEntry.Property("Name").CurrentValue);
+            Assert.Equal(DayOfWeek.Monday, firstActivityEntry.Property("Day").CurrentValue);
+            Assert.Equal("A general knowledge pub quiz.", firstActivityEntry.Property("Description").CurrentValue);
+            Assert.Equal(new[] { "One", "Two", "Three" }, firstActivityEntry.Property("Notes").CurrentValue);
+            Assert.Equal(2.0m, firstActivityEntry.Property("CoverCharge").CurrentValue);
+            Assert.True((bool)firstActivityEntry.Property("IsTeamBased").CurrentValue!);
+
+            // Check Teams collection in the first activity
+            var teamsEntry = firstActivityEntry.ComplexCollection("Teams");
+            if (teamsEntry != null && teamsEntry.Any())
+            {
+                var championsEntry = teamsEntry.First();
+                Assert.Equal("Clueless", championsEntry.Property("Name").CurrentValue);
+                Assert.Equal(new[] { "Boris", "David", "Theresa" }, championsEntry.Property("Members").CurrentValue);
+
+                if (teamsEntry.Count() > 1)
+                {
+                    var runnersUpEntry = teamsEntry.ElementAt(1);
+                    Assert.Equal("ZZ", runnersUpEntry.Property("Name").CurrentValue);
+                    Assert.Equal(new[] { "Has Beard", "Has Beard", "Is Called Beard" }, runnersUpEntry.Property("Members").CurrentValue);
+                }
+            }
+        }
+
+        // Check second activity in collection, if present
+        if (activitiesEntry.Count() > 1)
+        {
+            var secondActivityEntry = activitiesEntry.ElementAt(1);
+            if (secondActivityEntry != null)
+            {
+                // For some collections the second element might be null or empty
+                if (secondActivityEntry.Property("Name")?.CurrentValue != null)
+                {
+                    Assert.Equal("Music Quiz", secondActivityEntry.Property("Name").CurrentValue);
+                    Assert.Equal(DayOfWeek.Friday, secondActivityEntry.Property("Day").CurrentValue);
+                    Assert.Equal("A music pub quiz.", secondActivityEntry.Property("Description").CurrentValue);
+                    Assert.Empty((IEnumerable<string>)secondActivityEntry.Property("Notes").CurrentValue!);
+                    Assert.Equal(5.0m, secondActivityEntry.Property("CoverCharge").CurrentValue);
+                    Assert.True((bool)secondActivityEntry.Property("IsTeamBased").CurrentValue!);
+
+                    // Check Teams collection in the second activity
+                    var teamsEntry = secondActivityEntry.ComplexCollection("Teams");
+                    if (teamsEntry != null && teamsEntry.Any())
+                    {
+                        var championsEntry = teamsEntry.First();
+                        Assert.Equal("Dazed and Confused", championsEntry.Property("Name").CurrentValue);
+                        Assert.Equal(new[] { "Robert", "Jimmy", "John", "Jason" }, championsEntry.Property("Members").CurrentValue);
+
+                        if (teamsEntry.Count() > 1)
+                        {
+                            var runnersUpEntry = teamsEntry.ElementAt(1);
+                            Assert.Equal("Banksy", runnersUpEntry.Property("Name").CurrentValue);
+                            Assert.Empty((IEnumerable<string>)runnersUpEntry.Property("Members").CurrentValue!);
+                        }
+                    }
+                }
+            }
+        }
+
+        // Assert FeaturedTeam property
+        var featuredTeamEntry = entry.ComplexProperty("FeaturedTeam");
+        Assert.NotNull(featuredTeamEntry);
+        Assert.Equal("Not In This Lifetime", featuredTeamEntry.Property("Name").CurrentValue);
+        Assert.Equal(new[] { "Slash", "Axl" }, featuredTeamEntry.Property("Members").CurrentValue);
     }
 
     protected void AssertPropertiesModified(EntityEntry entry, bool expected)
@@ -989,6 +2093,93 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
         Assert.Equal(expected, teamEntry.Property("Members").IsModified);
     }
 
+    protected void AssertCollectionPropertiesModified(EntityEntry entry, bool expected)
+    {
+        Assert.Equal("The FBI", entry.Property("Name").CurrentValue);
+
+        // Check Activities collection
+        var activitiesEntry = entry.ComplexCollection("Activities");
+        Assert.NotNull(activitiesEntry);
+        Assert.Equal(expected, activitiesEntry.IsModified);
+
+        if (activitiesEntry.Any())
+        {
+            // Check properties of first activity
+            var firstActivityEntry = activitiesEntry.First();
+            if (firstActivityEntry != null)
+            {
+                Assert.Equal(expected, firstActivityEntry.Property("Name").IsModified);
+                Assert.Equal(expected, firstActivityEntry.Property("Day").IsModified);
+                Assert.Equal(expected, firstActivityEntry.Property("Description").IsModified);
+                Assert.Equal(expected, firstActivityEntry.Property("Notes").IsModified);
+                Assert.Equal(expected, firstActivityEntry.Property("CoverCharge").IsModified);
+                Assert.Equal(expected, firstActivityEntry.Property("IsTeamBased").IsModified);
+
+                // Check Teams collection in first activity
+                var teamsEntry = firstActivityEntry.ComplexCollection("Teams");
+                Assert.Equal(expected, teamsEntry.IsModified);
+
+                if (teamsEntry.Any())
+                {
+                    // Check first team (champions)
+                    var firstTeamEntry = teamsEntry.First();
+                    Assert.Equal(expected, firstTeamEntry.Property("Name").IsModified);
+                    Assert.Equal(expected, firstTeamEntry.Property("Members").IsModified);
+
+                    // Check second team (runners up) if it exists
+                    if (teamsEntry.Count() > 1)
+                    {
+                        var secondTeamEntry = teamsEntry.ElementAt(1);
+                        Assert.Equal(expected, secondTeamEntry.Property("Name").IsModified);
+                        Assert.Equal(expected, secondTeamEntry.Property("Members").IsModified);
+                    }
+                }
+            }
+
+            // Check second activity if it exists and is non-null
+            var secondActivityIndex = activitiesEntry.Count() > 1 ? 1 : 0;
+            if (activitiesEntry.Count() > secondActivityIndex)
+            {
+                var secondActivityEntry = activitiesEntry.ElementAt(secondActivityIndex);
+                if (secondActivityEntry != null && secondActivityEntry.Property("Name")?.CurrentValue != null)
+                {
+                    Assert.Equal(expected, secondActivityEntry.Property("Name").IsModified);
+                    Assert.Equal(expected, secondActivityEntry.Property("Day").IsModified);
+                    Assert.Equal(expected, secondActivityEntry.Property("Description").IsModified);
+                    Assert.Equal(expected, secondActivityEntry.Property("Notes").IsModified);
+                    Assert.Equal(expected, secondActivityEntry.Property("CoverCharge").IsModified);
+                    Assert.Equal(expected, secondActivityEntry.Property("IsTeamBased").IsModified);
+
+                    // Check Teams collection in second activity
+                    var teamsEntry = secondActivityEntry.ComplexCollection("Teams");
+                    Assert.Equal(expected, teamsEntry.IsModified);
+
+                    if (teamsEntry.Any())
+                    {
+                        // Check first team
+                        var firstTeamEntry = teamsEntry.First();
+                        Assert.Equal(expected, firstTeamEntry.Property("Name").IsModified);
+                        Assert.Equal(expected, firstTeamEntry.Property("Members").IsModified);
+
+                        // Check second team if it exists
+                        if (teamsEntry.Count() > 1)
+                        {
+                            var secondTeamEntry = teamsEntry.ElementAt(1);
+                            Assert.Equal(expected, secondTeamEntry.Property("Name").IsModified);
+                            Assert.Equal(expected, secondTeamEntry.Property("Members").IsModified);
+                        }
+                    }
+                }
+            }
+        }
+
+        // Check FeaturedTeam property
+        var featuredTeamEntry = entry.ComplexProperty("FeaturedTeam");
+        Assert.NotNull(featuredTeamEntry);
+        Assert.Equal(expected, featuredTeamEntry.Property("Name").IsModified);
+        Assert.Equal(expected, featuredTeamEntry.Property("Members").IsModified);
+    }
+
     protected static EntityEntry<TEntity> TrackFromQuery<TEntity>(DbContext context, TEntity pub)
         where TEntity : class
         => new(
@@ -1026,8 +2217,8 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
                     b.ComplexProperty(
                         e => e.LunchtimeActivity, b =>
                         {
-                            b.ComplexProperty(e => e!.Champions);
-                            b.ComplexProperty(e => e!.RunnersUp);
+                            b.ComplexProperty(e => e.Champions);
+                            b.ComplexProperty(e => e.RunnersUp);
                         });
                     b.ComplexProperty(
                         e => e.EveningActivity, b =>
@@ -1035,7 +2226,6 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
                             b.ComplexProperty(e => e.Champions);
                             b.ComplexProperty(e => e.RunnersUp);
                         });
-                    b.ComplexProperty(e => e.FeaturedTeam);
                     b.ComplexProperty(e => e.FeaturedTeam);
                 });
 
@@ -1045,8 +2235,8 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
                     b.ComplexProperty(
                         e => e.LunchtimeActivity, b =>
                         {
-                            b.ComplexProperty(e => e!.Champions);
-                            b.ComplexProperty(e => e!.RunnersUp);
+                            b.ComplexProperty(e => e.Champions);
+                            b.ComplexProperty(e => e.RunnersUp);
                         });
                     b.ComplexProperty(
                         e => e.EveningActivity, b =>
@@ -1054,7 +2244,6 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
                             b.ComplexProperty(e => e.Champions);
                             b.ComplexProperty(e => e.RunnersUp);
                         });
-                    b.ComplexProperty(e => e.FeaturedTeam);
                     b.ComplexProperty(e => e.FeaturedTeam);
                 });
 
@@ -1064,8 +2253,8 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
                     b.ComplexProperty(
                         e => e.LunchtimeActivity, b =>
                         {
-                            b.ComplexProperty(e => e!.Champions);
-                            b.ComplexProperty(e => e!.RunnersUp);
+                            b.ComplexProperty(e => e.Champions);
+                            b.ComplexProperty(e => e.RunnersUp);
                         });
                     b.ComplexProperty(
                         e => e.EveningActivity, b =>
@@ -1073,7 +2262,6 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
                             b.ComplexProperty(e => e.Champions);
                             b.ComplexProperty(e => e.RunnersUp);
                         });
-                    b.ComplexProperty(e => e.FeaturedTeam);
                     b.ComplexProperty(e => e.FeaturedTeam);
                 });
 
@@ -1083,8 +2271,8 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
                     b.ComplexProperty(
                         e => e.LunchtimeActivity, b =>
                         {
-                            b.ComplexProperty(e => e!.Champions);
-                            b.ComplexProperty(e => e!.RunnersUp);
+                            b.ComplexProperty(e => e.Champions);
+                            b.ComplexProperty(e => e.RunnersUp);
                         });
                     b.ComplexProperty(
                         e => e.EveningActivity, b =>
@@ -1093,6 +2281,50 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
                             b.ComplexProperty(e => e.RunnersUp);
                         });
                     b.ComplexProperty(e => e.FeaturedTeam);
+                });
+
+            modelBuilder.Entity<PubWithCollections>(
+                b =>
+                {
+                    b.ComplexCollection(
+                        e => e.Activities, b =>
+                        {
+                            b.ComplexCollection(e => e.Teams);
+                        });
+                    b.ComplexProperty(e => e.FeaturedTeam);
+                });
+
+            modelBuilder.Entity<PubWithStructCollections>(
+                b =>
+                {
+                    b.ComplexCollection(
+                        e => e.Activities, b =>
+                        {
+                            b.ComplexCollection(e => e.Teams);
+                        });
+                    b.ComplexProperty(e => e.FeaturedTeam);
+                });
+
+            // TODO: Allow binding of complex properties to constructors #31621
+            modelBuilder.Entity<PubWithReadonlyStructCollections>(
+                b =>
+                {
+                    b.ComplexCollection(
+                        e => e.Activities, b =>
+                        {
+                            b.ComplexCollection(e => e.Teams);
+                        });
+                    b.ComplexProperty(e => e.FeaturedTeam);
+                });
+
+            modelBuilder.Entity<PubWithRecordCollections>(
+                b =>
+                {
+                    b.ComplexCollection(
+                        e => e.Activities, b =>
+                        {
+                            b.ComplexCollection(e => e.Teams);
+                        });
                     b.ComplexProperty(e => e.FeaturedTeam);
                 });
 
@@ -1104,8 +2336,8 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
                         b.ComplexProperty(
                             e => e.LunchtimeActivity, b =>
                             {
-                                b.ComplexProperty(e => e!.Champions);
-                                b.ComplexProperty(e => e!.RunnersUp);
+                                b.ComplexProperty(e => e.Champions);
+                                b.ComplexProperty(e => e.RunnersUp);
                             });
                         b.ComplexProperty(
                             e => e.EveningActivity, b =>
@@ -1114,10 +2346,28 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
                                 b.ComplexProperty(e => e.RunnersUp);
                             });
                         b.ComplexProperty(e => e.FeaturedTeam);
-                        b.ComplexProperty(e => e.FeaturedTeam);
                     });
 
                 modelBuilder.Entity<FieldPubWithStructs>(
+                    b =>
+                    {
+                        b.ComplexProperty(
+                            e => e.LunchtimeActivity, b =>
+                            {
+                                b.ComplexProperty(e => e.Champions);
+                                b.ComplexProperty(e => e.RunnersUp);
+                            });
+                        b.ComplexProperty(
+                            e => e.EveningActivity, b =>
+                            {
+                                b.ComplexProperty(e => e.Champions);
+                                b.ComplexProperty(e => e.RunnersUp);
+                            });
+                        b.ComplexProperty(e => e.FeaturedTeam);
+                    });
+
+                // TODO: Allow binding of complex properties to constructors #31621
+                modelBuilder.Entity<FieldPubWithReadonlyStructs>(
                     b =>
                     {
                         b.ComplexProperty(
@@ -1133,28 +2383,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
                                 b.ComplexProperty(e => e.RunnersUp);
                             });
                         b.ComplexProperty(e => e.FeaturedTeam);
-                        b.ComplexProperty(e => e.FeaturedTeam);
                     });
-
-                // TODO: Allow binding of complex properties to constructors
-                // modelBuilder.Entity<FieldPubWithReadonlyStructs>(
-                //     b =>
-                //     {
-                //         b.ComplexProperty(
-                //             e => e.LunchtimeActivity, b =>
-                //             {
-                //                 b.ComplexProperty(e => e!.Champions);
-                //                 b.ComplexProperty(e => e!.RunnersUp);
-                //             });
-                //         b.ComplexProperty(
-                //             e => e.EveningActivity, b =>
-                //             {
-                //                 b.ComplexProperty(e => e.Champions);
-                //                 b.ComplexProperty(e => e.RunnersUp);
-                //             });
-                //         b.ComplexProperty(e => e.FeaturedTeam);
-                //         b.ComplexProperty(e => e.FeaturedTeam);
-                //     });
 
                 modelBuilder.Entity<FieldPubWithRecords>(
                     b =>
@@ -1172,6 +2401,50 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
                                 b.ComplexProperty(e => e.RunnersUp);
                             });
                         b.ComplexProperty(e => e.FeaturedTeam);
+                    });
+
+                modelBuilder.Entity<FieldPubWithCollections>(
+            b =>
+            {
+                b.ComplexCollection(
+                    e => e.Activities, b =>
+                    {
+                        b.ComplexCollection(e => e.Teams);
+                    });
+                b.ComplexProperty(e => e.FeaturedTeam);
+            });
+
+                modelBuilder.Entity<FieldPubWithStructCollections>(
+                    b =>
+                    {
+                        b.ComplexCollection(
+                            e => e.Activities, b =>
+                            {
+                                b.ComplexCollection(e => e.Teams);
+                            });
+                        b.ComplexProperty(e => e.FeaturedTeam);
+                    });
+
+                // TODO: Allow binding of complex properties to constructors #31621
+                modelBuilder.Entity<FieldPubWithReadonlyStructCollections>(
+                    b =>
+                    {
+                        b.ComplexCollection(
+                            e => e.Activities, b =>
+                            {
+                                b.ComplexCollection(e => e.Teams);
+                            });
+                        b.ComplexProperty(e => e.FeaturedTeam);
+                    });
+
+                modelBuilder.Entity<FieldPubWithRecordCollections>(
+                    b =>
+                    {
+                        b.ComplexCollection(
+                            e => e.Activities, b =>
+                            {
+                                b.ComplexCollection(e => e.Teams);
+                            });
                         b.ComplexProperty(e => e.FeaturedTeam);
                     });
             }
@@ -1407,6 +2680,61 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
         public string Name { get; set; }
         public List<string> Members { get; set; }
     }
+    public class ActivityWithCollection
+    {
+        public string Name { get; set; } = null!;
+        public decimal? CoverCharge { get; set; }
+        public bool IsTeamBased { get; set; }
+        public string? Description { get; set; }
+        public string[]? Notes { get; set; }
+        public DayOfWeek Day { get; set; }
+        public List<Team> Teams { get; set; } = [];
+    }
+
+    public struct ActivityStructWithCollection
+    {
+        public string Name { get; set; }
+        public decimal? CoverCharge { get; set; }
+        public bool IsTeamBased { get; set; }
+        public string? Description { get; set; }
+        public string[]? Notes { get; set; }
+        public DayOfWeek Day { get; set; }
+        public List<TeamStruct> Teams { get; set; }
+    }
+
+    public readonly struct ActivityReadonlyStructWithCollection
+    {
+        public string Name { get; init; }
+        public decimal? CoverCharge { get; init; }
+        public bool IsTeamBased { get; init; }
+        public string? Description { get; init; }
+        public string[]? Notes { get; init; }
+        public DayOfWeek Day { get; init; }
+        public List<TeamReadonlyStruct> Teams { get; init; }
+    }
+
+    public record ActivityRecordWithCollection
+    {
+        public string Name { get; init; } = null!;
+        public decimal? CoverCharge { get; init; }
+        public bool IsTeamBased { get; init; }
+        public string? Description { get; init; }
+        public string[]? Notes { get; init; }
+        public DayOfWeek Day { get; init; }
+        public List<TeamRecord> Teams { get; init; } = null!;
+    }
+
+    public record FieldActivityRecordWithCollection
+    {
+        public string Name = null!;
+        public decimal? CoverCharge;
+        public bool IsTeamBased;
+        public string? Description;
+        public string[]? Notes;
+        public DayOfWeek Day;
+        public List<FieldTeamRecord> Teams = null!;
+    }
+
 
     protected PubWithReadonlyStructs CreatePubWithReadonlyStructs(DbContext context)
     {
@@ -1497,6 +2825,12 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
 
     public readonly struct TeamReadonlyStruct
     {
+        public TeamReadonlyStruct(string name, List<string> members)
+        {
+            Name = name;
+            Members = members;
+        }
+
         public string Name { get; init; }
         public List<string> Members { get; init; }
     }
@@ -1592,6 +2926,70 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
     {
         public string Name { get; init; } = null!;
         public List<string> Members { get; init; } = null!;
+    }
+
+    public class PubWithCollections
+    {
+        public virtual Guid Id { get; set; }
+        public virtual string Name { get; set; } = null!;
+        public virtual List<ActivityWithCollection> Activities { get; set; } = [];
+        public virtual Team FeaturedTeam { get; set; } = null!;
+    }
+
+    public class PubWithStructCollections
+    {
+        public virtual Guid Id { get; set; }
+        public virtual string Name { get; set; } = null!;
+        public virtual List<ActivityStructWithCollection> Activities { get; set; } = [];
+        public virtual TeamStruct FeaturedTeam { get; set; }
+    }
+
+    public class PubWithReadonlyStructCollections
+    {
+        public virtual Guid Id { get; set; }
+        public virtual string Name { get; set; } = null!;
+        public virtual List<ActivityReadonlyStructWithCollection> Activities { get; set; } = [];
+        public virtual TeamReadonlyStruct FeaturedTeam { get; set; }
+    }
+
+    public class PubWithRecordCollections
+    {
+        public virtual Guid Id { get; set; }
+        public virtual string Name { get; set; } = null!;
+        public virtual List<ActivityRecordWithCollection> Activities { get; set; } = [];
+        public virtual TeamRecord FeaturedTeam { get; set; } = null!;
+    }
+
+    public class FieldPubWithCollections
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; } = null!;
+        public List<ActivityWithCollection> Activities = [];
+        public Team FeaturedTeam = null!;
+    }
+
+    public class FieldPubWithStructCollections
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; } = null!;
+        public List<ActivityStructWithCollection> Activities = [];
+        public TeamStruct FeaturedTeam;
+    }
+
+    public class FieldPubWithReadonlyStructCollections
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; } = null!;
+        public List<ActivityReadonlyStructWithCollection> Activities = [];
+        public TeamReadonlyStruct FeaturedTeam;
+    }
+
+    public class FieldPubWithRecordCollections
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; } = null!;
+        public List<FieldActivityRecordWithCollection> Activities = [];
+        public FieldTeamRecord FeaturedTeam = null!;
     }
 
     protected static FieldPub CreateFieldPub(DbContext context)
@@ -2027,4 +3425,550 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
 
         return yogurt;
     }
+
+    protected PubWithCollections CreatePubWithCollections(DbContext context)
+    {
+        var pub = Fixture.UseProxies
+            ? context.CreateProxy<PubWithCollections>()
+            : new PubWithCollections();
+
+        pub.Id = Guid.NewGuid();
+        pub.Name = "The FBI";
+
+        pub.Activities =
+        [
+            new ActivityWithCollection
+        {
+            Name = "Pub Quiz",
+            Day = DayOfWeek.Monday,
+            Description = "A general knowledge pub quiz.",
+            Notes = ["One", "Two", "Three"],
+            CoverCharge = 2.0m,
+            IsTeamBased = true,
+            Teams =
+            [
+                new Team
+                {
+                    Name = "Clueless",
+                    Members =
+                    {
+                        "Boris",
+                        "David",
+                        "Theresa"
+                    }
+                },
+                new Team
+                {
+                    Name = "ZZ",
+                    Members =
+                    {
+                        "Has Beard",
+                        "Has Beard",
+                        "Is Called Beard"
+                    }
+                }
+            ]
+        },
+        new ActivityWithCollection
+        {
+            Name = "Music Quiz",
+            Day = DayOfWeek.Friday,
+            Description = "A music pub quiz.",
+            Notes = [],
+            CoverCharge = 5.0m,
+            IsTeamBased = true,
+            Teams =
+            [
+                new Team
+                {
+                    Name = "Dazed and Confused",
+                    Members =
+                    {
+                        "Robert",
+                        "Jimmy",
+                        "John",
+                        "Jason"
+                    }
+                },
+                new Team { Name = "Banksy", Members = [] }
+            ]
+        }
+        ];
+
+        pub.FeaturedTeam = new Team { Name = "Not In This Lifetime", Members = { "Slash", "Axl" } };
+
+        return pub;
+    }
+
+    protected PubWithStructCollections CreatePubWithStructCollections(DbContext context)
+    {
+        var pub = Fixture.UseProxies
+            ? context.CreateProxy<PubWithStructCollections>()
+            : new PubWithStructCollections();
+
+        pub.Id = Guid.NewGuid();
+        pub.Name = "The FBI";
+
+        pub.Activities =
+        [
+            new ActivityStructWithCollection
+        {
+            Name = "Pub Quiz",
+            Day = DayOfWeek.Monday,
+            Description = "A general knowledge pub quiz.",
+            Notes = ["One", "Two", "Three"],
+            CoverCharge = 2.0m,
+            IsTeamBased = true,
+            Teams =
+            [
+                new TeamStruct
+                {
+                    Name = "Clueless",
+                    Members =
+                    [
+                        "Boris",
+                        "David",
+                        "Theresa"
+                    ]
+                },
+                new TeamStruct
+                {
+                    Name = "ZZ",
+                    Members =
+                    [
+                        "Has Beard",
+                        "Has Beard",
+                        "Is Called Beard"
+                    ]
+                }
+            ]
+        },
+        new ActivityStructWithCollection(),
+        new ActivityStructWithCollection
+        {
+            Name = "Music Quiz",
+            Day = DayOfWeek.Friday,
+            Description = "A music pub quiz.",
+            Notes = [],
+            CoverCharge = 5.0m,
+            IsTeamBased = true,
+            Teams =
+            [
+                new TeamStruct
+                {
+                    Name = "Dazed and Confused",
+                    Members =
+                    [
+                        "Robert",
+                        "Jimmy",
+                        "John",
+                        "Jason"
+                    ]
+                },
+                new TeamStruct { Name = "Banksy", Members = [] }
+            ]
+        }
+        ];
+
+        pub.FeaturedTeam = new TeamStruct { Name = "Not In This Lifetime", Members = ["Slash", "Axl"] };
+
+        return pub;
+    }
+
+    protected PubWithReadonlyStructCollections CreatePubWithReadonlyStructCollections(DbContext context)
+    {
+        var pub = Fixture.UseProxies
+            ? context.CreateProxy<PubWithReadonlyStructCollections>()
+            : new PubWithReadonlyStructCollections();
+
+        pub.Id = Guid.NewGuid();
+        pub.Name = "The FBI";
+
+        pub.Activities =
+        [
+            new ActivityReadonlyStructWithCollection
+        {
+            Name = "Pub Quiz",
+            Day = DayOfWeek.Monday,
+            Description = "A general knowledge pub quiz.",
+            Notes = ["One", "Two", "Three"],
+            CoverCharge = 2.0m,
+            IsTeamBased = true,
+            Teams =
+            [
+                new TeamReadonlyStruct
+                {
+                    Name = "Clueless",
+                    Members =
+                    [
+                        "Boris",
+                        "David",
+                        "Theresa"
+                    ]
+                },
+                new TeamReadonlyStruct
+                {
+                    Name = "ZZ",
+                    Members =
+                    [
+                        "Has Beard",
+                        "Has Beard",
+                        "Is Called Beard"
+                    ]
+                }
+            ]
+        },
+        new ActivityReadonlyStructWithCollection(),
+        new ActivityReadonlyStructWithCollection
+        {
+            Name = "Music Quiz",
+            Day = DayOfWeek.Friday,
+            Description = "A music pub quiz.",
+            Notes = [],
+            CoverCharge = 5.0m,
+            IsTeamBased = true,
+            Teams =
+            [
+                new TeamReadonlyStruct
+                {
+                    Name = "Dazed and Confused",
+                    Members =
+                    [
+                        "Robert",
+                        "Jimmy",
+                        "John",
+                        "Jason"
+                    ]
+                },
+                new TeamReadonlyStruct { Name = "Banksy", Members = [] }
+            ]
+        }
+        ];
+
+        pub.FeaturedTeam = new TeamReadonlyStruct { Name = "Not In This Lifetime", Members = ["Slash", "Axl"] };
+
+        return pub;
+    }
+
+    protected PubWithRecordCollections CreatePubWithRecordCollections(DbContext context)
+    {
+        var pub = Fixture.UseProxies
+            ? context.CreateProxy<PubWithRecordCollections>()
+            : new PubWithRecordCollections();
+
+        pub.Id = Guid.NewGuid();
+        pub.Name = "The FBI";
+
+        pub.Activities =
+        [
+            new ActivityRecordWithCollection
+        {
+            Name = "Pub Quiz",
+            Day = DayOfWeek.Monday,
+            Description = "A general knowledge pub quiz.",
+            Notes = ["One", "Two", "Three"],
+            CoverCharge = 2.0m,
+            IsTeamBased = true,
+            Teams =
+            [
+                new TeamRecord
+                {
+                    Name = "Clueless",
+                    Members =
+                    [
+                        "Boris",
+                        "David",
+                        "Theresa"
+                    ]
+                },
+                new TeamRecord
+                {
+                    Name = "ZZ",
+                    Members =
+                    [
+                        "Has Beard",
+                        "Has Beard",
+                        "Is Called Beard"
+                    ]
+                }
+            ]
+        },
+        new ActivityRecordWithCollection
+        {
+            Name = "Music Quiz",
+            Day = DayOfWeek.Friday,
+            Description = "A music pub quiz.",
+            Notes = [],
+            CoverCharge = 5.0m,
+            IsTeamBased = true,
+            Teams =
+            [
+                new TeamRecord
+                {
+                    Name = "Dazed and Confused",
+                    Members =
+                    [
+                        "Robert",
+                        "Jimmy",
+                        "John",
+                        "Jason"
+                    ]
+                },
+                new TeamRecord { Name = "Banksy", Members = [] }
+            ]
+        }
+        ];
+
+        pub.FeaturedTeam = new TeamRecord { Name = "Not In This Lifetime", Members = ["Slash", "Axl"] };
+
+        return pub;
+    }
+
+    protected static FieldPubWithCollections CreateFieldCollectionPub(DbContext context)
+        => new()
+        {
+            Id = Guid.NewGuid(),
+            Name = "The FBI",
+            Activities =
+            [
+                new ActivityWithCollection
+                {
+                    Name = "Pub Quiz",
+                    Day = DayOfWeek.Monday,
+                    Description = "A general knowledge pub quiz.",
+                    Notes = ["One", "Two", "Three"],
+                    CoverCharge = 2.0m,
+                    IsTeamBased = true,
+                    Teams =
+                    [
+                        new Team
+                        {
+                            Name = "Clueless",
+                            Members =
+                            {
+                                "Boris",
+                                "David",
+                                "Theresa"
+                            }
+                        },
+                        new Team
+                        {
+                            Name = "ZZ",
+                            Members =
+                            {
+                                "Has Beard",
+                                "Has Beard",
+                                "Is Called Beard"
+                            }
+                        }
+                    ]
+                },
+                null,
+                null,
+                new ActivityWithCollection
+                {
+                    Name = "Music Quiz",
+                    Day = DayOfWeek.Friday,
+                    Description = "A music pub quiz.",
+                    Notes = [],
+                    CoverCharge = 5.0m,
+                    IsTeamBased = true,
+                    Teams =
+                    [
+                        new Team
+                        {
+                            Name = "Dazed and Confused",
+                            Members =
+                            {
+                                "Robert",
+                                "Jimmy",
+                                "John",
+                                "Jason"
+                            }
+                        },
+                        new Team { Name = "Banksy", Members = [] }
+                    ]
+                }
+            ],
+            FeaturedTeam = new Team
+            {
+                Name = "Not In This Lifetime",
+                Members = { "Slash", "Axl" }
+            }
+        };
+
+    protected static FieldPubWithStructCollections CreateFieldCollectionPubWithStructs(DbContext context)
+        => new()
+        {
+            Id = Guid.NewGuid(),
+            Name = "The FBI",
+            Activities =
+            [
+                new ActivityStructWithCollection
+            {
+                Name = "Pub Quiz",
+                Day = DayOfWeek.Monday,
+                Description = "A general knowledge pub quiz.",
+                Notes = ["One", "Two", "Three"],
+                CoverCharge = 2.0m,
+                IsTeamBased = true,
+                Teams =
+                [
+                    new TeamStruct
+                    {
+                        Name = "Clueless",
+                        Members =
+                        [
+                            "Boris",
+                            "David",
+                            "Theresa"
+                        ]
+                    },
+                    new TeamStruct
+                    {
+                        Name = "ZZ",
+                        Members =
+                        [
+                            "Has Beard",
+                            "Has Beard",
+                            "Is Called Beard"
+                        ]
+                    }
+                ]
+            },
+            new ActivityStructWithCollection(),
+            new ActivityStructWithCollection
+            {
+                Name = "Music Quiz",
+                Day = DayOfWeek.Friday,
+                Description = "A music pub quiz.",
+                Notes = [],
+                CoverCharge = 5.0m,
+                IsTeamBased = true,
+                Teams =
+                [
+                    new TeamStruct
+                    {
+                        Name = "Dazed and Confused",
+                        Members =
+                        [
+                            "Robert",
+                            "Jimmy",
+                            "John",
+                            "Jason"
+                        ]
+                    },
+                    new TeamStruct { Name = "Banksy", Members = [] }
+                ]
+            }
+            ],
+            FeaturedTeam = new TeamStruct { Name = "Not In This Lifetime", Members = ["Slash", "Axl"] }
+        };
+
+    protected static FieldPubWithRecordCollections CreateFieldCollectionPubWithRecords(DbContext context)
+        => new()
+        {
+            Id = Guid.NewGuid(),
+            Name = "The FBI",
+            Activities =
+            [
+                new FieldActivityRecordWithCollection
+            {
+                Name = "Pub Quiz",
+                Day = DayOfWeek.Monday,
+                Description = "A general knowledge pub quiz.",
+                Notes = ["One", "Two", "Three"],
+                CoverCharge = 2.0m,
+                IsTeamBased = true,
+                Teams =
+                [
+                    new FieldTeamRecord
+                    {
+                        Name = "Clueless",
+                        Members =
+                        [
+                            "Boris",
+                            "David",
+                            "Theresa"
+                        ]
+                    },
+                    new FieldTeamRecord
+                    {
+                        Name = "ZZ",
+                        Members =
+                        [
+                            "Has Beard",
+                            "Has Beard",
+                            "Is Called Beard"
+                        ]
+                    }
+                ]
+            },
+            new FieldActivityRecordWithCollection
+            {
+                Name = "Music Quiz",
+                Day = DayOfWeek.Friday,
+                Description = "A music pub quiz.",
+                Notes = [],
+                CoverCharge = 5.0m,
+                IsTeamBased = true,
+                Teams =
+                [
+                    new FieldTeamRecord
+                    {
+                        Name = "Dazed and Confused",
+                        Members =
+                        [
+                            "Robert",
+                            "Jimmy",
+                            "John",
+                            "Jason"
+                        ]
+                    },
+                    new FieldTeamRecord { Name = "Banksy", Members = [] }
+                ]
+            }
+            ],
+            FeaturedTeam = new FieldTeamRecord { Name = "Not In This Lifetime", Members = ["Slash", "Axl"] }
+        };
+
+    protected static FieldPubWithReadonlyStructCollections CreateFieldCollectionPubWithReadonlyStructs(DbContext context)
+        => new()
+        {
+            Id = Guid.NewGuid(),
+            Name = "The FBI",
+            Activities =
+            [
+                new ActivityReadonlyStructWithCollection
+            {
+                Name = "Pub Quiz",
+                Day = DayOfWeek.Monday,
+                Description = "A general knowledge pub quiz.",
+                Notes = ["One", "Two", "Three"],
+                CoverCharge = 2.0m,
+                IsTeamBased = true,
+                Teams =
+                [
+                    new TeamReadonlyStruct("Clueless", ["Boris", "David", "Theresa"]),
+                    new TeamReadonlyStruct("ZZ", ["Has Beard", "Has Beard", "Is Called Beard"])
+                ]
+            },
+            new ActivityReadonlyStructWithCollection(),
+            new ActivityReadonlyStructWithCollection
+            {
+                Name = "Music Quiz",
+                Day = DayOfWeek.Friday,
+                Description = "A music pub quiz.",
+                Notes = [],
+                CoverCharge = 5.0m,
+                IsTeamBased = true,
+                Teams =
+                [
+                    new TeamReadonlyStruct("Dazed and Confused", ["Robert", "Jimmy", "John", "Jason"]),
+                    new TeamReadonlyStruct("Banksy", [])
+                ]
+            }
+            ],
+            FeaturedTeam = new TeamReadonlyStruct("Not In This Lifetime", ["Slash", "Axl"])
+        };
 }

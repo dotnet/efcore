@@ -521,6 +521,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 queryExpression);
 
         /// <summary>
+        ///     The property '{entityType}.{property}' is being accessed using '{collectionMethod}', but is defined in the model as a non-collection complex property. Use '{referenceMethod}' to access non-collection complex properties.
+        /// </summary>
+        public static string ComplexCollectionIsReference(object? entityType, object? property, object? collectionMethod, object? referenceMethod)
+            => string.Format(
+                GetString("ComplexCollectionIsReference", nameof(entityType), nameof(property), nameof(collectionMethod), nameof(referenceMethod)),
+                entityType, property, collectionMethod, referenceMethod);
+
+        /// <summary>
         ///     The collection complex property '{property}' cannot be added to the type '{type}' because its CLR type '{clrType}' does not implement 'IEnumerable&lt;{targetType}&gt;'. Collection complex property must implement IEnumerable&lt;&gt; of the complex type.
         /// </summary>
         public static string ComplexCollectionWrongClrType(object? property, object? type, object? clrType, object? targetType)
@@ -567,6 +575,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("ComplexPropertyWrongClrType", nameof(property), nameof(type), nameof(clrType), nameof(targetType)),
                 property, type, clrType, targetType);
+
+        /// <summary>
+        ///     The property '{entityType}.{property}' is being accessed using the '{referenceMethod}' method, but is defined in the model as a collection complex property. Use the '{collectionMethod}' method to access collection complex properties.
+        /// </summary>
+        public static string ComplexReferenceIsCollection(object? entityType, object? property, object? referenceMethod, object? collectionMethod)
+            => string.Format(
+                GetString("ComplexReferenceIsCollection", nameof(entityType), nameof(property), nameof(referenceMethod), nameof(collectionMethod)),
+                entityType, property, referenceMethod, collectionMethod);
 
         /// <summary>
         ///     '{service}' doesn't currently support complex types.

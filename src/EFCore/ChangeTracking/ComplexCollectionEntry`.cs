@@ -21,10 +21,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking;
 ///     </para>
 /// </remarks>
 /// <typeparam name="TEntity">The type of the entity the property belongs to.</typeparam>
-/// <typeparam name="TRelatedEntity">The type of the property.</typeparam>
-public class CollectionEntry<TEntity, TRelatedEntity> : CollectionEntry
+/// <typeparam name="TElement">The element type.</typeparam>
+public class ComplexCollectionEntry<TEntity, TElement> : ComplexCollectionEntry, IEnumerable<ComplexEntry<TEntity, TElement>>
     where TEntity : class
-    where TRelatedEntity : class
+    where TElement : notnull
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -33,20 +33,8 @@ public class CollectionEntry<TEntity, TRelatedEntity> : CollectionEntry
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    public CollectionEntry(InternalEntityEntry internalEntry, string name)
-        : base(internalEntry, name)
-    {
-    }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    [EntityFrameworkInternal]
-    public CollectionEntry(InternalEntityEntry internalEntry, INavigationBase navigationBase)
-        : base(internalEntry, navigationBase)
+    public ComplexCollectionEntry(IInternalEntry internalEntry, IComplexProperty property)
+        : base(internalEntry, property)
     {
     }
 
@@ -59,7 +47,7 @@ public class CollectionEntry<TEntity, TRelatedEntity> : CollectionEntry
     /// </remarks>
     /// <value> An entry for the entity that owns this member. </value>
     public new virtual EntityEntry<TEntity> EntityEntry
-        => new(InternalEntityEntry);
+        => new(InternalEntry.EntityEntry);
 
     /// <summary>
     ///     Gets or sets the value currently assigned to this property. If the current value is set using this property,
@@ -71,47 +59,54 @@ public class CollectionEntry<TEntity, TRelatedEntity> : CollectionEntry
     ///     and <see href="https://aka.ms/efcore-docs-changing-relationships">Changing foreign keys and navigations</see>
     ///     for more information and examples.
     /// </remarks>
-    public new virtual IEnumerable<TRelatedEntity>? CurrentValue
+    public new virtual IEnumerable<TElement>? CurrentValue
     {
-        get => (IEnumerable<TRelatedEntity>?)InternalEntry.GetCurrentValue(Metadata);
+        get => (IEnumerable<TElement>?)this.GetInfrastructure().GetCurrentValue(Metadata);
         set => base.CurrentValue = value;
     }
 
     /// <summary>
-    ///     Returns the query that would be used by <see cref="CollectionEntry.Load()" /> to load entities referenced by
-    ///     this navigation property.
+    ///     Gets a <see cref="ComplexEntry{TEntity, TElement}"/> for the complex item at the specified index.
     /// </summary>
-    /// <remarks>
-    ///     <para>
-    ///         The query can be composed over using LINQ to perform filtering, counting, etc. without
-    ///         actually loading all entities from the database.
-    ///     </para>
-    ///     <para>
-    ///         See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>
-    ///         and <see href="https://aka.ms/efcore-docs-load-related-data">Loading related entities</see> for more information and examples.
-    ///     </para>
-    /// </remarks>
-    public new virtual IQueryable<TRelatedEntity> Query()
+    /// <param name="index">The index of the complex item to access.</param>
+    /// <returns>A <see cref="ComplexEntry{TEntity, TElement}"/> for the complex item at the specified index.</returns>
+    public new virtual ComplexEntry<TEntity, TElement> this[int index]
     {
-        InternalEntityEntry.GetOrCreateCollection(Metadata, forMaterialization: true);
+        get
+        {
+            var currentValue = CurrentValue;
+            if (currentValue == null)
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.CollectionNotFound(Metadata.Name, InternalEntry.EntityType.DisplayName()));
+            }
 
-        return (IQueryable<TRelatedEntity>)base.Query();
+            var enumerableValue = currentValue as IList<TElement> ?? currentValue.ToList();
+
+            if (index < 0 || index >= enumerableValue.Count)
+            {
+                throw new ArgumentOutOfRangeException(nameof(index));
+            }
+
+            return new ComplexEntry<TEntity, TElement>(InternalEntry.EntityEntry, Metadata);
+        }
     }
 
     /// <summary>
-    ///     The <see cref="EntityEntry{T}" /> of an entity this navigation targets.
+    ///     Gets an enumerator over all complex entries in this collection.
     /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information and
-    ///     examples.
-    /// </remarks>
-    /// <param name="entity">The entity to get the entry for.</param>
-    /// <value> An entry for an entity that this navigation targets. </value>
-    public new virtual EntityEntry<TRelatedEntity>? FindEntry(object entity)
+    /// <returns>An enumerator over all complex entries in this collection.</returns>
+    public new virtual IEnumerator<ComplexEntry<TEntity, TElement>> GetEnumerator()
     {
-        var entry = GetInternalTargetEntry(entity);
-        return entry == null
-            ? null
-            : new EntityEntry<TRelatedEntity>(entry);
+        var currentValue = CurrentValue;
+        if (currentValue == null)
+        {
+            yield break;
+        }
+
+        foreach (var _ in currentValue)
+        {
+            yield return new ComplexEntry<TEntity, TElement>(InternalEntry.EntityEntry, Metadata);
+        }
     }
 }

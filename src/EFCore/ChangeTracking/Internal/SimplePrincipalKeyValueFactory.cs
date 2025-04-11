@@ -58,7 +58,7 @@ public class SimplePrincipalKeyValueFactory<TKey> : IPrincipalKeyValueFactory<TK
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual TKey CreateFromCurrentValues(IUpdateEntry entry)
-        => ((Func<InternalEntityEntry, TKey>)_propertyAccessors.CurrentValueGetter)((InternalEntityEntry)entry);
+        => ((Func<IInternalEntry, TKey>)_propertyAccessors.CurrentValueGetter)((IInternalEntry)entry);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

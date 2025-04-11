@@ -697,6 +697,11 @@ public class ModelValidator : IModelValidator
     {
         foreach (var complexProperty in complexType.GetComplexProperties())
         {
+            if (complexProperty.IsCollection)
+            {
+                continue;
+            }
+
             ValidateDiscriminatorValues(complexProperty.ComplexType);
         }
 
@@ -1006,6 +1011,12 @@ public class ModelValidator : IModelValidator
 
             foreach (var complexProperty in typeBase.GetDeclaredComplexProperties())
             {
+                if (complexProperty.IsCollection
+                    && !complexProperty.ClrType.GetGenericTypeImplementations(typeof(IList<>)).Any())
+                {
+                    throw new InvalidOperationException($"The complex collection '{complexProperty.DeclaringType.DisplayName()}'.'{complexProperty.Name}' is of type '{complexProperty.ClrType.ShortDisplayName()}', however it must be a type that implements 'IList<{complexProperty.ComplexType.ClrType.ShortDisplayName()}>'.");
+                }
+
                 Validate(complexProperty.ComplexType);
             }
         }

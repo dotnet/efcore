@@ -421,7 +421,7 @@ public class ModelBuilder : IInfrastructure<IConventionModelBuilder>
     ///     The same <see cref="ModelBuilder" /> instance so that additional configuration calls can be chained.
     /// </returns>
     public virtual ModelBuilder Ignore<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] TEntity>()
-        where TEntity : class
+        where TEntity : notnull
         => Ignore(typeof(TEntity));
 
     /// <summary>
