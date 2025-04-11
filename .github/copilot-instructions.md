@@ -44,7 +44,7 @@ If you are not sure, do not guess, just tell that you don't know or ask clarifyi
 - File scoped namespace declarations
 - Use `var` for local variables
 - Use expression-bodied members where appropriate
-- Use collection initializers when possible
+- Prefer using collection expressions when possible
 - Use `is` pattern matching instead of `as` and null checks
 - Prefer `switch` expressions over `switch` statements when appropriate
 - Prefer field-backed property declarations using field contextual keyword instead of an explicit field.

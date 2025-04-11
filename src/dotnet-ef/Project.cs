@@ -50,44 +50,53 @@ internal class Project
     {
         Debug.Assert(!string.IsNullOrEmpty(file), "file is null or empty.");
 
-        var args = new List<string>
+        IDictionary<string, string> metadata;
+        var metadataFile = Path.GetTempFileName();
+        try
         {
-            "msbuild",
-        };
+            var args = new List<string>
+            {
+                "msbuild",
+            };
 
-        if (framework != null)
-        {
-            args.Add($"/property:TargetFramework={framework}");
+            if (framework != null)
+            {
+                args.Add($"/property:TargetFramework={framework}");
+            }
+
+            if (configuration != null)
+            {
+                args.Add($"/property:Configuration={configuration}");
+            }
+
+            if (runtime != null)
+            {
+                args.Add($"/property:RuntimeIdentifier={runtime}");
+            }
+
+            foreach (var property in typeof(Project).GetProperties())
+            {
+                args.Add($"/getProperty:{property.Name}");
+            }
+
+            args.Add("/getProperty:Platform");
+
+            args.Add(file);
+
+            var output = new StringBuilder();
+
+            var exitCode = Exe.Run("dotnet", args, handleOutput: line => output.AppendLine(line));
+            if (exitCode != 0)
+            {
+                throw new CommandException(Resources.GetMetadataFailed);
+            }
+
+            metadata = JsonSerializer.Deserialize<Dictionary<string, Dictionary<string, string>>>(output.ToString())!["Properties"];
         }
-
-        if (configuration != null)
+        finally
         {
-            args.Add($"/property:Configuration={configuration}");
+            File.Delete(metadataFile);
         }
-
-        if (runtime != null)
-        {
-            args.Add($"/property:RuntimeIdentifier={runtime}");
-        }
-
-        foreach (var property in typeof(Project).GetProperties())
-        {
-            args.Add($"/getProperty:{property.Name}");
-        }
-
-        args.Add("/getProperty:Platform");
-
-        args.Add(file);
-
-        var output = new StringBuilder();
-
-        var exitCode = Exe.Run("dotnet", args, handleOutput: line => output.AppendLine(line));
-        if (exitCode != 0)
-        {
-            throw new CommandException(Resources.GetMetadataFailed);
-        }
-
-        var metadata = JsonSerializer.Deserialize<Dictionary<string, Dictionary<string, string>>>(output.ToString())!["Properties"];
 
         var platformTarget = metadata[nameof(PlatformTarget)];
         if (platformTarget.Length == 0)

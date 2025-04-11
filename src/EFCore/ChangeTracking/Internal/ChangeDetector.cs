@@ -38,7 +38,7 @@ public class ChangeDetector : IChangeDetector
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual void PropertyChanged(InternalEntityEntry entry, IPropertyBase propertyBase, bool setModified)
+    public virtual void PropertyChanged(IInternalEntry entry, IPropertyBase propertyBase, bool setModified)
     {
         if (entry.EntityState == EntityState.Detached
             || propertyBase is IServiceProperty)
@@ -62,16 +62,16 @@ public class ChangeDetector : IChangeDetector
         else if (propertyBase.GetRelationshipIndex() != -1
                  && propertyBase is INavigationBase navigation)
         {
-            DetectNavigationChange(entry, navigation);
+            DetectNavigationChange((InternalEntityEntry)entry, navigation);
         }
     }
 
-    private static void ThrowIfKeyChanged(InternalEntityEntry entry, IProperty property)
+    private static void ThrowIfKeyChanged(IInternalEntry entry, IProperty property)
     {
         if (property.IsKey()
             && property.GetAfterSaveBehavior() == PropertySaveBehavior.Throw)
         {
-            throw new InvalidOperationException(CoreStrings.KeyReadOnly(property.Name, entry.EntityType.DisplayName()));
+            throw new InvalidOperationException(CoreStrings.KeyReadOnly(property.Name, entry.StructuralType.DisplayName()));
         }
     }
 
@@ -81,7 +81,7 @@ public class ChangeDetector : IChangeDetector
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual void PropertyChanging(InternalEntityEntry entry, IPropertyBase propertyBase)
+    public virtual void PropertyChanging(IInternalEntry entry, IPropertyBase propertyBase)
     {
         if (entry.EntityState == EntityState.Detached
             || propertyBase is IServiceProperty)
@@ -89,7 +89,7 @@ public class ChangeDetector : IChangeDetector
             return;
         }
 
-        if (!entry.EntityType.UseEagerSnapshots())
+        if (!entry.StructuralType.UseEagerSnapshots())
         {
             if (propertyBase is IProperty asProperty
                 && asProperty.GetOriginalValueIndex() != -1)
@@ -99,7 +99,7 @@ public class ChangeDetector : IChangeDetector
 
             if (propertyBase.GetRelationshipIndex() != -1)
             {
-                entry.EnsureRelationshipSnapshot();
+                ((InternalEntityEntry)entry).EnsureRelationshipSnapshot();
             }
         }
     }
@@ -244,6 +244,17 @@ public class ChangeDetector : IChangeDetector
             }
         }
 
+        foreach (var complexProperty in entityType.GetComplexProperties())
+        {
+            if (complexProperty.IsCollection)
+            {
+                if (DetectComplexCollectionChanges(entry, complexProperty))
+                {
+                    changesFound = true;
+                }
+            }
+        }
+
         if (entry.HasRelationshipSnapshot)
         {
             foreach (var navigation in entityType.GetNavigations())
@@ -268,13 +279,104 @@ public class ChangeDetector : IChangeDetector
         return changesFound;
     }
 
+    private bool DetectComplexCollectionChanges(InternalEntryBase entry, IComplexProperty complexProperty)
+    {
+        Check.DebugAssert(complexProperty.IsCollection, "Complex collection expected.");
+
+        var changesFound = false;
+        var currentCollection = (IList?)entry[complexProperty];
+
+        // Process existing complex entries in the collection
+        if (currentCollection != null)
+        {
+            for (var i = 0; i < currentCollection.Count; i++)
+            {
+                var complexEntry = entry.GetComplexCollectionEntry(complexProperty, i);
+
+                // Recursively detect changes in each complex entry
+                if (DetectComplexEntryChanges(complexEntry))
+                {
+                    entry.OnComplexPropertyModified(complexProperty, true);
+                    changesFound = true;
+                }
+            }
+        }
+        else
+        {
+            // If the collection is null but we have tracked entries, mark them all as deleted
+            var trackedEntries = entry.GetComplexCollectionEntries(complexProperty);
+
+            foreach (var trackedEntry in trackedEntries)
+            {
+                entry.MarkDeletedComplexCollectionElement(complexProperty, trackedEntry);
+            }
+
+            entry.OnComplexPropertyModified(complexProperty, true);
+            changesFound = true;
+        }
+
+        // Process deleted entries separately
+        var deletedEntries = entry.GetDeletedComplexCollectionEntries(complexProperty);
+        if (deletedEntries.Count > 0)
+        {
+            entry.OnComplexPropertyModified(complexProperty, true);
+            changesFound = true;
+
+            // Recursively check deleted entries for changes
+            foreach (var deletedEntry in deletedEntries)
+            {
+                DetectComplexEntryChanges(deletedEntry);
+            }
+        }
+
+        return changesFound;
+    }
+
+    private bool DetectComplexEntryChanges(InternalComplexEntry complexEntry)
+    {
+        var changesFound = false;
+
+        // Check properties in the complex entry
+        foreach (var property in complexEntry.ComplexType.GetFlattenedProperties())
+        {
+            if (property.GetOriginalValueIndex() >= 0
+                && !complexEntry.IsModified(property)
+                && !complexEntry.IsConceptualNull(property))
+            {
+                if (DetectValueChange(complexEntry, property))
+                {
+                    changesFound = true;
+                }
+            }
+        }
+
+        // Check nested complex properties
+        foreach (var nestedComplexProperty in complexEntry.ComplexType.GetComplexProperties())
+        {
+            if (nestedComplexProperty.IsCollection)
+            {
+                if (DetectComplexCollectionChanges(complexEntry, nestedComplexProperty))
+                {
+                    changesFound = true;
+                }
+            }
+            else
+            {
+                // For non-collection complex properties, we would need to handle them appropriately
+                // This is not covered in this implementation
+            }
+        }
+
+        return changesFound;
+    }
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public bool DetectValueChange(InternalEntityEntry entry, IProperty property)
+    public bool DetectValueChange(IInternalEntry entry, IProperty property)
     {
         var current = entry[property];
         var original = entry.GetOriginalValue(property);
@@ -296,27 +398,42 @@ public class ChangeDetector : IChangeDetector
         return false;
     }
 
-    private void LogChangeDetected(InternalEntityEntry entry, IProperty property, object? original, object? current)
+    private void LogChangeDetected(IInternalEntry entry, IProperty property, object? original, object? current)
     {
         if (_loggingOptions.IsSensitiveDataLoggingEnabled)
         {
-            _logger.PropertyChangeDetectedSensitive(entry, property, original, current);
+            if(entry is InternalEntityEntry entityEntry)
+            {
+                _logger.PropertyChangeDetectedSensitive(entityEntry, property, original, current);
+            }
+            else
+            {
+                _logger.ComplexTypePropertyChangeDetectedSensitive((InternalComplexEntry)entry, property, original, current);
+            }
         }
         else
         {
-            _logger.PropertyChangeDetected(entry, property, original, current);
+            if (entry is InternalEntityEntry entityEntry)
+            {
+                _logger.PropertyChangeDetected(entityEntry, property, original, current);
+            }
+            else
+            {
+                _logger.ComplexTypePropertyChangeDetected((InternalComplexEntry)entry, property, original, current);
+            }
         }
     }
 
-    private bool DetectKeyChange(InternalEntityEntry entry, IProperty property)
+    private bool DetectKeyChange(IInternalEntry entry, IProperty property)
     {
         if (property.GetRelationshipIndex() < 0)
         {
             return false;
         }
 
-        var snapshotValue = entry.GetRelationshipSnapshotValue(property);
-        var currentValue = entry[property];
+        var entityEntry = (InternalEntityEntry)entry;
+        var snapshotValue = entityEntry.GetRelationshipSnapshotValue(property);
+        var currentValue = entityEntry[property];
 
         var comparer = property.GetKeyValueComparer();
 
@@ -326,19 +443,19 @@ public class ChangeDetector : IChangeDetector
         {
             var keys = property.GetContainingKeys();
             var foreignKeys = property.GetContainingForeignKeys()
-                .Where(fk => fk.DeclaringEntityType.IsAssignableFrom(entry.EntityType));
+                .Where(fk => fk.DeclaringEntityType.IsAssignableFrom(entry.StructuralType));
 
             if (_loggingOptions.IsSensitiveDataLoggingEnabled)
             {
-                _logger.ForeignKeyChangeDetectedSensitive(entry, property, snapshotValue, currentValue);
+                _logger.ForeignKeyChangeDetectedSensitive(entityEntry, property, snapshotValue, currentValue);
             }
             else
             {
-                _logger.ForeignKeyChangeDetected(entry, property, snapshotValue, currentValue);
+                _logger.ForeignKeyChangeDetected(entityEntry, property, snapshotValue, currentValue);
             }
 
             entry.StateManager.InternalEntityEntryNotifier.KeyPropertyChanged(
-                entry, property, keys, foreignKeys, snapshotValue, currentValue);
+                entityEntry, property, keys, foreignKeys, snapshotValue, currentValue);
 
             return true;
         }

@@ -108,7 +108,7 @@ public class ArrayPropertyValues : PropertyValues
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public override IReadOnlyList<IProperty> Properties
-        => _properties ??= EntityType.GetFlattenedProperties().ToList();
+        => _properties ??= [.. EntityType.GetFlattenedProperties()];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
