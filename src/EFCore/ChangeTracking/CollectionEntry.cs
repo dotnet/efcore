@@ -109,8 +109,7 @@ public class CollectionEntry : NavigationEntry
 
             if (Metadata is ISkipNavigation skipNavigation)
             {
-                if (InternalEntry.EntityState != EntityState.Unchanged
-                    && InternalEntry.EntityState != EntityState.Detached)
+                if (InternalEntityEntry.EntityState is not EntityState.Unchanged and not EntityState.Detached)
                 {
                     return true;
                 }
@@ -122,11 +121,11 @@ public class CollectionEntry : NavigationEntry
                 {
                     if (joinEntry.EntityType == joinEntityType
                         && stateManager.FindPrincipal(joinEntry, foreignKey) == InternalEntry
-                        && (joinEntry.EntityState == EntityState.Added
-                            || joinEntry.EntityState == EntityState.Deleted
+                        && (joinEntry.EntityState is EntityState.Added
+                            || joinEntry.EntityState is EntityState.Deleted
                             || foreignKey.Properties.Any(joinEntry.IsModified)
                             || inverseForeignKey.Properties.Any(joinEntry.IsModified)
-                            || (stateManager.FindPrincipal(joinEntry, inverseForeignKey)?.EntityState == EntityState.Deleted)))
+                            || (stateManager.FindPrincipal(joinEntry, inverseForeignKey)?.EntityState is EntityState.Deleted)))
                     {
                         return true;
                     }
@@ -231,7 +230,7 @@ public class CollectionEntry : NavigationEntry
 
         if (!IsLoaded)
         {
-            TargetLoader.Load(InternalEntry, options);
+            TargetLoader.Load(InternalEntityEntry, options);
         }
     }
 
@@ -279,7 +278,7 @@ public class CollectionEntry : NavigationEntry
 
         return IsLoaded
             ? Task.CompletedTask
-            : TargetLoader.LoadAsync(InternalEntry, options, cancellationToken);
+            : TargetLoader.LoadAsync(InternalEntityEntry, options, cancellationToken);
     }
 
     /// <summary>
@@ -300,11 +299,11 @@ public class CollectionEntry : NavigationEntry
     {
         EnsureInitialized();
 
-        return TargetLoader.Query(InternalEntry);
+        return TargetLoader.Query(InternalEntityEntry);
     }
 
     private void EnsureInitialized()
-        => InternalEntry.GetOrCreateCollection(Metadata, forMaterialization: true);
+        => InternalEntityEntry.GetOrCreateCollection(Metadata, forMaterialization: true);
 
     /// <summary>
     ///     The <see cref="EntityEntry" /> of an entity this navigation targets.
@@ -332,7 +331,7 @@ public class CollectionEntry : NavigationEntry
     [EntityFrameworkInternal]
     protected virtual InternalEntityEntry? GetInternalTargetEntry(object entity)
         => CurrentValue == null
-            || !InternalEntry.CollectionContains(Metadata, entity)
+            || !InternalEntityEntry.CollectionContains(Metadata, entity)
                 ? null
                 : InternalEntry.StateManager.GetOrCreateEntry(entity, Metadata.TargetEntityType);
 

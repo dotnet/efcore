@@ -86,8 +86,9 @@ If you are not sure, do not guess, just tell that you don't know or ask clarifyi
 
 - Follow the existing test patterns in the corresponding test projects
 - Create both unit tests and functional tests where appropriate
-- Add or modify `SQL` and `C#` baselines for tests when necessary
-- When running the tests specify the test project and let it be rebuilt. 
+- Fix `SQL` and `C#` baselines for tests when necessary by setting the `EF_TEST_REWRITE_BASELINES` env var to `1`
+- Before building or running the tests execute `restore.cmd` or `restore.sh` and `activate.ps1` or `activate.sh` to set up the environment
+- When running the tests specify the test project and let it be rebuilt by not adding `--no-build`
 
 ## Documentation
 
