@@ -416,13 +416,13 @@ public class ModelBuilder : IInfrastructure<IConventionModelBuilder>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types</see> for more information and examples.
     /// </remarks>
-    /// <typeparam name="TEntity">The entity type to be removed from the model.</typeparam>
+    /// <typeparam name="TStructural">The entity type to be removed from the model.</typeparam>
     /// <returns>
     ///     The same <see cref="ModelBuilder" /> instance so that additional configuration calls can be chained.
     /// </returns>
-    public virtual ModelBuilder Ignore<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] TEntity>()
-        where TEntity : class
-        => Ignore(typeof(TEntity));
+    public virtual ModelBuilder Ignore<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] TStructural>()
+        where TStructural : notnull
+        => Ignore(typeof(TStructural));
 
     /// <summary>
     ///     Excludes an entity type with given CLR type from the model. This method is typically used to remove types from

@@ -100,6 +100,11 @@ public class RuntimeSkipNavigation : RuntimePropertyBase, IRuntimeSkipNavigation
     [DisallowNull]
     public virtual RuntimeSkipNavigation? Inverse { get; set; }
 
+    /// <summary>
+    ///     Gets a value indicating whether the property is a collection.
+    /// </summary>
+    public override bool IsCollection => _isCollection;
+
     /// <inheritdoc />
     public override object? Sentinel
         => null;
@@ -121,7 +126,7 @@ public class RuntimeSkipNavigation : RuntimePropertyBase, IRuntimeSkipNavigation
         where TCollection : class, IEnumerable<TElement>
         where TElement : class
     {
-        _collectionAccessor = new ClrICollectionAccessor<TEntity, TCollection, TElement>(
+        _collectionAccessor = new ClrCollectionAccessor<TEntity, TCollection, TElement>(
             Name,
             ((ISkipNavigation)this).IsShadowProperty(),
             getCollection,
@@ -184,13 +189,6 @@ public class RuntimeSkipNavigation : RuntimePropertyBase, IRuntimeSkipNavigation
     {
         [DebuggerStepThrough]
         get => _isOnDependent;
-    }
-
-    /// <inheritdoc />
-    bool IReadOnlyNavigationBase.IsCollection
-    {
-        [DebuggerStepThrough]
-        get => _isCollection;
     }
 
     /// <inheritdoc />

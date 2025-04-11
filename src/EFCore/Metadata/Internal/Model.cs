@@ -321,6 +321,13 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
         EnsureMutable();
         AssertCanRemove(entityType);
 
+        foreach (var complexProperty in entityType.GetDeclaredComplexProperties())
+        {
+            Check.DebugAssert(complexProperty.IsInModel, $"IsInModel is false for {complexProperty}");
+
+            complexProperty.SetRemovedFromModel();
+        }
+
         if (_sharedTypes.TryGetValue(entityType.ClrType, out var existingTypes))
         {
             existingTypes.Types.Remove(entityType);

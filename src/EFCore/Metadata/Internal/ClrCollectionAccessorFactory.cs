@@ -115,7 +115,7 @@ public class ClrCollectionAccessorFactory
             out var createAndSetCollection,
             out var createCollection);
 
-        return new ClrICollectionAccessor<TEntity, TCollection, TElement>(
+        return new ClrCollectionAccessor<TEntity, TCollection, TElement>(
             navigation.Name,
             navigation.IsShadowProperty(),
             getCollection?.Compile(),

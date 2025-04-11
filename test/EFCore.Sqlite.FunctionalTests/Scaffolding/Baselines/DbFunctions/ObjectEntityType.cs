@@ -40,14 +40,15 @@ namespace TestNamespace
                 ISnapshot () => Snapshot.Empty);
             runtimeEntityType.SetRelationshipSnapshotFactory(
                 ISnapshot (IInternalEntry source) => Snapshot.Empty);
-            runtimeEntityType.Counts = new PropertyCounts(
+            runtimeEntityType.SetCounts(new PropertyCounts(
                 propertyCount: 0,
                 navigationCount: 0,
                 complexPropertyCount: 0,
+                complexCollectionCount: 0,
                 originalValueCount: 0,
                 shadowCount: 0,
                 relationshipCount: 0,
-                storeGeneratedCount: 0);
+                storeGeneratedCount: 0));
             runtimeEntityType.AddAnnotation("Relational:FunctionName", "GetBlobs()");
             runtimeEntityType.AddAnnotation("Relational:Schema", null);
             runtimeEntityType.AddAnnotation("Relational:SqlQuery", null);

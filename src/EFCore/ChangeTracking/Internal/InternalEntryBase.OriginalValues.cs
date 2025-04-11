@@ -5,13 +5,13 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
-public sealed partial class InternalEntityEntry
+public partial class InternalEntryBase
 {
-    private readonly struct OriginalValues(IInternalEntry entry)
+    private readonly struct OriginalValues(InternalEntryBase entry)
     {
-        private readonly ISnapshot _values = ((IRuntimeEntityType)entry.StructuralType.ContainingEntityType).OriginalValuesFactory((InternalEntityEntry)entry);
+        private readonly ISnapshot _values = entry.StructuralType.OriginalValuesFactory(entry);
 
-        public object? GetValue(IInternalEntry entry, IProperty property)
+        public object? GetValue(IInternalEntry entry, IPropertyBase property)
             => property.GetOriginalValueIndex() is var index && index == -1
                 ? throw new InvalidOperationException(
                     CoreStrings.OriginalValueNotTracked(property.Name, property.DeclaringType.DisplayName()))
@@ -19,7 +19,7 @@ public sealed partial class InternalEntityEntry
                     ? entry[property]
                     : _values[index];
 
-        public T GetValue<T>(IInternalEntry entry, IProperty property, int index)
+        public T GetValue<T>(IInternalEntry entry, IPropertyBase property, int index)
             => index == -1
                 ? throw new InvalidOperationException(
                     CoreStrings.OriginalValueNotTracked(property.Name, property.DeclaringType.DisplayName()))
@@ -27,7 +27,7 @@ public sealed partial class InternalEntityEntry
                     ? entry.GetCurrentValue<T>(property)
                     : _values.GetValue<T>(index);
 
-        public void SetValue(IProperty property, object? value, int index)
+        public void SetValue(IPropertyBase property, object? value, int index)
         {
             Check.DebugAssert(!IsEmpty, "Original values are empty");
 
@@ -87,8 +87,10 @@ public sealed partial class InternalEntityEntry
             }
         }
 
-        private static object? SnapshotValue(IProperty property, object? value)
-            => property.GetValueComparer().Snapshot(value);
+        private static object? SnapshotValue(IPropertyBase propertyBase, object? value)
+         => propertyBase is IProperty property
+           ? property.GetValueComparer().Snapshot(value)
+           : value;
 
         public bool IsEmpty
             => _values == null;

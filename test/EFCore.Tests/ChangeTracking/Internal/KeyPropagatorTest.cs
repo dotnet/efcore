@@ -82,6 +82,7 @@ public class KeyPropagatorTest
 
         var contextServices = CreateContextServices(model);
         var dependentEntry = contextServices.GetRequiredService<IStateManager>().GetOrCreateEntry(dependent);
+        model = contextServices.GetRequiredService<IModel>();
         var property = model.FindEntityType(typeof(Product))!.FindProperty("CategoryId")!;
         var keyPropagator = contextServices.GetRequiredService<IKeyPropagator>();
 
@@ -161,6 +162,7 @@ public class KeyPropagatorTest
 
         var contextServices = CreateContextServices(model);
         var dependentEntry = contextServices.GetRequiredService<IStateManager>().GetOrCreateEntry(dependent);
+        model = contextServices.GetRequiredService<IModel>();
         var property = model.FindEntityType(typeof(ProductDetail))!.FindProperty("Id")!;
         var keyPropagator = contextServices.GetRequiredService<IKeyPropagator>();
 

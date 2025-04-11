@@ -218,11 +218,11 @@ public partial class DbContextTest
         {
         }
 
-        public void PropertyChanged(InternalEntityEntry entry, IPropertyBase property, bool setModifed)
+        public void PropertyChanged(IInternalEntry entry, IPropertyBase property, bool setModifed)
         {
         }
 
-        public void PropertyChanging(InternalEntityEntry entry, IPropertyBase property)
+        public void PropertyChanging(IInternalEntry entry, IPropertyBase property)
         {
         }
 

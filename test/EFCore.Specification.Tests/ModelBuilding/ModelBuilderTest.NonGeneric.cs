@@ -172,14 +172,16 @@ public abstract partial class ModelBuilderTest
         public override TestComplexCollectionBuilder<TElement> ComplexCollection<TProperty, TElement>(string propertyName, string complexTypeName)
             => Wrap<TElement>(EntityTypeBuilder.ComplexCollection<TProperty, TElement>(propertyName, complexTypeName));
 
-        public override TestComplexCollectionBuilder<TElement> ComplexCollection<TElement>(Expression<Func<TEntity, IEnumerable<TElement>?>> propertyExpression)
+        public override TestComplexCollectionBuilder<TElement> ComplexCollection<TElement>(Expression<Func<TEntity, IEnumerable<TElement?>?>> propertyExpression)
+            where TElement : default
         {
             var memberInfo = propertyExpression.GetMemberAccess();
             return Wrap<TElement>(EntityTypeBuilder.ComplexCollection(memberInfo.GetMemberType(), memberInfo.GetSimpleMemberName()));
         }
 
         public override TestComplexCollectionBuilder<TElement> ComplexCollection<TElement>(
-            Expression<Func<TEntity, IEnumerable<TElement>?>> propertyExpression, string complexTypeName)
+            Expression<Func<TEntity, IEnumerable<TElement?>?>> propertyExpression, string complexTypeName)
+            where TElement : default
         {
             var memberInfo = propertyExpression.GetMemberAccess();
             return Wrap<TElement>(EntityTypeBuilder.ComplexCollection(memberInfo.GetMemberType(), memberInfo.GetSimpleMemberName(), complexTypeName));
@@ -200,7 +202,8 @@ public abstract partial class ModelBuilderTest
         }
 
         public override TestEntityTypeBuilder<TEntity> ComplexCollection<TElement>(
-            Expression<Func<TEntity, IEnumerable<TElement>?>> propertyExpression, Action<TestComplexCollectionBuilder<TElement>> buildAction)
+            Expression<Func<TEntity, IEnumerable<TElement?>?>> propertyExpression, Action<TestComplexCollectionBuilder<TElement>> buildAction)
+            where TElement : default
         {
             var memberInfo = propertyExpression.GetMemberAccess();
             buildAction(Wrap<TElement>(EntityTypeBuilder.ComplexCollection(memberInfo.GetMemberType(), memberInfo.GetSimpleMemberName())));
@@ -208,7 +211,8 @@ public abstract partial class ModelBuilderTest
         }
 
         public override TestEntityTypeBuilder<TEntity> ComplexCollection<TElement>(
-            Expression<Func<TEntity, IEnumerable<TElement>?>> propertyExpression, string complexTypeName, Action<TestComplexCollectionBuilder<TElement>> buildAction)
+            Expression<Func<TEntity, IEnumerable<TElement?>?>> propertyExpression, string complexTypeName, Action<TestComplexCollectionBuilder<TElement>> buildAction)
+            where TElement : default
         {
             var memberInfo = propertyExpression.GetMemberAccess();
             buildAction(Wrap<TElement>(EntityTypeBuilder.ComplexCollection(memberInfo.GetMemberType(), memberInfo.GetSimpleMemberName(), complexTypeName)));
@@ -562,14 +566,16 @@ public abstract partial class ModelBuilderTest
             => Wrap<TElement>(PropertyBuilder.ComplexCollection<TProperty, TElement>(propertyName, complexTypeName));
 
         public override TestComplexCollectionBuilder<TElement> ComplexCollection<TElement>(
-            Expression<Func<TComplex, IEnumerable<TElement>?>> propertyExpression)
+            Expression<Func<TComplex, IEnumerable<TElement?>?>> propertyExpression)
+            where TElement : default
         {
             var memberInfo = propertyExpression.GetMemberAccess();
             return Wrap<TElement>(PropertyBuilder.ComplexCollection(memberInfo.GetMemberType(), memberInfo.GetSimpleMemberName()));
         }
 
         public override TestComplexCollectionBuilder<TElement> ComplexCollection<TElement>(
-            Expression<Func<TComplex, IEnumerable<TElement>?>> propertyExpression, string complexTypeName)
+            Expression<Func<TComplex, IEnumerable<TElement?>?>> propertyExpression, string complexTypeName)
+            where TElement : default
         {
             var memberInfo = propertyExpression.GetMemberAccess();
             return Wrap<TElement>(PropertyBuilder.ComplexCollection(memberInfo.GetMemberType(), memberInfo.GetSimpleMemberName(), complexTypeName));
@@ -590,7 +596,8 @@ public abstract partial class ModelBuilderTest
         }
 
         public override TestComplexPropertyBuilder<TComplex> ComplexCollection<TElement>(
-            Expression<Func<TComplex, IEnumerable<TElement>?>> propertyExpression, Action<TestComplexCollectionBuilder<TElement>> buildAction)
+            Expression<Func<TComplex, IEnumerable<TElement?>?>> propertyExpression, Action<TestComplexCollectionBuilder<TElement>> buildAction)
+            where TElement : default
         {
             var memberInfo = propertyExpression.GetMemberAccess();
             buildAction(Wrap<TElement>(PropertyBuilder.ComplexCollection(memberInfo.GetMemberType(), memberInfo.GetSimpleMemberName())));
@@ -598,7 +605,8 @@ public abstract partial class ModelBuilderTest
         }
 
         public override TestComplexPropertyBuilder<TComplex> ComplexCollection<TElement>(
-            Expression<Func<TComplex, IEnumerable<TElement>?>> propertyExpression, string complexTypeName, Action<TestComplexCollectionBuilder<TElement>> buildAction)
+            Expression<Func<TComplex, IEnumerable<TElement?>?>> propertyExpression, string complexTypeName, Action<TestComplexCollectionBuilder<TElement>> buildAction)
+            where TElement : default
         {
             var memberInfo = propertyExpression.GetMemberAccess();
             buildAction(Wrap<TElement>(PropertyBuilder.ComplexCollection(memberInfo.GetMemberType(), memberInfo.GetSimpleMemberName(), complexTypeName)));
@@ -750,14 +758,16 @@ public abstract partial class ModelBuilderTest
         public override TestComplexCollectionBuilder<TElement> ComplexCollection<TProperty, TElement>(string propertyName, string complexTypeName)
             => Wrap<TElement>(PropertyBuilder.ComplexCollection<TProperty, TElement>(propertyName, complexTypeName));
 
-        public override TestComplexCollectionBuilder<TElement> ComplexCollection<TElement>(Expression<Func<TComplex, IEnumerable<TElement>?>> propertyExpression)
+        public override TestComplexCollectionBuilder<TElement> ComplexCollection<TElement>(Expression<Func<TComplex, IEnumerable<TElement?>?>> propertyExpression)
+            where TElement : default
         {
             var memberInfo = propertyExpression.GetMemberAccess();
             return Wrap<TElement>(PropertyBuilder.ComplexCollection(memberInfo.GetMemberType(), memberInfo.GetSimpleMemberName()));
         }
 
         public override TestComplexCollectionBuilder<TElement> ComplexCollection<TElement>(
-            Expression<Func<TComplex, IEnumerable<TElement>?>> propertyExpression, string complexTypeName)
+            Expression<Func<TComplex, IEnumerable<TElement?>?>> propertyExpression, string complexTypeName)
+            where TElement : default
         {
             var memberInfo = propertyExpression.GetMemberAccess();
             return Wrap<TElement>(PropertyBuilder.ComplexCollection(memberInfo.GetMemberType(), memberInfo.GetSimpleMemberName(), complexTypeName));
@@ -778,7 +788,8 @@ public abstract partial class ModelBuilderTest
         }
 
         public override TestComplexCollectionBuilder<TComplex> ComplexCollection<TElement>(
-            Expression<Func<TComplex, IEnumerable<TElement>?>> propertyExpression, Action<TestComplexCollectionBuilder<TElement>> buildAction)
+            Expression<Func<TComplex, IEnumerable<TElement?>?>> propertyExpression, Action<TestComplexCollectionBuilder<TElement>> buildAction)
+            where TElement : default
         {
             var memberInfo = propertyExpression.GetMemberAccess();
             buildAction(Wrap<TElement>(PropertyBuilder.ComplexCollection(memberInfo.GetMemberType(), memberInfo.GetSimpleMemberName())));
@@ -786,7 +797,8 @@ public abstract partial class ModelBuilderTest
         }
 
         public override TestComplexCollectionBuilder<TComplex> ComplexCollection<TElement>(
-            Expression<Func<TComplex, IEnumerable<TElement>?>> propertyExpression, string complexTypeName, Action<TestComplexCollectionBuilder<TElement>> buildAction)
+            Expression<Func<TComplex, IEnumerable<TElement?>?>> propertyExpression, string complexTypeName, Action<TestComplexCollectionBuilder<TElement>> buildAction)
+            where TElement : default
         {
             var memberInfo = propertyExpression.GetMemberAccess();
             buildAction(Wrap<TElement>(PropertyBuilder.ComplexCollection(memberInfo.GetMemberType(), memberInfo.GetSimpleMemberName(), complexTypeName)));

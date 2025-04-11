@@ -44,7 +44,7 @@ namespace TestNamespace
                 int (IInternalEntry entry) => entry.ReadShadowValue<int>(0),
                 int (IInternalEntry entry) => entry.ReadShadowValue<int>(0),
                 int (IInternalEntry entry) => entry.ReadOriginalValue<int>(id, 0),
-                int (IInternalEntry entry) => entry.ReadRelationshipSnapshotValue<int>(id, 0));
+                int (IInternalEntry entry) => ((InternalEntityEntry)(entry)).ReadRelationshipSnapshotValue<int>(id, 0));
             id.SetPropertyIndexes(
                 index: 0,
                 originalValueIndex: 0,
@@ -77,7 +77,7 @@ namespace TestNamespace
                 long? (IInternalEntry entry) => entry.ReadShadowValue<long?>(1),
                 long? (IInternalEntry entry) => entry.ReadShadowValue<long?>(1),
                 long? (IInternalEntry entry) => entry.ReadOriginalValue<long?>(partitionId, 1),
-                long? (IInternalEntry entry) => entry.ReadRelationshipSnapshotValue<long?>(partitionId, 1));
+                long? (IInternalEntry entry) => ((InternalEntityEntry)(entry)).ReadRelationshipSnapshotValue<long?>(partitionId, 1));
             partitionId.SetPropertyIndexes(
                 index: 1,
                 originalValueIndex: 1,
@@ -125,8 +125,8 @@ namespace TestNamespace
             blob.SetMaterializationSetter(
                 (CompiledModelTestBase.Data entity, byte[] value) => DataUnsafeAccessors.Blob(entity) = value);
             blob.SetAccessors(
-                byte[] (IInternalEntry entry) => DataUnsafeAccessors.Blob(((CompiledModelTestBase.Data)(entry.Object))),
-                byte[] (IInternalEntry entry) => DataUnsafeAccessors.Blob(((CompiledModelTestBase.Data)(entry.Object))),
+                byte[] (IInternalEntry entry) => DataUnsafeAccessors.Blob(((CompiledModelTestBase.Data)(entry.Entity))),
+                byte[] (IInternalEntry entry) => DataUnsafeAccessors.Blob(((CompiledModelTestBase.Data)(entry.Entity))),
                 byte[] (IInternalEntry entry) => entry.ReadOriginalValue<byte[]>(blob, 2),
                 byte[] (IInternalEntry entry) => entry.GetCurrentValue<byte[]>(blob));
             blob.SetPropertyIndexes(
@@ -401,7 +401,7 @@ namespace TestNamespace
             runtimeEntityType.SetOriginalValuesFactory(
                 ISnapshot (IInternalEntry source) =>
                 {
-                    var entity = ((CompiledModelTestBase.Data)(source.Object));
+                    var entity = ((CompiledModelTestBase.Data)(source.Entity));
                     return ((ISnapshot)(new Snapshot<int, long?, byte[], ReadOnlyMemory<byte>, List<Dictionary<string, int>>, Dictionary<string, string[]>, string, JObject, string>(((ValueComparer<int>)(((IProperty)id).GetValueComparer())).Snapshot(source.GetCurrentValue<int>(id)), (source.GetCurrentValue<long?>(partitionId) == null ? null : ((ValueComparer<long?>)(((IProperty)partitionId).GetValueComparer())).Snapshot(source.GetCurrentValue<long?>(partitionId))), (source.GetCurrentValue<byte[]>(blob) == null ? null : ((ValueComparer<byte[]>)(((IProperty)blob).GetValueComparer())).Snapshot(source.GetCurrentValue<byte[]>(blob))), ((ValueComparer<ReadOnlyMemory<byte>>)(((IProperty)bytes).GetValueComparer())).Snapshot(source.GetCurrentValue<ReadOnlyMemory<byte>>(bytes)), (((object)(source.GetCurrentValue<List<Dictionary<string, int>>>(list))) == null ? null : ((List<Dictionary<string, int>>)(((ValueComparer<object>)(((IProperty)list).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<List<Dictionary<string, int>>>(list))))))), (((object)(source.GetCurrentValue<Dictionary<string, string[]>>(map))) == null ? null : ((Dictionary<string, string[]>)(((ValueComparer<object>)(((IProperty)map).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<Dictionary<string, string[]>>(map))))))), (source.GetCurrentValue<string>(__id) == null ? null : ((ValueComparer<string>)(((IProperty)__id).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(__id))), (source.GetCurrentValue<JObject>(__jObject) == null ? null : ((ValueComparer<JObject>)(((IProperty)__jObject).GetValueComparer())).Snapshot(source.GetCurrentValue<JObject>(__jObject))), (source.GetCurrentValue<string>(_etag) == null ? null : ((ValueComparer<string>)(((IProperty)_etag).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(_etag))))));
                 });
             runtimeEntityType.SetStoreGeneratedValuesFactory(
@@ -415,17 +415,18 @@ namespace TestNamespace
             runtimeEntityType.SetRelationshipSnapshotFactory(
                 ISnapshot (IInternalEntry source) =>
                 {
-                    var entity = ((CompiledModelTestBase.Data)(source.Object));
+                    var entity = ((CompiledModelTestBase.Data)(source.Entity));
                     return ((ISnapshot)(new Snapshot<int, long?>(((ValueComparer<int>)(((IProperty)id).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<int>(id)), (source.GetCurrentValue<long?>(partitionId) == null ? null : ((ValueComparer<long?>)(((IProperty)partitionId).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<long?>(partitionId))))));
                 });
-            runtimeEntityType.Counts = new PropertyCounts(
+            runtimeEntityType.SetCounts(new PropertyCounts(
                 propertyCount: 9,
                 navigationCount: 0,
                 complexPropertyCount: 0,
+                complexCollectionCount: 0,
                 originalValueCount: 9,
                 shadowCount: 8,
                 relationshipCount: 2,
-                storeGeneratedCount: 2);
+                storeGeneratedCount: 2));
             runtimeEntityType.AddAnnotation("Cosmos:ContainerName", "DataContainer");
             runtimeEntityType.AddAnnotation("Cosmos:ETagName", "_etag");
             runtimeEntityType.AddAnnotation("Cosmos:PartitionKeyNames", new List<string> { "PartitionId" });

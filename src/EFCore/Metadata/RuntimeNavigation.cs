@@ -75,6 +75,14 @@ public class RuntimeNavigation : RuntimePropertyBase, IRuntimeNavigation
     public override RuntimeTypeBase DeclaringType
         => DeclaringEntityType;
 
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public override bool IsCollection => !((IReadOnlyNavigation)this).IsOnDependent && !((IReadOnlyForeignKey)ForeignKey).IsUnique;
+
     /// <inheritdoc />
     public override object? Sentinel
         => null;
@@ -96,7 +104,7 @@ public class RuntimeNavigation : RuntimePropertyBase, IRuntimeNavigation
         where TCollection : class, IEnumerable<TElement>
         where TElement : class
     {
-        _collectionAccessor = new ClrICollectionAccessor<TEntity, TCollection, TElement>(
+        _collectionAccessor = new ClrCollectionAccessor<TEntity, TCollection, TElement>(
             Name,
             ((INavigation)this).IsShadowProperty(),
             getCollection,

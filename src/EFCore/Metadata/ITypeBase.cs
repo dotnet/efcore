@@ -23,6 +23,12 @@ public interface ITypeBase : IReadOnlyTypeBase, IAnnotatable
         => (IEntityType)this;
 
     /// <summary>
+    ///     Gets the containing entity type or the element type of the closest complex collection property in the complex property chain from the containing entity type.
+    /// </summary>
+    new ITypeBase ContainingType
+        => this;
+
+    /// <summary>
     ///     Gets the base type of this type. Returns <see langword="null" /> if this is not a derived type in an inheritance
     ///     hierarchy.
     /// </summary>

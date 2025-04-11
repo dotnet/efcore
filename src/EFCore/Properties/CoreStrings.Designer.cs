@@ -2170,6 +2170,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 property, entityType, type);
 
         /// <summary>
+        ///     The complex collection '{entityType}'.'{name}' is of type '{type}' which does not implement '{listInterface}'.
+        /// </summary>
+        public static string NonListCollection(object? entityType, object? name, object? type, object? listInterface)
+            => string.Format(
+                GetString("NonListCollection", nameof(entityType), nameof(name), nameof(type), nameof(listInterface)),
+                entityType, name, type, listInterface);
+
+        /// <summary>
         ///     The collection type '{2_collectionType}' being used for navigation '{1_entityType}.{0_navigation}' does not implement 'INotifyCollectionChanged'. Any entity type configured to use the '{changeTrackingStrategy}' change tracking strategy must use collections that implement 'INotifyCollectionChanged'. Consider using 'ObservableCollection&lt;T&gt;' for this.
         /// </summary>
         public static string NonNotifyingCollection(object? navigation, object? entityType, object? collectionType, object? changeTrackingStrategy)

@@ -86,6 +86,9 @@ public abstract class RuntimePropertyBase : RuntimeAnnotatableBase, IRuntimeProp
     /// <inheritdoc />
     public abstract object? Sentinel { get; }
 
+    /// <inheritdoc />
+    public abstract bool IsCollection { get; }
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -114,6 +117,7 @@ public abstract class RuntimePropertyBase : RuntimeAnnotatableBase, IRuntimeProp
         Func<IInternalEntry, TProperty>? originalValueGetter,
         Func<IInternalEntry, TProperty> relationshipSnapshotGetter)
         => _accessors = new PropertyAccessors(
+            this,
             currentValueGetter,
             preStoreGeneratedCurrentValueGetter,
             originalValueGetter,
@@ -148,13 +152,13 @@ public abstract class RuntimePropertyBase : RuntimeAnnotatableBase, IRuntimeProp
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    public virtual void SetGetter<TEntity, TStructuralType, TValue>(
+    public virtual void SetGetter<TEntity, TStructural, TValue>(
         Func<TEntity, TValue> getter,
         Func<TEntity, bool> hasDefaultValue,
-        Func<TStructuralType, TValue> structuralTypeGetter,
-        Func<TStructuralType, bool> hasStructuralTypeSentinelValue)
+        Func<TStructural, TValue> structuralTypeGetter,
+        Func<TStructural, bool> hasStructuralTypeSentinelValue)
         where TEntity : class
-        => _getter = new ClrPropertyGetter<TEntity, TStructuralType, TValue>(
+        => _getter = new ClrPropertyGetter<TEntity, TStructural, TValue>(
             getter, hasDefaultValue, structuralTypeGetter, hasStructuralTypeSentinelValue);
 
     /// <summary>
@@ -202,10 +206,7 @@ public abstract class RuntimePropertyBase : RuntimeAnnotatableBase, IRuntimeProp
     {
         get => NonCapturingLazyInitializer.EnsureInitialized(
             ref _indexes, this,
-            static property =>
-            {
-                _ = ((IRuntimeEntityType)((IRuntimeTypeBase)property.DeclaringType).ContainingEntityType).Counts;
-            });
+            static property => ((IRuntimeEntityType)((IRuntimeTypeBase)property.DeclaringType).ContainingEntityType).CalculateCounts());
         set => NonCapturingLazyInitializer.EnsureInitialized(ref _indexes, value);
     }
 

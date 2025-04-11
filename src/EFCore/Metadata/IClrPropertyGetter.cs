@@ -27,11 +27,11 @@ public interface IClrPropertyGetter
     object? GetClrValueUsingContainingEntity(object entity);
 
     /// <summary>
-    ///     Checks whether or not the property is set to the CLR default for its type.
+    ///     Checks whether or not the property from the containing entity instance is set to the CLR default for its type.
     /// </summary>
     /// <param name="entity">The entity instance.</param>
     /// <returns><see langword="true" /> if the property value is the CLR default; <see langword="false" /> it is any other value.</returns>
-    bool HasSentinelUsingContainingEntity(object entity);
+    bool HasSentinelValueUsingContainingEntity(object entity);
 
     /// <summary>
     ///     Gets the property value from the declaring type.
@@ -45,5 +45,5 @@ public interface IClrPropertyGetter
     /// </summary>
     /// <param name="structuralObject">The entity or complex type instance.</param>
     /// <returns><see langword="true" /> if the property value is the CLR default; <see langword="false" /> it is any other value.</returns>
-    bool HasSentinel(object structuralObject);
+    bool HasSentinelValue(object structuralObject);
 }

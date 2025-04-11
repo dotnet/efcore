@@ -64,13 +64,13 @@ namespace TestNamespace
                     else
                     {
                         {
-                            if (entry.FlaggedAsTemporary(0) && (((IDictionary<string, object>)((Dictionary<string, object>)(entry.Object))).ContainsKey("DerivedsId") ? ((Dictionary<string, object>)(entry.Object))["DerivedsId"] : null) == null)
+                            if (entry.FlaggedAsTemporary(0) && (((IDictionary<string, object>)((Dictionary<string, object>)(entry.Entity))).ContainsKey("DerivedsId") ? ((Dictionary<string, object>)(entry.Entity))["DerivedsId"] : null) == null)
                             {
                                 return entry.ReadTemporaryValue<long>(0);
                             }
                             else
                             {
-                                var nullableValue = (((IDictionary<string, object>)((Dictionary<string, object>)(entry.Object))).ContainsKey("DerivedsId") ? ((Dictionary<string, object>)(entry.Object))["DerivedsId"] : null);
+                                var nullableValue = (((IDictionary<string, object>)((Dictionary<string, object>)(entry.Entity))).ContainsKey("DerivedsId") ? ((Dictionary<string, object>)(entry.Entity))["DerivedsId"] : null);
                                 return (nullableValue == null ? default(long) : ((long)(nullableValue)));
                             }
                         }
@@ -78,11 +78,11 @@ namespace TestNamespace
                 },
                 long (IInternalEntry entry) =>
                 {
-                    var nullableValue = (((IDictionary<string, object>)((Dictionary<string, object>)(entry.Object))).ContainsKey("DerivedsId") ? ((Dictionary<string, object>)(entry.Object))["DerivedsId"] : null);
+                    var nullableValue = (((IDictionary<string, object>)((Dictionary<string, object>)(entry.Entity))).ContainsKey("DerivedsId") ? ((Dictionary<string, object>)(entry.Entity))["DerivedsId"] : null);
                     return (nullableValue == null ? default(long) : ((long)(nullableValue)));
                 },
                 long (IInternalEntry entry) => entry.ReadOriginalValue<long>(derivedsId, 0),
-                long (IInternalEntry entry) => entry.ReadRelationshipSnapshotValue<long>(derivedsId, 0));
+                long (IInternalEntry entry) => ((InternalEntityEntry)(entry)).ReadRelationshipSnapshotValue<long>(derivedsId, 0));
             derivedsId.SetPropertyIndexes(
                 index: 0,
                 originalValueIndex: 0,
@@ -130,13 +130,13 @@ namespace TestNamespace
                     else
                     {
                         {
-                            if (entry.FlaggedAsTemporary(1) && (((IDictionary<string, object>)((Dictionary<string, object>)(entry.Object))).ContainsKey("DerivedsAlternateId") ? ((Dictionary<string, object>)(entry.Object))["DerivedsAlternateId"] : null) == null)
+                            if (entry.FlaggedAsTemporary(1) && (((IDictionary<string, object>)((Dictionary<string, object>)(entry.Entity))).ContainsKey("DerivedsAlternateId") ? ((Dictionary<string, object>)(entry.Entity))["DerivedsAlternateId"] : null) == null)
                             {
                                 return entry.ReadTemporaryValue<Guid>(1);
                             }
                             else
                             {
-                                var nullableValue = (((IDictionary<string, object>)((Dictionary<string, object>)(entry.Object))).ContainsKey("DerivedsAlternateId") ? ((Dictionary<string, object>)(entry.Object))["DerivedsAlternateId"] : null);
+                                var nullableValue = (((IDictionary<string, object>)((Dictionary<string, object>)(entry.Entity))).ContainsKey("DerivedsAlternateId") ? ((Dictionary<string, object>)(entry.Entity))["DerivedsAlternateId"] : null);
                                 return (nullableValue == null ? default(Guid) : ((Guid)(nullableValue)));
                             }
                         }
@@ -144,11 +144,11 @@ namespace TestNamespace
                 },
                 Guid (IInternalEntry entry) =>
                 {
-                    var nullableValue = (((IDictionary<string, object>)((Dictionary<string, object>)(entry.Object))).ContainsKey("DerivedsAlternateId") ? ((Dictionary<string, object>)(entry.Object))["DerivedsAlternateId"] : null);
+                    var nullableValue = (((IDictionary<string, object>)((Dictionary<string, object>)(entry.Entity))).ContainsKey("DerivedsAlternateId") ? ((Dictionary<string, object>)(entry.Entity))["DerivedsAlternateId"] : null);
                     return (nullableValue == null ? default(Guid) : ((Guid)(nullableValue)));
                 },
                 Guid (IInternalEntry entry) => entry.ReadOriginalValue<Guid>(derivedsAlternateId, 1),
-                Guid (IInternalEntry entry) => entry.ReadRelationshipSnapshotValue<Guid>(derivedsAlternateId, 1));
+                Guid (IInternalEntry entry) => ((InternalEntityEntry)(entry)).ReadRelationshipSnapshotValue<Guid>(derivedsAlternateId, 1));
             derivedsAlternateId.SetPropertyIndexes(
                 index: 1,
                 originalValueIndex: 1,
@@ -202,13 +202,13 @@ namespace TestNamespace
                     else
                     {
                         {
-                            if (entry.FlaggedAsTemporary(2) && (((IDictionary<string, object>)((Dictionary<string, object>)(entry.Object))).ContainsKey("PrincipalsId") ? ((Dictionary<string, object>)(entry.Object))["PrincipalsId"] : null) == null)
+                            if (entry.FlaggedAsTemporary(2) && (((IDictionary<string, object>)((Dictionary<string, object>)(entry.Entity))).ContainsKey("PrincipalsId") ? ((Dictionary<string, object>)(entry.Entity))["PrincipalsId"] : null) == null)
                             {
                                 return entry.ReadTemporaryValue<long>(2);
                             }
                             else
                             {
-                                var nullableValue = (((IDictionary<string, object>)((Dictionary<string, object>)(entry.Object))).ContainsKey("PrincipalsId") ? ((Dictionary<string, object>)(entry.Object))["PrincipalsId"] : null);
+                                var nullableValue = (((IDictionary<string, object>)((Dictionary<string, object>)(entry.Entity))).ContainsKey("PrincipalsId") ? ((Dictionary<string, object>)(entry.Entity))["PrincipalsId"] : null);
                                 return (nullableValue == null ? default(long) : ((long)(nullableValue)));
                             }
                         }
@@ -216,11 +216,11 @@ namespace TestNamespace
                 },
                 long (IInternalEntry entry) =>
                 {
-                    var nullableValue = (((IDictionary<string, object>)((Dictionary<string, object>)(entry.Object))).ContainsKey("PrincipalsId") ? ((Dictionary<string, object>)(entry.Object))["PrincipalsId"] : null);
+                    var nullableValue = (((IDictionary<string, object>)((Dictionary<string, object>)(entry.Entity))).ContainsKey("PrincipalsId") ? ((Dictionary<string, object>)(entry.Entity))["PrincipalsId"] : null);
                     return (nullableValue == null ? default(long) : ((long)(nullableValue)));
                 },
                 long (IInternalEntry entry) => entry.ReadOriginalValue<long>(principalsId, 2),
-                long (IInternalEntry entry) => entry.ReadRelationshipSnapshotValue<long>(principalsId, 2));
+                long (IInternalEntry entry) => ((InternalEntityEntry)(entry)).ReadRelationshipSnapshotValue<long>(principalsId, 2));
             principalsId.SetPropertyIndexes(
                 index: 2,
                 originalValueIndex: 2,
@@ -268,13 +268,13 @@ namespace TestNamespace
                     else
                     {
                         {
-                            if (entry.FlaggedAsTemporary(3) && (((IDictionary<string, object>)((Dictionary<string, object>)(entry.Object))).ContainsKey("PrincipalsAlternateId") ? ((Dictionary<string, object>)(entry.Object))["PrincipalsAlternateId"] : null) == null)
+                            if (entry.FlaggedAsTemporary(3) && (((IDictionary<string, object>)((Dictionary<string, object>)(entry.Entity))).ContainsKey("PrincipalsAlternateId") ? ((Dictionary<string, object>)(entry.Entity))["PrincipalsAlternateId"] : null) == null)
                             {
                                 return entry.ReadTemporaryValue<Guid>(3);
                             }
                             else
                             {
-                                var nullableValue = (((IDictionary<string, object>)((Dictionary<string, object>)(entry.Object))).ContainsKey("PrincipalsAlternateId") ? ((Dictionary<string, object>)(entry.Object))["PrincipalsAlternateId"] : null);
+                                var nullableValue = (((IDictionary<string, object>)((Dictionary<string, object>)(entry.Entity))).ContainsKey("PrincipalsAlternateId") ? ((Dictionary<string, object>)(entry.Entity))["PrincipalsAlternateId"] : null);
                                 return (nullableValue == null ? default(Guid) : ((Guid)(nullableValue)));
                             }
                         }
@@ -282,11 +282,11 @@ namespace TestNamespace
                 },
                 Guid (IInternalEntry entry) =>
                 {
-                    var nullableValue = (((IDictionary<string, object>)((Dictionary<string, object>)(entry.Object))).ContainsKey("PrincipalsAlternateId") ? ((Dictionary<string, object>)(entry.Object))["PrincipalsAlternateId"] : null);
+                    var nullableValue = (((IDictionary<string, object>)((Dictionary<string, object>)(entry.Entity))).ContainsKey("PrincipalsAlternateId") ? ((Dictionary<string, object>)(entry.Entity))["PrincipalsAlternateId"] : null);
                     return (nullableValue == null ? default(Guid) : ((Guid)(nullableValue)));
                 },
                 Guid (IInternalEntry entry) => entry.ReadOriginalValue<Guid>(principalsAlternateId, 3),
-                Guid (IInternalEntry entry) => entry.ReadRelationshipSnapshotValue<Guid>(principalsAlternateId, 3));
+                Guid (IInternalEntry entry) => ((InternalEntityEntry)(entry)).ReadRelationshipSnapshotValue<Guid>(principalsAlternateId, 3));
             principalsAlternateId.SetPropertyIndexes(
                 index: 3,
                 originalValueIndex: 3,
@@ -332,8 +332,8 @@ namespace TestNamespace
             type.SetMaterializationSetter(
                 (Dictionary<string, object> entity, string value) => entity["$type"] = ((object)(value)));
             type.SetAccessors(
-                string (IInternalEntry entry) => ((string)((((IDictionary<string, object>)((Dictionary<string, object>)(entry.Object))).ContainsKey("$type") ? ((Dictionary<string, object>)(entry.Object))["$type"] : null))),
-                string (IInternalEntry entry) => ((string)((((IDictionary<string, object>)((Dictionary<string, object>)(entry.Object))).ContainsKey("$type") ? ((Dictionary<string, object>)(entry.Object))["$type"] : null))),
+                string (IInternalEntry entry) => ((string)((((IDictionary<string, object>)((Dictionary<string, object>)(entry.Entity))).ContainsKey("$type") ? ((Dictionary<string, object>)(entry.Entity))["$type"] : null))),
+                string (IInternalEntry entry) => ((string)((((IDictionary<string, object>)((Dictionary<string, object>)(entry.Entity))).ContainsKey("$type") ? ((Dictionary<string, object>)(entry.Entity))["$type"] : null))),
                 string (IInternalEntry entry) => entry.ReadOriginalValue<string>(type, 4),
                 string (IInternalEntry entry) => entry.GetCurrentValue<string>(type));
             type.SetPropertyIndexes(
@@ -374,8 +374,8 @@ namespace TestNamespace
             __id.SetMaterializationSetter(
                 (Dictionary<string, object> entity, string value) => entity["__id"] = ((object)(value)));
             __id.SetAccessors(
-                string (IInternalEntry entry) => ((string)((((IDictionary<string, object>)((Dictionary<string, object>)(entry.Object))).ContainsKey("__id") ? ((Dictionary<string, object>)(entry.Object))["__id"] : null))),
-                string (IInternalEntry entry) => ((string)((((IDictionary<string, object>)((Dictionary<string, object>)(entry.Object))).ContainsKey("__id") ? ((Dictionary<string, object>)(entry.Object))["__id"] : null))),
+                string (IInternalEntry entry) => ((string)((((IDictionary<string, object>)((Dictionary<string, object>)(entry.Entity))).ContainsKey("__id") ? ((Dictionary<string, object>)(entry.Entity))["__id"] : null))),
+                string (IInternalEntry entry) => ((string)((((IDictionary<string, object>)((Dictionary<string, object>)(entry.Entity))).ContainsKey("__id") ? ((Dictionary<string, object>)(entry.Entity))["__id"] : null))),
                 string (IInternalEntry entry) => entry.ReadOriginalValue<string>(__id, 5),
                 string (IInternalEntry entry) => entry.GetCurrentValue<string>(__id));
             __id.SetPropertyIndexes(
@@ -419,8 +419,8 @@ namespace TestNamespace
             __jObject.SetMaterializationSetter(
                 (Dictionary<string, object> entity, JObject value) => entity["__jObject"] = ((object)(value)));
             __jObject.SetAccessors(
-                JObject (IInternalEntry entry) => (entry.FlaggedAsStoreGenerated(6) ? entry.ReadStoreGeneratedValue<JObject>(4) : (entry.FlaggedAsTemporary(6) && (((IDictionary<string, object>)((Dictionary<string, object>)(entry.Object))).ContainsKey("__jObject") ? ((Dictionary<string, object>)(entry.Object))["__jObject"] : null) == null ? entry.ReadTemporaryValue<JObject>(4) : ((JObject)((((IDictionary<string, object>)((Dictionary<string, object>)(entry.Object))).ContainsKey("__jObject") ? ((Dictionary<string, object>)(entry.Object))["__jObject"] : null))))),
-                JObject (IInternalEntry entry) => ((JObject)((((IDictionary<string, object>)((Dictionary<string, object>)(entry.Object))).ContainsKey("__jObject") ? ((Dictionary<string, object>)(entry.Object))["__jObject"] : null))),
+                JObject (IInternalEntry entry) => (entry.FlaggedAsStoreGenerated(6) ? entry.ReadStoreGeneratedValue<JObject>(4) : (entry.FlaggedAsTemporary(6) && (((IDictionary<string, object>)((Dictionary<string, object>)(entry.Entity))).ContainsKey("__jObject") ? ((Dictionary<string, object>)(entry.Entity))["__jObject"] : null) == null ? entry.ReadTemporaryValue<JObject>(4) : ((JObject)((((IDictionary<string, object>)((Dictionary<string, object>)(entry.Entity))).ContainsKey("__jObject") ? ((Dictionary<string, object>)(entry.Entity))["__jObject"] : null))))),
+                JObject (IInternalEntry entry) => ((JObject)((((IDictionary<string, object>)((Dictionary<string, object>)(entry.Entity))).ContainsKey("__jObject") ? ((Dictionary<string, object>)(entry.Entity))["__jObject"] : null))),
                 JObject (IInternalEntry entry) => entry.ReadOriginalValue<JObject>(__jObject, 6),
                 JObject (IInternalEntry entry) => entry.GetCurrentValue<JObject>(__jObject));
             __jObject.SetPropertyIndexes(
@@ -460,8 +460,8 @@ namespace TestNamespace
             rowid.SetMaterializationSetter(
                 (Dictionary<string, object> entity, byte[] value) => entity["rowid"] = ((object)(value)));
             rowid.SetAccessors(
-                byte[] (IInternalEntry entry) => ((byte[])((((IDictionary<string, object>)((Dictionary<string, object>)(entry.Object))).ContainsKey("rowid") ? ((Dictionary<string, object>)(entry.Object))["rowid"] : null))),
-                byte[] (IInternalEntry entry) => ((byte[])((((IDictionary<string, object>)((Dictionary<string, object>)(entry.Object))).ContainsKey("rowid") ? ((Dictionary<string, object>)(entry.Object))["rowid"] : null))),
+                byte[] (IInternalEntry entry) => ((byte[])((((IDictionary<string, object>)((Dictionary<string, object>)(entry.Entity))).ContainsKey("rowid") ? ((Dictionary<string, object>)(entry.Entity))["rowid"] : null))),
+                byte[] (IInternalEntry entry) => ((byte[])((((IDictionary<string, object>)((Dictionary<string, object>)(entry.Entity))).ContainsKey("rowid") ? ((Dictionary<string, object>)(entry.Entity))["rowid"] : null))),
                 byte[] (IInternalEntry entry) => entry.ReadOriginalValue<byte[]>(rowid, 7),
                 byte[] (IInternalEntry entry) => entry.GetCurrentValue<byte[]>(rowid));
             rowid.SetPropertyIndexes(
@@ -537,7 +537,7 @@ namespace TestNamespace
             runtimeEntityType.SetOriginalValuesFactory(
                 ISnapshot (IInternalEntry source) =>
                 {
-                    var entity5 = ((Dictionary<string, object>)(source.Object));
+                    var entity5 = ((Dictionary<string, object>)(source.Entity));
                     return ((ISnapshot)(new Snapshot<long, Guid, long, Guid, string, string, JObject, byte[]>(((ValueComparer<long>)(((IProperty)derivedsId).GetValueComparer())).Snapshot(source.GetCurrentValue<long>(derivedsId)), ((ValueComparer<Guid>)(((IProperty)derivedsAlternateId).GetValueComparer())).Snapshot(source.GetCurrentValue<Guid>(derivedsAlternateId)), ((ValueComparer<long>)(((IProperty)principalsId).GetValueComparer())).Snapshot(source.GetCurrentValue<long>(principalsId)), ((ValueComparer<Guid>)(((IProperty)principalsAlternateId).GetValueComparer())).Snapshot(source.GetCurrentValue<Guid>(principalsAlternateId)), (source.GetCurrentValue<string>(type) == null ? null : ((ValueComparer<string>)(((IProperty)type).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(type))), (source.GetCurrentValue<string>(__id) == null ? null : ((ValueComparer<string>)(((IProperty)__id).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(__id))), (source.GetCurrentValue<JObject>(__jObject) == null ? null : ((ValueComparer<JObject>)(((IProperty)__jObject).GetValueComparer())).Snapshot(source.GetCurrentValue<JObject>(__jObject))), (source.GetCurrentValue<byte[]>(rowid) == null ? null : ((ValueComparer<byte[]>)(((IProperty)rowid).GetValueComparer())).Snapshot(source.GetCurrentValue<byte[]>(rowid))))));
                 });
             runtimeEntityType.SetStoreGeneratedValuesFactory(
@@ -551,17 +551,18 @@ namespace TestNamespace
             runtimeEntityType.SetRelationshipSnapshotFactory(
                 ISnapshot (IInternalEntry source) =>
                 {
-                    var entity5 = ((Dictionary<string, object>)(source.Object));
+                    var entity5 = ((Dictionary<string, object>)(source.Entity));
                     return ((ISnapshot)(new Snapshot<long, Guid, long, Guid>(((ValueComparer<long>)(((IProperty)derivedsId).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<long>(derivedsId)), ((ValueComparer<Guid>)(((IProperty)derivedsAlternateId).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<Guid>(derivedsAlternateId)), ((ValueComparer<long>)(((IProperty)principalsId).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<long>(principalsId)), ((ValueComparer<Guid>)(((IProperty)principalsAlternateId).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<Guid>(principalsAlternateId)))));
                 });
-            runtimeEntityType.Counts = new PropertyCounts(
+            runtimeEntityType.SetCounts(new PropertyCounts(
                 propertyCount: 8,
                 navigationCount: 0,
                 complexPropertyCount: 0,
+                complexCollectionCount: 0,
                 originalValueCount: 8,
                 shadowCount: 0,
                 relationshipCount: 4,
-                storeGeneratedCount: 5);
+                storeGeneratedCount: 5));
 
             Customize(runtimeEntityType);
         }
