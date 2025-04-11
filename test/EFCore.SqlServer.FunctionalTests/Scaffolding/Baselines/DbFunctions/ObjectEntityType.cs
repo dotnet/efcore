@@ -44,6 +44,7 @@ namespace TestNamespace
                 propertyCount: 0,
                 navigationCount: 0,
                 complexPropertyCount: 0,
+                complexCollectionCount: 0,
                 originalValueCount: 0,
                 shadowCount: 0,
                 relationshipCount: 0,

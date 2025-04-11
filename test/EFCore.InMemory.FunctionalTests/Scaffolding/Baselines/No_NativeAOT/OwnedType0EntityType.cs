@@ -149,7 +149,7 @@ namespace TestNamespace
             var manyOwned = principalEntityType.AddNavigation("ManyOwned",
                 runtimeForeignKey,
                 onDependent: false,
-                typeof(ICollection<CompiledModelTestBase.OwnedType>),
+                typeof(IList<CompiledModelTestBase.OwnedType>),
                 fieldInfo: typeof(CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<byte?>>).GetField("ManyOwned", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 eagerLoaded: true);
 

@@ -28,7 +28,7 @@ public class ComplexPropertyEntry : MemberEntry
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    public ComplexPropertyEntry(InternalEntityEntry internalEntry, IComplexProperty complexProperty)
+    public ComplexPropertyEntry(IInternalEntry internalEntry, IComplexProperty complexProperty)
         : base(internalEntry, complexProperty)
     {
     }
@@ -48,7 +48,7 @@ public class ComplexPropertyEntry : MemberEntry
     /// </remarks>
     public override bool IsModified
     {
-        get => Metadata.ComplexType.GetFlattenedProperties().Any(property => InternalEntry.IsModified(property));
+        get => Metadata.ComplexType.GetFlattenedProperties().Any(InternalEntry.IsModified);
         set
         {
             foreach (var property in Metadata.ComplexType.GetFlattenedProperties())

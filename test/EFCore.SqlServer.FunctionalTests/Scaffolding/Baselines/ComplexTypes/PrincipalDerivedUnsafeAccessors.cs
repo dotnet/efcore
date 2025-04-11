@@ -12,6 +12,6 @@ namespace TestNamespace
         where TDependent : class
     {
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "ManyOwned")]
-        public static extern ref ICollection<CompiledModelTestBase.OwnedType> ManyOwned(CompiledModelTestBase.PrincipalDerived<TDependent> @this);
+        public static extern ref IList<CompiledModelTestBase.OwnedType> ManyOwned(CompiledModelTestBase.PrincipalDerived<TDependent> @this);
     }
 }
