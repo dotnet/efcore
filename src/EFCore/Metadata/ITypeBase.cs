@@ -246,25 +246,25 @@ public interface ITypeBase : IReadOnlyTypeBase, IAnnotatable
         => throw new NotSupportedException();
 
     /// <summary>
-    ///     Returns all properties that implement <see cref="IProperty" />, including those on complex types.
+    ///     Returns all properties that implement <see cref="IProperty" />, including those on non-collection complex types.
     /// </summary>
     /// <returns>The properties.</returns>
     IEnumerable<IProperty> GetFlattenedProperties();
 
     /// <summary>
-    ///     Returns all properties that implement <see cref="IComplexProperty" />, including those on complex types.
+    ///     Returns all properties that implement <see cref="IComplexProperty" />, including those on non-collection complex types.
     /// </summary>
     /// <returns>The properties.</returns>
     IEnumerable<IComplexProperty> GetFlattenedComplexProperties();
 
     /// <summary>
-    ///     Returns all declared properties that implement <see cref="IProperty" />, including those on complex types.
+    ///     Returns all declared properties that implement <see cref="IProperty" />, including those on non-collection complex types.
     /// </summary>
     /// <returns>The properties.</returns>
     IEnumerable<IProperty> GetFlattenedDeclaredProperties();
 
     /// <summary>
-    ///     Gets all properties declared on the base types and types derived from this entity type, including those on complex types.
+    ///     Gets all properties declared on the base types and types derived from this entity type, including those on non-collection complex types.
     /// </summary>
     /// <returns>The properties.</returns>
     IEnumerable<IProperty> GetFlattenedPropertiesInHierarchy()

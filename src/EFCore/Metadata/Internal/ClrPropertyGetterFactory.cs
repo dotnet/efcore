@@ -41,15 +41,15 @@ public class ClrPropertyGetterFactory : ClrAccessorFactory<IClrPropertyGetter>
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override IClrPropertyGetter CreateGeneric<TEntity, TStructuralType, TValue>(
+    protected override IClrPropertyGetter CreateGeneric<TRoot, TDeclaringType, TValue>(
         MemberInfo memberInfo,
         IPropertyBase? propertyBase)
     {
-        CreateExpressions<TEntity, TStructuralType, TValue>(
+        CreateExpressions<TRoot, TDeclaringType, TValue>(
             memberInfo, propertyBase,
             out var getterExpression, out var hasSentinelExpression, out var structuralGetterExpression,
             out var hasStructuralSentinelExpression);
-        return new ClrPropertyGetter<TEntity, TStructuralType, TValue>(
+        return new ClrPropertyGetter<TRoot, TDeclaringType, TValue>(
             getterExpression.Compile(),
             hasSentinelExpression.Compile(),
             structuralGetterExpression.Compile(),
@@ -79,7 +79,7 @@ public class ClrPropertyGetterFactory : ClrAccessorFactory<IClrPropertyGetter>
         out Expression hasStructuralSentinelExpression)
     {
         var boundMethod = GenericCreateExpressions.MakeGenericMethod(
-            propertyBase.DeclaringType.ContainingEntityType.ClrType,
+            propertyBase.DeclaringType.GetPropertyAccessRoot().ClrType,
             propertyBase.DeclaringType.ClrType,
             propertyBase.ClrType);
 
@@ -102,21 +102,21 @@ public class ClrPropertyGetterFactory : ClrAccessorFactory<IClrPropertyGetter>
     private static readonly MethodInfo GenericCreateExpressions
         = typeof(ClrPropertyGetterFactory).GetMethod(nameof(CreateExpressions), BindingFlags.Instance | BindingFlags.NonPublic)!;
 
-    private void CreateExpressions<TEntity, TStructuralType, TValue>(
+    private void CreateExpressions<TRoot, TDeclaringType, TValue>(
         MemberInfo memberInfo,
         IPropertyBase? propertyBase,
-        out Expression<Func<TEntity, TValue>> getterExpression,
-        out Expression<Func<TEntity, bool>> hasSentinelExpression,
-        out Expression<Func<TStructuralType, TValue>> structuralGetterExpression,
-        out Expression<Func<TStructuralType, bool>> hasStructuralSentinelExpression)
+        out Expression<Func<TRoot, TValue>> getterExpression,
+        out Expression<Func<TRoot, bool>> hasSentinelExpression,
+        out Expression<Func<TDeclaringType, TValue>> structuralGetterExpression,
+        out Expression<Func<TDeclaringType, bool>> hasStructuralSentinelExpression)
     {
-        var entityClrType = propertyBase?.DeclaringType.ContainingEntityType.ClrType ?? typeof(TEntity);
-        var propertyDeclaringType = propertyBase?.DeclaringType.ClrType ?? typeof(TEntity);
+        var entityClrType = propertyBase?.DeclaringType.GetPropertyAccessRoot().ClrType ?? typeof(TRoot);
+        var propertyDeclaringType = propertyBase?.DeclaringType.ClrType ?? typeof(TRoot);
         var entityParameter = Expression.Parameter(entityClrType, "entity");
         var structuralParameter = Expression.Parameter(propertyDeclaringType, "instance");
 
-        var readExpression = CreateReadExpression(entityParameter, false);
-        var structuralReadExpression = CreateReadExpression(structuralParameter, true);
+        var readExpression = CreateReadExpression(entityParameter, fromContainingType: false);
+        var structuralReadExpression = CreateReadExpression(structuralParameter, fromContainingType: true);
 
         var hasSentinelValueExpression = readExpression.MakeHasSentinel(propertyBase);
         var hasStructuralSentinelValueExpression = structuralReadExpression.MakeHasSentinel(propertyBase);
@@ -124,11 +124,11 @@ public class ClrPropertyGetterFactory : ClrAccessorFactory<IClrPropertyGetter>
         readExpression = ConvertReadExpression(readExpression, hasSentinelValueExpression);
         structuralReadExpression = ConvertReadExpression(structuralReadExpression, hasStructuralSentinelValueExpression);
 
-        getterExpression = Expression.Lambda<Func<TEntity, TValue>>(readExpression, entityParameter);
-        hasSentinelExpression = Expression.Lambda<Func<TEntity, bool>>(hasSentinelValueExpression, entityParameter);
-        structuralGetterExpression = Expression.Lambda<Func<TStructuralType, TValue>>(structuralReadExpression, structuralParameter);
+        getterExpression = Expression.Lambda<Func<TRoot, TValue>>(readExpression, entityParameter);
+        hasSentinelExpression = Expression.Lambda<Func<TRoot, bool>>(hasSentinelValueExpression, entityParameter);
+        structuralGetterExpression = Expression.Lambda<Func<TDeclaringType, TValue>>(structuralReadExpression, structuralParameter);
         hasStructuralSentinelExpression =
-            Expression.Lambda<Func<TStructuralType, bool>>(hasStructuralSentinelValueExpression, structuralParameter);
+            Expression.Lambda<Func<TDeclaringType, bool>>(hasStructuralSentinelValueExpression, structuralParameter);
 
         Expression CreateReadExpression(ParameterExpression parameter, bool fromContainingType)
         {
@@ -141,7 +141,7 @@ public class ClrPropertyGetterFactory : ClrAccessorFactory<IClrPropertyGetter>
             var converted = Expression.Variable(memberInfo.DeclaringType, "converted");
 
             return Expression.Block(
-                new[] { converted },
+                [converted],
                 new List<Expression>
                 {
                     Expression.Assign(

@@ -641,23 +641,42 @@ public class CompiledModelCosmosTest(NonSharedFixture fixture) : CompiledModelTe
         base.BuildComplexTypesModel(modelBuilder);
 
         modelBuilder.Entity<PrincipalBase>(
-            b =>
+            eb =>
             {
                 // Cosmos provider cannot map collections of elements with converters. See Issue #34026.
-                b.Ignore(e => e.RefTypeList);
-                b.Ignore(e => e.RefTypeArray);
-                b.ComplexProperty(
-                    c => c.Owned, b =>
+                eb.Ignore(e => e.RefTypeList);
+                eb.Ignore(e => e.RefTypeArray);
+                eb.ComplexProperty(
+                    c => c.Owned, ob =>
                     {
-                        b.Ignore(e => e.RefTypeArray);
-                        b.Ignore(e => e.RefTypeList);
-                        b.ComplexProperty(
-                            c => c.Principal, b =>
+                        ob.Ignore(e => e.RefTypeArray);
+                        ob.Ignore(e => e.RefTypeList);
+                        ob.ComplexProperty(
+                            c => c.Principal, cb =>
                             {
-                                b.Ignore(e => e.RefTypeList);
-                                b.Ignore(e => e.RefTypeArray);
+                                cb.Ignore(e => e.RefTypeList);
+                                cb.Ignore(e => e.RefTypeArray);
                             });
                     });
+            });
+
+        modelBuilder.Entity<PrincipalDerived<DependentBase<byte?>>>(
+            eb =>
+            {
+                eb.ComplexCollection<ICollection<OwnedType>, OwnedType>(
+                    "ManyOwned", "OwnedCollection", ob =>
+                    {
+                        ob.Ignore(e => e.RefTypeArray);
+                        ob.Ignore(e => e.RefTypeList);
+                        ob.ComplexProperty(
+                            o => o.Principal, cb =>
+                            {
+                                cb.Ignore(e => e.RefTypeList);
+                                cb.Ignore(e => e.RefTypeArray);
+                            });
+                    });
+                eb.Ignore(p => p.Dependent);
+                eb.Ignore(p => p.Principals);
             });
     }
 

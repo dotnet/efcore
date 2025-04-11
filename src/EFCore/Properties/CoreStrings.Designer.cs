@@ -529,14 +529,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 property, type, clrType, targetType);
 
         /// <summary>
-        ///     Adding the collection complex property '{type}.{property}' isn't supported. See https://github.com/dotnet/efcore/issues/31237 for more information.
-        /// </summary>
-        public static string ComplexPropertyCollection(object? type, object? property)
-            => string.Format(
-                GetString("ComplexPropertyCollection", nameof(type), nameof(property)),
-                type, property);
-
-        /// <summary>
         ///     Adding the complex property '{type}.{property}' as an indexer property isn't supported. See https://github.com/dotnet/efcore/issues/31244 for more information.
         /// </summary>
         public static string ComplexPropertyIndexer(object? type, object? property)
@@ -2318,7 +2310,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, property);
 
         /// <summary>
-        ///     The complex type property '{type}.{property}' is configured as required (non-nullable) but has a null value when saving changes. Only non-null complex properties are supported by EF Core 8.
+        ///     The complex type property '{type}.{property}' is configured as required (non-nullable) but has a null value when saving changes.
         /// </summary>
         public static string NullRequiredComplexProperty(object? type, object? property)
             => string.Format(

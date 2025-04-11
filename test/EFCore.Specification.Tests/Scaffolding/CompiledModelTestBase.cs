@@ -1210,6 +1210,7 @@ namespace TestNamespace
                             o => o.Principal, cb =>
                             {
                                 cb.Property("FlagsEnum2");
+                                cb.Ignore(e => e.Deriveds);
                             });
                     });
             });
@@ -1217,7 +1218,30 @@ namespace TestNamespace
         modelBuilder.Entity<PrincipalDerived<DependentBase<byte?>>>(
             eb =>
             {
-                //eb.ComplexCollection(typeof(OwnedType).Name, "ManyOwned");
+                eb.ComplexCollection<ICollection<OwnedType>, OwnedType>(
+                    "ManyOwned", "OwnedCollection", eb =>
+                    {
+                        eb.UsePropertyAccessMode(PropertyAccessMode.Field)
+                            .HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)
+                            .HasPropertyAnnotation("goo", "ber")
+                            .HasTypeAnnotation("go", "brr");
+                        eb.Property(c => c.Details)
+                            .IsUnicode(false)
+                            .IsRequired(false)
+                            .HasField("_details")
+                            .HasSentinel("")
+                            .UsePropertyAccessMode(PropertyAccessMode.FieldDuringConstruction)
+                            .HasMaxLength(64)
+                            .HasPrecision(3, 2)
+                            .HasAnnotation("foo", "bar");
+                        eb.Ignore(e => e.Context);
+                        eb.ComplexProperty(
+                            o => o.Principal, cb =>
+                            {
+                                cb.Property("FlagsEnum2");
+                                cb.Ignore(e => e.Deriveds);
+                            });
+                    });
                 eb.Ignore(p => p.Dependent);
                 eb.Ignore(p => p.Principals);
             });
@@ -1281,6 +1305,58 @@ namespace TestNamespace
 
         var principalDerived = model.FindEntityType(typeof(PrincipalDerived<DependentBase<byte?>>))!;
         Assert.Equal(principalBase, principalDerived.BaseType);
+
+        var complexCollection = principalDerived.GetDeclaredComplexProperties().Single();
+        Assert.Equal(
+            ["goo"],
+            complexCollection.GetAnnotations().Select(a => a.Name));
+        Assert.Equal("ManyOwned", complexCollection.Name);
+        Assert.True(complexCollection.IsCollection);
+        Assert.False(complexCollection.IsNullable);
+        Assert.Equal(typeof(ICollection<OwnedType>), complexCollection.ClrType);
+        Assert.Null(complexCollection.PropertyInfo);
+        Assert.Equal("ManyOwned", complexCollection.FieldInfo!.Name);
+        Assert.Equal(principalDerived, complexCollection.DeclaringType);
+        Assert.Equal(PropertyAccessMode.Field, complexCollection.GetPropertyAccessMode());
+        Assert.Equal("ber", complexCollection["goo"]);
+
+        var collectionComplexType = complexCollection.ComplexType;
+        Assert.Equal("OwnedCollection", collectionComplexType.Name);
+        Assert.Equal(typeof(OwnedType), collectionComplexType.ClrType);
+        Assert.True(collectionComplexType.HasSharedClrType);
+        Assert.False(collectionComplexType.IsPropertyBag);
+        Assert.IsType<ConstructorBinding>(collectionComplexType.ConstructorBinding);
+        Assert.Null(collectionComplexType.FindIndexerPropertyInfo());
+        Assert.Equal(
+            ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues,
+            collectionComplexType.GetChangeTrackingStrategy());
+        Assert.Equal(
+            CoreStrings.RuntimeModelMissingData,
+            Assert.Throws<InvalidOperationException>(() => collectionComplexType.GetPropertyAccessMode()).Message);
+        Assert.Equal("brr", collectionComplexType["go"]);
+
+        var collectionDetails = collectionComplexType.FindProperty(nameof(OwnedType.Details))!;
+        Assert.Equal(typeof(string), collectionDetails.ClrType);
+        Assert.Equal(typeof(string), collectionDetails.PropertyInfo!.PropertyType);
+        Assert.Equal(typeof(string), collectionDetails.FieldInfo!.FieldType);
+        Assert.Equal("_details", collectionDetails.FieldInfo.Name);
+        Assert.True(collectionDetails.IsNullable);
+        Assert.False(collectionDetails.IsUnicode());
+        Assert.Equal(64, collectionDetails.GetMaxLength());
+        Assert.Equal(3, collectionDetails.GetPrecision());
+        Assert.Equal(2, collectionDetails.GetScale());
+        Assert.Equal("", collectionDetails.Sentinel);
+        Assert.Equal(PropertyAccessMode.FieldDuringConstruction, collectionDetails.GetPropertyAccessMode());
+        Assert.Null(collectionDetails.GetValueConverter());
+        Assert.NotNull(collectionDetails.GetValueComparer());
+        Assert.NotNull(collectionDetails.GetKeyValueComparer());
+
+        var collectionNestedComplexProperty = collectionComplexType.FindComplexProperty(nameof(OwnedType.Principal))!;
+        Assert.True(nestedComplexProperty.IsNullable);
+
+        var collectionNestedComplexType = collectionNestedComplexProperty.ComplexType;
+
+        Assert.Equal(ExpectedComplexTypeProperties, collectionNestedComplexType.GetProperties().Count());
 
         Assert.Equal(
             [principalBase, principalDerived],

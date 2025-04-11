@@ -339,14 +339,16 @@ public static class PropertyBaseExtensions
     }
 
     private static string GetNoFieldErrorMessage(IPropertyBase propertyBase)
-        => ((EntityType)propertyBase.DeclaringType).GetServiceProperties()
-            .Any(p => typeof(ILazyLoader).IsAssignableFrom(p.ClrType))
-            || ((EntityType)propertyBase.DeclaringType).ConstructorBinding?.ParameterBindings
-            .OfType<ServiceParameterBinding>()
-            .Any(b => b.ServiceType == typeof(ILazyLoader))
-            == true
-                ? CoreStrings.NoBackingFieldLazyLoading(
-                    propertyBase.Name, propertyBase.DeclaringType.DisplayName())
-                : CoreStrings.NoBackingField(
-                    propertyBase.Name, propertyBase.DeclaringType.DisplayName(), nameof(PropertyAccessMode));
+        => propertyBase.DeclaringType switch
+        {
+            EntityType entityType
+            when entityType.GetServiceProperties().Any(p => typeof(ILazyLoader).IsAssignableFrom(p.ClrType))
+                || entityType.ConstructorBinding?.ParameterBindings
+                    .OfType<ServiceParameterBinding>()
+                    .Any(b => b.ServiceType == typeof(ILazyLoader)) == true
+                => CoreStrings.NoBackingFieldLazyLoading(
+                    propertyBase.Name, propertyBase.DeclaringType.DisplayName()),
+            _ => CoreStrings.NoBackingField(
+                propertyBase.Name, propertyBase.DeclaringType.DisplayName(), nameof(PropertyAccessMode)),
+        };
 }

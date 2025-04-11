@@ -306,9 +306,6 @@
   <data name="ComplexCollectionWrongClrType" xml:space="preserve">
     <value>The collection complex property '{property}' cannot be added to the type '{type}' because its CLR type '{clrType}' does not implement 'IEnumerable&lt;{targetType}&gt;'. Collection complex property must implement IEnumerable&lt;&gt; of the complex type.</value>
   </data>
-  <data name="ComplexPropertyCollection" xml:space="preserve">
-    <value>Adding the collection complex property '{type}.{property}' isn't supported. See https://github.com/dotnet/efcore/issues/31237 for more information.</value>
-  </data>
   <data name="ComplexPropertyIndexer" xml:space="preserve">
     <value>Adding the complex property '{type}.{property}' as an indexer property isn't supported. See https://github.com/dotnet/efcore/issues/31244 for more information.</value>
   </data>
@@ -1332,7 +1329,7 @@
     <value>A key on entity type '{entityType}' cannot contain the property '{property}' because it is nullable/optional. All properties on which a key is declared must be marked as non-nullable/required.</value>
   </data>
   <data name="NullRequiredComplexProperty" xml:space="preserve">
-    <value>The complex type property '{type}.{property}' is configured as required (non-nullable) but has a null value when saving changes. Only non-null complex properties are supported by EF Core 8.</value>
+    <value>The complex type property '{type}.{property}' is configured as required (non-nullable) but has a null value when saving changes.</value>
   </data>
   <data name="NullRequiredPrimitiveCollection" xml:space="preserve">
     <value>The primitive collection property '{type}.{property}' is configured as required (non-nullable) but has a null value when saving changes. Either mark the property as optional (nullable) or set a non-null value.</value>

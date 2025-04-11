@@ -19,9 +19,9 @@ public static class ComplexPropertyExtensions
     /// </summary>
     public static IReadOnlyList<IComplexProperty> GetChainToComplexProperty(this IComplexProperty property)
     {
-        var chain = property.DeclaringType is IComplexType complexType
+        var chain = property.DeclaringType is IComplexType complexType && !complexType.ComplexProperty.IsCollection
             ? (List<IComplexProperty>)complexType.ComplexProperty.GetChainToComplexProperty()
-            : new List<IComplexProperty>();
+            : [];
         chain.Add(property);
 
         return chain;

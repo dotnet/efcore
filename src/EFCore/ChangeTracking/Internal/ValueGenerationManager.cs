@@ -94,7 +94,7 @@ public class ValueGenerationManager : IValueGenerationManager
         var hasNonStableValues = false;
         IProperty? propertyWithNoGenerator = null;
 
-        //TODO: Handle complex properties
+        //TODO: Handle complex properties, #31633
         foreach (var property in entry.EntityType.GetValueGeneratingProperties())
         {
             if (!TryFindValueGenerator(

@@ -46,12 +46,12 @@ public class ClrPropertySetterFactory : ClrAccessorFactory<IClrPropertySetter>
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override IClrPropertySetter CreateGeneric<TEntity, TStructuralType, TValue>(
+    protected override IClrPropertySetter CreateGeneric<TRoot, TStructuralType, TValue>(
         MemberInfo memberInfo,
         IPropertyBase? propertyBase)
     {
-        CreateExpression<TEntity, TValue>(memberInfo, propertyBase, out var setter);
-        return new ClrPropertySetter<TEntity, TValue>(setter.Compile());
+        CreateExpression<TRoot, TValue>(memberInfo, propertyBase, out var setter);
+        return new ClrPropertySetter<TRoot, TValue>(setter.Compile());
     }
 
     /// <summary>
@@ -74,7 +74,7 @@ public class ClrPropertySetterFactory : ClrAccessorFactory<IClrPropertySetter>
         out Expression setterExpression)
     {
         var boundMethod = GenericCreateExpression.MakeGenericMethod(
-            propertyBase.DeclaringType.ContainingEntityType.ClrType,
+            propertyBase.DeclaringType.GetPropertyAccessRoot().ClrType,
             propertyBase.ClrType);
 
         try
@@ -93,15 +93,15 @@ public class ClrPropertySetterFactory : ClrAccessorFactory<IClrPropertySetter>
     private static readonly MethodInfo GenericCreateExpression
         = typeof(ClrPropertySetterFactory).GetMethod(nameof(CreateExpression), BindingFlags.Instance | BindingFlags.NonPublic)!;
 
-    private void CreateExpression<TEntity, TValue>(
+    private void CreateExpression<TRoot, TValue>(
         MemberInfo memberInfo,
         IPropertyBase? propertyBase,
-        out Expression<Action<TEntity, TValue>> setter)
-        where TEntity : class
+        out Expression<Action<TRoot, TValue>> setter)
+        where TRoot : class
     {
-        var entityClrType = propertyBase?.DeclaringType.ContainingEntityType.ClrType ?? typeof(TEntity);
+        var entityClrType = propertyBase?.DeclaringType.GetPropertyAccessRoot().ClrType ?? typeof(TRoot);
         var entityParameter = Expression.Parameter(entityClrType, "entity");
-        var propertyDeclaringType = propertyBase?.DeclaringType.ClrType ?? typeof(TEntity);
+        var propertyDeclaringType = propertyBase?.DeclaringType.ClrType ?? typeof(TRoot);
         var valueParameter = Expression.Parameter(typeof(TValue), "value");
         var memberType = memberInfo.GetMemberType();
         var convertedParameter = (Expression)valueParameter;
@@ -147,7 +147,7 @@ public class ClrPropertySetterFactory : ClrAccessorFactory<IClrPropertySetter>
                 });
         }
 
-        setter = Expression.Lambda<Action<TEntity, TValue>>(
+        setter = Expression.Lambda<Action<TRoot, TValue>>(
             writeExpression,
             entityParameter,
             valueParameter);
@@ -158,7 +158,8 @@ public class ClrPropertySetterFactory : ClrAccessorFactory<IClrPropertySetter>
             Expression instanceParameter,
             Expression convertedParameter)
         {
-            if (propertyBase?.DeclaringType is not IComplexType complexType)
+            if (propertyBase?.DeclaringType is not IComplexType complexType
+                || complexType.ComplexProperty.IsCollection)
             {
                 return propertyBase?.IsIndexerProperty() == true
                     ? Expression.Assign(

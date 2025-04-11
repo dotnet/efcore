@@ -321,12 +321,6 @@ public class ModelValidator : IModelValidator
             throw new InvalidOperationException(
                 CoreStrings.EmptyComplexType(complexProperty.ComplexType.DisplayName()));
         }
-
-        if (complexProperty.IsCollection)
-        {
-            throw new InvalidOperationException(
-                CoreStrings.ComplexPropertyCollection(typeBase.DisplayName(), complexProperty.Name));
-        }
     }
 
     /// <summary>
