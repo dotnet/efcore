@@ -280,7 +280,7 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
     }
 
     /// <summary>
-    ///     Copies to an array all entities of type TEntity that are being tracked and are
+    ///     Copies to an array all entities of type <typeparamref name="TEntity"/> that are being tracked and are
     ///     not marked as Deleted.
     /// </summary>
     /// <remarks>
@@ -382,7 +382,7 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
     }
 
     /// <summary>
-    ///     The number of entities of type TEntity that are being tracked and are not marked
+    ///     The number of entities of type <typeparamref name="TEntity"/> that are being tracked and are not marked
     ///     as Deleted.
     /// </summary>
     /// <remarks>

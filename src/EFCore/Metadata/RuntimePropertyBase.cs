@@ -86,6 +86,9 @@ public abstract class RuntimePropertyBase : RuntimeAnnotatableBase, IRuntimeProp
     /// <inheritdoc />
     public abstract object? Sentinel { get; }
 
+    /// <inheritdoc />
+    public abstract bool IsCollection { get; }
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -114,6 +117,7 @@ public abstract class RuntimePropertyBase : RuntimeAnnotatableBase, IRuntimeProp
         Func<IInternalEntry, TProperty>? originalValueGetter,
         Func<IInternalEntry, TProperty> relationshipSnapshotGetter)
         => _accessors = new PropertyAccessors(
+            this,
             currentValueGetter,
             preStoreGeneratedCurrentValueGetter,
             originalValueGetter,

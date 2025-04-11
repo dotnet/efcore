@@ -35,6 +35,11 @@ public interface IReadOnlyPropertyBase : IReadOnlyAnnotatable
     object? Sentinel { get; }
 
     /// <summary>
+    ///     Gets a value indicating whether the property is a collection.
+    /// </summary>
+    bool IsCollection { get; }
+
+    /// <summary>
     ///     Gets the <see cref="PropertyInfo" /> for the underlying CLR property for this property-like object.
     ///     This may be <see langword="null" /> for shadow properties or if mapped directly to a field.
     /// </summary>

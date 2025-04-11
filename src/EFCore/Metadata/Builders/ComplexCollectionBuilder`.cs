@@ -417,7 +417,7 @@ public class ComplexCollectionBuilder<[DynamicallyAccessedMembers(IEntityType.Dy
     /// </param>
     /// <returns>An object that can be used to configure the complex collection property.</returns>
     public virtual ComplexCollectionBuilder<TElement> ComplexCollection<TElement>(
-        Expression<Func<TComplex, IEnumerable<TElement>?>> propertyExpression)
+        Expression<Func<TComplex, IEnumerable<TElement?>?>> propertyExpression)
         where TElement : notnull
         => new(
             TypeBuilder.ComplexProperty(
@@ -438,7 +438,7 @@ public class ComplexCollectionBuilder<[DynamicallyAccessedMembers(IEntityType.Dy
     /// <param name="complexTypeName">The name of the complex type.</param>
     /// <returns>An object that can be used to configure the complex collection property.</returns>
     public virtual ComplexCollectionBuilder<TElement> ComplexCollection<TElement>(
-        Expression<Func<TComplex, IEnumerable<TElement>?>> propertyExpression,
+        Expression<Func<TComplex, IEnumerable<TElement?>?>> propertyExpression,
         string complexTypeName)
         where TElement : notnull
         => new(
@@ -460,7 +460,7 @@ public class ComplexCollectionBuilder<[DynamicallyAccessedMembers(IEntityType.Dy
     /// <param name="buildAction">An action that performs configuration of the property.</param>
     /// <returns>An object that can be used to configure the complex collection property.</returns>
     public virtual ComplexCollectionBuilder<TComplex> ComplexCollection<TElement>(
-        Expression<Func<TComplex, IEnumerable<TElement>?>> propertyExpression,
+        Expression<Func<TComplex, IEnumerable<TElement?>?>> propertyExpression,
         Action<ComplexCollectionBuilder<TElement>> buildAction)
         where TElement : notnull
     {
@@ -484,7 +484,7 @@ public class ComplexCollectionBuilder<[DynamicallyAccessedMembers(IEntityType.Dy
     /// <param name="buildAction">An action that performs configuration of the property.</param>
     /// <returns>An object that can be used to configure the complex collection property.</returns>
     public virtual ComplexCollectionBuilder<TComplex> ComplexCollection<TElement>(
-        Expression<Func<TComplex, IEnumerable<TElement>?>> propertyExpression,
+        Expression<Func<TComplex, IEnumerable<TElement?>?>> propertyExpression,
         string complexTypeName,
         Action<ComplexCollectionBuilder<TElement>> buildAction)
         where TElement : notnull

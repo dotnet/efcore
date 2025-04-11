@@ -6,7 +6,6 @@ using System.Text;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 
@@ -1498,8 +1497,10 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         var variableName = parameters.TargetName;
         var mainBuilder = parameters.MainBuilder;
         var unsafeAccessors = new HashSet<string>();
+        var isOnComplexCollection = property.DeclaringType is IReadOnlyComplexType complexType && complexType.ComplexProperty.IsCollection;
 
         if (!property.IsShadowProperty()
+            && !isOnComplexCollection
             && property is not IServiceProperty) // Service properties don't use property accessors
         {
             ClrPropertyGetterFactory.Instance.Create(
@@ -1559,7 +1560,8 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                 .DecrementIndent();
         }
 
-        if (property is not IServiceProperty)
+        if (property is not IServiceProperty
+            && !isOnComplexCollection)
         {
             PropertyAccessorsFactory.Instance.Create(
                 property,
@@ -2783,6 +2785,21 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                     mainBuilder.AppendLine(";");
                 }
 
+                foreach (var navigation in entityType.GetSkipNavigations())
+                {
+                    var variableName = _code.Identifier(navigation.Name, navigation, parameters.ScopeObjects, capitalize: false);
+
+                    mainBuilder
+                        .Append($"var {variableName} = ")
+                        .Append($"{parameters.TargetName}.FindSkipNavigation({_code.Literal(navigation.Name)})");
+                    if (nullable)
+                    {
+                        mainBuilder.Append("!");
+                    }
+
+                    mainBuilder.AppendLine(";");
+                }
+
                 var runtimeType = (IRuntimeEntityType)entityType;
                 var unsafeAccessors = new HashSet<string>();
 
@@ -2866,6 +2883,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                     .Append("propertyCount: ").Append(_code.Literal(counts.PropertyCount)).AppendLine(",")
                     .Append("navigationCount: ").Append(_code.Literal(counts.NavigationCount)).AppendLine(",")
                     .Append("complexPropertyCount: ").Append(_code.Literal(counts.ComplexPropertyCount)).AppendLine(",")
+                    .Append("complexCollectionCount: ").Append(_code.Literal(counts.ComplexCollectionCount)).AppendLine(",")
                     .Append("originalValueCount: ").Append(_code.Literal(counts.OriginalValueCount)).AppendLine(",")
                     .Append("shadowCount: ").Append(_code.Literal(counts.ShadowCount)).AppendLine(",")
                     .Append("relationshipCount: ").Append(_code.Literal(counts.RelationshipCount)).AppendLine(",")
