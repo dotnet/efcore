@@ -186,6 +186,11 @@ public interface IReadOnlyProperty : IReadOnlyPropertyBase
     bool IsPrimitiveCollection { get; }
 
     /// <summary>
+    ///     Gets a value indicating whether the property is a collection.
+    /// </summary>
+    bool IReadOnlyPropertyBase.IsCollection => IsPrimitiveCollection;
+
+    /// <summary>
     ///     Finds the first principal property that the given property is constrained by
     ///     if the given property is part of a foreign key.
     /// </summary>

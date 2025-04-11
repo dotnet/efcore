@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata;
 
@@ -33,6 +34,11 @@ public interface IReadOnlyPropertyBase : IReadOnlyAnnotatable
     ///     Gets the sentinel value that indicates that this property is not set.
     /// </summary>
     object? Sentinel { get; }
+
+    /// <summary>
+    ///     Gets a value indicating whether the property is a collection.
+    /// </summary>
+    bool IsCollection { get; }
 
     /// <summary>
     ///     Gets the <see cref="PropertyInfo" /> for the underlying CLR property for this property-like object.

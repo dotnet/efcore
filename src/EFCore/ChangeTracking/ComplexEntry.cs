@@ -1,13 +1,15 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking;
 
 /// <summary>
-///     Provides access to change tracking information and operations for a given property of a complex type.
+///     Provides access to change tracking information and operations for a given complex type instance.
 /// </summary>
 /// <remarks>
 ///     <para>
@@ -19,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking;
 ///         examples.
 ///     </para>
 /// </remarks>
-public class ComplexPropertyEntry : MemberEntry
+public class ComplexEntry : IInfrastructure<InternalComplexEntry>
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -28,48 +30,56 @@ public class ComplexPropertyEntry : MemberEntry
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    public ComplexPropertyEntry(IInternalEntry internalEntry, IComplexProperty complexProperty)
-        : base(internalEntry, complexProperty)
+    public ComplexEntry(InternalComplexEntry internalEntry)
     {
-        if (complexProperty.IsCollection)
-        {
-            throw new InvalidOperationException(
-                CoreStrings.ComplexCollectionIsReference(
-                    internalEntry.StructuralType.DisplayName(), complexProperty.Name,
-                    nameof(ChangeTracking.EntityEntry.ComplexProperty), nameof(ChangeTracking.EntityEntry.ComplexCollection)));
-        }
+        InternalEntry = internalEntry;
     }
 
     /// <summary>
-    ///     Gets or sets a value indicating whether any of the properties of the complex type have been modified
-    ///     and should be updated in the database when <see cref="DbContext.SaveChanges()" /> is called.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    /// <remarks>
-    ///     <para>
-    ///         Setting this value causes all of the properties of the complex type to be marked as modified or not as appropriate.
-    ///     </para>
-    ///     <para>
-    ///         See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information and
-    ///         examples.
-    ///     </para>
-    /// </remarks>
-    public override bool IsModified
-    {
-        get => Metadata.ComplexType.GetFlattenedProperties().Any(InternalEntry.IsModified);
-        set
-        {
-            foreach (var property in Metadata.ComplexType.GetFlattenedProperties())
-            {
-                InternalEntry.SetPropertyModified(property, isModified: value);
-            }
-        }
-    }
+    [EntityFrameworkInternal]
+    protected virtual InternalComplexEntry InternalEntry { get; }
 
     /// <summary>
     ///     Gets the metadata that describes the facets of this property and how it maps to the database.
     /// </summary>
-    public new virtual IComplexProperty Metadata
-        => (IComplexProperty)base.Metadata;
+    public virtual IComplexProperty Metadata => InternalEntry.ComplexProperty;
+
+    /// <summary>
+    ///     Gets or sets the value currently assigned to this property. If the current value is set using this property,
+    ///     the change tracker is aware of the change and <see cref="ChangeTracker.DetectChanges" /> is not required
+    ///     for the context to detect the change.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information and
+    ///     examples.
+    /// </remarks>
+    public virtual object? CurrentValue
+    {
+        get
+        {
+            var list = (IList?)InternalEntry.ContainingEntry[Metadata];
+            return list == null
+                ? throw new InvalidOperationException(
+                    CoreStrings.ComplexCollectionNotInitialized(Metadata.DeclaringType.ShortNameChain(), Metadata.Name))
+                : list[InternalEntry.Ordinal];
+        }
+    }
+
+    /// <summary>
+    ///     The <see cref="EntityEntry" /> to which this member belongs.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information and
+    ///     examples.
+    /// </remarks>
+    /// <value> An entry for the entity that owns this member. </value>
+    public virtual EntityEntry EntityEntry
+        => new(InternalEntry.EntityEntry);
 
     /// <summary>
     ///     Provides access to change tracking information and operations for a given property of this complex type.
@@ -155,7 +165,7 @@ public class ComplexPropertyEntry : MemberEntry
     ///     examples.
     /// </remarks>
     public virtual IEnumerable<ComplexPropertyEntry> ComplexProperties
-        => Metadata.ComplexType.GetComplexProperties().Where(p => !p.IsCollection).Select(property => new ComplexPropertyEntry(InternalEntry, property));
+        => Metadata.ComplexType.GetComplexProperties().Select(property => new ComplexPropertyEntry(InternalEntry, property));
 
     /// <summary>
     ///     Provides access to change tracking information and operations for a given collection property of a complex type on this complex type.
@@ -198,4 +208,14 @@ public class ComplexPropertyEntry : MemberEntry
     /// </remarks>
     public virtual IEnumerable<ComplexCollectionEntry> ComplexCollections
         => Metadata.ComplexType.GetComplexProperties().Where(p => !p.IsCollection).Select(property => new ComplexCollectionEntry(InternalEntry, property));
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    InternalComplexEntry IInfrastructure<InternalComplexEntry>.Instance
+        => InternalEntry;
 }

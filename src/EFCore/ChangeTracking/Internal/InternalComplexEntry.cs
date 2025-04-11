@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
 /// <summary>
@@ -9,11 +11,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class InternalEntityEntryNotifier : IInternalEntityEntryNotifier
+public sealed class InternalComplexEntry : InternalEntryBase
 {
-    private readonly ILocalViewListener _localViewListener;
-    private readonly IChangeDetector _changeDetector;
-    private readonly INavigationFixer _navigationFixer;
+    private readonly int[] _ordinals;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -21,14 +21,20 @@ public class InternalEntityEntryNotifier : IInternalEntityEntryNotifier
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public InternalEntityEntryNotifier(
-        ILocalViewListener localViewListener,
-        IChangeDetector changeDetector,
-        INavigationFixer navigationFixer)
+    public InternalComplexEntry(
+        IRuntimeComplexType complexType,
+        InternalEntryBase containingEntry,
+        int ordinal)
+        : base(complexType)
     {
-        _localViewListener = localViewListener;
-        _changeDetector = changeDetector;
-        _navigationFixer = navigationFixer;
+        Check.DebugAssert(complexType.ComplexProperty.IsCollection, $"{complexType} expected to be a collection");
+
+        ContainingEntry = containingEntry;
+
+        var parentOrdinals = containingEntry.Ordinals;
+        _ordinals = new int[parentOrdinals.Length + 1];
+        parentOrdinals.CopyTo(_ordinals);
+        _ordinals[parentOrdinals.Length] = ordinal;
     }
 
     /// <summary>
@@ -37,10 +43,81 @@ public class InternalEntityEntryNotifier : IInternalEntityEntryNotifier
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual void StateChanging(InternalEntityEntry entry, EntityState newState)
+    public override IInternalEntry ContainingEntry { get; }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public override InternalEntityEntry EntityEntry
+        => ContainingEntry switch
+        {
+            InternalEntityEntry entityEntry => entityEntry,
+            InternalComplexEntry complexEntry => complexEntry.EntityEntry,
+            _ => throw new UnreachableException("Unexpected entry type: " + ContainingEntry.GetType().ShortDisplayName())
+        };
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public IComplexProperty ComplexProperty => ComplexType.ComplexProperty;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public override IStateManager StateManager => ContainingEntry.StateManager;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public int Ordinal => _ordinals[^1];
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public override ReadOnlySpan<int> Ordinals => _ordinals;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public IRuntimeComplexType ComplexType => (IRuntimeComplexType)StructuralType;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override void OnStateChanged(EntityState oldState)
     {
-        _navigationFixer.StateChanging(entry, newState);
-        _localViewListener.StateChanging(entry, newState);
+        if (oldState is EntityState.Detached or EntityState.Unchanged)
+        {
+            if (EntityState is EntityState.Added or EntityState.Deleted or EntityState.Modified)
+            {
+                ContainingEntry.OnComplexPropertyModified(ComplexProperty, isModified: true);
+            }
+        }
+        else if (EntityState is EntityState.Detached or EntityState.Unchanged)
+        {
+            ContainingEntry.OnComplexPropertyModified(ComplexProperty, isModified: false);
+        }
     }
 
     /// <summary>
@@ -49,10 +126,12 @@ public class InternalEntityEntryNotifier : IInternalEntityEntryNotifier
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual void StateChanged(InternalEntityEntry entry, EntityState oldState, bool fromQuery)
+    public string GetPropertyPath(IReadOnlyProperty property)
     {
-        _navigationFixer.StateChanged(entry, oldState, fromQuery);
-        _localViewListener.StateChanged(entry, oldState, fromQuery);
+        Check.DebugAssert(property.DeclaringType == StructuralType || property.DeclaringType.ContainingType == StructuralType,
+            "Property " + property.Name + " not contained under " + StructuralType.Name);
+
+        return GetPropertyPath() + "." + GetShortNameChain(property.DeclaringType) + property.Name;
     }
 
     /// <summary>
@@ -61,76 +140,26 @@ public class InternalEntityEntryNotifier : IInternalEntityEntryNotifier
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual void FixupResolved(
-        InternalEntityEntry entry,
-        InternalEntityEntry duplicateEntry)
-        => _navigationFixer.FixupResolved(entry, duplicateEntry);
+    public string GetPropertyPath(bool withElement = true)
+    {
+        var result = ContainingEntry is InternalComplexEntry containingEntry
+            ? containingEntry.GetPropertyPath() + "."
+            : "";
 
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual void TrackedFromQuery(InternalEntityEntry entry)
-        => _navigationFixer.TrackedFromQuery(entry);
+        result += GetShortNameChain(ComplexType.ComplexProperty.DeclaringType) + ComplexProperty.Name;
 
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual void NavigationReferenceChanged(
-        InternalEntityEntry entry,
-        INavigation navigation,
-        object? oldValue,
-        object? newValue)
-        => _navigationFixer.NavigationReferenceChanged(entry, navigation, oldValue, newValue);
+        if (withElement)
+        {
+            result += '[' + Ordinal + ']';
+        }
 
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual void NavigationCollectionChanged(
-        InternalEntityEntry entry,
-        INavigationBase navigationBase,
-        IEnumerable<object> added,
-        IEnumerable<object> removed)
-        => _navigationFixer.NavigationCollectionChanged(entry, navigationBase, added, removed);
+        return result;
+    }
 
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual void KeyPropertyChanged(
-        InternalEntityEntry entry,
-        IProperty property,
-        IEnumerable<IKey> keys,
-        IEnumerable<IForeignKey> foreignKeys,
-        object? oldValue,
-        object? newValue)
-        => _navigationFixer.KeyPropertyChanged(entry, property, keys, foreignKeys, oldValue, newValue);
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual void PropertyChanged(IInternalEntry entry, IPropertyBase property, bool setModified)
-        => _changeDetector.PropertyChanged(entry, property, setModified);
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual void PropertyChanging(IInternalEntry entry, IPropertyBase property)
-        => _changeDetector.PropertyChanging(entry, property);
+    private static string GetShortNameChain(IReadOnlyTypeBase structuralType)
+        => (structuralType is IReadOnlyComplexType complexType) && (complexType.ComplexProperty is IReadOnlyComplexProperty complexProperty)
+            ? complexProperty.IsCollection
+                ? ""
+                : GetShortNameChain(complexProperty.DeclaringType) + "." + complexProperty.Name + "."
+            : structuralType.ShortName() + ".";
 }

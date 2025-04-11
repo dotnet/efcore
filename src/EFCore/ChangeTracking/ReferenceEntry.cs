@@ -48,7 +48,7 @@ public class ReferenceEntry : NavigationEntry
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    public ReferenceEntry(InternalEntityEntry internalEntry, INavigation navigation)
+    public ReferenceEntry(InternalEntityEntry internalEntry, INavigationBase navigation)
         : base(internalEntry, navigation, collection: false)
     {
         LocalDetectChanges();
@@ -102,7 +102,7 @@ public class ReferenceEntry : NavigationEntry
     {
         if (!IsLoaded)
         {
-            TargetFinder.Load((INavigation)Metadata, InternalEntry, options);
+            TargetFinder.Load((INavigation)Metadata, InternalEntityEntry, options);
         }
     }
 
@@ -147,7 +147,7 @@ public class ReferenceEntry : NavigationEntry
     public override Task LoadAsync(LoadOptions options, CancellationToken cancellationToken = default)
         => IsLoaded
             ? Task.CompletedTask
-            : TargetFinder.LoadAsync((INavigation)Metadata, InternalEntry, options, cancellationToken);
+            : TargetFinder.LoadAsync((INavigation)Metadata, InternalEntityEntry, options, cancellationToken);
 
     /// <summary>
     ///     Returns the query that would be used by <see cref="Load()" /> to load entities referenced by
@@ -165,7 +165,7 @@ public class ReferenceEntry : NavigationEntry
     /// </remarks>
     /// <returns>The query to load related entities.</returns>
     public override IQueryable Query()
-        => TargetFinder.Query((INavigation)Metadata, InternalEntry);
+        => TargetFinder.Query((INavigation)Metadata, InternalEntityEntry);
 
     /// <summary>
     ///     Gets or sets a value indicating whether any of foreign key property values associated
@@ -193,7 +193,7 @@ public class ReferenceEntry : NavigationEntry
 
             if (navigation.IsOnDependent)
             {
-                SetFkPropertiesModified(navigation, InternalEntry, value);
+                SetFkPropertiesModified(navigation, InternalEntityEntry, value);
             }
             else
             {

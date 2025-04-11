@@ -17,5 +17,18 @@ public interface IRuntimeComplexType : IComplexType, IRuntimeTypeBase
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    PropertyCounts? Counts { get; set; }
+    public int CollectionDepth
+    {
+        get
+        {
+            var parentDepth = ComplexProperty.DeclaringType switch
+            {
+                IRuntimeComplexType runtimeComplexType => runtimeComplexType.CollectionDepth,
+                _ => 0
+            };
+
+            return ComplexProperty.IsCollection ? parentDepth + 1 : parentDepth;
+        }
+    }
+
 }
