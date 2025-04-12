@@ -3,6 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-public class TemporalTableBuilder`
+public class TemporalTableBuilder
 {
 }

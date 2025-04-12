@@ -3,6 +3,7 @@
 
 
 // ReSharper disable once CheckNamespace
+
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 
 public class SharePointExpression

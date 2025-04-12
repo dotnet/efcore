@@ -4,7 +4,7 @@
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 // ReSharper disable once CheckNamespace
-namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
+
 
 /// <summary>
 ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
