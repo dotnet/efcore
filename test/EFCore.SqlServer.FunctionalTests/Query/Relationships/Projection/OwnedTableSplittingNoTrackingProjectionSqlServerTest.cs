@@ -264,6 +264,10 @@ ORDER BY [r].[Id], [r0].[RelationshipsRootEntityId], [r1].[RelationshipsTrunkEnt
 """);
     }
 
+    [ConditionalFact]
+    public virtual void Check_all_tests_overridden()
+        => TestHelpers.AssertAllMethodsOverridden(GetType());
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 }

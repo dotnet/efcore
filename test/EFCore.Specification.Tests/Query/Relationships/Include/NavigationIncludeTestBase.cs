@@ -25,7 +25,6 @@ public abstract class NavigationIncludeTestBase<TFixture>(TFixture fixture) : Qu
         => AssertQuery(
             async,
             ss => ss.Set<RelationshipsRootEntity>().Include(x => x.OptionalReferenceTrunk),
-            assertOrder: true,
             elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<RelationshipsRootEntity>(x => x.OptionalReferenceTrunk!)));
 
     [ConditionalTheory]
@@ -34,7 +33,6 @@ public abstract class NavigationIncludeTestBase<TFixture>(TFixture fixture) : Qu
         => AssertQuery(
             async,
             ss => ss.Set<RelationshipsRootEntity>().Include(x => x.CollectionTrunk),
-            assertOrder: true,
             elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<RelationshipsRootEntity>(x => x.CollectionTrunk)));
 
     [ConditionalTheory]
@@ -60,7 +58,6 @@ public abstract class NavigationIncludeTestBase<TFixture>(TFixture fixture) : Qu
         => AssertQuery(
             async,
             ss => ss.Set<RelationshipsRootEntity>().Include(x => x.RequiredReferenceTrunk.RequiredReferenceBranch),
-            assertOrder: true,
             elementAsserter: (e, a) => AssertInclude(
                 e,
                 a,
@@ -73,7 +70,6 @@ public abstract class NavigationIncludeTestBase<TFixture>(TFixture fixture) : Qu
         => AssertQuery(
             async,
             ss => ss.Set<RelationshipsRootEntity>().Include(x => x.RequiredReferenceTrunk.CollectionBranch),
-            assertOrder: true,
             elementAsserter: (e, a) => AssertInclude(
                 e,
                 a,
@@ -86,7 +82,6 @@ public abstract class NavigationIncludeTestBase<TFixture>(TFixture fixture) : Qu
         => AssertQuery(
             async,
             ss => ss.Set<RelationshipsRootEntity>().Include(x => x.OptionalReferenceTrunk!.OptionalReferenceBranch),
-            assertOrder: true,
             elementAsserter: (e, a) => AssertInclude(
                 e,
                 a,
@@ -99,7 +94,6 @@ public abstract class NavigationIncludeTestBase<TFixture>(TFixture fixture) : Qu
         => AssertQuery(
             async,
             ss => ss.Set<RelationshipsRootEntity>().Include(x => x.OptionalReferenceTrunk!.CollectionBranch),
-            assertOrder: true,
             elementAsserter: (e, a) => AssertInclude(
                 e,
                 a,
@@ -112,7 +106,6 @@ public abstract class NavigationIncludeTestBase<TFixture>(TFixture fixture) : Qu
         => AssertQuery(
             async,
             ss => ss.Set<RelationshipsRootEntity>().Include(x => x.CollectionTrunk).ThenInclude(x => x.CollectionBranch),
-            assertOrder: true,
             elementAsserter: (e, a) => AssertInclude(
                 e,
                 a,
