@@ -89,11 +89,11 @@ public static class CosmosDbFunctionsExtensions
     ///     Returns the full-text search score for the specified property and keywords.
     /// </summary>
     /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
-    /// <param name="property">The property to search.</param>
-    /// <param name="keywords">The keywords to search for.</param>
+    /// <param name="property">The property to score.</param>
+    /// <param name="keywords">The keywords to score by.</param>
     /// <returns>The full-text search score.</returns>
     [Experimental(EFDiagnostics.CosmosFullTextSearchExperimental)]
-    public static double FullTextScore(this DbFunctions _, string property, string[] keywords)
+    public static double FullTextScore(this DbFunctions _, string property, params string[] keywords)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(FullTextScore)));
 
     /// <summary>

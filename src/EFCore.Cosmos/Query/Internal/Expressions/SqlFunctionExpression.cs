@@ -92,7 +92,7 @@ public class SqlFunctionExpression : SqlExpression
         }
 
         return changed
-            ? new SqlFunctionExpression(Name, arguments, Type, TypeMapping)
+            ? new SqlFunctionExpression(Name, IsScoringFunction, arguments, Type, TypeMapping)
             : this;
     }
 
@@ -103,7 +103,7 @@ public class SqlFunctionExpression : SqlExpression
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual SqlFunctionExpression ApplyTypeMapping(CoreTypeMapping? typeMapping)
-        => new(Name, Arguments, Type, typeMapping ?? TypeMapping);
+        => new(Name, IsScoringFunction, Arguments, Type, typeMapping ?? TypeMapping);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -114,7 +114,7 @@ public class SqlFunctionExpression : SqlExpression
     public virtual SqlFunctionExpression Update(IReadOnlyList<Expression> arguments)
         => arguments.SequenceEqual(Arguments)
             ? this
-            : new SqlFunctionExpression(Name, arguments, Type, TypeMapping);
+            : new SqlFunctionExpression(Name, IsScoringFunction, arguments, Type, TypeMapping);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

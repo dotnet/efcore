@@ -66,6 +66,14 @@ public class CosmosFullTextSearchTranslator(ISqlExpressionFactory sqlExpressionF
                     typeMappingSource.FindMapping(typeof(double))),
 
             nameof(CosmosDbFunctionsExtensions.FullTextContainsAny) or nameof(CosmosDbFunctionsExtensions.FullTextContainsAll)
+                when arguments is [_, SqlExpression property, SqlConstantExpression { Type: var keywordClrType, Value: string[] values } keywords]
+                    && keywordClrType == typeof(string[]) => sqlExpressionFactory.Function(
+                        method.Name == nameof(CosmosDbFunctionsExtensions.FullTextContainsAny) ? "FullTextContainsAny" : "FullTextContainsAll",
+                        [property, .. values.Select(x => sqlExpressionFactory.Constant(x))],
+                        typeof(bool),
+                        typeMappingSource.FindMapping(typeof(bool))),
+
+            nameof(CosmosDbFunctionsExtensions.FullTextContainsAny) or nameof(CosmosDbFunctionsExtensions.FullTextContainsAll)
                 when arguments is [_, SqlExpression property, SqlParameterExpression { Type: var keywordClrType } keywords]
                     && keywordClrType == typeof(string[]) => sqlExpressionFactory.Function(
                         method.Name == nameof(CosmosDbFunctionsExtensions.FullTextContainsAny) ? "FullTextContainsAny" : "FullTextContainsAll",
