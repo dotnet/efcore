@@ -763,6 +763,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             var complexPropertyBuilder = modelBuilder
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
+                .Ignore(e => e.Customers)
                 .ComplexProperty(e => e.Customer)
                 .HasTypeAnnotation("foo", "bar")
                 .HasPropertyAnnotation("foo2", "bar2")
@@ -785,6 +786,54 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
       Name (string)
       Notes (List<string>) Element type: string Required
       Title (string) Required", complexProperty.ToDebugString(), ignoreLineEndingDifferences: true);
+        }
+
+        protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder>? configure = null)
+            => new GenericTestModelBuilder(Fixture, configure);
+    }
+
+    public class CosmosGenericComplexCollection(CosmosModelBuilderFixture fixture)
+        : ComplexCollectionTestBase(fixture), IClassFixture<CosmosModelBuilderFixture>
+    {
+        public override void Properties_can_have_custom_type_value_converter_type_set()
+            => Properties_can_have_custom_type_value_converter_type_set<string>();
+
+        public override void Properties_can_have_non_generic_value_converter_set()
+            => Properties_can_have_non_generic_value_converter_set<string>();
+
+        public override void Properties_can_have_provider_type_set()
+            => Properties_can_have_provider_type_set<string>();
+
+        public override void Can_set_complex_property_annotation()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            var complexPropertyBuilder = modelBuilder
+                .Ignore<IndexedClass>()
+                .Entity<ComplexProperties>()
+                .Ignore(e => e.Customer)
+                .ComplexCollection(e => e.Customers)
+                .HasTypeAnnotation("foo", "bar")
+                .HasPropertyAnnotation("foo2", "bar2")
+                .Ignore(c => c.Details)
+                .Ignore(c => c.Title)
+                .Ignore(c => c.Orders);
+
+            var model = modelBuilder.FinalizeModel();
+            var complexCollection = model.FindEntityType(typeof(ComplexProperties))!.GetComplexProperties().Single();
+
+            Assert.Equal("bar", complexCollection.ComplexType["foo"]);
+            Assert.Equal("bar2", complexCollection["foo2"]);
+            Assert.Equal(nameof(ComplexProperties.Customers), complexCollection.Name);
+            Assert.Equal(
+                @"Customers (List<Customer>) Required
+  ComplexType: ComplexProperties.Customers#Customer
+    Properties: "
+                + @"
+      AlternateKey (Guid) Required
+      Id (int) Required
+      Name (string)
+      Notes (List<string>) Element type: string Required", complexCollection.ToDebugString(), ignoreLineEndingDifferences: true);
         }
 
         protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder>? configure = null)

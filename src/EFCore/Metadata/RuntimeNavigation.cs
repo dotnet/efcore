@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
 /// </remarks>
-public class RuntimeNavigation : RuntimePropertyBase, INavigation
+public class RuntimeNavigation : RuntimePropertyBase, IRuntimeNavigation
 {
     // Warning: Never access these fields directly as access needs to be thread-safe
     private IClrCollectionAccessor? _collectionAccessor;

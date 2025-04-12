@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata;
 
@@ -11,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
 /// </remarks>
-public class RuntimeComplexProperty : RuntimePropertyBase, IComplexProperty
+public class RuntimeComplexProperty : RuntimePropertyBase, IRuntimeComplexProperty
 {
     private readonly bool _isNullable;
     private readonly bool _isCollection;

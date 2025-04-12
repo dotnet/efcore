@@ -16,8 +16,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders;
 ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
 /// </remarks>
 /// <typeparam name="TComplex">The complex type being configured.</typeparam>
-public class ComplexPropertyBuilder<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] TComplex>
-    : ComplexPropertyBuilder
+public class ComplexCollectionBuilder<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] TComplex>
+    : ComplexCollectionBuilder
     where TComplex : notnull
 {
     /// <summary>
@@ -27,10 +27,11 @@ public class ComplexPropertyBuilder<[DynamicallyAccessedMembers(IEntityType.Dyna
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    public ComplexPropertyBuilder(IMutableComplexProperty complexProperty)
+    public ComplexCollectionBuilder(IMutableComplexProperty complexProperty)
         : base(complexProperty)
     {
     }
+
 
     /// <summary>
     ///     Adds or updates an annotation on the complex property. If an annotation with the key specified in
@@ -39,8 +40,8 @@ public class ComplexPropertyBuilder<[DynamicallyAccessedMembers(IEntityType.Dyna
     /// <param name="annotation">The key of the annotation to be added or updated.</param>
     /// <param name="value">The value to be stored in the annotation.</param>
     /// <returns>The same typeBuilder instance so that multiple configuration calls can be chained.</returns>
-    public new virtual ComplexPropertyBuilder<TComplex> HasPropertyAnnotation(string annotation, object? value)
-        => (ComplexPropertyBuilder<TComplex>)base.HasPropertyAnnotation(annotation, value);
+    public new virtual ComplexCollectionBuilder<TComplex> HasPropertyAnnotation(string annotation, object? value)
+        => (ComplexCollectionBuilder<TComplex>)base.HasPropertyAnnotation(annotation, value);
 
     /// <summary>
     ///     Adds or updates an annotation on the complex type. If an annotation with the key specified in
@@ -49,42 +50,8 @@ public class ComplexPropertyBuilder<[DynamicallyAccessedMembers(IEntityType.Dyna
     /// <param name="annotation">The key of the annotation to be added or updated.</param>
     /// <param name="value">The value to be stored in the annotation.</param>
     /// <returns>The same typeBuilder instance so that multiple configuration calls can be chained.</returns>
-    public new virtual ComplexPropertyBuilder<TComplex> HasTypeAnnotation(string annotation, object? value)
-        => (ComplexPropertyBuilder<TComplex>)base.HasTypeAnnotation(annotation, value);
-
-    /// <summary>
-    ///     Configures whether this property must have a value assigned or <see langword="null" /> is a valid value.
-    ///     A property can only be configured as non-required if it is based on a CLR type that can be
-    ///     assigned <see langword="null" />.
-    /// </summary>
-    /// <param name="required">A value indicating whether the property is required.</param>
-    /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
-    public new virtual ComplexPropertyBuilder<TComplex> IsRequired(bool required = true)
-        => (ComplexPropertyBuilder<TComplex>)base.IsRequired(required);
-
-    /// <summary>
-    ///     Sets the backing field to use for this property.
-    /// </summary>
-    /// <remarks>
-    ///     <para>
-    ///         Backing fields are normally found by convention.
-    ///         This method is useful for setting backing fields explicitly in cases where the
-    ///         correct field is not found by convention.
-    ///     </para>
-    ///     <para>
-    ///         By default, the backing field, if one is found or has been specified, is used when
-    ///         new objects are constructed, typically when entities are queried from the database.
-    ///         Properties are used for all other accesses. This can be changed by calling
-    ///         <see cref="UsePropertyAccessMode" />.
-    ///     </para>
-    ///     <para>
-    ///         See <see href="https://aka.ms/efcore-docs-backing-fields">Backing fields</see> for more information and examples.
-    ///     </para>
-    /// </remarks>
-    /// <param name="fieldName">The field name.</param>
-    /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
-    public new virtual ComplexPropertyBuilder<TComplex> HasField(string fieldName)
-        => (ComplexPropertyBuilder<TComplex>)base.HasField(fieldName);
+    public new virtual ComplexCollectionBuilder<TComplex> HasTypeAnnotation(string annotation, object? value)
+        => (ComplexCollectionBuilder<TComplex>)base.HasTypeAnnotation(annotation, value);
 
     /// <summary>
     ///     Returns an object that can be used to configure a property of the complex type.
@@ -130,8 +97,8 @@ public class ComplexPropertyBuilder<[DynamicallyAccessedMembers(IEntityType.Dyna
     /// <param name="propertyName">The name of the property to be configured.</param>
     /// <param name="buildAction">An action that performs configuration of the property.</param>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
-    public new virtual ComplexPropertyBuilder<TComplex> ComplexProperty(string propertyName, Action<ComplexPropertyBuilder> buildAction)
-        => (ComplexPropertyBuilder<TComplex>)base.ComplexProperty(propertyName, buildAction);
+    public new virtual ComplexCollectionBuilder<TComplex> ComplexProperty(string propertyName, Action<ComplexPropertyBuilder> buildAction)
+        => (ComplexCollectionBuilder<TComplex>)base.ComplexProperty(propertyName, buildAction);
 
     /// <summary>
     ///     Configures a complex property of the complex type.
@@ -148,11 +115,11 @@ public class ComplexPropertyBuilder<[DynamicallyAccessedMembers(IEntityType.Dyna
     /// <param name="propertyName">The name of the property to be configured.</param>
     /// <param name="buildAction">An action that performs configuration of the property.</param>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
-    public new virtual ComplexPropertyBuilder<TComplex> ComplexProperty<TProperty>(
+    public new virtual ComplexCollectionBuilder<TComplex> ComplexProperty<TProperty>(
         string propertyName,
         Action<ComplexPropertyBuilder<TProperty>> buildAction)
         where TProperty : notnull
-        => (ComplexPropertyBuilder<TComplex>)base.ComplexProperty(propertyName, buildAction);
+        => (ComplexCollectionBuilder<TComplex>)base.ComplexProperty(propertyName, buildAction);
 
     /// <summary>
     ///     Configures a complex property of the complex type.
@@ -170,12 +137,12 @@ public class ComplexPropertyBuilder<[DynamicallyAccessedMembers(IEntityType.Dyna
     /// <param name="complexTypeName">The name of the complex type.</param>
     /// <param name="buildAction">An action that performs configuration of the property.</param>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
-    public new virtual ComplexPropertyBuilder<TComplex> ComplexProperty<TProperty>(
+    public new virtual ComplexCollectionBuilder<TComplex> ComplexProperty<TProperty>(
         string propertyName,
         string complexTypeName,
         Action<ComplexPropertyBuilder<TProperty>> buildAction)
         where TProperty : notnull
-        => (ComplexPropertyBuilder<TComplex>)base.ComplexProperty(propertyName, complexTypeName, buildAction);
+        => (ComplexCollectionBuilder<TComplex>)base.ComplexProperty(propertyName, complexTypeName, buildAction);
 
     /// <summary>
     ///     Configures a complex property of the complex type.
@@ -192,11 +159,11 @@ public class ComplexPropertyBuilder<[DynamicallyAccessedMembers(IEntityType.Dyna
     /// <param name="propertyName">The name of the property to be configured.</param>
     /// <param name="buildAction">An action that performs configuration of the property.</param>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
-    public new virtual ComplexPropertyBuilder<TComplex> ComplexProperty(
+    public new virtual ComplexCollectionBuilder<TComplex> ComplexProperty(
         Type propertyType,
         string propertyName,
         Action<ComplexPropertyBuilder> buildAction)
-        => (ComplexPropertyBuilder<TComplex>)base.ComplexProperty(propertyType, propertyName, buildAction);
+        => (ComplexCollectionBuilder<TComplex>)base.ComplexProperty(propertyType, propertyName, buildAction);
 
     /// <summary>
     ///     Configures a complex property of the complex type.
@@ -214,12 +181,12 @@ public class ComplexPropertyBuilder<[DynamicallyAccessedMembers(IEntityType.Dyna
     /// <param name="complexTypeName">The name of the complex type.</param>
     /// <param name="buildAction">An action that performs configuration of the property.</param>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
-    public new virtual ComplexPropertyBuilder<TComplex> ComplexProperty(
+    public new virtual ComplexCollectionBuilder<TComplex> ComplexProperty(
         Type propertyType,
         string propertyName,
         string complexTypeName,
         Action<ComplexPropertyBuilder> buildAction)
-        => (ComplexPropertyBuilder<TComplex>)base.ComplexProperty(propertyType, propertyName, complexTypeName, buildAction);
+        => (ComplexCollectionBuilder<TComplex>)base.ComplexProperty(propertyType, propertyName, complexTypeName, buildAction);
 
     /// <summary>
     ///     Returns an object that can be used to configure a complex property of the complex type.
@@ -295,7 +262,7 @@ public class ComplexPropertyBuilder<[DynamicallyAccessedMembers(IEntityType.Dyna
     /// </param>
     /// <param name="buildAction">An action that performs configuration of the property.</param>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
-    public virtual ComplexPropertyBuilder<TComplex> ComplexProperty<TProperty>(
+    public virtual ComplexCollectionBuilder<TComplex> ComplexProperty<TProperty>(
         Expression<Func<TComplex, TProperty?>> propertyExpression,
         Action<ComplexPropertyBuilder<TProperty>> buildAction)
         where TProperty : notnull
@@ -326,7 +293,7 @@ public class ComplexPropertyBuilder<[DynamicallyAccessedMembers(IEntityType.Dyna
     /// <param name="complexTypeName">The name of the complex type.</param>
     /// <param name="buildAction">An action that performs configuration of the property.</param>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
-    public virtual ComplexPropertyBuilder<TComplex> ComplexProperty<TProperty>(
+    public virtual ComplexCollectionBuilder<TComplex> ComplexProperty<TProperty>(
         Expression<Func<TComplex, TProperty?>> propertyExpression,
         string complexTypeName,
         Action<ComplexPropertyBuilder<TProperty>> buildAction)
@@ -351,8 +318,8 @@ public class ComplexPropertyBuilder<[DynamicallyAccessedMembers(IEntityType.Dyna
     /// <param name="propertyName">The name of the property to be configured.</param>
     /// <param name="buildAction">An action that performs configuration of the property.</param>
     /// <returns>An object that can be used to configure the property.</returns>
-    public new virtual ComplexPropertyBuilder<TComplex> ComplexCollection(string propertyName, Action<ComplexCollectionBuilder> buildAction)
-        => (ComplexPropertyBuilder<TComplex>)base.ComplexCollection(propertyName, buildAction);
+    public new virtual ComplexCollectionBuilder<TComplex> ComplexCollection(string propertyName, Action<ComplexCollectionBuilder> buildAction)
+        => (ComplexCollectionBuilder<TComplex>)base.ComplexCollection(propertyName, buildAction);
 
     /// <summary>
     ///     Configures a complex collection of the complex type.
@@ -370,10 +337,11 @@ public class ComplexPropertyBuilder<[DynamicallyAccessedMembers(IEntityType.Dyna
     /// <param name="propertyName">The name of the property to be configured.</param>
     /// <param name="buildAction">An action that performs configuration of the property.</param>
     /// <returns>An object that can be used to configure the property.</returns>
-    public new virtual ComplexPropertyBuilder<TComplex> ComplexCollection<TProperty, TElement>(string propertyName, Action<ComplexCollectionBuilder<TElement>> buildAction)
+    public new virtual ComplexCollectionBuilder<TComplex> ComplexCollection<TProperty, TElement>(
+        string propertyName, Action<ComplexCollectionBuilder<TElement>> buildAction)
         where TProperty : IEnumerable<TElement>
         where TElement : notnull
-        => (ComplexPropertyBuilder<TComplex>)base.ComplexCollection<TProperty, TElement>(propertyName, buildAction);
+        => (ComplexCollectionBuilder<TComplex>)base.ComplexCollection<TProperty, TElement>(propertyName, buildAction);
 
     /// <summary>
     ///     Configures a complex collection of the complex type.
@@ -392,13 +360,13 @@ public class ComplexPropertyBuilder<[DynamicallyAccessedMembers(IEntityType.Dyna
     /// <param name="complexTypeName">The name of the complex type.</param>
     /// <param name="buildAction">An action that performs configuration of the property.</param>
     /// <returns>An object that can be used to configure the property.</returns>
-    public new virtual ComplexPropertyBuilder<TComplex> ComplexCollection<TProperty, TElement>(
+    public new virtual ComplexCollectionBuilder<TComplex> ComplexCollection<TProperty, TElement>(
         string propertyName,
         string complexTypeName,
         Action<ComplexCollectionBuilder<TElement>> buildAction)
         where TProperty : IEnumerable<TElement>
         where TElement : notnull
-        => (ComplexPropertyBuilder<TComplex>)base.ComplexCollection<TProperty, TElement>(propertyName, complexTypeName, buildAction);
+        => (ComplexCollectionBuilder<TComplex>)base.ComplexCollection<TProperty, TElement>(propertyName, complexTypeName, buildAction);
 
     /// <summary>
     ///     Configures a complex collection of the complex type.
@@ -415,8 +383,8 @@ public class ComplexPropertyBuilder<[DynamicallyAccessedMembers(IEntityType.Dyna
     /// <param name="propertyName">The name of the property to be configured.</param>
     /// <param name="buildAction">An action that performs configuration of the property.</param>
     /// <returns>An object that can be used to configure the property.</returns>
-    public new virtual ComplexPropertyBuilder<TComplex> ComplexCollection(Type propertyType, string propertyName, Action<ComplexCollectionBuilder> buildAction)
-        => (ComplexPropertyBuilder<TComplex>)base.ComplexCollection(propertyType, propertyName, buildAction);
+    public new virtual ComplexCollectionBuilder<TComplex> ComplexCollection(Type propertyType, string propertyName, Action<ComplexCollectionBuilder> buildAction)
+        => (ComplexCollectionBuilder<TComplex>)base.ComplexCollection(propertyType, propertyName, buildAction);
 
     /// <summary>
     ///     Configures a complex collection of the complex type.
@@ -434,9 +402,9 @@ public class ComplexPropertyBuilder<[DynamicallyAccessedMembers(IEntityType.Dyna
     /// <param name="complexTypeName">The name of the complex type.</param>
     /// <param name="buildAction">An action that performs configuration of the property.</param>
     /// <returns>An object that can be used to configure the property.</returns>
-    public new virtual ComplexPropertyBuilder<TComplex> ComplexCollection(
+    public new virtual ComplexCollectionBuilder<TComplex> ComplexCollection(
         Type propertyType, string propertyName, string complexTypeName, Action<ComplexCollectionBuilder> buildAction)
-        => (ComplexPropertyBuilder<TComplex>)base.ComplexCollection(propertyType, propertyName, complexTypeName, buildAction);
+        => (ComplexCollectionBuilder<TComplex>)base.ComplexCollection(propertyType, complexTypeName, propertyName, buildAction);
 
     /// <summary>
     ///     Returns an object that can be used to configure a complex collection property of the complex type.
@@ -491,7 +459,7 @@ public class ComplexPropertyBuilder<[DynamicallyAccessedMembers(IEntityType.Dyna
     /// </param>
     /// <param name="buildAction">An action that performs configuration of the property.</param>
     /// <returns>An object that can be used to configure the complex collection property.</returns>
-    public virtual ComplexPropertyBuilder<TComplex> ComplexCollection<TElement>(
+    public virtual ComplexCollectionBuilder<TComplex> ComplexCollection<TElement>(
         Expression<Func<TComplex, IEnumerable<TElement>?>> propertyExpression,
         Action<ComplexCollectionBuilder<TElement>> buildAction)
         where TElement : notnull
@@ -515,7 +483,7 @@ public class ComplexPropertyBuilder<[DynamicallyAccessedMembers(IEntityType.Dyna
     /// <param name="complexTypeName">The name of the complex type.</param>
     /// <param name="buildAction">An action that performs configuration of the property.</param>
     /// <returns>An object that can be used to configure the complex collection property.</returns>
-    public virtual ComplexPropertyBuilder<TComplex> ComplexCollection<TElement>(
+    public virtual ComplexCollectionBuilder<TComplex> ComplexCollection<TElement>(
         Expression<Func<TComplex, IEnumerable<TElement>?>> propertyExpression,
         string complexTypeName,
         Action<ComplexCollectionBuilder<TElement>> buildAction)
@@ -529,24 +497,48 @@ public class ComplexPropertyBuilder<[DynamicallyAccessedMembers(IEntityType.Dyna
     }
 
     /// <summary>
-    ///     Excludes the given property from the complex type. This method is typically used to remove properties
-    ///     or navigations from the complex type that were added by convention.
+    ///     Excludes the given property from the entity type. This method is typically used to remove properties
+    ///     or navigations from the entity type that were added by convention.
     /// </summary>
     /// <param name="propertyExpression">
     ///     A lambda expression representing the property to be ignored
     ///     (<c>blog => blog.Url</c>).
     /// </param>
-    public virtual ComplexPropertyBuilder<TComplex> Ignore(Expression<Func<TComplex, object?>> propertyExpression)
-        => (ComplexPropertyBuilder<TComplex>)base.Ignore(
+    public virtual ComplexCollectionBuilder<TComplex> Ignore(Expression<Func<TComplex, object?>> propertyExpression)
+        => (ComplexCollectionBuilder<TComplex>)base.Ignore(
             Check.NotNull(propertyExpression, nameof(propertyExpression)).GetMemberAccess().GetSimpleMemberName());
 
     /// <summary>
-    ///     Excludes the given property from the complex type. This method is typically used to remove properties
-    ///     or navigations from the complex type that were added by convention.
+    ///     Excludes the given property from the entity type. This method is typically used to remove properties
+    ///     or navigations from the entity type that were added by convention.
     /// </summary>
-    /// <param name="propertyName">The name of the property to be removed from the complex type.</param>
-    public new virtual ComplexPropertyBuilder<TComplex> Ignore(string propertyName)
-        => (ComplexPropertyBuilder<TComplex>)base.Ignore(propertyName);
+    /// <param name="propertyName">The name of the property to be removed from the entity type.</param>
+    public new virtual ComplexCollectionBuilder<TComplex> Ignore(string propertyName)
+        => (ComplexCollectionBuilder<TComplex>)base.Ignore(propertyName);
+
+    /// <summary>
+    ///     Sets the backing field to use for this property.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         Backing fields are normally found by convention.
+    ///         This method is useful for setting backing fields explicitly in cases where the
+    ///         correct field is not found by convention.
+    ///     </para>
+    ///     <para>
+    ///         By default, the backing field, if one is found or has been specified, is used when
+    ///         new objects are constructed, typically when entities are queried from the database.
+    ///         Properties are used for all other accesses. This can be changed by calling
+    ///         <see cref="UsePropertyAccessMode" />.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-backing-fields">Backing fields</see> for more information and examples.
+    ///     </para>
+    /// </remarks>
+    /// <param name="fieldName">The field name.</param>
+    /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
+    public new virtual ComplexCollectionBuilder<TComplex> HasField(string fieldName)
+        => (ComplexCollectionBuilder<TComplex>)base.HasField(fieldName);
 
     /// <summary>
     ///     Configures the <see cref="ChangeTrackingStrategy" /> to be used for this complex type.
@@ -554,8 +546,8 @@ public class ComplexPropertyBuilder<[DynamicallyAccessedMembers(IEntityType.Dyna
     /// </summary>
     /// <param name="changeTrackingStrategy">The change tracking strategy to be used.</param>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
-    public new virtual ComplexPropertyBuilder<TComplex> HasChangeTrackingStrategy(ChangeTrackingStrategy changeTrackingStrategy)
-        => (ComplexPropertyBuilder<TComplex>)base.HasChangeTrackingStrategy(changeTrackingStrategy);
+    public new virtual ComplexCollectionBuilder<TComplex> HasChangeTrackingStrategy(ChangeTrackingStrategy changeTrackingStrategy)
+        => (ComplexCollectionBuilder<TComplex>)base.HasChangeTrackingStrategy(changeTrackingStrategy);
 
     /// <summary>
     ///     Sets the <see cref="PropertyAccessMode" /> to use for this property.
@@ -574,8 +566,8 @@ public class ComplexPropertyBuilder<[DynamicallyAccessedMembers(IEntityType.Dyna
     /// </remarks>
     /// <param name="propertyAccessMode">The <see cref="PropertyAccessMode" /> to use for this property.</param>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
-    public new virtual ComplexPropertyBuilder<TComplex> UsePropertyAccessMode(PropertyAccessMode propertyAccessMode)
-        => (ComplexPropertyBuilder<TComplex>)base.UsePropertyAccessMode(propertyAccessMode);
+    public new virtual ComplexCollectionBuilder<TComplex> UsePropertyAccessMode(PropertyAccessMode propertyAccessMode)
+        => (ComplexCollectionBuilder<TComplex>)base.UsePropertyAccessMode(propertyAccessMode);
 
     /// <summary>
     ///     Sets the <see cref="PropertyAccessMode" /> to use for all properties of this complex type.
@@ -594,31 +586,6 @@ public class ComplexPropertyBuilder<[DynamicallyAccessedMembers(IEntityType.Dyna
     /// </remarks>
     /// <param name="propertyAccessMode">The <see cref="PropertyAccessMode" /> to use for properties of this complex type.</param>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
-    public new virtual ComplexPropertyBuilder<TComplex> UseDefaultPropertyAccessMode(PropertyAccessMode propertyAccessMode)
-        => (ComplexPropertyBuilder<TComplex>)base.UseDefaultPropertyAccessMode(propertyAccessMode);
-
-    /// <summary>
-    ///     Configures the discriminator property used to identify the complex type in the store.
-    /// </summary>
-    /// <typeparam name="TDiscriminator">The type of values stored in the discriminator property.</typeparam>
-    /// <param name="propertyExpression">
-    ///     A lambda expression representing the property to be used as the discriminator (
-    ///     <c>blog => blog.Discriminator</c>).
-    /// </param>
-    /// <returns>A builder that allows the discriminator property to be configured.</returns>
-    public virtual ComplexTypeDiscriminatorBuilder<TDiscriminator> HasDiscriminator<TDiscriminator>(
-        Expression<Func<TComplex, TDiscriminator>> propertyExpression)
-    {
-        Check.NotNull(propertyExpression, nameof(propertyExpression));
-
-        return new ComplexTypeDiscriminatorBuilder<TDiscriminator>(
-            TypeBuilder.HasDiscriminator(propertyExpression.GetMemberAccess(), ConfigurationSource.Explicit)!);
-    }
-
-    /// <summary>
-    ///     Configures the entity type as having no discriminator property.
-    /// </summary>
-    /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
-    public new virtual ComplexPropertyBuilder<TComplex> HasNoDiscriminator()
-        => (ComplexPropertyBuilder<TComplex>)base.HasNoDiscriminator();
+    public new virtual ComplexCollectionBuilder<TComplex> UseDefaultPropertyAccessMode(PropertyAccessMode propertyAccessMode)
+        => (ComplexCollectionBuilder<TComplex>)base.UseDefaultPropertyAccessMode(propertyAccessMode);
 }

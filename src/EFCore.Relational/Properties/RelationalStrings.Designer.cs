@@ -648,7 +648,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("EmptyCollectionNotSupportedAsInlineQueryRoot");
 
         /// <summary>
-        ///     The short name for '{entityType1}' is '{discriminatorValue}' which is the same for '{entityType2}'. Every concrete entity type in the hierarchy must have a unique short name. Either rename one of the types or call modelBuilder.Entity&lt;TEntity&gt;().Metadata.SetDiscriminatorValue("NewShortName").
+        ///     The short name for '{entityType1}' is '{discriminatorValue}' which is the same for '{entityType2}'. Every concrete entity type in the hierarchy must have a unique short name. Either rename one of the types or call modelBuilder.Entity&lt;TRoot&gt;().Metadata.SetDiscriminatorValue("NewShortName").
         /// </summary>
         public static string EntityShortNameNotUnique(object? entityType1, object? discriminatorValue, object? entityType2)
             => string.Format(

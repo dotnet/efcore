@@ -1136,21 +1136,6 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     }
 
     [ConditionalFact]
-    public virtual void Detects_collection_complex_properties()
-    {
-        var modelBuilder = CreateConventionModelBuilder();
-        modelBuilder.Ignore(typeof(Order));
-
-        var model = modelBuilder.Model;
-        var customerEntity = model.AddEntityType(typeof(Customer));
-        customerEntity.AddComplexProperty(nameof(Customer.Orders), collection: true);
-
-        VerifyError(
-            CoreStrings.ComplexPropertyCollection(nameof(Customer), nameof(Customer.Orders)),
-            modelBuilder);
-    }
-
-    [ConditionalFact]
     public virtual void Detects_optional_collection_complex_properties()
     {
         var modelBuilder = CreateConventionModelBuilder();

@@ -110,7 +110,7 @@ public class PropertyAccessorsFactory
         IPropertyBase propertyBase,
         bool useStoreGeneratedValues)
     {
-        var entityClrType = propertyBase.DeclaringType.ContainingEntityType.ClrType;
+        var entityClrType = propertyBase.DeclaringType.GetPropertyAccessRoot().ClrType;
         var entryParameter = Expression.Parameter(typeof(IInternalEntry), "entry");
         var propertyIndex = propertyBase.GetIndex();
         var shadowIndex = propertyBase.GetShadowIndex();
@@ -250,7 +250,7 @@ public class PropertyAccessorsFactory
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public static readonly MethodInfo ContainsKeyMethod =
-        typeof(IDictionary<string, object>).GetMethod(nameof(IDictionary<string, object>.ContainsKey), new[] { typeof(string) })!;
+        typeof(IDictionary<string, object>).GetMethod(nameof(IDictionary<string, object>.ContainsKey), [typeof(string)])!;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -267,13 +267,13 @@ public class PropertyAccessorsFactory
         if (property?.IsIndexerProperty() == true)
         {
             Expression expression = Expression.MakeIndex(
-                instanceExpression, (PropertyInfo)memberInfo, new List<Expression> { Expression.Constant(property.Name) });
+                instanceExpression, (PropertyInfo)memberInfo, [Expression.Constant(property.Name)]);
 
             if (property.DeclaringType.IsPropertyBag)
             {
                 expression = Expression.Condition(
                     Expression.Call(
-                        instanceExpression, ContainsKeyMethod, new List<Expression> { Expression.Constant(property.Name) }),
+                        instanceExpression, ContainsKeyMethod, [Expression.Constant(property.Name)]),
                     expression,
                     expression.Type.GetDefaultValueConstant());
             }
@@ -282,7 +282,8 @@ public class PropertyAccessorsFactory
         }
 
         if (!fromContainingType
-            && property?.DeclaringType is IComplexType complexType)
+            && property?.DeclaringType is IComplexType complexType
+            && !complexType.ComplexProperty.IsCollection)
         {
             instanceExpression = CreateMemberAccess(
                 complexType.ComplexProperty,
