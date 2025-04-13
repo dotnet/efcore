@@ -22,5 +22,31 @@
     <Folder Include="Metadata\Conventions\" />
     <Folder Include="Metadata\Internal\" />
   </ItemGroup>
+  <ItemGroup>
+    <Compile Update="Properties\SharePointStrings.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>SharePointStrings.Designer.tt</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="Properties\SharePointStrings.Designer.tt">
+      <CustomToolNamespace>Microsoft.EntityFrameworkCore.SqlServer.Internal</CustomToolNamespace>
+      <LastGenOutput>SharePointStrings.Designer.cs</LastGenOutput>
+      <Generator>TextTemplatingFileGenerator</Generator>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\SharePointStrings.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>SharePointStrings.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
 
+  <ItemGroup>
+    <Compile Include="..\Shared\*.cs" />
+  </ItemGroup>
 </Project>
