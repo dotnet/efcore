@@ -255,7 +255,6 @@ public static class CosmosPropertyBuilderExtensions
     /// <param name="language">The language used for full-text search. Setting this to (<see langword="null" /> will use the default language for the container, or "en-US" if default language was not specified.</param>
     /// <param name="enabled">The value indicating whether full-text search should be enabled for this property.</param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
-    [Experimental(EFDiagnostics.CosmosFullTextSearchExperimental)]
     public static PropertyBuilder EnableFullTextSearch(
         this PropertyBuilder propertyBuilder,
         string? language = null,
@@ -283,7 +282,6 @@ public static class CosmosPropertyBuilderExtensions
     /// <param name="language">The language used for full-text search. Setting this to (<see langword="null" /> will use the default language for the container, or "en-US" if default language was not specified.</param>
     /// <param name="enabled">The value indicating whether full-text search should be enabled for this property.</param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
-    [Experimental(EFDiagnostics.CosmosFullTextSearchExperimental)]
     public static PropertyBuilder<TProperty> EnableFullTextSearch<TProperty>(
         this PropertyBuilder<TProperty> propertyBuilder,
         string? language = null,
@@ -305,7 +303,6 @@ public static class CosmosPropertyBuilderExtensions
     ///     The same builder instance if the configuration was applied,
     ///     <see langword="null" /> otherwise.
     /// </returns>
-    [Experimental(EFDiagnostics.CosmosFullTextSearchExperimental)]
     public static IConventionPropertyBuilder? EnableFullTextSearch(
         this IConventionPropertyBuilder propertyBuilder,
         string? language,
@@ -335,7 +332,6 @@ public static class CosmosPropertyBuilderExtensions
     /// <param name="enabled">The value indicating whether full-text search should be enabled for this property.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns><see langword="true" /> if the vector type can be set.</returns>
-    [Experimental(EFDiagnostics.CosmosFullTextSearchExperimental)]
     public static bool CanSetEnableFullTextSearch(
         this IConventionPropertyBuilder propertyBuilder,
         string? language,

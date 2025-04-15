@@ -7,7 +7,6 @@ using Microsoft.EntityFrameworkCore.Cosmos.Extensions;
 namespace Microsoft.EntityFrameworkCore;
 
 #pragma warning disable EF9103
-#pragma warning disable EF9104
 [CosmosCondition(CosmosCondition.DoesNotUseTokenCredential)]
 public class HybridSearchCosmosTest : IClassFixture<HybridSearchCosmosTest.HybridSearchFixture>
 {
@@ -258,4 +257,3 @@ ORDER BY RANK RRF(VectorDistance(c["Owned"]["Singles"], @inputVector, false, {'d
     }
 }
 #pragma warning restore EF9103
-#pragma warning restore EF9104

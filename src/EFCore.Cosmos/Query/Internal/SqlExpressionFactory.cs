@@ -668,7 +668,6 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [Experimental(EFDiagnostics.CosmosFullTextSearchExperimental)]
     public virtual SqlExpression ScoringFunction(
         string functionName,
         IEnumerable<Expression> arguments,

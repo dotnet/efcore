@@ -71,7 +71,6 @@ public static class CosmosIndexExtensions
     /// </summary>
     /// <param name="index">The index.</param>
     /// <returns>The index type to use, or <see langword="null" /> if none is set.</returns>
-    [Experimental(EFDiagnostics.CosmosFullTextSearchExperimental)]
     public static bool? IsFullTextIndex(this IReadOnlyIndex index)
         => (index is RuntimeIndex)
             ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
@@ -83,7 +82,6 @@ public static class CosmosIndexExtensions
     /// </summary>
     /// <param name="index">The index.</param>
     /// <param name="value">The value indicating whether the index is configured for full-text search.</param>
-    [Experimental(EFDiagnostics.CosmosFullTextSearchExperimental)]
     public static void SetIsFullTextIndex(this IMutableIndex index, bool? value)
         => index.SetAnnotation(CosmosAnnotationNames.FullTextIndex, value);
 
@@ -95,7 +93,6 @@ public static class CosmosIndexExtensions
     /// <param name="value">The value indicating whether the index is configured for full-text search.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>The configured value.</returns>
-    [Experimental(EFDiagnostics.CosmosFullTextSearchExperimental)]
     public static string? SetIsFullTextIndex(
         this IConventionIndex index,
         bool? value,
@@ -110,7 +107,6 @@ public static class CosmosIndexExtensions
     /// </summary>
     /// <param name="property">The property.</param>
     /// <returns>The <see cref="ConfigurationSource" /> for whether the index is clustered.</returns>
-    [Experimental(EFDiagnostics.CosmosFullTextSearchExperimental)]
     public static ConfigurationSource? GetIsFullTextIndexConfigurationSource(this IConventionIndex property)
         => property.FindAnnotation(CosmosAnnotationNames.FullTextIndex)?.GetConfigurationSource();
 }

@@ -249,7 +249,6 @@ public interface ISqlExpressionFactory
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [Experimental(EFDiagnostics.CosmosFullTextSearchExperimental)]
     SqlExpression ScoringFunction(string functionName, IEnumerable<Expression> arguments, Type returnType, CoreTypeMapping? typeMapping = null);
 
     /// <summary>

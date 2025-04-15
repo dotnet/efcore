@@ -111,7 +111,6 @@ public static class CosmosIndexBuilderExtensions
     /// <param name="indexBuilder">The builder for the index being configured.</param>
     /// <param name="value">The value indicating whether the index is configured for Full-text search.</param>
     /// <returns>A builder to further configure the index.</returns>
-    [Experimental(EFDiagnostics.CosmosFullTextSearchExperimental)]
     public static IndexBuilder IsFullTextIndex(this IndexBuilder indexBuilder, bool? value = true)
     {
         indexBuilder.Metadata.SetIsFullTextIndex(value);
@@ -130,7 +129,6 @@ public static class CosmosIndexBuilderExtensions
     /// <param name="indexBuilder">The builder for the index being configured.</param>
     /// <param name="value">The value indicating whether the index is configured for Full-text search.</param>
     /// <returns>A builder to further configure the index.</returns>
-    [Experimental(EFDiagnostics.CosmosFullTextSearchExperimental)]
     public static IndexBuilder<TEntity> IsFullTextIndex<TEntity>(
         this IndexBuilder<TEntity> indexBuilder,
         bool? value = true)
@@ -151,7 +149,6 @@ public static class CosmosIndexBuilderExtensions
     ///     The same builder instance if the configuration was applied,
     ///     <see langword="null" /> otherwise.
     /// </returns>
-    [Experimental(EFDiagnostics.CosmosFullTextSearchExperimental)]
     public static IConventionIndexBuilder? IsFullTextIndex(
         this IConventionIndexBuilder indexBuilder,
         bool? value,
@@ -177,7 +174,6 @@ public static class CosmosIndexBuilderExtensions
     /// <param name="value">The value indicating whether the index is configured for Full-text search.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns><see langword="true" /> if the index can be configured as a Full-text index.</returns>
-    [Experimental(EFDiagnostics.CosmosFullTextSearchExperimental)]
     public static bool CanSetIsFullTextIndex(
         this IConventionIndexBuilder indexBuilder,
         bool? value,

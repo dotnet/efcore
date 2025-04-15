@@ -19,5 +19,4 @@ internal static class EFDiagnostics
     public const string MetricsExperimental = "EF9101";
     public const string PagingExperimental = "EF9102";
     public const string CosmosVectorSearchExperimental = "EF9103";
-    public const string CosmosFullTextSearchExperimental = "EF9104";
 }

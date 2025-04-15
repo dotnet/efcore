@@ -7,7 +7,6 @@ using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 
 namespace Microsoft.EntityFrameworkCore;
 
-#pragma warning disable EF9104
 [CosmosCondition(CosmosCondition.DoesNotUseTokenCredential)]
 public class FullTextSearchCosmosTest : IClassFixture<FullTextSearchCosmosTest.FullTextSearchFixture>
 {
@@ -1111,4 +1110,3 @@ ORDER BY RANK FullTextScore(c["DescriptionNoIndex"], ["beaver","dolphin"])
             => CosmosTestStoreFactory.Instance;
     }
 }
-#pragma warning restore EF9104

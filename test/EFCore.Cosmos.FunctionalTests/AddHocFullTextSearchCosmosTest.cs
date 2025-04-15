@@ -6,7 +6,6 @@ using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 
 namespace Microsoft.EntityFrameworkCore;
 
-#pragma warning disable EF9104
 [CosmosCondition(CosmosCondition.DoesNotUseTokenCredential)]
 public class AddHocFullTextSearchCosmosTest(NonSharedFixture fixture) : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
 {
@@ -455,4 +454,3 @@ public class AddHocFullTextSearchCosmosTest(NonSharedFixture fixture) : NonShare
 
     #endregion
 }
-#pragma warning restore EF9104

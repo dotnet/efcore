@@ -894,7 +894,6 @@ public static class CosmosEntityTypeBuilderExtensions
     /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
     /// <param name="language">The default language.</param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
-    [Experimental(EFDiagnostics.CosmosFullTextSearchExperimental)]
     public static EntityTypeBuilder HasDefaultFullTextLanguage(
         this EntityTypeBuilder entityTypeBuilder,
         string? language)
@@ -914,7 +913,6 @@ public static class CosmosEntityTypeBuilderExtensions
     /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
     /// <param name="language">The default language.</param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
-    [Experimental(EFDiagnostics.CosmosFullTextSearchExperimental)]
     public static EntityTypeBuilder<TEntity> HasDefaultFullTextLanguage<TEntity>(
         this EntityTypeBuilder<TEntity> entityTypeBuilder,
         string? language)
@@ -935,7 +933,6 @@ public static class CosmosEntityTypeBuilderExtensions
     ///     The same builder instance if the configuration was applied,
     ///     <see langword="null" /> otherwise.
     /// </returns>
-    [Experimental(EFDiagnostics.CosmosFullTextSearchExperimental)]
     public static IConventionEntityTypeBuilder? HasDefaultFullTextLanguage(
         this IConventionEntityTypeBuilder entityTypeBuilder,
         string? language,
@@ -963,7 +960,6 @@ public static class CosmosEntityTypeBuilderExtensions
     /// <param name="language">The default language.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns><see langword="true" /> if the configuration can be applied.</returns>
-    [Experimental(EFDiagnostics.CosmosFullTextSearchExperimental)]
     public static bool CanSetDefaultFullTextLanguage(
         this IConventionEntityTypeBuilder entityTypeBuilder,
         string? language,
