@@ -24,6 +24,14 @@ public class FragmentExpression(string fragment) : Expression, IPrintableExpress
     public virtual string Fragment { get; } = fragment;
 
     /// <inheritdoc />
+    public override ExpressionType NodeType
+        => base.NodeType;
+
+    /// <inheritdoc />
+    public override Type Type
+        => typeof(object);
+
+    /// <inheritdoc />
     protected override Expression VisitChildren(ExpressionVisitor visitor)
         => this;
 

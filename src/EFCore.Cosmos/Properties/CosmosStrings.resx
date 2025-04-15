@@ -283,6 +283,15 @@
   <data name="OneOfTwoValuesMustBeSet" xml:space="preserve">
     <value>Exactly one of '{param1}' or '{param2}' must be set.</value>
   </data>
+  <data name="OrderByDescendingScoringFunction" xml:space="preserve">
+    <value>Ordering based on scoring function is not supported inside '{orderByDescending}'. Use '{orderBy}' instead.</value>
+  </data>
+  <data name="OrderByMultipleScoringFunctionWithoutRrf" xml:space="preserve">
+    <value>Only one ordering using scoring function is allowed. Use 'EF.Functions.{rrf}' method to combine multiple scoring functions.</value>
+  </data>
+  <data name="OrderByScoringFunctionMixedWithRegularOrderby" xml:space="preserve">
+    <value>Ordering using a scoring function is mutually exclusive with other forms of ordering.</value>
+  </data>
   <data name="OrphanedNestedDocument" xml:space="preserve">
     <value>The entity of type '{entityType}' is mapped as a part of the document mapped to '{missingEntityType}', but there is no tracked entity of this type with the corresponding key value. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the key values.</value>
   </data>
