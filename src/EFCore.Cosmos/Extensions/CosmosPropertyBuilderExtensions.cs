@@ -243,4 +243,100 @@ public static class CosmosPropertyBuilderExtensions
             ? new CosmosVectorType(distanceFunction, dimensions)
             : throw new ArgumentException(
                 CoreStrings.InvalidEnumValue(distanceFunction, nameof(distanceFunction), typeof(DistanceFunction)));
+
+    /// <summary>
+    ///     Enables full-text search for this property using a specified language.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
+    /// </remarks>
+    /// <param name="propertyBuilder">The builder for the property being configured.</param>
+    /// <param name="language">The language used for full-text search. Setting this to (<see langword="null" /> will use the default language for the container, or "en-US" if default language was not specified.</param>
+    /// <param name="enabled">The value indicating whether full-text search should be enabled for this property.</param>
+    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    public static PropertyBuilder EnableFullTextSearch(
+        this PropertyBuilder propertyBuilder,
+        string? language = null,
+        bool enabled = true)
+    {
+        propertyBuilder.Metadata.SetIsFullTextSearchEnabled(enabled);
+        propertyBuilder.Metadata.SetFullTextSearchLanguage(language);
+
+        return propertyBuilder;
+    }
+
+    /// <summary>
+    ///     Enables full-text search for this property using a specified language.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
+    /// </remarks>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
+    /// </remarks>
+    /// <typeparam name="TProperty">The type of the property being configured.</typeparam>
+    /// <param name="propertyBuilder">The builder for the property being configured.</param>
+    /// <param name="language">The language used for full-text search. Setting this to (<see langword="null" /> will use the default language for the container, or "en-US" if default language was not specified.</param>
+    /// <param name="enabled">The value indicating whether full-text search should be enabled for this property.</param>
+    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    public static PropertyBuilder<TProperty> EnableFullTextSearch<TProperty>(
+        this PropertyBuilder<TProperty> propertyBuilder,
+        string? language = null,
+        bool enabled = true)
+        => (PropertyBuilder<TProperty>)EnableFullTextSearch((PropertyBuilder)propertyBuilder, language, enabled);
+
+    /// <summary>
+    ///     Enables full-text search for this property using a specified language.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
+    /// </remarks>
+    /// <param name="propertyBuilder">The builder for the property being configured.</param>
+    /// <param name="language">The language used for full-text search. Setting this to (<see langword="null" /> will use the default language for the container, or "en-US" if default language was not specified.</param>
+    /// <param name="enabled">The value indicating whether full-text search should be enabled for this property.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>
+    ///     The same builder instance if the configuration was applied,
+    ///     <see langword="null" /> otherwise.
+    /// </returns>
+    public static IConventionPropertyBuilder? EnableFullTextSearch(
+        this IConventionPropertyBuilder propertyBuilder,
+        string? language,
+        bool enabled,
+        bool fromDataAnnotation = false)
+    {
+        if (!propertyBuilder.CanSetEnableFullTextSearch(language, enabled, fromDataAnnotation))
+        {
+            return null;
+        }
+
+        propertyBuilder.Metadata.SetIsFullTextSearchEnabled(enabled, fromDataAnnotation);
+        propertyBuilder.Metadata.SetFullTextSearchLanguage(language, fromDataAnnotation);
+
+        return propertyBuilder;
+    }
+
+    /// <summary>
+    ///     Returns a value indicating whether full-text search can be enabled for this property using a specified language.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
+    /// </remarks>
+    /// <param name="propertyBuilder">The builder for the property being configured.</param>
+    /// <param name="language">The language for full-text search.</param>
+    /// <param name="enabled">The value indicating whether full-text search should be enabled for this property.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns><see langword="true" /> if the vector type can be set.</returns>
+    public static bool CanSetEnableFullTextSearch(
+        this IConventionPropertyBuilder propertyBuilder,
+        string? language,
+        bool enabled,
+        bool fromDataAnnotation = false)
+        => propertyBuilder.CanSetAnnotation(CosmosAnnotationNames.IsFullTextSearchEnabled, enabled, fromDataAnnotation)
+            && propertyBuilder.CanSetAnnotation(CosmosAnnotationNames.FullTextSearchLanguage, language, fromDataAnnotation);
 }
