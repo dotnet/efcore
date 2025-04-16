@@ -660,7 +660,7 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
         IEnumerable<Expression> arguments,
         Type returnType,
         CoreTypeMapping? typeMapping = null)
-        => BuildFunction(functionName, isScoringFunction: false, arguments, returnType, typeMapping);
+        => BuildFunction(functionName, scoringFunction: false, arguments, returnType, typeMapping);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -673,11 +673,11 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
         IEnumerable<Expression> arguments,
         Type returnType,
         CoreTypeMapping? typeMapping = null)
-        => BuildFunction(functionName, isScoringFunction: true, arguments, returnType, typeMapping);
+        => BuildFunction(functionName, scoringFunction: true, arguments, returnType, typeMapping);
 
     private SqlExpression BuildFunction(
         string functionName,
-        bool isScoringFunction,
+        bool scoringFunction,
         IEnumerable<Expression> arguments,
         Type returnType,
         CoreTypeMapping? typeMapping = null)
@@ -691,7 +691,7 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
 
         return new SqlFunctionExpression(
             functionName,
-            isScoringFunction,
+            scoringFunction,
             typeMappedArguments,
             returnType,
             typeMapping);

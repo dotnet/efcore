@@ -116,7 +116,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                     return new SqlFunctionExpression(
                         fullTextScoreFunction.Name,
-                        isScoringFunction: true,
+                        scoringFunction: true,
                         [property, sqlExpressionFactory.Constant(keywordValues, typeMapping)],
                         fullTextScoreFunction.Type,
                         fullTextScoreFunction.TypeMapping);
