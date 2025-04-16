@@ -725,6 +725,31 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture>(TFixture fix
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task Coalesce_Correct_Multiple_Same_TypeMapping(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Employee>().OrderBy(e => e.EmployeeID)
+                .Select(e => (e.ReportsTo + 1L) ?? (e.ReportsTo + 2L) ?? (e.ReportsTo + 3L)),
+            assertOrder: true);
+
+    [ConditionalTheory(Skip = "issue #15586")]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Coalesce_Correct_TypeMapping_Double(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Employee>().OrderBy(e => e.EmployeeID).Select(e => e.ReportsTo ?? 2.25),
+            assertOrder: true);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Coalesce_Correct_TypeMapping_String(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().OrderBy(c => c.CustomerID).Select(c => c.Region ?? "no region specified"),
+            assertOrder: true);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task Null_Coalesce_Short_Circuit(bool async)
     {
         List<int> values = null;
