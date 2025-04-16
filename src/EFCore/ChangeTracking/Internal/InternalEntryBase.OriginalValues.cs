@@ -5,11 +5,11 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
-public sealed partial class InternalEntityEntry
+public partial class InternalEntryBase
 {
-    private readonly struct OriginalValues(IInternalEntry entry)
+    private readonly struct OriginalValues(InternalEntryBase entry)
     {
-        private readonly ISnapshot _values = ((IRuntimeEntityType)entry.StructuralType.ContainingEntityType).OriginalValuesFactory((InternalEntityEntry)entry);
+        private readonly ISnapshot _values = entry.StructuralType.OriginalValuesFactory((IInternalEntry)entry);
 
         public object? GetValue(IInternalEntry entry, IProperty property)
             => property.GetOriginalValueIndex() is var index && index == -1

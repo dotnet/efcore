@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class ClrICollectionAccessor<TEntity, TCollection, TElement> : IClrCollectionAccessor
+public class ClrCollectionAccessor<TEntity, TCollection, TElement> : IClrCollectionAccessor
     where TEntity : class
     where TCollection : class, IEnumerable<TElement>
     where TElement : class
@@ -39,7 +39,7 @@ public class ClrICollectionAccessor<TEntity, TCollection, TElement> : IClrCollec
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public ClrICollectionAccessor(
+    public ClrCollectionAccessor(
         string propertyName,
         bool shadow,
         Func<TEntity, TCollection>? getCollection,

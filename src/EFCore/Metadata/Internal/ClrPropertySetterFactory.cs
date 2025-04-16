@@ -135,7 +135,7 @@ public class ClrPropertySetterFactory : ClrAccessorFactory<IClrPropertySetter>
             var converted = Expression.Variable(memberInfo.DeclaringType, "converted");
 
             writeExpression = Expression.Block(
-                new[] { converted },
+                [converted],
                 new List<Expression>
                 {
                     Expression.Assign(
@@ -158,13 +158,12 @@ public class ClrPropertySetterFactory : ClrAccessorFactory<IClrPropertySetter>
             Expression instanceParameter,
             Expression convertedParameter)
         {
-            if (propertyBase?.DeclaringType is not IComplexType complexType
-                || complexType.ComplexProperty.IsCollection)
+            if (propertyBase?.DeclaringType is not IComplexType complexType)
             {
                 return propertyBase?.IsIndexerProperty() == true
                     ? Expression.Assign(
                         Expression.MakeIndex(
-                            instanceParameter, (PropertyInfo)memberInfo, new List<Expression> { Expression.Constant(propertyBase.Name) }),
+                            instanceParameter, (PropertyInfo)memberInfo, [Expression.Constant(propertyBase.Name)]),
                         convertedParameter)
                     : Expression.MakeMemberAccess(instanceParameter, memberInfo).Assign(convertedParameter);
             }
@@ -180,6 +179,7 @@ public class ClrPropertySetterFactory : ClrAccessorFactory<IClrPropertySetter>
             // $entity.<Culture>k__BackingField = $level1;
             //
             // That is, we create copies of value types, make the assignment, and then copy the value back.
+            // This is necessary for the case without a backing field, because the value type property getter will always return a copy of the value
 
             var chain = complexType.ComplexProperty.GetChainToComplexProperty();
             var previousLevel = instanceParameter;
@@ -193,6 +193,11 @@ public class ClrPropertySetterFactory : ClrAccessorFactory<IClrPropertySetter>
                 var complexMemberInfo = currentProperty.GetMemberInfo(forMaterialization: false, forSet: false);
                 var complexPropertyType = complexMemberInfo.GetMemberType();
                 var currentLevel = Expression.Variable(complexPropertyType, $"level{chainCount + 1 - i}");
+                if (currentProperty.IsCollection)
+                {
+                    Expression.MakeIndex(
+                            instanceParameter, (PropertyInfo)memberInfo, [Expression.Constant(propertyBase.Name)]);
+                }
                 variables.Add(currentLevel);
                 assignments.Add(
                     Expression.Assign(

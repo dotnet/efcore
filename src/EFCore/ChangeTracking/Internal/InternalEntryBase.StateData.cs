@@ -3,7 +3,7 @@
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
-public sealed partial class InternalEntityEntry
+public partial class InternalEntryBase
 {
     internal enum PropertyFlag
     {
@@ -31,6 +31,7 @@ public sealed partial class InternalEntityEntry
 
         public StateData(int propertyCount, int navigationCount)
         {
+            // Properties and navigations use different flags
             var bitsNumber = Math.Max(propertyCount, navigationCount) * BitsForPropertyFlags + BitsForAdditionalState - 1;
             _bits = new int[(bitsNumber / BitsPerInt) + 1];
         }

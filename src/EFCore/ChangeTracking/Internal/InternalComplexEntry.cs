@@ -1,7 +1,9 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+
+namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
 /// <summary>
 ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -9,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public interface IRuntimePropertyBase : IPropertyBase
+public sealed class InternalComplexEntry : InternalEntryBase, IInternalEntry
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -17,7 +19,15 @@ public interface IRuntimePropertyBase : IPropertyBase
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    IClrPropertySetter MaterializationSetter { get; }
+    public InternalComplexEntry(
+        IRuntimeComplexProperty complexProperty,
+        IInternalEntry containingEntry,
+        int ordinal) : base((IRuntimeComplexType)complexProperty.ComplexType)
+    {
+        ComplexProperty = complexProperty;
+        ContainingEntry = containingEntry;
+        Ordinal = ordinal;
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -25,7 +35,7 @@ public interface IRuntimePropertyBase : IPropertyBase
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    PropertyAccessors Accessors { get; }
+    public override IInternalEntry ContainingEntry { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -33,7 +43,7 @@ public interface IRuntimePropertyBase : IPropertyBase
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    PropertyIndexes PropertyIndexes { get; set; }
+    public IComplexProperty ComplexProperty { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -41,7 +51,7 @@ public interface IRuntimePropertyBase : IPropertyBase
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    IClrPropertySetter GetSetter();
+    public IStateManager StateManager => ContainingEntry.StateManager;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -49,8 +59,7 @@ public interface IRuntimePropertyBase : IPropertyBase
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    int GetShadowIndex()
-        => this.GetPropertyIndexes().ShadowIndex;
+    public int Ordinal { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -58,8 +67,10 @@ public interface IRuntimePropertyBase : IPropertyBase
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    int GetStoreGeneratedIndex()
-        => this.GetPropertyIndexes().StoreGenerationIndex;
+    public IRuntimeComplexType ComplexType => (IRuntimeComplexType)ComplexProperty.ComplexType;
+
+    private IRuntimeEntityType ContainingEntityType
+        => (IRuntimeEntityType)ComplexType.ContainingEntityType;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -67,23 +78,21 @@ public interface IRuntimePropertyBase : IPropertyBase
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    int GetRelationshipIndex()
-        => this.GetPropertyIndexes().RelationshipIndex;
+    protected override void OnStateChanged(EntityState oldState)
+    {
+        if (oldState is EntityState.Detached or EntityState.Unchanged)
+        {
+            if (EntityState is EntityState.Added or EntityState.Deleted or EntityState.Modified)
+            {
+                ContainingEntry.OnComplexPropertyModified(ComplexProperty, isModified: true);
+            }
+        }
+        else if (EntityState is EntityState.Detached or EntityState.Unchanged)
+        {
+            ContainingEntry.OnComplexPropertyModified(ComplexProperty, isModified: false);
+        }
+    }
 
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    int GetOriginalValueIndex()
-        => this.GetPropertyIndexes().OriginalValueIndex;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    IClrIndexedCollectionAccessor? GetIndexedCollectionAccessor();
+    IRuntimeTypeBase IInternalEntry.StructuralType
+        => ComplexType;
 }
