@@ -1,10 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-#if NET472
-using System;
+#if !NET
 using System.Collections;
-using System.IO;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Design.Internal;
@@ -18,11 +16,13 @@ namespace Microsoft.EntityFrameworkCore.Tools
         private readonly object _executor;
         private readonly AppDomain _domain;
         private bool _disposed;
+        private string? _efcoreVersion;
         private const string ReportHandlerTypeName = "Microsoft.EntityFrameworkCore.Design.OperationReportHandler";
 
         public AppDomainOperationExecutor(
             string assembly,
             string? startupAssembly,
+            string? designAssembly,
             string? project,
             string? projectDir,
             string? dataDirectory,
@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
             bool nullable,
             string[] remainingArguments,
             IOperationReportHandler reportHandler)
-            : base(assembly, startupAssembly, project, projectDir, rootNamespace, language, nullable, remainingArguments, reportHandler)
+            : base(assembly, startupAssembly, designAssembly, project, projectDir, rootNamespace, language, nullable, remainingArguments, reportHandler)
         {
             var info = new AppDomainSetup { ApplicationBase = AppBasePath };
 
@@ -66,6 +66,15 @@ namespace Microsoft.EntityFrameworkCore.Tools
                 null,
                 null);
 
+            if (DesignAssemblyPath != null)
+            {
+                _domain.AssemblyResolve += (object? sender, ResolveEventArgs args) =>
+                {
+                    var assemblyPath = Path.Combine(Path.GetDirectoryName(DesignAssemblyPath)!, args.Name + ".dll");
+                    return File.Exists(assemblyPath) ? Assembly.LoadFrom(assemblyPath) : null;
+                };
+            }
+
             _executor = _domain.CreateInstanceAndUnwrap(
                 DesignAssemblyName,
                 ExecutorTypeName,
@@ -89,6 +98,22 @@ namespace Microsoft.EntityFrameworkCore.Tools
                 ],
                 null,
                 null);
+        }
+
+        public override string? EFCoreVersion
+        {
+            get
+            {
+                if (_efcoreVersion != null)
+                {
+                    return _efcoreVersion;
+                }
+
+                var designAssembly = _domain.GetAssemblies().Single(assembly => assembly.GetName().Name == DesignAssemblyName);
+                _efcoreVersion = designAssembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()
+                        ?.InformationalVersion;
+                return _efcoreVersion;
+            }
         }
 
         protected override object CreateResultHandler()

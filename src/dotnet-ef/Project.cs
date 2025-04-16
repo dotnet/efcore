@@ -29,6 +29,7 @@ internal class Project
     public string ProjectName { get; }
 
     public string? AssemblyName { get; set; }
+    public string? DesignAssembly { get; set; }
     public string? Language { get; set; }
     public string? OutputPath { get; set; }
     public string? PlatformTarget { get; set; }
@@ -50,76 +51,82 @@ internal class Project
     {
         Debug.Assert(!string.IsNullOrEmpty(file), "file is null or empty.");
 
-        IDictionary<string, string> metadata;
-        var metadataFile = Path.GetTempFileName();
-        try
-        {
-            var args = new List<string>
+        var args = new List<string>
             {
                 "msbuild",
             };
 
-            if (framework != null)
-            {
-                args.Add($"/property:TargetFramework={framework}");
-            }
-
-            if (configuration != null)
-            {
-                args.Add($"/property:Configuration={configuration}");
-            }
-
-            if (runtime != null)
-            {
-                args.Add($"/property:RuntimeIdentifier={runtime}");
-            }
-
-            foreach (var property in typeof(Project).GetProperties())
-            {
-                args.Add($"/getProperty:{property.Name}");
-            }
-
-            args.Add("/getProperty:Platform");
-
-            args.Add(file);
-
-            var output = new StringBuilder();
-
-            var exitCode = Exe.Run("dotnet", args, handleOutput: line => output.AppendLine(line));
-            if (exitCode != 0)
-            {
-                throw new CommandException(Resources.GetMetadataFailed);
-            }
-
-            metadata = JsonSerializer.Deserialize<Dictionary<string, Dictionary<string, string>>>(output.ToString())!["Properties"];
-        }
-        finally
+        if (framework != null)
         {
-            File.Delete(metadataFile);
+            args.Add($"/property:TargetFramework={framework}");
         }
 
-        var platformTarget = metadata[nameof(PlatformTarget)];
+        if (configuration != null)
+        {
+            args.Add($"/property:Configuration={configuration}");
+        }
+
+        if (runtime != null)
+        {
+            args.Add($"/property:RuntimeIdentifier={runtime}");
+        }
+
+        foreach (var property in typeof(Project).GetProperties())
+        {
+            args.Add($"/getProperty:{property.Name}");
+        }
+
+        args.Add("/getProperty:Platform");
+
+        args.Add("/t:ResolvePackageAssets");
+        args.Add("/getItem:RuntimeCopyLocalItems");
+
+        args.Add(file);
+
+        var output = new StringBuilder();
+
+        var exitCode = Exe.Run("dotnet", args, handleOutput: line => output.AppendLine(line));
+        if (exitCode != 0)
+        {
+            throw new CommandException(Resources.GetMetadataFailed);
+        }
+
+        var metadata = JsonSerializer.Deserialize<ProjectMetadata>(output.ToString())!;
+
+        var designAssembly = metadata.Items["RuntimeCopyLocalItems"]
+            .Select(i => i["FullPath"])
+            .FirstOrDefault(i => i.Contains("Microsoft.EntityFrameworkCore.Design", StringComparison.InvariantCulture));
+        var properties = metadata.Properties;
+
+        var platformTarget = properties[nameof(PlatformTarget)];
         if (platformTarget.Length == 0)
         {
-            platformTarget = metadata["Platform"];
+            platformTarget = properties["Platform"];
         }
 
         return new Project(file, framework, configuration, runtime)
         {
-            AssemblyName = metadata[nameof(AssemblyName)],
-            Language = metadata[nameof(Language)],
-            OutputPath = metadata[nameof(OutputPath)],
+            AssemblyName = properties[nameof(AssemblyName)],
+            DesignAssembly = designAssembly,
+            Language = properties[nameof(Language)],
+            OutputPath = properties[nameof(OutputPath)],
             PlatformTarget = platformTarget,
-            ProjectAssetsFile = metadata[nameof(ProjectAssetsFile)],
-            ProjectDir = metadata[nameof(ProjectDir)],
-            RootNamespace = metadata[nameof(RootNamespace)],
-            RuntimeFrameworkVersion = metadata[nameof(RuntimeFrameworkVersion)],
-            TargetFileName = metadata[nameof(TargetFileName)],
-            TargetFrameworkMoniker = metadata[nameof(TargetFrameworkMoniker)],
-            Nullable = metadata[nameof(Nullable)],
-            TargetFramework = metadata[nameof(TargetFramework)],
-            TargetPlatformIdentifier = metadata[nameof(TargetPlatformIdentifier)]
+            ProjectAssetsFile = properties[nameof(ProjectAssetsFile)],
+            ProjectDir = properties[nameof(ProjectDir)],
+            RootNamespace = properties[nameof(RootNamespace)],
+            RuntimeFrameworkVersion = properties[nameof(RuntimeFrameworkVersion)],
+            TargetFileName = properties[nameof(TargetFileName)],
+            TargetFrameworkMoniker = properties[nameof(TargetFrameworkMoniker)],
+            Nullable = properties[nameof(Nullable)],
+            TargetFramework = properties[nameof(TargetFramework)],
+            TargetPlatformIdentifier = properties[nameof(TargetPlatformIdentifier)]
         };
+    }
+
+    private record class ProjectMetadata
+    {
+        public Dictionary<string, string> Properties { get; set; } = null!;
+        public Dictionary<string, Dictionary<string, string>[]> Items { get; set; } = null!;
     }
 
     public void Build(IEnumerable<string>? additionalArgs)
