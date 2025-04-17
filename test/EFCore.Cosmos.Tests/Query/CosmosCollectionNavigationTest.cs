@@ -16,8 +16,9 @@ public class CosmosCollectionNavigationTest
         await using var testDatabase = CosmosTestStore.Create("CollectionTest");
         var options = new DbContextOptionsBuilder()
             .UseCosmos(
-                testDatabase.ConnectionString,
-                testDatabase.DatabaseId)
+                testDatabase.ConnectionUri,
+                testDatabase.AuthToken,
+                testDatabase.Name)
             .Options;
 
         var context = new TestContext(options);
@@ -67,8 +68,9 @@ public class CosmosCollectionNavigationTest
         await using var testDatabase = CosmosTestStore.Create("AggregationTest");
         var options = new DbContextOptionsBuilder()
             .UseCosmos(
-                testDatabase.ConnectionString,
-                testDatabase.DatabaseId)
+                testDatabase.ConnectionUri,
+                testDatabase.AuthToken,
+                testDatabase.Name)
             .Options;
 
         var context = new TestContext(options);
