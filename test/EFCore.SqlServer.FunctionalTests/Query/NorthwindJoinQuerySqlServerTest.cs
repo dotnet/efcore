@@ -786,7 +786,7 @@ CROSS APPLY (
 SELECT [o0].[c]
 FROM [Customers] AS [c]
 CROSS APPLY (
-    SELECT [c].[CustomerID] + COALESCE([c].[City], N'') AS [c]
+    SELECT [c].[CustomerID] + ISNULL(CAST([c].[City] AS nvarchar(4000)), N'') AS [c]
     FROM [Orders] AS [o]
     WHERE [c].[CustomerID] = [o].[CustomerID]
 ) AS [o0]
@@ -823,7 +823,7 @@ FROM [Customers] AS [c]
 INNER JOIN (
     SELECT [c1].[CustomerID], [c1].[Address], [c1].[City], [c1].[CompanyName], [c1].[ContactName], [c1].[ContactTitle], [c1].[Country], [c1].[Fax], [c1].[Phone], [c1].[PostalCode], [c1].[Region]
     FROM (
-        SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region], ROW_NUMBER() OVER(PARTITION BY [c0].[CustomerID] ORDER BY [c0].[CustomerID] + COALESCE([c0].[City], N'')) AS [row]
+        SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region], ROW_NUMBER() OVER(PARTITION BY [c0].[CustomerID] ORDER BY [c0].[CustomerID] + ISNULL(CAST([c0].[City] AS nvarchar(4000)), N'')) AS [row]
         FROM [Customers] AS [c0]
     ) AS [c1]
     WHERE [c1].[row] <= 2
@@ -845,7 +845,7 @@ FROM (
 INNER JOIN (
     SELECT [c1].[CustomerID], [c1].[Address], [c1].[City], [c1].[CompanyName], [c1].[ContactName], [c1].[ContactTitle], [c1].[Country], [c1].[Fax], [c1].[Phone], [c1].[PostalCode], [c1].[Region]
     FROM (
-        SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region], ROW_NUMBER() OVER(PARTITION BY [c0].[CustomerID] ORDER BY [c0].[CustomerID] + COALESCE([c0].[City], N'')) AS [row]
+        SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region], ROW_NUMBER() OVER(PARTITION BY [c0].[CustomerID] ORDER BY [c0].[CustomerID] + ISNULL(CAST([c0].[City] AS nvarchar(4000)), N'')) AS [row]
         FROM [Customers] AS [c0]
     ) AS [c1]
     WHERE [c1].[row] <= 2
@@ -867,7 +867,7 @@ FROM (
 INNER JOIN (
     SELECT [c1].[CustomerID], [c1].[Address], [c1].[City], [c1].[CompanyName], [c1].[ContactName], [c1].[ContactTitle], [c1].[Country], [c1].[Fax], [c1].[Phone], [c1].[PostalCode], [c1].[Region]
     FROM (
-        SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region], ROW_NUMBER() OVER(PARTITION BY [c0].[CustomerID] ORDER BY [c0].[CustomerID] + COALESCE([c0].[City], N'')) AS [row]
+        SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region], ROW_NUMBER() OVER(PARTITION BY [c0].[CustomerID] ORDER BY [c0].[CustomerID] + ISNULL(CAST([c0].[City] AS nvarchar(4000)), N'')) AS [row]
         FROM [Customers] AS [c0]
     ) AS [c1]
     WHERE [c1].[row] <= 2
@@ -892,7 +892,7 @@ FROM (
 INNER JOIN (
     SELECT [c1].[CustomerID], [c1].[Address], [c1].[City], [c1].[CompanyName], [c1].[ContactName], [c1].[ContactTitle], [c1].[Country], [c1].[Fax], [c1].[Phone], [c1].[PostalCode], [c1].[Region]
     FROM (
-        SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region], ROW_NUMBER() OVER(PARTITION BY [c0].[CustomerID] ORDER BY [c0].[CustomerID] + COALESCE([c0].[City], N'')) AS [row]
+        SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region], ROW_NUMBER() OVER(PARTITION BY [c0].[CustomerID] ORDER BY [c0].[CustomerID] + ISNULL(CAST([c0].[City] AS nvarchar(4000)), N'')) AS [row]
         FROM [Customers] AS [c0]
     ) AS [c1]
     WHERE [c1].[row] <= 2

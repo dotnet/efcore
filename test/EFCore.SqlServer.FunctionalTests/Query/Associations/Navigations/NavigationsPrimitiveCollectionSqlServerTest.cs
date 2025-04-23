@@ -163,12 +163,12 @@ ORDER BY [r].[Id], [a].[Id], [n].[Id], [a0].[Id], [n0].[Id], [n1].[Id], [n2].[Id
         AssertSql(
             """
 SELECT (
-    SELECT COALESCE(SUM([i0].[value]), 0)
+    SELECT ISNULL(SUM([i0].[value]), 0)
     FROM OPENJSON([a].[Ints]) WITH ([value] int '$') AS [i0])
 FROM [RootEntity] AS [r]
 INNER JOIN [AssociateType] AS [a] ON [r].[RequiredAssociateId] = [a].[Id]
 WHERE (
-    SELECT COALESCE(SUM([i].[value]), 0)
+    SELECT ISNULL(SUM([i].[value]), 0)
     FROM OPENJSON([a].[Ints]) WITH ([value] int '$') AS [i]) >= 6
 """);
     }

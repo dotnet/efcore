@@ -3399,7 +3399,7 @@ ORDER BY c["City"], c["id"]
         // Cosmos client evaluation. Issue #17246.
         Assert.Equal(
             CoreStrings.ExpressionParameterizationExceptionSensitive(
-                "value(Microsoft.EntityFrameworkCore.Query.NorthwindMiscellaneousQueryTestBase`1+<>c__DisplayClass177_0[Microsoft.EntityFrameworkCore.Query.NorthwindQueryCosmosFixture`1[Microsoft.EntityFrameworkCore.TestUtilities.NoopModelCustomizer]]).ss.Set().Any()"),
+                "value(Microsoft.EntityFrameworkCore.Query.NorthwindMiscellaneousQueryTestBase`1+<>c__DisplayClass179_0[Microsoft.EntityFrameworkCore.Query.NorthwindQueryCosmosFixture`1[Microsoft.EntityFrameworkCore.TestUtilities.NoopModelCustomizer]]).ss.Set().Any()"),
             (await Assert.ThrowsAsync<InvalidOperationException>(() => base.SelectMany_primitive_select_subquery(async))).Message);
 
         AssertSql();

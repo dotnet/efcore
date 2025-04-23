@@ -413,7 +413,7 @@ GROUP BY [a].[Id], [a].[Alias], [a].[FirstName], [a].[LastName]
 
         AssertSql(
             """
-SELECT [a].[Id], COALESCE(SUM([a].[Id]), 0) AS [Sum], COUNT(*) AS [Count]
+SELECT [a].[Id], ISNULL(SUM([a].[Id]), 0) AS [Sum], COUNT(*) AS [Count]
 FROM [ArubaOwner] AS [a]
 GROUP BY [a].[Id], [a].[Alias], [a].[FirstName], [a].[LastName]
 """);
@@ -722,7 +722,7 @@ FROM (
 LEFT JOIN (
     SELECT [p2].[FirstName], [p2].[FullName], [p2].[c]
     FROM (
-        SELECT [p0].[FirstName], COALESCE([p0].[FirstName], N'') + N' ' + COALESCE([p0].[MiddleInitial], N'') + N' ' + COALESCE([p0].[LastName], N'') AS [FullName], 1 AS [c], ROW_NUMBER() OVER(PARTITION BY [p0].[FirstName] ORDER BY [p0].[Id]) AS [row]
+        SELECT [p0].[FirstName], ISNULL(CAST([p0].[FirstName] AS nvarchar(max)), N'') + N' ' + ISNULL(CAST([p0].[MiddleInitial] AS nvarchar(max)), N'') + N' ' + ISNULL(CAST([p0].[LastName] AS nvarchar(max)), N'') AS [FullName], 1 AS [c], ROW_NUMBER() OVER(PARTITION BY [p0].[FirstName] ORDER BY [p0].[Id]) AS [row]
         FROM [Person] AS [p0]
     ) AS [p2]
     WHERE [p2].[row] <= 1
@@ -785,7 +785,7 @@ GROUP BY [f].[Size], [p0].[LastName]
 
         AssertSql(
             """
-SELECT [p].[Category], COALESCE(SUM([p].[UnitsInStock]), 0) AS [TotalUnitsInStock]
+SELECT [p].[Category], ISNULL(SUM([p].[UnitsInStock]), 0) AS [TotalUnitsInStock]
 FROM [ProductForLinq] AS [p]
 GROUP BY [p].[Category]
 """);
@@ -810,7 +810,7 @@ GROUP BY [p].[Category]
         AssertSql(
             """
 SELECT [p].[FirstName] AS [Feet], (
-    SELECT COALESCE(SUM([f].[Size]), 0)
+    SELECT ISNULL(SUM([f].[Size]), 0)
     FROM [Person] AS [p0]
     LEFT JOIN [Feet] AS [f] ON [p0].[Id] = [f].[Id]
     WHERE [p].[FirstName] = [p0].[FirstName] OR ([p].[FirstName] IS NULL AND [p0].[FirstName] IS NULL)) AS [Total]
