@@ -2896,6 +2896,34 @@ ORDER BY [c].[CustomerID]
 """);
     }
 
+    public override async Task Coalesce_Correct_TypeMapping_String_Sum(bool async)
+    {
+        await base.Coalesce_Correct_TypeMapping_String_Sum(async);
+
+        AssertSql(
+            """
+SELECT COALESCE(CASE
+    WHEN [c].[Region] IS NOT NULL THEN N'R' + [c].[Region]
+END, N'no region specified')
+FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]
+""");
+    }
+
+    public override async Task Coalesce_Correct_TypeMapping_String_Join(bool async)
+    {
+        await base.Coalesce_Correct_TypeMapping_String_Join(async);
+
+        AssertSql(
+            """
+SELECT COALESCE(CASE
+    WHEN [c].[Region] IS NOT NULL THEN CONCAT_WS(N'|', N'R', [c].[Region])
+END, N'no region specified')
+FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]
+""");
+    }
+
     public override async Task Null_Coalesce_Short_Circuit(bool async)
     {
         await base.Null_Coalesce_Short_Circuit(async);

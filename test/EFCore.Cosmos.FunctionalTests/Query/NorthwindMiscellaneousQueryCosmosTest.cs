@@ -3253,6 +3253,38 @@ ORDER BY c["id"]
 """);
             });
 
+    public override Task Coalesce_Correct_TypeMapping_String_Sum(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Coalesce_Correct_TypeMapping_String_Sum(async);
+
+                AssertSql(
+                    """
+SELECT VALUE ((((c["Region"] != null) ? ("R" || c["Region"]) : null) != null) ? ((c["Region"] != null) ? ("R" || c["Region"]) : null) : "no region specified")
+FROM root c
+ORDER BY c["id"]
+""");
+            });
+
+    public override Task Coalesce_Correct_TypeMapping_String_Join(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Coalesce_Correct_TypeMapping_String_Join(async);
+
+                AssertSql(
+                    """
+SELECT VALUE
+{
+    "c" : (c["Region"] != null),
+    "c0" : ["R", c["Region"]]
+}
+FROM root c
+ORDER BY c["id"]
+""");
+            });
+
     public override async Task Null_Coalesce_Short_Circuit(bool async)
     {
         // Cosmos client evaluation. Issue #17246.
