@@ -398,7 +398,7 @@ ORDER BY [c].[CustomerID]
 
         AssertSql(
             """
-SELECT COALESCE((
+SELECT ISNULL((
     SELECT TOP(1) (
         SELECT COUNT(*)
         FROM [Order Details] AS [o0]
