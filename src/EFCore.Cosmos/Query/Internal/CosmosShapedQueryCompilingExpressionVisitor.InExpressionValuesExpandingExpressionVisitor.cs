@@ -10,7 +10,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 public partial class CosmosShapedQueryCompilingExpressionVisitor
 {
     private static readonly bool UseOldBehavior35476 =
-          AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue35476", out var enabled35476) && enabled35476;
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue35476", out var enabled35476) && enabled35476;
+
+    private static readonly bool UseOldBehavior35983 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue35983", out var enabled35983) && enabled35983;
 
     private sealed class ParameterInliner(
         ISqlExpressionFactory sqlExpressionFactory,
@@ -85,7 +88,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     return base.VisitExtension(expression);
                 }
 
-                // Inlines array parameter of full-text functions, transforming FullTextContainsAll(x, @keywordsArray) to FullTextContainsAll(x, keyword1, keyword2)) 
+                // Inlines array parameter of full-text functions, transforming FullTextContainsAll(x, @keywordsArray) to FullTextContainsAll(x, keyword1, keyword2)
                 case SqlFunctionExpression
                 {
                     Name: "FullTextContainsAny" or "FullTextContainsAll",
@@ -106,14 +109,38 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         fullTextContainsAllAnyFunction.TypeMapping);
                 }
 
-                // Inlines array parameter of full-text score, transforming FullTextScore(x, @keywordsArray) to FullTextScore(x, [keyword1, keyword2])) 
+                // Inlines array parameter of full-text score, transforming FullTextScore(x, @keywordsArray) to FullTextScore(x, keyword1, keyword2) 
+                case SqlFunctionExpression
+                {
+                    Name: "FullTextScore",
+                    IsScoringFunction: true,
+                    Arguments: [var property, SqlParameterExpression { TypeMapping: { ElementTypeMapping: var elementTypeMapping }, Type: Type type } keywords]
+                } fullTextScoreFunction
+                when !UseOldBehavior35476 && !UseOldBehavior35983 && type == typeof(string[]):
+                {
+                    var keywordValues = new List<SqlExpression>();
+                    foreach (var value in (IEnumerable)parametersValues[keywords.Name])
+                    {
+                        keywordValues.Add(sqlExpressionFactory.Constant(value, typeof(string), elementTypeMapping));
+                    }
+
+                    return new SqlFunctionExpression(
+                        fullTextScoreFunction.Name,
+                        isScoringFunction: true,
+                        [property, .. keywordValues],
+                        fullTextScoreFunction.Type,
+                        fullTextScoreFunction.TypeMapping);
+                }
+
+                // Legacy path for #35983
+                // Inlines array parameter of full-text score, transforming FullTextScore(x, @keywordsArray) to FullTextScore(x, [keyword1, keyword2]) 
                 case SqlFunctionExpression
                 {
                     Name: "FullTextScore",
                     IsScoringFunction: true,
                     Arguments: [var property, SqlParameterExpression { TypeMapping: { ElementTypeMapping: not null } typeMapping } keywords]
                 } fullTextScoreFunction
-                when !UseOldBehavior35476:
+                when !UseOldBehavior35476 && UseOldBehavior35983:
                 {
                     var keywordValues = new List<string>();
                     foreach (var value in (IEnumerable)parametersValues[keywords.Name])
