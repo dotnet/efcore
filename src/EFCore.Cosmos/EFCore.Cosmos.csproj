@@ -50,6 +50,8 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Azure.Cosmos" />
+	<!-- Microsoft.Azure.Cosmos requires explicit reference to Newtonsoft.Json >= 10.0.2 -->
+    <PackageReference Include="Newtonsoft.Json" />		
   </ItemGroup>
 
   <ItemGroup>
