@@ -87,7 +87,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     IsScoringFunction: bool scoringFunction,
                     Arguments: [var property, SqlParameterExpression { TypeMapping: { ElementTypeMapping: var elementTypeMapping }, Type: Type type } keywords]
                 } fullTextContainsAllAnyFunction
-                when (name == "FullTextContainsAny" || name == "FullTextContainsAll" || name == "FullTextScore") && type == typeof(string[]):
+                when (name is "FullTextContainsAny" or "FullTextContainsAll" or "FullTextScore") && type == typeof(string[]):
                 {
                     var keywordValues = new List<SqlExpression>();
                     foreach (var value in (IEnumerable)parametersValues[keywords.Name])
