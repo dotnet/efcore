@@ -477,7 +477,7 @@ public class DbContextOperations
 
             throw new OperationException(
                 DesignStrings.CannotCreateContextInstance(
-                    contextType ?? contextPair.Key.GetType().ShortDisplayName(), ex.Message), ex);
+                    contextType ?? contextPair.Key.ShortDisplayName(), ex.Message), ex);
         }
     }
 
@@ -502,6 +502,8 @@ public class DbContextOperations
     private IDictionary<Type, Func<DbContext>> FindContextTypes(string? name = null, bool useServiceProvider = true)
     {
         _reporter.WriteVerbose(DesignStrings.FindingContexts);
+
+        AppServiceProviderFactory.SetEnvironment(_reporter);
 
         var contexts = new Dictionary<Type, Func<DbContext>?>();
 

@@ -1437,30 +1437,6 @@ WHERE CAST(DATALENGTH(N'foo') AS int) = 3
         }
     }
 
-    public override async Task Random_return_less_than_1(bool async)
-    {
-        await base.Random_return_less_than_1(async);
-
-        AssertSql(
-            """
-SELECT COUNT(*)
-FROM [Orders] AS [o]
-WHERE RAND() < 1.0E0
-""");
-    }
-
-    public override async Task Random_return_greater_than_0(bool async)
-    {
-        await base.Random_return_greater_than_0(async);
-
-        AssertSql(
-            """
-SELECT COUNT(*)
-FROM [Orders] AS [o]
-WHERE RAND() >= 0.0E0
-""");
-    }
-
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

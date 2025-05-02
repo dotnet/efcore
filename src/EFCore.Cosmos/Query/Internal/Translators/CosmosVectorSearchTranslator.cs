@@ -31,7 +31,7 @@ public class CosmosVectorSearchTranslator(ISqlExpressionFactory sqlExpressionFac
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
     {
         if (method.DeclaringType != typeof(CosmosDbFunctionsExtensions)
-            && method.Name != nameof(CosmosDbFunctionsExtensions.VectorDistance))
+            || method.Name != nameof(CosmosDbFunctionsExtensions.VectorDistance))
         {
             return null;
         }

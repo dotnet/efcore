@@ -654,7 +654,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         }
 
         selectExpression.ApplyOffset(translation);
-        selectExpression.ApplyLimit(TranslateExpression(Expression.Constant(1))!);
+        ApplyLimit(selectExpression, TranslateExpression(Expression.Constant(1))!);
 
         return source;
     }
@@ -693,7 +693,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
             _queryCompilationContext.Logger.FirstWithoutOrderByAndFilterWarning();
         }
 
-        selectExpression.ApplyLimit(TranslateExpression(Expression.Constant(1))!);
+        ApplyLimit(selectExpression, TranslateExpression(Expression.Constant(1))!);
 
         return source.ShaperExpression.Type != returnType
             ? source.UpdateShaperExpression(Expression.Convert(source.ShaperExpression, returnType))
@@ -876,6 +876,27 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         return null;
     }
 
+    /// <inheritdoc />
+    protected override ShapedQueryExpression? TranslateRightJoin(
+        ShapedQueryExpression outer,
+        ShapedQueryExpression inner,
+        LambdaExpression outerKeySelector,
+        LambdaExpression innerKeySelector,
+        LambdaExpression resultSelector)
+    {
+        var joinPredicate = CreateJoinPredicate(outer, outerKeySelector, inner, innerKeySelector);
+        if (joinPredicate != null)
+        {
+            var outerSelectExpression = (SelectExpression)outer.QueryExpression;
+            var outerShaperExpression = outerSelectExpression.AddRightJoin(inner, joinPredicate, outer.ShaperExpression);
+            outer = outer.UpdateShaperExpression(outerShaperExpression);
+
+            return TranslateTwoParameterSelector(outer, resultSelector);
+        }
+
+        return null;
+    }
+
     private SqlExpression CreateJoinPredicate(
         ShapedQueryExpression outer,
         LambdaExpression outerKeySelector,
@@ -940,7 +961,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         }
 
         selectExpression.ReverseOrderings();
-        selectExpression.ApplyLimit(TranslateExpression(Expression.Constant(1))!);
+        ApplyLimit(selectExpression, TranslateExpression(Expression.Constant(1))!);
 
         return source.ShaperExpression.Type != returnType
             ? source.UpdateShaperExpression(Expression.Convert(source.ShaperExpression, returnType))
@@ -1208,7 +1229,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         }
 
         var selectExpression = (SelectExpression)source.QueryExpression;
-        selectExpression.ApplyLimit(TranslateExpression(Expression.Constant(_subquery ? 1 : 2))!);
+        ApplyLimit(selectExpression, TranslateExpression(Expression.Constant(_subquery ? 1 : 2))!);
 
         return source.ShaperExpression.Type != returnType
             ? source.UpdateShaperExpression(Expression.Convert(source.ShaperExpression, returnType))
@@ -1258,9 +1279,47 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
             _queryCompilationContext.Logger.RowLimitingOperationWithoutOrderByWarning();
         }
 
-        selectExpression.ApplyLimit(translation);
+        ApplyLimit(selectExpression, translation);
 
         return source;
+    }
+
+    private void ApplyLimit(SelectExpression selectExpression, SqlExpression limit)
+    {
+        var oldLimit = selectExpression.Limit;
+
+        if (oldLimit is null)
+        {
+            selectExpression.SetLimit(limit);
+            return;
+        }
+
+        if (oldLimit is SqlConstantExpression { Value: int oldConst } && limit is SqlConstantExpression { Value: int newConst })
+        {
+            // if both the old and new limit are constants, use the smaller one
+            // (aka constant-fold LEAST(constA, constB))
+            if (oldConst > newConst)
+            {
+                selectExpression.SetLimit(limit);
+            }
+
+            return;
+        }
+
+        if (oldLimit.Equals(limit))
+        {
+            return;
+        }
+
+        // if possible, use LEAST(oldLimit, limit); otherwise, use nested queries
+        if (_sqlTranslator.GenerateLeast([oldLimit, limit], limit.Type) is { } newLimit)
+        {
+            selectExpression.SetLimit(newLimit);
+        }
+        else
+        {
+            selectExpression.ApplyLimit(limit);
+        }
     }
 
     /// <inheritdoc />

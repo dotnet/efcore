@@ -5,7 +5,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public abstract class AdHocNavigationsQueryRelationalTestBase : AdHocNavigationsQueryTestBase
+public abstract class AdHocNavigationsQueryRelationalTestBase(NonSharedFixture fixture) : AdHocNavigationsQueryTestBase(fixture)
 {
     protected TestSqlLoggerFactory TestSqlLoggerFactory
         => (TestSqlLoggerFactory)ListLoggerFactory;

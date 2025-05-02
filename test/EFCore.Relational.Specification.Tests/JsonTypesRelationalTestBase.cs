@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore;
 
-public abstract class JsonTypesRelationalTestBase : JsonTypesTestBase
+public abstract class JsonTypesRelationalTestBase(NonSharedFixture fixture) : JsonTypesTestBase(fixture)
 {
     public override Task Can_read_write_array_of_array_of_array_of_int_JSON_values()
         => NoNestedCollections(

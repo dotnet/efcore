@@ -18,6 +18,12 @@ namespace Microsoft.Data.Sqlite
     ///     <see cref="SqliteConnection" />.
     /// </summary>
     /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/connection-strings">Connection Strings</seealso>
+#if NET5_0_OR_GREATER
+    [UnconditionalSuppressMessage("ReflectionAnalysis", "IL2112:ReflectionToRequiresUnreferencedCode",
+        Justification = "Suppressing the same warnings as suppressed in the base DbConnectionStringBuilder. See https://github.com/dotnet/runtime/issues/97057")]
+    [UnconditionalSuppressMessage("ReflectionAnalysis", "IL2113:ReflectionToRequiresUnreferencedCode",
+        Justification = "Suppressing the same warnings as suppressed in the base DbConnectionStringBuilder. See https://github.com/dotnet/runtime/issues/97057")]
+#endif
     public class SqliteConnectionStringBuilder : DbConnectionStringBuilder
     {
         private const string DataSourceKeyword = "Data Source";
@@ -431,6 +437,9 @@ namespace Microsoft.Data.Sqlite
                 case Keywords.Pooling:
                     return Pooling;
 
+                case Keywords.Vfs:
+                    return Vfs;
+
                 default:
                     Debug.Fail("Unexpected keyword: " + index);
                     return null;
@@ -477,6 +486,7 @@ namespace Microsoft.Data.Sqlite
                 case Keywords.Pooling:
                     _pooling = true;
                     return;
+
                 case Keywords.Vfs:
                     _vfs = null;
                     return;

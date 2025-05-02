@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public class TableSplittingSqliteTest(ITestOutputHelper testOutputHelper) : TableSplittingTestBase(testOutputHelper)
+public class TableSplittingSqliteTest(NonSharedFixture fixture, ITestOutputHelper testOutputHelper) : TableSplittingTestBase(fixture, testOutputHelper)
 {
     public override async Task ExecuteUpdate_works_for_table_sharing(bool async)
     {
@@ -15,8 +15,10 @@ public class TableSplittingSqliteTest(ITestOutputHelper testOutputHelper) : Tabl
 
         AssertSql(
             """
+@p='1'
+
 UPDATE "Vehicles" AS "v"
-SET "SeatingCapacity" = 1
+SET "SeatingCapacity" = @p
 """,
             //
             """

@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
+public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture) : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
 {
     protected override string StoreName
         => "AdHocMiscellaneousQueryTests";
@@ -64,25 +64,25 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Left_join_with_missing_key_values_on_both_sides(bool async)
+    public virtual async Task LeftJoin_with_missing_key_values_on_both_sides(bool async)
     {
         var contextFactory = await InitializeAsync<Context6901>();
         using var context = contextFactory.CreateContext();
 
-        var customers
-            = from customer in context.Customers
-              join postcode in context.Postcodes
-                  on customer.PostcodeID equals postcode.PostcodeID into custPCTmp
-              from custPC in custPCTmp.DefaultIfEmpty()
-              select new
-              {
-                  customer.CustomerID,
-                  customer.CustomerName,
-                  TownName = custPC == null ? string.Empty : custPC.TownName,
-                  PostcodeValue = custPC == null ? string.Empty : custPC.PostcodeValue
-              };
-
-        var results = customers.ToList();
+        var results
+            = context.Customers
+                .LeftJoin(
+                    context.Postcodes,
+                    c => c.PostcodeID,
+                    p => p.PostcodeID,
+                    (c, p) => new
+                    {
+                        c.CustomerID,
+                        c.CustomerName,
+                        TownName = p == null ? string.Empty : p.TownName,
+                        PostcodeValue = p == null ? string.Empty : p.PostcodeValue
+                    })
+                .ToList();
 
         Assert.Equal(5, results.Count);
         Assert.True(results[3].CustomerName != results[4].CustomerName);

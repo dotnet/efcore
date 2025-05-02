@@ -132,6 +132,9 @@
   <data name="ComplexProjectionInSubqueryNotSupported" xml:space="preserve">
     <value>Complex projections in subqueries are currently unsupported.</value>
   </data>
+  <data name="CompositeFullTextIndex" xml:space="preserve">
+    <value>A full-text index on '{entityType}' is defined over multiple properties (`{properties}`). A full-text index can only target a single property.</value>
+  </data>
   <data name="CompositeVectorIndex" xml:space="preserve">
     <value>A vector index on '{entityType}' is defined over properties `{properties}`. A vector index can only target a single property.</value>
   </data>
@@ -146,6 +149,9 @@
   </data>
   <data name="CosmosNotInUse" xml:space="preserve">
     <value>Cosmos-specific methods can only be used when the context is using the Cosmos provider.</value>
+  </data>
+  <data name="CreatingContainerWithFullTextOrVectorOnCollectionNotSupported" xml:space="preserve">
+    <value>Creating a container with full-text search or vector properties inside a collection navigation is currently not supported using EF Core; path: '{path}'. Create the container using other means (e.g. Microsoft.Azure.Cosmos SDK).</value>
   </data>
   <data name="CrossDocumentJoinNotSupported" xml:space="preserve">
     <value>Joins across documents aren't supported in Cosmos; consider modeling your data differently so that related data is in the same document. Alternatively, perform two separate queries to query the two documents.</value>
@@ -167,6 +173,15 @@
   </data>
   <data name="ExceptNotSupported" xml:space="preserve">
     <value>The 'Except()' LINQ operator isn't supported by Cosmos.</value>
+  </data>
+  <data name="FullTextIndexOnNonFullTextProperty" xml:space="preserve">
+    <value>A full-text index is defined for `{entityType}.{property}`, but full-text search was not enabled for this property. Use '{enableFullText}' method in 'OnModelCreating' to enable full-text search for this property.</value>
+  </data>
+  <data name="FullTextSearchConfiguredForUnsupportedPropertyType" xml:space="preserve">
+    <value>Property '{entityType}.{property}' was configured for full-text search, but has type '{clrType}'; only string properties can be configured for full-text search.</value>
+  </data>
+  <data name="FullTextSearchDefaultLanguageMismatch" xml:space="preserve">
+    <value>The default full-text search language was configured to '{defaultLanguage1}' on '{entityType1}', but on '{entityType2}' it was configured to '{defaultLanguage2}'. All entity types mapped to the same container '{container}' must be configured with the same default full-text search language.</value>
   </data>
   <data name="HasShadowIdOnNonRoot" xml:space="preserve">
     <value>'HasShadowId' was called on a non-root entity type '{entityType}'. JSON 'id' configuration can only be made on the document root.</value>
@@ -277,11 +292,17 @@
   <data name="OffsetRequiresLimit" xml:space="preserve">
     <value>Cosmos SQL does not allow Offset without Limit. Consider specifying a 'Take' operation on the query.</value>
   </data>
-  <data name="SingleFirstOrDefaultNotSupportedOnNonNullableQueries" xml:space="preserve">
-    <value>SingleOrDefault and FirstOrDefault cannot be used Cosmos SQL does not allow Offset without Limit. Consider specifying a 'Take' operation on the query.</value>
-  </data>
   <data name="OneOfTwoValuesMustBeSet" xml:space="preserve">
     <value>Exactly one of '{param1}' or '{param2}' must be set.</value>
+  </data>
+  <data name="OrderByDescendingScoringFunction" xml:space="preserve">
+    <value>Ordering based on scoring function is not supported inside '{orderByDescending}'. Use '{orderBy}' instead.</value>
+  </data>
+  <data name="OrderByMultipleScoringFunctionWithoutRrf" xml:space="preserve">
+    <value>Only one ordering using scoring function is allowed. Use 'EF.Functions.{rrf}' method to combine multiple scoring functions.</value>
+  </data>
+  <data name="OrderByScoringFunctionMixedWithRegularOrderby" xml:space="preserve">
+    <value>Ordering using a scoring function is mutually exclusive with other forms of ordering.</value>
   </data>
   <data name="OrphanedNestedDocument" xml:space="preserve">
     <value>The entity of type '{entityType}' is mapped as a part of the document mapped to '{missingEntityType}', but there is no tracked entity of this type with the corresponding key value. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the key values.</value>
@@ -319,6 +340,9 @@
   <data name="ReverseAfterSkipTakeNotSupported" xml:space="preserve">
     <value>Reversing the ordering is not supported when limit or offset are already applied.</value>
   </data>
+  <data name="SingleFirstOrDefaultNotSupportedOnNonNullableQueries" xml:space="preserve">
+    <value>SingleOrDefault and FirstOrDefault cannot be used Cosmos SQL does not allow Offset without Limit. Consider specifying a 'Take' operation on the query.</value>
+  </data>
   <data name="ThroughputMismatch" xml:space="preserve">
     <value>The provisioned throughput was configured to '{throughput1}' on '{entityType1}', but on '{entityType2}' it was configured to '{throughput2}'. All entity types mapped to the same container '{container}' must be configured with the same provisioned throughput.</value>
   </data>
@@ -344,10 +368,10 @@
     <value>An error occurred while saving the item with id '{itemId}'. See the inner exception for details.</value>
   </data>
   <data name="VectorIndexOnNonVector" xml:space="preserve">
-    <value>A vector index is defined for `{entityType}.{property}`, but this property has not been configured as a vector. Use 'IsVector()' in 'OnModelCreating' to configure the property as a vector.</value>
+    <value>A vector index is defined for `{entityType}.{property}`, but this property has not been configured as a vector. Use 'IsVectorProperty()' in 'OnModelCreating' to configure the property as a vector.</value>
   </data>
   <data name="VectorSearchRequiresVector" xml:space="preserve">
-    <value>The 'VectorDistance' function can only be used with a property mapped as a vector. Use 'IsVector()' in 'OnModelCreating' to configure the property as a vector.</value>
+    <value>The 'VectorDistance' function can only be used with a property mapped as a vector. Use 'IsVectorProperty()' in 'OnModelCreating' to configure the property as a vector.</value>
   </data>
   <data name="VisitChildrenMustBeOverridden" xml:space="preserve">
     <value>'VisitChildren' must be overridden in the class deriving from 'SqlExpression'.</value>

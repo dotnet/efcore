@@ -967,6 +967,51 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
             }
         }
 
+        // .NET 10 made changes to overload resolution to prefer Span-based overloads when those exist ("first-class spans").
+        // Unfortunately, the LINQ interpreter does not support ref structs, so we rewrite e.g. MemoryExtensions.Contains to
+        // Enumerable.Contains here. See https://github.com/dotnet/runtime/issues/109757.
+        if (method.DeclaringType == typeof(MemoryExtensions))
+        {
+            switch (method.Name)
+            {
+                case nameof(MemoryExtensions.Contains)
+                    when methodCall.Arguments is [var arg0, var arg1] && TryUnwrapSpanImplicitCast(arg0, out var unwrappedArg0):
+                {
+                    return Visit(
+                        Call(
+                            EnumerableMethods.Contains.MakeGenericMethod(methodCall.Method.GetGenericArguments()[0]),
+                            unwrappedArg0, arg1));
+                }
+
+                case nameof(MemoryExtensions.SequenceEqual)
+                    when methodCall.Arguments is [var arg0, var arg1]
+                    && TryUnwrapSpanImplicitCast(arg0, out var unwrappedArg0)
+                    && TryUnwrapSpanImplicitCast(arg1, out var unwrappedArg1):
+                    return Visit(
+                        Call(
+                            EnumerableMethods.SequenceEqual.MakeGenericMethod(methodCall.Method.GetGenericArguments()[0]),
+                            unwrappedArg0, unwrappedArg1));
+            }
+
+            static bool TryUnwrapSpanImplicitCast(Expression expression, [NotNullWhen(true)] out Expression? result)
+            {
+                if (expression is MethodCallExpression
+                    {
+                        Method: { Name: "op_Implicit", DeclaringType: { IsGenericType: true } implicitCastDeclaringType },
+                        Arguments: [var unwrapped]
+                    }
+                    && implicitCastDeclaringType.GetGenericTypeDefinition() is var genericTypeDefinition
+                    && (genericTypeDefinition == typeof(Span<>) || genericTypeDefinition == typeof(ReadOnlySpan<>)))
+                {
+                    result = unwrapped;
+                    return true;
+                }
+
+                result = null;
+                return false;
+            }
+        }
+
         // Regular/arbitrary method handling from here on
 
         // First, visit the object and all arguments, saving states as well
@@ -2134,8 +2179,8 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
         }
     }
 
-    private static Expression ConvertIfNeeded(Expression expression, Type type)
-        => expression.Type == type ? expression : Convert(expression, type);
+    private Expression ConvertIfNeeded(Expression expression, Type type)
+        => expression.Type == type ? expression : Visit(Convert(expression, type));
 
     private bool IsGenerallyEvaluatable(Expression expression)
         => _evaluatableExpressionFilter.IsEvaluatableExpression(expression, _model)

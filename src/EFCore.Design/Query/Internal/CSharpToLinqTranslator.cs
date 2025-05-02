@@ -71,7 +71,7 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
     private readonly Stack<ImmutableDictionary<string, ParameterExpression>> _parameterStack
         = new(new[] { ImmutableDictionary<string, ParameterExpression>.Empty });
 
-    private readonly Dictionary<ISymbol, MemberExpression?> _capturedVariables = new(SymbolEqualityComparer.Default);
+    private readonly Dictionary<ISymbol, MemberExpression?> _dataFlowsIn = new(SymbolEqualityComparer.Default);
 
     /// <summary>
     ///     Translates a Roslyn syntax tree into a LINQ expression tree.
@@ -100,11 +100,11 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
 
         _semanticModel = semanticModel;
 
-        // Perform data flow analysis to detect all captured data (closure parameters)
-        _capturedVariables.Clear();
-        foreach (var captured in _semanticModel.AnalyzeDataFlow(node).Captured)
+        // Perform data flow analysis to detect all variables flowing into the query (e.g. captured variables)
+        _dataFlowsIn.Clear();
+        foreach (var flowsIn in _semanticModel.AnalyzeDataFlow(node).DataFlowsIn)
         {
-            _capturedVariables[captured] = null;
+            _dataFlowsIn[flowsIn] = null;
         }
 
         var result = Visit(node);
@@ -122,6 +122,37 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
     [return: NotNullIfNotNull("node")]
     public override Expression? Visit(SyntaxNode? node)
         => base.Visit(node);
+
+    /// <summary>
+    ///     This method gets called when the expression context provides an expected CLR type. For example, in <c>Foo(x)</c>, x gets visited
+    ///     with an expected type based on <c>Foo</c>'s parameter; this may determine how x gets translated, require a LINQ Convert node, or
+    ///     similar. In contrast, in <c>var y = x</c>, there is no context providing an expected type, and the type of <c>x</c> simply
+    ///     bubbles out.
+    /// </summary>
+    [return: NotNullIfNotNull("node")]
+    private Expression? Visit(SyntaxNode? node, Type? expectedType)
+    {
+        if (expectedType is null)
+        {
+            return Visit(node);
+        }
+
+        var result = node switch
+        {
+            ArgumentSyntax s => VisitArgument(s, expectedType),
+
+            // For lambdas, we generate a different node based on the expected type (e.g. an Action<T> rather than a Func<T, T2>, even if
+            // the lambda body does return a T2).
+            SimpleLambdaExpressionSyntax s => VisitLambdaExpression(s, expectedType),
+            ParenthesizedLambdaExpressionSyntax s => VisitLambdaExpression(s, expectedType),
+
+            _ => Visit(node),
+        };
+
+        // TODO: Insert necessary Convert nodes etc. when the expected and actual types differ
+
+        return result;
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -180,13 +211,16 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public override Expression VisitArgument(ArgumentSyntax argument)
+        => VisitArgument(argument, expectedType: null);
+
+    private Expression VisitArgument(ArgumentSyntax argument, Type? expectedType)
     {
         if (!argument.RefKindKeyword.IsKind(SyntaxKind.None))
         {
             throw new InvalidOperationException($"Argument with ref/out: {argument}");
         }
 
-        return Visit(argument.Expression);
+        return Visit(argument.Expression, expectedType);
     }
 
     /// <summary>
@@ -411,13 +445,13 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
             return Constant(_userDbContext);
         }
 
-        // The Translate entry point into the translator uses Roslyn's data flow analysis to locate all captured variables, and populates
-        // the _capturedVariable dictionary with them (with null values).
-        if (symbol is ILocalSymbol localSymbol && _capturedVariables.TryGetValue(localSymbol, out var memberExpression))
+        // The Translate entry point into the translator uses Roslyn's data flow analysis to locate all local variables flowing in
+        // (e.g. captured variables), and populates the _dataFlowsIn dictionary with them (with null values).
+        if (symbol is ILocalSymbol localSymbol && _dataFlowsIn.TryGetValue(localSymbol, out var memberExpression))
         {
-            // The first time we see a captured variable, we create MemberExpression for it and cache it in _capturedVariables.
+            // The first time we see a flowing-in variable, we create MemberExpression for it and cache it in _dataFlowsIn.
             return memberExpression
-                ?? (_capturedVariables[localSymbol] =
+                ?? (_dataFlowsIn[localSymbol] =
                     Field(
                         Constant(new FakeClosureFrameClass()),
                         new FakeFieldInfo(
@@ -682,7 +716,7 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
             // Positional argument
             if (argument.NameColon is null)
             {
-                destArguments[paramIndex] = Visit(argument);
+                destArguments[paramIndex] = Visit(argument, parameter.ParameterType);
                 continue;
             }
 
@@ -1009,7 +1043,7 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
     public override Expression DefaultVisit(SyntaxNode node)
         => throw new NotSupportedException($"Unsupported syntax node of type '{node.GetType()}': {node}");
 
-    private Expression VisitLambdaExpression(AnonymousFunctionExpressionSyntax lambda)
+    private Expression VisitLambdaExpression(AnonymousFunctionExpressionSyntax lambda, Type? expectedType = null)
     {
         if (lambda.ExpressionBody is null)
         {
@@ -1055,7 +1089,28 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
         try
         {
             var body = Visit(lambda.ExpressionBody);
-            return Lambda(body, translatedParameters);
+
+            return expectedType switch
+            {
+                // If there's no contextual expected type, we allow the lambda's type to be inferred from its parameters and the body's
+                // return type.
+                null => Lambda(body, translatedParameters),
+
+                // This is for the case where the expected type is Action<T>, but the lambda body does return something, which needs to get
+                // ignored; for example, the ExecuteUpdateAsync setter parameter is Action<UpdateSettersBuilder>, but the function is
+                // invoked with ExecuteUpdateAsync(s => s.SetProperty(...)), and SetProperty() returns UpdateSettersBuilder for further
+                // chaining. In this case, the body's return type is an UpdateSettersBuilder, meaning that the type of the constructed
+                // lambda here would be Func<UpdateSettersBuilder, UpdateSettersBuilder>, and not Action<UpdateSettersBuilder> as
+                // ExecuteUpdateAsync's signature requires.
+                // Identify this case, and explicitly type the returned lambda as an Action when necessary.
+                _ when expectedType.IsGenericType && expectedType.IsAssignableTo(typeof(MulticastDelegate))
+                    => Lambda(expectedType, body, translatedParameters),
+
+                _ when expectedType.IsGenericType && expectedType.GetGenericTypeDefinition() == typeof(Expression<>)
+                    => Lambda(expectedType.GetGenericArguments()[0], body, translatedParameters),
+
+                _ => throw new UnreachableException()
+            };
         }
         finally
         {
@@ -1245,10 +1300,10 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
         public bool IsNonNullableReferenceType { get; } = isNonNullableReferenceType;
 
         public override object[] GetCustomAttributes(bool inherit)
-            => Array.Empty<object>();
+            => [];
 
         public override object[] GetCustomAttributes(Type attributeType, bool inherit)
-            => Array.Empty<object>();
+            => [];
 
         public override bool IsDefined(Type attributeType, bool inherit)
             => false;
@@ -1289,10 +1344,10 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
     private sealed class FakeConstructorInfo(Type type, ParameterInfo[] parameters) : ConstructorInfo
     {
         public override object[] GetCustomAttributes(bool inherit)
-            => Array.Empty<object>();
+            => [];
 
         public override object[] GetCustomAttributes(Type attributeType, bool inherit)
-            => Array.Empty<object>();
+            => [];
 
         public override bool IsDefined(Type attributeType, bool inherit)
             => false;

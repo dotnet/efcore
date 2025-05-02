@@ -628,7 +628,7 @@ public class QuerySqlGenerator : SqlExpressionVisitor
     protected override Expression VisitSqlConstant(SqlConstantExpression sqlConstantExpression)
     {
         _relationalCommandBuilder
-            .Append(sqlConstantExpression.TypeMapping!.GenerateSqlLiteral(sqlConstantExpression.Value));
+            .Append(sqlConstantExpression.TypeMapping!.GenerateSqlLiteral(sqlConstantExpression.Value), sqlConstantExpression.IsSensitive);
 
         return sqlConstantExpression;
     }
@@ -1248,6 +1248,20 @@ public class QuerySqlGenerator : SqlExpressionVisitor
         Visit(leftJoinExpression.JoinPredicate);
 
         return leftJoinExpression;
+    }
+
+    /// <summary>
+    ///     Generates SQL for a right join.
+    /// </summary>
+    /// <param name="rightJoinExpression">The <see cref="RightJoinExpression" /> for which to generate SQL.</param>
+    protected override Expression VisitRightJoin(RightJoinExpression rightJoinExpression)
+    {
+        _relationalCommandBuilder.Append("RIGHT JOIN ");
+        Visit(rightJoinExpression.Table);
+        _relationalCommandBuilder.Append(" ON ");
+        Visit(rightJoinExpression.JoinPredicate);
+
+        return rightJoinExpression;
     }
 
     /// <summary>

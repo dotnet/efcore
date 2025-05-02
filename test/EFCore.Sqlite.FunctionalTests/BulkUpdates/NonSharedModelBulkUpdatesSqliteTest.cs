@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
 #nullable disable
 
-public class NonSharedModelBulkUpdatesSqliteTest : NonSharedModelBulkUpdatesRelationalTestBase
+public class NonSharedModelBulkUpdatesSqliteTest(NonSharedFixture fixture) : NonSharedModelBulkUpdatesRelationalTestBase(fixture)
 {
     protected override ITestStoreFactory TestStoreFactory
         => SqliteTestStoreFactory.Instance;
@@ -68,8 +68,10 @@ DELETE FROM "Owner" AS "o"
 
         AssertSql(
             """
+@p='SomeValue' (Size = 9)
+
 UPDATE "OwnedCollection" AS "o0"
-SET "Value" = 'SomeValue'
+SET "Value" = @p
 FROM "Owner" AS "o"
 INNER JOIN "OwnedCollection" AS "o0" ON "o"."Id" = "o0"."OwnerId"
 """);
@@ -81,8 +83,10 @@ INNER JOIN "OwnedCollection" AS "o0" ON "o"."Id" = "o0"."OwnerId"
 
         AssertSql(
             """
+@p='SomeValue' (Size = 9)
+
 UPDATE "Owner" AS "o"
-SET "Title" = 'SomeValue'
+SET "Title" = @p
 """);
     }
 
@@ -103,8 +107,10 @@ SET "Title" = COALESCE("o"."Title", '') || '_Suffix'
 
         AssertSql(
             """
+@p='NewValue' (Size = 8)
+
 UPDATE "Owner" AS "o"
-SET "Title" = 'NewValue'
+SET "Title" = @p
 FROM "Owner" AS "o0"
 WHERE "o"."Id" = "o0"."Id"
 """);
@@ -117,8 +123,8 @@ WHERE "o"."Id" = "o0"."Id"
         AssertSql(
             """
 UPDATE "Owner" AS "o"
-SET "OwnedReference_Number" = length("o"."Title"),
-    "Title" = COALESCE(CAST("o"."OwnedReference_Number" AS TEXT), '')
+SET "Title" = COALESCE(CAST("o"."OwnedReference_Number" AS TEXT), ''),
+    "OwnedReference_Number" = length("o"."Title")
 """);
     }
 
@@ -140,8 +146,8 @@ SET "CreationTimestamp" = '2020-01-01 00:00:00'
         AssertSql(
             """
 UPDATE "BlogsPart1" AS "b0"
-SET "Rating" = length("b0"."Title"),
-    "Title" = CAST("b0"."Rating" AS TEXT)
+SET "Title" = CAST("b0"."Rating" AS TEXT),
+    "Rating" = length("b0"."Title")
 FROM "Blogs" AS "b"
 WHERE "b"."Id" = "b0"."Id"
 """);
@@ -209,8 +215,10 @@ DELETE FROM "Blogs" AS "b"
 
         AssertSql(
             """
+@p='Updated' (Size = 7)
+
 UPDATE "Blogs" AS "b"
-SET "Data" = 'Updated'
+SET "Data" = @p
 """);
     }
 

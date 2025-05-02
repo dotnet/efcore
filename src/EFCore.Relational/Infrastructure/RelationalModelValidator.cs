@@ -97,6 +97,22 @@ public class RelationalModelValidator : ModelValidator
         }
     }
 
+    /// <inheritdoc/>
+    protected override void ValidatePropertyMapping(IConventionComplexProperty complexProperty)
+    {
+        base.ValidatePropertyMapping(complexProperty);
+
+        var typeBase = complexProperty.DeclaringType;
+
+        if (!typeBase.IsMappedToJson()
+            && complexProperty.IsNullable
+            && complexProperty.ComplexType.GetProperties().All(m => m.IsNullable))
+        {
+            throw new InvalidOperationException(
+                RelationalStrings.ComplexPropertyOptionalTableSharing(typeBase.DisplayName(), complexProperty.Name));
+        }
+    }
+
     /// <summary>
     ///     Validates the mapping/configuration of SQL queries in the model.
     /// </summary>
@@ -1239,16 +1255,56 @@ public class RelationalModelValidator : ModelValidator
             if (missingConcurrencyTokens != null)
             {
                 missingConcurrencyTokens.Clear();
-                foreach (var (key, readOnlyProperties) in concurrencyColumns!)
+                foreach (var (concurrencyColumn, concurrencyProperties) in concurrencyColumns!)
                 {
-                    if (TableSharingConcurrencyTokenConvention.IsConcurrencyTokenMissing(readOnlyProperties, entityType, mappedTypes))
+                    if (TableSharingConcurrencyTokenConvention.IsConcurrencyTokenMissing(concurrencyProperties, entityType, mappedTypes))
                     {
-                        missingConcurrencyTokens.Add(key);
+                        missingConcurrencyTokens.Add(concurrencyColumn);
                     }
                 }
             }
 
-            foreach (var property in entityType.GetDeclaredProperties())
+            ValidateCompatible(entityType, storeObject, propertyMappings, missingConcurrencyTokens, logger);
+
+            if (missingConcurrencyTokens != null)
+            {
+                foreach (var concurrencyColumn in missingConcurrencyTokens)
+                {
+                    throw new InvalidOperationException(
+                        RelationalStrings.MissingConcurrencyColumn(
+                            entityType.DisplayName(), concurrencyColumn, storeObject.DisplayName()));
+                }
+            }
+        }
+
+        var columnOrders = new Dictionary<int, List<string>>();
+        foreach (var property in propertyMappings.Values)
+        {
+            var columnOrder = property.GetColumnOrder(storeObject);
+            if (!columnOrder.HasValue)
+            {
+                continue;
+            }
+
+            var columns = columnOrders.GetOrAddNew(columnOrder.Value);
+            columns.Add(property.GetColumnName(storeObject)!);
+        }
+
+        if (columnOrders.Any(g => g.Value.Count > 1))
+        {
+            logger.DuplicateColumnOrders(
+                storeObject,
+                columnOrders.Where(g => g.Value.Count > 1).SelectMany(g => g.Value).ToList());
+        }
+
+        void ValidateCompatible(
+            ITypeBase structuralType,
+            in StoreObjectIdentifier storeObject,
+            Dictionary<string, IProperty> propertyMappings,
+            HashSet<string>? missingConcurrencyTokens,
+            IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+        {
+            foreach (var property in structuralType.GetDeclaredProperties())
             {
                 var columnName = property.GetColumnName(storeObject);
                 if (columnName == null)
@@ -1276,38 +1332,13 @@ public class RelationalModelValidator : ModelValidator
                             storeObject.DisplayName()));
                 }
 
-                ValidateCompatible(property, duplicateProperty, columnName, storeObject, logger);
+                this.ValidateCompatible(property, duplicateProperty, columnName, storeObject, logger);
             }
 
-            if (missingConcurrencyTokens != null)
+            foreach (var complexProperty in structuralType.GetDeclaredComplexProperties())
             {
-                foreach (var missingColumn in missingConcurrencyTokens)
-                {
-                    throw new InvalidOperationException(
-                        RelationalStrings.MissingConcurrencyColumn(
-                            entityType.DisplayName(), missingColumn, storeObject.DisplayName()));
-                }
+                ValidateCompatible(complexProperty.ComplexType, storeObject, propertyMappings, missingConcurrencyTokens, logger);
             }
-        }
-
-        var columnOrders = new Dictionary<int, List<string>>();
-        foreach (var property in propertyMappings.Values)
-        {
-            var columnOrder = property.GetColumnOrder(storeObject);
-            if (!columnOrder.HasValue)
-            {
-                continue;
-            }
-
-            var columns = columnOrders.GetOrAddNew(columnOrder.Value);
-            columns.Add(property.GetColumnName(storeObject)!);
-        }
-
-        if (columnOrders.Any(g => g.Value.Count > 1))
-        {
-            logger.DuplicateColumnOrders(
-                storeObject,
-                columnOrders.Where(g => g.Value.Count > 1).SelectMany(g => g.Value).ToList());
         }
     }
 
@@ -1326,17 +1357,7 @@ public class RelationalModelValidator : ModelValidator
         in StoreObjectIdentifier storeObject,
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
     {
-        if (property.IsColumnNullable(storeObject) != duplicateProperty.IsColumnNullable(storeObject))
-        {
-            throw new InvalidOperationException(
-                RelationalStrings.DuplicateColumnNameNullabilityMismatch(
-                    duplicateProperty.DeclaringType.DisplayName(),
-                    duplicateProperty.Name,
-                    property.DeclaringType.DisplayName(),
-                    property.Name,
-                    columnName,
-                    storeObject.DisplayName()));
-        }
+        // NB: Properties can have different nullability, the resulting column will be non-nullable if any of the properties is non-nullable
 
         var currentMaxLength = property.GetMaxLength(storeObject);
         var previousMaxLength = duplicateProperty.GetMaxLength(storeObject);
@@ -1936,6 +1957,11 @@ public class RelationalModelValidator : ModelValidator
                 var discriminatorValues = new Dictionary<string, IEntityType>();
                 foreach (var derivedType in derivedTypes)
                 {
+                    foreach (var complexProperty in derivedType.GetDeclaredComplexProperties())
+                    {
+                        ValidateDiscriminatorValues(complexProperty.ComplexType);
+                    }
+
                     var discriminatorValue = derivedType.GetDiscriminatorValue();
                     if (!derivedType.ClrType.IsInstantiable()
                         || discriminatorValue is null)

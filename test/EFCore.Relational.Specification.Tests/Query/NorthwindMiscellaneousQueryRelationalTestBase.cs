@@ -44,24 +44,6 @@ public abstract class NorthwindMiscellaneousQueryRelationalTestBase<TFixture>(TF
             () => base.Using_string_Equals_with_StringComparison_throws_informative_error(async),
             CoreStrings.QueryUnableToTranslateStringEqualsWithStringComparison);
 
-    public override Task Random_next_is_not_funcletized_1(bool async)
-        => AssertTranslationFailed(() => base.Random_next_is_not_funcletized_1(async));
-
-    public override Task Random_next_is_not_funcletized_2(bool async)
-        => AssertTranslationFailed(() => base.Random_next_is_not_funcletized_2(async));
-
-    public override Task Random_next_is_not_funcletized_3(bool async)
-        => AssertTranslationFailed(() => base.Random_next_is_not_funcletized_3(async));
-
-    public override Task Random_next_is_not_funcletized_4(bool async)
-        => AssertTranslationFailed(() => base.Random_next_is_not_funcletized_4(async));
-
-    public override Task Random_next_is_not_funcletized_5(bool async)
-        => AssertTranslationFailed(() => base.Random_next_is_not_funcletized_5(async));
-
-    public override Task Random_next_is_not_funcletized_6(bool async)
-        => AssertTranslationFailed(() => base.Random_next_is_not_funcletized_6(async));
-
     protected override QueryAsserter CreateQueryAsserter(TFixture fixture)
         => new RelationalQueryAsserter(
             fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression);

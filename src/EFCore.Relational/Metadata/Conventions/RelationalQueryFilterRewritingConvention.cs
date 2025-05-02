@@ -42,14 +42,6 @@ public class RelationalQueryFilterRewritingConvention : QueryFilterRewritingConv
                     entityType.SetQueryFilter(queryFilter.Key, (LambdaExpression)DbSetAccessRewriter.Rewrite(modelBuilder.Metadata, queryFilter.Value));
                 }
             }
-
-#pragma warning disable CS0618 // Type or member is obsolete
-            var definingQuery = ((IEntityType)entityType).GetDefiningQuery();
-            if (definingQuery != null)
-            {
-                entityType.SetDefiningQuery((LambdaExpression)DbSetAccessRewriter.Rewrite(modelBuilder.Metadata, definingQuery));
-            }
-#pragma warning restore CS0618 // Type or member is obsolete
         }
     }
 

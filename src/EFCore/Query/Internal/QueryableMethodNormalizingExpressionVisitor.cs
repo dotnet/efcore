@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections;
@@ -70,8 +70,10 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
                 },
                 Right: ConstantExpression { Value: 0 }
             }
-            when (member.DeclaringType.GetGenericTypeDefinition().GetInterfaces().Any(
-                x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(ICollection<>)))
+            when member.DeclaringType.GetGenericTypeDefinition() is Type genericTypeDefinition
+            && (genericTypeDefinition == typeof(ICollection<>)
+                || genericTypeDefinition.GetInterfaces()
+                    .Any(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(ICollection<>)))
             => VisitMethodCall(
                 Expression.Call(
                     EnumerableMethods.AnyWithoutPredicate.MakeGenericMethod(source.Type.GetSequenceType()),
@@ -643,7 +645,7 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
                     genericArguments[^1] = resultSelector.ReturnType;
 
                     return Expression.Call(
-                        (defaultIfEmpty ? QueryableExtensions.LeftJoinMethodInfo : QueryableMethods.Join).MakeGenericMethod(
+                        (defaultIfEmpty ? QueryableMethods.LeftJoin : QueryableMethods.Join).MakeGenericMethod(
                             genericArguments),
                         outer, inner, outerKeySelector, innerKeySelector, resultSelector);
                 }
@@ -743,7 +745,7 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
                     genericArguments[^1] = resultSelector.ReturnType;
 
                     return Expression.Call(
-                        (defaultIfEmpty ? QueryableExtensions.LeftJoinMethodInfo : QueryableMethods.Join).MakeGenericMethod(
+                        (defaultIfEmpty ? QueryableMethods.LeftJoin : QueryableMethods.Join).MakeGenericMethod(
                             genericArguments),
                         outer, inner, outerKeySelector, innerKeySelector, resultSelector);
                 }

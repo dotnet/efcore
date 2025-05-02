@@ -44,19 +44,6 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
             upOperations => Assert.Equal(0, upOperations.Count));
 
     [ConditionalFact]
-    public void Model_differ_does_not_detect_defining_queries()
-    {
-        DbContext context = null;
-        Execute(
-            _ => { },
-#pragma warning disable CS0618 // Type or member is obsolete
-            modelBuilder => modelBuilder.Entity<TestKeylessType>().HasNoKey().ToQuery(
-                () => context.Set<TestKeylessType>().FromSqlRaw("SELECT * FROM Vista")),
-#pragma warning restore CS0618 // Type or member is obsolete
-            result => Assert.Empty(result));
-    }
-
-    [ConditionalFact]
     public void Model_differ_does_not_detect_queries()
         => Execute(
             _ => { },
@@ -1942,7 +1929,7 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                             {
                                 x.ToTable("Firefly");
                                 x.Property<int>("Id");
-                                x.Property<string>("Name");
+                                x.Property<string>("Name").HasColumnName("Name");
                                 x.HasData(
                                     new { Id = 42, Name = "1" });
                             });
@@ -1953,7 +1940,7 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                             {
                                 x.ToTable("Firefly");
                                 x.Property<int>("Id");
-                                x.Property<string>("Name");
+                                x.Property<string>("Name").HasColumnName("Name");
                                 x.HasOne("Firefly", null).WithOne().HasForeignKey("FireflyDetails", "Id");
                                 x.HasData(
                                     new { Id = 42, Name = "2" });
@@ -7763,7 +7750,7 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                     {
                         x.ToTable("Dogs");
                         x.Property<int>("Id");
-                        x.Property<int?>("PreyId");
+                        x.Property<int?>("PreyId").HasColumnName("PreyId");
                     });
             },
             target =>
@@ -8644,9 +8631,8 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                     {
                         x.Property<int>("Id");
                         x.Property<string>("Name");
-                        x.Property<int>("Discriminator");
 
-                        x.HasDiscriminator()
+                        x.HasDiscriminator<int>("Discriminator")
                             .HasValue(1)
                             .HasValue<Eagle>(2);
 
@@ -9762,6 +9748,62 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                         v => Assert.Equal(42, v),
                         v => Assert.Equal(4242, v));
                 }));
+
+    [ConditionalFact]
+    public void Owned_collection_with_explicit_id()
+        => Execute(
+            modelBuilder =>
+            {
+            },
+            source =>
+            {
+                source.Entity("Microsoft.EntityFrameworkCore.Migrations.Internal.Account", b =>
+                {
+                    b.Property<string>("Id");
+                    b.HasKey("Id");
+                    b.ToTable("account");
+                });
+
+                source.Entity("Microsoft.EntityFrameworkCore.Migrations.Internal.Account", b =>
+                {
+                    b.OwnsMany("Microsoft.EntityFrameworkCore.Migrations.Internal.AccountHolder", "AccountHolders", b1 =>
+                    {
+                        b1.Property<string>("Id");
+                        b1.Property<string>("account_id");
+                        b1.HasKey("Id");
+                        b1.HasIndex("account_id");
+                        b1.ToTable("account_holder");
+                        b1.WithOwner().HasForeignKey("account_id");
+                    });
+                });
+            },
+            target =>
+            {
+                target.Entity<Account>(builder =>
+                {
+                    builder.ToTable("account");
+                    builder.HasKey("Id");
+                    builder.OwnsMany(a => a.AccountHolders, navigationBuilder =>
+                    {
+                        navigationBuilder.ToTable("account_holder");
+                        navigationBuilder.Property<string>("Id");
+                        navigationBuilder.HasKey("Id");
+                        navigationBuilder.Property<string>("account_id");
+                        navigationBuilder.WithOwner().HasForeignKey("account_id");
+                    });
+                });
+            },
+            Assert.Empty);
+
+    public class Account
+    {
+        public string Id { get; set; }
+        public IEnumerable<AccountHolder> AccountHolders { get; set; } = [];
+    }
+
+    public class AccountHolder
+    {
+    }
 
     [ConditionalFact]
     public void SeedData_with_guid_AK_and_multiple_owned_types()

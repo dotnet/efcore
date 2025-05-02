@@ -3,7 +3,6 @@
 
 using System.Collections;
 using System.Data;
-using System.Text.Json;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 
@@ -239,7 +238,7 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
         var clrType = mappingInfo.ClrType;
         var storeTypeName = mappingInfo.StoreTypeName;
 
-        if (clrType == typeof(JsonElement))
+        if (clrType == typeof(JsonTypePlaceholder))
         {
             return storeTypeName == "json"
                 ? SqlServerOwnedJsonTypeMapping.OwnedJsonTypeDefault

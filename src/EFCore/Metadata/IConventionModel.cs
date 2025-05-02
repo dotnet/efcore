@@ -133,6 +133,7 @@ public interface IConventionModel : IReadOnlyModel, IConventionAnnotatable
     /// <param name="definingEntityType">The defining entity type.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>The new entity type.</returns>
+    [Obsolete]
     IConventionEntityType? AddEntityType(
         string name,
         string definingNavigationName,
@@ -147,6 +148,7 @@ public interface IConventionModel : IReadOnlyModel, IConventionAnnotatable
     /// <param name="definingEntityType">The defining entity type.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>The new entity type.</returns>
+    [Obsolete]
     IConventionEntityType? AddEntityType(
         [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type type,
         string definingNavigationName,

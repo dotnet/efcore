@@ -59,12 +59,7 @@ public abstract class NorthwindJoinQueryTestBase<TFixture>(TFixture fixture) : Q
             ss => from c in ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
                   join o in ss.Set<Order>() on c.CustomerID equals o.CustomerID
                   from e in ss.Set<Employee>()
-                  select new
-                  {
-                      c,
-                      o,
-                      e
-                  },
+                  select new { c, o, e },
             e => (e.c.CustomerID, e.o.OrderID, e.e.EmployeeID));
 
     [ConditionalTheory]
@@ -296,6 +291,32 @@ public abstract class NorthwindJoinQueryTestBase<TFixture>(TFixture fixture) : Q
                 ss.Set<Order>().Where(o => o.CustomerID.StartsWith("F")).Join(
                     ss.Set<Order>(), o => o.CustomerID, i => i.CustomerID, (_, o) => new { _, o }),
             e => (e._.OrderID, e.o.OrderID));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task LeftJoin(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>()
+                .LeftJoin(
+                    ss.Set<Order>(),
+                    c => c.CustomerID,
+                    o => o.CustomerID,
+                    (c, o) => new { c, o }),
+            e => (e.c.CustomerID, e.o?.OrderID));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task RightJoin(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>()
+                .RightJoin(
+                    ss.Set<Order>(),
+                    c => c.CustomerID,
+                    o => o.CustomerID,
+                    (c, o) => new { c, o }),
+            e => (e.c.CustomerID, e.o?.OrderID));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]

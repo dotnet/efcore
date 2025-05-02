@@ -5035,6 +5035,116 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         Assert.Equal(EntityState.Deleted, childEntry.State);
     }
 
+    [ConditionalTheory] // Issue #35528
+    [InlineData(false, false)]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    [InlineData(true, true)]
+    public virtual async Task Lazy_loading_is_thread_safe(bool noTracking, bool async)
+    {
+        using var context = CreateContext(lazyLoadingEnabled: true);
+
+        //Creating another context to avoid caches
+        using var context2 = CreateContext(lazyLoadingEnabled: true);
+
+        IQueryable<Parent> query = context.Set<Parent>();
+        IQueryable<Parent> query2 = context2.Set<Parent>();
+
+        if (noTracking)
+        {
+            query = query.AsNoTracking();
+            query2 = query2.AsNoTracking();
+        }
+
+        var parent = query.Single();
+
+        var children = (await parent.LazyLoadChildren(async))?.Select(x => x.Id).OrderBy(x => x).ToList();
+        var childrenInvert = (await parent.LazyLoadChildren(!async))?.Select(x => x.Id).OrderBy(x => x).ToList();
+
+        var singlePkToPk = (await parent.LazyLoadSinglePkToPk(async))?.Id;
+        var singlePkToPkInvert = (await parent.LazyLoadSinglePkToPk(!async))?.Id;
+
+        var single = (await parent.LazyLoadSingle(async))?.Id;
+        var singleInvert = (await parent.LazyLoadSingle(!async))?.Id;
+
+        var childrenAk = (await parent.LazyLoadChildrenAk(async))?.Select(x => x.Id).OrderBy(x => x).ToList();
+        var childrenAkInvert = (await parent.LazyLoadChildrenAk(!async))?.Select(x => x.Id).OrderBy(x => x).ToList();
+
+        var singleAk = (await parent.LazyLoadSingleAk(async))?.Id;
+        var singleAkInvert = (await parent.LazyLoadSingleAk(!async))?.Id;
+
+        var childrenShadowFk = (await parent.LazyLoadChildrenShadowFk(async))?.Select(x => x.Id).OrderBy(x => x).ToList();
+        var childrenShadowFkInvert = (await parent.LazyLoadChildrenShadowFk(!async))?.Select(x => x.Id).OrderBy(x => x).ToList();
+
+        var singleShadowFk = (await parent.LazyLoadSingleShadowFk(async))?.Id;
+        var singleShadowFkInvert = (await parent.LazyLoadSingleShadowFk(!async))?.Id;
+
+        var childrenCompositeKey = (await parent.LazyLoadChildrenCompositeKey(async))?.Select(x => x.Id).OrderBy(x => x).ToList();
+        var childrenCompositeKeyInvert = (await parent.LazyLoadChildrenCompositeKey(!async))?.Select(x => x.Id).OrderBy(x => x).ToList();
+
+        var singleCompositeKey = (await parent.LazyLoadSingleCompositeKey(async))?.Id;
+        var singleCompositeKeyInvert = (await parent.LazyLoadSingleCompositeKey(!async))?.Id;
+
+        var parent2 = query2.Single();
+
+        var parallelOptions = new ParallelOptions
+        {
+            MaxDegreeOfParallelism = Environment.ProcessorCount * 500
+        };
+
+        await Parallel.ForAsync(0, 10000, parallelOptions, async (i, ct) =>
+        {
+            await Task.WhenAll(
+                AssertEqual(
+                    (children, async () => (await parent2.LazyLoadChildren(async))?.Select(x => x.Id).OrderBy(x => x).ToList()),
+                    (childrenInvert, async () => (await parent2.LazyLoadChildren(!async))?.Select(x => x.Id).OrderBy(x => x).ToList())
+                ),
+                AssertEqual(
+                    (singlePkToPk, async () => (await parent2.LazyLoadSinglePkToPk(async))?.Id),
+                    (singlePkToPkInvert, async () => (await parent2.LazyLoadSinglePkToPk(!async))?.Id)
+                ),
+                AssertEqual(
+                    (single, async () => (await parent2.LazyLoadSingle(async))?.Id),
+                    (singleInvert, async () => (await parent2.LazyLoadSingle(!async))?.Id)
+                ),
+                AssertEqual(
+                    (childrenAk, async () => (await parent2.LazyLoadChildrenAk(async))?.Select(x => x.Id).OrderBy(x => x).ToList()),
+                    (childrenAkInvert, async () => (await parent2.LazyLoadChildrenAk(!async))?.Select(x => x.Id).OrderBy(x => x).ToList())
+                ),
+                AssertEqual(
+                    (singleAk, async () => (await parent2.LazyLoadSingleAk(async))?.Id),
+                    (singleAkInvert, async () => (await parent2.LazyLoadSingleAk(!async))?.Id)
+                ),
+                AssertEqual(
+                    (childrenShadowFk, async () => (await parent2.LazyLoadChildrenShadowFk(async))?.Select(x => x.Id).OrderBy(x => x).ToList()),
+                    (childrenShadowFkInvert, async () => (await parent2.LazyLoadChildrenShadowFk(!async))?.Select(x => x.Id).OrderBy(x => x).ToList())
+                ),
+                AssertEqual(
+                    (singleShadowFk, async () => (await parent2.LazyLoadSingleShadowFk(async))?.Id),
+                    (singleShadowFkInvert, async () => (await parent2.LazyLoadSingleShadowFk(!async))?.Id)
+                ),
+                AssertEqual(
+                    (childrenCompositeKey, async () => (await parent2.LazyLoadChildrenCompositeKey(async))?.Select(x => x.Id).OrderBy(x => x).ToList()),
+                    (childrenCompositeKeyInvert, async () => (await parent2.LazyLoadChildrenCompositeKey(!async))?.Select(x => x.Id).OrderBy(x => x).ToList())
+                ),
+                AssertEqual(
+                    (singleCompositeKey, async () => (await parent2.LazyLoadSingleCompositeKey(async))?.Id),
+                    (singleCompositeKeyInvert, async () => (await parent2.LazyLoadSingleCompositeKey(!async))?.Id)
+                )
+            );
+        });
+
+        static async Task AssertEqual<T>((T Data, Func<Task<T>> Expected) data, (T Data, Func<Task<T>> Expected) dataInvert)
+        {
+            //Do the processing at the same time
+            var dataTask = data.Expected();
+            var dataInvertTask = dataInvert.Expected();
+
+            Assert.Equal(data.Data, await dataTask);
+            Assert.Equal(dataInvert.Data, await dataInvertTask);
+        }
+    }
+
     private static void SetState(
         DbContext context,
         object entity,
@@ -5092,6 +5202,17 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
             set => _singlePkToPk = value;
         }
 
+        public async Task<SinglePkToPk> LazyLoadSinglePkToPk(bool async)
+        {
+            if (async)
+            {
+                await Loader.LoadAsync(this, default, nameof(SinglePkToPk));
+                return _singlePkToPk;
+            }
+
+            return SinglePkToPk;
+        }
+
         public Single Single
         {
             get => Loader.Load(this, ref _single);
@@ -5121,16 +5242,49 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
             set => _childrenAk = value;
         }
 
+        public async Task<IEnumerable<ChildAk>> LazyLoadChildrenAk(bool async)
+        {
+            if (async)
+            {
+                await Loader.LoadAsync(this, default, nameof(ChildrenAk));
+                return _childrenAk;
+            }
+
+            return ChildrenAk;
+        }
+
         public SingleAk SingleAk
         {
             get => Loader.Load(this, ref _singleAk);
             set => _singleAk = value;
         }
 
+        public async Task<SingleAk> LazyLoadSingleAk(bool async)
+        {
+            if (async)
+            {
+                await Loader.LoadAsync(this, default, nameof(SingleAk));
+                return _singleAk;
+            }
+            
+            return SingleAk;
+        }
+        
         public IEnumerable<ChildShadowFk> ChildrenShadowFk
         {
             get => Loader.Load(this, ref _childrenShadowFk);
             set => _childrenShadowFk = value;
+        }
+
+        public async Task<IEnumerable<ChildShadowFk>> LazyLoadChildrenShadowFk(bool async)
+        {
+            if (async)
+            {
+                await Loader.LoadAsync(this, default, nameof(ChildrenShadowFk));
+                return _childrenShadowFk;
+            }
+
+            return ChildrenShadowFk;
         }
 
         public SingleShadowFk SingleShadowFk
@@ -5139,16 +5293,49 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
             set => _singleShadowFk = value;
         }
 
+        public async Task<SingleShadowFk> LazyLoadSingleShadowFk(bool async)
+        {
+            if (async)
+            {
+                await Loader.LoadAsync(this, default, nameof(SingleShadowFk));
+                return _singleShadowFk;
+            }
+
+            return SingleShadowFk;
+        }
+
         public IEnumerable<ChildCompositeKey> ChildrenCompositeKey
         {
             get => Loader.Load(this, ref _childrenCompositeKey);
             set => _childrenCompositeKey = value;
         }
 
+        public async Task<IEnumerable<ChildCompositeKey>> LazyLoadChildrenCompositeKey(bool async)
+        {
+            if (async)
+            {
+                await Loader.LoadAsync(this, default, nameof(ChildrenCompositeKey));
+                return _childrenCompositeKey;
+            }
+
+            return ChildrenCompositeKey;
+        }
+
         public SingleCompositeKey SingleCompositeKey
         {
             get => Loader.Load(this, ref _singleCompositeKey);
             set => _singleCompositeKey = value;
+        }
+
+        public async Task<SingleCompositeKey> LazyLoadSingleCompositeKey(bool async)
+        {
+            if (async)
+            {
+                await Loader.LoadAsync(this, default, nameof(SingleCompositeKey));
+                return _singleCompositeKey;
+            }
+
+            return SingleCompositeKey;
         }
     }
 

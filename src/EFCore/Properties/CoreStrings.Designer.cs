@@ -535,14 +535,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 property, type, clrType, targetType);
 
         /// <summary>
-        ///     Adding the collection complex property '{type}.{property}' isn't supported. See https://github.com/dotnet/efcore/issues/31237 for more information.
-        /// </summary>
-        public static string ComplexPropertyCollection(object? type, object? property)
-            => string.Format(
-                GetString("ComplexPropertyCollection", nameof(type), nameof(property)),
-                type, property);
-
-        /// <summary>
         ///     Adding the complex property '{type}.{property}' as an indexer property isn't supported. See https://github.com/dotnet/efcore/issues/31244 for more information.
         /// </summary>
         public static string ComplexPropertyIndexer(object? type, object? property)
@@ -559,7 +551,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 type, property);
 
         /// <summary>
-        ///     Configuring the complex property '{type}.{property}' as optional is not supported, call 'IsRequired()'. See https://github.com/dotnet/efcore/issues/31376 for more information.
+        ///     Configuring the collection complex property '{type}.{property}' as optional is invalid.
         /// </summary>
         public static string ComplexPropertyOptional(object? type, object? property)
             => string.Format(
@@ -2248,6 +2240,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 service);
 
         /// <summary>
+        ///     An 'ExecuteUpdate' call must specify at least one 'SetProperty' invocation, to indicate the properties to be updated.
+        /// </summary>
+        public static string NoSetPropertyInvocation
+            => GetString("NoSetPropertyInvocation");
+
+        /// <summary>
         ///     The property '{1_entityType}.{0_property}' does not have a setter. Either make the property writable or use a different '{propertyAccessMode}'.
         /// </summary>
         public static string NoSetter(object? property, object? entityType, object? propertyAccessMode)
@@ -2318,7 +2316,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, property);
 
         /// <summary>
-        ///     The complex type property '{type}.{property}' is configured as required (non-nullable) but has a null value when saving changes. Only non-null complex properties are supported by EF Core 8.
+        ///     The complex type property '{type}.{property}' is configured as required (non-nullable) but has a null value when saving changes.
         /// </summary>
         public static string NullRequiredComplexProperty(object? type, object? property)
             => string.Format(
@@ -2960,12 +2958,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         public static string SetOperationWithDifferentIncludesInOperands
             => GetString("SetOperationWithDifferentIncludesInOperands");
-
-        /// <summary>
-        ///     The SetProperty&lt;TProperty&gt; method can only be used within 'ExecuteUpdate' method.
-        /// </summary>
-        public static string SetPropertyMethodInvoked
-            => GetString("SetPropertyMethodInvoked");
 
         /// <summary>
         ///     The shared-type entity type '{entityType}' cannot have a base type.

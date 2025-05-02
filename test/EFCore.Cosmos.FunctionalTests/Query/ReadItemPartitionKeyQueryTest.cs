@@ -17,6 +17,37 @@ public class ReadItemPartitionKeyQueryTest : ReadItemPartitionKeyQueryTestBase<
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
+    public override async Task Key_with_special_characters_1()
+    {
+        await base.Key_with_special_characters_1();
+
+        AssertSql("""ReadItem(["Cat|1"], Cat|1)""");
+    }
+
+    public override async Task Key_with_special_characters_2()
+    {
+        await base.Key_with_special_characters_2();
+
+        AssertSql("""ReadItem(["Cat2||"], Cat2||)""");
+    }
+
+    public override async Task Key_with_special_characters_3()
+    {
+        await base.Key_with_special_characters_3();
+
+        AssertSql("""ReadItem(["Cat|3|$|5"], Cat|3|$|5)""");
+    }
+
+    public override async Task Key_with_special_characters_4()
+    {
+        await base.Key_with_special_characters_4();
+
+        AssertSql(
+            """
+ReadItem(["|Cat|"], |Cat|)
+""");
+    }
+
     public override async Task Predicate_with_hierarchical_partition_key()
     {
         await base.Predicate_with_hierarchical_partition_key();

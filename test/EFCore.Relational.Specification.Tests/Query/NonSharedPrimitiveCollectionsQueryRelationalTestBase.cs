@@ -5,7 +5,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public abstract class NonSharedPrimitiveCollectionsQueryRelationalTestBase : NonSharedPrimitiveCollectionsQueryTestBase
+public abstract class NonSharedPrimitiveCollectionsQueryRelationalTestBase(NonSharedFixture fixture) : NonSharedPrimitiveCollectionsQueryTestBase(fixture)
 {
     // On relational databases, byte[] gets mapped to a special binary data type, which isn't queryable as a regular primitive collection.
     [ConditionalFact]

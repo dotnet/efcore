@@ -5,7 +5,7 @@ namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
 #nullable disable
 
-public class NonSharedModelBulkUpdatesSqlServerTest : NonSharedModelBulkUpdatesRelationalTestBase
+public class NonSharedModelBulkUpdatesSqlServerTest(NonSharedFixture fixture) : NonSharedModelBulkUpdatesRelationalTestBase(fixture)
 {
     protected override ITestStoreFactory TestStoreFactory
         => SqlServerTestStoreFactory.Instance;
@@ -68,8 +68,10 @@ FROM [Owner] AS [o]
 
         AssertSql(
             """
+@p='SomeValue' (Size = 4000)
+
 UPDATE [o0]
-SET [o0].[Value] = N'SomeValue'
+SET [o0].[Value] = @p
 FROM [Owner] AS [o]
 INNER JOIN [OwnedCollection] AS [o0] ON [o].[Id] = [o0].[OwnerId]
 """);
@@ -81,8 +83,10 @@ INNER JOIN [OwnedCollection] AS [o0] ON [o].[Id] = [o0].[OwnerId]
 
         AssertSql(
             """
+@p='SomeValue' (Size = 4000)
+
 UPDATE [o]
-SET [o].[Title] = N'SomeValue'
+SET [o].[Title] = @p
 FROM [Owner] AS [o]
 """);
     }
@@ -105,8 +109,10 @@ FROM [Owner] AS [o]
 
         AssertSql(
             """
+@p='NewValue' (Size = 4000)
+
 UPDATE [o]
-SET [o].[Title] = N'NewValue'
+SET [o].[Title] = @p
 FROM [Owner] AS [o]
 INNER JOIN [Owner] AS [o0] ON [o].[Id] = [o0].[Id]
 """);
@@ -119,8 +125,8 @@ INNER JOIN [Owner] AS [o0] ON [o].[Id] = [o0].[Id]
         AssertSql(
             """
 UPDATE [o]
-SET [o].[OwnedReference_Number] = CAST(LEN([o].[Title]) AS int),
-    [o].[Title] = COALESCE(CONVERT(varchar(11), [o].[OwnedReference_Number]), '')
+SET [o].[Title] = COALESCE(CONVERT(varchar(11), [o].[OwnedReference_Number]), ''),
+    [o].[OwnedReference_Number] = CAST(LEN([o].[Title]) AS int)
 FROM [Owner] AS [o]
 """);
     }
@@ -144,8 +150,8 @@ FROM [Blogs] AS [b]
         AssertSql(
             """
 UPDATE [b0]
-SET [b0].[Rating] = CAST(LEN([b0].[Title]) AS int),
-    [b0].[Title] = CONVERT(varchar(11), [b0].[Rating])
+SET [b0].[Title] = CONVERT(varchar(11), [b0].[Rating]),
+    [b0].[Rating] = CAST(LEN([b0].[Title]) AS int)
 FROM [Blogs] AS [b]
 INNER JOIN [BlogsPart1] AS [b0] ON [b].[Id] = [b0].[Id]
 """);
@@ -209,8 +215,10 @@ FROM [Blogs] AS [b]
 
         AssertSql(
             """
+@p='Updated' (Size = 4000)
+
 UPDATE [b]
-SET [b].[Data] = N'Updated'
+SET [b].[Data] = @p
 FROM [Blogs] AS [b]
 """);
     }

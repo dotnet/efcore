@@ -1073,6 +1073,32 @@ public class RelationalConnectionTest
         Assert.Equal(ConnectionState.Open, dbConnection.State);
     }
 
+    [ConditionalFact]
+    public async Task Reports_command_diagnostic_on_cancellation()
+    {
+        var exception = new OperationCanceledException();
+
+        var connection = new FakeRelationalConnection(
+            CreateOptions(new FakeRelationalOptionsExtension().WithConnectionString("Database=FrodoLives")));
+
+        var diagnostics = connection.ConnectionDiagnosticEvents;
+
+        await Assert.ThrowsAsync<OperationCanceledException>(async () => await connection.OpenAsync(new CancellationToken(canceled: true)));
+
+        Assert.Collection(
+            diagnostics,
+            d => Assert.Equal(RelationalEventId.ConnectionCreating.Name, d.Item1),
+            d => Assert.Equal(RelationalEventId.ConnectionCreated.Name, d.Item1),
+            d => Assert.Equal(RelationalEventId.ConnectionOpening.Name, d.Item1),
+            d =>
+            {
+                Assert.Equal(RelationalEventId.ConnectionCanceled.Name, d.Item1);
+                var eventData = (ConnectionEndEventData)d.Item2;
+                Assert.Same(connection.DbConnection, eventData.Connection);
+                Assert.True(eventData.IsAsync);
+            });
+    }
+
     private static IDbContextOptions CreateOptions(params RelationalOptionsExtension[] optionsExtensions)
     {
         var optionsBuilder = new DbContextOptionsBuilder();
@@ -1083,5 +1109,27 @@ public class RelationalConnectionTest
         }
 
         return optionsBuilder.Options;
+    }
+
+    private class FakeLoggingOptions(bool sensitiveDataLoggingEnabled, bool detailedErrorsEnabled = false) : ILoggingOptions
+    {
+        public void Initialize(IDbContextOptions options)
+        {
+        }
+
+        public void Validate(IDbContextOptions options)
+        {
+        }
+
+        public bool IsSensitiveDataLoggingEnabled { get; } = sensitiveDataLoggingEnabled;
+        public bool IsSensitiveDataLoggingWarned { get; set; }
+
+        public bool DetailedErrorsEnabled { get; } = detailedErrorsEnabled;
+
+        public WarningsConfiguration WarningsConfiguration
+            => null;
+
+        public virtual bool ShouldWarnForStringEnumValueInJson(Type enumType)
+            => true;
     }
 }

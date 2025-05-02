@@ -255,7 +255,7 @@ public class OwnedNavigationBuilder : IInfrastructure<IConventionEntityTypeBuild
                 ConfigurationSource.Explicit)!.Metadata);
 
     /// <summary>
-    ///     Returns an object that can be used to configure a property of the entity type.
+    ///     Returns an object that can be used to configure a property of the complex type.
     ///     If no property with the given name exists, then a new property will be added.
     /// </summary>
     /// <remarks>
@@ -274,7 +274,7 @@ public class OwnedNavigationBuilder : IInfrastructure<IConventionEntityTypeBuild
                 Check.NotEmpty(propertyName, nameof(propertyName)), ConfigurationSource.Explicit)!.Metadata);
 
     /// <summary>
-    ///     Returns an object that can be used to configure a property of the entity type.
+    ///     Returns an object that can be used to configure a property of the complex type.
     ///     If no property with the given name exists, then a new property will be added.
     /// </summary>
     /// <remarks>

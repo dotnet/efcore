@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public abstract class AdHocQuerySplittingQueryTestBase : NonSharedModelTestBase
+public abstract class AdHocQuerySplittingQueryTestBase(NonSharedFixture fixture) : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
 {
     protected override string StoreName
         => "AdHocQuerySplittingQueryTests";
@@ -218,8 +218,9 @@ public abstract class AdHocQuerySplittingQueryTestBase : NonSharedModelTestBase
 
     private async Task<(Context25225, Context25225)> CreateTwoContext25225()
     {
-        var context1 = (await CreateContext25225Async()).CreateContext();
-        var context2 = (await CreateContext25225Async()).CreateContext();
+        var factory = await CreateContext25225Async();
+        var context1 = factory.CreateContext();
+        var context2 = factory.CreateContext();
 
         // Can't run in parallel with the same connection instance. Issue #22921
         Assert.NotSame(context1.Database.GetDbConnection(), context2.Database.GetDbConnection());
@@ -231,10 +232,14 @@ public abstract class AdHocQuerySplittingQueryTestBase : NonSharedModelTestBase
         => await InitializeAsync<Context25225>(
             seed: c => c.SeedAsync(),
             onConfiguring: o => SetQuerySplittingBehavior(o, QuerySplittingBehavior.SplitQuery),
-            createTestStore: () => CreateTestStore25225());
+            createTestStore: CreateTestStore25225);
 
-    protected virtual Task<TestStore> CreateTestStore25225()
-        => Task.FromResult(base.CreateTestStore());
+    protected virtual TestStore CreateTestStore25225()
+    {
+        var testStore = (RelationalTestStore)base.CreateTestStore();
+        testStore.UseConnectionString = true;
+        return testStore;
+    }
 
     private static IQueryable<Context25225.ParentViewModel> SelectParent25225(Context25225 context, Guid parentId)
         => context
@@ -379,7 +384,7 @@ public abstract class AdHocQuerySplittingQueryTestBase : NonSharedModelTestBase
                 {
                     blog.Id,
                     Posts = blog.Posts.Select(
-                        blogPost => new 
+                        blogPost => new
                         {
                             blogPost.Id,
                             blogPost.Author

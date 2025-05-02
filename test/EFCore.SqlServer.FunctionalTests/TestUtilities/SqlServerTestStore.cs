@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Data;
-using System.Text.RegularExpressions;
 using Microsoft.Data.SqlClient;
 
 #pragma warning disable IDE0022 // Use block body for methods
@@ -36,8 +35,11 @@ public class SqlServerTestStore : RelationalTestStore
         bool shared = true)
         => new(name, scriptPath: scriptPath, multipleActiveResultSets: multipleActiveResultSets, shared: shared);
 
-    public static SqlServerTestStore Create(string name, bool useFileName = false)
-        => new(name, useFileName, shared: false);
+    public static SqlServerTestStore Create(
+        string name,
+        bool useFileName = false,
+        bool? multipleActiveResultSets = null)
+        => new(name, useFileName, shared: false, multipleActiveResultSets: multipleActiveResultSets);
 
     public static async Task<SqlServerTestStore> CreateInitializedAsync(
         string name,
@@ -86,26 +88,28 @@ public class SqlServerTestStore : RelationalTestStore
 
     protected override async Task InitializeAsync(Func<DbContext> createContext, Func<DbContext, Task>? seed, Func<DbContext, Task>? clean)
     {
-        if (await CreateDatabaseAsync(clean))
+        if (!await CleanDatabaseAsync(clean))
         {
-            if (_scriptPath != null)
+            return;
+        }
+
+        if (_scriptPath != null)
+        {
+            ExecuteScript(await File.ReadAllTextAsync(_scriptPath));
+        }
+        else
+        {
+            using var context = createContext();
+            await context.Database.EnsureCreatedResilientlyAsync();
+
+            if (_initScript != null)
             {
-                ExecuteScript(await File.ReadAllTextAsync(_scriptPath));
+                ExecuteScript(_initScript);
             }
-            else
+
+            if (seed != null)
             {
-                using var context = createContext();
-                await context.Database.EnsureCreatedResilientlyAsync();
-
-                if (_initScript != null)
-                {
-                    ExecuteScript(_initScript);
-                }
-
-                if (seed != null)
-                {
-                    await seed(context);
-                }
+                await seed(context);
             }
         }
     }
@@ -116,7 +120,7 @@ public class SqlServerTestStore : RelationalTestStore
                 : builder.UseSqlServer(Connection, b => b.ApplyConfiguration()))
             .ConfigureWarnings(b => b.Ignore(SqlServerEventId.SavepointsDisabledBecauseOfMARS));
 
-    private async Task<bool> CreateDatabaseAsync(Func<DbContext, Task>? clean)
+    private async Task<bool> CleanDatabaseAsync(Func<DbContext, Task>? clean)
     {
         await using var master = new SqlConnection(CreateConnectionString("master", fileName: null, multipleActiveResultSets: false));
 

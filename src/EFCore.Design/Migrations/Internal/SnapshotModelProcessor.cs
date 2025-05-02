@@ -52,7 +52,9 @@ public class SnapshotModelProcessor : ISnapshotModelProcessor
     /// </summary>
     public virtual IModel? Process(IReadOnlyModel? model, bool resetVersion = false)
     {
-        if (model == null)
+        if (model == null
+            || model is not Model mutableModel
+            || mutableModel.IsReadOnly)
         {
             return null;
         }
@@ -79,13 +81,10 @@ public class SnapshotModelProcessor : ISnapshotModelProcessor
             }
         }
 
-        if (model is IMutableModel mutableModel)
+        mutableModel.RemoveAnnotation("ChangeDetector.SkipDetectChanges");
+        if (resetVersion)
         {
-            mutableModel.RemoveAnnotation("ChangeDetector.SkipDetectChanges");
-            if (resetVersion)
-            {
-                mutableModel.SetProductVersion(ProductInfo.GetVersion());
-            }
+            mutableModel.SetProductVersion(ProductInfo.GetVersion());
         }
 
         return _modelRuntimeInitializer.Initialize((IModel)model, designTime: true, validationLogger: null);

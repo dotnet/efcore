@@ -84,6 +84,8 @@ public class CosmosTestStore : TestStore
     public TokenCredential TokenCredential { get; }
     public string ConnectionString { get; }
 
+    private static readonly SemaphoreSlim _connectionSemaphore = new(1, 1);
+
     protected override DbContext CreateDefaultContext()
         => new TestStoreContext(this);
 
@@ -96,7 +98,16 @@ public class CosmosTestStore : TestStore
     {
         if (_connectionAvailable == null)
         {
-            _connectionAvailable = await TryConnectAsync().ConfigureAwait(false);
+            await _connectionSemaphore.WaitAsync();
+
+            try
+            {
+                _connectionAvailable ??= await TryConnectAsync().ConfigureAwait(false);
+            }
+            finally
+            {
+                _connectionSemaphore.Release();
+            }
         }
 
         return _connectionAvailable.Value;
@@ -271,19 +282,19 @@ public class CosmosTestStore : TestStore
 
         var model = context.GetService<IDesignTimeModel>().Model;
 
-        var modelThrouput = model.GetThroughput();
-        if (modelThrouput == null
+        var modelThroughput = model.GetThroughput();
+        if (modelThroughput == null
             && GetContainersToCreate(model).All(c => c.Throughput == null))
         {
-            modelThrouput = ThroughputProperties.CreateManualThroughput(400);
+            modelThroughput = ThroughputProperties.CreateManualThroughput(400);
         }
 
-        if (modelThrouput != null)
+        if (modelThroughput != null)
         {
             sqlDatabaseCreateUpdateContent.Options = new CosmosDBCreateUpdateConfig
             {
-                Throughput = modelThrouput.Throughput,
-                AutoscaleMaxThroughput = modelThrouput.AutoscaleMaxThroughput
+                Throughput = modelThroughput.Throughput,
+                AutoscaleMaxThroughput = modelThroughput.AutoscaleMaxThroughput
             };
         }
 
@@ -396,6 +407,9 @@ public class CosmosTestStore : TestStore
                 };
             }
 
+            // TODO: see issue #35854
+            // once Azure.ResourceManager.CosmosDB package supports vectors and FTS, those need to be added here
+            
             await database.Value.GetCosmosDBSqlContainers().CreateOrUpdateAsync(
                 WaitUntil.Completed, container.Id, content).ConfigureAwait(false);
         }
@@ -421,7 +435,6 @@ public class CosmosTestStore : TestStore
             mappedTypes.Add(entityType);
         }
 
-#pragma warning disable EF9103
         foreach (var (containerName, mappedTypes) in containers)
         {
             IReadOnlyList<string> partitionKeyStoreNames = Array.Empty<string>();
@@ -430,6 +443,8 @@ public class CosmosTestStore : TestStore
             ThroughputProperties? throughput = null;
             var indexes = new List<IIndex>();
             var vectors = new List<(IProperty Property, CosmosVectorType VectorType)>();
+            string? fullTextDefaultLanguage = null;
+            var fullTextProperties = new List<(IProperty Property, string? Language)>();
 
             foreach (var entityType in mappedTypes)
             {
@@ -441,17 +456,10 @@ public class CosmosTestStore : TestStore
                 analyticalTtl ??= entityType.GetAnalyticalStoreTimeToLive();
                 defaultTtl ??= entityType.GetDefaultTimeToLive();
                 throughput ??= entityType.GetThroughput();
-                indexes.AddRange(entityType.GetIndexes());
+                fullTextDefaultLanguage ??= entityType.GetDefaultFullTextSearchLanguage();
 
-                foreach (var property in entityType.GetProperties())
-                {
-                    if (property.FindTypeMapping() is CosmosVectorTypeMapping vectorTypeMapping)
-                    {
-                        vectors.Add((property, vectorTypeMapping.VectorType));
-                    }
-                }
+                ProcessEntityType(entityType, indexes, vectors, fullTextProperties);
             }
-#pragma warning restore EF9103
 
             yield return new Cosmos.Storage.Internal.ContainerProperties(
                 containerName,
@@ -460,7 +468,38 @@ public class CosmosTestStore : TestStore
                 defaultTtl,
                 throughput,
                 indexes,
-                vectors);
+                vectors,
+                fullTextDefaultLanguage ?? "en-US",
+                fullTextProperties);
+        }
+
+        static void ProcessEntityType(
+            IEntityType entityType,
+            List<IIndex> indexes,
+            List<(IProperty Property, CosmosVectorType VectorType)> vectors,
+            List<(IProperty Property, string? Language)> fullTextProperties)
+        {
+            indexes.AddRange(entityType.GetIndexes());
+
+            foreach (var property in entityType.GetProperties())
+            {
+                if (property.FindTypeMapping() is CosmosVectorTypeMapping vectorTypeMapping)
+                {
+                    vectors.Add((property, vectorTypeMapping.VectorType));
+                }
+
+                if (property.GetIsFullTextSearchEnabled() == true)
+                {
+                    fullTextProperties.Add((property, property.GetFullTextSearchLanguage()));
+                }
+            }
+
+            foreach (var ownedType in entityType.GetNavigations()
+                .Where(x => x.ForeignKey.IsOwnership && !x.IsOnDependent && !x.TargetEntityType.IsDocumentRoot())
+                .Select(x => x.TargetEntityType))
+            {
+                ProcessEntityType(ownedType, indexes, vectors, fullTextProperties);
+            }
         }
     }
 
@@ -478,43 +517,19 @@ public class CosmosTestStore : TestStore
         {
             var cosmosClient = context.Database.GetCosmosClient();
             var database = cosmosClient.GetDatabase(Name);
+            var containers = new List<Container>();
             var containerIterator = database.GetContainerQueryIterator<ContainerProperties>();
             while (containerIterator.HasMoreResults)
             {
                 foreach (var containerProperties in await containerIterator.ReadNextAsync().ConfigureAwait(false))
                 {
-                    var container = database.GetContainer(containerProperties.Id);
-                    var partitionKeys = containerProperties.PartitionKeyPaths.Select(p => p[1..]).ToList();
-                    var itemIterator = container.GetItemQueryIterator<JObject>(
-                        new QueryDefinition("SELECT * FROM c"));
-
-                    var items = new List<(string Id, PartitionKey PartitionKeyValue)>();
-                    while (itemIterator.HasMoreResults)
-                    {
-                        foreach (var item in await itemIterator.ReadNextAsync().ConfigureAwait(false))
-                        {
-                            var partitionKeyValue = PartitionKey.None;
-                            if (partitionKeys.Count >= 1
-                                && item[partitionKeys[0]] is not null)
-                            {
-                                var builder = new PartitionKeyBuilder();
-                                foreach (var partitionKey in partitionKeys)
-                                {
-                                    builder.Add((string?)item[partitionKey]);
-                                }
-
-                                partitionKeyValue = builder.Build();
-                            }
-
-                            items.Add((item["id"]!.ToString(), partitionKeyValue));
-                        }
-                    }
-
-                    foreach (var item in items)
-                    {
-                        await container.DeleteItemAsync<object>(item.Id, item.PartitionKeyValue).ConfigureAwait(false);
-                    }
+                    containers.Add(database.GetContainer(containerProperties.Id));
                 }
+            }
+
+            foreach (var container in containers)
+            {
+                await container.DeleteContainerAsync();
             }
         }
         else
@@ -675,6 +690,12 @@ public class CosmosTestStore : TestStore
 
         IReadOnlyEntityType IReadOnlyEntityType.BaseType
             => null!;
+
+        ITypeBase? ITypeBase.BaseType
+            => BaseType;
+
+        IReadOnlyTypeBase? IReadOnlyTypeBase.BaseType
+            => BaseType;
 
         IReadOnlyModel IReadOnlyTypeBase.Model
             => throw new NotImplementedException();
@@ -1005,5 +1026,14 @@ public class CosmosTestStore : TestStore
 
         IEnumerable<IReadOnlyPropertyBase> IReadOnlyTypeBase.FindMembersInHierarchy(string name)
             => throw new NotImplementedException();
+
+        IEnumerable<ITypeBase> ITypeBase.GetDirectlyDerivedTypes()
+            => GetDirectlyDerivedTypes();
+
+        IEnumerable<IReadOnlyTypeBase> IReadOnlyTypeBase.GetDerivedTypes()
+            => GetDerivedTypes();
+
+        IEnumerable<IReadOnlyTypeBase> IReadOnlyTypeBase.GetDirectlyDerivedTypes()
+            => GetDirectlyDerivedTypes();
     }
 }

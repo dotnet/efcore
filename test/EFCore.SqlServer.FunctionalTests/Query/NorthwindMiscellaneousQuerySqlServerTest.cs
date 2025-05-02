@@ -2844,6 +2844,41 @@ END, [c].[CustomerID]
 """);
     }
 
+    public override async Task Coalesce_Correct_Multiple_Same_TypeMapping(bool async)
+    {
+        await base.Coalesce_Correct_Multiple_Same_TypeMapping(async);
+
+        AssertSql(
+            """
+SELECT ISNULL(ISNULL(CAST([e].[ReportsTo] AS bigint) + CAST(1 AS bigint), CAST([e].[ReportsTo] AS bigint) + CAST(2 AS bigint)), CAST([e].[ReportsTo] AS bigint) + CAST(3 AS bigint))
+FROM [Employees] AS [e]
+ORDER BY [e].[EmployeeID]
+""");
+    }
+
+    public override async Task Coalesce_Correct_TypeMapping_Double(bool async)
+    {
+        await base.Coalesce_Correct_TypeMapping_Double(async);
+
+        AssertSql(
+            """
+SELECT COALESCE([e].[ReportsTo], 2.25)
+FROM [Employees] AS [e]
+""");
+    }
+
+    public override async Task Coalesce_Correct_TypeMapping_String(bool async)
+    {
+        await base.Coalesce_Correct_TypeMapping_String(async);
+
+        AssertSql(
+            """
+SELECT COALESCE([c].[Region], N'no region specified')
+FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]
+""");
+    }
+
     public override async Task Null_Coalesce_Short_Circuit(bool async)
     {
         await base.Null_Coalesce_Short_Circuit(async);
@@ -3023,66 +3058,6 @@ ORDER BY COALESCE([c].[Region], N'ZZ')
 """);
     }
 
-    public override async Task DateTime_parse_is_inlined(bool async)
-    {
-        await base.DateTime_parse_is_inlined(async);
-
-        AssertSql(
-            """
-SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]
-WHERE [o].[OrderDate] > '1998-01-01T12:00:00.000'
-""");
-    }
-
-    public override async Task DateTime_parse_is_parameterized_when_from_closure(bool async)
-    {
-        await base.DateTime_parse_is_parameterized_when_from_closure(async);
-
-        AssertSql(
-            """
-@Parse='1998-01-01T12:00:00.0000000' (Nullable = true) (DbType = DateTime)
-
-SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]
-WHERE [o].[OrderDate] > @Parse
-""");
-    }
-
-    public override async Task New_DateTime_is_inlined(bool async)
-    {
-        await base.New_DateTime_is_inlined(async);
-
-        AssertSql(
-            """
-SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]
-WHERE [o].[OrderDate] > '1998-01-01T12:00:00.000'
-""");
-    }
-
-    public override async Task New_DateTime_is_parameterized_when_from_closure(bool async)
-    {
-        await base.New_DateTime_is_parameterized_when_from_closure(async);
-
-        AssertSql(
-            """
-@p='1998-01-01T12:00:00.0000000' (Nullable = true) (DbType = DateTime)
-
-SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]
-WHERE [o].[OrderDate] > @p
-""",
-            //
-            """
-@p='1998-01-01T11:00:00.0000000' (Nullable = true) (DbType = DateTime)
-
-SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]
-WHERE [o].[OrderDate] > @p
-""");
-    }
-
     public override async Task Environment_newline_is_funcletized(bool async)
     {
         await base.Environment_newline_is_funcletized(async);
@@ -3165,188 +3140,6 @@ LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 SELECT COALESCE([c].[City], N'') + N' ' + COALESCE([c].[City], N'')
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
-""");
-    }
-
-    public override async Task Select_bitwise_or(bool async)
-    {
-        await base.Select_bitwise_or(async);
-
-        AssertSql(
-            """
-SELECT [c].[CustomerID], CASE
-    WHEN [c].[CustomerID] IN (N'ALFKI', N'ANATR') THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END AS [Value]
-FROM [Customers] AS [c]
-ORDER BY [c].[CustomerID]
-""");
-    }
-
-    public override async Task Select_bitwise_or_multiple(bool async)
-    {
-        await base.Select_bitwise_or_multiple(async);
-
-        AssertSql(
-            """
-SELECT [c].[CustomerID], CASE
-    WHEN [c].[CustomerID] IN (N'ALFKI', N'ANATR', N'ANTON') THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END AS [Value]
-FROM [Customers] AS [c]
-ORDER BY [c].[CustomerID]
-""");
-    }
-
-    public override async Task Select_bitwise_and(bool async)
-    {
-        await base.Select_bitwise_and(async);
-
-        AssertSql(
-            """
-SELECT [c].[CustomerID], CAST(0 AS bit) AS [Value]
-FROM [Customers] AS [c]
-ORDER BY [c].[CustomerID]
-""");
-    }
-
-    public override async Task Select_bitwise_and_or(bool async)
-    {
-        await base.Select_bitwise_and_or(async);
-
-        AssertSql(
-            """
-SELECT [c].[CustomerID], CASE
-    WHEN [c].[CustomerID] = N'ANTON' THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END AS [Value]
-FROM [Customers] AS [c]
-ORDER BY [c].[CustomerID]
-""");
-    }
-
-    public override async Task Where_bitwise_or_with_logical_or(bool async)
-    {
-        await base.Where_bitwise_or_with_logical_or(async);
-
-        AssertSql(
-            """
-SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]
-WHERE [c].[CustomerID] IN (N'ALFKI', N'ANATR', N'ANTON')
-""");
-    }
-
-    public override async Task Where_bitwise_and_with_logical_and(bool async)
-    {
-        await base.Where_bitwise_and_with_logical_and(async);
-
-        AssertSql(
-            """
-SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]
-WHERE 0 = 1
-""");
-    }
-
-    public override async Task Where_bitwise_or_with_logical_and(bool async)
-    {
-        await base.Where_bitwise_or_with_logical_and(async);
-
-        AssertSql(
-            """
-SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]
-WHERE [c].[CustomerID] IN (N'ALFKI', N'ANATR') AND [c].[Country] = N'Germany'
-""");
-    }
-
-    public override async Task Where_bitwise_and_with_logical_or(bool async)
-    {
-        await base.Where_bitwise_and_with_logical_or(async);
-
-        AssertSql(
-            """
-SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]
-WHERE [c].[CustomerID] = N'ANTON'
-""");
-    }
-
-    public override async Task Where_bitwise_binary_not(bool async)
-    {
-        await base.Where_bitwise_binary_not(async);
-
-        AssertSql(
-            """
-@negatedId='-10249'
-
-SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]
-WHERE ~[o].[OrderID] = @negatedId
-""");
-    }
-
-    public override async Task Where_bitwise_binary_and(bool async)
-    {
-        await base.Where_bitwise_binary_and(async);
-
-        AssertSql(
-            """
-SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]
-WHERE [o].[OrderID] & 10248 = 10248
-""");
-    }
-
-    public override async Task Where_bitwise_binary_or(bool async)
-    {
-        await base.Where_bitwise_binary_or(async);
-
-        AssertSql(
-            """
-SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]
-WHERE [o].[OrderID] | 10248 = 10248
-""");
-    }
-
-    public override async Task Where_bitwise_binary_xor(bool async)
-    {
-        await base.Where_bitwise_binary_xor(async);
-
-        AssertSql(
-            """
-SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]
-WHERE [o].[OrderID] ^ 1 = 10249
-""");
-    }
-
-    public override async Task Select_bitwise_or_with_logical_or(bool async)
-    {
-        await base.Select_bitwise_or_with_logical_or(async);
-
-        AssertSql(
-            """
-SELECT [c].[CustomerID], CASE
-    WHEN [c].[CustomerID] IN (N'ALFKI', N'ANATR', N'ANTON') THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END AS [Value]
-FROM [Customers] AS [c]
-ORDER BY [c].[CustomerID]
-""");
-    }
-
-    public override async Task Select_bitwise_and_with_logical_and(bool async)
-    {
-        await base.Select_bitwise_and_with_logical_and(async);
-
-        AssertSql(
-            """
-SELECT [c].[CustomerID], CAST(0 AS bit) AS [Value]
-FROM [Customers] AS [c]
-ORDER BY [c].[CustomerID]
 """);
     }
 
@@ -6864,48 +6657,6 @@ FROM [Orders] AS [o]
         AssertSql();
     }
 
-    public override async Task Random_next_is_not_funcletized_1(bool async)
-    {
-        await base.Random_next_is_not_funcletized_1(async);
-
-        AssertSql();
-    }
-
-    public override async Task Random_next_is_not_funcletized_2(bool async)
-    {
-        await base.Random_next_is_not_funcletized_2(async);
-
-        AssertSql();
-    }
-
-    public override async Task Random_next_is_not_funcletized_3(bool async)
-    {
-        await base.Random_next_is_not_funcletized_3(async);
-
-        AssertSql();
-    }
-
-    public override async Task Random_next_is_not_funcletized_4(bool async)
-    {
-        await base.Random_next_is_not_funcletized_4(async);
-
-        AssertSql();
-    }
-
-    public override async Task Random_next_is_not_funcletized_5(bool async)
-    {
-        await base.Random_next_is_not_funcletized_5(async);
-
-        AssertSql();
-    }
-
-    public override async Task Random_next_is_not_funcletized_6(bool async)
-    {
-        await base.Random_next_is_not_funcletized_6(async);
-
-        AssertSql();
-    }
-
     public override async Task SelectMany_after_client_method(bool async)
     {
         await base.SelectMany_after_client_method(async);
@@ -7269,7 +7020,7 @@ WHERE NOT EXISTS (
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE (
-    SELECT COALESCE(SUM([v].[Value]), 0)
+    SELECT ISNULL(SUM([v].[Value]), 0)
     FROM (VALUES (CAST(100 AS int)), ((
         SELECT COUNT(*)
         FROM [Orders] AS [o]
@@ -7539,6 +7290,25 @@ WHERE EXISTS (
             """
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
+""");
+    }
+
+    public override async Task Late_subquery_pushdown(bool async)
+    {
+        await base.Late_subquery_pushdown(async);
+
+        AssertSql(
+            """
+SELECT [o].[CustomerID]
+FROM [Orders] AS [o]
+WHERE EXISTS (
+    SELECT 1
+    FROM (
+        SELECT TOP(100) [o0].[CustomerID]
+        FROM [Orders] AS [o0]
+        ORDER BY [o0].[CustomerID]
+    ) AS [o1]
+    WHERE [o1].[CustomerID] = [o].[CustomerID] OR ([o1].[CustomerID] IS NULL AND [o].[CustomerID] IS NULL))
 """);
     }
 

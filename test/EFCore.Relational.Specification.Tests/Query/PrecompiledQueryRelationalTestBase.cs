@@ -88,7 +88,7 @@ var blogs = await context.Blogs
     .Where(Expression.Lambda<Func<Blog, bool>>(Expression.Invoke(lambda, parameter), parameter))
     .ToListAsync();
 """,
-            errorAsserter: errors => Assert.IsType<InvalidOperationException>(errors.Single().Exception));
+            errorAsserter: errors => Assert.IsType<ArgumentNullException>(errors.Single().Exception));
 
     [ConditionalFact]
     public virtual Task ListInit_no_evaluatability()
@@ -201,6 +201,58 @@ _ = await context.Blogs.Select(b => new[] { b.Id, b.Id + i }).ToListAsync();
         => Test("_ = await context.Blogs.Where(b => (short)b.Id == (short)8).ToListAsync();");
 
     #endregion Expression types
+
+    #region Regular operators
+
+    [ConditionalFact]
+    public virtual Task OrderBy()
+        => Test("_ = await context.Blogs.OrderBy(b => b.Name).ToListAsync();");
+
+    [ConditionalFact]
+    public virtual Task Skip_with_constant()
+        => Test("_ = await context.Blogs.OrderBy(b => b.Name).Skip(1).ToListAsync();");
+
+    [ConditionalFact]
+    public virtual Task Skip_with_parameter()
+        => Test(
+            """
+var toSkip = 1;
+_ = await context.Blogs.OrderBy(b => b.Name).Skip(toSkip).ToListAsync();
+""");
+
+    [ConditionalFact]
+    public virtual Task Take_with_constant()
+        => Test("_ = await context.Blogs.OrderBy(b => b.Name).Take(1).ToListAsync();");
+
+    [ConditionalFact]
+    public virtual Task Take_with_parameter()
+        => Test(
+            """
+var toTake = 1;
+_ = await context.Blogs.OrderBy(b => b.Name).Take(toTake).ToListAsync();
+""");
+
+    [ConditionalFact]
+    public virtual Task Select_changes_type()
+        => Test("_ = await context.Blogs.Select(b => b.Name).ToListAsync();");
+
+    [ConditionalFact]
+    public virtual Task Select_anonymous_object()
+        => Test("""_ = await context.Blogs.Select(b => new { Foo = b.Name + "Foo" }).ToListAsync();""");
+
+    [ConditionalFact]
+    public virtual Task Include_single()
+        => Test("var blogs = await context.Blogs.Include(b => b.Posts).Where(b => b.Id > 8).ToListAsync();");
+
+    [ConditionalFact]
+    public virtual Task Include_split()
+        => Test("var blogs = await context.Blogs.AsSplitQuery().Include(b => b.Posts).ToListAsync();");
+
+    [ConditionalFact]
+    public virtual Task Final_GroupBy()
+        => Test("""var blogs = await context.Blogs.GroupBy(b => b.Name).ToListAsync();""");
+
+    #endregion Regular operators
 
     #region Terminating operators
 
@@ -727,7 +779,7 @@ Assert.Equal(1, await context.Blogs.CountAsync());
 """);
 
     [ConditionalFact]
-    public virtual Task Terminating_ExecuteUpdate()
+    public virtual Task Terminating_ExecuteUpdate_with_lambda()
         => Test(
             """
 await context.Database.BeginTransactionAsync();
@@ -739,7 +791,19 @@ Assert.Equal(1, await context.Blogs.CountAsync(b => b.Id == 9 && b.Name == "Blog
 """);
 
     [ConditionalFact]
-    public virtual Task Terminating_ExecuteUpdateAsync()
+    public virtual Task Terminating_ExecuteUpdate_without_lambda()
+        => Test(
+            """
+await context.Database.BeginTransactionAsync();
+
+var newValue = "NewValue";
+var rowsAffected = context.Blogs.Where(b => b.Id > 8).ExecuteUpdate(setters => setters.SetProperty(b => b.Name, newValue));
+Assert.Equal(1, rowsAffected);
+Assert.Equal(1, await context.Blogs.CountAsync(b => b.Id == 9 && b.Name == "NewValue"));
+""");
+
+    [ConditionalFact]
+    public virtual Task Terminating_ExecuteUpdateAsync_with_lambda()
         => Test(
             """
 await context.Database.BeginTransactionAsync();
@@ -748,6 +812,28 @@ var suffix = "Suffix";
 var rowsAffected = await context.Blogs.Where(b => b.Id > 8).ExecuteUpdateAsync(setters => setters.SetProperty(b => b.Name, b => b.Name + suffix));
 Assert.Equal(1, rowsAffected);
 Assert.Equal(1, await context.Blogs.CountAsync(b => b.Id == 9 && b.Name == "Blog2Suffix"));
+""");
+
+    [ConditionalFact]
+    public virtual Task Terminating_ExecuteUpdateAsync_without_lambda()
+        => Test(
+            """
+await context.Database.BeginTransactionAsync();
+
+var newValue = "NewValue";
+var rowsAffected = await context.Blogs.Where(b => b.Id > 8).ExecuteUpdateAsync(setters => setters.SetProperty(b => b.Name, newValue));
+Assert.Equal(1, rowsAffected);
+Assert.Equal(1, await context.Blogs.CountAsync(b => b.Id == 9 && b.Name == "NewValue"));
+""");
+
+    [ConditionalFact] // #35494
+    public virtual Task Terminating_with_cancellation_token()
+        => Test(
+            """
+CancellationTokenSource source = new CancellationTokenSource();
+CancellationToken token = source.Token;
+Assert.Equal("Blog1", (await context.Blogs.Where(b => b.Id == 8).FirstOrDefaultAsync(token)).Name);
+Assert.Null(await context.Blogs.Where(b => b.Id == 7).FirstOrDefaultAsync(token));
 """);
 
     #endregion Reducing terminating operators
@@ -986,6 +1072,60 @@ public static class TestContainer
 
     #endregion Different DbContext expressions
 
+    #region Captured variable handling
+
+    [ConditionalFact]
+    public virtual Task Two_captured_variables_in_same_lambda()
+        => Test(
+            """
+var yes = "yes";
+var no = "no";
+var blogs = await context.Blogs.Select(b => b.Id == 3 ? yes : no).ToListAsync();
+""");
+
+    [ConditionalFact]
+    public virtual Task Two_captured_variables_in_different_lambdas()
+        => Test(
+            """
+var starts = "Blog";
+var ends = "2";
+var blog = await context.Blogs.Where(b => b.Name.StartsWith(starts)).Where(b => b.Name.EndsWith(ends)).SingleAsync();
+Assert.Equal(9, blog.Id);
+""");
+
+    [ConditionalFact]
+    public virtual Task Same_captured_variable_twice_in_same_lambda()
+        => Test(
+            """
+var foo = "X";
+var blogs = await context.Blogs.Where(b => b.Name.StartsWith(foo) && b.Name.EndsWith(foo)).ToListAsync();
+""");
+
+    [ConditionalFact]
+    public virtual Task Same_captured_variable_twice_in_different_lambdas()
+        => Test(
+            """
+var foo = "X";
+var blogs = await context.Blogs.Where(b => b.Name.StartsWith(foo)).Where(b => b.Name.EndsWith(foo)).ToListAsync();
+""");
+
+    [ConditionalFact]
+    public virtual Task Multiple_queries_with_captured_variables()
+        => Test(
+            """
+var id1 = 8;
+var id2 = 9;
+var blogs = await context.Blogs.Where(b => b.Id == id1 || b.Id == id2).ToListAsync();
+var blog1 = await context.Blogs.Where(b => b.Id == id1).SingleAsync();
+Assert.Collection(
+    blogs.OrderBy(b => b.Id),
+    b => Assert.Equal(8, b.Id),
+    b => Assert.Equal(9, b.Id));
+Assert.Equal("Blog1", blog1.Name);
+""");
+
+    #endregion Captured variable handling
+
     #region Negative cases
 
     [ConditionalFact]
@@ -1068,88 +1208,6 @@ var blogs = await (
                 => Assert.Equal(DesignStrings.QueryComprehensionSyntaxNotSupportedInPrecompiledQueries, errors.Single().Exception.Message));
 
     #endregion Negative cases
-
-    [ConditionalFact]
-    public virtual Task Select_changes_type()
-        => Test("_ = await context.Blogs.Select(b => b.Name).ToListAsync();");
-
-    [ConditionalFact]
-    public virtual Task OrderBy()
-        => Test("_ = await context.Blogs.OrderBy(b => b.Name).ToListAsync();");
-
-    [ConditionalFact]
-    public virtual Task Skip()
-        => Test("_ = await context.Blogs.OrderBy(b => b.Name).Skip(1).ToListAsync();");
-
-    [ConditionalFact]
-    public virtual Task Take()
-        => Test("_ = await context.Blogs.OrderBy(b => b.Name).Take(1).ToListAsync();");
-
-    [ConditionalFact]
-    public virtual Task Project_anonymous_object()
-        => Test("""_ = await context.Blogs.Select(b => new { Foo = b.Name + "Foo" }).ToListAsync();""");
-
-    [ConditionalFact]
-    public virtual Task Two_captured_variables_in_same_lambda()
-        => Test(
-            """
-var yes = "yes";
-var no = "no";
-var blogs = await context.Blogs.Select(b => b.Id == 3 ? yes : no).ToListAsync();
-""");
-
-    [ConditionalFact]
-    public virtual Task Two_captured_variables_in_different_lambdas()
-        => Test(
-            """
-var starts = "Blog";
-var ends = "2";
-var blog = await context.Blogs.Where(b => b.Name.StartsWith(starts)).Where(b => b.Name.EndsWith(ends)).SingleAsync();
-Assert.Equal(9, blog.Id);
-""");
-
-    [ConditionalFact]
-    public virtual Task Same_captured_variable_twice_in_same_lambda()
-        => Test(
-            """
-var foo = "X";
-var blogs = await context.Blogs.Where(b => b.Name.StartsWith(foo) && b.Name.EndsWith(foo)).ToListAsync();
-""");
-
-    [ConditionalFact]
-    public virtual Task Same_captured_variable_twice_in_different_lambdas()
-        => Test(
-            """
-var foo = "X";
-var blogs = await context.Blogs.Where(b => b.Name.StartsWith(foo)).Where(b => b.Name.EndsWith(foo)).ToListAsync();
-""");
-
-    [ConditionalFact]
-    public virtual Task Include_single()
-        => Test("var blogs = await context.Blogs.Include(b => b.Posts).Where(b => b.Id > 8).ToListAsync();");
-
-    [ConditionalFact]
-    public virtual Task Include_split()
-        => Test("var blogs = await context.Blogs.AsSplitQuery().Include(b => b.Posts).ToListAsync();");
-
-    [ConditionalFact]
-    public virtual Task Final_GroupBy()
-        => Test("""var blogs = await context.Blogs.GroupBy(b => b.Name).ToListAsync();""");
-
-    [ConditionalFact]
-    public virtual Task Multiple_queries_with_captured_variables()
-        => Test(
-            """
-var id1 = 8;
-var id2 = 9;
-var blogs = await context.Blogs.Where(b => b.Id == id1 || b.Id == id2).ToListAsync();
-var blog1 = await context.Blogs.Where(b => b.Id == id1).SingleAsync();
-Assert.Collection(
-    blogs.OrderBy(b => b.Id),
-    b => Assert.Equal(8, b.Id),
-    b => Assert.Equal(9, b.Id));
-Assert.Equal("Blog1", blog1.Name);
-""");
 
     [ConditionalFact]
     public virtual Task Unsafe_accessor_gets_generated_once_for_multiple_queries()
@@ -1268,5 +1326,5 @@ await using var context = new PrecompiledQueryContext(dbContextOptions);
         public Blog? Blog { get; set; }
     }
 
-    public static IEnumerable<object[]> IsAsyncData = new object[][] { [false], [true] };
+    public static readonly IEnumerable<object[]> IsAsyncData = [[false], [true]];
 }

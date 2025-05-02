@@ -176,7 +176,7 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
     }
 
     /// <summary>
-    ///     Returns an <see cref="IEnumerator{T}" /> for all tracked entities of type TEntity
+    ///     Returns an <see cref="IEnumerator{T}" /> for all tracked entities of type <typeparamref name="TEntity"/>
     ///     that are not marked as deleted.
     /// </summary>
     /// <returns>An enumerator for the collection.</returns>
@@ -184,7 +184,7 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
         => _context.GetDependencies().StateManager.GetNonDeletedEntities<TEntity>().GetEnumerator();
 
     /// <summary>
-    ///     Returns an <see cref="IEnumerator{T}" /> for all tracked entities of type TEntity
+    ///     Returns an <see cref="IEnumerator{T}" /> for all tracked entities of type <typeparamref name="TEntity"/>
     ///     that are not marked as deleted.
     /// </summary>
     /// <returns>An enumerator for the collection.</returns>
@@ -237,7 +237,7 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
     }
 
     /// <summary>
-    ///     Marks all entities of type TEntity being tracked by the <see cref="DbContext" />
+    ///     Marks all entities of type <typeparamref name="TEntity"/> being tracked by the <see cref="DbContext" />
     ///     as <see cref="EntityState.Deleted" />.
     /// </summary>
     /// <remarks>
@@ -317,8 +317,7 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
     public virtual bool Remove(TEntity item)
     {
         var entry = _context.GetDependencies().StateManager.TryGetEntry(item);
-        if (entry != null
-            && entry.EntityState != EntityState.Deleted)
+        if (entry is { EntityState: not EntityState.Deleted and not EntityState.Detached })
         {
             try
             {

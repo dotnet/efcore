@@ -33,6 +33,7 @@ public static class RelationalEventId
         ConnectionCreated,
         ConnectionDisposing,
         ConnectionDisposed,
+        ConnectionCanceled,
 
         // Command events
         CommandExecuting = CoreEventId.RelationalBaseId + 100,
@@ -81,6 +82,7 @@ public static class RelationalEventId
         NonTransactionalMigrationOperationWarning,
         AcquiringMigrationLock,
         MigrationsUserTransactionWarning,
+        ModelSnapshotNotFound,
 
         // Query events
         QueryClientEvaluationWarning = CoreEventId.RelationalBaseId + 500,
@@ -215,6 +217,19 @@ public static class RelationalEventId
     ///     </para>
     /// </remarks>
     public static readonly EventId ConnectionError = MakeConnectionId(Id.ConnectionError);
+
+    /// <summary>
+    ///     A <see cref="DbConnection" /> open operation has been canceled.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This event is in the <see cref="DbLoggerCategory.Database.Connection" /> category.
+    ///     </para>
+    ///     <para>
+    ///         This event uses the <see cref="ConnectionEndEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+    ///     </para>
+    /// </remarks>
+    public static readonly EventId ConnectionCanceled = MakeConnectionId(Id.ConnectionCanceled);
 
     /// <summary>
     ///     A <see cref="DbConnection" /> is about to be created by EF.
@@ -777,6 +792,19 @@ public static class RelationalEventId
     ///     </para>
     /// </remarks>
     public static readonly EventId MigrationsUserTransactionWarning = MakeMigrationsId(Id.MigrationsUserTransactionWarning);
+
+    /// <summary>
+    ///     Model snapshot was not found.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This event is in the <see cref="DbLoggerCategory.Migrations" /> category.
+    ///     </para>
+    ///     <para>
+    ///         This event uses the <see cref="MigrationAssemblyEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+    ///     </para>
+    /// </remarks>
+    public static readonly EventId ModelSnapshotNotFound = MakeMigrationsId(Id.ModelSnapshotNotFound);
 
     private static readonly string _queryPrefix = DbLoggerCategory.Query.Name + ".";
 

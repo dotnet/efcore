@@ -150,12 +150,6 @@ public partial class CSharpMigrationsGeneratorTest
                     + "    })")
             },
             {
-#pragma warning disable CS0612 // Type or member is obsolete
-                CoreAnnotationNames.DefiningQuery,
-#pragma warning restore CS0612 // Type or member is obsolete
-                (Expression.Lambda(Expression.Constant(null)), _toNullTable)
-            },
-            {
                 RelationalAnnotationNames.ViewName, ("MyView", _toNullTable
                     + ";"
                     + _nl
@@ -202,9 +196,6 @@ public partial class CSharpMigrationsGeneratorTest
             CoreAnnotationNames.EagerLoaded,
             CoreAnnotationNames.LazyLoadingEnabled,
             CoreAnnotationNames.QueryFilter,
-#pragma warning disable CS0612 // Type or member is obsolete
-            CoreAnnotationNames.DefiningQuery,
-#pragma warning restore CS0612 // Type or member is obsolete
             CoreAnnotationNames.DiscriminatorProperty,
             CoreAnnotationNames.DiscriminatorValue,
             CoreAnnotationNames.InverseNavigations,
