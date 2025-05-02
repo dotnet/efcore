@@ -1751,6 +1751,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
     private int GetQueryFilterCacheKey(IEntityType entityType, IEnumerable<string> filterKeys)
     {
         var hashCode = new HashCode();
+        hashCode.Add(entityType);
         foreach (var key in filterKeys)
         {
             hashCode.Add(key);
