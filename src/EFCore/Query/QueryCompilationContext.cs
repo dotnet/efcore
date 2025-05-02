@@ -131,7 +131,7 @@ public class QueryCompilationContext
     /// <summary>
     ///     A value indicating whether query filters are ignored in this query.
     /// </summary>
-    public virtual HashSet<object>? IgnoredQueryFilters { get; internal set; }
+    public virtual HashSet<string>? IgnoredQueryFilters { get; internal set; }
 
     /// <summary>
     ///     A value indicating whether eager loaded navigations are ignored in this query.
