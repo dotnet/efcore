@@ -33,7 +33,7 @@ public interface IReadOnlyEntityType : IReadOnlyTypeBase
     ///     Gets the LINQ expression filter automatically applied to queries for this entity type.
     /// </summary>
     /// <returns>The LINQ expression filter.</returns>
-    IReadOnlyDictionary<object, LambdaExpression>? GetQueryFilters();
+    IReadOnlyDictionary<string, LambdaExpression>? GetQueryFilters();
 
     /// <summary>
     ///     Returns the property that will be used for storing a discriminator value.

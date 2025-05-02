@@ -303,7 +303,7 @@ public class RuntimeModelConvention : IModelFinalizedConvention
 
             if (annotations.TryGetValue(CoreAnnotationNames.QueryFilter, out var queryFilters))
             {
-                annotations[CoreAnnotationNames.QueryFilter] = (queryFilters as Dictionary<object, LambdaExpression>)?
+                annotations[CoreAnnotationNames.QueryFilter] = (queryFilters as Dictionary<string, LambdaExpression>)?
                     .ToDictionary(x => x.Key, x => (LambdaExpression)new QueryRootRewritingExpressionVisitor(runtimeEntityType.Model).Rewrite(x.Value));
             }
 

@@ -49,7 +49,7 @@ public interface IConventionEntityType : IReadOnlyEntityType, IConventionTypeBas
     /// <param name="queryFilter">The LINQ expression filter.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>The configured filter.</returns>
-    IReadOnlyDictionary<object, LambdaExpression>? SetQueryFilter(object filterKey, LambdaExpression? queryFilter, bool fromDataAnnotation = false);
+    IReadOnlyDictionary<string, LambdaExpression>? SetQueryFilter(string filterKey, LambdaExpression? queryFilter, bool fromDataAnnotation = false);
 
     /// <summary>
     ///     Returns the configuration source for <see cref="IReadOnlyEntityType.GetQueryFilters" />.

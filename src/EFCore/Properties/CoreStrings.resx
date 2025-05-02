@@ -150,6 +150,9 @@
   <data name="AnnotationNotFound" xml:space="preserve">
     <value>The annotation '{annotation}' was not found. Ensure that the annotation has been added to the object {annotatable}</value>
   </data>
+  <data name="AnonymousAndNamedFiltersCombined" xml:space="preserve">
+    <value>Cannot apply both anonymous and named query filters simultaneously. Please specify either an anonymous filter or one or more named filters.</value>
+  </data>
   <data name="ArgumentNotConstant" xml:space="preserve">
     <value>The '{parameter}' value passed to '{methodName}' must be a constant.</value>
   </data>
@@ -1441,6 +1444,9 @@
   </data>
   <data name="QueryEntityMaterializationConditionWrongShape" xml:space="preserve">
     <value>The materialization condition passed for entity shaper of entity type '{entityType}' is not of the correct shape. A materialization condition must be a 'LambdaExpression' of 'Func&lt;ValueBuffer, IEntityType&gt;'.</value>
+  </data>
+  <data name="QueryFilterNameCannotBeNull" xml:space="preserve">
+    <value>Query filter name cannot be null. Please provide a valid filter name.</value>
   </data>
   <data name="QueryInvalidMaterializationType" xml:space="preserve">
     <value>The query contains a projection '{projection}' of type '{queryableType}'. Collections in the final projection must be an 'IEnumerable&lt;T&gt;' type such as 'List&lt;T&gt;'. Consider using 'ToList' or some other mechanism to convert the 'IQueryable&lt;T&gt;' or 'IOrderedEnumerable&lt;T&gt;' into an 'IEnumerable&lt;T&gt;'.</value>

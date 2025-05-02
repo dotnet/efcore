@@ -881,7 +881,7 @@ public interface IConventionEntityTypeBuilder : IConventionTypeBaseBuilder
     ///     The same builder instance if the query filter was set,
     ///     <see langword="null" /> otherwise.
     /// </returns>
-    IConventionEntityTypeBuilder? HasQueryFilter(object filterKey, LambdaExpression? filter, bool fromDataAnnotation = false);
+    IConventionEntityTypeBuilder? HasQueryFilter(string filterKey, LambdaExpression? filter, bool fromDataAnnotation = false);
 
     /// <summary>
     ///     Returns a value indicating whether the given query filter can be set from the current configuration source.
@@ -898,7 +898,7 @@ public interface IConventionEntityTypeBuilder : IConventionTypeBaseBuilder
     /// <param name="filter">The LINQ predicate expression.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns><see langword="true" /> if the given query filter can be set.</returns>
-    bool CanSetQueryFilter(object filterKey, LambdaExpression? filter, bool fromDataAnnotation = false);
+    bool CanSetQueryFilter(string filterKey, LambdaExpression? filter, bool fromDataAnnotation = false);
 
     /// <summary>
     ///     Configures a query used to provide data for a keyless entity type.

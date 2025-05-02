@@ -946,8 +946,8 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
 
     /// <inheritdoc />
     [DebuggerStepThrough]
-    IReadOnlyDictionary<object, LambdaExpression>? IReadOnlyEntityType.GetQueryFilters()
-        => ((Dictionary<object, LambdaExpression>?)this[CoreAnnotationNames.QueryFilter])?.AsReadOnly();
+    IReadOnlyDictionary<string, LambdaExpression>? IReadOnlyEntityType.GetQueryFilters()
+        => ((Dictionary<string, LambdaExpression>?)this[CoreAnnotationNames.QueryFilter])?.AsReadOnly();
 
     /// <inheritdoc />
     [DebuggerStepThrough]

@@ -1750,7 +1750,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         }
     }
 
-    private IReadOnlyDictionary<object, LambdaExpression>? GetApplicableQueryFilters(IEntityType entityType)
+    private IReadOnlyDictionary<string, LambdaExpression>? GetApplicableQueryFilters(IEntityType entityType)
     {
         var queryFilters = _queryCompilationContext.IgnoreQueryFilters && _queryCompilationContext.IgnoredQueryFilters == null ? null : entityType.GetQueryFilters();
         return _queryCompilationContext.IgnoredQueryFilters == null
@@ -1764,14 +1764,17 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
     /// The cache key is calculated by combining a hash code of the root entity type and all the query filter keys applied
     /// </summary>
     /// <param name="entityType">An entity type</param>
-    /// <param name="queryFilters">Query filters</param>
+    /// <param name="filterKeys">Query filters</param>
     /// <returns>The cache key</returns>
-    private int GetQueryFilterCacheKey(IEntityType entityType, IReadOnlyDictionary<object, LambdaExpression> queryFilters)
-        => _queryCompilationContext.IgnoredQueryFilters == null
-                ? entityType.GetHashCode()
-                : queryFilters.Keys
-                    .Aggregate(entityType.GetHashCode(), (cacheKey, filterKey) =>
-                        HashCode.Combine(cacheKey, filterKey.GetType().GetHashCode(), filterKey.GetHashCode()));
+    private int GetQueryFilterCacheKey(IEntityType entityType, IEnumerable<string> filterKeys)
+    {
+        var hashCode = new HashCode();
+        foreach (var key in filterKeys)
+        {
+            hashCode.Add(key);
+        }
+        return hashCode.ToHashCode();
+    }
 
     private Expression ApplyQueryFilter(IEntityType entityType, NavigationExpansionExpression navigationExpansionExpression)
     {
@@ -1781,7 +1784,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         if (queryFilters != null && queryFilters.Count > 0)
         {
             var sequenceType = navigationExpansionExpression.Type.GetSequenceType();
-            var cacheKey = GetQueryFilterCacheKey(rootEntityType, queryFilters);
+            var cacheKey = GetQueryFilterCacheKey(rootEntityType, queryFilters.Keys);
 
             if (!_parameterizedQueryFilterPredicateCache.TryGetValue(cacheKey, out var filterPredicate))
             {

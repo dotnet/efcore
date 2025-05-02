@@ -1310,7 +1310,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual InternalEntityTypeBuilder? HasQueryFilter(
-        object filterKey,
+        string filterKey,
         LambdaExpression? filter,
         ConfigurationSource configurationSource)
     {
@@ -1339,7 +1339,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual bool CanSetQueryFilter(object filterKey, LambdaExpression? filter, ConfigurationSource configurationSource)
+    public virtual bool CanSetQueryFilter(string filterKey, LambdaExpression? filter, ConfigurationSource configurationSource)
     {
         if (configurationSource.Overrides(Metadata.GetQueryFilterConfigurationSource()))
         {
@@ -5530,7 +5530,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
-    IConventionEntityTypeBuilder? IConventionEntityTypeBuilder.HasQueryFilter(object filterKey, LambdaExpression? filter, bool fromDataAnnotation)
+    IConventionEntityTypeBuilder? IConventionEntityTypeBuilder.HasQueryFilter(string filterKey, LambdaExpression? filter, bool fromDataAnnotation)
         => HasQueryFilter(filterKey, filter, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
@@ -5540,7 +5540,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
-    bool IConventionEntityTypeBuilder.CanSetQueryFilter(object filterKey, LambdaExpression? filter, bool fromDataAnnotation)
+    bool IConventionEntityTypeBuilder.CanSetQueryFilter(string filterKey, LambdaExpression? filter, bool fromDataAnnotation)
         => CanSetQueryFilter(filterKey, filter, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>

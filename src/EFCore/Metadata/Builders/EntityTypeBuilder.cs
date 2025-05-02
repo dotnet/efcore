@@ -559,7 +559,7 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
     /// <param name="filterKey">The filter key</param>
     /// <param name="filter">The LINQ predicate expression.</param>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
-    public virtual EntityTypeBuilder HasQueryFilter(object filterKey,LambdaExpression? filter)
+    public virtual EntityTypeBuilder HasQueryFilter(string filterKey,LambdaExpression? filter)
     {
         Builder.HasQueryFilter(filterKey, filter, ConfigurationSource.Explicit);
 
