@@ -2189,8 +2189,8 @@ public class DbContext :
     /// <typeparam name="TEntity">The type of entity to find.</typeparam>
     /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
     /// <returns>The entity found, or <see langword="null" />.</returns>
-    public virtual ValueTask<TEntity?> FindAsync<
-        [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] TEntity>(params object?[]? keyValues)
+    public virtual ValueTask<TEntity?> FindAsync<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] TEntity>(
+        params object?[]? keyValues)
         where TEntity : class
     {
         CheckDisposed();
