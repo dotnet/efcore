@@ -29,20 +29,22 @@ internal partial class MigrationsBundleCommand
         }
     }
 
-#if NET472
+#if !NET
     protected override int Execute(string[] args)
         => throw new CommandException(Resources.VersionRequired("6.0.0"));
 #else
     protected override int Execute(string[] args)
     {
-        if (new SemanticVersionComparer().Compare(EFCoreVersion, "6.0.0") < 0)
-        {
-            throw new CommandException(Resources.VersionRequired("6.0.0"));
-        }
-
+        string? version;
         string context;
         using (var executor = CreateExecutor(args))
         {
+            version = executor.EFCoreVersion;
+            if (new SemanticVersionComparer().Compare(version, "6.0.0") < 0)
+            {
+                throw new CommandException(Resources.VersionRequired("6.0.0"));
+            }
+
             context = (string)executor.GetContextInfo(Context!.Value())["Type"]!;
         }
 
@@ -53,7 +55,7 @@ internal partial class MigrationsBundleCommand
             Session = new Dictionary<string, object>
             {
                 ["TargetFramework"] = Framework!.Value()!,
-                ["EFCoreVersion"] = EFCoreVersion!,
+                ["EFCoreVersion"] = version!,
                 ["Project"] = Project!.Value()!,
                 ["StartupProject"] = StartupProject!.Value()!
             }
