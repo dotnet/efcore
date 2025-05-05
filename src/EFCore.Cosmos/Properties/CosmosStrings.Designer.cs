@@ -106,9 +106,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
         /// <summary>
         ///     Creating a container with full-text search or vector properties inside a collection navigation is currently not supported using EF Core; path: '{path}'. Create the container using other means (e.g. Microsoft.Azure.Cosmos SDK).
         /// </summary>
-        public static string CreatingContainerWithFullTextOrVectorOnCollectionNotSupported(object? path)
+        public static string CreatingContainerWithFullTextOnCollectionNotSupported(object? path)
             => string.Format(
-                GetString("CreatingContainerWithFullTextOrVectorOnCollectionNotSupported", nameof(path)),
+                GetString("CreatingContainerWithFullTextOnCollectionNotSupported", nameof(path)),
                 path);
 
         /// <summary>
@@ -540,7 +540,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 itemId);
 
         /// <summary>
-        ///     A vector index is defined for `{entityType}.{property}`, but this property has not been configured as a vector. Use 'IsVectorProperty()' in 'OnModelCreating' to configure the property as a vector.
+        ///     A vector index is defined for `{entityType}.{property}`, but this property has not been configured as a vector. Use 'IsVector()' in 'OnModelCreating' to configure the property as a vector.
         /// </summary>
         public static string VectorIndexOnNonVector(object? entityType, object? property)
             => string.Format(
@@ -548,7 +548,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 entityType, property);
 
         /// <summary>
-        ///     The 'VectorDistance' function can only be used with a property mapped as a vector. Use 'IsVectorProperty()' in 'OnModelCreating' to configure the property as a vector.
+        ///     The 'VectorDistance' function can only be used with a property mapped as a vector. Use 'IsVector()' in 'OnModelCreating' to configure the property as a vector.
         /// </summary>
         public static string VectorSearchRequiresVector
             => GetString("VectorSearchRequiresVector");

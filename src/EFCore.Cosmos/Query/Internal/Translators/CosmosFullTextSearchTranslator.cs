@@ -41,25 +41,12 @@ public class CosmosFullTextSearchTranslator(ISqlExpressionFactory sqlExpressionF
                     typeMappingSource.FindMapping(typeof(bool))),
 
             nameof(CosmosDbFunctionsExtensions.FullTextScore)
-                when arguments is [_, SqlExpression property, SqlConstantExpression { Type: var keywordClrType, Value: string[] values } keywords]
-                    && keywordClrType == typeof(string[]) => sqlExpressionFactory.ScoringFunction(
-                        "FullTextScore",
-                        [property, .. values.Select(x => sqlExpressionFactory.Constant(x))],
-                        typeof(double),
-                        typeMappingSource.FindMapping(typeof(double))),
-
-            nameof(CosmosDbFunctionsExtensions.FullTextScore)
-                when arguments is [_, SqlExpression property, SqlParameterExpression { Type: var keywordClrType } keywords]
-                    && keywordClrType == typeof(string[]) => sqlExpressionFactory.ScoringFunction(
-                        "FullTextScore",
-                        [property, keywords],
-                        typeof(double),
-                        typeMappingSource.FindMapping(typeof(double))),
-
-            nameof(CosmosDbFunctionsExtensions.FullTextScore)
-                when arguments is [_, SqlExpression property, ArrayConstantExpression keywords] => sqlExpressionFactory.ScoringFunction(
+                when arguments is [_, var property, var keywords] => sqlExpressionFactory.ScoringFunction(
                     "FullTextScore",
-                    [property, .. keywords.Items],
+                    [
+                        property,
+                        keywords,
+                    ],
                     typeof(double),
                     typeMappingSource.FindMapping(typeof(double))),
 
