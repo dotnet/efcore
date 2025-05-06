@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore.Cosmos.Extensions;
 
 namespace Microsoft.EntityFrameworkCore;
 
+#pragma warning disable EF9103
 [CosmosCondition(CosmosCondition.DoesNotUseTokenCredential)]
 public class HybridSearchCosmosTest : IClassFixture<HybridSearchCosmosTest.HybridSearchFixture>
 {
@@ -39,7 +40,7 @@ public class HybridSearchCosmosTest : IClassFixture<HybridSearchCosmosTest.Hybri
 
 SELECT VALUE c
 FROM root c
-ORDER BY RANK RRF(FullTextScore(c["Description"], "beaver", "otter"), VectorDistance(c["SBytes"], @inputVector, false, {'distanceFunction':'dotproduct', 'dataType':'int8'}))
+ORDER BY RANK RRF(FullTextScore(c["Description"], ["beaver","otter"]), VectorDistance(c["SBytes"], @inputVector, false, {'distanceFunction':'dotproduct', 'dataType':'int8'}))
 """);
     }
 
@@ -62,7 +63,7 @@ ORDER BY RANK RRF(FullTextScore(c["Description"], "beaver", "otter"), VectorDist
 
 SELECT VALUE c
 FROM root c
-ORDER BY RANK RRF(FullTextScore(c["Description"], "beaver"), VectorDistance(c["SBytes"], @inputVector, false, {'distanceFunction':'dotproduct', 'dataType':'int8'}))
+ORDER BY RANK RRF(FullTextScore(c["Description"], ["beaver"]), VectorDistance(c["SBytes"], @inputVector, false, {'distanceFunction':'dotproduct', 'dataType':'int8'}))
 """);
     }
 
@@ -84,7 +85,7 @@ ORDER BY RANK RRF(FullTextScore(c["Description"], "beaver"), VectorDistance(c["S
 
 SELECT VALUE c
 FROM root c
-ORDER BY RANK RRF(FullTextScore(c["Owned"]["AnotherDescription"], "beaver"), VectorDistance(c["Owned"]["Singles"], @inputVector, false, {'distanceFunction':'cosine', 'dataType':'float32'}))
+ORDER BY RANK RRF(FullTextScore(c["Owned"]["AnotherDescription"], ["beaver"]), VectorDistance(c["Owned"]["Singles"], @inputVector, false, {'distanceFunction':'cosine', 'dataType':'float32'}))
 """);
     }
 
@@ -107,7 +108,7 @@ ORDER BY RANK RRF(FullTextScore(c["Owned"]["AnotherDescription"], "beaver"), Vec
 
 SELECT VALUE c
 FROM root c
-ORDER BY RANK RRF(VectorDistance(c["Owned"]["Singles"], @inputVector, false, {'distanceFunction':'cosine', 'dataType':'float32'}), FullTextScore(c["Owned"]["AnotherDescription"], "beaver", "otter"))
+ORDER BY RANK RRF(VectorDistance(c["Owned"]["Singles"], @inputVector, false, {'distanceFunction':'cosine', 'dataType':'float32'}), FullTextScore(c["Owned"]["AnotherDescription"], ["beaver","otter"]))
 """);
     }
 
@@ -161,20 +162,20 @@ ORDER BY RANK RRF(VectorDistance(c["Owned"]["Singles"], @inputVector, false, {'d
                 b.Property(x => x.Description).EnableFullTextSearch();
                 b.HasIndex(x => x.Description).IsFullTextIndex();
 
-                b.HasIndex(e => e.Bytes).IsVectorIndex(VectorIndexType.Flat);
-                b.HasIndex(e => e.SBytes).IsVectorIndex(VectorIndexType.Flat);
-                b.HasIndex(e => e.BytesArray).IsVectorIndex(VectorIndexType.Flat);
-                b.HasIndex(e => e.SinglesArray).IsVectorIndex(VectorIndexType.Flat);
+                b.HasIndex(e => e.Bytes).ForVectors(VectorIndexType.Flat);
+                b.HasIndex(e => e.SBytes).ForVectors(VectorIndexType.Flat);
+                b.HasIndex(e => e.BytesArray).ForVectors(VectorIndexType.Flat);
+                b.HasIndex(e => e.SinglesArray).ForVectors(VectorIndexType.Flat);
 
-                b.Property(e => e.Bytes).IsVectorProperty(DistanceFunction.Cosine, 10);
-                b.Property(e => e.SBytes).IsVectorProperty(DistanceFunction.DotProduct, 10);
-                b.Property(e => e.BytesArray).IsVectorProperty(DistanceFunction.Cosine, 10);
-                b.Property(e => e.SinglesArray).IsVectorProperty(DistanceFunction.Cosine, 10);
+                b.Property(e => e.Bytes).IsVector(DistanceFunction.Cosine, 10);
+                b.Property(e => e.SBytes).IsVector(DistanceFunction.DotProduct, 10);
+                b.Property(e => e.BytesArray).IsVector(DistanceFunction.Cosine, 10);
+                b.Property(e => e.SinglesArray).IsVector(DistanceFunction.Cosine, 10);
 
                 b.OwnsOne(x => x.Owned, bb =>
                 {
-                    bb.HasIndex(e => e.Singles).IsVectorIndex(VectorIndexType.Flat);
-                    bb.Property(e => e.Singles).IsVectorProperty(DistanceFunction.Cosine, 10);
+                    bb.HasIndex(e => e.Singles).ForVectors(VectorIndexType.Flat);
+                    bb.Property(e => e.Singles).IsVector(DistanceFunction.Cosine, 10);
 
                     bb.Property(x => x.AnotherDescription).EnableFullTextSearch();
                     bb.HasIndex(x => x.AnotherDescription).IsFullTextIndex();
@@ -255,3 +256,4 @@ ORDER BY RANK RRF(VectorDistance(c["Owned"]["Singles"], @inputVector, false, {'d
             => CosmosTestStoreFactory.Instance;
     }
 }
+#pragma warning restore EF9103

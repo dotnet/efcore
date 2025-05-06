@@ -104,12 +104,13 @@ public static class CosmosDbFunctionsExtensions
     /// <summary>
     ///     Returns the distance between two vectors, using the distance function and data type defined using
     ///     <see
-    ///         cref="CosmosPropertyBuilderExtensions.IsVectorProperty(Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder,Microsoft.Azure.Cosmos.DistanceFunction,int)" />
+    ///         cref="CosmosPropertyBuilderExtensions.IsVector(Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder,Microsoft.Azure.Cosmos.DistanceFunction,int)" />
     ///     .
     /// </summary>
     /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
     /// <param name="vector1">The first vector.</param>
     /// <param name="vector2">The second vector.</param>
+    [Experimental(EFDiagnostics.CosmosVectorSearchExperimental)]
     public static double VectorDistance(this DbFunctions _, ReadOnlyMemory<byte> vector1, ReadOnlyMemory<byte> vector2)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(VectorDistance)));
 
@@ -124,6 +125,7 @@ public static class CosmosDbFunctionsExtensions
     ///     expression. If <see langword="true" />, then brute force is used, otherwise any index defined on the vector
     ///     property is leveraged.
     /// </param>
+    [Experimental(EFDiagnostics.CosmosVectorSearchExperimental)]
     public static double VectorDistance(
         this DbFunctions _,
         ReadOnlyMemory<byte> vector1,
@@ -143,6 +145,7 @@ public static class CosmosDbFunctionsExtensions
     ///     expression. If <see langword="true" />, then brute force is used, otherwise any index defined on the vector
     ///     property is leveraged.
     /// </param>
+    [Experimental(EFDiagnostics.CosmosVectorSearchExperimental)]
     public static double VectorDistance(
         this DbFunctions _,
         ReadOnlyMemory<byte> vector1,
@@ -154,12 +157,13 @@ public static class CosmosDbFunctionsExtensions
     /// <summary>
     ///     Returns the distance between two vectors, using the distance function and data type defined using
     ///     <see
-    ///         cref="CosmosPropertyBuilderExtensions.IsVectorProperty(Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder,Microsoft.Azure.Cosmos.DistanceFunction,int)" />
+    ///         cref="CosmosPropertyBuilderExtensions.IsVector(Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder,Microsoft.Azure.Cosmos.DistanceFunction,int)" />
     ///     .
     /// </summary>
     /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
     /// <param name="vector1">The first vector.</param>
     /// <param name="vector2">The second vector.</param>
+    [Experimental(EFDiagnostics.CosmosVectorSearchExperimental)]
     public static double VectorDistance(this DbFunctions _, ReadOnlyMemory<sbyte> vector1, ReadOnlyMemory<sbyte> vector2)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(VectorDistance)));
 
@@ -174,6 +178,7 @@ public static class CosmosDbFunctionsExtensions
     ///     expression. If <see langword="true" />, then brute force is used, otherwise any index defined on the vector
     ///     property is leveraged.
     /// </param>
+    [Experimental(EFDiagnostics.CosmosVectorSearchExperimental)]
     public static double VectorDistance(
         this DbFunctions _,
         ReadOnlyMemory<sbyte> vector1,
@@ -193,6 +198,7 @@ public static class CosmosDbFunctionsExtensions
     ///     expression. If <see langword="true" />, then brute force is used, otherwise any index defined on the vector
     ///     property is leveraged.
     /// </param>
+    [Experimental(EFDiagnostics.CosmosVectorSearchExperimental)]
     public static double VectorDistance(
         this DbFunctions _,
         ReadOnlyMemory<sbyte> vector1,
@@ -204,12 +210,13 @@ public static class CosmosDbFunctionsExtensions
     /// <summary>
     ///     Returns the distance between two vectors, using the distance function and data type defined using
     ///     <see
-    ///         cref="CosmosPropertyBuilderExtensions.IsVectorProperty(Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder,Microsoft.Azure.Cosmos.DistanceFunction,int)" />
+    ///         cref="CosmosPropertyBuilderExtensions.IsVector(Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder,Microsoft.Azure.Cosmos.DistanceFunction,int)" />
     ///     .
     /// </summary>
     /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
     /// <param name="vector1">The first vector.</param>
     /// <param name="vector2">The second vector.</param>
+    [Experimental(EFDiagnostics.CosmosVectorSearchExperimental)]
     public static double VectorDistance(this DbFunctions _, ReadOnlyMemory<float> vector1, ReadOnlyMemory<float> vector2)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(VectorDistance)));
 
@@ -224,6 +231,7 @@ public static class CosmosDbFunctionsExtensions
     ///     expression. If <see langword="true" />, then brute force is used, otherwise any index defined on the vector
     ///     property is leveraged.
     /// </param>
+    [Experimental(EFDiagnostics.CosmosVectorSearchExperimental)]
     public static double VectorDistance(
         this DbFunctions _,
         ReadOnlyMemory<float> vector1,
@@ -243,6 +251,7 @@ public static class CosmosDbFunctionsExtensions
     ///     expression. If <see langword="true" />, then brute force is used, otherwise any index defined on the vector
     ///     property is leveraged.
     /// </param>
+    [Experimental(EFDiagnostics.CosmosVectorSearchExperimental)]
     public static double VectorDistance(
         this DbFunctions _,
         ReadOnlyMemory<float> vector1,

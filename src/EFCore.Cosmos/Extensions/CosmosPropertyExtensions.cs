@@ -84,88 +84,50 @@ public static class CosmosPropertyExtensions
         => property.FindAnnotation(CosmosAnnotationNames.PropertyName)?.GetConfigurationSource();
 
     /// <summary>
-    ///     Returns the distance function of the vector stored in this property.
+    ///     Returns the definition of the vector stored in this property.
     /// </summary>
     /// <param name="property">The property.</param>
-    /// <returns>Returns the distance function of the vector stored in this property.</returns>
-    public static DistanceFunction? GetVectorDistanceFunction(this IReadOnlyProperty property)
-        => (DistanceFunction?)property[CosmosAnnotationNames.VectorDistanceFunction];
+    /// <returns>Returns the definition of the vector stored in this property.</returns>
+    [Experimental(EFDiagnostics.CosmosVectorSearchExperimental)]
+    public static CosmosVectorType? GetVectorType(this IReadOnlyProperty property)
+        => (CosmosVectorType?)property[CosmosAnnotationNames.VectorType];
 
     /// <summary>
-    ///     Returns the dimensions of the vector stored in this property.
+    ///     Sets the definition of the vector stored in this property.
     /// </summary>
     /// <param name="property">The property.</param>
-    /// <returns>Returns the dimensions of the vector stored in this property.</returns>
-    public static int? GetVectorDimensions(this IReadOnlyProperty property)
-        => (int?)property[CosmosAnnotationNames.VectorDimensions];
+    /// <param name="vectorType">The type of vector stored in the property.</param>
+    [Experimental(EFDiagnostics.CosmosVectorSearchExperimental)]
+    public static void SetVectorType(this IMutableProperty property, CosmosVectorType? vectorType)
+        => property.SetOrRemoveAnnotation(CosmosAnnotationNames.VectorType, vectorType);
 
     /// <summary>
-    ///     Sets the distance function of the vector stored in this property.
+    ///     Sets the definition of the vector stored in this property.
     /// </summary>
     /// <param name="property">The property.</param>
-    /// <param name="distanceFunction">The distance function of the vector stored in the property.</param>
-    public static void SetVectorDistanceFunction(this IMutableProperty property, DistanceFunction? distanceFunction)
-        => property.SetOrRemoveAnnotation(CosmosAnnotationNames.VectorDistanceFunction, distanceFunction);
-
-    /// <summary>
-    ///     Sets the dimensions of the vector stored in this property.
-    /// </summary>
-    /// <param name="property">The property.</param>
-    /// <param name="dimensions">The dimensions of the vector stored in the property.</param>
-    public static void SetVectorDimensions(this IMutableProperty property, int? dimensions)
-        => property.SetOrRemoveAnnotation(CosmosAnnotationNames.VectorDimensions, dimensions);
-
-    /// <summary>
-    ///     Sets the distance function of the vector stored in this property.
-    /// </summary>
-    /// <param name="property">The property.</param>
-    /// <param name="distanceFunction">The distance function of the vector stored in the property.</param>
+    /// <param name="vectorType">The type of vector stored in the property.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>The configured value.</returns>
-    public static DistanceFunction? SetVectorDistanceFunction(
+    [Experimental(EFDiagnostics.CosmosVectorSearchExperimental)]
+    public static CosmosVectorType? SetVectorType(
         this IConventionProperty property,
-        DistanceFunction? distanceFunction,
+        CosmosVectorType? vectorType,
         bool fromDataAnnotation = false)
-        => (DistanceFunction?)property.SetOrRemoveAnnotation(
-            CosmosAnnotationNames.VectorDistanceFunction,
-            distanceFunction,
+        => (CosmosVectorType?)property.SetOrRemoveAnnotation(
+            CosmosAnnotationNames.VectorType,
+            vectorType,
             fromDataAnnotation)?.Value;
 
     /// <summary>
-    ///     Sets the dimensions of the vector stored in this property.
-    /// </summary>
-    /// <param name="property">The property.</param>
-    /// <param name="dimensions">The dimensions of the vector stored in the property.</param>
-    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
-    /// <returns>The configured value.</returns>
-    public static int? SetVectorDimensions(
-        this IConventionProperty property,
-        int? dimensions,
-        bool fromDataAnnotation = false)
-        => (int?)property.SetOrRemoveAnnotation(
-            CosmosAnnotationNames.VectorDimensions,
-            dimensions,
-            fromDataAnnotation)?.Value;
-
-    /// <summary>
-    ///     Gets the <see cref="ConfigurationSource" /> for the distance function of the vector stored in this property.
+    ///     Gets the <see cref="ConfigurationSource" /> for the definition of the vector stored in this property.
     /// </summary>
     /// <param name="property">The property.</param>
     /// <returns>
-    ///     The <see cref="ConfigurationSource" /> for the distance function of the vector stored in this property.
+    ///     The <see cref="ConfigurationSource" /> for the definition of the vector stored in this property.
     /// </returns>
-    public static ConfigurationSource? GetVectorDistanceFunctionConfigurationSource(this IConventionProperty property)
-        => property.FindAnnotation(CosmosAnnotationNames.VectorDistanceFunction)?.GetConfigurationSource();
-
-    /// <summary>
-    ///     Gets the <see cref="ConfigurationSource" /> for the dimensions of the vector stored in this property.
-    /// </summary>
-    /// <param name="property">The property.</param>
-    /// <returns>
-    ///     The <see cref="ConfigurationSource" /> for the dimensions of the vector stored in this property.
-    /// </returns>
-    public static ConfigurationSource? GetVectorDimensionsConfigurationSource(this IConventionProperty property)
-        => property.FindAnnotation(CosmosAnnotationNames.VectorDimensions)?.GetConfigurationSource();
+    [Experimental(EFDiagnostics.CosmosVectorSearchExperimental)]
+    public static ConfigurationSource? GetVectorTypeConfigurationSource(this IConventionProperty property)
+        => property.FindAnnotation(CosmosAnnotationNames.VectorType)?.GetConfigurationSource();
 
     /// <summary>
     ///     Returns the value indicating whether full-text search is enabled for this property.

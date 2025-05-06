@@ -44,12 +44,51 @@ public class AddHocFullTextSearchCosmosTest(NonSharedFixture fixture) : NonShare
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Entity>(b =>
+        {
+            b.ToContainer("Entities");
+            b.HasPartitionKey(x => x.PartitionKey);
+            b.Property(x => x.Name).EnableFullTextSearch();
+            b.Property(x => x.Number).EnableFullTextSearch();
+            b.HasIndex(x => new { x.Name, x.Number }).IsFullTextIndex();
+        });
+    }
+
+    #endregion
+
+    #region FullTextIndexWithoutProperty
+
+    [ConditionalFact]
+    public async Task Validate_full_text_index_without_property()
+    {
+        var message = (await Assert.ThrowsAsync<InvalidOperationException>(
+            () => InitializeAsync<ContextFullTextIndexWithoutProperty>())).Message;
+
+        Assert.Equal(
+            CosmosStrings.FullTextIndexOnNonFullTextProperty(
+                nameof(ContextFullTextIndexWithoutProperty.Entity),
+                nameof(ContextFullTextIndexWithoutProperty.Entity.Name),
+                nameof(CosmosPropertyBuilderExtensions.EnableFullTextSearch)),
+            message);
+    }
+
+    protected class ContextFullTextIndexWithoutProperty(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<Entity> Entities { get; set; } = null!;
+
+        public class Entity
+        {
+            public int Id { get; set; }
+            public string PartitionKey { get; set; } = null!;
+            public string Name { get; set; } = null!;
+            public int Number { get; set; }
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<Entity>(b =>
             {
                 b.ToContainer("Entities");
                 b.HasPartitionKey(x => x.PartitionKey);
-                b.Property(x => x.Name).EnableFullTextSearch();
-                b.Property(x => x.Number).EnableFullTextSearch();
-                b.HasIndex(x => new { x.Name, x.Number }).IsFullTextIndex();
+                b.HasIndex(x => x.Name).IsFullTextIndex();
             });
     }
 
@@ -64,7 +103,7 @@ public class AddHocFullTextSearchCosmosTest(NonSharedFixture fixture) : NonShare
             () => InitializeAsync<ContextFullTextPropertyOnCollectionNavigation>())).Message;
 
         Assert.Equal(
-            CosmosStrings.CreatingContainerWithFullTextOrVectorOnCollectionNotSupported("/Collection"),
+            CosmosStrings.CreatingContainerWithFullTextOnCollectionNotSupported("/Collection"),
             message);
     }
 
@@ -146,7 +185,7 @@ public class AddHocFullTextSearchCosmosTest(NonSharedFixture fixture) : NonShare
         var exception = (await Assert.ThrowsAsync<CosmosException>(
             () => InitializeAsync<ContextSettingDefaultFullTextSearchLanguage>()));
 
-        Assert.Contains("The Full Text Policy contains an unsupported language xx-YY.", exception.Message);
+        Assert.Contains("The Full Text Policy contains an unsupported language pl-PL.", exception.Message);
     }
 
     protected class ContextSettingDefaultFullTextSearchLanguage(DbContextOptions options) : DbContext(options)
@@ -164,7 +203,7 @@ public class AddHocFullTextSearchCosmosTest(NonSharedFixture fixture) : NonShare
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Entity>(b =>
             {
-                b.ToContainer("Entities").HasDefaultFullTextLanguage("xx-YY");
+                b.ToContainer("Entities").HasDefaultFullTextLanguage("pl-PL");
                 b.HasPartitionKey(x => x.PartitionKey);
                 b.Property(x => x.Name).EnableFullTextSearch();
                 b.HasIndex(x => x.Name).IsFullTextIndex();
@@ -241,7 +280,7 @@ public class AddHocFullTextSearchCosmosTest(NonSharedFixture fixture) : NonShare
         var exception = (await Assert.ThrowsAsync<CosmosException>(
             () => InitializeAsync<ContextDefaultFullTextSearchLanguageNoMismatchWhenNotSpecified>()));
 
-        Assert.Contains("The Full Text Policy contains an unsupported language xx-YY.", exception.Message);
+        Assert.Contains("The Full Text Policy contains an unsupported language pl-PL.", exception.Message);
     }
 
     protected class ContextDefaultFullTextSearchLanguageNoMismatchWhenNotSpecified(DbContextOptions options) : DbContext(options)
@@ -286,7 +325,7 @@ public class AddHocFullTextSearchCosmosTest(NonSharedFixture fixture) : NonShare
 
             modelBuilder.Entity<Entity2>(b =>
             {
-                b.ToContainer("Entities").HasDefaultFullTextLanguage("xx-YY");
+                b.ToContainer("Entities").HasDefaultFullTextLanguage("pl-PL");
                 b.HasPartitionKey(x => x.PartitionKey);
                 b.Property(x => x.Name).EnableFullTextSearch();
                 b.HasIndex(x => x.Name).IsFullTextIndex();
@@ -312,7 +351,7 @@ public class AddHocFullTextSearchCosmosTest(NonSharedFixture fixture) : NonShare
         var exception = (await Assert.ThrowsAsync<CosmosException>(
             () => InitializeAsync<ContextDefaultFullTextSearchLanguageUsedWhenPropertyDoesntSpecifyOneExplicitly>()));
 
-        Assert.Contains("The Full Text Policy contains an unsupported language xx-YY.", exception.Message);
+        Assert.Contains("The Full Text Policy contains an unsupported language pl-PL.", exception.Message);
     }
 
     protected class ContextDefaultFullTextSearchLanguageUsedWhenPropertyDoesntSpecifyOneExplicitly(DbContextOptions options) : DbContext(options)
@@ -330,7 +369,7 @@ public class AddHocFullTextSearchCosmosTest(NonSharedFixture fixture) : NonShare
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Entity>(b =>
         {
-            b.ToContainer("Entities").HasDefaultFullTextLanguage("xx-YY");
+            b.ToContainer("Entities").HasDefaultFullTextLanguage("pl-PL");
             b.HasPartitionKey(x => x.PartitionKey);
             b.Property(x => x.Name).EnableFullTextSearch();
             b.HasIndex(x => x.Name).IsFullTextIndex();
@@ -347,7 +386,7 @@ public class AddHocFullTextSearchCosmosTest(NonSharedFixture fixture) : NonShare
         var exception = (await Assert.ThrowsAsync<CosmosException>(
             () => InitializeAsync<ContextExplicitFullTextLanguageOverridesTheDefault>()));
 
-        Assert.Contains("The Full Text Policy contains an unsupported language xx-YY.", exception.Message);
+        Assert.Contains("The Full Text Policy contains an unsupported language pl-PL.", exception.Message);
     }
 
     protected class ContextExplicitFullTextLanguageOverridesTheDefault(DbContextOptions options) : DbContext(options)
@@ -365,9 +404,9 @@ public class AddHocFullTextSearchCosmosTest(NonSharedFixture fixture) : NonShare
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Entity>(b =>
         {
-            b.ToContainer("Entities").HasDefaultFullTextLanguage("en-US");
+            b.ToContainer("Entities").HasDefaultFullTextLanguage("pl-PL");
             b.HasPartitionKey(x => x.PartitionKey);
-            b.Property(x => x.Name).EnableFullTextSearch("xx-YY");
+            b.Property(x => x.Name).EnableFullTextSearch("de-DE");
             b.HasIndex(x => x.Name).IsFullTextIndex();
         });
     }
@@ -384,8 +423,8 @@ public class AddHocFullTextSearchCosmosTest(NonSharedFixture fixture) : NonShare
 
         Assert.Equal(
             CosmosStrings.FullTextIndexOnNonFullTextProperty(
-                nameof(ContextEnableThenDisable.Entity),
-                nameof(ContextEnableThenDisable.Entity.Name),
+                nameof(ContextFullTextIndexWithoutProperty.Entity),
+                nameof(ContextFullTextIndexWithoutProperty.Entity.Name),
                 nameof(CosmosPropertyBuilderExtensions.EnableFullTextSearch)),
             message);
     }

@@ -37,10 +37,10 @@
     <PackageVersion Include="Microsoft.DotNet.Build.Tasks.Templating" Version="$(MicrosoftDotNetBuildTasksTemplatingVersion)" />
 
     <!-- Azure SDK for .NET dependencies -->
-    <PackageVersion Include="Microsoft.Azure.Cosmos" Version="3.50.0-preview.0" />
+    <PackageVersion Include="Microsoft.Azure.Cosmos" Version="3.49.0-preview.0" />
 
     <!-- SQL Server dependencies -->
-    <PackageVersion Include="Microsoft.Data.SqlClient" Version="6.1.0-preview1.25120.4" />
+    <PackageVersion Include="Microsoft.Data.SqlClient" Version="6.0.1" />
     <PackageVersion Include="Microsoft.SqlServer.Types" Version="160.1000.6" />
 
     <!-- external dependencies -->
