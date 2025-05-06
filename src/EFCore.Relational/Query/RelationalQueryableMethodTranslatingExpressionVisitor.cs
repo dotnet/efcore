@@ -21,6 +21,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
     private readonly IRelationalTypeMappingSource _typeMappingSource;
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
     private readonly bool _subquery;
+    private readonly ParameterizedCollectionMode _parameterizedCollectionMode;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -63,6 +64,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         _typeMappingSource = relationalDependencies.TypeMappingSource;
         _sqlExpressionFactory = sqlExpressionFactory;
         _subquery = false;
+        _parameterizedCollectionMode = RelationalOptionsExtension.Extract(queryCompilationContext.ContextOptions).ParameterizedCollectionMode;
     }
 
     /// <summary>
@@ -88,6 +90,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         _typeMappingSource = parentVisitor._typeMappingSource;
         _sqlExpressionFactory = parentVisitor._sqlExpressionFactory;
         _subquery = true;
+        _parameterizedCollectionMode = RelationalOptionsExtension.Extract(parentVisitor._queryCompilationContext.ContextOptions).ParameterizedCollectionMode;
     }
 
     /// <inheritdoc />
@@ -293,13 +296,14 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
 
         Check.DebugAssert(sqlParameterExpression is not null, "sqlParameterExpression is not null");
 
-        var primitiveCollectionsBehavior = RelationalOptionsExtension.Extract(QueryCompilationContext.ContextOptions)
-            .ParameterizedCollectionTranslationMode;
-
         var tableAlias = _sqlAliasManager.GenerateTableAlias(sqlParameterExpression.Name.TrimStart('_'));
-        if (queryParameter.ShouldBeConstantized
-            || (primitiveCollectionsBehavior == ParameterizedCollectionTranslationMode.Constantize
-                && !queryParameter.ShouldNotBeConstantized))
+
+        var constants = queryParameter.ShouldBeConstantized
+                || (_parameterizedCollectionMode is ParameterizedCollectionMode.Constants
+                    && !queryParameter.ShouldNotBeConstantized);
+        var multipleParameters = _parameterizedCollectionMode is ParameterizedCollectionMode.MultipleParameters
+                && !queryParameter.ShouldNotBeConstantized;
+        if (constants || multipleParameters)
         {
             var valuesExpression = new ValuesExpression(
                 tableAlias,
@@ -569,7 +573,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
             return TranslateAny(source, anyLambda);
         }
 
-        // Pattern-match Contains over ValuesExpression, translating to simplified 'item IN (1, 2, 3)' with constant elements
+        // Pattern-match Contains over ValuesExpression, translating to simplified 'item IN (1, 2, 3)' with constant elements.
         if (TryExtractBareInlineCollectionValues(source, out var values, out var valuesParameter))
         {
             var inExpression = (values, valuesParameter) switch

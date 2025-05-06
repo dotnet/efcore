@@ -355,6 +355,9 @@
   <data name="DuplicateSeedDataSensitive" xml:space="preserve">
     <value>A seed entity for entity type '{entityType}' has the same key value {keyValue} as another seed entity mapped to the same table '{table}'. Key values should be unique across seed entities.</value>
   </data>
+  <data name="EFMultipleParametersInvoked" xml:space="preserve">
+    <value>The EF.MultipleParameters&lt;T&gt; method may only be used within Entity Framework LINQ queries.</value>
+  </data>
   <data name="EmptyCollectionNotSupportedAsInlineQueryRoot" xml:space="preserve">
     <value>Empty collections are not supported as inline query roots.</value>
   </data>

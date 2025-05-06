@@ -963,19 +963,20 @@ INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
 
         AssertSql(
             """
-@p='[1,2]' (Size = 4000)
+@p1='1'
+@p2='2'
 
 SELECT [e].[EmployeeID]
 FROM [Employees] AS [e]
-INNER JOIN OPENJSON(@p) WITH ([value] int '$') AS [p] ON [e].[EmployeeID] = [p].[value]
+INNER JOIN (VALUES (@p1), (@p2)) AS [p]([Value]) ON [e].[EmployeeID] = [p].[Value]
 """,
             //
             """
-@p='[3]' (Size = 4000)
+@p1='3'
 
 SELECT [e].[EmployeeID]
 FROM [Employees] AS [e]
-INNER JOIN OPENJSON(@p) WITH ([value] int '$') AS [p] ON [e].[EmployeeID] = [p].[value]
+INNER JOIN (VALUES (@p1)) AS [p]([Value]) ON [e].[EmployeeID] = [p].[Value]
 """);
     }
 

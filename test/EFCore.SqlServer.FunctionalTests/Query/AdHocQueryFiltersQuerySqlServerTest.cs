@@ -30,14 +30,12 @@ WHERE [e].[Name] LIKE N'Name%' AND [e].[IsDeleted] = CAST(0 AS bit) AND [e].[IsD
 
         AssertSql(
             """
-@ef_filter___ids='[1,7]' (Size = 4000)
+@ef_filter___ids1='1'
+@ef_filter___ids2='7'
 
 SELECT [e].[Id], [e].[IsDeleted], [e].[IsDraft], [e].[Name]
 FROM [Entities] AS [e]
-WHERE [e].[Id] NOT IN (
-    SELECT [e0].[value]
-    FROM OPENJSON(@ef_filter___ids) WITH ([value] int '$') AS [e0]
-)
+WHERE [e].[Id] NOT IN (@ef_filter___ids1, @ef_filter___ids2)
 """);
     }
 
@@ -217,14 +215,12 @@ WHERE ([t].[Name] <> N'Bar') OR [t].[Name] IS NULL
 
         AssertSql(
             """
-@ef_filter___ids='[1,7]' (Size = 4000)
+@ef_filter___ids1='1'
+@ef_filter___ids2='7'
 
 SELECT [e].[Id], [e].[Name]
 FROM [Entities] AS [e]
-WHERE [e].[Id] NOT IN (
-    SELECT [e0].[value]
-    FROM OPENJSON(@ef_filter___ids) WITH ([value] int '$') AS [e0]
-)
+WHERE [e].[Id] NOT IN (@ef_filter___ids1, @ef_filter___ids2)
 """);
     }
 

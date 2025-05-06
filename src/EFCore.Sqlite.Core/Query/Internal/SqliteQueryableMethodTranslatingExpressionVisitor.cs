@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
@@ -469,29 +470,59 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
         Expression index,
         bool returnDefault)
     {
-        if (!returnDefault
-            && source.QueryExpression is SelectExpression
-            {
-                Tables:
-                [
-                    TableValuedFunctionExpression
-                {
-                    Name: "json_each", Schema: null, IsBuiltIn: true, Arguments: [var jsonArrayColumn]
-                } jsonEachExpression
-                ],
-                Predicate: null,
-                GroupBy: [],
-                Having: null,
-                IsDistinct: false,
-                Orderings: [{ Expression: ColumnExpression { Name: JsonEachKeyColumnName } orderingColumn, IsAscending: true }],
-                Limit: null,
-                Offset: null
-            } selectExpression
-            && orderingColumn.TableAlias == jsonEachExpression.Alias
-            && TranslateExpression(index) is { } translatedIndex)
+        if (!returnDefault)
         {
-            // Index on JSON array
+            switch (source.QueryExpression)
+            {
+                // index on parameter using a column
+                // translate via JSON because it is a better translation
+                case SelectExpression
+                {
+                    Tables: [ValuesExpression { ValuesParameter: { } valuesParameter }],
+                    Predicate: null,
+                    GroupBy: [],
+                    Having: null,
+                    IsDistinct: false,
+#pragma warning disable EF1001
+                    Orderings: [{ Expression: ColumnExpression { Name: ValuesOrderingColumnName }, IsAscending: true }],
+#pragma warning restore EF1001
+                    Limit: null,
+                    Offset: null
+                } selectExpression
+                when TranslateExpression(index) is { } translatedIndex
+                    && TryTranslate(selectExpression, valuesParameter, translatedIndex, out var result):
+                    return result;
 
+                // Index on JSON array
+                case SelectExpression
+                {
+                    Tables: [TableValuedFunctionExpression
+                    {
+                        Name: "json_each", Schema: null, IsBuiltIn: true, Arguments: [var jsonArrayColumn]
+                    } jsonEachExpression],
+                    Predicate: null,
+                    GroupBy: [],
+                    Having: null,
+                    IsDistinct: false,
+                    Orderings: [{ Expression: ColumnExpression { Name: JsonEachKeyColumnName } orderingColumn, IsAscending: true }],
+                    Limit: null,
+                    Offset: null
+                } selectExpression
+                when orderingColumn.TableAlias == jsonEachExpression.Alias
+                    && TranslateExpression(index) is { } translatedIndex
+                    && TryTranslate(selectExpression, jsonArrayColumn, translatedIndex, out var result):
+                    return result;
+            }
+        }
+
+        return base.TranslateElementAtOrDefault(source, index, returnDefault);
+
+        bool TryTranslate(
+            SelectExpression selectExpression,
+            SqlExpression jsonArrayColumn,
+            SqlExpression translatedIndex,
+            [NotNullWhen(true)]out ShapedQueryExpression? result)
+        {
             // Extract the column projected out of the source, and simplify the subquery to a simple JsonScalarExpression
             var shaperExpression = source.ShaperExpression;
             if (shaperExpression is UnaryExpression { NodeType: ExpressionType.Convert } unaryExpression
@@ -520,12 +551,14 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
                 }
 
 #pragma warning disable EF1001
-                return source.UpdateQueryExpression(new SelectExpression(translation, _sqlAliasManager));
+                result = source.UpdateQueryExpression(new SelectExpression(translation, _sqlAliasManager));
 #pragma warning restore EF1001
+                return true;
             }
-        }
 
-        return base.TranslateElementAtOrDefault(source, index, returnDefault);
+            result = default;
+            return false;
+        }
     }
 
     /// <summary>

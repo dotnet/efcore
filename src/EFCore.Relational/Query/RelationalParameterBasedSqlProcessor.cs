@@ -49,7 +49,7 @@ public class RelationalParameterBasedSqlProcessor
     /// <returns>An optimized query expression.</returns>
     public virtual Expression Optimize(
         Expression queryExpression,
-        IReadOnlyDictionary<string, object?> parametersValues,
+        Dictionary<string, object?> parametersValues,
         out bool canCache)
     {
         canCache = true;
@@ -72,7 +72,7 @@ public class RelationalParameterBasedSqlProcessor
     /// <returns>A processed query expression.</returns>
     protected virtual Expression ProcessSqlNullability(
         Expression queryExpression,
-        IReadOnlyDictionary<string, object?> parametersValues,
+        Dictionary<string, object?> parametersValues,
         out bool canCache)
         => new SqlNullabilityProcessor(Dependencies, Parameters).Process(queryExpression, parametersValues, out canCache);
 
