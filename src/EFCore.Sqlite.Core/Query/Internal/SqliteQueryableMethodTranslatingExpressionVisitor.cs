@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
@@ -472,6 +473,29 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
         if (!returnDefault
             && source.QueryExpression is SelectExpression
             {
+                Tables: [ValuesExpression { ValuesParameter: { } valuesParameter }],
+                Predicate: null,
+                GroupBy: [],
+                Having: null,
+                IsDistinct: false,
+#pragma warning disable EF1001
+                Orderings: [{ Expression: ColumnExpression { Name: ValuesOrderingColumnName }, IsAscending: true }],
+#pragma warning restore EF1001
+                Limit: null,
+                Offset: null
+            } selectExpression1
+            && TranslateExpression(index) is { } translatedIndex1)
+        {
+            // index on parameter using a column
+            // translate via JSON because SQLite can't use columns in OFFSET
+            if (TryTranslate(selectExpression1, valuesParameter, translatedIndex1, out var result))
+            {
+                return result;
+            }
+        }
+        else if (!returnDefault
+            && source.QueryExpression is SelectExpression
+            {
                 Tables:
                 [
                     TableValuedFunctionExpression
@@ -486,12 +510,25 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
                 Orderings: [{ Expression: ColumnExpression { Name: JsonEachKeyColumnName } orderingColumn, IsAscending: true }],
                 Limit: null,
                 Offset: null
-            } selectExpression
+            } selectExpression2
             && orderingColumn.TableAlias == jsonEachExpression.Alias
-            && TranslateExpression(index) is { } translatedIndex)
+            && TranslateExpression(index) is { } translatedIndex2)
         {
             // Index on JSON array
+            if (TryTranslate(selectExpression2, jsonArrayColumn, translatedIndex2, out var result))
+            {
+                return result;
+            }
+        }
 
+        return base.TranslateElementAtOrDefault(source, index, returnDefault);
+
+        bool TryTranslate(
+            SelectExpression selectExpression,
+            SqlExpression json,
+            SqlExpression translatedIndex,
+            [NotNullWhen(true)]out ShapedQueryExpression? result)
+        {
             // Extract the column projected out of the source, and simplify the subquery to a simple JsonScalarExpression
             var shaperExpression = source.ShaperExpression;
             if (shaperExpression is UnaryExpression { NodeType: ExpressionType.Convert } unaryExpression
@@ -505,7 +542,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
                 && selectExpression.GetProjection(projectionBindingExpression) is ColumnExpression projectionColumn)
             {
                 SqlExpression translation = new JsonScalarExpression(
-                    jsonArrayColumn,
+                    json,
                     new[] { new PathSegment(translatedIndex) },
                     projectionColumn.Type,
                     projectionColumn.TypeMapping,
@@ -520,12 +557,14 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
                 }
 
 #pragma warning disable EF1001
-                return source.UpdateQueryExpression(new SelectExpression(translation, _sqlAliasManager));
+                result = source.UpdateQueryExpression(new SelectExpression(translation, _sqlAliasManager));
 #pragma warning restore EF1001
+                return true;
             }
-        }
 
-        return base.TranslateElementAtOrDefault(source, index, returnDefault);
+            result = default;
+            return false;
+        }
     }
 
     /// <summary>
