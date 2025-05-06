@@ -3,6 +3,7 @@
 
 using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal;
@@ -34,13 +35,14 @@ public class RelationalCommandCache : IPrintableExpression
         IQuerySqlGeneratorFactory querySqlGeneratorFactory,
         IRelationalParameterBasedSqlProcessorFactory relationalParameterBasedSqlProcessorFactory,
         Expression queryExpression,
-        bool useRelationalNulls)
+        bool useRelationalNulls,
+        ParameterizedCollectionTranslationMode? parameterizedCollectionTranslationMode)
     {
         _memoryCache = memoryCache;
         _querySqlGeneratorFactory = querySqlGeneratorFactory;
         _queryExpression = queryExpression;
         _relationalParameterBasedSqlProcessor = relationalParameterBasedSqlProcessorFactory.Create(
-            new RelationalParameterBasedSqlProcessorParameters(useRelationalNulls));
+            new RelationalParameterBasedSqlProcessorParameters(useRelationalNulls, parameterizedCollectionTranslationMode));
     }
 
     /// <summary>
@@ -49,7 +51,7 @@ public class RelationalCommandCache : IPrintableExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IRelationalCommandTemplate GetRelationalCommandTemplate(IReadOnlyDictionary<string, object?> parameters)
+    public virtual IRelationalCommandTemplate GetRelationalCommandTemplate(Dictionary<string, object?> parameters)
     {
         var cacheKey = new CommandCacheKey(_queryExpression, parameters);
 

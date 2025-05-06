@@ -121,6 +121,23 @@ public class SqliteQuerySqlGenerator : QuerySqlGenerator
 
             Sql.AppendLine().Append(")");
         }
+        // ValuesExpression with multiple rows uses UNION ALL by default.
+        // We wrap it in a SELECT * FROM () to ensure that the rows are treated as a single set operation.
+        else if (operand is
+            {
+                Tables: [ValuesExpression ve]
+            }
+            && ve.RowValues!.Count > 1)
+        {
+            Sql.AppendLine("SELECT * FROM (");
+
+            using (Sql.Indent())
+            {
+                Visit(operand);
+            }
+
+            Sql.AppendLine().Append(")");
+        }
         else
         {
             Visit(operand);
