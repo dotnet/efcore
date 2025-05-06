@@ -59,6 +59,10 @@ extends:
       binskim:
         scanOutputDirectoryOnly: true
         preReleaseVersion: '4.3.1'
+      env:
+        GDN_EXTRACT_TOOLS: "binskim"
+        GDN_EXTRACT_TARGETS: true
+        GDN_EXTRACT_FILTER: "f|**\\*.zip;f|**\\*.nupkg;f|**\\*.vsix;f|**\\*.cspkg;f|**\\*.sfpkg;f|**\\*.package"
       policheck:
         enabled: true
       tsa:
