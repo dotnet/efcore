@@ -163,10 +163,9 @@ public abstract class RelationalDbContextOptionsBuilder<TBuilder, TExtension> : 
     /// </summary>
     /// <remarks>
     ///     <para>
-    ///         When a LINQ query contains a parameterized collection, by default EF Core parameterizes the entire collection as a single
-    ///         SQL parameter, if possible. For example, on SQL Server, the LINQ query <c>Where(b => ids.Contains(b.Id)</c> is translated to
-    ///         <c>WHERE [b].[Id] IN (SELECT [i].[value] FROM OPENJSON(@__ids_0) ...)</c>. While this helps with query plan caching, it can
-    ///         produce worse query plans for certain query types.
+    ///         When a LINQ query contains a parameterized collection, by default EF Core translates as a multiple SQL parameters,
+    ///         if possible. For example, on SQL Server, the LINQ query <c>Where(b => ids.Contains(b.Id)</c> is translated to
+    ///         <c>WHERE [b].[Id] IN (@ids1, @ids2, @ids3)</c>.
     ///     </para>
     ///     <para>
     ///         <see cref="TranslateParameterizedCollectionsToConstants" /> instructs EF to translate the collection to a set of constants:
@@ -176,36 +175,56 @@ public abstract class RelationalDbContextOptionsBuilder<TBuilder, TExtension> : 
     ///     <para>
     ///         Note that it's possible to cause EF to translate a specific collection in a specific query to constants by wrapping the
     ///         parameterized collection in <see cref="EF.Constant{T}" />: <c>Where(b => EF.Constant(ids).Contains(b.Id)</c>. This overrides
-    ///         the default. Likewise, you can translate a specific collection in a specific query to a single parameter by wrapping the
-    ///         parameterized collection in <see cref="EF.Parameter{T}(T)" />: <c>Where(b => EF.Parameter(ids).Contains(b.Id)</c>. This
-    ///         overrides the <see cref="TranslateParameterizedCollectionsToConstants" /> setting.
+    ///         the default.
     ///     </para>
     /// </remarks>
     public virtual TBuilder TranslateParameterizedCollectionsToConstants()
         => WithOption(e => (TExtension)e.WithParameterizedCollectionTranslationMode(ParameterizedCollectionTranslationMode.Constantize));
 
     /// <summary>
-    ///     Configures the context to translate parameterized collections to parameters.
+    ///     Configures the context to translate parameterized collections to a single array-like parameter.
     /// </summary>
     /// <remarks>
     ///     <para>
-    ///         When a LINQ query contains a parameterized collection, by default EF Core parameterizes the entire collection as a single
-    ///         SQL parameter, if possible. For example, on SQL Server, the LINQ query <c>Where(b => ids.Contains(b.Id)</c> is translated to
-    ///         <c>WHERE [b].[Id] IN (SELECT [i].[value] FROM OPENJSON(@__ids_0) ...)</c>. While this helps with query plan caching, it can
-    ///         produce worse query plans for certain query types.
+    ///         When a LINQ query contains a parameterized collection, by default EF Core translates as a multiple SQL parameters,
+    ///         if possible. For example, on SQL Server, the LINQ query <c>Where(b => ids.Contains(b.Id)</c> is translated to
+    ///         <c>WHERE [b].[Id] IN (@ids1, @ids2, @ids3)</c>.
     ///     </para>
     ///     <para>
-    ///         <see cref="TranslateParameterizedCollectionsToParameters" /> explicitly instructs EF to perform the default translation
-    ///         of parameterized collections, which is translating them to parameters.
+    ///         <see cref="TranslateParameterizedCollectionsToParameters" /> instructs EF to translate the collection to a single array-like parameter:
+    ///         <c>WHERE [b].[Id] IN (SELECT [i].[value] FROM OPENJSON(@ids) ...)</c>.
     ///     </para>
     ///     <para>
-    ///         Note that it's possible to cause EF to translate a specific collection in a specific query to constants by wrapping the
-    ///         parameterized collection in <see cref="EF.Constant{T}" />: <c>Where(b => EF.Constant(ids).Contains(b.Id)</c>. This overrides
+    ///         Note that it's possible to cause EF to translate a specific collection in a specific query to parameter by wrapping the
+    ///         parameterized collection in <see cref="EF.Parameter{T}" />: <c>Where(b => EF.Parameter(ids).Contains(b.Id)</c>. This overrides
     ///         the default.
     ///     </para>
     /// </remarks>
     public virtual TBuilder TranslateParameterizedCollectionsToParameters()
         => WithOption(e => (TExtension)e.WithParameterizedCollectionTranslationMode(ParameterizedCollectionTranslationMode.Parameterize));
+
+    /// <summary>
+    ///     Configures the context to translate parameterized collections to expanded parameters.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         When a LINQ query contains a parameterized collection, by default EF Core translates as a multiple SQL parameters,
+    ///         if possible. For example, on SQL Server, the LINQ query <c>Where(b => ids.Contains(b.Id)</c> is translated to
+    ///         <c>WHERE [b].[Id] IN (@ids1, @ids2, @ids3)</c>.
+    ///     </para>
+    ///     <para>
+    ///         <see cref="TranslateParameterizedCollectionsToExpandedParameters" /> instructs EF to translate the collection to a set of parameters:
+    ///         <c>WHERE [b].[Id] IN (@ids1, @ids2, @ids3)</c>.
+    ///     </para>
+    /// </remarks>
+    //TODO: When appropriate EF method is implemented, mention it here.
+    //     <para>
+    //         Note that it's possible to cause EF to translate a specific collection in a specific query to expanded parameters by wrapping the
+    //         parameterized collection in <see cref="EF.???{T}" />: <c>Where(b => EF.Parameter(ids).???(b.Id)</c>. This overrides
+    //         the default.
+    //     </para>
+    public virtual TBuilder TranslateParameterizedCollectionsToExpandedParameters()
+        => WithOption(e => (TExtension)e.WithParameterizedCollectionTranslationMode(ParameterizedCollectionTranslationMode.ParameterizeExpanded));
 
     /// <summary>
     ///     Sets an option by cloning the extension used to store the settings. This ensures the builder

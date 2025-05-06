@@ -676,6 +676,33 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task Parameter_collection_Count_with_huge_number_of_values(bool async)
+    {
+        var extra = Enumerable.Range(1000, 5000);
+        var ids = new[] { 2, 999 }.Concat(extra).ToArray();
+
+        return AssertQuery(
+            async,
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => ids.Count(i => i > c.Id) > 0));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Parameter_collection_of_ints_Contains_int_with_huge_number_of_values(bool async)
+    {
+        var extra = Enumerable.Range(1000, 5000);
+        var ints = new[] { 10, 999 }.Concat(extra).ToArray();
+
+        await AssertQuery(
+            async,
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => ints.Contains(c.Int)));
+        await AssertQuery(
+            async,
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => !ints.Contains(c.Int)));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task Column_collection_of_ints_Contains(bool async)
         => AssertQuery(
             async,

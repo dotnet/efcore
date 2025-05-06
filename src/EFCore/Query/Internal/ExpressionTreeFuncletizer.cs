@@ -2335,7 +2335,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
     {
         private readonly Dictionary<string, object?> _parameterValues = new();
 
-        public IReadOnlyDictionary<string, object?> ParameterValues
+        public Dictionary<string, object?> ParameterValues
             => _parameterValues;
 
         public void AddParameter(string name, object? value)
