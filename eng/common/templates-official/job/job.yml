@@ -4,7 +4,6 @@ parameters:
   runAsPublic: false
   PackageVersion: 9.0.0
   BuildDropPath: '$(Build.SourcesDirectory)/artifacts'
-  ManifestDirPath: $(Build.ArtifactStagingDirectory)/sbom
 
 jobs:
 - template: /eng/common/core-templates/job/job.yml
