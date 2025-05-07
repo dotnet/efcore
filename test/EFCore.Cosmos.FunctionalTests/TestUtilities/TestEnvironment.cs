@@ -34,7 +34,7 @@ public static class TestEnvironment
 
     public static bool UseTokenCredential { get; } = Config["UseTokenCredential"] == "true";
 
-    public static TokenCredential TokenCredential { get; } = new DefaultAzureCredential();
+    public static TokenCredential TokenCredential { get; } = new AzureCliCredential();
 
     public static string SubscriptionId { get; } = Config["SubscriptionId"];
 
