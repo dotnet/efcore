@@ -96,7 +96,7 @@ public interface IReadOnlySequence : IReadOnlyAnnotatable
 
         builder.Append(Name);
 
-        if (!IsCyclic)
+        if (IsCyclic)
         {
             builder.Append(" Cyclic");
         }

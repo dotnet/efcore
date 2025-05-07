@@ -18,9 +18,7 @@ public class RegisteredServices : IRegisteredServices
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public RegisteredServices(IEnumerable<Type> services)
-    {
-        Services = new HashSet<Type>(services);
-    }
+        => Services = new HashSet<Type>(services);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

@@ -4,105 +4,134 @@
 #nullable disable
 
 using System.Collections;
-using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 
 public partial class CosmosShapedQueryCompilingExpressionVisitor
 {
-    private sealed class InExpressionValuesExpandingExpressionVisitor : ExpressionVisitor
+    private static readonly bool UseOldBehavior35476 =
+          AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue35476", out var enabled35476) && enabled35476;
+
+    private sealed class ParameterInliner(
+        ISqlExpressionFactory sqlExpressionFactory,
+        IReadOnlyDictionary<string, object> parametersValues)
+        : ExpressionVisitor
     {
-        private readonly ISqlExpressionFactory _sqlExpressionFactory;
-        private readonly IReadOnlyDictionary<string, object> _parametersValues;
-
-        public InExpressionValuesExpandingExpressionVisitor(
-            ISqlExpressionFactory sqlExpressionFactory,
-            IReadOnlyDictionary<string, object> parametersValues)
+        protected override Expression VisitExtension(Expression expression)
         {
-            _sqlExpressionFactory = sqlExpressionFactory;
-            _parametersValues = parametersValues;
-        }
-
-        public override Expression Visit(Expression expression)
-        {
-            if (expression is InExpression inExpression)
+            if (!UseOldBehavior35476)
             {
-                var inValues = new List<SqlExpression>();
-                var hasNullValue = false;
-
-                switch (inExpression)
-                {
-                    case { ValuesParameter: SqlParameterExpression valuesParameter }:
-                    {
-                        var typeMapping = valuesParameter.TypeMapping;
-
-                        foreach (var value in (IEnumerable)_parametersValues[valuesParameter.Name])
-                        {
-                            if (value is null)
-                            {
-                                hasNullValue = true;
-                                continue;
-                            }
-
-                            inValues.Add(_sqlExpressionFactory.Constant(value, typeMapping));
-                        }
-
-                        break;
-                    }
-
-                    case { Values: IReadOnlyList<SqlExpression> values }:
-                    {
-                        foreach (var value in values)
-                        {
-                            if (value is not (SqlConstantExpression or SqlParameterExpression))
-                            {
-                                throw new InvalidOperationException(CosmosStrings.OnlyConstantsAndParametersAllowedInContains);
-                            }
-
-                            if (IsNull(value))
-                            {
-                                hasNullValue = true;
-                                continue;
-                            }
-
-                            inValues.Add(value);
-                        }
-
-                        break;
-                    }
-
-                    default:
-                        throw new UnreachableException();
-                }
-
-                var updatedInExpression = inValues.Count > 0
-                    ? _sqlExpressionFactory.In((SqlExpression)Visit(inExpression.Item), inValues)
-                    : null;
-
-                var nullCheckExpression = hasNullValue
-                    ? _sqlExpressionFactory.IsNull(inExpression.Item)
-                    : null;
-
-                if (updatedInExpression != null
-                    && nullCheckExpression != null)
-                {
-                    return _sqlExpressionFactory.OrElse(updatedInExpression, nullCheckExpression);
-                }
-
-                if (updatedInExpression == null
-                    && nullCheckExpression == null)
-                {
-                    return _sqlExpressionFactory.Equal(_sqlExpressionFactory.Constant(true), _sqlExpressionFactory.Constant(false));
-                }
-
-                return (SqlExpression)updatedInExpression ?? nullCheckExpression;
+                expression = base.VisitExtension(expression);
             }
 
-            return base.Visit(expression);
-        }
+            switch (expression)
+            {
+                // Inlines array parameter of InExpression, transforming: 'item IN (@valuesArray)' to: 'item IN (value1, value2)'
+                case InExpression inExpression:
+                {
+                    IReadOnlyList<SqlExpression> values;
 
-        private bool IsNull(SqlExpression expression)
-            => expression is SqlConstantExpression { Value: null }
-                || expression is SqlParameterExpression { Name: string parameterName } && _parametersValues[parameterName] is null;
+                    switch (inExpression)
+                    {
+                        case { Values: IReadOnlyList<SqlExpression> values2 }:
+                            values = values2;
+                            break;
+
+                        // TODO: IN with subquery (return immediately, nothing to do here)
+
+                        case { ValuesParameter: SqlParameterExpression valuesParameter }:
+                        {
+                            var typeMapping = valuesParameter.TypeMapping;
+                            var mutableValues = new List<SqlExpression>();
+                            foreach (var value in (IEnumerable)parametersValues[valuesParameter.Name])
+                            {
+                                mutableValues.Add(sqlExpressionFactory.Constant(value, value?.GetType() ?? typeof(object), typeMapping));
+                            }
+
+                            values = mutableValues;
+                            break;
+                        }
+
+                        default:
+                            throw new UnreachableException();
+                    }
+
+                    return values.Count == 0
+                        ? sqlExpressionFactory.ApplyDefaultTypeMapping(sqlExpressionFactory.Constant(false))
+                        : sqlExpressionFactory.In((SqlExpression)Visit(inExpression.Item), values);
+                }
+
+                // Converts Offset and Limit parameters to constants when ORDER BY RANK is detected in the SelectExpression (i.e. we order by scoring function)
+                // Cosmos only supports constants in Offset and Limit for this scenario currently (ORDER BY RANK limitation)
+                case SelectExpression { Orderings: [{ Expression: SqlFunctionExpression { IsScoringFunction: true } }], Limit: var limit, Offset: var offset } hybridSearch
+                    when !UseOldBehavior35476 && (limit is SqlParameterExpression || offset is SqlParameterExpression):
+                {
+                    if (hybridSearch.Limit is SqlParameterExpression limitPrm)
+                    {
+                        hybridSearch.ApplyLimit(
+                            sqlExpressionFactory.Constant(
+                                parametersValues[limitPrm.Name],
+                                limitPrm.TypeMapping));
+                    }
+
+                    if (hybridSearch.Offset is SqlParameterExpression offsetPrm)
+                    {
+                        hybridSearch.ApplyOffset(
+                            sqlExpressionFactory.Constant(
+                                parametersValues[offsetPrm.Name],
+                                offsetPrm.TypeMapping));
+                    }
+
+                    return base.VisitExtension(expression);
+                }
+
+                // Inlines array parameter of full-text functions, transforming FullTextContainsAll(x, @keywordsArray) to FullTextContainsAll(x, keyword1, keyword2)) 
+                case SqlFunctionExpression
+                {
+                    Name: "FullTextContainsAny" or "FullTextContainsAll",
+                    Arguments: [var property, SqlParameterExpression { TypeMapping: { ElementTypeMapping: var elementTypeMapping }, Type: Type type } keywords]
+                } fullTextContainsAllAnyFunction
+                when !UseOldBehavior35476 && type == typeof(string[]):
+                {
+                    var keywordValues = new List<SqlExpression>();
+                    foreach (var value in (IEnumerable)parametersValues[keywords.Name])
+                    {
+                        keywordValues.Add(sqlExpressionFactory.Constant(value, typeof(string), elementTypeMapping));
+                    }
+
+                    return sqlExpressionFactory.Function(
+                        fullTextContainsAllAnyFunction.Name,
+                        [property, .. keywordValues],
+                        fullTextContainsAllAnyFunction.Type,
+                        fullTextContainsAllAnyFunction.TypeMapping);
+                }
+
+                // Inlines array parameter of full-text score, transforming FullTextScore(x, @keywordsArray) to FullTextScore(x, [keyword1, keyword2])) 
+                case SqlFunctionExpression
+                {
+                    Name: "FullTextScore",
+                    IsScoringFunction: true,
+                    Arguments: [var property, SqlParameterExpression { TypeMapping: { ElementTypeMapping: not null } typeMapping } keywords]
+                } fullTextScoreFunction
+                when !UseOldBehavior35476:
+                {
+                    var keywordValues = new List<string>();
+                    foreach (var value in (IEnumerable)parametersValues[keywords.Name])
+                    {
+                        keywordValues.Add((string)value);
+                    }
+
+                    return new SqlFunctionExpression(
+                        fullTextScoreFunction.Name,
+                        isScoringFunction: true,
+                        [property, sqlExpressionFactory.Constant(keywordValues, typeMapping)],
+                        fullTextScoreFunction.Type,
+                        fullTextScoreFunction.TypeMapping);
+                }
+
+                default:
+                    return expression;
+            }
+        }
     }
 }

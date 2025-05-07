@@ -5,17 +5,10 @@ using System;
 
 namespace Microsoft.EntityFrameworkCore.Benchmarks.Models.Orders;
 
-public class OrdersSqlServerContext : OrdersContextBase
+public class OrdersSqlServerContext(string connectionString, IServiceProvider serviceProvider = null, bool disableBatching = false) : OrdersContextBase(serviceProvider)
 {
-    private readonly string _connectionString;
-    private readonly bool _disableBatching;
-
-    public OrdersSqlServerContext(string connectionString, IServiceProvider serviceProvider = null, bool disableBatching = false)
-        : base(serviceProvider)
-    {
-        _connectionString = connectionString;
-        _disableBatching = disableBatching;
-    }
+    private readonly string _connectionString = connectionString;
+    private readonly bool _disableBatching = disableBatching;
 
     protected override void ConfigureProvider(DbContextOptionsBuilder optionsBuilder)
         => optionsBuilder.UseSqlServer(
