@@ -22,6 +22,7 @@ public static class CosmosIndexExtensions
     /// </summary>
     /// <param name="index">The index.</param>
     /// <returns>The index type to use, or <see langword="null" /> if none is set.</returns>
+    [Experimental(EFDiagnostics.CosmosVectorSearchExperimental)]
     public static VectorIndexType? GetVectorIndexType(this IReadOnlyIndex index)
         => (index is RuntimeIndex)
             ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
@@ -33,6 +34,7 @@ public static class CosmosIndexExtensions
     /// </summary>
     /// <param name="index">The index.</param>
     /// <param name="indexType">The index type to use.</param>
+    [Experimental(EFDiagnostics.CosmosVectorSearchExperimental)]
     public static void SetVectorIndexType(this IMutableIndex index, VectorIndexType? indexType)
         => index.SetAnnotation(CosmosAnnotationNames.VectorIndexType, indexType);
 
@@ -44,6 +46,7 @@ public static class CosmosIndexExtensions
     /// <param name="index">The index.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>The configured value.</returns>
+    [Experimental(EFDiagnostics.CosmosVectorSearchExperimental)]
     public static string? SetVectorIndexType(
         this IConventionIndex index,
         VectorIndexType? indexType,
@@ -58,6 +61,7 @@ public static class CosmosIndexExtensions
     /// </summary>
     /// <param name="property">The property.</param>
     /// <returns>The <see cref="ConfigurationSource" /> for whether the index is clustered.</returns>
+    [Experimental(EFDiagnostics.CosmosVectorSearchExperimental)]
     public static ConfigurationSource? GetVectorIndexTypeConfigurationSource(this IConventionIndex property)
         => property.FindAnnotation(CosmosAnnotationNames.VectorIndexType)?.GetConfigurationSource();
 
