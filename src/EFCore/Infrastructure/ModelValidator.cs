@@ -1152,13 +1152,13 @@ public class ModelValidator : IModelValidator
         foreach (var entityType in model.GetEntityTypes())
         {
             var queryFilters = entityType.GetQueryFilters();
-            if (queryFilters != null)
+            if (queryFilters != null && queryFilters.Count > 0)
             {
                 if (entityType.BaseType != null)
                 {
                     throw new InvalidOperationException(
                         CoreStrings.BadFilterDerivedType(
-                            queryFilters.FirstOrDefault().Value,
+                            queryFilters.First().Expression,
                             entityType.DisplayName(),
                             entityType.GetRootType().DisplayName()));
                 }
@@ -1166,7 +1166,7 @@ public class ModelValidator : IModelValidator
                 if (entityType.IsOwned())
                 {
                     throw new InvalidOperationException(
-                        CoreStrings.BadFilterOwnedType(queryFilters.FirstOrDefault().Value, entityType.DisplayName()));
+                        CoreStrings.BadFilterOwnedType(queryFilters.First().Expression, entityType.DisplayName()));
                 }
             }
 

@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
@@ -48,7 +49,11 @@ public class QueryFilterRewritingConvention : IModelFinalizingConvention
             {
                 foreach (var queryFilter in queryFilters)
                 {
-                    entityType.SetQueryFilter(queryFilter.Key, (LambdaExpression)DbSetAccessRewriter.Rewrite(modelBuilder.Metadata, queryFilter.Value));
+                    if(queryFilter.Expression == null)
+                    {
+                        continue;
+                    }
+                    entityType.SetQueryFilter(new ConventionQueryFilter(queryFilter.Key, (LambdaExpression)DbSetAccessRewriter.Rewrite(modelBuilder.Metadata, queryFilter.Expression)));
                 }
             }
         }

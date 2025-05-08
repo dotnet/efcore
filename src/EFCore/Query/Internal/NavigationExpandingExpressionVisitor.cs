@@ -3,6 +3,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using ExpressionExtensions = Microsoft.EntityFrameworkCore.Infrastructure.ExpressionExtensions;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal;
@@ -1732,13 +1733,13 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         }
     }
 
-    private IReadOnlyDictionary<string, LambdaExpression>? GetApplicableQueryFilters(IEntityType entityType)
+    private IReadOnlyCollection<IQueryFilter>? GetApplicableQueryFilters(IEntityType entityType)
     {
         var queryFilters = _queryCompilationContext.IgnoreQueryFilters && _queryCompilationContext.IgnoredQueryFilters == null ? null : entityType.GetQueryFilters();
         return _queryCompilationContext.IgnoredQueryFilters == null
             ? queryFilters
-            : queryFilters?.Where(kvp => !_queryCompilationContext.IgnoredQueryFilters.Contains(kvp.Key))
-                .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+            : queryFilters?.Where(filter => filter.Key == null || !_queryCompilationContext.IgnoredQueryFilters.Contains(filter!.Key))
+                .ToList();
     }
 
     /// <summary>
@@ -1746,15 +1747,15 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
     /// The cache key is calculated by combining a hash code of the root entity type and all the query filter keys applied
     /// </summary>
     /// <param name="entityType">An entity type</param>
-    /// <param name="filterKeys">Query filters</param>
+    /// <param name="filters">Query filters</param>
     /// <returns>The cache key</returns>
-    private int GetQueryFilterCacheKey(IEntityType entityType, IEnumerable<string> filterKeys)
+    private int GetQueryFilterCacheKey(IEntityType entityType, IReadOnlyCollection<IQueryFilter> filters)
     {
         var hashCode = new HashCode();
         hashCode.Add(entityType);
-        foreach (var key in filterKeys)
+        foreach (var filter in filters)
         {
-            hashCode.Add(key);
+            hashCode.Add(filter.Key);
         }
         return hashCode.ToHashCode();
     }
@@ -1767,15 +1768,15 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         if (queryFilters != null && queryFilters.Count > 0)
         {
             var sequenceType = navigationExpansionExpression.Type.GetSequenceType();
-            var cacheKey = GetQueryFilterCacheKey(rootEntityType, queryFilters.Keys);
+            var cacheKey = GetQueryFilterCacheKey(rootEntityType, queryFilters);
 
             if (!_parameterizedQueryFilterPredicateCache.TryGetValue(cacheKey, out var filterPredicate))
             {
                 var rootExpression = new EntityQueryRootExpression(rootEntityType);
                 var commonParameter = Expression.Parameter(rootEntityType.ClrType);
-                foreach (var queryFilter in queryFilters)
+                foreach (RuntimeQueryFilter queryFilter in queryFilters)
                 {
-                    var tempFilterPredicate = queryFilter.Value;
+                    var tempFilterPredicate = queryFilter.Expression;
                     // TODO: #33509: merge NRT information (nonNullableReferenceTypeParameters) for parameters introduced by the query
                     // TODO: filter into the QueryCompilationContext.NonNullableReferenceTypeParameters
                     tempFilterPredicate = (LambdaExpression)_funcletizer.ExtractParameters(

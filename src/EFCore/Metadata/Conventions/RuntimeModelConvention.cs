@@ -301,8 +301,13 @@ public class RuntimeModelConvention : IModelFinalizedConvention
 
             if (annotations.TryGetValue(CoreAnnotationNames.QueryFilter, out var queryFilters))
             {
-                annotations[CoreAnnotationNames.QueryFilter] = (queryFilters as Dictionary<string, LambdaExpression>)?
-                    .ToDictionary(x => x.Key, x => (LambdaExpression)new QueryRootRewritingExpressionVisitor(runtimeEntityType.Model).Rewrite(x.Value));
+
+                var rewritingVisitor = new QueryRootRewritingExpressionVisitor(runtimeEntityType.Model);
+                LambdaExpression Rewrite(LambdaExpression expression) => (LambdaExpression)rewritingVisitor.Rewrite(expression);
+                annotations[CoreAnnotationNames.QueryFilter] = (queryFilters as IReadOnlyCollection<IQueryFilter>)?
+                    .Select(x => new RuntimeQueryFilter(x, Rewrite))
+                    .ToList()
+                    .AsReadOnly();
             }
         }
     }

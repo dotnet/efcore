@@ -43,19 +43,34 @@ public interface IConventionEntityType : IReadOnlyEntityType, IConventionTypeBas
     bool IsKeyless { get; }
 
     /// <summary>
+    ///     Sets the query filter automatically applied to queries for this entity type.
+    /// </summary>
+    /// <param name="queryFilter">The query filter.</param>
+    /// <returns>The configured filter.</returns>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The configured filter.</returns>
+    IQueryFilter? SetQueryFilter(IQueryFilter queryFilter, bool fromDataAnnotation = false);
+
+    /// <summary>
     ///     Sets the LINQ expression filter automatically applied to queries for this entity type.
     /// </summary>
-    /// <param name="filterKey">The filter key</param>
     /// <param name="queryFilter">The LINQ expression filter.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>The configured filter.</returns>
-    IReadOnlyDictionary<string, LambdaExpression>? SetQueryFilter(string filterKey, LambdaExpression? queryFilter, bool fromDataAnnotation = false);
+    [Obsolete("Use SetQueryFilter(ConventionQueryFilter) instead.")]
+    LambdaExpression? SetQueryFilter(LambdaExpression? queryFilter, bool fromDataAnnotation = false);
 
     /// <summary>
     ///     Returns the configuration source for <see cref="IReadOnlyEntityType.GetQueryFilters" />.
     /// </summary>
     /// <returns>The configuration source for <see cref="IReadOnlyEntityType.GetQueryFilters" />.</returns>
     ConfigurationSource? GetQueryFilterConfigurationSource();
+
+    /// <summary>
+    ///     Returns the configuration source for <see cref="IReadOnlyEntityType.GetQueryFilters" />.
+    /// </summary>
+    /// <returns>The configuration source for <see cref="IReadOnlyEntityType.GetQueryFilters" />.</returns>
+    ConfigurationSource? GetQueryFilterConfigurationSource(string? filterKey);
 
     /// <summary>
     ///     Sets the value indicating whether the discriminator mapping is complete.

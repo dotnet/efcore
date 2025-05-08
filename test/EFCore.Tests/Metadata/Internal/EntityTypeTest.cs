@@ -146,13 +146,13 @@ public partial class EntityTypeTest
 
         Assert.Equal(
             CoreStrings.BadFilterExpression(badExpression1, entityTypeA.DisplayName(), entityTypeA.ClrType),
-            Assert.Throws<InvalidOperationException>(() => entityTypeA.SetQueryFilter(badExpression1)).Message);
+            Assert.Throws<InvalidOperationException>(() => entityTypeA.SetQueryFilter(new QueryFilter(badExpression1))).Message);
 
         Expression<Func<A, string>> badExpression2 = a => "";
 
         Assert.Equal(
             CoreStrings.BadFilterExpression(badExpression2, entityTypeA.DisplayName(), entityTypeA.ClrType),
-            Assert.Throws<InvalidOperationException>(() => entityTypeA.SetQueryFilter(badExpression2)).Message);
+            Assert.Throws<InvalidOperationException>(() => entityTypeA.SetQueryFilter(new QueryFilter(badExpression2))).Message);
     }
 
     [ConditionalFact]

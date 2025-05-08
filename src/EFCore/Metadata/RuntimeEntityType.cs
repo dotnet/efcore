@@ -993,8 +993,19 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
 
     /// <inheritdoc />
     [DebuggerStepThrough]
-    IReadOnlyDictionary<string, LambdaExpression>? IReadOnlyEntityType.GetQueryFilters()
-        => ((Dictionary<string, LambdaExpression>?)this[CoreAnnotationNames.QueryFilter])?.AsReadOnly();
+    IReadOnlyCollection<IQueryFilter>? IReadOnlyEntityType.GetQueryFilters()
+        => this[CoreAnnotationNames.QueryFilter] as IReadOnlyCollection<IQueryFilter>;
+
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    [Obsolete("Use GetQueryFilters() instead.")]
+    LambdaExpression? IReadOnlyEntityType.GetQueryFilter()
+        => ((IReadOnlyEntityType)this).GetQueryFilters()?.FirstOrDefault(f => f.Key == null)?.Expression;
+
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    IQueryFilter? IReadOnlyEntityType.FindQueryFilter(string? filterKey)
+        => (this[CoreAnnotationNames.QueryFilter] as QueryFilterCollection)?[filterKey];
 
     /// <inheritdoc />
     bool IReadOnlyTypeBase.HasSharedClrType

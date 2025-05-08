@@ -1,6 +1,8 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+
 namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
@@ -495,23 +497,23 @@ public abstract class AdHocQueryFiltersQueryTestBase(NonSharedFixture fixture) :
             modelBuilder.Entity<MyEntity18510>().HasQueryFilter(x => x.Name != "Foo");
 
             var entityType = modelBuilder.Model.GetEntityTypes().Single(et => et.ClrType == typeof(MyEntity18510));
-            var queryFilter = entityType.GetQueryFilters().FirstOrDefault().Value;
+            var queryFilter = entityType.GetQueryFilters().FirstOrDefault();
             Expression<Func<int>> tenantFunc = () => TenantId;
             var tenant = Expression.Invoke(tenantFunc);
 
             var efPropertyMethod = typeof(EF).GetTypeInfo().GetDeclaredMethod(nameof(EF.Property)).MakeGenericMethod(typeof(int));
-            var prm = queryFilter.Parameters[0];
+            var prm = queryFilter.Expression.Parameters[0];
             var efPropertyMethodCall = Expression.Call(efPropertyMethod, prm, Expression.Constant("TenantId"));
 
             var updatedQueryFilter = Expression.Lambda(
                 Expression.AndAlso(
-                    queryFilter.Body,
+                    queryFilter.Expression.Body,
                     Expression.Equal(
                         efPropertyMethodCall,
                         tenant)),
                 prm);
 
-            entityType.SetQueryFilter(updatedQueryFilter);
+            entityType.SetQueryFilter(new QueryFilter(updatedQueryFilter));
         }
 
         public Task SeedAsync()

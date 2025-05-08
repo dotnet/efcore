@@ -39,7 +39,11 @@ public class RelationalQueryFilterRewritingConvention : QueryFilterRewritingConv
             {
                 foreach (var queryFilter in queryFilters)
                 {
-                    entityType.SetQueryFilter(queryFilter.Key, (LambdaExpression)DbSetAccessRewriter.Rewrite(modelBuilder.Metadata, queryFilter.Value));
+                    if (queryFilter.Expression == null)
+                    {
+                        continue;
+                    }
+                    entityType.SetQueryFilter(new ConventionQueryFilter(queryFilter.Key, (LambdaExpression)DbSetAccessRewriter.Rewrite(modelBuilder.Metadata, queryFilter.Expression)));
                 }
             }
         }

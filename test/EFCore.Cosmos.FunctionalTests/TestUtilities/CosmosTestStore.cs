@@ -1035,5 +1035,8 @@ public class CosmosTestStore : TestStore
 
         IEnumerable<IReadOnlyTypeBase> IReadOnlyTypeBase.GetDirectlyDerivedTypes()
             => GetDirectlyDerivedTypes();
+        IReadOnlyCollection<IQueryFilter>? IReadOnlyEntityType.GetQueryFilters() => throw new NotImplementedException();
+        public LambdaExpression? GetQueryFilter() => throw new NotImplementedException();
+        public IQueryFilter? FindQueryFilter(string? filterKey) => throw new NotImplementedException();
     }
 }

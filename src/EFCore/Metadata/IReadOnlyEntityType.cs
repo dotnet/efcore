@@ -30,10 +30,24 @@ public interface IReadOnlyEntityType : IReadOnlyTypeBase
     IEnumerable<IDictionary<string, object?>> GetSeedData(bool providerValues = false);
 
     /// <summary>
+    ///     Gets the query filters automatically applied to queries for this entity type.
+    /// </summary>
+    /// <returns>The query filters.</returns>
+    IReadOnlyCollection<IQueryFilter>? GetQueryFilters();
+
+    /// <summary>
     ///     Gets the LINQ expression filter automatically applied to queries for this entity type.
     /// </summary>
     /// <returns>The LINQ expression filter.</returns>
-    IReadOnlyDictionary<string, LambdaExpression>? GetQueryFilters();
+    [Obsolete("Use GetQueryFilters() instead.")]
+    LambdaExpression? GetQueryFilter();
+
+    /// <summary>
+    /// Retrieves the query filter associated with the specified key.
+    /// </summary>
+    /// <param name="filterKey">The key identifying the query filter to retrieve.</param>
+    /// <returns>The <see cref="IQueryFilter"/> associated with the specified key.</returns>
+    IQueryFilter? FindQueryFilter(string? filterKey);
 
     /// <summary>
     ///     Returns the value indicating whether the discriminator mapping is complete for this entity type.

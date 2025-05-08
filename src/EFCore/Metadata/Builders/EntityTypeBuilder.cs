@@ -812,7 +812,7 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public virtual EntityTypeBuilder HasQueryFilter(string filterKey,LambdaExpression? filter)
     {
-        Builder.HasQueryFilter(filterKey, filter, ConfigurationSource.Explicit);
+        Builder.HasQueryFilter(new QueryFilter(filterKey, filter));
 
         return this;
     }

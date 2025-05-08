@@ -2612,12 +2612,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType);
 
         /// <summary>
-        ///     Query filter name cannot be null. Please provide a valid filter name.
-        /// </summary>
-        public static string QueryFilterNameCannotBeNull
-            => GetString("QueryFilterNameCannotBeNull");
-
-        /// <summary>
         ///     The query contains a projection '{projection}' of type '{queryableType}'. Collections in the final projection must be an 'IEnumerable&lt;T&gt;' type such as 'List&lt;T&gt;'. Consider using 'ToList' or some other mechanism to convert the 'IQueryable&lt;T&gt;' or 'IOrderedEnumerable&lt;T&gt;' into an 'IEnumerable&lt;T&gt;'.
         /// </summary>
         public static string QueryInvalidMaterializationType(object? projection, object? queryableType)

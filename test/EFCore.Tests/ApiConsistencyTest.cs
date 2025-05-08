@@ -198,8 +198,7 @@ public class ApiConsistencyTest(ApiConsistencyTest.ApiConsistencyFixture fixture
             typeof(IMutableModel).GetMethod(nameof(IMutableModel.AddOwned)),
             typeof(IMutableModel).GetMethod(nameof(IMutableModel.AddShared)),
             typeof(IMutableEntityType).GetMethod(nameof(IMutableEntityType.AddData)),
-            typeof(IConventionEntityType).GetMethod(nameof(IConventionEntityType.LeastDerivedType)),
-            typeof(IConventionEntityType).GetMethod(nameof(IConventionEntityType.SetQueryFilter))
+            typeof(IConventionEntityType).GetMethod(nameof(IConventionEntityType.LeastDerivedType))
         ];
     }
 }
