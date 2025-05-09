@@ -1151,13 +1151,14 @@ public class ModelValidator : IModelValidator
     {
         foreach (var entityType in model.GetEntityTypes())
         {
-            if (entityType.GetQueryFilter() != null)
+            var queryFilters = entityType.GetQueryFilters();
+            if (queryFilters != null && queryFilters.Count > 0)
             {
                 if (entityType.BaseType != null)
                 {
                     throw new InvalidOperationException(
                         CoreStrings.BadFilterDerivedType(
-                            entityType.GetQueryFilter(),
+                            queryFilters.First().Expression,
                             entityType.DisplayName(),
                             entityType.GetRootType().DisplayName()));
                 }
@@ -1165,7 +1166,7 @@ public class ModelValidator : IModelValidator
                 if (entityType.IsOwned())
                 {
                     throw new InvalidOperationException(
-                        CoreStrings.BadFilterOwnedType(entityType.GetQueryFilter(), entityType.DisplayName()));
+                        CoreStrings.BadFilterOwnedType(queryFilters.First().Expression, entityType.DisplayName()));
                 }
             }
 
@@ -1177,8 +1178,8 @@ public class ModelValidator : IModelValidator
                     .GetNavigations()
                     .FirstOrDefault(
                         n => n is { IsCollection: false, ForeignKey.IsRequired: true, IsOnDependent: true }
-                            && n.ForeignKey.PrincipalEntityType.GetRootType().GetQueryFilter() != null
-                            && n.ForeignKey.DeclaringEntityType.GetRootType().GetQueryFilter() == null);
+                            && n.ForeignKey.PrincipalEntityType.GetRootType().GetQueryFilters() != null
+                            && n.ForeignKey.DeclaringEntityType.GetRootType().GetQueryFilters() == null);
 
                 if (requiredNavigationWithQueryFilter != null)
                 {

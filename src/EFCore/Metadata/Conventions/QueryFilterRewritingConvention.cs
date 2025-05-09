@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
@@ -43,10 +44,17 @@ public class QueryFilterRewritingConvention : IModelFinalizingConvention
     {
         foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
         {
-            var queryFilter = entityType.GetQueryFilter();
-            if (queryFilter != null)
+            var queryFilters = entityType.GetQueryFilters();
+            if (queryFilters != null)
             {
-                entityType.SetQueryFilter((LambdaExpression)DbSetAccessRewriter.Rewrite(modelBuilder.Metadata, queryFilter));
+                foreach (var queryFilter in queryFilters)
+                {
+                    if(queryFilter.Expression == null)
+                    {
+                        continue;
+                    }
+                    entityType.SetQueryFilter(new QueryFilter(queryFilter.Key, (LambdaExpression)DbSetAccessRewriter.Rewrite(modelBuilder.Metadata, queryFilter.Expression)));
+                }
             }
         }
     }
