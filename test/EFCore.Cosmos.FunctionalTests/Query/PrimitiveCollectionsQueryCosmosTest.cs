@@ -33,36 +33,33 @@ WHERE c["Int"] IN (10, 999)
 """);
             });
 
-// TODO: The base implementations no longer compile since https://github.com/dotnet/runtime/pull/110197 (Contains overload added with
-// optional parameter, not supported in expression trees). #35547 is tracking on the EF side.
-//
-//     public override Task Inline_collection_of_nullable_ints_Contains(bool async)
-//         => CosmosTestHelpers.Instance.NoSyncTest(
-//             async, async a =>
-//             {
-//                 await base.Inline_collection_of_nullable_ints_Contains(a);
-//
-//                 AssertSql(
-//                     """
-// SELECT VALUE c
-// FROM root c
-// WHERE c["NullableInt"] IN (10, 999)
-// """);
-//             });
-//
-//     public override Task Inline_collection_of_nullable_ints_Contains_null(bool async)
-//         => CosmosTestHelpers.Instance.NoSyncTest(
-//             async, async a =>
-//             {
-//                 await base.Inline_collection_of_nullable_ints_Contains_null(a);
-//
-//                 AssertSql(
-//                     """
-// SELECT VALUE c
-// FROM root c
-// WHERE c["NullableInt"] IN (null, 999)
-// """);
-//             });
+    public override Task Inline_collection_of_nullable_ints_Contains(bool async)
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async a =>
+            {
+                await base.Inline_collection_of_nullable_ints_Contains(a);
+
+                AssertSql(
+                    """
+SELECT VALUE c
+FROM root c
+WHERE c["NullableInt"] IN (10, 999)
+""");
+            });
+
+    public override Task Inline_collection_of_nullable_ints_Contains_null(bool async)
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async a =>
+            {
+                await base.Inline_collection_of_nullable_ints_Contains_null(a);
+
+                AssertSql(
+                    """
+SELECT VALUE c
+FROM root c
+WHERE c["NullableInt"] IN (null, 999)
+""");
+            });
 
     public override Task Inline_collection_Count_with_zero_values(bool async)
         => CosmosTestHelpers.Instance.NoSyncTest(
@@ -670,56 +667,53 @@ WHERE NOT(ARRAY_CONTAINS(@ints, c["NullableInt"]))
 """);
             });
 
-// TODO: The base implementations no longer compile since https://github.com/dotnet/runtime/pull/110197 (Contains overload added with
-// optional parameter, not supported in expression trees). #35547 is tracking on the EF side.
-//
-//     public override Task Parameter_collection_of_nullable_ints_Contains_int(bool async)
-//         => CosmosTestHelpers.Instance.NoSyncTest(
-//             async, async a =>
-//             {
-//                 await base.Parameter_collection_of_nullable_ints_Contains_int(a);
-//
-//                 AssertSql(
-//                     """
-// @nullableInts='[10,999]'
-//
-// SELECT VALUE c
-// FROM root c
-// WHERE ARRAY_CONTAINS(@nullableInts, c["Int"])
-// """,
-//                     //
-//                     """
-// @nullableInts='[10,999]'
-//
-// SELECT VALUE c
-// FROM root c
-// WHERE NOT(ARRAY_CONTAINS(@nullableInts, c["Int"]))
-// """);
-//             });
-//
-//     public override Task Parameter_collection_of_nullable_ints_Contains_nullable_int(bool async)
-//         => CosmosTestHelpers.Instance.NoSyncTest(
-//             async, async a =>
-//             {
-//                 await base.Parameter_collection_of_nullable_ints_Contains_nullable_int(a);
-//
-//                 AssertSql(
-//                     """
-// @nullableInts='[null,999]'
-//
-// SELECT VALUE c
-// FROM root c
-// WHERE ARRAY_CONTAINS(@nullableInts, c["NullableInt"])
-// """,
-//                     //
-//                     """
-// @nullableInts='[null,999]'
-//
-// SELECT VALUE c
-// FROM root c
-// WHERE NOT(ARRAY_CONTAINS(@nullableInts, c["NullableInt"]))
-// """);
-//             });
+    public override Task Parameter_collection_of_nullable_ints_Contains_int(bool async)
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async a =>
+            {
+                await base.Parameter_collection_of_nullable_ints_Contains_int(a);
+
+                AssertSql(
+                    """
+@nullableInts='[10,999]'
+
+SELECT VALUE c
+FROM root c
+WHERE ARRAY_CONTAINS(@nullableInts, c["Int"])
+""",
+                    //
+                    """
+@nullableInts='[10,999]'
+
+SELECT VALUE c
+FROM root c
+WHERE NOT(ARRAY_CONTAINS(@nullableInts, c["Int"]))
+""");
+            });
+
+    public override Task Parameter_collection_of_nullable_ints_Contains_nullable_int(bool async)
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async a =>
+            {
+                await base.Parameter_collection_of_nullable_ints_Contains_nullable_int(a);
+
+                AssertSql(
+                    """
+@nullableInts='[null,999]'
+
+SELECT VALUE c
+FROM root c
+WHERE ARRAY_CONTAINS(@nullableInts, c["NullableInt"])
+""",
+                    //
+                    """
+@nullableInts='[null,999]'
+
+SELECT VALUE c
+FROM root c
+WHERE NOT(ARRAY_CONTAINS(@nullableInts, c["NullableInt"]))
+""");
+            });
 
     public override Task Parameter_collection_of_strings_Contains_string(bool async)
         => CosmosTestHelpers.Instance.NoSyncTest(
@@ -849,24 +843,21 @@ WHERE ARRAY_CONTAINS(@bools, c["Bool"])
 """);
             });
 
-// TODO: The base implementations no longer compile since https://github.com/dotnet/runtime/pull/110197 (Contains overload added with
-// optional parameter, not supported in expression trees). #35547 is tracking on the EF side.
-//
-//     public override Task Parameter_collection_of_enums_Contains(bool async)
-//         => CosmosTestHelpers.Instance.NoSyncTest(
-//             async, async a =>
-//             {
-//                 await base.Parameter_collection_of_enums_Contains(a);
-//
-//                 AssertSql(
-//                     """
-// @enums='[0,3]'
-//
-// SELECT VALUE c
-// FROM root c
-// WHERE ARRAY_CONTAINS(@enums, c["Enum"])
-// """);
-//             });
+    public override Task Parameter_collection_of_enums_Contains(bool async)
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async a =>
+            {
+                await base.Parameter_collection_of_enums_Contains(a);
+
+                AssertSql(
+                    """
+@enums='[0,3]'
+
+SELECT VALUE c
+FROM root c
+WHERE ARRAY_CONTAINS(@enums, c["Enum"])
+""");
+            });
 
     public override Task Parameter_collection_null_Contains(bool async)
         => CosmosTestHelpers.Instance.NoSyncTest(
@@ -922,36 +913,33 @@ WHERE ARRAY_CONTAINS(c["Ints"], 10)
 """);
             });
 
-// TODO: The base implementations no longer compile since https://github.com/dotnet/runtime/pull/110197 (Contains overload added with
-// optional parameter, not supported in expression trees). #35547 is tracking on the EF side.
-//
-//     public override Task Column_collection_of_nullable_ints_Contains(bool async)
-//         => CosmosTestHelpers.Instance.NoSyncTest(
-//             async, async a =>
-//             {
-//                 await base.Column_collection_of_nullable_ints_Contains(a);
-//
-//                 AssertSql(
-//                     """
-// SELECT VALUE c
-// FROM root c
-// WHERE ARRAY_CONTAINS(c["NullableInts"], 10)
-// """);
-//             });
-//
-//     public override Task Column_collection_of_nullable_ints_Contains_null(bool async)
-//         => CosmosTestHelpers.Instance.NoSyncTest(
-//             async, async a =>
-//             {
-//                 await base.Column_collection_of_nullable_ints_Contains_null(a);
-//
-//                 AssertSql(
-//                     """
-// SELECT VALUE c
-// FROM root c
-// WHERE ARRAY_CONTAINS(c["NullableInts"], null)
-// """);
-//             });
+    public override Task Column_collection_of_nullable_ints_Contains(bool async)
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async a =>
+            {
+                await base.Column_collection_of_nullable_ints_Contains(a);
+
+                AssertSql(
+                    """
+SELECT VALUE c
+FROM root c
+WHERE ARRAY_CONTAINS(c["NullableInts"], 10)
+""");
+            });
+
+    public override Task Column_collection_of_nullable_ints_Contains_null(bool async)
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async a =>
+            {
+                await base.Column_collection_of_nullable_ints_Contains_null(a);
+
+                AssertSql(
+                    """
+SELECT VALUE c
+FROM root c
+WHERE ARRAY_CONTAINS(c["NullableInts"], null)
+""");
+            });
 
     public override Task Column_collection_of_strings_contains_null(bool async)
         => CosmosTestHelpers.Instance.NoSyncTest(

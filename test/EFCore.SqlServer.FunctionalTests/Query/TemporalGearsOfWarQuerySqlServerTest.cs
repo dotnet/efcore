@@ -4958,26 +4958,23 @@ WHERE COALESCE([c].[Location], N'') + N'Added' LIKE N'%Add%'
 """);
     }
 
-// TODO: The base implementations no longer compile since https://github.com/dotnet/runtime/pull/110197 (Contains overload added with
-// optional parameter, not supported in expression trees). #35547 is tracking on the EF side.
-//
-//     public override async Task Enum_array_contains(bool async)
-//     {
-//         await base.Enum_array_contains(async);
-//
-//         AssertSql(
-//             """
-// @types_without_nulls='[1]' (Size = 4000)
-//
-// SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[PeriodEnd], [w].[PeriodStart], [w].[SynergyWithId]
-// FROM [Weapons] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [w]
-// LEFT JOIN [Weapons] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [w0] ON [w].[SynergyWithId] = [w0].[Id]
-// WHERE [w0].[Id] IS NOT NULL AND ([w0].[AmmunitionType] IN (
-//     SELECT [t].[value]
-//     FROM OPENJSON(@types_without_nulls) AS [t]
-// ) OR [w0].[AmmunitionType] IS NULL)
-// """);
-//     }
+    public override async Task Enum_array_contains(bool async)
+    {
+        await base.Enum_array_contains(async);
+
+        AssertSql(
+            """
+@types_without_nulls='[1]' (Size = 4000)
+
+SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[PeriodEnd], [w].[PeriodStart], [w].[SynergyWithId]
+FROM [Weapons] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [w]
+LEFT JOIN [Weapons] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [w0] ON [w].[SynergyWithId] = [w0].[Id]
+WHERE [w0].[Id] IS NOT NULL AND ([w0].[AmmunitionType] IN (
+    SELECT [t].[value]
+    FROM OPENJSON(@types_without_nulls) AS [t]
+) OR [w0].[AmmunitionType] IS NULL)
+""");
+    }
 
     public override async Task Sum_with_optional_navigation_is_translated_to_sql(bool async)
     {
