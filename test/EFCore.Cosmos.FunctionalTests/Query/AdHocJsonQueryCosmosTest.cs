@@ -159,7 +159,7 @@ WHERE (c["Id"] = 4)
 
         var wrapper = (CosmosClientWrapper)context.GetService<ICosmosClientWrapper>();
         var singletonWrapper = context.GetService<ISingletonCosmosClientWrapper>();
-        var entitiesContainer = singletonWrapper.Client.GetContainer(StoreName, containerId: "Entities");
+        var entitiesContainer = singletonWrapper.Client.GetContainer(TestStore.Name, containerId: "Entities");
 
         var missingTopLevel =
 $$"""
