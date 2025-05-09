@@ -472,4 +472,36 @@ public static class SqlServerModelExtensions
     /// <returns>The <see cref="ConfigurationSource" /> for the performance level of the database.</returns>
     public static ConfigurationSource? GetPerformanceLevelSqlConfigurationSource(this IConventionModel model)
         => model.FindAnnotation(SqlServerAnnotationNames.PerformanceLevelSql)?.GetConfigurationSource();
+
+    /// <summary>
+    ///     TODO
+    /// </summary>
+    public static bool? AreNamedDefaultConstraintsUsed(this IReadOnlyModel model)
+        => (model is RuntimeModel)
+            ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
+            : (bool?)model[SqlServerAnnotationNames.UseNamedDefaultConstraints];
+
+    /// <summary>
+    ///     TODO
+    /// </summary>
+    public static void UseNamedDefaultConstraints(this IMutableModel model, bool value)
+        => model.SetOrRemoveAnnotation(SqlServerAnnotationNames.UseNamedDefaultConstraints, value);
+
+    /// <summary>
+    ///     TODO
+    /// </summary>
+    public static bool? UseNamedDefaultConstraints(
+        this IConventionModel model,
+        bool value,
+        bool fromDataAnnotation = false)
+        => (bool?)model.SetOrRemoveAnnotation(
+            SqlServerAnnotationNames.UseNamedDefaultConstraints,
+            value,
+            fromDataAnnotation)?.Value;
+
+    /// <summary>
+    ///     TODO
+    /// </summary>
+    public static ConfigurationSource? UseNamedDefaultConstraintsConfigurationSource(this IConventionModel model)
+        => model.FindAnnotation(SqlServerAnnotationNames.UseNamedDefaultConstraints)?.GetConfigurationSource();
 }

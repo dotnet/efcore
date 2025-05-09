@@ -201,7 +201,52 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
         IProperty property,
         IDictionary<string, IAnnotation> annotations)
     {
+        var defaultConstraintNameAnnotation = default(IAnnotation);
+        var defaultValueAnnotation = default(IAnnotation);
+        var defaultValueSqlAnnotation = default(IAnnotation);
+
+        // named default constraint must be handled on the provider level, so removing the annotations before calling base
+        if (annotations.TryGetValue(SqlServerAnnotationNames.DefaultConstraintName, out defaultConstraintNameAnnotation))
+        {
+            if (defaultConstraintNameAnnotation.Value as string != string.Empty)
+            {
+                if (annotations.TryGetValue(RelationalAnnotationNames.DefaultValue, out defaultValueAnnotation))
+                {
+                    annotations.Remove(RelationalAnnotationNames.DefaultValue);
+                }
+                else
+                {
+                    var defaultValueSqlAnnotationExists = annotations.TryGetValue(RelationalAnnotationNames.DefaultValueSql, out defaultValueSqlAnnotation);
+                    Check.DebugAssert(defaultValueSqlAnnotationExists, "If default constaint name was set, one of DefaultValue or DefaultValueSql must also be set.");
+                    annotations.Remove(RelationalAnnotationNames.DefaultValueSql);
+                }
+            }
+
+            annotations.Remove(SqlServerAnnotationNames.DefaultConstraintName);
+        }
+
         var fragments = new List<MethodCallCodeFragment>(base.GenerateFluentApiCalls(property, annotations));
+
+        if (defaultConstraintNameAnnotation != null && defaultConstraintNameAnnotation.Value as string != string.Empty)
+        {
+            if (defaultValueAnnotation != null)
+            {
+                fragments.Add(
+                    new MethodCallCodeFragment(
+                        nameof(SqlServerPropertyBuilderExtensions.HasDefaultValue),
+                        defaultValueAnnotation.Value,
+                        defaultConstraintNameAnnotation.Value));
+            }
+            else
+            {
+                Check.NotNull(defaultValueSqlAnnotation, "Both DefaultValue and DefaultValueSql annotations are null.");
+                fragments.Add(
+                    new MethodCallCodeFragment(
+                        nameof(SqlServerPropertyBuilderExtensions.HasDefaultValueSql),
+                        defaultValueSqlAnnotation.Value,
+                        defaultConstraintNameAnnotation.Value));
+            }
+        }
 
         var isPrimitiveCollection = property.IsPrimitiveCollection;
 

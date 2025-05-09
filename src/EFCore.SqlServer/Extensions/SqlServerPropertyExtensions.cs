@@ -1054,4 +1054,50 @@ public static class SqlServerPropertyExtensions
     /// <returns>The <see cref="ConfigurationSource" /> for whether the property's column is sparse.</returns>
     public static ConfigurationSource? GetIsSparseConfigurationSource(this IConventionProperty property)
         => property.FindAnnotation(SqlServerAnnotationNames.Sparse)?.GetConfigurationSource();
+
+    /// <summary>
+    ///     TODO
+    /// </summary>
+    public static string? DefaultConstraintName(this IReadOnlyProperty property)
+        => (property is RuntimeProperty)
+            ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
+            : (string?)property[SqlServerAnnotationNames.DefaultConstraintName];
+
+    /// <summary>
+    ///     TODO
+    /// </summary>
+    public static string DefaultDefaultConstraintName(this IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
+    {
+        var candidate = $"DF_{storeObject.Name}_{property.GetColumnName(storeObject)}";
+
+        return candidate.Length > 120 ? candidate[..120] : candidate;
+    }
+
+    /// <summary>
+    ///     TODO
+    /// </summary>
+    public static void SetDefaultConstraintName(this IMutableProperty property, string? defaultConstraintName)
+        => property.SetAnnotation(SqlServerAnnotationNames.DefaultConstraintName, defaultConstraintName);
+
+    /// <summary>
+    ///     TODO
+    /// </summary>
+    public static string? SetDefaultConstraintName(
+        this IConventionProperty property,
+        string? defaultConstraintName,
+        bool fromDataAnnotation = false)
+    {
+        property.SetAnnotation(
+            SqlServerAnnotationNames.DefaultConstraintName,
+            defaultConstraintName,
+            fromDataAnnotation);
+
+        return defaultConstraintName;
+    }
+
+    /// <summary>
+    ///     TODO
+    /// </summary>
+    public static ConfigurationSource? GetDefaultConstraintNameConfigurationSource(this IConventionProperty property)
+        => property.FindAnnotation(SqlServerAnnotationNames.DefaultConstraintName)?.GetConfigurationSource();
 }

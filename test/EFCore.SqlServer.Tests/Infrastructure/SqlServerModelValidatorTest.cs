@@ -900,6 +900,50 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     }
 
     [ConditionalFact]
+    public void DefaultValue_with_explicit_constraint_name_throws_for_TPC()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Animal>().UseTpcMappingStrategy();
+        modelBuilder.Entity<Animal>().Property(x => x.Name).HasDefaultValue("Miauo", defaultConstraintName: "MyConstraint");
+        modelBuilder.Entity<Cat>().HasBaseType<Animal>();
+        modelBuilder.Entity<Dog>().HasBaseType<Animal>();
+
+        VerifyError(
+            "Can't use explicitly named default convention with TPC or entity splitting.",
+            modelBuilder);
+    }
+
+    [ConditionalFact]
+    public void DefaultValueSql_with_explicit_constraint_name_throws_for_TPC()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Animal>().UseTpcMappingStrategy();
+        modelBuilder.Entity<Animal>().Property(x => x.Name).HasDefaultValueSql("NEWID()", defaultConstraintName: "MyConstraint");
+        modelBuilder.Entity<Cat>().HasBaseType<Animal>();
+        modelBuilder.Entity<Dog>().HasBaseType<Animal>();
+
+        VerifyError(
+            "Can't use explicitly named default convention with TPC or entity splitting.",
+            modelBuilder);
+    }
+
+    [ConditionalFact]
+    public void DefaultValue_with_implicit_constraint_name_throws_for_TPC()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.UseNamedDefaultConstraints();
+        modelBuilder.Entity<Animal>().UseTpcMappingStrategy();
+        modelBuilder.Entity<Animal>().Property(x => x.Name).HasDefaultValue("Miauo");
+        modelBuilder.Entity<Cat>().HasBaseType<Animal>();
+        modelBuilder.Entity<Cat>().Property(x => x.Breed).HasDefaultValue("Ragdoll", defaultConstraintName: "DF_Cat_Name");
+        modelBuilder.Entity<Dog>().HasBaseType<Animal>();
+
+        VerifyError(
+            "Named default constraints can't be used with TPC or entity splitting if they result in non-unique constraint name. Constraint name: 'DF_Cat_Name'.",
+            modelBuilder);
+    }
+
+    [ConditionalFact]
     public void Temporal_can_only_be_specified_on_root_entities()
     {
         var modelBuilder = CreateConventionModelBuilder();

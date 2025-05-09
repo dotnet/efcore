@@ -3,6 +3,8 @@
 
 // ReSharper disable once CheckNamespace
 
+using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Conventions;
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 /// <summary>
@@ -71,6 +73,12 @@ public class SqlServerConventionSetBuilder : RelationalConventionSetBuilder
             typeof(SqlServerValueGenerationConvention));
         conventionSet.SkipNavigationForeignKeyChangedConventions.Add(sqlServerTemporalConvention);
         conventionSet.ModelFinalizingConventions.Add(sqlServerTemporalConvention);
+
+        var sqlServerDefaultValueConvention = new SqlServerDefaultValueConvention(Dependencies, RelationalDependencies);
+        ConventionSet.AddAfter(
+            conventionSet.ModelFinalizingConventions,
+            sqlServerDefaultValueConvention,
+            typeof(SqlServerSharedTableConvention));
 
         return conventionSet;
     }

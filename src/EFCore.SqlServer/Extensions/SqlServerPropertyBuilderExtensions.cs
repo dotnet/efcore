@@ -812,4 +812,120 @@ public static class SqlServerPropertyBuilderExtensions
         bool? sparse,
         bool fromDataAnnotation = false)
         => property.CanSetAnnotation(SqlServerAnnotationNames.Sparse, sparse, fromDataAnnotation);
+
+    /// <summary>
+    ///     TODO
+    /// </summary>
+    public static PropertyBuilder HasDefaultValue(
+        this PropertyBuilder propertyBuilder,
+        object? value,
+        string defaultConstraintName)
+    {
+        propertyBuilder.Metadata.SetDefaultValue(value);
+        propertyBuilder.Metadata.SetDefaultConstraintName(defaultConstraintName);
+
+        return propertyBuilder;
+    }
+
+    /// <summary>
+    ///     TODO
+    /// </summary>
+    public static PropertyBuilder<TProperty> HasDefaultValue<TProperty>(
+        this PropertyBuilder<TProperty> propertyBuilder,
+        object? value,
+        string defaultConstraintName)
+        => (PropertyBuilder<TProperty>)HasDefaultValue((PropertyBuilder)propertyBuilder, value, defaultConstraintName);
+
+    /// <summary>
+    ///     TODO
+    /// </summary>
+    public static IConventionPropertyBuilder? HasDefaultValue(
+        this IConventionPropertyBuilder propertyBuilder,
+        object? value,
+        string defaultConstraintName,
+        bool fromDataAnnotation = false)
+    {
+        if (!propertyBuilder.CanSetDefaultValue(value, defaultConstraintName, fromDataAnnotation))
+        {
+            return null;
+        }
+
+        propertyBuilder.Metadata.SetDefaultValue(value, fromDataAnnotation);
+        return propertyBuilder;
+    }
+
+    /// <summary>
+    ///     TODO
+    /// </summary>
+    public static bool CanSetDefaultValue(
+        this IConventionPropertyBuilder propertyBuilder,
+        object? value,
+        string defaultConstraintName,
+        bool fromDataAnnotation = false)
+        => propertyBuilder.CanSetAnnotation(
+            RelationalAnnotationNames.DefaultValue,
+            value,
+            fromDataAnnotation)
+        && propertyBuilder.CanSetAnnotation(
+            SqlServerAnnotationNames.DefaultConstraintName,
+            defaultConstraintName,
+            fromDataAnnotation);
+
+    /// <summary>
+    ///     TODO
+    /// </summary>
+    public static PropertyBuilder HasDefaultValueSql(
+        this PropertyBuilder propertyBuilder,
+        string? sql,
+        string defaultConstraintName)
+    {
+        propertyBuilder.Metadata.SetDefaultValueSql(sql);
+        propertyBuilder.Metadata.SetDefaultConstraintName(defaultConstraintName);
+
+        return propertyBuilder;
+    }
+
+    /// <summary>
+    ///     TODO
+    /// </summary>
+    public static PropertyBuilder<TProperty> HasDefaultValueSql<TProperty>(
+        this PropertyBuilder<TProperty> propertyBuilder,
+        string? sql,
+        string defaultConstraintName)
+        => (PropertyBuilder<TProperty>)HasDefaultValueSql((PropertyBuilder)propertyBuilder, sql, defaultConstraintName);
+
+    /// <summary>
+    ///     TODO
+    /// </summary>
+    public static IConventionPropertyBuilder? HasDefaultValueSql(
+        this IConventionPropertyBuilder propertyBuilder,
+        string? sql,
+        string defaultConstraintName,
+        bool fromDataAnnotation = false)
+    {
+        if (!propertyBuilder.CanSetDefaultValueSql(sql, defaultConstraintName, fromDataAnnotation))
+        {
+            return null;
+        }
+
+        propertyBuilder.Metadata.SetDefaultValueSql(sql, fromDataAnnotation);
+        return propertyBuilder;
+    }
+
+    /// <summary>
+    ///     TODO
+    /// </summary>
+    public static bool CanSetDefaultValueSql(
+        this IConventionPropertyBuilder propertyBuilder,
+        string? sql,
+        string defaultConstraintName,
+        bool fromDataAnnotation = false)
+        => propertyBuilder.CanSetAnnotation(
+            RelationalAnnotationNames.DefaultValueSql,
+            sql,
+            fromDataAnnotation)
+        && propertyBuilder.CanSetAnnotation(
+            SqlServerAnnotationNames.DefaultConstraintName,
+            defaultConstraintName,
+            fromDataAnnotation);
 }
