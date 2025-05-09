@@ -3220,7 +3220,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     /// </summary>
     [DebuggerStepThrough]
     void IMutableEntityType.SetQueryFilter(LambdaExpression? queryFilter)
-        => SetQueryFilter(new QueryFilter(null, queryFilter, ConfigurationSource.Explicit));
+        => SetQueryFilter(new QueryFilter(queryFilter, ConfigurationSource.Explicit));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -3240,7 +3240,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     /// </summary>
     [DebuggerStepThrough]
     IQueryFilter? IConventionEntityType.SetQueryFilter(IQueryFilter queryFilter, bool fromDataAnnotation)
-        => SetQueryFilter(new ConventionQueryFilter(queryFilter, fromDataAnnotation));
+        => SetQueryFilter(new QueryFilter(queryFilter, fromDataAnnotation));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -3250,7 +3250,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     /// </summary>
     [DebuggerStepThrough]
     LambdaExpression? IConventionEntityType.SetQueryFilter(LambdaExpression? queryFilter, bool fromDataAnnotation)
-        => SetQueryFilter(new ConventionQueryFilter(null, queryFilter, fromDataAnnotation))
+        => SetQueryFilter(new QueryFilter(queryFilter, fromDataAnnotation))
             ?.Expression;
 
     /// <summary>

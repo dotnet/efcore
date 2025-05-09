@@ -1328,7 +1328,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual bool CanSetQueryFilter(LambdaExpression? filter, ConfigurationSource configurationSource)
-        => CanSetQueryFilter(new QueryFilter(null, filter, configurationSource));
+        => CanSetQueryFilter(new QueryFilter(filter, configurationSource));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -5311,8 +5311,8 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
-    IConventionEntityTypeBuilder? IConventionEntityTypeBuilder.HasQueryFilter(ConventionQueryFilter queryFilter)
-        => HasQueryFilter(queryFilter);
+    IConventionEntityTypeBuilder? IConventionEntityTypeBuilder.HasQueryFilter(IQueryFilter queryFilter, bool fromDataAnnotation)
+        => HasQueryFilter(new QueryFilter(queryFilter, fromDataAnnotation));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -5321,8 +5321,8 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
-    bool IConventionEntityTypeBuilder.CanSetQueryFilter(ConventionQueryFilter queryFilter)
-        => CanSetQueryFilter(queryFilter);
+    bool IConventionEntityTypeBuilder.CanSetQueryFilter(IQueryFilter queryFilter, bool fromDataAnnotation)
+        => CanSetQueryFilter(new QueryFilter(queryFilter, fromDataAnnotation));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

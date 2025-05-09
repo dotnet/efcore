@@ -53,10 +53,5 @@ internal class QueryFilterCollection : IReadOnlyCollection<IQueryFilter>
         return filter;
     }
 
-    public IQueryFilter? Set(string key, LambdaExpression? expression, ConfigurationSource configurationSource)
-    {
-         return Set(new QueryFilter(key, expression, configurationSource));
-    }
-
     public bool Remove(string key) => filters.Remove(key);
 }
