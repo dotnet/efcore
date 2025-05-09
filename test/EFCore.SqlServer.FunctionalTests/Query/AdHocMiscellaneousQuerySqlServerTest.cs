@@ -2202,7 +2202,7 @@ ORDER BY [o].[OrderId]
 @orderItemType='MyType1' (Nullable = false) (Size = 4000)
 @p='1'
 
-SELECT [o1].[Id], COALESCE((
+SELECT [o1].[Id], ISNULL((
     SELECT TOP(1) [o3].[Price]
     FROM [OrderItems] AS [o3]
     WHERE [o1].[Id] = [o3].[OrderId] AND [o3].[Type] = @orderItemType), 0.0E0) AS [SpecialSum]
@@ -2284,8 +2284,8 @@ GROUP BY [t].[Value]
 
         AssertSql(
             """
-SELECT [t].[Value] AS [A], COALESCE(SUM([t].[Id]), 0) AS [B], COALESCE((
-    SELECT TOP(1) COALESCE(SUM([t].[Id]), 0) + COALESCE(SUM([t0].[Id]), 0)
+SELECT [t].[Value] AS [A], ISNULL(SUM([t].[Id]), 0) AS [B], ISNULL((
+    SELECT TOP(1) ISNULL(SUM([t].[Id]), 0) + ISNULL(SUM([t0].[Id]), 0)
     FROM [Tables] AS [t0]
     GROUP BY [t0].[Value]
     ORDER BY (SELECT 1)), 0) AS [C]
