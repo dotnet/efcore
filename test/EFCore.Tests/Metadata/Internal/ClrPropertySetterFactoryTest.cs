@@ -40,7 +40,7 @@ public class ClrPropertySetterFactoryTest
         IReadOnlyTypeBase IReadOnlyPropertyBase.DeclaringType
             => throw new NotImplementedException();
 
-        public void SetClrValue(object instance, object value)
+        public void SetClrValueUsingContainingEntity(object instance, object value)
             => throw new NotImplementedException();
 
         public IEnumerable<IForeignKey> GetContainingForeignKeys()
@@ -131,6 +131,9 @@ public class ClrPropertySetterFactoryTest
 
         public PropertyAccessMode GetPropertyAccessMode()
             => throw new NotImplementedException();
+
+        public void SetClrValueUsingContainingEntity(object instance, ReadOnlySpan<int> indices, object value)
+            => throw new NotImplementedException();
     }
 
     [ConditionalFact]
@@ -141,7 +144,7 @@ public class ClrPropertySetterFactoryTest
 
         var customer = new Customer { Id = 7 };
 
-        ClrPropertySetterFactory.Instance.Create((IProperty)idProperty).SetClrValue(customer, 77);
+        ClrPropertySetterFactory.Instance.Create((IProperty)idProperty).SetClrValueUsingContainingEntity(customer, 77);
 
         Assert.Equal(77, customer.Id);
     }
@@ -151,7 +154,7 @@ public class ClrPropertySetterFactoryTest
     {
         var customer = new Customer { Id = 7 };
 
-        ClrPropertySetterFactory.Instance.Create(typeof(Customer).GetAnyProperty("Id")).SetClrValue(customer, 77);
+        ClrPropertySetterFactory.Instance.Create(typeof(Customer).GetAnyProperty("Id")).SetClrValueUsingContainingEntity(customer, 77);
 
         Assert.Equal(77, customer.Id);
     }
@@ -164,7 +167,7 @@ public class ClrPropertySetterFactoryTest
 
         var customer = new Customer { Id = 7 };
 
-        ClrPropertySetterFactory.Instance.Create((IProperty)idProperty).SetClrValue(customer, 1);
+        ClrPropertySetterFactory.Instance.Create((IProperty)idProperty).SetClrValueUsingContainingEntity(customer, 1);
 
         Assert.Equal(1, customer.Id);
     }
@@ -177,7 +180,7 @@ public class ClrPropertySetterFactoryTest
 
         var customer = new Customer { Id = 7 };
 
-        ClrPropertySetterFactory.Instance.Create((IProperty)idProperty).SetClrValue(customer, "MyString");
+        ClrPropertySetterFactory.Instance.Create((IProperty)idProperty).SetClrValueUsingContainingEntity(customer, "MyString");
 
         Assert.Equal("MyString", customer.Content);
     }
@@ -190,7 +193,7 @@ public class ClrPropertySetterFactoryTest
 
         var customer = new Customer { Id = 7 };
 
-        ClrPropertySetterFactory.Instance.Create((IProperty)idProperty).SetClrValue(customer, 3);
+        ClrPropertySetterFactory.Instance.Create((IProperty)idProperty).SetClrValueUsingContainingEntity(customer, 3);
 
         Assert.Equal(3, customer.OptionalInt);
     }
@@ -203,7 +206,7 @@ public class ClrPropertySetterFactoryTest
 
         var customer = new Customer { Id = 7 };
 
-        ClrPropertySetterFactory.Instance.Create((IProperty)idProperty).SetClrValue(customer, null);
+        ClrPropertySetterFactory.Instance.Create((IProperty)idProperty).SetClrValueUsingContainingEntity(customer, null);
 
         Assert.Null(customer.OptionalInt);
     }
@@ -216,7 +219,7 @@ public class ClrPropertySetterFactoryTest
 
         var customer = new Customer { Id = 7 };
 
-        ClrPropertySetterFactory.Instance.Create((IProperty)idProperty).SetClrValue(customer, Flag.One);
+        ClrPropertySetterFactory.Instance.Create((IProperty)idProperty).SetClrValueUsingContainingEntity(customer, Flag.One);
 
         Assert.Equal(Flag.One, customer.Flag);
     }
@@ -229,7 +232,7 @@ public class ClrPropertySetterFactoryTest
 
         var customer = new Customer { Id = 7 };
 
-        ClrPropertySetterFactory.Instance.Create((IProperty)idProperty).SetClrValue(customer, Flag.Two);
+        ClrPropertySetterFactory.Instance.Create((IProperty)idProperty).SetClrValueUsingContainingEntity(customer, Flag.Two);
 
         Assert.Equal(Flag.Two, customer.OptionalFlag);
     }
@@ -242,7 +245,7 @@ public class ClrPropertySetterFactoryTest
             typeof(ConcreteEntity1).GetProperty(nameof(ConcreteEntity1.VirtualPrivateProperty_Override)));
         var entity = new ConcreteEntity1();
 
-        ClrPropertySetterFactory.Instance.Create((IProperty)property).SetClrValue(entity, 100);
+        ClrPropertySetterFactory.Instance.Create((IProperty)property).SetClrValueUsingContainingEntity(entity, 100);
         Assert.Equal(100, entity.VirtualPrivateProperty_Override);
     }
 
@@ -254,7 +257,7 @@ public class ClrPropertySetterFactoryTest
             typeof(ConcreteEntity2).GetProperty(nameof(ConcreteEntity2.VirtualPrivateProperty_Override)));
         var entity = new ConcreteEntity2();
 
-        ClrPropertySetterFactory.Instance.Create((IProperty)property).SetClrValue(entity, 100);
+        ClrPropertySetterFactory.Instance.Create((IProperty)property).SetClrValueUsingContainingEntity(entity, 100);
         Assert.Equal(100, entity.VirtualPrivateProperty_Override);
     }
 
@@ -266,7 +269,7 @@ public class ClrPropertySetterFactoryTest
             typeof(ConcreteEntity1).GetProperty(nameof(ConcreteEntity1.VirtualPrivateProperty_NoOverride)));
         var entity = new ConcreteEntity1();
 
-        ClrPropertySetterFactory.Instance.Create((IProperty)property).SetClrValue(entity, 100);
+        ClrPropertySetterFactory.Instance.Create((IProperty)property).SetClrValueUsingContainingEntity(entity, 100);
         Assert.Equal(100, entity.VirtualPrivateProperty_NoOverride);
     }
 
@@ -278,7 +281,7 @@ public class ClrPropertySetterFactoryTest
             typeof(ConcreteEntity2).GetProperty(nameof(ConcreteEntity2.VirtualPrivateProperty_NoOverride)));
         var entity = new ConcreteEntity2();
 
-        ClrPropertySetterFactory.Instance.Create((IProperty)property).SetClrValue(entity, 100);
+        ClrPropertySetterFactory.Instance.Create((IProperty)property).SetClrValueUsingContainingEntity(entity, 100);
         Assert.Equal(100, entity.VirtualPrivateProperty_NoOverride);
     }
 
@@ -289,7 +292,7 @@ public class ClrPropertySetterFactoryTest
         var property = entityType.AddProperty(typeof(ConcreteEntity1).GetProperty(nameof(ConcreteEntity1.PrivateProperty)));
         var entity = new ConcreteEntity1();
 
-        ClrPropertySetterFactory.Instance.Create((IProperty)property).SetClrValue(entity, 100);
+        ClrPropertySetterFactory.Instance.Create((IProperty)property).SetClrValueUsingContainingEntity(entity, 100);
         Assert.Equal(100, entity.PrivateProperty);
     }
 
@@ -300,7 +303,7 @@ public class ClrPropertySetterFactoryTest
         var property = entityType.AddProperty(typeof(ConcreteEntity2).GetProperty(nameof(ConcreteEntity2.PrivateProperty)));
         var entity = new ConcreteEntity2();
 
-        ClrPropertySetterFactory.Instance.Create((IProperty)property).SetClrValue(entity, 100);
+        ClrPropertySetterFactory.Instance.Create((IProperty)property).SetClrValueUsingContainingEntity(entity, 100);
         Assert.Equal(100, entity.PrivateProperty);
     }
 
@@ -332,8 +335,8 @@ public class ClrPropertySetterFactoryTest
         Assert.Equal("ValueA", indexedClass["PropertyA"]);
         Assert.Equal(123, indexedClass["PropertyB"]);
 
-        ClrPropertySetterFactory.Instance.Create((IProperty)propertyA).SetClrValue(indexedClass, "UpdatedValue");
-        ClrPropertySetterFactory.Instance.Create((IProperty)propertyB).SetClrValue(indexedClass, 42);
+        ClrPropertySetterFactory.Instance.Create((IProperty)propertyA).SetClrValueUsingContainingEntity(indexedClass, "UpdatedValue");
+        ClrPropertySetterFactory.Instance.Create((IProperty)propertyB).SetClrValueUsingContainingEntity(indexedClass, 42);
 
         Assert.Equal("UpdatedValue", indexedClass["PropertyA"]);
         Assert.Equal(42, indexedClass["PropertyB"]);

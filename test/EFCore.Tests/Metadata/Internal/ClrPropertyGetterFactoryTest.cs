@@ -22,13 +22,13 @@ public class ClrPropertyGetterFactoryTest
         public object GetClrValueUsingContainingEntity(object entity)
             => throw new NotImplementedException();
 
-        public bool HasSentinelUsingContainingEntity(object entity)
+        public bool HasSentinelValueUsingContainingEntity(object entity)
             => throw new NotImplementedException();
 
         public object GetClrValue(object structuralObject)
             => throw new NotImplementedException();
 
-        public bool HasSentinel(object structuralObject)
+        public bool HasSentinelValue(object structuralObject)
             => throw new NotImplementedException();
 
         public IEnumerable<IForeignKey> GetContainingForeignKeys()
@@ -118,6 +118,12 @@ public class ClrPropertyGetterFactoryTest
             => throw new NotImplementedException();
 
         public PropertyAccessMode GetPropertyAccessMode()
+            => throw new NotImplementedException();
+
+        public object GetClrValueUsingContainingEntity(object entity, ReadOnlySpan<int> indices)
+            => throw new NotImplementedException();
+
+        public bool HasSentinelValueUsingContainingEntity(object entity, ReadOnlySpan<int> indices)
             => throw new NotImplementedException();
 
         public string Name { get; }

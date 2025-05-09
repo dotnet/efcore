@@ -1509,6 +1509,8 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                 out var structuralGetterExpression,
                 out var hasStructuralSentinelExpression);
 
+            // TODO: Only use the last two for entity properties
+
             mainBuilder
                 .Append(variableName).AppendLine(".SetGetter(")
                 .IncrementIndent()

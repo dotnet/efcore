@@ -124,24 +124,12 @@ public static class EntityTypeExtensions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public static bool UseEagerSnapshots(this IReadOnlyEntityType entityType)
-    {
-        var changeTrackingStrategy = entityType.GetChangeTrackingStrategy();
-
-        return changeTrackingStrategy is ChangeTrackingStrategy.Snapshot or ChangeTrackingStrategy.ChangedNotifications;
-    }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
     public static PropertyCounts CalculateCounts(this IRuntimeEntityType entityType)
     {
         var propertyIndex = 0;
         var navigationIndex = 0;
         var complexPropertyIndex = 0;
+        var complexCollectionIndex = 0;
         var originalValueIndex = 0;
         var shadowIndex = 0;
         var relationshipIndex = 0;
@@ -153,6 +141,7 @@ public static class EntityTypeExtensions
             propertyIndex = baseCounts.PropertyCount;
             navigationIndex = baseCounts.NavigationCount;
             complexPropertyIndex = baseCounts.ComplexPropertyCount;
+            complexCollectionIndex = baseCounts.ComplexCollectionCount;
             originalValueIndex = baseCounts.OriginalValueCount;
             shadowIndex = baseCounts.ShadowCount;
             relationshipIndex = baseCounts.RelationshipCount;
@@ -175,6 +164,7 @@ public static class EntityTypeExtensions
             entityType.GetDeclaredComplexProperties(),
             ref propertyIndex,
             ref complexPropertyIndex,
+            ref complexCollectionIndex,
             ref originalValueIndex,
             ref shadowIndex,
             ref relationshipIndex,
@@ -211,6 +201,7 @@ public static class EntityTypeExtensions
             propertyIndex,
             navigationIndex,
             complexPropertyIndex,
+            complexCollectionIndex,
             originalValueIndex,
             shadowIndex,
             relationshipIndex,
@@ -221,6 +212,7 @@ public static class EntityTypeExtensions
         IEnumerable<IComplexProperty> complexProperties,
         ref int propertyIndex,
         ref int complexPropertyIndex,
+        ref int complexCollectionIndex,
         ref int originalValueIndex,
         ref int shadowIndex,
         ref int relationshipIndex,
@@ -232,6 +224,7 @@ public static class EntityTypeExtensions
                 complexProperty,
                 ref propertyIndex,
                 ref complexPropertyIndex,
+                ref complexCollectionIndex,
                 ref originalValueIndex,
                 ref shadowIndex,
                 ref relationshipIndex,
@@ -243,13 +236,14 @@ public static class EntityTypeExtensions
         IRuntimeComplexProperty complexProperty,
         ref int propertyIndex,
         ref int complexPropertyIndex,
+        ref int complexCollectionIndex,
         ref int originalValueIndex,
         ref int shadowIndex,
         ref int relationshipIndex,
         ref int storeGenerationIndex)
     {
         var indexes = new PropertyIndexes(
-            index: complexPropertyIndex++,
+            index: complexProperty.IsCollection ? complexCollectionIndex++ : complexPropertyIndex++,
             originalValueIndex: -1,
             shadowIndex: complexProperty.IsShadowProperty() ? shadowIndex++ : -1,
             relationshipIndex: -1,
@@ -259,6 +253,7 @@ public static class EntityTypeExtensions
 
         var parentPropertyIndex = propertyIndex;
         var parentComplexPropertyIndex = complexPropertyIndex;
+        var parentComplexCollectionIndex = complexCollectionIndex;
         var parentOriginalValueIndex = originalValueIndex;
         var parentShadowIndex = shadowIndex;
         var parentRelationshipIndex = relationshipIndex;
@@ -268,6 +263,7 @@ public static class EntityTypeExtensions
         {
             propertyIndex = 0;
             complexPropertyIndex = 0;
+            complexCollectionIndex = 0;
             originalValueIndex = 0;
             shadowIndex = 0;
             relationshipIndex = 0;
@@ -291,6 +287,7 @@ public static class EntityTypeExtensions
             complexType.GetComplexProperties(),
             ref propertyIndex,
             ref complexPropertyIndex,
+            ref complexCollectionIndex,
             ref originalValueIndex,
             ref shadowIndex,
             ref relationshipIndex,
@@ -302,6 +299,7 @@ public static class EntityTypeExtensions
                 propertyIndex,
                 navigationCount: 0,
                 complexPropertyIndex,
+                complexCollectionIndex,
                 originalValueIndex,
                 shadowIndex,
                 relationshipIndex,
@@ -309,6 +307,7 @@ public static class EntityTypeExtensions
 
             propertyIndex = parentPropertyIndex;
             complexPropertyIndex = parentComplexPropertyIndex;
+            complexCollectionIndex = parentComplexCollectionIndex;
             originalValueIndex = parentOriginalValueIndex;
             shadowIndex = parentShadowIndex;
             relationshipIndex = parentRelationshipIndex;
@@ -385,7 +384,7 @@ public static class EntityTypeExtensions
     {
         Check.NotNull(property, nameof(property));
 
-        if (!property.DeclaringType.GetPropertyAccessRoot().IsAssignableFrom(entityType))
+        if (!property.DeclaringType.ContainingType.IsAssignableFrom(entityType))
         {
             throw new InvalidOperationException(
                 CoreStrings.PropertyDoesNotBelong(property.Name, property.DeclaringType.DisplayName(), entityType.DisplayName()));
