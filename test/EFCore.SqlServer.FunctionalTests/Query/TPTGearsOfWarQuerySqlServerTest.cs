@@ -1184,6 +1184,65 @@ WHERE [s].[Nickname] = [s0].[Nickname] OR ([s].[Nickname] IS NULL AND [s0].[Nick
 """);
     }
 
+    public override async Task Conditional_Navigation_With_Trivial_Member_Access(bool async)
+    {
+        await base.Conditional_Navigation_With_Trivial_Member_Access(async);
+
+        AssertSql(
+            """
+SELECT [g].[Nickname]
+FROM [Gears] AS [g]
+LEFT JOIN [Cities] AS [c] ON [g].[AssignedCityName] = [c].[Name]
+INNER JOIN [Cities] AS [c0] ON [g].[CityOfBirthName] = [c0].[Name]
+WHERE CASE
+    WHEN [c].[Name] IS NOT NULL THEN [c].[Name]
+    ELSE [c0].[Name]
+END <> N'Ephyra'
+""");
+    }
+
+    public override async Task Conditional_Navigation_With_Member_Access_On_Same_Type(bool async)
+    {
+        await base.Conditional_Navigation_With_Member_Access_On_Same_Type(async);
+
+        AssertSql(
+            """
+SELECT [g].[Nickname], [g].[FullName]
+FROM [Gears] AS [g]
+LEFT JOIN [Cities] AS [c] ON [g].[AssignedCityName] = [c].[Name]
+INNER JOIN [Cities] AS [c0] ON [g].[CityOfBirthName] = [c0].[Name]
+WHERE CASE
+    WHEN [c].[Name] IS NOT NULL THEN [c].[Nation]
+    ELSE [c0].[Nation]
+END = N'Tyrus'
+""");
+    }
+
+    public override async Task Conditional_Navigation_With_Member_Access_On_Related_Types(bool async)
+    {
+        await base.Conditional_Navigation_With_Member_Access_On_Related_Types(async);
+
+        AssertSql(
+            """
+SELECT [f].[Name]
+FROM [Factions] AS [f]
+INNER JOIN [LocustHordes] AS [l] ON [f].[Id] = [l].[Id]
+LEFT JOIN (
+    SELECT [l0].[Name], [l0].[ThreatLevel]
+    FROM [LocustLeaders] AS [l0]
+) AS [s] ON [l].[DeputyCommanderName] = [s].[Name]
+LEFT JOIN (
+    SELECT [l1].[Name], [l1].[ThreatLevel]
+    FROM [LocustLeaders] AS [l1]
+    INNER JOIN [LocustCommanders] AS [l2] ON [l1].[Name] = [l2].[Name]
+) AS [s0] ON [l].[CommanderName] = [s0].[Name]
+WHERE CASE
+    WHEN [s].[Name] IS NOT NULL THEN [s].[ThreatLevel]
+    ELSE [s0].[ThreatLevel]
+END = CAST(4 AS smallint)
+""");
+    }
+
     public override async Task Select_Singleton_Navigation_With_Member_Access(bool async)
     {
         await base.Select_Singleton_Navigation_With_Member_Access(async);
@@ -3184,7 +3243,7 @@ ORDER BY [f].[Name]
 
         AssertSql(
             """
-SELECT [f].[Id], [f].[CapitalName], [f].[Name], [f].[ServerAddress], [l].[CommanderName], [l].[Eradicated], CASE
+SELECT [f].[Id], [f].[CapitalName], [f].[Name], [f].[ServerAddress], [l].[CommanderName], [l].[DeputyCommanderName], [l].[Eradicated], CASE
     WHEN [l].[Id] IS NOT NULL THEN N'LocustHorde'
 END AS [Discriminator]
 FROM [Factions] AS [f]
@@ -3247,7 +3306,7 @@ ORDER BY [f].[Name]
 
         AssertSql(
             """
-SELECT [f].[Id], [f].[CapitalName], [f].[Name], [f].[ServerAddress], [l].[CommanderName], [l].[Eradicated], CASE
+SELECT [f].[Id], [f].[CapitalName], [f].[Name], [f].[ServerAddress], [l].[CommanderName], [l].[DeputyCommanderName], [l].[Eradicated], CASE
     WHEN [l].[Id] IS NOT NULL THEN N'LocustHorde'
 END AS [Discriminator], [s].[ThreatLevel] AS [Threat]
 FROM [Factions] AS [f]
@@ -3341,7 +3400,7 @@ ORDER BY [s].[Name]
 
         AssertSql(
             """
-SELECT [f].[Id], [f].[CapitalName], [f].[Name], [f].[ServerAddress], [l].[CommanderName], [l].[Eradicated], CASE
+SELECT [f].[Id], [f].[CapitalName], [f].[Name], [f].[ServerAddress], [l].[CommanderName], [l].[DeputyCommanderName], [l].[Eradicated], CASE
     WHEN [l].[Id] IS NOT NULL THEN N'LocustHorde'
 END AS [Discriminator], [s].[Name], [s].[LocustHordeId], [s].[ThreatLevel], [s].[ThreatLevelByte], [s].[ThreatLevelNullableByte], [s].[DefeatedByNickname], [s].[DefeatedBySquadId], [s].[HighCommandId], [s0].[Name], [s0].[LocustHordeId], [s0].[ThreatLevel], [s0].[ThreatLevelByte], [s0].[ThreatLevelNullableByte], [s0].[DefeatedByNickname], [s0].[DefeatedBySquadId], [s0].[HighCommandId], [s0].[Discriminator]
 FROM [Factions] AS [f]
@@ -3865,7 +3924,7 @@ ORDER BY [t].[Id], [s].[Nickname], [s].[SquadId]
 
         AssertSql(
             """
-SELECT [f].[Id], [f].[CapitalName], [f].[Name], [f].[ServerAddress], [l].[CommanderName], [l].[Eradicated], CASE
+SELECT [f].[Id], [f].[CapitalName], [f].[Name], [f].[ServerAddress], [l].[CommanderName], [l].[DeputyCommanderName], [l].[Eradicated], CASE
     WHEN [l].[Id] IS NOT NULL THEN N'LocustHorde'
 END AS [Discriminator], [s].[Name], [s].[LocustHordeId], [s].[ThreatLevel], [s].[ThreatLevelByte], [s].[ThreatLevelNullableByte], [s].[DefeatedByNickname], [s].[DefeatedBySquadId], [s].[HighCommandId], [s0].[Nickname], [s0].[SquadId], [s0].[AssignedCityName], [s0].[CityOfBirthName], [s0].[FullName], [s0].[HasSoulPatch], [s0].[LeaderNickname], [s0].[LeaderSquadId], [s0].[Rank], [s0].[Discriminator], [s1].[Nickname], [s1].[SquadId], [s1].[AssignedCityName], [s1].[CityOfBirthName], [s1].[FullName], [s1].[HasSoulPatch], [s1].[LeaderNickname], [s1].[LeaderSquadId], [s1].[Rank], [s1].[Discriminator]
 FROM [Factions] AS [f]
@@ -3928,7 +3987,7 @@ ORDER BY [g].[Nickname], [g].[SquadId], [s0].[Nickname], [s0].[SquadId], [s0].[N
 
         AssertSql(
             """
-SELECT [f].[Id], [f].[CapitalName], [f].[Name], [f].[ServerAddress], [l].[CommanderName], [l].[Eradicated], CASE
+SELECT [f].[Id], [f].[CapitalName], [f].[Name], [f].[ServerAddress], [l].[CommanderName], [l].[DeputyCommanderName], [l].[Eradicated], CASE
     WHEN [l].[Id] IS NOT NULL THEN N'LocustHorde'
 END AS [Discriminator], [s0].[Name], [s0].[LocustHordeId], [s0].[ThreatLevel], [s0].[ThreatLevelByte], [s0].[ThreatLevelNullableByte], [s0].[DefeatedByNickname], [s0].[DefeatedBySquadId], [s0].[HighCommandId], [s0].[Discriminator], [s0].[Nickname], [s0].[SquadId], [s0].[AssignedCityName], [s0].[CityOfBirthName], [s0].[FullName], [s0].[HasSoulPatch], [s0].[LeaderNickname], [s0].[LeaderSquadId], [s0].[Rank], [s0].[Discriminator0]
 FROM [Factions] AS [f]
@@ -3957,7 +4016,7 @@ ORDER BY [f].[Id], [s0].[Name], [s0].[Nickname]
 
         AssertSql(
             """
-SELECT [f].[Id], [f].[CapitalName], [f].[Name], [f].[ServerAddress], [l].[CommanderName], [l].[Eradicated], CASE
+SELECT [f].[Id], [f].[CapitalName], [f].[Name], [f].[ServerAddress], [l].[CommanderName], [l].[DeputyCommanderName], [l].[Eradicated], CASE
     WHEN [l].[Id] IS NOT NULL THEN N'LocustHorde'
 END AS [Discriminator], [s].[Name], [s].[LocustHordeId], [s].[ThreatLevel], [s].[ThreatLevelByte], [s].[ThreatLevelNullableByte], [s].[DefeatedByNickname], [s].[DefeatedBySquadId], [s].[HighCommandId], [s0].[Nickname], [s0].[SquadId], [s0].[AssignedCityName], [s0].[CityOfBirthName], [s0].[FullName], [s0].[HasSoulPatch], [s0].[LeaderNickname], [s0].[LeaderSquadId], [s0].[Rank], [s0].[Discriminator], [s1].[Nickname], [s1].[SquadId], [s1].[AssignedCityName], [s1].[CityOfBirthName], [s1].[FullName], [s1].[HasSoulPatch], [s1].[LeaderNickname], [s1].[LeaderSquadId], [s1].[Rank], [s1].[Discriminator]
 FROM [Factions] AS [f]
@@ -5145,10 +5204,10 @@ ORDER BY [s].[FullName] DESC, [s].[Nickname], [s].[SquadId], [w].[Name]
 
         AssertSql(
             """
-SELECT [s].[Id], [s].[CapitalName], [s].[Name], [s].[ServerAddress], [s].[CommanderName], [s].[Eradicated], [s].[Discriminator]
+SELECT [s].[Id], [s].[CapitalName], [s].[Name], [s].[ServerAddress], [s].[CommanderName], [s].[DeputyCommanderName], [s].[Eradicated], [s].[Discriminator]
 FROM [LocustLeaders] AS [l]
 INNER JOIN (
-    SELECT [f].[Id], [f].[CapitalName], [f].[Name], [f].[ServerAddress], [l0].[CommanderName], [l0].[Eradicated], CASE
+    SELECT [f].[Id], [f].[CapitalName], [f].[Name], [f].[ServerAddress], [l0].[CommanderName], [l0].[DeputyCommanderName], [l0].[Eradicated], CASE
         WHEN [l0].[Id] IS NOT NULL THEN N'LocustHorde'
     END AS [Discriminator]
     FROM [Factions] AS [f]
@@ -5165,10 +5224,10 @@ WHERE [s].[Eradicated] <> CAST(1 AS bit) OR [s].[Eradicated] IS NULL
 
         AssertSql(
             """
-SELECT [s].[Id], [s].[CapitalName], [s].[Name], [s].[ServerAddress], [s].[CommanderName], [s].[Eradicated], [s].[Discriminator]
+SELECT [s].[Id], [s].[CapitalName], [s].[Name], [s].[ServerAddress], [s].[CommanderName], [s].[DeputyCommanderName], [s].[Eradicated], [s].[Discriminator]
 FROM [LocustLeaders] AS [l]
 LEFT JOIN (
-    SELECT [f].[Id], [f].[CapitalName], [f].[Name], [f].[ServerAddress], [l0].[CommanderName], [l0].[Eradicated], CASE
+    SELECT [f].[Id], [f].[CapitalName], [f].[Name], [f].[ServerAddress], [l0].[CommanderName], [l0].[DeputyCommanderName], [l0].[Eradicated], CASE
         WHEN [l0].[Id] IS NOT NULL THEN N'LocustHorde'
     END AS [Discriminator]
     FROM [Factions] AS [f]
@@ -6563,9 +6622,7 @@ SELECT CASE
 END
 FROM [Gears] AS [g]
 ORDER BY CASE
-    WHEN CASE
-        WHEN [g].[LeaderNickname] IS NOT NULL THEN ~CAST(CAST(LEN([g].[Nickname]) AS int) ^ 5 AS bit)
-    END IS NOT NULL THEN CAST(1 AS bit)
+    WHEN [g].[LeaderNickname] IS NOT NULL THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END
 """);
@@ -6804,7 +6861,7 @@ WHERE [c].[Name] <> N'Foo' OR [c].[Name] IS NULL
 
         AssertSql(
             """
-SELECT [f].[Id], [f].[CapitalName], [f].[Name], [f].[ServerAddress], [l].[CommanderName], [l].[Eradicated], CASE
+SELECT [f].[Id], [f].[CapitalName], [f].[Name], [f].[ServerAddress], [l].[CommanderName], [l].[DeputyCommanderName], [l].[Eradicated], CASE
     WHEN [l].[Id] IS NOT NULL THEN N'LocustHorde'
 END AS [Discriminator]
 FROM [Factions] AS [f]
@@ -6825,7 +6882,7 @@ WHERE ([c].[Name] <> N'Foo' OR [c].[Name] IS NULL) AND ([s].[Name] <> N'Bar' OR 
 
         AssertSql(
             """
-SELECT [f].[Id], [f].[CapitalName], [f].[Name], [f].[ServerAddress], [l].[CommanderName], [l].[Eradicated], CASE
+SELECT [f].[Id], [f].[CapitalName], [f].[Name], [f].[ServerAddress], [l].[CommanderName], [l].[DeputyCommanderName], [l].[Eradicated], CASE
     WHEN [l].[Id] IS NOT NULL THEN N'LocustHorde'
 END AS [Discriminator]
 FROM [Factions] AS [f]
@@ -7141,7 +7198,7 @@ INNER JOIN (
 
         AssertSql(
             """
-SELECT [f].[Id], [f].[CapitalName], [f].[Name], [f].[ServerAddress], [l].[CommanderName], [l].[Eradicated], CASE
+SELECT [f].[Id], [f].[CapitalName], [f].[Name], [f].[ServerAddress], [l].[CommanderName], [l].[DeputyCommanderName], [l].[Eradicated], CASE
     WHEN [l].[Id] IS NOT NULL THEN N'LocustHorde'
 END AS [Discriminator]
 FROM [Factions] AS [f]
@@ -7164,7 +7221,7 @@ END = CAST(1 AS bit)
 
         AssertSql(
             """
-SELECT [f].[Id], [f].[CapitalName], [f].[Name], [f].[ServerAddress], [l].[CommanderName], [l].[Eradicated], CASE
+SELECT [f].[Id], [f].[CapitalName], [f].[Name], [f].[ServerAddress], [l].[CommanderName], [l].[DeputyCommanderName], [l].[Eradicated], CASE
     WHEN [l].[Id] IS NOT NULL THEN N'LocustHorde'
 END AS [Discriminator]
 FROM [Factions] AS [f]
@@ -9056,7 +9113,7 @@ SELECT [l].[Name], [l].[LocustHordeId], [l].[ThreatLevel], [l].[ThreatLevelByte]
 END AS [Discriminator], [s].[Nickname], [s].[SquadId], [s].[AssignedCityName], [s].[CityOfBirthName], [s].[FullName], [s].[HasSoulPatch], [s].[LeaderNickname], [s].[LeaderSquadId], [s].[Rank], [s].[Discriminator], CASE
     WHEN [s].[Nickname] IS NULL OR [s].[SquadId] IS NULL THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
-END AS [IsNull], [s0].[Id], [s0].[CapitalName], [s0].[Name], [s0].[ServerAddress], [s0].[CommanderName], [s0].[Eradicated], CASE
+END AS [IsNull], [s0].[Id], [s0].[CapitalName], [s0].[Name], [s0].[ServerAddress], [s0].[CommanderName], [s0].[DeputyCommanderName], [s0].[Eradicated], CASE
     WHEN [s0].[Id] IS NULL THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END AS [IsNull], [l2].[Id], [l2].[IsOperational], [l2].[Name], CASE
@@ -9073,7 +9130,7 @@ LEFT JOIN (
     LEFT JOIN [Officers] AS [o] ON [g].[Nickname] = [o].[Nickname] AND [g].[SquadId] = [o].[SquadId]
 ) AS [s] ON [l0].[DefeatedByNickname] = [s].[Nickname] AND [l0].[DefeatedBySquadId] = [s].[SquadId]
 LEFT JOIN (
-    SELECT [f].[Id], [f].[CapitalName], [f].[Name], [f].[ServerAddress], [l1].[CommanderName], [l1].[Eradicated]
+    SELECT [f].[Id], [f].[CapitalName], [f].[Name], [f].[ServerAddress], [l1].[CommanderName], [l1].[DeputyCommanderName], [l1].[Eradicated]
     FROM [Factions] AS [f]
     INNER JOIN [LocustHordes] AS [l1] ON [f].[Id] = [l1].[Id]
 ) AS [s0] ON [l].[Name] = [s0].[CommanderName]
@@ -9333,7 +9390,7 @@ LEFT JOIN [Officers] AS [o] ON [g].[Nickname] = [o].[Nickname] AND [g].[SquadId]
 
         AssertSql(
             """
-SELECT [f].[Id], [f].[CapitalName], [f].[Name], [f].[ServerAddress], [l].[CommanderName], [l].[Eradicated], CASE
+SELECT [f].[Id], [f].[CapitalName], [f].[Name], [f].[ServerAddress], [l].[CommanderName], [l].[DeputyCommanderName], [l].[Eradicated], CASE
     WHEN [l].[Id] IS NOT NULL THEN N'LocustHorde'
 END AS [Discriminator]
 FROM [Factions] AS [f]
@@ -9459,7 +9516,7 @@ ORDER BY [g].[Nickname], [g].[SquadId], [w0].[Name]
 
         AssertSql(
             """
-SELECT [f].[Id], [f].[CapitalName], [f].[Name], [f].[ServerAddress], [l].[CommanderName], [l].[Eradicated], CASE
+SELECT [f].[Id], [f].[CapitalName], [f].[Name], [f].[ServerAddress], [l].[CommanderName], [l].[DeputyCommanderName], [l].[Eradicated], CASE
     WHEN [l].[Id] IS NOT NULL THEN N'LocustHorde'
 END AS [Discriminator], [c].[Name], [c].[Location], [c].[Nation]
 FROM [Factions] AS [f]
@@ -9546,7 +9603,7 @@ ORDER BY [g].[Nickname], [g].[SquadId]
 
         AssertSql(
             """
-SELECT [f].[Id], [f].[CapitalName], [f].[Name], [f].[ServerAddress], [l].[CommanderName], [l].[Eradicated], CASE
+SELECT [f].[Id], [f].[CapitalName], [f].[Name], [f].[ServerAddress], [l].[CommanderName], [l].[DeputyCommanderName], [l].[Eradicated], CASE
     WHEN [l].[Id] IS NOT NULL THEN N'LocustHorde'
 END AS [Discriminator]
 FROM [Factions] AS [f]
@@ -9713,7 +9770,7 @@ FROM [Weapons] AS [w]
 
         AssertSql(
             """
-SELECT [f].[Id], [f].[CapitalName], [f].[Name], [f].[ServerAddress], [l].[CommanderName], [l].[Eradicated], CASE
+SELECT [f].[Id], [f].[CapitalName], [f].[Name], [f].[ServerAddress], [l].[CommanderName], [l].[DeputyCommanderName], [l].[Eradicated], CASE
     WHEN [l].[Id] IS NOT NULL THEN N'LocustHorde'
 END AS [Discriminator], [c].[Name], [c].[Location], [c].[Nation]
 FROM [Factions] AS [f]
