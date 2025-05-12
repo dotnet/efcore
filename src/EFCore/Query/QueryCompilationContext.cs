@@ -129,7 +129,7 @@ public class QueryCompilationContext
     public virtual bool IgnoreQueryFilters { get; internal set; }
 
     /// <summary>
-    ///     A value indicating whether query filters are ignored in this query.
+    ///     A collection of ignored query filters.
     /// </summary>
     public virtual HashSet<string>? IgnoredQueryFilters { get; internal set; }
 
