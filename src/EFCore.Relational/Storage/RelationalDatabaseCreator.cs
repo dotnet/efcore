@@ -387,7 +387,6 @@ public abstract class RelationalDatabaseCreator : IRelationalDatabaseCreator
     /// </remarks>
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns><see langword="true" /> if the database is available; <see langword="false" /> otherwise.</returns>
-    /// <exception cref="Exception">Various exceptions might be thrown if the <see cref="CancellationToken" /> is canceled.</exception>
     public virtual async Task<bool> CanConnectAsync(CancellationToken cancellationToken = default)
     {
         try
