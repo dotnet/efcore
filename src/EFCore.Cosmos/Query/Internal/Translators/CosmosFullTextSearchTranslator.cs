@@ -15,7 +15,10 @@ public class CosmosFullTextSearchTranslator(ISqlExpressionFactory sqlExpressionF
     : IMethodCallTranslator
 {
     private static readonly bool UseOldBehavior35476 =
-          AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue35476", out var enabled35476) && enabled35476;
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue35476", out var enabled35476) && enabled35476;
+
+    private static readonly bool UseOldBehavior35983 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue35983", out var enabled35983) && enabled35983;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -47,13 +50,36 @@ public class CosmosFullTextSearchTranslator(ISqlExpressionFactory sqlExpressionF
                     typeMappingSource.FindMapping(typeof(bool))),
 
             nameof(CosmosDbFunctionsExtensions.FullTextScore)
-                when arguments is [_, var property, var keywords] => BuildScoringFunction(
+                when !UseOldBehavior35983 && arguments is [_, SqlExpression property, SqlConstantExpression { Type: var keywordClrType, Value: string[] values } keywords]
+                    && keywordClrType == typeof(string[]) => BuildScoringFunction(
+                        sqlExpressionFactory,
+                        "FullTextScore",
+                        [property, .. values.Select(x => sqlExpressionFactory.Constant(x))],
+                        typeof(double),
+                        typeMappingSource.FindMapping(typeof(double))),
+
+            nameof(CosmosDbFunctionsExtensions.FullTextScore)
+                when !UseOldBehavior35983 && arguments is [_, SqlExpression property, SqlParameterExpression { Type: var keywordClrType } keywords]
+                    && keywordClrType == typeof(string[]) => BuildScoringFunction(
+                        sqlExpressionFactory,
+                        "FullTextScore",
+                        [property, keywords],
+                        typeof(double),
+                        typeMappingSource.FindMapping(typeof(double))),
+
+            nameof(CosmosDbFunctionsExtensions.FullTextScore)
+                when !UseOldBehavior35983 && arguments is [_, SqlExpression property, ArrayConstantExpression keywords] => BuildScoringFunction(
                     sqlExpressionFactory,
                     "FullTextScore",
-                    [
-                        property,
-                        keywords,
-                    ],
+                    [property, .. keywords.Items],
+                    typeof(double),
+                    typeMappingSource.FindMapping(typeof(double))),
+
+            nameof(CosmosDbFunctionsExtensions.FullTextScore)
+                when UseOldBehavior35983 && arguments is [_, var property, var keywords] => BuildScoringFunction(
+                    sqlExpressionFactory,
+                    "FullTextScore",
+                    [property, keywords],
                     typeof(double),
                     typeMappingSource.FindMapping(typeof(double))),
 
