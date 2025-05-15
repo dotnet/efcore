@@ -50,12 +50,12 @@ class MyClass : {|#0:Microsoft.EntityFrameworkCore.Storage.Internal.RawRelationa
 
         await VerifyCS.VerifyAnalyzerAsync(
             source,
-            VerifyCS.Diagnostic(InternalUsageDiagnosticAnalyzer.Id)
+            VerifyCS.Diagnostic(EFDiagnostics.InternalUsage)
                 .WithLocation(0)
                 .WithSeverity(DiagnosticSeverity.Warning)
                 .WithMessageFormat(AnalyzerStrings.InternalUsageMessageFormat)
                 .WithArguments("Microsoft.EntityFrameworkCore.Storage.Internal.RawRelationalParameter"),
-            VerifyCS.Diagnostic(InternalUsageDiagnosticAnalyzer.Id)
+            VerifyCS.Diagnostic(EFDiagnostics.InternalUsage)
                 .WithLocation(1)
                 .WithSeverity(DiagnosticSeverity.Warning)
                 .WithMessageFormat(AnalyzerStrings.InternalUsageMessageFormat)
@@ -69,7 +69,7 @@ class MyClass : {|#0:Microsoft.EntityFrameworkCore.Storage.Internal.RawRelationa
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Internal;
-            
+
 class {|#0:MyClass|} : IDbSetSource
 {
     public object Create(DbContext context, Type type) => null;
@@ -125,7 +125,7 @@ class C
     void M()
     {
         void SomeGenericMethod<T>() {}
-            
+
         {|#0:SomeGenericMethod<Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager>()|};
     }
 }
@@ -224,7 +224,7 @@ namespace Bar
     private Task VerifySingleInternalUsageAsync(string source, string internalApi)
         => VerifyCS.VerifyAnalyzerAsync(
             source,
-            VerifyCS.Diagnostic(InternalUsageDiagnosticAnalyzer.Id)
+            VerifyCS.Diagnostic(EFDiagnostics.InternalUsage)
                 .WithLocation(0)
                 .WithSeverity(DiagnosticSeverity.Warning)
                 .WithMessageFormat(AnalyzerStrings.InternalUsageMessageFormat)

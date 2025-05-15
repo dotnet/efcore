@@ -14,20 +14,20 @@ public static class SqlExceptionFactory
             .DeclaredConstructors;
 
         var error = (SqlError)errorCtors.First(c => c.GetParameters().Length == 8)
-            .Invoke(new object[] { number, (byte)0, (byte)0, "Server", "ErrorMessage", "Procedure", 0, null });
+            .Invoke([number, (byte)0, (byte)0, "Server", "ErrorMessage", "Procedure", 0, null]);
         var errors = (SqlErrorCollection)typeof(SqlErrorCollection)
             .GetTypeInfo()
             .DeclaredConstructors
             .Single()
             .Invoke(null);
 
-        typeof(SqlErrorCollection).GetRuntimeMethods().Single(m => m.Name == "Add").Invoke(errors, new object[] { error });
+        typeof(SqlErrorCollection).GetRuntimeMethods().Single(m => m.Name == "Add").Invoke(errors, [error]);
 
         var exceptionCtors = typeof(SqlException)
             .GetTypeInfo()
             .DeclaredConstructors;
 
         return (SqlException)exceptionCtors.First(c => c.GetParameters().Length == 4)
-            .Invoke(new object[] { "Bang!", errors, null, connectionId ?? Guid.NewGuid() });
+            .Invoke(["Bang!", errors, null, connectionId ?? Guid.NewGuid()]);
     }
 }

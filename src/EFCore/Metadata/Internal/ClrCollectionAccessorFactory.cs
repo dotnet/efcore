@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Runtime.ExceptionServices;
 using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -19,20 +20,23 @@ public class ClrCollectionAccessorFactory
     private static readonly MethodInfo CreateAndSetMethod
         = typeof(ClrCollectionAccessorFactory).GetTypeInfo().GetDeclaredMethod(nameof(CreateAndSet))!;
 
-    private static readonly MethodInfo CreateMethod
-        = typeof(ClrCollectionAccessorFactory).GetTypeInfo().GetDeclaredMethod(nameof(CreateCollection))!;
-
     private static readonly MethodInfo CreateAndSetHashSetMethod
         = typeof(ClrCollectionAccessorFactory).GetTypeInfo().GetDeclaredMethod(nameof(CreateAndSetHashSet))!;
-
-    private static readonly MethodInfo CreateHashSetMethod
-        = typeof(ClrCollectionAccessorFactory).GetTypeInfo().GetDeclaredMethod(nameof(CreateHashSet))!;
 
     private static readonly MethodInfo CreateAndSetObservableHashSetMethod
         = typeof(ClrCollectionAccessorFactory).GetTypeInfo().GetDeclaredMethod(nameof(CreateAndSetObservableHashSet))!;
 
-    private static readonly MethodInfo CreateObservableHashSetMethod
-        = typeof(ClrCollectionAccessorFactory).GetTypeInfo().GetDeclaredMethod(nameof(CreateObservableHashSet))!;
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static readonly ClrCollectionAccessorFactory Instance = new();
+
+    private ClrCollectionAccessorFactory()
+    {
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -41,28 +45,30 @@ public class ClrCollectionAccessorFactory
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual IClrCollectionAccessor? Create(INavigationBase navigation)
-        => !navigation.IsCollection ? null : Create(navigation, navigation.TargetEntityType);
-
-    private static IClrCollectionAccessor? Create(IPropertyBase navigation, IEntityType? targetType)
     {
+        if (!navigation.IsCollection)
+        {
+            return null;
+        }
+
         // ReSharper disable once SuspiciousTypeConversion.Global
         if (navigation is IClrCollectionAccessor accessor)
         {
             return accessor;
         }
 
+        var targetType = navigation.TargetEntityType;
         if (targetType == null)
         {
             return null;
         }
 
-        var memberInfo = GetMostDerivedMemberInfo();
+        var memberInfo = GetMostDerivedMemberInfo(navigation);
         var propertyType = navigation.IsIndexerProperty() || navigation.IsShadowProperty()
             ? navigation.ClrType
             : memberInfo!.GetMemberType();
 
         var elementType = propertyType.TryGetElementType(typeof(IEnumerable<>));
-
         if (elementType == null)
         {
             throw new InvalidOperationException(
@@ -87,26 +93,11 @@ public class ClrCollectionAccessorFactory
 
         try
         {
-            return (IClrCollectionAccessor?)boundMethod.Invoke(
-                null, new object[] { navigation });
+            return (IClrCollectionAccessor?)boundMethod.Invoke(null, [navigation]);
         }
         catch (TargetInvocationException invocationException)
         {
             throw invocationException.InnerException!;
-        }
-
-        MemberInfo? GetMostDerivedMemberInfo()
-        {
-            var propertyInfo = navigation.PropertyInfo;
-            var fieldInfo = navigation.FieldInfo;
-
-            return (fieldInfo == null
-                ? propertyInfo
-                : propertyInfo == null
-                    ? fieldInfo
-                    : fieldInfo.FieldType.IsAssignableFrom(propertyInfo.PropertyType)
-                        ? propertyInfo
-                        : fieldInfo);
         }
     }
 
@@ -116,102 +107,153 @@ public class ClrCollectionAccessorFactory
         where TCollection : class, IEnumerable<TElement>
         where TElement : class
     {
+        CreateExpressions<TEntity, TCollection, TElement>(
+            navigation,
+            out var getCollection,
+            out var setCollection,
+            out var setCollectionForMaterialization,
+            out var createAndSetCollection,
+            out var createCollection);
+
+        return new ClrICollectionAccessor<TEntity, TCollection, TElement>(
+            navigation.Name,
+            navigation.IsShadowProperty(),
+            getCollection?.Compile(),
+            setCollection?.Compile(),
+            setCollectionForMaterialization?.Compile(),
+            createAndSetCollection?.Compile(),
+            createCollection?.Compile());
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual void Create(
+        INavigationBase navigation,
+        out Type entityType,
+        out Type propertyType,
+        out Type elementType,
+        out Expression? getCollection,
+        out Expression? setCollection,
+        out Expression? setCollectionForMaterialization,
+        out Expression? createAndSetCollection,
+        out Expression? createCollection)
+    {
+        var memberInfo = GetMostDerivedMemberInfo(navigation);
+        entityType = memberInfo?.DeclaringType ?? navigation.DeclaringType.ClrType;
+        propertyType = navigation.IsIndexerProperty() || navigation.IsShadowProperty()
+            ? navigation.ClrType
+            : memberInfo!.GetMemberType();
+
+        elementType = propertyType.TryGetElementType(typeof(IEnumerable<>))!;
+
+        var boundMethod = GenericCreateExpressions.MakeGenericMethod(entityType, propertyType, elementType);
+
+        try
+        {
+            var parameters = new object?[] { navigation, null, null, null, null, null };
+            boundMethod.Invoke(this, parameters);
+            getCollection = (Expression)parameters[1]!;
+            setCollection = (Expression)parameters[2]!;
+            setCollectionForMaterialization = (Expression?)parameters[3];
+            createAndSetCollection = (Expression)parameters[4]!;
+            createCollection = (Expression?)parameters[5];
+        }
+        catch (TargetInvocationException e) when (e.InnerException != null)
+        {
+            ExceptionDispatchInfo.Capture(e.InnerException).Throw();
+            throw;
+        }
+    }
+
+    private static readonly MethodInfo GenericCreateExpressions
+        = typeof(ClrCollectionAccessorFactory).GetMethod(nameof(CreateExpressions), BindingFlags.Static | BindingFlags.NonPublic)!;
+
+    [UsedImplicitly]
+    private static void CreateExpressions<TEntity, TCollection, TElement>(
+        INavigationBase navigation,
+        out Expression<Func<TEntity, TCollection>>? getCollection,
+        out Expression<Action<TEntity, TCollection>>? setCollection,
+        out Expression<Action<TEntity, TCollection>>? setCollectionForMaterialization,
+        out Expression<Func<TEntity, Action<TEntity, TCollection>, TCollection>>? createAndSetCollection,
+        out Expression<Func<TCollection>>? createCollection)
+        where TEntity : class
+        where TCollection : class, IEnumerable<TElement>
+        where TElement : class
+    {
+        getCollection = null;
+        setCollection = null;
+        setCollectionForMaterialization = null;
+        createAndSetCollection = null;
+        createCollection = null;
+
         var entityParameter = Expression.Parameter(typeof(TEntity), "entity");
         var valueParameter = Expression.Parameter(typeof(TCollection), "collection");
-
-        Func<TEntity, TCollection>? getterDelegate = null;
-        Action<TEntity, TCollection>? setterDelegate = null;
-        Action<TEntity, TCollection>? setterDelegateForMaterialization = null;
-        Func<TEntity, Action<TEntity, TCollection>, TCollection>? createAndSetDelegate = null;
-        Func<TCollection>? createDelegate = null;
 
         if (!navigation.IsShadowProperty())
         {
             var memberInfoForRead = navigation.GetMemberInfo(forMaterialization: false, forSet: false);
             navigation.TryGetMemberInfo(forMaterialization: false, forSet: true, out var memberInfoForWrite, out _);
             navigation.TryGetMemberInfo(forMaterialization: true, forSet: true, out var memberInfoForMaterialization, out _);
-
             var memberAccessForRead = (Expression)Expression.MakeMemberAccess(entityParameter, memberInfoForRead);
             if (memberAccessForRead.Type != typeof(TCollection))
             {
                 memberAccessForRead = Expression.Convert(memberAccessForRead, typeof(TCollection));
             }
 
-            getterDelegate = Expression.Lambda<Func<TEntity, TCollection>>(
+            getCollection = Expression.Lambda<Func<TEntity, TCollection>>(
                 memberAccessForRead,
-                entityParameter).Compile();
+                entityParameter);
 
             if (memberInfoForWrite != null)
             {
-                setterDelegate = CreateSetterDelegate(entityParameter, memberInfoForWrite, valueParameter);
+                setCollection = CreateSetterDelegate(entityParameter, memberInfoForWrite, valueParameter);
             }
 
             if (memberInfoForMaterialization != null)
             {
-                setterDelegateForMaterialization = CreateSetterDelegate(entityParameter, memberInfoForMaterialization, valueParameter);
+                setCollectionForMaterialization = CreateSetterDelegate(entityParameter, memberInfoForMaterialization, valueParameter);
             }
         }
 
-        var concreteType = new CollectionTypeFactory().TryFindTypeToInstantiate(
+        var concreteType = CollectionTypeFactory.Instance.TryFindTypeToInstantiate(
             typeof(TEntity),
             typeof(TCollection),
             navigation.DeclaringEntityType.Model[CoreAnnotationNames.FullChangeTrackingNotificationsRequired] != null);
-
         if (concreteType != null)
         {
             var isHashSet = concreteType.IsGenericType && concreteType.GetGenericTypeDefinition() == typeof(HashSet<>);
-            if (setterDelegate != null
-                || setterDelegateForMaterialization != null)
+            if (setCollection != null
+                || setCollectionForMaterialization != null)
             {
-                if (isHashSet)
-                {
-                    createAndSetDelegate = (Func<TEntity, Action<TEntity, TCollection>, TCollection>)CreateAndSetHashSetMethod
+                var setterParameter = Expression.Parameter(typeof(Action<TEntity, TCollection>), "setter");
+
+                var createAndSetCollectionMethod = isHashSet
+                    ? CreateAndSetHashSetMethod
                         .MakeGenericMethod(typeof(TEntity), typeof(TCollection), typeof(TElement))
-                        .CreateDelegate(typeof(Func<TEntity, Action<TEntity, TCollection>, TCollection>));
-                }
-                else if (IsObservableHashSet(concreteType))
-                {
-                    createAndSetDelegate = (Func<TEntity, Action<TEntity, TCollection>, TCollection>)CreateAndSetObservableHashSetMethod
-                        .MakeGenericMethod(typeof(TEntity), typeof(TCollection), typeof(TElement))
-                        .CreateDelegate(typeof(Func<TEntity, Action<TEntity, TCollection>, TCollection>));
-                }
-                else
-                {
-                    createAndSetDelegate = (Func<TEntity, Action<TEntity, TCollection>, TCollection>)CreateAndSetMethod
-                        .MakeGenericMethod(typeof(TEntity), typeof(TCollection), concreteType)
-                        .CreateDelegate(typeof(Func<TEntity, Action<TEntity, TCollection>, TCollection>));
-                }
+                    : IsObservableHashSet(concreteType)
+                        ? CreateAndSetObservableHashSetMethod
+                            .MakeGenericMethod(typeof(TEntity), typeof(TCollection), typeof(TElement))
+                        : CreateAndSetMethod
+                            .MakeGenericMethod(typeof(TEntity), typeof(TCollection), concreteType);
+
+                createAndSetCollection = Expression.Lambda<Func<TEntity, Action<TEntity, TCollection>, TCollection>>(
+                    Expression.Call(createAndSetCollectionMethod, entityParameter, setterParameter),
+                    entityParameter,
+                    setterParameter);
             }
 
-            if (isHashSet)
-            {
-                createDelegate = (Func<TCollection>)CreateHashSetMethod
-                    .MakeGenericMethod(typeof(TCollection), typeof(TElement))
-                    .CreateDelegate(typeof(Func<TCollection>));
-            }
-            else if (IsObservableHashSet(concreteType))
-            {
-                createDelegate = (Func<TCollection>)CreateObservableHashSetMethod
-                    .MakeGenericMethod(typeof(TCollection), typeof(TElement))
-                    .CreateDelegate(typeof(Func<TCollection>));
-            }
-            else
-            {
-                createDelegate = (Func<TCollection>)CreateMethod
-                    .MakeGenericMethod(typeof(TCollection), concreteType)
-                    .CreateDelegate(typeof(Func<TCollection>));
-            }
+            createCollection = isHashSet
+                ? (() => (TCollection)(ICollection<TElement>)new HashSet<TElement>(ReferenceEqualityComparer.Instance))
+                : IsObservableHashSet(concreteType)
+                    ? (() => (TCollection)(ICollection<TElement>)new ObservableHashSet<TElement>(ReferenceEqualityComparer.Instance))
+                    : Expression.Lambda<Func<TCollection>>(Expression.New(concreteType));
         }
 
-        return new ClrICollectionAccessor<TEntity, TCollection, TElement>(
-            navigation.Name,
-            getterDelegate,
-            setterDelegate,
-            setterDelegateForMaterialization,
-            createAndSetDelegate,
-            createDelegate);
-
-        static Action<TEntity, TCollection> CreateSetterDelegate(
+        static Expression<Action<TEntity, TCollection>> CreateSetterDelegate(
             ParameterExpression parameterExpression,
             MemberInfo memberInfo,
             ParameterExpression valueParameter1)
@@ -223,14 +265,33 @@ public class ClrCollectionAccessorFactory
                         valueParameter1,
                         memberInfo.GetMemberType())),
                 parameterExpression,
-                valueParameter1).Compile();
+                valueParameter1);
+    }
+
+    private static MemberInfo? GetMostDerivedMemberInfo(INavigationBase navigation)
+    {
+        var propertyInfo = navigation.PropertyInfo;
+        var fieldInfo = navigation.FieldInfo;
+
+        return fieldInfo == null
+            ? propertyInfo
+            : propertyInfo == null
+                ? fieldInfo
+                : fieldInfo.FieldType.IsAssignableFrom(propertyInfo.PropertyType)
+                    ? propertyInfo
+                    : fieldInfo;
     }
 
     private static bool IsObservableHashSet(Type type)
         => type.IsGenericType && type.GetGenericTypeDefinition() == typeof(ObservableHashSet<>);
 
-    [UsedImplicitly]
-    private static TCollection CreateAndSet<TEntity, TCollection, TConcreteCollection>(
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static TCollection CreateAndSet<TEntity, TCollection, TConcreteCollection>(
         TEntity entity,
         Action<TEntity, TCollection> setterDelegate)
         where TEntity : class
@@ -242,14 +303,13 @@ public class ClrCollectionAccessorFactory
         return collection;
     }
 
-    [UsedImplicitly]
-    private static TCollection CreateCollection<TCollection, TConcreteCollection>()
-        where TCollection : class
-        where TConcreteCollection : TCollection, new()
-        => new TConcreteCollection();
-
-    [UsedImplicitly]
-    private static TCollection CreateAndSetHashSet<TEntity, TCollection, TElement>(
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static TCollection CreateAndSetHashSet<TEntity, TCollection, TElement>(
         TEntity entity,
         Action<TEntity, TCollection> setterDelegate)
         where TEntity : class
@@ -261,14 +321,13 @@ public class ClrCollectionAccessorFactory
         return collection;
     }
 
-    [UsedImplicitly]
-    private static TCollection CreateHashSet<TCollection, TElement>()
-        where TCollection : class
-        where TElement : class
-        => (TCollection)(ICollection<TElement>)new HashSet<TElement>(ReferenceEqualityComparer.Instance);
-
-    [UsedImplicitly]
-    private static TCollection CreateAndSetObservableHashSet<TEntity, TCollection, TElement>(
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static TCollection CreateAndSetObservableHashSet<TEntity, TCollection, TElement>(
         TEntity entity,
         Action<TEntity, TCollection> setterDelegate)
         where TEntity : class
@@ -279,10 +338,4 @@ public class ClrCollectionAccessorFactory
         setterDelegate(entity, collection);
         return collection;
     }
-
-    [UsedImplicitly]
-    private static TCollection CreateObservableHashSet<TCollection, TElement>()
-        where TCollection : class
-        where TElement : class
-        => (TCollection)(ICollection<TElement>)new ObservableHashSet<TElement>(ReferenceEqualityComparer.Instance);
 }

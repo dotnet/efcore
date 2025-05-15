@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -14,6 +15,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 /// </summary>
 public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEntityTypeBuilder
 {
+    private static readonly bool UseOldBehavior35110 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue35110", out var enabled) && enabled;
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -440,12 +444,14 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
                     continue;
                 }
 
-                if (foreignKey.DependentToPrincipal != null && foreignKey.GetDependentToPrincipalConfigurationSource() == ConfigurationSource.Explicit)
+                if (foreignKey.DependentToPrincipal != null
+                    && foreignKey.GetDependentToPrincipalConfigurationSource() == ConfigurationSource.Explicit)
                 {
                     throw new InvalidOperationException(
                         CoreStrings.NavigationToKeylessType(foreignKey.DependentToPrincipal.Name, Metadata.DisplayName()));
                 }
-                else if ((foreignKey.IsUnique || foreignKey.GetIsUniqueConfigurationSource() != ConfigurationSource.Explicit)
+
+                if ((foreignKey.IsUnique || foreignKey.GetIsUniqueConfigurationSource() != ConfigurationSource.Explicit)
                     && foreignKey.GetPrincipalEndConfigurationSource() != ConfigurationSource.Explicit
                     && foreignKey.Builder.CanSetEntityTypes(
                         foreignKey.DeclaringEntityType,
@@ -675,7 +681,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
                 return null;
             }
 
-            propertiesToDetach = new List<ServiceProperty> { existingProperty };
+            propertiesToDetach = [existingProperty];
         }
         else if (configurationSource != ConfigurationSource.Explicit
                  && (!configurationSource.HasValue
@@ -690,7 +696,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
                 var derivedProperty = derivedType.FindDeclaredServiceProperty(propertyName);
                 if (derivedProperty != null)
                 {
-                    propertiesToDetach ??= new List<ServiceProperty>();
+                    propertiesToDetach ??= [];
 
                     propertiesToDetach.Add(derivedProperty);
                 }
@@ -704,7 +710,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
             List<InternalServicePropertyBuilder>? detachedProperties = null;
             if (propertiesToDetach != null)
             {
-                detachedProperties = new List<InternalServicePropertyBuilder>();
+                detachedProperties = [];
                 foreach (var propertyToDetach in propertiesToDetach)
                 {
                     detachedProperties.Add(DetachServiceProperty(propertyToDetach)!);
@@ -1466,7 +1472,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
                             }
                         }
 
-                        relationshipsToBeDetached ??= new HashSet<ForeignKey>();
+                        relationshipsToBeDetached ??= [];
 
                         relationshipsToBeDetached.Add(referencingForeignKey);
                     }
@@ -1474,7 +1480,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
 
                 if (relationshipsToBeDetached != null)
                 {
-                    detachedRelationships = new List<RelationshipSnapshot>();
+                    detachedRelationships = [];
                     foreach (var relationshipToBeDetached in relationshipsToBeDetached)
                     {
                         detachedRelationships.Add(DetachRelationship(relationshipToBeDetached));
@@ -1504,7 +1510,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
 
                 if (skipNavigationsToDetach != null)
                 {
-                    detachedSkipNavigations = new List<InternalSkipNavigationBuilder>();
+                    detachedSkipNavigations = [];
                     foreach (var skipNavigation in skipNavigationsToDetach)
                     {
                         detachedSkipNavigations.Add(DetachSkipNavigation(skipNavigation)!);
@@ -1536,7 +1542,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
 
                 if (complexPropertiesToDetach != null)
                 {
-                    detachedComplexProperties = new List<ComplexPropertySnapshot>();
+                    detachedComplexProperties = [];
                     foreach (var complexPropertyToDetach in complexPropertiesToDetach)
                     {
                         detachedComplexProperties.Add(InternalComplexPropertyBuilder.Detach(complexPropertyToDetach)!);
@@ -1552,7 +1558,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
 
                 if (servicePropertiesToDetach != null)
                 {
-                    detachedServiceProperties = new List<InternalServicePropertyBuilder>();
+                    detachedServiceProperties = [];
                     foreach (var serviceProperty in servicePropertiesToDetach)
                     {
                         detachedServiceProperties.Add(DetachServiceProperty(serviceProperty)!);
@@ -1580,7 +1586,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
                         .Where(p => baseEntityType == null || baseEntityType.FindProperty(p.Name) != p));
                 if (removedInheritedProperties.Count != 0)
                 {
-                    removedInheritedPropertiesToDuplicate = new HashSet<Property>();
+                    removedInheritedPropertiesToDuplicate = [];
                     List<ForeignKey>? relationshipsToBeDetached = null;
                     foreach (var foreignKey in Metadata.GetDerivedTypesInclusive().Cast<EntityType>()
                                  .SelectMany(t => t.GetDeclaredForeignKeys()))
@@ -1600,7 +1606,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
                             continue;
                         }
 
-                        relationshipsToBeDetached ??= new List<ForeignKey>();
+                        relationshipsToBeDetached ??= [];
 
                         relationshipsToBeDetached.Add(foreignKey);
                     }
@@ -1618,7 +1624,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
                         {
                             if (Metadata.IsAssignableFrom(referencingForeignKey.PrincipalEntityType))
                             {
-                                relationshipsToBeDetached ??= new List<ForeignKey>();
+                                relationshipsToBeDetached ??= [];
 
                                 relationshipsToBeDetached.Add(referencingForeignKey);
                             }
@@ -1627,7 +1633,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
 
                     if (relationshipsToBeDetached != null)
                     {
-                        detachedRelationships = new List<RelationshipSnapshot>();
+                        detachedRelationships = [];
                         foreach (var relationshipToBeDetached in relationshipsToBeDetached)
                         {
                             detachedRelationships.Add(DetachRelationship(relationshipToBeDetached));
@@ -1652,14 +1658,14 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
                             continue;
                         }
 
-                        indexesToBeDetached ??= new List<Index>();
+                        indexesToBeDetached ??= [];
 
                         indexesToBeDetached.Add(index);
                     }
 
                     if (indexesToBeDetached != null)
                     {
-                        detachedIndexes = new List<InternalIndexBuilder>();
+                        detachedIndexes = [];
                         foreach (var indexToBeDetached in indexesToBeDetached)
                         {
                             detachedIndexes.Add(DetachIndex(indexToBeDetached));
@@ -1773,7 +1779,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
                                 member.Name));
                     }
 
-                    membersToBeRemoved ??= new List<T>();
+                    membersToBeRemoved ??= [];
 
                     membersToBeRemoved.Add(member);
                     continue;
@@ -1781,7 +1787,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
 
                 if (baseConfigurationSource != null)
                 {
-                    membersToBeDetached ??= new List<T>();
+                    membersToBeDetached ??= [];
 
                     membersToBeDetached.Add(member);
                 }
@@ -1998,7 +2004,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
         List<RelationshipSnapshot>? detachedRelationships = null;
         foreach (var relationshipToBeDetached in entityType.GetDeclaredForeignKeys().ToList())
         {
-            detachedRelationships ??= new List<RelationshipSnapshot>();
+            detachedRelationships ??= [];
 
             var detachedRelationship = DetachRelationship(relationshipToBeDetached, false);
             if (detachedRelationship.Relationship.Metadata.GetConfigurationSource().Overrides(ConfigurationSource.DataAnnotation)
@@ -2011,7 +2017,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
         List<InternalSkipNavigationBuilder>? detachedSkipNavigations = null;
         foreach (var skipNavigationsToBeDetached in entityType.GetDeclaredSkipNavigations().ToList())
         {
-            detachedSkipNavigations ??= new List<InternalSkipNavigationBuilder>();
+            detachedSkipNavigations ??= [];
 
             detachedSkipNavigations.Add(DetachSkipNavigation(skipNavigationsToBeDetached)!);
         }
@@ -2028,7 +2034,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
                     continue;
                 }
 
-                detachedRelationships ??= new List<RelationshipSnapshot>();
+                detachedRelationships ??= [];
 
                 var detachedRelationship = DetachRelationship(relationshipToBeDetached, true);
                 if (detachedRelationship.Relationship.Metadata.GetConfigurationSource().Overrides(ConfigurationSource.DataAnnotation)
@@ -2043,7 +2049,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
                 continue;
             }
 
-            detachedKeys ??= new List<(InternalKeyBuilder, ConfigurationSource?)>();
+            detachedKeys ??= [];
 
             var detachedKey = DetachKey(keyToDetach);
             if (detachedKey.Item1.Metadata.GetConfigurationSource().Overrides(ConfigurationSource.Explicit))
@@ -2055,7 +2061,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
         List<InternalIndexBuilder>? detachedIndexes = null;
         foreach (var indexToBeDetached in entityType.GetDeclaredIndexes().ToList())
         {
-            detachedIndexes ??= new List<InternalIndexBuilder>();
+            detachedIndexes ??= [];
 
             var detachedIndex = DetachIndex(indexToBeDetached);
             if (detachedIndex.Metadata.GetConfigurationSource().Overrides(ConfigurationSource.Explicit))
@@ -2069,7 +2075,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
         List<InternalServicePropertyBuilder>? detachedServiceProperties = null;
         foreach (var servicePropertiesToBeDetached in entityType.GetDeclaredServiceProperties().ToList())
         {
-            detachedServiceProperties ??= new List<InternalServicePropertyBuilder>();
+            detachedServiceProperties ??= [];
 
             detachedServiceProperties.Add(DetachServiceProperty(servicePropertiesToBeDetached)!);
         }
@@ -3158,17 +3164,9 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
                         && targetEntityType.Name == existingTargetType.ClrType.DisplayName())))
             {
                 relationship = existingNavigation.ForeignKey.Builder;
-                if (existingNavigation.ForeignKey.IsOwnership)
-                {
-                    relationship = relationship.IsOwnership(true, configurationSource)
-                        ?.HasNavigations(inverse, navigation, configurationSource);
-
-                    relationship?.Metadata.UpdateConfigurationSource(configurationSource);
-                    return relationship;
-                }
-
                 Check.DebugAssert(
-                    !existingTargetType.IsOwned()
+                    existingNavigation.ForeignKey.IsOwnership
+                    || !existingTargetType.IsOwned()
                     || existingNavigation.DeclaringEntityType.IsInOwnershipPath(existingTargetType)
                     || (existingTargetType.IsInOwnershipPath(existingNavigation.DeclaringEntityType)
                         && existingTargetType.FindOwnership()!.PrincipalEntityType != existingNavigation.DeclaringEntityType),
@@ -3177,6 +3175,11 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
 
                 relationship = relationship.IsOwnership(true, configurationSource)
                     ?.HasNavigations(inverse, navigation, configurationSource);
+
+                if (!UseOldBehavior35110)
+                {
+                    relationship = relationship?.IsRequired(true, configurationSource);
+                }
 
                 relationship?.Metadata.UpdateConfigurationSource(configurationSource);
                 return relationship;
@@ -3643,6 +3646,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
                 {
                     return null;
                 }
+
                 break;
         }
 
@@ -3800,7 +3804,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
     {
         using var batch = ModelBuilder.Metadata.DelayConventions();
         var foreignKey = SetOrAddForeignKey(
-            foreignKey: null, principalEntityTypeBuilder, dependentProperties, principalKey,
+            foreignKey: null, principalEntityTypeBuilder, this, dependentProperties, principalKey,
             propertyBaseName, required, configurationSource)!;
 
         if (foreignKey == null)
@@ -3833,8 +3837,14 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
     {
         using var batch = ModelBuilder.Metadata.DelayConventions();
         var updatedForeignKey = SetOrAddForeignKey(
-            foreignKey, foreignKey.PrincipalEntityType.Builder, dependentProperties, principalKey,
-            propertyBaseName, isRequired, configurationSource)!;
+            foreignKey,
+            foreignKey.PrincipalEntityType.Builder,
+            foreignKey.DeclaringEntityType.Builder,
+            dependentProperties,
+            principalKey,
+            propertyBaseName,
+            isRequired,
+            configurationSource)!;
 
         return (InternalForeignKeyBuilder?)batch.Run(updatedForeignKey)?.Builder;
     }
@@ -3842,6 +3852,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
     private ForeignKey? SetOrAddForeignKey(
         ForeignKey? foreignKey,
         InternalEntityTypeBuilder principalEntityTypeBuilder,
+        InternalEntityTypeBuilder dependentEntityTypeBuilder,
         IReadOnlyList<Property>? dependentProperties,
         Key? principalKey,
         string? propertyBaseName,
@@ -3889,7 +3900,8 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
 
         if (dependentProperties != null)
         {
-            dependentProperties = GetActualProperties(dependentProperties, ConfigurationSource.Convention)!;
+            dependentProperties = dependentEntityTypeBuilder.GetActualProperties(dependentProperties, ConfigurationSource.Convention)!;
+
             if (principalKey == null)
             {
                 var principalKeyProperties = principalBaseEntityTypeBuilder.TryCreateUniqueProperties(
@@ -4129,7 +4141,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
                 var conflictingNavigation = derivedType.FindDeclaredSkipNavigation(navigationName);
                 if (conflictingNavigation != null)
                 {
-                    navigationsToDetach ??= new List<SkipNavigation>();
+                    navigationsToDetach ??= [];
 
                     navigationsToDetach.Add(conflictingNavigation);
                 }
