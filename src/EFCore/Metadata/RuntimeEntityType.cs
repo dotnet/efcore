@@ -1000,7 +1000,7 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
     [DebuggerStepThrough]
     [Obsolete("Use GetQueryFilters() instead.")]
     LambdaExpression? IReadOnlyEntityType.GetQueryFilter()
-        => ((IReadOnlyEntityType)this).GetQueryFilters()?.FirstOrDefault(f => f.Key == null)?.Expression;
+        => ((IReadOnlyEntityType)this).GetQueryFilters()?.FirstOrDefault(f => f.IsAnonymous)?.Expression;
 
     /// <inheritdoc />
     [DebuggerStepThrough]

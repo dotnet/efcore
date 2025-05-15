@@ -43,7 +43,8 @@ public class RelationalQueryFilterRewritingConvention : QueryFilterRewritingConv
                     {
                         continue;
                     }
-                    entityType.SetQueryFilter(new QueryFilter(queryFilter.Key, (LambdaExpression)DbSetAccessRewriter.Rewrite(modelBuilder.Metadata, queryFilter.Expression)));
+
+                    entityType.SetQueryFilter(queryFilter.Key!, (LambdaExpression)DbSetAccessRewriter.Rewrite(modelBuilder.Metadata, queryFilter.Expression));
                 }
             }
         }

@@ -45,11 +45,12 @@ public interface IConventionEntityType : IReadOnlyEntityType, IConventionTypeBas
     /// <summary>
     ///     Sets the query filter automatically applied to queries for this entity type.
     /// </summary>
-    /// <param name="queryFilter">The query filter.</param>
+    /// <param name="filterKey">The filter key.</param>
+    /// <param name="filter">The LINQ predicate expression.</param>
     /// <returns>The configured filter.</returns>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>The configured filter.</returns>
-    IQueryFilter? SetQueryFilter(IQueryFilter queryFilter, bool fromDataAnnotation = false);
+    IQueryFilter? SetQueryFilter(string filterKey, LambdaExpression? filter, bool fromDataAnnotation = false);
 
     /// <summary>
     ///     Sets the LINQ expression filter automatically applied to queries for this entity type.
@@ -57,7 +58,6 @@ public interface IConventionEntityType : IReadOnlyEntityType, IConventionTypeBas
     /// <param name="queryFilter">The LINQ expression filter.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>The configured filter.</returns>
-    [Obsolete("Use SetQueryFilter(ConventionQueryFilter) instead.")]
     LambdaExpression? SetQueryFilter(LambdaExpression? queryFilter, bool fromDataAnnotation = false);
 
     /// <summary>

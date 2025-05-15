@@ -398,7 +398,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         var entityTypeA = modelBuilder.Entity<A>().Metadata;
         var entityTypeD = modelBuilder.Entity<D>().Metadata;
 
-        entityTypeD.SetQueryFilter(new QueryFilter((Expression<Func<D, bool>>)(_ => true)));
+        entityTypeD.SetQueryFilter((Expression<Func<D, bool>>)(_ => true));
 
         VerifyError(
             CoreStrings.BadFilterDerivedType(entityTypeD.FindQueryFilter(null).Expression, entityTypeD.DisplayName(), entityTypeA.DisplayName()),
@@ -414,7 +414,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
             .OwnsOne(
                 s => s.ReferencedEntity, eb =>
                 {
-                    eb.OwnedEntityType.SetQueryFilter(new QueryFilter(queryFilter));
+                    eb.OwnedEntityType.SetQueryFilter(queryFilter);
                 });
 
         VerifyError(CoreStrings.BadFilterOwnedType(queryFilter, nameof(ReferencedEntity)), modelBuilder);

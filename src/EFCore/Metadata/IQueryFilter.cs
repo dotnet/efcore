@@ -17,4 +17,9 @@ public interface IQueryFilter
     /// The name of the filter.
     /// </summary>
     string? Key { get; }
+
+    /// <summary>
+    /// Indicates whether the query filter is anonymous.
+    /// </summary>
+    bool IsAnonymous { get; }
 }

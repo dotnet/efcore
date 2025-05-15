@@ -33,7 +33,7 @@ internal class QueryFilterCollection : IReadOnlyCollection<IQueryFilter>
         {
             filters.Remove(filter.Key ?? anonymousFilterKey);
         }
-        else if (filter.Key == null)
+        else if (filter.IsAnonymous)
         {
             if(filters.Count > 0 && !filters.ContainsKey(anonymousFilterKey))
             {
@@ -47,7 +47,7 @@ internal class QueryFilterCollection : IReadOnlyCollection<IQueryFilter>
             {
                 throw new InvalidOperationException(CoreStrings.AnonymousAndNamedFiltersCombined);
             }
-            filters[filter.Key] = filter;
+            filters[filter.Key!] = filter;
         }
 
         return filter;

@@ -5311,8 +5311,8 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
-    IConventionEntityTypeBuilder? IConventionEntityTypeBuilder.HasQueryFilter(IQueryFilter queryFilter, bool fromDataAnnotation)
-        => HasQueryFilter(new QueryFilter(queryFilter, fromDataAnnotation));
+    IConventionEntityTypeBuilder? IConventionEntityTypeBuilder.HasQueryFilter(string filterKey, LambdaExpression? filter, bool fromDataAnnotation)
+        => HasQueryFilter(new QueryFilter(filterKey, filter, fromDataAnnotation));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -5321,8 +5321,8 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
-    bool IConventionEntityTypeBuilder.CanSetQueryFilter(IQueryFilter queryFilter, bool fromDataAnnotation)
-        => CanSetQueryFilter(new QueryFilter(queryFilter, fromDataAnnotation));
+    bool IConventionEntityTypeBuilder.CanSetQueryFilter(string filterKey, LambdaExpression? filter, bool fromDataAnnotation)
+        => CanSetQueryFilter(new QueryFilter(filterKey, filter, fromDataAnnotation));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

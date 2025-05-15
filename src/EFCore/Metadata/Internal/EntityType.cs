@@ -2930,7 +2930,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     /// </summary>
     [Obsolete("Use GetQueryFilters() instead.")]
     public virtual LambdaExpression? GetQueryFilter()
-        => GetQueryFilters()?.FirstOrDefault(f => f.Key == null)?.Expression;
+        => GetQueryFilters()?.FirstOrDefault(f => f.IsAnonymous)?.Expression;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -3229,8 +3229,8 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
-    void IMutableEntityType.SetQueryFilter(IQueryFilter queryFilter)
-        => SetQueryFilter(queryFilter);
+    void IMutableEntityType.SetQueryFilter(string filterKey, LambdaExpression? filter)
+        => SetQueryFilter(new QueryFilter(filterKey, filter, ConfigurationSource.Explicit));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -3239,8 +3239,8 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
-    IQueryFilter? IConventionEntityType.SetQueryFilter(IQueryFilter queryFilter, bool fromDataAnnotation)
-        => SetQueryFilter(new QueryFilter(queryFilter, fromDataAnnotation));
+    IQueryFilter? IConventionEntityType.SetQueryFilter(string filterKey, LambdaExpression? filter, bool fromDataAnnotation)
+        => SetQueryFilter(new QueryFilter(filterKey, filter, fromDataAnnotation));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

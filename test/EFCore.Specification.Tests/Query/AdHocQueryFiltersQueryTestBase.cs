@@ -513,7 +513,7 @@ public abstract class AdHocQueryFiltersQueryTestBase(NonSharedFixture fixture) :
                         tenant)),
                 prm);
 
-            entityType.SetQueryFilter(new QueryFilter(updatedQueryFilter));
+            entityType.SetQueryFilter(queryFilter.Key!, updatedQueryFilter);
         }
 
         public Task SeedAsync()

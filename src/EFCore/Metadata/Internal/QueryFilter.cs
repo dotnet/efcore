@@ -1,7 +1,7 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-namespace Microsoft.EntityFrameworkCore.Metadata;
+namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 /// <summary>
 /// Represents a query filter in a model.
@@ -15,6 +15,9 @@ public class QueryFilter(string? key, LambdaExpression? expression) : IQueryFilt
 
     /// <inheritdoc />
     public virtual string? Key { get; } = key;
+
+    /// <inheritdoc />
+    public bool IsAnonymous { get; } = key == null;
 
     /// <summary>
     /// The source of the configuration.
@@ -53,12 +56,13 @@ public class QueryFilter(string? key, LambdaExpression? expression) : IQueryFilt
     /// Initializes a new instance of the <see cref="QueryFilter"/> class using the specified query filter and
     /// configuration source.
     /// </summary>
-    /// <param name="queryFilter">The query filter to initialize this instance with. Must not be <see langword="null"/>.</param>
+    /// <param name="key">The key of the query filter.</param>
+    /// <param name="expression">The expression representing the filter.</param>
     /// <param name="fromDataAnnotation">A value indicating whether the configuration source is derived from a data annotation. If <see
     /// langword="true"/>, the configuration source is set to <see cref="ConfigurationSource.DataAnnotation"/>;
     /// otherwise, it is set to <see cref="ConfigurationSource.Convention"/>.</param>
-    internal QueryFilter(IQueryFilter queryFilter, bool fromDataAnnotation)
-        : this(queryFilter.Key, queryFilter.Expression) => ConfigurationSource = fromDataAnnotation
+    internal QueryFilter(string key, LambdaExpression? expression, bool fromDataAnnotation)
+        : this(key, expression) => ConfigurationSource = fromDataAnnotation
             ? Metadata.ConfigurationSource.DataAnnotation
             : Metadata.ConfigurationSource.Convention;
 

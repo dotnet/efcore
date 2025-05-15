@@ -1037,7 +1037,7 @@ public class ModelAsserter
         {
             foreach (var queryFilter in queryFilters)
             {
-                targetEntityType.SetQueryFilter(queryFilter);
+                targetEntityType.SetQueryFilter(queryFilter.Key!, queryFilter.Expression);
             }
         }
         targetEntityType.AddData(sourceEntityType.GetSeedData());

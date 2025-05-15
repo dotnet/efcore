@@ -1738,7 +1738,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         var queryFilters = _queryCompilationContext.IgnoreQueryFilters && _queryCompilationContext.IgnoredQueryFilters == null ? null : entityType.GetQueryFilters();
         return _queryCompilationContext.IgnoredQueryFilters == null
             ? queryFilters
-            : queryFilters?.Where(filter => filter.Key == null || !_queryCompilationContext.IgnoredQueryFilters.Contains(filter!.Key))
+            : queryFilters?.Where(filter => filter != null && (filter.IsAnonymous || !_queryCompilationContext.IgnoredQueryFilters.Contains(filter.Key!)))
                 .ToList();
     }
 
