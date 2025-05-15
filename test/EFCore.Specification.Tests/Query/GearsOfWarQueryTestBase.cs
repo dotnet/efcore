@@ -1198,6 +1198,36 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task Conditional_Navigation_With_Trivial_Member_Access(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Gear>()
+                  .Where(g => (g.AssignedCity != null ? g.AssignedCity : g.CityOfBirth).Name != "Ephyra")
+                  .Select(g => new { g.Nickname }),
+            elementSorter: e => e.Nickname);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Conditional_Navigation_With_Member_Access_On_Same_Type(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Gear>()
+                  .Where(g => (g.AssignedCity != null ? g.AssignedCity : g.CityOfBirth).Nation == "Tyrus")
+                  .Select(g => new { g.Nickname, g.FullName }),
+            elementSorter: e => e.Nickname);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Conditional_Navigation_With_Member_Access_On_Related_Types(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<LocustHorde>()
+                  .Where(g => (g.DeputyCommander != null ? g.DeputyCommander : g.Commander).ThreatLevel == 4)
+                  .Select(g => new { g.Name }),
+            elementSorter: e => e.Name);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task Singleton_Navigation_With_Member_Access(bool async)
         => AssertQuery(
             async,

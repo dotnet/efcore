@@ -150,7 +150,7 @@
   <data name="CosmosNotInUse" xml:space="preserve">
     <value>Cosmos-specific methods can only be used when the context is using the Cosmos provider.</value>
   </data>
-  <data name="CreatingContainerWithFullTextOrVectorOnCollectionNotSupported" xml:space="preserve">
+  <data name="CreatingContainerWithFullTextOnCollectionNotSupported" xml:space="preserve">
     <value>Creating a container with full-text search or vector properties inside a collection navigation is currently not supported using EF Core; path: '{path}'. Create the container using other means (e.g. Microsoft.Azure.Cosmos SDK).</value>
   </data>
   <data name="CrossDocumentJoinNotSupported" xml:space="preserve">
@@ -368,10 +368,10 @@
     <value>An error occurred while saving the item with id '{itemId}'. See the inner exception for details.</value>
   </data>
   <data name="VectorIndexOnNonVector" xml:space="preserve">
-    <value>A vector index is defined for `{entityType}.{property}`, but this property has not been configured as a vector. Use 'IsVectorProperty()' in 'OnModelCreating' to configure the property as a vector.</value>
+    <value>A vector index is defined for `{entityType}.{property}`, but this property has not been configured as a vector. Use 'IsVector()' in 'OnModelCreating' to configure the property as a vector.</value>
   </data>
   <data name="VectorSearchRequiresVector" xml:space="preserve">
-    <value>The 'VectorDistance' function can only be used with a property mapped as a vector. Use 'IsVectorProperty()' in 'OnModelCreating' to configure the property as a vector.</value>
+    <value>The 'VectorDistance' function can only be used with a property mapped as a vector. Use 'IsVector()' in 'OnModelCreating' to configure the property as a vector.</value>
   </data>
   <data name="VisitChildrenMustBeOverridden" xml:space="preserve">
     <value>'VisitChildren' must be overridden in the class deriving from 'SqlExpression'.</value>

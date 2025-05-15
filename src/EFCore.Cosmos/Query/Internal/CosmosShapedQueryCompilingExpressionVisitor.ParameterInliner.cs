@@ -80,14 +80,12 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 }
 
                 // Inlines array parameter of full-text functions, transforming FullTextContainsAll(x, @keywordsArray) to FullTextContainsAll(x, keyword1, keyword2)) 
-                // we do this for FullTextContainsAll, FullTextContainsAny and FullTextScore
                 case SqlFunctionExpression
                 {
-                    Name: string name,
-                    IsScoringFunction: bool scoringFunction,
+                    Name: "FullTextContainsAny" or "FullTextContainsAll",
                     Arguments: [var property, SqlParameterExpression { TypeMapping: { ElementTypeMapping: var elementTypeMapping }, Type: Type type } keywords]
                 } fullTextContainsAllAnyFunction
-                when (name is "FullTextContainsAny" or "FullTextContainsAll" or "FullTextScore") && type == typeof(string[]):
+                when type == typeof(string[]):
                 {
                     var keywordValues = new List<SqlExpression>();
                     foreach (var value in (IEnumerable)parametersValues[keywords.Name])
@@ -95,12 +93,33 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         keywordValues.Add(sqlExpressionFactory.Constant(value, typeof(string), elementTypeMapping));
                     }
 
-                    return new SqlFunctionExpression(
+                    return sqlExpressionFactory.Function(
                         fullTextContainsAllAnyFunction.Name,
-                        scoringFunction,
                         [property, .. keywordValues],
                         fullTextContainsAllAnyFunction.Type,
                         fullTextContainsAllAnyFunction.TypeMapping);
+                }
+
+                // Inlines array parameter of full-text score, transforming FullTextScore(x, @keywordsArray) to FullTextScore(x, [keyword1, keyword2])) 
+                case SqlFunctionExpression
+                {
+                    Name: "FullTextScore",
+                    IsScoringFunction: true,
+                    Arguments: [var property, SqlParameterExpression { TypeMapping: { ElementTypeMapping: not null } typeMapping } keywords]
+                } fullTextScoreFunction:
+                {
+                    var keywordValues = new List<string>();
+                    foreach (var value in (IEnumerable)parametersValues[keywords.Name])
+                    {
+                        keywordValues.Add((string)value);
+                    }
+
+                    return new SqlFunctionExpression(
+                        fullTextScoreFunction.Name,
+                        scoringFunction: true,
+                        [property, sqlExpressionFactory.Constant(keywordValues, typeMapping)],
+                        fullTextScoreFunction.Type,
+                        fullTextScoreFunction.TypeMapping);
                 }
 
                 default:

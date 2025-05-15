@@ -478,22 +478,18 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
         VerifyError(CosmosStrings.ETagNonStringStoreType("_etag", nameof(Customer), "int"), modelBuilder);
     }
 
+#pragma warning disable EF9103
     [ConditionalFact]
-    public virtual void Detects_full_text_index_without_full_text_property()
+    public virtual void Detects_multi_property_vector_index()
     {
         var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Customer>(
             b =>
             {
-                b.HasIndex(e => e.Name).IsFullTextIndex();
+                b.HasIndex(e => new { e.Name, e.OtherName }).ForVectors(VectorIndexType.Flat);
             });
 
-        VerifyError(
-            CosmosStrings.FullTextIndexOnNonFullTextProperty(
-                nameof(Customer),
-                nameof(Customer.Name),
-                nameof(CosmosPropertyBuilderExtensions.EnableFullTextSearch)),
-            modelBuilder);
+        VerifyError(CosmosStrings.CompositeVectorIndex(nameof(Customer), "Name,OtherName"), modelBuilder);
     }
 
     [ConditionalFact]
@@ -503,11 +499,12 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
         modelBuilder.Entity<Customer>(
             b =>
             {
-                b.HasIndex(e => e.Name).IsVectorIndex(VectorIndexType.Flat);
+                b.HasIndex(e => new { e.Name }).ForVectors(VectorIndexType.Flat);
             });
 
         VerifyError(CosmosStrings.VectorIndexOnNonVector(nameof(Customer), "Name"), modelBuilder);
     }
+#pragma warning restore EF9103
 
     [ConditionalFact]
     public virtual void Detects_vector_property_with_unknown_data_type()
@@ -516,7 +513,9 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
         modelBuilder.Entity<NonVector>(
             b =>
             {
-                b.Property(e => e.Vector).IsVectorProperty(DistanceFunction.Cosine, dimensions: 10);
+#pragma warning disable EF9103
+                b.Property(e => e.Vector).IsVector(DistanceFunction.Cosine, dimensions: 10);
+#pragma warning restore EF9103
             });
 
         VerifyError(CosmosStrings.BadVectorDataType("double[]"), modelBuilder);

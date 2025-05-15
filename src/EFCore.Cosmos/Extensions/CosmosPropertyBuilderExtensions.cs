@@ -116,14 +116,13 @@ public static class CosmosPropertyBuilderExtensions
     /// <param name="distanceFunction">The distance function for a vector comparisons.</param>
     /// <param name="dimensions">The number of dimensions in the vector.</param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
-    public static PropertyBuilder IsVectorProperty(
+    [Experimental(EFDiagnostics.CosmosVectorSearchExperimental)]
+    public static PropertyBuilder IsVector(
         this PropertyBuilder propertyBuilder,
         DistanceFunction distanceFunction,
         int dimensions)
     {
-        propertyBuilder.Metadata.SetVectorDistanceFunction(ValidateVectorDistanceFunction(distanceFunction));
-        propertyBuilder.Metadata.SetVectorDimensions(dimensions);
-
+        propertyBuilder.Metadata.SetVectorType(CreateVectorType(distanceFunction, dimensions));
         return propertyBuilder;
     }
 
@@ -143,11 +142,12 @@ public static class CosmosPropertyBuilderExtensions
     /// <param name="distanceFunction">The distance function for a vector comparisons.</param>
     /// <param name="dimensions">The number of dimensions in the vector.</param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
-    public static PropertyBuilder<TProperty> IsVectorProperty<TProperty>(
+    [Experimental(EFDiagnostics.CosmosVectorSearchExperimental)]
+    public static PropertyBuilder<TProperty> IsVector<TProperty>(
         this PropertyBuilder<TProperty> propertyBuilder,
         DistanceFunction distanceFunction,
         int dimensions)
-        => (PropertyBuilder<TProperty>)IsVectorProperty((PropertyBuilder)propertyBuilder, distanceFunction, dimensions);
+        => (PropertyBuilder<TProperty>)IsVector((PropertyBuilder)propertyBuilder, distanceFunction, dimensions);
 
     /// <summary>
     ///     Configures the property as a vector for Azure Cosmos DB.
@@ -164,25 +164,25 @@ public static class CosmosPropertyBuilderExtensions
     ///     The same builder instance if the configuration was applied,
     ///     <see langword="null" /> otherwise.
     /// </returns>
-    public static IConventionPropertyBuilder? IsVectorProperty(
+    [Experimental(EFDiagnostics.CosmosVectorSearchExperimental)]
+    public static IConventionPropertyBuilder? IsVector(
         this IConventionPropertyBuilder propertyBuilder,
         DistanceFunction distanceFunction,
         int dimensions,
         bool fromDataAnnotation = false)
     {
-        if (!propertyBuilder.CanSetIsVectorProperty(distanceFunction, dimensions, fromDataAnnotation))
+        if (!propertyBuilder.CanSetIsVector(distanceFunction, dimensions, fromDataAnnotation))
         {
             return null;
         }
 
-        propertyBuilder.Metadata.SetVectorDistanceFunction(ValidateVectorDistanceFunction(distanceFunction), fromDataAnnotation);
-        propertyBuilder.Metadata.SetVectorDimensions(dimensions, fromDataAnnotation);
+        propertyBuilder.Metadata.SetVectorType(CreateVectorType(distanceFunction, dimensions), fromDataAnnotation);
 
         return propertyBuilder;
     }
 
     /// <summary>
-    ///     Returns a value indicating whether the vector distance function and dimensions can be set.
+    ///     Returns a value indicating whether the vector type can be set.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
@@ -192,29 +192,17 @@ public static class CosmosPropertyBuilderExtensions
     /// <param name="distanceFunction">The distance function for a vector comparisons.</param>
     /// <param name="dimensions">The number of dimensions in the vector.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
-    /// <returns><see langword="true" /> if the vector distance function and dimensions can be set.</returns>
-    public static bool CanSetIsVectorProperty(
+    /// <returns><see langword="true" /> if the vector type can be set.</returns>
+    [Experimental(EFDiagnostics.CosmosVectorSearchExperimental)]
+    public static bool CanSetIsVector(
         this IConventionPropertyBuilder propertyBuilder,
         DistanceFunction distanceFunction,
         int dimensions,
         bool fromDataAnnotation = false)
         => propertyBuilder.CanSetAnnotation(
-            CosmosAnnotationNames.VectorDistanceFunction,
-            ValidateVectorDistanceFunction(distanceFunction),
-            fromDataAnnotation)
-        && propertyBuilder.CanSetAnnotation(
-            CosmosAnnotationNames.VectorDimensions,
-            dimensions,
+            CosmosAnnotationNames.VectorType,
+            CreateVectorType(distanceFunction, dimensions),
             fromDataAnnotation);
-
-    private static DistanceFunction ValidateVectorDistanceFunction(DistanceFunction distanceFunction)
-        => Enum.IsDefined(distanceFunction)
-            ? distanceFunction
-            : throw new ArgumentException(
-                CoreStrings.InvalidEnumValue(
-                    distanceFunction,
-                    nameof(distanceFunction),
-                    typeof(DistanceFunction)));
 
     /// <summary>
     ///     Configures this property to be the etag concurrency token.
@@ -248,6 +236,13 @@ public static class CosmosPropertyBuilderExtensions
     public static PropertyBuilder<TProperty> IsETagConcurrency<TProperty>(
         this PropertyBuilder<TProperty> propertyBuilder)
         => (PropertyBuilder<TProperty>)IsETagConcurrency((PropertyBuilder)propertyBuilder);
+
+    [Experimental(EFDiagnostics.CosmosVectorSearchExperimental)]
+    private static CosmosVectorType CreateVectorType(DistanceFunction distanceFunction, int dimensions)
+        => Enum.IsDefined(distanceFunction)
+            ? new CosmosVectorType(distanceFunction, dimensions)
+            : throw new ArgumentException(
+                CoreStrings.InvalidEnumValue(distanceFunction, nameof(distanceFunction), typeof(DistanceFunction)));
 
     /// <summary>
     ///     Enables full-text search for this property using a specified language.
