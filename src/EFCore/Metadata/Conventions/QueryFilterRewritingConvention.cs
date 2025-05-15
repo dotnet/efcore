@@ -53,7 +53,16 @@ public class QueryFilterRewritingConvention : IModelFinalizingConvention
                     {
                         continue;
                     }
-                    entityType.SetQueryFilter(queryFilter.Key!, (LambdaExpression)DbSetAccessRewriter.Rewrite(modelBuilder.Metadata, queryFilter.Expression));
+
+                    var expression = (LambdaExpression)DbSetAccessRewriter.Rewrite(modelBuilder.Metadata, queryFilter.Expression);
+                    if (queryFilter.IsAnonymous)
+                    {
+                        entityType.SetQueryFilter(expression);
+                    }
+                    else
+                    {
+                        entityType.SetQueryFilter(queryFilter.Key!, expression);
+                    }
                 }
             }
         }
