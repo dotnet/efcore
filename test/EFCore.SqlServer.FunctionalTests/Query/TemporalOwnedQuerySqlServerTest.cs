@@ -1298,7 +1298,7 @@ SELECT (
     LEFT JOIN [Planet] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [p] ON [o1].[PersonAddress_Country_PlanetId] = [p].[Id]
     LEFT JOIN [Star] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [s] ON [p].[StarId] = [s].[Id]
     WHERE [o0].[Key] = [o1].[Key]) AS [p1], (
-    SELECT COALESCE(SUM([s0].[Id]), 0)
+    SELECT ISNULL(SUM([s0].[Id]), 0)
     FROM (
         SELECT 1 AS [Key], [o4].[PersonAddress_Country_PlanetId]
         FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o4]
@@ -1472,7 +1472,7 @@ ORDER BY [p].[Id], [s].[Id], [s].[Id0], [s0].[ClientId], [s0].[Id], [s0].[OrderC
         AssertSql(
             """
 SELECT [o].[Id] AS [Key], (
-    SELECT COALESCE(SUM([o0].[PersonAddress_Country_PlanetId]), 0)
+    SELECT ISNULL(SUM([o0].[PersonAddress_Country_PlanetId]), 0)
     FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o0]
     WHERE [o].[Id] = [o0].[Id]) AS [Sum]
 FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
