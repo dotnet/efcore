@@ -2086,4 +2086,60 @@ public static class RelationalPropertyExtensions
     /// <returns>The <see cref="ConfigurationSource" /> for the JSON property name for a given entity property.</returns>
     public static ConfigurationSource? GetJsonPropertyNameConfigurationSource(this IConventionProperty property)
         => property.FindAnnotation(RelationalAnnotationNames.JsonPropertyName)?.GetConfigurationSource();
+
+    /// <summary>
+    ///     Gets the default constraint name.
+    /// </summary>
+    /// <param name="property">The property.</param>
+    public static string? GetDefaultConstraintName(this IReadOnlyProperty property)
+        => (property is RuntimeProperty)
+            ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
+            : (string?)property[RelationalAnnotationNames.DefaultConstraintName];
+
+    /// <summary>
+    ///     Generates the default constraint name based on the table and column name.
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <param name="storeObject">The store object identifier to generate the name from.</param>
+    public static string GenerateDefaultConstraintName(this IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
+    {
+        var candidate = $"DF_{storeObject.Name}_{property.GetColumnName(storeObject)}";
+
+        return candidate.Length > 120 ? candidate[..120] : candidate;
+    }
+
+    /// <summary>
+    ///     Sets the default constraint name.
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <param name="defaultConstraintName">The name to be used.</param>
+    public static void SetDefaultConstraintName(this IMutableProperty property, string? defaultConstraintName)
+        => property.SetAnnotation(RelationalAnnotationNames.DefaultConstraintName, defaultConstraintName);
+
+    /// <summary>
+    ///     Sets the default constraint name.
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <param name="defaultConstraintName">The name to be used.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    public static string? SetDefaultConstraintName(
+        this IConventionProperty property,
+        string? defaultConstraintName,
+        bool fromDataAnnotation = false)
+    {
+        property.SetAnnotation(
+            RelationalAnnotationNames.DefaultConstraintName,
+            defaultConstraintName,
+            fromDataAnnotation);
+
+        return defaultConstraintName;
+    }
+
+    /// <summary>
+    ///     Returns the configuration source for the default constraint name.
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <returns>The configuration source for the default constraint name.</returns>
+    public static ConfigurationSource? GetDefaultConstraintNameConfigurationSource(this IConventionProperty property)
+        => property.FindAnnotation(RelationalAnnotationNames.DefaultConstraintName)?.GetConfigurationSource();
 }

@@ -828,6 +828,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 complexType);
 
         /// <summary>
+        ///     Can't use explicitly named default constraints with TPC inheritance or entity splitting. Constraint name: '{explicitDefaultConstraintName}'.
+        /// </summary>
+        public static string ExplicitDefaultConstraintNamesNotSupportedForTpc(object? explicitDefaultConstraintName)
+            => string.Format(
+                GetString("ExplicitDefaultConstraintNamesNotSupportedForTpc", nameof(explicitDefaultConstraintName)),
+                explicitDefaultConstraintName);
+
+        /// <summary>
         ///     The required column '{column}' was not present in the results of a 'FromSql' operation.
         /// </summary>
         public static string FromSqlMissingColumn(object? column)
@@ -856,6 +864,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("HasDataNotSupportedForEntitiesMappedToJson", nameof(entity)),
                 entity);
+
+        /// <summary>
+        ///     Named default constraints can't be used with TPC or entity splitting if they result in non-unique constraint name. Constraint name: '{constraintNameCandidate}'.
+        /// </summary>
+        public static string ImplicitDefaultNamesNotSupportedForTpcWhenNamesClash(object? constraintNameCandidate)
+            => string.Format(
+                GetString("ImplicitDefaultNamesNotSupportedForTpcWhenNamesClash", nameof(constraintNameCandidate)),
+                constraintNameCandidate);
 
         /// <summary>
         ///     Cannot use table '{table}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and the comment '{comment}' does not match the comment '{otherComment}'.

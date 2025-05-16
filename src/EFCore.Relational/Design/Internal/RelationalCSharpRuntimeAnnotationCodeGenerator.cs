@@ -751,7 +751,15 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
     /// <param name="column">The column to which the annotations are applied.</param>
     /// <param name="parameters">Additional parameters used during code generation.</param>
     public virtual void Generate(IColumn column, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
-        => GenerateSimpleAnnotations(parameters);
+    {
+        if (!parameters.IsRuntime)
+        {
+            var annotations = parameters.Annotations;
+            annotations.Remove(RelationalAnnotationNames.DefaultConstraintName);
+        }
+
+        GenerateSimpleAnnotations(parameters);
+    }
 
     private void Create(
         IViewColumn column,
