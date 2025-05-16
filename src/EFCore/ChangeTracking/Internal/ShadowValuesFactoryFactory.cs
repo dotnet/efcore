@@ -105,7 +105,7 @@ public class ShadowValuesFactoryFactory : SnapshotFactoryFactory<IDictionary<str
                 Expression.MakeIndex(
                     parameter,
                     DictionaryIndexer,
-                    new[] { Expression.Constant(property.Name) }),
+                    [Expression.Constant(property.Name)]),
                 property.ClrType),
             Expression.Constant(property.Sentinel, property.ClrType));
     }

@@ -17,12 +17,17 @@ public static class TypeBaseExtensions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public static ITypeBase GetPropertyAccessRoot(this ITypeBase structuralType)
-        => structuralType switch
-        {
-            IEntityType entityType => entityType,
-            IComplexType declaringComplexType when declaringComplexType.ComplexProperty.IsCollection => declaringComplexType,
-            IComplexType declaringComplexType => declaringComplexType.ComplexProperty.DeclaringType.GetPropertyAccessRoot(),
-            _ => throw new NotImplementedException()
-        };
+    public static bool UseEagerSnapshots(this IReadOnlyTypeBase complexType)
+        => complexType.GetChangeTrackingStrategy() is ChangeTrackingStrategy.Snapshot or ChangeTrackingStrategy.ChangedNotifications;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static string ShortNameChain(this IReadOnlyTypeBase structuralType)
+        => (structuralType is IReadOnlyComplexType complexType) && (complexType.ComplexProperty is IReadOnlyComplexProperty complexProperty)
+            ? complexProperty.DeclaringType.ShortNameChain() + (complexProperty.IsCollection ? "[]" : ".") + structuralType.ShortName()
+            : structuralType.ShortName();
 }

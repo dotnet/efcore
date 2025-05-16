@@ -72,8 +72,8 @@ public abstract class SnapshotFactoryFactory
                     CreateSnapshotExpression(
                         entityType.ClrType,
                         parameter,
-                        types.Skip(i).Take(Snapshot.MaxGenericTypes).ToArray(),
-                        propertyBases.Skip(i).Take(Snapshot.MaxGenericTypes).ToList()));
+                        [.. types.Skip(i).Take(Snapshot.MaxGenericTypes)],
+                        [.. propertyBases.Skip(i).Take(Snapshot.MaxGenericTypes)]));
             }
 
             constructorExpression =
