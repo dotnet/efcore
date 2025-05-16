@@ -2,20 +2,28 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
-internal class RuntimeQueryFilter : IQueryFilter
+
+/// <summary>
+///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+///     any release. You should only use it directly in your code with extreme caution and knowing that
+///     doing so can result in application failures when updating to a new Entity Framework Core release.
+/// </summary>
+public class RuntimeQueryFilter(string? key, LambdaExpression expression) : IQueryFilter
 {
-    public virtual LambdaExpression Expression { get; }
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual LambdaExpression Expression { get; } = expression;
 
-    public virtual string? Key { get; }
-
-    public bool IsAnonymous { get; }
-
-    public RuntimeQueryFilter(IQueryFilter queryFilter, Func<LambdaExpression, LambdaExpression> rewriter)
-    {
-        ArgumentNullException.ThrowIfNull(queryFilter?.Expression);
-
-        Expression = rewriter(queryFilter.Expression);
-        Key = queryFilter.Key;
-        IsAnonymous = queryFilter.IsAnonymous;
-    }
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual string? Key { get; } = key;
 }

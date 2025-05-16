@@ -54,8 +54,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
     private readonly INavigationExpansionExtensibilityHelper _extensibilityHelper;
     private readonly HashSet<IEntityType> _nonCyclicAutoIncludeEntityTypes;
 
-    private readonly Dictionary<int, LambdaExpression> _parameterizedQueryFilterPredicateCache
-        = new();
+    private readonly Dictionary<QueryFiltersCacheKey, LambdaExpression> _parameterizedQueryFilterPredicateCache = [];
 
     private readonly Parameters _parameters = new();
 
@@ -1733,31 +1732,12 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         }
     }
 
-    private IReadOnlyCollection<IQueryFilter>? GetApplicableQueryFilters(IEntityType entityType)
+    private IReadOnlyCollection<IQueryFilter> GetApplicableQueryFilters(IEntityType entityType)
     {
-        var queryFilters = _queryCompilationContext.IgnoreQueryFilters && _queryCompilationContext.IgnoredQueryFilters == null ? null : entityType.GetQueryFilters();
+        var queryFilters = _queryCompilationContext.IgnoreQueryFilters && _queryCompilationContext.IgnoredQueryFilters == null ? [] : entityType.GetQueryFilters();
         return _queryCompilationContext.IgnoredQueryFilters == null
             ? queryFilters
-            : queryFilters?.Where(filter => filter != null && (filter.IsAnonymous || !_queryCompilationContext.IgnoredQueryFilters.Contains(filter.Key!)))
-                .ToList();
-    }
-
-    /// <summary>
-    /// Returns a cache key for  the query filter based on the entity type and the query filters applied.
-    /// The cache key is calculated by combining a hash code of the root entity type and all the query filter keys applied
-    /// </summary>
-    /// <param name="entityType">An entity type</param>
-    /// <param name="filters">Query filters</param>
-    /// <returns>The cache key</returns>
-    private int GetQueryFilterCacheKey(IEntityType entityType, IReadOnlyCollection<IQueryFilter> filters)
-    {
-        var hashCode = new HashCode();
-        hashCode.Add(entityType);
-        foreach (var filter in filters)
-        {
-            hashCode.Add(filter.Key);
-        }
-        return hashCode.ToHashCode();
+            : [.. queryFilters.Where(filter => filter != null && (filter.IsAnonymous || !_queryCompilationContext.IgnoredQueryFilters.Contains(filter.Key)))];
     }
 
     private Expression ApplyQueryFilter(IEntityType entityType, NavigationExpansionExpression navigationExpansionExpression)
@@ -1768,7 +1748,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         if (queryFilters != null && queryFilters.Count > 0)
         {
             var sequenceType = navigationExpansionExpression.Type.GetSequenceType();
-            var cacheKey = GetQueryFilterCacheKey(rootEntityType, queryFilters);
+            var cacheKey = new QueryFiltersCacheKey(rootEntityType, queryFilters);
 
             if (!_parameterizedQueryFilterPredicateCache.TryGetValue(cacheKey, out var filterPredicate))
             {

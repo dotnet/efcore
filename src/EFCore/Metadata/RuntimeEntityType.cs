@@ -993,14 +993,14 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
 
     /// <inheritdoc />
     [DebuggerStepThrough]
-    IReadOnlyCollection<IQueryFilter>? IReadOnlyEntityType.GetQueryFilters()
-        => this[CoreAnnotationNames.QueryFilter] as IReadOnlyCollection<IQueryFilter>;
+    IReadOnlyCollection<IQueryFilter> IReadOnlyEntityType.GetQueryFilters()
+        => this[CoreAnnotationNames.QueryFilter] as IReadOnlyCollection<IQueryFilter> ?? [];
 
     /// <inheritdoc />
     [DebuggerStepThrough]
     [Obsolete("Use GetQueryFilters() instead.")]
     LambdaExpression? IReadOnlyEntityType.GetQueryFilter()
-        => ((IReadOnlyEntityType)this).GetQueryFilters()?.FirstOrDefault(f => f.IsAnonymous)?.Expression;
+        => ((IReadOnlyEntityType)this).GetQueryFilters().FirstOrDefault(f => f.IsAnonymous)?.Expression;
 
     /// <inheritdoc />
     [DebuggerStepThrough]

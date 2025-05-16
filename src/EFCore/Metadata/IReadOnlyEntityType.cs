@@ -33,7 +33,7 @@ public interface IReadOnlyEntityType : IReadOnlyTypeBase
     ///     Gets the query filters automatically applied to queries for this entity type.
     /// </summary>
     /// <returns>The query filters.</returns>
-    IReadOnlyCollection<IQueryFilter>? GetQueryFilters();
+    IReadOnlyCollection<IQueryFilter> GetQueryFilters();
 
     /// <summary>
     ///     Gets the LINQ expression filter automatically applied to queries for this entity type.

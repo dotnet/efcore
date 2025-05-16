@@ -303,9 +303,9 @@ public class RuntimeModelConvention : IModelFinalizedConvention
             {
 
                 var rewritingVisitor = new QueryRootRewritingExpressionVisitor(runtimeEntityType.Model);
-                LambdaExpression Rewrite(LambdaExpression expression) => (LambdaExpression)rewritingVisitor.Rewrite(expression);
+
                 annotations[CoreAnnotationNames.QueryFilter] = (queryFilters as IReadOnlyCollection<IQueryFilter>)?
-                    .Select(x => new RuntimeQueryFilter(x, Rewrite))
+                    .Select(x => new RuntimeQueryFilter(x.Key, (LambdaExpression)rewritingVisitor.Rewrite(x.Expression!)))
                     .ToList()
                     .AsReadOnly();
             }

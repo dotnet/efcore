@@ -275,7 +275,7 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
         Assert.Equal(
             CoreStrings.RuntimeModelMissingData,
             Assert.Throws<InvalidOperationException>(joinType.GetComment).Message);
-        Assert.Null(joinType.GetQueryFilters());
+        Assert.Empty(joinType.GetQueryFilters());
         Assert.Null(joinType[RelationalAnnotationNames.IsTableExcludedFromMigrations]);
         Assert.Equal(
             CoreStrings.RuntimeModelMissingData,

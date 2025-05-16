@@ -45,24 +45,21 @@ public class QueryFilterRewritingConvention : IModelFinalizingConvention
         foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
         {
             var queryFilters = entityType.GetQueryFilters();
-            if (queryFilters != null)
+            foreach (var queryFilter in queryFilters)
             {
-                foreach (var queryFilter in queryFilters)
+                if (queryFilter.Expression == null)
                 {
-                    if(queryFilter.Expression == null)
-                    {
-                        continue;
-                    }
+                    continue;
+                }
 
-                    var expression = (LambdaExpression)DbSetAccessRewriter.Rewrite(modelBuilder.Metadata, queryFilter.Expression);
-                    if (queryFilter.IsAnonymous)
-                    {
-                        entityType.SetQueryFilter(expression);
-                    }
-                    else
-                    {
-                        entityType.SetQueryFilter(queryFilter.Key!, expression);
-                    }
+                var expression = (LambdaExpression)DbSetAccessRewriter.Rewrite(modelBuilder.Metadata, queryFilter.Expression);
+                if (queryFilter.IsAnonymous)
+                {
+                    entityType.SetQueryFilter(expression);
+                }
+                else
+                {
+                    entityType.SetQueryFilter(queryFilter.Key, expression);
                 }
             }
         }

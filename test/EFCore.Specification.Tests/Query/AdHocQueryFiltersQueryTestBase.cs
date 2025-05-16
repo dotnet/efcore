@@ -520,7 +520,7 @@ public abstract class AdHocQueryFiltersQueryTestBase(NonSharedFixture fixture) :
             }
             else
             {
-                entityType.SetQueryFilter(queryFilter.Key!, updatedQueryFilter);
+                entityType.SetQueryFilter(queryFilter.Key, updatedQueryFilter);
             }
         }
 

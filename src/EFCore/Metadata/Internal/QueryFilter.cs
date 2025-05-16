@@ -10,72 +10,76 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 /// <param name="expression">The expression representing the filter.</param>
 public class QueryFilter(string? key, LambdaExpression? expression) : IQueryFilter
 {
-    /// <inheritdoc />
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public virtual LambdaExpression? Expression { get; } = expression;
 
-    /// <inheritdoc />
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public virtual string? Key { get; } = key;
 
-    /// <inheritdoc />
-    public bool IsAnonymous { get; } = key == null;
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual ConfigurationSource? ConfigurationSource { get; set; }
 
     /// <summary>
-    /// The source of the configuration.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    internal virtual ConfigurationSource? ConfigurationSource { get; set; }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="QueryFilter"/> class with the specified filter expression and
-    /// configuration source.
-    /// </summary>
-    /// <param name="expression">The <see cref="LambdaExpression"/> representing the filter logic.</param>
-    /// <param name="configurationSource">The source of the configuration for this filter. Defaults to <see cref="ConfigurationSource.Explicit"/>.</param>
-    internal QueryFilter(LambdaExpression? expression, ConfigurationSource configurationSource)
+    public QueryFilter(LambdaExpression? expression, ConfigurationSource configurationSource)
         : this(null, expression) => ConfigurationSource = configurationSource;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="QueryFilter"/> class with the specified filter expression and
-    /// configuration source.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    /// <param name="key">The key of the query filter.</param>
-    /// <param name="expression">The <see cref="LambdaExpression"/> representing the filter logic.</param>
-    /// <param name="configurationSource">The source of the configuration for this filter. Defaults to <see cref="ConfigurationSource.Explicit"/>.</param>
-    internal QueryFilter(string key, LambdaExpression? expression, ConfigurationSource configurationSource)
+    public QueryFilter(string key, LambdaExpression? expression, ConfigurationSource configurationSource)
         : this(key, expression) => ConfigurationSource = configurationSource;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="QueryFilter"/> class with the specified filter expression.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    /// <param name="expression">A <see cref="LambdaExpression"/> representing the filter criteria.  Can be <see langword="null"/> to indicate no
-    /// filter is applied.</param>
     public QueryFilter(LambdaExpression? expression) : this(null, expression)
     {
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="QueryFilter"/> class using the specified query filter and
-    /// configuration source.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    /// <param name="key">The key of the query filter.</param>
-    /// <param name="expression">The expression representing the filter.</param>
-    /// <param name="fromDataAnnotation">A value indicating whether the configuration source is derived from a data annotation. If <see
-    /// langword="true"/>, the configuration source is set to <see cref="ConfigurationSource.DataAnnotation"/>;
-    /// otherwise, it is set to <see cref="ConfigurationSource.Convention"/>.</param>
-    internal QueryFilter(string key, LambdaExpression? expression, bool fromDataAnnotation)
+    public QueryFilter(string key, LambdaExpression? expression, bool fromDataAnnotation)
         : this(key, expression) => ConfigurationSource = fromDataAnnotation
             ? Metadata.ConfigurationSource.DataAnnotation
             : Metadata.ConfigurationSource.Convention;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="QueryFilter"/> class using the specified query filter and
-    /// configuration source.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    /// <param name="expression">A <see cref="LambdaExpression"/> representing the filter criteria.  Can be <see langword="null"/> to indicate no
-    /// filter is applied.</param>
-    /// <param name="fromDataAnnotation">A value indicating whether the configuration source is derived from a data annotation. If <see
-    /// langword="true"/>, the configuration source is set to <see cref="ConfigurationSource.DataAnnotation"/>;
-    /// otherwise, it is set to <see cref="ConfigurationSource.Convention"/>.</param>
-    internal QueryFilter(LambdaExpression? expression, bool fromDataAnnotation)
+    public QueryFilter(LambdaExpression? expression, bool fromDataAnnotation)
         : this(expression) => ConfigurationSource = fromDataAnnotation
             ? Metadata.ConfigurationSource.DataAnnotation
             : Metadata.ConfigurationSource.Convention;

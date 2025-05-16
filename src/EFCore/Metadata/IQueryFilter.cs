@@ -1,6 +1,8 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace Microsoft.EntityFrameworkCore.Metadata;
 
 /// <summary>
@@ -21,5 +23,6 @@ public interface IQueryFilter
     /// <summary>
     /// Indicates whether the query filter is anonymous.
     /// </summary>
-    bool IsAnonymous { get; }
+    [MemberNotNullWhen(false, nameof(Key))]
+    bool IsAnonymous => Key == null;
 }

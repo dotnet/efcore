@@ -1033,18 +1033,15 @@ public class ModelAsserter
         }
 
         var queryFilters = sourceEntityType.GetQueryFilters();
-        if (queryFilters != null)
+        foreach (var queryFilter in queryFilters)
         {
-            foreach (var queryFilter in queryFilters)
+            if (queryFilter.IsAnonymous)
             {
-                if (queryFilter.IsAnonymous)
-                {
-                    targetEntityType.SetQueryFilter(queryFilter.Expression);
-                }
-                else
-                {
-                    targetEntityType.SetQueryFilter(queryFilter.Key!, queryFilter.Expression);
-                }
+                targetEntityType.SetQueryFilter(queryFilter.Expression);
+            }
+            else
+            {
+                targetEntityType.SetQueryFilter(queryFilter.Key, queryFilter.Expression);
             }
         }
         targetEntityType.AddData(sourceEntityType.GetSeedData());
