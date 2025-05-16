@@ -129,6 +129,11 @@ public class QueryCompilationContext
     public virtual bool IgnoreQueryFilters { get; internal set; }
 
     /// <summary>
+    ///     A collection of ignored query filters.
+    /// </summary>
+    public virtual HashSet<string>? IgnoredQueryFilters { get; internal set; }
+
+    /// <summary>
     ///     A value indicating whether eager loaded navigations are ignored in this query.
     /// </summary>
     public virtual bool IgnoreAutoIncludes { get; internal set; }

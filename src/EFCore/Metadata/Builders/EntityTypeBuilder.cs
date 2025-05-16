@@ -804,6 +804,20 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
     }
 
     /// <summary>
+    ///     Specifies a LINQ predicate expression that will automatically be applied to any queries targeting
+    ///     this entity type.
+    /// </summary>
+    /// <param name="filterKey">The filter key</param>
+    /// <param name="filter">The LINQ predicate expression.</param>
+    /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
+    public virtual EntityTypeBuilder HasQueryFilter(string filterKey,LambdaExpression? filter)
+    {
+        Builder.HasQueryFilter(new QueryFilter(filterKey, filter));
+
+        return this;
+    }
+
+    /// <summary>
     ///     Configures an unnamed index on the specified properties.
     ///     If there is an existing unnamed index on the given
     ///     list of properties, then the existing index will be
