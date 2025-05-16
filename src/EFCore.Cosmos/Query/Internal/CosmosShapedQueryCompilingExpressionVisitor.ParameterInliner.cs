@@ -79,7 +79,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     return base.VisitExtension(expression);
                 }
 
-                // Inlines array parameter of full-text functions, transforming FullTextContainsAll(x, @keywordsArray) to FullTextContainsAll(x, keyword1, keyword2)) 
+                // Inlines array parameter of full-text functions, transforming FullTextContainsAll(x, @keywordsArray) to FullTextContainsAll(x, keyword1, keyword2))
                 case SqlFunctionExpression
                 {
                     Name: "FullTextContainsAny" or "FullTextContainsAll",
@@ -100,7 +100,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         fullTextContainsAllAnyFunction.TypeMapping);
                 }
 
-                // Inlines array parameter of full-text score, transforming FullTextScore(x, @keywordsArray) to FullTextScore(x, [keyword1, keyword2])) 
+                // Inlines array parameter of full-text score, transforming FullTextScore(x, @keywordsArray) to FullTextScore(x, [keyword1, keyword2]))
                 case SqlFunctionExpression
                 {
                     Name: "FullTextScore",
@@ -116,7 +116,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                     return new SqlFunctionExpression(
                         fullTextScoreFunction.Name,
-                        scoringFunction: true,
+                        isScoringFunction: true,
                         [property, sqlExpressionFactory.Constant(keywordValues, typeMapping)],
                         fullTextScoreFunction.Type,
                         fullTextScoreFunction.TypeMapping);

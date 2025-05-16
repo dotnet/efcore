@@ -7,7 +7,8 @@ using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 
 namespace Microsoft.EntityFrameworkCore;
 
-[CosmosCondition(CosmosCondition.DoesNotUseTokenCredential)]
+#pragma warning disable EF9104 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
+[CosmosCondition(CosmosCondition.DoesNotUseTokenCredential | CosmosCondition.IsNotEmulator)]
 public class FullTextSearchCosmosTest : IClassFixture<FullTextSearchCosmosTest.FullTextSearchFixture>
 {
     public FullTextSearchCosmosTest(FullTextSearchFixture fixture, ITestOutputHelper testOutputHelper)

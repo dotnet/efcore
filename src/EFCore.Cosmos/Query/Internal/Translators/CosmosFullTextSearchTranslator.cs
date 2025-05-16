@@ -36,22 +36,42 @@ public class CosmosFullTextSearchTranslator(ISqlExpressionFactory sqlExpressionF
             nameof(CosmosDbFunctionsExtensions.FullTextContains)
                 when arguments is [_, var property, var keyword] => sqlExpressionFactory.Function(
                     "FullTextContains",
-                    [property, keyword],
+                    [
+                        property,
+                        keyword,
+                    ],
                     typeof(bool),
                     typeMappingSource.FindMapping(typeof(bool))),
 
             nameof(CosmosDbFunctionsExtensions.FullTextScore)
-                when arguments is [_, var property, var keywords] => sqlExpressionFactory.ScoringFunction(
+                when arguments is [_, SqlExpression property, SqlConstantExpression { Type: var keywordClrType, Value: string[] values } keywords]
+                    && keywordClrType == typeof(string[]) => BuildScoringFunction(
+                        sqlExpressionFactory,
+                        "FullTextScore",
+                        [property, .. values.Select(x => sqlExpressionFactory.Constant(x))],
+                        typeof(double),
+                        typeMappingSource.FindMapping(typeof(double))),
+
+            nameof(CosmosDbFunctionsExtensions.FullTextScore)
+                when arguments is [_, SqlExpression property, SqlParameterExpression { Type: var keywordClrType } keywords]
+                    && keywordClrType == typeof(string[]) => BuildScoringFunction(
+                        sqlExpressionFactory,
+                        "FullTextScore",
+                        [property, keywords],
+                        typeof(double),
+                        typeMappingSource.FindMapping(typeof(double))),
+
+            nameof(CosmosDbFunctionsExtensions.FullTextScore)
+                when arguments is [_, SqlExpression property, ArrayConstantExpression keywords] => BuildScoringFunction(
+                    sqlExpressionFactory,
                     "FullTextScore",
-                    [
-                        property,
-                        keywords,
-                    ],
+                    [property, .. keywords.Items],
                     typeof(double),
                     typeMappingSource.FindMapping(typeof(double))),
 
             nameof(CosmosDbFunctionsExtensions.Rrf)
-                when arguments is [_, ArrayConstantExpression functions] => sqlExpressionFactory.ScoringFunction(
+                when arguments is [_, ArrayConstantExpression functions] => BuildScoringFunction(
+                    sqlExpressionFactory,
                     "RRF",
                     functions.Items,
                     typeof(double),
@@ -61,7 +81,7 @@ public class CosmosFullTextSearchTranslator(ISqlExpressionFactory sqlExpressionF
                 when arguments is [_, SqlExpression property, SqlConstantExpression { Type: var keywordClrType, Value: string[] values } keywords]
                     && keywordClrType == typeof(string[]) => sqlExpressionFactory.Function(
                         method.Name == nameof(CosmosDbFunctionsExtensions.FullTextContainsAny) ? "FullTextContainsAny" : "FullTextContainsAll",
-                        [property, ..values.Select(x => sqlExpressionFactory.Constant(x))],
+                        [property, .. values.Select(x => sqlExpressionFactory.Constant(x))],
                         typeof(bool),
                         typeMappingSource.FindMapping(typeof(bool))),
 
@@ -82,5 +102,27 @@ public class CosmosFullTextSearchTranslator(ISqlExpressionFactory sqlExpressionF
 
             _ => null
         };
+    }
+
+    private SqlExpression BuildScoringFunction(
+        ISqlExpressionFactory sqlExpressionFactory,
+        string functionName,
+        IEnumerable<Expression> arguments,
+        Type returnType,
+        CoreTypeMapping? typeMapping = null)
+    {
+        var typeMappedArguments = new List<Expression>();
+
+        foreach (var argument in arguments)
+        {
+            typeMappedArguments.Add(argument is SqlExpression sqlArgument ? sqlExpressionFactory.ApplyDefaultTypeMapping(sqlArgument) : argument);
+        }
+
+        return new SqlFunctionExpression(
+            functionName,
+            isScoringFunction: true,
+            typeMappedArguments,
+            returnType,
+            typeMapping);
     }
 }
