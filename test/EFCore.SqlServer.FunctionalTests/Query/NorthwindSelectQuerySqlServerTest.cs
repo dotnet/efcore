@@ -2532,7 +2532,7 @@ ORDER BY [o0].[OrderID]
 
         AssertSql(
             """
-SELECT [o].[OrderDate]
+SELECT DATEDIFF(minute, N'0001-01-01T00:00:00.0', [o].[OrderDate]) * CAST(600000000 AS bigint) + DATEPART(second, [o].[OrderDate]) * CAST(10000000 AS bigint) + DATEPART(nanosecond, [o].[OrderDate]) / CAST(100 AS bigint)
 FROM [Orders] AS [o]
 """);
     }
