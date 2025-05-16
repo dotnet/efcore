@@ -59,6 +59,7 @@ public static class CosmosDbFunctionsExtensions
     /// <param name="property">The property to search.</param>
     /// <param name="keyword">The keyword to search for.</param>
     /// <returns><see langword="true" /> if the property contains the keyword; otherwise, <see langword="false" />.</returns>
+    [Experimental(EFDiagnostics.CosmosFullTextSearchExperimental)]
     public static bool FullTextContains(this DbFunctions _, string property, string keyword)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(FullTextContains)));
 
@@ -69,6 +70,7 @@ public static class CosmosDbFunctionsExtensions
     /// <param name="property">The property to search.</param>
     /// <param name="keywords">The keywords to search for.</param>
     /// <returns><see langword="true" /> if the property contains all the keywords; otherwise, <see langword="false" />.</returns>
+    [Experimental(EFDiagnostics.CosmosFullTextSearchExperimental)]
     public static bool FullTextContainsAll(this DbFunctions _, string property, params string[] keywords)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(FullTextContainsAll)));
 
@@ -79,6 +81,7 @@ public static class CosmosDbFunctionsExtensions
     /// <param name="property">The property to search.</param>
     /// <param name="keywords">The keywords to search for.</param>
     /// <returns><see langword="true" /> if the property contains any of the keywords; otherwise, <see langword="false" />.</returns>
+    [Experimental(EFDiagnostics.CosmosFullTextSearchExperimental)]
     public static bool FullTextContainsAny(this DbFunctions _, string property, params string[] keywords)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(FullTextContainsAny)));
 
@@ -89,6 +92,7 @@ public static class CosmosDbFunctionsExtensions
     /// <param name="property">The property to score.</param>
     /// <param name="keywords">The keywords to score by.</param>
     /// <returns>The full-text search score.</returns>
+    [Experimental(EFDiagnostics.CosmosFullTextSearchExperimental)]
     public static double FullTextScore(this DbFunctions _, string property, params string[] keywords)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(FullTextScore)));
 
@@ -98,6 +102,7 @@ public static class CosmosDbFunctionsExtensions
     /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
     /// <param name="functions">The functions to compute the score for.</param>
     /// <returns>The combined score.</returns>
+    [Experimental(EFDiagnostics.CosmosFullTextSearchExperimental)]
     public static double Rrf(this DbFunctions _, params double[] functions)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Rrf)));
 

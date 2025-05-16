@@ -26,7 +26,7 @@ public class SqlFunctionExpression : SqlExpression
         IEnumerable<Expression> arguments,
         Type type,
         CoreTypeMapping? typeMapping)
-        : this(name, scoringFunction: false, arguments, type, typeMapping)
+        : this(name, isScoringFunction: false, arguments, type, typeMapping)
     {
     }
 
@@ -36,17 +36,18 @@ public class SqlFunctionExpression : SqlExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    [Experimental(EFDiagnostics.CosmosFullTextSearchExperimental)]
     public SqlFunctionExpression(
         string name,
-        bool scoringFunction,
+        bool isScoringFunction,
         IEnumerable<Expression> arguments,
         Type type,
         CoreTypeMapping? typeMapping)
         : base(type, typeMapping)
     {
         Name = name;
-        Arguments = arguments.ToList();
-        IsScoringFunction = scoringFunction;
+        Arguments = [.. arguments];
+        IsScoringFunction = isScoringFunction;
     }
 
     /// <summary>
@@ -63,6 +64,7 @@ public class SqlFunctionExpression : SqlExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    [Experimental(EFDiagnostics.CosmosFullTextSearchExperimental)]
     public virtual bool IsScoringFunction { get; }
 
     /// <summary>

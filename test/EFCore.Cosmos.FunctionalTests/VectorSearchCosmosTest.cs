@@ -257,12 +257,14 @@ ORDER BY VectorDistance(c["SinglesArray"], @p, false, {'distanceFunction':'cosin
         var inputVector1 = new byte[] { 2, 1, 4, 6, 5, 2, 5, 7, 3, 1 };
         var inputVector2 = new[] { 0.33f, -0.52f, 0.45f, -0.67f, 0.89f, -0.34f, 0.86f, -0.78f };
 
+#pragma warning disable EF9104 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
         var booksFromStore = await context
             .Set<Book>()
             .OrderBy(e => EF.Functions.Rrf(
                 EF.Functions.VectorDistance(e.BytesArray, inputVector1),
                 EF.Functions.VectorDistance(e.SinglesArray, inputVector2)))
             .ToListAsync();
+#pragma warning restore EF9104 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
 
         Assert.Equal(3, booksFromStore.Count);
 
