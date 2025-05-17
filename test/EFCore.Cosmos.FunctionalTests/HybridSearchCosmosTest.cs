@@ -6,8 +6,9 @@ using Microsoft.EntityFrameworkCore.Cosmos.Extensions;
 
 namespace Microsoft.EntityFrameworkCore;
 
+#pragma warning disable EF9104 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
 #pragma warning disable EF9103
-[CosmosCondition(CosmosCondition.DoesNotUseTokenCredential)]
+[CosmosCondition(CosmosCondition.DoesNotUseTokenCredential | CosmosCondition.IsNotEmulator)]
 public class HybridSearchCosmosTest : IClassFixture<HybridSearchCosmosTest.HybridSearchFixture>
 {
     public HybridSearchCosmosTest(HybridSearchFixture fixture, ITestOutputHelper testOutputHelper)
