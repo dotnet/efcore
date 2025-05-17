@@ -310,7 +310,9 @@ public class RelationalCommandTest
                 {
                     executeReaderCount++;
                     disposeCount = c.DisposeCount;
+#pragma warning disable CA2025
                     return Task.FromResult<DbDataReader>(dbDataReader);
+#pragma warning restore CA2025
                 }));
 
         var optionsExtension = new FakeRelationalOptionsExtension().WithConnection(fakeDbConnection);
