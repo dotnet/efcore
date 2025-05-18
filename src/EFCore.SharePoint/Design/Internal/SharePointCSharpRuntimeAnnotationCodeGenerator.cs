@@ -3,6 +3,7 @@
 
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.SharePoint.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.SharePoint.Design.Internal;
 
@@ -35,8 +36,8 @@ public class SharePointCSharpRuntimeAnnotationCodeGenerator : RelationalCSharpRu
         if (!parameters.IsRuntime)
         {
             var annotations = parameters.Annotations;
-            annotations.Remove("SharePoint:ListName");
-            annotations.Remove("SharePoint:ViewName");
+            annotations.Remove(SharePointAnnotationNames.ListName);
+            annotations.Remove(SharePointAnnotationNames.ViewName);
         }
 
         base.Generate(model, parameters);
@@ -48,8 +49,8 @@ public class SharePointCSharpRuntimeAnnotationCodeGenerator : RelationalCSharpRu
         if (!parameters.IsRuntime)
         {
             var annotations = parameters.Annotations;
-            annotations.Remove("SharePoint:FieldType");
-            annotations.Remove("SharePoint:FieldInternalName");
+            annotations.Remove(SharePointAnnotationNames.FieldType);
+            annotations.Remove(SharePointAnnotationNames.FieldInternalName);
         }
 
         base.Generate(property, parameters);
@@ -61,8 +62,8 @@ public class SharePointCSharpRuntimeAnnotationCodeGenerator : RelationalCSharpRu
         if (!parameters.IsRuntime)
         {
             var annotations = parameters.Annotations;
-            annotations.Remove("SharePoint:ColumnName");
-            annotations.Remove("SharePoint:IsLookupField");
+            annotations.Remove(SharePointAnnotationNames.ColumnName);
+            annotations.Remove(SharePointAnnotationNames.IsLookupField);
         }
 
         base.Generate(column, parameters);
@@ -74,8 +75,8 @@ public class SharePointCSharpRuntimeAnnotationCodeGenerator : RelationalCSharpRu
         if (!parameters.IsRuntime)
         {
             var annotations = parameters.Annotations;
-            annotations.Remove("SharePoint:ContentTypeId");
-            annotations.Remove("SharePoint:ContentTypeName");
+            annotations.Remove(SharePointAnnotationNames.ContentTypeId);
+            annotations.Remove(SharePointAnnotationNames.ContentTypeName);
         }
 
         base.Generate(entityType, parameters);
@@ -87,7 +88,7 @@ public class SharePointCSharpRuntimeAnnotationCodeGenerator : RelationalCSharpRu
         if (!parameters.IsRuntime)
         {
             var annotations = parameters.Annotations;
-            annotations.Remove("SharePoint:IndexedField");
+            annotations.Remove(SharePointAnnotationNames.IndexedField);
         }
 
         base.Generate(index, parameters);
