@@ -79,6 +79,19 @@ public abstract class NorthwindSetOperationsQueryTestBase<TFixture>(TFixture fix
                 .Except(ss.Set<Customer>().Where(s => s.City == "México D.F."))
                 .Except(ss.Set<Customer>().Where(e => e.City == "Seattle")));
 
+    // EXCEPT is non-commutative, unlike UNION/INTERSECT. Therefore, parentheses are needed in the following query
+    // to ensure that the inner EXCEPT is evaluated first. See #36105.
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Except_nested2(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>()
+                .Except(ss.Set<Customer>()
+                    .Where(s => s.City == "Seattle")
+                    .Except(ss.Set<Customer>()
+                        .Where(e => e.City == "Seattle"))));
+
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Except_non_entity(bool async)
