@@ -321,7 +321,7 @@ namespace TestNamespace
         Assert.IsType<ConstructorBinding>(principalBase.ConstructorBinding);
         Assert.Null(principalBase.FindIndexerPropertyInfo());
         Assert.Equal(ChangeTrackingStrategy.Snapshot, principalBase.GetChangeTrackingStrategy());
-        Assert.Empty(principalBase.GetQueryFilters());
+        Assert.Empty(principalBase.GetDeclaredQueryFilters());
         Assert.Equal(
             CoreStrings.RuntimeModelMissingData,
             Assert.Throws<InvalidOperationException>(() => principalBase.GetSeedData()).Message);
@@ -378,7 +378,7 @@ namespace TestNamespace
         Assert.Equal(
             ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues,
             referenceOwnedType.GetChangeTrackingStrategy());
-        Assert.Empty(referenceOwnedType.GetQueryFilters());
+        Assert.Empty(referenceOwnedType.GetDeclaredQueryFilters());
         Assert.Null(referenceOwnedType[CoreAnnotationNames.PropertyAccessMode]);
         Assert.Null(referenceOwnedType[CoreAnnotationNames.NavigationAccessMode]);
         Assert.Equal(
@@ -501,7 +501,7 @@ namespace TestNamespace
         Assert.IsType<ConstructorBinding>(joinType.ConstructorBinding);
         Assert.Equal("Item", joinType.FindIndexerPropertyInfo()!.Name);
         Assert.Equal(ChangeTrackingStrategy.Snapshot, joinType.GetChangeTrackingStrategy());
-        Assert.Empty(joinType.GetQueryFilters());
+        Assert.Empty(joinType.GetDeclaredQueryFilters());
 
         var rowid = joinType.FindProperty("rowid")!;
         Assert.Equal(typeof(byte[]), rowid.ClrType);

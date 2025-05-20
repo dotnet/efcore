@@ -61,15 +61,15 @@ public interface IConventionEntityType : IReadOnlyEntityType, IConventionTypeBas
     LambdaExpression? SetQueryFilter(LambdaExpression? queryFilter, bool fromDataAnnotation = false);
 
     /// <summary>
-    ///     Returns the configuration source for <see cref="IReadOnlyEntityType.GetQueryFilters" />.
+    ///     Returns the configuration source for <see cref="IReadOnlyEntityType.GetDeclaredQueryFilters" />.
     /// </summary>
-    /// <returns>The configuration source for <see cref="IReadOnlyEntityType.GetQueryFilters" />.</returns>
+    /// <returns>The configuration source for <see cref="IReadOnlyEntityType.GetDeclaredQueryFilters" />.</returns>
     ConfigurationSource? GetQueryFilterConfigurationSource();
 
     /// <summary>
-    ///     Returns the configuration source for <see cref="IReadOnlyEntityType.GetQueryFilters" />.
+    ///     Returns the configuration source for <see cref="IReadOnlyEntityType.GetDeclaredQueryFilters" />.
     /// </summary>
-    /// <returns>The configuration source for <see cref="IReadOnlyEntityType.GetQueryFilters" />.</returns>
+    /// <returns>The configuration source for <see cref="IReadOnlyEntityType.GetDeclaredQueryFilters" />.</returns>
     ConfigurationSource? GetQueryFilterConfigurationSource(string? filterKey);
 
     /// <summary>

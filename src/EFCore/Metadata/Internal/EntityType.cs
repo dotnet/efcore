@@ -2878,10 +2878,10 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
             throw new InvalidOperationException(errorMessage);
         }
 
-        var queryFilters = FindAnnotation(CoreAnnotationNames.QueryFilter)?.Value as QueryFilterCollection ?? new QueryFilterCollection();
+        var queryFilters = (QueryFilterCollection?)FindAnnotation(CoreAnnotationNames.QueryFilter)?.Value ?? new QueryFilterCollection();
 
         queryFilters.Set(queryFilter);
-        var configSource = (queryFilter as QueryFilter)?.ConfigurationSource ?? ConfigurationSource.Explicit;
+        var configSource = ((QueryFilter)queryFilter)?.ConfigurationSource ?? ConfigurationSource.Explicit;
 
         if (queryFilters.Count == 0)
         {
@@ -2922,8 +2922,8 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IReadOnlyCollection<IQueryFilter> GetQueryFilters()
-        => this[CoreAnnotationNames.QueryFilter] as IReadOnlyCollection<IQueryFilter> ?? new QueryFilterCollection();
+    public virtual IReadOnlyCollection<IQueryFilter> GetDeclaredQueryFilters()
+        => (IReadOnlyQueryFilterCollection?)this[CoreAnnotationNames.QueryFilter] ?? new QueryFilterCollection();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2931,9 +2931,9 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [Obsolete("Use GetQueryFilters() instead.")]
+    [Obsolete("Use GetDeclaredQueryFilters() instead.")]
     public virtual LambdaExpression? GetQueryFilter()
-        => GetQueryFilters()?.FirstOrDefault(f => f.IsAnonymous)?.Expression;
+        => GetDeclaredQueryFilters()?.FirstOrDefault(f => f.IsAnonymous)?.Expression;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2941,8 +2941,8 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IQueryFilter? FindQueryFilter(string? filterKey)
-        => (this[CoreAnnotationNames.QueryFilter] as QueryFilterCollection)?[filterKey];
+    public virtual IQueryFilter? FindDeclaredQueryFilter(string? filterKey)
+        => ((IReadOnlyQueryFilterCollection?)this[CoreAnnotationNames.QueryFilter])?[filterKey];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2951,7 +2951,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual ConfigurationSource? GetQueryFilterConfigurationSource(string? filterKey)
-        => ((this[CoreAnnotationNames.QueryFilter] as QueryFilterCollection)?[filterKey] as QueryFilter)?.ConfigurationSource;
+        => ((QueryFilter?)((IReadOnlyQueryFilterCollection?)this[CoreAnnotationNames.QueryFilter])?[filterKey])?.ConfigurationSource;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

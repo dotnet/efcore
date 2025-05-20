@@ -1151,7 +1151,7 @@ public class ModelValidator : IModelValidator
     {
         foreach (var entityType in model.GetEntityTypes())
         {
-            var queryFilters = entityType.GetQueryFilters();
+            var queryFilters = entityType.GetDeclaredQueryFilters();
             if (queryFilters.Count > 0)
             {
                 if (entityType.BaseType != null)
@@ -1178,8 +1178,8 @@ public class ModelValidator : IModelValidator
                     .GetNavigations()
                     .FirstOrDefault(
                         n => n is { IsCollection: false, ForeignKey.IsRequired: true, IsOnDependent: true }
-                            && n.ForeignKey.PrincipalEntityType.GetRootType().GetQueryFilters().Count > 0
-                            && n.ForeignKey.DeclaringEntityType.GetRootType().GetQueryFilters().Count == 0);
+                            && n.ForeignKey.PrincipalEntityType.GetRootType().GetDeclaredQueryFilters().Count > 0
+                            && n.ForeignKey.DeclaringEntityType.GetRootType().GetDeclaredQueryFilters().Count == 0);
 
                 if (requiredNavigationWithQueryFilter != null)
                 {

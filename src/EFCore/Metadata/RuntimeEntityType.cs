@@ -993,19 +993,19 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
 
     /// <inheritdoc />
     [DebuggerStepThrough]
-    IReadOnlyCollection<IQueryFilter> IReadOnlyEntityType.GetQueryFilters()
-        => this[CoreAnnotationNames.QueryFilter] as IReadOnlyCollection<IQueryFilter> ?? [];
+    IReadOnlyCollection<IQueryFilter> IReadOnlyEntityType.GetDeclaredQueryFilters()
+        => (IReadOnlyCollection<IQueryFilter>?)this[CoreAnnotationNames.QueryFilter] ?? [];
 
     /// <inheritdoc />
     [DebuggerStepThrough]
-    [Obsolete("Use GetQueryFilters() instead.")]
+    [Obsolete("Use GetDeclaredQueryFilters() instead.")]
     LambdaExpression? IReadOnlyEntityType.GetQueryFilter()
-        => ((IReadOnlyEntityType)this).GetQueryFilters().FirstOrDefault(f => f.IsAnonymous)?.Expression;
+        => ((IReadOnlyEntityType)this).GetDeclaredQueryFilters().FirstOrDefault(f => f.IsAnonymous)?.Expression;
 
     /// <inheritdoc />
     [DebuggerStepThrough]
-    IQueryFilter? IReadOnlyEntityType.FindQueryFilter(string? filterKey)
-        => (this[CoreAnnotationNames.QueryFilter] as QueryFilterCollection)?[filterKey];
+    IQueryFilter? IReadOnlyEntityType.FindDeclaredQueryFilter(string? filterKey)
+        => ((IReadOnlyQueryFilterCollection?)this[CoreAnnotationNames.QueryFilter])?[filterKey];
 
     /// <inheritdoc />
     bool IReadOnlyTypeBase.HasSharedClrType

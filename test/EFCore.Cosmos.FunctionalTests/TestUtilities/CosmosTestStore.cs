@@ -840,7 +840,7 @@ public class CosmosTestStore : TestStore
         public PropertyAccessMode GetPropertyAccessMode()
             => throw new NotImplementedException();
 
-        public IReadOnlyDictionary<string, LambdaExpression> GetQueryFilters()
+        public IReadOnlyDictionary<string, LambdaExpression> GetDeclaredQueryFilters()
             => throw new NotImplementedException();
 
         public IEnumerable<IForeignKey> GetReferencingForeignKeys()
@@ -1037,8 +1037,8 @@ public class CosmosTestStore : TestStore
 
         IEnumerable<IReadOnlyTypeBase> IReadOnlyTypeBase.GetDirectlyDerivedTypes()
             => GetDirectlyDerivedTypes();
-        IReadOnlyCollection<IQueryFilter> IReadOnlyEntityType.GetQueryFilters() => throw new NotImplementedException();
+        IReadOnlyCollection<IQueryFilter> IReadOnlyEntityType.GetDeclaredQueryFilters() => throw new NotImplementedException();
         public LambdaExpression? GetQueryFilter() => throw new NotImplementedException();
-        public IQueryFilter? FindQueryFilter(string? filterKey) => throw new NotImplementedException();
+        public IQueryFilter? FindDeclaredQueryFilter(string? filterKey) => throw new NotImplementedException();
     }
 }

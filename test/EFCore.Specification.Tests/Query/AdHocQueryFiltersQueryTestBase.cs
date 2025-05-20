@@ -498,7 +498,7 @@ public abstract class AdHocQueryFiltersQueryTestBase(NonSharedFixture fixture) :
             modelBuilder.Entity<MyEntity18510>().HasQueryFilter(x => x.Name != "Foo");
 
             var entityType = modelBuilder.Model.GetEntityTypes().Single(et => et.ClrType == typeof(MyEntity18510));
-            var queryFilter = entityType.GetQueryFilters().FirstOrDefault();
+            var queryFilter = entityType.GetDeclaredQueryFilters().FirstOrDefault();
             Expression<Func<int>> tenantFunc = () => TenantId;
             var tenant = Expression.Invoke(tenantFunc);
 

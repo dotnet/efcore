@@ -116,7 +116,7 @@ public class ModelAsserter
             () => Assert.Equal(expected.ClrType, actual.ClrType),
             () => Assert.Equal(expected.HasSharedClrType, actual.HasSharedClrType),
             () => Assert.Equal(expected.IsPropertyBag, actual.IsPropertyBag),
-            () => Assert.Equal(expected.GetQueryFilters(), actual.GetQueryFilters()),
+            () => Assert.Equal(expected.GetDeclaredQueryFilters(), actual.GetDeclaredQueryFilters()),
             () =>
             {
                 if (designTime)
@@ -1032,7 +1032,7 @@ public class ModelAsserter
             targetEntityType.BaseType = targetEntityType.Model.FindEntityType(sourceEntityType.BaseType.Name);
         }
 
-        var queryFilters = sourceEntityType.GetQueryFilters();
+        var queryFilters = sourceEntityType.GetDeclaredQueryFilters();
         foreach (var queryFilter in queryFilters)
         {
             if (queryFilter.IsAnonymous)

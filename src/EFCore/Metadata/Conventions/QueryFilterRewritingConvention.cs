@@ -44,7 +44,7 @@ public class QueryFilterRewritingConvention : IModelFinalizingConvention
     {
         foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
         {
-            var queryFilters = entityType.GetQueryFilters();
+            var queryFilters = entityType.GetDeclaredQueryFilters();
             foreach (var queryFilter in queryFilters)
             {
                 if (queryFilter.Expression == null)

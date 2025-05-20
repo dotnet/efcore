@@ -338,16 +338,11 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
         {
             var visitedExpression = Visit(methodCallExpression.Arguments[0]);
             var filterKeys = methodCallExpression.Arguments[1].GetConstantValue<IReadOnlyCollection<string>>();
-            if (filterKeys == null || filterKeys.Count == 0)
-            {
-                _queryCompilationContext.IgnoredQueryFilters = null;
-            }
-            else
+            if (filterKeys?.Count > 0)
             {
                 _queryCompilationContext.IgnoredQueryFilters ??= [];
                 _queryCompilationContext.IgnoredQueryFilters.UnionWith(filterKeys);
             }
-            _queryCompilationContext.IgnoreQueryFilters = true;
 
             return visitedExpression;
         }

@@ -1338,7 +1338,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
     /// </summary>
     public virtual bool CanSetQueryFilter(QueryFilter queryFilter)
         => queryFilter.ConfigurationSource.Overrides(Metadata.GetQueryFilterConfigurationSource(queryFilter.Key))
-            || Metadata.FindQueryFilter(queryFilter.Key)?.Expression == queryFilter.Expression;
+            || Metadata.FindDeclaredQueryFilter(queryFilter.Key)?.Expression == queryFilter.Expression;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

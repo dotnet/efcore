@@ -33,13 +33,13 @@ public interface IReadOnlyEntityType : IReadOnlyTypeBase
     ///     Gets the query filters automatically applied to queries for this entity type.
     /// </summary>
     /// <returns>The query filters.</returns>
-    IReadOnlyCollection<IQueryFilter> GetQueryFilters();
+    IReadOnlyCollection<IQueryFilter> GetDeclaredQueryFilters();
 
     /// <summary>
     ///     Gets the LINQ expression filter automatically applied to queries for this entity type.
     /// </summary>
     /// <returns>The LINQ expression filter.</returns>
-    [Obsolete("Use GetQueryFilters() instead.")]
+    [Obsolete("Use GetDeclaredQueryFilters() instead.")]
     LambdaExpression? GetQueryFilter();
 
     /// <summary>
@@ -47,7 +47,7 @@ public interface IReadOnlyEntityType : IReadOnlyTypeBase
     /// </summary>
     /// <param name="filterKey">The key identifying the query filter to retrieve.</param>
     /// <returns>The <see cref="IQueryFilter"/> associated with the specified key.</returns>
-    IQueryFilter? FindQueryFilter(string? filterKey);
+    IQueryFilter? FindDeclaredQueryFilter(string? filterKey);
 
     /// <summary>
     ///     Returns the value indicating whether the discriminator mapping is complete for this entity type.
