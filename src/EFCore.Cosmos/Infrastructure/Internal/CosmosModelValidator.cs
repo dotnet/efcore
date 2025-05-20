@@ -574,7 +574,7 @@ public class CosmosModelValidator : ModelValidator
         {
             foreach (var index in entityType.GetDeclaredIndexes())
             {
-                if (index.FindAnnotation(CosmosAnnotationNames.VectorIndexType) != null)
+                if (index.GetVectorIndexType() != null)
                 {
                     if (index.Properties.Count > 1)
                     {
@@ -584,7 +584,8 @@ public class CosmosModelValidator : ModelValidator
                                 string.Join(",", index.Properties.Select(e => e.Name))));
                     }
 
-                    if (index.Properties[0].FindAnnotation(CosmosAnnotationNames.VectorType) == null)
+                    if (index.Properties[0].GetVectorDistanceFunction() == null
+                        || index.Properties[0].GetVectorDimensions() == null)
                     {
                         throw new InvalidOperationException(
                             CosmosStrings.VectorIndexOnNonVector(
@@ -594,7 +595,14 @@ public class CosmosModelValidator : ModelValidator
                 }
                 else if (index.IsFullTextIndex() == true)
                 {
-                    // composite vector validation is done during container creation
+                    if (index.Properties.Count > 1)
+                    {
+                        throw new InvalidOperationException(
+                            CosmosStrings.CompositeFullTextIndex(
+                                index.DeclaringEntityType.DisplayName(),
+                                string.Join(",", index.Properties.Select(e => e.Name))));
+                    }
+
                     if (index.Properties[0].GetIsFullTextSearchEnabled() != true)
                     {
                         throw new InvalidOperationException(
@@ -621,7 +629,6 @@ public class CosmosModelValidator : ModelValidator
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [Experimental(EFDiagnostics.CosmosVectorSearchExperimental)]
     protected override void ValidatePropertyMapping(
         IModel model,
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
@@ -632,8 +639,8 @@ public class CosmosModelValidator : ModelValidator
         {
             foreach (var property in entityType.GetDeclaredProperties())
             {
-                var cosmosVectorType = property.GetVectorType();
-                if (cosmosVectorType is not null)
+                if (property.GetVectorDistanceFunction() is not null
+                    && property.GetVectorDimensions() is not null)
                 {
                     // Will throw if the data type is not set and cannot be inferred.
                     CosmosVectorType.CreateDefaultVectorDataType(property.ClrType);

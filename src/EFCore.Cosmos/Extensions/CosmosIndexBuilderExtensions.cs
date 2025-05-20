@@ -27,8 +27,7 @@ public static class CosmosIndexBuilderExtensions
     /// <param name="indexBuilder">The builder for the index being configured.</param>
     /// <param name="indexType">The type of vector index to create.</param>
     /// <returns>A builder to further configure the index.</returns>
-    [Experimental(EFDiagnostics.CosmosVectorSearchExperimental)]
-    public static IndexBuilder ForVectors(this IndexBuilder indexBuilder, VectorIndexType? indexType)
+    public static IndexBuilder IsVectorIndex(this IndexBuilder indexBuilder, VectorIndexType? indexType)
     {
         indexBuilder.Metadata.SetVectorIndexType(indexType);
 
@@ -46,11 +45,10 @@ public static class CosmosIndexBuilderExtensions
     /// <param name="indexBuilder">The builder for the index being configured.</param>
     /// <param name="indexType">The type of vector index to create.</param>
     /// <returns>A builder to further configure the index.</returns>
-    [Experimental(EFDiagnostics.CosmosVectorSearchExperimental)]
-    public static IndexBuilder<TEntity> ForVectors<TEntity>(
+    public static IndexBuilder<TEntity> IsVectorIndex<TEntity>(
         this IndexBuilder<TEntity> indexBuilder,
         VectorIndexType? indexType)
-        => (IndexBuilder<TEntity>)ForVectors((IndexBuilder)indexBuilder, indexType);
+        => (IndexBuilder<TEntity>)IsVectorIndex((IndexBuilder)indexBuilder, indexType);
 
     /// <summary>
     ///     Configures whether the index as a vector index with the given vector index type, such as "flat", "diskANN", or "quantizedFlat".
@@ -67,8 +65,7 @@ public static class CosmosIndexBuilderExtensions
     ///     The same builder instance if the configuration was applied,
     ///     <see langword="null" /> otherwise.
     /// </returns>
-    [Experimental(EFDiagnostics.CosmosVectorSearchExperimental)]
-    public static IConventionIndexBuilder? ForVectors(
+    public static IConventionIndexBuilder? IsVectorIndex(
         this IConventionIndexBuilder indexBuilder,
         VectorIndexType? indexType,
         bool fromDataAnnotation = false)
@@ -93,7 +90,6 @@ public static class CosmosIndexBuilderExtensions
     /// <param name="indexType">The index type to use.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns><see langword="true" /> if the index can be configured for vectors.</returns>
-    [Experimental(EFDiagnostics.CosmosVectorSearchExperimental)]
     public static bool CanSetVectorIndexType(
         this IConventionIndexBuilder indexBuilder,
         VectorIndexType? indexType,
