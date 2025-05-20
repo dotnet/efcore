@@ -819,9 +819,7 @@ public static class SqlServerPropertyBuilderExtensions
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
     ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
-    ///     for more information and examples. Also see
-    ///     <see href="https://docs.microsoft.com/sql/relational-databases/tables/use-sparse-columns">Sparse columns</see> for
-    ///     general information on SQL Server sparse columns.
+    ///     for more information and examples.
     /// </remarks>
     /// <param name="propertyBuilder">The builder for the property being configured.</param>
     /// <param name="value">The default value of the column.</param>
@@ -846,9 +844,7 @@ public static class SqlServerPropertyBuilderExtensions
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
     ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
-    ///     for more information and examples. Also see
-    ///     <see href="https://docs.microsoft.com/sql/relational-databases/tables/use-sparse-columns">Sparse columns</see> for
-    ///     general information on SQL Server sparse columns.
+    ///     for more information and examples.
     /// </remarks>
     /// <param name="propertyBuilder">The builder for the property being configured.</param>
     /// <param name="value">The default value of the column.</param>
@@ -866,9 +862,7 @@ public static class SqlServerPropertyBuilderExtensions
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
     ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
-    ///     for more information and examples. Also see
-    ///     <see href="https://docs.microsoft.com/sql/relational-databases/tables/use-sparse-columns">Sparse columns</see> for
-    ///     general information on SQL Server sparse columns.
+    ///     for more information and examples.
     /// </remarks>
     /// <param name="propertyBuilder">The builder for the property being configured.</param>
     /// <param name="value">The default value of the column.</param>
@@ -890,6 +884,7 @@ public static class SqlServerPropertyBuilderExtensions
         }
 
         propertyBuilder.Metadata.SetDefaultValue(value, fromDataAnnotation);
+        propertyBuilder.Metadata.SetDefaultConstraintName(defaultConstraintName, fromDataAnnotation);
         return propertyBuilder;
     }
 
@@ -899,9 +894,7 @@ public static class SqlServerPropertyBuilderExtensions
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
     ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
-    ///     for more information and examples. Also see
-    ///     <see href="https://docs.microsoft.com/sql/relational-databases/tables/use-sparse-columns">Sparse columns</see> for
-    ///     general information on SQL Server sparse columns.
+    ///     for more information and examples.
     /// </remarks>
     /// <param name="propertyBuilder">The builder for the property being configured.</param>
     /// <param name="value">The default value of the column.</param>
@@ -928,9 +921,7 @@ public static class SqlServerPropertyBuilderExtensions
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
     ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
-    ///     for more information and examples. Also see
-    ///     <see href="https://docs.microsoft.com/sql/relational-databases/tables/use-sparse-columns">Sparse columns</see> for
-    ///     general information on SQL Server sparse columns.
+    ///     for more information and examples.
     /// </remarks>
     /// <param name="propertyBuilder">The builder for the property being configured.</param>
     /// <param name="sql">The SQL expression for the default value of the column.</param>
@@ -955,9 +946,7 @@ public static class SqlServerPropertyBuilderExtensions
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
     ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
-    ///     for more information and examples. Also see
-    ///     <see href="https://docs.microsoft.com/sql/relational-databases/tables/use-sparse-columns">Sparse columns</see> for
-    ///     general information on SQL Server sparse columns.
+    ///     for more information and examples.
     /// </remarks>
     /// <typeparam name="TProperty">The type of the property being configured.</typeparam>
     /// <param name="propertyBuilder">The builder for the property being configured.</param>
@@ -976,9 +965,7 @@ public static class SqlServerPropertyBuilderExtensions
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
     ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
-    ///     for more information and examples. Also see
-    ///     <see href="https://docs.microsoft.com/sql/relational-databases/tables/use-sparse-columns">Sparse columns</see> for
-    ///     general information on SQL Server sparse columns.
+    ///     for more information and examples.
     /// </remarks>
     /// <param name="propertyBuilder">The builder for the property being configured.</param>
     /// <param name="sql">The SQL expression for the default value of the column.</param>
@@ -1000,6 +987,7 @@ public static class SqlServerPropertyBuilderExtensions
         }
 
         propertyBuilder.Metadata.SetDefaultValueSql(sql, fromDataAnnotation);
+        propertyBuilder.Metadata.SetDefaultConstraintName(defaultConstraintName, fromDataAnnotation);
         return propertyBuilder;
     }
 

@@ -53,4 +53,86 @@ public static class SqlServerComplexTypePrimitiveCollectionBuilderExtensions
         bool sparse = true)
         => (ComplexTypePrimitiveCollectionBuilder<TProperty>)IsSparse(
             (ComplexTypePrimitiveCollectionBuilder)primitiveCollectionBuilder, sparse);
+
+    /// <summary>
+    ///     Configures the default value for the column that the property maps
+    ///     to when targeting a relational database.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-default-values">Database default values</see> for more information and examples.
+    /// </remarks>
+    /// <param name="primitiveCollectionBuilder">The builder for the property being configured.</param>
+    /// <param name="value">The default value of the column.</param>
+    /// <param name="defaultConstraintName">The default constraint name.</param>
+    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    public static ComplexTypePrimitiveCollectionBuilder HasDefaultValue(
+        this ComplexTypePrimitiveCollectionBuilder primitiveCollectionBuilder,
+        object? value,
+        string defaultConstraintName)
+    {
+        primitiveCollectionBuilder.Metadata.SetDefaultValue(value);
+        primitiveCollectionBuilder.Metadata.SetDefaultConstraintName(defaultConstraintName);
+
+        return primitiveCollectionBuilder;
+    }
+
+    /// <summary>
+    ///     Configures the default value for the column that the property maps
+    ///     to when targeting a relational database.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-default-values">Database default values</see> for more information and examples.
+    /// </remarks>
+    /// <typeparam name="TProperty">The type of the property being configured.</typeparam>
+    /// <param name="primitiveCollectionBuilder">The builder for the property being configured.</param>
+    /// <param name="value">The default value of the column.</param>
+    /// <param name="defaultConstraintName">The default constraint name.</param>
+    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    public static ComplexTypePrimitiveCollectionBuilder<TProperty> HasDefaultValue<TProperty>(
+        this ComplexTypePrimitiveCollectionBuilder<TProperty> primitiveCollectionBuilder,
+        object? value,
+        string defaultConstraintName)
+        => (ComplexTypePrimitiveCollectionBuilder<TProperty>)HasDefaultValue(
+            (ComplexTypePrimitiveCollectionBuilder)primitiveCollectionBuilder, value, defaultConstraintName);
+
+    /// <summary>
+    ///     Configures the default value expression for the column that the property maps to when targeting a relational database.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-default-values">Database default values</see> for more information and examples.
+    /// </remarks>
+    /// <param name="primitiveCollectionBuilder">The builder for the property being configured.</param>
+    /// <param name="sql">The SQL expression for the default value of the column.</param>
+    /// <param name="defaultConstraintName">The default constraint name.</param>
+    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    public static ComplexTypePrimitiveCollectionBuilder HasDefaultValueSql(
+        this ComplexTypePrimitiveCollectionBuilder primitiveCollectionBuilder,
+        string? sql,
+        string defaultConstraintName)
+    {
+        Check.NullButNotEmpty(sql, nameof(sql));
+
+        primitiveCollectionBuilder.Metadata.SetDefaultValueSql(sql);
+        primitiveCollectionBuilder.Metadata.SetDefaultConstraintName(defaultConstraintName);
+
+        return primitiveCollectionBuilder;
+    }
+
+    /// <summary>
+    ///     Configures the default value expression for the column that the property maps to when targeting a relational database.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-default-values">Database default values</see> for more information and examples.
+    /// </remarks>
+    /// <typeparam name="TProperty">The type of the property being configured.</typeparam>
+    /// <param name="primitiveCollectionBuilder">The builder for the property being configured.</param>
+    /// <param name="sql">The SQL expression for the default value of the column.</param>
+    /// <param name="defaultConstraintName">The default constraint name.</param>
+    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    public static ComplexTypePrimitiveCollectionBuilder<TProperty> HasDefaultValueSql<TProperty>(
+        this ComplexTypePrimitiveCollectionBuilder<TProperty> primitiveCollectionBuilder,
+        string? sql,
+        string defaultConstraintName)
+        => (ComplexTypePrimitiveCollectionBuilder<TProperty>)HasDefaultValueSql(
+            (ComplexTypePrimitiveCollectionBuilder)primitiveCollectionBuilder, sql, defaultConstraintName);
 }

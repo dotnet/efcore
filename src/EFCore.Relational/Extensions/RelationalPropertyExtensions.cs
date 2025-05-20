@@ -2092,20 +2092,42 @@ public static class RelationalPropertyExtensions
     /// </summary>
     /// <param name="property">The property.</param>
     public static string? GetDefaultConstraintName(this IReadOnlyProperty property)
-        => (property is RuntimeProperty)
+        => property is RuntimeProperty
             ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
-            : (string?)property[RelationalAnnotationNames.DefaultConstraintName];
+            : (string?)property[RelationalAnnotationNames.DefaultConstraintName]
+                ?? (ShouldHaveDefaultConstraintName(property)
+                        && StoreObjectIdentifier.Create(property.DeclaringType, StoreObjectType.Table) is StoreObjectIdentifier table
+                        ? property.GenerateDefaultConstraintName(table)
+                        : null);
+
+    /// <summary>
+    ///     Gets the default constraint name.
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <param name="storeObject">The store object identifier to generate the name for.</param>
+    public static string? GetDefaultConstraintName(this IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
+        => property is RuntimeProperty
+            ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
+            : (string?)property[RelationalAnnotationNames.DefaultConstraintName]
+                ?? (ShouldHaveDefaultConstraintName(property)
+                    ? property.GenerateDefaultConstraintName(storeObject)
+                    : null);
+
+    private static bool ShouldHaveDefaultConstraintName(IReadOnlyProperty property)
+        => property.DeclaringType.Model.AreNamedDefaultConstraintsUsed()
+        && (property[RelationalAnnotationNames.DefaultValue] is not null
+                || property[RelationalAnnotationNames.DefaultValueSql] is not null);
 
     /// <summary>
     ///     Generates the default constraint name based on the table and column name.
     /// </summary>
     /// <param name="property">The property.</param>
-    /// <param name="storeObject">The store object identifier to generate the name from.</param>
+    /// <param name="storeObject">The store object identifier to generate the name for.</param>
     public static string GenerateDefaultConstraintName(this IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
     {
         var candidate = $"DF_{storeObject.Name}_{property.GetColumnName(storeObject)}";
 
-        return candidate.Length > 120 ? candidate[..120] : candidate;
+        return Uniquifier.Truncate(candidate, property.DeclaringType.Model.GetMaxIdentifierLength());
     }
 
     /// <summary>

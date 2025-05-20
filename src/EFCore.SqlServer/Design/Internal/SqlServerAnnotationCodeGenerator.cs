@@ -218,7 +218,6 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
                 else
                 {
                     var defaultValueSqlAnnotationExists = annotations.TryGetValue(RelationalAnnotationNames.DefaultValueSql, out defaultValueSqlAnnotation);
-                    Check.DebugAssert(defaultValueSqlAnnotationExists, "If default constaint name was set, one of DefaultValue or DefaultValueSql must also be set.");
                     annotations.Remove(RelationalAnnotationNames.DefaultValueSql);
                 }
             }
@@ -240,7 +239,7 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
             }
             else
             {
-                Check.NotNull(defaultValueSqlAnnotation, "Both DefaultValue and DefaultValueSql annotations are null.");
+                Check.DebugAssert(defaultValueSqlAnnotation != null, $"Default constraint name was set for {property.Name}, but DefaultValue and DefaultValueSql are both null.");
                 fragments.Add(
                     new MethodCallCodeFragment(
                         nameof(SqlServerPropertyBuilderExtensions.HasDefaultValueSql),

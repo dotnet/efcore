@@ -89,12 +89,6 @@ public abstract class RelationalConventionSetBuilder : ProviderConventionSetBuil
         conventionSet.Replace<RuntimeModelConvention>(
             new RelationalRuntimeModelConvention(Dependencies, RelationalDependencies));
 
-        var defaultConstraintConvention = new RelationalDefaultConstraintConvention(Dependencies, RelationalDependencies);
-        ConventionSet.AddAfter(
-            conventionSet.ModelFinalizingConventions,
-            defaultConstraintConvention,
-            typeof(SharedTableConvention));
-
         return conventionSet;
     }
 }

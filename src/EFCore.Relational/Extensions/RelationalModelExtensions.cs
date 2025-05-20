@@ -537,10 +537,10 @@ public static class RelationalModelExtensions
     ///     Returns the value indicating whether named default constraints should be used.
     /// </summary>
     /// <param name="model">The model to get the value for.</param>
-    public static bool? AreNamedDefaultConstraintsUsed(this IReadOnlyModel model)
+    public static bool AreNamedDefaultConstraintsUsed(this IReadOnlyModel model)
         => (model is RuntimeModel)
             ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
-            : (bool?)model[RelationalAnnotationNames.UseNamedDefaultConstraints];
+            : (bool?)model[RelationalAnnotationNames.UseNamedDefaultConstraints] ?? false;
 
     /// <summary>
     ///     Sets the value indicating whether named default constraints should be used.
@@ -558,7 +558,7 @@ public static class RelationalModelExtensions
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     public static bool? UseNamedDefaultConstraints(
         this IConventionModel model,
-        bool value,
+        bool? value,
         bool fromDataAnnotation = false)
         => (bool?)model.SetOrRemoveAnnotation(
             RelationalAnnotationNames.UseNamedDefaultConstraints,

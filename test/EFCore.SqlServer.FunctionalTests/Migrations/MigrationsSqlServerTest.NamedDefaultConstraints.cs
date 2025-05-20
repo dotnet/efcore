@@ -964,15 +964,15 @@ ALTER TABLE [Entity] ADD [YetAnother] uniqueidentifier NOT NULL CONSTRAINT [DF_E
 
         AssertSql(
 """
-ALTER TABLE [VeryVeryVeryVeryVeryVeryVeryVeryLoooooooooooooooooooooooooooooooonEntity] ADD [YetAnotherVeryVeryVeryVeryVeryLoooooooooooooonnnnnnnnnnnnnnnnnnnnggggggggggggggggggggOwnedNavigation_AnotherProp] uniqueidentifier NULL CONSTRAINT [DF_VeryVeryVeryVeryVeryVeryVeryVeryLoooooooooooooooooooooooooooooooonEntity_YetAnotherVeryVeryVeryVeryVeryLooooooooooooo] DEFAULT (NEWID());
+ALTER TABLE [VeryVeryVeryVeryVeryVeryVeryVeryLoooooooooooooooooooooooooooooooonEntity] ADD [YetAnotherVeryVeryVeryVeryVeryLoooooooooooooonnnnnnnnnnnnnnnnnnnnggggggggggggggggggggOwnedNavigation_AnotherProp] uniqueidentifier NULL CONSTRAINT [DF_VeryVeryVeryVeryVeryVeryVeryVeryLoooooooooooooooooooooooooooooooonEntity_YetAnotherVeryVeryVeryVeryVeryLoooooooooooooonnnnnn~] DEFAULT (NEWID());
 """,
                 //
                 """
-ALTER TABLE [VeryVeryVeryVeryVeryVeryVeryVeryLoooooooooooooooooooooooooooooooonEntity] ADD [YetAnotherVeryVeryVeryVeryVeryLoooooooooooooonnnnnnnnnnnnnnnnnnnnggggggggggggggggggggOwnedNavigation_Prop] int NULL CONSTRAINT [DF_VeryVeryVeryVeryVeryVeryVeryVeryLoooooooooooooooooooooooooooooooonEntity_YetAnotherVeryVeryVeryVeryVeryLooooooooooooo1] DEFAULT 7;
+ALTER TABLE [VeryVeryVeryVeryVeryVeryVeryVeryLoooooooooooooooooooooooooooooooonEntity] ADD [YetAnotherVeryVeryVeryVeryVeryLoooooooooooooonnnnnnnnnnnnnnnnnnnnggggggggggggggggggggOwnedNavigation_Prop] int NULL CONSTRAINT [DF_VeryVeryVeryVeryVeryVeryVeryVeryLoooooooooooooooooooooooooooooooonEntity_YetAnotherVeryVeryVeryVeryVeryLoooooooooooooonnnnn~1] DEFAULT 7;
 """,
                 //
                 """
-ALTER TABLE [VeryVeryVeryVeryVeryVeryVeryVeryLoooooooooooooooooooooooooooooooonEntity] ADD [YetAnotherVeryVeryVeryVeryVeryLoooooooooooooonnnnnnnnnnnnnnnnnnnnggggggggggggggggggggOwnedNavigation_YetAnotherProp] int NULL CONSTRAINT [DF_VeryVeryVeryVeryVeryVeryVeryVeryLoooooooooooooooooooooooooooooooonEntity_YetAnotherVeryVeryVeryVeryVeryLooooooooooooo2] DEFAULT 27;
+ALTER TABLE [VeryVeryVeryVeryVeryVeryVeryVeryLoooooooooooooooooooooooooooooooonEntity] ADD [YetAnotherVeryVeryVeryVeryVeryLoooooooooooooonnnnnnnnnnnnnnnnnnnnggggggggggggggggggggOwnedNavigation_YetAnotherProp] int NULL CONSTRAINT [DF_VeryVeryVeryVeryVeryVeryVeryVeryLoooooooooooooooooooooooooooooooonEntity_YetAnotherVeryVeryVeryVeryVeryLoooooooooooooonnnnn~2] DEFAULT 27;
 """);
     }
 
