@@ -243,11 +243,16 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         var fullTextProperties = parametersTuple.Parameters.FullTextProperties.Select(x => x.Property).ToList();
         foreach (var index in parameters.Indexes)
         {
-            var vectorIndexType = (VectorIndexType?)index.FindAnnotation(CosmosAnnotationNames.VectorIndexType)?.Value;
+            var vectorIndexType = index.GetVectorIndexType();
             if (vectorIndexType != null)
             {
-                // Model validation will ensure there is only one property.
-                Check.DebugAssert(index.Properties.Count == 1, "Vector index must have one property.");
+                if (index.Properties.Count > 1)
+                {
+                    throw new InvalidOperationException(
+                        CosmosStrings.CompositeVectorIndex(
+                            index.DeclaringEntityType.DisplayName(),
+                            string.Join(",", index.Properties.Select(e => e.Name))));
+                }
 
                 vectorIndexes.Add(
                     new VectorIndexPath { Path = GetJsonPropertyPathFromRoot(index.Properties[0]), Type = vectorIndexType.Value });
@@ -269,36 +274,36 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         }
 
         var fullTextPaths = new Collection<FullTextPath>();
-        foreach (var fullTextProperty in parameters.FullTextProperties)
+        foreach (var (property, language) in parameters.FullTextProperties)
         {
-            if (fullTextProperty.Property.ClrType != typeof(string))
+            if (property.ClrType != typeof(string))
             {
                 throw new InvalidOperationException(
                     CosmosStrings.FullTextSearchConfiguredForUnsupportedPropertyType(
-                        fullTextProperty.Property.DeclaringType.DisplayName(),
-                        fullTextProperty.Property.Name,
-                        fullTextProperty.Property.ClrType.Name));
+                        property.DeclaringType.DisplayName(),
+                        property.Name,
+                        property.ClrType.Name));
             }
 
             fullTextPaths.Add(
                 new FullTextPath
                 {
-                    Path = GetJsonPropertyPathFromRoot(fullTextProperty.Property),
+                    Path = GetJsonPropertyPathFromRoot(property),
                     // TODO: remove the fallback once Cosmos SDK allows optional language (see #35939)
-                    Language = fullTextProperty.Language ?? parameters.DefaultFullTextLanguage ?? "en-US"
+                    Language = language ?? parameters.DefaultFullTextLanguage ?? "en-US"
                 });
         }
 
         var embeddings = new Collection<Embedding>();
-        foreach (var tuple in parameters.Vectors)
+        foreach (var (property, vectorType) in parameters.Vectors)
         {
             embeddings.Add(
                 new Embedding
                 {
-                    Path = GetJsonPropertyPathFromRoot(tuple.Property),
-                    DataType = CosmosVectorType.CreateDefaultVectorDataType(tuple.Property.ClrType),
-                    Dimensions = tuple.VectorType.Dimensions,
-                    DistanceFunction = tuple.VectorType.DistanceFunction
+                    Path = GetJsonPropertyPathFromRoot(property),
+                    DataType = CosmosVectorType.CreateDefaultVectorDataType(property.ClrType),
+                    Dimensions = vectorType.Dimensions,
+                    DistanceFunction = vectorType.DistanceFunction
                 });
         }
 
@@ -352,7 +357,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
             var resultPath = GetPathFromRoot(ownership.PrincipalEntityType) + "/" + ownership.GetNavigation(pointsToPrincipal: false)!.TargetEntityType.GetContainingPropertyName();
 
             return !ownership.IsUnique
-                ? throw new NotSupportedException(CosmosStrings.CreatingContainerWithFullTextOnCollectionNotSupported(resultPath))
+                ? throw new NotSupportedException(CosmosStrings.CreatingContainerWithFullTextOrVectorOnCollectionNotSupported(resultPath))
                 : resultPath;
         }
         else
