@@ -812,4 +812,207 @@ public static class SqlServerPropertyBuilderExtensions
         bool? sparse,
         bool fromDataAnnotation = false)
         => property.CanSetAnnotation(SqlServerAnnotationNames.Sparse, sparse, fromDataAnnotation);
+
+    /// <summary>
+    ///     Configures the default value for the column that the property maps to when targeting SQL Server.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
+    ///     for more information and examples.
+    /// </remarks>
+    /// <param name="propertyBuilder">The builder for the property being configured.</param>
+    /// <param name="value">The default value of the column.</param>
+    /// <param name="defaultConstraintName">The default constraint name.</param>
+    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    public static PropertyBuilder HasDefaultValue(
+        this PropertyBuilder propertyBuilder,
+        object? value,
+        string defaultConstraintName)
+    {
+        Check.NotEmpty(defaultConstraintName, nameof(defaultConstraintName));
+
+        propertyBuilder.Metadata.SetDefaultValue(value);
+        propertyBuilder.Metadata.SetDefaultConstraintName(defaultConstraintName);
+
+        return propertyBuilder;
+    }
+
+    /// <summary>
+    ///     Configures the default value for the column that the property maps to when targeting SQL Server.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
+    ///     for more information and examples.
+    /// </remarks>
+    /// <param name="propertyBuilder">The builder for the property being configured.</param>
+    /// <param name="value">The default value of the column.</param>
+    /// <param name="defaultConstraintName">The default constraint name.</param>
+    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    public static PropertyBuilder<TProperty> HasDefaultValue<TProperty>(
+        this PropertyBuilder<TProperty> propertyBuilder,
+        object? value,
+        string defaultConstraintName)
+        => (PropertyBuilder<TProperty>)HasDefaultValue((PropertyBuilder)propertyBuilder, value, defaultConstraintName);
+
+    /// <summary>
+    ///     Configures the default value for the column that the property maps to when targeting SQL Server.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
+    ///     for more information and examples.
+    /// </remarks>
+    /// <param name="propertyBuilder">The builder for the property being configured.</param>
+    /// <param name="value">The default value of the column.</param>
+    /// <param name="defaultConstraintName">The default constraint name.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>
+    ///     The same builder instance if the configuration was applied,
+    ///     <see langword="null" /> otherwise.
+    /// </returns>
+    public static IConventionPropertyBuilder? HasDefaultValue(
+        this IConventionPropertyBuilder propertyBuilder,
+        object? value,
+        string defaultConstraintName,
+        bool fromDataAnnotation = false)
+    {
+        if (!propertyBuilder.CanSetDefaultValue(value, defaultConstraintName, fromDataAnnotation))
+        {
+            return null;
+        }
+
+        propertyBuilder.Metadata.SetDefaultValue(value, fromDataAnnotation);
+        propertyBuilder.Metadata.SetDefaultConstraintName(defaultConstraintName, fromDataAnnotation);
+        return propertyBuilder;
+    }
+
+    /// <summary>
+    ///     Returns a value indicating whether the given value can be set as default for the column.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
+    ///     for more information and examples.
+    /// </remarks>
+    /// <param name="propertyBuilder">The builder for the property being configured.</param>
+    /// <param name="value">The default value of the column.</param>
+    /// <param name="defaultConstraintName">The default constraint name.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns><see langword="true" /> if the given value can be set as default for the column.</returns>
+    public static bool CanSetDefaultValue(
+        this IConventionPropertyBuilder propertyBuilder,
+        object? value,
+        string defaultConstraintName,
+        bool fromDataAnnotation = false)
+        => propertyBuilder.CanSetAnnotation(
+            RelationalAnnotationNames.DefaultValue,
+            value,
+            fromDataAnnotation)
+        && propertyBuilder.CanSetAnnotation(
+            RelationalAnnotationNames.DefaultConstraintName,
+            defaultConstraintName,
+            fromDataAnnotation);
+
+    /// <summary>
+    ///     Configures the default value expression for the column that the property maps to when targeting SQL Server.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
+    ///     for more information and examples.
+    /// </remarks>
+    /// <param name="propertyBuilder">The builder for the property being configured.</param>
+    /// <param name="sql">The SQL expression for the default value of the column.</param>
+    /// <param name="defaultConstraintName">The default constraint name.</param>
+    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    public static PropertyBuilder HasDefaultValueSql(
+        this PropertyBuilder propertyBuilder,
+        string? sql,
+        string defaultConstraintName)
+    {
+        Check.NotEmpty(defaultConstraintName, nameof(defaultConstraintName));
+
+        propertyBuilder.Metadata.SetDefaultValueSql(sql);
+        propertyBuilder.Metadata.SetDefaultConstraintName(defaultConstraintName);
+
+        return propertyBuilder;
+    }
+
+    /// <summary>
+    ///     Configures the default value expression for the column that the property maps to when targeting SQL Server.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
+    ///     for more information and examples.
+    /// </remarks>
+    /// <typeparam name="TProperty">The type of the property being configured.</typeparam>
+    /// <param name="propertyBuilder">The builder for the property being configured.</param>
+    /// <param name="sql">The SQL expression for the default value of the column.</param>
+    /// <param name="defaultConstraintName">The default constraint name.</param>
+    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    public static PropertyBuilder<TProperty> HasDefaultValueSql<TProperty>(
+        this PropertyBuilder<TProperty> propertyBuilder,
+        string? sql,
+        string defaultConstraintName)
+        => (PropertyBuilder<TProperty>)HasDefaultValueSql((PropertyBuilder)propertyBuilder, sql, defaultConstraintName);
+
+    /// <summary>
+    ///     Configures the default value expression for the column that the property maps to when targeting SQL Server.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
+    ///     for more information and examples.
+    /// </remarks>
+    /// <param name="propertyBuilder">The builder for the property being configured.</param>
+    /// <param name="sql">The SQL expression for the default value of the column.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <param name="defaultConstraintName">The default constraint name.</param>
+    /// <returns>
+    ///     The same builder instance if the configuration was applied,
+    ///     <see langword="null" /> otherwise.
+    /// </returns>
+    public static IConventionPropertyBuilder? HasDefaultValueSql(
+        this IConventionPropertyBuilder propertyBuilder,
+        string? sql,
+        string defaultConstraintName,
+        bool fromDataAnnotation = false)
+    {
+        if (!propertyBuilder.CanSetDefaultValueSql(sql, defaultConstraintName, fromDataAnnotation))
+        {
+            return null;
+        }
+
+        propertyBuilder.Metadata.SetDefaultValueSql(sql, fromDataAnnotation);
+        propertyBuilder.Metadata.SetDefaultConstraintName(defaultConstraintName, fromDataAnnotation);
+        return propertyBuilder;
+    }
+
+    /// <summary>
+    ///     Returns a value indicating whether the given default value expression can be set for the column.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-default-values">Database default values</see> for more information and examples.
+    /// </remarks>
+    /// <param name="propertyBuilder">The builder for the property being configured.</param>
+    /// <param name="sql">The SQL expression for the default value of the column.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <param name="defaultConstraintName">The default constraint name.</param>
+    /// <returns><see langword="true" /> if the given default value expression can be set for the column.</returns>
+    public static bool CanSetDefaultValueSql(
+        this IConventionPropertyBuilder propertyBuilder,
+        string? sql,
+        string defaultConstraintName,
+        bool fromDataAnnotation = false)
+        => propertyBuilder.CanSetAnnotation(
+            RelationalAnnotationNames.DefaultValueSql,
+            sql,
+            fromDataAnnotation)
+        && propertyBuilder.CanSetAnnotation(
+            RelationalAnnotationNames.DefaultConstraintName,
+            defaultConstraintName,
+            fromDataAnnotation);
 }

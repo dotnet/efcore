@@ -530,4 +530,48 @@ public static class RelationalModelExtensions
         => model.FindAnnotation(RelationalAnnotationNames.Collation)?.GetConfigurationSource();
 
     #endregion Collation
+
+    #region UseNamedDefaultConstraints
+
+    /// <summary>
+    ///     Returns the value indicating whether named default constraints should be used.
+    /// </summary>
+    /// <param name="model">The model to get the value for.</param>
+    public static bool AreNamedDefaultConstraintsUsed(this IReadOnlyModel model)
+        => (model is RuntimeModel)
+            ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
+            : (bool?)model[RelationalAnnotationNames.UseNamedDefaultConstraints] ?? false;
+
+    /// <summary>
+    ///     Sets the value indicating whether named default constraints should be used.
+    /// </summary>
+    /// <param name="model">The model to get the value for.</param>
+    /// <param name="value">The value to set.</param>
+    public static void UseNamedDefaultConstraints(this IMutableModel model, bool value)
+        => model.SetOrRemoveAnnotation(RelationalAnnotationNames.UseNamedDefaultConstraints, value);
+
+    /// <summary>
+    ///     Sets the value indicating whether named default constraints should be used.
+    /// </summary>
+    /// <param name="model">The model to get the value for.</param>
+    /// <param name="value">The value to set.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    public static bool? UseNamedDefaultConstraints(
+        this IConventionModel model,
+        bool? value,
+        bool fromDataAnnotation = false)
+        => (bool?)model.SetOrRemoveAnnotation(
+            RelationalAnnotationNames.UseNamedDefaultConstraints,
+            value,
+            fromDataAnnotation)?.Value;
+
+    /// <summary>
+    ///     Returns the configuration source for the named default constraints setting.
+    /// </summary>
+    /// <param name="model">The model to find configuration source for.</param>
+    /// <returns>The configuration source for the named default constraints setting.</returns>
+    public static ConfigurationSource? UseNamedDefaultConstraintsConfigurationSource(this IConventionModel model)
+        => model.FindAnnotation(RelationalAnnotationNames.UseNamedDefaultConstraints)?.GetConfigurationSource();
+
+    #endregion
 }

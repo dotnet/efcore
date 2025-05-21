@@ -427,6 +427,9 @@
   <data name="ExecuteUpdateSubqueryNotSupportedOverComplexTypes" xml:space="preserve">
     <value>ExecuteUpdate is being used over a LINQ operator which isn't natively supported by the database; this cannot be translated because complex type '{complexType}' is projected out. Rewrite your query to project out the containing entity type instead.</value>
   </data>
+  <data name="ExplicitDefaultConstraintNamesNotSupportedForTpc" xml:space="preserve">
+    <value>Can't use explicitly named default constraints with TPC inheritance or entity splitting. Constraint name: '{explicitDefaultConstraintName}'.</value>
+  </data>
   <data name="FromSqlMissingColumn" xml:space="preserve">
     <value>The required column '{column}' was not present in the results of a 'FromSql' operation.</value>
   </data>
@@ -438,6 +441,9 @@
   </data>
   <data name="HasDataNotSupportedForEntitiesMappedToJson" xml:space="preserve">
     <value>Can't use HasData for entity type '{entity}'. HasData is not supported for entities mapped to JSON.</value>
+  </data>
+  <data name="ImplicitDefaultNamesNotSupportedForTpcWhenNamesClash" xml:space="preserve">
+    <value>Named default constraints can't be used with TPC or entity splitting if they result in non-unique constraint name. Constraint name: '{constraintNameCandidate}'.</value>
   </data>
   <data name="IncompatibleTableCommentMismatch" xml:space="preserve">
     <value>Cannot use table '{table}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and the comment '{comment}' does not match the comment '{otherComment}'.</value>
