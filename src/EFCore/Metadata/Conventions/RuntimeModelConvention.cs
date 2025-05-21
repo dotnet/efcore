@@ -304,8 +304,8 @@ public class RuntimeModelConvention : IModelFinalizedConvention
 
                 var rewritingVisitor = new QueryRootRewritingExpressionVisitor(runtimeEntityType.Model);
 
-                annotations[CoreAnnotationNames.QueryFilter] = new RuntimeQueryFilterCollection(
-                    ((IReadOnlyQueryFilterCollection)queryFilters)
+                annotations[CoreAnnotationNames.QueryFilter] = new QueryFilterCollection(
+                    ((QueryFilterCollection)queryFilters)
                         .Select(x => new RuntimeQueryFilter(x.Key, (LambdaExpression)rewritingVisitor.Rewrite(x.Expression!)))
                     );
             }

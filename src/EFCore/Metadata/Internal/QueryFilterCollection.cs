@@ -12,10 +12,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public sealed class QueryFilterCollection : IReadOnlyQueryFilterCollection
+public sealed class QueryFilterCollection : IReadOnlyCollection<IQueryFilter>
 {
     private IQueryFilter? anonymousFilter;    
     private Dictionary<string, IQueryFilter>? filters;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public QueryFilterCollection()
+    {
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public QueryFilterCollection(IEnumerable<IQueryFilter> filters) => SetRange(filters);
 
     [MemberNotNullWhen(true, nameof(anonymousFilter))]
     private bool HasAnonymousFilter => anonymousFilter != null;
@@ -95,6 +113,25 @@ public sealed class QueryFilterCollection : IReadOnlyQueryFilterCollection
         }
 
         return filter;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public void SetRange(IEnumerable<IQueryFilter> newFilters)
+    {
+        if(filters == null && newFilters.TryGetNonEnumeratedCount(out var count) && count > 1)
+        {
+            filters = new(count);
+        }
+
+        foreach (var filter in newFilters)
+        {
+            Set(filter);
+        }
     }
 
     private void Remove(string? key = null)

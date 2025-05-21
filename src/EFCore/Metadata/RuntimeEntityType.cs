@@ -1005,7 +1005,7 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
     /// <inheritdoc />
     [DebuggerStepThrough]
     IQueryFilter? IReadOnlyEntityType.FindDeclaredQueryFilter(string? filterKey)
-        => ((IReadOnlyQueryFilterCollection?)this[CoreAnnotationNames.QueryFilter])?[filterKey];
+        => ((QueryFilterCollection?)this[CoreAnnotationNames.QueryFilter])?[filterKey];
 
     /// <inheritdoc />
     bool IReadOnlyTypeBase.HasSharedClrType

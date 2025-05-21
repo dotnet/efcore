@@ -2923,7 +2923,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual IReadOnlyCollection<IQueryFilter> GetDeclaredQueryFilters()
-        => (IReadOnlyQueryFilterCollection?)this[CoreAnnotationNames.QueryFilter] ?? new QueryFilterCollection();
+        => (QueryFilterCollection?)this[CoreAnnotationNames.QueryFilter] ?? new QueryFilterCollection();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2942,7 +2942,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual IQueryFilter? FindDeclaredQueryFilter(string? filterKey)
-        => ((IReadOnlyQueryFilterCollection?)this[CoreAnnotationNames.QueryFilter])?[filterKey];
+        => ((QueryFilterCollection?)this[CoreAnnotationNames.QueryFilter])?[filterKey];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2951,7 +2951,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual ConfigurationSource? GetQueryFilterConfigurationSource(string? filterKey)
-        => ((QueryFilter?)((IReadOnlyQueryFilterCollection?)this[CoreAnnotationNames.QueryFilter])?[filterKey])?.ConfigurationSource;
+        => ((QueryFilter?)((QueryFilterCollection?)this[CoreAnnotationNames.QueryFilter])?[filterKey])?.ConfigurationSource;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
