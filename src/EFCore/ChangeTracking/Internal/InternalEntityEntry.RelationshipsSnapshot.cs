@@ -5,16 +5,16 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
-public sealed partial class InternalEntityEntry
+public partial class InternalEntityEntry
 {
     private readonly struct RelationshipsSnapshot(InternalEntityEntry entry)
     {
-        private readonly ISnapshot _values = entry.EntityType.RelationshipSnapshotFactory(entry);
+        private readonly ISnapshot _values = entry.StructuralType.RelationshipSnapshotFactory(entry);
 
-        public object? GetValue(InternalEntityEntry entry, IPropertyBase propertyBase)
+        public object? GetValue(InternalEntryBase entry, IPropertyBase propertyBase)
             => IsEmpty ? entry[propertyBase] : _values[propertyBase.GetRelationshipIndex()];
 
-        public T GetValue<T>(InternalEntityEntry entry, IPropertyBase propertyBase, int index)
+        public T GetValue<T>(InternalEntryBase entry, IPropertyBase propertyBase, int index)
             => IsEmpty
                 ? entry.GetCurrentValue<T>(propertyBase)
                 : _values.GetValue<T>(index);

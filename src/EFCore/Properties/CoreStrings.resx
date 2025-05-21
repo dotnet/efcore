@@ -303,6 +303,12 @@
   <data name="CompiledQueryDifferentModel" xml:space="preserve">
     <value>The compiled query '{queryExpression}' was executed with a different model than it was compiled against. Compiled queries can only be used with a single model.</value>
   </data>
+  <data name="ComplexCollectionIsReference" xml:space="preserve">
+    <value>The property '{entityType}.{property}' is being accessed using '{collectionMethod}', but is defined in the model as a non-collection complex property. Use '{referenceMethod}' to access non-collection complex properties.</value>
+  </data>
+  <data name="ComplexCollectionNotInitialized" xml:space="preserve">
+    <value>The complex type collection '{entityType}.{collection}' must be initialized to a non-null value before the elements can be accessed.</value>
+  </data>
   <data name="ComplexCollectionWrongClrType" xml:space="preserve">
     <value>The collection complex property '{property}' cannot be added to the type '{type}' because its CLR type '{clrType}' does not implement 'IEnumerable&lt;{targetType}&gt;'. Collection complex property must implement IEnumerable&lt;&gt; of the complex type.</value>
   </data>
@@ -320,6 +326,9 @@
   </data>
   <data name="ComplexPropertyWrongClrType" xml:space="preserve">
     <value>The complex property '{property}' cannot be added to the type '{type}' because its CLR type '{clrType}' does not match the expected CLR type '{targetType}'.</value>
+  </data>
+  <data name="ComplexReferenceIsCollection" xml:space="preserve">
+    <value>The property '{entityType}.{property}' is being accessed using the '{referenceMethod}' method, but is defined in the model as a collection complex property. Use the '{collectionMethod}' method to access collection complex properties.</value>
   </data>
   <data name="ComplexTypesNotSupported" xml:space="preserve">
     <value>'{service}' doesn't currently support complex types.</value>
@@ -834,6 +843,14 @@
   <data name="LogCollectionWithoutComparer" xml:space="preserve">
     <value>The property '{entityType}.{property}' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.</value>
     <comment>Warning CoreEventId.CollectionWithoutComparer string string</comment>
+  </data>
+  <data name="LogComplexTypePropertyChangeDetected" xml:space="preserve">
+    <value>The unchanged property '{typePath}.{property}' was detected as changed and will be marked as modified. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see property values.</value>
+    <comment>Debug CoreEventId.ComplexTypePropertyChangeDetected string string</comment>
+  </data>
+  <data name="LogComplexTypePropertyChangeDetectedSensitive" xml:space="preserve">
+    <value>The unchanged property '{typePath}.{property}' was detected as changed from '{oldValue}' to '{newValue}' and will be marked as modified for entity with key '{keyValues}'.</value>
+    <comment>Debug CoreEventId.ComplexTypePropertyChangeDetected string string object? object? string</comment>
   </data>
   <data name="LogConflictingForeignKeyAttributesOnNavigationAndProperty" xml:space="preserve">
     <value>The relationship was separated into two relationships because the [ForeignKey] attribute specified on the navigation '{navigationEntityType}.{navigation}' doesn't match the [ForeignKey] attribute specified on the property '{propertyEntityType}.{property}'.</value>
