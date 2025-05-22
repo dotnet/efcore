@@ -7,7 +7,6 @@ using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 
 namespace Microsoft.EntityFrameworkCore;
 
-#pragma warning disable EF9103
 public class VectorSearchCosmosTest : IClassFixture<VectorSearchCosmosTest.VectorSearchFixture>
 {
     public VectorSearchCosmosTest(VectorSearchFixture fixture, ITestOutputHelper testOutputHelper)
@@ -257,14 +256,12 @@ ORDER BY VectorDistance(c["SinglesArray"], @p, false, {'distanceFunction':'cosin
         var inputVector1 = new byte[] { 2, 1, 4, 6, 5, 2, 5, 7, 3, 1 };
         var inputVector2 = new[] { 0.33f, -0.52f, 0.45f, -0.67f, 0.89f, -0.34f, 0.86f, -0.78f };
 
-#pragma warning disable EF9104 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
         var booksFromStore = await context
             .Set<Book>()
             .OrderBy(e => EF.Functions.Rrf(
                 EF.Functions.VectorDistance(e.BytesArray, inputVector1),
                 EF.Functions.VectorDistance(e.SinglesArray, inputVector2)))
             .ToListAsync();
-#pragma warning restore EF9104 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
 
         Assert.Equal(3, booksFromStore.Count);
 
@@ -396,22 +393,22 @@ ORDER BY RANK RRF(VectorDistance(c["BytesArray"], @p, false, {'distanceFunction'
                     b.HasKey(e => e.Id);
                     b.HasPartitionKey(e => e.Publisher);
 
-                    b.HasIndex(e => e.Bytes).ForVectors(VectorIndexType.Flat);
-                    b.HasIndex(e => e.SBytes).ForVectors(VectorIndexType.Flat);
-                    b.HasIndex(e => e.BytesArray).ForVectors(VectorIndexType.Flat);
-                    b.HasIndex(e => e.SinglesArray).ForVectors(VectorIndexType.Flat);
+                    b.HasIndex(e => e.Bytes).IsVectorIndex(VectorIndexType.Flat);
+                    b.HasIndex(e => e.SBytes).IsVectorIndex(VectorIndexType.Flat);
+                    b.HasIndex(e => e.BytesArray).IsVectorIndex(VectorIndexType.Flat);
+                    b.HasIndex(e => e.SinglesArray).IsVectorIndex(VectorIndexType.Flat);
 
-                    b.Property(e => e.Bytes).IsVector(DistanceFunction.Cosine, 10);
-                    b.Property(e => e.SBytes).IsVector(DistanceFunction.DotProduct, 10);
-                    b.Property(e => e.BytesArray).IsVector(DistanceFunction.Cosine, 10);
-                    b.Property(e => e.SinglesArray).IsVector(DistanceFunction.Cosine, 10);
+                    b.Property(e => e.Bytes).IsVectorProperty(DistanceFunction.Cosine, 10);
+                    b.Property(e => e.SBytes).IsVectorProperty(DistanceFunction.DotProduct, 10);
+                    b.Property(e => e.BytesArray).IsVectorProperty(DistanceFunction.Cosine, 10);
+                    b.Property(e => e.SinglesArray).IsVectorProperty(DistanceFunction.Cosine, 10);
 
                     b.OwnsOne(x => x.OwnedReference, bb =>
                     {
                         bb.OwnsOne(x => x.NestedOwned, bbb =>
                         {
-                            bbb.HasIndex(x => x.NestedSingles).ForVectors(VectorIndexType.Flat);
-                            bbb.Property(x => x.NestedSingles).IsVector(DistanceFunction.Cosine, 10);
+                            bbb.HasIndex(x => x.NestedSingles).IsVectorIndex(VectorIndexType.Flat);
+                            bbb.Property(x => x.NestedSingles).IsVectorProperty(DistanceFunction.Cosine, 10);
                         });
 
                         bb.OwnsMany(x => x.NestedOwnedCollection, bbb => bbb.Ignore(x => x.NestedSingles));
@@ -507,4 +504,3 @@ ORDER BY RANK RRF(VectorDistance(c["BytesArray"], @p, false, {'distanceFunction'
             => CosmosTestStoreFactory.Instance;
     }
 }
-#pragma warning restore EF9103

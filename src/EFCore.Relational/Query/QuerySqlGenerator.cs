@@ -1472,7 +1472,7 @@ public class QuerySqlGenerator : SqlExpressionVisitor
                     var table = selectExpression.Tables[i];
                     var joinExpression = table as JoinExpressionBase;
 
-                    if (ReferenceEquals(updateExpression.Table, joinExpression?.Table ?? table))
+                    if (updateExpression.Table.Alias == (joinExpression?.Table.Alias ?? table.Alias))
                     {
                         LiftPredicate(table);
                         continue;

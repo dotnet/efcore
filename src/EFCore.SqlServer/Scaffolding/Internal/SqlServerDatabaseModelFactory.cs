@@ -733,6 +733,8 @@ SELECT
     [c].[is_nullable],
     [c].[is_identity],
     [dc].[definition] AS [default_sql],
+    [dc].[name] AS [default_constraint_name],
+    [dc].[is_system_named] AS [default_constraint_is_system_named],
     [cc].[definition] AS [computed_sql],
     [cc].[is_persisted] AS [computed_is_persisted],
     CAST([e].[value] AS nvarchar(MAX)) AS [comment],
@@ -802,6 +804,8 @@ LEFT JOIN [sys].[default_constraints] AS [dc] ON [c].[object_id] = [dc].[parent_
                 var nullable = dataRecord.GetValueOrDefault<bool>("is_nullable");
                 var isIdentity = dataRecord.GetValueOrDefault<bool>("is_identity");
                 var defaultValueSql = dataRecord.GetValueOrDefault<string>("default_sql");
+                var defaultConstraintName = dataRecord.GetValueOrDefault<string>("default_constraint_name");
+                var defaultConstraintIsSystemNamed = dataRecord.GetValueOrDefault<bool>("default_constraint_is_system_named");
                 var computedValue = dataRecord.GetValueOrDefault<string>("computed_sql");
                 var computedIsPersisted = dataRecord.GetValueOrDefault<bool>("computed_is_persisted");
                 var comment = dataRecord.GetValueOrDefault<string>("comment");
@@ -873,6 +877,11 @@ LEFT JOIN [sys].[default_constraints] AS [dc] ON [c].[object_id] = [dc].[parent_
                 if (isSparse)
                 {
                     column[SqlServerAnnotationNames.Sparse] = true;
+                }
+
+                if (defaultConstraintName != null && !defaultConstraintIsSystemNamed)
+                {
+                    column[RelationalAnnotationNames.DefaultConstraintName] = defaultConstraintName;
                 }
 
                 table.Columns.Add(column);

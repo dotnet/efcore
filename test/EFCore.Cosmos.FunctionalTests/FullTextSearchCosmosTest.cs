@@ -7,7 +7,6 @@ using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 
 namespace Microsoft.EntityFrameworkCore;
 
-#pragma warning disable EF9104 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
 [CosmosCondition(CosmosCondition.DoesNotUseTokenCredential | CosmosCondition.IsNotEmulator)]
 public class FullTextSearchCosmosTest : IClassFixture<FullTextSearchCosmosTest.FullTextSearchFixture>
 {
@@ -293,7 +292,7 @@ WHERE FullTextContains("habitat is the natural environment in which a particular
 """
 SELECT VALUE c
 FROM root c
-ORDER BY RANK FullTextScore(c["Description"], ["otter"])
+ORDER BY RANK FullTextScore(c["Description"], "otter")
 """);
     }
 
@@ -310,7 +309,7 @@ ORDER BY RANK FullTextScore(c["Description"], ["otter"])
 """
 SELECT VALUE c
 FROM root c
-ORDER BY RANK FullTextScore(c["Description"], ["otter","beaver"])
+ORDER BY RANK FullTextScore(c["Description"], "otter", "beaver")
 """);
     }
 
@@ -327,7 +326,7 @@ ORDER BY RANK FullTextScore(c["Description"], ["otter","beaver"])
 """
 SELECT VALUE c
 FROM root c
-ORDER BY RANK FullTextScore(c["Description"], ["otter","beaver"])
+ORDER BY RANK FullTextScore(c["Description"], "otter", "beaver")
 """);
     }
 
@@ -344,7 +343,7 @@ ORDER BY RANK FullTextScore(c["Description"], ["otter","beaver"])
 """
 SELECT VALUE c
 FROM root c
-ORDER BY RANK FullTextScore(c["Description"], ["otter"])
+ORDER BY RANK FullTextScore(c["Description"], "otter")
 """);
     }
 
@@ -362,7 +361,7 @@ ORDER BY RANK FullTextScore(c["Description"], ["otter"])
 """
 SELECT VALUE c
 FROM root c
-ORDER BY RANK FullTextScore(c["Description"], ["otter","beaver"])
+ORDER BY RANK FullTextScore(c["Description"], "otter", "beaver")
 """);
     }
 
@@ -385,7 +384,7 @@ ORDER BY RANK FullTextScore(c["Description"], ["otter","beaver"])
 
 SELECT VALUE c
 FROM root c
-ORDER BY RANK FullTextScore(c["Description"], [@otter, @beaver])
+ORDER BY RANK FullTextScore(c["Description"], @otter, @beaver)
 """);
     }
 
@@ -406,7 +405,7 @@ ORDER BY RANK FullTextScore(c["Description"], [@otter, @beaver])
 
 SELECT VALUE c
 FROM root c
-ORDER BY RANK FullTextScore(c["Description"], [@otter])
+ORDER BY RANK FullTextScore(c["Description"], @otter)
 """);
     }
 
@@ -427,7 +426,28 @@ ORDER BY RANK FullTextScore(c["Description"], [@otter])
 
 SELECT VALUE c
 FROM root c
-ORDER BY RANK FullTextScore(c["Description"], ["otter", @beaver])
+ORDER BY RANK FullTextScore(c["Description"], "otter", @beaver)
+""");
+    }
+
+    [ConditionalFact]
+    public virtual async Task OrderByRank_FullTextScore_using_parameters_constant_mix_inline()
+    {
+        await using var context = CreateContext();
+
+        var beaver = "beaver";
+
+        var result = await context.Set<FullTextSearchAnimals>()
+            .OrderBy(x => EF.Functions.FullTextScore(x.Description, "otter", beaver))
+            .ToListAsync();
+
+        AssertSql(
+"""
+@beaver='beaver'
+
+SELECT VALUE c
+FROM root c
+ORDER BY RANK FullTextScore(c["Description"], "otter", @beaver)
 """);
     }
 
@@ -448,7 +468,7 @@ ORDER BY RANK FullTextScore(c["Description"], ["otter", @beaver])
 
 SELECT VALUE c
 FROM root c
-ORDER BY RANK FullTextScore(c["Description"], [@otter])
+ORDER BY RANK FullTextScore(c["Description"], @otter)
 """);
     }
 
@@ -465,7 +485,7 @@ ORDER BY RANK FullTextScore(c["Description"], [@otter])
                 .ToListAsync())).Message;
 
         Assert.Contains(
-            "The second argument of the FullTextScore function must be a non-empty array of string literals.",
+            "The second through last arguments of the FullTextScore function must be string literals.",
             message);
     }
 
@@ -496,7 +516,7 @@ ORDER BY RANK FullTextScore(c["Description"], [@otter])
 """
 SELECT VALUE c
 FROM root c
-ORDER BY RANK FullTextScore(c["PartitionKey"], ["taxonomy"])
+ORDER BY RANK FullTextScore(c["PartitionKey"], "taxonomy")
 """);
     }
 
@@ -515,7 +535,7 @@ ORDER BY RANK FullTextScore(c["PartitionKey"], ["taxonomy"])
 """
 SELECT VALUE c
 FROM root c
-ORDER BY RANK RRF(FullTextScore(c["Description"], ["beaver"]), FullTextScore(c["Description"], ["otter","bat"]))
+ORDER BY RANK RRF(FullTextScore(c["Description"], "beaver"), FullTextScore(c["Description"], "otter", "bat"))
 """);
     }
 
@@ -585,7 +605,7 @@ ORDER BY RANK RRF(FullTextScore(c["Description"], ["beaver"]), FullTextScore(c["
 """
 SELECT VALUE c
 FROM root c
-ORDER BY RANK FullTextScore(c["Description"], ["beaver"])
+ORDER BY RANK FullTextScore(c["Description"], "beaver")
 OFFSET 0 LIMIT 10
 """);
     }
@@ -604,7 +624,7 @@ OFFSET 0 LIMIT 10
 """
 SELECT VALUE c
 FROM root c
-ORDER BY RANK FullTextScore(c["Description"], ["beaver","dolphin"])
+ORDER BY RANK FullTextScore(c["Description"], "beaver", "dolphin")
 OFFSET 1 LIMIT 20
 """);
     }
@@ -634,7 +654,7 @@ OFFSET 1 LIMIT 20
 """
 SELECT VALUE c
 FROM root c
-ORDER BY RANK FullTextScore(c["Description"], ["beaver","dolphin","second"])
+ORDER BY RANK FullTextScore(c["Description"], "beaver", "dolphin", "second")
 """);
     }
 
@@ -668,7 +688,7 @@ ORDER BY c["Name"]
 """
 SELECT VALUE c
 FROM root c
-ORDER BY RANK FullTextScore(c["Description"], ["beaver","dolphin"])
+ORDER BY RANK FullTextScore(c["Description"], "beaver", "dolphin")
 """);
     }
 
@@ -726,7 +746,7 @@ ORDER BY RANK FullTextScore(c["Description"], ["beaver","dolphin"])
 SELECT VALUE c
 FROM root c
 WHERE ((c["PartitionKey"] || "Foo") = "habitatFoo")
-ORDER BY RANK FullTextScore(c["Description"], ["beaver","dolphin"])
+ORDER BY RANK FullTextScore(c["Description"], "beaver", "dolphin")
 """);
     }
 
@@ -780,7 +800,7 @@ WHERE FullTextContains(c["Owned"]["NestedReference"]["AnotherDescription"], "bea
 """
 SELECT VALUE c
 FROM root c
-ORDER BY RANK FullTextScore(c["Owned"]["NestedReference"]["AnotherDescription"], ["beaver","dolphin"])
+ORDER BY RANK FullTextScore(c["Owned"]["NestedReference"]["AnotherDescription"], "beaver", "dolphin")
 """);
     }
 
@@ -817,7 +837,7 @@ WHERE FullTextContains(c["Owned"]["NestedCollection"][0]["AnotherDescription"], 
 """
 SELECT VALUE c
 FROM root c
-ORDER BY RANK FullTextScore(c["Owned"]["NestedCollection"][0]["AnotherDescription"], ["beaver","dolphin"])
+ORDER BY RANK FullTextScore(c["Owned"]["NestedCollection"][0]["AnotherDescription"], "beaver", "dolphin")
 """);
     }
 
@@ -833,7 +853,7 @@ ORDER BY RANK FullTextScore(c["Owned"]["NestedCollection"][0]["AnotherDescriptio
 """
 SELECT VALUE c
 FROM root c
-ORDER BY RANK FullTextScore(c["CustomDecription"], ["beaver","dolphin"])
+ORDER BY RANK FullTextScore(c["CustomDecription"], "beaver", "dolphin")
 """);
     }
 
@@ -850,7 +870,7 @@ ORDER BY RANK FullTextScore(c["CustomDecription"], ["beaver","dolphin"])
 """
 SELECT VALUE c
 FROM root c
-ORDER BY RANK FullTextScore(c["Owned"]["CustomNestedReference"]["AnotherDescription"], ["beaver","dolphin"])
+ORDER BY RANK FullTextScore(c["Owned"]["CustomNestedReference"]["AnotherDescription"], "beaver", "dolphin")
 """);
     }
 
@@ -867,7 +887,7 @@ ORDER BY RANK FullTextScore(c["Owned"]["CustomNestedReference"]["AnotherDescript
 """
 SELECT VALUE c
 FROM root c
-ORDER BY RANK FullTextScore(c["DescriptionNoIndex"], ["beaver","dolphin"])
+ORDER BY RANK FullTextScore(c["DescriptionNoIndex"], "beaver", "dolphin")
 """);
     }
 
