@@ -8,13 +8,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.editorconfig = .editorconfig
 		azure-pipelines-public.yml = azure-pipelines-public.yml
 		azure-pipelines.yml = azure-pipelines.yml
+		.github\copilot-instructions.md = .github\copilot-instructions.md
 		Directory.Build.props = Directory.Build.props
 		Directory.Build.targets = Directory.Build.targets
 		Directory.Packages.props = Directory.Packages.props
 		global.json = global.json
+		NuGet.config = NuGet.config
 		tools\Resources.tt = tools\Resources.tt
 		eng\Versions.props = eng\Versions.props
-		NuGet.config = NuGet.config
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{CE6B50B2-34AE-44C9-940A-4E48C3E1B3BC}"
