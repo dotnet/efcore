@@ -48,7 +48,7 @@
     <PackageVersion Include="Castle.Core" Version="5.2.1" />
     <PackageVersion Include="Humanizer.Core" Version="2.14.1" />
     <PackageVersion Include="Mono.TextTemplating" Version="3.0.0" />
-    <PackageVersion Include="NetTopologySuite" Version="2.5.0" />
+    <PackageVersion Include="NetTopologySuite" Version="2.6.0" />
     <PackageVersion Include="NetTopologySuite.IO.SpatiaLite" Version="2.0.0" />
     <PackageVersion Include="NetTopologySuite.IO.SqlServerBytes" Version="2.1.0" />
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
