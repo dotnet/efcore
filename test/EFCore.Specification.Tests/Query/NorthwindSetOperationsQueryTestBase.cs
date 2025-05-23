@@ -231,6 +231,17 @@ public abstract class NorthwindSetOperationsQueryTestBase<TFixture>(TFixture fix
                 .Union(ss.Set<Customer>().Where(c => c.City == "London"))
                 .Intersect(ss.Set<Customer>().Where(c => c.ContactName.Contains("Thomas"))));
 
+    // The evaluation order of Concat and Union can matter: A UNION ALL (B UNION C) can be different from (A UNION ALL B) UNION C.
+    // Make sure parentheses are added.
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Union_inside_Concat(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.City == "Berlin")
+                .Concat(ss.Set<Customer>().Where(c => c.City == "London")
+                    .Union(ss.Set<Customer>().Where(c => c.City == "Berlin"))));
+
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Union_Take_Union_Take(bool async)
