@@ -1213,7 +1213,7 @@ WHERE (
             """
 SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
 FROM [PrimitiveCollectionsEntity] AS [p]
-WHERE COALESCE((
+WHERE ISNULL((
     SELECT TOP(1) CAST([i].[value] AS int) AS [value]
     FROM OPENJSON([p].[Ints]) AS [i]
     ORDER BY CAST([i].[key] AS int)), 0) = 1
@@ -1243,7 +1243,7 @@ WHERE (
             """
 SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
 FROM [PrimitiveCollectionsEntity] AS [p]
-WHERE COALESCE((
+WHERE ISNULL((
     SELECT TOP(1) CAST([i].[value] AS int) AS [value]
     FROM OPENJSON([p].[Ints]) AS [i]
     ORDER BY CAST([i].[key] AS int)), 0) = 1
