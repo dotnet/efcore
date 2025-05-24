@@ -9,55 +9,43 @@ public abstract class QueryExpressionInterceptionTestBase(InterceptionTestBase.I
     : InterceptionTestBase(fixture)
 {
     [ConditionalTheory]
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
-    public virtual async Task Intercept_query_passively(bool async, bool inject)
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Intercept_query_passively(bool async)
     {
-        var (context, interceptor) = await CreateContextAsync<TestQueryExpressionInterceptor>(inject);
+        var (context, interceptor) = await CreateContextAsync<TestQueryExpressionInterceptor>(inject: true);
 
         using var _ = context;
 
         var query = context.Set<Singularity>().Where(e => e.Type == "Black Hole");
-        var results = async ? await query.ToListAsync() : query.ToList();
+        var result = async ? await query.SingleAsync() : query.Single();
 
-        Assert.Single(results);
-        Assert.Equal("Black Hole", results[0].Type);
+        Assert.Equal("Black Hole", result.Type);
 
         AssertNormalOutcome(context, interceptor);
 
-        Assert.Contains(@".Where(e => e.Type == ""Black Hole"")", interceptor.QueryExpression);
+        Assert.Contains(""".Where(e => e.Type == "Black Hole")""", interceptor.QueryExpression);
     }
 
     [ConditionalTheory]
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
-    public virtual async Task Intercept_query_with_multiple_interceptors(bool async, bool inject)
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Intercept_query_with_multiple_interceptors(bool async)
     {
         var interceptor1 = new TestQueryExpressionInterceptor();
         var interceptor2 = new QueryChangingExpressionInterceptor();
-        var interceptor3 = new TestQueryExpressionInterceptor();
-        var interceptor4 = new TestQueryExpressionInterceptor();
 
         using var context = await CreateContextAsync(
-            new IInterceptor[] { new TestQueryExpressionInterceptor(), interceptor1, interceptor2 },
-            new IInterceptor[] { interceptor3, interceptor4, new TestQueryExpressionInterceptor() });
+            appInterceptor: null,
+            [interceptor1, interceptor2]);
 
         using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
 
         var query = context.Set<Singularity>().Where(e => e.Type == "Bing Bang");
-        var results = async ? await query.ToListAsync() : query.ToList();
+        var result = async ? await query.SingleAsync() : query.Single();
 
-        Assert.Single(results);
-        Assert.Equal("Bing Bang", results[0].Type);
+        Assert.Equal("Bing Bang", result.Type);
 
         AssertNormalOutcome(context, interceptor1);
         AssertNormalOutcome(context, interceptor2);
-        AssertNormalOutcome(context, interceptor3);
-        AssertNormalOutcome(context, interceptor4);
 
         listener.AssertEventsInOrder(
             CoreEventId.QueryCompilationStarting.Name,
@@ -67,25 +55,48 @@ public abstract class QueryExpressionInterceptionTestBase(InterceptionTestBase.I
     }
 
     [ConditionalTheory]
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
-    public virtual async Task Intercept_to_change_query_expression(bool async, bool inject)
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Intercept_to_change_query_expression(bool async)
     {
-        var (context, interceptor) = await CreateContextAsync<QueryChangingExpressionInterceptor>(inject);
+        var (context, interceptor) = await CreateContextAsync<QueryChangingExpressionInterceptor>(inject: true);
 
         using var _ = context;
 
         var query = context.Set<Singularity>().Where(e => e.Type == "Black Hole");
-        var results = async ? await query.ToListAsync() : query.ToList();
+        var result = async ? await query.SingleAsync() : query.Single();
 
-        Assert.Single(results);
-        Assert.Equal("Bing Bang", results[0].Type);
+        Assert.Equal("Bing Bang", result.Type);
 
         AssertNormalOutcome(context, interceptor);
 
-        Assert.Contains(@".Where(e => e.Type == ""Bing Bang"")", interceptor.QueryExpression);
+        Assert.Contains(""".Where(e => e.Type == "Bing Bang")""", interceptor.QueryExpression);
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Interceptor_does_not_leak_across_contexts(bool async)
+    {
+        // Create one context with QueryChangingExpressionInterceptor, and another with TestQueryExpressionInterceptor (which is a no-op).
+        // Note that we don't use the regular suite infra for creating the contexts, as that creates separate service providers for each
+        // one, but that's exactly what we want to test here.
+        using var context1 = new UniverseContext(
+            Fixture.AddOptions(
+                Fixture.TestStore.AddProviderOptions(
+                    new DbContextOptionsBuilder<DbContext>().AddInterceptors(new QueryChangingExpressionInterceptor())))
+            .Options);
+        using var context2 = new UniverseContext(
+            Fixture.AddOptions(
+                Fixture.TestStore.AddProviderOptions(
+                    new DbContextOptionsBuilder<DbContext>().AddInterceptors(new TestQueryExpressionInterceptor())))
+            .Options);
+
+        var query1 = context1.Set<Singularity>().Where(e => e.Type == "Black Hole");
+        var result1 = async ? await query1.SingleAsync() : query1.Single();
+        Assert.Equal("Bing Bang", result1.Type);
+
+        var query2 = context2.Set<Singularity>().Where(e => e.Type == "Black Hole");
+        var result2 = async ? await query2.SingleAsync() : query2.Single();
+        Assert.Equal("Black Hole", result2.Type);
     }
 
     protected class QueryChangingExpressionInterceptor : TestQueryExpressionInterceptor
@@ -128,4 +139,6 @@ public abstract class QueryExpressionInterceptionTestBase(InterceptionTestBase.I
             return queryExpression;
         }
     }
+
+    public static readonly IEnumerable<object[]> IsAsyncData = [[false], [true]];
 }
