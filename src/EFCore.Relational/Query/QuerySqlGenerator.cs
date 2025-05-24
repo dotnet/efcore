@@ -44,6 +44,9 @@ public class QuerySqlGenerator : SqlExpressionVisitor
     private static readonly bool UseOldBehavior32375 =
         AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue32375", out var enabled32375) && enabled32375;
 
+    private static readonly bool UseOldBehavior36105 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue36105", out var enabled36105) && enabled36105;
+
     /// <summary>
     ///     Creates a new instance of the <see cref="QuerySqlGenerator" /> class.
     /// </summary>
@@ -1276,9 +1279,16 @@ public class QuerySqlGenerator : SqlExpressionVisitor
     protected virtual void GenerateSetOperationOperand(SetOperationBase setOperation, SelectExpression operand)
     {
         // INTERSECT has higher precedence over UNION and EXCEPT, but otherwise evaluation is left-to-right.
-        // To preserve meaning, add parentheses whenever a set operation is nested within a different set operation.
+        // To preserve evaluation order, add parentheses whenever a set operation is nested within a different set operation
+        // - including different distinctness.
+        // In addition, EXCEPT is non-commutative (unlike UNION/INTERSECT), so add parentheses for that case too (see #36105).
         if (IsNonComposedSetOperation(operand)
-            && operand.Tables[0].GetType() != setOperation.GetType())
+            && ((UseOldBehavior36105 && operand.Tables[0].GetType() != setOperation.GetType())
+                || (!UseOldBehavior36105
+                    && operand.Tables[0] is SetOperationBase nestedSetOperation
+                    && (nestedSetOperation is ExceptExpression
+                        || nestedSetOperation.GetType() != setOperation.GetType()
+                        || nestedSetOperation.IsDistinct != setOperation.IsDistinct))))
         {
             _relationalCommandBuilder.AppendLine("(");
             using (_relationalCommandBuilder.Indent())
