@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
@@ -13,6 +14,9 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
 /// </summary>
 public class SqliteQuerySqlGenerator : QuerySqlGenerator
 {
+    private static readonly bool UseOldBehavior36112 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue36112", out var enabled36112) && enabled36112;
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -97,8 +101,63 @@ public class SqliteQuerySqlGenerator : QuerySqlGenerator
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override void GenerateSetOperationOperand(SetOperationBase setOperation, SelectExpression operand)
-        // Sqlite doesn't support parentheses around set operation operands
-        => Visit(operand);
+    {
+        // Most databases support parentheses around set operations to determine evaluation order, but SQLite does not;
+        // however, we can instead wrap the nested set operation in a SELECT * FROM () to achieve the same effect.
+        // The following is a copy-paste of the base implementation from QuerySqlGenerator, adding the SELECT.
+
+        // INTERSECT has higher precedence over UNION and EXCEPT, but otherwise evaluation is left-to-right.
+        // To preserve evaluation order, add parentheses whenever a set operation is nested within a different set operation
+        // - including different distinctness.
+        // In addition, EXCEPT is non-commutative (unlike UNION/INTERSECT), so add parentheses for that case too (see #36105).
+        if (!UseOldBehavior36112
+            && TryUnwrapBareSetOperation(operand, out var nestedSetOperation)
+            && (nestedSetOperation is ExceptExpression
+                || nestedSetOperation.GetType() != setOperation.GetType()
+                || nestedSetOperation.IsDistinct != setOperation.IsDistinct))
+        {
+            Sql.AppendLine("SELECT * FROM (");
+
+            using (Sql.Indent())
+            {
+                Visit(operand);
+            }
+
+            Sql.AppendLine().Append(")");
+        }
+        else
+        {
+            Visit(operand);
+        }
+
+        static bool TryUnwrapBareSetOperation(SelectExpression selectExpression, [NotNullWhen(true)] out SetOperationBase? setOperation)
+        {
+            if (selectExpression is
+                {
+                    Tables: [SetOperationBase s],
+                    Predicate: null,
+                    Orderings: [],
+                    Offset: null,
+                    Limit: null,
+                    IsDistinct: false,
+                    Having: null,
+                    GroupBy: []
+                }
+                && selectExpression.Projection.Count == s.Source1.Projection.Count
+                && selectExpression.Projection.Select(
+                        (pe, index) => pe.Expression is ColumnExpression column
+                            && column.TableAlias == s.Alias
+                            && column.Name == s.Source1.Projection[index].Alias)
+                    .All(e => e))
+            {
+                setOperation = s;
+                return true;
+            }
+
+            setOperation = null;
+            return false;
+        }
+    }
 
     private void GenerateGlob(GlobExpression globExpression, bool negated = false)
     {
