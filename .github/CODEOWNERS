@@ -1,12 +1,12 @@
 # Users referenced in this file will automatically be requested as reviewers for PRs that modify the given paths.
 # See https://help.github.com/articles/about-code-owners/
 
-/azure-pipelines.yml                    @AndriySvyryd @maumar
-/azure-pipelines-public.yml             @AndriySvyryd @maumar
-/github-merge-flow.jsonc                @AndriySvyryd @maumar
-/global.json                            @AndriySvyryd @maumar
-/NuGet.config                           @AndriySvyryd @maumar
+/azure-pipelines.yml                    @AndriySvyryd @cincuranet
+/azure-pipelines-public.yml             @AndriySvyryd @cincuranet
+/github-merge-flow.jsonc                @AndriySvyryd @cincuranet
+/global.json                            @AndriySvyryd @cincuranet
+/NuGet.config                           @AndriySvyryd @cincuranet
 /.config/                               @AndriySvyryd
 /.github/                               @dotnet/efteam
-/eng/                                   @AndriySvyryd @maumar
+/eng/                                   @AndriySvyryd @cincuranet
 /src/                                   @dotnet/efteam
