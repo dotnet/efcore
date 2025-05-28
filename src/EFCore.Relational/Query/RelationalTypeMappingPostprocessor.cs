@@ -106,16 +106,7 @@ public class RelationalTypeMappingPostprocessor(
             case ValuesExpression valuesExpression:
                 // By default, the ValuesExpression also contains an ordering by a synthetic increasing _ord. If the containing
                 // SelectExpression doesn't project it out or require it (limit/offset), strip that out.
-                // TODO: Strictly-speaking, stripping the ordering doesn't belong in this visitor which is about applying type mappings
-                return ApplyTypeMappingsOnValuesExpression(
-                    valuesExpression,
-                    stripOrdering: _currentSelectExpression is { Limit: null, Offset: null }
-                    && !_currentSelectExpression.Projection.Any(
-                        p => p.Expression is ColumnExpression
-                            {
-                                Name: RelationalQueryableMethodTranslatingExpressionVisitor.ValuesOrderingColumnName
-                            } c
-                            && c.TableAlias == valuesExpression.Alias));
+                return ApplyTypeMappingsOnValuesExpression(valuesExpression);
 
             // SqlExpressions without an inferred type mapping indicates a problem in EF - everything should have been inferred.
             // One exception is SqlFragmentExpression, which never has a type mapping.
@@ -135,8 +126,7 @@ public class RelationalTypeMappingPostprocessor(
     ///     As an optimization, it can also strip the first _ord column if it's determined that it isn't needed (most cases).
     /// </summary>
     /// <param name="valuesExpression">The <see cref="ValuesExpression" /> to apply the mappings to.</param>
-    /// <param name="stripOrdering">Whether to strip the <c>_ord</c> column.</param>
-    protected virtual ValuesExpression ApplyTypeMappingsOnValuesExpression(ValuesExpression valuesExpression, bool stripOrdering)
+    protected virtual ValuesExpression ApplyTypeMappingsOnValuesExpression(ValuesExpression valuesExpression)
     {
         var inferredTypeMappings = TryGetInferredTypeMapping(
             valuesExpression.Alias, RelationalQueryableMethodTranslatingExpressionVisitor.ValuesValueColumnName, out var typeMapping)
@@ -146,9 +136,6 @@ public class RelationalTypeMappingPostprocessor(
         Check.DebugAssert(
             valuesExpression.ColumnNames[0] == RelationalQueryableMethodTranslatingExpressionVisitor.ValuesOrderingColumnName,
             "First ValuesExpression column isn't the ordering column");
-        var newColumnNames = stripOrdering
-            ? valuesExpression.ColumnNames.Skip(1).ToArray()
-            : valuesExpression.ColumnNames;
 
         switch (valuesExpression)
         {
@@ -159,14 +146,9 @@ public class RelationalTypeMappingPostprocessor(
                 for (var i = 0; i < newRowValues.Length; i++)
                 {
                     var rowValue = rowValues[i];
-                    var newValues = new SqlExpression[newColumnNames.Count];
+                    var newValues = new SqlExpression[valuesExpression.ColumnNames.Count];
                     for (var j = 0; j < valuesExpression.ColumnNames.Count; j++)
                     {
-                        if (j == 0 && stripOrdering)
-                        {
-                            continue;
-                        }
-
                         var value = rowValue.Values[j];
 
                         if (value.TypeMapping is null
@@ -182,13 +164,13 @@ public class RelationalTypeMappingPostprocessor(
                             value = new SqlUnaryExpression(ExpressionType.Convert, value, value.Type, value.TypeMapping);
                         }
 
-                        newValues[j - (stripOrdering ? 1 : 0)] = value;
+                        newValues[j] = value;
                     }
 
                     newRowValues[i] = new RowValueExpression(newValues);
                 }
 
-                return new ValuesExpression(valuesExpression.Alias, newRowValues, null, newColumnNames);
+                return valuesExpression.Update(newRowValues);
             }
 
             // VALUES over a values parameter (i.e. a parameter representing the entire collection, that will be constantized into the SQL
@@ -203,10 +185,7 @@ public class RelationalTypeMappingPostprocessor(
                     throw new UnreachableException("A RelationalTypeMapping collection type mapping could not be found");
                 }
 
-                return new ValuesExpression(
-                    valuesExpression.Alias,
-                    (SqlParameterExpression)valuesParameter.ApplyTypeMapping(collectionParameterTypeMapping),
-                    newColumnNames);
+                return valuesExpression.Update(valuesParameter.ApplyTypeMapping(collectionParameterTypeMapping));
             }
 
             default:

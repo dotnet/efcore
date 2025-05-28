@@ -12271,7 +12271,7 @@ LEFT JOIN (
     ) AS [w0]
     WHERE [w0].[row] <= ISNULL((
         SELECT [n].[Value]
-        FROM (VALUES (1, @numbers1), (2, @numbers2), (3, @numbers3)) AS [n]([_ord], [Value])
+        FROM (VALUES (@numbers1), (@numbers2), (@numbers3)) AS [n]([Value])
         ORDER BY [n].[Value]
         OFFSET 1 ROWS FETCH NEXT 1 ROWS ONLY), 0)
 ) AS [w1] ON [u].[FullName] = [w1].[OwnerFullName]

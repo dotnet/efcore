@@ -681,6 +681,16 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => (c.Int <= 2 ? new[] { 1, 2, 3 }[c.Int] : -1) == 1));
 
     [ConditionalFact]
+    public virtual Task Inline_collection_index_Column_with_EF_Constant()
+    {
+        int[] ints = [1, 2, 3];
+
+        return AssertQuery(
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => EF.Constant(ints)[c.Int] == 1),
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => (c.Int <= 2 ? ints[c.Int] : -1) == 1));
+    }
+
+    [ConditionalFact]
     public virtual Task Inline_collection_value_index_Column()
         => AssertQuery(
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => new[] { 1, c.Int, 3 }[c.Int] == 1),

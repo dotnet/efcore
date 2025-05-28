@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -116,6 +117,9 @@ public class SqlTreePruner : ExpressionVisitor
                     PruneSelect(source1, preserveProjection: true),
                     PruneSelect(source2, preserveProjection: true));
             }
+
+            case ValuesExpression values:
+                return PruneValues(values);
 
             default:
                 return base.VisitExtension(node);
@@ -261,5 +265,118 @@ public class SqlTreePruner : ExpressionVisitor
 
         return select.Update(
             tables ?? select.Tables, predicate, groupBy, having, projections ?? select.Projection, orderings, offset, limit);
+    }
+
+    /// <summary>
+    ///     Prunes a <see cref="ValuesExpression" />, removing columns inside it which aren't referenced.
+    ///     This currently removes the <c>_ord</c> column that gets added to preserve ordering, for cases where
+    ///     that ordering isn't actually necessary.
+    /// </summary>
+    /// <remarks>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </remarks>
+    [EntityFrameworkInternal]
+    protected virtual ValuesExpression PruneValues(ValuesExpression values)
+    {
+        BitArray? referencedColumns = null;
+        List<string>? newColumnNames = null;
+
+        if (ReferencedColumnMap.TryGetValue(values.Alias, out var referencedColumnNames))
+        {
+            // First, build a bitmap of which columns are referenced which we can efficiently access later
+            // as we traverse the rows. At the same time, build a list of the names of the referenced columns.
+            for (var i = 0; i < values.ColumnNames.Count; i++)
+            {
+                var columnName = values.ColumnNames[i];
+                var isColumnReferenced = referencedColumnNames.Contains(columnName);
+
+                if (newColumnNames is null && !isColumnReferenced)
+                {
+                    newColumnNames = new List<string>(values.ColumnNames.Count);
+                    referencedColumns = new BitArray(values.ColumnNames.Count);
+
+                    for (var j = 0; j < i; j++)
+                    {
+                        referencedColumns[j] = true;
+                        newColumnNames.Add(columnName);
+                    }
+                }
+
+                if (newColumnNames is not null)
+                {
+                    if (isColumnReferenced)
+                    {
+                        newColumnNames.Add(columnName);
+                    }
+
+                    referencedColumns![i] = isColumnReferenced;
+                }
+            }
+        }
+        else
+        {
+            // No columns were referenced at all on this ValuesExpression.
+            // This happens in some edge cases, e.g. there's a simple COUNT(*) over it (and so no specific columns are referenced).
+            // We can prune all columns but need to leave one, so that the ValuesExpression is still valid.
+            // Pick the first column, unless it happens to be the _ord column, in which case we pick the second one.
+            referencedColumns = new BitArray(values.ColumnNames.Count);
+            newColumnNames = new List<string>(1);
+
+            if (values.ColumnNames[0] is RelationalQueryableMethodTranslatingExpressionVisitor.ValuesOrderingColumnName)
+            {
+                referencedColumns[1] = true;
+                newColumnNames.Add(values.ColumnNames[1]);
+            }
+            else
+            {
+                referencedColumns[0] = true;
+                newColumnNames.Add(values.ColumnNames[0]);
+            }
+        }
+
+        if (referencedColumns is null)
+        {
+            return values;
+        }
+
+        // We know at least some columns are getting pruned.
+        Debug.Assert(newColumnNames is not null);
+
+        switch (values)
+        {
+            // If we have a value parameter (row values aren't specific in line), we still prune the column names.
+            // Later in SqlNullabilityProcessor, when the parameterized collection is inline to constants, we'll take
+            // the column names into account.
+            case ValuesExpression { ValuesParameter: not null }:
+                return new ValuesExpression(values.Alias, rowValues: null, values.ValuesParameter, newColumnNames);
+
+            // Go over the rows and create new ones without the pruned columns.
+            case ValuesExpression { RowValues: IReadOnlyList<RowValueExpression> rowValues }:
+                var newRowValues = new RowValueExpression[rowValues.Count];
+
+                for (var i = 0; i < rowValues.Count; i++)
+                {
+                    var oldValues = rowValues[i].Values;
+                    var newValues = new List<SqlExpression>(newColumnNames.Count);
+
+                    for (var j = 0; j < values.ColumnNames.Count; j++)
+                    {
+                        if (referencedColumns[j])
+                        {
+                            newValues.Add(oldValues[j]);
+                        }
+                    }
+
+                    newRowValues[i] = new RowValueExpression(newValues);
+                }
+
+                return new ValuesExpression(values.Alias, newRowValues, valuesParameter: null, newColumnNames);
+
+            default:
+                throw new UnreachableException();
+        }
     }
 }

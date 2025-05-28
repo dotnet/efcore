@@ -122,7 +122,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
 
                 var intTypeMapping = (IntTypeMapping?)Dependencies.TypeMappingSource.FindMapping(typeof(int));
                 Check.DebugAssert(intTypeMapping is not null);
-                var valuesOrderingCounter = 1;
+                var valuesOrderingCounter = 0;
 
                 var processedValues = new List<RowValueExpression>();
 
@@ -151,13 +151,26 @@ public class SqlNullabilityProcessor : ExpressionVisitor
 
                     case ParameterTranslationMode.Constant:
                     {
-                        foreach (var value in values)
+                        for (var i = 0; i < values.Count; i++)
                         {
+                            var value = _sqlExpressionFactory.Constant(
+                                values[i],
+                                values[i]?.GetType() ?? typeof(object),
+                                sensitive: true,
+                                elementTypeMapping);
+
+                            // We currently add explicit conversions on the first row (but not to the _ord column), to ensure that the inferred
+                            // types are properly typed. See #30605 for removing that when not needed.
+                            if (i == 0)
+                            {
+                                value = new SqlUnaryExpression(ExpressionType.Convert, value, value.Type, value.TypeMapping);
+                            }
+
                             processedValues.Add(
                                 new RowValueExpression(
                                     ProcessValuesOrderingColumn(
                                         valuesExpression,
-                                        [_sqlExpressionFactory.Constant(value, value?.GetType() ?? typeof(object), sensitive: true, elementTypeMapping)],
+                                        [value],
                                         intTypeMapping,
                                         ref valuesOrderingCounter)));
                         }
@@ -1497,9 +1510,11 @@ public class SqlNullabilityProcessor : ExpressionVisitor
         bool allowOptimizedExpansion,
         out bool nullable)
     {
-        nullable = jsonScalarExpression.IsNullable;
+        var json = Visit(jsonScalarExpression.Json, out var jsonNullable);
 
-        return jsonScalarExpression;
+        nullable = jsonNullable || jsonScalarExpression.IsNullable;
+
+        return jsonScalarExpression.Update(json);
     }
 
     /// <summary>

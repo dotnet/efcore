@@ -74,8 +74,8 @@ public sealed class SqlParameterExpression : SqlExpression
     /// </summary>
     /// <param name="typeMapping">A relational type mapping to apply.</param>
     /// <returns>A new expression which has supplied type mapping.</returns>
-    public SqlExpression ApplyTypeMapping(RelationalTypeMapping? typeMapping)
-        => new SqlParameterExpression(InvariantName, Name, Type, IsNullable, TranslationMode, typeMapping);
+    public SqlParameterExpression ApplyTypeMapping(RelationalTypeMapping? typeMapping)
+        => new(InvariantName, Name, Type, IsNullable, TranslationMode, typeMapping);
 
     /// <inheritdoc />
     protected override Expression VisitChildren(ExpressionVisitor visitor)
