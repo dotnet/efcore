@@ -139,6 +139,17 @@ If you are not sure, do not guess, just tell that you don't know or ask clarifyi
 - The services should be resolved from the `IServiceProvider` returned by `*TestHelpers.Instance.CreateContextServices`, note that it has overloads allowing to specify the model and mock services
 - For functional tests, create tests in projects corresponding to the database providers that derive from the appropriate test base classes in the `EFCore.*Specification.Tests` projects
 
+## Repository Structure
+
+- src/: Main product source code, including providers, tools, and analyzers
+- test/: All test projects, including unit, functional, and specification tests for different providers
+- benchmark/: Performance and benchmarking projects for EFCore
+- tools/: Utility scripts and resources for development
+- eng/: Build and test infrastructure files related to [Arcade SDK](https://github.com/dotnet/arcade/blob/main/Documentation/ArcadeSdk.md) used for building the project, and running the tests
+- docs/: Documentation files for contributors and users. Full documentation is available at [EF Core | Learn](https://learn.microsoft.com/ef/core/)
+- .github/: GitHub-specific files, workflows, and Copilot instructions
+- .config/: AzDo pipelines configuration files
+
 ## Overview of Entity Framework Core
 
 Entity Framework Core (EF Core) is an object-database mapper for .NET. Below is a concise summary of its core architecture and concepts:
