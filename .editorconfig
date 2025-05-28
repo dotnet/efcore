@@ -106,7 +106,7 @@ csharp_style_expression_bodied_properties = true:suggestion
 csharp_style_expression_bodied_indexers = true:suggestion
 csharp_style_expression_bodied_accessors = true:suggestion
 csharp_style_expression_bodied_lambdas = true:suggestion
-csharp_style_expression_bodied_local_functions = false:suggestion
+csharp_style_expression_bodied_local_functions = true:suggestion
 
 # Pattern matching
 csharp_style_pattern_matching_over_is_with_cast_check = true:suggestion
@@ -143,6 +143,10 @@ csharp_style_prefer_top_level_statements = false:silent
 
 # Implementation preferences
 csharp_prefer_system_threading_lock = true:suggestion
+
+# Local functions
+csharp_style_prefer_local_over_anonymous_function = false:silent
+csharp_prefer_static_local_function = true:suggestion
 
 ## Formatting conventions
 # Dotnet formatting settings:
