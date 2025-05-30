@@ -42,6 +42,10 @@
       <Uri>https://github.com/dotnet/dotnet</Uri>
       <Sha>0a01b394b186e190a80cb55740c13f6293cf5446</Sha>
     </Dependency>
+    <Dependency Name="Microsoft.NETCore.Platforms" Version="10.0.0-preview.6.25278.103">
+      <Uri>https://github.com/dotnet/dotnet</Uri>
+      <Sha>0a01b394b186e190a80cb55740c13f6293cf5446</Sha>
+    </Dependency>
     <Dependency Name="System.Text.Json" Version="10.0.0-preview.6.25278.103">
       <Uri>https://github.com/dotnet/dotnet</Uri>
       <Sha>0a01b394b186e190a80cb55740c13f6293cf5446</Sha>
