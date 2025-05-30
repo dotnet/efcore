@@ -10,7 +10,7 @@
   <ItemGroup>
     <FrameworkReference Update="Microsoft.NETCore.App"
                         Condition="'$(TargetFramework)' == '$(DefaultNetCoreTargetFramework)'"
-                        RuntimeFrameworkVersion="$(MicrosoftNETCoreAppRuntimewinx64Version)"
+                        RuntimeFrameworkVersion="$(MicrosoftNETCoreAppRefVersion)"
                         TargetingPackVersion="$(MicrosoftNETCoreAppRefVersion)" />
   </ItemGroup>
 

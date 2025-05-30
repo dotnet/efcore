@@ -26,7 +26,7 @@
     <MicrosoftExtensionsHostFactoryResolverSourcesVersion>10.0.0-preview.6.25278.103</MicrosoftExtensionsHostFactoryResolverSourcesVersion>
     <MicrosoftExtensionsLoggingVersion>10.0.0-preview.6.25278.103</MicrosoftExtensionsLoggingVersion>
     <MicrosoftNETCoreAppRefVersion>10.0.0-preview.6.25278.103</MicrosoftNETCoreAppRefVersion>
-    <MicrosoftNETCoreAppRuntimewinx64Version>10.0.0-preview.6.25278.103</MicrosoftNETCoreAppRuntimewinx64Version>
+    <MicrosoftNETCorePlatformsVersion>10.0.0-preview.6.25278.103</MicrosoftNETCorePlatformsVersion>
     <SystemTextEncodingsWebVersion>10.0.0-preview.6.25278.103</SystemTextEncodingsWebVersion>
     <SystemTextJsonVersion>10.0.0-preview.6.25278.103</SystemTextJsonVersion>
     <SystemFormatsAsn1Version>10.0.0-preview.6.25278.103</SystemFormatsAsn1Version>
