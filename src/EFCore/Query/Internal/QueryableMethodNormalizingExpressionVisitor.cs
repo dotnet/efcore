@@ -3,7 +3,6 @@
 
 using System.Collections;
 using System.Collections.ObjectModel;
-using Microsoft.EntityFrameworkCore.Internal;
 using ExpressionExtensions = Microsoft.EntityFrameworkCore.Infrastructure.ExpressionExtensions;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal;

@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Runtime.ExceptionServices;
+using static System.Linq.Expressions.Expression;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 
@@ -50,8 +51,13 @@ public class ClrPropertySetterFactory : ClrAccessorFactory<IClrPropertySetter>
         MemberInfo memberInfo,
         IPropertyBase? propertyBase)
     {
-        CreateExpression<TRoot, TDeclaring, TValue>(memberInfo, propertyBase, out var setter);
-        return new ClrPropertySetter<TRoot, TValue>(setter.Compile());
+        CreateExpressions<TRoot, TDeclaring, TValue>(
+            memberInfo, propertyBase,
+            out var setterUsingContainingEntityExpression,
+            out var setterExpression);
+        return new ClrPropertySetter<TRoot, TDeclaring, TValue>(
+            setterUsingContainingEntityExpression.Compile(),
+            setterExpression.Compile());
     }
 
     /// <summary>
@@ -71,18 +77,20 @@ public class ClrPropertySetterFactory : ClrAccessorFactory<IClrPropertySetter>
     /// </summary>
     public virtual void Create(
         IPropertyBase propertyBase,
+        out Expression setterUsingContainingEntityExpression,
         out Expression setterExpression)
     {
         var boundMethod = GenericCreateExpression.MakeGenericMethod(
-            propertyBase.DeclaringType.ContainingType.ClrType,
+            propertyBase.DeclaringType.ContainingEntityType.ClrType,
             propertyBase.DeclaringType.ClrType,
             propertyBase.ClrType);
 
         try
         {
-            var parameters = new object?[] { GetMemberInfo(propertyBase), propertyBase, null };
+            var parameters = new object?[] { GetMemberInfo(propertyBase), propertyBase, null, null };
             boundMethod.Invoke(this, parameters);
-            setterExpression = (Expression)parameters[2]!;
+            setterUsingContainingEntityExpression = (Expression)parameters[2]!;
+            setterExpression = (Expression)parameters[3]!;
         }
         catch (TargetInvocationException e) when (e.InnerException != null)
         {
@@ -92,20 +100,25 @@ public class ClrPropertySetterFactory : ClrAccessorFactory<IClrPropertySetter>
     }
 
     private static readonly MethodInfo GenericCreateExpression
-        = typeof(ClrPropertySetterFactory).GetMethod(nameof(CreateExpression), BindingFlags.Instance | BindingFlags.NonPublic)!;
+        = typeof(ClrPropertySetterFactory).GetMethod(nameof(CreateExpressions), BindingFlags.Instance | BindingFlags.NonPublic)!;
 
-    private void CreateExpression<TRoot, TDeclaring, TValue>(
+    private static readonly MethodInfo ComplexCollectionNullElementSetterException = typeof(CoreStrings).GetMethod(nameof(CoreStrings.ComplexCollectionNullElementSetter))!;
+
+    private void CreateExpressions<TRoot, TDeclaring, TValue>(
         MemberInfo memberInfo,
         IPropertyBase? propertyBase,
-        out Expression<Action<TRoot, TValue>> setterExpression)
+        out Expression<Action<TRoot, IReadOnlyList<int>, TValue>> setterUsingContainingEntityExpression,
+        out Expression<Func<TDeclaring, TValue, TDeclaring>> setterExpression)
         where TRoot : class
     {
-        var entityClrType = propertyBase?.DeclaringType.ContainingType.ClrType ?? typeof(TRoot);
-        var propertyDeclaringType = propertyBase?.DeclaringType.ClrType ?? typeof(TDeclaring);
-        var entityParameter = Expression.Parameter(entityClrType, "entity");
-        var valueParameter = Expression.Parameter(typeof(TValue), "value");
+        CreateExpressionUsingContainingEntity<TRoot, TDeclaring, TValue>(memberInfo, propertyBase, out setterUsingContainingEntityExpression);
+        CreateDirectExpression(memberInfo, propertyBase, out setterExpression);
+    }
+
+    private static Expression CreateConvertedValueExpression(Expression valueParameter, MemberInfo memberInfo, IPropertyBase? propertyBase)
+    {
         var memberType = memberInfo.GetMemberType();
-        var convertedParameter = (Expression)valueParameter;
+        var convertedParameter = valueParameter;
 
         var propertyType = propertyBase?.ClrType ?? memberType;
         if (propertyType.IsNullableType())
@@ -113,60 +126,83 @@ public class ClrPropertySetterFactory : ClrAccessorFactory<IClrPropertySetter>
             var unwrappedType = propertyType.UnwrapNullableType();
             if (unwrappedType.IsEnum)
             {
-                convertedParameter = Expression.Condition(
-                    Expression.Equal(convertedParameter, Expression.Constant(null, convertedParameter.Type)),
+                convertedParameter = Condition(
+                    Equal(convertedParameter, Constant(null, convertedParameter.Type)),
                     convertedParameter,
-                    Expression.Convert(Expression.Convert(convertedParameter, unwrappedType), convertedParameter.Type));
+                    Convert(Convert(convertedParameter, unwrappedType), convertedParameter.Type));
             }
         }
 
         if (memberType != convertedParameter.Type)
         {
-            convertedParameter = Expression.Convert(convertedParameter, memberType);
+            convertedParameter = Convert(convertedParameter, memberType);
         }
+
+        return convertedParameter;
+    }
+
+    private static Expression CreateSimplePropertyAssignment(MemberInfo memberInfo, IPropertyBase? propertyBase, Expression instanceParameter, Expression convertedParameter)
+    {
+        return propertyBase?.IsIndexerProperty() == true
+            ? Assign(
+                MakeIndex(
+                    instanceParameter, (PropertyInfo)memberInfo, [Constant(propertyBase.Name)]),
+                convertedParameter)
+            : MakeMemberAccess(instanceParameter, memberInfo).Assign(convertedParameter);
+    }
+
+    private void CreateExpressionUsingContainingEntity<TRoot, TDeclaring, TValue>(
+        MemberInfo memberInfo,
+        IPropertyBase? propertyBase,
+        out Expression<Action<TRoot, IReadOnlyList<int>, TValue>> setterExpression)
+        where TRoot : class
+    {
+        var entityClrType = propertyBase?.DeclaringType.ContainingEntityType.ClrType ?? typeof(TRoot);
+        var propertyDeclaringType = propertyBase?.DeclaringType.ClrType ?? typeof(TDeclaring);
+        var entityParameter = Parameter(entityClrType, "entity");
+        var indicesParameter = Parameter(typeof(IReadOnlyList<int>), "indices");
+        var valueParameter = Parameter(typeof(TValue), "value");
+        var convertedParameter = CreateConvertedValueExpression(valueParameter, memberInfo, propertyBase);
 
         Expression writeExpression;
         if (memberInfo.DeclaringType!.IsAssignableFrom(propertyDeclaringType))
         {
-            writeExpression = CreateMemberAssignment(memberInfo, propertyBase, entityParameter, convertedParameter);
+            writeExpression = CreateMemberAssignment(memberInfo, propertyBase, entityParameter, indicesParameter, convertedParameter);
         }
         else
         {
             // This path handles properties that exist only on proxy types and so only exist if the instance is a proxy
-            var converted = Expression.Variable(memberInfo.DeclaringType, "converted");
+            var converted = Variable(memberInfo.DeclaringType, "converted");
 
-            writeExpression = Expression.Block(
+            writeExpression = Block(
                 [converted],
                 new List<Expression>
                 {
-                    Expression.Assign(
+                    Assign(
                         converted,
-                        Expression.TypeAs(entityParameter, memberInfo.DeclaringType)),
-                    Expression.IfThen(
-                        Expression.ReferenceNotEqual(converted, Expression.Constant(null)),
-                        CreateMemberAssignment(memberInfo, propertyBase, converted, convertedParameter))
+                        TypeAs(entityParameter, memberInfo.DeclaringType)),
+                    IfThen(
+                        ReferenceNotEqual(converted, Constant(null)),
+                        CreateMemberAssignment(memberInfo, propertyBase, converted, indicesParameter, convertedParameter))
                 });
         }
 
-        setterExpression = Expression.Lambda<Action<TRoot, TValue>>(
+        setterExpression = Lambda<Action<TRoot, IReadOnlyList<int>, TValue>>(
             writeExpression,
             entityParameter,
+            indicesParameter,
             valueParameter);
 
         static Expression CreateMemberAssignment(
             MemberInfo memberInfo,
             IPropertyBase? propertyBase,
             Expression instanceParameter,
+            ParameterExpression indicesParameter,
             Expression convertedParameter)
         {
             if (propertyBase?.DeclaringType is not IComplexType complexType)
             {
-                return propertyBase?.IsIndexerProperty() == true
-                    ? Expression.Assign(
-                        Expression.MakeIndex(
-                            instanceParameter, (PropertyInfo)memberInfo, [Expression.Constant(propertyBase.Name)]),
-                        convertedParameter)
-                    : Expression.MakeMemberAccess(instanceParameter, memberInfo).Assign(convertedParameter);
+                return CreateSimplePropertyAssignment(memberInfo, propertyBase, instanceParameter, convertedParameter);
             }
 
             // The idea here is to create something like this:
@@ -180,51 +216,154 @@ public class ClrPropertySetterFactory : ClrAccessorFactory<IClrPropertySetter>
             // $entity.<Culture>k__BackingField = $level1;
             //
             // That is, we create copies of value types, make the assignment, and then copy the value back.
-            // This is necessary for the case without a backing field, because the value type property getter will always return a copy of the value
+            // This is necessary for the case without a backing field, because the value type property getter will return a copy of the value
 
-            var chain = complexType.ComplexProperty.GetChainToComplexProperty();
+            var chain = complexType.ComplexProperty.GetChainToComplexProperty(fromEntity: true);
             var previousLevel = instanceParameter;
 
             var variables = new List<ParameterExpression>();
-            var assignments = new List<Expression>();
+            var statements = new List<Expression>();
             var chainCount = chain.Count;
             for (var i = chainCount; i >= 1; i--)
             {
                 var currentProperty = chain[chainCount - i];
-                var complexMemberInfo = currentProperty.GetMemberInfo(forMaterialization: false, forSet: false);
-                var complexPropertyType = complexMemberInfo.GetMemberType();
-                var currentLevel = Expression.Variable(complexPropertyType, $"level{chainCount + 1 - i}");
-                variables.Add(currentLevel);
-                assignments.Add(
-                    Expression.Assign(
-                        currentLevel, PropertyAccessorsFactory.CreateMemberAccess(
-                            currentProperty,
-                            previousLevel,
-                            complexMemberInfo,
-                            fromDeclaringType: true)));
-                previousLevel = currentLevel;
+                if (currentProperty.IsCollection)
+                {
+                    var complexElementType = currentProperty.ComplexType.ClrType;
+                    var currentLevel = Variable(complexElementType, $"level{chainCount + 1 - i}");
+                    variables.Add(currentLevel);
+                    statements.Add(
+                        Assign(
+                            currentLevel,
+                            PropertyAccessorsFactory.CreateComplexCollectionElementAccess(
+                                currentProperty,
+                                previousLevel,
+                                indicesParameter,
+                                fromDeclaringType: true,
+                                fromEntity: false)));
+
+                    var indexExpression = MakeIndex(
+                        indicesParameter,
+                        indicesParameter.Type.GetProperty("Item"),
+                        [Constant(((IRuntimeComplexType)currentProperty.ComplexType).CollectionDepth - 1)]);
+
+                    statements.Add(
+                        IfThen(
+                            ReferenceEqual(currentLevel, Constant(null)),
+                            Throw(
+                                New(
+                                    PropertyAccessorsFactory.InvalidOperationConstructor!,
+                                    Call(
+                                        ComplexCollectionNullElementSetterException,
+                                        Constant(propertyBase.DeclaringType.DisplayName()),
+                                        Constant(propertyBase.Name),
+                                        Constant(currentProperty.DeclaringType.DisplayName()),
+                                        Constant(currentProperty.Name),
+                                        Convert(indexExpression, typeof(object)))))));
+
+                    previousLevel = currentLevel;
+                }
+                else
+                {
+                    var complexMemberInfo = currentProperty.GetMemberInfo(forMaterialization: false, forSet: false);
+                    var complexPropertyType = complexMemberInfo.GetMemberType();
+                    var currentLevel = Variable(complexPropertyType, $"level{chainCount + 1 - i}");
+                    variables.Add(currentLevel);
+                    statements.Add(
+                        Assign(
+                            currentLevel,
+                            PropertyAccessorsFactory.CreateMemberAccess(
+                                currentProperty,
+                                previousLevel,
+                                indicesParameter,
+                                complexMemberInfo,
+                                fromDeclaringType: true,
+                                fromEntity: false)));
+                    previousLevel = currentLevel;
+                }
             }
 
             var propertyMemberInfo = propertyBase.GetMemberInfo(forMaterialization: false, forSet: true);
-            assignments.Add(Expression.MakeMemberAccess(previousLevel, propertyMemberInfo).Assign(convertedParameter));
+            statements.Add(MakeMemberAccess(previousLevel, propertyMemberInfo).Assign(convertedParameter));
 
             for (var i = 0; i <= chainCount - 1; i++)
             {
                 var currentProperty = chain[chainCount - 1 - i];
-                var complexMemberInfo = currentProperty.GetMemberInfo(forMaterialization: false, forSet: true);
-                if (complexMemberInfo.GetMemberType().IsValueType)
+                if (currentProperty.IsCollection)
                 {
-                    var memberExpression = (MemberExpression)PropertyAccessorsFactory.CreateMemberAccess(
-                        currentProperty,
-                        i == (chainCount - 1) ? instanceParameter : variables[chainCount - 2 - i],
-                        complexMemberInfo,
-                        fromDeclaringType: true);
+                    if (currentProperty.ComplexType.ClrType.IsValueType)
+                    {
+                        var memberExpression = (MemberExpression)PropertyAccessorsFactory.CreateComplexCollectionElementAccess(
+                            currentProperty,
+                            i == (chainCount - 1) ? instanceParameter : variables[chainCount - 2 - i],
+                            indicesParameter,
+                            fromDeclaringType: true,
+                            fromEntity: false);
 
-                    assignments.Add(memberExpression.Assign(variables[chainCount - 1 - i]));
+                        statements.Add(memberExpression.Assign(variables[chainCount - 1 - i]));
+                    }
+                }
+                else
+                {
+                    var complexMemberInfo = currentProperty.GetMemberInfo(forMaterialization: false, forSet: true);
+                    if (complexMemberInfo.GetMemberType().IsValueType)
+                    {
+                        var memberExpression = (MemberExpression)PropertyAccessorsFactory.CreateMemberAccess(
+                            currentProperty,
+                            i == (chainCount - 1) ? instanceParameter : variables[chainCount - 2 - i],
+                            indicesParameter,
+                            complexMemberInfo,
+                            fromDeclaringType: true,
+                            fromEntity: false);
+
+                        statements.Add(memberExpression.Assign(variables[chainCount - 1 - i]));
+                    }
                 }
             }
 
-            return Expression.Block(variables, assignments);
+            return Block(variables, statements);
         }
+    }
+
+    private void CreateDirectExpression<TDeclaring, TValue>(
+        MemberInfo memberInfo,
+        IPropertyBase? propertyBase,
+        out Expression<Func<TDeclaring, TValue, TDeclaring>> setterExpression)
+    {
+        var propertyDeclaringType = propertyBase?.DeclaringType.ClrType ?? typeof(TDeclaring);
+        var instanceParameter = Parameter(typeof(TDeclaring), "instance");
+        var valueParameter = Parameter(typeof(TValue), "value");
+        var convertedParameter = CreateConvertedValueExpression(valueParameter, memberInfo, propertyBase);
+
+        Expression writeExpression = null!;
+        if (memberInfo.DeclaringType!.IsAssignableFrom(propertyDeclaringType))
+        {
+            writeExpression = Block(
+                CreateSimplePropertyAssignment(memberInfo, propertyBase, instanceParameter, convertedParameter),
+                instanceParameter);
+        }
+        else
+        {
+            // This path handles properties that exist only on proxy types and so only exist if the instance is a proxy
+            var converted = Variable(memberInfo.DeclaringType, "converted");
+
+            writeExpression = Block(
+                [converted],
+                new List<Expression>
+                {
+                    Assign(
+                        converted,
+                        TypeAs(instanceParameter, memberInfo.DeclaringType)),
+                    IfThen(
+                        ReferenceNotEqual(converted, Constant(null)),
+                        CreateSimplePropertyAssignment(memberInfo, propertyBase, converted, convertedParameter)),
+                    instanceParameter
+                });
+        }
+
+        setterExpression = Lambda<Func<TDeclaring, TValue, TDeclaring>>(
+            writeExpression,
+            instanceParameter,
+            valueParameter);
     }
 }

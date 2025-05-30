@@ -3,7 +3,6 @@
 
 #nullable disable
 using Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel;
-using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 

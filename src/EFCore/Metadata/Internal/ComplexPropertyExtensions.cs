@@ -17,10 +17,10 @@ public static class ComplexPropertyExtensions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public static IReadOnlyList<IComplexProperty> GetChainToComplexProperty(this IComplexProperty property)
+    public static IReadOnlyList<IComplexProperty> GetChainToComplexProperty(this IComplexProperty property, bool fromEntity)
     {
-        var chain = property.DeclaringType is IComplexType complexType && !complexType.ComplexProperty.IsCollection
-            ? (List<IComplexProperty>)complexType.ComplexProperty.GetChainToComplexProperty()
+        var chain = property.DeclaringType is IComplexType complexType && (!complexType.ComplexProperty.IsCollection || fromEntity)
+            ? (List<IComplexProperty>)complexType.ComplexProperty.GetChainToComplexProperty(fromEntity)
             : [];
         chain.Add(property);
 

@@ -39,14 +39,20 @@ namespace Scaffolding
                 fieldInfo: typeof(IdentityUser<string>).GetField("<Id>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 afterSaveBehavior: PropertySaveBehavior.Throw);
             id.SetGetter(
-                string (IdentityUser entity) => IdentityUserUnsafeAccessors<string>.Id(entity),
-                bool (IdentityUser entity) => IdentityUserUnsafeAccessors<string>.Id(entity) == null,
                 string (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.Id(instance),
                 bool (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.Id(instance) == null);
             id.SetSetter(
-                (IdentityUser entity, string value) => IdentityUserUnsafeAccessors<string>.Id(entity) = value);
+                IdentityUser (IdentityUser instance, string value) =>
+                {
+                    IdentityUserUnsafeAccessors<string>.Id(instance) = value;
+                    return instance;
+                });
             id.SetMaterializationSetter(
-                (IdentityUser entity, string value) => IdentityUserUnsafeAccessors<string>.Id(entity) = value);
+                IdentityUser (IdentityUser instance, string value) =>
+                {
+                    IdentityUserUnsafeAccessors<string>.Id(instance) = value;
+                    return instance;
+                });
             id.SetAccessors(
                 string (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.Id(((IdentityUser)(entry.Entity))),
                 string (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.Id(((IdentityUser)(entry.Entity))),
@@ -82,14 +88,20 @@ namespace Scaffolding
                 fieldInfo: typeof(IdentityUser<string>).GetField("<AccessFailedCount>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 sentinel: 0);
             accessFailedCount.SetGetter(
-                int (IdentityUser entity) => IdentityUserUnsafeAccessors<string>.AccessFailedCount(entity),
-                bool (IdentityUser entity) => IdentityUserUnsafeAccessors<string>.AccessFailedCount(entity) == 0,
                 int (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.AccessFailedCount(instance),
                 bool (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.AccessFailedCount(instance) == 0);
             accessFailedCount.SetSetter(
-                (IdentityUser entity, int value) => IdentityUserUnsafeAccessors<string>.AccessFailedCount(entity) = value);
+                IdentityUser (IdentityUser instance, int value) =>
+                {
+                    IdentityUserUnsafeAccessors<string>.AccessFailedCount(instance) = value;
+                    return instance;
+                });
             accessFailedCount.SetMaterializationSetter(
-                (IdentityUser entity, int value) => IdentityUserUnsafeAccessors<string>.AccessFailedCount(entity) = value);
+                IdentityUser (IdentityUser instance, int value) =>
+                {
+                    IdentityUserUnsafeAccessors<string>.AccessFailedCount(instance) = value;
+                    return instance;
+                });
             accessFailedCount.SetAccessors(
                 int (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.AccessFailedCount(((IdentityUser)(entry.Entity))),
                 int (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.AccessFailedCount(((IdentityUser)(entry.Entity))),
@@ -124,14 +136,20 @@ namespace Scaffolding
                 fieldInfo: typeof(IdentityUser<string>).GetField("<ConcurrencyStamp>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             concurrencyStamp.SetGetter(
-                string (IdentityUser entity) => IdentityUserUnsafeAccessors<string>.ConcurrencyStamp(entity),
-                bool (IdentityUser entity) => IdentityUserUnsafeAccessors<string>.ConcurrencyStamp(entity) == null,
                 string (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.ConcurrencyStamp(instance),
                 bool (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.ConcurrencyStamp(instance) == null);
             concurrencyStamp.SetSetter(
-                (IdentityUser entity, string value) => IdentityUserUnsafeAccessors<string>.ConcurrencyStamp(entity) = value);
+                IdentityUser (IdentityUser instance, string value) =>
+                {
+                    IdentityUserUnsafeAccessors<string>.ConcurrencyStamp(instance) = value;
+                    return instance;
+                });
             concurrencyStamp.SetMaterializationSetter(
-                (IdentityUser entity, string value) => IdentityUserUnsafeAccessors<string>.ConcurrencyStamp(entity) = value);
+                IdentityUser (IdentityUser instance, string value) =>
+                {
+                    IdentityUserUnsafeAccessors<string>.ConcurrencyStamp(instance) = value;
+                    return instance;
+                });
             concurrencyStamp.SetAccessors(
                 string (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.ConcurrencyStamp(((IdentityUser)(entry.Entity))),
                 string (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.ConcurrencyStamp(((IdentityUser)(entry.Entity))),
@@ -198,14 +216,20 @@ namespace Scaffolding
                 fieldInfo: typeof(IdentityUser<string>).GetField("<Email>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             email.SetGetter(
-                string (IdentityUser entity) => IdentityUserUnsafeAccessors<string>.Email(entity),
-                bool (IdentityUser entity) => IdentityUserUnsafeAccessors<string>.Email(entity) == null,
                 string (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.Email(instance),
                 bool (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.Email(instance) == null);
             email.SetSetter(
-                (IdentityUser entity, string value) => IdentityUserUnsafeAccessors<string>.Email(entity) = value);
+                IdentityUser (IdentityUser instance, string value) =>
+                {
+                    IdentityUserUnsafeAccessors<string>.Email(instance) = value;
+                    return instance;
+                });
             email.SetMaterializationSetter(
-                (IdentityUser entity, string value) => IdentityUserUnsafeAccessors<string>.Email(entity) = value);
+                IdentityUser (IdentityUser instance, string value) =>
+                {
+                    IdentityUserUnsafeAccessors<string>.Email(instance) = value;
+                    return instance;
+                });
             email.SetAccessors(
                 string (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.Email(((IdentityUser)(entry.Entity))),
                 string (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.Email(((IdentityUser)(entry.Entity))),
@@ -240,14 +264,20 @@ namespace Scaffolding
                 fieldInfo: typeof(IdentityUser<string>).GetField("<EmailConfirmed>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 sentinel: false);
             emailConfirmed.SetGetter(
-                bool (IdentityUser entity) => IdentityUserUnsafeAccessors<string>.EmailConfirmed(entity),
-                bool (IdentityUser entity) => IdentityUserUnsafeAccessors<string>.EmailConfirmed(entity) == false,
                 bool (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.EmailConfirmed(instance),
                 bool (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.EmailConfirmed(instance) == false);
             emailConfirmed.SetSetter(
-                (IdentityUser entity, bool value) => IdentityUserUnsafeAccessors<string>.EmailConfirmed(entity) = value);
+                IdentityUser (IdentityUser instance, bool value) =>
+                {
+                    IdentityUserUnsafeAccessors<string>.EmailConfirmed(instance) = value;
+                    return instance;
+                });
             emailConfirmed.SetMaterializationSetter(
-                (IdentityUser entity, bool value) => IdentityUserUnsafeAccessors<string>.EmailConfirmed(entity) = value);
+                IdentityUser (IdentityUser instance, bool value) =>
+                {
+                    IdentityUserUnsafeAccessors<string>.EmailConfirmed(instance) = value;
+                    return instance;
+                });
             emailConfirmed.SetAccessors(
                 bool (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.EmailConfirmed(((IdentityUser)(entry.Entity))),
                 bool (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.EmailConfirmed(((IdentityUser)(entry.Entity))),
@@ -282,14 +312,20 @@ namespace Scaffolding
                 fieldInfo: typeof(IdentityUser<string>).GetField("<LockoutEnabled>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 sentinel: false);
             lockoutEnabled.SetGetter(
-                bool (IdentityUser entity) => IdentityUserUnsafeAccessors<string>.LockoutEnabled(entity),
-                bool (IdentityUser entity) => IdentityUserUnsafeAccessors<string>.LockoutEnabled(entity) == false,
                 bool (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.LockoutEnabled(instance),
                 bool (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.LockoutEnabled(instance) == false);
             lockoutEnabled.SetSetter(
-                (IdentityUser entity, bool value) => IdentityUserUnsafeAccessors<string>.LockoutEnabled(entity) = value);
+                IdentityUser (IdentityUser instance, bool value) =>
+                {
+                    IdentityUserUnsafeAccessors<string>.LockoutEnabled(instance) = value;
+                    return instance;
+                });
             lockoutEnabled.SetMaterializationSetter(
-                (IdentityUser entity, bool value) => IdentityUserUnsafeAccessors<string>.LockoutEnabled(entity) = value);
+                IdentityUser (IdentityUser instance, bool value) =>
+                {
+                    IdentityUserUnsafeAccessors<string>.LockoutEnabled(instance) = value;
+                    return instance;
+                });
             lockoutEnabled.SetAccessors(
                 bool (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.LockoutEnabled(((IdentityUser)(entry.Entity))),
                 bool (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.LockoutEnabled(((IdentityUser)(entry.Entity))),
@@ -324,14 +360,20 @@ namespace Scaffolding
                 fieldInfo: typeof(IdentityUser<string>).GetField("<LockoutEnd>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             lockoutEnd.SetGetter(
-                DateTimeOffset? (IdentityUser entity) => IdentityUserUnsafeAccessors<string>.LockoutEnd(entity),
-                bool (IdentityUser entity) => !(IdentityUserUnsafeAccessors<string>.LockoutEnd(entity).HasValue),
                 DateTimeOffset? (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.LockoutEnd(instance),
                 bool (IdentityUser instance) => !(IdentityUserUnsafeAccessors<string>.LockoutEnd(instance).HasValue));
             lockoutEnd.SetSetter(
-                (IdentityUser entity, DateTimeOffset? value) => IdentityUserUnsafeAccessors<string>.LockoutEnd(entity) = value);
+                IdentityUser (IdentityUser instance, DateTimeOffset? value) =>
+                {
+                    IdentityUserUnsafeAccessors<string>.LockoutEnd(instance) = value;
+                    return instance;
+                });
             lockoutEnd.SetMaterializationSetter(
-                (IdentityUser entity, DateTimeOffset? value) => IdentityUserUnsafeAccessors<string>.LockoutEnd(entity) = value);
+                IdentityUser (IdentityUser instance, DateTimeOffset? value) =>
+                {
+                    IdentityUserUnsafeAccessors<string>.LockoutEnd(instance) = value;
+                    return instance;
+                });
             lockoutEnd.SetAccessors(
                 DateTimeOffset? (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.LockoutEnd(((IdentityUser)(entry.Entity))),
                 DateTimeOffset? (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.LockoutEnd(((IdentityUser)(entry.Entity))),
@@ -368,14 +410,20 @@ namespace Scaffolding
                 fieldInfo: typeof(IdentityUser<string>).GetField("<NormalizedEmail>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             normalizedEmail.SetGetter(
-                string (IdentityUser entity) => IdentityUserUnsafeAccessors<string>.NormalizedEmail(entity),
-                bool (IdentityUser entity) => IdentityUserUnsafeAccessors<string>.NormalizedEmail(entity) == null,
                 string (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.NormalizedEmail(instance),
                 bool (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.NormalizedEmail(instance) == null);
             normalizedEmail.SetSetter(
-                (IdentityUser entity, string value) => IdentityUserUnsafeAccessors<string>.NormalizedEmail(entity) = value);
+                IdentityUser (IdentityUser instance, string value) =>
+                {
+                    IdentityUserUnsafeAccessors<string>.NormalizedEmail(instance) = value;
+                    return instance;
+                });
             normalizedEmail.SetMaterializationSetter(
-                (IdentityUser entity, string value) => IdentityUserUnsafeAccessors<string>.NormalizedEmail(entity) = value);
+                IdentityUser (IdentityUser instance, string value) =>
+                {
+                    IdentityUserUnsafeAccessors<string>.NormalizedEmail(instance) = value;
+                    return instance;
+                });
             normalizedEmail.SetAccessors(
                 string (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.NormalizedEmail(((IdentityUser)(entry.Entity))),
                 string (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.NormalizedEmail(((IdentityUser)(entry.Entity))),
@@ -410,14 +458,20 @@ namespace Scaffolding
                 fieldInfo: typeof(IdentityUser<string>).GetField("<NormalizedUserName>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             normalizedUserName.SetGetter(
-                string (IdentityUser entity) => IdentityUserUnsafeAccessors<string>.NormalizedUserName(entity),
-                bool (IdentityUser entity) => IdentityUserUnsafeAccessors<string>.NormalizedUserName(entity) == null,
                 string (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.NormalizedUserName(instance),
                 bool (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.NormalizedUserName(instance) == null);
             normalizedUserName.SetSetter(
-                (IdentityUser entity, string value) => IdentityUserUnsafeAccessors<string>.NormalizedUserName(entity) = value);
+                IdentityUser (IdentityUser instance, string value) =>
+                {
+                    IdentityUserUnsafeAccessors<string>.NormalizedUserName(instance) = value;
+                    return instance;
+                });
             normalizedUserName.SetMaterializationSetter(
-                (IdentityUser entity, string value) => IdentityUserUnsafeAccessors<string>.NormalizedUserName(entity) = value);
+                IdentityUser (IdentityUser instance, string value) =>
+                {
+                    IdentityUserUnsafeAccessors<string>.NormalizedUserName(instance) = value;
+                    return instance;
+                });
             normalizedUserName.SetAccessors(
                 string (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.NormalizedUserName(((IdentityUser)(entry.Entity))),
                 string (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.NormalizedUserName(((IdentityUser)(entry.Entity))),
@@ -452,14 +506,20 @@ namespace Scaffolding
                 fieldInfo: typeof(IdentityUser<string>).GetField("<PasswordHash>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             passwordHash.SetGetter(
-                string (IdentityUser entity) => IdentityUserUnsafeAccessors<string>.PasswordHash(entity),
-                bool (IdentityUser entity) => IdentityUserUnsafeAccessors<string>.PasswordHash(entity) == null,
                 string (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.PasswordHash(instance),
                 bool (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.PasswordHash(instance) == null);
             passwordHash.SetSetter(
-                (IdentityUser entity, string value) => IdentityUserUnsafeAccessors<string>.PasswordHash(entity) = value);
+                IdentityUser (IdentityUser instance, string value) =>
+                {
+                    IdentityUserUnsafeAccessors<string>.PasswordHash(instance) = value;
+                    return instance;
+                });
             passwordHash.SetMaterializationSetter(
-                (IdentityUser entity, string value) => IdentityUserUnsafeAccessors<string>.PasswordHash(entity) = value);
+                IdentityUser (IdentityUser instance, string value) =>
+                {
+                    IdentityUserUnsafeAccessors<string>.PasswordHash(instance) = value;
+                    return instance;
+                });
             passwordHash.SetAccessors(
                 string (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.PasswordHash(((IdentityUser)(entry.Entity))),
                 string (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.PasswordHash(((IdentityUser)(entry.Entity))),
@@ -494,14 +554,20 @@ namespace Scaffolding
                 fieldInfo: typeof(IdentityUser<string>).GetField("<PhoneNumber>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             phoneNumber.SetGetter(
-                string (IdentityUser entity) => IdentityUserUnsafeAccessors<string>.PhoneNumber(entity),
-                bool (IdentityUser entity) => IdentityUserUnsafeAccessors<string>.PhoneNumber(entity) == null,
                 string (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.PhoneNumber(instance),
                 bool (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.PhoneNumber(instance) == null);
             phoneNumber.SetSetter(
-                (IdentityUser entity, string value) => IdentityUserUnsafeAccessors<string>.PhoneNumber(entity) = value);
+                IdentityUser (IdentityUser instance, string value) =>
+                {
+                    IdentityUserUnsafeAccessors<string>.PhoneNumber(instance) = value;
+                    return instance;
+                });
             phoneNumber.SetMaterializationSetter(
-                (IdentityUser entity, string value) => IdentityUserUnsafeAccessors<string>.PhoneNumber(entity) = value);
+                IdentityUser (IdentityUser instance, string value) =>
+                {
+                    IdentityUserUnsafeAccessors<string>.PhoneNumber(instance) = value;
+                    return instance;
+                });
             phoneNumber.SetAccessors(
                 string (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.PhoneNumber(((IdentityUser)(entry.Entity))),
                 string (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.PhoneNumber(((IdentityUser)(entry.Entity))),
@@ -536,14 +602,20 @@ namespace Scaffolding
                 fieldInfo: typeof(IdentityUser<string>).GetField("<PhoneNumberConfirmed>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 sentinel: false);
             phoneNumberConfirmed.SetGetter(
-                bool (IdentityUser entity) => IdentityUserUnsafeAccessors<string>.PhoneNumberConfirmed(entity),
-                bool (IdentityUser entity) => IdentityUserUnsafeAccessors<string>.PhoneNumberConfirmed(entity) == false,
                 bool (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.PhoneNumberConfirmed(instance),
                 bool (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.PhoneNumberConfirmed(instance) == false);
             phoneNumberConfirmed.SetSetter(
-                (IdentityUser entity, bool value) => IdentityUserUnsafeAccessors<string>.PhoneNumberConfirmed(entity) = value);
+                IdentityUser (IdentityUser instance, bool value) =>
+                {
+                    IdentityUserUnsafeAccessors<string>.PhoneNumberConfirmed(instance) = value;
+                    return instance;
+                });
             phoneNumberConfirmed.SetMaterializationSetter(
-                (IdentityUser entity, bool value) => IdentityUserUnsafeAccessors<string>.PhoneNumberConfirmed(entity) = value);
+                IdentityUser (IdentityUser instance, bool value) =>
+                {
+                    IdentityUserUnsafeAccessors<string>.PhoneNumberConfirmed(instance) = value;
+                    return instance;
+                });
             phoneNumberConfirmed.SetAccessors(
                 bool (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.PhoneNumberConfirmed(((IdentityUser)(entry.Entity))),
                 bool (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.PhoneNumberConfirmed(((IdentityUser)(entry.Entity))),
@@ -578,14 +650,20 @@ namespace Scaffolding
                 fieldInfo: typeof(IdentityUser<string>).GetField("<SecurityStamp>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             securityStamp.SetGetter(
-                string (IdentityUser entity) => IdentityUserUnsafeAccessors<string>.SecurityStamp(entity),
-                bool (IdentityUser entity) => IdentityUserUnsafeAccessors<string>.SecurityStamp(entity) == null,
                 string (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.SecurityStamp(instance),
                 bool (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.SecurityStamp(instance) == null);
             securityStamp.SetSetter(
-                (IdentityUser entity, string value) => IdentityUserUnsafeAccessors<string>.SecurityStamp(entity) = value);
+                IdentityUser (IdentityUser instance, string value) =>
+                {
+                    IdentityUserUnsafeAccessors<string>.SecurityStamp(instance) = value;
+                    return instance;
+                });
             securityStamp.SetMaterializationSetter(
-                (IdentityUser entity, string value) => IdentityUserUnsafeAccessors<string>.SecurityStamp(entity) = value);
+                IdentityUser (IdentityUser instance, string value) =>
+                {
+                    IdentityUserUnsafeAccessors<string>.SecurityStamp(instance) = value;
+                    return instance;
+                });
             securityStamp.SetAccessors(
                 string (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.SecurityStamp(((IdentityUser)(entry.Entity))),
                 string (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.SecurityStamp(((IdentityUser)(entry.Entity))),
@@ -620,14 +698,20 @@ namespace Scaffolding
                 fieldInfo: typeof(IdentityUser<string>).GetField("<TwoFactorEnabled>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 sentinel: false);
             twoFactorEnabled.SetGetter(
-                bool (IdentityUser entity) => IdentityUserUnsafeAccessors<string>.TwoFactorEnabled(entity),
-                bool (IdentityUser entity) => IdentityUserUnsafeAccessors<string>.TwoFactorEnabled(entity) == false,
                 bool (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.TwoFactorEnabled(instance),
                 bool (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.TwoFactorEnabled(instance) == false);
             twoFactorEnabled.SetSetter(
-                (IdentityUser entity, bool value) => IdentityUserUnsafeAccessors<string>.TwoFactorEnabled(entity) = value);
+                IdentityUser (IdentityUser instance, bool value) =>
+                {
+                    IdentityUserUnsafeAccessors<string>.TwoFactorEnabled(instance) = value;
+                    return instance;
+                });
             twoFactorEnabled.SetMaterializationSetter(
-                (IdentityUser entity, bool value) => IdentityUserUnsafeAccessors<string>.TwoFactorEnabled(entity) = value);
+                IdentityUser (IdentityUser instance, bool value) =>
+                {
+                    IdentityUserUnsafeAccessors<string>.TwoFactorEnabled(instance) = value;
+                    return instance;
+                });
             twoFactorEnabled.SetAccessors(
                 bool (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.TwoFactorEnabled(((IdentityUser)(entry.Entity))),
                 bool (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.TwoFactorEnabled(((IdentityUser)(entry.Entity))),
@@ -662,14 +746,20 @@ namespace Scaffolding
                 fieldInfo: typeof(IdentityUser<string>).GetField("<UserName>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             userName.SetGetter(
-                string (IdentityUser entity) => IdentityUserUnsafeAccessors<string>.UserName(entity),
-                bool (IdentityUser entity) => IdentityUserUnsafeAccessors<string>.UserName(entity) == null,
                 string (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.UserName(instance),
                 bool (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.UserName(instance) == null);
             userName.SetSetter(
-                (IdentityUser entity, string value) => IdentityUserUnsafeAccessors<string>.UserName(entity) = value);
+                IdentityUser (IdentityUser instance, string value) =>
+                {
+                    IdentityUserUnsafeAccessors<string>.UserName(instance) = value;
+                    return instance;
+                });
             userName.SetMaterializationSetter(
-                (IdentityUser entity, string value) => IdentityUserUnsafeAccessors<string>.UserName(entity) = value);
+                IdentityUser (IdentityUser instance, string value) =>
+                {
+                    IdentityUserUnsafeAccessors<string>.UserName(instance) = value;
+                    return instance;
+                });
             userName.SetAccessors(
                 string (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.UserName(((IdentityUser)(entry.Entity))),
                 string (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.UserName(((IdentityUser)(entry.Entity))),
@@ -728,7 +818,7 @@ namespace Scaffolding
             runtimeEntityType.SetOriginalValuesFactory(
                 ISnapshot (IInternalEntry source) =>
                 {
-                    var entity = ((IdentityUser)(source.Entity));
+                    var structuralType = ((IdentityUser)(source.Entity));
                     return ((ISnapshot)(new Snapshot<string, int, string, string, string, bool, bool, DateTimeOffset?, string, string, string, string, bool, string, bool, string>((source.GetCurrentValue<string>(id) == null ? null : ((ValueComparer<string>)(((IProperty)id).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(id))), ((ValueComparer<int>)(((IProperty)accessFailedCount).GetValueComparer())).Snapshot(source.GetCurrentValue<int>(accessFailedCount)), (source.GetCurrentValue<string>(concurrencyStamp) == null ? null : ((ValueComparer<string>)(((IProperty)concurrencyStamp).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(concurrencyStamp))), (source.GetCurrentValue<string>(discriminator) == null ? null : ((ValueComparer<string>)(((IProperty)discriminator).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(discriminator))), (source.GetCurrentValue<string>(email) == null ? null : ((ValueComparer<string>)(((IProperty)email).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(email))), ((ValueComparer<bool>)(((IProperty)emailConfirmed).GetValueComparer())).Snapshot(source.GetCurrentValue<bool>(emailConfirmed)), ((ValueComparer<bool>)(((IProperty)lockoutEnabled).GetValueComparer())).Snapshot(source.GetCurrentValue<bool>(lockoutEnabled)), (source.GetCurrentValue<DateTimeOffset?>(lockoutEnd) == null ? null : ((ValueComparer<DateTimeOffset?>)(((IProperty)lockoutEnd).GetValueComparer())).Snapshot(source.GetCurrentValue<DateTimeOffset?>(lockoutEnd))), (source.GetCurrentValue<string>(normalizedEmail) == null ? null : ((ValueComparer<string>)(((IProperty)normalizedEmail).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(normalizedEmail))), (source.GetCurrentValue<string>(normalizedUserName) == null ? null : ((ValueComparer<string>)(((IProperty)normalizedUserName).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(normalizedUserName))), (source.GetCurrentValue<string>(passwordHash) == null ? null : ((ValueComparer<string>)(((IProperty)passwordHash).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(passwordHash))), (source.GetCurrentValue<string>(phoneNumber) == null ? null : ((ValueComparer<string>)(((IProperty)phoneNumber).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(phoneNumber))), ((ValueComparer<bool>)(((IProperty)phoneNumberConfirmed).GetValueComparer())).Snapshot(source.GetCurrentValue<bool>(phoneNumberConfirmed)), (source.GetCurrentValue<string>(securityStamp) == null ? null : ((ValueComparer<string>)(((IProperty)securityStamp).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(securityStamp))), ((ValueComparer<bool>)(((IProperty)twoFactorEnabled).GetValueComparer())).Snapshot(source.GetCurrentValue<bool>(twoFactorEnabled)), (source.GetCurrentValue<string>(userName) == null ? null : ((ValueComparer<string>)(((IProperty)userName).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(userName))))));
                 });
             runtimeEntityType.SetStoreGeneratedValuesFactory(
@@ -742,7 +832,7 @@ namespace Scaffolding
             runtimeEntityType.SetRelationshipSnapshotFactory(
                 ISnapshot (IInternalEntry source) =>
                 {
-                    var entity = ((IdentityUser)(source.Entity));
+                    var structuralType = ((IdentityUser)(source.Entity));
                     return ((ISnapshot)(new Snapshot<string>((source.GetCurrentValue<string>(id) == null ? null : ((ValueComparer<string>)(((IProperty)id).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<string>(id))))));
                 });
             runtimeEntityType.SetCounts(new PropertyCounts(

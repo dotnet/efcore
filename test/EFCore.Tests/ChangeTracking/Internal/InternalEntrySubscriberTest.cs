@@ -10,7 +10,7 @@ using System.Runtime.CompilerServices;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
-public class InternalEntryEntrySubscriberTest
+public class InternalEntrySubscriberTest
 {
     [ConditionalTheory]
     [InlineData(ChangeTrackingStrategy.Snapshot)]
@@ -99,7 +99,10 @@ public class InternalEntryEntrySubscriberTest
             CoreStrings.NonNotifyingCollection(
                 "RelatedCollection", "FullNotificationEntity", "List<ChangedOnlyNotificationEntity>", changeTrackingStrategy),
             Assert.Throws<InvalidOperationException>(
-                () => entry.SetEntityState(EntityState.Unchanged)).Message);
+                () =>
+                {
+                    entry.SetEntityState(EntityState.Unchanged);
+                }).Message);
     }
 
     [ConditionalTheory]
@@ -586,6 +589,9 @@ public class InternalEntryEntrySubscriberTest
         public void ResetState()
         {
         }
+
+        public void DetectChanges(InternalComplexEntry entry) => throw new NotImplementedException();
+        public bool DetectComplexCollectionChanges(InternalEntryBase entry, IComplexProperty complexProperty) => throw new NotImplementedException();
     }
 
     private class TestNavigationListener : INavigationFixer
