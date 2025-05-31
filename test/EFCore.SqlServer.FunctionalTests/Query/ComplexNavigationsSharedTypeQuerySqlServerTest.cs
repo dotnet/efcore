@@ -226,7 +226,7 @@ END = CASE
 END
 GROUP BY [l3].[Level3_Name]
 HAVING (
-    SELECT MIN(COALESCE(CASE
+    SELECT MIN(ISNULL(CASE
         WHEN [l10].[OneToOne_Required_PK_Date] IS NOT NULL AND [l10].[Level1_Required_Id] IS NOT NULL AND [l10].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [l10].[Id]
     END, 0))
     FROM [Level1] AS [l4]
@@ -370,7 +370,7 @@ FROM (
 
         AssertSql(
             """
-SELECT COALESCE(SUM(CASE
+SELECT ISNULL(SUM(CASE
     WHEN [s].[OneToOne_Required_PK_Date] IS NULL OR [s].[Level1_Required_Id] IS NULL OR [s].[OneToMany_Required_Inverse2Id] IS NULL THEN 0
     ELSE [s].[Level1_Required_Id]
 END), 0)
@@ -539,9 +539,9 @@ END = CASE
 END
 GROUP BY [l3].[Level3_Name]
 HAVING (
-    SELECT MIN(COALESCE(CASE
+    SELECT MIN(ISNULL(CASE
         WHEN [l10].[OneToOne_Required_PK_Date] IS NOT NULL AND [l10].[Level1_Required_Id] IS NOT NULL AND [l10].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [l10].[Id]
-    END, 0) + COALESCE(CASE
+    END, 0) + ISNULL(CASE
         WHEN [l10].[OneToOne_Required_PK_Date] IS NOT NULL AND [l10].[Level1_Required_Id] IS NOT NULL AND [l10].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [l10].[Id]
     END, 0))
     FROM [Level1] AS [l4]
@@ -578,7 +578,7 @@ HAVING (
 
         AssertSql(
             """
-SELECT COALESCE(SUM([l].[Id]), 0)
+SELECT ISNULL(SUM([l].[Id]), 0)
 FROM [Level1] AS [l]
 """);
     }
@@ -592,7 +592,7 @@ FROM [Level1] AS [l]
 SELECT [l].[Id], [l].[Date], [l].[Name]
 FROM [Level1] AS [l]
 WHERE [l].[Id] > (
-    SELECT COALESCE(SUM(CASE
+    SELECT ISNULL(SUM(CASE
         WHEN [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [l0].[Id]
     END), 0)
     FROM [Level1] AS [l0]
@@ -879,7 +879,7 @@ SELECT [s1].[Key]
 FROM [Level1] AS [l]
 INNER JOIN (
     SELECT [s].[Key], (
-        SELECT COALESCE(SUM(CASE
+        SELECT ISNULL(SUM(CASE
             WHEN [l7].[OneToOne_Required_PK_Date] IS NOT NULL AND [l7].[Level1_Required_Id] IS NOT NULL AND [l7].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [l7].[Id]
         END), 0)
         FROM (
@@ -933,7 +933,7 @@ SELECT [s1].[Key]
 FROM [Level1] AS [l]
 INNER JOIN (
     SELECT [s].[Key], (
-        SELECT COALESCE(SUM(CASE
+        SELECT ISNULL(SUM(CASE
             WHEN [l7].[OneToOne_Required_PK_Date] IS NOT NULL AND [l7].[Level1_Required_Id] IS NOT NULL AND [l7].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [l7].[Id]
         END), 0)
         FROM (
@@ -1620,7 +1620,7 @@ LEFT JOIN (
 CROSS APPLY (
     SELECT [l2].[Id], [l2].[Date], [l2].[Name]
     FROM [Level1] AS [l2]
-    WHERE [l2].[Id] <> COALESCE([s].[Level1_Required_Id], 0)
+    WHERE [l2].[Id] <> ISNULL([s].[Level1_Required_Id], 0)
 ) AS [l3]
 """);
     }
@@ -1906,7 +1906,7 @@ INNER JOIN (
         WHEN [l2].[OneToOne_Required_PK_Date] IS NOT NULL AND [l2].[Level1_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [l2].[Id]
     END
     WHERE [l2].[OneToOne_Required_PK_Date] IS NOT NULL AND [l2].[Level1_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse2Id] IS NOT NULL
-) AS [s] ON [l].[Id] = COALESCE((
+) AS [s] ON [l].[Id] = ISNULL((
     SELECT TOP(1) CASE
         WHEN [l5].[OneToOne_Required_PK_Date] IS NOT NULL AND [l5].[Level1_Required_Id] IS NOT NULL AND [l5].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [l5].[Id]
     END
@@ -3650,7 +3650,7 @@ WHERE [l3].[Level3_Name] <> N'L3 05' OR [l3].[Level3_Name] IS NULL
 
         AssertSql(
             """
-SELECT COALESCE(SUM([l1].[Level1_Required_Id]), 0)
+SELECT ISNULL(SUM([l1].[Level1_Required_Id]), 0)
 FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id]
@@ -5898,10 +5898,10 @@ WHERE [l1].[OneToOne_Required_PK_Date] IS NOT NULL AND [l1].[Level1_Required_Id]
 
         AssertSql(
             """
-SELECT COALESCE([l].[Name], N'') + N' ' + COALESCE(CASE
+SELECT ISNULL(CAST([l].[Name] AS nvarchar(max)), N'') + N' ' + ISNULL(CAST(CASE
     WHEN [l1].[OneToOne_Required_PK_Date] IS NOT NULL AND [l1].[Level1_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [l1].[Level2_Name]
     ELSE N'NULL'
-END, N'')
+END AS nvarchar(max)), N'')
 FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Required_Id], [l0].[Level2_Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id]
@@ -8387,7 +8387,7 @@ LEFT JOIN (
     END AS [Id0], CASE
         WHEN [l4].[Level3_Required_Id] IS NOT NULL AND [l4].[OneToMany_Required_Inverse4Id] IS NOT NULL THEN [l4].[Id]
     END AS [Id1], CASE
-        WHEN COALESCE((
+        WHEN ISNULL((
             SELECT MAX(CASE
                 WHEN [l5].[Level3_Required_Id] IS NOT NULL AND [l5].[OneToMany_Required_Inverse4Id] IS NOT NULL THEN [l5].[Id]
             END)
