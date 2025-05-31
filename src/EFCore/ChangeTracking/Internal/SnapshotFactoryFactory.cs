@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
@@ -20,8 +21,8 @@ public abstract class SnapshotFactoryFactory
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual Func<ISnapshot> CreateEmpty(IRuntimeEntityType entityType)
-        => CreateEmptyExpression(entityType).Compile();
+    public virtual Func<ISnapshot> CreateEmpty(IRuntimeTypeBase structuralType)
+        => CreateEmptyExpression(structuralType).Compile();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -29,8 +30,8 @@ public abstract class SnapshotFactoryFactory
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual Expression<Func<ISnapshot>> CreateEmptyExpression(IRuntimeEntityType entityType)
-        => Expression.Lambda<Func<ISnapshot>>(CreateConstructorExpression(entityType, null));
+    public virtual Expression<Func<ISnapshot>> CreateEmptyExpression(IRuntimeTypeBase structuralType)
+        => Expression.Lambda<Func<ISnapshot>>(CreateConstructorExpression(structuralType, null));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -39,10 +40,10 @@ public abstract class SnapshotFactoryFactory
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual Expression CreateConstructorExpression(
-        IRuntimeEntityType entityType,
+        IRuntimeTypeBase structuralType,
         Expression? parameter)
     {
-        var count = GetPropertyCount(entityType);
+        var count = GetPropertyCount(structuralType);
         if (count == 0)
         {
             return Expression.MakeMemberAccess(null, Snapshot.EmptyField);
@@ -51,7 +52,7 @@ public abstract class SnapshotFactoryFactory
         var types = new Type[count];
         var propertyBases = new IPropertyBase?[count];
 
-        foreach (var propertyBase in entityType.GetSnapshottableMembers())
+        foreach (var propertyBase in structuralType.GetSnapshottableMembers())
         {
             var index = GetPropertyIndex(propertyBase);
             if (index >= 0)
@@ -70,10 +71,10 @@ public abstract class SnapshotFactoryFactory
             {
                 snapshotExpressions.Add(
                     CreateSnapshotExpression(
-                        entityType.ClrType,
+                        structuralType.ClrType,
                         parameter,
-                        types.Skip(i).Take(Snapshot.MaxGenericTypes).ToArray(),
-                        propertyBases.Skip(i).Take(Snapshot.MaxGenericTypes).ToList()));
+                        [.. types.Skip(i).Take(Snapshot.MaxGenericTypes)],
+                        [.. propertyBases.Skip(i).Take(Snapshot.MaxGenericTypes)]));
             }
 
             constructorExpression =
@@ -85,7 +86,7 @@ public abstract class SnapshotFactoryFactory
         }
         else
         {
-            constructorExpression = CreateSnapshotExpression(entityType.ClrType, parameter, types, propertyBases);
+            constructorExpression = CreateSnapshotExpression(structuralType.ClrType, parameter, types, propertyBases);
         }
 
         return constructorExpression;
@@ -110,6 +111,9 @@ public abstract class SnapshotFactoryFactory
         var entityVariable = entityType == null
             ? null
             : Expression.Variable(entityType, "entity");
+
+        Check.DebugAssert(entityVariable != null || count == 0,
+            "If there are any properties then the entity parameter must be used");
 
         for (var i = 0; i < count; i++)
         {
@@ -137,8 +141,7 @@ public abstract class SnapshotFactoryFactory
 
             var memberInfo = propertyBase.GetMemberInfo(forMaterialization: false, forSet: false);
             var memberAccess = PropertyAccessorsFactory.CreateMemberAccess(
-                propertyBase, entityVariable!, memberInfo, fromContainingType: false);
-
+                propertyBase, entityVariable!, memberInfo, fromDeclaringType: false);
             if (memberAccess.Type != propertyBase.ClrType)
             {
                 var hasDefaultValueExpression = memberAccess.MakeHasSentinel(propertyBase);
@@ -176,7 +179,7 @@ public abstract class SnapshotFactoryFactory
                         Expression.Assign(
                             entityVariable,
                             Expression.Convert(
-                                Expression.Property(parameter!, nameof(IInternalEntry.Object)),
+                                Expression.Property(parameter!, nameof(IInternalEntry.Entity)),
                                 entityType!)),
                         constructorExpression
                     })
@@ -249,7 +252,7 @@ public abstract class SnapshotFactoryFactory
         IPropertyBase property)
         => Expression.Call(
             parameter,
-            InternalEntityEntry.MakeReadShadowValueMethod((property as IProperty)?.ClrType ?? typeof(object)),
+            InternalEntryBase.MakeReadShadowValueMethod((property as IProperty)?.ClrType ?? typeof(object)),
             Expression.Constant(property.GetShadowIndex()));
 
     /// <summary>
@@ -263,7 +266,7 @@ public abstract class SnapshotFactoryFactory
         IPropertyBase property)
         => Expression.Call(
             parameter,
-            InternalEntityEntry.MakeGetCurrentValueMethod(property.ClrType),
+            InternalEntryBase.MakeGetCurrentValueMethod(property.ClrType),
             Expression.Constant(property, typeof(IPropertyBase)));
 
     /// <summary>
@@ -280,7 +283,7 @@ public abstract class SnapshotFactoryFactory
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected abstract int GetPropertyCount(IRuntimeEntityType entityType);
+    protected abstract int GetPropertyCount(IRuntimeTypeBase structuralType);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
