@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 /// </remarks>
 public abstract class QueryContext : IParameterValues
 {
-    private readonly IDictionary<string, object?> _parameterValues = new Dictionary<string, object?>();
+    private readonly Dictionary<string, object?> _parameterValues = new Dictionary<string, object?>();
     private IStateManager? _stateManager;
 
     /// <summary>
@@ -97,8 +97,8 @@ public abstract class QueryContext : IParameterValues
     /// <summary>
     ///     The parameter values to use while executing the query.
     /// </summary>
-    public virtual IReadOnlyDictionary<string, object?> ParameterValues
-        => (IReadOnlyDictionary<string, object?>)_parameterValues;
+    public virtual Dictionary<string, object?> ParameterValues
+        => _parameterValues;
 
     /// <summary>
     ///     Adds a parameter to <see cref="ParameterValues" /> for this query.
