@@ -299,10 +299,15 @@ public class RuntimeModelConvention : IModelFinalizedConvention
                 }
             }
 
-            if (annotations.TryGetValue(CoreAnnotationNames.QueryFilter, out var queryFilter))
+            if (annotations.TryGetValue(CoreAnnotationNames.QueryFilter, out var queryFilters) && queryFilters != null)
             {
-                annotations[CoreAnnotationNames.QueryFilter] =
-                    new QueryRootRewritingExpressionVisitor(runtimeEntityType.Model).Rewrite((Expression)queryFilter!);
+
+                var rewritingVisitor = new QueryRootRewritingExpressionVisitor(runtimeEntityType.Model);
+
+                annotations[CoreAnnotationNames.QueryFilter] = new QueryFilterCollection(
+                    ((QueryFilterCollection)queryFilters)
+                        .Select(x => new RuntimeQueryFilter(x.Key, (LambdaExpression)rewritingVisitor.Rewrite(x.Expression!)))
+                    );
             }
         }
     }

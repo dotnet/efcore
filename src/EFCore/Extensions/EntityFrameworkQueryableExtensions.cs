@@ -2670,7 +2670,14 @@ public static class EntityFrameworkQueryableExtensions
     #region Query Filters
 
     internal static readonly MethodInfo IgnoreQueryFiltersMethodInfo
-        = typeof(EntityFrameworkQueryableExtensions).GetTypeInfo().GetDeclaredMethod(nameof(IgnoreQueryFilters))!;
+        = typeof(EntityFrameworkQueryableExtensions).GetTypeInfo().GetDeclaredMethods(nameof(IgnoreQueryFilters))
+            .Where(info => info.GetParameters().Length == 1)
+            .First();
+
+    internal static readonly MethodInfo IgnoreNamedQueryFiltersMethodInfo
+        = typeof(EntityFrameworkQueryableExtensions).GetTypeInfo().GetDeclaredMethods(nameof(IgnoreQueryFilters))
+            .Where(info => info.GetParameters().Length == 2)
+            .First();
 
     /// <summary>
     ///     Specifies that the current Entity Framework LINQ query should not have any model-level entity query filters applied.
@@ -2691,6 +2698,28 @@ public static class EntityFrameworkQueryableExtensions
                     instance: null,
                     method: IgnoreQueryFiltersMethodInfo.MakeGenericMethod(typeof(TEntity)),
                     arguments: source.Expression))
+            : source;
+
+    /// <summary>
+    ///     Specifies that the current Entity Framework LINQ query should not have any model-level entity query filters applied.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-query-filters">EF Core query filters</see> for more information and examples.
+    /// </remarks>
+    /// <typeparam name="TEntity">The type of entity being queried.</typeparam>
+    /// <param name="source">The source query.</param>
+    /// <param name="filterKeys">The filter keys.</param>
+    /// <returns>A new query that will not apply any model-level entity query filters.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="source" /> is <see langword="null" />.</exception>
+    public static IQueryable<TEntity> IgnoreQueryFilters<TEntity>(
+        this IQueryable<TEntity> source, [NotParameterized] IReadOnlyCollection<string> filterKeys)
+        where TEntity : class
+        => source.Provider is EntityQueryProvider
+            ? source.Provider.CreateQuery<TEntity>(
+                Expression.Call(
+                    instance: null,
+                    method: IgnoreNamedQueryFiltersMethodInfo.MakeGenericMethod(typeof(TEntity)),
+                    arguments: [source.Expression, Expression.Constant(filterKeys)]))
             : source;
 
     #endregion

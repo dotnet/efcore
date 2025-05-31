@@ -328,7 +328,21 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
         if (genericMethodDefinition == EntityFrameworkQueryableExtensions.IgnoreQueryFiltersMethodInfo)
         {
             var visitedExpression = Visit(methodCallExpression.Arguments[0]);
+            _queryCompilationContext.IgnoredQueryFilters = null;
             _queryCompilationContext.IgnoreQueryFilters = true;
+
+            return visitedExpression;
+        }
+
+        if (genericMethodDefinition == EntityFrameworkQueryableExtensions.IgnoreNamedQueryFiltersMethodInfo)
+        {
+            var visitedExpression = Visit(methodCallExpression.Arguments[0]);
+            var filterKeys = methodCallExpression.Arguments[1].GetConstantValue<IReadOnlyCollection<string>>();
+            if (filterKeys?.Count > 0)
+            {
+                _queryCompilationContext.IgnoredQueryFilters ??= [];
+                _queryCompilationContext.IgnoredQueryFilters.UnionWith(filterKeys);
+            }
 
             return visitedExpression;
         }

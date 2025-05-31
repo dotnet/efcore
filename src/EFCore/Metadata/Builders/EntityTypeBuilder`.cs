@@ -615,10 +615,30 @@ public class EntityTypeBuilder<[DynamicallyAccessedMembers(IEntityType.Dynamical
     ///     Specifies a LINQ predicate expression that will automatically be applied to any queries targeting
     ///     this entity type.
     /// </summary>
+    /// <param name="filterKey">The filter key.</param>
+    /// <param name="filter">The LINQ predicate expression.</param>
+    /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
+    public new virtual EntityTypeBuilder<TEntity> HasQueryFilter(string filterKey, LambdaExpression? filter)
+        => (EntityTypeBuilder<TEntity>)base.HasQueryFilter(filterKey, filter);
+
+    /// <summary>
+    ///     Specifies a LINQ predicate expression that will automatically be applied to any queries targeting
+    ///     this entity type.
+    /// </summary>
     /// <param name="filter">The LINQ predicate expression.</param>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public virtual EntityTypeBuilder<TEntity> HasQueryFilter(Expression<Func<TEntity, bool>>? filter)
         => (EntityTypeBuilder<TEntity>)base.HasQueryFilter(filter);
+
+    /// <summary>
+    ///     Specifies a LINQ predicate expression that will automatically be applied to any queries targeting
+    ///     this entity type.
+    /// </summary>
+    /// <param name="filterKey">The filter key.</param>
+    /// <param name="filter">The LINQ predicate expression.</param>
+    /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
+    public virtual EntityTypeBuilder<TEntity> HasQueryFilter(string filterKey, Expression<Func<TEntity, bool>>? filter)
+        => (EntityTypeBuilder<TEntity>)base.HasQueryFilter(filterKey, filter);
 
     /// <summary>
     ///     Configures an unnamed index on the specified properties.
