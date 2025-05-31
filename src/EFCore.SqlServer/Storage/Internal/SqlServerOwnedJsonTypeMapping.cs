@@ -105,10 +105,7 @@ public class SqlServerOwnedJsonTypeMapping : JsonTypeMapping
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override string GenerateNonNullSqlLiteral(object value)
-    {
-        var jsonString = value is string str ? str : JsonSerializer.Serialize(value);
-        return $"'{EscapeSqlLiteral(jsonString)}'";
-    }
+        => $"'{EscapeSqlLiteral(JsonSerializer.Serialize(value))}'";
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
