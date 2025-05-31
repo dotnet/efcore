@@ -33,11 +33,6 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
     // Warning: Never access these fields directly as access needs to be thread-safe
     private PropertyCounts? _counts;
     private Func<IInternalEntry, ISnapshot>? _relationshipSnapshotFactory;
-    private Func<IInternalEntry, ISnapshot>? _originalValuesFactory;
-    private Func<IInternalEntry, ISnapshot>? _temporaryValuesFactory;
-    private Func<ISnapshot>? _storeGeneratedValuesFactory;
-    private Func<IDictionary<string, object?>, ISnapshot>? _shadowValuesFactory;
-    private Func<ISnapshot>? _emptyShadowValuesFactory;
     private IProperty[]? _foreignKeyProperties;
     private IProperty[]? _valueGeneratingProperties;
     private RuntimePropertyBase[]? _snapshottableProperties;
@@ -810,56 +805,6 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
         => _relationshipSnapshotFactory = factory;
 
     /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    [EntityFrameworkInternal]
-    public virtual void SetOriginalValuesFactory(Func<IInternalEntry, ISnapshot> factory)
-        => _originalValuesFactory = factory;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    [EntityFrameworkInternal]
-    public virtual void SetStoreGeneratedValuesFactory(Func<ISnapshot> factory)
-        => _storeGeneratedValuesFactory = factory;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    [EntityFrameworkInternal]
-    public virtual void SetTemporaryValuesFactory(Func<IInternalEntry, ISnapshot> factory)
-        => _temporaryValuesFactory = factory;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    [EntityFrameworkInternal]
-    public virtual void SetEmptyShadowValuesFactory(Func<ISnapshot> factory)
-        => _emptyShadowValuesFactory = factory;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    [EntityFrameworkInternal]
-    public virtual void SetShadowValuesFactory(Func<IDictionary<string, object?>, ISnapshot> factory)
-        => _shadowValuesFactory = factory;
-
-    /// <summary>
     ///     Gets or sets the <see cref="InstantiationBinding" /> for the preferred constructor.
     /// </summary>
     public override InstantiationBinding? ConstructorBinding
@@ -902,7 +847,7 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    public virtual PropertyCounts Counts
+    public override PropertyCounts Counts
     {
         get => NonCapturingLazyInitializer.EnsureInitialized(
             ref _counts, this, static entityType =>
@@ -1424,46 +1369,6 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
 
     PropertyAccessMode IReadOnlyEntityType.GetNavigationAccessMode()
         => throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData);
-
-    /// <inheritdoc />
-    Func<IInternalEntry, ISnapshot> IRuntimeEntityType.OriginalValuesFactory
-        => NonCapturingLazyInitializer.EnsureInitialized(
-            ref _originalValuesFactory, this,
-            static entityType => RuntimeFeature.IsDynamicCodeSupported
-                ? OriginalValuesFactoryFactory.Instance.Create(entityType)
-                : throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel));
-
-    /// <inheritdoc />
-    Func<ISnapshot> IRuntimeEntityType.StoreGeneratedValuesFactory
-        => NonCapturingLazyInitializer.EnsureInitialized(
-            ref _storeGeneratedValuesFactory, this,
-            static entityType => RuntimeFeature.IsDynamicCodeSupported
-                ? StoreGeneratedValuesFactoryFactory.Instance.CreateEmpty(entityType)
-                : throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel));
-
-    /// <inheritdoc />
-    Func<IInternalEntry, ISnapshot> IRuntimeEntityType.TemporaryValuesFactory
-        => NonCapturingLazyInitializer.EnsureInitialized(
-            ref _temporaryValuesFactory, this,
-            static entityType => RuntimeFeature.IsDynamicCodeSupported
-                ? TemporaryValuesFactoryFactory.Instance.Create(entityType)
-                : throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel));
-
-    /// <inheritdoc />
-    Func<IDictionary<string, object?>, ISnapshot> IRuntimeEntityType.ShadowValuesFactory
-        => NonCapturingLazyInitializer.EnsureInitialized(
-            ref _shadowValuesFactory, this,
-            static entityType => RuntimeFeature.IsDynamicCodeSupported
-                ? ShadowValuesFactoryFactory.Instance.Create(entityType)
-                : throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel));
-
-    /// <inheritdoc />
-    Func<ISnapshot> IRuntimeEntityType.EmptyShadowValuesFactory
-        => NonCapturingLazyInitializer.EnsureInitialized(
-            ref _emptyShadowValuesFactory, this,
-            static entityType => RuntimeFeature.IsDynamicCodeSupported
-                ? EmptyShadowValuesFactoryFactory.Instance.CreateEmpty(entityType)
-                : throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel));
 
     /// <inheritdoc />
     Func<IInternalEntry, ISnapshot> IRuntimeEntityType.RelationshipSnapshotFactory

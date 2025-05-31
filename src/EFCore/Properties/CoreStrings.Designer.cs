@@ -521,6 +521,22 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 queryExpression);
 
         /// <summary>
+        ///     The property '{entityType}.{property}' is being accessed using '{collectionMethod}', but is defined in the model as a non-collection complex property. Use '{referenceMethod}' to access non-collection complex properties.
+        /// </summary>
+        public static string ComplexCollectionIsReference(object? entityType, object? property, object? collectionMethod, object? referenceMethod)
+            => string.Format(
+                GetString("ComplexCollectionIsReference", nameof(entityType), nameof(property), nameof(collectionMethod), nameof(referenceMethod)),
+                entityType, property, collectionMethod, referenceMethod);
+
+        /// <summary>
+        ///     The complex type collection '{entityType}.{collection}' must be initialized to a non-null value before the elements can be accessed.
+        /// </summary>
+        public static string ComplexCollectionNotInitialized(object? entityType, object? collection)
+            => string.Format(
+                GetString("ComplexCollectionNotInitialized", nameof(entityType), nameof(collection)),
+                entityType, collection);
+
+        /// <summary>
         ///     The collection complex property '{property}' cannot be added to the type '{type}' because its CLR type '{clrType}' does not implement 'IEnumerable&lt;{targetType}&gt;'. Collection complex property must implement IEnumerable&lt;&gt; of the complex type.
         /// </summary>
         public static string ComplexCollectionWrongClrType(object? property, object? type, object? clrType, object? targetType)
@@ -567,6 +583,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("ComplexPropertyWrongClrType", nameof(property), nameof(type), nameof(clrType), nameof(targetType)),
                 property, type, clrType, targetType);
+
+        /// <summary>
+        ///     The property '{entityType}.{property}' is being accessed using the '{referenceMethod}' method, but is defined in the model as a collection complex property. Use the '{collectionMethod}' method to access collection complex properties.
+        /// </summary>
+        public static string ComplexReferenceIsCollection(object? entityType, object? property, object? referenceMethod, object? collectionMethod)
+            => string.Format(
+                GetString("ComplexReferenceIsCollection", nameof(entityType), nameof(property), nameof(referenceMethod), nameof(collectionMethod)),
+                entityType, property, referenceMethod, collectionMethod);
 
         /// <summary>
         ///     '{service}' doesn't currently support complex types.
@@ -671,12 +695,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 firstConstructor, secondConstructor);
 
         /// <summary>
-        ///     No suitable constructor was found for entity type '{entityType}'. The following constructors had parameters that could not be bound to properties of the entity type: {constructors}Note that only mapped properties can be bound to constructor parameters. Navigations to related entities, including references to owned types, cannot be bound.
+        ///     No suitable constructor was found for the type '{type}'. The following constructors had parameters that could not be bound to properties of the type: {constructors}Note that only mapped properties can be bound to constructor parameters. Navigations to related entities, including references to owned types, cannot be bound.
         /// </summary>
-        public static string ConstructorNotFound(object? entityType, object? constructors)
+        public static string ConstructorNotFound(object? type, object? constructors)
             => string.Format(
-                GetString("ConstructorNotFound", nameof(entityType), nameof(constructors)),
-                entityType, constructors);
+                GetString("ConstructorNotFound", nameof(type), nameof(constructors)),
+                type, constructors);
 
         /// <summary>
         ///     Cannot access a disposed context instance. A common cause of this error is disposing a context instance that was resolved from dependency injection and then later trying to use the same context instance elsewhere in your application. This may occur if you are calling 'Dispose' on the context instance, or wrapping it in a using statement. If you are using dependency injection, you should let the dependency injection container take care of disposing context instances.
@@ -3514,6 +3538,56 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             }
 
             return (EventDefinition<string, string>)definition;
+        }
+
+        /// <summary>
+        ///     The unchanged property '{typePath}.{property}' was detected as changed and will be marked as modified. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see property values.
+        /// </summary>
+        public static EventDefinition<string, string> LogComplexTypePropertyChangeDetected(IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogComplexTypePropertyChangeDetected;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((LoggingDefinitions)logger.Definitions).LogComplexTypePropertyChangeDetected,
+                    logger,
+                    static logger => new EventDefinition<string, string>(
+                        logger.Options,
+                        CoreEventId.ComplexTypePropertyChangeDetected,
+                        LogLevel.Debug,
+                        "CoreEventId.ComplexTypePropertyChangeDetected",
+                        level => LoggerMessage.Define<string, string>(
+                            level,
+                            CoreEventId.ComplexTypePropertyChangeDetected,
+                            _resourceManager.GetString("LogComplexTypePropertyChangeDetected")!)));
+            }
+
+            return (EventDefinition<string, string>)definition;
+        }
+
+        /// <summary>
+        ///     The unchanged property '{typePath}.{property}' was detected as changed from '{oldValue}' to '{newValue}' and will be marked as modified for entity with key '{keyValues}'.
+        /// </summary>
+        public static EventDefinition<string, string, object?, object?, string> LogComplexTypePropertyChangeDetectedSensitive(IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogComplexTypePropertyChangeDetectedSensitive;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((LoggingDefinitions)logger.Definitions).LogComplexTypePropertyChangeDetectedSensitive,
+                    logger,
+                    static logger => new EventDefinition<string, string, object?, object?, string>(
+                        logger.Options,
+                        CoreEventId.ComplexTypePropertyChangeDetected,
+                        LogLevel.Debug,
+                        "CoreEventId.ComplexTypePropertyChangeDetected",
+                        level => LoggerMessage.Define<string, string, object?, object?, string>(
+                            level,
+                            CoreEventId.ComplexTypePropertyChangeDetected,
+                            _resourceManager.GetString("LogComplexTypePropertyChangeDetectedSensitive")!)));
+            }
+
+            return (EventDefinition<string, string, object?, object?, string>)definition;
         }
 
         /// <summary>

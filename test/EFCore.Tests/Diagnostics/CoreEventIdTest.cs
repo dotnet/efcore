@@ -104,7 +104,7 @@ public class CoreEventIdTest : EventIdTestBase
         public INavigationBase Inverse
             => throw new NotImplementedException();
 
-        public bool IsCollection
+        public override bool IsCollection
             => throw new NotImplementedException();
 
         public override TypeBase DeclaringType { get; } = entityType;
