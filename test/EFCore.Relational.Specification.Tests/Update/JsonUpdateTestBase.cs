@@ -3633,6 +3633,40 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 }
             });
 
+    [ConditionalFact]
+    public virtual Task Edit_single_property_with_chinese_characters()
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                var query = await context.JsonEntitiesBasic.ToListAsync();
+                var entity = query.Single(x => x.Id == 1);
+                entity.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf.SomethingSomething = "测试1";
+
+                ClearLog();
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                var result = await context.Set<JsonEntityBasic>().SingleAsync(x => x.Id == 1);
+                Assert.Equal("测试1", result.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf.SomethingSomething);
+            },
+            async context =>
+            {
+                var query = await context.JsonEntitiesBasic.ToListAsync();
+                var entity = query.Single(x => x.Id == 1);
+                entity.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf.SomethingSomething = "测试2";
+
+                ClearLog();
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                var result = await context.Set<JsonEntityBasic>().SingleAsync(x => x.Id == 1);
+                Assert.Equal("测试2", result.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf.SomethingSomething);
+            });
+
     public void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
         => facade.UseTransaction(transaction.GetDbTransaction());
 
