@@ -320,11 +320,10 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                             property, columnBase, tableMap[columnBase.Table], nullable: false);
                     }
 
-                    return new SelectExpression(
-                        tables,
-                        new StructuralTypeProjectionExpression(entityType, columns, tableMap),
-                        identifier,
-                        _sqlAliasManager);
+                    var projection = new StructuralTypeProjectionExpression(entityType, columns, tableMap);
+                    AddJsonNavigationBindings(entityType, projection, columns, tableMap);
+
+                    return new SelectExpression(tables, projection, identifier, _sqlAliasManager);
                 }
             }
 
@@ -338,11 +337,12 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                     propertyExpressions[property] = CreateColumnExpression(property, table, alias, nullable: false);
                 }
 
+                var tableMap = new Dictionary<ITableBase, string> { [table] = alias };
                 var projection = new StructuralTypeProjectionExpression(
                     entityType,
                     propertyExpressions,
-                    new Dictionary<ITableBase, string> { [table] = alias });
-                AddJsonNavigationBindings(entityType, projection, propertyExpressions, alias);
+                    tableMap);
+                AddJsonNavigationBindings(entityType, projection, propertyExpressions, tableMap);
 
                 var identifier = new List<(ColumnExpression Column, ValueComparer Comparer)>();
                 var primaryKey = entityType.FindPrimaryKey();
@@ -389,7 +389,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
         }
 
         var projection = new StructuralTypeProjectionExpression(entityType, propertyExpressions, tableMap);
-        AddJsonNavigationBindings(entityType, projection, propertyExpressions, alias);
+        AddJsonNavigationBindings(entityType, projection, propertyExpressions, tableMap);
 
         var identifier = new List<(ColumnExpression Column, ValueComparer Comparer)>();
         var primaryKey = entityType.FindPrimaryKey();
@@ -503,7 +503,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
         IEntityType entityType,
         StructuralTypeProjectionExpression projection,
         Dictionary<IProperty, ColumnExpression> propertyExpressions,
-        string tableAlias)
+        Dictionary<ITableBase, string> tableMap)
     {
         foreach (var ownedJsonNavigation in entityType.GetNavigationsInHierarchy()
                      .Where(
@@ -512,10 +512,10 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                              && n.ForeignKey.PrincipalToDependent == n))
         {
             var targetEntityType = ownedJsonNavigation.TargetEntityType;
-            var containerColumnName = targetEntityType.GetContainerColumnName()!;
-            var containerColumn = (entityType.GetViewOrTableMappings().SingleOrDefault()?.Table
-                    ?? entityType.GetDefaultMappings().Single().Table)
-                .FindColumn(containerColumnName)!;
+            var containerColumnName = targetEntityType.GetContainerColumnName() ?? throw new UnreachableException();
+            var containerColumn = entityType.GetViewOrTableMappings().Concat(entityType.GetDefaultMappings())
+                .Select(m => m.Table.FindColumn(containerColumnName))
+                .Single(c => c != null)!;
             var containerColumnTypeMapping = containerColumn.StoreTypeMapping;
             var isNullable = containerColumn.IsNullable
                 || !ownedJsonNavigation.ForeignKey.IsRequiredDependent
@@ -523,7 +523,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
 
             var column = new ColumnExpression(
                 containerColumnName,
-                tableAlias,
+                tableMap[containerColumn.Table],
                 containerColumnTypeMapping.ClrType,
                 containerColumnTypeMapping,
                 isNullable);
