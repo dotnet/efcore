@@ -7,7 +7,7 @@
       ".dotnet",
       "$host$"
     ],
-    "errorMessage": "The required .NET SDK wasn't found. Please run ./restore.sh or .\restore.cmd to install it."
+    "errorMessage": "The required .NET SDK wasn't found. Please run ./restore.sh or .\\restore.cmd to install it."
   },
   "tools": {
     "dotnet": "10.0.100-preview.6.25272.112",
