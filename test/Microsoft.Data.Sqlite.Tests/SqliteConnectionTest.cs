@@ -1284,4 +1284,88 @@ public class SqliteConnectionTest
             dataTable.Rows.Cast<DataRow>(),
             r => (string)r[DbMetaDataColumnNames.ReservedWord] == "SELECT");
     }
+
+    [Fact]
+    public void Open_releases_handle_when_constructor_fails()
+    {
+        var dbPath = Path.GetTempFileName();
+        try
+        {
+            // Create a file with invalid database content 
+            File.WriteAllText(dbPath, "this is not a database file but should still open with sqlite3_open_v2");
+            
+            // Use password to trigger the encryption path in SqliteConnectionInternal constructor
+            // This should fail during password verification when trying to decrypt the invalid file
+            var connectionString = $"Data Source={dbPath};Password=test;Mode=ReadOnly;Pooling=False";
+
+            using var connection = new SqliteConnection(connectionString);
+            
+#if E_SQLCIPHER || E_SQLITE3MC || SQLCIPHER
+            // With encryption support, this should throw during password verification  
+            // specifically when ExecuteNonQuery("SELECT COUNT(*) FROM sqlite_master;") is called
+            var ex = Assert.Throws<SqliteException>(() => connection.Open());
+            
+            // Should be SQLITE_NOTADB (26) - file is not a database
+            Assert.Equal(SQLITE_NOTADB, ex.SqliteErrorCode);
+#else
+            // Without encryption support, should throw InvalidOperationException for unsupported encryption
+            var ex = Assert.Throws<InvalidOperationException>(() => connection.Open());
+            Assert.Contains("password", ex.Message.ToLowerInvariant());
+#endif
+            
+            Assert.Equal(ConnectionState.Closed, connection.State);
+
+            // Clear any pools that might hold connections
+            SqliteConnection.ClearPool(connection);
+
+            // The file should be movable/deletable now (indicating handle was released)
+            // If there's a file handle leak, this will fail on Windows
+            var tempPath = dbPath + ".moved";
+            File.Move(dbPath, tempPath);
+            File.Delete(tempPath);
+        }
+        finally
+        {
+            // Clean up
+            if (File.Exists(dbPath))
+            {
+                File.Delete(dbPath);
+            }
+        }
+    }
+
+    [Fact]
+    public void Open_releases_handle_when_opening_invalid_file()
+    {
+        var dbPath = Path.GetTempFileName();
+        try
+        {
+            // Delete the temp file and create a directory with the same name
+            // This should cause sqlite3_open_v2 itself to fail
+            File.Delete(dbPath);
+            Directory.CreateDirectory(dbPath);
+            
+            var connectionString = $"Data Source={dbPath};Mode=ReadOnly;Pooling=False";
+
+            using var connection = new SqliteConnection(connectionString);
+            
+            // This should throw an exception when trying to open the directory as a file
+            var ex = Assert.Throws<SqliteException>(() => connection.Open());
+            
+            // Should be some kind of error - we don't care about the specific code
+            Assert.True(ex.SqliteErrorCode != 0);
+            Assert.Equal(ConnectionState.Closed, connection.State);
+
+            // Clear any pools that might hold connections
+            SqliteConnection.ClearPool(connection);
+        }
+        finally
+        {
+            // Clean up
+            if (Directory.Exists(dbPath))
+            {
+                Directory.Delete(dbPath);
+            }
+        }
+    }
 }
