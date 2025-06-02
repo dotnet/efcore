@@ -1315,18 +1315,13 @@ public class SqliteConnectionTest
             
             Assert.Equal(ConnectionState.Closed, connection.State);
 
-            // Clear any pools that might hold connections
-            SqliteConnection.ClearPool(connection);
-
-            // The file should be movable/deletable now (indicating handle was released)
-            // If there's a file handle leak, this will fail on Windows
-            var tempPath = dbPath + ".moved";
-            File.Move(dbPath, tempPath);
-            File.Delete(tempPath);
+            // The file should be deletable now (indicating handle was released)
+            // If there's a file handle leak, this will fail
+            File.Delete(dbPath);
         }
         finally
         {
-            // Clean up
+            // Clean up - file may already be deleted by the test
             if (File.Exists(dbPath))
             {
                 File.Delete(dbPath);
@@ -1355,9 +1350,6 @@ public class SqliteConnectionTest
             // Should be some kind of error - we don't care about the specific code
             Assert.True(ex.SqliteErrorCode != 0);
             Assert.Equal(ConnectionState.Closed, connection.State);
-
-            // Clear any pools that might hold connections
-            SqliteConnection.ClearPool(connection);
         }
         finally
         {
