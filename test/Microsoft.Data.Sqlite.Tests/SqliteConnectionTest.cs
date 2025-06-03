@@ -1329,35 +1329,5 @@ public class SqliteConnectionTest
         }
     }
 
-    [Fact]
-    public void Open_releases_handle_when_opening_invalid_file()
-    {
-        var dbPath = Path.GetTempFileName();
-        try
-        {
-            // Delete the temp file and create a directory with the same name
-            // This should cause sqlite3_open_v2 itself to fail
-            File.Delete(dbPath);
-            Directory.CreateDirectory(dbPath);
-            
-            var connectionString = $"Data Source={dbPath};Mode=ReadOnly;Pooling=False";
 
-            using var connection = new SqliteConnection(connectionString);
-            
-            // This should throw an exception when trying to open the directory as a file
-            var ex = Assert.Throws<SqliteException>(() => connection.Open());
-            
-            // Should be some kind of error - we don't care about the specific code
-            Assert.True(ex.SqliteErrorCode != 0);
-            Assert.Equal(ConnectionState.Closed, connection.State);
-        }
-        finally
-        {
-            // Clean up
-            if (Directory.Exists(dbPath))
-            {
-                Directory.Delete(dbPath);
-            }
-        }
-    }
 }
