@@ -1289,43 +1289,44 @@ public class SqliteConnectionTest
     public void Open_releases_handle_when_constructor_fails()
     {
         var dbPath = Path.GetTempFileName();
-        try
-        {
-            // Create a file with invalid database content 
-            File.WriteAllText(dbPath, "this is not a database file but should still open with sqlite3_open_v2");
-            
-            // Use password to trigger the encryption path in SqliteConnectionInternal constructor
-            // This should fail during password verification when trying to decrypt the invalid file
-            var connectionString = $"Data Source={dbPath};Password=test;Mode=ReadOnly;Pooling=False";
+        
+        // Create a file with invalid database content 
+        File.WriteAllText(dbPath, "this is not a database file but should still open with sqlite3_open_v2");
+        
+        // Use password to trigger the encryption path in SqliteConnectionInternal constructor
+        // This should fail during password verification when trying to decrypt the invalid file
+        var connectionString = $"Data Source={dbPath};Password=test;Mode=ReadOnly;Pooling=False";
 
-            using var connection = new SqliteConnection(connectionString);
-            
+        using var connection = new SqliteConnection(connectionString);
+        
 #if E_SQLCIPHER || E_SQLITE3MC || SQLCIPHER
-            // With encryption support, this should throw during password verification  
-            // specifically when ExecuteNonQuery("SELECT COUNT(*) FROM sqlite_master;") is called
-            var ex = Assert.Throws<SqliteException>(() => connection.Open());
-            
-            // Should be SQLITE_NOTADB (26) - file is not a database
-            Assert.Equal(SQLITE_NOTADB, ex.SqliteErrorCode);
+        // With encryption support, this should throw during password verification  
+        // specifically when ExecuteNonQuery("SELECT COUNT(*) FROM sqlite_master;") is called
+        var ex = Assert.Throws<SqliteException>(() => connection.Open());
+        
+        // Should be SQLITE_NOTADB (26) - file is not a database
+        Assert.Equal(SQLITE_NOTADB, ex.SqliteErrorCode);
 #else
-            // Without encryption support, should throw InvalidOperationException for unsupported encryption
-            var ex = Assert.Throws<InvalidOperationException>(() => connection.Open());
-            Assert.Contains("password", ex.Message.ToLowerInvariant());
+        // Without encryption support, should throw InvalidOperationException for unsupported encryption
+        var ex = Assert.Throws<InvalidOperationException>(() => connection.Open());
+        Assert.Contains("password", ex.Message.ToLowerInvariant());
 #endif
-            
-            Assert.Equal(ConnectionState.Closed, connection.State);
+        
+        Assert.Equal(ConnectionState.Closed, connection.State);
 
-            // The file should be deletable now (indicating handle was released)
-            // If there's a file handle leak, this will fail
+        // Test file handle was released by attempting to delete the file
+        // Note: This test only meaningfully verifies handle leaks on Windows
+        // On Linux/macOS, files can be deleted even when handles are still open
+        if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+        {
+            // On Windows, this will fail if there's a file handle leak
             File.Delete(dbPath);
         }
-        finally
+        else
         {
-            // Clean up - file may already be deleted by the test
-            if (File.Exists(dbPath))
-            {
-                File.Delete(dbPath);
-            }
+            // On Unix-like systems, we can still delete the file but cannot 
+            // reliably detect handle leaks this way
+            File.Delete(dbPath);
         }
     }
 
