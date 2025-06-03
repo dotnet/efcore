@@ -513,17 +513,28 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
         {
             var targetEntityType = ownedJsonNavigation.TargetEntityType;
             var containerColumnName = targetEntityType.GetContainerColumnName() ?? throw new UnreachableException();
-            var containerColumn = entityType.GetViewOrTableMappings().Concat(entityType.GetDefaultMappings())
-                .Select(m => m.Table.FindColumn(containerColumnName))
-                .Single(c => c != null)!;
-            var containerColumnTypeMapping = containerColumn.StoreTypeMapping;
+            var (containerColumn, tableAlias) = tableMap
+                .Select(kvp => (Column: kvp.Key.FindColumn(containerColumnName), TableAlias: kvp.Value))
+                .SingleOrDefault(c => c.Column is not null);
+
+            // HACK: when FromSql is used, the relational table comes from the entity type's default mapping (entityType.GetDefaultMappings()),
+            // and that currently doesn't contain the container column.
+            if (containerColumn is null && tableMap.Count == 1)
+            {
+                containerColumn = (entityType.GetViewOrTableMappings().SingleOrDefault()?.Table
+                        ?? entityType.GetDefaultMappings().Single().Table)
+                    .FindColumn(containerColumnName)!;
+                tableAlias = tableMap.Single().Value;
+            }
+
+            var containerColumnTypeMapping = containerColumn!.StoreTypeMapping;
             var isNullable = containerColumn.IsNullable
                 || !ownedJsonNavigation.ForeignKey.IsRequiredDependent
                 || ownedJsonNavigation.IsCollection;
 
             var column = new ColumnExpression(
                 containerColumnName,
-                tableMap[containerColumn.Table],
+                tableAlias,
                 containerColumnTypeMapping.ClrType,
                 containerColumnTypeMapping,
                 isNullable);
