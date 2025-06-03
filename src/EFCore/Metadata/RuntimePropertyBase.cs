@@ -93,8 +93,13 @@ public abstract class RuntimePropertyBase : RuntimeAnnotatableBase, IRuntimeProp
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    public virtual void SetPropertyIndexes(int index, int originalValueIndex, int shadowIndex, int relationshipIndex, int storeGenerationIndex)
-        => _indexes = new(index, originalValueIndex, shadowIndex, relationshipIndex, storeGenerationIndex);
+    public virtual void SetPropertyIndexes(
+        int index,
+        int originalValueIndex,
+        int shadowIndex,
+        int relationshipIndex,
+        int storeGenerationIndex)
+        => _indexes = new PropertyIndexes(index, originalValueIndex, shadowIndex, relationshipIndex, storeGenerationIndex);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -104,17 +109,15 @@ public abstract class RuntimePropertyBase : RuntimeAnnotatableBase, IRuntimeProp
     /// </summary>
     [EntityFrameworkInternal]
     public virtual void SetAccessors<TProperty>(
-        Func<InternalEntityEntry, TProperty> currentValueGetter,
-        Func<InternalEntityEntry, TProperty> preStoreGeneratedCurrentValueGetter,
-        Func<InternalEntityEntry, TProperty>? originalValueGetter,
-        Func<InternalEntityEntry, TProperty> relationshipSnapshotGetter,
-        Func<ValueBuffer, object>? valueBufferGetter)
-        => _accessors = new(
+        Func<IInternalEntry, TProperty> currentValueGetter,
+        Func<IInternalEntry, TProperty> preStoreGeneratedCurrentValueGetter,
+        Func<IInternalEntry, TProperty>? originalValueGetter,
+        Func<IInternalEntry, TProperty> relationshipSnapshotGetter)
+        => _accessors = new PropertyAccessors(
             currentValueGetter,
             preStoreGeneratedCurrentValueGetter,
             originalValueGetter,
-            relationshipSnapshotGetter,
-            valueBufferGetter);
+            relationshipSnapshotGetter);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

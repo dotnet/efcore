@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 
@@ -19,8 +20,8 @@ public class QuerySqlGenerator : SqlExpressionVisitor
 {
     private readonly IRelationalCommandBuilderFactory _relationalCommandBuilderFactory;
     private readonly ISqlGenerationHelper _sqlGenerationHelper;
+    private readonly HashSet<string> _parameterNames = new();
     private IRelationalCommandBuilder _relationalCommandBuilder;
-    private Dictionary<string, int>? _repeatedParameterCounts;
 
     /// <summary>
     ///     Creates a new instance of the <see cref="QuerySqlGenerator" /> class.
@@ -151,10 +152,11 @@ public class QuerySqlGenerator : SqlExpressionVisitor
         return sqlFragmentExpression;
     }
 
-    private static bool IsNonComposedSetOperation(SelectExpression selectExpression)
-        => selectExpression is
+    private static bool TryUnwrapBareSetOperation(SelectExpression selectExpression, [NotNullWhen(true)] out SetOperationBase? setOperation)
+    {
+        if (selectExpression is
             {
-                Tables: [SetOperationBase setOperation],
+                Tables: [SetOperationBase s],
                 Predicate: null,
                 Orderings: [],
                 Offset: null,
@@ -163,12 +165,20 @@ public class QuerySqlGenerator : SqlExpressionVisitor
                 Having: null,
                 GroupBy: []
             }
-            && selectExpression.Projection.Count == setOperation.Source1.Projection.Count
+            && selectExpression.Projection.Count == s.Source1.Projection.Count
             && selectExpression.Projection.Select(
                     (pe, index) => pe.Expression is ColumnExpression column
-                        && column.TableAlias == setOperation.Alias
-                        && column.Name == setOperation.Source1.Projection[index].Alias)
-                .All(e => e);
+                        && column.TableAlias == s.Alias
+                        && column.Name == s.Source1.Projection[index].Alias)
+                .All(e => e))
+        {
+            setOperation = s;
+            return true;
+        }
+
+        setOperation = null;
+        return false;
+    }
 
     /// <summary>
     ///     Generates SQL for a DELETE expression
@@ -203,7 +213,8 @@ public class QuerySqlGenerator : SqlExpressionVisitor
         }
 
         throw new InvalidOperationException(
-            RelationalStrings.ExecuteOperationWithUnsupportedOperatorInSqlGeneration(nameof(RelationalQueryableExtensions.ExecuteDelete)));
+            RelationalStrings.ExecuteOperationWithUnsupportedOperatorInSqlGeneration(
+                nameof(EntityFrameworkQueryableExtensions.ExecuteDelete)));
     }
 
     /// <summary>
@@ -277,9 +288,9 @@ public class QuerySqlGenerator : SqlExpressionVisitor
     /// </summary>
     protected virtual bool TryGenerateWithoutWrappingSelect(SelectExpression selectExpression)
     {
-        if (IsNonComposedSetOperation(selectExpression))
+        if (TryUnwrapBareSetOperation(selectExpression, out var setOperation))
         {
-            GenerateSetOperation((SetOperationBase)selectExpression.Tables[0]);
+            GenerateSetOperation(setOperation);
             return true;
         }
 
@@ -465,15 +476,15 @@ public class QuerySqlGenerator : SqlExpressionVisitor
                 substitutions = new string[constantValues.Length];
                 for (var i = 0; i < constantValues.Length; i++)
                 {
-                    var value = constantValues[i];
-                    if (value is RawRelationalParameter rawRelationalParameter)
+                    switch (constantValues[i])
                     {
-                        substitutions[i] = _sqlGenerationHelper.GenerateParameterNamePlaceholder(rawRelationalParameter.InvariantName);
-                        _relationalCommandBuilder.AddParameter(rawRelationalParameter);
-                    }
-                    else if (value is SqlConstantExpression sqlConstantExpression)
-                    {
-                        substitutions[i] = sqlConstantExpression.TypeMapping!.GenerateSqlLiteral(sqlConstantExpression.Value);
+                        case RawRelationalParameter rawRelationalParameter:
+                            substitutions[i] = _sqlGenerationHelper.GenerateParameterNamePlaceholder(rawRelationalParameter.InvariantName);
+                            _relationalCommandBuilder.AddParameter(rawRelationalParameter);
+                            break;
+                        case SqlConstantExpression sqlConstantExpression:
+                            substitutions[i] = sqlConstantExpression.TypeMapping!.GenerateSqlLiteral(sqlConstantExpression.Value);
+                            break;
                     }
                 }
 
@@ -627,7 +638,7 @@ public class QuerySqlGenerator : SqlExpressionVisitor
     protected override Expression VisitSqlConstant(SqlConstantExpression sqlConstantExpression)
     {
         _relationalCommandBuilder
-            .Append(sqlConstantExpression.TypeMapping!.GenerateSqlLiteral(sqlConstantExpression.Value));
+            .Append(sqlConstantExpression.TypeMapping!.GenerateSqlLiteral(sqlConstantExpression.Value), sqlConstantExpression.IsSensitive);
 
         return sqlConstantExpression;
     }
@@ -638,61 +649,23 @@ public class QuerySqlGenerator : SqlExpressionVisitor
     /// <param name="sqlParameterExpression">The <see cref="SqlParameterExpression" /> for which to generate SQL.</param>
     protected override Expression VisitSqlParameter(SqlParameterExpression sqlParameterExpression)
     {
-        var invariantName = sqlParameterExpression.Name;
-        var parameterName = sqlParameterExpression.Name;
-        var typeMapping = sqlParameterExpression.TypeMapping!;
+        var name = sqlParameterExpression.Name;
 
-        // Try to see if a parameter already exists - if so, just integrate the same placeholder into the SQL instead of sending the same
-        // data twice.
-        // Note that if the type mapping differs, we do send the same data twice (e.g. the same string may be sent once as Unicode, once as
-        // non-Unicode).
-        // TODO: Note that we perform Equals comparison on the value converter. We should be able to do reference comparison, but for
-        // that we need to ensure that there's only ever one type mapping instance (i.e. no type mappings are ever instantiated out of the
-        // type mapping source). See #30677.
-        var parameter = _relationalCommandBuilder.Parameters.FirstOrDefault(
-            p =>
-                p.InvariantName == parameterName
-                && p is TypeMappedRelationalParameter { RelationalTypeMapping: var existingTypeMapping }
-                && string.Equals(existingTypeMapping.StoreType, typeMapping.StoreType, StringComparison.OrdinalIgnoreCase)
-                && (existingTypeMapping.Converter is null && typeMapping.Converter is null
-                    || existingTypeMapping.Converter is not null && existingTypeMapping.Converter.Equals(typeMapping.Converter)));
-
-        if (parameter is null)
+        // Only add the parameter to the command the first time we see its (non-invariant) name, even though we may need to add its
+        // placeholder multiple times.
+        if (!_parameterNames.Contains(name))
         {
-            parameterName = GetUniqueParameterName(parameterName);
-
             _relationalCommandBuilder.AddParameter(
-                invariantName,
-                _sqlGenerationHelper.GenerateParameterName(parameterName),
+                sqlParameterExpression.InvariantName,
+                _sqlGenerationHelper.GenerateParameterName(name),
                 sqlParameterExpression.TypeMapping!,
                 sqlParameterExpression.IsNullable);
-        }
-        else
-        {
-            parameterName = ((TypeMappedRelationalParameter)parameter).Name;
+            _parameterNames.Add(name);
         }
 
-        _relationalCommandBuilder
-            .Append(_sqlGenerationHelper.GenerateParameterNamePlaceholder(parameterName));
+        _relationalCommandBuilder.Append(_sqlGenerationHelper.GenerateParameterNamePlaceholder(name));
 
         return sqlParameterExpression;
-
-        string GetUniqueParameterName(string currentName)
-        {
-            _repeatedParameterCounts ??= new Dictionary<string, int>();
-
-            if (!_repeatedParameterCounts.TryGetValue(currentName, out var currentCount))
-            {
-                _repeatedParameterCounts[currentName] = 0;
-
-                return currentName;
-            }
-
-            currentCount++;
-            _repeatedParameterCounts[currentName] = currentCount;
-
-            return currentName + "_" + currentCount;
-        }
     }
 
     /// <summary>
@@ -880,6 +853,7 @@ public class QuerySqlGenerator : SqlExpressionVisitor
                 break;
             }
 
+            case ExpressionType.OnesComplement:
             case ExpressionType.Not:
             {
                 _relationalCommandBuilder.Append("~");
@@ -1098,7 +1072,7 @@ public class QuerySqlGenerator : SqlExpressionVisitor
             ExpressionType.Or => " | ",
             ExpressionType.ExclusiveOr => " ^ ",
 
-            _ => throw new UnreachableException($"Unsupported unary OperatorType: {binaryExpression.OperatorType}")
+            _ => throw new UnreachableException($"Unsupported binary OperatorType: {binaryExpression.OperatorType}")
         };
 
     /// <summary>
@@ -1287,6 +1261,20 @@ public class QuerySqlGenerator : SqlExpressionVisitor
     }
 
     /// <summary>
+    ///     Generates SQL for a right join.
+    /// </summary>
+    /// <param name="rightJoinExpression">The <see cref="RightJoinExpression" /> for which to generate SQL.</param>
+    protected override Expression VisitRightJoin(RightJoinExpression rightJoinExpression)
+    {
+        _relationalCommandBuilder.Append("RIGHT JOIN ");
+        Visit(rightJoinExpression.Table);
+        _relationalCommandBuilder.Append(" ON ");
+        Visit(rightJoinExpression.JoinPredicate);
+
+        return rightJoinExpression;
+    }
+
+    /// <summary>
     ///     Generates SQL for a scalar subquery.
     /// </summary>
     /// <param name="scalarSubqueryExpression">The <see cref="ScalarSubqueryExpression" /> for which to generate SQL.</param>
@@ -1380,11 +1368,16 @@ public class QuerySqlGenerator : SqlExpressionVisitor
     protected virtual void GenerateSetOperationOperand(SetOperationBase setOperation, SelectExpression operand)
     {
         // INTERSECT has higher precedence over UNION and EXCEPT, but otherwise evaluation is left-to-right.
-        // To preserve meaning, add parentheses whenever a set operation is nested within a different set operation.
-        if (IsNonComposedSetOperation(operand)
-            && operand.Tables[0].GetType() != setOperation.GetType())
+        // To preserve evaluation order, add parentheses whenever a set operation is nested within a different set operation
+        // - including different distinctness.
+        // In addition, EXCEPT is non-commutative (unlike UNION/INTERSECT), so add parentheses for that case too (see #36105).
+        if (TryUnwrapBareSetOperation(operand, out var nestedSetOperation)
+            && (nestedSetOperation is ExceptExpression
+                || nestedSetOperation.GetType() != setOperation.GetType()
+                || nestedSetOperation.IsDistinct != setOperation.IsDistinct))
         {
             _relationalCommandBuilder.AppendLine("(");
+
             using (_relationalCommandBuilder.Indent())
             {
                 Visit(operand);
@@ -1494,7 +1487,7 @@ public class QuerySqlGenerator : SqlExpressionVisitor
                     var table = selectExpression.Tables[i];
                     var joinExpression = table as JoinExpressionBase;
 
-                    if (ReferenceEquals(updateExpression.Table, joinExpression?.Table ?? table))
+                    if (updateExpression.Table.Alias == (joinExpression?.Table.Alias ?? table.Alias))
                     {
                         LiftPredicate(table);
                         continue;
@@ -1540,7 +1533,8 @@ public class QuerySqlGenerator : SqlExpressionVisitor
         }
 
         throw new InvalidOperationException(
-            RelationalStrings.ExecuteOperationWithUnsupportedOperatorInSqlGeneration(nameof(RelationalQueryableExtensions.ExecuteUpdate)));
+            RelationalStrings.ExecuteOperationWithUnsupportedOperatorInSqlGeneration(
+                nameof(EntityFrameworkQueryableExtensions.ExecuteUpdate)));
     }
 
     /// <summary>
@@ -1567,6 +1561,10 @@ public class QuerySqlGenerator : SqlExpressionVisitor
     /// <param name="valuesExpression">The <see cref="ValuesExpression" /> for which to generate SQL.</param>
     protected virtual void GenerateValues(ValuesExpression valuesExpression)
     {
+        Check.DebugAssert(
+            valuesExpression.RowValues is not null,
+            "ValuesExpression.RowValues has to be set before SQL generation (i.e. in SqlNullabilityProcessor)");
+
         if (valuesExpression.RowValues.Count == 0)
         {
             throw new InvalidOperationException(RelationalStrings.EmptyCollectionNotSupportedAsInlineQueryRoot);

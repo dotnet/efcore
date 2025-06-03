@@ -90,9 +90,9 @@ public class SqlServerAnnotationCodeGeneratorTest
             {
                 x.Property<int>("Something");
                 x.Property<int>("SomethingElse");
-                x.HasAlternateKey(["Something", "SomethingElse"]).HasFillFactor(80);
+                x.HasAlternateKey("Something", "SomethingElse").HasFillFactor(80);
             });
-        
+
         var uniqueConstraint = (IKey)modelBuilder.Model.FindEntityType("Post")!.GetKeys().Single();
         var result = generator.GenerateFluentApiCalls(uniqueConstraint, uniqueConstraint.GetAnnotations().ToDictionary(a => a.Name, a => a))
             .Single();

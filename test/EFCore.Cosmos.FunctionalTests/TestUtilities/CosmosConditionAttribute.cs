@@ -24,15 +24,25 @@ public sealed class CosmosConditionAttribute(CosmosCondition conditions) : Attri
             isMet &= !TestEnvironment.UseTokenCredential;
         }
 
+        if (Conditions.HasFlag(CosmosCondition.IsEmulator))
+        {
+            isMet &= TestEnvironment.IsEmulator;
+        }
+
+        if (Conditions.HasFlag(CosmosCondition.IsNotEmulator))
+        {
+            isMet &= !TestEnvironment.IsEmulator;
+        }
+
         return ValueTask.FromResult(isMet);
     }
 
     public string SkipReason
         => string.Format(
-                "The test Cosmos account does not meet these conditions: '{0}'",
-                string.Join(
-                    ", ", Enum.GetValues(typeof(CosmosCondition))
-                        .Cast<Enum>()
-                        .Where(Conditions.HasFlag)
-                        .Select(f => Enum.GetName(typeof(CosmosCondition), f))));
+            "The test Cosmos account does not meet these conditions: '{0}'",
+            string.Join(
+                ", ", Enum.GetValues(typeof(CosmosCondition))
+                    .Cast<Enum>()
+                    .Where(Conditions.HasFlag)
+                    .Select(f => Enum.GetName(typeof(CosmosCondition), f))));
 }

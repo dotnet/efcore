@@ -12,9 +12,7 @@ public class FunkyDataData : ISetSource
     public IReadOnlyList<FunkyCustomer> FunkyCustomers { get; }
 
     private FunkyDataData()
-    {
-        FunkyCustomers = CreateFunkyCustomers();
-    }
+        => FunkyCustomers = CreateFunkyCustomers();
 
     public virtual IQueryable<TEntity> Set<TEntity>()
         where TEntity : class

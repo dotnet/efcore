@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public abstract class AdHocAdvancedMappingsQueryTestBase : NonSharedModelTestBase
+public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixture) : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
 {
     protected override string StoreName
         => "AdHocAdvancedMappingsQueryTests";
@@ -24,7 +24,8 @@ public abstract class AdHocAdvancedMappingsQueryTestBase : NonSharedModelTestBas
         var query = context.Set<Context9582.TipoServicio>().Where(xx => xx.Nombre.Contains("lla")).ToList();
     }
 
-    private class Context9582(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context9582(DbContextOptions options) : DbContext(options)
     {
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -82,7 +83,8 @@ public abstract class AdHocAdvancedMappingsQueryTestBase : NonSharedModelTestBas
         }
     }
 
-    private class Context11835(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context11835(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Blog> Blogs { get; set; }
         public DbSet<Post> Posts { get; set; }
@@ -144,7 +146,8 @@ public abstract class AdHocAdvancedMappingsQueryTestBase : NonSharedModelTestBas
         Assert.Equal(2, result.Count);
     }
 
-    private class Context15684(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context15684(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Category> Categories { get; set; }
         public DbSet<Product> Products { get; set; }
@@ -238,9 +241,12 @@ public abstract class AdHocAdvancedMappingsQueryTestBase : NonSharedModelTestBas
         }
     }
 
-    private class Context17276(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context17276(DbContextOptions options) : DbContext(options)
     {
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<RemovableEntity> RemovableEntities { get; set; }
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<Parent> Parents { get; set; }
 
         public static List<T> List<T>(IQueryable<T> query)
@@ -311,7 +317,8 @@ public abstract class AdHocAdvancedMappingsQueryTestBase : NonSharedModelTestBas
         Assert.Equal(1, query);
     }
 
-    private class Context17794(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context17794(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Offer> Offers { get; set; }
         public DbSet<OfferAction> OfferActions { get; set; }
@@ -402,12 +409,13 @@ public abstract class AdHocAdvancedMappingsQueryTestBase : NonSharedModelTestBas
 
             Assert.Equal(
                 CoreStrings.TranslationFailed(
-                    @"DbSet<MockEntity>()    .Cast<IDummyEntity>()    .Where(e => e.Id == __id_0)"),
+                    @"DbSet<MockEntity>()    .Cast<IDummyEntity>()    .Where(e => e.Id == @id)"),
                 message.Replace("\r", "").Replace("\n", ""));
         }
     }
 
-    private class Context18087(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context18087(DbContextOptions options) : DbContext(options)
     {
         public DbSet<MockEntity> MockEntities { get; set; }
 
@@ -453,7 +461,8 @@ public abstract class AdHocAdvancedMappingsQueryTestBase : NonSharedModelTestBas
         Assert.Equal(3, query.Count);
     }
 
-    private class Context18346(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context18346(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Business> Businesses { get; set; }
 
@@ -575,7 +584,8 @@ public abstract class AdHocAdvancedMappingsQueryTestBase : NonSharedModelTestBas
         _ = context.Entities.Where(x => x.TimeSpan == parameter).Select(e => e.TimeSpan).FirstOrDefault();
     }
 
-    private class Context26742(DbContextOptions options) : DbContext(options)
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context26742(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Entity> Entities { get; set; }
 
@@ -678,6 +688,125 @@ public abstract class AdHocAdvancedMappingsQueryTestBase : NonSharedModelTestBas
         public class Dog : Pet
         {
             public string FavoriteToy { get; set; }
+        }
+    }
+
+    #endregion
+
+    #region 34760
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Projecting_property_with_converter_with_closure(bool async)
+    {
+        var contextFactory = await InitializeAsync<Context34760>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateContext();
+
+        var query = context.Books.Select(x => x.PublishDate);
+
+        var result = await query.ToListAsync();
+        Assert.Equal(2, result.Count);
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Projecting_expression_with_converter_with_closure(bool async)
+    {
+        var contextFactory = await InitializeAsync<Context34760>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateContext();
+
+        var query = context.Books
+            .GroupBy(t => t.Id)
+            .Select(g => new
+            {
+                Day = g.Min(t => t.PublishDate)
+            });
+
+        var result = await query.ToListAsync();
+        Assert.Equal(2, result.Count);
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Projecting_property_with_converter_without_closure(bool async)
+    {
+        var contextFactory = await InitializeAsync<Context34760>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateContext();
+
+        var query = context.Books
+            .GroupBy(t => t.Id)
+            .Select(g => new
+            {
+                Day = g.Min(t => t.AudiobookDate)
+            });
+
+        var result = await query.ToListAsync();
+        Assert.Equal(2, result.Count);
+    }
+
+    protected class Context34760(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<Book> Books { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Book>().Property(e => e.Id).ValueGeneratedNever();
+            modelBuilder.Entity<Book>().Property(e => e.PublishDate).HasConversion(new MyDateTimeValueConverterWithClosure(new MyDatetimeConverter()));
+            modelBuilder.Entity<Book>().Property(e => e.AudiobookDate).HasConversion(new MyDateTimeValueConverterWithoutClosure());
+        }
+
+        public Task SeedAsync()
+        {
+            AddRange(
+                new Book {
+                    Id = 1,
+                    Name = "The Blade Itself",
+                    PublishDate = new DateTime(2006, 5, 4, 11, 59, 59),
+                    AudiobookDate = new DateTime(2015, 9, 8, 23, 59, 59)
+                },
+                new Book {
+                    Id = 2,
+                    Name = "Red Rising",
+                    PublishDate = new DateTime(2014, 1, 27, 23, 59, 59),
+                    AudiobookDate = new DateTime(2014, 1, 27, 23, 59, 59),
+                });
+
+            return SaveChangesAsync();
+        }
+
+        public class Book
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+
+            public virtual DateTime PublishDate { get; set; }
+            public virtual DateTime AudiobookDate { get; set; }
+        }
+
+        public class MyDateTimeValueConverterWithClosure : ValueConverter<DateTime, DateTime>
+        {
+            public MyDateTimeValueConverterWithClosure(MyDatetimeConverter myDatetimeConverter)
+                : base(
+                    x => myDatetimeConverter.Normalize(x),
+                    x => myDatetimeConverter.Normalize(x))
+            {
+            }
+        }
+
+        public class MyDateTimeValueConverterWithoutClosure : ValueConverter<DateTime, DateTime>
+        {
+            public MyDateTimeValueConverterWithoutClosure()
+                : base(
+                    x => new MyDatetimeConverter().Normalize(x),
+                    x => new MyDatetimeConverter().Normalize(x))
+            {
+            }
+        }
+
+        public class MyDatetimeConverter
+        {
+            public virtual DateTime Normalize(DateTime dateTime)
+                => dateTime.Date;
         }
     }
 

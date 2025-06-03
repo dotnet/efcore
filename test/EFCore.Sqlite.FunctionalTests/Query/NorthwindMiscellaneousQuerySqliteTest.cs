@@ -28,7 +28,7 @@ public class NorthwindMiscellaneousQuerySqliteTest : NorthwindMiscellaneousQuery
             """
 SELECT "o"."CustomerID"
 FROM "Orders" AS "o"
-WHERE "o"."OrderDate" IS NOT NULL AND instr(CAST("o"."EmployeeID" AS TEXT), '7') > 0
+WHERE "o"."OrderDate" IS NOT NULL AND instr(COALESCE(CAST("o"."EmployeeID" AS TEXT), ''), '7') > 0
 """);
     }
 
@@ -38,18 +38,18 @@ WHERE "o"."OrderDate" IS NOT NULL AND instr(CAST("o"."EmployeeID" AS TEXT), '7')
 
         AssertSql(
             """
-@__p_0='10'
-@__p_1='5'
+@p='10'
+@p0='5'
 
 SELECT "c0"."CustomerID", "c0"."Address", "c0"."City", "c0"."CompanyName", "c0"."ContactName", "c0"."ContactTitle", "c0"."Country", "c0"."Fax", "c0"."Phone", "c0"."PostalCode", "c0"."Region"
 FROM (
     SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
     FROM "Customers" AS "c"
     ORDER BY "c"."ContactName"
-    LIMIT @__p_0
+    LIMIT @p
 ) AS "c0"
 ORDER BY "c0"."ContactName"
-LIMIT -1 OFFSET @__p_1
+LIMIT -1 OFFSET @p0
 """);
     }
 
@@ -212,9 +212,9 @@ WHERE "o"."OrderDate" IS NOT NULL
 
         AssertSql(
             """
-@__millisecondsPerDay_0='86400000'
+@millisecondsPerDay='86400000'
 
-SELECT rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', "o"."OrderDate", COALESCE(CAST(CAST(CAST((CAST(strftime('%f', "o"."OrderDate") AS REAL) * 1000.0) % 1000.0 AS INTEGER) / @__millisecondsPerDay_0 AS REAL) AS TEXT), '') || ' days', COALESCE(CAST(CAST(CAST((CAST(strftime('%f', "o"."OrderDate") AS REAL) * 1000.0) % 1000.0 AS INTEGER) % @__millisecondsPerDay_0 AS REAL) / 1000.0 AS TEXT), '') || ' seconds'), '0'), '.') AS "OrderDate"
+SELECT rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', "o"."OrderDate", COALESCE(CAST(CAST(CAST((CAST(strftime('%f', "o"."OrderDate") AS REAL) * 1000.0) % 1000.0 AS INTEGER) / @millisecondsPerDay AS REAL) AS TEXT), '') || ' days', COALESCE(CAST(CAST(CAST((CAST(strftime('%f', "o"."OrderDate") AS REAL) * 1000.0) % 1000.0 AS INTEGER) % @millisecondsPerDay AS REAL) / 1000.0 AS TEXT), '') || ' seconds'), '0'), '.') AS "OrderDate"
 FROM "Orders" AS "o"
 WHERE "o"."OrderDate" IS NOT NULL
 """);
@@ -253,14 +253,14 @@ FROM (
 
         AssertSql(
             """
-@__p_0='7'
+@p='7'
 
 SELECT COUNT(*)
 FROM (
     SELECT 1
     FROM "Customers" AS "c"
     ORDER BY "c"."Country"
-    LIMIT -1 OFFSET @__p_0
+    LIMIT -1 OFFSET @p
 ) AS "c0"
 """);
     }
@@ -271,14 +271,14 @@ FROM (
 
         AssertSql(
             """
-@__p_0='7'
+@p='7'
 
 SELECT COUNT(*)
 FROM (
     SELECT 1
     FROM "Customers" AS "c"
     ORDER BY "c"."Country"
-    LIMIT @__p_0
+    LIMIT @p
 ) AS "c0"
 """);
     }
@@ -289,13 +289,13 @@ FROM (
 
         AssertSql(
             """
-@__p_0='7'
+@p='7'
 
 SELECT COUNT(*)
 FROM (
     SELECT 1
     FROM "Customers" AS "c"
-    LIMIT -1 OFFSET @__p_0
+    LIMIT -1 OFFSET @p
 ) AS "c0"
 """);
     }
@@ -306,21 +306,16 @@ FROM (
 
         AssertSql(
             """
-@__p_0='7'
+@p='7'
 
 SELECT COUNT(*)
 FROM (
     SELECT 1
     FROM "Customers" AS "c"
-    LIMIT @__p_0
+    LIMIT @p
 ) AS "c0"
 """);
     }
-
-    [ConditionalTheory(Skip = "Issue #16645 bitwise xor support")]
-    [MemberData(nameof(IsAsyncData))]
-    public override Task Where_bitwise_binary_xor(bool async)
-        => AssertTranslationFailed(() => base.Where_bitwise_binary_xor(async));
 
     public override Task Complex_nested_query_doesnt_try_binding_to_grandparent_when_parent_returns_complex_result(bool async)
         => null;
@@ -356,9 +351,9 @@ FROM "Orders" AS "o"
 
         AssertSql(
             """
-@__parameter_0='-' (Size = 1)
+@parameter='-' (Size = 1)
 
-SELECT @__parameter_0 || CAST("o"."OrderID" AS TEXT)
+SELECT @parameter || CAST("o"."OrderID" AS TEXT)
 FROM "Orders" AS "o"
 """);
     }
@@ -444,6 +439,9 @@ FROM "Orders" AS "o"
 
     public override Task Max_on_empty_sequence_throws(bool async)
         => Assert.ThrowsAsync<InvalidOperationException>(() => base.Max_on_empty_sequence_throws(async));
+
+    public override Task Where_nanosecond_and_microsecond_component(bool async)
+        => AssertTranslationFailed(() => base.Where_nanosecond_and_microsecond_component(async));
 
     [ConditionalFact]
     public async Task Single_Predicate_Cancellation()

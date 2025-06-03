@@ -5,7 +5,8 @@ using Microsoft.EntityFrameworkCore.TestModels.UpdatesModel;
 
 namespace Microsoft.EntityFrameworkCore.Update;
 
-public class UpdatesSqlServerTPTTest(UpdatesSqlServerTPTTest.UpdatesSqlServerTPTFixture fixture, ITestOutputHelper testOutputHelper) : UpdatesSqlServerTestBase<UpdatesSqlServerTPTTest.UpdatesSqlServerTPTFixture>(fixture, testOutputHelper)
+public class UpdatesSqlServerTPTTest(UpdatesSqlServerTPTTest.UpdatesSqlServerTPTFixture fixture, ITestOutputHelper testOutputHelper)
+    : UpdatesSqlServerTestBase<UpdatesSqlServerTPTTest.UpdatesSqlServerTPTFixture>(fixture, testOutputHelper)
 {
     public override async Task Save_with_shared_foreign_key()
     {
@@ -45,11 +46,11 @@ LEFT JOIN [SpecialCategory] AS [s] ON [c].[Id] = [s].[Id]
 """,
             //
             """
-@__category_PrincipalId_0='778' (Nullable = true)
+@category_PrincipalId='778' (Nullable = true)
 
-SELECT [p].[Id], [p].[Discriminator], [p].[DependentId], [p].[Name], [p].[Price]
+SELECT [p].[Id], [p].[Discriminator], [p].[DependentId], [p].[IsPrimary], [p].[IsPrimaryNormalized], [p].[Name], [p].[Price]
 FROM [ProductBase] AS [p]
-WHERE [p].[Discriminator] = N'Product' AND [p].[DependentId] = @__category_PrincipalId_0
+WHERE [p].[Discriminator] = N'Product' AND [p].[DependentId] = @category_PrincipalId
 """,
             //
             """
@@ -72,11 +73,11 @@ LEFT JOIN [SpecialCategory] AS [s] ON [c].[Id] = [s].[Id]
 """,
             //
             """
-@__category_PrincipalId_0='778' (Nullable = true)
+@category_PrincipalId='778' (Nullable = true)
 
-SELECT [p].[Id], [p].[Discriminator], [p].[DependentId], [p].[Name], [p].[Price]
+SELECT [p].[Id], [p].[Discriminator], [p].[DependentId], [p].[IsPrimary], [p].[IsPrimaryNormalized], [p].[Name], [p].[Price]
 FROM [ProductBase] AS [p]
-WHERE [p].[Discriminator] = N'Product' AND [p].[DependentId] = @__category_PrincipalId_0
+WHERE [p].[Discriminator] = N'Product' AND [p].[DependentId] = @category_PrincipalId
 """);
     }
 

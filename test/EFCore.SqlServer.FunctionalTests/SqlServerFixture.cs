@@ -21,6 +21,7 @@ public class SqlServerFixture : ServiceProviderFixtureBase
             w =>
             {
                 w.Log(SqlServerEventId.ByteIdentityColumnWarning);
+                w.Log(SqlServerEventId.JsonTypeExperimental);
                 w.Log(SqlServerEventId.DecimalTypeKeyWarning);
             });
 }

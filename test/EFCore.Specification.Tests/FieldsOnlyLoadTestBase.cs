@@ -8,15 +8,10 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public abstract class FieldsOnlyLoadTestBase<TFixture> : IClassFixture<TFixture>
+public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : FieldsOnlyLoadTestBase<TFixture>.FieldsOnlyLoadFixtureBase
 {
-    protected FieldsOnlyLoadTestBase(TFixture fixture)
-    {
-        Fixture = fixture;
-    }
-
-    protected TFixture Fixture { get; }
+    protected TFixture Fixture { get; } = fixture;
 
     [ConditionalTheory]
     [InlineData(EntityState.Unchanged)]

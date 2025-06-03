@@ -10,9 +10,7 @@ public abstract class ComplexTypeQueryTestBase<TFixture> : QueryTestBase<TFixtur
 {
     protected ComplexTypeQueryTestBase(TFixture fixture)
         : base(fixture)
-    {
-        fixture.ListLoggerFactory.Clear();
-    }
+        => fixture.ListLoggerFactory.Clear();
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -322,12 +320,11 @@ public abstract class ComplexTypeQueryTestBase<TFixture> : QueryTestBase<TFixtur
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Filter_on_required_property_inside_required_struct_complex_type_on_optional_navigation(bool async)
-    {
-        return AssertQuery(
+        => AssertQuery(
             async,
             ss => ss.Set<ValuedCustomerGroup>().Where(cg => cg.OptionalCustomer!.ShippingAddress.ZipCode != 07728),
-            ss => ss.Set<ValuedCustomerGroup>().Where(cg => cg.OptionalCustomer == null || cg.OptionalCustomer.ShippingAddress.ZipCode != 07728));
-    }
+            ss => ss.Set<ValuedCustomerGroup>()
+                .Where(cg => cg.OptionalCustomer == null || cg.OptionalCustomer.ShippingAddress.ZipCode != 07728));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -679,10 +676,11 @@ public abstract class ComplexTypeQueryTestBase<TFixture> : QueryTestBase<TFixtur
                    from c2 in ss.Set<Customer>()
                    orderby c1.Id, c2.Id
                    select new { c1, c2 })
-                .Union(from c1 in ss.Set<Customer>()
-                        from c2 in ss.Set<Customer>()
-                        orderby c1.Id, c2.Id
-                        select new { c1, c2 })
+                .Union(
+                    from c1 in ss.Set<Customer>()
+                    from c2 in ss.Set<Customer>()
+                    orderby c1.Id, c2.Id
+                    select new { c1, c2 })
                 .OrderBy(x => x.c1.Id).ThenBy(x => x.c2.Id)
                 .Take(50)
                 .Select(x => new { x.c1, x.c2 }),
@@ -702,10 +700,11 @@ public abstract class ComplexTypeQueryTestBase<TFixture> : QueryTestBase<TFixtur
                    from c2 in ss.Set<Customer>()
                    orderby c1.Id, c2.Id
                    select new { c1, c2 })
-                .Union(from c1 in ss.Set<Customer>()
-                       from c2 in ss.Set<Customer>()
-                       orderby c1.Id, c2.Id
-                       select new { c1, c2 })
+                .Union(
+                    from c1 in ss.Set<Customer>()
+                    from c2 in ss.Set<Customer>()
+                    orderby c1.Id, c2.Id
+                    select new { c1, c2 })
                 .OrderBy(x => x.c1.Id).ThenBy(x => x.c2.Id)
                 .Take(50)
                 .Select(x => new { x.c1, x.c2 })
@@ -729,10 +728,11 @@ public abstract class ComplexTypeQueryTestBase<TFixture> : QueryTestBase<TFixtur
                    from c2 in ss.Set<Customer>()
                    orderby c1.Id, c2.Id
                    select new { BA1 = c1.BillingAddress, BA2 = c2.BillingAddress })
-                .Union(from c1 in ss.Set<Customer>()
-                       from c2 in ss.Set<Customer>()
-                       orderby c1.Id, c2.Id
-                       select new { BA1 = c1.BillingAddress, BA2 = c2.BillingAddress })
+                .Union(
+                    from c1 in ss.Set<Customer>()
+                    from c2 in ss.Set<Customer>()
+                    orderby c1.Id, c2.Id
+                    select new { BA1 = c1.BillingAddress, BA2 = c2.BillingAddress })
                 .OrderBy(x => x.BA1.ZipCode).ThenBy(x => x.BA2.ZipCode)
                 .Take(50)
                 .Select(x => new { x.BA1, x.BA2 }),
@@ -752,10 +752,11 @@ public abstract class ComplexTypeQueryTestBase<TFixture> : QueryTestBase<TFixtur
                    from c2 in ss.Set<Customer>()
                    orderby c1.Id, c2.Id
                    select new { BA1 = c1.BillingAddress, BA2 = c2.BillingAddress })
-                .Union(from c1 in ss.Set<Customer>()
-                       from c2 in ss.Set<Customer>()
-                       orderby c1.Id, c2.Id
-                       select new { BA1 = c1.BillingAddress, BA2 = c2.BillingAddress })
+                .Union(
+                    from c1 in ss.Set<Customer>()
+                    from c2 in ss.Set<Customer>()
+                    orderby c1.Id, c2.Id
+                    select new { BA1 = c1.BillingAddress, BA2 = c2.BillingAddress })
                 .OrderBy(x => x.BA1.ZipCode).ThenBy(x => x.BA2.ZipCode)
                 .Take(50)
                 .Select(x => new { x.BA1, x.BA2 })
@@ -775,14 +776,15 @@ public abstract class ComplexTypeQueryTestBase<TFixture> : QueryTestBase<TFixtur
     public virtual Task Same_entity_with_complex_type_projected_twice_with_pushdown_as_part_of_another_projection(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Customer>().Select(x => new
-            {
-                x.Id,
-                Complex = (from c1 in ss.Set<Customer>()
-                           from c2 in ss.Set<Customer>()
-                           orderby c1.Id, c2.Id descending
-                           select new { One = c1, Two = c2 }).FirstOrDefault()
-            }),
+            ss => ss.Set<Customer>().Select(
+                x => new
+                {
+                    x.Id,
+                    Complex = (from c1 in ss.Set<Customer>()
+                               from c2 in ss.Set<Customer>()
+                               orderby c1.Id, c2.Id descending
+                               select new { One = c1, Two = c2 }).FirstOrDefault()
+                }),
             elementSorter: e => e.Id,
             elementAsserter: (e, a) =>
             {
@@ -796,14 +798,15 @@ public abstract class ComplexTypeQueryTestBase<TFixture> : QueryTestBase<TFixtur
     public virtual Task Same_complex_type_projected_twice_with_pushdown_as_part_of_another_projection(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Customer>().Select(x => new
-            {
-                x.Id,
-                Complex = (from c1 in ss.Set<Customer>()
-                           from c2 in ss.Set<Customer>()
-                           orderby c1.Id, c2.Id descending
-                           select new { One = c1.BillingAddress, Two = c2.BillingAddress }).FirstOrDefault()
-            }),
+            ss => ss.Set<Customer>().Select(
+                x => new
+                {
+                    x.Id,
+                    Complex = (from c1 in ss.Set<Customer>()
+                               from c2 in ss.Set<Customer>()
+                               orderby c1.Id, c2.Id descending
+                               select new { One = c1.BillingAddress, Two = c2.BillingAddress }).FirstOrDefault()
+                }),
             elementSorter: e => e.Id,
             elementAsserter: (e, a) =>
             {
@@ -857,10 +860,9 @@ public abstract class ComplexTypeQueryTestBase<TFixture> : QueryTestBase<TFixtur
     public virtual Task Projecting_property_of_complex_type_using_left_join_with_pushdown(bool async)
         => AssertQuery(
             async,
-            ss => from cg in ss.Set<CustomerGroup>()
-                  join c in ss.Set<Customer>().Where(x => x.Id > 5) on cg.Id equals c.Id into grouping
-                  from c in grouping.DefaultIfEmpty()
-                  select c == null ? null : (int?)c.BillingAddress.ZipCode);
+            ss => ss.Set<CustomerGroup>()
+                .LeftJoin(ss.Set<Customer>().Where(x => x.Id > 5), cg => cg.Id, c => c.Id, (cg, c) => c)
+                .Select(c => c == null ? null : (int?)c.BillingAddress.ZipCode));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -877,10 +879,12 @@ public abstract class ComplexTypeQueryTestBase<TFixture> : QueryTestBase<TFixtur
     public virtual Task Project_entity_with_complex_type_pushdown_and_then_left_join(bool async)
         => AssertQuery(
             async,
-            ss => from c1 in ss.Set<Customer>().OrderBy(x => x.Id).Take(20).Distinct()
-                  join c2 in ss.Set<Customer>().OrderByDescending(x => x.Id).Take(30).Distinct() on c1.Id equals c2.Id into grouping
-                  from c2 in grouping.DefaultIfEmpty()
-                  select new { Zip1 = c1.BillingAddress.ZipCode, Zip2 = c2.ShippingAddress.ZipCode });
+            ss => ss.Set<Customer>().OrderBy(x => x.Id).Take(20).Distinct()
+                .LeftJoin(
+                    ss.Set<Customer>().OrderByDescending(x => x.Id).Take(30).Distinct(),
+                    c1 => c1.Id,
+                    c2 => c2.Id,
+                    (c1, c2) => new { Zip1 = c1.BillingAddress.ZipCode, Zip2 = c2 == null ? (int?)null : c2.ShippingAddress.ZipCode }));
 
     protected DbContext CreateContext()
         => Fixture.CreateContext();

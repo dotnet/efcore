@@ -3447,14 +3447,9 @@ public class FixupTest
 
     private class CategoryPN
     {
-        public CategoryPN()
-        {
-            Products = new List<ProductPN>();
-        }
-
         public int Id { get; set; }
 
-        public ICollection<ProductPN> Products { get; }
+        public ICollection<ProductPN> Products { get; } = new List<ProductPN>();
     }
 
     private class ProductPN
@@ -3486,9 +3481,7 @@ public class FixupTest
         }
 
         public Category(int id)
-        {
-            _id = id;
-        }
+            => _id = id;
 
         public string Value1 { get; set; }
         public string Value2 { get; set; }

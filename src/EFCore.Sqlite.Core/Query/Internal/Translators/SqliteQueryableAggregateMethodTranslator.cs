@@ -24,9 +24,7 @@ public class SqliteQueryableAggregateMethodTranslator : IAggregateMethodCallTran
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public SqliteQueryableAggregateMethodTranslator(ISqlExpressionFactory sqlExpressionFactory)
-    {
-        _sqlExpressionFactory = sqlExpressionFactory;
-    }
+        => _sqlExpressionFactory = sqlExpressionFactory;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -59,7 +57,7 @@ public class SqliteQueryableAggregateMethodTranslator : IAggregateMethodCallTran
                             "ef_avg",
                             [averageSqlExpression],
                             nullable: true,
-                            argumentsPropagateNullability: [false],
+                            argumentsPropagateNullability: Statics.FalseArrays[1],
                             averageSqlExpression.Type,
                             averageSqlExpression.TypeMapping);
                     }
@@ -72,12 +70,22 @@ public class SqliteQueryableAggregateMethodTranslator : IAggregateMethodCallTran
                     && source.Selector is SqlExpression maxSqlExpression:
                     var maxArgumentType = GetProviderType(maxSqlExpression);
                     if (maxArgumentType == typeof(DateTimeOffset)
-                        || maxArgumentType == typeof(decimal)
                         || maxArgumentType == typeof(TimeSpan)
                         || maxArgumentType == typeof(ulong))
                     {
                         throw new NotSupportedException(
                             SqliteStrings.AggregateOperationNotSupported(nameof(Queryable.Max), maxArgumentType.ShortDisplayName()));
+                    }
+                    else if (maxArgumentType == typeof(decimal))
+                    {
+                        maxSqlExpression = CombineTerms(source, maxSqlExpression);
+                        return _sqlExpressionFactory.Function(
+                            "ef_max",
+                            [maxSqlExpression],
+                            nullable: true,
+                            argumentsPropagateNullability: [false],
+                            maxSqlExpression.Type,
+                            maxSqlExpression.TypeMapping);
                     }
 
                     break;
@@ -88,12 +96,22 @@ public class SqliteQueryableAggregateMethodTranslator : IAggregateMethodCallTran
                     && source.Selector is SqlExpression minSqlExpression:
                     var minArgumentType = GetProviderType(minSqlExpression);
                     if (minArgumentType == typeof(DateTimeOffset)
-                        || minArgumentType == typeof(decimal)
                         || minArgumentType == typeof(TimeSpan)
                         || minArgumentType == typeof(ulong))
                     {
                         throw new NotSupportedException(
                             SqliteStrings.AggregateOperationNotSupported(nameof(Queryable.Min), minArgumentType.ShortDisplayName()));
+                    }
+                    else if (minArgumentType == typeof(decimal))
+                    {
+                        minSqlExpression = CombineTerms(source, minSqlExpression);
+                        return _sqlExpressionFactory.Function(
+                            "ef_min",
+                            [minSqlExpression],
+                            nullable: true,
+                            argumentsPropagateNullability: [false],
+                            minSqlExpression.Type,
+                            minSqlExpression.TypeMapping);
                     }
 
                     break;
@@ -110,7 +128,7 @@ public class SqliteQueryableAggregateMethodTranslator : IAggregateMethodCallTran
                             "ef_sum",
                             [sumSqlExpression],
                             nullable: true,
-                            argumentsPropagateNullability: [false],
+                            argumentsPropagateNullability: Statics.FalseArrays[1],
                             sumSqlExpression.Type,
                             sumSqlExpression.TypeMapping);
                     }

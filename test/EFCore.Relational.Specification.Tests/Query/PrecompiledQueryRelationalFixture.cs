@@ -4,6 +4,10 @@
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using static Microsoft.EntityFrameworkCore.TestUtilities.PrecompiledQueryTestHelpers;
 using Blog = Microsoft.EntityFrameworkCore.Query.PrecompiledQueryRelationalTestBase.Blog;
+using Post = Microsoft.EntityFrameworkCore.Query.PrecompiledQueryRelationalTestBase.Post;
+using JsonRoot = Microsoft.EntityFrameworkCore.Query.PrecompiledQueryRelationalTestBase.JsonRoot;
+using JsonBranch = Microsoft.EntityFrameworkCore.Query.PrecompiledQueryRelationalTestBase.JsonBranch;
+
 namespace Microsoft.EntityFrameworkCore.Query;
 
 public abstract class PrecompiledQueryRelationalFixture
@@ -27,9 +31,67 @@ public abstract class PrecompiledQueryRelationalFixture
 
     protected override async Task SeedAsync(PrecompiledQueryRelationalTestBase.PrecompiledQueryContext context)
     {
-        context.Blogs.AddRange(
-            new Blog { Id = 8, Name = "Blog1" },
-            new Blog { Id = 9, Name = "Blog2" });
+        var blog1 = new Blog
+        {
+            Id = 8,
+            Name = "Blog1",
+            Json = []
+        };
+        var blog2 = new Blog
+        {
+            Id = 9,
+            Name = "Blog2",
+            Json =
+            [
+                new JsonRoot
+                {
+                    Number = 1,
+                    Text = "One",
+                    Inner = new JsonBranch { Date = new DateTime(2001, 1, 1) }
+                },
+                new JsonRoot
+                {
+                    Number = 2,
+                    Text = "Two",
+                    Inner = new JsonBranch { Date = new DateTime(2002, 2, 2) }
+                },
+            ]
+        };
+
+        context.Blogs.AddRange(blog1, blog2);
+
+        var post11 = new Post
+        {
+            Id = 11,
+            Title = "Post11",
+            Blog = blog1
+        };
+        var post12 = new Post
+        {
+            Id = 12,
+            Title = "Post12",
+            Blog = blog1
+        };
+        var post21 = new Post
+        {
+            Id = 21,
+            Title = "Post21",
+            Blog = blog2
+        };
+        var post22 = new Post
+        {
+            Id = 22,
+            Title = "Post22",
+            Blog = blog2
+        };
+        var post23 = new Post
+        {
+            Id = 23,
+            Title = "Post23",
+            Blog = blog2
+        };
+
+        context.Posts.AddRange(post11, post12, post21, post22, post23);
         await context.SaveChangesAsync();
     }
 

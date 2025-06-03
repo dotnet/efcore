@@ -5,13 +5,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking;
 
 public class ValueComparerTest
 {
-    protected class FakeValueComparer : ValueComparer<double>
-    {
-        public FakeValueComparer()
-            : base(false)
-        {
-        }
-    }
+    protected class FakeValueComparer() : ValueComparer<double>(false);
 
     private class Foo
     {
@@ -148,9 +142,9 @@ public class ValueComparerTest
         LambdaExpression equalsExpression,
         LambdaExpression hashCodeExpression,
         LambdaExpression snapshotExpression) : ValueComparer<T>(
-            (Expression<Func<T, T, bool>>)equalsExpression,
-            (Expression<Func<T, int>>)hashCodeExpression,
-            (Expression<Func<T, T>>)snapshotExpression);
+        (Expression<Func<T, T, bool>>)equalsExpression,
+        (Expression<Func<T, int>>)hashCodeExpression,
+        (Expression<Func<T, T>>)snapshotExpression);
 
     private enum JustAnEnum : ushort
     {

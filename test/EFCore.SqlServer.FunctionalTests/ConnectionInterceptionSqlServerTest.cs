@@ -6,13 +6,10 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Microsoft.EntityFrameworkCore;
 
-public abstract class ConnectionInterceptionSqlServerTestBase : ConnectionInterceptionTestBase
+public abstract class ConnectionInterceptionSqlServerTestBase(
+    ConnectionInterceptionSqlServerTestBase.InterceptionSqlServerFixtureBase fixture)
+    : ConnectionInterceptionTestBase(fixture)
 {
-    protected ConnectionInterceptionSqlServerTestBase(InterceptionSqlServerFixtureBase fixture)
-        : base(fixture)
-    {
-    }
-
     public abstract class InterceptionSqlServerFixtureBase : InterceptionFixtureBase
     {
         protected override string StoreName
@@ -76,7 +73,8 @@ public abstract class ConnectionInterceptionSqlServerTestBase : ConnectionInterc
         }
     }
 
-    public class ConnectionInterceptionWithConnectionStringSqlServerTest(ConnectionInterceptionWithConnectionStringSqlServerTest.InterceptionSqlServerFixture fixture)
+    public class ConnectionInterceptionWithConnectionStringSqlServerTest(
+        ConnectionInterceptionWithConnectionStringSqlServerTest.InterceptionSqlServerFixture fixture)
         : ConnectionInterceptionSqlServerTestBase(fixture),
             IClassFixture<ConnectionInterceptionWithConnectionStringSqlServerTest.InterceptionSqlServerFixture>
     {
@@ -90,8 +88,9 @@ public abstract class ConnectionInterceptionSqlServerTestBase : ConnectionInterc
             => optionsBuilder.UseSqlServer("Database=Dummy");
     }
 
-    public class ConnectionInterceptionWithDiagnosticsSqlServerTest(ConnectionInterceptionWithDiagnosticsSqlServerTest.InterceptionSqlServerFixture fixture)
-                : ConnectionInterceptionSqlServerTestBase(fixture),
+    public class ConnectionInterceptionWithDiagnosticsSqlServerTest(
+        ConnectionInterceptionWithDiagnosticsSqlServerTest.InterceptionSqlServerFixture fixture)
+        : ConnectionInterceptionSqlServerTestBase(fixture),
             IClassFixture<ConnectionInterceptionWithDiagnosticsSqlServerTest.InterceptionSqlServerFixture>
     {
         public class InterceptionSqlServerFixture : InterceptionSqlServerFixtureBase

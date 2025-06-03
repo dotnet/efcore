@@ -23,9 +23,7 @@ public class RelationalRuntimeModelConvention : RuntimeModelConvention
         ProviderConventionSetBuilderDependencies dependencies,
         RelationalConventionSetBuilderDependencies relationalDependencies)
         : base(dependencies)
-    {
-        RelationalDependencies = relationalDependencies;
-    }
+        => RelationalDependencies = relationalDependencies;
 
     /// <summary>
     ///     Relational provider-specific dependencies for this service.
@@ -351,8 +349,6 @@ public class RelationalRuntimeModelConvention : RuntimeModelConvention
             sequence.IsCyclic,
             sequence.MinValue,
             sequence.MaxValue,
-            sequence.IsCached,
-            sequence.CacheSize,
             sequence.ModelSchema is null);
 
     /// <summary>

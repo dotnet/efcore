@@ -5,7 +5,6 @@ using System.Globalization;
 using System.Net;
 using System.Text;
 using Azure.Core;
-using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
 
@@ -593,15 +592,10 @@ public class CosmosOptionsExtension : IDbContextOptionsExtension
     {
     }
 
-    private sealed class ExtensionInfo : DbContextOptionsExtensionInfo
+    private sealed class ExtensionInfo(IDbContextOptionsExtension extension) : DbContextOptionsExtensionInfo(extension)
     {
         private string? _logFragment;
         private int? _serviceProviderHash;
-
-        public ExtensionInfo(IDbContextOptionsExtension extension)
-            : base(extension)
-        {
-        }
 
         private new CosmosOptionsExtension Extension
             => (CosmosOptionsExtension)base.Extension;

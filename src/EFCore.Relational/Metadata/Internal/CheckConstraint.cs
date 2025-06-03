@@ -122,11 +122,7 @@ public class CheckConstraint : ConventionAnnotatable, IMutableCheckConstraint, I
     public static IReadOnlyCheckConstraint? FindDeclaredCheckConstraint(IReadOnlyEntityType entityType, string name)
     {
         var dataDictionary = GetConstraintsDictionary(entityType);
-        return dataDictionary == null
-            ? null
-            : dataDictionary.TryGetValue(name, out var checkConstraint)
-                ? checkConstraint
-                : null;
+        return dataDictionary?.GetValueOrDefault(name);
     }
 
     /// <summary>

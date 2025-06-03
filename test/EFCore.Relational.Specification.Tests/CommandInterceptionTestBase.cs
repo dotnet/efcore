@@ -9,13 +9,8 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public abstract class CommandInterceptionTestBase : InterceptionTestBase
+public abstract class CommandInterceptionTestBase(InterceptionTestBase.InterceptionFixtureBase fixture) : InterceptionTestBase(fixture)
 {
-    protected CommandInterceptionTestBase(InterceptionFixtureBase fixture)
-        : base(fixture)
-    {
-    }
-
     [ConditionalTheory]
     [InlineData(false, false)]
     [InlineData(true, false)]
@@ -48,13 +43,7 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
         return interceptor.CommandText;
     }
 
-    protected class PassiveReaderCommandInterceptor : CommandInterceptorBase
-    {
-        public PassiveReaderCommandInterceptor()
-            : base(DbCommandMethod.ExecuteReader)
-        {
-        }
-    }
+    protected class PassiveReaderCommandInterceptor() : CommandInterceptorBase(DbCommandMethod.ExecuteReader);
 
     [ConditionalTheory]
     [InlineData(false, false)]
@@ -89,13 +78,7 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
         }
     }
 
-    protected class PassiveScalarCommandInterceptor : CommandInterceptorBase
-    {
-        public PassiveScalarCommandInterceptor()
-            : base(DbCommandMethod.ExecuteScalar)
-        {
-        }
-    }
+    protected class PassiveScalarCommandInterceptor() : CommandInterceptorBase(DbCommandMethod.ExecuteScalar);
 
     [ConditionalTheory]
     [InlineData(false, false)]
@@ -128,13 +111,7 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
         }
     }
 
-    protected class PassiveNonQueryCommandInterceptor : CommandInterceptorBase
-    {
-        public PassiveNonQueryCommandInterceptor()
-            : base(DbCommandMethod.ExecuteNonQuery)
-        {
-        }
-    }
+    protected class PassiveNonQueryCommandInterceptor() : CommandInterceptorBase(DbCommandMethod.ExecuteNonQuery);
 
     [ConditionalTheory]
     [InlineData(false, false)]
@@ -170,13 +147,8 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
         return interceptor.CommandText;
     }
 
-    protected class SuppressingReaderCommandInterceptor : CommandInterceptorBase
+    protected class SuppressingReaderCommandInterceptor() : CommandInterceptorBase(DbCommandMethod.ExecuteReader)
     {
-        public SuppressingReaderCommandInterceptor()
-            : base(DbCommandMethod.ExecuteReader)
-        {
-        }
-
         public override InterceptionResult<DbDataReader> ReaderExecuting(
             DbCommand command,
             CommandEventData eventData,
@@ -229,13 +201,8 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
         }
     }
 
-    protected class SuppressingCreateCommandInterceptor : CommandInterceptorBase
+    protected class SuppressingCreateCommandInterceptor() : CommandInterceptorBase(DbCommandMethod.ExecuteReader)
     {
-        public SuppressingCreateCommandInterceptor()
-            : base(DbCommandMethod.ExecuteReader)
-        {
-        }
-
         public override InterceptionResult<DbCommand> CommandCreating(
             CommandCorrelatedEventData eventData,
             InterceptionResult<DbCommand> result)
@@ -302,13 +269,8 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
         }
     }
 
-    protected class SuppressingScalarCommandInterceptor : CommandInterceptorBase
+    protected class SuppressingScalarCommandInterceptor() : CommandInterceptorBase(DbCommandMethod.ExecuteScalar)
     {
-        public SuppressingScalarCommandInterceptor()
-            : base(DbCommandMethod.ExecuteScalar)
-        {
-        }
-
         public const string InterceptedResult = "Bet you weren't expecting a string!";
 
         public override InterceptionResult<object> ScalarExecuting(
@@ -364,13 +326,8 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
         }
     }
 
-    protected class SuppressingNonQueryCommandInterceptor : CommandInterceptorBase
+    protected class SuppressingNonQueryCommandInterceptor() : CommandInterceptorBase(DbCommandMethod.ExecuteNonQuery)
     {
-        public SuppressingNonQueryCommandInterceptor()
-            : base(DbCommandMethod.ExecuteNonQuery)
-        {
-        }
-
         public override InterceptionResult<int> NonQueryExecuting(
             DbCommand command,
             CommandEventData eventData,
@@ -437,13 +394,8 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
         return interceptor.CommandText;
     }
 
-    protected class MutatingReaderCommandInterceptor : CommandInterceptorBase
+    protected class MutatingReaderCommandInterceptor() : CommandInterceptorBase(DbCommandMethod.ExecuteReader)
     {
-        public MutatingReaderCommandInterceptor()
-            : base(DbCommandMethod.ExecuteReader)
-        {
-        }
-
         public override InterceptionResult<DbDataReader> ReaderExecuting(
             DbCommand command,
             CommandEventData eventData,
@@ -469,13 +421,8 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
             => command.CommandText = command.CommandText.Replace("Singularity", "Brane");
     }
 
-    protected class MutatingReaderCommandInitializedInterceptor : CommandInterceptorBase
+    protected class MutatingReaderCommandInitializedInterceptor() : CommandInterceptorBase(DbCommandMethod.ExecuteReader)
     {
-        public MutatingReaderCommandInitializedInterceptor()
-            : base(DbCommandMethod.ExecuteReader)
-        {
-        }
-
         public override DbCommand CommandInitialized(CommandEndEventData eventData, DbCommand result)
         {
             result.CommandText = result.CommandText.Replace("Singularity", "Brane");
@@ -529,13 +476,8 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
         }
     }
 
-    protected class MutatingScalarCommandInterceptor : CommandInterceptorBase
+    protected class MutatingScalarCommandInterceptor() : CommandInterceptorBase(DbCommandMethod.ExecuteScalar)
     {
-        public MutatingScalarCommandInterceptor()
-            : base(DbCommandMethod.ExecuteScalar)
-        {
-        }
-
         public const string MutatedSql = "SELECT 2";
 
         public override InterceptionResult<object> ScalarExecuting(
@@ -560,13 +502,8 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
         }
     }
 
-    protected class MutatingScalarCommandInitializedInterceptor : CommandInterceptorBase
+    protected class MutatingScalarCommandInitializedInterceptor() : CommandInterceptorBase(DbCommandMethod.ExecuteScalar)
     {
-        public MutatingScalarCommandInitializedInterceptor()
-            : base(DbCommandMethod.ExecuteScalar)
-        {
-        }
-
         public override DbCommand CommandInitialized(CommandEndEventData eventData, DbCommand result)
         {
             result.CommandText = MutatingScalarCommandInterceptor.MutatedSql;
@@ -667,13 +604,8 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
         return interceptor.CommandText;
     }
 
-    protected class QueryReplacingReaderCommandInterceptor : CommandInterceptorBase
+    protected class QueryReplacingReaderCommandInterceptor() : CommandInterceptorBase(DbCommandMethod.ExecuteReader)
     {
-        public QueryReplacingReaderCommandInterceptor()
-            : base(DbCommandMethod.ExecuteReader)
-        {
-        }
-
         public override InterceptionResult<DbDataReader> ReaderExecuting(
             DbCommand command,
             CommandEventData eventData,
@@ -740,13 +672,8 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
         }
     }
 
-    protected class QueryReplacingScalarCommandInterceptor : CommandInterceptorBase
+    protected class QueryReplacingScalarCommandInterceptor() : CommandInterceptorBase(DbCommandMethod.ExecuteScalar)
     {
-        public QueryReplacingScalarCommandInterceptor()
-            : base(DbCommandMethod.ExecuteScalar)
-        {
-        }
-
         public override InterceptionResult<object> ScalarExecuting(
             DbCommand command,
             CommandEventData eventData,
@@ -887,13 +814,8 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
         return interceptor.CommandText;
     }
 
-    protected class ResultReplacingReaderCommandInterceptor : CommandInterceptorBase
+    protected class ResultReplacingReaderCommandInterceptor() : CommandInterceptorBase(DbCommandMethod.ExecuteReader)
     {
-        public ResultReplacingReaderCommandInterceptor()
-            : base(DbCommandMethod.ExecuteReader)
-        {
-        }
-
         public override DbDataReader ReaderExecuted(
             DbCommand command,
             CommandExecutedEventData eventData,
@@ -1026,14 +948,9 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
         }
     }
 
-    protected class ResultReplacingScalarCommandInterceptor : CommandInterceptorBase
+    protected class ResultReplacingScalarCommandInterceptor() : CommandInterceptorBase(DbCommandMethod.ExecuteScalar)
     {
         public const string InterceptedResult = "Bet you weren't expecting a string!";
-
-        public ResultReplacingScalarCommandInterceptor()
-            : base(DbCommandMethod.ExecuteScalar)
-        {
-        }
 
         public override object ScalarExecuted(
             DbCommand command,
@@ -1088,13 +1005,8 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
         }
     }
 
-    protected class ResultReplacingNonQueryCommandInterceptor : CommandInterceptorBase
+    protected class ResultReplacingNonQueryCommandInterceptor() : CommandInterceptorBase(DbCommandMethod.ExecuteNonQuery)
     {
-        public ResultReplacingNonQueryCommandInterceptor()
-            : base(DbCommandMethod.ExecuteNonQuery)
-        {
-        }
-
         public override int NonQueryExecuted(
             DbCommand command,
             CommandExecutedEventData eventData,
@@ -1510,13 +1422,8 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
         return interceptor.CommandText;
     }
 
-    protected class NextResultCommandInterceptor : CommandInterceptorBase
+    protected class NextResultCommandInterceptor() : CommandInterceptorBase(DbCommandMethod.ExecuteReader)
     {
-        public NextResultCommandInterceptor()
-            : base(DbCommandMethod.ExecuteReader)
-        {
-        }
-
         public override InterceptionResult DataReaderClosing(
             DbCommand command,
             DataReaderClosingEventData eventData,
@@ -1564,13 +1471,8 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
         return interceptor.CommandText;
     }
 
-    protected class SuppressReaderCloseCommandInterceptor : CommandInterceptorBase
+    protected class SuppressReaderCloseCommandInterceptor() : CommandInterceptorBase(DbCommandMethod.ExecuteReader)
     {
-        public SuppressReaderCloseCommandInterceptor()
-            : base(DbCommandMethod.ExecuteReader)
-        {
-        }
-
         public override InterceptionResult DataReaderDisposing(
             DbCommand command,
             DataReaderDisposingEventData eventData,
@@ -1802,15 +1704,8 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
             expected,
             actual.Replace("\r", string.Empty).Replace("\n", " "));
 
-    protected abstract class CommandInterceptorBase : IDbCommandInterceptor
+    protected abstract class CommandInterceptorBase(DbCommandMethod commandMethod) : IDbCommandInterceptor
     {
-        private readonly DbCommandMethod _commandMethod;
-
-        protected CommandInterceptorBase(DbCommandMethod commandMethod)
-        {
-            _commandMethod = commandMethod;
-        }
-
         public DbContext Context { get; set; }
         public Exception Exception { get; set; }
         public string CommandText { get; set; }
@@ -2107,7 +2002,7 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
             Assert.NotEqual(default, eventData.ConnectionId);
             Assert.Equal(CommandId, eventData.CommandId);
             Assert.Equal(ConnectionId, eventData.ConnectionId);
-            Assert.Equal(_commandMethod, eventData.ExecuteMethod);
+            Assert.Equal(commandMethod, eventData.ExecuteMethod);
             Assert.Equal(CommandSource, eventData.CommandSource);
             Assert.Equal(CommandSource, eventData.CommandSource);
             Assert.Same(Context, eventData.Context);
@@ -2123,7 +2018,7 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
             Assert.Equal(CommandText, command.CommandText);
             Assert.Equal(CommandId, eventData.CommandId);
             Assert.Equal(ConnectionId, eventData.ConnectionId);
-            Assert.Equal(_commandMethod, eventData.ExecuteMethod);
+            Assert.Equal(commandMethod, eventData.ExecuteMethod);
             Assert.Equal(CommandSource, eventData.CommandSource);
 
             ExecutedCalled = true;
@@ -2134,7 +2029,7 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
             Assert.NotNull(eventData.Context);
             Assert.NotEqual(default, eventData.CommandId);
             Assert.NotEqual(default, eventData.ConnectionId);
-            Assert.Equal(_commandMethod, eventData.ExecuteMethod);
+            Assert.Equal(commandMethod, eventData.ExecuteMethod);
 
             Context = eventData.Context;
             CommandId = eventData.CommandId;
@@ -2149,7 +2044,7 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
             Assert.Same(Context, eventData.Context);
             Assert.Equal(CommandId, eventData.CommandId);
             Assert.Equal(ConnectionId, eventData.ConnectionId);
-            Assert.Equal(_commandMethod, eventData.ExecuteMethod);
+            Assert.Equal(commandMethod, eventData.ExecuteMethod);
             Assert.Equal(CommandSource, eventData.CommandSource);
 
             CreatedCalled = true;
@@ -2163,7 +2058,7 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
             Assert.NotEqual(default, eventData.ConnectionId);
             Assert.Equal(CommandId, eventData.CommandId);
             Assert.Equal(ConnectionId, eventData.ConnectionId);
-            Assert.Equal(_commandMethod, eventData.ExecuteMethod);
+            Assert.Equal(commandMethod, eventData.ExecuteMethod);
             Assert.Equal(CommandSource, eventData.CommandSource);
             Assert.NotEmpty(command.CommandText);
 
@@ -2179,7 +2074,7 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
             Assert.Equal(CommandId, eventData.CommandId);
             Assert.Equal(ConnectionId, eventData.ConnectionId);
             Assert.Equal(CommandSource, eventData.CommandSource);
-            Assert.Equal(_commandMethod, eventData.ExecuteMethod);
+            Assert.Equal(commandMethod, eventData.ExecuteMethod);
             Assert.NotNull(eventData.Exception);
 
             Exception = eventData.Exception;
@@ -2193,7 +2088,7 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
             Assert.Equal(CommandId, eventData.CommandId);
             Assert.Equal(ConnectionId, eventData.ConnectionId);
             Assert.Equal(CommandSource, eventData.CommandSource);
-            Assert.Equal(_commandMethod, eventData.ExecuteMethod);
+            Assert.Equal(commandMethod, eventData.ExecuteMethod);
 
             CanceledCalled = true;
         }

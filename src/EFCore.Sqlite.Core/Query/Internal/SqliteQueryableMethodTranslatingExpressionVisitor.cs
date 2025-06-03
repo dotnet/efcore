@@ -110,7 +110,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
                         "json_array_length",
                         new[] { array },
                         nullable: true,
-                        argumentsPropagateNullability: new[] { true },
+                        argumentsPropagateNullability: Statics.TrueArrays[1],
                         typeof(int)),
                     _sqlExpressionFactory.Constant(0));
 
@@ -133,24 +133,28 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
         LambdaExpression keySelector,
         bool ascending)
     {
-        var translation = base.TranslateOrderBy(source, keySelector, ascending);
+        var translation = TranslateLambdaExpression(source, keySelector);
         if (translation == null)
         {
             return null;
         }
 
-        var orderingExpression = ((SelectExpression)translation.QueryExpression).Orderings.Last();
-        var orderingExpressionType = GetProviderType(orderingExpression.Expression);
+        var orderingExpressionType = GetProviderType(translation);
         if (orderingExpressionType == typeof(DateTimeOffset)
-            || orderingExpressionType == typeof(decimal)
             || orderingExpressionType == typeof(TimeSpan)
             || orderingExpressionType == typeof(ulong))
         {
             throw new NotSupportedException(
                 SqliteStrings.OrderByNotSupported(orderingExpressionType.ShortDisplayName()));
         }
+        else if (orderingExpressionType == typeof(decimal))
+        {
+            translation = new CollateExpression(translation, "EF_DECIMAL");
+        }
 
-        return translation;
+        ((SelectExpression)source.QueryExpression).ApplyOrdering(new OrderingExpression(translation, ascending));
+
+        return source;
     }
 
     /// <summary>
@@ -164,24 +168,28 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
         LambdaExpression keySelector,
         bool ascending)
     {
-        var translation = base.TranslateThenBy(source, keySelector, ascending);
+        var translation = TranslateLambdaExpression(source, keySelector);
         if (translation == null)
         {
             return null;
         }
 
-        var orderingExpression = ((SelectExpression)translation.QueryExpression).Orderings.Last();
-        var orderingExpressionType = GetProviderType(orderingExpression.Expression);
+        var orderingExpressionType = GetProviderType(translation);
         if (orderingExpressionType == typeof(DateTimeOffset)
-            || orderingExpressionType == typeof(decimal)
             || orderingExpressionType == typeof(TimeSpan)
             || orderingExpressionType == typeof(ulong))
         {
             throw new NotSupportedException(
                 SqliteStrings.OrderByNotSupported(orderingExpressionType.ShortDisplayName()));
         }
+        else if (orderingExpressionType == typeof(decimal))
+        {
+            translation = new CollateExpression(translation, "EF_DECIMAL");
+        }
 
-        return translation;
+        ((SelectExpression)source.QueryExpression).AppendOrdering(new OrderingExpression(translation, ascending));
+
+        return source;
     }
 
     /// <summary>
@@ -209,7 +217,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
                 "json_array_length",
                 new[] { array },
                 nullable: true,
-                argumentsPropagateNullability: new[] { true },
+                argumentsPropagateNullability: Statics.TrueArrays[1],
                 typeof(int));
 
 #pragma warning disable EF1001
@@ -261,7 +269,11 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
                 elementClrType.UnwrapNullableType(),
                 elementTypeMapping,
                 isElementNullable ?? elementClrType.IsNullableType()),
-            identifier: [(new ColumnExpression(JsonEachKeyColumnName, tableAlias, typeof(int), keyColumnTypeMapping, nullable: false), keyColumnTypeMapping.Comparer)],
+            identifier:
+            [
+                (new ColumnExpression(JsonEachKeyColumnName, tableAlias, typeof(int), keyColumnTypeMapping, nullable: false),
+                    keyColumnTypeMapping.Comparer)
+            ],
             _sqlAliasManager);
 #pragma warning restore EF1001 // Internal EF Core API usage.
 
@@ -463,9 +475,9 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
                 Tables:
                 [
                     TableValuedFunctionExpression
-                    {
-                        Name: "json_each", Schema: null, IsBuiltIn: true, Arguments: [var jsonArrayColumn]
-                    } jsonEachExpression
+                {
+                    Name: "json_each", Schema: null, IsBuiltIn: true, Arguments: [var jsonArrayColumn]
+                } jsonEachExpression
                 ],
                 Predicate: null,
                 GroupBy: [],
@@ -525,16 +537,16 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
     protected override bool IsNaturallyOrdered(SelectExpression selectExpression)
     {
         return selectExpression is
-            {
-                Tables: [var mainTable, ..],
-                Orderings:
+        {
+            Tables: [var mainTable, ..],
+            Orderings:
                 [
-                    {
-                        Expression: ColumnExpression { Name: JsonEachKeyColumnName } orderingColumn,
-                        IsAscending: true
-                    }
+                {
+                    Expression: ColumnExpression { Name: JsonEachKeyColumnName } orderingColumn,
+                    IsAscending: true
+                }
                 ]
-            }
+        }
             && orderingColumn.TableAlias == mainTable.Alias
             && IsJsonEachKeyColumn(selectExpression, orderingColumn);
 
@@ -582,7 +594,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
                     "unhex",
                     new[] { expression },
                     nullable: true,
-                    argumentsPropagateNullability: new[] { true },
+                    argumentsPropagateNullability: Statics.TrueArrays[1],
                     typeof(byte[]),
                     typeMapping),
 

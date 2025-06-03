@@ -1102,16 +1102,16 @@ PRAGMA foreign_keys = 1;
     {
         await base.Convert_json_entities_to_regular_owned();
 
-AssertSql(
+        AssertSql(
             """
 ALTER TABLE "Entity" RENAME COLUMN "OwnedReference" TO "OwnedReference_Date";
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE "Entity" ADD "OwnedReference_NestedReference_Number" INTEGER NULL;
 """,
-                //
-                """
+            //
+            """
 CREATE TABLE "Entity_NestedCollection" (
     "OwnedEntityId" INTEGER NOT NULL,
     "Id" INTEGER NOT NULL,
@@ -1120,8 +1120,8 @@ CREATE TABLE "Entity_NestedCollection" (
     CONSTRAINT "FK_Entity_NestedCollection_Entity_OwnedEntityId" FOREIGN KEY ("OwnedEntityId") REFERENCES "Entity" ("Id") ON DELETE CASCADE
 );
 """,
-                //
-                """
+            //
+            """
 CREATE TABLE "Entity_OwnedCollection" (
     "EntityId" INTEGER NOT NULL,
     "Id" INTEGER NOT NULL,
@@ -1131,8 +1131,8 @@ CREATE TABLE "Entity_OwnedCollection" (
     CONSTRAINT "FK_Entity_OwnedCollection_Entity_EntityId" FOREIGN KEY ("EntityId") REFERENCES "Entity" ("Id") ON DELETE CASCADE
 );
 """,
-                //
-                """
+            //
+            """
 CREATE TABLE "Entity_OwnedCollection_NestedCollection2" (
     "Owned2EntityId" INTEGER NOT NULL,
     "Owned2Id" INTEGER NOT NULL,
@@ -1142,8 +1142,8 @@ CREATE TABLE "Entity_OwnedCollection_NestedCollection2" (
     CONSTRAINT "FK_Entity_OwnedCollection_NestedCollection2_Entity_OwnedCollection_Owned2EntityId_Owned2Id" FOREIGN KEY ("Owned2EntityId", "Owned2Id") REFERENCES "Entity_OwnedCollection" ("EntityId", "Id") ON DELETE CASCADE
 );
 """,
-                //
-                """
+            //
+            """
 CREATE TABLE "ef_temp_Entity" (
     "Id" INTEGER NOT NULL CONSTRAINT "PK_Entity" PRIMARY KEY AUTOINCREMENT,
     "Name" TEXT NULL,
@@ -1151,26 +1151,26 @@ CREATE TABLE "ef_temp_Entity" (
     "OwnedReference_NestedReference_Number" INTEGER NULL
 );
 """,
-                //
-                """
+            //
+            """
 INSERT INTO "ef_temp_Entity" ("Id", "Name", "OwnedReference_Date", "OwnedReference_NestedReference_Number")
 SELECT "Id", "Name", "OwnedReference_Date", "OwnedReference_NestedReference_Number"
 FROM "Entity";
 """,
-                //
-                """
+            //
+            """
 PRAGMA foreign_keys = 0;
 """,
-                //
-                """
+            //
+            """
 DROP TABLE "Entity";
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE "ef_temp_Entity" RENAME TO "Entity";
 """,
-                //
-                """
+            //
+            """
 PRAGMA foreign_keys = 1;
 """);
     }
@@ -2027,7 +2027,7 @@ CREATE TABLE "Person" (
         await base.Create_table_with_complex_type_with_required_properties_on_derived_entity_in_TPH();
 
         AssertSql(
-"""
+            """
 CREATE TABLE "Contacts" (
     "Id" INTEGER NOT NULL CONSTRAINT "PK_Contacts" PRIMARY KEY AUTOINCREMENT,
     "Discriminator" TEXT NOT NULL,
@@ -2058,33 +2058,6 @@ CREATE TABLE "Contacts" (
     public override Task Alter_sequence_increment_by()
         => AssertNotSupportedAsync(base.Alter_sequence_increment_by, SqliteStrings.SequencesNotSupported);
 
-    public override Task Alter_sequence_cache_to_default_cache()
-        => AssertNotSupportedAsync(base.Alter_sequence_cache_to_default_cache, SqliteStrings.SequencesNotSupported);
-
-    public override Task Alter_sequence_cache_to_nocache()
-        => AssertNotSupportedAsync(base.Alter_sequence_cache_to_nocache, SqliteStrings.SequencesNotSupported);
-
-    public override Task Alter_sequence_default_cache_to_cache()
-        => AssertNotSupportedAsync(base.Alter_sequence_default_cache_to_cache, SqliteStrings.SequencesNotSupported);
-
-    public override Task Alter_sequence_default_cache_to_nocache()
-        => AssertNotSupportedAsync(base.Alter_sequence_default_cache_to_nocache, SqliteStrings.SequencesNotSupported);
-
-    public override Task Alter_sequence_nocache_to_cache()
-        => AssertNotSupportedAsync(base.Alter_sequence_nocache_to_cache, SqliteStrings.SequencesNotSupported);
-
-    public override Task Alter_sequence_nocache_to_default_cache()
-        => AssertNotSupportedAsync(base.Alter_sequence_nocache_to_default_cache, SqliteStrings.SequencesNotSupported);
-
-    public override Task Create_sequence_cache()
-        => AssertNotSupportedAsync(base.Create_sequence_cache, SqliteStrings.SequencesNotSupported);
-
-    public override Task Create_sequence_default_cache()
-        => AssertNotSupportedAsync(base.Create_sequence_default_cache, SqliteStrings.SequencesNotSupported);
-
-    public override Task Create_sequence_nocache()
-        => AssertNotSupportedAsync(base.Create_sequence_nocache, SqliteStrings.SequencesNotSupported);
-
     public override Task Alter_sequence_restart_with()
         => AssertNotSupportedAsync(base.Alter_sequence_restart_with, SqliteStrings.SequencesNotSupported);
 
@@ -2097,13 +2070,18 @@ CREATE TABLE "Contacts" (
     public override Task Move_sequence()
         => AssertNotSupportedAsync(base.Move_sequence, SqliteStrings.SequencesNotSupported);
 
+    public override Task Multiop_rename_table_and_drop()
+        => AssertNotSupportedAsync(
+            base.Multiop_rename_table_and_drop,
+            SqliteStrings.InvalidMigrationOperation(nameof(DropPrimaryKeyOperation)));
+
     [ConditionalFact]
     public override async Task Add_required_primitve_collection_to_existing_table()
     {
         await base.Add_required_primitve_collection_to_existing_table();
 
         AssertSql(
-"""
+            """
 ALTER TABLE "Customers" ADD "Numbers" TEXT NOT NULL DEFAULT '[]';
 """);
     }
@@ -2114,7 +2092,7 @@ ALTER TABLE "Customers" ADD "Numbers" TEXT NOT NULL DEFAULT '[]';
         await base.Add_required_primitve_collection_with_custom_default_value_to_existing_table();
 
         AssertSql(
-"""
+            """
 ALTER TABLE "Customers" ADD "Numbers" TEXT NOT NULL DEFAULT '[1,2,3]';
 """);
     }
@@ -2125,7 +2103,7 @@ ALTER TABLE "Customers" ADD "Numbers" TEXT NOT NULL DEFAULT '[1,2,3]';
         await base.Add_required_primitve_collection_with_custom_default_value_sql_to_existing_table_core("'[3, 2, 1]'");
 
         AssertSql(
-"""
+            """
 ALTER TABLE "Customers" ADD "Numbers" TEXT NOT NULL DEFAULT ('[3, 2, 1]');
 """);
     }
@@ -2136,7 +2114,7 @@ ALTER TABLE "Customers" ADD "Numbers" TEXT NOT NULL DEFAULT ('[3, 2, 1]');
         await base.Add_required_primitve_collection_with_custom_converter_to_existing_table();
 
         AssertSql(
-"""
+            """
 ALTER TABLE [Customers] ADD [Numbers] nvarchar(max) NOT NULL DEFAULT N'nothing';
 """);
     }
@@ -2147,7 +2125,7 @@ ALTER TABLE [Customers] ADD [Numbers] nvarchar(max) NOT NULL DEFAULT N'nothing';
         await base.Add_required_primitve_collection_with_custom_converter_and_custom_default_value_to_existing_table();
 
         AssertSql(
-"""
+            """
 ALTER TABLE "Customers" ADD "Numbers" TEXT NOT NULL DEFAULT 'some numbers';
 """);
     }
@@ -2158,7 +2136,7 @@ ALTER TABLE "Customers" ADD "Numbers" TEXT NOT NULL DEFAULT 'some numbers';
         await base.Add_required_primitive_collection_to_existing_table();
 
         AssertSql(
-"""
+            """
 ALTER TABLE "Customers" ADD "Numbers" TEXT NOT NULL DEFAULT '[]';
 """);
     }
@@ -2169,7 +2147,7 @@ ALTER TABLE "Customers" ADD "Numbers" TEXT NOT NULL DEFAULT '[]';
         await base.Add_required_primitive_collection_with_custom_default_value_to_existing_table();
 
         AssertSql(
-"""
+            """
 ALTER TABLE "Customers" ADD "Numbers" TEXT NOT NULL DEFAULT '[1,2,3]';
 """);
     }
@@ -2180,7 +2158,7 @@ ALTER TABLE "Customers" ADD "Numbers" TEXT NOT NULL DEFAULT '[1,2,3]';
         await base.Add_required_primitive_collection_with_custom_default_value_sql_to_existing_table_core("'[3, 2, 1]'");
 
         AssertSql(
-"""
+            """
 ALTER TABLE "Customers" ADD "Numbers" TEXT NOT NULL DEFAULT ('[3, 2, 1]');
 """);
     }
@@ -2191,7 +2169,7 @@ ALTER TABLE "Customers" ADD "Numbers" TEXT NOT NULL DEFAULT ('[3, 2, 1]');
         await base.Add_required_primitive_collection_with_custom_converter_to_existing_table();
 
         AssertSql(
-"""
+            """
 ALTER TABLE [Customers] ADD [Numbers] nvarchar(max) NOT NULL DEFAULT N'nothing';
 """);
     }
@@ -2202,7 +2180,7 @@ ALTER TABLE [Customers] ADD [Numbers] nvarchar(max) NOT NULL DEFAULT N'nothing';
         await base.Add_required_primitive_collection_with_custom_converter_and_custom_default_value_to_existing_table();
 
         AssertSql(
-"""
+            """
 ALTER TABLE "Customers" ADD "Numbers" TEXT NOT NULL DEFAULT 'some numbers';
 """);
     }
@@ -2213,7 +2191,7 @@ ALTER TABLE "Customers" ADD "Numbers" TEXT NOT NULL DEFAULT 'some numbers';
         await base.Add_optional_primitive_collection_to_existing_table();
 
         AssertSql(
-"""
+            """
 ALTER TABLE "Customers" ADD "Numbers" TEXT NULL;
 """);
     }
@@ -2224,7 +2202,7 @@ ALTER TABLE "Customers" ADD "Numbers" TEXT NULL;
         await base.Create_table_with_required_primitive_collection();
 
         AssertSql(
-"""
+            """
 CREATE TABLE "Customers" (
     "Id" INTEGER NOT NULL CONSTRAINT "PK_Customers" PRIMARY KEY AUTOINCREMENT,
     "Name" TEXT NULL,
@@ -2239,7 +2217,7 @@ CREATE TABLE "Customers" (
         await base.Create_table_with_optional_primitive_collection();
 
         AssertSql(
-"""
+            """
 CREATE TABLE "Customers" (
     "Id" INTEGER NOT NULL CONSTRAINT "PK_Customers" PRIMARY KEY AUTOINCREMENT,
     "Name" TEXT NULL,

@@ -33,9 +33,7 @@ public abstract class Database : IDatabase
     /// </summary>
     /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
     protected Database(DatabaseDependencies dependencies)
-    {
-        Dependencies = dependencies;
-    }
+        => Dependencies = dependencies;
 
     /// <summary>
     ///     Dependencies for this service.
@@ -71,11 +69,8 @@ public abstract class Database : IDatabase
 
     /// <inheritdoc />
     [Experimental(EFDiagnostics.PrecompiledQueryExperimental)]
-    public virtual Expression<Func<QueryContext, TResult>> CompileQueryExpression<TResult>(
-        Expression query,
-        bool async,
-        IReadOnlySet<string> nonNullableReferenceTypeParameters)
+    public virtual Expression<Func<QueryContext, TResult>> CompileQueryExpression<TResult>(Expression query, bool async)
         => Dependencies.QueryCompilationContextFactory
-            .CreatePrecompiled(async, nonNullableReferenceTypeParameters)
+            .CreatePrecompiled(async)
             .CreateQueryExecutorExpression<TResult>(query);
 }

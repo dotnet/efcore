@@ -7,7 +7,8 @@ using static Microsoft.EntityFrameworkCore.Query.RelationalShapedQueryCompilingE
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class RelationalApiConsistencyTest(RelationalApiConsistencyTest.RelationalApiConsistencyFixture fixture) : ApiConsistencyTestBase<RelationalApiConsistencyTest.RelationalApiConsistencyFixture>(fixture)
+public class RelationalApiConsistencyTest(RelationalApiConsistencyTest.RelationalApiConsistencyFixture fixture)
+    : ApiConsistencyTestBase<RelationalApiConsistencyTest.RelationalApiConsistencyFixture>(fixture)
 {
     protected override void AddServices(ServiceCollection serviceCollection)
         => new EntityFrameworkRelationalServicesBuilder(serviceCollection).TryAddCoreServices();
@@ -15,15 +16,6 @@ public class RelationalApiConsistencyTest(RelationalApiConsistencyTest.Relationa
     protected override Assembly TargetAssembly
         => typeof(RelationalDatabase).Assembly;
 
-    protected override HashSet<MethodInfo> NonCancellableAsyncMethods
-    {
-        get
-        {
-            var methods = base.NonCancellableAsyncMethods;
-            methods.Add(typeof(DbConnectionInterceptor).GetMethod(nameof(DbConnectionInterceptor.ConnectionDisposedAsync)));
-            return methods;
-        }
-    }
 
     [ConditionalFact]
     public void Readonly_relational_metadata_methods_have_expected_name()
@@ -301,7 +293,7 @@ public class RelationalApiConsistencyTest(RelationalApiConsistencyTest.Relationa
             }
         };
 
-        public override HashSet<MethodInfo> NonVirtualMethods { get; }
+        public override HashSet<MethodInfo> VirtualMethodExceptions { get; }
             =
             [
                 typeof(RelationalCompiledQueryCacheKeyGenerator)
@@ -556,30 +548,17 @@ public class RelationalApiConsistencyTest(RelationalApiConsistencyTest.Relationa
                 nameof(IRelationalConnectionDiagnosticsLogger.ConnectionDisposedAsync)),
 
             // internal methods made public for AOT
-            typeof(ShaperProcessingExpressionVisitor).GetMethod(nameof(ShaperProcessingExpressionVisitor.PopulateSplitIncludeCollectionAsync)),
+            typeof(ShaperProcessingExpressionVisitor).GetMethod(
+                nameof(ShaperProcessingExpressionVisitor.PopulateSplitIncludeCollectionAsync)),
             typeof(ShaperProcessingExpressionVisitor).GetMethod(nameof(ShaperProcessingExpressionVisitor.PopulateSplitCollectionAsync)),
             typeof(ShaperProcessingExpressionVisitor).GetMethod(nameof(ShaperProcessingExpressionVisitor.TaskAwaiter)),
-            typeof(RelationalShapedQueryCompilingExpressionVisitor).GetMethod(nameof(RelationalShapedQueryCompilingExpressionVisitor.NonQueryResultAsync)),
+            typeof(RelationalShapedQueryCompilingExpressionVisitor).GetMethod(nameof(NonQueryResultAsync)),
         ];
 
         public override HashSet<MethodInfo> MetadataMethodExceptions { get; } =
         [
             typeof(IMutableStoredProcedure).GetMethod(nameof(IMutableStoredProcedure.AddParameter)),
             typeof(IMutableStoredProcedure).GetMethod(nameof(IMutableStoredProcedure.AddResultColumn))
-        ];
-
-        public override HashSet<MethodInfo> VirtualMethodExceptions { get; } =
-        [
-            // non-sealed record
-#pragma warning disable EF9100 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
-            typeof(RelationalMaterializerLiftableConstantContext).GetMethod("get_RelationalDependencies"),
-            typeof(RelationalMaterializerLiftableConstantContext).GetMethod("set_RelationalDependencies"),
-            typeof(RelationalMaterializerLiftableConstantContext).GetMethod("get_CommandBuilderDependencies"),
-            typeof(RelationalMaterializerLiftableConstantContext).GetMethod("set_CommandBuilderDependencies"),
-            typeof(RelationalMaterializerLiftableConstantContext).GetMethod("Deconstruct", [typeof(ShapedQueryCompilingExpressionVisitorDependencies).MakeByRefType()]),
-            typeof(RelationalMaterializerLiftableConstantContext).GetMethod("Deconstruct", [typeof(ShapedQueryCompilingExpressionVisitorDependencies).MakeByRefType(), typeof(RelationalShapedQueryCompilingExpressionVisitorDependencies).MakeByRefType()]),
-            typeof(RelationalMaterializerLiftableConstantContext).GetMethod("Deconstruct", [typeof(ShapedQueryCompilingExpressionVisitorDependencies).MakeByRefType(), typeof(RelationalShapedQueryCompilingExpressionVisitorDependencies).MakeByRefType(), typeof(RelationalCommandBuilderDependencies).MakeByRefType()]),
-#pragma warning restore EF9100 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
         ];
 
         public List<IReadOnlyList<MethodInfo>> RelationalMetadataMethods { get; } = [];
@@ -635,6 +614,8 @@ public class RelationalApiConsistencyTest(RelationalApiConsistencyTest.Relationa
             MirrorTypes.Add(typeof(RelationalPrimitiveCollectionBuilderExtensions), typeof(RelationalPropertyBuilderExtensions));
             MirrorTypes.Add(
                 typeof(RelationalComplexTypePrimitiveCollectionBuilderExtensions), typeof(RelationalComplexTypePropertyBuilderExtensions));
+
+            NonCancellableAsyncMethods.Add(typeof(DbConnectionInterceptor).GetMethod(nameof(DbConnectionInterceptor.ConnectionDisposedAsync)));
 
             base.Initialize();
         }

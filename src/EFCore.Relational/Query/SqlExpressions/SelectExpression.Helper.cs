@@ -16,15 +16,9 @@ public sealed partial class SelectExpression
                 : base.VisitExtension(extensionExpression);
     }
 
-    private sealed class SelectExpressionCorrelationFindingExpressionVisitor : ExpressionVisitor
+    private sealed class SelectExpressionCorrelationFindingExpressionVisitor(SelectExpression outerSelectExpression) : ExpressionVisitor
     {
-        private readonly SelectExpression _outerSelectExpression;
         private bool _containsOuterReference;
-
-        public SelectExpressionCorrelationFindingExpressionVisitor(SelectExpression outerSelectExpression)
-        {
-            _outerSelectExpression = outerSelectExpression;
-        }
 
         public bool ContainsOuterReference(SelectExpression selectExpression)
         {
@@ -44,7 +38,7 @@ public sealed partial class SelectExpression
             }
 
             if (expression is ColumnExpression columnExpression
-                && _outerSelectExpression.ContainsReferencedTable(columnExpression))
+                && outerSelectExpression.ContainsReferencedTable(columnExpression))
             {
                 _containsOuterReference = true;
 
@@ -78,19 +72,11 @@ public sealed partial class SelectExpression
         }
     }
 
-    private sealed class ProjectionMemberToIndexConvertingExpressionVisitor : ExpressionVisitor
+    private sealed class ProjectionMemberToIndexConvertingExpressionVisitor(
+        SelectExpression queryExpression,
+        Dictionary<ProjectionMember, int> projectionMemberMappings)
+        : ExpressionVisitor
     {
-        private readonly SelectExpression _queryExpression;
-        private readonly Dictionary<ProjectionMember, int> _projectionMemberMappings;
-
-        public ProjectionMemberToIndexConvertingExpressionVisitor(
-            SelectExpression queryExpression,
-            Dictionary<ProjectionMember, int> projectionMemberMappings)
-        {
-            _queryExpression = queryExpression;
-            _projectionMemberMappings = projectionMemberMappings;
-        }
-
         [return: NotNullIfNotNull(nameof(expression))]
         public override Expression? Visit(Expression? expression)
         {
@@ -101,8 +87,8 @@ public sealed partial class SelectExpression
                     "ProjectionBindingExpression must have projection member.");
 
                 return new ProjectionBindingExpression(
-                    _queryExpression,
-                    _projectionMemberMappings[projectionBindingExpression.ProjectionMember],
+                    queryExpression,
+                    projectionMemberMappings[projectionBindingExpression.ProjectionMember],
                     projectionBindingExpression.Type);
             }
 
@@ -110,35 +96,25 @@ public sealed partial class SelectExpression
         }
     }
 
-    private sealed class ProjectionIndexRemappingExpressionVisitor : ExpressionVisitor
+    private sealed class ProjectionIndexRemappingExpressionVisitor(
+        SelectExpression oldSelectExpression,
+        SelectExpression newSelectExpression,
+        int[] indexMap)
+        : ExpressionVisitor
     {
-        private readonly SelectExpression _oldSelectExpression;
-        private readonly SelectExpression _newSelectExpression;
-        private readonly int[] _indexMap;
-
-        public ProjectionIndexRemappingExpressionVisitor(
-            SelectExpression oldSelectExpression,
-            SelectExpression newSelectExpression,
-            int[] indexMap)
-        {
-            _oldSelectExpression = oldSelectExpression;
-            _newSelectExpression = newSelectExpression;
-            _indexMap = indexMap;
-        }
-
         [return: NotNullIfNotNull(nameof(expression))]
         public override Expression? Visit(Expression? expression)
         {
             if (expression is ProjectionBindingExpression projectionBindingExpression
-                && ReferenceEquals(projectionBindingExpression.QueryExpression, _oldSelectExpression))
+                && ReferenceEquals(projectionBindingExpression.QueryExpression, oldSelectExpression))
             {
                 Check.DebugAssert(
                     projectionBindingExpression.Index != null,
                     "ProjectionBindingExpression must have index.");
 
                 return new ProjectionBindingExpression(
-                    _newSelectExpression,
-                    _indexMap[projectionBindingExpression.Index.Value],
+                    newSelectExpression,
+                    indexMap[projectionBindingExpression.Index.Value],
                     projectionBindingExpression.Type);
             }
 
@@ -152,9 +128,6 @@ public sealed partial class SelectExpression
         string tableAlias)
         : ExpressionVisitor
     {
-        private readonly SelectExpression _subquery = subquery;
-        private readonly string _tableAlias = tableAlias;
-        private readonly Dictionary<SqlExpression, ColumnExpression> _mappings = mappings;
         private readonly HashSet<SqlExpression> _correlatedTerms = new(ReferenceEqualityComparer.Instance);
         private bool _groupByDiscovery = subquery._groupBy.Count > 0;
 
@@ -183,11 +156,11 @@ public sealed partial class SelectExpression
             switch (expression)
             {
                 case SqlExpression sqlExpression
-                    when _mappings.TryGetValue(sqlExpression, out var outer):
+                    when mappings.TryGetValue(sqlExpression, out var outer):
                     return outer;
 
                 case ColumnExpression columnExpression
-                    when _groupByDiscovery && _subquery.ContainsReferencedTable(columnExpression):
+                    when _groupByDiscovery && subquery.ContainsReferencedTable(columnExpression):
                     _correlatedTerms.Add(columnExpression);
                     return columnExpression;
 
@@ -195,14 +168,14 @@ public sealed partial class SelectExpression
                     when !_groupByDiscovery
                     && sqlExpression is not SqlConstantExpression and not SqlParameterExpression
                     && _correlatedTerms.Contains(sqlExpression):
-                    var outerColumn = _subquery.GenerateOuterColumn(_tableAlias, sqlExpression);
-                    _mappings[sqlExpression] = outerColumn;
+                    var outerColumn = subquery.GenerateOuterColumn(tableAlias, sqlExpression);
+                    mappings[sqlExpression] = outerColumn;
                     return outerColumn;
 
                 case ColumnExpression columnExpression
-                    when !_groupByDiscovery && _subquery.ContainsReferencedTable(columnExpression):
-                    var outerColumn1 = _subquery.GenerateOuterColumn(_tableAlias, columnExpression);
-                    _mappings[columnExpression] = outerColumn1;
+                    when !_groupByDiscovery && subquery.ContainsReferencedTable(columnExpression):
+                    var outerColumn1 = subquery.GenerateOuterColumn(tableAlias, columnExpression);
+                    mappings[columnExpression] = outerColumn1;
                     return outerColumn1;
 
                 default:
@@ -210,26 +183,19 @@ public sealed partial class SelectExpression
             }
         }
 
-        private sealed class EnclosingTermFindingVisitor : ExpressionVisitor
+        private sealed class EnclosingTermFindingVisitor(HashSet<SqlExpression> correlatedTerms) : ExpressionVisitor
         {
-            private readonly HashSet<SqlExpression> _correlatedTerms;
-            private bool _doesNotContainLocalTerms;
-
-            public EnclosingTermFindingVisitor(HashSet<SqlExpression> correlatedTerms)
-            {
-                _correlatedTerms = correlatedTerms;
-                _doesNotContainLocalTerms = true;
-            }
+            private bool _doesNotContainLocalTerms = true;
 
             [return: NotNullIfNotNull(nameof(expression))]
             public override Expression? Visit(Expression? expression)
             {
                 if (expression is SqlExpression sqlExpression)
                 {
-                    if (_correlatedTerms.Contains(sqlExpression)
+                    if (correlatedTerms.Contains(sqlExpression)
                         || sqlExpression is SqlConstantExpression or SqlParameterExpression)
                     {
-                        _correlatedTerms.Add(sqlExpression);
+                        correlatedTerms.Add(sqlExpression);
                         return sqlExpression;
                     }
 
@@ -238,7 +204,7 @@ public sealed partial class SelectExpression
                     base.Visit(expression);
                     if (_doesNotContainLocalTerms)
                     {
-                        _correlatedTerms.Add(sqlExpression);
+                        correlatedTerms.Add(sqlExpression);
                     }
 
                     _doesNotContainLocalTerms = _doesNotContainLocalTerms && parentDoesNotContainLocalTerms;
@@ -260,56 +226,36 @@ public sealed partial class SelectExpression
             => obj.Column.GetHashCode();
     }
 
-    private struct SingleCollectionInfo
+    private readonly struct SingleCollectionInfo(
+        Expression parentIdentifier,
+        Expression outerIdentifier,
+        Expression selfIdentifier,
+        IReadOnlyList<ValueComparer> parentIdentifierValueComparers,
+        IReadOnlyList<ValueComparer> outerIdentifierValueComparers,
+        IReadOnlyList<ValueComparer> selfIdentifierValueComparers,
+        Expression shaperExpression)
     {
-        public SingleCollectionInfo(
-            Expression parentIdentifier,
-            Expression outerIdentifier,
-            Expression selfIdentifier,
-            IReadOnlyList<ValueComparer> parentIdentifierValueComparers,
-            IReadOnlyList<ValueComparer> outerIdentifierValueComparers,
-            IReadOnlyList<ValueComparer> selfIdentifierValueComparers,
-            Expression shaperExpression)
-        {
-            ParentIdentifier = parentIdentifier;
-            OuterIdentifier = outerIdentifier;
-            SelfIdentifier = selfIdentifier;
-            ParentIdentifierValueComparers = parentIdentifierValueComparers;
-            OuterIdentifierValueComparers = outerIdentifierValueComparers;
-            SelfIdentifierValueComparers = selfIdentifierValueComparers;
-            ShaperExpression = shaperExpression;
-        }
-
-        public Expression ParentIdentifier { get; }
-        public Expression OuterIdentifier { get; }
-        public Expression SelfIdentifier { get; }
-        public IReadOnlyList<ValueComparer> ParentIdentifierValueComparers { get; }
-        public IReadOnlyList<ValueComparer> OuterIdentifierValueComparers { get; }
-        public IReadOnlyList<ValueComparer> SelfIdentifierValueComparers { get; }
-        public Expression ShaperExpression { get; }
+        public Expression ParentIdentifier { get; } = parentIdentifier;
+        public Expression OuterIdentifier { get; } = outerIdentifier;
+        public Expression SelfIdentifier { get; } = selfIdentifier;
+        public IReadOnlyList<ValueComparer> ParentIdentifierValueComparers { get; } = parentIdentifierValueComparers;
+        public IReadOnlyList<ValueComparer> OuterIdentifierValueComparers { get; } = outerIdentifierValueComparers;
+        public IReadOnlyList<ValueComparer> SelfIdentifierValueComparers { get; } = selfIdentifierValueComparers;
+        public Expression ShaperExpression { get; } = shaperExpression;
     }
 
-    private struct SplitCollectionInfo
+    private readonly struct SplitCollectionInfo(
+        Expression parentIdentifier,
+        Expression childIdentifier,
+        IReadOnlyList<ValueComparer> identifierValueComparers,
+        SelectExpression selectExpression,
+        Expression shaperExpression)
     {
-        public SplitCollectionInfo(
-            Expression parentIdentifier,
-            Expression childIdentifier,
-            IReadOnlyList<ValueComparer> identifierValueComparers,
-            SelectExpression selectExpression,
-            Expression shaperExpression)
-        {
-            ParentIdentifier = parentIdentifier;
-            ChildIdentifier = childIdentifier;
-            IdentifierValueComparers = identifierValueComparers;
-            SelectExpression = selectExpression;
-            ShaperExpression = shaperExpression;
-        }
-
-        public Expression ParentIdentifier { get; }
-        public Expression ChildIdentifier { get; }
-        public IReadOnlyList<ValueComparer> IdentifierValueComparers { get; }
-        public SelectExpression SelectExpression { get; }
-        public Expression ShaperExpression { get; }
+        public Expression ParentIdentifier { get; } = parentIdentifier;
+        public Expression ChildIdentifier { get; } = childIdentifier;
+        public IReadOnlyList<ValueComparer> IdentifierValueComparers { get; } = identifierValueComparers;
+        public SelectExpression SelectExpression { get; } = selectExpression;
+        public Expression ShaperExpression { get; } = shaperExpression;
     }
 
     private sealed class ClientProjectionRemappingExpressionVisitor(List<object> clientProjectionIndexMap) : ExpressionVisitor
@@ -433,7 +379,7 @@ public sealed partial class SelectExpression
         }
     }
 
-    private sealed class TpcTableExpressionRemovingExpressionVisitor : ExpressionVisitor
+    private sealed class TpcTableExpressionRemovingExpressionVisitor(SqlAliasManager sqlAliasManager) : ExpressionVisitor
     {
         protected override Expression VisitExtension(Expression expression)
         {
@@ -539,7 +485,7 @@ public sealed partial class SelectExpression
                                 CreateColumnExpression(projection, tpcTablesExpression.Alias), projection.Alias));
                     }
 
-                    result = CreateImmutable(alias: null!, tables: [unionExpression], projections);
+                    result = CreateImmutable(alias: null!, tables: [unionExpression], projections, sqlAliasManager);
                 }
 
                 if (identitySelect)

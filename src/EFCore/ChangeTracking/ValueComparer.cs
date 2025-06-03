@@ -51,13 +51,14 @@ public abstract class ValueComparer : IEqualityComparer, IEqualityComparer<objec
     /// </summary>
     [EntityFrameworkInternal]
     public static MethodInfo GetGenericSnapshotMethod(Type type)
-        => _genericSnapshotMethodMap.GetOrAdd(type, t =>
-            typeof(ValueComparer<>).MakeGenericType(t).GetGenericMethod(
-                nameof(ValueComparer<object>.Snapshot),
-                genericParameterCount: 0,
-                BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly,
-                (a, b) => new[] { a[0] },
-                @override: false)!);
+        => _genericSnapshotMethodMap.GetOrAdd(
+            type, t =>
+                typeof(ValueComparer<>).MakeGenericType(t).GetGenericMethod(
+                    nameof(ValueComparer<object>.Snapshot),
+                    genericParameterCount: 0,
+                    BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly,
+                    (a, b) => new[] { a[0] },
+                    @override: false)!);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -255,7 +256,6 @@ public abstract class ValueComparer : IEqualityComparer, IEqualityComparer<objec
     public static ValueComparer CreateDefault(
         [DynamicallyAccessedMembers(
             DynamicallyAccessedMemberTypes.PublicMethods
-            | DynamicallyAccessedMemberTypes.NonPublicMethods
             | DynamicallyAccessedMemberTypes.PublicProperties)]
         Type type,
         bool favorStructuralComparisons)
@@ -278,7 +278,11 @@ public abstract class ValueComparer : IEqualityComparer, IEqualityComparer<objec
     /// </param>
     /// <typeparam name="T">The type.</typeparam>
     /// <returns>The <see cref="ValueComparer{T}" />.</returns>
-    public static ValueComparer CreateDefault<T>(bool favorStructuralComparisons)
+    public static ValueComparer CreateDefault
+        <[DynamicallyAccessedMembers(
+            DynamicallyAccessedMemberTypes.PublicMethods
+            | DynamicallyAccessedMemberTypes.PublicProperties)]
+        T>(bool favorStructuralComparisons)
     {
         var nonNullableType = typeof(T).UnwrapNullableType();
 
@@ -311,14 +315,12 @@ public abstract class ValueComparer : IEqualityComparer, IEqualityComparer<objec
                 : new ValueComparer<T>(favorStructuralComparisons);
     }
 
-    /// <summary>
-    ///     The expression representing construction of this object.
-    /// </summary>
-    [Experimental(EFDiagnostics.PrecompiledQueryExperimental)]
-    public abstract Expression ConstructorExpression { get; }
-
     // PublicMethods is required to preserve e.g. GetHashCode
-    internal class DefaultValueComparer<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicMethods)] T> : ValueComparer<T>
+    internal class DefaultValueComparer
+        <[DynamicallyAccessedMembers(
+            DynamicallyAccessedMemberTypes.PublicMethods
+            | DynamicallyAccessedMemberTypes.PublicProperties)]
+        T> : ValueComparer<T>
     {
         public DefaultValueComparer(bool favorStructuralComparisons)
             : base(favorStructuralComparisons)
@@ -346,39 +348,28 @@ public abstract class ValueComparer : IEqualityComparer, IEqualityComparer<objec
             => instance;
     }
 
-    internal sealed class DefaultDoubleValueComparer : DefaultValueComparer<double>
+    internal sealed class DefaultDoubleValueComparer(bool favorStructuralComparisons)
+        : DefaultValueComparer<double>((v1, v2) => v1.Equals(v2), favorStructuralComparisons)
     {
-        public DefaultDoubleValueComparer(bool favorStructuralComparisons)
-            : base((v1, v2) => v1.Equals(v2), favorStructuralComparisons)
-        {
-        }
-
         public override Expression ExtractEqualsBody(Expression leftExpression, Expression rightExpression)
             => Expression.Call(leftExpression, DoubleEqualsMethodInfo, rightExpression);
     }
 
-    internal sealed class DefaultFloatValueComparer : DefaultValueComparer<float>
+    internal sealed class DefaultFloatValueComparer(bool favorStructuralComparisons)
+        : DefaultValueComparer<float>((v1, v2) => v1.Equals(v2), favorStructuralComparisons)
     {
-        public DefaultFloatValueComparer(bool favorStructuralComparisons)
-            : base((v1, v2) => v1.Equals(v2), favorStructuralComparisons)
-        {
-        }
-
         public override Expression ExtractEqualsBody(Expression leftExpression, Expression rightExpression)
             => Expression.Call(leftExpression, FloatEqualsMethodInfo, rightExpression);
     }
 
-    internal sealed class DefaultDateTimeOffsetValueComparer : DefaultValueComparer<DateTimeOffset>
+    internal sealed class DefaultDateTimeOffsetValueComparer(bool favorStructuralComparisons)
+        : DefaultValueComparer<DateTimeOffset>((v1, v2) => v1.EqualsExact(v2), favorStructuralComparisons)
     {
         private static readonly MethodInfo EqualsExactMethodInfo
             = typeof(DateTimeOffset).GetRuntimeMethod(nameof(DateTimeOffset.EqualsExact), [typeof(DateTimeOffset)])!;
 
         // In .NET, two DateTimeOffset instances are considered equal if they represent the same point in time but with different
         // time zone offsets. This comparer uses EqualsExact, which considers such DateTimeOffset as non-equal.
-        public DefaultDateTimeOffsetValueComparer(bool favorStructuralComparisons)
-            : base((v1, v2) => v1.EqualsExact(v2), favorStructuralComparisons)
-        {
-        }
 
         public override Expression ExtractEqualsBody(Expression leftExpression, Expression rightExpression)
             => Expression.Call(leftExpression, EqualsExactMethodInfo, rightExpression);

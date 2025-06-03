@@ -101,7 +101,7 @@ public class SqlServerStringAggregateMethodTranslator : IAggregateMethodCallTran
                     source,
                     enumerableArgumentIndex: 0,
                     nullable: true,
-                    argumentsPropagateNullability: new[] { false, true },
+                    argumentsPropagateNullability: Statics.FalseArrays[2],
                     typeof(string)),
                 _sqlExpressionFactory.Constant(string.Empty, typeof(string)),
                 resultTypeMapping);

@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
@@ -230,31 +231,6 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
     protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
     {
         var method = methodCallExpression.Method;
-        if (method.DeclaringType == typeof(RelationalQueryableExtensions))
-        {
-            var source = Visit(methodCallExpression.Arguments[0]);
-            if (source is ShapedQueryExpression shapedQueryExpression)
-            {
-                var genericMethod = method.IsGenericMethod ? method.GetGenericMethodDefinition() : null;
-                switch (method.Name)
-                {
-                    case nameof(RelationalQueryableExtensions.ExecuteDelete)
-                        when genericMethod == RelationalQueryableExtensions.ExecuteDeleteMethodInfo:
-                        return TranslateExecuteDelete(shapedQueryExpression)
-                            ?? throw new InvalidOperationException(
-                                RelationalStrings.NonQueryTranslationFailedWithDetails(
-                                    methodCallExpression.Print(), TranslationErrorDetails));
-
-                    case nameof(RelationalQueryableExtensions.ExecuteUpdate)
-                        when genericMethod == RelationalQueryableExtensions.ExecuteUpdateMethodInfo:
-                        return TranslateExecuteUpdate(shapedQueryExpression, methodCallExpression.Arguments[1].UnwrapLambdaFromQuote())
-                            ?? throw new InvalidOperationException(
-                                RelationalStrings.NonQueryTranslationFailedWithDetails(
-                                    methodCallExpression.Print(), TranslationErrorDetails));
-                }
-            }
-        }
-
         var translated = base.VisitMethodCall(methodCallExpression);
 
         // For Contains over a collection parameter, if the provider hasn't implemented TranslateCollection (e.g. OPENJSON on SQL
@@ -264,7 +240,8 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
             && method.GetGenericMethodDefinition() == QueryableMethods.Contains
             && methodCallExpression.Arguments[0] is ParameterQueryRootExpression parameterSource
             && TranslateExpression(methodCallExpression.Arguments[1]) is SqlExpression item
-            && _sqlTranslator.Visit(parameterSource.ParameterExpression) is SqlParameterExpression sqlParameterExpression)
+            && _sqlTranslator.Visit(parameterSource.QueryParameterExpression) is SqlParameterExpression sqlParameterExpression
+            && !parameterSource.QueryParameterExpression.ShouldNotBeConstantized)
         {
             var inExpression = _sqlExpressionFactory.In(item, sqlParameterExpression);
             var selectExpression = new SelectExpression(inExpression, _sqlAliasManager);
@@ -311,12 +288,31 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
     /// <inheritdoc />
     protected override ShapedQueryExpression? TranslateParameterQueryRoot(ParameterQueryRootExpression parameterQueryRootExpression)
     {
-        var sqlParameterExpression =
-            _sqlTranslator.Visit(parameterQueryRootExpression.ParameterExpression) as SqlParameterExpression;
+        var queryParameter = parameterQueryRootExpression.QueryParameterExpression;
+        var sqlParameterExpression = _sqlTranslator.Visit(queryParameter) as SqlParameterExpression;
 
         Check.DebugAssert(sqlParameterExpression is not null, "sqlParameterExpression is not null");
 
+        var primitiveCollectionsBehavior = RelationalOptionsExtension.Extract(QueryCompilationContext.ContextOptions)
+            .ParameterizedCollectionTranslationMode;
+
         var tableAlias = _sqlAliasManager.GenerateTableAlias(sqlParameterExpression.Name.TrimStart('_'));
+        if (queryParameter.ShouldBeConstantized
+            || (primitiveCollectionsBehavior == ParameterizedCollectionTranslationMode.Constantize
+                && !queryParameter.ShouldNotBeConstantized))
+        {
+            var valuesExpression = new ValuesExpression(
+                tableAlias,
+                sqlParameterExpression,
+                [ValuesOrderingColumnName, ValuesValueColumnName]);
+            return CreateShapedQueryExpressionForValuesExpression(
+                valuesExpression,
+                tableAlias,
+                parameterQueryRootExpression.ElementType,
+                sqlParameterExpression.TypeMapping,
+                sqlParameterExpression.IsNullable);
+        }
+
         return TranslatePrimitiveCollection(sqlParameterExpression, property: null, tableAlias);
     }
 
@@ -403,7 +399,6 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         for (var i = 0; i < sqlExpressions.Length; i++)
         {
             var sqlExpression = sqlExpressions[i];
-
             rowExpressions[i] =
                 new RowValueExpression(
                     new[]
@@ -423,41 +418,12 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         var alias = _sqlAliasManager.GenerateTableAlias("values");
         var valuesExpression = new ValuesExpression(alias, rowExpressions, new[] { ValuesOrderingColumnName, ValuesValueColumnName });
 
-        // Note: we leave the element type mapping null, to allow it to get inferred based on queryable operators composed on top.
-        var valueColumn = new ColumnExpression(
-            ValuesValueColumnName,
+        return CreateShapedQueryExpressionForValuesExpression(
+            valuesExpression,
             alias,
-            elementType.UnwrapNullableType(),
-            typeMapping: inferredTypeMaping,
-            nullable: encounteredNull);
-        var orderingColumn = new ColumnExpression(
-            ValuesOrderingColumnName,
-            alias,
-            typeof(int),
-            typeMapping: intTypeMapping,
-            nullable: false);
-
-        var selectExpression = new SelectExpression(
-            [valuesExpression],
-            valueColumn,
-            identifier: [(orderingColumn, orderingColumn.TypeMapping!.Comparer)],
-            _sqlAliasManager);
-
-        selectExpression.AppendOrdering(new OrderingExpression(orderingColumn, ascending: true));
-
-        Expression shaperExpression = new ProjectionBindingExpression(
-            selectExpression, new ProjectionMember(), encounteredNull ? elementType.MakeNullable() : elementType);
-
-        if (elementType != shaperExpression.Type)
-        {
-            Check.DebugAssert(
-                elementType.MakeNullable() == shaperExpression.Type,
-                "expression.Type must be nullable of targetType");
-
-            shaperExpression = Expression.Convert(shaperExpression, elementType);
-        }
-
-        return new ShapedQueryExpression(selectExpression, shaperExpression);
+            elementType,
+            inferredTypeMaping,
+            encounteredNull);
     }
 
     /// <inheritdoc />
@@ -504,6 +470,8 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
             subquery.ClearOrdering();
         }
 
+        subquery.IsDistinct = false;
+
         translation = _sqlExpressionFactory.Not(_sqlExpressionFactory.Exists(subquery));
         subquery = new SelectExpression(translation, _sqlAliasManager);
 
@@ -535,6 +503,8 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
             subquery.ClearOrdering();
         }
 
+        subquery.IsDistinct = false;
+
         var translation = _sqlExpressionFactory.Exists(subquery);
         var selectExpression = new SelectExpression(translation, _sqlAliasManager);
 
@@ -548,7 +518,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         ShapedQueryExpression source,
         LambdaExpression? selector,
         Type resultType)
-        => TranslateAggregateWithSelector(source, selector, QueryableMethods.GetAverageWithoutSelector, throwWhenEmpty: true, resultType);
+        => TranslateAggregateWithSelector(source, selector, QueryableMethods.GetAverageWithoutSelector, resultType);
 
     /// <inheritdoc />
     protected override ShapedQueryExpression TranslateCast(ShapedQueryExpression source, Type resultType)
@@ -600,9 +570,14 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         }
 
         // Pattern-match Contains over ValuesExpression, translating to simplified 'item IN (1, 2, 3)' with constant elements
-        if (TryExtractBareInlineCollectionValues(source, out var values))
+        if (TryExtractBareInlineCollectionValues(source, out var values, out var valuesParameter))
         {
-            var inExpression = _sqlExpressionFactory.In(translatedItem, values);
+            var inExpression = (values, valuesParameter) switch
+            {
+                (not null, null) => _sqlExpressionFactory.In(translatedItem, values),
+                (null, not null) => _sqlExpressionFactory.In(translatedItem, valuesParameter),
+                _ => throw new UnreachableException(),
+            };
             return source.Update(new SelectExpression(inExpression, _sqlAliasManager), source.ShaperExpression);
         }
 
@@ -614,6 +589,8 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         {
             subquery.ClearOrdering();
         }
+
+        subquery.IsDistinct = false;
 
         subquery.ReplaceProjection(new List<Expression> { projection });
         subquery.ApplyProjection();
@@ -677,7 +654,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         }
 
         selectExpression.ApplyOffset(translation);
-        selectExpression.ApplyLimit(TranslateExpression(Expression.Constant(1))!);
+        ApplyLimit(selectExpression, TranslateExpression(Expression.Constant(1))!);
 
         return source;
     }
@@ -716,7 +693,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
             _queryCompilationContext.Logger.FirstWithoutOrderByAndFilterWarning();
         }
 
-        selectExpression.ApplyLimit(TranslateExpression(Expression.Constant(1))!);
+        ApplyLimit(selectExpression, TranslateExpression(Expression.Constant(1))!);
 
         return source.ShaperExpression.Type != returnType
             ? source.UpdateShaperExpression(Expression.Convert(source.ShaperExpression, returnType))
@@ -899,6 +876,27 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         return null;
     }
 
+    /// <inheritdoc />
+    protected override ShapedQueryExpression? TranslateRightJoin(
+        ShapedQueryExpression outer,
+        ShapedQueryExpression inner,
+        LambdaExpression outerKeySelector,
+        LambdaExpression innerKeySelector,
+        LambdaExpression resultSelector)
+    {
+        var joinPredicate = CreateJoinPredicate(outer, outerKeySelector, inner, innerKeySelector);
+        if (joinPredicate != null)
+        {
+            var outerSelectExpression = (SelectExpression)outer.QueryExpression;
+            var outerShaperExpression = outerSelectExpression.AddRightJoin(inner, joinPredicate, outer.ShaperExpression);
+            outer = outer.UpdateShaperExpression(outerShaperExpression);
+
+            return TranslateTwoParameterSelector(outer, resultSelector);
+        }
+
+        return null;
+    }
+
     private SqlExpression CreateJoinPredicate(
         ShapedQueryExpression outer,
         LambdaExpression outerKeySelector,
@@ -963,7 +961,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         }
 
         selectExpression.ReverseOrderings();
-        selectExpression.ApplyLimit(TranslateExpression(Expression.Constant(1))!);
+        ApplyLimit(selectExpression, TranslateExpression(Expression.Constant(1))!);
 
         return source.ShaperExpression.Type != returnType
             ? source.UpdateShaperExpression(Expression.Convert(source.ShaperExpression, returnType))
@@ -976,19 +974,45 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
 
     /// <inheritdoc />
     protected override ShapedQueryExpression? TranslateMax(ShapedQueryExpression source, LambdaExpression? selector, Type resultType)
-        => TryExtractBareInlineCollectionValues(source, out var values)
-            && _sqlExpressionFactory.TryCreateGreatest(values, resultType, out var greatestExpression)
-                ? source.Update(new SelectExpression(greatestExpression, _sqlAliasManager), source.ShaperExpression)
-                : TranslateAggregateWithSelector(
-                    source, selector, t => QueryableMethods.MaxWithoutSelector.MakeGenericMethod(t), throwWhenEmpty: true, resultType);
+    {
+        var selectExpression = (SelectExpression)source.QueryExpression;
+        selectExpression.IsDistinct = false;
+
+        // For Max() over an inline array, translate to GREATEST() if possible; otherwise use the default translation of aggregate SQL
+        // MAX().
+        // Note that some providers propagate NULL arguments (SQLite, MySQL), while others only return NULL if all arguments evaluate to
+        // NULL (SQL Server, PostgreSQL). If the argument is a nullable value type, don't translate to GREATEST() if it propagates NULLs,
+        // to match the .NET behavior.
+        if (TryExtractBareInlineCollectionValues(source, out var values)
+            && _sqlTranslator.GenerateGreatest(values, resultType.UnwrapNullableType()) is SqlFunctionExpression greatestExpression
+            && (Nullable.GetUnderlyingType(resultType) is null
+                || greatestExpression.ArgumentsPropagateNullability?.All(a => a == false) == true))
+        {
+            return source.Update(new SelectExpression(greatestExpression, _sqlAliasManager), source.ShaperExpression);
+        }
+
+        return TranslateAggregateWithSelector(
+            source, selector, t => QueryableMethods.MaxWithoutSelector.MakeGenericMethod(t), resultType);
+    }
 
     /// <inheritdoc />
     protected override ShapedQueryExpression? TranslateMin(ShapedQueryExpression source, LambdaExpression? selector, Type resultType)
-        => TryExtractBareInlineCollectionValues(source, out var values)
-            && _sqlExpressionFactory.TryCreateLeast(values, resultType, out var leastExpression)
-                ? source.Update(new SelectExpression(leastExpression, _sqlAliasManager), source.ShaperExpression)
-                : TranslateAggregateWithSelector(
-                    source, selector, t => QueryableMethods.MinWithoutSelector.MakeGenericMethod(t), throwWhenEmpty: true, resultType);
+    {
+        var selectExpression = (SelectExpression)source.QueryExpression;
+        selectExpression.IsDistinct = false;
+
+        // See comments above in TranslateMax()
+        if (TryExtractBareInlineCollectionValues(source, out var values)
+            && _sqlTranslator.GenerateLeast(values, resultType.UnwrapNullableType()) is SqlFunctionExpression leastExpression
+            && (Nullable.GetUnderlyingType(resultType) is null
+                || leastExpression.ArgumentsPropagateNullability?.All(a => a == false) == true))
+        {
+            return source.Update(new SelectExpression(leastExpression, _sqlAliasManager), source.ShaperExpression);
+        }
+
+        return TranslateAggregateWithSelector(
+            source, selector, t => QueryableMethods.MinWithoutSelector.MakeGenericMethod(t), resultType);
+    }
 
     /// <inheritdoc />
     protected override ShapedQueryExpression? TranslateOfType(ShapedQueryExpression source, Type resultType)
@@ -1217,7 +1241,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         }
 
         var selectExpression = (SelectExpression)source.QueryExpression;
-        selectExpression.ApplyLimit(TranslateExpression(Expression.Constant(_subquery ? 1 : 2))!);
+        ApplyLimit(selectExpression, TranslateExpression(Expression.Constant(_subquery ? 1 : 2))!);
 
         return source.ShaperExpression.Type != returnType
             ? source.UpdateShaperExpression(Expression.Convert(source.ShaperExpression, returnType))
@@ -1250,7 +1274,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
 
     /// <inheritdoc />
     protected override ShapedQueryExpression? TranslateSum(ShapedQueryExpression source, LambdaExpression? selector, Type resultType)
-        => TranslateAggregateWithSelector(source, selector, QueryableMethods.GetSumWithoutSelector, throwWhenEmpty: false, resultType);
+        => TranslateAggregateWithSelector(source, selector, QueryableMethods.GetSumWithoutSelector, resultType);
 
     /// <inheritdoc />
     protected override ShapedQueryExpression? TranslateTake(ShapedQueryExpression source, Expression count)
@@ -1267,9 +1291,47 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
             _queryCompilationContext.Logger.RowLimitingOperationWithoutOrderByWarning();
         }
 
-        selectExpression.ApplyLimit(translation);
+        ApplyLimit(selectExpression, translation);
 
         return source;
+    }
+
+    private void ApplyLimit(SelectExpression selectExpression, SqlExpression limit)
+    {
+        var oldLimit = selectExpression.Limit;
+
+        if (oldLimit is null)
+        {
+            selectExpression.SetLimit(limit);
+            return;
+        }
+
+        if (oldLimit is SqlConstantExpression { Value: int oldConst } && limit is SqlConstantExpression { Value: int newConst })
+        {
+            // if both the old and new limit are constants, use the smaller one
+            // (aka constant-fold LEAST(constA, constB))
+            if (oldConst > newConst)
+            {
+                selectExpression.SetLimit(limit);
+            }
+
+            return;
+        }
+
+        if (oldLimit.Equals(limit))
+        {
+            return;
+        }
+
+        // if possible, use LEAST(oldLimit, limit); otherwise, use nested queries
+        if (_sqlTranslator.GenerateLeast([oldLimit, limit], limit.Type) is { } newLimit)
+        {
+            selectExpression.SetLimit(newLimit);
+        }
+        else
+        {
+            selectExpression.ApplyLimit(limit);
+        }
     }
 
     /// <inheritdoc />
@@ -1659,12 +1721,14 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
                 {
                     var newJsonQueryExpression = jsonQueryExpression.BindNavigation(navigation);
 
+                    Debug.Assert(!navigation.IsOnDependent, "JSON navigations should always be from principal do dependent");
+
                     return navigation.IsCollection
                         ? newJsonQueryExpression
                         : new RelationalStructuralTypeShaperExpression(
                             navigation.TargetEntityType,
                             newJsonQueryExpression,
-                            nullable: shaper.IsNullable || !navigation.ForeignKey.IsRequired);
+                            nullable: shaper.IsNullable || !navigation.ForeignKey.IsRequiredDependent);
                 }
 
                 var entityProjectionExpression = GetEntityProjectionExpression(shaper);
@@ -1803,22 +1867,15 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
             return source.CreateEFPropertyExpression(property);
         }
 
-        private sealed class AnnotationApplyingExpressionVisitor : ExpressionVisitor
+        private sealed class AnnotationApplyingExpressionVisitor(IReadOnlyList<IAnnotation> annotations) : ExpressionVisitor
         {
-            private readonly IReadOnlyList<IAnnotation> _annotations;
-
-            public AnnotationApplyingExpressionVisitor(IReadOnlyList<IAnnotation> annotations)
-            {
-                _annotations = annotations;
-            }
-
             [return: NotNullIfNotNull(nameof(expression))]
             public override Expression? Visit(Expression? expression)
             {
                 if (expression is TableExpression te)
                 {
                     TableExpressionBase ownedTable = te;
-                    foreach (var annotation in _annotations)
+                    foreach (var annotation in annotations)
                     {
                         ownedTable = ownedTable.AddAnnotation(annotation.Name, annotation.Value);
                     }
@@ -1980,7 +2037,6 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         ShapedQueryExpression source,
         LambdaExpression? selectorLambda,
         Func<Type, MethodInfo> methodGenerator,
-        bool throwWhenEmpty,
         Type resultType)
     {
         var selectExpression = (SelectExpression)source.QueryExpression;
@@ -2026,48 +2082,13 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
             new Dictionary<ProjectionMember, Expression> { { new ProjectionMember(), translation } });
 
         selectExpression.ClearOrdering();
-        Expression shaper;
 
-        if (throwWhenEmpty)
+        // Sum case. Projection is always non-null. We read nullable value.
+        Expression shaper = new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), translation.Type.MakeNullable());
+
+        if (resultType != shaper.Type)
         {
-            // Avg/Max/Min case.
-            // We always read nullable value
-            // If resultType is nullable then we always return null. Only non-null result shows throwing behavior.
-            // otherwise, if projection.Type is nullable then server result is passed through DefaultIfEmpty, hence we return default
-            // otherwise, server would return null only if it is empty, and we throw
-            var nullableResultType = resultType.MakeNullable();
-            shaper = new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), nullableResultType);
-            var resultVariable = Expression.Variable(nullableResultType, "result");
-            var returnValueForNull = resultType.IsNullableType()
-                ? (Expression)Expression.Default(resultType)
-                : translation.Type.IsNullableType()
-                    ? Expression.Default(resultType)
-                    : Expression.Throw(
-                        Expression.New(
-                            typeof(InvalidOperationException).GetConstructors()
-                                .Single(ci => ci.GetParameters().Length == 1),
-                            Expression.Constant(CoreStrings.SequenceContainsNoElements)),
-                        resultType);
-
-            shaper = Expression.Block(
-                new[] { resultVariable },
-                Expression.Assign(resultVariable, shaper),
-                Expression.Condition(
-                    Expression.Equal(resultVariable, Expression.Default(nullableResultType)),
-                    returnValueForNull,
-                    resultType != resultVariable.Type
-                        ? Expression.Convert(resultVariable, resultType)
-                        : resultVariable));
-        }
-        else
-        {
-            // Sum case. Projection is always non-null. We read nullable value.
-            shaper = new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), translation.Type.MakeNullable());
-
-            if (resultType != shaper.Type)
-            {
-                shaper = Expression.Convert(shaper, resultType);
-            }
+            shaper = Expression.Convert(shaper, resultType);
         }
 
         return source.UpdateShaperExpression(shaper);
@@ -2097,6 +2118,12 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
     }
 
     private bool TryExtractBareInlineCollectionValues(ShapedQueryExpression shapedQuery, [NotNullWhen(true)] out SqlExpression[]? values)
+        => TryExtractBareInlineCollectionValues(shapedQuery, out values, out _);
+
+    private bool TryExtractBareInlineCollectionValues(
+        ShapedQueryExpression shapedQuery,
+        out SqlExpression[]? values,
+        out SqlParameterExpression? valuesParameter)
     {
         if (TryGetProjection(shapedQuery, out var projection)
             && shapedQuery.QueryExpression is SelectExpression
@@ -2117,25 +2144,81 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
             && projection is ColumnExpression { TableAlias: var tableAlias }
             && tableAlias == valuesExpression.Alias)
         {
-            values = new SqlExpression[valuesExpression.RowValues.Count];
-
-            for (var i = 0; i < values.Length; i++)
+            switch (valuesExpression)
             {
-                // Skip the first value (_ord) - this function assumes ordering doesn't matter
-                values[i] = valuesExpression.RowValues[i].Values[1];
-            }
+                case { RowValues: not null }:
+                    values = new SqlExpression[valuesExpression.RowValues.Count];
 
-            return true;
+                    for (var i = 0; i < values.Length; i++)
+                    {
+                        // Skip the first value (_ord) - this function assumes ordering doesn't matter
+                        values[i] = valuesExpression.RowValues[i].Values[1];
+                    }
+
+                    valuesParameter = null;
+                    return true;
+
+                case { ValuesParameter: not null }:
+                    valuesParameter = valuesExpression.ValuesParameter;
+                    values = null;
+                    return true;
+            }
         }
 
         values = null;
+        valuesParameter = null;
         return false;
+    }
+
+    private ShapedQueryExpression CreateShapedQueryExpressionForValuesExpression(
+        ValuesExpression valuesExpression,
+        string tableAlias,
+        Type elementType,
+        RelationalTypeMapping? inferredTypeMapping,
+        bool encounteredNull)
+    {
+        // Note: we leave the element type mapping null, to allow it to get inferred based on queryable operators composed on top.
+        var valueColumn = new ColumnExpression(
+            ValuesValueColumnName,
+            tableAlias,
+            elementType.UnwrapNullableType(),
+            typeMapping: inferredTypeMapping,
+            nullable: encounteredNull);
+        var orderingColumn = new ColumnExpression(
+            ValuesOrderingColumnName,
+            tableAlias,
+            typeof(int),
+            typeMapping: _typeMappingSource.FindMapping(typeof(int), RelationalDependencies.Model),
+            nullable: false);
+
+        var selectExpression = new SelectExpression(
+            [valuesExpression],
+            valueColumn,
+            identifier: [(orderingColumn, orderingColumn.TypeMapping!.Comparer)],
+            _sqlAliasManager);
+
+        selectExpression.AppendOrdering(new OrderingExpression(orderingColumn, ascending: true));
+
+        Expression shaperExpression = new ProjectionBindingExpression(
+            selectExpression, new ProjectionMember(), encounteredNull ? elementType.MakeNullable() : elementType);
+
+        if (elementType != shaperExpression.Type)
+        {
+            Check.DebugAssert(
+                elementType.MakeNullable() == shaperExpression.Type,
+                "expression.Type must be nullable of targetType");
+
+            shaperExpression = Expression.Convert(shaperExpression, elementType);
+        }
+
+        return new ShapedQueryExpression(selectExpression, shaperExpression);
     }
 
     /// <summary>
     ///     This visitor has been obsoleted; Extend RelationalTypeMappingPostprocessor instead, and invoke it from
     ///     <see cref="RelationalQueryTranslationPostprocessor.ProcessTypeMappings" />.
     /// </summary>
-    [Obsolete("Extend RelationalTypeMappingPostprocessor instead, and invoke it from  RelationalQueryTranslationPostprocessor.ProcessTypeMappings().")]
+    [Obsolete(
+        "Extend RelationalTypeMappingPostprocessor instead, and invoke it from  RelationalQueryTranslationPostprocessor.ProcessTypeMappings().")]
     protected class RelationalInferredTypeMappingApplier;
 }

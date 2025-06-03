@@ -7,7 +7,8 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public class ComplexNavigationsQuerySqliteTest(ComplexNavigationsQuerySqliteFixture fixture) : ComplexNavigationsQueryRelationalTestBase<ComplexNavigationsQuerySqliteFixture>(fixture)
+public class ComplexNavigationsQuerySqliteTest(ComplexNavigationsQuerySqliteFixture fixture)
+    : ComplexNavigationsQueryRelationalTestBase<ComplexNavigationsQuerySqliteFixture>(fixture)
 {
     public override async Task Let_let_contains_from_outer_let(bool async)
         => Assert.Equal(
@@ -40,18 +41,6 @@ public class ComplexNavigationsQuerySqliteTest(ComplexNavigationsQuerySqliteFixt
                 "Microsoft.EntityFrameworkCore.Query.ComplexNavigationsQueryTestBase<Microsoft.EntityFrameworkCore.Query.ComplexNavigationsQuerySqliteFixture>",
                 "ClientMethodNullableInt"));
 
-    public override async Task GroupJoin_with_subquery_on_inner(bool async)
-        => Assert.Equal(
-            SqliteStrings.ApplyNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.GroupJoin_with_subquery_on_inner(async))).Message);
-
-    public override async Task GroupJoin_with_subquery_on_inner_and_no_DefaultIfEmpty(bool async)
-        => Assert.Equal(
-            SqliteStrings.ApplyNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.GroupJoin_with_subquery_on_inner_and_no_DefaultIfEmpty(async))).Message);
-
     public override async Task Correlated_projection_with_first(bool async)
         => Assert.Equal(
             SqliteStrings.ApplyNotSupported,
@@ -69,8 +58,4 @@ public class ComplexNavigationsQuerySqliteTest(ComplexNavigationsQuerySqliteFixt
             SqliteStrings.ApplyNotSupported,
             (await Assert.ThrowsAsync<InvalidOperationException>(
                 () => base.Single_select_many_in_projection_with_take(async))).Message);
-
-    [ConditionalTheory(Skip = "issue #32559")]
-    public override Task Max_in_multi_level_nested_subquery(bool async)
-        => base.Max_in_multi_level_nested_subquery(async);
 }

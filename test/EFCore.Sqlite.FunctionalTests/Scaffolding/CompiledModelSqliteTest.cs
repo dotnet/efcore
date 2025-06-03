@@ -6,13 +6,13 @@
 using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Design.Internal;
-using NetTopologySuite.Geometries;
 using NetTopologySuite;
+using NetTopologySuite.Geometries;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding;
 
 [SpatialiteRequired]
-public class CompiledModelSqliteTest : CompiledModelRelationalTestBase
+public class CompiledModelSqliteTest(NonSharedFixture fixture) : CompiledModelRelationalTestBase(fixture)
 {
     protected override void BuildBigModel(ModelBuilder modelBuilder, bool jsonColumns)
     {
@@ -92,15 +92,19 @@ public class CompiledModelSqliteTest : CompiledModelRelationalTestBase
     public override Task Tpc_Sprocs()
         => Task.CompletedTask;
 
-    protected override TestHelpers TestHelpers => SqliteTestHelpers.Instance;
-    protected override ITestStoreFactory TestStoreFactory => SqliteTestStoreFactory.Instance;
+    protected override TestHelpers TestHelpers
+        => SqliteTestHelpers.Instance;
+
+    protected override ITestStoreFactory TestStoreFactory
+        => SqliteTestStoreFactory.Instance;
 
     protected override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
     {
         builder = base.AddOptions(builder)
-            .ConfigureWarnings(w => w
-                .Ignore(SqliteEventId.SchemaConfiguredWarning)
-                .Ignore(SqliteEventId.CompositeKeyWithValueGeneration));
+            .ConfigureWarnings(
+                w => w
+                    .Ignore(SqliteEventId.SchemaConfiguredWarning)
+                    .Ignore(SqliteEventId.CompositeKeyWithValueGeneration));
         new SqliteDbContextOptionsBuilder(builder).UseNetTopologySuite();
         return builder;
     }

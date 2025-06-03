@@ -7,14 +7,12 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-[SqlServerCondition(SqlServerCondition.IsNotSqlAzure)]
+[SqlServerCondition(SqlServerCondition.IsNotAzureSql)]
 public class CustomConvertersSqlServerTest : CustomConvertersTestBase<CustomConvertersSqlServerTest.CustomConvertersSqlServerFixture>
 {
     public CustomConvertersSqlServerTest(CustomConvertersSqlServerFixture fixture)
         : base(fixture)
-    {
-        Fixture.TestSqlLoggerFactory.Clear();
-    }
+        => Fixture.TestSqlLoggerFactory.Clear();
 
     [ConditionalFact]
     public virtual void Columns_have_expected_data_types()
@@ -231,11 +229,11 @@ User23059.MessageGroups ---> [nullable nvarchar] [MaxLength = -1]
 
         AssertSql(
             """
-@__blogId_0='1'
+@blogId='1'
 
 SELECT [b].[Url]
 FROM [Blog] AS [b]
-INNER JOIN [Post] AS [p] ON [b].[BlogId] = [p].[BlogId] AND [b].[IsVisible] = N'Y' AND [b].[BlogId] = @__blogId_0
+INNER JOIN [Post] AS [p] ON [b].[BlogId] = [p].[BlogId] AND [b].[IsVisible] = N'Y' AND [b].[BlogId] = @blogId
 WHERE [b].[IsVisible] = N'Y'
 """);
     }
@@ -247,11 +245,11 @@ WHERE [b].[IsVisible] = N'Y'
 
         AssertSql(
             """
-@__blogId_0='1'
+@blogId='1'
 
 SELECT [b].[Url]
 FROM [Blog] AS [b]
-LEFT JOIN [Post] AS [p] ON [b].[BlogId] = [p].[BlogId] AND [b].[IsVisible] = N'Y' AND [b].[BlogId] = @__blogId_0
+LEFT JOIN [Post] AS [p] ON [b].[BlogId] = [p].[BlogId] AND [b].[IsVisible] = N'Y' AND [b].[BlogId] = @blogId
 WHERE [b].[IsVisible] = N'Y'
 """);
     }
@@ -282,7 +280,7 @@ WHERE [b].[IsVisible] = N'N'
 """);
     }
 
-    public async override Task Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_EFProperty()
+    public override async Task Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_EFProperty()
     {
         await base.Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_EFProperty();
 
@@ -294,7 +292,7 @@ WHERE [b].[IsVisible] = N'Y'
 """);
     }
 
-    public async override Task Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_indexer()
+    public override async Task Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_indexer()
     {
         await base.Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_indexer();
 
@@ -310,7 +308,7 @@ WHERE [b].[IndexerVisible] = N'Nay'
         // Return values are not string
         => Task.CompletedTask;
 
-    public async override Task Id_object_as_entity_key()
+    public override async Task Id_object_as_entity_key()
     {
         await base.Id_object_as_entity_key();
 

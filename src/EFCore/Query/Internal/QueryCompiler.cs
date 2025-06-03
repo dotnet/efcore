@@ -137,10 +137,9 @@ public class QueryCompiler : IQueryCompiler
     {
         query = new ExpressionTreeFuncletizer(_model, _evaluatableExpressionFilter, _contextType, generateContextAccessors: false, _logger)
             .ExtractParameters(
-                query, _queryContextFactory.Create(), parameterize: true, clearParameterizedValues: true, precompiledQuery: true,
-                out var nonNullableReferenceTypeParameters);
+                query, _queryContextFactory.Create(), parameterize: true, clearParameterizedValues: true, precompiledQuery: true);
 
-        return _database.CompileQueryExpression<TResult>(query, async, nonNullableReferenceTypeParameters);
+        return _database.CompileQueryExpression<TResult>(query, async);
     }
 
     /// <summary>

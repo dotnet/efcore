@@ -20,9 +20,7 @@ public class QueryCompilationContextFactory : IQueryCompilationContextFactory
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public QueryCompilationContextFactory(QueryCompilationContextDependencies dependencies)
-    {
-        Dependencies = dependencies;
-    }
+        => Dependencies = dependencies;
 
     /// <summary>
     ///     Dependencies for this service.
@@ -45,6 +43,6 @@ public class QueryCompilationContextFactory : IQueryCompilationContextFactory
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [Experimental(EFDiagnostics.PrecompiledQueryExperimental)]
-    public virtual QueryCompilationContext CreatePrecompiled(bool async, IReadOnlySet<string> nonNullableReferenceTypeParameters)
-        => new(Dependencies, async, precompiling: true, nonNullableReferenceTypeParameters);
+    public virtual QueryCompilationContext CreatePrecompiled(bool async)
+        => new(Dependencies, async, precompiling: true);
 }

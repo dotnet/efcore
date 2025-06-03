@@ -1,6 +1,7 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
@@ -463,7 +464,11 @@ public abstract partial class ModelBuilderTest
     {
         public int Id { get; set; }
 
-        public List<DependentEntity>? InverseNav { get; set; }
+        public MyList<DependentEntity>? InverseNav { get; set; }
+    }
+
+    protected class MyList<T> : List<T>
+    {
     }
 
     protected class DependentEntity
@@ -704,7 +709,7 @@ public abstract partial class ModelBuilderTest
 
         public virtual required ICollection<DoctorViewModel> Medics { get; set; }
 
-        public Dictionary<string, string>? CustomValues { get; set; } = new();
+        public Dictionary<string, string>? CustomValues { get; set; } = [];
     }
 
     protected abstract class PersonBaseViewModel
@@ -780,9 +785,12 @@ public abstract partial class ModelBuilderTest
         public ValueCategory? Category { get; set; }
     }
 
-    protected class CustomId
+    protected class CustomId : IEnumerable<byte>
     {
         public int Id { get; set; }
+
+        public IEnumerator<byte> GetEnumerator() => throw new NotImplementedException();
+        IEnumerator IEnumerable.GetEnumerator() => throw new NotImplementedException();
     }
 
     protected class ValueCategory
@@ -844,22 +852,26 @@ public abstract partial class ModelBuilderTest
     protected class BaseOwner
     {
         public int Id { get; set; }
-        public required OwnedTypeInheritance1 Owned1 { get; set; }
-        public required OwnedTypeInheritance2 Owned2 { get; set; }
+        public OwnedTypeInheritance Owned1 { get; set; } = null!;
+        public OwnedTypeInheritance Owned2 { get; set; } = null!;
+        public OwnedTypeInheritanceWithReference OwnedWithRef1 { get; set; } = null!;
+        public OwnedTypeInheritanceWithReference OwnedWithRef2 { get; set; } = null!;
     }
 
     protected class DerivedOwner : BaseOwner;
 
     [Owned]
-    protected class OwnedTypeInheritance1
+    protected class OwnedTypeInheritance
     {
         public string? Value { get; set; }
     }
 
     [Owned]
-    protected class OwnedTypeInheritance2
+    protected class OwnedTypeInheritanceWithReference
     {
         public string? Value { get; set; }
+        public int OwnerId { get; set; }
+        public BaseOwner? Owner { get; set; }
     }
 
     protected interface IReplaceable
@@ -874,11 +886,13 @@ public abstract partial class ModelBuilderTest
 
     protected class ComplexProperties : ComplexPropertiesBase
     {
-        public required Customer Customer { get; set; }
+        public Customer? Customer { get; set; }
+        public List<Customer> Customers { get; set; } = [];
         public required DoubleProperty DoubleProperty { get; set; }
         public required IndexedClass IndexedClass { get; set; }
         public required Quarks Quarks { get; set; }
         public CollectionQuarks CollectionQuarks { get; set; } = null!;
+        public required List<Quarks> QuarksCollection { get; set; } = [];
 
         [NotMapped]
         public required DynamicProperty DynamicProperty { get; set; }
@@ -896,6 +910,7 @@ public abstract partial class ModelBuilderTest
         public ProductLabel Label { get; set; }
         public ProductLabel OldLabel { get; set; }
         public (string, int) Tuple { get; set; }
+        public List<(string, int)> Tuples { get; set; } = [];
     }
 
     protected struct ProductLabel
@@ -1002,7 +1017,7 @@ public abstract partial class ModelBuilderTest
 
     protected class IndexedClassByDictionary
     {
-        private readonly Dictionary<string, object?> _indexerData = new();
+        private readonly Dictionary<string, object?> _indexerData = [];
 
         public int Id { get; set; }
 
@@ -1031,12 +1046,7 @@ public abstract partial class ModelBuilderTest
 
     protected class ManyToManyNavPrincipal
     {
-        private readonly List<NavDependent> _randomField;
-
-        public ManyToManyNavPrincipal()
-        {
-            _randomField = [];
-        }
+        private readonly List<NavDependent> _randomField = [];
 
         public int Id { get; set; }
         public string? Name { get; set; }
@@ -1109,16 +1119,23 @@ public abstract partial class ModelBuilderTest
 
     protected class Ownee1
     {
+        public string Data { get; private set; } = "";
+
+        public OwnerOfOwnees Owner { get; private set; } = null!;
         public Ownee3? NewOwnee3 { get; private set; }
     }
 
     protected class Ownee2
     {
+        public Guid Data { get; private set; }
+
         public Ownee3? Ownee3 { get; private set; }
     }
 
     protected class Ownee3
     {
+        public DateTime Data { get; private set; }
+
         public string? Name { get; private set; }
     }
 
@@ -1186,6 +1203,7 @@ public abstract partial class ModelBuilderTest
         public OneToManyOwnerWithField? OneToManyOwner { get; set; }
     }
 
+    [Index(nameof(OwnedDependent))]
     protected class OneToOneOwnerWithField
     {
         public int Id;

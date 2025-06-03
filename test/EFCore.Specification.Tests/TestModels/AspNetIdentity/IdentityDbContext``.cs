@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.AspNetIdentity;
 
 public abstract class
     IdentityDbContext<TUser, TRole, TKey, TUserClaim, TUserRole, TUserLogin, TRoleClaim, TUserToken> : IdentityUserContext<TUser, TKey,
-        TUserClaim, TUserLogin, TUserToken>
+    TUserClaim, TUserLogin, TUserToken>
     where TUser : IdentityUser<TKey>
     where TRole : IdentityRole<TKey>
     where TKey : IEquatable<TKey>

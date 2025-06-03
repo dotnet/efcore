@@ -27,39 +27,42 @@ public class PrimitiveCollectionsQueryCosmosTest : PrimitiveCollectionsQueryTest
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND c["Int"] IN (10, 999))
+WHERE c["Int"] IN (10, 999)
 """);
             });
 
-    public override Task Inline_collection_of_nullable_ints_Contains(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Inline_collection_of_nullable_ints_Contains(a);
-
-                AssertSql(
-                    """
-SELECT c
-FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND c["NullableInt"] IN (10, 999))
-""");
-            });
-
-    public override Task Inline_collection_of_nullable_ints_Contains_null(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Inline_collection_of_nullable_ints_Contains_null(a);
-
-                AssertSql(
-                    """
-SELECT c
-FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND c["NullableInt"] IN (null, 999))
-""");
-            });
+// TODO: The base implementations no longer compile since https://github.com/dotnet/runtime/pull/110197 (Contains overload added with
+// optional parameter, not supported in expression trees). #35547 is tracking on the EF side.
+//
+//     public override Task Inline_collection_of_nullable_ints_Contains(bool async)
+//         => CosmosTestHelpers.Instance.NoSyncTest(
+//             async, async a =>
+//             {
+//                 await base.Inline_collection_of_nullable_ints_Contains(a);
+//
+//                 AssertSql(
+//                     """
+// SELECT VALUE c
+// FROM root c
+// WHERE c["NullableInt"] IN (10, 999)
+// """);
+//             });
+//
+//     public override Task Inline_collection_of_nullable_ints_Contains_null(bool async)
+//         => CosmosTestHelpers.Instance.NoSyncTest(
+//             async, async a =>
+//             {
+//                 await base.Inline_collection_of_nullable_ints_Contains_null(a);
+//
+//                 AssertSql(
+//                     """
+// SELECT VALUE c
+// FROM root c
+// WHERE c["NullableInt"] IN (null, 999)
+// """);
+//             });
 
     public override Task Inline_collection_Count_with_zero_values(bool async)
         => CosmosTestHelpers.Instance.NoSyncTest(
@@ -69,12 +72,12 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND c["NullableInt"] 
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((
+WHERE ((
     SELECT VALUE COUNT(1)
-    FROM i IN (SELECT VALUE [])
-    WHERE (i > c["Id"])) = 1))
+    FROM a IN (SELECT VALUE [])
+    WHERE (a > c["Id"])) = 1)
 """);
             });
 
@@ -86,12 +89,12 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((
+WHERE ((
     SELECT VALUE COUNT(1)
-    FROM i IN (SELECT VALUE [2])
-    WHERE (i > c["Id"])) = 1))
+    FROM a IN (SELECT VALUE [2])
+    WHERE (a > c["Id"])) = 1)
 """);
             });
 
@@ -103,12 +106,12 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((
+WHERE ((
     SELECT VALUE COUNT(1)
-    FROM i IN (SELECT VALUE [2, 999])
-    WHERE (i > c["Id"])) = 1))
+    FROM a IN (SELECT VALUE [2, 999])
+    WHERE (a > c["Id"])) = 1)
 """);
             });
 
@@ -120,12 +123,12 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((
+WHERE ((
     SELECT VALUE COUNT(1)
-    FROM i IN (SELECT VALUE [2, 999, 1000])
-    WHERE (i > c["Id"])) = 2))
+    FROM a IN (SELECT VALUE [2, 999, 1000])
+    WHERE (a > c["Id"])) = 2)
 """);
             });
 
@@ -137,9 +140,9 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND false)
+WHERE false
 """);
             });
 
@@ -149,12 +152,7 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND false)
             {
                 await base.Inline_collection_Contains_with_one_value(a);
 
-                AssertSql(
-                    """
-SELECT c
-FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND c["Id"] IN (2))
-""");
+                AssertSql("ReadItem(None, 2)");
             });
 
     public override Task Inline_collection_Contains_with_two_values(bool async)
@@ -165,9 +163,9 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND c["Id"] IN (2))
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND c["Id"] IN (2, 999))
+WHERE c["Id"] IN (2, 999)
 """);
             });
 
@@ -179,23 +177,9 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND c["Id"] IN (2, 99
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND c["Id"] IN (2, 999, 1000))
-""");
-            });
-
-    public override Task Inline_collection_Contains_with_EF_Constant(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Inline_collection_Contains_with_EF_Constant(a);
-
-                AssertSql(
-                    """
-SELECT c
-FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND c["Id"] IN (2, 999, 1000))
+WHERE c["Id"] IN (2, 999, 1000)
 """);
             });
 
@@ -207,12 +191,12 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND c["Id"] IN (2, 99
 
                 AssertSql(
                     """
-@__i_0='2'
-@__j_1='999'
+@i='2'
+@j='999'
 
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND c["Id"] IN (@__i_0, @__j_1))
+WHERE c["Id"] IN (@i, @j)
 """);
             });
 
@@ -224,11 +208,11 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND c["Id"] IN (@__i_
 
                 AssertSql(
                     """
-@__j_0='999'
+@j='999'
 
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND c["Id"] IN (2, @__j_0))
+WHERE c["Id"] IN (2, @j)
 """);
             });
 
@@ -240,11 +224,11 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND c["Id"] IN (2, @_
 
                 AssertSql(
                     """
-@__i_0='11'
+@i='11'
 
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND c["Int"] IN (999, @__i_0, c["Id"], (c["Id"] + c["Int"])))
+WHERE c["Int"] IN (999, @i, c["Id"], (c["Id"] + c["Int"]))
 """);
             });
 
@@ -256,11 +240,11 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND c["Int"] IN (999,
 
                 AssertSql(
                     """
-@__i_0='11'
+@i='11'
 
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND c["Int"] IN (999, @__i_0, c["Id"], (c["Id"] + c["Int"])))
+WHERE c["Int"] IN (999, @i, c["Id"], (c["Id"] + c["Int"]))
 """);
             });
 
@@ -272,9 +256,9 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND c["Int"] IN (999,
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND c["Id"] IN (2, 999))
+WHERE c["Id"] IN (2, 999)
 """);
             });
 
@@ -286,9 +270,9 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND c["Id"] IN (2, 99
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND c["Id"] NOT IN (2, 999))
+WHERE c["Id"] NOT IN (2, 999)
 """);
             });
 
@@ -300,11 +284,11 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND c["Id"] NOT IN (2
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((
-    SELECT VALUE MIN(i)
-    FROM i IN (SELECT VALUE [30, c["Int"]])) = 30))
+WHERE ((
+    SELECT VALUE MIN(a)
+    FROM a IN (SELECT VALUE [30, c["Int"]])) = 30)
 """);
             });
 
@@ -316,11 +300,11 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((
-    SELECT VALUE MIN(i)
-    FROM i IN (SELECT VALUE [30, c["Int"]])) = 30))
+WHERE ((
+    SELECT VALUE MIN(a)
+    FROM a IN (SELECT VALUE [30, c["Int"]])) = 30)
 """);
             });
 
@@ -332,11 +316,11 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((
-    SELECT VALUE MAX(i)
-    FROM i IN (SELECT VALUE [30, c["Int"]])) = 30))
+WHERE ((
+    SELECT VALUE MAX(a)
+    FROM a IN (SELECT VALUE [30, c["Int"]])) = 30)
 """);
             });
 
@@ -348,11 +332,11 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((
-    SELECT VALUE MAX(i)
-    FROM i IN (SELECT VALUE [30, c["Int"]])) = 30))
+WHERE ((
+    SELECT VALUE MAX(a)
+    FROM a IN (SELECT VALUE [30, c["Int"]])) = 30)
 """);
             });
 
@@ -364,13 +348,13 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((
 
                 AssertSql(
                     """
-@__i_0='25'
+@i='25'
 
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((
-    SELECT VALUE MIN(i)
-    FROM i IN (SELECT VALUE [30, c["Int"], @__i_0])) = 25))
+WHERE ((
+    SELECT VALUE MIN(a)
+    FROM a IN (SELECT VALUE [30, c["Int"], @i])) = 25)
 """);
             });
 
@@ -382,13 +366,13 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((
 
                 AssertSql(
                     """
-@__i_0='25'
+@i='25'
 
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((
-    SELECT VALUE MIN(i)
-    FROM i IN (SELECT VALUE [30, c["Int"], @__i_0])) = 25))
+WHERE ((
+    SELECT VALUE MIN(a)
+    FROM a IN (SELECT VALUE [30, c["Int"], @i])) = 25)
 """);
             });
 
@@ -396,17 +380,17 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((
         => CosmosTestHelpers.Instance.NoSyncTest(
             async, async a =>
             {
-        await base.Inline_collection_Max_with_three_values(a);
+                await base.Inline_collection_Max_with_three_values(a);
 
-        AssertSql(
-            """
-@__i_0='35'
+                AssertSql(
+                    """
+@i='35'
 
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((
-    SELECT VALUE MAX(i)
-    FROM i IN (SELECT VALUE [30, c["Int"], @__i_0])) = 35))
+WHERE ((
+    SELECT VALUE MAX(a)
+    FROM a IN (SELECT VALUE [30, c["Int"], @i])) = 35)
 """);
             });
 
@@ -418,13 +402,156 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((
 
                 AssertSql(
                     """
-@__i_0='35'
+@i='35'
 
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((
-    SELECT VALUE MAX(i)
-    FROM i IN (SELECT VALUE [30, c["Int"], @__i_0])) = 35))
+WHERE ((
+    SELECT VALUE MAX(a)
+    FROM a IN (SELECT VALUE [30, c["Int"], @i])) = 35)
+""");
+            });
+
+    public override Task Inline_collection_of_nullable_value_type_Min(bool async)
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async a =>
+            {
+                await base.Inline_collection_of_nullable_value_type_Min(a);
+
+                AssertSql(
+                    """
+@i='25'
+
+SELECT VALUE c
+FROM root c
+WHERE ((
+    SELECT VALUE MIN(a)
+    FROM a IN (SELECT VALUE [30, c["Int"], @i])) = 25)
+""");
+            });
+
+    public override Task Inline_collection_of_nullable_value_type_Max(bool async)
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async a =>
+            {
+                await base.Inline_collection_of_nullable_value_type_Max(a);
+
+                AssertSql(
+                    """
+@i='35'
+
+SELECT VALUE c
+FROM root c
+WHERE ((
+    SELECT VALUE MAX(a)
+    FROM a IN (SELECT VALUE [30, c["Int"], @i])) = 35)
+""");
+            });
+
+    public override async Task Inline_collection_of_nullable_value_type_with_null_Min(bool async)
+    {
+        // Always throws for sync.
+        if (async)
+        {
+            // Cosmos MIN()/MAX() sort nulls as smaller than ints (https://learn.microsoft.com/azure/cosmos-db/nosql/query/min);
+            // since some of the columns included contain null, MIN() returns null as opposed to the smallest number.
+            // In relational, aggregate MIN()/MAX() ignores nulls.
+            await Assert.ThrowsAsync<EqualException>(() => base.Inline_collection_of_nullable_value_type_with_null_Min(async));
+
+            AssertSql(
+                """
+@i=null
+
+SELECT VALUE c
+FROM root c
+WHERE ((
+    SELECT VALUE MIN(a)
+    FROM a IN (SELECT VALUE [30, c["NullableInt"], @i])) = 30)
+""");
+        }
+    }
+
+    public override Task Inline_collection_of_nullable_value_type_with_null_Max(bool async)
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async a =>
+            {
+                await base.Inline_collection_of_nullable_value_type_with_null_Max(a);
+
+                AssertSql(
+                    """
+@i=null
+
+SELECT VALUE c
+FROM root c
+WHERE ((
+    SELECT VALUE MAX(a)
+    FROM a IN (SELECT VALUE [30, c["NullableInt"], @i])) = 30)
+""");
+            });
+
+    public override Task Inline_collection_with_single_parameter_element_Contains(bool async)
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async a =>
+            {
+                await base.Inline_collection_with_single_parameter_element_Contains(a);
+
+                AssertSql(
+                    """
+ReadItem(None, 2)
+""");
+            });
+
+    public override Task Inline_collection_with_single_parameter_element_Count(bool async)
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async a =>
+            {
+                await base.Inline_collection_with_single_parameter_element_Count(a);
+
+                AssertSql(
+                    """
+@i='2'
+
+SELECT VALUE c
+FROM root c
+WHERE ((
+    SELECT VALUE COUNT(1)
+    FROM a IN (SELECT VALUE [@i])
+    WHERE (a > c["Id"])) = 1)
+""");
+            });
+
+    public override Task Inline_collection_Contains_with_EF_Parameter(bool async)
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async a =>
+            {
+                await base.Inline_collection_Contains_with_EF_Parameter(async);
+
+                AssertSql(
+                    """
+@p='[2,999,1000]'
+
+SELECT VALUE c
+FROM root c
+WHERE ARRAY_CONTAINS(@p, c["Id"])
+""");
+            });
+
+    public override Task Inline_collection_Count_with_column_predicate_with_EF_Parameter(bool async)
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async a =>
+            {
+                await base.Inline_collection_Count_with_column_predicate_with_EF_Parameter(async);
+
+                AssertSql(
+                    """
+@p='[2,999,1000]'
+
+SELECT VALUE c
+FROM root c
+WHERE ((
+    SELECT VALUE COUNT(1)
+    FROM p IN (SELECT VALUE @p)
+    WHERE (p > c["Id"])) = 2)
 """);
             });
 
@@ -436,14 +563,14 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((
 
                 AssertSql(
                     """
-@__ids_0='[2,999]'
+@ids='[2,999]'
 
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((
+WHERE ((
     SELECT VALUE COUNT(1)
-    FROM i IN (SELECT VALUE @__ids_0)
-    WHERE (i > c["Id"])) = 1))
+    FROM i IN (SELECT VALUE @ids)
+    WHERE (i > c["Id"])) = 1)
 """);
             });
 
@@ -455,19 +582,19 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((
 
                 AssertSql(
                     """
-@__ints_0='[10,999]'
+@ints='[10,999]'
 
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ARRAY_CONTAINS(@__ints_0, c["Int"]))
+WHERE ARRAY_CONTAINS(@ints, c["Int"])
 """,
                     //
                     """
-@__ints_0='[10,999]'
+@ints='[10,999]'
 
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND NOT(ARRAY_CONTAINS(@__ints_0, c["Int"])))
+WHERE NOT(ARRAY_CONTAINS(@ints, c["Int"]))
 """);
             });
 
@@ -479,19 +606,43 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND NOT(ARRAY_CONTAIN
 
                 AssertSql(
                     """
-@__ints_0='[10,999]'
+@ints='[10,999]'
 
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ARRAY_CONTAINS(@__ints_0, c["Int"]))
+WHERE ARRAY_CONTAINS(@ints, c["Int"])
 """,
                     //
                     """
-@__ints_0='[10,999]'
+@ints='[10,999]'
 
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND NOT(ARRAY_CONTAINS(@__ints_0, c["Int"])))
+WHERE NOT(ARRAY_CONTAINS(@ints, c["Int"]))
+""");
+            });
+
+    public override Task Parameter_collection_ImmutableArray_of_ints_Contains_int(bool async)
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async a =>
+            {
+                await base.Parameter_collection_ImmutableArray_of_ints_Contains_int(a);
+
+                AssertSql(
+                    """
+@ints='[10,999]'
+
+SELECT VALUE c
+FROM root c
+WHERE ARRAY_CONTAINS(@ints, c["Int"])
+""",
+                    //
+                    """
+@ints='[10,999]'
+
+SELECT VALUE c
+FROM root c
+WHERE NOT(ARRAY_CONTAINS(@ints, c["Int"]))
 """);
             });
 
@@ -503,69 +654,72 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND NOT(ARRAY_CONTAIN
 
                 AssertSql(
                     """
-@__ints_0='[10,999]'
+@ints='[10,999]'
 
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ARRAY_CONTAINS(@__ints_0, c["NullableInt"]))
+WHERE ARRAY_CONTAINS(@ints, c["NullableInt"])
 """,
                     //
                     """
-@__ints_0='[10,999]'
+@ints='[10,999]'
 
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND NOT(ARRAY_CONTAINS(@__ints_0, c["NullableInt"])))
+WHERE NOT(ARRAY_CONTAINS(@ints, c["NullableInt"]))
 """);
             });
 
-    public override Task Parameter_collection_of_nullable_ints_Contains_int(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Parameter_collection_of_nullable_ints_Contains_int(a);
-
-                AssertSql(
-                    """
-@__nullableInts_0='[10,999]'
-
-SELECT c
-FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ARRAY_CONTAINS(@__nullableInts_0, c["Int"]))
-""",
-                    //
-                    """
-@__nullableInts_0='[10,999]'
-
-SELECT c
-FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND NOT(ARRAY_CONTAINS(@__nullableInts_0, c["Int"])))
-""");
-            });
-
-    public override Task Parameter_collection_of_nullable_ints_Contains_nullable_int(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Parameter_collection_of_nullable_ints_Contains_nullable_int(a);
-
-                AssertSql(
-                    """
-@__nullableInts_0='[null,999]'
-
-SELECT c
-FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ARRAY_CONTAINS(@__nullableInts_0, c["NullableInt"]))
-""",
-                    //
-                    """
-@__nullableInts_0='[null,999]'
-
-SELECT c
-FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND NOT(ARRAY_CONTAINS(@__nullableInts_0, c["NullableInt"])))
-""");
-            });
+// TODO: The base implementations no longer compile since https://github.com/dotnet/runtime/pull/110197 (Contains overload added with
+// optional parameter, not supported in expression trees). #35547 is tracking on the EF side.
+//
+//     public override Task Parameter_collection_of_nullable_ints_Contains_int(bool async)
+//         => CosmosTestHelpers.Instance.NoSyncTest(
+//             async, async a =>
+//             {
+//                 await base.Parameter_collection_of_nullable_ints_Contains_int(a);
+//
+//                 AssertSql(
+//                     """
+// @nullableInts='[10,999]'
+//
+// SELECT VALUE c
+// FROM root c
+// WHERE ARRAY_CONTAINS(@nullableInts, c["Int"])
+// """,
+//                     //
+//                     """
+// @nullableInts='[10,999]'
+//
+// SELECT VALUE c
+// FROM root c
+// WHERE NOT(ARRAY_CONTAINS(@nullableInts, c["Int"]))
+// """);
+//             });
+//
+//     public override Task Parameter_collection_of_nullable_ints_Contains_nullable_int(bool async)
+//         => CosmosTestHelpers.Instance.NoSyncTest(
+//             async, async a =>
+//             {
+//                 await base.Parameter_collection_of_nullable_ints_Contains_nullable_int(a);
+//
+//                 AssertSql(
+//                     """
+// @nullableInts='[null,999]'
+//
+// SELECT VALUE c
+// FROM root c
+// WHERE ARRAY_CONTAINS(@nullableInts, c["NullableInt"])
+// """,
+//                     //
+//                     """
+// @nullableInts='[null,999]'
+//
+// SELECT VALUE c
+// FROM root c
+// WHERE NOT(ARRAY_CONTAINS(@nullableInts, c["NullableInt"]))
+// """);
+//             });
 
     public override Task Parameter_collection_of_strings_Contains_string(bool async)
         => CosmosTestHelpers.Instance.NoSyncTest(
@@ -575,19 +729,19 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND NOT(ARRAY_CONTAIN
 
                 AssertSql(
                     """
-@__strings_0='["10","999"]'
+@strings='["10","999"]'
 
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ARRAY_CONTAINS(@__strings_0, c["String"]))
+WHERE ARRAY_CONTAINS(@strings, c["String"])
 """,
                     //
                     """
-@__strings_0='["10","999"]'
+@strings='["10","999"]'
 
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND NOT(ARRAY_CONTAINS(@__strings_0, c["String"])))
+WHERE NOT(ARRAY_CONTAINS(@strings, c["String"]))
 """);
             });
 
@@ -599,19 +753,19 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND NOT(ARRAY_CONTAIN
 
                 AssertSql(
                     """
-@__strings_0='["10","999"]'
+@strings='["10","999"]'
 
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ARRAY_CONTAINS(@__strings_0, c["NullableString"]))
+WHERE ARRAY_CONTAINS(@strings, c["NullableString"])
 """,
                     //
                     """
-@__strings_0='["10","999"]'
+@strings='["10","999"]'
 
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND NOT(ARRAY_CONTAINS(@__strings_0, c["NullableString"])))
+WHERE NOT(ARRAY_CONTAINS(@strings, c["NullableString"]))
 """);
             });
 
@@ -623,19 +777,19 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND NOT(ARRAY_CONTAIN
 
                 AssertSql(
                     """
-@__strings_0='["10",null]'
+@strings='["10",null]'
 
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ARRAY_CONTAINS(@__strings_0, c["String"]))
+WHERE ARRAY_CONTAINS(@strings, c["String"])
 """,
                     //
                     """
-@__strings_0='["10",null]'
+@strings='["10",null]'
 
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND NOT(ARRAY_CONTAINS(@__strings_0, c["String"])))
+WHERE NOT(ARRAY_CONTAINS(@strings, c["String"]))
 """);
             });
 
@@ -647,19 +801,19 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND NOT(ARRAY_CONTAIN
 
                 AssertSql(
                     """
-@__strings_0='["999",null]'
+@strings='["999",null]'
 
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ARRAY_CONTAINS(@__strings_0, c["NullableString"]))
+WHERE ARRAY_CONTAINS(@strings, c["NullableString"])
 """,
                     //
                     """
-@__strings_0='["999",null]'
+@strings='["999",null]'
 
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND NOT(ARRAY_CONTAINS(@__strings_0, c["NullableString"])))
+WHERE NOT(ARRAY_CONTAINS(@strings, c["NullableString"]))
 """);
             });
 
@@ -671,11 +825,11 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND NOT(ARRAY_CONTAIN
 
                 AssertSql(
                     """
-@__dateTimes_0='["2020-01-10T12:30:00Z","9999-01-01T00:00:00Z"]'
+@dateTimes='["2020-01-10T12:30:00Z","9999-01-01T00:00:00Z"]'
 
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ARRAY_CONTAINS(@__dateTimes_0, c["DateTime"]))
+WHERE ARRAY_CONTAINS(@dateTimes, c["DateTime"])
 """);
             });
 
@@ -687,29 +841,32 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ARRAY_CONTAINS(@_
 
                 AssertSql(
                     """
-@__bools_0='[true]'
+@bools='[true]'
 
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ARRAY_CONTAINS(@__bools_0, c["Bool"]))
+WHERE ARRAY_CONTAINS(@bools, c["Bool"])
 """);
             });
 
-    public override Task Parameter_collection_of_enums_Contains(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Parameter_collection_of_enums_Contains(a);
-
-                AssertSql(
-                    """
-@__enums_0='[0,3]'
-
-SELECT c
-FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ARRAY_CONTAINS(@__enums_0, c["Enum"]))
-""");
-            });
+// TODO: The base implementations no longer compile since https://github.com/dotnet/runtime/pull/110197 (Contains overload added with
+// optional parameter, not supported in expression trees). #35547 is tracking on the EF side.
+//
+//     public override Task Parameter_collection_of_enums_Contains(bool async)
+//         => CosmosTestHelpers.Instance.NoSyncTest(
+//             async, async a =>
+//             {
+//                 await base.Parameter_collection_of_enums_Contains(a);
+//
+//                 AssertSql(
+//                     """
+// @enums='[0,3]'
+//
+// SELECT VALUE c
+// FROM root c
+// WHERE ARRAY_CONTAINS(@enums, c["Enum"])
+// """);
+//             });
 
     public override Task Parameter_collection_null_Contains(bool async)
         => CosmosTestHelpers.Instance.NoSyncTest(
@@ -719,13 +876,37 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ARRAY_CONTAINS(@_
 
                 AssertSql(
                     """
-@__ints_0=null
+@ints=null
 
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ARRAY_CONTAINS(@__ints_0, c["Int"]))
+WHERE ARRAY_CONTAINS(@ints, c["Int"])
 """);
             });
+
+    public override async Task Parameter_collection_Contains_with_EF_Constant(bool async)
+    {
+        // #34327
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
+            () => base.Parameter_collection_Contains_with_EF_Constant(async));
+        Assert.Equal(CoreStrings.EFConstantNotSupported, exception.Message);
+    }
+
+    public override async Task Parameter_collection_Where_with_EF_Constant_Where_Any(bool async)
+    {
+        // #34327
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
+            () => base.Parameter_collection_Where_with_EF_Constant_Where_Any(async));
+        Assert.Equal(CoreStrings.EFConstantNotSupported, exception.Message);
+    }
+
+    public override async Task Parameter_collection_Count_with_column_predicate_with_EF_Constant(bool async)
+    {
+        // #34327
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
+            () => base.Parameter_collection_Count_with_column_predicate_with_EF_Constant(async));
+        Assert.Equal(CoreStrings.EFConstantNotSupported, exception.Message);
+    }
 
     public override Task Column_collection_of_ints_Contains(bool async)
         => CosmosTestHelpers.Instance.NoSyncTest(
@@ -735,39 +916,42 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ARRAY_CONTAINS(@_
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ARRAY_CONTAINS(c["Ints"], 10))
+WHERE ARRAY_CONTAINS(c["Ints"], 10)
 """);
             });
 
-    public override Task Column_collection_of_nullable_ints_Contains(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Column_collection_of_nullable_ints_Contains(a);
-
-                AssertSql(
-                    """
-SELECT c
-FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ARRAY_CONTAINS(c["NullableInts"], 10))
-""");
-            });
-
-    public override Task Column_collection_of_nullable_ints_Contains_null(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Column_collection_of_nullable_ints_Contains_null(a);
-
-                AssertSql(
-                    """
-SELECT c
-FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ARRAY_CONTAINS(c["NullableInts"], null))
-""");
-            });
+// TODO: The base implementations no longer compile since https://github.com/dotnet/runtime/pull/110197 (Contains overload added with
+// optional parameter, not supported in expression trees). #35547 is tracking on the EF side.
+//
+//     public override Task Column_collection_of_nullable_ints_Contains(bool async)
+//         => CosmosTestHelpers.Instance.NoSyncTest(
+//             async, async a =>
+//             {
+//                 await base.Column_collection_of_nullable_ints_Contains(a);
+//
+//                 AssertSql(
+//                     """
+// SELECT VALUE c
+// FROM root c
+// WHERE ARRAY_CONTAINS(c["NullableInts"], 10)
+// """);
+//             });
+//
+//     public override Task Column_collection_of_nullable_ints_Contains_null(bool async)
+//         => CosmosTestHelpers.Instance.NoSyncTest(
+//             async, async a =>
+//             {
+//                 await base.Column_collection_of_nullable_ints_Contains_null(a);
+//
+//                 AssertSql(
+//                     """
+// SELECT VALUE c
+// FROM root c
+// WHERE ARRAY_CONTAINS(c["NullableInts"], null)
+// """);
+//             });
 
     public override Task Column_collection_of_strings_contains_null(bool async)
         => CosmosTestHelpers.Instance.NoSyncTest(
@@ -777,9 +961,9 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ARRAY_CONTAINS(c[
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ARRAY_CONTAINS(c["Strings"], null))
+WHERE ARRAY_CONTAINS(c["Strings"], null)
 """);
             });
 
@@ -791,9 +975,9 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ARRAY_CONTAINS(c[
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ARRAY_CONTAINS(c["NullableStrings"], null))
+WHERE ARRAY_CONTAINS(c["NullableStrings"], null)
 """);
             });
 
@@ -805,9 +989,9 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ARRAY_CONTAINS(c[
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ARRAY_CONTAINS(c["Bools"], true))
+WHERE ARRAY_CONTAINS(c["Bools"], true)
 """);
             });
 
@@ -819,9 +1003,9 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ARRAY_CONTAINS(c[
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (ARRAY_LENGTH(c["Ints"]) = 2))
+WHERE (ARRAY_LENGTH(c["Ints"]) = 2)
 """);
             });
 
@@ -833,9 +1017,9 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (ARRAY_LENGTH(c["
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (ARRAY_LENGTH(c["Ints"]) = 2))
+WHERE (ARRAY_LENGTH(c["Ints"]) = 2)
 """);
             });
 
@@ -847,12 +1031,12 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (ARRAY_LENGTH(c["
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((
+WHERE ((
     SELECT VALUE COUNT(1)
     FROM i IN c["Ints"]
-    WHERE (i > 1)) = 2))
+    WHERE (i > 1)) = 2)
 """);
             });
 
@@ -864,12 +1048,12 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((
+WHERE ((
     SELECT VALUE COUNT(1)
     FROM i IN c["Ints"]
-    WHERE (i > 1)) = 2))
+    WHERE (i > 1)) = 2)
 """);
             });
 
@@ -881,9 +1065,9 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (c["Ints"][1] = 10))
+WHERE (c["Ints"][1] = 10)
 """);
             });
 
@@ -895,9 +1079,9 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (c["Ints"][1] = 1
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (c["Strings"][1] = "10"))
+WHERE (c["Strings"][1] = "10")
 """);
             });
 
@@ -909,9 +1093,9 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (c["Strings"][1] 
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (c["DateTimes"][1] = "2020-01-10T12:30:00Z"))
+WHERE (c["DateTimes"][1] = "2020-01-10T12:30:00Z")
 """);
             });
 
@@ -923,9 +1107,9 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (c["DateTimes"][1
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (c["Ints"][999] = 10))
+WHERE (c["Ints"][999] = 10)
 """);
             });
 
@@ -938,9 +1122,9 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (c["Ints"][999] =
 
             AssertSql(
                 """
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (c["NullableStrings"][2] = c["NullableString"]))
+WHERE (c["NullableStrings"][2] = c["NullableString"])
 """);
         }
     }
@@ -953,9 +1137,9 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (c["NullableStrin
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((ARRAY_LENGTH(c["Strings"]) > 0) AND (c["Strings"][1] = c["NullableString"])))
+WHERE ((ARRAY_LENGTH(c["Strings"]) > 0) AND (c["Strings"][1] = c["NullableString"]))
 """);
             });
 
@@ -971,9 +1155,9 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((ARRAY_LENGTH(c[
 
             AssertSql(
                 """
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ([1, 2, 3][c["Int"]] = 1))
+WHERE ([1, 2, 3][c["Int"]] = 1)
 """);
         }
     }
@@ -990,9 +1174,9 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ([1, 2, 3][c["Int
 
             AssertSql(
                 """
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ([1, c["Int"], 3][c["Int"]] = 1))
+WHERE ([1, c["Int"], 3][c["Int"]] = 1)
 """);
         }
     }
@@ -1009,9 +1193,9 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ([1, c["Int"], 3]
 
             AssertSql(
                 """
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ([1, c["Int"], 3][c["Int"]] = 1))
+WHERE ([1, c["Int"], 3][c["Int"]] = 1)
 """);
         }
     }
@@ -1028,11 +1212,11 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ([1, c["Int"], 3]
 
             AssertSql(
                 """
-@__ints_0='[0,2,3]'
+@ints='[0,2,3]'
 
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (@__ints_0[c["Int"]] = c["Int"]))
+WHERE (@ints[c["Int"]] = c["Int"])
 """);
         }
     }
@@ -1049,11 +1233,11 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (@__ints_0[c["Int
 
             AssertSql(
                 """
-@__ints_0='[1,2,3]'
+@ints='[1,2,3]'
 
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (@__ints_0[c["Int"]] = 1))
+WHERE (@ints[c["Int"]] = 1)
 """);
         }
     }
@@ -1066,9 +1250,9 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (@__ints_0[c["Int
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (c["Ints"][1] = 10))
+WHERE (c["Ints"][1] = 10)
 """);
             });
 
@@ -1080,9 +1264,9 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (c["Ints"][1] = 1
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (c["Ints"][0] = 1))
+WHERE (c["Ints"][0] = 1)
 """);
             });
 
@@ -1094,9 +1278,9 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (c["Ints"][0] = 1
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((c["Ints"][0] ?? 0) = 1))
+WHERE ((c["Ints"][0] ?? 0) = 1)
 """);
             });
 
@@ -1108,9 +1292,9 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((c["Ints"][0] ??
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (c["Ints"][0] = 1))
+WHERE (c["Ints"][0] = 1)
 """);
             });
 
@@ -1122,9 +1306,9 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (c["Ints"][0] = 1
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((c["Ints"][0] ?? 0) = 1))
+WHERE ((c["Ints"][0] ?? 0) = 1)
 """);
             });
 
@@ -1136,9 +1320,9 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((c["Ints"][0] ??
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (ARRAY_LENGTH(ARRAY_SLICE(c["Ints"], 1)) = 2))
+WHERE (ARRAY_LENGTH(ARRAY_SLICE(c["Ints"], 1)) = 2)
 """);
             });
 
@@ -1150,9 +1334,9 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (ARRAY_LENGTH(ARR
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ARRAY_CONTAINS(ARRAY_SLICE(c["Ints"], 0, 2), 11))
+WHERE ARRAY_CONTAINS(ARRAY_SLICE(c["Ints"], 0, 2), 11)
 """);
             });
 
@@ -1164,9 +1348,9 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ARRAY_CONTAINS(AR
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ARRAY_CONTAINS(ARRAY_SLICE(c["Ints"], 1, 2), 11))
+WHERE ARRAY_CONTAINS(ARRAY_SLICE(c["Ints"], 1, 2), 11)
 """);
             });
 
@@ -1178,12 +1362,12 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ARRAY_CONTAINS(AR
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (ARRAY_LENGTH(ARRAY_SLICE(ARRAY(
+WHERE (ARRAY_LENGTH(ARRAY_SLICE(ARRAY(
     SELECT VALUE i
     FROM i IN c["Ints"]
-    WHERE (i > 1)), 1)) = 3))
+    WHERE (i > 1)), 1)) = 3)
 """);
             });
 
@@ -1195,12 +1379,12 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (ARRAY_LENGTH(ARR
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (ARRAY_LENGTH(ARRAY_SLICE(ARRAY(
+WHERE (ARRAY_LENGTH(ARRAY_SLICE(ARRAY(
     SELECT VALUE i
     FROM i IN c["Ints"]
-    WHERE (i > 1)), 0, 2)) = 2))
+    WHERE (i > 1)), 0, 2)) = 2)
 """);
             });
 
@@ -1212,12 +1396,12 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (ARRAY_LENGTH(ARR
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (ARRAY_LENGTH(ARRAY_SLICE(ARRAY(
+WHERE (ARRAY_LENGTH(ARRAY_SLICE(ARRAY(
     SELECT VALUE i
     FROM i IN c["Ints"]
-    WHERE (i > 1)), 1, 2)) = 1))
+    WHERE (i > 1)), 1, 2)) = 1)
 """);
             });
 
@@ -1229,12 +1413,12 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (ARRAY_LENGTH(ARR
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND EXISTS (
+WHERE EXISTS (
     SELECT 1
     FROM i IN c["Ints"]
-    WHERE ((i > 1) AND (i = 11))))
+    WHERE ((i > 1) AND (i = 11)))
 """);
             });
 
@@ -1250,12 +1434,12 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND EXISTS (
 
             AssertSql(
                 """
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (ARRAY(
+WHERE (ARRAY(
     SELECT VALUE i
     FROM i IN c["Ints"]
-    ORDER BY i DESC)[0] = 111))
+    ORDER BY i DESC)[0] = 111)
 """);
         }
     }
@@ -1268,12 +1452,12 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (ARRAY(
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (ARRAY(
+WHERE (ARRAY(
     SELECT VALUE i
     FROM i IN c["Ints"]
-    WHERE (i > 1))[0] = 11))
+    WHERE (i > 1))[0] = 11)
 """);
             });
 
@@ -1285,9 +1469,9 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (ARRAY(
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (ARRAY_LENGTH(c["Ints"]) > 0))
+WHERE (ARRAY_LENGTH(c["Ints"]) > 0)
 """);
             });
 
@@ -1307,10 +1491,9 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (ARRAY_LENGTH(c["
 
                 AssertSql(
                     """
-SELECT a
+SELECT VALUE i
 FROM root c
-JOIN a IN c["Ints"]
-WHERE (c["Discriminator"] = "PrimitiveCollectionsEntity")
+JOIN i IN c["Ints"]
 """);
             });
 
@@ -1322,13 +1505,12 @@ WHERE (c["Discriminator"] = "PrimitiveCollectionsEntity")
 
                 AssertSql(
                     """
-SELECT a
+SELECT VALUE j
 FROM root c
 JOIN (
     SELECT VALUE i
     FROM i IN c["Ints"]
-    WHERE (i > 1)) a
-WHERE (c["Discriminator"] = "PrimitiveCollectionsEntity")
+    WHERE (i > 1)) j
 """);
             });
 
@@ -1353,9 +1535,8 @@ WHERE (c["Discriminator"] = "PrimitiveCollectionsEntity")
 
                 AssertSql(
                     """
-SELECT c["Ints"]
+SELECT VALUE c["Ints"]
 FROM root c
-WHERE (c["Discriminator"] = "PrimitiveCollectionsEntity")
 ORDER BY c["Id"]
 """);
             });
@@ -1384,13 +1565,34 @@ ORDER BY c["Id"]
 
                 AssertSql(
                     """
-@__ints_0='[11,111]'
+@ints='[11,111]'
 
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (ARRAY_LENGTH(ARRAY_CONCAT(@__ints_0, c["Ints"])) = 2))
+WHERE (ARRAY_LENGTH(ARRAY_CONCAT(@ints, c["Ints"])) = 2)
 """);
             });
+
+    public override async Task Parameter_collection_with_type_inference_for_JsonScalarExpression(bool async)
+    {
+        // Always throws for sync.
+        if (async)
+        {
+            // Member indexer (c.Array[c.SomeMember]) isn't supported by Cosmos
+            var exception = await Assert.ThrowsAsync<CosmosException>(
+                () => base.Parameter_collection_with_type_inference_for_JsonScalarExpression(async));
+
+            Assert.Equal(HttpStatusCode.BadRequest, exception.StatusCode);
+
+            AssertSql(
+                """
+@values='["one","two"]'
+
+SELECT VALUE ((c["Id"] != 0) ? @values[(c["Int"] % 2)] : "foo")
+FROM root c
+""");
+        }
+    }
 
     public override Task Column_collection_Union_parameter_collection(bool async)
         => CosmosTestHelpers.Instance.NoSyncTest(
@@ -1400,11 +1602,11 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (ARRAY_LENGTH(ARR
 
                 AssertSql(
                     """
-@__ints_0='[11,111]'
+@ints='[11,111]'
 
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (ARRAY_LENGTH(SetUnion(c["Ints"], @__ints_0)) = 2))
+WHERE (ARRAY_LENGTH(SetUnion(c["Ints"], @ints)) = 2)
 """);
             });
 
@@ -1416,9 +1618,9 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (ARRAY_LENGTH(Set
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (ARRAY_LENGTH(SetIntersect(c["Ints"], [11, 111])) = 2))
+WHERE (ARRAY_LENGTH(SetIntersect(c["Ints"], [11, 111])) = 2)
 """);
             });
 
@@ -1439,12 +1641,12 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (ARRAY_LENGTH(Set
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (ARRAY_LENGTH(SetUnion(ARRAY(
+WHERE (ARRAY_LENGTH(SetUnion(ARRAY(
     SELECT VALUE i
     FROM i IN c["Ints"]
-    WHERE (i > 100)), [50])) = 2))
+    WHERE (i > 100)), [50])) = 2)
 """);
             });
 
@@ -1456,11 +1658,11 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (ARRAY_LENGTH(Set
 
                 AssertSql(
                     """
-@__ints_0='[1,10]'
+@ints='[1,10]'
 
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (c["Ints"] = @__ints_0))
+WHERE (c["Ints"] = @ints)
 """);
             });
 
@@ -1472,11 +1674,11 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (c["Ints"] = @__i
 
                 AssertSql(
                     """
-@__ints_0='[1,10]'
+@ints='[1,10]'
 
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (ARRAY_CONCAT(c["Ints"], @__ints_0) = [1,11,111,1,10]))
+WHERE (ARRAY_CONCAT(c["Ints"], @ints) = [1,11,111,1,10])
 """);
             });
 
@@ -1488,9 +1690,9 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (ARRAY_CONCAT(c["
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (c["Ints"] = [1,10]))
+WHERE (c["Ints"] = [1,10])
 """);
             });
 
@@ -1502,12 +1704,12 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (c["Ints"] = [1,1
 
                 AssertSql(
                     """
-@__i_0='1'
-@__j_1='10'
+@i='1'
+@j='10'
 
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (c["Ints"] = [@__i_0, @__j_1]))
+WHERE (c["Ints"] = [@i, @j])
 """);
             });
 
@@ -1519,12 +1721,12 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (c["Ints"] = [@__
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (ARRAY(
+WHERE (ARRAY(
     SELECT VALUE i
     FROM i IN c["Ints"]
-    WHERE (i != 11)) = [1,111]))
+    WHERE (i != 11)) = [1,111])
 """);
             });
 
@@ -1548,11 +1750,11 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (ARRAY(
 
                 AssertSql(
                     """
-@__Skip_0='[111]'
+@Skip='[111]'
 
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (ARRAY_LENGTH(SetUnion(@__Skip_0, c["Ints"])) = 3))
+WHERE (ARRAY_LENGTH(SetUnion(@Skip, c["Ints"])) = 3)
 """);
             });
 
@@ -1617,9 +1819,8 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (ARRAY_LENGTH(Set
 
                 AssertSql(
                     """
-SELECT c["Ints"]
+SELECT VALUE c["Ints"]
 FROM root c
-WHERE (c["Discriminator"] = "PrimitiveCollectionsEntity")
 ORDER BY c["Id"]
 """);
             });
@@ -1636,12 +1837,11 @@ ORDER BY c["Id"]
 
             AssertSql(
                 """
-SELECT ARRAY(
+SELECT VALUE ARRAY(
     SELECT VALUE i
     FROM i IN c["Ints"]
-    ORDER BY i DESC) AS c
+    ORDER BY i DESC)
 FROM root c
-WHERE (c["Discriminator"] = "PrimitiveCollectionsEntity")
 ORDER BY c["Id"]
 """);
         }
@@ -1655,12 +1855,11 @@ ORDER BY c["Id"]
 
                 AssertSql(
                     """
-SELECT ARRAY(
-    SELECT VALUE i
-    FROM i IN c["DateTimes"]
-    WHERE (DateTimePart("dd", i) != 1)) AS c
+SELECT VALUE ARRAY(
+    SELECT VALUE d
+    FROM d IN c["DateTimes"]
+    WHERE (DateTimePart("dd", d) != 1))
 FROM root c
-WHERE (c["Discriminator"] = "PrimitiveCollectionsEntity")
 ORDER BY c["Id"]
 """);
             });
@@ -1709,11 +1908,10 @@ ORDER BY c["Id"]
 
                 AssertSql(
                     """
-SELECT ARRAY(
+SELECT VALUE ARRAY(
     SELECT DISTINCT VALUE i
-    FROM i IN c["Ints"]) AS c
+    FROM i IN c["Ints"])
 FROM root c
-WHERE (c["Discriminator"] = "PrimitiveCollectionsEntity")
 ORDER BY c["Id"]
 """);
             });
@@ -1728,7 +1926,7 @@ ORDER BY c["Id"]
                     """
 SELECT VALUE {"c" : [c["String"], "foo"]}
 FROM root c
-WHERE (c["Discriminator"] = "PrimitiveCollectionsEntity")
+WHERE (c["$type"] = "PrimitiveCollectionsEntity")
 """);
             });
 
@@ -1738,14 +1936,12 @@ WHERE (c["Discriminator"] = "PrimitiveCollectionsEntity")
             {
                 await base.Project_collection_of_ints_with_ToList_and_FirstOrDefault(a);
 
-                // TODO: Improve SQL, #34081
                 AssertSql(
                     """
-SELECT ARRAY(
+SELECT VALUE ARRAY(
     SELECT VALUE i
-    FROM i IN c["Ints"]) AS c
+    FROM i IN c["Ints"])
 FROM root c
-WHERE (c["Discriminator"] = "PrimitiveCollectionsEntity")
 ORDER BY c["Id"]
 OFFSET 0 LIMIT 1
 """);
@@ -1762,16 +1958,15 @@ OFFSET 0 LIMIT 1
 SELECT VALUE
 {
     "c" : ARRAY(
-        SELECT VALUE i
-        FROM i IN c["NullableInts"]
+        SELECT VALUE n
+        FROM n IN c["NullableInts"]
         WHERE false),
     "c0" : ARRAY(
-        SELECT VALUE i
-        FROM i IN c["NullableInts"]
-        WHERE (i = null))
+        SELECT VALUE n0
+        FROM n0 IN c["NullableInts"]
+        WHERE (n0 = null))
 }
 FROM root c
-WHERE (c["Discriminator"] = "PrimitiveCollectionsEntity")
 ORDER BY c["Id"]
 """);
             });
@@ -1785,7 +1980,6 @@ ORDER BY c["Id"]
 
             Assert.Equal(HttpStatusCode.BadRequest, exception.StatusCode);
 
-            // TODO: Improve SQL, #34081
             AssertSql(
                 """
 SELECT VALUE
@@ -1794,20 +1988,19 @@ SELECT VALUE
         SELECT VALUE i
         FROM i IN c["Ints"]),
     "c0" : ARRAY(
-        SELECT VALUE i
-        FROM i IN c["Ints"]
-        ORDER BY i DESC),
+        SELECT VALUE i0
+        FROM i0 IN c["Ints"]
+        ORDER BY i0 DESC),
     "c1" : ARRAY(
-        SELECT VALUE i
-        FROM i IN c["DateTimes"]
-        WHERE (DateTimePart("dd", i) != 1)),
+        SELECT VALUE d
+        FROM d IN c["DateTimes"]
+        WHERE (DateTimePart("dd", d) != 1)),
     "c2" : ARRAY(
-        SELECT VALUE i
-        FROM i IN c["DateTimes"]
-        WHERE (i > "2000-01-01T00:00:00"))
+        SELECT VALUE d0
+        FROM d0 IN c["DateTimes"]
+        WHERE (d0 > "2000-01-01T00:00:00"))
 }
 FROM root c
-WHERE (c["Discriminator"] = "PrimitiveCollectionsEntity")
 ORDER BY c["Id"]
 """);
         }
@@ -1828,7 +2021,7 @@ SELECT VALUE
     "QueryableElementAt" : c["Strings"][1]
 }
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (c["Id"] < 4))
+WHERE (c["Id"] < 4)
 ORDER BY c["Id"]
 """);
             });
@@ -1842,9 +2035,8 @@ ORDER BY c["Id"]
                 // The following should be SELECT VALUE [c["String"], "foo"], #33779
                 AssertSql(
                     """
-SELECT [c["String"], "foo"] AS c
+SELECT VALUE [c["String"], "foo"]
 FROM root c
-WHERE (c["Discriminator"] = "PrimitiveCollectionsEntity")
 """);
             });
 
@@ -1876,12 +2068,12 @@ WHERE (c["Discriminator"] = "PrimitiveCollectionsEntity")
 
                 AssertSql(
                     """
-@__strings_1='["one","two","three"]'
-@__ints_0='[1,2,3]'
+@strings='["one","two","three"]'
+@ints='[1,2,3]'
 
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ARRAY_CONTAINS(@__strings_1, (ARRAY_CONTAINS(@__ints_0, c["Int"]) ? "one" : "two")))
+WHERE ARRAY_CONTAINS(@strings, (ARRAY_CONTAINS(@ints, c["Int"]) ? "one" : "two"))
 """);
             });
 
@@ -1893,12 +2085,29 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ARRAY_CONTAINS(@_
 
                 AssertSql(
                     """
-@__strings_1='["one","two","three"]'
-@__ints_0='[1,2,3]'
+@strings='["one","two","three"]'
+@ints='[1,2,3]'
 
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ARRAY_CONTAINS(@__strings_1, (ARRAY_CONTAINS(@__ints_0, c["Int"]) ? "one" : "two")))
+WHERE ARRAY_CONTAINS(@strings, (ARRAY_CONTAINS(@ints, c["Int"]) ? "one" : "two"))
+""");
+            });
+
+    public override Task Values_of_enum_casted_to_underlying_value(bool async)
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async a =>
+            {
+                await base.Values_of_enum_casted_to_underlying_value(a);
+
+                AssertSql(
+                    """
+SELECT VALUE c
+FROM root c
+WHERE ((
+    SELECT VALUE COUNT(1)
+    FROM a IN (SELECT VALUE [0, 1, 2, 3])
+    WHERE (a = c["Int"])) > 0)
 """);
             });
 
@@ -1917,9 +2126,9 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ARRAY_CONTAINS(@_
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND IS_DEFINED(c["Ints"][2]))
+WHERE IS_DEFINED(c["Ints"][2])
 """);
             });
 
@@ -1936,13 +2145,89 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND IS_DEFINED(c["Int
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((c["Ints"][2] ?? 999) = 999))
+WHERE ((c["Ints"][2] ?? 999) = 999)
 """);
             });
 
     #endregion Cosmos-specific tests
+
+    public override async Task Parameter_collection_of_structs_Contains_struct(bool async)
+    {
+        // Always throws for sync before getting to the exception to test.
+        if (async)
+        {
+            // Requires collections of converted elements
+            await Assert.ThrowsAsync<InvalidOperationException>(() => base.Parameter_collection_of_structs_Contains_struct(async));
+
+            AssertSql();
+        }
+    }
+
+    public override async Task Parameter_collection_of_structs_Contains_nullable_struct(bool async)
+    {
+        // Always throws for sync before getting to the exception to test.
+        if (async)
+        {
+            // Requires collections of converted elements
+            await Assert.ThrowsAsync<InvalidOperationException>(() => base.Parameter_collection_of_structs_Contains_nullable_struct(async));
+
+            AssertSql();
+        }
+    }
+
+    public override async Task Parameter_collection_of_structs_Contains_nullable_struct_with_nullable_comparer(bool async)
+    {
+        // Always throws for sync before getting to the exception to test.
+        if (async)
+        {
+            // Requires collections of converted elements
+            await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Parameter_collection_of_structs_Contains_nullable_struct_with_nullable_comparer(async));
+
+            AssertSql();
+        }
+    }
+
+    public override async Task Parameter_collection_of_nullable_structs_Contains_struct(bool async)
+    {
+        // Always throws for sync before getting to the exception to test.
+        if (async)
+        {
+            // Requires collections of converted elements
+            await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Parameter_collection_of_nullable_structs_Contains_struct(async));
+
+            AssertSql();
+        }
+    }
+
+    public override async Task Parameter_collection_of_nullable_structs_Contains_nullable_struct(bool async)
+    {
+        // Always throws for sync before getting to the exception to test.
+        if (async)
+        {
+            // Requires collections of converted elements
+            await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Parameter_collection_of_nullable_structs_Contains_nullable_struct(async));
+
+            AssertSql();
+        }
+    }
+
+    public override async Task Parameter_collection_of_nullable_structs_Contains_nullable_struct_with_nullable_comparer(bool async)
+    {
+        // Always throws for sync before getting to the exception to test.
+        if (async)
+        {
+            // Requires collections of converted elements
+            await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Parameter_collection_of_nullable_structs_Contains_nullable_struct_with_nullable_comparer(async));
+
+            AssertSql();
+        }
+    }
 
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()
@@ -1957,8 +2242,17 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((c["Ints"][2] ??
             => CosmosTestStoreFactory.Instance;
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-            => base.AddOptions(builder.ConfigureWarnings(
-                w => w.Ignore(CosmosEventId.NoPartitionKeyDefined)));
+            => base.AddOptions(
+                builder.ConfigureWarnings(
+                    w => w.Ignore(CosmosEventId.NoPartitionKeyDefined)));
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
+        {
+            base.OnModelCreating(modelBuilder, context);
+
+            // Requires element type mapping; Issue #34026
+            modelBuilder.Entity<PrimitiveCollectionsEntity>().Ignore(e => e.Enums);
+        }
     }
 
     private void AssertSql(params string[] expected)

@@ -14,7 +14,8 @@ namespace Microsoft.EntityFrameworkCore.Query;
 [Experimental(EFDiagnostics.PrecompiledQueryExperimental)]
 public class RelationalLiftableConstantFactory(
     LiftableConstantExpressionDependencies dependencies,
-    RelationalLiftableConstantExpressionDependencies relationalDependencies) : LiftableConstantFactory(dependencies), IRelationalLiftableConstantFactory
+    RelationalLiftableConstantExpressionDependencies relationalDependencies)
+    : LiftableConstantFactory(dependencies), IRelationalLiftableConstantFactory
 {
     /// <summary>
     ///     This is an experimental API used by the Entity Framework Core feature and it is not subject to

@@ -4,6 +4,7 @@
 using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
+using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
@@ -31,18 +32,15 @@ public class NorthwindSelectQueryCosmosTest : NorthwindSelectQueryTestBase<North
             async, async a =>
             {
                 await AssertQuery(
-                    async,
+                    a,
                     ss => ss.Set<Order>().Select(o => new { Value = o.OrderID }),
                     e => e.Value);
 
                 AssertSql(
                     """
-SELECT VALUE
-{
-    "Value" : c["OrderID"]
-}
+SELECT VALUE c["OrderID"]
 FROM root c
-WHERE (c["Discriminator"] = "Order")
+WHERE (c["$type"] = "Order")
 """);
             });
 
@@ -60,7 +58,7 @@ SELECT VALUE
     "B" : ((c["OrderID"] / c["OrderID"]) / 2)
 }
 FROM root c
-WHERE (c["Discriminator"] = "Order")
+WHERE (c["$type"] = "Order")
 """);
             });
 
@@ -83,7 +81,7 @@ SELECT VALUE
     "o" : c
 }
 FROM root c
-WHERE (c["Discriminator"] = "Order")
+WHERE (c["$type"] = "Order")
 """);
             });
 
@@ -111,9 +109,8 @@ WHERE (c["Discriminator"] = "Order")
 
                 AssertSql(
                     """
-SELECT c["Region"]
+SELECT VALUE c["Region"]
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
 """);
             });
 
@@ -135,7 +132,7 @@ WHERE (c["Discriminator"] = "Customer")
                     """
 SELECT c["EmployeeID"], c["ReportsTo"], c["Title"]
 FROM root c
-WHERE ((c["Discriminator"] = "Employee") AND (c["EmployeeID"] = 1))
+WHERE (c["EmployeeID"] = 1)
 """);
             });
 
@@ -144,13 +141,12 @@ WHERE ((c["Discriminator"] = "Employee") AND (c["EmployeeID"] = 1))
             async, async a =>
             {
                 await base.Projection_of_entity_type_into_object_array(a);
-
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND STARTSWITH(c["CustomerID"], "A"))
-ORDER BY c["CustomerID"]
+WHERE STARTSWITH(c["id"], "A")
+ORDER BY c["id"]
 """);
             });
 
@@ -167,13 +163,11 @@ ORDER BY c["CustomerID"]
             async, async a =>
             {
                 await base.Projection_of_entity_type_into_object_list(a);
-
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
-ORDER BY c["CustomerID"]
+ORDER BY c["id"]
 """);
             });
 
@@ -185,9 +179,9 @@ ORDER BY c["CustomerID"]
 
                 AssertSql(
                     """
-SELECT [c["EmployeeID"], c["ReportsTo"]] AS c
+SELECT VALUE [c["EmployeeID"], c["ReportsTo"]]
 FROM root c
-WHERE ((c["Discriminator"] = "Employee") AND (c["EmployeeID"] = 1))
+WHERE (c["EmployeeID"] = 1)
 """);
             });
 
@@ -209,12 +203,11 @@ WHERE ((c["Discriminator"] = "Employee") AND (c["EmployeeID"] = 1))
 
             AssertSql(
                 """
-@__boolean_0='false'
+@boolean='false'
 
-SELECT @__boolean_0 AS c
+SELECT VALUE @boolean
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
-ORDER BY @__boolean_0
+ORDER BY @boolean
 """);
         }
     }
@@ -227,9 +220,8 @@ ORDER BY @__boolean_0
 
                 AssertSql(
                     """
-SELECT c["City"]
+SELECT VALUE c["City"]
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
 """);
             });
 
@@ -238,12 +230,10 @@ WHERE (c["Discriminator"] = "Customer")
             async, async a =>
             {
                 await base.Select_anonymous_one(a);
-
                 AssertSql(
                     """
-SELECT c["City"]
+SELECT VALUE c["City"]
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
 """);
             });
 
@@ -257,7 +247,6 @@ WHERE (c["Discriminator"] = "Customer")
                     """
 SELECT c["City"], c["Phone"]
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
 """);
             });
 
@@ -271,7 +260,6 @@ WHERE (c["Discriminator"] = "Customer")
                     """
 SELECT c["City"], c["Phone"], c["Country"]
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
 """);
             });
 
@@ -285,11 +273,10 @@ WHERE (c["Discriminator"] = "Customer")
                     """
 SELECT VALUE
 {
-    "CustomerID" : c["CustomerID"],
+    "CustomerID" : c["id"],
     "ConstantTrue" : true
 }
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
 """);
             });
 
@@ -298,16 +285,14 @@ WHERE (c["Discriminator"] = "Customer")
             async, async a =>
             {
                 await base.Select_anonymous_constant_in_expression(a);
-
                 AssertSql(
                     """
 SELECT VALUE
 {
-    "CustomerID" : c["CustomerID"],
-    "Expression" : (LENGTH(c["CustomerID"]) + 5)
+    "CustomerID" : c["id"],
+    "Expression" : (LENGTH(c["id"]) + 5)
 }
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
 """);
             });
 
@@ -325,7 +310,7 @@ SELECT VALUE
     "IsAvailable" : (c["UnitsInStock"] > 0)
 }
 FROM root c
-WHERE (c["Discriminator"] = "Product")
+WHERE (c["$type"] = "Product")
 """);
             });
 
@@ -339,7 +324,6 @@ WHERE (c["Discriminator"] = "Product")
                     """
 SELECT c["City"], c
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
 """);
             });
 
@@ -348,12 +332,10 @@ WHERE (c["Discriminator"] = "Customer")
             async, async a =>
             {
                 await base.Select_constant_int(a);
-
                 AssertSql(
                     """
-SELECT 0 AS c
+SELECT VALUE 0
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
 """);
             });
 
@@ -365,9 +347,8 @@ WHERE (c["Discriminator"] = "Customer")
 
                 AssertSql(
                     """
-SELECT null AS c
+SELECT VALUE null
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
 """);
             });
 
@@ -376,14 +357,12 @@ WHERE (c["Discriminator"] = "Customer")
             async, async a =>
             {
                 await base.Select_local(a);
-
                 AssertSql(
                     """
-@__x_0='10'
+@x='10'
 
-SELECT @__x_0 AS c
+SELECT VALUE @x
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
 """);
             });
 
@@ -395,12 +374,11 @@ WHERE (c["Discriminator"] = "Customer")
 
                 AssertSql(
                     """
-@__p_0='9'
+@p='9'
 
-SELECT c["EmployeeID"]
+SELECT VALUE c["EmployeeID"]
 FROM root c
-WHERE (c["Discriminator"] = "Employee")
-OFFSET 0 LIMIT @__p_0
+OFFSET 0 LIMIT @p
 """);
             });
 
@@ -409,12 +387,11 @@ OFFSET 0 LIMIT @__p_0
             async, async a =>
             {
                 await base.Select_project_filter(a);
-
                 AssertSql(
                     """
-SELECT c["CompanyName"]
+SELECT VALUE c["CompanyName"]
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND (c["City"] = "London"))
+WHERE (c["City"] = "London")
 """);
             });
 
@@ -426,9 +403,9 @@ WHERE ((c["Discriminator"] = "Customer") AND (c["City"] = "London"))
 
                 AssertSql(
                     """
-SELECT c["City"]
+SELECT VALUE c["City"]
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND (c["City"] = "London"))
+WHERE (c["City"] = "London")
 """);
             });
 
@@ -501,12 +478,11 @@ WHERE ((c["Discriminator"] = "Customer") AND (c["City"] = "London"))
             async, async a =>
             {
                 await base.New_date_time_in_anonymous_type_works(a);
-
                 AssertSql(
                     """
 SELECT 1
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND STARTSWITH(c["CustomerID"], "A"))
+WHERE STARTSWITH(c["id"], "A")
 """);
             });
 
@@ -518,9 +494,9 @@ WHERE ((c["Discriminator"] = "Customer") AND STARTSWITH(c["CustomerID"], "A"))
 
                 AssertSql(
                     """
-SELECT c["OrderID"]
+SELECT VALUE c["OrderID"]
 FROM root c
-WHERE ((c["Discriminator"] = "Order") AND (c["CustomerID"] = "ALFKI"))
+WHERE ((c["$type"] = "Order") AND (c["CustomerID"] = "ALFKI"))
 ORDER BY c["OrderID"]
 """);
             });
@@ -533,9 +509,9 @@ ORDER BY c["OrderID"]
 
                 AssertSql(
                     """
-SELECT c["EmployeeID"]
+SELECT VALUE c["EmployeeID"]
 FROM root c
-WHERE ((c["Discriminator"] = "Order") AND (c["CustomerID"] = "ALFKI"))
+WHERE ((c["$type"] = "Order") AND (c["CustomerID"] = "ALFKI"))
 ORDER BY c["OrderID"]
 """);
             });
@@ -548,9 +524,9 @@ ORDER BY c["OrderID"]
 
                 AssertSql(
                     """
-SELECT c["EmployeeID"]
+SELECT VALUE c["EmployeeID"]
 FROM root c
-WHERE ((c["Discriminator"] = "Order") AND (c["CustomerID"] = "ALFKI"))
+WHERE ((c["$type"] = "Order") AND (c["CustomerID"] = "ALFKI"))
 ORDER BY c["OrderID"]
 """);
             });
@@ -563,9 +539,9 @@ ORDER BY c["OrderID"]
 
                 AssertSql(
                     """
-SELECT c["OrderID"]
+SELECT VALUE c["OrderID"]
 FROM root c
-WHERE ((c["Discriminator"] = "Order") AND (c["CustomerID"] = "ALFKI"))
+WHERE ((c["$type"] = "Order") AND (c["CustomerID"] = "ALFKI"))
 ORDER BY c["OrderID"]
 """);
             });
@@ -578,9 +554,9 @@ ORDER BY c["OrderID"]
 
                 AssertSql(
                     """
-SELECT (c["OrderID"] + c["OrderID"]) AS c
+SELECT VALUE (c["OrderID"] + c["OrderID"])
 FROM root c
-WHERE ((c["Discriminator"] = "Order") AND (c["CustomerID"] = "ALFKI"))
+WHERE ((c["$type"] = "Order") AND (c["CustomerID"] = "ALFKI"))
 ORDER BY c["OrderID"]
 """);
             });
@@ -594,9 +570,9 @@ ORDER BY c["OrderID"]
 
                 AssertSql(
                     """
-SELECT c["OrderID"]
+SELECT VALUE c["OrderID"]
 FROM root c
-WHERE ((c["Discriminator"] = "Order") AND (c["CustomerID"] = "ALFKI"))
+WHERE ((c["$type"] = "Order") AND (c["CustomerID"] = "ALFKI"))
 ORDER BY c["OrderID"]
 """);
             });
@@ -609,9 +585,9 @@ ORDER BY c["OrderID"]
 
                 AssertSql(
                     """
-SELECT -(c["OrderID"]) AS c
+SELECT VALUE -(c["OrderID"])
 FROM root c
-WHERE ((c["Discriminator"] = "Order") AND (c["CustomerID"] = "ALFKI"))
+WHERE ((c["$type"] = "Order") AND (c["CustomerID"] = "ALFKI"))
 ORDER BY c["OrderID"]
 """);
             });
@@ -624,9 +600,9 @@ ORDER BY c["OrderID"]
 
                 AssertSql(
                     """
-SELECT c["OrderID"]
+SELECT VALUE c["OrderID"]
 FROM root c
-WHERE ((c["Discriminator"] = "Order") AND (c["CustomerID"] = "ALFKI"))
+WHERE ((c["$type"] = "Order") AND (c["CustomerID"] = "ALFKI"))
 ORDER BY c["OrderID"]
 """);
             });
@@ -639,9 +615,9 @@ ORDER BY c["OrderID"]
 
                 AssertSql(
                     """
-SELECT LENGTH(c["CustomerID"]) AS c
+SELECT VALUE LENGTH(c["CustomerID"])
 FROM root c
-WHERE ((c["Discriminator"] = "Order") AND (c["CustomerID"] = "ALFKI"))
+WHERE ((c["$type"] = "Order") AND (c["CustomerID"] = "ALFKI"))
 ORDER BY c["OrderID"]
 """);
             });
@@ -654,9 +630,9 @@ ORDER BY c["OrderID"]
 
                 AssertSql(
                     """
-SELECT ABS(c["OrderID"]) AS c
+SELECT VALUE ABS(c["OrderID"])
 FROM root c
-WHERE ((c["Discriminator"] = "Order") AND (c["CustomerID"] = "ALFKI"))
+WHERE ((c["$type"] = "Order") AND (c["CustomerID"] = "ALFKI"))
 ORDER BY c["OrderID"]
 """);
             });
@@ -669,9 +645,9 @@ ORDER BY c["OrderID"]
 
                 AssertSql(
                     """
-SELECT c["OrderID"]
+SELECT VALUE c["OrderID"]
 FROM root c
-WHERE ((c["Discriminator"] = "Order") AND (c["CustomerID"] = "ALFKI"))
+WHERE ((c["$type"] = "Order") AND (c["CustomerID"] = "ALFKI"))
 ORDER BY c["OrderID"]
 """);
             });
@@ -695,9 +671,9 @@ ORDER BY c["OrderID"]
 
                 AssertSql(
                     """
-SELECT ((c["CustomerID"] = null) ? true : (c["OrderID"] < 100)) AS c
+SELECT VALUE ((c["CustomerID"] = null) ? true : (c["OrderID"] < 100))
 FROM root c
-WHERE ((c["Discriminator"] = "Order") AND (c["CustomerID"] = "ALFKI"))
+WHERE ((c["$type"] = "Order") AND (c["CustomerID"] = "ALFKI"))
 """);
             });
 
@@ -813,9 +789,9 @@ WHERE ((c["Discriminator"] = "Order") AND (c["CustomerID"] = "ALFKI"))
 
                 AssertSql(
                     """
-SELECT DateTimePart("yyyy", c["OrderDate"]) AS c
+SELECT VALUE DateTimePart("yyyy", c["OrderDate"])
 FROM root c
-WHERE (c["Discriminator"] = "Order")
+WHERE (c["$type"] = "Order")
 """);
             });
 
@@ -827,9 +803,9 @@ WHERE (c["Discriminator"] = "Order")
 
                 AssertSql(
                     """
-SELECT DateTimePart("mm", c["OrderDate"]) AS c
+SELECT VALUE DateTimePart("mm", c["OrderDate"])
 FROM root c
-WHERE (c["Discriminator"] = "Order")
+WHERE (c["$type"] = "Order")
 """);
             });
 
@@ -842,9 +818,9 @@ WHERE (c["Discriminator"] = "Order")
 
                 AssertSql(
                     """
-SELECT c["OrderDate"]
+SELECT VALUE c["OrderDate"]
 FROM root c
-WHERE (c["Discriminator"] = "Order")
+WHERE (c["$type"] = "Order")
 """);
             });
 
@@ -856,9 +832,9 @@ WHERE (c["Discriminator"] = "Order")
 
                 AssertSql(
                     """
-SELECT DateTimePart("dd", c["OrderDate"]) AS c
+SELECT VALUE DateTimePart("dd", c["OrderDate"])
 FROM root c
-WHERE (c["Discriminator"] = "Order")
+WHERE (c["$type"] = "Order")
 """);
             });
 
@@ -870,9 +846,9 @@ WHERE (c["Discriminator"] = "Order")
 
                 AssertSql(
                     """
-SELECT DateTimePart("hh", c["OrderDate"]) AS c
+SELECT VALUE DateTimePart("hh", c["OrderDate"])
 FROM root c
-WHERE (c["Discriminator"] = "Order")
+WHERE (c["$type"] = "Order")
 """);
             });
 
@@ -884,9 +860,9 @@ WHERE (c["Discriminator"] = "Order")
 
                 AssertSql(
                     """
-SELECT DateTimePart("mi", c["OrderDate"]) AS c
+SELECT VALUE DateTimePart("mi", c["OrderDate"])
 FROM root c
-WHERE (c["Discriminator"] = "Order")
+WHERE (c["$type"] = "Order")
 """);
             });
 
@@ -898,9 +874,9 @@ WHERE (c["Discriminator"] = "Order")
 
                 AssertSql(
                     """
-SELECT DateTimePart("ss", c["OrderDate"]) AS c
+SELECT VALUE DateTimePart("ss", c["OrderDate"])
 FROM root c
-WHERE (c["Discriminator"] = "Order")
+WHERE (c["$type"] = "Order")
 """);
             });
 
@@ -912,9 +888,9 @@ WHERE (c["Discriminator"] = "Order")
 
                 AssertSql(
                     """
-SELECT DateTimePart("ms", c["OrderDate"]) AS c
+SELECT VALUE DateTimePart("ms", c["OrderDate"])
 FROM root c
-WHERE (c["Discriminator"] = "Order")
+WHERE (c["$type"] = "Order")
 """);
             });
 
@@ -926,9 +902,8 @@ WHERE (c["Discriminator"] = "Order")
 
                 AssertSql(
                     """
-SELECT ((c["CustomerID"] = "ALFKI") ? 1 : 2) AS c
+SELECT VALUE ((c["id"] = "ALFKI") ? 1 : 2)
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
 """);
             });
 
@@ -940,9 +915,8 @@ WHERE (c["Discriminator"] = "Customer")
 
                 AssertSql(
                     """
-SELECT ((c["CustomerID"] = "ALFKI") ? 1 : 2) AS c
+SELECT VALUE ((c["id"] = "ALFKI") ? 1 : 2)
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
 """);
             });
 
@@ -954,9 +928,8 @@ WHERE (c["Discriminator"] = "Customer")
 
                 AssertSql(
                     """
-SELECT ((c["CustomerID"] = "ALFKI") ? true : false) AS c
+SELECT VALUE ((c["id"] = "ALFKI") ? true : false)
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
 """);
             });
 
@@ -968,9 +941,9 @@ WHERE (c["Discriminator"] = "Customer")
 
                 AssertSql(
                     """
-SELECT c["OrderDate"]
+SELECT VALUE c["OrderDate"]
 FROM root c
-WHERE (c["Discriminator"] = "Order")
+WHERE (c["$type"] = "Order")
 """);
             });
 
@@ -979,13 +952,11 @@ WHERE (c["Discriminator"] = "Order")
             async, async a =>
             {
                 await base.Anonymous_projection_with_repeated_property_being_ordered(a);
-
                 AssertSql(
                     """
-SELECT c["CustomerID"] AS A
+SELECT VALUE c["id"]
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
-ORDER BY c["CustomerID"]
+ORDER BY c["id"]
 """);
             });
 
@@ -1005,9 +976,9 @@ ORDER BY c["CustomerID"]
 
                 AssertSql(
                     """
-SELECT c["OrderDate"]
+SELECT VALUE c["OrderDate"]
 FROM root c
-WHERE (c["Discriminator"] = "Order")
+WHERE (c["$type"] = "Order")
 """);
             });
 
@@ -1024,12 +995,11 @@ WHERE (c["Discriminator"] = "Order")
             async, async a =>
             {
                 await base.Client_method_in_projection_requiring_materialization_1(a);
-
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND STARTSWITH(c["CustomerID"], "A"))
+WHERE STARTSWITH(c["id"], "A")
 """);
             });
 
@@ -1038,12 +1008,11 @@ WHERE ((c["Discriminator"] = "Customer") AND STARTSWITH(c["CustomerID"], "A"))
             async, async a =>
             {
                 await base.Client_method_in_projection_requiring_materialization_2(a);
-
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND STARTSWITH(c["CustomerID"], "A"))
+WHERE STARTSWITH(c["id"], "A")
 """);
             });
 
@@ -1127,6 +1096,22 @@ WHERE ((c["Discriminator"] = "Customer") AND STARTSWITH(c["CustomerID"], "A"))
         AssertSql();
     }
 
+    public override async Task SelectMany_with_multiple_Take(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.SelectMany_with_multiple_Take(async));
+
+        AssertSql();
+    }
+
+    public override async Task Select_with_multiple_Take(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Select_with_multiple_Take(async));
+
+        AssertSql();
+    }
+
     public override async Task FirstOrDefault_over_empty_collection_of_value_type_returns_correct_results(bool async)
     {
         // Cosmos client evaluation. Issue #17246.
@@ -1205,7 +1190,7 @@ SELECT VALUE
     "c" : (c["OrderID"] + 1000)
 }
 FROM root c
-WHERE ((c["Discriminator"] = "Order") AND (c["OrderID"] = 10250))
+WHERE ((c["$type"] = "Order") AND (c["OrderID"] = 10250))
 """);
             });
 
@@ -1265,9 +1250,9 @@ WHERE ((c["Discriminator"] = "Order") AND (c["OrderID"] = 10250))
 
                 AssertSql(
                     """
-SELECT ((c["EmployeeID"] != null) ? c["EmployeeID"] : 0) AS c
+SELECT VALUE ((c["EmployeeID"] != null) ? c["EmployeeID"] : 0)
 FROM root c
-WHERE (c["Discriminator"] = "Order")
+WHERE (c["$type"] = "Order")
 """);
             });
 
@@ -1295,9 +1280,8 @@ WHERE (c["Discriminator"] = "Order")
 
                 AssertSql(
                     """
-SELECT c["EmployeeID"]
+SELECT VALUE c["EmployeeID"]
 FROM root c
-WHERE (c["Discriminator"] = "Employee")
 ORDER BY c["EmployeeID"] DESC
 """);
             });
@@ -1310,9 +1294,8 @@ ORDER BY c["EmployeeID"] DESC
 
                 AssertSql(
                     """
-SELECT c["EmployeeID"]
+SELECT VALUE c["EmployeeID"]
 FROM root c
-WHERE (c["Discriminator"] = "Employee")
 ORDER BY c["EmployeeID"]
 """);
             });
@@ -1333,10 +1316,9 @@ ORDER BY c["EmployeeID"]
 
                 AssertSql(
                     """
-SELECT (c["City"] = "Seattle") AS c
+SELECT VALUE (c["City"] = "Seattle")
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
-ORDER BY c["CustomerID"]
+ORDER BY c["id"]
 """);
             });
 
@@ -1425,38 +1407,23 @@ ORDER BY c["CustomerID"]
     }
 
     public override Task Projection_take_predicate_projection(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Projection_take_predicate_projection(a);
-
-                AssertSql(
-                    """
-@__p_0='10'
-
-SELECT ((c["CustomerID"] || " ") || c["City"]) AS Aggregate
-FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND STARTSWITH(c["CustomerID"], "A"))
-ORDER BY c["CustomerID"]
-OFFSET 0 LIMIT @__p_0
-""");
-            });
+        => AssertTranslationFailedWithDetails(
+            () => base.Projection_take_predicate_projection(async),
+            CosmosStrings.LimitOffsetNotSupportedInSubqueries);
 
     public override Task Projection_take_projection_doesnt_project_intermittent_column(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
             {
                 await base.Projection_take_projection_doesnt_project_intermittent_column(a);
-
                 AssertSql(
                     """
-@__p_0='10'
+@p='10'
 
-SELECT ((c["CustomerID"] || " ") || c["City"]) AS Aggregate
+SELECT VALUE ((c["id"] || " ") || c["City"])
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
-ORDER BY c["CustomerID"]
-OFFSET 0 LIMIT @__p_0
+ORDER BY c["id"]
+OFFSET 0 LIMIT @p
 """);
             });
 
@@ -1539,7 +1506,7 @@ SELECT VALUE
     "c1" : ((c["OrderDate"] != null) = false)
 }
 FROM root c
-WHERE ((c["Discriminator"] = "Order") AND (c["OrderID"] < 10300))
+WHERE ((c["$type"] = "Order") AND (c["OrderID"] < 10300))
 ORDER BY c["OrderID"]
 """);
             });
@@ -1638,10 +1605,9 @@ ORDER BY c["OrderID"]
 
     public override async Task Reverse_in_join_inner_with_skip(bool async)
     {
-        Assert.Equal(
-            CosmosStrings.ReverseAfterSkipTakeNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Reverse_in_join_inner_with_skip(async))).Message);
+        await AssertTranslationFailedWithDetails(
+            () => base.Reverse_in_join_inner_with_skip(async),
+            CosmosStrings.MultipleRootEntityTypesReferencedInQuery(nameof(Order), nameof(Customer)));
 
         AssertSql();
     }
@@ -1704,9 +1670,8 @@ ORDER BY c["OrderID"]
 
             AssertSql(
                 """
-SELECT c["EmployeeID"]
+SELECT VALUE c["EmployeeID"]
 FROM root c
-WHERE (c["Discriminator"] = "Employee")
 ORDER BY c["EmployeeID"] DESC, c["City"]
 """);
         }
@@ -1745,18 +1710,15 @@ ORDER BY c["EmployeeID"] DESC, c["City"]
             async, async a =>
             {
                 await base.Select_bool_closure(a);
-
                 AssertSql(
                     """
 SELECT 1
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
 """,
                     //
                     """
 SELECT 1
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
 """);
             });
 
@@ -1768,9 +1730,9 @@ WHERE (c["Discriminator"] = "Customer")
 
                 AssertSql(
                     """
-SELECT c["OrderDate"]
+SELECT VALUE c["OrderDate"]
 FROM root c
-WHERE (c["Discriminator"] = "Order")
+WHERE (c["$type"] = "Order")
 """);
             });
 
@@ -1782,9 +1744,8 @@ WHERE (c["Discriminator"] = "Order")
 
                 AssertSql(
                     """
-SELECT c["EmployeeID"]
+SELECT VALUE c["EmployeeID"]
 FROM root c
-WHERE (c["Discriminator"] = "Employee")
 ORDER BY c["EmployeeID"]
 """);
             });
@@ -1816,7 +1777,7 @@ WHERE ((c["Discriminator"] = "Order") AND STARTSWITH(c["CustomerID"], "A"))
                     """
 SELECT c["CustomerID"], (c["CustomerID"] = "ALFKI") AS c, c["OrderID"], LENGTH(c["CustomerID"]) AS c0
 FROM root c
-WHERE (c["Discriminator"] = "Order")
+WHERE (c["$type"] = "Order")
 """);
             });
 
@@ -1828,9 +1789,8 @@ WHERE (c["Discriminator"] = "Order")
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
 """);
             });
 
@@ -1842,9 +1802,9 @@ WHERE (c["Discriminator"] = "Customer")
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = "ALFKI"))
+WHERE (c["id"] = "ALFKI")
 """);
             });
 
@@ -1858,7 +1818,6 @@ WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = "ALFKI"))
                     """
 SELECT c["City"], c["Country"]
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
 """);
             });
 
@@ -1870,9 +1829,9 @@ WHERE (c["Discriminator"] = "Customer")
 
                 AssertSql(
                     """
-SELECT c["OrderID"]
+SELECT VALUE c["OrderID"]
 FROM root c
-WHERE (c["Discriminator"] = "Order")
+WHERE (c["$type"] = "Order")
 """);
             });
 
@@ -1881,12 +1840,10 @@ WHERE (c["Discriminator"] = "Order")
             async, async a =>
             {
                 await base.Select_anonymous_empty(a);
-
                 AssertSql(
                     """
 SELECT 1
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
 """);
             });
 
@@ -1898,9 +1855,8 @@ WHERE (c["Discriminator"] = "Customer")
 
                 AssertSql(
                     """
-SELECT c["EmployeeID"]
+SELECT VALUE c["EmployeeID"]
 FROM root c
-WHERE (c["Discriminator"] = "Employee")
 """);
             });
 
@@ -1909,12 +1865,11 @@ WHERE (c["Discriminator"] = "Employee")
             async, async a =>
             {
                 await base.Select_into(a);
-
                 AssertSql(
                     """
-SELECT c["CustomerID"]
+SELECT VALUE c["id"]
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = "ALFKI"))
+WHERE (c["id"] = "ALFKI")
 """);
             });
 
@@ -1928,7 +1883,7 @@ WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = "ALFKI"))
                     """
 SELECT c, c["City"]
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = "ALFKI"))
+WHERE (c["id"] = "ALFKI")
 """);
             });
 
@@ -1940,25 +1895,28 @@ WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = "ALFKI"))
 
                 AssertSql(
                     """
-SELECT c["OrderDate"]
+SELECT VALUE c["OrderDate"]
 FROM root c
-WHERE (c["Discriminator"] = "Order")
+WHERE (c["$type"] = "Order")
 """);
             });
 
-    public override Task Select_with_complex_expression_that_can_be_funcletized(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Select_with_complex_expression_that_can_be_funcletized(a);
+    public override async Task Select_with_complex_expression_that_can_be_funcletized(bool async)
+    {
+        // Always throws for sync.
+        if (async)
+        {
+            await Assert.ThrowsAsync<EqualException>(
+                () => base.Select_with_complex_expression_that_can_be_funcletized(true));
 
-                AssertSql(
-                    """
-SELECT INDEX_OF(c["Region"], "") AS c
+            AssertSql(
+                """
+SELECT VALUE INDEX_OF(c["Region"], "")
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = "ALFKI"))
+WHERE (c["id"] = "ALFKI")
 """);
-            });
+        }
+    }
 
     public override Task Select_datetime_Ticks_component(bool async)
         => Fixture.NoSyncTest(
@@ -1968,9 +1926,9 @@ WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = "ALFKI"))
 
                 AssertSql(
                     """
-SELECT c["OrderDate"]
+SELECT VALUE c["OrderDate"]
 FROM root c
-WHERE (c["Discriminator"] = "Order")
+WHERE (c["$type"] = "Order")
 """);
             });
 
@@ -1982,9 +1940,8 @@ WHERE (c["Discriminator"] = "Order")
 
                 AssertSql(
                     """
-SELECT 10 AS X
+SELECT VALUE 10
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
 """);
             });
 
@@ -1996,9 +1953,8 @@ WHERE (c["Discriminator"] = "Customer")
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
 """);
             });
 
@@ -2007,12 +1963,66 @@ WHERE (c["Discriminator"] = "Customer")
             async, async a =>
             {
                 await base.Select_over_10_nested_ternary_condition(a);
+                AssertSql(
+                    """
+SELECT VALUE ((c["id"] = "1") ? "01" : ((c["id"] = "2") ? "02" : ((c["id"] = "3") ? "03" : ((c["id"] = "4") ? "04" : ((c["id"] = "5") ? "05" : ((c["id"] = "6") ? "06" : ((c["id"] = "7") ? "07" : ((c["id"] = "8") ? "08" : ((c["id"] = "9") ? "09" : ((c["id"] = "10") ? "10" : ((c["id"] = "11") ? "11" : null)))))))))))
+FROM root c
+""");
+            });
+
+    public override Task Select_conditional_drops_false(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Select_conditional_drops_false(a);
 
                 AssertSql(
                     """
-SELECT ((c["CustomerID"] = "1") ? "01" : ((c["CustomerID"] = "2") ? "02" : ((c["CustomerID"] = "3") ? "03" : ((c["CustomerID"] = "4") ? "04" : ((c["CustomerID"] = "5") ? "05" : ((c["CustomerID"] = "6") ? "06" : ((c["CustomerID"] = "7") ? "07" : ((c["CustomerID"] = "8") ? "08" : ((c["CustomerID"] = "9") ? "09" : ((c["CustomerID"] = "10") ? "10" : ((c["CustomerID"] = "11") ? "11" : null))))))))))) AS c
+SELECT VALUE (((c["OrderID"] % 2) = 0) ? c["OrderID"] : -(c["OrderID"]))
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
+WHERE (c["$type"] = "Order")
+""");
+            });
+
+    public override Task Select_conditional_terminates_at_true(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Select_conditional_terminates_at_true(a);
+
+                AssertSql(
+                    """
+SELECT VALUE (((c["OrderID"] % 2) = 0) ? c["OrderID"] : 0)
+FROM root c
+WHERE (c["$type"] = "Order")
+""");
+            });
+
+    public override Task Select_conditional_flatten_nested_results(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Select_conditional_flatten_nested_results(a);
+
+                AssertSql(
+                    """
+SELECT VALUE (((c["OrderID"] % 2) = 0) ? (((c["OrderID"] % 5) = 0) ? -(c["OrderID"]) : c["OrderID"]) : c["OrderID"])
+FROM root c
+WHERE (c["$type"] = "Order")
+""");
+            });
+
+    public override Task Select_conditional_flatten_nested_tests(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Select_conditional_flatten_nested_tests(a);
+
+                AssertSql(
+                    """
+SELECT VALUE ((((c["OrderID"] % 2) = 0) ? false : true) ? c["OrderID"] : -(c["OrderID"]))
+FROM root c
+WHERE (c["$type"] = "Order")
 """);
             });
 
@@ -2024,9 +2034,9 @@ WHERE (c["Discriminator"] = "Customer")
 
                 AssertSql(
                     """
-SELECT c["CustomerID"]
+SELECT VALUE c["id"]
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND STARTSWITH(c["CustomerID"], "F"))
+WHERE STARTSWITH(c["id"], "F")
 """);
             });
 
@@ -2050,9 +2060,8 @@ WHERE ((c["Discriminator"] = "Customer") AND STARTSWITH(c["CustomerID"], "F"))
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
 """);
             });
 

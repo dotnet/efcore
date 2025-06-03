@@ -156,7 +156,7 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
             case ExpressionType.Coalesce:
             {
                 inferredTypeMapping = typeMapping ?? ExpressionExtensions.InferTypeMapping(left, right);
-                resultType = inferredTypeMapping?.ClrType ?? left.Type;
+                resultType = inferredTypeMapping?.ClrType ?? (left.Type != typeof(object) ? left.Type : right.Type);
                 resultTypeMapping = inferredTypeMapping;
                 break;
             }
@@ -166,7 +166,9 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
                 // TODO: This infers based on the CLR type; need to properly infer based on the element type mapping
                 // TODO: being applied here (e.g. WHERE @p[1] = c.PropertyWithValueConverter). #34026
                 var arrayTypeMapping = left.TypeMapping
-                    ?? (typeMapping is null ? null : typeMappingSource.FindMapping(typeof(IEnumerable<>).MakeGenericType(typeMapping.ClrType)));
+                    ?? (typeMapping is null
+                        ? null
+                        : typeMappingSource.FindMapping(typeof(IEnumerable<>).MakeGenericType(typeMapping.ClrType)));
                 return new SqlBinaryExpression(
                     ExpressionType.ArrayIndex,
                     ApplyTypeMapping(left, arrayTypeMapping),
@@ -315,12 +317,21 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual SqlBinaryExpression? MakeBinary(
+    public virtual SqlExpression? MakeBinary(
         ExpressionType operatorType,
         SqlExpression left,
         SqlExpression right,
-        CoreTypeMapping? typeMapping)
+        CoreTypeMapping? typeMapping,
+        SqlExpression? existingExpression = null)
     {
+        switch (operatorType)
+        {
+            case ExpressionType.AndAlso:
+                return ApplyTypeMapping(AndAlso(left, right, existingExpression), typeMapping);
+            case ExpressionType.OrElse:
+                return ApplyTypeMapping(OrElse(left, right, existingExpression), typeMapping);
+        }
+
         if (!SqlBinaryExpression.IsValidOperator(operatorType))
         {
             return null;
@@ -335,8 +346,6 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
             case ExpressionType.LessThan:
             case ExpressionType.LessThanOrEqual:
             case ExpressionType.NotEqual:
-            case ExpressionType.AndAlso:
-            case ExpressionType.OrElse:
                 returnType = typeof(bool);
                 break;
         }
@@ -351,7 +360,7 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual SqlBinaryExpression Equal(SqlExpression left, SqlExpression right)
+    public virtual SqlExpression Equal(SqlExpression left, SqlExpression right)
         => MakeBinary(ExpressionType.Equal, left, right, null)!;
 
     /// <summary>
@@ -360,7 +369,7 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual SqlBinaryExpression NotEqual(SqlExpression left, SqlExpression right)
+    public virtual SqlExpression NotEqual(SqlExpression left, SqlExpression right)
         => MakeBinary(ExpressionType.NotEqual, left, right, null)!;
 
     /// <summary>
@@ -369,8 +378,8 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual ExistsExpression Exists(SelectExpression subquery)
-        => new(subquery, _boolTypeMapping);
+    public virtual SqlExpression Exists(SelectExpression subquery)
+        => new ExistsExpression(subquery, _boolTypeMapping);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -378,7 +387,7 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual SqlBinaryExpression GreaterThan(SqlExpression left, SqlExpression right)
+    public virtual SqlExpression GreaterThan(SqlExpression left, SqlExpression right)
         => MakeBinary(ExpressionType.GreaterThan, left, right, null)!;
 
     /// <summary>
@@ -387,7 +396,7 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual SqlBinaryExpression GreaterThanOrEqual(SqlExpression left, SqlExpression right)
+    public virtual SqlExpression GreaterThanOrEqual(SqlExpression left, SqlExpression right)
         => MakeBinary(ExpressionType.GreaterThanOrEqual, left, right, null)!;
 
     /// <summary>
@@ -396,7 +405,7 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual SqlBinaryExpression LessThan(SqlExpression left, SqlExpression right)
+    public virtual SqlExpression LessThan(SqlExpression left, SqlExpression right)
         => MakeBinary(ExpressionType.LessThan, left, right, null)!;
 
     /// <summary>
@@ -405,7 +414,7 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual SqlBinaryExpression LessThanOrEqual(SqlExpression left, SqlExpression right)
+    public virtual SqlExpression LessThanOrEqual(SqlExpression left, SqlExpression right)
         => MakeBinary(ExpressionType.LessThanOrEqual, left, right, null)!;
 
     /// <summary>
@@ -414,17 +423,47 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual SqlBinaryExpression AndAlso(SqlExpression left, SqlExpression right)
+    public virtual SqlExpression AndAlso(SqlExpression left, SqlExpression right)
         => MakeBinary(ExpressionType.AndAlso, left, right, null)!;
 
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual SqlBinaryExpression OrElse(SqlExpression left, SqlExpression right)
-        => MakeBinary(ExpressionType.OrElse, left, right, null)!;
+    private SqlExpression AndAlso(SqlExpression left, SqlExpression right, SqlExpression? existingExpression)
+    {
+        // false && x -> false
+        // x && true -> x
+        // x && x -> x
+        if (left is SqlConstantExpression { Value: false }
+            || right is SqlConstantExpression { Value: true }
+            || left.Equals(right))
+        {
+            return left;
+        }
+
+        // true && x -> x
+        // x && false -> false
+        if (left is SqlConstantExpression { Value: true } || right is SqlConstantExpression { Value: false })
+        {
+            return right;
+        }
+
+        // x is null && x is not null -> false
+        // x is not null && x is null -> false
+        if (left is SqlUnaryExpression { OperatorType: ExpressionType.Equal or ExpressionType.NotEqual } leftUnary
+            && right is SqlUnaryExpression { OperatorType: ExpressionType.Equal or ExpressionType.NotEqual } rightUnary
+            && leftUnary.Operand.Equals(rightUnary.Operand))
+        {
+            // the case in which left and right are the same expression is handled above
+            return Constant(false);
+        }
+
+        if (existingExpression is SqlBinaryExpression { OperatorType: ExpressionType.AndAlso } binaryExpr
+            && left == binaryExpr.Left
+            && right == binaryExpr.Right)
+        {
+            return existingExpression;
+        }
+
+        return new SqlBinaryExpression(ExpressionType.AndAlso, left, right, typeof(bool), null);
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -432,7 +471,56 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual SqlBinaryExpression Add(SqlExpression left, SqlExpression right, CoreTypeMapping? typeMapping = null)
+    public virtual SqlExpression OrElse(SqlExpression left, SqlExpression right)
+        => MakeBinary(ExpressionType.OrElse, left, right, null)!;
+
+    private SqlExpression OrElse(SqlExpression left, SqlExpression right, SqlExpression? existingExpression)
+    {
+        // true || x -> true
+        // x || false -> x
+        // x || x -> x
+        if (left is SqlConstantExpression { Value: true }
+            || right is SqlConstantExpression { Value: false }
+            || left.Equals(right))
+        {
+            return left;
+        }
+
+        // false || x -> x
+        // x || true -> true
+        if (left is SqlConstantExpression { Value: false }
+            || right is SqlConstantExpression { Value: true })
+        {
+            return right;
+        }
+
+        // x is null || x is not null -> true
+        // x is not null || x is null -> true
+        if (left is SqlUnaryExpression { OperatorType: ExpressionType.Equal or ExpressionType.NotEqual } leftUnary
+            && right is SqlUnaryExpression { OperatorType: ExpressionType.Equal or ExpressionType.NotEqual } rightUnary
+            && leftUnary.Operand.Equals(rightUnary.Operand))
+        {
+            // the case in which left and right are the same expression is handled above
+            return Constant(true);
+        }
+
+        if (existingExpression is SqlBinaryExpression { OperatorType: ExpressionType.OrElse } binaryExpr
+            && left == binaryExpr.Left
+            && right == binaryExpr.Right)
+        {
+            return existingExpression;
+        }
+
+        return new SqlBinaryExpression(ExpressionType.OrElse, left, right, typeof(bool), null);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual SqlExpression Add(SqlExpression left, SqlExpression right, CoreTypeMapping? typeMapping = null)
         => MakeBinary(ExpressionType.Add, left, right, typeMapping)!;
 
     /// <summary>
@@ -441,7 +529,7 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual SqlBinaryExpression Subtract(SqlExpression left, SqlExpression right, CoreTypeMapping? typeMapping = null)
+    public virtual SqlExpression Subtract(SqlExpression left, SqlExpression right, CoreTypeMapping? typeMapping = null)
         => MakeBinary(ExpressionType.Subtract, left, right, typeMapping)!;
 
     /// <summary>
@@ -450,7 +538,7 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual SqlBinaryExpression Multiply(SqlExpression left, SqlExpression right, CoreTypeMapping? typeMapping = null)
+    public virtual SqlExpression Multiply(SqlExpression left, SqlExpression right, CoreTypeMapping? typeMapping = null)
         => MakeBinary(ExpressionType.Multiply, left, right, typeMapping)!;
 
     /// <summary>
@@ -459,7 +547,7 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual SqlBinaryExpression Divide(SqlExpression left, SqlExpression right, CoreTypeMapping? typeMapping = null)
+    public virtual SqlExpression Divide(SqlExpression left, SqlExpression right, CoreTypeMapping? typeMapping = null)
         => MakeBinary(ExpressionType.Divide, left, right, typeMapping)!;
 
     /// <summary>
@@ -468,7 +556,7 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual SqlBinaryExpression Modulo(SqlExpression left, SqlExpression right, CoreTypeMapping? typeMapping = null)
+    public virtual SqlExpression Modulo(SqlExpression left, SqlExpression right, CoreTypeMapping? typeMapping = null)
         => MakeBinary(ExpressionType.Modulo, left, right, typeMapping)!;
 
     /// <summary>
@@ -477,7 +565,7 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual SqlBinaryExpression And(SqlExpression left, SqlExpression right, CoreTypeMapping? typeMapping = null)
+    public virtual SqlExpression And(SqlExpression left, SqlExpression right, CoreTypeMapping? typeMapping = null)
         => MakeBinary(ExpressionType.And, left, right, typeMapping)!;
 
     /// <summary>
@@ -486,7 +574,7 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual SqlBinaryExpression Or(SqlExpression left, SqlExpression right, CoreTypeMapping? typeMapping = null)
+    public virtual SqlExpression Or(SqlExpression left, SqlExpression right, CoreTypeMapping? typeMapping = null)
         => MakeBinary(ExpressionType.Or, left, right, typeMapping)!;
 
     private SqlUnaryExpression? MakeUnary(
@@ -513,8 +601,8 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual SqlBinaryExpression IsNull(SqlExpression operand)
-        => Equal(operand, Constant(null));
+    public virtual SqlExpression IsNull(SqlExpression operand)
+        => Equal(operand, Constant(null, operand.Type));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -522,8 +610,8 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual SqlBinaryExpression IsNotNull(SqlExpression operand)
-        => NotEqual(operand, Constant(null));
+    public virtual SqlExpression IsNotNull(SqlExpression operand)
+        => NotEqual(operand, Constant(null, operand.Type));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -531,8 +619,8 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual SqlBinaryExpression ArrayIndex(SqlExpression left, SqlExpression right, Type type, CoreTypeMapping? typeMapping = null)
-        => new(ExpressionType.ArrayIndex, left, right, type, typeMapping)!;
+    public virtual SqlExpression ArrayIndex(SqlExpression left, SqlExpression right, Type type, CoreTypeMapping? typeMapping = null)
+        => new SqlBinaryExpression(ExpressionType.ArrayIndex, left, right, type, typeMapping)!;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -540,7 +628,7 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual SqlUnaryExpression Convert(SqlExpression operand, Type type, CoreTypeMapping? typeMapping = null)
+    public virtual SqlExpression Convert(SqlExpression operand, Type type, CoreTypeMapping? typeMapping = null)
         => MakeUnary(ExpressionType.Convert, operand, type, typeMapping)!;
 
     /// <summary>
@@ -549,7 +637,7 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual SqlUnaryExpression Not(SqlExpression operand)
+    public virtual SqlExpression Not(SqlExpression operand)
         => MakeUnary(ExpressionType.Not, operand, operand.Type, operand.TypeMapping)!;
 
     /// <summary>
@@ -558,7 +646,7 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual SqlUnaryExpression Negate(SqlExpression operand)
+    public virtual SqlExpression Negate(SqlExpression operand)
         => MakeUnary(ExpressionType.Negate, operand, operand.Type, operand.TypeMapping)!;
 
     /// <summary>
@@ -567,8 +655,29 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual SqlFunctionExpression Function(
+    public virtual SqlExpression Function(
         string functionName,
+        IEnumerable<Expression> arguments,
+        Type returnType,
+        CoreTypeMapping? typeMapping = null)
+        => BuildFunction(functionName, scoringFunction: false, arguments, returnType, typeMapping);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual SqlExpression ScoringFunction(
+        string functionName,
+        IEnumerable<Expression> arguments,
+        Type returnType,
+        CoreTypeMapping? typeMapping = null)
+        => BuildFunction(functionName, scoringFunction: true, arguments, returnType, typeMapping);
+
+    private SqlExpression BuildFunction(
+        string functionName,
+        bool scoringFunction,
         IEnumerable<Expression> arguments,
         Type returnType,
         CoreTypeMapping? typeMapping = null)
@@ -582,6 +691,7 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
 
         return new SqlFunctionExpression(
             functionName,
+            scoringFunction,
             typeMappedArguments,
             returnType,
             typeMapping);
@@ -593,7 +703,7 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual SqlConditionalExpression Condition(SqlExpression test, SqlExpression ifTrue, SqlExpression ifFalse)
+    public virtual SqlExpression Condition(SqlExpression test, SqlExpression ifTrue, SqlExpression ifFalse)
     {
         var typeMapping = ExpressionExtensions.InferTypeMapping(ifTrue, ifFalse);
 
@@ -609,8 +719,10 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual InExpression In(SqlExpression item, IReadOnlyList<SqlExpression> values)
-        => ApplyTypeMappingOnIn(new InExpression(item, values, _boolTypeMapping));
+    public virtual SqlExpression In(SqlExpression item, IReadOnlyList<SqlExpression> values)
+        => values is [var singleValue]
+            ? Equal(item, singleValue)
+            : ApplyTypeMappingOnIn(new InExpression(item, values, _boolTypeMapping));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -618,7 +730,7 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual InExpression In(SqlExpression item, SqlParameterExpression valuesParameter)
+    public virtual SqlExpression In(SqlExpression item, SqlParameterExpression valuesParameter)
         => ApplyTypeMappingOnIn(new InExpression(item, valuesParameter, _boolTypeMapping));
 
     /// <summary>
@@ -627,8 +739,8 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual SqlConstantExpression Constant(object? value, CoreTypeMapping? typeMapping = null)
-        => new(Expression.Constant(value), typeMapping);
+    public virtual SqlExpression Constant(object value, CoreTypeMapping? typeMapping = null)
+        => new SqlConstantExpression(value, typeMapping);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -636,63 +748,6 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual SelectExpression Select(IEntityType entityType)
-    {
-        var selectExpression = new SelectExpression(entityType);
-        AddDiscriminator(selectExpression, entityType);
-
-        return selectExpression;
-    }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual SelectExpression ReadItem(IEntityType entityType, ReadItemInfo readItemInfo)
-    {
-        var selectExpression = new SelectExpression(entityType, readItemInfo);
-        AddDiscriminator(selectExpression, entityType);
-
-        return selectExpression;
-    }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual SelectExpression Select(IEntityType entityType, string sql, Expression argument)
-        => new(entityType, sql, argument);
-
-    private void AddDiscriminator(SelectExpression selectExpression, IEntityType entityType)
-    {
-        var concreteEntityTypes = entityType.GetConcreteDerivedTypesInclusive().ToList();
-
-        if (concreteEntityTypes.Count == 1)
-        {
-            var concreteEntityType = concreteEntityTypes[0];
-            var discriminatorProperty = concreteEntityType.FindDiscriminatorProperty();
-            if (discriminatorProperty != null)
-            {
-                var discriminatorColumn = ((EntityProjectionExpression)selectExpression.GetMappedProjection(new ProjectionMember()))
-                    .BindProperty(discriminatorProperty, clientEval: false);
-
-                selectExpression.ApplyPredicate(
-                    Equal((SqlExpression)discriminatorColumn, Constant(concreteEntityType.GetDiscriminatorValue())));
-            }
-        }
-        else
-        {
-            var discriminatorProperty = concreteEntityTypes[0].FindDiscriminatorProperty();
-            Check.DebugAssert(discriminatorProperty is not null, "Missing discriminator property in hierarchy");
-            var discriminatorColumn = ((EntityProjectionExpression)selectExpression.GetMappedProjection(new ProjectionMember()))
-                .BindProperty(discriminatorProperty, clientEval: false);
-
-            selectExpression.ApplyPredicate(
-                In((SqlExpression)discriminatorColumn, concreteEntityTypes.Select(et => Constant(et.GetDiscriminatorValue())).ToArray()));
-        }
-    }
+    public virtual SqlExpression Constant(object? value, Type type, CoreTypeMapping? typeMapping = null)
+        => new SqlConstantExpression(value, type, typeMapping);
 }

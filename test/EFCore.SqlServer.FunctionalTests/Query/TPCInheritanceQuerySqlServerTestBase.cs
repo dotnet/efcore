@@ -5,14 +5,10 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public abstract class TPCInheritanceQuerySqlServerTestBase<TFixture> : TPCInheritanceQueryTestBase<TFixture>
+public abstract class TPCInheritanceQuerySqlServerTestBase<TFixture>(TFixture fixture, ITestOutputHelper testOutputHelper)
+    : TPCInheritanceQueryTestBase<TFixture>(fixture, testOutputHelper)
     where TFixture : TPCInheritanceQuerySqlServerFixtureBase, new()
 {
-    protected TPCInheritanceQuerySqlServerTestBase(TFixture fixture, ITestOutputHelper testOutputHelper)
-        : base(fixture, testOutputHelper)
-    {
-    }
-
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType().BaseType);
@@ -488,11 +484,11 @@ ORDER BY [k].[Name]
 
         AssertSql(
             """
-@__p_0='5'
+@p='5'
 
 SELECT DISTINCT [u0].[Id], [u0].[CountryId], [u0].[Name], [u0].[Species], [u0].[EagleId], [u0].[IsFlightless], [u0].[FoundOn], [u0].[Discriminator]
 FROM (
-    SELECT TOP(@__p_0) [u].[Id], [u].[CountryId], [u].[Name], [u].[Species], [u].[EagleId], [u].[IsFlightless], [u].[FoundOn], [u].[Discriminator]
+    SELECT TOP(@p) [u].[Id], [u].[CountryId], [u].[Name], [u].[Species], [u].[EagleId], [u].[IsFlightless], [u].[FoundOn], [u].[Discriminator]
     FROM (
         SELECT [e].[Id], [e].[CountryId], [e].[Name], [e].[Species], [e].[EagleId], [e].[IsFlightless], NULL AS [FoundOn], N'Eagle' AS [Discriminator]
         FROM [Eagle] AS [e]

@@ -12,11 +12,12 @@ public abstract class GrpcTestBase<TFixture> : IClassFixture<TFixture>
     where TFixture : GrpcTestBase<TFixture>.GrpcFixtureBase
 {
     protected GrpcTestBase(TFixture fixture)
-    {
-        Fixture = fixture;
-    }
+        => Fixture = fixture;
 
     protected TFixture Fixture { get; }
+
+    protected virtual bool HasForeignKeyIndexes
+        => true;
 
     protected List<EntityTypeMapping> ExpectedMappings
         => new()
@@ -30,9 +31,9 @@ public abstract class GrpcTestBase<TFixture> : IClassFixture<TFixture>
                 Properties =
                 {
                     "Property: PostTag (Dictionary<string, object>).PostsInTagDataPostId (no field, int) Indexer Required PK FK AfterSave:Throw",
-                    "Property: PostTag (Dictionary<string, object>).TagsInPostDataTagId (no field, int) Indexer Required PK FK Index AfterSave:Throw",
+                    $"Property: PostTag (Dictionary<string, object>).TagsInPostDataTagId (no field, int) Indexer Required PK FK{(HasForeignKeyIndexes ? " Index" : "")} AfterSave:Throw",
                 },
-                Indexes = { "{'TagsInPostDataTagId'} ", },
+                Indexes = HasForeignKeyIndexes ? ["{'TagsInPostDataTagId'} "] : [],
                 FKs =
                 {
                     "ForeignKey: PostTag (Dictionary<string, object>) {'PostsInTagDataPostId'} -> Post {'PostId'} Required Cascade",
@@ -59,14 +60,14 @@ public abstract class GrpcTestBase<TFixture> : IClassFixture<TFixture>
                 Properties =
                 {
                     "Property: Post.PostId (postId_, int) Required PK AfterSave:Throw ValueGenerated.OnAdd",
-                    "Property: Post.AuthorId (authorId_, int) Required FK Index",
+                    $"Property: Post.AuthorId (authorId_, int) Required FK{(HasForeignKeyIndexes ? " Index" : "")}",
                     "Property: Post.DateCreated (dateCreated_, Timestamp)",
                     "Property: Post.PostStat (postStat_, PostStatus) Required",
                     "Property: Post.Title (title_, string)",
                 },
-                Indexes = { "{'AuthorId'} ", },
+                Indexes = HasForeignKeyIndexes ? ["{'AuthorId'} "] : [],
                 FKs = { "ForeignKey: Post {'AuthorId'} -> Author {'AuthorId'} Required Cascade ToPrincipal: PostAuthor", },
-                Navigations = { "Navigation: Post.PostAuthor (postAuthor_, Author) ToPrincipal Author", },
+                Navigations = { "Navigation: Post.PostAuthor (postAuthor_, Author) Required ToPrincipal Author", },
                 SkipNavigations =
                 {
                     "SkipNavigation: Post.TagsInPostData (tagsInPostData_, RepeatedField<Tag>) CollectionTag Inverse: PostsInTagData",

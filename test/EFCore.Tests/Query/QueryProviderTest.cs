@@ -6,6 +6,29 @@ namespace Microsoft.EntityFrameworkCore.Query;
 public class QueryProviderTest
 {
     [ConditionalFact]
+    public async Task ExecuteUpdate_and_ExecuteDelete_throw_when_provider_does_not_implement()
+    {
+        using var context = new TestContext();
+        var set = context.TestEntities;
+
+        Assert.Equal(
+            CoreStrings.ExecuteQueriesNotSupported("ExecuteUpdate", "ExecuteUpdateAsync"),
+            Assert.Throws<InvalidOperationException>(() => set.ExecuteUpdate(s => s.SetProperty(e => e.Id, 1))).Message);
+
+        Assert.Equal(
+            CoreStrings.ExecuteQueriesNotSupported("ExecuteUpdate", "ExecuteUpdateAsync"),
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => set.ExecuteUpdateAsync(s => s.SetProperty(e => e.Id, 1)))).Message);
+
+        Assert.Equal(
+            CoreStrings.ExecuteQueriesNotSupported("ExecuteDelete", "ExecuteDeleteAsync"),
+            Assert.Throws<InvalidOperationException>(() => set.ExecuteDelete()).Message);
+
+        Assert.Equal(
+            CoreStrings.ExecuteQueriesNotSupported("ExecuteDelete", "ExecuteDeleteAsync"),
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => set.ExecuteDeleteAsync())).Message);
+    }
+
+    [ConditionalFact]
     public void Non_generic_ExecuteQuery_does_not_throw()
     {
         var context = new TestContext();

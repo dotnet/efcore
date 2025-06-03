@@ -31,9 +31,7 @@ public class PropertyChangingInterceptor : PropertyChangeInterceptorBase, IInter
         IEntityType entityType,
         bool checkEquality)
         : base(entityType)
-    {
-        _checkEquality = checkEquality;
-    }
+        => _checkEquality = checkEquality;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -50,12 +48,12 @@ public class PropertyChangingInterceptor : PropertyChangeInterceptorBase, IInter
             if (methodName == $"add_{nameof(INotifyPropertyChanging.PropertyChanging)}")
             {
                 _handler = (PropertyChangingEventHandler)Delegate.Combine(
-                    _handler, (Delegate)invocation.Arguments[0]);
+                    _handler, (Delegate)invocation.Arguments[0]!)!;
             }
             else if (methodName == $"remove_{nameof(INotifyPropertyChanging.PropertyChanging)}")
             {
                 _handler = (PropertyChangingEventHandler?)Delegate.Remove(
-                    _handler, (Delegate)invocation.Arguments[0]);
+                    _handler, (Delegate)invocation.Arguments[0]!);
             }
         }
         else if (methodName.StartsWith("set_", StringComparison.Ordinal))

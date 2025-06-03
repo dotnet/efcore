@@ -8,14 +8,9 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public abstract class NorthwindSetOperationsQueryTestBase<TFixture> : QueryTestBase<TFixture>
+public abstract class NorthwindSetOperationsQueryTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)
     where TFixture : NorthwindQueryFixtureBase<NoopModelCustomizer>, new()
 {
-    protected NorthwindSetOperationsQueryTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-
     protected NorthwindContext CreateContext()
         => Fixture.CreateContext();
 
@@ -83,6 +78,19 @@ public abstract class NorthwindSetOperationsQueryTestBase<TFixture> : QueryTestB
                 .Where(s => s.ContactTitle == "Owner")
                 .Except(ss.Set<Customer>().Where(s => s.City == "México D.F."))
                 .Except(ss.Set<Customer>().Where(e => e.City == "Seattle")));
+
+    // EXCEPT is non-commutative, unlike UNION/INTERSECT. Therefore, parentheses are needed in the following query
+    // to ensure that the inner EXCEPT is evaluated first. See #36105.
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Except_nested2(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>()
+                .Except(ss.Set<Customer>()
+                    .Where(s => s.City == "Seattle")
+                    .Except(ss.Set<Customer>()
+                        .Where(e => e.City == "Seattle"))));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -222,6 +230,17 @@ public abstract class NorthwindSetOperationsQueryTestBase<TFixture> : QueryTestB
                 .Where(c => c.City == "Berlin")
                 .Union(ss.Set<Customer>().Where(c => c.City == "London"))
                 .Intersect(ss.Set<Customer>().Where(c => c.ContactName.Contains("Thomas"))));
+
+    // The evaluation order of Concat and Union can matter: A UNION ALL (B UNION C) can be different from (A UNION ALL B) UNION C.
+    // Make sure parentheses are added.
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Union_inside_Concat(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.City == "Berlin")
+                .Concat(ss.Set<Customer>().Where(c => c.City == "London")
+                    .Union(ss.Set<Customer>().Where(c => c.City == "Berlin"))));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -365,6 +384,48 @@ public abstract class NorthwindSetOperationsQueryTestBase<TFixture> : QueryTestB
                     ss.Set<Order>()
                         .Where(o => o.CustomerID == "ALFKI")
                         .Select(o => o.Customer)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Intersect_on_distinct(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>()
+                .Where(c => c.City == "México D.F.")
+                .Select(c => c.CompanyName)
+                .Distinct()
+                .Intersect(
+                    ss.Set<Customer>()
+                        .Where(s => s.ContactTitle == "Owner")
+                        .Select(c => c.CompanyName)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Union_on_distinct(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>()
+                .Where(c => c.City == "México D.F.")
+                .Select(c => c.CompanyName)
+                .Distinct()
+                .Union(
+                    ss.Set<Customer>()
+                        .Where(s => s.ContactTitle == "Owner")
+                        .Select(c => c.CompanyName)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Except_on_distinct(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>()
+                .Where(c => c.City == "México D.F.")
+                .Select(c => c.CompanyName)
+                .Distinct()
+                .Except(
+                    ss.Set<Customer>()
+                        .Where(s => s.ContactTitle == "Owner")
+                        .Select(c => c.CompanyName)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]

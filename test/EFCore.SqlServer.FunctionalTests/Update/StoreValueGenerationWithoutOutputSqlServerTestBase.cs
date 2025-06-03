@@ -7,14 +7,10 @@ namespace Microsoft.EntityFrameworkCore.Update;
 
 #nullable disable
 
-public abstract class StoreValueGenerationWithoutOutputSqlServerTestBase<TFixture> : StoreValueGenerationTestBase<TFixture>
+public abstract class StoreValueGenerationWithoutOutputSqlServerTestBase<TFixture>(TFixture fixture)
+    : StoreValueGenerationTestBase<TFixture>(fixture)
     where TFixture : StoreValueGenerationWithoutOutputSqlServerFixture
 {
-    protected StoreValueGenerationWithoutOutputSqlServerTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Three_Add_use_batched_inserts(bool async)

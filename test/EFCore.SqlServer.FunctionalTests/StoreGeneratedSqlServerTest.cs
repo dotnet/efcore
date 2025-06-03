@@ -3,7 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class StoreGeneratedSqlServerTest(StoreGeneratedSqlServerTest.StoreGeneratedSqlServerFixture fixture) : StoreGeneratedSqlServerTestBase<StoreGeneratedSqlServerTest.StoreGeneratedSqlServerFixture>(fixture)
+public class StoreGeneratedSqlServerTest(StoreGeneratedSqlServerTest.StoreGeneratedSqlServerFixture fixture)
+    : StoreGeneratedSqlServerTestBase<StoreGeneratedSqlServerTest.StoreGeneratedSqlServerFixture>(fixture)
 {
     public class StoreGeneratedSqlServerFixture : StoreGeneratedSqlServerFixtureBase
     {

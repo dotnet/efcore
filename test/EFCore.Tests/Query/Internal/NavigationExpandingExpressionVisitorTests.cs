@@ -15,31 +15,26 @@ public class NavigationExpandingExpressionVisitorTests
             => null;
     }
 
-    private class TestNavigationExpandingExpressionVisitor : NavigationExpandingExpressionVisitor
+    private class TestNavigationExpandingExpressionVisitor() : NavigationExpandingExpressionVisitor(
+        null,
+        new QueryCompilationContext(
+            new QueryCompilationContextDependencies(
+                model: null,
+                queryTranslationPreprocessorFactory: null,
+                queryableMethodTranslatingExpressionVisitorFactory: null,
+                queryTranslationPostprocessorFactory: null,
+                shapedQueryCompilingExpressionVisitorFactory: null,
+                liftableConstantFactory: null,
+                liftableConstantProcessor: null,
+                new ExecutionStrategyTest.TestExecutionStrategy(new MyDemoContext()),
+                new CurrentDbContext(new MyDemoContext()),
+                contextOptions: null,
+                logger: null,
+                new TestInterceptors()
+            ), async: false),
+        null,
+        null)
     {
-        public TestNavigationExpandingExpressionVisitor()
-            : base(
-                null,
-                new QueryCompilationContext(
-                    new QueryCompilationContextDependencies(
-                        model: null,
-                        queryTranslationPreprocessorFactory: null,
-                        queryableMethodTranslatingExpressionVisitorFactory: null,
-                        queryTranslationPostprocessorFactory: null,
-                        shapedQueryCompilingExpressionVisitorFactory: null,
-                        liftableConstantFactory: null,
-                        liftableConstantProcessor: null,
-                        new ExecutionStrategyTest.TestExecutionStrategy(new MyDemoContext()),
-                        new CurrentDbContext(new MyDemoContext()),
-                        contextOptions: null,
-                        logger: null,
-                        new TestInterceptors()
-                    ), async: false),
-                null,
-                null)
-        {
-        }
-
         public Expression TestVisitExtension(Expression extensionExpression)
             => base.VisitExtension(extensionExpression);
     }

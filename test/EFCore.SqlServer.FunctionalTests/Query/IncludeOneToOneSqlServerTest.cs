@@ -9,9 +9,7 @@ public class IncludeOneToOneSqlServerTest : IncludeOneToOneTestBase<IncludeOneTo
 {
     public IncludeOneToOneSqlServerTest(OneToOneQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
         : base(fixture)
-    {
-        fixture.TestSqlLoggerFactory.Clear();
-    }
+        => fixture.TestSqlLoggerFactory.Clear();
 
     public override void Include_person()
     {

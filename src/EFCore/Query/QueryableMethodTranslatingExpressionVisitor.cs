@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Internal;
+using static Microsoft.EntityFrameworkCore.Query.QueryHelpers;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
@@ -119,7 +120,11 @@ public abstract class QueryableMethodTranslatingExpressionVisitor : ExpressionVi
                 // SQL Server TemporalQueryRootExpression.
                 if (queryRootExpression.GetType() == typeof(EntityQueryRootExpression))
                 {
-                    return CreateShapedQueryExpression(((EntityQueryRootExpression)extensionExpression).EntityType);
+                    var shapedQuery = CreateShapedQueryExpression(((EntityQueryRootExpression)extensionExpression).EntityType);
+                    if (shapedQuery is not null)
+                    {
+                        return shapedQuery;
+                    }
                 }
 
                 _untranslatedExpression = queryRootExpression;
@@ -134,8 +139,67 @@ public abstract class QueryableMethodTranslatingExpressionVisitor : ExpressionVi
     protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
     {
         var method = methodCallExpression.Method;
-        if (method.DeclaringType == typeof(Queryable)
-            || method.DeclaringType == typeof(QueryableExtensions))
+
+        if (method.DeclaringType == typeof(EntityFrameworkQueryableExtensions))
+        {
+            var source = Visit(methodCallExpression.Arguments[0]);
+            if (source is ShapedQueryExpression shapedQueryExpression)
+            {
+                var genericMethod = method.IsGenericMethod ? method.GetGenericMethodDefinition() : null;
+                switch (method.Name)
+                {
+                    case nameof(EntityFrameworkQueryableExtensions.ExecuteDelete)
+                        when genericMethod == EntityFrameworkQueryableExtensions.ExecuteDeleteMethodInfo:
+                        return TranslateExecuteDelete(shapedQueryExpression)
+                            ?? throw new InvalidOperationException(
+                                CoreStrings.NonQueryTranslationFailedWithDetails(
+                                    methodCallExpression.Print(), TranslationErrorDetails));
+
+                    case nameof(EntityFrameworkQueryableExtensions.ExecuteUpdate)
+                        when genericMethod == EntityFrameworkQueryableExtensions.ExecuteUpdateMethodInfo:
+                        NewArrayExpression newArray;
+                        switch (methodCallExpression.Arguments[1])
+                        {
+                            case NewArrayExpression n:
+                                newArray = n;
+                                break;
+
+                            case ConstantExpression { Value: Array { Length: 0 } }:
+                                throw new InvalidOperationException(
+                                    CoreStrings.NonQueryTranslationFailedWithDetails(
+                                        methodCallExpression.Print(), CoreStrings.NoSetPropertyInvocation));
+
+                            default:
+                                throw new UnreachableException("ExecuteUpdate with incorrect setters");
+                        }
+
+                        var setters = new ExecuteUpdateSetter[newArray.Expressions.Count];
+                        for (var i = 0; i < setters.Length; i++)
+                        {
+                            var @new = (NewExpression)newArray.Expressions[i];
+                            var propertySelector = (LambdaExpression)@new.Arguments[0];
+                            var valueSelector = @new.Arguments[1];
+
+                            // When the value selector is a bare value type (no lambda), a cast-to-object Convert node needs to be added
+                            // for proper typing (see UpdateSettersBuilder); remove it here.
+                            if (valueSelector is UnaryExpression { NodeType: ExpressionType.Convert, Operand: var unwrappedValueSelector }
+                                && valueSelector.Type == typeof(object))
+                            {
+                                valueSelector = unwrappedValueSelector;
+                            }
+
+                            setters[i] = new(propertySelector, valueSelector);
+                        }
+
+                        return TranslateExecuteUpdate(shapedQueryExpression, setters)
+                            ?? throw new InvalidOperationException(
+                                CoreStrings.NonQueryTranslationFailedWithDetails(
+                                    methodCallExpression.Print(), TranslationErrorDetails));
+                }
+            }
+        }
+
+        if (method.DeclaringType == typeof(Queryable))
         {
             var source = Visit(methodCallExpression.Arguments[0]);
             if (source is ShapedQueryExpression shapedQueryExpression)
@@ -329,13 +393,27 @@ public abstract class QueryableMethodTranslatingExpressionVisitor : ExpressionVi
                         break;
                     }
 
-                    case nameof(QueryableExtensions.LeftJoin)
-                        when genericMethod == QueryableExtensions.LeftJoinMethodInfo:
+                    case nameof(Queryable.LeftJoin)
+                        when genericMethod == QueryableMethods.LeftJoin:
                     {
                         if (Visit(methodCallExpression.Arguments[1]) is ShapedQueryExpression innerShapedQueryExpression)
                         {
                             return CheckTranslated(
                                 TranslateLeftJoin(
+                                    shapedQueryExpression, innerShapedQueryExpression, GetLambdaExpressionFromArgument(2),
+                                    GetLambdaExpressionFromArgument(3), GetLambdaExpressionFromArgument(4)));
+                        }
+
+                        break;
+                    }
+
+                    case nameof(Queryable.RightJoin)
+                        when genericMethod == QueryableMethods.RightJoin:
+                    {
+                        if (Visit(methodCallExpression.Arguments[1]) is ShapedQueryExpression innerShapedQueryExpression)
+                        {
+                            return CheckTranslated(
+                                TranslateRightJoin(
                                     shapedQueryExpression, innerShapedQueryExpression, GetLambdaExpressionFromArgument(2),
                                     GetLambdaExpressionFromArgument(3), GetLambdaExpressionFromArgument(4)));
                         }
@@ -528,16 +606,18 @@ public abstract class QueryableMethodTranslatingExpressionVisitor : ExpressionVi
         // The method isn't a LINQ operator on Queryable/QueryableExtensions.
 
         // Identify property access, e.g. primitive collection property (context.Blogs.Where(b => b.Tags.Contains(...)))
-        if ((methodCallExpression.TryGetEFPropertyArguments(out var propertyAccessSource, out var propertyName)
-            || methodCallExpression.TryGetIndexerArguments(QueryCompilationContext.Model, out propertyAccessSource, out propertyName))
-            && TranslateMemberAccess(propertyAccessSource, MemberIdentity.Create(propertyName)) is ShapedQueryExpression translation)
+        if (IsMemberAccess(methodCallExpression, QueryCompilationContext.Model, out var propertyAccessSource, out var propertyName)
+            && TranslateMemberAccess(propertyAccessSource, propertyName) is ShapedQueryExpression translation)
         {
             return translation;
         }
 
         return _subquery
             ? QueryCompilationContext.NotTranslatedExpression
-            : throw new InvalidOperationException(CoreStrings.TranslationFailed(methodCallExpression.Print()));
+            : TranslationErrorDetails is null
+                ? throw new InvalidOperationException(CoreStrings.TranslationFailed(methodCallExpression.Print()))
+                : throw new InvalidOperationException(
+                    CoreStrings.TranslationFailedWithDetails(methodCallExpression.Print(), TranslationErrorDetails));
     }
 
     private sealed class EntityShaperNullableMarkingExpressionVisitor : ExpressionVisitor
@@ -584,7 +664,7 @@ public abstract class QueryableMethodTranslatingExpressionVisitor : ExpressionVi
     /// </summary>
     /// <param name="entityType">The entity type.</param>
     /// <returns>A shaped query expression for the given entity type.</returns>
-    protected abstract ShapedQueryExpression CreateShapedQueryExpression(IEntityType entityType);
+    protected abstract ShapedQueryExpression? CreateShapedQueryExpression(IEntityType entityType);
 
     /// <summary>
     ///     Translates <see cref="Queryable.All{TSource}(IQueryable{TSource}, Expression{Func{TSource,bool}})" /> method over the given source.
@@ -641,7 +721,7 @@ public abstract class QueryableMethodTranslatingExpressionVisitor : ExpressionVi
     /// <param name="source">The shaped query on which the operator is applied.</param>
     /// <param name="predicate">The predicate supplied in the call.</param>
     /// <returns>The shaped query after translation.</returns>
-    protected abstract ShapedQueryExpression? TranslateCount(ShapedQueryExpression source,        LambdaExpression? predicate);
+    protected abstract ShapedQueryExpression? TranslateCount(ShapedQueryExpression source, LambdaExpression? predicate);
 
     /// <summary>
     ///     Translates <see cref="Queryable.DefaultIfEmpty{TSource}(IQueryable{TSource})" /> method and other overloads over the given source.
@@ -769,6 +849,26 @@ public abstract class QueryableMethodTranslatingExpressionVisitor : ExpressionVi
     /// <param name="resultSelector">The result selector supplied in the call.</param>
     /// <returns>The shaped query after translation.</returns>
     protected abstract ShapedQueryExpression? TranslateLeftJoin(
+        ShapedQueryExpression outer,
+        ShapedQueryExpression inner,
+        LambdaExpression outerKeySelector,
+        LambdaExpression innerKeySelector,
+        LambdaExpression resultSelector);
+
+    /// <summary>
+    ///     Translates LeftJoin over the given source.
+    /// </summary>
+    /// <remarks>
+    ///     Certain patterns of GroupJoin-DefaultIfEmpty-SelectMany represents a left join in database. We identify such pattern
+    ///     in advance and convert it to join like syntax.
+    /// </remarks>
+    /// <param name="outer">The shaped query on which the operator is applied.</param>
+    /// <param name="inner">The inner shaped query to perform join with.</param>
+    /// <param name="outerKeySelector">The key selector for the outer source.</param>
+    /// <param name="innerKeySelector">The key selector for the inner source.</param>
+    /// <param name="resultSelector">The result selector supplied in the call.</param>
+    /// <returns>The shaped query after translation.</returns>
+    protected abstract ShapedQueryExpression? TranslateRightJoin(
         ShapedQueryExpression outer,
         ShapedQueryExpression inner,
         LambdaExpression outerKeySelector,
@@ -994,4 +1094,46 @@ public abstract class QueryableMethodTranslatingExpressionVisitor : ExpressionVi
         => null;
 
     #endregion Queryable collection support
+
+    #region ExecuteUpdate/ExecuteDelete
+
+    /// <summary>
+    ///     Translates <see cref="EntityFrameworkQueryableExtensions.ExecuteDelete{TSource}(IQueryable{TSource})" /> method
+    ///     over the given source.
+    /// </summary>
+    /// <param name="source">The shaped query on which the operator is applied.</param>
+    /// <returns>The non query after translation.</returns>
+    protected virtual Expression? TranslateExecuteDelete(ShapedQueryExpression source)
+        => throw new InvalidOperationException(
+            CoreStrings.ExecuteQueriesNotSupported(
+                nameof(EntityFrameworkQueryableExtensions.ExecuteDelete), nameof(EntityFrameworkQueryableExtensions.ExecuteDeleteAsync)));
+
+    /// <summary>
+    ///     Translates
+    ///     <see
+    ///         cref="EntityFrameworkQueryableExtensions.ExecuteUpdate{TSource}(IQueryable{TSource}, Action{UpdateSettersBuilder{TSource}})" />
+    ///     method
+    ///     over the given source.
+    /// </summary>
+    /// <param name="source">The shaped query on which the operator is applied.</param>
+    /// <param name="setters">
+    ///     The setters for this
+    ///     <see
+    ///         cref="EntityFrameworkQueryableExtensions.ExecuteUpdate{TSource}(IQueryable{TSource}, Action{UpdateSettersBuilder{TSource}})" />
+    ///     call.
+    /// </param>
+    /// <returns>The non query after translation.</returns>
+    protected virtual Expression? TranslateExecuteUpdate(ShapedQueryExpression source, IReadOnlyList<ExecuteUpdateSetter> setters)
+        => throw new InvalidOperationException(
+            CoreStrings.ExecuteQueriesNotSupported(
+                nameof(EntityFrameworkQueryableExtensions.ExecuteUpdate), nameof(EntityFrameworkQueryableExtensions.ExecuteUpdateAsync)));
+
+    /// <summary>
+    ///     Represents a single setter in an
+    ///     <see cref="EntityFrameworkQueryableExtensions.ExecuteUpdate{TSource}(IQueryable{TSource}, Action{UpdateSettersBuilder{TSource}})" />
+    ///     call, i.e. a pair of property and value selectors.
+    /// </summary>
+    public sealed record ExecuteUpdateSetter(LambdaExpression PropertySelector, Expression ValueExpression);
+
+    #endregion ExecuteUpdate/ExecuteDelete
 }

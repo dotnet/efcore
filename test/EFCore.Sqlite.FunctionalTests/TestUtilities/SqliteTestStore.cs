@@ -33,13 +33,21 @@ public class SqliteTestStore : RelationalTestStore
     public virtual DbContextOptionsBuilder AddProviderOptions(
         DbContextOptionsBuilder builder,
         Action<SqliteDbContextOptionsBuilder>? configureSqlite)
-        => builder.UseSqlite(
-            Connection, b =>
-            {
-                b.CommandTimeout(CommandTimeout);
-                b.UseQuerySplittingBehavior(QuerySplittingBehavior.SingleQuery);
-                configureSqlite?.Invoke(b);
-            });
+        => UseConnectionString
+            ? builder.UseSqlite(
+                ConnectionString, b =>
+                {
+                    b.CommandTimeout(CommandTimeout);
+                    b.UseQuerySplittingBehavior(QuerySplittingBehavior.SingleQuery);
+                    configureSqlite?.Invoke(b);
+                })
+            : builder.UseSqlite(
+                Connection, b =>
+                {
+                    b.CommandTimeout(CommandTimeout);
+                    b.UseQuerySplittingBehavior(QuerySplittingBehavior.SingleQuery);
+                    configureSqlite?.Invoke(b);
+                });
 
     public override DbContextOptionsBuilder AddProviderOptions(DbContextOptionsBuilder builder)
         => AddProviderOptions(builder, configureSqlite: null);
@@ -64,7 +72,9 @@ public class SqliteTestStore : RelationalTestStore
         }
 
         using var context = createContext();
-        if (!await context.Database.EnsureCreatedAsync())
+
+        var databaseCreator = context.GetService<IRelationalDatabaseCreator>();
+        if (await databaseCreator.ExistsAsync())
         {
             if (clean != null)
             {
@@ -73,6 +83,9 @@ public class SqliteTestStore : RelationalTestStore
 
             await CleanAsync(context);
         }
+
+        // Run context seeding
+        await context.Database.EnsureCreatedResilientlyAsync();
 
         if (seed != null)
         {

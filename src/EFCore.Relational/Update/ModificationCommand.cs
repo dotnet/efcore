@@ -694,9 +694,10 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
             foreach (var entry in _entries.Where(e => !e.EntityType.IsMappedToJson()))
             {
                 foreach (var jsonCollectionNavigation in entry.EntityType.GetNavigations()
-                             .Where(n => n.IsCollection
-                                 && n.TargetEntityType.IsMappedToJson()
-                                 && (entry.GetCurrentValue(n) as IEnumerable)?.Any() == false))
+                             .Where(
+                                 n => n.IsCollection
+                                     && n.TargetEntityType.IsMappedToJson()
+                                     && (entry.GetCurrentValue(n) as IEnumerable)?.Any() == false))
                 {
                     var jsonCollectionEntityType = jsonCollectionNavigation.TargetEntityType;
                     var jsonCollectionColumn =

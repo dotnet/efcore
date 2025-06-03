@@ -7,15 +7,10 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public abstract class NullKeysTestBase<TFixture> : IClassFixture<TFixture>
+public abstract class NullKeysTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : NullKeysTestBase<TFixture>.NullKeysFixtureBase, new()
 {
-    protected NullKeysTestBase(TFixture fixture)
-    {
-        Fixture = fixture;
-    }
-
-    protected virtual TFixture Fixture { get; }
+    protected virtual TFixture Fixture { get; } = fixture;
 
     protected DbContext CreateContext()
         => Fixture.CreateContext();

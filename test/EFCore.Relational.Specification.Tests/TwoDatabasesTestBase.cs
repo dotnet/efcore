@@ -7,14 +7,9 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public abstract class TwoDatabasesTestBase
+public abstract class TwoDatabasesTestBase(FixtureBase fixture)
 {
-    protected FixtureBase Fixture { get; }
-
-    protected TwoDatabasesTestBase(FixtureBase fixture)
-    {
-        Fixture = fixture;
-    }
+    protected FixtureBase Fixture { get; } = fixture;
 
     [ConditionalFact]
     public virtual void Can_query_from_one_connection_string_and_save_changes_to_another()
@@ -103,7 +98,8 @@ public abstract class TwoDatabasesTestBase
         Assert.Equal(new[] { "Modified One", "Modified Two" }, context1.Foos.Select(e => e.Bar).ToList());
     }
 
-    protected class ConnectionStringConnectionInterceptor(string goodConnectionString, string dummyConnectionString) : DbConnectionInterceptor
+    protected class ConnectionStringConnectionInterceptor(string goodConnectionString, string dummyConnectionString)
+        : DbConnectionInterceptor
     {
         private readonly string _goodConnectionString = goodConnectionString;
         private readonly string _dummyConnectionString = dummyConnectionString;

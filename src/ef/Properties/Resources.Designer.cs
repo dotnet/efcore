@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("ConnectionDescription");
 
         /// <summary>
-        ///     The DbContext to use.
+        ///     The DbContext to use. "*" can be used to run the command for all contexts found. This will also disable service discovery through the startup project if a corresponding IDesignTimeDbContextFactory implementation is found.
         /// </summary>
         public static string ContextDescription
             => GetString("ContextDescription");
@@ -402,6 +402,18 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
         /// </summary>
         public static string NamespaceDescription
             => GetString("NamespaceDescription");
+
+        /// <summary>
+        ///     Additionally generate all the code required for NativeAOT compilation and precompiled queries (experimental).
+        /// </summary>
+        public static string NativeAotDescription
+            => GetString("NativeAotDescription");
+
+        /// <summary>
+        ///     NativeAOT support is experimental and can change in the future.
+        /// </summary>
+        public static string NativeAotWarning
+            => GetString("NativeAotWarning");
 
         /// <summary>
         ///     Don't colorize output.

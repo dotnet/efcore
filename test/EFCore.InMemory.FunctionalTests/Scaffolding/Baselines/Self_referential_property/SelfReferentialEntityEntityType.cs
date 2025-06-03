@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
@@ -10,7 +9,6 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Json;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
@@ -25,8 +23,8 @@ namespace TestNamespace
         public static RuntimeEntityType Create(RuntimeModel model, RuntimeEntityType baseEntityType = null)
         {
             var runtimeEntityType = model.AddEntityType(
-                "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelInMemoryTest+SelfReferentialEntity",
-                typeof(CompiledModelInMemoryTest.SelfReferentialEntity),
+                "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelInMemoryTest+SelfReferentialEntity<long>",
+                typeof(CompiledModelInMemoryTest.SelfReferentialEntity<long>),
                 baseEntityType,
                 propertyCount: 2,
                 keyCount: 1);
@@ -34,26 +32,25 @@ namespace TestNamespace
             var id = runtimeEntityType.AddProperty(
                 "Id",
                 typeof(long),
-                propertyInfo: typeof(CompiledModelInMemoryTest.SelfReferentialEntity).GetProperty("Id", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(CompiledModelInMemoryTest.SelfReferentialEntity).GetField("<Id>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                propertyInfo: typeof(CompiledModelInMemoryTest.SelfReferentialEntity<long>).GetProperty("Id", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                fieldInfo: typeof(CompiledModelInMemoryTest.SelfReferentialEntity<long>).GetField("<Id>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueGenerated: ValueGenerated.OnAdd,
                 afterSaveBehavior: PropertySaveBehavior.Throw,
                 sentinel: 0L);
             id.SetGetter(
-                (CompiledModelInMemoryTest.SelfReferentialEntity entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_SelfReferentialEntity_Id(entity),
-                (CompiledModelInMemoryTest.SelfReferentialEntity entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_SelfReferentialEntity_Id(entity) == 0L,
-                (CompiledModelInMemoryTest.SelfReferentialEntity instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_SelfReferentialEntity_Id(instance),
-                (CompiledModelInMemoryTest.SelfReferentialEntity instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_SelfReferentialEntity_Id(instance) == 0L);
+                long (CompiledModelInMemoryTest.SelfReferentialEntity<long> entity) => SelfReferentialEntityUnsafeAccessors<long>.Id(entity),
+                bool (CompiledModelInMemoryTest.SelfReferentialEntity<long> entity) => SelfReferentialEntityUnsafeAccessors<long>.Id(entity) == 0L,
+                long (CompiledModelInMemoryTest.SelfReferentialEntity<long> instance) => SelfReferentialEntityUnsafeAccessors<long>.Id(instance),
+                bool (CompiledModelInMemoryTest.SelfReferentialEntity<long> instance) => SelfReferentialEntityUnsafeAccessors<long>.Id(instance) == 0L);
             id.SetSetter(
-                (CompiledModelInMemoryTest.SelfReferentialEntity entity, long value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_SelfReferentialEntity_Id(entity) = value);
+                (CompiledModelInMemoryTest.SelfReferentialEntity<long> entity, long value) => SelfReferentialEntityUnsafeAccessors<long>.Id(entity) = value);
             id.SetMaterializationSetter(
-                (CompiledModelInMemoryTest.SelfReferentialEntity entity, long value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_SelfReferentialEntity_Id(entity) = value);
+                (CompiledModelInMemoryTest.SelfReferentialEntity<long> entity, long value) => SelfReferentialEntityUnsafeAccessors<long>.Id(entity) = value);
             id.SetAccessors(
-                (InternalEntityEntry entry) => entry.FlaggedAsStoreGenerated(0) ? entry.ReadStoreGeneratedValue<long>(0) : entry.FlaggedAsTemporary(0) && UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_SelfReferentialEntity_Id((CompiledModelInMemoryTest.SelfReferentialEntity)entry.Entity) == 0L ? entry.ReadTemporaryValue<long>(0) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_SelfReferentialEntity_Id((CompiledModelInMemoryTest.SelfReferentialEntity)entry.Entity),
-                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_SelfReferentialEntity_Id((CompiledModelInMemoryTest.SelfReferentialEntity)entry.Entity),
-                (InternalEntityEntry entry) => entry.ReadOriginalValue<long>(id, 0),
-                (InternalEntityEntry entry) => entry.ReadRelationshipSnapshotValue<long>(id, 0),
-                (ValueBuffer valueBuffer) => valueBuffer[0]);
+                long (IInternalEntry entry) => (entry.FlaggedAsStoreGenerated(0) ? entry.ReadStoreGeneratedValue<long>(0) : (entry.FlaggedAsTemporary(0) && SelfReferentialEntityUnsafeAccessors<long>.Id(((CompiledModelInMemoryTest.SelfReferentialEntity<long>)(entry.Object))) == 0L ? entry.ReadTemporaryValue<long>(0) : SelfReferentialEntityUnsafeAccessors<long>.Id(((CompiledModelInMemoryTest.SelfReferentialEntity<long>)(entry.Object))))),
+                long (IInternalEntry entry) => SelfReferentialEntityUnsafeAccessors<long>.Id(((CompiledModelInMemoryTest.SelfReferentialEntity<long>)(entry.Object))),
+                long (IInternalEntry entry) => entry.ReadOriginalValue<long>(id, 0),
+                long (IInternalEntry entry) => entry.ReadRelationshipSnapshotValue<long>(id, 0));
             id.SetPropertyIndexes(
                 index: 0,
                 originalValueIndex: 0,
@@ -62,44 +59,42 @@ namespace TestNamespace
                 storeGenerationIndex: 0);
             id.TypeMapping = InMemoryTypeMapping.Default.Clone(
                 comparer: new ValueComparer<long>(
-                    (long v1, long v2) => v1 == v2,
-                    (long v) => ((object)v).GetHashCode(),
-                    (long v) => v),
+                    bool (long v1, long v2) => v1 == v2,
+                    int (long v) => ((object)v).GetHashCode(),
+                    long (long v) => v),
                 keyComparer: new ValueComparer<long>(
-                    (long v1, long v2) => v1 == v2,
-                    (long v) => ((object)v).GetHashCode(),
-                    (long v) => v),
+                    bool (long v1, long v2) => v1 == v2,
+                    int (long v) => ((object)v).GetHashCode(),
+                    long (long v) => v),
                 providerValueComparer: new ValueComparer<long>(
-                    (long v1, long v2) => v1 == v2,
-                    (long v) => ((object)v).GetHashCode(),
-                    (long v) => v),
+                    bool (long v1, long v2) => v1 == v2,
+                    int (long v) => ((object)v).GetHashCode(),
+                    long (long v) => v),
                 clrType: typeof(long),
                 jsonValueReaderWriter: JsonInt64ReaderWriter.Instance);
             id.SetCurrentValueComparer(new EntryCurrentValueComparer<long>(id));
-            id.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("SelfReferentialEntityEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_SelfReferentialEntity_Id", "TestNamespace") });
 
             var collection = runtimeEntityType.AddProperty(
                 "Collection",
                 typeof(CompiledModelInMemoryTest.SelfReferentialProperty),
-                propertyInfo: typeof(CompiledModelInMemoryTest.SelfReferentialEntity).GetProperty("Collection", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(CompiledModelInMemoryTest.SelfReferentialEntity).GetField("<Collection>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                propertyInfo: typeof(CompiledModelInMemoryTest.SelfReferentialEntity<long>).GetProperty("Collection", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                fieldInfo: typeof(CompiledModelInMemoryTest.SelfReferentialEntity<long>).GetField("<Collection>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true,
-                valueConverter: new CompiledModelInMemoryTest.SelfReferentialPropertyValueConverter());
+                valueConverter: new CompiledModelInMemoryTest.SelfReferentialEntity<long>.NonGeneric.SelfReferentialPropertyValueConverter<string>());
             collection.SetGetter(
-                (CompiledModelInMemoryTest.SelfReferentialEntity entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_SelfReferentialEntity_Collection(entity),
-                (CompiledModelInMemoryTest.SelfReferentialEntity entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_SelfReferentialEntity_Collection(entity) == null,
-                (CompiledModelInMemoryTest.SelfReferentialEntity instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_SelfReferentialEntity_Collection(instance),
-                (CompiledModelInMemoryTest.SelfReferentialEntity instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_SelfReferentialEntity_Collection(instance) == null);
+                CompiledModelInMemoryTest.SelfReferentialProperty (CompiledModelInMemoryTest.SelfReferentialEntity<long> entity) => SelfReferentialEntityUnsafeAccessors<long>.Collection(entity),
+                bool (CompiledModelInMemoryTest.SelfReferentialEntity<long> entity) => SelfReferentialEntityUnsafeAccessors<long>.Collection(entity) == null,
+                CompiledModelInMemoryTest.SelfReferentialProperty (CompiledModelInMemoryTest.SelfReferentialEntity<long> instance) => SelfReferentialEntityUnsafeAccessors<long>.Collection(instance),
+                bool (CompiledModelInMemoryTest.SelfReferentialEntity<long> instance) => SelfReferentialEntityUnsafeAccessors<long>.Collection(instance) == null);
             collection.SetSetter(
-                (CompiledModelInMemoryTest.SelfReferentialEntity entity, CompiledModelInMemoryTest.SelfReferentialProperty value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_SelfReferentialEntity_Collection(entity) = value);
+                (CompiledModelInMemoryTest.SelfReferentialEntity<long> entity, CompiledModelInMemoryTest.SelfReferentialProperty value) => SelfReferentialEntityUnsafeAccessors<long>.Collection(entity) = value);
             collection.SetMaterializationSetter(
-                (CompiledModelInMemoryTest.SelfReferentialEntity entity, CompiledModelInMemoryTest.SelfReferentialProperty value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_SelfReferentialEntity_Collection(entity) = value);
+                (CompiledModelInMemoryTest.SelfReferentialEntity<long> entity, CompiledModelInMemoryTest.SelfReferentialProperty value) => SelfReferentialEntityUnsafeAccessors<long>.Collection(entity) = value);
             collection.SetAccessors(
-                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_SelfReferentialEntity_Collection((CompiledModelInMemoryTest.SelfReferentialEntity)entry.Entity),
-                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_SelfReferentialEntity_Collection((CompiledModelInMemoryTest.SelfReferentialEntity)entry.Entity),
-                (InternalEntityEntry entry) => entry.ReadOriginalValue<CompiledModelInMemoryTest.SelfReferentialProperty>(collection, 1),
-                (InternalEntityEntry entry) => entry.GetCurrentValue<CompiledModelInMemoryTest.SelfReferentialProperty>(collection),
-                (ValueBuffer valueBuffer) => valueBuffer[1]);
+                CompiledModelInMemoryTest.SelfReferentialProperty (IInternalEntry entry) => SelfReferentialEntityUnsafeAccessors<long>.Collection(((CompiledModelInMemoryTest.SelfReferentialEntity<long>)(entry.Object))),
+                CompiledModelInMemoryTest.SelfReferentialProperty (IInternalEntry entry) => SelfReferentialEntityUnsafeAccessors<long>.Collection(((CompiledModelInMemoryTest.SelfReferentialEntity<long>)(entry.Object))),
+                CompiledModelInMemoryTest.SelfReferentialProperty (IInternalEntry entry) => entry.ReadOriginalValue<CompiledModelInMemoryTest.SelfReferentialProperty>(collection, 1),
+                CompiledModelInMemoryTest.SelfReferentialProperty (IInternalEntry entry) => entry.GetCurrentValue<CompiledModelInMemoryTest.SelfReferentialProperty>(collection));
             collection.SetPropertyIndexes(
                 index: 1,
                 originalValueIndex: 1,
@@ -108,26 +103,25 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             collection.TypeMapping = InMemoryTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelInMemoryTest.SelfReferentialProperty>(
-                    (CompiledModelInMemoryTest.SelfReferentialProperty v1, CompiledModelInMemoryTest.SelfReferentialProperty v2) => object.Equals(v1, v2),
-                    (CompiledModelInMemoryTest.SelfReferentialProperty v) => ((object)v).GetHashCode(),
-                    (CompiledModelInMemoryTest.SelfReferentialProperty v) => v),
+                    bool (CompiledModelInMemoryTest.SelfReferentialProperty v1, CompiledModelInMemoryTest.SelfReferentialProperty v2) => object.Equals(v1, v2),
+                    int (CompiledModelInMemoryTest.SelfReferentialProperty v) => ((object)v).GetHashCode(),
+                    CompiledModelInMemoryTest.SelfReferentialProperty (CompiledModelInMemoryTest.SelfReferentialProperty v) => v),
                 keyComparer: new ValueComparer<CompiledModelInMemoryTest.SelfReferentialProperty>(
-                    (CompiledModelInMemoryTest.SelfReferentialProperty v1, CompiledModelInMemoryTest.SelfReferentialProperty v2) => object.Equals(v1, v2),
-                    (CompiledModelInMemoryTest.SelfReferentialProperty v) => ((object)v).GetHashCode(),
-                    (CompiledModelInMemoryTest.SelfReferentialProperty v) => v),
+                    bool (CompiledModelInMemoryTest.SelfReferentialProperty v1, CompiledModelInMemoryTest.SelfReferentialProperty v2) => object.Equals(v1, v2),
+                    int (CompiledModelInMemoryTest.SelfReferentialProperty v) => ((object)v).GetHashCode(),
+                    CompiledModelInMemoryTest.SelfReferentialProperty (CompiledModelInMemoryTest.SelfReferentialProperty v) => v),
                 providerValueComparer: new ValueComparer<string>(
-                    (string v1, string v2) => v1 == v2,
-                    (string v) => ((object)v).GetHashCode(),
-                    (string v) => v),
+                    bool (string v1, string v2) => v1 == v2,
+                    int (string v) => ((object)v).GetHashCode(),
+                    string (string v) => v),
                 converter: new ValueConverter<CompiledModelInMemoryTest.SelfReferentialProperty, string>(
-                    (CompiledModelInMemoryTest.SelfReferentialProperty v) => null,
-                    (string v) => null),
+                    string (CompiledModelInMemoryTest.SelfReferentialProperty v) => CompiledModelInMemoryTest.SelfReferentialEntity<long>.NonGeneric.SelfReferentialPropertyValueConverter<string>.ToProvider(v),
+                    CompiledModelInMemoryTest.SelfReferentialProperty (string v) => CompiledModelInMemoryTest.SelfReferentialEntity<long>.NonGeneric.SelfReferentialPropertyValueConverter<string>.FromProvider(v)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelInMemoryTest.SelfReferentialProperty, string>(
                     JsonStringReaderWriter.Instance,
                     new ValueConverter<CompiledModelInMemoryTest.SelfReferentialProperty, string>(
-                        (CompiledModelInMemoryTest.SelfReferentialProperty v) => null,
-                        (string v) => null)));
-            collection.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("SelfReferentialEntityEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_SelfReferentialEntity_Collection", "TestNamespace") });
+                        string (CompiledModelInMemoryTest.SelfReferentialProperty v) => CompiledModelInMemoryTest.SelfReferentialEntity<long>.NonGeneric.SelfReferentialPropertyValueConverter<string>.ToProvider(v),
+                        CompiledModelInMemoryTest.SelfReferentialProperty (string v) => CompiledModelInMemoryTest.SelfReferentialEntity<long>.NonGeneric.SelfReferentialPropertyValueConverter<string>.FromProvider(v))));
 
             var key = runtimeEntityType.AddKey(
                 new[] { id });
@@ -138,30 +132,30 @@ namespace TestNamespace
 
         public static void CreateAnnotations(RuntimeEntityType runtimeEntityType)
         {
-            var id = runtimeEntityType.FindProperty("Id")!;
-            var collection = runtimeEntityType.FindProperty("Collection")!;
+            var id = runtimeEntityType.FindProperty("Id");
+            var collection = runtimeEntityType.FindProperty("Collection");
             var key = runtimeEntityType.FindKey(new[] { id });
             key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.CreateSimpleNonNullableFactory<long>(key));
             key.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<long>(key));
             runtimeEntityType.SetOriginalValuesFactory(
-                (InternalEntityEntry source) =>
+                ISnapshot (IInternalEntry source) =>
                 {
-                    var entity = (CompiledModelInMemoryTest.SelfReferentialEntity)source.Entity;
-                    return (ISnapshot)new Snapshot<long, CompiledModelInMemoryTest.SelfReferentialProperty>(((ValueComparer<long>)((IProperty)id).GetValueComparer()).Snapshot(source.GetCurrentValue<long>(id)), source.GetCurrentValue<CompiledModelInMemoryTest.SelfReferentialProperty>(collection) == null ? null : ((ValueComparer<CompiledModelInMemoryTest.SelfReferentialProperty>)((IProperty)collection).GetValueComparer()).Snapshot(source.GetCurrentValue<CompiledModelInMemoryTest.SelfReferentialProperty>(collection)));
+                    var entity = ((CompiledModelInMemoryTest.SelfReferentialEntity<long>)(source.Object));
+                    return ((ISnapshot)(new Snapshot<long, CompiledModelInMemoryTest.SelfReferentialProperty>(((ValueComparer<long>)(((IProperty)id).GetValueComparer())).Snapshot(source.GetCurrentValue<long>(id)), (source.GetCurrentValue<CompiledModelInMemoryTest.SelfReferentialProperty>(collection) == null ? null : ((ValueComparer<CompiledModelInMemoryTest.SelfReferentialProperty>)(((IProperty)collection).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelInMemoryTest.SelfReferentialProperty>(collection))))));
                 });
             runtimeEntityType.SetStoreGeneratedValuesFactory(
-                () => (ISnapshot)new Snapshot<long>(((ValueComparer<long>)((IProperty)id).GetValueComparer()).Snapshot(default(long))));
+                ISnapshot () => ((ISnapshot)(new Snapshot<long>(((ValueComparer<long>)(((IProperty)id).GetValueComparer())).Snapshot(default(long))))));
             runtimeEntityType.SetTemporaryValuesFactory(
-                (InternalEntityEntry source) => (ISnapshot)new Snapshot<long>(default(long)));
+                ISnapshot (IInternalEntry source) => ((ISnapshot)(new Snapshot<long>(default(long)))));
             runtimeEntityType.SetShadowValuesFactory(
-                (IDictionary<string, object> source) => Snapshot.Empty);
+                ISnapshot (IDictionary<string, object> source) => Snapshot.Empty);
             runtimeEntityType.SetEmptyShadowValuesFactory(
-                () => Snapshot.Empty);
+                ISnapshot () => Snapshot.Empty);
             runtimeEntityType.SetRelationshipSnapshotFactory(
-                (InternalEntityEntry source) =>
+                ISnapshot (IInternalEntry source) =>
                 {
-                    var entity = (CompiledModelInMemoryTest.SelfReferentialEntity)source.Entity;
-                    return (ISnapshot)new Snapshot<long>(((ValueComparer<long>)((IProperty)id).GetKeyValueComparer()).Snapshot(source.GetCurrentValue<long>(id)));
+                    var entity = ((CompiledModelInMemoryTest.SelfReferentialEntity<long>)(source.Object));
+                    return ((ISnapshot)(new Snapshot<long>(((ValueComparer<long>)(((IProperty)id).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<long>(id)))));
                 });
             runtimeEntityType.Counts = new PropertyCounts(
                 propertyCount: 2,
@@ -176,11 +170,5 @@ namespace TestNamespace
         }
 
         static partial void Customize(RuntimeEntityType runtimeEntityType);
-
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Id>k__BackingField")]
-        public static extern ref long UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_SelfReferentialEntity_Id(CompiledModelInMemoryTest.SelfReferentialEntity @this);
-
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Collection>k__BackingField")]
-        public static extern ref CompiledModelInMemoryTest.SelfReferentialProperty UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_SelfReferentialEntity_Collection(CompiledModelInMemoryTest.SelfReferentialEntity @this);
     }
 }

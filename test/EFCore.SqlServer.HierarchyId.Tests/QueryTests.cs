@@ -302,12 +302,12 @@ public class QueryTests : IDisposable
 
         Assert.Equal(
             """
-            @__isaac_0='?' (DbType = Object)
+@isaac='?' (DbType = Object)
 
-            SELECT [p].[Name]
-            FROM [Patriarchy] AS [p]
-            WHERE @__isaac_0.IsDescendantOf([p].[Id]) = CAST(1 AS bit)
-            """,
+SELECT [p].[Name]
+FROM [Patriarchy] AS [p]
+WHERE @isaac.IsDescendantOf([p].[Id]) = CAST(1 AS bit)
+""",
             _db.Sql,
             ignoreLineEndingDifferences: true);
 
@@ -356,30 +356,33 @@ public class QueryTests : IDisposable
         Assert.Equal(new[] { HierarchyId.Parse("/") }, results);
     }
 
-    [ConditionalFact]
-    public void Contains_with_parameter_list_can_translate()
-    {
-        var ids = new[] { HierarchyId.Parse("/1/1/7/"), HierarchyId.Parse("/1/1/99/") };
-        var result = (from p in _db.Patriarchy
-                       where ids.Contains(p.Id)
-                       select p.Name).Single();
-
-        Assert.Equal(
-            """
-@__ids_0='?' (Size = 4000)
-
-SELECT TOP(2) [p].[Name]
-FROM [Patriarchy] AS [p]
-WHERE [p].[Id] IN (
-    SELECT CAST([i].[value] AS hierarchyid) AS [value]
-    FROM OPENJSON(@__ids_0) AS [i]
-)
-""",
-            _db.Sql,
-            ignoreLineEndingDifferences: true);
-
-        Assert.Equal("Dan", result);
-    }
+// TODO: The following no longer compile since https://github.com/dotnet/runtime/pull/110197 (Contains overload added with optional
+// parameter, not supported in expression trees). #35547 is tracking on the EF side.
+//
+//     [ConditionalFact]
+//     public void Contains_with_parameter_list_can_translate()
+//     {
+//         var ids = new[] { HierarchyId.Parse("/1/1/7/"), HierarchyId.Parse("/1/1/99/") };
+//         var result = (from p in _db.Patriarchy
+//                       where ids.Contains(p.Id)
+//                       select p.Name).Single();
+//
+//         Assert.Equal(
+//             """
+// @ids='?' (Size = 4000)
+//
+// SELECT TOP(2) [p].[Name]
+// FROM [Patriarchy] AS [p]
+// WHERE [p].[Id] IN (
+//     SELECT CAST([i].[value] AS hierarchyid) AS [value]
+//     FROM OPENJSON(@ids) AS [i]
+// )
+// """,
+//             _db.Sql,
+//             ignoreLineEndingDifferences: true);
+//
+//         Assert.Equal("Dan", result);
+//     }
 
     public void Dispose()
         => _db.Dispose();

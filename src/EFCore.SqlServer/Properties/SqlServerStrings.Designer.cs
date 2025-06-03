@@ -24,6 +24,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             = new ResourceManager("Microsoft.EntityFrameworkCore.SqlServer.Properties.SqlServerStrings", typeof(SqlServerStrings).Assembly);
 
         /// <summary>
+        ///     Cannot configure engine type '{newEngineType}', because engine type was already configured as '{oldEngineType}'.
+        /// </summary>
+        public static string AlreadyConfiguredEngineType(object? newEngineType, object? oldEngineType)
+            => string.Format(
+                GetString("AlreadyConfiguredEngineType", nameof(newEngineType), nameof(oldEngineType)),
+                newEngineType, oldEngineType);
+
+        /// <summary>
         ///     To change the IDENTITY property of a column, the column needs to be dropped and recreated.
         /// </summary>
         public static string AlterIdentityColumn
@@ -208,6 +216,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             => GetString("InvalidColumnNameForFreeText");
 
         /// <summary>
+        ///     Engine type was not configured. Use one of {methods} to configure it.
+        /// </summary>
+        public static string InvalidEngineType(object? methods)
+            => string.Format(
+                GetString("InvalidEngineType", nameof(methods)),
+                methods);
+
+        /// <summary>
         ///     The specified table '{table}' is not in a valid format. Specify tables using the format '[schema].[table]'.
         /// </summary>
         public static string InvalidTableToIncludeInScaffolding(object? table)
@@ -274,12 +290,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             => string.Format(
                 GetString("SequenceBadType", nameof(property), nameof(entityType), nameof(propertyType)),
                 property, entityType, propertyType);
-
-        /// <summary>
-        ///     The query uses 'Skip' without specifying ordering and uses split query mode. This generates incorrect results. Either provide ordering or run query in single query mode using `AsSingleQuery()`. See https://go.microsoft.com/fwlink/?linkid=2196526 for more information.
-        /// </summary>
-        public static string SplitQueryOffsetWithoutOrderBy
-            => GetString("SplitQueryOffsetWithoutOrderBy");
 
         /// <summary>
         ///     Entity type '{entityType}' should be marked as temporal because it shares table mapping with another entity that has been marked as temporal. Alternatively, other entity types that share the same table must be non-temporal.
@@ -706,8 +716,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         }
 
         /// <summary>
-        ///     Found sequence with '{name}', data type: {dataType}, cyclic: {isCyclic}, increment: {increment}, start: {start}, minimum: {min}, maximum: {max},
-        ///     cached: {cached}, cache size: {cacheSize}.
+        ///     Found sequence with '{name}', data type: {dataType}, cyclic: {isCyclic}, increment: {increment}, start: {start}, minimum: {min}, maximum: {max}.
         /// </summary>
         public static FallbackEventDefinition LogFoundSequence(IDiagnosticsLogger logger)
         {
@@ -801,6 +810,31 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             }
 
             return (EventDefinition<string, string>)definition;
+        }
+
+        /// <summary>
+        ///     The entity type '{entityType}' makes use of the SQL Server native 'json' type. Please note that support for this type in EF Core 9 is experimental and may change in future releases.
+        /// </summary>
+        public static EventDefinition<string> LogJsonTypeExperimental(IDiagnosticsLogger logger)
+        {
+            var definition = ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogJsonTypeExperimental;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogJsonTypeExperimental,
+                    logger,
+                    static logger => new EventDefinition<string>(
+                        logger.Options,
+                        SqlServerEventId.JsonTypeExperimental,
+                        LogLevel.Warning,
+                        "SqlServerEventId.JsonTypeExperimental",
+                        level => LoggerMessage.Define<string>(
+                            level,
+                            SqlServerEventId.JsonTypeExperimental,
+                            _resourceManager.GetString("LogJsonTypeExperimental")!)));
+            }
+
+            return (EventDefinition<string>)definition;
         }
 
         /// <summary>

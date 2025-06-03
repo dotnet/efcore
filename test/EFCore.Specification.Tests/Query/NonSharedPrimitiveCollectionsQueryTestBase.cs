@@ -5,7 +5,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 using static Expression;
 
-public abstract class NonSharedPrimitiveCollectionsQueryTestBase : NonSharedModelTestBase
+public abstract class NonSharedPrimitiveCollectionsQueryTestBase(NonSharedFixture fixture) : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
 {
     #region Support for specific element types
 
@@ -223,16 +223,26 @@ public abstract class NonSharedPrimitiveCollectionsQueryTestBase : NonSharedMode
             seed: context =>
             {
                 context.AddRange(
-                    new TestEntityWithOwned { Id = 1, Ints = [1, 2], Owned = new Owned { Foo = 0 } },
-                    new TestEntityWithOwned { Id = 2, Ints = [3, 4], Owned = new Owned { Foo = 1 } });
+                    new TestEntityWithOwned
+                    {
+                        Id = 1,
+                        Ints = [1, 2],
+                        Owned = new Owned { Foo = 0 }
+                    },
+                    new TestEntityWithOwned
+                    {
+                        Id = 2,
+                        Ints = [3, 4],
+                        Owned = new Owned { Foo = 1 }
+                    });
                 return context.SaveChangesAsync();
             });
 
         await using var context = contextFactory.CreateContext();
 
         var results = await context.Set<TestEntityWithOwned>().Select(t => t.Ints).ToListAsync();
-        Assert.True(results.Any(r => r?.SequenceEqual([1, 2]) == true));
-        Assert.True(results.Any(r => r?.SequenceEqual([3, 4]) == true));
+        Assert.Contains(results, r => r?.SequenceEqual([1, 2]) ?? false);
+        Assert.Contains(results, r => r?.SequenceEqual([3, 4]) ?? false);
     }
 
     private class TestEntityWithOwned
@@ -299,7 +309,6 @@ public abstract class NonSharedPrimitiveCollectionsQueryTestBase : NonSharedMode
                 Constant(2)),
             entityParam);
 
-        // context.Set<TestEntity>().SingleAsync(m => EF.Property<int[]>(m, "SomeArray").Count(a => a == <value1>) == 2)
         var result = await context.Set<TestEntity>().SingleAsync(predicate);
         Assert.Equal(1, result.Id);
     }

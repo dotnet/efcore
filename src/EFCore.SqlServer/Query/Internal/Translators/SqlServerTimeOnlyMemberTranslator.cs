@@ -12,29 +12,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class SqlServerTimeOnlyMemberTranslator : IMemberTranslator
+public class SqlServerTimeOnlyMemberTranslator(ISqlExpressionFactory sqlExpressionFactory) : IMemberTranslator
 {
-    private static readonly Dictionary<string, string> DatePartMappings = new()
-    {
-        { nameof(TimeOnly.Hour), "hour" },
-        { nameof(TimeOnly.Minute), "minute" },
-        { nameof(TimeOnly.Second), "second" },
-        { nameof(TimeOnly.Millisecond), "millisecond" }
-    };
-
-    private readonly ISqlExpressionFactory _sqlExpressionFactory;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public SqlServerTimeOnlyMemberTranslator(ISqlExpressionFactory sqlExpressionFactory)
-    {
-        _sqlExpressionFactory = sqlExpressionFactory;
-    }
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -47,15 +26,30 @@ public class SqlServerTimeOnlyMemberTranslator : IMemberTranslator
         Type returnType,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
     {
-        if (member.DeclaringType == typeof(TimeOnly) && DatePartMappings.TryGetValue(member.Name, out var value))
+        var declaringType = member.DeclaringType;
+
+        if (declaringType != typeof(TimeOnly))
         {
-            return _sqlExpressionFactory.Function(
-                "DATEPART", new[] { _sqlExpressionFactory.Fragment(value), instance! },
-                nullable: true,
-                argumentsPropagateNullability: new[] { false, true },
-                returnType);
+            return null;
         }
 
-        return null;
+        return member.Name switch
+        {
+            nameof(TimeOnly.Hour) => DatePart("hour"),
+            nameof(TimeOnly.Minute) => DatePart("minute"),
+            nameof(TimeOnly.Second) => DatePart("second"),
+            nameof(TimeOnly.Millisecond) => DatePart("millisecond"),
+            nameof(TimeOnly.Microsecond) => sqlExpressionFactory.Modulo(DatePart("microsecond"), sqlExpressionFactory.Constant(1000)),
+            nameof(TimeOnly.Nanosecond) => sqlExpressionFactory.Modulo(DatePart("nanosecond"), sqlExpressionFactory.Constant(1000)),
+            _ => null,
+        };
+
+        SqlExpression DatePart(string part)
+            => sqlExpressionFactory.Function(
+                "DATEPART",
+                arguments: [sqlExpressionFactory.Fragment(part), instance!],
+                nullable: true,
+                argumentsPropagateNullability: Statics.FalseTrue,
+                returnType);
     }
 }

@@ -8,17 +8,8 @@ using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 
 [Collection(nameof(ModelCodeGeneratorTestCollection))]
-public abstract class ModelCodeGeneratorTestBase
+public abstract class ModelCodeGeneratorTestBase(ModelCodeGeneratorTestFixture fixture, ITestOutputHelper output)
 {
-    private readonly ModelCodeGeneratorTestFixture _fixture;
-    private readonly ITestOutputHelper _output;
-
-    protected ModelCodeGeneratorTestBase(ModelCodeGeneratorTestFixture fixture, ITestOutputHelper output)
-    {
-        _fixture = fixture;
-        _output = output;
-    }
-
     protected Task TestAsync(
         Action<ModelBuilder> buildModel,
         ModelCodeGenerationOptions options,
@@ -74,7 +65,7 @@ public abstract class ModelCodeGeneratorTestBase
         options.ModelNamespace ??= "TestNamespace";
         options.ContextName = "TestDbContext";
         options.ConnectionString = "Initial Catalog=TestDatabase";
-        options.ProjectDir = _fixture.ProjectDir;
+        options.ProjectDir = fixture.ProjectDir;
 
         var scaffoldedModel = generator.GenerateModel(
             model,
@@ -147,7 +138,7 @@ public abstract class ModelCodeGeneratorTestBase
     protected IServiceCollection CreateServices()
     {
         var testAssembly = MockAssembly.Create();
-        var reporter = new TestOperationReporter(_output);
+        var reporter = new TestOperationReporter(output);
         var services = new DesignTimeServicesBuilder(testAssembly, testAssembly, reporter, [])
             .CreateServiceCollection("Microsoft.EntityFrameworkCore.SqlServer");
         return services;

@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Microsoft.EntityFrameworkCore;
 
@@ -237,25 +238,18 @@ internal static class EnumerableMethods
         => AverageWithSelectorMethods[type];
 
     public static MethodInfo GetMaxWithoutSelector(Type type)
-        => MaxWithoutSelectorMethods.TryGetValue(type, out var method)
-            ? method
-            : MaxWithoutSelector;
+        => MaxWithoutSelectorMethods.GetValueOrDefault(type, MaxWithoutSelector);
 
     public static MethodInfo GetMaxWithSelector(Type type)
-        => MaxWithSelectorMethods.TryGetValue(type, out var method)
-            ? method
-            : MaxWithSelector;
+        => MaxWithSelectorMethods.GetValueOrDefault(type, MaxWithSelector);
 
     public static MethodInfo GetMinWithoutSelector(Type type)
-        => MinWithoutSelectorMethods.TryGetValue(type, out var method)
-            ? method
-            : MinWithoutSelector;
+        => MinWithoutSelectorMethods.GetValueOrDefault(type, MinWithoutSelector);
 
     public static MethodInfo GetMinWithSelector(Type type)
-        => MinWithSelectorMethods.TryGetValue(type, out var method)
-            ? method
-            : MinWithSelector;
+        => MinWithSelectorMethods.GetValueOrDefault(type, MinWithSelector);
 
+    [UnconditionalSuppressMessage("AOT", "IL3050:Calling members annotated with 'RequiresDynamicCodeAttribute' may break functionality when AOT compiling.", Justification = "Types used here in 'MakeGenericType' are types like 'TSource', not specific types.")]
     static EnumerableMethods()
     {
         var queryableMethodGroups = typeof(Enumerable)

@@ -10,24 +10,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
 public class CosmosQueryTranslationPreprocessor(
-        QueryTranslationPreprocessorDependencies dependencies,
-        CosmosQueryCompilationContext cosmosQueryCompilationContext)
+    QueryTranslationPreprocessorDependencies dependencies,
+    CosmosQueryCompilationContext cosmosQueryCompilationContext)
     : QueryTranslationPreprocessor(dependencies, cosmosQueryCompilationContext)
 {
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public override Expression NormalizeQueryableMethod(Expression query)
-    {
-        query = new CosmosQueryMetadataExtractingExpressionVisitor(cosmosQueryCompilationContext).Visit(query);
-        query = base.NormalizeQueryableMethod(query);
-
-        return query;
-    }
-
     /// <inheritdoc />
     protected override Expression ProcessQueryRoots(Expression expression)
         => new CosmosQueryRootProcessor(Dependencies, QueryCompilationContext).Visit(expression);

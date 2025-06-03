@@ -6,39 +6,22 @@ using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
 namespace Microsoft.EntityFrameworkCore;
 
-public abstract class StoreGeneratedSqlServerTestBase<TFixture> : StoreGeneratedTestBase<TFixture>
+public abstract class StoreGeneratedSqlServerTestBase<TFixture>(TFixture fixture) : StoreGeneratedTestBase<TFixture>(fixture)
     where TFixture : StoreGeneratedSqlServerTestBase<TFixture>.StoreGeneratedSqlServerFixtureBase, new()
 {
-    protected StoreGeneratedSqlServerTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-
     public class WrappedIntHiLoClass
     {
         public int Value { get; set; }
     }
 
-    protected class WrappedIntHiLoClassConverter : ValueConverter<WrappedIntHiLoClass, int>
-    {
-        public WrappedIntHiLoClassConverter()
-            : base(
-                v => v.Value,
-                v => new WrappedIntHiLoClass { Value = v })
-        {
-        }
-    }
+    protected class WrappedIntHiLoClassConverter() : ValueConverter<WrappedIntHiLoClass, int>(
+        v => v.Value,
+        v => new WrappedIntHiLoClass { Value = v });
 
-    protected class WrappedIntHiLoClassComparer : ValueComparer<WrappedIntHiLoClass?>
-    {
-        public WrappedIntHiLoClassComparer()
-            : base(
-                (v1, v2) => (v1 == null && v2 == null) || (v1 != null && v2 != null && v1.Value.Equals(v2.Value)),
-                v => v != null ? v.Value : 0,
-                v => v == null ? null : new WrappedIntHiLoClass { Value = v.Value })
-        {
-        }
-    }
+    protected class WrappedIntHiLoClassComparer() : ValueComparer<WrappedIntHiLoClass?>(
+        (v1, v2) => (v1 == null && v2 == null) || (v1 != null && v2 != null && v1.Value.Equals(v2.Value)),
+        v => v != null ? v.Value : 0,
+        v => v == null ? null : new WrappedIntHiLoClass { Value = v.Value });
 
     protected class WrappedIntHiLoClassValueGenerator : ValueGenerator<WrappedIntHiLoClass>
     {
@@ -54,15 +37,9 @@ public abstract class StoreGeneratedSqlServerTestBase<TFixture> : StoreGenerated
         public int Value { get; set; }
     }
 
-    protected class WrappedIntHiLoStructConverter : ValueConverter<WrappedIntHiLoStruct, int>
-    {
-        public WrappedIntHiLoStructConverter()
-            : base(
-                v => v.Value,
-                v => new WrappedIntHiLoStruct { Value = v })
-        {
-        }
-    }
+    protected class WrappedIntHiLoStructConverter() : ValueConverter<WrappedIntHiLoStruct, int>(
+        v => v.Value,
+        v => new WrappedIntHiLoStruct { Value = v });
 
     protected class WrappedIntHiLoStructValueGenerator : ValueGenerator<WrappedIntHiLoStruct>
     {
@@ -78,15 +55,9 @@ public abstract class StoreGeneratedSqlServerTestBase<TFixture> : StoreGenerated
         public int Value { get; set; }
     }
 
-    protected class WrappedIntHiLoRecordConverter : ValueConverter<WrappedIntHiLoRecord, int>
-    {
-        public WrappedIntHiLoRecordConverter()
-            : base(
-                v => v.Value,
-                v => new WrappedIntHiLoRecord { Value = v })
-        {
-        }
-    }
+    protected class WrappedIntHiLoRecordConverter() : ValueConverter<WrappedIntHiLoRecord, int>(
+        v => v.Value,
+        v => new WrappedIntHiLoRecord { Value = v });
 
     protected class WrappedIntHiLoRecordValueGenerator : ValueGenerator<WrappedIntHiLoRecord>
     {
@@ -102,26 +73,14 @@ public abstract class StoreGeneratedSqlServerTestBase<TFixture> : StoreGenerated
         public int Value { get; set; }
     }
 
-    protected class WrappedIntHiLoKeyClassConverter : ValueConverter<WrappedIntHiLoKeyClass, int>
-    {
-        public WrappedIntHiLoKeyClassConverter()
-            : base(
-                v => v.Value,
-                v => new WrappedIntHiLoKeyClass { Value = v })
-        {
-        }
-    }
+    protected class WrappedIntHiLoKeyClassConverter() : ValueConverter<WrappedIntHiLoKeyClass, int>(
+        v => v.Value,
+        v => new WrappedIntHiLoKeyClass { Value = v });
 
-    protected class WrappedIntHiLoKeyClassComparer : ValueComparer<WrappedIntHiLoKeyClass?>
-    {
-        public WrappedIntHiLoKeyClassComparer()
-            : base(
-                (v1, v2) => (v1 == null && v2 == null) || (v1 != null && v2 != null && v1.Value.Equals(v2.Value)),
-                v => v != null ? v.Value : 0,
-                v => v == null ? null : new WrappedIntHiLoKeyClass { Value = v.Value })
-        {
-        }
-    }
+    protected class WrappedIntHiLoKeyClassComparer() : ValueComparer<WrappedIntHiLoKeyClass?>(
+        (v1, v2) => (v1 == null && v2 == null) || (v1 != null && v2 != null && v1.Value.Equals(v2.Value)),
+        v => v != null ? v.Value : 0,
+        v => v == null ? null : new WrappedIntHiLoKeyClass { Value = v.Value });
 
     public struct WrappedIntHiLoKeyStruct
     {
@@ -140,30 +99,18 @@ public abstract class StoreGeneratedSqlServerTestBase<TFixture> : StoreGenerated
             => !left.Equals(right);
     }
 
-    protected class WrappedIntHiLoKeyStructConverter : ValueConverter<WrappedIntHiLoKeyStruct, int>
-    {
-        public WrappedIntHiLoKeyStructConverter()
-            : base(
-                v => v.Value,
-                v => new WrappedIntHiLoKeyStruct { Value = v })
-        {
-        }
-    }
+    protected class WrappedIntHiLoKeyStructConverter() : ValueConverter<WrappedIntHiLoKeyStruct, int>(
+        v => v.Value,
+        v => new WrappedIntHiLoKeyStruct { Value = v });
 
     public record WrappedIntHiLoKeyRecord
     {
         public int Value { get; set; }
     }
 
-    protected class WrappedIntHiLoKeyRecordConverter : ValueConverter<WrappedIntHiLoKeyRecord, int>
-    {
-        public WrappedIntHiLoKeyRecordConverter()
-            : base(
-                v => v.Value,
-                v => new WrappedIntHiLoKeyRecord { Value = v })
-        {
-        }
-    }
+    protected class WrappedIntHiLoKeyRecordConverter() : ValueConverter<WrappedIntHiLoKeyRecord, int>(
+        v => v.Value,
+        v => new WrappedIntHiLoKeyRecord { Value = v });
 
     protected class WrappedIntHiLoClassPrincipal
     {

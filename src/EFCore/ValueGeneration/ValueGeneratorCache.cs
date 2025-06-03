@@ -32,9 +32,7 @@ public class ValueGeneratorCache : IValueGeneratorCache
     /// </summary>
     /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
     public ValueGeneratorCache(ValueGeneratorCacheDependencies dependencies)
-    {
-        Dependencies = dependencies;
-    }
+        => Dependencies = dependencies;
 
     /// <summary>
     ///     Dependencies for this service.
@@ -43,23 +41,16 @@ public class ValueGeneratorCache : IValueGeneratorCache
 
     private readonly ConcurrentDictionary<CacheKey, ValueGenerator?> _cache = new();
 
-    private readonly struct CacheKey : IEquatable<CacheKey>
+    private readonly struct CacheKey(IProperty property, ITypeBase typeBase) : IEquatable<CacheKey>
     {
-        private readonly Guid _modelId;
-        private readonly string? _property;
-        private readonly string? _typeBase;
-
-        public CacheKey(IProperty property, ITypeBase typeBase)
-        {
-            _modelId = typeBase.Model.ModelId;
-            _property = property.Name;
-            _typeBase = typeBase.Name;
-        }
+        private readonly Guid _modelId = typeBase.Model.ModelId;
+        private readonly string? _property = property.Name;
+        private readonly string? _typeBase = typeBase.Name;
 
         public bool Equals(CacheKey other)
             => (_property!.Equals(other._property, StringComparison.Ordinal)
-                    && _typeBase!.Equals(other._typeBase, StringComparison.Ordinal)
-                    && _modelId.Equals(other._modelId));
+                && _typeBase!.Equals(other._typeBase, StringComparison.Ordinal)
+                && _modelId.Equals(other._modelId));
 
         public override bool Equals(object? obj)
             => obj is CacheKey cacheKey && Equals(cacheKey);
@@ -84,5 +75,5 @@ public class ValueGeneratorCache : IValueGeneratorCache
         ITypeBase typeBase,
         Func<IProperty, ITypeBase, ValueGenerator?> factory)
         => _cache.GetOrAdd(
-                new CacheKey(property, typeBase), static (ck, p) => p.factory(p.property, p.typeBase), (factory, typeBase, property));
+            new CacheKey(property, typeBase), static (ck, p) => p.factory(p.property, p.typeBase), (factory, typeBase, property));
 }

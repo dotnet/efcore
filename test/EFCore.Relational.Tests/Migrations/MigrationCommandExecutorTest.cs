@@ -1,7 +1,7 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Migrations.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
 
@@ -22,7 +22,7 @@ public class MigrationCommandExecutorTest
             new(CreateRelationalCommand(), null, logger), new(CreateRelationalCommand(), null, logger)
         };
 
-        var migrationCommandExecutor = new MigrationCommandExecutor();
+        var migrationCommandExecutor = CreateMigrationCommandExecutor();
 
         if (async)
         {
@@ -63,7 +63,7 @@ public class MigrationCommandExecutorTest
             new(CreateRelationalCommand(), null, logger), new(CreateRelationalCommand(), null, logger)
         };
 
-        var migrationCommandExecutor = new MigrationCommandExecutor();
+        var migrationCommandExecutor = CreateMigrationCommandExecutor();
 
         IDbContextTransaction tx;
         using (tx = fakeConnection.BeginTransaction())
@@ -113,7 +113,7 @@ public class MigrationCommandExecutorTest
             new(CreateRelationalCommand(), null, logger), new(CreateRelationalCommand(), null, logger, transactionSuppressed: true)
         };
 
-        var migrationCommandExecutor = new MigrationCommandExecutor();
+        var migrationCommandExecutor = CreateMigrationCommandExecutor();
 
         IDbContextTransaction tx;
         using (tx = fakeConnection.BeginTransaction())
@@ -123,16 +123,14 @@ public class MigrationCommandExecutorTest
                 Assert.Equal(
                     RelationalStrings.TransactionSuppressedMigrationInUserTransaction,
                     (await Assert.ThrowsAsync<NotSupportedException>(
-                        async ()
-                            => await migrationCommandExecutor.ExecuteNonQueryAsync(commandList, fakeConnection))).Message);
+                        async () => await migrationCommandExecutor.ExecuteNonQueryAsync(commandList, fakeConnection))).Message);
             }
             else
             {
                 Assert.Equal(
                     RelationalStrings.TransactionSuppressedMigrationInUserTransaction,
                     Assert.Throws<NotSupportedException>(
-                        ()
-                            => migrationCommandExecutor.ExecuteNonQuery(commandList, fakeConnection)).Message);
+                        () => migrationCommandExecutor.ExecuteNonQuery(commandList, fakeConnection)).Message);
             }
 
             tx.Rollback();
@@ -166,7 +164,7 @@ public class MigrationCommandExecutorTest
             new(CreateRelationalCommand(), null, logger, transactionSuppressed: true)
         };
 
-        var migrationCommandExecutor = new MigrationCommandExecutor();
+        var migrationCommandExecutor = CreateMigrationCommandExecutor();
 
         if (async)
         {
@@ -201,7 +199,7 @@ public class MigrationCommandExecutorTest
             new(CreateRelationalCommand(), null, logger), new(CreateRelationalCommand(), null, logger, transactionSuppressed: true)
         };
 
-        var migrationCommandExecutor = new MigrationCommandExecutor();
+        var migrationCommandExecutor = CreateMigrationCommandExecutor();
 
         if (async)
         {
@@ -241,7 +239,7 @@ public class MigrationCommandExecutorTest
             new(CreateRelationalCommand(), null, logger, transactionSuppressed: true), new(CreateRelationalCommand(), null, logger)
         };
 
-        var migrationCommandExecutor = new MigrationCommandExecutor();
+        var migrationCommandExecutor = CreateMigrationCommandExecutor();
 
         if (async)
         {
@@ -283,7 +281,7 @@ public class MigrationCommandExecutorTest
             new(CreateRelationalCommand(commandText: "Third"), null, logger)
         };
 
-        var migrationCommandExecutor = new MigrationCommandExecutor();
+        var migrationCommandExecutor = CreateMigrationCommandExecutor();
 
         if (async)
         {
@@ -353,7 +351,7 @@ public class MigrationCommandExecutorTest
 
         var commandList = new List<MigrationCommand> { new(CreateRelationalCommand(), null, logger) };
 
-        var migrationCommandExecutor = new MigrationCommandExecutor();
+        var migrationCommandExecutor = CreateMigrationCommandExecutor();
 
         if (async)
         {
@@ -377,6 +375,9 @@ public class MigrationCommandExecutorTest
         Assert.Equal(0, fakeDbConnection.DbTransactions[0].RollbackCount);
     }
 
+    private static IMigrationCommandExecutor CreateMigrationCommandExecutor()
+        => FakeRelationalTestHelpers.Instance.CreateContextServices().GetRequiredService<IMigrationCommandExecutor>();
+
     private const string ConnectionString = "Fake Connection String";
 
     private static FakeRelationalConnection CreateConnection(IDbContextOptions options = null)
@@ -396,13 +397,16 @@ public class MigrationCommandExecutorTest
 
     private IRelationalCommand CreateRelationalCommand(
         string commandText = "Command Text",
+        string logCommandText = "Log Command Text",
         IReadOnlyList<IRelationalParameter> parameters = null)
         => new RelationalCommand(
             new RelationalCommandBuilderDependencies(
                 new TestRelationalTypeMappingSource(
                     TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
                     TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()),
-                new ExceptionDetector()),
+                new ExceptionDetector(),
+                new LoggingOptions()),
             commandText,
+            logCommandText,
             parameters ?? []);
 }

@@ -5,7 +5,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public class EntitySplittingSqlServerTest(ITestOutputHelper testOutputHelper) : EntitySplittingTestBase(testOutputHelper)
+public class EntitySplittingSqlServerTest(NonSharedFixture fixture, ITestOutputHelper testOutputHelper) : EntitySplittingTestBase(fixture, testOutputHelper)
 {
     [ConditionalFact]
     public virtual async Task Can_roundtrip_with_triggers()
@@ -46,7 +46,7 @@ END"));
 
             await context.SaveChangesAsync();
 
-            Assert.Empty(TestSqlLoggerFactory.Log.Where(l => l.Level == LogLevel.Warning));
+            Assert.DoesNotContain(TestSqlLoggerFactory.Log, l => l.Level == LogLevel.Warning);
         }
 
         await using (var context = CreateContext())

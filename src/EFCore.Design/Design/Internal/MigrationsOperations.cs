@@ -220,7 +220,6 @@ public class MigrationsOperations
             EnsureServices(services);
 
             var migrator = services.GetRequiredService<IMigrator>();
-
             migrator.Migrate(targetMigration);
         }
 
@@ -288,13 +287,19 @@ public class MigrationsOperations
         var assemblyName = _assembly.GetName();
         var options = services.GetRequiredService<IDbContextOptions>();
         var contextType = services.GetRequiredService<ICurrentDbContext>().Context.GetType();
-        var migrationsAssemblyName = RelationalOptionsExtension.Extract(options).MigrationsAssembly
-            ?? contextType.Assembly.GetName().Name;
-        if (assemblyName.Name != migrationsAssemblyName
-            && assemblyName.FullName != migrationsAssemblyName)
+        var optionsExtension = RelationalOptionsExtension.Extract(options);
+        if (optionsExtension.MigrationsAssemblyObject == null
+            || optionsExtension.MigrationsAssemblyObject != _assembly)
         {
-            throw new OperationException(
-                DesignStrings.MigrationsAssemblyMismatch(assemblyName.Name, migrationsAssemblyName));
+            var migrationsAssemblyName = optionsExtension.MigrationsAssembly
+                ?? optionsExtension.MigrationsAssemblyObject?.GetName().Name
+                ?? contextType.Assembly.GetName().Name;
+            if (assemblyName.Name != migrationsAssemblyName
+                && assemblyName.FullName != migrationsAssemblyName)
+            {
+                throw new OperationException(
+                    DesignStrings.MigrationsAssemblyMismatch(assemblyName.Name, migrationsAssemblyName));
+            }
         }
     }
 }

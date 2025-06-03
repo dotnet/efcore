@@ -27,9 +27,7 @@ public abstract class PredicateJoinExpressionBase : JoinExpressionBase
         bool prunable,
         IReadOnlyDictionary<string, IAnnotation>? annotations = null)
         : base(table, prunable, annotations)
-    {
-        JoinPredicate = joinPredicate;
-    }
+        => JoinPredicate = joinPredicate;
 
     /// <summary>
     ///     The predicate used in join.
@@ -52,7 +50,7 @@ public abstract class PredicateJoinExpressionBase : JoinExpressionBase
     /// <param name="table">The <see cref="JoinExpressionBase.Table" /> property of the result.</param>
     /// <param name="joinPredicate">The <see cref="PredicateJoinExpressionBase.JoinPredicate" /> property of the result.</param>
     /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
-    public abstract PredicateJoinExpressionBase Update(TableExpressionBase table, SqlExpression joinPredicate);
+    public abstract JoinExpressionBase Update(TableExpressionBase table, SqlExpression joinPredicate);
 
     /// <inheritdoc />
     public override bool Equals(object? obj)

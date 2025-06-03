@@ -46,7 +46,30 @@ public class InMemoryDatabaseCreatorTest
         optionsBuilder.UseInMemoryDatabase(nameof(InMemoryDatabaseCreatorTest));
 
         var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(serviceProvider, optionsBuilder.Options);
-        return new InMemoryDatabaseCreator(contextServices.GetRequiredService<IDatabase>());
+        return new InMemoryDatabaseCreator(
+            contextServices.GetRequiredService<IDatabase>(),
+            contextServices.GetRequiredService<ICurrentDbContext>(),
+            contextServices.GetRequiredService<IDbContextOptions>());
+    }
+
+    [ConditionalFact]
+    public void EnsureCreated_throws_for_missing_seed()
+    {
+        using var context = new FraggleContext(asyncSeed: true);
+
+        Assert.Equal(
+            CoreStrings.MissingSeeder,
+            Assert.Throws<InvalidOperationException>(() => context.Database.EnsureCreated()).Message);
+    }
+
+    [ConditionalFact]
+    public async Task EnsureCreatedAsync_throws_for_missing_seed()
+    {
+        using var context = new FraggleContext(seed: true);
+
+        Assert.Equal(
+            CoreStrings.MissingSeeder,
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => context.Database.EnsureCreatedAsync())).Message);
     }
 
     [ConditionalFact]
@@ -100,15 +123,27 @@ public class InMemoryDatabaseCreatorTest
         }
     }
 
-    private class FraggleContext : DbContext
+    private class FraggleContext(bool seed = false, bool asyncSeed = false) : DbContext
     {
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<Fraggle> Fraggles { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            => optionsBuilder
+        {
+            optionsBuilder
                 .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
                 .UseInMemoryDatabase(nameof(FraggleContext));
+
+            if (seed)
+            {
+                optionsBuilder.UseSeeding((_, __) => { });
+            }
+
+            if (asyncSeed)
+            {
+                optionsBuilder.UseAsyncSeeding((_, __, ___) => Task.CompletedTask);
+            }
+        }
     }
 
     private class Fraggle

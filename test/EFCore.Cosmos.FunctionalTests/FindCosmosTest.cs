@@ -9,9 +9,7 @@ public abstract class FindCosmosTest : FindTestBase<FindCosmosTest.FindCosmosFix
 {
     protected FindCosmosTest(FindCosmosFixture fixture)
         : base(fixture)
-    {
-        fixture.TestSqlLoggerFactory.Clear();
-    }
+        => fixture.TestSqlLoggerFactory.Clear();
 
     [ConditionalFact(Skip = "#25886")]
     public override void Find_base_type_using_derived_set_tracked() { }
@@ -72,7 +70,7 @@ public abstract class FindCosmosTest : FindTestBase<FindCosmosTest.FindCosmosFix
     public override void Returns_null_for_shadow_key_not_in_store()
         => CosmosTestHelpers.Instance.NoSyncTest(() => base.Returns_null_for_shadow_key_not_in_store());
 
- public override void Find_int_key_tracked()
+    public override void Find_int_key_tracked()
     {
         base.Find_int_key_tracked();
 
@@ -209,20 +207,14 @@ public abstract class FindCosmosTest : FindTestBase<FindCosmosTest.FindCosmosFix
     {
         await base.Find_int_key_from_store_async(cancellationType);
 
-        AssertSql(
-            """
-ReadItem(None, IntKey|77)
-""");
+        AssertSql("ReadItem(None, IntKey|77)");
     }
 
     public override async Task Returns_null_for_int_key_not_in_store_async(CancellationType cancellationType)
     {
         await base.Returns_null_for_int_key_not_in_store_async(cancellationType);
 
-        AssertSql(
-            """
-ReadItem(None, IntKey|99)
-""");
+        AssertSql("ReadItem(None, IntKey|99)");
     }
 
     public override async Task Find_nullable_int_key_tracked_async(CancellationType cancellationType)
@@ -236,20 +228,14 @@ ReadItem(None, IntKey|99)
     {
         await base.Find_nullable_int_key_from_store_async(cancellationType);
 
-        AssertSql(
-            """
-ReadItem(None, NullableIntKey|77)
-""");
+        AssertSql("ReadItem(None, NullableIntKey|77)");
     }
 
     public override async Task Returns_null_for_nullable_int_key_not_in_store_async(CancellationType cancellationType)
     {
         await base.Returns_null_for_nullable_int_key_not_in_store_async(cancellationType);
 
-        AssertSql(
-            """
-ReadItem(None, NullableIntKey|99)
-""");
+        AssertSql("ReadItem(None, NullableIntKey|99)");
     }
 
     public override async Task Find_string_key_tracked_async(CancellationType cancellationType)
@@ -263,20 +249,14 @@ ReadItem(None, NullableIntKey|99)
     {
         await base.Find_string_key_from_store_async(cancellationType);
 
-        AssertSql(
-            """
-ReadItem(None, StringKey|Cat)
-""");
+        AssertSql("ReadItem(None, Cat)");
     }
 
     public override async Task Returns_null_for_string_key_not_in_store_async(CancellationType cancellationType)
     {
         await base.Returns_null_for_string_key_not_in_store_async(cancellationType);
 
-        AssertSql(
-            """
-ReadItem(None, StringKey|Fox)
-""");
+        AssertSql("ReadItem(None, Fox)");
     }
 
     public override async Task Find_composite_key_tracked_async(CancellationType cancellationType)
@@ -290,20 +270,14 @@ ReadItem(None, StringKey|Fox)
     {
         await base.Find_composite_key_from_store_async(cancellationType);
 
-        AssertSql(
-            """
-ReadItem(None, CompositeKey|77|Dog)
-""");
+        AssertSql("ReadItem(None, 77|Dog)");
     }
 
     public override async Task Returns_null_for_composite_key_not_in_store_async(CancellationType cancellationType)
     {
         await base.Returns_null_for_composite_key_not_in_store_async(cancellationType);
 
-        AssertSql(
-            """
-ReadItem(None, CompositeKey|77|Fox)
-""");
+        AssertSql("ReadItem(None, 77|Fox)");
     }
 
     public override async Task Find_base_type_tracked_async(CancellationType cancellationType)
@@ -317,20 +291,14 @@ ReadItem(None, CompositeKey|77|Fox)
     {
         await base.Find_base_type_from_store_async(cancellationType);
 
-        AssertSql(
-            """
-ReadItem(None, BaseType|77)
-""");
+        AssertSql("""ReadItem(None, BaseType|77)""");
     }
 
     public override async Task Returns_null_for_base_type_not_in_store_async(CancellationType cancellationType)
     {
         await base.Returns_null_for_base_type_not_in_store_async(cancellationType);
 
-        AssertSql(
-            """
-ReadItem(None, BaseType|99)
-""");
+        AssertSql("""ReadItem(None, BaseType|99)""");
     }
 
     public override async Task Find_derived_type_tracked_async(CancellationType cancellationType)
@@ -344,30 +312,24 @@ ReadItem(None, BaseType|99)
     {
         await base.Find_derived_type_from_store_async(cancellationType);
 
-        AssertSql(
-            """
-ReadItem(None, DerivedType|78)
-""");
+        AssertSql("ReadItem(None, BaseType|78)");
     }
 
     public override async Task Returns_null_for_derived_type_not_in_store_async(CancellationType cancellationType)
     {
         await base.Returns_null_for_derived_type_not_in_store_async(cancellationType);
 
-        AssertSql(
-            """
-ReadItem(None, DerivedType|99)
-""");
+        AssertSql("ReadItem(None, BaseType|99)");
     }
 
     public override async Task Find_base_type_using_derived_set_from_store_async(CancellationType cancellationType)
     {
-        await base.Find_base_type_using_derived_set_from_store_async(cancellationType);
+        Assert.Equal(
+            CoreStrings.UnableToDiscriminate("DerivedType", "BaseType"),
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Find_base_type_using_derived_set_from_store_async(cancellationType))).Message);
 
-        AssertSql(
-            """
-ReadItem(None, DerivedType|77)
-""");
+        AssertSql("ReadItem(None, BaseType|77)");
     }
 
     public override async Task Find_derived_type_using_base_set_tracked_async(CancellationType cancellationType)
@@ -388,20 +350,14 @@ ReadItem(None, DerivedType|77)
     {
         await base.Find_shadow_key_from_store_async(cancellationType);
 
-        AssertSql(
-            """
-ReadItem(None, ShadowKey|77)
-""");
+        AssertSql("ReadItem(None, 77)");
     }
 
     public override async Task Returns_null_for_shadow_key_not_in_store_async(CancellationType cancellationType)
     {
         await base.Returns_null_for_shadow_key_not_in_store_async(cancellationType);
 
-        AssertSql(
-            """
-ReadItem(None, ShadowKey|99)
-""");
+        AssertSql("ReadItem(None, 99)");
     }
 
     public override async Task Returns_null_for_null_key_values_array_async(CancellationType cancellationType)
@@ -498,5 +454,30 @@ ReadItem(None, ShadowKey|99)
 
         protected override ITestStoreFactory TestStoreFactory
             => CosmosTestStoreFactory.Instance;
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
+        {
+            base.OnModelCreating(modelBuilder, context);
+
+            modelBuilder.Entity<IntKey>()
+                .ToContainer("Ints")
+                .HasRootDiscriminatorInJsonId();
+
+            modelBuilder.Entity<NullableIntKey>()
+                .ToContainer("Ints")
+                .HasRootDiscriminatorInJsonId();
+
+            modelBuilder.Entity<StringKey>()
+                .ToContainer("Strings");
+
+            modelBuilder.Entity<CompositeKey>()
+                .ToContainer("CompositeKeys");
+
+            modelBuilder.Entity<BaseType>()
+                .ToContainer("Base")
+                .HasRootDiscriminatorInJsonId();
+
+            modelBuilder.Entity<ShadowKey>().ToContainer("ShadowKeys");
+        }
     }
 }

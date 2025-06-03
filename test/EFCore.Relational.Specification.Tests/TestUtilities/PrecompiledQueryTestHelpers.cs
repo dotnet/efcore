@@ -70,23 +70,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
 using Xunit;
 using static Microsoft.EntityFrameworkCore.Query.PrecompiledQueryRelationalTestBase;
-//using Microsoft.EntityFrameworkCore.PrecompiledQueryTest;
 
 {sourceCode}
 """;
 
         // This turns on the interceptors feature for the designated namespace(s).
         var parseOptions = new CSharpParseOptions().WithFeatures(
-            new[]
-            {
-                new KeyValuePair<string, string>("InterceptorsPreviewNamespaces", "Microsoft.EntityFrameworkCore.GeneratedInterceptors")
-            });
+        [
+            new KeyValuePair<string, string>("InterceptorsNamespaces", "Microsoft.EntityFrameworkCore.GeneratedInterceptors")
+        ]);
 
         var syntaxTree = CSharpSyntaxTree.ParseText(source, parseOptions, path: "Test.cs");
 
@@ -115,7 +114,8 @@ using static Microsoft.EntityFrameworkCore.Query.PrecompiledQueryRelationalTestB
                 // Perform precompilation
                 var precompilationErrors = new List<PrecompiledQueryCodeGenerator.QueryPrecompilationError>();
                 generatedFiles = precompiledQueryCodeGenerator.GeneratePrecompiledQueries(
-                    compilation, syntaxGenerator, dbContext, memberAccessReplacements: new Dictionary<MemberInfo, QualifiedName>(), precompilationErrors, new HashSet<string>(), additionalAssembly: assembly);
+                    compilation, syntaxGenerator, dbContext, memberAccessReplacements: new Dictionary<MemberInfo, QualifiedName>(),
+                    precompilationErrors, new HashSet<string>(), additionalAssembly: assembly);
 
                 if (errorAsserter is null)
                 {
@@ -279,7 +279,8 @@ using static Microsoft.EntityFrameworkCore.Query.PrecompiledQueryRelationalTestB
         ICurrentDbContext currentContext,
         IEvaluatableExpressionFilter evaluatableExpressionFilter,
         IModel model)
-        : QueryCompiler(queryContextFactory, compiledQueryCache, compiledQueryCacheKeyGenerator, database, logger,
+        : QueryCompiler(
+            queryContextFactory, compiledQueryCache, compiledQueryCacheKeyGenerator, database, logger,
             currentContext, evaluatableExpressionFilter, model)
     {
         public const string ErrorMessage =

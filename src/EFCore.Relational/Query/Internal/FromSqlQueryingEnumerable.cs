@@ -229,27 +229,20 @@ public class FromSqlQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>,
         {
             try
             {
-                _concurrencyDetector?.EnterCriticalSection();
+                using var _ = _concurrencyDetector?.EnterCriticalSection();
 
-                try
+                if (_dataReader == null)
                 {
-                    if (_dataReader == null)
-                    {
-                        _relationalQueryContext.ExecutionStrategy.Execute(this, (_, enumerator) => InitializeReader(enumerator), null);
-                    }
-
-                    var hasNext = _dataReader!.Read();
-
-                    Current = hasNext
-                        ? _shaper(_relationalQueryContext, _dataReader.DbDataReader, _indexMap!)
-                        : default!;
-
-                    return hasNext;
+                    _relationalQueryContext.ExecutionStrategy.Execute(this, (_, enumerator) => InitializeReader(enumerator), null);
                 }
-                finally
-                {
-                    _concurrencyDetector?.ExitCriticalSection();
-                }
+
+                var hasNext = _dataReader!.Read();
+
+                Current = hasNext
+                    ? _shaper(_relationalQueryContext, _dataReader.DbDataReader, _indexMap!)
+                    : default!;
+
+                return hasNext;
             }
             catch (Exception exception)
             {
@@ -346,32 +339,25 @@ public class FromSqlQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>,
         {
             try
             {
-                _concurrencyDetector?.EnterCriticalSection();
+                using var _ = _concurrencyDetector?.EnterCriticalSection();
 
-                try
+                if (_dataReader == null)
                 {
-                    if (_dataReader == null)
-                    {
-                        await _relationalQueryContext.ExecutionStrategy.ExecuteAsync(
-                                this,
-                                (_, enumerator, cancellationToken) => InitializeReaderAsync(enumerator, cancellationToken),
-                                null,
-                                _relationalQueryContext.CancellationToken)
-                            .ConfigureAwait(false);
-                    }
-
-                    var hasNext = await _dataReader!.ReadAsync(_relationalQueryContext.CancellationToken).ConfigureAwait(false);
-
-                    Current = hasNext
-                        ? _shaper(_relationalQueryContext, _dataReader.DbDataReader, _indexMap!)
-                        : default!;
-
-                    return hasNext;
+                    await _relationalQueryContext.ExecutionStrategy.ExecuteAsync(
+                            this,
+                            (_, enumerator, cancellationToken) => InitializeReaderAsync(enumerator, cancellationToken),
+                            null,
+                            _relationalQueryContext.CancellationToken)
+                        .ConfigureAwait(false);
                 }
-                finally
-                {
-                    _concurrencyDetector?.ExitCriticalSection();
-                }
+
+                var hasNext = await _dataReader!.ReadAsync(_relationalQueryContext.CancellationToken).ConfigureAwait(false);
+
+                Current = hasNext
+                    ? _shaper(_relationalQueryContext, _dataReader.DbDataReader, _indexMap!)
+                    : default!;
+
+                return hasNext;
             }
             catch (Exception exception)
             {

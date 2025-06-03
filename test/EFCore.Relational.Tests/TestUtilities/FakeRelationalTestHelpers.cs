@@ -25,5 +25,6 @@ public class FakeRelationalTestHelpers : TestHelpers
 
     public override LoggingDefinitions LoggingDefinitions { get; } = new TestRelationalLoggingDefinitions();
 
-    public override ModelAsserter ModelAsserter => RelationalModelAsserter.Instance;
+    public override ModelAsserter ModelAsserter
+        => RelationalModelAsserter.Instance;
 }

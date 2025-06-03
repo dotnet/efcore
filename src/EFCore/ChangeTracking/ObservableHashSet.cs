@@ -42,9 +42,7 @@ public class ObservableHashSet<T>
     ///     implementation for the set type.
     /// </param>
     public ObservableHashSet(IEqualityComparer<T> comparer)
-    {
-        _set = new HashSet<T>(comparer);
-    }
+        => _set = new HashSet<T>(comparer);
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="ObservableHashSet{T}" /> class
@@ -71,9 +69,7 @@ public class ObservableHashSet<T>
     ///     implementation for the set type.
     /// </param>
     public ObservableHashSet(IEnumerable<T> collection, IEqualityComparer<T> comparer)
-    {
-        _set = new HashSet<T>(collection, comparer);
-    }
+        => _set = new HashSet<T>(collection, comparer);
 
     /// <summary>
     ///     Occurs when a property of this hash set (such as <see cref="Count" />) changes.

@@ -11,9 +11,7 @@ public class SqlQuerySqliteTest : SqlQueryTestBase<NorthwindQuerySqliteFixture<N
 {
     public SqlQuerySqliteTest(NorthwindQuerySqliteFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)
         : base(fixture)
-    {
-        Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
-    }
+        => Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
 
     public override async Task SqlQueryRaw_queryable_composed(bool async)
     {
@@ -34,14 +32,17 @@ WHERE instr("m"."ContactName", 'z') > 0
         var queryString = await base.SqlQueryRaw_queryable_with_parameters_and_closure(async);
 
         Assert.Equal(
-            @".param set p0 'London'
-.param set @__contactTitle_1 'Sales Representative'
+            """
+.param set p0 'London'
+.param set @contactTitle 'Sales Representative'
 
-SELECT ""m"".""Address"", ""m"".""City"", ""m"".""CompanyName"", ""m"".""ContactName"", ""m"".""ContactTitle"", ""m"".""Country"", ""m"".""CustomerID"", ""m"".""Fax"", ""m"".""Phone"", ""m"".""Region"", ""m"".""PostalCode""
+SELECT "m"."Address", "m"."City", "m"."CompanyName", "m"."ContactName", "m"."ContactTitle", "m"."Country", "m"."CustomerID", "m"."Fax", "m"."Phone", "m"."Region", "m"."PostalCode"
 FROM (
-    SELECT * FROM ""Customers"" WHERE ""City"" = @p0
-) AS ""m""
-WHERE ""m"".""ContactTitle"" = @__contactTitle_1", queryString, ignoreLineEndingDifferences: true);
+    SELECT * FROM "Customers" WHERE "City" = @p0
+) AS "m"
+WHERE "m"."ContactTitle" = @contactTitle
+""",
+            queryString, ignoreLineEndingDifferences: true);
 
         return queryString;
     }

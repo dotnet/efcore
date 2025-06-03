@@ -12,11 +12,9 @@ public class NullSemanticsQuerySqliteTest : NullSemanticsQueryTestBase<NullSeman
     // ReSharper disable once UnusedParameter.Local
     public NullSemanticsQuerySqliteTest(NullSemanticsQuerySqliteFixture fixture, ITestOutputHelper testOutputHelper)
         : base(fixture)
-    {
-        Fixture.TestSqlLoggerFactory.Clear();
-        //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
-    }
+        => Fixture.TestSqlLoggerFactory.Clear();
 
+    //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     public override async Task Rewrite_compare_int_with_int(bool async)
     {
         await base.Rewrite_compare_int_with_int(async);
@@ -173,7 +171,7 @@ FROM "Entities1" AS "e"
             """
 SELECT "e"."Id"
 FROM "Entities1" AS "e"
-WHERE "e"."NullableIntA" = "e"."IntB" AND "e"."NullableIntA" IS NOT NULL
+WHERE "e"."NullableIntA" = "e"."IntB"
 """,
             //
             """
@@ -184,7 +182,7 @@ FROM "Entities1" AS "e"
             """
 SELECT "e"."Id"
 FROM "Entities1" AS "e"
-WHERE "e"."IntA" = "e"."NullableIntB" AND "e"."NullableIntB" IS NOT NULL
+WHERE "e"."IntA" = "e"."NullableIntB"
 """,
             //
             """
@@ -195,7 +193,7 @@ FROM "Entities1" AS "e"
             """
 SELECT "e"."Id"
 FROM "Entities1" AS "e"
-WHERE ("e"."NullableIntA" = "e"."NullableIntB" AND "e"."NullableIntA" IS NOT NULL AND "e"."NullableIntB" IS NOT NULL) OR ("e"."NullableIntA" IS NULL AND "e"."NullableIntB" IS NULL)
+WHERE "e"."NullableIntA" = "e"."NullableIntB" OR ("e"."NullableIntA" IS NULL AND "e"."NullableIntB" IS NULL)
 """);
     }
 
@@ -227,6 +225,17 @@ WHERE "e"."BoolA" = "e"."NullableBoolB"
 """,
             //
             """
+SELECT "e"."Id", "e"."BoolA" AS "X"
+FROM "Entities1" AS "e"
+""",
+            //
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE "e"."BoolA"
+""",
+            //
+            """
 SELECT "e"."Id", "e"."BoolA" <> "e"."BoolB" AS "X"
 FROM "Entities1" AS "e"
 """,
@@ -246,6 +255,17 @@ FROM "Entities1" AS "e"
 SELECT "e"."Id"
 FROM "Entities1" AS "e"
 WHERE "e"."BoolA" <> "e"."NullableBoolB"
+""",
+            //
+            """
+SELECT "e"."Id", NOT ("e"."BoolA") AS "X"
+FROM "Entities1" AS "e"
+""",
+            //
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE NOT ("e"."BoolA")
 """,
             //
             """
@@ -271,6 +291,17 @@ WHERE "e"."NullableBoolA" = "e"."NullableBoolB" OR ("e"."NullableBoolA" IS NULL 
 """,
             //
             """
+SELECT "e"."Id", "e"."NullableBoolA" = 1 AND "e"."NullableBoolA" IS NOT NULL AS "X"
+FROM "Entities1" AS "e"
+""",
+            //
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE "e"."NullableBoolA"
+""",
+            //
+            """
 SELECT "e"."Id", "e"."NullableBoolA" <> "e"."BoolB" AND "e"."NullableBoolA" IS NOT NULL AS "X"
 FROM "Entities1" AS "e"
 """,
@@ -293,6 +324,61 @@ WHERE "e"."NullableBoolA" <> "e"."NullableBoolB" OR ("e"."NullableBoolA" IS NULL
 """,
             //
             """
+SELECT "e"."Id", "e"."NullableBoolA" <> 1 AND "e"."NullableBoolA" IS NOT NULL AS "X"
+FROM "Entities1" AS "e"
+""",
+            //
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE NOT ("e"."NullableBoolA")
+""",
+            //
+            """
+SELECT "e"."Id", "e"."BoolB" AS "X"
+FROM "Entities1" AS "e"
+""",
+            //
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE "e"."BoolB"
+""",
+            //
+            """
+SELECT "e"."Id", 1 = "e"."NullableBoolB" AND "e"."NullableBoolB" IS NOT NULL AS "X"
+FROM "Entities1" AS "e"
+""",
+            //
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE "e"."NullableBoolB"
+""",
+            //
+            """
+SELECT "e"."Id", NOT ("e"."BoolB") AS "X"
+FROM "Entities1" AS "e"
+""",
+            //
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE NOT ("e"."BoolB")
+""",
+            //
+            """
+SELECT "e"."Id", 0 = "e"."NullableBoolB" AND "e"."NullableBoolB" IS NOT NULL AS "X"
+FROM "Entities1" AS "e"
+""",
+            //
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE 0 = "e"."NullableBoolB"
+""",
+            //
+            """
 SELECT "e"."Id", "e"."BoolA" <> "e"."BoolB" AS "X"
 FROM "Entities1" AS "e"
 """,
@@ -312,6 +398,17 @@ FROM "Entities1" AS "e"
 SELECT "e"."Id"
 FROM "Entities1" AS "e"
 WHERE "e"."BoolA" <> "e"."NullableBoolB"
+""",
+            //
+            """
+SELECT "e"."Id", NOT ("e"."BoolA") AS "X"
+FROM "Entities1" AS "e"
+""",
+            //
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE NOT ("e"."BoolA")
 """,
             //
             """
@@ -337,6 +434,17 @@ WHERE "e"."BoolA" = "e"."NullableBoolB"
 """,
             //
             """
+SELECT "e"."Id", "e"."BoolA" AS "X"
+FROM "Entities1" AS "e"
+""",
+            //
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE "e"."BoolA"
+""",
+            //
+            """
 SELECT "e"."Id", "e"."NullableBoolA" <> "e"."BoolB" AND "e"."NullableBoolA" IS NOT NULL AS "X"
 FROM "Entities1" AS "e"
 """,
@@ -356,6 +464,17 @@ FROM "Entities1" AS "e"
 SELECT "e"."Id"
 FROM "Entities1" AS "e"
 WHERE "e"."NullableBoolA" <> "e"."NullableBoolB" OR ("e"."NullableBoolA" IS NULL AND "e"."NullableBoolB" IS NULL)
+""",
+            //
+            """
+SELECT "e"."Id", "e"."NullableBoolA" = 0 AND "e"."NullableBoolA" IS NOT NULL AS "X"
+FROM "Entities1" AS "e"
+""",
+            //
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE "e"."NullableBoolA" = 0
 """,
             //
             """
@@ -381,113 +500,58 @@ WHERE "e"."NullableBoolA" = "e"."NullableBoolB" OR ("e"."NullableBoolA" IS NULL 
 """,
             //
             """
-SELECT "e"."Id", "e"."BoolA" <> "e"."BoolB" AS "X"
+SELECT "e"."Id", "e"."NullableBoolA" <> 0 AND "e"."NullableBoolA" IS NOT NULL AS "X"
 FROM "Entities1" AS "e"
 """,
             //
             """
 SELECT "e"."Id"
 FROM "Entities1" AS "e"
-WHERE "e"."BoolA" <> "e"."BoolB"
+WHERE "e"."NullableBoolA" <> 0
 """,
             //
             """
-SELECT "e"."Id", "e"."BoolA" <> "e"."NullableBoolB" OR "e"."NullableBoolB" IS NULL AS "X"
+SELECT "e"."Id", NOT ("e"."BoolB") AS "X"
 FROM "Entities1" AS "e"
 """,
             //
             """
 SELECT "e"."Id"
 FROM "Entities1" AS "e"
-WHERE "e"."BoolA" <> "e"."NullableBoolB" OR "e"."NullableBoolB" IS NULL
+WHERE NOT ("e"."BoolB")
 """,
             //
             """
-SELECT "e"."Id", "e"."BoolA" = "e"."BoolB" AS "X"
+SELECT "e"."Id", 1 <> "e"."NullableBoolB" AND "e"."NullableBoolB" IS NOT NULL AS "X"
 FROM "Entities1" AS "e"
 """,
             //
             """
 SELECT "e"."Id"
 FROM "Entities1" AS "e"
-WHERE "e"."BoolA" = "e"."BoolB"
+WHERE NOT ("e"."NullableBoolB")
 """,
             //
             """
-SELECT "e"."Id", "e"."BoolA" = "e"."NullableBoolB" OR "e"."NullableBoolB" IS NULL AS "X"
+SELECT "e"."Id", "e"."BoolB" AS "X"
 FROM "Entities1" AS "e"
 """,
             //
             """
 SELECT "e"."Id"
 FROM "Entities1" AS "e"
-WHERE "e"."BoolA" = "e"."NullableBoolB" OR "e"."NullableBoolB" IS NULL
+WHERE "e"."BoolB"
 """,
             //
             """
-SELECT "e"."Id", "e"."NullableBoolA" <> "e"."BoolB" OR "e"."NullableBoolA" IS NULL AS "X"
+SELECT "e"."Id", 0 <> "e"."NullableBoolB" AND "e"."NullableBoolB" IS NOT NULL AS "X"
 FROM "Entities1" AS "e"
 """,
             //
             """
 SELECT "e"."Id"
 FROM "Entities1" AS "e"
-WHERE "e"."NullableBoolA" <> "e"."BoolB" OR "e"."NullableBoolA" IS NULL
-""",
-            //
-            """
-SELECT "e"."Id", ("e"."NullableBoolA" <> "e"."NullableBoolB" OR "e"."NullableBoolA" IS NULL OR "e"."NullableBoolB" IS NULL) AND ("e"."NullableBoolA" IS NOT NULL OR "e"."NullableBoolB" IS NOT NULL) AS "X"
-FROM "Entities1" AS "e"
-""",
-            //
-            """
-SELECT "e"."Id"
-FROM "Entities1" AS "e"
-WHERE ("e"."NullableBoolA" <> "e"."NullableBoolB" OR "e"."NullableBoolA" IS NULL OR "e"."NullableBoolB" IS NULL) AND ("e"."NullableBoolA" IS NOT NULL OR "e"."NullableBoolB" IS NOT NULL)
-""",
-            //
-            """
-SELECT "e"."Id", "e"."NullableBoolA" = "e"."BoolB" OR "e"."NullableBoolA" IS NULL AS "X"
-FROM "Entities1" AS "e"
-""",
-            //
-            """
-SELECT "e"."Id"
-FROM "Entities1" AS "e"
-WHERE "e"."NullableBoolA" = "e"."BoolB" OR "e"."NullableBoolA" IS NULL
-""",
-            //
-            """
-SELECT "e"."Id", ("e"."NullableBoolA" = "e"."NullableBoolB" OR "e"."NullableBoolA" IS NULL OR "e"."NullableBoolB" IS NULL) AND ("e"."NullableBoolA" IS NOT NULL OR "e"."NullableBoolB" IS NOT NULL) AS "X"
-FROM "Entities1" AS "e"
-""",
-            //
-            """
-SELECT "e"."Id"
-FROM "Entities1" AS "e"
-WHERE ("e"."NullableBoolA" = "e"."NullableBoolB" OR "e"."NullableBoolA" IS NULL OR "e"."NullableBoolB" IS NULL) AND ("e"."NullableBoolA" IS NOT NULL OR "e"."NullableBoolB" IS NOT NULL)
-""",
-            //
-            """
-SELECT "e"."Id", "e"."BoolA" = "e"."BoolB" AS "X"
-FROM "Entities1" AS "e"
-""",
-            //
-            """
-SELECT "e"."Id"
-FROM "Entities1" AS "e"
-WHERE "e"."BoolA" = "e"."BoolB"
-""",
-            //
-            """
-SELECT "e"."Id", "e"."BoolA" = "e"."NullableBoolB" OR "e"."NullableBoolB" IS NULL AS "X"
-FROM "Entities1" AS "e"
-""",
-            //
-            """
-SELECT "e"."Id"
-FROM "Entities1" AS "e"
-WHERE "e"."BoolA" = "e"."NullableBoolB" OR "e"."NullableBoolB" IS NULL
+WHERE 0 <> "e"."NullableBoolB"
 """,
             //
             """
@@ -513,69 +577,14 @@ WHERE "e"."BoolA" <> "e"."NullableBoolB" OR "e"."NullableBoolB" IS NULL
 """,
             //
             """
-SELECT "e"."Id", "e"."NullableBoolA" = "e"."BoolB" OR "e"."NullableBoolA" IS NULL AS "X"
+SELECT "e"."Id", NOT ("e"."BoolA") AS "X"
 FROM "Entities1" AS "e"
 """,
             //
             """
 SELECT "e"."Id"
 FROM "Entities1" AS "e"
-WHERE "e"."NullableBoolA" = "e"."BoolB" OR "e"."NullableBoolA" IS NULL
-""",
-            //
-            """
-SELECT "e"."Id", ("e"."NullableBoolA" = "e"."NullableBoolB" OR "e"."NullableBoolA" IS NULL OR "e"."NullableBoolB" IS NULL) AND ("e"."NullableBoolA" IS NOT NULL OR "e"."NullableBoolB" IS NOT NULL) AS "X"
-FROM "Entities1" AS "e"
-""",
-            //
-            """
-SELECT "e"."Id"
-FROM "Entities1" AS "e"
-WHERE ("e"."NullableBoolA" = "e"."NullableBoolB" OR "e"."NullableBoolA" IS NULL OR "e"."NullableBoolB" IS NULL) AND ("e"."NullableBoolA" IS NOT NULL OR "e"."NullableBoolB" IS NOT NULL)
-""",
-            //
-            """
-SELECT "e"."Id", "e"."NullableBoolA" <> "e"."BoolB" OR "e"."NullableBoolA" IS NULL AS "X"
-FROM "Entities1" AS "e"
-""",
-            //
-            """
-SELECT "e"."Id"
-FROM "Entities1" AS "e"
-WHERE "e"."NullableBoolA" <> "e"."BoolB" OR "e"."NullableBoolA" IS NULL
-""",
-            //
-            """
-SELECT "e"."Id", ("e"."NullableBoolA" <> "e"."NullableBoolB" OR "e"."NullableBoolA" IS NULL OR "e"."NullableBoolB" IS NULL) AND ("e"."NullableBoolA" IS NOT NULL OR "e"."NullableBoolB" IS NOT NULL) AS "X"
-FROM "Entities1" AS "e"
-""",
-            //
-            """
-SELECT "e"."Id"
-FROM "Entities1" AS "e"
-WHERE ("e"."NullableBoolA" <> "e"."NullableBoolB" OR "e"."NullableBoolA" IS NULL OR "e"."NullableBoolB" IS NULL) AND ("e"."NullableBoolA" IS NOT NULL OR "e"."NullableBoolB" IS NOT NULL)
-""",
-            //
-            """
-SELECT "e"."Id", "e"."BoolA" <> "e"."BoolB" AS "X"
-FROM "Entities1" AS "e"
-""",
-            //
-            """
-SELECT "e"."Id"
-FROM "Entities1" AS "e"
-WHERE "e"."BoolA" <> "e"."BoolB"
-""",
-            //
-            """
-SELECT "e"."Id", "e"."BoolA" <> "e"."NullableBoolB" OR "e"."NullableBoolB" IS NULL AS "X"
-FROM "Entities1" AS "e"
-""",
-            //
-            """
-SELECT "e"."Id"
-FROM "Entities1" AS "e"
-WHERE "e"."BoolA" <> "e"."NullableBoolB" OR "e"."NullableBoolB" IS NULL
+WHERE NOT ("e"."BoolA")
 """,
             //
             """
@@ -601,6 +610,17 @@ WHERE "e"."BoolA" = "e"."NullableBoolB" OR "e"."NullableBoolB" IS NULL
 """,
             //
             """
+SELECT "e"."Id", "e"."BoolA" AS "X"
+FROM "Entities1" AS "e"
+""",
+            //
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE "e"."BoolA"
+""",
+            //
+            """
 SELECT "e"."Id", "e"."NullableBoolA" <> "e"."BoolB" OR "e"."NullableBoolA" IS NULL AS "X"
 FROM "Entities1" AS "e"
 """,
@@ -623,6 +643,17 @@ WHERE ("e"."NullableBoolA" <> "e"."NullableBoolB" OR "e"."NullableBoolA" IS NULL
 """,
             //
             """
+SELECT "e"."Id", "e"."NullableBoolA" <> 1 OR "e"."NullableBoolA" IS NULL AS "X"
+FROM "Entities1" AS "e"
+""",
+            //
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE "e"."NullableBoolA" <> 1 OR "e"."NullableBoolA" IS NULL
+""",
+            //
+            """
 SELECT "e"."Id", "e"."NullableBoolA" = "e"."BoolB" OR "e"."NullableBoolA" IS NULL AS "X"
 FROM "Entities1" AS "e"
 """,
@@ -642,6 +673,61 @@ FROM "Entities1" AS "e"
 SELECT "e"."Id"
 FROM "Entities1" AS "e"
 WHERE ("e"."NullableBoolA" = "e"."NullableBoolB" OR "e"."NullableBoolA" IS NULL OR "e"."NullableBoolB" IS NULL) AND ("e"."NullableBoolA" IS NOT NULL OR "e"."NullableBoolB" IS NOT NULL)
+""",
+            //
+            """
+SELECT "e"."Id", "e"."NullableBoolA" = 1 OR "e"."NullableBoolA" IS NULL AS "X"
+FROM "Entities1" AS "e"
+""",
+            //
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE "e"."NullableBoolA" = 1 OR "e"."NullableBoolA" IS NULL
+""",
+            //
+            """
+SELECT "e"."Id", NOT ("e"."BoolB") AS "X"
+FROM "Entities1" AS "e"
+""",
+            //
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE NOT ("e"."BoolB")
+""",
+            //
+            """
+SELECT "e"."Id", 1 <> "e"."NullableBoolB" OR "e"."NullableBoolB" IS NULL AS "X"
+FROM "Entities1" AS "e"
+""",
+            //
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE 1 <> "e"."NullableBoolB" OR "e"."NullableBoolB" IS NULL
+""",
+            //
+            """
+SELECT "e"."Id", "e"."BoolB" AS "X"
+FROM "Entities1" AS "e"
+""",
+            //
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE "e"."BoolB"
+""",
+            //
+            """
+SELECT "e"."Id", 0 <> "e"."NullableBoolB" OR "e"."NullableBoolB" IS NULL AS "X"
+FROM "Entities1" AS "e"
+""",
+            //
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE 0 <> "e"."NullableBoolB" OR "e"."NullableBoolB" IS NULL
 """,
             //
             """
@@ -667,6 +753,17 @@ WHERE "e"."BoolA" = "e"."NullableBoolB" OR "e"."NullableBoolB" IS NULL
 """,
             //
             """
+SELECT "e"."Id", "e"."BoolA" AS "X"
+FROM "Entities1" AS "e"
+""",
+            //
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE "e"."BoolA"
+""",
+            //
+            """
 SELECT "e"."Id", "e"."BoolA" <> "e"."BoolB" AS "X"
 FROM "Entities1" AS "e"
 """,
@@ -686,6 +783,17 @@ FROM "Entities1" AS "e"
 SELECT "e"."Id"
 FROM "Entities1" AS "e"
 WHERE "e"."BoolA" <> "e"."NullableBoolB" OR "e"."NullableBoolB" IS NULL
+""",
+            //
+            """
+SELECT "e"."Id", NOT ("e"."BoolA") AS "X"
+FROM "Entities1" AS "e"
+""",
+            //
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE NOT ("e"."BoolA")
 """,
             //
             """
@@ -711,6 +819,17 @@ WHERE ("e"."NullableBoolA" = "e"."NullableBoolB" OR "e"."NullableBoolA" IS NULL 
 """,
             //
             """
+SELECT "e"."Id", "e"."NullableBoolA" <> 0 OR "e"."NullableBoolA" IS NULL AS "X"
+FROM "Entities1" AS "e"
+""",
+            //
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE "e"."NullableBoolA" <> 0 OR "e"."NullableBoolA" IS NULL
+""",
+            //
+            """
 SELECT "e"."Id", "e"."NullableBoolA" <> "e"."BoolB" OR "e"."NullableBoolA" IS NULL AS "X"
 FROM "Entities1" AS "e"
 """,
@@ -730,6 +849,413 @@ FROM "Entities1" AS "e"
 SELECT "e"."Id"
 FROM "Entities1" AS "e"
 WHERE ("e"."NullableBoolA" <> "e"."NullableBoolB" OR "e"."NullableBoolA" IS NULL OR "e"."NullableBoolB" IS NULL) AND ("e"."NullableBoolA" IS NOT NULL OR "e"."NullableBoolB" IS NOT NULL)
+""",
+            //
+            """
+SELECT "e"."Id", "e"."NullableBoolA" = 0 OR "e"."NullableBoolA" IS NULL AS "X"
+FROM "Entities1" AS "e"
+""",
+            //
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE "e"."NullableBoolA" = 0 OR "e"."NullableBoolA" IS NULL
+""",
+            //
+            """
+SELECT "e"."Id", "e"."BoolB" AS "X"
+FROM "Entities1" AS "e"
+""",
+            //
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE "e"."BoolB"
+""",
+            //
+            """
+SELECT "e"."Id", 1 = "e"."NullableBoolB" OR "e"."NullableBoolB" IS NULL AS "X"
+FROM "Entities1" AS "e"
+""",
+            //
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE 1 = "e"."NullableBoolB" OR "e"."NullableBoolB" IS NULL
+""",
+            //
+            """
+SELECT "e"."Id", NOT ("e"."BoolB") AS "X"
+FROM "Entities1" AS "e"
+""",
+            //
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE NOT ("e"."BoolB")
+""",
+            //
+            """
+SELECT "e"."Id", 0 = "e"."NullableBoolB" OR "e"."NullableBoolB" IS NULL AS "X"
+FROM "Entities1" AS "e"
+""",
+            //
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE 0 = "e"."NullableBoolB" OR "e"."NullableBoolB" IS NULL
+""",
+            //
+            """
+SELECT "e"."Id", "e"."BoolA" <> "e"."BoolB" AS "X"
+FROM "Entities1" AS "e"
+""",
+            //
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE "e"."BoolA" <> "e"."BoolB"
+""",
+            //
+            """
+SELECT "e"."Id", "e"."BoolA" <> "e"."NullableBoolB" OR "e"."NullableBoolB" IS NULL AS "X"
+FROM "Entities1" AS "e"
+""",
+            //
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE "e"."BoolA" <> "e"."NullableBoolB" OR "e"."NullableBoolB" IS NULL
+""",
+            //
+            """
+SELECT "e"."Id", NOT ("e"."BoolA") AS "X"
+FROM "Entities1" AS "e"
+""",
+            //
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE NOT ("e"."BoolA")
+""",
+            //
+            """
+SELECT "e"."Id", "e"."BoolA" = "e"."BoolB" AS "X"
+FROM "Entities1" AS "e"
+""",
+            //
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE "e"."BoolA" = "e"."BoolB"
+""",
+            //
+            """
+SELECT "e"."Id", "e"."BoolA" = "e"."NullableBoolB" OR "e"."NullableBoolB" IS NULL AS "X"
+FROM "Entities1" AS "e"
+""",
+            //
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE "e"."BoolA" = "e"."NullableBoolB" OR "e"."NullableBoolB" IS NULL
+""",
+            //
+            """
+SELECT "e"."Id", "e"."BoolA" AS "X"
+FROM "Entities1" AS "e"
+""",
+            //
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE "e"."BoolA"
+""",
+            //
+            """
+SELECT "e"."Id", "e"."NullableBoolA" <> "e"."BoolB" OR "e"."NullableBoolA" IS NULL AS "X"
+FROM "Entities1" AS "e"
+""",
+            //
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE "e"."NullableBoolA" <> "e"."BoolB" OR "e"."NullableBoolA" IS NULL
+""",
+            //
+            """
+SELECT "e"."Id", ("e"."NullableBoolA" <> "e"."NullableBoolB" OR "e"."NullableBoolA" IS NULL OR "e"."NullableBoolB" IS NULL) AND ("e"."NullableBoolA" IS NOT NULL OR "e"."NullableBoolB" IS NOT NULL) AS "X"
+FROM "Entities1" AS "e"
+""",
+            //
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE ("e"."NullableBoolA" <> "e"."NullableBoolB" OR "e"."NullableBoolA" IS NULL OR "e"."NullableBoolB" IS NULL) AND ("e"."NullableBoolA" IS NOT NULL OR "e"."NullableBoolB" IS NOT NULL)
+""",
+            //
+            """
+SELECT "e"."Id", "e"."NullableBoolA" <> 1 OR "e"."NullableBoolA" IS NULL AS "X"
+FROM "Entities1" AS "e"
+""",
+            //
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE "e"."NullableBoolA" <> 1 OR "e"."NullableBoolA" IS NULL
+""",
+            //
+            """
+SELECT "e"."Id", "e"."NullableBoolA" = "e"."BoolB" OR "e"."NullableBoolA" IS NULL AS "X"
+FROM "Entities1" AS "e"
+""",
+            //
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE "e"."NullableBoolA" = "e"."BoolB" OR "e"."NullableBoolA" IS NULL
+""",
+            //
+            """
+SELECT "e"."Id", ("e"."NullableBoolA" = "e"."NullableBoolB" OR "e"."NullableBoolA" IS NULL OR "e"."NullableBoolB" IS NULL) AND ("e"."NullableBoolA" IS NOT NULL OR "e"."NullableBoolB" IS NOT NULL) AS "X"
+FROM "Entities1" AS "e"
+""",
+            //
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE ("e"."NullableBoolA" = "e"."NullableBoolB" OR "e"."NullableBoolA" IS NULL OR "e"."NullableBoolB" IS NULL) AND ("e"."NullableBoolA" IS NOT NULL OR "e"."NullableBoolB" IS NOT NULL)
+""",
+            //
+            """
+SELECT "e"."Id", "e"."NullableBoolA" = 1 OR "e"."NullableBoolA" IS NULL AS "X"
+FROM "Entities1" AS "e"
+""",
+            //
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE "e"."NullableBoolA" = 1 OR "e"."NullableBoolA" IS NULL
+""",
+            //
+            """
+SELECT "e"."Id", NOT ("e"."BoolB") AS "X"
+FROM "Entities1" AS "e"
+""",
+            //
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE NOT ("e"."BoolB")
+""",
+            //
+            """
+SELECT "e"."Id", 1 <> "e"."NullableBoolB" OR "e"."NullableBoolB" IS NULL AS "X"
+FROM "Entities1" AS "e"
+""",
+            //
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE 1 <> "e"."NullableBoolB" OR "e"."NullableBoolB" IS NULL
+""",
+            //
+            """
+SELECT "e"."Id", "e"."BoolB" AS "X"
+FROM "Entities1" AS "e"
+""",
+            //
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE "e"."BoolB"
+""",
+            //
+            """
+SELECT "e"."Id", 0 <> "e"."NullableBoolB" OR "e"."NullableBoolB" IS NULL AS "X"
+FROM "Entities1" AS "e"
+""",
+            //
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE 0 <> "e"."NullableBoolB" OR "e"."NullableBoolB" IS NULL
+""",
+            //
+            """
+SELECT "e"."Id", "e"."BoolA" = "e"."BoolB" AS "X"
+FROM "Entities1" AS "e"
+""",
+            //
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE "e"."BoolA" = "e"."BoolB"
+""",
+            //
+            """
+SELECT "e"."Id", "e"."BoolA" = "e"."NullableBoolB" OR "e"."NullableBoolB" IS NULL AS "X"
+FROM "Entities1" AS "e"
+""",
+            //
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE "e"."BoolA" = "e"."NullableBoolB" OR "e"."NullableBoolB" IS NULL
+""",
+            //
+            """
+SELECT "e"."Id", "e"."BoolA" AS "X"
+FROM "Entities1" AS "e"
+""",
+            //
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE "e"."BoolA"
+""",
+            //
+            """
+SELECT "e"."Id", "e"."BoolA" <> "e"."BoolB" AS "X"
+FROM "Entities1" AS "e"
+""",
+            //
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE "e"."BoolA" <> "e"."BoolB"
+""",
+            //
+            """
+SELECT "e"."Id", "e"."BoolA" <> "e"."NullableBoolB" OR "e"."NullableBoolB" IS NULL AS "X"
+FROM "Entities1" AS "e"
+""",
+            //
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE "e"."BoolA" <> "e"."NullableBoolB" OR "e"."NullableBoolB" IS NULL
+""",
+            //
+            """
+SELECT "e"."Id", NOT ("e"."BoolA") AS "X"
+FROM "Entities1" AS "e"
+""",
+            //
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE NOT ("e"."BoolA")
+""",
+            //
+            """
+SELECT "e"."Id", "e"."NullableBoolA" = "e"."BoolB" OR "e"."NullableBoolA" IS NULL AS "X"
+FROM "Entities1" AS "e"
+""",
+            //
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE "e"."NullableBoolA" = "e"."BoolB" OR "e"."NullableBoolA" IS NULL
+""",
+            //
+            """
+SELECT "e"."Id", ("e"."NullableBoolA" = "e"."NullableBoolB" OR "e"."NullableBoolA" IS NULL OR "e"."NullableBoolB" IS NULL) AND ("e"."NullableBoolA" IS NOT NULL OR "e"."NullableBoolB" IS NOT NULL) AS "X"
+FROM "Entities1" AS "e"
+""",
+            //
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE ("e"."NullableBoolA" = "e"."NullableBoolB" OR "e"."NullableBoolA" IS NULL OR "e"."NullableBoolB" IS NULL) AND ("e"."NullableBoolA" IS NOT NULL OR "e"."NullableBoolB" IS NOT NULL)
+""",
+            //
+            """
+SELECT "e"."Id", "e"."NullableBoolA" <> 0 OR "e"."NullableBoolA" IS NULL AS "X"
+FROM "Entities1" AS "e"
+""",
+            //
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE "e"."NullableBoolA" <> 0 OR "e"."NullableBoolA" IS NULL
+""",
+            //
+            """
+SELECT "e"."Id", "e"."NullableBoolA" <> "e"."BoolB" OR "e"."NullableBoolA" IS NULL AS "X"
+FROM "Entities1" AS "e"
+""",
+            //
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE "e"."NullableBoolA" <> "e"."BoolB" OR "e"."NullableBoolA" IS NULL
+""",
+            //
+            """
+SELECT "e"."Id", ("e"."NullableBoolA" <> "e"."NullableBoolB" OR "e"."NullableBoolA" IS NULL OR "e"."NullableBoolB" IS NULL) AND ("e"."NullableBoolA" IS NOT NULL OR "e"."NullableBoolB" IS NOT NULL) AS "X"
+FROM "Entities1" AS "e"
+""",
+            //
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE ("e"."NullableBoolA" <> "e"."NullableBoolB" OR "e"."NullableBoolA" IS NULL OR "e"."NullableBoolB" IS NULL) AND ("e"."NullableBoolA" IS NOT NULL OR "e"."NullableBoolB" IS NOT NULL)
+""",
+            //
+            """
+SELECT "e"."Id", "e"."NullableBoolA" = 0 OR "e"."NullableBoolA" IS NULL AS "X"
+FROM "Entities1" AS "e"
+""",
+            //
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE "e"."NullableBoolA" = 0 OR "e"."NullableBoolA" IS NULL
+""",
+            //
+            """
+SELECT "e"."Id", "e"."BoolB" AS "X"
+FROM "Entities1" AS "e"
+""",
+            //
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE "e"."BoolB"
+""",
+            //
+            """
+SELECT "e"."Id", 1 = "e"."NullableBoolB" OR "e"."NullableBoolB" IS NULL AS "X"
+FROM "Entities1" AS "e"
+""",
+            //
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE 1 = "e"."NullableBoolB" OR "e"."NullableBoolB" IS NULL
+""",
+            //
+            """
+SELECT "e"."Id", NOT ("e"."BoolB") AS "X"
+FROM "Entities1" AS "e"
+""",
+            //
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE NOT ("e"."BoolB")
+""",
+            //
+            """
+SELECT "e"."Id", 0 = "e"."NullableBoolB" OR "e"."NullableBoolB" IS NULL AS "X"
+FROM "Entities1" AS "e"
+""",
+            //
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE 0 = "e"."NullableBoolB" OR "e"."NullableBoolB" IS NULL
 """,
             //
             """
@@ -751,7 +1277,18 @@ FROM "Entities1" AS "e"
             """
 SELECT "e"."Id"
 FROM "Entities1" AS "e"
-WHERE "e"."BoolA" = "e"."NullableBoolB" AND "e"."NullableBoolB" IS NOT NULL
+WHERE "e"."BoolA" = "e"."NullableBoolB"
+""",
+            //
+            """
+SELECT "e"."Id", "e"."BoolA" AS "X"
+FROM "Entities1" AS "e"
+""",
+            //
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE "e"."BoolA"
 """,
             //
             """
@@ -773,7 +1310,18 @@ FROM "Entities1" AS "e"
             """
 SELECT "e"."Id"
 FROM "Entities1" AS "e"
-WHERE "e"."BoolA" <> "e"."NullableBoolB" AND "e"."NullableBoolB" IS NOT NULL
+WHERE "e"."BoolA" <> "e"."NullableBoolB"
+""",
+            //
+            """
+SELECT "e"."Id", NOT ("e"."BoolA") AS "X"
+FROM "Entities1" AS "e"
+""",
+            //
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE NOT ("e"."BoolA")
 """,
             //
             """
@@ -784,7 +1332,7 @@ FROM "Entities1" AS "e"
             """
 SELECT "e"."Id"
 FROM "Entities1" AS "e"
-WHERE "e"."NullableBoolA" = "e"."BoolB" AND "e"."NullableBoolA" IS NOT NULL
+WHERE "e"."NullableBoolA" = "e"."BoolB"
 """,
             //
             """
@@ -795,7 +1343,18 @@ FROM "Entities1" AS "e"
             """
 SELECT "e"."Id"
 FROM "Entities1" AS "e"
-WHERE ("e"."NullableBoolA" = "e"."NullableBoolB" AND "e"."NullableBoolA" IS NOT NULL AND "e"."NullableBoolB" IS NOT NULL) OR ("e"."NullableBoolA" IS NULL AND "e"."NullableBoolB" IS NULL)
+WHERE "e"."NullableBoolA" = "e"."NullableBoolB" OR ("e"."NullableBoolA" IS NULL AND "e"."NullableBoolB" IS NULL)
+""",
+            //
+            """
+SELECT "e"."Id", "e"."NullableBoolA" = 1 AND "e"."NullableBoolA" IS NOT NULL AS "X"
+FROM "Entities1" AS "e"
+""",
+            //
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE "e"."NullableBoolA"
 """,
             //
             """
@@ -806,7 +1365,7 @@ FROM "Entities1" AS "e"
             """
 SELECT "e"."Id"
 FROM "Entities1" AS "e"
-WHERE "e"."NullableBoolA" <> "e"."BoolB" AND "e"."NullableBoolA" IS NOT NULL
+WHERE "e"."NullableBoolA" <> "e"."BoolB"
 """,
             //
             """
@@ -817,7 +1376,62 @@ FROM "Entities1" AS "e"
             """
 SELECT "e"."Id"
 FROM "Entities1" AS "e"
-WHERE ("e"."NullableBoolA" <> "e"."NullableBoolB" AND "e"."NullableBoolA" IS NOT NULL AND "e"."NullableBoolB" IS NOT NULL) OR ("e"."NullableBoolA" IS NULL AND "e"."NullableBoolB" IS NULL)
+WHERE "e"."NullableBoolA" <> "e"."NullableBoolB" OR ("e"."NullableBoolA" IS NULL AND "e"."NullableBoolB" IS NULL)
+""",
+            //
+            """
+SELECT "e"."Id", "e"."NullableBoolA" <> 1 AND "e"."NullableBoolA" IS NOT NULL AS "X"
+FROM "Entities1" AS "e"
+""",
+            //
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE NOT ("e"."NullableBoolA")
+""",
+            //
+            """
+SELECT "e"."Id", "e"."BoolB" AS "X"
+FROM "Entities1" AS "e"
+""",
+            //
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE "e"."BoolB"
+""",
+            //
+            """
+SELECT "e"."Id", 1 = "e"."NullableBoolB" AND "e"."NullableBoolB" IS NOT NULL AS "X"
+FROM "Entities1" AS "e"
+""",
+            //
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE "e"."NullableBoolB"
+""",
+            //
+            """
+SELECT "e"."Id", NOT ("e"."BoolB") AS "X"
+FROM "Entities1" AS "e"
+""",
+            //
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE NOT ("e"."BoolB")
+""",
+            //
+            """
+SELECT "e"."Id", 0 = "e"."NullableBoolB" AND "e"."NullableBoolB" IS NOT NULL AS "X"
+FROM "Entities1" AS "e"
+""",
+            //
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE 0 = "e"."NullableBoolB"
 """,
             //
             """
@@ -839,7 +1453,18 @@ FROM "Entities1" AS "e"
             """
 SELECT "e"."Id"
 FROM "Entities1" AS "e"
-WHERE "e"."BoolA" <> "e"."NullableBoolB" AND "e"."NullableBoolB" IS NOT NULL
+WHERE "e"."BoolA" <> "e"."NullableBoolB"
+""",
+            //
+            """
+SELECT "e"."Id", NOT ("e"."BoolA") AS "X"
+FROM "Entities1" AS "e"
+""",
+            //
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE NOT ("e"."BoolA")
 """,
             //
             """
@@ -861,7 +1486,18 @@ FROM "Entities1" AS "e"
             """
 SELECT "e"."Id"
 FROM "Entities1" AS "e"
-WHERE "e"."BoolA" = "e"."NullableBoolB" AND "e"."NullableBoolB" IS NOT NULL
+WHERE "e"."BoolA" = "e"."NullableBoolB"
+""",
+            //
+            """
+SELECT "e"."Id", "e"."BoolA" AS "X"
+FROM "Entities1" AS "e"
+""",
+            //
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE "e"."BoolA"
 """,
             //
             """
@@ -872,7 +1508,7 @@ FROM "Entities1" AS "e"
             """
 SELECT "e"."Id"
 FROM "Entities1" AS "e"
-WHERE "e"."NullableBoolA" <> "e"."BoolB" AND "e"."NullableBoolA" IS NOT NULL
+WHERE "e"."NullableBoolA" <> "e"."BoolB"
 """,
             //
             """
@@ -883,7 +1519,18 @@ FROM "Entities1" AS "e"
             """
 SELECT "e"."Id"
 FROM "Entities1" AS "e"
-WHERE ("e"."NullableBoolA" <> "e"."NullableBoolB" AND "e"."NullableBoolA" IS NOT NULL AND "e"."NullableBoolB" IS NOT NULL) OR ("e"."NullableBoolA" IS NULL AND "e"."NullableBoolB" IS NULL)
+WHERE "e"."NullableBoolA" <> "e"."NullableBoolB" OR ("e"."NullableBoolA" IS NULL AND "e"."NullableBoolB" IS NULL)
+""",
+            //
+            """
+SELECT "e"."Id", "e"."NullableBoolA" = 0 AND "e"."NullableBoolA" IS NOT NULL AS "X"
+FROM "Entities1" AS "e"
+""",
+            //
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE "e"."NullableBoolA" = 0
 """,
             //
             """
@@ -894,7 +1541,7 @@ FROM "Entities1" AS "e"
             """
 SELECT "e"."Id"
 FROM "Entities1" AS "e"
-WHERE "e"."NullableBoolA" = "e"."BoolB" AND "e"."NullableBoolA" IS NOT NULL
+WHERE "e"."NullableBoolA" = "e"."BoolB"
 """,
             //
             """
@@ -905,7 +1552,86 @@ FROM "Entities1" AS "e"
             """
 SELECT "e"."Id"
 FROM "Entities1" AS "e"
-WHERE ("e"."NullableBoolA" = "e"."NullableBoolB" AND "e"."NullableBoolA" IS NOT NULL AND "e"."NullableBoolB" IS NOT NULL) OR ("e"."NullableBoolA" IS NULL AND "e"."NullableBoolB" IS NULL)
+WHERE "e"."NullableBoolA" = "e"."NullableBoolB" OR ("e"."NullableBoolA" IS NULL AND "e"."NullableBoolB" IS NULL)
+""",
+            //
+            """
+SELECT "e"."Id", "e"."NullableBoolA" <> 0 AND "e"."NullableBoolA" IS NOT NULL AS "X"
+FROM "Entities1" AS "e"
+""",
+            //
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE "e"."NullableBoolA" <> 0
+""",
+            //
+            """
+SELECT "e"."Id", NOT ("e"."BoolB") AS "X"
+FROM "Entities1" AS "e"
+""",
+            //
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE NOT ("e"."BoolB")
+""",
+            //
+            """
+SELECT "e"."Id", 1 <> "e"."NullableBoolB" AND "e"."NullableBoolB" IS NOT NULL AS "X"
+FROM "Entities1" AS "e"
+""",
+            //
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE NOT ("e"."NullableBoolB")
+""",
+            //
+            """
+SELECT "e"."Id", "e"."BoolB" AS "X"
+FROM "Entities1" AS "e"
+""",
+            //
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE "e"."BoolB"
+""",
+            //
+            """
+SELECT "e"."Id", 0 <> "e"."NullableBoolB" AND "e"."NullableBoolB" IS NOT NULL AS "X"
+FROM "Entities1" AS "e"
+""",
+            //
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE 0 <> "e"."NullableBoolB"
+""");
+    }
+
+    public override async Task Where_coalesce_shortcircuit(bool async)
+    {
+        await base.Where_coalesce_shortcircuit(async);
+
+        AssertSql(
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE "e"."BoolA" OR "e"."BoolB"
+""");
+    }
+
+    public override async Task Where_coalesce_shortcircuit_many(bool async)
+    {
+        await base.Where_coalesce_shortcircuit_many(async);
+
+        AssertSql(
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE COALESCE("e"."NullableBoolA", "e"."BoolA" OR "e"."BoolB")
 """);
     }
 
@@ -964,7 +1690,7 @@ WHERE CASE
         WHEN "e"."BoolA" THEN ("e"."NullableBoolA" <> "e"."NullableBoolB" OR "e"."NullableBoolA" IS NULL OR "e"."NullableBoolB" IS NULL) AND ("e"."NullableBoolA" IS NOT NULL OR "e"."NullableBoolB" IS NOT NULL)
         ELSE "e"."BoolC"
     END <> "e"."BoolB" THEN "e"."BoolA"
-    ELSE ("e"."NullableBoolB" = "e"."NullableBoolC" AND "e"."NullableBoolB" IS NOT NULL AND "e"."NullableBoolC" IS NOT NULL) OR ("e"."NullableBoolB" IS NULL AND "e"."NullableBoolC" IS NULL)
+    ELSE "e"."NullableBoolB" = "e"."NullableBoolC" OR ("e"."NullableBoolB" IS NULL AND "e"."NullableBoolC" IS NULL)
 END
 """,
             //
@@ -1065,8 +1791,8 @@ WHERE EXISTS (
     FROM "Entities2" AS "e0"
     WHERE "e0"."NullableStringA" = "e"."NullableStringB" OR ("e0"."NullableStringA" IS NULL AND "e"."NullableStringB" IS NULL))
 """,
-                //
-                """
+            //
+            """
 SELECT "e"."Id"
 FROM "Entities1" AS "e"
 WHERE NOT EXISTS (
@@ -1190,11 +1916,11 @@ WHERE "e"."NullableBoolA" IS NOT NULL
 """,
             //
             """
-@__prm_0='False'
+@prm='False'
 
 SELECT "e"."Id", "e"."BoolA", "e"."BoolB", "e"."BoolC", "e"."IntA", "e"."IntB", "e"."IntC", "e"."NullableBoolA", "e"."NullableBoolB", "e"."NullableBoolC", "e"."NullableIntA", "e"."NullableIntB", "e"."NullableIntC", "e"."NullableStringA", "e"."NullableStringB", "e"."NullableStringC", "e"."StringA", "e"."StringB", "e"."StringC"
 FROM "Entities1" AS "e"
-WHERE @__prm_0 = ("e"."NullableBoolA" IS NOT NULL)
+WHERE @prm = ("e"."NullableBoolA" IS NOT NULL)
 """,
             //
             """
@@ -1216,11 +1942,11 @@ WHERE "e"."NullableBoolA" IS NULL
 """,
             //
             """
-@__prm_0='False'
+@prm='False'
 
 SELECT "e"."Id", "e"."BoolA", "e"."BoolB", "e"."BoolC", "e"."IntA", "e"."IntB", "e"."IntC", "e"."NullableBoolA", "e"."NullableBoolB", "e"."NullableBoolC", "e"."NullableIntA", "e"."NullableIntB", "e"."NullableIntC", "e"."NullableStringA", "e"."NullableStringB", "e"."NullableStringC", "e"."StringA", "e"."StringB", "e"."StringC"
 FROM "Entities1" AS "e"
-WHERE @__prm_0 = ("e"."NullableBoolA" IS NOT NULL)
+WHERE @prm = ("e"."NullableBoolA" IS NOT NULL)
 """);
     }
 
@@ -1236,11 +1962,11 @@ WHERE "e"."NullableBoolA" IS NULL
 """,
             //
             """
-@__prm_0='False'
+@prm='False'
 
 SELECT "e"."Id", "e"."BoolA", "e"."BoolB", "e"."BoolC", "e"."IntA", "e"."IntB", "e"."IntC", "e"."NullableBoolA", "e"."NullableBoolB", "e"."NullableBoolC", "e"."NullableIntA", "e"."NullableIntB", "e"."NullableIntC", "e"."NullableStringA", "e"."NullableStringB", "e"."NullableStringC", "e"."StringA", "e"."StringB", "e"."StringC"
 FROM "Entities1" AS "e"
-WHERE @__prm_0 <> ("e"."NullableBoolA" IS NOT NULL)
+WHERE @prm <> ("e"."NullableBoolA" IS NOT NULL)
 """,
             //
             """
@@ -1262,11 +1988,11 @@ WHERE "e"."NullableIntA" IS NULL
 """,
             //
             """
-@__prm_0='False'
+@prm='False'
 
 SELECT "e"."Id", "e"."BoolA", "e"."BoolB", "e"."BoolC", "e"."IntA", "e"."IntB", "e"."IntC", "e"."NullableBoolA", "e"."NullableBoolB", "e"."NullableBoolC", "e"."NullableIntA", "e"."NullableIntB", "e"."NullableIntC", "e"."NullableStringA", "e"."NullableStringB", "e"."NullableStringC", "e"."StringA", "e"."StringB", "e"."StringC"
 FROM "Entities1" AS "e"
-WHERE @__prm_0 <> ("e"."NullableIntA" IS NOT NULL)
+WHERE @prm <> ("e"."NullableIntA" IS NOT NULL)
 """,
             //
             """
@@ -1288,11 +2014,11 @@ WHERE "e"."NullableBoolA" IS NOT NULL
 """,
             //
             """
-@__prm_0='False'
+@prm='False'
 
 SELECT "e"."Id", "e"."BoolA", "e"."BoolB", "e"."BoolC", "e"."IntA", "e"."IntB", "e"."IntC", "e"."NullableBoolA", "e"."NullableBoolB", "e"."NullableBoolC", "e"."NullableIntA", "e"."NullableIntB", "e"."NullableIntC", "e"."NullableStringA", "e"."NullableStringB", "e"."NullableStringC", "e"."StringA", "e"."StringB", "e"."StringC"
 FROM "Entities1" AS "e"
-WHERE @__prm_0 <> ("e"."NullableBoolA" IS NOT NULL)
+WHERE @prm <> ("e"."NullableBoolA" IS NOT NULL)
 """);
     }
 
@@ -1325,35 +2051,35 @@ WHERE "e"."BoolB" OR "e"."NullableBoolA" IS NOT NULL
 
         AssertSql(
             """
-@__i_0='1'
+@i='1'
 
 SELECT "e"."Id"
 FROM "Entities1" AS "e"
-WHERE "e"."IntA" <= @__i_0
+WHERE "e"."IntA" <= @i
 """,
             //
             """
-@__i_0='1'
+@i='1'
 
 SELECT "e"."Id"
 FROM "Entities1" AS "e"
-WHERE "e"."IntA" < @__i_0
+WHERE "e"."IntA" < @i
 """,
             //
             """
-@__i_0='1'
+@i='1'
 
 SELECT "e"."Id"
 FROM "Entities1" AS "e"
-WHERE "e"."IntA" >= @__i_0
+WHERE "e"."IntA" >= @i
 """,
             //
             """
-@__i_0='1'
+@i='1'
 
 SELECT "e"."Id"
 FROM "Entities1" AS "e"
-WHERE "e"."IntA" > @__i_0
+WHERE "e"."IntA" > @i
 """);
     }
 
@@ -1363,45 +2089,45 @@ WHERE "e"."IntA" > @__i_0
 
         AssertSql(
             """
-@__i_0='1' (Nullable = true)
+@i='1' (Nullable = true)
 
 SELECT "e"."Id"
 FROM "Entities1" AS "e"
 WHERE CASE
-    WHEN "e"."NullableIntA" > @__i_0 THEN 0
+    WHEN "e"."NullableIntA" > @i THEN 0
     ELSE 1
 END
 """,
             //
             """
-@__i_0='1' (Nullable = true)
+@i='1' (Nullable = true)
 
 SELECT "e"."Id"
 FROM "Entities1" AS "e"
 WHERE CASE
-    WHEN "e"."NullableIntA" >= @__i_0 THEN 0
+    WHEN "e"."NullableIntA" >= @i THEN 0
     ELSE 1
 END
 """,
             //
             """
-@__i_0='1' (Nullable = true)
+@i='1' (Nullable = true)
 
 SELECT "e"."Id"
 FROM "Entities1" AS "e"
 WHERE CASE
-    WHEN "e"."NullableIntA" < @__i_0 THEN 0
+    WHEN "e"."NullableIntA" < @i THEN 0
     ELSE 1
 END
 """,
             //
             """
-@__i_0='1' (Nullable = true)
+@i='1' (Nullable = true)
 
 SELECT "e"."Id"
 FROM "Entities1" AS "e"
 WHERE CASE
-    WHEN "e"."NullableIntA" <= @__i_0 THEN 0
+    WHEN "e"."NullableIntA" <= @i THEN 0
     ELSE 1
 END
 """);

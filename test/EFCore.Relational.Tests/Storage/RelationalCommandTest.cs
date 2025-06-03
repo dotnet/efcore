@@ -310,7 +310,9 @@ public class RelationalCommandTest
                 {
                     executeReaderCount++;
                     disposeCount = c.DisposeCount;
+#pragma warning disable CA2025
                     return Task.FromResult<DbDataReader>(dbDataReader);
+#pragma warning restore CA2025
                 }));
 
         var optionsExtension = new FakeRelationalOptionsExtension().WithConnection(fakeDbConnection);
@@ -492,9 +494,9 @@ public class RelationalCommandTest
         var relationalCommand = CreateRelationalCommand(
             parameters: new[]
             {
-                new TypeMappedRelationalParameter("FirstInvariant", "FirstParameter", new IntTypeMapping("int", DbType.Int32), false),
+                new TypeMappedRelationalParameter("FirstInvariant", "FirstParameter", new IntTypeMapping("int"), false),
                 new TypeMappedRelationalParameter(
-                    "SecondInvariant", "SecondParameter", new LongTypeMapping("long", DbType.Int64), true),
+                    "SecondInvariant", "SecondParameter", new LongTypeMapping("long"), true),
                 new TypeMappedRelationalParameter("ThirdInvariant", "ThirdParameter", RelationalTypeMapping.NullMapping, null)
             });
 
@@ -529,9 +531,9 @@ public class RelationalCommandTest
         var relationalCommand = CreateRelationalCommand(
             parameters: new[]
             {
-                new TypeMappedRelationalParameter("FirstInvariant", "FirstParameter", new IntTypeMapping("int", DbType.Int32), false),
+                new TypeMappedRelationalParameter("FirstInvariant", "FirstParameter", new IntTypeMapping("int"), false),
                 new TypeMappedRelationalParameter(
-                    "SecondInvariant", "SecondParameter", new LongTypeMapping("long", DbType.Int64), true),
+                    "SecondInvariant", "SecondParameter", new LongTypeMapping("long"), true),
                 new TypeMappedRelationalParameter("ThirdInvariant", "ThirdParameter", RelationalTypeMapping.NullMapping, null)
             });
 
@@ -568,9 +570,9 @@ public class RelationalCommandTest
         var relationalCommand = CreateRelationalCommand(
             parameters: new[]
             {
-                new TypeMappedRelationalParameter("FirstInvariant", "FirstParameter", new IntTypeMapping("int", DbType.Int32), false),
+                new TypeMappedRelationalParameter("FirstInvariant", "FirstParameter", new IntTypeMapping("int"), false),
                 new TypeMappedRelationalParameter(
-                    "SecondInvariant", "SecondParameter", new LongTypeMapping("long", DbType.Int64), true),
+                    "SecondInvariant", "SecondParameter", new LongTypeMapping("long"), true),
                 new TypeMappedRelationalParameter("ThirdInvariant", "ThirdParameter", RelationalTypeMapping.NullMapping, null)
             });
 
@@ -636,9 +638,9 @@ public class RelationalCommandTest
                     new[]
                     {
                         new TypeMappedRelationalParameter(
-                            "FirstInvariant", "FirstParameter", new IntTypeMapping("int", DbType.Int32), false),
+                            "FirstInvariant", "FirstParameter", new IntTypeMapping("int"), false),
                         new TypeMappedRelationalParameter(
-                            "SecondInvariant", "SecondParameter", new LongTypeMapping("long", DbType.Int64), true),
+                            "SecondInvariant", "SecondParameter", new LongTypeMapping("long"), true),
                         new TypeMappedRelationalParameter("ThirdInvariant", "ThirdParameter", RelationalTypeMapping.NullMapping, null)
                     })
             });
@@ -700,9 +702,9 @@ public class RelationalCommandTest
                     new[]
                     {
                         new TypeMappedRelationalParameter(
-                            "FirstInvariant", "FirstParameter", new IntTypeMapping("int", DbType.Int32), false),
+                            "FirstInvariant", "FirstParameter", new IntTypeMapping("int"), false),
                         new TypeMappedRelationalParameter(
-                            "SecondInvariant", "SecondParameter", new LongTypeMapping("long", DbType.Int64), true),
+                            "SecondInvariant", "SecondParameter", new LongTypeMapping("long"), true),
                         new TypeMappedRelationalParameter("ThirdInvariant", "ThirdParameter", RelationalTypeMapping.NullMapping, null)
                     })
             });
@@ -745,7 +747,7 @@ public class RelationalCommandTest
                     new[]
                     {
                         new TypeMappedRelationalParameter(
-                            "FirstInvariant", "FirstParameter", new IntTypeMapping("int", DbType.Int32), false)
+                            "FirstInvariant", "FirstParameter", new IntTypeMapping("int"), false)
                     })
             });
 
@@ -849,19 +851,22 @@ public class RelationalCommandTest
     private class ReaderThrowingRelationalCommand(
         RelationalCommandBuilderDependencies dependencies,
         string commandText,
-        IReadOnlyList<IRelationalParameter> parameters) : RelationalCommand(dependencies, commandText, parameters)
+        string logCommandText,
+        IReadOnlyList<IRelationalParameter> parameters) : RelationalCommand(dependencies, commandText, logCommandText, parameters)
     {
         protected override RelationalDataReader CreateRelationalDataReader()
             => new ThrowingRelationalReader();
 
-        public static IRelationalCommand Create(string commandText = "Command Text")
+        public static IRelationalCommand Create(string commandText = "Command Text", string logCommandText = "Log Command Text")
             => new ReaderThrowingRelationalCommand(
                 new RelationalCommandBuilderDependencies(
                     new TestRelationalTypeMappingSource(
                         TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
                         TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()),
-                    new ExceptionDetector()),
+                    new ExceptionDetector(),
+                    new LoggingOptions()),
                 commandText,
+                logCommandText,
                 []);
 
         private class ThrowingRelationalReader : RelationalDataReader
@@ -993,10 +998,11 @@ public class RelationalCommandTest
 
         var relationalCommand = CreateRelationalCommand(
             commandText: "Logged Command",
+            logCommandText: "Logged Command2",
             parameters: new[]
             {
                 new TypeMappedRelationalParameter(
-                    "FirstInvariant", "FirstParameter", new IntTypeMapping("int", DbType.Int32), false)
+                    "FirstInvariant", "FirstParameter", new IntTypeMapping("int"), false)
             });
 
         var parameterValues = new Dictionary<string, object> { { "FirstInvariant", 17 } };
@@ -1021,7 +1027,7 @@ public class RelationalCommandTest
         foreach (var (_, _, message, _, _) in logFactory.Log.Skip(3))
         {
             Assert.EndsWith(
-                "[Parameters=[FirstParameter='?' (DbType = Int32)], CommandType='0', CommandTimeout='30']" + _eol + "Logged Command",
+                "[Parameters=[FirstParameter='?' (DbType = Int32)], CommandType='0', CommandTimeout='30']" + _eol + "Logged Command2",
                 message);
         }
     }
@@ -1051,10 +1057,11 @@ public class RelationalCommandTest
 
         var relationalCommand = CreateRelationalCommand(
             commandText: "Logged Command",
+            logCommandText: "Logged Command2",
             parameters: new[]
             {
                 new TypeMappedRelationalParameter(
-                    "FirstInvariant", "FirstParameter", new IntTypeMapping("int", DbType.Int32), false)
+                    "FirstInvariant", "FirstParameter", new IntTypeMapping("int"), false)
             });
 
         var parameterValues = new Dictionary<string, object> { { "FirstInvariant", 17 } };
@@ -1083,7 +1090,7 @@ public class RelationalCommandTest
         foreach (var (_, _, message, _, _) in logFactory.Log.Skip(4))
         {
             Assert.EndsWith(
-                "[Parameters=[FirstParameter='17'], CommandType='0', CommandTimeout='30']" + _eol + "Logged Command",
+                "[Parameters=[FirstParameter='17'], CommandType='0', CommandTimeout='30']" + _eol + "Logged Command2",
                 message);
         }
     }
@@ -1113,7 +1120,7 @@ public class RelationalCommandTest
             parameters: new[]
             {
                 new TypeMappedRelationalParameter(
-                    "FirstInvariant", "FirstParameter", new IntTypeMapping("int", DbType.Int32), false)
+                    "FirstInvariant", "FirstParameter", new IntTypeMapping("int"), false)
             });
 
         var parameterValues = new Dictionary<string, object> { { "FirstInvariant", 17 } };
@@ -1186,7 +1193,7 @@ public class RelationalCommandTest
             parameters: new[]
             {
                 new TypeMappedRelationalParameter(
-                    "FirstInvariant", "FirstParameter", new IntTypeMapping("int", DbType.Int32), false)
+                    "FirstInvariant", "FirstParameter", new IntTypeMapping("int"), false)
             });
 
         var parameterValues = new Dictionary<string, object> { { "FirstInvariant", 17 } };
@@ -1265,7 +1272,7 @@ public class RelationalCommandTest
             parameters: new[]
             {
                 new TypeMappedRelationalParameter(
-                    "FirstInvariant", "FirstParameter", new IntTypeMapping("int", DbType.Int32), false)
+                    "FirstInvariant", "FirstParameter", new IntTypeMapping("int"), false)
             });
 
         var parameterValues = new Dictionary<string, object> { { "FirstInvariant", 17 } };
@@ -1345,14 +1352,17 @@ public class RelationalCommandTest
 
     private IRelationalCommand CreateRelationalCommand(
         string commandText = "Command Text",
+        string logCommandText = "Log Command Text",
         IReadOnlyList<IRelationalParameter> parameters = null)
         => new RelationalCommand(
             new RelationalCommandBuilderDependencies(
                 new TestRelationalTypeMappingSource(
                     TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
                     TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()),
-                new ExceptionDetector()),
+                new ExceptionDetector(),
+                new LoggingOptions()),
             commandText,
+            logCommandText,
             parameters ?? []);
 
     private Task<RelationalDataReader> ExecuteReader(
@@ -1366,5 +1376,5 @@ public class RelationalCommandTest
     private Task<bool> Read(RelationalDataReader relationalReader, bool async)
         => async ? relationalReader.ReadAsync() : Task.FromResult(relationalReader.Read());
 
-    public static IEnumerable<object[]> IsAsyncData = new object[][] { [false], [true] };
+    public static readonly IEnumerable<object[]> IsAsyncData = [[false], [true]];
 }

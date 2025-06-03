@@ -5,13 +5,9 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public abstract class CommandInterceptionSqliteTestBase : CommandInterceptionTestBase
+public abstract class CommandInterceptionSqliteTestBase(CommandInterceptionSqliteTestBase.InterceptionSqliteFixtureBase fixture)
+    : CommandInterceptionTestBase(fixture)
 {
-    protected CommandInterceptionSqliteTestBase(InterceptionSqliteFixtureBase fixture)
-        : base(fixture)
-    {
-    }
-
     public override async Task<string> Intercept_query_passively(bool async, bool inject)
     {
         AssertSql(
@@ -69,7 +65,8 @@ SELECT "s"."Id", "s"."Type" FROM "Singularity" AS "s"
         }
     }
 
-    public class CommandInterceptionWithDiagnosticsSqliteTest(CommandInterceptionWithDiagnosticsSqliteTest.InterceptionSqliteFixture fixture)
+    public class CommandInterceptionWithDiagnosticsSqliteTest(
+        CommandInterceptionWithDiagnosticsSqliteTest.InterceptionSqliteFixture fixture)
         : CommandInterceptionSqliteTestBase(fixture), IClassFixture<CommandInterceptionWithDiagnosticsSqliteTest.InterceptionSqliteFixture>
     {
         public class InterceptionSqliteFixture : InterceptionSqliteFixtureBase

@@ -71,16 +71,16 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
     private readonly Stack<ImmutableDictionary<string, ParameterExpression>> _parameterStack
         = new(new[] { ImmutableDictionary<string, ParameterExpression>.Empty });
 
-    private readonly Dictionary<ISymbol, MemberExpression?> _capturedVariables = new(SymbolEqualityComparer.Default);
+    private readonly Dictionary<ISymbol, MemberExpression?> _dataFlowsIn = new(SymbolEqualityComparer.Default);
 
     /// <summary>
     ///     Translates a Roslyn syntax tree into a LINQ expression tree.
     /// </summary>
     /// <param name="node">The Roslyn syntax node to be translated.</param>
     /// <param name="semanticModel">
-    /// The <see cref="SemanticModel" /> for the Roslyn <see cref="SyntaxTree" /> of which <paramref name="node" /> is a part.
+    ///     The <see cref="SemanticModel" /> for the Roslyn <see cref="SyntaxTree" /> of which <paramref name="node" /> is a part.
     /// </param>
-    /// <returns>A LINQ expression tree translated from the provided <paramref name="node"/>.</returns>
+    /// <returns>A LINQ expression tree translated from the provided <paramref name="node" />.</returns>
     /// <remarks>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -100,11 +100,11 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
 
         _semanticModel = semanticModel;
 
-        // Perform data flow analysis to detect all captured data (closure parameters)
-        _capturedVariables.Clear();
-        foreach (var captured in _semanticModel.AnalyzeDataFlow(node).Captured)
+        // Perform data flow analysis to detect all variables flowing into the query (e.g. captured variables)
+        _dataFlowsIn.Clear();
+        foreach (var flowsIn in _semanticModel.AnalyzeDataFlow(node).DataFlowsIn)
         {
-            _capturedVariables[captured] = null;
+            _dataFlowsIn[flowsIn] = null;
         }
 
         var result = Visit(node);
@@ -122,6 +122,37 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
     [return: NotNullIfNotNull("node")]
     public override Expression? Visit(SyntaxNode? node)
         => base.Visit(node);
+
+    /// <summary>
+    ///     This method gets called when the expression context provides an expected CLR type. For example, in <c>Foo(x)</c>, x gets visited
+    ///     with an expected type based on <c>Foo</c>'s parameter; this may determine how x gets translated, require a LINQ Convert node, or
+    ///     similar. In contrast, in <c>var y = x</c>, there is no context providing an expected type, and the type of <c>x</c> simply
+    ///     bubbles out.
+    /// </summary>
+    [return: NotNullIfNotNull("node")]
+    private Expression? Visit(SyntaxNode? node, Type? expectedType)
+    {
+        if (expectedType is null)
+        {
+            return Visit(node);
+        }
+
+        var result = node switch
+        {
+            ArgumentSyntax s => VisitArgument(s, expectedType),
+
+            // For lambdas, we generate a different node based on the expected type (e.g. an Action<T> rather than a Func<T, T2>, even if
+            // the lambda body does return a T2).
+            SimpleLambdaExpressionSyntax s => VisitLambdaExpression(s, expectedType),
+            ParenthesizedLambdaExpressionSyntax s => VisitLambdaExpression(s, expectedType),
+
+            _ => Visit(node),
+        };
+
+        // TODO: Insert necessary Convert nodes etc. when the expected and actual types differ
+
+        return result;
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -158,8 +189,9 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
 
             var position = Array.FindIndex(parameters, p => p.Name == name);
             var parameter = parameters[position];
-            var parameterType = ResolveType(parameter.Type) ?? throw new InvalidOperationException(
-                "Could not resolve type symbol for: " + parameter.Type);
+            var parameterType = ResolveType(parameter.Type)
+                ?? throw new InvalidOperationException(
+                    "Could not resolve type symbol for: " + parameter.Type);
 
             parameterInfos[position] = new FakeParameterInfo(name, parameterType, position);
             arguments[position] = Visit(initializer.Expression);
@@ -179,13 +211,16 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public override Expression VisitArgument(ArgumentSyntax argument)
+        => VisitArgument(argument, expectedType: null);
+
+    private Expression VisitArgument(ArgumentSyntax argument, Type? expectedType)
     {
         if (!argument.RefKindKeyword.IsKind(SyntaxKind.None))
         {
             throw new InvalidOperationException($"Argument with ref/out: {argument}");
         }
 
-        return Visit(argument.Expression);
+        return Visit(argument.Expression, expectedType);
     }
 
     /// <summary>
@@ -240,7 +275,8 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
             // String concatenation
             SyntaxKind.AddExpression
                 when left.Type == typeof(string) && right.Type == typeof(string)
-                => Add(left, right,
+                => Add(
+                    left, right,
                     _stringConcatMethod ??=
                         typeof(string).GetMethod(nameof(string.Concat), new[] { typeof(string), typeof(string) })),
 
@@ -258,11 +294,15 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
             // For bitwise operations over enums, we cast the enum to its underlying type before the bitwise operation, and then back to the
             // enum afterwards (this is corresponds to the LINQ expression tree that the compiler generates)
             SyntaxKind.BitwiseOrExpression when left.Type.IsEnum || right.Type.IsEnum
-                => Convert(Or(Convert(left, left.Type.GetEnumUnderlyingType()), Convert(right, right.Type.GetEnumUnderlyingType())), left.Type),
+                => Convert(
+                    Or(Convert(left, left.Type.GetEnumUnderlyingType()), Convert(right, right.Type.GetEnumUnderlyingType())), left.Type),
             SyntaxKind.BitwiseAndExpression when left.Type.IsEnum || right.Type.IsEnum
-                => Convert(And(Convert(left, left.Type.GetEnumUnderlyingType()), Convert(right, right.Type.GetEnumUnderlyingType())), left.Type),
+                => Convert(
+                    And(Convert(left, left.Type.GetEnumUnderlyingType()), Convert(right, right.Type.GetEnumUnderlyingType())), left.Type),
             SyntaxKind.ExclusiveOrExpression when left.Type.IsEnum || right.Type.IsEnum
-                => Convert(ExclusiveOr(Convert(left, left.Type.GetEnumUnderlyingType()), Convert(right, right.Type.GetEnumUnderlyingType())), left.Type),
+                => Convert(
+                    ExclusiveOr(Convert(left, left.Type.GetEnumUnderlyingType()), Convert(right, right.Type.GetEnumUnderlyingType())),
+                    left.Type),
 
             SyntaxKind.BitwiseOrExpression => Or(left, right),
             SyntaxKind.BitwiseAndExpression => And(left, right),
@@ -274,14 +314,16 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
             SyntaxKind.LessThanOrEqualExpression => LessThanOrEqual(left, right),
             SyntaxKind.GreaterThanExpression => GreaterThan(left, right),
             SyntaxKind.GreaterThanOrEqualExpression => GreaterThanOrEqual(left, right),
-            SyntaxKind.IsExpression => TypeIs(left, right is ConstantExpression { Value : Type type }
-                ? type
-                : throw new InvalidOperationException(
-                    $"Encountered {SyntaxKind.IsExpression} with non-constant type right argument: {right}")),
-            SyntaxKind.AsExpression => TypeAs(left, right is ConstantExpression { Value : Type type }
-                ? type
-                : throw new InvalidOperationException(
-                    $"Encountered {SyntaxKind.AsExpression} with non-constant type right argument: {right}")),
+            SyntaxKind.IsExpression => TypeIs(
+                left, right is ConstantExpression { Value : Type type }
+                    ? type
+                    : throw new InvalidOperationException(
+                        $"Encountered {SyntaxKind.IsExpression} with non-constant type right argument: {right}")),
+            SyntaxKind.AsExpression => TypeAs(
+                left, right is ConstantExpression { Value : Type type }
+                    ? type
+                    : throw new InvalidOperationException(
+                        $"Encountered {SyntaxKind.AsExpression} with non-constant type right argument: {right}")),
             SyntaxKind.CoalesceExpression => Coalesce(left, right),
 
             _ => throw new ArgumentOutOfRangeException($"BinaryExpressionSyntax with {binary.Kind()}")
@@ -323,7 +365,8 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
         switch (_semanticModel.GetTypeInfo(elementAccessExpression.Expression).ConvertedType)
         {
             case IArrayTypeSymbol:
-                Check.DebugAssert(elementAccessExpression.ArgumentList.Arguments.Count == 1,
+                Check.DebugAssert(
+                    elementAccessExpression.ArgumentList.Arguments.Count == 1,
                     $"ElementAccessExpressionSyntax over array with {arguments.Count} arguments");
                 return ArrayIndex(visitedExpression, Visit(arguments[0].Expression));
 
@@ -402,13 +445,13 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
             return Constant(_userDbContext);
         }
 
-        // The Translate entry point into the translator uses Roslyn's data flow analysis to locate all captured variables, and populates
-        // the _capturedVariable dictionary with them (with null values).
-        if (symbol is ILocalSymbol localSymbol && _capturedVariables.TryGetValue(localSymbol, out var memberExpression))
+        // The Translate entry point into the translator uses Roslyn's data flow analysis to locate all local variables flowing in
+        // (e.g. captured variables), and populates the _dataFlowsIn dictionary with them (with null values).
+        if (symbol is ILocalSymbol localSymbol && _dataFlowsIn.TryGetValue(localSymbol, out var memberExpression))
         {
-            // The first time we see a captured variable, we create MemberExpression for it and cache it in _capturedVariables.
+            // The first time we see a flowing-in variable, we create MemberExpression for it and cache it in _dataFlowsIn.
             return memberExpression
-                ?? (_capturedVariables[localSymbol] =
+                ?? (_dataFlowsIn[localSymbol] =
                     Field(
                         Constant(new FakeClosureFrameClass()),
                         new FakeFieldInfo(
@@ -471,6 +514,7 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
                     {
                         interpolationExpression = Convert(interpolationExpression, typeof(object));
                     }
+
                     arguments.Add(interpolationExpression);
                     formatBuilder.Append('{').Append(arguments.Count - 1).Append('}');
                     break;
@@ -545,48 +589,50 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
             var typeTypeParameterMap = new Dictionary<string, Type>(GetTypeTypeParameters(methodSymbol.ContainingType));
 
             var definitionMethodInfos = declaringType.GetMethods()
-                .Where(m =>
-                {
-                    if (m.Name == methodSymbol.Name
-                        && m.IsGenericMethodDefinition
-                        && m.GetGenericArguments() is var candidateGenericArguments
-                        && candidateGenericArguments.Length == originalDefinition.TypeParameters.Length
-                        && m.GetParameters() is var candidateParams
-                        && candidateParams.Length == originalDefinition.Parameters.Length)
+                .Where(
+                    m =>
                     {
-                        var methodTypeParameterMap = new Dictionary<string, Type>(typeTypeParameterMap);
-
-                        // Prepare a dictionary that will be used to resolve generic type parameters (ITypeParameterSymbol) to the
-                        // corresponding reflection Type. This is needed to correctly (and recursively) resolve the type of parameters
-                        // below.
-                        foreach (var (symbol, type) in methodSymbol.TypeParameters.Zip(candidateGenericArguments))
+                        if (m.Name == methodSymbol.Name
+                            && m.IsGenericMethodDefinition
+                            && m.GetGenericArguments() is var candidateGenericArguments
+                            && candidateGenericArguments.Length == originalDefinition.TypeParameters.Length
+                            && m.GetParameters() is var candidateParams
+                            && candidateParams.Length == originalDefinition.Parameters.Length)
                         {
-                            if (symbol.Name != type.Name)
+                            var methodTypeParameterMap = new Dictionary<string, Type>(typeTypeParameterMap);
+
+                            // Prepare a dictionary that will be used to resolve generic type parameters (ITypeParameterSymbol) to the
+                            // corresponding reflection Type. This is needed to correctly (and recursively) resolve the type of parameters
+                            // below.
+                            foreach (var (symbol, type) in methodSymbol.TypeParameters.Zip(candidateGenericArguments))
                             {
-                                return false;
+                                if (symbol.Name != type.Name)
+                                {
+                                    return false;
+                                }
+
+                                methodTypeParameterMap[symbol.Name] = type;
                             }
 
-                            methodTypeParameterMap[symbol.Name] = type;
-                        }
-
-                        for (var i = 0; i < candidateParams.Length; i++)
-                        {
-                            var translatedParamType = ResolveType(originalDefinition.Parameters[i].Type, methodTypeParameterMap);
-                            if (translatedParamType != candidateParams[i].ParameterType)
+                            for (var i = 0; i < candidateParams.Length; i++)
                             {
-                                return false;
+                                var translatedParamType = ResolveType(originalDefinition.Parameters[i].Type, methodTypeParameterMap);
+                                if (translatedParamType != candidateParams[i].ParameterType)
+                                {
+                                    return false;
+                                }
                             }
+
+                            return true;
                         }
 
-                        return true;
-                    }
-
-                    return false;
-                }).ToArray();
+                        return false;
+                    }).ToArray();
 
             if (definitionMethodInfos.Length != 1)
             {
-                throw new InvalidOperationException($"Invocation: Found {definitionMethodInfos.Length} matches for generic method: {invocation}");
+                throw new InvalidOperationException(
+                    $"Invocation: Found {definitionMethodInfos.Length} matches for generic method: {invocation}");
             }
 
             var definitionMethodInfo = definitionMethodInfos[0];
@@ -670,7 +716,7 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
             // Positional argument
             if (argument.NameColon is null)
             {
-                destArguments[paramIndex] = Visit(argument);
+                destArguments[paramIndex] = Visit(argument, parameter.ParameterType);
                 continue;
             }
 
@@ -997,7 +1043,7 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
     public override Expression DefaultVisit(SyntaxNode node)
         => throw new NotSupportedException($"Unsupported syntax node of type '{node.GetType()}': {node}");
 
-    private Expression VisitLambdaExpression(AnonymousFunctionExpressionSyntax lambda)
+    private Expression VisitLambdaExpression(AnonymousFunctionExpressionSyntax lambda, Type? expectedType = null)
     {
         if (lambda.ExpressionBody is null)
         {
@@ -1025,8 +1071,8 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
         var translatedParameters = new List<ParameterExpression>();
         foreach (var parameter in lambdaParameters)
         {
-            if (_semanticModel.GetDeclaredSymbol(parameter) is not { } parameterSymbol ||
-                ResolveType(parameterSymbol.Type) is not { } parameterType)
+            if (_semanticModel.GetDeclaredSymbol(parameter) is not { } parameterSymbol
+                || ResolveType(parameterSymbol.Type) is not { } parameterType)
             {
                 throw new InvalidOperationException("Could not found symbol for parameter lambda: " + parameter);
             }
@@ -1034,13 +1080,37 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
             translatedParameters.Add(Parameter(parameterType, parameter.Identifier.Text));
         }
 
-        _parameterStack.Push(_parameterStack.Peek()
-            .AddRange(translatedParameters.Select(p => new KeyValuePair<string, ParameterExpression>(p.Name ?? throw new NotImplementedException(), p))));
+        _parameterStack.Push(
+            _parameterStack.Peek()
+                .AddRange(
+                    translatedParameters.Select(
+                        p => new KeyValuePair<string, ParameterExpression>(p.Name ?? throw new NotImplementedException(), p))));
 
         try
         {
             var body = Visit(lambda.ExpressionBody);
-            return Lambda(body, translatedParameters);
+
+            return expectedType switch
+            {
+                // If there's no contextual expected type, we allow the lambda's type to be inferred from its parameters and the body's
+                // return type.
+                null => Lambda(body, translatedParameters),
+
+                // This is for the case where the expected type is Action<T>, but the lambda body does return something, which needs to get
+                // ignored; for example, the ExecuteUpdateAsync setter parameter is Action<UpdateSettersBuilder>, but the function is
+                // invoked with ExecuteUpdateAsync(s => s.SetProperty(...)), and SetProperty() returns UpdateSettersBuilder for further
+                // chaining. In this case, the body's return type is an UpdateSettersBuilder, meaning that the type of the constructed
+                // lambda here would be Func<UpdateSettersBuilder, UpdateSettersBuilder>, and not Action<UpdateSettersBuilder> as
+                // ExecuteUpdateAsync's signature requires.
+                // Identify this case, and explicitly type the returned lambda as an Action when necessary.
+                _ when expectedType.IsGenericType && expectedType.IsAssignableTo(typeof(MulticastDelegate))
+                    => Lambda(expectedType, body, translatedParameters),
+
+                _ when expectedType.IsGenericType && expectedType.GetGenericTypeDefinition() == typeof(Expression<>)
+                    => Lambda(expectedType.GetGenericArguments()[0], body, translatedParameters),
+
+                _ => throw new UnreachableException()
+            };
         }
         finally
         {
@@ -1074,9 +1144,10 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
             case INamedTypeSymbol { IsAnonymousType: true } anonymousTypeSymbol:
                 _anonymousTypeDefinitions ??= LoadAnonymousTypes(anonymousTypeSymbol.ContainingAssembly);
                 var properties = anonymousTypeSymbol.GetMembers().OfType<IPropertySymbol>().ToArray();
-                var found = _anonymousTypeDefinitions.TryGetValue(properties.Select(p => p.Name).ToArray(),
+                var found = _anonymousTypeDefinitions.TryGetValue(
+                    properties.Select(p => p.Name).ToArray(),
                     out var anonymousTypeGenericDefinition);
-                Debug.Assert(found, "Anonymous type not found");
+                Check.DebugAssert(found, "Anonymous type not found");
 
                 var constructorParameters = anonymousTypeGenericDefinition!.GetConstructors()[0].GetParameters();
                 var genericTypeArguments = new Type[constructorParameters.Length];
@@ -1229,10 +1300,10 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
         public bool IsNonNullableReferenceType { get; } = isNonNullableReferenceType;
 
         public override object[] GetCustomAttributes(bool inherit)
-            => Array.Empty<object>();
+            => [];
 
         public override object[] GetCustomAttributes(Type attributeType, bool inherit)
-            => Array.Empty<object>();
+            => [];
 
         public override bool IsDefined(Type attributeType, bool inherit)
             => false;
@@ -1241,7 +1312,8 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
 
         public override string Name { get; } = name;
 
-        public override Type? ReflectedType => null;
+        public override Type? ReflectedType
+            => null;
 
         // We implement GetValue since ExpressionTreeFuncletizer calls it to get the parameter value. In AOT generation time, we obviously
         // have no parameter values, nor do we need them for the first part of the query pipeline.
@@ -1252,7 +1324,11 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
                     ? "<dummy>"
                     : null;
 
-        public override void SetValue(object? obj, object? value, BindingFlags invokeAttr, Binder? binder,
+        public override void SetValue(
+            object? obj,
+            object? value,
+            BindingFlags invokeAttr,
+            Binder? binder,
             CultureInfo? culture)
             => throw new NotSupportedException();
 
@@ -1268,10 +1344,10 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
     private sealed class FakeConstructorInfo(Type type, ParameterInfo[] parameters) : ConstructorInfo
     {
         public override object[] GetCustomAttributes(bool inherit)
-            => Array.Empty<object>();
+            => [];
 
         public override object[] GetCustomAttributes(Type attributeType, bool inherit)
-            => Array.Empty<object>();
+            => [];
 
         public override bool IsDefined(Type attributeType, bool inherit)
             => false;
@@ -1296,11 +1372,18 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
         public override RuntimeMethodHandle MethodHandle
             => throw new NotSupportedException();
 
-        public override object Invoke(object? obj, BindingFlags invokeAttr, Binder? binder, object?[]? parameters,
+        public override object Invoke(
+            object? obj,
+            BindingFlags invokeAttr,
+            Binder? binder,
+            object?[]? parameters,
             CultureInfo? culture)
             => throw new NotSupportedException();
 
-        public override object Invoke(BindingFlags invokeAttr, Binder? binder, object?[]? parameters,
+        public override object Invoke(
+            BindingFlags invokeAttr,
+            Binder? binder,
+            object?[]? parameters,
             CultureInfo? culture)
             => throw new NotSupportedException();
     }

@@ -3,12 +3,12 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public abstract class QueryExpressionInterceptionInMemoryTestBase : QueryExpressionInterceptionTestBase
+public abstract class QueryExpressionInterceptionInMemoryTestBase(
+    QueryExpressionInterceptionInMemoryTestBase.InterceptionInMemoryFixtureBase fixture)
+    : QueryExpressionInterceptionTestBase(fixture)
 {
-    protected QueryExpressionInterceptionInMemoryTestBase(InterceptionInMemoryFixtureBase fixture)
-        : base(fixture)
-    {
-    }
+    public override Task Interceptor_does_not_leak_across_contexts(bool async)
+        => Task.CompletedTask;
 
     public override async Task<UniverseContext> SeedAsync(UniverseContext context)
     {

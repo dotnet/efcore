@@ -10,15 +10,9 @@ namespace Microsoft.EntityFrameworkCore.Query;
 // ReSharper disable ConvertToConstant.Local
 // ReSharper disable RedundantBoolCompare
 // ReSharper disable InconsistentNaming
-
-public abstract class NorthwindWhereQueryTestBase<TFixture> : QueryTestBase<TFixture>
+public abstract class NorthwindWhereQueryTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)
     where TFixture : NorthwindQueryFixtureBase<NoopModelCustomizer>, new()
 {
-    protected NorthwindWhereQueryTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-
     protected NorthwindContext CreateContext()
         => Fixture.CreateContext();
 
@@ -430,28 +424,6 @@ public abstract class NorthwindWhereQueryTestBase<TFixture> : QueryTestBase<TFix
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Where_bitwise_or(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI" | c.CustomerID == "ANATR"));
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Where_bitwise_and(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI" & c.CustomerID == "ANATR"),
-            assertEmpty: true);
-
-    [ConditionalTheory]
-    [InlineData(false)]
-    public virtual Task Where_bitwise_xor(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<Customer>().Where(c => (c.CustomerID == "ALFKI") ^ true));
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
     public virtual Task Where_simple_shadow(bool async)
         => AssertQuery(
             async,
@@ -558,20 +530,6 @@ public abstract class NorthwindWhereQueryTestBase<TFixture> : QueryTestBase<TFix
                 ss => ss.Set<Customer>()
                     .Where(c => c.CustomerID != "ALFKI" && (c.CustomerID == "MAUMAR" || (c.CustomerID != "AROUT" && c.IsLondon)))),
             CoreStrings.QueryUnableToTranslateMember(nameof(Customer.IsLondon), nameof(Customer)));
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Where_equals_method_string(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<Customer>().Where(c => c.City.Equals("London")));
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Where_equals_method_string_with_ignore_case(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<Customer>().Where(c => c.City.Equals("London", StringComparison.OrdinalIgnoreCase)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -697,162 +655,6 @@ public abstract class NorthwindWhereQueryTestBase<TFixture> : QueryTestBase<TFix
         => AssertQuery(
             async,
             ss => ss.Set<Employee>().Where(e => e.ReportsTo == null));
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Where_string_length(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<Customer>().Where(c => c.City.Length == 6));
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Where_string_indexof(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<Customer>().Where(c => c.City.IndexOf("Sea") != -1));
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Where_string_replace(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<Customer>().Where(c => c.City.Replace("Sea", "Rea") == "Reattle"));
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Where_string_substring(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<Customer>().Where(c => c.City.Substring(1, 2) == "ea"));
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Where_datetime_now(bool async)
-    {
-        var myDatetime = new DateTime(2015, 4, 10);
-
-        return AssertQuery(
-            async,
-            ss => ss.Set<Customer>().Where(c => DateTime.Now != myDatetime));
-    }
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Where_datetime_utcnow(bool async)
-    {
-        var myDatetime = new DateTime(2015, 4, 10);
-
-        return AssertQuery(
-            async,
-            ss => ss.Set<Customer>().Where(c => DateTime.UtcNow != myDatetime));
-    }
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Where_datetimeoffset_utcnow(bool async)
-    {
-        var myDatetimeOffset = new DateTimeOffset(2015, 4, 10, 0, 0, 0, new TimeSpan(-8, 0, 0));
-
-        return AssertQuery(
-            async,
-            ss => ss.Set<Customer>().Where(c => DateTimeOffset.UtcNow != myDatetimeOffset));
-    }
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Where_datetime_today(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<Employee>().Where(e => DateTime.Now.Date == DateTime.Today));
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Where_datetime_date_component(bool async)
-    {
-        var myDatetime = new DateTime(1998, 5, 4);
-
-        return AssertQuery(
-            async,
-            ss => ss.Set<Order>().Where(o => o.OrderDate.Value.Date == myDatetime));
-    }
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Where_date_add_year_constant_component(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<Order>().Where(o => o.OrderDate.Value.AddYears(-1).Year == 1997));
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Where_datetime_year_component(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<Order>().Where(o => o.OrderDate.Value.Year == 1998));
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Where_datetime_month_component(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<Order>().Where(o => o.OrderDate.Value.Month == 4));
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Where_datetime_dayOfYear_component(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<Order>().Where(o => o.OrderDate.Value.DayOfYear == 68));
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Where_datetime_day_component(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<Order>().Where(o => o.OrderDate.Value.Day == 4));
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Where_datetime_hour_component(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<Order>().Where(o => o.OrderDate.Value.Hour == 0));
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Where_datetime_minute_component(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<Order>().Where(o => o.OrderDate.Value.Minute == 0));
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Where_datetime_second_component(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<Order>().Where(o => o.OrderDate.Value.Second == 0));
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Where_datetime_millisecond_component(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<Order>().Where(o => o.OrderDate.Value.Millisecond == 0));
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Where_datetimeoffset_now_component(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<Order>().Where(o => o.OrderDate < DateTimeOffset.Now));
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Where_datetimeoffset_utcnow_component(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<Order>().Where(o => o.OrderDate != DateTimeOffset.UtcNow));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1312,102 +1114,6 @@ public abstract class NorthwindWhereQueryTestBase<TFixture> : QueryTestBase<TFix
             ss => ss.Set<Customer>().Where(lambda));
     }
 
-    //see issue #31917
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Where_concat_string_int_comparison1(bool async)
-    {
-        var i = 10;
-
-        return AssertQuery(
-            async,
-            ss => ss.Set<Customer>().Where(c => c.CustomerID + i == c.CompanyName).Select(c => c.CustomerID),
-            assertEmpty: true);
-    }
-
-    //see issue #31917
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Where_concat_string_int_comparison2(bool async)
-    {
-        var i = 10;
-
-        return AssertQuery(
-            async,
-            ss => ss.Set<Customer>().Where(c => i + c.CustomerID == c.CompanyName).Select(c => c.CustomerID),
-            assertEmpty: true);
-    }
-
-    //see issue #31917
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Where_concat_string_int_comparison3(bool async)
-    {
-        var i = 10;
-        var j = 21;
-
-        return AssertQuery(
-            async,
-            ss => ss.Set<Customer>().Where(c => i + 20 + c.CustomerID + j + 42 == c.CompanyName).Select(c => c.CustomerID),
-            assertEmpty: true);
-    }
-
-    //see issue #31917
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Where_concat_string_int_comparison4(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<Order>().Where(o => o.OrderID + o.CustomerID == o.CustomerID).Select(c => c.CustomerID),
-            assertEmpty: true);
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Where_concat_string_string_comparison(bool async)
-    {
-        var i = "A";
-
-        return AssertQuery(
-            async,
-            ss => ss.Set<Customer>().Where(c => i + c.CustomerID == "AALFKI").Select(c => c.CustomerID));
-    }
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Where_string_concat_method_comparison(bool async)
-    {
-        var i = "A";
-
-        return AssertQuery(
-            async,
-            ss => ss.Set<Customer>().Where(c => string.Concat(i, c.CustomerID) == "AAROUT").Select(c => c.CustomerID));
-    }
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Where_string_concat_method_comparison_2(bool async)
-    {
-        var i = "A";
-        var j = "B";
-
-        return AssertQuery(
-            async,
-            ss => ss.Set<Customer>().Where(c => string.Concat(i, j, c.CustomerID) == "ABANATR").Select(c => c.CustomerID));
-    }
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Where_string_concat_method_comparison_3(bool async)
-    {
-        var i = "A";
-        var j = "B";
-        var k = "C";
-
-        return AssertQuery(
-            async,
-            ss => ss.Set<Customer>().Where(c => string.Concat(i, j, k, c.CustomerID) == "ABCANTON").Select(c => c.CustomerID));
-    }
-
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Where_ternary_boolean_condition_true(bool async)
@@ -1468,11 +1174,9 @@ public abstract class NorthwindWhereQueryTestBase<TFixture> : QueryTestBase<TFix
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Where_ternary_boolean_condition_negated(bool async)
-    {
-        return AssertQuery(
+        => AssertQuery(
             async,
             ss => ss.Set<Product>().Where(p => !(p.UnitsInStock >= 20 ? false : true)));
-    }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1561,7 +1265,7 @@ public abstract class NorthwindWhereQueryTestBase<TFixture> : QueryTestBase<TFix
     public virtual Task Where_compare_null_with_cast_to_object(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Customer>().Where(c => (object)c.Region == null));
+            ss => ss.Set<Customer>().Where(c => c.Region == null));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1658,16 +1362,8 @@ public abstract class NorthwindWhereQueryTestBase<TFixture> : QueryTestBase<TFix
             async,
             ss => ss.Set<Customer>().Where(
                 c => c.Orders.OrderBy(o => o.OrderID).FirstOrDefault() == new Order { OrderID = 10276 }),
-
             ss => ss.Set<Customer>().Where(
                 c => c.Orders.OrderBy(o => o.OrderID).FirstOrDefault().OrderID == 10276));
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Time_of_day_datetime(bool async)
-        => AssertQueryScalar(
-            async,
-            ss => ss.Set<Order>().Select(o => o.OrderDate.Value.TimeOfDay));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1765,23 +1461,6 @@ public abstract class NorthwindWhereQueryTestBase<TFixture> : QueryTestBase<TFix
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Like_with_non_string_column_using_ToString(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<Order>().Where(o => EF.Functions.Like(o.OrderID.ToString(), "%20%")),
-            ss => ss.Set<Order>().Where(o => o.OrderID.ToString().Contains("20")));
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Like_with_non_string_column_using_double_cast(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<Order>().Where(o => EF.Functions.Like((string)(object)o.OrderID, "%20%")),
-            ss => ss.Set<Order>().Where(o => o.OrderID.ToString().Contains("20")));
-
-    // see issue #31917
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
     public virtual Task Using_same_parameter_twice_in_query_generates_one_sql_parameter(bool async)
     {
         var i = 10;
@@ -1789,6 +1468,19 @@ public abstract class NorthwindWhereQueryTestBase<TFixture> : QueryTestBase<TFix
             async,
             ss => ss.Set<Customer>().Where(c => i + c.CustomerID + i == "10ALFKI10")
                 .Select(c => c.CustomerID));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Two_parameters_with_same_name_get_uniquified(bool async)
+    {
+        var i = 10;
+
+        // i+1 and i+2 each get parameterized using the same parameter name (since they're complex expressions).
+        // This exercises that query parameters are properly uniquified.
+        return AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => (c.CustomerID + (i + 1)) + (c.CustomerID + (i + 2)) == "ALFKI11ALFKI12"));
     }
 
     [ConditionalTheory]
@@ -1928,18 +1620,21 @@ public abstract class NorthwindWhereQueryTestBase<TFixture> : QueryTestBase<TFix
             assertOrder: true,
             elementAsserter: (e, a) => AssertCollection(e, a));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Where_collection_navigation_ToArray_Contains(bool async)
-    {
-        var order = new Order { OrderID = 10248 };
-
-        return AssertQuery(
-            async,
-            ss => ss.Set<Customer>()
-                .Select(c => c.Orders.AsEnumerable().OrderBy(o => o.OrderID).ToArray())
-                .Where(e => e.Contains(order)));
-    }
+    // TODO: The following no longer compiles since https://github.com/dotnet/runtime/pull/110197 (Contains overload added with optional
+    // parameter, not supported in expression trees). #35547 is tracking on the EF side.
+    //
+    // [ConditionalTheory]
+    // [MemberData(nameof(IsAsyncData))]
+    // public virtual Task Where_collection_navigation_ToArray_Contains(bool async)
+    // {
+    //     var order = new Order { OrderID = 10248 };
+    //
+    //     return AssertQuery(
+    //         async,
+    //         ss => ss.Set<Customer>()
+    //             .Select(c => c.Orders.AsEnumerable().OrderBy(o => o.OrderID).ToArray())
+    //             .Where(e => e.Contains(order)));
+    // }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -2004,16 +1699,19 @@ public abstract class NorthwindWhereQueryTestBase<TFixture> : QueryTestBase<TFix
                 .Where(o => orderIds.Contains(o.OrderID)));
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Where_array_of_object_contains_over_value_type(bool async)
-    {
-        var orderIds = new object[] { 10248, 10249 };
-        return AssertQuery(
-            async,
-            ss => ss.Set<Order>()
-                .Where(o => orderIds.Contains(o.OrderID)));
-    }
+    // TODO: The following no longer compiles since https://github.com/dotnet/runtime/pull/110197 (Contains overload added with optional
+    // parameter, not supported in expression trees). #35547 is tracking on the EF side.
+    //
+    // [ConditionalTheory]
+    // [MemberData(nameof(IsAsyncData))]
+    // public virtual Task Where_array_of_object_contains_over_value_type(bool async)
+    // {
+    //     var orderIds = new object[] { 10248, 10249 };
+    //     return AssertQuery(
+    //         async,
+    //         ss => ss.Set<Order>()
+    //             .Where(o => orderIds.Contains(o.OrderID)));
+    // }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -2065,9 +1763,7 @@ public abstract class NorthwindWhereQueryTestBase<TFixture> : QueryTestBase<TFix
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Multiple_AndAlso_on_same_column_converted_to_in_using_parameters(bool async)
     {
-        var prm1 = "ALFKI";
-        var prm2 = "ANATR";
-        var prm3 = "ANTON";
+        var (prm1, prm2, prm3) = ("ALFKI", "ANATR", "ANTON");
 
         return AssertQuery(
             async,
@@ -2078,8 +1774,7 @@ public abstract class NorthwindWhereQueryTestBase<TFixture> : QueryTestBase<TFix
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Array_of_parameters_Contains_OrElse_comparison_with_constant_gets_combined_to_one_in(bool async)
     {
-        var prm1 = "ALFKI";
-        var prm2 = "ANATR";
+        var (prm1, prm2) = ("ALFKI", "ANATR");
 
         return AssertQuery(
             async,
@@ -2310,23 +2005,6 @@ public abstract class NorthwindWhereQueryTestBase<TFixture> : QueryTestBase<TFix
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Where_Like_and_comparison(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<Customer>().Where(c => EF.Functions.Like(c.CustomerID, "F%") && c.City == "Seattle"),
-            ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F") && c.City == "Seattle"),
-            assertEmpty: true);
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Where_Like_or_comparison(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<Customer>().Where(c => EF.Functions.Like(c.CustomerID, "F%") || c.City == "Seattle"),
-            ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F") || c.City == "Seattle"));
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
     public virtual Task GetType_on_non_hierarchy1(bool async)
         => AssertQuery(
             async,
@@ -2547,4 +2225,40 @@ public abstract class NorthwindWhereQueryTestBase<TFixture> : QueryTestBase<TFix
             ss => ss.Set<Order>().Select(x => new DtoWithInterface { Id = x.OrderID }).Where(x => (x as IHaveId).Id == 10252),
             elementAsserter: (e, a) => AssertEqual(e.Id, a.Id));
     }
+
+    [ConditionalTheory] // #35095
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Simplifiable_coalesce_over_nullable(bool async)
+    {
+        int? orderId = 10248;
+
+        return AssertQuery(
+            async,
+            ss => ss.Set<Order>().Where(o => o.OrderID == (orderId ?? 0)));
+    }
+
+    #region Evaluation order of operators
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Take_and_Where_evaluation_order(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Employee>().OrderBy(e => e.EmployeeID).Take(3).Where(e => e.EmployeeID % 2 == 0));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Skip_and_Where_evaluation_order(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Employee>().OrderBy(e => e.EmployeeID).Skip(3).Where(e => e.EmployeeID % 2 == 0));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Take_and_Distinct_evaluation_order(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Select(c => c.ContactTitle).OrderBy(t => t).Take(3).Distinct());
+
+    #endregion Evaluation order of operators
 }

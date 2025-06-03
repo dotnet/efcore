@@ -22,7 +22,7 @@ public abstract class NorthwindSqlQueryTestBase<TFixture> : IClassFixture<TFixtu
 
     protected TFixture Fixture { get; }
 
-    public static IEnumerable<object[]> IsAsyncData = new object[][] { [false], [true] };
+    public static readonly IEnumerable<object[]> IsAsyncData = [[false], [true]];
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]

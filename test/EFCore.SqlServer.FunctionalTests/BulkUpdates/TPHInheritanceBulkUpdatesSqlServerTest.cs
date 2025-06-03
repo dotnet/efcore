@@ -5,17 +5,11 @@ namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
 #nullable disable
 
-public class TPHInheritanceBulkUpdatesSqlServerTest : TPHInheritanceBulkUpdatesTestBase<TPHInheritanceBulkUpdatesSqlServerFixture>
+public class TPHInheritanceBulkUpdatesSqlServerTest(
+    TPHInheritanceBulkUpdatesSqlServerFixture fixture,
+    ITestOutputHelper testOutputHelper)
+    : TPHInheritanceBulkUpdatesTestBase<TPHInheritanceBulkUpdatesSqlServerFixture>(fixture, testOutputHelper)
 {
-    public TPHInheritanceBulkUpdatesSqlServerTest(
-        TPHInheritanceBulkUpdatesSqlServerFixture fixture,
-        ITestOutputHelper testOutputHelper)
-        : base(fixture)
-    {
-        ClearLog();
-        Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
-    }
-
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
@@ -121,8 +115,8 @@ WHERE [a].[Id] IN (
 
         AssertSql(
             """
-@__p_0='0'
-@__p_1='3'
+@p='0'
+@p0='3'
 
 DELETE FROM [a]
 FROM [Animals] AS [a]
@@ -131,7 +125,7 @@ WHERE [a].[Id] IN (
     FROM [Animals] AS [a0]
     WHERE [a0].[Name] = N'Great spotted kiwi'
     ORDER BY [a0].[Name]
-    OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
+    OFFSET @p ROWS FETCH NEXT @p0 ROWS ONLY
 )
 """);
     }
@@ -142,8 +136,10 @@ WHERE [a].[Id] IN (
 
         AssertExecuteUpdateSql(
             """
+@p='Animal' (Size = 4000)
+
 UPDATE [a]
-SET [a].[Name] = N'Animal'
+SET [a].[Name] = @p
 FROM [Animals] AS [a]
 WHERE [a].[Name] = N'Great spotted kiwi'
 """);
@@ -155,8 +151,10 @@ WHERE [a].[Name] = N'Great spotted kiwi'
 
         AssertExecuteUpdateSql(
             """
+@p='NewBird' (Size = 4000)
+
 UPDATE [a]
-SET [a].[Name] = N'NewBird'
+SET [a].[Name] = @p
 FROM [Animals] AS [a]
 WHERE [a].[Discriminator] = N'Kiwi'
 """);
@@ -175,8 +173,10 @@ WHERE [a].[Discriminator] = N'Kiwi'
 
         AssertExecuteUpdateSql(
             """
+@p='SomeOtherKiwi' (Size = 4000)
+
 UPDATE [a]
-SET [a].[Name] = N'SomeOtherKiwi'
+SET [a].[Name] = @p
 FROM [Animals] AS [a]
 WHERE [a].[Discriminator] = N'Kiwi'
 """);
@@ -188,8 +188,10 @@ WHERE [a].[Discriminator] = N'Kiwi'
 
         AssertExecuteUpdateSql(
             """
+@p='0' (Size = 1)
+
 UPDATE [a]
-SET [a].[FoundOn] = CAST(0 AS tinyint)
+SET [a].[FoundOn] = @p
 FROM [Animals] AS [a]
 WHERE [a].[Discriminator] = N'Kiwi'
 """);
@@ -201,8 +203,10 @@ WHERE [a].[Discriminator] = N'Kiwi'
 
         AssertExecuteUpdateSql(
             """
+@p='Monovia' (Size = 4000)
+
 UPDATE [c]
-SET [c].[Name] = N'Monovia'
+SET [c].[Name] = @p
 FROM [Countries] AS [c]
 WHERE (
     SELECT COUNT(*)
@@ -217,9 +221,12 @@ WHERE (
 
         AssertExecuteUpdateSql(
             """
+@p='Kiwi' (Size = 4000)
+@p0='0' (Size = 1)
+
 UPDATE [a]
-SET [a].[FoundOn] = CAST(0 AS tinyint),
-    [a].[Name] = N'Kiwi'
+SET [a].[Name] = @p,
+    [a].[FoundOn] = @p0
 FROM [Animals] AS [a]
 WHERE [a].[Discriminator] = N'Kiwi'
 """);
@@ -231,8 +238,10 @@ WHERE [a].[Discriminator] = N'Kiwi'
 
         AssertExecuteUpdateSql(
             """
+@p='Monovia' (Size = 4000)
+
 UPDATE [c]
-SET [c].[Name] = N'Monovia'
+SET [c].[Name] = @p
 FROM [Countries] AS [c]
 WHERE (
     SELECT COUNT(*)
@@ -254,8 +263,10 @@ WHERE (
 
         AssertExecuteUpdateSql(
             """
+@p='0'
+
 UPDATE [d]
-SET [d].[SugarGrams] = 0
+SET [d].[SugarGrams] = @p
 FROM [Drinks] AS [d]
 WHERE [d].[Discriminator] = 1
 """);
@@ -267,8 +278,10 @@ WHERE [d].[Discriminator] = 1
 
         AssertExecuteUpdateSql(
             """
+@p='0'
+
 UPDATE [d]
-SET [d].[SugarGrams] = 0
+SET [d].[SugarGrams] = @p
 FROM [Drinks] AS [d]
 WHERE [d].[Discriminator] = 1
 """);

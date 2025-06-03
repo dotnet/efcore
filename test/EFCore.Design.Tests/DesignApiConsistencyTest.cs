@@ -5,7 +5,8 @@ using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class DesignApiConsistencyTest(DesignApiConsistencyTest.DesignApiConsistencyFixture fixture) : ApiConsistencyTestBase<DesignApiConsistencyTest.DesignApiConsistencyFixture>(fixture)
+public class DesignApiConsistencyTest(DesignApiConsistencyTest.DesignApiConsistencyFixture fixture)
+    : ApiConsistencyTestBase<DesignApiConsistencyTest.DesignApiConsistencyFixture>(fixture)
 {
     protected override void AddServices(ServiceCollection serviceCollection)
     {
@@ -18,7 +19,7 @@ public class DesignApiConsistencyTest(DesignApiConsistencyTest.DesignApiConsiste
     {
         public override HashSet<Type> FluentApiTypes { get; } = [typeof(DesignTimeServiceCollectionExtensions)];
 
-        public override HashSet<MethodInfo> NonVirtualMethods { get; } =
+        public override HashSet<MethodInfo> VirtualMethodExceptions { get; } =
         [
             typeof(CSharpEntityTypeGeneratorBase.ToStringInstanceHelper)
                 .GetProperty(nameof(CSharpEntityTypeGeneratorBase.ToStringInstanceHelper.FormatProvider)).GetMethod,

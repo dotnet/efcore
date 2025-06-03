@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 
@@ -50,12 +49,6 @@ public abstract class QueryContext : IParameterValues
     ///     Dependencies for this service.
     /// </summary>
     protected virtual QueryContextDependencies Dependencies { get; }
-
-    /// <summary>
-    ///    The <see cref="EntityMaterializerSource"/>, which can be used to create stand-alone entity instances.
-    /// </summary>
-    public virtual IEntityMaterializerSource EntityMaterializerSource
-        => Dependencies.EntityMaterializerSource;
 
     /// <summary>
     ///     Sets the navigation for given entity as loaded.
@@ -132,10 +125,10 @@ public abstract class QueryContext : IParameterValues
     /// </summary>
     [EntityFrameworkInternal]
     public virtual InternalEntityEntry? TryGetEntry(
-        IKey key,
-        object[] keyValues,
-        bool throwOnNullKey,
-        out bool hasNullKey)
+            IKey key,
+            object[] keyValues,
+            bool throwOnNullKey,
+            out bool hasNullKey)
         // InitializeStateManager will populate the field before calling here
         => _stateManager!.TryGetEntry(key, keyValues, throwOnNullKey, out hasNullKey);
 

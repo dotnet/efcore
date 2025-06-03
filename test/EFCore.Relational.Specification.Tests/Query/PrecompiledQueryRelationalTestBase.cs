@@ -12,11 +12,11 @@ using static Microsoft.EntityFrameworkCore.TestUtilities.PrecompiledQueryTestHel
 namespace Microsoft.EntityFrameworkCore.Query;
 
 // ReSharper disable InconsistentNaming
-
 /// <summary>
 ///     General tests for precompiled queries.
 ///     See also <see cref="PrecompiledSqlPregenerationQueryRelationalTestBase" /> for tests specifically related to SQL pregeneration.
 /// </summary>
+[Collection("PrecompiledQuery")]
 public class PrecompiledQueryRelationalTestBase
 {
     public PrecompiledQueryRelationalTestBase(PrecompiledQueryRelationalFixture fixture, ITestOutputHelper testOutputHelper)
@@ -32,21 +32,45 @@ public class PrecompiledQueryRelationalTestBase
 
     [ConditionalFact]
     public virtual Task BinaryExpression()
-        => Test("""
+        => Test(
+            """
 var id = 3;
 var blogs = await context.Blogs.Where(b => b.Id > id).ToListAsync();
+
+Assert.Equal(2, blogs.Count);
+var orderedBlogs = blogs.OrderBy(x => x.Id).ToList();
+var blog1 = orderedBlogs[0];
+var blog2 = orderedBlogs[1];
+
+Assert.Equal(8, blog1.Id);
+Assert.Equal("Blog1", blog1.Name);
+Assert.Empty(blog1.Json);
+
+Assert.Equal(9, blog2.Id);
+Assert.Equal("Blog2", blog2.Name);
+Assert.Equal(2, blog2.Json.Count);
+
+Assert.Equal(1, blog2.Json[0].Number);
+Assert.Equal("One", blog2.Json[0].Text);
+Assert.Equal(new DateTime(2001, 1, 1), blog2.Json[0].Inner.Date);
+
+Assert.Equal(2, blog2.Json[1].Number);
+Assert.Equal("Two", blog2.Json[1].Text);
+Assert.Equal(new DateTime(2002, 2, 2), blog2.Json[1].Inner.Date);
 """);
 
     [ConditionalFact]
     public virtual Task Conditional_no_evaluatable()
-        => Test("""
+        => Test(
+            """
 var id = 3;
 var blogs = await context.Blogs.Select(b => b.Id == 2 ? "yes" : "no").ToListAsync();
 """);
 
     [ConditionalFact]
     public virtual Task Conditional_contains_captured_variable()
-        => Test("""
+        => Test(
+            """
 var yes = "yes";
 var blogs = await context.Blogs.Select(b => b.Id == 2 ? yes : "no").ToListAsync();
 """);
@@ -64,16 +88,16 @@ var blogs = await context.Blogs
     .Where(Expression.Lambda<Func<Blog, bool>>(Expression.Invoke(lambda, parameter), parameter))
     .ToListAsync();
 """,
-            errorAsserter: errors => Assert.IsType<InvalidOperationException>(errors.Single().Exception));
+            errorAsserter: errors => Assert.IsType<ArgumentNullException>(errors.Single().Exception));
 
-     [ConditionalFact]
-     public virtual Task ListInit_no_evaluatability()
-         => Test("_ = await context.Blogs.Select(b => new List<int> { b.Id, b.Id + 1 }).ToListAsync();");
+    [ConditionalFact]
+    public virtual Task ListInit_no_evaluatability()
+        => Test("_ = await context.Blogs.Select(b => new List<int> { b.Id, b.Id + 1 }).ToListAsync();");
 
-     [ConditionalFact]
-     public virtual Task ListInit_with_evaluatable_with_captured_variable()
-         => Test(
-             """
+    [ConditionalFact]
+    public virtual Task ListInit_with_evaluatable_with_captured_variable()
+        => Test(
+            """
 var i = 1;
 _ = await context.Blogs.Select(b => new List<int> { b.Id, i }).ToListAsync();
 """);
@@ -81,25 +105,27 @@ _ = await context.Blogs.Select(b => new List<int> { b.Id, i }).ToListAsync();
     [ConditionalFact]
     public virtual Task ListInit_with_evaluatable_without_captured_variable()
         => Test(
-                """
+            """
 var i = 1;
 _ = await context.Blogs.Select(b => new List<int> { b.Id, 8 }).ToListAsync();
 """);
 
     [ConditionalFact]
     public virtual Task ListInit_fully_evaluatable()
-        => Test("""
+        => Test(
+            """
 var blog = await context.Blogs.Where(b => new List<int> { 7, 8 }.Contains(b.Id)).SingleAsync();
 Assert.Equal("Blog1", blog.Name);
 """);
 
-     [ConditionalFact]
-     public virtual Task MethodCallExpression_no_evaluatability()
-         => Test("_ = await context.Blogs.Where(b => b.Name.StartsWith(b.Name)).ToListAsync();");
+    [ConditionalFact]
+    public virtual Task MethodCallExpression_no_evaluatability()
+        => Test("_ = await context.Blogs.Where(b => b.Name.StartsWith(b.Name)).ToListAsync();");
 
     [ConditionalFact]
     public virtual Task MethodCallExpression_with_evaluatable_with_captured_variable()
-        => Test("""
+        => Test(
+            """
 var pattern = "foo";
 _ = await context.Blogs.Where(b => b.Name.StartsWith(pattern)).ToListAsync();
 """);
@@ -176,11 +202,64 @@ _ = await context.Blogs.Select(b => new[] { b.Id, b.Id + i }).ToListAsync();
 
     #endregion Expression types
 
+    #region Regular operators
+
+    [ConditionalFact]
+    public virtual Task OrderBy()
+        => Test("_ = await context.Blogs.OrderBy(b => b.Name).ToListAsync();");
+
+    [ConditionalFact]
+    public virtual Task Skip_with_constant()
+        => Test("_ = await context.Blogs.OrderBy(b => b.Name).Skip(1).ToListAsync();");
+
+    [ConditionalFact]
+    public virtual Task Skip_with_parameter()
+        => Test(
+            """
+var toSkip = 1;
+_ = await context.Blogs.OrderBy(b => b.Name).Skip(toSkip).ToListAsync();
+""");
+
+    [ConditionalFact]
+    public virtual Task Take_with_constant()
+        => Test("_ = await context.Blogs.OrderBy(b => b.Name).Take(1).ToListAsync();");
+
+    [ConditionalFact]
+    public virtual Task Take_with_parameter()
+        => Test(
+            """
+var toTake = 1;
+_ = await context.Blogs.OrderBy(b => b.Name).Take(toTake).ToListAsync();
+""");
+
+    [ConditionalFact]
+    public virtual Task Select_changes_type()
+        => Test("_ = await context.Blogs.Select(b => b.Name).ToListAsync();");
+
+    [ConditionalFact]
+    public virtual Task Select_anonymous_object()
+        => Test("""_ = await context.Blogs.Select(b => new { Foo = b.Name + "Foo" }).ToListAsync();""");
+
+    [ConditionalFact]
+    public virtual Task Include_single()
+        => Test("var blogs = await context.Blogs.Include(b => b.Posts).Where(b => b.Id > 8).ToListAsync();");
+
+    [ConditionalFact]
+    public virtual Task Include_split()
+        => Test("var blogs = await context.Blogs.AsSplitQuery().Include(b => b.Posts).ToListAsync();");
+
+    [ConditionalFact]
+    public virtual Task Final_GroupBy()
+        => Test("""var blogs = await context.Blogs.GroupBy(b => b.Name).ToListAsync();""");
+
+    #endregion Regular operators
+
     #region Terminating operators
 
     [ConditionalFact]
     public virtual Task Terminating_AsEnumerable()
-        => Test("""
+        => Test(
+            """
 var blogs = context.Blogs.AsEnumerable().ToList();
 Assert.Collection(
     blogs.OrderBy(b => b.Id),
@@ -190,7 +269,8 @@ Assert.Collection(
 
     [ConditionalFact]
     public virtual Task Terminating_AsAsyncEnumerable_on_DbSet()
-        => Test("""
+        => Test(
+            """
 var sum = 0;
 await foreach (var blog in context.Blogs.AsAsyncEnumerable())
 {
@@ -201,7 +281,8 @@ Assert.Equal(17, sum);
 
     [ConditionalFact]
     public virtual Task Terminating_AsAsyncEnumerable_on_IQueryable()
-        => Test("""
+        => Test(
+            """
 var sum = 0;
 await foreach (var blog in context.Blogs.Where(b => b.Id > 8).AsAsyncEnumerable())
 {
@@ -698,7 +779,7 @@ Assert.Equal(1, await context.Blogs.CountAsync());
 """);
 
     [ConditionalFact]
-    public virtual Task Terminating_ExecuteUpdate()
+    public virtual Task Terminating_ExecuteUpdate_with_lambda()
         => Test(
             """
 await context.Database.BeginTransactionAsync();
@@ -710,7 +791,19 @@ Assert.Equal(1, await context.Blogs.CountAsync(b => b.Id == 9 && b.Name == "Blog
 """);
 
     [ConditionalFact]
-    public virtual Task Terminating_ExecuteUpdateAsync()
+    public virtual Task Terminating_ExecuteUpdate_without_lambda()
+        => Test(
+            """
+await context.Database.BeginTransactionAsync();
+
+var newValue = "NewValue";
+var rowsAffected = context.Blogs.Where(b => b.Id > 8).ExecuteUpdate(setters => setters.SetProperty(b => b.Name, newValue));
+Assert.Equal(1, rowsAffected);
+Assert.Equal(1, await context.Blogs.CountAsync(b => b.Id == 9 && b.Name == "NewValue"));
+""");
+
+    [ConditionalFact]
+    public virtual Task Terminating_ExecuteUpdateAsync_with_lambda()
         => Test(
             """
 await context.Database.BeginTransactionAsync();
@@ -721,12 +814,51 @@ Assert.Equal(1, rowsAffected);
 Assert.Equal(1, await context.Blogs.CountAsync(b => b.Id == 9 && b.Name == "Blog2Suffix"));
 """);
 
+    [ConditionalFact]
+    public virtual Task Terminating_ExecuteUpdateAsync_without_lambda()
+        => Test(
+            """
+await context.Database.BeginTransactionAsync();
+
+var newValue = "NewValue";
+var rowsAffected = await context.Blogs.Where(b => b.Id > 8).ExecuteUpdateAsync(setters => setters.SetProperty(b => b.Name, newValue));
+Assert.Equal(1, rowsAffected);
+Assert.Equal(1, await context.Blogs.CountAsync(b => b.Id == 9 && b.Name == "NewValue"));
+""");
+
+    [ConditionalFact] // #35494
+    public virtual Task Terminating_with_cancellation_token()
+        => Test(
+            """
+CancellationTokenSource source = new CancellationTokenSource();
+CancellationToken token = source.Token;
+Assert.Equal("Blog1", (await context.Blogs.Where(b => b.Id == 8).FirstOrDefaultAsync(token)).Name);
+Assert.Null(await context.Blogs.Where(b => b.Id == 7).FirstOrDefaultAsync(token));
+""");
+
     #endregion Reducing terminating operators
 
     #region SQL expression quotability
 
     [ConditionalFact]
     public virtual Task Union()
+        => Test(
+            """
+var posts = await context.Posts.Where(p => p.Id > 11)
+    .Union(context.Posts.Where(p => p.Id < 21))
+    .OrderBy(p => p.Id)
+    .ToListAsync();
+
+Assert.Collection(posts,
+    b => Assert.Equal(11, b.Id),
+    b => Assert.Equal(12, b.Id),
+    b => Assert.Equal(21, b.Id),
+    b => Assert.Equal(22, b.Id),
+    b => Assert.Equal(23, b.Id));
+""");
+
+    [ConditionalFact(Skip = "issue 33378")]
+    public virtual Task UnionOnEntitiesWithJson()
         => Test(
             """
 var blogs = await context.Blogs.Where(b => b.Id > 7)
@@ -741,6 +873,24 @@ Assert.Collection(blogs,
 
     [ConditionalFact]
     public virtual Task Concat()
+        => Test(
+            """
+var posts = await context.Posts.Where(p => p.Id > 11)
+    .Concat(context.Posts.Where(p => p.Id < 21))
+    .OrderBy(p => p.Id)
+    .ToListAsync();
+
+Assert.Collection(posts,
+    b => Assert.Equal(11, b.Id),
+    b => Assert.Equal(12, b.Id),
+    b => Assert.Equal(12, b.Id),
+    b => Assert.Equal(21, b.Id),
+    b => Assert.Equal(22, b.Id),
+    b => Assert.Equal(23, b.Id));
+""");
+
+    [ConditionalFact(Skip = "issue 33378")]
+    public virtual Task ConcatOnEntitiesWithJson()
         => Test(
             """
 var blogs = await context.Blogs.Where(b => b.Id > 7)
@@ -759,6 +909,20 @@ Assert.Collection(blogs,
     public virtual Task Intersect()
         => Test(
             """
+var posts = await context.Posts.Where(b => b.Id > 11)
+    .Intersect(context.Posts.Where(b => b.Id < 22))
+    .OrderBy(b => b.Id)
+    .ToListAsync();
+
+Assert.Collection(posts,
+    b => Assert.Equal(12, b.Id),
+    b => Assert.Equal(21, b.Id));
+""");
+
+    [ConditionalFact(Skip = "issue 33378")]
+    public virtual Task IntersectOnEntitiesWithJson()
+        => Test(
+            """
 var blogs = await context.Blogs.Where(b => b.Id > 7)
     .Intersect(context.Blogs.Where(b => b.Id > 8))
     .OrderBy(b => b.Id)
@@ -769,6 +933,20 @@ Assert.Collection(blogs, b => Assert.Equal(9, b.Id));
 
     [ConditionalFact]
     public virtual Task Except()
+        => Test(
+            """
+var posts = await context.Posts.Where(b => b.Id > 11)
+    .Except(context.Posts.Where(b => b.Id > 21))
+    .OrderBy(b => b.Id)
+    .ToListAsync();
+
+Assert.Collection(posts,
+    b => Assert.Equal(12, b.Id),
+    b => Assert.Equal(21, b.Id));
+""");
+
+    [ConditionalFact(Skip = "issue 33378")]
+    public virtual Task ExceptOnEntitiesWithJson()
         => Test(
             """
 var blogs = await context.Blogs.Where(b => b.Id > 7)
@@ -894,6 +1072,60 @@ public static class TestContainer
 
     #endregion Different DbContext expressions
 
+    #region Captured variable handling
+
+    [ConditionalFact]
+    public virtual Task Two_captured_variables_in_same_lambda()
+        => Test(
+            """
+var yes = "yes";
+var no = "no";
+var blogs = await context.Blogs.Select(b => b.Id == 3 ? yes : no).ToListAsync();
+""");
+
+    [ConditionalFact]
+    public virtual Task Two_captured_variables_in_different_lambdas()
+        => Test(
+            """
+var starts = "Blog";
+var ends = "2";
+var blog = await context.Blogs.Where(b => b.Name.StartsWith(starts)).Where(b => b.Name.EndsWith(ends)).SingleAsync();
+Assert.Equal(9, blog.Id);
+""");
+
+    [ConditionalFact]
+    public virtual Task Same_captured_variable_twice_in_same_lambda()
+        => Test(
+            """
+var foo = "X";
+var blogs = await context.Blogs.Where(b => b.Name.StartsWith(foo) && b.Name.EndsWith(foo)).ToListAsync();
+""");
+
+    [ConditionalFact]
+    public virtual Task Same_captured_variable_twice_in_different_lambdas()
+        => Test(
+            """
+var foo = "X";
+var blogs = await context.Blogs.Where(b => b.Name.StartsWith(foo)).Where(b => b.Name.EndsWith(foo)).ToListAsync();
+""");
+
+    [ConditionalFact]
+    public virtual Task Multiple_queries_with_captured_variables()
+        => Test(
+            """
+var id1 = 8;
+var id2 = 9;
+var blogs = await context.Blogs.Where(b => b.Id == id1 || b.Id == id2).ToListAsync();
+var blog1 = await context.Blogs.Where(b => b.Id == id1).SingleAsync();
+Assert.Collection(
+    blogs.OrderBy(b => b.Id),
+    b => Assert.Equal(8, b.Id),
+    b => Assert.Equal(9, b.Id));
+Assert.Equal("Blog1", blog1.Name);
+""");
+
+    #endregion Captured variable handling
+
     #region Negative cases
 
     [ConditionalFact]
@@ -978,94 +1210,33 @@ var blogs = await (
     #endregion Negative cases
 
     [ConditionalFact]
-    public virtual Task Select_changes_type()
-        => Test("_ = await context.Blogs.Select(b => b.Name).ToListAsync();");
-
-    [ConditionalFact]
-    public virtual Task OrderBy()
-        => Test("_ = await context.Blogs.OrderBy(b => b.Name).ToListAsync();");
-
-    [ConditionalFact]
-    public virtual Task Skip()
-        => Test("_ = await context.Blogs.OrderBy(b => b.Name).Skip(1).ToListAsync();");
-
-    [ConditionalFact]
-    public virtual Task Take()
-        => Test("_ = await context.Blogs.OrderBy(b => b.Name).Take(1).ToListAsync();");
-
-    [ConditionalFact]
-    public virtual Task Project_anonymous_object()
-        => Test("""_ = await context.Blogs.Select(b => new { Foo = b.Name + "Foo" }).ToListAsync();""");
-
-    [ConditionalFact]
-    public virtual Task Two_captured_variables_in_same_lambda()
-        => Test("""
-var yes = "yes";
-var no = "no";
-var blogs = await context.Blogs.Select(b => b.Id == 3 ? yes : no).ToListAsync();
-""");
-
-    [ConditionalFact]
-    public virtual Task Two_captured_variables_in_different_lambdas()
-        => Test("""
-var starts = "blog";
-var ends = "2";
-var blog = await context.Blogs.Where(b => b.Name.StartsWith(starts)).Where(b => b.Name.EndsWith(ends)).SingleAsync();
-Assert.Equal(9, blog.Id);
-""");
-
-    [ConditionalFact]
-    public virtual Task Same_captured_variable_twice_in_same_lambda()
-        => Test("""
-var foo = "X";
-var blogs = await context.Blogs.Where(b => b.Name.StartsWith(foo) && b.Name.EndsWith(foo)).ToListAsync();
-""");
-
-    [ConditionalFact]
-    public virtual Task Same_captured_variable_twice_in_different_lambdas()
-        => Test("""
-var foo = "X";
-var blogs = await context.Blogs.Where(b => b.Name.StartsWith(foo)).Where(b => b.Name.EndsWith(foo)).ToListAsync();
-""");
-
-    [ConditionalFact]
-    public virtual Task Include_single()
-        => Test("var blogs = await context.Blogs.Include(b => b.Posts).Where(b => b.Id > 8).ToListAsync();");
-
-    [ConditionalFact]
-    public virtual Task Include_split()
-        => Test("var blogs = await context.Blogs.AsSplitQuery().Include(b => b.Posts).ToListAsync();");
-
-    [ConditionalFact]
-    public virtual Task Final_GroupBy()
-        => Test("""var blogs = await context.Blogs.GroupBy(b => b.Name).ToListAsync();""");
-
-    [ConditionalFact]
-    public virtual Task Multiple_queries_with_captured_variables()
-        => Test("""
-var id1 = 8;
-var id2 = 9;
-var blogs = await context.Blogs.Where(b => b.Id == id1 || b.Id == id2).ToListAsync();
-var blog1 = await context.Blogs.Where(b => b.Id == id1).SingleAsync();
-Assert.Collection(
-    blogs.OrderBy(b => b.Id),
-    b => Assert.Equal(8, b.Id),
-    b => Assert.Equal(9, b.Id));
-Assert.Equal("Blog1", blog1.Name);
-""");
-
-    [ConditionalFact]
     public virtual Task Unsafe_accessor_gets_generated_once_for_multiple_queries()
-        => Test("""
+        => Test(
+            """
 var blogs1 = await context.Blogs.ToListAsync();
 var blogs2 = await context.Blogs.ToListAsync();
 """,
-            interceptorCodeAsserter: code => Assert.Equal(2, code.Split("private static extern ref int UnsafeAccessor_Microsoft_EntityFrameworkCore_Query_Blog_Id_Set").Length));
+            interceptorCodeAsserter: code => Assert.Equal(
+                2, code.Split("private static extern ref int UnsafeAccessor_Microsoft_EntityFrameworkCore_Query_Blog_Id_Set").Length));
 
     public class PrecompiledQueryContext(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Blog> Blogs { get; set; } = null!;
         public DbSet<Post> Posts { get; set; } = null!;
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<Blog>().OwnsMany(
+                x => x.Json,
+                n =>
+                {
+                    n.ToJson();
+                    n.OwnsOne(xx => xx.Inner);
+                });
+            modelBuilder.Entity<Blog>().HasMany(x => x.Posts).WithOne(x => x.Blog).OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<Post>().Property(x => x.Id).ValueGeneratedNever();
+        }
     }
 
     protected PrecompiledQueryRelationalFixture Fixture { get; }
@@ -1083,7 +1254,8 @@ var blogs2 = await context.Blogs.ToListAsync();
             """
 await using var context = new PrecompiledQueryContext(dbContextOptions);
 
-""" + sourceCode,
+"""
+            + sourceCode,
             Fixture.ServiceProvider.GetRequiredService<DbContextOptions>(),
             typeof(PrecompiledQueryContext),
             interceptorCodeAsserter,
@@ -1127,9 +1299,23 @@ await using var context = new PrecompiledQueryContext(dbContextOptions);
 
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id { get; set; }
-        public string? Name { get; set; }
 
+        public string? Name { get; set; }
         public List<Post> Posts { get; set; } = new();
+        public List<JsonRoot> Json { get; set; } = new();
+    }
+
+    public class JsonRoot
+    {
+        public int Number { get; set; }
+        public string? Text { get; set; }
+
+        public JsonBranch Inner { get; set; } = null!;
+    }
+
+    public class JsonBranch
+    {
+        public DateTime Date { get; set; }
     }
 
     public class Post
@@ -1140,5 +1326,5 @@ await using var context = new PrecompiledQueryContext(dbContextOptions);
         public Blog? Blog { get; set; }
     }
 
-    public static IEnumerable<object[]> IsAsyncData = new object[][] { [false], [true] };
+    public static readonly IEnumerable<object[]> IsAsyncData = [[false], [true]];
 }

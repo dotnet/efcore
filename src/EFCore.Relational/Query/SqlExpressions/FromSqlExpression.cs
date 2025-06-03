@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics.CodeAnalysis;
-
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 /// <summary>
@@ -16,8 +14,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 /// </summary>
 public class FromSqlExpression : TableExpressionBase, ITableBasedExpression
 {
-    private static ConstructorInfo? _quotingConstructor;
-    private static MethodInfo? _constantExpressionFactoryMethod, _parameterExpressionFactoryMethod;
+    private static ConstructorInfo? _quotingConstructor, _queryParameterConstructor;
+    private static MethodInfo? _constantExpressionFactoryMethod;
 
     /// <summary>
     ///     Creates a new instance of the <see cref="FromSqlExpression" /> class.
@@ -132,12 +130,12 @@ public class FromSqlExpression : TableExpressionBase, ITableBasedExpression
                         typeof(object),
                         arguments.Select(a => (Expression)Call(_constantExpressionFactoryMethod, Constant(a))).ToArray()),
 
-                ParameterExpression parameter
-                    when parameter.Type == typeof(object[])
-                    => Call(
-                        _parameterExpressionFactoryMethod ??= typeof(Expression).GetMethod(nameof(Parameter), [typeof(Type), typeof(string)])!,
-                        Constant(typeof(object[])),
-                        Constant(parameter.Name, typeof(string))),
+                QueryParameterExpression queryParameter
+                    when queryParameter.Type == typeof(object[])
+                    => New(
+                        _queryParameterConstructor ??= typeof(QueryParameterExpression).GetConstructor([typeof(string), typeof(Type)])!,
+                        Constant(queryParameter.Name, typeof(string)),
+                        Constant(typeof(object[]))),
 
                 _ => throw new UnreachableException() // TODO: Confirm
             },

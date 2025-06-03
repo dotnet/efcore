@@ -23,7 +23,7 @@ public class SqliteQueryCompilationContext : RelationalQueryCompilationContext
         QueryCompilationContextDependencies dependencies,
         RelationalQueryCompilationContextDependencies relationalDependencies,
         bool async)
-        : this(dependencies, relationalDependencies, async, precompiling: false, nonNullableReferenceTypeParameters: null)
+        : this(dependencies, relationalDependencies, async, precompiling: false)
     {
     }
 
@@ -38,12 +38,12 @@ public class SqliteQueryCompilationContext : RelationalQueryCompilationContext
         QueryCompilationContextDependencies dependencies,
         RelationalQueryCompilationContextDependencies relationalDependencies,
         bool async,
-        bool precompiling,
-        IReadOnlySet<string>? nonNullableReferenceTypeParameters)
-        : base(dependencies, relationalDependencies, async, precompiling, nonNullableReferenceTypeParameters)
+        bool precompiling)
+        : base(dependencies, relationalDependencies, async, precompiling)
     {
     }
 
     /// <inheritdoc />
-    public override bool SupportsPrecompiledQuery => true;
+    public override bool SupportsPrecompiledQuery
+        => true;
 }

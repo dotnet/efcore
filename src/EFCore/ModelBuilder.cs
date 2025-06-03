@@ -52,9 +52,7 @@ public class ModelBuilder : IInfrastructure<IConventionModelBuilder>
     /// <param name="modelDependencies">The dependencies object for the model.</param>
     public ModelBuilder(ConventionSet conventions, ModelDependencies modelDependencies)
         : this(conventions, modelDependencies, null)
-    {
-        Check.NotNull(modelDependencies, nameof(modelDependencies));
-    }
+        => Check.NotNull(modelDependencies, nameof(modelDependencies));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -85,9 +83,7 @@ public class ModelBuilder : IInfrastructure<IConventionModelBuilder>
     ///     <see href="https://aka.ms/efcore-docs-conventions">EF Core model-building conventions</see> for more information and examples.
     /// </remarks>
     public ModelBuilder()
-    {
-        _builder = new Model().Builder;
-    }
+        => _builder = new Model().Builder;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -97,9 +93,7 @@ public class ModelBuilder : IInfrastructure<IConventionModelBuilder>
     /// </summary>
     [EntityFrameworkInternal]
     public ModelBuilder(IMutableModel model)
-    {
-        _builder = ((Model)model).Builder;
-    }
+        => _builder = ((Model)model).Builder;
 
     /// <summary>
     ///     The model being configured.
@@ -568,6 +562,7 @@ public class ModelBuilder : IInfrastructure<IConventionModelBuilder>
     ///     See <see href="https://aka.ms/efcore-docs-owned">Owned types in EF Core</see> for more information and examples.
     /// </remarks>
     /// <typeparam name="T">The entity type to be configured.</typeparam>
+    // TODO: Move to ModelConfigurationBuilder #6787
     public virtual OwnedEntityTypeBuilder<T> Owned<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] T>()
         where T : class
     {
@@ -584,6 +579,7 @@ public class ModelBuilder : IInfrastructure<IConventionModelBuilder>
     ///     See <see href="https://aka.ms/efcore-docs-owned">Owned types in EF Core</see> for more information and examples.
     /// </remarks>
     /// <param name="type">The entity type to be configured.</param>
+    // TODO: Move to ModelConfigurationBuilder #6787
     public virtual OwnedEntityTypeBuilder Owned([DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type type)
     {
         Check.NotNull(type, nameof(type));
@@ -638,8 +634,20 @@ public class ModelBuilder : IInfrastructure<IConventionModelBuilder>
     }
 
     /// <summary>
-    ///     Forces post-processing on the model such that it is ready for use by the runtime. This post
-    ///     processing happens automatically when using <see cref="DbContext.OnModelCreating" />; this method allows it to be run
+    ///     Sets the name to use for discriminator properties embedded in JSON documents. The default is "$type".
+    /// </summary>
+    /// <param name="name">The property name, or <see langword="null" /> to clear the name set.</param>
+    /// <returns>The same <see cref="ModelBuilder" /> instance so that additional configuration calls can be chained.</returns>
+    public virtual ModelBuilder HasEmbeddedDiscriminatorName(string name)
+    {
+        Builder.HasEmbeddedDiscriminatorName(name, ConfigurationSource.Explicit);
+
+        return this;
+    }
+
+    /// <summary>
+    ///     Forces post-processing on the model such that it is ready for use by the runtime. This post-processing
+    ///     happens automatically when using <see cref="DbContext.OnModelCreating" />; this method allows it to be run
     ///     explicitly in cases where the automatic execution is not possible.
     /// </summary>
     /// <returns>The finalized model.</returns>

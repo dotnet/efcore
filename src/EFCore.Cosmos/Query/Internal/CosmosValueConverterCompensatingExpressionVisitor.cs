@@ -67,7 +67,7 @@ public class CosmosValueConverterCompensatingExpressionVisitor(ISqlExpressionFac
         var offset = (SqlExpression?)Visit(selectExpression.Offset);
 
         return changed
-            ? selectExpression.Update(projections, sources, predicate, orderings, limit, offset)
+            ? selectExpression.Update(sources, predicate, projections, orderings, offset, limit)
             : selectExpression;
     }
 

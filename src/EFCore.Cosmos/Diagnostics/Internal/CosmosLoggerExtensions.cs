@@ -54,7 +54,7 @@ public static class CosmosLoggerExtensions
     public static void ExecutingSqlQuery(
         this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
         string containerId,
-        PartitionKey partitionKeyValue,
+        PartitionKey? partitionKeyValue,
         CosmosSqlQuery cosmosSqlQuery)
     {
         var definition = CosmosResources.LogExecutingSqlQuery(diagnostics);
@@ -66,7 +66,7 @@ public static class CosmosLoggerExtensions
             definition.Log(
                 diagnostics,
                 containerId,
-                logSensitiveData ? partitionKeyValue.ToString() : "?",
+                logSensitiveData ? partitionKeyValue?.ToString() : "?",
                 FormatParameters(cosmosSqlQuery.Parameters, logSensitiveData && cosmosSqlQuery.Parameters.Count > 0),
                 Environment.NewLine,
                 cosmosSqlQuery.Query);
@@ -158,7 +158,7 @@ public static class CosmosLoggerExtensions
         double requestCharge,
         string activityId,
         string containerId,
-        PartitionKey partitionKeyValue,
+        PartitionKey? partitionKeyValue,
         CosmosSqlQuery cosmosSqlQuery)
     {
         var definition = CosmosResources.LogExecutedReadNext(diagnostics);
@@ -177,7 +177,7 @@ public static class CosmosLoggerExtensions
                     requestCharge,
                     activityId,
                     containerId,
-                    logSensitiveData ? partitionKeyValue.ToString() : "?",
+                    logSensitiveData ? partitionKeyValue?.ToString() : "?",
                     FormatParameters(cosmosSqlQuery.Parameters, logSensitiveData && cosmosSqlQuery.Parameters.Count > 0),
                     Environment.NewLine,
                     cosmosSqlQuery.Query));
@@ -483,6 +483,34 @@ public static class CosmosLoggerExtensions
                 definition,
                 (d, p) => ((EventDefinition<string>)d).GenerateMessage(((EntityTypeEventData)p).EntityType.DisplayName()),
                 entityType);
+            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+        }
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static void PrimaryKeyValueNotSet(
+        this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
+        IProperty property)
+    {
+        var definition = CosmosResources.LogPrimaryKeyValueNotSet(diagnostics);
+
+        if (diagnostics.ShouldLog(definition))
+        {
+            definition.Log(diagnostics, property.DeclaringType.DisplayName(), property.Name);
+        }
+
+        if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+        {
+            var eventData = new PropertyEventData(
+                definition,
+                (d, p) => ((EventDefinition<string, string>)d).GenerateMessage(
+                    ((PropertyEventData)p).Property.DeclaringType.DisplayName(), ((PropertyEventData)p).Property.Name),
+                property);
             diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
         }
     }

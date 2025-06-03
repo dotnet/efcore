@@ -29,9 +29,7 @@ public class LazyLoaderParameterBindingFactory : ServiceParameterBindingFactory
     /// <param name="dependencies">The service dependencies to use.</param>
     public LazyLoaderParameterBindingFactory(LazyLoaderParameterBindingFactoryDependencies dependencies)
         : base(typeof(ILazyLoader))
-    {
-        Dependencies = dependencies;
-    }
+        => Dependencies = dependencies;
 
     /// <summary>
     ///     Dependencies for this service.

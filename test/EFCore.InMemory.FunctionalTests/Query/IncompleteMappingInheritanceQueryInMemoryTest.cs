@@ -3,7 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class IncompleteMappingInheritanceQueryInMemoryTest(IncompleteMappingInheritanceQueryInMemoryFixture fixture) : InheritanceQueryTestBase<IncompleteMappingInheritanceQueryInMemoryFixture>(fixture)
+public class IncompleteMappingInheritanceQueryInMemoryTest(IncompleteMappingInheritanceQueryInMemoryFixture fixture)
+    : InheritanceQueryTestBase<IncompleteMappingInheritanceQueryInMemoryFixture>(fixture)
 {
     public override async Task Can_query_all_animal_views(bool async)
     {

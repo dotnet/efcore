@@ -18,9 +18,7 @@ public abstract class FromSqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
 
     protected FromSqlQueryTestBase(TFixture fixture)
         : base(fixture)
-    {
-        Fixture.TestSqlLoggerFactory.Clear();
-    }
+        => Fixture.TestSqlLoggerFactory.Clear();
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -206,7 +204,6 @@ public abstract class FromSqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 ? await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync())
                 : Assert.Throws<InvalidOperationException>(() => query.ToList())).Message);
     }
-
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -890,6 +887,23 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual async Task FromSqlRaw_with_dbParameter_and_regular_parameter_with_same_name(bool async)
+    {
+        var city = "London";
+        var foo = "Sales Representative";
+
+        var cityParameter = CreateDbParameter("@foo", city);
+
+        await AssertQuery(
+            async,
+            ss => ((DbSet<Customer>)ss.Set<Customer>())
+                .FromSqlRaw(NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [City] = {0}"), cityParameter)
+                .Where(c => c.ContactTitle == foo),
+            ss => ss.Set<Customer>().Where(x => x.City == city && x.ContactTitle == foo));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual async Task Include_does_not_close_user_opened_connection_for_empty_result(bool async)
     {
         Fixture.TestStore.CloseConnection();
@@ -1386,21 +1400,30 @@ SELECT * FROM [Customers2]"))
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Multiple_occurrences_of_FromSql_with_db_parameter_adds_parameter_only_once(bool async)
+    public virtual async Task Multiple_occurrences_of_FromSql_with_db_parameter_adds_two_parameters(bool async)
     {
         using var context = CreateContext();
         var city = "Seattle";
-        var fromSqlQuery = context.Customers.FromSqlRaw(
-            NormalizeDelimitersInRawString(@"SELECT * FROM [Customers] WHERE [City] = {0}"),
-            CreateDbParameter("city", city));
 
-        var query = fromSqlQuery.Intersect(fromSqlQuery);
+        var dbParameter1 = CreateDbParameter("city", city);
+        dbParameter1.Size = 7;
+        var subquery1 = context.Database.SqlQueryRaw<UnmappedCustomer>(
+            NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [City] = {0}"),
+            dbParameter1);
+
+        var dbParameter2 = CreateDbParameter("city", city);
+        dbParameter2.Size = 3;
+        var subquery2 = context.Database.SqlQueryRaw<UnmappedCustomer>(
+            NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [City] = {0}"),
+            dbParameter2);
+
+        var query = subquery1.Intersect(subquery2);
 
         var actual = async
             ? await query.ToArrayAsync()
             : query.ToArray();
 
-        Assert.Single(actual);
+        Assert.Empty(actual);
     }
 
     protected string NormalizeDelimitersInRawString(string sql)

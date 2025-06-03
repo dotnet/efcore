@@ -76,6 +76,7 @@ public class SqlServerDatabaseModelFactory : DatabaseModelFactory
 
     private byte? _compatibilityLevel;
     private EngineEdition? _engineEdition;
+    private string? _version;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -125,6 +126,7 @@ public class SqlServerDatabaseModelFactory : DatabaseModelFactory
 
             _compatibilityLevel = GetCompatibilityLevel(connection);
             _engineEdition = GetEngineEdition(connection);
+            _version = GetVersion(connection);
 
             databaseModel.DatabaseName = connection.Database;
             databaseModel.DefaultSchema = GetDefaultSchema(connection);
@@ -189,6 +191,14 @@ public class SqlServerDatabaseModelFactory : DatabaseModelFactory
             command.CommandText = "SELECT SERVERPROPERTY('EngineEdition');";
             var result = command.ExecuteScalar();
             return result != null ? (EngineEdition)Convert.ToInt32(result) : 0;
+        }
+
+        static string? GetVersion(DbConnection connection)
+        {
+            using var command = connection.CreateCommand();
+            command.CommandText = "SELECT @@VERSION;";
+            var result = command.ExecuteScalar();
+            return result as string;
         }
 
         static byte GetCompatibilityLevel(DbConnection connection)
@@ -427,9 +437,7 @@ SELECT
         WHEN [s].[maximum_value] >  9223372036854775807 THEN  9223372036854775807
         WHEN [s].[maximum_value] < -9223372036854775808 THEN -9223372036854775808
         ELSE [s].[maximum_value]
-        END AS bigint) AS maximum_value,
-    [s].[is_cached],
-    [s].[cache_size]
+        END AS bigint) AS maximum_value
 FROM [sys].[sequences] AS [s]
 JOIN [sys].[types] AS [t] ON [s].[user_type_id] = [t].[user_type_id]
 """;
@@ -457,8 +465,6 @@ WHERE "
             var startValue = reader.GetValueOrDefault<long>("start_value");
             var minValue = reader.GetValueOrDefault<long>("minimum_value");
             var maxValue = reader.GetValueOrDefault<long>("maximum_value");
-            var cached = reader.GetValueOrDefault<bool>("is_cached");
-            var cacheSize = reader.GetValueOrDefault<int?>("cache_size");
 
             // Swap store type if type alias is used
             if (typeAliases.TryGetValue($"[{storeTypeSchema}].[{storeType}]", out var value))
@@ -468,7 +474,7 @@ WHERE "
 
             storeType = GetStoreType(storeType, maxLength: 0, precision: precision, scale: scale);
 
-            _logger.SequenceFound(DisplayName(schema, name), storeType, cyclic, incrementBy, startValue, minValue, maxValue, cached, cacheSize);
+            _logger.SequenceFound(DisplayName(schema, name), storeType, cyclic, incrementBy, startValue, minValue, maxValue);
 
             var sequence = new DatabaseSequence
             {
@@ -480,9 +486,7 @@ WHERE "
                 IncrementBy = incrementBy,
                 StartValue = startValue,
                 MinValue = minValue,
-                MaxValue = maxValue,
-                IsCached = cached,
-                CacheSize = cacheSize
+                MaxValue = maxValue
             };
 
             if (DefaultSequenceMinMax.TryGetValue(storeType, out var defaultMinMax))
@@ -548,12 +552,11 @@ LEFT JOIN [sys].[extended_properties] AS [e] ON [e].[major_id] = [t].[object_id]
         var tableFilterBuilder = new StringBuilder(
             $"""
 [t].[is_ms_shipped] = 0
-AND NOT EXISTS (SELECT *
-    FROM [sys].[extended_properties] AS [ep]
-    WHERE [ep].[major_id] = [t].[object_id]
-        AND [ep].[minor_id] = 0
-        AND [ep].[class] = 1
-        AND [ep].[name] = N'microsoft_database_tools_support'
+AND [t].[object_id] NOT IN (SELECT [ep].[major_id]
+        FROM [sys].[extended_properties] AS [ep]
+        WHERE [ep].[minor_id] = 0
+            AND [ep].[class] = 1
+            AND [ep].[name] = N'microsoft_database_tools_support'
     )
 AND [t].[name] <> '{HistoryRepository.DefaultTableName}'
 """);
@@ -730,6 +733,8 @@ SELECT
     [c].[is_nullable],
     [c].[is_identity],
     [dc].[definition] AS [default_sql],
+    [dc].[name] AS [default_constraint_name],
+    [dc].[is_system_named] AS [default_constraint_is_system_named],
     [cc].[definition] AS [computed_sql],
     [cc].[is_persisted] AS [computed_is_persisted],
     CAST([e].[value] AS nvarchar(MAX)) AS [comment],
@@ -799,6 +804,8 @@ LEFT JOIN [sys].[default_constraints] AS [dc] ON [c].[object_id] = [dc].[parent_
                 var nullable = dataRecord.GetValueOrDefault<bool>("is_nullable");
                 var isIdentity = dataRecord.GetValueOrDefault<bool>("is_identity");
                 var defaultValueSql = dataRecord.GetValueOrDefault<string>("default_sql");
+                var defaultConstraintName = dataRecord.GetValueOrDefault<string>("default_constraint_name");
+                var defaultConstraintIsSystemNamed = dataRecord.GetValueOrDefault<bool>("default_constraint_is_system_named");
                 var computedValue = dataRecord.GetValueOrDefault<string>("computed_sql");
                 var computedIsPersisted = dataRecord.GetValueOrDefault<bool>("computed_is_persisted");
                 var comment = dataRecord.GetValueOrDefault<string>("comment");
@@ -872,6 +879,11 @@ LEFT JOIN [sys].[default_constraints] AS [dc] ON [c].[object_id] = [dc].[parent_
                     column[SqlServerAnnotationNames.Sparse] = true;
                 }
 
+                if (defaultConstraintName != null && !defaultConstraintIsSystemNamed)
+                {
+                    column[RelationalAnnotationNames.DefaultConstraintName] = defaultConstraintName;
+                }
+
                 table.Columns.Add(column);
             }
         }
@@ -915,7 +927,7 @@ LEFT JOIN [sys].[default_constraints] AS [dc] ON [c].[object_id] = [dc].[parent_
         {
             try
             {
-                return Convert.ChangeType(defaultValueSql, type);
+                return Convert.ChangeType(defaultValueSql, type, CultureInfo.InvariantCulture);
             }
             catch
             {
@@ -1472,7 +1484,7 @@ ORDER BY [table_schema], [table_name], [tr].[name];
         => IsFullFeaturedEngineEdition();
 
     private bool IsFullFeaturedEngineEdition()
-        => _engineEdition is not EngineEdition.SqlDataWarehouse and not EngineEdition.SqlOnDemand and not EngineEdition.DynamicsTdsEndpoint;
+        => _engineEdition is not EngineEdition.SqlDataWarehouse and not EngineEdition.SqlOnDemand and not EngineEdition.DynamicsTdsEndpoint && _version != "Microsoft SQL Kusto";
 
     private static string DisplayName(string? schema, string name)
         => (!string.IsNullOrEmpty(schema) ? schema + "." : "") + name;

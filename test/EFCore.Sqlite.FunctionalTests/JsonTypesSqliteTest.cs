@@ -3,11 +3,11 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-[SpatialiteRequired]
-public class JsonTypesSqliteTest : JsonTypesRelationalTestBase
+public class JsonTypesSqliteTest(NonSharedFixture fixture) : JsonTypesRelationalTestBase(fixture)
 {
     public override Task Can_read_write_array_of_list_of_GUID_JSON_values(string expected)
-        => base.Can_read_write_array_of_list_of_GUID_JSON_values("""{"Prop":[["00000000-0000-0000-0000-000000000000","8C44242F-8E3F-4A20-8BE8-98C7C1AADEBD"],[],["FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF"]]}""");
+        => base.Can_read_write_array_of_list_of_GUID_JSON_values(
+            """{"Prop":[["00000000-0000-0000-0000-000000000000","8C44242F-8E3F-4A20-8BE8-98C7C1AADEBD"],[],["FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF"]]}""");
 
     public override Task Can_read_write_array_of_list_of_binary_JSON_values(string expected)
         => base.Can_read_write_array_of_list_of_binary_JSON_values("""{"Prop":[["000102","01","4D"],[],["4E"]]}""");
@@ -16,13 +16,16 @@ public class JsonTypesSqliteTest : JsonTypesRelationalTestBase
         => base.Can_read_write_list_of_array_of_binary_JSON_values("""{"Prop":[["000102","01","4D"],[],["4E"]]}""");
 
     public override Task Can_read_write_list_of_array_of_GUID_JSON_values(string expected)
-        => base.Can_read_write_list_of_array_of_GUID_JSON_values("""{"Prop":[["00000000-0000-0000-0000-000000000000","8C44242F-8E3F-4A20-8BE8-98C7C1AADEBD"],[],["FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF"]]}""");
+        => base.Can_read_write_list_of_array_of_GUID_JSON_values(
+            """{"Prop":[["00000000-0000-0000-0000-000000000000","8C44242F-8E3F-4A20-8BE8-98C7C1AADEBD"],[],["FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF"]]}""");
 
     public override Task Can_read_write_list_of_array_of_list_of_array_of_binary_JSON_values(string expected)
-        => base.Can_read_write_list_of_array_of_list_of_array_of_binary_JSON_values("""{"Prop":[[[["000102","01","4D"]],[],[[],[]]],[],[[[]],[["000102","01","4D"]]]]}""");
+        => base.Can_read_write_list_of_array_of_list_of_array_of_binary_JSON_values(
+            """{"Prop":[[[["000102","01","4D"]],[],[[],[]]],[],[[[]],[["000102","01","4D"]]]]}""");
 
     public override Task Can_read_write_list_of_array_of_nullable_GUID_JSON_values(string expected)
-        => base.Can_read_write_list_of_array_of_nullable_GUID_JSON_values("""{"Prop":[["00000000-0000-0000-0000-000000000000",null,"8C44242F-8E3F-4A20-8BE8-98C7C1AADEBD"],[],["FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF"]]}""");
+        => base.Can_read_write_list_of_array_of_nullable_GUID_JSON_values(
+            """{"Prop":[["00000000-0000-0000-0000-000000000000",null,"8C44242F-8E3F-4A20-8BE8-98C7C1AADEBD"],[],["FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF"]]}""");
 
     public override Task Can_read_write_binary_JSON_values(string value, string json)
         => base.Can_read_write_binary_JSON_values(
@@ -36,25 +39,31 @@ public class JsonTypesSqliteTest : JsonTypesRelationalTestBase
             });
 
     public override Task Can_read_write_collection_of_decimal_JSON_values(string expected)
-        => base.Can_read_write_collection_of_decimal_JSON_values("""{"Prop":["-79228162514264337593543950335.0","0.0","79228162514264337593543950335.0"]}""");
+        => base.Can_read_write_collection_of_decimal_JSON_values(
+            """{"Prop":["-79228162514264337593543950335.0","0.0","79228162514264337593543950335.0"]}""");
 
     public override Task Can_read_write_collection_of_DateTime_JSON_values(string expected)
-        => base.Can_read_write_collection_of_DateTime_JSON_values("""{"Prop":["0001-01-01 00:00:00","2023-05-29 10:52:47","9999-12-31 23:59:59.9999999"]}""");
+        => base.Can_read_write_collection_of_DateTime_JSON_values(
+            """{"Prop":["0001-01-01 00:00:00","2023-05-29 10:52:47","9999-12-31 23:59:59.9999999"]}""");
 
     public override Task Can_read_write_collection_of_DateTimeOffset_JSON_values(string expected)
-        => base.Can_read_write_collection_of_DateTimeOffset_JSON_values("""{"Prop":["0001-01-01 00:00:00+00:00","2023-05-29 10:52:47-02:00","2023-05-29 10:52:47+00:00","2023-05-29 10:52:47+02:00","9999-12-31 23:59:59.9999999+00:00"]}""");
+        => base.Can_read_write_collection_of_DateTimeOffset_JSON_values(
+            """{"Prop":["0001-01-01 00:00:00+00:00","2023-05-29 10:52:47-02:00","2023-05-29 10:52:47+00:00","2023-05-29 10:52:47+02:00","9999-12-31 23:59:59.9999999+00:00"]}""");
 
     public override Task Can_read_write_collection_of_GUID_JSON_values(string expected)
-        => base.Can_read_write_collection_of_GUID_JSON_values("""{"Prop":["00000000-0000-0000-0000-000000000000","8C44242F-8E3F-4A20-8BE8-98C7C1AADEBD","FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF"]}""");
+        => base.Can_read_write_collection_of_GUID_JSON_values(
+            """{"Prop":["00000000-0000-0000-0000-000000000000","8C44242F-8E3F-4A20-8BE8-98C7C1AADEBD","FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF"]}""");
 
     public override Task Can_read_write_collection_of_binary_JSON_values(string expected)
         => base.Can_read_write_collection_of_binary_JSON_values("""{"Prop":["00000001","FFFFFFFF","","01020304"]}""");
 
     public override Task Can_read_write_collection_of_decimal_with_precision_and_scale_JSON_values(string expected)
-        => base.Can_read_write_collection_of_decimal_with_precision_and_scale_JSON_values("""{"Prop":["-79228162514264337593543950335.0","0.0","79228162514264337593543950335.0"]}""");
+        => base.Can_read_write_collection_of_decimal_with_precision_and_scale_JSON_values(
+            """{"Prop":["-79228162514264337593543950335.0","0.0","79228162514264337593543950335.0"]}""");
 
     public override Task Can_read_write_collection_of_Guid_converted_to_bytes_JSON_values(string expected)
-        => base.Can_read_write_collection_of_Guid_converted_to_bytes_JSON_values("""{"Prop":["00000000000000000000000000000000","2F24448C3F8E204A8BE898C7C1AADEBD","FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"]}""");
+        => base.Can_read_write_collection_of_Guid_converted_to_bytes_JSON_values(
+            """{"Prop":["00000000000000000000000000000000","2F24448C3F8E204A8BE898C7C1AADEBD","FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"]}""");
 
     public override Task Can_read_write_DateTime_JSON_values(string value, string json)
         => base.Can_read_write_DateTime_JSON_values(
@@ -160,16 +169,20 @@ public class JsonTypesSqliteTest : JsonTypesRelationalTestBase
         => base.Can_read_write_collection_of_nullable_binary_JSON_values("""{"Prop":["00000001",null,"FFFFFFFF","","01020304"]}""");
 
     public override Task Can_read_write_collection_of_nullable_DateTime_JSON_values(string expected)
-        => base.Can_read_write_collection_of_nullable_DateTime_JSON_values("""{"Prop":["0001-01-01 00:00:00",null,"2023-05-29 10:52:47","9999-12-31 23:59:59.9999999"]}""");
+        => base.Can_read_write_collection_of_nullable_DateTime_JSON_values(
+            """{"Prop":["0001-01-01 00:00:00",null,"2023-05-29 10:52:47","9999-12-31 23:59:59.9999999"]}""");
 
     public override Task Can_read_write_collection_of_nullable_DateTimeOffset_JSON_values(string expected)
-        => base.Can_read_write_collection_of_nullable_DateTimeOffset_JSON_values("""{"Prop":["0001-01-01 00:00:00+00:00","2023-05-29 10:52:47-02:00","2023-05-29 10:52:47+00:00",null,"2023-05-29 10:52:47+02:00","9999-12-31 23:59:59.9999999+00:00"]}""");
+        => base.Can_read_write_collection_of_nullable_DateTimeOffset_JSON_values(
+            """{"Prop":["0001-01-01 00:00:00+00:00","2023-05-29 10:52:47-02:00","2023-05-29 10:52:47+00:00",null,"2023-05-29 10:52:47+02:00","9999-12-31 23:59:59.9999999+00:00"]}""");
 
     public override Task Can_read_write_collection_of_nullable_decimal_JSON_values(string expected)
-        => base.Can_read_write_collection_of_nullable_decimal_JSON_values("""{"Prop":["-79228162514264337593543950335.0","0.0",null,"79228162514264337593543950335.0"]}""");
+        => base.Can_read_write_collection_of_nullable_decimal_JSON_values(
+            """{"Prop":["-79228162514264337593543950335.0","0.0",null,"79228162514264337593543950335.0"]}""");
 
     public override Task Can_read_write_collection_of_nullable_GUID_JSON_values(string expected)
-        => base.Can_read_write_collection_of_nullable_GUID_JSON_values("""{"Prop":["00000000-0000-0000-0000-000000000000",null,"8C44242F-8E3F-4A20-8BE8-98C7C1AADEBD","FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF"]}""");
+        => base.Can_read_write_collection_of_nullable_GUID_JSON_values(
+            """{"Prop":["00000000-0000-0000-0000-000000000000",null,"8C44242F-8E3F-4A20-8BE8-98C7C1AADEBD","FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF"]}""");
 
     public override Task Can_read_write_ulong_enum_JSON_values(EnumU64 value, string json)
         => Can_read_and_write_JSON_value<EnumU64Type, EnumU64>(nameof(EnumU64Type.EnumU64), value, json);

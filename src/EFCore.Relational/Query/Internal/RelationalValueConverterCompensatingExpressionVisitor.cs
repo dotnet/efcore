@@ -24,9 +24,7 @@ public class RelationalValueConverterCompensatingExpressionVisitor : ExpressionV
     /// </summary>
     public RelationalValueConverterCompensatingExpressionVisitor(
         ISqlExpressionFactory sqlExpressionFactory)
-    {
-        _sqlExpressionFactory = sqlExpressionFactory;
-    }
+        => _sqlExpressionFactory = sqlExpressionFactory;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -37,11 +35,11 @@ public class RelationalValueConverterCompensatingExpressionVisitor : ExpressionV
     protected override Expression VisitExtension(Expression extensionExpression)
         => extensionExpression switch
         {
-            ShapedQueryExpression shapedQueryExpression => VisitShapedQueryExpression(shapedQueryExpression),
-            CaseExpression caseExpression => VisitCase(caseExpression),
-            SelectExpression selectExpression => VisitSelect(selectExpression),
-            InnerJoinExpression innerJoinExpression => VisitInnerJoin(innerJoinExpression),
-            LeftJoinExpression leftJoinExpression => VisitLeftJoin(leftJoinExpression),
+            ShapedQueryExpression shapedQuery => VisitShapedQueryExpression(shapedQuery),
+            CaseExpression @case => VisitCase(@case),
+            SelectExpression select => VisitSelect(select),
+            PredicateJoinExpressionBase join => VisitJoin(join),
+
             _ => base.VisitExtension(extensionExpression)
         };
 
@@ -72,7 +70,7 @@ public class RelationalValueConverterCompensatingExpressionVisitor : ExpressionV
 
         var elseResult = (SqlExpression?)Visit(caseExpression.ElseResult);
 
-        return caseExpression.Update(operand, whenClauses, elseResult);
+        return _sqlExpressionFactory.Case(operand, whenClauses, elseResult, caseExpression);
     }
 
     private Expression VisitSelect(SelectExpression selectExpression)
@@ -88,20 +86,12 @@ public class RelationalValueConverterCompensatingExpressionVisitor : ExpressionV
         return selectExpression.Update(tables, predicate, groupBy, having, projections, orderings, offset, limit);
     }
 
-    private Expression VisitInnerJoin(InnerJoinExpression innerJoinExpression)
+    private Expression VisitJoin(PredicateJoinExpressionBase joinExpression)
     {
-        var table = (TableExpressionBase)Visit(innerJoinExpression.Table);
-        var joinPredicate = TryCompensateForBoolWithValueConverter((SqlExpression)Visit(innerJoinExpression.JoinPredicate));
+        var table = (TableExpressionBase)Visit(joinExpression.Table);
+        var joinPredicate = TryCompensateForBoolWithValueConverter((SqlExpression)Visit(joinExpression.JoinPredicate));
 
-        return innerJoinExpression.Update(table, joinPredicate);
-    }
-
-    private Expression VisitLeftJoin(LeftJoinExpression leftJoinExpression)
-    {
-        var table = (TableExpressionBase)Visit(leftJoinExpression.Table);
-        var joinPredicate = TryCompensateForBoolWithValueConverter((SqlExpression)Visit(leftJoinExpression.JoinPredicate));
-
-        return leftJoinExpression.Update(table, joinPredicate);
+        return joinExpression.Update(table, joinPredicate);
     }
 
     [return: NotNullIfNotNull(nameof(sqlExpression))]

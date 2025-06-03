@@ -5,13 +5,10 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public abstract class QueryExpressionInterceptionSqliteTestBase : QueryExpressionInterceptionTestBase
+public abstract class QueryExpressionInterceptionSqliteTestBase(
+    QueryExpressionInterceptionSqliteTestBase.InterceptionSqliteFixtureBase fixture)
+    : QueryExpressionInterceptionTestBase(fixture)
 {
-    protected QueryExpressionInterceptionSqliteTestBase(InterceptionSqliteFixtureBase fixture)
-        : base(fixture)
-    {
-    }
-
     public abstract class InterceptionSqliteFixtureBase : InterceptionFixtureBase
     {
         protected override ITestStoreFactory TestStoreFactory
@@ -36,7 +33,8 @@ public abstract class QueryExpressionInterceptionSqliteTestBase : QueryExpressio
         }
     }
 
-    public class QueryExpressionInterceptionWithDiagnosticsSqliteTest(QueryExpressionInterceptionWithDiagnosticsSqliteTest.InterceptionSqliteFixture fixture)
+    public class QueryExpressionInterceptionWithDiagnosticsSqliteTest(
+        QueryExpressionInterceptionWithDiagnosticsSqliteTest.InterceptionSqliteFixture fixture)
         : QueryExpressionInterceptionSqliteTestBase(fixture),
             IClassFixture<QueryExpressionInterceptionWithDiagnosticsSqliteTest.InterceptionSqliteFixture>
     {

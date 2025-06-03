@@ -5,7 +5,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public class AdHocNavigationsQuerySqlServerTest : AdHocNavigationsQueryRelationalTestBase
+public class AdHocNavigationsQuerySqlServerTest(NonSharedFixture fixture) : AdHocNavigationsQueryRelationalTestBase(fixture)
 {
     protected override ITestStoreFactory TestStoreFactory
         => SqlServerTestStoreFactory.Instance;
@@ -82,13 +82,13 @@ ORDER BY [b].[Id]
                 {
                     Posts =
                     [
-                        new(),
-                        new(),
-                        new()
+                        new Post(),
+                        new Post(),
+                        new Post()
                     ]
                 },
-                new Blog { Posts = [new(), new()] },
-                new Blog { Posts = [new()] });
+                new Blog { Posts = [new Post(), new Post()] },
+                new Blog { Posts = [new Post()] });
 
             return SaveChangesAsync();
         }
@@ -405,14 +405,14 @@ WHERE [b].[Discriminator] = N'ClassA'
 
         AssertSql(
             """
-@__referenceId_0='a' (Size = 4000)
-@__customerId_1='1115c816-6c4c-4016-94df-d8b60a22ffa1'
+@referenceId='a' (Size = 4000)
+@customerId='1115c816-6c4c-4016-94df-d8b60a22ffa1'
 
 SELECT [o0].[Id], [s0].[Id], [s0].[Image], [s0].[Id0], [s0].[Id00]
 FROM (
     SELECT TOP(2) [o].[Id]
     FROM [Orders] AS [o]
-    WHERE [o].[ExternalReferenceId] = @__referenceId_0 AND [o].[CustomerId] = @__customerId_1
+    WHERE [o].[ExternalReferenceId] = @referenceId AND [o].[CustomerId] = @customerId
 ) AS [o0]
 OUTER APPLY (
     SELECT [i].[Id], [s].[Image], [s].[Id] AS [Id0], [s].[Id0] AS [Id00]
@@ -586,7 +586,7 @@ ORDER BY [m].[Id], [p].[Id], [s0].[Id]
 
         AssertSql(
             """
-@__id_0='1'
+@id='1'
 
 SELECT [s].[Id], [s].[Name], [s].[Surname], [s].[Birthday], [s].[Hometown], [s].[Bio], [s].[AvatarUrl], [s].[Id0], [s].[Id1], [p0].[Id], [p0].[ImageUrl], [p0].[Height], [p0].[Width], [u].[Id], [u].[Name], [u].[PosterUrl], [u].[Rating]
 FROM (
@@ -594,7 +594,7 @@ FROM (
     FROM [Persons] AS [p]
     LEFT JOIN [ActorEntity] AS [a] ON [p].[Id] = [a].[PersonId]
     LEFT JOIN [DirectorEntity] AS [d] ON [p].[Id] = [d].[PersonId]
-    WHERE [p].[Id] = @__id_0
+    WHERE [p].[Id] = @id
 ) AS [s]
 LEFT JOIN [PersonImageEntity] AS [p0] ON [s].[Id] = [p0].[PersonId]
 OUTER APPLY (

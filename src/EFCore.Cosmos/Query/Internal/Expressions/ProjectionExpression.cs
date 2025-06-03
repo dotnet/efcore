@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 // ReSharper disable once CheckNamespace
+
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 
 /// <summary>
@@ -10,9 +11,18 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class ProjectionExpression(Expression expression, string alias)
+[DebuggerDisplay("{Microsoft.EntityFrameworkCore.Query.ExpressionPrinter.Print(this), nq}")]
+public class ProjectionExpression(Expression expression, string alias, bool isValueProjection)
     : Expression, IPrintableExpression
 {
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual Expression Expression { get; } = expression;
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -27,7 +37,7 @@ public class ProjectionExpression(Expression expression, string alias)
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual Expression Expression { get; } = expression;
+    public virtual bool IsValueProjection { get; } = isValueProjection;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -73,7 +83,7 @@ public class ProjectionExpression(Expression expression, string alias)
     /// </summary>
     public virtual ProjectionExpression Update(Expression expression)
         => expression != Expression
-            ? new ProjectionExpression(expression, Alias)
+            ? new ProjectionExpression(expression, Alias, IsValueProjection)
             : this;
 
     /// <summary>

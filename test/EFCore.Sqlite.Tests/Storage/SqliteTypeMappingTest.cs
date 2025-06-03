@@ -18,6 +18,7 @@ public class SqliteTypeMappingTest : RelationalTypeMappingTest
             => optionsBuilder.UseSqlite(_connection);
 
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
+        // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Local
         public DbSet<NoTiny> NoTinnies { get; set; } = null!;
     }
 

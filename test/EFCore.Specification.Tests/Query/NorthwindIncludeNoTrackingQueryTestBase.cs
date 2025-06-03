@@ -12,17 +12,12 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public abstract class NorthwindIncludeNoTrackingQueryTestBase<TFixture> : NorthwindIncludeQueryTestBase<TFixture>
+public abstract class NorthwindIncludeNoTrackingQueryTestBase<TFixture>(TFixture fixture) : NorthwindIncludeQueryTestBase<TFixture>(fixture)
     where TFixture : NorthwindQueryFixtureBase<NoopModelCustomizer>, new()
 {
     private static readonly MethodInfo _asNoTrackingMethodInfo
         = typeof(EntityFrameworkQueryableExtensions)
             .GetTypeInfo().GetDeclaredMethod(nameof(EntityFrameworkQueryableExtensions.AsNoTracking));
-
-    protected NorthwindIncludeNoTrackingQueryTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
 
     // Include with cycles are not allowed in no tracking query.
     public override async Task Include_multi_level_reference_and_collection_predicate(bool async)

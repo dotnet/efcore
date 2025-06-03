@@ -164,6 +164,10 @@ public class RelationalMetadataExtensionsTest
 
         entityType.SetViewSchema(null);
 
+        Assert.Equal("dbo", entityType.GetViewSchema());
+
+        modelBuilder.HasDefaultSchema(null);
+
         Assert.Null(entityType.GetViewSchema());
     }
 
@@ -448,8 +452,6 @@ public class RelationalMetadataExtensionsTest
         Assert.Null(sequence.MaxValue);
         Assert.Same(typeof(long), sequence.Type);
         Assert.False(sequence.IsCyclic);
-        Assert.True(sequence.IsCached);
-        Assert.Null(sequence.CacheSize);
         Assert.True(((IConventionSequence)sequence).IsInModel);
 
         Assert.Same(sequence, model.FindSequence("Foo"));
@@ -459,9 +461,6 @@ public class RelationalMetadataExtensionsTest
         sequence.MinValue = 2001;
         sequence.MaxValue = 2010;
         sequence.Type = typeof(int);
-        sequence.IsCyclic = false;
-        sequence.IsCached = true;
-        sequence.CacheSize = 20;
 
         Assert.Equal("Foo", sequence.Name);
         Assert.Null(sequence.Schema);
@@ -470,9 +469,6 @@ public class RelationalMetadataExtensionsTest
         Assert.Equal(2001, sequence.MinValue);
         Assert.Equal(2010, sequence.MaxValue);
         Assert.Same(typeof(int), sequence.Type);
-        Assert.False(sequence.IsCyclic);
-        Assert.True(sequence.IsCached);
-        Assert.Equal(20, sequence.CacheSize);
 
         Assert.Same(sequence, model.RemoveSequence("Foo"));
 
@@ -499,9 +495,7 @@ public class RelationalMetadataExtensionsTest
         Assert.Null(sequence.MinValue);
         Assert.Null(sequence.MaxValue);
         Assert.Same(typeof(long), sequence.Type);
-        Assert.False(sequence.IsCyclic);
-        Assert.True(sequence.IsCached);
-        Assert.Null(sequence.CacheSize);
+
         Assert.Same(sequence, model.FindSequence("Foo", "Smoo"));
 
         sequence.StartValue = 1729;
@@ -509,9 +503,6 @@ public class RelationalMetadataExtensionsTest
         sequence.MinValue = 2001;
         sequence.MaxValue = 2010;
         sequence.Type = typeof(int);
-        sequence.IsCyclic = false;
-        sequence.IsCached = true;
-        sequence.CacheSize = 20;
 
         Assert.Equal("Foo", sequence.Name);
         Assert.Equal("Smoo", sequence.Schema);
@@ -520,9 +511,6 @@ public class RelationalMetadataExtensionsTest
         Assert.Equal(2001, sequence.MinValue);
         Assert.Equal(2010, sequence.MaxValue);
         Assert.Same(typeof(int), sequence.Type);
-        Assert.False(sequence.IsCyclic);
-        Assert.True(sequence.IsCached);
-        Assert.Equal(20, sequence.CacheSize);
     }
 
     [ConditionalFact]
@@ -544,10 +532,7 @@ public class RelationalMetadataExtensionsTest
         Assert.Equal(1, sequence.StartValue);
         Assert.Null(sequence.MinValue);
         Assert.Null(sequence.MaxValue);
-        Assert.False(sequence.IsCyclic);
         Assert.Same(typeof(long), sequence.Type);
-        Assert.True(sequence.IsCached);
-        Assert.Null(sequence.CacheSize);
     }
 
     [ConditionalFact]
@@ -569,9 +554,6 @@ public class RelationalMetadataExtensionsTest
         Assert.Null(sequence.MinValue);
         Assert.Null(sequence.MaxValue);
         Assert.Same(typeof(long), sequence.Type);
-        Assert.False(sequence.IsCyclic);
-        Assert.True(sequence.IsCached);
-        Assert.Null(sequence.CacheSize);
 
         model.SetDefaultSchema("Smoo");
 
@@ -582,9 +564,6 @@ public class RelationalMetadataExtensionsTest
         sequence.MinValue = 2001;
         sequence.MaxValue = 2010;
         sequence.Type = typeof(int);
-        sequence.IsCyclic = true;
-        sequence.IsCached = true;
-        sequence.CacheSize = 20;
 
         Assert.Equal("Foo", sequence.Name);
         Assert.Equal("Smoo", sequence.Schema);
@@ -593,9 +572,6 @@ public class RelationalMetadataExtensionsTest
         Assert.Equal(2001, sequence.MinValue);
         Assert.Equal(2010, sequence.MaxValue);
         Assert.Same(typeof(int), sequence.Type);
-        Assert.True(sequence.IsCyclic);
-        Assert.True(sequence.IsCached);
-        Assert.Equal(20, sequence.CacheSize);
     }
 
     [ConditionalFact]

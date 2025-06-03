@@ -155,12 +155,34 @@ public class SqliteRelationalConnection : RelationalConnection, ISqliteRelationa
                 isDeterministic: true);
 
             sqliteConnection.CreateAggregate(
+                "ef_max",
+                seed: null,
+                (decimal? max, decimal? value) => max is null
+                    ? value
+                    : value is null ? max : decimal.Max(max.Value, value.Value),
+                isDeterministic: true);
+
+            sqliteConnection.CreateAggregate(
+                "ef_min",
+                seed: null,
+                (decimal? min, decimal? value) => min is null
+                    ? value
+                    : value is null ? min : decimal.Min(min.Value, value.Value),
+                isDeterministic: true);
+
+            sqliteConnection.CreateAggregate(
                 "ef_sum",
                 seed: null,
                 (decimal? sum, decimal? value) => value is null
                     ? sum
-                    : sum is null ? value : sum.Value + value.Value,
+                    : sum is null
+                        ? value
+                        : sum.Value + value.Value,
                 isDeterministic: true);
+
+            sqliteConnection.CreateCollation(
+                "EF_DECIMAL",
+                (x, y) => decimal.Compare(decimal.Parse(x), decimal.Parse(y)));
         }
         else
         {

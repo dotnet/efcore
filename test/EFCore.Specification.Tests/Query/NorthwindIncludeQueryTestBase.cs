@@ -12,14 +12,9 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TFixture>
+public abstract class NorthwindIncludeQueryTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)
     where TFixture : NorthwindQueryFixtureBase<NoopModelCustomizer>, new()
 {
-    protected NorthwindIncludeQueryTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Include_reference_and_collection_order_by(bool async)
@@ -302,6 +297,18 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
                   from o in grouping.DefaultIfEmpty()
                   where c.CustomerID.StartsWith("F")
                   select c,
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Customer>(c => c.Orders)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Include_collection_with_right_join_clause_with_filter(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>()
+                .Include(o => o.Orders)
+                .RightJoin(ss.Set<Order>(), c => c.CustomerID, o => o.CustomerID, (c, o) => new { c, o })
+                .Where(t => t.c.CustomerID.StartsWith("F"))
+                .Select(t => t.c),
             elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Customer>(c => c.Orders)));
 
     [ConditionalTheory]

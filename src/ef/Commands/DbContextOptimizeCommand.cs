@@ -23,6 +23,11 @@ internal partial class DbContextOptimizeCommand
         {
             Reporter.WriteWarning(Resources.PrecompileQueriesWarning);
         }
+
+        if (_nativeAot!.HasValue())
+        {
+            Reporter.WriteWarning(Resources.NativeAotWarning);
+        }
     }
 
     protected override int Execute(string[] args)
@@ -39,7 +44,8 @@ internal partial class DbContextOptimizeCommand
             Context!.Value(),
             _suffix!.Value() ?? "",
             !_noScaffold!.HasValue(),
-            _precompileQueries!.HasValue());
+            _precompileQueries!.HasValue(),
+            _nativeAot!.HasValue());
 
         ReportResults(result);
 

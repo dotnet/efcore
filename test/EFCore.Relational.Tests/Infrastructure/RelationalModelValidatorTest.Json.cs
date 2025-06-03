@@ -6,6 +6,50 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure;
 public partial class RelationalModelValidatorTest
 {
     [ConditionalFact]
+    public void Throw_when_non_json_entity_has_column_type_set()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<ValidatorJsonEntityBasic>(
+            b =>
+            {
+                b.OwnsOne(
+                    x => x.OwnedReference, bb =>
+                    {
+                        bb.HasColumnType("nvarchar(2000)");
+                        bb.Ignore(x => x.NestedCollection);
+                        bb.Ignore(x => x.NestedReference);
+                    });
+                b.Ignore(x => x.OwnedCollection);
+            });
+
+        VerifyError(
+            RelationalStrings.ContainerTypeOnNonContainer(nameof(ValidatorJsonOwnedRoot)),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
+    public void Throw_when_non_root_json_entity_has_column_type_set()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<ValidatorJsonEntityBasic>(
+            b =>
+            {
+                b.OwnsOne(
+                    x => x.OwnedReference, bb =>
+                    {
+                        bb.ToJson();
+                        bb.Ignore(x => x.NestedCollection);
+                        bb.OwnsOne(x => x.NestedReference, bbb => bbb.HasColumnType("nvarchar(2000)"));
+                    });
+                b.Ignore(x => x.OwnedCollection);
+            });
+
+        VerifyError(
+            RelationalStrings.ContainerTypeOnNestedOwnedEntityType(nameof(ValidatorJsonOwnedBranch)),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
     public void Throw_when_non_json_entity_is_the_owner_of_json_entity_ref_ref()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -111,6 +155,30 @@ public partial class RelationalModelValidatorTest
 
         VerifyError(
             RelationalStrings.JsonEntityReferencingRegularEntity(nameof(ValidatorJsonOwnedReferencingRegularEntity)),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
+    public void Throw_when_json_entity_is_the_owner_of_json_entity_with_different_column_name()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<ValidatorJsonEntityBasic>(
+            b =>
+            {
+                b.OwnsOne(
+                    x => x.OwnedReference, bb =>
+                    {
+                        bb.ToJson();
+                        bb.Ignore(x => x.NestedCollection);
+                        bb.OwnsOne(x => x.NestedReference, bbb => bbb.ToJson());
+                    });
+                b.Ignore(x => x.OwnedCollection);
+            });
+
+        VerifyError(
+            RelationalStrings.JsonEntityMappedToDifferentColumnThanOwner(
+                nameof(ValidatorJsonOwnedBranch), nameof(ValidatorJsonOwnedRoot.NestedReference),
+                nameof(ValidatorJsonOwnedRoot), nameof(ValidatorJsonEntityBasic.OwnedReference)),
             modelBuilder);
     }
 
@@ -347,7 +415,7 @@ public partial class RelationalModelValidatorTest
                     });
             });
 
-        VerifyError(RelationalStrings.JsonEntityWithExplicitlyConfiguredOrdinalKey("ValidatorJsonOwnedExplicitOrdinal"), modelBuilder);
+        VerifyError(RelationalStrings.JsonEntityWithExplicitlyConfiguredKey("ValidatorJsonOwnedExplicitOrdinal", "Ordinal"), modelBuilder);
     }
 
     [ConditionalFact]
@@ -614,26 +682,26 @@ public partial class RelationalModelValidatorTest
             modelBuilder);
     }
 
-    private class ValidatorJsonEntityBasic
+    protected class ValidatorJsonEntityBasic
     {
         public int Id { get; set; }
         public ValidatorJsonOwnedRoot OwnedReference { get; set; }
         public List<ValidatorJsonOwnedRoot> OwnedCollection { get; set; }
     }
 
-    private abstract class ValidatorJsonEntityInheritanceAbstract : ValidatorJsonEntityInheritanceBase
+    protected abstract class ValidatorJsonEntityInheritanceAbstract : ValidatorJsonEntityInheritanceBase
     {
         public Guid Guid { get; set; }
     }
 
-    private class ValidatorJsonEntityInheritanceBase
+    protected class ValidatorJsonEntityInheritanceBase
     {
         public int Id { get; set; }
         public string Name { get; set; }
         public ValidatorJsonOwnedBranch ReferenceOnBase { get; set; }
     }
 
-    private class ValidatorJsonEntityInheritanceDerived : ValidatorJsonEntityInheritanceAbstract
+    protected class ValidatorJsonEntityInheritanceDerived : ValidatorJsonEntityInheritanceAbstract
     {
         public bool Switch { get; set; }
 
@@ -642,7 +710,7 @@ public partial class RelationalModelValidatorTest
         public List<ValidatorJsonOwnedBranch> CollectionOnDerived { get; set; }
     }
 
-    private class ValidatorJsonOwnedRoot
+    protected class ValidatorJsonOwnedRoot
     {
         public string Name { get; set; }
         public int Number { get; }
@@ -651,12 +719,12 @@ public partial class RelationalModelValidatorTest
         public List<ValidatorJsonOwnedBranch> NestedCollection { get; }
     }
 
-    private class ValidatorJsonOwnedBranch
+    protected class ValidatorJsonOwnedBranch
     {
         public double Number { get; set; }
     }
 
-    private class ValidatorJsonEntityExplicitOrdinal
+    protected class ValidatorJsonEntityExplicitOrdinal
     {
         public int Id { get; set; }
 
@@ -665,19 +733,19 @@ public partial class RelationalModelValidatorTest
         public List<ValidatorJsonOwnedExplicitOrdinal> OwnedCollection { get; set; }
     }
 
-    private class ValidatorJsonOwnedExplicitOrdinal
+    protected class ValidatorJsonOwnedExplicitOrdinal
     {
         public int Ordinal { get; set; }
         public DateTime Date { get; set; }
     }
 
-    private class ValidatorJsonEntityJsonReferencingRegularEntity
+    protected class ValidatorJsonEntityJsonReferencingRegularEntity
     {
         public int Id { get; set; }
         public ValidatorJsonOwnedReferencingRegularEntity Owned { get; set; }
     }
 
-    private class ValidatorJsonOwnedReferencingRegularEntity
+    protected class ValidatorJsonOwnedReferencingRegularEntity
     {
         public string Foo { get; set; }
 
@@ -685,13 +753,13 @@ public partial class RelationalModelValidatorTest
         public ValidatorJsonEntityReferencedEntity Reference { get; }
     }
 
-    private class ValidatorJsonEntityReferencedEntity
+    protected class ValidatorJsonEntityReferencedEntity
     {
         public int Id { get; set; }
         public DateTime Date { get; set; }
     }
 
-    private class ValidatorJsonEntitySideBySide
+    protected class ValidatorJsonEntitySideBySide
     {
         public int Id { get; set; }
         public string Name { get; set; }
@@ -701,7 +769,7 @@ public partial class RelationalModelValidatorTest
         public List<ValidatorJsonOwnedBranch> Collection2 { get; set; }
     }
 
-    private class ValidatorJsonEntityTableSplitting
+    protected class ValidatorJsonEntityTableSplitting
     {
         public int Id { get; set; }
         public ValidatorJsonEntityBasic Link { get; set; }

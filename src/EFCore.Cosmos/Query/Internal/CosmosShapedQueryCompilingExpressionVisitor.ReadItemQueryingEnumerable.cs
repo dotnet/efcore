@@ -6,7 +6,6 @@
 using System.Collections;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Internal;
 using Newtonsoft.Json.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
@@ -22,8 +21,10 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
     private sealed class ReadItemQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, IQueryingEnumerable
     {
         private readonly CosmosQueryContext _cosmosQueryContext;
+        private readonly IEntityType _rootEntityType;
         private readonly string _cosmosContainer;
         private readonly ReadItemInfo _readItemInfo;
+        private readonly PartitionKey _cosmosPartitionKey;
         private readonly Func<CosmosQueryContext, JObject, T> _shaper;
         private readonly Type _contextType;
         private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger;
@@ -32,7 +33,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
         public ReadItemQueryingEnumerable(
             CosmosQueryContext cosmosQueryContext,
-            string cosmosContainer,
+            IEntityType rootEntityType,
+            List<Expression> partitionKeyPropertyValues,
             ReadItemInfo readItemInfo,
             Func<CosmosQueryContext, JObject, T> shaper,
             Type contextType,
@@ -40,13 +42,18 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             bool threadSafetyChecksEnabled)
         {
             _cosmosQueryContext = cosmosQueryContext;
-            _cosmosContainer = cosmosContainer;
+            _rootEntityType = rootEntityType;
             _readItemInfo = readItemInfo;
             _shaper = shaper;
             _contextType = contextType;
             _queryLogger = _cosmosQueryContext.QueryLogger;
             _standAloneStateManager = standAloneStateManager;
             _threadSafetyChecksEnabled = threadSafetyChecksEnabled;
+
+            _cosmosContainer = rootEntityType.GetContainer()
+                ?? throw new UnreachableException("Root entity type without a Cosmos container.");
+            _cosmosPartitionKey = GeneratePartitionKey(
+                rootEntityType, partitionKeyPropertyValues, _cosmosQueryContext.ParameterValues);
         }
 
         public IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken = default)
@@ -61,60 +68,25 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         public string ToQueryString()
         {
             TryGetResourceId(out var resourceId);
-            TryGetPartitionKey(out var partitionKey);
-            return CosmosStrings.NoReadItemQueryString(resourceId, partitionKey);
-        }
-
-        private bool TryGetPartitionKey(out PartitionKey partitionKeyValue)
-        {
-            var properties = _readItemInfo.EntityType.GetPartitionKeyProperties();
-            if (!properties.Any())
-            {
-                partitionKeyValue = PartitionKey.None;
-                return true;
-            }
-
-            var builder = new PartitionKeyBuilder();
-            foreach (var property in properties)
-            {
-                if (TryGetParameterValue(property, out var value))
-                {
-                    if (value == null)
-                    {
-                        partitionKeyValue = PartitionKey.Null;
-                        return false;
-                    }
-                    builder.Add(value, property);
-                }
-            }
-
-            partitionKeyValue = builder.Build();
-
-            return true;
+            return CosmosStrings.NoReadItemQueryString(resourceId, _cosmosPartitionKey);
         }
 
         private bool TryGetResourceId(out string resourceId)
         {
-            var entityType = _readItemInfo.EntityType;
-            var jsonIdDefinition = entityType.GetJsonIdDefinition();
-            Check.DebugAssert(jsonIdDefinition != null,
+            var jsonIdDefinition = _rootEntityType.GetJsonIdDefinition();
+            Check.DebugAssert(
+                jsonIdDefinition != null,
                 "Should not be using this enumerable if not using ReadItem, which needs an id definition.");
 
             var values = new List<object>(jsonIdDefinition.Properties.Count);
             foreach (var property in jsonIdDefinition.Properties)
             {
-                if (!TryGetParameterValue(property, out var value))
+                var value = _readItemInfo.PropertyValues[property] switch
                 {
-                    var discriminatorProperty = entityType.FindDiscriminatorProperty();
-                    if (discriminatorProperty == property)
-                    {
-                        value = entityType.GetDiscriminatorValue();
-                    }
-                    else
-                    {
-                        Check.DebugFail("Parameters should cover all properties or we should not be using ReadItem.");
-                    }
-                }
+                    SqlParameterExpression { Name: var parameterName } => _cosmosQueryContext.ParameterValues[parameterName],
+                    SqlConstantExpression { Value: var constantValue } => constantValue,
+                    _ => throw new UnreachableException()
+                };
 
                 values.Add(value);
             }
@@ -128,17 +100,11 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             return true;
         }
 
-        private bool TryGetParameterValue(IProperty property, out object value)
-        {
-            value = null;
-            return _readItemInfo.PropertyParameters.TryGetValue(property, out var parameterName)
-                && _cosmosQueryContext.ParameterValues.TryGetValue(parameterName, out value);
-        }
-
         private sealed class Enumerator : IEnumerator<T>, IAsyncEnumerator<T>
         {
             private readonly CosmosQueryContext _cosmosQueryContext;
             private readonly string _cosmosContainer;
+            private readonly PartitionKey _cosmosPartitionKey;
             private readonly Func<CosmosQueryContext, JObject, T> _shaper;
             private readonly Type _contextType;
             private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger;
@@ -155,6 +121,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             {
                 _cosmosQueryContext = readItemEnumerable._cosmosQueryContext;
                 _cosmosContainer = readItemEnumerable._cosmosContainer;
+                _cosmosPartitionKey = readItemEnumerable._cosmosPartitionKey;
                 _shaper = readItemEnumerable._shaper;
                 _contextType = readItemEnumerable._contextType;
                 _queryLogger = readItemEnumerable._queryLogger;
@@ -177,38 +144,26 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             {
                 try
                 {
-                    _concurrencyDetector?.EnterCriticalSection();
+                    using var _ = _concurrencyDetector?.EnterCriticalSection();
 
-                    try
+                    if (_hasExecuted)
                     {
-                        if (!_hasExecuted)
-                        {
-                            if (!_readItemEnumerable.TryGetResourceId(out var resourceId))
-                            {
-                                throw new InvalidOperationException(CosmosStrings.ResourceIdMissing);
-                            }
-
-                            if (!_readItemEnumerable.TryGetPartitionKey(out var partitionKeyValue))
-                            {
-                                throw new InvalidOperationException(CosmosStrings.PartitionKeyMissing);
-                            }
-
-                            EntityFrameworkMetricsData.ReportQueryExecuting();
-
-                            _item = _cosmosQueryContext.CosmosClient.ExecuteReadItem(
-                                _cosmosContainer,
-                                partitionKeyValue,
-                                resourceId);
-
-                            return ShapeResult();
-                        }
-
                         return false;
                     }
-                    finally
+
+                    if (!_readItemEnumerable.TryGetResourceId(out var resourceId))
                     {
-                        _concurrencyDetector?.ExitCriticalSection();
+                        throw new InvalidOperationException(CosmosStrings.ResourceIdMissing);
                     }
+
+                    EntityFrameworkMetricsData.ReportQueryExecuting();
+
+                    _item = _cosmosQueryContext.CosmosClient.ExecuteReadItem(
+                        _cosmosContainer,
+                        _cosmosPartitionKey,
+                        resourceId);
+
+                    return ShapeResult();
                 }
                 catch (Exception exception)
                 {
@@ -229,40 +184,28 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             {
                 try
                 {
-                    _concurrencyDetector?.EnterCriticalSection();
+                    using var _ = _concurrencyDetector?.EnterCriticalSection();
 
-                    try
+                    if (_hasExecuted)
                     {
-                        if (!_hasExecuted)
-                        {
-                            if (!_readItemEnumerable.TryGetResourceId(out var resourceId))
-                            {
-                                throw new InvalidOperationException(CosmosStrings.ResourceIdMissing);
-                            }
-
-                            if (!_readItemEnumerable.TryGetPartitionKey(out var partitionKeyValue))
-                            {
-                                throw new InvalidOperationException(CosmosStrings.PartitionKeyMissing);
-                            }
-
-                            EntityFrameworkMetricsData.ReportQueryExecuting();
-
-                            _item = await _cosmosQueryContext.CosmosClient.ExecuteReadItemAsync(
-                                    _cosmosContainer,
-                                    partitionKeyValue,
-                                    resourceId,
-                                    _cancellationToken)
-                                .ConfigureAwait(false);
-
-                            return ShapeResult();
-                        }
-
                         return false;
                     }
-                    finally
+
+                    if (!_readItemEnumerable.TryGetResourceId(out var resourceId))
                     {
-                        _concurrencyDetector?.ExitCriticalSection();
+                        throw new InvalidOperationException(CosmosStrings.ResourceIdMissing);
                     }
+
+                    EntityFrameworkMetricsData.ReportQueryExecuting();
+
+                    _item = await _cosmosQueryContext.CosmosClient.ExecuteReadItemAsync(
+                            _cosmosContainer,
+                            _cosmosPartitionKey,
+                            resourceId,
+                            _cancellationToken)
+                        .ConfigureAwait(false);
+
+                    return ShapeResult();
                 }
                 catch (Exception exception)
                 {

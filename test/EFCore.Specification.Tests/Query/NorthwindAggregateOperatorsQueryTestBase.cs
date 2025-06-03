@@ -11,14 +11,9 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture> : QueryTestBase<TFixture>
+public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)
     where TFixture : NorthwindQueryFixtureBase<NoopModelCustomizer>, new()
 {
-    protected NorthwindAggregateOperatorsQueryTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-
     protected NorthwindContext CreateContext()
         => Fixture.CreateContext();
 
@@ -140,7 +135,7 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture> : Query
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Sum_over_subquery_is_client_eval(bool async)
+    public virtual Task Sum_over_subquery(bool async)
         => AssertSum(
             async,
             ss => ss.Set<Customer>(),
@@ -148,7 +143,7 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture> : Query
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Sum_over_nested_subquery_is_client_eval(bool async)
+    public virtual Task Sum_over_nested_subquery(bool async)
         => AssertSum(
             async,
             ss => ss.Set<Customer>(),
@@ -156,11 +151,44 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture> : Query
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Sum_over_min_subquery_is_client_eval(bool async)
+    public virtual Task Sum_over_min_subquery(bool async)
         => AssertSum(
             async,
             ss => ss.Set<Customer>(),
             selector: c => c.Orders.Sum(o => 5 + o.OrderDetails.Min(od => od.ProductID)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Sum_over_scalar_returning_subquery(bool async)
+        => AssertSum(
+            async,
+            ss => ss.Set<Customer>(),
+            ss => ss.Set<Customer>(),
+            actualSelector: c => c.Orders.FirstOrDefault().OrderID,
+            expectedSelector: c => c.Orders.Any() ? c.Orders.FirstOrDefault().OrderID : 0);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Sum_over_Any_subquery(bool async)
+        => AssertSum(
+            async,
+            ss => ss.Set<Customer>(),
+            selector: c => c.Orders.Any() ? c.Orders.FirstOrDefault().OrderID : 0);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Sum_over_uncorrelated_subquery(bool async)
+    {
+        await using var context = CreateContext();
+
+        // AssertSum() doesn't provide access to the ISetSource in order to do the uncorrelated query, so we test this manually.
+        // Note: the Count predicate is specified to work around #34261.
+        var result = async
+            ? await context.Set<Customer>().SumAsync(c => context.Set<Order>().Count(o => o.OrderID > 10300))
+            : context.Set<Customer>().Sum(c => context.Set<Order>().Count(o => o.OrderID > 10300));
+
+        AssertEqual(70707, result);
+    }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -238,7 +266,7 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture> : Query
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Average_over_subquery_is_client_eval(bool async)
+    public virtual Task Average_over_subquery(bool async)
         => AssertAverage(
             async,
             ss => ss.Set<Customer>(),
@@ -246,7 +274,7 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture> : Query
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Average_over_nested_subquery_is_client_eval(bool async)
+    public virtual Task Average_over_nested_subquery(bool async)
         => AssertAverage(
             async,
             ss => ss.Set<Customer>().OrderBy(c => c.CustomerID).Take(3),
@@ -254,7 +282,7 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture> : Query
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Average_over_max_subquery_is_client_eval(bool async)
+    public virtual Task Average_over_max_subquery(bool async)
         => AssertAverage(
             async,
             ss => ss.Set<Customer>().OrderBy(c => c.CustomerID).Take(3),
@@ -407,7 +435,7 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture> : Query
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Min_over_subquery_is_client_eval(bool async)
+    public virtual Task Min_over_subquery(bool async)
         => AssertMin(
             async,
             ss => ss.Set<Customer>(),
@@ -415,15 +443,15 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture> : Query
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Min_over_nested_subquery_is_client_eval(bool async)
+    public virtual Task Min_over_nested_subquery(bool async)
         => AssertMin(
             async,
             ss => ss.Set<Customer>().OrderBy(c => c.CustomerID).Take(3),
-            selector: c => c.Orders.Min(o => 5 + o.OrderDetails.Min(od => od.ProductID)));
+            selector: c => c.Orders.Min(o => 5 + Enumerable.Min(o.OrderDetails, od => od.ProductID)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Min_over_max_subquery_is_client_eval(bool async)
+    public virtual Task Min_over_max_subquery(bool async)
         => AssertMin(
             async,
             ss => ss.Set<Customer>().OrderBy(c => c.CustomerID).Take(3),
@@ -454,7 +482,7 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture> : Query
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Max_over_subquery_is_client_eval(bool async)
+    public virtual Task Max_over_subquery(bool async)
         => AssertMax(
             async,
             ss => ss.Set<Customer>(),
@@ -462,15 +490,15 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture> : Query
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Max_over_nested_subquery_is_client_eval(bool async)
+    public virtual Task Max_over_nested_subquery(bool async)
         => AssertMax(
             async,
             ss => ss.Set<Customer>().OrderBy(c => c.CustomerID).Take(3),
-            selector: c => c.Orders.Max(o => 5 + o.OrderDetails.Max(od => od.ProductID)));
+            selector: c => c.Orders.Max(o => 5 + Enumerable.Max(o.OrderDetails, od => od.ProductID)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Max_over_sum_subquery_is_client_eval(bool async)
+    public virtual Task Max_over_sum_subquery(bool async)
         => AssertMax(
             async,
             ss => ss.Set<Customer>().OrderBy(c => c.CustomerID).Take(3),
@@ -911,23 +939,26 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture> : Query
             assertEmpty: true);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Contains_with_local_nullable_uint_array_closure(bool async)
-    {
-        var ids = new uint?[] { 0, 1 };
-
-        await AssertQuery(
-            async,
-            ss => ss.Set<Employee>().Where(e => ids.Contains(e.EmployeeID)));
-
-        ids = [0];
-
-        await AssertQuery(
-            async,
-            ss => ss.Set<Employee>().Where(e => ids.Contains(e.EmployeeID)),
-            assertEmpty: true);
-    }
+    // TODO: The following no longer compile since https://github.com/dotnet/runtime/pull/110197 (Contains overload added with optional
+    // parameter, not supported in expression trees). #35547 is tracking on the EF side.
+    //
+    // [ConditionalTheory]
+    // [MemberData(nameof(IsAsyncData))]
+    // public virtual async Task Contains_with_local_nullable_uint_array_closure(bool async)
+    // {
+    //     var ids = new uint?[] { 0, 1 };
+    //
+    //     await AssertQuery(
+    //         async,
+    //         ss => ss.Set<Employee>().Where(e => ids.Contains(e.EmployeeID)));
+    //
+    //     ids = [0];
+    //
+    //     await AssertQuery(
+    //         async,
+    //         ss => ss.Set<Employee>().Where(e => ids.Contains(e.EmployeeID)),
+    //         assertEmpty: true);
+    // }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1311,27 +1342,30 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture> : Query
             syncQuery: ss => ss.Set<Customer>().Select(c => c.CustomerID).Contains("ALFKI"),
             asyncQuery: ss => ss.Set<Customer>().Select(c => c.CustomerID).ContainsAsync("ALFKI", default));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Contains_with_local_tuple_array_closure(bool async)
-    {
-        var ids = new[] { Tuple.Create(1, 2), Tuple.Create(10248, 11) };
-
-        return AssertQuery(
-            async,
-            ss => ss.Set<OrderDetail>().Where(o => ids.Contains(new Tuple<int, int>(o.OrderID, o.ProductID))));
-    }
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Contains_with_local_anonymous_type_array_closure(bool async)
-    {
-        var ids = new[] { new { Id1 = 1, Id2 = 2 }, new { Id1 = 10248, Id2 = 11 } };
-
-        return AssertQuery(
-            async,
-            ss => ss.Set<OrderDetail>().Where(o => ids.Contains(new { Id1 = o.OrderID, Id2 = o.ProductID })));
-    }
+    // TODO: The following no longer compile since https://github.com/dotnet/runtime/pull/110197 (Contains overload added with optional
+    // parameter, not supported in expression trees). #35547 is tracking on the EF side.
+    //
+    // [ConditionalTheory]
+    // [MemberData(nameof(IsAsyncData))]
+    // public virtual Task Contains_with_local_tuple_array_closure(bool async)
+    // {
+    //     var ids = new[] { Tuple.Create(1, 2), Tuple.Create(10248, 11) };
+    //
+    //     return AssertQuery(
+    //         async,
+    //         ss => ss.Set<OrderDetail>().Where(o => ids.Contains(new Tuple<int, int>(o.OrderID, o.ProductID))));
+    // }
+    //
+    // [ConditionalTheory]
+    // [MemberData(nameof(IsAsyncData))]
+    // public virtual Task Contains_with_local_anonymous_type_array_closure(bool async)
+    // {
+    //     var ids = new[] { new { Id1 = 1, Id2 = 2 }, new { Id1 = 10248, Id2 = 11 } };
+    //
+    //     return AssertQuery(
+    //         async,
+    //         ss => ss.Set<OrderDetail>().Where(o => ids.Contains(new { Id1 = o.OrderID, Id2 = o.ProductID })));
+    // }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]

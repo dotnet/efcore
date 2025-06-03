@@ -5,17 +5,11 @@ namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
 #nullable disable
 
-public class TPHInheritanceBulkUpdatesSqliteTest : TPHInheritanceBulkUpdatesTestBase<TPHInheritanceBulkUpdatesSqliteFixture>
+public class TPHInheritanceBulkUpdatesSqliteTest(
+    TPHInheritanceBulkUpdatesSqliteFixture fixture,
+    ITestOutputHelper testOutputHelper)
+    : TPHInheritanceBulkUpdatesTestBase<TPHInheritanceBulkUpdatesSqliteFixture>(fixture, testOutputHelper)
 {
-    public TPHInheritanceBulkUpdatesSqliteTest(
-        TPHInheritanceBulkUpdatesSqliteFixture fixture,
-        ITestOutputHelper testOutputHelper)
-        : base(fixture)
-    {
-        ClearLog();
-        Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
-    }
-
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
@@ -37,8 +31,8 @@ WHERE "a"."Name" = 'Great spotted kiwi'
 
         AssertSql(
             """
-@__p_1='3'
-@__p_0='0'
+@p0='3'
+@p='0'
 
 DELETE FROM "Animals" AS "a"
 WHERE "a"."Id" IN (
@@ -46,7 +40,7 @@ WHERE "a"."Id" IN (
     FROM "Animals" AS "a0"
     WHERE "a0"."Name" = 'Great spotted kiwi'
     ORDER BY "a0"."Name"
-    LIMIT @__p_1 OFFSET @__p_0
+    LIMIT @p0 OFFSET @p
 )
 """);
     }
@@ -137,8 +131,10 @@ WHERE "a"."Id" IN (
 
         AssertExecuteUpdateSql(
             """
+@p='Animal' (Size = 6)
+
 UPDATE "Animals" AS "a"
-SET "Name" = 'Animal'
+SET "Name" = @p
 WHERE "a"."Name" = 'Great spotted kiwi'
 """);
     }
@@ -149,8 +145,10 @@ WHERE "a"."Name" = 'Great spotted kiwi'
 
         AssertExecuteUpdateSql(
             """
+@p='NewBird' (Size = 7)
+
 UPDATE "Animals" AS "a"
-SET "Name" = 'NewBird'
+SET "Name" = @p
 WHERE "a"."Discriminator" = 'Kiwi'
 """);
     }
@@ -168,8 +166,10 @@ WHERE "a"."Discriminator" = 'Kiwi'
 
         AssertExecuteUpdateSql(
             """
+@p='SomeOtherKiwi' (Size = 13)
+
 UPDATE "Animals" AS "a"
-SET "Name" = 'SomeOtherKiwi'
+SET "Name" = @p
 WHERE "a"."Discriminator" = 'Kiwi'
 """);
     }
@@ -180,8 +180,10 @@ WHERE "a"."Discriminator" = 'Kiwi'
 
         AssertExecuteUpdateSql(
             """
+@p='0'
+
 UPDATE "Animals" AS "a"
-SET "FoundOn" = 0
+SET "FoundOn" = @p
 WHERE "a"."Discriminator" = 'Kiwi'
 """);
     }
@@ -192,8 +194,10 @@ WHERE "a"."Discriminator" = 'Kiwi'
 
         AssertExecuteUpdateSql(
             """
+@p='Monovia' (Size = 7)
+
 UPDATE "Countries" AS "c"
-SET "Name" = 'Monovia'
+SET "Name" = @p
 WHERE (
     SELECT COUNT(*)
     FROM "Animals" AS "a"
@@ -207,9 +211,12 @@ WHERE (
 
         AssertExecuteUpdateSql(
             """
+@p='Kiwi' (Size = 4)
+@p0='0'
+
 UPDATE "Animals" AS "a"
-SET "FoundOn" = 0,
-    "Name" = 'Kiwi'
+SET "Name" = @p,
+    "FoundOn" = @p0
 WHERE "a"."Discriminator" = 'Kiwi'
 """);
     }
@@ -220,8 +227,10 @@ WHERE "a"."Discriminator" = 'Kiwi'
 
         AssertExecuteUpdateSql(
             """
+@p='Monovia' (Size = 7)
+
 UPDATE "Countries" AS "c"
-SET "Name" = 'Monovia'
+SET "Name" = @p
 WHERE (
     SELECT COUNT(*)
     FROM "Animals" AS "a"
@@ -242,8 +251,10 @@ WHERE (
 
         AssertExecuteUpdateSql(
             """
+@p='0'
+
 UPDATE "Drinks" AS "d"
-SET "SugarGrams" = 0
+SET "SugarGrams" = @p
 WHERE "d"."Discriminator" = 1
 """);
     }
@@ -254,8 +265,10 @@ WHERE "d"."Discriminator" = 1
 
         AssertExecuteUpdateSql(
             """
+@p='0'
+
 UPDATE "Drinks" AS "d"
-SET "SugarGrams" = 0
+SET "SugarGrams" = @p
 WHERE "d"."Discriminator" = 1
 """);
     }

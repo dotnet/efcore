@@ -6,11 +6,24 @@ using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
-
 using static Expression;
 
-public class NonSharedPrimitiveCollectionsQuerySqlServerTest : NonSharedPrimitiveCollectionsQueryRelationalTestBase
+public class NonSharedPrimitiveCollectionsQuerySqlServerTest(NonSharedFixture fixture) : NonSharedPrimitiveCollectionsQueryRelationalTestBase(fixture)
 {
+    protected override DbContextOptionsBuilder SetTranslateParameterizedCollectionsToConstants(DbContextOptionsBuilder optionsBuilder)
+    {
+        new SqlServerDbContextOptionsBuilder(optionsBuilder).TranslateParameterizedCollectionsToConstants();
+
+        return optionsBuilder;
+    }
+
+    protected override DbContextOptionsBuilder SetTranslateParameterizedCollectionsToParameters(DbContextOptionsBuilder optionsBuilder)
+    {
+        new SqlServerDbContextOptionsBuilder(optionsBuilder).TranslateParameterizedCollectionsToParameters();
+
+        return optionsBuilder;
+    }
+
     #region Support for specific element types
 
     public override async Task Array_of_string()
@@ -700,12 +713,12 @@ WHERE (
         await base.Column_with_custom_converter();
 
         AssertSql(
-"""
-@__ints_0='1,2,3' (Size = 4000)
+            """
+@ints='1,2,3' (Size = 4000)
 
 SELECT TOP(2) [t].[Id], [t].[Ints]
 FROM [TestEntity] AS [t]
-WHERE [t].[Ints] = @__ints_0
+WHERE [t].[Ints] = @ints
 """);
     }
 
@@ -779,6 +792,128 @@ FROM [TestEntityWithOwned] AS [t]
 """);
     }
 
+    public override async Task Parameter_collection_Count_with_column_predicate_with_default_constants()
+    {
+        await base.Parameter_collection_Count_with_column_predicate_with_default_constants();
+
+        AssertSql(
+            """
+SELECT [t].[Id]
+FROM [TestEntity] AS [t]
+WHERE (
+    SELECT COUNT(*)
+    FROM (VALUES (2), (999)) AS [i]([Value])
+    WHERE [i].[Value] > [t].[Id]) = 1
+""");
+    }
+
+    public override async Task Parameter_collection_of_ints_Contains_int_with_default_constants()
+    {
+        await base.Parameter_collection_of_ints_Contains_int_with_default_constants();
+
+        AssertSql(
+            """
+SELECT [t].[Id]
+FROM [TestEntity] AS [t]
+WHERE [t].[Id] IN (2, 999)
+""");
+    }
+
+    public override async Task Parameter_collection_Count_with_column_predicate_with_default_constants_EF_Parameter()
+    {
+        await base.Parameter_collection_Count_with_column_predicate_with_default_constants_EF_Parameter();
+
+        AssertSql(
+            """
+@ids='[2,999]' (Size = 4000)
+
+SELECT [t].[Id]
+FROM [TestEntity] AS [t]
+WHERE (
+    SELECT COUNT(*)
+    FROM OPENJSON(@ids) WITH ([value] int '$') AS [i]
+    WHERE [i].[value] > [t].[Id]) = 1
+""");
+    }
+
+    public override async Task Parameter_collection_of_ints_Contains_int_with_default_constants_EF_Parameter()
+    {
+        await base.Parameter_collection_of_ints_Contains_int_with_default_constants_EF_Parameter();
+
+        AssertSql(
+            """
+@ints='[2,999]' (Size = 4000)
+
+SELECT [t].[Id]
+FROM [TestEntity] AS [t]
+WHERE [t].[Id] IN (
+    SELECT [i].[value]
+    FROM OPENJSON(@ints) WITH ([value] int '$') AS [i]
+)
+""");
+    }
+
+    public override async Task Parameter_collection_Count_with_column_predicate_with_default_parameters()
+    {
+        await base.Parameter_collection_Count_with_column_predicate_with_default_parameters();
+
+        AssertSql(
+            """
+@ids='[2,999]' (Size = 4000)
+
+SELECT [t].[Id]
+FROM [TestEntity] AS [t]
+WHERE (
+    SELECT COUNT(*)
+    FROM OPENJSON(@ids) WITH ([value] int '$') AS [i]
+    WHERE [i].[value] > [t].[Id]) = 1
+""");
+    }
+
+    public override async Task Parameter_collection_of_ints_Contains_int_with_default_parameters()
+    {
+        await base.Parameter_collection_of_ints_Contains_int_with_default_parameters();
+
+        AssertSql(
+            """
+@ints='[2,999]' (Size = 4000)
+
+SELECT [t].[Id]
+FROM [TestEntity] AS [t]
+WHERE [t].[Id] IN (
+    SELECT [i].[value]
+    FROM OPENJSON(@ints) WITH ([value] int '$') AS [i]
+)
+""");
+    }
+
+    public override async Task Parameter_collection_Count_with_column_predicate_with_default_parameters_EF_Constant()
+    {
+        await base.Parameter_collection_Count_with_column_predicate_with_default_parameters_EF_Constant();
+
+        AssertSql(
+            """
+SELECT [t].[Id]
+FROM [TestEntity] AS [t]
+WHERE (
+    SELECT COUNT(*)
+    FROM (VALUES (2), (999)) AS [i]([Value])
+    WHERE [i].[Value] > [t].[Id]) = 1
+""");
+    }
+
+    public override async Task Parameter_collection_of_ints_Contains_int_with_default_parameters_EF_Constant()
+    {
+        await base.Parameter_collection_of_ints_Contains_int_with_default_parameters_EF_Constant();
+
+        AssertSql(
+            """
+SELECT [t].[Id]
+FROM [TestEntity] AS [t]
+WHERE [t].[Id] IN (2, 999)
+""");
+    }
+
     [ConditionalFact]
     public virtual async Task Same_parameter_with_different_type_mappings()
     {
@@ -803,17 +938,17 @@ FROM [TestEntityWithOwned] AS [t]
 
         AssertSql(
             """
-@__dateTimes_0='["2020-01-01T12:30:00","2020-01-02T12:30:00"]' (Size = 4000)
-@__dateTimes_0_1='["2020-01-01T12:30:00","2020-01-02T12:30:00"]' (Size = 4000)
+@dateTimes='["2020-01-01T12:30:00","2020-01-02T12:30:00"]' (Size = 4000)
+@dateTimes0='["2020-01-01T12:30:00","2020-01-02T12:30:00"]' (Size = 4000)
 
 SELECT [t].[Id], [t].[DateTime], [t].[DateTime2], [t].[Ints]
 FROM [TestEntity] AS [t]
 WHERE [t].[DateTime] IN (
     SELECT [d].[value]
-    FROM OPENJSON(@__dateTimes_0) WITH ([value] datetime '$') AS [d]
+    FROM OPENJSON(@dateTimes) WITH ([value] datetime '$') AS [d]
 ) AND [t].[DateTime2] IN (
     SELECT [d0].[value]
-    FROM OPENJSON(@__dateTimes_0_1) WITH ([value] datetime2 '$') AS [d0]
+    FROM OPENJSON(@dateTimes0) WITH ([value] datetime2 '$') AS [d0]
 )
 """);
     }
@@ -834,13 +969,13 @@ WHERE [t].[DateTime] IN (
 
         AssertSql(
             """
-@__dateTimes_0='["2020-01-01T12:30:00","2020-01-02T12:30:00",null]' (Size = 4000)
+@dateTimes='["2020-01-01T12:30:00","2020-01-02T12:30:00",null]' (Size = 4000)
 
 SELECT [t].[Id], [t].[DateTime], [t].[Ints]
 FROM [TestEntity] AS [t]
 WHERE EXISTS (
     SELECT 1
-    FROM OPENJSON(@__dateTimes_0) WITH ([value] datetime2 '$') AS [d]
+    FROM OPENJSON(@dateTimes) WITH ([value] datetime2 '$') AS [d]
     WHERE [d].[value] = [t].[DateTime] AND [d].[value] IS NOT NULL)
 """);
     }

@@ -114,22 +114,16 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
                 case ConstantExpression:
                     return expression;
 
+                case QueryParameterExpression queryParameter:
+                    return Expression.Call(
+                        GetParameterValueMethodInfo.MakeGenericMethod(queryParameter.Type),
+                        QueryCompilationContext.QueryContextParameter,
+                        Expression.Constant(queryParameter.Name));
+
                 case ParameterExpression parameterExpression:
-                    if (_collectionShaperMapping.ContainsKey(parameterExpression))
-                    {
-                        return parameterExpression;
-                    }
-
-                    if (parameterExpression.Name?.StartsWith(QueryCompilationContext.QueryParameterPrefix, StringComparison.Ordinal)
-                        == true)
-                    {
-                        return Expression.Call(
-                            GetParameterValueMethodInfo.MakeGenericMethod(parameterExpression.Type),
-                            QueryCompilationContext.QueryContextParameter,
-                            Expression.Constant(parameterExpression.Name));
-                    }
-
-                    throw new InvalidOperationException(CoreStrings.TranslationFailed(parameterExpression.Print()));
+                    return _collectionShaperMapping.ContainsKey(parameterExpression)
+                        ? parameterExpression
+                        : throw new InvalidOperationException(CoreStrings.TranslationFailed(parameterExpression.Print()));
 
                 case MaterializeCollectionNavigationExpression:
                     return base.Visit(expression);

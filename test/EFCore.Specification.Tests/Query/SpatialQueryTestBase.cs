@@ -10,14 +10,9 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public abstract class SpatialQueryTestBase<TFixture> : QueryTestBase<TFixture>
+public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)
     where TFixture : SpatialQueryFixtureBase, new()
 {
-    protected SpatialQueryTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-
     protected virtual bool AssertDistances
         => true;
 
@@ -287,7 +282,8 @@ public abstract class SpatialQueryTestBase<TFixture> : QueryTestBase<TFixture>
     [MemberData(nameof(IsAsyncData))]
     public virtual Task CoveredBy(bool async)
     {
-        var polygon = Fixture.GeometryFactory.CreatePolygon([new(-1, -1), new(2, -1), new(2, 2), new(-1, 2), new(-1, -1)]);
+        var polygon = Fixture.GeometryFactory.CreatePolygon(
+            [new Coordinate(-1, -1), new Coordinate(2, -1), new Coordinate(2, 2), new Coordinate(-1, 2), new Coordinate(-1, -1)]);
 
         return AssertQuery(
             async,
@@ -314,7 +310,7 @@ public abstract class SpatialQueryTestBase<TFixture> : QueryTestBase<TFixture>
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Crosses(bool async)
     {
-        var lineString = Fixture.GeometryFactory.CreateLineString([new(0.5, -0.5), new(0.5, 0.5)]);
+        var lineString = Fixture.GeometryFactory.CreateLineString([new Coordinate(0.5, -0.5), new Coordinate(0.5, 0.5)]);
 
         return AssertQuery(
             async,
@@ -328,7 +324,8 @@ public abstract class SpatialQueryTestBase<TFixture> : QueryTestBase<TFixture>
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Difference(bool async)
     {
-        var polygon = Fixture.GeometryFactory.CreatePolygon([new(0, 0), new(1, 0), new(1, 1), new(0, 0)]);
+        var polygon = Fixture.GeometryFactory.CreatePolygon(
+            [new Coordinate(0, 0), new Coordinate(1, 0), new Coordinate(1, 1), new Coordinate(0, 0)]);
 
         return AssertQuery(
             async,
@@ -730,7 +727,8 @@ public abstract class SpatialQueryTestBase<TFixture> : QueryTestBase<TFixture>
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Intersection(bool async)
     {
-        var polygon = Fixture.GeometryFactory.CreatePolygon([new(0, 0), new(1, 0), new(1, 1), new(0, 0)]);
+        var polygon = Fixture.GeometryFactory.CreatePolygon(
+            [new Coordinate(0, 0), new Coordinate(1, 0), new Coordinate(1, 1), new Coordinate(0, 0)]);
 
         return AssertQuery(
             async,
@@ -749,7 +747,7 @@ public abstract class SpatialQueryTestBase<TFixture> : QueryTestBase<TFixture>
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Intersects(bool async)
     {
-        var lineString = Fixture.GeometryFactory.CreateLineString([new(0.5, -0.5), new(0.5, 0.5)]);
+        var lineString = Fixture.GeometryFactory.CreateLineString([new Coordinate(0.5, -0.5), new Coordinate(0.5, 0.5)]);
 
         return AssertQuery(
             async,
@@ -948,7 +946,8 @@ public abstract class SpatialQueryTestBase<TFixture> : QueryTestBase<TFixture>
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Overlaps(bool async)
     {
-        var polygon = Fixture.GeometryFactory.CreatePolygon([new(0, 0), new(1, 0), new(1, 1), new(0, 0)]);
+        var polygon = Fixture.GeometryFactory.CreatePolygon(
+            [new Coordinate(0, 0), new Coordinate(1, 0), new Coordinate(1, 1), new Coordinate(0, 0)]);
 
         return AssertQuery(
             async,
@@ -989,7 +988,8 @@ public abstract class SpatialQueryTestBase<TFixture> : QueryTestBase<TFixture>
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Relate(bool async)
     {
-        var polygon = Fixture.GeometryFactory.CreatePolygon([new(0, 0), new(1, 0), new(1, 1), new(0, 0)]);
+        var polygon = Fixture.GeometryFactory.CreatePolygon(
+            [new Coordinate(0, 0), new Coordinate(1, 0), new Coordinate(1, 1), new Coordinate(0, 0)]);
 
         return AssertQuery(
             async,
@@ -1039,7 +1039,8 @@ public abstract class SpatialQueryTestBase<TFixture> : QueryTestBase<TFixture>
     [MemberData(nameof(IsAsyncData))]
     public virtual Task SymmetricDifference(bool async)
     {
-        var polygon = Fixture.GeometryFactory.CreatePolygon([new(0, 0), new(1, 0), new(1, 1), new(0, 0)]);
+        var polygon = Fixture.GeometryFactory.CreatePolygon(
+            [new Coordinate(0, 0), new Coordinate(1, 0), new Coordinate(1, 1), new Coordinate(0, 0)]);
 
         return AssertQuery(
             async,
@@ -1086,7 +1087,8 @@ public abstract class SpatialQueryTestBase<TFixture> : QueryTestBase<TFixture>
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Touches(bool async)
     {
-        var polygon = Fixture.GeometryFactory.CreatePolygon([new(0, 1), new(1, 0), new(1, 1), new(0, 1)]);
+        var polygon = Fixture.GeometryFactory.CreatePolygon(
+            [new Coordinate(0, 1), new Coordinate(1, 0), new Coordinate(1, 1), new Coordinate(0, 1)]);
 
         return AssertQuery(
             async,
@@ -1100,7 +1102,8 @@ public abstract class SpatialQueryTestBase<TFixture> : QueryTestBase<TFixture>
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Union(bool async)
     {
-        var polygon = Fixture.GeometryFactory.CreatePolygon([new(0, 0), new(1, 0), new(1, 1), new(0, 0)]);
+        var polygon = Fixture.GeometryFactory.CreatePolygon(
+            [new Coordinate(0, 0), new Coordinate(1, 0), new Coordinate(1, 1), new Coordinate(0, 0)]);
 
         return AssertQuery(
             async,
@@ -1144,7 +1147,8 @@ public abstract class SpatialQueryTestBase<TFixture> : QueryTestBase<TFixture>
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Within(bool async)
     {
-        var polygon = Fixture.GeometryFactory.CreatePolygon([new(-1, -1), new(2, -1), new(2, 2), new(-1, 2), new(-1, -1)]);
+        var polygon = Fixture.GeometryFactory.CreatePolygon(
+            [new Coordinate(-1, -1), new Coordinate(2, -1), new Coordinate(2, 2), new Coordinate(-1, 2), new Coordinate(-1, -1)]);
 
         return AssertQuery(
             async,
@@ -1239,7 +1243,7 @@ public abstract class SpatialQueryTestBase<TFixture> : QueryTestBase<TFixture>
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Intersects_equal_to_null(bool async)
     {
-        var lineString = Fixture.GeometryFactory.CreateLineString([new(0.5, -0.5), new(0.5, 0.5)]);
+        var lineString = Fixture.GeometryFactory.CreateLineString([new Coordinate(0.5, -0.5), new Coordinate(0.5, 0.5)]);
 
         await AssertQueryScalar(
             async,
@@ -1260,7 +1264,7 @@ public abstract class SpatialQueryTestBase<TFixture> : QueryTestBase<TFixture>
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Intersects_not_equal_to_null(bool async)
     {
-        var lineString = Fixture.GeometryFactory.CreateLineString([new(0.5, -0.5), new(0.5, 0.5)]);
+        var lineString = Fixture.GeometryFactory.CreateLineString([new Coordinate(0.5, -0.5), new Coordinate(0.5, 0.5)]);
 
         await AssertQueryScalar(
             async,

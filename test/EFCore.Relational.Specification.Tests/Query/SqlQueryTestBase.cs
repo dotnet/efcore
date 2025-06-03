@@ -19,9 +19,7 @@ public abstract class SqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
 
     protected SqlQueryTestBase(TFixture fixture)
         : base(fixture)
-    {
-        Fixture.TestSqlLoggerFactory.Clear();
-    }
+        => Fixture.TestSqlLoggerFactory.Clear();
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -818,7 +816,8 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             _ => Fixture.CreateContext().Database.SqlQueryRaw<UnmappedCustomer>(
                     NormalizeDelimitersInRawString("SELECT * FROM [Customers]"))
                 .Where(c => c.ContactName.Substring(0, 1) == c.CompanyName.Substring(0, 1)),
-            ss => ss.Set<Customer>().Where(c => c.ContactName.Substring(0, 1) == c.CompanyName.Substring(0, 1)).Select(e => UnmappedCustomer.FromCustomer(e)),
+            ss => ss.Set<Customer>().Where(c => c.ContactName.Substring(0, 1) == c.CompanyName.Substring(0, 1))
+                .Select(e => UnmappedCustomer.FromCustomer(e)),
             elementSorter: e => e.CustomerID,
             elementAsserter: AssertUnmappedCustomers);
 
@@ -1187,21 +1186,30 @@ SELECT * FROM [Customers2]
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Multiple_occurrences_of_SqlQuery_with_db_parameter_adds_parameter_only_once(bool async)
+    public virtual async Task Multiple_occurrences_of_SqlQuery_with_db_parameter_adds_two_parameters(bool async)
     {
         using var context = CreateContext();
         var city = "Seattle";
-        var qqlQuery = context.Database.SqlQueryRaw<UnmappedCustomer>(
-            NormalizeDelimitersInRawString(@"SELECT * FROM [Customers] WHERE [City] = {0}"),
-            CreateDbParameter("city", city));
 
-        var query = qqlQuery.Intersect(qqlQuery);
+        var dbParameter1 = CreateDbParameter("city", city);
+        dbParameter1.Size = 7;
+        var subquery1 = context.Database.SqlQueryRaw<UnmappedCustomer>(
+            NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [City] = {0}"),
+            dbParameter1);
+
+        var dbParameter2 = CreateDbParameter("city", city);
+        dbParameter2.Size = 3;
+        var subquery2 = context.Database.SqlQueryRaw<UnmappedCustomer>(
+            NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [City] = {0}"),
+            dbParameter2);
+
+        var query = subquery1.Intersect(subquery2);
 
         var actual = async
             ? await query.ToArrayAsync()
             : query.ToArray();
 
-        Assert.Single(actual);
+        Assert.Empty(actual);
     }
 
     [ConditionalFact]

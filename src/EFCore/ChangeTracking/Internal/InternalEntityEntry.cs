@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public sealed partial class InternalEntityEntry : IUpdateEntry
+public sealed partial class InternalEntityEntry : IUpdateEntry, IInternalEntry
 {
     private readonly StateData _stateData;
     private OriginalValues _originalValues;
@@ -829,7 +829,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public static readonly MethodInfo FlaggedAsTemporaryMethod
-        = typeof(InternalEntityEntry).GetMethod(nameof(FlaggedAsTemporary))!;
+        = typeof(IInternalEntry).GetMethod(nameof(IInternalEntry.FlaggedAsTemporary))!;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -838,7 +838,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public static readonly MethodInfo FlaggedAsStoreGeneratedMethod
-        = typeof(InternalEntityEntry).GetMethod(nameof(FlaggedAsStoreGenerated))!;
+        = typeof(IInternalEntry).GetMethod(nameof(IInternalEntry.FlaggedAsStoreGenerated))!;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -873,7 +873,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
         => _stateData.FlagProperty(property.GetIndex(), PropertyFlag.Unknown, true);
 
     internal static MethodInfo MakeReadShadowValueMethod(Type type)
-        => typeof(InternalEntityEntry).GetTypeInfo().GetDeclaredMethod(nameof(ReadShadowValue))!
+        => typeof(IInternalEntry).GetMethod(nameof(IInternalEntry.ReadShadowValue))!
             .MakeGenericMethod(type);
 
     /// <summary>
@@ -886,7 +886,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
         => _shadowValues.GetValue<T>(shadowIndex);
 
     private static readonly MethodInfo ReadOriginalValueMethod
-        = typeof(InternalEntityEntry).GetTypeInfo().GetDeclaredMethod(nameof(ReadOriginalValue))!;
+        = typeof(IInternalEntry).GetMethod(nameof(IInternalEntry.ReadOriginalValue))!;
 
     [UnconditionalSuppressMessage(
         "ReflectionAnalysis", "IL2060",
@@ -904,7 +904,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
         => _originalValues.GetValue<T>(this, property, originalValueIndex);
 
     private static readonly MethodInfo ReadRelationshipSnapshotValueMethod
-        = typeof(InternalEntityEntry).GetTypeInfo().GetDeclaredMethod(nameof(ReadRelationshipSnapshotValue))!;
+        = typeof(IInternalEntry).GetMethod(nameof(IInternalEntry.ReadRelationshipSnapshotValue))!;
 
     [UnconditionalSuppressMessage(
         "ReflectionAnalysis", "IL2060",
@@ -928,7 +928,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
         => ReadStoreGeneratedValueMethod.MakeGenericMethod(type);
 
     private static readonly MethodInfo ReadStoreGeneratedValueMethod
-        = typeof(InternalEntityEntry).GetTypeInfo().GetDeclaredMethod(nameof(ReadStoreGeneratedValue))!;
+        = typeof(IInternalEntry).GetMethod(nameof(IInternalEntry.ReadStoreGeneratedValue))!;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -940,7 +940,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
         => _storeGeneratedValues.GetValue<T>(storeGeneratedIndex);
 
     private static readonly MethodInfo ReadTemporaryValueMethod
-        = typeof(InternalEntityEntry).GetMethod(nameof(ReadTemporaryValue))!;
+        = typeof(IInternalEntry).GetMethod(nameof(IInternalEntry.ReadTemporaryValue))!;
 
     [UnconditionalSuppressMessage(
         "ReflectionAnalysis", "IL2060",
@@ -958,7 +958,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
         => _temporaryValues.GetValue<T>(storeGeneratedIndex);
 
     private static readonly MethodInfo GetCurrentValueMethod
-        = typeof(InternalEntityEntry).GetTypeInfo().GetDeclaredMethods(nameof(GetCurrentValue)).Single(m => m.IsGenericMethod);
+        = typeof(IInternalEntry).GetMethods().Single(m => m.IsGenericMethod && m.Name == nameof(IInternalEntry.GetCurrentValue));
 
     [UnconditionalSuppressMessage(
         "ReflectionAnalysis", "IL2060",
@@ -973,7 +973,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public TProperty GetCurrentValue<TProperty>(IPropertyBase propertyBase)
-        => ((Func<InternalEntityEntry, TProperty>)propertyBase.GetPropertyAccessors().CurrentValueGetter)(this);
+        => ((Func<IInternalEntry, TProperty>)propertyBase.GetPropertyAccessors().CurrentValueGetter)(this);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -982,7 +982,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public TProperty GetOriginalValue<TProperty>(IProperty property)
-        => ((Func<InternalEntityEntry, TProperty>)property.GetPropertyAccessors().OriginalValueGetter!)(this);
+        => ((Func<IInternalEntry, TProperty>)property.GetPropertyAccessors().OriginalValueGetter!)(this);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -991,7 +991,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public TProperty GetRelationshipSnapshotValue<TProperty>(IPropertyBase propertyBase)
-        => ((Func<InternalEntityEntry, TProperty>)propertyBase.GetPropertyAccessors().RelationshipSnapshotGetter)(
+        => ((Func<IInternalEntry, TProperty>)propertyBase.GetPropertyAccessors().RelationshipSnapshotGetter)(
             this);
 
     /// <summary>
@@ -1141,10 +1141,8 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public object? GetOriginalOrCurrentValue(IPropertyBase propertyBase)
-        => propertyBase.GetOriginalValueIndex() >= 0
-            ? _originalValues.GetValue(this, (IProperty)propertyBase)
-            : GetCurrentValue(propertyBase);
+    public bool CanHaveOriginalValue(IPropertyBase propertyBase)
+        => propertyBase.GetOriginalValueIndex() >= 0;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1679,7 +1677,9 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
             foreach (var complexProperty in entityType.GetFlattenedComplexProperties())
             {
                 if (!complexProperty.IsNullable
-                    && this[complexProperty] == null)
+                    && !complexProperty.IsCollection
+                    && this[complexProperty] == null
+                    && complexProperty.ComplexType.GetProperties().Any(p => !p.IsNullable))
                 {
                     throw new InvalidOperationException(
                         CoreStrings.NullRequiredComplexProperty(
@@ -2124,11 +2124,20 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
             () => this.ToDebugString(ChangeTrackerDebugStringOptions.ShortDefault),
             () => this.ToDebugString());
 
+    IInternalEntry IInternalEntry.PrepareToSave()
+        => PrepareToSave();
+
     IUpdateEntry? IUpdateEntry.SharedIdentityEntry
         => SharedIdentityEntry;
 
     IEntityType IUpdateEntry.EntityType
         => EntityType;
+
+    IRuntimeTypeBase IInternalEntry.StructuralType
+        => EntityType;
+
+    object IInternalEntry.Object
+        => Entity;
 
     private enum CurrentValueType
     {

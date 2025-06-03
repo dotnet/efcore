@@ -18,8 +18,8 @@ public class FakeScaffoldingModelFactory(
     ICSharpUtilities cSharpUtilities,
     IScaffoldingTypeMapper scaffoldingTypeMapper,
     IModelRuntimeInitializer modelRuntimeInitializer) : RelationalScaffoldingModelFactory(
-        reporter, candidateNamingService, pluralizer, cSharpUtilities, scaffoldingTypeMapper,
-        modelRuntimeInitializer)
+    reporter, candidateNamingService, pluralizer, cSharpUtilities, scaffoldingTypeMapper,
+    modelRuntimeInitializer)
 {
     public override IModel Create(DatabaseModel databaseModel, ModelReverseEngineerOptions options)
     {
@@ -129,9 +129,7 @@ internal class DatabaseTableRef : DatabaseTable
 internal class DatabaseColumnRef : DatabaseColumn
 {
     public DatabaseColumnRef(string name)
-    {
-        Name = name;
-    }
+        => Name = name;
 
     public override DatabaseTable Table
     {

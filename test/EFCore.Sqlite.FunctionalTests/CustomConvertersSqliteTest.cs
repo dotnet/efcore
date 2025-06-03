@@ -9,9 +9,7 @@ public class CustomConvertersSqliteTest : CustomConvertersTestBase<CustomConvert
 {
     public CustomConvertersSqliteTest(CustomConvertersSqliteFixture fixture)
         : base(fixture)
-    {
-        Fixture.TestSqlLoggerFactory.Clear();
-    }
+        => Fixture.TestSqlLoggerFactory.Clear();
 
     // Disabled: SQLite database is case-sensitive
     public override Task Can_insert_and_read_back_with_case_insensitive_string_key()
@@ -24,11 +22,11 @@ public class CustomConvertersSqliteTest : CustomConvertersTestBase<CustomConvert
 
         AssertSql(
             """
-@__blogId_0='1'
+@blogId='1'
 
 SELECT "b"."Url"
 FROM "Blog" AS "b"
-INNER JOIN "Post" AS "p" ON "b"."BlogId" = "p"."BlogId" AND "b"."IsVisible" = 'Y' AND "b"."BlogId" = @__blogId_0
+INNER JOIN "Post" AS "p" ON "b"."BlogId" = "p"."BlogId" AND "b"."IsVisible" = 'Y' AND "b"."BlogId" = @blogId
 WHERE "b"."IsVisible" = 'Y'
 """);
     }
@@ -40,11 +38,11 @@ WHERE "b"."IsVisible" = 'Y'
 
         AssertSql(
             """
-@__blogId_0='1'
+@blogId='1'
 
 SELECT "b"."Url"
 FROM "Blog" AS "b"
-LEFT JOIN "Post" AS "p" ON "b"."BlogId" = "p"."BlogId" AND "b"."IsVisible" = 'Y' AND "b"."BlogId" = @__blogId_0
+LEFT JOIN "Post" AS "p" ON "b"."BlogId" = "p"."BlogId" AND "b"."IsVisible" = 'Y' AND "b"."BlogId" = @blogId
 WHERE "b"."IsVisible" = 'Y'
 """);
     }

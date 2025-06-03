@@ -209,7 +209,10 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Sql
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override Expression VisitProjection(ProjectionExpression projectionExpression)
-        => VisitProjection(projectionExpression, objectProjectionStyle: false);
+    {
+        GenerateProjection(projectionExpression, objectProjectionStyle: false);
+        return projectionExpression;
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -217,8 +220,17 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Sql
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected virtual Expression VisitProjection(ProjectionExpression projectionExpression, bool objectProjectionStyle)
+    private void GenerateProjection(ProjectionExpression projectionExpression, bool objectProjectionStyle)
     {
+        // If the SELECT has a single projection with IsValueProjection, prepend the VALUE keyword (without VALUE, Cosmos projects a JSON
+        // object containing the value).
+        if (projectionExpression.IsValueProjection)
+        {
+            _sqlBuilder.Append("VALUE ");
+            Visit(projectionExpression.Expression);
+            return;
+        }
+
         if (objectProjectionStyle)
         {
             _sqlBuilder.Append('"').Append(projectionExpression.Alias).Append("\" : ");
@@ -232,8 +244,6 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Sql
         {
             _sqlBuilder.Append(" AS " + projectionExpression.Alias);
         }
-
-        return projectionExpression;
     }
 
     /// <summary>
@@ -277,34 +287,28 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Sql
             _sqlBuilder.Append("DISTINCT ");
         }
 
-        if (selectExpression.Projection is { Count: > 0 } projection)
+        if (selectExpression.Projection is { Count: > 0 } projections)
         {
-            // If the SELECT projects a single value out, we just project that with the Cosmos VALUE keyword (without VALUE,
-            // Cosmos projects a JSON object containing the value).
-            // TODO: Ideally, just always use VALUE for all single-projection SELECTs - but this like requires shaper changes.
-            if (selectExpression.UsesSingleValueProjection && projection is [var singleProjection])
-            {
-                _sqlBuilder.Append("VALUE ");
+            Check.DebugAssert(
+                projections.Count == 1 || !projections.Any(p => p.IsValueProjection),
+                "Multiple projections with IsValueProjection");
 
-                Visit(singleProjection.Expression);
-            }
-            // Otherwise, we'll project a JSON object; Cosmos has two syntaxes for doing so:
+            // If there's only one projection, we simply project it directly (SELECT VALUE c["Id"]); this happens in GenerateProjection().
+            // Otherwise, we'll project a JSON object wrapping the multiple projections. Cosmos has two syntaxes for doing so:
             // 1. Project out a JSON object as a value (SELECT VALUE { 'a': a, 'b': b }), or
             // 2. Project a set of properties with optional AS+aliases (SELECT 'a' AS a, 'b' AS b)
             // Both methods produce the exact same results; we usually prefer the 1st, but in some cases we use the 2nd.
-            else if ((projection.Count > 1
-                         // Cosmos does not support "AS Value" projections, specifically for the alias "Value"
-                         || projection is [{ Alias: var alias }] && alias.Equals("value", StringComparison.OrdinalIgnoreCase))
-                     && projection.Any(p => !string.IsNullOrEmpty(p.Alias) && p.Alias != p.Name)
-                     && !projection.Any(p => p.Expression is SqlFunctionExpression)) // Aggregates are not allowed
+            if (projections.Count > 1
+                && projections.Any(p => !string.IsNullOrEmpty(p.Alias) && p.Alias != p.Name)
+                && !projections.Any(p => p.Expression is SqlFunctionExpression)) // Aggregates are not allowed
             {
                 _sqlBuilder.AppendLine("VALUE").AppendLine("{").IncrementIndent();
-                GenerateList(projection, e => VisitProjection(e, objectProjectionStyle: true), joinAction: sql => sql.AppendLine(","));
+                GenerateList(projections, e => GenerateProjection(e, objectProjectionStyle: true), joinAction: sql => sql.AppendLine(","));
                 _sqlBuilder.AppendLine().DecrementIndent().Append("}");
             }
             else
             {
-                GenerateList(projection, e => Visit(e));
+                GenerateList(projections, e => Visit(e));
             }
         }
         else
@@ -336,6 +340,15 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Sql
         if (selectExpression.Orderings.Any())
         {
             _sqlBuilder.AppendLine().Append("ORDER BY ");
+
+            var orderByScoringFunction = selectExpression.Orderings is [{ Expression: SqlFunctionExpression { IsScoringFunction: true } }];
+            if (orderByScoringFunction)
+            {
+                _sqlBuilder.Append("RANK ");
+            }
+
+            Check.DebugAssert(orderByScoringFunction || selectExpression.Orderings.All(x => x.Expression is not SqlFunctionExpression { IsScoringFunction: true }),
+                "Scoring function can only appear as first (and only) ordering, or not at all.");
 
             GenerateList(selectExpression.Orderings, e => Visit(e));
         }
@@ -379,8 +392,8 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Sql
 
         switch (fromSqlExpression.Arguments)
         {
-            case ParameterExpression { Name: not null } parameterExpression
-                when _parameterValues.TryGetValue(parameterExpression.Name, out var parameterValue)
+            case QueryParameterExpression queryParameter
+                when _parameterValues.TryGetValue(queryParameter.Name, out var parameterValue)
                 && parameterValue is object[] parameterValues:
             {
                 substitutions = new string[parameterValues.Length];
@@ -514,7 +527,7 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Sql
             op = " || ";
         }
         else if (sqlBinaryExpression.OperatorType == ExpressionType.ExclusiveOr
-            && sqlBinaryExpression.Type == typeof(bool))
+                 && sqlBinaryExpression.Type == typeof(bool))
         {
             op = " != ";
         }
@@ -628,6 +641,19 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Sql
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    protected override Expression VisitFragment(FragmentExpression fragmentExpression)
+    {
+        _sqlBuilder.Append(fragmentExpression.Fragment);
+
+        return fragmentExpression;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     protected override Expression VisitSqlConditional(SqlConditionalExpression sqlConditionalExpression)
     {
         _sqlBuilder.Append('(');
@@ -653,11 +679,13 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Sql
 
         if (_sqlParameters.All(sp => sp.Name != parameterName))
         {
-            Check.DebugAssert(sqlParameterExpression.TypeMapping is not null, "SqlParameterExpression without a type mapping");
-            var jToken = ((CosmosTypeMapping)sqlParameterExpression.TypeMapping)
-                .GenerateJToken(_parameterValues[sqlParameterExpression.Name]);
+            Check.DebugAssert(sqlParameterExpression.TypeMapping is not null, "SqlParameterExpression without a type mapping.");
 
-            _sqlParameters.Add(new SqlParameter(parameterName, jToken));
+            _sqlParameters.Add(
+                new SqlParameter(
+                    parameterName,
+                    ((CosmosTypeMapping)sqlParameterExpression.TypeMapping)
+                    .GenerateJToken(_parameterValues[sqlParameterExpression.Name])));
         }
 
         _sqlBuilder.Append(parameterName);
@@ -724,7 +752,6 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Sql
                 .Append(sourceExpression.Alias)
                 .Append(" IN ");
 
-
             VisitContainerExpression(sourceExpression.Expression);
         }
         else
@@ -752,7 +779,6 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Sql
                 Limit: null,
                 Orderings: [],
                 IsDistinct: false,
-                UsesSingleValueProjection: true,
                 Projection.Count: 1
             };
 
@@ -794,8 +820,7 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Sql
     {
         Check.DebugAssert(
             inExpression.ValuesParameter is null,
-            "InExpression.ValuesParameter must have been expanded to constants before SQL generation (in "
-            + "InExpressionValuesExpandingExpressionVisitor)");
+            "InExpression.ValuesParameter must have been expanded to constants before SQL generation (in ParameterInliner)");
         Check.DebugAssert(inExpression.Values is not null, "Missing Values on InExpression");
 
         Visit(inExpression.Item);

@@ -9,7 +9,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-public class SqliteMigrationsSqlGeneratorTest : MigrationsSqlGeneratorTestBase
+public class SqliteMigrationsSqlGeneratorTest() : MigrationsSqlGeneratorTestBase(
+    SqliteTestHelpers.Instance,
+    new ServiceCollection().AddEntityFrameworkSqliteNetTopologySuite(),
+    SqliteTestHelpers.Instance.AddProviderOptions(
+        ((IRelationalDbContextOptionsBuilderInfrastructure)
+            new SqliteDbContextOptionsBuilder(new DbContextOptionsBuilder()).UseNetTopologySuite())
+        .OptionsBuilder).Options)
 {
     [ConditionalFact]
     public virtual void It_lifts_foreign_key_additions()
@@ -1176,16 +1182,5 @@ GO
 
 PRAGMA foreign_keys = 1;
 """);
-    }
-
-    public SqliteMigrationsSqlGeneratorTest()
-        : base(
-            SqliteTestHelpers.Instance,
-            new ServiceCollection().AddEntityFrameworkSqliteNetTopologySuite(),
-            SqliteTestHelpers.Instance.AddProviderOptions(
-                ((IRelationalDbContextOptionsBuilderInfrastructure)
-                    new SqliteDbContextOptionsBuilder(new DbContextOptionsBuilder()).UseNetTopologySuite())
-                .OptionsBuilder).Options)
-    {
     }
 }

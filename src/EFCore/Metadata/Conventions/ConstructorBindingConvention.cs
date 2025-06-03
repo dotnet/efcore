@@ -24,9 +24,7 @@ public class ConstructorBindingConvention : IModelFinalizingConvention
     /// </summary>
     /// <param name="dependencies">Parameter object containing dependencies for this convention.</param>
     public ConstructorBindingConvention(ProviderConventionSetBuilderDependencies dependencies)
-    {
-        Dependencies = dependencies;
-    }
+        => Dependencies = dependencies;
 
     /// <summary>
     ///     Dependencies for this service.
@@ -44,7 +42,7 @@ public class ConstructorBindingConvention : IModelFinalizingConvention
                 && ConfigurationSource.Convention.Overrides(entityType.GetConstructorBindingConfigurationSource()))
             {
                 Dependencies.ConstructorBindingFactory.GetBindings(
-                    (IMutableEntityType)entityType, out var constructorBinding, out var serviceOnlyBinding);
+                    (IConventionEntityType)entityType, out var constructorBinding, out var serviceOnlyBinding);
 
                 entityType.Builder.HasConstructorBinding(constructorBinding, ConfigurationSource.Convention);
                 entityType.Builder.HasServiceOnlyConstructorBinding(serviceOnlyBinding, ConfigurationSource.Convention);

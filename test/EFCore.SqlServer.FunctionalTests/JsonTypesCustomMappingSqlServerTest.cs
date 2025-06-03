@@ -5,14 +5,14 @@ using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class JsonTypesCustomMappingSqlServerTest : JsonTypesSqlServerTestBase
+public class JsonTypesCustomMappingSqlServerTest(NonSharedFixture fixture) : JsonTypesSqlServerTestBase(fixture)
 {
     protected override IServiceCollection AddServices(IServiceCollection serviceCollection)
         => serviceCollection.AddSingleton<IRelationalTypeMappingSource, TestSqlServerTypeMappingSource>();
 
     private class TestSqlServerTypeMappingSource(
-            TypeMappingSourceDependencies dependencies,
-            RelationalTypeMappingSourceDependencies relationalDependencies)
+        TypeMappingSourceDependencies dependencies,
+        RelationalTypeMappingSourceDependencies relationalDependencies)
         : SqlServerTypeMappingSource(dependencies, relationalDependencies)
     {
         protected override RelationalTypeMapping? FindMapping(in RelationalTypeMappingInfo mappingInfo)

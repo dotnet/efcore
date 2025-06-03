@@ -8,15 +8,10 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public abstract class SpatialTestBase<TFixture> : IClassFixture<TFixture>
+public abstract class SpatialTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : SpatialFixtureBase, new()
 {
-    protected SpatialTestBase(TFixture fixture)
-    {
-        Fixture = fixture;
-    }
-
-    protected virtual TFixture Fixture { get; }
+    protected virtual TFixture Fixture { get; } = fixture;
 
     [ConditionalFact]
     public virtual void Values_are_copied_into_change_tracker()
@@ -43,14 +38,14 @@ public abstract class SpatialTestBase<TFixture> : IClassFixture<TFixture>
     }
 
     [ConditionalFact]
-    public virtual async void Mutation_of_tracked_values_does_not_mutate_values_in_store()
+    public virtual async Task Mutation_of_tracked_values_does_not_mutate_values_in_store()
     {
         Point CreatePoint(double y = 2.2)
             => new(1.1, y, 3.3);
 
         Polygon CreatePolygon(double y = 2.2)
             => new(
-                new LinearRing([new(1.1, 2.2), new(2.2, y), new(2.2, 1.1), new(1.1, 2.2)]));
+                new LinearRing([new Coordinate(1.1, 2.2), new Coordinate(2.2, y), new Coordinate(2.2, 1.1), new Coordinate(1.1, 2.2)]));
 
         var id1 = Guid.NewGuid();
         var id2 = Guid.NewGuid();

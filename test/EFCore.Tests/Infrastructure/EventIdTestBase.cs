@@ -118,7 +118,7 @@ public abstract class EventIdTestBase
                         {
                             args[i] = Activator.CreateInstance(type);
                         }
-                        catch (Exception)
+                        catch
                         {
                             Assert.Fail(
                                 "Need to add fake test factory for type "

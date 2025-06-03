@@ -8,13 +8,8 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public abstract class TPTTableSplittingTestBase : TableSplittingTestBase
+public abstract class TPTTableSplittingTestBase(NonSharedFixture fixture, ITestOutputHelper testOutputHelper) : TableSplittingTestBase(fixture, testOutputHelper)
 {
-    protected TPTTableSplittingTestBase(ITestOutputHelper testOutputHelper)
-        : base(testOutputHelper)
-    {
-    }
-
     public override Task Can_use_optional_dependents_with_shared_concurrency_tokens()
         // TODO: Issue #22060
         => Task.CompletedTask;

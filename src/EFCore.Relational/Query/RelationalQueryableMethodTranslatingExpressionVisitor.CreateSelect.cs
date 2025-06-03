@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
@@ -204,7 +203,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                                 var declaringEntityType = property.DeclaringType.ContainingEntityType;
                                 var projection = declaringEntityType.IsAssignableFrom(concreteEntityType)
                                     ? CreateColumnExpression(property, table, tableAlias, declaringEntityType != entityType)
-                                    : (SqlExpression)_sqlExpressionFactory.Constant(
+                                    : _sqlExpressionFactory.Constant(
                                         null, property.ClrType.MakeNullable(), property.GetRelationalTypeMapping());
                                 projections.Add(new ProjectionExpression(projection, propertyNames[j]));
                             }
@@ -216,7 +215,8 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                                     discriminatorColumnName));
                             discriminatorValues.Add(concreteEntityType.ShortName());
 
-                            subSelectExpressions.Add(SelectExpression.CreateImmutable(alias: null!, [tableExpression], projections));
+                            subSelectExpressions.Add(
+                                SelectExpression.CreateImmutable(alias: null!, [tableExpression], projections, _sqlAliasManager));
                         }
 
                         var tpcTableAlias = _sqlAliasManager.GenerateTableAlias("union");
@@ -409,15 +409,15 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
     }
 
     /***
-         * We need to add additional conditions on basic SelectExpression for certain cases
-         * - If we are selecting from TPH then we need to add condition for discriminator if mapping is incomplete
-         * - When we are selecting optional dependent sharing table, we need to add condition to figure out existence
-         *  ** Optional Dependent **
-         *  - Only root type can be the dependent
-         *  - Dependents will have a non-principal-non-PK-shared required property
-         *  - Principal can be any type in TPH/TPT or leaf type in TPC
-         *  - Dependent side can be TPH or TPT but not TPC
-         ***/
+     * We need to add additional conditions on basic SelectExpression for certain cases
+     * - If we are selecting from TPH then we need to add condition for discriminator if mapping is incomplete
+     * - When we are selecting optional dependent sharing table, we need to add condition to figure out existence
+     *  ** Optional Dependent **
+     *  - Only root type can be the dependent
+     *  - Dependents will have a non-principal-non-PK-shared required property
+     *  - Principal can be any type in TPH/TPT or leaf type in TPC
+     *  - Dependent side can be TPH or TPT but not TPC
+     ***/
     private void AddEntitySelectConditions(SelectExpression selectExpression, IEntityType entityType)
     {
         // First add condition for discriminator mapping
@@ -429,15 +429,11 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
         {
             var discriminatorColumn = GetMappedProjection(selectExpression).BindProperty(discriminatorProperty);
             var concreteEntityTypes = entityType.GetConcreteDerivedTypesInclusive().ToList();
-            var predicate = concreteEntityTypes.Count == 1
-                ? (SqlExpression)_sqlExpressionFactory.Equal(
-                    discriminatorColumn,
-                    _sqlExpressionFactory.Constant(concreteEntityTypes[0].GetDiscriminatorValue(), discriminatorColumn.Type))
-                : _sqlExpressionFactory.In(
-                    discriminatorColumn,
-                    concreteEntityTypes
-                        .Select(et => _sqlExpressionFactory.Constant(et.GetDiscriminatorValue(), discriminatorColumn.Type))
-                        .ToArray());
+            var predicate = _sqlExpressionFactory.In(
+                discriminatorColumn,
+                concreteEntityTypes
+                    .Select(et => _sqlExpressionFactory.Constant(et.GetDiscriminatorValue(), discriminatorColumn.Type))
+                    .ToArray());
 
             selectExpression.ApplyPredicate(predicate);
 
@@ -478,7 +474,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                 && allNonSharedNonPkProperties.All(p => p.IsNullable))
             {
                 var atLeastOneNonNullValueInNullablePropertyCondition = allNonSharedNonPkProperties
-                    .Select(e => IsNotNull(e, projection))
+                    .Select(p => IsNotNull(p, projection))
                     .Aggregate(_sqlExpressionFactory.OrElse);
 
                 predicate = predicate == null
@@ -611,7 +607,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
         var table = entityType.GetViewOrTableMappings().SingleOrDefault()?.Table ?? entityType.GetDefaultMappings().Single().Table;
         var tableAlias = tableExpressionBase.Alias!;
 
-        // TODO: We'll need to make sure this is correct when we add support for JSON complex types.
+        // TODO: We'll need to make sure this is correct when we add support for JSON complex types, #31252
         var tableMap = new Dictionary<ITableBase, string> { [table] = tableAlias };
 
         var projection = new StructuralTypeProjectionExpression(
@@ -693,7 +689,8 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
         IColumnBase column,
         string tableAlias,
         bool nullable)
-        => new(column.Name,
+        => new(
+            column.Name,
             tableAlias,
             property.ClrType.UnwrapNullableType(),
             column.PropertyMappings.First(m => m.Property == property).TypeMapping,

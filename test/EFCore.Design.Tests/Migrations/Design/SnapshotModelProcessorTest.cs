@@ -43,7 +43,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             var reporter = new TestOperationReporter();
 
-            new SnapshotModelProcessor(reporter, DummyModelRuntimeInitializer.Instance).Process(model);
+            var processor = new SnapshotModelProcessor(reporter, DummyModelRuntimeInitializer.Instance);
+            processor.Process(model);
 
             AssertAnnotations(model);
             AssertAnnotations(entityType);
@@ -53,6 +54,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             AssertAnnotations(nav1);
             AssertAnnotations(nav2);
             AssertAnnotations(index);
+
+            Assert.Same(model, processor.Process(model));
 
             Assert.Empty(reporter.Messages);
         }
@@ -271,7 +274,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         }
                     }
                     else if (property.GetValueGenerationStrategy() is SqlServerValueGenerationStrategy strategy
-                        && strategy != SqlServerValueGenerationStrategy.None)
+                             && strategy != SqlServerValueGenerationStrategy.None)
                     {
                         property.SetValueGenerationStrategy(strategy);
                     }
@@ -1415,7 +1418,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 => modelBuilder
                     .HasAnnotation("ChangeDetector.SkipDetectChanges", "true")
                     .HasAnnotation("ProductVersion", "1.1.6")
-                    .HasAnnotation("Relational:Sequence:Bar.Foo", "'Foo', 'Bar', '2', '2', '1', '3', 'Int32', 'True', 'True', '20'")
+                    .HasAnnotation("Relational:Sequence:Bar.Foo", "'Foo', 'Bar', '2', '2', '1', '3', 'Int32', 'True'")
                     .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
         }
 
@@ -1428,7 +1431,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     .HasAnnotation("ChangeDetector.SkipDetectChanges", "true")
                     .HasAnnotation("ProductVersion", "2.2.2-servicing-10034")
                     .HasAnnotation("Relational:MaxIdentifierLength", 128)
-                    .HasAnnotation("Relational:Sequence:Bar.Foo", "'Foo', 'Bar', '2', '2', '1', '3', 'Int32', 'True', 'True', '20'")
+                    .HasAnnotation("Relational:Sequence:Bar.Foo", "'Foo', 'Bar', '2', '2', '1', '3', 'Int32', 'True'")
                     .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 #pragma warning restore 612, 618
             }
@@ -1442,7 +1445,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 modelBuilder
                     .HasAnnotation("ProductVersion", "3.1.1")
                     .HasAnnotation("Relational:MaxIdentifierLength", 128)
-                    .HasAnnotation("Relational:Sequence:Bar.Foo", "'Foo', 'Bar', '2', '2', '1', '3', 'Int32', 'True', 'True', '20'")
+                    .HasAnnotation("Relational:Sequence:Bar.Foo", "'Foo', 'Bar', '2', '2', '1', '3', 'Int32', 'True'")
                     .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 #pragma warning restore 612, 618
             }
@@ -1459,8 +1462,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     .HasMin(1)
                     .HasMax(3)
                     .IncrementsBy(2)
-                    .IsCyclic()
-                    .UseCache(20);
+                    .IsCyclic();
         }
     }
 }

@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 // ReSharper disable InconsistentNaming
+
 namespace Microsoft.EntityFrameworkCore.ModelBuilding;
 
 #nullable disable
@@ -417,8 +418,16 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(nameof(Order.CustomerId), chainedOwnership.Properties.Single().Name);
             Assert.Equal(nameof(Order.OrderId), chainedOwned.FindPrimaryKey().Properties.Single().Name);
             Assert.Single(chainedOwned.GetForeignKeys());
-            Assert.Equal(nameof(Order.CustomerId), chainedOwned.GetIndexes().Single().Properties.Single().Name);
-            Assert.Same(entityBuilder.OwnedEntityType, chainedOwned);
+
+            if (Fixture.ForeignKeysHaveIndexes)
+            {
+                Assert.Equal(nameof(Order.CustomerId), chainedOwned.GetIndexes().Single().Properties.Single().Name);
+                Assert.Same(entityBuilder.OwnedEntityType, chainedOwned);
+            }
+            else
+            {
+                Assert.Empty(chainedOwned.GetIndexes());
+            }
 
             Assert.Equal(3, model.GetEntityTypes().Count());
         }
@@ -437,6 +446,9 @@ public abstract partial class ModelBuilderTest
                 .Ignore(o => o.Details);
             entityBuilder.Property<int>("foo");
             entityBuilder.HasIndex("foo");
+            entityBuilder.HasIndex(["foo"], "Foo2");
+            entityBuilder.HasIndex(o => new { o.CustomerId });
+            entityBuilder.HasIndex(o => new { o.CustomerId }, "Customer2");
             entityBuilder.HasKey(o => o.AnotherCustomerId);
             entityBuilder.WithOwner(o => o.Customer)
                 .HasPrincipalKey(c => c.AlternateKey);
@@ -453,9 +465,26 @@ public abstract partial class ModelBuilderTest
 
             Assert.Null(owner.FindProperty("foo"));
             Assert.Equal(nameof(Order.AnotherCustomerId), owned.FindPrimaryKey().Properties.Single().Name);
-            Assert.Equal(2, owned.GetIndexes().Count());
-            Assert.Equal("CustomerAlternateKey", owned.GetIndexes().First().Properties.Single().Name);
-            Assert.Equal("foo", owned.GetIndexes().Last().Properties.Single().Name);
+
+            var unnamedIndexes = owned.GetIndexes().Where(i => i.Name == null).ToList();
+            if (Fixture.ForeignKeysHaveIndexes)
+            {
+                var fkIndex = unnamedIndexes.Single(i => i.Properties.Contains(ownership.Properties.Single()));
+                Assert.Equal("CustomerAlternateKey", fkIndex.Properties.Single().Name);
+                unnamedIndexes.Remove(fkIndex);
+            }
+
+            Assert.Equal(2, unnamedIndexes.Count());
+            Assert.Equal(nameof(Order.CustomerId), unnamedIndexes.First().Properties.Single().Name);
+            Assert.Equal("foo", unnamedIndexes.Last().Properties.Single().Name);
+
+            var namedIndexes = owned.GetIndexes().Where(i => i.Name != null).ToList();
+            Assert.Equal(2, namedIndexes.Count());
+            Assert.Equal(nameof(Order.CustomerId), namedIndexes.First().Properties.Single().Name);
+            Assert.Equal("Customer2", namedIndexes.First().Name);
+            Assert.Equal("foo", namedIndexes.Last().Properties.Single().Name);
+            Assert.Equal("Foo2", namedIndexes.Last().Name);
+
             Assert.Equal(PropertyAccessMode.FieldDuringConstruction, owned.GetPropertyAccessMode());
             Assert.Equal(ChangeTrackingStrategy.ChangedNotifications, owned.GetChangeTrackingStrategy());
 
@@ -496,9 +525,18 @@ public abstract partial class ModelBuilderTest
             Assert.Equal("bar", owned.FindAnnotation("foo").Value);
             Assert.Single(owned.GetForeignKeys());
             Assert.Equal("Id", owned.FindPrimaryKey().Properties.Single().Name);
-            Assert.Equal(2, owned.GetIndexes().Count());
+
+            if (Fixture.ForeignKeysHaveIndexes)
+            {
+                Assert.Equal(2, owned.GetIndexes().Count());
+                Assert.Equal("DifferentCustomerId", owned.GetIndexes().Last().Properties.Single().Name);
+            }
+            else
+            {
+                Assert.Single(owned.GetIndexes());
+            }
+
             Assert.Equal(nameof(Order.AnotherCustomerId), owned.GetIndexes().First().Properties.Single().Name);
-            Assert.Equal("DifferentCustomerId", owned.GetIndexes().Last().Properties.Single().Name);
             Assert.False(owned.FindProperty(nameof(Order.AnotherCustomerId)).IsNullable);
             Assert.Equal(nameof(Order.Customer), ownership.DependentToPrincipal.Name);
         }
@@ -561,6 +599,12 @@ public abstract partial class ModelBuilderTest
             modelBuilder.Owned<Ownee1>();
             modelBuilder.Owned<Ownee2>();
             modelBuilder.Owned<Ownee3>();
+
+            var model = modelBuilder.FinalizeModel();
+
+            var owner = model.FindEntityType(typeof(OwnerOfOwnees))!;
+            var ownership = owner.FindNavigation(nameof(OwnerOfOwnees.Ownee1))!.ForeignKey;
+            Assert.True(ownership.IsOwnership);
         }
 
         [Flags]
@@ -672,9 +716,18 @@ public abstract partial class ModelBuilderTest
             Assert.False(chainedOwnership.IsUnique);
             Assert.Equal("OrderId", chainedOwnership.Properties.Single().Name);
             Assert.Equal(nameof(Product.Id), chainedOwned.FindPrimaryKey().Properties.Single().Name);
-            Assert.Equal(
-                "OrderId",
-                chainedOwned.GetIndexes().Single().Properties.Single().Name);
+
+            if (Fixture.ForeignKeysHaveIndexes)
+            {
+                Assert.Equal(
+                    "OrderId",
+                    chainedOwned.GetIndexes().Single().Properties.Single().Name);
+            }
+            else
+            {
+                Assert.Empty(chainedOwned.GetIndexes());
+            }
+
             Assert.Equal(nameof(Product.Order), chainedOwnership.DependentToPrincipal.Name);
 
             Assert.Equal(4, model.GetEntityTypes().Count());
@@ -1078,11 +1131,12 @@ public abstract partial class ModelBuilderTest
         }
 
         [ConditionalFact]
-        public virtual void Can_configure_relationship_with_PK_ValueConverter()
+        public virtual void Can_configure_relationship_with_PK_ValueConverter_shadow_FK()
         {
             var modelBuilder = CreateModelBuilder();
 
-            modelBuilder.Entity<QueryResult>().Property(x => x.Id)
+            modelBuilder.Entity<QueryResult>()
+                .Property(x => x.Id)
                 .HasConversion(x => x.Id, x => new CustomId { Id = x });
 
             modelBuilder.Entity<ValueCategory>()
@@ -1091,8 +1145,7 @@ public abstract partial class ModelBuilderTest
 
             modelBuilder.Entity<QueryResult>()
                 .OwnsOne(q => q.Value)
-                .Property(x => x.CategoryId)
-                .HasConversion(x => x.Id, x => new CustomId { Id = x });
+                .Property(x => x.CategoryId);
 
             var model = modelBuilder.FinalizeModel();
 
@@ -1108,12 +1161,43 @@ public abstract partial class ModelBuilderTest
             var category = model.FindEntityType(typeof(ValueCategory));
             Assert.Null(category.FindProperty("TempId"));
 
-            var barNavigation = owned.GetDeclaredNavigations().Single(n => !n.ForeignKey.IsOwnership);
-            Assert.Same(category, barNavigation.TargetEntityType);
-            var fkProperty = barNavigation.ForeignKey.Properties.Single();
+            var categoryNavigation = owned.GetDeclaredNavigations().Single(n => !n.ForeignKey.IsOwnership);
+            Assert.Same(category, categoryNavigation.TargetEntityType);
+            var fkProperty = categoryNavigation.ForeignKey.Properties.Single();
             Assert.Equal("CategoryId", fkProperty.Name);
 
             Assert.Equal(3, model.GetEntityTypes().Count());
+        }
+
+        [ConditionalFact]
+        public virtual void Can_configure_relationship_with_PK_ValueConverter()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<QueryResult>(eb =>
+            {
+                eb.Property(x => x.Id)
+                    .HasConversion(x => x.Id, x => new CustomId { Id = x });
+                eb.OwnsOne(q => q.Value)
+                    .WithOwner()
+                    .HasForeignKey(q => q.CategoryId);
+            });
+
+            modelBuilder.Ignore<ValueCategory>();
+
+            var model = modelBuilder.FinalizeModel();
+
+            var result = model.FindEntityType(typeof(QueryResult));
+            Assert.Null(result.FindProperty("TempId"));
+
+            var owned = result.GetDeclaredNavigations().Single().TargetEntityType;
+            Assert.Null(owned.FindProperty("TempId"));
+
+            var ownedPkProperty = owned.FindPrimaryKey().Properties.Single();
+            Assert.NotNull(ownedPkProperty.GetValueConverter());
+
+            Assert.DoesNotContain(owned.GetDeclaredNavigations(), n => !n.ForeignKey.IsOwnership);
+            Assert.Equal(2, model.GetEntityTypes().Count());
         }
 
         [ConditionalFact]
@@ -1582,9 +1666,7 @@ public abstract partial class ModelBuilderTest
             public DepartmentId() { }
 
             public DepartmentId(int value)
-            {
-                Value = value;
-            }
+                => Value = value;
 
             public int Value { get; }
         }
@@ -1600,15 +1682,16 @@ public abstract partial class ModelBuilderTest
         {
             var modelBuilder = CreateModelBuilder();
 
-            modelBuilder.Entity<Department>(b =>
-            {
-                b.Property(d => d.Id)
-                    .HasConversion(
-                        id => id.Value,
-                        value => new DepartmentId(value));
+            modelBuilder.Entity<Department>(
+                b =>
+                {
+                    b.Property(d => d.Id)
+                        .HasConversion(
+                            id => id.Value,
+                            value => new DepartmentId(value));
 
-                b.OwnsMany(d => d.DepartmentIds);
-            });
+                    b.OwnsMany(d => d.DepartmentIds);
+                });
 
             modelBuilder.Entity<Office>()
                 .OwnsMany(o => o.DepartmentIds);
@@ -1637,15 +1720,16 @@ public abstract partial class ModelBuilderTest
             modelBuilder.Entity<Office>()
                 .OwnsMany(o => o.DepartmentIds);
 
-            modelBuilder.Entity<Department>(b =>
-            {
-                b.Property(d => d.Id)
-                    .HasConversion(
-                        id => id.Value,
-                        value => new DepartmentId(value));
+            modelBuilder.Entity<Department>(
+                b =>
+                {
+                    b.Property(d => d.Id)
+                        .HasConversion(
+                            id => id.Value,
+                            value => new DepartmentId(value));
 
-                b.OwnsMany(d => d.DepartmentIds);
-            });
+                    b.OwnsMany(d => d.DepartmentIds);
+                });
 
             var model = modelBuilder.FinalizeModel();
 
@@ -1772,7 +1856,7 @@ public abstract partial class ModelBuilderTest
 
             var model = modelBuilder.FinalizeModel();
 
-            Assert.Single(model.FindEntityTypes(typeof(List<DependentEntity>)));
+            Assert.Single(model.FindEntityTypes(typeof(MyList<DependentEntity>)));
         }
 
         [ConditionalFact]
@@ -1805,19 +1889,30 @@ public abstract partial class ModelBuilderTest
 
             var bill2 = owner.FindNavigation(nameof(BillingOwner.Bill2)).TargetEntityType;
             Assert.Equal(2, bill2.GetForeignKeys().Count());
-            Assert.Single(bill2.GetIndexes());
+            Assert.Equal(Fixture.ForeignKeysHaveIndexes ? 1 : 0, bill2.GetIndexes().Count());
         }
 
         [ConditionalFact]
-        public virtual void Inheritance_where_base_has_multiple_owned_types_works()
+        public virtual void Can_have_multiple_owned_types_on_base()
         {
             var modelBuilder = CreateModelBuilder();
-            modelBuilder.Entity<BaseOwner>();
+            modelBuilder.Entity<BaseOwner>().OwnsOne(o => o.OwnedWithRef1);
             modelBuilder.Entity<DerivedOwner>();
 
             var model = modelBuilder.FinalizeModel();
 
-            Assert.Equal(4, model.GetEntityTypes().Count());
+            Assert.Equal(6, model.GetEntityTypes().Count());
+            var owner = model.FindEntityType(typeof(BaseOwner));
+
+            var ownership1 = owner.FindNavigation(nameof(BaseOwner.Owned1)).ForeignKey;
+            var owned1 = ownership1.DeclaringEntityType;
+            Assert.True(ownership1.IsOwnership);
+            Assert.Same(owner, ownership1.PrincipalEntityType);
+
+            var ownership3 = owner.FindNavigation(nameof(BaseOwner.OwnedWithRef1)).ForeignKey;
+            var owned3 = ownership3.DeclaringEntityType;
+            Assert.True(ownership3.IsOwnership);
+            Assert.Same(owner, ownership3.DependentToPrincipal.TargetEntityType);
         }
 
         [ConditionalFact]
@@ -1987,22 +2082,23 @@ public abstract partial class ModelBuilderTest
                 .Entity<ComplexProperties>()
                 .OwnsOne(e => e.CollectionQuarks)
                 .PrimitiveCollection(e => e.Up)
-                .ElementType(t => t
-                    .HasAnnotation("B", "C")
-                    .HasConversion(typeof(long))
-                    .HasConversion(new CastingConverter<int, long>())
-                    .HasConversion(typeof(long), typeof(CustomValueComparer<int>))
-                    .HasConversion(typeof(long), new CustomValueComparer<int>())
-                    .HasConversion(new CastingConverter<int, long>())
-                    .HasConversion(new CastingConverter<int, long>(), new CustomValueComparer<int>())
-                    .HasConversion<long>()
-                    .HasConversion<long>(new CustomValueComparer<int>())
-                    .HasConversion<long, CustomValueComparer<int>>()
-                    .HasMaxLength(2)
-                    .HasPrecision(1)
-                    .HasPrecision(1, 2)
-                    .IsRequired()
-                    .IsUnicode())
+                .ElementType(
+                    t => t
+                        .HasAnnotation("B", "C")
+                        .HasConversion(typeof(long))
+                        .HasConversion(new CastingConverter<int, long>())
+                        .HasConversion(typeof(long), typeof(CustomValueComparer<int>))
+                        .HasConversion(typeof(long), new CustomValueComparer<int>())
+                        .HasConversion(new CastingConverter<int, long>())
+                        .HasConversion(new CastingConverter<int, long>(), new CustomValueComparer<int>())
+                        .HasConversion<long>()
+                        .HasConversion<long>(new CustomValueComparer<int>())
+                        .HasConversion<long, CustomValueComparer<int>>()
+                        .HasMaxLength(2)
+                        .HasPrecision(1)
+                        .HasPrecision(1, 2)
+                        .IsRequired()
+                        .IsUnicode())
                 .IsRequired()
                 .HasAnnotation("A", "V")
                 .IsConcurrencyToken()
@@ -2025,22 +2121,23 @@ public abstract partial class ModelBuilderTest
                 .Entity<Customer>()
                 .OwnsMany(e => e.Orders)
                 .PrimitiveCollection<List<int>>("List")
-                .ElementType(t => t
-                    .HasAnnotation("B", "C")
-                    .HasConversion(typeof(long))
-                    .HasConversion(new CastingConverter<int, long>())
-                    .HasConversion(typeof(long), typeof(CustomValueComparer<int>))
-                    .HasConversion(typeof(long), new CustomValueComparer<int>())
-                    .HasConversion(new CastingConverter<int, long>())
-                    .HasConversion(new CastingConverter<int, long>(), new CustomValueComparer<int>())
-                    .HasConversion<long>()
-                    .HasConversion<long>(new CustomValueComparer<int>())
-                    .HasConversion<long, CustomValueComparer<int>>()
-                    .HasMaxLength(2)
-                    .HasPrecision(1)
-                    .HasPrecision(1, 2)
-                    .IsRequired()
-                    .IsUnicode())
+                .ElementType(
+                    t => t
+                        .HasAnnotation("B", "C")
+                        .HasConversion(typeof(long))
+                        .HasConversion(new CastingConverter<int, long>())
+                        .HasConversion(typeof(long), typeof(CustomValueComparer<int>))
+                        .HasConversion(typeof(long), new CustomValueComparer<int>())
+                        .HasConversion(new CastingConverter<int, long>())
+                        .HasConversion(new CastingConverter<int, long>(), new CustomValueComparer<int>())
+                        .HasConversion<long>()
+                        .HasConversion<long>(new CustomValueComparer<int>())
+                        .HasConversion<long, CustomValueComparer<int>>()
+                        .HasMaxLength(2)
+                        .HasPrecision(1)
+                        .HasPrecision(1, 2)
+                        .IsRequired()
+                        .IsUnicode())
                 .IsRequired()
                 .HasAnnotation("A", "V")
                 .IsConcurrencyToken()
@@ -2071,12 +2168,7 @@ public abstract partial class ModelBuilderTest
             public override ValueGenerator Create(IProperty property, ITypeBase entityType)
                 => new CustomValueGenerator();
         }
-        private class CustomValueComparer<T> : ValueComparer<T>
-        {
-            public CustomValueComparer()
-                : base(false)
-            {
-            }
-        }
+
+        private class CustomValueComparer<T>() : ValueComparer<T>(false);
     }
 }

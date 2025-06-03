@@ -278,6 +278,25 @@ public static class SqlServerEntityTypeExtensions
     public static ConfigurationSource? GetHistoryTableSchemaConfigurationSource(this IConventionEntityType entityType)
         => entityType.FindAnnotation(SqlServerAnnotationNames.TemporalHistoryTableSchema)?.GetConfigurationSource();
 
+    /// <summary>
+    ///     Returns the name of the history table to which the entity type is mapped prepended by the schema
+    ///     or <see langword="null" /> if not mapped to a table.
+    /// </summary>
+    /// <param name="entityType">The entity type to get the history table name for.</param>
+    /// <returns>The name of the history table to which the entity type is mapped prepended by the schema.</returns>
+    public static string? GetSchemaQualifiedHistoryTableName(this IReadOnlyEntityType entityType)
+    {
+        var historyTableName = entityType.GetHistoryTableName();
+        if (historyTableName == null)
+        {
+            return null;
+        }
+
+        var schema = entityType.GetHistoryTableSchema();
+
+        return (string.IsNullOrEmpty(schema) ? "" : schema + ".") + historyTableName;
+    }
+
     #endregion Temporal table
 
     #region SQL OUTPUT clause
@@ -343,6 +362,19 @@ public static class SqlServerEntityTypeExtensions
     /// <returns>The configuration source for the memory-optimized setting.</returns>
     public static ConfigurationSource? GetUseSqlOutputClauseConfigurationSource(this IConventionEntityType entityType)
         => entityType.FindAnnotation(SqlServerAnnotationNames.UseSqlOutputClause)?.GetConfigurationSource();
+
+    /// <summary>
+    ///     Gets the configuration source for whether to use the SQL OUTPUT clause when saving changes to the table.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <param name="storeObject">The identifier of the table-like store object.</param>
+    /// <returns>The configuration source for the memory-optimized setting.</returns>
+    public static ConfigurationSource? GetUseSqlOutputClauseConfigurationSource(
+        this IConventionEntityType entityType,
+        in StoreObjectIdentifier storeObject)
+        => StoreObjectIdentifier.Create(entityType, storeObject.StoreObjectType) == storeObject
+            ? entityType.GetUseSqlOutputClauseConfigurationSource()
+            : (entityType.FindMappingFragment(storeObject)?.GetUseSqlOutputClauseConfigurationSource());
 
     /// <summary>
     ///     Returns a value indicating whether to use the SQL OUTPUT clause when saving changes to the specified table.

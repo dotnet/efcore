@@ -21,9 +21,7 @@ public class CosmosQueryRootProcessor : QueryRootProcessor
     /// </summary>
     public CosmosQueryRootProcessor(QueryTranslationPreprocessorDependencies dependencies, QueryCompilationContext queryCompilationContext)
         : base(dependencies, queryCompilationContext)
-    {
-        _model = queryCompilationContext.Model;
-    }
+        => _model = queryCompilationContext.Model;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -40,7 +38,7 @@ public class CosmosQueryRootProcessor : QueryRootProcessor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override bool ShouldConvertToParameterQueryRoot(ParameterExpression parameterExpression)
+    protected override bool ShouldConvertToParameterQueryRoot(QueryParameterExpression parameterExpression)
         => true;
 
     /// <inheritdoc />

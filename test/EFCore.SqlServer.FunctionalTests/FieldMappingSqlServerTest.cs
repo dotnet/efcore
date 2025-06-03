@@ -5,7 +5,8 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public class FieldMappingSqlServerTest(FieldMappingSqlServerTest.FieldMappingSqlServerFixture fixture) : FieldMappingTestBase<FieldMappingSqlServerTest.FieldMappingSqlServerFixture>(fixture)
+public class FieldMappingSqlServerTest(FieldMappingSqlServerTest.FieldMappingSqlServerFixture fixture)
+    : FieldMappingTestBase<FieldMappingSqlServerTest.FieldMappingSqlServerFixture>(fixture)
 {
     protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
         => facade.UseTransaction(transaction.GetDbTransaction());

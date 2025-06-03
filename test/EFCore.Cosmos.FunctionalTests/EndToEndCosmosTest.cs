@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public class EndToEndCosmosTest : NonSharedModelTestBase
+public class EndToEndCosmosTest(NonSharedFixture fixture) : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
 {
     [ConditionalFact]
     public async Task Can_add_update_delete_end_to_end()
@@ -27,7 +27,6 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
         using (var context = contextFactory.CreateContext())
         {
             ListLoggerFactory.Clear();
-            context.Database.EnsureCreated();
 
             context.Add(customer);
 
@@ -37,7 +36,7 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
             Assert.Equal(LogLevel.Information, logEntry.Level);
             Assert.Contains("CreateItem", logEntry.Message);
 
-            Assert.Equal(3, ListLoggerFactory.Log.Count(l => l.Id == CosmosEventId.SyncNotSupported));
+            Assert.Equal(1, ListLoggerFactory.Log.Count(l => l.Id == CosmosEventId.SyncNotSupported));
         }
 
         using (var context = contextFactory.CreateContext())
@@ -48,7 +47,7 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
             var logEntry = ListLoggerFactory.Log.Single(e => e.Id == CosmosEventId.ExecutedReadNext);
             Assert.Equal(LogLevel.Information, logEntry.Level);
             Assert.Contains("ReadNext", logEntry.Message);
-            Assert.Single(ListLoggerFactory.Log.Where(l => l.Id == CosmosEventId.SyncNotSupported));
+            Assert.Single(ListLoggerFactory.Log, l => l.Id == CosmosEventId.SyncNotSupported);
             ListLoggerFactory.Clear();
 
             Assert.Equal(42, customerFromStore.Id);
@@ -62,7 +61,7 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
             Assert.Equal(LogLevel.Information, logEntry.Level);
             Assert.Contains("ReplaceItem", logEntry.Message);
 
-            Assert.Single(ListLoggerFactory.Log.Where(l => l.Id == CosmosEventId.SyncNotSupported));
+            Assert.Single(ListLoggerFactory.Log, l => l.Id == CosmosEventId.SyncNotSupported);
         }
 
         using (var context = contextFactory.CreateContext())
@@ -73,7 +72,7 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
             var logEntry = ListLoggerFactory.Log.Single(e => e.Id == CosmosEventId.ExecutedReadItem);
             Assert.Equal(LogLevel.Information, logEntry.Level);
             Assert.Contains("ReadItem", logEntry.Message);
-            Assert.Single(ListLoggerFactory.Log.Where(l => l.Id == CosmosEventId.SyncNotSupported));
+            Assert.Single(ListLoggerFactory.Log, l => l.Id == CosmosEventId.SyncNotSupported);
             ListLoggerFactory.Clear();
 
             Assert.Equal(42, customerFromStore.Id);
@@ -87,7 +86,7 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
             Assert.Equal(LogLevel.Information, logEntry.Level);
             Assert.Contains("DeleteItem", logEntry.Message);
 
-            Assert.Single(ListLoggerFactory.Log.Where(l => l.Id == CosmosEventId.SyncNotSupported));
+            Assert.Single(ListLoggerFactory.Log, l => l.Id == CosmosEventId.SyncNotSupported);
         }
 
         using (var context = contextFactory.CreateContext())
@@ -95,7 +94,7 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
             ListLoggerFactory.Clear();
             Assert.Empty(context.Set<Customer>().ToList());
 
-            Assert.Single(ListLoggerFactory.Log.Where(l => l.Id == CosmosEventId.SyncNotSupported));
+            Assert.Single(ListLoggerFactory.Log, l => l.Id == CosmosEventId.SyncNotSupported);
         }
     }
 
@@ -111,8 +110,6 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
 
         using (var context = contextFactory.CreateContext())
         {
-            await context.Database.EnsureCreatedAsync();
-
             await context.AddAsync(customer);
 
             await context.SaveChangesAsync();
@@ -121,7 +118,7 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
             Assert.Equal(LogLevel.Information, logEntry.Level);
             Assert.Contains("CreateItem", logEntry.Message);
 
-            Assert.Empty(ListLoggerFactory.Log.Where(l => l.Id == CosmosEventId.SyncNotSupported));
+            Assert.DoesNotContain(ListLoggerFactory.Log, l => l.Id == CosmosEventId.SyncNotSupported);
         }
 
         using (var context = contextFactory.CreateContext())
@@ -131,7 +128,7 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
             var logEntry = ListLoggerFactory.Log.Single(e => e.Id == CosmosEventId.ExecutedReadNext);
             Assert.Equal(LogLevel.Information, logEntry.Level);
             Assert.Contains("ReadNext", logEntry.Message);
-            Assert.Empty(ListLoggerFactory.Log.Where(l => l.Id == CosmosEventId.SyncNotSupported));
+            Assert.DoesNotContain(ListLoggerFactory.Log, l => l.Id == CosmosEventId.SyncNotSupported);
             ListLoggerFactory.Clear();
 
             Assert.Equal(42, customerFromStore.Id);
@@ -144,7 +141,7 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
             logEntry = ListLoggerFactory.Log.Single(e => e.Id == CosmosEventId.ExecutedReplaceItem);
             Assert.Equal(LogLevel.Information, logEntry.Level);
             Assert.Contains("ReplaceItem", logEntry.Message);
-            Assert.Empty(ListLoggerFactory.Log.Where(l => l.Id == CosmosEventId.SyncNotSupported));
+            Assert.DoesNotContain(ListLoggerFactory.Log, l => l.Id == CosmosEventId.SyncNotSupported);
         }
 
         using (var context = contextFactory.CreateContext())
@@ -154,7 +151,7 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
             var logEntry = ListLoggerFactory.Log.Single(e => e.Id == CosmosEventId.ExecutedReadItem);
             Assert.Equal(LogLevel.Information, logEntry.Level);
             Assert.Contains("ReadItem", logEntry.Message);
-            Assert.Empty(ListLoggerFactory.Log.Where(l => l.Id == CosmosEventId.SyncNotSupported));
+            Assert.DoesNotContain(ListLoggerFactory.Log, l => l.Id == CosmosEventId.SyncNotSupported);
             ListLoggerFactory.Clear();
 
             Assert.Equal(42, customerFromStore.Id);
@@ -167,13 +164,13 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
             logEntry = ListLoggerFactory.Log.Single(e => e.Id == CosmosEventId.ExecutedDeleteItem);
             Assert.Equal(LogLevel.Information, logEntry.Level);
             Assert.Contains("DeleteItem", logEntry.Message);
-            Assert.Empty(ListLoggerFactory.Log.Where(l => l.Id == CosmosEventId.SyncNotSupported));
+            Assert.DoesNotContain(ListLoggerFactory.Log, l => l.Id == CosmosEventId.SyncNotSupported);
         }
 
         using (var context = contextFactory.CreateContext())
         {
             Assert.Empty(await context.Set<Customer>().ToListAsync());
-            Assert.Empty(ListLoggerFactory.Log.Where(l => l.Id == CosmosEventId.SyncNotSupported));
+            Assert.DoesNotContain(ListLoggerFactory.Log, l => l.Id == CosmosEventId.SyncNotSupported);
         }
     }
 
@@ -189,20 +186,18 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
         string storeId = null;
         using (var context = contextFactory.CreateContext())
         {
-            await context.Database.EnsureCreatedAsync();
-
             var entry = await context.AddAsync(customer);
 
             await context.SaveChangesAsync();
 
             await context.AddAsync(customer);
 
-            storeId = entry.Property<string>(StoreKeyConvention.DefaultIdPropertyName).CurrentValue;
+            storeId = entry.Property<string>(CosmosJsonIdConvention.DefaultIdPropertyName).CurrentValue;
 
-            Assert.Empty(ListLoggerFactory.Log.Where(l => l.Id == CosmosEventId.SyncNotSupported));
+            Assert.DoesNotContain(ListLoggerFactory.Log, l => l.Id == CosmosEventId.SyncNotSupported);
         }
 
-        Assert.Equal("Customer|42", storeId);
+        Assert.Equal("42", storeId);
 
         using (var context = contextFactory.CreateContext())
         {
@@ -211,7 +206,7 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
             Assert.Equal(42, customerFromStore.Id);
             Assert.Equal("Theon", customerFromStore.Name);
 
-            Assert.Empty(ListLoggerFactory.Log.Where(l => l.Id == CosmosEventId.SyncNotSupported));
+            Assert.DoesNotContain(ListLoggerFactory.Log, l => l.Id == CosmosEventId.SyncNotSupported);
         }
 
         using (var context = contextFactory.CreateContext())
@@ -219,13 +214,14 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
             customer.Name = "Theon Greyjoy";
 
             var entry = context.Entry(customer);
-            entry.Property<string>(StoreKeyConvention.DefaultIdPropertyName).CurrentValue = storeId;
+
+            entry.Property<string>(CosmosJsonIdConvention.DefaultIdPropertyName).CurrentValue = storeId;
 
             entry.State = EntityState.Modified;
 
             await context.SaveChangesAsync();
 
-            Assert.Empty(ListLoggerFactory.Log.Where(l => l.Id == CosmosEventId.SyncNotSupported));
+            Assert.DoesNotContain(ListLoggerFactory.Log, l => l.Id == CosmosEventId.SyncNotSupported);
         }
 
         using (var context = contextFactory.CreateContext())
@@ -235,120 +231,24 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
             Assert.Equal(42, customerFromStore.Id);
             Assert.Equal("Theon Greyjoy", customerFromStore.Name);
 
-            Assert.Empty(ListLoggerFactory.Log.Where(l => l.Id == CosmosEventId.SyncNotSupported));
+            Assert.DoesNotContain(ListLoggerFactory.Log, l => l.Id == CosmosEventId.SyncNotSupported);
         }
 
         using (var context = contextFactory.CreateContext())
         {
             var entry = context.Entry(customer);
-            entry.Property<string>(StoreKeyConvention.DefaultIdPropertyName).CurrentValue = storeId;
+            entry.Property<string>(CosmosJsonIdConvention.DefaultIdPropertyName).CurrentValue = storeId;
             entry.State = EntityState.Deleted;
 
             await context.SaveChangesAsync();
 
-            Assert.Empty(ListLoggerFactory.Log.Where(l => l.Id == CosmosEventId.SyncNotSupported));
+            Assert.DoesNotContain(ListLoggerFactory.Log, l => l.Id == CosmosEventId.SyncNotSupported);
         }
 
         using (var context = contextFactory.CreateContext())
         {
             Assert.Empty(await context.Set<Customer>().ToListAsync());
-            Assert.Empty(ListLoggerFactory.Log.Where(l => l.Id == CosmosEventId.SyncNotSupported));
-        }
-    }
-
-    [ConditionalFact]
-    public async Task Can_add_update_untracked_properties()
-    {
-        var contextFactory = await InitializeAsync<DbContext>(
-            b => b.Entity<Customer>(),
-            shouldLogCategory: _ => true,
-            onConfiguring: o => o.ConfigureWarnings(w => w.Log(CosmosEventId.SyncNotSupported, CosmosEventId.NoPartitionKeyDefined)));
-
-        var customer = new Customer { Id = 42, Name = "Theon" };
-
-        using (var context = contextFactory.CreateContext())
-        {
-            context.Database.EnsureCreated();
-
-            var entry = context.Add(customer);
-
-            context.SaveChanges();
-
-            var document = entry.Property<JObject>("__jObject").CurrentValue;
-            Assert.NotNull(document);
-            Assert.Equal("Theon", document["Name"]);
-
-            context.Remove(customer);
-
-            context.SaveChanges();
-
-            Assert.Equal(4, ListLoggerFactory.Log.Count(l => l.Id == CosmosEventId.SyncNotSupported));
-        }
-
-        using (var context = contextFactory.CreateContext())
-        {
-            Assert.Empty(context.Set<Customer>().ToList());
-
-            var entry = context.Add(customer);
-
-            entry.Property<JObject>("__jObject").CurrentValue = new JObject { ["key1"] = "value1" };
-
-            context.SaveChanges();
-
-            var document = entry.Property<JObject>("__jObject").CurrentValue;
-            Assert.NotNull(document);
-            Assert.Equal("Theon", document["Name"]);
-            Assert.Equal("value1", document["key1"]);
-
-            document["key2"] = "value2";
-            entry.State = EntityState.Modified;
-            context.SaveChanges();
-
-            Assert.Equal(7, ListLoggerFactory.Log.Count(l => l.Id == CosmosEventId.SyncNotSupported));
-        }
-
-        using (var context = contextFactory.CreateContext())
-        {
-            var customerFromStore = context.Set<Customer>().Single();
-
-            Assert.Equal(42, customerFromStore.Id);
-            Assert.Equal("Theon", customerFromStore.Name);
-
-            var entry = context.Entry(customerFromStore);
-            var document = entry.Property<JObject>("__jObject").CurrentValue;
-            Assert.Equal("value1", document["key1"]);
-            Assert.Equal("value2", document["key2"]);
-
-            document["key1"] = "value1.1";
-            customerFromStore.Name = "Theon Greyjoy";
-
-            context.SaveChanges();
-
-            Assert.Equal(9, ListLoggerFactory.Log.Count(l => l.Id == CosmosEventId.SyncNotSupported));
-        }
-
-        using (var context = contextFactory.CreateContext())
-        {
-            var customerFromStore = context.Set<Customer>().Single();
-
-            Assert.Equal("Theon Greyjoy", customerFromStore.Name);
-
-            var entry = context.Entry(customerFromStore);
-            var document = entry.Property<JObject>("__jObject").CurrentValue;
-            Assert.Equal("value1.1", document["key1"]);
-            Assert.Equal("value2", document["key2"]);
-
-            context.Remove(customerFromStore);
-
-            context.SaveChanges();
-
-            Assert.Equal(11, ListLoggerFactory.Log.Count(l => l.Id == CosmosEventId.SyncNotSupported));
-        }
-
-        using (var context = contextFactory.CreateContext())
-        {
-            Assert.Empty(context.Set<Customer>().ToList());
-            Assert.Equal(12, ListLoggerFactory.Log.Count(l => l.Id == CosmosEventId.SyncNotSupported));
+            Assert.DoesNotContain(ListLoggerFactory.Log, l => l.Id == CosmosEventId.SyncNotSupported);
         }
     }
 
@@ -364,8 +264,6 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
 
         using (var context = contextFactory.CreateContext())
         {
-            await context.Database.EnsureCreatedAsync();
-
             var entry = await context.AddAsync(customer);
 
             await context.SaveChangesAsync();
@@ -378,7 +276,7 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
 
             await context.SaveChangesAsync();
 
-            Assert.Empty(ListLoggerFactory.Log.Where(l => l.Id == CosmosEventId.SyncNotSupported));
+            Assert.DoesNotContain(ListLoggerFactory.Log, l => l.Id == CosmosEventId.SyncNotSupported);
         }
 
         using (var context = contextFactory.CreateContext())
@@ -400,7 +298,7 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
             entry.State = EntityState.Modified;
             await context.SaveChangesAsync();
 
-            Assert.Empty(ListLoggerFactory.Log.Where(l => l.Id == CosmosEventId.SyncNotSupported));
+            Assert.DoesNotContain(ListLoggerFactory.Log, l => l.Id == CosmosEventId.SyncNotSupported);
         }
 
         using (var context = contextFactory.CreateContext())
@@ -420,7 +318,7 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
 
             await context.SaveChangesAsync();
 
-            Assert.Empty(ListLoggerFactory.Log.Where(l => l.Id == CosmosEventId.SyncNotSupported));
+            Assert.DoesNotContain(ListLoggerFactory.Log, l => l.Id == CosmosEventId.SyncNotSupported);
         }
 
         using (var context = contextFactory.CreateContext())
@@ -438,13 +336,13 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
 
             await context.SaveChangesAsync();
 
-            Assert.Empty(ListLoggerFactory.Log.Where(l => l.Id == CosmosEventId.SyncNotSupported));
+            Assert.DoesNotContain(ListLoggerFactory.Log, l => l.Id == CosmosEventId.SyncNotSupported);
         }
 
         using (var context = contextFactory.CreateContext())
         {
             Assert.Empty(await context.Set<Customer>().ToListAsync());
-            Assert.Empty(ListLoggerFactory.Log.Where(l => l.Id == CosmosEventId.SyncNotSupported));
+            Assert.DoesNotContain(ListLoggerFactory.Log, l => l.Id == CosmosEventId.SyncNotSupported);
         }
     }
 
@@ -471,13 +369,11 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
 
         using (var context = contextFactory.CreateContext())
         {
-            await context.Database.EnsureCreatedAsync();
-
             await context.AddAsync(customer);
 
             await context.SaveChangesAsync();
 
-            Assert.Empty(ListLoggerFactory.Log.Where(l => l.Id == CosmosEventId.SyncNotSupported));
+            Assert.DoesNotContain(ListLoggerFactory.Log, l => l.Id == CosmosEventId.SyncNotSupported);
         }
 
         using (var context = contextFactory.CreateContext())
@@ -491,7 +387,7 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
 
             await context.SaveChangesAsync();
 
-            Assert.Empty(ListLoggerFactory.Log.Where(l => l.Id == CosmosEventId.SyncNotSupported));
+            Assert.DoesNotContain(ListLoggerFactory.Log, l => l.Id == CosmosEventId.SyncNotSupported);
         }
 
         using (var context = contextFactory.CreateContext())
@@ -505,13 +401,13 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
 
             await context.SaveChangesAsync();
 
-            Assert.Empty(ListLoggerFactory.Log.Where(l => l.Id == CosmosEventId.SyncNotSupported));
+            Assert.DoesNotContain(ListLoggerFactory.Log, l => l.Id == CosmosEventId.SyncNotSupported);
         }
 
         using (var context = contextFactory.CreateContext())
         {
             Assert.Empty(await context.Set<CustomerGuid>().ToListAsync());
-            Assert.Empty(ListLoggerFactory.Log.Where(l => l.Id == CosmosEventId.SyncNotSupported));
+            Assert.DoesNotContain(ListLoggerFactory.Log, l => l.Id == CosmosEventId.SyncNotSupported);
         }
     }
 
@@ -539,15 +435,13 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
 
         using (var context = contextFactory.CreateContext())
         {
-            await context.Database.EnsureCreatedAsync();
-
             var entry = await context.AddAsync(customer);
 
-            Assert.Equal("CustomerDateTime|0001-01-01T00:00:00.0000000|Theon^2F^5C^23^5C^5C^3F", entry.CurrentValues["__id"]);
+            Assert.Equal("0001-01-01T00:00:00.0000000|Theon^2F^5C^23^5C^5C^3F", entry.CurrentValues["__id"]);
 
             await context.SaveChangesAsync();
 
-            Assert.Empty(ListLoggerFactory.Log.Where(l => l.Id == CosmosEventId.SyncNotSupported));
+            Assert.DoesNotContain(ListLoggerFactory.Log, l => l.Id == CosmosEventId.SyncNotSupported);
         }
 
         using (var context = contextFactory.CreateContext())
@@ -561,7 +455,7 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
 
             await context.SaveChangesAsync();
 
-            Assert.Empty(ListLoggerFactory.Log.Where(l => l.Id == CosmosEventId.SyncNotSupported));
+            Assert.DoesNotContain(ListLoggerFactory.Log, l => l.Id == CosmosEventId.SyncNotSupported);
         }
 
         using (var context = contextFactory.CreateContext())
@@ -575,13 +469,13 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
 
             await context.SaveChangesAsync();
 
-            Assert.Empty(ListLoggerFactory.Log.Where(l => l.Id == CosmosEventId.SyncNotSupported));
+            Assert.DoesNotContain(ListLoggerFactory.Log, l => l.Id == CosmosEventId.SyncNotSupported);
         }
 
         using (var context = contextFactory.CreateContext())
         {
             Assert.Empty(await context.Set<CustomerDateTime>().ToListAsync());
-            Assert.Empty(ListLoggerFactory.Log.Where(l => l.Id == CosmosEventId.SyncNotSupported));
+            Assert.DoesNotContain(ListLoggerFactory.Log, l => l.Id == CosmosEventId.SyncNotSupported);
         }
     }
 
@@ -635,13 +529,11 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
 
         using (var context = contextFactory.CreateContext())
         {
-            await context.Database.EnsureCreatedAsync();
-
             await context.AddAsync(customer);
 
             await context.SaveChangesAsync();
 
-            Assert.Empty(ListLoggerFactory.Log.Where(l => l.Id == CosmosEventId.SyncNotSupported));
+            Assert.DoesNotContain(ListLoggerFactory.Log, l => l.Id == CosmosEventId.SyncNotSupported);
         }
 
         using (var context = contextFactory.CreateContext())
@@ -660,7 +552,7 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
 
             await context.SaveChangesAsync();
 
-            Assert.Empty(ListLoggerFactory.Log.Where(l => l.Id == CosmosEventId.SyncNotSupported));
+            Assert.DoesNotContain(ListLoggerFactory.Log, l => l.Id == CosmosEventId.SyncNotSupported);
         }
 
         using (var context = contextFactory.CreateContext())
@@ -674,13 +566,13 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
 
             await context.SaveChangesAsync();
 
-            Assert.Empty(ListLoggerFactory.Log.Where(l => l.Id == CosmosEventId.SyncNotSupported));
+            Assert.DoesNotContain(ListLoggerFactory.Log, l => l.Id == CosmosEventId.SyncNotSupported);
         }
 
         using (var context = contextFactory.CreateContext())
         {
             Assert.Empty(await context.Set<Customer>().ToListAsync());
-            Assert.Empty(ListLoggerFactory.Log.Where(l => l.Id == CosmosEventId.SyncNotSupported));
+            Assert.DoesNotContain(ListLoggerFactory.Log, l => l.Id == CosmosEventId.SyncNotSupported);
         }
     }
 
@@ -699,12 +591,12 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
 
         var entry = await context.AddAsync(item);
 
-        var id = entry.Property("__id").CurrentValue;
+        var id = entry.Property("Id").CurrentValue;
 
         Assert.NotNull(item.Id);
         Assert.NotNull(id);
 
-        Assert.Equal($"GItem|{item.Id}", id);
+        Assert.Equal(item.Id, id);
         Assert.Equal(EntityState.Added, entry.State);
     }
 
@@ -722,19 +614,19 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
         var item = new Item { Id = 1337 };
         var entry = context.Attach(item);
 
-        Assert.Equal($"Item|{item.Id}", entry.Property("__id").CurrentValue);
+        Assert.Equal($"{item.Id}", entry.Property("__id").CurrentValue);
         Assert.Equal(EntityState.Unchanged, entry.State);
 
         entry.State = EntityState.Detached;
         entry = context.Update(item = new Item { Id = 71 });
 
-        Assert.Equal($"Item|{item.Id}", entry.Property("__id").CurrentValue);
+        Assert.Equal($"{item.Id}", entry.Property("__id").CurrentValue);
         Assert.Equal(EntityState.Modified, entry.State);
 
         entry.State = EntityState.Detached;
         entry = context.Remove(item = new Item { Id = 33 });
 
-        Assert.Equal($"Item|{item.Id}", entry.Property("__id").CurrentValue);
+        Assert.Equal($"{item.Id}", entry.Property("__id").CurrentValue);
         Assert.Equal(EntityState.Deleted, entry.State);
     }
 
@@ -794,7 +686,7 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
                 "1"
             });
 
-        // See #25343
+        // See #34026
         await Can_add_update_delete_with_collection(
             [
                 Discriminator.Base,
@@ -808,7 +700,12 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
             },
             new List<Discriminator> { Discriminator.Base },
             modelBuilder => modelBuilder.Entity<CustomerWithCollection<List<Discriminator>>>(
-                c => c.PrimitiveCollection(s => s.Collection)));
+                c =>
+                    c.Property(s => s.Collection)
+                        .HasConversion(
+                            m => m.Select(v => (int)v).ToList(), p => p.Select(v => (Discriminator)v).ToList(),
+                            new ListOfValueTypesComparer<List<Discriminator>, Discriminator>(
+                                ValueComparer.CreateDefault(typeof(Discriminator), false)))));
 
         await Can_add_update_delete_with_collection(
             [1f, 2],
@@ -874,15 +771,13 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
             },
             new List<byte?[]> { new byte?[] { 3, null }, null });
 
-        // TODO: Dictionary mapping Issue #29825
-        // await Can_add_update_delete_with_collection<IReadOnlyList<Dictionary<string, string>>>(
-        //     new Dictionary<string, string>[] { new() { { "1", null } } },
-        //     c =>
-        //     {
-        //         var dictionary = c.Collection[0]["3"] = "2";
-        //     },
-        //     new List<Dictionary<string, string>> { new() { { "1", null }, { "3", "2" } } },
-        //     onModelBuilder: b => b.Entity<CustomerWithCollection<IReadOnlyList<Dictionary<string, string>>>>().PrimitiveCollection(e => e.Collection));
+        await Can_add_update_delete_with_collection<IReadOnlyList<Dictionary<string, string>>>(
+            new Dictionary<string, string>[] { new() { { "1", null } } },
+            c =>
+            {
+                var dictionary = c.Collection[0]["3"] = "2";
+            },
+            new List<Dictionary<string, string>> { new() { { "1", null }, { "3", "2" } } });
 
         await Can_add_update_delete_with_collection(
             [[1f], [2]],
@@ -900,24 +795,48 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
             },
             new[] { new decimal?[] { 1, 3 } });
 
-        // TODO: Dictionary mapping Issue #29825
-        // await Can_add_update_delete_with_collection(
-        //     new Dictionary<string, List<int>> { { "1", [1] } },
-        //     c =>
-        //     {
-        //         c.Collection["2"] = [3];
-        //     },
-        //     new Dictionary<string, List<int>> { { "1", [1] }, { "2", [3] } });
+        await Can_add_update_delete_with_collection(
+            new Dictionary<string, List<int>> { { "1", [1] } },
+            c =>
+            {
+                c.Collection["2"] = [3];
+            },
+            new Dictionary<string, List<int>> { { "1", [1] }, { "2", [3] } });
 
-        // TODO: Dictionary mapping Issue #29825
-        // await Can_add_update_delete_with_collection<IDictionary<string, long?[]>>(
-        //     new SortedDictionary<string, long?[]> { { "2", [2] }, { "1", [1] } },
-        //     c =>
-        //     {
-        //         c.Collection.Clear();
-        //         c.Collection["2"] = null;
-        //     },
-        //     new SortedDictionary<string, long?[]> { { "2", null } });
+        // Issue #34105
+        await Can_add_update_delete_with_collection(
+            new Dictionary<string, string[]> { { "1", ["1"] } },
+            c =>
+            {
+                c.Collection["2"] = ["3"];
+            },
+            new Dictionary<string, string[]> { { "1", ["1"] }, { "2", ["3"] } });
+
+        await Can_add_update_delete_with_collection<IDictionary<string, long?[]>>(
+            new SortedDictionary<string, long?[]> { { "2", [2] }, { "1", [1] } },
+            c =>
+            {
+                c.Collection.Clear();
+                c.Collection["2"] = null;
+            },
+            new SortedDictionary<string, long?[]> { { "2", null } });
+
+        await Can_add_update_delete_with_collection<IReadOnlyDictionary<string, Dictionary<string, short?>>>(
+            new Dictionary<string, Dictionary<string, short?>>
+            {
+                { "2", new Dictionary<string, short?> { { "value", 2 } } }, { "1", new Dictionary<string, short?> { { "value", 1 } } }
+            },
+            c =>
+            {
+                c.Collection = new Dictionary<string, Dictionary<string, short?>>
+                {
+                    { "1", new Dictionary<string, short?> { { "value", 1 } } }, { "2", null }
+                };
+            },
+            new Dictionary<string, Dictionary<string, short?>>
+            {
+                { "1", new Dictionary<string, short?> { { "value", 1 } } }, { "2", null }
+            });
 
         await Can_add_update_delete_with_collection<IReadOnlyDictionary<string, Dictionary<string, short?>>>(
             ImmutableDictionary<string, Dictionary<string, short?>>.Empty
@@ -955,8 +874,6 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
 
         using (var context = contextFactory.CreateContext())
         {
-            await context.Database.EnsureCreatedAsync();
-
             await context.AddAsync(customer);
 
             await context.SaveChangesAsync();
@@ -1032,11 +949,9 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
 
         await using (var context = contextFactory.CreateContext())
         {
-            await context.Database.EnsureCreatedAsync();
-
             Assert.Null(
-                context.Model.FindEntityType(typeof(CustomerWithResourceId))
-                    .FindProperty(StoreKeyConvention.DefaultIdPropertyName));
+                context.Model.FindEntityType(typeof(CustomerWithResourceId))!
+                    .FindProperty(CosmosJsonIdConvention.DefaultIdPropertyName));
 
             await context.AddAsync(customer);
             await context.AddAsync(
@@ -1071,71 +986,7 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
         {
             var customerFromStore = await context.Set<CustomerWithResourceId>()
                 .WithPartitionKey(pk1, 3.15m)
-                .FirstAsync();
-
-            Assert.Equal("42", customerFromStore.id);
-            Assert.Equal("Theon Greyjoy", customerFromStore.Name);
-            Assert.Equal(pk1, customerFromStore.PartitionKey1);
-            Assert.Equal(3.15m, customerFromStore.PartitionKey2);
-        }
-    }
-
-    [ConditionalFact]
-    public async Task Can_read_with_find_with_resource_id()
-    {
-        var contextFactory = await InitializeAsync<PartitionKeyContextWithResourceId>(
-            shouldLogCategory: _ => true,
-            onConfiguring: o => o.ConfigureWarnings(w => w.Log(CosmosEventId.SyncNotSupported)));
-
-        const int pk1 = 1;
-        const int pk2 = 2;
-
-        var customer = new CustomerWithResourceId
-        {
-            id = "42",
-            Name = "Theon",
-            PartitionKey1 = pk1,
-            PartitionKey2 = 3.15m
-        };
-
-        using (var context = contextFactory.CreateContext())
-        {
-            context.Database.EnsureCreated();
-
-            context.Add(customer);
-            context.Add(
-                new CustomerWithResourceId
-                {
-                    id = "42",
-                    Name = "Theon Twin",
-                    PartitionKey1 = pk2,
-                    PartitionKey2 = 3.15m
-                });
-
-            context.SaveChanges();
-        }
-
-        using (var context = contextFactory.CreateContext())
-        {
-            var customerFromStore = context.Set<CustomerWithResourceId>()
-                .Find(pk1, 3.15m, "42");
-
-            Assert.Equal("42", customerFromStore.id);
-            Assert.Equal("Theon", customerFromStore.Name);
-            Assert.Equal(pk1, customerFromStore.PartitionKey1);
-            Assert.Equal(3.15m, customerFromStore.PartitionKey2);
-            AssertSql(context, """ReadItem([1.0,3.15], 42)""");
-
-            customerFromStore.Name = "Theon Greyjoy";
-
-            context.SaveChanges();
-        }
-
-        using (var context = contextFactory.CreateContext())
-        {
-            var customerFromStore = context.Set<CustomerWithResourceId>()
-                .WithPartitionKey(pk1, 3.15m)
-                .First();
+                .SingleAsync();
 
             Assert.Equal("42", customerFromStore.id);
             Assert.Equal("Theon Greyjoy", customerFromStore.Name);
@@ -1183,8 +1034,6 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
 
         await using (var context = contextFactory.CreateContext())
         {
-            await context.Database.EnsureCreatedAsync();
-
             await context.AddAsync(customer);
             await context.AddAsync(
                 new Customer
@@ -1219,76 +1068,7 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
         {
             var customerFromStore = await context.Set<Customer>()
                 .WithPartitionKey(pk1, "One", true)
-                .FirstAsync();
-
-            Assert.Equal(42, customerFromStore.Id);
-            Assert.Equal("Theon Greyjoy", customerFromStore.Name);
-            Assert.Equal(pk1, customerFromStore.PartitionKey1);
-            Assert.Equal("One", customerFromStore.PartitionKey2);
-            Assert.True(customerFromStore.PartitionKey3);
-        }
-    }
-
-    [ConditionalFact]
-    public async Task Can_read_with_find_with_partition_key_and_value_generator()
-    {
-        var contextFactory = await InitializeAsync<PartitionKeyContextCustomValueGenerator>(
-            shouldLogCategory: _ => true,
-            onConfiguring: o => o.ConfigureWarnings(w => w.Log(CosmosEventId.SyncNotSupported)),
-            addServices: s => s.AddSingleton<IJsonIdDefinitionFactory, CustomJsonIdDefinitionFactory>());
-
-        const int pk1 = 1;
-        const int pk2 = 2;
-
-        var customer = new Customer
-        {
-            Id = 42,
-            Name = "Theon",
-            PartitionKey1 = pk1,
-            PartitionKey2 = "One",
-            PartitionKey3 = true
-        };
-
-        using (var context = contextFactory.CreateContext())
-        {
-            context.Database.EnsureCreated();
-
-            context.Add(customer);
-            context.Add(
-                new Customer
-                {
-                    Id = 42,
-                    Name = "Theon Twin",
-                    PartitionKey1 = pk2,
-                    PartitionKey2 = "Two",
-                    PartitionKey3 = false
-                });
-
-            context.SaveChanges();
-        }
-
-        using (var context = contextFactory.CreateContext())
-        {
-            var customerFromStore = context.Set<Customer>()
-                .Find(pk1, 42, "One", true);
-
-            Assert.Equal(42, customerFromStore.Id);
-            Assert.Equal("Theon", customerFromStore.Name);
-            Assert.Equal(pk1, customerFromStore.PartitionKey1);
-            Assert.Equal("One", customerFromStore.PartitionKey2);
-            Assert.True(customerFromStore.PartitionKey3);
-            AssertSql(context, """ReadItem([1.0,"One",true], Customer-42)""");
-
-            customerFromStore.Name = "Theon Greyjoy";
-
-            context.SaveChanges();
-        }
-
-        using (var context = contextFactory.CreateContext())
-        {
-            var customerFromStore = context.Set<Customer>()
-                .WithPartitionKey(pk1, "One", true)
-                .First();
+                .SingleAsync();
 
             Assert.Equal(42, customerFromStore.Id);
             Assert.Equal("Theon Greyjoy", customerFromStore.Name);
@@ -1318,10 +1098,8 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
 
         using (var context = contextFactory.CreateContext())
         {
-            context.Database.EnsureCreated();
-
             var customerEntry = context.Entry(customer);
-            customerEntry.Property(StoreKeyConvention.DefaultIdPropertyName).CurrentValue = "42";
+            customerEntry.Property(CosmosJsonIdConvention.DefaultIdPropertyName).CurrentValue = "42";
             customerEntry.State = EntityState.Added;
 
             context.SaveChanges();
@@ -1340,12 +1118,7 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
             AssertSql(
                 context,
                 """
-@__p_3='42'
-
-SELECT c
-FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND (c["Id"] = @__p_3))
-OFFSET 0 LIMIT 1
+ReadItem([1.0,"One",true], 42)
 """);
 
             customerFromStore.Name = "Theon Greyjoy";
@@ -1357,7 +1130,7 @@ OFFSET 0 LIMIT 1
         {
             var customerFromStore = context.Set<Customer>()
                 .WithPartitionKey(pk1, "One", true)
-                .First();
+                .Single();
 
             Assert.Equal(42, customerFromStore.Id);
             Assert.Equal("Theon Greyjoy", customerFromStore.Name);
@@ -1398,7 +1171,7 @@ OFFSET 0 LIMIT 1
 
             Assert.Equal(42, customerFromStore.Id);
             Assert.Equal("Theon", customerFromStore.Name);
-            AssertSql(context, """ReadItem(None, Customer|42)""");
+            AssertSql(context, """ReadItem(None, 42)""");
         }
     }
 
@@ -1413,8 +1186,6 @@ OFFSET 0 LIMIT 1
 
         await using (var context = contextFactory.CreateContext())
         {
-            await context.Database.EnsureCreatedAsync();
-
             await context.AddAsync(customer);
 
             await context.SaveChangesAsync();
@@ -1426,7 +1197,7 @@ OFFSET 0 LIMIT 1
 
             Assert.Equal(42, customerFromStore.Id);
             Assert.Equal("Theon", customerFromStore.Name);
-            AssertSql(context, @"ReadItem(None, CustomerNoPartitionKey|42)");
+            AssertSql(context, @"ReadItem(None, 42)");
         }
     }
 
@@ -1441,8 +1212,6 @@ OFFSET 0 LIMIT 1
 
         await using (var context = contextFactory.CreateContext())
         {
-            await context.Database.EnsureCreatedAsync();
-
             await context.AddAsync(customer);
 
             await context.SaveChangesAsync();
@@ -1469,8 +1238,6 @@ OFFSET 0 LIMIT 1
 
         await using (var context = contextFactory.CreateContext())
         {
-            await context.Database.EnsureCreatedAsync();
-
             await context.AddAsync(customer);
 
             await context.SaveChangesAsync();
@@ -1485,11 +1252,11 @@ OFFSET 0 LIMIT 1
             AssertSql(
                 context,
                 """
-@__p_0='42'
+@p='42'
 
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "CustomerWithResourceId") AND (c["id"] = @__p_0))
+WHERE (c["id"] = @p)
 OFFSET 0 LIMIT 1
 """);
         }
@@ -1501,8 +1268,21 @@ OFFSET 0 LIMIT 1
             => modelBuilder.Entity<Customer>(
                 cb =>
                 {
-                    cb.HasPartitionKey(c => new { c.PartitionKey1, c.PartitionKey2, c.PartitionKey3 });
-                    cb.HasKey(c => new { c.Id, c.PartitionKey1, c.PartitionKey2, c.PartitionKey3 });
+                    cb.HasPartitionKey(
+                        c => new
+                        {
+                            c.PartitionKey1,
+                            c.PartitionKey2,
+                            c.PartitionKey3
+                        });
+                    cb.HasKey(
+                        c => new
+                        {
+                            c.Id,
+                            c.PartitionKey1,
+                            c.PartitionKey2,
+                            c.PartitionKey3
+                        });
                 });
     }
 
@@ -1515,15 +1295,31 @@ OFFSET 0 LIMIT 1
     private class PartitionKeyContextCustomValueGenerator(DbContextOptions dbContextOptions) : DbContext(dbContextOptions)
     {
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<Customer>(
+        {
+            modelBuilder.HasDiscriminatorInJsonIds();
+
+            modelBuilder.Entity<Customer>(
                 cb =>
                 {
-                    cb.Property(StoreKeyConvention.DefaultIdPropertyName)
-                        .HasValueGeneratorFactory(typeof(CustomPartitionKeyIdValueGeneratorFactory));
+                    cb.HasShadowId();
 
-                    cb.HasPartitionKey(c => new { c.PartitionKey1, c.PartitionKey2, c.PartitionKey3 });
-                    cb.HasKey(c => new { c.PartitionKey1, c.Id, c.PartitionKey2, c.PartitionKey3 });
+                    cb.HasPartitionKey(
+                        c => new
+                        {
+                            c.PartitionKey1,
+                            c.PartitionKey2,
+                            c.PartitionKey3
+                        });
+                    cb.HasKey(
+                        c => new
+                        {
+                            c.PartitionKey1,
+                            c.Id,
+                            c.PartitionKey2,
+                            c.PartitionKey3
+                        });
                 });
+        }
     }
 
     private class PartitionKeyContextNoValueGenerator(DbContextOptions dbContextOptions) : DbContext(dbContextOptions)
@@ -1532,10 +1328,21 @@ OFFSET 0 LIMIT 1
             => modelBuilder.Entity<Customer>(
                 cb =>
                 {
-                    cb.Property(StoreKeyConvention.DefaultIdPropertyName).HasValueGenerator((Type)null);
-
-                    cb.HasPartitionKey(c => new { c.PartitionKey1, c.PartitionKey2, c.PartitionKey3 });
-                    cb.HasKey(c => new { c.PartitionKey1, c.PartitionKey2, c.PartitionKey3, c.Id });
+                    cb.HasPartitionKey(
+                        c => new
+                        {
+                            c.PartitionKey1,
+                            c.PartitionKey2,
+                            c.PartitionKey3
+                        });
+                    cb.HasKey(
+                        c => new
+                        {
+                            c.PartitionKey1,
+                            c.PartitionKey2,
+                            c.PartitionKey3,
+                            c.Id
+                        });
                 });
     }
 
@@ -1562,7 +1369,7 @@ OFFSET 0 LIMIT 1
             => modelBuilder.Entity<CustomerWithResourceId>(
                 cb =>
                 {
-                    cb.HasPartitionKey(c => new { c.PartitionKey1, c.PartitionKey2 } );
+                    cb.HasPartitionKey(c => new { c.PartitionKey1, c.PartitionKey2 });
                     cb.Property(c => c.id).HasConversion<string>();
                     cb.HasKey(c => new { c.id });
                 });
@@ -1574,8 +1381,14 @@ OFFSET 0 LIMIT 1
             => modelBuilder.Entity<CustomerWithResourceId>(
                 cb =>
                 {
-                    cb.HasPartitionKey(c => new { c.PartitionKey1, c.PartitionKey2 } );
-                    cb.HasKey(c => new { c.PartitionKey1, c.PartitionKey2, c.id });
+                    cb.HasPartitionKey(c => new { c.PartitionKey1, c.PartitionKey2 });
+                    cb.HasKey(
+                        c => new
+                        {
+                            c.PartitionKey1,
+                            c.PartitionKey2,
+                            c.id
+                        });
                 });
     }
 
@@ -1590,8 +1403,6 @@ OFFSET 0 LIMIT 1
 
         using (var context = contextFactory.CreateContext())
         {
-            await context.Database.EnsureCreatedAsync();
-
             await context.AddAsync(customer);
 
             await context.SaveChangesAsync();
@@ -1641,8 +1452,6 @@ OFFSET 0 LIMIT 1
 
         using (var context = contextFactory.CreateContext())
         {
-            context.Database.EnsureCreated();
-
             var entry = context.Add(customer);
             entry.Property<string>("EMail").CurrentValue = "theon.g@winterfell.com";
 
@@ -1702,8 +1511,6 @@ OFFSET 0 LIMIT 1
 
         using (var context = contextFactory.CreateContext())
         {
-            await context.Database.EnsureCreatedAsync();
-
             await context.AddAsync(customer);
 
             await context.SaveChangesAsync();
@@ -1792,8 +1599,6 @@ OFFSET 0 LIMIT 1
         await Assert.ThrowsAnyAsync<Exception>(
             async () =>
             {
-                await context.Database.EnsureCreatedAsync();
-
                 await context.AddAsync(new ConflictingIncompatibleId { id = 42 });
 
                 await context.SaveChangesAsync();
@@ -1824,8 +1629,6 @@ OFFSET 0 LIMIT 1
 
         using (var context = contextFactory.CreateContext())
         {
-            await context.Database.EnsureCreatedAsync();
-
             await context.AddAsync(entity);
 
             await context.SaveChangesAsync();
@@ -1881,7 +1684,7 @@ OFFSET 0 LIMIT 1
             => modelBuilder.Entity<ConflictingId>();
     }
 
-    [ConditionalTheory(Skip = "Issue #33600 - flaky test")]
+    [ConditionalTheory]
     [InlineData(true)]
     [InlineData(false)]
     public async Task Can_have_non_string_property_named_Discriminator(bool useDiscriminator)
@@ -1904,7 +1707,6 @@ OFFSET 0 LIMIT 1
             onConfiguring: o => o.ConfigureWarnings(w => w.Log(CosmosEventId.SyncNotSupported, CosmosEventId.NoPartitionKeyDefined)));
 
         using var context = contextFactory.CreateContext();
-        context.Database.EnsureCreated();
 
         var entry = await context.AddAsync(new NonStringDiscriminator { Id = 1 });
         await context.SaveChangesAsync();
@@ -1916,117 +1718,57 @@ OFFSET 0 LIMIT 1
         var baseEntity = await context.Set<NonStringDiscriminator>().OrderBy(e => e.Id).FirstOrDefaultAsync();
         Assert.NotNull(baseEntity);
 
-        if (useDiscriminator)
-        {
-            AssertSql(
-                context,
-                """
-SELECT c
-FROM root c
-WHERE (c["Discriminator"] = 0)
-ORDER BY c["Id"]
-OFFSET 0 LIMIT 1
-""");
-        }
-        else
-        {
-            AssertSql(
-                context,
-                """
-SELECT c
+        AssertSql(
+            context,
+            """
+SELECT VALUE c
 FROM root c
 ORDER BY c["Id"]
 OFFSET 0 LIMIT 1
 """);
-        }
 
         ListLoggerFactory.Clear();
         Assert.Equal(
             baseEntity, await context.Set<NonStringDiscriminator>()
                 .Where(e => e.Discriminator == Discriminator.Base).OrderBy(e => e.Id).FirstOrDefaultAsync());
 
-        if (useDiscriminator)
-        {
             AssertSql(
                 context,
                 """
-SELECT c
-FROM root c
-WHERE ((c["Discriminator"] = 0) AND (c["Discriminator"] = 0))
-ORDER BY c["Id"]
-OFFSET 0 LIMIT 1
-""");
-        }
-        else
-        {
-            AssertSql(
-                context,
-                """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (c["Discriminator"] = 0)
 ORDER BY c["Id"]
 OFFSET 0 LIMIT 1
 """);
-        }
 
         ListLoggerFactory.Clear();
         Assert.Equal(
             baseEntity, await context.Set<NonStringDiscriminator>()
                 .Where(e => e.GetType() == typeof(NonStringDiscriminator)).OrderBy(e => e.Id).FirstOrDefaultAsync());
 
-        if (useDiscriminator)
-        {
             AssertSql(
                 context,
                 """
-SELECT c
-FROM root c
-WHERE (c["Discriminator"] = 0)
-ORDER BY c["Id"]
-OFFSET 0 LIMIT 1
-""");
-        }
-        else
-        {
-            AssertSql(
-                context,
-                """
-SELECT c
+SELECT VALUE c
 FROM root c
 ORDER BY c["Id"]
 OFFSET 0 LIMIT 1
 """);
-        }
 
         ListLoggerFactory.Clear();
         Assert.Equal(
             baseEntity, await context.Set<NonStringDiscriminator>()
                 .Where(e => e is NonStringDiscriminator).OrderBy(e => e.Id).FirstOrDefaultAsync());
 
-        if (useDiscriminator)
-        {
-            AssertSql(
-                context,
-                """
-SELECT c
-FROM root c
-WHERE (c["Discriminator"] = 0)
-ORDER BY c["Id"]
-OFFSET 0 LIMIT 1
-""");
-        }
-        else
-        {
-            AssertSql(
-                context,
-                """
-SELECT c
+        AssertSql(
+            context,
+            """
+SELECT VALUE c
 FROM root c
 ORDER BY c["Id"]
 OFFSET 0 LIMIT 1
 """);
-        }
     }
 
     private class NonStringDiscriminator

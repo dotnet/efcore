@@ -10,7 +10,6 @@ using System.Text;
 // ReSharper disable once CheckNamespace
 namespace System;
 
-[DebuggerStepThrough]
 internal static class SharedTypeExtensions
 {
     private static readonly Dictionary<Type, string> BuiltInTypeNames = new()
@@ -504,6 +503,10 @@ internal static class SharedTypeExtensions
                 builder.Append(fullName ? type.FullName : type.Name);
             }
         }
+        else if (compilable)
+        {
+            builder.Append(type.Name);
+        }
     }
 
     private static void ProcessArrayType(StringBuilder builder, Type type, bool fullName, bool compilable)
@@ -541,13 +544,13 @@ internal static class SharedTypeExtensions
             return;
         }
 
-        var offset = type.IsNested ? type.DeclaringType!.GetGenericArguments().Length : 0;
+        var offset = type.DeclaringType != null ? type.DeclaringType.GetGenericArguments().Length : 0;
 
         if (compilable)
         {
-            if (type.IsNested)
+            if (type.DeclaringType != null)
             {
-                ProcessType(builder, type.DeclaringType!, fullName, compilable);
+                ProcessGenericType(builder, type.DeclaringType, genericArguments, offset, fullName, compilable);
                 builder.Append('.');
             }
             else if (fullName)
@@ -560,9 +563,9 @@ internal static class SharedTypeExtensions
         {
             if (fullName)
             {
-                if (type.IsNested)
+                if (type.DeclaringType != null)
                 {
-                    ProcessGenericType(builder, type.DeclaringType!, genericArguments, offset, fullName, compilable);
+                    ProcessGenericType(builder, type.DeclaringType, genericArguments, offset, fullName, compilable);
                     builder.Append('+');
                 }
                 else
@@ -628,7 +631,10 @@ internal static class SharedTypeExtensions
         }
         else
         {
-            yield return type.Namespace!;
+            if (type.Namespace is not null)
+            {
+                yield return type.Namespace;
+            }
         }
 
         if (type.IsGenericType)

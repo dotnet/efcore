@@ -162,9 +162,6 @@
   <data name="CompiledModelCustomCacheKeyFactory" xml:space="preserve">
     <value>The context is configured to use a custom model cache key factory '{factoryType}', this usually indicates that the produced model can change between context instances. To preserve this behavior manually modify the generated compiled model source code.</value>
   </data>
-  <data name="CompiledModelDefiningQuery" xml:space="preserve">
-    <value>The entity type '{entityType}' has a defining query configured. Compiled model can't be generated, because defining queries are not supported.</value>
-  </data>
   <data name="CompiledModelGenerated" xml:space="preserve">
     <value>Successfully generated a compiled model, it will be discovered automatically, but you can also call '{optionsCall}'. Run this command again when the model is modified.</value>
   </data>
@@ -312,6 +309,9 @@ Change your target project to the migrations project by using the Package Manage
   <data name="NoContext" xml:space="preserve">
     <value>No DbContext was found in assembly '{assembly}'. Ensure that you're using the correct assembly and that the type is neither abstract nor generic.</value>
   </data>
+  <data name="NoContextsToOptimize" xml:space="preserve">
+    <value>No type deriving from DbContext was found. Add [assembly: DbContext(typeof(*))] attribute for every context type used in this project.</value>
+  </data>
   <data name="NoContextTemplate" xml:space="preserve">
     <value>You must provide a DbContext.t4 file in order to scaffold using custom templates.</value>
   </data>
@@ -362,6 +362,9 @@ Change your target project to the migrations project by using the Package Manage
   </data>
   <data name="NotExistDatabase" xml:space="preserve">
     <value>Database '{name}' did not exist, no action was taken.</value>
+  </data>
+  <data name="OptimizeNoFilesGenerated" xml:space="preserve">
+    <value>No files were generated during the DbContext optimization. Ensure that the target project has code that uses DbContext and that the supplied options are correct.</value>
   </data>
   <data name="PendingModelChanges" xml:space="preserve">
     <value>Changes have been made to the model since the last migration. Add a new migration.</value>
@@ -417,6 +420,9 @@ Change your target project to the migrations project by using the Package Manage
   </data>
   <data name="UnableToScaffoldIndexMissingProperty" xml:space="preserve">
     <value>Unable to scaffold the index '{indexName}'. The following columns could not be scaffolded: {columnNames}.</value>
+  </data>
+  <data name="UnableToTranslateType" xml:space="preserve">
+    <value>Unable to translate type '{type}'</value>
   </data>
   <data name="UncompilableProject" xml:space="preserve">
     <value>The project '{project}' does not support compilation.</value>

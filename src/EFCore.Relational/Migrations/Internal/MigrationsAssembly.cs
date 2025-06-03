@@ -31,12 +31,13 @@ public class MigrationsAssembly : IMigrationsAssembly
     {
         _contextType = currentContext.Context.GetType();
 
-        var assemblyName = RelationalOptionsExtension.Extract(options).MigrationsAssembly;
-        var assemblyObject = RelationalOptionsExtension.Extract(options).MigrationsAssemblyObject;
+        var optionsExtension = RelationalOptionsExtension.Extract(options);
+        var assemblyName = optionsExtension.MigrationsAssembly;
+        var assemblyObject = optionsExtension.MigrationsAssemblyObject;
 
         Assembly = assemblyName == null
-            ?   assemblyObject ?? _contextType.Assembly
-            :   Assembly.Load(new AssemblyName(assemblyName));
+            ? assemblyObject ?? _contextType.Assembly
+            : Assembly.Load(new AssemblyName(assemblyName));
 
         _idGenerator = idGenerator;
         _logger = logger;

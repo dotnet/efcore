@@ -14,11 +14,13 @@ public class CosmosEventIdTest : EventIdTestBase
     public void Every_eventId_has_a_logger_method_and_logs_when_level_enabled()
     {
         var model = new Model();
-        var entityType = model.AddEntityType(typeof(object), owned: false, ConfigurationSource.Convention);
+        var entityType = model.AddEntityType(typeof(object), owned: false, ConfigurationSource.Convention)!;
+        var property = entityType.AddProperty("A", typeof(int), ConfigurationSource.Convention, ConfigurationSource.Convention);
 
         var fakeFactories = new Dictionary<Type, Func<object>>
         {
             { typeof(IEntityType), () => entityType },
+            { typeof(IProperty), () => property },
             {
                 typeof(CosmosSqlQuery), () => new CosmosSqlQuery(
                     "Some SQL...",

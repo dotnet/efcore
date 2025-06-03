@@ -21,10 +21,10 @@ namespace Microsoft.EntityFrameworkCore.Query;
 public class StructuralTypeShaperExpression : Expression, IPrintableExpression
 {
     private static readonly MethodInfo CreateUnableToDiscriminateExceptionMethod
-        = typeof(StructuralTypeShaperExpression).GetTypeInfo().GetDeclaredMethod(nameof(CreateUnableToDiscriminateException))!;
+        = typeof(StructuralTypeShaperExpression).GetMethod(nameof(CreateUnableToDiscriminateException))!;
 
     private static readonly MethodInfo GetDiscriminatorValueMethod
-        = typeof(IReadOnlyEntityType).GetTypeInfo().GetDeclaredMethod(nameof(IReadOnlyEntityType.GetDiscriminatorValue))!;
+        = typeof(IReadOnlyTypeBase).GetMethod(nameof(IReadOnlyTypeBase.GetDiscriminatorValue))!;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -34,8 +34,8 @@ public class StructuralTypeShaperExpression : Expression, IPrintableExpression
     /// </summary>
     [UsedImplicitly]
     [EntityFrameworkInternal]
-    public static Exception CreateUnableToDiscriminateException(ITypeBase type, object discriminator)
-        => new InvalidOperationException(CoreStrings.UnableToDiscriminate(type.DisplayName(), discriminator.ToString()));
+    public static Exception CreateUnableToDiscriminateException(ITypeBase type, object? discriminator)
+        => new InvalidOperationException(CoreStrings.UnableToDiscriminate(type.DisplayName(), discriminator?.ToString()));
 
     /// <summary>
     ///     Creates a new instance of the <see cref="StructuralTypeShaperExpression" /> class.
@@ -161,14 +161,14 @@ public class StructuralTypeShaperExpression : Expression, IPrintableExpression
                         discriminatorComparer.ExtractEqualsBody(
                             discriminatorValueVariable,
                             LiftableConstantExpressionHelpers.IsLiteral(discriminatorValueObject)
-                            ? Constant(
-                                discriminatorValueObject,
-                                discriminatorProperty.ClrType)
-                            : Convert(
-                                Call(
-                                    Constant(concreteEntityTypes[i], typeof(IEntityType)),
-                                    GetDiscriminatorValueMethod),
-                                discriminatorProperty.ClrType)),
+                                ? Constant(
+                                    discriminatorValueObject,
+                                    discriminatorProperty.ClrType)
+                                : Convert(
+                                    Call(
+                                        Constant(concreteEntityTypes[i], typeof(IEntityType)),
+                                        GetDiscriminatorValueMethod),
+                                    discriminatorProperty.ClrType)),
                         Constant(concreteEntityTypes[i], typeof(IEntityType)),
                         conditions);
                 }
@@ -176,7 +176,7 @@ public class StructuralTypeShaperExpression : Expression, IPrintableExpression
                 expressions.Add(conditions);
             }
 
-            body = Block(new[] { discriminatorValueVariable }, expressions);
+            body = Block([discriminatorValueVariable], expressions);
         }
         else
         {

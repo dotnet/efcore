@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Collections;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
@@ -21,9 +20,7 @@ public class RuntimeModelConvention : IModelFinalizedConvention
     /// <param name="dependencies">Parameter object containing dependencies for this convention.</param>
     public RuntimeModelConvention(
         ProviderConventionSetBuilderDependencies dependencies)
-    {
-        Dependencies = dependencies;
-    }
+        => Dependencies = dependencies;
 
     /// <summary>
     ///     Dependencies for this service.
@@ -66,7 +63,8 @@ public class RuntimeModelConvention : IModelFinalizedConvention
                 var elementType = property.GetElementType();
                 if (elementType != null)
                 {
-                    var runtimeElementType = Create(runtimeProperty, elementType, property.IsPrimitiveCollection);
+                    Check.DebugAssert(property.IsPrimitiveCollection, $"{property.Name} has an element type, but it's not a primitive collection.");
+                    var runtimeElementType = Create(runtimeProperty, elementType);
                     CreateAnnotations(
                         elementType, runtimeElementType, static (convention, annotations, source, target, runtime) =>
                             convention.ProcessElementTypeAnnotations(annotations, source, target, runtime));
@@ -247,10 +245,10 @@ public class RuntimeModelConvention : IModelFinalizedConvention
             entityType.ClrType,
             entityType.BaseType == null ? null : model.FindEntityType(entityType.BaseType.Name)!,
             entityType.HasSharedClrType,
-            entityType.GetDiscriminatorPropertyName(),
             entityType.GetChangeTrackingStrategy(),
             entityType.FindIndexerPropertyInfo(),
             entityType.IsPropertyBag,
+            entityType.GetDiscriminatorPropertyName(),
             entityType.GetDiscriminatorValue(),
             derivedTypesCount: entityType.GetDirectlyDerivedTypes().Count(),
             propertyCount: entityType.GetDeclaredProperties().Count(),
@@ -295,9 +293,6 @@ public class RuntimeModelConvention : IModelFinalizedConvention
             {
                 if (CoreAnnotationNames.AllNames.Contains(key)
                     && key != CoreAnnotationNames.QueryFilter
-#pragma warning disable CS0612 // Type or member is obsolete
-                    && key != CoreAnnotationNames.DefiningQuery
-#pragma warning restore CS0612 // Type or member is obsolete
                     && key != CoreAnnotationNames.DiscriminatorMappingComplete)
                 {
                     annotations.Remove(key);
@@ -308,14 +303,6 @@ public class RuntimeModelConvention : IModelFinalizedConvention
             {
                 annotations[CoreAnnotationNames.QueryFilter] =
                     new QueryRootRewritingExpressionVisitor(runtimeEntityType.Model).Rewrite((Expression)queryFilter!);
-            }
-
-#pragma warning disable CS0612 // Type or member is obsolete
-            if (annotations.TryGetValue(CoreAnnotationNames.DefiningQuery, out var definingQuery))
-            {
-                annotations[CoreAnnotationNames.DefiningQuery] =
-#pragma warning restore CS0612 // Type or member is obsolete
-                    new QueryRootRewritingExpressionVisitor(runtimeEntityType.Model).Rewrite((Expression)definingQuery!);
             }
         }
     }
@@ -413,7 +400,7 @@ public class RuntimeModelConvention : IModelFinalizedConvention
                 typeMapping: property.GetTypeMapping(),
                 sentinel: property.Sentinel);
 
-    private static RuntimeElementType Create(RuntimeProperty runtimeProperty, IElementType element, bool primitiveCollection)
+    private static RuntimeElementType Create(RuntimeProperty runtimeProperty, IElementType element)
         => runtimeProperty.SetElementType(
             element.ClrType,
             element.IsNullable,
@@ -425,8 +412,7 @@ public class RuntimeModelConvention : IModelFinalizedConvention
             element.GetValueConverter(),
             element.GetValueComparer(),
             element.GetJsonValueReaderWriter(),
-            element.GetTypeMapping(),
-            primitiveCollection);
+            element.GetTypeMapping());
 
     /// <summary>
     ///     Updates the property annotations that will be set on the read-only object.
@@ -513,23 +499,25 @@ public class RuntimeModelConvention : IModelFinalizedConvention
 
     private RuntimeComplexProperty Create(IComplexProperty complexProperty, RuntimeTypeBase runtimeStructuralType)
     {
+        var complexType = complexProperty.ComplexType;
         var runtimeComplexProperty = runtimeStructuralType.AddComplexProperty(
             complexProperty.Name,
             complexProperty.ClrType,
-            complexProperty.ComplexType.Name,
-            complexProperty.ComplexType.ClrType,
+            complexType.Name,
+            complexType.ClrType,
             complexProperty.PropertyInfo,
             complexProperty.FieldInfo,
             complexProperty.GetPropertyAccessMode(),
             complexProperty.IsNullable,
             complexProperty.IsCollection,
-            complexProperty.ComplexType.GetChangeTrackingStrategy(),
-            complexProperty.ComplexType.FindIndexerPropertyInfo(),
-            complexProperty.ComplexType.IsPropertyBag,
-            propertyCount: complexProperty.ComplexType.GetDeclaredProperties().Count(),
-            complexPropertyCount: complexProperty.ComplexType.GetDeclaredComplexProperties().Count());
+            complexType.GetChangeTrackingStrategy(),
+            complexType.FindIndexerPropertyInfo(),
+            complexType.IsPropertyBag,
+            complexType.GetDiscriminatorPropertyName(),
+            complexType.GetDiscriminatorValue(),
+            propertyCount: complexType.GetDeclaredProperties().Count(),
+            complexPropertyCount: complexType.GetDeclaredComplexProperties().Count());
 
-        var complexType = complexProperty.ComplexType;
         var runtimeComplexType = runtimeComplexProperty.ComplexType;
 
         foreach (var property in complexType.GetProperties())
@@ -542,7 +530,8 @@ public class RuntimeModelConvention : IModelFinalizedConvention
             var elementType = property.GetElementType();
             if (elementType != null)
             {
-                var runtimeElementType = Create(runtimeProperty, elementType, property.IsPrimitiveCollection);
+                Check.DebugAssert(property.IsPrimitiveCollection, $"{property.Name} has an element type, but it's not a primitive collection.");
+                var runtimeElementType = Create(runtimeProperty, elementType);
                 CreateAnnotations(
                     elementType, runtimeElementType, static (convention, annotations, source, target, runtime) =>
                         convention.ProcessElementTypeAnnotations(annotations, source, target, runtime));
@@ -863,9 +852,7 @@ public class RuntimeModelConvention : IModelFinalizedConvention
         /// </summary>
         /// <param name="model">The model to look for entity types.</param>
         public QueryRootRewritingExpressionVisitor(IModel model)
-        {
-            _model = model;
-        }
+            => _model = model;
 
         /// <summary>
         ///     Rewrites <see cref="EntityQueryRootExpression" /> encountered in an expression to use a different entity type.

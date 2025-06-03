@@ -36,9 +36,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
     /// </summary>
     /// <param name="dependencies">The dependencies.</param>
     public CSharpSnapshotGenerator(CSharpSnapshotGeneratorDependencies dependencies)
-    {
-        Dependencies = dependencies;
-    }
+        => Dependencies = dependencies;
 
     /// <summary>
     ///     Dependencies for this service.
@@ -393,21 +391,6 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
                 .Append(".IsCyclic()");
         }
 
-        if (sequence.IsCached != Sequence.DefaultIsCached)
-        {
-            stringBuilder
-                .AppendLine()
-                .Append(".UseNoCache()");
-        }
-        else if (sequence.CacheSize != Sequence.DefaultCacheSize)
-        {
-            stringBuilder
-                .AppendLine()
-                .Append(".UseCache(")
-                .Append(Code.Literal(sequence.CacheSize))
-                .Append(")");
-        }
-
         GenerateSequenceAnnotations(sequenceBuilderName, sequence, stringBuilder);
     }
 
@@ -460,7 +443,8 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         var clrType = (FindValueConverter(property)?.ProviderClrType ?? property.ClrType)
             .MakeNullable(property.IsNullable);
 
-        var propertyBuilderName = $"{entityTypeBuilderName}.Property<{Code.Reference(clrType)}>({Code.Literal(property.Name)})";
+        var propertyCall = property.IsPrimitiveCollection ? "PrimitiveCollection" : "Property";
+        var propertyBuilderName = $"{entityTypeBuilderName}.{propertyCall}<{Code.Reference(clrType)}>({Code.Literal(property.Name)})";
 
         stringBuilder
             .AppendLine()
@@ -644,9 +628,60 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         IComplexProperty property,
         IndentedStringBuilder stringBuilder)
     {
+        var discriminatorProperty = property.ComplexType.FindDiscriminatorProperty();
+        if (discriminatorProperty != null)
+        {
+            stringBuilder
+                .AppendLine()
+                .Append(propertyBuilderName)
+                .Append('.')
+                .Append("HasDiscriminator");
+
+            if (discriminatorProperty.DeclaringType == property.ComplexType
+                && discriminatorProperty.Name != "Discriminator")
+            {
+                var propertyClrType = FindValueConverter(discriminatorProperty)?.ProviderClrType
+                        .MakeNullable(discriminatorProperty.IsNullable)
+                    ?? discriminatorProperty.ClrType;
+                stringBuilder
+                    .Append('<')
+                    .Append(Code.Reference(propertyClrType))
+                    .Append(">(")
+                    .Append(Code.Literal(discriminatorProperty.Name))
+                    .Append(')');
+            }
+            else
+            {
+                stringBuilder
+                    .Append("()");
+            }
+
+            var discriminatorValue = property.ComplexType.GetDiscriminatorValue();
+            if (discriminatorValue != null)
+            {
+                if (discriminatorProperty != null)
+                {
+                    var valueConverter = FindValueConverter(discriminatorProperty);
+                    if (valueConverter != null)
+                    {
+                        discriminatorValue = valueConverter.ConvertToProvider(discriminatorValue);
+                    }
+                }
+
+                stringBuilder
+                    .Append('.')
+                    .Append("HasValue")
+                    .Append('(')
+                    .Append(Code.UnknownLiteral(discriminatorValue))
+                    .Append(')');
+            }
+
+            stringBuilder.AppendLine(";");
+        }
+
         var propertyAnnotations = Dependencies.AnnotationCodeGenerator
-            .FilterIgnoredAnnotations(property.GetAnnotations())
-            .ToDictionary(a => a.Name, a => a);
+        .FilterIgnoredAnnotations(property.GetAnnotations())
+        .ToDictionary(a => a.Name, a => a);
 
         var typeAnnotations = Dependencies.AnnotationCodeGenerator
             .FilterIgnoredAnnotations(property.ComplexType.GetAnnotations())

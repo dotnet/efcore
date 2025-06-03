@@ -7,7 +7,8 @@ using Newtonsoft.Json.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class GearsOfWarODataQueryTests(GearsOfWarODataQueryTestFixture fixture) : ODataQueryTestBase(fixture), IClassFixture<GearsOfWarODataQueryTestFixture>
+public class GearsOfWarODataQueryTests(GearsOfWarODataQueryTestFixture fixture)
+    : ODataQueryTestBase(fixture), IClassFixture<GearsOfWarODataQueryTestFixture>
 {
     [ConditionalFact]
     public async Task Basic_query_gears()

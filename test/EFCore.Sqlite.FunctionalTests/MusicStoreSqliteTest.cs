@@ -5,7 +5,8 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public class MusicStoreSqliteTest(MusicStoreSqliteTest.MusicStoreSqliteFixture fixture) : MusicStoreTestBase<MusicStoreSqliteTest.MusicStoreSqliteFixture>(fixture)
+public class MusicStoreSqliteTest(MusicStoreSqliteTest.MusicStoreSqliteFixture fixture)
+    : MusicStoreTestBase<MusicStoreSqliteTest.MusicStoreSqliteFixture>(fixture)
 {
     public class MusicStoreSqliteFixture : MusicStoreFixtureBase
     {

@@ -5,7 +5,7 @@ using System.Transactions;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
-public abstract class TestStore(string name, bool shared) : IDisposable
+public abstract class TestStore(string name, bool shared) : IAsyncDisposable
 {
     private static readonly TestStoreIndex GlobalTestStoreIndex = new();
     public IServiceProvider? ServiceProvider { get; protected set; }
@@ -20,10 +20,7 @@ public abstract class TestStore(string name, bool shared) : IDisposable
         Func<DbContext, Task>? clean = null)
     {
         ServiceProvider = serviceProvider;
-        if (createContext == null)
-        {
-            createContext = CreateDefaultContext;
-        }
+        createContext ??= CreateDefaultContext;
 
         if (Shared)
         {
@@ -56,8 +53,8 @@ public abstract class TestStore(string name, bool shared) : IDisposable
             serviceProvider,
             () => createContext(this),
             // ReSharper disable twice RedundantCast
-            seed == null ? (Func<DbContext, Task>?)null : c => seed((TContext)c),
-            clean == null ? (Func<DbContext, Task>?)null : c => clean((TContext)c));
+            seed == null ? null : c => seed((TContext)c),
+            clean == null ? null : c => clean((TContext)c));
 
     protected virtual async Task InitializeAsync(Func<DbContext> createContext, Func<DbContext, Task>? seed, Func<DbContext, Task>? clean)
     {
@@ -86,15 +83,8 @@ public abstract class TestStore(string name, bool shared) : IDisposable
     protected virtual TestStoreIndex GetTestStoreIndex(IServiceProvider? serviceProvider)
         => GlobalTestStoreIndex;
 
-    public virtual void Dispose()
-    {
-    }
-
-    public virtual Task DisposeAsync()
-    {
-        Dispose();
-        return Task.CompletedTask;
-    }
+    public virtual ValueTask DisposeAsync()
+        => default;
 
     private static readonly SemaphoreSlim _transactionSyncRoot = new(1);
 
@@ -119,9 +109,7 @@ public abstract class TestStore(string name, bool shared) : IDisposable
     private class DistributedTransactionListener : IDisposable
     {
         public DistributedTransactionListener()
-        {
-            TransactionManager.DistributedTransactionStarted += DistributedTransactionStarted;
-        }
+            => TransactionManager.DistributedTransactionStarted += DistributedTransactionStarted;
 
         private void DistributedTransactionStarted(object? sender, TransactionEventArgs e)
             => Assert.Fail("Distributed transaction started");

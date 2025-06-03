@@ -9,14 +9,9 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public abstract class NorthwindNavigationsQueryTestBase<TFixture> : QueryTestBase<TFixture>
+public abstract class NorthwindNavigationsQueryTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)
     where TFixture : NorthwindQueryFixtureBase<NoopModelCustomizer>, new()
 {
-    protected NorthwindNavigationsQueryTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-
     protected NorthwindContext CreateContext()
         => Fixture.CreateContext();
 
@@ -692,7 +687,7 @@ public abstract class NorthwindNavigationsQueryTestBase<TFixture> : QueryTestBas
                         "City")),
             ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("A"))
                 .Select(
-                    c => ss.Set<Order>().FirstOrDefault(o => o.CustomerID == "ALFKI").Customer != null
+                    c => Queryable.FirstOrDefault(ss.Set<Order>(), o => o.CustomerID == "ALFKI").Customer != null
                         ? ss.Set<Order>().FirstOrDefault(o => o.CustomerID == "ALFKI").Customer.City
                         : null)
         );

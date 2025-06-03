@@ -7,14 +7,9 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public abstract class CustomConvertersTestBase<TFixture> : BuiltInDataTypesTestBase<TFixture>
+public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : BuiltInDataTypesTestBase<TFixture>(fixture)
     where TFixture : BuiltInDataTypesTestBase<TFixture>.BuiltInDataTypesFixtureBase, new()
 {
-    protected CustomConvertersTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-
     [ConditionalFact]
     public virtual async Task Can_query_and_update_with_nullable_converter_on_unique_index()
     {
@@ -184,7 +179,6 @@ public abstract class CustomConvertersTestBase<TFixture> : BuiltInDataTypesTestB
 
     protected class User(Email email)
     {
-
         // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Local
         public Guid Id { get; private set; } = Guid.NewGuid();
 
@@ -197,9 +191,7 @@ public abstract class CustomConvertersTestBase<TFixture> : BuiltInDataTypesTestB
         private readonly string _value;
 
         private Email(string value)
-        {
-            _value = value;
-        }
+            => _value = value;
 
         public override bool Equals(object obj)
             => _value == ((Email)obj)?._value;
@@ -349,9 +341,7 @@ public abstract class CustomConvertersTestBase<TFixture> : BuiltInDataTypesTestB
     public struct OrderId
     {
         private OrderId(string stringValue)
-        {
-            StringValue = stringValue;
-        }
+            => StringValue = stringValue;
 
         public string StringValue { get; }
 
@@ -445,23 +435,25 @@ public abstract class CustomConvertersTestBase<TFixture> : BuiltInDataTypesTestB
     {
         using var context = CreateContext();
         var blogId = 1;
-        var query = await (from b in context.Set<Blog>()
-                           join p in context.Set<Post>()
-                               on new
-                               {
-                                   BlogId = (int?)b.BlogId,
-                                   b.IsVisible,
-                                   AnotherId = b.BlogId
-                               }
-                               equals new
-                               {
-                                   p.BlogId,
-                                   IsVisible = true,
-                                   AnotherId = blogId
-                               } into g
-                           from p in g.DefaultIfEmpty()
-                           where b.IsVisible
-                           select b.Url).ToListAsync();
+        var query = await context.Set<Blog>()
+            .LeftJoin(
+                context.Set<Post>(),
+                b => new
+                {
+                    BlogId = (int?)b.BlogId,
+                    b.IsVisible,
+                    AnotherId = b.BlogId
+                },
+                p => new
+                {
+                    p.BlogId,
+                    IsVisible = true,
+                    AnotherId = blogId
+                },
+                (b, p) => b)
+            .Where(b => b.IsVisible)
+            .Select(b => b.Url)
+            .ToListAsync();
 
         var result = Assert.Single(query);
         Assert.Equal("http://blog.com", result);
@@ -766,14 +758,9 @@ public abstract class CustomConvertersTestBase<TFixture> : BuiltInDataTypesTestB
 
     public class Dashboard
     {
-        public Dashboard()
-        {
-            Layouts = [];
-        }
-
         public int Id { get; set; }
         public string Name { get; set; }
-        public List<Layout> Layouts { get; set; }
+        public List<Layout> Layouts { get; set; } = [];
     }
 
     public class Layout
@@ -1199,8 +1186,8 @@ public abstract class CustomConvertersTestBase<TFixture> : BuiltInDataTypesTestB
                     b.Property(e => e.ByteArray5)
                         .HasConversion(
                             new ValueConverter<byte[], byte[]>(
-                                v => v.Reverse().Concat(new byte[] { 4, 20 }).ToArray(),
-                                v => v.Reverse().Skip(2).ToArray()),
+                                v => Enumerable.Reverse(v).Concat(new byte[] { 4, 20 }).ToArray(),
+                                v => Enumerable.Reverse(v).Skip(2).ToArray()),
                             bytesComparer)
                         .HasMaxLength(7);
 
@@ -1447,24 +1434,12 @@ public abstract class CustomConvertersTestBase<TFixture> : BuiltInDataTypesTestB
             }
         }
 
-        private class UrlSchemeRemover : ValueConverter<string, string>
-        {
-            public UrlSchemeRemover()
-                : base(x => x.Remove(0, 7), x => "http://" + x)
-            {
-            }
-        }
+        private class UrlSchemeRemover() : ValueConverter<string, string>(x => x.Remove(0, 7), x => "http://" + x);
 
-        private class RolesToStringConveter : ValueConverter<ICollection<Roles>, string>
-        {
-            public RolesToStringConveter()
-                : base(
-                    v => string.Join(";", v.Select(f => f.ToString())),
-                    v => v.Length > 0
-                        ? v.Split(new[] { ';' }).Select(f => (Roles)Enum.Parse(typeof(Roles), f)).ToList()
-                        : new List<Roles>())
-            {
-            }
-        }
+        private class RolesToStringConveter() : ValueConverter<ICollection<Roles>, string>(
+            v => string.Join(";", v.Select(f => f.ToString())),
+            v => v.Length > 0
+                ? v.Split(new[] { ';' }).Select(f => (Roles)Enum.Parse(typeof(Roles), f)).ToList()
+                : new List<Roles>());
     }
 }

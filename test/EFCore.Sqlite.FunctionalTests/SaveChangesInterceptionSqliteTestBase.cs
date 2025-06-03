@@ -5,13 +5,9 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public abstract class SaveChangesInterceptionSqliteTestBase : SaveChangesInterceptionTestBase
+public abstract class SaveChangesInterceptionSqliteTestBase(SaveChangesInterceptionSqliteTestBase.InterceptionSqliteFixtureBase fixture)
+    : SaveChangesInterceptionTestBase(fixture)
 {
-    protected SaveChangesInterceptionSqliteTestBase(InterceptionSqliteFixtureBase fixture)
-        : base(fixture)
-    {
-    }
-
     public abstract class InterceptionSqliteFixtureBase : InterceptionFixtureBase
     {
         protected override string StoreName
@@ -36,7 +32,8 @@ public abstract class SaveChangesInterceptionSqliteTestBase : SaveChangesInterce
         }
     }
 
-    public class SaveChangesInterceptionWithDiagnosticsSqliteTest(SaveChangesInterceptionWithDiagnosticsSqliteTest.InterceptionSqliteFixture fixture)
+    public class SaveChangesInterceptionWithDiagnosticsSqliteTest(
+        SaveChangesInterceptionWithDiagnosticsSqliteTest.InterceptionSqliteFixture fixture)
         : SaveChangesInterceptionSqliteTestBase(fixture),
             IClassFixture<SaveChangesInterceptionWithDiagnosticsSqliteTest.InterceptionSqliteFixture>
     {

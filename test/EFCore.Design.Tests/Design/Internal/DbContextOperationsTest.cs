@@ -10,7 +10,11 @@ public class DbContextOperationsTest
 {
     [ConditionalFact]
     public void CreateContext_gets_service()
-        => CreateOperations(typeof(TestProgram)).CreateContext(typeof(TestContext).FullName);
+        => CreateOperations(typeof(TestProgram), includeContext: false).CreateContext(typeof(TestContext).FullName.ToLower());
+
+    [ConditionalFact]
+    public void CreateContext_gets_service_without_name()
+        => CreateOperations(typeof(TestProgram), includeContext: false).CreateContext(null);
 
     [ConditionalFact]
     public void CreateContext_gets_service_without_AddDbContext()
@@ -18,7 +22,122 @@ public class DbContextOperationsTest
 
     [ConditionalFact]
     public void CreateContext_gets_service_when_context_factory_used()
-        => CreateOperations(typeof(TestProgramWithContextFactory)).CreateContext(typeof(TestContextFromFactory).FullName);
+        => CreateOperations(typeof(TestProgramWithContextFactory), includeContext: false).CreateContext(typeof(TestContextFromFactory).FullName);
+
+    [ConditionalFact]
+    public void CreateContext_gets_service_when_context_factory_used_without_name()
+        => CreateOperations(typeof(TestProgramWithContextFactory), includeContext: false).CreateContext(null);
+
+    [ConditionalFact]
+    public void CreateContext_throws_if_context_type_not_found()
+        => Assert.Equal(
+            DesignStrings.NoContextWithName(typeof(TestContextFromFactory).FullName),
+            Assert.Throws<OperationException>(
+                () => CreateOperations(typeof(TestProgramRelationalBad)).CreateContext(typeof(TestContextFromFactory).FullName)).Message);
+
+    [ConditionalFact]
+    public void CreateContext_throws_if_ambiguous_context_type_by_case()
+    {
+        var assembly = MockAssembly.Create(typeof(TestContext), typeof(Testcontext));
+        var reporter = new TestOperationReporter();
+        var operations = new TestDbContextOperations(
+            reporter,
+            assembly,
+            assembly,
+            project: "",
+            projectDir: "",
+            rootNamespace: null,
+            language: "C#",
+            nullable: false,
+            /* args: */ [],
+            new TestAppServiceProviderFactory(assembly, reporter));
+
+        Assert.Equal(
+            DesignStrings.MultipleContextsWithName(typeof(TestContext).FullName.ToLower()),
+            Assert.Throws<OperationException>(() => operations.CreateContext(typeof(TestContext).FullName.ToLower())).Message);
+
+        Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Critical);
+        Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Error);
+        Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Warning);
+    }
+
+    [ConditionalFact]
+    public void CreateContext_throws_if_ambiguous_context_type_by_namespace()
+    {
+        var assembly = MockAssembly.Create(typeof(TestContext), typeof(DatabaseOperationsTest.TestContext));
+        var reporter = new TestOperationReporter();
+        var operations = new TestDbContextOperations(
+            reporter,
+            assembly,
+            assembly,
+            project: "",
+            projectDir: "",
+            rootNamespace: null,
+            language: "C#",
+            nullable: false,
+            /* args: */ [],
+            new TestAppServiceProviderFactory(assembly, reporter));
+
+        Assert.Equal(
+            DesignStrings.MultipleContextsWithQualifiedName(nameof(TestContext)),
+            Assert.Throws<OperationException>(() => operations.CreateContext(nameof(TestContext))).Message);
+
+        Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Critical);
+        Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Error);
+        Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Warning);
+    }
+
+    [ConditionalFact]
+    public void CreateContext_throws_if_ambiguous_context_type()
+    {
+        var assembly = MockAssembly.Create(typeof(TestContext), typeof(Testcontext));
+        var reporter = new TestOperationReporter();
+        var operations = new TestDbContextOperations(
+            reporter,
+            assembly,
+            assembly,
+            project: "",
+            projectDir: "",
+            rootNamespace: null,
+            language: "C#",
+            nullable: false,
+            /* args: */ [],
+            new TestAppServiceProviderFactory(assembly, reporter));
+
+        Assert.Equal(
+            DesignStrings.MultipleContexts,
+            Assert.Throws<OperationException>(() => operations.CreateContext(null)).Message);
+
+        Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Critical);
+        Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Error);
+        Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Warning);
+    }
+
+    [ConditionalFact]
+    public void CreateContext_throws_if_no_context_type()
+    {
+        var assembly = MockAssembly.Create();
+        var reporter = new TestOperationReporter();
+        var operations = new TestDbContextOperations(
+            reporter,
+            assembly,
+            assembly,
+            project: "",
+            projectDir: "",
+            rootNamespace: null,
+            language: "C#",
+            nullable: false,
+            /* args: */ [],
+            new TestAppServiceProviderFactory(assembly, reporter));
+
+        Assert.Equal(
+            DesignStrings.NoContext(nameof(MockAssembly)),
+            Assert.Throws<OperationException>(() => operations.CreateContext(null)).Message);
+
+        Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Critical);
+        Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Error);
+        Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Warning);
+    }
 
     [ConditionalFact]
     public void Can_pass_null_args()
@@ -26,8 +145,9 @@ public class DbContextOperationsTest
         // Even though newer versions of the tools will pass an empty array
         // older versions of the tools can pass null args.
         var assembly = MockAssembly.Create(typeof(TestContext));
-        _ = new TestDbContextOperations(
-            new TestOperationReporter(),
+        var reporter = new TestOperationReporter();
+        var operations = new TestDbContextOperations(
+            reporter,
             assembly,
             assembly,
             project: "",
@@ -36,15 +156,20 @@ public class DbContextOperationsTest
             language: "C#",
             nullable: false,
             args: null,
-            new TestAppServiceProviderFactory(assembly));
+            new TestAppServiceProviderFactory(assembly, reporter));
+
+        Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Critical);
+        Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Error);
+        Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Warning);
     }
 
     [ConditionalFact]
     public void CreateContext_uses_exact_factory_method()
     {
         var assembly = MockAssembly.Create(typeof(BaseContext), typeof(DerivedContext), typeof(HierarchyContextFactory));
+        var reporter = new TestOperationReporter();
         var operations = new TestDbContextOperations(
-            new TestOperationReporter(),
+            reporter,
             assembly,
             assembly,
             project: "",
@@ -53,21 +178,26 @@ public class DbContextOperationsTest
             language: "C#",
             nullable: false,
             args: [],
-            new TestAppServiceProviderFactory(assembly));
+            new TestAppServiceProviderFactory(assembly, reporter, throwOnCreate: true));
 
         var baseContext = Assert.IsType<BaseContext>(operations.CreateContext(nameof(BaseContext)));
         Assert.Equal(nameof(BaseContext), baseContext.FactoryUsed);
 
         var derivedContext = Assert.IsType<DerivedContext>(operations.CreateContext(nameof(DerivedContext)));
         Assert.Equal(nameof(DerivedContext), derivedContext.FactoryUsed);
+
+        Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Critical);
+        Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Error);
+        Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Warning);
     }
 
     [ConditionalFact]
     public void CreateAllContexts_creates_all_contexts()
     {
         var assembly = MockAssembly.Create(typeof(BaseContext), typeof(DerivedContext), typeof(HierarchyContextFactory));
+        var reporter = new TestOperationReporter();
         var operations = new TestDbContextOperations(
-            new TestOperationReporter(),
+            reporter,
             assembly,
             assembly,
             project: "",
@@ -76,12 +206,72 @@ public class DbContextOperationsTest
             language: "C#",
             nullable: false,
             args: [],
-            new TestAppServiceProviderFactory(assembly));
+            new TestAppServiceProviderFactory(assembly, reporter, throwOnCreate: true));
 
         var contexts = operations.CreateAllContexts().ToList();
-        Assert.Collection(contexts,
+        Assert.Collection(
+            contexts,
             c => Assert.Equal(nameof(BaseContext), Assert.IsType<BaseContext>(c).FactoryUsed),
             c => Assert.Equal(nameof(DerivedContext), Assert.IsType<DerivedContext>(c).FactoryUsed));
+
+        Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Critical);
+        Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Error);
+        Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Warning);
+    }
+
+    [ConditionalFact]
+    public void Optimize_throws_when_no_contexts()
+    {
+        var assembly = MockAssembly.Create();
+        var reporter = new TestOperationReporter();
+        var operations = new TestDbContextOperations(
+            reporter,
+            assembly,
+            assembly,
+            project: "",
+            projectDir: "",
+            rootNamespace: null,
+            language: "C#",
+            nullable: false,
+            args: [],
+            new TestAppServiceProviderFactory(assembly, reporter, throwOnCreate: true));
+
+        Assert.Equal(
+            DesignStrings.NoContextsToOptimize,
+            Assert.Throws<OperationException>(() =>
+                operations.Optimize(
+                    null, null, contextTypeName: "*", null, scaffoldModel: true, precompileQueries: false, nativeAot: false)).Message);
+
+        Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Critical);
+        Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Error);
+        Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Warning);
+    }
+
+    [ConditionalFact]
+    public void Optimize_shows_warning_when_nothing_was_generated()
+    {
+        var assembly = MockAssembly.Create(typeof(DerivedContext));
+        var reporter = new TestOperationReporter();
+        var operations = new TestDbContextOperations(
+            reporter,
+            assembly,
+            assembly,
+            project: "",
+            projectDir: "",
+            rootNamespace: null,
+            language: "C#",
+            nullable: false,
+            args: [],
+            new TestAppServiceProviderFactory(assembly, reporter, throwOnCreate: true));
+
+        operations.Optimize(null, null, contextTypeName: "*", null, scaffoldModel: true, precompileQueries: false, nativeAot: false);
+
+        Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Critical);
+        Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Error);
+
+        Assert.Equal(
+            DesignStrings.OptimizeNoFilesGenerated,
+            Assert.Single(reporter.Messages, m => m.Level == LogLevel.Warning).Message);
     }
 
     [ConditionalFact]
@@ -91,7 +281,7 @@ public class DbContextOperationsTest
 
         Assert.Equal("Test", info.DatabaseName);
         Assert.Equal(@"(localdb)\mssqllocaldb", info.DataSource);
-        Assert.Equal("None", info.Options);
+        Assert.Equal("EngineType=SqlServer", info.Options);
         Assert.Equal("Microsoft.EntityFrameworkCore.SqlServer", info.ProviderName);
     }
 
@@ -112,7 +302,7 @@ public class DbContextOperationsTest
 
         Assert.Equal(DesignStrings.BadConnection(expected.Message), info.DatabaseName);
         Assert.Equal(DesignStrings.BadConnection(expected.Message), info.DataSource);
-        Assert.Equal("None", info.Options);
+        Assert.Equal("EngineType=SqlServer", info.Options);
         Assert.Equal("Microsoft.EntityFrameworkCore.SqlServer", info.ProviderName);
     }
 
@@ -181,11 +371,17 @@ public class DbContextOperationsTest
             => CreateWebHost(b => b.UseSqlServer(@"Cake=None"));
     }
 
-    private static TestDbContextOperations CreateOperations(Type testProgramType)
+    private static TestDbContextOperations CreateOperations(Type testProgramType, bool includeContext = true)
     {
-        var assembly = MockAssembly.Create(testProgramType, typeof(TestContext));
-        return new TestDbContextOperations(
-            new TestOperationReporter(),
+        List<Type> types = [testProgramType];
+        if (includeContext)
+        {
+            types.Add(typeof(TestContext));
+        }
+        var assembly = MockAssembly.Create([.. types]);
+        var reporter = new TestOperationReporter();
+        var operations = new TestDbContextOperations(
+            reporter,
             assembly,
             assembly,
             project: "",
@@ -194,7 +390,13 @@ public class DbContextOperationsTest
             language: "C#",
             nullable: false,
             /* args: */ [],
-            new TestAppServiceProviderFactory(assembly));
+            new TestAppServiceProviderFactory(assembly, reporter));
+
+        Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Critical);
+        Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Error);
+        Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Warning);
+
+        return operations;
     }
 
     private static TestWebHost CreateWebHost(Func<DbContextOptionsBuilder, DbContextOptionsBuilder> configureProvider)
@@ -207,24 +409,35 @@ public class DbContextOperationsTest
     private class TestContext : DbContext
     {
         public TestContext()
-        {
-            throw new Exception("This isn't the constructor you're looking for.");
-        }
+            => throw new Exception("This isn't the constructor you're looking for.");
 
         public TestContext(DbContextOptions<TestContext> options)
             : base(options)
         {
+            Assert.Equal("Development", Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"));
+            Assert.Equal("Development", Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT"));
         }
     }
 
     private class TestContextFromFactory : DbContext
     {
         private TestContextFromFactory()
-        {
-            throw new Exception("This isn't the constructor you're looking for.");
-        }
+            => throw new Exception("This isn't the constructor you're looking for.");
 
         public TestContextFromFactory(DbContextOptions<TestContextFromFactory> options)
+            : base(options)
+        {
+            Assert.Equal("Development", Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"));
+            Assert.Equal("Development", Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT"));
+        }
+    }
+
+    private class Testcontext : DbContext
+    {
+        public Testcontext()
+            => throw new Exception("This isn't the constructor you're looking for.");
+
+        public Testcontext(DbContextOptions<TestContext> options)
             : base(options)
         {
         }

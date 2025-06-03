@@ -3,6 +3,7 @@
 
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 
+// ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 /// <summary>
@@ -187,5 +188,6 @@ public class CosmosManyToManyJoinEntityTypeConvention :
         => skipNavigation.DeclaringEntityType.GetContainer() == skipNavigation.TargetEntityType.GetContainer()
             && skipNavigation.DeclaringEntityType.GetPartitionKeyPropertyNames().Any()
             && (skipNavigation.Inverse?.DeclaringEntityType.GetPartitionKeyPropertyNames()
-                .SequenceEqual(skipNavigation.DeclaringEntityType.GetPartitionKeyPropertyNames(), StringComparer.Ordinal) == true);
+                    .SequenceEqual(skipNavigation.DeclaringEntityType.GetPartitionKeyPropertyNames(), StringComparer.Ordinal)
+                == true);
 }

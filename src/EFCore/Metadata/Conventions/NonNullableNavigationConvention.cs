@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
@@ -68,10 +67,11 @@ public class NonNullableNavigationConvention :
 
         if (navigation.IsOnDependent)
         {
-            if (foreignKey.Properties.All(p =>
-                !p.IsNullable
-                || (p.IsShadowProperty()
-                    && ConfigurationSource.Convention.Overrides(p.GetIsNullableConfigurationSource()))))
+            if (foreignKey.Properties.All(
+                    p =>
+                        !p.IsNullable
+                        || (p.IsShadowProperty()
+                            && ConfigurationSource.Convention.Overrides(p.GetIsNullableConfigurationSource()))))
             {
                 foreignKey.Builder.IsRequired(true);
             }

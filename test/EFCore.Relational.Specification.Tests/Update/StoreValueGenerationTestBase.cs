@@ -7,14 +7,9 @@ namespace Microsoft.EntityFrameworkCore.Update;
 
 #nullable disable
 
-public abstract class StoreValueGenerationTestBase<TFixture> : IClassFixture<TFixture>, IAsyncLifetime
+public abstract class StoreValueGenerationTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>, IAsyncLifetime
     where TFixture : StoreValueGenerationFixtureBase
 {
-    protected StoreValueGenerationTestBase(TFixture fixture)
-    {
-        Fixture = fixture;
-    }
-
     #region Single operation
 
     [ConditionalTheory]
@@ -363,12 +358,12 @@ public abstract class StoreValueGenerationTestBase<TFixture> : IClassFixture<TFi
         bool withSameEntityType)
         => 1;
 
-    protected TFixture Fixture { get; }
+    protected TFixture Fixture { get; } = fixture;
 
     protected StoreValueGenerationContext CreateContext()
         => Fixture.CreateContext();
 
-    public static IEnumerable<object[]> IsAsyncData = new object[][] { [false], [true] };
+    public static readonly IEnumerable<object[]> IsAsyncData = [[false], [true]];
 
     protected virtual void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);

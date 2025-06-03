@@ -3,7 +3,6 @@
 
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -17,16 +16,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
 /// </remarks>
-public class RuntimeProperty : RuntimePropertyBase, IProperty
+public class RuntimeProperty : RuntimePropertyBase, IRuntimeProperty
 {
     private readonly bool _isNullable;
     private readonly ValueGenerated _valueGenerated;
     private readonly bool _isConcurrencyToken;
     private object? _sentinel;
+    private object? _sentinelFromProviderValue;
     private readonly PropertySaveBehavior _beforeSaveBehavior;
     private readonly PropertySaveBehavior _afterSaveBehavior;
     private readonly Func<IProperty, ITypeBase, ValueGenerator>? _valueGeneratorFactory;
-    private readonly ValueConverter? _valueConverter;
+    private ValueConverter? _valueConverter;
     private readonly ValueComparer? _customValueComparer;
     private ValueComparer? _valueComparer;
     private ValueComparer? _keyValueComparer;
@@ -113,11 +113,11 @@ public class RuntimeProperty : RuntimePropertyBase, IProperty
     }
 
     /// <summary>
-    ///     Sets the <see cref="Sentinel"/> value, converting from the provider type if needed.
+    ///     Sets the <see cref="Sentinel" /> value, converting from the provider type if needed.
     /// </summary>
     /// <param name="providerValue">The value, as a provider value if a value converter is being used.</param>
     public virtual void SetSentinelFromProviderValue(object? providerValue)
-        => _sentinel = _typeMapping?.Converter?.ConvertFromProvider(providerValue) ?? providerValue;
+        => _sentinelFromProviderValue = providerValue;
 
     /// <summary>
     ///     Sets the element type for this property.
@@ -128,14 +128,13 @@ public class RuntimeProperty : RuntimePropertyBase, IProperty
     /// <param name="unicode">A value indicating whether or not the property can persist Unicode characters.</param>
     /// <param name="precision">The precision of data that is allowed in this property.</param>
     /// <param name="scale">The scale of data that is allowed in this property.</param>
-    /// <param name="providerPropertyType">
+    /// <param name="providerClrType">
     ///     The type that the property value will be converted to before being sent to the database provider.
     /// </param>
     /// <param name="valueConverter">The custom <see cref="ValueConverter" /> set for this property.</param>
     /// <param name="valueComparer">The <see cref="ValueComparer" /> for this property.</param>
     /// <param name="jsonValueReaderWriter">The <see cref="JsonValueReaderWriter" /> for this property.</param>
     /// <param name="typeMapping">The <see cref="CoreTypeMapping" /> for this property.</param>
-    /// <param name="primitiveCollection">A value indicating whether this property represents a primitive collection.</param>
     /// <returns>The newly created property.</returns>
     public virtual RuntimeElementType SetElementType(
         Type clrType,
@@ -144,12 +143,11 @@ public class RuntimeProperty : RuntimePropertyBase, IProperty
         bool? unicode = null,
         int? precision = null,
         int? scale = null,
-        Type? providerPropertyType = null,
+        Type? providerClrType = null,
         ValueConverter? valueConverter = null,
         ValueComparer? valueComparer = null,
         JsonValueReaderWriter? jsonValueReaderWriter = null,
-        CoreTypeMapping? typeMapping = null,
-        bool primitiveCollection = false)
+        CoreTypeMapping? typeMapping = null)
     {
         var elementType = new RuntimeElementType(
             clrType,
@@ -159,7 +157,7 @@ public class RuntimeProperty : RuntimePropertyBase, IProperty
             unicode,
             precision,
             scale,
-            providerPropertyType,
+            providerClrType,
             valueConverter,
             valueComparer,
             jsonValueReaderWriter,
@@ -167,7 +165,7 @@ public class RuntimeProperty : RuntimePropertyBase, IProperty
 
         SetAnnotation(CoreAnnotationNames.ElementType, elementType);
 
-        IsPrimitiveCollection = primitiveCollection;
+        IsPrimitiveCollection = true;
 
         return elementType;
     }
@@ -241,6 +239,16 @@ public class RuntimeProperty : RuntimePropertyBase, IProperty
         set => _typeMapping = value;
     }
 
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public virtual void SetValueConverter(ValueConverter converter)
+        => _valueConverter = converter;
+
     /// <inheritdoc />
     public virtual ValueComparer GetValueComparer()
         => NonCapturingLazyInitializer.EnsureInitialized(
@@ -283,7 +291,7 @@ public class RuntimeProperty : RuntimePropertyBase, IProperty
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    public virtual ValueComparer SetValueComparer(ValueComparer valueComparer)
+    public virtual ValueComparer SetComparer(ValueComparer valueComparer)
         => _valueComparer = valueComparer;
 
     /// <inheritdoc />
@@ -300,7 +308,7 @@ public class RuntimeProperty : RuntimePropertyBase, IProperty
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    public virtual ValueComparer SetKeyValueComparer(ValueComparer valueComparer)
+    public virtual ValueComparer SetKeyComparer(ValueComparer valueComparer)
         => _keyValueComparer = valueComparer;
 
     private ValueComparer GetProviderValueComparer()
@@ -321,7 +329,19 @@ public class RuntimeProperty : RuntimePropertyBase, IProperty
 
     /// <inheritdoc />
     public override object? Sentinel
-        => _sentinel;
+    {
+        get
+        {
+            if (_sentinelFromProviderValue != null)
+            {
+                var providerValue = _sentinelFromProviderValue;
+                _sentinelFromProviderValue = null;
+                _sentinel = TypeMapping.Converter!.ConvertFromProvider(providerValue);
+            }
+
+            return _sentinel;
+        }
+    }
 
     /// <summary>
     ///     Gets the <see cref="JsonValueReaderWriter" /> for this property, or <see langword="null" /> if none is set.

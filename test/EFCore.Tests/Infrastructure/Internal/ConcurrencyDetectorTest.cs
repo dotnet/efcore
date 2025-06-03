@@ -10,27 +10,20 @@ public class ConcurrencyDetectorTest
     {
         var preparingContext = new Context();
 
-        var customer = new Customer
-        {
-            FirstName = "John",
-            LastName = "Doe"
-        };
+        var customer = new Customer { FirstName = "John", LastName = "Doe" };
 
         preparingContext.Customers.Add(customer);
         preparingContext.SaveChanges();
 
-        var order = new Order
-        {
-            CustomerId = customer.CustomerId,
-            OrderDate = DateTime.Now
-        };
+        var order = new Order { CustomerId = customer.CustomerId, OrderDate = DateTime.Now };
 
         preparingContext.Orders.Add(order);
         preparingContext.SaveChanges();
 
-        var context  = new Context();
+        var context = new Context();
 
-        var exception = Record.Exception(() => context.Orders.Select(o => new { Date = o.OrderDate, Name = GetCustomer(o.OrderId, context) }).ToArray());
+        var exception = Record.Exception(
+            () => context.Orders.Select(o => new { Date = o.OrderDate, Name = GetCustomer(o.OrderId, context) }).ToArray());
 
         Assert.Null(exception);
     }
@@ -76,7 +69,9 @@ public class ConcurrencyDetectorTest
                 .HasForeignKey(o => o.CustomerId);
         }
 
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<Customer> Customers { get; set; }
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<Order> Orders { get; set; }
     }
 
@@ -98,9 +93,7 @@ public class ConcurrencyDetectorTest
         }
 
         public Order(ILazyLoader lazyLoader)
-        {
-            _lazyLoader = lazyLoader;
-        }
+            => _lazyLoader = lazyLoader;
 
         public int OrderId { get; set; }
         public DateTime OrderDate { get; set; }

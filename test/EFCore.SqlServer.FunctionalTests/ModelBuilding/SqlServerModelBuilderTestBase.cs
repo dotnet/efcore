@@ -8,7 +8,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding;
 
 public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
 {
-    public abstract class SqlServerNonRelationship(SqlServerModelBuilderFixture fixture) : RelationalNonRelationshipTestBase(fixture), IClassFixture<SqlServerModelBuilderFixture>
+    public abstract class SqlServerNonRelationship(SqlServerModelBuilderFixture fixture)
+        : RelationalNonRelationshipTestBase(fixture), IClassFixture<SqlServerModelBuilderFixture>
     {
         [ConditionalFact]
         public virtual void Index_has_a_filter_if_nonclustered_unique_with_nullable_properties()
@@ -269,9 +270,10 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
         [InlineData(false)]
         public virtual void Can_avoid_attributes_when_discovering_properties(bool useAttributes)
         {
-            var modelBuilder = CreateModelBuilder(c => c.Conventions.Replace(
-                s => new PropertyDiscoveryConvention(
-                    s.GetService<ProviderConventionSetBuilderDependencies>()!, useAttributes)));
+            var modelBuilder = CreateModelBuilder(
+                c => c.Conventions.Replace(
+                    s => new PropertyDiscoveryConvention(
+                        s.GetService<ProviderConventionSetBuilderDependencies>()!, useAttributes)));
             modelBuilder.Entity<SqlVariantEntity>();
 
             if (useAttributes)
@@ -279,12 +281,14 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
                 var model = modelBuilder.FinalizeModel();
                 var entityType = model.FindEntityType(typeof(SqlVariantEntity))!;
 
-                Assert.Equal([nameof(SqlVariantEntity.Id), nameof(SqlVariantEntity.Value),],
+                Assert.Equal(
+                    [nameof(SqlVariantEntity.Id), nameof(SqlVariantEntity.Value),],
                     entityType.GetProperties().Select(p => p.Name));
             }
             else
             {
-                Assert.Equal(CoreStrings.PropertyNotAdded(nameof(SqlVariantEntity), nameof(SqlVariantEntity.Value), "object"),
+                Assert.Equal(
+                    CoreStrings.PropertyNotAdded(nameof(SqlVariantEntity), nameof(SqlVariantEntity.Value), "object"),
                     Assert.Throws<InvalidOperationException>(modelBuilder.FinalizeModel).Message);
             }
         }
@@ -292,14 +296,20 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
         protected class SqlVariantEntity
         {
             public int Id { get; set; }
+
             [Column(TypeName = "sql_variant")]
             public object? Value { get; set; }
         }
     }
 
-    public abstract class SqlServerComplexType(SqlServerModelBuilderFixture fixture) : RelationalComplexTypeTestBase(fixture), IClassFixture<SqlServerModelBuilderFixture>;
+    public abstract class SqlServerComplexType(SqlServerModelBuilderFixture fixture)
+        : RelationalComplexTypeTestBase(fixture), IClassFixture<SqlServerModelBuilderFixture>;
 
-    public abstract class SqlServerInheritance(SqlServerModelBuilderFixture fixture) : RelationalInheritanceTestBase(fixture), IClassFixture<SqlServerModelBuilderFixture>
+    public abstract class SqlServerComplexCollection(SqlServerModelBuilderFixture fixture)
+        : RelationalComplexCollectionTestBase(fixture), IClassFixture<SqlServerModelBuilderFixture>;
+
+    public abstract class SqlServerInheritance(SqlServerModelBuilderFixture fixture)
+        : RelationalInheritanceTestBase(fixture), IClassFixture<SqlServerModelBuilderFixture>
     {
         [ConditionalFact] // #7240
         public void Can_use_shadow_FK_that_collides_with_convention_shadow_FK_on_other_derived_type()
@@ -503,7 +513,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
                     StoreObjectIdentifier.Create(principalType, StoreObjectType.Table)!.Value));
             Assert.Equal(2, bunFk.GetMappedConstraints().Count());
 
-            Assert.Empty(bunType.GetDeclaredForeignKeys().Where(fk => fk.IsBaseLinking()));
+            Assert.DoesNotContain(bunType.GetDeclaredForeignKeys(), fk => fk.IsBaseLinking());
 
             var sesameBunType = model.FindEntityType(typeof(SesameBun))!;
             Assert.Empty(sesameBunType.GetDeclaredIndexes());
@@ -642,7 +652,8 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
         protected class DisjointChildSubclass2 : Child;
     }
 
-    public abstract class SqlServerOneToMany(SqlServerModelBuilderFixture fixture) : RelationalOneToManyTestBase(fixture), IClassFixture<SqlServerModelBuilderFixture>
+    public abstract class SqlServerOneToMany(SqlServerModelBuilderFixture fixture)
+        : RelationalOneToManyTestBase(fixture), IClassFixture<SqlServerModelBuilderFixture>
     {
         [ConditionalFact]
         public virtual void Shadow_foreign_keys_to_generic_types_have_terrible_names_that_should_not_change()
@@ -695,11 +706,14 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
         protected class User;
     }
 
-    public abstract class SqlServerManyToOne(SqlServerModelBuilderFixture fixture) : RelationalManyToOneTestBase(fixture), IClassFixture<SqlServerModelBuilderFixture>;
+    public abstract class SqlServerManyToOne(SqlServerModelBuilderFixture fixture)
+        : RelationalManyToOneTestBase(fixture), IClassFixture<SqlServerModelBuilderFixture>;
 
-    public abstract class SqlServerOneToOne(SqlServerModelBuilderFixture fixture) : RelationalOneToOneTestBase(fixture), IClassFixture<SqlServerModelBuilderFixture>;
+    public abstract class SqlServerOneToOne(SqlServerModelBuilderFixture fixture)
+        : RelationalOneToOneTestBase(fixture), IClassFixture<SqlServerModelBuilderFixture>;
 
-    public abstract class SqlServerManyToMany(SqlServerModelBuilderFixture fixture) : RelationalManyToManyTestBase(fixture), IClassFixture<SqlServerModelBuilderFixture>
+    public abstract class SqlServerManyToMany(SqlServerModelBuilderFixture fixture)
+        : RelationalManyToManyTestBase(fixture), IClassFixture<SqlServerModelBuilderFixture>
     {
         [ConditionalFact]
         public virtual void Join_entity_type_uses_same_schema()
@@ -758,7 +772,8 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
         }
     }
 
-    public abstract class SqlServerOwnedTypes(SqlServerModelBuilderFixture fixture) : RelationalOwnedTypesTestBase(fixture), IClassFixture<SqlServerModelBuilderFixture>
+    public abstract class SqlServerOwnedTypes(SqlServerModelBuilderFixture fixture)
+        : RelationalOwnedTypesTestBase(fixture), IClassFixture<SqlServerModelBuilderFixture>
     {
         [ConditionalFact]
         public virtual void Owned_types_use_table_splitting_by_default()
@@ -1207,6 +1222,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             Assert.True(entity.IsTemporal());
             Assert.Equal("CustomerHistory", entity.GetHistoryTableName());
             Assert.Null(entity.GetHistoryTableSchema());
+            Assert.Equal("CustomerHistory", entity.GetSchemaQualifiedHistoryTableName());
 
             var periodStart = entity.GetProperty(entity.GetPeriodStartPropertyName()!);
             var periodEnd = entity.GetProperty(entity.GetPeriodEndPropertyName()!);
@@ -1245,6 +1261,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
 
             Assert.Equal("HistoryTable", entity.GetHistoryTableName());
             Assert.Equal("historySchema", entity.GetHistoryTableSchema());
+            Assert.Equal("historySchema.HistoryTable", entity.GetSchemaQualifiedHistoryTableName());
 
             var periodStart = entity.GetProperty(entity.GetPeriodStartPropertyName()!);
             var periodEnd = entity.GetProperty(entity.GetPeriodEndPropertyName()!);
@@ -1294,6 +1311,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
 
             Assert.Equal("ChangedHistoryTable", entity.GetHistoryTableName());
             Assert.Equal("changedHistorySchema", entity.GetHistoryTableSchema());
+            Assert.Equal("changedHistorySchema.ChangedHistoryTable", entity.GetSchemaQualifiedHistoryTableName());
 
             var periodStart = entity.GetProperty(entity.GetPeriodStartPropertyName()!);
             var periodEnd = entity.GetProperty(entity.GetPeriodEndPropertyName()!);
@@ -1343,6 +1361,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
 
             Assert.Equal("ChangedHistoryTable", entity.GetHistoryTableName());
             Assert.Equal("changedHistorySchema", entity.GetHistoryTableSchema());
+            Assert.Equal("changedHistorySchema.ChangedHistoryTable", entity.GetSchemaQualifiedHistoryTableName());
 
             var periodStart = entity.GetProperty(entity.GetPeriodStartPropertyName()!);
             var periodEnd = entity.GetProperty(entity.GetPeriodEndPropertyName()!);
@@ -1392,6 +1411,8 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             Assert.Equal(7, entity.GetProperties().Count());
 
             Assert.Equal("HistoryTable", entity.GetHistoryTableName());
+            Assert.Null(entity.GetHistoryTableSchema());
+            Assert.Equal("HistoryTable", entity.GetSchemaQualifiedHistoryTableName());
 
             var periodStart = entity.GetProperty(entity.GetPeriodStartPropertyName()!);
             var periodEnd = entity.GetProperty(entity.GetPeriodEndPropertyName()!);
@@ -1440,6 +1461,8 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             Assert.Equal(9, entity.GetProperties().Count());
 
             Assert.Equal("HistoryTable", entity.GetHistoryTableName());
+            Assert.Null(entity.GetHistoryTableSchema());
+            Assert.Equal("HistoryTable", entity.GetSchemaQualifiedHistoryTableName());
 
             var periodStart = entity.GetProperty(entity.GetPeriodStartPropertyName()!);
             var periodEnd = entity.GetProperty(entity.GetPeriodEndPropertyName()!);
@@ -1621,8 +1644,11 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
                         x => x.OwnedCollection2, bb =>
                         {
                             bb.ToJson("col2");
-                            bb.OwnsOne(x => x.Reference1);
-                            bb.OwnsOne(x => x.Reference2);
+                            bb.OwnsOne(x => x.Reference1)
+                                .HasAnnotation(RelationalAnnotationNames.JsonPropertyName, null);
+                            bb.OwnsOne(x => x.Reference2)
+                                .ToTable("Ref2")
+                                .HasAnnotation(RelationalAnnotationNames.ContainerColumnName, null);
                             bb.OwnsMany(x => x.Collection1);
                             bb.OwnsMany(x => x.Collection2);
                         });
@@ -1630,36 +1656,49 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
 
             var model = modelBuilder.FinalizeModel();
             var outerOwnedEntities = model.FindEntityTypes(typeof(OwnedEntityExtraLevel));
-            Assert.Equal(4, outerOwnedEntities.Count());
+
+            Assert.Collection(outerOwnedEntities,
+                e => Assert.Equal("col1", e.GetContainerColumnName()),
+                e => Assert.Equal("col2", e.GetContainerColumnName()),
+                e => Assert.Equal("ref1", e.GetContainerColumnName()),
+                e => Assert.Equal("ref2", e.GetContainerColumnName()));
 
             foreach (var outerOwnedEntity in outerOwnedEntities)
             {
                 Assert.Equal("Date", outerOwnedEntity.GetProperty("Date").GetJsonPropertyName());
                 Assert.Equal("Fraction", outerOwnedEntity.GetProperty("Fraction").GetJsonPropertyName());
                 Assert.Equal("Enum", outerOwnedEntity.GetProperty("Enum").GetJsonPropertyName());
-                Assert.Equal(
-                    "Reference1",
-                    outerOwnedEntity.GetNavigations().Single(n => n.Name == "Reference1").TargetEntityType.GetJsonPropertyName());
-                Assert.Equal(
-                    "Reference2",
-                    outerOwnedEntity.GetNavigations().Single(n => n.Name == "Reference2").TargetEntityType.GetJsonPropertyName());
-                Assert.Equal(
-                    "Collection1",
-                    outerOwnedEntity.GetNavigations().Single(n => n.Name == "Collection1").TargetEntityType.GetJsonPropertyName());
-                Assert.Equal(
-                    "Collection2",
-                    outerOwnedEntity.GetNavigations().Single(n => n.Name == "Collection2").TargetEntityType.GetJsonPropertyName());
+
+                var nestedOwnedTypes = outerOwnedEntity.GetNavigations().Select(n => n.TargetEntityType).ToList();
+                Assert.Collection(nestedOwnedTypes,
+                    e => Assert.Equal("Collection1", e.GetJsonPropertyName()),
+                    e => Assert.Equal("Collection2", e.GetJsonPropertyName()),
+                    e => Assert.Equal(outerOwnedEntity.GetContainerColumnName() == "col2" ? null : "Reference1",
+                        e.GetJsonPropertyName()),
+                    e => Assert.Equal(outerOwnedEntity.GetContainerColumnName() == "col2" ? null : "Reference2",
+                        e.GetJsonPropertyName()));
+
+                Assert.Collection(nestedOwnedTypes,
+                    e => Assert.Equal(outerOwnedEntity.GetContainerColumnName(), e.GetContainerColumnName()),
+                    e => Assert.Equal(outerOwnedEntity.GetContainerColumnName(), e.GetContainerColumnName()),
+                    e => Assert.Equal(outerOwnedEntity.GetContainerColumnName(), e.GetContainerColumnName()),
+                    e => Assert.Equal(outerOwnedEntity.GetContainerColumnName() == "col2" ?
+                        null : outerOwnedEntity.GetContainerColumnName(), e.GetContainerColumnName()));
+
+                foreach (var ownedEntity in nestedOwnedTypes)
+                {
+                    if (ownedEntity.GetContainerColumnName() == null)
+                    {
+                        continue;
+                    }
+
+                    Assert.Equal("Date", ownedEntity.GetProperty("Date").GetJsonPropertyName());
+                    Assert.Equal("Fraction", ownedEntity.GetProperty("Fraction").GetJsonPropertyName());
+                    Assert.Equal("Enum", ownedEntity.GetProperty("Enum").GetJsonPropertyName());
+                }
             }
 
-            var ownedEntities = model.FindEntityTypes(typeof(OwnedEntity));
-            Assert.Equal(16, ownedEntities.Count());
-
-            foreach (var ownedEntity in ownedEntities)
-            {
-                Assert.Equal("Date", ownedEntity.GetProperty("Date").GetJsonPropertyName());
-                Assert.Equal("Fraction", ownedEntity.GetProperty("Fraction").GetJsonPropertyName());
-                Assert.Equal("Enum", ownedEntity.GetProperty("Enum").GetJsonPropertyName());
-            }
+            Assert.Equal(16, model.FindEntityTypes(typeof(OwnedEntity)).Count());
         }
 
         [ConditionalFact]
@@ -1862,6 +1901,32 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
         }
 
         [ConditionalFact]
+        public virtual void Json_entity_mapped_to_view_with_custom_schema()
+        {
+            var modelBuilder = CreateModelBuilder();
+            modelBuilder.Entity<JsonEntity>(
+                b =>
+                {
+                    b.ToView("MyView", "MySchema");
+                    b.OwnsOne(x => x.OwnedReference1, bb => bb.ToJson());
+                    b.Ignore(x => x.OwnedReference2);
+                    b.OwnsMany(x => x.OwnedCollection1, bb => bb.ToJson());
+                    b.Ignore(x => x.OwnedCollection2);
+                });
+
+            var model = modelBuilder.FinalizeModel();
+
+            var owner = model.FindEntityType(typeof(JsonEntity))!;
+            Assert.Equal("MyView", owner.GetViewName());
+
+            var ownedEntities = model.FindEntityTypes(typeof(OwnedEntity));
+            Assert.Equal(2, ownedEntities.Count());
+            Assert.Equal(2, ownedEntities.Where(e => e.IsMappedToJson()).Count());
+            Assert.True(ownedEntities.All(x => x.GetViewName() == "MyView"));
+            Assert.True(ownedEntities.All(x => x.GetViewSchema() == "MySchema"));
+        }
+
+        [ConditionalFact]
         public virtual void Json_entity_with_custom_property_names()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2009,67 +2074,12 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             Assert.Equal(2, ownedEntities.Where(e => e.IsMappedToJson()).Count());
             Assert.Equal(2, ownedEntities.Where(e => e.IsOwned() && !e.IsMappedToJson()).Count());
         }
-
-        [ConditionalFact]
-        public virtual void Json_entity_with_nested_structure_same_property_names_()
-        {
-            var modelBuilder = CreateModelBuilder();
-            modelBuilder.Entity<JsonEntityWithNesting>(
-                b =>
-                {
-                    b.OwnsOne(
-                        x => x.OwnedReference1, bb =>
-                        {
-                            bb.ToJson("ref1");
-                            bb.OwnsOne(x => x.Reference1);
-                            bb.OwnsOne(x => x.Reference2);
-                            bb.OwnsMany(x => x.Collection1);
-                            bb.OwnsMany(x => x.Collection2);
-                        });
-
-                    b.OwnsOne(
-                        x => x.OwnedReference2, bb =>
-                        {
-                            bb.ToJson("ref2");
-                            bb.OwnsOne(x => x.Reference1);
-                            bb.OwnsOne(x => x.Reference2);
-                            bb.OwnsMany(x => x.Collection1);
-                            bb.OwnsMany(x => x.Collection2);
-                        });
-
-                    b.OwnsMany(
-                        x => x.OwnedCollection1, bb =>
-                        {
-                            bb.ToJson("col1");
-                            bb.OwnsOne(x => x.Reference1);
-                            bb.OwnsOne(x => x.Reference2);
-                            bb.OwnsMany(x => x.Collection1);
-                            bb.OwnsMany(x => x.Collection2);
-                        });
-
-                    b.OwnsMany(
-                        x => x.OwnedCollection2, bb =>
-                        {
-                            bb.ToJson("col2");
-                            bb.OwnsOne(x => x.Reference1);
-                            bb.OwnsOne(x => x.Reference2);
-                            bb.OwnsMany(x => x.Collection1);
-                            bb.OwnsMany(x => x.Collection2);
-                        });
-                });
-
-            var model = modelBuilder.FinalizeModel();
-            var outerOwnedEntities = model.FindEntityTypes(typeof(OwnedEntityExtraLevel));
-            Assert.Equal(4, outerOwnedEntities.Count());
-
-            var ownedEntities = model.FindEntityTypes(typeof(OwnedEntity));
-            Assert.Equal(16, ownedEntities.Count());
-        }
     }
 
     public class SqlServerModelBuilderFixture : RelationalModelBuilderFixture
     {
-        public override TestHelpers TestHelpers => SqlServerTestHelpers.Instance;
+        public override TestHelpers TestHelpers
+            => SqlServerTestHelpers.Instance;
     }
 
     public abstract class TestTemporalTableBuilder<TEntity>
@@ -2080,8 +2090,9 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
         public abstract TestTemporalPeriodPropertyBuilder HasPeriodEnd(string propertyName);
     }
 
-    public class GenericTestTemporalTableBuilder<TEntity>(TemporalTableBuilder<TEntity> temporalTableBuilder) : TestTemporalTableBuilder<TEntity>,
-        IInfrastructure<TemporalTableBuilder<TEntity>>
+    public class GenericTestTemporalTableBuilder<TEntity>(TemporalTableBuilder<TEntity> temporalTableBuilder)
+        : TestTemporalTableBuilder<TEntity>,
+            IInfrastructure<TemporalTableBuilder<TEntity>>
         where TEntity : class
     {
         private TemporalTableBuilder<TEntity> TemporalTableBuilder { get; } = temporalTableBuilder;
@@ -2102,7 +2113,8 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             => new(TemporalTableBuilder.HasPeriodEnd(propertyName));
     }
 
-    public class NonGenericTestTemporalTableBuilder<TEntity>(TemporalTableBuilder temporalTableBuilder) : TestTemporalTableBuilder<TEntity>, IInfrastructure<TemporalTableBuilder>
+    public class NonGenericTestTemporalTableBuilder<TEntity>(TemporalTableBuilder temporalTableBuilder)
+        : TestTemporalTableBuilder<TEntity>, IInfrastructure<TemporalTableBuilder>
         where TEntity : class
     {
         private TemporalTableBuilder TemporalTableBuilder { get; } = temporalTableBuilder;
@@ -2161,7 +2173,8 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             => new(TemporalTableBuilder.HasPeriodEnd(propertyName));
     }
 
-    public class NonGenericTestOwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity>(OwnedNavigationTemporalTableBuilder temporalTableBuilder) :
+    public class NonGenericTestOwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity>(
+        OwnedNavigationTemporalTableBuilder temporalTableBuilder) :
         TestOwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity>,
         IInfrastructure<OwnedNavigationTemporalTableBuilder>
         where TOwnerEntity : class
@@ -2194,7 +2207,8 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             => new(TemporalPeriodPropertyBuilder.HasColumnName(name));
     }
 
-    public class TestOwnedNavigationTemporalPeriodPropertyBuilder(OwnedNavigationTemporalPeriodPropertyBuilder temporalPeriodPropertyBuilder)
+    public class TestOwnedNavigationTemporalPeriodPropertyBuilder(
+        OwnedNavigationTemporalPeriodPropertyBuilder temporalPeriodPropertyBuilder)
     {
         protected OwnedNavigationTemporalPeriodPropertyBuilder TemporalPeriodPropertyBuilder { get; } = temporalPeriodPropertyBuilder;
 

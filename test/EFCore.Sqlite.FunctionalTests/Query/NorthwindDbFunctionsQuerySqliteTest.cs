@@ -14,9 +14,7 @@ public class NorthwindDbFunctionsQuerySqliteTest : NorthwindDbFunctionsQueryRela
         NorthwindQuerySqliteFixture<NoopModelCustomizer> fixture,
         ITestOutputHelper testOutputHelper)
         : base(fixture)
-    {
-        Fixture.TestSqlLoggerFactory.Clear();
-    }
+        => Fixture.TestSqlLoggerFactory.Clear();
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -56,40 +54,23 @@ WHERE "c"."CustomerID" NOT GLOB 'T*'
 """);
     }
 
+    public override async Task Collate_is_null(bool async)
+    {
+        await base.Collate_is_null(async);
+
+        AssertSql(
+            """
+SELECT COUNT(*)
+FROM "Customers" AS "c"
+WHERE "c"."Region" IS NULL
+""");
+    }
+
     protected override string CaseInsensitiveCollation
         => "NOCASE";
 
     protected override string CaseSensitiveCollation
         => "BINARY";
-
-    public override async Task Random_return_less_than_1(bool async)
-    {
-        await AssertCount(
-            async,
-            ss => ss.Set<Order>(),
-            ss => ss.Set<Order>(),
-            ss => EF.Functions.Random() <= 1,
-            c => true);
-
-        AssertSql(
-            """
-SELECT COUNT(*)
-FROM "Orders" AS "o"
-WHERE abs(random() / 9.2233720368547799E+18) <= 1.0
-""");
-    }
-
-    public override async Task Random_return_greater_than_0(bool async)
-    {
-        await base.Random_return_greater_than_0(async);
-
-        AssertSql(
-            """
-SELECT COUNT(*)
-FROM "Orders" AS "o"
-WHERE abs(random() / 9.2233720368547799E+18) >= 0.0
-""");
-    }
 
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);

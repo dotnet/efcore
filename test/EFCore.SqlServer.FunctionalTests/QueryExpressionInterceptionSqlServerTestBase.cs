@@ -7,13 +7,10 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public abstract class QueryExpressionInterceptionSqlServerTestBase : QueryExpressionInterceptionTestBase
+public abstract class QueryExpressionInterceptionSqlServerTestBase(
+    QueryExpressionInterceptionSqlServerTestBase.InterceptionSqlServerFixtureBase fixture)
+    : QueryExpressionInterceptionTestBase(fixture)
 {
-    protected QueryExpressionInterceptionSqlServerTestBase(InterceptionSqlServerFixtureBase fixture)
-        : base(fixture)
-    {
-    }
-
     public abstract class InterceptionSqlServerFixtureBase : InterceptionFixtureBase
     {
         protected override ITestStoreFactory TestStoreFactory
@@ -33,7 +30,8 @@ public abstract class QueryExpressionInterceptionSqlServerTestBase : QueryExpres
     }
 
     public class QueryExpressionInterceptionSqlServerTest(QueryExpressionInterceptionSqlServerTest.InterceptionSqlServerFixture fixture)
-        : QueryExpressionInterceptionSqlServerTestBase(fixture), IClassFixture<QueryExpressionInterceptionSqlServerTest.InterceptionSqlServerFixture>
+        : QueryExpressionInterceptionSqlServerTestBase(fixture),
+            IClassFixture<QueryExpressionInterceptionSqlServerTest.InterceptionSqlServerFixture>
     {
         public class InterceptionSqlServerFixture : InterceptionSqlServerFixtureBase
         {
@@ -45,7 +43,8 @@ public abstract class QueryExpressionInterceptionSqlServerTestBase : QueryExpres
         }
     }
 
-    public class QueryExpressionInterceptionWithDiagnosticsSqlServerTest(QueryExpressionInterceptionWithDiagnosticsSqlServerTest.InterceptionSqlServerFixture fixture)
+    public class QueryExpressionInterceptionWithDiagnosticsSqlServerTest(
+        QueryExpressionInterceptionWithDiagnosticsSqlServerTest.InterceptionSqlServerFixture fixture)
         : QueryExpressionInterceptionSqlServerTestBase(fixture),
             IClassFixture<QueryExpressionInterceptionWithDiagnosticsSqlServerTest.InterceptionSqlServerFixture>
     {

@@ -12,6 +12,63 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure;
 public class SqlServerModelValidatorTest : RelationalModelValidatorTest
 {
     [ConditionalFact]
+    public void Detects_use_of_json_column()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Cheese>().Property(e => e.Name).HasColumnType("json");
+
+        VerifyWarning(
+            SqlServerResources.LogJsonTypeExperimental(new TestLogger<SqlServerLoggingDefinitions>())
+                .GenerateMessage("Cheese"), modelBuilder);
+    }
+
+    [ConditionalFact]
+    public void Detects_use_of_json_column_for_container()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<ValidatorJsonEntityBasic>(
+            b =>
+            {
+                b.OwnsOne(
+                    x => x.OwnedReference, bb =>
+                    {
+                        bb.ToJson().HasColumnType("json");
+                        bb.Ignore(x => x.NestedCollection);
+                        bb.Ignore(x => x.NestedReference);
+                    });
+                b.Ignore(x => x.OwnedCollection);
+            });
+
+        VerifyWarning(
+            SqlServerResources.LogJsonTypeExperimental(new TestLogger<SqlServerLoggingDefinitions>())
+                .GenerateMessage(nameof(ValidatorJsonOwnedRoot)), modelBuilder);
+    }
+
+    [ConditionalFact] // Issue #34324
+    public virtual void Throws_for_nested_primitive_collections()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<WithNestedCollection>(
+            eb =>
+            {
+                eb.Property(e => e.Id);
+                eb.PrimitiveCollection(e => e.SomeStrings);
+            });
+
+        VerifyError(
+            RelationalStrings.NestedCollectionsNotSupported(
+                "string[][]", nameof(WithNestedCollection), nameof(WithNestedCollection.SomeStrings)), modelBuilder,
+            sensitiveDataLoggingEnabled: false);
+    }
+
+    protected class WithNestedCollection
+    {
+        public int Id { get; set; }
+        public string[][] SomeStrings { get; set; }
+    }
+
+    [ConditionalFact]
     public virtual void Passes_on_TPT_with_nested_owned_types()
     {
         var modelBuilder = base.CreateConventionModelBuilder();
@@ -103,7 +160,6 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
             SqlServerStrings.SequenceBadType(nameof(LivingBeing.Name), nameof(Animal), "string"),
             modelBuilder);
     }
-
 
     [ConditionalFact]
     public virtual void Throws_for_sequence_HiLo_on_bad_type()
@@ -841,6 +897,72 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
             default:
                 throw new NotImplementedException();
         }
+    }
+
+    [ConditionalFact]
+    public void DefaultValue_with_explicit_constraint_name_throws_for_TPC()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Animal>().UseTpcMappingStrategy();
+        modelBuilder.Entity<Animal>().Property(x => x.Name).HasDefaultValue("Miauo", defaultConstraintName: "MyConstraint");
+        modelBuilder.Entity<Cat>().HasBaseType<Animal>();
+        modelBuilder.Entity<Dog>().HasBaseType<Animal>();
+
+        VerifyError(
+            RelationalStrings.ExplicitDefaultConstraintNamesNotSupportedForTpc("MyConstraint"),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
+    public void DefaultValueSql_with_explicit_constraint_name_throws_for_TPC()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Animal>().UseTpcMappingStrategy();
+        modelBuilder.Entity<Animal>().Property(x => x.Name).HasDefaultValueSql("NEWID()", defaultConstraintName: "MyConstraint");
+        modelBuilder.Entity<Cat>().HasBaseType<Animal>();
+        modelBuilder.Entity<Dog>().HasBaseType<Animal>();
+
+        VerifyError(
+            RelationalStrings.ExplicitDefaultConstraintNamesNotSupportedForTpc("MyConstraint"),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
+    public void DefaultValue_with_empty_explicit_constraint_name_throws()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.UseNamedDefaultConstraints();
+        modelBuilder.Entity<Animal>().UseTpcMappingStrategy();
+
+        Assert.Throws<ArgumentException>(
+            () => modelBuilder.Entity<Animal>().Property(x => x.Name).HasDefaultValue("Miauo", defaultConstraintName: ""));
+    }
+
+    [ConditionalFact]
+    public void DefaultValueSql_with_empty_explicit_constraint_name_throws()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.UseNamedDefaultConstraints();
+        modelBuilder.Entity<Animal>().UseTpcMappingStrategy();
+
+        Assert.Throws<ArgumentException>(
+            () => modelBuilder.Entity<Animal>().Property(x => x.Name).HasDefaultValueSql("Miauo", defaultConstraintName: ""));
+    }
+
+    [ConditionalFact]
+    public void DefaultValue_with_implicit_constraint_name_throws_for_TPC()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.UseNamedDefaultConstraints();
+        modelBuilder.Entity<Animal>().UseTpcMappingStrategy();
+        modelBuilder.Entity<Animal>().Property(x => x.Name).HasDefaultValue("Miauo");
+        modelBuilder.Entity<Cat>().HasBaseType<Animal>();
+        modelBuilder.Entity<Cat>().Property(x => x.Breed).HasDefaultValue("Ragdoll", defaultConstraintName: "DF_Cat_Name");
+        modelBuilder.Entity<Dog>().HasBaseType<Animal>();
+
+        VerifyError(
+            RelationalStrings.ImplicitDefaultNamesNotSupportedForTpcWhenNamesClash("DF_Cat_Name"),
+            modelBuilder);
     }
 
     [ConditionalFact]

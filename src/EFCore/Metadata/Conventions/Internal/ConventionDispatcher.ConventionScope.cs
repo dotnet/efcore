@@ -70,7 +70,7 @@ public partial class ConventionDispatcher
             string name);
 
         public abstract string? OnDiscriminatorPropertySet(
-            IConventionEntityTypeBuilder entityTypeBuilder,
+            IConventionTypeBaseBuilder structuralTypeBuilder,
             string? name);
 
         public abstract IConventionKey? OnEntityTypePrimaryKeyChanged(
@@ -181,6 +181,11 @@ public partial class ConventionDispatcher
             string name,
             IConventionAnnotation? annotation,
             IConventionAnnotation? oldAnnotation);
+
+        public abstract string? OnModelEmbeddedDiscriminatorNameChanged(
+            IConventionModelBuilder modelBuilder,
+            string? oldName,
+            string? newName);
 
         public abstract IConventionNavigationBuilder? OnNavigationAdded(IConventionNavigationBuilder navigationBuilder);
 

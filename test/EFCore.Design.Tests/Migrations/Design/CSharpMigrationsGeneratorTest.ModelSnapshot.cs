@@ -23,7 +23,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design;
 
 public partial class CSharpMigrationsGeneratorTest
 {
-
     [ConditionalFact]
     public void Snapshots_compile()
     {
@@ -870,15 +869,18 @@ namespace MyNamespace
                 Assert.Equal(5, model.GetAnnotations().Count());
                 Assert.Equal(3, model.GetEntityTypes().Count());
 
-                var abstractBase = model.FindEntityType("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+AbstractBase");
+                var abstractBase = model.FindEntityType(
+                    "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+AbstractBase");
                 Assert.Equal("AbstractBase", abstractBase.GetTableName());
                 Assert.Equal("TPT", abstractBase.GetMappingStrategy());
 
-                var baseType = model.FindEntityType("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+BaseEntity");
+                var baseType = model.FindEntityType(
+                    "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+BaseEntity");
                 Assert.Equal("BaseEntity", baseType.GetTableName());
                 Assert.Equal("DefaultSchema", baseType.GetSchema());
 
-                var derived = model.FindEntityType("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+DerivedEntity");
+                var derived = model.FindEntityType(
+                    "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+DerivedEntity");
                 Assert.Equal("DerivedEntity", derived.GetTableName());
                 Assert.Equal("foo", derived.GetSchema());
             });
@@ -1050,16 +1052,19 @@ namespace MyNamespace
                 Assert.Equal(6, model.GetAnnotations().Count());
                 Assert.Equal(3, model.GetEntityTypes().Count());
 
-                var abstractBase = model.FindEntityType("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+AbstractBase");
+                var abstractBase = model.FindEntityType(
+                    "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+AbstractBase");
                 Assert.Null(abstractBase.GetTableName());
                 Assert.Null(abstractBase.GetViewName());
                 Assert.Equal("TPC", abstractBase.GetMappingStrategy());
 
-                var baseType = model.FindEntityType("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+BaseEntity");
+                var baseType = model.FindEntityType(
+                    "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+BaseEntity");
                 Assert.Equal("BaseEntity", baseType.GetTableName());
                 Assert.Null(baseType.GetViewName());
 
-                var derived = model.FindEntityType("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+DerivedEntity");
+                var derived = model.FindEntityType(
+                    "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+DerivedEntity");
                 Assert.Equal("DerivedEntity", derived.GetTableName());
                 Assert.Equal("DerivedView", derived.GetViewName());
             });
@@ -1210,7 +1215,8 @@ namespace RootNamespace
                 Assert.Equal(6, model.GetAnnotations().Count());
                 Assert.Equal(6, model.GetEntityTypes().Count());
 
-                var animalType = model.FindEntityType("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Animal");
+                var animalType =
+                    model.FindEntityType("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Animal");
                 Assert.Null(animalType.GetTableName());
                 Assert.Null(animalType.GetViewName());
                 Assert.Equal("TPC", animalType.GetMappingStrategy());
@@ -1878,7 +1884,6 @@ namespace RootNamespace
                     .HasMax(3)
                     .IncrementsBy(2)
                     .IsCyclic()
-                    .UseCache(20)
                     .HasAnnotation("foo", "bar");
             },
             AddBoilerPlate(
@@ -1890,7 +1895,6 @@ namespace RootNamespace
                 .HasMin(1L)
                 .HasMax(3L)
                 .IsCyclic()
-                .UseCache(20)
                 .HasAnnotation("foo", "bar");
 """),
             model =>
@@ -1903,8 +1907,6 @@ namespace RootNamespace
                 Assert.Equal(3, sequence.MaxValue);
                 Assert.Equal(2, sequence.IncrementBy);
                 Assert.True(sequence.IsCyclic);
-                Assert.True(sequence.IsCached);
-                Assert.Equal(20, sequence.CacheSize);
                 Assert.Equal("bar", sequence["foo"]);
             });
 
@@ -4382,14 +4384,17 @@ namespace RootNamespace
                                             b3.Property<int>("EntityWithStringKeyEntityWithTwoPropertiesEntityWithOnePropertyId")
                                                 .HasColumnType("int");
 
-                                            b3.Property<int>("Id")
+                                            b3.Property<int>("__synthesizedOrdinal")
                                                 .ValueGeneratedOnAdd()
+                                                .HasColumnType("int");
+
+                                            b3.Property<int>("Id")
                                                 .HasColumnType("int");
 
                                             b3.Property<string>("Name")
                                                 .HasColumnType("nvarchar(max)");
 
-                                            b3.HasKey("EntityWithStringKeyEntityWithTwoPropertiesEntityWithOnePropertyId", "Id");
+                                            b3.HasKey("EntityWithStringKeyEntityWithTwoPropertiesEntityWithOnePropertyId", "__synthesizedOrdinal");
 
                                             b3.ToTable("EntityWithOneProperty", "DefaultSchema");
 
@@ -4428,7 +4433,7 @@ namespace RootNamespace
                 var ownedProperties1 = ownedType1.GetProperties().ToList();
                 Assert.Equal("EntityWithOnePropertyId", ownedProperties1[0].Name);
                 Assert.Equal("AlternateId", ownedProperties1[1].Name);
-                Assert.Equal("NotKey", RelationalPropertyExtensions.GetJsonPropertyName(ownedProperties1[1]));
+                Assert.Equal("NotKey", ownedProperties1[1].GetJsonPropertyName());
 
                 Assert.Equal(nameof(EntityWithOneProperty), ownedType1.GetTableName());
                 Assert.Equal("EntityWithTwoProperties", ownedType1.GetContainerColumnName());
@@ -4457,14 +4462,15 @@ namespace RootNamespace
                 Assert.Equal(nameof(EntityWithStringProperty), ownedType3.DisplayName());
                 var pkProperties3 = ownedType3.FindPrimaryKey().Properties;
                 Assert.Equal("EntityWithStringKeyEntityWithTwoPropertiesEntityWithOnePropertyId", pkProperties3[0].Name);
-                Assert.Equal("Id", pkProperties3[1].Name);
+                Assert.Equal("__synthesizedOrdinal", pkProperties3[1].Name);
 
                 var ownedProperties3 = ownedType3.GetProperties().ToList();
-                Assert.Equal(3, ownedProperties3.Count);
+                Assert.Equal(4, ownedProperties3.Count);
 
                 Assert.Equal("EntityWithStringKeyEntityWithTwoPropertiesEntityWithOnePropertyId", ownedProperties3[0].Name);
-                Assert.Equal("Id", ownedProperties3[1].Name);
-                Assert.Equal("Name", ownedProperties3[2].Name);
+                Assert.Equal("__synthesizedOrdinal", ownedProperties3[1].Name);
+                Assert.Equal("Id", ownedProperties3[2].Name);
+                Assert.Equal("Name", ownedProperties3[3].Name);
             });
 
     private class Order
@@ -5012,13 +5018,11 @@ namespace RootNamespace
                     model.GetRelationalModel().Tables,
                     t =>
                     {
-
                         Assert.Equal("BarBase", t.Name);
                         Assert.Equal(["Id", "Discriminator", "FooExtension<BarA>Id"], t.Columns.Select(t => t.Name));
                     },
                     t =>
                     {
-
                         Assert.Equal("FooExtension<BarA>", t.Name);
                         Assert.Equal(["Id"], t.Columns.Select(t => t.Name));
                     });
@@ -5029,7 +5033,7 @@ namespace RootNamespace
         => Test(
             modelBuilder => modelBuilder.Entity<Parrot<Beak>>().OwnsOne(e => e.Child),
             AddBoilerPlate(
-            """
+                """
             modelBuilder
                 .HasDefaultSchema("DefaultSchema")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
@@ -5075,7 +5079,8 @@ namespace RootNamespace
 """),
             model =>
             {
-                var parentType = model.FindEntityType("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Parrot<Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Beak>");
+                var parentType = model.FindEntityType(
+                    "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Parrot<Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Beak>");
                 Assert.NotNull(parentType);
                 Assert.NotNull(parentType.FindNavigation("Child")!.TargetEntityType);
 
@@ -5088,7 +5093,7 @@ namespace RootNamespace
         => Test(
             modelBuilder => modelBuilder.Entity<Parrot>().OwnsOne(e => e.Child),
             AddBoilerPlate(
-            """
+                """
             modelBuilder
                 .HasDefaultSchema("DefaultSchema")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
@@ -5134,7 +5139,8 @@ namespace RootNamespace
 """),
             model =>
             {
-                var parentType = model.FindEntityType("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Parrot");
+                var parentType =
+                    model.FindEntityType("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Parrot");
                 Assert.NotNull(parentType);
                 Assert.NotNull(parentType.FindNavigation("Child")!.TargetEntityType);
 
@@ -5207,7 +5213,8 @@ namespace RootNamespace
                 Assert.Collection(
                     o.GetEntityTypes(),
                     t => Assert.Equal("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+BaseEntity", t.Name),
-                    t => Assert.Equal("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+DerivedEntity", t.Name),
+                    t => Assert.Equal(
+                        "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+DerivedEntity", t.Name),
                     t =>
                     {
                         Assert.Equal(
@@ -5937,6 +5944,72 @@ namespace RootNamespace
 
     #endregion
 
+    #region Primitive collection
+
+    [ConditionalFact]
+    public virtual void PrimitiveCollection_is_stored_in_snapshot()
+        => Test(
+            builder =>
+            {
+                builder.Entity<EntityWithOneProperty>()
+                    .PrimitiveCollection<List<int>>("List")
+                    .IsSparse()
+                    .IsFixedLength()
+                    .HasMaxLength(100)
+                    .IsUnicode()
+                    .UseCollation("ListCollation")
+                    .HasSentinel([])
+                    .HasColumnName("ListColumn")
+                    .HasColumnType("nvarchar")
+                    .HasColumnOrder(1)
+                    .HasComment("ListComment")
+                    .HasComputedColumnSql("ListSql")
+                    .HasJsonPropertyName("ListJson")
+                    .ElementType(b => b.HasConversion<string>())
+                    .ValueGeneratedOnUpdateSometimes()
+                    .HasAnnotation("AnnotationName", "AnnotationValue");
+
+                builder.Ignore<EntityWithTwoProperties>();
+            },
+            AddBoilerPlate(
+                GetHeading()
+                + """
+            modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithOneProperty", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.PrimitiveCollection<string>("List")
+                        .ValueGeneratedOnUpdateSometimes()
+                        .HasMaxLength(100)
+                        .IsUnicode(true)
+                        .HasColumnType("nvarchar")
+                        .HasColumnName("ListColumn")
+                        .HasColumnOrder(1)
+                        .HasComputedColumnSql("ListSql")
+                        .IsFixedLength()
+                        .HasComment("ListComment")
+                        .UseCollation("ListCollation")
+                        .HasAnnotation("AnnotationName", "AnnotationValue")
+                        .HasAnnotation("Relational:JsonPropertyName", "ListJson");
+
+                    SqlServerPrimitiveCollectionBuilderExtensions.IsSparse(b.PrimitiveCollection<string>("List"));
+
+                    b.HasKey("Id");
+
+                    b.ToTable("EntityWithOneProperty", "DefaultSchema");
+                });
+"""),
+            o =>
+            {
+                var property = o.GetEntityTypes().First().FindProperty("List");
+                Assert.Equal("AnnotationValue", property["AnnotationName"]);
+            });
+    #endregion
+
     #region Complex types
 
     [ConditionalFact]
@@ -5951,8 +6024,16 @@ namespace RootNamespace
                             eo => eo.EntityWithTwoProperties, eb =>
                             {
                                 eb.IsRequired();
-                                eb.Property(e => e.AlternateId).HasColumnOrder(1);
-                                eb.ComplexProperty(e => e.EntityWithStringKey).IsRequired();
+                                eb.Property(e => e.AlternateId).HasColumnOrder(1).IsSparse();
+                                eb.PrimitiveCollection<List<string>>("List")
+                                    .HasColumnType("nvarchar(max)")
+                                    .IsSparse();
+                                eb.ComplexProperty(e => e.EntityWithStringKey, cb =>
+                                {
+                                    cb.Ignore(e => e.Properties);
+                                    cb.Property(e => e.Id).IsRequired();
+                                    cb.HasDiscriminator();
+                                });
                                 eb.HasPropertyAnnotation("PropertyAnnotation", 1);
                                 eb.HasTypeAnnotation("TypeAnnotation", 2);
                             });
@@ -5977,15 +6058,27 @@ namespace RootNamespace
                                 .HasColumnType("int")
                                 .HasColumnOrder(1);
 
+                            SqlServerComplexTypePropertyBuilderExtensions.IsSparse(b1.Property<int>("AlternateId"));
+
                             b1.Property<int>("Id")
                                 .HasColumnType("int");
 
+                            b1.PrimitiveCollection<string>("List")
+                                .HasColumnType("nvarchar(max)");
+
+                            SqlServerComplexTypePrimitiveCollectionBuilderExtensions.IsSparse(b1.PrimitiveCollection<string>("List"));
+
                             b1.ComplexProperty<Dictionary<string, object>>("EntityWithStringKey", "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithOneProperty.EntityWithTwoProperties#EntityWithTwoProperties.EntityWithStringKey#EntityWithStringKey", b2 =>
                                 {
-                                    b2.IsRequired();
+                                    b2.Property<string>("Discriminator")
+                                        .IsRequired()
+                                        .HasColumnType("nvarchar(max)");
 
                                     b2.Property<string>("Id")
+                                        .IsRequired()
                                         .HasColumnType("nvarchar(max)");
+
+                                    b2.HasDiscriminator().HasValue("EntityWithStringKey");
                                 });
 
                             b1.HasPropertyAnnotation("PropertyAnnotation", 1);
@@ -5998,7 +6091,7 @@ namespace RootNamespace
                     b.ToTable("EntityWithOneProperty", "DefaultSchema");
                 });
 """, usingCollections: true),
-            o =>
+            (_, o) =>
             {
                 var entityWithOneProperty = o.FindEntityType(typeof(EntityWithOneProperty));
                 Assert.Equal(nameof(EntityWithOneProperty), entityWithOneProperty.GetTableName());
@@ -6019,7 +6112,7 @@ namespace RootNamespace
 
                 var nestedComplexProperty = complexType.FindComplexProperty(nameof(EntityWithTwoProperties.EntityWithStringKey));
                 Assert.False(nestedComplexProperty.IsCollection);
-                Assert.False(nestedComplexProperty.IsNullable);
+                Assert.True(nestedComplexProperty.IsNullable);
                 var nestedComplexType = nestedComplexProperty.ComplexType;
                 Assert.Equal(
                     "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithOneProperty.EntityWithTwoProperties#EntityWithTwoProperties.EntityWithStringKey#EntityWithStringKey",
@@ -6029,8 +6122,9 @@ namespace RootNamespace
                     nestedComplexType.DisplayName());
                 Assert.Equal(nameof(EntityWithOneProperty), nestedComplexType.GetTableName());
                 var nestedIdProperty = nestedComplexType.FindProperty(nameof(EntityWithStringKey.Id));
-                Assert.True(nestedIdProperty.IsNullable);
-            });
+                Assert.False(nestedIdProperty.IsNullable);
+            },
+            validate: true);
 
     #endregion
 
@@ -7821,27 +7915,17 @@ namespace RootNamespace
                 .ToList();
 
         var lineString1 = new LineString(
-            [new Coordinate(1.1, 2.2), new Coordinate(2.2, 2.2), new Coordinate(2.2, 1.1), new Coordinate(7.1, 7.2)])
-        {
-            SRID = 4326
-        };
+            [new Coordinate(1.1, 2.2), new Coordinate(2.2, 2.2), new Coordinate(2.2, 1.1), new Coordinate(7.1, 7.2)]) { SRID = 4326 };
 
         var lineString2 = new LineString(
-            [new Coordinate(7.1, 7.2), new Coordinate(20.2, 20.2), new Coordinate(20.20, 1.1), new Coordinate(70.1, 70.2)])
-        {
-            SRID = 4326
-        };
+            [new Coordinate(7.1, 7.2), new Coordinate(20.2, 20.2), new Coordinate(20.20, 1.1), new Coordinate(70.1, 70.2)]) { SRID = 4326 };
 
         var multiPoint = new MultiPoint(
-                [new Point(1.1, 2.2), new Point(2.2, 2.2), new Point(2.2, 1.1)])
-        { SRID = 4326 };
+            [new Point(1.1, 2.2), new Point(2.2, 2.2), new Point(2.2, 1.1)]) { SRID = 4326 };
 
         var polygon1 = new Polygon(
             new LinearRing(
-                [new Coordinate(1.1, 2.2), new Coordinate(2.2, 2.2), new Coordinate(2.2, 1.1), new Coordinate(1.1, 2.2)]))
-        {
-            SRID = 4326
-        };
+                [new Coordinate(1.1, 2.2), new Coordinate(2.2, 2.2), new Coordinate(2.2, 1.1), new Coordinate(1.1, 2.2)])) { SRID = 4326 };
 
         var polygon2 = new Polygon(
             new LinearRing(
@@ -7857,10 +7941,7 @@ namespace RootNamespace
         var multiPolygon = new MultiPolygon([polygon2, polygon1]) { SRID = 4326 };
 
         var geometryCollection = new GeometryCollection(
-            [lineString1, lineString2, multiPoint, polygon1, polygon2, point1, multiLineString, multiPolygon])
-        {
-            SRID = 4326
-        };
+            [lineString1, lineString2, multiPoint, polygon1, polygon2, point1, multiLineString, multiPolygon]) { SRID = 4326 };
 
         Test(
             builder =>
@@ -7987,7 +8068,7 @@ namespace RootNamespace
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("BoolCollection")
+                    b.PrimitiveCollection<string>("BoolCollection")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("Boolean")
@@ -7999,7 +8080,7 @@ namespace RootNamespace
                     b.Property<byte[]>("Bytes")
                         .HasColumnType("varbinary(max)");
 
-                    b.Property<string>("BytesCollection")
+                    b.PrimitiveCollection<string>("BytesCollection")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Character")
@@ -8009,7 +8090,7 @@ namespace RootNamespace
                     b.Property<DateTime>("DateTime")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("DateTimeCollection")
+                    b.PrimitiveCollection<string>("DateTimeCollection")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTimeOffset>("DateTimeOffset")
@@ -8021,7 +8102,7 @@ namespace RootNamespace
                     b.Property<double>("Double")
                         .HasColumnType("float");
 
-                    b.Property<string>("DoubleCollection")
+                    b.PrimitiveCollection<string>("DoubleCollection")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<short>("Enum16")
@@ -8054,7 +8135,7 @@ namespace RootNamespace
                     b.Property<int>("Int32")
                         .HasColumnType("int");
 
-                    b.Property<string>("Int32Collection")
+                    b.PrimitiveCollection<string>("Int32Collection")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<long>("Int64")
@@ -8114,7 +8195,7 @@ namespace RootNamespace
                     b.Property<string>("String")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("StringCollection")
+                    b.PrimitiveCollection<string>("StringCollection")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<TimeSpan>("TimeSpan")
@@ -8409,7 +8490,7 @@ namespace RootNamespace
     protected void Test(Action<ModelBuilder> buildModel, string expectedCode, Action<IModel> assert)
         => Test(buildModel, expectedCode, (m, _) => assert(m));
 
-    protected void Test(Action<ModelBuilder> buildModel, string expectedCode, Action<IModel, IModel> assert)
+    protected void Test(Action<ModelBuilder> buildModel, string expectedCode, Action<IModel, IModel> assert, bool validate = false)
     {
         var modelBuilder = CreateConventionalModelBuilder();
         modelBuilder.HasDefaultSchema("DefaultSchema");
@@ -8417,7 +8498,7 @@ namespace RootNamespace
         modelBuilder.Model.RemoveAnnotation(CoreAnnotationNames.ProductVersion);
         buildModel(modelBuilder);
 
-        var model = modelBuilder.FinalizeModel(designTime: true, skipValidation: true);
+        var model = modelBuilder.FinalizeModel(designTime: true, skipValidation: !validate);
 
         Test(model, expectedCode, assert);
     }
@@ -8497,10 +8578,7 @@ namespace RootNamespace
         var sqlServerTypeMappingSource = new SqlServerTypeMappingSource(
             TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
             new RelationalTypeMappingSourceDependencies(
-                new IRelationalTypeMappingSourcePlugin[]
-                {
-                    new SqlServerNetTopologySuiteTypeMappingSourcePlugin(NtsGeometryServices.Instance)
-                }));
+                [new SqlServerNetTopologySuiteTypeMappingSourcePlugin(NtsGeometryServices.Instance)]));
 
         var codeHelper = new CSharpHelper(sqlServerTypeMappingSource);
 

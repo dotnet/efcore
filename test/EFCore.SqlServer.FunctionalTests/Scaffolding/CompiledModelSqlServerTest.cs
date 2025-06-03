@@ -5,14 +5,14 @@
 
 using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Design.Internal;
-using NetTopologySuite.Geometries;
+using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 using NetTopologySuite;
+using NetTopologySuite.Geometries;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding;
 
-public class CompiledModelSqlServerTest : CompiledModelRelationalTestBase
+public class CompiledModelSqlServerTest(NonSharedFixture fixture) : CompiledModelRelationalTestBase(fixture)
 {
     protected override void BuildBigModel(ModelBuilder modelBuilder, bool jsonColumns)
     {
@@ -64,7 +64,7 @@ public class CompiledModelSqlServerTest : CompiledModelRelationalTestBase
             eb =>
             {
                 eb.Property(m => m.CharToStringConverterProperty)
-                    .IsFixedLength(true);
+                    .IsFixedLength();
             });
     }
 
@@ -104,6 +104,7 @@ public class CompiledModelSqlServerTest : CompiledModelRelationalTestBase
                 principalId.GetAnnotations().Select(a => a.Name));
             Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, principalId.GetValueGenerationStrategy());
         }
+
         Assert.Null(principalId[SqlServerAnnotationNames.IdentitySeed]);
         Assert.Equal(
             CoreStrings.RuntimeModelMissingData,
@@ -181,7 +182,7 @@ public class CompiledModelSqlServerTest : CompiledModelRelationalTestBase
         var dependentMoney = dependentDerived.GetDeclaredProperties().Last();
         Assert.Equal("decimal(9,3)", dependentMoney.GetColumnType());
         Assert.Equal(
-        new[]
+            new[]
             {
                 dependentBase,
                 dependentDerived,
@@ -195,7 +196,8 @@ public class CompiledModelSqlServerTest : CompiledModelRelationalTestBase
             model.GetEntityTypes());
     }
 
-    protected override bool UseSprocReturnValue => true;
+    protected override bool UseSprocReturnValue
+        => true;
 
     protected override void BuildTpcSprocsModel(ModelBuilder modelBuilder)
     {
@@ -341,7 +343,8 @@ public class CompiledModelSqlServerTest : CompiledModelRelationalTestBase
     [ConditionalFact]
     public virtual Task Key_HiLo_sequence()
         => Test(
-            modelBuilder => {
+            modelBuilder =>
+            {
                 modelBuilder.Entity<Data>(
                     eb =>
                     {
@@ -428,10 +431,13 @@ public class CompiledModelSqlServerTest : CompiledModelRelationalTestBase
                 Assert.Equal(SqlServerValueGenerationStrategy.None, pointProperty.GetValueGenerationStrategy());
                 Assert.Null(pointProperty[CoreAnnotationNames.PropertyAccessMode]);
             },
-            options: new CompiledModelCodeGenerationOptions { UseNullableReferenceTypes = true });
+            options: new CompiledModelCodeGenerationOptions { UseNullableReferenceTypes = true, ForNativeAot = true });
 
-    protected override TestHelpers TestHelpers => SqlServerTestHelpers.Instance;
-    protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
+    protected override TestHelpers TestHelpers
+        => SqlServerTestHelpers.Instance;
+
+    protected override ITestStoreFactory TestStoreFactory
+        => SqlServerTestStoreFactory.Instance;
 
     protected override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
     {

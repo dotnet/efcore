@@ -19,9 +19,7 @@ public abstract class MigrationsCodeGenerator : IMigrationsCodeGenerator
     /// </summary>
     /// <param name="dependencies">The dependencies.</param>
     protected MigrationsCodeGenerator(MigrationsCodeGeneratorDependencies dependencies)
-    {
-        Dependencies = dependencies;
-    }
+        => Dependencies = dependencies;
 
     /// <summary>
     ///     Gets the file extension code files should use.

@@ -46,7 +46,7 @@ public interface IValueGeneratorSelector
     ///     The entity type that the value generator will be used for. When called on inherited properties on derived entity types,
     ///     this entity type may be different from the declared entity type on <paramref name="property" />
     /// </param>
-    /// <param name="valueGenerator">The value generator, or <see langword="null"/> if none is available.</param>
-    /// <returns><see langword="true"/> if a value generator was selected; <see langword="false"/> if none was available.</returns>
+    /// <param name="valueGenerator">The value generator, or <see langword="null" /> if none is available.</param>
+    /// <returns><see langword="true" /> if a value generator was selected; <see langword="false" /> if none was available.</returns>
     bool TrySelect(IProperty property, ITypeBase typeBase, out ValueGenerator? valueGenerator);
 }

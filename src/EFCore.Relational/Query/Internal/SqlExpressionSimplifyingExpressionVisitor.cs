@@ -45,18 +45,6 @@ public class SqlExpressionSimplifyingExpressionVisitor : ExpressionVisitor
             return shapedQueryExpression.Update(newQueryExpression, newShaperExpression);
         }
 
-        // Only applies to 'CASE WHEN condition...' not 'CASE operand WHEN...'
-        if (extensionExpression is CaseExpression
-            {
-                Operand: null, ElseResult: CaseExpression { Operand: null } nestedCaseExpression
-            } caseExpression)
-        {
-            return VisitExtension(
-                _sqlExpressionFactory.Case(
-                    caseExpression.WhenClauses.Union(nestedCaseExpression.WhenClauses).ToList(),
-                    nestedCaseExpression.ElseResult));
-        }
-
         if (extensionExpression is SqlBinaryExpression sqlBinaryExpression)
         {
             return SimplifySqlBinary(sqlBinaryExpression);

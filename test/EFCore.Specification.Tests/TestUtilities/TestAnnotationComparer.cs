@@ -31,9 +31,10 @@ public class TestAnnotationComparer : IEqualityComparer<IAnnotation>, IComparer<
             return y == null;
         }
 
-        return y != null && (x.Name == y.Name
-            && (x.Name == CoreAnnotationNames.ValueGeneratorFactory
-                || CompareAnnotations()));
+        return y != null
+            && (x.Name == y.Name
+                && (x.Name == CoreAnnotationNames.ValueGeneratorFactory
+                    || CompareAnnotations()));
 
         bool CompareAnnotations()
         {
@@ -46,7 +47,7 @@ public class TestAnnotationComparer : IEqualityComparer<IAnnotation>, IComparer<
                     return false;
                 }
 
-                for (int i = 0; i < xList.Count; i++)
+                for (var i = 0; i < xList.Count; i++)
                 {
                     if (!Equals(xList[i], yList[i]))
                     {

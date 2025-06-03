@@ -44,7 +44,7 @@ public class SequenceUniquificationConvention : IModelFinalizingConvention
         IConventionContext<IConventionModelBuilder> context)
     {
         var model = modelBuilder.Metadata;
-        var modelSequences = 
+        var modelSequences =
             (IReadOnlyDictionary<(string Name, string? Schema), ISequence>?)model[RelationalAnnotationNames.Sequences];
         if (modelSequences != null)
         {

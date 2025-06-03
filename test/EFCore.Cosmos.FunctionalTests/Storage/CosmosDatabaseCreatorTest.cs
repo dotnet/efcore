@@ -8,40 +8,27 @@ namespace Microsoft.EntityFrameworkCore.Storage;
 [CosmosCondition(CosmosCondition.DoesNotUseTokenCredential)]
 public class CosmosDatabaseCreatorTest
 {
-    public static IEnumerable<object[]> IsAsyncData = new object[][] { [false], [true] };
+    public static readonly IEnumerable<object[]> IsAsyncData = [[true]];
 
     [ConditionalFact]
     public async Task EnsureCreated_returns_true_when_database_does_not_exist()
     {
-        await using var testDatabase = CosmosTestStore.Create("NonExisting");
-        try
-        {
-            using var context = new BloggingContext(testDatabase);
-            var creator = context.GetService<IDatabaseCreator>();
-
-            Assert.True(await creator.EnsureCreatedAsync());
-        }
-        finally
-        {
-            await testDatabase.InitializeAsync(testDatabase.ServiceProvider, () => new BloggingContext(testDatabase));
-        }
+        await using var testDatabase = CosmosTestStore.Create("NonExistingDatabase");
+        using var context = new BloggingContext(testDatabase);
+        var creator = context.GetService<IDatabaseCreator>();
+        await creator.EnsureDeletedAsync();
+        Assert.True(await creator.EnsureCreatedAsync());
     }
 
     [ConditionalFact]
     public async Task EnsureCreated_returns_true_when_database_exists_but_collections_do_not()
     {
         await using var testDatabase = CosmosTestStore.Create("EnsureCreatedTest");
-        try
-        {
-            using var context = new BloggingContext(testDatabase);
-            var creator = context.GetService<IDatabaseCreator>();
+        await testDatabase.InitializeAsync(testDatabase.ServiceProvider, () => new BaseContext(testDatabase));
 
-            Assert.True(await creator.EnsureCreatedAsync());
-        }
-        finally
-        {
-            await testDatabase.InitializeAsync(testDatabase.ServiceProvider, () => new BloggingContext(testDatabase));
-        }
+        using var context = new BloggingContext(testDatabase);
+        var creator = context.GetService<IDatabaseCreator>();
+        Assert.True(await creator.EnsureCreatedAsync());
     }
 
     [ConditionalTheory]
@@ -86,22 +73,44 @@ public class CosmosDatabaseCreatorTest
                 Assert.False(a ? await creator.EnsureDeletedAsync() : creator.EnsureDeleted());
             });
 
-    private class BloggingContext(CosmosTestStore testStore) : DbContext
+    [ConditionalFact]
+    public async Task EnsureCreated_throws_for_missing_seed()
+    {
+        await using var testDatabase = await CosmosTestStore.CreateInitializedAsync("EnsureCreatedSeedTest");
+        using var context = new BloggingContext(testDatabase, seed: true);
+
+        Assert.Equal(
+            CoreStrings.MissingSeeder,
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => context.Database.EnsureCreatedAsync())).Message);
+    }
+
+    private class BaseContext(CosmosTestStore testStore) : DbContext
     {
         private readonly string _connectionUri = testStore.ConnectionUri;
         private readonly string _authToken = testStore.AuthToken;
         private readonly string _name = testStore.Name;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            => optionsBuilder
+        {
+            optionsBuilder
                 .UseCosmos(
                     _connectionUri,
                     _authToken,
                     _name,
                     b => b.ApplyConfiguration());
+        }
+    }
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
+    private class BloggingContext(CosmosTestStore testStore, bool seed = false) : BaseContext(testStore)
+    {
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
+            base.OnConfiguring(optionsBuilder);
+
+            if (seed)
+            {
+                optionsBuilder.UseSeeding((_, __) => { });
+            }
         }
 
         public DbSet<Blog> Blogs { get; set; }

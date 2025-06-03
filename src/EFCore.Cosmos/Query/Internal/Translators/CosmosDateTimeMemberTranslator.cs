@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 // ReSharper disable once CheckNamespace
+
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 
 /// <summary>
@@ -33,15 +34,15 @@ public class CosmosDateTimeMemberTranslator(ISqlExpressionFactory sqlExpressionF
 
         return member.Name switch
         {
-            nameof(DateTime.Year) => DatePart("yyyy"),
-            nameof(DateTime.Month) => DatePart("mm"),
-            nameof(DateTime.Day) => DatePart("dd"),
-            nameof(DateTime.Hour) => DatePart("hh"),
-            nameof(DateTime.Minute) => DatePart("mi"),
-            nameof(DateTime.Second) => DatePart("ss"),
-            nameof(DateTime.Millisecond) => DatePart("ms"),
-            nameof(DateTime.Microsecond) => DatePart("mcs"),
-            nameof(DateTime.Nanosecond) => DatePart("ns"),
+            nameof(DateTime.Year) => DateTimePart("yyyy"),
+            nameof(DateTime.Month) => DateTimePart("mm"),
+            nameof(DateTime.Day) => DateTimePart("dd"),
+            nameof(DateTime.Hour) => DateTimePart("hh"),
+            nameof(DateTime.Minute) => DateTimePart("mi"),
+            nameof(DateTime.Second) => DateTimePart("ss"),
+            nameof(DateTime.Millisecond) => DateTimePart("ms"),
+            nameof(DateTime.Microsecond) => sqlExpressionFactory.Modulo(DateTimePart("mcs"), sqlExpressionFactory.Constant(1000)),
+            nameof(DateTime.Nanosecond) => sqlExpressionFactory.Modulo(DateTimePart("ns"), sqlExpressionFactory.Constant(1000)),
 
             nameof(DateTime.UtcNow)
                 => sqlExpressionFactory.Function(
@@ -52,7 +53,10 @@ public class CosmosDateTimeMemberTranslator(ISqlExpressionFactory sqlExpressionF
             _ => null
         };
 
-        SqlFunctionExpression DatePart(string part)
-            => sqlExpressionFactory.Function("DateTimePart", arguments: [sqlExpressionFactory.Constant(part), instance!], returnType);
+        SqlExpression DateTimePart(string part)
+            => sqlExpressionFactory.Function(
+                "DateTimePart",
+                arguments: [sqlExpressionFactory.Constant(part), instance!],
+                returnType);
     }
 }

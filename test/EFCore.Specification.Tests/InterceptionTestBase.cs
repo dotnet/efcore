@@ -7,14 +7,9 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public abstract class InterceptionTestBase
+public abstract class InterceptionTestBase(InterceptionTestBase.InterceptionFixtureBase fixture)
 {
-    protected InterceptionTestBase(InterceptionFixtureBase fixture)
-    {
-        Fixture = fixture;
-    }
-
-    protected InterceptionFixtureBase Fixture { get; }
+    protected InterceptionFixtureBase Fixture { get; } = fixture;
 
     protected class Singularity
     {

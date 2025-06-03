@@ -46,13 +46,15 @@ public class SqlServerDateTimeMemberTranslator(
             nameof(DateTime.Minute) => DatePart("minute"),
             nameof(DateTime.Second) => DatePart("second"),
             nameof(DateTime.Millisecond) => DatePart("millisecond"),
+            nameof(DateTime.Microsecond) => sqlExpressionFactory.Modulo(DatePart("microsecond"), sqlExpressionFactory.Constant(1000)),
+            nameof(DateTime.Nanosecond) => sqlExpressionFactory.Modulo(DatePart("nanosecond"), sqlExpressionFactory.Constant(1000)),
 
             nameof(DateTime.Date)
                 => sqlExpressionFactory.Function(
                     "CONVERT",
                     new[] { sqlExpressionFactory.Fragment("date"), instance! },
                     nullable: true,
-                    argumentsPropagateNullability: [false, true],
+                    argumentsPropagateNullability: Statics.FalseTrue,
                     returnType,
                     declaringType == typeof(DateTime)
                         ? instance!.TypeMapping
@@ -63,7 +65,7 @@ public class SqlServerDateTimeMemberTranslator(
                     "CONVERT",
                     new[] { sqlExpressionFactory.Fragment("time"), instance! },
                     nullable: true,
-                    argumentsPropagateNullability: [false, true],
+                    argumentsPropagateNullability: Statics.FalseTrue,
                     returnType),
 
             nameof(DateTime.Now)
@@ -85,17 +87,18 @@ public class SqlServerDateTimeMemberTranslator(
 
             nameof(DateTime.UtcNow)
                 when declaringType == typeof(DateTimeOffset)
-                => sqlExpressionFactory.Convert(sqlExpressionFactory.Function(
-                    "SYSUTCDATETIME",
-                    arguments: [],
-                    nullable: false,
-                    argumentsPropagateNullability: [],
-                    returnType), returnType),
+                => sqlExpressionFactory.Convert(
+                    sqlExpressionFactory.Function(
+                        "SYSUTCDATETIME",
+                        arguments: [],
+                        nullable: false,
+                        argumentsPropagateNullability: [],
+                        returnType), returnType),
 
             nameof(DateTime.Today)
                 => sqlExpressionFactory.Function(
                     "CONVERT",
-                    new SqlExpression[]
+                    new[]
                     {
                         sqlExpressionFactory.Fragment("date"),
                         sqlExpressionFactory.Function(
@@ -106,7 +109,7 @@ public class SqlServerDateTimeMemberTranslator(
                             typeof(DateTime))
                     },
                     nullable: true,
-                    argumentsPropagateNullability: [false, true],
+                    argumentsPropagateNullability: Statics.FalseTrue,
                     returnType),
 
             _ => null
@@ -117,7 +120,7 @@ public class SqlServerDateTimeMemberTranslator(
                 "DATEPART",
                 arguments: [sqlExpressionFactory.Fragment(part), instance!],
                 nullable: true,
-                argumentsPropagateNullability: new[] { false, true },
+                argumentsPropagateNullability: Statics.FalseTrue,
                 returnType);
     }
 }

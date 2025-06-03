@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 /// </summary>
 public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
 {
-    private const string RuntimeParameterPrefix = QueryCompilationContext.QueryParameterPrefix + "entity_equality_";
+    private const string RuntimeParameterPrefix = "entity_equality_";
 
     private static readonly List<MethodInfo> SingleResultMethodInfos =
     [
@@ -51,12 +51,6 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
 
     private static readonly MethodInfo StringEqualsWithStringComparisonStatic
         = typeof(string).GetRuntimeMethod(nameof(string.Equals), [typeof(string), typeof(string), typeof(StringComparison)])!;
-
-    private static readonly MethodInfo LeastMethodInfo
-        = typeof(RelationalDbFunctionsExtensions).GetMethod(nameof(RelationalDbFunctionsExtensions.Least))!;
-
-    private static readonly MethodInfo GreatestMethodInfo
-        = typeof(RelationalDbFunctionsExtensions).GetMethod(nameof(RelationalDbFunctionsExtensions.Greatest))!;
 
     private static readonly MethodInfo GetTypeMethodInfo = typeof(object).GetTypeInfo().GetDeclaredMethod(nameof(GetType))!;
 
@@ -181,138 +175,6 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
         }
 
         return result;
-    }
-
-    /// <summary>
-    ///     Translates Average over an expression to an equivalent SQL representation.
-    /// </summary>
-    /// <param name="sqlExpression">An expression to translate Average over.</param>
-    /// <returns>A SQL translation of Average over the given expression.</returns>
-    [Obsolete("Use IAggregateMethodCallTranslatorProvider to add translation for aggregate methods")]
-    public virtual SqlExpression? TranslateAverage(SqlExpression sqlExpression)
-    {
-        var inputType = sqlExpression.Type;
-        if (inputType == typeof(int)
-            || inputType == typeof(long))
-        {
-            sqlExpression = sqlExpression is DistinctExpression distinctExpression
-                ? new DistinctExpression(
-                    _sqlExpressionFactory.ApplyDefaultTypeMapping(
-                        _sqlExpressionFactory.Convert(distinctExpression.Operand, typeof(double))))
-                : _sqlExpressionFactory.ApplyDefaultTypeMapping(
-                    _sqlExpressionFactory.Convert(sqlExpression, typeof(double)));
-        }
-
-        return inputType == typeof(float)
-            ? _sqlExpressionFactory.Convert(
-                _sqlExpressionFactory.Function(
-                    "AVG",
-                    new[] { sqlExpression },
-                    nullable: true,
-                    argumentsPropagateNullability: new[] { false },
-                    typeof(double)),
-                sqlExpression.Type,
-                sqlExpression.TypeMapping)
-            : _sqlExpressionFactory.Function(
-                "AVG",
-                new[] { sqlExpression },
-                nullable: true,
-                argumentsPropagateNullability: new[] { false },
-                sqlExpression.Type,
-                sqlExpression.TypeMapping);
-    }
-
-    /// <summary>
-    ///     Translates Count over an expression to an equivalent SQL representation.
-    /// </summary>
-    /// <param name="sqlExpression">An expression to translate Count over.</param>
-    /// <returns>A SQL translation of Count over the given expression.</returns>
-    [Obsolete("Use IAggregateMethodCallTranslatorProvider to add translation for aggregate methods")]
-    public virtual SqlExpression? TranslateCount(SqlExpression sqlExpression)
-        => _sqlExpressionFactory.ApplyDefaultTypeMapping(
-            _sqlExpressionFactory.Function(
-                "COUNT",
-                new[] { sqlExpression },
-                nullable: false,
-                argumentsPropagateNullability: new[] { false },
-                typeof(int)));
-
-    /// <summary>
-    ///     Translates LongCount over an expression to an equivalent SQL representation.
-    /// </summary>
-    /// <param name="sqlExpression">An expression to translate LongCount over.</param>
-    /// <returns>A SQL translation of LongCount over the given expression.</returns>
-    [Obsolete("Use IAggregateMethodCallTranslatorProvider to add translation for aggregate methods")]
-    public virtual SqlExpression? TranslateLongCount(SqlExpression sqlExpression)
-        => _sqlExpressionFactory.ApplyDefaultTypeMapping(
-            _sqlExpressionFactory.Function(
-                "COUNT",
-                new[] { sqlExpression },
-                nullable: false,
-                argumentsPropagateNullability: new[] { false },
-                typeof(long)));
-
-    /// <summary>
-    ///     Translates Max over an expression to an equivalent SQL representation.
-    /// </summary>
-    /// <param name="sqlExpression">An expression to translate Max over.</param>
-    /// <returns>A SQL translation of Max over the given expression.</returns>
-    [Obsolete("Use IAggregateMethodCallTranslatorProvider to add translation for aggregate methods")]
-    public virtual SqlExpression? TranslateMax(SqlExpression sqlExpression)
-        => sqlExpression != null
-            ? _sqlExpressionFactory.Function(
-                "MAX",
-                new[] { sqlExpression },
-                nullable: true,
-                argumentsPropagateNullability: new[] { false },
-                sqlExpression.Type,
-                sqlExpression.TypeMapping)
-            : null;
-
-    /// <summary>
-    ///     Translates Min over an expression to an equivalent SQL representation.
-    /// </summary>
-    /// <param name="sqlExpression">An expression to translate Min over.</param>
-    /// <returns>A SQL translation of Min over the given expression.</returns>
-    [Obsolete("Use IAggregateMethodCallTranslatorProvider to add translation for aggregate methods")]
-    public virtual SqlExpression? TranslateMin(SqlExpression sqlExpression)
-        => sqlExpression != null
-            ? _sqlExpressionFactory.Function(
-                "MIN",
-                new[] { sqlExpression },
-                nullable: true,
-                argumentsPropagateNullability: new[] { false },
-                sqlExpression.Type,
-                sqlExpression.TypeMapping)
-            : null;
-
-    /// <summary>
-    ///     Translates Sum over an expression to an equivalent SQL representation.
-    /// </summary>
-    /// <param name="sqlExpression">An expression to translate Sum over.</param>
-    /// <returns>A SQL translation of Sum over the given expression.</returns>
-    [Obsolete("Use IAggregateMethodCallTranslatorProvider to add translation for aggregate methods")]
-    public virtual SqlExpression? TranslateSum(SqlExpression sqlExpression)
-    {
-        var inputType = sqlExpression.Type;
-
-        return inputType == typeof(float)
-            ? _sqlExpressionFactory.Convert(
-                _sqlExpressionFactory.Function(
-                    "SUM",
-                    new[] { sqlExpression },
-                    nullable: true,
-                    argumentsPropagateNullability: new[] { false },
-                    typeof(double)),
-                inputType,
-                sqlExpression.TypeMapping)
-            : _sqlExpressionFactory.Function(
-                "SUM",
-                new[] { sqlExpression },
-                nullable: true,
-                argumentsPropagateNullability: new[] { false },
-                inputType,
-                sqlExpression.TypeMapping);
     }
 
     /// <inheritdoc />
@@ -622,7 +484,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
             || TranslationFailed(conditionalExpression.IfTrue, ifTrue, out var sqlIfTrue)
             || TranslationFailed(conditionalExpression.IfFalse, ifFalse, out var sqlIfFalse)
                 ? QueryCompilationContext.NotTranslatedExpression
-                : _sqlExpressionFactory.Case(new[] { new CaseWhenClause(sqlTest!, sqlIfTrue!) }, sqlIfFalse);
+                : _sqlExpressionFactory.Case([new CaseWhenClause(sqlTest!, sqlIfTrue!)], sqlIfFalse);
     }
 
     /// <inheritdoc />
@@ -640,6 +502,31 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
             case EnumerableExpression:
             case JsonQueryExpression:
                 return extensionExpression;
+
+            case QueryParameterExpression queryParameter:
+                // If we're precompiling a query, nullability information about reference type parameters has been extracted by the
+                // funcletizer and stored on the query compilation context; use that information when creating the SqlParameterExpression.
+                if (queryParameter.IsNonNullableReferenceType)
+                {
+                    Check.DebugAssert(
+                        _queryCompilationContext.IsPrecompiling,
+                        "Parameters can only be known to has non-nullable reference types in query precompilation.");
+                    return new SqlParameterExpression(
+                        invariantName: queryParameter.Name,
+                        name: queryParameter.Name,
+                        queryParameter.Type,
+                        nullable: false,
+                        queryParameter.ShouldBeConstantized,
+                        typeMapping: null);
+                }
+
+                return new SqlParameterExpression(
+                    invariantName: queryParameter.Name,
+                    name: queryParameter.Name,
+                    queryParameter.Type,
+                    queryParameter.Type.IsNullableType(),
+                    queryParameter.ShouldBeConstantized,
+                    typeMapping: null);
 
             case StructuralTypeShaperExpression shaper:
                 return new StructuralTypeReferenceExpression(shaper);
@@ -722,7 +609,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
             // that we can translate queryable operators over it (query root in subquery context), but in normal SQL translation context
             // we just unwrap the query root expression to get the parameter out.
             case ParameterQueryRootExpression queryableParameterQueryRootExpression:
-                return Visit(queryableParameterQueryRootExpression.ParameterExpression);
+                return Visit(queryableParameterQueryRootExpression.QueryParameterExpression);
 
             default:
                 return QueryCompilationContext.NotTranslatedExpression;
@@ -744,6 +631,16 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
     /// <inheritdoc />
     protected override Expression VisitMember(MemberExpression memberExpression)
     {
+        // Fold member access into conditional, i.e. transform
+        // (test ? expr1 : expr2).Member -> (test ? expr1.Member : expr2.Member)
+        if (memberExpression.Expression is ConditionalExpression cond) {
+            return Visit(Expression.Condition(
+                cond.Test,
+                Expression.MakeMemberAccess(cond.IfTrue, memberExpression.Member),
+                Expression.MakeMemberAccess(cond.IfFalse, memberExpression.Member)
+            ));
+        }
+
         var innerExpression = Visit(memberExpression.Expression);
 
         return TryBindMember(innerExpression, MemberIdentity.Create(memberExpression.Member), out var expression)
@@ -937,14 +834,9 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
             // translation.
             case
             {
-                Method:
-                {
-                    Name: nameof(RelationalDbFunctionsExtensions.Least) or nameof(RelationalDbFunctionsExtensions.Greatest),
-                    IsGenericMethod: true
-                },
+                Method.Name: nameof(RelationalDbFunctionsExtensions.Least) or nameof(RelationalDbFunctionsExtensions.Greatest),
                 Arguments: [_, NewArrayExpression newArray]
-            } when method.GetGenericMethodDefinition() is var genericMethodDefinition
-            && (genericMethodDefinition == LeastMethodInfo || genericMethodDefinition == GreatestMethodInfo):
+            } when method.DeclaringType == typeof(RelationalDbFunctionsExtensions):
             {
                 var values = newArray.Expressions;
                 var translatedValues = new SqlExpression[values.Count];
@@ -962,26 +854,63 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                     translatedValues[i] = translatedValue!;
                 }
 
-                var elementClrType = newArray.Type.GetElementType()!;
+                var elementClrType = newArray.Type.GetElementType()!.UnwrapNullableType();
 
-                if (genericMethodDefinition == LeastMethodInfo
-                    && _sqlExpressionFactory.TryCreateLeast(translatedValues, elementClrType, out var leastExpression))
+                return method.Name switch
+                    {
+                        nameof(RelationalDbFunctionsExtensions.Greatest) => GenerateGreatest(translatedValues, elementClrType),
+                        nameof(RelationalDbFunctionsExtensions.Least) => GenerateLeast(translatedValues, elementClrType),
+                        _ => throw new UnreachableException()
+                    }
+                    ?? QueryCompilationContext.NotTranslatedExpression;
+            }
+
+            // Translate Math.Max/Min.
+            // These are here rather than in a MethodTranslator since we use TranslateGreatest/Least, and since these are very similar to
+            // the EF.Functions.Greatest/Least translation just above.
+            case
+            {
+                Method.Name: nameof(Math.Max) or nameof(Math.Min),
+                Arguments: [Expression argument1, Expression argument2]
+            } when method.DeclaringType == typeof(Math):
+            {
+                var translatedArguments = new List<SqlExpression>();
+                var returnType = method.ReturnType.UnwrapNullableType();
+
+                return TryFlattenVisit(argument1)
+                    && TryFlattenVisit(argument2)
+                    && method.Name switch
+                    {
+                        nameof(Math.Max) => GenerateGreatest(translatedArguments, returnType),
+                        nameof(Math.Min) => GenerateLeast(translatedArguments, returnType),
+                        _ => throw new UnreachableException()
+                    } is SqlExpression translatedFunctionCall
+                        ? translatedFunctionCall
+                        : QueryCompilationContext.NotTranslatedExpression;
+
+                bool TryFlattenVisit(Expression argument)
                 {
-                    return leastExpression;
-                }
+                    if (argument is MethodCallExpression nestedCall && nestedCall.Method == method)
+                    {
+                        return TryFlattenVisit(nestedCall.Arguments[0]) && TryFlattenVisit(nestedCall.Arguments[1]);
+                    }
 
-                if (genericMethodDefinition == GreatestMethodInfo
-                    && _sqlExpressionFactory.TryCreateGreatest(translatedValues, elementClrType, out var greatestExpression))
-                {
-                    return greatestExpression;
-                }
+                    if (TranslationFailed(argument, Visit(argument), out var translatedArgument))
+                    {
+                        return false;
+                    }
 
-                throw new UnreachableException();
+                    translatedArguments.Add(translatedArgument!);
+                    return true;
+                }
             }
 
             // For queryable methods, either we translate the whole aggregate or we go to subquery mode
             // We don't try to translate component-wise it. Providers should implement in subquery translation.
-            case { Method.IsStatic: true, Arguments.Count: > 0 } when method.DeclaringType == typeof(Queryable):
+            case { Method.IsStatic: true, Arguments.Count: > 0 }
+                when method.DeclaringType == typeof(Queryable)
+                || method.DeclaringType == typeof(EntityFrameworkQueryableExtensions)
+                || method.DeclaringType == typeof(RelationalQueryableExtensions):
                 return TryTranslateAggregateMethodCall(methodCallExpression, out var translatedAggregate)
                     ? translatedAggregate
                     : TranslateAsSubquery(methodCallExpression);
@@ -1083,24 +1012,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
 
     /// <inheritdoc />
     protected override Expression VisitParameter(ParameterExpression parameterExpression)
-    {
-        if (parameterExpression.Name?.StartsWith(QueryCompilationContext.QueryParameterPrefix, StringComparison.Ordinal) == true)
-        {
-            // If we're precompiling a query, nullability information about reference type parameters has been extracted by the
-            // funcletizer and stored on the query compilation context; use that information when creating the SqlParameterExpression.
-            if (_queryCompilationContext.NonNullableReferenceTypeParameters.Contains(parameterExpression.Name))
-            {
-                Check.DebugAssert(
-                    _queryCompilationContext.IsPrecompiling,
-                    "Parameters can only be known to has non-nullable reference types in query precompilation.");
-                return new SqlParameterExpression(parameterExpression.Name, parameterExpression.Type, typeMapping: null, nullable: false);
-            }
-
-            return new SqlParameterExpression(parameterExpression.Name, parameterExpression.Type, typeMapping: null);
-        }
-
-        throw new InvalidOperationException(CoreStrings.TranslationFailed(parameterExpression.Print()));
-    }
+        => throw new InvalidOperationException(CoreStrings.TranslationFailed(parameterExpression.Print()));
 
     /// <inheritdoc />
     protected override Expression VisitTypeBinary(TypeBinaryExpression typeBinaryExpression)
@@ -1182,13 +1094,9 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                             .Aggregate(_sqlExpressionFactory.OrElse);
                 }
 
-                return discriminatorValues.Count == 1
-                    ? _sqlExpressionFactory.Equal(
-                        entityProjectionExpression.DiscriminatorExpression!,
-                        _sqlExpressionFactory.Constant(discriminatorValues[0]))
-                    : _sqlExpressionFactory.In(
-                        entityProjectionExpression.DiscriminatorExpression!,
-                        discriminatorValues.Select(d => _sqlExpressionFactory.Constant(d)).ToArray());
+                return _sqlExpressionFactory.In(
+                    entityProjectionExpression.DiscriminatorExpression!,
+                    discriminatorValues.Select(d => _sqlExpressionFactory.Constant(d)).ToArray());
             }
         }
         else
@@ -1199,15 +1107,11 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
             {
                 var concreteEntityTypes = derivedType.GetConcreteDerivedTypesInclusive().ToList();
                 var discriminatorColumn = BindProperty(typeReference, discriminatorProperty);
-                return concreteEntityTypes.Count == 1
-                    ? _sqlExpressionFactory.Equal(
-                        discriminatorColumn,
-                        _sqlExpressionFactory.Constant(concreteEntityTypes[0].GetDiscriminatorValue(), discriminatorColumn.Type))
-                    : _sqlExpressionFactory.In(
-                        discriminatorColumn,
-                        concreteEntityTypes
-                            .Select(et => _sqlExpressionFactory.Constant(et.GetDiscriminatorValue(), discriminatorColumn.Type))
-                            .ToArray());
+                return _sqlExpressionFactory.In(
+                    discriminatorColumn,
+                    concreteEntityTypes
+                        .Select(et => _sqlExpressionFactory.Constant(et.GetDiscriminatorValue(), discriminatorColumn.Type))
+                        .ToArray());
             }
 
             return _sqlExpressionFactory.Constant(true);
@@ -1380,7 +1284,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                 if (allRequiredNonPkProperties.Count > 0)
                 {
                     condition = allRequiredNonPkProperties.Select(p => projection.BindProperty(p))
-                        .Select(c => (SqlExpression)_sqlExpressionFactory.NotEqual(c, _sqlExpressionFactory.Constant(null, c.Type)))
+                        .Select(c => _sqlExpressionFactory.NotEqual(c, _sqlExpressionFactory.Constant(null, c.Type)))
                         .Aggregate((a, b) => _sqlExpressionFactory.AndAlso(a, b));
                 }
 
@@ -1440,7 +1344,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
             case { Parameter: StructuralTypeShaperExpression shaper }:
                 var projection = (StructuralTypeProjectionExpression)Visit(shaper.ValueBufferExpression);
 
-                // TODO: Move all this logic into StructuralTypeProjectionExpression
+                // TODO: Move all this logic into StructuralTypeProjectionExpression, #31376
                 Check.DebugAssert(projection.IsNullable == shaper.IsNullable, "Nullability mismatch");
                 return new StructuralTypeReferenceExpression(projection.BindComplexProperty(complexProperty));
 
@@ -1476,12 +1380,15 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
             {
                 switch (genericMethod.Name)
                 {
-                    case nameof(Queryable.Average)
-                        when QueryableMethods.IsAverageWithoutSelector(genericMethod):
                     case nameof(Queryable.Max)
                         when genericMethod == QueryableMethods.MaxWithoutSelector:
                     case nameof(Queryable.Min)
                         when genericMethod == QueryableMethods.MinWithoutSelector:
+                        enumerableExpression = enumerableExpression.SetDistinct(false);
+                        break;
+
+                    case nameof(Queryable.Average)
+                        when QueryableMethods.IsAverageWithoutSelector(genericMethod):
                     case nameof(Queryable.Sum)
                         when QueryableMethods.IsSumWithoutSelector(genericMethod):
                     case nameof(Queryable.Count)
@@ -1490,12 +1397,16 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                         when genericMethod == QueryableMethods.LongCountWithoutPredicate:
                         break;
 
-                    case nameof(Queryable.Average)
-                        when QueryableMethods.IsAverageWithSelector(genericMethod):
                     case nameof(Queryable.Max)
                         when genericMethod == QueryableMethods.MaxWithSelector:
                     case nameof(Queryable.Min)
                         when genericMethod == QueryableMethods.MinWithSelector:
+                        enumerableExpression = enumerableExpression.SetDistinct(false);
+                        enumerableExpression = ProcessSelector(enumerableExpression, arguments[1].UnwrapLambdaFromQuote());
+                        break;
+
+                    case nameof(Queryable.Average)
+                        when QueryableMethods.IsAverageWithSelector(genericMethod):
                     case nameof(Queryable.Sum)
                         when QueryableMethods.IsSumWithSelector(genericMethod):
                         enumerableExpression = ProcessSelector(enumerableExpression, arguments[1].UnwrapLambdaFromQuote());
@@ -1535,6 +1446,18 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
         translation = null;
         return false;
     }
+
+    /// <summary>
+    ///     Generates a SQL GREATEST expression over the given expressions.
+    /// </summary>
+    public virtual SqlExpression? GenerateGreatest(IReadOnlyList<SqlExpression> expressions, Type resultType)
+        => null;
+
+    /// <summary>
+    ///     Generates a SQL GREATEST expression over the given expressions.
+    /// </summary>
+    public virtual SqlExpression? GenerateLeast(IReadOnlyList<SqlExpression> expressions, Type resultType)
+        => null;
 
     private bool TryTranslateAsEnumerableExpression(
         Expression? expression,
@@ -1580,7 +1503,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
 
                         if (!enumerableSource.IsDistinct)
                         {
-                            enumerableExpression = enumerableSource.ApplyDistinct();
+                            enumerableExpression = enumerableSource.SetDistinct(true);
                             return true;
                         }
 
@@ -1775,8 +1698,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                 rewrittenSource = Expression.Constant(propertyValueList);
                 break;
 
-            case SqlParameterExpression sqlParameterExpression
-                when sqlParameterExpression.Name.StartsWith(QueryCompilationContext.QueryParameterPrefix, StringComparison.Ordinal):
+            case SqlParameterExpression sqlParameterExpression:
                 var lambda = Expression.Lambda(
                     Expression.Call(
                         ParameterListValueExtractorMethod.MakeGenericMethod(entityType.ClrType, property.ClrType.MakeNullable()),
@@ -1786,8 +1708,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                     QueryCompilationContext.QueryContextParameter);
 
                 var newParameterName =
-                    $"{RuntimeParameterPrefix}"
-                    + $"{sqlParameterExpression.Name[QueryCompilationContext.QueryParameterPrefix.Length..]}_{property.Name}";
+                    $"{RuntimeParameterPrefix}{sqlParameterExpression.Name}_{property.Name}";
 
                 rewrittenSource = _queryCompilationContext.RegisterRuntimeParameter(newParameterName, lambda);
                 break;
@@ -1995,7 +1916,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                 || IsNullSqlConstantExpression(right))
             {
                 // TODO: when we support optional complex types - or projecting required complex types via optional navigations - we'll
-                // be able to translate this.
+                // be able to translate this, #31376
                 throw new InvalidOperationException(RelationalStrings.CannotCompareComplexTypeToNull);
             }
 
@@ -2007,7 +1928,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
 
             // If a complex type is the result of a subquery, then comparing its columns would mean duplicating the subquery, which would
             // be potentially very inefficient.
-            // TODO: Enable this by extracting the subquery out to a common table expressions (WITH)
+            // TODO: Enable this by extracting the subquery out to a common table expressions (WITH), #31237
             if (leftReference is { Subquery: not null } || rightReference is { Subquery: not null })
             {
                 throw new InvalidOperationException(RelationalStrings.SubqueryOverComplexTypesNotSupported(complexType.DisplayName()));
@@ -2090,8 +2011,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                         : property.GetGetter().GetClrValue(sqlConstantExpression.Value),
                     property.ClrType.MakeNullable());
 
-            case SqlParameterExpression sqlParameterExpression
-                when sqlParameterExpression.Name.StartsWith(QueryCompilationContext.QueryParameterPrefix, StringComparison.Ordinal):
+            case SqlParameterExpression sqlParameterExpression:
             {
                 var lambda = Expression.Lambda(
                     Expression.Call(
@@ -2103,8 +2023,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                     QueryCompilationContext.QueryContextParameter);
 
                 var newParameterName =
-                    $"{RuntimeParameterPrefix}"
-                    + $"{sqlParameterExpression.Name[QueryCompilationContext.QueryParameterPrefix.Length..]}_{property.Name}";
+                    $"{RuntimeParameterPrefix}{sqlParameterExpression.Name}_{property.Name}";
 
                 return _queryCompilationContext.RegisterRuntimeParameter(newParameterName, lambda);
             }
@@ -2121,7 +2040,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                     QueryCompilationContext.QueryContextParameter);
 
                 var parameterNameBuilder = new StringBuilder(RuntimeParameterPrefix)
-                    .Append(chainExpression.ParameterExpression.Name[QueryCompilationContext.QueryParameterPrefix.Length..])
+                    .Append(chainExpression.ParameterExpression.Name)
                     .Append('_');
 
                 foreach (var complexProperty in chainExpression.ComplexPropertyChain)
@@ -2152,7 +2071,6 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                 complexProperty.ClrType.MakeNullable()),
 
             SqlParameterExpression sqlParameterExpression
-                when sqlParameterExpression.Name.StartsWith(QueryCompilationContext.QueryParameterPrefix, StringComparison.Ordinal)
                 => new ParameterBasedComplexPropertyChainExpression(sqlParameterExpression, complexProperty),
 
             MemberInitExpression memberInitExpression
@@ -2218,18 +2136,13 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
         return baseListParameter.Select(e => e != null ? (TProperty?)getter.GetClrValue(e) : (TProperty?)(object?)null).ToList();
     }
 
-    private sealed class ParameterBasedComplexPropertyChainExpression : Expression
+    private sealed class ParameterBasedComplexPropertyChainExpression(
+        SqlParameterExpression parameterExpression,
+        IComplexProperty firstComplexProperty)
+        : Expression
     {
-        public ParameterBasedComplexPropertyChainExpression(
-            SqlParameterExpression parameterExpression,
-            IComplexProperty firstComplexProperty)
-        {
-            ParameterExpression = parameterExpression;
-            ComplexPropertyChain = [firstComplexProperty];
-        }
-
-        public SqlParameterExpression ParameterExpression { get; }
-        public List<IComplexProperty> ComplexPropertyChain { get; }
+        public SqlParameterExpression ParameterExpression { get; } = parameterExpression;
+        public List<IComplexProperty> ComplexPropertyChain { get; } = [firstComplexProperty];
     }
 
     private static bool CanEvaluate(Expression expression)

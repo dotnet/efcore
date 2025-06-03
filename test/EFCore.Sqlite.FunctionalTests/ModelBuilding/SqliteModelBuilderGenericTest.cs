@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 // ReSharper disable InconsistentNaming
+
 namespace Microsoft.EntityFrameworkCore.ModelBuilding;
 
 public class SqliteModelBuilderGenericTest : SqliteModelBuilderTestBase
@@ -14,6 +15,13 @@ public class SqliteModelBuilderGenericTest : SqliteModelBuilderTestBase
     }
 
     public class SqliteGenericComplexType(SqliteModelBuilderFixture fixture) : SqliteComplexType(fixture)
+    {
+        protected override TestModelBuilder CreateModelBuilder(
+            Action<ModelConfigurationBuilder>? configure)
+            => new GenericTestModelBuilder(Fixture, configure);
+    }
+
+    public class SqliteGenericComplexCollection(SqliteModelBuilderFixture fixture) : SqliteComplexCollection(fixture)
     {
         protected override TestModelBuilder CreateModelBuilder(
             Action<ModelConfigurationBuilder>? configure)

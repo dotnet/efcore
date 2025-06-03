@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Data;
+using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.Data.Sqlite;
@@ -429,7 +430,7 @@ ORDER BY "cid"
             {
                 try
                 {
-                    column.DefaultValue = Convert.ChangeType(defaultValueSql, type);
+                    column.DefaultValue = Convert.ChangeType(defaultValueSql, type, CultureInfo.InvariantCulture);
                 }
                 catch
                 {
@@ -471,7 +472,7 @@ ORDER BY "cid"
                     column.DefaultValue = dateTimeOffset;
                 }
                 else if (type == typeof(decimal)
-                         && decimal.TryParse(defaultValueSql, out var decimalValue))
+                         && decimal.TryParse(defaultValueSql, CultureInfo.InvariantCulture, out var decimalValue))
                 {
                     column.DefaultValue = decimalValue;
                 }

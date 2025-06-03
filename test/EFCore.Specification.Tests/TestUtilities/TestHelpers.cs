@@ -5,7 +5,6 @@ using System.Collections;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -432,7 +431,8 @@ public abstract class TestHelpers
 
         public IModel FinalizeModel(bool designTime = false, bool skipValidation = false)
         {
-            var designTimeModel = _modelRuntimeInitializer.Initialize((IModel)Model, designTime: true, skipValidation ? null : _validationLogger);
+            var designTimeModel = _modelRuntimeInitializer.Initialize(
+                (IModel)Model, designTime: true, skipValidation ? null : _validationLogger);
             var runtimeModel = (IModel)designTimeModel.FindRuntimeAnnotationValue(CoreAnnotationNames.ReadOnlyModel)!;
             return designTime ? designTimeModel : runtimeModel;
         }
@@ -481,6 +481,7 @@ public abstract class TestHelpers
             ConventionSet.KeyAnnotationChangedConventions.Clear();
             ConventionSet.KeyRemovedConventions.Clear();
             ConventionSet.ModelAnnotationChangedConventions.Clear();
+            ConventionSet.ModelEmbeddedDiscriminatorNameConventions.Clear();
             ConventionSet.ModelFinalizedConventions.Clear();
             ConventionSet.ModelFinalizingConventions.Clear();
             ConventionSet.ModelInitializedConventions.Clear();

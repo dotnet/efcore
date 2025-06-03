@@ -1249,7 +1249,7 @@ public class MigrationsSqlGenerator : IMigrationsSqlGenerator
     /// <param name="operation">The sequence options.</param>
     /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
     /// <param name="builder">The command builder to use to add the SQL fragment.</param>
-    /// <param name="forAlter">If <see langword="true"/>, then all options are included, even if default.</param>
+    /// <param name="forAlter">If <see langword="true" />, then all options are included, even if default.</param>
     protected virtual void SequenceOptions(
         string? schema,
         string name,
@@ -1290,23 +1290,6 @@ public class MigrationsSqlGenerator : IMigrationsSqlGenerator
         }
 
         builder.Append(operation.IsCyclic ? " CYCLE" : " NO CYCLE");
-
-        if (!operation.IsCached)
-        {
-            builder
-                .Append(" NO CACHE");
-        }
-        else if (operation.CacheSize != null)
-        {
-            builder
-                .Append(" CACHE ")
-                .Append(intTypeMapping.GenerateSqlLiteral(operation.CacheSize.Value));
-        }
-        else if (forAlter)
-        {
-            builder
-                .Append(" CACHE");
-        }
     }
 
     /// <summary>

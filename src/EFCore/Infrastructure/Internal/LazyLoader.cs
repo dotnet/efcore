@@ -1,9 +1,9 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal;
@@ -20,7 +20,9 @@ public class LazyLoader : ILazyLoader, IInjectableService
     private bool _disposed;
     private bool _detached;
     private IDictionary<string, bool>? _loadedStates;
-    private readonly ConcurrentDictionary<(object Entity, string NavigationName), bool> _isLoading = new(NavEntryEqualityComparer.Instance);
+    private readonly Lock _isLoadingLock = new Lock();
+    private readonly Dictionary<(object Entity, string NavigationName), TaskCompletionSource> _isLoading = new(NavEntryEqualityComparer.Instance);
+    private static readonly AsyncLocal<int> _isLoadingCallDepth = new();
     private HashSet<string>? _nonLazyNavigations;
 
     /// <summary>
@@ -46,7 +48,8 @@ public class LazyLoader : ILazyLoader, IInjectableService
     public virtual void Injected(DbContext context, object entity, QueryTrackingBehavior? queryTrackingBehavior, ITypeBase structuralType)
     {
         _queryTrackingBehavior = queryTrackingBehavior;
-        _nonLazyNavigations ??= InitNavigationsMetadata(structuralType as IEntityType
+        _nonLazyNavigations ??= InitNavigationsMetadata(
+            structuralType as IEntityType
             ?? throw new NotImplementedException("Navigations on complex types are not supported"));
     }
 
@@ -106,30 +109,59 @@ public class LazyLoader : ILazyLoader, IInjectableService
         Check.NotEmpty(navigationName, nameof(navigationName));
 
         var navEntry = (entity, navigationName);
-        if (_isLoading.TryAdd(navEntry, true))
+
+        bool exists;
+        TaskCompletionSource isLoadingValue;
+
+        lock (_isLoadingLock)
         {
-            try
+            ref var refIsLoadingValue = ref CollectionsMarshal.GetValueRefOrAddDefault(_isLoading, navEntry, out exists);
+            if (!exists)
             {
-                // ShouldLoad is called after _isLoading.Add because it could attempt to load the property. See #13138.
-                if (ShouldLoad(entity, navigationName, out var entry))
+                refIsLoadingValue = new();
+            }
+            _isLoadingCallDepth.Value++;
+            isLoadingValue = refIsLoadingValue!;
+        }
+
+        if (exists)
+        {
+            // Only waits for the outermost call on the call stack. See #35528.
+            // if _isLoadingCallDepth.Value > 1 the call is recursive, waiting probably generates a deadlock See #35832.
+            if (_isLoadingCallDepth.Value == 1)
+            {
+                isLoadingValue.Task.Wait();
+            }
+            _isLoadingCallDepth.Value--;
+            return;
+        }
+
+        try
+        {
+            // ShouldLoad is called after _isLoading.Add because it could attempt to load the property. See #13138.
+            if (ShouldLoad(entity, navigationName, out var entry))
+            {
+                try
                 {
-                    try
-                    {
-                        entry.Load(
-                            _queryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution
-                                ? LoadOptions.ForceIdentityResolution
-                                : LoadOptions.None);
-                    }
-                    catch
-                    {
-                        entry.IsLoaded = false;
-                        throw;
-                    }
+                    entry.Load(
+                        _queryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution
+                            ? LoadOptions.ForceIdentityResolution
+                            : LoadOptions.None);
+                }
+                catch
+                {
+                    entry.IsLoaded = false;
+                    throw;
                 }
             }
-            finally
+        }
+        finally
+        {
+            isLoadingValue.TrySetResult();
+            _isLoadingCallDepth.Value--;
+            lock (_isLoadingLock)
             {
-                _isLoading.TryRemove(navEntry, out _);
+                _isLoading.Remove(navEntry);
             }
         }
     }
@@ -149,31 +181,60 @@ public class LazyLoader : ILazyLoader, IInjectableService
         Check.NotEmpty(navigationName, nameof(navigationName));
 
         var navEntry = (entity, navigationName);
-        if (_isLoading.TryAdd(navEntry, true))
+
+        bool exists;
+        TaskCompletionSource isLoadingValue;
+
+        lock (_isLoadingLock)
         {
-            try
+            ref var refIsLoadingValue = ref CollectionsMarshal.GetValueRefOrAddDefault(_isLoading, navEntry, out exists);
+            if (!exists)
             {
-                // ShouldLoad is called after _isLoading.Add because it could attempt to load the property. See #13138.
-                if (ShouldLoad(entity, navigationName, out var entry))
+                refIsLoadingValue = new();
+            }
+            _isLoadingCallDepth.Value++;
+            isLoadingValue = refIsLoadingValue!;
+        }
+
+        if (exists)
+        {
+            // Only waits for the outermost call on the call stack. See #35528.
+            // if _isLoadingCallDepth.Value > 1 the call is recursive, waiting probably generates a deadlock See #35832.
+            if (_isLoadingCallDepth.Value == 1)
+            {
+                await isLoadingValue.Task.WaitAsync(cancellationToken).ConfigureAwait(false);
+            }
+            _isLoadingCallDepth.Value--;
+            return;
+        }
+
+        try
+        {
+            // ShouldLoad is called after _isLoading.Add because it could attempt to load the property. See #13138.
+            if (ShouldLoad(entity, navigationName, out var entry))
+            {
+                try
                 {
-                    try
-                    {
-                        await entry.LoadAsync(
-                            _queryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution
-                                ? LoadOptions.ForceIdentityResolution
-                                : LoadOptions.None,
-                            cancellationToken).ConfigureAwait(false);
-                    }
-                    catch
-                    {
-                        entry.IsLoaded = false;
-                        throw;
-                    }
+                    await entry.LoadAsync(
+                               _queryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution
+                                   ? LoadOptions.ForceIdentityResolution
+                                   : LoadOptions.None,
+                               cancellationToken).ConfigureAwait(false);
+                }
+                catch
+                {
+                    entry.IsLoaded = false;
+                    throw;
                 }
             }
-            finally
+        }
+        finally
+        {
+            isLoadingValue.TrySetResult();
+            _isLoadingCallDepth.Value--;
+            lock (_isLoadingLock)
             {
-                _isLoading.TryRemove(navEntry, out _);
+                _isLoading.Remove(navEntry);
             }
         }
     }

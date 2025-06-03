@@ -976,8 +976,8 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
             builder =>
             {
                 builder.Entity("Base").Property<int>("Id");
-                builder.Entity("Derived1").HasBaseType("Base").Property<string>("Foo");
-                builder.Entity("Derived2").HasBaseType("Base").Property<string>("Foo");
+                builder.Entity("Derived1").HasBaseType("Base").Property<string>("Foo").HasColumnName("Foo");
+                builder.Entity("Derived2").HasBaseType("Base").Property<string>("Foo").HasColumnName("Foo");
             },
             builder => { },
             builder => builder.Entity("Base").Property<string>("Foo"),
@@ -2407,46 +2407,6 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                 Assert.Equal("TestSequence", sequence.Name);
             });
 
-
-    [ConditionalFact]
-    public virtual Task Create_sequence_nocache()
-        => Test(
-            builder => { },
-            builder => builder.HasSequence("Alpha").UseNoCache(),
-            model =>
-            {
-                var sequence = Assert.Single(model.Sequences);
-                Assert.Equal("Alpha", sequence.Name);
-                Assert.False(sequence.IsCached);
-            });
-
-
-    [ConditionalFact]
-    public virtual Task Create_sequence_cache()
-        => Test(
-            builder => { },
-            builder => builder.HasSequence("Beta").UseCache(20),
-            model =>
-            {
-                var sequence = Assert.Single(model.Sequences);
-                Assert.Equal("Beta", sequence.Name);
-                Assert.True(sequence.IsCached);
-                Assert.Equal(20, sequence.CacheSize);
-            });
-
-    [ConditionalFact]
-    public virtual Task Create_sequence_default_cache()
-        => Test(
-            builder => { },
-            builder => builder.HasSequence("Gamma").UseCache(),
-            model =>
-            {
-                var sequence = Assert.Single(model.Sequences);
-                Assert.Equal("Gamma", sequence.Name);
-                Assert.True(sequence.IsCached);
-                Assert.Null(sequence.CacheSize);
-            });
-
     [ConditionalFact]
     public virtual Task Create_sequence_all_settings()
         => Test(
@@ -2456,8 +2416,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                 .IncrementsBy(2)
                 .HasMin(2)
                 .HasMax(916)
-                .IsCyclic()
-                .UseCache(20),
+                .IsCyclic(),
             model =>
             {
                 var sequence = Assert.Single(model.Sequences);
@@ -2468,8 +2427,6 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                 Assert.Equal(2, sequence.MinValue);
                 Assert.Equal(916, sequence.MaxValue);
                 Assert.True(sequence.IsCyclic);
-                Assert.True(sequence.IsCached);
-                Assert.Equal(20, sequence.CacheSize);
             });
 
     [ConditionalFact]
@@ -2482,8 +2439,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                 .IncrementsBy(2)
                 .HasMin(-5)
                 .HasMax(10)
-                .IsCyclic()
-                .UseCache(20),
+                .IsCyclic(),
             model =>
             {
                 var sequence = Assert.Single(model.Sequences);
@@ -2492,8 +2448,6 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                 Assert.Equal(-5, sequence.MinValue);
                 Assert.Equal(10, sequence.MaxValue);
                 Assert.True(sequence.IsCyclic);
-                Assert.True(sequence.IsCached);
-                Assert.Equal(20, sequence.CacheSize);
             });
 
     [ConditionalFact]
@@ -2506,85 +2460,6 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
             {
                 var sequence = Assert.Single(model.Sequences);
                 Assert.Equal(2, sequence.IncrementBy);
-            });
-
-    [ConditionalFact]
-    public virtual Task Alter_sequence_default_cache_to_cache()
-        => Test(
-            builder => builder.HasSequence<int>("Delta").UseCache(),
-            builder => { },
-            builder => builder.HasSequence<int>("Delta").UseCache(20),
-            model =>
-            {
-                var sequence = Assert.Single(model.Sequences);
-                Assert.True(sequence.IsCached);
-                Assert.Equal(20, sequence.CacheSize);
-            });
-
-
-    [ConditionalFact]
-    public virtual Task Alter_sequence_default_cache_to_nocache()
-        => Test(
-            builder => builder.HasSequence<int>("Epsilon").UseCache(),
-            builder => { },
-            builder => builder.HasSequence<int>("Epsilon").UseNoCache(),
-            model =>
-            {
-                var sequence = Assert.Single(model.Sequences);
-                Assert.False(sequence.IsCached);
-                Assert.Null(sequence.CacheSize);
-            });
-
-    [ConditionalFact]
-    public virtual Task Alter_sequence_cache_to_nocache()
-        => Test(
-            builder => builder.HasSequence<int>("Zeta").UseCache(20),
-            builder => { },
-            builder => builder.HasSequence<int>("Zeta").UseNoCache(),
-            model =>
-            {
-                var sequence = Assert.Single(model.Sequences);
-                Assert.False(sequence.IsCached);
-                Assert.Null(sequence.CacheSize);
-            });
-
-    [ConditionalFact]
-    public virtual Task Alter_sequence_cache_to_default_cache()
-        => Test(
-            builder => builder.HasSequence<int>("Eta").UseCache(20),
-            builder => { },
-            builder => builder.HasSequence<int>("Eta").UseCache(),
-            model =>
-            {
-                var sequence = Assert.Single(model.Sequences);
-                Assert.True(sequence.IsCached);
-                Assert.Null(sequence.CacheSize);
-            });
-
-    [ConditionalFact]
-    public virtual Task Alter_sequence_nocache_to_cache()
-        => Test(
-            builder => builder.HasSequence<int>("Theta").UseNoCache(),
-            builder => { },
-            builder => builder.HasSequence<int>("Theta").UseCache(20),
-            model =>
-            {
-                var sequence = Assert.Single(model.Sequences);
-                Assert.True(sequence.IsCached);
-                Assert.Equal(20, sequence.CacheSize);
-            });
-
-    [ConditionalFact]
-    public virtual Task Alter_sequence_nocache_to_default_cache()
-        => Test(
-            builder => builder.HasSequence<int>("Iota").UseNoCache(),
-            builder => { },
-            builder => builder.HasSequence<int>("Iota").UseCache(),
-            model =>
-            {
-                var sequence = Assert.Single(model.Sequences);
-                Assert.True(sequence.IsCached);
-                Assert.Null(sequence.CacheSize);
             });
 
     [ConditionalFact]
@@ -2832,17 +2707,61 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                     c =>
                     {
                         Assert.Equal("MyComplex_Prop", c.Name);
-                        Assert.Equal(true, c.IsNullable);
+                        Assert.True(c.IsNullable);
                     },
                     c =>
                     {
                         Assert.Equal("MyComplex_MyNestedComplex_Bar", c.Name);
-                        Assert.Equal(true, c.IsNullable);
+                        Assert.True(c.IsNullable);
                     },
                     c =>
                     {
                         Assert.Equal("MyComplex_MyNestedComplex_Foo", c.Name);
-                        Assert.Equal(true, c.IsNullable);
+                        Assert.True(c.IsNullable);
+                    });
+            });
+
+    [ConditionalFact]
+    public virtual Task Create_table_with_optional_complex_type_with_required_properties()
+        => Test(
+            builder => { },
+            builder =>
+            {
+                builder.Entity(
+                    "Supplier", e =>
+                    {
+                        e.ToTable("Suppliers");
+                        e.Property<int>("Id").ValueGeneratedOnAdd();
+                        e.HasKey("Id");
+                        e.Property<int>("Number");
+                        e.ComplexProperty<MyComplex>(
+                            "MyComplex", ct =>
+                            {
+                                ct.ComplexProperty<MyNestedComplex>("MyNestedComplex");
+                            });
+                    });
+            },
+            model =>
+            {
+                var contactsTable = Assert.Single(model.Tables.Where(t => t.Name == "Suppliers"));
+                Assert.Collection(
+                    contactsTable.Columns,
+                    c => Assert.Equal("Id", c.Name),
+                    c => Assert.Equal("Number", c.Name),
+                    c =>
+                    {
+                        Assert.Equal("MyComplex_Prop", c.Name);
+                        Assert.True(c.IsNullable);
+                    },
+                    c =>
+                    {
+                        Assert.Equal("MyComplex_MyNestedComplex_Bar", c.Name);
+                        Assert.True(c.IsNullable);
+                    },
+                    c =>
+                    {
+                        Assert.Equal("MyComplex_MyNestedComplex_Foo", c.Name);
+                        Assert.True(c.IsNullable);
                     });
             });
 
@@ -2851,7 +2770,6 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
         [Required]
         public string Prop { get; set; }
 
-        [Required]
         public MyNestedComplex Nested { get; set; }
     }
 
@@ -2989,7 +2907,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                             new ValueConverter<List<int>, string>(
                                 convertToProviderExpression: x => x != null && x.Count > 0 ? "some numbers" : "nothing",
                                 convertFromProviderExpression: x => x == "nothing"
-                                    ? new List<int> { }
+                                    ? new List<int>()
                                     : new List<int>
                                     {
                                         7,
@@ -3033,7 +2951,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                             new ValueConverter<List<int>, string>(
                                 convertToProviderExpression: x => x != null && x.Count > 0 ? "some numbers" : "nothing",
                                 convertFromProviderExpression: x => x == "nothing"
-                                    ? new List<int> { }
+                                    ? new List<int>()
                                     : new List<int>
                                     {
                                         7,
@@ -3270,7 +3188,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                             new ValueConverter<List<int>, string>(
                                 convertToProviderExpression: x => x != null && x.Count > 0 ? "some numbers" : "nothing",
                                 convertFromProviderExpression: x => x == "nothing"
-                                    ? new List<int> { }
+                                    ? new List<int>()
                                     : new List<int>
                                     {
                                         7,
@@ -3314,7 +3232,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                             new ValueConverter<List<int>, string>(
                                 convertToProviderExpression: x => x != null && x.Count > 0 ? "some numbers" : "nothing",
                                 convertFromProviderExpression: x => x == "nothing"
-                                    ? new List<int> { }
+                                    ? new List<int>()
                                     : new List<int>
                                     {
                                         7,
@@ -3337,6 +3255,118 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                     customersTable.Columns.Single(c => c.Name == "Id"),
                     Assert.Single(customersTable.PrimaryKey!.Columns));
             });
+
+    [ConditionalFact]
+    public virtual Task Multiop_drop_table_and_create_the_same_table_in_one_migration()
+        => TestComposite(
+            [
+                builder => builder.Entity(
+                    "Customer", e =>
+                    {
+                        e.Property<int>("Id").ValueGeneratedOnAdd();
+                        e.Property<string>("Name");
+                        e.HasKey("Id");
+                        e.ToTable("Customers");
+                    }),
+                builder => { },
+                builder => builder.Entity(
+                    "Customer", e =>
+                    {
+                        e.Property<int>("Id").ValueGeneratedOnAdd();
+                        e.Property<string>("Name");
+                        e.HasKey("Id");
+
+                        e.ToTable("Customers");
+                    })
+                ]);
+
+    [ConditionalFact]
+    public virtual Task Multiop_create_table_and_drop_it_in_one_migration()
+        => TestComposite(
+            [
+                builder => { },
+                builder => builder.Entity(
+                    "Customer", e =>
+                    {
+                        e.Property<int>("Id").ValueGeneratedOnAdd();
+                        e.Property<string>("Name");
+                        e.HasKey("Id");
+
+                        e.ToTable("Customers");
+                    }),
+                builder => { },
+                ]);
+
+    [ConditionalFact]
+    public virtual Task Multiop_rename_table_and_drop()
+        => TestComposite(
+            [
+                builder => builder.Entity(
+                    "Customer", e =>
+                    {
+                        e.Property<int>("Id").ValueGeneratedOnAdd();
+                        e.Property<string>("Name");
+                        e.HasKey("Id");
+
+                        e.ToTable("Customers");
+                    }),
+                builder => builder.Entity(
+                    "Customer", e =>
+                    {
+                        e.Property<int>("Id").ValueGeneratedOnAdd();
+                        e.Property<string>("Name");
+                        e.HasKey("Id");
+
+                        e.ToTable("NewCustomers");
+                    }),
+                builder => { },
+                ]);
+
+    [ConditionalFact]
+    public virtual Task Multiop_rename_table_and_create_new_table_with_the_old_name()
+        => TestComposite(
+            [
+                builder => builder.Entity(
+                    "Customer", e =>
+                    {
+                        e.Property<int>("Id").ValueGeneratedOnAdd();
+                        e.Property<string>("Name");
+                        e.HasKey("Id");
+
+                        e.ToTable("Customers");
+                    }),
+                builder => builder.Entity(
+                    "Customer", e =>
+                    {
+                        e.Property<int>("Id").ValueGeneratedOnAdd();
+                        e.Property<string>("Name");
+                        e.HasKey("Id");
+
+                        e.ToTable("NewCustomers");
+                    }),
+                builder =>
+                {
+                    builder.Entity(
+                        "Customer", e =>
+                        {
+                            e.Property<int>("Id").ValueGeneratedOnAdd();
+                            e.Property<string>("Name");
+                            e.HasKey("Id");
+
+                            e.ToTable("NewCustomers");
+                        });
+
+                    builder.Entity(
+                        "AnotherCustomer", e =>
+                        {
+                            e.Property<int>("Id").ValueGeneratedOnAdd();
+                            e.Property<string>("Name");
+                            e.HasKey("Id");
+
+                            e.ToTable("Customers");
+                        });
+                },
+                ]);
 
     protected class Person
     {
@@ -3387,6 +3417,43 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
         MigrationsSqlGenerationOptions migrationsSqlGenerationOptions = MigrationsSqlGenerationOptions.Default)
         => Test(_ => { }, buildSourceAction, buildTargetAction, asserter, withConventions, migrationsSqlGenerationOptions);
 
+    protected virtual Task TestComposite(
+        List<Action<ModelBuilder>> buildActions,
+        bool withConventions = true,
+        MigrationsSqlGenerationOptions migrationsSqlGenerationOptions = MigrationsSqlGenerationOptions.Default)
+    {
+        if (buildActions.Count < 3)
+        {
+            throw new InvalidOperationException("You need at least 3 build actions for the composite case.");
+        }
+
+        var context = CreateContext();
+        var modelDiffer = context.GetService<IMigrationsModelDiffer>();
+        var modelRuntimeInitializer = context.GetService<IModelRuntimeInitializer>();
+
+        var models = new List<IModel>();
+        for (var i = 0; i < buildActions.Count; i++)
+        {
+            var modelBuilder = CreateModelBuilder(withConventions);
+            buildActions[i](modelBuilder);
+
+            var preSnapshotModel = modelRuntimeInitializer.Initialize(
+                (IModel)modelBuilder.Model, designTime: true, validationLogger: null);
+
+            models.Add(preSnapshotModel);
+        }
+
+        // build all migration operations going through each intermediate state of the model
+        var operations = new List<MigrationOperation>();
+        for (var i = 0; i < models.Count - 1; i++)
+        {
+            operations.AddRange(
+                modelDiffer.GetDifferences(models[i].GetRelationalModel(), models[i + 1].GetRelationalModel()));
+        }
+
+        return Test(models.First(), models.Last(), operations, null, migrationsSqlGenerationOptions);
+    }
+
     protected virtual Task Test(
         Action<ModelBuilder> buildCommonAction,
         Action<ModelBuilder> buildSourceAction,
@@ -3423,7 +3490,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
         // Get the migration operations between the two models and test
         var operations = modelDiffer.GetDifferences(sourceModel.GetRelationalModel(), targetModel.GetRelationalModel());
 
-        return Test(sourceModel, targetModel, operations, asserter, migrationsSqlGenerationOptions);
+        return Test(preSnapshotSourceModel, targetModel, operations, asserter, migrationsSqlGenerationOptions);
     }
 
     protected virtual Task Test(
@@ -3460,7 +3527,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
             modelSnapshotNamespace: null, typeof(DbContext), "MigrationsTestSnapshot", preSnapshotSourceModel);
         var sourceModel = BuildModelFromSnapshotSource(sourceModelSnapshot);
 
-        return Test(sourceModel, targetModel: null, operations, asserter, migrationsSqlGenerationOptions);
+        return Test(preSnapshotSourceModel, targetModel: null, operations, asserter, migrationsSqlGenerationOptions);
     }
 
     protected virtual async Task Test(

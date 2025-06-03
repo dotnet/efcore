@@ -36,7 +36,7 @@ public class EntityTypeMapping
     public string TableName { get; set; }
     public string PrimaryKey { get; set; }
     public List<string> Properties { get; } = [];
-    public List<string> Indexes { get; } = [];
+    public List<string> Indexes { get; set; } = [];
     public List<string> FKs { get; } = [];
     public List<string> Navigations { get; } = [];
     public List<string> SkipNavigations { get; } = [];

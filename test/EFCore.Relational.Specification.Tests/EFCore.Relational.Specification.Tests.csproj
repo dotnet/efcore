@@ -7,8 +7,12 @@
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <IsPackable>true</IsPackable>
+    <IsShipping>true</IsShipping>
     <IncludeSymbols>true</IncludeSymbols>
     <ImplicitUsings>true</ImplicitUsings>
+    <!-- This is a test project, but we ship the package to customers. Avoid skipping in VMR builds
+         that do not build tests -->
+    <ExcludeFromDotNetBuild>false</ExcludeFromDotNetBuild>
   </PropertyGroup>
 
   <ItemGroup>
@@ -48,12 +52,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- Newer version of Roslyn used in tests for testing interceptors -->
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.10.0-2.final" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.10.0-2.final" />
-    <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.MSBuild" Version="4.10.0-2.final" />
-
-    <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="$(MicrosoftExtensionsDependencyModelVersion)" />
+    <PackageReference Include="Microsoft.Extensions.DependencyModel" />
   </ItemGroup>
 
   <ItemGroup>

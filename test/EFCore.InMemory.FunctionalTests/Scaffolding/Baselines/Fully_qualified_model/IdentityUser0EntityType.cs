@@ -32,41 +32,41 @@ namespace Scaffolding
 
         public static void CreateAnnotations(RuntimeEntityType runtimeEntityType)
         {
-            var id = runtimeEntityType.FindProperty("Id")!;
-            var accessFailedCount = runtimeEntityType.FindProperty("AccessFailedCount")!;
-            var concurrencyStamp = runtimeEntityType.FindProperty("ConcurrencyStamp")!;
-            var discriminator = runtimeEntityType.FindProperty("Discriminator")!;
-            var email = runtimeEntityType.FindProperty("Email")!;
-            var emailConfirmed = runtimeEntityType.FindProperty("EmailConfirmed")!;
-            var lockoutEnabled = runtimeEntityType.FindProperty("LockoutEnabled")!;
-            var lockoutEnd = runtimeEntityType.FindProperty("LockoutEnd")!;
-            var normalizedEmail = runtimeEntityType.FindProperty("NormalizedEmail")!;
-            var normalizedUserName = runtimeEntityType.FindProperty("NormalizedUserName")!;
-            var passwordHash = runtimeEntityType.FindProperty("PasswordHash")!;
-            var phoneNumber = runtimeEntityType.FindProperty("PhoneNumber")!;
-            var phoneNumberConfirmed = runtimeEntityType.FindProperty("PhoneNumberConfirmed")!;
-            var securityStamp = runtimeEntityType.FindProperty("SecurityStamp")!;
-            var twoFactorEnabled = runtimeEntityType.FindProperty("TwoFactorEnabled")!;
-            var userName = runtimeEntityType.FindProperty("UserName")!;
+            var id = runtimeEntityType.FindProperty("Id");
+            var accessFailedCount = runtimeEntityType.FindProperty("AccessFailedCount");
+            var concurrencyStamp = runtimeEntityType.FindProperty("ConcurrencyStamp");
+            var discriminator = runtimeEntityType.FindProperty("Discriminator");
+            var email = runtimeEntityType.FindProperty("Email");
+            var emailConfirmed = runtimeEntityType.FindProperty("EmailConfirmed");
+            var lockoutEnabled = runtimeEntityType.FindProperty("LockoutEnabled");
+            var lockoutEnd = runtimeEntityType.FindProperty("LockoutEnd");
+            var normalizedEmail = runtimeEntityType.FindProperty("NormalizedEmail");
+            var normalizedUserName = runtimeEntityType.FindProperty("NormalizedUserName");
+            var passwordHash = runtimeEntityType.FindProperty("PasswordHash");
+            var phoneNumber = runtimeEntityType.FindProperty("PhoneNumber");
+            var phoneNumberConfirmed = runtimeEntityType.FindProperty("PhoneNumberConfirmed");
+            var securityStamp = runtimeEntityType.FindProperty("SecurityStamp");
+            var twoFactorEnabled = runtimeEntityType.FindProperty("TwoFactorEnabled");
+            var userName = runtimeEntityType.FindProperty("UserName");
             runtimeEntityType.SetOriginalValuesFactory(
-                (InternalEntityEntry source) =>
+                ISnapshot (IInternalEntry source) =>
                 {
-                    var entity = (CompiledModelInMemoryTest.IdentityUser)source.Entity;
-                    return (ISnapshot)new Snapshot<string, int, string, string, string, bool, bool, Nullable<DateTimeOffset>, string, string, string, string, bool, string, bool, string>(source.GetCurrentValue<string>(id) == null ? null : ((ValueComparer<string>)((IProperty)id).GetValueComparer()).Snapshot(source.GetCurrentValue<string>(id)), ((ValueComparer<int>)((IProperty)accessFailedCount).GetValueComparer()).Snapshot(source.GetCurrentValue<int>(accessFailedCount)), source.GetCurrentValue<string>(concurrencyStamp) == null ? null : ((ValueComparer<string>)((IProperty)concurrencyStamp).GetValueComparer()).Snapshot(source.GetCurrentValue<string>(concurrencyStamp)), source.GetCurrentValue<string>(discriminator) == null ? null : ((ValueComparer<string>)((IProperty)discriminator).GetValueComparer()).Snapshot(source.GetCurrentValue<string>(discriminator)), source.GetCurrentValue<string>(email) == null ? null : ((ValueComparer<string>)((IProperty)email).GetValueComparer()).Snapshot(source.GetCurrentValue<string>(email)), ((ValueComparer<bool>)((IProperty)emailConfirmed).GetValueComparer()).Snapshot(source.GetCurrentValue<bool>(emailConfirmed)), ((ValueComparer<bool>)((IProperty)lockoutEnabled).GetValueComparer()).Snapshot(source.GetCurrentValue<bool>(lockoutEnabled)), source.GetCurrentValue<Nullable<DateTimeOffset>>(lockoutEnd) == null ? null : ((ValueComparer<Nullable<DateTimeOffset>>)((IProperty)lockoutEnd).GetValueComparer()).Snapshot(source.GetCurrentValue<Nullable<DateTimeOffset>>(lockoutEnd)), source.GetCurrentValue<string>(normalizedEmail) == null ? null : ((ValueComparer<string>)((IProperty)normalizedEmail).GetValueComparer()).Snapshot(source.GetCurrentValue<string>(normalizedEmail)), source.GetCurrentValue<string>(normalizedUserName) == null ? null : ((ValueComparer<string>)((IProperty)normalizedUserName).GetValueComparer()).Snapshot(source.GetCurrentValue<string>(normalizedUserName)), source.GetCurrentValue<string>(passwordHash) == null ? null : ((ValueComparer<string>)((IProperty)passwordHash).GetValueComparer()).Snapshot(source.GetCurrentValue<string>(passwordHash)), source.GetCurrentValue<string>(phoneNumber) == null ? null : ((ValueComparer<string>)((IProperty)phoneNumber).GetValueComparer()).Snapshot(source.GetCurrentValue<string>(phoneNumber)), ((ValueComparer<bool>)((IProperty)phoneNumberConfirmed).GetValueComparer()).Snapshot(source.GetCurrentValue<bool>(phoneNumberConfirmed)), source.GetCurrentValue<string>(securityStamp) == null ? null : ((ValueComparer<string>)((IProperty)securityStamp).GetValueComparer()).Snapshot(source.GetCurrentValue<string>(securityStamp)), ((ValueComparer<bool>)((IProperty)twoFactorEnabled).GetValueComparer()).Snapshot(source.GetCurrentValue<bool>(twoFactorEnabled)), source.GetCurrentValue<string>(userName) == null ? null : ((ValueComparer<string>)((IProperty)userName).GetValueComparer()).Snapshot(source.GetCurrentValue<string>(userName)));
+                    var entity = ((CompiledModelInMemoryTest.IdentityUser)(source.Object));
+                    return ((ISnapshot)(new Snapshot<string, int, string, string, string, bool, bool, DateTimeOffset?, string, string, string, string, bool, string, bool, string>((source.GetCurrentValue<string>(id) == null ? null : ((ValueComparer<string>)(((IProperty)id).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(id))), ((ValueComparer<int>)(((IProperty)accessFailedCount).GetValueComparer())).Snapshot(source.GetCurrentValue<int>(accessFailedCount)), (source.GetCurrentValue<string>(concurrencyStamp) == null ? null : ((ValueComparer<string>)(((IProperty)concurrencyStamp).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(concurrencyStamp))), (source.GetCurrentValue<string>(discriminator) == null ? null : ((ValueComparer<string>)(((IProperty)discriminator).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(discriminator))), (source.GetCurrentValue<string>(email) == null ? null : ((ValueComparer<string>)(((IProperty)email).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(email))), ((ValueComparer<bool>)(((IProperty)emailConfirmed).GetValueComparer())).Snapshot(source.GetCurrentValue<bool>(emailConfirmed)), ((ValueComparer<bool>)(((IProperty)lockoutEnabled).GetValueComparer())).Snapshot(source.GetCurrentValue<bool>(lockoutEnabled)), (source.GetCurrentValue<DateTimeOffset?>(lockoutEnd) == null ? null : ((ValueComparer<DateTimeOffset?>)(((IProperty)lockoutEnd).GetValueComparer())).Snapshot(source.GetCurrentValue<DateTimeOffset?>(lockoutEnd))), (source.GetCurrentValue<string>(normalizedEmail) == null ? null : ((ValueComparer<string>)(((IProperty)normalizedEmail).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(normalizedEmail))), (source.GetCurrentValue<string>(normalizedUserName) == null ? null : ((ValueComparer<string>)(((IProperty)normalizedUserName).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(normalizedUserName))), (source.GetCurrentValue<string>(passwordHash) == null ? null : ((ValueComparer<string>)(((IProperty)passwordHash).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(passwordHash))), (source.GetCurrentValue<string>(phoneNumber) == null ? null : ((ValueComparer<string>)(((IProperty)phoneNumber).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(phoneNumber))), ((ValueComparer<bool>)(((IProperty)phoneNumberConfirmed).GetValueComparer())).Snapshot(source.GetCurrentValue<bool>(phoneNumberConfirmed)), (source.GetCurrentValue<string>(securityStamp) == null ? null : ((ValueComparer<string>)(((IProperty)securityStamp).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(securityStamp))), ((ValueComparer<bool>)(((IProperty)twoFactorEnabled).GetValueComparer())).Snapshot(source.GetCurrentValue<bool>(twoFactorEnabled)), (source.GetCurrentValue<string>(userName) == null ? null : ((ValueComparer<string>)(((IProperty)userName).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(userName))))));
                 });
             runtimeEntityType.SetStoreGeneratedValuesFactory(
-                () => Snapshot.Empty);
+                ISnapshot () => Snapshot.Empty);
             runtimeEntityType.SetTemporaryValuesFactory(
-                (InternalEntityEntry source) => Snapshot.Empty);
+                ISnapshot (IInternalEntry source) => Snapshot.Empty);
             runtimeEntityType.SetShadowValuesFactory(
-                (IDictionary<string, object> source) => (ISnapshot)new Snapshot<string>(source.ContainsKey("Discriminator") ? (string)source["Discriminator"] : null));
+                ISnapshot (IDictionary<string, object> source) => ((ISnapshot)(new Snapshot<string>((source.ContainsKey("Discriminator") ? ((string)(source["Discriminator"])) : null)))));
             runtimeEntityType.SetEmptyShadowValuesFactory(
-                () => (ISnapshot)new Snapshot<string>(default(string)));
+                ISnapshot () => ((ISnapshot)(new Snapshot<string>(default(string)))));
             runtimeEntityType.SetRelationshipSnapshotFactory(
-                (InternalEntityEntry source) =>
+                ISnapshot (IInternalEntry source) =>
                 {
-                    var entity = (CompiledModelInMemoryTest.IdentityUser)source.Entity;
-                    return (ISnapshot)new Snapshot<string>(source.GetCurrentValue<string>(id) == null ? null : ((ValueComparer<string>)((IProperty)id).GetKeyValueComparer()).Snapshot(source.GetCurrentValue<string>(id)));
+                    var entity = ((CompiledModelInMemoryTest.IdentityUser)(source.Object));
+                    return ((ISnapshot)(new Snapshot<string>((source.GetCurrentValue<string>(id) == null ? null : ((ValueComparer<string>)(((IProperty)id).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<string>(id))))));
                 });
             runtimeEntityType.Counts = new PropertyCounts(
                 propertyCount: 16,

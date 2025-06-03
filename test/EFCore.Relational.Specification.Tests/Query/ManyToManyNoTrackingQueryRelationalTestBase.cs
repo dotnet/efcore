@@ -7,14 +7,10 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public abstract class ManyToManyNoTrackingQueryRelationalTestBase<TFixture> : ManyToManyNoTrackingQueryTestBase<TFixture>
+public abstract class ManyToManyNoTrackingQueryRelationalTestBase<TFixture>(TFixture fixture)
+    : ManyToManyNoTrackingQueryTestBase<TFixture>(fixture)
     where TFixture : ManyToManyQueryFixtureBase, new()
 {
-    protected ManyToManyNoTrackingQueryRelationalTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Include_skip_navigation_split(bool async)

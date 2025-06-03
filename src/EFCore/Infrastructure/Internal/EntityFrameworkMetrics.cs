@@ -51,7 +51,15 @@ public sealed class EntityFrameworkMetrics
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public static readonly string CompiledQueryCacheHitRateInstrumentName = $"{InstrumentPrefix}.compiled_query_cache_hit_rate";
+    public static readonly string CompiledQueryCacheHitsInstrumentName = $"{InstrumentPrefix}.compiled_query_cache_hits";
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static readonly string CompiledQueryCacheMissesInstrumentName = $"{InstrumentPrefix}.compiled_query_cache_misses";
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -74,7 +82,8 @@ public sealed class EntityFrameworkMetrics
     private readonly ObservableUpDownCounter<int> _activeDbContextsCounter;
     private readonly ObservableCounter<long> _queriesCounter;
     private readonly ObservableCounter<long> _saveChangesCounter;
-    private readonly ObservableGauge<double> _compiledQueryCacheHitRateGauge;
+    private readonly ObservableCounter<long> _compiledQueryCacheHitsCounter;
+    private readonly ObservableCounter<long> _compiledQueryCacheMissesCounter;
     private readonly ObservableCounter<long> _executionStrategyOperationFailuresCounter;
     private readonly ObservableCounter<long> _optimisticConcurrencyFailuresCounter;
 
@@ -100,10 +109,14 @@ public sealed class EntityFrameworkMetrics
             SaveChangesInstrumentName,
             EntityFrameworkMetricsData.GetTotalSaveChanges,
             unit: "{savechanges}");
-        _compiledQueryCacheHitRateGauge = meter.CreateObservableGauge(
-            CompiledQueryCacheHitRateInstrumentName,
-            () => EntityFrameworkMetricsData.GetCompiledQueryCacheHitsMissesHitRate().hitRate,
-            unit: "%");
+        _compiledQueryCacheHitsCounter = meter.CreateObservableCounter(
+            CompiledQueryCacheHitsInstrumentName,
+            () => (long)EntityFrameworkMetricsData.GetCompiledQueryCacheHitRate().hits,
+            unit: "{hits}");
+        _compiledQueryCacheMissesCounter = meter.CreateObservableCounter(
+            CompiledQueryCacheMissesInstrumentName,
+            () => (long)EntityFrameworkMetricsData.GetCompiledQueryCacheHitRate().misses,
+            unit: "{misses}");
         _executionStrategyOperationFailuresCounter = meter.CreateObservableCounter(
             ExecutionStrategyFailuresInstrumentName,
             EntityFrameworkMetricsData.GetTotalExecutionStrategyOperationFailures,

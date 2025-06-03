@@ -483,12 +483,11 @@ GROUP BY [a].[Id], [a].[Alias], [a].[FirstName], [a].[LastName]
             """
 SELECT [c].[Id], [c].[CompanyName], [c].[Region], [s].[Id], [s].[CustomerId], [s].[OrderDate], [s].[Total], [s].[Id0]
 FROM [CustomerForLinq] AS [c]
-OUTER APPLY (
+LEFT JOIN (
     SELECT [o].[Id], [o].[CustomerId], [o].[OrderDate], [o].[Total], [c0].[Id] AS [Id0]
     FROM [OrderForLinq] AS [o]
     LEFT JOIN [CustomerForLinq] AS [c0] ON [o].[CustomerId] = [c0].[Id]
-    WHERE [c].[Id] = [c0].[Id]
-) AS [s]
+) AS [s] ON [c].[Id] = [s].[Id0]
 ORDER BY [c].[Id], [s].[Id]
 """);
     }
@@ -763,7 +762,7 @@ ORDER BY [p1].[FirstName], [p3].[Id]
 
         AssertSql(
             """
-@__size_0='11'
+@size='11'
 
 SELECT [p0].[LastName], [f].[Size], (
     SELECT MIN([f1].[Size])
@@ -771,11 +770,11 @@ SELECT [p0].[LastName], [f].[Size], (
     LEFT JOIN [Feet] AS [f0] ON [p1].[Id] = [f0].[Id]
     LEFT JOIN [Person] AS [p2] ON [f0].[Id] = [p2].[Id]
     LEFT JOIN [Feet] AS [f1] ON [p1].[Id] = [f1].[Id]
-    WHERE [f0].[Size] = @__size_0 AND [p1].[MiddleInitial] IS NOT NULL AND ([f0].[Id] <> 1 OR [f0].[Id] IS NULL) AND ([f].[Size] = [f0].[Size] OR ([f].[Size] IS NULL AND [f0].[Size] IS NULL)) AND ([p0].[LastName] = [p2].[LastName] OR ([p0].[LastName] IS NULL AND [p2].[LastName] IS NULL))) AS [Min]
+    WHERE [f0].[Size] = @size AND [p1].[MiddleInitial] IS NOT NULL AND ([f0].[Id] <> 1 OR [f0].[Id] IS NULL) AND ([f].[Size] = [f0].[Size] OR ([f].[Size] IS NULL AND [f0].[Size] IS NULL)) AND ([p0].[LastName] = [p2].[LastName] OR ([p0].[LastName] IS NULL AND [p2].[LastName] IS NULL))) AS [Min]
 FROM [Person] AS [p]
 LEFT JOIN [Feet] AS [f] ON [p].[Id] = [f].[Id]
 LEFT JOIN [Person] AS [p0] ON [f].[Id] = [p0].[Id]
-WHERE [f].[Size] = @__size_0 AND [p].[MiddleInitial] IS NOT NULL AND ([f].[Id] <> 1 OR [f].[Id] IS NULL)
+WHERE [f].[Size] = @size AND [p].[MiddleInitial] IS NOT NULL AND ([f].[Id] <> 1 OR [f].[Id] IS NULL)
 GROUP BY [f].[Size], [p0].[LastName]
 """);
     }

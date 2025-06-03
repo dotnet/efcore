@@ -10,15 +10,10 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public abstract class NotificationEntitiesTestBase<TFixture> : IClassFixture<TFixture>
+public abstract class NotificationEntitiesTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : NotificationEntitiesTestBase<TFixture>.NotificationEntitiesFixtureBase, new()
 {
-    protected NotificationEntitiesTestBase(TFixture fixture)
-    {
-        Fixture = fixture;
-    }
-
-    protected virtual TFixture Fixture { get; }
+    protected virtual TFixture Fixture { get; } = fixture;
 
     [ConditionalFact] // Issue #4020
     public virtual void Include_brings_entities_referenced_from_already_tracked_notification_entities_as_Unchanged()

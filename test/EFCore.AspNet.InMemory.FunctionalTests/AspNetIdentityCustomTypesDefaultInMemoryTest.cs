@@ -3,13 +3,17 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class AspNetIdentityCustomTypesDefaultInMemoryTest(AspNetIdentityCustomTypesDefaultInMemoryTest.AspNetIdentityCustomTypesDefaultInMemoryFixture fixture)
+public class AspNetIdentityCustomTypesDefaultInMemoryTest(
+    AspNetIdentityCustomTypesDefaultInMemoryTest.AspNetIdentityCustomTypesDefaultInMemoryFixture fixture)
     : AspNetIdentityCustomTypesDefaultTestBase<
         AspNetIdentityCustomTypesDefaultInMemoryTest.AspNetIdentityCustomTypesDefaultInMemoryFixture>(fixture)
 {
     protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
     {
     }
+
+    protected override bool HasForeignKeyIndexes
+        => false;
 
     protected override async Task ExecuteWithStrategyInTransactionAsync(
         Func<CustomTypesIdentityContext, Task> testOperation,

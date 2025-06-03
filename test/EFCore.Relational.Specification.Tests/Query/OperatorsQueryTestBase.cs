@@ -5,14 +5,9 @@ using Microsoft.EntityFrameworkCore.TestModels.Operators;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public abstract class OperatorsQueryTestBase : NonSharedModelTestBase
+public abstract class OperatorsQueryTestBase(NonSharedFixture fixture) : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
 {
-    protected OperatorsData ExpectedData { get; init; }
-
-    protected OperatorsQueryTestBase()
-    {
-        ExpectedData = OperatorsData.Instance;
-    }
+    protected OperatorsData ExpectedData { get; init; } = OperatorsData.Instance;
 
     protected override string StoreName
         => "OperatorsTest";
@@ -26,6 +21,7 @@ public abstract class OperatorsQueryTestBase : NonSharedModelTestBase
         ctx.Set<OperatorEntityBool>().AddRange(ExpectedData.OperatorEntitiesBool);
         ctx.Set<OperatorEntityNullableBool>().AddRange(ExpectedData.OperatorEntitiesNullableBool);
         ctx.Set<OperatorEntityDateTimeOffset>().AddRange(ExpectedData.OperatorEntitiesDateTimeOffset);
+        ctx.Set<OperatorEntityNullableDateTimeOffset>().AddRange(ExpectedData.OperatorEntitiesNullableDateTimeOffset);
 
         return ctx.SaveChangesAsync();
     }

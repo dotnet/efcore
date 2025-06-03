@@ -122,8 +122,6 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
                         }
                     }
                 }
-#elif !NETCOREAPP2_0
-#error target frameworks need to be updated.
 #endif
                 return new ReflectionOperationExecutor(
                     Assembly!.Value()!,

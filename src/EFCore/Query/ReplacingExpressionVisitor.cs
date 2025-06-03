@@ -40,7 +40,7 @@ public class ReplacingExpressionVisitor : ExpressionVisitor
     /// <param name="replacements">A list of expressions to be used as replacements.</param>
     /// <param name="tree">The expression tree in which replacement is going to be performed.</param>
     /// <returns>An expression tree with replacements made.</returns>
-    public static Expression Replace(Expression[] originals, Expression[] replacements, Expression tree)
+    public static Expression Replace(IReadOnlyList<Expression> originals, IReadOnlyList<Expression> replacements, Expression tree)
         => new ReplacingExpressionVisitor(originals, replacements).Visit(tree);
 
     /// <summary>
@@ -58,7 +58,8 @@ public class ReplacingExpressionVisitor : ExpressionVisitor
     [return: NotNullIfNotNull(nameof(expression))]
     public override Expression? Visit(Expression? expression)
     {
-        if (expression is null or ShapedQueryExpression or StructuralTypeShaperExpression or GroupByShaperExpression or LiftableConstantExpression)
+        if (expression is null or ShapedQueryExpression or StructuralTypeShaperExpression or GroupByShaperExpression
+            or LiftableConstantExpression)
         {
             return expression;
         }

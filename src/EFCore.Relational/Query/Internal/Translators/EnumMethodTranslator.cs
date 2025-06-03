@@ -29,9 +29,7 @@ public class EnumMethodTranslator : IMethodCallTranslator
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public EnumMethodTranslator(ISqlExpressionFactory sqlExpressionFactory)
-    {
-        _sqlExpressionFactory = sqlExpressionFactory;
-    }
+        => _sqlExpressionFactory = sqlExpressionFactory;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -63,9 +61,10 @@ public class EnumMethodTranslator : IMethodCallTranslator
                 case not null when converterType.GetGenericTypeDefinition() == typeof(EnumToNumberConverter<,>):
                     var whenClauses = Enum.GetValues(instance.Type)
                         .Cast<object>()
-                        .Select(value => new CaseWhenClause(
-                            _sqlExpressionFactory.Constant(value),
-                            _sqlExpressionFactory.Constant(value.ToString(), typeof(string))))
+                        .Select(
+                            value => new CaseWhenClause(
+                                _sqlExpressionFactory.Constant(value),
+                                _sqlExpressionFactory.Constant(value.ToString(), typeof(string))))
                         .ToArray();
 
                     var elseResult = _sqlExpressionFactory.Coalesce(

@@ -758,7 +758,7 @@ public static class CoreLoggerExtensions
     ///     Logs for the <see cref="CoreEventId.SkippedEntityTypeConfigurationWarning" /> event.
     /// </summary>
     /// <param name="diagnostics">The diagnostics logger to use.</param>
-    /// <param name="type">The <see cref="IEntityTypeConfiguration{TEntity}"/> type.</param>
+    /// <param name="type">The <see cref="IEntityTypeConfiguration{TEntity}" /> type.</param>
     public static void SkippedEntityTypeConfigurationWarning(
         this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
         Type type)
@@ -1542,6 +1542,33 @@ public static class CoreLoggerExtensions
             p.FirstPropertyCollection.Format(includeTypes: true),
             p.SecondPropertyCollection.Format(includeTypes: true));
     }
+
+    /// <summary>
+    ///     Logs for the <see cref="CoreEventId.AccidentalEntityType" /> event.
+    /// </summary>
+    /// <param name="diagnostics">The diagnostics logger to use.</param>
+    /// <param name="entityType">The entity type.</param>
+    public static void AccidentalEntityType(
+        this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
+        IEntityType entityType)
+    {
+        var definition = CoreResources.LogAccidentalEntityType(diagnostics);
+
+        if (diagnostics.ShouldLog(definition))
+        {
+            definition.Log(diagnostics, entityType.DisplayName());
+        }
+
+        if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+        {
+            var eventData = new EntityTypeEventData(definition, AccidentalEntityType, entityType);
+
+            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+        }
+    }
+
+    private static string AccidentalEntityType(EventDefinitionBase definition, EventData payload)
+        => ((EventDefinition<string>)definition).GenerateMessage(((EntityTypeEventData)payload).EntityType.DisplayName());
 
     /// <summary>
     ///     Logs for the <see cref="CoreEventId.AmbiguousEndRequiredWarning" /> event.
@@ -2855,7 +2882,7 @@ public static class CoreLoggerExtensions
     /// <param name="internalEntityEntry">The internal entity entry.</param>
     /// <param name="property">The property.</param>
     /// <param name="value">The value generated.</param>
-    /// <param name="temporary">Indicates whether or not the value is a temporary or permanent value.</param>
+    /// <param name="temporary">Indicates whether the value is a temporary or permanent value.</param>
     public static void ValueGenerated(
         this IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> diagnostics,
         InternalEntityEntry internalEntityEntry,

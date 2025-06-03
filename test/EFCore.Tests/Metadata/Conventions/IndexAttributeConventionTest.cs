@@ -147,9 +147,9 @@ public class IndexAttributeConventionTest
         modelBuilder.Model.FinalizeModel();
 
         // assert that the base type is not part of the model
-        Assert.Empty(
-            modelBuilder.Model.GetEntityTypes()
-                .Where(e => e.ClrType == typeof(BaseUnmappedEntityWithIndex)));
+        Assert.DoesNotContain(
+            modelBuilder.Model.GetEntityTypes(),
+            e => e.ClrType == typeof(BaseUnmappedEntityWithIndex));
 
         // assert that we see the index anyway
         var index = (Index)entityBuilder.Metadata.GetIndexes().Single();

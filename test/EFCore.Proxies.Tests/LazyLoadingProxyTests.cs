@@ -125,31 +125,17 @@ public class LazyLoadingProxyTests
                 () => phone.Texts).Message);
     }
 
-    private class LazyContextIgnoreVirtuals<TEntity> : TestContext<TEntity>
-        where TEntity : class
-    {
-        public LazyContextIgnoreVirtuals()
-            : base(dbName: "LazyLoadingContext", useLazyLoading: true, useChangeDetection: false, ignoreNonVirtualNavigations: true)
-        {
-        }
-    }
+    private class LazyContextIgnoreVirtuals<TEntity>() : TestContext<TEntity>(
+        dbName: "LazyLoadingContext", useLazyLoading: true, useChangeDetection: false, ignoreNonVirtualNavigations: true)
+        where TEntity : class;
 
-    private class LazyContext<TEntity> : TestContext<TEntity>
-        where TEntity : class
-    {
-        public LazyContext()
-            : base(dbName: "LazyLoadingContext", useLazyLoading: true, useChangeDetection: false)
-        {
-        }
-    }
+    private class LazyContext<TEntity>() : TestContext<TEntity>(
+        dbName: "LazyLoadingContext", useLazyLoading: true, useChangeDetection: false)
+        where TEntity : class;
 
-    private class LazyContextDisabledNavigation : TestContext<LazyNonVirtualNavEntity>
+    private class LazyContextDisabledNavigation() : TestContext<LazyNonVirtualNavEntity>(
+        dbName: "LazyLoadingContext", useLazyLoading: true, useChangeDetection: false)
     {
-        public LazyContextDisabledNavigation()
-            : base(dbName: "LazyLoadingContext", useLazyLoading: true, useChangeDetection: false)
-        {
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -158,13 +144,9 @@ public class LazyLoadingProxyTests
         }
     }
 
-    private class LazyContextAllowingFieldNavigation : TestContext<LazyFieldNavEntity>
+    private class LazyContextAllowingFieldNavigation() : TestContext<LazyFieldNavEntity>(
+        dbName: "LazyLoadingContext", useLazyLoading: true, useChangeDetection: false, ignoreNonVirtualNavigations: true)
     {
-        public LazyContextAllowingFieldNavigation()
-            : base(dbName: "LazyLoadingContext", useLazyLoading: true, useChangeDetection: false, ignoreNonVirtualNavigations: true)
-        {
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -173,13 +155,9 @@ public class LazyLoadingProxyTests
         }
     }
 
-    private class LazyContextDisabledFieldNavigation : TestContext<LazyFieldNavEntity>
+    private class LazyContextDisabledFieldNavigation() : TestContext<LazyFieldNavEntity>(
+        dbName: "LazyLoadingContext", useLazyLoading: true, useChangeDetection: false)
     {
-        public LazyContextDisabledFieldNavigation()
-            : base(dbName: "LazyLoadingContext", useLazyLoading: true, useChangeDetection: false)
-        {
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -189,13 +167,9 @@ public class LazyLoadingProxyTests
         }
     }
 
-    private class LazyContextOwnedFieldNavigation : TestContext<LazyFieldOwnedNavEntity>
+    private class LazyContextOwnedFieldNavigation() : TestContext<LazyFieldOwnedNavEntity>(
+        dbName: "LazyLoadingContext", useLazyLoading: true, useChangeDetection: false)
     {
-        public LazyContextOwnedFieldNavigation()
-            : base(dbName: "LazyLoadingContext", useLazyLoading: true, useChangeDetection: false)
-        {
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

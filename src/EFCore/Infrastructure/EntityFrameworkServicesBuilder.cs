@@ -131,7 +131,10 @@ public class EntityFrameworkServicesBuilder
             { typeof(ILazyLoaderFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
             { typeof(IParameterBindingFactory), new ServiceCharacteristics(ServiceLifetime.Singleton, multipleRegistrations: true) },
             { typeof(ITypeMappingSourcePlugin), new ServiceCharacteristics(ServiceLifetime.Singleton, multipleRegistrations: true) },
-            { typeof(IEvaluatableExpressionFilterPlugin), new ServiceCharacteristics(ServiceLifetime.Singleton, multipleRegistrations: true) },
+            {
+                typeof(IEvaluatableExpressionFilterPlugin),
+                new ServiceCharacteristics(ServiceLifetime.Singleton, multipleRegistrations: true)
+            },
             { typeof(ISingletonOptions), new ServiceCharacteristics(ServiceLifetime.Singleton, multipleRegistrations: true) },
             { typeof(IConventionSetPlugin), new ServiceCharacteristics(ServiceLifetime.Scoped, multipleRegistrations: true) },
             { typeof(ISingletonInterceptor), new ServiceCharacteristics(ServiceLifetime.Singleton, multipleRegistrations: true) },
@@ -151,9 +154,7 @@ public class EntityFrameworkServicesBuilder
     /// </remarks>
     /// <param name="serviceCollection">The collection to which services will be registered.</param>
     public EntityFrameworkServicesBuilder(IServiceCollection serviceCollection)
-    {
-        ServiceCollectionMap = new ServiceCollectionMap(serviceCollection);
-    }
+        => ServiceCollectionMap = new ServiceCollectionMap(serviceCollection);
 
     /// <summary>
     ///     Access to the underlying <see cref="ServiceCollectionMap" />.

@@ -5,7 +5,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public class AdHocAdvancedMappingsQuerySqlServerTest : AdHocAdvancedMappingsQueryRelationalTestBase
+public class AdHocAdvancedMappingsQuerySqlServerTest(NonSharedFixture fixture) : AdHocAdvancedMappingsQueryRelationalTestBase(fixture)
 {
     protected override ITestStoreFactory TestStoreFactory
         => SqlServerTestStoreFactory.Instance;
@@ -15,7 +15,7 @@ public class AdHocAdvancedMappingsQuerySqlServerTest : AdHocAdvancedMappingsQuer
         await base.Setting_IsUnicode_generates_unicode_literal_in_SQL();
 
         AssertSql(
-"""
+            """
 SELECT [t].[Id], [t].[Nombre]
 FROM [TipoServicio] AS [t]
 WHERE [t].[Nombre] LIKE '%lla%'
@@ -53,7 +53,7 @@ FROM [Blogs] AS [b]
         await base.Projection_failing_with_EnumToStringConverter();
 
         AssertSql(
-"""
+            """
 SELECT [p].[Id], [p].[Name], CASE
     WHEN [c].[Id] IS NULL THEN N'Other'
     ELSE [c].[Name]
@@ -71,31 +71,31 @@ LEFT JOIN [Categories] AS [c] ON [p].[CategoryId] = [c].[Id]
         await base.Expression_tree_constructed_via_interface_works();
 
         AssertSql(
-"""
+            """
 SELECT [r].[Id], [r].[IsRemoved], [r].[Removed], [r].[RemovedByUser], [r].[OwnedEntity_Exists], [r].[OwnedEntity_OwnedValue]
 FROM [RemovableEntities] AS [r]
 WHERE [r].[IsRemoved] = CAST(0 AS bit)
 """,
-                //
-                """
+            //
+            """
 SELECT [p].[Id], [p].[RemovableEntityId]
 FROM [Parents] AS [p]
 LEFT JOIN [RemovableEntities] AS [r] ON [p].[RemovableEntityId] = [r].[Id]
 WHERE [r].[IsRemoved] = CAST(1 AS bit)
 """,
-                //
-                """
+            //
+            """
 SELECT [r].[Id], [r].[IsRemoved], [r].[Removed], [r].[RemovedByUser], [r].[OwnedEntity_Exists], [r].[OwnedEntity_OwnedValue]
 FROM [RemovableEntities] AS [r]
 WHERE [r].[OwnedEntity_OwnedValue] = N'Abc'
 """,
-                //
-                """
-@__id_0='1'
+            //
+            """
+@id='1'
 
 SELECT [p].[Id], [p].[RemovableEntityId]
 FROM [Parents] AS [p]
-WHERE [p].[Id] = @__id_0
+WHERE [p].[Id] = @id
 """);
     }
 
@@ -104,15 +104,15 @@ WHERE [p].[Id] = @__id_0
         await base.Double_convert_interface_created_expression_tree();
 
         AssertSql(
-"""
-@__action_0='1'
+            """
+@action='1'
 
 SELECT COUNT(*)
 FROM [Offers] AS [o]
 WHERE EXISTS (
     SELECT 1
     FROM [OfferActions] AS [o0]
-    WHERE [o].[Id] = [o0].[OfferId] AND [o0].[Action] = @__action_0)
+    WHERE [o].[Id] = [o0].[OfferId] AND [o0].[Action] = @action)
 """);
     }
 
@@ -121,15 +121,15 @@ WHERE EXISTS (
         await base.Casts_are_removed_from_expression_tree_when_redundant();
 
         AssertSql(
-"""
-@__id_0='1'
+            """
+@id='1'
 
 SELECT TOP(1) [m].[Id], [m].[Name], [m].[NavigationEntityId]
 FROM [MockEntities] AS [m]
-WHERE [m].[Id] = @__id_0
+WHERE [m].[Id] = @id
 """,
-                //
-                """
+            //
+            """
 SELECT COUNT(*)
 FROM [MockEntities] AS [m]
 """);
@@ -140,7 +140,7 @@ FROM [MockEntities] AS [m]
         await base.Can_query_hierarchy_with_non_nullable_property_on_derived();
 
         AssertSql(
-"""
+            """
 SELECT [b].[Id], [b].[Name], [b].[Type], [b].[IsOnline]
 FROM [Businesses] AS [b]
 """);
@@ -151,12 +151,12 @@ FROM [Businesses] AS [b]
         await base.Query_generates_correct_datetime2_parameter_definition(fractionalSeconds, postfix);
 
         AssertSql(
-$"""
-@__parameter_0='2021-11-12T13:14:15.1234567'{postfix}
+            $"""
+@parameter='2021-11-12T13:14:15.1234567'{postfix}
 
 SELECT TOP(1) [e].[DateTime]
 FROM [Entities] AS [e]
-WHERE [e].[DateTime] = @__parameter_0
+WHERE [e].[DateTime] = @parameter
 """);
     }
 
@@ -165,12 +165,12 @@ WHERE [e].[DateTime] = @__parameter_0
         await base.Query_generates_correct_datetimeoffset_parameter_definition(fractionalSeconds, postfix);
 
         AssertSql(
-$"""
-@__parameter_0='2021-11-12T13:14:15.1234567+10:00'{postfix}
+            $"""
+@parameter='2021-11-12T13:14:15.1234567+10:00'{postfix}
 
 SELECT TOP(1) [e].[DateTimeOffset]
 FROM [Entities] AS [e]
-WHERE [e].[DateTimeOffset] = @__parameter_0
+WHERE [e].[DateTimeOffset] = @parameter
 """);
     }
 
@@ -179,12 +179,12 @@ WHERE [e].[DateTimeOffset] = @__parameter_0
         await base.Query_generates_correct_timespan_parameter_definition(fractionalSeconds, postfix);
 
         AssertSql(
-$"""
-@__parameter_0='12:34:56.7890123'{postfix}
+            $"""
+@parameter='12:34:56.7890123'{postfix}
 
 SELECT TOP(1) [e].[TimeSpan]
 FROM [Entities] AS [e]
-WHERE [e].[TimeSpan] = @__parameter_0
+WHERE [e].[TimeSpan] = @parameter
 """);
     }
 
@@ -241,13 +241,13 @@ WHERE [u].[Species] LIKE N'F%'
         await base.Two_similar_complex_properties_projected_with_split_query1();
 
         AssertSql(
-"""
+            """
 SELECT [o].[Id]
 FROM [Offers] AS [o]
 ORDER BY [o].[Id]
 """,
-                //
-                """
+            //
+            """
 SELECT [s].[Id], [s].[NestedId], [s].[OfferId], [s].[payment_brutto], [s].[payment_netto], [s].[Id0], [s].[payment_brutto0], [s].[payment_netto0], [o].[Id]
 FROM [Offers] AS [o]
 INNER JOIN (
@@ -264,19 +264,20 @@ ORDER BY [o].[Id]
         await base.Two_similar_complex_properties_projected_with_split_query2();
 
         AssertSql(
-"""
+            """
 SELECT TOP(2) [o].[Id]
 FROM [Offers] AS [o]
 WHERE [o].[Id] = 1
 ORDER BY [o].[Id]
 """,
-                //
-                """
+            //
+            """
 SELECT [s].[Id], [s].[NestedId], [s].[OfferId], [s].[payment_brutto], [s].[payment_netto], [s].[Id0], [s].[payment_brutto0], [s].[payment_netto0], [o0].[Id]
 FROM (
     SELECT TOP(1) [o].[Id]
     FROM [Offers] AS [o]
     WHERE [o].[Id] = 1
+    ORDER BY [o].[Id]
 ) AS [o0]
 INNER JOIN (
     SELECT [v].[Id], [v].[NestedId], [v].[OfferId], [v].[payment_brutto], [v].[payment_netto], [n].[Id] AS [Id0], [n].[payment_brutto] AS [payment_brutto0], [n].[payment_netto] AS [payment_netto0]
@@ -292,12 +293,12 @@ ORDER BY [o0].[Id]
         await base.Projecting_one_of_two_similar_complex_types_picks_the_correct_one();
 
         AssertSql(
-"""
-@__p_0='10'
+            """
+@p='10'
 
 SELECT [a].[Id], [s].[Info_Created0] AS [Created]
 FROM (
-    SELECT TOP(@__p_0) [c].[Id], [b].[AId], [b].[Info_Created] AS [Info_Created0]
+    SELECT TOP(@p) [c].[Id], [b].[AId], [b].[Info_Created] AS [Info_Created0]
     FROM [Cs] AS [c]
     INNER JOIN [Bs] AS [b] ON [c].[BId] = [b].[Id]
     WHERE [b].[AId] = 1
@@ -305,6 +306,41 @@ FROM (
 ) AS [s]
 LEFT JOIN [As] AS [a] ON [s].[AId] = [a].[Id]
 ORDER BY [s].[Id]
+""");
+    }
+
+    public override async Task Projecting_property_with_converter_with_closure(bool async)
+    {
+        await base.Projecting_property_with_converter_with_closure(async);
+
+        AssertSql(
+"""
+SELECT [b].[PublishDate]
+FROM [Books] AS [b]
+""");
+    }
+
+    public override async Task Projecting_expression_with_converter_with_closure(bool async)
+    {
+        await base.Projecting_expression_with_converter_with_closure(async);
+
+        AssertSql(
+"""
+SELECT MIN([b].[PublishDate]) AS [Day]
+FROM [Books] AS [b]
+GROUP BY [b].[Id]
+""");
+    }
+
+    public override async Task Projecting_property_with_converter_without_closure(bool async)
+    {
+        await base.Projecting_property_with_converter_without_closure(async);
+
+        AssertSql(
+"""
+SELECT MIN([b].[AudiobookDate]) AS [Day]
+FROM [Books] AS [b]
+GROUP BY [b].[Id]
 """);
     }
 }

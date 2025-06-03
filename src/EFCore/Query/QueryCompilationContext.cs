@@ -22,17 +22,6 @@ public class QueryCompilationContext
 {
     /// <summary>
     ///     <para>
-    ///         Prefix for all the query parameters generated during parameter extraction in query pipeline.
-    ///     </para>
-    ///     <para>
-    ///         This property is typically used by database providers (and other extensions). It is generally
-    ///         not used in application code.
-    ///     </para>
-    /// </summary>
-    public const string QueryParameterPrefix = "__";
-
-    /// <summary>
-    ///     <para>
     ///         ParameterExpression representing <see cref="QueryContext" /> parameter in query expression.
     ///     </para>
     ///     <para>
@@ -53,8 +42,6 @@ public class QueryCompilationContext
     /// </summary>
     public static readonly Expression NotTranslatedExpression = new NotTranslatedExpressionType();
 
-    private static readonly IReadOnlySet<string> EmptySet = new HashSet<string>();
-
     private readonly IQueryTranslationPreprocessorFactory _queryTranslationPreprocessorFactory;
     private readonly IQueryableMethodTranslatingExpressionVisitorFactory _queryableMethodTranslatingExpressionVisitorFactory;
     private readonly IQueryTranslationPostprocessorFactory _queryTranslationPostprocessorFactory;
@@ -70,10 +57,8 @@ public class QueryCompilationContext
     /// </summary>
     /// <param name="dependencies">Parameter object containing dependencies for this class.</param>
     /// <param name="async">A bool value indicating whether it is for async query.</param>
-    public QueryCompilationContext(
-        QueryCompilationContextDependencies dependencies,
-        bool async)
-        : this(dependencies, async, precompiling: false, nonNullableReferenceTypeParameters: null)
+    public QueryCompilationContext(QueryCompilationContextDependencies dependencies, bool async)
+        : this(dependencies, async, precompiling: false)
     {
     }
 
@@ -83,13 +68,8 @@ public class QueryCompilationContext
     /// <param name="dependencies">Parameter object containing dependencies for this class.</param>
     /// <param name="async">A bool value indicating whether it is for async query.</param>
     /// <param name="precompiling">Indicates whether the query is being precompiled.</param>
-    /// <param name="nonNullableReferenceTypeParameters">Names of parameters which have non-nullable reference types.</param>
     [Experimental(EFDiagnostics.PrecompiledQueryExperimental)]
-    public QueryCompilationContext(
-        QueryCompilationContextDependencies dependencies,
-        bool async,
-        bool precompiling,
-        IReadOnlySet<string>? nonNullableReferenceTypeParameters)
+    public QueryCompilationContext(QueryCompilationContextDependencies dependencies, bool async, bool precompiling)
     {
         Dependencies = dependencies;
         IsAsync = async;
@@ -100,13 +80,12 @@ public class QueryCompilationContext
         ContextOptions = dependencies.ContextOptions;
         ContextType = dependencies.ContextType;
         Logger = dependencies.Logger;
-        NonNullableReferenceTypeParameters = nonNullableReferenceTypeParameters ?? EmptySet;
 
         _queryTranslationPreprocessorFactory = dependencies.QueryTranslationPreprocessorFactory;
         _queryableMethodTranslatingExpressionVisitorFactory = dependencies.QueryableMethodTranslatingExpressionVisitorFactory;
         _queryTranslationPostprocessorFactory = dependencies.QueryTranslationPostprocessorFactory;
         _shapedQueryCompilingExpressionVisitorFactory = dependencies.ShapedQueryCompilingExpressionVisitorFactory;
-        _runtimeParameterConstantLifter = new(dependencies.LiftableConstantFactory);
+        _runtimeParameterConstantLifter = new RuntimeParameterConstantLifter(dependencies.LiftableConstantFactory);
     }
 
     /// <summary>
@@ -170,12 +149,6 @@ public class QueryCompilationContext
     public virtual Type ContextType { get; }
 
     /// <summary>
-    ///     Names of parameters which have non-nullable reference types.
-    /// </summary>
-    [Experimental(EFDiagnostics.PrecompiledQueryExperimental)]
-    public virtual IReadOnlySet<string> NonNullableReferenceTypeParameters { get; }
-
-    /// <summary>
     ///     Adds a tag to <see cref="Tags" />.
     /// </summary>
     /// <param name="tag">The tag to add.</param>
@@ -183,10 +156,12 @@ public class QueryCompilationContext
         => Tags.Add(tag);
 
     /// <summary>
-    ///     A value indicating whether the provider supports precompiled query. Default value is <see langword="false" />. Providers that do support this feature should opt-in by setting this value to <see langword="true" />.
+    ///     A value indicating whether the provider supports precompiled query. Default value is <see langword="false" />. Providers that do
+    ///     support this feature should opt-in by setting this value to <see langword="true" />.
     /// </summary>
     [Experimental(EFDiagnostics.PrecompiledQueryExperimental)]
-    public virtual bool SupportsPrecompiledQuery => false;
+    public virtual bool SupportsPrecompiledQuery
+        => false;
 
     /// <summary>
     ///     Creates the query executor func which gives results for this query.
@@ -203,7 +178,8 @@ public class QueryCompilationContext
         // In normal mode, these nodes should simply be evaluated, and a ConstantExpression to those instances embedded directly in the
         // tree (for precompiled queries we generate C# code for resolving those instances instead).
         var queryExecutorAfterLiftingExpression =
-            (Expression<Func<QueryContext, TResult>>)Dependencies.LiftableConstantProcessor.InlineConstants(queryExecutorExpression, SupportsPrecompiledQuery);
+            (Expression<Func<QueryContext, TResult>>)Dependencies.LiftableConstantProcessor.InlineConstants(
+                queryExecutorExpression, SupportsPrecompiledQuery);
 
         try
         {
@@ -247,7 +223,7 @@ public class QueryCompilationContext
     ///     A lambda must be provided, which will extract the parameter's value from the QueryContext every time
     ///     the query is executed.
     /// </summary>
-    public virtual ParameterExpression RegisterRuntimeParameter(string name, LambdaExpression valueExtractor)
+    public virtual QueryParameterExpression RegisterRuntimeParameter(string name, LambdaExpression valueExtractor)
     {
         var valueExtractorBody = valueExtractor.Body;
         if (SupportsPrecompiledQuery)
@@ -266,7 +242,7 @@ public class QueryCompilationContext
         _runtimeParameters ??= new Dictionary<string, LambdaExpression>();
 
         _runtimeParameters[name] = valueExtractor;
-        return Expression.Parameter(valueExtractor.ReturnType, name);
+        return new QueryParameterExpression(name, valueExtractor.ReturnType);
     }
 
     private Expression InsertRuntimeParameters(Expression query)
@@ -301,7 +277,8 @@ public class QueryCompilationContext
 
     private sealed class RuntimeParameterConstantLifter(ILiftableConstantFactory liftableConstantFactory) : ExpressionVisitor
     {
-        private readonly static MethodInfo ComplexPropertyListElementAddMethod = typeof(List<IComplexProperty>).GetMethod(nameof(List<IComplexProperty>.Add))!;
+        private static readonly MethodInfo ComplexPropertyListElementAddMethod =
+            typeof(List<IComplexProperty>).GetMethod(nameof(List<IComplexProperty>.Add))!;
 
         protected override Expression VisitConstant(ConstantExpression constantExpression)
         {
@@ -324,7 +301,8 @@ public class QueryCompilationContext
                     for (var i = 0; i < complexPropertyChain.Count; i++)
                     {
                         var complexType = complexPropertyChain[i].ComplexType;
-                        var complexTypeExpression = LiftableConstantExpressionHelpers.BuildMemberAccessForEntityOrComplexType(complexType, prm);
+                        var complexTypeExpression =
+                            LiftableConstantExpressionHelpers.BuildMemberAccessForEntityOrComplexType(complexType, prm);
                         elementInitExpressions[i] = Expression.ElementInit(
                             ComplexPropertyListElementAddMethod,
                             Expression.Property(complexTypeExpression, nameof(IComplexType.ComplexProperty)));

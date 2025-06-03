@@ -56,10 +56,12 @@ public static class RelationalTypeMappingSourceExtensions
 
         var mapping = typeMappingSource.FindMapping(property);
 
-        return mapping ?? throw new InvalidOperationException(RelationalStrings.UnsupportedPropertyType(
-            property.DeclaringType.DisplayName(),
-            property.Name,
-            property.ClrType.ShortDisplayName()));
+        return mapping
+            ?? throw new InvalidOperationException(
+                RelationalStrings.UnsupportedPropertyType(
+                    property.DeclaringType.DisplayName(),
+                    property.Name,
+                    property.ClrType.ShortDisplayName()));
     }
 
     /// <summary>

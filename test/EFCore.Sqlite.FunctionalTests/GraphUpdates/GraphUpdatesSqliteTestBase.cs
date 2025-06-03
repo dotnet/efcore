@@ -5,14 +5,9 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public abstract class GraphUpdatesSqliteTestBase<TFixture> : GraphUpdatesTestBase<TFixture>
+public abstract class GraphUpdatesSqliteTestBase<TFixture>(TFixture fixture) : GraphUpdatesTestBase<TFixture>(fixture)
     where TFixture : GraphUpdatesSqliteTestBase<TFixture>.GraphUpdatesSqliteFixtureBase, new()
 {
-    protected GraphUpdatesSqliteTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-
     [ConditionalTheory(Skip = "Default owned collection pattern does not work with SQLite due to composite key.")]
     public override Task Update_principal_with_shadow_key_owned_collection_throws(bool async)
         => Task.CompletedTask;

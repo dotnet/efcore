@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
-using Xunit.Sdk;
 
 // ReSharper disable AccessToModifiedClosure
 // ReSharper disable InconsistentNaming
@@ -11,15 +10,10 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public abstract class NorthwindCompiledQueryTestBase<TFixture> : IClassFixture<TFixture>
+public abstract class NorthwindCompiledQueryTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : NorthwindQueryFixtureBase<NoopModelCustomizer>, new()
 {
-    protected NorthwindCompiledQueryTestBase(TFixture fixture)
-    {
-        Fixture = fixture;
-    }
-
-    protected TFixture Fixture { get; }
+    protected TFixture Fixture { get; } = fixture;
 
     [ConditionalFact]
     public virtual void DbSet_query()
@@ -860,5 +854,5 @@ public abstract class NorthwindCompiledQueryTestBase<TFixture> : IClassFixture<T
     protected NorthwindContext CreateContext()
         => Fixture.CreateContext();
 
-    public static IEnumerable<object[]> IsAsyncData = new object[][] { [false], [true] };
+    public static readonly IEnumerable<object[]> IsAsyncData = [[false], [true]];
 }

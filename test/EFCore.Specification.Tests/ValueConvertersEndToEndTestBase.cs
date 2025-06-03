@@ -8,15 +8,10 @@ using System.Text.Json;
 // ReSharper disable StaticMemberInGenericType
 namespace Microsoft.EntityFrameworkCore;
 
-public abstract class ValueConvertersEndToEndTestBase<TFixture> : IClassFixture<TFixture>
+public abstract class ValueConvertersEndToEndTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : ValueConvertersEndToEndTestBase<TFixture>.ValueConvertersEndToEndFixtureBase, new()
 {
-    protected ValueConvertersEndToEndTestBase(TFixture fixture)
-    {
-        Fixture = fixture;
-    }
-
-    protected TFixture Fixture { get; }
+    protected TFixture Fixture { get; } = fixture;
 
     private static readonly DateTimeOffset _dateTimeOffset1 = new(1973, 9, 3, 12, 10, 0, new TimeSpan(7, 0, 0));
     private static readonly DateTimeOffset _dateTimeOffset2 = new(1973, 9, 3, 12, 10, 0, new TimeSpan(8, 0, 0));
@@ -883,53 +878,23 @@ public abstract class ValueConvertersEndToEndTestBase<TFixture> : IClassFixture<
                 });
     }
 
-    protected class NullStringToNonNullStringConverter : ValueConverter<string?, string>
-    {
-        public NullStringToNonNullStringConverter()
-            : base(v => v ?? "<null>", v => v == "<null>" ? null : v, convertsNulls: true)
-        {
-        }
-    }
+    protected class NullStringToNonNullStringConverter() : ValueConverter<string?, string>(
+        v => v ?? "<null>", v => v == "<null>" ? null : v, convertsNulls: true);
 
-    protected class NonNullStringToNullStringConverter : ValueConverter<string, string?>
-    {
-        public NonNullStringToNullStringConverter()
-            : base(v => v == "<null>" ? null : v, v => v ?? "<null>", convertsNulls: true)
-        {
-        }
-    }
+    protected class NonNullStringToNullStringConverter() : ValueConverter<string, string?>(
+        v => v == "<null>" ? null : v, v => v ?? "<null>", convertsNulls: true);
 
-    protected class NullIntToNonNullStringConverter : ValueConverter<int?, string>
-    {
-        public NullIntToNonNullStringConverter()
-            : base(v => v == null ? "<null>" : v.ToString()!, v => v == "<null>" ? null : int.Parse(v), convertsNulls: true)
-        {
-        }
-    }
+    protected class NullIntToNonNullStringConverter() : ValueConverter<int?, string>(
+        v => v == null ? "<null>" : v.ToString()!, v => v == "<null>" ? null : int.Parse(v), convertsNulls: true);
 
-    protected class NullIntToNullStringConverter : ValueConverter<int?, string?>
-    {
-        public NullIntToNullStringConverter()
-            : base(v => v == null ? null : v.ToString()!, v => v == null || v == "<null>" ? null : int.Parse(v), convertsNulls: true)
-        {
-        }
-    }
+    protected class NullIntToNullStringConverter() : ValueConverter<int?, string?>(
+        v => v == null ? null : v.ToString()!, v => v == null || v == "<null>" ? null : int.Parse(v), convertsNulls: true);
 
-    protected class NonNullIntToNonNullStringConverter : ValueConverter<int, string>
-    {
-        public NonNullIntToNonNullStringConverter()
-            : base(v => v.ToString()!, v => v == "<null>" ? 0 : int.Parse(v), convertsNulls: true)
-        {
-        }
-    }
+    protected class NonNullIntToNonNullStringConverter() : ValueConverter<int, string>(
+        v => v.ToString()!, v => v == "<null>" ? 0 : int.Parse(v), convertsNulls: true);
 
-    protected class NonNullIntToNullStringConverter : ValueConverter<int, string?>
-    {
-        public NonNullIntToNullStringConverter()
-            : base(v => v.ToString()!, v => v == null ? 0 : int.Parse(v), convertsNulls: true)
-        {
-        }
-    }
+    protected class NonNullIntToNullStringConverter() : ValueConverter<int, string?>(
+        v => v.ToString()!, v => v == null ? 0 : int.Parse(v), convertsNulls: true);
 
     protected enum TheExperience : ushort
     {
@@ -938,45 +903,21 @@ public abstract class ValueConvertersEndToEndTestBase<TFixture> : IClassFixture<
         Mitch
     }
 
-    protected class ListOfIntToJsonConverter : ValueConverter<List<int>, string>
-    {
-        public ListOfIntToJsonConverter()
-            : base(
-                v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
-                v => JsonSerializer.Deserialize<List<int>>(v, (JsonSerializerOptions?)null)!)
-        {
-        }
-    }
+    protected class ListOfIntToJsonConverter() : ValueConverter<List<int>, string>(
+        v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
+        v => JsonSerializer.Deserialize<List<int>>(v, (JsonSerializerOptions?)null)!);
 
-    protected class ListOfIntComparer : ValueComparer<List<int>?>
-    {
-        public ListOfIntComparer()
-            : base(
-                (c1, c2) => (c1 == null && c2 == null) || (c1 != null && c2 != null && c1.SequenceEqual(c2)),
-                c => c == null ? 0 : c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
-                c => c == null ? null : c.ToList())
-        {
-        }
-    }
+    protected class ListOfIntComparer() : ValueComparer<List<int>?>(
+        (c1, c2) => (c1 == null && c2 == null) || (c1 != null && c2 != null && c1.SequenceEqual(c2)),
+        c => c == null ? 0 : c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
+        c => c == null ? null : c.ToList());
 
-    protected class EnumerableOfIntToJsonConverter : ValueConverter<IEnumerable<int>, string>
-    {
-        public EnumerableOfIntToJsonConverter()
-            : base(
-                v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
-                v => JsonSerializer.Deserialize<List<int>>(v, (JsonSerializerOptions?)null)!)
-        {
-        }
-    }
+    protected class EnumerableOfIntToJsonConverter() : ValueConverter<IEnumerable<int>, string>(
+        v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
+        v => JsonSerializer.Deserialize<List<int>>(v, (JsonSerializerOptions?)null)!);
 
-    protected class EnumerableOfIntComparer : ValueComparer<IEnumerable<int>?>
-    {
-        public EnumerableOfIntComparer()
-            : base(
-                (c1, c2) => (c1 == null && c2 == null) || (c1 != null && c2 != null && c1.SequenceEqual(c2)),
-                c => c == null ? 0 : c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
-                c => c == null ? null : c.ToList())
-        {
-        }
-    }
+    protected class EnumerableOfIntComparer() : ValueComparer<IEnumerable<int>?>(
+        (c1, c2) => (c1 == null && c2 == null) || (c1 != null && c2 != null && c1.SequenceEqual(c2)),
+        c => c == null ? 0 : c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
+        c => c == null ? null : c.ToList());
 }

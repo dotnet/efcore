@@ -3,7 +3,7 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public abstract class MaterializationInterceptionTestBase<TContext> : SingletonInterceptorsTestBase<TContext>
+public abstract class MaterializationInterceptionTestBase<TContext>(NonSharedFixture fixture) : SingletonInterceptorsTestBase<TContext>(fixture)
     where TContext : SingletonInterceptorsTestBase<TContext>.LibraryContext
 {
     protected override string StoreName
@@ -163,7 +163,7 @@ public abstract class MaterializationInterceptionTestBase<TContext> : SingletonI
         }
     }
 
-    private static int _id;
+    private static int _id = 1;
 
     [ConditionalTheory] // Issue #30244
     [ClassData(typeof(DataGenerator<bool, bool>))]

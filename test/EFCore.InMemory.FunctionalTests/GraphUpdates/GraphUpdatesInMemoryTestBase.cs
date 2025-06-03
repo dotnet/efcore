@@ -3,14 +3,9 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public abstract class GraphUpdatesInMemoryTestBase<TFixture> : GraphUpdatesTestBase<TFixture>
+public abstract class GraphUpdatesInMemoryTestBase<TFixture>(TFixture fixture) : GraphUpdatesTestBase<TFixture>(fixture)
     where TFixture : GraphUpdatesInMemoryTestBase<TFixture>.GraphUpdatesInMemoryFixtureBase, new()
 {
-    protected GraphUpdatesInMemoryTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-
     // In-memory database does not have database default values
     public override Task Can_insert_when_bool_PK_in_composite_key_has_sentinel_value(bool async, bool initialValue)
         => Task.CompletedTask;

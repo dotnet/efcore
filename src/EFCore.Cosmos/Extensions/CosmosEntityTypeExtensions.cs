@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 
 // ReSharper disable once CheckNamespace
@@ -72,8 +73,12 @@ public static class CosmosEntityTypeExtensions
     /// <param name="entityType">The entity type to get the containing property name for.</param>
     /// <returns>The name of the parent property to which the entity type is mapped.</returns>
     public static string? GetContainingPropertyName(this IReadOnlyEntityType entityType)
-        => entityType[CosmosAnnotationNames.PropertyName] as string
-            ?? GetDefaultContainingPropertyName(entityType);
+    {
+        var propertyName = entityType.FindAnnotation(CosmosAnnotationNames.PropertyName);
+        return propertyName == null
+            ? GetDefaultContainingPropertyName(entityType)
+            : (string?)propertyName.Value;
+    }
 
     private static string? GetDefaultContainingPropertyName(IReadOnlyEntityType entityType)
         => entityType.FindOwnership() is IReadOnlyForeignKey ownership
@@ -194,15 +199,17 @@ public static class CosmosEntityTypeExtensions
     ///     Returns the names of the properties that are used to store the hierarchical partition key, if any.
     /// </summary>
     /// <param name="entityType">The entity type.</param>
-    /// <returns>The names of the partition key properties, or <see langword="null"/> if not set.</returns>
+    /// <returns>The names of the partition key properties, or <see langword="null" /> if not set.</returns>
     public static IReadOnlyList<string> GetPartitionKeyPropertyNames(this IReadOnlyEntityType entityType)
-        => entityType[CosmosAnnotationNames.PartitionKeyNames] as IReadOnlyList<string> ?? Array.Empty<string>();
+        => entityType[CosmosAnnotationNames.PartitionKeyNames] as IReadOnlyList<string>
+            ?? entityType.BaseType?.GetPartitionKeyPropertyNames()
+            ?? [];
 
     /// <summary>
     ///     Sets the names of the properties that are used to store the hierarchical partition key.
     /// </summary>
     /// <param name="entityType">The entity type.</param>
-    /// <param name="names">The names to set, or <see langword="null"/> to clear all names.</param>
+    /// <param name="names">The names to set, or <see langword="null" /> to clear all names.</param>
     public static void SetPartitionKeyPropertyNames(this IMutableEntityType entityType, IReadOnlyList<string>? names)
         => entityType.SetOrRemoveAnnotation(
             CosmosAnnotationNames.PartitionKeyNames, names is null ? names : Check.HasNoEmptyElements(names, nameof(names)));
@@ -270,7 +277,9 @@ public static class CosmosEntityTypeExtensions
     /// <param name="entityType">The entity type to get the etag property name for.</param>
     /// <returns>The name of the etag property.</returns>
     public static string? GetETagPropertyName(this IReadOnlyEntityType entityType)
-        => entityType[CosmosAnnotationNames.ETagName] as string;
+        => entityType[CosmosAnnotationNames.ETagName] as string
+            ?? entityType.BaseType?.GetETagPropertyName()
+            ?? null;
 
     /// <summary>
     ///     Sets the name of the property that is used to store the ETag key.
@@ -341,6 +350,100 @@ public static class CosmosEntityTypeExtensions
     /// <returns>The property mapped to etag, or <see langword="null" /> if no property is mapped to ETag.</returns>
     public static IProperty? GetETagProperty(this IEntityType entityType)
         => (IProperty?)((IReadOnlyEntityType)entityType).GetETagProperty();
+
+    /// <summary>
+    ///     Returns a value indicating whether model building will always create a "__id" shadow property mapped to the JSON "id".
+    ///     This was the default behavior before EF Core 9.0.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <returns>
+    ///     <see langword="true" /> to force __id creation, <see langword="false" /> to not force __id creation,
+    ///     <see langword="null" /> to revert to the default setting.
+    /// </returns>
+    public static bool? GetHasShadowId(this IReadOnlyEntityType entityType)
+        => (entityType.BaseType != null
+                ? entityType.GetRootType().GetHasShadowId()
+                : (bool?)entityType[CosmosAnnotationNames.HasShadowId])
+            ?? entityType.Model.GetHasShadowIds();
+
+    /// <summary>
+    ///     Forces model building to always create a "__id" shadow property mapped to the JSON "id". This was the default
+    ///     behavior before EF Core 9.0.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <param name="alwaysCreate">
+    ///     <see langword="true" /> to force __id creation, <see langword="false" /> to not force __id creation,
+    ///     <see langword="null" /> to revert to the default setting.
+    /// </param>
+    public static void SetHasShadowId(this IMutableEntityType entityType, bool? alwaysCreate)
+        => entityType.SetOrRemoveAnnotation(CosmosAnnotationNames.HasShadowId, alwaysCreate);
+
+    /// <summary>
+    ///     Forces model building to always create a "__id" shadow property mapped to the JSON "id". This was the default
+    ///     behavior before EF Core 9.0.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <param name="alwaysCreate">
+    ///     <see langword="true" /> to force __id creation, <see langword="false" /> to not force __id creation,
+    ///     <see langword="null" /> to revert to the default setting.
+    /// </param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    public static bool? SetHasShadowId(
+        this IConventionEntityType entityType,
+        bool? alwaysCreate,
+        bool fromDataAnnotation = false)
+        => (bool?)entityType.SetOrRemoveAnnotation(
+            CosmosAnnotationNames.HasShadowId, alwaysCreate, fromDataAnnotation)?.Value;
+
+    /// <summary>
+    ///     Gets the <see cref="ConfigurationSource" /> for <see cref="GetHasShadowId" />.
+    /// </summary>
+    /// <param name="entityType">The entity typer.</param>
+    /// <returns>The <see cref="ConfigurationSource" />.</returns>
+    public static ConfigurationSource? GetHasShadowIdConfigurationSource(this IConventionEntityType entityType)
+        => entityType.FindAnnotation(CosmosAnnotationNames.HasShadowId)?.GetConfigurationSource();
+
+    /// <summary>
+    ///     Returns a value indicating whether the entity type discriminator should be included in the JSON "id" value.
+    ///     Prior to EF Core 9, it was always included. Starting with EF Core 9, it is not included by default.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <returns>The <see cref="IdDiscriminatorMode" /> or <see langword="null" /> if not set.</returns>
+    public static IdDiscriminatorMode? GetDiscriminatorInKey(this IReadOnlyEntityType entityType)
+        => (entityType.BaseType != null
+                ? entityType.GetRootType().GetDiscriminatorInKey()
+                : (IdDiscriminatorMode?)entityType[CosmosAnnotationNames.DiscriminatorInKey])
+            ?? entityType.Model.GetDiscriminatorInKey();
+
+    /// <summary>
+    ///     Includes the entity type discriminator in the JSON "id".
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <param name="behavior">The behavior to use, or <see langword="null" /> to reset the behavior to the default.</param>
+    public static void SetDiscriminatorInKey(this IMutableEntityType entityType, IdDiscriminatorMode? behavior)
+        => entityType.SetOrRemoveAnnotation(CosmosAnnotationNames.DiscriminatorInKey, behavior);
+
+    /// <summary>
+    ///     Includes the entity type discriminator in the JSON "id".
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <param name="behavior">The behavior to use, or <see langword="null" /> to reset the behavior to the default.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    public static IdDiscriminatorMode? SetDiscriminatorInKey(
+        this IConventionEntityType entityType,
+        IdDiscriminatorMode? behavior,
+        bool fromDataAnnotation = false)
+        => (IdDiscriminatorMode?)entityType.SetOrRemoveAnnotation(
+            CosmosAnnotationNames.DiscriminatorInKey, behavior, fromDataAnnotation)?.Value;
+
+    /// <summary>
+    ///     Gets the <see cref="ConfigurationSource" /> for <see cref="GetDiscriminatorInKey" />.
+    /// </summary>
+    /// <param name="entityType">The entity typer.</param>
+    /// <returns>The <see cref="ConfigurationSource" />.</returns>
+    public static ConfigurationSource? GetDiscriminatorInKeyConfigurationSource(this IConventionEntityType entityType)
+        => entityType.FindAnnotation(CosmosAnnotationNames.DiscriminatorInKey)
+            ?.GetConfigurationSource();
 
     /// <summary>
     ///     Returns the time to live for analytical store in seconds at container scope.
@@ -483,5 +586,49 @@ public static class CosmosEntityTypeExtensions
     /// <returns>The <see cref="ConfigurationSource" /> for the throughput.</returns>
     public static ConfigurationSource? GetThroughputConfigurationSource(this IConventionEntityType entityType)
         => entityType.FindAnnotation(CosmosAnnotationNames.Throughput)
+            ?.GetConfigurationSource();
+
+    /// <summary>
+    ///     Returns the default language for the full-text search at container scope.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <returns>The default language for the full-text search.</returns>
+    public static string? GetDefaultFullTextSearchLanguage(this IReadOnlyEntityType entityType)
+        => entityType.BaseType != null
+            ? entityType.GetRootType().GetDefaultFullTextSearchLanguage()
+            : (string?)entityType[CosmosAnnotationNames.DefaultFullTextSearchLanguage];
+
+    /// <summary>
+    ///     Sets the default language for the full-text search at container scope.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <param name="language">The default language for the full-text search.</param>
+    public static void SetDefaultFullTextSearchLanguage(this IMutableEntityType entityType, string? language)
+        => entityType.SetOrRemoveAnnotation(
+            CosmosAnnotationNames.DefaultFullTextSearchLanguage,
+            language);
+
+    /// <summary>
+    ///     Sets the default language for the full-text search at container scope.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <param name="language">The default language for the full-text search.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    public static string? SetDefaultFullTextSearchLanguage(
+        this IConventionEntityType entityType,
+        string? language,
+        bool fromDataAnnotation = false)
+        => (string?)entityType.SetOrRemoveAnnotation(
+            CosmosAnnotationNames.DefaultFullTextSearchLanguage,
+            language,
+            fromDataAnnotation)?.Value;
+
+    /// <summary>
+    ///     Gets the <see cref="ConfigurationSource" /> for the default full-text search language at container scope.
+    /// </summary>
+    /// <param name="entityType">The entity type to find configuration source for.</param>
+    /// <returns>The <see cref="ConfigurationSource" /> for the default full-text search language.</returns>
+    public static ConfigurationSource? GetDefaultFullTextSearchLanguageConfigurationSource(this IConventionEntityType entityType)
+        => entityType.FindAnnotation(CosmosAnnotationNames.DefaultFullTextSearchLanguage)
             ?.GetConfigurationSource();
 }

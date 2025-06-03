@@ -32,6 +32,11 @@ public class ConventionSet
     public virtual List<IModelAnnotationChangedConvention> ModelAnnotationChangedConventions { get; } = [];
 
     /// <summary>
+    ///     Conventions to run when an annotation is set or removed on an entity type.
+    /// </summary>
+    public virtual List<IModelEmbeddedDiscriminatorNameConvention> ModelEmbeddedDiscriminatorNameConventions { get; } = [];
+
+    /// <summary>
     ///     Conventions to run when a type is ignored.
     /// </summary>
     public virtual List<ITypeIgnoredConvention> TypeIgnoredConventions { get; } = [];
@@ -319,6 +324,12 @@ public class ConventionSet
             && !Replace(ModelAnnotationChangedConventions, modelAnnotationChangedConvention, oldConventionType))
         {
             ModelAnnotationChangedConventions.Add(modelAnnotationChangedConvention);
+        }
+
+        if (newConvention is IModelEmbeddedDiscriminatorNameConvention modelEmbeddedDiscriminatorNameConvention
+            && !Replace(ModelEmbeddedDiscriminatorNameConventions, modelEmbeddedDiscriminatorNameConvention, oldConventionType))
+        {
+            ModelEmbeddedDiscriminatorNameConventions.Add(modelEmbeddedDiscriminatorNameConvention);
         }
 
         if (newConvention is ITypeIgnoredConvention typeIgnoredConvention
@@ -696,6 +707,11 @@ public class ConventionSet
             ModelAnnotationChangedConventions.Add(modelAnnotationChangedConvention);
         }
 
+        if (convention is IModelEmbeddedDiscriminatorNameConvention modelEmbeddedDiscriminatorNameConvention)
+        {
+            ModelEmbeddedDiscriminatorNameConventions.Add(modelEmbeddedDiscriminatorNameConvention);
+        }
+
         if (convention is ITypeIgnoredConvention typeIgnoredConvention)
         {
             TypeIgnoredConventions.Add(typeIgnoredConvention);
@@ -1032,6 +1048,11 @@ public class ConventionSet
         if (typeof(IModelAnnotationChangedConvention).IsAssignableFrom(conventionType))
         {
             Remove(ModelAnnotationChangedConventions, conventionType);
+        }
+
+        if (typeof(IModelEmbeddedDiscriminatorNameConvention).IsAssignableFrom(conventionType))
+        {
+            Remove(ModelEmbeddedDiscriminatorNameConventions, conventionType);
         }
 
         if (typeof(ITypeIgnoredConvention).IsAssignableFrom(conventionType))

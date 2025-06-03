@@ -25,9 +25,7 @@ public class SqliteSqlExpressionFactory : SqlExpressionFactory
     /// </summary>
     public SqliteSqlExpressionFactory(SqlExpressionFactoryDependencies dependencies)
         : base(dependencies)
-    {
-        _boolTypeMapping = dependencies.TypeMappingSource.FindMapping(typeof(bool), dependencies.Model)!;
-    }
+        => _boolTypeMapping = dependencies.TypeMappingSource.FindMapping(typeof(bool), dependencies.Model)!;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -182,66 +180,5 @@ public class SqliteSqlExpressionFactory : SqlExpressionFactory
         return match != regexpExpression.Match || pattern != regexpExpression.Pattern || regexpExpression.TypeMapping != _boolTypeMapping
             ? new RegexpExpression(match, pattern, _boolTypeMapping)
             : regexpExpression;
-    }
-
-    /// <inheritdoc />
-    public override bool TryCreateLeast(
-        IReadOnlyList<SqlExpression> expressions,
-        Type resultType,
-        [NotNullWhen(true)] out SqlExpression? leastExpression)
-    {
-        var resultTypeMapping = ExpressionExtensions.InferTypeMapping(expressions);
-
-        expressions = FlattenLeastGreatest("min", expressions);
-
-        leastExpression = Function(
-            "min", expressions, nullable: true, Enumerable.Repeat(true, expressions.Count), resultType, resultTypeMapping);
-        return true;
-    }
-
-    /// <inheritdoc />
-    public override bool TryCreateGreatest(
-        IReadOnlyList<SqlExpression> expressions,
-        Type resultType,
-        [NotNullWhen(true)] out SqlExpression? greatestExpression)
-    {
-        var resultTypeMapping = ExpressionExtensions.InferTypeMapping(expressions);
-
-        expressions = FlattenLeastGreatest("max", expressions);
-
-        greatestExpression = Function(
-            "max", expressions, nullable: true, Enumerable.Repeat(true, expressions.Count), resultType, resultTypeMapping);
-        return true;
-    }
-
-    private IReadOnlyList<SqlExpression> FlattenLeastGreatest(string functionName, IReadOnlyList<SqlExpression> expressions)
-    {
-        List<SqlExpression>? flattenedExpressions = null;
-
-        for (var i = 0; i < expressions.Count; i++)
-        {
-            var expression = expressions[i];
-            if (expression is SqlFunctionExpression { IsBuiltIn: true } nestedFunction
-                && nestedFunction.Name == functionName)
-            {
-                if (flattenedExpressions is null)
-                {
-                    flattenedExpressions = [];
-                    for (var j = 0; j < i; j++)
-                    {
-                        flattenedExpressions.Add(expressions[j]);
-                    }
-                }
-
-                Check.DebugAssert(nestedFunction.Arguments is not null, "Null arguments to " + functionName);
-                flattenedExpressions.AddRange(nestedFunction.Arguments);
-            }
-            else
-            {
-                flattenedExpressions?.Add(expressions[i]);
-            }
-        }
-
-        return flattenedExpressions ?? expressions;
     }
 }

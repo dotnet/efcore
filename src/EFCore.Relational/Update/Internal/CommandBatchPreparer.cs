@@ -217,7 +217,7 @@ public class CommandBatchPreparer : ICommandBatchPreparer
 
             using var sharedIdentityTableMappings =
                 entry.SharedIdentityEntry != null
-                    && entry.SharedIdentityEntry.EntityState == EntityState.Deleted
+                && entry.SharedIdentityEntry.EntityState == EntityState.Deleted
                     ? entry.SharedIdentityEntry.EntityType.GetTableMappings().GetEnumerator()
                     : null;
 
@@ -228,7 +228,9 @@ public class CommandBatchPreparer : ICommandBatchPreparer
                     && sharedIdentityTableMappings.MoveNext()
                     && sharedIdentityTableMappings.Current.Table != tableMapping.Table)
                 {
-                    ProcessEntry(entry.SharedIdentityEntry!, sharedIdentityTableMappings.Current, commands, updateAdapter, generateParameterName, ref sharedTablesCommandsMap);
+                    ProcessEntry(
+                        entry.SharedIdentityEntry!, sharedIdentityTableMappings.Current, commands, updateAdapter, generateParameterName,
+                        ref sharedTablesCommandsMap);
                 }
 
                 ProcessEntry(entry, tableMapping, commands, updateAdapter, generateParameterName, ref sharedTablesCommandsMap);
@@ -237,9 +239,11 @@ public class CommandBatchPreparer : ICommandBatchPreparer
             }
 
             while (sharedIdentityTableMappings != null
-                    && sharedIdentityTableMappings.MoveNext())
+                   && sharedIdentityTableMappings.MoveNext())
             {
-                ProcessEntry(entry.SharedIdentityEntry!, sharedIdentityTableMappings.Current, commands, updateAdapter, generateParameterName, ref sharedTablesCommandsMap);
+                ProcessEntry(
+                    entry.SharedIdentityEntry!, sharedIdentityTableMappings.Current, commands, updateAdapter, generateParameterName,
+                    ref sharedTablesCommandsMap);
             }
 
             if (!foundMapping)
@@ -989,18 +993,30 @@ public class CommandBatchPreparer : ICommandBatchPreparer
                 var entry = command.Entries[entryIndex];
                 var columnMapping = column.FindColumnMapping(entry.EntityType);
                 var property = columnMapping?.Property;
-                if (property != null
-                    && (property.GetAfterSaveBehavior() == PropertySaveBehavior.Save
-                        || (!property.IsPrimaryKey() && entry.EntityState != EntityState.Modified)))
+                if (property != null)
                 {
                     switch (entry.EntityState)
                     {
                         case EntityState.Added:
                             currentValue = entry.GetCurrentProviderValue(property);
+                            if (entry.SharedIdentityEntry != null)
+                            {
+                                var sharedProperty = entry.SharedIdentityEntry.EntityType == entry.EntityType
+                                    ? property
+                                    : column.FindColumnMapping(entry.SharedIdentityEntry.EntityType)?.Property;
+
+                                if (sharedProperty != null)
+                                {
+                                    originalValue ??= entry.SharedIdentityEntry.GetOriginalProviderValue(sharedProperty);
+                                }
+                            }
+
                             break;
                         case EntityState.Deleted:
                         case EntityState.Unchanged:
                             originalValue ??= entry.GetOriginalProviderValue(property);
+                            Check.DebugAssert(entry.SharedIdentityEntry == null, "entry.SharedIdentityEntry != null");
+
                             break;
                         case EntityState.Modified:
                             if (entry.IsModified(property))
@@ -1240,7 +1256,7 @@ public class CommandBatchPreparer : ICommandBatchPreparer
                     {
                         AddMatchingPredecessorEdge(
                             indexPredecessorsMap, value, command,
-                            new CommandDependency(index, breakable: index.Filter != null || hasNullValue));
+                            new CommandDependency(index, Breakable: index.Filter != null || hasNullValue));
                     }
                 }
             }
@@ -1322,22 +1338,23 @@ public class CommandBatchPreparer : ICommandBatchPreparer
                         for (var i = 0; i < deletedCommands.List.Count - 1; i++)
                         {
                             var deleted = deletedCommands.List[i];
-                            _modificationCommandGraph.AddEdge(deleted, lastDelete, new CommandDependency(deleted.Table!, breakable: true));
+                            _modificationCommandGraph.AddEdge(deleted, lastDelete, new CommandDependency(deleted.Table!, Breakable: true));
                         }
 
                         deletedDictionary[table] = (deletedCommands.List, true);
                     }
 
-                    _modificationCommandGraph.AddEdge(lastDelete, command, new CommandDependency(command.Table!, breakable: true));
+                    _modificationCommandGraph.AddEdge(lastDelete, command, new CommandDependency(command.Table!, Breakable: true));
                 }
             }
         }
     }
 
-    /// <inheritdoc/>
-    void IResettableService.ResetState() => _modificationCommandGraph.Clear();
+    /// <inheritdoc />
+    void IResettableService.ResetState()
+        => _modificationCommandGraph.Clear();
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     Task IResettableService.ResetStateAsync(CancellationToken cancellationToken)
     {
         ((IResettableService)this).ResetState();
@@ -1345,15 +1362,5 @@ public class CommandBatchPreparer : ICommandBatchPreparer
         return Task.CompletedTask;
     }
 
-    private sealed record class CommandDependency
-    {
-        public CommandDependency(IAnnotatable metadata, bool breakable = false)
-        {
-            Metadata = metadata;
-            Breakable = breakable;
-        }
-
-        public IAnnotatable Metadata { get; }
-        public bool Breakable { get; }
-    }
+    private sealed record class CommandDependency(IAnnotatable Metadata, bool Breakable = false);
 }

@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 
@@ -66,8 +65,10 @@ public class Key : ConventionAnnotatable, IMutableKey, IConventionKey, IRuntimeK
     public virtual InternalKeyBuilder Builder
     {
         [DebuggerStepThrough]
-        get => _builder ?? throw new InvalidOperationException(CoreStrings.ObjectRemovedFromModel(
-            Property.Format(Properties.Select(p => p.Name))));
+        get => _builder
+            ?? throw new InvalidOperationException(
+                CoreStrings.ObjectRemovedFromModel(
+                    Property.Format(Properties.Select(p => p.Name))));
     }
 
     /// <summary>

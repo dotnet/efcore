@@ -12,9 +12,7 @@ public class OrderQuery
     }
 
     public OrderQuery(string customerID)
-    {
-        CustomerID = customerID;
-    }
+        => CustomerID = customerID;
 
     public string CustomerID { get; set; }
 

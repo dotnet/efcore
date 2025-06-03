@@ -19,16 +19,14 @@ public class DiscriminatorConvention :
     /// </summary>
     /// <param name="dependencies">Parameter object containing dependencies for this convention.</param>
     public DiscriminatorConvention(ProviderConventionSetBuilderDependencies dependencies)
-    {
-        Dependencies = dependencies;
-    }
+        => Dependencies = dependencies;
 
     /// <summary>
     ///     Dependencies for this service.
     /// </summary>
     protected virtual ProviderConventionSetBuilderDependencies Dependencies { get; }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public virtual void ProcessEntityTypeBaseTypeChanged(
         IConventionEntityTypeBuilder entityTypeBuilder,
         IConventionEntityType? newBaseType,
@@ -75,9 +73,9 @@ public class DiscriminatorConvention :
         }
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public virtual void ProcessDiscriminatorPropertySet(
-        IConventionEntityTypeBuilder entityTypeBuilder,
+        IConventionTypeBaseBuilder structuralTypeBuilder,
         string? name,
         IConventionContext<string> context)
     {
@@ -86,14 +84,26 @@ public class DiscriminatorConvention :
             return;
         }
 
-        var discriminator = entityTypeBuilder.HasDiscriminator(typeof(string));
-        if (discriminator != null)
+        if (structuralTypeBuilder is IConventionEntityTypeBuilder entityTypeBuilder)
         {
-            SetDefaultDiscriminatorValues(entityTypeBuilder.Metadata.GetDerivedTypesInclusive(), discriminator);
+            var discriminator = entityTypeBuilder.HasDiscriminator(name, typeof(string));
+            if (discriminator != null)
+            {
+                SetDefaultDiscriminatorValues(entityTypeBuilder.Metadata.GetDerivedTypesInclusive(), discriminator);
+            }
+        }
+        else
+        {
+            var complexTypeBuilder = (IConventionComplexTypeBuilder)structuralTypeBuilder;
+            var discriminator = complexTypeBuilder.HasDiscriminator(name, typeof(string));
+            if (discriminator != null)
+            {
+                SetDefaultDiscriminatorValue(complexTypeBuilder.Metadata, discriminator);
+            }
         }
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public virtual void ProcessEntityTypeRemoved(
         IConventionModelBuilder modelBuilder,
         IConventionEntityType entityType,
@@ -122,5 +132,17 @@ public class DiscriminatorConvention :
         {
             discriminatorBuilder.HasValue(entityType, entityType.GetDefaultDiscriminatorValue());
         }
+    }
+
+    /// <summary>
+    ///     Configures the discriminator value for the given complex type.
+    /// </summary>
+    /// <param name="complexType">The complex type to configure.</param>
+    /// <param name="discriminatorBuilder">The discriminator builder.</param>
+    protected virtual void SetDefaultDiscriminatorValue(
+        IConventionComplexType complexType,
+        IConventionComplexTypeDiscriminatorBuilder discriminatorBuilder)
+    {
+        discriminatorBuilder.HasValue(complexType.GetDefaultDiscriminatorValue());
     }
 }

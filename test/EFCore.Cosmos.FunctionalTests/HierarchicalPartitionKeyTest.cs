@@ -3,6 +3,7 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
+// TODO: Consider removing these in favor of ReadItemPartitionKeyQueryTest
 public class HierarchicalPartitionKeyTest : IClassFixture<HierarchicalPartitionKeyTest.CosmosHierarchicalPartitionKeyFixture>
 {
     private const string DatabaseName = nameof(HierarchicalPartitionKeyTest);
@@ -26,22 +27,20 @@ public class HierarchicalPartitionKeyTest : IClassFixture<HierarchicalPartitionK
     {
         const string read1Sql =
             """
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
 ORDER BY c["PartitionKey1"]
 OFFSET 0 LIMIT 1
 """;
 
         const string read2Sql =
             """
-@__p_0='1'
+@p='1'
 
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
 ORDER BY c["PartitionKey1"]
-OFFSET @__p_0 LIMIT 1
+OFFSET @p LIMIT 1
 """;
 
         await PartitionKeyTestAsync(
@@ -59,16 +58,15 @@ OFFSET @__p_0 LIMIT 1
     {
         const string readSql =
             """
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
-OFFSET 0 LIMIT 1
+OFFSET 0 LIMIT 2
 """;
 
         await PartitionKeyTestAsync(
-            ctx => ctx.Customers.WithPartitionKey("A", 1.1, true).FirstAsync(),
+            ctx => ctx.Customers.WithPartitionKey("A", 1.1, true).SingleAsync(),
             readSql,
-            ctx => ctx.Customers.WithPartitionKey("B", 2.1, false).FirstAsync(),
+            ctx => ctx.Customers.WithPartitionKey("B", 2.1, false).SingleAsync(),
             readSql,
             ctx => ctx.Customers.WithPartitionKey("B", 2.1, false).LastAsync(),
             ctx => ctx.Customers.WithPartitionKey("B", 2.1, false).ToListAsync(),
@@ -80,10 +78,10 @@ OFFSET 0 LIMIT 1
     {
         const string readSql =
             """
-SELECT c
+SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
-OFFSET 0 LIMIT 1
+WHERE ((c["Id"] = 42) OR (c["Name"] = "John Snow"))
+OFFSET 0 LIMIT 2
 """;
 
         await PartitionKeyTestAsync(
@@ -93,7 +91,7 @@ OFFSET 0 LIMIT 1
                         && b.PartitionKey1 == "A"
                         && b.PartitionKey2 == 1.1
                         && b.PartitionKey3)
-                .FirstAsync(),
+                .SingleAsync(),
             readSql,
             ctx => ctx.Customers
                 .Where(
@@ -101,7 +99,7 @@ OFFSET 0 LIMIT 1
                         && b.PartitionKey1 == "B"
                         && b.PartitionKey2 == 2.1
                         && !b.PartitionKey3)
-                .FirstAsync(),
+                .SingleAsync(),
             readSql,
             ctx => ctx.Customers.WithPartitionKey("B", 2.1, false).LastAsync(),
             ctx => ctx.Customers
@@ -277,8 +275,21 @@ OFFSET 0 LIMIT 1
             => modelBuilder.Entity<Customer>(
                 cb =>
                 {
-                    cb.HasPartitionKey(c => new { c.PartitionKey1, c.PartitionKey2, c.PartitionKey3 });
-                    cb.HasKey(c => new { c.Id, c.PartitionKey1, c.PartitionKey2, c.PartitionKey3 });
+                    cb.HasPartitionKey(
+                        c => new
+                        {
+                            c.PartitionKey1,
+                            c.PartitionKey2,
+                            c.PartitionKey3
+                        });
+                    cb.HasKey(
+                        c => new
+                        {
+                            c.Id,
+                            c.PartitionKey1,
+                            c.PartitionKey2,
+                            c.PartitionKey3
+                        });
                 });
     }
 

@@ -148,7 +148,8 @@ public abstract partial class ModelBuilderTest
             Fixture.TestHelpers.ModelAsserter.AssertEqual(
                 initialProperties.Where(p => p.Name != "Discriminator"),
                 actualProperties.Where(p => p.Name != "Discriminator"));
-            Assert.Equal(initialKeys, pickle.GetKeys(),
+            Assert.Equal(
+                initialKeys, pickle.GetKeys(),
                 (expected, actual) =>
                 {
                     Fixture.TestHelpers.ModelAsserter.AssertEqual(
@@ -158,8 +159,8 @@ public abstract partial class ModelBuilderTest
                     return true;
                 });
             Fixture.TestHelpers.ModelAsserter.AssertEqual(
-                initialIndexes.Single().Properties,
-                pickle.GetIndexes().Single().Properties);
+                initialIndexes.SingleOrDefault()?.Properties ?? Array.Empty<IReadOnlyProperty>(),
+                pickle.GetIndexes().SingleOrDefault()?.Properties ?? Array.Empty<IMutableProperty>());
             Fixture.TestHelpers.ModelAsserter.AssertEqual(
                 initialForeignKeys.Single().Properties,
                 pickle.GetForeignKeys().Single().Properties);
@@ -179,7 +180,8 @@ public abstract partial class ModelBuilderTest
             Fixture.TestHelpers.ModelAsserter.AssertEqual(
                 initialProperties.Where(p => p.Name != "Discriminator"),
                 actualProperties.Where(p => p.Name != "Discriminator"));
-            Assert.Equal(initialKeys, ingredient.GetKeys(),
+            Assert.Equal(
+                initialKeys, ingredient.GetKeys(),
                 (expected, actual) =>
                 {
                     Fixture.TestHelpers.ModelAsserter.AssertEqual(
@@ -189,8 +191,8 @@ public abstract partial class ModelBuilderTest
                     return true;
                 });
             Fixture.TestHelpers.ModelAsserter.AssertEqual(
-                initialIndexes.Single().Properties,
-                ingredient.GetIndexes().Single().Properties);
+                initialIndexes.SingleOrDefault()?.Properties ?? Array.Empty<IReadOnlyProperty>(),
+                ingredient.GetIndexes().SingleOrDefault()?.Properties ?? Array.Empty<IMutableProperty>());
             Fixture.TestHelpers.ModelAsserter.AssertEqual(
                 initialForeignKeys.Single().Properties,
                 ingredient.GetForeignKeys().Single().Properties);
@@ -569,6 +571,11 @@ public abstract partial class ModelBuilderTest
         [ConditionalFact]
         public virtual void Index_removed_when_covered_by_an_inherited_foreign_key()
         {
+            if (!Fixture.ForeignKeysHaveIndexes)
+            {
+                return;
+            }
+
             var modelBuilder = CreateModelBuilder();
             modelBuilder.Ignore<CustomerDetails>();
             modelBuilder.Ignore<OrderDetails>();
@@ -653,6 +660,11 @@ public abstract partial class ModelBuilderTest
         [ConditionalFact]
         public virtual void Index_removed_when_covered_by_an_inherited_index()
         {
+            if (!Fixture.ForeignKeysHaveIndexes)
+            {
+                return;
+            }
+
             var modelBuilder = CreateModelBuilder();
             modelBuilder.Ignore<CustomerDetails>();
             modelBuilder.Ignore<OrderDetails>();
@@ -772,12 +784,12 @@ public abstract partial class ModelBuilderTest
             Assert.Null(model.FindEntityType(typeof(BookLabel).FullName));
             foreach (var entityType in model.GetEntityTypes())
             {
-                Assert.Empty(
-                    entityType.GetForeignKeys()
-                        .Where(fk => fk.PrincipalEntityType.ClrType == typeof(BookLabel)));
-                Assert.Empty(
-                    entityType.GetForeignKeys()
-                        .Where(fk => fk.PrincipalKey.DeclaringEntityType.ClrType == typeof(BookLabel)));
+                Assert.DoesNotContain(
+                    entityType.GetForeignKeys(),
+                    fk => fk.PrincipalEntityType.ClrType == typeof(BookLabel));
+                Assert.DoesNotContain(
+                    entityType.GetForeignKeys(),
+                    fk => fk.PrincipalKey.DeclaringEntityType.ClrType == typeof(BookLabel));
             }
         }
 

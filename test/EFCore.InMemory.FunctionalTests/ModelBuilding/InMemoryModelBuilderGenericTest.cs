@@ -1,11 +1,11 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-
 #nullable enable
+
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.ModelBuilding;
@@ -42,6 +42,28 @@ public class InMemoryModelBuilderGenericTest : InMemoryModelBuilderTest
     }
 
     public class InMemoryGenericComplexType(InMemoryModelBuilderFixture fixture) : InMemoryComplexType(fixture)
+    {
+        [ConditionalFact]
+        public virtual void Changing_propertyInfo_updates_Property()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder
+                .Ignore<Order>()
+                .Entity<ComplexProperties>().ComplexProperty(e => e.DoubleProperty).Property(e => ((IReplaceable?)e)!.Property);
+
+            modelBuilder.FinalizeModel();
+
+            var property = modelBuilder.Model.FindEntityType(typeof(ComplexProperties))!.FindComplexProperty(nameof(DoubleProperty))!
+                .ComplexType.FindProperty("Property")!;
+            Assert.EndsWith(typeof(IReplaceable).Name + "." + nameof(IReplaceable.Property), property.GetIdentifyingMemberInfo()!.Name);
+        }
+
+        protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder>? configure = null)
+            => new GenericTestModelBuilder(Fixture, configure);
+    }
+
+    public class InMemoryGenericComplexCollection(InMemoryModelBuilderFixture fixture) : InMemoryComplexCollection(fixture)
     {
         [ConditionalFact]
         public virtual void Changing_propertyInfo_updates_Property()

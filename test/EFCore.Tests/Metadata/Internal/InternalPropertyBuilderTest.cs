@@ -382,13 +382,7 @@ public class InternalPropertyBuilderTest
         Assert.Null(metadata[CoreAnnotationNames.ValueConverterType]);
     }
 
-    private class UTF8StringToBytesConverter : StringToBytesConverter
-    {
-        public UTF8StringToBytesConverter()
-            : base(Encoding.UTF8)
-        {
-        }
-    }
+    private class UTF8StringToBytesConverter() : StringToBytesConverter(Encoding.UTF8);
 
     [ConditionalFact]
     public void Can_only_override_lower_or_equal_source_ValueComparer()
@@ -416,13 +410,7 @@ public class InternalPropertyBuilderTest
         Assert.Null(metadata[CoreAnnotationNames.ValueComparerType]);
     }
 
-    private class CustomValueComparer<T> : ValueComparer<T>
-    {
-        public CustomValueComparer()
-            : base(false)
-        {
-        }
-    }
+    private class CustomValueComparer<T>() : ValueComparer<T>(false);
 
     [ConditionalFact]
     public void Can_only_override_lower_or_equal_source_ProviderValueComparer()

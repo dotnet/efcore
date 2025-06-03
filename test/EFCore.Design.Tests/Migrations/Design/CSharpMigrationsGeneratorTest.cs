@@ -72,6 +72,7 @@ public partial class CSharpMigrationsGeneratorTest
             RelationalAnnotationNames.DefaultValueSql,
             RelationalAnnotationNames.ComputedColumnSql,
             RelationalAnnotationNames.DefaultValue,
+            RelationalAnnotationNames.DefaultConstraintName,
             RelationalAnnotationNames.Name,
 #pragma warning disable CS0618 // Type or member is obsolete
             RelationalAnnotationNames.SequencePrefix,
@@ -95,10 +96,12 @@ public partial class CSharpMigrationsGeneratorTest
             RelationalAnnotationNames.JsonPropertyName,
             // Appears on entity type but requires specific model (i.e. owned types that can map to json, otherwise validation throws)
             RelationalAnnotationNames.ContainerColumnName,
+            RelationalAnnotationNames.ContainerColumnType,
 #pragma warning disable CS0618
             RelationalAnnotationNames.ContainerColumnTypeMapping,
 #pragma warning restore CS0618
-            RelationalAnnotationNames.StoreType
+            RelationalAnnotationNames.StoreType,
+            RelationalAnnotationNames.UseNamedDefaultConstraints
         };
 
         // Add a line here if the code generator is supposed to handle this annotation
@@ -149,12 +152,6 @@ public partial class CSharpMigrationsGeneratorTest
                     + "    })")
             },
             {
-#pragma warning disable CS0612 // Type or member is obsolete
-                CoreAnnotationNames.DefiningQuery,
-#pragma warning restore CS0612 // Type or member is obsolete
-                (Expression.Lambda(Expression.Constant(null)), _toNullTable)
-            },
-            {
                 RelationalAnnotationNames.ViewName, ("MyView", _toNullTable
                     + ";"
                     + _nl
@@ -201,9 +198,6 @@ public partial class CSharpMigrationsGeneratorTest
             CoreAnnotationNames.EagerLoaded,
             CoreAnnotationNames.LazyLoadingEnabled,
             CoreAnnotationNames.QueryFilter,
-#pragma warning disable CS0612 // Type or member is obsolete
-            CoreAnnotationNames.DefiningQuery,
-#pragma warning restore CS0612 // Type or member is obsolete
             CoreAnnotationNames.DiscriminatorProperty,
             CoreAnnotationNames.DiscriminatorValue,
             CoreAnnotationNames.InverseNavigations,
@@ -262,11 +256,13 @@ public partial class CSharpMigrationsGeneratorTest
             RelationalAnnotationNames.ModelDependencies,
             RelationalAnnotationNames.FieldValueGetter,
             RelationalAnnotationNames.ContainerColumnName,
+            RelationalAnnotationNames.ContainerColumnType,
 #pragma warning disable CS0618
             RelationalAnnotationNames.ContainerColumnTypeMapping,
 #pragma warning restore CS0618
             RelationalAnnotationNames.JsonPropertyName,
             RelationalAnnotationNames.StoreType,
+            RelationalAnnotationNames.UseNamedDefaultConstraints
         };
 
         var columnMapping = $@"{_nl}.{nameof(RelationalPropertyBuilderExtensions.HasColumnType)}(""default_int_mapping"")";
@@ -310,6 +306,10 @@ public partial class CSharpMigrationsGeneratorTest
             {
                 RelationalAnnotationNames.DefaultValue,
                 ("1", $@"{columnMapping}{_nl}.{nameof(RelationalPropertyBuilderExtensions.HasDefaultValue)}(""1"")")
+            },
+            {
+                RelationalAnnotationNames.DefaultConstraintName,
+                ("some name", $@"{columnMapping}{_nl}.{nameof(RelationalPropertyBuilderExtensions.HasDefaultValue)}(""1"", ""some name"")")
             },
             {
                 RelationalAnnotationNames.IsFixedLength,
@@ -367,8 +367,9 @@ public partial class CSharpMigrationsGeneratorTest
         }
 
         var relationalAnnotations = typeof(RelationalAnnotationNames).GetFields()
-            .Where(f => f.FieldType == typeof(string)
-                && f.Name != "Prefix").ToList();
+            .Where(
+                f => f.FieldType == typeof(string)
+                    && f.Name != "Prefix").ToList();
 
         foreach (var field in relationalAnnotations)
         {
@@ -380,7 +381,11 @@ public partial class CSharpMigrationsGeneratorTest
             {
                 Assert.True(
                     RelationalAnnotationNames.AllNames.Contains(annotationName),
-                    nameof(RelationalAnnotationNames) + "." + nameof(RelationalAnnotationNames.AllNames) + " doesn't contain " + annotationName);
+                    nameof(RelationalAnnotationNames)
+                    + "."
+                    + nameof(RelationalAnnotationNames.AllNames)
+                    + " doesn't contain "
+                    + annotationName);
             }
         }
 
@@ -391,11 +396,22 @@ public partial class CSharpMigrationsGeneratorTest
             if (!invalidAnnotations.Contains(annotationName))
             {
                 var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
+
                 var metadataItem = createMetadataItem(modelBuilder);
                 metadataItem.SetAnnotation(
                     annotationName, validAnnotations.ContainsKey(annotationName)
                         ? validAnnotations[annotationName].Value
                         : null);
+
+                // code generator for default value with named constraint contains validation
+                // to check that constraint name must be accompanied by either DefaultValue
+                // or DefaultValueSql - so we need to add it here also
+                if (annotationName == RelationalAnnotationNames.DefaultConstraintName)
+                {
+                    metadataItem.SetAnnotation(
+                        RelationalAnnotationNames.DefaultValue,
+                        validAnnotations[RelationalAnnotationNames.DefaultValue].Value);
+                }
 
                 modelBuilder.FinalizeModel(designTime: true, skipValidation: true);
 

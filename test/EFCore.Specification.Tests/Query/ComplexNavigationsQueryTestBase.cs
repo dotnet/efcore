@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.CodeDom.Compiler;
 using Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel;
 
 #pragma warning disable RCS1155 // Use StringComparison when comparing strings.
@@ -9,16 +8,11 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public abstract class ComplexNavigationsQueryTestBase<TFixture> : QueryTestBase<TFixture>
+public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)
     where TFixture : ComplexNavigationsQueryFixtureBase, new()
 {
     protected ComplexNavigationsContext CreateContext()
         => Fixture.CreateContext();
-
-    protected ComplexNavigationsQueryTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
 
     protected override Expression RewriteExpectedQueryExpression(Expression expectedQueryExpression)
         => new ExpectedQueryRewritingVisitor(Fixture.GetShadowPropertyMappings()).Visit(expectedQueryExpression);
@@ -1732,18 +1726,18 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture> : QueryTestBase<
                 .Where(
                     l1 => EF.Property<string>(
                             ss.Set<Level2>().OrderBy(l2i => l2i.Id).First().OneToOne_Required_FK_Inverse2, "Name")
-                        == "L1 10" ||
-                          EF.Property<string>(
+                        == "L1 10"
+                        || EF.Property<string>(
                             ss.Set<Level2>().OrderBy(l2i => l2i.Id).First().OneToOne_Required_FK_Inverse2, "Name")
                         == "L1 01"));
-        //=> AssertQuery(
-        //    async,
-        //    ss => ss.Set<Level2>()
-        //        .Where(l2o => l2o.Id == 7)
-        //        .Where(
-        //            l1 => EF.Property<string>(
-        //                    ss.Set<Level2>().OrderBy(l2i => l2i.Id).First().OneToOne_Required_FK_Inverse2, "Name")
-        //                == "L1 10"));
+    //=> AssertQuery(
+    //    async,
+    //    ss => ss.Set<Level2>()
+    //        .Where(l2o => l2o.Id == 7)
+    //        .Where(
+    //            l1 => EF.Property<string>(
+    //                    ss.Set<Level2>().OrderBy(l2i => l2i.Id).First().OneToOne_Required_FK_Inverse2, "Name")
+    //                == "L1 10"));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -2209,8 +2203,9 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture> : QueryTestBase<
         => AssertQuery(
             async,
             ss => ss.Set<Level3>()
-                .Where(l3 => l3.OneToMany_Required_Inverse3.OneToOne_Required_FK_Inverse2.Name == "L1 10"
-                    || l3.OneToMany_Required_Inverse3.OneToOne_Required_FK_Inverse2.Name == "L1 01")
+                .Where(
+                    l3 => l3.OneToMany_Required_Inverse3.OneToOne_Required_FK_Inverse2.Name == "L1 10"
+                        || l3.OneToMany_Required_Inverse3.OneToOne_Required_FK_Inverse2.Name == "L1 01")
                 .OrderBy(l3 => l3.Level2_Required_Id)
                 .Skip(0)
                 .Take(10)
@@ -2242,8 +2237,7 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture> : QueryTestBase<
                     }
                     equals new
                     {
-                        A = EF.Property<int?>(l2, "Level1_Optional_Id"),
-                        B = EF.Property<int?>(l2, "OneToMany_Optional_Self_Inverse2Id")
+                        A = EF.Property<int?>(l2, "Level1_Optional_Id"), B = EF.Property<int?>(l2, "OneToMany_Optional_Self_Inverse2Id")
                     }
                 select l1);
 
@@ -3301,8 +3295,7 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture> : QueryTestBase<
                             ? null
                             : new Level2Dto
                             {
-                                Id = l1.OneToOne_Optional_FK1.Id,
-                                Name = l1.OneToOne_Optional_FK1.Name,
+                                Id = l1.OneToOne_Optional_FK1.Id, Name = l1.OneToOne_Optional_FK1.Name,
                             }
                     })
                 .OrderBy(e => e.Level2.Name)
@@ -3440,8 +3433,7 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture> : QueryTestBase<
                     o => new { o.Id, Condition = true },
                     i => new
                     {
-                        Id = i.Key,
-                        Condition = i.Sum > 10,
+                        Id = i.Key, Condition = i.Sum > 10,
                     },
                     (o, i) => i.Key));
 
@@ -3456,8 +3448,7 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture> : QueryTestBase<
                     o => new { o.Id, Condition = false },
                     i => new
                     {
-                        Id = i.Key,
-                        Condition = i.Sum <= 10,
+                        Id = i.Key, Condition = i.Sum <= 10,
                     },
                     (o, i) => i.Key));
 
@@ -3762,8 +3753,7 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture> : QueryTestBase<
             ss => from x in ss.Set<InheritanceBase2>()
                   select new
                   {
-                      x.Id,
-                      InheritanceLeaf2Id = EF.Property<int?>(x, "InheritanceLeaf2Id"),
+                      x.Id, InheritanceLeaf2Id = EF.Property<int?>(x, "InheritanceLeaf2Id"),
                   },
             elementSorter: e => e.Id);
 
@@ -3970,9 +3960,10 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture> : QueryTestBase<
     public virtual Task Multiple_optional_navs_should_not_deadlock(bool async)
         => AssertCount(
             async,
-            ss => ss.Set<Level2>().Where(x => x.OneToMany_Optional_Inverse2 != null
-                && x.OneToMany_Optional_Inverse2.Name.Contains("L1 01")
-                || x.OneToOne_Optional_FK_Inverse2 != null
+            ss => ss.Set<Level2>().Where(
+                x => x.OneToMany_Optional_Inverse2 != null
+                    && x.OneToMany_Optional_Inverse2.Name.Contains("L1 01")
+                    || x.OneToOne_Optional_FK_Inverse2 != null
                     && x.OneToOne_Optional_FK_Inverse2.Name.Contains("L1 01")));
 
     [ConditionalTheory]
@@ -4020,18 +4011,21 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture> : QueryTestBase<
     public virtual Task Correlated_projection_with_first(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Level1>().Select(x => new
-            {
-                x.Id,
-                Results = x.OneToMany_Optional1.OrderBy(xx => xx.Id).First().OneToMany_Optional2.Select(xx => xx.OneToOne_Required_FK3.Id)
-            }),
-            ss => ss.Set<Level1>().Select(x => new
-            {
-                x.Id,
-                Results = x.OneToMany_Optional1.OrderBy(xx => xx.Id).Any()
-                    ? x.OneToMany_Optional1.OrderBy(xx => xx.Id).First().OneToMany_Optional2.Select(xx => xx.OneToOne_Required_FK3.Id)
-                    : new List<int>()
-            }),
+            ss => ss.Set<Level1>().Select(
+                x => new
+                {
+                    x.Id,
+                    Results = x.OneToMany_Optional1.OrderBy(xx => xx.Id).First().OneToMany_Optional2
+                        .Select(xx => xx.OneToOne_Required_FK3.Id)
+                }),
+            ss => ss.Set<Level1>().Select(
+                x => new
+                {
+                    x.Id,
+                    Results = x.OneToMany_Optional1.OrderBy(xx => xx.Id).Any()
+                        ? x.OneToMany_Optional1.OrderBy(xx => xx.Id).First().OneToMany_Optional2.Select(xx => xx.OneToOne_Required_FK3.Id)
+                        : new List<int>()
+                }),
             elementSorter: e => e.Id,
             elementAsserter: (e, a) =>
             {
@@ -4044,23 +4038,26 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture> : QueryTestBase<
     public virtual Task Max_in_multi_level_nested_subquery(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Level1>().OrderBy(l1 => l1.Id).Take(2).Select(x => new
-            {
-                x.Id,
-                LevelTwos = x.OneToMany_Optional1.AsQueryable().Select(xx => new
+            ss => ss.Set<Level1>().OrderBy(l1 => l1.Id).Take(2).Select(
+                x => new
                 {
-                    xx.Id,
-                    LevelThree = new
-                    {
-                        xx.OneToOne_Required_FK2.Id,
-                        LevelFour = new
+                    x.Id,
+                    LevelTwos = x.OneToMany_Optional1.AsQueryable().Select(
+                        xx => new
                         {
-                            xx.OneToOne_Required_FK2.OneToOne_Required_FK3.Id,
-                            Result = (xx.OneToOne_Required_FK2.OneToMany_Optional3.Max(xxx => (int?)xxx.Id) ?? 0) > 1
-                        }
-                    }
-                }).ToList()
-            }),
+                            xx.Id,
+                            LevelThree = new
+                            {
+                                xx.OneToOne_Required_FK2.Id,
+                                LevelFour = new
+                                {
+                                    xx.OneToOne_Required_FK2.OneToOne_Required_FK3.Id,
+                                    Result = (xx.OneToOne_Required_FK2.OneToMany_Optional3.Max(xxx => (int?)xxx.Id) ?? 0)
+                                        > 1
+                                }
+                            }
+                        }).ToList()
+                }),
             elementSorter: e => e.Id,
             elementAsserter: (e, a) =>
             {
@@ -4083,20 +4080,17 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture> : QueryTestBase<
     public virtual Task Multiple_select_many_in_projection(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Level1>().Select(x => new
-            {
-                x.Id,
-                Collection = x.OneToMany_Optional1
-                    .SelectMany(xx => xx.OneToMany_Optional2)
-                    .OrderBy(xx => xx.Id).Take(12)
-                    .Select(xx => new
-                    {
-                        xx.Id,
-                        RefId = xx.OneToOne_Optional_FK3.Id
-                    }).ToList(),
-                Count = x.OneToMany_Optional1
-                    .SelectMany(xx => xx.OneToMany_Optional2).Count(xx => xx.Name != "")
-            }),
+            ss => ss.Set<Level1>().Select(
+                x => new
+                {
+                    x.Id,
+                    Collection = x.OneToMany_Optional1
+                        .SelectMany(xx => xx.OneToMany_Optional2)
+                        .OrderBy(xx => xx.Id).Take(12)
+                        .Select(xx => new { xx.Id, RefId = xx.OneToOne_Optional_FK3.Id }).ToList(),
+                    Count = x.OneToMany_Optional1
+                        .SelectMany(xx => xx.OneToMany_Optional2).Count(xx => xx.Name != "")
+                }),
             elementSorter: e => e.Id,
             elementAsserter: (e, a) =>
             {
@@ -4118,18 +4112,15 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture> : QueryTestBase<
     public virtual Task Single_select_many_in_projection_with_take(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Level1>().Select(x => new
-            {
-                x.Id,
-                Collection = x.OneToMany_Optional1
-                    .SelectMany(xx => xx.OneToMany_Optional2)
-                    .OrderBy(xx => xx.Id).Take(12)
-                    .Select(xx => new
-                    {
-                        xx.Id,
-                        RefId = xx.OneToOne_Optional_FK3.Id
-                    }).ToList(),
-            }),
+            ss => ss.Set<Level1>().Select(
+                x => new
+                {
+                    x.Id,
+                    Collection = x.OneToMany_Optional1
+                        .SelectMany(xx => xx.OneToMany_Optional2)
+                        .OrderBy(xx => xx.Id).Take(12)
+                        .Select(xx => new { xx.Id, RefId = xx.OneToOne_Optional_FK3.Id }).ToList(),
+                }),
             elementSorter: e => e.Id,
             elementAsserter: (e, a) =>
             {

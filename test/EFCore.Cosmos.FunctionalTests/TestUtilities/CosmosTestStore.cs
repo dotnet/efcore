@@ -3,13 +3,13 @@
 
 using System.Net;
 using System.Net.Sockets;
-using System.Threading;
 using Azure;
 using Azure.Core;
 using Azure.ResourceManager;
 using Azure.ResourceManager.CosmosDB;
 using Azure.ResourceManager.CosmosDB.Models;
 using Microsoft.Azure.Cosmos;
+using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -75,7 +75,7 @@ public class CosmosTestStore : TestStore
     }
 
     private static string CreateName(string name)
-        => TestEnvironment.IsEmulator || name == "Northwind"
+        => TestEnvironment.IsEmulator || name == "Northwind" || name == "Northwind2" || name == "Northwind3"
             ? name
             : name + _runId;
 
@@ -84,19 +84,30 @@ public class CosmosTestStore : TestStore
     public TokenCredential TokenCredential { get; }
     public string ConnectionString { get; }
 
+    private static readonly SemaphoreSlim _connectionSemaphore = new(1, 1);
+
     protected override DbContext CreateDefaultContext()
         => new TestStoreContext(this);
 
     public override DbContextOptionsBuilder AddProviderOptions(DbContextOptionsBuilder builder)
         => TestEnvironment.UseTokenCredential
-        ? builder.UseCosmos(ConnectionUri, TokenCredential, Name, _configureCosmos)
-        : builder.UseCosmos(ConnectionUri, AuthToken, Name, _configureCosmos);
+            ? builder.UseCosmos(ConnectionUri, TokenCredential, Name, _configureCosmos)
+            : builder.UseCosmos(ConnectionUri, AuthToken, Name, _configureCosmos);
 
     public static async ValueTask<bool> IsConnectionAvailableAsync()
     {
         if (_connectionAvailable == null)
         {
-            _connectionAvailable = await TryConnectAsync().ConfigureAwait(false);
+            await _connectionSemaphore.WaitAsync();
+
+            try
+            {
+                _connectionAvailable ??= await TryConnectAsync().ConfigureAwait(false);
+            }
+            finally
+            {
+                _connectionSemaphore.Release();
+            }
         }
 
         return _connectionAvailable.Value;
@@ -172,7 +183,15 @@ public class CosmosTestStore : TestStore
     {
         if (await EnsureCreatedAsync(context).ConfigureAwait(false))
         {
-            await context.Database.EnsureCreatedAsync().ConfigureAwait(false);
+            if (!TestEnvironment.UseTokenCredential)
+            {
+                await context.Database.EnsureCreatedAsync().ConfigureAwait(false);
+            }
+            else
+            {
+                await CreateContainersAsync(context).ConfigureAwait(false);
+            }
+
             var cosmosClient = context.GetService<ICosmosClientWrapper>();
             var serializer = CosmosClientWrapper.Serializer;
             using var fs = new FileStream(_dataFilePath!, FileMode.Open, FileAccess.Read);
@@ -188,6 +207,8 @@ public class CosmosTestStore : TestStore
                         if (reader.TokenType == JsonToken.StartObject)
                         {
                             string? entityName = null;
+                            string? containerName = null;
+                            bool? discriminatorInId = null;
                             while (reader.Read())
                             {
                                 if (reader.TokenType == JsonToken.PropertyName)
@@ -198,6 +219,14 @@ public class CosmosTestStore : TestStore
                                             reader.Read();
                                             entityName = (string)reader.Value;
                                             break;
+                                        case "Container":
+                                            reader.Read();
+                                            containerName = (string)reader.Value;
+                                            break;
+                                        case "DiscriminatorInId":
+                                            reader.Read();
+                                            discriminatorInId = (bool)reader.Value;
+                                            break;
                                         case "Data":
                                             while (reader.Read())
                                             {
@@ -205,11 +234,14 @@ public class CosmosTestStore : TestStore
                                                 {
                                                     var document = serializer.Deserialize<JObject>(reader)!;
 
-                                                    document["id"] = $"{entityName}|{document["id"]}";
-                                                    document["Discriminator"] = entityName;
+                                                    document["id"] = discriminatorInId == true
+                                                        ? $"{entityName}|{document["id"]}"
+                                                        : $"{document["id"]}";
+
+                                                    document["$type"] = entityName;
 
                                                     await cosmosClient.CreateItemAsync(
-                                                        "NorthwindContext", document, new FakeUpdateEntry()).ConfigureAwait(false);
+                                                        containerName!, document, new FakeUpdateEntry()).ConfigureAwait(false);
                                                 }
                                                 else if (reader.TokenType == JsonToken.EndObject)
                                                 {
@@ -240,16 +272,36 @@ public class CosmosTestStore : TestStore
 
         var databaseAccount = await GetDBAccount(cancellationToken).ConfigureAwait(false);
         var collection = databaseAccount.Value.GetCosmosDBSqlDatabases();
-        var sqlDatabaseCreateUpdateOptions = new CosmosDBSqlDatabaseCreateOrUpdateContent(TestEnvironment.AzureLocation,
+        var sqlDatabaseCreateUpdateContent = new CosmosDBSqlDatabaseCreateOrUpdateContent(
+            TestEnvironment.AzureLocation,
             new CosmosDBSqlDatabaseResourceInfo(Name));
         if (await collection.ExistsAsync(Name, cancellationToken))
         {
             return false;
         }
 
-        var databaseResponse = (await collection.CreateOrUpdateAsync(
-            WaitUntil.Completed, Name, sqlDatabaseCreateUpdateOptions, cancellationToken).ConfigureAwait(false)).GetRawResponse();
-        return databaseResponse.Status == (int)HttpStatusCode.OK;
+        var model = context.GetService<IDesignTimeModel>().Model;
+
+        var modelThroughput = model.GetThroughput();
+        if (modelThroughput == null
+            && GetContainersToCreate(model).All(c => c.Throughput == null))
+        {
+            modelThroughput = ThroughputProperties.CreateManualThroughput(400);
+        }
+
+        if (modelThroughput != null)
+        {
+            sqlDatabaseCreateUpdateContent.Options = new CosmosDBCreateUpdateConfig
+            {
+                Throughput = modelThroughput.Throughput,
+                AutoscaleMaxThroughput = modelThroughput.AutoscaleMaxThroughput
+            };
+        }
+
+        var databaseResponse = await collection.CreateOrUpdateAsync(
+            WaitUntil.Completed, Name, sqlDatabaseCreateUpdateContent, cancellationToken).ConfigureAwait(false);
+
+        return databaseResponse.GetRawResponse().Status == (int)HttpStatusCode.OK;
     }
 
     private async Task<bool> EnsureDeletedAsync(DbContext context, CancellationToken cancellationToken = default)
@@ -268,7 +320,8 @@ public class CosmosTestStore : TestStore
             return false;
         }
 
-        var databaseResponse = (await database.Value!.DeleteAsync(WaitUntil.Completed, cancellationToken).ConfigureAwait(false)).GetRawResponse();
+        var databaseResponse = (await database.Value!.DeleteAsync(WaitUntil.Completed, cancellationToken).ConfigureAwait(false))
+            .GetRawResponse();
         return databaseResponse.Status == (int)HttpStatusCode.OK;
     }
 
@@ -304,13 +357,13 @@ public class CosmosTestStore : TestStore
                 await SeedAsync(context).ConfigureAwait(false);
             }
         }
-        catch (Exception)
+        catch
         {
             try
             {
                 await EnsureDeletedAsync(context).ConfigureAwait(false);
             }
-            catch (Exception)
+            catch
             {
             }
 
@@ -331,16 +384,14 @@ public class CosmosTestStore : TestStore
             {
                 AnalyticalStorageTtl = container.AnalyticalStoreTimeToLiveInSeconds,
                 DefaultTtl = container.DefaultTimeToLive,
-                PartitionKey = new CosmosDBContainerPartitionKey
-                {
-                    Version = 2
-                }
+                PartitionKey = new CosmosDBContainerPartitionKey { Version = 2 }
             };
 
             if (container.PartitionKeyStoreNames.Count > 1)
             {
                 resource.PartitionKey.Kind = "MultiHash";
             }
+
             foreach (var partitionKey in container.PartitionKeyStoreNames)
             {
                 resource.PartitionKey.Paths.Add("/" + partitionKey);
@@ -349,10 +400,16 @@ public class CosmosTestStore : TestStore
             var content = new CosmosDBSqlContainerCreateOrUpdateContent(TestEnvironment.AzureLocation, resource);
             if (container.Throughput != null)
             {
-                content.Options.AutoscaleMaxThroughput = container.Throughput.AutoscaleMaxThroughput;
-                content.Options.Throughput = container.Throughput.Throughput;
+                content.Options = new CosmosDBCreateUpdateConfig
+                {
+                    AutoscaleMaxThroughput = container.Throughput.AutoscaleMaxThroughput,
+                    Throughput = container.Throughput.Throughput
+                };
             }
 
+            // TODO: see issue #35854
+            // once Azure.ResourceManager.CosmosDB package supports vectors and FTS, those need to be added here
+            
             await database.Value.GetCosmosDBSqlContainers().CreateOrUpdateAsync(
                 WaitUntil.Completed, container.Id, content).ConfigureAwait(false);
         }
@@ -384,6 +441,10 @@ public class CosmosTestStore : TestStore
             int? analyticalTtl = null;
             int? defaultTtl = null;
             ThroughputProperties? throughput = null;
+            var indexes = new List<IIndex>();
+            var vectors = new List<(IProperty Property, CosmosVectorType VectorType)>();
+            string? fullTextDefaultLanguage = null;
+            var fullTextProperties = new List<(IProperty Property, string? Language)>();
 
             foreach (var entityType in mappedTypes)
             {
@@ -391,17 +452,54 @@ public class CosmosTestStore : TestStore
                 {
                     partitionKeyStoreNames = GetPartitionKeyStoreNames(entityType);
                 }
+
                 analyticalTtl ??= entityType.GetAnalyticalStoreTimeToLive();
                 defaultTtl ??= entityType.GetDefaultTimeToLive();
                 throughput ??= entityType.GetThroughput();
+                fullTextDefaultLanguage ??= entityType.GetDefaultFullTextSearchLanguage();
+
+                ProcessEntityType(entityType, indexes, vectors, fullTextProperties);
             }
 
-            yield return new(
+            yield return new Cosmos.Storage.Internal.ContainerProperties(
                 containerName,
                 partitionKeyStoreNames,
                 analyticalTtl,
                 defaultTtl,
-                throughput);
+                throughput,
+                indexes,
+                vectors,
+                fullTextDefaultLanguage ?? "en-US",
+                fullTextProperties);
+        }
+
+        static void ProcessEntityType(
+            IEntityType entityType,
+            List<IIndex> indexes,
+            List<(IProperty Property, CosmosVectorType VectorType)> vectors,
+            List<(IProperty Property, string? Language)> fullTextProperties)
+        {
+            indexes.AddRange(entityType.GetIndexes());
+
+            foreach (var property in entityType.GetProperties())
+            {
+                if (property.FindTypeMapping() is CosmosVectorTypeMapping vectorTypeMapping)
+                {
+                    vectors.Add((property, vectorTypeMapping.VectorType));
+                }
+
+                if (property.GetIsFullTextSearchEnabled() == true)
+                {
+                    fullTextProperties.Add((property, property.GetFullTextSearchLanguage()));
+                }
+            }
+
+            foreach (var ownedType in entityType.GetNavigations()
+                .Where(x => x.ForeignKey.IsOwnership && !x.IsOnDependent && !x.TargetEntityType.IsDocumentRoot())
+                .Select(x => x.TargetEntityType))
+            {
+                ProcessEntityType(ownedType, indexes, vectors, fullTextProperties);
+            }
         }
     }
 
@@ -419,43 +517,19 @@ public class CosmosTestStore : TestStore
         {
             var cosmosClient = context.Database.GetCosmosClient();
             var database = cosmosClient.GetDatabase(Name);
+            var containers = new List<Container>();
             var containerIterator = database.GetContainerQueryIterator<ContainerProperties>();
             while (containerIterator.HasMoreResults)
             {
                 foreach (var containerProperties in await containerIterator.ReadNextAsync().ConfigureAwait(false))
                 {
-                    var container = database.GetContainer(containerProperties.Id);
-                    var partitionKeys = containerProperties.PartitionKeyPaths.Select(p => p[1..]).ToList();
-                    var itemIterator = container.GetItemQueryIterator<JObject>(
-                        new QueryDefinition("SELECT * FROM c"));
-
-                    var items = new List<(string Id, PartitionKey PartitionKeyValue)>();
-                    while (itemIterator.HasMoreResults)
-                    {
-                        foreach (var item in await itemIterator.ReadNextAsync().ConfigureAwait(false))
-                        {
-                            var partitionKeyValue = PartitionKey.None;
-                            if (partitionKeys.Count >= 1
-                                && item[partitionKeys[0]] is not null)
-                            {
-                                var builder = new PartitionKeyBuilder();
-                                foreach (var partitionKey in partitionKeys)
-                                {
-                                    builder.Add((string?)item[partitionKey]);
-                                }
-
-                                partitionKeyValue = builder.Build();
-                            }
-
-                            items.Add((item["id"]!.ToString(), partitionKeyValue));
-                        }
-                    }
-
-                    foreach (var item in items)
-                    {
-                        await container.DeleteItemAsync<object>(item.Id, item.PartitionKeyValue).ConfigureAwait(false);
-                    }
+                    containers.Add(database.GetContainer(containerProperties.Id));
                 }
+            }
+
+            foreach (var container in containers)
+            {
+                await container.DeleteContainerAsync();
             }
         }
         else
@@ -474,13 +548,11 @@ public class CosmosTestStore : TestStore
     private static async Task SeedAsync(DbContext context)
     {
         var creator = (CosmosDatabaseCreator)context.GetService<IDatabaseCreator>();
-        await creator.SeedAsync().ConfigureAwait(false);
+        await creator.InsertDataAsync().ConfigureAwait(false);
+        await creator.SeedDataAsync(created: true).ConfigureAwait(false);
     }
 
-    public override void Dispose()
-        => throw new InvalidOperationException("Calling Dispose can cause deadlocks. Use DisposeAsync instead.");
-
-    public override async Task DisposeAsync()
+    public override async ValueTask DisposeAsync()
     {
         if (_initialized
             && _dataFilePath == null)
@@ -509,7 +581,8 @@ public class CosmosTestStore : TestStore
         {
             if (TestEnvironment.UseTokenCredential)
             {
-                optionsBuilder.UseCosmos(_testStore.ConnectionUri, _testStore.TokenCredential, _testStore.Name, _testStore._configureCosmos);
+                optionsBuilder.UseCosmos(
+                    _testStore.ConnectionUri, _testStore.TokenCredential, _testStore.Name, _testStore._configureCosmos);
             }
             else
             {
@@ -531,7 +604,7 @@ public class CosmosTestStore : TestStore
         public object GetCurrentValue(IPropertyBase propertyBase)
             => throw new NotImplementedException();
 
-        public object GetOriginalOrCurrentValue(IPropertyBase propertyBase)
+        public bool CanHaveOriginalValue(IPropertyBase propertyBase)
             => throw new NotImplementedException();
 
         public TProperty GetCurrentValue<TProperty>(IPropertyBase propertyBase)
@@ -544,6 +617,9 @@ public class CosmosTestStore : TestStore
             => throw new NotImplementedException();
 
         public bool HasTemporaryValue(IProperty property)
+            => throw new NotImplementedException();
+
+        public bool HasExplicitValue(IProperty property)
             => throw new NotImplementedException();
 
         public bool HasStoreGeneratedValue(IProperty property)
@@ -613,7 +689,13 @@ public class CosmosTestStore : TestStore
             => throw new NotImplementedException();
 
         IReadOnlyEntityType IReadOnlyEntityType.BaseType
-            => throw new NotImplementedException();
+            => null!;
+
+        ITypeBase? ITypeBase.BaseType
+            => BaseType;
+
+        IReadOnlyTypeBase? IReadOnlyTypeBase.BaseType
+            => BaseType;
 
         IReadOnlyModel IReadOnlyTypeBase.Model
             => throw new NotImplementedException();
@@ -646,6 +728,9 @@ public class CosmosTestStore : TestStore
             => throw new NotImplementedException();
 
         public IIndex FindIndex(IReadOnlyList<IReadOnlyProperty> properties)
+            => throw new NotImplementedException();
+
+        public string GetEmbeddedDiscriminatorName()
             => throw new NotImplementedException();
 
         public PropertyInfo FindIndexerPropertyInfo()
@@ -941,5 +1026,14 @@ public class CosmosTestStore : TestStore
 
         IEnumerable<IReadOnlyPropertyBase> IReadOnlyTypeBase.FindMembersInHierarchy(string name)
             => throw new NotImplementedException();
+
+        IEnumerable<ITypeBase> ITypeBase.GetDirectlyDerivedTypes()
+            => GetDirectlyDerivedTypes();
+
+        IEnumerable<IReadOnlyTypeBase> IReadOnlyTypeBase.GetDerivedTypes()
+            => GetDerivedTypes();
+
+        IEnumerable<IReadOnlyTypeBase> IReadOnlyTypeBase.GetDirectlyDerivedTypes()
+            => GetDirectlyDerivedTypes();
     }
 }

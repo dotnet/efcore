@@ -139,7 +139,7 @@
     <value>The connection string to the database.</value>
   </data>
   <data name="ContextDescription" xml:space="preserve">
-    <value>The DbContext to use.</value>
+    <value>The DbContext to use. "*" can be used to run the command for all contexts found. This will also disable service discovery through the startup project if a corresponding IDesignTimeDbContextFactory implementation is found.</value>
   </data>
   <data name="ContextDirDescription" xml:space="preserve">
     <value>The directory to put the DbContext file in. Paths are relative to the project directory.</value>
@@ -296,6 +296,12 @@
   </data>
   <data name="NamespaceDescription" xml:space="preserve">
     <value>The namespace to use. Matches the directory by default.</value>
+  </data>
+  <data name="NativeAotDescription" xml:space="preserve">
+    <value>Additionally generate all the code required for NativeAOT compilation and precompiled queries (experimental).</value>
+  </data>
+  <data name="NativeAotWarning" xml:space="preserve">
+    <value>NativeAOT support is experimental and can change in the future.</value>
   </data>
   <data name="NoColorDescription" xml:space="preserve">
     <value>Don't colorize output.</value>

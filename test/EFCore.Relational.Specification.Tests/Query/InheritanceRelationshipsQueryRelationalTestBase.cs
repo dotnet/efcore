@@ -7,7 +7,8 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public abstract class InheritanceRelationshipsQueryRelationalTestBase<TFixture>(TFixture fixture) : InheritanceRelationshipsQueryTestBase<TFixture>(fixture)
+public abstract class InheritanceRelationshipsQueryRelationalTestBase<TFixture>(TFixture fixture)
+    : InheritanceRelationshipsQueryTestBase<TFixture>(fixture)
     where TFixture : InheritanceRelationshipsQueryRelationalFixture, new()
 {
     [ConditionalTheory]

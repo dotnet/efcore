@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 // ReSharper disable InconsistentNaming
+
 namespace Microsoft.EntityFrameworkCore.ModelBuilding;
 
 public class SqlServerModelBuilderNonGenericTest : SqlServerModelBuilderTestBase
@@ -13,6 +14,12 @@ public class SqlServerModelBuilderNonGenericTest : SqlServerModelBuilderTestBase
     }
 
     public class SqlServerNonGenericComplexType(SqlServerModelBuilderFixture fixture) : SqlServerComplexType(fixture)
+    {
+        protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder>? configure = null)
+            => new NonGenericTestModelBuilder(Fixture, configure);
+    }
+
+    public class SqlServerNonGenericComplexCollection(SqlServerModelBuilderFixture fixture) : SqlServerComplexCollection(fixture)
     {
         protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder>? configure = null)
             => new NonGenericTestModelBuilder(Fixture, configure);

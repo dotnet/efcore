@@ -10,9 +10,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
 public class CosmosQueryTranslationPostprocessor(
-        QueryTranslationPostprocessorDependencies dependencies,
-        ISqlExpressionFactory sqlExpressionFactory,
-        QueryCompilationContext queryCompilationContext)
+    QueryTranslationPostprocessorDependencies dependencies,
+    ISqlExpressionFactory sqlExpressionFactory,
+    CosmosQueryCompilationContext queryCompilationContext)
     : QueryTranslationPostprocessor(dependencies, queryCompilationContext)
 {
     /// <summary>
@@ -27,12 +27,14 @@ public class CosmosQueryTranslationPostprocessor(
 
         if (query is ShapedQueryExpression { QueryExpression: SelectExpression selectExpression })
         {
-            // Cosmos does not have nested select expression so this should be safe.
             selectExpression.ApplyProjection();
         }
 
-        query = new CosmosValueConverterCompensatingExpressionVisitor(sqlExpressionFactory).Visit(query);
+        var afterValueConverterCompensation = new CosmosValueConverterCompensatingExpressionVisitor(sqlExpressionFactory).Visit(query);
+        var afterAliases = queryCompilationContext.AliasManager.PostprocessAliases(afterValueConverterCompensation);
+        var afterExtraction = new CosmosReadItemAndPartitionKeysExtractor().ExtractPartitionKeysAndId(
+            queryCompilationContext, sqlExpressionFactory, afterAliases);
 
-        return query;
+        return afterExtraction;
     }
 }

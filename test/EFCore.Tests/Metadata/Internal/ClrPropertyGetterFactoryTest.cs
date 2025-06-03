@@ -189,10 +189,12 @@ public class ClrPropertyGetterFactoryTest
 
         Assert.Equal(
             "ValueA",
-            ClrPropertyGetterFactory.Instance.Create((IPropertyBase)propertyA).GetClrValueUsingContainingEntity(new IndexedClass { Id = 7 }));
+            ClrPropertyGetterFactory.Instance.Create((IPropertyBase)propertyA)
+                .GetClrValueUsingContainingEntity(new IndexedClass { Id = 7 }));
         Assert.Equal(
             123,
-            ClrPropertyGetterFactory.Instance.Create((IPropertyBase)propertyB).GetClrValueUsingContainingEntity(new IndexedClass { Id = 7 }));
+            ClrPropertyGetterFactory.Instance.Create((IPropertyBase)propertyB)
+                .GetClrValueUsingContainingEntity(new IndexedClass { Id = 7 }));
     }
 
     [ConditionalFact]
