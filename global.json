@@ -7,7 +7,7 @@
       ".dotnet",
       "$host$"
     ],
-    "errorMessage": "The required .NET SDK wasn't found. Please run ./restore.sh or .\restore.cmd to install it."
+    "errorMessage": "The required .NET SDK wasn't found. Please run ./restore.sh or .\\restore.cmd to install it."
   },
   "tools": {
     "dotnet": "10.0.100-preview.6.25272.112",
@@ -18,7 +18,7 @@
     }
   },
   "msbuild-sdks": {
-    "Microsoft.DotNet.Arcade.Sdk": "10.0.0-beta.25280.102",
-    "Microsoft.DotNet.Helix.Sdk": "10.0.0-beta.25280.102"
+    "Microsoft.DotNet.Arcade.Sdk": "10.0.0-beta.25281.103",
+    "Microsoft.DotNet.Helix.Sdk": "10.0.0-beta.25281.103"
   }
 }
