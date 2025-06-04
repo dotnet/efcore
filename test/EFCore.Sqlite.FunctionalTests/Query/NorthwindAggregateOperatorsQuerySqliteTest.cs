@@ -117,14 +117,11 @@ FROM (
             (await Assert.ThrowsAsync<InvalidOperationException>(
                 () => base.Multiple_collection_navigation_with_FirstOrDefault_chained(async))).Message);
 
-    // TODO: The base implementations no longer compile since https://github.com/dotnet/runtime/pull/110197 (Contains overload added with
-    // optional parameter, not supported in expression trees). #35547 is tracking on the EF side.
-    //
-    // public override async Task Contains_with_local_anonymous_type_array_closure(bool async)
-    //     => await AssertTranslationFailed(() => base.Contains_with_local_anonymous_type_array_closure(async));
-    //
-    // public override async Task Contains_with_local_tuple_array_closure(bool async)
-    //     => await AssertTranslationFailed(() => base.Contains_with_local_tuple_array_closure(async));
+    public override async Task Contains_with_local_anonymous_type_array_closure(bool async)
+        => await AssertTranslationFailed(() => base.Contains_with_local_anonymous_type_array_closure(async));
+
+    public override async Task Contains_with_local_tuple_array_closure(bool async)
+        => await AssertTranslationFailed(() => base.Contains_with_local_tuple_array_closure(async));
 
     public override async Task Contains_inside_aggregate_function_with_GroupBy(bool async)
     {

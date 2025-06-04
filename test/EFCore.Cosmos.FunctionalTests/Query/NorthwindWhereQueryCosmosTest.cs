@@ -1627,16 +1627,13 @@ WHERE ((c["$type"] = "Product") AND (true ? false : true))
         AssertSql();
     }
 
-    // TODO: The base implementations no longer compile since https://github.com/dotnet/runtime/pull/110197 (Contains overload added with
-    // optional parameter, not supported in expression trees). #35547 is tracking on the EF side.
-    //
-    // public override async Task Where_collection_navigation_ToArray_Contains(bool async)
-    // {
-    //     // Cosmos client evaluation. Issue #17246.
-    //     await AssertTranslationFailed(() => base.Where_collection_navigation_ToArray_Contains(async));
-    //
-    //     AssertSql();
-    // }
+    public override async Task Where_collection_navigation_ToArray_Contains(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Where_collection_navigation_ToArray_Contains(async));
+
+        AssertSql();
+    }
 
     public override async Task Where_collection_navigation_AsEnumerable_Count(bool async)
     {
@@ -1694,24 +1691,21 @@ WHERE ((c["$type"] = "Order") AND ARRAY_CONTAINS(@orderIds, c["OrderID"]))
 """);
             });
 
-// TODO: The base implementations no longer compile since https://github.com/dotnet/runtime/pull/110197 (Contains overload added with
-// optional parameter, not supported in expression trees). #35547 is tracking on the EF side.
-//
-//     public override Task Where_array_of_object_contains_over_value_type(bool async)
-//         => Fixture.NoSyncTest(
-//             async, async a =>
-//             {
-//                 await base.Where_array_of_object_contains_over_value_type(a);
-//
-//                 AssertSql(
-//                     """
-// @orderIds='[10248,10249]'
-//
-// SELECT VALUE c
-// FROM root c
-// WHERE ((c["$type"] = "Order") AND ARRAY_CONTAINS(@orderIds, c["OrderID"]))
-// """);
-//             });
+    public override Task Where_array_of_object_contains_over_value_type(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Where_array_of_object_contains_over_value_type(a);
+
+                AssertSql(
+                    """
+@orderIds='[10248,10249]'
+
+SELECT VALUE c
+FROM root c
+WHERE ((c["$type"] = "Order") AND ARRAY_CONTAINS(@orderIds, c["OrderID"]))
+""");
+            });
 
     public override Task Filter_with_EF_Property_using_closure_for_property_name(bool async)
         => Fixture.NoSyncTest(
