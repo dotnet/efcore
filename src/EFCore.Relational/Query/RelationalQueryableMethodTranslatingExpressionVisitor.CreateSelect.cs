@@ -248,16 +248,16 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                     }
                 }
 
-                default:
+                case RelationalAnnotationNames.TphMappingStrategy:
+                case null:
                 {
-                    // Also covers TPH
                     if (entityType.GetFunctionMappings().SingleOrDefault(e => e.IsDefaultFunctionMapping) is IFunctionMapping
                         functionMapping)
                     {
                         var storeFunction = functionMapping.Table;
 
                         var alias = _sqlAliasManager.GenerateTableAlias(storeFunction);
-                        return GenerateNonHierarchyNonSplittingEntityType(
+                        return GenerateSingleTableSelect(
                             storeFunction, new TableValuedFunctionExpression(alias, (IStoreFunction)storeFunction, []));
                     }
 
@@ -267,7 +267,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                         var table = mappings[0].Table;
                         var alias = _sqlAliasManager.GenerateTableAlias(table);
 
-                        return GenerateNonHierarchyNonSplittingEntityType(table, new TableExpression(alias, table));
+                        return GenerateSingleTableSelect(table, new TableExpression(alias, table));
                     }
 
                     // entity splitting
@@ -325,9 +325,12 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
 
                     return new SelectExpression(tables, projection, identifier, _sqlAliasManager);
                 }
+
+                default:
+                    throw new UnreachableException();
             }
 
-            SelectExpression GenerateNonHierarchyNonSplittingEntityType(ITableBase table, TableExpressionBase tableExpression)
+            SelectExpression GenerateSingleTableSelect(ITableBase table, TableExpressionBase tableExpression)
             {
                 var alias = tableExpression.Alias!;
 
@@ -345,8 +348,8 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                 AddJsonNavigationBindings(entityType, projection, propertyExpressions, tableMap);
 
                 var identifier = new List<(ColumnExpression Column, ValueComparer Comparer)>();
-                var primaryKey = entityType.FindPrimaryKey();
-                if (primaryKey != null)
+
+                if (entityType.FindPrimaryKey() is IKey primaryKey)
                 {
                     foreach (var property in primaryKey.Properties)
                     {
