@@ -30,9 +30,6 @@ public abstract class AdHocQueryFiltersQueryTestBase(NonSharedFixture fixture) :
     {
         var contextFactory = await InitializeAsync<Context8576_NamedFilters>(seed: c => c.SeedAsync());
         using var context = contextFactory.CreateContext();
-        var sql = context.Entities
-            .IgnoreQueryFilters(["ActiveFilter", "NameFilter"])
-            .ToQueryString();
         var result = context.Entities
             .IgnoreQueryFilters(["ActiveFilter", "NameFilter"])
             .ToList();
@@ -131,34 +128,34 @@ public abstract class AdHocQueryFiltersQueryTestBase(NonSharedFixture fixture) :
     {
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<MyEntity8576>()
-            .HasQueryFilter("NameFilter", x => x.Name.StartsWith("Name"))
-            .HasQueryFilter("ActiveFilter", x => !x.IsDeleted)
-            .HasQueryFilter("PublishedFilter", x => !x.IsDraft);
+                .HasQueryFilter("NameFilter", x => x.Name.StartsWith("Name"))
+                .HasQueryFilter("ActiveFilter", x => !x.IsDeleted)
+                .HasQueryFilter("PublishedFilter", x => !x.IsDraft);
     }
 
     protected class Context8576_Combined(DbContextOptions options) : Context8576(options)
     {
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<MyEntity8576>().HasQueryFilter(x => !_ids.Contains(x.Id))
-            .HasQueryFilter("NameFilter", x => x.Name.StartsWith("Name"))
-            .HasQueryFilter("ActiveFilter", x => !x.IsDeleted)
-            .HasQueryFilter("PublishedFilter", x => !x.IsDraft);
+                .HasQueryFilter("NameFilter", x => x.Name.StartsWith("Name"))
+                .HasQueryFilter("ActiveFilter", x => !x.IsDeleted)
+                .HasQueryFilter("PublishedFilter", x => !x.IsDraft);
     }
 
     protected class Context8576_Overwriting(DbContextOptions options) : Context8576(options)
     {
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<MyEntity8576>()
-            .HasQueryFilter("Filter1", x => !x.Name.StartsWith("Name"))
-            .HasQueryFilter("Filter1", x => !x.IsDeleted);
+                .HasQueryFilter("Filter1", x => !x.Name.StartsWith("Name"))
+                .HasQueryFilter("Filter1", x => !x.IsDeleted);
     }
 
     protected class Context8576_Removing(DbContextOptions options) : Context8576(options)
     {
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<MyEntity8576>()
-            .HasQueryFilter("Filter1", x => !x.Name.StartsWith("Name"))
-            .HasQueryFilter("Filter1", null);
+                .HasQueryFilter("Filter1", x => !x.Name.StartsWith("Name"))
+                .HasQueryFilter("Filter1", null);
     }
 
     #endregion

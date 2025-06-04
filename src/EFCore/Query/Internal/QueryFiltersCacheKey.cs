@@ -23,8 +23,8 @@ public class QueryFiltersCacheKey(IEntityType entityType, IReadOnlyCollection<IQ
     /// </summary>
     public bool Equals(QueryFiltersCacheKey? other) =>
         ReferenceEquals(_entityType, other?._entityType)
-        && Keys.Count == other.Keys.Count
-        && Keys.All(other.Keys.Contains);
+            && Keys.Count == other.Keys.Count
+            && Keys.All(other.Keys.Contains);
 
     private static int CalculateHashCode(IEntityType entityType, IReadOnlyCollection<IQueryFilter> queryFilters)
     {

@@ -1767,13 +1767,13 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                     tempFilterPredicate, _parameters, parameterize: false, clearParameterizedValues: false,
                         _queryCompilationContext.IsPrecompiling);
 
-                if (queryFilters.Count != 1)
+                if (queryFilters.Count > 1)
                 {
                     tempFilterPredicate = Expression.Lambda(ReplacingExpressionVisitor.Replace(tempFilterPredicate.Parameters[0], commonParameter, tempFilterPredicate.Body));
                 }
 
                 tempFilterPredicate = (LambdaExpression)_queryTranslationPreprocessor.NormalizeQueryableMethod(tempFilterPredicate);
-                filterPredicate = filterPredicate == null
+                filterPredicate = filterPredicate is null
                     ? tempFilterPredicate
                     : Expression.Lambda(Expression.AndAlso(filterPredicate.Body, tempFilterPredicate.Body), commonParameter);
             }
