@@ -5,8 +5,9 @@ using System.Reflection;
 using Microsoft.DotNet.Cli.CommandLine;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Tools.Properties;
-#if NET472
-using System;
+#if NET
+using System.Runtime.Loader;
+#else
 using System.Configuration;
 #endif
 
@@ -19,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
         private CommandOption? _rootNamespace;
         private CommandOption? _language;
         private CommandOption? _nullable;
-        private string? _efcoreVersion;
+        private CommandOption? _designAssembly;
 
         protected CommandOption? Assembly { get; private set; }
         protected CommandOption? Project { get; private set; }
@@ -29,10 +30,6 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
         protected CommandOption? Framework { get; private set; }
         protected CommandOption? Configuration { get; private set; }
 
-        protected string? EFCoreVersion
-            => _efcoreVersion ??= System.Reflection.Assembly.Load("Microsoft.EntityFrameworkCore.Design")
-                .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
-                ?.InformationalVersion;
 
         public override void Configure(CommandLineApplication command)
         {
@@ -50,6 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
             WorkingDir = command.Option("--working-dir <PATH>", Resources.WorkingDirDescription);
             Framework = command.Option("--framework <FRAMEWORK>", Resources.FrameworkDescription);
             Configuration = command.Option("--configuration <CONFIGURATION>", Resources.ConfigurationDescription);
+            _designAssembly = command.Option("--design-assembly <PATH>", Resources.DesignAssemblyDescription);
 
             base.Configure(command);
         }
@@ -83,12 +81,13 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
                         Reporter.WriteWarning,
                         Reporter.WriteInformation,
                         Reporter.WriteVerbose);
-#if NET472
+#if !NET
                 try
                 {
                     return new AppDomainOperationExecutor(
                         Assembly!.Value()!,
                         StartupAssembly!.Value(),
+                        _designAssembly!.Value(),
                         Project!.Value(),
                         _projectDir!.Value(),
                         _dataDir!.Value(),
@@ -126,6 +125,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
                 return new ReflectionOperationExecutor(
                     Assembly!.Value()!,
                     StartupAssembly!.Value(),
+                    _designAssembly!.Value(),
                     Project!.Value(),
                     _projectDir!.Value(),
                     _dataDir!.Value(),
