@@ -23,9 +23,6 @@ public class QuerySqlGenerator : SqlExpressionVisitor
     private readonly HashSet<string> _parameterNames = new();
     private IRelationalCommandBuilder _relationalCommandBuilder;
 
-    private static readonly bool UseOldBehavior36105 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue36105", out var enabled36105) && enabled36105;
-
     /// <summary>
     ///     Creates a new instance of the <see cref="QuerySqlGenerator" /> class.
     /// </summary>
