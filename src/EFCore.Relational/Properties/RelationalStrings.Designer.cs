@@ -96,6 +96,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 function);
 
         /// <summary>
+        ///     The optional complex property '{type}.{property}' is mapped using table sharing, but only contains optional properties. Add a required property or discriminator or map this complex property to a JSON column.
+        /// </summary>
+        public static string ComplexPropertyOptionalTableSharing(object? type, object? property)
+            => string.Format(
+                GetString("ComplexPropertyOptionalTableSharing", nameof(type), nameof(property)),
+                type, property);
+
+        /// <summary>
         ///     The computed column SQL has not been specified for the column '{table}.{column}'. Specify the SQL before using Entity Framework to create the database schema.
         /// </summary>
         public static string ComputedColumnSqlUnspecified(object? table, object? column)
@@ -466,14 +474,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType1, property1, entityType2, property2, columnName, table, maxLength1, maxLength2);
 
         /// <summary>
-        ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but are configured with different column nullability settings.
-        /// </summary>
-        public static string DuplicateColumnNameNullabilityMismatch(object? entityType1, object? property1, object? entityType2, object? property2, object? columnName, object? table)
-            => string.Format(
-                GetString("DuplicateColumnNameNullabilityMismatch", nameof(entityType1), nameof(property1), nameof(entityType2), nameof(property2), nameof(columnName), nameof(table)),
-                entityType1, property1, entityType2, property2, columnName, table);
-
-        /// <summary>
         ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but are configured to use different column orders ('{columnOrder1}' and '{columnOrder2}').
         /// </summary>
         public static string DuplicateColumnNameOrderMismatch(object? entityType1, object? property1, object? entityType2, object? property2, object? columnName, object? table, object? columnOrder1, object? columnOrder2)
@@ -498,7 +498,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType1, property1, entityType2, property2, columnName, table, type1, type2);
 
         /// <summary>
-        ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but the properties are contained within the same hierarchy. All properties on an entity type must be mapped to unique different columns.
+        ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but the properties are contained within the same hierarchy. All properties on an entity type must be mapped to different columns.
         /// </summary>
         public static string DuplicateColumnNameSameHierarchy(object? entityType1, object? property1, object? entityType2, object? property2, object? columnName, object? table)
             => string.Format(
@@ -648,7 +648,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("EmptyCollectionNotSupportedAsInlineQueryRoot");
 
         /// <summary>
-        ///     The short name for '{entityType1}' is '{discriminatorValue}' which is the same for '{entityType2}'. Every concrete entity type in the hierarchy must have a unique short name. Either rename one of the types or call modelBuilder.Entity&lt;TEntity&gt;().Metadata.SetDiscriminatorValue("NewShortName").
+        ///     The short name for '{entityType1}' is '{discriminatorValue}' which is the same for '{entityType2}'. Every concrete entity type in the hierarchy must have a unique short name. Either rename one of the types or call modelBuilder.Entity&lt;TRoot&gt;().Metadata.SetDiscriminatorValue("NewShortName").
         /// </summary>
         public static string EntityShortNameNotUnique(object? entityType1, object? discriminatorValue, object? entityType2)
             => string.Format(
@@ -812,12 +812,28 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 operation);
 
         /// <summary>
+        ///     ExecuteUpdate or ExecuteDelete was called on entity type '{entityType}', but that entity type is not mapped to a table.
+        /// </summary>
+        public static string ExecuteUpdateDeleteOnEntityNotMappedToTable(object? entityType)
+            => string.Format(
+                GetString("ExecuteUpdateDeleteOnEntityNotMappedToTable", nameof(entityType)),
+                entityType);
+
+        /// <summary>
         ///     ExecuteUpdate is being used over a LINQ operator which isn't natively supported by the database; this cannot be translated because complex type '{complexType}' is projected out. Rewrite your query to project out the containing entity type instead.
         /// </summary>
         public static string ExecuteUpdateSubqueryNotSupportedOverComplexTypes(object? complexType)
             => string.Format(
                 GetString("ExecuteUpdateSubqueryNotSupportedOverComplexTypes", nameof(complexType)),
                 complexType);
+
+        /// <summary>
+        ///     Can't use explicitly named default constraints with TPC inheritance or entity splitting. Constraint name: '{explicitDefaultConstraintName}'.
+        /// </summary>
+        public static string ExplicitDefaultConstraintNamesNotSupportedForTpc(object? explicitDefaultConstraintName)
+            => string.Format(
+                GetString("ExplicitDefaultConstraintNamesNotSupportedForTpc", nameof(explicitDefaultConstraintName)),
+                explicitDefaultConstraintName);
 
         /// <summary>
         ///     The required column '{column}' was not present in the results of a 'FromSql' operation.
@@ -848,6 +864,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("HasDataNotSupportedForEntitiesMappedToJson", nameof(entity)),
                 entity);
+
+        /// <summary>
+        ///     Named default constraints can't be used with TPC or entity splitting if they result in non-unique constraint name. Constraint name: '{constraintNameCandidate}'.
+        /// </summary>
+        public static string ImplicitDefaultNamesNotSupportedForTpcWhenNamesClash(object? constraintNameCandidate)
+            => string.Format(
+                GetString("ImplicitDefaultNamesNotSupportedForTpcWhenNamesClash", nameof(constraintNameCandidate)),
+                constraintNameCandidate);
 
         /// <summary>
         ///     Cannot use table '{table}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and the comment '{comment}' does not match the comment '{otherComment}'.
@@ -1076,6 +1100,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("JsonEmptyString");
 
         /// <summary>
+        ///     Entity '{jsonType}' is mapped to JSON column '{containingColumn}', but its owner '{ownerType}' is mapped to a different JSON column '{ownerContainingColumn}'. All owned entities must be mapped to the same JSON column. Only call '.ToJson()' on the outermost owned entity type.
+        /// </summary>
+        public static string JsonEntityMappedToDifferentColumnThanOwner(object? jsonType, object? containingColumn, object? ownerType, object? ownerContainingColumn)
+            => string.Format(
+                GetString("JsonEntityMappedToDifferentColumnThanOwner", nameof(jsonType), nameof(containingColumn), nameof(ownerType), nameof(ownerContainingColumn)),
+                jsonType, containingColumn, ownerType, ownerContainingColumn);
+
+        /// <summary>
         ///     Entity '{jsonType}' is mapped to JSON and also to a table or view '{tableOrViewName}', but its owner '{ownerType}' is mapped to a different table or view '{ownerTableOrViewName}'. Every entity mapped to JSON must also map to the same table or view as its owner.
         /// </summary>
         public static string JsonEntityMappedToDifferentTableOrViewThanOwner(object? jsonType, object? tableOrViewName, object? ownerType, object? ownerTableOrViewName)
@@ -1116,7 +1148,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 nonJsonType, table);
 
         /// <summary>
-        ///     Entity type '{jsonEntity}' is mapped to JSON and has a navigation to a regular entity which is not the owner.
+        ///     Entity type '{jsonEntity}' is mapped to JSON and has a navigation to a non-owned entity which is not the owner. This is currently not supported.
         /// </summary>
         public static string JsonEntityReferencingRegularEntity(object? jsonEntity)
             => string.Format(
@@ -2130,7 +2162,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 nodeType, expressionType);
 
         /// <summary>
-        ///     No relational type mapping can be found for property '{entity}.{property}' and the current provider doesn't specify a default store type for the properties of type '{clrType}'. 
+        ///     No relational type mapping can be found for property '{entity}.{property}' and the current provider doesn't specify a default store type for the properties of type '{clrType}'.
         /// </summary>
         public static string UnsupportedPropertyType(object? entity, object? property, object? clrType)
             => string.Format(
@@ -2950,6 +2982,31 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                             level,
                             RelationalEventId.ConnectionError,
                             _resourceManager.GetString("LogConnectionErrorAsDebug")!)));
+            }
+
+            return (EventDefinition<string, string>)definition;
+        }
+
+        /// <summary>
+        ///     A connection open was canceled to database '{database}' on server '{server}'.
+        /// </summary>
+        public static EventDefinition<string, string> LogConnectionCanceled(IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogConnectionCanceled;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogConnectionCanceled,
+                    logger,
+                    static logger => new EventDefinition<string, string>(
+                        logger.Options,
+                        RelationalEventId.ConnectionCanceled,
+                        LogLevel.Debug,
+                        "RelationalEventId.ConnectionCanceled",
+                        level => LoggerMessage.Define<string, string>(
+                            level,
+                            RelationalEventId.ConnectionCanceled,
+                            _resourceManager.GetString("LogConnectionCanceled")!)));
             }
 
             return (EventDefinition<string, string>)definition;

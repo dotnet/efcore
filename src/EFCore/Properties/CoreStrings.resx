@@ -306,9 +306,6 @@
   <data name="ComplexCollectionWrongClrType" xml:space="preserve">
     <value>The collection complex property '{property}' cannot be added to the type '{type}' because its CLR type '{clrType}' does not implement 'IEnumerable&lt;{targetType}&gt;'. Collection complex property must implement IEnumerable&lt;&gt; of the complex type.</value>
   </data>
-  <data name="ComplexPropertyCollection" xml:space="preserve">
-    <value>Adding the collection complex property '{type}.{property}' isn't supported. See https://github.com/dotnet/efcore/issues/31237 for more information.</value>
-  </data>
   <data name="ComplexPropertyIndexer" xml:space="preserve">
     <value>Adding the complex property '{type}.{property}' as an indexer property isn't supported. See https://github.com/dotnet/efcore/issues/31244 for more information.</value>
   </data>
@@ -316,7 +313,7 @@
     <value>The complex property '{type}.{property}' could not be found. Ensure that the property exists and has been included in the model as a complex property.</value>
   </data>
   <data name="ComplexPropertyOptional" xml:space="preserve">
-    <value>Configuring the complex property '{type}.{property}' as optional is not supported, call 'IsRequired()'. See https://github.com/dotnet/efcore/issues/31376 for more information.</value>
+    <value>Configuring the collection complex property '{type}.{property}' as optional is invalid.</value>
   </data>
   <data name="ComplexPropertyShadow" xml:space="preserve">
     <value>Configuring the complex property '{type}.{property}' in shadow state isn't supported.  See https://github.com/dotnet/efcore/issues/31243 for more information.</value>
@@ -1301,6 +1298,9 @@
   <data name="NoProviderConfiguredFailedToResolveService" xml:space="preserve">
     <value>Unable to resolve service for type '{service}'. This is often because no database provider has been configured for this DbContext. A provider can be configured by overriding the 'DbContext.OnConfiguring' method or by using 'AddDbContext' on the application service provider. If 'AddDbContext' is used, then also ensure that your DbContext type accepts a DbContextOptions&lt;TContext&gt; object in its constructor and passes it to the base constructor for DbContext.</value>
   </data>
+  <data name="NoSetPropertyInvocation" xml:space="preserve">
+    <value>An 'ExecuteUpdate' call must specify at least one 'SetProperty' invocation, to indicate the properties to be updated.</value>
+  </data>
   <data name="NoSetter" xml:space="preserve">
     <value>The property '{1_entityType}.{0_property}' does not have a setter. Either make the property writable or use a different '{propertyAccessMode}'.</value>
   </data>
@@ -1329,7 +1329,7 @@
     <value>A key on entity type '{entityType}' cannot contain the property '{property}' because it is nullable/optional. All properties on which a key is declared must be marked as non-nullable/required.</value>
   </data>
   <data name="NullRequiredComplexProperty" xml:space="preserve">
-    <value>The complex type property '{type}.{property}' is configured as required (non-nullable) but has a null value when saving changes. Only non-null complex properties are supported by EF Core 8.</value>
+    <value>The complex type property '{type}.{property}' is configured as required (non-nullable) but has a null value when saving changes.</value>
   </data>
   <data name="NullRequiredPrimitiveCollection" xml:space="preserve">
     <value>The primitive collection property '{type}.{property}' is configured as required (non-nullable) but has a null value when saving changes. Either mark the property as optional (nullable) or set a non-null value.</value>
@@ -1579,9 +1579,6 @@
   </data>
   <data name="SetOperationWithDifferentIncludesInOperands" xml:space="preserve">
     <value>Unable to translate set operation since both operands have different 'Include' operations. Consider having same 'Include' applied on both sides.</value>
-  </data>
-  <data name="SetPropertyMethodInvoked" xml:space="preserve">
-    <value>The SetProperty&lt;TProperty&gt; method can only be used within 'ExecuteUpdate' method.</value>
   </data>
   <data name="SharedTypeDerivedType" xml:space="preserve">
     <value>The shared-type entity type '{entityType}' cannot have a base type.</value>

@@ -39,9 +39,6 @@ public static class RelationalEntityTypeExtensions
 
         return ((entityType as IConventionEntityType)?.GetViewNameConfigurationSource() == null)
             && (entityType as IConventionEntityType)?.GetFunctionNameConfigurationSource() == null
-#pragma warning disable CS0618 // Type or member is obsolete
-            && (entityType as IConventionEntityType)?.GetDefiningQueryConfigurationSource() == null
-#pragma warning restore CS0618 // Type or member is obsolete
             && (entityType as IConventionEntityType)?.GetSqlQueryConfigurationSource() == null
                 ? GetDefaultTableName(entityType)
                 : null;
@@ -143,7 +140,7 @@ public static class RelationalEntityTypeExtensions
         var schemaAnnotation = entityType.FindAnnotation(RelationalAnnotationNames.Schema);
         if (schemaAnnotation != null)
         {
-            return (string?)schemaAnnotation.Value ?? GetDefaultSchema(entityType);
+            return (string?)schemaAnnotation.Value ?? entityType.Model.GetDefaultSchema();
         }
 
         return entityType.BaseType != null && entityType.BaseType.GetTableName() != null
@@ -267,9 +264,6 @@ public static class RelationalEntityTypeExtensions
         }
 
         return ((entityType as IConventionEntityType)?.GetFunctionNameConfigurationSource() == null)
-#pragma warning disable CS0618 // Type or member is obsolete
-            && ((entityType as IConventionEntityType)?.GetDefiningQueryConfigurationSource() == null)
-#pragma warning restore CS0618 // Type or member is obsolete
             && ((entityType as IConventionEntityType)?.GetSqlQueryConfigurationSource() == null)
                 ? GetDefaultViewName(entityType)
                 : null;
@@ -340,7 +334,7 @@ public static class RelationalEntityTypeExtensions
         var schemaAnnotation = entityType.FindAnnotation(RelationalAnnotationNames.ViewSchema);
         if (schemaAnnotation != null)
         {
-            return (string?)schemaAnnotation.Value ?? GetDefaultViewSchema(entityType);
+            return (string?)schemaAnnotation.Value ?? entityType.Model.GetDefaultSchema();
         }
 
         return entityType.BaseType != null

@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Update;
 
 #nullable disable
 
-public abstract class StoredProcedureUpdateTestBase : NonSharedModelTestBase
+public abstract class StoredProcedureUpdateTestBase(NonSharedFixture fixture) : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
 {
     protected override string StoreName
         => "StoredProcedureUpdateTest";

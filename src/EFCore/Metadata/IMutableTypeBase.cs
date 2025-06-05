@@ -33,6 +33,42 @@ public interface IMutableTypeBase : IReadOnlyTypeBase, IMutableAnnotatable
         => (IMutableEntityType)this;
 
     /// <summary>
+    ///     Gets or sets the base type of this type. Returns <see langword="null" /> if this is not a derived type in an inheritance
+    ///     hierarchy.
+    /// </summary>
+    new IMutableTypeBase? BaseType { get; set; }
+
+    /// <summary>
+    ///     Gets the root base type for a given type.
+    /// </summary>
+    /// <returns>
+    ///     The root base type. If the given type is not a derived type, then the same type is returned.
+    /// </returns>
+    new IMutableTypeBase GetRootType()
+        => (IMutableTypeBase)((IReadOnlyTypeBase)this).GetRootType();
+
+    /// <summary>
+    ///     Gets all types in the model that derive from this type.
+    /// </summary>
+    /// <returns>The derived types.</returns>
+    new IEnumerable<IMutableTypeBase> GetDerivedTypes()
+        => ((IReadOnlyTypeBase)this).GetDerivedTypes().Cast<IMutableTypeBase>();
+
+    /// <summary>
+    ///     Returns all derived types of this type, including the type itself.
+    /// </summary>
+    /// <returns>Derived types.</returns>
+    new IEnumerable<IMutableTypeBase> GetDerivedTypesInclusive()
+        => ((IReadOnlyTypeBase)this).GetDerivedTypesInclusive().Cast<IMutableTypeBase>();
+
+    /// <summary>
+    ///     Gets all types in the model that directly derive from this type.
+    /// </summary>
+    /// <returns>The derived types.</returns>
+    new IEnumerable<IMutableTypeBase> GetDirectlyDerivedTypes()
+        => ((IReadOnlyTypeBase)this).GetDirectlyDerivedTypes().Cast<IMutableTypeBase>();
+
+    /// <summary>
     ///     Marks the given member name as ignored, preventing conventions from adding a matching property
     ///     or navigation to the type.
     /// </summary>
@@ -59,6 +95,32 @@ public interface IMutableTypeBase : IReadOnlyTypeBase, IMutableAnnotatable
     /// </summary>
     /// <returns>The list of ignored member names.</returns>
     IEnumerable<string> GetIgnoredMembers();
+
+    /// <summary>
+    ///     Returns the property that will be used for storing a discriminator value.
+    /// </summary>
+    /// <returns>The property that will be used for storing a discriminator value.</returns>
+    new IMutableProperty? FindDiscriminatorProperty()
+        => (IMutableProperty?)((IReadOnlyTypeBase)this).FindDiscriminatorProperty();
+
+    /// <summary>
+    ///     Sets the <see cref="IReadOnlyProperty" /> that will be used for storing a discriminator value.
+    /// </summary>
+    /// <param name="property">The property to set.</param>
+    void SetDiscriminatorProperty(IReadOnlyProperty? property);
+
+    /// <summary>
+    ///     Sets the discriminator value for this type.
+    /// </summary>
+    /// <param name="value">The value to set.</param>
+    void SetDiscriminatorValue(object? value)
+        => SetAnnotation(CoreAnnotationNames.DiscriminatorValue, value);
+
+    /// <summary>
+    ///     Removes the discriminator value for this type.
+    /// </summary>
+    void RemoveDiscriminatorValue()
+        => RemoveAnnotation(CoreAnnotationNames.DiscriminatorValue);
 
     /// <summary>
     ///     Adds a property to this type.

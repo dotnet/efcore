@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Reflection.Metadata;
 using System.Text;
 using System.Text.Json;
 
@@ -581,7 +582,7 @@ public class RelationalModel : Annotatable, IRelationalModel
         {
             Check.DebugAssert(tableBase.FindColumn(containerColumnName) == null, $"Table does not have column '{containerColumnName}'.");
 
-            var jsonColumnTypeMapping = relationalTypeMappingSource.FindMapping(typeof(JsonElement), storeTypeName: containerColumnType)!;
+            var jsonColumnTypeMapping = relationalTypeMappingSource.FindMapping(typeof(JsonTypePlaceholder), storeTypeName: containerColumnType)!;
             var jsonColumn = createColumn(containerColumnName, containerColumnType, tableBase, jsonColumnTypeMapping);
             tableBase.Columns.Add(containerColumnName, jsonColumn);
             jsonColumn.IsNullable = !ownership.IsRequiredDependent || !ownership.IsUnique;
@@ -1559,54 +1560,60 @@ public class RelationalModel : Annotatable, IRelationalModel
             mainMapping.SetIsSharedTablePrincipal(true);
         }
 
-        var referencingInternalForeignKeyMap = table.ReferencingRowInternalForeignKeys;
-        if (referencingInternalForeignKeyMap != null)
+        var optionalTypes = new Dictionary<ITypeBase, bool>();
+        var entityTypesToVisit = new Queue<(ITypeBase, bool)>();
+        entityTypesToVisit.Enqueue(((IEntityType)mainMapping.TypeBase, false));
+
+        while (entityTypesToVisit.Count > 0)
         {
-            var optionalTypes = new Dictionary<ITypeBase, bool>();
-            var entityTypesToVisit = new Queue<(ITypeBase, bool)>();
-            entityTypesToVisit.Enqueue(((IEntityType)mainMapping.TypeBase, false));
-
-            while (entityTypesToVisit.Count > 0)
+            var (typeBase, optional) = entityTypesToVisit.Dequeue();
+            if (optionalTypes.TryGetValue(typeBase, out var previouslyOptional)
+                && (!previouslyOptional || optional))
             {
-                var (typeBase, optional) = entityTypesToVisit.Dequeue();
-                if (optionalTypes.TryGetValue(typeBase, out var previouslyOptional)
-                    && (!previouslyOptional || optional))
-                {
-                    continue;
-                }
+                continue;
+            }
 
-                optionalTypes[typeBase] = optional;
+            optionalTypes[typeBase] = optional;
 
-                if (typeBase is IComplexType complexType)
+            foreach (var complexProperty in typeBase.GetComplexProperties())
+            {
+                if (!complexProperty.ComplexType.IsMappedToJson())
                 {
-                    var complexProperty = complexType.ComplexProperty;
-                    entityTypesToVisit.Enqueue((complexProperty.DeclaringType, optional || complexProperty.IsNullable));
-                    continue;
-                }
-
-                var entityType = (IEntityType)typeBase;
-                if (referencingInternalForeignKeyMap.TryGetValue(entityType, out var referencingInternalForeignKeys))
-                {
-                    foreach (var referencingForeignKey in referencingInternalForeignKeys)
-                    {
-                        entityTypesToVisit.Enqueue(
-                            (referencingForeignKey.DeclaringEntityType, optional || !referencingForeignKey.IsRequiredDependent));
-                    }
-                }
-
-                if (table.EntityTypeMappings.Single(etm => etm.TypeBase == typeBase).IncludesDerivedTypes == true)
-                {
-                    foreach (var directlyDerivedEntityType in entityType.GetDirectlyDerivedTypes())
-                    {
-                        if (mappedEntityTypes.Contains(directlyDerivedEntityType)
-                            && !optionalTypes.ContainsKey(directlyDerivedEntityType))
-                        {
-                            entityTypesToVisit.Enqueue((directlyDerivedEntityType, optional));
-                        }
-                    }
+                    entityTypesToVisit.Enqueue((complexProperty.ComplexType, optional || complexProperty.IsNullable));
                 }
             }
 
+            if (typeBase is not IEntityType entityType)
+            {
+                continue;
+            }
+
+            var referencingInternalForeignKeyMap = table.ReferencingRowInternalForeignKeys;
+            if (referencingInternalForeignKeyMap != null
+                && referencingInternalForeignKeyMap.TryGetValue(entityType, out var referencingInternalForeignKeys))
+            {
+                foreach (var referencingForeignKey in referencingInternalForeignKeys)
+                {
+                    entityTypesToVisit.Enqueue(
+                        (referencingForeignKey.DeclaringEntityType, optional || !referencingForeignKey.IsRequiredDependent));
+                }
+            }
+
+            if (table.EntityTypeMappings.Single(etm => etm.TypeBase == typeBase).IncludesDerivedTypes == true)
+            {
+                foreach (var directlyDerivedEntityType in entityType.GetDirectlyDerivedTypes())
+                {
+                    if (mappedEntityTypes.Contains(directlyDerivedEntityType)
+                        && !optionalTypes.ContainsKey(directlyDerivedEntityType))
+                    {
+                        entityTypesToVisit.Enqueue((directlyDerivedEntityType, optional));
+                    }
+                }
+            }
+        }
+
+        if (optionalTypes.Count > 1)
+        {
             table.OptionalTypes = optionalTypes;
         }
     }

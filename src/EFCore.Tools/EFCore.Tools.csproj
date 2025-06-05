@@ -3,7 +3,7 @@
   <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <TargetFramework>$(DefaultNetCoreTargetFramework)</TargetFramework>
     <PackageId>Microsoft.EntityFrameworkCore.Tools</PackageId>
     <NuspecFile>$(MSBuildThisFileDirectory)$(MSBuildProjectName).nuspec</NuspecFile>
     <DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>
@@ -49,6 +49,7 @@ Update-Database
     <ItemGroup>
       <NuspecProperty Include="configuration=$(Configuration)" />
       <NuspecProperty Include="intermediateOutputPath=$(IntermediateOutputPath)" />
+      <NuspecProperty Include="targetFramework=$(TargetFramework)" />
     </ItemGroup>
   </Target>
 

@@ -50,9 +50,6 @@ public class ForeignKeyPropertyDiscoveryConvention :
     IPropertyFieldChangedConvention,
     IModelFinalizingConvention
 {
-    private static readonly bool UseOldBehavior35110 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue35110", out var enabled) && enabled;
-
     /// <summary>
     ///     Creates a new instance of <see cref="ForeignKeyPropertyDiscoveryConvention" />.
     /// </summary>
@@ -84,8 +81,7 @@ public class ForeignKeyPropertyDiscoveryConvention :
         IConventionContext context)
     {
         var shouldBeRequired = true;
-        if (!relationshipBuilder.Metadata.IsOwnership
-            || UseOldBehavior35110)
+        if (!relationshipBuilder.Metadata.IsOwnership)
         {
             foreach (var property in relationshipBuilder.Metadata.Properties)
             {

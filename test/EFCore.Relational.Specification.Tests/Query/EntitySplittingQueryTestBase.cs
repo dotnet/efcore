@@ -8,9 +8,10 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
+public abstract class EntitySplittingQueryTestBase: NonSharedModelTestBase, IClassFixture<NonSharedFixture>
 {
-    protected EntitySplittingQueryTestBase()
+    protected EntitySplittingQueryTestBase(NonSharedFixture fixture)
+        : base(fixture)
         => _setSourceCreator = GetSetSourceCreator();
 
     [ConditionalTheory]

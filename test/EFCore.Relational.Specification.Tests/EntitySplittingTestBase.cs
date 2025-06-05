@@ -7,9 +7,10 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public abstract class EntitySplittingTestBase : NonSharedModelTestBase
+public abstract class EntitySplittingTestBase : NonSharedModelTestBase, IClassFixture<NonSharedFixture>
 {
-    protected EntitySplittingTestBase(ITestOutputHelper testOutputHelper)
+    protected EntitySplittingTestBase(NonSharedFixture fixture, ITestOutputHelper testOutputHelper)
+        : base(fixture)
     {
         // TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }

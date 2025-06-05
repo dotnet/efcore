@@ -256,4 +256,84 @@ public static class SqlServerComplexTypePropertyBuilderExtensions
         this ComplexTypePropertyBuilder<TProperty> propertyBuilder,
         bool sparse = true)
         => (ComplexTypePropertyBuilder<TProperty>)IsSparse((ComplexTypePropertyBuilder)propertyBuilder, sparse);
+
+    /// <summary>
+    ///     Configures the default value for the column that the property maps
+    ///     to when targeting a relational database.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-default-values">Database default values</see> for more information and examples.
+    /// </remarks>
+    /// <param name="propertyBuilder">The builder for the property being configured.</param>
+    /// <param name="value">The default value of the column.</param>
+    /// <param name="defaultConstraintName">The default constraint name.</param>
+    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    public static ComplexTypePropertyBuilder HasDefaultValue(
+        this ComplexTypePropertyBuilder propertyBuilder,
+        object? value,
+        string defaultConstraintName)
+    {
+        propertyBuilder.Metadata.SetDefaultValue(value);
+        propertyBuilder.Metadata.SetDefaultConstraintName(defaultConstraintName);
+
+        return propertyBuilder;
+    }
+
+    /// <summary>
+    ///     Configures the default value for the column that the property maps
+    ///     to when targeting a relational database.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-default-values">Database default values</see> for more information and examples.
+    /// </remarks>
+    /// <typeparam name="TProperty">The type of the property being configured.</typeparam>
+    /// <param name="propertyBuilder">The builder for the property being configured.</param>
+    /// <param name="value">The default value of the column.</param>
+    /// <param name="defaultConstraintName">The default constraint name.</param>
+    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    public static ComplexTypePropertyBuilder<TProperty> HasDefaultValue<TProperty>(
+        this ComplexTypePropertyBuilder<TProperty> propertyBuilder,
+        object? value,
+        string defaultConstraintName)
+        => (ComplexTypePropertyBuilder<TProperty>)HasDefaultValue((ComplexTypePropertyBuilder)propertyBuilder, value, defaultConstraintName);
+
+    /// <summary>
+    ///     Configures the default value expression for the column that the property maps to when targeting a relational database.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-default-values">Database default values</see> for more information and examples.
+    /// </remarks>
+    /// <param name="propertyBuilder">The builder for the property being configured.</param>
+    /// <param name="sql">The SQL expression for the default value of the column.</param>
+    /// <param name="defaultConstraintName">The default constraint name.</param>
+    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    public static ComplexTypePropertyBuilder HasDefaultValueSql(
+        this ComplexTypePropertyBuilder propertyBuilder,
+        string? sql,
+        string defaultConstraintName)
+    {
+        Check.NullButNotEmpty(sql, nameof(sql));
+
+        propertyBuilder.Metadata.SetDefaultValueSql(sql);
+        propertyBuilder.Metadata.SetDefaultConstraintName(defaultConstraintName);
+
+        return propertyBuilder;
+    }
+
+    /// <summary>
+    ///     Configures the default value expression for the column that the property maps to when targeting a relational database.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-default-values">Database default values</see> for more information and examples.
+    /// </remarks>
+    /// <typeparam name="TProperty">The type of the property being configured.</typeparam>
+    /// <param name="propertyBuilder">The builder for the property being configured.</param>
+    /// <param name="sql">The SQL expression for the default value of the column.</param>
+    /// <param name="defaultConstraintName">The default constraint name.</param>
+    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    public static ComplexTypePropertyBuilder<TProperty> HasDefaultValueSql<TProperty>(
+        this ComplexTypePropertyBuilder<TProperty> propertyBuilder,
+        string? sql,
+        string defaultConstraintName)
+        => (ComplexTypePropertyBuilder<TProperty>)HasDefaultValueSql((ComplexTypePropertyBuilder)propertyBuilder, sql, defaultConstraintName);
 }

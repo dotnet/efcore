@@ -9,29 +9,14 @@ using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding;
 
-public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
+public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) : CompiledModelTestBase(fixture)
 {
     [ConditionalFact]
     public virtual Task BigModel_with_JSON_columns()
         => Test(
             modelBuilder => BuildBigModel(modelBuilder, jsonColumns: true),
             model => AssertBigModel(model, jsonColumns: true),
-            async c =>
-            {
-                c.Set<PrincipalDerived<DependentBase<byte?>>>().Add(
-                    new PrincipalDerived<DependentBase<byte?>>
-                    {
-                        Id = 1,
-                        AlternateId = new Guid(),
-                        Dependent = new DependentDerived<byte?>(1, "one"),
-                        Owned = new OwnedType(c)
-                    });
-
-                await c.SaveChangesAsync();
-
-                var dependent = c.Set<PrincipalDerived<DependentBase<byte?>>>().Include(p => p.Dependent).Single().Dependent!;
-                Assert.Equal("one", ((DependentDerived<byte?>)dependent).GetData());
-            },
+            context => UseBigModel(context, jsonColumns: true),
             options: new CompiledModelCodeGenerationOptions { UseNullableReferenceTypes = true, ForNativeAot = true });
 
     protected override void BuildBigModel(ModelBuilder modelBuilder, bool jsonColumns)
@@ -162,6 +147,10 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
         var manyTypesType = model.FindEntityType(typeof(ManyTypes))!;
         Assert.Equal("ManyTypes", manyTypesType.GetTableName());
         Assert.Null(manyTypesType.GetSchema());
+
+        var ipAddressCollection = manyTypesType.FindProperty(nameof(ManyTypes.IPAddressReadOnlyCollection))!;
+        var ipAddressElementType = ipAddressCollection.GetElementType();
+        Assert.NotNull(ipAddressCollection.GetColumnType());
 
         var principalBase = model.FindEntityType(typeof(PrincipalBase))!;
         Assert.Equal("PrincipalBase", principalBase.GetTableName());
@@ -437,7 +426,7 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
             AssertComplexTypes,
             c =>
             {
-                // Sprocs not supported with complex types
+                // Sprocs not supported with complex types, see #31235
                 //c.Set<PrincipalDerived<DependentBase<byte?>>>().Add(
                 //    new PrincipalDerived<DependentBase<byte?>>
                 //    {
@@ -491,9 +480,12 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
             CoreStrings.RuntimeModelMissingData,
             Assert.Throws<InvalidOperationException>(() => detailsProperty.GetColumnOrder()).Message);
 
-        var principalTable = StoreObjectIdentifier.Create(complexType, StoreObjectType.Table)!.Value;
+        var principalTableId = StoreObjectIdentifier.Create(complexType, StoreObjectType.Table)!.Value;
 
-        Assert.Equal("Deets", detailsProperty.GetColumnName(principalTable));
+        Assert.Equal("Deets", detailsProperty.GetColumnName(principalTableId));
+
+        var principalTable = principalBase.GetTableMappings().Single().Table;
+        Assert.False(principalTable.IsOptional(complexType));
 
         var dbFunction = model.FindDbFunction("PrincipalBaseTvf")!;
         Assert.False(dbFunction.IsNullable);

@@ -541,9 +541,6 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
 
         var yogurt = CreateYogurt(context, nullMilk: true);
         var entry = async ? await context.AddAsync(yogurt) : context.Add(yogurt);
-        entry.State = EntityState.Unchanged;
-        context.ChangeTracker.DetectChanges();
-        entry.State = EntityState.Modified;
 
         Assert.Equal(
             CoreStrings.NullRequiredComplexProperty("Yogurt", "Milk"),
@@ -560,9 +557,6 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
 
         var yogurt = CreateYogurt(context, nullManufacturer: true);
         var entry = async ? await context.AddAsync(yogurt) : context.Add(yogurt);
-        entry.State = EntityState.Unchanged;
-        context.ChangeTracker.DetectChanges();
-        entry.State = EntityState.Modified;
 
         Assert.Equal(
             CoreStrings.NullRequiredComplexProperty("Culture", "Manufacturer"),
@@ -573,20 +567,20 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
     [ConditionalTheory]
     [InlineData(false)]
     [InlineData(true)]
-    public virtual async Task Throws_only_when_saving_with_null_third_level_complex_property(bool async)
+    public virtual async Task Can_save_null_third_level_complex_property_with_all_optional_properties(bool async)
     {
         using var context = CreateContext();
 
-        var yogurt = CreateYogurt(context, nullTag: true);
-        var entry = async ? await context.AddAsync(yogurt) : context.Add(yogurt);
-        entry.State = EntityState.Unchanged;
-        context.ChangeTracker.DetectChanges();
-        entry.State = EntityState.Modified;
+        await context.Database.CreateExecutionStrategy().ExecuteAsync(
+            context, async context =>
+            {
+                using var transaction = context.Database.BeginTransaction();
 
-        Assert.Equal(
-            CoreStrings.NullRequiredComplexProperty("License", "Tag"),
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => async ? context.SaveChangesAsync() : Task.FromResult(context.SaveChanges()))).Message);
+                var yogurt = CreateYogurt(context, nullTag: true);
+                var entry = async ? await context.AddAsync(yogurt) : context.Add(yogurt);
+
+                context.SaveChanges();
+            });
     }
 
     [ConditionalTheory]

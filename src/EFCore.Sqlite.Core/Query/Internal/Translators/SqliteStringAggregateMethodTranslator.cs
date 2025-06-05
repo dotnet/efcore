@@ -91,7 +91,7 @@ public class SqliteStringAggregateMethodTranslator : IAggregateMethodCallTransla
                         sqlExpression.TypeMapping)
                 },
                 nullable: true,
-                argumentsPropagateNullability: new[] { false, false },
+                argumentsPropagateNullability: Statics.FalseArrays[2],
                 typeof(string)),
             _sqlExpressionFactory.Constant(string.Empty, typeof(string)),
             sqlExpression.TypeMapping);

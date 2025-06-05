@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public class TableSplittingSqlServerTest(ITestOutputHelper testOutputHelper) : TableSplittingTestBase(testOutputHelper)
+public class TableSplittingSqlServerTest(NonSharedFixture fixture, ITestOutputHelper testOutputHelper) : TableSplittingTestBase(fixture, testOutputHelper)
 {
     protected override ITestStoreFactory TestStoreFactory
         => SqlServerTestStoreFactory.Instance;
@@ -189,8 +189,10 @@ ORDER BY [v].[Name]
 
         AssertSql(
             """
+@p='1'
+
 UPDATE [v]
-SET [v].[SeatingCapacity] = 1
+SET [v].[SeatingCapacity] = @p
 FROM [Vehicles] AS [v]
 """,
             //

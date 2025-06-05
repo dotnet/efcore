@@ -54,7 +54,9 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
     IListSource
     where TEntity : class
 {
+#pragma warning disable EF1001
     private ObservableBackedBindingList<TEntity>? _bindingList;
+#pragma warning restore EF1001
     private ObservableCollection<TEntity>? _observable;
     private readonly DbContext _context;
     private readonly IEntityType _entityType;
@@ -174,7 +176,7 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
     }
 
     /// <summary>
-    ///     Returns an <see cref="IEnumerator{T}" /> for all tracked entities of type TEntity
+    ///     Returns an <see cref="IEnumerator{T}" /> for all tracked entities of type <typeparamref name="TEntity"/>
     ///     that are not marked as deleted.
     /// </summary>
     /// <returns>An enumerator for the collection.</returns>
@@ -182,7 +184,7 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
         => _context.GetDependencies().StateManager.GetNonDeletedEntities<TEntity>().GetEnumerator();
 
     /// <summary>
-    ///     Returns an <see cref="IEnumerator{T}" /> for all tracked entities of type TEntity
+    ///     Returns an <see cref="IEnumerator{T}" /> for all tracked entities of type <typeparamref name="TEntity"/>
     ///     that are not marked as deleted.
     /// </summary>
     /// <returns>An enumerator for the collection.</returns>
@@ -235,7 +237,7 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
     }
 
     /// <summary>
-    ///     Marks all entities of type TEntity being tracked by the <see cref="DbContext" />
+    ///     Marks all entities of type <typeparamref name="TEntity"/> being tracked by the <see cref="DbContext" />
     ///     as <see cref="EntityState.Deleted" />.
     /// </summary>
     /// <remarks>
@@ -315,8 +317,7 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
     public virtual bool Remove(TEntity item)
     {
         var entry = _context.GetDependencies().StateManager.TryGetEntry(item);
-        if (entry != null
-            && entry.EntityState != EntityState.Deleted)
+        if (entry is { EntityState: not EntityState.Deleted and not EntityState.Detached })
         {
             try
             {
@@ -472,10 +473,12 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
     ///     examples.
     /// </remarks>
     /// <returns>The binding list.</returns>
+#pragma warning disable EF1001
     [RequiresUnreferencedCode(
         "BindingList raises ListChanged events with PropertyDescriptors. PropertyDescriptors require unreferenced code.")]
     public virtual BindingList<TEntity> ToBindingList()
         => _bindingList ??= new ObservableBackedBindingList<TEntity>(ToObservableCollection());
+#pragma warning restore EF1001
 
     /// <summary>
     ///     This method is called by data binding frameworks when attempting to data bind

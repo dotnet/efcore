@@ -3,7 +3,7 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class JsonTypesCosmosTest : JsonTypesTestBase
+public class JsonTypesCosmosTest(NonSharedFixture fixture) : JsonTypesTestBase(fixture)
 {
     public override Task Can_read_write_collection_of_Guid_converted_to_bytes_JSON_values(string expected)
         // Cosmos provider cannot map collections of elements with converters. See Issue #34026.

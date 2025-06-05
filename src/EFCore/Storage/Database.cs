@@ -69,11 +69,8 @@ public abstract class Database : IDatabase
 
     /// <inheritdoc />
     [Experimental(EFDiagnostics.PrecompiledQueryExperimental)]
-    public virtual Expression<Func<QueryContext, TResult>> CompileQueryExpression<TResult>(
-        Expression query,
-        bool async,
-        IReadOnlySet<string> nonNullableReferenceTypeParameters)
+    public virtual Expression<Func<QueryContext, TResult>> CompileQueryExpression<TResult>(Expression query, bool async)
         => Dependencies.QueryCompilationContextFactory
-            .CreatePrecompiled(async, nonNullableReferenceTypeParameters)
+            .CreatePrecompiled(async)
             .CreateQueryExecutorExpression<TResult>(query);
 }

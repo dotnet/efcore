@@ -20,9 +20,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         bool trackQueryResults)
         : ExpressionVisitor
     {
-        private static readonly bool UseOldBehavior21006 =
-              AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue21006", out var enabled21006) && enabled21006;
-
         private static readonly MethodInfo GetItemMethodInfo
             = typeof(JObject).GetRuntimeProperties()
                 .Single(pi => pi.Name == "Item" && pi.GetIndexParameters()[0].ParameterType == typeof(string))
@@ -799,7 +796,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 }
                 else
                 {
-                    replaceExpression = isNonNullableScalar && !UseOldBehavior21006
+                    replaceExpression = isNonNullableScalar
                         ? Expression.Convert(
                             Default(originalBodyType),
                             type)
@@ -821,7 +818,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             {
                 valueExpression = ConvertJTokenToType(
                     jTokenExpression,
-                    (isNonNullableScalar && !UseOldBehavior21006
+                    (isNonNullableScalar
                         ? typeMapping?.ClrType
                         : typeMapping?.ClrType.MakeNullable()) ?? type);
 

@@ -6,6 +6,7 @@ using System.Text;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 
@@ -897,14 +898,6 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             throw new InvalidOperationException(DesignStrings.CompiledModelQueryFilter(entityType.ShortName()));
         }
 
-#pragma warning disable CS0618 // Type or member is obsolete
-        if (entityType.GetDefiningQuery() != null)
-        {
-            // TODO: Move to InMemoryCSharpRuntimeAnnotationCodeGenerator, see #21624
-            throw new InvalidOperationException(DesignStrings.CompiledModelDefiningQuery(entityType.ShortName()));
-        }
-#pragma warning restore CS0618 // Type or member is obsolete
-
         AddNamespace(entityType.ClrType, parameters.Namespaces);
 
         var mainBuilder = parameters.MainBuilder;
@@ -922,14 +915,6 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             mainBuilder.AppendLine(",")
                 .Append("sharedClrType: ")
                 .Append(_code.Literal(entityType.HasSharedClrType));
-        }
-
-        var discriminatorProperty = entityType.GetDiscriminatorPropertyName();
-        if (discriminatorProperty != null)
-        {
-            mainBuilder.AppendLine(",")
-                .Append("discriminatorProperty: ")
-                .Append(_code.Literal(discriminatorProperty));
         }
 
         var changeTrackingStrategy = entityType.GetChangeTrackingStrategy();
@@ -956,6 +941,14 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             mainBuilder.AppendLine(",")
                 .Append("propertyBag: ")
                 .Append(_code.Literal(true));
+        }
+
+        var discriminatorProperty = entityType.GetDiscriminatorPropertyName();
+        if (discriminatorProperty != null)
+        {
+            mainBuilder.AppendLine(",")
+                .Append("discriminatorProperty: ")
+                .Append(_code.Literal(discriminatorProperty));
         }
 
         var discriminatorValue = entityType.GetDiscriminatorValue();
@@ -1179,18 +1172,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         var valueComparerType = (Type?)property[CoreAnnotationNames.ValueComparerType];
         if (valueComparerType != null)
         {
-            AddNamespace(valueComparerType, parameters.Namespaces);
-
-            var valueComparerString = $"new {_code.Reference(valueComparerType)}()";
-            if (property.ClrType.IsNullableValueType())
-            {
-                var valueComparerElementType = ((ValueComparer)Activator.CreateInstance(valueComparerType)!).Type;
-                if (!valueComparerElementType.IsNullableValueType())
-                {
-                    AddNamespace(typeof(NullableValueComparer<>), parameters.Namespaces);
-                    valueComparerString = $"new NullableValueComparer<{_code.Reference(valueComparerType)}>({valueComparerString})";
-                }
-            }
+            var valueComparerString = CreateValueComparerType(valueComparerType, property.ClrType, parameters);
 
             mainBuilder.AppendLine(",")
                 .Append("valueComparer: ")
@@ -1240,11 +1222,13 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             && converter != null
             && property[CoreAnnotationNames.ValueConverter] != null
             && !parameters.ForNativeAot;
+        var typeMappingSet = false;
 
         if (parameters.ForNativeAot
             || (shouldSetConverter && converter!.MappingHints != null))
         {
             shouldSetConverter = false;
+            typeMappingSet = true;
             mainBuilder.Append(variableName).Append(".TypeMapping = ");
             _annotationCodeGenerator.Create(property.GetTypeMapping(), property, propertyParameters);
             mainBuilder.AppendLine(";");
@@ -1311,12 +1295,149 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                 .AppendLine(");");
         }
 
+        var elementType = property.GetElementType();
+        if (elementType != null)
+        {
+            Check.DebugAssert(property.IsPrimitiveCollection, $"{property.Name} has an element type, but it's not a primitive collection.");
+            Create(elementType, typeMappingSet, propertyParameters);
+        }
+
         CreateAnnotations(
             property,
             _annotationCodeGenerator.Generate,
-            parameters with { TargetName = variableName });
+            propertyParameters);
 
         mainBuilder.AppendLine();
+    }
+
+    private void Create(IElementType elementType, bool typeMappingSet, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
+    {
+        var mainBuilder = parameters.MainBuilder;
+        var elementVariableName = _code.Identifier(parameters.TargetName + "ElementType", elementType, parameters.ScopeObjects, capitalize: false);
+        var elementParameters = parameters with { TargetName = elementVariableName };
+
+        mainBuilder
+            .Append("var ").Append(elementVariableName).Append(" = ")
+            .Append(parameters.TargetName).Append(".SetElementType(").IncrementIndent()
+            .Append(_code.Literal(elementType.ClrType));
+
+        if (elementType.IsNullable)
+        {
+            mainBuilder.AppendLine(",")
+                .Append("nullable: ")
+                .Append(_code.Literal(elementType.IsNullable));
+        }
+
+        if (elementType.GetMaxLength() != null)
+        {
+            mainBuilder.AppendLine(",")
+                .Append("maxLength: ")
+                .Append(_code.Literal(elementType.GetMaxLength()));
+        }
+
+        if (elementType.IsUnicode() != null)
+        {
+            mainBuilder.AppendLine(",")
+                .Append("unicode: ")
+                .Append(_code.Literal(elementType.IsUnicode()));
+        }
+
+        if (elementType.GetPrecision() != null)
+        {
+            mainBuilder.AppendLine(",")
+                .Append("precision: ")
+                .Append(_code.Literal(elementType.GetPrecision()));
+        }
+
+        if (elementType.GetScale() != null)
+        {
+            mainBuilder.AppendLine(",")
+                .Append("scale: ")
+                .Append(_code.Literal(elementType.GetScale()));
+        }
+
+        var providerClrType = elementType.GetProviderClrType();
+        if (providerClrType != null)
+        {
+            AddNamespace(providerClrType, parameters.Namespaces);
+            mainBuilder.AppendLine(",")
+                .Append("providerClrType: ")
+                .Append(_code.Literal(providerClrType));
+        }
+
+        var jsonValueReaderWriterType = (Type?)elementType[CoreAnnotationNames.JsonValueReaderWriterType];
+        if (jsonValueReaderWriterType != null)
+        {
+            mainBuilder.AppendLine(",")
+                .Append("jsonValueReaderWriter: ");
+            CSharpRuntimeAnnotationCodeGenerator.CreateJsonValueReaderWriter(jsonValueReaderWriterType, parameters, _code);
+        }
+
+        mainBuilder
+            .AppendLine(");")
+            .DecrementIndent();
+
+        var converter = elementType.FindTypeMapping()?.Converter;
+        var shouldSetConverter = providerClrType == null
+            && converter != null
+            && elementType[CoreAnnotationNames.ValueConverter] != null
+            && !parameters.ForNativeAot;
+
+        if (parameters.ForNativeAot
+            || (shouldSetConverter && converter!.MappingHints != null))
+        {
+            shouldSetConverter = false;
+            mainBuilder.Append(elementVariableName).Append(".TypeMapping = ");
+
+            if (typeMappingSet)
+            {
+                mainBuilder.Append(parameters.TargetName).Append(".TypeMapping.ElementTypeMapping");
+            }
+            else
+            {
+                _annotationCodeGenerator.Create(elementType.GetTypeMapping(), elementParameters);
+            }
+
+            mainBuilder.AppendLine(";");
+        }
+
+        if (shouldSetConverter)
+        {
+            mainBuilder.Append(elementVariableName).Append(".SetValueConverter(");
+            _annotationCodeGenerator.Create(converter!, parameters);
+            mainBuilder.AppendLine(");");
+        }
+
+        var valueComparer = elementType.GetValueComparer();
+        var typeMappingComparer = elementType.GetTypeMapping().Comparer;
+        if ((!parameters.ForNativeAot || valueComparer != typeMappingComparer)
+            && (parameters.ForNativeAot || elementType[CoreAnnotationNames.ValueComparer] != null))
+        {
+            SetValueComparer(valueComparer, typeMappingComparer, nameof(CoreTypeMapping.Comparer), elementParameters);
+        }
+
+        CreateAnnotations(
+            elementType,
+            _annotationCodeGenerator.Generate,
+            elementParameters);
+    }
+
+    private string CreateValueComparerType(Type valueComparerType, Type clrType, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
+    {
+        AddNamespace(valueComparerType, parameters.Namespaces);
+
+        var valueComparerString = $"new {_code.Reference(valueComparerType)}()";
+        if (clrType.IsNullableValueType())
+        {
+            var valueComparerElementType = ((ValueComparer)Activator.CreateInstance(valueComparerType)!).Type;
+            if (!valueComparerElementType.IsNullableValueType())
+            {
+                AddNamespace(typeof(NullableValueComparer<>), parameters.Namespaces);
+                valueComparerString = $"new NullableValueComparer<{_code.Reference(valueComparerType)}>({valueComparerString})";
+            }
+        }
+
+        return valueComparerString;
     }
 
     private void SetValueComparer(
@@ -1445,8 +1566,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                 out var currentValueGetter,
                 out var preStoreGeneratedCurrentValueGetter,
                 out var originalValueGetter,
-                out var relationshipSnapshotGetter,
-                out var valueBufferGetter);
+                out var relationshipSnapshotGetter);
 
             mainBuilder
                 .Append(variableName).AppendLine(".SetAccessors(")
@@ -1473,14 +1593,6 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                     _code.Expression(
                         relationshipSnapshotGetter, parameters.Namespaces, unsafeAccessors,
                         (IReadOnlyDictionary<object, string>)parameters.ScopeVariables, memberAccessReplacements), skipFinalNewline: true)
-                .AppendLine(",")
-                .AppendLines(
-                    valueBufferGetter == null
-                        ? "null"
-                        : _code.Expression(
-                            valueBufferGetter, parameters.Namespaces, unsafeAccessors,
-                            (IReadOnlyDictionary<object, string>)parameters.ScopeVariables, memberAccessReplacements),
-                    skipFinalNewline: true)
                 .AppendLine(");")
                 .DecrementIndent();
 
@@ -2051,6 +2163,24 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                     mainBuilder.AppendLine(",")
                         .Append("propertyBag: ")
                         .Append(_code.Literal(true));
+                }
+
+                var discriminatorPropertyName = complexType.GetDiscriminatorPropertyName();
+                if (discriminatorPropertyName != null)
+                {
+                    mainBuilder.AppendLine(",")
+                        .Append("discriminatorProperty: ")
+                        .Append(_code.Literal(discriminatorPropertyName));
+                }
+
+                var discriminatorValue = complexType.GetDiscriminatorValue();
+                if (discriminatorValue != null)
+                {
+                    AddNamespace(discriminatorValue.GetType(), parameters.Namespaces);
+
+                    mainBuilder.AppendLine(",")
+                        .Append("discriminatorValue: ")
+                        .Append(_code.UnknownLiteral(discriminatorValue));
                 }
 
                 mainBuilder.AppendLine(",")

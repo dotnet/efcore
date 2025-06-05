@@ -15,19 +15,22 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
             async,
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => new[] { 10, 999 }.Contains(c.Int)));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Inline_collection_of_nullable_ints_Contains(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => new int?[] { 10, 999 }.Contains(c.NullableInt)));
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Inline_collection_of_nullable_ints_Contains_null(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => new int?[] { null, 999 }.Contains(c.NullableInt)));
+    // TODO: The following no longer compile since https://github.com/dotnet/runtime/pull/110197 (Contains overload added with optional
+    // parameter, not supported in expression trees). #35547 is tracking on the EF side.
+    //
+    // [ConditionalTheory]
+    // [MemberData(nameof(IsAsyncData))]
+    // public virtual Task Inline_collection_of_nullable_ints_Contains(bool async)
+    //     => AssertQuery(
+    //         async,
+    //         ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => new int?[] { 10, 999 }.Contains(c.NullableInt)));
+    //
+    // [ConditionalTheory]
+    // [MemberData(nameof(IsAsyncData))]
+    // public virtual Task Inline_collection_of_nullable_ints_Contains_null(bool async)
+    //     => AssertQuery(
+    //         async,
+    //         ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => new int?[] { null, 999 }.Contains(c.NullableInt)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -383,42 +386,155 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Parameter_collection_of_ints_Contains_nullable_int(bool async)
     {
-        var ints = new int?[] { 10, 999 };
+        var ints = new[] { 10, 999 };
 
         await AssertQuery(
             async,
-            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => ints.Contains(c.NullableInt)));
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => ints.Contains(c.NullableInt!.Value)),
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.NullableInt != null && ints.Contains(c.NullableInt!.Value)));
         await AssertQuery(
             async,
-            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => !ints.Contains(c.NullableInt)));
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => !ints.Contains(c.NullableInt!.Value)),
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.NullableInt == null || !ints.Contains(c.NullableInt!.Value)));
+    }
+
+    // TODO: The following no longer compile since https://github.com/dotnet/runtime/pull/110197 (Contains overload added with optional
+    // parameter, not supported in expression trees). #35547 is tracking on the EF side.
+    //
+    // [ConditionalTheory]
+    // [MemberData(nameof(IsAsyncData))]
+    // public virtual async Task Parameter_collection_of_nullable_ints_Contains_int(bool async)
+    // {
+    //     var nullableInts = new int?[] { 10, 999 };
+    //
+    //     await AssertQuery(
+    //         async,
+    //         ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => nullableInts.Contains(c.Int)));
+    //     await AssertQuery(
+    //         async,
+    //         ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => !nullableInts.Contains(c.Int)));
+    // }
+    //
+    // [ConditionalTheory]
+    // [MemberData(nameof(IsAsyncData))]
+    // public virtual async Task Parameter_collection_of_nullable_ints_Contains_nullable_int(bool async)
+    // {
+    //     var nullableInts = new int?[] { null, 999 };
+    //
+    //     await AssertQuery(
+    //         async,
+    //         ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => nullableInts.Contains(c.NullableInt)));
+    //     await AssertQuery(
+    //         async,
+    //         ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => !nullableInts.Contains(c.NullableInt)));
+    // }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Parameter_collection_of_structs_Contains_struct(bool async)
+    {
+        var values = new List<WrappedId> { new(22), new(33) };
+
+        await AssertQuery(
+            async,
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => values.Contains(c.WrappedId)));
+
+        values = new List<WrappedId> { new(11), new(44) };
+
+        await AssertQuery(
+            async,
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => !values.Contains(c.WrappedId)));
     }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Parameter_collection_of_nullable_ints_Contains_int(bool async)
+    public virtual async Task Parameter_collection_of_structs_Contains_nullable_struct(bool async)
     {
-        var nullableInts = new int?[] { 10, 999 };
+        var values = new List<WrappedId> { new(22), new(33) };
 
         await AssertQuery(
             async,
-            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => nullableInts.Contains(c.Int)));
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => values.Contains(c.NullableWrappedId!.Value)),
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.NullableWrappedId != null && values.Contains(c.NullableWrappedId.Value)));
+
+        values = new List<WrappedId> { new(11), new(44) };
+
         await AssertQuery(
             async,
-            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => !nullableInts.Contains(c.Int)));
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => !values.Contains(c.NullableWrappedId!.Value)),
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.NullableWrappedId == null || !values.Contains(c.NullableWrappedId!.Value)));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))] // Issue #35117
+    public virtual async Task Parameter_collection_of_structs_Contains_nullable_struct_with_nullable_comparer(bool async)
+    {
+        var values = new List<WrappedId> { new(22), new(33) };
+
+        await AssertQuery(
+            async,
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => values.Contains(c.NullableWrappedIdWithNullableComparer!.Value)),
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(
+                c => c.NullableWrappedIdWithNullableComparer != null && values.Contains(c.NullableWrappedIdWithNullableComparer.Value)));
+
+        values = new List<WrappedId> { new(11), new(44) };
+
+        await AssertQuery(
+            async,
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => !values.Contains(c.NullableWrappedId!.Value)),
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(
+                c => c.NullableWrappedIdWithNullableComparer == null || !values.Contains(c.NullableWrappedIdWithNullableComparer!.Value)));
     }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Parameter_collection_of_nullable_ints_Contains_nullable_int(bool async)
+    public virtual async Task Parameter_collection_of_nullable_structs_Contains_struct(bool async)
     {
-        var nullableInts = new int?[] { null, 999 };
+        var values = new List<WrappedId?> { null, new(22) };
 
         await AssertQuery(
             async,
-            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => nullableInts.Contains(c.NullableInt)));
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => values.Contains(c.WrappedId)));
+
+        values = new List<WrappedId?> { new(11), new(44) };
+
         await AssertQuery(
             async,
-            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => !nullableInts.Contains(c.NullableInt)));
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => !values.Contains(c.WrappedId)));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Parameter_collection_of_nullable_structs_Contains_nullable_struct(bool async)
+    {
+        var values = new List<WrappedId?> { null, new(22) };
+
+        await AssertQuery(
+            async,
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => values.Contains(c.NullableWrappedId)));
+
+        values = new List<WrappedId?> { new(11), new(44) };
+
+        await AssertQuery(
+            async,
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => !values.Contains(c.NullableWrappedId)));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Parameter_collection_of_nullable_structs_Contains_nullable_struct_with_nullable_comparer(bool async)
+    {
+        var values = new List<WrappedId?> { null, new(22) };
+
+        await AssertQuery(
+            async,
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => values.Contains(c.NullableWrappedIdWithNullableComparer)));
+
+        values = new List<WrappedId?> { new(11), new(44) };
+
+        await AssertQuery(
+            async,
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => !values.Contains(c.NullableWrappedIdWithNullableComparer)));
     }
 
     [ConditionalTheory]
@@ -439,7 +555,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Parameter_collection_of_strings_Contains_nullable_string(bool async)
     {
-        var strings = new[] { "10", "999" };
+        string?[] strings = ["10", "999"];
 
         await AssertQuery(
             async,
@@ -504,16 +620,19 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => bools.Contains(c.Bool)));
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Parameter_collection_of_enums_Contains(bool async)
-    {
-        var enums = new[] { MyEnum.Value1, MyEnum.Value4 };
-
-        return AssertQuery(
-            async,
-            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => enums.Contains(c.Enum)));
-    }
+    // TODO: The following no longer compiles since https://github.com/dotnet/runtime/pull/110197 (Contains overload added with optional
+    // parameter, not supported in expression trees). #35547 is tracking on the EF side.
+    //
+    // [ConditionalTheory]
+    // [MemberData(nameof(IsAsyncData))]
+    // public virtual Task Parameter_collection_of_enums_Contains(bool async)
+    // {
+    //     var enums = new[] { MyEnum.Value1, MyEnum.Value4 };
+    //
+    //     return AssertQuery(
+    //         async,
+    //         ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => enums.Contains(c.Enum)));
+    // }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -571,26 +690,29 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
             async,
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.Ints.Contains(10)));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Column_collection_of_nullable_ints_Contains(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.NullableInts.Contains(10)));
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Column_collection_of_nullable_ints_Contains_null(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.NullableInts.Contains(null)));
+    // TODO: The following no longer compile since https://github.com/dotnet/runtime/pull/110197 (Contains overload added with optional
+    // parameter, not supported in expression trees). #35547 is tracking on the EF side.
+    //
+    // [ConditionalTheory]
+    // [MemberData(nameof(IsAsyncData))]
+    // public virtual Task Column_collection_of_nullable_ints_Contains(bool async)
+    //     => AssertQuery(
+    //         async,
+    //         ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.NullableInts.Contains(10)));
+    //
+    // [ConditionalTheory]
+    // [MemberData(nameof(IsAsyncData))]
+    // public virtual Task Column_collection_of_nullable_ints_Contains_null(bool async)
+    //     => AssertQuery(
+    //         async,
+    //         ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.NullableInts.Contains(null)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Column_collection_of_strings_contains_null(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.Strings.Contains(null)),
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => ((string?[])c.Strings).Contains(null)),
             assertEmpty: true);
 
     [ConditionalTheory]
@@ -1375,6 +1497,13 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(e => strings.Contains(ints.Contains(e.Int) ? "one" : "two")));
     }
 
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Values_of_enum_casted_to_underlying_value(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(x => Enum.GetValues<MyEnum>().Cast<int>().Count(y => y == x.Int) > 0));
+
     public abstract class PrimitiveCollectionsQueryFixtureBase : SharedStoreFixtureBase<PrimitiveCollectionsContext>, IQueryFixtureBase
     {
         private PrimitiveCollectionsData? _expectedData;
@@ -1386,7 +1515,21 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
             => () => CreateContext();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
-            => modelBuilder.Entity<PrimitiveCollectionsEntity>().Property(p => p.Id).ValueGeneratedNever();
+            => modelBuilder.Entity<PrimitiveCollectionsEntity>(
+                b =>
+                {
+                    b.Property(e => e.Id).ValueGeneratedNever();
+                    b.Property(e => e.WrappedId).HasConversion<WrappedIdConverter>();
+                    b.Property(e => e.NullableWrappedId).HasConversion<WrappedIdConverter>();
+                    b.Property(e => e.NullableWrappedIdWithNullableComparer).HasConversion<NullableWrappedIdConverter>();
+                });
+
+        protected class WrappedIdConverter() : ValueConverter<WrappedId, int>(v => v.Value, v => new(v));
+
+        // Note that value comparers over nullable value types are not a good idea, unless the comparer is handling nulls itself.
+        protected class NullableWrappedIdConverter() : ValueConverter<WrappedId?, int?>(
+            id => id == null ? null : id.Value.Value,
+            value => value == null ? null : new WrappedId(value.Value));
 
         protected override Task SeedAsync(PrimitiveCollectionsContext context)
         {
@@ -1436,9 +1579,12 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
         public int Int { get; set; }
         public DateTime DateTime { get; set; }
         public bool Bool { get; set; }
+        public WrappedId WrappedId { get; set; }
         public MyEnum Enum { get; set; }
         public int? NullableInt { get; set; }
         public string? NullableString { get; set; }
+        public WrappedId? NullableWrappedId { get; set; }
+        public WrappedId? NullableWrappedIdWithNullableComparer { get; set; }
 
         public required string[] Strings { get; set; }
         public required int[] Ints { get; set; }
@@ -1448,6 +1594,8 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
         public required int?[] NullableInts { get; set; }
         public required string?[] NullableStrings { get; set; }
     }
+
+    public readonly record struct WrappedId(int Value);
 
     public enum MyEnum { Value1, Value2, Value3, Value4 }
 
@@ -1480,8 +1628,11 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
                     DateTime = new DateTime(2020, 1, 10, 12, 30, 0, DateTimeKind.Utc),
                     Bool = true,
                     Enum = MyEnum.Value1,
+                    WrappedId = new(22),
                     NullableInt = 10,
                     NullableString = "10",
+                    NullableWrappedId = new(22),
+                    NullableWrappedIdWithNullableComparer = new(22),
                     Ints = [1, 10],
                     Strings = ["1", "10"],
                     DateTimes =
@@ -1491,7 +1642,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
                     Bools = [true, false],
                     Enums = [MyEnum.Value1, MyEnum.Value2],
                     NullableInts = [1, 10],
-                    NullableStrings = ["1", "10"]
+                    NullableStrings = ["1", "10"],
                 },
                 new()
                 {
@@ -1501,8 +1652,11 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
                     DateTime = new DateTime(2020, 1, 11, 12, 30, 0, DateTimeKind.Utc),
                     Bool = false,
                     Enum = MyEnum.Value2,
+                    WrappedId = new(22),
                     NullableInt = null,
                     NullableString = null,
+                    NullableWrappedId = null,
+                    NullableWrappedIdWithNullableComparer = null,
                     Ints = [1, 11, 111],
                     Strings = ["1", "11", "111"],
                     DateTimes =
@@ -1524,8 +1678,11 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
                     DateTime = new DateTime(2022, 1, 10, 12, 30, 0, DateTimeKind.Utc),
                     Bool = true,
                     Enum = MyEnum.Value1,
+                    WrappedId = new(22),
                     NullableInt = 20,
                     NullableString = "20",
+                    NullableWrappedId = new(22),
+                    NullableWrappedIdWithNullableComparer = new(22),
                     Ints = [1, 1, 10, 10, 10, 1, 10],
                     Strings = ["1", "10", "10", "1", "1"],
                     DateTimes =
@@ -1549,8 +1706,11 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
                     DateTime = new DateTime(2024, 1, 11, 12, 30, 0, DateTimeKind.Utc),
                     Bool = false,
                     Enum = MyEnum.Value2,
+                    WrappedId = new(22),
                     NullableInt = null,
                     NullableString = null,
+                    NullableWrappedId = null,
+                    NullableWrappedIdWithNullableComparer = null,
                     Ints = [1, 1, 111, 11, 1, 111],
                     Strings = ["1", "11", "111", "11"],
                     DateTimes =
@@ -1567,7 +1727,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
                     Bools = [false],
                     Enums = [MyEnum.Value2, MyEnum.Value3],
                     NullableInts = [null, null],
-                    NullableStrings = [null, null]
+                    NullableStrings = [null, null],
                 },
                 new()
                 {
@@ -1577,8 +1737,11 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
                     DateTime = new DateTime(2000, 1, 1, 0, 0, 0, DateTimeKind.Utc),
                     Bool = false,
                     Enum = MyEnum.Value1,
+                    WrappedId = new(22),
+                    NullableWrappedIdWithNullableComparer = null,
                     NullableInt = null,
                     NullableString = null,
+                    NullableWrappedId = null,
                     Ints = [],
                     Strings = [],
                     DateTimes = [],
