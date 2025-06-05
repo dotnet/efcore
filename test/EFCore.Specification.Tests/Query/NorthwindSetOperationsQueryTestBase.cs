@@ -82,6 +82,19 @@ public abstract class NorthwindSetOperationsQueryTestBase<TFixture> : QueryTestB
                 .Except(ss.Set<Customer>().Where(s => s.City == "México D.F."))
                 .Except(ss.Set<Customer>().Where(e => e.City == "Seattle")));
 
+    // EXCEPT is non-commutative, unlike UNION/INTERSECT. Therefore, parentheses are needed in the following query
+    // to ensure that the inner EXCEPT is evaluated first. See #36105.
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Except_nested2(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>()
+                .Except(ss.Set<Customer>()
+                    .Where(s => s.City == "Seattle")
+                    .Except(ss.Set<Customer>()
+                        .Where(e => e.City == "Seattle"))));
+
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Except_non_entity(bool async)
@@ -220,6 +233,17 @@ public abstract class NorthwindSetOperationsQueryTestBase<TFixture> : QueryTestB
                 .Where(c => c.City == "Berlin")
                 .Union(ss.Set<Customer>().Where(c => c.City == "London"))
                 .Intersect(ss.Set<Customer>().Where(c => c.ContactName.Contains("Thomas"))));
+
+    // The evaluation order of Concat and Union can matter: A UNION ALL (B UNION C) can be different from (A UNION ALL B) UNION C.
+    // Make sure parentheses are added.
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Union_inside_Concat(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.City == "Berlin")
+                .Concat(ss.Set<Customer>().Where(c => c.City == "London")
+                    .Union(ss.Set<Customer>().Where(c => c.City == "Berlin"))));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
