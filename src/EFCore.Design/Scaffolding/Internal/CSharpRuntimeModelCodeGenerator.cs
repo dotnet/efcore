@@ -1509,6 +1509,8 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                 out var structuralGetterExpression,
                 out var hasStructuralSentinelExpression);
 
+            // TODO: Only use the last two for entity properties
+
             mainBuilder
                 .Append(variableName).AppendLine(".SetGetter(")
                 .IncrementIndent()
@@ -1557,6 +1559,34 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                         (IReadOnlyDictionary<object, string>)parameters.ScopeVariables, memberAccessReplacements), skipFinalNewline: true)
                 .AppendLine(");")
                 .DecrementIndent();
+
+            if (property.IsCollection)
+            {
+                ClrIndexedCollectionAccessorFactory.Instance.Create(
+                    property,
+                    out _, out _, out _,
+                    out var get, out var set, out var setForMaterialization);
+
+                mainBuilder
+                    .Append(variableName).AppendLine(".SetIndexedCollectionAccessor(")
+                    .IncrementIndent()
+                    .AppendLines(
+                        _code.Expression(
+                            get!, parameters.Namespaces, unsafeAccessors,
+                            (IReadOnlyDictionary<object, string>)parameters.ScopeVariables, memberAccessReplacements), skipFinalNewline: true)
+                    .AppendLine(",")
+                    .AppendLines(
+                        _code.Expression(
+                            set!, parameters.Namespaces, unsafeAccessors,
+                            (IReadOnlyDictionary<object, string>)parameters.ScopeVariables, memberAccessReplacements), skipFinalNewline: true)
+                    .AppendLine(",")
+                    .AppendLines(
+                        _code.Expression(
+                            setForMaterialization!, parameters.Namespaces, unsafeAccessors,
+                            (IReadOnlyDictionary<object, string>)parameters.ScopeVariables, memberAccessReplacements), skipFinalNewline: true)
+                    .AppendLine(");")
+                    .DecrementIndent();
+            }
         }
 
         if (property is not IServiceProperty)

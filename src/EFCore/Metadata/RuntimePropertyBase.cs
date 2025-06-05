@@ -25,6 +25,7 @@ public abstract class RuntimePropertyBase : RuntimeAnnotatableBase, IRuntimeProp
     private IClrPropertyGetter? _getter;
     private IClrPropertySetter? _setter;
     private IClrPropertySetter? _materializationSetter;
+    private IClrIndexedCollectionAccessor? _clrIndexedCollectionAccessor;
     private PropertyAccessors? _accessors;
     private PropertyIndexes? _indexes;
     private IComparer<IUpdateEntry>? _currentValueComparer;
@@ -86,6 +87,9 @@ public abstract class RuntimePropertyBase : RuntimeAnnotatableBase, IRuntimeProp
     /// <inheritdoc />
     public abstract object? Sentinel { get; }
 
+    /// <inheritdoc />
+    public abstract bool IsCollection { get; }
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -114,6 +118,7 @@ public abstract class RuntimePropertyBase : RuntimeAnnotatableBase, IRuntimeProp
         Func<IInternalEntry, TProperty>? originalValueGetter,
         Func<IInternalEntry, TProperty> relationshipSnapshotGetter)
         => _accessors = new PropertyAccessors(
+            this,
             currentValueGetter,
             preStoreGeneratedCurrentValueGetter,
             originalValueGetter,
@@ -126,9 +131,10 @@ public abstract class RuntimePropertyBase : RuntimeAnnotatableBase, IRuntimeProp
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    public virtual void SetMaterializationSetter<TEntity, TValue>(Action<TEntity, TValue> setter)
+    public virtual void SetMaterializationSetter<TEntity, TValue>(
+        Action<TEntity, ReadOnlySpan<int>, TValue> setClrValueUsingContainingEntity)
         where TEntity : class
-        => _materializationSetter = new ClrPropertySetter<TEntity, TValue>(setter);
+        => _materializationSetter = new ClrPropertySetter<TEntity, TValue>(setClrValueUsingContainingEntity);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -137,9 +143,14 @@ public abstract class RuntimePropertyBase : RuntimeAnnotatableBase, IRuntimeProp
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    public virtual void SetSetter<TEntity, TValue>(Action<TEntity, TValue> setter)
+    public virtual void SetMaterializationSetter<TEntity, TValue>(
+        Action<TEntity, TValue> setClrValue)
         where TEntity : class
-        => _setter = new ClrPropertySetter<TEntity, TValue>(setter);
+    {
+        Check.DebugAssert(DeclaringType is IEntityType, $"Declaring type for {Name} is not an IEntityType");
+
+        _materializationSetter = new ClrPropertySetter<TEntity, TValue>((e, _, v) => setClrValue(e, v));
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -148,14 +159,75 @@ public abstract class RuntimePropertyBase : RuntimeAnnotatableBase, IRuntimeProp
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    public virtual void SetGetter<TEntity, TStructuralType, TValue>(
-        Func<TEntity, TValue> getter,
-        Func<TEntity, bool> hasDefaultValue,
-        Func<TStructuralType, TValue> structuralTypeGetter,
-        Func<TStructuralType, bool> hasStructuralTypeSentinelValue)
+    public virtual void SetIndexedCollectionAccessor<TEntity, TElement>(
+        Func<TEntity, int, TElement> get,
+        Action<TEntity, int, TElement> set,
+        Action<TEntity, int, TElement> setForMaterialization)
         where TEntity : class
-        => _getter = new ClrPropertyGetter<TEntity, TStructuralType, TValue>(
-            getter, hasDefaultValue, structuralTypeGetter, hasStructuralTypeSentinelValue);
+        => _clrIndexedCollectionAccessor = new ClrIndexedCollectionAccessor<TEntity, TElement>(
+            Name,
+            ((IReadOnlyProperty)this).IsShadowProperty(),
+            get,
+            set,
+            setForMaterialization);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public virtual void SetSetter<TEntity, TValue>(
+        Action<TEntity, ReadOnlySpan<int>, TValue> setClrValueUsingContainingEntity)
+        where TEntity : class
+        => _setter = new ClrPropertySetter<TEntity, TValue>(setClrValueUsingContainingEntity);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public virtual void SetSetter<TEntity, TValue>(
+        Action<TEntity, TValue> setClrValue)
+        where TEntity : class
+    {
+        Check.DebugAssert(DeclaringType is IEntityType, $"Declaring type for {Name} is not an IEntityType");
+
+        _setter = new ClrPropertySetter<TEntity, TValue>((e, _, v) => setClrValue(e, v));
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public virtual void SetGetter<TEntity, TStructural, TValue>(
+        Func<TEntity, ReadOnlySpan<int>, TValue> getClrValueUsingContainingEntity,
+        Func<TEntity, ReadOnlySpan<int>, bool> hasSentinelUsingContainingEntity,
+        Func<TStructural, TValue> getClrValue,
+        Func<TStructural, bool> hasSentinel)
+        where TEntity : class
+        => _getter = new ClrPropertyGetter<TEntity, TStructural, TValue>(
+            getClrValueUsingContainingEntity, hasSentinelUsingContainingEntity, getClrValue, hasSentinel);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public virtual void SetGetter<TEntity, TValue>(
+        Func<TEntity, TValue> getClrValue,
+        Func<TEntity, bool> hasSentinel)
+        where TEntity : class
+        => _getter = new ClrPropertyGetter<TEntity, TEntity, TValue>(
+            (e, _) => getClrValue(e), (e, _) => hasSentinel(e), getClrValue, hasSentinel);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -182,20 +254,12 @@ public abstract class RuntimePropertyBase : RuntimeAnnotatableBase, IRuntimeProp
     }
 
     /// <inheritdoc />
-    IClrPropertySetter IRuntimePropertyBase.MaterializationSetter
-        => NonCapturingLazyInitializer.EnsureInitialized(
-            ref _materializationSetter, this, static property =>
-                RuntimeFeature.IsDynamicCodeSupported
-                    ? ClrPropertyMaterializationSetterFactory.Instance.Create(property)
-                    : throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel));
-
-    /// <inheritdoc />
-    PropertyAccessors IRuntimePropertyBase.Accessors
-        => NonCapturingLazyInitializer.EnsureInitialized(
-            ref _accessors, this, static property =>
-                RuntimeFeature.IsDynamicCodeSupported
-                    ? PropertyAccessorsFactory.Instance.Create(property)
-                    : throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel));
+    [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)]
+    Type IReadOnlyPropertyBase.ClrType
+    {
+        [DebuggerStepThrough]
+        get => ClrType;
+    }
 
     /// <inheritdoc />
     PropertyIndexes IRuntimePropertyBase.PropertyIndexes
@@ -210,12 +274,30 @@ public abstract class RuntimePropertyBase : RuntimeAnnotatableBase, IRuntimeProp
     }
 
     /// <inheritdoc />
-    [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)]
-    Type IReadOnlyPropertyBase.ClrType
-    {
-        [DebuggerStepThrough]
-        get => ClrType;
-    }
+    PropertyAccessors IRuntimePropertyBase.Accessors
+        => NonCapturingLazyInitializer.EnsureInitialized(
+            ref _accessors, this, static property =>
+                RuntimeFeature.IsDynamicCodeSupported
+                    ? PropertyAccessorsFactory.Instance.Create(property)
+                    : throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel));
+
+    /// <inheritdoc />
+    IClrPropertySetter IRuntimePropertyBase.MaterializationSetter
+        => NonCapturingLazyInitializer.EnsureInitialized(
+            ref _materializationSetter, this, static property =>
+                RuntimeFeature.IsDynamicCodeSupported
+                    ? ClrPropertyMaterializationSetterFactory.Instance.Create(property)
+                    : throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel));
+
+    /// <inheritdoc />
+    IClrIndexedCollectionAccessor? IRuntimePropertyBase.GetIndexedCollectionAccessor()
+        => IsCollection
+            ? NonCapturingLazyInitializer.EnsureInitialized(
+                ref _clrIndexedCollectionAccessor, this, static property =>
+                RuntimeFeature.IsDynamicCodeSupported
+                    ? ClrIndexedCollectionAccessorFactory.Instance.Create(property)!
+                    : throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel))
+            : null;
 
     /// <inheritdoc />
     IClrPropertySetter IRuntimePropertyBase.GetSetter()

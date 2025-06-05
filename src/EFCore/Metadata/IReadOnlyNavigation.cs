@@ -85,7 +85,7 @@ public interface IReadOnlyNavigation : IReadOnlyNavigationBase
     /// <summary>
     ///     Gets a value indicating whether the navigation property is a collection property.
     /// </summary>
-    bool IReadOnlyNavigationBase.IsCollection
+    bool IReadOnlyPropertyBase.IsCollection
     {
         [DebuggerStepThrough]
         get => !IsOnDependent && !ForeignKey.IsUnique;

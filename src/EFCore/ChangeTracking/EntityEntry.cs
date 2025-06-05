@@ -4,6 +4,7 @@
 using System.ComponentModel;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -143,7 +144,9 @@ public class EntityEntry : IInfrastructure<InternalEntityEntry>
         return propertyBase switch
         {
             IProperty property => new PropertyEntry(InternalEntry, property),
-            IComplexProperty complexProperty => new ComplexPropertyEntry(InternalEntry, complexProperty),
+            IComplexProperty complexProperty => complexProperty.IsCollection
+                ? new ComplexCollectionEntry(InternalEntry, complexProperty)
+                : new ComplexPropertyEntry(InternalEntry, complexProperty),
             INavigationBase navigation => navigation.IsCollection
                 ? new CollectionEntry(InternalEntry, navigation)
                 : new ReferenceEntry(InternalEntry, (INavigation)navigation),
@@ -175,7 +178,9 @@ public class EntityEntry : IInfrastructure<InternalEntityEntry>
         var complexProperty = InternalEntry.EntityType.FindComplexProperty(propertyName);
         if (complexProperty != null)
         {
-            return new ComplexPropertyEntry(InternalEntry, complexProperty);
+            return complexProperty.IsCollection
+                ? new ComplexCollectionEntry(InternalEntry, complexProperty)
+                : new ComplexPropertyEntry(InternalEntry, complexProperty);
         }
 
         var navigation = (INavigationBase?)InternalEntry.EntityType.FindNavigation(propertyName)
@@ -199,7 +204,7 @@ public class EntityEntry : IInfrastructure<InternalEntityEntry>
     ///     examples.
     /// </remarks>
     public virtual IEnumerable<MemberEntry> Members
-        => Properties.Cast<MemberEntry>().Concat(ComplexProperties).Concat(Navigations);
+        => Properties.Cast<MemberEntry>().Concat(ComplexProperties).Concat(ComplexCollections).Concat(Navigations);
 
     /// <summary>
     ///     Provides access to change tracking information and operations for a given navigation of this entity.
@@ -275,8 +280,8 @@ public class EntityEntry : IInfrastructure<InternalEntityEntry>
                 .Concat<INavigationBase>(entityType.GetSkipNavigations())
                 .Select(
                     navigation => navigation.IsCollection
-                        ? (NavigationEntry)new CollectionEntry(InternalEntry, navigation.Name)
-                        : new ReferenceEntry(InternalEntry, navigation.Name));
+                        ? (NavigationEntry)new CollectionEntry(InternalEntry, navigation)
+                        : new ReferenceEntry(InternalEntry, navigation));
         }
     }
 
@@ -363,7 +368,49 @@ public class EntityEntry : IInfrastructure<InternalEntityEntry>
     ///     examples.
     /// </remarks>
     public virtual IEnumerable<ComplexPropertyEntry> ComplexProperties
-        => Metadata.GetComplexProperties().Select(property => new ComplexPropertyEntry(InternalEntry, property));
+        => Metadata.GetComplexProperties().Where(p => !p.IsCollection).Select(property => new ComplexPropertyEntry(InternalEntry, property));
+
+    /// <summary>
+    ///     Provides access to change tracking information and operations for a given collection property of a complex type on this entity.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information and
+    ///     examples.
+    /// </remarks>
+    /// <param name="property">The property to access information and operations for.</param>
+    /// <returns>An object that exposes change tracking information and operations for the given property.</returns>
+    public virtual ComplexCollectionEntry ComplexCollection(IComplexProperty property)
+    {
+        Check.NotNull(property, nameof(property));
+
+        return new ComplexCollectionEntry(InternalEntry, property);
+    }
+
+    /// <summary>
+    ///     Provides access to change tracking information and operations for a given collection property of a complex type on this entity.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information and
+    ///     examples.
+    /// </remarks>
+    /// <param name="propertyName">The property to access information and operations for.</param>
+    /// <returns>An object that exposes change tracking information and operations for the given property.</returns>
+    public virtual ComplexCollectionEntry ComplexCollection(string propertyName)
+    {
+        Check.NotEmpty(propertyName, nameof(propertyName));
+
+        return new ComplexCollectionEntry(InternalEntry, Metadata.GetComplexProperty(propertyName));
+    }
+
+    /// <summary>
+    ///     Provides access to change tracking information and operations for all collection properties of complex type on this entity.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information and
+    ///     examples.
+    /// </remarks>
+    public virtual IEnumerable<ComplexCollectionEntry> ComplexCollections
+        => Metadata.GetComplexProperties().Where(p => p.IsCollection).Select(property => new ComplexCollectionEntry(InternalEntry, property));
 
     /// <summary>
     ///     Provides access to change tracking and loading information for a reference (i.e. non-collection)
@@ -415,7 +462,9 @@ public class EntityEntry : IInfrastructure<InternalEntityEntry>
     ///     for more information and examples.
     /// </remarks>
     public virtual IEnumerable<ReferenceEntry> References
-        => InternalEntry.EntityType.GetNavigations().Where(n => !n.IsCollection)
+        => InternalEntry.EntityType.GetNavigations()
+            .Concat<INavigationBase>(InternalEntry.EntityType.GetSkipNavigations())
+            .Where(n => !n.IsCollection)
             .Select(navigation => new ReferenceEntry(InternalEntry, navigation));
 
     /// <summary>
@@ -476,7 +525,7 @@ public class EntityEntry : IInfrastructure<InternalEntityEntry>
             return entityType.GetNavigations()
                 .Concat<INavigationBase>(entityType.GetSkipNavigations())
                 .Where(navigation => navigation.IsCollection)
-                .Select(navigation => new CollectionEntry(InternalEntry, navigation.Name));
+                .Select(navigation => new CollectionEntry(InternalEntry, navigation));
         }
     }
 
