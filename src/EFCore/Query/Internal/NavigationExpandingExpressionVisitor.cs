@@ -1746,7 +1746,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         var queryFilters = GetApplicableQueryFilters(rootEntityType);
 
 
-        if (queryFilters == null || queryFilters.Count <= 0)
+        if (queryFilters.Count == 0)
         {
             return navigationExpansionExpression;
         }
