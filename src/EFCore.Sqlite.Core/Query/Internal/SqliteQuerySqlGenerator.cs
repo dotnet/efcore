@@ -14,9 +14,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
 /// </summary>
 public class SqliteQuerySqlGenerator : QuerySqlGenerator
 {
-    private static readonly bool UseOldBehavior36112 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue36112", out var enabled36112) && enabled36112;
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
