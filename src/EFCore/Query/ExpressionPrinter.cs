@@ -469,7 +469,9 @@ public class ExpressionPrinter : ExpressionVisitor
                 printable.Print(this);
                 break;
 
-            case IQueryable queryable:
+            // EnumerableQuery is returned by AsQueryable(), and can be a constant as a result of funcletization.
+            // We need to print these as a regular enumerable as it doesn't represent a query tree.
+            case IQueryable queryable and not EnumerableQuery:
                 Visit(queryable.Expression);
                 break;
 

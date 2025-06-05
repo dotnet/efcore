@@ -1,11 +1,9 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal;
@@ -23,7 +21,8 @@ public class LazyLoader : ILazyLoader, IInjectableService
     private bool _detached;
     private IDictionary<string, bool>? _loadedStates;
     private readonly Lock _isLoadingLock = new Lock();
-    private readonly Dictionary<(object Entity, string NavigationName), (TaskCompletionSource TaskCompletionSource, AsyncLocal<int> Depth)> _isLoading = new(NavEntryEqualityComparer.Instance);
+    private readonly Dictionary<(object Entity, string NavigationName), TaskCompletionSource> _isLoading = new(NavEntryEqualityComparer.Instance);
+    private static readonly AsyncLocal<int> _isLoadingCallDepth = new();
     private HashSet<string>? _nonLazyNavigations;
 
     /// <summary>
@@ -112,26 +111,28 @@ public class LazyLoader : ILazyLoader, IInjectableService
         var navEntry = (entity, navigationName);
 
         bool exists;
-        (TaskCompletionSource TaskCompletionSource, AsyncLocal<int> Depth) isLoadingValue;
+        TaskCompletionSource isLoadingValue;
 
         lock (_isLoadingLock)
         {
             ref var refIsLoadingValue = ref CollectionsMarshal.GetValueRefOrAddDefault(_isLoading, navEntry, out exists);
             if (!exists)
             {
-                refIsLoadingValue = (new(), new());
+                refIsLoadingValue = new();
             }
+            _isLoadingCallDepth.Value++;
             isLoadingValue = refIsLoadingValue!;
-            isLoadingValue.Depth.Value++;
         }
 
         if (exists)
         {
-            // Only waits for the outermost call on the call stack. See  #35528.
-            if (isLoadingValue.Depth.Value == 1)
+            // Only waits for the outermost call on the call stack. See #35528.
+            // if _isLoadingCallDepth.Value > 1 the call is recursive, waiting probably generates a deadlock See #35832.
+            if (_isLoadingCallDepth.Value == 1)
             {
-                isLoadingValue.TaskCompletionSource.Task.Wait();
+                isLoadingValue.Task.Wait();
             }
+            _isLoadingCallDepth.Value--;
             return;
         }
 
@@ -156,7 +157,8 @@ public class LazyLoader : ILazyLoader, IInjectableService
         }
         finally
         {
-            isLoadingValue.TaskCompletionSource.TrySetResult();
+            isLoadingValue.TrySetResult();
+            _isLoadingCallDepth.Value--;
             lock (_isLoadingLock)
             {
                 _isLoading.Remove(navEntry);
@@ -181,26 +183,28 @@ public class LazyLoader : ILazyLoader, IInjectableService
         var navEntry = (entity, navigationName);
 
         bool exists;
-        (TaskCompletionSource TaskCompletionSource, AsyncLocal<int> Depth) isLoadingValue;
+        TaskCompletionSource isLoadingValue;
 
         lock (_isLoadingLock)
         {
             ref var refIsLoadingValue = ref CollectionsMarshal.GetValueRefOrAddDefault(_isLoading, navEntry, out exists);
             if (!exists)
             {
-                refIsLoadingValue = (new(), new());
+                refIsLoadingValue = new();
             }
+            _isLoadingCallDepth.Value++;
             isLoadingValue = refIsLoadingValue!;
-            isLoadingValue.Depth.Value++;
         }
 
         if (exists)
         {
-            // Only waits for the outermost call on the call stack. See  #35528.
-            if (isLoadingValue.Depth.Value == 1)
+            // Only waits for the outermost call on the call stack. See #35528.
+            // if _isLoadingCallDepth.Value > 1 the call is recursive, waiting probably generates a deadlock See #35832.
+            if (_isLoadingCallDepth.Value == 1)
             {
-                await isLoadingValue.TaskCompletionSource.Task.WaitAsync(cancellationToken).ConfigureAwait(false);
+                await isLoadingValue.Task.WaitAsync(cancellationToken).ConfigureAwait(false);
             }
+            _isLoadingCallDepth.Value--;
             return;
         }
 
@@ -226,7 +230,8 @@ public class LazyLoader : ILazyLoader, IInjectableService
         }
         finally
         {
-            isLoadingValue.TaskCompletionSource.TrySetResult();
+            isLoadingValue.TrySetResult();
+            _isLoadingCallDepth.Value--;
             lock (_isLoadingLock)
             {
                 _isLoading.Remove(navEntry);

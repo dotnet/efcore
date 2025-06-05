@@ -98,12 +98,31 @@ public class QueryRootProcessor : ExpressionVisitor
         switch (candidateExpression)
         {
             // An array containing only constants is represented as a ConstantExpression with the array as the value.
-            // Convert that into a NewArrayExpression for use with InlineQueryRootExpression
+            // Convert that into a NewArrayExpression for use with InlineQueryRootExpression.
             case ConstantExpression { Value: IEnumerable values }:
                 var valueExpressions = new List<ConstantExpression>();
+
+                Type? valueClrType = null;
                 foreach (var value in values)
                 {
-                    valueExpressions.Add(Expression.Constant(value, elementClrType));
+                    var valueToAdd = value;
+
+                    if (value is not null)
+                    {
+                        valueClrType ??= value.GetType();
+                        // Enums are implicitly castable to/from the underlying type
+                        // hence calling i.e. LINQ Cast<T> to underlying type
+                        // does not have to do anything and return the enum array.
+                        // But when expanding the constants, we need to change the type,
+                        // otherwise the type of value for the Expression.Constant
+                        // would not be the expected type and fail.
+                        if (valueClrType != elementClrType.UnwrapNullableType() && valueClrType.IsEnum)
+                        {
+                            valueToAdd = Convert.ChangeType(value, elementClrType);
+                        }
+                    }
+
+                    valueExpressions.Add(Expression.Constant(valueToAdd, elementClrType));
                 }
 
                 if (ShouldConvertToInlineQueryRoot(Expression.NewArrayInit(elementClrType, valueExpressions)))

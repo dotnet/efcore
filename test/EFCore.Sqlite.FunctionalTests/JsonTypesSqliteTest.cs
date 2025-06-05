@@ -3,7 +3,7 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class JsonTypesSqliteTest : JsonTypesRelationalTestBase
+public class JsonTypesSqliteTest(NonSharedFixture fixture) : JsonTypesRelationalTestBase(fixture)
 {
     public override Task Can_read_write_array_of_list_of_GUID_JSON_values(string expected)
         => base.Can_read_write_array_of_list_of_GUID_JSON_values(

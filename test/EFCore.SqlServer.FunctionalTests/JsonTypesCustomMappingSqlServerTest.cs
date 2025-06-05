@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class JsonTypesCustomMappingSqlServerTest : JsonTypesSqlServerTestBase
+public class JsonTypesCustomMappingSqlServerTest(NonSharedFixture fixture) : JsonTypesSqlServerTestBase(fixture)
 {
     protected override IServiceCollection AddServices(IServiceCollection serviceCollection)
         => serviceCollection.AddSingleton<IRelationalTypeMappingSource, TestSqlServerTypeMappingSource>();

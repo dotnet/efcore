@@ -14,7 +14,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
 /// </summary>
 public class SqliteGeometryCollectionMethodTranslator : IMethodCallTranslator
 {
-    private static readonly MethodInfo Item = typeof(GeometryCollection).GetTypeInfo().GetRuntimeProperty("Item")!.GetMethod!;
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
     /// <summary>
@@ -38,17 +37,17 @@ public class SqliteGeometryCollectionMethodTranslator : IMethodCallTranslator
         IReadOnlyList<SqlExpression> arguments,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
     {
-        if (Equals(method, Item))
+        if (method.IsGenericMethod
+            && method.GetGenericMethodDefinition() == EnumerableMethods.ElementAt
+            && method.ReturnType == typeof(Geometry)
+            && arguments is [var collection, var index])
         {
             return _sqlExpressionFactory.Function(
                 "GeometryN",
-                new[]
-                {
-                    instance!,
-                    _sqlExpressionFactory.Add(
-                        arguments[0],
-                        _sqlExpressionFactory.Constant(1))
-                },
+                [
+                    collection,
+                    _sqlExpressionFactory.Add(index, _sqlExpressionFactory.Constant(1))
+                ],
                 nullable: true,
                 argumentsPropagateNullability: Statics.TrueArrays[2],
                 method.ReturnType);

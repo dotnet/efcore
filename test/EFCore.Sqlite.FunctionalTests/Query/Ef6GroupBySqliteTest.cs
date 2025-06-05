@@ -29,16 +29,28 @@ GROUP BY "p"."Category"
     }
 
     public override async Task Max_Grouped_from_LINQ_101(bool async)
-        => Assert.Equal(
-            SqliteStrings.AggregateOperationNotSupported("Max", "decimal"),
-            (await Assert.ThrowsAsync<NotSupportedException>(
-                () => base.Max_Grouped_from_LINQ_101(async))).Message);
+    {
+        await base.Max_Grouped_from_LINQ_101(async);
+
+        AssertSql(
+            """
+SELECT "p"."Category", ef_max("p"."UnitPrice") AS "MostExpensivePrice"
+FROM "ProductForLinq" AS "p"
+GROUP BY "p"."Category"
+""");
+    }
 
     public override async Task Min_Grouped_from_LINQ_101(bool async)
-        => Assert.Equal(
-            SqliteStrings.AggregateOperationNotSupported("Min", "decimal"),
-            (await Assert.ThrowsAsync<NotSupportedException>(
-                () => base.Min_Grouped_from_LINQ_101(async))).Message);
+    {
+        await base.Min_Grouped_from_LINQ_101(async);
+
+        AssertSql(
+            """
+SELECT "p"."Category", ef_min("p"."UnitPrice") AS "CheapestPrice"
+FROM "ProductForLinq" AS "p"
+GROUP BY "p"."Category"
+""");
+    }
 
     public override async Task Whats_new_2021_sample_3(bool async)
         => await base.Whats_new_2021_sample_3(async);

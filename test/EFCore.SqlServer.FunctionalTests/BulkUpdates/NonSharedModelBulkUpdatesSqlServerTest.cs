@@ -5,7 +5,7 @@ namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
 #nullable disable
 
-public class NonSharedModelBulkUpdatesSqlServerTest : NonSharedModelBulkUpdatesRelationalTestBase
+public class NonSharedModelBulkUpdatesSqlServerTest(NonSharedFixture fixture) : NonSharedModelBulkUpdatesRelationalTestBase(fixture)
 {
     protected override ITestStoreFactory TestStoreFactory
         => SqlServerTestStoreFactory.Instance;

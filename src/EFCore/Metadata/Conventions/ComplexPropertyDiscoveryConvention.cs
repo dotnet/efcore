@@ -69,14 +69,21 @@ public class ComplexPropertyDiscoveryConvention :
     private void TryConfigureComplexProperty(MemberInfo? candidateMember, IConventionTypeBase typeBase, IConventionContext context)
     {
         if (candidateMember == null
-            || !IsCandidateComplexProperty(candidateMember, typeBase, out var targetClrType))
+            || !IsCandidateComplexProperty(candidateMember, typeBase, out var targetClrType, out var collection))
         {
             return;
         }
 
         RemoveComplexCandidate(candidateMember.Name, typeBase.Builder);
 
-        typeBase.Builder.ComplexProperty(candidateMember, targetClrType);
+        if (collection)
+        {
+            typeBase.Builder.ComplexCollection(candidateMember, targetClrType);
+        }
+        else
+        {
+            typeBase.Builder.ComplexProperty(candidateMember, targetClrType);
+        }
     }
 
     /// <summary>
@@ -85,10 +92,12 @@ public class ComplexPropertyDiscoveryConvention :
     /// <param name="memberInfo">The member.</param>
     /// <param name="structuralType">The type for which the properties will be discovered.</param>
     /// <param name="targetClrType">The complex type.</param>
+    /// <param name="isCollection">Whether the property should be mapped as a collection.</param>
     protected virtual bool IsCandidateComplexProperty(
         MemberInfo memberInfo,
         IConventionTypeBase structuralType,
-        [NotNullWhen(true)] out Type? targetClrType)
+        [NotNullWhen(true)] out Type? targetClrType,
+        out bool isCollection)
     {
         if (!structuralType.IsInModel
             || structuralType.IsIgnored(memberInfo.Name)
@@ -97,10 +106,12 @@ public class ComplexPropertyDiscoveryConvention :
             || !Dependencies.MemberClassifier.IsCandidateComplexProperty(
                 memberInfo, structuralType.Model, UseAttributes, out var elementType, out var explicitlyConfigured))
         {
+            isCollection = false;
             targetClrType = null;
             return false;
         }
 
+        isCollection = elementType != null;
         var model = (Model)structuralType.Model;
         targetClrType = (elementType ?? memberInfo.GetMemberType()).UnwrapNullableType();
         if (structuralType.Model.Builder.IsIgnored(targetClrType)

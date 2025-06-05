@@ -2100,6 +2100,21 @@ END IN (
 """);
     }
 
+    public override async Task Values_of_enum_casted_to_underlying_value(bool async)
+    {
+        await base.Values_of_enum_casted_to_underlying_value(async);
+
+        AssertSql(
+            """
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE (
+    SELECT COUNT(*)
+    FROM (VALUES (CAST(0 AS int)), (1), (2), (3)) AS [v]([Value])
+    WHERE [v].[Value] = [p].[Int]) > 0
+""");
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

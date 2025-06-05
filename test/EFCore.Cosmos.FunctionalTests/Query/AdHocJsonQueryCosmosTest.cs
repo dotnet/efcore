@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
@@ -7,7 +7,7 @@ using Newtonsoft.Json.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class AdHocJsonQueryCosmosTest : AdHocJsonQueryTestBase
+public class AdHocJsonQueryCosmosTest(NonSharedFixture fixture) : AdHocJsonQueryTestBase(fixture)
 {
     #region 21006
 
@@ -163,7 +163,7 @@ WHERE (c["Id"] = 4)
 
         var wrapper = (CosmosClientWrapper)context.GetService<ICosmosClientWrapper>();
         var singletonWrapper = context.GetService<ISingletonCosmosClientWrapper>();
-        var entitiesContainer = singletonWrapper.Client.GetContainer(StoreName, containerId: "Entities");
+        var entitiesContainer = singletonWrapper.Client.GetContainer(context.Database.GetCosmosDatabaseId(), containerId: "Entities");
 
         var missingTopLevel =
 $$"""
@@ -682,13 +682,13 @@ $$"""
         modelBuilder.Entity<Context29219.MyEntity>().ToContainer("Entities");
     }
 
-    protected override async Task Seed29219(DbContext ctx)
+    protected override async Task Seed29219(DbContext context)
     {
-        await base.Seed29219(ctx);
+        await base.Seed29219(context);
 
-        var wrapper = (CosmosClientWrapper)ctx.GetService<ICosmosClientWrapper>();
-        var singletonWrapper = ctx.GetService<ISingletonCosmosClientWrapper>();
-        var entitiesContainer = singletonWrapper.Client.GetContainer(StoreName, containerId: "Entities");
+        var wrapper = (CosmosClientWrapper)context.GetService<ICosmosClientWrapper>();
+        var singletonWrapper = context.GetService<ISingletonCosmosClientWrapper>();
+        var entitiesContainer = singletonWrapper.Client.GetContainer(context.Database.GetCosmosDatabaseId(), containerId: "Entities");
 
         var missingNullableScalars =
 $$"""
@@ -733,11 +733,11 @@ $$"""
         modelBuilder.Entity<Context30028.MyEntity>().ToContainer("Entities");
     }
 
-    protected override async Task Seed30028(DbContext ctx)
+    protected override async Task Seed30028(DbContext context)
     {
-        var wrapper = (CosmosClientWrapper)ctx.GetService<ICosmosClientWrapper>();
-        var singletonWrapper = ctx.GetService<ISingletonCosmosClientWrapper>();
-        var entitiesContainer = singletonWrapper.Client.GetContainer(StoreName, containerId: "Entities");
+        var wrapper = (CosmosClientWrapper)context.GetService<ICosmosClientWrapper>();
+        var singletonWrapper = context.GetService<ISingletonCosmosClientWrapper>();
+        var entitiesContainer = singletonWrapper.Client.GetContainer(context.Database.GetCosmosDatabaseId(), containerId: "Entities");
 
         var complete =
 $$$$"""
@@ -879,7 +879,7 @@ $$$$"""
                 "LeafName":"e4 or l"
             }
         }
-    } 
+    }
 }
 """;
 
@@ -900,11 +900,11 @@ $$$$"""
         modelBuilder.Entity<Context33046.Review>().ToContainer("Reviews");
     }
 
-    protected override async Task Seed33046(DbContext ctx)
+    protected override async Task Seed33046(DbContext context)
     {
-        var wrapper = (CosmosClientWrapper)ctx.GetService<ICosmosClientWrapper>();
-        var singletonWrapper = ctx.GetService<ISingletonCosmosClientWrapper>();
-        var entitiesContainer = singletonWrapper.Client.GetContainer(StoreName, containerId: "Reviews");
+        var wrapper = (CosmosClientWrapper)context.GetService<ICosmosClientWrapper>();
+        var singletonWrapper = context.GetService<ISingletonCosmosClientWrapper>();
+        var entitiesContainer = singletonWrapper.Client.GetContainer(context.Database.GetCosmosDatabaseId(), containerId: "Reviews");
 
         var json =
 $$$$"""
@@ -968,13 +968,13 @@ $$$$"""
         modelBuilder.Entity<Context34960.JunkEntity>().ToContainer("Junk");
     }
 
-    protected async override Task Seed34960(Context34960 ctx)
+    protected async override Task Seed34960(Context34960 context)
     {
-        await base.Seed34960(ctx);
+        await base.Seed34960(context);
 
-        var wrapper = (CosmosClientWrapper)ctx.GetService<ICosmosClientWrapper>();
-        var singletonWrapper = ctx.GetService<ISingletonCosmosClientWrapper>();
-        var entitiesContainer = singletonWrapper.Client.GetContainer(StoreName, containerId: "Entities");
+        var wrapper = (CosmosClientWrapper)context.GetService<ICosmosClientWrapper>();
+        var singletonWrapper = context.GetService<ISingletonCosmosClientWrapper>();
+        var entitiesContainer = singletonWrapper.Client.GetContainer(context.Database.GetCosmosDatabaseId(), containerId: "Entities");
 
         var json =
 $$$"""
@@ -992,7 +992,7 @@ $$$"""
             json,
             CancellationToken.None);
 
-        var junkContainer = singletonWrapper.Client.GetContainer(StoreName, containerId: "Junk");
+        var junkContainer = singletonWrapper.Client.GetContainer(context.Database.GetCosmosDatabaseId(), containerId: "Junk");
 
         var objectWhereCollectionShouldBe =
 $$$"""
@@ -1047,11 +1047,11 @@ $$$"""
         modelBuilder.Entity<ContextJunkInJson.MyEntity>().ToContainer("Entities");
     }
 
-    protected override async Task SeedJunkInJson(DbContext ctx)
+    protected override async Task SeedJunkInJson(DbContext context)
     {
-        var wrapper = (CosmosClientWrapper)ctx.GetService<ICosmosClientWrapper>();
-        var singletonWrapper = ctx.GetService<ISingletonCosmosClientWrapper>();
-        var entitiesContainer = singletonWrapper.Client.GetContainer(StoreName, containerId: "Entities");
+        var wrapper = (CosmosClientWrapper)context.GetService<ICosmosClientWrapper>();
+        var singletonWrapper = context.GetService<ISingletonCosmosClientWrapper>();
+        var entitiesContainer = singletonWrapper.Client.GetContainer(context.Database.GetCosmosDatabaseId(), containerId: "Entities");
 
         var json =
 $$$"""
@@ -1239,11 +1239,11 @@ $$$"""
         modelBuilder.Entity<ContextTrickyBuffering.MyEntity>().ToContainer("Entities");
     }
 
-    protected override async Task SeedTrickyBuffering(DbContext ctx)
+    protected override async Task SeedTrickyBuffering(DbContext context)
     {
-        var wrapper = (CosmosClientWrapper)ctx.GetService<ICosmosClientWrapper>();
-        var singletonWrapper = ctx.GetService<ISingletonCosmosClientWrapper>();
-        var entitiesContainer = singletonWrapper.Client.GetContainer(StoreName, containerId: "Entities");
+        var wrapper = (CosmosClientWrapper)context.GetService<ICosmosClientWrapper>();
+        var singletonWrapper = context.GetService<ISingletonCosmosClientWrapper>();
+        var entitiesContainer = singletonWrapper.Client.GetContainer(context.Database.GetCosmosDatabaseId(), containerId: "Entities");
 
         var json =
 $$$"""
@@ -1328,11 +1328,11 @@ $$$"""
             });
     }
 
-    protected override async Task SeedShadowProperties(DbContext ctx)
+    protected override async Task SeedShadowProperties(DbContext context)
     {
-        var wrapper = (CosmosClientWrapper)ctx.GetService<ICosmosClientWrapper>();
-        var singletonWrapper = ctx.GetService<ISingletonCosmosClientWrapper>();
-        var entitiesContainer = singletonWrapper.Client.GetContainer(StoreName, containerId: "Entities");
+        var wrapper = (CosmosClientWrapper)context.GetService<ICosmosClientWrapper>();
+        var singletonWrapper = context.GetService<ISingletonCosmosClientWrapper>();
+        var entitiesContainer = singletonWrapper.Client.GetContainer(context.Database.GetCosmosDatabaseId(), containerId: "Entities");
 
         var json =
 $$$"""
@@ -1390,11 +1390,11 @@ $$$"""
         modelBuilder.Entity<ContextNotICollection.MyEntity>().ToContainer("Entities");
     }
 
-    protected override async Task SeedNotICollection(DbContext ctx)
+    protected override async Task SeedNotICollection(DbContext context)
     {
-        var wrapper = (CosmosClientWrapper)ctx.GetService<ICosmosClientWrapper>();
-        var singletonWrapper = ctx.GetService<ISingletonCosmosClientWrapper>();
-        var entitiesContainer = singletonWrapper.Client.GetContainer(StoreName, containerId: "Entities");
+        var wrapper = (CosmosClientWrapper)context.GetService<ICosmosClientWrapper>();
+        var singletonWrapper = context.GetService<ISingletonCosmosClientWrapper>();
+        var entitiesContainer = singletonWrapper.Client.GetContainer(context.Database.GetCosmosDatabaseId(), containerId: "Entities");
 
         var json1 =
 $$$"""
@@ -1466,11 +1466,11 @@ $$$"""
         modelBuilder.Entity<ContextBadJsonProperties.Entity>().ToContainer("Entities");
     }
 
-    protected override async Task SeedBadJsonProperties(ContextBadJsonProperties ctx)
+    protected override async Task SeedBadJsonProperties(ContextBadJsonProperties context)
     {
-        var wrapper = (CosmosClientWrapper)ctx.GetService<ICosmosClientWrapper>();
-        var singletonWrapper = ctx.GetService<ISingletonCosmosClientWrapper>();
-        var entitiesContainer = singletonWrapper.Client.GetContainer(StoreName, containerId: "Entities");
+        var wrapper = (CosmosClientWrapper)context.GetService<ICosmosClientWrapper>();
+        var singletonWrapper = context.GetService<ISingletonCosmosClientWrapper>();
+        var entitiesContainer = singletonWrapper.Client.GetContainer(context.Database.GetCosmosDatabaseId(), containerId: "Entities");
 
         var baseline =
 $$$"""
@@ -1481,7 +1481,7 @@ $$$"""
     "Scenario": "baseline",
     "OptionalReference": {"NestedOptional": { "Text":"or no" }, "NestedRequired": { "Text":"or nr" }, "NestedCollection": [ { "Text":"or nc 1" }, { "Text":"or nc 2" } ] },
     "RequiredReference": {"NestedOptional": { "Text":"rr no" }, "NestedRequired": { "Text":"rr nr" }, "NestedCollection": [ { "Text":"rr nc 1" }, { "Text":"rr nc 2" } ] },
-    "Collection": 
+    "Collection":
     [
         {"NestedOptional": { "Text":"c 1 no" }, "NestedRequired": { "Text":"c 1 nr" }, "NestedCollection": [ { "Text":"c 1 nc 1" }, { "Text":"c 1 nc 2" } ] },
         {"NestedOptional": { "Text":"c 2 no" }, "NestedRequired": { "Text":"c 2 nr" }, "NestedCollection": [ { "Text":"c 2 nc 1" }, { "Text":"c 2 nc 2" } ] }
@@ -1503,7 +1503,7 @@ $$$"""
     "Scenario": "duplicated navigations",
     "OptionalReference": {"NestedOptional": { "Text":"or no" }, "NestedOptional": { "Text":"or no dupnav" }, "NestedRequired": { "Text":"or nr" }, "NestedCollection": [ { "Text":"or nc 1" }, { "Text":"or nc 2" } ], "NestedCollection": [ { "Text":"or nc 1 dupnav" }, { "Text":"or nc 2 dupnav" } ], "NestedRequired": { "Text":"or nr dupnav" } },
     "RequiredReference": {"NestedOptional": { "Text":"rr no" }, "NestedOptional": { "Text":"rr no dupnav" }, "NestedRequired": { "Text":"rr nr" }, "NestedCollection": [ { "Text":"rr nc 1" }, { "Text":"rr nc 2" } ], "NestedCollection": [ { "Text":"rr nc 1 dupnav" }, { "Text":"rr nc 2 dupnav" } ], "NestedRequired": { "Text":"rr nr dupnav" } },
-    "Collection": 
+    "Collection":
     [
         {"NestedOptional": { "Text":"c 1 no" }, "NestedOptional": { "Text":"c 1 no dupnav" }, "NestedRequired": { "Text":"c 1 nr" }, "NestedCollection": [ { "Text":"c 1 nc 1" }, { "Text":"c 1 nc 2" } ], "NestedCollection": [ { "Text":"c 1 nc 1 dupnav" }, { "Text":"c 1 nc 2 dupnav" } ], "NestedRequired": { "Text":"c 1 nr dupnav" } },
         {"NestedOptional": { "Text":"c 2 no" }, "NestedOptional": { "Text":"c 2 no dupnav" }, "NestedRequired": { "Text":"c 2 nr" }, "NestedCollection": [ { "Text":"c 2 nc 1" }, { "Text":"c 2 nc 2" } ], "NestedCollection": [ { "Text":"c 2 nc 1 dupnav" }, { "Text":"c 2 nc 2 dupnav" } ], "NestedRequired": { "Text":"c 2 nr dupnav" } }
@@ -1525,7 +1525,7 @@ $$$"""
     "Scenario": "duplicated scalars",
     "OptionalReference": {"NestedOptional": { "Text":"or no", "Text":"or no dupprop" }, "NestedRequired": { "Text":"or nr", "Text":"or nr dupprop" }, "NestedCollection": [ { "Text":"or nc 1", "Text":"or nc 1 dupprop" }, { "Text":"or nc 2", "Text":"or nc 2 dupprop" } ] },
     "RequiredReference": {"NestedOptional": { "Text":"rr no", "Text":"rr no dupprop" }, "NestedRequired": { "Text":"rr nr", "Text":"rr nr dupprop" }, "NestedCollection": [ { "Text":"rr nc 1", "Text":"rr nc 1 dupprop" }, { "Text":"rr nc 2", "Text":"rr nc 2 dupprop" } ] },
-    "Collection": 
+    "Collection":
     [
         {"NestedOptional": { "Text":"c 1 no", "Text":"c 1 no dupprop" }, "NestedRequired": { "Text":"c 1 nr", "Text":"c 1 nr dupprop" }, "NestedCollection": [ { "Text":"c 1 nc 1", "Text":"c 1 nc 1 dupprop" }, { "Text":"c 1 nc 2", "Text":"c 1 nc 2 dupprop" } ] },
         {"NestedOptional": { "Text":"c 2 no", "Text":"c 2 no dupprop" }, "NestedRequired": { "Text":"c 2 nr", "Text":"c 2 nr dupprop" }, "NestedCollection": [ { "Text":"c 2 nc 1", "Text":"c 2 nc 1 dupprop" }, { "Text":"c 2 nc 2", "Text":"c 2 nc 2 dupprop" } ] }
@@ -1547,7 +1547,7 @@ $$$"""
     "Scenario": "empty navigation property names",
     "OptionalReference": {"": { "Text":"or no" }, "": { "Text":"or nr" }, "": [ { "Text":"or nc 1" }, { "Text":"or nc 2" } ] },
     "RequiredReference": {"": { "Text":"rr no" }, "": { "Text":"rr nr" }, "": [ { "Text":"rr nc 1" }, { "Text":"rr nc 2" } ] },
-    "Collection": 
+    "Collection":
     [
         {"": { "Text":"c 1 no" }, "": { "Text":"c 1 nr" }, "": [ { "Text":"c 1 nc 1" }, { "Text":"c 1 nc 2" } ] },
         {"": { "Text":"c 2 no" }, "": { "Text":"c 2 nr" }, "": [ { "Text":"c 2 nc 1" }, { "Text":"c 2 nc 2" } ] }
@@ -1569,7 +1569,7 @@ $$$"""
     "Scenario": "empty scalar property names",
     "OptionalReference": {"NestedOptional": { "":"or no" }, "NestedRequired": { "":"or nr" }, "NestedCollection": [ { "":"or nc 1" }, { "":"or nc 2" } ] },
     "RequiredReference": {"NestedOptional": { "":"rr no" }, "NestedRequired": { "":"rr nr" }, "NestedCollection": [ { "":"rr nc 1" }, { "":"rr nc 2" } ] },
-    "Collection": 
+    "Collection":
     [
         {"NestedOptional": { "":"c 1 no" }, "NestedRequired": { "":"c 1 nr" }, "NestedCollection": [ { "":"c 1 nc 1" }, { "":"c 1 nc 2" } ] },
         {"NestedOptional": { "":"c 2 no" }, "NestedRequired": { "":"c 2 nr" }, "NestedCollection": [ { "":"c 2 nc 1" }, { "":"c 2 nc 2" } ] }
@@ -1591,7 +1591,7 @@ $$$"""
     "Scenario": "null navigation property names",
     "OptionalReference": {null: { "Text":"or no" }, null: { "Text":"or nr" }, null: [ { "Text":"or nc 1" }, { "Text":"or nc 2" } ] },
     "RequiredReference": {null: { "Text":"rr no" }, null: { "Text":"rr nr" }, null: [ { "Text":"rr nc 1" }, { "Text":"rr nc 2" } ] },
-    "Collection": 
+    "Collection":
     [
         {null: { "Text":"c 1 no" }, null: { "Text":"c 1 nr" }, null: [ { "Text":"c 1 nc 1" }, { "Text":"c 1 nc 2" } ] },
         {null: { "Text":"c 2 no" }, null: { "Text":"c 2 nr" }, null: [ { "Text":"c 2 nc 1" }, { "Text":"c 2 nc 2" } ] }
@@ -1613,7 +1613,7 @@ $$$"""
     "Scenario": "null scalar property names",
     "OptionalReference": {"NestedOptional": { null:"or no", "Text":"or no nonnull" }, "NestedRequired": { null:"or nr", "Text":"or nr nonnull" }, "NestedCollection": [ { null:"or nc 1", "Text":"or nc 1 nonnull" }, { null:"or nc 2", "Text":"or nc 2 nonnull" } ] },
     "RequiredReference": {"NestedOptional": { null:"rr no", "Text":"rr no nonnull" }, "NestedRequired": { null:"rr nr", "Text":"rr nr nonnull" }, "NestedCollection": [ { null:"rr nc 1", "Text":"rr nc 1 nonnull" }, { null:"rr nc 2", "Text":"rr nc 2 nonnull" } ] },
-    "Collection": 
+    "Collection":
     [
         {"NestedOptional": { null:"c 1 no", "Text":"c 1 no nonnull" }, "NestedRequired": { null:"c 1 nr", "Text":"c 1 nr nonnull" }, "NestedCollection": [ { null:"c 1 nc 1", "Text":"c 1 nc 1 nonnull" }, { null:"c 1 nc 2", "Text":"c 1 nc 2 nonnull" } ] },
         {"NestedOptional": { null:"c 2 no", "Text":"c 2 no nonnull" }, "NestedRequired": { null:"c 2 nr", "Text":"c 2 nr nonnull" }, "NestedCollection": [ { null:"c 2 nc 1", "Text":"c 2 nc 1 nonnull" }, { null:"c 2 nc 2", "Text":"c 2 nc 2 nonnull" } ] }

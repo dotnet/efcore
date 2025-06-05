@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.Data.SqlClient;
@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public abstract class AdHocJsonQuerySqlServerTestBase : AdHocJsonQueryRelationalTestBase
+public abstract class AdHocJsonQuerySqlServerTestBase(NonSharedFixture fixture) : AdHocJsonQueryRelationalTestBase(fixture)
 {
     protected override ITestStoreFactory TestStoreFactory
         => SqlServerTestStoreFactory.Instance;

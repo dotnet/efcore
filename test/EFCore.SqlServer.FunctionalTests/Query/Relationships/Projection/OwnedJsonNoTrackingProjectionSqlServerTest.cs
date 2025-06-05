@@ -162,6 +162,22 @@ CROSS APPLY OPENJSON([r].[OptionalReferenceTrunk], '$.CollectionBranch') WITH (
 """);
     }
 
+    public override async Task Project_branch_collection_element_using_indexer_constant(bool async)
+    {
+        await base.Project_branch_collection_element_using_indexer_constant(async);
+
+        AssertSql(
+            """
+SELECT JSON_QUERY([r].[RequiredReferenceTrunk], '$.CollectionBranch'), [r].[Id]
+FROM [RootEntities] AS [r]
+ORDER BY [r].[Id]
+""");
+    }
+
+    [ConditionalFact]
+    public virtual void Check_all_tests_overridden()
+        => TestHelpers.AssertAllMethodsOverridden(GetType());
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 }

@@ -24,6 +24,7 @@ public abstract partial class ModelBuilderTest
             var complexPropertyBuilder = modelBuilder
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
+                .Ignore(e => e.Customers)
                 .ComplexProperty(e => e.Customer)
                 .HasTypeAnnotation("foo", "bar")
                 .HasPropertyAnnotation("foo2", "bar2")
@@ -36,7 +37,7 @@ public abstract partial class ModelBuilderTest
 
             Assert.Equal("bar", complexProperty.ComplexType["foo"]);
             Assert.Equal("bar2", complexProperty["foo2"]);
-            Assert.Equal(typeof(Customer).Name, complexProperty.Name);
+            Assert.Equal(nameof(ComplexProperties.Customer), complexProperty.Name);
             Assert.Equal(
                 @"Customer (Customer)
   ComplexType: ComplexProperties.Customer#Customer
@@ -57,6 +58,7 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Product>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
+                .Ignore(e => e.Customers)
                 .ComplexProperty(e => e.Customer)
                 .Ignore(c => c.Details)
                 .Ignore(c => c.Orders)
@@ -78,6 +80,7 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Product>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
+                .Ignore(e => e.Customers)
                 .ComplexProperty(e => e.Customer)
                 .Ignore(c => c.Details)
                 .Ignore(c => c.Orders)
@@ -99,6 +102,7 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Product>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
+                .Ignore(e => e.Customers)
                 .ComplexProperty(e => e.Customer)
                 .Ignore(c => c.Details)
                 .Ignore(c => c.Orders)
@@ -182,6 +186,7 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Product>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
+                .Ignore(e => e.Customers)
                 .ComplexProperty(e => e.Customer, b => b.Ignore(c => c.Details).Ignore(c => c.Orders));
 
             var model = modelBuilder.FinalizeModel();
@@ -197,6 +202,7 @@ public abstract partial class ModelBuilderTest
             var complexPropertyBuilder = modelBuilder
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
+                .Ignore(e => e.Customers)
                 .ComplexProperty(e => e.Customer, b => b.Ignore(c => c.Details).Ignore(c => c.Orders));
             complexPropertyBuilder.Property<string>("Shadow");
             complexPropertyBuilder.Ignore("Shadow");
@@ -216,6 +222,7 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Product>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
+                .Ignore(e => e.Customers)
                 .ComplexProperty(
                     e => e.Customer,
                     b =>
@@ -367,6 +374,7 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Order>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
+                .Ignore(e => e.QuarksCollection)
                 .ComplexProperty(
                     e => e.Quarks,
                     b =>
@@ -454,12 +462,11 @@ public abstract partial class ModelBuilderTest
 
             modelBuilder.UsePropertyAccessMode(PropertyAccessMode.Field);
 
-            modelBuilder
-                .Entity<ComplexProperties>()
-                .ComplexProperty(e => e.Customer, b => b.Ignore(c => c.Details).Ignore(c => c.Orders));
+            modelBuilder.Ignore<Customer>();
 
             modelBuilder
                 .Entity<ComplexProperties>()
+                .Ignore(e => e.QuarksCollection)
                 .ComplexProperty(
                     e => e.Quarks,
                     b =>
@@ -996,6 +1003,18 @@ public abstract partial class ModelBuilderTest
                             CoreStrings.BadBackingFieldType("_forUp", "int", nameof(Quarks), nameof(Quarks.Down), "string"),
                             Assert.Throws<InvalidOperationException>(() => b.Property(e => e.Down).HasField("_forUp")).Message);
                     });
+        }
+
+        [ConditionalFact]
+        protected virtual void Throws_for_incompatible_type()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            Assert.Equal(
+                CoreStrings.ComplexPropertyWrongClrType(
+                    nameof(ComplexProperties.Customer), nameof(ComplexProperties), nameof(Customer), "IEnumerable<Customer>"),
+                Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<ComplexProperties>()
+                    .ComplexProperty<IEnumerable<Customer>>(nameof(ComplexProperties.Customer))).Message);
         }
 
         [ConditionalFact]
@@ -1573,6 +1592,7 @@ public abstract partial class ModelBuilderTest
                     b =>
                     {
                         b.Ignore(e => e.Tuple);
+                        b.Ignore(e => e.Tuples);
                         b.ComplexProperty(e => e.Label, b => b.ComplexProperty(e => e.Customer));
                         b.ComplexProperty(e => e.OldLabel, b => b.ComplexProperty(e => e.Customer));
                     });
@@ -1633,8 +1653,8 @@ public abstract partial class ModelBuilderTest
 
             var model = modelBuilder.FinalizeModel();
 
-            var complexType = model.FindEntityType(typeof(ComplexProperties)).GetComplexProperties().Single().ComplexType;
-            Assert.Equal(typeof(Customer), complexType.ClrType);
+            Assert.All(model.FindEntityType(typeof(ComplexProperties)).GetComplexProperties(),
+                p => Assert.Equal(typeof(Customer), p.ComplexType.ClrType));
         }
 
         [ConditionalFact]
@@ -1657,7 +1677,7 @@ public abstract partial class ModelBuilderTest
         }
 
         [ConditionalFact]
-        public virtual void Throws_for_tuple()
+        public virtual void Can_map_a_tuple()
         {
             var modelBuilder = CreateModelBuilder();
 
@@ -1665,6 +1685,7 @@ public abstract partial class ModelBuilderTest
                 .Entity<ValueComplexProperties>()
                 .Ignore(e => e.Label)
                 .Ignore(e => e.OldLabel)
+                .Ignore(e => e.Tuples)
                 .ComplexProperty(e => e.Tuple);
 
             var model = modelBuilder.FinalizeModel();
@@ -1724,6 +1745,7 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Product>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
+                .Ignore(e => e.Customers)
                 .ComplexProperty(e => e.Customer)
                 .Ignore(c => c.Details)
                 .Ignore(c => c.Orders)
@@ -1772,6 +1794,7 @@ public abstract partial class ModelBuilderTest
             var complexPropertyBuilder = modelBuilder
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
+                .Ignore(e => e.Customers)
                 .ComplexProperty(e => e.Customer, b => b.Ignore(c => c.Details).Ignore(c => c.Orders));
             complexPropertyBuilder.PrimitiveCollection<string[]>("Shadow");
             complexPropertyBuilder.Ignore("Shadow");
@@ -1791,6 +1814,7 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Product>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
+                .Ignore(e => e.Customers)
                 .ComplexProperty(
                     e => e.Customer,
                     b =>

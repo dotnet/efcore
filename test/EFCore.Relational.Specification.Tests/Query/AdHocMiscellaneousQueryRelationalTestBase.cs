@@ -9,7 +9,7 @@ using NameSpace1;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public abstract class AdHocMiscellaneousQueryRelationalTestBase : AdHocMiscellaneousQueryTestBase
+    public abstract class AdHocMiscellaneousQueryRelationalTestBase(NonSharedFixture fixture) : AdHocMiscellaneousQueryTestBase(fixture)
     {
         protected TestSqlLoggerFactory TestSqlLoggerFactory
             => (TestSqlLoggerFactory)ListLoggerFactory;

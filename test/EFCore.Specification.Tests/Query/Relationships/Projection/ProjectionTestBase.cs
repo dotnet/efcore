@@ -59,8 +59,8 @@ public abstract class ProjectionTestBase<TFixture>(TFixture fixture) : QueryTest
                 Assert.Equal(e.Id, a.Id);
                 AssertEqual(e.RequiredReferenceBranch, a.RequiredReferenceBranch);
                 AssertEqual(e.OptionalReferenceLeaf, a.OptionalReferenceLeaf);
-                AssertCollection(e.CollectionLeaf, a.CollectionLeaf, ordered: true);
-                AssertCollection(e.CollectionBranch, a.CollectionBranch, ordered: true);
+                AssertCollection(e.CollectionLeaf, a.CollectionLeaf, ordered: false);
+                AssertCollection(e.CollectionBranch, a.CollectionBranch, ordered: false);
                 Assert.Equal(e.Name, a.Name);
             });
 

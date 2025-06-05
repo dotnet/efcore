@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 #nullable disable
 
 [SqlServerCondition(SqlServerCondition.SupportsTemporalTablesCascadeDelete)]
-public class TemporalTableSqlServerTest : NonSharedModelTestBase
+public class TemporalTableSqlServerTest(NonSharedFixture fixture) : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
 {
     protected override string StoreName
         => "TemporalTableSqlServerTest";

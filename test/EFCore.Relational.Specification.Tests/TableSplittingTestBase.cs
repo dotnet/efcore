@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Reflection.Emit;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.TransportationModel;
 
@@ -10,9 +9,10 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public abstract class TableSplittingTestBase : NonSharedModelTestBase
+public abstract class TableSplittingTestBase : NonSharedModelTestBase, IClassFixture<NonSharedFixture>
 {
-    protected TableSplittingTestBase(ITestOutputHelper testOutputHelper)
+    protected TableSplittingTestBase(NonSharedFixture fixture, ITestOutputHelper testOutputHelper)
+        : base(fixture)
     {
         // TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }

@@ -51,6 +51,7 @@ public class SharedTableConvention : IModelFinalizingConvention
         var foreignKeys = new Dictionary<string, (IConventionForeignKey, StoreObjectIdentifier)>();
         var indexes = new Dictionary<string, (IConventionIndex, StoreObjectIdentifier)>();
         var checkConstraints = new Dictionary<(string, string?), (IConventionCheckConstraint, StoreObjectIdentifier)>();
+        var defaultConstraints = new Dictionary<(string, string?), (IConventionProperty, StoreObjectIdentifier)>();
         var triggers = new Dictionary<string, (IConventionTrigger, StoreObjectIdentifier)>();
         foreach (var ((tableName, schema), conventionEntityTypes) in tables)
         {
@@ -76,6 +77,11 @@ public class SharedTableConvention : IModelFinalizingConvention
                 checkConstraints.Clear();
             }
 
+            if (!DefaultConstraintsUniqueAcrossTables)
+            {
+                defaultConstraints.Clear();
+            }
+
             if (!TriggersUniqueAcrossTables)
             {
                 triggers.Clear();
@@ -89,6 +95,7 @@ public class SharedTableConvention : IModelFinalizingConvention
                 UniquifyForeignKeyNames(entityType, foreignKeys, storeObject, maxLength);
                 UniquifyIndexNames(entityType, indexes, storeObject, maxLength);
                 UniquifyCheckConstraintNames(entityType, checkConstraints, storeObject, maxLength);
+                UniquifyDefaultConstraintNames(entityType, defaultConstraints, storeObject, maxLength);
                 UniquifyTriggerNames(entityType, triggers, storeObject, maxLength);
             }
         }
@@ -124,14 +131,19 @@ public class SharedTableConvention : IModelFinalizingConvention
     protected virtual bool TriggersUniqueAcrossTables
         => true;
 
+    /// <summary>
+    ///     Gets a value indicating whether default constraint names should be unique across tables.
+    /// </summary>
+    protected virtual bool DefaultConstraintsUniqueAcrossTables
+        => false;
+
     private static void TryUniquifyTableNames(
         IConventionModel model,
         Dictionary<(string Name, string? Schema), List<IConventionEntityType>> tables,
         int maxLength)
     {
         Dictionary<(string Name, string? Schema), Dictionary<(string Name, string? Schema), List<IConventionEntityType>>>?
-            clashingTables
-                = null;
+            clashingTables = null;
         foreach (var entityType in model.GetEntityTypes())
         {
             var tableName = entityType.GetTableName();
@@ -641,6 +653,107 @@ public class SharedTableConvention : IModelFinalizingConvention
             checkConstraintName = Uniquifier.Uniquify(checkConstraintName, checkConstraints, n => (n, schema), maxLength);
             checkConstraint.Builder.HasName(checkConstraintName);
             return checkConstraintName;
+        }
+
+        return null;
+    }
+
+    private void UniquifyDefaultConstraintNames(
+        IConventionEntityType entityType,
+        Dictionary<(string, string?), (IConventionProperty, StoreObjectIdentifier)> defaultConstraints,
+        in StoreObjectIdentifier storeObject,
+        int maxLength)
+    {
+        foreach (var property in entityType.GetProperties())
+        {
+            var constraintName = property.GetDefaultConstraintName(storeObject);
+            if (constraintName == null)
+            {
+                continue;
+            }
+
+            var columnName = property.GetColumnName(storeObject);
+            if (columnName == null)
+            {
+                continue;
+            }
+
+            if (!defaultConstraints.TryGetValue((constraintName, storeObject.Schema), out var otherPropertyPair))
+            {
+                defaultConstraints[(constraintName, storeObject.Schema)] = (property, storeObject);
+                continue;
+            }
+
+            var (otherProperty, otherStoreObject) = otherPropertyPair;
+            if (storeObject == otherStoreObject
+                && columnName == otherProperty.GetColumnName(storeObject)
+                && AreCompatibleDefaultConstraints(property, otherProperty, storeObject))
+            {
+                continue;
+            }
+
+            var newConstraintName = TryUniquifyDefaultConstraint(property, constraintName, storeObject.Schema, defaultConstraints, storeObject, maxLength);
+            if (newConstraintName != null)
+            {
+                defaultConstraints[(newConstraintName, storeObject.Schema)] = (property, storeObject);
+                continue;
+            }
+
+            var newOtherConstraintName = TryUniquifyDefaultConstraint(otherProperty, constraintName, storeObject.Schema, defaultConstraints, otherStoreObject, maxLength);
+            if (newOtherConstraintName != null)
+            {
+                defaultConstraints[(constraintName, storeObject.Schema)] = (property, storeObject);
+                defaultConstraints[(newOtherConstraintName, otherStoreObject.Schema)] = otherPropertyPair;
+            }
+        }
+    }
+
+    /// <summary>
+    ///     Gets a value indicating whether two default constraints with the same name are compatible.
+    /// </summary>
+    /// <param name="property">A property with a default constraint.</param>
+    /// <param name="duplicateProperty">Another property with a default constraint.</param>
+    /// <param name="storeObject">The identifier of the store object.</param>
+    /// <returns><see langword="true" /> if compatible</returns>
+    protected virtual bool AreCompatibleDefaultConstraints(
+        IReadOnlyProperty property,
+        IReadOnlyProperty duplicateProperty,
+        in StoreObjectIdentifier storeObject)
+        => property.GetDefaultValue(storeObject) == duplicateProperty.GetDefaultValue(storeObject)
+            && property.GetDefaultValueSql(storeObject) == duplicateProperty.GetDefaultValueSql(storeObject);
+
+    private static string? TryUniquifyDefaultConstraint(
+        IConventionProperty property,
+        string constraintName,
+        string? schema,
+        Dictionary<(string, string?), (IConventionProperty, StoreObjectIdentifier)> defaultConstraints,
+        in StoreObjectIdentifier storeObject,
+        int maxLength)
+    {
+        var mappedTables = property.GetMappedStoreObjects(StoreObjectType.Table);
+        if (mappedTables.Count() > 1)
+        {
+            // For TPC and some entity splitting scenarios we end up with multiple tables having to define the constraint.
+            // Since constraint name has to be unique, we can't keep the same name for all
+            // Disabling this scenario until we have better way to configure the constraint name
+            // see issue #27970
+            if (property.GetDefaultConstraintNameConfigurationSource() == null)
+            {
+                throw new InvalidOperationException(
+                    RelationalStrings.ImplicitDefaultNamesNotSupportedForTpcWhenNamesClash(constraintName));
+            }
+            else
+            {
+                throw new InvalidOperationException(
+                    RelationalStrings.ExplicitDefaultConstraintNamesNotSupportedForTpc(constraintName));
+            }
+        }
+
+        if (property.Builder.CanSetAnnotation(RelationalAnnotationNames.DefaultConstraintName, null))
+        {
+            constraintName = Uniquifier.Uniquify(constraintName, defaultConstraints, n => (n, schema), maxLength);
+            property.Builder.HasAnnotation(RelationalAnnotationNames.DefaultConstraintName, constraintName);
+            return constraintName;
         }
 
         return null;

@@ -5,12 +5,11 @@
 
 using System.Data;
 using System.Runtime.CompilerServices;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding;
 
-public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
+public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) : CompiledModelTestBase(fixture)
 {
     [ConditionalFact]
     public virtual Task BigModel_with_JSON_columns()

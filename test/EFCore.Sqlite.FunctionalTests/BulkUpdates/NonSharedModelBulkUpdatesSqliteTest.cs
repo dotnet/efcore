@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
 #nullable disable
 
-public class NonSharedModelBulkUpdatesSqliteTest : NonSharedModelBulkUpdatesRelationalTestBase
+public class NonSharedModelBulkUpdatesSqliteTest(NonSharedFixture fixture) : NonSharedModelBulkUpdatesRelationalTestBase(fixture)
 {
     protected override ITestStoreFactory TestStoreFactory
         => SqliteTestStoreFactory.Instance;
@@ -63,8 +63,7 @@ DELETE FROM "Owner" AS "o"
 
     public override async Task Replace_ColumnExpression_in_column_setter(bool async)
     {
-        // #33947
-        await Assert.ThrowsAsync<SqliteException>(() => base.Replace_ColumnExpression_in_column_setter(async));
+        await base.Replace_ColumnExpression_in_column_setter(async);
 
         AssertSql(
             """
@@ -73,7 +72,7 @@ DELETE FROM "Owner" AS "o"
 UPDATE "OwnedCollection" AS "o0"
 SET "Value" = @p
 FROM "Owner" AS "o"
-INNER JOIN "OwnedCollection" AS "o0" ON "o"."Id" = "o0"."OwnerId"
+WHERE "o"."Id" = "o0"."OwnerId"
 """);
     }
 

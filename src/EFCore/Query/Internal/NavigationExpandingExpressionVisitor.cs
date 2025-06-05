@@ -200,9 +200,8 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         {
             case EntityQueryRootExpression entityQueryRootExpression:
                 var entityType = entityQueryRootExpression.EntityType;
-#pragma warning disable CS0618 // Type or member is obsolete
-                var definingQuery = entityType.GetDefiningQuery();
-#pragma warning restore CS0618 // Type or member is obsolete
+                // TODO: Move to InMemory #21624
+                var definingQuery = (LambdaExpression?)entityType["InMemory:DefiningQuery"];
                 NavigationExpansionExpression navigationExpansionExpression;
                 if (definingQuery != null
                     // Apply defining query only when it is not custom query root
@@ -1120,15 +1119,14 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
     {
         if (source.PendingSelector is NavigationTreeExpression { Value: EntityReference entityReference })
         {
-#pragma warning disable CS0618 // Type or member is obsolete
-            if (entityReference.EntityType.GetDefiningQuery() != null)
+            // TODO: Move to InMemory #21624
+            if (entityReference.EntityType["InMemory:DefiningQuery"] != null)
             {
                 throw new InvalidOperationException(
 #pragma warning disable CS0612 // Type or member is obsolete
                     CoreStrings.IncludeOnEntityWithDefiningQueryNotSupported(expression, entityReference.EntityType.DisplayName()));
 #pragma warning restore CS0612 // Type or member is obsolete
             }
-#pragma warning restore CS0618 // Type or member is obsolete
 
             if (expression is ConstantExpression { Value: string navigationChain })
             {

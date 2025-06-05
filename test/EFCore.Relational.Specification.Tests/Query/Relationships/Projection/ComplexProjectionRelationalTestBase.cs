@@ -5,6 +5,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Relationships.Projection;
 
 public abstract class ComplexProjectionRelationalTestBase<TFixture>(TFixture fixture)
     : ComplexProjectionTestBase<TFixture>(fixture)
-        where TFixture : ComplexRelationsjipsRelationalFixtureBase, new()
+        where TFixture : ComplexRelationshipsRelationalFixtureBase, new()
 {
 }

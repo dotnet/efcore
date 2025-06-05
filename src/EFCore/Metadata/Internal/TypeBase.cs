@@ -538,13 +538,11 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
                         memberInfo.Name, DisplayName(), memberInfo.DeclaringType?.ShortDisplayName()));
             }
         }
-        else if (IsPropertyBag)
-        {
-            memberInfo = FindIndexerPropertyInfo();
-        }
         else
         {
-            memberInfo = ClrType.GetMembersInHierarchy(name).FirstOrDefault();
+            memberInfo = IsPropertyBag
+                ? FindIndexerPropertyInfo()
+                : ClrType.GetMembersInHierarchy(name).FirstOrDefault();
         }
 
         if (memberInfo != null
@@ -973,28 +971,16 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
                         memberInfo.Name, DisplayName(), memberInfo.DeclaringType?.ShortDisplayName()));
             }
         }
-        else if (IsPropertyBag)
-        {
-            memberInfo = FindIndexerPropertyInfo();
-        }
         else
         {
-            memberInfo = ClrType.GetMembersInHierarchy(name).FirstOrDefault();
+            memberInfo = IsPropertyBag
+                ? FindIndexerPropertyInfo()
+                : ClrType.GetMembersInHierarchy(name).FirstOrDefault();
         }
 
-        if (memberInfo != null)
+        if (memberInfo != null
+            && memberInfo != FindIndexerPropertyInfo())
         {
-            if (propertyType != memberInfo.GetMemberType()
-                && memberInfo != FindIndexerPropertyInfo())
-            {
-                throw new InvalidOperationException(
-                    CoreStrings.PropertyWrongClrType(
-                        name,
-                        DisplayName(),
-                        memberInfo.GetMemberType().ShortDisplayName(),
-                        propertyType.ShortDisplayName()));
-            }
-
             ComplexProperty.IsCompatible(
                 name,
                 memberInfo,
@@ -1387,13 +1373,15 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     protected static IEnumerable<T> ToEnumerable<T>(T? element)
         where T : class
         => element == null
-            ? Enumerable.Empty<T>()
-            : new[] { element };
+            ? []
+            : [element];
 
     /// <summary>
-    ///     Returns all <see cref="IProperty" /> members from this type and all nested complex types, if any.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    /// <returns>The properties.</returns>
     public virtual IEnumerable<Property> GetFlattenedProperties()
     {
         if (_baseType != null)
@@ -1411,14 +1399,21 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     }
 
     /// <summary>
-    ///     Returns all <see cref="ComplexProperty" /> members from this type and all nested complex types, if any.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    /// <returns>The properties.</returns>
     public virtual IEnumerable<ComplexProperty> GetFlattenedComplexProperties()
     {
         foreach (var complexProperty in GetComplexProperties())
         {
             yield return complexProperty;
+
+            if (complexProperty.IsCollection)
+            {
+                break;
+            }
 
             foreach (var nestedComplexProperty in complexProperty.ComplexType.GetFlattenedComplexProperties())
             {
@@ -1428,9 +1423,11 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     }
 
     /// <summary>
-    ///     Returns all <see cref="IProperty" /> members from this type and all nested complex types, if any.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    /// <returns>The properties.</returns>
     public virtual IEnumerable<Property> GetFlattenedDeclaredProperties()
     {
         foreach (var property in GetDeclaredProperties())
@@ -1440,6 +1437,11 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
 
         foreach (var complexProperty in GetDeclaredComplexProperties())
         {
+            if (complexProperty.IsCollection)
+            {
+                break;
+            }
+
             foreach (var property in complexProperty.ComplexType.GetFlattenedDeclaredProperties())
             {
                 yield return property;
@@ -1463,6 +1465,11 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
         foreach (var complexProperty in GetComplexProperties())
         {
             yield return complexProperty;
+
+            if (complexProperty.IsCollection)
+            {
+                break;
+            }
 
             foreach (var propertyBase in complexProperty.ComplexType.GetSnapshottableMembers())
             {
@@ -2429,28 +2436,28 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
         => FindMembersInHierarchy(name);
 
     /// <summary>
-    ///     Returns all properties that implement <see cref="IProperty" />, including those on complex types.
+    ///     Returns all properties that implement <see cref="IProperty" />, including those on non-collection complex types.
     /// </summary>
     /// <returns>The properties.</returns>
     IEnumerable<IPropertyBase> ITypeBase.GetSnapshottableMembers()
         => GetSnapshottableMembers();
 
     /// <summary>
-    ///     Returns all properties that implement <see cref="IProperty" />, including those on complex types.
+    ///     Returns all properties that implement <see cref="IProperty" />, including those on non-collection complex types.
     /// </summary>
     /// <returns>The properties.</returns>
     IEnumerable<IProperty> ITypeBase.GetFlattenedProperties()
         => GetFlattenedProperties();
 
     /// <summary>
-    ///     Returns all properties that implement <see cref="IComplexProperty" />, including those on complex types.
+    ///     Returns all properties that implement <see cref="IComplexProperty" />, including those on non-collection complex types.
     /// </summary>
     /// <returns>The properties.</returns>
     IEnumerable<IComplexProperty> ITypeBase.GetFlattenedComplexProperties()
         => GetFlattenedComplexProperties();
 
     /// <summary>
-    ///     Returns all properties declared properties that implement <see cref="IProperty" />, including those on complex types.
+    ///     Returns all properties declared properties that implement <see cref="IProperty" />, including those on non-collection complex types.
     /// </summary>
     /// <returns>The properties.</returns>
     IEnumerable<IProperty> ITypeBase.GetFlattenedDeclaredProperties()

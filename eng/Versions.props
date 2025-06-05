@@ -2,7 +2,7 @@
   <PropertyGroup Label="Version settings">
     <VersionPrefix>10.0.0</VersionPrefix>
     <PreReleaseVersionLabel>preview</PreReleaseVersionLabel>
-    <PreReleaseVersionIteration>4</PreReleaseVersionIteration>
+    <PreReleaseVersionIteration>6</PreReleaseVersionIteration>
     <IncludeSourceRevisionInInformationalVersion>False</IncludeSourceRevisionInInformationalVersion>
     <IsServicingBuild Condition="'$(PreReleaseVersionLabel)' == 'servicing'">true</IsServicingBuild>
     <!--
@@ -16,35 +16,36 @@
     <UsingToolXliff>False</UsingToolXliff>
   </PropertyGroup>
   <PropertyGroup Label="Dependencies from dotnet/runtime">
-    <MicrosoftExtensionsCachingMemoryVersion>10.0.0-preview.3.25166.3</MicrosoftExtensionsCachingMemoryVersion>
-    <MicrosoftExtensionsConfigurationVersion>10.0.0-preview.3.25166.3</MicrosoftExtensionsConfigurationVersion>
-    <MicrosoftExtensionsConfigurationAbstractionsVersion>10.0.0-preview.3.25166.3</MicrosoftExtensionsConfigurationAbstractionsVersion>
-    <MicrosoftExtensionsConfigurationEnvironmentVariablesVersion>10.0.0-preview.3.25166.3</MicrosoftExtensionsConfigurationEnvironmentVariablesVersion>
-    <MicrosoftExtensionsConfigurationJsonVersion>10.0.0-preview.3.25166.3</MicrosoftExtensionsConfigurationJsonVersion>
-    <MicrosoftExtensionsDependencyInjectionVersion>10.0.0-preview.3.25166.3</MicrosoftExtensionsDependencyInjectionVersion>
-    <MicrosoftExtensionsDependencyModelVersion>10.0.0-preview.3.25166.3</MicrosoftExtensionsDependencyModelVersion>
-    <MicrosoftExtensionsHostFactoryResolverSourcesVersion>10.0.0-preview.3.25166.3</MicrosoftExtensionsHostFactoryResolverSourcesVersion>
-    <MicrosoftExtensionsLoggingVersion>10.0.0-preview.3.25166.3</MicrosoftExtensionsLoggingVersion>
-    <MicrosoftNETCoreAppRefVersion>10.0.0-preview.3.25166.3</MicrosoftNETCoreAppRefVersion>
-    <MicrosoftNETCoreAppRuntimewinx64Version>10.0.0-preview.3.25166.3</MicrosoftNETCoreAppRuntimewinx64Version>
-    <SystemTextEncodingsWebVersion>10.0.0-preview.3.25166.3</SystemTextEncodingsWebVersion>
-    <SystemTextJsonVersion>10.0.0-preview.3.25166.3</SystemTextJsonVersion>
-    <SystemFormatsAsn1Version>10.0.0-preview.3.25166.3</SystemFormatsAsn1Version>
-    <SystemRuntimeCachingVersion>10.0.0-preview.3.25166.3</SystemRuntimeCachingVersion>
+    <MicrosoftExtensionsCachingMemoryVersion>10.0.0-preview.6.25304.104</MicrosoftExtensionsCachingMemoryVersion>
+    <MicrosoftExtensionsConfigurationVersion>10.0.0-preview.6.25304.104</MicrosoftExtensionsConfigurationVersion>
+    <MicrosoftExtensionsConfigurationAbstractionsVersion>10.0.0-preview.6.25304.104</MicrosoftExtensionsConfigurationAbstractionsVersion>
+    <MicrosoftExtensionsConfigurationEnvironmentVariablesVersion>10.0.0-preview.6.25304.104</MicrosoftExtensionsConfigurationEnvironmentVariablesVersion>
+    <MicrosoftExtensionsConfigurationJsonVersion>10.0.0-preview.6.25304.104</MicrosoftExtensionsConfigurationJsonVersion>
+    <MicrosoftExtensionsDependencyInjectionVersion>10.0.0-preview.6.25304.104</MicrosoftExtensionsDependencyInjectionVersion>
+    <MicrosoftExtensionsDependencyModelVersion>10.0.0-preview.6.25304.104</MicrosoftExtensionsDependencyModelVersion>
+    <MicrosoftExtensionsHostFactoryResolverSourcesVersion>10.0.0-preview.6.25304.104</MicrosoftExtensionsHostFactoryResolverSourcesVersion>
+    <MicrosoftExtensionsLoggingVersion>10.0.0-preview.6.25304.104</MicrosoftExtensionsLoggingVersion>
+    <MicrosoftNETCoreAppRefVersion>10.0.0-preview.6.25304.104</MicrosoftNETCoreAppRefVersion>
+    <MicrosoftNETCorePlatformsVersion>10.0.0-preview.6.25304.104</MicrosoftNETCorePlatformsVersion>
+    <SystemTextEncodingsWebVersion>10.0.0-preview.6.25304.104</SystemTextEncodingsWebVersion>
+    <SystemTextJsonVersion>10.0.0-preview.6.25304.104</SystemTextJsonVersion>
+    <SystemFormatsAsn1Version>10.0.0-preview.6.25304.104</SystemFormatsAsn1Version>
+    <SystemRuntimeCachingVersion>10.0.0-preview.6.25304.104</SystemRuntimeCachingVersion>
   </PropertyGroup>
   <PropertyGroup Label="Dependencies from dotnet/arcade">
-    <MicrosoftDotNetBuildTasksTemplatingVersion>10.0.0-beta.25164.6</MicrosoftDotNetBuildTasksTemplatingVersion>
+    <MicrosoftDotNetBuildTasksTemplatingVersion>10.0.0-beta.25304.104</MicrosoftDotNetBuildTasksTemplatingVersion>
   </PropertyGroup>
   <PropertyGroup Label="Other dependencies">
-    <MicrosoftBuildFrameworkVersion>17.13.9</MicrosoftBuildFrameworkVersion>
-    <MicrosoftBuildUtilitiesCoreVersion>17.13.9</MicrosoftBuildUtilitiesCoreVersion>
+    <MicrosoftBuildFrameworkVersion>17.14.8</MicrosoftBuildFrameworkVersion>
+    <MicrosoftBuildUtilitiesCoreVersion>17.14.8</MicrosoftBuildUtilitiesCoreVersion>
+    <MicrosoftBuildTasksCoreVersion>17.14.8</MicrosoftBuildTasksCoreVersion>
     <!-- NB: This version affects Visual Studio compatibility. See https://github.com/dotnet/roslyn/blob/main/docs/wiki/NuGet-packages.md and https://learn.microsoft.com/visualstudio/extensibility/roslyn-version-support -->
-    <MicrosoftCodeAnalysisVersion>4.13.0</MicrosoftCodeAnalysisVersion>
+    <MicrosoftCodeAnalysisVersion>4.14.0</MicrosoftCodeAnalysisVersion>
     <MicrosoftCodeAnalysisAnalyzerTestingVersion>1.1.3-beta1.24423.1</MicrosoftCodeAnalysisAnalyzerTestingVersion>
     <MicrosoftCodeAnalysisCSharpTestingVersion>1.1.3-beta1.24352.1</MicrosoftCodeAnalysisCSharpTestingVersion>
-    <AzureIdentityVersion>1.13.1</AzureIdentityVersion>
+    <AzureIdentityVersion>1.14.0</AzureIdentityVersion>
     <AzureResourceManagerCosmosDBVersion>1.3.2</AzureResourceManagerCosmosDBVersion>
-    <OpenTelemetryExporterInMemoryVersion>1.8.1</OpenTelemetryExporterInMemoryVersion>
-    <SQLitePCLRawVersion>2.1.10</SQLitePCLRawVersion>
+    <OpenTelemetryExporterInMemoryVersion>1.12.0</OpenTelemetryExporterInMemoryVersion>
+    <SQLitePCLRawVersion>2.1.11</SQLitePCLRawVersion>
   </PropertyGroup>
 </Project>

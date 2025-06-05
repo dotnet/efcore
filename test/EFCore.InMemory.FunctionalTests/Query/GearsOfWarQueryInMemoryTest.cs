@@ -147,4 +147,28 @@ public class GearsOfWarQueryInMemoryTest(GearsOfWarQueryInMemoryFixture fixture)
     // Right join not supported in InMemory
     public override Task Correlated_collections_on_RightJoin_with_predicate(bool async)
         => AssertTranslationFailed(() => base.Correlated_collections_on_RightJoin_with_predicate(async));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Select_ToString_on_non_nullable_property_of_an_optional_entity(bool async)
+    {
+        return AssertQuery(
+            async,
+            ss => ss.Set<CogTag>().Select(x => new
+            {
+                Id = x.Id,
+                SquadIdString = x.Gear.SquadId.ToString()
+            }),
+            ss => ss.Set<CogTag>().Select(x => new
+            {
+                Id = x.Id,
+                SquadIdString = x.Gear == null ? null : x.Gear.SquadId.ToString()
+            }),
+            elementSorter: e => e.Id,
+            elementAsserter: (e, a) =>
+            {
+                AssertEqual(e.Id, a.Id);
+                AssertEqual(e.SquadIdString, a.SquadIdString);
+            });
+    }
 }

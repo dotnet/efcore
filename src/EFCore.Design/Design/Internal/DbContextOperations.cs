@@ -477,7 +477,7 @@ public class DbContextOperations
 
             throw new OperationException(
                 DesignStrings.CannotCreateContextInstance(
-                    contextType ?? contextPair.Key.GetType().ShortDisplayName(), ex.Message), ex);
+                    contextType ?? contextPair.Key.ShortDisplayName(), ex.Message), ex);
         }
     }
 

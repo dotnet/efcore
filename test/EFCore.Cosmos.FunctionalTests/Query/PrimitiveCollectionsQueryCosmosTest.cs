@@ -2094,6 +2094,23 @@ WHERE ARRAY_CONTAINS(@strings, (ARRAY_CONTAINS(@ints, c["Int"]) ? "one" : "two")
 """);
             });
 
+    public override Task Values_of_enum_casted_to_underlying_value(bool async)
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async a =>
+            {
+                await base.Values_of_enum_casted_to_underlying_value(a);
+
+                AssertSql(
+                    """
+SELECT VALUE c
+FROM root c
+WHERE ((
+    SELECT VALUE COUNT(1)
+    FROM a IN (SELECT VALUE [0, 1, 2, 3])
+    WHERE (a = c["Int"])) > 0)
+""");
+            });
+
     #region Cosmos-specific tests
 
     [ConditionalTheory]

@@ -5,7 +5,7 @@ namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
 #nullable disable
 
-public abstract class NonSharedModelBulkUpdatesTestBase : NonSharedModelTestBase
+public abstract class NonSharedModelBulkUpdatesTestBase(NonSharedFixture fixture) : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
 {
     protected override string StoreName
         => "NonSharedModelBulkUpdatesTests";

@@ -507,9 +507,11 @@ public abstract class OwnedRelationshipsFixtureBase : RelationshipsQueryFixtureB
         }
 
         Assert.Equal(expected.CollectionBranch.Count, actual.CollectionBranch?.Count ?? 0);
+        var expectedCollection = expected.CollectionBranch.OrderBy(e => e.Name).ToList();
+        var actualCollection = actual.CollectionBranch is null ? [] : actual.CollectionBranch.OrderBy(e => e.Name).ToList();
         for (var i = 0; i < expected.CollectionBranch.Count; i++)
         {
-            AssertOwnedBranch(expected.CollectionBranch[i], actual.CollectionBranch![i]);
+            AssertOwnedBranch(expectedCollection[i], actualCollection![i]);
         }
     }
 
@@ -526,9 +528,11 @@ public abstract class OwnedRelationshipsFixtureBase : RelationshipsQueryFixtureB
         }
 
         Assert.Equal(expected.CollectionLeaf.Count, actual.CollectionLeaf?.Count ?? 0);
+        var expectedCollection = expected.CollectionLeaf.OrderBy(e => e.Name).ToList();
+        var actualCollection = actual.CollectionLeaf is null ? [] : actual.CollectionLeaf.OrderBy(e => e.Name).ToList();
         for (var i = 0; i < expected.CollectionLeaf.Count; i++)
         {
-            AssertOwnedLeaf(expected.CollectionLeaf[i], actual.CollectionLeaf![i]);
+            AssertOwnedLeaf(expectedCollection[i], actualCollection![i]);
         }
     }
 

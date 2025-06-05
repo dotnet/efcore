@@ -62,7 +62,7 @@ db.SaveChanges();
 
 ### Build from source
 
-Most people use EF Core by installing pre-build NuGet packages, as shown above. Alternately, [the code can be built and packages can be created directly on your development machine](./docs/getting-and-building-the-code.md).
+Most people use EF Core by installing pre-built NuGet packages, as shown above. Alternatively, [the code can be built and packages can be created directly on your development machine](./docs/getting-and-building-the-code.md).
 
 ### Contributing
 
@@ -90,7 +90,7 @@ Use the `--version` option to specify a [preview version](https://www.nuget.org/
 
 ### Daily builds
 
-We recommend using the [daily builds](docs/DailyBuilds.md) to get the latest code and provide feedback on Microsoft.Data.Sqlite. These builds contain latest features and bug fixes; previews and official releases lag significantly behind.
+We recommend using the [daily builds](docs/DailyBuilds.md) to get the latest code and provide feedback on Microsoft.Data.Sqlite. These builds contain the latest features and bug fixes; previews and official releases lag significantly behind.
 
 ### Basic usage
 
@@ -112,7 +112,7 @@ while (reader.Read())
 
 ### Build from source
 
-Most people use Microsoft.Data.Sqlite by installing pre-build NuGet packages, as shown above. Alternately, [the code can be built and packages can be created directly on your development machine](./docs/getting-and-building-the-code.md).
+Most people use Microsoft.Data.Sqlite by installing pre-built NuGet packages, as shown above. Alternatively, [the code can be built and packages can be created directly on your development machine](./docs/getting-and-building-the-code.md).
 
 ### Contributing
 

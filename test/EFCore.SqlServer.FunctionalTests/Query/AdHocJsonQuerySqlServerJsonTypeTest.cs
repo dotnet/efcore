@@ -7,7 +7,7 @@ using Microsoft.Data.SqlClient;
 namespace Microsoft.EntityFrameworkCore.Query;
 
 [SqlServerCondition(SqlServerCondition.SupportsJsonType)]
-public class AdHocJsonQuerySqlServerJsonTypeTest : AdHocJsonQuerySqlServerTestBase
+public class AdHocJsonQuerySqlServerJsonTypeTest(NonSharedFixture fixture) : AdHocJsonQuerySqlServerTestBase(fixture)
 {
     public override async Task Missing_navigation_works_with_deduplication(bool async)
     {

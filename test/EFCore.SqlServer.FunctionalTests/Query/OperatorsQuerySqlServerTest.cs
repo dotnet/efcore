@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public class OperatorsQuerySqlServerTest : OperatorsQueryTestBase
+public class OperatorsQuerySqlServerTest(NonSharedFixture fixture) : OperatorsQueryTestBase(fixture)
 {
     protected override ITestStoreFactory TestStoreFactory
         => SqlServerTestStoreFactory.Instance;

@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.TestModels.RelationshipsModel;
 
 namespace Microsoft.EntityFrameworkCore.Query.Relationships;
 
-public abstract class ComplexRelationsjipsRelationalFixtureBase : ComplexRelationshipsFixtureBase
+public abstract class ComplexRelationshipsRelationalFixtureBase : ComplexRelationshipsFixtureBase
 {
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {

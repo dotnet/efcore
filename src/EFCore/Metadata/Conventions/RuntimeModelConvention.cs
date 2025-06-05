@@ -293,9 +293,6 @@ public class RuntimeModelConvention : IModelFinalizedConvention
             {
                 if (CoreAnnotationNames.AllNames.Contains(key)
                     && key != CoreAnnotationNames.QueryFilter
-#pragma warning disable CS0612 // Type or member is obsolete
-                    && key != CoreAnnotationNames.DefiningQuery
-#pragma warning restore CS0612 // Type or member is obsolete
                     && key != CoreAnnotationNames.DiscriminatorMappingComplete)
                 {
                     annotations.Remove(key);
@@ -306,14 +303,6 @@ public class RuntimeModelConvention : IModelFinalizedConvention
             {
                 annotations[CoreAnnotationNames.QueryFilter] =
                     new QueryRootRewritingExpressionVisitor(runtimeEntityType.Model).Rewrite((Expression)queryFilter!);
-            }
-
-#pragma warning disable CS0612 // Type or member is obsolete
-            if (annotations.TryGetValue(CoreAnnotationNames.DefiningQuery, out var definingQuery))
-            {
-                annotations[CoreAnnotationNames.DefiningQuery] =
-#pragma warning restore CS0612 // Type or member is obsolete
-                    new QueryRootRewritingExpressionVisitor(runtimeEntityType.Model).Rewrite((Expression)definingQuery!);
             }
         }
     }

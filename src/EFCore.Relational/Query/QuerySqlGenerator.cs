@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 
@@ -151,10 +152,11 @@ public class QuerySqlGenerator : SqlExpressionVisitor
         return sqlFragmentExpression;
     }
 
-    private static bool IsNonComposedSetOperation(SelectExpression selectExpression)
-        => selectExpression is
+    private static bool TryUnwrapBareSetOperation(SelectExpression selectExpression, [NotNullWhen(true)] out SetOperationBase? setOperation)
+    {
+        if (selectExpression is
             {
-                Tables: [SetOperationBase setOperation],
+                Tables: [SetOperationBase s],
                 Predicate: null,
                 Orderings: [],
                 Offset: null,
@@ -163,12 +165,20 @@ public class QuerySqlGenerator : SqlExpressionVisitor
                 Having: null,
                 GroupBy: []
             }
-            && selectExpression.Projection.Count == setOperation.Source1.Projection.Count
+            && selectExpression.Projection.Count == s.Source1.Projection.Count
             && selectExpression.Projection.Select(
                     (pe, index) => pe.Expression is ColumnExpression column
-                        && column.TableAlias == setOperation.Alias
-                        && column.Name == setOperation.Source1.Projection[index].Alias)
-                .All(e => e);
+                        && column.TableAlias == s.Alias
+                        && column.Name == s.Source1.Projection[index].Alias)
+                .All(e => e))
+        {
+            setOperation = s;
+            return true;
+        }
+
+        setOperation = null;
+        return false;
+    }
 
     /// <summary>
     ///     Generates SQL for a DELETE expression
@@ -278,9 +288,9 @@ public class QuerySqlGenerator : SqlExpressionVisitor
     /// </summary>
     protected virtual bool TryGenerateWithoutWrappingSelect(SelectExpression selectExpression)
     {
-        if (IsNonComposedSetOperation(selectExpression))
+        if (TryUnwrapBareSetOperation(selectExpression, out var setOperation))
         {
-            GenerateSetOperation((SetOperationBase)selectExpression.Tables[0]);
+            GenerateSetOperation(setOperation);
             return true;
         }
 
@@ -1358,11 +1368,16 @@ public class QuerySqlGenerator : SqlExpressionVisitor
     protected virtual void GenerateSetOperationOperand(SetOperationBase setOperation, SelectExpression operand)
     {
         // INTERSECT has higher precedence over UNION and EXCEPT, but otherwise evaluation is left-to-right.
-        // To preserve meaning, add parentheses whenever a set operation is nested within a different set operation.
-        if (IsNonComposedSetOperation(operand)
-            && operand.Tables[0].GetType() != setOperation.GetType())
+        // To preserve evaluation order, add parentheses whenever a set operation is nested within a different set operation
+        // - including different distinctness.
+        // In addition, EXCEPT is non-commutative (unlike UNION/INTERSECT), so add parentheses for that case too (see #36105).
+        if (TryUnwrapBareSetOperation(operand, out var nestedSetOperation)
+            && (nestedSetOperation is ExceptExpression
+                || nestedSetOperation.GetType() != setOperation.GetType()
+                || nestedSetOperation.IsDistinct != setOperation.IsDistinct))
         {
             _relationalCommandBuilder.AppendLine("(");
+
             using (_relationalCommandBuilder.Indent())
             {
                 Visit(operand);
@@ -1472,7 +1487,7 @@ public class QuerySqlGenerator : SqlExpressionVisitor
                     var table = selectExpression.Tables[i];
                     var joinExpression = table as JoinExpressionBase;
 
-                    if (ReferenceEquals(updateExpression.Table, joinExpression?.Table ?? table))
+                    if (updateExpression.Table.Alias == (joinExpression?.Table.Alias ?? table.Alias))
                     {
                         LiftPredicate(table);
                         continue;

@@ -900,6 +900,72 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     }
 
     [ConditionalFact]
+    public void DefaultValue_with_explicit_constraint_name_throws_for_TPC()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Animal>().UseTpcMappingStrategy();
+        modelBuilder.Entity<Animal>().Property(x => x.Name).HasDefaultValue("Miauo", defaultConstraintName: "MyConstraint");
+        modelBuilder.Entity<Cat>().HasBaseType<Animal>();
+        modelBuilder.Entity<Dog>().HasBaseType<Animal>();
+
+        VerifyError(
+            RelationalStrings.ExplicitDefaultConstraintNamesNotSupportedForTpc("MyConstraint"),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
+    public void DefaultValueSql_with_explicit_constraint_name_throws_for_TPC()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Animal>().UseTpcMappingStrategy();
+        modelBuilder.Entity<Animal>().Property(x => x.Name).HasDefaultValueSql("NEWID()", defaultConstraintName: "MyConstraint");
+        modelBuilder.Entity<Cat>().HasBaseType<Animal>();
+        modelBuilder.Entity<Dog>().HasBaseType<Animal>();
+
+        VerifyError(
+            RelationalStrings.ExplicitDefaultConstraintNamesNotSupportedForTpc("MyConstraint"),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
+    public void DefaultValue_with_empty_explicit_constraint_name_throws()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.UseNamedDefaultConstraints();
+        modelBuilder.Entity<Animal>().UseTpcMappingStrategy();
+
+        Assert.Throws<ArgumentException>(
+            () => modelBuilder.Entity<Animal>().Property(x => x.Name).HasDefaultValue("Miauo", defaultConstraintName: ""));
+    }
+
+    [ConditionalFact]
+    public void DefaultValueSql_with_empty_explicit_constraint_name_throws()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.UseNamedDefaultConstraints();
+        modelBuilder.Entity<Animal>().UseTpcMappingStrategy();
+
+        Assert.Throws<ArgumentException>(
+            () => modelBuilder.Entity<Animal>().Property(x => x.Name).HasDefaultValueSql("Miauo", defaultConstraintName: ""));
+    }
+
+    [ConditionalFact]
+    public void DefaultValue_with_implicit_constraint_name_throws_for_TPC()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.UseNamedDefaultConstraints();
+        modelBuilder.Entity<Animal>().UseTpcMappingStrategy();
+        modelBuilder.Entity<Animal>().Property(x => x.Name).HasDefaultValue("Miauo");
+        modelBuilder.Entity<Cat>().HasBaseType<Animal>();
+        modelBuilder.Entity<Cat>().Property(x => x.Breed).HasDefaultValue("Ragdoll", defaultConstraintName: "DF_Cat_Name");
+        modelBuilder.Entity<Dog>().HasBaseType<Animal>();
+
+        VerifyError(
+            RelationalStrings.ImplicitDefaultNamesNotSupportedForTpcWhenNamesClash("DF_Cat_Name"),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
     public void Temporal_can_only_be_specified_on_root_entities()
     {
         var modelBuilder = CreateConventionModelBuilder();

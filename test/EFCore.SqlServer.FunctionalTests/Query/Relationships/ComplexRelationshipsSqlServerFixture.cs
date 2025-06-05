@@ -3,7 +3,7 @@
 
 namespace Microsoft.EntityFrameworkCore.Query.Relationships;
 
-public class ComplexRelationshipsSqlServerFixture : ComplexRelationsjipsRelationalFixtureBase, ITestSqlLoggerFactory
+public class ComplexRelationshipsSqlServerFixture : ComplexRelationshipsRelationalFixtureBase, ITestSqlLoggerFactory
 {
     protected override ITestStoreFactory TestStoreFactory
         => SqlServerTestStoreFactory.Instance;

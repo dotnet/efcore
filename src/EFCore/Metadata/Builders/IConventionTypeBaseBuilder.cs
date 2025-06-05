@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 /// <summary>
@@ -257,6 +259,66 @@ public interface IConventionTypeBaseBuilder : IConventionAnnotatableBuilder
         bool fromDataAnnotation = false);
 
     /// <summary>
+    ///     Returns an object that can be used to configure the complex collection with the given name.
+    ///     If no matching property exists, then a new property will be added.
+    /// </summary>
+    /// <param name="propertyType">The type of value the property will hold.</param>
+    /// <param name="propertyName">The name of the property to be configured.</param>
+    /// <param name="complexType">The target complex type.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>
+    ///     An object that can be used to configure the property if it exists on the type,
+    ///     <see langword="null" /> otherwise.
+    /// </returns>
+    IConventionComplexPropertyBuilder? ComplexCollection(
+        Type propertyType,
+        string propertyName,
+        Type? complexType = null,
+        bool fromDataAnnotation = false);
+
+    /// <summary>
+    ///     Returns an object that can be used to configure the complex collection with the given member info.
+    ///     If no matching property exists, then a new property will be added.
+    /// </summary>
+    /// <param name="memberInfo">The <see cref="PropertyInfo" /> or <see cref="FieldInfo" /> of the property.</param>
+    /// <param name="complexType">The target complex type.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>
+    ///     An object that can be used to configure the property if it exists on the type,
+    ///     <see langword="null" /> otherwise.
+    /// </returns>
+    IConventionComplexPropertyBuilder? ComplexCollection(
+        MemberInfo memberInfo,
+        Type? complexType = null,
+        bool fromDataAnnotation = false);
+
+    /// <summary>
+    ///     Returns a value indicating whether the given complex collection can be added to this type.
+    /// </summary>
+    /// <param name="propertyType">The type of value the property will hold.</param>
+    /// <param name="propertyName">The name of the property to be configured.</param>
+    /// <param name="complexType">The target complex type.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns><see langword="true" /> if the property can be added.</returns>
+    bool CanHaveComplexCollection(
+        Type? propertyType,
+        string propertyName,
+        Type? complexType = null,
+        bool fromDataAnnotation = false);
+
+    /// <summary>
+    ///     Returns a value indicating whether the given complex collection can be added to this type.
+    /// </summary>
+    /// <param name="memberInfo">The <see cref="PropertyInfo" /> or <see cref="FieldInfo" /> of the property.</param>
+    /// <param name="complexType">The target complex type.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns><see langword="true" /> if the property can be added.</returns>
+    bool CanHaveComplexCollection(
+        MemberInfo memberInfo,
+        Type? complexType = null,
+        bool fromDataAnnotation = false);
+
+    /// <summary>
     ///     Returns an object that can be used to configure the complex indexer property with the given name.
     ///     If no matching property exists, then a new property will be added.
     /// </summary>
@@ -268,6 +330,7 @@ public interface IConventionTypeBaseBuilder : IConventionAnnotatableBuilder
     ///     An object that can be used to configure the property if it exists on the type,
     ///     <see langword="null" /> otherwise.
     /// </returns>
+    [Obsolete("This isn't supported yet, see #31244")]
     IConventionComplexPropertyBuilder? ComplexIndexerProperty(
         Type propertyType,
         string propertyName,
@@ -282,6 +345,7 @@ public interface IConventionTypeBaseBuilder : IConventionAnnotatableBuilder
     /// <param name="complexType">The target complex type.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns><see langword="true" /> if the property can be added.</returns>
+    [Obsolete("This isn't supported yet, see #31244")]
     bool CanHaveComplexIndexerProperty(
         Type propertyType,
         string propertyName,
