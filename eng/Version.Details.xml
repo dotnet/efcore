@@ -29,9 +29,9 @@
       <Uri>https://dev.azure.com/dnceng/internal/_git/dotnet-runtime</Uri>
       <Sha>dcf4a22cf8671c1abe880ebec4cfd906c99588bf</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.Extensions.HostFactoryResolver.Sources" Version="8.0.15-servicing.25164.13">
+    <Dependency Name="Microsoft.Extensions.HostFactoryResolver.Sources" Version="8.0.16-servicing.25215.6">
       <Uri>https://dev.azure.com/dnceng/internal/_git/dotnet-runtime</Uri>
-      <Sha>50c4cb9fc31c47f03eac865d7bc518af173b74b7</Sha>
+      <Sha>efd5742bb5dd1677fbbbeb277bcfb5c9025548e5</Sha>
     </Dependency>
     <Dependency Name="Microsoft.Extensions.Logging" Version="8.0.1">
       <Uri>https://dev.azure.com/dnceng/internal/_git/dotnet-runtime</Uri>
@@ -45,32 +45,32 @@
       <Uri>https://dev.azure.com/dnceng/internal/_git/dotnet-runtime</Uri>
       <Sha>dcf4a22cf8671c1abe880ebec4cfd906c99588bf</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.NETCore.App.Ref" Version="8.0.15">
+    <Dependency Name="Microsoft.NETCore.App.Ref" Version="8.0.16">
       <Uri>https://dev.azure.com/dnceng/internal/_git/dotnet-runtime</Uri>
-      <Sha>50c4cb9fc31c47f03eac865d7bc518af173b74b7</Sha>
+      <Sha>efd5742bb5dd1677fbbbeb277bcfb5c9025548e5</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.NETCore.App.Runtime.win-x64" Version="8.0.15">
+    <Dependency Name="Microsoft.NETCore.App.Runtime.win-x64" Version="8.0.16">
       <Uri>https://dev.azure.com/dnceng/internal/_git/dotnet-runtime</Uri>
-      <Sha>50c4cb9fc31c47f03eac865d7bc518af173b74b7</Sha>
+      <Sha>efd5742bb5dd1677fbbbeb277bcfb5c9025548e5</Sha>
     </Dependency>
     <!-- NB: Using BrowserDebugHost to represent the nonshipping version of Microsoft.NETCore.App -->
-    <Dependency Name="Microsoft.NETCore.BrowserDebugHost.Transport" Version="8.0.15-servicing.25164.13">
+    <Dependency Name="Microsoft.NETCore.BrowserDebugHost.Transport" Version="8.0.16-servicing.25215.6">
       <Uri>https://dev.azure.com/dnceng/internal/_git/dotnet-runtime</Uri>
-      <Sha>50c4cb9fc31c47f03eac865d7bc518af173b74b7</Sha>
+      <Sha>efd5742bb5dd1677fbbbeb277bcfb5c9025548e5</Sha>
     </Dependency>
   </ProductDependencies>
   <ToolsetDependencies>
-    <Dependency Name="Microsoft.DotNet.Arcade.Sdk" Version="8.0.0-beta.25208.7">
+    <Dependency Name="Microsoft.DotNet.Arcade.Sdk" Version="8.0.0-beta.25263.4">
       <Uri>https://github.com/dotnet/arcade</Uri>
-      <Sha>c7a36e53f91e41943746f97a8c183549364c5092</Sha>
+      <Sha>20ab70a74d52b68f4271bd946884e24049b14f83</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.DotNet.Build.Tasks.Templating" Version="8.0.0-beta.25208.7">
+    <Dependency Name="Microsoft.DotNet.Build.Tasks.Templating" Version="8.0.0-beta.25263.4">
       <Uri>https://github.com/dotnet/arcade</Uri>
-      <Sha>c7a36e53f91e41943746f97a8c183549364c5092</Sha>
+      <Sha>20ab70a74d52b68f4271bd946884e24049b14f83</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.DotNet.Helix.Sdk" Version="8.0.0-beta.25208.7">
+    <Dependency Name="Microsoft.DotNet.Helix.Sdk" Version="8.0.0-beta.25263.4">
       <Uri>https://github.com/dotnet/arcade</Uri>
-      <Sha>c7a36e53f91e41943746f97a8c183549364c5092</Sha>
+      <Sha>20ab70a74d52b68f4271bd946884e24049b14f83</Sha>
     </Dependency>
   </ToolsetDependencies>
 </Dependencies>
