@@ -176,7 +176,7 @@ public class SqliteTypeMappingSource : RelationalTypeMappingSource
     }
 
     private readonly Func<string, RelationalTypeMapping?>[] _typeRules =
-    {
+    [
         name => Contains(name, "INT")
             ? Integer
             : null,
@@ -193,7 +193,7 @@ public class SqliteTypeMappingSource : RelationalTypeMappingSource
             || Contains(name, "DOUB")
                 ? Real
                 : null
-    };
+    ];
 
     private static bool Contains(string haystack, string needle)
         => haystack.IndexOf(needle, StringComparison.OrdinalIgnoreCase) >= 0;

@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
@@ -29,9 +31,13 @@ public class ComplexPropertyDiscoveryConvention :
     ///     Creates a new instance of <see cref="ComplexPropertyDiscoveryConvention" />.
     /// </summary>
     /// <param name="dependencies">Parameter object containing dependencies for this convention.</param>
-    public ComplexPropertyDiscoveryConvention(ProviderConventionSetBuilderDependencies dependencies)
+    /// <param name="useAttributes">Whether the convention will use attributes found on the members.</param>
+    public ComplexPropertyDiscoveryConvention(
+        ProviderConventionSetBuilderDependencies dependencies,
+        bool useAttributes = true)
     {
         Dependencies = dependencies;
+        UseAttributes = useAttributes;
     }
 
     /// <summary>
@@ -39,33 +45,66 @@ public class ComplexPropertyDiscoveryConvention :
     /// </summary>
     protected virtual ProviderConventionSetBuilderDependencies Dependencies { get; }
 
-    private void DiscoverComplexProperties(
-        IConventionTypeBaseBuilder typeBaseBuilder)
+    /// <summary>
+    ///     A value indicating whether the convention will use attributes found on the members.
+    /// </summary>
+    protected virtual bool UseAttributes { get; }
+
+    /// <summary>
+    ///     Discovers complex properties on the given structural type.
+    /// </summary>
+    /// <param name="structuralTypeBuilder">The type for which the properties will be discovered.</param>
+    /// <param name="context">Additional information associated with convention execution.</param>
+    protected virtual void DiscoverComplexProperties(
+        IConventionTypeBaseBuilder structuralTypeBuilder,
+        IConventionContext context)
     {
-        var typeBase = typeBaseBuilder.Metadata;
-        foreach (var candidateMember in typeBase.GetRuntimeProperties().Values)
+        var typeBase = structuralTypeBuilder.Metadata;
+        foreach (var candidateMember in GetMembers(typeBase))
         {
-            TryConfigureComplexProperty(candidateMember, typeBase);
+            TryConfigureComplexProperty(candidateMember, typeBase, context);
         }
     }
 
-    private bool TryConfigureComplexProperty(MemberInfo? candidateMember, IConventionTypeBase typeBase)
+    private void TryConfigureComplexProperty(MemberInfo? candidateMember, IConventionTypeBase typeBase, IConventionContext context)
     {
         if (candidateMember == null
-            || !typeBase.IsInModel
-            || typeBase.IsIgnored(candidateMember.Name)
-            || typeBase.FindMember(candidateMember.Name) != null
-            || (candidateMember is PropertyInfo propertyInfo && propertyInfo.GetIndexParameters().Length != 0)
-            || !Dependencies.MemberClassifier.IsCandidateComplexProperty(
-                candidateMember, typeBase.Model, out var elementType, out var explicitlyConfigured))
+            || !IsCandidateComplexProperty(candidateMember, typeBase, out var targetClrType))
         {
+            return;
+        }
+
+        RemoveComplexCandidate(candidateMember.Name, typeBase.Builder);
+
+        typeBase.Builder.ComplexProperty(candidateMember, targetClrType);
+    }
+
+    /// <summary>
+    ///     Returns a value indicating whether the given member is a complex property candidate.
+    /// </summary>
+    /// <param name="memberInfo">The member.</param>
+    /// <param name="structuralType">The type for which the properties will be discovered.</param>
+    /// <param name="targetClrType">The complex type.</param>
+    protected virtual bool IsCandidateComplexProperty(
+        MemberInfo memberInfo,
+        IConventionTypeBase structuralType,
+        [NotNullWhen(true)] out Type? targetClrType)
+    {
+        if (!structuralType.IsInModel
+            || structuralType.IsIgnored(memberInfo.Name)
+            || structuralType.FindMember(memberInfo.Name) != null
+            || (memberInfo is PropertyInfo propertyInfo && propertyInfo.GetIndexParameters().Length != 0)
+            || !Dependencies.MemberClassifier.IsCandidateComplexProperty(
+                memberInfo, structuralType.Model, UseAttributes, out var elementType, out var explicitlyConfigured))
+        {
+            targetClrType = null;
             return false;
         }
 
-        var model = (Model)typeBase.Model;
-        var targetClrType = (elementType ?? candidateMember.GetMemberType()).UnwrapNullableType();
-        if (typeBase.Model.Builder.IsIgnored(targetClrType)
-            || (typeBase is IReadOnlyComplexType complexType
+        var model = (Model)structuralType.Model;
+        targetClrType = (elementType ?? memberInfo.GetMemberType()).UnwrapNullableType();
+        if (structuralType.Model.Builder.IsIgnored(targetClrType)
+            || (structuralType is IReadOnlyComplexType complexType
                 && complexType.IsContainedBy(targetClrType)))
         {
             return false;
@@ -74,26 +113,35 @@ public class ComplexPropertyDiscoveryConvention :
         if (!explicitlyConfigured
             && model.FindIsComplexConfigurationSource(targetClrType) == null)
         {
-            AddComplexCandidate(candidateMember, typeBase.Builder);
+            AddComplexCandidate(memberInfo, structuralType.Builder);
             return false;
         }
 
-        RemoveComplexCandidate(candidateMember.Name, typeBase.Builder);
-
-        return typeBase.Builder.ComplexProperty(candidateMember, targetClrType) != null;
+        return true;
     }
+
+    /// <summary>
+    ///     Returns the CLR members from the given type that should be considered when discovering properties.
+    /// </summary>
+    /// <param name="structuralType">The type for which the properties will be discovered.</param>
+    /// <returns>The CLR members to be considered.</returns>
+    protected virtual IEnumerable<MemberInfo> GetMembers(IConventionTypeBase structuralType)
+        => structuralType is IConventionComplexType
+            ? structuralType.GetRuntimeProperties().Values.Cast<MemberInfo>()
+                .Concat(structuralType.GetRuntimeFields().Values)
+            : structuralType.GetRuntimeProperties().Values;
 
     /// <inheritdoc />
     public virtual void ProcessEntityTypeAdded(
         IConventionEntityTypeBuilder entityTypeBuilder,
         IConventionContext<IConventionEntityTypeBuilder> context)
-        => DiscoverComplexProperties(entityTypeBuilder);
+        => DiscoverComplexProperties(entityTypeBuilder, context);
 
     /// <inheritdoc />
     public void ProcessComplexPropertyAdded(
         IConventionComplexPropertyBuilder propertyBuilder,
         IConventionContext<IConventionComplexPropertyBuilder> context)
-        => DiscoverComplexProperties(propertyBuilder.Metadata.ComplexType.Builder);
+        => DiscoverComplexProperties(propertyBuilder.Metadata.ComplexType.Builder, context);
 
     /// <inheritdoc />
     public virtual void ProcessEntityTypeBaseTypeChanged(
@@ -104,13 +152,13 @@ public class ComplexPropertyDiscoveryConvention :
     {
         if (oldBaseType?.IsInModel == true)
         {
-            DiscoverComplexProperties(oldBaseType.Builder);
+            DiscoverComplexProperties(oldBaseType.Builder, context);
         }
 
         var entityType = entityTypeBuilder.Metadata;
         if (entityType.BaseType == newBaseType)
         {
-            DiscoverComplexProperties(entityType.Builder);
+            DiscoverComplexProperties(entityType.Builder, context);
         }
     }
 
@@ -119,14 +167,14 @@ public class ComplexPropertyDiscoveryConvention :
         IConventionTypeBaseBuilder typeBaseBuilder,
         IConventionProperty property,
         IConventionContext<IConventionProperty> context)
-        => TryConfigureComplexProperty(property.GetIdentifyingMemberInfo(), typeBaseBuilder.Metadata);
+        => TryConfigureComplexProperty(property.GetIdentifyingMemberInfo(), typeBaseBuilder.Metadata, context);
 
     /// <inheritdoc />
     public void ProcessSkipNavigationRemoved(
         IConventionEntityTypeBuilder entityTypeBuilder,
         IConventionSkipNavigation navigation,
         IConventionContext<IConventionSkipNavigation> context)
-        => TryConfigureComplexProperty(navigation.GetIdentifyingMemberInfo(), entityTypeBuilder.Metadata);
+        => TryConfigureComplexProperty(navigation.GetIdentifyingMemberInfo(), entityTypeBuilder.Metadata, context);
 
     /// <inheritdoc />
     public virtual void ProcessNavigationRemoved(
@@ -135,7 +183,7 @@ public class ComplexPropertyDiscoveryConvention :
         string navigationName,
         MemberInfo? memberInfo,
         IConventionContext<string> context)
-        => TryConfigureComplexProperty(memberInfo, sourceEntityTypeBuilder.Metadata);
+        => TryConfigureComplexProperty(memberInfo, sourceEntityTypeBuilder.Metadata, context);
 
     /// <inheritdoc />
     public void ProcessEntityTypeMemberIgnored(
@@ -169,26 +217,24 @@ public class ComplexPropertyDiscoveryConvention :
     {
         foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
         {
-            DiscoverMissedComplexProperties(entityType);
+            DiscoverMissedComplexProperties(entityType, context);
         }
     }
 
-    private void DiscoverMissedComplexProperties(IConventionTypeBase typeBase)
+    private void DiscoverMissedComplexProperties(IConventionTypeBase typeBase, IConventionContext context)
     {
         var candidates = GetComplexCandidates(typeBase);
         if (candidates != null)
         {
             foreach (var candidatePair in candidates.OrderBy(v => v.Key))
             {
-                TryConfigureComplexProperty(candidatePair.Value, typeBase);
+                TryConfigureComplexProperty(candidatePair.Value, typeBase, context);
             }
-
-            typeBase.Builder.HasNoAnnotation(CoreAnnotationNames.ComplexCandidates);
         }
 
         foreach (var complexProperty in typeBase.GetComplexProperties())
         {
-            DiscoverMissedComplexProperties(complexProperty.ComplexType);
+            DiscoverMissedComplexProperties(complexProperty.ComplexType, context);
         }
     }
 
