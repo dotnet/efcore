@@ -861,7 +861,7 @@ SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."
 FROM "PrimitiveCollectionsEntity" AS "p"
 WHERE EXISTS (
     SELECT 1
-    FROM (SELECT 2 AS "Value" UNION ALL VALUES (999), (1000)) AS "i"
+    FROM (SELECT CAST(2 AS INTEGER) AS "Value" UNION ALL VALUES (999), (1000)) AS "i"
     WHERE "i"."Value" > 0)
 """);
     }
@@ -876,7 +876,7 @@ SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."
 FROM "PrimitiveCollectionsEntity" AS "p"
 WHERE (
     SELECT COUNT(*)
-    FROM (SELECT 2 AS "Value" UNION ALL VALUES (999), (1000)) AS "i"
+    FROM (SELECT CAST(2 AS INTEGER) AS "Value" UNION ALL VALUES (999), (1000)) AS "i"
     WHERE "i"."Value" > "p"."Id") = 2
 """);
     }
@@ -1112,6 +1112,23 @@ WHERE (
     SELECT "v"."Value"
     FROM (SELECT 0 AS "_ord", CAST(1 AS INTEGER) AS "Value" UNION ALL VALUES (1, 2), (2, 3)) AS "v"
     ORDER BY "v"."_ord"
+    LIMIT 1 OFFSET "p"."Int") = 1
+""");
+    }
+
+    public override async Task Inline_collection_index_Column_with_EF_Constant(bool async)
+    {
+        // SQLite doesn't support correlated subqueries where the outer column is used as the LIMIT/OFFSET (see OFFSET "p"."Int" below)
+        await Assert.ThrowsAsync<SqliteException>(() => base.Inline_collection_index_Column_with_EF_Constant(async));
+
+        AssertSql(
+            """
+SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."NullableWrappedId", "p"."NullableWrappedIdWithNullableComparer", "p"."String", "p"."Strings", "p"."WrappedId"
+FROM "PrimitiveCollectionsEntity" AS "p"
+WHERE (
+    SELECT "i"."Value"
+    FROM (SELECT 0 AS "_ord", CAST(1 AS INTEGER) AS "Value" UNION ALL VALUES (1, 2), (2, 3)) AS "i"
+    ORDER BY "i"."_ord"
     LIMIT 1 OFFSET "p"."Int") = 1
 """);
     }
