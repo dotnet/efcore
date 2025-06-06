@@ -98,43 +98,30 @@ WHERE [m].[Tenant] = @ef_filter__p
             """
 SELECT [l].[Id], [l].[Tenant]
 FROM [ListFilter] AS [l]
-WHERE [l].[Tenant] IN (
-    SELECT [e].[value]
-    FROM OPENJSON(NULL) WITH ([value] int '$') AS [e]
-)
+WHERE 0 = 1
 """,
             //
             """
-@ef_filter__TenantIds='[]' (Size = 4000)
-
 SELECT [l].[Id], [l].[Tenant]
 FROM [ListFilter] AS [l]
-WHERE [l].[Tenant] IN (
-    SELECT [e].[value]
-    FROM OPENJSON(@ef_filter__TenantIds) WITH ([value] int '$') AS [e]
-)
+WHERE 0 = 1
 """,
             //
             """
-@ef_filter__TenantIds='[1]' (Size = 4000)
+@ef_filter__TenantIds1='1'
 
 SELECT [l].[Id], [l].[Tenant]
 FROM [ListFilter] AS [l]
-WHERE [l].[Tenant] IN (
-    SELECT [e].[value]
-    FROM OPENJSON(@ef_filter__TenantIds) WITH ([value] int '$') AS [e]
-)
+WHERE [l].[Tenant] = @ef_filter__TenantIds1
 """,
             //
             """
-@ef_filter__TenantIds='[2,3]' (Size = 4000)
+@ef_filter__TenantIds1='2'
+@ef_filter__TenantIds2='3'
 
 SELECT [l].[Id], [l].[Tenant]
 FROM [ListFilter] AS [l]
-WHERE [l].[Tenant] IN (
-    SELECT [e].[value]
-    FROM OPENJSON(@ef_filter__TenantIds) WITH ([value] int '$') AS [e]
-)
+WHERE [l].[Tenant] IN (@ef_filter__TenantIds1, @ef_filter__TenantIds2)
 """);
     }
 

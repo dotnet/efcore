@@ -295,11 +295,26 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
 
         var primitiveCollectionsBehavior = RelationalOptionsExtension.Extract(QueryCompilationContext.ContextOptions)
             .ParameterizedCollectionTranslationMode;
-
         var tableAlias = _sqlAliasManager.GenerateTableAlias(sqlParameterExpression.Name.TrimStart('_'));
+
         if (queryParameter.ShouldBeConstantized
-            || (primitiveCollectionsBehavior == ParameterizedCollectionTranslationMode.Constantize
+            || (primitiveCollectionsBehavior is ParameterizedCollectionTranslationMode.Constantize
                 && !queryParameter.ShouldNotBeConstantized))
+        {
+            var valuesExpression = new ValuesExpression(
+                tableAlias,
+                sqlParameterExpression,
+                [ValuesOrderingColumnName, ValuesValueColumnName]);
+            return CreateShapedQueryExpressionForValuesExpression(
+                valuesExpression,
+                tableAlias,
+                parameterQueryRootExpression.ElementType,
+                sqlParameterExpression.TypeMapping,
+                sqlParameterExpression.IsNullable);
+        }
+
+        if ((primitiveCollectionsBehavior is null or ParameterizedCollectionTranslationMode.ParameterizeExpanded)
+            && !queryParameter.ShouldNotBeConstantized)
         {
             var valuesExpression = new ValuesExpression(
                 tableAlias,
@@ -569,16 +584,23 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
             return TranslateAny(source, anyLambda);
         }
 
-        // Pattern-match Contains over ValuesExpression, translating to simplified 'item IN (1, 2, 3)' with constant elements
+        var primitiveCollectionsBehavior = RelationalOptionsExtension.Extract(QueryCompilationContext.ContextOptions)
+            .ParameterizedCollectionTranslationMode;
+        // Pattern-match Contains over ValuesExpression, translating to simplified 'item IN (1, 2, 3)' with constant elements.
         if (TryExtractBareInlineCollectionValues(source, out var values, out var valuesParameter))
         {
-            var inExpression = (values, valuesParameter) switch
+            if (values is not null)
             {
-                (not null, null) => _sqlExpressionFactory.In(translatedItem, values),
-                (null, not null) => _sqlExpressionFactory.In(translatedItem, valuesParameter),
-                _ => throw new UnreachableException(),
-            };
-            return source.Update(new SelectExpression(inExpression, _sqlAliasManager), source.ShaperExpression);
+                var inExpression = _sqlExpressionFactory.In(translatedItem, values);
+                return source.Update(new SelectExpression(inExpression, _sqlAliasManager), source.ShaperExpression);
+            }
+            if (valuesParameter is not null
+                // Expanding parameters will happen in 2nd stage of query pipeline.
+                && primitiveCollectionsBehavior is not (null or ParameterizedCollectionTranslationMode.ParameterizeExpanded))
+            {
+                var inExpression = _sqlExpressionFactory.In(translatedItem, valuesParameter);
+                return source.Update(new SelectExpression(inExpression, _sqlAliasManager), source.ShaperExpression);
+            }
         }
 
         // Translate to IN with a subquery.

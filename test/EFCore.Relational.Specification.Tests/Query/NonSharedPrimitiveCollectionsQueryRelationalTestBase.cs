@@ -16,6 +16,8 @@ public abstract class NonSharedPrimitiveCollectionsQueryRelationalTestBase(NonSh
 
     protected abstract DbContextOptionsBuilder SetTranslateParameterizedCollectionsToParameters(DbContextOptionsBuilder optionsBuilder);
 
+    protected abstract DbContextOptionsBuilder SetTranslateParameterizedCollectionsToExpandedParameters(DbContextOptionsBuilder optionsBuilder);
+
     [ConditionalFact]
     public virtual async Task Column_collection_inside_json_owned_entity()
     {
@@ -200,6 +202,47 @@ public abstract class NonSharedPrimitiveCollectionsQueryRelationalTestBase(NonSh
 
         var ints = new[] { 2, 999 };
         var result = await context.Set<TestEntity>().Where(c => EF.Constant(ints).Contains(c.Id)).Select(x => x.Id).ToListAsync();
+        Assert.Equivalent(new[] { 2 }, result);
+    }
+
+    [ConditionalFact]
+    public virtual async Task Parameter_collection_Count_with_column_predicate_with_default_expanded_parameters()
+    {
+        var contextFactory = await InitializeAsync<TestContext>(
+            onConfiguring: b => SetTranslateParameterizedCollectionsToExpandedParameters(b),
+            seed: context =>
+            {
+                context.AddRange(
+                    new TestEntity { Id = 1 },
+                    new TestEntity { Id = 100 });
+                return context.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateContext();
+
+        var ids = new[] { 2, 999 };
+        var result = await context.Set<TestEntity>().Where(c => ids.Count(i => i > c.Id) == 1).Select(x => x.Id).ToListAsync();
+        Assert.Equivalent(new[] { 100 }, result);
+    }
+
+    [ConditionalFact]
+    public virtual async Task Parameter_collection_of_ints_Contains_int_with_default_expanded_parameters()
+    {
+        var contextFactory = await InitializeAsync<TestContext>(
+            onConfiguring: b => SetTranslateParameterizedCollectionsToExpandedParameters(b),
+            seed: context =>
+            {
+                context.AddRange(
+                    new TestEntity { Id = 1 },
+                    new TestEntity { Id = 2 },
+                    new TestEntity { Id = 100 });
+                return context.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateContext();
+
+        var ints = new[] { 2, 999 };
+        var result = await context.Set<TestEntity>().Where(c => ints.Contains(c.Id)).Select(x => x.Id).ToListAsync();
         Assert.Equivalent(new[] { 2 }, result);
     }
 
