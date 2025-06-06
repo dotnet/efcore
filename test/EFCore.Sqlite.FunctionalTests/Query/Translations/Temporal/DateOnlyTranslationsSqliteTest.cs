@@ -74,6 +74,18 @@ WHERE CAST(strftime('%w', "b"."DateOnly") AS INTEGER) = 6
 """);
     }
 
+    public override async Task DayNumber(bool async)
+    {
+        await base.DayNumber(async);
+
+        AssertSql(
+            """
+SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
+FROM "BasicTypesEntities" AS "b"
+WHERE CAST(julianday("b"."DateOnly") - julianday('0001-01-01') AS INTEGER) = 726780
+""");
+    }
+
     public override async Task AddYears(bool async)
     {
         await base.AddYears(async);
@@ -107,6 +119,20 @@ WHERE date("b"."DateOnly", CAST(3 AS TEXT) || ' months') = '1991-02-10'
 SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
 FROM "BasicTypesEntities" AS "b"
 WHERE date("b"."DateOnly", CAST(3 AS TEXT) || ' days') = '1990-11-13'
+""");
+    }
+
+    public override async Task DayNumber_subtraction(bool async)
+    {
+        await base.DayNumber_subtraction(async);
+
+        AssertSql(
+            """
+@DayNumber='726775'
+
+SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
+FROM "BasicTypesEntities" AS "b"
+WHERE CAST(julianday("b"."DateOnly") - julianday('0001-01-01') AS INTEGER) - @DayNumber = 5
 """);
     }
 

@@ -45,6 +45,13 @@ public abstract class DateOnlyTranslationsTestBase<TFixture>(TFixture fixture) :
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task DayNumber(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<BasicTypesEntity>().Where(b => b.DateOnly.DayNumber == 726780));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task AddYears(bool async)
         => AssertQuery(
             async,
@@ -63,6 +70,13 @@ public abstract class DateOnlyTranslationsTestBase<TFixture>(TFixture fixture) :
         => AssertQuery(
             async,
             ss => ss.Set<BasicTypesEntity>().Where(b => b.DateOnly.AddDays(3) == new DateOnly(1990, 11, 13)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task DayNumber_subtraction(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<BasicTypesEntity>().Where(b => b.DateOnly.DayNumber - new DateOnly(1990, 11, 5).DayNumber == 5));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
