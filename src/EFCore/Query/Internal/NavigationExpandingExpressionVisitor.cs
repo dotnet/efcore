@@ -3,6 +3,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using ExpressionExtensions = Microsoft.EntityFrameworkCore.Infrastructure.ExpressionExtensions;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal;
@@ -53,8 +54,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
     private readonly INavigationExpansionExtensibilityHelper _extensibilityHelper;
     private readonly HashSet<IEntityType> _nonCyclicAutoIncludeEntityTypes;
 
-    private readonly Dictionary<IEntityType, LambdaExpression> _parameterizedQueryFilterPredicateCache
-        = new();
+    private readonly Dictionary<QueryFiltersCacheKey, LambdaExpression> _parameterizedQueryFilterPredicateCache = [];
 
     private readonly Parameters _parameters = new();
 
@@ -1732,60 +1732,83 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         }
     }
 
+    private IReadOnlyCollection<IQueryFilter> GetApplicableQueryFilters(IEntityType entityType)
+        => _queryCompilationContext.IgnoreQueryFilters
+            ? []
+            : _queryCompilationContext.IgnoredQueryFilters == null
+                ? entityType.GetDeclaredQueryFilters()
+                : [.. entityType.GetDeclaredQueryFilters()
+                    .Where(filter => filter != null && (filter.IsAnonymous || !_queryCompilationContext.IgnoredQueryFilters.Contains(filter.Key)))];
+
     private Expression ApplyQueryFilter(IEntityType entityType, NavigationExpansionExpression navigationExpansionExpression)
     {
-        if (!_queryCompilationContext.IgnoreQueryFilters)
+        var rootEntityType = entityType.GetRootType();
+        var queryFilters = GetApplicableQueryFilters(rootEntityType);
+
+
+        if (queryFilters.Count == 0)
         {
-            var sequenceType = navigationExpansionExpression.Type.GetSequenceType();
-            var rootEntityType = entityType.GetRootType();
-            var queryFilter = rootEntityType.GetQueryFilter();
-            if (queryFilter != null)
-            {
-                if (!_parameterizedQueryFilterPredicateCache.TryGetValue(rootEntityType, out var filterPredicate))
-                {
-                    filterPredicate = queryFilter;
-                    // TODO: #33509: merge NRT information (nonNullableReferenceTypeParameters) for parameters introduced by the query
-                    // TODO: filter into the QueryCompilationContext.NonNullableReferenceTypeParameters
-                    filterPredicate = (LambdaExpression)_funcletizer.ExtractParameters(
-                        filterPredicate, _parameters, parameterize: false, clearParameterizedValues: false,
-                        _queryCompilationContext.IsPrecompiling);
-                    filterPredicate = (LambdaExpression)_queryTranslationPreprocessor.NormalizeQueryableMethod(filterPredicate);
-
-                    // We need to do entity equality, but that requires a full method call on a query root to properly flow the
-                    // entity information through. Construct a MethodCall wrapper for the predicate with the proper query root.
-                    var filterWrapper = Expression.Call(
-                        QueryableMethods.Where.MakeGenericMethod(rootEntityType.ClrType),
-                        new EntityQueryRootExpression(rootEntityType),
-                        filterPredicate);
-                    filterPredicate = filterWrapper.Arguments[1].UnwrapLambdaFromQuote();
-
-                    _parameterizedQueryFilterPredicateCache[rootEntityType] = filterPredicate;
-                }
-
-                filterPredicate =
-                    (LambdaExpression)new SelfReferenceEntityQueryableRewritingExpressionVisitor(this, entityType).Visit(
-                        filterPredicate);
-
-                // if we are constructing EntityQueryable of a derived type, we need to re-map filter predicate to the correct derived type
-                var filterPredicateParameter = filterPredicate.Parameters[0];
-                if (filterPredicateParameter.Type != sequenceType)
-                {
-                    var newFilterPredicateParameter = Expression.Parameter(sequenceType, filterPredicateParameter.Name);
-                    var newFilterPredicateBody = ReplacingExpressionVisitor.Replace(
-                        filterPredicateParameter, newFilterPredicateParameter, filterPredicate.Body);
-                    filterPredicate = Expression.Lambda(newFilterPredicateBody, newFilterPredicateParameter);
-                }
-
-                var filteredResult = Expression.Call(
-                    QueryableMethods.Where.MakeGenericMethod(sequenceType),
-                    navigationExpansionExpression,
-                    filterPredicate);
-
-                return Visit(filteredResult);
-            }
+            return navigationExpansionExpression;
         }
 
-        return navigationExpansionExpression;
+        var sequenceType = navigationExpansionExpression.Type.GetSequenceType();
+        var cacheKey = new QueryFiltersCacheKey(rootEntityType, queryFilters);
+
+        if (!_parameterizedQueryFilterPredicateCache.TryGetValue(cacheKey, out var filterPredicate))
+        {
+            var rootExpression = new EntityQueryRootExpression(rootEntityType);
+            var commonParameter = Expression.Parameter(rootEntityType.ClrType);
+            foreach (RuntimeQueryFilter queryFilter in queryFilters)
+            {
+                var tempFilterPredicate = queryFilter.Expression;
+                // TODO: #33509: merge NRT information (nonNullableReferenceTypeParameters) for parameters introduced by the query
+                // TODO: filter into the QueryCompilationContext.NonNullableReferenceTypeParameters
+                tempFilterPredicate = (LambdaExpression)_funcletizer.ExtractParameters(
+                    tempFilterPredicate, _parameters, parameterize: false, clearParameterizedValues: false,
+                        _queryCompilationContext.IsPrecompiling);
+
+                if (queryFilters.Count > 1)
+                {
+                    tempFilterPredicate = Expression.Lambda(ReplacingExpressionVisitor.Replace(tempFilterPredicate.Parameters[0], commonParameter, tempFilterPredicate.Body));
+                }
+
+                tempFilterPredicate = (LambdaExpression)_queryTranslationPreprocessor.NormalizeQueryableMethod(tempFilterPredicate);
+                filterPredicate = filterPredicate is null
+                    ? tempFilterPredicate
+                    : Expression.Lambda(Expression.AndAlso(filterPredicate.Body, tempFilterPredicate.Body), commonParameter);
+            }
+
+            // We need to do entity equality, but that requires a full method call on a query root to properly flow the
+            // entity information through. Construct a MethodCall wrapper for the predicate with the proper query root.
+            var filterWrapper = Expression.Call(
+                QueryableMethods.Where.MakeGenericMethod(rootEntityType.ClrType),
+                rootExpression,
+            filterPredicate!);
+            filterPredicate = filterWrapper.Arguments[1].UnwrapLambdaFromQuote();
+
+            _parameterizedQueryFilterPredicateCache[cacheKey] = filterPredicate!;
+        }
+
+        filterPredicate =
+        (LambdaExpression)new SelfReferenceEntityQueryableRewritingExpressionVisitor(this, entityType).Visit(
+            filterPredicate!);
+
+        // if we are constructing EntityQueryable of a derived type, we need to re-map filter predicate to the correct derived type
+        var filterPredicateParameter = filterPredicate.Parameters[0];
+        if (filterPredicateParameter.Type != sequenceType)
+        {
+            var newFilterPredicateParameter = Expression.Parameter(sequenceType, filterPredicateParameter.Name);
+            var newFilterPredicateBody = ReplacingExpressionVisitor.Replace(
+                filterPredicateParameter, newFilterPredicateParameter, filterPredicate.Body);
+            filterPredicate = Expression.Lambda(newFilterPredicateBody, newFilterPredicateParameter);
+        }
+
+        var filteredResult = Expression.Call(
+            QueryableMethods.Where.MakeGenericMethod(sequenceType),
+            navigationExpansionExpression,
+            filterPredicate);
+
+        return Visit(filteredResult);
     }
 
     private void ValidateExpressionCompatibility(Expression outer, Expression inner)

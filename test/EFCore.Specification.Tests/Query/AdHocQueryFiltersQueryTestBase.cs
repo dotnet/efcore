@@ -1,6 +1,9 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+
 namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
@@ -9,6 +12,153 @@ public abstract class AdHocQueryFiltersQueryTestBase(NonSharedFixture fixture) :
 {
     protected override string StoreName
         => "AdHocQueryFiltersQueryTests";
+
+    #region 8576
+
+    [ConditionalFact]
+    public virtual async Task Named_query_filters()
+    {
+        var contextFactory = await InitializeAsync<Context8576_NamedFilters>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateContext();
+
+        var result = context.Entities.ToList();
+        Assert.Single(result);
+    }
+
+    [ConditionalFact]
+    public virtual async Task Named_query_filters_ignore_some()
+    {
+        var contextFactory = await InitializeAsync<Context8576_NamedFilters>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateContext();
+        var result = context.Entities
+            .IgnoreQueryFilters(["ActiveFilter", "NameFilter"])
+            .ToList();
+        Assert.Equal(2, result.Count);
+    }
+
+    [ConditionalFact]
+    public virtual async Task Named_query_filters_ignore_all()
+    {
+        var contextFactory = await InitializeAsync<Context8576_NamedFilters>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateContext();
+
+        var result = context.Entities
+            .IgnoreQueryFilters()
+            .ToList();
+        Assert.Equal(2, result.Count);
+    }
+
+    [ConditionalFact]
+    public virtual async Task Named_query_filters_anonymous()
+    {
+        var contextFactory = await InitializeAsync<Context8576>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateContext();
+
+        var result = context.Entities
+            .ToList();
+        Assert.Single(result);
+    }
+
+    [ConditionalFact]
+    public virtual async Task Named_query_filters_anonymous_ignore()
+    {
+        var contextFactory = await InitializeAsync<Context8576>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateContext();
+
+        var result = context.Entities
+            .IgnoreQueryFilters()
+            .ToList();
+        Assert.Equal(2, result.Count);
+    }
+
+    [ConditionalFact]
+    public virtual async Task Named_query_filters_combined()
+    {
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(async () => await InitializeAsync<Context8576_Combined>(seed: c => c.SeedAsync()));
+        Assert.Equal(exception.Message, CoreStrings.AnonymousAndNamedFiltersCombined);
+    }
+
+    [ConditionalFact]
+    public virtual async Task Named_query_filters_overwriting()
+    {
+        var contextFactory = await InitializeAsync<Context8576_Overwriting>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateContext();
+
+        var result = context.Entities.ToList();
+        Assert.Single(result);
+    }
+
+    [ConditionalFact]
+    public virtual async Task Named_query_filters_removing()
+    {
+        var contextFactory = await InitializeAsync<Context8576_Removing>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateContext();
+
+        var result = context.Entities.ToList();
+        Assert.Equal(2, result.Count);
+    }
+
+    protected class Context8576(DbContextOptions options) : DbContext(options)
+    {
+        protected readonly List<int> _ids = [1, 7];
+
+        public DbSet<MyEntity8576> Entities { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<MyEntity8576>().HasQueryFilter(x => !_ids.Contains(x.Id));
+
+        public Task SeedAsync()
+        {
+            var e1 = new MyEntity8576 { Name = "Name1" };
+            var e2 = new MyEntity8576 { Name = "Name2", IsDeleted = true };
+            Entities.AddRange(e1, e2);
+            return SaveChangesAsync();
+        }
+
+        public class MyEntity8576
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+            public bool IsDeleted { get; set; }
+            public bool IsDraft { get; set; }
+        }
+    }
+
+    protected class Context8576_NamedFilters(DbContextOptions options) : Context8576(options)
+    {
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<MyEntity8576>()
+                .HasQueryFilter("NameFilter", x => x.Name.StartsWith("Name"))
+                .HasQueryFilter("ActiveFilter", x => !x.IsDeleted)
+                .HasQueryFilter("PublishedFilter", x => !x.IsDraft);
+    }
+
+    protected class Context8576_Combined(DbContextOptions options) : Context8576(options)
+    {
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<MyEntity8576>().HasQueryFilter(x => !_ids.Contains(x.Id))
+                .HasQueryFilter("NameFilter", x => x.Name.StartsWith("Name"))
+                .HasQueryFilter("ActiveFilter", x => !x.IsDeleted)
+                .HasQueryFilter("PublishedFilter", x => !x.IsDraft);
+    }
+
+    protected class Context8576_Overwriting(DbContextOptions options) : Context8576(options)
+    {
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<MyEntity8576>()
+                .HasQueryFilter("Filter1", x => !x.Name.StartsWith("Name"))
+                .HasQueryFilter("Filter1", x => !x.IsDeleted);
+    }
+
+    protected class Context8576_Removing(DbContextOptions options) : Context8576(options)
+    {
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<MyEntity8576>()
+                .HasQueryFilter("Filter1", x => !x.Name.StartsWith("Name"))
+                .HasQueryFilter("Filter1", null);
+    }
+
+    #endregion
 
     #region 10295
 
@@ -345,23 +495,30 @@ public abstract class AdHocQueryFiltersQueryTestBase(NonSharedFixture fixture) :
             modelBuilder.Entity<MyEntity18510>().HasQueryFilter(x => x.Name != "Foo");
 
             var entityType = modelBuilder.Model.GetEntityTypes().Single(et => et.ClrType == typeof(MyEntity18510));
-            var queryFilter = entityType.GetQueryFilter();
+            var queryFilter = entityType.GetDeclaredQueryFilters().FirstOrDefault();
             Expression<Func<int>> tenantFunc = () => TenantId;
             var tenant = Expression.Invoke(tenantFunc);
 
             var efPropertyMethod = typeof(EF).GetTypeInfo().GetDeclaredMethod(nameof(EF.Property)).MakeGenericMethod(typeof(int));
-            var prm = queryFilter.Parameters[0];
+            var prm = queryFilter.Expression.Parameters[0];
             var efPropertyMethodCall = Expression.Call(efPropertyMethod, prm, Expression.Constant("TenantId"));
 
             var updatedQueryFilter = Expression.Lambda(
                 Expression.AndAlso(
-                    queryFilter.Body,
+                    queryFilter.Expression.Body,
                     Expression.Equal(
                         efPropertyMethodCall,
                         tenant)),
                 prm);
 
-            entityType.SetQueryFilter(updatedQueryFilter);
+            if (queryFilter.IsAnonymous)
+            {
+                entityType.SetQueryFilter(updatedQueryFilter);
+            }
+            else
+            {
+                entityType.SetQueryFilter(queryFilter.Key, updatedQueryFilter);
+            }
         }
 
         public Task SeedAsync()

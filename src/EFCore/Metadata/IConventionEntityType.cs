@@ -43,6 +43,16 @@ public interface IConventionEntityType : IReadOnlyEntityType, IConventionTypeBas
     bool IsKeyless { get; }
 
     /// <summary>
+    ///     Sets the query filter automatically applied to queries for this entity type.
+    /// </summary>
+    /// <param name="filterKey">The filter key.</param>
+    /// <param name="filter">The LINQ predicate expression.</param>
+    /// <returns>The configured filter.</returns>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The configured filter.</returns>
+    IQueryFilter? SetQueryFilter(string filterKey, LambdaExpression? filter, bool fromDataAnnotation = false);
+
+    /// <summary>
     ///     Sets the LINQ expression filter automatically applied to queries for this entity type.
     /// </summary>
     /// <param name="queryFilter">The LINQ expression filter.</param>
@@ -51,10 +61,16 @@ public interface IConventionEntityType : IReadOnlyEntityType, IConventionTypeBas
     LambdaExpression? SetQueryFilter(LambdaExpression? queryFilter, bool fromDataAnnotation = false);
 
     /// <summary>
-    ///     Returns the configuration source for <see cref="IReadOnlyEntityType.GetQueryFilter" />.
+    ///     Returns the configuration source for <see cref="IReadOnlyEntityType.GetDeclaredQueryFilters" />.
     /// </summary>
-    /// <returns>The configuration source for <see cref="IReadOnlyEntityType.GetQueryFilter" />.</returns>
+    /// <returns>The configuration source for <see cref="IReadOnlyEntityType.GetDeclaredQueryFilters" />.</returns>
     ConfigurationSource? GetQueryFilterConfigurationSource();
+
+    /// <summary>
+    ///     Returns the configuration source for <see cref="IReadOnlyEntityType.GetDeclaredQueryFilters" />.
+    /// </summary>
+    /// <returns>The configuration source for <see cref="IReadOnlyEntityType.GetDeclaredQueryFilters" />.</returns>
+    ConfigurationSource? GetQueryFilterConfigurationSource(string? filterKey);
 
     /// <summary>
     ///     Sets the value indicating whether the discriminator mapping is complete.
