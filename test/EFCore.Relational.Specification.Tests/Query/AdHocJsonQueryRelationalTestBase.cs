@@ -558,6 +558,64 @@ public abstract class AdHocJsonQueryRelationalTestBase(NonSharedFixture fixture)
 
     #endregion
 
+    #region Entity splitting
+
+    [ConditionalFact] // #36145
+    public virtual async Task Entity_splitting_with_owned_json()
+    {
+        var contextFactory = await InitializeAsync<ContextEntitySplitting>(
+            onModelCreating: OnModelCreatingEntitySplitting,
+            onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
+            seed: SeedEntitySplitting);
+
+        using var context = contextFactory.CreateContext();
+        var result = await context.Set<ContextEntitySplitting.MyEntity>().SingleAsync();
+
+        Assert.Equal("split content", result.PropertyInOtherTable);
+        var json = Assert.Single(result.Json);
+        Assert.Equal("JSON content", json.Foo);
+    }
+
+    protected virtual void OnModelCreatingEntitySplitting(ModelBuilder modelBuilder)
+        => modelBuilder.Entity<ContextEntitySplitting.MyEntity>(b =>
+        {
+            b.Property(p => p.Id).ValueGeneratedNever();
+            b.OwnsMany(p => p.Json, b => b.ToJson());
+            b.SplitToTable("OtherTable", b => b.Property(p => p.PropertyInOtherTable));
+        });
+
+    protected virtual async Task SeedEntitySplitting(ContextEntitySplitting context)
+    {
+        var e1 = new ContextEntitySplitting.MyEntity
+        {
+            Id = 1,
+            PropertyInOtherTable = "split content",
+            Json = [new() { Foo = "JSON content" }]
+        };
+
+        context.Add(e1);
+        await context.SaveChangesAsync();
+    }
+
+    protected class ContextEntitySplitting(DbContextOptions options) : DbContext(options)
+    {
+        public class MyEntity
+        {
+            public int Id { get; set; }
+            public string PropertyInMainTable { get; set; } // TODO: currently required because of #36171
+            public string PropertyInOtherTable { get; set; }
+
+            public List<JsonEntity> Json { get; set; }
+        }
+
+        public class JsonEntity
+        {
+            public string Foo { get; set; }
+        }
+    }
+
+    #endregion
+
     protected TestSqlLoggerFactory TestSqlLoggerFactory
         => (TestSqlLoggerFactory)ListLoggerFactory;
 

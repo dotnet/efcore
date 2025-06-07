@@ -641,4 +641,16 @@ N'e1')
     }
 
     #endregion
+
+    public override async Task Entity_splitting_with_owned_json()
+    {
+        await base.Entity_splitting_with_owned_json();
+
+        AssertSql(
+            """
+SELECT TOP(2) [m].[Id], [m].[PropertyInMainTable], [o].[PropertyInOtherTable], [m].[Json]
+FROM [MyEntity] AS [m]
+INNER JOIN [OtherTable] AS [o] ON [m].[Id] = [o].[Id]
+""");
+    }
 }
