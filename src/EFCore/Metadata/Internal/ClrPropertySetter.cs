@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 public sealed class ClrPropertySetter<TEntity, TValue> : IClrPropertySetter
     where TEntity : class
 {
-    private readonly Action<TEntity, TValue> _setter;
+    private readonly Action<TEntity, TValue> _setClrValueUsingContainingEntity;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -23,8 +23,10 @@ public sealed class ClrPropertySetter<TEntity, TValue> : IClrPropertySetter
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public ClrPropertySetter(Action<TEntity, TValue> setter)
-        => _setter = setter;
+    public ClrPropertySetter(Action<TEntity, TValue> setClrValueUsingContainingEntity)
+    {
+        _setClrValueUsingContainingEntity = setClrValueUsingContainingEntity;
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -33,6 +35,16 @@ public sealed class ClrPropertySetter<TEntity, TValue> : IClrPropertySetter
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetClrValue(object instance, object? value)
-        => _setter((TEntity)instance, (TValue?)value!);
+    public void SetClrValueUsingContainingEntity(object entity, object? value)
+        => _setClrValueUsingContainingEntity((TEntity)entity, (TValue)value!);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void SetClrValueUsingContainingEntity(TEntity entity, TValue value)
+        => _setClrValueUsingContainingEntity(entity, value);
 }

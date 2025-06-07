@@ -25,11 +25,6 @@ public interface IReadOnlyComplexProperty : IReadOnlyPropertyBase
     bool IsNullable { get; }
 
     /// <summary>
-    ///     Gets a value indicating whether this property represents a collection.
-    /// </summary>
-    bool IsCollection { get; }
-
-    /// <summary>
     ///     <para>
     ///         Creates a human-readable representation of the given metadata.
     ///     </para>

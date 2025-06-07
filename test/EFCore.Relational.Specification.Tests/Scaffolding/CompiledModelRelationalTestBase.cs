@@ -413,7 +413,6 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
         modelBuilder.Entity<PrincipalDerived<DependentBase<byte?>>>(
             eb =>
             {
-                //eb.ComplexCollection(typeof(OwnedType).Name, "ManyOwned");
                 eb.ToTable("PrincipalBase");
                 eb.ToFunction((string?)null);
             });

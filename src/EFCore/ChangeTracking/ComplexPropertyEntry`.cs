@@ -31,7 +31,7 @@ public class ComplexPropertyEntry<TEntity, TComplexProperty> : ComplexPropertyEn
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    public ComplexPropertyEntry(InternalEntityEntry internalEntry, IComplexProperty complexProperty)
+    public ComplexPropertyEntry(IInternalEntry internalEntry, IComplexProperty complexProperty)
         : base(internalEntry, complexProperty)
     {
     }
@@ -45,7 +45,7 @@ public class ComplexPropertyEntry<TEntity, TComplexProperty> : ComplexPropertyEn
     ///     examples.
     /// </remarks>
     public new virtual EntityEntry<TEntity> EntityEntry
-        => new(InternalEntry);
+        => new(InternalEntry.EntityEntry);
 
     /// <summary>
     ///     Gets or sets the value currently assigned to this property. If the current value is set using this property,
