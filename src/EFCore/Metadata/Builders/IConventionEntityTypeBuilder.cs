@@ -871,12 +871,34 @@ public interface IConventionEntityTypeBuilder : IConventionTypeBaseBuilder
     IConventionEntityTypeBuilder? HasQueryFilter(LambdaExpression? filter, bool fromDataAnnotation = false);
 
     /// <summary>
+    ///     Specifies a LINQ predicate expression that will automatically be applied to any queries targeting
+    ///     this entity type.
+    /// </summary>
+    /// <param name="filterKey">The filter key.</param>
+    /// <param name="filter">The LINQ predicate expression.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>
+    ///     The same builder instance if the query filter was set,
+    ///     <see langword="null" /> otherwise.
+    /// </returns>
+    IConventionEntityTypeBuilder? HasQueryFilter(string filterKey, LambdaExpression? filter, bool fromDataAnnotation = false);
+
+    /// <summary>
     ///     Returns a value indicating whether the given query filter can be set from the current configuration source.
     /// </summary>
     /// <param name="filter">The LINQ predicate expression.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns><see langword="true" /> if the given query filter can be set.</returns>
     bool CanSetQueryFilter(LambdaExpression? filter, bool fromDataAnnotation = false);
+
+    /// <summary>
+    ///     Returns a value indicating whether the given query filter can be set from the current configuration source.
+    /// </summary>
+    /// <param name="filterKey">The filter key.</param>
+    /// <param name="filter">The LINQ predicate expression.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns><see langword="true" /> if the given query filter can be set.</returns>
+    bool CanSetQueryFilter(string filterKey, LambdaExpression? filter, bool fromDataAnnotation = false);
 
     /// <summary>
     ///     Configures the <see cref="ChangeTrackingStrategy" /> to be used for this entity type.

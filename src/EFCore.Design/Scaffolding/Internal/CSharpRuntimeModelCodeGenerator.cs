@@ -893,7 +893,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                     entityType.ShortName(), "Customize()", parameters.ClassName));
         }
 
-        if (entityType.GetQueryFilter() != null)
+        if (entityType.GetDeclaredQueryFilters().Count > 0)
         {
             throw new InvalidOperationException(DesignStrings.CompiledModelQueryFilter(entityType.ShortName()));
         }

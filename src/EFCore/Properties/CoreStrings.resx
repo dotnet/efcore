@@ -150,6 +150,9 @@
   <data name="AnnotationNotFound" xml:space="preserve">
     <value>The annotation '{annotation}' was not found. Ensure that the annotation has been added to the object {annotatable}</value>
   </data>
+  <data name="AnonymousAndNamedFiltersCombined" xml:space="preserve">
+    <value>Cannot apply both anonymous and named query filters simultaneously. Please specify either an anonymous filter or one or more named filters.</value>
+  </data>
   <data name="ArgumentNotConstant" xml:space="preserve">
     <value>The '{parameter}' value passed to '{methodName}' must be a constant.</value>
   </data>

@@ -401,7 +401,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         entityTypeD.SetQueryFilter((Expression<Func<D, bool>>)(_ => true));
 
         VerifyError(
-            CoreStrings.BadFilterDerivedType(entityTypeD.GetQueryFilter(), entityTypeD.DisplayName(), entityTypeA.DisplayName()),
+            CoreStrings.BadFilterDerivedType(entityTypeD.FindDeclaredQueryFilter(null).Expression, entityTypeD.DisplayName(), entityTypeA.DisplayName()),
             modelBuilder);
     }
 
