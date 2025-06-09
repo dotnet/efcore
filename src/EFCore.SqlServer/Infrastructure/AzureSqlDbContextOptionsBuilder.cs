@@ -107,7 +107,7 @@ public class AzureSqlDbContextOptionsBuilder
 
     /// <summary>
     ///     Sets the Azure SQL compatibility level that EF Core will use when interacting with the database. This allows configuring EF
-    ///     Core to work with older (or newer) versions of Azure SQL. Defaults to <c>160</c>.
+    ///     Core to work with older (or newer) versions of Azure SQL. Defaults to <c>170</c>.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
