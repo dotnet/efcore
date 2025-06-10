@@ -97,46 +97,54 @@ namespace Microsoft.Data.Sqlite
                 ? connectionOptions.Vfs
                 : null;
             var rc = sqlite3_open_v2(filename, out _db, flags, vfs: vfs);
-            SqliteException.ThrowExceptionForRC(rc, _db);
-
-            if (connectionOptions.Password.Length != 0)
+            try
             {
-                if (SQLitePCLExtensions.EncryptionSupported(out var libraryName) == false)
+                SqliteException.ThrowExceptionForRC(rc, _db);
+
+                if (connectionOptions.Password.Length != 0)
                 {
-                    throw new InvalidOperationException(Resources.EncryptionNotSupported(libraryName));
+                    if (SQLitePCLExtensions.EncryptionSupported(out var libraryName) == false)
+                    {
+                        throw new InvalidOperationException(Resources.EncryptionNotSupported(libraryName));
+                    }
+
+                    // NB: SQLite doesn't support parameters in PRAGMA statements, so we escape the value using the
+                    //     quote function before concatenating.
+                    var quotedPassword = ExecuteScalar(
+                        "SELECT quote($password);",
+                        connectionOptions.Password,
+                        connectionOptions.DefaultTimeout);
+                    ExecuteNonQuery(
+                        "PRAGMA key = " + quotedPassword + ";",
+                        connectionOptions.DefaultTimeout);
+
+                    if (SQLitePCLExtensions.EncryptionSupported() != false)
+                    {
+                        // NB: Forces decryption. Throws when the key is incorrect.
+                        ExecuteNonQuery(
+                            "SELECT COUNT(*) FROM sqlite_master;",
+                            connectionOptions.DefaultTimeout);
+                    }
                 }
 
-                // NB: SQLite doesn't support parameters in PRAGMA statements, so we escape the value using the
-                //     quote function before concatenating.
-                var quotedPassword = ExecuteScalar(
-                    "SELECT quote($password);",
-                    connectionOptions.Password,
-                    connectionOptions.DefaultTimeout);
-                ExecuteNonQuery(
-                    "PRAGMA key = " + quotedPassword + ";",
-                    connectionOptions.DefaultTimeout);
-
-                if (SQLitePCLExtensions.EncryptionSupported() != false)
+                if (connectionOptions.ForeignKeys.HasValue)
                 {
-                    // NB: Forces decryption. Throws when the key is incorrect.
                     ExecuteNonQuery(
-                        "SELECT COUNT(*) FROM sqlite_master;",
+                        "PRAGMA foreign_keys = " + (connectionOptions.ForeignKeys.Value ? "1" : "0") + ";",
+                        connectionOptions.DefaultTimeout);
+                }
+
+                if (connectionOptions.RecursiveTriggers)
+                {
+                    ExecuteNonQuery(
+                        "PRAGMA recursive_triggers = 1;",
                         connectionOptions.DefaultTimeout);
                 }
             }
-
-            if (connectionOptions.ForeignKeys.HasValue)
+            catch
             {
-                ExecuteNonQuery(
-                    "PRAGMA foreign_keys = " + (connectionOptions.ForeignKeys.Value ? "1" : "0") + ";",
-                    connectionOptions.DefaultTimeout);
-            }
-
-            if (connectionOptions.RecursiveTriggers)
-            {
-                ExecuteNonQuery(
-                    "PRAGMA recursive_triggers = 1;",
-                    connectionOptions.DefaultTimeout);
+                _db.Dispose();
+                throw;
             }
 
             _pool = pool;

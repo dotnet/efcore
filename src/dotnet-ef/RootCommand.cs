@@ -200,6 +200,13 @@ internal class RootCommand : CommandBase
         args.Add("--framework");
         args.Add(startupProject.TargetFramework!);
 
+        var designAssembly = startupProject.DesignAssembly;
+        if (!string.IsNullOrEmpty(designAssembly))
+        {
+            args.Add("--design-assembly");
+            args.Add(designAssembly);
+        }
+
         if (_configuration.HasValue())
         {
             args.Add("--configuration");

@@ -67,6 +67,18 @@ WHERE DATEPART(dayofyear, [b].[DateOnly]) = 314
         AssertSql();
     }
 
+    public override async Task DayNumber(bool async)
+    {
+        await base.DayNumber(async);
+
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE DATEDIFF(day, '0001-01-01', [b].[DateOnly]) = 726780
+""");
+    }
+
     public override async Task AddYears(bool async)
     {
         await base.AddYears(async);
@@ -100,6 +112,20 @@ WHERE DATEADD(month, CAST(3 AS int), [b].[DateOnly]) = '1991-02-10'
 SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
 FROM [BasicTypesEntities] AS [b]
 WHERE DATEADD(day, CAST(3 AS int), [b].[DateOnly]) = '1990-11-13'
+""");
+    }
+
+    public override async Task DayNumber_subtraction(bool async)
+    {
+        await base.DayNumber_subtraction(async);
+
+        AssertSql(
+            """
+@DayNumber='726775'
+
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE DATEDIFF(day, '0001-01-01', [b].[DateOnly]) - @DayNumber = 5
 """);
     }
 
