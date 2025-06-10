@@ -26,6 +26,10 @@ public class DateOnlyTranslationsCosmosTest : DateOnlyTranslationsTestBase<Basic
     public override Task DayOfWeek(bool async)
         => AssertTranslationFailed(() => base.DayOfWeek(async));
 
+    // Cosmos does not support DateTimeDiff with years under 1601
+    public override Task DayNumber(bool async)
+        => AssertTranslationFailed(() => base.DayNumber(async));
+
     public override Task AddYears(bool async)
         => AssertTranslationFailed(() => base.AddYears(async));
 
@@ -34,6 +38,10 @@ public class DateOnlyTranslationsCosmosTest : DateOnlyTranslationsTestBase<Basic
 
     public override Task AddDays(bool async)
         => AssertTranslationFailed(() => base.AddDays(async));
+
+    // Cosmos does not support DateTimeDiff with years under 1601
+    public override Task DayNumber_subtraction(bool async)
+        => AssertTranslationFailed(() => base.DayNumber_subtraction(async));
 
     public override Task FromDateTime(bool async)
         => AssertTranslationFailed(() => base.FromDateTime(async));

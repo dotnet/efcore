@@ -115,6 +115,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 annotation, annotatable);
 
         /// <summary>
+        ///     Cannot apply both anonymous and named query filters simultaneously. Please specify either an anonymous filter or one or more named filters.
+        /// </summary>
+        public static string AnonymousAndNamedFiltersCombined
+            => GetString("AnonymousAndNamedFiltersCombined");
+
+        /// <summary>
         ///     The '{parameter}' value passed to '{methodName}' must be a constant.
         /// </summary>
         public static string ArgumentNotConstant(object? parameter, object? methodName)
