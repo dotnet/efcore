@@ -711,7 +711,7 @@ WHERE [o].[CustomerID] LIKE N'A%'
         AssertSql(
             """
 SELECT (
-    SELECT COALESCE(SUM([o].[OrderID]), 0)
+    SELECT ISNULL(SUM([o].[OrderID]), 0)
     FROM [Orders] AS [o]
     WHERE [c].[CustomerID] = [o].[CustomerID]) AS [Sum]
 FROM [Customers] AS [c]
@@ -725,7 +725,7 @@ FROM [Customers] AS [c]
         AssertSql(
             """
 SELECT (
-    SELECT COALESCE(SUM([o].[OrderID]), 0)
+    SELECT ISNULL(SUM([o].[OrderID]), 0)
     FROM [Orders] AS [o]
     WHERE [c].[CustomerID] = [o].[CustomerID]) + 1 AS [Sum]
 FROM [Customers] AS [c]
@@ -741,7 +741,7 @@ FROM [Customers] AS [c]
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE (
-    SELECT COALESCE(SUM([o].[OrderID]), 0)
+    SELECT ISNULL(SUM([o].[OrderID]), 0)
     FROM [Orders] AS [o]
     WHERE [c].[CustomerID] = [o].[CustomerID]) > 1000
 """);
@@ -990,7 +990,7 @@ ORDER BY [c].[CustomerID]
             """
 @p='3'
 
-SELECT [o0].[OrderID], COALESCE((
+SELECT [o0].[OrderID], ISNULL((
     SELECT TOP(1) [o1].[OrderID]
     FROM [Order Details] AS [o1]
     WHERE [o0].[OrderID] = [o1].[OrderID]

@@ -360,7 +360,7 @@ FROM [Blogs] AS [b]
 
         AssertSql(
             """
-SELECT COALESCE([b].[Name], N'') + N'Foo' AS [Foo]
+SELECT ISNULL(CAST([b].[Name] AS nvarchar(max)), N'') + N'Foo' AS [Foo]
 FROM [Blogs] AS [b]
 """);
     }
@@ -1453,12 +1453,12 @@ WHERE [b].[Id] = 7
 
         AssertSql(
             """
-SELECT COALESCE(SUM([b].[Id]), 0)
+SELECT ISNULL(SUM([b].[Id]), 0)
 FROM [Blogs] AS [b]
 """,
             //
             """
-SELECT COALESCE(SUM([b].[Id]), 0)
+SELECT ISNULL(SUM([b].[Id]), 0)
 FROM [Blogs] AS [b]
 """);
     }
@@ -1469,12 +1469,12 @@ FROM [Blogs] AS [b]
 
         AssertSql(
             """
-SELECT COALESCE(SUM([b].[Id]), 0)
+SELECT ISNULL(SUM([b].[Id]), 0)
 FROM [Blogs] AS [b]
 """,
             //
             """
-SELECT COALESCE(SUM([b].[Id]), 0)
+SELECT ISNULL(SUM([b].[Id]), 0)
 FROM [Blogs] AS [b]
 """);
     }
@@ -1522,7 +1522,7 @@ FROM [Blogs] AS [b]
 @suffix='Suffix' (Size = 4000)
 
 UPDATE [b]
-SET [b].[Name] = COALESCE([b].[Name], N'') + @suffix
+SET [b].[Name] = ISNULL(CAST([b].[Name] AS nvarchar(max)), N'') + @suffix
 FROM [Blogs] AS [b]
 WHERE [b].[Id] > 8
 """,
@@ -1564,7 +1564,7 @@ WHERE [b].[Id] = 9 AND [b].[Name] = N'NewValue'
 @suffix='Suffix' (Size = 4000)
 
 UPDATE [b]
-SET [b].[Name] = COALESCE([b].[Name], N'') + @suffix
+SET [b].[Name] = ISNULL(CAST([b].[Name] AS nvarchar(max)), N'') + @suffix
 FROM [Blogs] AS [b]
 WHERE [b].[Id] > 8
 """,
@@ -1856,7 +1856,7 @@ _ = context.Blogs
 
         AssertSql(
             """
-SELECT COALESCE(STRING_AGG(COALESCE([b].[Name], N''), N', ') WITHIN GROUP (ORDER BY [b].[Name]), N'')
+SELECT ISNULL(CAST(STRING_AGG(ISNULL(CAST([b].[Name] AS nvarchar(max)), N''), N', ') WITHIN GROUP (ORDER BY [b].[Name]) AS nvarchar(max)), N'')
 FROM [Blogs] AS [b]
 GROUP BY [b].[Id]
 """);

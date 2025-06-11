@@ -213,37 +213,62 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
         if (sqlFunctionExpression is { IsBuiltIn: true, Arguments: not null }
             && string.Equals(sqlFunctionExpression.Name, "COALESCE", StringComparison.OrdinalIgnoreCase))
         {
-            var type = sqlFunctionExpression.Type;
-            var typeMapping = sqlFunctionExpression.TypeMapping;
-            var defaultTypeMapping = _typeMappingSource.FindMapping(type);
-
             // ISNULL always return a value having the same type as its first
             // argument. Ideally we would convert the argument to have the
             // desired type and type mapping, but currently EFCore has some
             // trouble in computing types of non-homogeneous expressions
-            // (tracked in https://github.com/dotnet/efcore/issues/15586). To
-            // stay on the safe side we only use ISNULL if:
-            //  - all sub-expressions have the same type as the expression
-            //  - all sub-expressions have the same type mapping as the expression
-            //  - the expression is using the default type mapping (combined
-            //    with the two above, this implies that all of the expressions
-            //    are using the default type mapping of the type)
-            if (defaultTypeMapping == typeMapping
-                && sqlFunctionExpression.Arguments.All(a => a.Type == type && a.TypeMapping == typeMapping)) {
+            // (tracked in https://github.com/dotnet/efcore/issues/15586).
+            //
+            // The main issue is the sizing of the type. Since sometimes the
+            // computed size is wrong, stay on the safe side by expanding to the
+            // maximum supported size with an approach similar to that used in
+            // SqlServerStringAggregateMethodTranslator. This might result in
+            // unneeded conversions, but should produce the correct results.
+            var forceCast = sqlFunctionExpression.TypeMapping?.StoreTypeNameBase is
+                "nvarchar" or "varchar" or "varbinary";
 
-                var head = sqlFunctionExpression.Arguments[0];
-                sqlFunctionExpression = (SqlFunctionExpression)sqlFunctionExpression
-                    .Arguments
-                    .Skip(1)
-                    .Aggregate(head, (l, r) => new SqlFunctionExpression(
-                        "ISNULL",
-                        arguments: [l, r],
-                        nullable: true,
-                        argumentsPropagateNullability: [false, false],
-                        sqlFunctionExpression.Type,
-                        sqlFunctionExpression.TypeMapping
-                    ));
+            var typeMapping = sqlFunctionExpression.TypeMapping switch
+            {
+                { StoreTypeNameBase: "nvarchar", Size: >= 0 and < 4000 } => _typeMappingSource.FindMapping(
+                    typeof(string),
+                    sqlFunctionExpression.TypeMapping.StoreTypeNameBase,
+                    unicode: true,
+                    size: 4000),
+                { StoreTypeNameBase: "varchar" or "varbinary", Size: >= 0 and < 8000 } => _typeMappingSource.FindMapping(
+                    typeof(string),
+                    sqlFunctionExpression.TypeMapping.StoreTypeNameBase,
+                    unicode: false,
+                    size: 8000),
+                var t => t,
+            };
+
+            var result = sqlFunctionExpression.Arguments[0];
+            if (forceCast || result.TypeMapping?.StoreType != typeMapping?.StoreType)
+            {
+                result = new SqlUnaryExpression(
+                    ExpressionType.Convert,
+                    result,
+                    sqlFunctionExpression.Type,
+                    typeMapping
+                );
             }
+
+            var length = sqlFunctionExpression.Arguments.Count;
+            for (var i = 1; i < length; i++)
+            {
+                // propagate type and type mapping from the first argument,
+                // nullability from COALESCE
+                result = new SqlFunctionExpression(
+                    "ISNULL",
+                    arguments: [result, sqlFunctionExpression.Arguments[i]],
+                    nullable: i == length - 1 ? sqlFunctionExpression.IsNullable : true,
+                    argumentsPropagateNullability: [false, false],
+                    result.Type,
+                    result.TypeMapping
+                );
+            }
+
+            sqlFunctionExpression = (SqlFunctionExpression)result;
         }
 
         return base.VisitSqlFunction(sqlFunctionExpression);
