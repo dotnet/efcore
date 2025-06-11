@@ -39,6 +39,28 @@ public class ColumnExpression : SqlExpression
     }
 
     /// <summary>
+    ///     Creates a new instance of the <see cref="ColumnExpression" /> class.
+    /// </summary>
+    /// <param name="column">The <see cref="IColumnBase" /> associated with this column expression.</param>
+    /// <param name="tableAlias">The alias of the table to which this column refers.</param>
+    /// <param name="type">The <see cref="System.Type" /> of the expression.</param>
+    /// <param name="typeMapping">The <see cref="RelationalTypeMapping" /> associated with the expression.</param>
+    /// <param name="nullable">Whether this expression represents a nullable column.</param>
+    [EntityFrameworkInternal]
+    public ColumnExpression(
+        IColumnBase column,
+        string tableAlias,
+        Type type,
+        RelationalTypeMapping typeMapping,
+        bool nullable)
+        : base(type, typeMapping)
+    {
+        Name = column.Name;
+        TableAlias = tableAlias;
+        IsNullable = nullable || column.IsNullable;
+    }
+
+    /// <summary>
     ///     The name of the column.
     /// </summary>
     public virtual string Name { get; }
@@ -52,6 +74,11 @@ public class ColumnExpression : SqlExpression
     ///     The bool value indicating if this column can have null values.
     /// </summary>
     public virtual bool IsNullable { get; }
+
+    /// <summary>
+    ///     The <see cref="IColumnBase" /> associated with this column expression.
+    /// </summary>
+    public virtual IColumnBase? Column { get; }
 
     /// <inheritdoc />
     protected override Expression VisitChildren(ExpressionVisitor visitor)

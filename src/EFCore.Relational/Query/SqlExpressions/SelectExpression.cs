@@ -4031,24 +4031,26 @@ public sealed partial class SelectExpression : TableExpressionBase
         string tableAlias,
         bool nullable)
         => new(
-            column.Name,
+            column,
             tableAlias,
             property.ClrType.UnwrapNullableType(),
             column.PropertyMappings.First(m => m.Property == property).TypeMapping,
-            nullable || column.IsNullable);
+            nullable);
 
     private static ColumnExpression CreateColumnExpression(ProjectionExpression subqueryProjection, string tableAlias)
-        => new(
-            subqueryProjection.Alias,
-            tableAlias,
-            subqueryProjection.Type,
-            subqueryProjection.Expression.TypeMapping!,
-            subqueryProjection.Expression switch
-            {
-                ColumnExpression columnExpression => columnExpression.IsNullable,
-                SqlConstantExpression sqlConstantExpression => sqlConstantExpression.Value == null,
-                _ => true
-            });
+        => subqueryProjection.Expression is ColumnExpression { Column: IColumnBase column, TypeMapping: RelationalTypeMapping typeMapping } columnExpression
+            ? new(column, tableAlias, columnExpression.Type, typeMapping, columnExpression.IsNullable)
+            : new(
+                subqueryProjection.Alias,
+                tableAlias,
+                subqueryProjection.Type,
+                subqueryProjection.Expression.TypeMapping!,
+                subqueryProjection.Expression switch
+                {
+                    ColumnExpression c => c.IsNullable,
+                    SqlConstantExpression c => c.Value is null,
+                    _ => true
+                });
 
     private ColumnExpression GenerateOuterColumn(
         string tableAlias,
