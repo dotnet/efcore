@@ -6028,9 +6028,12 @@ namespace RootNamespace
                                 eb.PrimitiveCollection<List<string>>("List")
                                     .HasColumnType("nvarchar(max)")
                                     .IsSparse();
-                                eb.ComplexProperty(e => e.EntityWithStringKey)
-                                    .IsRequired()
-                                    .Ignore(e => e.Properties);
+                                eb.ComplexProperty(e => e.EntityWithStringKey, cb =>
+                                {
+                                    cb.Ignore(e => e.Properties);
+                                    cb.Property(e => e.Id).IsRequired();
+                                    cb.HasDiscriminator();
+                                });
                                 eb.HasPropertyAnnotation("PropertyAnnotation", 1);
                                 eb.HasTypeAnnotation("TypeAnnotation", 2);
                             });
@@ -6067,10 +6070,15 @@ namespace RootNamespace
 
                             b1.ComplexProperty<Dictionary<string, object>>("EntityWithStringKey", "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithOneProperty.EntityWithTwoProperties#EntityWithTwoProperties.EntityWithStringKey#EntityWithStringKey", b2 =>
                                 {
-                                    b2.IsRequired();
+                                    b2.Property<string>("Discriminator")
+                                        .IsRequired()
+                                        .HasColumnType("nvarchar(max)");
 
                                     b2.Property<string>("Id")
+                                        .IsRequired()
                                         .HasColumnType("nvarchar(max)");
+
+                                    b2.HasDiscriminator().HasValue("EntityWithStringKey");
                                 });
 
                             b1.HasPropertyAnnotation("PropertyAnnotation", 1);
@@ -6104,7 +6112,7 @@ namespace RootNamespace
 
                 var nestedComplexProperty = complexType.FindComplexProperty(nameof(EntityWithTwoProperties.EntityWithStringKey));
                 Assert.False(nestedComplexProperty.IsCollection);
-                Assert.False(nestedComplexProperty.IsNullable);
+                Assert.True(nestedComplexProperty.IsNullable);
                 var nestedComplexType = nestedComplexProperty.ComplexType;
                 Assert.Equal(
                     "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithOneProperty.EntityWithTwoProperties#EntityWithTwoProperties.EntityWithStringKey#EntityWithStringKey",
@@ -6114,7 +6122,7 @@ namespace RootNamespace
                     nestedComplexType.DisplayName());
                 Assert.Equal(nameof(EntityWithOneProperty), nestedComplexType.GetTableName());
                 var nestedIdProperty = nestedComplexType.FindProperty(nameof(EntityWithStringKey.Id));
-                Assert.True(nestedIdProperty.IsNullable);
+                Assert.False(nestedIdProperty.IsNullable);
             },
             validate: true);
 

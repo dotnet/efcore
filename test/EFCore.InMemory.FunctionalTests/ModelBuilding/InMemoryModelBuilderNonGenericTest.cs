@@ -20,6 +20,12 @@ public class InMemoryModelBuilderNonGenericTest : InMemoryModelBuilderTest
             => new NonGenericTestModelBuilder(Fixture, configure);
     }
 
+    public class InMemoryNonGenericComplexCollection(InMemoryModelBuilderFixture fixture) : InMemoryComplexCollection(fixture)
+    {
+        protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder>? configure = null)
+            => new NonGenericTestModelBuilder(Fixture, configure);
+    }
+
     public class InMemoryNonGenericInheritance(InMemoryModelBuilderFixture fixture) : InMemoryInheritance(fixture)
     {
         protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder>? configure = null)

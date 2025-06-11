@@ -199,13 +199,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var orderMapping = orderType.GetDefaultMappings().Single();
             Assert.Null(orderMapping.IncludesDerivedTypes);
             Assert.Equal(
-                new[] { nameof(Order.Id), nameof(Order.AlternateId), nameof(Order.CustomerId), nameof(Order.OrderDate) },
+                [nameof(Order.Id), nameof(Order.AlternateId), nameof(Order.CustomerId), nameof(Order.OrderDate)],
                 orderMapping.ColumnMappings.Select(m => m.Property.Name));
 
             var ordersTable = orderMapping.Table;
-            Assert.Equal(new[] { nameof(Order) }, ordersTable.EntityTypeMappings.Select(m => m.TypeBase.DisplayName()));
+            Assert.Equal([nameof(Order), nameof(OrderDetails)], ordersTable.EntityTypeMappings.Select(m => m.TypeBase.DisplayName()));
             Assert.Equal(
-                new[] { nameof(Order.AlternateId), nameof(Order.CustomerId), nameof(Order.Id), "OrderDate" },
+                [nameof(OrderDetails.Active), nameof(Order.AlternateId), nameof(Order.CustomerId), nameof(Order.Id), nameof(OrderDetails.OrderDate), nameof(OrderDetails.OrderId)],
                 ordersTable.Columns.Select(m => m.Name));
             Assert.Equal("Microsoft.EntityFrameworkCore.Metadata.RelationalModelTest+Order", ordersTable.Name);
             Assert.Null(ordersTable.Schema);
@@ -225,24 +225,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var orderDetailsOwnership = orderType.FindNavigation(nameof(Order.Details)).ForeignKey;
             var orderDetailsType = orderDetailsOwnership.DeclaringEntityType;
             var orderDetailsTable = orderDetailsType.GetDefaultMappings().Single().Table;
-            Assert.NotEqual(ordersTable, orderDetailsTable);
+            Assert.Same(ordersTable, orderDetailsTable);
             Assert.Empty(ordersTable.GetReferencingRowInternalForeignKeys(orderType));
             Assert.Equal(
                 RelationalStrings.TableNotMappedEntityType(nameof(SpecialCustomer), ordersTable.Name),
                 Assert.Throws<InvalidOperationException>(
                     () => ordersTable.IsOptional(specialCustomerType)).Message);
 
+            var orderDetailsDate = orderDetailsType.FindProperty(nameof(OrderDetails.OrderDate));
             var orderDateColumn = orderDateMapping.Column;
             Assert.Same(orderDateColumn, ordersTable.FindColumn("OrderDate"));
             Assert.Same(orderDateColumn, ordersTable.FindColumn(orderDate));
-            Assert.Equal(new[] { orderDate }, orderDateColumn.PropertyMappings.Select(m => m.Property));
+            Assert.Equal([orderDate, orderDetailsDate], orderDateColumn.PropertyMappings.Select(m => m.Property));
+            Assert.Equal([orderDate, orderDetailsDate], orderDetailsTable.FindColumn("OrderDate").PropertyMappings.Select(m => m.Property));
             Assert.Equal("OrderDate", orderDateColumn.Name);
             Assert.Equal("default_datetime_mapping", orderDateColumn.StoreType);
             Assert.False(orderDateColumn.IsNullable);
             Assert.Same(ordersTable, orderDateColumn.Table);
-
-            var orderDetailsDate = orderDetailsType.FindProperty(nameof(OrderDetails.OrderDate));
-            Assert.Equal(new[] { orderDetailsDate }, orderDetailsTable.FindColumn("OrderDate").PropertyMappings.Select(m => m.Property));
 
             var customerTable = customerType.GetDefaultMappings().Last().Table;
             Assert.False(customerTable.IsOptional(customerType));
@@ -271,7 +270,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
                 var specialCustomerTable = specialCustomerType.GetDefaultMappings().Last().Table;
                 Assert.Null(specialCustomerTable.Schema);
-                Assert.Equal(4, specialCustomerTable.Columns.Count());
+                Assert.Equal(7, specialCustomerTable.Columns.Count());
 
                 Assert.Null(
                     specialCustomerTable.EntityTypeMappings.Single(m => m.TypeBase == specialCustomerType).IsSharedTablePrincipal);
@@ -299,10 +298,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     Assert.True(specialCustomerTableMapping.IncludesDerivedTypes);
                     Assert.Same(customerTable, specialCustomerTable);
 
-                    Assert.Equal(5, specialCustomerTable.EntityTypeMappings.Count());
+                    Assert.Equal(6, specialCustomerTable.EntityTypeMappings.Count());
                     Assert.All(specialCustomerTable.EntityTypeMappings, t => Assert.Null(t.IsSharedTablePrincipal));
 
-                    Assert.Equal(10, specialCustomerTable.Columns.Count());
+                    Assert.Equal(13, specialCustomerTable.Columns.Count());
 
                     Assert.True(specialtyColumn.IsNullable);
                 }

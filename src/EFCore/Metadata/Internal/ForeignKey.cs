@@ -131,7 +131,8 @@ public class ForeignKey : ConventionAnnotatable, IMutableForeignKey, IConvention
     /// </summary>
     public virtual bool IsInModel
         => _builder is not null
-            && DeclaringEntityType.IsInModel;
+            && DeclaringEntityType.IsInModel
+            && PrincipalEntityType.IsInModel;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

@@ -14,9 +14,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
 /// </summary>
 public class SqliteQuerySqlGenerator : QuerySqlGenerator
 {
-    private static readonly bool UseOldBehavior36112 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue36112", out var enabled36112) && enabled36112;
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -110,8 +107,7 @@ public class SqliteQuerySqlGenerator : QuerySqlGenerator
         // To preserve evaluation order, add parentheses whenever a set operation is nested within a different set operation
         // - including different distinctness.
         // In addition, EXCEPT is non-commutative (unlike UNION/INTERSECT), so add parentheses for that case too (see #36105).
-        if (!UseOldBehavior36112
-            && TryUnwrapBareSetOperation(operand, out var nestedSetOperation)
+        if (TryUnwrapBareSetOperation(operand, out var nestedSetOperation)
             && (nestedSetOperation is ExceptExpression
                 || nestedSetOperation.GetType() != setOperation.GetType()
                 || nestedSetOperation.IsDistinct != setOperation.IsDistinct))

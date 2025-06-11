@@ -59,26 +59,6 @@ public abstract class NorthwindDbFunctionsQueryTestBase<TFixture>(TFixture fixtu
             c => EF.Functions.Like("%", "!%", "!"),
             c => "%".Contains("%"));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Random_return_less_than_1(bool async)
-        => AssertCount(
-            async,
-            ss => ss.Set<Order>(),
-            ss => ss.Set<Order>(),
-            ss => EF.Functions.Random() < 1,
-            c => true);
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Random_return_greater_than_0(bool async)
-        => AssertCount(
-            async,
-            ss => ss.Set<Order>(),
-            ss => ss.Set<Order>(),
-            ss => EF.Functions.Random() >= 0,
-            c => true);
-
     protected NorthwindContext CreateContext()
         => Fixture.CreateContext();
 }

@@ -53,9 +53,9 @@ WHERE [c].[City] LIKE N'%Sea%'
 
         AssertSql(
             """
-@__p_0='1'
+@p='1'
 
-SELECT TOP(@__p_0) [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
+SELECT TOP(@p) [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
 FROM [Order Details] AS [o]
 INNER JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
 LEFT JOIN [Customers] AS [c] ON [o0].[CustomerID] = [c].[CustomerID]
@@ -70,11 +70,11 @@ ORDER BY [o].[OrderID], [o].[ProductID]
 
         AssertSql(
             """
-@__p_0='2'
+@p='2'
 
 SELECT [o1].[OrderID], [o1].[CustomerID], [o1].[EmployeeID], [o1].[OrderDate]
 FROM (
-    SELECT TOP(@__p_0) [c].[CustomerID]
+    SELECT TOP(@p) [c].[CustomerID]
     FROM [Customers] AS [c]
     ORDER BY [c].[CustomerID]
 ) AS [c0]
@@ -96,9 +96,9 @@ ORDER BY [c0].[CustomerID]
 
         AssertSql(
             """
-@__p_0='2'
+@p='2'
 
-SELECT TOP(@__p_0) (
+SELECT TOP(@p) (
     SELECT TOP(1) [o].[CustomerID]
     FROM [Orders] AS [o]
     WHERE [c].[CustomerID] = [o].[CustomerID]
@@ -114,9 +114,9 @@ ORDER BY [c].[CustomerID]
 
         AssertSql(
             """
-@__p_0='2'
+@p='2'
 
-SELECT TOP(@__p_0) (
+SELECT TOP(@p) (
     SELECT TOP(1) [o].[CustomerID]
     FROM [Orders] AS [o]
     WHERE [c].[CustomerID] = [o].[CustomerID]
@@ -132,11 +132,11 @@ ORDER BY [c].[CustomerID]
 
         AssertSql(
             """
-@__p_0='2'
+@p='2'
 
 SELECT [o1].[CustomerID], [o1].[OrderID], [o1].[c]
 FROM (
-    SELECT TOP(@__p_0) [c].[CustomerID]
+    SELECT TOP(@p) [c].[CustomerID]
     FROM [Customers] AS [c]
     WHERE [c].[CustomerID] LIKE N'F%'
     ORDER BY [c].[CustomerID]
@@ -159,11 +159,11 @@ ORDER BY [c0].[CustomerID]
 
         AssertSql(
             """
-@__p_0='2'
+@p='2'
 
 SELECT [o1].[CustomerID], [o1].[OrderID], [o1].[c]
 FROM (
-    SELECT TOP(@__p_0) [c].[CustomerID]
+    SELECT TOP(@p) [c].[CustomerID]
     FROM [Customers] AS [c]
     WHERE [c].[CustomerID] LIKE N'F%'
     ORDER BY [c].[CustomerID]
@@ -186,11 +186,11 @@ ORDER BY [c0].[CustomerID]
 
         AssertSql(
             """
-@__p_0='2'
+@p='2'
 
 SELECT [o1].[OrderID], [o1].[CustomerID], [o1].[EmployeeID], [o1].[OrderDate]
 FROM (
-    SELECT TOP(@__p_0) [c].[CustomerID]
+    SELECT TOP(@p) [c].[CustomerID]
     FROM [Customers] AS [c]
     ORDER BY [c].[CustomerID]
 ) AS [c0]
@@ -212,14 +212,14 @@ ORDER BY [c0].[CustomerID]
 
         AssertSql(
             """
-@__p_0='20'
+@p='20'
 
 SELECT [o1].[OrderID], [o1].[CustomerID], [o1].[EmployeeID], [o1].[OrderDate]
 FROM (
     SELECT [c].[CustomerID]
     FROM [Customers] AS [c]
     ORDER BY [c].[CustomerID]
-    OFFSET @__p_0 ROWS
+    OFFSET @p ROWS
 ) AS [c0]
 LEFT JOIN (
     SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
@@ -330,7 +330,7 @@ WHERE [c].[City] = N'Seattle' AND ([c].[Phone] <> N'555 555 5555' OR [c].[Phone]
         AssertSql(
             """
 SELECT (
-    SELECT COALESCE(SUM(CAST([o0].[Quantity] AS int)), 0)
+    SELECT ISNULL(SUM(CAST([o0].[Quantity] AS int)), 0)
     FROM [Order Details] AS [o0]
     WHERE [o].[OrderID] = [o0].[OrderID]) + (
     SELECT COUNT(*)
@@ -773,7 +773,7 @@ ORDER BY [c].[CustomerID]
 
         AssertSql(
             """
-@__orderIds_0='[10643,10692,10702,10835,10952,11011]' (Size = 4000)
+@orderIds='[10643,10692,10702,10835,10952,11011]' (Size = 4000)
 
 SELECT [s0].[CustomerID], [s0].[Address], [s0].[City], [s0].[CompanyName], [s0].[ContactName], [s0].[ContactTitle], [s0].[Country], [s0].[Fax], [s0].[Phone], [s0].[PostalCode], [s0].[Region]
 FROM [Customers] AS [c]
@@ -785,7 +785,7 @@ LEFT JOIN (
         LEFT JOIN [Customers] AS [c0] ON [o].[CustomerID] = [c0].[CustomerID]
         WHERE [o].[OrderID] IN (
             SELECT [o0].[value]
-            FROM OPENJSON(@__orderIds_0) WITH ([value] int '$') AS [o0]
+            FROM OPENJSON(@orderIds) WITH ([value] int '$') AS [o0]
         )
     ) AS [s]
     WHERE [s].[row] <= 1
@@ -988,7 +988,7 @@ ORDER BY [c].[CustomerID]
 
         AssertSql(
             """
-@__p_0='3'
+@p='3'
 
 SELECT [o0].[OrderID], COALESCE((
     SELECT TOP(1) [o1].[OrderID]
@@ -996,7 +996,7 @@ SELECT [o0].[OrderID], COALESCE((
     WHERE [o0].[OrderID] = [o1].[OrderID]
     ORDER BY [o1].[OrderID], [o1].[ProductID]), 0) AS [OrderDetail], [c].[City]
 FROM (
-    SELECT TOP(@__p_0) [o].[OrderID], [o].[CustomerID]
+    SELECT TOP(@p) [o].[OrderID], [o].[CustomerID]
     FROM [Orders] AS [o]
     ORDER BY [o].[OrderID]
 ) AS [o0]

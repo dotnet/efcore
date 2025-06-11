@@ -42,33 +42,33 @@ FROM "JsonEntitiesBasic" AS "j"
 """);
     }
 
-    public override async Task Project_json_entity_FirstOrDefault_subquery(bool async)
-        => Assert.Equal(
-            SqliteStrings.ApplyNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Project_json_entity_FirstOrDefault_subquery(async)))
-            .Message);
+    //public override async Task Project_json_entity_FirstOrDefault_subquery(bool async)
+    //    => Assert.Equal(
+    //        SqliteStrings.ApplyNotSupported,
+    //        (await Assert.ThrowsAsync<InvalidOperationException>(
+    //            () => base.Project_json_entity_FirstOrDefault_subquery(async)))
+    //        .Message);
 
-    public override async Task Project_json_entity_FirstOrDefault_subquery_deduplication(bool async)
-        => Assert.Equal(
-            SqliteStrings.ApplyNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Project_json_entity_FirstOrDefault_subquery_deduplication(async)))
-            .Message);
+    //public override async Task Project_json_entity_FirstOrDefault_subquery_deduplication(bool async)
+    //    => Assert.Equal(
+    //        SqliteStrings.ApplyNotSupported,
+    //        (await Assert.ThrowsAsync<InvalidOperationException>(
+    //            () => base.Project_json_entity_FirstOrDefault_subquery_deduplication(async)))
+    //        .Message);
 
-    public override async Task Project_json_entity_FirstOrDefault_subquery_deduplication_and_outer_reference(bool async)
-        => Assert.Equal(
-            SqliteStrings.ApplyNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Project_json_entity_FirstOrDefault_subquery_deduplication_and_outer_reference(async)))
-            .Message);
+    //public override async Task Project_json_entity_FirstOrDefault_subquery_deduplication_and_outer_reference(bool async)
+    //    => Assert.Equal(
+    //        SqliteStrings.ApplyNotSupported,
+    //        (await Assert.ThrowsAsync<InvalidOperationException>(
+    //            () => base.Project_json_entity_FirstOrDefault_subquery_deduplication_and_outer_reference(async)))
+    //        .Message);
 
-    public override async Task Project_json_entity_FirstOrDefault_subquery_deduplication_outer_reference_and_pruning(bool async)
-        => Assert.Equal(
-            SqliteStrings.ApplyNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Project_json_entity_FirstOrDefault_subquery_deduplication_outer_reference_and_pruning(async)))
-            .Message);
+    //public override async Task Project_json_entity_FirstOrDefault_subquery_deduplication_outer_reference_and_pruning(bool async)
+    //    => Assert.Equal(
+    //        SqliteStrings.ApplyNotSupported,
+    //        (await Assert.ThrowsAsync<InvalidOperationException>(
+    //            () => base.Project_json_entity_FirstOrDefault_subquery_deduplication_outer_reference_and_pruning(async)))
+    //        .Message);
 
     public override async Task Json_collection_Any_with_predicate(bool async)
     {
@@ -215,11 +215,11 @@ FROM (
 
         AssertSql(
             """
-@__prm_0='0'
+@prm='0'
 
 SELECT "j"."Id", "j"."EntityBasicId", "j"."Name", "j"."OwnedCollectionRoot", "j"."OwnedReferenceRoot"
 FROM "JsonEntitiesBasic" AS "j"
-WHERE "j"."OwnedCollectionRoot" ->> '$[1].OwnedCollectionBranch' ->> @__prm_0 ->> 'OwnedCollectionLeaf' ->> ("j"."Id" - 1) ->> 'SomethingSomething' = 'e1_c2_c1_c1'
+WHERE "j"."OwnedCollectionRoot" ->> '$[1].OwnedCollectionBranch' ->> @prm ->> 'OwnedCollectionLeaf' ->> ("j"."Id" - 1) ->> 'SomethingSomething' = 'e1_c2_c1_c1'
 """);
     }
 
@@ -347,12 +347,12 @@ WHERE "j"."Reference" ->> 'BoolConvertedToStringYN' = 'Y'
                 () => base.Json_multiple_collection_projections(async)))
             .Message);
 
-    public override async Task Json_collection_SelectMany(bool async)
-        => Assert.Equal(
-            SqliteStrings.ApplyNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Json_collection_SelectMany(async)))
-            .Message);
+    //public override async Task Json_collection_SelectMany(bool async)
+    //    => Assert.Equal(
+    //        SqliteStrings.ApplyNotSupported,
+    //        (await Assert.ThrowsAsync<InvalidOperationException>(
+    //            () => base.Json_collection_SelectMany(async)))
+    //        .Message);
 
     public override async Task Json_collection_skip_take_in_projection(bool async)
         => Assert.Equal(
@@ -375,12 +375,12 @@ WHERE "j"."Reference" ->> 'BoolConvertedToStringYN' = 'Y'
                 () => base.Json_nested_collection_filter_in_projection(async)))
             .Message);
 
-    public override async Task Json_nested_collection_SelectMany(bool async)
-        => Assert.Equal(
-            SqliteStrings.ApplyNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Json_nested_collection_SelectMany(async)))
-            .Message);
+    //public override async Task Json_nested_collection_SelectMany(bool async)
+    //    => Assert.Equal(
+    //        SqliteStrings.ApplyNotSupported,
+    //        (await Assert.ThrowsAsync<InvalidOperationException>(
+    //            () => base.Json_nested_collection_SelectMany(async)))
+    //        .Message);
 
     public override async Task Json_collection_of_primitives_SelectMany(bool async)
         => Assert.Equal(

@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 #nullable disable
 using static Expression;
 
-public class NonSharedPrimitiveCollectionsQuerySqlServerTest : NonSharedPrimitiveCollectionsQueryRelationalTestBase
+public class NonSharedPrimitiveCollectionsQuerySqlServerTest(NonSharedFixture fixture) : NonSharedPrimitiveCollectionsQueryRelationalTestBase(fixture)
 {
     protected override DbContextOptionsBuilder SetTranslateParameterizedCollectionsToConstants(DbContextOptionsBuilder optionsBuilder)
     {
@@ -714,11 +714,11 @@ WHERE (
 
         AssertSql(
             """
-@__ints_0='1,2,3' (Size = 4000)
+@ints='1,2,3' (Size = 4000)
 
 SELECT TOP(2) [t].[Id], [t].[Ints]
 FROM [TestEntity] AS [t]
-WHERE [t].[Ints] = @__ints_0
+WHERE [t].[Ints] = @ints
 """);
     }
 
@@ -825,13 +825,13 @@ WHERE [t].[Id] IN (2, 999)
 
         AssertSql(
             """
-@__ids_0='[2,999]' (Size = 4000)
+@ids='[2,999]' (Size = 4000)
 
 SELECT [t].[Id]
 FROM [TestEntity] AS [t]
 WHERE (
     SELECT COUNT(*)
-    FROM OPENJSON(@__ids_0) WITH ([value] int '$') AS [i]
+    FROM OPENJSON(@ids) WITH ([value] int '$') AS [i]
     WHERE [i].[value] > [t].[Id]) = 1
 """);
     }
@@ -842,13 +842,13 @@ WHERE (
 
         AssertSql(
             """
-@__ints_0='[2,999]' (Size = 4000)
+@ints='[2,999]' (Size = 4000)
 
 SELECT [t].[Id]
 FROM [TestEntity] AS [t]
 WHERE [t].[Id] IN (
     SELECT [i].[value]
-    FROM OPENJSON(@__ints_0) WITH ([value] int '$') AS [i]
+    FROM OPENJSON(@ints) WITH ([value] int '$') AS [i]
 )
 """);
     }
@@ -859,13 +859,13 @@ WHERE [t].[Id] IN (
 
         AssertSql(
             """
-@__ids_0='[2,999]' (Size = 4000)
+@ids='[2,999]' (Size = 4000)
 
 SELECT [t].[Id]
 FROM [TestEntity] AS [t]
 WHERE (
     SELECT COUNT(*)
-    FROM OPENJSON(@__ids_0) WITH ([value] int '$') AS [i]
+    FROM OPENJSON(@ids) WITH ([value] int '$') AS [i]
     WHERE [i].[value] > [t].[Id]) = 1
 """);
     }
@@ -876,13 +876,13 @@ WHERE (
 
         AssertSql(
             """
-@__ints_0='[2,999]' (Size = 4000)
+@ints='[2,999]' (Size = 4000)
 
 SELECT [t].[Id]
 FROM [TestEntity] AS [t]
 WHERE [t].[Id] IN (
     SELECT [i].[value]
-    FROM OPENJSON(@__ints_0) WITH ([value] int '$') AS [i]
+    FROM OPENJSON(@ints) WITH ([value] int '$') AS [i]
 )
 """);
     }
@@ -938,17 +938,17 @@ WHERE [t].[Id] IN (2, 999)
 
         AssertSql(
             """
-@__dateTimes_0='["2020-01-01T12:30:00","2020-01-02T12:30:00"]' (Size = 4000)
-@__dateTimes_0_1='["2020-01-01T12:30:00","2020-01-02T12:30:00"]' (Size = 4000)
+@dateTimes='["2020-01-01T12:30:00","2020-01-02T12:30:00"]' (Size = 4000)
+@dateTimes0='["2020-01-01T12:30:00","2020-01-02T12:30:00"]' (Size = 4000)
 
 SELECT [t].[Id], [t].[DateTime], [t].[DateTime2], [t].[Ints]
 FROM [TestEntity] AS [t]
 WHERE [t].[DateTime] IN (
     SELECT [d].[value]
-    FROM OPENJSON(@__dateTimes_0) WITH ([value] datetime '$') AS [d]
+    FROM OPENJSON(@dateTimes) WITH ([value] datetime '$') AS [d]
 ) AND [t].[DateTime2] IN (
     SELECT [d0].[value]
-    FROM OPENJSON(@__dateTimes_0_1) WITH ([value] datetime2 '$') AS [d0]
+    FROM OPENJSON(@dateTimes0) WITH ([value] datetime2 '$') AS [d0]
 )
 """);
     }
@@ -969,13 +969,13 @@ WHERE [t].[DateTime] IN (
 
         AssertSql(
             """
-@__dateTimes_0='["2020-01-01T12:30:00","2020-01-02T12:30:00",null]' (Size = 4000)
+@dateTimes='["2020-01-01T12:30:00","2020-01-02T12:30:00",null]' (Size = 4000)
 
 SELECT [t].[Id], [t].[DateTime], [t].[Ints]
 FROM [TestEntity] AS [t]
 WHERE EXISTS (
     SELECT 1
-    FROM OPENJSON(@__dateTimes_0) WITH ([value] datetime2 '$') AS [d]
+    FROM OPENJSON(@dateTimes) WITH ([value] datetime2 '$') AS [d]
     WHERE [d].[value] = [t].[DateTime] AND [d].[value] IS NOT NULL)
 """);
     }

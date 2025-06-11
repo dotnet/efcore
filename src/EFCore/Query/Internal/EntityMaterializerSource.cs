@@ -115,7 +115,7 @@ public class EntityMaterializerSource : IEntityMaterializerSource
 
         if (_materializationInterceptor == null
             // TODO: This currently applies the materialization interceptor only on the root structural type - any contained complex types
-            // don't get intercepted.
+            // don't get intercepted. #35883
             || structuralType is not IEntityType)
         {
             return properties.Count == 0 && blockExpressions.Count == 0
@@ -159,7 +159,7 @@ public class EntityMaterializerSource : IEntityMaterializerSource
                 IComplexProperty complexProperty
                     => CreateMaterializeExpression(
                         new EntityMaterializerSourceParameters(
-                            complexProperty.ComplexType, "complexType", null /* TODO: QueryTrackingBehavior */),
+                            complexProperty.ComplexType, "complexType", QueryTrackingBehavior: null),
                         bindingInfo.MaterializationContextExpression),
 
                 _ => throw new UnreachableException()
@@ -182,7 +182,7 @@ public class EntityMaterializerSource : IEntityMaterializerSource
                         ? (Expression)currentVariable
                         : Expression.Convert(currentVariable, genericMethod.GetParameters()[1].ParameterType);
                     return Expression.Block(
-                        new[] { currentVariable },
+                        [currentVariable],
                         Expression.Assign(
                             currentVariable,
                             Expression.MakeMemberAccess(parameter, property.GetMemberInfo(forMaterialization: true, forSet: false))),
@@ -414,7 +414,7 @@ public class EntityMaterializerSource : IEntityMaterializerSource
         blockExpressions.Add(instanceVariable);
 
         return Expression.Block(
-            bindingInfo.ServiceInstances.Concat(new[] { accessorDictionaryVariable, materializationDataVariable, creatingResultVariable }),
+            bindingInfo.ServiceInstances.Concat([accessorDictionaryVariable, materializationDataVariable, creatingResultVariable]),
             blockExpressions);
 
         BlockExpression CreateAccessorDictionaryExpression()
@@ -470,7 +470,7 @@ public class EntityMaterializerSource : IEntityMaterializerSource
 
             snapshotBlockExpressions.Add(dictionaryVariable);
 
-            return Expression.Block(new[] { dictionaryVariable }, snapshotBlockExpressions);
+            return Expression.Block([dictionaryVariable], snapshotBlockExpressions);
         }
 
         BlockExpression CreateInitializeExpression()

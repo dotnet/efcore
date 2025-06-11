@@ -9,9 +9,10 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public abstract class TableSplittingTestBase : NonSharedModelTestBase
+public abstract class TableSplittingTestBase : NonSharedModelTestBase, IClassFixture<NonSharedFixture>
 {
-    protected TableSplittingTestBase(ITestOutputHelper testOutputHelper)
+    protected TableSplittingTestBase(NonSharedFixture fixture, ITestOutputHelper testOutputHelper)
+        : base(fixture)
     {
         // TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
@@ -177,11 +178,12 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase
                     {
                         vb.Property(v => v.SeatingCapacity).HasColumnName("SeatingCapacity");
                     });
-                modelBuilder.Entity<PoweredVehicle>(
+
+                modelBuilder.Entity<CombustionEngine>(
                     vb =>
                     {
                         vb.ComplexProperty(
-                            v => v.Engine, eb =>
+                            v => v.FuelTank, eb =>
                             {
                                 eb.Property<int>("SeatingCapacity").HasColumnName("SeatingCapacity");
                             });
@@ -193,23 +195,27 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase
             var scooterEntry = await context.AddAsync(
                 new PoweredVehicle
                 {
-                    Name = "Electric scooter",
+                    Name = "Gas scooter",
                     SeatingCapacity = 1,
-                    Engine = new Engine(),
-                    Operator = new Operator { Name = "Kai Saunders", Details = new OperatorDetails() }
+                    Engine = new IntermittentCombustionEngine { FuelTank = new FuelTank { Capacity = 5 } },
+                    Operator = new Operator { Name = "Dante Hutchinson", Details = new OperatorDetails() }
                 });
 
             context.SaveChanges();
 
-            //Assert.Equal(scooter.SeatingCapacity, scooterEntry.ComplexProperty(v => v.Engine).TargetEntry.Property<int>("SeatingCapacity").CurrentValue);
+            Assert.Equal(scooterEntry.Entity.SeatingCapacity,
+                scooterEntry.Reference(v => (IntermittentCombustionEngine)v.Engine).TargetEntry
+                    .ComplexProperty(v => v.FuelTank).Property<int>("SeatingCapacity").CurrentValue);
         }
 
-        //using (var context = CreateContext())
-        //{
-        //    var scooter = context.Set<PoweredVehicle>().Single(v => v.Name == "Electric scooter");
+        using (var context = CreateContext())
+        {
+            // Requires query support for shadow properties in complex types #35613
+            //var scooter = context.Set<PoweredVehicle>().Include(v => v.Engine).Single(v => v.Name == "Gas scooter");
 
-        //    Assert.Equal(scooter.SeatingCapacity, context.Entry(scooter).ComplexProperty(v => v.Engine).TargetEntry.Property<int>("SeatingCapacity").CurrentValue);
-        //}
+            //Assert.Equal(scooter.SeatingCapacity, context.Entry(scooter).Reference(v => (IntermittentCombustionEngine)v.Engine).TargetEntry
+            //        .ComplexProperty(v => v.FuelTank).Property<int>("SeatingCapacity").CurrentValue);
+        }
     }
 
     [ConditionalFact]
@@ -260,6 +266,7 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase
 
             context.SaveChanges();
 
+            Assert.Equal(0, scooter.SeatingCapacity);
             Assert.Equal(0, engineCapacityEntry.OriginalValue);
             Assert.Equal(0, engineCapacityEntry.CurrentValue);
         }
@@ -295,12 +302,13 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase
                     {
                         vb.Property(v => v.SeatingCapacity).HasColumnName("SeatingCapacity").IsConcurrencyToken();
                     });
-                modelBuilder.Entity<PoweredVehicle>(
+                modelBuilder.Entity<CombustionEngine>(
                     vb =>
                     {
                         vb.ComplexProperty(
-                            v => v.Engine, eb =>
+                            v => v.FuelTank, eb =>
                             {
+                                eb.IsRequired(false);
                                 eb.Property<int>("SeatingCapacity").HasColumnName("SeatingCapacity").IsConcurrencyToken();
                             });
                     });
@@ -311,38 +319,42 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase
             var scooterEntry = await context.AddAsync(
                 new PoweredVehicle
                 {
-                    Name = "Electric scooter",
+                    Name = "Gas scooter",
                     SeatingCapacity = 1,
-                    Engine = new Engine(),
-                    Operator = new Operator { Name = "Kai Saunders", Details = new OperatorDetails() }
+                    Engine = new IntermittentCombustionEngine { FuelTank = new FuelTank { Capacity = 5 } },
+                    Operator = new Operator { Name = "Dante Hutchinson", Details = new OperatorDetails() }
                 });
 
             context.SaveChanges();
         }
 
+        // Requires query support for shadow properties in complex types #35613
         //using (var context = CreateContext())
         //{
-        //    var scooter = context.Set<PoweredVehicle>().Single(v => v.Name == "Electric scooter");
+        //    var scooter = context.Set<PoweredVehicle>().Include(v => v.Engine).Single(v => v.Name == "Gas scooter");
 
         //    Assert.Equal(1, scooter.SeatingCapacity);
 
-        //    scooter.Engine = new Engine();
+        //    scooter.Engine = new IntermittentCombustionEngine { FuelTank = new FuelTank { Capacity = 5 } };
 
-        //    var engineCapacityEntry = context.Entry(scooter).ComplexProperty(v => v.Engine).TargetEntry.Property<int>("SeatingCapacity");
+        //    var seatingCapacityEntry = context.Entry(scooter).Reference(v => (IntermittentCombustionEngine)v.Engine).TargetEntry
+        //        .ComplexProperty(v => v.FuelTank).Property<int>("SeatingCapacity");
 
-        //    Assert.Equal(0, engineCapacityEntry.OriginalValue);
+        //    Assert.Equal(0, seatingCapacityEntry.OriginalValue);
 
         //    context.SaveChanges();
 
-        //    Assert.Equal(0, engineCapacityEntry.OriginalValue);
-        //    Assert.Equal(0, engineCapacityEntry.CurrentValue);
+        //    Assert.Equal(0, scooter.SeatingCapacity);
+        //    Assert.Equal(0, seatingCapacityEntry.OriginalValue);
+        //    Assert.Equal(0, seatingCapacityEntry.CurrentValue);
         //}
 
         //using (var context = CreateContext())
         //{
-        //    var scooter = context.Set<PoweredVehicle>().Single(v => v.Name == "Electric scooter");
+        //    var scooter = context.Set<PoweredVehicle>().Include(v => v.Engine).Single(v => v.Name == "Gas scooter");
 
-        //    Assert.Equal(scooter.SeatingCapacity, context.Entry(scooter).ComplexProperty(v => v.Engine).TargetEntry.Property<int>("SeatingCapacity").CurrentValue);
+        //    Assert.Equal(scooter.SeatingCapacity, context.Entry(scooter).Reference(v => (IntermittentCombustionEngine)v.Engine).TargetEntry
+        //        .ComplexProperty(v => v.FuelTank).Property<int>("SeatingCapacity").CurrentValue);
 
         //    scooter.SeatingCapacity = 2;
         //    context.SaveChanges();
@@ -350,10 +362,11 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase
 
         //using (var context = CreateContext())
         //{
-        //    var scooter = context.Set<PoweredVehicle>().Include(v => v.Engine).Single(v => v.Name == "Electric scooter");
+        //    var scooter = context.Set<PoweredVehicle>().Include(v => v.Engine).Single(v => v.Name == "Gas scooter");
 
         //    Assert.Equal(2, scooter.SeatingCapacity);
-        //    Assert.Equal(2, context.Entry(scooter).ComplexProperty(v => v.Engine).TargetEntry.Property<int>("SeatingCapacity").CurrentValue);
+        //    Assert.Equal(2, context.Entry(scooter).Reference(v => (IntermittentCombustionEngine)v.Engine).TargetEntry
+        //        .ComplexProperty(v => v.FuelTank).Property<int>("SeatingCapacity").CurrentValue);
         //}
     }
 
@@ -935,40 +948,33 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase
     protected virtual void OnModelCreatingComplex(ModelBuilder modelBuilder)
     {
         OnModelCreating(modelBuilder);
-        modelBuilder.Ignore<Engine>();
-        modelBuilder.Ignore<CombustionEngine>();
         modelBuilder.Ignore<ContinuousCombustionEngine>();
-        modelBuilder.Ignore<IntermittentCombustionEngine>();
         modelBuilder.Ignore<SolidRocket>();
-        modelBuilder.Ignore<Operator>();
+        modelBuilder.Ignore<FuelTank>();
+        modelBuilder.Ignore<SolidFuelTank>();
         modelBuilder.Ignore<LicensedOperator>();
         modelBuilder.Ignore<OperatorDetails>();
-        modelBuilder.Entity<Vehicle>(
-            vb =>
+        modelBuilder.Entity<Operator>(ob =>
             {
-                vb.Property(v => v.Name).HasColumnName("Name");
-                vb.Ignore(v => v.Operator);
-                vb.ComplexProperty(
-                    v => v.Operator, ob =>
-                    {
-                        ob.IsRequired();
-                        ob.Property(o => o.VehicleName).HasColumnName("Name");
-                        ob.ComplexProperty(o => o.Details)
-                            .IsRequired()
-                            .Property(o => o.VehicleName).HasColumnName("Name");
-                    });
+                ob.ComplexProperty(o => o.Details)
+                    .IsRequired()
+                    .Ignore(o => o.VehicleName);
             });
-        modelBuilder.Entity<PoweredVehicle>(
-            vb =>
+        modelBuilder.Entity<Engine>(vb => vb.ToTable("Vehicles"));
+        modelBuilder.Entity<CombustionEngine>(vb =>
             {
-                vb.Ignore(v => v.Engine);
                 vb.ComplexProperty(
-                    v => v.Engine, eb =>
+                    v => v.FuelTank, eb =>
                     {
                         eb.IsRequired();
-                        eb.Property(o => o.VehicleName).HasColumnName("Name");
+                        eb.Ignore(f => f.Engine);
+                        eb.Ignore(f => f.Vehicle);
                     });
+                vb.ToTable("Vehicles");
             });
+        modelBuilder.Entity<IntermittentCombustionEngine>().ToTable("Vehicles");
+        modelBuilder.Entity<PoweredVehicle>().ToTable("Vehicles");
+        modelBuilder.Entity<CompositeVehicle>().ToTable("Vehicles");
     }
 
     protected virtual void OnSharedModelCreating(ModelBuilder modelBuilder)
@@ -1043,6 +1049,6 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase
     protected enum MeterReadingStatus
     {
         Running = 0,
-        NotAccesible = 2
+        NotAccessible = 2
     }
 }

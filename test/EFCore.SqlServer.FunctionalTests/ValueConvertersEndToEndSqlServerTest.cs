@@ -205,11 +205,11 @@ WHERE CAST(DATALENGTH(CAST(N'' AS nvarchar(max))) AS int) = 1
 
         Assert.Equal(
             """
-@__guid_0='d854227f-7076-48c3-997c-4e72c1c713b9' (Nullable = false) (Size = 40)
+@guid='d854227f-7076-48c3-997c-4e72c1c713b9' (Nullable = false) (Size = 40)
 
 SELECT [s].[Id], [s].[GuidToDbTypeString], [s].[GuidToFixedLengthString]
 FROM [SqlServerConvertingEntity] AS [s]
-WHERE [s].[GuidToFixedLengthString] <> @__guid_0
+WHERE [s].[GuidToFixedLengthString] <> @guid
 """,
             Fixture.TestSqlLoggerFactory.SqlStatements[0],
             ignoreLineEndingDifferences: true);
@@ -238,11 +238,11 @@ WHERE [s].[GuidToFixedLengthString] <> @__guid_0
 
         Assert.Equal(
             """
-@__guid_0='d854227f-7076-48c3-997c-4e72c1c713b9' (Nullable = false) (Size = 40) (DbType = AnsiStringFixedLength)
+@guid='d854227f-7076-48c3-997c-4e72c1c713b9' (Nullable = false) (Size = 40) (DbType = AnsiStringFixedLength)
 
 SELECT [s].[Id], [s].[GuidToDbTypeString], [s].[GuidToFixedLengthString]
 FROM [SqlServerConvertingEntity] AS [s]
-WHERE [s].[GuidToDbTypeString] <> @__guid_0
+WHERE [s].[GuidToDbTypeString] <> @guid
 """,
             Fixture.TestSqlLoggerFactory.SqlStatements[0],
             ignoreLineEndingDifferences: true);

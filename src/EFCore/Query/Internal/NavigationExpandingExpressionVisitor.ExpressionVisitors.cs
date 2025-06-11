@@ -249,7 +249,7 @@ public partial class NavigationExpandingExpressionVisitor
                     secondaryExpansion = Expression.Call(
                         (innerJoin
                             ? QueryableMethods.Join
-                            : QueryableExtensions.LeftJoinMethodInfo).MakeGenericMethod(
+                            : QueryableMethods.LeftJoin).MakeGenericMethod(
                             sourceElementType, innerSourceElementType,
                             outerKeySelector.ReturnType,
                             resultSelector.ReturnType),
@@ -462,7 +462,7 @@ public partial class NavigationExpandingExpressionVisitor
                 Expression.Call(
                     (innerJoin
                         ? QueryableMethods.Join
-                        : QueryableExtensions.LeftJoinMethodInfo).MakeGenericMethod(
+                        : QueryableMethods.LeftJoin).MakeGenericMethod(
                         source.SourceElementType,
                         innerSource.SourceElementType,
                         outerKeySelector.ReturnType,
@@ -562,6 +562,12 @@ public partial class NavigationExpandingExpressionVisitor
                 var entityType = TryGetEntityType(memberExpression.Expression);
                 var property = entityType?.FindProperty(memberExpression.Member);
                 if (property != null)
+                {
+                    return memberExpression;
+                }
+
+                var complexProperty = entityType?.FindComplexProperty(memberExpression.Member);
+                if (complexProperty != null)
                 {
                     return memberExpression;
                 }
@@ -788,7 +794,7 @@ public partial class NavigationExpandingExpressionVisitor
                         && joinMethodCallExpression.Method.GetGenericMethodDefinition()
                         == (skipNavigation.Inverse.ForeignKey.IsRequired
                             ? QueryableMethods.Join
-                            : QueryableExtensions.LeftJoinMethodInfo)
+                            : QueryableMethods.LeftJoin)
                         && joinMethodCallExpression.Arguments[4] is UnaryExpression
                         {
                             NodeType: ExpressionType.Quote,

@@ -292,12 +292,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 property, entityType, propertyType);
 
         /// <summary>
-        ///     The query uses 'Skip' without specifying ordering and uses split query mode. This generates incorrect results. Either provide ordering or run query in single query mode using `AsSingleQuery()`. See https://go.microsoft.com/fwlink/?linkid=2196526 for more information.
-        /// </summary>
-        public static string SplitQueryOffsetWithoutOrderBy
-            => GetString("SplitQueryOffsetWithoutOrderBy");
-
-        /// <summary>
         ///     Entity type '{entityType}' should be marked as temporal because it shares table mapping with another entity that has been marked as temporal. Alternatively, other entity types that share the same table must be non-temporal.
         /// </summary>
         public static string TemporalAllEntitiesMappedToSameTableMustBeTemporal(object? entityType)

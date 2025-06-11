@@ -21,7 +21,15 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Internal
     public static class InMemoryStrings
     {
         private static readonly ResourceManager _resourceManager
-            = new ResourceManager("Microsoft.EntityFrameworkCore.InMemory.Properties.InMemoryStrings", typeof(InMemoryStrings).Assembly);
+            = new ResourceManager("Microsoft.EntityFrameworkCore.Properties.InMemoryStrings", typeof(InMemoryStrings).Assembly);
+
+        /// <summary>
+        ///     The entity type '{entityType}' has a defining query configured. Compiled model can't be generated, because defining queries are not supported.
+        /// </summary>
+        public static string CompiledModelDefiningQuery(object? entityType)
+            => string.Format(
+                GetString("CompiledModelDefiningQuery", nameof(entityType)),
+                entityType);
 
         /// <summary>
         ///     Cannot apply 'DefaultIfEmpty' after a client-evaluated projection. Consider applying 'DefaultIfEmpty' before last 'Select' or use 'AsEnumerable' before 'DefaultIfEmpty' to apply it on client-side.
@@ -131,7 +139,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Internal
     public static class InMemoryResources
     {
         private static readonly ResourceManager _resourceManager
-            = new ResourceManager("Microsoft.EntityFrameworkCore.InMemory.Properties.InMemoryStrings", typeof(InMemoryResources).Assembly);
+            = new ResourceManager("Microsoft.EntityFrameworkCore.Properties.InMemoryStrings", typeof(InMemoryResources).Assembly);
 
         /// <summary>
         ///     Saved {count} entities to in-memory store.

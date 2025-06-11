@@ -68,10 +68,10 @@ public class ConventionSetBuilder
     /// <summary>
     ///     Remove the convention of the given type.
     /// </summary>
-    /// <typeparam name="TImplementaion">The type of convention to remove</typeparam>
-    public virtual void Remove<TImplementaion>()
-        where TImplementaion : IConvention
-        => Remove(typeof(TImplementaion));
+    /// <typeparam name="TImplementation">The type of convention to remove</typeparam>
+    public virtual void Remove<TImplementation>()
+        where TImplementation : IConvention
+        => Remove(typeof(TImplementation));
 
     #region Hidden System.Object members
 

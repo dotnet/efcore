@@ -3,7 +3,7 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public abstract class ToSqlQueryTestBase : NonSharedModelTestBase
+public abstract class ToSqlQueryTestBase(NonSharedFixture fixture) : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
 {
     protected override string StoreName
         => "ToSqlQueryTests";

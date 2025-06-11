@@ -239,29 +239,71 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         var partitionKeyPaths = parameters.PartitionKeyStoreNames.Select(e => "/" + e).ToList();
 
         var vectorIndexes = new Collection<VectorIndexPath>();
+        var fullTextIndexPaths = new Collection<FullTextIndexPath>();
+        var fullTextProperties = parametersTuple.Parameters.FullTextProperties.Select(x => x.Property).ToList();
         foreach (var index in parameters.Indexes)
         {
-            var vectorIndexType = (VectorIndexType?)index.FindAnnotation(CosmosAnnotationNames.VectorIndexType)?.Value;
+            var vectorIndexType = index.GetVectorIndexType();
             if (vectorIndexType != null)
             {
-                // Model validation will ensure there is only one property.
-                Check.DebugAssert(index.Properties.Count == 1, "Vector index must have one property.");
+                if (index.Properties.Count > 1)
+                {
+                    throw new InvalidOperationException(
+                        CosmosStrings.CompositeVectorIndex(
+                            index.DeclaringEntityType.DisplayName(),
+                            string.Join(",", index.Properties.Select(e => e.Name))));
+                }
 
                 vectorIndexes.Add(
-                    new VectorIndexPath { Path = "/" + index.Properties[0].GetJsonPropertyName(), Type = vectorIndexType.Value });
+                    new VectorIndexPath { Path = GetJsonPropertyPathFromRoot(index.Properties[0]), Type = vectorIndexType.Value });
+            }
+
+            if (index.IsFullTextIndex() == true)
+            {
+                if (index.Properties.Count > 1)
+                {
+                    throw new InvalidOperationException(
+                        CosmosStrings.CompositeFullTextIndex(
+                            index.DeclaringEntityType.DisplayName(),
+                            string.Join(",", index.Properties.Select(e => e.Name))));
+                }
+
+                fullTextIndexPaths.Add(
+                    new FullTextIndexPath { Path = GetJsonPropertyPathFromRoot(index.Properties[0]) });
             }
         }
 
+        var fullTextPaths = new Collection<FullTextPath>();
+        foreach (var (property, language) in parameters.FullTextProperties)
+        {
+            if (property.ClrType != typeof(string))
+            {
+                throw new InvalidOperationException(
+                    CosmosStrings.FullTextSearchConfiguredForUnsupportedPropertyType(
+                        property.DeclaringType.DisplayName(),
+                        property.Name,
+                        property.ClrType.Name));
+            }
+
+            fullTextPaths.Add(
+                new FullTextPath
+                {
+                    Path = GetJsonPropertyPathFromRoot(property),
+                    // TODO: remove the fallback once Cosmos SDK allows optional language (see #35939)
+                    Language = language ?? parameters.DefaultFullTextLanguage ?? "en-US"
+                });
+        }
+
         var embeddings = new Collection<Embedding>();
-        foreach (var tuple in parameters.Vectors)
+        foreach (var (property, vectorType) in parameters.Vectors)
         {
             embeddings.Add(
                 new Embedding
                 {
-                    Path = "/" + tuple.Property.GetJsonPropertyName(),
-                    DataType = CosmosVectorType.CreateDefaultVectorDataType(tuple.Property.ClrType),
-                    Dimensions = tuple.VectorType.Dimensions,
-                    DistanceFunction = tuple.VectorType.DistanceFunction
+                    Path = GetJsonPropertyPathFromRoot(property),
+                    DataType = CosmosVectorType.CreateDefaultVectorDataType(property.ClrType),
+                    Dimensions = vectorType.Dimensions,
+                    DistanceFunction = vectorType.DistanceFunction
                 });
         }
 
@@ -272,14 +314,27 @@ public class CosmosClientWrapper : ICosmosClientWrapper
             AnalyticalStoreTimeToLiveInSeconds = parameters.AnalyticalStoreTimeToLiveInSeconds,
         };
 
-        if (embeddings.Any())
+        if (embeddings.Count != 0)
         {
             containerProperties.VectorEmbeddingPolicy = new VectorEmbeddingPolicy(embeddings);
         }
 
-        if (vectorIndexes.Any())
+        if (vectorIndexes.Count != 0 || fullTextIndexPaths.Count != 0)
         {
-            containerProperties.IndexingPolicy = new IndexingPolicy { VectorIndexes = vectorIndexes };
+            containerProperties.IndexingPolicy = new IndexingPolicy
+            {
+                VectorIndexes = vectorIndexes,
+                FullTextIndexes = fullTextIndexPaths
+            };
+        }
+
+        if (fullTextPaths.Count != 0)
+        {
+            containerProperties.FullTextPolicy = new FullTextPolicy
+            {
+                DefaultLanguage = parameters.DefaultFullTextLanguage,
+                FullTextPaths = fullTextPaths
+            };
         }
 
         var response = await wrapper.Client.GetDatabase(wrapper._databaseId).CreateContainerIfNotExistsAsync(
@@ -289,6 +344,26 @@ public class CosmosClientWrapper : ICosmosClientWrapper
             .ConfigureAwait(false);
 
         return response.StatusCode == HttpStatusCode.Created;
+    }
+
+    private static string GetJsonPropertyPathFromRoot(IReadOnlyProperty property)
+        => GetPathFromRoot((IReadOnlyEntityType)property.DeclaringType) + "/" + property.GetJsonPropertyName();
+
+    private static string GetPathFromRoot(IReadOnlyEntityType entityType)
+    {
+        if (entityType.IsOwned())
+        {
+            var ownership = entityType.FindOwnership()!;
+            var resultPath = GetPathFromRoot(ownership.PrincipalEntityType) + "/" + ownership.GetNavigation(pointsToPrincipal: false)!.TargetEntityType.GetContainingPropertyName();
+
+            return !ownership.IsUnique
+                ? throw new NotSupportedException(CosmosStrings.CreatingContainerWithFullTextOrVectorOnCollectionNotSupported(resultPath))
+                : resultPath;
+        }
+        else
+        {
+            return "";
+        }
     }
 
     /// <summary>

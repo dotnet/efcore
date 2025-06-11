@@ -651,4 +651,71 @@ public static class SqlServerModelBuilderExtensions
         string? performanceLevel,
         bool fromDataAnnotation = false)
         => modelBuilder.CanSetAnnotation(SqlServerAnnotationNames.PerformanceLevelSql, performanceLevel, fromDataAnnotation);
+
+    /// <summary>
+    ///     Configures the model to use named default constraints.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
+    ///     for more information and examples.
+    /// </remarks>
+    /// <param name="modelBuilder">The model builder.</param>
+    /// <param name="value">The value to use.</param>
+    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    public static ModelBuilder UseNamedDefaultConstraints(this ModelBuilder modelBuilder, bool value = true)
+    {
+        Check.NotNull(value, nameof(value));
+
+        modelBuilder.Model.UseNamedDefaultConstraints(value);
+
+        return modelBuilder;
+    }
+
+    /// <summary>
+    ///     Configures the model to use named default constraints.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
+    ///     for more information and examples.
+    /// </remarks>
+    /// <param name="modelBuilder">The model builder.</param>
+    /// <param name="value">The value to use.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>
+    ///     The same builder instance if the configuration was applied,
+    ///     <see langword="null" /> otherwise.
+    /// </returns>
+    public static IConventionModelBuilder? UseNamedDefaultConstraints(
+        this IConventionModelBuilder modelBuilder,
+        bool value,
+        bool fromDataAnnotation = false)
+    {
+        if (modelBuilder.CanUseNamedDefaultConstraints(value, fromDataAnnotation))
+        {
+            modelBuilder.Metadata.UseNamedDefaultConstraints(value, fromDataAnnotation);
+            return modelBuilder;
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    ///     Returns a value indicating whether named default constraints should be used in the model.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
+    ///     for more information and examples.
+    /// </remarks>
+    /// <param name="modelBuilder">The model builder.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <param name="value">The value to use.</param>
+    /// <returns><see langword="true" /> if the given value can be set as the configuration for named default constraints setting.</returns>
+    public static bool CanUseNamedDefaultConstraints(
+        this IConventionModelBuilder modelBuilder,
+        bool value,
+        bool fromDataAnnotation = false)
+        => modelBuilder.CanSetAnnotation(RelationalAnnotationNames.UseNamedDefaultConstraints, value, fromDataAnnotation);
 }

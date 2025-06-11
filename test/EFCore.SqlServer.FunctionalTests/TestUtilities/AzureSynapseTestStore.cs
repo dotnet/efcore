@@ -27,8 +27,8 @@ public class AzureSynapseTestStore : SqlServerTestStore
         bool shared = true)
         => new(name, scriptPath: scriptPath, multipleActiveResultSets: multipleActiveResultSets, shared: shared);
 
-    public new static AzureSynapseTestStore Create(string name, bool useFileName = false)
-        => new(name, useFileName, shared: false);
+    public new static AzureSynapseTestStore Create(string name, bool useFileName = false, bool? multipleActiveResultSets = null)
+        => new(name, useFileName, shared: false, multipleActiveResultSets: multipleActiveResultSets);
 
     public new static async Task<AzureSynapseTestStore> CreateInitializedAsync(
         string name,

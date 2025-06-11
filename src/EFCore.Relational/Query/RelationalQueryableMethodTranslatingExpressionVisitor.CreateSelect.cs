@@ -215,7 +215,8 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                                     discriminatorColumnName));
                             discriminatorValues.Add(concreteEntityType.ShortName());
 
-                            subSelectExpressions.Add(SelectExpression.CreateImmutable(alias: null!, [tableExpression], projections));
+                            subSelectExpressions.Add(
+                                SelectExpression.CreateImmutable(alias: null!, [tableExpression], projections, _sqlAliasManager));
                         }
 
                         var tpcTableAlias = _sqlAliasManager.GenerateTableAlias("union");
@@ -247,16 +248,16 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                     }
                 }
 
-                default:
+                case RelationalAnnotationNames.TphMappingStrategy:
+                case null:
                 {
-                    // Also covers TPH
                     if (entityType.GetFunctionMappings().SingleOrDefault(e => e.IsDefaultFunctionMapping) is IFunctionMapping
                         functionMapping)
                     {
                         var storeFunction = functionMapping.Table;
 
                         var alias = _sqlAliasManager.GenerateTableAlias(storeFunction);
-                        return GenerateNonHierarchyNonSplittingEntityType(
+                        return GenerateSingleTableSelect(
                             storeFunction, new TableValuedFunctionExpression(alias, (IStoreFunction)storeFunction, []));
                     }
 
@@ -266,7 +267,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                         var table = mappings[0].Table;
                         var alias = _sqlAliasManager.GenerateTableAlias(table);
 
-                        return GenerateNonHierarchyNonSplittingEntityType(table, new TableExpression(alias, table));
+                        return GenerateSingleTableSelect(table, new TableExpression(alias, table));
                     }
 
                     // entity splitting
@@ -319,15 +320,17 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                             property, columnBase, tableMap[columnBase.Table], nullable: false);
                     }
 
-                    return new SelectExpression(
-                        tables,
-                        new StructuralTypeProjectionExpression(entityType, columns, tableMap),
-                        identifier,
-                        _sqlAliasManager);
+                    var projection = new StructuralTypeProjectionExpression(entityType, columns, tableMap);
+                    AddJsonNavigationBindings(entityType, projection, columns, tableMap);
+
+                    return new SelectExpression(tables, projection, identifier, _sqlAliasManager);
                 }
+
+                default:
+                    throw new UnreachableException();
             }
 
-            SelectExpression GenerateNonHierarchyNonSplittingEntityType(ITableBase table, TableExpressionBase tableExpression)
+            SelectExpression GenerateSingleTableSelect(ITableBase table, TableExpressionBase tableExpression)
             {
                 var alias = tableExpression.Alias!;
 
@@ -337,15 +340,16 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                     propertyExpressions[property] = CreateColumnExpression(property, table, alias, nullable: false);
                 }
 
+                var tableMap = new Dictionary<ITableBase, string> { [table] = alias };
                 var projection = new StructuralTypeProjectionExpression(
                     entityType,
                     propertyExpressions,
-                    new Dictionary<ITableBase, string> { [table] = alias });
-                AddJsonNavigationBindings(entityType, projection, propertyExpressions, alias);
+                    tableMap);
+                AddJsonNavigationBindings(entityType, projection, propertyExpressions, tableMap);
 
                 var identifier = new List<(ColumnExpression Column, ValueComparer Comparer)>();
-                var primaryKey = entityType.FindPrimaryKey();
-                if (primaryKey != null)
+
+                if (entityType.FindPrimaryKey() is IKey primaryKey)
                 {
                     foreach (var property in primaryKey.Properties)
                     {
@@ -388,7 +392,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
         }
 
         var projection = new StructuralTypeProjectionExpression(entityType, propertyExpressions, tableMap);
-        AddJsonNavigationBindings(entityType, projection, propertyExpressions, alias);
+        AddJsonNavigationBindings(entityType, projection, propertyExpressions, tableMap);
 
         var identifier = new List<(ColumnExpression Column, ValueComparer Comparer)>();
         var primaryKey = entityType.FindPrimaryKey();
@@ -473,7 +477,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                 && allNonSharedNonPkProperties.All(p => p.IsNullable))
             {
                 var atLeastOneNonNullValueInNullablePropertyCondition = allNonSharedNonPkProperties
-                    .Select(e => IsNotNull(e, projection))
+                    .Select(p => IsNotNull(p, projection))
                     .Aggregate(_sqlExpressionFactory.OrElse);
 
                 predicate = predicate == null
@@ -502,7 +506,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
         IEntityType entityType,
         StructuralTypeProjectionExpression projection,
         Dictionary<IProperty, ColumnExpression> propertyExpressions,
-        string tableAlias)
+        Dictionary<ITableBase, string> tableMap)
     {
         foreach (var ownedJsonNavigation in entityType.GetNavigationsInHierarchy()
                      .Where(
@@ -510,12 +514,19 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                              && n.TargetEntityType.IsMappedToJson()
                              && n.ForeignKey.PrincipalToDependent == n))
         {
+            // Find the containing column for the owned JSON entity type, and then the table in the table map that
+            // contains that column.
             var targetEntityType = ownedJsonNavigation.TargetEntityType;
-            var containerColumnName = targetEntityType.GetContainerColumnName()!;
-            var containerColumn = (entityType.GetViewOrTableMappings().SingleOrDefault()?.Table
-                    ?? entityType.GetDefaultMappings().Single().Table)
-                .FindColumn(containerColumnName)!;
-            var containerColumnTypeMapping = containerColumn.StoreTypeMapping;
+            var containerColumnName = targetEntityType.GetContainerColumnName() ?? throw new UnreachableException();
+            var (containerColumn, tableAlias) = tableMap
+                .Select(kvp => (Column: kvp.Key.FindColumn(containerColumnName), TableAlias: kvp.Value))
+                .SingleOrDefault(c => c.Column is not null);
+
+            Check.DebugAssert(
+                containerColumn is not null,
+                $"JSON container column '{containerColumnName}' not found in table map for owned JSON entity type '{targetEntityType.DisplayName()}' on '{entityType.DisplayName()}'");
+
+            var containerColumnTypeMapping = containerColumn!.StoreTypeMapping;
             var isNullable = containerColumn.IsNullable
                 || !ownedJsonNavigation.ForeignKey.IsRequiredDependent
                 || ownedJsonNavigation.IsCollection;
@@ -606,7 +617,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
         var table = entityType.GetViewOrTableMappings().SingleOrDefault()?.Table ?? entityType.GetDefaultMappings().Single().Table;
         var tableAlias = tableExpressionBase.Alias!;
 
-        // TODO: We'll need to make sure this is correct when we add support for JSON complex types.
+        // TODO: We'll need to make sure this is correct when we add support for JSON complex types, #31252
         var tableMap = new Dictionary<ITableBase, string> { [table] = tableAlias };
 
         var projection = new StructuralTypeProjectionExpression(

@@ -34,14 +34,13 @@ public class RelationalCommandCache : IPrintableExpression
         IQuerySqlGeneratorFactory querySqlGeneratorFactory,
         IRelationalParameterBasedSqlProcessorFactory relationalParameterBasedSqlProcessorFactory,
         Expression queryExpression,
-        bool useRelationalNulls,
-        IReadOnlySet<string> parametersToConstantize)
+        bool useRelationalNulls)
     {
         _memoryCache = memoryCache;
         _querySqlGeneratorFactory = querySqlGeneratorFactory;
         _queryExpression = queryExpression;
         _relationalParameterBasedSqlProcessor = relationalParameterBasedSqlProcessorFactory.Create(
-            new RelationalParameterBasedSqlProcessorParameters(useRelationalNulls, parametersToConstantize));
+            new RelationalParameterBasedSqlProcessorParameters(useRelationalNulls));
     }
 
     /// <summary>

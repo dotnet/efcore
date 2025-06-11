@@ -854,5 +854,5 @@ public abstract class NorthwindCompiledQueryTestBase<TFixture>(TFixture fixture)
     protected NorthwindContext CreateContext()
         => Fixture.CreateContext();
 
-    public static IEnumerable<object[]> IsAsyncData = new object[][] { [false], [true] };
+    public static readonly IEnumerable<object[]> IsAsyncData = [[false], [true]];
 }

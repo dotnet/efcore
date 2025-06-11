@@ -67,7 +67,7 @@ public abstract class GrpcTestBase<TFixture> : IClassFixture<TFixture>
                 },
                 Indexes = HasForeignKeyIndexes ? ["{'AuthorId'} "] : [],
                 FKs = { "ForeignKey: Post {'AuthorId'} -> Author {'AuthorId'} Required Cascade ToPrincipal: PostAuthor", },
-                Navigations = { "Navigation: Post.PostAuthor (postAuthor_, Author) ToPrincipal Author", },
+                Navigations = { "Navigation: Post.PostAuthor (postAuthor_, Author) Required ToPrincipal Author", },
                 SkipNavigations =
                 {
                     "SkipNavigation: Post.TagsInPostData (tagsInPostData_, RepeatedField<Tag>) CollectionTag Inverse: PostsInTagData",

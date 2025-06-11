@@ -60,7 +60,7 @@ public class SqliteLineStringMemberTranslator : IMemberTranslator
                                 functionName,
                                 new[] { instance },
                                 nullable: false,
-                                argumentsPropagateNullability: new[] { false },
+                                argumentsPropagateNullability: Statics.FalseArrays[1],
                                 returnType))
                     },
                     null)
@@ -68,7 +68,7 @@ public class SqliteLineStringMemberTranslator : IMemberTranslator
                     functionName,
                     new[] { instance },
                     nullable: true,
-                    argumentsPropagateNullability: new[] { true },
+                    argumentsPropagateNullability: Statics.TrueArrays[1],
                     returnType);
         }
 

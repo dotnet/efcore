@@ -5,7 +5,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public class EntitySplittingSqlServerTest(ITestOutputHelper testOutputHelper) : EntitySplittingTestBase(testOutputHelper)
+public class EntitySplittingSqlServerTest(NonSharedFixture fixture, ITestOutputHelper testOutputHelper) : EntitySplittingTestBase(fixture, testOutputHelper)
 {
     [ConditionalFact]
     public virtual async Task Can_roundtrip_with_triggers()

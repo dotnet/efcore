@@ -147,7 +147,8 @@ public class SqlServerAggregateOverSubqueryPostprocessor(SqlAliasManager sqlAlia
                             distinct: false,
                             orderings: Array.Empty<OrderingExpression>(),
                             offset: null,
-                            limit: null);
+                            limit: null,
+                            sqlAliasManager: sqlAliasManager);
 #pragma warning restore EF1001
                     }
 

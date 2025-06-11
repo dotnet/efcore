@@ -131,8 +131,10 @@ WHERE (
 
         AssertExecuteUpdateSql(
             """
+@p='SomeOtherKiwi' (Size = 13)
+
 UPDATE "Kiwi" AS "k"
-SET "Name" = 'SomeOtherKiwi'
+SET "Name" = @p
 WHERE "k"."CountryId" = 1
 """);
     }
@@ -143,8 +145,10 @@ WHERE "k"."CountryId" = 1
 
         AssertExecuteUpdateSql(
             """
+@p='0'
+
 UPDATE "Kiwi" AS "k"
-SET "FoundOn" = 0
+SET "FoundOn" = @p
 WHERE "k"."CountryId" = 1
 """);
     }
@@ -155,8 +159,10 @@ WHERE "k"."CountryId" = 1
 
         AssertExecuteUpdateSql(
             """
+@p='Monovia' (Size = 7)
+
 UPDATE "Countries" AS "c"
-SET "Name" = 'Monovia'
+SET "Name" = @p
 WHERE (
     SELECT COUNT(*)
     FROM (
@@ -176,9 +182,12 @@ WHERE (
 
         AssertExecuteUpdateSql(
             """
+@p='Kiwi' (Size = 4)
+@p0='0'
+
 UPDATE "Kiwi" AS "k"
-SET "FoundOn" = 0,
-    "Name" = 'Kiwi'
+SET "Name" = @p,
+    "FoundOn" = @p0
 WHERE "k"."CountryId" = 1
 """);
     }
@@ -189,8 +198,10 @@ WHERE "k"."CountryId" = 1
 
         AssertExecuteUpdateSql(
             """
+@p='Monovia' (Size = 7)
+
 UPDATE "Countries" AS "c"
-SET "Name" = 'Monovia'
+SET "Name" = @p
 WHERE (
     SELECT COUNT(*)
     FROM (

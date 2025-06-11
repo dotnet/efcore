@@ -10,6 +10,8 @@ indent_style = space
 trim_trailing_whitespace = true
 guidelines = 140
 max_line_length = 140
+tab_width = 4
+end_of_line = crlf
 
 # Code files
 [*.{cs,csx,vb,vbx}]
@@ -79,6 +81,12 @@ dotnet_style_prefer_conditional_expression_over_return = true:suggestion
 dotnet_style_coalesce_expression = true:suggestion
 dotnet_style_null_propagation = true:suggestion
 
+# Operator preferences
+dotnet_style_prefer_is_null_check_over_reference_equality_method = true:suggestion
+dotnet_style_prefer_simplified_boolean_expressions = true:suggestion
+dotnet_style_prefer_compound_assignment = true:suggestion
+dotnet_style_operator_placement_when_wrapping = beginning_of_line
+
 # CSharp code style settings:
 [*.cs]
 # Modifier preferences
@@ -97,6 +105,8 @@ csharp_style_expression_bodied_operators = true:suggestion
 csharp_style_expression_bodied_properties = true:suggestion
 csharp_style_expression_bodied_indexers = true:suggestion
 csharp_style_expression_bodied_accessors = true:suggestion
+csharp_style_expression_bodied_lambdas = true:suggestion
+csharp_style_expression_bodied_local_functions = true:suggestion
 
 # Pattern matching
 csharp_style_pattern_matching_over_is_with_cast_check = true:suggestion
@@ -119,6 +129,24 @@ csharp_prefer_braces = true:suggestion
 
 # Primary constructors
 csharp_style_prefer_primary_constructors = true:suggestion
+
+# Using and Namespaces
+csharp_using_directive_placement = outside_namespace:silent
+csharp_prefer_simple_using_statement = true:suggestion
+csharp_style_namespace_declarations = file_scoped:silent
+
+# Method groups
+csharp_style_prefer_method_group_conversion = true:silent
+
+# Top-level statements
+csharp_style_prefer_top_level_statements = false:silent
+
+# Implementation preferences
+csharp_prefer_system_threading_lock = true:suggestion
+
+# Local functions
+csharp_style_prefer_local_over_anonymous_function = false:silent
+csharp_prefer_static_local_function = true:suggestion
 
 ## Formatting conventions
 # Dotnet formatting settings:

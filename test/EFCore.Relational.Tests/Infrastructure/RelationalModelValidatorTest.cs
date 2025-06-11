@@ -591,6 +591,23 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
     }
 
     [ConditionalFact]
+    public virtual void Detects_properties_mapped_to_the_same_column_on_complex_type()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<B>(eb =>
+        {
+            eb.ComplexProperty(b => b.A).Property(a => a.P0).HasColumnName(nameof(A.P0));
+            eb.ComplexProperty(b => b.A).Property(a => a.P1).HasColumnName(nameof(A.P0));
+        });
+
+        VerifyError(
+            RelationalStrings.DuplicateColumnNameSameHierarchy(
+                "B.A#A", nameof(A.P0), "B.A#A", nameof(A.P1), nameof(A.P0), nameof(B)),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
     public virtual void Passes_for_incompatible_shared_columns_in_shared_table_with_different_provider_types()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1240,7 +1257,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
     }
 
     [ConditionalFact]
-    public virtual void Detects_duplicate_column_names_with_different_column_nullability()
+    public virtual void Passes_on_duplicate_column_names_with_different_column_nullability()
     {
         var modelBuilder = CreateConventionModelBuilder();
 
@@ -1251,10 +1268,12 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
         modelBuilder.Entity<B>().ToTable("Table").Property(b => b.P0).HasColumnName(nameof(A.P0));
         modelBuilder.Entity<G>().ToTable("Table").Property(g => g.P0).HasColumnName(nameof(A.P0)).IsRequired();
 
-        VerifyError(
-            RelationalStrings.DuplicateColumnNameNullabilityMismatch(
-                nameof(B), nameof(B.P0), nameof(G), nameof(G.P0), nameof(A.P0), "Table"),
-            modelBuilder);
+        var model = Validate(modelBuilder);
+
+        var column = model.FindEntityType(typeof(B)).GetProperty(nameof(A.P0)).GetTableColumnMappings().Single().Column;
+
+        Assert.Equal(2, column.PropertyMappings.Count());
+        Assert.False(column.IsNullable);
     }
 
     [ConditionalFact]

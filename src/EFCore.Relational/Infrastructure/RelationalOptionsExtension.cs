@@ -61,6 +61,7 @@ public abstract class RelationalOptionsExtension : IDbContextOptionsExtension
         _useRelationalNulls = copyFrom._useRelationalNulls;
         _querySplittingBehavior = copyFrom._querySplittingBehavior;
         _migrationsAssembly = copyFrom._migrationsAssembly;
+        _migrationsAssemblyObject = copyFrom._migrationsAssemblyObject;
         _migrationsHistoryTableName = copyFrom._migrationsHistoryTableName;
         _migrationsHistoryTableSchema = copyFrom._migrationsHistoryTableSchema;
         _executionStrategyFactory = copyFrom._executionStrategyFactory;
