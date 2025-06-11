@@ -11,6 +11,9 @@ namespace Microsoft.Data.Sqlite
 {
     internal abstract class SqliteValueReader
     {
+        private static readonly bool Pre10TimeZoneHandling =
+            AppContext.TryGetSwitch("Microsoft.Data.Sqlite.Pre10TimeZoneHandling", out var enabled) && enabled;
+
         public abstract int FieldCount { get; }
 
         protected abstract int GetSqliteType(int ordinal);
@@ -49,7 +52,14 @@ namespace Microsoft.Data.Sqlite
                     return FromJulianDate(GetDouble(ordinal));
 
                 default:
-                    return DateTime.Parse(GetString(ordinal), CultureInfo.InvariantCulture);
+                    var value = DateTime.Parse(GetString(ordinal), CultureInfo.InvariantCulture);
+                    return Pre10TimeZoneHandling
+                        ? value
+                        : value.Kind switch
+                        {
+                            DateTimeKind.Local => value.ToUniversalTime(),
+                            _ => value,
+                        };
             }
         }
 
@@ -60,10 +70,14 @@ namespace Microsoft.Data.Sqlite
             {
                 case SQLITE_FLOAT:
                 case SQLITE_INTEGER:
-                    return new DateTimeOffset(FromJulianDate(GetDouble(ordinal)));
+                    return Pre10TimeZoneHandling
+                        ? new DateTimeOffset(FromJulianDate(GetDouble(ordinal)))
+                        : new DateTimeOffset(FromJulianDate(GetDouble(ordinal)), TimeSpan.Zero);
 
                 default:
-                    return DateTimeOffset.Parse(GetString(ordinal), CultureInfo.InvariantCulture);
+                    return Pre10TimeZoneHandling
+                        ? DateTimeOffset.Parse(GetString(ordinal), CultureInfo.InvariantCulture)
+                        : DateTimeOffset.Parse(GetString(ordinal), CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal);
             }
         }
 
