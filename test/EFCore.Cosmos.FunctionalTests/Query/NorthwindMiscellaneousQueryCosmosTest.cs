@@ -3542,6 +3542,14 @@ WHERE (c["Title"] = @value)
         AssertSql();
     }
 
+    public override async Task SelectMany_correlated_with_DefaultIfEmpty_and_value_type_in_selector(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.SelectMany_correlated_with_DefaultIfEmpty_and_value_type_in_selector(async));
+
+        AssertSql();
+    }
+
     public override async Task SelectMany_correlated_subquery_hard(bool async)
     {
         // Cosmos client evaluation. Issue #17246.

@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
@@ -231,6 +232,16 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
     protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
     {
         var method = methodCallExpression.Method;
+
+        if (method.DeclaringType == typeof(RelationalQueryableMethodTranslatingExpressionVisitor)
+            && method.IsGenericMethod
+            && method.GetGenericMethodDefinition() == _fakeDefaultIfEmptyMethodInfo.Value
+            && Visit(methodCallExpression.Arguments[0]) is ShapedQueryExpression source)
+        {
+            ((SelectExpression)source.QueryExpression).MakeProjectionNullable();
+            return source.UpdateShaperExpression(MarkShaperNullable(source.ShaperExpression));
+        }
+
         var translated = base.VisitMethodCall(methodCallExpression);
 
         // For Contains over a collection parameter, if the provider hasn't implemented TranslateCollection (e.g. OPENJSON on SQL
@@ -1189,11 +1200,15 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
 
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
-            if (methodCallExpression.Method.IsGenericMethod
-                && methodCallExpression.Method.GetGenericMethodDefinition() == QueryableMethods.DefaultIfEmptyWithoutArgument)
+            var method = methodCallExpression.Method;
+            if (method.IsGenericMethod
+                && method.GetGenericMethodDefinition() == QueryableMethods.DefaultIfEmptyWithoutArgument)
             {
                 _defaultIfEmpty = true;
-                return Visit(methodCallExpression.Arguments[0]);
+
+                return Expression.Call(
+                    _fakeDefaultIfEmptyMethodInfo.Value.MakeGenericMethod(method.GetGenericArguments()[0]),
+                    Visit(methodCallExpression.Arguments[0]));
             }
 
             return base.VisitMethodCall(methodCallExpression);
@@ -2201,6 +2216,13 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
 
         return new ShapedQueryExpression(selectExpression, shaperExpression);
     }
+
+    private static IQueryable<TSource?> FakeDefaultIfEmpty<TSource>(IQueryable<TSource> source)
+        => throw new UnreachableException();
+
+    private static readonly Lazy<MethodInfo> _fakeDefaultIfEmptyMethodInfo = new(
+        () => typeof(RelationalQueryableMethodTranslatingExpressionVisitor)
+            .GetMethod(nameof(FakeDefaultIfEmpty), BindingFlags.NonPublic | BindingFlags.Static)!);
 
     /// <summary>
     ///     This visitor has been obsoleted; Extend RelationalTypeMappingPostprocessor instead, and invoke it from
