@@ -264,13 +264,13 @@ public class SqliteParameterTest
 
     [Fact]
     public void Bind_works_when_DateTimeOffset()
-        => Bind_works(new DateTimeOffset(2014, 4, 14, 11, 13, 59, new TimeSpan(-8, 0, 0)), "2014-04-14 11:13:59-08:00");
+        => Bind_works(new DateTimeOffset(2014, 4, 14, 11, 13, 59, TimeSpan.FromHours(-8)), "2014-04-14 11:13:59-08:00");
 
     [Fact]
     public void Bind_works_when_DateTimeOffset_with_SqliteType_Real()
         => Bind_works(
-            new DateTimeOffset(new DateTime(2014, 4, 14, 11, 13, 59)),
-            2456761.9680439816,
+            new DateTimeOffset(2014, 4, 14, 11, 13, 59, TimeSpan.FromHours(-8)),
+            2456762.3013773146,
             SqliteType.Real);
 
 #if NET6_0_OR_GREATER

@@ -60,10 +60,10 @@ namespace Microsoft.Data.Sqlite
             {
                 case SQLITE_FLOAT:
                 case SQLITE_INTEGER:
-                    return new DateTimeOffset(FromJulianDate(GetDouble(ordinal)));
+                    return new DateTimeOffset(FromJulianDate(GetDouble(ordinal)), TimeSpan.Zero);
 
                 default:
-                    return DateTimeOffset.Parse(GetString(ordinal), CultureInfo.InvariantCulture);
+                    return DateTimeOffset.Parse(GetString(ordinal), CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal);
             }
         }
 

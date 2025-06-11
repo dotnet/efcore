@@ -94,7 +94,7 @@ namespace Microsoft.Data.Sqlite
                 var dateTimeOffset = (DateTimeOffset)value;
                 if (sqliteType == SqliteType.Real)
                 {
-                    var value = ToJulianDate(dateTimeOffset.DateTime);
+                    var value = ToJulianDate(dateTimeOffset.ToUniversalTime().DateTime);
                     BindDouble(value);
                 }
                 else
