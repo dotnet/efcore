@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal;
 
 public class BufferedDataReaderTest
 {
-    public static IEnumerable<object[]> IsAsyncData = new object[][] { [false], [true] };
+    public static readonly IEnumerable<object[]> IsAsyncData = [[false], [true]];
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]

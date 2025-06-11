@@ -5,7 +5,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 using static Expression;
 
-public abstract class NonSharedPrimitiveCollectionsQueryTestBase : NonSharedModelTestBase
+public abstract class NonSharedPrimitiveCollectionsQueryTestBase(NonSharedFixture fixture) : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
 {
     #region Support for specific element types
 

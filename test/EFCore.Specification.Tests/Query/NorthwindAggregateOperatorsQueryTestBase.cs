@@ -939,23 +939,26 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture>(TFixtur
             assertEmpty: true);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Contains_with_local_nullable_uint_array_closure(bool async)
-    {
-        var ids = new uint?[] { 0, 1 };
-
-        await AssertQuery(
-            async,
-            ss => ss.Set<Employee>().Where(e => ids.Contains(e.EmployeeID)));
-
-        ids = [0];
-
-        await AssertQuery(
-            async,
-            ss => ss.Set<Employee>().Where(e => ids.Contains(e.EmployeeID)),
-            assertEmpty: true);
-    }
+    // TODO: The following no longer compile since https://github.com/dotnet/runtime/pull/110197 (Contains overload added with optional
+    // parameter, not supported in expression trees). #35547 is tracking on the EF side.
+    //
+    // [ConditionalTheory]
+    // [MemberData(nameof(IsAsyncData))]
+    // public virtual async Task Contains_with_local_nullable_uint_array_closure(bool async)
+    // {
+    //     var ids = new uint?[] { 0, 1 };
+    //
+    //     await AssertQuery(
+    //         async,
+    //         ss => ss.Set<Employee>().Where(e => ids.Contains(e.EmployeeID)));
+    //
+    //     ids = [0];
+    //
+    //     await AssertQuery(
+    //         async,
+    //         ss => ss.Set<Employee>().Where(e => ids.Contains(e.EmployeeID)),
+    //         assertEmpty: true);
+    // }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1339,27 +1342,30 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture>(TFixtur
             syncQuery: ss => ss.Set<Customer>().Select(c => c.CustomerID).Contains("ALFKI"),
             asyncQuery: ss => ss.Set<Customer>().Select(c => c.CustomerID).ContainsAsync("ALFKI", default));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Contains_with_local_tuple_array_closure(bool async)
-    {
-        var ids = new[] { Tuple.Create(1, 2), Tuple.Create(10248, 11) };
-
-        return AssertQuery(
-            async,
-            ss => ss.Set<OrderDetail>().Where(o => ids.Contains(new Tuple<int, int>(o.OrderID, o.ProductID))));
-    }
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Contains_with_local_anonymous_type_array_closure(bool async)
-    {
-        var ids = new[] { new { Id1 = 1, Id2 = 2 }, new { Id1 = 10248, Id2 = 11 } };
-
-        return AssertQuery(
-            async,
-            ss => ss.Set<OrderDetail>().Where(o => ids.Contains(new { Id1 = o.OrderID, Id2 = o.ProductID })));
-    }
+    // TODO: The following no longer compile since https://github.com/dotnet/runtime/pull/110197 (Contains overload added with optional
+    // parameter, not supported in expression trees). #35547 is tracking on the EF side.
+    //
+    // [ConditionalTheory]
+    // [MemberData(nameof(IsAsyncData))]
+    // public virtual Task Contains_with_local_tuple_array_closure(bool async)
+    // {
+    //     var ids = new[] { Tuple.Create(1, 2), Tuple.Create(10248, 11) };
+    //
+    //     return AssertQuery(
+    //         async,
+    //         ss => ss.Set<OrderDetail>().Where(o => ids.Contains(new Tuple<int, int>(o.OrderID, o.ProductID))));
+    // }
+    //
+    // [ConditionalTheory]
+    // [MemberData(nameof(IsAsyncData))]
+    // public virtual Task Contains_with_local_anonymous_type_array_closure(bool async)
+    // {
+    //     var ids = new[] { new { Id1 = 1, Id2 = 2 }, new { Id1 = 10248, Id2 = 11 } };
+    //
+    //     return AssertQuery(
+    //         async,
+    //         ss => ss.Set<OrderDetail>().Where(o => ids.Contains(new { Id1 = o.OrderID, Id2 = o.ProductID })));
+    // }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]

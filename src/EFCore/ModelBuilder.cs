@@ -562,6 +562,7 @@ public class ModelBuilder : IInfrastructure<IConventionModelBuilder>
     ///     See <see href="https://aka.ms/efcore-docs-owned">Owned types in EF Core</see> for more information and examples.
     /// </remarks>
     /// <typeparam name="T">The entity type to be configured.</typeparam>
+    // TODO: Move to ModelConfigurationBuilder #6787
     public virtual OwnedEntityTypeBuilder<T> Owned<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] T>()
         where T : class
     {
@@ -578,6 +579,7 @@ public class ModelBuilder : IInfrastructure<IConventionModelBuilder>
     ///     See <see href="https://aka.ms/efcore-docs-owned">Owned types in EF Core</see> for more information and examples.
     /// </remarks>
     /// <param name="type">The entity type to be configured.</param>
+    // TODO: Move to ModelConfigurationBuilder #6787
     public virtual OwnedEntityTypeBuilder Owned([DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type type)
     {
         Check.NotNull(type, nameof(type));

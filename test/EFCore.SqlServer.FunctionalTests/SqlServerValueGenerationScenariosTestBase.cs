@@ -1767,5 +1767,5 @@ END");
                     b => b.UseNetTopologySuite().ApplyConfiguration());
     }
 
-    public static IEnumerable<object[]> IsAsyncData = new object[][] { [false], [true] };
+    public static readonly IEnumerable<object[]> IsAsyncData = [[false], [true]];
 }

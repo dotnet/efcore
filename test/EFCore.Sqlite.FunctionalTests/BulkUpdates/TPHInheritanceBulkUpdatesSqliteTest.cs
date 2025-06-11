@@ -131,8 +131,10 @@ WHERE "a"."Id" IN (
 
         AssertExecuteUpdateSql(
             """
+@p='Animal' (Size = 6)
+
 UPDATE "Animals" AS "a"
-SET "Name" = 'Animal'
+SET "Name" = @p
 WHERE "a"."Name" = 'Great spotted kiwi'
 """);
     }
@@ -143,8 +145,10 @@ WHERE "a"."Name" = 'Great spotted kiwi'
 
         AssertExecuteUpdateSql(
             """
+@p='NewBird' (Size = 7)
+
 UPDATE "Animals" AS "a"
-SET "Name" = 'NewBird'
+SET "Name" = @p
 WHERE "a"."Discriminator" = 'Kiwi'
 """);
     }
@@ -162,8 +166,10 @@ WHERE "a"."Discriminator" = 'Kiwi'
 
         AssertExecuteUpdateSql(
             """
+@p='SomeOtherKiwi' (Size = 13)
+
 UPDATE "Animals" AS "a"
-SET "Name" = 'SomeOtherKiwi'
+SET "Name" = @p
 WHERE "a"."Discriminator" = 'Kiwi'
 """);
     }
@@ -174,8 +180,10 @@ WHERE "a"."Discriminator" = 'Kiwi'
 
         AssertExecuteUpdateSql(
             """
+@p='0'
+
 UPDATE "Animals" AS "a"
-SET "FoundOn" = 0
+SET "FoundOn" = @p
 WHERE "a"."Discriminator" = 'Kiwi'
 """);
     }
@@ -186,8 +194,10 @@ WHERE "a"."Discriminator" = 'Kiwi'
 
         AssertExecuteUpdateSql(
             """
+@p='Monovia' (Size = 7)
+
 UPDATE "Countries" AS "c"
-SET "Name" = 'Monovia'
+SET "Name" = @p
 WHERE (
     SELECT COUNT(*)
     FROM "Animals" AS "a"
@@ -201,9 +211,12 @@ WHERE (
 
         AssertExecuteUpdateSql(
             """
+@p='Kiwi' (Size = 4)
+@p0='0'
+
 UPDATE "Animals" AS "a"
-SET "FoundOn" = 0,
-    "Name" = 'Kiwi'
+SET "Name" = @p,
+    "FoundOn" = @p0
 WHERE "a"."Discriminator" = 'Kiwi'
 """);
     }
@@ -214,8 +227,10 @@ WHERE "a"."Discriminator" = 'Kiwi'
 
         AssertExecuteUpdateSql(
             """
+@p='Monovia' (Size = 7)
+
 UPDATE "Countries" AS "c"
-SET "Name" = 'Monovia'
+SET "Name" = @p
 WHERE (
     SELECT COUNT(*)
     FROM "Animals" AS "a"
@@ -236,8 +251,10 @@ WHERE (
 
         AssertExecuteUpdateSql(
             """
+@p='0'
+
 UPDATE "Drinks" AS "d"
-SET "SugarGrams" = 0
+SET "SugarGrams" = @p
 WHERE "d"."Discriminator" = 1
 """);
     }
@@ -248,8 +265,10 @@ WHERE "d"."Discriminator" = 1
 
         AssertExecuteUpdateSql(
             """
+@p='0'
+
 UPDATE "Drinks" AS "d"
-SET "SugarGrams" = 0
+SET "SugarGrams" = @p
 WHERE "d"."Discriminator" = 1
 """);
     }

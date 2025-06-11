@@ -1253,7 +1253,7 @@ function EF($project, $startupProject, $params, $applicationArgs, [switch] $skip
         $projectAssetsFile = GetCpsProperty $startupProject 'ProjectAssetsFile'
         $runtimeConfig = Join-Path $targetDir ($startupTargetName + '.runtimeconfig.json')
         $runtimeFrameworkVersion = GetCpsProperty $startupProject 'RuntimeFrameworkVersion'
-        $efPath = Join-Path $PSScriptRoot 'netcoreapp2.0\any\ef.dll'
+        $efPath = Join-Path $PSScriptRoot 'net10.0\any\ef.dll'
 
         $dotnetParams = 'exec', '--depsfile', $depsFile
 
@@ -1327,6 +1327,15 @@ function EF($project, $startupProject, $params, $applicationArgs, [switch] $skip
     if ($nullable -in 'enable', 'annotations')
     {
         $params += '--nullable'
+    }
+
+    # NB: -join is here to support ConvertFrom-Json on PowerShell 3.0
+    $references = (dotnet build $startupProject.FullName /t:ResolvePackageAssets /getItem:RuntimeCopyLocalItems) -join "`n" | ConvertFrom-Json
+
+    $designReference = $references.Items.RuntimeCopyLocalItems | ? { $_.FullPath.EndsWith('Microsoft.EntityFrameworkCore.Design.dll') }
+    if ($designReference -ne $null)
+    {
+        $params += '--design-assembly', $designReference.FullPath
     }
 
     $arguments = ToArguments $params

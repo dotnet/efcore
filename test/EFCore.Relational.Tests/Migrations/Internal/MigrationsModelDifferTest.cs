@@ -44,19 +44,6 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
             upOperations => Assert.Equal(0, upOperations.Count));
 
     [ConditionalFact]
-    public void Model_differ_does_not_detect_defining_queries()
-    {
-        DbContext context = null;
-        Execute(
-            _ => { },
-#pragma warning disable CS0618 // Type or member is obsolete
-            modelBuilder => modelBuilder.Entity<TestKeylessType>().HasNoKey().ToQuery(
-                () => context.Set<TestKeylessType>().FromSqlRaw("SELECT * FROM Vista")),
-#pragma warning restore CS0618 // Type or member is obsolete
-            result => Assert.Empty(result));
-    }
-
-    [ConditionalFact]
     public void Model_differ_does_not_detect_queries()
         => Execute(
             _ => { },
@@ -1942,7 +1929,7 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                             {
                                 x.ToTable("Firefly");
                                 x.Property<int>("Id");
-                                x.Property<string>("Name");
+                                x.Property<string>("Name").HasColumnName("Name");
                                 x.HasData(
                                     new { Id = 42, Name = "1" });
                             });
@@ -1953,7 +1940,7 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                             {
                                 x.ToTable("Firefly");
                                 x.Property<int>("Id");
-                                x.Property<string>("Name");
+                                x.Property<string>("Name").HasColumnName("Name");
                                 x.HasOne("Firefly", null).WithOne().HasForeignKey("FireflyDetails", "Id");
                                 x.HasData(
                                     new { Id = 42, Name = "2" });
@@ -7763,7 +7750,7 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                     {
                         x.ToTable("Dogs");
                         x.Property<int>("Id");
-                        x.Property<int?>("PreyId");
+                        x.Property<int?>("PreyId").HasColumnName("PreyId");
                     });
             },
             target =>
@@ -8644,9 +8631,8 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                     {
                         x.Property<int>("Id");
                         x.Property<string>("Name");
-                        x.Property<int>("Discriminator");
 
-                        x.HasDiscriminator()
+                        x.HasDiscriminator<int>("Discriminator")
                             .HasValue(1)
                             .HasValue<Eagle>(2);
 

@@ -2,13 +2,152 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public class AdHocMiscellaneousQueryCosmosTest : NonSharedModelTestBase
+public class AdHocMiscellaneousQueryCosmosTest(NonSharedFixture fixture) : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
 {
+    #region 21006
+
+    [ConditionalFact]
+    public virtual async Task Project_all_types_entity_with_missing_scalars()
+    {
+        var contextFactory = await InitializeAsync<JsonContext21006>(
+            onModelCreating: OnModelCreating21006,
+            seed: Seed21006);
+
+        await using var context = contextFactory.CreateContext();
+
+        var query = context.Set<JsonContext21006.Entity>();
+
+        var result = await query.ToListAsync();
+    }
+
+    public void OnModelCreating21006(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<JsonContext21006.Entity>(b =>
+        {
+            b.Property(x => x.Id).ValueGeneratedNever();
+            b.ToContainer("Entities");
+            b.Property(x => x.TestDecimal).HasPrecision(18, 3);
+            b.OwnsOne(x => x.Reference, bb =>
+            {
+                bb.Property(x => x.TestDecimal).HasPrecision(18, 3);
+                bb.Property(x => x.TestEnumWithIntConverter).HasConversion<int>();
+            });
+        });
+    }
+
+    protected async Task Seed21006(JsonContext21006 context)
+    {
+        var wrapper = (CosmosClientWrapper)context.GetService<ICosmosClientWrapper>();
+        var singletonWrapper = context.GetService<ISingletonCosmosClientWrapper>();
+        var entitiesContainer = singletonWrapper.Client.GetContainer(context.Database.GetCosmosDatabaseId(), containerId: "Entities");
+
+        var missingTopLevel =
+$$"""
+{
+  "Id": 1,
+  "$type": "Entity",
+  "id": "1",
+  "Reference": {
+    "Text": "e2 or"
+  }
+}
+""";
+
+        await AdHocCosmosTestHelpers.CreateCustomEntityHelperAsync(
+            entitiesContainer,
+            missingTopLevel,
+            CancellationToken.None);
+    }
+
+    protected class JsonContext21006(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<Entity> Entities { get; set; }
+
+        public class Entity
+        {
+            public int Id { get; set; }
+
+            public short TestInt16 { get; set; }
+            public int TestInt32 { get; set; }
+            public long TestInt64 { get; set; }
+            public double TestDouble { get; set; }
+            public decimal TestDecimal { get; set; }
+            public DateTime TestDateTime { get; set; }
+            public DateTimeOffset TestDateTimeOffset { get; set; }
+            public TimeSpan TestTimeSpan { get; set; }
+            public DateOnly TestDateOnly { get; set; }
+            public TimeOnly TestTimeOnly { get; set; }
+            public float TestSingle { get; set; }
+            public bool TestBoolean { get; set; }
+            public byte TestByte { get; set; }
+
+            public byte[] TestByteArray { get; set; }
+            public Guid TestGuid { get; set; }
+            public ushort TestUnsignedInt16 { get; set; }
+            public uint TestUnsignedInt32 { get; set; }
+            public ulong TestUnsignedInt64 { get; set; }
+            public char TestCharacter { get; set; }
+            public sbyte TestSignedByte { get; set; }
+            public int? TestNullableInt32 { get; set; }
+            public JsonEnum TestEnum { get; set; }
+            public byte[] TestByteCollection { get; set; }
+            public IList<ushort> TestUnsignedInt16Collection { get; set; }
+            public uint[] TestUnsignedInt32Collection { get; set; }
+            public sbyte[] TestSignedByteCollection { get; set; }
+            public JsonEntity Reference { get; set; }
+        }
+
+        public class JsonEntity
+        {
+            public string Text { get; set; }
+
+            public short TestInt16 { get; set; }
+            public int TestInt32 { get; set; }
+            public long TestInt64 { get; set; }
+            public double TestDouble { get; set; }
+            public decimal TestDecimal { get; set; }
+            public DateTime TestDateTime { get; set; }
+            public DateTimeOffset TestDateTimeOffset { get; set; }
+            public TimeSpan TestTimeSpan { get; set; }
+            public DateOnly TestDateOnly { get; set; }
+            public TimeOnly TestTimeOnly { get; set; }
+            public float TestSingle { get; set; }
+            public bool TestBoolean { get; set; }
+            public byte TestByte { get; set; }
+            public byte[] TestByteArray { get; set; }
+            public Guid TestGuid { get; set; }
+            public ushort TestUnsignedInt16 { get; set; }
+            public uint TestUnsignedInt32 { get; set; }
+            public ulong TestUnsignedInt64 { get; set; }
+            public char TestCharacter { get; set; }
+            public sbyte TestSignedByte { get; set; }
+            public int? TestNullableInt32 { get; set; }
+            public JsonEnum TestEnum { get; set; }
+            public JsonEnum TestEnumWithIntConverter { get; set; }
+
+            public byte[] TestByteCollection { get; set; }
+            public IList<ushort> TestUnsignedInt16Collection { get; set; }
+            public uint[] TestUnsignedInt32Collection { get; set; }
+
+            public sbyte[] TestSignedByteCollection { get; set; }
+        }
+
+        public enum JsonEnum
+        {
+            One = -1,
+            Two = 2,
+            Three = -3
+        }
+    }
+
+    #endregion
+
     #region 34911
 
     [ConditionalFact]

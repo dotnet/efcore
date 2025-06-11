@@ -38,8 +38,11 @@ public class NorthwindAggregateOperatorsQuerySqlServerTest : NorthwindAggregateO
         AssertSql();
     }
 
-    public override async Task Contains_with_local_tuple_array_closure(bool async)
-        => await AssertTranslationFailed(() => base.Contains_with_local_tuple_array_closure(async));
+    // TODO: The base implementations no longer compile since https://github.com/dotnet/runtime/pull/110197 (Contains overload added with
+    // optional parameter, not supported in expression trees). #35547 is tracking on the EF side.
+    //
+    // public override async Task Contains_with_local_tuple_array_closure(bool async)
+    //     => await AssertTranslationFailed(() => base.Contains_with_local_tuple_array_closure(async));
 
     public override async Task Array_cast_to_IEnumerable_Contains_with_constant(bool async)
     {
@@ -812,7 +815,7 @@ OUTER APPLY (
         // #34256: rewrite query to avoid "Cannot perform an aggregate function on an expression containing an aggregate or a subquery"
         AssertSql(
             """
-SELECT COALESCE(SUM([s].[value]), 0)
+SELECT ISNULL(SUM([s].[value]), 0)
 FROM [Customers] AS [c]
 CROSS JOIN (
     SELECT COUNT(*) AS [value]
@@ -1713,33 +1716,36 @@ WHERE [e].[EmployeeID] IN (
 """);
     }
 
-    public override async Task Contains_with_local_nullable_uint_array_closure(bool async)
-    {
-        await base.Contains_with_local_nullable_uint_array_closure(async);
-
-        AssertSql(
-            """
-@ids='[0,1]' (Size = 4000)
-
-SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
-FROM [Employees] AS [e]
-WHERE [e].[EmployeeID] IN (
-    SELECT [i].[value]
-    FROM OPENJSON(@ids) WITH ([value] int '$') AS [i]
-)
-""",
-            //
-            """
-@ids='[0]' (Size = 4000)
-
-SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
-FROM [Employees] AS [e]
-WHERE [e].[EmployeeID] IN (
-    SELECT [i].[value]
-    FROM OPENJSON(@ids) WITH ([value] int '$') AS [i]
-)
-""");
-    }
+// TODO: The base implementations no longer compile since https://github.com/dotnet/runtime/pull/110197 (Contains overload added with
+// optional parameter, not supported in expression trees). #35547 is tracking on the EF side.
+//
+//     public override async Task Contains_with_local_nullable_uint_array_closure(bool async)
+//     {
+//         await base.Contains_with_local_nullable_uint_array_closure(async);
+//
+//         AssertSql(
+//             """
+// @ids='[0,1]' (Size = 4000)
+//
+// SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+// FROM [Employees] AS [e]
+// WHERE [e].[EmployeeID] IN (
+//     SELECT [i].[value]
+//     FROM OPENJSON(@ids) WITH ([value] int '$') AS [i]
+// )
+// """,
+//             //
+//             """
+// @ids='[0]' (Size = 4000)
+//
+// SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+// FROM [Employees] AS [e]
+// WHERE [e].[EmployeeID] IN (
+//     SELECT [i].[value]
+//     FROM OPENJSON(@ids) WITH ([value] int '$') AS [i]
+// )
+// """);
+//     }
 
     public override async Task Contains_with_local_array_inline(bool async)
     {
@@ -2296,12 +2302,15 @@ END
 """);
     }
 
-    public override async Task Contains_with_local_anonymous_type_array_closure(bool async)
-    {
-        await AssertTranslationFailed(() => base.Contains_with_local_anonymous_type_array_closure(async));
-
-        AssertSql();
-    }
+    // TODO: The base implementations no longer compile since https://github.com/dotnet/runtime/pull/110197 (Contains overload added with
+    // optional parameter, not supported in expression trees). #35547 is tracking on the EF side.
+    //
+    // public override async Task Contains_with_local_anonymous_type_array_closure(bool async)
+    // {
+    //     await AssertTranslationFailed(() => base.Contains_with_local_anonymous_type_array_closure(async));
+    //
+    //     AssertSql();
+    // }
 
     public override async Task OfType_Select(bool async)
     {
@@ -2712,7 +2721,7 @@ FROM [Customers] AS [c]
 
         AssertSql(
             """
-SELECT COALESCE(SUM(1), 0)
+SELECT ISNULL(SUM(1), 0)
 FROM [Employees] AS [e]
 """);
     }
@@ -3072,7 +3081,7 @@ OUTER APPLY (
             """
 @cities='["London","Berlin"]' (Size = 4000)
 
-SELECT COALESCE(SUM([s].[value]), 0)
+SELECT ISNULL(SUM([s].[value]), 0)
 FROM [Customers] AS [c]
 OUTER APPLY (
     SELECT CASE

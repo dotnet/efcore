@@ -93,6 +93,11 @@ WHERE length("b"."String") = 7
 SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
 FROM "BasicTypesEntities" AS "b"
 WHERE lower("b"."String") = 'seattle'
+""",
+            //
+            """
+SELECT lower("b"."String")
+FROM "BasicTypesEntities" AS "b"
 """);
     }
 
@@ -105,6 +110,11 @@ WHERE lower("b"."String") = 'seattle'
 SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
 FROM "BasicTypesEntities" AS "b"
 WHERE upper("b"."String") = 'SEATTLE'
+""",
+            //
+            """
+SELECT upper("b"."String")
+FROM "BasicTypesEntities" AS "b"
 """);
     }
 
@@ -121,6 +131,18 @@ WHERE upper("b"."String") = 'SEATTLE'
 SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
 FROM "BasicTypesEntities" AS "b"
 WHERE instr("b"."String", 'eattl') - 1 <> -1
+""");
+    }
+
+    public override async Task IndexOf_Char(bool async)
+    {
+        await base.IndexOf_Char(async);
+
+        AssertSql(
+            """
+SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
+FROM "BasicTypesEntities" AS "b"
+WHERE instr("b"."String", 'e') - 1 <> -1
 """);
     }
 
@@ -150,11 +172,71 @@ WHERE instr("b"."String", @pattern) - 1 = 1
 """);
     }
 
-    public override Task IndexOf_with_constant_starting_position(bool async)
-        => AssertTranslationFailed(() => base.IndexOf_with_constant_starting_position(async));
+    public override async Task IndexOf_with_one_parameter_arg_char(bool async)
+    {
+        await base.IndexOf_with_one_parameter_arg_char(async);
 
-    public override Task IndexOf_with_parameter_starting_position(bool async)
-        => AssertTranslationFailed(() => base.IndexOf_with_parameter_starting_position(async));
+        AssertSql(
+            """
+@pattern='e' (DbType = String)
+
+SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
+FROM "BasicTypesEntities" AS "b"
+WHERE instr("b"."String", @pattern) - 1 = 1
+""");
+    }
+
+    public override async Task IndexOf_with_constant_starting_position(bool async)
+    {
+        await base.IndexOf_with_constant_starting_position(async);
+
+        AssertSql(
+            """
+SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
+FROM "BasicTypesEntities" AS "b"
+WHERE length("b"."String") > 2 AND (instr(substr("b"."String", 2 + 1), 'e') - 1) + 2 = 6
+""");
+    }
+
+    public override async Task IndexOf_with_constant_starting_position_char(bool async)
+    {
+        await base.IndexOf_with_constant_starting_position_char(async);
+
+        AssertSql(
+            """
+SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
+FROM "BasicTypesEntities" AS "b"
+WHERE length("b"."String") > 2 AND (instr(substr("b"."String", 2 + 1), 'e') - 1) + 2 = 6
+""");
+    }
+
+    public override async  Task IndexOf_with_parameter_starting_position(bool async)
+    {
+        await base.IndexOf_with_parameter_starting_position(async);
+
+        AssertSql(
+            """
+@start='2'
+
+SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
+FROM "BasicTypesEntities" AS "b"
+WHERE length("b"."String") > 2 AND (instr(substr("b"."String", @start + 1), 'e') - 1) + @start = 6
+""");
+    }
+
+    public override async Task IndexOf_with_parameter_starting_position_char(bool async)
+    {
+        await base.IndexOf_with_parameter_starting_position_char(async);
+
+        AssertSql(
+            """
+@start='2'
+
+SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
+FROM "BasicTypesEntities" AS "b"
+WHERE length("b"."String") > 2 AND (instr(substr("b"."String", @start + 1), 'e') - 1) + @start = 6
+""");
+    }
 
     public override async Task IndexOf_after_ToString(bool async)
     {
@@ -193,6 +275,18 @@ WHERE instr('12559', CAST("b"."Int" AS TEXT)) - 1 = 1
 SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
 FROM "BasicTypesEntities" AS "b"
 WHERE replace("b"."String", 'Sea', 'Rea') = 'Reattle'
+""");
+    }
+
+    public override async Task Replace_Char(bool async)
+    {
+        await base.Replace_Char(async);
+
+        AssertSql(
+            """
+SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
+FROM "BasicTypesEntities" AS "b"
+WHERE replace("b"."String", 'S', 'R') = 'Reattle'
 """);
     }
 
@@ -385,6 +479,18 @@ WHERE "b"."String" LIKE 'Se%'
 """);
     }
 
+    public override async Task StartsWith_Literal_Char(bool async)
+    {
+        await base.StartsWith_Literal_Char(async);
+
+        AssertSql(
+            """
+SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
+FROM "BasicTypesEntities" AS "b"
+WHERE "b"."String" LIKE 'S%'
+""");
+    }
+
     public override async Task StartsWith_Parameter(bool async)
     {
         await base.StartsWith_Parameter(async);
@@ -392,6 +498,20 @@ WHERE "b"."String" LIKE 'Se%'
         AssertSql(
             """
 @pattern_startswith='Se%' (Size = 3)
+
+SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
+FROM "BasicTypesEntities" AS "b"
+WHERE "b"."String" LIKE @pattern_startswith ESCAPE '\'
+""");
+    }
+
+    public override async Task StartsWith_Parameter_Char(bool async)
+    {
+        await base.StartsWith_Parameter_Char(async);
+
+        AssertSql(
+            """
+@pattern_startswith='S%' (Size = 2)
 
 SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
 FROM "BasicTypesEntities" AS "b"
@@ -448,6 +568,18 @@ WHERE "b"."String" LIKE '%le'
 """);
     }
 
+    public override async Task EndsWith_Literal_Char(bool async)
+    {
+        await base.EndsWith_Literal_Char(async);
+
+        AssertSql(
+            """
+SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
+FROM "BasicTypesEntities" AS "b"
+WHERE "b"."String" LIKE '%e'
+""");
+    }
+
     public override async Task EndsWith_Parameter(bool async)
     {
         await base.EndsWith_Parameter(async);
@@ -455,6 +587,20 @@ WHERE "b"."String" LIKE '%le'
         AssertSql(
             """
 @pattern_endswith='%le' (Size = 3)
+
+SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
+FROM "BasicTypesEntities" AS "b"
+WHERE "b"."String" LIKE @pattern_endswith ESCAPE '\'
+""");
+    }
+
+    public override async Task EndsWith_Parameter_Char(bool async)
+    {
+        await base.EndsWith_Parameter_Char(async);
+
+        AssertSql(
+            """
+@pattern_endswith='%e' (Size = 2)
 
 SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
 FROM "BasicTypesEntities" AS "b"
@@ -508,6 +654,18 @@ WHERE substr("b"."String", -length("b"."String")) = "b"."String" OR "b"."String"
 SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
 FROM "BasicTypesEntities" AS "b"
 WHERE instr("b"."String", 'eattl') > 0
+""");
+    }
+
+    public override async Task Contains_Literal_Char(bool async)
+    {
+        await base.Contains_Literal_Char(async);
+
+        AssertSql(
+            """
+SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
+FROM "BasicTypesEntities" AS "b"
+WHERE instr("b"."String", 'e') > 0
 """);
     }
 
@@ -1255,6 +1413,18 @@ ORDER BY "b1"."Int", "b0"."Id" DESC
     #endregion Join
 
     #region Concatenation
+
+    public override async Task Concat_operator(bool async)
+    {
+        await base.Concat_operator(async);
+
+        AssertSql(
+            """
+SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
+FROM "BasicTypesEntities" AS "b"
+WHERE "b"."String" || 'Boston' = 'SeattleBoston'
+""");
+    }
 
     public override async Task Concat_aggregate(bool async)
     {

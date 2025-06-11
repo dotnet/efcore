@@ -8,6 +8,7 @@
 using System.Runtime.CompilerServices;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore.Design.Internal;
+using Microsoft.EntityFrameworkCore.InMemory.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -17,7 +18,7 @@ public class GlobalNamespaceContext(DbContextOptions<GlobalNamespaceContext> opt
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding
 {
-    public class CompiledModelInMemoryTest : CompiledModelTestBase
+    public class CompiledModelInMemoryTest(NonSharedFixture fixture) : CompiledModelTestBase(fixture)
     {
         [ConditionalFact]
         public virtual Task Empty_model()
@@ -307,7 +308,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         [ConditionalFact]
         public virtual Task Throws_for_defining_query()
             => Test<DefiningQueryContext>(
-                expectedExceptionMessage: DesignStrings.CompiledModelDefiningQuery("object"));
+                expectedExceptionMessage: InMemoryStrings.CompiledModelDefiningQuery("object"));
 
         public class DefiningQueryContext(DbContextOptions<DefiningQueryContext> options) : DbContext(options)
         {
@@ -506,7 +507,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
             TestHelpers.ModelAsserter.AssertEqual(principalBaseFk.PrincipalKey.Properties, dependentFk.Properties);
         }
 
-        [ConditionalFact(Skip = "Primitive collections not supported completely")]
+        //[ConditionalFact(Skip = "Primitive collections not supported completely")]
         public override Task BigModel()
             => base.BigModel();
 

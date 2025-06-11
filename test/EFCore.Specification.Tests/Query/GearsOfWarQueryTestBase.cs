@@ -1198,6 +1198,36 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task Conditional_Navigation_With_Trivial_Member_Access(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Gear>()
+                  .Where(g => (g.AssignedCity != null ? g.AssignedCity : g.CityOfBirth).Name != "Ephyra")
+                  .Select(g => new { g.Nickname }),
+            elementSorter: e => e.Nickname);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Conditional_Navigation_With_Member_Access_On_Same_Type(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Gear>()
+                  .Where(g => (g.AssignedCity != null ? g.AssignedCity : g.CityOfBirth).Nation == "Tyrus")
+                  .Select(g => new { g.Nickname, g.FullName }),
+            elementSorter: e => e.Nickname);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Conditional_Navigation_With_Member_Access_On_Related_Types(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<LocustHorde>()
+                  .Where(g => (g.DeputyCommander != null ? g.DeputyCommander : g.Commander).ThreatLevel == 4)
+                  .Select(g => new { g.Name }),
+            elementSorter: e => e.Name);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task Singleton_Navigation_With_Member_Access(bool async)
         => AssertQuery(
             async,
@@ -3413,6 +3443,34 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
                   from g in grouping.DefaultIfEmpty()
                   where g != null && !g.HasSoulPatch
                   select new { g.Nickname, WeaponNames = g.Weapons.Select(w => w.Name).ToList() },
+            elementSorter: e => e.Nickname,
+            elementAsserter: (e, a) =>
+            {
+                Assert.Equal(e.Nickname, a.Nickname);
+                AssertCollection(e.WeaponNames, a.WeaponNames);
+            });
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Correlated_collections_on_RightJoin_with_predicate(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Gear>()
+                .RightJoin(
+                    ss.Set<CogTag>(),
+                    g => g.Nickname,
+                    t => t.GearNickName,
+                    (g, c) => new { g, c })
+                .Where(t => !t.g.HasSoulPatch)
+                .Select(t => new { t.g.Nickname, WeaponNames = t.g.Weapons.Select(w => w.Name).ToList() }),
+            ss => ss.Set<Gear>()
+                .RightJoin(
+                    ss.Set<CogTag>(),
+                    g => g.Nickname,
+                    t => t.GearNickName,
+                    (g, c) => new { g, c })
+                .Where(t => t.g != null && !t.g.HasSoulPatch)
+                .Select(t => new { t.g.Nickname, WeaponNames = t.g.Weapons.Select(w => w.Name).ToList() }),
             elementSorter: e => e.Nickname,
             elementAsserter: (e, a) =>
             {
@@ -5735,49 +5793,11 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Byte_array_contains_literal(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<Squad>().Where(s => s.Banner.Contains((byte)1)),
-            ss => ss.Set<Squad>().Where(s => s.Banner != null && s.Banner.Contains((byte)1)));
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Byte_array_contains_parameter(bool async)
-    {
-        var someByte = (byte)1;
-        return AssertQuery(
-            async,
-            ss => ss.Set<Squad>().Where(s => s.Banner.Contains(someByte)),
-            ss => ss.Set<Squad>().Where(s => s.Banner != null && s.Banner.Contains(someByte)));
-    }
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
     public virtual Task Byte_array_filter_by_length_literal_does_not_cast_on_varbinary_n(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<Squad>().Where(w => w.Banner5.Length == 5),
             ss => ss.Set<Squad>().Where(w => w.Banner5 != null && w.Banner5.Length == 5));
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Byte_array_filter_by_length_literal(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<Squad>().Where(w => w.Banner.Length == 2),
-            ss => ss.Set<Squad>().Where(w => w.Banner != null && w.Banner.Length == 2));
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Byte_array_filter_by_length_parameter(bool async)
-    {
-        var someByteArr = new[] { (byte)42, (byte)24 };
-        return AssertQuery(
-            async,
-            ss => ss.Set<Squad>().Where(w => w.Banner.Length == someByteArr.Length),
-            ss => ss.Set<Squad>().Where(w => w.Banner != null && w.Banner.Length == someByteArr.Length));
-    }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -5787,19 +5807,6 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
             ss => ss.Set<Weapon>().Select(w => w.SynergyWith).OrderBy(w => w.IsAutomatic),
             ss => ss.Set<Weapon>().Select(w => w.SynergyWith).OrderBy(w => w.MaybeScalar(x => x.IsAutomatic)),
             assertOrder: true);
-
-    [ConditionalFact]
-    public virtual void Byte_array_filter_by_length_parameter_compiled()
-    {
-        var query = EF.CompileQuery(
-            (GearsOfWarContext context, byte[] byteArrayParam)
-                => context.Squads.Where(w => w.Banner.Length == byteArrayParam.Length).Count());
-
-        using var context = CreateContext();
-        var byteQueryParam = new[] { (byte)42, (byte)128 };
-
-        Assert.Equal(2, query(context, byteQueryParam));
-    }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -5835,17 +5842,6 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
         return AssertQueryScalar(
             async,
             ss => ss.Set<Gear>().Select(g => g.Nickname == nullParameter));
-    }
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Byte_array_filter_by_SequenceEqual(bool async)
-    {
-        var byteArrayParam = new byte[] { 0x04, 0x05, 0x06, 0x07, 0x08 };
-
-        return AssertQuery(
-            async,
-            ss => ss.Set<Squad>().Where(s => s.Banner5.SequenceEqual(byteArrayParam)));
     }
 
     [ConditionalTheory]
@@ -5943,22 +5939,6 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Contains_on_byte_array_property_using_byte_column(bool async)
-        => AssertQuery(
-            async,
-            ss => from s in ss.Set<Squad>()
-                  from l in ss.Set<LocustLeader>()
-                  where s.Banner.Contains(l.ThreatLevelByte)
-                  select new { s, l },
-            elementSorter: e => (e.s.Id, e.l.Name),
-            elementAsserter: (e, a) =>
-            {
-                AssertEqual(e.s, a.s);
-                AssertEqual(e.l, a.l);
-            });
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
     public virtual Task Subquery_projecting_non_nullable_scalar_contains_non_nullable_value_doesnt_need_null_expansion(bool async)
         => AssertQuery(
             async,
@@ -6048,16 +6028,36 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
                 .Take(1)
                 .Select(g => g.Rank & MilitaryRank.Private));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Enum_array_contains(bool async)
-    {
-        var types = new[] { (AmmunitionType?)null, AmmunitionType.Cartridge };
+    // TODO: The following no longer compiles since https://github.com/dotnet/runtime/pull/110197 (Contains overload added with optional
+    // parameter, not supported in expression trees). #35547 is tracking on the EF side.
+    //
+    // [ConditionalTheory]
+    // [MemberData(nameof(IsAsyncData))]
+    // public virtual Task Enum_array_contains(bool async)
+    // {
+    //     var types = new[] { (AmmunitionType?)null, AmmunitionType.Cartridge };
+    //
+    //     return AssertQuery(
+    //         async,
+    //         ss => ss.Set<Weapon>()
+    //             .Where(w => w.SynergyWith != null && types.Contains(w.SynergyWith.AmmunitionType)));
+    // }
 
+    [ConditionalTheory] // #35656
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Coalesce_with_non_root_evaluatable_Convert(bool async)
+    {
+        MilitaryRank? rank = MilitaryRank.Private;
+
+        // The coalesce is simplified away in the funcletizer (since rank is non-null), but a Convert node is added
+        // to convert from MilitaryRank? (the type of rank) to the type of the coalesce expression (non-nullable
+        // MilitaryRank).
+        // This resulting Convert node isn't evaluatable as root (enum convert), and so the NotEvaluatableAsRootHandler
+        // is invoked.
         return AssertQuery(
             async,
-            ss => ss.Set<Weapon>()
-                .Where(w => w.SynergyWith != null && types.Contains(w.SynergyWith.AmmunitionType)));
+            // ReSharper disable once ConstantNullCoalescingCondition
+            ss => ss.Set<Gear>().Where(g => (rank ?? g.Rank) == g.Rank));
     }
 
     [ConditionalTheory]

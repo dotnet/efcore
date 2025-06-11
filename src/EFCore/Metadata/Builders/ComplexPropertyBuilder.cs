@@ -168,11 +168,11 @@ public class ComplexPropertyBuilder :
     ///     If no property with the given name exists, then a new property will be added.
     /// </summary>
     /// <remarks>
-    ///     When adding a new property, if a property with the same name exists in the entity class
-    ///     then it will be added to the model. If no property exists in the entity class, then
+    ///     When adding a new property, if a property with the same name exists in the complex class
+    ///     then it will be added to the model. If no property exists in the complex class, then
     ///     a new shadow state property will be added. A shadow state property is one that does not have a
-    ///     corresponding property in the entity class. The current value for the property is stored in
-    ///     the <see cref="ChangeTracker" /> rather than being stored in instances of the entity class.
+    ///     corresponding property in the complex class. The current value for the property is stored in
+    ///     the <see cref="ChangeTracker" /> rather than being stored in instances of the complex class.
     /// </remarks>
     /// <typeparam name="TProperty">The type of the property to be configured.</typeparam>
     /// <param name="propertyName">The name of the property to be configured.</param>
@@ -188,11 +188,11 @@ public class ComplexPropertyBuilder :
     ///     If no property with the given name exists, then a new property will be added.
     /// </summary>
     /// <remarks>
-    ///     When adding a new property, if a property with the same name exists in the entity class
-    ///     then it will be added to the model. If no property exists in the entity class, then
+    ///     When adding a new property, if a property with the same name exists in the complex class
+    ///     then it will be added to the model. If no property exists in the complex class, then
     ///     a new shadow state property will be added. A shadow state property is one that does not have a
-    ///     corresponding property in the entity class. The current value for the property is stored in
-    ///     the <see cref="ChangeTracker" /> rather than being stored in instances of the entity class.
+    ///     corresponding property in the complex class. The current value for the property is stored in
+    ///     the <see cref="ChangeTracker" /> rather than being stored in instances of the complex class.
     /// </remarks>
     /// <param name="propertyType">The type of the property to be configured.</param>
     /// <param name="propertyName">The name of the property to be configured.</param>
@@ -204,7 +204,8 @@ public class ComplexPropertyBuilder :
                 Check.NotEmpty(propertyName, nameof(propertyName)), ConfigurationSource.Explicit)!.Metadata);
 
     /// <summary>
-    ///     Returns an object that can be used to configure a property of the complex type.
+    ///     Returns an object that can be used to configure a property of the complex type where that property represents
+    ///     a collection of primitive values, such as strings or integers.
     ///     If no property with the given name exists, then a new property will be added.
     /// </summary>
     /// <remarks>
@@ -221,15 +222,16 @@ public class ComplexPropertyBuilder :
                 ConfigurationSource.Explicit)!.Metadata);
 
     /// <summary>
-    ///     Returns an object that can be used to configure a property of the complex type.
+    ///     Returns an object that can be used to configure a property of the complex type where that property represents
+    ///     a collection of primitive values, such as strings or integers.
     ///     If no property with the given name exists, then a new property will be added.
     /// </summary>
     /// <remarks>
-    ///     When adding a new property, if a property with the same name exists in the entity class
-    ///     then it will be added to the model. If no property exists in the entity class, then
+    ///     When adding a new property, if a property with the same name exists in the complex class
+    ///     then it will be added to the model. If no property exists in the complex class, then
     ///     a new shadow state property will be added. A shadow state property is one that does not have a
-    ///     corresponding property in the entity class. The current value for the property is stored in
-    ///     the <see cref="ChangeTracker" /> rather than being stored in instances of the entity class.
+    ///     corresponding property in the complex class. The current value for the property is stored in
+    ///     the <see cref="ChangeTracker" /> rather than being stored in instances of the complex class.
     /// </remarks>
     /// <typeparam name="TProperty">The type of the property to be configured.</typeparam>
     /// <param name="propertyName">The name of the property to be configured.</param>
@@ -241,15 +243,16 @@ public class ComplexPropertyBuilder :
                 Check.NotEmpty(propertyName, nameof(propertyName)), ConfigurationSource.Explicit)!.Metadata);
 
     /// <summary>
-    ///     Returns an object that can be used to configure a property of the complex type.
+    ///     Returns an object that can be used to configure a property of the complex type where that property represents
+    ///     a collection of primitive values, such as strings or integers.
     ///     If no property with the given name exists, then a new property will be added.
     /// </summary>
     /// <remarks>
-    ///     When adding a new property, if a property with the same name exists in the entity class
-    ///     then it will be added to the model. If no property exists in the entity class, then
+    ///     When adding a new property, if a property with the same name exists in the complex class
+    ///     then it will be added to the model. If no property exists in the complex class, then
     ///     a new shadow state property will be added. A shadow state property is one that does not have a
-    ///     corresponding property in the entity class. The current value for the property is stored in
-    ///     the <see cref="ChangeTracker" /> rather than being stored in instances of the entity class.
+    ///     corresponding property in the complex class. The current value for the property is stored in
+    ///     the <see cref="ChangeTracker" /> rather than being stored in instances of the complex class.
     /// </remarks>
     /// <param name="propertyType">The type of the property to be configured.</param>
     /// <param name="propertyName">The name of the property to be configured.</param>
@@ -265,7 +268,7 @@ public class ComplexPropertyBuilder :
     ///     If no property with the given name exists, then a new property will be added.
     /// </summary>
     /// <remarks>
-    ///     Indexer properties are stored in the entity using
+    ///     Indexer properties are stored in the complex type using
     ///     <see href="https://docs.microsoft.com/dotnet/csharp/programming-guide/indexers/">an indexer</see>
     ///     supplying the provided property name.
     /// </remarks>
@@ -284,7 +287,7 @@ public class ComplexPropertyBuilder :
     ///     If no property with the given name exists, then a new property will be added.
     /// </summary>
     /// <remarks>
-    ///     Indexer properties are stored in the entity using
+    ///     Indexer properties are stored in the complex type using
     ///     <see href="https://docs.microsoft.com/dotnet/csharp/programming-guide/indexers/">an indexer</see>
     ///     supplying the provided property name.
     /// </remarks>
@@ -338,6 +341,7 @@ public class ComplexPropertyBuilder :
     /// <param name="propertyName">The name of the property to be configured.</param>
     /// <returns>An object that can be used to configure the property.</returns>
     public virtual ComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(string propertyName)
+        where TProperty : notnull
         => new(
             TypeBuilder.ComplexProperty(
                 typeof(TProperty),
@@ -362,6 +366,7 @@ public class ComplexPropertyBuilder :
     /// <param name="complexTypeName">The name of the complex type.</param>
     /// <returns>An object that can be used to configure the property.</returns>
     public virtual ComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(string propertyName, string complexTypeName)
+        where TProperty : notnull
         => new(
             TypeBuilder.ComplexProperty(
                 typeof(TProperty),
@@ -456,6 +461,7 @@ public class ComplexPropertyBuilder :
     public virtual ComplexPropertyBuilder ComplexProperty<TProperty>(
         string propertyName,
         Action<ComplexPropertyBuilder<TProperty>> buildAction)
+        where TProperty : notnull
     {
         Check.NotNull(buildAction, nameof(buildAction));
 
@@ -484,6 +490,7 @@ public class ComplexPropertyBuilder :
         string propertyName,
         string complexTypeName,
         Action<ComplexPropertyBuilder<TProperty>> buildAction)
+        where TProperty : notnull
     {
         Check.NotNull(buildAction, nameof(buildAction));
 
@@ -549,6 +556,252 @@ public class ComplexPropertyBuilder :
     }
 
     /// <summary>
+    ///     Returns an object that can be used to configure a complex collection of the complex type.
+    ///     If no property with the given name exists, then a new property will be added.
+    /// </summary>
+    /// <remarks>
+    ///     When adding a new property with this overload the property name must match the
+    ///     name of a CLR property or field on the complex type. This overload cannot be used to
+    ///     add a new shadow state complex property.
+    /// </remarks>
+    /// <param name="propertyName">The name of the property to be configured.</param>
+    /// <returns>An object that can be used to configure the property.</returns>
+    public virtual ComplexCollectionBuilder ComplexCollection(string propertyName)
+        => new(
+            TypeBuilder.ComplexProperty(
+                propertyType: null,
+                Check.NotEmpty(propertyName, nameof(propertyName)),
+                complexTypeName: null,
+                collection: true,
+                ConfigurationSource.Explicit)!.Metadata);
+
+    /// <summary>
+    ///     Returns an object that can be used to configure a complex collection of the complex type.
+    ///     If no property with the given name exists, then a new property will be added.
+    /// </summary>
+    /// <remarks>
+    ///     When adding a new property, if a property with the same name exists in the complex class
+    ///     then it will be added to the model. If no property exists in the complex class, then
+    ///     a new shadow state complex property will be added. A shadow state property is one that does not have a
+    ///     corresponding property in the complex class. The current value for the property is stored in
+    ///     the <see cref="ChangeTracker" /> rather than being stored in instances of the complex class.
+    /// </remarks>
+    /// <typeparam name="TProperty">The type of the property to be configured.</typeparam>
+    /// <typeparam name="TElement">The element type.</typeparam>
+    /// <param name="propertyName">The name of the property to be configured.</param>
+    /// <returns>An object that can be used to configure the property.</returns>
+    public virtual ComplexCollectionBuilder<TElement> ComplexCollection<TProperty, TElement>(string propertyName)
+        where TProperty : IEnumerable<TElement>
+        where TElement : notnull
+        => new(
+            TypeBuilder.ComplexProperty(
+                typeof(TProperty),
+                Check.NotEmpty(propertyName, nameof(propertyName)),
+                complexTypeName: null,
+                collection: true,
+                ConfigurationSource.Explicit)!.Metadata);
+
+    /// <summary>
+    ///     Returns an object that can be used to configure a complex collection of the complex type.
+    ///     If no property with the given name exists, then a new property will be added.
+    /// </summary>
+    /// <remarks>
+    ///     When adding a new property, if a property with the same name exists in the complex class
+    ///     then it will be added to the model. If no property exists in the complex class, then
+    ///     a new shadow state complex property will be added. A shadow state property is one that does not have a
+    ///     corresponding property in the complex class. The current value for the property is stored in
+    ///     the <see cref="ChangeTracker" /> rather than being stored in instances of the complex class.
+    /// </remarks>
+    /// <typeparam name="TProperty">The type of the property to be configured.</typeparam>
+    /// <typeparam name="TElement">The element type.</typeparam>
+    /// <param name="propertyName">The name of the property to be configured.</param>
+    /// <param name="complexTypeName">The name of the complex type.</param>
+    /// <returns>An object that can be used to configure the property.</returns>
+    public virtual ComplexCollectionBuilder<TElement> ComplexCollection<TProperty, TElement>(string propertyName, string complexTypeName)
+        where TProperty : IEnumerable<TElement>
+        where TElement : notnull
+        => new(
+            TypeBuilder.ComplexProperty(
+                typeof(TProperty),
+                Check.NotEmpty(propertyName, nameof(propertyName)),
+                complexTypeName,
+                collection: true,
+                ConfigurationSource.Explicit)!.Metadata);
+
+    /// <summary>
+    ///     Returns an object that can be used to configure a complex collection of the complex type.
+    ///     If no property with the given name exists, then a new property will be added.
+    /// </summary>
+    /// <remarks>
+    ///     When adding a new complex property, if a property with the same name exists in the complex class
+    ///     then it will be added to the model. If no property exists in the complex class, then
+    ///     a new shadow state complex property will be added. A shadow state property is one that does not have a
+    ///     corresponding property in the complex class. The current value for the property is stored in
+    ///     the <see cref="ChangeTracker" /> rather than being stored in instances of the complex class.
+    /// </remarks>
+    /// <param name="propertyType">The type of the property to be configured.</param>
+    /// <param name="propertyName">The name of the property to be configured.</param>
+    /// <returns>An object that can be used to configure the property.</returns>
+    public virtual ComplexCollectionBuilder ComplexCollection(Type propertyType, string propertyName)
+        => new(
+            TypeBuilder.ComplexProperty(
+                Check.NotNull(propertyType, nameof(propertyType)),
+                Check.NotEmpty(propertyName, nameof(propertyName)),
+                complexTypeName: null,
+                collection: true,
+                ConfigurationSource.Explicit)!.Metadata);
+
+    /// <summary>
+    ///     Returns an object that can be used to configure a complex collection of the complex type.
+    ///     If no property with the given name exists, then a new property will be added.
+    /// </summary>
+    /// <remarks>
+    ///     When adding a new complex property, if a property with the same name exists in the complex class
+    ///     then it will be added to the model. If no property exists in the complex class, then
+    ///     a new shadow state complex property will be added. A shadow state property is one that does not have a
+    ///     corresponding property in the complex class. The current value for the property is stored in
+    ///     the <see cref="ChangeTracker" /> rather than being stored in instances of the complex class.
+    /// </remarks>
+    /// <param name="propertyType">The type of the property to be configured.</param>
+    /// <param name="propertyName">The name of the property to be configured.</param>
+    /// <param name="complexTypeName">The name of the complex type.</param>
+    /// <returns>An object that can be used to configure the property.</returns>
+    public virtual ComplexCollectionBuilder ComplexCollection(Type propertyType, string propertyName, string complexTypeName)
+        => new(
+            TypeBuilder.ComplexProperty(
+                Check.NotNull(propertyType, nameof(propertyType)),
+                Check.NotEmpty(propertyName, nameof(propertyName)),
+                Check.NotEmpty(complexTypeName, nameof(complexTypeName)),
+                collection: true,
+                ConfigurationSource.Explicit)!.Metadata);
+
+    /// <summary>
+    ///     Configures a complex collection of the complex type.
+    ///     If no property with the given name exists, then a new property will be added.
+    /// </summary>
+    /// <remarks>
+    ///     When adding a new property with this overload the property name must match the
+    ///     name of a CLR property or field on the complex type. This overload cannot be used to
+    ///     add a new shadow state complex property.
+    /// </remarks>
+    /// <param name="propertyName">The name of the property to be configured.</param>
+    /// <param name="buildAction">An action that performs configuration of the property.</param>
+    /// <returns>An object that can be used to configure the property.</returns>
+    public virtual ComplexPropertyBuilder ComplexCollection(string propertyName, Action<ComplexCollectionBuilder> buildAction)
+    {
+        Check.NotNull(buildAction, nameof(buildAction));
+
+        buildAction(ComplexCollection(propertyName));
+
+        return this;
+    }
+
+    /// <summary>
+    ///     Configures a complex collection of the complex type.
+    ///     If no property with the given name exists, then a new property will be added.
+    /// </summary>
+    /// <remarks>
+    ///     When adding a new property, if a property with the same name exists in the complex class
+    ///     then it will be added to the model. If no property exists in the complex class, then
+    ///     a new shadow state complex property will be added. A shadow state property is one that does not have a
+    ///     corresponding property in the complex class. The current value for the property is stored in
+    ///     the <see cref="ChangeTracker" /> rather than being stored in instances of the complex class.
+    /// </remarks>
+    /// <typeparam name="TProperty">The type of the property to be configured.</typeparam>
+    /// <typeparam name="TElement">The element type.</typeparam>
+    /// <param name="propertyName">The name of the property to be configured.</param>
+    /// <param name="buildAction">An action that performs configuration of the property.</param>
+    /// <returns>An object that can be used to configure the property.</returns>
+    public virtual ComplexPropertyBuilder ComplexCollection<TProperty, TElement>(string propertyName, Action<ComplexCollectionBuilder<TElement>> buildAction)
+        where TProperty : IEnumerable<TElement>
+        where TElement : notnull
+    {
+        Check.NotNull(buildAction, nameof(buildAction));
+
+        buildAction(ComplexCollection<TProperty, TElement>(propertyName));
+
+        return this;
+    }
+
+    /// <summary>
+    ///     Configures a complex collection of the complex type.
+    ///     If no property with the given name exists, then a new property will be added.
+    /// </summary>
+    /// <remarks>
+    ///     When adding a new property, if a property with the same name exists in the complex class
+    ///     then it will be added to the model. If no property exists in the complex class, then
+    ///     a new shadow state complex property will be added. A shadow state property is one that does not have a
+    ///     corresponding property in the complex class. The current value for the property is stored in
+    ///     the <see cref="ChangeTracker" /> rather than being stored in instances of the complex class.
+    /// </remarks>
+    /// <typeparam name="TProperty">The type of the property to be configured.</typeparam>
+    /// <typeparam name="TElement">The element type.</typeparam>
+    /// <param name="propertyName">The name of the property to be configured.</param>
+    /// <param name="complexTypeName">The name of the complex type.</param>
+    /// <param name="buildAction">An action that performs configuration of the property.</param>
+    /// <returns>An object that can be used to configure the property.</returns>
+    public virtual ComplexPropertyBuilder ComplexCollection<TProperty, TElement>(
+        string propertyName, string complexTypeName, Action<ComplexCollectionBuilder<TElement>> buildAction)
+        where TProperty : IEnumerable<TElement>
+        where TElement : notnull
+    {
+        Check.NotNull(buildAction, nameof(buildAction));
+
+        buildAction(ComplexCollection<TProperty, TElement>(propertyName, complexTypeName));
+
+        return this;
+    }
+
+    /// <summary>
+    ///     Configures a complex collection of the complex type.
+    ///     If no property with the given name exists, then a new property will be added.
+    /// </summary>
+    /// <remarks>
+    ///     When adding a new complex property, if a property with the same name exists in the complex class
+    ///     then it will be added to the model. If no property exists in the complex class, then
+    ///     a new shadow state complex property will be added. A shadow state property is one that does not have a
+    ///     corresponding property in the complex class. The current value for the property is stored in
+    ///     the <see cref="ChangeTracker" /> rather than being stored in instances of the complex class.
+    /// </remarks>
+    /// <param name="propertyType">The type of the property to be configured.</param>
+    /// <param name="propertyName">The name of the property to be configured.</param>
+    /// <param name="buildAction">An action that performs configuration of the property.</param>
+    /// <returns>An object that can be used to configure the property.</returns>
+    public virtual ComplexPropertyBuilder ComplexCollection(Type propertyType, string propertyName, Action<ComplexCollectionBuilder> buildAction)
+    {
+        Check.NotNull(buildAction, nameof(buildAction));
+
+        buildAction(ComplexCollection(propertyType, propertyName));
+
+        return this;
+    }
+
+    /// <summary>
+    ///     Configures a complex collection of the complex type.
+    ///     If no property with the given name exists, then a new property will be added.
+    /// </summary>
+    /// <remarks>
+    ///     When adding a new complex property, if a property with the same name exists in the complex class
+    ///     then it will be added to the model. If no property exists in the complex class, then
+    ///     a new shadow state complex property will be added. A shadow state property is one that does not have a
+    ///     corresponding property in the complex class. The current value for the property is stored in
+    ///     the <see cref="ChangeTracker" /> rather than being stored in instances of the complex class.
+    /// </remarks>
+    /// <param name="propertyType">The type of the property to be configured.</param>
+    /// <param name="propertyName">The name of the property to be configured.</param>
+    /// <param name="complexTypeName">The name of the complex type.</param>
+    /// <param name="buildAction">An action that performs configuration of the property.</param>
+    /// <returns>An object that can be used to configure the property.</returns>
+    public virtual ComplexPropertyBuilder ComplexCollection(Type propertyType, string propertyName, string complexTypeName, Action<ComplexCollectionBuilder> buildAction)
+    {
+        Check.NotNull(buildAction, nameof(buildAction));
+
+        buildAction(ComplexCollection(propertyType, propertyName, complexTypeName));
+
+        return this;
+    }
+
+    /// <summary>
     ///     Excludes the given property from the complex type. This method is typically used to remove properties
     ///     and navigations from the complex type that were added by convention.
     /// </summary>
@@ -563,8 +816,8 @@ public class ComplexPropertyBuilder :
     }
 
     /// <summary>
-    ///     Configures the <see cref="ChangeTrackingStrategy" /> to be used for this entity type.
-    ///     This strategy indicates how the context detects changes to properties for an instance of the entity type.
+    ///     Configures the <see cref="ChangeTrackingStrategy" /> to be used for this complex type.
+    ///     This strategy indicates how the context detects changes to properties for an instance of the complex type.
     /// </summary>
     /// <param name="changeTrackingStrategy">The change tracking strategy to be used.</param>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
@@ -620,6 +873,53 @@ public class ComplexPropertyBuilder :
     {
         TypeBuilder.UsePropertyAccessMode(propertyAccessMode, ConfigurationSource.Explicit);
 
+        return this;
+    }
+
+    /// <summary>
+    ///     Configures the discriminator property used to identify the complex type in the store.
+    /// </summary>
+    /// <returns>A builder that allows the discriminator property to be configured.</returns>
+    public virtual ComplexTypeDiscriminatorBuilder HasDiscriminator()
+        => TypeBuilder.HasDiscriminator(ConfigurationSource.Explicit)!;
+
+    /// <summary>
+    ///     Configures the discriminator property used to identify the complex type in the store.
+    /// </summary>
+    /// <param name="name">The name of the discriminator property.</param>
+    /// <param name="type">The type of values stored in the discriminator property.</param>
+    /// <returns>A builder that allows the discriminator property to be configured.</returns>
+    public virtual ComplexTypeDiscriminatorBuilder HasDiscriminator(
+        string name,
+        Type type)
+    {
+        Check.NotEmpty(name, nameof(name));
+        Check.NotNull(type, nameof(type));
+
+        return TypeBuilder.HasDiscriminator(name, type, ConfigurationSource.Explicit)!;
+    }
+
+    /// <summary>
+    ///     Configures the discriminator property used to identify the complex type in the store.
+    /// </summary>
+    /// <typeparam name="TDiscriminator">The type of values stored in the discriminator property.</typeparam>
+    /// <param name="name">The name of the discriminator property.</param>
+    /// <returns>A builder that allows the discriminator property to be configured.</returns>
+    public virtual ComplexTypeDiscriminatorBuilder<TDiscriminator> HasDiscriminator<TDiscriminator>(string name)
+    {
+        Check.NotEmpty(name, nameof(name));
+
+        return new ComplexTypeDiscriminatorBuilder<TDiscriminator>(
+            TypeBuilder.HasDiscriminator(name, typeof(TDiscriminator), ConfigurationSource.Explicit)!);
+    }
+
+    /// <summary>
+    ///     Configures the complex type as having no discriminator property.
+    /// </summary>
+    /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
+    public virtual ComplexPropertyBuilder HasNoDiscriminator()
+    {
+        TypeBuilder.HasNoDiscriminator(ConfigurationSource.Explicit);
         return this;
     }
 

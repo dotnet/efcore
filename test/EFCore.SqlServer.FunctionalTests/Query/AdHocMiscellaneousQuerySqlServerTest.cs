@@ -14,10 +14,17 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public class AdHocMiscellaneousQuerySqlServerTest : AdHocMiscellaneousQueryRelationalTestBase
+public class AdHocMiscellaneousQuerySqlServerTest(NonSharedFixture fixture) : AdHocMiscellaneousQueryRelationalTestBase(fixture)
 {
     protected override ITestStoreFactory TestStoreFactory
         => SqlServerTestStoreFactory.Instance;
+
+    protected override DbContextOptionsBuilder SetTranslateParameterizedCollectionsToConstants(DbContextOptionsBuilder optionsBuilder)
+    {
+        new SqlServerDbContextOptionsBuilder(optionsBuilder).TranslateParameterizedCollectionsToConstants();
+
+        return optionsBuilder;
+    }
 
     protected override Task Seed2951(Context2951 context)
         => context.Database.ExecuteSqlRawAsync(
@@ -33,7 +40,7 @@ INSERT ZeroKey VALUES (NULL)
     {
         var contextFactory = await InitializeAsync<Context5456>(
             seed: c => c.SeedAsync(),
-            createTestStore: async () => await SqlServerTestStore.CreateInitializedAsync(StoreName, multipleActiveResultSets: true));
+            createTestStore: () => SqlServerTestStore.Create(StoreName, multipleActiveResultSets: true));
 
         Parallel.For(
             0, 10, i =>
@@ -68,7 +75,7 @@ INSERT ZeroKey VALUES (NULL)
     {
         var contextFactory = await InitializeAsync<Context5456>(
             seed: c => c.SeedAsync(),
-            createTestStore: async () => await SqlServerTestStore.CreateInitializedAsync(StoreName, multipleActiveResultSets: true));
+            createTestStore: () => SqlServerTestStore.Create(StoreName, multipleActiveResultSets: true));
 
         await Parallel.ForAsync(
             0, 10, async (i, ct) =>
@@ -1986,9 +1993,9 @@ GROUP BY [t1].[AnotherEntity11818_Name], [t3].[MaumarEntity11818_Name]
 """);
     }
 
-    public override async Task Left_join_with_missing_key_values_on_both_sides(bool async)
+    public override async Task LeftJoin_with_missing_key_values_on_both_sides(bool async)
     {
-        await base.Left_join_with_missing_key_values_on_both_sides(async);
+        await base.LeftJoin_with_missing_key_values_on_both_sides(async);
 
         AssertSql(
             """
@@ -2404,5 +2411,59 @@ WHERE CASE
     WHEN [c0].[Id] IS NOT NULL THEN [c1].[CountryName]
 END = N'COUNTRY'
 """);
+    }
+
+    public override async Task Check_inlined_constants_redacting(bool async, bool enableSensitiveDataLogging)
+    {
+        await base.Check_inlined_constants_redacting(async, enableSensitiveDataLogging);
+
+        if (!enableSensitiveDataLogging)
+        {
+            AssertSql(
+                """
+SELECT [t].[Id], [t].[Name]
+FROM [TestEntities] AS [t]
+WHERE [t].[Id] IN (?, ?, ?)
+""",
+                //
+                """
+SELECT [t].[Id], [t].[Name]
+FROM [TestEntities] AS [t]
+WHERE EXISTS (
+    SELECT 1
+    FROM (VALUES (?), (?), (?)) AS [i]([Value])
+    WHERE [i].[Value] = [t].[Id])
+""",
+                //
+                """
+SELECT [t].[Id], [t].[Name]
+FROM [TestEntities] AS [t]
+WHERE ? = [t].[Id]
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
+SELECT [t].[Id], [t].[Name]
+FROM [TestEntities] AS [t]
+WHERE [t].[Id] IN (1, 2, 3)
+""",
+                //
+                """
+SELECT [t].[Id], [t].[Name]
+FROM [TestEntities] AS [t]
+WHERE EXISTS (
+    SELECT 1
+    FROM (VALUES (1), (2), (3)) AS [i]([Value])
+    WHERE [i].[Value] = [t].[Id])
+""",
+            //
+            """
+SELECT [t].[Id], [t].[Name]
+FROM [TestEntities] AS [t]
+WHERE 1 = [t].[Id]
+""");
+        }
     }
 }

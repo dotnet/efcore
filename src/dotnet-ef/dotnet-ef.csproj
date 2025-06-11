@@ -51,10 +51,6 @@ dotnet ef database update
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Resources\EntityFrameworkCore.targets" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Update="Properties\Resources.Designer.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -82,13 +78,12 @@ dotnet ef database update
     <ItemGroup>
       <NuspecProperty Include="packageType=$(PackageType)" />
       <NuspecProperty Include="targetFramework=$(TargetFramework)" />
-
       <NuspecProperty Include="SettingsFile=$(_ToolsSettingsFilePath)" />
       <!-- https://github.com/dotnet/msbuild/issues/10715. %2A replaces * working around an issue building Linux. -->
       <NuspecProperty Include="Output=$(PublishDir)%2A%2A/%2A" />
-      <NuspecProperty Include="OutputBinary=..\..\artifacts\bin\ef\$(Configuration)\netcoreapp2.0\ef.dll" />
-      <NuspecProperty Include="OutputRuntimeConfig=..\..\artifacts\bin\ef\$(Configuration)\netcoreapp2.0\ef.runtimeconfig.json" />
-      <NuspecProperty Include="OutputSymbol=..\..\artifacts\bin\ef\$(Configuration)\netcoreapp2.0\ef.pdb" />
+      <NuspecProperty Include="OutputBinary=..\..\artifacts\bin\ef\$(Configuration)\$(TargetFramework)\ef.dll" />
+      <NuspecProperty Include="OutputRuntimeConfig=..\..\artifacts\bin\ef\$(Configuration)\$(TargetFramework)\ef.runtimeconfig.json" />
+      <NuspecProperty Include="OutputSymbol=..\..\artifacts\bin\ef\$(Configuration)\$(TargetFramework)\ef.pdb" />
       <NuspecProperty Include="OutputExe=..\..\artifacts\bin\ef\$(Configuration)\net472\ef.exe" />
       <NuspecProperty Include="OutputExeSymbol=..\..\artifacts\bin\ef\$(Configuration)\net472\ef.pdb" />
       <NuspecProperty Include="OutputX86Exe=..\..\artifacts\bin\ef\x86\$(Configuration)\net472\ef.exe" />

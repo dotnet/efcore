@@ -403,6 +403,7 @@ public class DbContextLoggerTests
         var options = configureLogging(
                 new DbContextOptionsBuilder<LoggingContext>()
                     .ConfigureWarnings(wb => wb.Log((CoreEventId.ContextInitialized, LogLevel.Information)))
+                    .EnableServiceProviderCaching(false)
                     .UseInMemoryDatabase("DbContextLoggerTests"))
             .Options;
 

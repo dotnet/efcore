@@ -39,9 +39,6 @@ public static class RelationalEntityTypeExtensions
 
         return ((entityType as IConventionEntityType)?.GetViewNameConfigurationSource() == null)
             && (entityType as IConventionEntityType)?.GetFunctionNameConfigurationSource() == null
-#pragma warning disable CS0618 // Type or member is obsolete
-            && (entityType as IConventionEntityType)?.GetDefiningQueryConfigurationSource() == null
-#pragma warning restore CS0618 // Type or member is obsolete
             && (entityType as IConventionEntityType)?.GetSqlQueryConfigurationSource() == null
                 ? GetDefaultTableName(entityType)
                 : null;
@@ -267,9 +264,6 @@ public static class RelationalEntityTypeExtensions
         }
 
         return ((entityType as IConventionEntityType)?.GetFunctionNameConfigurationSource() == null)
-#pragma warning disable CS0618 // Type or member is obsolete
-            && ((entityType as IConventionEntityType)?.GetDefiningQueryConfigurationSource() == null)
-#pragma warning restore CS0618 // Type or member is obsolete
             && ((entityType as IConventionEntityType)?.GetSqlQueryConfigurationSource() == null)
                 ? GetDefaultViewName(entityType)
                 : null;

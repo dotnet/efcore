@@ -60,9 +60,9 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     private InstantiationBinding? _constructorBinding;
     private InstantiationBinding? _serviceOnlyConstructorBinding;
 
-    private Func<InternalEntityEntry, ISnapshot>? _relationshipSnapshotFactory;
-    private Func<InternalEntityEntry, ISnapshot>? _originalValuesFactory;
-    private Func<InternalEntityEntry, ISnapshot>? _temporaryValuesFactory;
+    private Func<IInternalEntry, ISnapshot>? _relationshipSnapshotFactory;
+    private Func<IInternalEntry, ISnapshot>? _originalValuesFactory;
+    private Func<IInternalEntry, ISnapshot>? _temporaryValuesFactory;
     private Func<ISnapshot>? _storeGeneratedValuesFactory;
     private Func<IDictionary<string, object?>, ISnapshot>? _shadowValuesFactory;
     private Func<ISnapshot>? _emptyShadowValuesFactory;
@@ -336,6 +336,15 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    public override TypeBase? SetBaseType(TypeBase? newBaseType, ConfigurationSource configurationSource)
+        => SetBaseType((EntityType?)newBaseType, configurationSource);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public virtual EntityType? SetBaseType(EntityType? newBaseType, ConfigurationSource configurationSource)
     {
         EnsureMutable();
@@ -423,9 +432,15 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
-    public virtual ConfigurationSource? GetBaseTypeConfigurationSource()
+    public override ConfigurationSource? GetBaseTypeConfigurationSource()
         => _baseTypeConfigurationSource;
 
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     [DebuggerStepThrough]
     private void UpdateBaseTypeConfigurationSource(ConfigurationSource configurationSource)
         => _baseTypeConfigurationSource = configurationSource.Max(_baseTypeConfigurationSource);
@@ -475,8 +490,8 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
-    public virtual EntityType GetRootType()
-        => (EntityType)((IReadOnlyEntityType)this).GetRootType();
+    new public virtual EntityType GetRootType()
+        => (EntityType)((IReadOnlyTypeBase)this).GetRootType();
 
     /// <summary>
     ///     Runs the conventions when an annotation was set or removed.
@@ -2260,7 +2275,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual Func<InternalEntityEntry, ISnapshot> RelationshipSnapshotFactory
+    public virtual Func<IInternalEntry, ISnapshot> RelationshipSnapshotFactory
         => NonCapturingLazyInitializer.EnsureInitialized(
             ref _relationshipSnapshotFactory, this,
             static entityType =>
@@ -2275,7 +2290,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual Func<InternalEntityEntry, ISnapshot> OriginalValuesFactory
+    public virtual Func<IInternalEntry, ISnapshot> OriginalValuesFactory
         => NonCapturingLazyInitializer.EnsureInitialized(
             ref _originalValuesFactory, this,
             static entityType =>
@@ -2305,7 +2320,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual Func<InternalEntityEntry, ISnapshot> TemporaryValuesFactory
+    public virtual Func<IInternalEntry, ISnapshot> TemporaryValuesFactory
         => NonCapturingLazyInitializer.EnsureInitialized(
             ref _temporaryValuesFactory, this,
             static entityType =>
@@ -2855,7 +2870,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual LambdaExpression? SetQueryFilter(LambdaExpression? queryFilter, ConfigurationSource configurationSource)
+    public virtual IQueryFilter? SetQueryFilter(IQueryFilter queryFilter)
     {
         var errorMessage = CheckQueryFilter(queryFilter);
         if (errorMessage != null)
@@ -2863,7 +2878,22 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
             throw new InvalidOperationException(errorMessage);
         }
 
-        return (LambdaExpression?)SetOrRemoveAnnotation(CoreAnnotationNames.QueryFilter, queryFilter, configurationSource)?.Value;
+        var queryFilters = (QueryFilterCollection?)FindAnnotation(CoreAnnotationNames.QueryFilter)?.Value ?? new QueryFilterCollection();
+
+        queryFilters.Set(queryFilter);
+        var configSource = ((QueryFilter)queryFilter)?.ConfigurationSource ?? ConfigurationSource.Explicit;
+
+        if (queryFilters.Count == 0)
+        {
+            queryFilters = null;
+        }
+
+        if (FindAnnotation(CoreAnnotationNames.QueryFilter)?.Value != queryFilters) {
+
+            SetOrRemoveAnnotation(CoreAnnotationNames.QueryFilter, queryFilters, configSource);
+        }
+
+        return queryFilter;
     }
 
     /// <summary>
@@ -2872,14 +2902,15 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual string? CheckQueryFilter(LambdaExpression? queryFilter)
+    public virtual string? CheckQueryFilter(IQueryFilter queryFilter)
     {
-        if (queryFilter != null
-            && (queryFilter.Parameters.Count != 1
-                || queryFilter.Parameters[0].Type != ClrType
-                || queryFilter.ReturnType != typeof(bool)))
+        var expression = queryFilter?.Expression;
+        if (expression != null
+            && (expression.Parameters.Count != 1
+                || expression.Parameters[0].Type != ClrType
+                || expression.ReturnType != typeof(bool)))
         {
-            return CoreStrings.BadFilterExpression(queryFilter, DisplayName(), ClrType);
+            return CoreStrings.BadFilterExpression(expression, DisplayName(), ClrType);
         }
 
         return null;
@@ -2891,8 +2922,36 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    public virtual IReadOnlyCollection<IQueryFilter> GetDeclaredQueryFilters()
+        => (QueryFilterCollection?)this[CoreAnnotationNames.QueryFilter] ?? new QueryFilterCollection();
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [Obsolete("Use GetDeclaredQueryFilters() instead.")]
     public virtual LambdaExpression? GetQueryFilter()
-        => (LambdaExpression?)this[CoreAnnotationNames.QueryFilter];
+        => GetDeclaredQueryFilters()?.FirstOrDefault(f => f.IsAnonymous)?.Expression;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual IQueryFilter? FindDeclaredQueryFilter(string? filterKey)
+        => ((QueryFilterCollection?)this[CoreAnnotationNames.QueryFilter])?[filterKey];
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual ConfigurationSource? GetQueryFilterConfigurationSource(string? filterKey)
+        => ((QueryFilter?)((QueryFilterCollection?)this[CoreAnnotationNames.QueryFilter])?[filterKey])?.ConfigurationSource;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2901,76 +2960,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual ConfigurationSource? GetQueryFilterConfigurationSource()
-        => FindAnnotation(CoreAnnotationNames.QueryFilter)?.GetConfigurationSource();
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    [Obsolete]
-    public virtual LambdaExpression? SetDefiningQuery(LambdaExpression? definingQuery, ConfigurationSource configurationSource)
-        => (LambdaExpression?)SetOrRemoveAnnotation(CoreAnnotationNames.DefiningQuery, definingQuery, configurationSource)?.Value;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual Property? SetDiscriminatorProperty(Property? property, ConfigurationSource configurationSource)
-    {
-        if ((string?)this[CoreAnnotationNames.DiscriminatorProperty] == property?.Name)
-        {
-            return property;
-        }
-
-        CheckDiscriminatorProperty(property);
-
-        SetAnnotation(CoreAnnotationNames.DiscriminatorProperty, property?.Name, configurationSource);
-
-        return Model.ConventionDispatcher.OnDiscriminatorPropertySet(Builder, property?.Name) == property?.Name
-            ? property
-            : (Property?)((IReadOnlyEntityType)this).FindDiscriminatorProperty();
-    }
-
-    private void CheckDiscriminatorProperty(Property? property)
-    {
-        if (property != null)
-        {
-            if (BaseType != null)
-            {
-                throw new InvalidOperationException(
-                    CoreStrings.DiscriminatorPropertyMustBeOnRoot(DisplayName()));
-            }
-
-            if (property.DeclaringType != this)
-            {
-                throw new InvalidOperationException(
-                    CoreStrings.DiscriminatorPropertyNotFound(property.Name, DisplayName()));
-            }
-        }
-    }
-
-    /// <summary>
-    ///     Returns the name of the property that will be used for storing a discriminator value.
-    /// </summary>
-    /// <returns>The name of the property that will be used for storing a discriminator value.</returns>
-    public virtual string? GetDiscriminatorPropertyName()
-        => BaseType is null
-            ? (string?)this[CoreAnnotationNames.DiscriminatorProperty]
-            : ((IReadOnlyEntityType)this).GetRootType().GetDiscriminatorPropertyName();
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    [DebuggerStepThrough]
-    public virtual ConfigurationSource? GetDiscriminatorPropertyConfigurationSource()
-        => FindAnnotation(CoreAnnotationNames.DiscriminatorProperty)?.GetConfigurationSource();
+        => GetQueryFilterConfigurationSource(null);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -3232,32 +3222,28 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
-    void IMutableEntityType.SetDiscriminatorProperty(IReadOnlyProperty? property)
-        => SetDiscriminatorProperty((Property?)property, ConfigurationSource.Explicit);
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    [DebuggerStepThrough]
-    IConventionProperty? IConventionEntityType.SetDiscriminatorProperty(
-        IReadOnlyProperty? property,
-        bool fromDataAnnotation)
-        => SetDiscriminatorProperty(
-            (Property?)property,
-            fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    [DebuggerStepThrough]
     void IMutableEntityType.SetQueryFilter(LambdaExpression? queryFilter)
-        => SetQueryFilter(queryFilter, ConfigurationSource.Explicit);
+        => SetQueryFilter(new QueryFilter(queryFilter, ConfigurationSource.Explicit));
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    void IMutableEntityType.SetQueryFilter(string filterKey, LambdaExpression? filter)
+        => SetQueryFilter(new QueryFilter(filterKey, filter, ConfigurationSource.Explicit));
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    IQueryFilter? IConventionEntityType.SetQueryFilter(string filterKey, LambdaExpression? filter, bool fromDataAnnotation)
+        => SetQueryFilter(new QueryFilter(filterKey, filter, fromDataAnnotation));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -3267,7 +3253,8 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     /// </summary>
     [DebuggerStepThrough]
     LambdaExpression? IConventionEntityType.SetQueryFilter(LambdaExpression? queryFilter, bool fromDataAnnotation)
-        => SetQueryFilter(queryFilter, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+        => SetQueryFilter(new QueryFilter(queryFilter, fromDataAnnotation))
+            ?.Expression;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

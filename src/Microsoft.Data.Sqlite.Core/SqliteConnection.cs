@@ -48,6 +48,8 @@ namespace Microsoft.Data.Sqlite
         private static readonly StateChangeEventArgs _fromClosedToOpenEventArgs = new StateChangeEventArgs(ConnectionState.Closed, ConnectionState.Open);
         private static readonly StateChangeEventArgs _fromOpenToClosedEventArgs = new StateChangeEventArgs(ConnectionState.Open, ConnectionState.Closed);
 
+        private static string[]? NativeDllSearchDirectories;
+
         static SqliteConnection()
         {
             Type.GetType("SQLitePCL.Batteries_V2, SQLitePCLRaw.batteries_v2")
@@ -624,11 +626,71 @@ namespace Microsoft.Data.Sqlite
 
         private void LoadExtensionCore(string file, string? proc)
         {
-            var rc = sqlite3_load_extension(Handle, utf8z.FromString(file), utf8z.FromString(proc), out var errmsg);
-            if (rc != SQLITE_OK)
+            SqliteException? firstException = null;
+            foreach (var path in GetLoadExtensionPaths(file))
             {
-                throw new SqliteException(Resources.SqliteNativeError(rc, errmsg.utf8_to_string()), rc, rc);
+                var rc = sqlite3_load_extension(Handle, utf8z.FromString(path), utf8z.FromString(proc), out var errmsg);
+                if (rc == SQLITE_OK)
+                {
+                    return;
+                }
+
+                if (firstException == null)
+                {
+                    // We store the first exception so that error message looks more obvious if file appears in there
+                    firstException = new SqliteException(Resources.SqliteNativeError(rc, errmsg.utf8_to_string()), rc, rc);
+                }
             }
+
+            if (firstException != null)
+            {
+                throw firstException;
+            }
+        }
+
+        private static IEnumerable<string> GetLoadExtensionPaths(string file)
+        {
+            // we always try original input first
+            yield return file;
+
+            string? dirName = Path.GetDirectoryName(file);
+
+            // we don't try to guess directories for user, if they pass a path either absolute or relative - they're on their own
+            if (!string.IsNullOrEmpty(dirName))
+            {
+                yield break;
+            }
+
+            bool shouldTryAddingLibPrefix = !file.StartsWith("lib", StringComparison.Ordinal) && !RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+
+            if (shouldTryAddingLibPrefix)
+            {
+                yield return $"lib{file}";
+            }
+
+            NativeDllSearchDirectories ??= GetNativeDllSearchDirectories();
+
+            foreach (string dir in NativeDllSearchDirectories)
+            {
+                yield return Path.Combine(dir, file);
+
+                if (shouldTryAddingLibPrefix)
+                {
+                    yield return Path.Combine(dir, $"lib{file}");
+                }
+            }
+        }
+
+        private static string[] GetNativeDllSearchDirectories()
+        {
+            string? searchDirs = AppContext.GetData("NATIVE_DLL_SEARCH_DIRECTORIES") as string;
+
+            if (string.IsNullOrEmpty(searchDirs))
+            {
+                return [];
+            }
+
+            return searchDirs!.Split([ Path.PathSeparator ], StringSplitOptions.RemoveEmptyEntries);
         }
 
         /// <summary>

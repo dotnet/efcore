@@ -47,6 +47,8 @@ public class ApiConsistencyTest(ApiConsistencyTest.ApiConsistencyFixture fixture
             typeof(ComplexPropertyBuilder<>),
             typeof(ComplexTypePrimitiveCollectionBuilder),
             typeof(ComplexTypePrimitiveCollectionBuilder<>),
+            typeof(ComplexCollectionBuilder),
+            typeof(ComplexCollectionBuilder<>),
             typeof(IndexBuilder),
             typeof(IndexBuilder<>),
             typeof(TriggerBuilder),
@@ -79,7 +81,7 @@ public class ApiConsistencyTest(ApiConsistencyTest.ApiConsistencyFixture fixture
             typeof(EntityFrameworkServiceCollectionExtensions)
         ];
 
-        public override HashSet<MethodInfo> NonVirtualMethods { get; } =
+        public override HashSet<MethodInfo> VirtualMethodExceptions { get; } =
         [
             typeof(CompiledQueryCacheKeyGenerator).GetMethod("GenerateCacheKeyCore", AnyInstance),
             typeof(InternalEntityEntry).GetMethod("get_Item"),
@@ -129,6 +131,12 @@ public class ApiConsistencyTest(ApiConsistencyTest.ApiConsistencyFixture fixture
                 nameof(ComplexPropertyBuilder.ComplexProperty), 0, [typeof(Type), typeof(string)]),
             typeof(ComplexPropertyBuilder).GetMethod(
                 nameof(ComplexPropertyBuilder.ComplexProperty), 0, [typeof(Type), typeof(string), typeof(string)]),
+            typeof(ComplexCollectionBuilder).GetMethod(
+                nameof(ComplexCollectionBuilder.ComplexCollection), 0, [typeof(string)]),
+            typeof(ComplexCollectionBuilder).GetMethod(
+                nameof(ComplexCollectionBuilder.ComplexCollection), 0, [typeof(Type), typeof(string)]),
+            typeof(ComplexCollectionBuilder).GetMethod(
+                nameof(ComplexCollectionBuilder.ComplexCollection), 0, [typeof(Type), typeof(string), typeof(string)]),
             typeof(OwnedNavigationBuilder).GetMethod(
                 nameof(OwnedNavigationBuilder.OwnsOne), 0, [typeof(string), typeof(string)]),
             typeof(OwnedNavigationBuilder).GetMethod(
@@ -168,37 +176,14 @@ public class ApiConsistencyTest(ApiConsistencyTest.ApiConsistencyFixture fixture
             typeof(IConventionModelBuilder).GetMethod(nameof(IConventionModelBuilder.ComplexType)),
             typeof(IReadOnlyEntityType).GetMethod(nameof(IReadOnlyEntityType.GetConcreteDerivedTypesInclusive)),
             typeof(IMutableEntityType).GetMethod(nameof(IMutableEntityType.AddData)),
+            typeof(IConventionEntityType).GetMethod(nameof(IConventionEntityType.SetBaseType)),
             typeof(IReadOnlyNavigationBase).GetMethod("get_DeclaringEntityType"),
             typeof(IReadOnlyNavigationBase).GetMethod("get_TargetEntityType"),
             typeof(IReadOnlyNavigationBase).GetMethod("get_Inverse"),
             typeof(IConventionAnnotatableBuilder).GetMethod(nameof(IConventionAnnotatableBuilder.HasNonNullAnnotation)),
             typeof(IConventionEntityTypeBuilder).GetMethod(nameof(IConventionEntityTypeBuilder.RemoveUnusedImplicitProperties)),
             typeof(IConventionTypeBaseBuilder).GetMethod(nameof(IConventionTypeBaseBuilder.RemoveUnusedImplicitProperties)),
-            typeof(IConventionEntityTypeBuilder).GetMethod(nameof(IConventionEntityTypeBuilder.GetTargetEntityTypeBuilder)),
-            typeof(IConventionPropertyBuilder).GetMethod(
-                nameof(IConventionPropertyBuilder.HasField), [typeof(string), typeof(bool)]),
-            typeof(IConventionPropertyBuilder).GetMethod(
-                nameof(IConventionPropertyBuilder.HasField), [typeof(FieldInfo), typeof(bool)]),
-            typeof(IConventionPropertyBuilder).GetMethod(
-                nameof(IConventionPropertyBuilder.UsePropertyAccessMode), [typeof(PropertyAccessMode), typeof(bool)]),
-            typeof(IConventionServicePropertyBuilder).GetMethod(
-                nameof(IConventionServicePropertyBuilder.HasField), [typeof(string), typeof(bool)]),
-            typeof(IConventionServicePropertyBuilder).GetMethod(
-                nameof(IConventionServicePropertyBuilder.HasField), [typeof(FieldInfo), typeof(bool)]),
-            typeof(IConventionServicePropertyBuilder).GetMethod(
-                nameof(IConventionServicePropertyBuilder.UsePropertyAccessMode), [typeof(PropertyAccessMode), typeof(bool)]),
-            typeof(IConventionNavigationBuilder).GetMethod(
-                nameof(IConventionNavigationBuilder.HasField), [typeof(string), typeof(bool)]),
-            typeof(IConventionNavigationBuilder).GetMethod(
-                nameof(IConventionNavigationBuilder.HasField), [typeof(FieldInfo), typeof(bool)]),
-            typeof(IConventionNavigationBuilder).GetMethod(
-                nameof(IConventionNavigationBuilder.UsePropertyAccessMode), [typeof(PropertyAccessMode), typeof(bool)]),
-            typeof(IConventionSkipNavigationBuilder).GetMethod(
-                nameof(IConventionSkipNavigationBuilder.HasField), [typeof(string), typeof(bool)]),
-            typeof(IConventionSkipNavigationBuilder).GetMethod(
-                nameof(IConventionSkipNavigationBuilder.HasField), [typeof(FieldInfo), typeof(bool)]),
-            typeof(IConventionSkipNavigationBuilder).GetMethod(
-                nameof(IConventionSkipNavigationBuilder.UsePropertyAccessMode), [typeof(PropertyAccessMode), typeof(bool)])
+            typeof(IConventionEntityTypeBuilder).GetMethod(nameof(IConventionEntityTypeBuilder.GetTargetEntityTypeBuilder))
         ];
 
         public override HashSet<MethodInfo> MetadataMethodExceptions { get; } =
@@ -208,13 +193,13 @@ public class ApiConsistencyTest(ApiConsistencyTest.ApiConsistencyFixture fixture
             typeof(IConventionAnnotatable).GetMethod(nameof(IConventionAnnotatable.AddAnnotations)),
             typeof(IMutableAnnotatable).GetMethod(nameof(IMutableAnnotatable.AddAnnotations)),
             typeof(IConventionModel).GetMethod(nameof(IConventionModel.IsIgnoredType)),
-            typeof(IConventionModel).GetMethod(nameof(IConventionModel.IsShared)),
             typeof(IConventionModel).GetMethod(nameof(IConventionModel.AddOwned)),
             typeof(IConventionModel).GetMethod(nameof(IConventionModel.AddShared)),
             typeof(IMutableModel).GetMethod(nameof(IMutableModel.AddOwned)),
             typeof(IMutableModel).GetMethod(nameof(IMutableModel.AddShared)),
             typeof(IMutableEntityType).GetMethod(nameof(IMutableEntityType.AddData)),
-            typeof(IConventionEntityType).GetMethod(nameof(IConventionEntityType.LeastDerivedType))
+            typeof(IConventionEntityType).GetMethod(nameof(IConventionEntityType.LeastDerivedType)),
+            typeof(IConventionEntityType).GetMethod(nameof(IConventionEntityType.SetQueryFilter), [typeof(string), typeof(LambdaExpression), typeof(bool)])
         ];
     }
 }

@@ -116,7 +116,7 @@ public class ModelAsserter
             () => Assert.Equal(expected.ClrType, actual.ClrType),
             () => Assert.Equal(expected.HasSharedClrType, actual.HasSharedClrType),
             () => Assert.Equal(expected.IsPropertyBag, actual.IsPropertyBag),
-            () => Assert.Equal(expected.GetQueryFilter(), actual.GetQueryFilter()),
+            () => Assert.Equal(expected.GetDeclaredQueryFilters(), actual.GetDeclaredQueryFilters()),
             () =>
             {
                 if (designTime)
@@ -370,6 +370,7 @@ public class ModelAsserter
             () => Assert.Equal(expected.GetPrecision(), actual.GetPrecision()),
             () => Assert.Equal(expected.GetScale(), actual.GetScale()),
             () => Assert.Equal(expected.IsUnicode(), actual.IsUnicode()),
+            () => Assert.Equal(expected.IsPrimitiveCollection, actual.IsPrimitiveCollection),
             () => Assert.Equal(expected.GetProviderClrType(), actual.GetProviderClrType()),
             () =>
             {
@@ -395,6 +396,14 @@ public class ModelAsserter
                     Assert.NotNull(actualComparer);
                 }
             },
+            () => AssertEqual(
+                expected.GetElementType(),
+                actual.GetElementType(),
+                compareMemberAnnotations ? expected.GetElementType()?.GetAnnotations() : null,
+                compareMemberAnnotations ? expected.GetElementType()?.GetAnnotations() : null,
+                compareBackreferences,
+                compareMemberAnnotations),
+            () => Assert.Equal(expected.FindTypeMapping()?.GetType(), actual.FindTypeMapping()?.GetType()),
             () => Assert.Equal(expected.IsKey(), actual.IsKey()),
             () => Assert.Equal(expected.IsForeignKey(), actual.IsForeignKey()),
             () => Assert.Equal(expected.IsIndex(), actual.IsIndex()),
@@ -660,6 +669,44 @@ public class ModelAsserter
             },
             () => Assert.Equal(expectedAnnotations, actualAnnotations, TestAnnotationComparer.Instance));
 
+        return true;
+    }
+
+    public virtual bool AssertEqual(
+        IReadOnlyElementType? expected,
+        IReadOnlyElementType? actual,
+        IEnumerable<IAnnotation>? expectedAnnotations,
+        IEnumerable<IAnnotation>? actualAnnotations,
+        bool compareBackreferences = false,
+        bool compareMemberAnnotations = false)
+    {
+        if (expected == null)
+        {
+            Assert.Null(actual);
+            return true;
+        }
+        Assert.NotNull(actual);
+
+        expectedAnnotations ??= Enumerable.Empty<IAnnotation>();
+        expectedAnnotations = expectedAnnotations.Where(a => !CoreAnnotationNames.AllNames.Contains(a.Name));
+        actualAnnotations ??= Enumerable.Empty<IAnnotation>();
+        actualAnnotations = actualAnnotations.Where(a => !CoreAnnotationNames.AllNames.Contains(a.Name));
+        Assert.Multiple(
+            () => Assert.Equal(expected.ClrType, actual.ClrType),
+            () => Assert.Equal(expected.IsNullable, actual.IsNullable),
+            () => Assert.Equal(expected.GetMaxLength(), actual.GetMaxLength()),
+            () => Assert.Equal(expected.GetPrecision(), actual.GetPrecision()),
+            () => Assert.Equal(expected.GetScale(), actual.GetScale()),
+            () => Assert.Equal(expected.IsUnicode(), actual.IsUnicode()),
+            () => Assert.Equal(expected.FindTypeMapping()?.GetType(), actual.FindTypeMapping()?.GetType()),
+            () =>
+            {
+                if (compareBackreferences)
+                {
+                    Assert.Equal(expected.CollectionProperty.Name, actual.CollectionProperty.Name);
+                }
+            },
+            () => Assert.Equal(expectedAnnotations, actualAnnotations, TestAnnotationComparer.Instance));
         return true;
     }
 
@@ -985,7 +1032,18 @@ public class ModelAsserter
             targetEntityType.BaseType = targetEntityType.Model.FindEntityType(sourceEntityType.BaseType.Name);
         }
 
-        targetEntityType.SetQueryFilter(sourceEntityType.GetQueryFilter());
+        var queryFilters = sourceEntityType.GetDeclaredQueryFilters();
+        foreach (var queryFilter in queryFilters)
+        {
+            if (queryFilter.IsAnonymous)
+            {
+                targetEntityType.SetQueryFilter(queryFilter.Expression);
+            }
+            else
+            {
+                targetEntityType.SetQueryFilter(queryFilter.Key, queryFilter.Expression);
+            }
+        }
         targetEntityType.AddData(sourceEntityType.GetSeedData());
         targetEntityType.SetPropertyAccessMode(sourceEntityType.GetPropertyAccessMode());
         targetEntityType.SetChangeTrackingStrategy(sourceEntityType.GetChangeTrackingStrategy());

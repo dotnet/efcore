@@ -19,6 +19,12 @@ namespace Microsoft.EntityFrameworkCore;
         "MakeGenericMethod is used in this class to create MethodCallExpression nodes, but only if the method in question is called "
         + "from user code - so it's never trimmed. After https://github.com/dotnet/linker/issues/2482 is fixed, the suppression will no "
         + "longer be necessary.")]
+[UnconditionalSuppressMessage(
+    "AOT",
+    "IL3050:Calling members annotated with 'RequiresDynamicCodeAttribute' may break functionality when AOT compiling.",
+    Justification =
+        "MakeGenericMethod is used in this class to create MethodCallExpression nodes, but only if the method in question is called "
+        + "from user code - so it's never trimmed.")]
 public static class EntityFrameworkQueryableExtensions
 {
     /// <summary>
@@ -2664,7 +2670,14 @@ public static class EntityFrameworkQueryableExtensions
     #region Query Filters
 
     internal static readonly MethodInfo IgnoreQueryFiltersMethodInfo
-        = typeof(EntityFrameworkQueryableExtensions).GetTypeInfo().GetDeclaredMethod(nameof(IgnoreQueryFilters))!;
+        = typeof(EntityFrameworkQueryableExtensions).GetTypeInfo().GetDeclaredMethods(nameof(IgnoreQueryFilters))
+            .Where(info => info.GetParameters().Length == 1)
+            .First();
+
+    internal static readonly MethodInfo IgnoreNamedQueryFiltersMethodInfo
+        = typeof(EntityFrameworkQueryableExtensions).GetTypeInfo().GetDeclaredMethods(nameof(IgnoreQueryFilters))
+            .Where(info => info.GetParameters().Length == 2)
+            .First();
 
     /// <summary>
     ///     Specifies that the current Entity Framework LINQ query should not have any model-level entity query filters applied.
@@ -2685,6 +2698,28 @@ public static class EntityFrameworkQueryableExtensions
                     instance: null,
                     method: IgnoreQueryFiltersMethodInfo.MakeGenericMethod(typeof(TEntity)),
                     arguments: source.Expression))
+            : source;
+
+    /// <summary>
+    ///     Specifies that the current Entity Framework LINQ query should not have any model-level entity query filters applied.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-query-filters">EF Core query filters</see> for more information and examples.
+    /// </remarks>
+    /// <typeparam name="TEntity">The type of entity being queried.</typeparam>
+    /// <param name="source">The source query.</param>
+    /// <param name="filterKeys">The filter keys.</param>
+    /// <returns>A new query that will not apply any model-level entity query filters.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="source" /> is <see langword="null" />.</exception>
+    public static IQueryable<TEntity> IgnoreQueryFilters<TEntity>(
+        this IQueryable<TEntity> source, [NotParameterized] IReadOnlyCollection<string> filterKeys)
+        where TEntity : class
+        => source.Provider is EntityQueryProvider
+            ? source.Provider.CreateQuery<TEntity>(
+                Expression.Call(
+                    instance: null,
+                    method: IgnoreNamedQueryFiltersMethodInfo.MakeGenericMethod(typeof(TEntity)),
+                    arguments: [source.Expression, Expression.Constant(filterKeys)]))
             : source;
 
     #endregion
@@ -3337,9 +3372,18 @@ public static class EntityFrameworkQueryableExtensions
     /// <returns>The total number of rows updated in the database.</returns>
     public static int ExecuteUpdate<TSource>(
         this IQueryable<TSource> source,
-        Expression<Func<SetPropertyCalls<TSource>, SetPropertyCalls<TSource>>> setPropertyCalls)
-        => source.Provider.Execute<int>(
-            Expression.Call(ExecuteUpdateMethodInfo.MakeGenericMethod(typeof(TSource)), source.Expression, setPropertyCalls));
+        Action<UpdateSettersBuilder<TSource>> setPropertyCalls)
+    {
+        var setterBuilder = new UpdateSettersBuilder<TSource>();
+        setPropertyCalls(setterBuilder);
+        var setters = setterBuilder.BuildSettersExpression();
+
+        return source.Provider.Execute<int>(
+            Expression.Call(
+                ExecuteUpdateMethodInfo.MakeGenericMethod(typeof(TSource)),
+                source.Expression,
+                setters));
+    }
 
     /// <summary>
     ///     Asynchronously updates database rows for the entity instances which match the LINQ query from the database.
@@ -3360,18 +3404,41 @@ public static class EntityFrameworkQueryableExtensions
     /// <param name="setPropertyCalls">A collection of set property statements specifying properties to update.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>The total number of rows updated in the database.</returns>
+    [DynamicDependency("ExecuteUpdate``1(System.Linq.IQueryable{``1},System.Collections.Generic.IReadOnlyList{ITuple})", typeof(EntityFrameworkQueryableExtensions))]
     public static Task<int> ExecuteUpdateAsync<TSource>(
         this IQueryable<TSource> source,
-        Expression<Func<SetPropertyCalls<TSource>, SetPropertyCalls<TSource>>> setPropertyCalls,
+        Action<UpdateSettersBuilder<TSource>> setPropertyCalls,
         CancellationToken cancellationToken = default)
-        => source.Provider is IAsyncQueryProvider provider
+    {
+        var setterBuilder = new UpdateSettersBuilder<TSource>();
+        setPropertyCalls(setterBuilder);
+        var setters = setterBuilder.BuildSettersExpression();
+
+        return source.Provider is IAsyncQueryProvider provider
             ? provider.ExecuteAsync<Task<int>>(
                 Expression.Call(
-                    ExecuteUpdateMethodInfo.MakeGenericMethod(typeof(TSource)), source.Expression, setPropertyCalls), cancellationToken)
+                    ExecuteUpdateMethodInfo.MakeGenericMethod(typeof(TSource)),
+                    source.Expression,
+                    setters),
+                cancellationToken)
             : throw new InvalidOperationException(CoreStrings.IQueryableProviderNotAsync);
+    }
 
-    internal static readonly MethodInfo ExecuteUpdateMethodInfo
-        = typeof(EntityFrameworkQueryableExtensions).GetTypeInfo().GetDeclaredMethod(nameof(ExecuteUpdate))!;
+    private static int ExecuteUpdate<TSource>(this IQueryable<TSource> source, [NotParameterized] IReadOnlyList<ITuple> setters)
+        => throw new UnreachableException("Can't call this overload directly");
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public static readonly MethodInfo ExecuteUpdateMethodInfo
+        = typeof(EntityFrameworkQueryableExtensions)
+            .GetMethods(BindingFlags.NonPublic | BindingFlags.Static)
+            .Single(
+                m => m.Name == nameof(ExecuteUpdate) && m.GetParameters()[1].ParameterType == typeof(IReadOnlyList<ITuple>));
 
     #endregion
 }

@@ -134,8 +134,10 @@ WHERE (
 
         AssertExecuteUpdateSql(
             """
+@p='SomeOtherKiwi' (Size = 4000)
+
 UPDATE [k]
-SET [k].[Name] = N'SomeOtherKiwi'
+SET [k].[Name] = @p
 FROM [Kiwi] AS [k]
 """);
     }
@@ -146,8 +148,10 @@ FROM [Kiwi] AS [k]
 
         AssertExecuteUpdateSql(
             """
+@p='0' (Size = 1)
+
 UPDATE [k]
-SET [k].[FoundOn] = CAST(0 AS tinyint)
+SET [k].[FoundOn] = @p
 FROM [Kiwi] AS [k]
 """);
     }
@@ -158,8 +162,10 @@ FROM [Kiwi] AS [k]
 
         AssertExecuteUpdateSql(
             """
+@p='Monovia' (Size = 4000)
+
 UPDATE [c]
-SET [c].[Name] = N'Monovia'
+SET [c].[Name] = @p
 FROM [Countries] AS [c]
 WHERE (
     SELECT COUNT(*)
@@ -180,9 +186,12 @@ WHERE (
 
         AssertExecuteUpdateSql(
             """
+@p='Kiwi' (Size = 4000)
+@p0='0' (Size = 1)
+
 UPDATE [k]
-SET [k].[FoundOn] = CAST(0 AS tinyint),
-    [k].[Name] = N'Kiwi'
+SET [k].[Name] = @p,
+    [k].[FoundOn] = @p0
 FROM [Kiwi] AS [k]
 """);
     }
@@ -193,8 +202,10 @@ FROM [Kiwi] AS [k]
 
         AssertExecuteUpdateSql(
             """
+@p='Monovia' (Size = 4000)
+
 UPDATE [c]
-SET [c].[Name] = N'Monovia'
+SET [c].[Name] = @p
 FROM [Countries] AS [c]
 WHERE (
     SELECT COUNT(*)
@@ -212,8 +223,10 @@ WHERE (
 
         AssertExecuteUpdateSql(
             """
+@p='0'
+
 UPDATE [c]
-SET [c].[SugarGrams] = 0
+SET [c].[SugarGrams] = @p
 FROM [Coke] AS [c]
 """);
     }
@@ -224,8 +237,10 @@ FROM [Coke] AS [c]
 
         AssertExecuteUpdateSql(
             """
+@p='0'
+
 UPDATE [c]
-SET [c].[SugarGrams] = 0
+SET [c].[SugarGrams] = @p
 FROM [Coke] AS [c]
 """);
     }

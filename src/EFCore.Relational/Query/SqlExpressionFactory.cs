@@ -660,20 +660,30 @@ public class SqlExpressionFactory : ISqlExpressionFactory
             SqlBinaryExpression { OperatorType: ExpressionType.OrElse } binary
                 => AndAlso(Not(binary.Left), Not(binary.Right)),
 
-            // use equality where possible
-            // !(a == true) -> a == false
-            // !(a == false) -> a == true
-            SqlBinaryExpression { OperatorType: ExpressionType.Equal, Right: SqlConstantExpression { Value: bool } } binary
+            SqlBinaryExpression
+            {
+                OperatorType: ExpressionType.Equal,
+                Right: SqlConstantExpression { Value: bool },
+                Left: SqlConstantExpression { Value: bool }
+                    or SqlParameterExpression { IsNullable: false }
+                    or ColumnExpression { IsNullable: false }
+            } binary
                 => Equal(binary.Left, Not(binary.Right)),
 
-            // !(true == a) -> false == a
-            // !(false == a) -> true == a
-            SqlBinaryExpression { OperatorType: ExpressionType.Equal, Left: SqlConstantExpression { Value: bool } } binary
+            SqlBinaryExpression
+            {
+                OperatorType: ExpressionType.Equal,
+                Left: SqlConstantExpression { Value: bool },
+                Right: SqlConstantExpression { Value: bool }
+                    or SqlParameterExpression { IsNullable: false }
+                    or ColumnExpression { IsNullable: false }
+            } binary
                 => Equal(Not(binary.Left), binary.Right),
 
             // !(a == b) -> a != b
             SqlBinaryExpression { OperatorType: ExpressionType.Equal } sqlBinaryOperand => NotEqual(
                 sqlBinaryOperand.Left, sqlBinaryOperand.Right),
+
             // !(a != b) -> a == b
             SqlBinaryExpression { OperatorType: ExpressionType.NotEqual } sqlBinaryOperand => Equal(
                 sqlBinaryOperand.Left, sqlBinaryOperand.Right),
@@ -966,4 +976,12 @@ public class SqlExpressionFactory : ISqlExpressionFactory
     /// <inheritdoc />
     public virtual SqlExpression Constant(object? value, Type type, RelationalTypeMapping? typeMapping = null)
         => new SqlConstantExpression(value, type, typeMapping);
+
+    /// <inheritdoc />
+    public virtual SqlExpression Constant(object value, bool sensitive, RelationalTypeMapping? typeMapping = null)
+        => new SqlConstantExpression(value, sensitive, typeMapping);
+
+    /// <inheritdoc />
+    public virtual SqlExpression Constant(object? value, Type type, bool sensitive, RelationalTypeMapping? typeMapping = null)
+        => new SqlConstantExpression(value, type, sensitive, typeMapping);
 }

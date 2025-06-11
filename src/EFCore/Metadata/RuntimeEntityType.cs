@@ -25,7 +25,6 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
     private Utilities.OrderedDictionary<string, RuntimeIndex>? _namedIndexes;
     private readonly Utilities.OrderedDictionary<IReadOnlyList<IReadOnlyProperty>, RuntimeKey> _keys;
     private Utilities.OrderedDictionary<string, RuntimeTrigger>? _triggers;
-    private readonly object? _discriminatorValue;
     private readonly bool _hasSharedClrType;
     private RuntimeKey? _primaryKey;
     private InstantiationBinding? _constructorBinding;
@@ -33,14 +32,14 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
 
     // Warning: Never access these fields directly as access needs to be thread-safe
     private PropertyCounts? _counts;
-    private Func<InternalEntityEntry, ISnapshot>? _relationshipSnapshotFactory;
-    private IProperty[]? _foreignKeyProperties;
-    private IProperty[]? _valueGeneratingProperties;
-    private Func<InternalEntityEntry, ISnapshot>? _originalValuesFactory;
-    private Func<InternalEntityEntry, ISnapshot>? _temporaryValuesFactory;
+    private Func<IInternalEntry, ISnapshot>? _relationshipSnapshotFactory;
+    private Func<IInternalEntry, ISnapshot>? _originalValuesFactory;
+    private Func<IInternalEntry, ISnapshot>? _temporaryValuesFactory;
     private Func<ISnapshot>? _storeGeneratedValuesFactory;
     private Func<IDictionary<string, object?>, ISnapshot>? _shadowValuesFactory;
     private Func<ISnapshot>? _emptyShadowValuesFactory;
+    private IProperty[]? _foreignKeyProperties;
+    private IProperty[]? _valueGeneratingProperties;
     private RuntimePropertyBase[]? _snapshottableProperties;
     private Func<MaterializationContext, object>? _materializer;
     private Func<MaterializationContext, object>? _emptyMaterializer;
@@ -58,10 +57,10 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
         bool sharedClrType,
         RuntimeModel model,
         RuntimeEntityType? baseType,
-        string? discriminatorProperty,
         ChangeTrackingStrategy changeTrackingStrategy,
         PropertyInfo? indexerPropertyInfo,
         bool propertyBag,
+        string? discriminatorProperty,
         object? discriminatorValue,
         int derivedTypesCount,
         int propertyCount,
@@ -76,14 +75,12 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
         int triggerCount)
         : base(
             name, type, model, baseType, changeTrackingStrategy, indexerPropertyInfo, propertyBag,
+            discriminatorProperty, discriminatorValue,
             derivedTypesCount: derivedTypesCount,
             propertyCount: propertyCount,
             complexPropertyCount: complexPropertyCount)
     {
         _hasSharedClrType = sharedClrType;
-
-        SetAnnotation(CoreAnnotationNames.DiscriminatorProperty, discriminatorProperty);
-        _discriminatorValue = discriminatorValue;
         _foreignKeys = new List<RuntimeForeignKey>(foreignKeyCount);
         _navigations = new Utilities.OrderedDictionary<string, RuntimeNavigation>(navigationCount, StringComparer.Ordinal);
         if (skipNavigationCount > 0)
@@ -327,7 +324,7 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
     private RuntimeForeignKey? FindDeclaredForeignKey(
         IReadOnlyList<IReadOnlyProperty> properties,
         IReadOnlyKey principalKey,
-        IReadOnlyEntityType principalEntityType)
+        IReadOnlyTypeBase principalEntityType)
     {
         if (_foreignKeys.Count == 0)
         {
@@ -809,8 +806,58 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    public virtual void SetRelationshipSnapshotFactory(Func<InternalEntityEntry, ISnapshot> factory)
+    public virtual void SetRelationshipSnapshotFactory(Func<IInternalEntry, ISnapshot> factory)
         => _relationshipSnapshotFactory = factory;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public virtual void SetOriginalValuesFactory(Func<IInternalEntry, ISnapshot> factory)
+        => _originalValuesFactory = factory;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public virtual void SetStoreGeneratedValuesFactory(Func<ISnapshot> factory)
+        => _storeGeneratedValuesFactory = factory;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public virtual void SetTemporaryValuesFactory(Func<IInternalEntry, ISnapshot> factory)
+        => _temporaryValuesFactory = factory;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public virtual void SetEmptyShadowValuesFactory(Func<ISnapshot> factory)
+        => _emptyShadowValuesFactory = factory;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public virtual void SetShadowValuesFactory(Func<IDictionary<string, object?>, ISnapshot> factory)
+        => _shadowValuesFactory = factory;
 
     /// <summary>
     ///     Gets or sets the <see cref="InstantiationBinding" /> for the preferred constructor.
@@ -946,25 +993,19 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
 
     /// <inheritdoc />
     [DebuggerStepThrough]
+    IReadOnlyCollection<IQueryFilter> IReadOnlyEntityType.GetDeclaredQueryFilters()
+        => (IReadOnlyCollection<IQueryFilter>?)this[CoreAnnotationNames.QueryFilter] ?? [];
+
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    [Obsolete("Use GetDeclaredQueryFilters() instead.")]
     LambdaExpression? IReadOnlyEntityType.GetQueryFilter()
-        => (LambdaExpression?)this[CoreAnnotationNames.QueryFilter];
+        => ((IReadOnlyEntityType)this).GetDeclaredQueryFilters().FirstOrDefault(f => f.IsAnonymous)?.Expression;
 
     /// <inheritdoc />
     [DebuggerStepThrough]
-    string? IReadOnlyEntityType.GetDiscriminatorPropertyName()
-    {
-        if (BaseType != null)
-        {
-            return ((IReadOnlyEntityType)this).GetRootType().GetDiscriminatorPropertyName();
-        }
-
-        return (string?)this[CoreAnnotationNames.DiscriminatorProperty];
-    }
-
-    /// <inheritdoc />
-    [DebuggerStepThrough]
-    object? IReadOnlyEntityType.GetDiscriminatorValue()
-        => _discriminatorValue;
+    IQueryFilter? IReadOnlyEntityType.FindDeclaredQueryFilter(string? filterKey)
+        => ((QueryFilterCollection?)this[CoreAnnotationNames.QueryFilter])?[filterKey];
 
     /// <inheritdoc />
     bool IReadOnlyTypeBase.HasSharedClrType
@@ -1009,7 +1050,7 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
     /// <inheritdoc />
     IEnumerable<IReadOnlyEntityType> IReadOnlyEntityType.GetDerivedTypesInclusive()
         => !HasDirectlyDerivedTypes
-            ? new[] { this }
+            ? [this]
             : new[] { this }.Concat(GetDerivedTypes<RuntimeEntityType>());
 
     /// <inheritdoc />
@@ -1395,58 +1436,8 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
     PropertyAccessMode IReadOnlyEntityType.GetNavigationAccessMode()
         => throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData);
 
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    [EntityFrameworkInternal]
-    public virtual void SetOriginalValuesFactory(Func<InternalEntityEntry, ISnapshot> factory)
-        => _originalValuesFactory = factory;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    [EntityFrameworkInternal]
-    public virtual void SetStoreGeneratedValuesFactory(Func<ISnapshot> factory)
-        => _storeGeneratedValuesFactory = factory;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    [EntityFrameworkInternal]
-    public virtual void SetTemporaryValuesFactory(Func<InternalEntityEntry, ISnapshot> factory)
-        => _temporaryValuesFactory = factory;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    [EntityFrameworkInternal]
-    public virtual void SetEmptyShadowValuesFactory(Func<ISnapshot> factory)
-        => _emptyShadowValuesFactory = factory;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    [EntityFrameworkInternal]
-    public virtual void SetShadowValuesFactory(Func<IDictionary<string, object?>, ISnapshot> factory)
-        => _shadowValuesFactory = factory;
-
     /// <inheritdoc />
-    Func<InternalEntityEntry, ISnapshot> IRuntimeEntityType.OriginalValuesFactory
+    Func<IInternalEntry, ISnapshot> IRuntimeEntityType.OriginalValuesFactory
         => NonCapturingLazyInitializer.EnsureInitialized(
             ref _originalValuesFactory, this,
             static entityType => RuntimeFeature.IsDynamicCodeSupported
@@ -1462,7 +1453,7 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
                 : throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel));
 
     /// <inheritdoc />
-    Func<InternalEntityEntry, ISnapshot> IRuntimeEntityType.TemporaryValuesFactory
+    Func<IInternalEntry, ISnapshot> IRuntimeEntityType.TemporaryValuesFactory
         => NonCapturingLazyInitializer.EnsureInitialized(
             ref _temporaryValuesFactory, this,
             static entityType => RuntimeFeature.IsDynamicCodeSupported
@@ -1486,7 +1477,7 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
                 : throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel));
 
     /// <inheritdoc />
-    Func<InternalEntityEntry, ISnapshot> IRuntimeEntityType.RelationshipSnapshotFactory
+    Func<IInternalEntry, ISnapshot> IRuntimeEntityType.RelationshipSnapshotFactory
         => NonCapturingLazyInitializer.EnsureInitialized(
             ref _relationshipSnapshotFactory, this,
             static entityType => RuntimeFeature.IsDynamicCodeSupported

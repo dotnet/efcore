@@ -3980,7 +3980,7 @@ HAVING (
 
         AssertSql(
             """
-SELECT [l].[Id], [l].[Name], [l].[Date], [l0].[Id], [l1].[Name], [l0].[Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], COALESCE(SUM(CAST(LEN([l].[Name]) AS int)), 0) AS [Aggregate]
+SELECT [l].[Id], [l].[Name], [l].[Date], [l0].[Id], [l1].[Name], [l0].[Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], ISNULL(SUM(CAST(LEN([l].[Name]) AS int)), 0) AS [Aggregate]
 FROM [LevelOne] AS [l]
 LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Optional_Id]
 LEFT JOIN [LevelTwo] AS [l1] ON [l].[Id] = [l1].[Level1_Required_Id]

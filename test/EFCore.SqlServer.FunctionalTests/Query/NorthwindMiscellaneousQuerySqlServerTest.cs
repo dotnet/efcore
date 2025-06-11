@@ -2844,6 +2844,41 @@ END, [c].[CustomerID]
 """);
     }
 
+    public override async Task Coalesce_Correct_Multiple_Same_TypeMapping(bool async)
+    {
+        await base.Coalesce_Correct_Multiple_Same_TypeMapping(async);
+
+        AssertSql(
+            """
+SELECT ISNULL(ISNULL(CAST([e].[ReportsTo] AS bigint) + CAST(1 AS bigint), CAST([e].[ReportsTo] AS bigint) + CAST(2 AS bigint)), CAST([e].[ReportsTo] AS bigint) + CAST(3 AS bigint))
+FROM [Employees] AS [e]
+ORDER BY [e].[EmployeeID]
+""");
+    }
+
+    public override async Task Coalesce_Correct_TypeMapping_Double(bool async)
+    {
+        await base.Coalesce_Correct_TypeMapping_Double(async);
+
+        AssertSql(
+            """
+SELECT COALESCE([e].[ReportsTo], 2.25)
+FROM [Employees] AS [e]
+""");
+    }
+
+    public override async Task Coalesce_Correct_TypeMapping_String(bool async)
+    {
+        await base.Coalesce_Correct_TypeMapping_String(async);
+
+        AssertSql(
+            """
+SELECT COALESCE([c].[Region], N'no region specified')
+FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]
+""");
+    }
+
     public override async Task Null_Coalesce_Short_Circuit(bool async)
     {
         await base.Null_Coalesce_Short_Circuit(async);
@@ -6985,7 +7020,7 @@ WHERE NOT EXISTS (
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE (
-    SELECT COALESCE(SUM([v].[Value]), 0)
+    SELECT ISNULL(SUM([v].[Value]), 0)
     FROM (VALUES (CAST(100 AS int)), ((
         SELECT COUNT(*)
         FROM [Orders] AS [o]
@@ -7255,6 +7290,25 @@ WHERE EXISTS (
             """
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
+""");
+    }
+
+    public override async Task Late_subquery_pushdown(bool async)
+    {
+        await base.Late_subquery_pushdown(async);
+
+        AssertSql(
+            """
+SELECT [o].[CustomerID]
+FROM [Orders] AS [o]
+WHERE EXISTS (
+    SELECT 1
+    FROM (
+        SELECT TOP(100) [o0].[CustomerID]
+        FROM [Orders] AS [o0]
+        ORDER BY [o0].[CustomerID]
+    ) AS [o1]
+    WHERE [o1].[CustomerID] = [o].[CustomerID] OR ([o1].[CustomerID] IS NULL AND [o].[CustomerID] IS NULL))
 """);
     }
 

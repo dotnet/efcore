@@ -363,7 +363,9 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             || !Equals(operation.DefaultValue, oldDefaultValue)
             || operation.DefaultValueSql != oldDefaultValueSql)
         {
-            DropDefaultConstraint(operation.Schema, operation.Table, operation.Name, builder);
+            var oldDefaultConstraintName = operation.OldColumn[RelationalAnnotationNames.DefaultConstraintName] as string;
+
+            DropDefaultConstraint(operation.Schema, operation.Table, operation.Name, oldDefaultConstraintName, builder);
             (oldDefaultValue, oldDefaultValueSql) = (null, null);
         }
 
@@ -459,11 +461,13 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
 
         if (!Equals(operation.DefaultValue, oldDefaultValue) || operation.DefaultValueSql != oldDefaultValueSql)
         {
+            var defaultConstraintName = operation[RelationalAnnotationNames.DefaultConstraintName] as string;
+
             builder
                 .Append("ALTER TABLE ")
                 .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))
                 .Append(" ADD");
-            DefaultValue(operation.DefaultValue, operation.DefaultValueSql, operation.ColumnType, builder);
+            DefaultValue(operation.DefaultValue, operation.DefaultValueSql, operation.ColumnType, defaultConstraintName, builder);
             builder
                 .Append(" FOR ")
                 .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name))
@@ -1352,7 +1356,9 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
         MigrationCommandListBuilder builder,
         bool terminate = true)
     {
-        DropDefaultConstraint(operation.Schema, operation.Table, operation.Name, builder);
+        var defaultConstraintName = operation[RelationalAnnotationNames.DefaultConstraintName] as string;
+
+        DropDefaultConstraint(operation.Schema, operation.Table, operation.Name, defaultConstraintName, builder);
         base.Generate(operation, model, builder, terminate: false);
 
         if (terminate)
@@ -1545,6 +1551,32 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
     protected override void Generate(UpdateDataOperation operation, IModel? model, MigrationCommandListBuilder builder)
         => GenerateExecWhenIdempotent(builder, b => base.Generate(operation, model, b));
 
+    /// <summary>
+    ///     Generates a SQL fragment for the named default constraint of a column.
+    /// </summary>
+    /// <param name="defaultValue">The default value for the column.</param>
+    /// <param name="defaultValueSql">The SQL expression to use for the column's default constraint.</param>
+    /// <param name="columnType">Store/database type of the column.</param>
+    /// <param name="builder">The command builder to use to add the SQL fragment.</param>
+    /// <param name="constraintName">The constraint name to use to add the SQL fragment.</param>
+    protected virtual void DefaultValue(
+        object? defaultValue,
+        string? defaultValueSql,
+        string? columnType,
+        string? constraintName,
+        MigrationCommandListBuilder builder)
+    {
+        if (constraintName != null && (defaultValue != null || defaultValueSql != null))
+        {
+            builder
+                .Append(" CONSTRAINT [")
+                .Append(constraintName)
+                .Append("]");
+        }
+
+        base.DefaultValue(defaultValue, defaultValueSql, columnType, builder);
+    }
+
     /// <inheritdoc />
     protected override void SequenceOptions(
         string? schema,
@@ -1637,11 +1669,13 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
 
         builder.Append(operation.IsNullable ? " NULL" : " NOT NULL");
 
+        var defaultConstraintName = operation[RelationalAnnotationNames.DefaultConstraintName] as string;
+
         if (!string.Equals(columnType, "rowversion", StringComparison.OrdinalIgnoreCase)
             && !string.Equals(columnType, "timestamp", StringComparison.OrdinalIgnoreCase))
         {
             // rowversion/timestamp columns cannot have default values, but also don't need them when adding a new column.
-            DefaultValue(operation.DefaultValue, operation.DefaultValueSql, columnType, builder);
+            DefaultValue(operation.DefaultValue, operation.DefaultValueSql, columnType, defaultConstraintName, builder);
         }
 
         var identity = operation[SqlServerAnnotationNames.Identity] as string;
@@ -1921,13 +1955,28 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
     /// <param name="schema">The schema that contains the table.</param>
     /// <param name="tableName">The table that contains the column.</param>
     /// <param name="columnName">The column.</param>
+    /// <param name="defaultConstraintName">The name of the default constraint.</param>
     /// <param name="builder">The command builder to use to add the SQL fragment.</param>
     protected virtual void DropDefaultConstraint(
         string? schema,
         string tableName,
         string columnName,
+        string? defaultConstraintName,
         MigrationCommandListBuilder builder)
     {
+        if (defaultConstraintName != null)
+        {
+            builder
+                .Append("ALTER TABLE ")
+                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(tableName, schema))
+                .Append(" DROP CONSTRAINT [")
+                .Append(defaultConstraintName)
+                .Append("]")
+                .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
+
+            return;
+        }
+
         var stringTypeMapping = Dependencies.TypeMappingSource.GetMapping(typeof(string));
 
         var variable = Uniquify("@var");
@@ -2577,10 +2626,16 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                     var newRawSchema = renameTableOperation.NewSchema;
                     var newSchema = newRawSchema ?? model?.GetDefaultSchema();
 
+                    var temporalTableInformation = BuildTemporalInformationFromMigrationOperation(schema, renameTableOperation);
                     if (!temporalTableInformationMap.ContainsKey((tableName, rawSchema)))
                     {
-                        var temporalTableInformation = BuildTemporalInformationFromMigrationOperation(schema, renameTableOperation);
                         temporalTableInformationMap[(tableName, rawSchema)] = temporalTableInformation;
+                    }
+
+                    // we still need to check here - table with the new name could have existed before and have been deleted
+                    // we want to preserve the original temporal info of that deleted table
+                    if (!temporalTableInformationMap.ContainsKey((newTableName, newRawSchema)))
+                    {
                         temporalTableInformationMap[(newTableName, newRawSchema)] = temporalTableInformation;
                     }
 
@@ -2675,10 +2730,19 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
 
             var schema = rawSchema ?? model?.GetDefaultSchema();
 
-            // we are guaranteed to find entry here - we looped through all the operations earlier,
-            // info missing from operations we got from the model
-            // and in case of no/incomplete model we created dummy (non-temporal) entries
-            var temporalInformation = temporalTableInformationMap[(tableName, rawSchema)];
+            TemporalOperationInformation temporalInformation;
+            if (operation is CreateTableOperation)
+            {
+                // for create table we always generate new temporal information from the operation itself
+                // just in case there was a table with that name before that got deleted/renamed
+                // also, temporal state (disabled versioning etc.) should always reset when creating a table
+                temporalInformation = BuildTemporalInformationFromMigrationOperation(schema, operation);
+                temporalTableInformationMap[(tableName, rawSchema)] = temporalInformation;
+            }
+            else
+            {
+                temporalInformation = temporalTableInformationMap[(tableName, rawSchema)];
+            }
 
             switch (operation)
             {

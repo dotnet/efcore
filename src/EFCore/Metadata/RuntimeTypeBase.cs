@@ -19,6 +19,7 @@ public abstract class RuntimeTypeBase : RuntimeAnnotatableBase, IRuntimeTypeBase
     private RuntimeModel _model;
     private readonly RuntimeTypeBase? _baseType;
     private SortedSet<RuntimeTypeBase>? _directlyDerivedTypes;
+    private readonly object? _discriminatorValue;
     private readonly Utilities.OrderedDictionary<string, RuntimeProperty> _properties;
     private Utilities.OrderedDictionary<string, RuntimeComplexProperty>? _complexProperties;
     private readonly PropertyInfo? _indexerPropertyInfo;
@@ -45,6 +46,8 @@ public abstract class RuntimeTypeBase : RuntimeAnnotatableBase, IRuntimeTypeBase
         ChangeTrackingStrategy changeTrackingStrategy,
         PropertyInfo? indexerPropertyInfo,
         bool propertyBag,
+        string? discriminatorProperty,
+        object? discriminatorValue,
         int derivedTypesCount,
         int propertyCount,
         int complexPropertyCount)
@@ -60,7 +63,11 @@ public abstract class RuntimeTypeBase : RuntimeAnnotatableBase, IRuntimeTypeBase
 
         _changeTrackingStrategy = changeTrackingStrategy;
         _indexerPropertyInfo = indexerPropertyInfo;
+        _discriminatorValue = discriminatorValue;
         _isPropertyBag = propertyBag;
+        if(discriminatorProperty != null) {
+        SetAnnotation(CoreAnnotationNames.DiscriminatorProperty, discriminatorProperty);
+            }
         _properties = new Utilities.OrderedDictionary<string, RuntimeProperty>(propertyCount, new PropertyNameComparer(this));
         if (complexPropertyCount > 0)
         {
@@ -129,7 +136,7 @@ public abstract class RuntimeTypeBase : RuntimeAnnotatableBase, IRuntimeTypeBase
     {
         if (!HasDirectlyDerivedTypes)
         {
-            return Enumerable.Empty<T>();
+            return [];
         }
 
         var derivedTypes = new List<T>();
@@ -363,6 +370,8 @@ public abstract class RuntimeTypeBase : RuntimeAnnotatableBase, IRuntimeTypeBase
     ///     A value indicating whether this entity type has an indexer which is able to contain arbitrary properties
     ///     and a method that can be used to determine whether a given indexer property contains a value.
     /// </param>
+    /// <param name="discriminatorProperty">The name of the property that will be used for storing a discriminator value.</param>
+    /// <param name="discriminatorValue">The discriminator value for this complex type.</param>
     /// <param name="propertyCount">The expected number of declared properties for this complex type.</param>
     /// <param name="complexPropertyCount">The expected number of declared complex properties for this complex type.</param>
     /// <returns>The newly created property.</returns>
@@ -379,6 +388,8 @@ public abstract class RuntimeTypeBase : RuntimeAnnotatableBase, IRuntimeTypeBase
         ChangeTrackingStrategy changeTrackingStrategy = ChangeTrackingStrategy.Snapshot,
         PropertyInfo? indexerPropertyInfo = null,
         bool propertyBag = false,
+        string? discriminatorProperty = null,
+        object? discriminatorValue = null,
         int propertyCount = 0,
         int complexPropertyCount = 0)
     {
@@ -396,6 +407,8 @@ public abstract class RuntimeTypeBase : RuntimeAnnotatableBase, IRuntimeTypeBase
             changeTrackingStrategy,
             indexerPropertyInfo,
             propertyBag,
+            discriminatorProperty,
+            discriminatorValue,
             propertyCount: propertyCount,
             complexPropertyCount: complexPropertyCount);
 
@@ -428,8 +441,8 @@ public abstract class RuntimeTypeBase : RuntimeAnnotatableBase, IRuntimeTypeBase
 
     private IEnumerable<RuntimeComplexProperty> GetDerivedComplexProperties()
         => !HasDirectlyDerivedTypes
-            ? Enumerable.Empty<RuntimeComplexProperty>()
-            : GetDerivedTypes().Cast<RuntimeEntityType>().SelectMany(et => et.GetDeclaredComplexProperties());
+            ? []
+            : GetDerivedTypes().SelectMany(et => et.GetDeclaredComplexProperties());
 
     /// <summary>
     ///     Gets the complex properties defined on this type.
@@ -459,7 +472,7 @@ public abstract class RuntimeTypeBase : RuntimeAnnotatableBase, IRuntimeTypeBase
         Check.NotNull(propertyName, nameof(propertyName));
 
         return !HasDirectlyDerivedTypes
-            ? Enumerable.Empty<RuntimeComplexProperty>()
+            ? []
             : (IEnumerable<RuntimeComplexProperty>)GetDerivedTypes()
                 .Select(et => et.FindDeclaredComplexProperty(propertyName)).Where(p => p != null);
     }
@@ -502,14 +515,16 @@ public abstract class RuntimeTypeBase : RuntimeAnnotatableBase, IRuntimeTypeBase
     public abstract InstantiationBinding? ConstructorBinding { get; set; }
 
     /// <summary>
-    ///     Returns all <see cref="IProperty" /> members from this type and all nested complex types, if any.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    /// <returns>The properties.</returns>
     public virtual IEnumerable<RuntimeProperty> GetFlattenedProperties()
     {
         return NonCapturingLazyInitializer.EnsureInitialized(
             ref _flattenedProperties, this,
-            static type => Create(type).ToArray());
+            static type => [.. Create(type)]);
 
         static IEnumerable<RuntimeProperty> Create(RuntimeTypeBase type)
         {
@@ -529,20 +544,27 @@ public abstract class RuntimeTypeBase : RuntimeAnnotatableBase, IRuntimeTypeBase
     }
 
     /// <summary>
-    ///     Returns all <see cref="RuntimeComplexProperty" /> members from this type and all nested complex types, if any.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    /// <returns>The properties.</returns>
     public virtual IEnumerable<RuntimeComplexProperty> GetFlattenedComplexProperties()
     {
         return NonCapturingLazyInitializer.EnsureInitialized(
             ref _flattenedComplexProperties, this,
-            static type => Create(type).ToArray());
+            static type => [.. Create(type)]);
 
         static IEnumerable<RuntimeComplexProperty> Create(RuntimeTypeBase type)
         {
             foreach (var complexProperty in type.GetComplexProperties())
             {
                 yield return complexProperty;
+
+                if (((IComplexProperty)complexProperty).IsCollection)
+                {
+                    break;
+                }
 
                 foreach (var nestedComplexProperty in complexProperty.ComplexType.GetFlattenedComplexProperties())
                 {
@@ -553,14 +575,16 @@ public abstract class RuntimeTypeBase : RuntimeAnnotatableBase, IRuntimeTypeBase
     }
 
     /// <summary>
-    ///     Returns all <see cref="IProperty" /> members from this type and all nested complex types, if any.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    /// <returns>The properties.</returns>
     public virtual IEnumerable<RuntimeProperty> GetFlattenedDeclaredProperties()
     {
         return NonCapturingLazyInitializer.EnsureInitialized(
             ref _flattenedDeclaredProperties, this,
-            static type => Create(type).ToArray());
+            static type => [.. Create(type)]);
 
         static IEnumerable<RuntimeProperty> Create(RuntimeTypeBase type)
         {
@@ -571,6 +595,11 @@ public abstract class RuntimeTypeBase : RuntimeAnnotatableBase, IRuntimeTypeBase
 
             foreach (var complexProperty in type.GetDeclaredComplexProperties())
             {
+                if (((IComplexProperty)complexProperty).IsCollection)
+                {
+                    break;
+                }
+
                 foreach (var property in complexProperty.ComplexType.GetFlattenedDeclaredProperties())
                 {
                     yield return property;
@@ -607,8 +636,43 @@ public abstract class RuntimeTypeBase : RuntimeAnnotatableBase, IRuntimeTypeBase
     protected static IEnumerable<T> ToEnumerable<T>(T? element)
         where T : class
         => element == null
-            ? Enumerable.Empty<T>()
-            : new[] { element };
+            ? []
+            : [element];
+
+    /// <inheritdoc />
+    IReadOnlyTypeBase? IReadOnlyTypeBase.BaseType
+    {
+        [DebuggerStepThrough]
+        get => BaseType;
+    }
+
+    /// <inheritdoc />
+    ITypeBase? ITypeBase.BaseType
+    {
+        [DebuggerStepThrough]
+        get => BaseType;
+    }
+
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    IEnumerable<IReadOnlyTypeBase> IReadOnlyTypeBase.GetDerivedTypes()
+        => GetDerivedTypes<RuntimeTypeBase>();
+
+    /// <inheritdoc />
+    IEnumerable<IReadOnlyTypeBase> IReadOnlyTypeBase.GetDerivedTypesInclusive()
+        => !HasDirectlyDerivedTypes
+            ? [this]
+            : new[] { this }.Concat(GetDerivedTypes<RuntimeTypeBase>());
+
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    IEnumerable<IReadOnlyTypeBase> IReadOnlyTypeBase.GetDirectlyDerivedTypes()
+        => DirectlyDerivedTypes.Cast<RuntimeTypeBase>();
+
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    IEnumerable<ITypeBase> ITypeBase.GetDirectlyDerivedTypes()
+        => DirectlyDerivedTypes.Cast<RuntimeTypeBase>();
 
     /// <inheritdoc />
     bool IReadOnlyTypeBase.HasSharedClrType
@@ -637,6 +701,23 @@ public abstract class RuntimeTypeBase : RuntimeAnnotatableBase, IRuntimeTypeBase
         [DebuggerStepThrough]
         get => Model;
     }
+
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    string? IReadOnlyTypeBase.GetDiscriminatorPropertyName()
+    {
+        if (BaseType != null)
+        {
+            return ((IReadOnlyTypeBase)this).GetRootType().GetDiscriminatorPropertyName();
+        }
+
+        return (string?)this[CoreAnnotationNames.DiscriminatorProperty];
+    }
+
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    object? IReadOnlyTypeBase.GetDiscriminatorValue()
+        => _discriminatorValue;
 
     /// <inheritdoc />
     [DebuggerStepThrough]
@@ -793,21 +874,21 @@ public abstract class RuntimeTypeBase : RuntimeAnnotatableBase, IRuntimeTypeBase
         => GetSnapshottableMembers();
 
     /// <summary>
-    ///     Returns all properties that implement <see cref="IProperty" />, including those on complex types.
+    ///     Returns all properties that implement <see cref="IProperty" />, including those on non-collection complex types.
     /// </summary>
     /// <returns>The properties.</returns>
     IEnumerable<IProperty> ITypeBase.GetFlattenedProperties()
         => GetFlattenedProperties();
 
     /// <summary>
-    ///     Returns all properties that implement <see cref="IComplexProperty" />, including those on complex types.
+    ///     Returns all properties that implement <see cref="IComplexProperty" />, including those on non-collection complex types.
     /// </summary>
     /// <returns>The properties.</returns>
     IEnumerable<IComplexProperty> ITypeBase.GetFlattenedComplexProperties()
         => GetFlattenedComplexProperties();
 
     /// <summary>
-    ///     Returns all properties declared properties that implement <see cref="IProperty" />, including those on complex types.
+    ///     Returns all properties declared properties that implement <see cref="IProperty" />, including those on non-collection complex types.
     /// </summary>
     /// <returns>The properties.</returns>
     IEnumerable<IProperty> ITypeBase.GetFlattenedDeclaredProperties()

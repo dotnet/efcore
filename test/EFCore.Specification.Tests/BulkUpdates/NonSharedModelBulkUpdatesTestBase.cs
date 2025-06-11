@@ -5,7 +5,7 @@ namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
 #nullable disable
 
-public abstract class NonSharedModelBulkUpdatesTestBase : NonSharedModelTestBase
+public abstract class NonSharedModelBulkUpdatesTestBase(NonSharedFixture fixture) : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
 {
     protected override string StoreName
         => "NonSharedModelBulkUpdatesTests";
@@ -321,7 +321,7 @@ public abstract class NonSharedModelBulkUpdatesTestBase : NonSharedModelTestBase
         bool async,
         Func<TContext> contextCreator,
         Func<TContext, IQueryable<TResult>> query,
-        Expression<Func<SetPropertyCalls<TResult>, SetPropertyCalls<TResult>>> setPropertyCalls,
+        Action<UpdateSettersBuilder<TResult>> setPropertyCalls,
         int rowsAffectedCount)
         where TResult : class
         where TContext : DbContext
