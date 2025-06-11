@@ -10,6 +10,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Text;
 using Microsoft.Data.Sqlite.Properties;
 using SQLitePCL;
 using static SQLitePCL.raw;
@@ -31,6 +32,7 @@ namespace Microsoft.Data.Sqlite
         private readonly List<WeakReference<SqliteCommand>> _commands = [];
 
         private Dictionary<string, (object? state, strdelegate_collation? collation)>? _collations;
+        private Dictionary<string, (object? state, delegate_collation? collation)>? _collationsSpan;
 
         private Dictionary<(string name, int arity), (int flags, object? state, delegate_function_scalar? func)>? _functions;
 
@@ -278,6 +280,15 @@ namespace Microsoft.Data.Sqlite
                     }
                 }
 
+                if (_collationsSpan != null)
+                {
+                    foreach (var item in _collationsSpan)
+                    {
+                        rc = sqlite3__create_collation_utf8(Handle, item.Key, item.Value.state, item.Value.collation);
+                        SqliteException.ThrowExceptionForRC(rc, Handle);
+                    }
+                }
+
                 if (_functions != null)
                 {
                     foreach (var item in _functions)
@@ -368,6 +379,15 @@ namespace Microsoft.Data.Sqlite
                 foreach (var item in _collations.Keys)
                 {
                     rc = sqlite3_create_collation(Handle, item, null, null);
+                    SqliteException.ThrowExceptionForRC(rc, Handle);
+                }
+            }
+
+            if (_collationsSpan != null)
+            {
+                foreach (var item in _collationsSpan.Keys)
+                {
+                    rc = sqlite3__create_collation_utf8(Handle, item, null, null);
                     SqliteException.ThrowExceptionForRC(rc, Handle);
                 }
             }
@@ -492,6 +512,62 @@ namespace Microsoft.Data.Sqlite
             _collations ??= new Dictionary<string, (object?, strdelegate_collation?)>(StringComparer.OrdinalIgnoreCase);
             _collations[name] = (state, collation);
         }
+
+
+        /// <summary>
+        ///     Create custom collation.
+        /// </summary>
+        /// <typeparam name="T">The type of the state object.</typeparam>
+        /// <param name="name">Name of the collation.</param>
+        /// <param name="state">State object passed to each invocation of the collation.</param>
+        /// <param name="comparison">Method that compares two char spans, using additional state.</param>
+        /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/collation">Collation</seealso>
+        public virtual void CreateSpanCollation<T>(string name, T state, SpanDelegateCollation? comparison)
+        {
+            if (string.IsNullOrEmpty(name))
+            {
+                throw new ArgumentNullException(nameof(name));
+            }
+#if NET5_0_OR_GREATER
+            delegate_collation? collation = comparison != null ? (v, s1, s2) =>
+                {
+                    Span<char> s1Span = stackalloc char[Encoding.UTF8.GetCharCount(s1)];
+                    Span<char> s2Span = stackalloc char[Encoding.UTF8.GetCharCount(s2)];
+                    Encoding.UTF8.GetChars(s1, s1Span);
+                    Encoding.UTF8.GetChars(s2, s2Span);
+                    return comparison((T)v, s1Span, s2Span);
+                }
+                : null;
+#else
+            delegate_collation? collation = comparison != null ? (v, s1, s2) =>
+                {
+                    return comparison((T)v, Encoding.UTF8.GetChars(s1.ToArray()), Encoding.UTF8.GetChars(s2.ToArray()));
+                }
+                : null;
+#endif
+            if (State == ConnectionState.Open)
+            {
+                var rc = sqlite3__create_collation_utf8(Handle, name, state, collation);
+                SqliteException.ThrowExceptionForRC(rc, Handle);
+            }
+
+            _collationsSpan ??= new Dictionary<string, (object?, delegate_collation?)>(StringComparer.OrdinalIgnoreCase);
+            _collationsSpan[name] = (state, collation);
+        }
+
+        /// <summary>
+        /// Represents a method signature for a custom collation delegate that compares two read-only spans of characters.
+        /// </summary>
+        /// <param name="state">An optional user-defined state object to be passed to the comparison function.</param>
+        /// <param name="s1">The first read-only span of characters to compare.</param>
+        /// <param name="s2">The second read-only span of characters to compare.</param>
+        /// <returns>
+        /// A signed integer indicating the relative order of the strings being compared:
+        /// Less than zero if <paramref name="s1"/> precedes <paramref name="s2"/>;
+        /// Zero if <paramref name="s1"/> is equal to <paramref name="s2"/>;
+        /// Greater than zero if <paramref name="s1"/> follows <paramref name="s2"/>.
+        /// </returns>
+        public delegate int SpanDelegateCollation(in object? state, in ReadOnlySpan<char> s1, in ReadOnlySpan<char> s2);
 
         /// <summary>
         ///     Begins a transaction on the connection.
