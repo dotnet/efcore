@@ -20,9 +20,7 @@ public class ScaffoldingTypeMapper : IScaffoldingTypeMapper
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public ScaffoldingTypeMapper(IRelationalTypeMappingSource typeMappingSource)
-    {
-        _typeMappingSource = typeMappingSource;
-    }
+        => _typeMappingSource = typeMappingSource;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

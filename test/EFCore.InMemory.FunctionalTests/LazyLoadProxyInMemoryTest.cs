@@ -5,13 +5,9 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class LazyLoadProxyInMemoryTest : LazyLoadProxyTestBase<LazyLoadProxyInMemoryTest.LoadInMemoryFixture>
+public class LazyLoadProxyInMemoryTest(LazyLoadProxyInMemoryTest.LoadInMemoryFixture fixture)
+    : LazyLoadProxyTestBase<LazyLoadProxyInMemoryTest.LoadInMemoryFixture>(fixture)
 {
-    public LazyLoadProxyInMemoryTest(LoadInMemoryFixture fixture)
-        : base(fixture)
-    {
-    }
-
     protected override string SerializedBlogs2
         => """
 {
