@@ -2232,60 +2232,69 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture>(TFixture fix
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Default_if_empty_top_level(bool async)
+    public virtual Task DefaultIfEmpty_top_level(bool async)
         => AssertQuery(
             async,
-            ss => from e in ss.Set<Employee>().Where(c => c.EmployeeID == NonExistentID).DefaultIfEmpty()
-                  select e);
+            ss => ss.Set<Employee>().Where(c => c.EmployeeID == NonExistentID).DefaultIfEmpty());
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Join_with_default_if_empty_on_both_sources(bool async)
+    public virtual Task Join_with_DefaultIfEmpty_on_both_sources(bool async)
         => AssertQuery(
             async,
-            ss => (from e in ss.Set<Employee>().Where(c => c.EmployeeID == NonExistentID).DefaultIfEmpty()
-                   select e).Join(
-                from e in ss.Set<Employee>().Where(c => c.EmployeeID == NonExistentID).DefaultIfEmpty()
-                select e, o => o, i => i, (o, i) => o),
+            ss => ss.Set<Employee>()
+                .Where(c => c.EmployeeID == NonExistentID)
+                .DefaultIfEmpty()
+                .Join(
+                    ss.Set<Employee>()
+                        .Where(c => c.EmployeeID == NonExistentID)
+                        .DefaultIfEmpty(),
+                    o => o, i => i, (o, i) => o),
             assertEmpty: true);
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Default_if_empty_top_level_followed_by_projecting_constant(bool async)
+    public virtual Task DefaultIfEmpty_top_level_followed_by_constant_Select(bool async)
         => AssertQuery(
             async,
-            ss => from e in ss.Set<Employee>().Where(c => c.EmployeeID == NonExistentID).DefaultIfEmpty()
-                  select "Foo");
+            ss => ss.Set<Employee>().Where(c => c.EmployeeID == NonExistentID).DefaultIfEmpty().Select(_ => "Foo"));
+
+    [ConditionalTheory] // #36208
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task DefaultIfEmpty_top_level_preceded_by_constant_Select(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Employee>().Where(e => e.EmployeeID == NonExistentID).Select(_ => "Foo").DefaultIfEmpty());
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Default_if_empty_top_level_arg(bool async)
+    public virtual Task DefaultIfEmpty_top_level_arg(bool async)
         => AssertTranslationFailed(
             () => AssertQuery(
                 async,
-                ss => from e in ss.Set<Employee>().Where(c => c.EmployeeID == NonExistentID).DefaultIfEmpty(new Employee())
-                      select e));
+                ss => ss.Set<Employee>().Where(c => c.EmployeeID == NonExistentID).DefaultIfEmpty(new Employee())));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Default_if_empty_top_level_arg_followed_by_projecting_constant(bool async)
+    public virtual Task DefaultIfEmpty_top_level_arg_followed_by_projecting_constant(bool async)
         => AssertTranslationFailed(
             () => AssertQueryScalar(
                 async,
-                ss => from e in ss.Set<Employee>().Where(c => c.EmployeeID == NonExistentID).DefaultIfEmpty(new Employee())
-                      select 42));
+                ss => ss.Set<Employee>()
+                    .Where(c => c.EmployeeID == NonExistentID)
+                    .DefaultIfEmpty(new Employee())
+                    .Select(_ => 42)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Default_if_empty_top_level_positive(bool async)
+    public virtual Task DefaultIfEmpty_top_level_positive(bool async)
         => AssertQuery(
             async,
-            ss => from e in ss.Set<Employee>().Where(c => c.EmployeeID > 0).DefaultIfEmpty()
-                  select e);
+            ss => ss.Set<Employee>().Where(c => c.EmployeeID > 0).DefaultIfEmpty());
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Default_if_empty_top_level_projection(bool async)
+    public virtual Task DefaultIfEmpty_top_level_projection(bool async)
         => AssertQueryScalar(
             async,
             ss => from e in ss.Set<Employee>().Where(e => e.EmployeeID == NonExistentID).Select(e => e.EmployeeID).DefaultIfEmpty()
