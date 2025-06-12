@@ -522,7 +522,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="state">State object passed to each invocation of the collation.</param>
         /// <param name="comparison">Method that compares two char spans, using additional state.</param>
         /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/collation">Collation</seealso>
-        public virtual void CreateSpanCollation<T>(string name, T state, SpanDelegateCollation? comparison)
+        public virtual void CreateSpanCollation<T>(string name, T state, SpanDelegateCollation<T>? comparison)
         {
             if (string.IsNullOrEmpty(name))
             {
@@ -561,13 +561,14 @@ namespace Microsoft.Data.Sqlite
         /// <param name="state">An optional user-defined state object to be passed to the comparison function.</param>
         /// <param name="s1">The first read-only span of characters to compare.</param>
         /// <param name="s2">The second read-only span of characters to compare.</param>
+        /// <typeparam name="T">state type</typeparam>
         /// <returns>
         /// A signed integer indicating the relative order of the strings being compared:
         /// Less than zero if <paramref name="s1"/> precedes <paramref name="s2"/>;
         /// Zero if <paramref name="s1"/> is equal to <paramref name="s2"/>;
         /// Greater than zero if <paramref name="s1"/> follows <paramref name="s2"/>.
         /// </returns>
-        public delegate int SpanDelegateCollation(in object? state, in ReadOnlySpan<char> s1, in ReadOnlySpan<char> s2);
+        public delegate int SpanDelegateCollation<in T>(T state, ReadOnlySpan<char> s1, ReadOnlySpan<char> s2);
 
         /// <summary>
         ///     Begins a transaction on the connection.
