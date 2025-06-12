@@ -605,6 +605,70 @@ public class SqliteConnectionTest
     }
 
     [Fact]
+    public void CreateCollationSpan_works()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+        connection.CreateSpanCollation<object?>("MY_NOCASE", null, (_, s1, s2) => s1.CompareTo(s2, StringComparison.OrdinalIgnoreCase));
+
+        Assert.Equal(1L, connection.ExecuteScalar<long>("SELECT 'Νικοσ' = 'ΝΙΚΟΣ' COLLATE MY_NOCASE;"));
+    }
+
+    [Fact]
+    public void CreateCollationSpan_with_null_comparer_works()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+        connection.CreateSpanCollation<object?>("MY_NOCASE", null, (_, s1, s2) => s1.CompareTo(s2, StringComparison.OrdinalIgnoreCase));
+        connection.CreateSpanCollation<object?>("MY_NOCASE", null, null);
+
+        var ex = Assert.Throws<SqliteException>(
+            () => connection.ExecuteScalar<long>("SELECT 'Νικοσ' = 'ΝΙΚΟΣ' COLLATE MY_NOCASE;"));
+
+        Assert.Equal(Resources.SqliteNativeError(SQLITE_ERROR, "no such collation sequence: MY_NOCASE"), ex.Message);
+    }
+
+    [Fact]
+    public void CreateCollationSpan_works_when_closed()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.CreateSpanCollation<object?>("MY_NOCASE", null, (_, s1, s2) => s1.CompareTo(s2, StringComparison.OrdinalIgnoreCase));
+        connection.Open();
+
+        Assert.Equal(1L, connection.ExecuteScalar<long>("SELECT 'Νικοσ' = 'ΝΙΚΟΣ' COLLATE MY_NOCASE;"));
+    }
+
+    [Fact]
+    public void CreateCollationSpan_throws_with_empty_name()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+        var ex = Assert.Throws<ArgumentNullException>(() => connection.CreateSpanCollation<object?>(null!, null, null));
+
+        Assert.Equal("name", ex.ParamName);
+    }
+
+    [Fact]
+    public void CreateCollationSpan_works_with_state()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+        var list = new List<string>();
+        connection.CreateSpanCollation(
+            "MY_NOCASE",
+            list,
+            (l, s1, s2) =>
+            {
+                l.Add("Invoked");
+                return s1.CompareTo(s2, StringComparison.OrdinalIgnoreCase);
+            });
+
+        Assert.Equal(1L, connection.ExecuteScalar<long>("SELECT 'Νικοσ' = 'ΝΙΚΟΣ' COLLATE MY_NOCASE;"));
+        var item = Assert.Single(list);
+        Assert.Equal("Invoked", item);
+    }
+
+    [Fact]
     public void CreateFunction_works_when_closed()
     {
         using var connection = new SqliteConnection("Data Source=:memory:");
@@ -1321,7 +1385,7 @@ public class SqliteConnectionTest
         }
         else
         {
-            // On Unix-like systems, we can still delete the file but cannot 
+            // On Unix-like systems, we can still delete the file but cannot
             // reliably detect handle leaks this way.
             File.Delete(dbPath);
         }
