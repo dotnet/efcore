@@ -558,10 +558,10 @@ namespace Microsoft.Data.Sqlite
         /// <summary>
         /// Represents a method signature for a custom collation delegate that compares two read-only spans of characters.
         /// </summary>
+        /// <typeparam name="T">The type of the state object.</typeparam>
         /// <param name="state">An optional user-defined state object to be passed to the comparison function.</param>
         /// <param name="s1">The first read-only span of characters to compare.</param>
         /// <param name="s2">The second read-only span of characters to compare.</param>
-        /// <typeparam name="T">state type</typeparam>
         /// <returns>
         /// A signed integer indicating the relative order of the strings being compared:
         /// Less than zero if <paramref name="s1"/> precedes <paramref name="s2"/>;
