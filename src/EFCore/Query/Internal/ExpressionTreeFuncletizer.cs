@@ -969,28 +969,32 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
 
         // .NET 10 made changes to overload resolution to prefer Span-based overloads when those exist ("first-class spans").
         // Unfortunately, the LINQ interpreter does not support ref structs, so we rewrite e.g. MemoryExtensions.Contains to
-        // Enumerable.Contains here. See https://github.com/dotnet/runtime/issues/109757.
+        // Enumerable.Contains here. See https://github.com/dotnet/runtime/issues/109757,.
         if (method.DeclaringType == typeof(MemoryExtensions))
         {
             switch (method.Name)
             {
+                // Note that MemoryExtensions.Contains has an optional 3rd ComparisonType parameter; we only match when
+                // it's null.
                 case nameof(MemoryExtensions.Contains)
-                    when methodCall.Arguments is [var arg0, var arg1] && TryUnwrapSpanImplicitCast(arg0, out var unwrappedArg0):
+                    when methodCall.Arguments is [var spanArg, var valueArg, ..]
+                    && (methodCall.Arguments.Count is 2 || methodCall.Arguments.Count is 3 && methodCall.Arguments[2] is ConstantExpression { Value: null })
+                    && TryUnwrapSpanImplicitCast(spanArg, out var unwrappedSpanArg):
                 {
                     return Visit(
                         Call(
                             EnumerableMethods.Contains.MakeGenericMethod(methodCall.Method.GetGenericArguments()[0]),
-                            unwrappedArg0, arg1));
+                            unwrappedSpanArg, valueArg));
                 }
 
                 case nameof(MemoryExtensions.SequenceEqual)
-                    when methodCall.Arguments is [var arg0, var arg1]
-                    && TryUnwrapSpanImplicitCast(arg0, out var unwrappedArg0)
-                    && TryUnwrapSpanImplicitCast(arg1, out var unwrappedArg1):
+                    when methodCall.Arguments is [var spanArg, var otherArg]
+                    && TryUnwrapSpanImplicitCast(spanArg, out var unwrappedSpanArg)
+                    && TryUnwrapSpanImplicitCast(otherArg, out var unwrappedOtherArg):
                     return Visit(
                         Call(
                             EnumerableMethods.SequenceEqual.MakeGenericMethod(methodCall.Method.GetGenericArguments()[0]),
-                            unwrappedArg0, unwrappedArg1));
+                            unwrappedSpanArg, unwrappedOtherArg));
             }
 
             static bool TryUnwrapSpanImplicitCast(Expression expression, [NotNullWhen(true)] out Expression? result)
