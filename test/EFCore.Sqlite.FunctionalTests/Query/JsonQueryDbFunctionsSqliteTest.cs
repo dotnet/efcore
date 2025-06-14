@@ -23,9 +23,12 @@ public class JsonQueryDbFunctionsSqliteTest : JsonQueryDbFunctionsRelationalTest
     public override async Task JsonExists_With_ConstantValue(bool async)
     {
         await base.JsonExists_With_ConstantValue(async);
-        // TODO: AssertSql
 
-        AssertSql();
+        AssertSql("""
+SELECT "j"."Id", "j"."EntityBasicId", "j"."Name", "j"."OwnedCollectionRoot", "j"."OwnedReferenceRoot"
+FROM "JsonEntitiesBasic" AS "j"
+WHERE JSON_TYPE('{"Name": "Test"}', '$.Name') IS NOT NULL
+""");
     }
 
     public override async Task JsonExists_With_StringJsonProperty(bool async)
@@ -37,7 +40,6 @@ SELECT "j"."Id", "j"."CollectionRoot", "j"."Name", "j"."ReferenceRoot", "j"."Str
 FROM "JsonEntitiesStringConversion" AS "j"
 WHERE CASE
     WHEN "j"."StringJsonValue" IS NOT NULL THEN JSON_TYPE("j"."StringJsonValue", '$.Name') IS NOT NULL
-    ELSE NULL
 END
 """);
     }
@@ -50,8 +52,7 @@ END
 SELECT "j"."Id", "j"."CollectionRoot", "j"."Name", "j"."ReferenceRoot", "j"."StringJsonValue"
 FROM "JsonEntitiesStringConversion" AS "j"
 WHERE CASE
-    WHEN "j"."ReferenceRoot" IS NOT NULL THEN JSON_TYPE("j"."StringJsonValue", '$.Name') IS NOT NULL
-    ELSE NULL
+    WHEN "j"."ReferenceRoot" IS NOT NULL THEN JSON_TYPE("j"."ReferenceRoot", '$.Name') IS NOT NULL
 END
 """);
     }

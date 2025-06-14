@@ -53,7 +53,7 @@ public class SqliteJsonFunctionsTranslator : IMethodCallTranslator
                         _sqlExpressionFactory.Function("JSON_TYPE",
                             [arguments[1], arguments[2]],
                             nullable: true,
-                            argumentsPropagateNullability: Statics.TrueArrays[2],
+                            argumentsPropagateNullability: Statics.FalseArrays[2],
                             returnType: typeof(string))))
                 ],
                 null);
