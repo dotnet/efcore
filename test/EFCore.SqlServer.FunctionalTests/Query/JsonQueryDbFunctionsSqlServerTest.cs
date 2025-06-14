@@ -21,9 +21,12 @@ public class JsonQueryDbFunctionsSqlServerTest : JsonQueryDbFunctionsRelationalT
     public override async Task JsonExists_With_ConstantValue(bool async)
     {
         await base.JsonExists_With_ConstantValue(async);
-        // TODO: AssertSql
 
-        AssertSql();
+        AssertSql("""
+SELECT [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
+FROM [JsonEntitiesBasic] AS [j]
+WHERE JSON_PATH_EXISTS(N'{"Name": "Test"}', N'$.Name') = CAST(1 AS bit)
+""");
     }
 
     public override async Task JsonExists_With_StringJsonProperty(bool async)
