@@ -81,6 +81,6 @@ public static class RelationalDbFunctionsExtensions
     public static bool? JsonExists(
         this DbFunctions _,
         object expression,
-        string path)
+        [NotParameterized] string path)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(JsonExists)));
 }
