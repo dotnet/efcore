@@ -1620,21 +1620,18 @@ public abstract class NorthwindWhereQueryTestBase<TFixture>(TFixture fixture) : 
             assertOrder: true,
             elementAsserter: (e, a) => AssertCollection(e, a));
 
-    // TODO: The following no longer compiles since https://github.com/dotnet/runtime/pull/110197 (Contains overload added with optional
-    // parameter, not supported in expression trees). #35547 is tracking on the EF side.
-    //
-    // [ConditionalTheory]
-    // [MemberData(nameof(IsAsyncData))]
-    // public virtual Task Where_collection_navigation_ToArray_Contains(bool async)
-    // {
-    //     var order = new Order { OrderID = 10248 };
-    //
-    //     return AssertQuery(
-    //         async,
-    //         ss => ss.Set<Customer>()
-    //             .Select(c => c.Orders.AsEnumerable().OrderBy(o => o.OrderID).ToArray())
-    //             .Where(e => e.Contains(order)));
-    // }
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Where_collection_navigation_ToArray_Contains(bool async)
+    {
+        var order = new Order { OrderID = 10248 };
+
+        return AssertQuery(
+            async,
+            ss => ss.Set<Customer>()
+                .Select(c => c.Orders.AsEnumerable().OrderBy(o => o.OrderID).ToArray())
+                .Where(e => e.Contains(order)));
+    }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1699,19 +1696,16 @@ public abstract class NorthwindWhereQueryTestBase<TFixture>(TFixture fixture) : 
                 .Where(o => orderIds.Contains(o.OrderID)));
     }
 
-    // TODO: The following no longer compiles since https://github.com/dotnet/runtime/pull/110197 (Contains overload added with optional
-    // parameter, not supported in expression trees). #35547 is tracking on the EF side.
-    //
-    // [ConditionalTheory]
-    // [MemberData(nameof(IsAsyncData))]
-    // public virtual Task Where_array_of_object_contains_over_value_type(bool async)
-    // {
-    //     var orderIds = new object[] { 10248, 10249 };
-    //     return AssertQuery(
-    //         async,
-    //         ss => ss.Set<Order>()
-    //             .Where(o => orderIds.Contains(o.OrderID)));
-    // }
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Where_array_of_object_contains_over_value_type(bool async)
+    {
+        var orderIds = new object[] { 10248, 10249 };
+        return AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .Where(o => orderIds.Contains(o.OrderID)));
+    }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
