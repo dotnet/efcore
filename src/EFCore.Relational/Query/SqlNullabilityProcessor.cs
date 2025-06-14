@@ -113,29 +113,48 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                 return join.Update(newTable, newJoinPredicate);
             }
 
-            case ValuesExpression { ValuesParameter: SqlParameterExpression valuesParameter } valuesExpression:
+            case ValuesExpression { ValuesParameter: SqlParameterExpression valuesParameter, ColumnNames: var columnNames } valuesExpression:
             {
                 DoNotCache();
                 Check.DebugAssert(valuesParameter.TypeMapping is not null, "valuesParameter.TypeMapping is not null");
                 Check.DebugAssert(
                     valuesParameter.TypeMapping.ElementTypeMapping is not null,
                     "valuesParameter.TypeMapping.ElementTypeMapping is not null");
+
+                // If the ordering column hasn't been pruned, we need to create it as well
+                Check.DebugAssert(
+                    columnNames.Count == 1
+                    || columnNames.Count == 2 && columnNames[0] == RelationalQueryableMethodTranslatingExpressionVisitor.ValuesOrderingColumnName,
+                    "Unhandled type of ValuesExpression");
+                var addOrdering = columnNames[0] == RelationalQueryableMethodTranslatingExpressionVisitor.ValuesOrderingColumnName;
+
                 var typeMapping = (RelationalTypeMapping)valuesParameter.TypeMapping.ElementTypeMapping;
                 var values = (IEnumerable?)ParameterValues[valuesParameter.Name] ?? Array.Empty<object>();
-
                 var processedValues = new List<RowValueExpression>();
+
+                var intTypeMapping = Dependencies.TypeMappingSource.FindMapping(typeof(int))!;
+                var i = 0;
+
                 foreach (var value in values)
                 {
+                    var valueExpression = _sqlExpressionFactory.Constant(value, value?.GetType() ?? typeof(object), sensitive: true, typeMapping);
+
+                    // We currently add explicit conversions on the first row (but not to the _ord column), to ensure that the inferred
+                    // types are properly typed. See #30605 for removing that when not needed.
+                    if (i == 0 && value is not ColumnExpression)
+                    {
+                        valueExpression = new SqlUnaryExpression(ExpressionType.Convert, valueExpression, valueExpression.Type, typeMapping);
+                    }
+
                     processedValues.Add(
-                        new RowValueExpression(
-                        [
-                            _sqlExpressionFactory.Constant(value, value?.GetType() ?? typeof(object), sensitive: true, typeMapping)
-                        ]));
+                        new RowValueExpression(addOrdering
+                            ? [_sqlExpressionFactory.Constant(i, intTypeMapping), valueExpression]
+                            : [valueExpression]));
+
+                    i++;
                 }
 
-                return processedValues is not []
-                    ? valuesExpression.Update(processedValues)
-                    : valuesExpression;
+                return valuesExpression.Update(processedValues);
             }
 
             default:
