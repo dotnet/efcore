@@ -47,13 +47,13 @@ public class SqlServerJsonFunctionsTranslator : IMethodCallTranslator
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
     {
         if (JsonExistsMethodInfo.Equals(method)
-            && arguments[0].TypeMapping is SqlServerOwnedJsonTypeMapping or StringTypeMapping
+            && (arguments[1].Type.Equals(typeof(string)) || arguments[1].TypeMapping is SqlServerOwnedJsonTypeMapping or StringTypeMapping)
             && _sqlServerSingletonOptions.EngineType == SqlServerEngineType.SqlServer
             && _sqlServerSingletonOptions.SqlServerCompatibilityLevel >= 160)
         {
             return _sqlExpressionFactory.Function(
                 "JSON_PATH_EXISTS",
-                arguments,
+                [arguments[1], arguments[2]],
                 nullable: true,
                 argumentsPropagateNullability: Statics.TrueArrays[2],
                 method.ReturnType);

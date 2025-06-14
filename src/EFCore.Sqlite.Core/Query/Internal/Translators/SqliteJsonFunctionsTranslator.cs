@@ -44,14 +44,14 @@ public class SqliteJsonFunctionsTranslator : IMethodCallTranslator
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
     {
         if (JsonExistsMethodInfo.Equals(method)
-            && arguments[0].TypeMapping is SqliteJsonTypeMapping or StringTypeMapping)
+            && (arguments[1].Type.Equals(typeof(string)) || (arguments[1].TypeMapping is SqliteJsonTypeMapping or StringTypeMapping)))
         {
             return _sqlExpressionFactory.Case(
                 [new CaseWhenClause(
-                    _sqlExpressionFactory.IsNotNull(arguments[0]),
+                    _sqlExpressionFactory.IsNotNull(arguments[1]),
                     _sqlExpressionFactory.IsNotNull(
                         _sqlExpressionFactory.Function("JSON_TYPE",
-                            arguments,
+                            [arguments[1], arguments[2]],
                             nullable: true,
                             argumentsPropagateNullability: Statics.TrueArrays[2],
                             returnType: typeof(string))))

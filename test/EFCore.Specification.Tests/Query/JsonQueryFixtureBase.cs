@@ -1,6 +1,7 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore.TestModels.JsonQuery;
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -23,6 +24,7 @@ public abstract class JsonQueryFixtureBase : SharedStoreFixtureBase<JsonQueryCon
         { typeof(JsonEntityBasic), e => ((JsonEntityBasic)e)?.Id },
         { typeof(JsonEntityBasicForReference), e => ((JsonEntityBasicForReference)e)?.Id },
         { typeof(JsonEntityBasicForCollection), e => ((JsonEntityBasicForCollection)e)?.Id },
+        { typeof(JsonEntityStringConversion), e => ((JsonEntityStringConversion)e)?.Id },
         { typeof(JsonEntityCustomNaming), e => ((JsonEntityCustomNaming)e)?.Id },
         { typeof(JsonEntitySingleOwned), e => ((JsonEntitySingleOwned)e)?.Id },
         { typeof(JsonEntityInheritanceBase), e => ((JsonEntityInheritanceBase)e)?.Id },
@@ -134,6 +136,29 @@ public abstract class JsonQueryFixtureBase : SharedStoreFixtureBase<JsonQueryCon
                     var aa = (JsonOwnedLeaf)a;
 
                     AssertOwnedLeaf(ee, aa);
+                }
+            }
+        },
+        {
+            typeof(JsonEntityStringConversion), (e, a) =>
+            {
+                Assert.Equal(e == null, a == null);
+                if (a != null)
+                {
+                    var ee = (JsonEntityStringConversion)e;
+                    var aa = (JsonEntityStringConversion)a;
+
+                    Assert.Equal(ee.Id, aa.Id);
+                    Assert.Equal(ee.Name, aa.Name);
+                    Assert.Equal(ee.StringJsonValue, aa.StringJsonValue);
+
+                    AssertJsonStringConversionRoot(ee.ReferenceRoot, aa.ReferenceRoot);
+
+                    Assert.Equal(ee.CollectionRoot.Count, aa.CollectionRoot.Count);
+                    for (var i = 0; i < ee.CollectionRoot.Count; i++)
+                    {
+                        AssertJsonStringConversionRoot(ee.CollectionRoot[i], aa.CollectionRoot[i]);
+                    }
                 }
             }
         },
@@ -354,6 +379,15 @@ public abstract class JsonQueryFixtureBase : SharedStoreFixtureBase<JsonQueryCon
     public static void AssertOwnedLeaf(JsonOwnedLeaf expected, JsonOwnedLeaf actual)
         => Assert.Equal(expected.SomethingSomething, actual.SomethingSomething);
 
+
+    public static void AssertJsonStringConversionRoot(JsonStringConversionRoot expected, JsonStringConversionRoot actual)
+    {
+        Assert.Equal(expected.Name, actual.Name);
+        Assert.Equal(expected.Names, actual.Names);
+        Assert.Equal(expected.Number, actual.Number);
+        Assert.Equal(expected.Numbers, actual.Numbers);
+    }
+
     public static void AssertCustomNameRoot(JsonOwnedCustomNameRoot expected, JsonOwnedCustomNameRoot actual)
     {
         Assert.Equal(expected.Name, actual.Name);
@@ -505,6 +539,14 @@ public abstract class JsonQueryFixtureBase : SharedStoreFixtureBase<JsonQueryCon
                         bb.OwnsMany(x => x.OwnedCollectionLeaf);
                     });
             });
+
+
+        modelBuilder.Ignore<JsonStringConversionRoot>();
+        modelBuilder.Entity<JsonEntityStringConversion>().Property(x => x.Id).ValueGeneratedNever();
+        modelBuilder.Entity<JsonEntityStringConversion>().Property(x => x.ReferenceRoot)
+            .HasConversion(new JsonValueConverter<JsonStringConversionRoot>());
+        modelBuilder.Entity<JsonEntityStringConversion>().Property(x => x.CollectionRoot)
+            .HasConversion(new JsonValueConverter<List<JsonStringConversionRoot>>(), new GenaricListComparer<JsonStringConversionRoot>());
 
         modelBuilder.Entity<JsonEntityCustomNaming>().Property(x => x.Id).ValueGeneratedNever();
         modelBuilder.Entity<JsonEntityCustomNaming>().OwnsOne(
@@ -664,4 +706,13 @@ public abstract class JsonQueryFixtureBase : SharedStoreFixtureBase<JsonQueryCon
 
     protected override async Task SeedAsync(JsonQueryContext context)
         => await JsonQueryContext.SeedAsync(context);
+
+    protected class JsonValueConverter<T>() : ValueConverter<T, string>(
+       v => JsonSerializer.Serialize(v, (JsonSerializerOptions)null),
+       v => JsonSerializer.Deserialize<T>(v, (JsonSerializerOptions)null));
+
+    protected class GenaricListComparer<T>() : ValueComparer<List<T>>(
+        (c1, c2) => (c1 == null && c2 == null) || (c1 != null && c2 != null && c1.SequenceEqual(c2)),
+        c => c == null ? 0 : c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
+        c => c == null ? null : c.ToList());
 }

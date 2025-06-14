@@ -74,14 +74,13 @@ public static class RelationalDbFunctionsExtensions
     /// <param name="_">The <see cref="DbFunctions"/> instance.</param>
     /// <param name="expression">The JSON string or column containing JSON text.</param>
     /// <param name="path">The JSON path to check for existence.</param>
-    /// <typeparam name="T">The type of the JSON expression.</typeparam>
     /// <returns>
     ///     A nullable boolean value, <see langword="true"/> if the JSON path exists, <see langword="false"/> if not, and <see langword="null"/>
     ///     when the JSON string is null.
     /// </returns>
-    public static bool? JsonExists<T>(
+    public static bool? JsonExists(
         this DbFunctions _,
-        T expression,
+        object expression,
         string path)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(JsonExists)));
 }

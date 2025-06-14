@@ -17,6 +17,7 @@ public class JsonQueryData : ISetSource
         JsonEntitiesBasicForCollection = CreateJsonEntitiesBasicForCollection();
         WireUp(JsonEntitiesBasic, EntitiesBasic, JsonEntitiesBasicForReference, JsonEntitiesBasicForCollection);
 
+        JsonEntitiesStringConversion = CreateJsonEntitiesStringConversion();
         JsonEntitiesCustomNaming = CreateJsonEntitiesCustomNaming();
         JsonEntitiesSingleOwned = CreateJsonEntitiesSingleOwned();
         JsonEntitiesInheritance = CreateJsonEntitiesInheritance();
@@ -28,6 +29,7 @@ public class JsonQueryData : ISetSource
     public IReadOnlyList<JsonEntityBasic> JsonEntitiesBasic { get; }
     public IReadOnlyList<JsonEntityBasicForReference> JsonEntitiesBasicForReference { get; }
     public IReadOnlyList<JsonEntityBasicForCollection> JsonEntitiesBasicForCollection { get; }
+    public IReadOnlyList<JsonEntityStringConversion> JsonEntitiesStringConversion { get; }
     public IReadOnlyList<JsonEntityCustomNaming> JsonEntitiesCustomNaming { get; set; }
     public IReadOnlyList<JsonEntitySingleOwned> JsonEntitiesSingleOwned { get; set; }
     public IReadOnlyList<JsonEntityInheritanceBase> JsonEntitiesInheritance { get; set; }
@@ -385,6 +387,52 @@ public class JsonQueryData : ISetSource
         entitiesBasicForCollection[1].ParentId = jsonEntitiesBasic[0].Id;
         entitiesBasicForCollection[2].Parent = jsonEntitiesBasic[0];
         entitiesBasicForCollection[2].ParentId = jsonEntitiesBasic[0].Id;
+    }
+
+
+    public static IReadOnlyList<JsonEntityStringConversion> CreateJsonEntitiesStringConversion()
+    {
+        var e1_r = new JsonStringConversionRoot
+        {
+            Name = "e1_r",
+            Number = 12,
+            Names = ["e1_r1", "e1_r2"],
+            Numbers = [-1001, 0, 1001]
+        };
+
+        var e1_c1 = new JsonStringConversionRoot
+        {
+            Name = "e1_c1",
+            Number = 12,
+            Names = ["e1_c11", "e1_c12"],
+            Numbers = [-1001, 0, 1001]
+        };
+
+        var e1_c2 = new JsonStringConversionRoot
+        {
+            Name = "e1_c2",
+            Number = 12,
+            Names = ["e1_c21", "e1_c22"],
+            Numbers = [-1001, 0, 1001]
+        };
+
+        var entity1 = new JsonEntityStringConversion
+        {
+            Id = 1,
+            Name = "JsonEntityStringConversion1",
+            StringJsonValue = """
+            {
+                "Name": "e1_s1",
+                "Number": 12,
+                "Names": ["e1_c21", "e1_c22"],
+                "Numbers": [-1001, 0, 1001]
+            }
+            """,
+            ReferenceRoot = e1_r,
+            CollectionRoot = [e1_c1, e1_c2]
+        };
+
+        return new List<JsonEntityStringConversion> { entity1 };
     }
 
     public static IReadOnlyList<JsonEntityCustomNaming> CreateJsonEntitiesCustomNaming()
@@ -1481,6 +1529,11 @@ public class JsonQueryData : ISetSource
         if (typeof(TEntity) == typeof(JsonEntityBasic))
         {
             return (IQueryable<TEntity>)JsonEntitiesBasic.AsQueryable();
+        }
+
+        if (typeof(TEntity) == typeof(JsonEntityStringConversion))
+        {
+            return (IQueryable<TEntity>)JsonEntitiesStringConversion.AsQueryable();
         }
 
         if (typeof(TEntity) == typeof(JsonEntityCustomNaming))
