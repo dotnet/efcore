@@ -2566,26 +2566,26 @@ FROM root c
         AssertSql();
     }
 
-    public override async Task Average_after_default_if_empty_does_not_throw(bool async)
+    public override async Task Average_after_DefaultIfEmpty_does_not_throw(bool async)
     {
         // Contains over subquery. Issue #17246.
-        await AssertTranslationFailed(() => base.Average_after_default_if_empty_does_not_throw(async));
+        await AssertTranslationFailed(() => base.Average_after_DefaultIfEmpty_does_not_throw(async));
 
         AssertSql();
     }
 
-    public override async Task Max_after_default_if_empty_does_not_throw(bool async)
+    public override async Task Max_after_DefaultIfEmpty_does_not_throw(bool async)
     {
         // Contains over subquery. Issue #17246.
-        await AssertTranslationFailed(() => base.Max_after_default_if_empty_does_not_throw(async));
+        await AssertTranslationFailed(() => base.Max_after_DefaultIfEmpty_does_not_throw(async));
 
         AssertSql();
     }
 
-    public override async Task Min_after_default_if_empty_does_not_throw(bool async)
+    public override async Task Min_after_DefaultIfEmpty_does_not_throw(bool async)
     {
         // Contains over subquery. Issue #17246.
-        await AssertTranslationFailed(() => base.Min_after_default_if_empty_does_not_throw(async));
+        await AssertTranslationFailed(() => base.Min_after_DefaultIfEmpty_does_not_throw(async));
 
         AssertSql();
     }
