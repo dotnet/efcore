@@ -1110,7 +1110,7 @@ WHERE [c].[CustomerID] LIKE N'F%'
         AssertExecuteUpdateSql(
             """
 UPDATE [c]
-SET [c].[ContactName] = COALESCE([c].[ContactName], N'') + N'Abc'
+SET [c].[ContactName] = ISNULL(CAST([c].[ContactName] AS nvarchar(4000)), N'') + N'Abc'
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'F%'
 """);
@@ -1125,7 +1125,7 @@ WHERE [c].[CustomerID] LIKE N'F%'
 @value='Abc' (Size = 4000)
 
 UPDATE [c]
-SET [c].[ContactName] = COALESCE([c].[ContactName], N'') + @value
+SET [c].[ContactName] = ISNULL(CAST([c].[ContactName] AS nvarchar(4000)), N'') + @value
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'F%'
 """);
@@ -1138,7 +1138,7 @@ WHERE [c].[CustomerID] LIKE N'F%'
         AssertExecuteUpdateSql(
             """
 UPDATE [c]
-SET [c].[ContactName] = COALESCE([c].[ContactName], N'') + [c].[CustomerID]
+SET [c].[ContactName] = ISNULL(CAST([c].[ContactName] AS nvarchar(4000)), N'') + [c].[CustomerID]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'F%'
 """);
@@ -1560,11 +1560,11 @@ INNER JOIN (
         AssertExecuteUpdateSql(
             """
 UPDATE [c]
-SET [c].[City] = COALESCE(CONVERT(varchar(11), DATEPART(year, (
+SET [c].[City] = ISNULL(CAST(CONVERT(varchar(11), DATEPART(year, (
     SELECT TOP(1) [o].[OrderDate]
     FROM [Orders] AS [o]
     WHERE [c].[CustomerID] = [o].[CustomerID]
-    ORDER BY [o].[OrderDate] DESC))), '')
+    ORDER BY [o].[OrderDate] DESC))) AS varchar(8000)), '')
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'F%'
 """);
@@ -1595,11 +1595,11 @@ WHERE [c].[CustomerID] LIKE N'F%'
         AssertExecuteUpdateSql(
             """
 UPDATE [c]
-SET [c].[City] = COALESCE(CONVERT(varchar(11), DATEPART(year, (
+SET [c].[City] = ISNULL(CAST(CONVERT(varchar(11), DATEPART(year, (
     SELECT TOP(1) [o].[OrderDate]
     FROM [Orders] AS [o]
     WHERE [c].[CustomerID] = [o].[CustomerID]
-    ORDER BY [o].[OrderDate] DESC))), '')
+    ORDER BY [o].[OrderDate] DESC))) AS varchar(8000)), '')
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'F%'
 """);

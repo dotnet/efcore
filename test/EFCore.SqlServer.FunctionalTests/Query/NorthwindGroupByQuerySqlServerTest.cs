@@ -123,7 +123,7 @@ GROUP BY [o].[CustomerID]
 
         AssertSql(
             """
-SELECT COALESCE(SUM([o].[OrderID]), 0)
+SELECT ISNULL(SUM([o].[OrderID]), 0)
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]
 """);
@@ -135,7 +135,7 @@ GROUP BY [o].[CustomerID]
 
         AssertSql(
             """
-SELECT COALESCE(SUM([o].[OrderID]), 0) AS [Sum], MIN([o].[OrderID]) AS [Min], MAX([o].[OrderID]) AS [Max], AVG(CAST([o].[OrderID] AS float)) AS [Avg]
+SELECT ISNULL(SUM([o].[OrderID]), 0) AS [Sum], MIN([o].[OrderID]) AS [Min], MAX([o].[OrderID]) AS [Max], AVG(CAST([o].[OrderID] AS float)) AS [Avg]
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]
 """);
@@ -207,7 +207,7 @@ GROUP BY [o].[CustomerID]
 
         AssertSql(
             """
-SELECT [o].[CustomerID] AS [Key], COALESCE(SUM([o].[OrderID]), 0) AS [Sum]
+SELECT [o].[CustomerID] AS [Key], ISNULL(SUM([o].[OrderID]), 0) AS [Sum]
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]
 """);
@@ -219,7 +219,7 @@ GROUP BY [o].[CustomerID]
 
         AssertSql(
             """
-SELECT [o].[CustomerID] AS [Key], COALESCE(SUM([o].[OrderID]), 0) AS [Sum], MIN([o].[OrderID]) AS [Min], MAX([o].[OrderID]) AS [Max], AVG(CAST([o].[OrderID] AS float)) AS [Avg]
+SELECT [o].[CustomerID] AS [Key], ISNULL(SUM([o].[OrderID]), 0) AS [Sum], MIN([o].[OrderID]) AS [Min], MAX([o].[OrderID]) AS [Max], AVG(CAST([o].[OrderID] AS float)) AS [Avg]
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]
 """);
@@ -231,7 +231,7 @@ GROUP BY [o].[CustomerID]
 
         AssertSql(
             """
-SELECT COALESCE(SUM([o].[OrderID]), 0) AS [Sum], MIN([o].[OrderID]) AS [Min], [o].[CustomerID] AS [Key], MAX([o].[OrderID]) AS [Max], AVG(CAST([o].[OrderID] AS float)) AS [Avg]
+SELECT ISNULL(SUM([o].[OrderID]), 0) AS [Sum], MIN([o].[OrderID]) AS [Min], [o].[CustomerID] AS [Key], MAX([o].[OrderID]) AS [Max], AVG(CAST([o].[OrderID] AS float)) AS [Avg]
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]
 """);
@@ -243,7 +243,7 @@ GROUP BY [o].[CustomerID]
 
         AssertSql(
             """
-SELECT [o].[CustomerID] AS [Key1], COALESCE(SUM([o].[OrderID]), 0) AS [Sum]
+SELECT [o].[CustomerID] AS [Key1], ISNULL(SUM([o].[OrderID]), 0) AS [Sum]
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]
 """);
@@ -291,7 +291,7 @@ GROUP BY [o].[OrderDate]
 SELECT CASE
     WHEN [o].[OrderDate] IS NULL THEN N'is null'
     ELSE N'is not null'
-END AS [Key], COALESCE(SUM([o].[OrderID]), 0) AS [Sum]
+END AS [Key], ISNULL(SUM([o].[OrderID]), 0) AS [Sum]
 FROM [Orders] AS [o]
 GROUP BY [o].[OrderDate]
 """);
@@ -363,7 +363,7 @@ GROUP BY [o].[CustomerID]
 
         AssertSql(
             """
-SELECT COALESCE(SUM([o].[OrderID]), 0)
+SELECT ISNULL(SUM([o].[OrderID]), 0)
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]
 """);
@@ -375,7 +375,7 @@ GROUP BY [o].[CustomerID]
 
         AssertSql(
             """
-SELECT COALESCE(SUM([o].[OrderID]), 0) AS [Sum], MIN([o].[OrderID]) AS [Min], MAX([o].[OrderID]) AS [Max], AVG(CAST([o].[OrderID] AS float)) AS [Avg]
+SELECT ISNULL(SUM([o].[OrderID]), 0) AS [Sum], MIN([o].[OrderID]) AS [Min], MAX([o].[OrderID]) AS [Max], AVG(CAST([o].[OrderID] AS float)) AS [Avg]
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]
 """);
@@ -387,7 +387,7 @@ GROUP BY [o].[CustomerID]
 
         AssertSql(
             """
-SELECT [o].[CustomerID] AS [Key], COALESCE(SUM([o].[OrderID]), 0) AS [Sum]
+SELECT [o].[CustomerID] AS [Key], ISNULL(SUM([o].[OrderID]), 0) AS [Sum]
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]
 """);
@@ -459,7 +459,7 @@ GROUP BY [o].[CustomerID], [o].[EmployeeID]
 
         AssertSql(
             """
-SELECT COALESCE(SUM([o].[OrderID]), 0)
+SELECT ISNULL(SUM([o].[OrderID]), 0)
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID], [o].[EmployeeID]
 """);
@@ -471,7 +471,7 @@ GROUP BY [o].[CustomerID], [o].[EmployeeID]
 
         AssertSql(
             """
-SELECT COALESCE(SUM([o].[OrderID]), 0) AS [Sum], MIN([o].[OrderID]) AS [Min], MAX([o].[OrderID]) AS [Max], AVG(CAST([o].[OrderID] AS float)) AS [Avg]
+SELECT ISNULL(SUM([o].[OrderID]), 0) AS [Sum], MIN([o].[OrderID]) AS [Min], MAX([o].[OrderID]) AS [Max], AVG(CAST([o].[OrderID] AS float)) AS [Avg]
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID], [o].[EmployeeID]
 """);
@@ -543,7 +543,7 @@ GROUP BY [o].[CustomerID], [o].[EmployeeID]
 
         AssertSql(
             """
-SELECT [o].[CustomerID], [o].[EmployeeID], COALESCE(SUM([o].[OrderID]), 0) AS [Sum]
+SELECT [o].[CustomerID], [o].[EmployeeID], ISNULL(SUM([o].[OrderID]), 0) AS [Sum]
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID], [o].[EmployeeID]
 """);
@@ -555,7 +555,7 @@ GROUP BY [o].[CustomerID], [o].[EmployeeID]
 
         AssertSql(
             """
-SELECT [o].[CustomerID], [o].[EmployeeID], COALESCE(SUM([o].[OrderID]), 0) AS [Sum], MIN([o].[OrderID]) AS [Min], MAX([o].[OrderID]) AS [Max], AVG(CAST([o].[OrderID] AS float)) AS [Avg]
+SELECT [o].[CustomerID], [o].[EmployeeID], ISNULL(SUM([o].[OrderID]), 0) AS [Sum], MIN([o].[OrderID]) AS [Min], MAX([o].[OrderID]) AS [Max], AVG(CAST([o].[OrderID] AS float)) AS [Avg]
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID], [o].[EmployeeID]
 """);
@@ -567,7 +567,7 @@ GROUP BY [o].[CustomerID], [o].[EmployeeID]
 
         AssertSql(
             """
-SELECT COALESCE(SUM([o].[OrderID]), 0) AS [Sum], MIN([o].[OrderID]) AS [Min], [o].[CustomerID], [o].[EmployeeID], MAX([o].[OrderID]) AS [Max], AVG(CAST([o].[OrderID] AS float)) AS [Avg]
+SELECT ISNULL(SUM([o].[OrderID]), 0) AS [Sum], MIN([o].[OrderID]) AS [Min], [o].[CustomerID], [o].[EmployeeID], MAX([o].[OrderID]) AS [Max], AVG(CAST([o].[OrderID] AS float)) AS [Avg]
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID], [o].[EmployeeID]
 """);
@@ -579,7 +579,7 @@ GROUP BY [o].[CustomerID], [o].[EmployeeID]
 
         AssertSql(
             """
-SELECT COALESCE(SUM([o].[OrderID]), 0) AS [Sum], MIN([o].[OrderID]) AS [Min], [o].[CustomerID], [o].[EmployeeID], MAX([o].[OrderID]) AS [Max], AVG(CAST([o].[OrderID] AS float)) AS [Avg]
+SELECT ISNULL(SUM([o].[OrderID]), 0) AS [Sum], MIN([o].[OrderID]) AS [Min], [o].[CustomerID], [o].[EmployeeID], MAX([o].[OrderID]) AS [Max], AVG(CAST([o].[OrderID] AS float)) AS [Avg]
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID], [o].[EmployeeID]
 """);
@@ -591,7 +591,7 @@ GROUP BY [o].[CustomerID], [o].[EmployeeID]
 
         AssertSql(
             """
-SELECT COALESCE(SUM([o].[OrderID]), 0) AS [Sum], [o].[CustomerID], [o].[EmployeeID]
+SELECT ISNULL(SUM([o].[OrderID]), 0) AS [Sum], [o].[CustomerID], [o].[EmployeeID]
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID], [o].[EmployeeID]
 """);
@@ -603,7 +603,7 @@ GROUP BY [o].[CustomerID], [o].[EmployeeID]
 
         AssertSql(
             """
-SELECT COALESCE(SUM(CAST([o].[EmployeeID] AS bigint)), CAST(0 AS bigint)) AS [Sum], [o].[CustomerID] AS [Key]
+SELECT ISNULL(SUM(CAST([o].[EmployeeID] AS bigint)), CAST(0 AS bigint)) AS [Sum], [o].[CustomerID] AS [Key]
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]
 """);
@@ -615,7 +615,7 @@ GROUP BY [o].[CustomerID]
 
         AssertSql(
             """
-SELECT COALESCE(SUM([o].[OrderID]), 0) AS [Sum], MIN([o].[OrderID]) AS [Min], [o].[CustomerID] AS [CustomerId], [o].[EmployeeID] AS [EmployeeId], MAX([o].[OrderID]) AS [Max], AVG(CAST([o].[OrderID] AS float)) AS [Avg]
+SELECT ISNULL(SUM([o].[OrderID]), 0) AS [Sum], MIN([o].[OrderID]) AS [Min], [o].[CustomerID] AS [CustomerId], [o].[EmployeeID] AS [EmployeeId], MAX([o].[OrderID]) AS [Max], AVG(CAST([o].[OrderID] AS float)) AS [Avg]
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID], [o].[EmployeeID]
 """);
@@ -627,7 +627,7 @@ GROUP BY [o].[CustomerID], [o].[EmployeeID]
 
         AssertSql(
             """
-SELECT COALESCE(SUM([o].[OrderID]), 0) AS [Sum], MIN([o].[OrderID]) AS [Min], [o].[CustomerID], MAX([o].[OrderID]) AS [Max], AVG(CAST([o].[OrderID] AS float)) AS [Avg]
+SELECT ISNULL(SUM([o].[OrderID]), 0) AS [Sum], MIN([o].[OrderID]) AS [Min], [o].[CustomerID], MAX([o].[OrderID]) AS [Max], AVG(CAST([o].[OrderID] AS float)) AS [Avg]
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID], [o].[EmployeeID]
 """);
@@ -639,7 +639,7 @@ GROUP BY [o].[CustomerID], [o].[EmployeeID]
 
         AssertSql(
             """
-SELECT COALESCE(SUM([o0].[OrderID]), 0) AS [Sum], MIN([o0].[OrderID]) AS [Min], [o0].[Key], MAX([o0].[OrderID]) AS [Max], AVG(CAST([o0].[OrderID] AS float)) AS [Avg]
+SELECT ISNULL(SUM([o0].[OrderID]), 0) AS [Sum], MIN([o0].[OrderID]) AS [Min], [o0].[Key], MAX([o0].[OrderID]) AS [Max], AVG(CAST([o0].[OrderID] AS float)) AS [Avg]
 FROM (
     SELECT [o].[OrderID], 2 AS [Key]
     FROM [Orders] AS [o]
@@ -654,7 +654,7 @@ GROUP BY [o0].[Key]
 
         AssertSql(
             """
-SELECT COALESCE(SUM([o0].[OrderID]), 0) AS [Sum]
+SELECT ISNULL(SUM([o0].[OrderID]), 0) AS [Sum]
 FROM (
     SELECT [o].[OrderID], 2 AS [Key]
     FROM [Orders] AS [o]
@@ -669,7 +669,7 @@ GROUP BY [o0].[Key]
 
         AssertSql(
             """
-SELECT COALESCE(SUM([o0].[OrderID]), 0) AS [Sum]
+SELECT ISNULL(SUM([o0].[OrderID]), 0) AS [Sum]
 FROM (
     SELECT [o].[OrderID], 2 AS [Key]
     FROM [Orders] AS [o]
@@ -684,7 +684,7 @@ GROUP BY [o0].[Key]
 
         AssertSql(
             """
-SELECT COALESCE(SUM([o0].[OrderID]), 0) AS [Sum]
+SELECT ISNULL(SUM([o0].[OrderID]), 0) AS [Sum]
 FROM (
     SELECT [o].[OrderID], 2 AS [Key]
     FROM [Orders] AS [o]
@@ -699,7 +699,7 @@ GROUP BY [o0].[Key]
 
         AssertSql(
             """
-SELECT COALESCE(SUM([o0].[OrderID]), 0) AS [Sum], MIN([o0].[OrderID]) AS [Min], [o0].[Key] AS [Random], MAX([o0].[OrderID]) AS [Max], AVG(CAST([o0].[OrderID] AS float)) AS [Avg]
+SELECT ISNULL(SUM([o0].[OrderID]), 0) AS [Sum], MIN([o0].[OrderID]) AS [Min], [o0].[Key] AS [Random], MAX([o0].[OrderID]) AS [Max], AVG(CAST([o0].[OrderID] AS float)) AS [Avg]
 FROM (
     SELECT [o].[OrderID], 2 AS [Key]
     FROM [Orders] AS [o]
@@ -715,7 +715,7 @@ GROUP BY [o0].[Key]
 
         AssertSql(
             """
-SELECT COALESCE(SUM([o0].[OrderID]), 0) AS [Sum], [o0].[Key]
+SELECT ISNULL(SUM([o0].[OrderID]), 0) AS [Sum], [o0].[Key]
 FROM (
     SELECT [o].[OrderID], 2 AS [Key]
     FROM [Orders] AS [o]
@@ -734,7 +734,7 @@ SELECT MIN(CASE
     WHEN 1 = [o0].[Key] THEN [o0].[OrderDate]
 END) AS [Min], MAX(CASE
     WHEN 1 = [o0].[Key] THEN [o0].[OrderDate]
-END) AS [Max], COALESCE(SUM(CASE
+END) AS [Max], ISNULL(SUM(CASE
     WHEN 1 = [o0].[Key] THEN [o0].[OrderID]
 END), 0) AS [Sum], AVG(CASE
     WHEN 1 = [o0].[Key] THEN CAST([o0].[OrderID] AS float)
@@ -756,7 +756,7 @@ ORDER BY [o0].[Key]
             """
 @a='2'
 
-SELECT COALESCE(SUM([o0].[OrderID]), 0) AS [Sum], MIN([o0].[OrderID]) AS [Min], [o0].[Key], MAX([o0].[OrderID]) AS [Max], AVG(CAST([o0].[OrderID] AS float)) AS [Avg]
+SELECT ISNULL(SUM([o0].[OrderID]), 0) AS [Sum], MIN([o0].[OrderID]) AS [Min], [o0].[Key], MAX([o0].[OrderID]) AS [Max], AVG(CAST([o0].[OrderID] AS float)) AS [Avg]
 FROM (
     SELECT [o].[OrderID], @a AS [Key]
     FROM [Orders] AS [o]
@@ -773,7 +773,7 @@ GROUP BY [o0].[Key]
             """
 @a='2'
 
-SELECT COALESCE(SUM([o0].[OrderID]), 0) AS [Sum]
+SELECT ISNULL(SUM([o0].[OrderID]), 0) AS [Sum]
 FROM (
     SELECT [o].[OrderID], @a AS [Key]
     FROM [Orders] AS [o]
@@ -790,7 +790,7 @@ GROUP BY [o0].[Key]
             """
 @a='2'
 
-SELECT COALESCE(SUM([o0].[OrderID]), 0) AS [Sum]
+SELECT ISNULL(SUM([o0].[OrderID]), 0) AS [Sum]
 FROM (
     SELECT [o].[OrderID], @a AS [Key]
     FROM [Orders] AS [o]
@@ -807,7 +807,7 @@ GROUP BY [o0].[Key]
             """
 @a='2'
 
-SELECT COALESCE(SUM([o0].[OrderID]), 0) AS [Sum]
+SELECT ISNULL(SUM([o0].[OrderID]), 0) AS [Sum]
 FROM (
     SELECT [o].[OrderID], @a AS [Key]
     FROM [Orders] AS [o]
@@ -824,7 +824,7 @@ GROUP BY [o0].[Key]
             """
 @a='2'
 
-SELECT COALESCE(SUM([o0].[OrderID]), 0) AS [Sum], [o0].[Key]
+SELECT ISNULL(SUM([o0].[OrderID]), 0) AS [Sum], [o0].[Key]
 FROM (
     SELECT [o].[OrderID], @a AS [Key]
     FROM [Orders] AS [o]
@@ -915,7 +915,7 @@ GROUP BY [o].[CustomerID]
 
         AssertSql(
             """
-SELECT COALESCE(SUM([o].[OrderID]), 0)
+SELECT ISNULL(SUM([o].[OrderID]), 0)
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]
 """);
@@ -927,7 +927,7 @@ GROUP BY [o].[CustomerID]
 
         AssertSql(
             """
-SELECT COALESCE(SUM([o].[OrderID]), 0) AS [Sum], MIN([o].[OrderID]) AS [Min], MAX([o].[OrderID]) AS [Max], AVG(CAST([o].[OrderID] AS float)) AS [Avg]
+SELECT ISNULL(SUM([o].[OrderID]), 0) AS [Sum], MIN([o].[OrderID]) AS [Min], MAX([o].[OrderID]) AS [Max], AVG(CAST([o].[OrderID] AS float)) AS [Avg]
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]
 """);
@@ -999,7 +999,7 @@ GROUP BY [o].[CustomerID]
 
         AssertSql(
             """
-SELECT COALESCE(SUM([o].[OrderID]), 0)
+SELECT ISNULL(SUM([o].[OrderID]), 0)
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]
 """);
@@ -1011,7 +1011,7 @@ GROUP BY [o].[CustomerID]
 
         AssertSql(
             """
-SELECT COALESCE(SUM([o].[OrderID]), 0) AS [Sum], MIN([o].[EmployeeID]) AS [Min], MAX([o].[EmployeeID]) AS [Max], AVG(CAST([o].[OrderID] AS float)) AS [Avg]
+SELECT ISNULL(SUM([o].[OrderID]), 0) AS [Sum], MIN([o].[EmployeeID]) AS [Min], MAX([o].[EmployeeID]) AS [Max], AVG(CAST([o].[OrderID] AS float)) AS [Avg]
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]
 """);
@@ -1023,7 +1023,7 @@ GROUP BY [o].[CustomerID]
 
         AssertSql(
             """
-SELECT COALESCE(SUM([o].[OrderID] + 1), 0)
+SELECT ISNULL(SUM([o].[OrderID] + 1), 0)
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]
 """);
@@ -1035,7 +1035,7 @@ GROUP BY [o].[CustomerID]
 
         AssertSql(
             """
-SELECT COALESCE(SUM([o].[OrderID] + 1), 0)
+SELECT ISNULL(SUM([o].[OrderID] + 1), 0)
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]
 """);
@@ -1047,7 +1047,7 @@ GROUP BY [o].[CustomerID]
 
         AssertSql(
             """
-SELECT COALESCE(SUM([o].[OrderID] + 1), 0)
+SELECT ISNULL(SUM([o].[OrderID] + 1), 0)
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]
 """);
@@ -1059,7 +1059,7 @@ GROUP BY [o].[CustomerID]
 
         AssertSql(
             """
-SELECT COALESCE(SUM([o].[OrderID] + 1), 0)
+SELECT ISNULL(SUM([o].[OrderID] + 1), 0)
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]
 """);
@@ -1071,7 +1071,7 @@ GROUP BY [o].[CustomerID]
 
         AssertSql(
             """
-SELECT [o].[OrderID], COALESCE(SUM(CASE
+SELECT [o].[OrderID], ISNULL(SUM(CASE
     WHEN [o].[CustomerID] = N'ALFKI' THEN CASE
         WHEN [o].[OrderID] > 1000 THEN [o].[OrderID]
         ELSE -[o].[OrderID]
@@ -1107,7 +1107,7 @@ GROUP BY [o0].[OrderMonth], [o0].[CustomerID]
 
         AssertSql(
             """
-SELECT COALESCE(SUM([o0].[OrderID]), 0)
+SELECT ISNULL(SUM([o0].[OrderID]), 0)
 FROM (
     SELECT [o].[OrderID], 1 AS [Key]
     FROM [Orders] AS [o]
@@ -1122,7 +1122,7 @@ GROUP BY [o0].[Key]
 
         AssertSql(
             """
-SELECT COALESCE(SUM([o0].[OrderID]), 0) AS [Sum]
+SELECT ISNULL(SUM([o0].[OrderID]), 0) AS [Sum]
 FROM (
     SELECT [o].[OrderID], 1 AS [Key]
     FROM [Orders] AS [o]
@@ -1137,7 +1137,7 @@ GROUP BY [o0].[Key]
 
         AssertSql(
             """
-SELECT COALESCE(SUM([o].[OrderID]), 0)
+SELECT ISNULL(SUM([o].[OrderID]), 0)
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]
 """);
@@ -1459,7 +1459,7 @@ GROUP BY [u].[City]
 
         AssertSql(
             """
-SELECT MIN([o].[OrderDate]) AS [Min], MAX([o].[OrderDate]) AS [Max], COALESCE(SUM([o].[OrderID]), 0) AS [Sum], AVG(CAST([o].[OrderID] AS float)) AS [Avg]
+SELECT MIN([o].[OrderDate]) AS [Min], MAX([o].[OrderDate]) AS [Max], ISNULL(SUM([o].[OrderID]), 0) AS [Sum], AVG(CAST([o].[OrderID] AS float)) AS [Avg]
 FROM [Orders] AS [o]
 WHERE [o].[OrderID] < 10300
 GROUP BY [o].[CustomerID]
@@ -1516,8 +1516,8 @@ GROUP BY [s].[Key]
 
         AssertSql(
             """
-SELECT [o0].[Key] AS [Month], COALESCE(SUM([o0].[OrderID]), 0) AS [Total], (
-    SELECT COALESCE(SUM([o1].[OrderID]), 0)
+SELECT [o0].[Key] AS [Month], ISNULL(SUM([o0].[OrderID]), 0) AS [Total], (
+    SELECT ISNULL(SUM([o1].[OrderID]), 0)
     FROM [Orders] AS [o1]
     WHERE DATEPART(month, [o1].[OrderDate]) = [o0].[Key] OR ([o1].[OrderDate] IS NULL AND [o0].[Key] IS NULL)) AS [Payment]
 FROM (
@@ -1572,7 +1572,7 @@ ORDER BY COUNT(*), [o].[CustomerID]
 
         AssertSql(
             """
-SELECT [o].[CustomerID] AS [Key], COALESCE(SUM([o].[OrderID]), 0) AS [Sum]
+SELECT [o].[CustomerID] AS [Key], ISNULL(SUM([o].[OrderID]), 0) AS [Sum]
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]
 ORDER BY COUNT(*), [o].[CustomerID]
@@ -1731,7 +1731,7 @@ HAVING COUNT(*) > 0
 
         AssertSql(
             """
-SELECT [o].[CustomerID] AS [Key], COUNT(*) AS [Count], COALESCE(SUM([o].[OrderID]), 0) AS [Sum]
+SELECT [o].[CustomerID] AS [Key], COUNT(*) AS [Count], ISNULL(SUM([o].[OrderID]), 0) AS [Sum]
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]
 HAVING COUNT(*) > 4
@@ -1927,7 +1927,7 @@ INNER JOIN (
 
         AssertSql(
             """
-SELECT COALESCE(SUM([o].[OrderID]), 0) AS [Sum], MIN([o].[OrderID]) AS [Min], MAX([o].[OrderID]) AS [Max], AVG(CAST([o].[OrderID] AS float)) AS [Avg]
+SELECT ISNULL(SUM([o].[OrderID]), 0) AS [Sum], MIN([o].[OrderID]) AS [Min], MAX([o].[OrderID]) AS [Max], AVG(CAST([o].[OrderID] AS float)) AS [Avg]
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]
 """);
@@ -1951,7 +1951,7 @@ GROUP BY [o].[CustomerID]
 
         AssertSql(
             """
-SELECT COALESCE(SUM(CAST(1 AS bigint)), CAST(0 AS bigint))
+SELECT ISNULL(SUM(CAST(1 AS bigint)), CAST(0 AS bigint))
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]
 """);
@@ -2132,7 +2132,7 @@ GROUP BY [o].[CustomerID]
 
         AssertSql(
             """
-SELECT COALESCE(SUM(CASE
+SELECT ISNULL(SUM(CASE
     WHEN [o].[OrderID] < 10300 THEN [o].[OrderID]
 END), 0)
 FROM [Orders] AS [o]
@@ -2218,10 +2218,10 @@ GROUP BY [o].[CustomerID]
 
         AssertSql(
             """
-SELECT [o].[CustomerID], COALESCE(SUM(CASE
+SELECT [o].[CustomerID], ISNULL(SUM(CASE
     WHEN [o].[OrderID] < 11000 THEN [o].[OrderID]
     ELSE 0
-END), 0) AS [TenK], COALESCE(SUM(CASE
+END), 0) AS [TenK], ISNULL(SUM(CASE
     WHEN [o].[OrderID] >= 11000 THEN [o].[OrderID]
     ELSE 0
 END), 0) AS [EleventK]
@@ -2236,10 +2236,10 @@ GROUP BY [o].[CustomerID]
 
         AssertSql(
             """
-SELECT [o].[CustomerID], COALESCE(SUM(CASE
+SELECT [o].[CustomerID], ISNULL(SUM(CASE
     WHEN [o].[OrderID] < 11000 THEN [o].[OrderID]
     ELSE 0
-END), 0) AS [TenK], COALESCE(SUM(CASE
+END), 0) AS [TenK], ISNULL(SUM(CASE
     WHEN [o].[OrderID] >= 11000 THEN [o].[OrderID]
     ELSE 0
 END), 0) AS [EleventK]
@@ -2475,7 +2475,7 @@ FROM (
 
         AssertSql(
             """
-SELECT [o].[CustomerID] AS [Key], AVG(DISTINCT (CAST([o].[OrderID] AS float))) AS [Average], COUNT(DISTINCT ([o].[EmployeeID])) AS [Count], COUNT_BIG(DISTINCT ([o].[EmployeeID])) AS [LongCount], MAX([o].[OrderDate]) AS [Max], MIN([o].[OrderDate]) AS [Min], COALESCE(SUM(DISTINCT ([o].[OrderID])), 0) AS [Sum]
+SELECT [o].[CustomerID] AS [Key], AVG(DISTINCT (CAST([o].[OrderID] AS float))) AS [Average], COUNT(DISTINCT ([o].[EmployeeID])) AS [Count], COUNT_BIG(DISTINCT ([o].[EmployeeID])) AS [LongCount], MAX([o].[OrderDate]) AS [Max], MIN([o].[OrderDate]) AS [Min], ISNULL(SUM(DISTINCT ([o].[OrderID])), 0) AS [Sum]
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]
 """);
@@ -2515,7 +2515,7 @@ GROUP BY [o].[CustomerID]
             """
 SELECT MIN([o0].[c])
 FROM (
-    SELECT COALESCE(SUM([o].[OrderID]), 0) AS [c]
+    SELECT ISNULL(SUM([o].[OrderID]), 0) AS [c]
     FROM [Orders] AS [o]
     GROUP BY [o].[CustomerID]
 ) AS [o0]
@@ -2524,7 +2524,7 @@ FROM (
             """
 SELECT MAX([o0].[c])
 FROM (
-    SELECT COALESCE(SUM([o].[OrderID]), 0) AS [c]
+    SELECT ISNULL(SUM([o].[OrderID]), 0) AS [c]
     FROM [Orders] AS [o]
     GROUP BY [o].[CustomerID]
 ) AS [o0]
@@ -2559,7 +2559,7 @@ SELECT CASE
         SELECT 1
         FROM [Orders] AS [o]
         GROUP BY [o].[CustomerID]
-        HAVING COALESCE(SUM([o].[OrderID]), 0) < 0) THEN CAST(1 AS bit)
+        HAVING ISNULL(SUM([o].[OrderID]), 0) < 0) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END
 """);
@@ -2803,7 +2803,7 @@ ORDER BY [o].[OrderDate]
 
         AssertSql(
             """
-SELECT N'TotalAmount' AS [Name], COALESCE(SUM(CAST([o0].[OrderID] AS decimal(18,2))), 0.0) AS [Value]
+SELECT N'TotalAmount' AS [Name], ISNULL(SUM(CAST([o0].[OrderID] AS decimal(18,2))), 0.0) AS [Value]
 FROM (
     SELECT [o].[OrderID], 1 AS [Key]
     FROM [Orders] AS [o]
@@ -2818,7 +2818,7 @@ GROUP BY [o0].[Key]
 
         AssertSql(
             """
-SELECT [o0].[CustomerID] AS [Key], COALESCE(SUM([o].[OrderID]), 0) AS [Aggregate]
+SELECT [o0].[CustomerID] AS [Key], ISNULL(SUM([o].[OrderID]), 0) AS [Aggregate]
 FROM [Order Details] AS [o]
 INNER JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
 GROUP BY [o0].[CustomerID]
@@ -2831,7 +2831,7 @@ GROUP BY [o0].[CustomerID]
 
         AssertSql(
             """
-SELECT [c].[Country] AS [Key], COALESCE(SUM([o].[OrderID]), 0) AS [Aggregate]
+SELECT [c].[Country] AS [Key], ISNULL(SUM([o].[OrderID]), 0) AS [Aggregate]
 FROM [Order Details] AS [o]
 INNER JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
 LEFT JOIN [Customers] AS [c] ON [o0].[CustomerID] = [c].[CustomerID]
@@ -2845,7 +2845,7 @@ GROUP BY [c].[Country]
 
         AssertSql(
             """
-SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate], COALESCE(SUM([o].[OrderID]), 0) AS [Aggregate]
+SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate], ISNULL(SUM([o].[OrderID]), 0) AS [Aggregate]
 FROM [Order Details] AS [o]
 INNER JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
 GROUP BY [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
@@ -2858,7 +2858,7 @@ GROUP BY [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
 
         AssertSql(
             """
-SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], COALESCE(SUM([o].[OrderID]), 0) AS [Aggregate]
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], ISNULL(SUM([o].[OrderID]), 0) AS [Aggregate]
 FROM [Order Details] AS [o]
 INNER JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
 LEFT JOIN [Customers] AS [c] ON [o0].[CustomerID] = [c].[CustomerID]
@@ -2894,7 +2894,7 @@ GROUP BY [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
             """
 @p='80'
 
-SELECT COALESCE(SUM([o0].[OrderID]), 0)
+SELECT ISNULL(SUM([o0].[OrderID]), 0)
 FROM (
     SELECT [o].[OrderID], [o].[CustomerID]
     FROM [Orders] AS [o]
@@ -2939,7 +2939,7 @@ GROUP BY [o].[CustomerID]
 
         AssertSql(
             """
-SELECT COALESCE([c].[City], N'Unknown') AS [Locality], COUNT(*) AS [Count]
+SELECT ISNULL(CAST([c].[City] AS nvarchar(4000)), N'Unknown') AS [Locality], COUNT(*) AS [Count]
 FROM [Customers] AS [c]
 GROUP BY [c].[City]
 ORDER BY COUNT(*) DESC, [c].[City]
@@ -3208,7 +3208,7 @@ GROUP BY [o0].[Key]
 
         AssertSql(
             """
-SELECT [o].[CustomerID] AS [Key], COUNT(*) AS [Count], COALESCE(SUM(CAST([o].[OrderID] AS bigint)), CAST(0 AS bigint)) AS [Sum]
+SELECT [o].[CustomerID] AS [Key], COUNT(*) AS [Count], ISNULL(SUM(CAST([o].[OrderID] AS bigint)), CAST(0 AS bigint)) AS [Sum]
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]
 """);
@@ -3223,7 +3223,7 @@ GROUP BY [o].[CustomerID]
 SELECT [c].[CustomerID], [o0].[Sum], [o0].[CustomerID]
 FROM [Customers] AS [c]
 OUTER APPLY (
-    SELECT COALESCE(SUM([o].[OrderID]), 0) AS [Sum], [o].[CustomerID]
+    SELECT ISNULL(SUM([o].[OrderID]), 0) AS [Sum], [o].[CustomerID]
     FROM [Orders] AS [o]
     WHERE [c].[CustomerID] = [o].[CustomerID]
     GROUP BY [o].[CustomerID]
@@ -3241,7 +3241,7 @@ ORDER BY [c].[CustomerID]
 SELECT [c].[CustomerID], [o0].[Max], [o0].[Sum], [o0].[CustomerID]
 FROM [Customers] AS [c]
 OUTER APPLY (
-    SELECT MAX(CAST(LEN([o].[CustomerID]) AS int)) AS [Max], COALESCE(SUM([o].[OrderID]), 0) AS [Sum], [o].[CustomerID]
+    SELECT MAX(CAST(LEN([o].[CustomerID]) AS int)) AS [Max], ISNULL(SUM([o].[OrderID]), 0) AS [Sum], [o].[CustomerID]
     FROM [Orders] AS [o]
     WHERE [c].[CustomerID] = [o].[CustomerID]
     GROUP BY [o].[CustomerID]
@@ -3259,7 +3259,7 @@ ORDER BY [c].[CustomerID]
 SELECT [c].[CustomerID], [o0].[Max], [o0].[Sum], [o0].[CustomerID]
 FROM [Customers] AS [c]
 OUTER APPLY (
-    SELECT MAX(CAST(LEN([o].[CustomerID]) AS int)) AS [Max], COALESCE(SUM([o].[OrderID]), 0) AS [Sum], [o].[CustomerID]
+    SELECT MAX(CAST(LEN([o].[CustomerID]) AS int)) AS [Max], ISNULL(SUM([o].[OrderID]), 0) AS [Sum], [o].[CustomerID]
     FROM [Orders] AS [o]
     GROUP BY [o].[CustomerID]
 ) AS [o0]
@@ -3285,10 +3285,10 @@ GROUP BY [o].[OrderID]
 
         AssertSql(
             """
-SELECT [o].[CustomerID] AS [Key], COALESCE(SUM(CASE
+SELECT [o].[CustomerID] AS [Key], ISNULL(SUM(CASE
     WHEN 2020 - DATEPART(year, [o].[OrderDate]) <= 30 THEN [o].[OrderID]
     ELSE 0
-END), 0) AS [Sum1], COALESCE(SUM(CASE
+END), 0) AS [Sum1], ISNULL(SUM(CASE
     WHEN 2020 - DATEPART(year, [o].[OrderDate]) > 30 AND 2020 - DATEPART(year, [o].[OrderDate]) <= 60 THEN [o].[OrderID]
     ELSE 0
 END), 0) AS [Sum2]
@@ -3330,7 +3330,7 @@ GROUP BY [o].[OrderID]
 
         AssertSql(
             """
-SELECT [o].[CustomerID] AS [Key], COALESCE(SUM([o].[OrderID] + CAST(LEN([o].[CustomerID]) AS int)), 0) AS [Sum]
+SELECT [o].[CustomerID] AS [Key], ISNULL(SUM([o].[OrderID] + CAST(LEN([o].[CustomerID]) AS int)), 0) AS [Sum]
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]
 """);
@@ -3416,7 +3416,7 @@ OUTER APPLY (
 
         AssertSql(
             """
-SELECT [o].[CustomerID] AS [Key], COALESCE((
+SELECT [o].[CustomerID] AS [Key], ISNULL((
     SELECT TOP(1) COUNT(*) + MIN([o].[OrderID])
     FROM [Employees] AS [e]
     WHERE [e].[City] = N'Seattle'
@@ -3541,7 +3541,7 @@ ORDER BY [o1].[CustomerID]
             """
 SELECT [s].[c], [s].[ProductID], [c1].[CustomerID], [c1].[City]
 FROM (
-    SELECT COALESCE(SUM([o].[ProductID] + [o].[OrderID] * 1000), 0) AS [c], [o].[ProductID], MIN([o].[OrderID] / 100) AS [c0]
+    SELECT ISNULL(SUM([o].[ProductID] + [o].[OrderID] * 1000), 0) AS [c], [o].[ProductID], MIN([o].[OrderID] / 100) AS [c0]
     FROM [Order Details] AS [o]
     INNER JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
     LEFT JOIN [Customers] AS [c] ON [o0].[CustomerID] = [c].[CustomerID]
@@ -3566,18 +3566,18 @@ ORDER BY [s].[ProductID], [c1].[CustomerID]
 SELECT [c].[CustomerID], [s1].[Sum], [s1].[Count], [s1].[Key]
 FROM [Customers] AS [c]
 OUTER APPLY (
-    SELECT COALESCE(SUM([s].[OrderID]), 0) AS [Sum], (
+    SELECT ISNULL(SUM([s].[OrderID]), 0) AS [Sum], (
         SELECT COUNT(*)
         FROM (
-            SELECT [o0].[CustomerID], COALESCE([c1].[City], N'') + COALESCE([o0].[CustomerID], N'') AS [Key]
+            SELECT [o0].[CustomerID], ISNULL(CAST([c1].[City] AS nvarchar(4000)), N'') + ISNULL([o0].[CustomerID], N'') AS [Key]
             FROM [Orders] AS [o0]
             LEFT JOIN [Customers] AS [c1] ON [o0].[CustomerID] = [c1].[CustomerID]
             WHERE [c].[CustomerID] = [o0].[CustomerID]
         ) AS [s0]
         LEFT JOIN [Customers] AS [c2] ON [s0].[CustomerID] = [c2].[CustomerID]
-        WHERE ([s].[Key] = [s0].[Key] OR ([s].[Key] IS NULL AND [s0].[Key] IS NULL)) AND COALESCE([c2].[City], N'') + COALESCE([s0].[CustomerID], N'') LIKE N'Lon%') AS [Count], [s].[Key]
+        WHERE ([s].[Key] = [s0].[Key] OR ([s].[Key] IS NULL AND [s0].[Key] IS NULL)) AND ISNULL(CAST([c2].[City] AS nvarchar(4000)), N'') + ISNULL([s0].[CustomerID], N'') LIKE N'Lon%') AS [Count], [s].[Key]
     FROM (
-        SELECT [o].[OrderID], COALESCE([c0].[City], N'') + COALESCE([o].[CustomerID], N'') AS [Key]
+        SELECT [o].[OrderID], ISNULL(CAST([c0].[City] AS nvarchar(4000)), N'') + ISNULL([o].[CustomerID], N'') AS [Key]
         FROM [Orders] AS [o]
         LEFT JOIN [Customers] AS [c0] ON [o].[CustomerID] = [c0].[CustomerID]
         WHERE [c].[CustomerID] = [o].[CustomerID]
