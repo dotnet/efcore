@@ -925,8 +925,8 @@ public sealed partial class SelectExpression : TableExpressionBase
                             var actualParentIdentifier = _identifier.Take(outerSelectExpression._identifier.Count).ToList();
                             for (var j = 0; j < actualParentIdentifier.Count; j++)
                             {
-                                AppendOrdering(new OrderingExpression(actualParentIdentifier[j].Column, ascending: true));
-                                outerSelectExpression.AppendOrdering(
+                                AppendOrderingInternal(new OrderingExpression(actualParentIdentifier[j].Column, ascending: true));
+                                outerSelectExpression.AppendOrderingInternal(
                                     new OrderingExpression(outerSelectExpression._identifier[j].Column, ascending: true));
                             }
 
@@ -1865,6 +1865,11 @@ public sealed partial class SelectExpression : TableExpressionBase
     /// <param name="orderingExpression">An ordering expression to use for ordering.</param>
     public void ApplyOrdering(OrderingExpression orderingExpression)
     {
+        if (Limit is SqlConstantExpression { Value: 1 })
+        {
+            return;
+        }
+
         if (IsDistinct
             || Limit != null
             || Offset != null)
@@ -1882,14 +1887,21 @@ public sealed partial class SelectExpression : TableExpressionBase
     /// <param name="orderingExpression">An ordering expression to use for ordering.</param>
     public void AppendOrdering(OrderingExpression orderingExpression)
     {
-        if (!_orderings.Any(o => o.Expression.Equals(orderingExpression.Expression)))
+        if (Limit is SqlConstantExpression { Value: 1 })
         {
-            AppendOrderingInternal(orderingExpression);
+            return;
         }
+
+        AppendOrderingInternal(orderingExpression);
     }
 
     private void AppendOrderingInternal(OrderingExpression orderingExpression)
-        => _orderings.Add(orderingExpression.Update(orderingExpression.Expression));
+    {
+        if (!_orderings.Any(o => o.Expression.Equals(orderingExpression.Expression)))
+        {
+            _orderings.Add(orderingExpression);
+        }
+    }
 
     /// <summary>
     ///     Reverses the existing orderings on the <see cref="SelectExpression" />.
