@@ -7,11 +7,4 @@
     <LangVersion>preview</LangVersion>
   </PropertyGroup>
 
-  <ItemGroup>
-    <FrameworkReference Update="Microsoft.NETCore.App"
-                        Condition="'$(TargetFramework)' == '$(DefaultNetCoreTargetFramework)'"
-                        RuntimeFrameworkVersion="$(MicrosoftNETCoreAppRefVersion)"
-                        TargetingPackVersion="$(MicrosoftNETCoreAppRefVersion)" />
-  </ItemGroup>
-
 </Project>
