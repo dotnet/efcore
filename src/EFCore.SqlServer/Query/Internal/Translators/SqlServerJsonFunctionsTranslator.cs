@@ -56,7 +56,7 @@ public class SqlServerJsonFunctionsTranslator : IMethodCallTranslator
                 [arguments[1], arguments[2]],
                 nullable: true,
                 argumentsPropagateNullability: Statics.TrueArrays[2],
-                method.ReturnType);
+                typeof(bool));
         }
 
         return null;
