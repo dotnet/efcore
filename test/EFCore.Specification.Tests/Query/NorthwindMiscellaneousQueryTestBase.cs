@@ -2036,6 +2036,21 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture>(TFixture fix
                 select new { c, e },
             assertOrder: true);
 
+    [ConditionalTheory] // #35950
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task SelectMany_correlated_with_DefaultIfEmpty_and_value_type_in_selector(bool async)
+        => AssertQuery(
+            async,
+            ss =>
+                from c in ss.Set<Customer>()
+                from o in c.Orders
+                    .Where(x => x.CustomerID == "NONEXISTENT")
+                    .Take(1)
+                    .OrderBy(x => true)
+                    .Select(x => x.OrderID)
+                    .DefaultIfEmpty()
+                select o);
+
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task SelectMany_correlated_subquery_hard(bool async)

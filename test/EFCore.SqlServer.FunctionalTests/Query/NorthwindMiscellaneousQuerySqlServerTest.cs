@@ -6320,6 +6320,22 @@ ORDER BY [c].[CustomerID], [e].[EmployeeID]
 """);
     }
 
+    public override async Task SelectMany_correlated_with_DefaultIfEmpty_and_value_type_in_selector(bool async)
+    {
+        await base.SelectMany_correlated_with_DefaultIfEmpty_and_value_type_in_selector(async);
+
+        AssertSql(
+            """
+SELECT COALESCE([o0].[OrderID], 0)
+FROM [Customers] AS [c]
+OUTER APPLY (
+    SELECT TOP(1) [o].[OrderID]
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID] AND [o].[CustomerID] = N'NONEXISTENT'
+) AS [o0]
+""");
+    }
+
     public override async Task Select_Property_when_shadow_unconstrained_generic_method(bool async)
     {
         await base.Select_Property_when_shadow_unconstrained_generic_method(async);
