@@ -523,13 +523,13 @@ public class InternalEntryEntrySubscriberTest
 
     private class TestPropertyListener : IChangeDetector
     {
-        public List<Tuple<InternalEntityEntry, IPropertyBase>> Changing { get; } = [];
-        public List<Tuple<InternalEntityEntry, IPropertyBase>> Changed { get; } = [];
+        public List<Tuple<IInternalEntry, IPropertyBase>> Changing { get; } = [];
+        public List<Tuple<IInternalEntry, IPropertyBase>> Changed { get; } = [];
 
-        public void PropertyChanged(InternalEntityEntry entry, IPropertyBase property, bool setModified)
+        public void PropertyChanged(IInternalEntry entry, IPropertyBase property, bool setModified)
             => Changed.Add(Tuple.Create(entry, property));
 
-        public void PropertyChanging(InternalEntityEntry entry, IPropertyBase property)
+        public void PropertyChanging(IInternalEntry entry, IPropertyBase property)
             => Changing.Add(Tuple.Create(entry, property));
 
         public void DetectChanges(IStateManager stateManager)

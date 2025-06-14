@@ -211,11 +211,11 @@ public abstract partial class ModelBuilderTest
             where TElement : notnull;
 
         public abstract TestComplexCollectionBuilder<TElement> ComplexCollection<TElement>(
-            Expression<Func<TEntity, IEnumerable<TElement>?>> propertyExpression)
+            Expression<Func<TEntity, IEnumerable<TElement?>?>> propertyExpression)
             where TElement : notnull;
 
         public abstract TestComplexCollectionBuilder<TElement> ComplexCollection<TElement>(
-            Expression<Func<TEntity, IEnumerable<TElement>?>> propertyExpression,
+            Expression<Func<TEntity, IEnumerable<TElement?>?>> propertyExpression,
             string complexTypeName)
             where TElement : notnull;
 
@@ -233,12 +233,12 @@ public abstract partial class ModelBuilderTest
             where TElement : notnull;
 
         public abstract TestEntityTypeBuilder<TEntity> ComplexCollection<TElement>(
-            Expression<Func<TEntity, IEnumerable<TElement>?>> propertyExpression,
+            Expression<Func<TEntity, IEnumerable<TElement?>?>> propertyExpression,
             Action<TestComplexCollectionBuilder<TElement>> buildAction)
             where TElement : notnull;
 
         public abstract TestEntityTypeBuilder<TEntity> ComplexCollection<TElement>(
-            Expression<Func<TEntity, IEnumerable<TElement>?>> propertyExpression,
+            Expression<Func<TEntity, IEnumerable<TElement?>?>> propertyExpression,
             string complexTypeName,
             Action<TestComplexCollectionBuilder<TElement>> buildAction)
             where TElement : notnull;
@@ -433,11 +433,11 @@ public abstract partial class ModelBuilderTest
             where TElement : notnull;
 
         public abstract TestComplexCollectionBuilder<TElement> ComplexCollection<TElement>(
-            Expression<Func<TComplex, IEnumerable<TElement>?>> propertyExpression)
+            Expression<Func<TComplex, IEnumerable<TElement?>?>> propertyExpression)
             where TElement : notnull;
 
         public abstract TestComplexCollectionBuilder<TElement> ComplexCollection<TElement>(
-            Expression<Func<TComplex, IEnumerable<TElement>?>> propertyExpression,
+            Expression<Func<TComplex, IEnumerable<TElement?>?>> propertyExpression,
             string complexTypeName)
             where TElement : notnull;
 
@@ -455,12 +455,12 @@ public abstract partial class ModelBuilderTest
             where TElement : notnull;
 
         public abstract TestComplexPropertyBuilder<TComplex> ComplexCollection<TElement>(
-            Expression<Func<TComplex, IEnumerable<TElement>?>> propertyExpression,
+            Expression<Func<TComplex, IEnumerable<TElement?>?>> propertyExpression,
             Action<TestComplexCollectionBuilder<TElement>> buildAction)
             where TElement : notnull;
 
         public abstract TestComplexPropertyBuilder<TComplex> ComplexCollection<TElement>(
-            Expression<Func<TComplex, IEnumerable<TElement>?>> propertyExpression,
+            Expression<Func<TComplex, IEnumerable<TElement?>?>> propertyExpression,
             string complexTypeName,
             Action<TestComplexCollectionBuilder<TElement>> buildAction)
             where TElement : notnull;
@@ -538,11 +538,11 @@ public abstract partial class ModelBuilderTest
             where TElement : notnull;
 
         public abstract TestComplexCollectionBuilder<TElement> ComplexCollection<TElement>(
-            Expression<Func<TComplex, IEnumerable<TElement>?>> propertyExpression)
+            Expression<Func<TComplex, IEnumerable<TElement?>?>> propertyExpression)
             where TElement : notnull;
 
         public abstract TestComplexCollectionBuilder<TElement> ComplexCollection<TElement>(
-            Expression<Func<TComplex, IEnumerable<TElement>?>> propertyExpression,
+            Expression<Func<TComplex, IEnumerable<TElement?>?>> propertyExpression,
             string complexTypeName)
             where TElement : notnull;
 
@@ -560,12 +560,12 @@ public abstract partial class ModelBuilderTest
             where TElement : notnull;
 
         public abstract TestComplexCollectionBuilder<TComplex> ComplexCollection<TElement>(
-            Expression<Func<TComplex, IEnumerable<TElement>?>> propertyExpression,
+            Expression<Func<TComplex, IEnumerable<TElement?>?>> propertyExpression,
             Action<TestComplexCollectionBuilder<TElement>> buildAction)
             where TElement : notnull;
 
         public abstract TestComplexCollectionBuilder<TComplex> ComplexCollection<TElement>(
-            Expression<Func<TComplex, IEnumerable<TElement>?>> propertyExpression,
+            Expression<Func<TComplex, IEnumerable<TElement?>?>> propertyExpression,
             string complexTypeName,
             Action<TestComplexCollectionBuilder<TElement>> buildAction)
             where TElement : notnull;

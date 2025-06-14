@@ -22,7 +22,8 @@ public class ComplexPropertySnapshot
         PropertiesSnapshot? properties,
         List<InternalIndexBuilder>? indexes,
         List<(InternalKeyBuilder, ConfigurationSource?)>? keys,
-        List<RelationshipSnapshot>? relationships)
+        List<RelationshipSnapshot>? relationships,
+        List<ComplexPropertySnapshot> nestedComplexProperties)
     {
         ComplexPropertyBuilder = complexPropertyBuilder;
         ComplexTypeBuilder = ComplexProperty.ComplexType.Builder;
@@ -41,10 +42,20 @@ public class ComplexPropertySnapshot
         {
             Properties.Add(relationships);
         }
+
+        NestedComplexProperties = nestedComplexProperties ?? [];
     }
 
     private InternalComplexPropertyBuilder ComplexPropertyBuilder { [DebuggerStepThrough] get; }
     private InternalComplexTypeBuilder ComplexTypeBuilder { [DebuggerStepThrough] get; }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual IReadOnlyList<ComplexPropertySnapshot> NestedComplexProperties { [DebuggerStepThrough] get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -126,7 +137,7 @@ public class ComplexPropertySnapshot
         if (oldPropertyAccessModeConfigurationSource.HasValue)
         {
             complexPropertyBuilder.UsePropertyAccessMode(
-                ((IReadOnlyProperty)ComplexProperty).GetPropertyAccessMode(), oldPropertyAccessModeConfigurationSource.Value);
+                ((IReadOnlyPropertyBase)ComplexProperty).GetPropertyAccessMode(), oldPropertyAccessModeConfigurationSource.Value);
         }
 
         var oldFieldInfoConfigurationSource = ComplexProperty.GetFieldInfoConfigurationSource();
@@ -157,6 +168,11 @@ public class ComplexPropertySnapshot
         }
 
         Properties.Attach(complexTypeBuilder);
+
+        foreach (var nestedSnapshot in NestedComplexProperties)
+        {
+            nestedSnapshot.Attach(complexTypeBuilder);
+        }
 
         if (ComplexType.GetConstructorBindingConfigurationSource() != null)
         {

@@ -3,6 +3,7 @@
 
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -13,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConventionTypeBase, ITypeBase
+public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConventionTypeBase, IRuntimeTypeBase
 {
     private readonly SortedDictionary<string, Property> _properties;
     private readonly SortedDictionary<string, ComplexProperty> _complexProperties = new(StringComparer.Ordinal);
@@ -25,11 +26,24 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
 
     private ConfigurationSource _configurationSource;
     private ConfigurationSource? _changeTrackingStrategyConfigurationSource;
+    private ConfigurationSource? _constructorBindingConfigurationSource;
+    private ConfigurationSource? _serviceOnlyConstructorBindingConfigurationSource;
 
+    // Warning: Never access these fields directly as access needs to be thread-safe
     private bool _indexerPropertyInitialized;
     private PropertyInfo? _indexerPropertyInfo;
     private SortedDictionary<string, PropertyInfo>? _runtimeProperties;
     private SortedDictionary<string, FieldInfo>? _runtimeFields;
+
+    private Func<IInternalEntry, ISnapshot>? _originalValuesFactory;
+    private Func<ISnapshot>? _storeGeneratedValuesFactory;
+    private Func<IInternalEntry, ISnapshot>? _temporaryValuesFactory;
+    private Func<IDictionary<string, object?>, ISnapshot>? _shadowValuesFactory;
+    private Func<ISnapshot>? _emptyShadowValuesFactory;
+
+    // _serviceOnlyConstructorBinding needs to be set as well whenever _constructorBinding is set
+    private InstantiationBinding? _constructorBinding;
+    private InstantiationBinding? _serviceOnlyConstructorBinding;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -298,6 +312,96 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     /// </summary>
     public virtual void UpdateConfigurationSource(ConfigurationSource configurationSource)
         => _configurationSource = configurationSource.Max(_configurationSource);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual Func<IInternalEntry, ISnapshot> OriginalValuesFactory
+        => NonCapturingLazyInitializer.EnsureInitialized(
+            ref _originalValuesFactory, this,
+            static structuralType =>
+            {
+                Check.DebugAssert(structuralType is not ComplexType complexType || complexType.ComplexProperty.IsCollection,
+                    $"ComplexType {structuralType.Name} is not a collection");
+
+                structuralType.EnsureReadOnly();
+                return OriginalValuesFactoryFactory.Instance.Create(structuralType);
+            });
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual Func<ISnapshot> StoreGeneratedValuesFactory
+        => NonCapturingLazyInitializer.EnsureInitialized(
+            ref _storeGeneratedValuesFactory, this,
+            static structuralType =>
+            {
+                Check.DebugAssert(structuralType is not ComplexType complexType || complexType.ComplexProperty.IsCollection,
+                    $"ComplexType {structuralType.Name} is not a collection");
+
+                structuralType.EnsureReadOnly();
+                return StoreGeneratedValuesFactoryFactory.Instance.CreateEmpty(structuralType);
+            });
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual Func<IInternalEntry, ISnapshot> TemporaryValuesFactory
+        => NonCapturingLazyInitializer.EnsureInitialized(
+            ref _temporaryValuesFactory, this,
+            static structuralType =>
+            {
+                Check.DebugAssert(structuralType is not ComplexType complexType || complexType.ComplexProperty.IsCollection,
+                    $"ComplexType {structuralType.Name} is not a collection");
+
+                structuralType.EnsureReadOnly();
+                return TemporaryValuesFactoryFactory.Instance.Create(structuralType);
+            });
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual Func<IDictionary<string, object?>, ISnapshot> ShadowValuesFactory
+        => NonCapturingLazyInitializer.EnsureInitialized(
+            ref _shadowValuesFactory, this,
+            static structuralType =>
+            {
+                Check.DebugAssert(structuralType is not ComplexType complexType || complexType.ComplexProperty.IsCollection,
+                    $"ComplexType {structuralType.Name} is not a collection");
+
+                structuralType.EnsureReadOnly();
+                return ShadowValuesFactoryFactory.Instance.Create(structuralType);
+            });
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual Func<ISnapshot> EmptyShadowValuesFactory
+        => NonCapturingLazyInitializer.EnsureInitialized(
+            ref _emptyShadowValuesFactory, this,
+            static structuralType =>
+            {
+                Check.DebugAssert(structuralType is not ComplexType complexType || complexType.ComplexProperty.IsCollection,
+                    $"ComplexType {structuralType.Name} is not a collection");
+
+                structuralType.EnsureReadOnly();
+                return EmptyShadowValuesFactoryFactory.Instance.CreateEmpty(structuralType);
+            });
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1123,10 +1227,11 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
         }
 
         CheckPropertyNotInUse(property);
-        var removed = _complexProperties.Remove(property.Name);
-        Check.DebugAssert(removed, "removed is false");
 
         property.SetRemovedFromModel();
+
+        var removed = _complexProperties.Remove(property.Name);
+        Check.DebugAssert(removed, "removed is false");
 
         return (ComplexProperty?)Model.ConventionDispatcher.OnComplexPropertyRemoved(BaseBuilder, property);
     }
@@ -1219,7 +1324,7 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public static string? CheckChangeTrackingStrategy(
-        IReadOnlyTypeBase typeBase,
+        IReadOnlyTypeBase structuralType,
         ChangeTrackingStrategy value,
         bool requireFullNotifications)
     {
@@ -1229,23 +1334,23 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
                 && value != ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)
             {
                 return CoreStrings.FullChangeTrackingRequired(
-                    typeBase.DisplayName(), value, nameof(ChangeTrackingStrategy.ChangingAndChangedNotifications),
+                    structuralType.DisplayName(), value, nameof(ChangeTrackingStrategy.ChangingAndChangedNotifications),
                     nameof(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues));
             }
         }
         else
         {
             if (value != ChangeTrackingStrategy.Snapshot
-                && !typeof(INotifyPropertyChanged).IsAssignableFrom(typeBase.ClrType))
+                && !typeof(INotifyPropertyChanged).IsAssignableFrom(structuralType.ClrType))
             {
-                return CoreStrings.ChangeTrackingInterfaceMissing(typeBase.DisplayName(), value, nameof(INotifyPropertyChanged));
+                return CoreStrings.ChangeTrackingInterfaceMissing(structuralType.DisplayName(), value, nameof(INotifyPropertyChanged));
             }
 
             if ((value == ChangeTrackingStrategy.ChangingAndChangedNotifications
                     || value == ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)
-                && !typeof(INotifyPropertyChanging).IsAssignableFrom(typeBase.ClrType))
+                && !typeof(INotifyPropertyChanging).IsAssignableFrom(structuralType.ClrType))
             {
-                return CoreStrings.ChangeTrackingInterfaceMissing(typeBase.DisplayName(), value, nameof(INotifyPropertyChanging));
+                return CoreStrings.ChangeTrackingInterfaceMissing(structuralType.DisplayName(), value, nameof(INotifyPropertyChanging));
             }
         }
 
@@ -1362,7 +1467,124 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public abstract InstantiationBinding? ConstructorBinding { get; set; }
+    public virtual InstantiationBinding? ConstructorBinding
+    {
+        get => IsReadOnly && !ClrType.IsAbstract
+            ? NonCapturingLazyInitializer.EnsureInitialized(
+                ref _constructorBinding, this, static structuralType =>
+                {
+                    switch (structuralType)
+                    {
+                        case IReadOnlyEntityType entityType:
+                            ((IModel)structuralType.Model).GetModelDependencies().ConstructorBindingFactory.GetBindings(
+                                entityType,
+                                out structuralType._constructorBinding,
+                                out structuralType._serviceOnlyConstructorBinding);
+                            break;
+                        case IReadOnlyComplexType complexType:
+                            ((IModel)structuralType.Model).GetModelDependencies().ConstructorBindingFactory.GetBindings(
+                                complexType,
+                                out structuralType._constructorBinding,
+                                out structuralType._serviceOnlyConstructorBinding);
+                            break;
+                        default:
+                            throw new UnreachableException("Unsupported structural type.");
+                    }
+                })
+            : _constructorBinding;
+
+        set => SetConstructorBinding(value, ConfigurationSource.Explicit);
+    }
+
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual InstantiationBinding? SetConstructorBinding(
+        InstantiationBinding? constructorBinding,
+        ConfigurationSource configurationSource)
+    {
+        EnsureMutable();
+
+        _constructorBinding = constructorBinding;
+
+        if (_constructorBinding == null)
+        {
+            _constructorBindingConfigurationSource = null;
+        }
+        else
+        {
+            UpdateConstructorBindingConfigurationSource(configurationSource);
+        }
+
+        return constructorBinding;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual ConfigurationSource? GetConstructorBindingConfigurationSource()
+        => _constructorBindingConfigurationSource;
+
+    private void UpdateConstructorBindingConfigurationSource(ConfigurationSource configurationSource)
+        => _constructorBindingConfigurationSource = configurationSource.Max(_constructorBindingConfigurationSource);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual InstantiationBinding? ServiceOnlyConstructorBinding
+    {
+        get => _serviceOnlyConstructorBinding;
+        set => SetServiceOnlyConstructorBinding(value, ConfigurationSource.Explicit);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual InstantiationBinding? SetServiceOnlyConstructorBinding(
+        InstantiationBinding? constructorBinding,
+        ConfigurationSource configurationSource)
+    {
+        EnsureMutable();
+
+        _serviceOnlyConstructorBinding = constructorBinding;
+
+        if (_serviceOnlyConstructorBinding == null)
+        {
+            _serviceOnlyConstructorBindingConfigurationSource = null;
+        }
+        else
+        {
+            UpdateServiceOnlyConstructorBindingConfigurationSource(configurationSource);
+        }
+
+        return constructorBinding;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual ConfigurationSource? GetServiceOnlyConstructorBindingConfigurationSource()
+        => _serviceOnlyConstructorBindingConfigurationSource;
+
+    private void UpdateServiceOnlyConstructorBindingConfigurationSource(ConfigurationSource configurationSource)
+        => _serviceOnlyConstructorBindingConfigurationSource =
+            configurationSource.Max(_serviceOnlyConstructorBindingConfigurationSource);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1455,6 +1677,14 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    public abstract PropertyCounts CalculateCounts();
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public virtual IEnumerable<PropertyBase> GetSnapshottableMembers()
     {
         foreach (var property in GetProperties())
@@ -1468,7 +1698,7 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
 
             if (complexProperty.IsCollection)
             {
-                break;
+                continue;
             }
 
             foreach (var propertyBase in complexProperty.ComplexType.GetSnapshottableMembers())

@@ -78,7 +78,7 @@ public class ComplexProperty : PropertyBase, IMutableComplexProperty, IConventio
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual bool IsCollection { get; }
+    public override bool IsCollection { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -98,8 +98,8 @@ public class ComplexProperty : PropertyBase, IMutableComplexProperty, IConventio
     /// </summary>
     public virtual void SetRemovedFromModel()
     {
-        _builder = null;
         ComplexType.SetRemovedFromModel();
+        _builder = null;
     }
 
     /// <summary>
