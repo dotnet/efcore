@@ -22,24 +22,38 @@ public class JsonQueryDbFunctionsSqlServerTest : JsonQueryDbFunctionsRelationalT
     {
         await base.JsonExists_With_ConstantValue(async);
         // TODO: AssertSql
+
+        AssertSql();
     }
 
     public override async Task JsonExists_With_StringJsonProperty(bool async)
     {
-        await base.JsonExists_With_StringConversionJsonProperty(async);
-        // TODO: AssertSql
+        await base.JsonExists_With_StringJsonProperty(async);
+
+        AssertSql("""
+SELECT [j].[Id], [j].[CollectionRoot], [j].[Name], [j].[ReferenceRoot], [j].[StringJsonValue]
+FROM [JsonEntitiesStringConversion] AS [j]
+WHERE JSON_PATH_EXISTS([j].[StringJsonValue], N'$.Name') = CAST(1 AS bit)
+""");
     }
 
     public override async Task JsonExists_With_StringConversionJsonProperty(bool async)
     {
         await base.JsonExists_With_StringConversionJsonProperty(async);
-        // TODO: AssertSql
+
+        AssertSql("""
+SELECT [j].[Id], [j].[CollectionRoot], [j].[Name], [j].[ReferenceRoot], [j].[StringJsonValue]
+FROM [JsonEntitiesStringConversion] AS [j]
+WHERE JSON_PATH_EXISTS([j].[ReferenceRoot], N'$.Name') = CAST(1 AS bit)
+""");
     }
         
     public override async Task JsonExists_With_OwnedJsonProperty(bool async)
     {
         await base.JsonExists_With_OwnedJsonProperty(async);
         // TODO: AssertSql
+
+        AssertSql();
     }
 
     private void AssertSql(params string[] expected)

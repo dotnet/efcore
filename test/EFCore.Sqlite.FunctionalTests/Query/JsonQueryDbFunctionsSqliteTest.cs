@@ -24,24 +24,44 @@ public class JsonQueryDbFunctionsSqliteTest : JsonQueryDbFunctionsRelationalTest
     {
         await base.JsonExists_With_ConstantValue(async);
         // TODO: AssertSql
+
+        AssertSql();
     }
 
     public override async Task JsonExists_With_StringJsonProperty(bool async)
     {
-        await base.JsonExists_With_StringConversionJsonProperty(async);
-        // TODO: AssertSql
+        await base.JsonExists_With_StringJsonProperty(async);
+
+        AssertSql("""
+SELECT "j"."Id", "j"."CollectionRoot", "j"."Name", "j"."ReferenceRoot", "j"."StringJsonValue"
+FROM "JsonEntitiesStringConversion" AS "j"
+WHERE CASE
+    WHEN "j"."StringJsonValue" IS NOT NULL THEN JSON_TYPE("j"."StringJsonValue", '$.Name') IS NOT NULL
+    ELSE NULL
+END
+""");
     }
 
     public override async Task JsonExists_With_StringConversionJsonProperty(bool async)
     {
         await base.JsonExists_With_StringConversionJsonProperty(async);
-        // TODO: AssertSql
+
+        AssertSql("""
+SELECT "j"."Id", "j"."CollectionRoot", "j"."Name", "j"."ReferenceRoot", "j"."StringJsonValue"
+FROM "JsonEntitiesStringConversion" AS "j"
+WHERE CASE
+    WHEN "j"."ReferenceRoot" IS NOT NULL THEN JSON_TYPE("j"."StringJsonValue", '$.Name') IS NOT NULL
+    ELSE NULL
+END
+""");
     }
 
     public override async Task JsonExists_With_OwnedJsonProperty(bool async)
     {
         await base.JsonExists_With_OwnedJsonProperty(async);
         // TODO: AssertSql
+
+        AssertSql();
     }
 
     private void AssertSql(params string[] expected)
