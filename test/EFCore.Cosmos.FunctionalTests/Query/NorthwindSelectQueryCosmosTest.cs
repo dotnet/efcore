@@ -1104,6 +1104,14 @@ WHERE STARTSWITH(c["id"], "A")
         AssertSql();
     }
 
+    public override async Task SelectMany_with_nested_DefaultIfEmpty(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.SelectMany_with_nested_DefaultIfEmpty(async));
+
+        AssertSql();
+    }
+
     public override async Task Select_with_multiple_Take(bool async)
     {
         // Cosmos client evaluation. Issue #17246.
