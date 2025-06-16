@@ -83,8 +83,8 @@ public abstract class ValueConverter
         bool convertsNulls,
         ConverterMappingHints? mappingHints = null)
     {
-        Check.NotNull(convertToProviderExpression, nameof(convertToProviderExpression));
-        Check.NotNull(convertFromProviderExpression, nameof(convertFromProviderExpression));
+        Check.NotNull(convertToProviderExpression);
+        Check.NotNull(convertFromProviderExpression);
 
         ConvertToProviderExpression = convertToProviderExpression;
         ConvertFromProviderExpression = convertFromProviderExpression;
@@ -182,9 +182,9 @@ public abstract class ValueConverter
         Type converterType,
         params Type[] supportedTypes)
     {
-        Check.NotNull(type, nameof(type));
-        Check.NotNull(converterType, nameof(converterType));
-        Check.NotEmpty(supportedTypes, nameof(supportedTypes));
+        Check.NotNull(type);
+        Check.NotNull(converterType);
+        Check.NotEmpty(supportedTypes);
 
         if (!supportedTypes.Contains(type))
         {

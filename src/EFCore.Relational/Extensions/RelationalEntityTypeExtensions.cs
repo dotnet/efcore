@@ -98,7 +98,7 @@ public static class RelationalEntityTypeExtensions
     public static void SetTableName(this IMutableEntityType entityType, string? name)
         => entityType.SetAnnotation(
             RelationalAnnotationNames.TableName,
-            Check.NullButNotEmpty(name, nameof(name)));
+            Check.NullButNotEmpty(name));
 
     /// <summary>
     ///     Sets the name of the table to which the entity type is mapped.
@@ -113,7 +113,7 @@ public static class RelationalEntityTypeExtensions
         bool fromDataAnnotation = false)
         => (string?)entityType.SetAnnotation(
             RelationalAnnotationNames.TableName,
-            Check.NullButNotEmpty(name, nameof(name)),
+            Check.NullButNotEmpty(name),
             fromDataAnnotation)?.Value;
 
     /// <summary>
@@ -183,7 +183,7 @@ public static class RelationalEntityTypeExtensions
     public static void SetSchema(this IMutableEntityType entityType, string? value)
         => entityType.SetAnnotation(
             RelationalAnnotationNames.Schema,
-            Check.NullButNotEmpty(value, nameof(value)));
+            Check.NullButNotEmpty(value));
 
     /// <summary>
     ///     Sets the database schema that contains the mapped table.
@@ -198,7 +198,7 @@ public static class RelationalEntityTypeExtensions
         bool fromDataAnnotation = false)
         => (string?)entityType.SetAnnotation(
             RelationalAnnotationNames.Schema,
-            Check.NullButNotEmpty(value, nameof(value)),
+            Check.NullButNotEmpty(value),
             fromDataAnnotation)?.Value;
 
     /// <summary>
@@ -297,7 +297,7 @@ public static class RelationalEntityTypeExtensions
     public static void SetViewName(this IMutableEntityType entityType, string? name)
         => entityType.SetAnnotation(
             RelationalAnnotationNames.ViewName,
-            Check.NullButNotEmpty(name, nameof(name)));
+            Check.NullButNotEmpty(name));
 
     /// <summary>
     ///     Sets the name of the view to which the entity type is mapped.
@@ -312,7 +312,7 @@ public static class RelationalEntityTypeExtensions
         bool fromDataAnnotation = false)
         => (string?)entityType.SetAnnotation(
             RelationalAnnotationNames.ViewName,
-            Check.NullButNotEmpty(name, nameof(name)),
+            Check.NullButNotEmpty(name),
             fromDataAnnotation)?.Value;
 
     /// <summary>
@@ -368,7 +368,7 @@ public static class RelationalEntityTypeExtensions
     public static void SetViewSchema(this IMutableEntityType entityType, string? value)
         => entityType.SetAnnotation(
             RelationalAnnotationNames.ViewSchema,
-            Check.NullButNotEmpty(value, nameof(value)));
+            Check.NullButNotEmpty(value));
 
     /// <summary>
     ///     Sets the database schema that contains the mapped view.
@@ -383,7 +383,7 @@ public static class RelationalEntityTypeExtensions
         bool fromDataAnnotation = false)
         => (string?)entityType.SetAnnotation(
             RelationalAnnotationNames.ViewSchema,
-            Check.NullButNotEmpty(value, nameof(value)),
+            Check.NullButNotEmpty(value),
             fromDataAnnotation)?.Value;
 
     /// <summary>
@@ -431,7 +431,7 @@ public static class RelationalEntityTypeExtensions
     public static void SetSqlQuery(this IMutableEntityType entityType, string? name)
         => entityType.SetAnnotation(
             RelationalAnnotationNames.SqlQuery,
-            Check.NullButNotEmpty(name, nameof(name)));
+            Check.NullButNotEmpty(name));
 
     /// <summary>
     ///     Sets the SQL string used to provide data for the entity type.
@@ -446,7 +446,7 @@ public static class RelationalEntityTypeExtensions
         bool fromDataAnnotation = false)
         => (string?)entityType.SetAnnotation(
             RelationalAnnotationNames.SqlQuery,
-            Check.NullButNotEmpty(name, nameof(name)),
+            Check.NullButNotEmpty(name),
             fromDataAnnotation)?.Value;
 
     /// <summary>
@@ -485,7 +485,7 @@ public static class RelationalEntityTypeExtensions
     public static void SetFunctionName(this IMutableEntityType entityType, string? name)
         => entityType.SetAnnotation(
             RelationalAnnotationNames.FunctionName,
-            Check.NullButNotEmpty(name, nameof(name)));
+            Check.NullButNotEmpty(name));
 
     /// <summary>
     ///     Sets the name of the function to which the entity type is mapped.
@@ -500,7 +500,7 @@ public static class RelationalEntityTypeExtensions
         bool fromDataAnnotation = false)
         => (string?)entityType.SetAnnotation(
             RelationalAnnotationNames.FunctionName,
-            Check.NullButNotEmpty(name, nameof(name)),
+            Check.NullButNotEmpty(name),
             fromDataAnnotation)?.Value;
 
     /// <summary>
@@ -770,7 +770,7 @@ public static class RelationalEntityTypeExtensions
         this IReadOnlyEntityType entityType,
         string name)
     {
-        Check.NotEmpty(name, nameof(name));
+        Check.NotEmpty(name);
 
         return CheckConstraint.FindCheckConstraint(entityType, name);
     }
@@ -830,8 +830,8 @@ public static class RelationalEntityTypeExtensions
         string name,
         string sql)
     {
-        Check.NotEmpty(name, nameof(name));
-        Check.NotEmpty(sql, nameof(sql));
+        Check.NotEmpty(name);
+        Check.NotEmpty(sql);
 
         return new CheckConstraint(entityType, name, sql, ConfigurationSource.Explicit);
     }
@@ -851,8 +851,8 @@ public static class RelationalEntityTypeExtensions
         string sql,
         bool fromDataAnnotation = false)
     {
-        Check.NotEmpty(name, nameof(name));
-        Check.NotEmpty(sql, nameof(sql));
+        Check.NotEmpty(name);
+        Check.NotEmpty(sql);
 
         return new CheckConstraint(
             (IMutableEntityType)entityType, name, sql,
@@ -868,7 +868,7 @@ public static class RelationalEntityTypeExtensions
     public static IMutableCheckConstraint? RemoveCheckConstraint(
         this IMutableEntityType entityType,
         string name)
-        => CheckConstraint.RemoveCheckConstraint(entityType, Check.NotEmpty(name, nameof(name)));
+        => CheckConstraint.RemoveCheckConstraint(entityType, Check.NotEmpty(name));
 
     /// <summary>
     ///     Removes the <see cref="IConventionCheckConstraint" /> with the given name.
@@ -880,7 +880,7 @@ public static class RelationalEntityTypeExtensions
         this IConventionEntityType entityType,
         string name)
         => (IConventionCheckConstraint?)CheckConstraint.RemoveCheckConstraint(
-            (IMutableEntityType)entityType, Check.NotEmpty(name, nameof(name)));
+            (IMutableEntityType)entityType, Check.NotEmpty(name));
 
     /// <summary>
     ///     Returns all check constraints contained in the entity type.
@@ -1703,7 +1703,7 @@ public static class RelationalEntityTypeExtensions
         bool fromDataAnnotation = false)
         => (string?)entityType.SetOrRemoveAnnotation(
             RelationalAnnotationNames.JsonPropertyName,
-            Check.NullButNotEmpty(name, nameof(name)),
+            Check.NullButNotEmpty(name),
             fromDataAnnotation)?.Value;
 
     /// <summary>
@@ -1735,7 +1735,7 @@ public static class RelationalEntityTypeExtensions
     public static void SetJsonPropertyName(this IMutableEntityType entityType, string? name)
         => entityType.SetOrRemoveAnnotation(
             RelationalAnnotationNames.JsonPropertyName,
-            Check.NullButNotEmpty(name, nameof(name)));
+            Check.NullButNotEmpty(name));
 
     /// <summary>
     ///     Gets the <see cref="ConfigurationSource" /> for the JSON property name for a given entity type.

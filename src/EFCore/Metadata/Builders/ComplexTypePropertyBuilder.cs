@@ -31,7 +31,7 @@ public class ComplexTypePropertyBuilder : IInfrastructure<IConventionPropertyBui
     [EntityFrameworkInternal]
     public ComplexTypePropertyBuilder(IMutableProperty property)
     {
-        Check.NotNull(property, nameof(property));
+        Check.NotNull(property);
 
         Builder = ((Property)property).Builder;
     }
@@ -59,7 +59,7 @@ public class ComplexTypePropertyBuilder : IInfrastructure<IConventionPropertyBui
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public virtual ComplexTypePropertyBuilder HasAnnotation(string annotation, object? value)
     {
-        Check.NotEmpty(annotation, nameof(annotation));
+        Check.NotEmpty(annotation);
 
         Builder.HasAnnotation(annotation, value, ConfigurationSource.Explicit);
 
@@ -396,7 +396,7 @@ public class ComplexTypePropertyBuilder : IInfrastructure<IConventionPropertyBui
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public virtual ComplexTypePropertyBuilder HasField(string fieldName)
     {
-        Check.NotEmpty(fieldName, nameof(fieldName));
+        Check.NotEmpty(fieldName);
 
         Builder.HasField(fieldName, ConfigurationSource.Explicit);
 
@@ -524,7 +524,7 @@ public class ComplexTypePropertyBuilder : IInfrastructure<IConventionPropertyBui
         ValueComparer? valueComparer,
         ValueComparer? providerComparer)
     {
-        Check.NotNull(conversionType, nameof(conversionType));
+        Check.NotNull(conversionType);
 
         if (typeof(ValueConverter).IsAssignableFrom(conversionType))
         {
@@ -635,7 +635,7 @@ public class ComplexTypePropertyBuilder : IInfrastructure<IConventionPropertyBui
         [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
         Type? providerComparerType)
     {
-        Check.NotNull(conversionType, nameof(conversionType));
+        Check.NotNull(conversionType);
 
         if (typeof(ValueConverter).IsAssignableFrom(conversionType))
         {

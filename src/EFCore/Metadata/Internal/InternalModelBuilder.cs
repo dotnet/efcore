@@ -389,7 +389,7 @@ public class InternalModelBuilder : AnnotatableBuilder<Model, InternalModelBuild
     public virtual InternalModelBuilder? RemoveImplicitJoinEntity(
         EntityType joinEntityType,
         ConfigurationSource configurationSource = ConfigurationSource.Convention)
-        => !Check.NotNull(joinEntityType, nameof(joinEntityType)).IsInModel
+        => !Check.NotNull(joinEntityType).IsInModel
             ? this
             : !joinEntityType.IsImplicitlyCreatedJoinEntityType
                 ? null

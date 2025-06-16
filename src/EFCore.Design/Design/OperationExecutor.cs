@@ -50,8 +50,8 @@ public class OperationExecutor : MarshalByRefObject
     /// <param name="args">The executor arguments.</param>
     public OperationExecutor(IOperationReportHandler reportHandler, IDictionary args)
     {
-        Check.NotNull(reportHandler, nameof(reportHandler));
-        Check.NotNull(args, nameof(args));
+        Check.NotNull(reportHandler);
+        Check.NotNull(args);
 
         _reporter = new OperationReporter(reportHandler);
         _targetAssemblyName = (string)args["targetName"]!;
@@ -173,8 +173,8 @@ public class OperationExecutor : MarshalByRefObject
             IDictionary args)
             : base(resultHandler)
         {
-            Check.NotNull(executor, nameof(executor));
-            Check.NotNull(args, nameof(args));
+            Check.NotNull(executor);
+            Check.NotNull(args);
 
             var name = (string)args["name"]!;
             var outputDir = (string?)args["outputDir"];
@@ -193,7 +193,7 @@ public class OperationExecutor : MarshalByRefObject
         string? @namespace,
         bool dryRun)
     {
-        Check.NotEmpty(name, nameof(name));
+        Check.NotEmpty(name);
 
         var files = MigrationsOperations.AddMigration(name, outputDir, contextType, @namespace, dryRun);
         return new Hashtable
@@ -225,8 +225,8 @@ public class OperationExecutor : MarshalByRefObject
             IDictionary args)
             : base(resultHandler)
         {
-            Check.NotNull(executor, nameof(executor));
-            Check.NotNull(args, nameof(args));
+            Check.NotNull(executor);
+            Check.NotNull(args);
 
             var contextType = (string?)args["contextType"];
             Execute(() => executor.GetContextInfoImpl(contextType));
@@ -276,8 +276,8 @@ public class OperationExecutor : MarshalByRefObject
             IDictionary args)
             : base(resultHandler)
         {
-            Check.NotNull(executor, nameof(executor));
-            Check.NotNull(args, nameof(args));
+            Check.NotNull(executor);
+            Check.NotNull(args);
 
             var targetMigration = (string?)args["targetMigration"];
             var connectionString = (string?)args["connectionString"];
@@ -318,8 +318,8 @@ public class OperationExecutor : MarshalByRefObject
             IDictionary args)
             : base(resultHandler)
         {
-            Check.NotNull(executor, nameof(executor));
-            Check.NotNull(args, nameof(args));
+            Check.NotNull(executor);
+            Check.NotNull(args);
 
             var fromMigration = (string?)args["fromMigration"];
             var toMigration = (string?)args["toMigration"];
@@ -378,8 +378,8 @@ public class OperationExecutor : MarshalByRefObject
             IDictionary args)
             : base(resultHandler)
         {
-            Check.NotNull(executor, nameof(executor));
-            Check.NotNull(args, nameof(args));
+            Check.NotNull(executor);
+            Check.NotNull(args);
 
             var contextType = (string?)args["contextType"];
             var force = (bool)args["force"]!;
@@ -421,8 +421,8 @@ public class OperationExecutor : MarshalByRefObject
             IDictionary args)
             : base(resultHandler)
         {
-            Check.NotNull(executor, nameof(executor));
-            Check.NotNull(args, nameof(args));
+            Check.NotNull(executor);
+            Check.NotNull(args);
 
             Execute(executor.GetContextTypesImpl);
         }
@@ -475,8 +475,8 @@ public class OperationExecutor : MarshalByRefObject
             IDictionary args)
             : base(resultHandler)
         {
-            Check.NotNull(executor, nameof(executor));
-            Check.NotNull(args, nameof(args));
+            Check.NotNull(executor);
+            Check.NotNull(args);
 
             var contextType = (string?)args["contextType"];
             var connectionString = (string?)args["connectionString"];
@@ -532,8 +532,8 @@ public class OperationExecutor : MarshalByRefObject
             IDictionary args)
             : base(resultHandler)
         {
-            Check.NotNull(executor, nameof(executor));
-            Check.NotNull(args, nameof(args));
+            Check.NotNull(executor);
+            Check.NotNull(args);
 
             var outputDir = (string?)args["outputDir"];
             var modelNamespace = (string?)args["modelNamespace"];
@@ -598,8 +598,8 @@ public class OperationExecutor : MarshalByRefObject
             IDictionary args)
             : base(resultHandler)
         {
-            Check.NotNull(executor, nameof(executor));
-            Check.NotNull(args, nameof(args));
+            Check.NotNull(executor);
+            Check.NotNull(args);
 
             var connectionString = (string)args["connectionString"]!;
             var provider = (string)args["provider"]!;
@@ -640,10 +640,10 @@ public class OperationExecutor : MarshalByRefObject
         bool suppressOnConfiguring,
         bool noPluralize)
     {
-        Check.NotNull(provider, nameof(provider));
-        Check.NotNull(connectionString, nameof(connectionString));
-        Check.NotNull(schemaFilters, nameof(schemaFilters));
-        Check.NotNull(tableFilters, nameof(tableFilters));
+        Check.NotNull(provider);
+        Check.NotNull(connectionString);
+        Check.NotNull(schemaFilters);
+        Check.NotNull(tableFilters);
 
         var files = DatabaseOperations.ScaffoldContext(
             provider, connectionString, outputDir, outputDbContextDir, dbContextClassName,
@@ -674,8 +674,8 @@ public class OperationExecutor : MarshalByRefObject
             IDictionary args)
             : base(resultHandler)
         {
-            Check.NotNull(executor, nameof(executor));
-            Check.NotNull(args, nameof(args));
+            Check.NotNull(executor);
+            Check.NotNull(args);
 
             var contextType = (string?)args["contextType"];
 
@@ -707,8 +707,8 @@ public class OperationExecutor : MarshalByRefObject
             IDictionary args)
             : base(resultHandler)
         {
-            Check.NotNull(executor, nameof(executor));
-            Check.NotNull(args, nameof(args));
+            Check.NotNull(executor);
+            Check.NotNull(args);
 
             var contextType = (string?)args["contextType"];
 
@@ -740,8 +740,8 @@ public class OperationExecutor : MarshalByRefObject
             IDictionary args)
             : base(resultHandler)
         {
-            Check.NotNull(executor, nameof(executor));
-            Check.NotNull(args, nameof(args));
+            Check.NotNull(executor);
+            Check.NotNull(args);
 
             var contextType = (string?)args["contextType"];
 
