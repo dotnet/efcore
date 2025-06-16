@@ -38,6 +38,12 @@ public interface IConventionTypeBase : IReadOnlyTypeBase, IConventionAnnotatable
         => (IConventionEntityType)this;
 
     /// <summary>
+    ///     Gets this entity type or the closest collection property in the complex property chain.
+    /// </summary>
+    new IConventionTypeBase ContainingType
+        => this;
+
+    /// <summary>
     ///     Gets the base type of this type. Returns <see langword="null" /> if this is not a derived type in an inheritance hierarchy.
     /// </summary>
     new IConventionTypeBase? BaseType { get; }

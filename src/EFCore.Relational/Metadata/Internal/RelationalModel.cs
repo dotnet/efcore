@@ -1,9 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Reflection.Metadata;
 using System.Text;
-using System.Text.Json;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 
@@ -282,7 +280,7 @@ public class RelationalModel : Annotatable, IRelationalModel
                 principalRootEntityType = ownership.PrincipalEntityType;
             }
 
-            if (principalRootEntityType.FindDiscriminatorProperty() is not null) // tph
+            if (principalRootEntityType.FindDiscriminatorProperty() is not null)
             {
                 principalRootEntityType = principalRootEntityType.GetRootType();
             }

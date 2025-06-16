@@ -46,10 +46,10 @@ namespace Scaffolding
             id.SetMaterializationSetter(
                 (CompiledModelInMemoryTest.Scaffolding entity, long value) => ScaffoldingUnsafeAccessors.Id(entity) = value);
             id.SetAccessors(
-                long (IInternalEntry entry) => (entry.FlaggedAsStoreGenerated(0) ? entry.ReadStoreGeneratedValue<long>(0) : (entry.FlaggedAsTemporary(0) && ScaffoldingUnsafeAccessors.Id(((CompiledModelInMemoryTest.Scaffolding)(entry.Object))) == 0L ? entry.ReadTemporaryValue<long>(0) : ScaffoldingUnsafeAccessors.Id(((CompiledModelInMemoryTest.Scaffolding)(entry.Object))))),
-                long (IInternalEntry entry) => ScaffoldingUnsafeAccessors.Id(((CompiledModelInMemoryTest.Scaffolding)(entry.Object))),
+                long (IInternalEntry entry) => (entry.FlaggedAsStoreGenerated(0) ? entry.ReadStoreGeneratedValue<long>(0) : (entry.FlaggedAsTemporary(0) && ScaffoldingUnsafeAccessors.Id(((CompiledModelInMemoryTest.Scaffolding)(entry.Entity))) == 0L ? entry.ReadTemporaryValue<long>(0) : ScaffoldingUnsafeAccessors.Id(((CompiledModelInMemoryTest.Scaffolding)(entry.Entity))))),
+                long (IInternalEntry entry) => ScaffoldingUnsafeAccessors.Id(((CompiledModelInMemoryTest.Scaffolding)(entry.Entity))),
                 long (IInternalEntry entry) => entry.ReadOriginalValue<long>(id, 0),
-                long (IInternalEntry entry) => entry.ReadRelationshipSnapshotValue<long>(id, 0));
+                long (IInternalEntry entry) => ((InternalEntityEntry)(entry)).ReadRelationshipSnapshotValue<long>(id, 0));
             id.SetPropertyIndexes(
                 index: 0,
                 originalValueIndex: 0,
@@ -89,7 +89,7 @@ namespace Scaffolding
             runtimeEntityType.SetOriginalValuesFactory(
                 ISnapshot (IInternalEntry source) =>
                 {
-                    var entity = ((CompiledModelInMemoryTest.Scaffolding)(source.Object));
+                    var entity = ((CompiledModelInMemoryTest.Scaffolding)(source.Entity));
                     return ((ISnapshot)(new Snapshot<long>(((ValueComparer<long>)(((IProperty)id).GetValueComparer())).Snapshot(source.GetCurrentValue<long>(id)))));
                 });
             runtimeEntityType.SetStoreGeneratedValuesFactory(
@@ -103,17 +103,18 @@ namespace Scaffolding
             runtimeEntityType.SetRelationshipSnapshotFactory(
                 ISnapshot (IInternalEntry source) =>
                 {
-                    var entity = ((CompiledModelInMemoryTest.Scaffolding)(source.Object));
+                    var entity = ((CompiledModelInMemoryTest.Scaffolding)(source.Entity));
                     return ((ISnapshot)(new Snapshot<long>(((ValueComparer<long>)(((IProperty)id).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<long>(id)))));
                 });
-            runtimeEntityType.Counts = new PropertyCounts(
+            runtimeEntityType.SetCounts(new PropertyCounts(
                 propertyCount: 1,
                 navigationCount: 0,
                 complexPropertyCount: 0,
+                complexCollectionCount: 0,
                 originalValueCount: 1,
                 shadowCount: 0,
                 relationshipCount: 1,
-                storeGeneratedCount: 1);
+                storeGeneratedCount: 1));
 
             Customize(runtimeEntityType);
         }

@@ -56,13 +56,13 @@ namespace TestNamespace
                     else
                     {
                         {
-                            if (entry.FlaggedAsTemporary(0) && (((IDictionary<string, object>)((Dictionary<string, object>)(entry.Object))).ContainsKey("Id") ? ((Dictionary<string, object>)(entry.Object))["Id"] : null) == null)
+                            if (entry.FlaggedAsTemporary(0) && (((IDictionary<string, object>)((Dictionary<string, object>)(entry.Entity))).ContainsKey("Id") ? ((Dictionary<string, object>)(entry.Entity))["Id"] : null) == null)
                             {
                                 return entry.ReadTemporaryValue<int>(0);
                             }
                             else
                             {
-                                var nullableValue = (((IDictionary<string, object>)((Dictionary<string, object>)(entry.Object))).ContainsKey("Id") ? ((Dictionary<string, object>)(entry.Object))["Id"] : null);
+                                var nullableValue = (((IDictionary<string, object>)((Dictionary<string, object>)(entry.Entity))).ContainsKey("Id") ? ((Dictionary<string, object>)(entry.Entity))["Id"] : null);
                                 return (nullableValue == null ? default(int) : ((int)(nullableValue)));
                             }
                         }
@@ -70,11 +70,11 @@ namespace TestNamespace
                 },
                 int (IInternalEntry entry) =>
                 {
-                    var nullableValue = (((IDictionary<string, object>)((Dictionary<string, object>)(entry.Object))).ContainsKey("Id") ? ((Dictionary<string, object>)(entry.Object))["Id"] : null);
+                    var nullableValue = (((IDictionary<string, object>)((Dictionary<string, object>)(entry.Entity))).ContainsKey("Id") ? ((Dictionary<string, object>)(entry.Entity))["Id"] : null);
                     return (nullableValue == null ? default(int) : ((int)(nullableValue)));
                 },
                 int (IInternalEntry entry) => entry.ReadOriginalValue<int>(id, 0),
-                int (IInternalEntry entry) => entry.ReadRelationshipSnapshotValue<int>(id, 0));
+                int (IInternalEntry entry) => ((InternalEntityEntry)(entry)).ReadRelationshipSnapshotValue<int>(id, 0));
             id.SetPropertyIndexes(
                 index: 0,
                 originalValueIndex: 0,
@@ -118,7 +118,7 @@ namespace TestNamespace
             runtimeEntityType.SetOriginalValuesFactory(
                 ISnapshot (IInternalEntry source) =>
                 {
-                    var entity = ((Dictionary<string, object>)(source.Object));
+                    var entity = ((Dictionary<string, object>)(source.Entity));
                     return ((ISnapshot)(new Snapshot<int>(((ValueComparer<int>)(((IProperty)id).GetValueComparer())).Snapshot(source.GetCurrentValue<int>(id)))));
                 });
             runtimeEntityType.SetStoreGeneratedValuesFactory(
@@ -132,17 +132,18 @@ namespace TestNamespace
             runtimeEntityType.SetRelationshipSnapshotFactory(
                 ISnapshot (IInternalEntry source) =>
                 {
-                    var entity = ((Dictionary<string, object>)(source.Object));
+                    var entity = ((Dictionary<string, object>)(source.Entity));
                     return ((ISnapshot)(new Snapshot<int>(((ValueComparer<int>)(((IProperty)id).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<int>(id)))));
                 });
-            runtimeEntityType.Counts = new PropertyCounts(
+            runtimeEntityType.SetCounts(new PropertyCounts(
                 propertyCount: 1,
                 navigationCount: 0,
                 complexPropertyCount: 0,
+                complexCollectionCount: 0,
                 originalValueCount: 1,
                 shadowCount: 0,
                 relationshipCount: 1,
-                storeGeneratedCount: 1);
+                storeGeneratedCount: 1));
 
             Customize(runtimeEntityType);
         }

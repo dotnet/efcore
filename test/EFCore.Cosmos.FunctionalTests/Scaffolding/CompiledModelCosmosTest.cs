@@ -663,7 +663,7 @@ public class CompiledModelCosmosTest(NonSharedFixture fixture) : CompiledModelTe
         modelBuilder.Entity<PrincipalDerived<DependentBase<byte?>>>(
             eb =>
             {
-                eb.ComplexCollection<ICollection<OwnedType>, OwnedType>(
+                eb.ComplexCollection<IList<OwnedType>, OwnedType>(
                     "ManyOwned", "OwnedCollection", ob =>
                     {
                         ob.Ignore(e => e.RefTypeArray);
