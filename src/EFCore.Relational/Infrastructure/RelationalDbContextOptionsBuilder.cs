@@ -93,7 +93,7 @@ public abstract class RelationalDbContextOptionsBuilder<TBuilder, TExtension> : 
     /// <param name="assemblyName">The name of the assembly.</param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
     public virtual TBuilder MigrationsAssembly(string? assemblyName)
-        => WithOption(e => (TExtension)e.WithMigrationsAssembly(Check.NullButNotEmpty(assemblyName, nameof(assemblyName))));
+        => WithOption(e => (TExtension)e.WithMigrationsAssembly(Check.NullButNotEmpty(assemblyName)));
 
     /// <summary>
     ///     Configures the assembly where migrations are maintained for this context.
@@ -117,8 +117,8 @@ public abstract class RelationalDbContextOptionsBuilder<TBuilder, TExtension> : 
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
     public virtual TBuilder MigrationsHistoryTable(string tableName, string? schema = null)
     {
-        Check.NotEmpty(tableName, nameof(tableName));
-        Check.NullButNotEmpty(schema, nameof(schema));
+        Check.NotEmpty(tableName);
+        Check.NullButNotEmpty(schema);
 
         return WithOption(e => (TExtension)e.WithMigrationsHistoryTableName(tableName).WithMigrationsHistoryTableSchema(schema));
     }
@@ -156,7 +156,7 @@ public abstract class RelationalDbContextOptionsBuilder<TBuilder, TExtension> : 
     public virtual TBuilder ExecutionStrategy(
         Func<ExecutionStrategyDependencies, IExecutionStrategy> getExecutionStrategy)
         => WithOption(
-            e => (TExtension)e.WithExecutionStrategyFactory(Check.NotNull(getExecutionStrategy, nameof(getExecutionStrategy))));
+            e => (TExtension)e.WithExecutionStrategyFactory(Check.NotNull(getExecutionStrategy)));
 
     /// <summary>
     ///     Configures the context to translate parameterized collections to inline constants.

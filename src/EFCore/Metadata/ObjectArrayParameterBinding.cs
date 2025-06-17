@@ -23,7 +23,7 @@ public class ObjectArrayParameterBinding : ParameterBinding
     public ObjectArrayParameterBinding(IReadOnlyList<ParameterBinding> bindings)
         : base(
             typeof(object[]),
-            Check.NotNull(bindings, nameof(bindings)).SelectMany(b => b.ConsumedProperties).ToArray())
+            Check.NotNull(bindings).SelectMany(b => b.ConsumedProperties).ToArray())
         => _bindings = bindings;
 
     /// <summary>

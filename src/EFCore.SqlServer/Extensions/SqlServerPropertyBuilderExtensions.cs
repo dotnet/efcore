@@ -34,8 +34,8 @@ public static class SqlServerPropertyBuilderExtensions
         string? name = null,
         string? schema = null)
     {
-        Check.NullButNotEmpty(name, nameof(name));
-        Check.NullButNotEmpty(schema, nameof(schema));
+        Check.NullButNotEmpty(name);
+        Check.NullButNotEmpty(schema);
 
         var property = propertyBuilder.Metadata;
 
@@ -129,8 +129,8 @@ public static class SqlServerPropertyBuilderExtensions
         string? schema,
         bool fromDataAnnotation = false)
     {
-        Check.NullButNotEmpty(name, nameof(name));
-        Check.NullButNotEmpty(schema, nameof(schema));
+        Check.NullButNotEmpty(name);
+        Check.NullButNotEmpty(schema);
 
         return propertyBuilder.CanSetAnnotation(SqlServerAnnotationNames.HiLoSequenceName, name, fromDataAnnotation)
             && propertyBuilder.CanSetAnnotation(SqlServerAnnotationNames.HiLoSequenceSchema, schema, fromDataAnnotation);
@@ -154,8 +154,8 @@ public static class SqlServerPropertyBuilderExtensions
         string? name = null,
         string? schema = null)
     {
-        Check.NullButNotEmpty(name, nameof(name));
-        Check.NullButNotEmpty(schema, nameof(schema));
+        Check.NullButNotEmpty(name);
+        Check.NullButNotEmpty(schema);
 
         var property = propertyBuilder.Metadata;
 
@@ -242,8 +242,8 @@ public static class SqlServerPropertyBuilderExtensions
         string? schema,
         bool fromDataAnnotation = false)
     {
-        Check.NullButNotEmpty(name, nameof(name));
-        Check.NullButNotEmpty(schema, nameof(schema));
+        Check.NullButNotEmpty(name);
+        Check.NullButNotEmpty(schema);
 
         return propertyBuilder.CanSetAnnotation(SqlServerAnnotationNames.SequenceName, name, fromDataAnnotation)
             && propertyBuilder.CanSetAnnotation(SqlServerAnnotationNames.SequenceSchema, schema, fromDataAnnotation);
@@ -830,7 +830,7 @@ public static class SqlServerPropertyBuilderExtensions
         object? value,
         string defaultConstraintName)
     {
-        Check.NotEmpty(defaultConstraintName, nameof(defaultConstraintName));
+        Check.NotEmpty(defaultConstraintName);
 
         propertyBuilder.Metadata.SetDefaultValue(value);
         propertyBuilder.Metadata.SetDefaultConstraintName(defaultConstraintName);
@@ -932,7 +932,7 @@ public static class SqlServerPropertyBuilderExtensions
         string? sql,
         string defaultConstraintName)
     {
-        Check.NotEmpty(defaultConstraintName, nameof(defaultConstraintName));
+        Check.NotEmpty(defaultConstraintName);
 
         propertyBuilder.Metadata.SetDefaultValueSql(sql);
         propertyBuilder.Metadata.SetDefaultConstraintName(defaultConstraintName);

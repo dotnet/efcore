@@ -116,7 +116,7 @@ public abstract class PropertyValues
     /// <param name="values">The dictionary to read values from.</param>
     public virtual void SetValues<TProperty>(IDictionary<string, TProperty> values)
     {
-        Check.NotNull(values, nameof(values));
+        Check.NotNull(values);
 
         foreach (var property in Properties)
         {

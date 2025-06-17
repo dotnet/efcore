@@ -68,7 +68,7 @@ public static class RelationalModelBuilderExtensions
         string? schema,
         Action<SequenceBuilder> builderAction)
     {
-        Check.NotNull(builderAction, nameof(builderAction));
+        Check.NotNull(builderAction);
 
         builderAction(HasSequence(modelBuilder, name, schema));
 
@@ -92,7 +92,7 @@ public static class RelationalModelBuilderExtensions
         string name,
         string? schema = null)
     {
-        Check.NotNull(type, nameof(type));
+        Check.NotNull(type);
 
         var sequence = HasSequence(modelBuilder.Model, name, schema, ConfigurationSource.Explicit);
         sequence.Type = type;
@@ -137,7 +137,7 @@ public static class RelationalModelBuilderExtensions
         string? schema,
         Action<SequenceBuilder> builderAction)
     {
-        Check.NotNull(builderAction, nameof(builderAction));
+        Check.NotNull(builderAction);
 
         builderAction(HasSequence(modelBuilder, type, name, schema));
 
@@ -201,7 +201,7 @@ public static class RelationalModelBuilderExtensions
         string? schema,
         Action<SequenceBuilder> builderAction)
     {
-        Check.NotNull(builderAction, nameof(builderAction));
+        Check.NotNull(builderAction);
 
         builderAction(HasSequence<T>(modelBuilder, name, schema));
 
@@ -236,8 +236,8 @@ public static class RelationalModelBuilderExtensions
         string? schema,
         ConfigurationSource configurationSource)
     {
-        Check.NotEmpty(name, nameof(name));
-        Check.NullButNotEmpty(schema, nameof(schema));
+        Check.NotEmpty(name);
+        Check.NullButNotEmpty(schema);
 
         var sequence = (Sequence?)Sequence.FindSequence(model, name, schema);
         if (sequence != null)
@@ -262,7 +262,7 @@ public static class RelationalModelBuilderExtensions
         this ModelBuilder modelBuilder,
         MethodInfo methodInfo)
     {
-        Check.NotNull(methodInfo, nameof(methodInfo));
+        Check.NotNull(methodInfo);
 
         var dbFunction = modelBuilder.Model.FindDbFunction(methodInfo);
         if (dbFunction == null)
@@ -290,7 +290,7 @@ public static class RelationalModelBuilderExtensions
         this ModelBuilder modelBuilder,
         Expression<Func<TResult>> expression)
     {
-        Check.NotNull(expression, nameof(expression));
+        Check.NotNull(expression);
 
         var methodInfo = (expression.Body as MethodCallExpression)?.Method;
 
@@ -317,7 +317,7 @@ public static class RelationalModelBuilderExtensions
         MethodInfo methodInfo,
         Action<DbFunctionBuilder> builderAction)
     {
-        Check.NotNull(builderAction, nameof(builderAction));
+        Check.NotNull(builderAction);
 
         builderAction(HasDbFunction(modelBuilder, methodInfo));
 
@@ -339,7 +339,7 @@ public static class RelationalModelBuilderExtensions
         MethodInfo methodInfo,
         bool fromDataAnnotation = false)
     {
-        Check.NotNull(methodInfo, nameof(methodInfo));
+        Check.NotNull(methodInfo);
 
         var dbFunction = modelBuilder.Metadata.FindDbFunction(methodInfo);
         if (dbFunction == null)
@@ -372,7 +372,7 @@ public static class RelationalModelBuilderExtensions
         Type returnType,
         bool fromDataAnnotation = false)
     {
-        Check.NotEmpty(name, nameof(name));
+        Check.NotEmpty(name);
 
         var dbFunction = modelBuilder.Metadata.FindDbFunction(name);
         if (dbFunction == null)
@@ -402,7 +402,7 @@ public static class RelationalModelBuilderExtensions
         this ModelBuilder modelBuilder,
         string? schema)
     {
-        Check.NullButNotEmpty(schema, nameof(schema));
+        Check.NullButNotEmpty(schema);
 
         modelBuilder.Model.SetDefaultSchema(schema);
 
@@ -453,7 +453,7 @@ public static class RelationalModelBuilderExtensions
         string? schema,
         bool fromDataAnnotation = false)
     {
-        Check.NullButNotEmpty(schema, nameof(schema));
+        Check.NullButNotEmpty(schema);
 
         return modelBuilder.CanSetAnnotation(RelationalAnnotationNames.DefaultSchema, schema, fromDataAnnotation);
     }
@@ -515,7 +515,7 @@ public static class RelationalModelBuilderExtensions
         this ModelBuilder modelBuilder,
         string? collation)
     {
-        Check.NullButNotEmpty(collation, nameof(collation));
+        Check.NullButNotEmpty(collation);
 
         modelBuilder.Model.SetCollation(collation);
 
@@ -565,7 +565,7 @@ public static class RelationalModelBuilderExtensions
         string? collation,
         bool fromDataAnnotation = false)
     {
-        Check.NullButNotEmpty(collation, nameof(collation));
+        Check.NullButNotEmpty(collation);
 
         return modelBuilder.CanSetAnnotation(RelationalAnnotationNames.Collation, collation, fromDataAnnotation);
     }

@@ -382,7 +382,7 @@ public static class EntityTypeExtensions
         this IEntityType entityType,
         IProperty property)
     {
-        Check.NotNull(property, nameof(property));
+        Check.NotNull(property);
 
         if (!property.DeclaringType.ContainingType.IsAssignableFrom(entityType))
         {

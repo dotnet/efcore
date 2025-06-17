@@ -568,7 +568,7 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
     /// <returns>An entry for the entity found, or <see langword="null" />.</returns>
     public virtual EntityEntry<TEntity>? FindEntryUntyped(IEnumerable<object?> keyValues)
     {
-        Check.NotNull(keyValues, nameof(keyValues));
+        Check.NotNull(keyValues);
 
         var internalEntityEntry = Finder.FindEntry(keyValues);
 
@@ -627,7 +627,7 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
     /// <returns>An entry for the entity found, or <see langword="null" />.</returns>
     public virtual EntityEntry<TEntity>? FindEntry(IEnumerable<string> propertyNames, IEnumerable<object?> propertyValues)
     {
-        Check.NotNull(propertyNames, nameof(propertyNames));
+        Check.NotNull(propertyNames);
 
         return FindEntry(propertyNames.Select(n => _entityType.GetProperty(n)), propertyValues);
     }
@@ -694,7 +694,7 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
     /// <returns>An entry for each entity being tracked.</returns>
     public virtual IEnumerable<EntityEntry<TEntity>> GetEntries(IEnumerable<string> propertyNames, IEnumerable<object?> propertyValues)
     {
-        Check.NotNull(propertyNames, nameof(propertyNames));
+        Check.NotNull(propertyNames);
 
         return GetEntries(propertyNames.Select(n => _entityType.GetProperty(n)), propertyValues);
     }
@@ -725,7 +725,7 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
     /// <returns>An entry for the entity found, or <see langword="null" />.</returns>
     public virtual EntityEntry<TEntity>? FindEntry<TProperty>(IProperty property, TProperty? propertyValue)
     {
-        Check.NotNull(property, nameof(property));
+        Check.NotNull(property);
 
         var internalEntityEntry = Finder.FindEntry(property, propertyValue);
 
@@ -757,8 +757,8 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
     /// <returns>An entry for the entity found, or <see langword="null" />.</returns>
     public virtual EntityEntry<TEntity>? FindEntry(IEnumerable<IProperty> properties, IEnumerable<object?> propertyValues)
     {
-        Check.NotNull(properties, nameof(properties));
-        Check.NotNull(propertyValues, nameof(propertyValues));
+        Check.NotNull(properties);
+        Check.NotNull(propertyValues);
 
         var internalEntityEntry = Finder.FindEntry(properties, propertyValues);
 
@@ -796,7 +796,7 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
     /// <returns>An entry for each entity being tracked.</returns>
     public virtual IEnumerable<EntityEntry<TEntity>> GetEntries<TProperty>(IProperty property, TProperty? propertyValue)
     {
-        Check.NotNull(property, nameof(property));
+        Check.NotNull(property);
 
         return Finder.GetEntries(property, propertyValue).Select(e => new EntityEntry<TEntity>(e));
     }
@@ -831,15 +831,15 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
     /// <returns>An entry for each entity being tracked.</returns>
     public virtual IEnumerable<EntityEntry<TEntity>> GetEntries(IEnumerable<IProperty> properties, IEnumerable<object?> propertyValues)
     {
-        Check.NotNull(properties, nameof(properties));
-        Check.NotNull(propertyValues, nameof(propertyValues));
+        Check.NotNull(properties);
+        Check.NotNull(propertyValues);
 
         return Finder.GetEntries(properties, propertyValues).Select(e => new EntityEntry<TEntity>(e));
     }
 
     private IProperty FindAndValidateProperty<TProperty>(string propertyName)
     {
-        Check.NotEmpty(propertyName, nameof(propertyName));
+        Check.NotEmpty(propertyName);
 
         var property = _entityType.GetProperty(propertyName);
 

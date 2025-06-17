@@ -110,7 +110,7 @@ public static class SqlServerComplexTypePrimitiveCollectionBuilderExtensions
         string? sql,
         string defaultConstraintName)
     {
-        Check.NullButNotEmpty(sql, nameof(sql));
+        Check.NullButNotEmpty(sql);
 
         primitiveCollectionBuilder.Metadata.SetDefaultValueSql(sql);
         primitiveCollectionBuilder.Metadata.SetDefaultConstraintName(defaultConstraintName);

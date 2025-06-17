@@ -30,7 +30,7 @@ public static class CosmosEntityTypeBuilderExtensions
         this EntityTypeBuilder entityTypeBuilder,
         string? name)
     {
-        Check.NullButNotEmpty(name, nameof(name));
+        Check.NullButNotEmpty(name);
 
         entityTypeBuilder.Metadata.SetContainer(name);
 
@@ -100,7 +100,7 @@ public static class CosmosEntityTypeBuilderExtensions
         string? name,
         bool fromDataAnnotation = false)
     {
-        Check.NullButNotEmpty(name, nameof(name));
+        Check.NullButNotEmpty(name);
 
         return entityTypeBuilder.CanSetAnnotation(CosmosAnnotationNames.ContainerName, name, fromDataAnnotation);
     }
@@ -191,7 +191,7 @@ public static class CosmosEntityTypeBuilderExtensions
         string? name,
         bool fromDataAnnotation = false)
     {
-        Check.NullButNotEmpty(name, nameof(name));
+        Check.NullButNotEmpty(name);
 
         return entityTypeBuilder.CanSetAnnotation(CosmosAnnotationNames.PropertyName, name, fromDataAnnotation);
     }
@@ -213,8 +213,8 @@ public static class CosmosEntityTypeBuilderExtensions
         string? name,
         params string[]? additionalPropertyNames)
     {
-        Check.NullButNotEmpty(name, nameof(name));
-        Check.HasNoEmptyElements(additionalPropertyNames, nameof(additionalPropertyNames));
+        Check.NullButNotEmpty(name);
+        Check.HasNoEmptyElements(additionalPropertyNames);
 
         if (name is null)
         {
@@ -265,7 +265,7 @@ public static class CosmosEntityTypeBuilderExtensions
         Expression<Func<TEntity, TProperty>> propertyExpression)
         where TEntity : class
     {
-        Check.NotNull(propertyExpression, nameof(propertyExpression));
+        Check.NotNull(propertyExpression);
 
         entityTypeBuilder.Metadata.SetPartitionKeyPropertyNames(
             propertyExpression.GetMemberAccessList().Select(e => e.GetSimpleMemberName()).ToList());
@@ -358,7 +358,7 @@ public static class CosmosEntityTypeBuilderExtensions
         bool fromDataAnnotation = false)
         => entityTypeBuilder.CanSetAnnotation(
             CosmosAnnotationNames.PartitionKeyNames,
-            names is null ? names : Check.HasNoEmptyElements(names, nameof(names)),
+            names is null ? names : Check.HasNoEmptyElements(names),
             fromDataAnnotation);
 
     /// <summary>
@@ -486,7 +486,7 @@ public static class CosmosEntityTypeBuilderExtensions
         bool? alwaysCreate,
         bool fromDataAnnotation = false)
     {
-        Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
+        Check.NotNull(entityTypeBuilder);
 
         return entityTypeBuilder.CanSetAnnotation(CosmosAnnotationNames.HasShadowId, alwaysCreate, fromDataAnnotation);
     }
@@ -674,7 +674,7 @@ public static class CosmosEntityTypeBuilderExtensions
         bool? includeDiscriminator,
         bool fromDataAnnotation = false)
     {
-        Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
+        Check.NotNull(entityTypeBuilder);
 
         return entityTypeBuilder.CanSetAnnotation(
             CosmosAnnotationNames.DiscriminatorInKey,
@@ -705,7 +705,7 @@ public static class CosmosEntityTypeBuilderExtensions
         bool? includeDiscriminator,
         bool fromDataAnnotation = false)
     {
-        Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
+        Check.NotNull(entityTypeBuilder);
 
         return entityTypeBuilder.CanSetAnnotation(
             CosmosAnnotationNames.DiscriminatorInKey,
@@ -797,7 +797,7 @@ public static class CosmosEntityTypeBuilderExtensions
         int? seconds,
         bool fromDataAnnotation = false)
     {
-        Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
+        Check.NotNull(entityTypeBuilder);
 
         return entityTypeBuilder.CanSetAnnotation(CosmosAnnotationNames.AnalyticalStoreTimeToLive, seconds, fromDataAnnotation);
     }

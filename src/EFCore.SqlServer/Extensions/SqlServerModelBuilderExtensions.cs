@@ -34,8 +34,8 @@ public static class SqlServerModelBuilderExtensions
         string? name = null,
         string? schema = null)
     {
-        Check.NullButNotEmpty(name, nameof(name));
-        Check.NullButNotEmpty(schema, nameof(schema));
+        Check.NullButNotEmpty(name);
+        Check.NullButNotEmpty(schema);
 
         var model = modelBuilder.Model;
 
@@ -107,8 +107,8 @@ public static class SqlServerModelBuilderExtensions
         string? schema,
         bool fromDataAnnotation = false)
     {
-        Check.NullButNotEmpty(name, nameof(name));
-        Check.NullButNotEmpty(schema, nameof(schema));
+        Check.NullButNotEmpty(name);
+        Check.NullButNotEmpty(schema);
 
         return modelBuilder.CanSetAnnotation(SqlServerAnnotationNames.HiLoSequenceName, name, fromDataAnnotation)
             && modelBuilder.CanSetAnnotation(SqlServerAnnotationNames.HiLoSequenceSchema, schema, fromDataAnnotation);
@@ -132,8 +132,8 @@ public static class SqlServerModelBuilderExtensions
         string? nameSuffix = null,
         string? schema = null)
     {
-        Check.NullButNotEmpty(nameSuffix, nameof(nameSuffix));
-        Check.NullButNotEmpty(schema, nameof(schema));
+        Check.NullButNotEmpty(nameSuffix);
+        Check.NullButNotEmpty(schema);
 
         var model = modelBuilder.Model;
 
@@ -389,7 +389,7 @@ public static class SqlServerModelBuilderExtensions
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
     public static ModelBuilder HasDatabaseMaxSize(this ModelBuilder modelBuilder, string maxSize)
     {
-        Check.NotNull(maxSize, nameof(maxSize));
+        Check.NotNull(maxSize);
 
         modelBuilder.Model.SetDatabaseMaxSize(maxSize);
 
@@ -466,7 +466,7 @@ public static class SqlServerModelBuilderExtensions
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
     public static ModelBuilder HasServiceTier(this ModelBuilder modelBuilder, string serviceTier)
     {
-        Check.NotNull(serviceTier, nameof(serviceTier));
+        Check.NotNull(serviceTier);
 
         modelBuilder.Model.SetServiceTierSql("'" + serviceTier.Replace("'", "''") + "'");
 
@@ -491,7 +491,7 @@ public static class SqlServerModelBuilderExtensions
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
     public static ModelBuilder HasServiceTierSql(this ModelBuilder modelBuilder, string serviceTier)
     {
-        Check.NotNull(serviceTier, nameof(serviceTier));
+        Check.NotNull(serviceTier);
 
         modelBuilder.Model.SetServiceTierSql(serviceTier);
 
@@ -568,7 +568,7 @@ public static class SqlServerModelBuilderExtensions
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
     public static ModelBuilder HasPerformanceLevel(this ModelBuilder modelBuilder, string performanceLevel)
     {
-        Check.NotNull(performanceLevel, nameof(performanceLevel));
+        Check.NotNull(performanceLevel);
 
         modelBuilder.Model.SetPerformanceLevelSql("'" + performanceLevel.Replace("'", "''") + "'");
 
@@ -593,7 +593,7 @@ public static class SqlServerModelBuilderExtensions
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
     public static ModelBuilder HasPerformanceLevelSql(this ModelBuilder modelBuilder, string performanceLevel)
     {
-        Check.NotNull(performanceLevel, nameof(performanceLevel));
+        Check.NotNull(performanceLevel);
 
         modelBuilder.Model.SetPerformanceLevelSql(performanceLevel);
 
@@ -665,7 +665,7 @@ public static class SqlServerModelBuilderExtensions
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
     public static ModelBuilder UseNamedDefaultConstraints(this ModelBuilder modelBuilder, bool value = true)
     {
-        Check.NotNull(value, nameof(value));
+        Check.NotNull(value);
 
         modelBuilder.Model.UseNamedDefaultConstraints(value);
 

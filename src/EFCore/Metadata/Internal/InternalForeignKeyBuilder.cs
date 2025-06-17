@@ -1280,7 +1280,7 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
         EntityType dependentEntityType,
         ConfigurationSource configurationSource)
     {
-        Check.NotNull(dependentEntityType, nameof(dependentEntityType));
+        Check.NotNull(dependentEntityType);
 
         var builder = this;
         if (Metadata.DeclaringEntityType.IsAssignableFrom(dependentEntityType))
@@ -1313,7 +1313,7 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
         EntityType principalEntityType,
         ConfigurationSource configurationSource)
     {
-        Check.NotNull(principalEntityType, nameof(principalEntityType));
+        Check.NotNull(principalEntityType);
 
         var builder = this;
         if (Metadata.PrincipalEntityType.IsAssignableFrom(principalEntityType))
@@ -2172,8 +2172,8 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
         ConfigurationSource? principalEndConfigurationSource,
         ConfigurationSource configurationSource)
     {
-        Check.NotNull(principalEntityTypeBuilder, nameof(principalEntityTypeBuilder));
-        Check.NotNull(dependentEntityTypeBuilder, nameof(dependentEntityTypeBuilder));
+        Check.NotNull(principalEntityTypeBuilder);
+        Check.NotNull(dependentEntityTypeBuilder);
 
         if (configurationSource == ConfigurationSource.Explicit
             && principalEntityTypeBuilder.Metadata.IsKeyless)
