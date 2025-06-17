@@ -229,10 +229,9 @@ public sealed class SqlServerJsonPostprocessor(
                     ?? (jsonScalar.Json as ColumnExpression)?.Name
                     ?? "Json";
 
-                if (sqlAliasManager is null)
-                {
-                    throw new UnreachableException();
-                }
+                // We need to generaste alias here and hence need SqlAliasManager.
+                // Other code paths have already alias and don't need to access SqlAliasManager.
+                Check.DebugAssert(sqlAliasManager is not null, "No SqlAliasManager in SqlServerJsonPostprocessor");
                 var tableAlias = sqlAliasManager.GenerateTableAlias(name);
                 var join =
                     new OuterApplyExpression(
