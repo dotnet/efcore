@@ -4944,15 +4944,12 @@ WHERE COALESCE([c].[Location], N'') + N'Added' LIKE N'%Add%'
 
         AssertSql(
             """
-@types_without_nulls='[1]' (Size = 4000)
+@types2='1'
 
 SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[PeriodEnd], [w].[PeriodStart], [w].[SynergyWithId]
 FROM [Weapons] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [w]
 LEFT JOIN [Weapons] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [w0] ON [w].[SynergyWithId] = [w0].[Id]
-WHERE [w0].[Id] IS NOT NULL AND ([w0].[AmmunitionType] IN (
-    SELECT [t].[value]
-    FROM OPENJSON(@types_without_nulls) AS [t]
-) OR [w0].[AmmunitionType] IS NULL)
+WHERE [w0].[Id] IS NOT NULL AND ([w0].[AmmunitionType] IS NULL OR [w0].[AmmunitionType] = @types2)
 """);
     }
 
