@@ -546,7 +546,6 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                     [.. rowValues
                         // Remove explicit cast from RelationalTypeMappingPostprocessor.ApplyTypeMappingsOnValuesExpression.
                         // For IN it is not needed.
-                        // When #30605 is done, this will not be needed.
                         .Select(r => r.Values[0] is SqlUnaryExpression { OperatorType: ExpressionType.Convert } convert
                             ? convert.Operand
                             : r.Values[0])]);
