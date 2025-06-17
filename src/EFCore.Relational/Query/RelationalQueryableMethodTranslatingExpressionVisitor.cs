@@ -298,24 +298,12 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
 
         var tableAlias = _sqlAliasManager.GenerateTableAlias(sqlParameterExpression.Name.TrimStart('_'));
 
-        if (queryParameter.ShouldBeConstantized
-            || (_primitiveCollectionsBehavior is ParameterizedCollectionTranslationMode.Constantize
-                && !queryParameter.ShouldNotBeConstantized))
-        {
-            var valuesExpression = new ValuesExpression(
-                tableAlias,
-                sqlParameterExpression,
-                [ValuesOrderingColumnName, ValuesValueColumnName]);
-            return CreateShapedQueryExpressionForValuesExpression(
-                valuesExpression,
-                tableAlias,
-                parameterQueryRootExpression.ElementType,
-                sqlParameterExpression.TypeMapping,
-                sqlParameterExpression.IsNullable);
-        }
-
-        if ((_primitiveCollectionsBehavior is null or ParameterizedCollectionTranslationMode.ParameterizeExpanded)
-            && !queryParameter.ShouldNotBeConstantized)
+        var constantize = queryParameter.ShouldBeConstantized
+                || (_primitiveCollectionsBehavior is ParameterizedCollectionTranslationMode.Constantize
+                    && !queryParameter.ShouldNotBeConstantized);
+        var parameterizeExpanded = (_primitiveCollectionsBehavior is null or ParameterizedCollectionTranslationMode.ParameterizeExpanded)
+                && !queryParameter.ShouldNotBeConstantized;
+        if (constantize || parameterizeExpanded)
         {
             var valuesExpression = new ValuesExpression(
                 tableAlias,
