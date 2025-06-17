@@ -2035,14 +2035,12 @@ WHERE [o].[OrderID] IN (@orderIds1, @orderIds2)
 
         AssertSql(
             """
-@orderIds='[10248,10249]' (Size = 4000)
+@orderIds1='10248'
+@orderIds2='10249'
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE [o].[OrderID] IN (
-    SELECT [o0].[value]
-    FROM OPENJSON(@orderIds) WITH ([value] int '$') AS [o0]
-)
+WHERE [o].[OrderID] IN (@orderIds1, @orderIds2)
 """);
     }
 

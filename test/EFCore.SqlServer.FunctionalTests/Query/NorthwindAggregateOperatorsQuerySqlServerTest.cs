@@ -1704,25 +1704,20 @@ WHERE [e].[EmployeeID] = @ids1
 
         AssertSql(
             """
-@ids='[0,1]' (Size = 4000)
+@ids1='0'
+@ids2='1'
 
 SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
-WHERE [e].[EmployeeID] IN (
-    SELECT [i].[value]
-    FROM OPENJSON(@ids) WITH ([value] int '$') AS [i]
-)
+WHERE [e].[EmployeeID] IN (@ids1, @ids2)
 """,
             //
             """
-@ids='[0]' (Size = 4000)
+@ids1='0'
 
 SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
-WHERE [e].[EmployeeID] IN (
-    SELECT [i].[value]
-    FROM OPENJSON(@ids) WITH ([value] int '$') AS [i]
-)
+WHERE [e].[EmployeeID] = @ids1
 """);
     }
 
