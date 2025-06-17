@@ -177,12 +177,14 @@ public class SqlServerSqlNullabilityProcessor : SqlNullabilityProcessor
                         "valuesParameter.TypeMapping.ElementTypeMapping is not null");
                     var typeMapping = (RelationalTypeMapping)valuesParameter.TypeMapping.ElementTypeMapping;
 
-                    var openJsonSupported = !(
+                    var openJsonSupported =
                         (_sqlServerSingletonOptions.EngineType == SqlServerEngineType.SqlServer
-                            && _sqlServerSingletonOptions.SqlServerCompatibilityLevel < 130)
+                            && _sqlServerSingletonOptions.SqlServerCompatibilityLevel >= 130)
                         ||
                         (_sqlServerSingletonOptions.EngineType == SqlServerEngineType.AzureSql
-                            && _sqlServerSingletonOptions.AzureSqlCompatibilityLevel < 130));
+                            && _sqlServerSingletonOptions.AzureSqlCompatibilityLevel >= 130)
+                        ||
+                        (_sqlServerSingletonOptions.EngineType == SqlServerEngineType.AzureSynapse);
 
                     if (openJsonSupported)
                     {
