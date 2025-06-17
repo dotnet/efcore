@@ -8,6 +8,8 @@ namespace Microsoft.EntityFrameworkCore.Query;
 public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)
     where TFixture : PrimitiveCollectionsQueryTestBase<TFixture>.PrimitiveCollectionsQueryFixtureBase, new()
 {
+    public virtual int? NumberOfValuesForHugeParameterCollectionTests { get; } = null;
+
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Inline_collection_of_ints_Contains(bool async)
@@ -678,7 +680,12 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Parameter_collection_Count_with_huge_number_of_values(bool async)
     {
-        var extra = Enumerable.Range(1000, 5000);
+        if (NumberOfValuesForHugeParameterCollectionTests is null)
+        {
+            return Task.CompletedTask;
+        }
+
+        var extra = Enumerable.Range(1000, (int)NumberOfValuesForHugeParameterCollectionTests);
         var ids = new[] { 2, 999 }.Concat(extra).ToArray();
 
         return AssertQuery(
@@ -690,7 +697,12 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Parameter_collection_of_ints_Contains_int_with_huge_number_of_values(bool async)
     {
-        var extra = Enumerable.Range(1000, 5000);
+        if (NumberOfValuesForHugeParameterCollectionTests is null)
+        {
+            return;
+        }
+
+        var extra = Enumerable.Range(1000, (int)NumberOfValuesForHugeParameterCollectionTests);
         var ints = new[] { 10, 999 }.Concat(extra).ToArray();
 
         await AssertQuery(
