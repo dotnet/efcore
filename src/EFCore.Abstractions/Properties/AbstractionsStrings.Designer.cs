@@ -23,20 +23,16 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             = new ResourceManager("Microsoft.EntityFrameworkCore.Properties.AbstractionsStrings", typeof(AbstractionsStrings).Assembly);
 
         /// <summary>
-        ///     The string argument '{argumentName}' cannot be empty.
+        ///     The string argument cannot be empty.
         /// </summary>
-        public static string ArgumentIsEmpty(object? argumentName)
-            => string.Format(
-                GetString("ArgumentIsEmpty", nameof(argumentName)),
-                argumentName);
+        public static string ArgumentIsEmpty
+            => GetString("ArgumentIsEmpty");
 
         /// <summary>
-        ///     The number argument '{argumentName}' cannot be negative number.
+        ///     The number argument cannot be negative number.
         /// </summary>
-        public static string ArgumentIsNegativeNumber(object? argumentName)
-            => string.Format(
-                GetString("ArgumentIsNegativeNumber", nameof(argumentName)),
-                argumentName);
+        public static string ArgumentIsNegativeNumber
+            => GetString("ArgumentIsNegativeNumber");
 
         /// <summary>
         ///     IsDescending and AllDescending cannot both be specified on the [Index] attribute.
@@ -45,20 +41,16 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("CannotSpecifyBothIsDescendingAndAllDescending");
 
         /// <summary>
-        ///     The collection argument '{argumentName}' must not contain any empty elements.
+        ///     The collection argument must not contain any empty elements.
         /// </summary>
-        public static string CollectionArgumentHasEmptyElements(object? argumentName)
-            => string.Format(
-                GetString("CollectionArgumentHasEmptyElements", nameof(argumentName)),
-                argumentName);
+        public static string CollectionArgumentHasEmptyElements
+            => GetString("CollectionArgumentHasEmptyElements");
 
         /// <summary>
-        ///     The collection argument '{argumentName}' must contain at least one element.
+        ///     The collection argument must contain at least one element.
         /// </summary>
-        public static string CollectionArgumentIsEmpty(object? argumentName)
-            => string.Format(
-                GetString("CollectionArgumentIsEmpty", nameof(argumentName)),
-                argumentName);
+        public static string CollectionArgumentIsEmpty
+            => GetString("CollectionArgumentIsEmpty");
 
         /// <summary>
         ///     Invalid number of index sort order values: {numValues} values were provided, but the index has {numProperties} properties.

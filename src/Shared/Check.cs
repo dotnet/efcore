@@ -17,7 +17,14 @@ internal static class Check
     public static T NotNull<T>(
         [NoEnumeration, AllowNull, NotNull] T value,
         [InvokerParameterName, CallerArgumentExpression(nameof(value))] string parameterName = "")
-        => value ?? throw new ArgumentNullException(parameterName);
+    {
+        if (value is null)
+        {
+            ThrowArgumentNull(parameterName);
+        }
+
+        return value;
+    }
 
     [ContractAnnotation("value:null => halt")]
     public static IReadOnlyList<T> NotEmpty<T>(
@@ -26,9 +33,12 @@ internal static class Check
     {
         NotNull(value, parameterName);
 
-        return value.Count == 0
-            ? throw new ArgumentException(AbstractionsStrings.CollectionArgumentIsEmpty(parameterName), parameterName)
-            : value;
+        if (value.Count == 0)
+        {
+            ThrowNotEmpty(parameterName);
+        }
+
+        return value;
     }
 
     [ContractAnnotation("value:null => halt")]
@@ -36,18 +46,16 @@ internal static class Check
         [NotNull] string? value,
         [InvokerParameterName, CallerArgumentExpression(nameof(value))] string parameterName = "")
     {
-        if (value is null)
-        {
-            throw new ArgumentNullException(parameterName);
-        }
+        NotNull(value, parameterName);
 
         if (value.AsSpan().Trim().Length == 0)
         {
-            throw new ArgumentException(AbstractionsStrings.ArgumentIsEmpty(parameterName), parameterName);
+            ThrowStringArgumentEmpty(parameterName);
         }
 
         return value;
     }
+
 
     public static string? NullButNotEmpty(
         string? value,
@@ -55,7 +63,7 @@ internal static class Check
     {
         if (value is not null && value.Length == 0)
         {
-            throw new ArgumentException(AbstractionsStrings.ArgumentIsEmpty(parameterName), parameterName);
+            ThrowStringArgumentEmpty(parameterName);
         }
 
         return value;
@@ -72,7 +80,7 @@ internal static class Check
         {
             if (value[i] is null)
             {
-                throw new ArgumentException(parameterName, parameterName);
+                ThrowArgumentException(parameterName, parameterName);
             }
         }
 
@@ -89,7 +97,7 @@ internal static class Check
         {
             if (string.IsNullOrWhiteSpace(value[i]))
             {
-                throw new ArgumentException(AbstractionsStrings.CollectionArgumentHasEmptyElements(parameterName), parameterName);
+                ThrowCollectionHasEmptyElements(parameterName);
             }
         }
 
@@ -109,4 +117,24 @@ internal static class Check
     [DoesNotReturn]
     public static void DebugFail(string message)
         => throw new UnreachableException($"Check.DebugFail failed: {message}");
+
+    [DoesNotReturn]
+    private static void ThrowArgumentNull(string parameterName)
+        => throw new ArgumentNullException(parameterName);
+
+    [DoesNotReturn]
+    private static void ThrowNotEmpty(string parameterName)
+        => throw new ArgumentException(AbstractionsStrings.CollectionArgumentIsEmpty, parameterName);
+
+    [DoesNotReturn]
+    private static void ThrowStringArgumentEmpty(string parameterName)
+        => throw new ArgumentException(AbstractionsStrings.ArgumentIsEmpty, parameterName);
+
+    [DoesNotReturn]
+    private static void ThrowCollectionHasEmptyElements(string parameterName)
+        => throw new ArgumentException(AbstractionsStrings.CollectionArgumentHasEmptyElements, parameterName);
+
+    [DoesNotReturn]
+    private static void ThrowArgumentException(string message, string parameterName)
+        => throw new ArgumentException(message, parameterName);
 }
