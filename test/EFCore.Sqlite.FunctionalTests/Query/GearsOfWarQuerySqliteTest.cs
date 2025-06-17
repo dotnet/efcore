@@ -2446,15 +2446,12 @@ WHERE "w"."Id" = 0
 
         AssertSql(
             """
-@types_without_nulls='[1]' (Size = 3)
+@types2='1'
 
 SELECT "w"."Id", "w"."AmmunitionType", "w"."IsAutomatic", "w"."Name", "w"."OwnerFullName", "w"."SynergyWithId"
 FROM "Weapons" AS "w"
 LEFT JOIN "Weapons" AS "w0" ON "w"."SynergyWithId" = "w0"."Id"
-WHERE "w0"."Id" IS NOT NULL AND ("w0"."AmmunitionType" IN (
-    SELECT "t"."value"
-    FROM json_each(@types_without_nulls) AS "t"
-) OR "w0"."AmmunitionType" IS NULL)
+WHERE "w0"."Id" IS NOT NULL AND ("w0"."AmmunitionType" IS NULL OR "w0"."AmmunitionType" = @types2)
 """);
     }
 
