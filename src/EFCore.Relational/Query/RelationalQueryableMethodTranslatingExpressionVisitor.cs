@@ -64,7 +64,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         _typeMappingSource = relationalDependencies.TypeMappingSource;
         _sqlExpressionFactory = sqlExpressionFactory;
         _subquery = false;
-        _primitiveCollectionsBehavior = RelationalOptionsExtension.Extract(QueryCompilationContext.ContextOptions).ParameterizedCollectionTranslationMode;
+        _primitiveCollectionsBehavior = RelationalOptionsExtension.Extract(_queryCompilationContext.ContextOptions).ParameterizedCollectionTranslationMode;
     }
 
     /// <summary>
@@ -90,6 +90,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         _typeMappingSource = parentVisitor._typeMappingSource;
         _sqlExpressionFactory = parentVisitor._sqlExpressionFactory;
         _subquery = true;
+        _primitiveCollectionsBehavior = RelationalOptionsExtension.Extract(_queryCompilationContext.ContextOptions).ParameterizedCollectionTranslationMode;
     }
 
     /// <inheritdoc />
