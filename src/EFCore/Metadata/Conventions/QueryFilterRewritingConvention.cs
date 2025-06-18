@@ -95,7 +95,7 @@ public class QueryFilterRewritingConvention : IModelFinalizingConvention
         /// <inheritdoc />
         protected override Expression VisitMember(MemberExpression memberExpression)
         {
-            Check.NotNull(memberExpression, nameof(memberExpression));
+            Check.NotNull(memberExpression);
 
             if (memberExpression.Expression != null
                 && (memberExpression.Expression.Type.IsAssignableFrom(_contextType)
@@ -114,7 +114,7 @@ public class QueryFilterRewritingConvention : IModelFinalizingConvention
         /// <inheritdoc />
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
-            Check.NotNull(methodCallExpression, nameof(methodCallExpression));
+            Check.NotNull(methodCallExpression);
 
             if (methodCallExpression.Method.Name == nameof(DbContext.Set)
                 && methodCallExpression.Object != null

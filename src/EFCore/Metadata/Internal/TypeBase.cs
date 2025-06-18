@@ -56,7 +56,7 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
         Model model,
         ConfigurationSource configurationSource)
     {
-        Check.NotNull(model, nameof(model));
+        Check.NotNull(model);
 
         ClrType = type;
         Model = model;
@@ -258,7 +258,7 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     /// </summary>
     public virtual bool IsAssignableFrom(TypeBase derivedType)
     {
-        Check.NotNull(derivedType, nameof(derivedType));
+        Check.NotNull(derivedType);
 
         if (derivedType == this)
         {
@@ -547,8 +547,8 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
         ConfigurationSource? typeConfigurationSource,
         ConfigurationSource configurationSource)
     {
-        Check.NotNull(name, nameof(name));
-        Check.NotNull(propertyType, nameof(propertyType));
+        Check.NotNull(name);
+        Check.NotNull(propertyType);
 
         return AddProperty(
             name,
@@ -616,8 +616,8 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
         ConfigurationSource? typeConfigurationSource,
         ConfigurationSource configurationSource)
     {
-        Check.NotNull(name, nameof(name));
-        Check.NotNull(propertyType, nameof(propertyType));
+        Check.NotNull(name);
+        Check.NotNull(propertyType);
         Check.DebugAssert(IsInModel, "The entity type has been removed from the model");
         EnsureMutable();
 
@@ -694,7 +694,7 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual Property? FindProperty(string name)
-        => FindDeclaredProperty(Check.NotEmpty(name, nameof(name))) ?? _baseType?.FindProperty(name);
+        => FindDeclaredProperty(Check.NotEmpty(name)) ?? _baseType?.FindProperty(name);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -703,7 +703,7 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual Property? FindDeclaredProperty(string name)
-        => _properties.GetValueOrDefault(Check.NotEmpty(name, nameof(name)));
+        => _properties.GetValueOrDefault(Check.NotEmpty(name));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -733,7 +733,7 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     /// </summary>
     public virtual IEnumerable<Property> FindDerivedProperties(string propertyName)
     {
-        Check.NotNull(propertyName, nameof(propertyName));
+        Check.NotNull(propertyName);
 
         return _directlyDerivedTypes.Count == 0
             ? Enumerable.Empty<Property>()
@@ -770,7 +770,7 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     /// </summary>
     public virtual IReadOnlyList<Property>? FindProperties(IReadOnlyList<string> propertyNames)
     {
-        Check.NotNull(propertyNames, nameof(propertyNames));
+        Check.NotNull(propertyNames);
 
         var properties = new List<Property>(propertyNames.Count);
         foreach (var propertyName in propertyNames)
@@ -795,7 +795,7 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     /// </summary>
     public virtual Property? RemoveProperty(string name)
     {
-        Check.NotEmpty(name, nameof(name));
+        Check.NotEmpty(name);
 
         var property = FindDeclaredProperty(name);
         return property == null
@@ -811,7 +811,7 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     /// </summary>
     public virtual Property? RemoveProperty(Property property)
     {
-        Check.NotNull(property, nameof(property));
+        Check.NotNull(property);
         Check.DebugAssert(IsInModel, "The entity type has been removed from the model");
         EnsureMutable();
 
@@ -970,9 +970,9 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
         bool collection,
         ConfigurationSource configurationSource)
     {
-        Check.NotNull(name, nameof(name));
-        Check.NotNull(propertyType, nameof(propertyType));
-        Check.NotNull(targetType, nameof(targetType));
+        Check.NotNull(name);
+        Check.NotNull(propertyType);
+        Check.NotNull(targetType);
 
         return AddComplexProperty(
             name,
@@ -1048,9 +1048,9 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
         bool collection,
         ConfigurationSource configurationSource)
     {
-        Check.NotNull(name, nameof(name));
-        Check.NotNull(propertyType, nameof(propertyType));
-        Check.NotNull(targetType, nameof(targetType));
+        Check.NotNull(name);
+        Check.NotNull(propertyType);
+        Check.NotNull(targetType);
         Check.DebugAssert(IsInModel, "The entity type has been removed from the model");
         EnsureMutable();
 
@@ -1120,7 +1120,7 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual ComplexProperty? FindComplexProperty(string name)
-        => FindDeclaredComplexProperty(Check.NotEmpty(name, nameof(name))) ?? BaseType?.FindComplexProperty(name);
+        => FindDeclaredComplexProperty(Check.NotEmpty(name)) ?? BaseType?.FindComplexProperty(name);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1129,7 +1129,7 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual ComplexProperty? FindDeclaredComplexProperty(string name)
-        => _complexProperties.GetValueOrDefault(Check.NotEmpty(name, nameof(name)));
+        => _complexProperties.GetValueOrDefault(Check.NotEmpty(name));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1159,7 +1159,7 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     /// </summary>
     public virtual IEnumerable<ComplexProperty> FindDerivedComplexProperties(string propertyName)
     {
-        Check.NotNull(propertyName, nameof(propertyName));
+        Check.NotNull(propertyName);
 
         return _directlyDerivedTypes.Count == 0
             ? Enumerable.Empty<ComplexProperty>()
@@ -1197,7 +1197,7 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     /// </summary>
     public virtual ComplexProperty? RemoveComplexProperty(string name)
     {
-        Check.NotEmpty(name, nameof(name));
+        Check.NotEmpty(name);
 
         var property = FindDeclaredComplexProperty(name);
         return property == null
@@ -1213,7 +1213,7 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     /// </summary>
     public virtual ComplexProperty? RemoveComplexProperty(ComplexProperty property)
     {
-        Check.NotNull(property, nameof(property));
+        Check.NotNull(property);
         Check.DebugAssert(IsInModel, "The entity type has been removed from the model");
         EnsureMutable();
 
@@ -1374,7 +1374,7 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     /// </summary>
     public virtual string? AddIgnored(string name, ConfigurationSource configurationSource)
     {
-        Check.NotNull(name, nameof(name));
+        Check.NotNull(name);
         EnsureMutable();
 
         if (_ignoredMembers.TryGetValue(name, out var existingIgnoredConfigurationSource))
@@ -1412,7 +1412,7 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual ConfigurationSource? FindDeclaredIgnoredConfigurationSource(string name)
-        => _ignoredMembers.TryGetValue(Check.NotEmpty(name, nameof(name)), out var ignoredConfigurationSource)
+        => _ignoredMembers.TryGetValue(Check.NotEmpty(name), out var ignoredConfigurationSource)
             ? ignoredConfigurationSource
             : null;
 
@@ -1446,7 +1446,7 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     /// </summary>
     public virtual string? RemoveIgnored(string name)
     {
-        Check.NotNull(name, nameof(name));
+        Check.NotNull(name);
         EnsureMutable();
 
         return _ignoredMembers.Remove(name) ? name : null;

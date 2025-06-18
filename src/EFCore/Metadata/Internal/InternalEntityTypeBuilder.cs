@@ -2178,7 +2178,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
         string name,
         ConfigurationSource configurationSource)
     {
-        Check.NotEmpty(name, nameof(name));
+        Check.NotEmpty(name);
 
         if (properties == null)
         {
@@ -2349,8 +2349,8 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
         IReadOnlyList<string> propertyNames,
         ConfigurationSource configurationSource)
     {
-        Check.NotEmpty(principalEntityTypeName, nameof(principalEntityTypeName));
-        Check.NotEmpty(propertyNames, nameof(propertyNames));
+        Check.NotEmpty(principalEntityTypeName);
+        Check.NotEmpty(propertyNames);
 
         var principalTypeBuilder = ModelBuilder.Entity(principalEntityTypeName, configurationSource);
         var principalKey = principalTypeBuilder?.Metadata.FindPrimaryKey();
@@ -2376,8 +2376,8 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
         Key principalKey,
         ConfigurationSource configurationSource)
     {
-        Check.NotEmpty(principalEntityTypeName, nameof(principalEntityTypeName));
-        Check.NotEmpty(propertyNames, nameof(propertyNames));
+        Check.NotEmpty(principalEntityTypeName);
+        Check.NotEmpty(propertyNames);
 
         var principalTypeBuilder = ModelBuilder.Entity(principalEntityTypeName, configurationSource);
         return principalTypeBuilder == null
@@ -2400,8 +2400,8 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
         IReadOnlyList<MemberInfo> clrMembers,
         ConfigurationSource configurationSource)
     {
-        Check.NotNull(principalClrType, nameof(principalClrType));
-        Check.NotEmpty(clrMembers, nameof(clrMembers));
+        Check.NotNull(principalClrType);
+        Check.NotEmpty(clrMembers);
 
         var principalTypeBuilder = ModelBuilder.Entity(
             principalClrType, configurationSource, shouldBeOwned: Metadata.IsInOwnershipPath(principalClrType) ? null : false);
@@ -2426,8 +2426,8 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
         Key principalKey,
         ConfigurationSource configurationSource)
     {
-        Check.NotNull(principalClrType, nameof(principalClrType));
-        Check.NotEmpty(clrMembers, nameof(clrMembers));
+        Check.NotNull(principalClrType);
+        Check.NotEmpty(clrMembers);
 
         var principalTypeBuilder = ModelBuilder.Entity(
             principalClrType, configurationSource, shouldBeOwned: Metadata.IsInOwnershipPath(principalClrType) ? null : false);
@@ -2510,7 +2510,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
         ConfigurationSource configurationSource,
         bool? targetIsPrincipal = null)
         => HasRelationship(
-            Check.NotNull(targetEntityType, nameof(targetEntityType)),
+            Check.NotNull(targetEntityType),
             MemberIdentity.Create(navigationName),
             null,
             targetIsPrincipal,
@@ -2528,7 +2528,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
         ConfigurationSource configurationSource,
         bool? targetIsPrincipal = null)
         => HasRelationship(
-            Check.NotNull(targetEntityType, nameof(targetEntityType)),
+            Check.NotNull(targetEntityType),
             MemberIdentity.Create(navigationMember),
             null,
             targetIsPrincipal,
@@ -2547,7 +2547,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
         ConfigurationSource configurationSource,
         bool setTargetAsPrincipal = false)
         => HasRelationship(
-            Check.NotNull(targetEntityType, nameof(targetEntityType)),
+            Check.NotNull(targetEntityType),
             MemberIdentity.Create(navigationName),
             MemberIdentity.Create(inverseNavigationName),
             setTargetAsPrincipal ? true : null,
@@ -2566,7 +2566,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
         ConfigurationSource configurationSource,
         bool setTargetAsPrincipal = false)
         => HasRelationship(
-            Check.NotNull(targetEntityType, nameof(targetEntityType)),
+            Check.NotNull(targetEntityType),
             MemberIdentity.Create(navigation),
             MemberIdentity.Create(inverseNavigation),
             setTargetAsPrincipal ? true : null,
@@ -4367,7 +4367,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
     /// </summary>
     public virtual DiscriminatorBuilder? HasDiscriminator(MemberInfo memberInfo, ConfigurationSource configurationSource)
         => CanSetDiscriminator(
-            Check.NotNull(memberInfo, nameof(memberInfo)).GetSimpleMemberName(), memberInfo.GetMemberType(), configurationSource)
+            Check.NotNull(memberInfo).GetSimpleMemberName(), memberInfo.GetMemberType(), configurationSource)
             ? DiscriminatorBuilder(
                 GetOrCreateDiscriminatorProperty(type: null, name: null, memberInfo, configurationSource))
             : null;
@@ -4667,7 +4667,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
         IReadOnlyList<IConventionProperty> properties,
         bool fromDataAnnotation)
     {
-        Check.NotEmpty(properties, nameof(properties));
+        Check.NotEmpty(properties);
 
         var key = Metadata.FindDeclaredKey(properties);
         return key != null
@@ -4787,7 +4787,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
         IReadOnlyList<IConventionProperty> properties,
         bool fromDataAnnotation)
     {
-        Check.NotEmpty(properties, nameof(properties));
+        Check.NotEmpty(properties);
 
         var index = Metadata.FindDeclaredIndex(properties);
         return index != null
@@ -5134,9 +5134,9 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
         IConventionEntityType principalEntityType,
         bool fromDataAnnotation)
     {
-        Check.NotEmpty(properties, nameof(properties));
-        Check.NotNull(principalKey, nameof(principalKey));
-        Check.NotNull(principalEntityType, nameof(principalEntityType));
+        Check.NotEmpty(properties);
+        Check.NotNull(principalKey);
+        Check.NotNull(principalEntityType);
 
         var foreignKey = Metadata.FindDeclaredForeignKey(properties, principalKey, principalEntityType);
         return foreignKey != null
@@ -5370,7 +5370,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
     [DebuggerStepThrough]
     IConventionDiscriminatorBuilder? IConventionEntityTypeBuilder.HasDiscriminator(Type type, bool fromDataAnnotation)
         => HasDiscriminator(
-            name: null, Check.NotNull(type, nameof(type)),
+            name: null, Check.NotNull(type),
             fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
@@ -5382,7 +5382,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
     [DebuggerStepThrough]
     IConventionDiscriminatorBuilder? IConventionEntityTypeBuilder.HasDiscriminator(string name, bool fromDataAnnotation)
         => HasDiscriminator(
-            Check.NotEmpty(name, nameof(name)), type: null,
+            Check.NotEmpty(name), type: null,
             fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
@@ -5394,7 +5394,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
     [DebuggerStepThrough]
     IConventionDiscriminatorBuilder? IConventionEntityTypeBuilder.HasDiscriminator(string name, Type type, bool fromDataAnnotation)
         => HasDiscriminator(
-            Check.NotEmpty(name, nameof(name)), Check.NotNull(type, nameof(type)),
+            Check.NotEmpty(name), Check.NotNull(type),
             fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>

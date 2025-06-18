@@ -1086,8 +1086,8 @@ public class ForeignKey : ConventionAnnotatable, IMutableForeignKey, IConvention
         bool? unique,
         bool shouldThrow)
     {
-        Check.NotNull(principalEntityType, nameof(principalEntityType));
-        Check.NotNull(dependentEntityType, nameof(dependentEntityType));
+        Check.NotNull(principalEntityType);
+        Check.NotNull(dependentEntityType);
 
         if (navigationToPrincipal != null
             && !Internal.Navigation.IsCompatible(
@@ -1136,10 +1136,10 @@ public class ForeignKey : ConventionAnnotatable, IMutableForeignKey, IConvention
         IReadOnlyEntityType dependentEntityType,
         bool shouldThrow)
     {
-        Check.NotNull(principalProperties, nameof(principalProperties));
-        Check.NotNull(dependentProperties, nameof(dependentProperties));
-        Check.NotNull(principalEntityType, nameof(principalEntityType));
-        Check.NotNull(dependentEntityType, nameof(dependentEntityType));
+        Check.NotNull(principalProperties);
+        Check.NotNull(dependentProperties);
+        Check.NotNull(principalEntityType);
+        Check.NotNull(dependentEntityType);
 
         if (!ArePropertyCountsEqual(principalProperties, dependentProperties))
         {

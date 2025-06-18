@@ -475,7 +475,7 @@ public interface IConventionEntityType : IReadOnlyEntityType, IConventionTypeBas
     /// <param name="memberInfo">The navigation property on the entity class.</param>
     /// <returns>The navigation property, or <see langword="null" /> if none is found.</returns>
     new IConventionNavigation? FindNavigation(MemberInfo memberInfo)
-        => FindNavigation(Check.NotNull(memberInfo, nameof(memberInfo)).GetSimpleMemberName());
+        => FindNavigation(Check.NotNull(memberInfo).GetSimpleMemberName());
 
     /// <summary>
     ///     Gets a navigation property on the given entity type. Returns <see langword="null" /> if no navigation property is found.
@@ -492,7 +492,7 @@ public interface IConventionEntityType : IReadOnlyEntityType, IConventionTypeBas
     /// <param name="name">The name of the navigation property on the entity class.</param>
     /// <returns>The navigation property, or <see langword="null" /> if none is found.</returns>
     new IConventionNavigation? FindDeclaredNavigation(string name)
-        => (IConventionNavigation?)((IReadOnlyEntityType)this).FindDeclaredNavigation(Check.NotNull(name, nameof(name)));
+        => (IConventionNavigation?)((IReadOnlyEntityType)this).FindDeclaredNavigation(Check.NotNull(name));
 
     /// <summary>
     ///     Gets all navigation properties declared on this entity type.

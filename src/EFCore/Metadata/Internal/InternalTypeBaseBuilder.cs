@@ -841,7 +841,7 @@ public abstract class InternalTypeBaseBuilder :
         ConfigurationSource configurationSource,
         bool canOverrideSameSource = true)
     {
-        Check.NotNull(property, nameof(property));
+        Check.NotNull(property);
         Check.DebugAssert(property.DeclaringType == Metadata, "property.DeclaringEntityType != Metadata");
 
         var currentConfigurationSource = property.GetConfigurationSource();
@@ -1244,7 +1244,7 @@ public abstract class InternalTypeBaseBuilder :
     /// </summary>
     public virtual bool IsIgnored(string name, ConfigurationSource? configurationSource)
     {
-        Check.NotEmpty(name, nameof(name));
+        Check.NotEmpty(name);
 
         return configurationSource != ConfigurationSource.Explicit
             && !configurationSource.OverridesStrictly(Metadata.FindIgnoredConfigurationSource(name));
@@ -2095,6 +2095,6 @@ public abstract class InternalTypeBaseBuilder :
     [DebuggerStepThrough]
     bool IConventionTypeBaseBuilder.CanSetDiscriminator(MemberInfo memberInfo, bool fromDataAnnotation)
         => CanSetDiscriminator(
-            Check.NotNull(memberInfo, nameof(memberInfo)).GetSimpleMemberName(), memberInfo.GetMemberType(),
+            Check.NotNull(memberInfo).GetSimpleMemberName(), memberInfo.GetMemberType(),
             fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 }

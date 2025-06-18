@@ -406,7 +406,7 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
 
     private IEnumerable<RuntimeNavigation> FindDerivedNavigations(string name)
     {
-        Check.NotNull(name, nameof(name));
+        Check.NotNull(name);
 
         return !HasDirectlyDerivedTypes
             ? Enumerable.Empty<RuntimeNavigation>()
@@ -506,7 +506,7 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
 
     private IEnumerable<RuntimeSkipNavigation> FindDerivedSkipNavigations(string name)
     {
-        Check.NotNull(name, nameof(name));
+        Check.NotNull(name);
 
         return !HasDirectlyDerivedTypes
             ? Enumerable.Empty<RuntimeSkipNavigation>()
@@ -686,7 +686,7 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
     /// </summary>
     private IEnumerable<RuntimeServiceProperty> FindDerivedServiceProperties(string propertyName)
     {
-        Check.NotNull(propertyName, nameof(propertyName));
+        Check.NotNull(propertyName);
 
         return !HasDirectlyDerivedTypes
             ? Enumerable.Empty<RuntimeServiceProperty>()
@@ -778,7 +778,7 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
     /// <returns>The trigger or <see langword="null" /> if no trigger with the given name was found.</returns>
     public virtual RuntimeTrigger? FindDeclaredTrigger(string modelName)
     {
-        Check.NotEmpty(modelName, nameof(modelName));
+        Check.NotEmpty(modelName);
 
         return _triggers != null && _triggers.TryGetValue(modelName, out var trigger)
             ? trigger
