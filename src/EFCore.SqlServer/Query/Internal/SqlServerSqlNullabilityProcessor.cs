@@ -217,7 +217,7 @@ public class SqlServerSqlNullabilityProcessor : SqlNullabilityProcessor
                                     Dependencies.SqlExpressionFactory.Constant(value, value?.GetType() ?? typeof(object), sensitive: true, typeMapping)
                                 ]));
                         }
-                        return valuesExpression.Update(processedValues);
+                        return valuesExpression.Update(ProcessValuesOrderingColumn(valuesExpression, processedValues));
                     }
                 }
                 return base.VisitExtension(node);

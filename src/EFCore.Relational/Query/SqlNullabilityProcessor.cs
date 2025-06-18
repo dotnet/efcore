@@ -131,9 +131,6 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                 var typeMapping = (RelationalTypeMapping)valuesParameter.TypeMapping.ElementTypeMapping;
                 var values = (IEnumerable?)ParameterValues[valuesParameter.Name] ?? Array.Empty<object>();
 
-                var intTypeMapping = Dependencies.TypeMappingSource.FindMapping(typeof(int));
-                var cnt = 1;
-
                 var processedValues = new List<RowValueExpression>();
 
                 if (!valuesParameter.ShouldBeConstantized
@@ -145,18 +142,10 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                         ParameterValues.Add(parameterName, value);
                         var parameterExpression = new SqlParameterExpression(parameterName, value?.GetType() ?? typeof(object), typeMapping);
                         processedValues.Add(
-                            // If we still have _ord column here (it was not removed by other optimizations),
-                            // we need to add value for it.
-                            valuesExpression.ColumnNames[0] == RelationalQueryableMethodTranslatingExpressionVisitor.ValuesOrderingColumnName
-                            ? new RowValueExpression(
-                                [
-                                    _sqlExpressionFactory.Constant(cnt++, intTypeMapping),
-                                    parameterExpression,
-                                ])
-                            : new RowValueExpression(
-                                [
-                                    parameterExpression,
-                                ]));
+                            new RowValueExpression(
+                            [
+                                parameterExpression,
+                            ]));
                     }
                 }
                 else
@@ -171,7 +160,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                     }
                 }
 
-                return valuesExpression.Update(processedValues);
+                return valuesExpression.Update(ProcessValuesOrderingColumn(valuesExpression, processedValues));
             }
 
             default:
@@ -210,6 +199,36 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                         RelationalStrings.UnhandledExpressionInVisitor(predicate, predicate.GetType(), nameof(SqlNullabilityProcessor)));
             }
         }
+    }
+
+    /// <summary>
+    /// If we still have _ord column here (it was not removed by other optimizations),
+    /// we need to add value for it.
+    /// </summary>
+    /// <param name="valuesExpression">Expression where to look for ordering column.</param>
+    /// <param name="values">Row values to process.</param>
+    /// <returns>Row values with ordering, if needed.</returns>
+    protected virtual List<RowValueExpression> ProcessValuesOrderingColumn(ValuesExpression valuesExpression, List<RowValueExpression> values)
+    {
+        if (valuesExpression.ColumnNames[0] != RelationalQueryableMethodTranslatingExpressionVisitor.ValuesOrderingColumnName)
+        {
+            return values;
+        }
+
+        var result = new List<RowValueExpression>(values.Count);
+        var cnt = 1;
+        var intTypeMapping = Dependencies.TypeMappingSource.FindMapping(typeof(int));
+
+        foreach (var item in values)
+        {
+            result.Add(new RowValueExpression(
+            [
+                _sqlExpressionFactory.Constant(cnt++, intTypeMapping),
+                .. item.Values,
+            ]));
+        }
+
+        return result;
     }
 
     /// <summary>
