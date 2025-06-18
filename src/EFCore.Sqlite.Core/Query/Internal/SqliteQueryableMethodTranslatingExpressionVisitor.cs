@@ -470,54 +470,51 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
         Expression index,
         bool returnDefault)
     {
-        if (!returnDefault
-            && source.QueryExpression is SelectExpression
-            {
-                Tables: [ValuesExpression { ValuesParameter: { } valuesParameter }],
-                Predicate: null,
-                GroupBy: [],
-                Having: null,
-                IsDistinct: false,
-#pragma warning disable EF1001
-                Orderings: [{ Expression: ColumnExpression { Name: ValuesOrderingColumnName }, IsAscending: true }],
-#pragma warning restore EF1001
-                Limit: null,
-                Offset: null
-            } selectExpression1
-            && TranslateExpression(index) is { } translatedIndex1)
+        if (!returnDefault)
         {
-            // index on parameter using a column
-            // translate via JSON because SQLite can't use columns in OFFSET
-            if (TryTranslate(selectExpression1, valuesParameter, translatedIndex1, out var result))
+            switch (source.QueryExpression)
             {
-                return result;
-            }
-        }
-        else if (!returnDefault
-            && source.QueryExpression is SelectExpression
-            {
-                Tables:
+                // index on parameter using a column
+                // translate via JSON because SQLite can't use columns in OFFSET
+                case SelectExpression
+                {
+                    Tables: [ValuesExpression { ValuesParameter: { } valuesParameter }],
+                    Predicate: null,
+                    GroupBy: [],
+                    Having: null,
+                    IsDistinct: false,
+#pragma warning disable EF1001
+                    Orderings: [{ Expression: ColumnExpression { Name: ValuesOrderingColumnName }, IsAscending: true }],
+#pragma warning restore EF1001
+                    Limit: null,
+                    Offset: null
+                } selectExpression
+                when TranslateExpression(index) is { } translatedIndex
+                    && TryTranslate(selectExpression, valuesParameter, translatedIndex, out var result):
+                    return result;
+
+                // Index on JSON array
+                case SelectExpression
+                {
+                    Tables:
                 [
                     TableValuedFunctionExpression
                 {
                     Name: "json_each", Schema: null, IsBuiltIn: true, Arguments: [var jsonArrayColumn]
                 } jsonEachExpression
                 ],
-                Predicate: null,
-                GroupBy: [],
-                Having: null,
-                IsDistinct: false,
-                Orderings: [{ Expression: ColumnExpression { Name: JsonEachKeyColumnName } orderingColumn, IsAscending: true }],
-                Limit: null,
-                Offset: null
-            } selectExpression2
-            && orderingColumn.TableAlias == jsonEachExpression.Alias
-            && TranslateExpression(index) is { } translatedIndex2)
-        {
-            // Index on JSON array
-            if (TryTranslate(selectExpression2, jsonArrayColumn, translatedIndex2, out var result))
-            {
-                return result;
+                    Predicate: null,
+                    GroupBy: [],
+                    Having: null,
+                    IsDistinct: false,
+                    Orderings: [{ Expression: ColumnExpression { Name: JsonEachKeyColumnName } orderingColumn, IsAscending: true }],
+                    Limit: null,
+                    Offset: null
+                } selectExpression
+                when orderingColumn.TableAlias == jsonEachExpression.Alias
+                    && TranslateExpression(index) is { } translatedIndex
+                    && TryTranslate(selectExpression, jsonArrayColumn, translatedIndex, out var result):
+                    return result;
             }
         }
 
