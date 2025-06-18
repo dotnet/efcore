@@ -3756,8 +3756,6 @@ ORDER BY [l].[Date]
             """
 @validIds3='L1 01' (Size = 4000)
 @validIds4='L1 02' (Size = 4000)
-@validIds5='L1 01' (Size = 4000)
-@validIds6='L1 02' (Size = 4000)
 
 SELECT [l5].[Id], [l4].[Date]
 FROM (
@@ -3769,7 +3767,7 @@ FROM (
 INNER JOIN (
     SELECT [l3].[Id], [l3].[Date]
     FROM [LevelOne] AS [l3]
-    WHERE [l3].[Name] IN (@validIds5, @validIds6)
+    WHERE [l3].[Name] IN (@validIds3, @validIds4)
 ) AS [l5] ON [l4].[Date] = [l5].[Date]
 ORDER BY [l4].[Date]
 """);

@@ -1559,7 +1559,6 @@ ORDER BY [c0].[c], [c0].[CustomerID]
         AssertSql(
             """
 @list1='ALFKI' (Size = 5) (DbType = StringFixedLength)
-@list2='ALFKI' (Size = 5) (DbType = StringFixedLength)
 @p='1'
 
 SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
@@ -1571,7 +1570,7 @@ FROM (
     FROM [Customers] AS [c]
     WHERE [c].[CustomerID] LIKE N'A%'
     ORDER BY CASE
-        WHEN [c].[CustomerID] = @list2 THEN CAST(1 AS bit)
+        WHEN [c].[CustomerID] = @list1 THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
     END
     OFFSET @p ROWS
@@ -1588,7 +1587,6 @@ ORDER BY [c0].[c], [c0].[CustomerID]
         AssertSql(
             """
 @list1='ALFKI' (Size = 5) (DbType = StringFixedLength)
-@list2='ALFKI' (Size = 5) (DbType = StringFixedLength)
 @p='1'
 
 SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
@@ -1600,7 +1598,7 @@ FROM (
     FROM [Customers] AS [c]
     WHERE [c].[CustomerID] LIKE N'A%'
     ORDER BY CASE
-        WHEN [c].[CustomerID] <> @list2 THEN CAST(1 AS bit)
+        WHEN [c].[CustomerID] <> @list1 THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
     END
     OFFSET @p ROWS

@@ -7015,18 +7015,14 @@ WHERE (
 
         AssertSql(
             """
-@ids3='10248'
-@ids4='10249'
 @ids1='10248'
 @ids2='10249'
-@ids5='10248'
-@ids6='10249'
 
 SELECT [o].[Quantity] AS [Key], (
     SELECT MAX([o1].[OrderDate])
     FROM [Order Details] AS [o0]
     INNER JOIN [Orders] AS [o1] ON [o0].[OrderID] = [o1].[OrderID]
-    WHERE [o0].[OrderID] IN (@ids3, @ids4) AND [o].[Quantity] = [o0].[Quantity]) AS [MaxTimestamp]
+    WHERE [o0].[OrderID] IN (@ids1, @ids2) AND [o].[Quantity] = [o0].[Quantity]) AS [MaxTimestamp]
 FROM [Order Details] AS [o]
 WHERE [o].[OrderID] IN (@ids1, @ids2)
 GROUP BY [o].[Quantity]
@@ -7034,7 +7030,7 @@ ORDER BY (
     SELECT MAX([o1].[OrderDate])
     FROM [Order Details] AS [o0]
     INNER JOIN [Orders] AS [o1] ON [o0].[OrderID] = [o1].[OrderID]
-    WHERE [o0].[OrderID] IN (@ids5, @ids6) AND [o].[Quantity] = [o0].[Quantity])
+    WHERE [o0].[OrderID] IN (@ids1, @ids2) AND [o].[Quantity] = [o0].[Quantity])
 """);
     }
 

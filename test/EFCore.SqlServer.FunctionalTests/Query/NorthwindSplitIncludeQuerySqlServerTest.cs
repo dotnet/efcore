@@ -2202,7 +2202,6 @@ OFFSET @p ROWS
             //
             """
 @list2='ALFKI' (Size = 5) (DbType = StringFixedLength)
-@list3='ALFKI' (Size = 5) (DbType = StringFixedLength)
 @p='1'
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [c0].[CustomerID]
@@ -2214,7 +2213,7 @@ FROM (
     FROM [Customers] AS [c]
     WHERE [c].[CustomerID] LIKE N'A%'
     ORDER BY CASE
-        WHEN [c].[CustomerID] = @list3 THEN CAST(1 AS bit)
+        WHEN [c].[CustomerID] = @list2 THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
     END, [c].[CustomerID]
     OFFSET @p ROWS
@@ -2245,7 +2244,6 @@ OFFSET @p ROWS
             //
             """
 @list2='ALFKI' (Size = 5) (DbType = StringFixedLength)
-@list3='ALFKI' (Size = 5) (DbType = StringFixedLength)
 @p='1'
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [c0].[CustomerID]
@@ -2257,7 +2255,7 @@ FROM (
     FROM [Customers] AS [c]
     WHERE [c].[CustomerID] LIKE N'A%'
     ORDER BY CASE
-        WHEN [c].[CustomerID] <> @list3 THEN CAST(1 AS bit)
+        WHEN [c].[CustomerID] <> @list2 THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
     END, [c].[CustomerID]
     OFFSET @p ROWS

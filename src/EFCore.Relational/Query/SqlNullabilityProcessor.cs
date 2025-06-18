@@ -24,6 +24,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
     private readonly List<ColumnExpression> _nonNullableColumns;
     private readonly List<ColumnExpression> _nullValueColumns;
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
+    private readonly Dictionary<SqlParameterExpression, List<SqlParameterExpression>> _parametersForValues;
     private bool _canCache;
 
     /// <summary>
@@ -42,6 +43,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
         _sqlExpressionFactory = dependencies.SqlExpressionFactory;
         _nonNullableColumns = [];
         _nullValueColumns = [];
+        _parametersForValues = [];
         ParameterValues = null!;
     }
 
@@ -80,6 +82,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
         _canCache = true;
         _nonNullableColumns.Clear();
         _nullValueColumns.Clear();
+        _parametersForValues.Clear();
         ParameterValues = parameterValues;
 
         var result = Visit(queryExpression);
@@ -129,22 +132,29 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                     valuesParameter.TypeMapping.ElementTypeMapping is not null,
                     "valuesParameter.TypeMapping.ElementTypeMapping is not null");
                 var typeMapping = (RelationalTypeMapping)valuesParameter.TypeMapping.ElementTypeMapping;
-                var values = (IEnumerable?)ParameterValues[valuesParameter.Name] ?? Array.Empty<object>();
+                var values = ((IEnumerable?)ParameterValues[valuesParameter.Name])?.Cast<object>().ToList() ?? [];
 
                 var processedValues = new List<RowValueExpression>();
 
                 if (!valuesParameter.ShouldBeConstantized
                     && (ParameterizedCollectionTranslationMode is null or PCTM.ParameterizeExpanded))
                 {
-                    foreach (var value in values)
+                    var parameters = _parametersForValues.GetOrAddNew(valuesParameter);
+                    for (var i = 0; i < values.Count; i++)
                     {
-                        var parameterName = Uniquifier.Uniquify(valuesParameter.Name, ParameterValues, int.MaxValue);
-                        ParameterValues.Add(parameterName, value);
-                        var parameterExpression = new SqlParameterExpression(parameterName, value?.GetType() ?? typeof(object), typeMapping);
+                        // Create parameter for value if we didn't create it yet,
+                        // otherwise reuse it.
+                        if (parameters.Count <= i)
+                        {
+                            var parameterName = Uniquifier.Uniquify(valuesParameter.Name, ParameterValues, int.MaxValue);
+                            ParameterValues.Add(parameterName, values[i]);
+                            var parameterExpression = new SqlParameterExpression(parameterName, values[i]?.GetType() ?? typeof(object), typeMapping);
+                            parameters.Add(parameterExpression);
+                        }
                         processedValues.Add(
                             new RowValueExpression(
                             [
-                                parameterExpression,
+                                parameters[i],
                             ]));
                     }
                 }
