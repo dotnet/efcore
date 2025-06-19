@@ -56,6 +56,7 @@ public class ColumnExpression : SqlExpression
         : base(type, typeMapping)
     {
         Name = column.Name;
+        Column = column;
         TableAlias = tableAlias;
         IsNullable = nullable || column.IsNullable;
     }
