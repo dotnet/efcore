@@ -395,27 +395,19 @@ WHERE [c].[CustomerID] = @s1 OR [c].[CustomerID] = @s2 OR [c].[CustomerID] = @s3
 
         AssertSql(
             """
-@args1='ALFKI' (Size = 5) (DbType = StringFixedLength)
+@args='["ALFKI"]' (Size = 4000)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] = (
-    SELECT [a].[Value]
-    FROM (VALUES (1, @args1)) AS [a]([_ord], [Value])
-    ORDER BY [a].[_ord]
-    OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY)
+WHERE [c].[CustomerID] = JSON_VALUE(@args, '$[0]')
 """,
             //
             """
-@args1='ANATR' (Size = 5) (DbType = StringFixedLength)
+@args='["ANATR"]' (Size = 4000)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] = (
-    SELECT [a].[Value]
-    FROM (VALUES (1, @args1)) AS [a]([_ord], [Value])
-    ORDER BY [a].[_ord]
-    OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY)
+WHERE [c].[CustomerID] = JSON_VALUE(@args, '$[0]')
 """);
     }
 
@@ -425,27 +417,19 @@ WHERE [c].[CustomerID] = (
 
         AssertSql(
             """
-@args1='ALFKI' (Size = 5) (DbType = StringFixedLength)
+@args='["ALFKI"]' (Size = 4000)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] = (
-    SELECT [a].[Value]
-    FROM (VALUES (1, @args1)) AS [a]([_ord], [Value])
-    ORDER BY [a].[_ord]
-    OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY)
+WHERE [c].[CustomerID] = JSON_VALUE(@args, '$[0]')
 """,
             //
             """
-@args1='ANATR' (Size = 5) (DbType = StringFixedLength)
+@args='["ANATR"]' (Size = 4000)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] = (
-    SELECT [a].[Value]
-    FROM (VALUES (1, @args1)) AS [a]([_ord], [Value])
-    ORDER BY [a].[_ord]
-    OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY)
+WHERE [c].[CustomerID] = JSON_VALUE(@args, '$[0]')
 """);
     }
 

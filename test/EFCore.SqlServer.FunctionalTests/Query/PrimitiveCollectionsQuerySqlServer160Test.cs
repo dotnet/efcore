@@ -1105,17 +1105,11 @@ WHERE (
 
         AssertSql(
             """
-@ints1='0'
-@ints2='2'
-@ints3='3'
+@ints='[0,2,3]' (Size = 4000)
 
 SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
 FROM [PrimitiveCollectionsEntity] AS [p]
-WHERE (
-    SELECT [i].[Value]
-    FROM (VALUES (1, @ints1), (2, @ints2), (3, @ints3)) AS [i]([_ord], [Value])
-    ORDER BY [i].[_ord]
-    OFFSET [p].[Int] ROWS FETCH NEXT 1 ROWS ONLY) = [p].[Int]
+WHERE CAST(JSON_VALUE(@ints, '$[' + CAST([p].[Int] AS nvarchar(max)) + ']') AS int) = [p].[Int]
 """);
     }
 
@@ -1126,17 +1120,11 @@ WHERE (
 
         AssertSql(
             """
-@ints1='1'
-@ints2='2'
-@ints3='3'
+@ints='[1,2,3]' (Size = 4000)
 
 SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
 FROM [PrimitiveCollectionsEntity] AS [p]
-WHERE (
-    SELECT [i].[Value]
-    FROM (VALUES (1, @ints1), (2, @ints2), (3, @ints3)) AS [i]([_ord], [Value])
-    ORDER BY [i].[_ord]
-    OFFSET [p].[Int] ROWS FETCH NEXT 1 ROWS ONLY) = 1
+WHERE CAST(JSON_VALUE(@ints, '$[' + CAST([p].[Int] AS nvarchar(max)) + ']') AS int) = 1
 """);
     }
 
@@ -1517,15 +1505,10 @@ WHERE (
 
         AssertSql(
             """
-@values1='one' (Size = 4000)
-@values2='two' (Size = 4000)
+@values='["one","two"]' (Size = 4000)
 
 SELECT CASE
-    WHEN [p].[Id] <> 0 THEN (
-        SELECT [v].[Value]
-        FROM (VALUES (1, @values1), (2, @values2)) AS [v]([_ord], [Value])
-        ORDER BY [v].[_ord]
-        OFFSET [p].[Int] % 2 ROWS FETCH NEXT 1 ROWS ONLY)
+    WHEN [p].[Id] <> 0 THEN JSON_VALUE(@values, '$[' + CAST([p].[Int] % 2 AS nvarchar(max)) + ']')
     ELSE N'foo'
 END
 FROM [PrimitiveCollectionsEntity] AS [p]

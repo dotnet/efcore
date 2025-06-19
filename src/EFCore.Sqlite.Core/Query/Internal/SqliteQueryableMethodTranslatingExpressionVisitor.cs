@@ -475,7 +475,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
             switch (source.QueryExpression)
             {
                 // index on parameter using a column
-                // translate via JSON because SQLite can't use columns in OFFSET
+                // translate via JSON because it is a better translation
                 case SelectExpression
                 {
                     Tables: [ValuesExpression { ValuesParameter: { } valuesParameter }],
@@ -519,7 +519,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
 
         bool TryTranslate(
             SelectExpression selectExpression,
-            SqlExpression json,
+            SqlExpression jsonArrayColumn,
             SqlExpression translatedIndex,
             [NotNullWhen(true)]out ShapedQueryExpression? result)
         {
@@ -536,7 +536,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
                 && selectExpression.GetProjection(projectionBindingExpression) is ColumnExpression projectionColumn)
             {
                 SqlExpression translation = new JsonScalarExpression(
-                    json,
+                    jsonArrayColumn,
                     new[] { new PathSegment(translatedIndex) },
                     projectionColumn.Type,
                     projectionColumn.TypeMapping,
