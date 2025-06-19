@@ -31,33 +31,32 @@ public class ColumnExpression : SqlExpression
         Type type,
         RelationalTypeMapping? typeMapping,
         bool nullable)
-        : base(type, typeMapping)
+        : this(name, tableAlias, column: null, type, typeMapping, nullable)
     {
-        Name = name;
-        TableAlias = tableAlias;
-        IsNullable = nullable;
     }
 
     /// <summary>
     ///     Creates a new instance of the <see cref="ColumnExpression" /> class.
     /// </summary>
-    /// <param name="column">The <see cref="IColumnBase" /> associated with this column expression.</param>
+    /// <param name="name">The name of the column.</param>
     /// <param name="tableAlias">The alias of the table to which this column refers.</param>
+    /// <param name="column">An optional <see cref="IColumnBase" /> associated with this column expression.</param>
     /// <param name="type">The <see cref="System.Type" /> of the expression.</param>
     /// <param name="typeMapping">The <see cref="RelationalTypeMapping" /> associated with the expression.</param>
     /// <param name="nullable">Whether this expression represents a nullable column.</param>
-    [EntityFrameworkInternal]
     public ColumnExpression(
-        IColumnBase column,
+        string name,
         string tableAlias,
+        IColumnBase? column,
         Type type,
-        RelationalTypeMapping typeMapping,
+        RelationalTypeMapping? typeMapping,
         bool nullable)
         : base(type, typeMapping)
     {
-        Name = column.Name;
+        Name = name;
         TableAlias = tableAlias;
-        IsNullable = nullable || column.IsNullable;
+        Column = column;
+        IsNullable = nullable;
     }
 
     /// <summary>
