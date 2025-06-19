@@ -147,7 +147,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
                     return relationalCommand.ExecuteNonQuery(
                         new RelationalCommandParameterObject(
                             state.relationalQueryContext.Connection,
-                            state.relationalQueryContext.ParameterValues,
+                            state.relationalQueryContext.Parameters,
                             null,
                             state.relationalQueryContext.Context,
                             state.relationalQueryContext.CommandLogger,
@@ -214,7 +214,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
                     return relationalCommand.ExecuteNonQueryAsync(
                         new RelationalCommandParameterObject(
                             state.relationalQueryContext.Connection,
-                            state.relationalQueryContext.ParameterValues,
+                            state.relationalQueryContext.Parameters,
                             null,
                             state.relationalQueryContext.Context,
                             state.relationalQueryContext.CommandLogger,
@@ -662,7 +662,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
 
             Expression GenerateRelationalCommandExpression(Dictionary<string, object?> parameters, out bool canCache)
             {
-                var queryExpression = _relationalParameterBasedSqlProcessor.Optimize(select, parameters, out canCache);
+                var queryExpression = _relationalParameterBasedSqlProcessor.Process(select, parameters, out canCache);
                 if (!canCache)
                 {
                     return null!;

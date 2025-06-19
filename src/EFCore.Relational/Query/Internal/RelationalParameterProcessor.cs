@@ -35,9 +35,8 @@ public class RelationalParameterProcessor : ExpressionVisitor
 
     private readonly Dictionary<string, SqlParameterExpression> _sqlParameters = new();
 
-    private IReadOnlyDictionary<string, object?> _parametersValues;
+    private CacheSafeParameterFacade _parametersFacade;
     private ParameterNameGenerator _parameterNameGenerator;
-    private bool _canCache;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -54,7 +53,7 @@ public class RelationalParameterProcessor : ExpressionVisitor
         _typeMappingSource = dependencies.TypeMappingSource;
         _parameterNameGeneratorFactory = dependencies.ParameterNameGeneratorFactory;
         _sqlGenerationHelper = dependencies.SqlGenerationHelper;
-        _parametersValues = default!;
+        _parametersFacade = default!;
         _parameterNameGenerator = default!;
     }
 
@@ -69,20 +68,15 @@ public class RelationalParameterProcessor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual Expression Expand(
-        Expression queryExpression,
-        IReadOnlyDictionary<string, object?> parameterValues,
-        out bool canCache)
+    public virtual Expression Expand(Expression queryExpression, CacheSafeParameterFacade parametersFacade)
     {
         _visitedFromSqlExpressions.Clear();
         _prefixedParameterNames.Clear();
         _sqlParameters.Clear();
         _parameterNameGenerator = _parameterNameGeneratorFactory.Create();
-        _parametersValues = parameterValues;
-        _canCache = true;
+        _parametersFacade = parametersFacade;
 
         var result = Visit(queryExpression);
-        canCache = _canCache;
 
         return result;
     }
@@ -146,8 +140,8 @@ public class RelationalParameterProcessor : ExpressionVisitor
         {
             case QueryParameterExpression queryParameter:
                 // parameter value will never be null. It could be empty object?[]
-                var parameterValues = (object?[])_parametersValues[queryParameter.Name]!;
-                _canCache = false;
+                var parameters = _parametersFacade.GetParametersAndDisableSqlCaching();
+                var parameterValues = (object?[])parameters[queryParameter.Name]!;
 
                 var subParameters = new List<IRelationalParameter>(parameterValues.Length);
                 // ReSharper disable once ForCanBeConvertedToForeach

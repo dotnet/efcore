@@ -166,11 +166,11 @@ public class SqlServerSqlNullabilityProcessor : SqlNullabilityProcessor
             case ValuesExpression { ValuesParameter: SqlParameterExpression valuesParameter } valuesExpression
                 when ParameterizedCollectionTranslationMode is null or PCTM.ParameterizeExpanded:
             {
-                var values = ((IEnumerable?)ParameterValues[valuesParameter.Name])?.Cast<object>().ToList() ?? [];
+                var parameters = ParametersFacade.GetParametersAndDisableSqlCaching();
+                var values = ((IEnumerable?)parameters[valuesParameter.Name])?.Cast<object>().ToList() ?? [];
+
                 if (values.Count > 2098)
                 {
-                    DoNotCache();
-
                     Check.DebugAssert(valuesParameter.TypeMapping is not null, "valuesParameter.TypeMapping is not null");
                     Check.DebugAssert(
                         valuesParameter.TypeMapping.ElementTypeMapping is not null,

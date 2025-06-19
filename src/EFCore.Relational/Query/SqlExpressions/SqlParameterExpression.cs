@@ -24,7 +24,7 @@ public sealed class SqlParameterExpression : SqlExpression
     /// <summary>
     ///     Creates a new instance of the <see cref="SqlParameterExpression" /> class.
     /// </summary>
-    /// <param name="invariantName">The name of the parameter as it is recorded in <see cref="QueryContext.ParameterValues" />.</param>
+    /// <param name="invariantName">The name of the parameter as it is recorded in <see cref="QueryContext.Parameters" />.</param>
     /// <param name="name">
     ///     The name of the parameter as it will be set on <see cref="DbParameter.ParameterName" /> and inside the SQL as a placeholder
     ///     (before any additional placeholder character prefixing).
@@ -49,7 +49,7 @@ public sealed class SqlParameterExpression : SqlExpression
     }
 
     /// <summary>
-    ///     The name of the parameter as it is recorded in <see cref="QueryContext.ParameterValues" />.
+    ///     The name of the parameter as it is recorded in <see cref="QueryContext.Parameters" />.
     /// </summary>
     public string InvariantName { get; }
 
