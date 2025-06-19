@@ -36,7 +36,7 @@ public class RelationalCommandCache : IPrintableExpression
         IRelationalParameterBasedSqlProcessorFactory relationalParameterBasedSqlProcessorFactory,
         Expression queryExpression,
         bool useRelationalNulls,
-        ParameterizedCollectionTranslationMode? parameterizedCollectionTranslationMode)
+        ParameterizedCollectionTranslationMode parameterizedCollectionTranslationMode)
     {
         _memoryCache = memoryCache;
         _querySqlGeneratorFactory = querySqlGeneratorFactory;

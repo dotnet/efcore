@@ -63,7 +63,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
     /// <summary>
     ///     A value indicating what translation mode to use.
     /// </summary>
-    public virtual ParameterizedCollectionTranslationMode? ParameterizedCollectionTranslationMode { get; }
+    public virtual ParameterizedCollectionTranslationMode ParameterizedCollectionTranslationMode { get; }
 
     /// <summary>
     ///     Dictionary of current parameter values in use.
@@ -140,7 +140,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                 var processedValues = new List<RowValueExpression>();
 
                 if (!valuesParameter.ShouldBeConstantized
-                    && (ParameterizedCollectionTranslationMode is null or PCTM.ParameterizeExpanded))
+                    && ParameterizedCollectionTranslationMode is PCTM.ParameterizeExpanded)
                 {
                     var expandedParameters = _collectionParameterExpansionMap.GetOrAddNew(valuesParameter);
                     for (var i = 0; i < values.Count; i++)
@@ -837,7 +837,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                 processedValues = [];
 
                 var useParameters = !valuesParameter.ShouldBeConstantized
-                        && (ParameterizedCollectionTranslationMode is null or PCTM.ParameterizeExpanded);
+                        && ParameterizedCollectionTranslationMode is PCTM.ParameterizeExpanded;
                 foreach (var value in values)
                 {
                     if (value is null && removeNulls)

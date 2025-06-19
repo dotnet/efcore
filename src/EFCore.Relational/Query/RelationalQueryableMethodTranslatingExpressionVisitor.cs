@@ -21,7 +21,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
     private readonly IRelationalTypeMappingSource _typeMappingSource;
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
     private readonly bool _subquery;
-    private readonly ParameterizedCollectionTranslationMode? _primitiveCollectionsBehavior;
+    private readonly ParameterizedCollectionTranslationMode _primitiveCollectionsBehavior;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -301,7 +301,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         var constantize = queryParameter.ShouldBeConstantized
                 || (_primitiveCollectionsBehavior is ParameterizedCollectionTranslationMode.Constantize
                     && !queryParameter.ShouldNotBeConstantized);
-        var parameterizeExpanded = (_primitiveCollectionsBehavior is null or ParameterizedCollectionTranslationMode.ParameterizeExpanded)
+        var parameterizeExpanded = _primitiveCollectionsBehavior is ParameterizedCollectionTranslationMode.ParameterizeExpanded
                 && !queryParameter.ShouldNotBeConstantized;
         if (constantize || parameterizeExpanded)
         {
@@ -583,7 +583,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
             }
             if (valuesParameter is not null
                 // Expanding parameters will happen in 2nd stage of query pipeline.
-                && _primitiveCollectionsBehavior is not (null or ParameterizedCollectionTranslationMode.ParameterizeExpanded))
+                && _primitiveCollectionsBehavior is not ParameterizedCollectionTranslationMode.ParameterizeExpanded)
             {
                 var inExpression = _sqlExpressionFactory.In(translatedItem, valuesParameter);
                 return source.Update(new SelectExpression(inExpression, _sqlAliasManager), source.ShaperExpression);
