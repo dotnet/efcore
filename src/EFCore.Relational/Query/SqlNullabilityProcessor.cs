@@ -151,11 +151,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                             var parameterExpression = new SqlParameterExpression(parameterName, values[i]?.GetType() ?? typeof(object), typeMapping);
                             parameters.Add(parameterExpression);
                         }
-                        processedValues.Add(
-                            new RowValueExpression(
-                            [
-                                parameters[i],
-                            ]));
+                        processedValues.Add(new RowValueExpression([parameters[i]]));
                     }
                 }
                 else
