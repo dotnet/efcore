@@ -797,7 +797,7 @@ namespace System.Runtime.CompilerServices
                         {
                             // Special case: this is a non-lambda argument (Skip/Take/FromSql).
                             // Simply add the argument directly as a parameter
-                            code.AppendLine($"""queryContext.AddParameter("{evaluatableRootPaths.ParameterName}", {parameterName});""");
+                            code.AppendLine($"""queryContext.Parameters.Add("{evaluatableRootPaths.ParameterName}", {parameterName});""");
                             continue;
                         }
 
@@ -849,7 +849,7 @@ namespace System.Runtime.CompilerServices
                                 //       (see ExpressionTreeFuncletizer.Evaluate()).
                                 // TODO: Basically this means that the evaluator should come from ExpressionTreeFuncletizer itself, as part of its outputs
                                 // TODO: Integrate try/catch around the evaluation?
-                                code.AppendLine("queryContext.AddParameter(");
+                                code.AppendLine("queryContext.Parameters.Add(");
                                 using (code.Indent())
                                 {
                                     code
@@ -893,7 +893,7 @@ namespace System.Runtime.CompilerServices
                     };
 
                     code.AppendLine(
-                        $"""queryContext.AddParameter("{evaluatableRootPaths.ParameterName}", {argumentsParameter});""");
+                        $"""queryContext.Parameters.Add("{evaluatableRootPaths.ParameterName}", {argumentsParameter});""");
 
                     break;
                 }

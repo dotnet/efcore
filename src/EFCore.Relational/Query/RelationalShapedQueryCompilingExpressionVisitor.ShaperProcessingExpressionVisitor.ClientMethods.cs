@@ -447,7 +447,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     return relationalCommand.ExecuteReader(
                         new RelationalCommandParameterObject(
                             queryContext.Connection,
-                            queryContext.ParameterValues,
+                            queryContext.Parameters,
                             readerColumns,
                             queryContext.Context,
                             queryContext.CommandLogger,
@@ -543,7 +543,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     return await relationalCommand.ExecuteReaderAsync(
                             new RelationalCommandParameterObject(
                                 queryContext.Connection,
-                                queryContext.ParameterValues,
+                                queryContext.Parameters,
                                 readerColumns,
                                 queryContext.Context,
                                 queryContext.CommandLogger,
@@ -812,7 +812,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     return relationalCommand.ExecuteReader(
                         new RelationalCommandParameterObject(
                             queryContext.Connection,
-                            queryContext.ParameterValues,
+                            queryContext.Parameters,
                             readerColumns,
                             queryContext.Context,
                             queryContext.CommandLogger,
@@ -903,7 +903,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     return await relationalCommand.ExecuteReaderAsync(
                             new RelationalCommandParameterObject(
                                 queryContext.Connection,
-                                queryContext.ParameterValues,
+                                queryContext.Parameters,
                                 readerColumns,
                                 queryContext.Context,
                                 queryContext.CommandLogger,
