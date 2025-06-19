@@ -76,7 +76,6 @@ dotnet ef database update
     </PropertyGroup>
 
     <ItemGroup>
-      <NuspecProperty Include="packageType=$(PackageType)" />
       <NuspecProperty Include="targetFramework=$(TargetFramework)" />
       <NuspecProperty Include="SettingsFile=$(_ToolsSettingsFilePath)" />
       <!-- https://github.com/dotnet/msbuild/issues/10715. %2A replaces * working around an issue building Linux. -->

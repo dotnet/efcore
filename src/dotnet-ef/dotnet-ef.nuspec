@@ -3,7 +3,7 @@
   <metadata>
     $CommonMetadataElements$
     <packageTypes>
-      <packageType name="$packageType$" />
+      <packageType name="DotnetTool" />
     </packageTypes>
     <readme>docs\PACKAGE.md</readme>
   </metadata>
