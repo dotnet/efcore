@@ -24,7 +24,10 @@ public class SqlNullabilityProcessor : ExpressionVisitor
     private readonly List<ColumnExpression> _nonNullableColumns;
     private readonly List<ColumnExpression> _nullValueColumns;
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
-    private readonly Dictionary<SqlParameterExpression, List<SqlParameterExpression>> _parametersForValues;
+    /// <summary>
+    /// Tracks parameters for collection expansion, allowing reuse.
+    /// </summary>
+    private readonly Dictionary<SqlParameterExpression, List<SqlParameterExpression>> _collectionParameterExpansionMap;
     private bool _canCache;
 
     /// <summary>
@@ -43,7 +46,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
         _sqlExpressionFactory = dependencies.SqlExpressionFactory;
         _nonNullableColumns = [];
         _nullValueColumns = [];
-        _parametersForValues = [];
+        _collectionParameterExpansionMap = [];
         ParameterValues = null!;
     }
 
@@ -82,7 +85,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
         _canCache = true;
         _nonNullableColumns.Clear();
         _nullValueColumns.Clear();
-        _parametersForValues.Clear();
+        _collectionParameterExpansionMap.Clear();
         ParameterValues = parameterValues;
 
         var result = Visit(queryExpression);
@@ -139,7 +142,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                 if (!valuesParameter.ShouldBeConstantized
                     && (ParameterizedCollectionTranslationMode is null or PCTM.ParameterizeExpanded))
                 {
-                    var parameters = _parametersForValues.GetOrAddNew(valuesParameter);
+                    var parameters = _collectionParameterExpansionMap.GetOrAddNew(valuesParameter);
                     for (var i = 0; i < values.Count; i++)
                     {
                         // Create parameter for value if we didn't create it yet,
