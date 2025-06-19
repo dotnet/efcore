@@ -142,19 +142,19 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                 if (!valuesParameter.ShouldBeConstantized
                     && (ParameterizedCollectionTranslationMode is null or PCTM.ParameterizeExpanded))
                 {
-                    var parameters = _collectionParameterExpansionMap.GetOrAddNew(valuesParameter);
+                    var expandedParameters = _collectionParameterExpansionMap.GetOrAddNew(valuesParameter);
                     for (var i = 0; i < values.Count; i++)
                     {
                         // Create parameter for value if we didn't create it yet,
                         // otherwise reuse it.
-                        if (parameters.Count <= i)
+                        if (expandedParameters.Count <= i)
                         {
                             var parameterName = Uniquifier.Uniquify(valuesParameter.Name, ParameterValues, int.MaxValue);
                             ParameterValues.Add(parameterName, values[i]);
                             var parameterExpression = new SqlParameterExpression(parameterName, values[i]?.GetType() ?? typeof(object), typeMapping);
-                            parameters.Add(parameterExpression);
+                            expandedParameters.Add(parameterExpression);
                         }
-                        processedValues.Add(new RowValueExpression([parameters[i]]));
+                        processedValues.Add(new RowValueExpression([expandedParameters[i]]));
                     }
                 }
                 else
