@@ -496,13 +496,10 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
                 // Index on JSON array
                 case SelectExpression
                 {
-                    Tables:
-                [
-                    TableValuedFunctionExpression
-                {
-                    Name: "json_each", Schema: null, IsBuiltIn: true, Arguments: [var jsonArrayColumn]
-                } jsonEachExpression
-                ],
+                    Tables: [TableValuedFunctionExpression
+                    {
+                        Name: "json_each", Schema: null, IsBuiltIn: true, Arguments: [var jsonArrayColumn]
+                    } jsonEachExpression],
                     Predicate: null,
                     GroupBy: [],
                     Having: null,
